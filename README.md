@@ -189,6 +189,289 @@ If you did not source `dev-env.sh`, prefix with `./` (e.g. `./wpcli plugin list`
 
 ---
 
+## Kirki CLI
+
+Kirki Ecommerce registers a set of plugin-scoped WP-CLI commands (Laravel-style migrations, seeders, and code generators) under the `kirki` namespace. Use them from the project root after sourcing `docker/scripts/dev-env.sh` and starting the Docker stack.
+
+List all subcommands:
+
+```bash
+wpcli help kirki
+wpcli help kirki migrate:fresh
+```
+
+`wpcli kirki ...` runs through the project [`wpcli`](wpcli) wrapper. Inside the container it is equivalent to `wp kirki ...`.
+
+> **Warning — destructive database commands**
+>
+> `wpcli kirki migrate:fresh` **drops all plugin tables** and re-runs every migration. Use it only on local Docker or the isolated test database (`kirki_ecommerce_test`). **Never** run it on production or staging with real data.
+>
+> `docker compose down -v` is broader: it removes the entire WordPress volume (core, uploads, themes), not just plugin tables. See [Reset the environment](#reset-the-environment) under Maintenance.
+
+### Database
+
+#### `wpcli kirki migrate`
+
+Run pending migrations from [`database/migrations/`](database/migrations/). Already-applied migration classes are skipped.
+
+**Syntax**
+
+```bash
+wpcli kirki migrate
+```
+
+**Example — after pulling new migrations**
+
+```bash
+git pull
+wpcli kirki migrate
+```
+
+---
+
+#### `wpcli kirki migrate:fresh`
+
+Drop all plugin tables, then re-run every migration from scratch. Optionally seed afterward.
+
+**Syntax**
+
+```bash
+wpcli kirki migrate:fresh [--seed] [--class=<Seeder>]
+```
+
+| Flag / option | Description |
+| ------------- | ----------- |
+| `--seed` | Run seeders after migrations complete |
+| `--class=<Seeder>` | Seeder class name(s) when using `--seed` (comma-separated short names, e.g. `ProductsSeeder,OrdersSeeder`) |
+
+**Examples**
+
+```bash
+wpcli kirki migrate:fresh
+wpcli kirki migrate:fresh --seed
+wpcli kirki migrate:fresh --seed --class=DatabaseSeeder
+```
+
+---
+
+#### `wpcli kirki db:seed`
+
+Populate the database using seeders in [`database/seeders/`](database/seeders/).
+
+**Syntax**
+
+```bash
+wpcli kirki db:seed [--class=<Seeder>]
+```
+
+| Option | Description |
+| ------ | ----------- |
+| `--class=<Seeder>` | One or more seeder short names, comma-separated (resolved to `Ecommerce\Database\Seeders\{Name}`). If omitted, all `database/seeders/*.php` files are discovered. When `DatabaseSeeder.php` exists, it is used as the entry point. |
+
+**Examples**
+
+```bash
+wpcli kirki db:seed
+wpcli kirki db:seed --class=ProductsSeeder
+wpcli kirki db:seed --class=ProductsSeeder,OrdersSeeder
+```
+
+---
+
+### Code generators
+
+Generator commands scaffold PHP files from stubs in [`framework/Console/stubs/`](framework/Console/stubs/). Generated classes use the `Ecommerce\` namespace prefix.
+
+#### `wpcli kirki make:migration <name>`
+
+Create a new migration class in [`database/migrations/`](database/migrations/).
+
+**Syntax**
+
+```bash
+wpcli kirki make:migration <name> [--prefix=<prefix>]
+```
+
+| Argument / option | Description |
+| ----------------- | ----------- |
+| `<name>` | Migration name. **Must** follow `create_<table>_table` (e.g. `create_widgets_table`). |
+| `--prefix=<prefix>` | Table prefix override. Defaults to `app()->prefix()` (`kirki_ecommerce_` from `KIRKI_ECOMMERCE_PREFIX`). |
+
+**Naming rules**
+
+The command strips `create_` and `_table` from the name, then prefixes the remainder:
+
+- `create_widgets_table` → table `kirki_ecommerce_widgets`
+- `create_widgets_table --prefix=custom_` → table `custom_widgets`
+
+The PHP class name is PascalCase of the full migration name (e.g. `CreateWidgetsTable` in `database/migrations/CreateWidgetsTable.php`). Edit the generated `up()` / `down()` methods to match existing migrations such as [`CreateProductsTable.php`](database/migrations/CreateProductsTable.php).
+
+**Example — new table workflow**
+
+```bash
+wpcli kirki make:migration create_widgets_table
+# Edit database/migrations/CreateWidgetsTable.php
+wpcli kirki migrate
+```
+
+---
+
+#### `wpcli kirki make:model <name>`
+
+Create an Eloquent-style model in `app/Models/`.
+
+**Syntax**
+
+```bash
+wpcli kirki make:model <name>
+```
+
+| Argument | Description |
+| -------- | ----------- |
+| `<name>` | Model class name (e.g. `Widget` → `Widget.php`) |
+
+**Creates:** `app/Models/{Name}.php` — namespace `Ecommerce\App\Models`
+
+**Example**
+
+```bash
+wpcli kirki make:model Widget
+```
+
+---
+
+#### `wpcli kirki make:controller <name>`
+
+Create a controller in `app/Http/Controllers/`.
+
+**Syntax**
+
+```bash
+wpcli kirki make:controller <name> [--api] [--resource]
+```
+
+| Argument / flag | Description |
+| --------------- | ----------- |
+| `<name>` | Controller class name (e.g. `WidgetController`) |
+| `--api` | Place under `app/Http/Controllers/API/` with namespace `Ecommerce\App\Http\Controllers\Api` |
+| `--resource` | Use the resource controller stub (CRUD method skeletons) |
+
+**Creates**
+
+- Default: `app/Http/Controllers/{Name}.php` — `Ecommerce\App\Http\Controllers`
+- With `--api`: `app/Http/Controllers/API/{Name}.php` — `Ecommerce\App\Http\Controllers\Api`
+
+**Examples**
+
+```bash
+wpcli kirki make:controller WidgetController
+wpcli kirki make:controller ProductController --api --resource
+```
+
+---
+
+#### `wpcli kirki make:request <name>`
+
+Create a form request class in `app/Http/Requests/`.
+
+**Syntax**
+
+```bash
+wpcli kirki make:request <name> [--folder=<folder>]
+```
+
+| Argument / option | Description |
+| --------------- | ----------- |
+| `<name>` | Request class name (e.g. `StoreWidgetRequest`) |
+| `--folder=<folder>` | Subfolder under `Requests/` (namespace segment appended) |
+
+**Creates:** `app/Http/Requests/[<folder>/]{Name}.php` — namespace `Ecommerce\App\Http\Requests[\{Folder}]`
+
+**Examples**
+
+```bash
+wpcli kirki make:request StoreWidgetRequest
+wpcli kirki make:request StoreWidgetRequest --folder=Api
+```
+
+---
+
+#### `wpcli kirki make:seeder <name>`
+
+Create a database seeder in [`database/seeders/`](database/seeders/). Creates `DatabaseSeeder.php` automatically if it does not exist.
+
+**Syntax**
+
+```bash
+wpcli kirki make:seeder <name>
+```
+
+| Argument | Description |
+| -------- | ----------- |
+| `<name>` | Seeder class name (e.g. `ProductsSeeder`) |
+
+**Creates:** `database/seeders/{Name}.php` — namespace `Ecommerce\Database\Seeders`
+
+**Example**
+
+```bash
+wpcli kirki make:seeder ProductsSeeder
+```
+
+---
+
+#### `wpcli kirki make:provider <name>`
+
+Create a service provider in `app/Providers/`.
+
+**Syntax**
+
+```bash
+wpcli kirki make:provider <name>
+```
+
+| Argument | Description |
+| -------- | ----------- |
+| `<name>` | Provider class name (e.g. `WidgetServiceProvider`) |
+
+**Creates:** `app/Providers/{Name}.php` — namespace `Ecommerce\App\Providers`
+
+After generating, register the provider in the application bootstrap (see existing providers in [`app/Providers/`](app/Providers/)).
+
+**Example**
+
+```bash
+wpcli kirki make:provider WidgetServiceProvider
+```
+
+---
+
+#### `wpcli kirki make:class <name>`
+
+Create a generic PHP class under `app/`.
+
+**Syntax**
+
+```bash
+wpcli kirki make:class <name> [--folder=<path>]
+```
+
+| Argument / option | Description |
+| ----------------- | ----------- |
+| `<name>` | Class name (e.g. `BillingCalculator`) |
+| `--folder=<path>` | Subpath under `app/` (supports nested paths, e.g. `Services/Billing`) |
+
+**Creates:** `app/[<path>/]{Name}.php` — namespace `Ecommerce\App[\{PathSegments}]`
+
+**Examples**
+
+```bash
+wpcli kirki make:class BillingCalculator
+wpcli kirki make:class TaxCalculator --folder=Services/Billing
+```
+
+---
+
 ## Debugging
 
 ### Xdebug
@@ -226,7 +509,7 @@ docker compose restart php
 
 ## Testing
 
-REST API integration tests use the WordPress test suite with an isolated database (`kirki_ecommerce_test`). Plugin tables are reset with `migrate:fresh` before each test class.
+REST API integration tests use the WordPress test suite with an isolated database (`kirki_ecommerce_test`). Plugin tables are reset with [`wpcli kirki migrate:fresh`](#kirki-cli) before each test class.
 
 ### Prerequisites
 
