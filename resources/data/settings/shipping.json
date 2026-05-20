@@ -1,0 +1,177 @@
+{
+    "shipping_zones": [
+        {
+            "id": "abfasdfsd7fsadf7sadf4325",
+            "is_enabled": true,
+            "title": "All Countries",
+            "regions": [
+                {
+                    "country": "BD",
+                    "states": [
+                        "5665",
+                        "6565"
+                    ]
+                }
+            ],
+            "shipping_methods": [
+                {
+                    "id": "standard_delivery",
+                    "is_enabled": true,
+                    "name": "Standard Delivery",
+                    "type": "flat_rate",
+                    "amount": 10,
+                    "is_taxable": true,
+                    "description": null,
+                    "shipping_rules": [
+                        {
+                            "relation": "AND",
+                            "conditions": [
+                                {
+                                    "type": "product_profile",
+                                    "operator": "=",
+                                    "value": "fragile"
+                                }
+                            ],
+                            "action": {
+                                "type": "set_shipping_cost",
+                                "value": 5
+                            }
+                        }
+                    ]
+                },
+                {
+                    "id": "local_pickup",
+                    "is_enabled": true,
+                    "name": "Local Pickup",
+                    "type": "local_pickup",
+                    "address": null,
+                    "has_fee": false,
+                    "amount": 0,
+                    "description": null,
+                    "has_pick_time": false,
+                    "pickup_time_start": null,
+                    "pickup_time_end": null,
+                    "shipping_rules": [
+                        {
+                            "relation": "AND",
+                            "conditions": [
+                                {
+                                    "type": "product_profile",
+                                    "operator": "=",
+                                    "value": "fragile"
+                                }
+                            ],
+                            "action": {
+                                "type": "set_shipping_cost",
+                                "value": 5
+                            }
+                        },
+                        {
+                            "relation": "AND",
+                            "conditions": [
+                                {
+                                    "type": "destination_region",
+                                    "operator": "=",
+                                    "value": {
+                                        "country": "BD",
+                                        "state": [
+                                            1200,
+                                            1300
+                                        ]
+                                    }
+                                }
+                            ],
+                            "action": {
+                                "type": "add_shipping_cost",
+                                "value": 5
+                            }
+                        },
+                        {
+                            "relation": "AND",
+                            "conditions": [
+                                {
+                                    "type": "product_categories",
+                                    "operator": "in",
+                                    "value": [
+                                        1,
+                                        2,
+                                        3
+                                    ]
+                                }
+                            ],
+                            "action": {
+                                "type": "add_shipping_cost",
+                                "value": 5
+                            }
+                        }
+                    ]
+                },
+                {
+                    "id": "rate_by_weight",
+                    "is_enabled": true,
+                    "name": "Rate by Weight",
+                    "type": "weight",
+                    "ranges": [
+                        {
+                            "from": 0,
+                            "to": 1,
+                            "amount": 5
+                        },
+                        {
+                            "from": 1,
+                            "to": 2,
+                            "amount": 10
+                        }
+                    ],
+                    "amount": 0,
+                    "is_taxable": false,
+                    "is_free_shipping_enabled": false,
+                    "free_shipping_min_amount": 0,
+                    "description": null,
+                    "shipping_rules": [
+                        {
+                            "relation": "AND",
+                            "conditions": [
+                                {
+                                    "type": "product_profile",
+                                    "operator": "=",
+                                    "value": "fragile"
+                                }
+                            ],
+                            "action": {
+                                "type": "shipping_cost",
+                                "value": 5
+                            }
+                        }
+                    ]
+                }
+            ],
+            "shipping_carriers": [
+                {
+                    "is_enabled": true,
+                    "name": "DHL",
+                    "type": "flat_rate",
+                    "rate": 10,
+                    "is_taxable": true,
+                    "description": null,
+                    "shipping_rules": [
+                        {
+                            "relation": "AND",
+                            "conditions": [
+                                {
+                                    "type": "product_profile",
+                                    "operator": "=",
+                                    "value": "fragile"
+                                }
+                            ],
+                            "action": {
+                                "type": "shipping_cost",
+                                "value": 5
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

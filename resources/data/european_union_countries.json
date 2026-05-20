@@ -1,0 +1,164 @@
+[
+    {
+        "name": "Austria",
+        "numeric_code": "040",
+        "code": "AT",
+        "emoji": "🇦🇹"
+    },
+    {
+        "name": "Belgium",
+        "numeric_code": "056",
+        "code": "BE",
+        "emoji": "🇧🇪"
+    },
+    {
+        "name": "Bulgaria",
+        "numeric_code": "100",
+        "code": "BG",
+        "emoji": "🇧🇬"
+    },
+    {
+        "name": "Croatia",
+        "numeric_code": "191",
+        "code": "HR",
+        "emoji": "🇭🇷"
+    },
+    {
+        "name": "Cyprus",
+        "numeric_code": "196",
+        "code": "CY",
+        "emoji": "🇨🇾"
+    },
+    {
+        "name": "Czech Republic",
+        "numeric_code": "203",
+        "code": "CZ",
+        "emoji": "🇨🇿"
+    },
+    {
+        "name": "Denmark",
+        "numeric_code": "208",
+        "code": "DK",
+        "emoji": "🇩🇰"
+    },
+    {
+        "name": "Estonia",
+        "numeric_code": "233",
+        "code": "EE",
+        "emoji": "🇪🇪"
+    },
+    {
+        "name": "Finland",
+        "numeric_code": "246",
+        "code": "FI",
+        "emoji": "🇫🇮"
+    },
+    {
+        "name": "France",
+        "numeric_code": "250",
+        "code": "FR",
+        "emoji": "🇫🇷"
+    },
+    {
+        "name": "Germany",
+        "numeric_code": "276",
+        "code": "DE",
+        "emoji": "🇩🇪"
+    },
+    {
+        "name": "Greece",
+        "numeric_code": "300",
+        "code": "GR",
+        "emoji": "🇬🇷"
+    },
+    {
+        "name": "Hungary",
+        "numeric_code": "348",
+        "code": "HU",
+        "emoji": "🇭🇺"
+    },
+    {
+        "name": "Ireland",
+        "numeric_code": "372",
+        "code": "IE",
+        "emoji": "🇮🇪"
+    },
+    {
+        "name": "Italy",
+        "numeric_code": "380",
+        "code": "IT",
+        "emoji": "🇮🇹"
+    },
+    {
+        "name": "Latvia",
+        "numeric_code": "428",
+        "code": "LV",
+        "emoji": "🇱🇻"
+    },
+    {
+        "name": "Lithuania",
+        "numeric_code": "440",
+        "code": "LT",
+        "emoji": "🇱🇹"
+    },
+    {
+        "name": "Luxembourg",
+        "numeric_code": "442",
+        "code": "LU",
+        "emoji": "🇱🇺"
+    },
+    {
+        "name": "Malta",
+        "numeric_code": "470",
+        "code": "MT",
+        "emoji": "🇲🇹"
+    },
+    {
+        "name": "Netherlands",
+        "numeric_code": "528",
+        "code": "NL",
+        "emoji": "🇳🇱"
+    },
+    {
+        "name": "Poland",
+        "numeric_code": "616",
+        "code": "PL",
+        "emoji": "🇵🇱"
+    },
+    {
+        "name": "Portugal",
+        "numeric_code": "620",
+        "code": "PT",
+        "emoji": "🇵🇹"
+    },
+    {
+        "name": "Romania",
+        "numeric_code": "642",
+        "code": "RO",
+        "emoji": "🇷🇴"
+    },
+    {
+        "name": "Slovakia",
+        "numeric_code": "703",
+        "code": "SK",
+        "emoji": "🇸🇰"
+    },
+    {
+        "name": "Slovenia",
+        "numeric_code": "705",
+        "code": "SI",
+        "emoji": "🇸🇮"
+    },
+    {
+        "name": "Spain",
+        "numeric_code": "724",
+        "code": "ES",
+        "emoji": "🇪🇸"
+    },
+    {
+        "name": "Sweden",
+        "numeric_code": "752",
+        "code": "SE",
+        "emoji": "🇸🇪"
+    }
+]

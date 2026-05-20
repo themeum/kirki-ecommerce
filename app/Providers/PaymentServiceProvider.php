@@ -1,0 +1,19 @@
+<?php
+
+namespace Kirki\Ecommerce\App\Providers;
+
+use Kirki\Ecommerce\ServiceProvider;
+use Kirki\Ecommerce\App\Payment\PaymentManager;
+
+class PaymentServiceProvider extends ServiceProvider
+{
+    /**
+     * Register the hooks to the application.
+     *
+     * @return void
+     */
+    public function register()
+    {
+        $this->app->singleton(PaymentManager::class);
+    }
+}

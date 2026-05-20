@@ -1,0 +1,13 @@
+.#{$class-prefix}-bulk-action-bar {
+  background-color: var(--decom-background-bg-fill);
+  padding: var(--decom-spacing-4) var(--decom-spacing-3);
+}
+
+.#{$class-prefix}-filter-action-bar {
+  flex-wrap: wrap;
+  border-top: 1px solid var(--decom-border-border-tertiary);
+  background-color: var(--decom-background-bg-surface);
+  // padding: var(--decom-spacing-4) var(--decom-spacing-3);
+  padding: var(--decom-spacing-3);
+  @include itemCenterContentStart();
+}

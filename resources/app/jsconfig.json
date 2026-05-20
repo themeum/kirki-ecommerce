@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "jsx": "react",
+    "paths": {
+      "molecules": ["./adminScripts/ecom/molecules/index"],
+      "components": ["./adminScripts/ecom/components/index"],
+      "conf": ["./adminScripts/ecom/conf"],
+      "icons": ["./adminScripts/ecom/Icons/index"],
+      "hooks": ["./adminScripts/ecom/hooks/index"],
+      "wpi18n": ["./adminScripts/ecom/wpi18n"],
+    }
+  },
+  "include": ["adminScripts/**/*"],
+  "exclude": ["node_modules", "build", "dist", "fonts", "assets"]
+}

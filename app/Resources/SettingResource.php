@@ -1,0 +1,45 @@
+<?php
+
+namespace Kirki\Ecommerce\App\Resources;
+
+use Kirki\Ecommerce\App\Constants\OptionKeys;
+use Kirki\Ecommerce\Resource;
+use Kirki\Ecommerce\Supports\Facades\Money;
+use Kirki\Ecommerce\Supports\MediaAttachment;
+
+class SettingResource extends Resource
+{
+    /**
+     * Convert the setting resource to an array.
+     *
+     * @return array The setting data as an associative array.
+     */
+    public function to_array()
+    {
+        $data = $this->settings;
+
+        if ($this->key === OptionKeys::GENERAL_SETTINGS) {
+            $data['store_logo'] = MediaAttachment::make($this->settings['store_logo'] ?? null);
+        }
+
+        if ($this->key === OptionKeys::SHIPPING_SETTINGS) {
+            foreach ($data['shipping_zones'] as $key => $zone) {
+                foreach ($zone['shipping_methods'] as $method_key => $method) {
+                    $data['shipping_zones'][$key]['shipping_methods'][$method_key]['amount'] = Money::from_minor($method['amount'])->getAmount();
+
+                    if (!empty($method['ranges'])) {
+                        foreach ($method['ranges'] as $range_key => $range) {
+                            $data['shipping_zones'][$key]['shipping_methods'][$method_key]['ranges'][$range_key]['amount'] = Money::from_minor($range['amount'])->getAmount();
+                        }
+                    }
+
+                    if (!empty($method['is_free_shipping_enabled'])) {
+                        $data['shipping_zones'][$key]['shipping_methods'][$method_key]['free_shipping_min_amount'] = Money::from_minor($method['free_shipping_min_amount'])->getAmount();
+                    }
+                }
+            }
+        }
+
+        return $data;
+    }
+}

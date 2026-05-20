@@ -1,0 +1,49 @@
+<?php
+
+namespace Kirki\Ecommerce\App\Http\Controllers\Api;
+
+use Kirki\Ecommerce\App\Resources\SettingResource;
+use Kirki\Ecommerce\App\Http\Requests\Settings\SettingsUpdateRequest;
+use Kirki\Ecommerce\App\Constants\OptionKeys;
+use Kirki\Ecommerce\Contracts\Request;
+
+use Kirki\Ecommerce\Supports\Facades\Settings;
+use function Kirki\Ecommerce\response;
+
+class SettingsController
+{
+    public function get(Request $request)
+    {
+        $request->validate([
+            'key' => 'required|string|in:' . implode(',', OptionKeys::get_constant_values()),
+        ]);
+
+        $settings = Settings::get($request->get_string('key'))->to_array();
+
+        return response()->json([
+            'data' => SettingResource::make([
+                'key' => $request->get_string('key'),
+                'settings' => $settings,
+            ]),
+            'message' => __('Settings retrieved successfully.', 'kirki-ecommerce'),
+        ]);
+    }
+
+    public function update(SettingsUpdateRequest $request)
+    {
+        $key = $request->get_string('key');
+        $clean_data = $request->clean();
+        $data = $clean_data['data'] ?? [];
+
+        $settings = Settings::get($key);
+        $settings->set($data);
+
+        return response()->json([
+            'data' => SettingResource::make([
+                'key' => $key,
+                'settings' => $settings->to_array(),
+            ]),
+            'message' => __('Settings updated successfully.', 'kirki-ecommerce'),
+        ]);
+    }
+}

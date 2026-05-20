@@ -1,0 +1,3 @@
+; Copy this file to 99-local.ini for per-developer PHP overrides.
+; Example:
+; memory_limit = 1G

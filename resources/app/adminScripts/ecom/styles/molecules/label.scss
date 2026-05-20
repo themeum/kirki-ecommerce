@@ -1,0 +1,7 @@
+// label
+.#{$class-prefix}-label {
+  @include fontGeneralSettings();
+  font-weight: 500;
+  color: var(--decom-text-text-primary);
+  @include itemCenter();
+}

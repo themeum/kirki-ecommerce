@@ -1,0 +1,157 @@
+// classes
+.#{$class-prefix}-flex {
+  display: flex;
+}
+.#{$class-prefix}-flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.#{$class-prefix}-gap-4 {
+  gap: var(--decom-spacing-1);
+}
+.#{$class-prefix}-gap-8 {
+  gap: var(--decom-spacing-2);
+}
+
+.#{$class-prefix}-gap-12 {
+  gap: var(--decom-spacing-3);
+}
+
+.#{$class-prefix}-gap-16 {
+  gap: var(--decom-spacing-4);
+}
+
+.#{$class-prefix}-flex-col-12 {
+  @include itemCenter();
+  column-gap: var(--decom-spacing-3);
+}
+
+.#{$class-prefix}-flex-col-8 {
+  @include itemCenter();
+  column-gap: var(--decom-spacing-2);
+}
+
+.#{$class-prefix}-flex-col-6 {
+  @include itemCenter();
+  column-gap: 6px;
+}
+
+.#{$class-prefix}-flex-col-4 {
+  @include itemCenter();
+  column-gap: var(--decom-spacing-1);
+}
+
+.#{$class-prefix}-flex-1 {
+  flex: 1;
+}
+
+.#{$class-prefix}-flex-start {
+  @include itemCenterContentStart();
+}
+
+.#{$class-prefix}-flex-center {
+  @include flexCenter();
+}
+
+.#{$class-prefix}-flex-space-between {
+  @include itemCenterContentBetween();
+}
+
+.#{$class-prefix}-flex-end {
+  @include itemCenterContentEnd();
+}
+
+.#{$class-prefix}-disabled {
+  opacity: 50%;
+  pointer-events: none;
+}
+
+.#{$class-prefix}-flex-row-32 {
+  display: flex;
+  flex-direction: column;
+  row-gap: var(--decom-spacing-8);
+}
+
+.#{$class-prefix}-flex-row-16 {
+  display: flex;
+  flex-direction: column;
+  row-gap: var(--decom-spacing-4);
+}
+
+.#{$class-prefix}-flex-row-8 {
+  display: flex;
+  flex-direction: column;
+  row-gap: var(--decom-spacing-2);
+}
+
+.#{$class-prefix}-flex-row-4 {
+  display: flex;
+  flex-direction: column;
+  row-gap: var(--decom-spacing-1);
+}
+
+.#{$class-prefix}-visibility-hidden {
+  visibility: hidden;
+}
+
+.#{$class-prefix}-display-none {
+  display: none;
+}
+
+.#{$class-prefix}-svg-class {
+  @include flexCenter();
+}
+
+.#{$class-prefix}-hover-parent {
+  .#{$class-prefix}-hover-visible {
+    visibility: hidden;
+  }
+  .#{$class-prefix}-hover-visible-reverse {
+    visibility: visible;
+  }
+  .#{$class-prefix}-hover-display-none {
+    display: none;
+  }
+  .#{$class-prefix}-hover-display-none-reverse {
+    display: inherit;
+  }
+  &:hover {
+    .#{$class-prefix}-hover-visible {
+      visibility: visible;
+    }
+    .#{$class-prefix}-hover-visible-reverse {
+      visibility: hidden;
+    }
+    .#{$class-prefix}-hover-display-none {
+      display: inherit;
+    }
+    .#{$class-prefix}-hover-display-none-reverse {
+      display: none;
+    }
+  }
+}
+
+.#{$class-prefix}-scroll-container {
+  overflow: scroll;
+  @include scrollbar(
+    4px,
+    var(--decom-background-bg-fill-brand),
+    var(--decom-background-bg-surface-tertiary)
+  );
+}
+
+.#{$class-prefix}-backdrop-transparent {
+  position: fixed;
+  inset: 0;
+  background: transparent;
+  z-index: 100;
+}
+
+.#{$class-prefix}-drag-handler {
+  cursor: grab;
+}
+
+.#{$class-prefix}-drag-handler:active {
+  cursor: grabbing;
+}

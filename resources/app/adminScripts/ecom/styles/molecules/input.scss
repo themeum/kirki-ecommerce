@@ -1,0 +1,191 @@
+// input
+.#{$class-prefix}-input-wrapper {
+  @include itemCenterContentStart();
+  column-gap: var(--decom-spacing-4);
+  width: 100%;
+
+  input[type="text"] {
+    margin: 0;
+    background-color: var(--decom-background-bg-fill);
+    border: 1px solid var(--decom-border-border);
+    border-radius: var(--decom-radius-rounded-lg);
+    width: 100%;
+    margin: var(--decom-spacing-0);
+  }
+  textarea {
+    background-color: var(--decom-background-bg-fill);
+    border: 1px solid var(--decom-border-border);
+    box-shadow: 0px 1px 2px 0px #0000000d;
+    border-radius: var(--decom-radius-rounded-lg);
+    width: 100%;
+    padding: var(--decom-spacing-1) var(--decom-spacing-3);
+  }
+
+  .#{$class-prefix}-input-controller {
+    width: 100%;
+    @include contentStart();
+    flex-direction: column;
+    row-gap: var(--decom-spacing-2);
+    position: relative;
+
+    .#{$class-prefix}-input-has-icon {
+      position: relative;
+      display: flex;
+      align-items: center;
+      &.#{$class-prefix}-input-has-left-symbol {
+        .#{$class-prefix}-input::placeholder {
+          text-indent: 12px;
+        }
+        .#{$class-prefix}-input {
+          text-indent: 12px;
+        }
+      }
+      &.#{$class-prefix}-input-has-left-icon {
+        .#{$class-prefix}-input::placeholder {
+          text-indent: 24px;
+        }
+        .#{$class-prefix}-input {
+          text-indent: 24px;
+        }
+      }
+      &.#{$class-prefix}-input-has-right-icon {
+        .#{$class-prefix}-input{
+          padding-right: 36px;
+        }
+
+      }
+    }
+
+    .#{$class-prefix}-input-left-icon {
+      position: absolute;
+      left: 12px;
+      @include flexCenter();
+    }
+    .#{$class-prefix}-input-right-icon {
+      position: absolute;
+      right: 12px;
+      @include flexCenter();
+      cursor: pointer;
+    }
+  }
+
+  .#{$class-prefix}-input {
+    margin: 0;
+    min-height: 36px;
+    width: 100%;
+    background-color: var(--decom-background-bg-fill);
+    border: 1px solid var(--decom-border-border);
+    border-radius: var(--decom-radius-rounded-lg);
+    padding: var(--decom-spacing-1) var(--decom-spacing-3);
+    box-sizing: border-box;
+    @include fontGeneralSettings();
+    &:focus,
+    &:focus-visible,
+    &:active {
+      box-shadow: 0px 0px 0px 1.5px var(--decom-border-border-ring);
+      border: 1px solid var(--decom-border-border);
+      outline: none;
+    }
+    &.#{$class-prefix}-input-error {
+      border: 1px solid var(--decom-border-border-critical);
+      box-shadow: 0px 0px 0px 1px var(--decom-background-bg-fill-critical);
+    }
+    &.#{$class-prefix}-input-disabled {
+      background-color: var(--decom-background-bg-surface-alt);
+      color: var(--decom-text-text-secondary);
+      opacity: 80%;
+      border-color: transparent;
+      pointer-events: none;
+    }
+    &.#{$class-prefix}-input-muted {
+      opacity: 80%;
+      color: var(--decom-text-text-secondary);
+      pointer-events: none;
+    }
+    &.#{$class-prefix}-input-invisible {
+      background-color: transparent;
+      outline: none;
+      border-color: transparent;
+      box-shadow: none;
+      height: 100%;
+      &:focus,
+      &:focus-visible,
+      &:active {
+        box-shadow: none;
+        border-color: transparent;
+      }
+    }
+  }
+
+  .#{$class-prefix}-textarea {
+    resize: none;
+    height: auto;
+    @include fontGeneralSettings();
+  }
+
+  .#{$class-prefix}-text-input {
+    cursor: text;
+
+    &::-webkit-input-placeholder {
+      color: var(--decom-text-text-secondary);
+      opacity: 80%;
+    }
+  }
+
+  .#{$class-prefix}-input-disabled {
+    background-color: var(--decom-background-bg-surface-alt);
+    color: var(--decom-text-text-secondary);
+    opacity: 80%;
+    border-color: transparent;
+    pointer-events: none;
+    &::-webkit-input-placeholder {
+      opacity: 50%;
+    }
+  }
+
+  .#{$class-prefix}-file-input {
+    @include itemCenterContentStart();
+    column-gap: var(--decom-spacing-2);
+    width: 280px;
+    .#{$class-prefix}-input-file-upload-btn {
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .#{$class-prefix}-filename-placeholder {
+      color: var(--decom-text-text-secondary);
+      opacity: 80%;
+    }
+  }
+
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: var(--decom-spacing-0);
+  }
+  &:hover,
+  &:focus,
+  &:active,
+  &:focus-visible {
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: var(--decom-spacing-0);
+    }
+  }
+
+  input[type="number"] {
+    -moz-appearance: textfield; /* for Firefox */
+  }
+
+  input[type="search"]::-webkit-search-cancel-button,
+  input[type="search"]::-webkit-search-decoration,
+  input[type="search"]::-webkit-search-results-button,
+  input[type="search"]::-webkit-search-results-decoration {
+    display: none;
+    -webkit-appearance: none;
+  }
+  input[type="search"] {
+    -webkit-appearance: none;
+    appearance: none;
+  }
+}

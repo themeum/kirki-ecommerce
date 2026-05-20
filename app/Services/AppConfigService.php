@@ -1,0 +1,20 @@
+<?php
+
+namespace Kirki\Ecommerce\App\Services;
+
+use function Kirki\Ecommerce\base_currency;
+use function Kirki\Ecommerce\user;
+
+class AppConfigService
+{
+    public function get_app_config()
+    {
+        return [
+            'name' => __('eCommerce', 'kirki-ecommerce'),
+            'version' => KIRKI_ECOMMERCE_VERSION,
+            'current_user' => user()->get_data(),
+            'base_currency' => base_currency(),
+
+        ];
+    }
+}

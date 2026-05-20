@@ -1,0 +1,98 @@
+<?php
+
+namespace Kirki\Ecommerce\App\DTO\Coupon;
+
+use Kirki\Ecommerce\DTO;
+
+class CreateCouponDTO extends DTO
+{
+    /** @var string */
+    public $method = 'code';
+
+    /** @var string */
+    public $title;
+
+    /** @var string|null */
+    public $code;
+
+    /** @var string */
+    public $discount_type;
+
+    /** @var string|null */
+    public $discount_target;
+
+    /** @var string|null */
+    public $discount_value_type;
+
+    /** @var int|null */
+    public $discount_amount;
+
+    /** @var string|null */
+    public $eligible_item_type;
+
+    /** @var string|null */
+    public $spend_condition_type;
+
+    /** @var int|null */
+    public $spend_condition_value;
+
+    /** @var int|null */
+    public $reward_quantity;
+
+    /** @var int|null */
+    public $reward_value;
+
+    /** @var string */
+    public $start_date;
+
+    /** @var string|null */
+    public $start_time;
+
+    /** @var bool */
+    public $has_end_date = false;
+
+    /** @var string|null */
+    public $end_date;
+
+    /** @var string|null */
+    public $end_time;
+
+    /** @var array|null */
+    public $target_countries;
+
+    /** @var bool */
+    public $first_time_buyer_only = false;
+
+    /** @var string */
+    public $customer_eligibility = 'all';
+
+    /** @var bool */
+    public $exclude_customers = false;
+
+    /** @var bool */
+    public $has_usage_limit = false;
+
+    /** @var int|null */
+    public $usage_limit;
+
+    /** @var bool */
+    public $has_customer_limit = false;
+
+    /** @var int|null */
+    public $customer_limit;
+
+    /** @var bool */
+    public $is_active = true;
+
+    /** @var array */
+    public $category_ids = [];
+
+    /** @var array */
+    public $product_ids = [];
+
+    /** @var array */
+    public $customer_ids = [];
+
+    /** @var array */
+    public $reward_product_ids = [];
+}

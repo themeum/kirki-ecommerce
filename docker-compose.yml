@@ -1,0 +1,137 @@
+x-wordpress-volumes: &wordpress-volumes
+  - wordpress_data:/var/www/html
+  - .:/var/www/html/wp-content/plugins/kirki-ecommerce:cached
+  - ./docker/wp-config.php:/var/www/html/wp-config.php:ro
+
+services:
+  nginx:
+    image: nginx:alpine
+    restart: unless-stopped
+    ports:
+      - "${NGINX_HTTP_PORT:-20100}:80"
+    volumes:
+      - wordpress_data:/var/www/html:ro
+      - .:/var/www/html/wp-content/plugins/kirki-ecommerce:cached
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - php
+    networks:
+      - kirki
+
+  php:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    restart: unless-stopped
+    volumes:
+      - wordpress_data:/var/www/html
+      - .:/var/www/html/wp-content/plugins/kirki-ecommerce:cached
+      - ./docker/wp-config.php:/var/www/html/wp-config.php:ro
+      - ./docker/php/php.ini:/usr/local/etc/php/conf.d/zz-php.ini:ro
+      - ./docker/php/conf.d:/usr/local/etc/php/conf.d/local:ro
+    environment:
+      DB_NAME: ${DB_NAME:-kirki_ecommerce}
+      DB_USER: ${DB_USER:-wordpress}
+      DB_PASSWORD: ${DB_PASSWORD:-wordpress}
+      DB_HOST: mariadb
+      WP_URL: ${WP_URL:-http://localhost:20100}
+      XDEBUG_MODE: ${XDEBUG_MODE:-off}
+      XDEBUG_CLIENT_HOST: ${XDEBUG_CLIENT_HOST:-host.docker.internal}
+      XDEBUG_CLIENT_PORT: ${XDEBUG_CLIENT_PORT:-9003}
+      XDEBUG_IDEKEY: ${XDEBUG_IDEKEY:-PHPSTORM}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    networks:
+      - kirki
+
+  mariadb:
+    image: mariadb:latest
+    ports:
+      - "${MARIADB_PORT:-20101}:3306"
+    environment:
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
+      MARIADB_DATABASE: ${DB_NAME:-kirki_ecommerce}
+      MARIADB_USER: ${DB_USER:-wordpress}
+      MARIADB_PASSWORD: ${DB_PASSWORD:-wordpress}
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - kirki
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    ports:
+      - "${PHPMYADMIN_PORT:-20102}:80"
+    environment:
+      PMA_HOST: mariadb
+      PMA_USER: ${DB_USER:-wordpress}
+      PMA_PASSWORD: ${DB_PASSWORD:-wordpress}
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    networks:
+      - kirki
+
+  wpcli:
+    image: wordpress:cli-php7.4
+    user: "0:0"
+    working_dir: /var/www/html
+    volumes: *wordpress-volumes
+    environment:
+      DB_NAME: ${DB_NAME:-kirki_ecommerce}
+      DB_USER: ${DB_USER:-wordpress}
+      DB_PASSWORD: ${DB_PASSWORD:-wordpress}
+      DB_HOST: mariadb
+      WP_URL: ${WP_URL:-http://localhost:20100}
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    networks:
+      - kirki
+    profiles:
+      - tools
+    entrypoint: ["wp", "--allow-root"]
+    command: ["--info"]
+
+  wordpress-init:
+    image: wordpress:cli-php7.4
+    user: "0:0"
+    volumes:
+      - wordpress_data:/var/www/html
+      - .:/var/www/html/wp-content/plugins/kirki-ecommerce:cached
+      - ./docker/wp-config.php:/var/www/html/wp-config.php:ro
+      - ./docker/scripts/install-wordpress.sh:/usr/local/bin/install-wordpress.sh:ro
+    environment:
+      DB_NAME: ${DB_NAME:-kirki_ecommerce}
+      DB_USER: ${DB_USER:-wordpress}
+      DB_PASSWORD: ${DB_PASSWORD:-wordpress}
+      DB_HOST: mariadb
+      WP_URL: ${WP_URL:-http://localhost:20100}
+      WP_TITLE: ${WP_TITLE:-Kirki Ecommerce Dev}
+      WP_ADMIN_USER: ${WP_ADMIN_USER:-admin}
+      WP_ADMIN_PASSWORD: ${WP_ADMIN_PASSWORD:-demo}
+      WP_ADMIN_EMAIL: ${WP_ADMIN_EMAIL:-admin@example.com}
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    networks:
+      - kirki
+    entrypoint: ["/bin/sh", "/usr/local/bin/install-wordpress.sh"]
+    restart: "no"
+
+volumes:
+  wordpress_data:
+  mariadb_data:
+
+networks:
+  kirki:
+    driver: bridge

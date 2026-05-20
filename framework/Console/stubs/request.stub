@@ -1,0 +1,23 @@
+<?php
+
+namespace {{namespace}};
+
+use Kirki\Ecommerce\Sanitizer;
+use Kirki\Ecommerce\Http\Request;
+
+class {{class_name}} extends Request
+{
+    public function rules()
+    {
+        return [
+            // Add your rules here
+        ];
+    }
+
+    public function filters()
+    {
+        return [
+            // Add your filters here
+        ];
+    }
+}

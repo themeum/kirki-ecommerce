@@ -1,0 +1,21 @@
+{
+    "payment_gateways": [
+        {
+            "id": "3edc661d-227b-4ad8-ac22-4dc6b86a018d",
+            "is_enabled": true,
+            "is_manual": true,
+            "name": "Cash on Delivery",
+            "icon": "cash",
+            "instructions": "Cash on Delivery"
+        },
+        {
+            "id": "3edc661d-227b-4ad8-ac22-4dc6b86a118d",
+            "is_enabled": true,
+            "is_manual": false,
+            "name": "Bank Transfer",
+            "icon": "cash",
+            "instructions": "Bank Transfer",
+            "config": {}
+        }
+    ]
+}

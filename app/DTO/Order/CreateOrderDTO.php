@@ -1,0 +1,139 @@
+<?php
+
+namespace Kirki\Ecommerce\App\DTO\Order;
+
+use Kirki\Ecommerce\DTO;
+use Kirki\Ecommerce\Collections\Collection;
+
+use function Kirki\Ecommerce\collection;
+
+class CreateOrderDTO extends DTO
+{
+    /** @var string */
+    public $uuid;
+
+    /** @var string */
+    public $order_number;
+
+    /** @var int */
+    public $customer_id;
+
+    /** @var string */
+    public $order_status;
+
+    /** @var bool */
+    public $is_manual;
+
+    /** @var string */
+    public $currency_code;
+
+    /** @var string */
+    public $base_currency_code;
+
+    /** @var float */
+    public $exchange_rate;
+
+    /** @var int */
+    public $subtotal;
+
+    /** @var int */
+    public $subtotal_base;
+
+    /** @var int */
+    public $shipping_total;
+
+    /** @var int */
+    public $shipping_total_base;
+
+    /** @var int */
+    public $discount_total;
+
+    /** @var int */
+    public $discount_total_base;
+
+    /** @var array */
+    public $discount_details;
+
+    /** @var int */
+    public $tax_total = 0;
+
+    /** @var int */
+    public $tax_total_base = 0;
+
+    /** @var int */
+    public $total;
+
+    /** @var int */
+    public $total_base;
+
+    /** @var int */
+    public $items_count;
+
+    /** @var string */
+    public $payment_status;
+
+    /** @var string */
+    public $payment_method;
+
+    /** @var string */
+    public $payment_gateway;
+
+    /** @var string */
+    public $shipping_method;
+
+    // Shipping Address Fields
+    public $shipping_first_name;
+    public $shipping_last_name;
+    public $shipping_address_line1;
+    public $shipping_address_line2;
+    public $shipping_city;
+    public $shipping_state;
+    public $shipping_country;
+    public $shipping_postal_code;
+    public $shipping_phone;
+    public $shipping_email;
+
+    // Billing Address Fields
+    public $billing_first_name;
+    public $billing_last_name;
+    public $billing_address_line1;
+    public $billing_address_line2;
+    public $billing_city;
+    public $billing_state;
+    public $billing_country;
+    public $billing_postal_code;
+    public $billing_phone;
+    public $billing_email;
+
+    /** @var string|null */
+    public $customer_notes;
+
+    /** @var string|null */
+    public $ip_address;
+
+    /** @var string|null */
+    public $user_agent;
+
+    /** @var int */
+    public $created_by;
+
+    /** @var Collection<CreateOrderItemDTO> */
+    public $items;
+
+    /** @var string|null */
+    public $billing_company;
+
+    /** @var string|null */
+    public $shipping_company;
+
+    /** @var string|null */
+    public $customer_email;
+
+    /** @var string|null */
+    public $customer_phone;
+
+    public function __construct()
+    {
+        $this->items = collection();
+    }
+}

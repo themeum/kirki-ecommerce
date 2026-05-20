@@ -1,0 +1,5 @@
+.#{$class-prefix}-pagination-wrapper {
+  padding: var(--decom-spacing-f3) var(--decom-spacing-0)
+    var(--decom-spacing-f4) var(--decom-spacing-0);
+  @include itemCenterContentBetween();
+}

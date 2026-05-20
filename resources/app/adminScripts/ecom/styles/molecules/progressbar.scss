@@ -1,0 +1,38 @@
+.#{$class-prefix}-progressbar {
+  position: relative;
+  height: 6px;
+  width: 100%;
+  background-color: var(--decom-background-bg-surface-secondary);
+  border-radius: var(--decom-radius-rounded-full);
+  cursor: pointer;
+  user-select: none;
+}
+
+.#{$class-prefix}-progressbar-fill {
+  height: 100%;
+  background-color: var(--decom-background-bg-fill-brand);
+  border-radius: inherit;
+  transition: width 0.2s ease;
+  z-index: 1;
+}
+.#{$class-prefix}-progressbar-thumb {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translate(-50%, -50%);
+  height: 16px;
+  width: 16px;
+  background-color: var(--decom-background-bg-surface-secondary);
+  border-radius: var(--decom-radius-rounded-full);
+  border: 1px solid var(--decom-border-border-hover);
+  cursor: grab;
+  z-index: 9999;
+  transition:
+    transform 0.2s ease,
+    left 0.2s ease;
+
+  &:active {
+    cursor: grabbing;
+    transform: translate(-50%, -50%) scale(0.95);
+  }
+}

@@ -1,0 +1,23 @@
+<?php
+
+namespace Kirki\Ecommerce\Database\Migrations;
+
+use Kirki\Ecommerce\Contracts\Migration;
+use Kirki\Ecommerce\Database\Schema\Structure;
+use Kirki\Ecommerce\Supports\Facades\Schema;
+
+class {{class_name}} implements Migration
+{
+    public function up()
+    {
+        Schema::create('{{table}}', function (Structure $table) {
+            $table->id();
+            $table->timestamps();
+        });
+    }
+
+    public function down()
+    {
+        Schema::drop_if_exists('{{table}}');
+    }
+}

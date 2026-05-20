@@ -1,0 +1,119 @@
+// Dropdown
+.#{$class-prefix}-dropdown-trigger {
+  &:hover,
+  &:focus,
+  &:focus-visible,
+  &:active &.#{$class-prefix}-dropdown-active {
+    outline: none;
+  }
+}
+
+.#{$class-prefix}-dropdown-menu-content {
+  padding: var(--decom-spacing-1) var(--decom-spacing-0);
+  position: absolute;
+  border: 1px solid var(--decom-border-border);
+  border-radius: var(--decom-radius-rounded-md);
+  background-color: var(--decom-background-bg-fill);
+  min-height: 33px;
+  max-height: 424px;
+  z-index: 100;
+  overflow-x: hidden;
+  box-shadow: 0px 4px 6px -1px #0000001a;
+
+  @include fontGeneralSettings();
+
+  &.#{$class-prefix}-dropdown-left-icon {
+    .#{$class-prefix}-dropdown-item {
+      .#{$class-prefix}-dropdown-icon {
+        min-width: 16px;
+      }
+    }
+  }
+}
+
+.#{$class-prefix}-dropdown-content-default {
+  width: 256px;
+}
+
+.#{$class-prefix}-dropdown-content-small {
+  width: 128px;
+}
+
+.#{$class-prefix}-dropdown-item {
+  margin: var(--decom-spacing-0) var(--decom-spacing-1);
+  padding: var(--decom-spacing-f2) var(--decom-spacing-2);
+  height: 32px;
+  box-sizing: border-box;
+  @include itemCenterContentStart();
+  column-gap: var(--decom-spacing-2);
+  border-radius: var(--decom-radius-rounded-sm);
+  cursor: pointer;
+  &:hover,
+  &:focus,
+  &:focus-visible,
+  &:active,
+  &.#{$class-prefix}-dropdown-item-active {
+    background-color: #f4f4f5;
+    outline: none;
+  }
+}
+
+.#{$class-prefix}-dropdown-title {
+  font-weight: 600;
+  pointer-events: none;
+}
+
+.#{$class-prefix}-dropdown-text-wrapper {
+  width: 100%;
+  overflow: hidden;
+  // text-overflow: ellipsis;
+  // white-space: nowrap;
+  > span {
+    // max-width: 95%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  @include itemCenterContentBetween();
+}
+
+.#{$class-prefix}-dropdown-icon {
+  min-width: max-content;
+  @include itemCenter();
+}
+
+.#{$class-prefix}-dropdown-right-icon {
+  @include itemCenter();
+  margin-right: var(--decom-spacing-0);
+  margin-left: auto;
+  letter-spacing: 0.1px;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.1px;
+  color: #71717a;
+  > svg {
+    min-width: 16px;
+    color: var(--decom-text-text-primary);
+  }
+}
+
+.#{$class-prefix}-dropdown-shortcut-text {
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.1px;
+  color: #71717a;
+}
+
+.#{$class-prefix}-dropdown-general-styles {
+  padding: var(--decom-spacing-1) var(--decom-spacing-0);
+  position: absolute;
+  border: 1px solid var(--decom-border-border);
+  border-radius: var(--decom-radius-rounded-md);
+  box-shadow: 0px 4px 6px -1px #0000001a;
+
+  background-color: var(--decom-background-bg-fill);
+  z-index: 1000;
+  overflow-x: hidden;
+
+  @include fontGeneralSettings();
+}

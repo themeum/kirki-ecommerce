@@ -1,0 +1,21 @@
+export const initialData = {
+  store_name: "",
+  store_email: "",
+  store_logo: "",
+  store_phone: "",
+  store_address: {
+    address_line_1: null,
+    address_line_2: null,
+    city: null,
+    state_province: null,
+    zip_code: null,
+    country: null,
+  },
+  selling_countries: [],
+  order_id_prefix: "",
+  order_id_suffix: "",
+  invoice_id_prefix: "",
+  invoice_id_sequence: "",
+  invoice_id_suffix: "",
+  invoice_counter_reset_schedule: null,
+};

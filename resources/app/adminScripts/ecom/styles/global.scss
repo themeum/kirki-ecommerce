@@ -1,0 +1,39 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+
+html {
+  * {
+    box-sizing: border-box;
+    font-family: "Inter";
+  }
+}
+#wpcontent {
+  background-color: var(--decom-background-bg-surface-tertiary);
+}
+.kirki-ecommerce-root {
+  margin-left: -20px;
+  @include fontGeneralSettings();
+  * {
+    box-sizing: border-box;
+  }
+  input {
+    margin: var(--decom-spacing-0);
+    &:active,
+    &:focus,
+    &:focus-visible,
+    &.#{$class-prefix}-input-active {
+      border: 1px solid var(--decom-border-border);
+      outline: none;
+      box-shadow: 0px 0px 0px 1.5px var(--decom-border-border-ring);
+    }
+  }
+  textarea {
+    &:active,
+    &:focus,
+    &:focus-visible,
+    &.#{$class-prefix}-input-active {
+      border: 1px solid var(--decom-border-border);
+      outline: none;
+      box-shadow: 0px 0px 0px 1.5px var(--decom-border-border-ring);
+    }
+  }
+}

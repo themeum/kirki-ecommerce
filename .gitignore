@@ -1,0 +1,45 @@
+.env
+node_modules
+vendor
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+bundle-analysis.html
+*.zip
+wpcli
+
+docker/php/conf.d/99-local.ini
+config/listeners.cache.php
+config/policies.cache.php
+.phpunit.result.cache
+
+# IDE files
+.idea/
+*.swp
+*.swo
+
+# Logs and databases
+*.log
+*.sql
+*.sqlite
+
+# Build and dependency directories
+dist/
+build/
+tmp/
+temp/
+.vite/
+
+# Backup files
+*.bak
+*~
+*.tmp
+
+# Vscode settings
+.vscode/launch.json

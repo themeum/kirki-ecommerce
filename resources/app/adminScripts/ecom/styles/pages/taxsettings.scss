@@ -1,0 +1,98 @@
+.#{$class-prefix}-hover-parent {
+  .#{$class-prefix}-hover-visible.#{$class-prefix}-active-card {
+    visibility: visible;
+  }
+}
+.#{$class-prefix}-vat-row {
+  height: 56px;
+  max-height: 56px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--decom-spacing-3);
+
+  .#{$class-prefix}-vat-actions {
+    opacity: 0;
+    visibility: hidden;
+    display: none;
+    pointer-events: none;
+    transition: all 0.2s ease;
+  }
+
+  .#{$class-prefix}-vat-text {
+    opacity: 1;
+    display: block;
+    transition: opacity 0.2s ease;
+  }
+
+  &:hover {
+    .#{$class-prefix}-vat-text {
+      opacity: 0;
+      display: none;
+    }
+
+    .#{$class-prefix}-vat-actions {
+      opacity: 1;
+      display: flex;
+      visibility: visible;
+      pointer-events: auto;
+    }
+  }
+}
+
+.#{$class-prefix}-condition-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--decom-spacing-4);
+  .#{$class-prefix}-condition-actions {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease;
+    display: none;
+    gap: var(--decom-spacing-2);
+  }
+
+  &:hover {
+    .#{$class-prefix}-condition-actions {
+      opacity: 1;
+      visibility: visible;
+      display: flex;
+    }
+  }
+}
+
+.#{$class-prefix}-tax-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: var(--decom-radius-rounded-md);
+  max-height: 44px;
+  height: 44px;
+  padding: var(--decom-spacing-3);
+
+  .#{$class-prefix}-tax-card-content {
+    display: flex;
+    align-items: center;
+
+    .#{$class-prefix}-rate-display {
+      transition: opacity 0.2s;
+      display: flex;
+    }
+
+    .#{$class-prefix}-edit-group {
+      display: none;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+  }
+
+  &:hover {
+    .#{$class-prefix}-rate-display {
+      display: none;
+    }
+    .#{$class-prefix}-edit-group {
+      display: flex;
+      pointer-events: auto;
+    }
+  }
+}

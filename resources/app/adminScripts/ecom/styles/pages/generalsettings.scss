@@ -1,0 +1,20 @@
+.#{$class-prefix}-country-selector-wrapper {
+  height: 220px;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  border-top: 1px solid #d2d4d8; // TODO: find closest match
+  border-bottom: 1px solid #d2d4d8;
+}
+
+.#{$class-prefix}-checkbox-item {
+  width: auto;
+  padding: var(--decom-spacing-2) var(--decom-spacing-3);
+  &:hover{
+    background: var(--decom-background-bg-surface-secondary);
+    border-radius: var(--decom-radius-rounded-sm);
+  }
+}
+
+.#{$class-prefix}-search-input-field {
+  padding: var(--decom-spacing-3);
+}

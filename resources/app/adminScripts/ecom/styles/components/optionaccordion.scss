@@ -1,0 +1,22 @@
+.#{$class-prefix}-option-accordion--shipping:hover {
+  .#{$class-prefix}-accordion-title {
+    .#{$class-prefix}-text-heading {
+      color: var(--decom-text-text-emphasis);
+    }
+  }
+}
+
+.#{$class-prefix}-option-accordion--inactive {
+  .#{$class-prefix}-accordion-title {
+    .#{$class-prefix}-text-heading {
+      color: #b3b1bf;
+    }
+  }
+}
+
+.#{$class-prefix}-accordion-trigger--open:not(
+    .#{$class-prefix}-option-accordion--inactive
+  )
+  .#{$class-prefix}-text-heading {
+  color: var(--decom-text-text-emphasis);
+}

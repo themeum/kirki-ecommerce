@@ -1,0 +1,119 @@
+<?php
+
+namespace Kirki\Ecommerce\App\Models;
+
+use Kirki\Ecommerce\App\Constants\Order\OrderStatus;
+use Kirki\Ecommerce\Database\Query\Model;
+use Kirki\Ecommerce\Supports\Arr;
+
+class Order extends Model
+{
+    protected $table = 'kirki_ecommerce_orders';
+
+    protected $fillable = [
+        'uuid',
+        'order_number',
+        'customer_id',
+        'order_status',
+        'is_manual',
+        'currency_code',
+        'base_currency_code',
+        'exchange_rate',
+        'subtotal',
+        'subtotal_base',
+        'tax_id_number',
+        'tax_id_type',
+        'reverse_charge',
+        'shipping_total',
+        'shipping_total_base',
+        'coupon_code',
+        'discount_total',
+        'discount_total_base',
+        'discount_details',
+        'tax_total',
+        'tax_total_base',
+        'total',
+        'total_base',
+        'items_count',
+        'total_weight',
+        'payment_status',
+        'payment_method',
+        'payment_transaction_id',
+        'payment_gateway',
+        'payment_gateway_fee',
+        'payment_metadata',
+        'shipping_method',
+        'shipping_carrier',
+        'tracking_number',
+        'tracking_url',
+        'shipping_first_name',
+        'shipping_last_name',
+        'shipping_address_line1',
+        'shipping_address_line2',
+        'shipping_city',
+        'shipping_state',
+        'shipping_country',
+        'shipping_postal_code',
+        'shipping_phone',
+        'shipping_email',
+        'shipping_company',
+        'billing_first_name',
+        'billing_last_name',
+        'billing_address_line1',
+        'billing_address_line2',
+        'billing_city',
+        'billing_state',
+        'billing_country',
+        'billing_postal_code',
+        'billing_phone',
+        'billing_email',
+        'billing_company',
+        'customer_email',
+        'customer_phone',
+        'ip_address',
+        'user_agent',
+        'customer_notes',
+        'admin_notes',
+        'created_by',
+        'updated_by',
+    ];
+
+    protected $casts = [
+        'id' => 'integer',
+        'is_manual' => 'boolean',
+        'exchange_rate' => 'float',
+        'items_count' => 'integer',
+        'total_weight' => 'float',
+        'reverse_charge' => 'boolean',
+        'payment_gateway_fee' => 'integer',
+        'discount_details' => 'json',
+        'payment_metadata' => 'json',
+        'tax_total' => 'integer',
+        'tax_total_base' => 'integer',
+    ];
+
+    public function set_discount_details_attribute($value)
+    {
+        return !empty($value) && is_array($value) ? Arr::json_encode($value) : null;
+    }
+
+    public function items()
+    {
+        return $this->has_many(OrderItem::class, 'order_id');
+    }
+
+    public function customer()
+    {
+        return $this->belongs_to(Customer::class, 'customer_id');
+    }
+
+    public function coupon_usage()
+    {
+        return $this->has_one(CouponUsage::class, 'order_id');
+    }
+
+    public function refunds()
+    {
+        return $this->has_many(Refund::class, 'order_id');
+    }
+}

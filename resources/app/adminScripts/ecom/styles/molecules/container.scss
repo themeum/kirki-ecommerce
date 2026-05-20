@@ -1,0 +1,20 @@
+// container
+.#{$class-prefix}-container {
+  max-width: 1024px;
+  margin: var(--decom-spacing-0) auto;
+  &.#{$class-prefix}-sm {
+    max-width: 600px;
+  }
+  &.#{$class-prefix}-md {
+    max-width: 752px;
+  }
+  &.#{$class-prefix}-full-width {
+    max-width: 100%;
+  }
+}
+
+.#{$class-prefix}-full-page-container {
+  min-height: 100vh;
+  max-width: 100%;
+  background-color: var(--decom-background-bg-fill);
+}

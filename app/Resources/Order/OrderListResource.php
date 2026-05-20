@@ -1,0 +1,31 @@
+<?php
+
+namespace Kirki\Ecommerce\App\Resources\Order;
+
+use Kirki\Ecommerce\Resource;
+use Kirki\Ecommerce\Supports\Facades\Money;
+
+class OrderListResource extends Resource
+{
+    public function to_array()
+    {
+        return [
+            'id' => $this->id,
+            'uuid' => $this->uuid,
+            'order_number' => $this->order_number,
+            'customer_id' => $this->customer_id,
+            'quantity' => $this->items_count,
+            'total' => $this->prepare_amount($this->total_base),
+            'status' => $this->order_status,
+            'payment_status' => $this->payment_status,
+            'payment_method' => $this->payment_method,
+            'created_at' => $this->created_at,
+        ];
+    }
+
+    protected function prepare_amount($amount)
+    {
+        // Assuming amount is in minor units (integer)
+        return Money::from_minor($amount, $this->currency_code)->getAmount();
+    }
+}

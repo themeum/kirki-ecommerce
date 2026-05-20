@@ -1,0 +1,12 @@
+// checkbox
+.#{$class-prefix}-checkbox-wrapper {
+  @include itemCenter();
+  column-gap: var(--decom-spacing-2);
+  cursor: pointer;
+  width: max-content;
+}
+
+.#{$class-prefix}-checkbox-icon {
+  @include itemCenter();
+  cursor: pointer;
+}

@@ -1,0 +1,88 @@
+// Popover
+.#{$class-prefix}-popover-backdrop {
+  // height: 100svh;
+  // width: 100svw;
+  // top: 32px;
+  // left: 160px;
+  background: rgba(255, 255, 255, 0.8);
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+
+  &.#{$class-prefix}-dark-backdrop {
+    background: #1c1b1dcc !important;
+  }
+
+  .#{$class-prefix}-popover {
+    position: absolute;
+    border: 1px solid var(--decom-border-border);
+    border-radius: var(--decom-radius-rounded-lg);
+    background-color: var(--decom-background-bg-fill);
+    width: 512px;
+    max-height: 85%;
+    z-index: 1000;
+    overflow: hidden;
+    box-shadow: 0px 10px 15px -3px #0000001a;
+    box-sizing: border-box;
+    @include fontGeneralSettings();
+
+    display: flex;
+    flex-direction: column;
+  }
+
+  .#{$class-prefix}-popover-header {
+    padding: var(--decom-spacing-3) var(--decom-spacing-6);
+    @include itemCenterContentBetween();
+  }
+
+  .#{$class-prefix}-popover-header-title {
+    @include itemCenterContentStart();
+    column-gap: var(--decom-spacing-3);
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 20px;
+    letter-spacing: -0.025em;
+  }
+
+  .#{$class-prefix}-popover-body {
+    display: flex;
+    flex-direction: column;
+    row-gap: var(--decom-spacing-2);
+    color: var(--decom-text-text-secondary);
+    padding: var(--decom-spacing-4);
+    overflow-y: scroll;
+  }
+
+  .#{$class-prefix}-popover-title {
+    font-weight: 600;
+    font-size: 18px;
+    line-height: 28px;
+    color: var(--decom-text-text-primary);
+  }
+
+.#{$class-prefix}-popover-footer {
+  @include itemCenterContentEnd();
+  column-gap: var(--decom-spacing-2);
+  padding: var(--decom-spacing-3) var(--decom-spacing-5);
+  border-top: 1px solid var(--decom-border-border);
+}
+
+.#{$class-prefix}-popover-dark {
+  background-color: #fcfcfc;
+  .#{$class-prefix}-popover-header {
+    background-color: #f7f7f7;
+    border-bottom: 1px solid #e6e6e6;
+  }
+  .#{$class-prefix}-popover-footer {
+    background-color: #f7f7f7;
+    border-top: 1px solid #e6e6e6;
+  }
+}
+
+.#{$class-prefix}-popover-heading-wrapper-dark{
+  background: var(--decom-background-bg-surface-secondary);
+  align-items: center;
+  padding: var(--decom-spacing-2) var(--decom-spacing-5);
+}
+
+}

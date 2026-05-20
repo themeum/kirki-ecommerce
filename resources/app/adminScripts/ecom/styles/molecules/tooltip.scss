@@ -1,0 +1,18 @@
+.#{$class-prefix}-tooltip {
+  position: absolute;
+  z-index: 1000;
+  padding: var(--decom-spacing-f2) var(--decom-spacing-3);
+  border: 1px solid var(--decom-border-border);
+  border-radius: var(--decom-radius-rounded-md);
+  background-color: var(--decom-background-bg-fill);
+  height: max-content;
+  width: max-content;
+  @include fontGeneralSettings();
+  box-shadow: 0px 4px 6px -1px #0000001a;
+}
+
+.#{$class-prefix}-tooltip-dark {
+  background-color: var(--decom-background-bg-inverse);
+  box-shadow: none;
+  color: var(--decom-text-text-light);
+}
