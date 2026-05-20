@@ -1,0 +1,96 @@
+---
+description: PHP coding standards for application code (app/, framework/, database/)
+globs: {app,framework,database}/**/*.php
+alwaysApply: false
+---
+
+# PHP Coding Standards
+
+Target PHP **7.4** (see `composer.json` `config.platform.php`). Follow PSR-4 file naming and PSR-12 via PHPCS.
+
+## Classes and Files
+
+- Class names: **PascalCase** (`CartService`, `OrderManager`)
+- File names: PSR-4 — one class per file, filename matches class name
+- Never declare classes as `final`
+- Namespace must match the PSR-4 autoload map in `composer.json`
+
+## Methods, Properties, and Variables
+
+- Methods and variables: **snake_case** (`get_cart`, `$customer_id`)
+- Names must be meaningful and express intent; avoid `$a`, `$b`, `$temp`
+- Keep names concise — aim for one or two words when possible
+- Visibility: use the narrowest modifier that works, but **never `private`**
+  - `public` — required API surface (controllers, facades, hooks called externally)
+  - `protected` — default for internal or inheritance-friendly members
+- Static references: always use `static::`, never `self::`
+
+```php
+// ❌ BAD
+private $repository;
+self::PAGINATION_LIMIT;
+
+// ✅ GOOD
+protected $repository;
+static::PAGINATION_LIMIT;
+```
+
+## Arrays and Syntax
+
+- Use short array syntax `[]`, never `array()`
+- No inline comments inside method bodies
+- Code must be self-explanatory through naming and structure
+
+## Docblocks
+
+Every method and property requires a docblock. Include only applicable optional tags.
+
+Use the current plugin version from `kirki-ecommerce.php` for `@since`.
+
+`@return` is **required** on every method. Use `@return void` when the method returns nothing.
+
+```php
+/**
+ * Retrieve the active cart for a customer or token.
+ *
+ * @param int|null    $customer_id Customer identifier.
+ * @param string|null $token       Guest cart token.
+ *
+ * @return \Kirki\Ecommerce\App\Models\Cart
+ * @since 1.0.0
+ * @throws \Exception When the cart cannot be found or created.
+ */
+public function get_cart($customer_id = null, $token = null)
+{
+    // ...
+}
+
+/**
+ * Cart persistence repository.
+ *
+ * @var \Kirki\Ecommerce\App\Repositories\CartRepository
+ */
+protected $repository;
+
+/**
+ * Persist cart updates to storage.
+ *
+ * @param array $data Cart attributes to update.
+ *
+ * @return void
+ * @since 1.0.0
+ */
+protected function save_cart(array $data)
+{
+    // ...
+}
+```
+
+Omit `@param`, `@throws`, and `@see` when not relevant. Always include `@return` (use `void` when applicable) and `@since` on methods. Always include `@since` on properties.
+
+## General
+
+- Match existing project patterns when editing surrounding code
+- Prefer early returns for readability
+- Type hints and return types: use when compatible with PHP 7.4
+- Follow WordPress escaping, sanitization, and i18n conventions where applicable
