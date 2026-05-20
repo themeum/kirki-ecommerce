@@ -290,6 +290,18 @@ class Request implements RequestContract, Arrayable
         return $this->headers;
     }
 
+    public function get_header(string $name, $default = null)
+    {
+        $key = strtolower(str_replace('-', '_', $name));
+        $value = $this->headers[$key] ?? $default;
+
+        if (is_array($value)) {
+            return $value[0] ?? $default;
+        }
+
+        return $value;
+    }
+
     /**
      * Get all input attributes.
      *

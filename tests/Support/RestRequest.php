@@ -9,10 +9,14 @@ class RestRequest
 {
     public const API_NAMESPACE = 'kirki/ecommerce/v1';
 
-    public static function request(string $method, string $path, array $params = []): WP_REST_Response
+    public static function request(string $method, string $path, array $params = [], array $headers = []): WP_REST_Response
     {
         $route = '/' . self::API_NAMESPACE . '/' . ltrim($path, '/');
         $request = new WP_REST_Request(strtoupper($method), $route);
+
+        foreach ($headers as $name => $value) {
+            $request->set_header($name, $value);
+        }
 
         if (!empty($params)) {
             if (in_array(strtoupper($method), ['POST', 'PUT', 'PATCH'], true)) {

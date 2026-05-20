@@ -137,7 +137,13 @@ class CreateOrderAction
                 throw new Exception(sprintf(__('Max per order limit exceeded for variant: %s', 'kirki-ecommerce'), $variant->id));
             }
 
-            $product = $variant->product->load('categories');
+            $product = $variant->product;
+
+            if (empty($product)) {
+                throw new Exception(sprintf(__('Product not found for variant: %s', 'kirki-ecommerce'), $variant->id));
+            }
+
+            $product->load('categories');
 
             $this->variants_map[$variant->id] = $variant;
 
@@ -229,17 +235,27 @@ class CreateOrderAction
     protected function prepare_order_item_dto(int $order_id, CalculationItemDTO $calculated_item, $currency_code, $exchange_rate)
     {
         $variant = $this->variants_map[$calculated_item->variant_id];
-        $product = $variant->product->load('media');
+        $product = $variant->product;
+
+        if (empty($product)) {
+            throw new Exception(sprintf(__('Product not found for variant: %s', 'kirki-ecommerce'), $variant->id));
+        }
+
+        $product->load('media');
+
+        $first_media = !empty($product->media) ? $product->media->first() : null;
 
         $item_dto = new CreateOrderItemDTO();
         $item_dto->order_id = $order_id;
         $item_dto->product_id = $product->id;
         $item_dto->variant_id = $variant->id;
         $item_dto->product_name = $product->title;
-        $item_dto->variant_name = $variant->attribute_values->pluck('value')->join(', ');
+        $item_dto->variant_name = $variant->attribute_values
+            ? $variant->attribute_values->pluck('value')->join(', ')
+            : '';
         $item_dto->sku = $variant->sku;
         $item_dto->barcode = $variant->barcode;
-        $item_dto->product_image = $variant->media ?? !empty($product->media) ? $product->media->first()->id : null;
+        $item_dto->product_image = $variant->media ?? ($first_media ? $first_media->id : null);
 
         $item_dto->price = $this->convert_amount($variant->sale_price ?: $variant->price, $currency_code, $exchange_rate);
         $item_dto->price_base = $variant->sale_price ?: $variant->price;

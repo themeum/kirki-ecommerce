@@ -72,6 +72,7 @@ class OrderResource extends Resource
             'payment_method' => $this->payment_method,
             'payment_status' => $this->payment_status,
             'shipping_method' => $this->shipping_method,
+            'customer_notes' => $this->customer_notes,
 
             'refunds' => empty($this->refunds) ? [] : $this->refunds->map(function ($refund) {
                 return [

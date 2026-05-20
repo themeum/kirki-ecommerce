@@ -29,6 +29,24 @@ if (!file_exists($_tests_dir . '/includes/functions.php')) {
 
 require_once $_tests_dir . '/includes/functions.php';
 
+if (!function_exists('tests_add_filter')) {
+    function tests_add_filter($hook_name, $callback, $priority = 10, $accepted_args = 1)
+    {
+        global $wp_filter;
+
+        if (function_exists('add_filter')) {
+            add_filter($hook_name, $callback, $priority, $accepted_args);
+        } else {
+            $wp_filter[$hook_name][$priority][] = array(
+                'function' => $callback,
+                'accepted_args' => $accepted_args,
+            );
+        }
+
+        return true;
+    }
+}
+
 tests_add_filter('muplugins_loaded', function () use ($plugin_dir) {
     require $plugin_dir . '/kirki-ecommerce.php';
 });

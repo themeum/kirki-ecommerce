@@ -42,7 +42,7 @@ class ProductRepository
      */
     public function find(int $id)
     {
-        return Product::with(['brand', 'currency', 'categories', 'tags', 'collections', 'attributes', 'attribute_values', 'variants.attribute_values', 'media'])->find($id);
+        return Product::with(['brand', 'currency', 'categories', 'tags', 'collections', 'attributes', 'attribute_values', 'variants.attribute_values', 'variants.product', 'media'])->find($id);
     }
 
     /**

@@ -127,7 +127,7 @@ class CartService
             throw new Exception(__('Cart item not found.', 'kirki-ecommerce'));
         }
 
-        if ($item->cart_id !== $cart_id) {
+        if ((int) $item->cart_id !== (int) $cart_id) {
             throw new Exception(__('Unauthorized action.', 'kirki-ecommerce'));
         }
 
@@ -158,7 +158,7 @@ class CartService
             throw new Exception(__('Cart item not found.', 'kirki-ecommerce'));
         }
 
-        if ($item->cart_id !== $cart->id) {
+        if ((int) $item->cart_id !== (int) $cart->id) {
             throw new Exception(__('Unauthorized action.', 'kirki-ecommerce'));
         }
 

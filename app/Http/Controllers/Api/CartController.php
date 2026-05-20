@@ -36,8 +36,7 @@ class CartController
     public function get(Request $request)
     {
         $customer = customer();
-        $headers = $request->get_headers();
-        $token = $headers['x-cart-token'] ?? null; //todo: implement change the name later
+        $token = $request->get_header('x-cart-token');
 
         $cart = $this->service->get_cart($customer->get_customer_id() ?? null, $token);
 
@@ -50,8 +49,7 @@ class CartController
     public function add_item(AddToCartRequest $request, AddToCartAction $add_to_cart_action)
     {
         $customer = customer();
-        $headers = $request->get_headers();
-        $token = $headers['x-cart-token'] ?? null; //todo: implement change the name later
+        $token = $request->get_header('x-cart-token');
 
         $dto = AddToCartDTO::from_request($request);
         $dto->customer_id = $customer ? $customer->get_customer_id() : null;
@@ -75,8 +73,7 @@ class CartController
         $dto->quantity = $data['quantity'];
 
         $customer = customer();
-        $headers = $request->get_headers();
-        $dto->token = $headers['x-cart-token'] ?? null; //todo: implement change the name later
+        $dto->token = $request->get_header('x-cart-token');
         $dto->customer_id = $customer ? $customer->get_customer_id() : null;
 
         $updated_cart = $action->execute($dto);
@@ -92,8 +89,7 @@ class CartController
         $item_id = $request->get_int('id');
 
         $customer = customer();
-        $headers = $request->get_headers();
-        $token = $headers['x-cart-token'] ?? null; //todo: implement change the name later
+        $token = $request->get_header('x-cart-token');
         $customer_id = $customer ? $customer->get_customer_id() : null;
 
         $dto = new RemoveCartItemDTO();
@@ -112,8 +108,7 @@ class CartController
     public function empty_cart(Request $request)
     {
         $customer = customer();
-        $headers = $request->get_headers();
-        $token = $headers['x-cart-token'] ?? null; //todo: implement change the name later
+        $token = $request->get_header('x-cart-token');
         $customer_id = $customer ? $customer->get_customer_id() : null;
 
         $dto = new EmptyCartDTO();
@@ -131,8 +126,7 @@ class CartController
     public function update(CartUpdateRequest $request, UpdateCartAction $action)
     {
         $customer = customer();
-        $headers = $request->get_headers();
-        $token = $headers['x-cart-token'] ?? null; //todo: implement change the name later
+        $token = $request->get_header('x-cart-token');
         $customer_id = $customer ? $customer->get_customer_id() : null;
 
         $dto = UpdateCartDTO::from_request($request);
@@ -158,8 +152,7 @@ class CartController
         }
 
         $customer = customer();
-        $headers = $request->get_headers();
-        $token = $headers['x-cart-token'] ?? null; //todo: implement change the name later
+        $token = $request->get_header('x-cart-token');
 
         $cart = $this->service->get_cart($customer ? $customer->get_customer_id() : null, $token);
 
@@ -174,8 +167,7 @@ class CartController
     public function remove_coupon(Request $request, RemoveCouponAction $remove_coupon_action)
     {
         $customer = customer();
-        $headers = $request->get_headers();
-        $token = $headers['x-cart-token'] ?? null; //todo: implement change the name later
+        $token = $request->get_header('x-cart-token');
 
         $cart = $this->service->get_cart($customer ? $customer->get_customer_id() : null, $token);
         $cart = $remove_coupon_action->execute($cart);
