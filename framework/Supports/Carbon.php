@@ -19,7 +19,7 @@ class Carbon extends BaseCarbon
         try {
             static::parse($value);
             return true;
-        } catch (InvalidFormatException) {
+        } catch (InvalidFormatException $exception) {
             return false;
         }
     }

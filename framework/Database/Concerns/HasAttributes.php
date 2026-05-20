@@ -408,7 +408,7 @@ trait HasAttributes
 
         try {
             $date = Date::create_from_format($format, $value);
-        } catch (InvalidArgumentException) {
+        } catch (InvalidArgumentException $exception) {
             $date = false;
         }
 

@@ -16,7 +16,7 @@ jobs:
 
     services:
       mariadb:
-        image: mariadb:10.11
+        image: mariadb:10.6
         env:
           MYSQL_ROOT_PASSWORD: root
           MYSQL_DATABASE: kirki_ecommerce_test
