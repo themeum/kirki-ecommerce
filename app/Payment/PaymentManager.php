@@ -2,7 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Payment;
 
-use Kirki\Ecommerce\App\Payment\Gateways\Paypal;
+use Kirki\Ecommerce\App\Payment\Gateways\PayPal;
 use Kirki\Ecommerce\Wordpress\Constants\HookNames;
 
 use function Kirki\Ecommerce\collection;
@@ -30,7 +30,7 @@ class PaymentManager
     public function init_registry()
     {
         $gateways = apply_filters(HookNames::ECOMMERCE_ALL_PAYMENT_GATEWAYS, array_merge(ManualPaymentFactory::make(), [
-            new Paypal(),
+            new PayPal(),
         ]));
 
         foreach ($gateways as $gateway) {
