@@ -210,7 +210,7 @@ wpcli help kirki migrate:fresh
 
 ### Database
 
-#### `wpcli kirki migrate`
+#### migrate
 
 Run pending migrations from [`database/migrations/`](database/migrations/). Already-applied migration classes are skipped.
 
@@ -229,7 +229,7 @@ wpcli kirki migrate
 
 ---
 
-#### `wpcli kirki migrate:fresh`
+#### migrate:fresh
 
 Drop all plugin tables, then re-run every migration from scratch. Optionally seed afterward.
 
@@ -254,7 +254,7 @@ wpcli kirki migrate:fresh --seed --class=DatabaseSeeder
 
 ---
 
-#### `wpcli kirki db:seed`
+#### db:seed
 
 Populate the database using seeders in [`database/seeders/`](database/seeders/).
 
@@ -266,7 +266,7 @@ wpcli kirki db:seed [--class=<Seeder>]
 
 | Option | Description |
 | ------ | ----------- |
-| `--class=<Seeder>` | One or more seeder short names, comma-separated (resolved to `Ecommerce\Database\Seeders\{Name}`). If omitted, all `database/seeders/*.php` files are discovered. When `DatabaseSeeder.php` exists, it is used as the entry point. |
+| `--class=<Seeder>` | One or more seeder short names, comma-separated (resolved to `Kirki\Ecommerce\Database\Seeders\{Name}`). If omitted, all `database/seeders/*.php` files are discovered. When `DatabaseSeeder.php` exists, it is used as the entry point. |
 
 **Examples**
 
@@ -280,9 +280,9 @@ wpcli kirki db:seed --class=ProductsSeeder,OrdersSeeder
 
 ### Code generators
 
-Generator commands scaffold PHP files from stubs in [`framework/Console/stubs/`](framework/Console/stubs/). Generated classes use the `Ecommerce\` namespace prefix.
+Generator commands scaffold PHP files from stubs in [`framework/Console/stubs/`](framework/Console/stubs/). Generated classes use the `Kirki\Ecommerce\` namespace prefix.
 
-#### `wpcli kirki make:migration <name>`
+#### make:migration
 
 Create a new migration class in [`database/migrations/`](database/migrations/).
 
@@ -304,7 +304,7 @@ The command strips `create_` and `_table` from the name, then prefixes the remai
 - `create_widgets_table` → table `kirki_ecommerce_widgets`
 - `create_widgets_table --prefix=custom_` → table `custom_widgets`
 
-The PHP class name is PascalCase of the full migration name (e.g. `CreateWidgetsTable` in `database/migrations/CreateWidgetsTable.php`). Edit the generated `up()` / `down()` methods to match existing migrations such as [`CreateProductsTable.php`](database/migrations/CreateProductsTable.php).
+The PHP class name is PascalCase of the full migration name (e.g. `CreateWidgetsTable` in `database/migrations/CreateWidgetsTable.php`) with namespace `Kirki\Ecommerce\Database\Migrations`. Edit the generated `up()` / `down()` methods to match existing migrations such as [`CreateProductsTable.php`](database/migrations/CreateProductsTable.php).
 
 **Example — new table workflow**
 
@@ -316,7 +316,7 @@ wpcli kirki migrate
 
 ---
 
-#### `wpcli kirki make:model <name>`
+#### make:model
 
 Create an Eloquent-style model in `app/Models/`.
 
@@ -330,7 +330,7 @@ wpcli kirki make:model <name>
 | -------- | ----------- |
 | `<name>` | Model class name (e.g. `Widget` → `Widget.php`) |
 
-**Creates:** `app/Models/{Name}.php` — namespace `Ecommerce\App\Models`
+**Creates:** `app/Models/{Name}.php` — namespace `Kirki\Ecommerce\App\Models`
 
 **Example**
 
@@ -340,7 +340,7 @@ wpcli kirki make:model Widget
 
 ---
 
-#### `wpcli kirki make:controller <name>`
+#### make:controller
 
 Create a controller in `app/Http/Controllers/`.
 
@@ -353,13 +353,13 @@ wpcli kirki make:controller <name> [--api] [--resource]
 | Argument / flag | Description |
 | --------------- | ----------- |
 | `<name>` | Controller class name (e.g. `WidgetController`) |
-| `--api` | Place under `app/Http/Controllers/API/` with namespace `Ecommerce\App\Http\Controllers\Api` |
+| `--api` | Place under `app/Http/Controllers/API/` with namespace `Kirki\Ecommerce\App\Http\Controllers\Api` |
 | `--resource` | Use the resource controller stub (CRUD method skeletons) |
 
 **Creates**
 
-- Default: `app/Http/Controllers/{Name}.php` — `Ecommerce\App\Http\Controllers`
-- With `--api`: `app/Http/Controllers/API/{Name}.php` — `Ecommerce\App\Http\Controllers\Api`
+- Default: `app/Http/Controllers/{Name}.php` — `Kirki\Ecommerce\App\Http\Controllers`
+- With `--api`: `app/Http/Controllers/API/{Name}.php` — `Kirki\Ecommerce\App\Http\Controllers\Api`
 
 **Examples**
 
@@ -370,7 +370,7 @@ wpcli kirki make:controller ProductController --api --resource
 
 ---
 
-#### `wpcli kirki make:request <name>`
+#### make:request
 
 Create a form request class in `app/Http/Requests/`.
 
@@ -385,7 +385,7 @@ wpcli kirki make:request <name> [--folder=<folder>]
 | `<name>` | Request class name (e.g. `StoreWidgetRequest`) |
 | `--folder=<folder>` | Subfolder under `Requests/` (namespace segment appended) |
 
-**Creates:** `app/Http/Requests/[<folder>/]{Name}.php` — namespace `Ecommerce\App\Http\Requests[\{Folder}]`
+**Creates:** `app/Http/Requests/[<folder>/]{Name}.php` — namespace `Kirki\Ecommerce\App\Http\Requests[\{Folder}]`
 
 **Examples**
 
@@ -396,7 +396,7 @@ wpcli kirki make:request StoreWidgetRequest --folder=Api
 
 ---
 
-#### `wpcli kirki make:seeder <name>`
+#### make:seeder
 
 Create a database seeder in [`database/seeders/`](database/seeders/). Creates `DatabaseSeeder.php` automatically if it does not exist.
 
@@ -410,7 +410,7 @@ wpcli kirki make:seeder <name>
 | -------- | ----------- |
 | `<name>` | Seeder class name (e.g. `ProductsSeeder`) |
 
-**Creates:** `database/seeders/{Name}.php` — namespace `Ecommerce\Database\Seeders`
+**Creates:** `database/seeders/{Name}.php` — namespace `Kirki\Ecommerce\Database\Seeders`
 
 **Example**
 
@@ -420,7 +420,7 @@ wpcli kirki make:seeder ProductsSeeder
 
 ---
 
-#### `wpcli kirki make:provider <name>`
+#### make:provider
 
 Create a service provider in `app/Providers/`.
 
@@ -434,7 +434,7 @@ wpcli kirki make:provider <name>
 | -------- | ----------- |
 | `<name>` | Provider class name (e.g. `WidgetServiceProvider`) |
 
-**Creates:** `app/Providers/{Name}.php` — namespace `Ecommerce\App\Providers`
+**Creates:** `app/Providers/{Name}.php` — namespace `Kirki\Ecommerce\App\Providers`
 
 After generating, register the provider in the application bootstrap (see existing providers in [`app/Providers/`](app/Providers/)).
 
@@ -446,7 +446,7 @@ wpcli kirki make:provider WidgetServiceProvider
 
 ---
 
-#### `wpcli kirki make:class <name>`
+#### make:class
 
 Create a generic PHP class under `app/`.
 
@@ -461,7 +461,7 @@ wpcli kirki make:class <name> [--folder=<path>]
 | `<name>` | Class name (e.g. `BillingCalculator`) |
 | `--folder=<path>` | Subpath under `app/` (supports nested paths, e.g. `Services/Billing`) |
 
-**Creates:** `app/[<path>/]{Name}.php` — namespace `Ecommerce\App[\{PathSegments}]`
+**Creates:** `app/[<path>/]{Name}.php` — namespace `Kirki\Ecommerce\App[\{PathSegments}]`
 
 **Examples**
 
