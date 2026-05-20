@@ -593,7 +593,7 @@ class Arr implements ArrayAccess, IteratorAggregate
      *
      * @since 1.0.0
      */
-    public function offsetGet($key): mixed
+    public function offsetGet($key)
     {
         return $this->get($key);
     }
@@ -608,7 +608,6 @@ class Arr implements ArrayAccess, IteratorAggregate
      *
      * @since 1.0.0
      */
-    #[\ReturnTypeWillChange]
     public function offsetSet($key, $value)
     {
         $this->set($key, $value);

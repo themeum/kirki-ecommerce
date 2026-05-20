@@ -877,7 +877,7 @@ abstract class Model implements Arrayable, Jsonable, ArrayAccess, JsonSerializab
      * @return mixed The value of the attribute or relation
      * @since 1.0.0
      */
-    public function offsetGet($offset): mixed
+    public function offsetGet($offset)
     {
         return $this->get_attribute($offset);
     }
@@ -925,10 +925,10 @@ abstract class Model implements Arrayable, Jsonable, ArrayAccess, JsonSerializab
     /**
      * Convert the model to a JSON serializable array.
      *
-     * @return array The model's attributes and relations
+     * @return mixed The model's attributes and relations
      * @since 1.0.0
      */
-    public function jsonSerialize(): mixed
+    public function jsonSerialize()
     {
         return $this->to_array();
     }

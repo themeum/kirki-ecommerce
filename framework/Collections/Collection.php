@@ -723,7 +723,7 @@ class Collection implements ArrayAccess, Countable, Iterator, Arrayable, Jsonabl
      * @return mixed The value at the offset or null if not set
      * @since 1.0.0
      */
-    public function offsetGet($offset): mixed
+    public function offsetGet($offset)
     {
         return $this->items[$offset] ?? null;
     }
@@ -772,7 +772,7 @@ class Collection implements ArrayAccess, Countable, Iterator, Arrayable, Jsonabl
      * @return mixed The current item at the iterator position
      * @since 1.0.0
      */
-    public function current(): mixed
+    public function current()
     {
         return $this->items[$this->position];
     }
@@ -780,10 +780,10 @@ class Collection implements ArrayAccess, Countable, Iterator, Arrayable, Jsonabl
     /**
      * Convert the collection to a JSON serializable array.
      *
-     * @return array The JSON serializable array
+     * @return mixed The JSON serializable array
      * @since 1.0.0
      */
-    public function jsonSerialize(): mixed
+    public function jsonSerialize()
     {
         return array_map(function ($value) {
             switch (true) {
@@ -808,7 +808,7 @@ class Collection implements ArrayAccess, Countable, Iterator, Arrayable, Jsonabl
      * @return mixed The current iterator key
      * @since 1.0.0
      */
-    public function key(): mixed
+    public function key()
     {
         return $this->position;
     }

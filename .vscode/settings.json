@@ -38,6 +38,7 @@
     "editor.defaultFormatter": "haruncox.php-sniffer-tool",
     "editor.formatOnPaste": false
   },
+  "intelephense.environment.phpVersion": "7.4.33",
   "intelephense.stubs": [
     "apache",
     "bcmath",

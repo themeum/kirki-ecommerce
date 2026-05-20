@@ -177,7 +177,7 @@ class Flex implements ArrayAccess, IteratorAggregate, Arrayable, Jsonable, JsonS
      * @param  TKey  $offset
      * @return TValue|null
      */
-    public function offsetGet($offset): mixed
+    public function offsetGet($offset)
     {
         return $this->value($offset);
     }
