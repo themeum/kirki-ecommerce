@@ -12,7 +12,7 @@ class CurrencyCreateRequest extends Request
     {
         return [
             'items' => 'required|array',
-            'items.*.code' => 'required|string|unique:' . Currency::get_table() . ',code',
+            'items.*.code' => 'required|string|unique:' . Currency::get_table_name() . ',code',
             'items.*.name' => 'required|string',
             'items.*.symbol' => 'required|string',
             'items.*.exchange_rate' => 'required|float',

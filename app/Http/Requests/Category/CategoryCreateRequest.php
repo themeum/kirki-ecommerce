@@ -13,7 +13,7 @@ class CategoryCreateRequest extends Request
         return [
             'parent_id' => 'integer|nullable',
             'name' => 'required|string',
-            'slug' => 'string|nullable|unique:' . Category::get_table() . ',slug',
+            'slug' => 'string|nullable|unique:' . Category::get_table_name() . ',slug',
             'description' => 'string|nullable',
             'image' => 'integer|nullable',
             'level' => 'integer|nullable',

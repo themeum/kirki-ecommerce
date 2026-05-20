@@ -50,14 +50,14 @@ class QueryBuilder
     /**
      * The database connection instance used to execute queries.
      *
-     * @var \Ecommerce\Database\Connection\Connection
+     * @var \Kirki\Ecommerce\Database\Connection\Connection
      */
     public $connection;
 
     /**
      * The query compiler instance used to compile the query.
      *
-     * @var \Ecommerce\Database\Query\QueryCompiler
+     * @var \Kirki\Ecommerce\Database\Query\QueryCompiler
      */
     public $compiler;
 
@@ -233,7 +233,7 @@ class QueryBuilder
      * Initialize a new QueryBuilder instance with database connection, table name and model class
      *
      * @param Connection $connection The database connection instance
-     * @param string|null $table The table name to query against
+     * @param QueryCompiler|null $compiler The compiler instance to use
      * @param Model|null $model The model class for hydrating results
      *
      * @return void
@@ -507,15 +507,15 @@ class QueryBuilder
     /**
      * Add a column to the SELECT clause
      *
-     * @param string|Expression|array $column The column to add
+     * @param string|Expression|array $columns The column to add
      *
      * @return QueryBuilder Returns the QueryBuilder instance for method chaining
      * 
      * @since 1.0.0
      */
-    public function add_select($column)
+    public function add_select($columns)
     {
-        $columns = is_array($column) ? $column : func_get_args();
+        $columns = is_array($columns) ? $columns : func_get_args();
 
         foreach ($columns as $as => $column) {
             if (is_string($as) && $this->is_queryable($column)) {
@@ -538,8 +538,6 @@ class QueryBuilder
 
     /**
      * Set the distinct flag for the query
-     *
-     * @param array|bool $columns The columns to distinct on
      *
      * @return QueryBuilder Returns the QueryBuilder instance for method chaining
      * 
@@ -940,7 +938,7 @@ class QueryBuilder
      * of the whereIn() method and is useful for excluding records that match certain values.
      *
      * @param string $column The column name to check
-     * @param array $value The array of values to exclude
+     * @param array $values The array of values to exclude
      *
      * @return QueryBuilder Returns the QueryBuilder instance for method chaining
      *
@@ -974,7 +972,7 @@ class QueryBuilder
      * The values array must contain exactly two elements: the start and end of the range.
      *
      * @param string $column The column name to check
-     * @param array $value Array containing the start and end values for the range
+     * @param array $values Array containing the start and end values for the range
      *
      * @return QueryBuilder Returns the QueryBuilder instance for method chaining
      *
@@ -1051,7 +1049,7 @@ class QueryBuilder
      * column contains a null value. This is useful for finding records with missing or
      * undefined data in specific columns.
      *
-     * @param string $column The column name to check for null values
+     * @param string $columns The column name to check for null values
      *
      * @return QueryBuilder Returns the QueryBuilder instance for method chaining
      *
@@ -2109,7 +2107,6 @@ class QueryBuilder
      *
      * @param string $sql The raw SQL query to execute
      * @param array $bindings Parameter values to bind to the query
-     * @param string $boolean The boolean operator to combine with previous conditions
      *
      * @return QueryBuilder Returns the QueryBuilder instance for method chaining
      *
@@ -2900,7 +2897,7 @@ class QueryBuilder
      * the original column selection.
      *
      * @param string $function The aggregate function to apply (SUM, AVG, MIN, MAX)
-     * @param string $column The column name to apply the function to
+     * @param string $columns The column name to apply the function to
      *
      * @return mixed The result of the aggregate function
      *
@@ -2973,7 +2970,7 @@ class QueryBuilder
      * values. All values are properly bound to prevent SQL injection attacks.
      * Returns true if the insert was successful, false otherwise.
      *
-     * @param array $data Associative array of column names and values to insert
+     * @param array $values Associative array of column names and values to insert
      *
      * @return bool True if the insert was successful, false otherwise
      *
@@ -3067,7 +3064,7 @@ class QueryBuilder
      * when you need to know the ID of the newly created record for further operations
      * or to establish relationships with other records.
      *
-     * @param array $data Associative array of column names and values to insert
+     * @param array $values Associative array of column names and values to insert
      *
      * @return int The last inserted ID
      *
@@ -3567,11 +3564,27 @@ class QueryBuilder
         return $this->bindings;
     }
 
+    /**
+     * Get a binding for a given type
+     *
+     * @param string $type The type of binding to get
+     *
+     * @return array Array of bindings
+     *
+     * @since 1.0.0
+     */
     public function get_binding($type)
     {
         return $this->bindings[$type];
     }
 
+    /**
+     * Clean the bindings from the query
+     *
+     * @param array $bindings The bindings to clean
+     *
+     * @return array Array of cleaned bindings
+     */
     public function clean_bindings(array $bindings)
     {
         return collection($bindings)
@@ -3841,7 +3854,7 @@ class QueryBuilder
      * Dynamically handle calls to the class
      *
      * @param string $method The method name
-     * @param array $arguments The arguments for the method
+     * @param array $parameters The arguments for the method
      *
      * @return mixed The result of the method call
      * 

@@ -11,7 +11,7 @@ use Kirki\Ecommerce\Facade;
  * @method static void enabled_checking_foreign_key_constraints()
  * @method static void disabled_checking_foreign_key_constraints()
  * 
- * @see \Ecommerce\Database\Schema\SchemaManager
+ * @see \Kirki\Ecommerce\Database\Schema\SchemaManager
  */
 class Schema extends Facade
 {

@@ -9,7 +9,7 @@ use Kirki\Ecommerce\Facade;
  * @method static bool allows(string $ability, $model = null)
  * @method static bool denies(string $ability, $model = null)
  * 
- * @see \Ecommerce\Core\Managers\PolicyManager
+ * @see \Kirki\Ecommerce\Core\Managers\PolicyManager
  */
 class Guard extends Facade
 {

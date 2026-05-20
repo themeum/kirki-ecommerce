@@ -20,7 +20,7 @@ class CouponCreateRequest extends Request
         return [
             'method' => 'required|string|in:' . implode(',', CouponMethod::get_constant_values()),
             'title' => 'required|string|max:255',
-            'code' => 'required_if:method,' . CouponMethod::CODE . '|string|max:100|unique:' . Coupon::get_table() . ',code|nullable',
+            'code' => 'required_if:method,' . CouponMethod::CODE . '|string|max:100|unique:' . Coupon::get_table_name() . ',code|nullable',
             'discount_type' => 'required|string|in:' . implode(',', DiscountType::get_constant_values()),
             'discount_target' => 'required_if:discount_type,' . DiscountType::AMOUNT_OFF . '|string|in:' . implode(',', DiscountTarget::get_constant_values()) . '|nullable',
             'discount_value_type' => 'required_if:discount_type,' . DiscountType::AMOUNT_OFF . '|string|in:' . implode(',', DiscountValueType::get_constant_values()) . '|nullable',

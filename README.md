@@ -226,13 +226,48 @@ docker compose restart php
 
 ## Testing
 
+REST API integration tests use the WordPress test suite with an isolated database (`kirki_ecommerce_test`). Plugin tables are reset with `migrate:fresh` before each test class.
+
+### Prerequisites
+
+- PHP 7.4+ on the host with extensions: `mysqli`, `intl`, `zip`, `gd`
+- Docker MariaDB running (`docker compose up -d mariadb`) — default host port `20101`
+- Git or Subversion for the WordPress test library installer (`bin/install-wp-tests.sh`)
+- Composer dev dependencies: `composer install`
+
+### One-time setup
+
+Create the isolated test database (Docker MariaDB must be running):
+
+```bash
+docker compose exec mariadb mariadb -uroot -proot -e "CREATE DATABASE IF NOT EXISTS kirki_ecommerce_test; GRANT ALL PRIVILEGES ON kirki_ecommerce_test.* TO 'wordpress'@'%'; FLUSH PRIVILEGES;"
+```
+
+Install WordPress core and the PHPUnit test library:
+
+```bash
+bash bin/install-wp-tests.sh kirki_ecommerce_test wordpress wordpress 127.0.0.1:20101
+```
+
+This downloads WordPress core and the PHPUnit test library into `/tmp/wordpress` and `/tmp/wordpress-tests-lib`, and symlinks this plugin into the test WordPress install.
+
+Environment variables are documented in [`tests/.env.example`](tests/.env.example).
+
+### Run tests
+
 ```bash
 composer test
 ```
 
-This runs `vendor/bin/phpunit` via the Composer script in `composer.json`.
+Run only integration tests:
 
-> **Note:** `phpunit.xml` still references `backend/Tests/`, which is not present in this repository. `composer test` may fail until the test layout is updated. Dev dependencies (PHPUnit 9, Faker, WP-CLI stubs) are installed with `composer install`.
+```bash
+vendor/bin/phpunit --testsuite Integration
+```
+
+### CI
+
+GitHub Actions runs the same integration suite on `push` and `pull_request` to `main` and `develop` using a MariaDB service (see [`.github/workflows/api-tests.yml`](.github/workflows/api-tests.yml)).
 
 ---
 

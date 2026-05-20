@@ -2,7 +2,6 @@
 
 namespace Kirki\Ecommerce\Database\Query;
 
-use Kirki\Ecommerce\Collections\Collection;
 use Kirki\Ecommerce\Database\Connection\Connection;
 use Kirki\Ecommerce\Supports\Arr;
 
@@ -14,7 +13,7 @@ class QueryCompiler
     /**
      * The database connection instance used to execute queries.
      *
-     * @var \Ecommerce\Database\Connection\Connection
+     * @var \Kirki\Ecommerce\Database\Connection\Connection
      */
     protected $connection;
 
@@ -207,7 +206,8 @@ class QueryCompiler
      */
     protected function compile_delete_with_joins(QueryBuilder $query, $table, $where)
     {
-        $alias = end(explode(' as ', $table));
+        $parts = explode(' as ', $table);
+        $alias = end($parts);
 
         $joins = $this->compile_joins($query, $query->joins);
 
@@ -477,7 +477,6 @@ class QueryCompiler
      * Compile the havings query.
      *
      * @param QueryBuilder $query The query builder instance.
-     * @param array $havings The havings query.
      *
      * @return string The compiled havings query.
      */
@@ -715,7 +714,7 @@ class QueryCompiler
     /**
      * Compile the wrap query.
      *
-     * @param $value The value query.
+     * @param string|Expression $value The value query.
      *
      * @return string The compiled wrap query.
      */
@@ -747,7 +746,7 @@ class QueryCompiler
     /**
      * Compile the get value query.
      *
-     * @param $expression The expression query.
+     * @param string|Expression $expression The expression query.
      *
      * @return string The compiled get value query.
      */
@@ -763,7 +762,7 @@ class QueryCompiler
     /**
      * Compile the wrap value query.
      *
-     * @param $value The value query.
+     * @param string $value The value query.
      *
      * @return string The compiled wrap value query.
      */
@@ -775,7 +774,8 @@ class QueryCompiler
     /**
      * Compile the wrap table query.
      *
-     * @param $table The table query.
+     * @param string $table The table query.
+     * @param string|null $prefix The prefix to use for the table.
      *
      * @return string The compiled wrap table query.
      */
@@ -797,7 +797,7 @@ class QueryCompiler
     /**
      * Compile the wrap segments query.
      *
-     * @param $segments The segments query.
+     * @param array $segments The segments query.
      *
      * @return string The compiled wrap segments query.
      */
@@ -813,7 +813,7 @@ class QueryCompiler
     /**
      * Compile the wrap aliased value query.
      *
-     * @param $value The value query.
+     * @param string $value The value query.
      *
      * @return string The compiled wrap aliased value query.
      */
@@ -827,7 +827,7 @@ class QueryCompiler
     /**
      * Compile the wrap aliased table query.
      *
-     * @param $table The table query.
+     * @param string $table The table query.
      *
      * @return string The compiled wrap aliased table query.
      */
@@ -849,7 +849,7 @@ class QueryCompiler
     /**
      * Compile the parameter query.
      *
-     * @param $value The value query.
+     * @param string|Expression $value The value query.
      *
      * @return string The compiled parameter query.
      */
@@ -863,7 +863,7 @@ class QueryCompiler
     /**
      * Compile the parameterize query.
      *
-     * @param $values The values query.
+     * @param array $values The values query.
      *
      * @return string The compiled parameterize query.
      */
@@ -875,7 +875,8 @@ class QueryCompiler
     /**
      * Compile the where raw query.
      *
-     * @param $where The where query.
+     * @param QueryBuilder $builder The query builder instance.
+     * @param array $where The where query.
      *
      * @return string The compiled where raw query.
      */
@@ -887,7 +888,8 @@ class QueryCompiler
     /**
      * Compile the where basic query.
      *
-     * @param $where The where query.
+     * @param QueryBuilder $builder The query builder instance.
+     * @param array $where The where query.
      *
      * @return string The compiled where basic query.
      */
@@ -907,7 +909,8 @@ class QueryCompiler
     /**
      * Compile the where like query.
      *
-     * @param $where The where query.
+     * @param QueryBuilder $query The query builder instance.
+     * @param array $where The where query.
      *
      * @return string The compiled where like query.
      */
@@ -921,7 +924,8 @@ class QueryCompiler
     /**
      * Compile the where in query.
      *
-     * @param $where The where query.
+     * @param QueryBuilder $query The query builder instance.
+     * @param array $where The where query.
      *
      * @return string The compiled where in query.
      */

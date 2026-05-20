@@ -31,7 +31,7 @@ use Kirki\Ecommerce\Facade;
  * @method static bool is_writable(string $path)
  * @method static int last_modified(string $path)
  *
- * @see \Ecommerce\Filesystem\Filesystem
+ * @see \Kirki\Ecommerce\Filesystem\Filesystem
  */
 class File extends Facade
 {

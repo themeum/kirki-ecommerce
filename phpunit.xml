@@ -1,16 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="./vendor/phpunit/phpunit/phpunit.xsd"
-         bootstrap="backend/Tests/bootstrap.php"
+         bootstrap="tests/bootstrap.php"
          colors="true">
     <testsuites>
+        <testsuite name="Integration">
+            <directory suffix="Test.php">./tests/Integration</directory>
+        </testsuite>
         <testsuite name="Unit">
-            <directory suffix="Test.php">./backend/Tests/Unit</directory>
+            <directory suffix="Test.php">./tests/Unit</directory>
         </testsuite>
     </testsuites>
     <coverage processUncoveredFiles="true">
         <include>
-            <directory suffix=".php">./backend</directory>
+            <directory suffix=".php">./app</directory>
+            <directory suffix=".php">./framework</directory>
         </include>
     </coverage>
 </phpunit>

@@ -24,7 +24,7 @@ class QueueRepository
      * Get jobs associated with a specific claim ID.
      *
      * @param string $claim_id
-     * @return \Ecommerce\Core\Collections\Collection
+     * @return \Kirki\Ecommerce\Collections\Collection
      */
     public function get_claimed_jobs(string $claim_id)
     {
@@ -85,7 +85,7 @@ class QueueRepository
      * Mark a job as failed and handle retry logic.
      *
      * @param int $id
-     * @param int $max_retries
+     * @param int $retry
      * @return int|void
      */
     public function mark_as_failed(int $id, int $retry = 3)

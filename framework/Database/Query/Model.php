@@ -214,6 +214,17 @@ abstract class Model implements Arrayable, Jsonable, ArrayAccess, JsonSerializab
     }
 
     /**
+     * Get the table name for the model class.
+     *
+     * @return string The table name for the model class
+     * @since 1.0.0
+     */
+    public static function get_table_name()
+    {
+        return (new static())->get_table();
+    }
+
+    /**
      * Set the database table name for the model.
      *
      * @param string $table The table name to assign

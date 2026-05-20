@@ -20,7 +20,7 @@ use Kirki\Ecommerce\Facade;
  * @method static string format_from_decimal(mixed $amount, mixed $currency = null, int $roundingMode = \Brick\Math\RoundingMode::HALF_UP, \Brick\Money\Context $context = null)
  * @method static \Brick\Money\Money convert_to_currency(\Brick\Money\Money $money, string $currency, $exchange_rate = null)
  * 
- * @see \Ecommerce\Core\Managers\MoneyManager
+ * @see \Kirki\Ecommerce\Core\Managers\MoneyManager
  */
 class Money extends Facade
 {

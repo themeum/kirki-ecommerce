@@ -218,10 +218,7 @@ class Connection
     protected function statement($query, $bindings = [])
     {
         return $this->run($query, $bindings, function ($query, $bindings) {
-            $sql = $this->db->prepare(
-                $query,
-                $this->prepare_bindings($bindings)
-            );
+            $sql = $this->prepare_query($query, $bindings);
 
             return (bool) $this->db->query($sql);
         });
@@ -238,10 +235,7 @@ class Connection
     protected function affecting_statement($query, $bindings = [])
     {
         return $this->run($query, $bindings, function ($query, $bindings) {
-            $sql = $this->db->prepare(
-                $query,
-                $this->prepare_bindings($bindings)
-            );
+            $sql = $this->prepare_query($query, $bindings);
 
             $result = $this->db->query($sql);
 
@@ -264,10 +258,7 @@ class Connection
     public function select($query, $bindings = [])
     {
         return $this->run($query, $bindings, function ($query, $bindings) {
-            $sql = $this->db->prepare(
-                $query,
-                $this->prepare_bindings($bindings)
-            );
+            $sql = $this->prepare_query($query, $bindings);
 
             return $this->db->get_results($sql);
         });
@@ -353,7 +344,7 @@ class Connection
     {
         $this->total_query_duration += $time;
 
-        $query = $this->db->prepare($query, $this->prepare_bindings($bindings));
+        $query = $this->prepare_query($query, $bindings);
 
         if ($this->is_logging_queries) {
             $this->query_log[] = compact('query', 'bindings', 'time');
@@ -409,6 +400,25 @@ class Connection
     }
 
     /**
+     * Prepare the query for execution
+     *
+     * @param string $query The query to prepare.
+     * @param array $bindings The bindings for the query.
+     *
+     * @return string The prepared query.
+     */
+    protected function prepare_query(string $query, array $bindings = [])
+    {
+        $bindings = $this->prepare_bindings($bindings);
+
+        if (empty($bindings)) {
+            return $query;
+        }
+
+        return $this->db->prepare($query, $bindings);
+    }
+
+    /**
      * Clean the null bindings from the query
      * This is for preventing the query from failing when a null value is passed
      *
@@ -426,7 +436,7 @@ class Connection
     /**
      * Get a new query builder instance.
      *
-     * @return \Ecommerce\Database\Query\QueryBuilder
+     * @return \Kirki\Ecommerce\Database\Query\QueryBuilder
      */
     public function query()
     {

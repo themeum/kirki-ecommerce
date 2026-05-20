@@ -14,7 +14,7 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "Ecommerce\\Tests\\": "tests/"
+      "Kirki\\Ecommerce\\Tests\\": "tests/"
     }
   },
   "authors": [
@@ -35,6 +35,7 @@
   },
   "require-dev": {
     "phpunit/phpunit": "^9.0",
+    "yoast/phpunit-polyfills": "^2.0",
     "php-stubs/wordpress-stubs": "^6.9",
     "php-stubs/wp-cli-stubs": "^2.12",
     "fakerphp/faker": "^1.24"

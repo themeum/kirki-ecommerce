@@ -12,7 +12,7 @@ class TagCreateRequest extends Request
     {
         return [
             'name' => 'required|string',
-            'slug' => 'string|nullable|unique:' . Tag::get_table() . ',slug',
+            'slug' => 'string|nullable|unique:' . Tag::get_table_name() . ',slug',
             'description' => 'string|nullable',
         ];
     }

@@ -31,21 +31,21 @@ class JoinClause extends QueryBuilder
     /**
      * The parent QueryBuilder instance.
      *
-     * @var \Ecommerce\Database\Query\QueryBuilder
+     * @var \Kirki\Ecommerce\Database\Query\QueryBuilder
      */
     public $parent;
 
     /**
      * The query compiler from the parent builder.
      *
-     * @var \Ecommerce\Database\Query\QueryCompiler
+     * @var \Kirki\Ecommerce\Database\Query\QueryCompiler
      */
     protected $parent_compiler;
 
     /**
      * The database connection from the parent builder.
      *
-     * @var \Ecommerce\Database\Connection\Connection
+     * @var \Kirki\Ecommerce\Database\Connection\Connection
      */
     protected $parent_connection;
 

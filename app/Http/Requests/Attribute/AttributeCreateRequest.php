@@ -11,8 +11,8 @@ class AttributeCreateRequest extends Request
     public function rules()
     {
         return [
-            'name' => 'required|string|unique:' . Attribute::get_table() . ',name',
-            'slug' => 'string|nullable|unique:' . Attribute::get_table() . ',slug',
+            'name' => 'required|string|unique:' . Attribute::get_table_name() . ',name',
+            'slug' => 'string|nullable|unique:' . Attribute::get_table_name() . ',slug',
             'type' => 'string|in:color,list|nullable',
         ];
     }

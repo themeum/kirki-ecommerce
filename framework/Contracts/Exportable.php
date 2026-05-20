@@ -7,7 +7,7 @@ interface Exportable
     /**
      * Export data as an DTO instance.
      *
-     * @return \Ecommerce\DTO\DTO|mixed
+     * @return \Kirki\Ecommerce\DTO|mixed
      * @throws \Exception
      * */
     public function export();

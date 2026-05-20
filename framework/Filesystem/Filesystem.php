@@ -179,7 +179,7 @@ class Filesystem
      * @param string $path
      * @return string
      *
-     * @throws \Ecommerce\Exceptions\NotFoundException
+     * @thorws \Kirki\Ecommerce\Exceptions\NotFoundException
      */
     public function get($path)
     {

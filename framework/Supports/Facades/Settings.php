@@ -5,9 +5,9 @@ namespace Kirki\Ecommerce\Supports\Facades;
 use Kirki\Ecommerce\Facade;
 
 /**
- * @method static \Ecommerce\Core\AppSettings get(string $key)
+ * @method static \Kirki\Ecommerce\AppSettings get(string $key)
  *
- * @see \Ecommerce\App\Settings\SettingsFactory
+ * @see \Kirki\Ecommerce\App\Settings\SettingsFactory
  */
 class Settings extends Facade
 {

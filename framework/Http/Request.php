@@ -142,7 +142,7 @@ class Request implements RequestContract, Arrayable
      *
      * @since 1.0.0
      *
-     * @throws \Ecommerce\Exceptions\ValidationException
+     * @thorws \Kirki\Ecommerce\Exceptions\ValidationException
      *
      * @return array|null
      */
@@ -159,7 +159,7 @@ class Request implements RequestContract, Arrayable
      * @since 1.0.0
      *
      * @param array $rules The validation rules.
-     * @throws \Ecommerce\Exceptions\ValidationException
+     * @thorws \Kirki\Ecommerce\Exceptions\ValidationException
      *
      * @return array|null
      */
@@ -247,7 +247,7 @@ class Request implements RequestContract, Arrayable
      *
      * @since 1.0.0
      *
-     * @return \Ecommerce\Wordpress\User
+     * @return \Kirki\Ecommerce\Wordpress\User
      */
     public function user()
     {

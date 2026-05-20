@@ -23,7 +23,10 @@ class UniqueRule extends BaseRule
             throw new Exception(__("Missing parameters for unique rule.", 'kirki-ecommerce'));
         }
 
-        [$table_name, $column_name, $id] = explode(",", $this->rule_value, 3);
+        $parts = explode(',', $this->rule_value, 3);
+        $table_name = $parts[0];
+        $column_name = $parts[1] ?? '';
+        $id = $parts[2] ?? null;
 
         if (!empty($id)) {
             $result = DB::table($table_name)->where($column_name, $this->value)->where('id', '!=', $id)->first();

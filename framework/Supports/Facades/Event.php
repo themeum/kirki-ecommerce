@@ -9,7 +9,7 @@ use Kirki\Ecommerce\Facade;
  * @method static void dispatch_if(Closure $boolean, $event)
  * @method static void dispatch_unless(Closure $boolean, $event)
  *
- * @see \Ecommerce\Core\Managers\EventManager
+ * @see \Kirki\Ecommerce\Core\Managers\EventManager
  */
 class Event extends Facade
 {

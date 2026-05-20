@@ -89,7 +89,7 @@ class Response implements ArrayAccess
      * Get the JSON decoded body of the response as a collection.
      * 
      * @param string|null $key
-     * @return \Ecommerce\Collections\Collection
+     * @return \Kirki\Ecommerce\Collections\Collection
      */
     public function collect($key = null)
     {

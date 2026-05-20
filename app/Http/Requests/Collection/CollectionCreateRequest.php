@@ -12,7 +12,7 @@ class CollectionCreateRequest extends Request
     {
         return [
             'title' => 'required|string',
-            'slug' => 'string|nullable|unique:' . Collection::get_table() . ',slug',
+            'slug' => 'string|nullable|unique:' . Collection::get_table_name() . ',slug',
             'description' => 'string|nullable',
             'banner' => 'integer|nullable',
             'seo_title' => 'string|nullable',

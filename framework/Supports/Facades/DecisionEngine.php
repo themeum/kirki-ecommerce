@@ -13,7 +13,7 @@ use Kirki\Ecommerce\App\Decisions\Contexts\DecisionContext;
  * @method bool passes(array $condition_data)
  * @method void apply_action(array $action_data)
  *
- * @see \Ecommerce\App\Decisions\DecisionEngine
+ * @see \Kirki\Ecommerce\App\Decisions\DecisionEngine
  */
 class DecisionEngine extends Facade
 {

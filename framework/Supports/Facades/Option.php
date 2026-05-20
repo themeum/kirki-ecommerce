@@ -9,7 +9,7 @@ use Kirki\Ecommerce\Facade;
  * @method static mixed get(string $name, $default = null)
  * @method static bool delete(string $name)
  * 
- * @see \Ecommerce\Core\Managers\OptionManager
+ * @see \Kirki\Ecommerce\Core\Managers\OptionManager
  */
 class Option extends Facade
 {

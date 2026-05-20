@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\Exceptions;
 
+use Kirki\Ecommerce\Http\Response;
 use RuntimeException;
 
 /**
@@ -11,5 +12,16 @@ use RuntimeException;
  */
 class AuthorizationException extends RuntimeException
 {
-    // Custom logic can be added here if needed.
+    public function __construct($message = '', $code = 0, $previous = null)
+    {
+        if ($message === '') {
+            $message = __('You have to be logged in', 'kirki-ecommerce');
+        }
+
+        if ($code === 0) {
+            $code = Response::UNAUTHORIZED;
+        }
+
+        parent::__construct($message, $code, $previous);
+    }
 }

@@ -12,7 +12,7 @@ class BrandCreateRequest extends Request
     {
         return [
             'name' => 'required|string',
-            'slug' => 'string|nullable|unique:' . Brand::get_table() . ',slug',
+            'slug' => 'string|nullable|unique:' . Brand::get_table_name() . ',slug',
             'description' => 'string|nullable',
             'logo' => 'integer|nullable',
             'website_url' => 'string|nullable',

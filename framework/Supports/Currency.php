@@ -64,7 +64,7 @@ class Currency
      * Resolve currency from code or object.
      *
      * @param string $currency_code
-     * @return \Ecommerce\App\Models\Currency|null
+     * @return \Kirki\Ecommerce\App\Models\Currency|null
      */
     protected static function resolve_currency(string $currency_code)
     {

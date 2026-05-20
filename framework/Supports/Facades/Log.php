@@ -13,7 +13,7 @@ use Kirki\Ecommerce\Facade;
  * @method static void critical($message)
  * @method static void alert($message)
  *
- * @see \Ecommerce\Managers\LogManager
+ * @see \Kirki\Ecommerce\Managers\LogManager
  */
 class Log extends Facade
 {
