@@ -593,6 +593,7 @@ class Arr implements ArrayAccess, IteratorAggregate
      *
      * @since 1.0.0
      */
+    #[\ReturnTypeWillChange]
     public function offsetGet($key)
     {
         return $this->get($key);
@@ -608,7 +609,7 @@ class Arr implements ArrayAccess, IteratorAggregate
      *
      * @since 1.0.0
      */
-    public function offsetSet($key, $value)
+    public function offsetSet($key, $value): void
     {
         $this->set($key, $value);
     }
@@ -622,8 +623,7 @@ class Arr implements ArrayAccess, IteratorAggregate
      *
      * @since 1.0.0
      */
-    #[\ReturnTypeWillChange]
-    public function offsetUnset($key)
+    public function offsetUnset($key): void
     {
         unset($this->items[$key]);
     }
@@ -635,8 +635,7 @@ class Arr implements ArrayAccess, IteratorAggregate
      *
      * @since 1.0.0
      */
-    #[\ReturnTypeWillChange]
-    public function getIterator()
+    public function getIterator(): Traversable
     {
         return new ArrayIterator($this->items);
     }

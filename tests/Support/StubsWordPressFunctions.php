@@ -27,3 +27,37 @@ if (!function_exists('add_filter')) {
         return true;
     }
 }
+
+if (!function_exists('wp_json_encode')) {
+    function wp_json_encode($data, $options = 0, $depth = 512)
+    {
+        return json_encode($data, $options, $depth);
+    }
+}
+
+if (!function_exists('wp_generate_uuid4')) {
+    function wp_generate_uuid4()
+    {
+        return '00000000-0000-4000-8000-000000000000';
+    }
+}
+
+if (!function_exists('esc_html')) {
+    function esc_html($text)
+    {
+        return htmlspecialchars((string) $text, ENT_QUOTES, 'UTF-8');
+    }
+}
+
+if (!function_exists('sanitize_title')) {
+    function sanitize_title($title, $fallback_title = '', $context = 'save')
+    {
+        $title = strtolower((string) $title);
+        $title = preg_replace('/[^a-z0-9 _-]/', '', $title);
+        $title = preg_replace('/\s+/', '-', $title);
+
+        $title = trim($title, '-');
+
+        return $title === '' ? $fallback_title : $title;
+    }
+}
