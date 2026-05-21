@@ -7,8 +7,20 @@ use Kirki\Ecommerce\Tests\Support\RestTestCase;
 
 class TagApiTest extends RestTestCase
 {
-    private $tag_id;
+    /**
+     * Tag id for the current test.
+     *
+     * @var mixed
+     * @since 1.0.0
+     */
+    protected $tag_id;
 
+    /**
+     * Create tag returns 201 and persists.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_create_tag_returns_201_and_persists(): void
     {
         $response = $this->request('POST', 'tags', [
@@ -25,6 +37,12 @@ class TagApiTest extends RestTestCase
         $this->tag_id = $payload['data']['id'];
     }
 
+    /**
+     * Show tag returns resource.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_show_tag_returns_resource(): void
     {
         $this->tag_id = $this->create_tag()['id'];
@@ -36,6 +54,12 @@ class TagApiTest extends RestTestCase
         $this->assertEquals('Test Tag', $payload['data']['name']);
     }
 
+    /**
+     * Update tag changes fields.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_update_tag_changes_fields(): void
     {
         $this->tag_id = $this->create_tag()['id'];
@@ -52,6 +76,12 @@ class TagApiTest extends RestTestCase
         $this->assertEquals('updated-tag', $payload['data']['slug']);
     }
 
+    /**
+     * Delete tag removes record.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_delete_tag_removes_record(): void
     {
         $this->tag_id = $this->create_tag()['id'];
@@ -62,6 +92,12 @@ class TagApiTest extends RestTestCase
         $this->assertTrue($payload['data']);
     }
 
+    /**
+     * Show deleted tag returns 404.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_show_deleted_tag_returns_404(): void
     {
         $this->tag_id = $this->create_tag()['id'];
@@ -71,6 +107,12 @@ class TagApiTest extends RestTestCase
         $this->assert_api_error($response, 404);
     }
 
+    /**
+     * Create tag validation fails without name.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_create_tag_validation_fails_without_name(): void
     {
         $response = $this->request('POST', 'tags', [
@@ -80,6 +122,12 @@ class TagApiTest extends RestTestCase
         $this->assert_validation_error($response);
     }
 
+    /**
+     * Unauthenticated request returns 401.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_unauthenticated_request_returns_401(): void
     {
         $this->logout();
@@ -88,6 +136,12 @@ class TagApiTest extends RestTestCase
         $this->assert_api_error($response, 401);
     }
 
+    /**
+     * List tags returns paginated results.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_list_tags_returns_paginated_results(): void
     {
         $this->create_tag(['name' => 'Tag Alpha', 'slug' => 'tag-alpha']);
@@ -105,6 +159,12 @@ class TagApiTest extends RestTestCase
         $this->assertNotEmpty($payload['data']['results']);
     }
 
+    /**
+     * Bulk action on tags.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_bulk_action_on_tags(): void
     {
         $first = $this->create_tag(['name' => 'Bulk One', 'slug' => 'bulk-one']);
@@ -122,7 +182,14 @@ class TagApiTest extends RestTestCase
         $this->assert_api_error($check, 404);
     }
 
-    private function create_tag(array $overrides = []): array
+    /**
+     * Create tag.
+     * @param array $overrides Overrides.
+     *
+     * @return array
+     * @since 1.0.0
+     */
+    protected function create_tag(array $overrides = []): array
     {
         $response = $this->request('POST', 'tags', array_merge([
             'name' => 'Test Tag',

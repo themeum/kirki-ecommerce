@@ -8,6 +8,14 @@ trait CreatesTestProducts
 {
     use SeedsTestCurrency;
 
+    /**
+     * Create a product via the API.
+     *
+     * @param array $overrides Product attribute overrides.
+     *
+     * @return array
+     * @since 1.0.0
+     */
     protected function create_product(array $overrides = []): array
     {
         $response = $this->request('POST', 'products', $this->product_payload($overrides));
@@ -16,6 +24,14 @@ trait CreatesTestProducts
         return $payload['data'];
     }
 
+    /**
+     * Build a default product request payload.
+     *
+     * @param array $overrides Product attribute overrides.
+     *
+     * @return array
+     * @since 1.0.0
+     */
     protected function product_payload(array $overrides = []): array
     {
         $payload = [
@@ -36,11 +52,28 @@ trait CreatesTestProducts
         return array_merge($payload, $overrides);
     }
 
+    /**
+     * Return the first variant identifier from a product payload.
+     *
+     * @param array $product Product response data.
+     *
+     * @return int
+     * @since 1.0.0
+     */
     protected function default_variant_id(array $product): int
     {
         return (int) $product['variants'][0]['id'];
     }
 
+    /**
+     * Build variant payloads for product update requests.
+     *
+     * @param array $product   Product response data.
+     * @param array $overrides Variant attribute overrides.
+     *
+     * @return array
+     * @since 1.0.0
+     */
     protected function variants_for_update(array $product, array $overrides = []): array
     {
         $variants = [];

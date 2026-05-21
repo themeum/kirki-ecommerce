@@ -7,8 +7,20 @@ use Kirki\Ecommerce\Tests\Support\RestTestCase;
 
 class CollectionApiTest extends RestTestCase
 {
-    private $collection_id;
+    /**
+     * Collection id for the current test.
+     *
+     * @var mixed
+     * @since 1.0.0
+     */
+    protected $collection_id;
 
+    /**
+     * Create collection returns 201 and persists.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_create_collection_returns_201_and_persists(): void
     {
         $response = $this->request('POST', 'collections', [
@@ -27,6 +39,12 @@ class CollectionApiTest extends RestTestCase
         $this->collection_id = $payload['data']['id'];
     }
 
+    /**
+     * Show collection returns resource.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_show_collection_returns_resource(): void
     {
         $this->collection_id = $this->create_collection()['id'];
@@ -38,6 +56,12 @@ class CollectionApiTest extends RestTestCase
         $this->assertEquals('Test Collection', $payload['data']['title']);
     }
 
+    /**
+     * Update collection changes fields.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_update_collection_changes_fields(): void
     {
         $this->collection_id = $this->create_collection()['id'];
@@ -56,6 +80,12 @@ class CollectionApiTest extends RestTestCase
         $this->assertFalse($payload['data']['is_active']);
     }
 
+    /**
+     * Delete collection removes record.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_delete_collection_removes_record(): void
     {
         $this->collection_id = $this->create_collection()['id'];
@@ -66,6 +96,12 @@ class CollectionApiTest extends RestTestCase
         $this->assertTrue($payload['data']);
     }
 
+    /**
+     * Show deleted collection returns 404.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_show_deleted_collection_returns_404(): void
     {
         $this->collection_id = $this->create_collection()['id'];
@@ -75,6 +111,12 @@ class CollectionApiTest extends RestTestCase
         $this->assert_api_error($response, 404);
     }
 
+    /**
+     * Create collection validation fails without title.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_create_collection_validation_fails_without_title(): void
     {
         $response = $this->request('POST', 'collections', [
@@ -84,6 +126,12 @@ class CollectionApiTest extends RestTestCase
         $this->assert_validation_error($response);
     }
 
+    /**
+     * Unauthenticated request returns 401.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_unauthenticated_request_returns_401(): void
     {
         $this->logout();
@@ -92,6 +140,12 @@ class CollectionApiTest extends RestTestCase
         $this->assert_api_error($response, 401);
     }
 
+    /**
+     * List collections returns paginated results.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_list_collections_returns_paginated_results(): void
     {
         $this->create_collection(['title' => 'Collection Alpha', 'slug' => 'collection-alpha']);
@@ -109,6 +163,12 @@ class CollectionApiTest extends RestTestCase
         $this->assertNotEmpty($payload['data']['results']);
     }
 
+    /**
+     * Bulk action on collections.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_bulk_action_on_collections(): void
     {
         $first = $this->create_collection(['title' => 'Bulk One', 'slug' => 'bulk-one']);
@@ -126,7 +186,14 @@ class CollectionApiTest extends RestTestCase
         $this->assert_api_error($check, 404);
     }
 
-    private function create_collection(array $overrides = []): array
+    /**
+     * Create collection.
+     * @param array $overrides Overrides.
+     *
+     * @return array
+     * @since 1.0.0
+     */
+    protected function create_collection(array $overrides = []): array
     {
         $response = $this->request('POST', 'collections', array_merge([
             'title' => 'Test Collection',

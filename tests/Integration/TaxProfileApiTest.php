@@ -7,8 +7,20 @@ use Kirki\Ecommerce\Tests\Support\RestTestCase;
 
 class TaxProfileApiTest extends RestTestCase
 {
-    private $tax_profile_id;
+    /**
+     * Tax profile id for the current test.
+     *
+     * @var mixed
+     * @since 1.0.0
+     */
+    protected $tax_profile_id;
 
+    /**
+     * Create tax profile returns 201 and persists.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_create_tax_profile_returns_201_and_persists(): void
     {
         $response = $this->request('POST', 'tax-profiles', [
@@ -22,6 +34,12 @@ class TaxProfileApiTest extends RestTestCase
         $this->tax_profile_id = $payload['data']['id'];
     }
 
+    /**
+     * Show tax profile returns resource.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_show_tax_profile_returns_resource(): void
     {
         $profile = $this->create_tax_profile(['name' => 'Show Tax Profile']);
@@ -34,6 +52,12 @@ class TaxProfileApiTest extends RestTestCase
         $this->assertEquals('Show Tax Profile', $payload['data']['name']);
     }
 
+    /**
+     * Update tax profile changes fields.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_update_tax_profile_changes_fields(): void
     {
         $profile = $this->create_tax_profile();
@@ -48,6 +72,12 @@ class TaxProfileApiTest extends RestTestCase
         $this->assertEquals('Updated Tax Profile', $payload['data']['name']);
     }
 
+    /**
+     * Delete tax profile removes record.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_delete_tax_profile_removes_record(): void
     {
         $this->tax_profile_id = $this->create_tax_profile()['id'];
@@ -58,6 +88,12 @@ class TaxProfileApiTest extends RestTestCase
         $this->assertTrue($payload['data']);
     }
 
+    /**
+     * Show deleted tax profile returns 404.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_show_deleted_tax_profile_returns_404(): void
     {
         $this->tax_profile_id = $this->create_tax_profile()['id'];
@@ -67,6 +103,12 @@ class TaxProfileApiTest extends RestTestCase
         $this->assert_api_error($response, 404);
     }
 
+    /**
+     * Create tax profile validation fails without name.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_create_tax_profile_validation_fails_without_name(): void
     {
         $response = $this->request('POST', 'tax-profiles', [
@@ -76,6 +118,12 @@ class TaxProfileApiTest extends RestTestCase
         $this->assert_validation_error($response);
     }
 
+    /**
+     * Unauthenticated request returns 401.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_unauthenticated_request_returns_401(): void
     {
         $this->logout();
@@ -84,6 +132,12 @@ class TaxProfileApiTest extends RestTestCase
         $this->assert_api_error($response, 401);
     }
 
+    /**
+     * List tax profiles returns paginated results.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_list_tax_profiles_returns_paginated_results(): void
     {
         $this->create_tax_profile(['name' => 'Tax Alpha']);
@@ -101,6 +155,12 @@ class TaxProfileApiTest extends RestTestCase
         $this->assertNotEmpty($payload['data']['results']);
     }
 
+    /**
+     * Bulk action on tax profiles.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_bulk_action_on_tax_profiles(): void
     {
         $first = $this->create_tax_profile(['name' => 'Bulk One']);
@@ -118,7 +178,14 @@ class TaxProfileApiTest extends RestTestCase
         $this->assert_api_error($check, 404);
     }
 
-    private function create_tax_profile(array $overrides = []): array
+    /**
+     * Create tax profile.
+     * @param array $overrides Overrides.
+     *
+     * @return array
+     * @since 1.0.0
+     */
+    protected function create_tax_profile(array $overrides = []): array
     {
         $response = $this->request('POST', 'tax-profiles', array_merge([
             'name' => 'Test Tax Profile',

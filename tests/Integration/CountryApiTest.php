@@ -6,6 +6,12 @@ use Kirki\Ecommerce\Tests\Support\RestTestCase;
 
 class CountryApiTest extends RestTestCase
 {
+    /**
+     * List countries returns results.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_list_countries_returns_results(): void
     {
         $response = $this->request('GET', 'countries');
@@ -15,6 +21,12 @@ class CountryApiTest extends RestTestCase
         $this->assertNotEmpty($payload['data']);
     }
 
+    /**
+     * Show country returns resource.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_show_country_returns_resource(): void
     {
         $response = $this->request('GET', 'countries/US');
@@ -23,12 +35,24 @@ class CountryApiTest extends RestTestCase
         $this->assertEquals('US', $payload['data']['code']);
     }
 
+    /**
+     * Show unknown country returns 404.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_show_unknown_country_returns_404(): void
     {
         $response = $this->request('GET', 'countries/ZZ');
         $this->assert_api_error($response, 404);
     }
 
+    /**
+     * Unauthenticated request returns 401.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_unauthenticated_request_returns_401(): void
     {
         $this->logout();

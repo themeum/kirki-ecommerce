@@ -7,8 +7,20 @@ use Kirki\Ecommerce\Tests\Support\RestTestCase;
 
 class ShippingBoxApiTest extends RestTestCase
 {
-    private $shipping_box_id;
+    /**
+     * Shipping box id for the current test.
+     *
+     * @var mixed
+     * @since 1.0.0
+     */
+    protected $shipping_box_id;
 
+    /**
+     * Create shipping box returns 201 and persists.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_create_shipping_box_returns_201_and_persists(): void
     {
         $response = $this->request('POST', 'shipping-boxes', $this->shipping_box_payload([
@@ -22,6 +34,12 @@ class ShippingBoxApiTest extends RestTestCase
         $this->shipping_box_id = $payload['data']['id'];
     }
 
+    /**
+     * Show shipping box returns resource.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_show_shipping_box_returns_resource(): void
     {
         $box = $this->create_shipping_box(['name' => 'Show Box']);
@@ -34,6 +52,12 @@ class ShippingBoxApiTest extends RestTestCase
         $this->assertEquals('Show Box', $payload['data']['name']);
     }
 
+    /**
+     * Update shipping box changes fields.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_update_shipping_box_changes_fields(): void
     {
         $box = $this->create_shipping_box();
@@ -53,6 +77,12 @@ class ShippingBoxApiTest extends RestTestCase
         $this->assertEquals('Updated Box', $payload['data']['name']);
     }
 
+    /**
+     * Delete shipping box removes record.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_delete_shipping_box_removes_record(): void
     {
         $this->shipping_box_id = $this->create_shipping_box()['id'];
@@ -63,6 +93,12 @@ class ShippingBoxApiTest extends RestTestCase
         $this->assertTrue($payload['data']);
     }
 
+    /**
+     * Show deleted shipping box returns 404.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_show_deleted_shipping_box_returns_404(): void
     {
         $this->shipping_box_id = $this->create_shipping_box()['id'];
@@ -72,6 +108,12 @@ class ShippingBoxApiTest extends RestTestCase
         $this->assert_api_error($response, 404);
     }
 
+    /**
+     * Create shipping box validation fails without name.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_create_shipping_box_validation_fails_without_name(): void
     {
         $response = $this->request('POST', 'shipping-boxes', $this->shipping_box_payload([
@@ -81,6 +123,12 @@ class ShippingBoxApiTest extends RestTestCase
         $this->assert_validation_error($response);
     }
 
+    /**
+     * Unauthenticated request returns 401.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_unauthenticated_request_returns_401(): void
     {
         $this->logout();
@@ -89,6 +137,12 @@ class ShippingBoxApiTest extends RestTestCase
         $this->assert_api_error($response, 401);
     }
 
+    /**
+     * List shipping boxes returns paginated results.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_list_shipping_boxes_returns_paginated_results(): void
     {
         $this->create_shipping_box(['name' => 'Box Alpha']);
@@ -104,6 +158,12 @@ class ShippingBoxApiTest extends RestTestCase
         $this->assertGreaterThanOrEqual(2, $payload['data']['total']);
     }
 
+    /**
+     * Bulk action on shipping boxes.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_bulk_action_on_shipping_boxes(): void
     {
         $first = $this->create_shipping_box(['name' => 'Bulk One']);
@@ -121,7 +181,14 @@ class ShippingBoxApiTest extends RestTestCase
         $this->assert_api_error($check, 404);
     }
 
-    private function create_shipping_box(array $overrides = []): array
+    /**
+     * Create shipping box.
+     * @param array $overrides Overrides.
+     *
+     * @return array
+     * @since 1.0.0
+     */
+    protected function create_shipping_box(array $overrides = []): array
     {
         $response = $this->request('POST', 'shipping-boxes', $this->shipping_box_payload($overrides));
         $payload = $this->assert_api_success($response, 201);
@@ -129,7 +196,14 @@ class ShippingBoxApiTest extends RestTestCase
         return $payload['data'];
     }
 
-    private function shipping_box_payload(array $overrides = []): array
+    /**
+     * Shipping box payload.
+     * @param array $overrides Overrides.
+     *
+     * @return array
+     * @since 1.0.0
+     */
+    protected function shipping_box_payload(array $overrides = []): array
     {
         $payload = [
             'name' => 'Test Box',

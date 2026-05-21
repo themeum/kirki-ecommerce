@@ -41,6 +41,12 @@
     "fakerphp/faker": "^1.24"
   },
   "scripts": {
-    "test": "vendor/bin/phpunit"
+    "test": "vendor/bin/phpunit --testdox",
+    "test:unit": "vendor/bin/phpunit --testsuite Unit --testdox",
+    "test:integration": "vendor/bin/phpunit --testsuite Integration --testdox",
+    "test:docker:install": "bash kirki-test install",
+    "test:docker:unit": "bash kirki-test unit",
+    "test:docker:integration": "bash kirki-test integration",
+    "test:docker": "bash kirki-test all"
   }
 }

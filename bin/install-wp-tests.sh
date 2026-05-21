@@ -19,7 +19,7 @@ WP_CORE_DIR=${WP_CORE_DIR-$TMPDIR/wordpress}
 
 download() {
 	if [ $(which curl) ]; then
-		curl -s "$1" >"$2"
+		curl -sL "$1" >"$2"
 	elif [ $(which wget) ]; then
 		wget -nv -O "$2" "$1"
 	fi
@@ -69,6 +69,34 @@ install_wp() {
 	download https://raw.github.com/markoheijnen/wp-mysqli/master/db.php $WP_CORE_DIR/wp-content/db.php
 }
 
+install_test_suite_from_archive() {
+	local ARCHIVE="$TMPDIR/wordpress-develop-$$.tar.gz"
+	local EXTRACT_DIR="$TMPDIR/wordpress-develop-extract-$$"
+	local GITHUB_REF="trunk"
+	local URL
+
+	if [[ $WP_TESTS_TAG == tags/* ]]; then
+		GITHUB_REF="${WP_TESTS_TAG#tags/}"
+		URL="https://github.com/WordPress/wordpress-develop/archive/refs/tags/${GITHUB_REF}.tar.gz"
+	elif [[ $WP_TESTS_TAG == branches/* ]]; then
+		GITHUB_REF="${WP_TESTS_TAG#branches/}"
+		URL="https://github.com/WordPress/wordpress-develop/archive/refs/heads/${GITHUB_REF}.tar.gz"
+	else
+		URL="https://github.com/WordPress/wordpress-develop/archive/refs/heads/trunk.tar.gz"
+	fi
+
+	download "$URL" "$ARCHIVE"
+	mkdir -p "$EXTRACT_DIR"
+	tar -xzf "$ARCHIVE" -C "$EXTRACT_DIR"
+
+	local EXTRACTED_ROOT
+	EXTRACTED_ROOT=$(find "$EXTRACT_DIR" -mindepth 1 -maxdepth 1 -type d -name 'wordpress-develop*' | head -1)
+
+	cp -R "$EXTRACTED_ROOT/tests/phpunit/includes" "$WP_TESTS_DIR/includes"
+	cp -R "$EXTRACTED_ROOT/tests/phpunit/data" "$WP_TESTS_DIR/data"
+	rm -rf "$EXTRACT_DIR" "$ARCHIVE"
+}
+
 install_test_suite() {
 	if [ -d $WP_TESTS_DIR/includes ]; then
 		return
@@ -95,8 +123,7 @@ install_test_suite() {
 		return
 	fi
 
-	echo "Error: install wp tests requires svn or git."
-	exit 1
+	install_test_suite_from_archive
 }
 
 install_db() {

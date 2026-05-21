@@ -114,7 +114,8 @@ class Str
     {
         if (is_null($charlist)) {
             $trim_default_chars = " \n\r\t\v\0";
-            $regex = '~^[\s\x{FEFF}\x{200B}\x{200E}' . $trim_default_chars . ']+|[\s\x{FEFF}\x{200B}\x{200E}' . $trim_default_chars . ']+$~u';
+            $quoted_chars = preg_quote($trim_default_chars, '~');
+            $regex = '~^[\s\x{FEFF}\x{200B}\x{200E}' . $quoted_chars . ']+|[\s\x{FEFF}\x{200B}\x{200E}' . $quoted_chars . ']+$~u';
 
             return preg_replace($regex, '', $value) ?? trim($value);
         }
@@ -136,7 +137,8 @@ class Str
     {
         if (is_null($charlist)) {
             $ltrim_default_chars = " \n\r\t\v\0";
-            $regex = '~^[\s\x{FEFF}\x{200B}\x{200E}' . $ltrim_default_chars . ']+~u';
+            $quoted_chars = preg_quote($ltrim_default_chars, '~');
+            $regex = '~^[\s\x{FEFF}\x{200B}\x{200E}' . $quoted_chars . ']+~u';
 
             return preg_replace($regex, '', $value) ?? ltrim($value);
         }
@@ -158,7 +160,8 @@ class Str
     {
         if (is_null($charlist)) {
             $rtrim_default_chars = " \n\r\t\v\0";
-            $regex = '~[\s\x{FEFF}\x{200B}\x{200E}' . $rtrim_default_chars . ']+$~u';
+            $quoted_chars = preg_quote($rtrim_default_chars, '~');
+            $regex = '~[\s\x{FEFF}\x{200B}\x{200E}' . $quoted_chars . ']+$~u';
 
             return preg_replace($regex, '', $value) ?? rtrim($value);
         }

@@ -8,6 +8,26 @@ if (!file_exists($autoload)) {
     exit(1);
 }
 
+$is_unit_suite = false;
+
+foreach ($_SERVER['argv'] ?? [] as $index => $argument) {
+    if ($argument === '--testsuite' && isset($_SERVER['argv'][$index + 1]) && $_SERVER['argv'][$index + 1] === 'Unit') {
+        $is_unit_suite = true;
+        break;
+    }
+
+    if ($argument === '--testsuite=Unit' || strpos($argument, 'tests/Unit') !== false) {
+        $is_unit_suite = true;
+        break;
+    }
+}
+
+if ($is_unit_suite) {
+    require __DIR__ . '/Unit/bootstrap.php';
+
+    return;
+}
+
 require_once $autoload;
 
 require_once dirname(__DIR__) . '/vendor/yoast/phpunit-polyfills/phpunitpolyfills-autoload.php';
@@ -37,10 +57,10 @@ if (!function_exists('tests_add_filter')) {
         if (function_exists('add_filter')) {
             add_filter($hook_name, $callback, $priority, $accepted_args);
         } else {
-            $wp_filter[$hook_name][$priority][] = array(
+            $wp_filter[$hook_name][$priority][] = [
                 'function' => $callback,
                 'accepted_args' => $accepted_args,
-            );
+            ];
         }
 
         return true;

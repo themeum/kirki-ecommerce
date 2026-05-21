@@ -7,6 +7,14 @@ use ReflectionClass;
 
 trait RefreshesAppSingletons
 {
+    /**
+     * Remove a cached application singleton instance.
+     *
+     * @param string $abstract Service class name.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     protected static function forget_singleton(string $abstract): void
     {
         $app = Application::get_instance();

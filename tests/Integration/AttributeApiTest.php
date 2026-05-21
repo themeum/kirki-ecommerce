@@ -7,8 +7,20 @@ use Kirki\Ecommerce\Tests\Support\RestTestCase;
 
 class AttributeApiTest extends RestTestCase
 {
-    private $attribute_id;
+    /**
+     * Attribute id for the current test.
+     *
+     * @var mixed
+     * @since 1.0.0
+     */
+    protected $attribute_id;
 
+    /**
+     * Create attribute returns 201 and persists.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_create_attribute_returns_201_and_persists(): void
     {
         $response = $this->request('POST', 'attributes', [
@@ -26,6 +38,12 @@ class AttributeApiTest extends RestTestCase
         $this->attribute_id = $payload['data']['id'];
     }
 
+    /**
+     * Show attribute returns resource.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_show_attribute_returns_resource(): void
     {
         $attribute = $this->create_attribute([
@@ -41,6 +59,12 @@ class AttributeApiTest extends RestTestCase
         $this->assertEquals('Show Attribute', $payload['data']['name']);
     }
 
+    /**
+     * Update attribute changes fields.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_update_attribute_changes_fields(): void
     {
         $this->attribute_id = $this->create_attribute()['id'];
@@ -58,6 +82,12 @@ class AttributeApiTest extends RestTestCase
         $this->assertEquals('list', $payload['data']['type']);
     }
 
+    /**
+     * Delete attribute removes record.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_delete_attribute_removes_record(): void
     {
         $this->attribute_id = $this->create_attribute()['id'];
@@ -68,6 +98,12 @@ class AttributeApiTest extends RestTestCase
         $this->assertTrue($payload['data']);
     }
 
+    /**
+     * Show deleted attribute returns 404.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_show_deleted_attribute_returns_404(): void
     {
         $this->attribute_id = $this->create_attribute()['id'];
@@ -77,6 +113,12 @@ class AttributeApiTest extends RestTestCase
         $this->assert_api_error($response, 404);
     }
 
+    /**
+     * Create attribute validation fails without name.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_create_attribute_validation_fails_without_name(): void
     {
         $response = $this->request('POST', 'attributes', [
@@ -86,6 +128,12 @@ class AttributeApiTest extends RestTestCase
         $this->assert_validation_error($response);
     }
 
+    /**
+     * Unauthenticated request returns 401.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_unauthenticated_request_returns_401(): void
     {
         $this->logout();
@@ -94,6 +142,12 @@ class AttributeApiTest extends RestTestCase
         $this->assert_api_error($response, 401);
     }
 
+    /**
+     * List attributes returns paginated results.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_list_attributes_returns_paginated_results(): void
     {
         $this->create_attribute(['name' => 'Attribute Alpha', 'slug' => 'attribute-alpha']);
@@ -111,6 +165,12 @@ class AttributeApiTest extends RestTestCase
         $this->assertNotEmpty($payload['data']['results']);
     }
 
+    /**
+     * Bulk action on attributes.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_bulk_action_on_attributes(): void
     {
         $first = $this->create_attribute(['name' => 'Bulk One', 'slug' => 'bulk-one']);
@@ -128,7 +188,14 @@ class AttributeApiTest extends RestTestCase
         $this->assert_api_error($check, 404);
     }
 
-    private function create_attribute(array $overrides = []): array
+    /**
+     * Create attribute.
+     * @param array $overrides Overrides.
+     *
+     * @return array
+     * @since 1.0.0
+     */
+    protected function create_attribute(array $overrides = []): array
     {
         $response = $this->request('POST', 'attributes', array_merge([
             'name' => 'Test Attribute ' . wp_generate_password(6, false),

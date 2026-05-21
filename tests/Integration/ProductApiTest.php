@@ -10,14 +10,32 @@ class ProductApiTest extends RestTestCase
 {
     use CreatesTestProducts;
 
-    private $product_id;
+    /**
+     * Product id for the current test.
+     *
+     * @var mixed
+     * @since 1.0.0
+     */
+    protected $product_id;
 
+    /**
+     * Prepare state before each test.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     protected function setUp(): void
     {
         parent::setUp();
         $this->seed_base_currency();
     }
 
+    /**
+     * Create product returns 201 and persists.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_create_product_returns_201_and_persists(): void
     {
         $response = $this->request('POST', 'products', $this->product_payload([
@@ -32,6 +50,12 @@ class ProductApiTest extends RestTestCase
         $this->product_id = $payload['data']['id'];
     }
 
+    /**
+     * Show product returns resource.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_show_product_returns_resource(): void
     {
         $product = $this->create_product(['title' => 'Show Product']);
@@ -44,6 +68,12 @@ class ProductApiTest extends RestTestCase
         $this->assertEquals('Show Product', $payload['data']['title']);
     }
 
+    /**
+     * Update product changes fields.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_update_product_changes_fields(): void
     {
         $created = $this->create_product();
@@ -64,6 +94,12 @@ class ProductApiTest extends RestTestCase
         $this->assertEquals('Updated Product', $payload['data']['title']);
     }
 
+    /**
+     * Delete product removes record.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_delete_product_removes_record(): void
     {
         $this->product_id = $this->create_product()['id'];
@@ -74,6 +110,12 @@ class ProductApiTest extends RestTestCase
         $this->assertTrue($payload['data']);
     }
 
+    /**
+     * Show deleted product returns 404.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_show_deleted_product_returns_404(): void
     {
         $this->product_id = $this->create_product()['id'];
@@ -83,6 +125,12 @@ class ProductApiTest extends RestTestCase
         $this->assert_api_error($response, 404);
     }
 
+    /**
+     * Create product validation fails without title.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_create_product_validation_fails_without_title(): void
     {
         $response = $this->request('POST', 'products', $this->product_payload([
@@ -92,6 +140,12 @@ class ProductApiTest extends RestTestCase
         $this->assert_validation_error($response);
     }
 
+    /**
+     * Unauthenticated request returns 401.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_unauthenticated_request_returns_401(): void
     {
         $this->logout();
@@ -100,6 +154,12 @@ class ProductApiTest extends RestTestCase
         $this->assert_api_error($response, 401);
     }
 
+    /**
+     * List products returns paginated results.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_list_products_returns_paginated_results(): void
     {
         $this->create_product(['title' => 'Product Alpha']);
@@ -117,6 +177,12 @@ class ProductApiTest extends RestTestCase
         $this->assertNotEmpty($payload['data']['results']);
     }
 
+    /**
+     * Bulk action on products.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_bulk_action_on_products(): void
     {
         $first = $this->create_product(['title' => 'Bulk One']);

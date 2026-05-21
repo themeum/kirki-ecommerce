@@ -7,8 +7,20 @@ use Kirki\Ecommerce\Tests\Support\RestTestCase;
 
 class ProductSchemaApiTest extends RestTestCase
 {
-    private $schema_id;
+    /**
+     * Schema id for the current test.
+     *
+     * @var mixed
+     * @since 1.0.0
+     */
+    protected $schema_id;
 
+    /**
+     * Create product schema returns 201 and persists.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_create_product_schema_returns_201_and_persists(): void
     {
         $response = $this->request('POST', 'product-schemas', [
@@ -24,6 +36,12 @@ class ProductSchemaApiTest extends RestTestCase
         $this->schema_id = $payload['data']['id'];
     }
 
+    /**
+     * Show product schema returns resource.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_show_product_schema_returns_resource(): void
     {
         $schema = $this->create_product_schema(['name' => 'Show Schema']);
@@ -36,6 +54,12 @@ class ProductSchemaApiTest extends RestTestCase
         $this->assertEquals('Show Schema', $payload['data']['name']);
     }
 
+    /**
+     * Update product schema changes fields.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_update_product_schema_changes_fields(): void
     {
         $schema = $this->create_product_schema();
@@ -52,6 +76,12 @@ class ProductSchemaApiTest extends RestTestCase
         $this->assertEquals('Updated Schema', $payload['data']['name']);
     }
 
+    /**
+     * Delete product schema removes record.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_delete_product_schema_removes_record(): void
     {
         $this->schema_id = $this->create_product_schema()['id'];
@@ -62,6 +92,12 @@ class ProductSchemaApiTest extends RestTestCase
         $this->assertTrue($payload['data']);
     }
 
+    /**
+     * Show deleted product schema returns 404.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_show_deleted_product_schema_returns_404(): void
     {
         $this->schema_id = $this->create_product_schema()['id'];
@@ -71,6 +107,12 @@ class ProductSchemaApiTest extends RestTestCase
         $this->assert_api_error($response, 404);
     }
 
+    /**
+     * Create product schema validation fails without name.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_create_product_schema_validation_fails_without_name(): void
     {
         $response = $this->request('POST', 'product-schemas', [
@@ -80,6 +122,12 @@ class ProductSchemaApiTest extends RestTestCase
         $this->assert_validation_error($response);
     }
 
+    /**
+     * Unauthenticated request returns 401.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_unauthenticated_request_returns_401(): void
     {
         $this->logout();
@@ -88,6 +136,12 @@ class ProductSchemaApiTest extends RestTestCase
         $this->assert_api_error($response, 401);
     }
 
+    /**
+     * List product schemas returns paginated results.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_list_product_schemas_returns_paginated_results(): void
     {
         $this->create_product_schema(['name' => 'Schema Alpha']);
@@ -103,6 +157,12 @@ class ProductSchemaApiTest extends RestTestCase
         $this->assertGreaterThanOrEqual(2, $payload['data']['total']);
     }
 
+    /**
+     * Bulk action on product schemas.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_bulk_action_on_product_schemas(): void
     {
         $first = $this->create_product_schema(['name' => 'Bulk One']);
@@ -120,7 +180,14 @@ class ProductSchemaApiTest extends RestTestCase
         $this->assert_api_error($check, 404);
     }
 
-    private function create_product_schema(array $overrides = []): array
+    /**
+     * Create product schema.
+     * @param array $overrides Overrides.
+     *
+     * @return array
+     * @since 1.0.0
+     */
+    protected function create_product_schema(array $overrides = []): array
     {
         $response = $this->request('POST', 'product-schemas', array_merge([
             'name' => 'Test Schema',

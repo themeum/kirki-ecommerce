@@ -7,8 +7,20 @@ use Kirki\Ecommerce\Tests\Support\RestTestCase;
 
 class BrandApiTest extends RestTestCase
 {
-    private $brand_id;
+    /**
+     * Brand id for the current test.
+     *
+     * @var mixed
+     * @since 1.0.0
+     */
+    protected $brand_id;
 
+    /**
+     * Create brand returns 201 and persists.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_create_brand_returns_201_and_persists(): void
     {
         $response = $this->request('POST', 'brands', [
@@ -29,6 +41,12 @@ class BrandApiTest extends RestTestCase
         $this->brand_id = $payload['data']['id'];
     }
 
+    /**
+     * Show brand returns resource.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_show_brand_returns_resource(): void
     {
         $this->brand_id = $this->create_brand()['id'];
@@ -40,6 +58,12 @@ class BrandApiTest extends RestTestCase
         $this->assertEquals('Test Brand', $payload['data']['name']);
     }
 
+    /**
+     * Update brand changes fields.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_update_brand_changes_fields(): void
     {
         $this->brand_id = $this->create_brand()['id'];
@@ -60,6 +84,12 @@ class BrandApiTest extends RestTestCase
         $this->assertFalse($payload['data']['is_active']);
     }
 
+    /**
+     * Delete brand removes record.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_delete_brand_removes_record(): void
     {
         $this->brand_id = $this->create_brand()['id'];
@@ -70,6 +100,12 @@ class BrandApiTest extends RestTestCase
         $this->assertTrue($payload['data']);
     }
 
+    /**
+     * Show deleted brand returns 404.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_show_deleted_brand_returns_404(): void
     {
         $this->brand_id = $this->create_brand()['id'];
@@ -79,6 +115,12 @@ class BrandApiTest extends RestTestCase
         $this->assert_api_error($response, 404);
     }
 
+    /**
+     * Create brand validation fails without name.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_create_brand_validation_fails_without_name(): void
     {
         $response = $this->request('POST', 'brands', [
@@ -88,6 +130,12 @@ class BrandApiTest extends RestTestCase
         $this->assert_validation_error($response);
     }
 
+    /**
+     * Unauthenticated request returns 401.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_unauthenticated_request_returns_401(): void
     {
         $this->logout();
@@ -96,6 +144,12 @@ class BrandApiTest extends RestTestCase
         $this->assert_api_error($response, 401);
     }
 
+    /**
+     * List brands returns paginated results.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_list_brands_returns_paginated_results(): void
     {
         $this->create_brand(['name' => 'Brand Alpha', 'slug' => 'brand-alpha']);
@@ -113,6 +167,12 @@ class BrandApiTest extends RestTestCase
         $this->assertNotEmpty($payload['data']['results']);
     }
 
+    /**
+     * Bulk action on brands.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_bulk_action_on_brands(): void
     {
         $first = $this->create_brand(['name' => 'Bulk One', 'slug' => 'bulk-one']);
@@ -130,7 +190,14 @@ class BrandApiTest extends RestTestCase
         $this->assert_api_error($check, 404);
     }
 
-    private function create_brand(array $overrides = []): array
+    /**
+     * Create brand.
+     * @param array $overrides Overrides.
+     *
+     * @return array
+     * @since 1.0.0
+     */
+    protected function create_brand(array $overrides = []): array
     {
         $response = $this->request('POST', 'brands', array_merge([
             'name' => 'Test Brand',
