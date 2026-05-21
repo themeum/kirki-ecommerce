@@ -13,10 +13,34 @@ class OrderApiTest extends RestTestCase
     use CreatesTestProducts;
     use SeedsTestShipping;
 
-    private $order_id;
-    private $variant_id;
-    private $refund_id;
+    /**
+     * Order id for the current test.
+     *
+     * @var mixed
+     * @since 1.0.0
+     */
+    protected $order_id;
+    /**
+     * Variant id for the current test.
+     *
+     * @var mixed
+     * @since 1.0.0
+     */
+    protected $variant_id;
+    /**
+     * Refund id for the current test.
+     *
+     * @var mixed
+     * @since 1.0.0
+     */
+    protected $refund_id;
 
+    /**
+     * Prepare state before each test.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     protected function setUp(): void
     {
         parent::setUp();
@@ -27,6 +51,12 @@ class OrderApiTest extends RestTestCase
         $this->variant_id = $this->default_variant_id($product);
     }
 
+    /**
+     * Store order returns 201.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_store_order_returns_201(): void
     {
         $response = $this->request('POST', 'orders', $this->order_payload());
@@ -38,6 +68,12 @@ class OrderApiTest extends RestTestCase
         $this->order_id = $payload['data']['id'];
     }
 
+    /**
+     * Show order returns resource.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_show_order_returns_resource(): void
     {
         $order = $this->create_order();
@@ -49,6 +85,12 @@ class OrderApiTest extends RestTestCase
         $this->assertEquals($this->order_id, $payload['data']['id']);
     }
 
+    /**
+     * List orders returns paginated results.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_list_orders_returns_paginated_results(): void
     {
         $this->create_order();
@@ -63,6 +105,12 @@ class OrderApiTest extends RestTestCase
         $this->assertGreaterThanOrEqual(1, $payload['data']['total']);
     }
 
+    /**
+     * Update order changes notes.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_update_order_changes_notes(): void
     {
         $order = $this->create_order();
@@ -86,6 +134,12 @@ class OrderApiTest extends RestTestCase
         $this->assertEquals('Updated notes', $payload['data']['customer_notes']);
     }
 
+    /**
+     * Delete order removes record.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_delete_order_removes_record(): void
     {
         $this->order_id = $this->create_order()['id'];
@@ -96,6 +150,12 @@ class OrderApiTest extends RestTestCase
         $this->assertTrue($payload['data']);
     }
 
+    /**
+     * Create refund on order.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_create_refund_on_order(): void
     {
         $order = $this->create_order();
@@ -111,6 +171,12 @@ class OrderApiTest extends RestTestCase
         $this->assertNotEmpty($payload['data']['refunds']);
     }
 
+    /**
+     * Store order validation fails without items.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_store_order_validation_fails_without_items(): void
     {
         $response = $this->request('POST', 'orders', $this->order_payload([
@@ -120,6 +186,12 @@ class OrderApiTest extends RestTestCase
         $this->assert_validation_error($response);
     }
 
+    /**
+     * Unauthenticated request returns 401.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_unauthenticated_request_returns_401(): void
     {
         $this->logout();
@@ -128,7 +200,14 @@ class OrderApiTest extends RestTestCase
         $this->assert_api_error($response, 401);
     }
 
-    private function create_order(array $overrides = []): array
+    /**
+     * Create order.
+     * @param array $overrides Overrides.
+     *
+     * @return array
+     * @since 1.0.0
+     */
+    protected function create_order(array $overrides = []): array
     {
         $response = $this->request('POST', 'orders', $this->order_payload($overrides));
         $payload = $this->assert_api_success($response, 201);
@@ -136,7 +215,13 @@ class OrderApiTest extends RestTestCase
         return $payload['data'];
     }
 
-    private function create_customer(): array
+    /**
+     * Create customer.
+     *
+     * @return array
+     * @since 1.0.0
+     */
+    protected function create_customer(): array
     {
         $unique = wp_generate_password(8, false);
         $response = $this->request('POST', 'customers', [
@@ -164,7 +249,14 @@ class OrderApiTest extends RestTestCase
         return $payload['data'];
     }
 
-    private function order_payload(array $overrides = []): array
+    /**
+     * Order payload.
+     * @param array $overrides Overrides.
+     *
+     * @return array
+     * @since 1.0.0
+     */
+    protected function order_payload(array $overrides = []): array
     {
         $payload = [
             'items' => [

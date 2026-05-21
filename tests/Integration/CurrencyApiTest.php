@@ -7,8 +7,20 @@ use Kirki\Ecommerce\Tests\Support\RestTestCase;
 
 class CurrencyApiTest extends RestTestCase
 {
-    private $currency_id;
+    /**
+     * Currency id for the current test.
+     *
+     * @var mixed
+     * @since 1.0.0
+     */
+    protected $currency_id;
 
+    /**
+     * Create currencies returns 201.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_create_currencies_returns_201(): void
     {
         $code = $this->unique_currency_code();
@@ -31,6 +43,12 @@ class CurrencyApiTest extends RestTestCase
         $this->assertEmpty($payload['data']);
     }
 
+    /**
+     * Show currency returns resource.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_show_currency_returns_resource(): void
     {
         $currency = $this->create_currency(['name' => 'Show Currency']);
@@ -44,6 +62,12 @@ class CurrencyApiTest extends RestTestCase
         $this->assertEquals($currency['code'], $payload['data']['code']);
     }
 
+    /**
+     * Update currencies changes fields.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_update_currencies_changes_fields(): void
     {
         $currency = $this->create_currency();
@@ -70,6 +94,12 @@ class CurrencyApiTest extends RestTestCase
         $this->assertEquals(1.25, (float) $payload['data'][0]['exchange_rate']);
     }
 
+    /**
+     * Delete currency removes record.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_delete_currency_removes_record(): void
     {
         $this->currency_id = $this->create_currency()['id'];
@@ -80,6 +110,12 @@ class CurrencyApiTest extends RestTestCase
         $this->assertTrue($payload['data']);
     }
 
+    /**
+     * Show deleted currency returns 404.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_show_deleted_currency_returns_404(): void
     {
         $this->currency_id = $this->create_currency()['id'];
@@ -89,6 +125,12 @@ class CurrencyApiTest extends RestTestCase
         $this->assert_api_error($response, 404);
     }
 
+    /**
+     * Create currency validation fails without items.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_create_currency_validation_fails_without_items(): void
     {
         $response = $this->request('POST', 'currencies', []);
@@ -96,6 +138,12 @@ class CurrencyApiTest extends RestTestCase
         $this->assert_validation_error($response);
     }
 
+    /**
+     * Unauthenticated request returns 401.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_unauthenticated_request_returns_401(): void
     {
         $this->logout();
@@ -104,6 +152,12 @@ class CurrencyApiTest extends RestTestCase
         $this->assert_api_error($response, 401);
     }
 
+    /**
+     * List currencies returns paginated results.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_list_currencies_returns_paginated_results(): void
     {
         $this->create_currency(['name' => 'Currency Alpha']);
@@ -121,6 +175,12 @@ class CurrencyApiTest extends RestTestCase
         $this->assertNotEmpty($payload['data']['results']);
     }
 
+    /**
+     * List available currencies returns collection.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_list_available_currencies_returns_collection(): void
     {
         $response = $this->request('GET', 'currencies/list');
@@ -133,6 +193,12 @@ class CurrencyApiTest extends RestTestCase
         $this->assertArrayHasKey('symbol', $payload['data'][0]);
     }
 
+    /**
+     * Bulk action on currencies.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_bulk_action_on_currencies(): void
     {
         $first = $this->create_currency(['name' => 'Bulk One']);
@@ -150,7 +216,14 @@ class CurrencyApiTest extends RestTestCase
         $this->assert_api_error($check, 404);
     }
 
-    private function create_currency(array $overrides = []): array
+    /**
+     * Create currency.
+     * @param array $overrides Overrides.
+     *
+     * @return array
+     * @since 1.0.0
+     */
+    protected function create_currency(array $overrides = []): array
     {
         $code = $overrides['code'] ?? $this->unique_currency_code();
 
@@ -184,7 +257,13 @@ class CurrencyApiTest extends RestTestCase
         $this->fail('Currency not found after create');
     }
 
-    private function unique_currency_code(): string
+    /**
+     * Unique currency code.
+     *
+     * @return string
+     * @since 1.0.0
+     */
+    protected function unique_currency_code(): string
     {
         return 'T' . strtoupper(substr(wp_generate_password(4, false), 0, 2));
     }

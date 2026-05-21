@@ -37,10 +37,10 @@ if (!function_exists('tests_add_filter')) {
         if (function_exists('add_filter')) {
             add_filter($hook_name, $callback, $priority, $accepted_args);
         } else {
-            $wp_filter[$hook_name][$priority][] = array(
+            $wp_filter[$hook_name][$priority][] = [
                 'function' => $callback,
                 'accepted_args' => $accepted_args,
-            );
+            ];
         }
 
         return true;

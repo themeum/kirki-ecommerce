@@ -9,12 +9,24 @@ class VariantApiTest extends RestTestCase
 {
     use CreatesTestProducts;
 
+    /**
+     * Prepare state before each test.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     protected function setUp(): void
     {
         parent::setUp();
         $this->seed_base_currency();
     }
 
+    /**
+     * List variants returns paginated results.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_list_variants_returns_paginated_results(): void
     {
         $this->create_product();
@@ -30,6 +42,12 @@ class VariantApiTest extends RestTestCase
         $this->assertGreaterThanOrEqual(1, $payload['data']['total']);
     }
 
+    /**
+     * Get variants by ids returns resources.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_get_variants_by_ids_returns_resources(): void
     {
         $product = $this->create_product();
@@ -42,6 +60,12 @@ class VariantApiTest extends RestTestCase
         $this->assertEquals($variant_id, $payload['data'][0]['id']);
     }
 
+    /**
+     * Unauthenticated request returns 401.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_unauthenticated_request_returns_401(): void
     {
         $this->logout();

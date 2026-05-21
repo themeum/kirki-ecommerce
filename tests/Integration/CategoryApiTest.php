@@ -7,8 +7,20 @@ use Kirki\Ecommerce\Tests\Support\RestTestCase;
 
 class CategoryApiTest extends RestTestCase
 {
-    private $category_id;
+    /**
+     * Category id for the current test.
+     *
+     * @var mixed
+     * @since 1.0.0
+     */
+    protected $category_id;
 
+    /**
+     * Create category returns 201 and persists.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_create_category_returns_201_and_persists(): void
     {
         $response = $this->request('POST', 'categories', [
@@ -27,6 +39,12 @@ class CategoryApiTest extends RestTestCase
         $this->category_id = $payload['data']['id'];
     }
 
+    /**
+     * Show category returns resource.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_show_category_returns_resource(): void
     {
         $this->category_id = $this->create_category()['id'];
@@ -38,6 +56,12 @@ class CategoryApiTest extends RestTestCase
         $this->assertEquals('Test Category', $payload['data']['name']);
     }
 
+    /**
+     * Update category changes fields.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_update_category_changes_fields(): void
     {
         $this->category_id = $this->create_category()['id'];
@@ -56,6 +80,12 @@ class CategoryApiTest extends RestTestCase
         $this->assertFalse($payload['data']['is_active']);
     }
 
+    /**
+     * Delete category removes record.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_delete_category_removes_record(): void
     {
         $this->category_id = $this->create_category()['id'];
@@ -66,6 +96,12 @@ class CategoryApiTest extends RestTestCase
         $this->assertTrue($payload['data']);
     }
 
+    /**
+     * Show deleted category returns 404.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_show_deleted_category_returns_404(): void
     {
         $this->category_id = $this->create_category()['id'];
@@ -75,6 +111,12 @@ class CategoryApiTest extends RestTestCase
         $this->assert_api_error($response, 404);
     }
 
+    /**
+     * Create category validation fails without name.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_create_category_validation_fails_without_name(): void
     {
         $response = $this->request('POST', 'categories', [
@@ -84,6 +126,12 @@ class CategoryApiTest extends RestTestCase
         $this->assert_validation_error($response);
     }
 
+    /**
+     * Unauthenticated request returns 401.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_unauthenticated_request_returns_401(): void
     {
         $this->logout();
@@ -92,6 +140,12 @@ class CategoryApiTest extends RestTestCase
         $this->assert_api_error($response, 401);
     }
 
+    /**
+     * List categories returns paginated results.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_list_categories_returns_paginated_results(): void
     {
         $this->create_category(['name' => 'Category Alpha', 'slug' => 'category-alpha']);
@@ -109,6 +163,12 @@ class CategoryApiTest extends RestTestCase
         $this->assertNotEmpty($payload['data']['results']);
     }
 
+    /**
+     * Bulk action on categories.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_bulk_action_on_categories(): void
     {
         $first = $this->create_category(['name' => 'Bulk One', 'slug' => 'bulk-one']);
@@ -126,7 +186,14 @@ class CategoryApiTest extends RestTestCase
         $this->assert_api_error($check, 404);
     }
 
-    private function create_category(array $overrides = []): array
+    /**
+     * Create category.
+     * @param array $overrides Overrides.
+     *
+     * @return array
+     * @since 1.0.0
+     */
+    protected function create_category(array $overrides = []): array
     {
         $response = $this->request('POST', 'categories', array_merge([
             'name' => 'Test Category',

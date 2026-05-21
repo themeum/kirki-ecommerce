@@ -4,17 +4,38 @@ namespace Kirki\Ecommerce\Tests\Integration;
 
 use Kirki\Ecommerce\App\Constants\BulkActions;
 use Kirki\Ecommerce\Tests\Support\RestTestCase;
+use Kirki\Ecommerce\Tests\Support\SeedsTestCurrency;
 
 class CustomerApiTest extends RestTestCase
 {
-    private $customer_id;
+    use SeedsTestCurrency;
 
+    /**
+     * Customer id for the current test.
+     *
+     * @var mixed
+     * @since 1.0.0
+     */
+    protected $customer_id;
+
+    /**
+     * Prepare state before each test.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     protected function setUp(): void
     {
         parent::setUp();
         $this->seed_base_currency();
     }
 
+    /**
+     * Create customer returns 201 and persists.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_create_customer_returns_201_and_persists(): void
     {
         $response = $this->request('POST', 'customers', $this->customer_payload([
@@ -32,6 +53,12 @@ class CustomerApiTest extends RestTestCase
         $this->customer_id = $payload['data']['id'];
     }
 
+    /**
+     * Show customer returns resource.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_show_customer_returns_resource(): void
     {
         $customer = $this->create_customer([
@@ -48,6 +75,12 @@ class CustomerApiTest extends RestTestCase
         $this->assertEquals('Customer', $payload['data']['last_name']);
     }
 
+    /**
+     * Update customer changes fields.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_update_customer_changes_fields(): void
     {
         $customer = $this->create_customer();
@@ -69,6 +102,12 @@ class CustomerApiTest extends RestTestCase
         $this->assertEquals('Name', $payload['data']['last_name']);
     }
 
+    /**
+     * Delete customer removes record.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_delete_customer_removes_record(): void
     {
         $this->customer_id = $this->create_customer()['id'];
@@ -79,6 +118,12 @@ class CustomerApiTest extends RestTestCase
         $this->assertTrue($payload['data']);
     }
 
+    /**
+     * Show deleted customer returns 404.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_show_deleted_customer_returns_404(): void
     {
         $this->customer_id = $this->create_customer()['id'];
@@ -88,6 +133,12 @@ class CustomerApiTest extends RestTestCase
         $this->assert_api_error($response, 404);
     }
 
+    /**
+     * Create customer validation fails without email.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_create_customer_validation_fails_without_email(): void
     {
         $response = $this->request('POST', 'customers', $this->customer_payload([
@@ -97,6 +148,12 @@ class CustomerApiTest extends RestTestCase
         $this->assert_validation_error($response);
     }
 
+    /**
+     * Unauthenticated request returns 401.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_unauthenticated_request_returns_401(): void
     {
         $this->logout();
@@ -105,6 +162,12 @@ class CustomerApiTest extends RestTestCase
         $this->assert_api_error($response, 401);
     }
 
+    /**
+     * List customers returns paginated results.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_list_customers_returns_paginated_results(): void
     {
         $this->create_customer(['first_name' => 'List Alpha']);
@@ -122,6 +185,12 @@ class CustomerApiTest extends RestTestCase
         $this->assertNotEmpty($payload['data']['results']);
     }
 
+    /**
+     * Bulk action on customers.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_bulk_action_on_customers(): void
     {
         $first = $this->create_customer(['first_name' => 'Bulk One']);
@@ -139,7 +208,14 @@ class CustomerApiTest extends RestTestCase
         $this->assert_api_error($check, 404);
     }
 
-    private function create_customer(array $overrides = []): array
+    /**
+     * Create customer.
+     * @param array $overrides Overrides.
+     *
+     * @return array
+     * @since 1.0.0
+     */
+    protected function create_customer(array $overrides = []): array
     {
         $response = $this->request('POST', 'customers', $this->customer_payload($overrides));
         $payload = $this->assert_api_success($response, 201);
@@ -147,7 +223,14 @@ class CustomerApiTest extends RestTestCase
         return $payload['data'];
     }
 
-    private function customer_payload(array $overrides = []): array
+    /**
+     * Customer payload.
+     * @param array $overrides Overrides.
+     *
+     * @return array
+     * @since 1.0.0
+     */
+    protected function customer_payload(array $overrides = []): array
     {
         $unique = wp_generate_password(8, false);
 
@@ -184,28 +267,5 @@ class CustomerApiTest extends RestTestCase
         }
 
         return array_replace_recursive($payload, $overrides);
-    }
-
-    private function seed_base_currency(): void
-    {
-        $existing = $this->request('GET', 'currencies', ['limit' => 1]);
-        $payload = $this->assert_api_success($existing);
-
-        if (!empty($payload['data']['results'])) {
-            return;
-        }
-
-        $this->request('POST', 'currencies', [
-            'items' => [
-                [
-                    'code' => 'USD',
-                    'name' => 'US Dollar',
-                    'symbol' => '$',
-                    'exchange_rate' => 1.0,
-                    'is_base' => true,
-                    'is_active' => true,
-                ],
-            ],
-        ]);
     }
 }

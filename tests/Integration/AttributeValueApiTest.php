@@ -7,9 +7,27 @@ use Kirki\Ecommerce\Tests\Support\RestTestCase;
 
 class AttributeValueApiTest extends RestTestCase
 {
-    private $attribute_id;
-    private $value_id;
+    /**
+     * Attribute id for the current test.
+     *
+     * @var mixed
+     * @since 1.0.0
+     */
+    protected $attribute_id;
+    /**
+     * Value id for the current test.
+     *
+     * @var mixed
+     * @since 1.0.0
+     */
+    protected $value_id;
 
+    /**
+     * Create attribute value returns 201 and persists.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_create_attribute_value_returns_201_and_persists(): void
     {
         $this->attribute_id = $this->create_attribute()['id'];
@@ -28,6 +46,12 @@ class AttributeValueApiTest extends RestTestCase
         $this->value_id = $payload['data']['id'];
     }
 
+    /**
+     * Show attribute value returns resource.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_show_attribute_value_returns_resource(): void
     {
         $value = $this->create_attribute_value();
@@ -41,6 +65,12 @@ class AttributeValueApiTest extends RestTestCase
         $this->assertEquals('Test Value', $payload['data']['value']);
     }
 
+    /**
+     * Update attribute value changes fields.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_update_attribute_value_changes_fields(): void
     {
         $value = $this->create_attribute_value();
@@ -58,6 +88,12 @@ class AttributeValueApiTest extends RestTestCase
         $this->assertEquals('#00ff00', $payload['data']['color']);
     }
 
+    /**
+     * Delete attribute value removes record.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_delete_attribute_value_removes_record(): void
     {
         $value = $this->create_attribute_value();
@@ -70,6 +106,12 @@ class AttributeValueApiTest extends RestTestCase
         $this->assertTrue($payload['data']);
     }
 
+    /**
+     * Show deleted attribute value returns 404.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_show_deleted_attribute_value_returns_404(): void
     {
         $value = $this->create_attribute_value();
@@ -82,6 +124,12 @@ class AttributeValueApiTest extends RestTestCase
         $this->assert_api_error($response, 404);
     }
 
+    /**
+     * Create attribute value validation fails without value.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_create_attribute_value_validation_fails_without_value(): void
     {
         $this->attribute_id = $this->create_attribute()['id'];
@@ -93,6 +141,12 @@ class AttributeValueApiTest extends RestTestCase
         $this->assert_validation_error($response);
     }
 
+    /**
+     * Unauthenticated request returns 401.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_unauthenticated_request_returns_401(): void
     {
         $this->attribute_id = $this->create_attribute()['id'];
@@ -102,6 +156,12 @@ class AttributeValueApiTest extends RestTestCase
         $this->assert_api_error($response, 401);
     }
 
+    /**
+     * List attribute values returns collection.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_list_attribute_values_returns_collection(): void
     {
         $attribute = $this->create_attribute();
@@ -117,6 +177,12 @@ class AttributeValueApiTest extends RestTestCase
         $this->assertGreaterThanOrEqual(2, count($payload['data']));
     }
 
+    /**
+     * Bulk action on attribute values.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_bulk_action_on_attribute_values(): void
     {
         $attribute = $this->create_attribute();
@@ -137,7 +203,14 @@ class AttributeValueApiTest extends RestTestCase
         $this->assert_api_error($check, 404);
     }
 
-    private function create_attribute(array $overrides = []): array
+    /**
+     * Create attribute.
+     * @param array $overrides Overrides.
+     *
+     * @return array
+     * @since 1.0.0
+     */
+    protected function create_attribute(array $overrides = []): array
     {
         $response = $this->request('POST', 'attributes', array_merge([
             'name' => 'Color ' . wp_generate_password(6, false),
@@ -150,7 +223,14 @@ class AttributeValueApiTest extends RestTestCase
         return $payload['data'];
     }
 
-    private function create_attribute_value(array $overrides = []): array
+    /**
+     * Create attribute value.
+     * @param array $overrides Overrides.
+     *
+     * @return array
+     * @since 1.0.0
+     */
+    protected function create_attribute_value(array $overrides = []): array
     {
         if (empty($this->attribute_id)) {
             $this->attribute_id = $this->create_attribute()['id'];

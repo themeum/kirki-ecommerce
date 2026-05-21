@@ -12,8 +12,20 @@ use Kirki\Ecommerce\Tests\Support\RestTestCase;
 
 class CouponApiTest extends RestTestCase
 {
-    private $coupon_id;
+    /**
+     * Coupon id for the current test.
+     *
+     * @var mixed
+     * @since 1.0.0
+     */
+    protected $coupon_id;
 
+    /**
+     * Create coupon returns 201 and persists.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_create_coupon_returns_201_and_persists(): void
     {
         $response = $this->request('POST', 'coupons', $this->coupon_payload([
@@ -31,6 +43,12 @@ class CouponApiTest extends RestTestCase
         $this->coupon_id = $payload['data']['id'];
     }
 
+    /**
+     * Show coupon returns resource.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_show_coupon_returns_resource(): void
     {
         $coupon = $this->create_coupon(['title' => 'Show Coupon']);
@@ -43,6 +61,12 @@ class CouponApiTest extends RestTestCase
         $this->assertEquals('Show Coupon', $payload['data']['title']);
     }
 
+    /**
+     * Update coupon changes fields.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_update_coupon_changes_fields(): void
     {
         $coupon = $this->create_coupon();
@@ -60,6 +84,12 @@ class CouponApiTest extends RestTestCase
         $this->assertFalse($payload['data']['is_active']);
     }
 
+    /**
+     * Delete coupon removes record.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_delete_coupon_removes_record(): void
     {
         $this->coupon_id = $this->create_coupon()['id'];
@@ -70,6 +100,12 @@ class CouponApiTest extends RestTestCase
         $this->assertTrue($payload['data']);
     }
 
+    /**
+     * Show deleted coupon returns 404.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_show_deleted_coupon_returns_404(): void
     {
         $this->coupon_id = $this->create_coupon()['id'];
@@ -79,6 +115,12 @@ class CouponApiTest extends RestTestCase
         $this->assert_api_error($response, 404);
     }
 
+    /**
+     * Create coupon validation fails without title.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_create_coupon_validation_fails_without_title(): void
     {
         $response = $this->request('POST', 'coupons', $this->coupon_payload([
@@ -88,6 +130,12 @@ class CouponApiTest extends RestTestCase
         $this->assert_validation_error($response);
     }
 
+    /**
+     * Unauthenticated request returns 401.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_unauthenticated_request_returns_401(): void
     {
         $this->logout();
@@ -96,6 +144,12 @@ class CouponApiTest extends RestTestCase
         $this->assert_api_error($response, 401);
     }
 
+    /**
+     * List coupons returns paginated results.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_list_coupons_returns_paginated_results(): void
     {
         $this->create_coupon(['title' => 'Coupon Alpha']);
@@ -113,6 +167,12 @@ class CouponApiTest extends RestTestCase
         $this->assertNotEmpty($payload['data']['results']);
     }
 
+    /**
+     * Bulk action on coupons.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_bulk_action_on_coupons(): void
     {
         $first = $this->create_coupon(['title' => 'Bulk One']);
@@ -130,7 +190,14 @@ class CouponApiTest extends RestTestCase
         $this->assert_api_error($check, 404);
     }
 
-    private function create_coupon(array $overrides = []): array
+    /**
+     * Create coupon.
+     * @param array $overrides Overrides.
+     *
+     * @return array
+     * @since 1.0.0
+     */
+    protected function create_coupon(array $overrides = []): array
     {
         $response = $this->request('POST', 'coupons', $this->coupon_payload($overrides));
         $payload = $this->assert_api_success($response, 201);
@@ -138,7 +205,14 @@ class CouponApiTest extends RestTestCase
         return $payload['data'];
     }
 
-    private function coupon_payload(array $overrides = []): array
+    /**
+     * Coupon payload.
+     * @param array $overrides Overrides.
+     *
+     * @return array
+     * @since 1.0.0
+     */
+    protected function coupon_payload(array $overrides = []): array
     {
         $payload = [
             'method' => CouponMethod::CODE,

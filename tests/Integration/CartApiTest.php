@@ -16,11 +16,41 @@ class CartApiTest extends RestTestCase
     use CreatesTestProducts;
     use SeedsTestShipping;
 
-    private $variant_id;
-    private $cart_item_id;
-    private $cart_token;
-    private $cart_headers = [];
+    /**
+     * Variant id for the current test.
+     *
+     * @var mixed
+     * @since 1.0.0
+     */
+    protected $variant_id;
+    /**
+     * Cart item id for the current test.
+     *
+     * @var mixed
+     * @since 1.0.0
+     */
+    protected $cart_item_id;
+    /**
+     * Cart token.
+     *
+     * @var mixed
+     * @since 1.0.0
+     */
+    protected $cart_token;
+    /**
+     * Cart headers.
+     *
+     * @var mixed
+     * @since 1.0.0
+     */
+    protected $cart_headers = [];
 
+    /**
+     * Prepare state before each test.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     protected function setUp(): void
     {
         parent::setUp();
@@ -32,7 +62,13 @@ class CartApiTest extends RestTestCase
         $this->cart_headers = [];
     }
 
-    private function prepare_variant(): void
+    /**
+     * Prepare variant.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    protected function prepare_variant(): void
     {
         if ($this->variant_id) {
             return;
@@ -44,6 +80,12 @@ class CartApiTest extends RestTestCase
         $this->variant_id = $this->default_variant_id($product);
     }
 
+    /**
+     * Get cart returns empty cart initially.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_get_cart_returns_empty_cart_initially(): void
     {
         $response = $this->request('GET', 'cart');
@@ -53,6 +95,12 @@ class CartApiTest extends RestTestCase
         $this->assertEmpty($payload['data']['items']);
     }
 
+    /**
+     * Add item to cart.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_add_item_to_cart(): void
     {
         $this->prepare_variant();
@@ -63,6 +111,12 @@ class CartApiTest extends RestTestCase
         $this->cart_item_id = $payload['items'][0]['id'];
     }
 
+    /**
+     * Cart item and address lifecycle.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_cart_item_and_address_lifecycle(): void
     {
         $this->prepare_variant();
@@ -114,6 +168,12 @@ class CartApiTest extends RestTestCase
         $this->assertEmpty($emptied['data']['items']);
     }
 
+    /**
+     * Apply and remove coupon on cart.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_apply_and_remove_coupon_on_cart(): void
     {
         $this->prepare_variant();
@@ -130,6 +190,12 @@ class CartApiTest extends RestTestCase
         $this->assertNull($removed['data']['pricing']['discount_details']);
     }
 
+    /**
+     * Add item validation fails without variant id.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_add_item_validation_fails_without_variant_id(): void
     {
         $response = $this->request('POST', 'cart/items', [
@@ -139,6 +205,12 @@ class CartApiTest extends RestTestCase
         $this->assert_validation_error($response);
     }
 
+    /**
+     * Unauthenticated request returns 401.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function test_unauthenticated_request_returns_401(): void
     {
         $this->logout();
@@ -147,7 +219,14 @@ class CartApiTest extends RestTestCase
         $this->assert_api_error($response, 401);
     }
 
-    private function add_cart_item(int $quantity = 1): array
+    /**
+     * Add cart item.
+     * @param int $quantity Quantity.
+     *
+     * @return array
+     * @since 1.0.0
+     */
+    protected function add_cart_item(int $quantity = 1): array
     {
         $response = $this->request('POST', 'cart/items', [
             'variant_id' => $this->variant_id,
@@ -164,7 +243,14 @@ class CartApiTest extends RestTestCase
         return $payload;
     }
 
-    private function create_coupon(string $code): void
+    /**
+     * Create coupon.
+     * @param string $code Code.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    protected function create_coupon(string $code): void
     {
         $response = $this->request('POST', 'coupons', [
             'method' => CouponMethod::CODE,

@@ -9,6 +9,13 @@ use Kirki\Ecommerce\App\Services\ShippingService;
 trait SeedsTestShipping
 {
     use RefreshesAppSingletons;
+
+    /**
+     * Seed default shipping zone and method settings.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     protected function seed_shipping_settings(): void
     {
         $response = $this->request('PUT', 'settings', [
@@ -43,6 +50,6 @@ trait SeedsTestShipping
         ]);
 
         $this->assert_api_success($response);
-        self::forget_singleton(ShippingService::class);
+        static::forget_singleton(ShippingService::class);
     }
 }
