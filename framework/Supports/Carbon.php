@@ -10,7 +10,14 @@ class Carbon extends BaseCarbon
 {
     const BASE_FORMAT = 'Y-m-d H:i:s';
 
-    public static function is_valid_date($value)
+    /**
+     * Check if the value is a valid date.
+     *
+     * @param mixed $value
+     * @return bool
+     * @since 1.0.0
+     */
+    public static function isValidDate($value)
     {
         if ($value instanceof DateTimeInterface) {
             return true;
@@ -29,7 +36,7 @@ class Carbon extends BaseCarbon
      *
      * @return string The formatted date string.
      */
-    public function to_base_date_string()
+    public function toBaseDateString()
     {
         return $this->format(static::BASE_FORMAT);
     }
@@ -39,8 +46,8 @@ class Carbon extends BaseCarbon
      *
      * @return string The formatted date string.
      */
-    public function to_sql_datetime_string()
+    public function toSqlDatetimeString()
     {
-        return $this->to_base_date_string();
+        return $this->toBaseDateString();
     }
 }

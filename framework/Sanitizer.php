@@ -302,7 +302,7 @@ class Sanitizer
      * Apply sanitization.
      * 
      * @param mixed $value
-     * @param string|Callable|null $type
+     * @param string|callable|null $type
      * @param array $data
      * @return mixed
      */
@@ -346,6 +346,7 @@ class Sanitizer
                 break;
             case static::TITLE:
                 $value = sanitize_title($value);
+                break;
             case static::FILE_NAME:
                 $value = sanitize_file_name($value);
                 break;
