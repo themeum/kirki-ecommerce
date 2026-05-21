@@ -1,0 +1,81 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$ROOT"
+
+PLUGIN_PATH="/var/www/html/wp-content/plugins/kirki-ecommerce"
+WP_TESTS_DIR="/var/www/html/.wp-tests/wordpress-tests-lib"
+WP_CORE_DIR="/var/www/html/.wp-tests/wordpress"
+
+usage() {
+	cat <<EOF
+Usage: kirki-test <command> [phpunit options]
+
+Commands:
+  install       One-time WordPress test library install (Docker)
+  unit          Run unit tests in the php container
+  integration   Run integration tests in the php container
+  all           Run all test suites in the php container
+
+Examples:
+  kirki-test install
+  kirki-test unit
+  kirki-test integration
+  kirki-test integration --filter=CartApiTest
+EOF
+}
+
+if [ $# -lt 1 ]; then
+	usage
+	exit 1
+fi
+
+command="$1"
+shift
+
+phpunit_args=""
+if [ $# -gt 0 ]; then
+	phpunit_args="$(printf '%q ' "$@")"
+fi
+
+case "$command" in
+install)
+	docker compose --profile tools run --rm --entrypoint bash wpcli -lc \
+		"cd ${PLUGIN_PATH} && \
+		 WP_TESTS_DIR=${WP_TESTS_DIR} \
+		 WP_CORE_DIR=${WP_CORE_DIR} \
+		 bash bin/install-wp-tests.sh kirki_ecommerce_test wordpress wordpress mariadb latest yes"
+	;;
+unit)
+	docker compose exec php bash -lc \
+		"cd ${PLUGIN_PATH} && vendor/bin/phpunit --testsuite Unit --testdox ${phpunit_args}"
+	;;
+integration)
+	docker compose exec php bash -lc \
+		"cd ${PLUGIN_PATH} && \
+		 WP_TESTS_DIR=${WP_TESTS_DIR} \
+		 WP_CORE_DIR=${WP_CORE_DIR} \
+		 DB_HOST=mariadb \
+		 DB_NAME=kirki_ecommerce_test \
+		 vendor/bin/phpunit --testsuite Integration --testdox ${phpunit_args}"
+	;;
+all)
+	docker compose exec php bash -lc \
+		"cd ${PLUGIN_PATH} && \
+		 WP_TESTS_DIR=${WP_TESTS_DIR} \
+		 WP_CORE_DIR=${WP_CORE_DIR} \
+		 DB_HOST=mariadb \
+		 DB_NAME=kirki_ecommerce_test \
+		 vendor/bin/phpunit --testdox ${phpunit_args}"
+	;;
+-h | --help | help)
+	usage
+	;;
+*)
+	echo "Unknown command: $command" >&2
+	echo >&2
+	usage
+	exit 1
+	;;
+esac
