@@ -17,6 +17,7 @@ docker/php/conf.d/99-local.ini
 config/listeners.cache.php
 config/policies.cache.php
 .phpunit.result.cache
+.wp-tests/
 
 # IDE files
 .idea/
