@@ -4,9 +4,14 @@ namespace Kirki\Ecommerce\Tests\Unit;
 
 use Kirki\Ecommerce\Application;
 use Kirki\Ecommerce\Container;
+use Kirki\Ecommerce\Database\Connection\Connection;
+use Kirki\Ecommerce\Database\Query\QueryBuilder;
+use Kirki\Ecommerce\Database\Query\QueryCompiler;
+use Kirki\Ecommerce\Database\Schema\Structure;
 use Kirki\Ecommerce\Managers\DateManager;
 use Kirki\Ecommerce\Supports\EuropeanCountryChecker;
 use Kirki\Ecommerce\Supports\Str;
+use Kirki\Ecommerce\Tests\Support\Database\TestWpdb;
 use PHPUnit\Framework\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
@@ -16,6 +21,7 @@ abstract class TestCase extends BaseTestCase
         $this->reset_container_instance();
         $this->reset_european_country_checker_cache();
         $this->reset_str_macros();
+        $this->reset_test_wpdb();
 
         parent::tearDown();
     }
@@ -76,5 +82,38 @@ abstract class TestCase extends BaseTestCase
         $property = $reflection->getProperty('macros');
         $property->setAccessible(true);
         $property->setValue(null, []);
+    }
+
+    protected function make_test_connection(array $config = []): Connection
+    {
+        global $wpdb;
+
+        $wpdb = new TestWpdb($config);
+
+        return new Connection();
+    }
+
+    protected function make_query_compiler(array $config = []): QueryCompiler
+    {
+        return $this->make_test_connection($config)->get_query_compiler();
+    }
+
+    protected function make_query_builder(array $config = []): QueryBuilder
+    {
+        $connection = $this->make_test_connection($config);
+
+        return new QueryBuilder($connection);
+    }
+
+    protected function make_structure(string $table, array $config = []): Structure
+    {
+        return new Structure($table, $this->make_test_connection($config));
+    }
+
+    protected function reset_test_wpdb(): void
+    {
+        global $wpdb;
+
+        $wpdb = null;
     }
 }
