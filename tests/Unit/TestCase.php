@@ -3,8 +3,11 @@
 namespace Kirki\Ecommerce\Tests\Unit;
 
 use Kirki\Ecommerce\Application;
+use Kirki\Ecommerce\App\Services\CurrencyService;
 use Kirki\Ecommerce\Container;
 use Kirki\Ecommerce\Database\Connection\Connection;
+use Kirki\Ecommerce\Facade;
+use Kirki\Ecommerce\Route;
 use Kirki\Ecommerce\Database\Query\QueryBuilder;
 use Kirki\Ecommerce\Database\Query\QueryCompiler;
 use Kirki\Ecommerce\Database\Schema\Structure;
@@ -22,6 +25,8 @@ abstract class TestCase extends BaseTestCase
         $this->reset_european_country_checker_cache();
         $this->reset_str_macros();
         $this->reset_test_wpdb();
+        $this->reset_route_state();
+        $this->reset_facade_cache();
 
         parent::tearDown();
     }
@@ -115,5 +120,100 @@ abstract class TestCase extends BaseTestCase
         global $wpdb;
 
         $wpdb = null;
+    }
+
+    protected function reset_facade_cache(): void
+    {
+        $reflection = new \ReflectionClass(Facade::class);
+        $property = $reflection->getProperty('resolved_instance');
+        $property->setAccessible(true);
+        $property->setValue(null, []);
+    }
+
+    protected function bind_money_dependencies(string $base_currency = 'USD', array $currency_settings = []): void
+    {
+        $defaults = [
+            'decimal_separator' => '.',
+            'thousand_separator' => ',',
+            'currency_position' => 'before',
+        ];
+        $settings = array_merge($defaults, $currency_settings);
+
+        $currency = new \stdClass();
+        $currency->code = $base_currency;
+
+        $currency_settings_object = new class($settings) {
+            private array $settings;
+
+            public function __construct(array $settings)
+            {
+                $this->settings = $settings;
+            }
+
+            public function get($key = null, $default = null)
+            {
+                if ($key === null) {
+                    return $this->settings;
+                }
+
+                return $this->settings[$key] ?? $default;
+            }
+        };
+
+        $settings_factory = new class($currency_settings_object) {
+            private $currency_settings;
+
+            public function __construct($currency_settings)
+            {
+                $this->currency_settings = $currency_settings;
+            }
+
+            public function get(string $key)
+            {
+                if ($key === 'currency') {
+                    return $this->currency_settings;
+                }
+
+                throw new \Exception("Invalid settings key: {$key}");
+            }
+        };
+
+        $currency_service = new class($currency) {
+            private $currency;
+
+            public function __construct($currency)
+            {
+                $this->currency = $currency;
+            }
+
+            public function get_base_currency()
+            {
+                return $this->currency;
+            }
+        };
+
+        $container = new Container();
+        $container->instance('app', $container);
+        $container->bind('settings', fn() => $settings_factory);
+        $container->singleton(CurrencyService::class, fn() => $currency_service);
+
+        $this->set_container_instance($container);
+    }
+
+    protected function reset_route_state(): void
+    {
+        $reflection = new \ReflectionClass(Route::class);
+
+        foreach (['namespace', 'routes', 'group_stack', 'instances'] as $property_name) {
+            $property = $reflection->getProperty($property_name);
+            $property->setAccessible(true);
+
+            if ($property_name === 'namespace') {
+                $property->setValue(null, '');
+                continue;
+            }
+
+            $property->setValue(null, []);
+        }
     }
 }

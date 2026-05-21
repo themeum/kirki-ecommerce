@@ -14,4 +14,8 @@ require_once dirname(__DIR__) . '/Support/StubsWordPressFunctions.php';
 
 require_once dirname(__DIR__, 2) . '/vendor/yoast/phpunit-polyfills/phpunitpolyfills-autoload.php';
 
+if (!defined('ABSPATH')) {
+    define('ABSPATH', dirname(__DIR__, 2) . '/');
+}
+
 define('KIRKI_ECOMMERCE_UNIT_TESTS', true);
