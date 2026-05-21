@@ -34,7 +34,6 @@ use Kirki\Ecommerce\Validation\Rules\RequiredRule;
 use Kirki\Ecommerce\Validation\Rules\SameAsRule;
 use Kirki\Ecommerce\Validation\Rules\Sanitizer;
 use Kirki\Ecommerce\Validation\Rules\StringRule;
-use Kirki\Ecommerce\Validation\Rules\TributeFieldsRule;
 use Kirki\Ecommerce\Validation\Rules\UniqueRule;
 use Kirki\Ecommerce\Validation\Rules\UrlRule;
 use Kirki\Ecommerce\Validation\Rules\UserExists;
@@ -84,6 +83,5 @@ class Validation
         'gte' => GreaterThanEqualRule::class,
         'lt' => LessThanRule::class,
         'lte' => LessThanEqualRule::class,
-        'tribute_fields' => TributeFieldsRule::class,
     ];
 }

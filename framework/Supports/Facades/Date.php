@@ -100,7 +100,7 @@ use Kirki\Ecommerce\Facade;
  * @method static bool is_valid_date($value)
  * @method static string to_sql_datetime_string()
  * 
- * @see \Kirki\Ecommerce\Core\Managers\DateManager
+ * @see \Kirki\Ecommerce\Managers\DateManager
  */
 class Date extends Facade
 {
