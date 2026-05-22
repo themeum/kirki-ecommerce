@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { Outlet } from "react-router";
+import AnimatedPage from '@/components/animated-page/animated-page';
 import { ConfirmationModal } from "@/components/modal/confirmation-modal";
 import { setUnsavedDataStatus } from '../pages/settings/utils';
 
@@ -58,7 +58,7 @@ const UnsavedChangesController = () => {
         />
       )}
 
-      <Outlet context={{ confirmAction }} />
+      <AnimatedPage context={{ confirmAction }} />
     </>
   );
 };

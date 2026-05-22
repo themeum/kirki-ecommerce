@@ -77,19 +77,6 @@
   gap: var(--decom-spacing-10);
   width: 100%;
   max-width: 960px;
-  animation: #{$class-prefix}-not-found-enter 0.45s ease-out both;
-}
-
-@keyframes #{$class-prefix}-not-found-enter {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 .#{$class-prefix}-not-found-copy-col {
