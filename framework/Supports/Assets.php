@@ -30,6 +30,7 @@ class Assets
             'rest_url_base' => esc_url(rest_url() . 'kirki/ecommerce/v1'),
             'nonce' => esc_attr(wp_create_nonce('wp_rest')),
             'version' => KIRKI_ECOMMERCE_VERSION,
+            'is_dev' => defined('KIRKI_ECOMMERCE_IS_DEV') && KIRKI_ECOMMERCE_IS_DEV,
         ];
 
         return sprintf(

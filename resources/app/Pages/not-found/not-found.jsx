@@ -3,15 +3,18 @@ import { useLocation, useNavigate } from 'react-router';
 import { CLASS_PREFIX } from '@/conf';
 import { ArrowLeftIcon, BoxIcon } from '@/icons';
 import Button from '@/molecules/button';
-import Card from '@/molecules/card';
 import Container from '@/molecules/container';
 import Flex from '@/molecules/flex';
 import Text from '@/molecules/text';
 import { __ } from '@/wpi18n';
 
+import NotFoundIllustration from './not-found-illustration/not-found-illustration';
+
 const NotFound = () => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const isDev = window.kirki_ecommerce?.is_dev === true;
+  const showPath = isDev && pathname && pathname !== '/';
 
   const handleGoToProducts = () => {
     navigate('/products');
@@ -23,58 +26,14 @@ const NotFound = () => {
 
   return (
     <Container size="fullWidth" className={`${CLASS_PREFIX}-not-found`}>
-      <Card type="large" className={`${CLASS_PREFIX}-not-found-card`}>
-        <Flex
-          direction="column"
-          gap={32}
-          className={`${CLASS_PREFIX}-not-found-content`}
-        >
-          <div
-            className={`${CLASS_PREFIX}-not-found-visual`}
+      <div className={`${CLASS_PREFIX}-not-found-inner`}>
+        <div className={`${CLASS_PREFIX}-not-found-copy-col`}>
+          <span
+            className={`${CLASS_PREFIX}-not-found-code`}
             aria-hidden="true"
           >
-            <span className={`${CLASS_PREFIX}-not-found-badge`}>404</span>
-            <div className={`${CLASS_PREFIX}-not-found-icon`}>
-              <svg
-                viewBox="0 0 48 48"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <rect
-                  x="12"
-                  y="8"
-                  width="24"
-                  height="32"
-                  rx="3"
-                  fill="var(--decom-background-bg-fill)"
-                  stroke="var(--decom-border-border-secondary)"
-                  strokeWidth="1.5"
-                />
-                <path
-                  d="M18 18H30M18 24H26M18 30H28"
-                  stroke="var(--decom-border-border)"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                />
-                <circle
-                  cx="34"
-                  cy="34"
-                  r="9"
-                  fill="var(--decom-background-bg-fill-brand)"
-                  fillOpacity="0.12"
-                  stroke="var(--decom-background-bg-fill-brand)"
-                  strokeWidth="1.5"
-                />
-                <path
-                  d="M31.5 34L34 36.5L36.5 31.5"
-                  stroke="var(--decom-background-bg-fill-brand)"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </div>
-          </div>
+            404
+          </span>
 
           <Flex
             direction="column"
@@ -85,13 +44,13 @@ const NotFound = () => {
               type="primary"
               header={__('Page not found', 'kirki-ecommerce')}
               subHeader={__(
-                'The page you are looking for does not exist or has not been built yet.',
+                'Sorry, the page you are looking for could not be found. It may have been moved or never existed.',
                 'kirki-ecommerce',
               )}
             />
           </Flex>
 
-          {pathname && pathname !== '/' && (
+          {showPath && (
             <div className={`${CLASS_PREFIX}-not-found-path`}>
               <span className={`${CLASS_PREFIX}-not-found-path-label`}>
                 {__('Requested path', 'kirki-ecommerce')}
@@ -117,8 +76,15 @@ const NotFound = () => {
               onClick={handleGoBack}
             />
           </Flex>
-        </Flex>
-      </Card>
+        </div>
+
+        <div
+          className={`${CLASS_PREFIX}-not-found-illustration-col`}
+          aria-hidden="true"
+        >
+          <NotFoundIllustration />
+        </div>
+      </div>
     </Container>
   );
 };
