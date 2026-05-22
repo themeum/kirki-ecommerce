@@ -2,15 +2,14 @@ import React, { useState } from "react";
 import Input from '@/molecules/input';
 import Checkbox from '@/molecules/checkbox';
 import Button from '@/molecules/button';
-import Popover from '@/molecules/popover/popover';
-import PopoverBody from '@/molecules/popover/popover-body';
-import PopoverHeader from '@/molecules/popover/popover-header';
+
 import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
-import PopoverFooter from '@/molecules/popover/popover-footer';
+
 import { SearchIcon, LocationIcon } from "@/icons";
 import { CLASS_PREFIX } from "@/conf";
 import { __ } from "@/wpi18n";
+import { Popover, PopoverBody, PopoverFooter, PopoverHeader } from '@/molecules/popover';
 
 export const ShippingRegionPopup = (props) => {
   const {

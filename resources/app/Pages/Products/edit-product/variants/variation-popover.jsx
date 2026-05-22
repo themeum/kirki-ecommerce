@@ -2,13 +2,11 @@ import Button from '@/molecules/button';
 import ColorPicker from '@/molecules/color-picker';
 import Flex from '@/molecules/flex';
 import Input from '@/molecules/input';
-import Popover from '@/molecules/popover/popover';
-import PopoverBody from '@/molecules/popover/popover-body';
-import PopoverFooter from '@/molecules/popover/popover-footer';
-import PopoverHeader from '@/molecules/popover/popover-header';
+
 import React from "react";
 import { useState } from "react";
 import { __ } from "@/wpi18n";
+import { Popover, PopoverBody, PopoverFooter, PopoverHeader } from '@/molecules/popover';
 
 const VariationPopover = ({
   isOpen,

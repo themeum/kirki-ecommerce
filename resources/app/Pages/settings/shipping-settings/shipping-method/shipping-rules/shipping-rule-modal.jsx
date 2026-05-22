@@ -3,13 +3,15 @@ import Flex from '@/molecules/flex';
 import Placeholder from '@/molecules/placeholder';
 import Text from '@/molecules/text';
 import Grid from '@/molecules/grid';
-import Select from '@/molecules/select/select';
+
 import Input from '@/molecules/input';
 import Button from '@/molecules/button';
 import { __ } from "@/wpi18n";
 import { LighteningIcon } from "@/icons";
 import { CLASS_PREFIX } from "@/conf";
 import { getCategoriesAPI } from "../../../../../store/categoriesSlice";
+import { Select } from '@/molecules/select';
+
 import {
   updateSettingsAPI,
   updateSettings,

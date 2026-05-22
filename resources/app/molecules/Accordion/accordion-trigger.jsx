@@ -1,7 +1,7 @@
 import React, { useContext, useRef, useState } from "react";
 import { CLASS_PREFIX } from "@/conf";
 import { CollapseIcon, ExpandIcon } from "@/icons";
-import { AccordionContext } from '@/molecules/accordion/accordion';
+import { AccordionContext } from './accordion';
 import Flex from '@/molecules/flex';
 
 const AccordionTrigger = (props) => {

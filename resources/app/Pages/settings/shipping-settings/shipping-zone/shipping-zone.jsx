@@ -4,13 +4,15 @@ import Container from '@/molecules/container';
 import Flex from '@/molecules/flex';
 import Input from '@/molecules/input';
 import PageHeading from '@/molecules/page-heading';
-import TagManager from '@/molecules/tag-manager/tag-manager';
+
 import { __ } from "@/wpi18n";
 import React, { useState, useMemo, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import PageNavbar from '@/components/page-navbar';
 import { ShippingRegionPopup } from './shipping-region-popup';
 import { getSearchedCountries, setUnsavedDataStatus } from "../../utils";
+import { TagManager } from '@/molecules/tag-manager';
+
 import {
   getSettingsAPI,
   updateSettingsAPI,

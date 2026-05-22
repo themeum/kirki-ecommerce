@@ -1,10 +1,6 @@
 import React, { useRef, useState } from "react";
 import Button from '@/molecules/button';
-import Popover from '@/molecules/popover/popover';
-import PopoverBody from '@/molecules/popover/popover-body';
-import PopoverDescription from '@/molecules/popover/popover-description';
-import PopoverFooter from '@/molecules/popover/popover-footer';
-import PopoverTitle from '@/molecules/popover/popover-title';
+import { Popover, PopoverBody, PopoverDescription, PopoverFooter, PopoverTitle } from '@/molecules/popover';
 
 const AlertboxPreview = () => {
   const [openAlertbox, setOpenAlertbox] = useState(false);

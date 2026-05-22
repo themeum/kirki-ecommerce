@@ -3,13 +3,14 @@ import Card from '@/molecules/card';
 import Text from '@/molecules/text';
 import Flex from '@/molecules/flex';
 import Input from '@/molecules/input';
-import Select from '@/molecules/select/select';
+
 import Grid from '@/molecules/grid';
 import Checkbox from '@/molecules/checkbox';
 import Button from '@/molecules/button';
 import ActionGroup from '@/molecules/action-group';
 import CountrySelector from '@/components/country-selector';
 import { __ } from "@/wpi18n";
+import { Select } from '@/molecules/select';
 
 const BarcodeGeneration = (props) => {
   const { dataObj, handleOnChange, errors } = props;

@@ -3,17 +3,14 @@ import Sorting from '@/components/sorting';
 import { useMarkList } from "@/hooks";
 import Checkbox from '@/molecules/checkbox';
 import Flex from '@/molecules/flex';
-import Table from '@/molecules/table/table';
-import TableBody from '@/molecules/table/table-body';
-import TableHead from '@/molecules/table/table-head';
-import TableHeader from '@/molecules/table/table-header';
-import TableRow from '@/molecules/table/table-row';
+
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import TagTableAction from './tag-table-action';
 import SingleRow from './single-row';
 import { deleteTagsAPI, setKeyValue } from "../../../store/tagsSlice";
 import { __ } from "@/wpi18n";
+import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/molecules/table';
 
 const TagTable = () => {
   const tableHeaders = [

@@ -4,8 +4,9 @@ import Button from '@/molecules/button';
 import Flex from '@/molecules/flex';
 import Label from '@/molecules/label';
 import Searchbox from '@/molecules/searchbox';
-import Select from '@/molecules/select/select';
+
 import React from "react";
+import { Select } from '@/molecules/select';
 
 const ActionGroupPreview = () => {
   return (

@@ -4,9 +4,10 @@ import Checkbox from '@/molecules/checkbox';
 import Flex from '@/molecules/flex';
 import Grid from '@/molecules/grid';
 import Input from '@/molecules/input';
-import Select from '@/molecules/select/select';
+
 import Separator from '@/molecules/separator';
 import Text from '@/molecules/text';
+import { Select } from '@/molecules/select';
 
 const GridTemplatePreview = () => {
   const optionsArray = [

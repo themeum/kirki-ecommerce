@@ -1,6 +1,8 @@
 import { useGetListAPI } from "@/hooks";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { TagManager } from '@/molecules/tag-manager';
+
 import {
   addCollectionAPI,
   getCollectionsAPI,
@@ -9,7 +11,7 @@ import {
 import { makeSuggestionList } from "../../../utils";
 import { useState } from "react";
 import { useEffect } from "react";
-import TagManager from '@/molecules/tag-manager/tag-manager';
+
 import { __ } from "@/wpi18n";
 import { updateProduct } from "../../../../store/productSlice";
 import { getErrorsObject } from "../../../../store/utils";

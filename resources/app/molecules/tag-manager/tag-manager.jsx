@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import SelectedTags from '@/molecules/tag-manager/selected-tags';
+import SelectedTags from './selected-tags';
 import Tag from '@/molecules/tag';
 import SuggestionDropdown from '@/molecules/suggestion-dropdown';
 import { MinusIcon, PlusCircleIcon, TrashIcon } from "@/icons";

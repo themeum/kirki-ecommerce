@@ -1,9 +1,5 @@
 import Checkbox from '@/molecules/checkbox';
-import Table from '@/molecules/table/table';
-import TableBody from '@/molecules/table/table-body';
-import TableHead from '@/molecules/table/table-head';
-import TableHeader from '@/molecules/table/table-header';
-import TableRow from '@/molecules/table/table-row';
+
 import React from "react";
 import CollectionTableAction from './collection-table-action';
 import { useSelector } from "react-redux";
@@ -11,6 +7,7 @@ import { useMarkList } from "@/hooks";
 import SingleRow from './single-row';
 import BulkActionHandler from '@/components/bulk-action-handler';
 import { __ } from "@/wpi18n";
+import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/molecules/table';
 
 const CollectionTable = () => {
   const data = useSelector((state) => state.collections?.data);

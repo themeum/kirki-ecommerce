@@ -1,13 +1,13 @@
 import React, { useState } from "react";
-import Popover from '@/molecules/popover/popover';
-import PopoverHeader from '@/molecules/popover/popover-header';
-import PopoverBody from '@/molecules/popover/popover-body';
+
 import Flex from '@/molecules/flex';
 import Input from '@/molecules/input';
-import PopoverFooter from '@/molecules/popover/popover-footer';
+
 import Button from '@/molecules/button';
 import { __ } from "@/wpi18n";
 import { useDispatch } from "react-redux";
+import { Popover, PopoverBody, PopoverFooter, PopoverHeader } from '@/molecules/popover';
+
 import {
   addAttributeAPI,
   setKeyValue,

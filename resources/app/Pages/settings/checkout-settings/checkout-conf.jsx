@@ -1,11 +1,12 @@
 import React from "react";
 import Card from '@/molecules/card';
 import Text from '@/molecules/text';
-import Select from '@/molecules/select/select';
+
 import Flex from '@/molecules/flex';
 import ActionGroup from '@/molecules/action-group';
 import ToggleButton from '@/molecules/toggle-button';
 import { __ } from "@/wpi18n";
+import { Select } from '@/molecules/select';
 
 const CheckoutConf = (props) => {
   const optionsArray = [

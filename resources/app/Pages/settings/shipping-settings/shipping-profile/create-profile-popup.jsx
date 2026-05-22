@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
-import Popover from '@/molecules/popover/popover';
-import PopoverHeader from '@/molecules/popover/popover-header';
-import PopoverBody from '@/molecules/popover/popover-body';
-import PopoverFooter from '@/molecules/popover/popover-footer';
+
 import Input from '@/molecules/input';
 import Button from '@/molecules/button';
+import { Popover, PopoverBody, PopoverFooter, PopoverHeader } from '@/molecules/popover';
+
 import {
   createShippingProfile,
   updateShippingProfileById,

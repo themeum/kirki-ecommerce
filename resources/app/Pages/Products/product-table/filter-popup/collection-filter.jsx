@@ -2,10 +2,11 @@ import { useGetListAPI } from "@/hooks";
 import React from "react";
 import { useSelector } from "react-redux";
 import { getCollectionsAPI } from "../../../../store/collectionsSlice";
-import Select from '@/molecules/select/select';
+
 import { __ } from "@/wpi18n";
 import { useState } from "react";
 import { useEffect } from "react";
+import { Select } from '@/molecules/select';
 
 const CollectionFilter = ({ filterObject, onChange = () => {} }) => {
   const { data: collectionData } = useSelector((state) => state.collections);

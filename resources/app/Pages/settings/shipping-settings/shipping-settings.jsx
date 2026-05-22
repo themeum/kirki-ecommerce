@@ -5,7 +5,7 @@ import Card from '@/molecules/card';
 import Container from '@/molecules/container';
 import Flex from '@/molecules/flex';
 import PageHeading from '@/molecules/page-heading';
-import TagManager from '@/molecules/tag-manager/tag-manager';
+
 import { __, sprintf } from "@/wpi18n";
 import { useNavigate, useLocation, useOutletContext } from "react-router";
 import PageNavbar from '@/components/page-navbar';
@@ -15,6 +15,8 @@ import ShippingProfile from './shipping-profile/shipping-profile';
 import ShippingBox from "./shipping-box/shipping-box";
 import ShippingSolution from './shipping-solution';
 import { useDispatch, useSelector } from "react-redux";
+import { TagManager } from '@/molecules/tag-manager';
+
 import {
   getSettingsAPI,
   updateSettingsAPI,

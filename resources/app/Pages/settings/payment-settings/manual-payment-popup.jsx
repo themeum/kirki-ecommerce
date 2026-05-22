@@ -2,16 +2,15 @@ import ThumbnailSelector from '@/components/thumbnail-selector';
 import Button from '@/molecules/button';
 import Flex from '@/molecules/flex';
 import Input from '@/molecules/input';
-import Popover from '@/molecules/popover/popover';
-import PopoverBody from '@/molecules/popover/popover-body';
-import PopoverFooter from '@/molecules/popover/popover-footer';
-import PopoverHeader from '@/molecules/popover/popover-header';
+
 import RichText from '@/molecules/rich-text';
 import Text from '@/molecules/text';
 import React, { useEffect } from "react";
 import { useState } from "react";
 import { __, sprintf } from "@/wpi18n";
 import { getErrorsObject } from "../../../store/utils";
+import { Popover, PopoverBody, PopoverFooter, PopoverHeader } from '@/molecules/popover';
+
 import {
   createPaymentMethodAPI,
   updatePaymentMethodAPI,

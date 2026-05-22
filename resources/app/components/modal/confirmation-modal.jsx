@@ -1,12 +1,11 @@
 import React from "react";
 import Button from '@/molecules/button';
 import Text from '@/molecules/text';
-import Popover from '@/molecules/popover/popover';
-import PopoverBody from '@/molecules/popover/popover-body';
-import PopoverHeader from '@/molecules/popover/popover-header';
+
 import Flex from '@/molecules/flex';
 import { InfoIcon, TrashIcon } from "@/icons";
 import { __ } from "@/wpi18n";
+import { Popover, PopoverBody, PopoverHeader } from '@/molecules/popover';
 
 export const ConfirmationModal = (props) => {
   const { variant = "default", title, subtitle, onConfirm, onCancel } = props;

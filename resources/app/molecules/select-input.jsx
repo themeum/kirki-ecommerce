@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import Flex from '@/molecules/flex';
-import Select from '@/molecules/select/select';
+
 import Input from '@/molecules/input';
 import Label from '@/molecules/label';
 import { CLASS_PREFIX } from "@/conf";
 import classNames from "classnames";
+import { Select } from '@/molecules/select';
 
 const SelectInput = (props) => {
   const {

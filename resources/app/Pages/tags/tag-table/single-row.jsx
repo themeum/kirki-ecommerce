@@ -1,14 +1,14 @@
 import ActionGroup from '@/molecules/action-group';
 import Button from '@/molecules/button';
 import Checkbox from '@/molecules/checkbox';
-import TableCell from '@/molecules/table/table-cell';
-import TableRow from '@/molecules/table/table-row';
+
 import React, { useState } from "react";
 import { EditPenIcon, TrashIcon } from "@/icons";
 import { useDispatch } from "react-redux";
 import TagAddEditPopover from "../tag-add-edit-popover";
 import { deleteTagByIdAPI, setKeyValue } from "../../../store/tagsSlice";
 import { __ } from "@/wpi18n";
+import { TableCell, TableRow } from '@/molecules/table';
 
 const SingleRow = ({ item, isSelected, handleSingleCheckboxClick }) => {
   const [openPopup, setOpenPopup] = useState(false);

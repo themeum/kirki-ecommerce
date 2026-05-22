@@ -2,14 +2,13 @@ import Button from '@/molecules/button';
 import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
 import Input from '@/molecules/input';
-import Popover from '@/molecules/popover/popover';
-import PopoverBody from '@/molecules/popover/popover-body';
-import PopoverFooter from '@/molecules/popover/popover-footer';
-import PopoverHeader from '@/molecules/popover/popover-header';
-import Select from '@/molecules/select/select';
+
 import Text from '@/molecules/text';
 import React from "react";
 import { useState } from "react";
+import { Popover, PopoverBody, PopoverFooter, PopoverHeader } from '@/molecules/popover';
+import { Select } from '@/molecules/select';
+
 import {
   addCategoryAPI,
   setKeyValue,

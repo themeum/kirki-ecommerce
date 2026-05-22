@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import OptionAccordion from '@/components/option-accordion';
-import Select from '@/molecules/select/select';
+
 import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
 import Text from '@/molecules/text';
@@ -12,6 +12,7 @@ import { __ } from "@/wpi18n";
 import ApiConfigurationPopup from './api-configuration-popup';
 import { getCurrencyAPIProviderListAPI } from "../../../../store/currenciesSlice";
 import ApiConfigurationCard from './api-configuration-card';
+import { Select } from '@/molecules/select';
 
 const ApiConfig = ({ dataObj, handleOnChange, errors }) => {
   const [selectedAPI, setSelectedAPI] = useState("");

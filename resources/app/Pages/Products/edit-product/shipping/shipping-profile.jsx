@@ -1,13 +1,14 @@
 import Card from '@/molecules/card';
 import Checkbox from '@/molecules/checkbox';
 import Grid from '@/molecules/grid';
-import Select from '@/molecules/select/select';
+
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { __ } from "@/wpi18n";
 import { CreateProfilePopup } from "../../../settings/shipping-settings/shipping-profile/create-profile-popup";
 import { getShippingProfileList } from "../../../../store/settingsSlice";
 import { useGetListAPI } from "@/hooks";
+import { Select } from '@/molecules/select';
 
 const ShippingProfile = ({ errors, onChange = () => {} }) => {
   const { data: productData } = useSelector((state) => state.product);

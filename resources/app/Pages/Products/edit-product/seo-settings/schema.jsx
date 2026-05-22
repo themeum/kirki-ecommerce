@@ -3,10 +3,11 @@ import { groupDetails, optionsList, requiredFields } from './utils';
 import GroupTagTable from '@/components/group-tag-table';
 import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
-import Select from '@/molecules/select/select';
+
 import { useDispatch, useSelector } from "react-redux";
 import { updateProduct } from "../../../../store/productSlice";
 import { __ } from "@/wpi18n";
+import { Select } from '@/molecules/select';
 
 const Schema = ({ errors, setErrors }) => {
   const dispatch = useDispatch();

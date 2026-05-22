@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { CLASS_PREFIX } from "@/conf";
-import RadioItem from '@/molecules/radio-group/radio-item';
+import RadioItem from './radio-item';
 import Label from '@/molecules/label';
 import Flex from '@/molecules/flex';
 import { useEffect } from "react";

@@ -1,5 +1,6 @@
-import RadioGroup from '@/molecules/radio-group/radio-group';
+
 import React from "react";
+import { RadioGroup } from '@/molecules/radio-group';
 
 const RadioGroupPreview = () => {
   const optionsArray = [

@@ -3,10 +3,11 @@ import { ArrowLeftIcon } from "@/icons";
 import ActionGroup from '@/molecules/action-group';
 import Button from '@/molecules/button';
 import Flex from '@/molecules/flex';
-import Select from '@/molecules/select/select';
+
 import Text from '@/molecules/text';
 import React from "react";
 import { __ } from "@/wpi18n";
+import { Select } from '@/molecules/select';
 
 const Pagination = (props) => {
   const { data, onChange } = props;

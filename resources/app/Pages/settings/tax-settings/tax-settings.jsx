@@ -3,7 +3,7 @@ import Button from '@/molecules/button';
 import Card from '@/molecules/card';
 import Container from '@/molecules/container';
 import Flex from '@/molecules/flex';
-import RadioGroup from '@/molecules/radio-group/radio-group';
+
 import PageHeading from '@/molecules/page-heading';
 import Text from '@/molecules/text';
 import Separator from '@/molecules/separator';
@@ -15,6 +15,8 @@ import PageNavbar from '@/components/page-navbar';
 import { useDispatch, useSelector } from "react-redux";
 import TaxRegions from './tax-region/tax-region';
 import TaxProfile from "./tax-profile/tax-profile";
+import { RadioGroup } from '@/molecules/radio-group';
+
 // import TaxServices from './tax-services';
 // import TaxSimulator from './tax-simulator';
 // import SellerTaxID from './seller-tax-id';

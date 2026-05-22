@@ -1,9 +1,5 @@
 import React, { useState, useMemo } from "react";
-import Table from '@/molecules/table/table';
-import TableHeader from '@/molecules/table/table-header';
-import TableRow from '@/molecules/table/table-row';
-import TableHead from '@/molecules/table/table-head';
-import TableBody from '@/molecules/table/table-body';
+
 import Checkbox from '@/molecules/checkbox';
 import Flex from '@/molecules/flex';
 import Card from '@/molecules/card';
@@ -16,6 +12,8 @@ import useMarkList from "../../../../../hooks/useMarkList";
 import VariantTableAction from './variant-table-action';
 import { getSearchedValue, setUnsavedDataStatus } from "../../../utils";
 import { useOutletContext } from "react-router";
+import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/molecules/table';
+
 import {
   bulkDeleteAttributeValueByIdAPI,
   setKeyValue,

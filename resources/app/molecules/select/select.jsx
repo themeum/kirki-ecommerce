@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { CLASS_PREFIX } from "@/conf";
 import { CheckedIcon, ChevronDownIcon, PlusCircleIcon } from "@/icons";
-import SelectDropdown from '@/molecules/select/select-dropdown';
+import SelectDropdown from './select-dropdown';
 import classNames from "classnames";
 import Label from '@/molecules/label';
 import Flex from '@/molecules/flex';

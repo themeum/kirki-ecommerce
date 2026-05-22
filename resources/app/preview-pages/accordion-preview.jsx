@@ -1,8 +1,7 @@
-import Accordion from '@/molecules/accordion/accordion';
-import AccordionContent from '@/molecules/accordion/accordion-content';
-import AccordionItem from '@/molecules/accordion/accordion-item';
-import AccordionTrigger from '@/molecules/accordion/accordion-trigger';
+
+
 import React from "react";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/molecules/accordion';
 
 const AccordionPreview = () => {
   return (

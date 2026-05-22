@@ -2,12 +2,11 @@ import React, { useState, useMemo, useEffect } from "react";
 import Input from '@/molecules/input';
 import Checkbox from '@/molecules/checkbox';
 import Button from '@/molecules/button';
-import Popover from '@/molecules/popover/popover';
+
 import Card from '@/molecules/card';
-import PopoverBody from '@/molecules/popover/popover-body';
-import PopoverHeader from '@/molecules/popover/popover-header';
+
 import Flex from '@/molecules/flex';
-import PopoverFooter from '@/molecules/popover/popover-footer';
+
 import { SearchIcon, LocationIcon } from "@/icons";
 import { CLASS_PREFIX } from "@/conf";
 import { __, sprintf } from "@/wpi18n";
@@ -16,6 +15,7 @@ import { getSearchedCountries } from "../../utils";
 import { groupEUCountries } from "../helper";
 import useGetListAPI from "../../../../hooks/useGetListAPI";
 import { getCountriesAPI } from "../../../../store/countriesSlice";
+import { Popover, PopoverBody, PopoverFooter, PopoverHeader } from '@/molecules/popover';
 
 const TaxRegionPopup = (props) => {
   const {

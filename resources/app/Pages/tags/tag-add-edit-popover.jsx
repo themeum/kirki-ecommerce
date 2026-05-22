@@ -1,15 +1,14 @@
 import Button from '@/molecules/button';
 import Flex from '@/molecules/flex';
 import Input from '@/molecules/input';
-import Popover from '@/molecules/popover/popover';
-import PopoverBody from '@/molecules/popover/popover-body';
-import PopoverFooter from '@/molecules/popover/popover-footer';
-import PopoverHeader from '@/molecules/popover/popover-header';
+
 import Text from '@/molecules/text';
 import React from "react";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { getErrorsObject } from "../../store/utils";
+import { Popover, PopoverBody, PopoverFooter, PopoverHeader } from '@/molecules/popover';
+
 import {
   addTagAPI,
   setKeyValue,

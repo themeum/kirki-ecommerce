@@ -3,11 +3,12 @@ import ActionGroup from '@/molecules/action-group';
 import Button from '@/molecules/button';
 import Flex from '@/molecules/flex';
 import Searchbox from '@/molecules/searchbox';
-import Select from '@/molecules/select/select';
+
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setKeyValue } from "../../../store/collectionsSlice";
 import { __ } from "@/wpi18n";
+import { Select } from '@/molecules/select';
 
 const selectOptions = [
   { value: "all", title: __("All Collections", "kirki-ecommerce") },

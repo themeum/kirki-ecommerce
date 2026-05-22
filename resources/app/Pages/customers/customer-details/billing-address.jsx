@@ -4,10 +4,11 @@ import Checkbox from '@/molecules/checkbox';
 import Flex from '@/molecules/flex';
 import Grid from '@/molecules/grid';
 import Input from '@/molecules/input';
-import Select from '@/molecules/select/select';
+
 import Text from '@/molecules/text';
 import React from "react";
 import { __ } from "@/wpi18n";
+import { Select } from '@/molecules/select';
 
 const regionArray = [
   { value: "bangladesh", title: "Bangladesh" },

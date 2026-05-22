@@ -1,9 +1,5 @@
 import React from "react";
-import Table from '@/molecules/table/table';
-import TableBody from '@/molecules/table/table-body';
-import TableHead from '@/molecules/table/table-head';
-import TableHeader from '@/molecules/table/table-header';
-import TableRow from '@/molecules/table/table-row';
+
 import Checkbox from '@/molecules/checkbox';
 import { useDispatch, useSelector } from "react-redux";
 import ProductTableAction from './product-table-action';
@@ -15,6 +11,7 @@ import SingleRow from './single-row';
 import FilterPopup from './filter-popup/filter-popup';
 import ProductTableFilterAction from './product-table-filter-action';
 import { useEffect } from "react";
+import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/molecules/table';
 
 const ProductTable = () => {
   const tableHeaders = [

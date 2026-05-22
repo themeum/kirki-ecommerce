@@ -3,15 +3,11 @@ import { FileSpreadSheetIcon, InfoIcon, PaypalIcon, StripeIcon } from "@/icons";
 import Badge from '@/molecules/badge';
 import Checkbox from '@/molecules/checkbox';
 import Flex from '@/molecules/flex';
-import Table from '@/molecules/table/table';
-import TableBody from '@/molecules/table/table-body';
-import TableCell from '@/molecules/table/table-cell';
-import TableHead from '@/molecules/table/table-head';
-import TableHeader from '@/molecules/table/table-header';
-import TableRow from '@/molecules/table/table-row';
+
 import Text from '@/molecules/text';
 import React from "react";
 import { useNavigate } from "react-router";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/molecules/table';
 
 const OrderTable = () => {
   const navigate = useNavigate();

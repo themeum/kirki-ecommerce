@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { __ } from "@/wpi18n";
-import Popover from '@/molecules/popover/popover';
-import PopoverHeader from '@/molecules/popover/popover-header';
-import PopoverBody from '@/molecules/popover/popover-body';
-import PopoverFooter from '@/molecules/popover/popover-footer';
+
 import Flex from '@/molecules/flex';
 import Button from '@/molecules/button';
 import { getFormField } from './utils';
 import { updatePaymentGatewayAPI } from "../../../store/settingsSlice";
 import { getErrorsObject } from "../../../store/utils";
 import { dispatchToastMessage } from "../../utils";
+import { Popover, PopoverBody, PopoverFooter, PopoverHeader } from '@/molecules/popover';
 
 const PaymentGatewayEditPopup = ({ editedItem, isOpen, onClose }) => {
   const [gatewayConfObj, setGatewayConfObj] = useState({});

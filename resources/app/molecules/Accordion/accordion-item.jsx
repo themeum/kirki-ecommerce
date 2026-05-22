@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { CLASS_PREFIX } from "@/conf";
 import Separator from '@/molecules/separator';
-import { AccordionContext } from '@/molecules/accordion/accordion';
+import { AccordionContext } from './accordion';
 
 const AccordionItem = (props) => {
   const { children, style = {}, className = "" } = props;

@@ -1,7 +1,7 @@
 import React from "react";
 import Grid from '@/molecules/grid';
 import Input from '@/molecules/input';
-import Select from '@/molecules/select/select';
+import { Select } from '@/molecules/select';
 
 const GridPreview = () => {
   const options = [

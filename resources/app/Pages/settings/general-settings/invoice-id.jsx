@@ -4,11 +4,12 @@ import Text from '@/molecules/text';
 import Flex from '@/molecules/flex';
 import Grid from '@/molecules/grid';
 import Input from '@/molecules/input';
-import Select from '@/molecules/select/select';
+
 import ActionGroup from '@/molecules/action-group';
 import Button from '@/molecules/button';
 import { ReplaceIcon } from "@/icons";
 import { __ } from "@/wpi18n";
+import { Select } from '@/molecules/select';
 
 const InvoiceId = (props) => {
   const { dataObj, handleOnChange, handleResetIDField, errors } = props;

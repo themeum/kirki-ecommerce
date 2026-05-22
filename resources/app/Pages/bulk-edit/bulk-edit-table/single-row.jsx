@@ -1,9 +1,7 @@
 import Checkbox from '@/molecules/checkbox';
 import Flex from '@/molecules/flex';
 import Input from '@/molecules/input';
-import Select from '@/molecules/select/select';
-import TableCell from '@/molecules/table/table-cell';
-import TableRow from '@/molecules/table/table-row';
+
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { CLASS_PREFIX } from "@/conf";
@@ -15,6 +13,8 @@ import { updateBulkVariants } from "../../../store/BulkEditSlice";
 import ThumbnailSelector from '@/components/thumbnail-selector';
 import { calculateProfit } from "../../utils";
 import ShippingBox from "../../products/edit-product/shipping/shipping-box";
+import { Select } from '@/molecules/select';
+import { TableCell, TableRow } from '@/molecules/table';
 
 const SingleRow = (props) => {
   const {

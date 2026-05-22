@@ -2,8 +2,7 @@ import { EditPenIcon, TrashIcon } from "@/icons";
 import ActionGroup from '@/molecules/action-group';
 import Button from '@/molecules/button';
 import Checkbox from '@/molecules/checkbox';
-import TableCell from '@/molecules/table/table-cell';
-import TableRow from '@/molecules/table/table-row';
+
 import Thumbnail from '@/molecules/thumbnail';
 import React from "react";
 import { useDispatch } from "react-redux";
@@ -11,6 +10,7 @@ import BrandAddEditPopover from "../brand-add-edit-popover";
 import { useState } from "react";
 import { __ } from "@/wpi18n";
 import { deleteBrandByIdAPI, setKeyValue } from "../../../store/brandsSlice";
+import { TableCell, TableRow } from '@/molecules/table';
 
 const SingleRow = ({ item, isSelected, handleSingleCheckboxClick }) => {
   const [openPopup, setOpenPopup] = useState(false);

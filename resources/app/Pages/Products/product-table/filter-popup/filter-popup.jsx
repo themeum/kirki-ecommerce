@@ -1,10 +1,9 @@
 import { CloseIcon, ListFilter } from "@/icons";
 import ActionGroup from '@/molecules/action-group';
 import Button from '@/molecules/button';
-import DropdownMenuContent from '@/molecules/dropdown/dropdown-menu-content';
+
 import Flex from '@/molecules/flex';
-import RadioGroup from '@/molecules/radio-group/radio-group';
-import Select from '@/molecules/select/select';
+
 import Text from '@/molecules/text';
 import React from "react";
 import { useState } from "react";
@@ -16,6 +15,9 @@ import BrandFilter from './brand-filter';
 import CollectionFilter from './collection-filter';
 import { useEffect } from "react";
 import CategoriesFilter from './categories-filter';
+import { DropdownMenuContent } from '@/molecules/dropdown';
+import { RadioGroup } from '@/molecules/radio-group';
+import { Select } from '@/molecules/select';
 
 const FilterPopup = ({ onChange = () => {}, buttonProps, data }) => {
   const dispatch = useDispatch();

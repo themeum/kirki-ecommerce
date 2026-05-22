@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import Select from '@/molecules/select/select';
+
 import { ButtonDefaultIcon } from "@/icons";
+import { Select } from '@/molecules/select';
 
 const SelectPreview = () => {
   const optionsArray = [

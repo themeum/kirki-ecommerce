@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from "react";
 import Button from '@/molecules/button';
-import Popover from '@/molecules/popover/popover';
-import PopoverHeader from '@/molecules/popover/popover-header';
-import PopoverBody from '@/molecules/popover/popover-body';
+
 import Flex from '@/molecules/flex';
 import Text from '@/molecules/text';
 import ActionGroup from '@/molecules/action-group';
 import Input from '@/molecules/input';
-import Select from '@/molecules/select/select';
+
 import Checkbox from '@/molecules/checkbox';
 
 import { ConfigureKeyIcon, EyeClosedIcon, EyeIcon } from "@/icons";
 import { __ } from "@/wpi18n";
+import { Popover, PopoverBody, PopoverHeader } from '@/molecules/popover';
+import { Select } from '@/molecules/select';
 
 const ApiConfigurationPopup = ({
   isOpen,

@@ -1,11 +1,11 @@
 import Badge from '@/molecules/badge';
 import Checkbox from '@/molecules/checkbox';
 import Flex from '@/molecules/flex';
-import TableCell from '@/molecules/table/table-cell';
-import TableRow from '@/molecules/table/table-row';
+
 import Thumbnail from '@/molecules/thumbnail';
 import React from "react";
 import { useNavigate } from "react-router";
+import { TableCell, TableRow } from '@/molecules/table';
 
 const SingleRow = (props) => {
   const { item, isSelected, handleSingleCheckboxClick } = props;

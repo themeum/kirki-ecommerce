@@ -3,14 +3,15 @@ import ActionGroup from '@/molecules/action-group';
 import Button from '@/molecules/button';
 import Checkbox from '@/molecules/checkbox';
 import Flex from '@/molecules/flex';
-import TableCell from '@/molecules/table/table-cell';
-import TableRow from '@/molecules/table/table-row';
+
 import Text from '@/molecules/text';
 import Thumbnail from '@/molecules/thumbnail';
 import React from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router";
 import { __ } from "@/wpi18n";
+import { TableCell, TableRow } from '@/molecules/table';
+
 import {
   deleteCustomerByIdAPI,
   setKeyValue,

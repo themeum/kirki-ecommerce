@@ -1,13 +1,11 @@
 import React, { useState } from "react";
 import Button from '@/molecules/button';
-import Popover from '@/molecules/popover/popover';
-import PopoverHeader from '@/molecules/popover/popover-header';
-import PopoverBody from '@/molecules/popover/popover-body';
+
 import Flex from '@/molecules/flex';
 import Text from '@/molecules/text';
 import Input from '@/molecules/input';
 import Label from '@/molecules/label';
-import PopoverFooter from '@/molecules/popover/popover-footer';
+
 import { __, sprintf } from "@/wpi18n";
 import { ArrowLeftIcon, InfoIcon } from "@/icons";
 import { getErrorsObject } from "../../../store/utils";
@@ -15,6 +13,7 @@ import { createNewCurrencyAPI } from "../../../store/currenciesSlice";
 import { dispatchToastMessage } from "../../utils";
 import { CLASS_PREFIX } from "@/conf";
 import { useSelector } from "react-redux";
+import { Popover, PopoverBody, PopoverFooter, PopoverHeader } from '@/molecules/popover';
 
 const ExchangeRatePopup = (props) => {
   const {

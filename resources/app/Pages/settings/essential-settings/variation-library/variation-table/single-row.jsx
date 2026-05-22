@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import TableRow from '@/molecules/table/table-row';
-import TableCell from '@/molecules/table/table-cell';
+
 import Checkbox from '@/molecules/checkbox';
 import ActionGroup from '@/molecules/action-group';
 import Button from '@/molecules/button';
@@ -8,6 +7,8 @@ import Flex from '@/molecules/flex';
 import { __ } from "@/wpi18n";
 
 import { EditPenIcon, TrashIcon } from "@/icons";
+import { TableCell, TableRow } from '@/molecules/table';
+
 import {
   deleteAttributeValueByIdAPI,
   setKeyValue,

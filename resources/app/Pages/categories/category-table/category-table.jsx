@@ -1,12 +1,10 @@
 import Checkbox from '@/molecules/checkbox';
-import Table from '@/molecules/table/table';
-import TableBody from '@/molecules/table/table-body';
-import TableHead from '@/molecules/table/table-head';
-import TableHeader from '@/molecules/table/table-header';
-import TableRow from '@/molecules/table/table-row';
+
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import CategoryTableAction from './category-table-action';
+import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/molecules/table';
+
 import {
   deleteCategoriesAPI,
   setKeyValue,

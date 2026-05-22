@@ -1,6 +1,6 @@
 import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
-import Select from '@/molecules/select/select';
+
 import React from "react";
 import Tags from './tags';
 import Collections from './collections';
@@ -8,6 +8,7 @@ import Brand from './brand';
 import { useSelector } from "react-redux";
 import { __ } from "@/wpi18n";
 import Categories from './categories/categories';
+import { Select } from '@/molecules/select';
 
 const RightPanel = ({ handleOnChange, errors, setErrors }) => {
   const { loaded, data: productData } = useSelector((state) => state.product);

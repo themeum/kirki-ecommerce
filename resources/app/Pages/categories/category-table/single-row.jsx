@@ -1,12 +1,13 @@
 import ActionGroup from '@/molecules/action-group';
 import Button from '@/molecules/button';
 import Checkbox from '@/molecules/checkbox';
-import TableCell from '@/molecules/table/table-cell';
-import TableRow from '@/molecules/table/table-row';
+
 import Thumbnail from '@/molecules/thumbnail';
 import React, { useState } from "react";
 import CategoryAddEditPopover from "../category-add-edit-popover";
 import { EditPenIcon, TrashIcon } from "@/icons";
+import { TableCell, TableRow } from '@/molecules/table';
+
 import {
   deleteCategoryByIdAPI,
   setKeyValue,

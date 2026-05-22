@@ -1,11 +1,7 @@
 import { ArrowDownUpFilled } from "@/icons";
 import Checkbox from '@/molecules/checkbox';
 import Flex from '@/molecules/flex';
-import Table from '@/molecules/table/table';
-import TableBody from '@/molecules/table/table-body';
-import TableHead from '@/molecules/table/table-head';
-import TableHeader from '@/molecules/table/table-header';
-import TableRow from '@/molecules/table/table-row';
+
 import React from "react";
 import BrandTableAction from './brand-table-action';
 import { useDispatch, useSelector } from "react-redux";
@@ -15,6 +11,7 @@ import SingleRow from './single-row';
 import { __ } from "@/wpi18n";
 import { useMarkList } from "@/hooks";
 import { deleteBrandsAPI, setKeyValue } from "../../../store/brandsSlice";
+import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/molecules/table';
 
 const BrandTable = () => {
   const tableHeaders = [

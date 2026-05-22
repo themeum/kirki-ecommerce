@@ -1,9 +1,10 @@
-import Select from '@/molecules/select/select';
+
 import React from "react";
 import { useSelector } from "react-redux";
 import { __ } from "@/wpi18n";
 import { getCountriesAPI } from "../store/countriesSlice";
 import useGetListAPI from "../hooks/useGetListAPI";
+import { Select } from '@/molecules/select';
 
 const CountrySelector = ({
   label,

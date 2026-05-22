@@ -1,13 +1,15 @@
 import { useGetListAPI } from "@/hooks";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { TagManager } from '@/molecules/tag-manager';
+
 import {
   getCategoriesAPI,
   setKeyValue,
 } from "../../../../store/categoriesSlice";
 import { useState } from "react";
 import { useEffect } from "react";
-import TagManager from '@/molecules/tag-manager/tag-manager';
+
 import { __ } from "@/wpi18n";
 
 const CategoriesFilter = ({ filterObject, onChange = () => {} }) => {

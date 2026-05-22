@@ -3,10 +3,11 @@ import Card from '@/molecules/card';
 import Checkbox from '@/molecules/checkbox';
 import Flex from '@/molecules/flex';
 import Input from '@/molecules/input';
-import Select from '@/molecules/select/select';
+
 import Text from '@/molecules/text';
 import React from "react";
 import { __ } from "@/wpi18n";
+import { Select } from '@/molecules/select';
 
 const languageArray = [
   { value: "english", title: "English (Default)" },

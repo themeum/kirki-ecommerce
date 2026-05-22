@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from "react";
-import Popover from '@/molecules/popover/popover';
-import PopoverHeader from '@/molecules/popover/popover-header';
-import PopoverBody from '@/molecules/popover/popover-body';
-import Select from '@/molecules/select/select';
+
 import Checkbox from '@/molecules/checkbox';
 import Button from '@/molecules/button';
 import Input from '@/molecules/input';
-import PopoverFooter from '@/molecules/popover/popover-footer';
+
 import { __ } from "@/wpi18n";
 import { useSelector } from "react-redux";
 import { CLASS_PREFIX } from "@/conf";
 import useGetListAPI from "../../../../hooks/useGetListAPI";
 import { getCountriesAPI } from "../../../../store/countriesSlice";
 import { LocationIcon, SearchIcon } from "@/icons";
+import { Popover, PopoverBody, PopoverFooter, PopoverHeader } from '@/molecules/popover';
+import { Select } from '@/molecules/select';
+
 export const SelectDestinationPopup = (props) => {
   const {
     openPopup,

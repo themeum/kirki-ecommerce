@@ -3,7 +3,7 @@ import Checkbox from '@/molecules/checkbox';
 import Flex from '@/molecules/flex';
 import Grid from '@/molecules/grid';
 import Input from '@/molecules/input';
-import Select from '@/molecules/select/select';
+
 import Separator from '@/molecules/separator';
 import Text from '@/molecules/text';
 import React from "react";
@@ -17,6 +17,7 @@ import { useEffect } from "react";
 import { TaxProfilePopup } from "../../../settings/tax-settings/tax-profile/tax-profile-popup";
 import { useGetListAPI } from "@/hooks";
 import { getTaxProfileListAPI } from "../../../../store/settingsSlice";
+import { Select } from '@/molecules/select';
 
 const Price = ({ errors, setErrors }) => {
   const dispatch = useDispatch();

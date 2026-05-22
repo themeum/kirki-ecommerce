@@ -3,13 +3,13 @@ import ActionGroup from '@/molecules/action-group';
 import Button from '@/molecules/button';
 import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
-import Popover from '@/molecules/popover/popover';
-import PopoverBody from '@/molecules/popover/popover-body';
-import PopoverHeader from '@/molecules/popover/popover-header';
+
 import Text from '@/molecules/text';
 import React from "react";
 import { useState, useEffect } from "react";
 import { __ } from "@/wpi18n";
+import { Popover, PopoverBody, PopoverHeader } from '@/molecules/popover';
+
 import {
   getAvailablePaymentGatewayAPI,
   installPaymentGatewayAPI,

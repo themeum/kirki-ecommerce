@@ -6,12 +6,13 @@ import Flex from '@/molecules/flex';
 import Grid from '@/molecules/grid';
 import Input from '@/molecules/input';
 import Label from '@/molecules/label';
-import Select from '@/molecules/select/select';
+
 import Text from '@/molecules/text';
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { updateProduct } from "../../../../store/productSlice";
 import { __ } from "@/wpi18n";
+import { Select } from '@/molecules/select';
 
 const Inventory = ({ errors, setErrors }) => {
   const dispatch = useDispatch();

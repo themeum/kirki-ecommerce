@@ -1,17 +1,16 @@
 import React, { useState } from "react";
-import Popover from '@/molecules/popover/popover';
-import PopoverBody from '@/molecules/popover/popover-body';
-import PopoverHeader from '@/molecules/popover/popover-header';
+
 import Input from '@/molecules/input';
 import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
 import Checkbox from '@/molecules/checkbox';
 import Button from '@/molecules/button';
-import PopoverFooter from '@/molecules/popover/popover-footer';
+
 import { LocationIcon, SearchIcon } from "@/icons";
 import { __, sprintf } from "@/wpi18n";
 import { getSearchedValue } from "../../../utils";
 import { CLASS_PREFIX } from "@/conf";
+import { Popover, PopoverBody, PopoverFooter, PopoverHeader } from '@/molecules/popover';
 
 export const AddStatePopup = (props) => {
   const {

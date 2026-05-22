@@ -1,9 +1,10 @@
 import React from "react";
-import Select from '@/molecules/select/select';
+
 import { CLASS_PREFIX } from "@/conf";
 import { MinusIcon } from "@/icons";
 import Button from '@/molecules/button';
 import { useRef } from "react";
+import { Select } from '@/molecules/select';
 
 const Capsule = (props) => {
   const {

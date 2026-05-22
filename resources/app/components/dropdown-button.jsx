@@ -1,10 +1,8 @@
 import Button from '@/molecules/button';
 import Checkbox from '@/molecules/checkbox';
-import Dropdown from '@/molecules/dropdown/dropdown';
-import DropdownMenuContent from '@/molecules/dropdown/dropdown-menu-content';
-import DropdownMenuItem from '@/molecules/dropdown/dropdown-menu-item';
-import DropdownTrigger from '@/molecules/dropdown/dropdown-trigger';
+
 import React, { useRef, useState, useEffect } from "react";
+import { Dropdown, DropdownMenuContent, DropdownMenuItem, DropdownTrigger } from '@/molecules/dropdown';
 
 const DropdownButton = ({
   buttonProps,

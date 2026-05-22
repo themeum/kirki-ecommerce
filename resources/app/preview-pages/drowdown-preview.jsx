@@ -1,11 +1,9 @@
 import React, { useRef, useState } from "react";
 import Button from '@/molecules/button';
-import Dropdown from '@/molecules/dropdown/dropdown';
-import DropdownMenuContent from '@/molecules/dropdown/dropdown-menu-content';
-import DropdownMenuItem from '@/molecules/dropdown/dropdown-menu-item';
-import DropdownTrigger from '@/molecules/dropdown/dropdown-trigger';
+
 import Separator from '@/molecules/separator';
 import { ButtonDefaultIcon } from "@/icons";
+import { Dropdown, DropdownMenuContent, DropdownMenuItem, DropdownTrigger } from '@/molecules/dropdown';
 
 const DrowdownPreview = () => {
   const [openDropdown, setOpenDropdown] = useState(false);

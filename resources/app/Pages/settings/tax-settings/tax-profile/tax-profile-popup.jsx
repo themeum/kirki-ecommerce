@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
-import Popover from '@/molecules/popover/popover';
-import PopoverBody from '@/molecules/popover/popover-body';
-import PopoverHeader from '@/molecules/popover/popover-header';
-import PopoverFooter from '@/molecules/popover/popover-footer';
+
 import Input from '@/molecules/input';
 import Button from '@/molecules/button';
+import { Popover, PopoverBody, PopoverFooter, PopoverHeader } from '@/molecules/popover';
+
 import {
   createTaxProfile,
   setKeyValue,

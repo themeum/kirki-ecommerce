@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from "react";
 import Button from '@/molecules/button';
-import Popover from '@/molecules/popover/popover';
-import PopoverHeader from '@/molecules/popover/popover-header';
-import PopoverBody from '@/molecules/popover/popover-body';
+
 import Flex from '@/molecules/flex';
 import Text from '@/molecules/text';
 import Input from '@/molecules/input';
 import Checkbox from '@/molecules/checkbox';
-import PopoverFooter from '@/molecules/popover/popover-footer';
+
 import { __ } from "@/wpi18n";
 import { PlusIcon, SearchIcon } from "@/icons";
+import { Popover, PopoverBody, PopoverFooter, PopoverHeader } from '@/molecules/popover';
+
 import {
   getAllCurrencyAPI,
   getAvailableCurrenciesAPI,

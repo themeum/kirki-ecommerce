@@ -4,12 +4,12 @@ import ActionGroup from '@/molecules/action-group';
 import Badge from '@/molecules/badge';
 import Button from '@/molecules/button';
 import Checkbox from '@/molecules/checkbox';
-import DropdownMenuContent from '@/molecules/dropdown/dropdown-menu-content';
-import DropdownMenuItem from '@/molecules/dropdown/dropdown-menu-item';
+
 import Flex from '@/molecules/flex';
 import Label from '@/molecules/label';
 import Searchbox from '@/molecules/searchbox';
 import { __ } from "@/wpi18n";
+import { DropdownMenuContent, DropdownMenuItem } from '@/molecules/dropdown';
 
 const GroupSelect = (props) => {
   const {

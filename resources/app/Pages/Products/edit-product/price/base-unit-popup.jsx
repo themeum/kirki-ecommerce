@@ -1,12 +1,13 @@
 import { ChevronDownIcon } from "@/icons";
 import Button from '@/molecules/button';
-import DropdownMenuContent from '@/molecules/dropdown/dropdown-menu-content';
+
 import Flex from '@/molecules/flex';
 import SelectInput from '@/molecules/select-input';
 import React from "react";
 import { __ } from "@/wpi18n";
 import { getSpecifiedUnitList, normalizedUnit, unitList } from './utils';
 import { useState, useRef, useEffect } from "react";
+import { DropdownMenuContent } from '@/molecules/dropdown';
 
 const BaseUnitPopup = ({ errors, onChange, buttonProps, setErrors, data }) => {
   const totalUnitAnchorRef = useRef(null);

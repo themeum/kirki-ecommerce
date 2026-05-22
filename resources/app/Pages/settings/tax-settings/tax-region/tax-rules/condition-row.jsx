@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { CLASS_PREFIX } from "@/conf";
 import { PlusIcon, TrashIcon } from "@/icons";
 import Grid from '@/molecules/grid';
-import Select from '@/molecules/select/select';
+
 import Input from '@/molecules/input';
 import Button from '@/molecules/button';
 import Text from '@/molecules/text';
@@ -10,6 +10,7 @@ import { taxRuleConditionOptions } from "../../utils";
 import { AddStatePopup } from './add-state-popup';
 import { getDestinationDisplayValue } from "./helper";
 import { __ } from "@/wpi18n";
+import { Select } from '@/molecules/select';
 
 const ConditionRow = (props) => {
   const {

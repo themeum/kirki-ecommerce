@@ -6,7 +6,7 @@ import Container from '@/molecules/container';
 import Flex from '@/molecules/flex';
 import Input from '@/molecules/input';
 import Card from '@/molecules/card';
-import Select from '@/molecules/select/select';
+
 import { __ } from "@/wpi18n";
 import PageNavbar from '@/components/page-navbar';
 import FlatRateSettings from './flat-rate-settings';
@@ -14,6 +14,8 @@ import LocalPickupSettings from './local-pickup-settings';
 import RateByWeightSettings from './rate-by-weight-settings';
 import { useDispatch, useSelector } from "react-redux";
 import { useSearchParams, useNavigate, useOutletContext } from "react-router";
+import { Select } from '@/molecules/select';
+
 import {
   getSettingsAPI,
   updateSettings,

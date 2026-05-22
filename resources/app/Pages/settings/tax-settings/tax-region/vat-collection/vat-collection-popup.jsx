@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
-import Popover from '@/molecules/popover/popover';
-import PopoverHeader from '@/molecules/popover/popover-header';
-import PopoverBody from '@/molecules/popover/popover-body';
+
 import Input from '@/molecules/input';
-import Select from '@/molecules/select/select';
+
 import Button from '@/molecules/button';
-import PopoverFooter from '@/molecules/popover/popover-footer';
+
 import { __ } from "@/wpi18n";
+import { Popover, PopoverBody, PopoverFooter, PopoverHeader } from '@/molecules/popover';
+import { Select } from '@/molecules/select';
 
 const VatCollectionPopup = (props) => {
   const {

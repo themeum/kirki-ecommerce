@@ -1,11 +1,12 @@
 import { useGetListAPI } from "@/hooks";
-import Select from '@/molecules/select/select';
+
 import React from "react";
 import { useEffect } from "react";
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import { __ } from "@/wpi18n";
 import { getBrandsAPI } from "../../../../store/brandsSlice";
+import { Select } from '@/molecules/select';
 
 const BrandFilter = ({ filterObject, onChange = () => {} }) => {
   const { data: brandData } = useSelector((state) => state.brands);

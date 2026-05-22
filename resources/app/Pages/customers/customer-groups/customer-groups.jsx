@@ -6,9 +6,10 @@ import Container from '@/molecules/container';
 import Flex from '@/molecules/flex';
 import Input from '@/molecules/input';
 import PageHeading from '@/molecules/page-heading';
-import Select from '@/molecules/select/select';
+
 import CustomerGroupTable from './customer-group-table';
 import { ArrowDownUp, ListFilter } from "@/icons";
+import { Select } from '@/molecules/select';
 
 const CustomerGroups = () => {
   const selectOptions = [

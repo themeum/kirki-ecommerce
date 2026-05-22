@@ -1,6 +1,7 @@
-import TagManager from '@/molecules/tag-manager/tag-manager';
+
 import React from "react";
 import { useState } from "react";
+import { TagManager } from '@/molecules/tag-manager';
 
 const TagManagerPreview = () => {
   const initialSelectedTags = [

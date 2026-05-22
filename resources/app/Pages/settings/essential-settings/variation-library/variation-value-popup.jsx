@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { __ } from "@/wpi18n";
+import { Popover, PopoverBody, PopoverFooter, PopoverHeader } from '@/molecules/popover';
+
 import {
   addAttributeValueAPI,
   setKeyValue,
   updateAttributeValueAPI,
 } from "../../../../store/attributesSlice";
-import Popover from '@/molecules/popover/popover';
-import PopoverBody from '@/molecules/popover/popover-body';
-import PopoverHeader from '@/molecules/popover/popover-header';
-import PopoverFooter from '@/molecules/popover/popover-footer';
+
 import Button from '@/molecules/button';
 import Flex from '@/molecules/flex';
 import Input from '@/molecules/input';

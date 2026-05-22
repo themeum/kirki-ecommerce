@@ -3,13 +3,14 @@ import ActionGroup from '@/molecules/action-group';
 import Button from '@/molecules/button';
 import Flex from '@/molecules/flex';
 import Searchbox from '@/molecules/searchbox';
-import Select from '@/molecules/select/select';
+
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setKeyValue } from "../../../store/inventorySlice";
 import DropdownButton from '@/components/dropdown-button';
 import { __ } from "@/wpi18n";
 import { allTableHeaders } from "../utils";
+import { Select } from '@/molecules/select';
 
 const InventoryTableAction = ({ selectedFields, setSelectedFields }) => {
   const dispatch = useDispatch();

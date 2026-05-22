@@ -2,7 +2,7 @@ import { PlusIcon } from "@/icons";
 import ActionGroup from '@/molecules/action-group';
 import Button from '@/molecules/button';
 import Flex from '@/molecules/flex';
-import Select from '@/molecules/select/select';
+
 import Text from '@/molecules/text';
 import React from "react";
 import { useSelector } from "react-redux";
@@ -13,6 +13,7 @@ import { getShippingBoxListAPI } from "../../../../store/settingsSlice";
 import { useGetListAPI } from "@/hooks";
 import { useNavigate } from "react-router";
 import ShippingBoxPopup from "../../../settings/shipping-settings/shipping-box/shipping-box-popup";
+import { Select } from '@/molecules/select';
 
 const ShippingBox = ({ value, errors, onChange = () => {}, invisible }) => {
   const navigate = useNavigate();

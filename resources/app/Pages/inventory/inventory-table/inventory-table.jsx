@@ -1,11 +1,7 @@
 import Button from '@/molecules/button';
 import Checkbox from '@/molecules/checkbox';
 import Flex from '@/molecules/flex';
-import Table from '@/molecules/table/table';
-import TableBody from '@/molecules/table/table-body';
-import TableHead from '@/molecules/table/table-head';
-import TableHeader from '@/molecules/table/table-header';
-import TableRow from '@/molecules/table/table-row';
+
 import React from "react";
 import { useSelector } from "react-redux";
 import { useMarkList } from "@/hooks";
@@ -16,6 +12,7 @@ import InventoryTableAction from './inventory-table-action';
 import { useNavigate } from "react-router";
 import { useState } from "react";
 import { allTableHeaders } from "../utils";
+import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/molecules/table';
 
 const InventoryTable = () => {
   const navigate = useNavigate();

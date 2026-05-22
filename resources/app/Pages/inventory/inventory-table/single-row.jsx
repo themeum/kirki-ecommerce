@@ -1,14 +1,14 @@
 import Checkbox from '@/molecules/checkbox';
 import Flex from '@/molecules/flex';
 import Input from '@/molecules/input';
-import TableCell from '@/molecules/table/table-cell';
-import TableRow from '@/molecules/table/table-row';
+
 import Thumbnail from '@/molecules/thumbnail';
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { __ } from "@/wpi18n";
 import { setKeyValue, updateInventory } from "../../../store/inventorySlice";
 import { calculateProfit } from "../../utils";
+import { TableCell, TableRow } from '@/molecules/table';
 
 const SingleRow = ({
   item,

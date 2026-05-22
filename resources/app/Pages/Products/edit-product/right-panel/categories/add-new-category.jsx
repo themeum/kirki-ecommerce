@@ -4,11 +4,13 @@ import Button from '@/molecules/button';
 import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
 import Input from '@/molecules/input';
-import Select from '@/molecules/select/select';
+
 import React from "react";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { __ } from "@/wpi18n";
+import { Select } from '@/molecules/select';
+
 import {
   addCategoryAPI,
   setKeyValue,

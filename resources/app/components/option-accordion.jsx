@@ -1,13 +1,15 @@
-import React from "react";
-import { __ } from "@/wpi18n";
-import Accordion from '@/molecules/accordion/accordion';
-import AccordionItem from '@/molecules/accordion/accordion-item';
-import AccordionTrigger from '@/molecules/accordion/accordion-trigger';
-import AccordionContent from '@/molecules/accordion/accordion-content';
-import Text from '@/molecules/text';
-import Card from '@/molecules/card';
+import { __ } from '@/wpi18n';
+
+import { CLASS_PREFIX } from '@/conf';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/molecules/accordion';
 import Badge from '@/molecules/badge';
-import { CLASS_PREFIX } from "@/conf";
+import Card from '@/molecules/card';
+import Text from '@/molecules/text';
 
 const OptionAccordion = (props) => {
   const {
@@ -26,17 +28,17 @@ const OptionAccordion = (props) => {
 
   const variantClass = [variants[variant], state === false && variants.inactive]
     .filter(Boolean)
-    .join(" ");
+    .join(' ');
 
   return (
     <div
       style={{
-        borderRadius: "var(--decom-radius-rounded-xl)",
-        border: "1px solid var(--decom-icon-inverse)",
+        borderRadius: 'var(--decom-radius-rounded-xl)',
+        border: '1px solid var(--decom-icon-inverse)',
       }}
     >
       <Accordion
-        style={{ width: "100%" }}
+        style={{ width: '100%' }}
         hideSeparator={true}
         hasBottomSpace={false}
         rightActions={rightActions}
@@ -44,20 +46,16 @@ const OptionAccordion = (props) => {
         <AccordionItem>
           <AccordionTrigger
             className={`${variantClass} ${CLASS_PREFIX}-option-accordion-trigger`}
-            style={{ padding: "var(--decom-spacing-3) var(--decom-spacing-4)" }}
+            style={{ padding: 'var(--decom-spacing-3) var(--decom-spacing-4)' }}
             gap={16}
           >
             <Text
               header={header}
               subHeader={subHeader}
-              style={{ gap: "6px" }}
+              style={{ gap: '6px' }}
               leftIcon={leftIcon}
-              badge={
-                !state && (
-                  <Badge text={__("Inactive", "kirki-ecommerce")} type="trashed" />
-                )
-              }
-              type={!state ? "disabled" : "secondary"}
+              badge={!state && <Badge text={__('Inactive', 'kirki-ecommerce')} type="trashed" />}
+              type={!state ? 'disabled' : 'secondary'}
             />
           </AccordionTrigger>
           <AccordionContent>
@@ -65,9 +63,9 @@ const OptionAccordion = (props) => {
               type="dark"
               style={{
                 borderRadius:
-                  "var(--decom-radius-rounded-none) var(--decom-radius-rounded-none) var(--decom-radius-rounded-lg) var(--decom-radius-rounded-lg)",
-                display: "flex",
-                flexDirection: "column",
+                  'var(--decom-radius-rounded-none) var(--decom-radius-rounded-none) var(--decom-radius-rounded-lg) var(--decom-radius-rounded-lg)',
+                display: 'flex',
+                flexDirection: 'column',
               }}
             >
               {children}

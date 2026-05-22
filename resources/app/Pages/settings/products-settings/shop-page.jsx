@@ -1,9 +1,10 @@
 import React from "react";
 import Card from '@/molecules/card';
 import Text from '@/molecules/text';
-import Select from '@/molecules/select/select';
+
 import { useSelector } from "react-redux";
 import { __ } from "@/wpi18n";
+import { Select } from '@/molecules/select';
 
 export const ShopPage = (props) => {
   const { dataObj, handleOnChange, errors } = props;

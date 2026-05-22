@@ -2,7 +2,7 @@ import React from "react";
 import { __ } from "@/wpi18n";
 import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
-import Select from '@/molecules/select/select';
+import { Select } from '@/molecules/select';
 
 const CurrencyFormatSettings = ({ handleOnChange, dataObj, errors }) => {
   const optionsArray = [

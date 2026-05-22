@@ -1,18 +1,17 @@
 import React, { useState, useMemo } from "react";
-import Popover from '@/molecules/popover/popover';
-import PopoverHeader from '@/molecules/popover/popover-header';
-import PopoverBody from '@/molecules/popover/popover-body';
+
 import Input from '@/molecules/input';
 import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
 import Checkbox from '@/molecules/checkbox';
 import Button from '@/molecules/button';
-import PopoverFooter from '@/molecules/popover/popover-footer';
+
 import Text from '@/molecules/text';
 import { LocationIcon, SearchIcon } from "@/icons";
 import { __ } from "@/wpi18n";
 import { getSearchedValue } from "../../utils";
 import { CLASS_PREFIX } from "@/conf";
+import { Popover, PopoverBody, PopoverFooter, PopoverHeader } from '@/molecules/popover';
 
 const AddCitiesPopup = (props) => {
   const {

@@ -2,16 +2,16 @@ import React, { useEffect, useState } from "react";
 import { __, sprintf } from "@/wpi18n";
 import Flex from '@/molecules/flex';
 import Button from '@/molecules/button';
-import Popover from '@/molecules/popover/popover';
-import PopoverBody from '@/molecules/popover/popover-body';
-import PopoverHeader from '@/molecules/popover/popover-header';
+
 import Input from '@/molecules/input';
-import PopoverFooter from '@/molecules/popover/popover-footer';
+
 import Text from '@/molecules/text';
 import ActionGroup from '@/molecules/action-group';
 import { useDispatch } from "react-redux";
 
 import GroupTagTable from '@/components/group-tag-table';
+import { Popover, PopoverBody, PopoverFooter, PopoverHeader } from '@/molecules/popover';
+
 import {
   groupDetails,
   optionsList,

@@ -2,11 +2,9 @@ import React, { useState, useRef, useEffect } from "react";
 import Card from '@/molecules/card';
 import Text from '@/molecules/text';
 import Flex from '@/molecules/flex';
-import Select from '@/molecules/select/select';
+
 import Tag from '@/molecules/tag';
-import Dropdown from '@/molecules/dropdown/dropdown';
-import DropdownTrigger from '@/molecules/dropdown/dropdown-trigger';
-import DropdownMenuContent from '@/molecules/dropdown/dropdown-menu-content';
+
 import Checkbox from '@/molecules/checkbox';
 import Input from '@/molecules/input';
 import ActionGroup from '@/molecules/action-group';
@@ -18,6 +16,8 @@ import { __ } from "@/wpi18n";
 import { getSearchedValue, setUnsavedDataStatus } from "../utils";
 import { getCountriesAPI } from "../../../store/countriesSlice";
 import useGetListAPI from "../../../hooks/useGetListAPI";
+import { Dropdown, DropdownMenuContent, DropdownTrigger } from '@/molecules/dropdown';
+import { Select } from '@/molecules/select';
 
 const SellingLocation = (props) => {
   const {

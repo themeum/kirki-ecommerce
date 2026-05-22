@@ -4,12 +4,13 @@ import Button from '@/molecules/button';
 import Checkbox from '@/molecules/checkbox';
 import Flex from '@/molecules/flex';
 import Input from '@/molecules/input';
-import Select from '@/molecules/select/select';
-import TableCell from '@/molecules/table/table-cell';
-import TableRow from '@/molecules/table/table-row';
+
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { __ } from "@/wpi18n";
+import { Select } from '@/molecules/select';
+import { TableCell, TableRow } from '@/molecules/table';
+
 import {
   generateVariantIndexById,
   generateVariantIndexes,

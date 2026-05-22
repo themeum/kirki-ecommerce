@@ -8,12 +8,13 @@ import Flex from '@/molecules/flex';
 import Input from '@/molecules/input';
 import Label from '@/molecules/label';
 import PageHeading from '@/molecules/page-heading';
-import Select from '@/molecules/select/select';
+
 import Text from '@/molecules/text';
 import React from "react";
 import ItemsTable from './items-table';
 import Payment from './payment';
 import CustomerInfo from './customer-info';
+import { Select } from '@/molecules/select';
 
 const OrderDetails = () => {
   const optionsArray = [

@@ -1,9 +1,6 @@
 import React, { useRef, useState } from "react";
 import Button from '@/molecules/button';
-import Popover from '@/molecules/popover/popover';
-import PopoverBody from '@/molecules/popover/popover-body';
-import PopoverFooter from '@/molecules/popover/popover-footer';
-import PopoverHeader from '@/molecules/popover/popover-header';
+import { Popover, PopoverBody, PopoverFooter, PopoverHeader } from '@/molecules/popover';
 
 const PopoverPreview = () => {
   const [openPopover, setOpenPopover] = useState(false);

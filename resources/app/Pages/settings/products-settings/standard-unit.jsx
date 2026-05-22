@@ -2,11 +2,12 @@ import React from "react";
 import Card from '@/molecules/card';
 import Text from '@/molecules/text';
 import Flex from '@/molecules/flex';
-import Select from '@/molecules/select/select';
+
 import ToggleButton from '@/molecules/toggle-button';
 import ActionGroup from '@/molecules/action-group';
 import { weightUnitList, dimensionUnitList } from "../utils";
 import { __ } from "@/wpi18n";
+import { Select } from '@/molecules/select';
 
 export const StandardUnit = (props) => {
   const { dataObj, handleOnChange, errors } = props;

@@ -6,11 +6,13 @@ import Container from '@/molecules/container';
 import Flex from '@/molecules/flex';
 import Label from '@/molecules/label';
 import PageHeading from '@/molecules/page-heading';
-import TagManager from '@/molecules/tag-manager/tag-manager';
+
 import React from "react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { __ } from "@/wpi18n";
+import { TagManager } from '@/molecules/tag-manager';
+
 import {
   addCustomerAPI,
   getCustomerByIdAPI,

@@ -3,7 +3,7 @@ import Placeholder from '@/molecules/placeholder';
 import Flex from '@/molecules/flex';
 import Text from '@/molecules/text';
 import Grid from '@/molecules/grid';
-import Select from '@/molecules/select/select';
+
 import Input from '@/molecules/input';
 import Button from '@/molecules/button';
 import { LighteningIcon } from "@/icons";
@@ -15,6 +15,7 @@ import ConditionRow from './condition-row';
 
 import { getTaxProfileListAPI } from "../../../../../store/settingsSlice";
 import useGetListAPI from "../../../../../hooks/useGetListAPI";
+import { Select } from '@/molecules/select';
 
 const TaxRulesModal = (props) => {
   const {

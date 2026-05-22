@@ -5,13 +5,9 @@ import Card from '@/molecules/card';
 import Checkbox from '@/molecules/checkbox';
 import Flex from '@/molecules/flex';
 import Input from '@/molecules/input';
-import Select from '@/molecules/select/select';
+
 import Separator from '@/molecules/separator';
-import Table from '@/molecules/table/table';
-import TableBody from '@/molecules/table/table-body';
-import TableHead from '@/molecules/table/table-head';
-import TableHeader from '@/molecules/table/table-header';
-import TableRow from '@/molecules/table/table-row';
+
 import React, { useEffect } from "react";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -19,6 +15,8 @@ import { __ } from "@/wpi18n";
 import SingleGroup from './single-group';
 import { useNavigate } from "react-router";
 import { updateVariants } from "../../../../../store/productSlice";
+import { Select } from '@/molecules/select';
+import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/molecules/table';
 
 const VariationTable = () => {
   const dispatch = useDispatch();

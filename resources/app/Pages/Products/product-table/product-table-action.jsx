@@ -3,12 +3,13 @@ import ActionGroup from '@/molecules/action-group';
 import Button from '@/molecules/button';
 import Flex from '@/molecules/flex';
 import Searchbox from '@/molecules/searchbox';
-import Select from '@/molecules/select/select';
+
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { __ } from "@/wpi18n";
 import { setKeyValue } from "../../../store/productsSlice";
 import FilterPopup from './filter-popup/filter-popup';
+import { Select } from '@/molecules/select';
 
 const ProductTableAction = () => {
   const dispatch = useDispatch();

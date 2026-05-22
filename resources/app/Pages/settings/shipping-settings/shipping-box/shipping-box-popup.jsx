@@ -2,15 +2,15 @@ import Button from '@/molecules/button';
 import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
 import Input from '@/molecules/input';
-import Popover from '@/molecules/popover/popover';
-import PopoverBody from '@/molecules/popover/popover-body';
-import PopoverHeader from '@/molecules/popover/popover-header';
-import Select from '@/molecules/select/select';
+
 import Text from '@/molecules/text';
 import Separator from '@/molecules/separator';
 import ActionGroup from '@/molecules/action-group';
 import React, { useEffect, useState } from "react";
 import { __, sprintf } from "@/wpi18n";
+import { Popover, PopoverBody, PopoverHeader } from '@/molecules/popover';
+import { Select } from '@/molecules/select';
+
 import {
   createShippingBoxAPI,
   updateShippingBoxAPI,

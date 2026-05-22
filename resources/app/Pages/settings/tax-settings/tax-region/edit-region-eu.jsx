@@ -1,5 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useSelector, useDispatch } from "react-redux";
+import { RadioGroup } from '@/molecules/radio-group';
+
 import {
   getSettingsAPI,
   updateSettingsAPI,
@@ -11,7 +13,7 @@ import Flex from '@/molecules/flex';
 import Card from '@/molecules/card';
 import Text from '@/molecules/text';
 import Button from '@/molecules/button';
-import RadioGroup from '@/molecules/radio-group/radio-group';
+
 import { __ } from "@/wpi18n";
 import { useNavigate, useOutletContext } from "react-router";
 import { VatCollection } from "./vat-collection/vat-collection";

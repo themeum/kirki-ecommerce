@@ -1,15 +1,12 @@
 import React from "react";
-import Table from '@/molecules/table/table';
-import TableBody from '@/molecules/table/table-body';
-import TableHead from '@/molecules/table/table-head';
-import TableHeader from '@/molecules/table/table-header';
-import TableRow from '@/molecules/table/table-row';
+
 import { useSelector } from "react-redux";
 import { __ } from "@/wpi18n";
 import SingleRow from './single-row';
 import { useState } from "react";
 import { allTableHeaders } from "../utils";
 import { CLASS_PREFIX } from "@/conf";
+import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/molecules/table';
 
 const BulkEditTable = ({ selectedFields }) => {
   const { variants } = useSelector((state) => state.bulk?.data);

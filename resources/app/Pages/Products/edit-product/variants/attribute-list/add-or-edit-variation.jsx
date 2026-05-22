@@ -1,6 +1,8 @@
-import TagManager from '@/molecules/tag-manager/tag-manager';
+
 import React from "react";
 import { __ } from "@/wpi18n";
+import { TagManager } from '@/molecules/tag-manager';
+
 import {
   addAttributeValueAPI,
   setKeyValue,
