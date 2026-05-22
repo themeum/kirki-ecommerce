@@ -1,0 +1,88 @@
+import { CLASS_PREFIX } from "@/conf";
+import {
+  EditIcon,
+  EmailIcon,
+  LocationIcon,
+  PhoneIcon,
+  TrashIcon,
+  TruckIcon,
+} from "@/Icons";
+import {
+  ActionGroup,
+  Badge,
+  Button,
+  Card,
+  Flex,
+  Text,
+  Thumbnail,
+} from "@/molecules";
+import React from "react";
+
+const CustomerInfo = () => {
+  return (
+    <Card type="form">
+      <Flex style={{ justifyContent: "space-between", alignItems: "center" }}>
+        <Text header="Customer" type="secondary" />
+        <ActionGroup>
+          <Button type="secondary" icon={<TrashIcon />} />
+          <Button type="secondary" icon={<EditIcon />} />
+        </ActionGroup>
+      </Flex>
+
+      <Flex gap={8}>
+        <span className={`${CLASS_PREFIX}-svg-class`}>
+          <Thumbnail
+            type="circle"
+            src="https://kirki-ecommerce.test/wp-content/uploads/2025/10/Avatar.png"
+          />
+        </span>
+        <Text
+          type="secondary"
+          header="Oliver Thorne"
+          subHeader="oliverthorne@gmail.com"
+        />
+      </Flex>
+
+      <Flex gap={8} style={{ alignItems: "flex-start" }}>
+        <EmailIcon style={{ opacity: "0.5" }} />
+        <Flex direction="column" gap={8}>
+          <Text header="pabloesco.@gmail.com" />
+          <Badge type="draft" text="Awaiting Verification" />
+        </Flex>
+      </Flex>
+
+      <Flex gap={8} style={{ alignItems: "center" }}>
+        <span className={`${CLASS_PREFIX}-svg-class`}>
+          <PhoneIcon />
+        </span>
+        <Text header="+1 555-123-4567" />
+      </Flex>
+
+      <Flex gap={8} style={{ alignItems: "flex-start" }}>
+        <span style={{ flexShrink: 0 }}>
+          <LocationIcon />
+        </span>
+        <Flex direction="column" gap={8}>
+          <Text type="xsm" subHeader="Billing Address" />
+          56683 Schmidt Way, 4825 Welch Crossing
+          <br />
+          Montebello, 65082
+        </Flex>
+      </Flex>
+
+      <Flex gap={8} style={{ alignItems: "flex-start" }}>
+        <span style={{ flexShrink: 0 }}>
+          <TruckIcon style={{ opacity: "0.5" }} />
+        </span>
+        <Flex direction="column" gap={8}>
+          <Text type="xsm" subHeader="Shipping Address" />
+          56683 Schmidt Way, 4825 Welch Crossing
+          <br />
+          Montebello, 65082
+        </Flex>
+      </Flex>
+    </Card>
+  );
+};
+
+export default CustomerInfo;

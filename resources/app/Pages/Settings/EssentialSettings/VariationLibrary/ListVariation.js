@@ -1,0 +1,96 @@
+import React, { useEffect, useState } from "react";
+import {
+  PageHeading,
+  Button,
+  Container,
+  Flex,
+  Card,
+} from "../../../../molecules";
+import PageNavbar from "../../../../components/PageNavbar";
+import { BoxIcon } from "@/Icons";
+import { useSelector } from "react-redux";
+import { useParams } from "react-router";
+import { __, sprintf } from "@/wpi18n";
+import VariationTable from "./VariationTable";
+import VariationValuePopup from "./VariationValuePopup";
+
+const ListVariation = () => {
+  let { id } = useParams();
+  const attributeList = useSelector((state) => state.attributes?.data) || [];
+
+  const [attributeValueList, setAttributeValueList] = useState([]);
+  const [addVariantPopup, setAddVariantPopup] = useState(false);
+  const selectedItem = attributeList.find(
+    (attribute) => attribute?.id === Number(id)
+  );
+
+  const tableHeaders = [
+    { title: sprintf(__("%s", "kirki-ecommerce"), selectedItem?.name) },
+    { title: __("Updated", "kirki-ecommerce") },
+    { title: __("", "kirki-ecommerce") },
+  ];
+
+  useEffect(() => {
+    setAttributeValueList(selectedItem?.values);
+  }, [attributeList, selectedItem]);
+
+  return (
+    <div>
+      <PageHeading
+        text={__("Settings", "kirki-ecommerce")}
+        size="sm"
+        sticky
+        type="primary"
+        style={{ height: "32px" }}
+      />
+      <Container size="sm">
+        <Flex direction="column" gap={16}>
+          <PageNavbar
+            textIcon={<BoxIcon />}
+            text={sprintf(__("%s", "kirki-ecommerce"), selectedItem?.name)}
+            rightAction={
+              <div>
+                <Button
+                  type="link"
+                  text={__("Add value", "kirki-ecommerce")}
+                  style={{ color: "var(--decom-color-blue-3)", padding: 0 }}
+                  onClick={() => setAddVariantPopup(true)}
+                />
+              </div>
+            }
+          />
+          {!attributeValueList?.length ? (
+            <Card
+              type="large"
+              style={{ borderRadius: "8px", padding: "36px 0" }}
+            >
+              <Flex direction="column" gap={8} style={{ alignItems: "center" }}>
+                <BoxIcon />
+                <span style={{ color: "#878593" }}>
+                  {__("No value added yet", "kirki-ecommerce")}
+                </span>
+              </Flex>
+            </Card>
+          ) : (
+            <Card type="table">
+              <VariationTable
+                tableHeaders={tableHeaders}
+                results={attributeValueList}
+                updateDataList={setAttributeValueList}
+                selectedItem={selectedItem}
+              />
+            </Card>
+          )}
+        </Flex>
+      </Container>
+      <VariationValuePopup
+        isOpen={addVariantPopup}
+        selectedItem={selectedItem}
+        onClose={() => setAddVariantPopup(false)}
+        type={selectedItem?.type}
+      />
+    </div>
+  );
+};
+
+export default ListVariation;

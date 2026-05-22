@@ -90,13 +90,30 @@ class ProductResource extends Resource
             ];
         }
 
+        foreach ($this->variants as $variant) {
+            foreach ($variant->attribute_values as $attribute_value) {
+                $attribute_id = $attribute_value->attribute_id;
+                $existing_ids = array_column($attribute_values_map[$attribute_id] ?? [], 'id');
+
+                if (in_array($attribute_value->id, $existing_ids, true)) {
+                    continue;
+                }
+
+                $attribute_values_map[$attribute_id][] = [
+                    'id' => $attribute_value->id,
+                    'value' => $attribute_value->value,
+                    'color' => $attribute_value->color,
+                ];
+            }
+        }
+
         $attribute_map = [];
 
         foreach ($attributes as $attribute) {
             $attribute_map[] = [
                 'id' => $attribute['id'],
                 'name' => $attribute['name'],
-                'values' => $attribute_values_map[$attribute['id']]
+                'values' => $attribute_values_map[$attribute['id']] ?? [],
             ];
         }
 
