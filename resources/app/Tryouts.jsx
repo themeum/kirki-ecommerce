@@ -1,44 +1,40 @@
 import { CLASS_PREFIX } from "@/conf";
-import {
-  Button,
-  Card,
-  Container,
-  Flex,
-  PageHeading,
-  RichText,
-  Text,
-} from "@/molecules";
-import {
-  AccordionPreview,
-  AlertboxPreview,
-  ButtonPreview,
-  CheckboxPreview,
-  DrowdownPreview,
-  GridTemplatePreview,
-  HeadingPreview,
-  InputPreview,
-  PageHeadingPreview,
-  PopoverPreview,
-  RadioGroupPreview,
-  SelectPreview,
-  TablePreview,
-  TabPreview,
-  ToggleButtonPreview,
-  MediaSelectorPreview,
-  MediaGalleryPreview,
-  TagManagerPreview,
-  ActionGroupPreview,
-  ThumbnailPreview,
-  PlaceholderPreview,
-  SelectInputPreview,
-  PageNavbarPreview,
-  OptionAccordionPreview,
-  GroupOptionCardPreview,
-  ProgressBarPreview,
-  ColorPickerPreview,
-} from "./PreviewPages";
-import IconsPreview from "./PreviewPages/IconsPreview";
-import { ShowMoreIcon } from "@/Icons";
+import Button from '@/molecules/button';
+import Card from '@/molecules/card';
+import Container from '@/molecules/container';
+import Flex from '@/molecules/flex';
+import PageHeading from '@/molecules/page-heading';
+import RichText from '@/molecules/rich-text';
+import Text from '@/molecules/text';
+import AccordionPreview from '@/preview-pages/accordion-preview';
+import AlertboxPreview from '@/preview-pages/alertbox-preview';
+import ButtonPreview from '@/preview-pages/button-preview';
+import CheckboxPreview from '@/preview-pages/checkbox-preview';
+import DrowdownPreview from '@/preview-pages/drowdown-preview';
+import GridTemplatePreview from '@/preview-pages/grid-template-preview';
+import HeadingPreview from '@/preview-pages/heading-preview';
+import InputPreview from '@/preview-pages/input-preview';
+import PageHeadingPreview from '@/preview-pages/page-heading-preview';
+import PopoverPreview from '@/preview-pages/popover-preview';
+import RadioGroupPreview from '@/preview-pages/radio-group-preview';
+import SelectPreview from '@/preview-pages/select-preview';
+import TablePreview from '@/preview-pages/table-preview';
+import TabPreview from '@/preview-pages/tab-preview';
+import ToggleButtonPreview from '@/preview-pages/toggle-button-preview';
+import MediaSelectorPreview from '@/preview-pages/media-selector-preview';
+import MediaGalleryPreview from '@/preview-pages/media-gallery-preview';
+import TagManagerPreview from '@/preview-pages/tag-manager-preview';
+import ActionGroupPreview from '@/preview-pages/action-group-preview';
+import ThumbnailPreview from '@/preview-pages/thumbnail-preview';
+import PlaceholderPreview from '@/preview-pages/placeholder-preview';
+import SelectInputPreview from '@/preview-pages/select-input-preview';
+import PageNavbarPreview from '@/preview-pages/page-navbar-preview';
+import OptionAccordionPreview from '@/preview-pages/option-accordion-preview';
+import GroupOptionCardPreview from '@/preview-pages/group-option-card-preview';
+import ProgressBarPreview from '@/preview-pages/progress-bar-preview';
+import ColorPickerPreview from '@/preview-pages/color-picker-preview';
+import IconsPreview from '@/preview-pages/icons-preview';
+import { ShowMoreIcon } from '@/icons';
 import axios from "axios";
 import { getOptions } from "./store/utils";
 
