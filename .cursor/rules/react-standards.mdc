@@ -1,0 +1,93 @@
+---
+description: React/JSX coding standards for resources/app
+globs: resources/app/**/*.jsx
+alwaysApply: false
+---
+
+# React Coding Standards
+
+Apply these conventions to all JSX files under `resources/app/`, including legacy code being edited.
+
+## Files and Folders
+
+- Folders and files: **lowercase**, words separated by **dashes**
+- Examples: `pages/`, `app-dialogs/`, `active-filters.jsx`
+- Do not use barrel files like `component-name/index.jsx`
+- Use `component-name/component-name.jsx` instead
+
+## Components
+
+- Component names: **PascalCase** (`ActiveFilters`, `AppDialog`)
+- Define as arrow functions, export default at the bottom:
+
+```jsx
+const ActiveFilters = () => {
+  return <div />;
+};
+
+ActiveFilters.displayName = 'ActiveFilters';
+
+export default ActiveFilters;
+```
+
+- Multiple components in one file: default export the main component; named export the rest
+- `forwardRef` / `memo`: assign `displayName` on the wrapped const
+
+```jsx
+const Button = forwardRef((props, ref) => {
+  return <span ref={ref} />;
+});
+
+Button.displayName = 'Button';
+
+export default Button;
+```
+
+## Control Flow
+
+Never use inline returns for conditional statements — always wrap the body in braces:
+
+```jsx
+// ❌ BAD
+if (condition) return true;
+
+// ✅ GOOD
+if (condition) {
+  return true;
+}
+```
+
+## Strings and i18n
+
+- JavaScript strings: single quotes `'value'` or backticks for template literals — never double quotes
+- JSX prop string values: double quotes (`type="primary"`, `size="large"`)
+- User-facing static text: use `__()` from `@/wpi18n` with domain `kirki-ecommerce`
+
+```jsx
+import { __ } from '@/wpi18n';
+
+<Button text={__('Save changes', 'kirki-ecommerce')} type="primary" />
+```
+
+## Imports
+
+Group imports in this order, separated by blank lines:
+
+1. External packages (`react`, `react-router`, etc.)
+2. Internal aliases (`@/molecules`, `@/wpi18n`, `@/conf`, etc.)
+3. Relative imports (`./active-filters.scss`)
+
+Always use the `@/` alias for internal paths — avoid deep relative imports when an alias exists.
+
+```jsx
+import { useNavigate } from 'react-router';
+
+import { Button, Container } from '@/molecules';
+import { __ } from '@/wpi18n';
+
+import './not-found.scss';
+```
+
+## Comments
+
+Do not add comments to describe code. Use meaningful variable and function names so the code reads clearly on its own.
