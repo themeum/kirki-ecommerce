@@ -29,22 +29,131 @@ class Root extends Menu
 
         parent::__construct();
 
-        add_action('admin_head', function () {
-            echo '<style>
-                .dashicons-kirki-ecommerce {
-                    background-image: url("' . KIRKI_ECOMMERCE_ASSETS_URL . '/images/logo.svg");
-                    background-repeat: no-repeat;
-                    background-position: center;
-                    background-size: 18px 18px;
-                }
-            </style>';
-        });
+        add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_assets'], 20);
+    }
+
+    public function enqueue_admin_assets()
+    {
+        $menu_style_handle = KIRKI_ECOMMERCE_PREFIX . 'admin-menu';
+
+        wp_register_style($menu_style_handle, false, [], KIRKI_ECOMMERCE_VERSION);
+        wp_enqueue_style($menu_style_handle);
+
+        wp_add_inline_style(
+            $menu_style_handle,
+            $this->get_dashicon_inline_styles()
+        );
+
+        if (!$this->is_ecommerce_admin_page()) {
+            return;
+        }
+
+        add_filter('wp_resource_hints', [$this, 'add_font_resource_hints'], 10, 2);
+
+        wp_enqueue_style(
+            KIRKI_ECOMMERCE_PREFIX . 'inter-font',
+            esc_url(
+                'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=block'
+            ),
+            [],
+            null
+        );
+
+        $root_style_handle = KIRKI_ECOMMERCE_PREFIX . 'root-shell';
+
+        wp_register_style(
+            $root_style_handle,
+            false,
+            [KIRKI_ECOMMERCE_PREFIX . 'inter-font'],
+            KIRKI_ECOMMERCE_VERSION
+        );
+        wp_enqueue_style($root_style_handle);
+
+        wp_add_inline_style(
+            $root_style_handle,
+            $this->get_root_shell_inline_styles()
+        );
+
+        wp_add_inline_script(
+            $this->get_app_script_handle(),
+            Assets::get_kirki_ecommerce_configs(),
+            'before'
+        );
+    }
+
+    protected function is_ecommerce_admin_page()
+    {
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin screen detection.
+        if (!isset($_GET['page'])) {
+            return false;
+        }
+
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin screen detection.
+        $page = sanitize_text_field(wp_unslash($_GET['page']));
+
+        return $page === $this->menu_slug;
+    }
+
+    protected function get_app_script_handle()
+    {
+        if (defined('KIRKI_ECOMMERCE_IS_DEV') && KIRKI_ECOMMERCE_IS_DEV) {
+            return KIRKI_ECOMMERCE_PREFIX . 'app';
+        }
+
+        return KIRKI_ECOMMERCE_PREFIX . 'bundle';
+    }
+
+    protected function get_dashicon_inline_styles()
+    {
+        $logo_url = esc_url(KIRKI_ECOMMERCE_ASSETS_URL . '/images/logo.svg');
+
+        return sprintf(
+            '.dashicons-kirki-ecommerce {
+                background-image: url("%1$s");
+                background-repeat: no-repeat;
+                background-position: center;
+                background-size: 18px 18px;
+            }',
+            $logo_url
+        );
+    }
+
+    protected function get_root_shell_inline_styles()
+    {
+        return '.kirki-ecommerce-root {
+                font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            }
+
+            .kirki-ecommerce-root:not(.kirki-ecommerce-root--ready) {
+                visibility: hidden;
+                min-height: calc(100vh - 32px);
+            }';
+    }
+
+    public function add_font_resource_hints($urls, $relation_type)
+    {
+        if ('preconnect' !== $relation_type || !$this->is_ecommerce_admin_page()) {
+            return $urls;
+        }
+
+        $urls[] = [
+            'href' => 'https://fonts.googleapis.com',
+        ];
+
+        $urls[] = [
+            'href'        => 'https://fonts.gstatic.com',
+            'crossorigin' => 'anonymous',
+        ];
+
+        return $urls;
     }
 
     public function render_page()
     {
-        $config = Assets::get_kirki_ecommerce_configs();
-        echo '<div id="kirki-ecommerce-root" class="kirki-ecommerce-root">Kirki Ecommerce Root</div>';
-        echo '<script>' . $config . '</script>';
+        printf(
+            '<div id="%1$s" class="%2$s"></div>',
+            esc_attr('kirki-ecommerce-root'),
+            esc_attr('kirki-ecommerce-root')
+        );
     }
 }

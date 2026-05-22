@@ -1,7 +1,7 @@
 ---
 description: PHP coding standards for application code (app/, framework/, database/)
 globs: {app,framework,database}/**/*.php
-alwaysApply: false
+alwaysApply: true
 ---
 
 # PHP Coding Standards
