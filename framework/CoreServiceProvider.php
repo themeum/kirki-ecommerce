@@ -5,7 +5,6 @@ namespace Kirki\Ecommerce;
 use Kirki\Ecommerce\Console\CommandManager;
 use Kirki\Ecommerce\Database\Connection\Connection;
 use Kirki\Ecommerce\Database\Connection\DatabaseManager;
-use Kirki\Ecommerce\Database\Migrations\MigrationRepository;
 use Kirki\Ecommerce\Database\Migrations\Migrator;
 use Kirki\Ecommerce\Database\Schema\SchemaManager;
 use Kirki\Ecommerce\Discovery\ListenerDiscovery;
@@ -54,6 +53,8 @@ class CoreServiceProvider extends ServiceProvider
         $this->app->make(ListenerDiscovery::class)
             ->discover()
             ->cache();
+
+        Scheduler::boot();
     }
 
     /**

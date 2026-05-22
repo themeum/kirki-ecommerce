@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\Wordpress\Hooks\Actions;
 
+use Kirki\Ecommerce\Supports\Assets;
 use Kirki\Ecommerce\Wordpress\Constants\HookNames;
 use Kirki\Ecommerce\Wordpress\Constants\HookTypes;
 use Kirki\Ecommerce\Wordpress\BaseHook;
@@ -13,7 +14,7 @@ use Kirki\Ecommerce\Wordpress\BaseHook;
  */
 class EnqueueAdminScripts extends BaseHook
 {
-    private const VITE_DEV_SERVER = 'http://localhost:5173';
+    protected const VITE_DEV_SERVER = 'http://localhost:5173';
 
     public function get_name()
     {
@@ -27,6 +28,10 @@ class EnqueueAdminScripts extends BaseHook
 
     public function handle(...$args)
     {
+        if (!Assets::is_admin_page()) {
+            return;
+        }
+
         wp_enqueue_script('wp-tinymce');
         wp_enqueue_editor();
         wp_enqueue_media();
@@ -39,21 +44,37 @@ class EnqueueAdminScripts extends BaseHook
         $this->enqueue_production_scripts();
     }
 
-    private function enqueue_vite_dev_scripts()
+    protected function enqueue_vite_dev_scripts()
     {
-        add_action('admin_print_footer_scripts', [$this, 'print_react_refresh_preamble'], 1);
+        $vite_refresh_handle = KIRKI_ECOMMERCE_PREFIX . 'vite-refresh';
+
+        wp_enqueue_script(
+            $vite_refresh_handle,
+            esc_url($this->get_vite_refresh_script_url()),
+            [],
+            KIRKI_ECOMMERCE_VERSION,
+            true
+        );
+
+        wp_localize_script(
+            $vite_refresh_handle,
+            'kirkiEcommerceViteRefresh',
+            [
+                'refreshUrl' => esc_url_raw(static::VITE_DEV_SERVER . '/@react-refresh'),
+            ]
+        );
 
         wp_enqueue_script(
             KIRKI_ECOMMERCE_PREFIX . 'vite-client',
-            self::VITE_DEV_SERVER . '/@vite/client',
-            [],
+            static::VITE_DEV_SERVER . '/@vite/client',
+            [$vite_refresh_handle],
             null,
             true
         );
 
         wp_enqueue_script(
             KIRKI_ECOMMERCE_PREFIX . 'app',
-            self::VITE_DEV_SERVER . '/main.jsx',
+            static::VITE_DEV_SERVER . '/main.jsx',
             [KIRKI_ECOMMERCE_PREFIX . 'vite-client'],
             null,
             true
@@ -62,7 +83,15 @@ class EnqueueAdminScripts extends BaseHook
         add_filter('script_loader_tag', [$this, 'add_module_type_to_scripts'], 10, 3);
     }
 
-    private function enqueue_production_scripts()
+    protected function get_vite_refresh_script_url()
+    {
+        return plugins_url(
+            'resources/assets/js/kirki-ecommerce-vite-refresh.js',
+            KIRKI_ECOMMERCE_PLUGIN_FILE
+        );
+    }
+
+    protected function enqueue_production_scripts()
     {
         wp_enqueue_style(
             KIRKI_ECOMMERCE_PREFIX . 'bundle',
@@ -90,23 +119,10 @@ class EnqueueAdminScripts extends BaseHook
         add_filter('script_loader_tag', [$this, 'add_module_type_to_scripts'], 10, 3);
     }
 
-    public function print_react_refresh_preamble()
-    {
-        $refresh_url = esc_url(self::VITE_DEV_SERVER . '/@react-refresh');
-        ?>
-        <script type="module">
-            import RefreshRuntime from "<?php echo $refresh_url; ?>";
-            RefreshRuntime.injectIntoGlobalHook(window);
-            window.$RefreshReg$ = () => {};
-            window.$RefreshSig$ = () => (type) => type;
-            window.__vite_plugin_react_preamble_installed__ = true;
-        </script>
-        <?php
-    }
-
     public function add_module_type_to_scripts($tag, $handle, $src)
     {
         $handles = [
+            KIRKI_ECOMMERCE_PREFIX . 'vite-refresh',
             KIRKI_ECOMMERCE_PREFIX . 'vite-client',
             KIRKI_ECOMMERCE_PREFIX . 'app',
             KIRKI_ECOMMERCE_PREFIX . 'vendor',

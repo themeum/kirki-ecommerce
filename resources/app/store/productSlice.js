@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import { APP_PREFIX } from "@/conf";
 import { commonActions, getOptions, postOptions, putOptions } from "./utils";
 import axios from "axios";
-import { createVariantCombinations } from "../Pages/Products/utils";
+import { createVariantCombinations } from '../pages/products/utils';
 
 const initialState = {
   loaded: false,

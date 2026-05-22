@@ -1,0 +1,52 @@
+import React from "react";
+
+import Badge from '@/molecules/badge';
+import Checkbox from '@/molecules/checkbox';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/molecules/table';
+
+const CustomerGroupTable = () => {
+  const tableHeaders = [
+    { title: "Group Name" },
+    { title: "Members" },
+    { title: "Tags" },
+    { title: "Created On" },
+  ];
+
+  return (
+    <Table type="wide">
+      <TableHeader>
+        <TableRow>
+          <TableHead onlyCheckbox>
+            <Checkbox
+              value={false}
+              onChange={(value) => console.log(value, "checkbox 1")}
+            />
+          </TableHead>
+          {tableHeaders.map((header, index) => (
+            <TableHead key={index}>{header.title}</TableHead>
+          ))}
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((item, index) => (
+          <TableRow key={index}>
+            <TableCell onlyCheckbox>
+              <Checkbox
+                value={false}
+                onChange={(value) => console.log(value, "checkbox 1")}
+              />
+            </TableCell>
+            <TableCell style={{ width: "50%" }}>Wholesale Partners</TableCell>
+            <TableCell>12</TableCell>
+            <TableCell>
+              <Badge text="Wholesale" type="pending" />
+            </TableCell>
+            <TableCell>2025/04/09</TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  );
+};
+
+export default CustomerGroupTable;

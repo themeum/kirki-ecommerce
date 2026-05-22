@@ -2,8 +2,8 @@ import { useEffect } from "react";
 import { RouterProvider } from "react-router";
 import { Provider } from "react-redux";
 import { store } from "@/store";
-import Init from "@/Init";
-import ToastController from "@/floatingComponents/ToastController";
+import Init from '@/init/init';
+import ToastController from '@/floating-components/toast-controller';
 import { router } from "@/routes";
 
 const App = () => {

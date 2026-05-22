@@ -486,6 +486,19 @@ if (!function_exists('Kirki\Ecommerce\resource_path')) {
     }
 }
 
+if (!function_exists('Kirki\Ecommerce\bootstrap_path')) {
+    /**
+     * Get the path to the bootstrap directory.
+     *
+     * @param string $path
+     * @return string
+     */
+    function bootstrap_path($path = '')
+    {
+        return app()->bootstrap_path($path);
+    }
+}
+
 if (!function_exists('Kirki\Ecommerce\collection')) {
     /**
      * Create a collection instance from an array.
@@ -543,5 +556,3 @@ if (!function_exists('Kirki\Ecommerce\json_decoded_data')) {
         return json_decode($content, $associative);
     }
 }
-
-
