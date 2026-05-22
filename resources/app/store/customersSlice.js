@@ -1,26 +1,20 @@
-import { createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
-import { APP_PREFIX } from "@/conf";
-import {
-  commonActions,
-  deleteOptions,
-  getOptions,
-  postOptions,
-  putOptions,
-} from "./utils";
+import { APP_PREFIX } from '@/conf';
+import { createSlice } from '@reduxjs/toolkit';
+import axios from 'axios';
+import { commonActions, deleteOptions, getOptions, postOptions, putOptions } from './utils';
 
 const initialState = {
   loaded: false,
   data: null,
-  search: "",
+  search: '',
   page: 1,
-  sort_order: "asc",
-  sort_by: "id",
+  sort_order: 'asc',
+  sort_by: 'id',
   toggler: false,
 };
 
 export const customersSlice = createSlice({
-  name: APP_PREFIX + "-customer",
+  name: APP_PREFIX + '-customer',
   initialState,
   reducers: {
     ...commonActions,
@@ -34,7 +28,7 @@ export const customersSlice = createSlice({
       const { payload } = action;
       if (state.data) {
         state.data.results = state.data.results.map((item) =>
-          item.id === payload.id ? payload : item
+          item.id === payload.id ? payload : item,
         );
       }
       return state;
@@ -45,15 +39,15 @@ export const customersSlice = createSlice({
 export const getCustomersAPI =
   (
     params = {
-      search: "",
-      sort_by: "id",
-      sort_order: "asc",
+      search: '',
+      sort_by: 'id',
+      sort_order: 'asc',
       page: 1,
-    }
+    },
   ) =>
   (dispatch) => {
     axios
-      .request(getOptions("/customers", params))
+      .request(getOptions('/customers', params))
       .then(function (response) {
         const { data } = response;
         dispatch(setCustomers(data.data));
@@ -66,7 +60,7 @@ export const getCustomersAPI =
 export const getCustomerByIdAPI = async (id) => {
   let data = false;
   await axios
-    .request(getOptions("/customers/" + id))
+    .request(getOptions('/customers/' + id))
     .then(function (response) {
       data = response.data;
     })
@@ -80,7 +74,7 @@ export const getCustomerByIdAPI = async (id) => {
 export const addCustomerAPI = async (params) => {
   let data = false;
   await axios
-    .request(postOptions("/customers", params))
+    .request(postOptions('/customers', params))
     .then(function (response) {
       data = response.data;
     })
@@ -94,12 +88,12 @@ export const addCustomerAPI = async (params) => {
 
 export const updateCustomerAPI = async (id, params) => {
   let data = false;
-  if (typeof params.photo === "object") {
+  if (typeof params.photo === 'object') {
     params.photo = params?.photo?.id || 0;
   }
 
   await axios
-    .request(putOptions("/customers/" + id, params))
+    .request(putOptions('/customers/' + id, params))
     .then(function (response) {
       data = response.data;
     })
@@ -111,14 +105,14 @@ export const updateCustomerAPI = async (id, params) => {
   return data;
 };
 
-export const deleteCustomersAPI = async ({ action = "delete", ids = [] }) => {
+export const deleteCustomersAPI = async ({ action = 'delete', ids = [] }) => {
   const params = {
     action: action,
     ids: ids,
   };
   let data = false;
   await axios
-    .request(postOptions("/customers/bulk", params))
+    .request(postOptions('/customers/bulk', params))
     .then(function (response) {
       data = response.data;
     })
@@ -133,7 +127,7 @@ export const deleteCustomersAPI = async ({ action = "delete", ids = [] }) => {
 export const deleteCustomerByIdAPI = async (id) => {
   let data = false;
   await axios
-    .request(deleteOptions("/customers/" + id))
+    .request(deleteOptions('/customers/' + id))
     .then(function (response) {
       data = response.data;
     })
@@ -145,7 +139,6 @@ export const deleteCustomerByIdAPI = async (id) => {
 };
 
 // Action creators are generated for each case reducer function
-export const { setKeyValue, setCustomers, updateCustomer } =
-  customersSlice.actions;
+export const { setKeyValue, setCustomers, updateCustomer } = customersSlice.actions;
 
 export default customersSlice.reducer;

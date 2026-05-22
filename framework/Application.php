@@ -155,10 +155,6 @@ class Application extends Container
         return $this;
     }
 
-    protected function bind_paths_in_container()
-    {
-    }
-
     /**
      * Binding the inferred paths
      *
@@ -547,7 +543,7 @@ class Application extends Container
      */
     public function base_url($path = '')
     {
-        return site_url('wp-content/kirki-apps-dev/apps/Ecommerce/' . $path); // @todo: remove this hardcoded path
+        return site_url('wp-content/plugins/kirki-ecommerce/' . $path); // @todo: remove this hardcoded path
     }
 
     /**
