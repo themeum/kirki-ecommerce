@@ -44,7 +44,7 @@ class Root extends Menu
             $this->get_dashicon_inline_styles()
         );
 
-        if (!$this->is_ecommerce_admin_page()) {
+        if (!Assets::is_admin_page()) {
             return;
         }
 
@@ -83,15 +83,7 @@ class Root extends Menu
 
     protected function is_ecommerce_admin_page()
     {
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin screen detection.
-        if (!isset($_GET['page'])) {
-            return false;
-        }
-
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin screen detection.
-        $page = sanitize_text_field(wp_unslash($_GET['page']));
-
-        return $page === $this->menu_slug;
+        return Assets::is_admin_page();
     }
 
     protected function get_app_script_handle()
