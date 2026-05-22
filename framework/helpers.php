@@ -20,7 +20,7 @@ use Kirki\Ecommerce\Supports\Str;
 use Kirki\Ecommerce\Supports\Url;
 use Kirki\Ecommerce\Supports\Utils;
 
-if (!function_exists('Ecommerce\app')) {
+if (!function_exists('Kirki\Ecommerce\app')) {
     /**
      * Get the container instance.
      *
@@ -42,7 +42,7 @@ if (!function_exists('Ecommerce\app')) {
     }
 }
 
-if (!function_exists('Ecommerce\deep_get')) {
+if (!function_exists('Kirki\Ecommerce\deep_get')) {
     /**
      * Get a value from an array using a dot notation key.
      *
@@ -114,7 +114,7 @@ if (!function_exists('Ecommerce\deep_get')) {
 }
 
 
-if (!function_exists('Ecommerce\config')) {
+if (!function_exists('Kirki\Ecommerce\config')) {
     /**
      * Get the config
      *
@@ -147,7 +147,7 @@ if (!function_exists('Ecommerce\config')) {
     }
 }
 
-if (!function_exists('Ecommerce\user')) {
+if (!function_exists('Kirki\Ecommerce\user')) {
     /**
      * Get the user instance.
      *
@@ -159,7 +159,7 @@ if (!function_exists('Ecommerce\user')) {
     }
 }
 
-if (!function_exists('Ecommerce\customer')) {
+if (!function_exists('Kirki\Ecommerce\customer')) {
     /**
      * Get the customer instance.
      *
@@ -171,7 +171,7 @@ if (!function_exists('Ecommerce\customer')) {
     }
 }
 
-if (!function_exists('Ecommerce\settings')) {
+if (!function_exists('Kirki\Ecommerce\settings')) {
     /**
      * Get the settings instance.
      *
@@ -184,7 +184,7 @@ if (!function_exists('Ecommerce\settings')) {
     }
 }
 
-if (!function_exists('Ecommerce\response')) {
+if (!function_exists('Kirki\Ecommerce\response')) {
     /**
      * Get the response instance.
      *
@@ -202,7 +202,7 @@ if (!function_exists('Ecommerce\response')) {
     }
 }
 
-if (!function_exists('Ecommerce\with_prefix')) {
+if (!function_exists('Kirki\Ecommerce\with_prefix')) {
     /**
      * Get the key with prefix applied.
      *
@@ -221,7 +221,7 @@ if (!function_exists('Ecommerce\with_prefix')) {
     }
 }
 
-if (!function_exists('Ecommerce\without_prefix')) {
+if (!function_exists('Kirki\Ecommerce\without_prefix')) {
     /**
      * Get the key without prefix applied.
      *
@@ -241,7 +241,7 @@ if (!function_exists('Ecommerce\without_prefix')) {
 }
 
 
-if (!function_exists('Ecommerce\redirect')) {
+if (!function_exists('Kirki\Ecommerce\redirect')) {
     /**
      * Redirect to the given location.
      */
@@ -251,7 +251,7 @@ if (!function_exists('Ecommerce\redirect')) {
     }
 }
 
-if (!function_exists('Ecommerce\is_valid_json')) {
+if (!function_exists('Kirki\Ecommerce\is_valid_json')) {
     /**
      * Check if the string is a valid JSON.
      * 
@@ -270,7 +270,7 @@ if (!function_exists('Ecommerce\is_valid_json')) {
     }
 }
 
-if (!function_exists('Ecommerce\clean_path')) {
+if (!function_exists('Kirki\Ecommerce\clean_path')) {
     /**
      * Clean and normalize file paths for consistency.
      *
@@ -285,7 +285,7 @@ if (!function_exists('Ecommerce\clean_path')) {
     }
 }
 
-if (!function_exists('Ecommerce\uuid')) {
+if (!function_exists('Kirki\Ecommerce\uuid')) {
     /**
      * Generate a UUID.
      * 
@@ -297,7 +297,7 @@ if (!function_exists('Ecommerce\uuid')) {
     }
 }
 
-if (!function_exists('Ecommerce\url')) {
+if (!function_exists('Kirki\Ecommerce\url')) {
     /**
      * Generate a URL.
      * 
@@ -311,7 +311,7 @@ if (!function_exists('Ecommerce\url')) {
     }
 }
 
-if (!function_exists('Ecommerce\is_block_theme')) {
+if (!function_exists('Kirki\Ecommerce\is_block_theme')) {
     /**
      * Check if the site is using a block template
      *
@@ -325,7 +325,7 @@ if (!function_exists('Ecommerce\is_block_theme')) {
     }
 }
 
-if (!function_exists('Ecommerce\migrator')) {
+if (!function_exists('Kirki\Ecommerce\migrator')) {
     /**
      * Get the migrator instance.
      *
@@ -337,7 +337,7 @@ if (!function_exists('Ecommerce\migrator')) {
     }
 }
 
-if (!function_exists('Ecommerce\decision_engine')) {
+if (!function_exists('Kirki\Ecommerce\decision_engine')) {
     /**
      * Get the decision engine instance.
      *
@@ -349,7 +349,7 @@ if (!function_exists('Ecommerce\decision_engine')) {
     }
 }
 
-if (!function_exists('Ecommerce\tap')) {
+if (!function_exists('Kirki\Ecommerce\tap')) {
     /**
      * Call the given Closure with the given value.
      *
@@ -369,7 +369,7 @@ if (!function_exists('Ecommerce\tap')) {
     }
 }
 
-if (!function_exists('Ecommerce\faker')) {
+if (!function_exists('Kirki\Ecommerce\faker')) {
     /**
      * Get the fake instance.
      *
@@ -381,7 +381,7 @@ if (!function_exists('Ecommerce\faker')) {
     }
 }
 
-if (!function_exists('Ecommerce\dd')) {
+if (!function_exists('Kirki\Ecommerce\dd')) {
     /**
      * Dump and die
      * 
@@ -401,7 +401,7 @@ if (!function_exists('Ecommerce\dd')) {
     }
 }
 
-if (!function_exists('Ecommerce\pr')) {
+if (!function_exists('Kirki\Ecommerce\pr')) {
     /**
      * print and die
      * 
@@ -421,7 +421,7 @@ if (!function_exists('Ecommerce\pr')) {
     }
 }
 
-if (!function_exists('Ecommerce\app_path')) {
+if (!function_exists('Kirki\Ecommerce\app_path')) {
     /**
      * Get the path to the application directory.
      *
@@ -434,7 +434,7 @@ if (!function_exists('Ecommerce\app_path')) {
     }
 }
 
-if (!function_exists('Ecommerce\config_path')) {
+if (!function_exists('Kirki\Ecommerce\config_path')) {
     /**
      * Get the path to the config directory.
      *
@@ -447,7 +447,7 @@ if (!function_exists('Ecommerce\config_path')) {
     }
 }
 
-if (!function_exists('Ecommerce\database_path')) {
+if (!function_exists('Kirki\Ecommerce\database_path')) {
     /**
      * Get the path to the database directory.
      *
@@ -460,7 +460,7 @@ if (!function_exists('Ecommerce\database_path')) {
     }
 }
 
-if (!function_exists('Ecommerce\base_path')) {
+if (!function_exists('Kirki\Ecommerce\base_path')) {
     /**
      * Get the path to the base directory.
      *
@@ -473,7 +473,7 @@ if (!function_exists('Ecommerce\base_path')) {
     }
 }
 
-if (!function_exists('Ecommerce\resource_path')) {
+if (!function_exists('Kirki\Ecommerce\resource_path')) {
     /**
      * Get the path to the resources directory.
      *
@@ -486,7 +486,7 @@ if (!function_exists('Ecommerce\resource_path')) {
     }
 }
 
-if (!function_exists('Ecommerce\collection')) {
+if (!function_exists('Kirki\Ecommerce\collection')) {
     /**
      * Create a collection instance from an array.
      *
@@ -499,7 +499,7 @@ if (!function_exists('Ecommerce\collection')) {
     }
 }
 
-if (!function_exists('Ecommerce\resource_url')) {
+if (!function_exists('Kirki\Ecommerce\resource_url')) {
     /**
      * Get the path to the resources directory.
      *
@@ -512,7 +512,7 @@ if (!function_exists('Ecommerce\resource_url')) {
     }
 }
 
-if (!function_exists('Ecommerce\base_currency')) {
+if (!function_exists('Kirki\Ecommerce\base_currency')) {
     /**
      * Get the base currency object/model.
      *
@@ -524,7 +524,7 @@ if (!function_exists('Ecommerce\base_currency')) {
     }
 }
 
-if (!function_exists('Ecommerce\json_decoded_data')) {
+if (!function_exists('Kirki\Ecommerce\json_decoded_data')) {
     /**
      * Get the decoded JSON data from a file.
      * 

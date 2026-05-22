@@ -1,0 +1,100 @@
+#wpwrap:has(.kirki-ecom-not-found) {
+  background-color: var(--decom-background-bg-surface-tertiary);
+}
+
+#wpwrap:has(.kirki-ecom-not-found) #wpcontent {
+  min-height: calc(100vh - 32px);
+  background-color: var(--decom-background-bg-surface-tertiary);
+}
+
+#wpwrap:has(.kirki-ecom-not-found) #wpbody,
+#wpwrap:has(.kirki-ecom-not-found) #wpbody-content,
+#wpwrap:has(.kirki-ecom-not-found) #wpfooter {
+  background-color: var(--decom-background-bg-surface-tertiary);
+}
+
+#wpwrap:has(.kirki-ecom-not-found) #wpbody-content {
+  min-height: calc(100vh - 32px - 41px);
+}
+
+.kirki-ecommerce-root:has(.kirki-ecom-not-found) {
+  min-height: calc(100vh - 32px - 41px);
+  background-color: var(--decom-background-bg-surface-tertiary);
+}
+
+.kirki-ecom-not-found {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: calc(100vh - 32px - 41px);
+  margin-top: 0;
+  padding: 140px 24px 48px;
+  background-color: var(--decom-background-bg-surface-tertiary);
+  box-sizing: border-box;
+}
+
+.kirki-ecom-not-found-card {
+  flex: 0 0 auto;
+  width: 100%;
+  max-width: 560px;
+  height: auto;
+  border: 1px solid var(--decom-border-border-secondary);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+.kirki-ecom-not-found-content {
+  width: 100%;
+}
+
+.kirki-ecom-not-found-illustration {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 200px;
+  height: 140px;
+}
+
+.kirki-ecom-not-found-code {
+  position: absolute;
+  font-size: 72px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: var(--decom-text-text-brand);
+  opacity: 0.12;
+  user-select: none;
+}
+
+.kirki-ecom-not-found-graphic {
+  position: relative;
+  z-index: 1;
+  width: 200px;
+  height: 120px;
+}
+
+.kirki-ecom-not-found-path {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--decom-text-text-secondary);
+}
+
+.kirki-ecom-not-found-path-label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 12px;
+  color: var(--decom-text-text-subdued);
+}
+
+.kirki-ecom-not-found-path code {
+  display: inline-block;
+  padding: 4px 10px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 13px;
+  color: var(--decom-text-text-primary);
+  background: var(--decom-background-bg-surface-secondary);
+  border: 1px solid var(--decom-border-border-secondary);
+  border-radius: 6px;
+  word-break: break-all;
+}

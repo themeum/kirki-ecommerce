@@ -36,6 +36,12 @@ tmp/
 temp/
 .vite/
 
+# Vite build output (resources/app npm run build)
+assets/css/kirki-ecommerce.bundle.css
+assets/js/kirki-ecommerce.bundle.js
+assets/js/kirki-ecommerce.vendor.js
+assets/js/pages/
+
 # Backup files
 *.bak
 *~
