@@ -703,10 +703,18 @@ class Route
      */
     protected function resolve_route()
     {
+        // Resolving the closure route handler.
         if ($this->action instanceof Closure) {
-            return $this->action;
+            return function ($rest_request) {
+                $callback = $this->action;
+                $request = app()->make(Request::class);
+                $resolved = $request->make_request($rest_request);
+
+                return $callback($resolved);
+            };
         }
 
+        // Resolving the controller route handler.
         return function ($rest_request) {
             if (!is_array($this->action)) {
                 throw new InvalidRoutActionException(sprintf(__('Invalid method registered for the route %s', 'kirki-ecommerce'), $this->endpoint));
