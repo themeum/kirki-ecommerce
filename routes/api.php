@@ -26,9 +26,12 @@ use Kirki\Ecommerce\App\Http\Controllers\Api\ShippingProfileController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\CartController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\OrderController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\PageController;
+use Kirki\Ecommerce\App\Models\Post;
 use Kirki\Ecommerce\App\Payment\WebhookController;
+use Kirki\Ecommerce\Http\Request;
 use Kirki\Ecommerce\Route;
 use Kirki\Ecommerce\Middlewares\AuthMiddleware;
+use Kirki\Ecommerce\Supports\Facades\DB;
 
 use function Kirki\Ecommerce\response;
 
@@ -218,8 +221,14 @@ Route::group(['middleware' => AuthMiddleware::class], function () {
 //@todo remove this later as its just to mock the zip download
 Route::get('/payment-gateways/download/{id}', [PaymentGatewayController::class, 'download']);
 
-Route::get('/test', function () {
+Route::get('/test-public', function (Request $request) {
+    DB::enable_query_log();
+    $posts = Post::with(['categories.term', 'tags.term'])->find(1);
+    $query = DB::get_query_log();
+
     return response()->json([
         'message' => 'Hello World',
+        'data' => $posts,
+        'query' => $query,
     ]);
 });
