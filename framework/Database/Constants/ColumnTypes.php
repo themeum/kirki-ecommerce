@@ -1,6 +1,6 @@
 <?php
 
-namespace Kirki\Ecommerce\App\Constants;
+namespace Kirki\Ecommerce\Database\Constants;
 
 /**
  * Class ColumnTypes

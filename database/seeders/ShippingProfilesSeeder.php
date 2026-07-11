@@ -3,29 +3,35 @@
 namespace Kirki\Ecommerce\Database\Seeders;
 
 use Kirki\Ecommerce\App\Models\ShippingProfile;
-use Kirki\Ecommerce\Collections\Collection;
 use Kirki\Ecommerce\Database\Seeder;
-use Faker\Generator;
-
-use function Kirki\Ecommerce\collection;
-use function Kirki\Ecommerce\faker;
 
 class ShippingProfilesSeeder extends Seeder
 {
+    /**
+     * Seed shipping profiles for product assignment.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function run(): void
     {
-        $faker = faker();
-        $data = $this->make_shipping_profiles_data($faker);
-
-        ShippingProfile::query()->insert($data);
+        ShippingProfile::query()->insert($this->get_shipping_profiles());
     }
 
-    protected function make_shipping_profiles_data(Generator $faker)
+    /**
+     * Curated shipping profile definitions.
+     *
+     * @return array
+     * @since 1.0.0
+     */
+    protected function get_shipping_profiles()
     {
-        $number_of_profiles = 5;
-
-        return collection()
-            ->range(1, $number_of_profiles)
-            ->map(fn() => ['name' => $faker->words(3, true)])->all();
+        return [
+            ['name' => 'Standard Shipping'],
+            ['name' => 'Express Delivery'],
+            ['name' => 'Fragile Items'],
+            ['name' => 'Heavy & Oversized'],
+            ['name' => 'Free Shipping Eligible'],
+        ];
     }
 }

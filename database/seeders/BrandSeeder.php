@@ -3,32 +3,30 @@
 namespace Kirki\Ecommerce\Database\Seeders;
 
 use Kirki\Ecommerce\App\Models\Brand;
-use Kirki\Ecommerce\Collections\Collection;
 use Kirki\Ecommerce\Database\Seeder;
 use Kirki\Ecommerce\Supports\Facades\Log;
-use Kirki\Ecommerce\Supports\Str;
-
-use function Kirki\Ecommerce\collection;
-use function Kirki\Ecommerce\faker;
 
 class BrandSeeder extends Seeder
 {
+    /**
+     * Seed curated brands matching the product catalog.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function run(): void
     {
-        $data = collection()->range(1, 10)->map(function ($index) {
-            $faker = faker();
-            $name = $faker->company();
-
+        $data = array_map(function ($brand) {
             return [
-                'id' => $index,
-                'name' => $name,
-                'slug' => Str::slug($name),
-                'description' => $faker->sentence(10),
+                'id' => $brand['id'],
+                'name' => $brand['name'],
+                'slug' => $brand['slug'],
+                'description' => $brand['description'],
                 'is_active' => true,
             ];
-        });
+        }, SeedCatalog::get_brands());
 
-        Brand::query()->insert($data->all());
+        Brand::query()->insert($data);
 
         Log::info('BrandSeeder run successfully');
     }

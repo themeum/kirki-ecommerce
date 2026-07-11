@@ -138,10 +138,10 @@ class MakeClassCommand extends CommandBase
         if ($this->assoc['folder']) {
             $folder = Str::split('/', $this->assoc['folder']);
             $folder = array_map(fn($folder) => Str::pascal($folder), $folder);
-            return 'Ecommerce\\App\\' . implode('\\', $folder);
+            return 'Kirki\\Ecommerce\\App\\' . implode('\\', $folder);
         }
 
-        return 'Ecommerce\\App';
+        return 'Kirki\\Ecommerce\\App';
     }
 
     /**

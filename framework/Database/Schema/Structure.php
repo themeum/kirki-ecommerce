@@ -2,11 +2,10 @@
 
 namespace Kirki\Ecommerce\Database\Schema;
 
-use Kirki\Ecommerce\App\Constants\ColumnTypes;
+use Kirki\Ecommerce\Database\Constants\ColumnTypes;
 use Kirki\Ecommerce\Database\Connection\Connection;
 use Kirki\Ecommerce\Database\Schema\Definitions\Definition;
 use Kirki\Ecommerce\Database\Schema\Definitions\ForeignKeyDefinition;
-use Kirki\Ecommerce\Supports\Facades\DB;
 use Exception;
 
 /**

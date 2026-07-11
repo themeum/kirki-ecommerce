@@ -145,7 +145,7 @@ class ListenerDiscovery implements Discoverable, Cacheable
      */
     protected function listener_class(string $filename)
     {
-        $namespace = 'Ecommerce\\App\\Listeners\\';
+        $namespace = 'Kirki\\Ecommerce\\App\\Listeners\\';
 
         return $namespace . $filename;
     }

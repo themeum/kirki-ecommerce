@@ -78,7 +78,7 @@ class MakeSeederCommand extends CommandBase
     {
         $data = [
             'seeder' => 'DatabaseSeeder',
-            'namespace' => 'Ecommerce\Database\Seeders',
+            'namespace' => 'Kirki\\Ecommerce\\Database\\Seeders',
             'output_file' => sprintf(
                 '%s/%s.php',
                 $this->output_dir,
@@ -110,7 +110,7 @@ class MakeSeederCommand extends CommandBase
     {
         return [
             'seeder' => Str::pascal($this->args[0]),
-            'namespace' => 'Ecommerce\Database\Seeders',
+            'namespace' => 'Kirki\\Ecommerce\\Database\\Seeders',
             'output_file' => sprintf(
                 '%s/%s.php',
                 $this->output_dir,

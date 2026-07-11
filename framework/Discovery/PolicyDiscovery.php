@@ -100,7 +100,7 @@ class PolicyDiscovery implements Discoverable, Cacheable
      */
     protected function policy_class(string $policy_name)
     {
-        $policy_base_namespace = 'Ecommerce\\App\\Policies\\';
+        $policy_base_namespace = 'Kirki\\Ecommerce\\App\\Policies\\';
 
         return $policy_base_namespace . $policy_name;
     }
@@ -113,7 +113,7 @@ class PolicyDiscovery implements Discoverable, Cacheable
      */
     protected function associated_model(string $policy_name)
     {
-        $model_base_namespace = 'Ecommerce\\App\\Models\\';
+        $model_base_namespace = 'Kirki\\Ecommerce\\App\\Models\\';
         $model_name = str_replace('Policy', '', $policy_name);
 
         return $model_base_namespace . $model_name;

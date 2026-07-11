@@ -110,7 +110,7 @@ class MakeRequestCommand extends CommandBase
 
         $data = [
             'stub' => $this->get_stub(),
-            'namespace' => 'Ecommerce\App\Http\Requests',
+            'namespace' => 'Kirki\\Ecommerce\\App\\Http\\Requests',
             'request_class' => $request_class,
             'output_file' => sprintf('%s/%s.php', $this->output_dir, $request_class),
         ];
