@@ -110,7 +110,7 @@ class MakeProviderCommand extends CommandBase
 
         $data = [
             'stub' => $this->get_stub(),
-            'namespace' => 'Ecommerce\App\Providers',
+            'namespace' => 'Kirki\\Ecommerce\\App\\Providers',
             'provider_class' => $provider_class,
             'output_file' => sprintf('%s/%s.php', $this->output_dir, $provider_class),
         ];

@@ -128,7 +128,7 @@ class SeedCommand extends CommandBase
      */
     protected function classname($filename)
     {
-        $namespace = 'Ecommerce\\Database\\Seeders\\';
+        $namespace = 'Kirki\\Ecommerce\\Database\\Seeders\\';
 
         return $namespace . Str::pascal($filename);
     }

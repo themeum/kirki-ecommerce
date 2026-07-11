@@ -111,7 +111,7 @@ class MakeControllerCommand extends CommandBase
         $data = [
             'stub' => $this->get_stub(),
             'controller' => $controller,
-            'namespace' => 'Ecommerce\App\Http\Controllers',
+            'namespace' => 'Kirki\\Ecommerce\\App\\Http\\Controllers',
             'request_type_hint' => 'Request',
             'output_file' => sprintf(
                 '%s/%s.php',
@@ -121,7 +121,7 @@ class MakeControllerCommand extends CommandBase
         ];
 
         if ($this->assoc['api']) {
-            $data['namespace'] = 'Ecommerce\App\Http\Controllers\Api';
+            $data['namespace'] = 'Kirki\\Ecommerce\\App\\Http\\Controllers\\Api';
             $data['output_file'] = sprintf(
                 '%s/API/%s.php',
                 $this->output_dir,

@@ -63,7 +63,7 @@ class MakeModelCommand extends CommandBase
     {
         return [
             'model' => Str::pascal($this->args[0]),
-            'namespace' => 'Ecommerce\App\Models',
+            'namespace' => 'Kirki\\Ecommerce\\App\\Models',
             'output_file' => sprintf(
                 '%s/%s.php',
                 $this->output_dir,

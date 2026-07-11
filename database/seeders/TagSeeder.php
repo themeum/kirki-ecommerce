@@ -3,30 +3,29 @@
 namespace Kirki\Ecommerce\Database\Seeders;
 
 use Kirki\Ecommerce\App\Models\Tag;
-use Kirki\Ecommerce\Collections\Collection;
 use Kirki\Ecommerce\Database\Seeder;
-use Kirki\Ecommerce\Supports\Arr;
 use Kirki\Ecommerce\Supports\Facades\Date;
 use Kirki\Ecommerce\Supports\Facades\Log;
-use Kirki\Ecommerce\Supports\Str;
-use Faker\Factory;
-
-use function Kirki\Ecommerce\faker;
 
 class TagSeeder extends Seeder
 {
+    /**
+     * Seed curated merchandising and descriptive tags.
+     *
+     * @return void
+     * @since 1.0.0
+     */
     public function run()
     {
-        $tags = Collection::range(1, 10)->map(function ($id) {
-            $name = faker()->words(2, true);
+        $tags = array_map(function ($tag) {
             return [
-                'id' => $id,
-                'name' => $name,
-                'slug' => Str::slug($name),
-                'description' => faker()->sentence(10, true),
-                'created_at' => faker()->dateTimeBetween('-1 year', 'now'),
+                'id' => $tag['id'],
+                'name' => $tag['name'],
+                'slug' => $tag['slug'],
+                'description' => $tag['description'],
+                'created_at' => Date::now(),
             ];
-        })->all();
+        }, SeedCatalog::get_tags());
 
         Tag::query()->insert($tags);
 

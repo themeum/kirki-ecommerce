@@ -13,7 +13,7 @@ class Post extends Model
 
     public function meta()
     {
-        return $this->has_many(PostMeta::class, 'post_id', 'meta_id');
+        return $this->has_many(PostMeta::class, 'post_id', 'ID');
     }
 
     public function taxonomies()
