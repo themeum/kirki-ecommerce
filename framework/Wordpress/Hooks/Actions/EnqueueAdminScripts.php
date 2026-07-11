@@ -74,7 +74,7 @@ class EnqueueAdminScripts extends BaseHook
 
         wp_enqueue_script(
             KIRKI_ECOMMERCE_PREFIX . 'app',
-            static::VITE_DEV_SERVER . '/main.jsx',
+            static::VITE_DEV_SERVER . '/main.tsx',
             [KIRKI_ECOMMERCE_PREFIX . 'vite-client'],
             null,
             true

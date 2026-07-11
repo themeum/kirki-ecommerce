@@ -1,0 +1,123 @@
+import { ReplaceIcon } from '@/icons';
+import ActionGroup from '@/molecules/action-group';
+import Button from '@/molecules/button';
+import Card from '@/molecules/card';
+import Flex from '@/molecules/flex';
+import Grid from '@/molecules/grid';
+import Input from '@/molecules/input';
+import Text from '@/molecules/text';
+import type { FormErrors } from '@/types';
+import { __ } from '@/wpi18n';
+
+import type { GeneralSettingsFormData } from './utils';
+
+type OrderIdProps = {
+  dataObj: GeneralSettingsFormData | null;
+  handleOnChange: (value: unknown, key: string) => void;
+  handleResetIDField: (key: string) => void;
+  errors: FormErrors;
+};
+
+const OrderId = (props: OrderIdProps) => {
+  const { dataObj, handleOnChange, handleResetIDField, errors } = props;
+
+  const orderID = `${dataObj?.order_id_prefix || ''}${
+    dataObj?.order_id_suffix || ''
+  }`;
+  return (
+    <div>
+      <Card type="large">
+        <Text
+          header={__('Order ID', 'kirki-ecommerce')}
+          subHeader={__(
+            'Shown on the order page, customer pages, and customer order notifications to identify order',
+            'kirki-ecommerce',
+          )}
+          type="primary"
+          style={{ gap: 'var(--decom-spacing-f3)' }}
+        />
+
+        <Card type="inner" style={{ padding: 'var(--decom-spacing-4)' }}>
+          <Flex direction="column" gap={16}>
+            <Grid>
+              <Input
+                label={__('Prefix', 'kirki-ecommerce')}
+                value={dataObj?.order_id_prefix}
+                onChange={(value) => handleOnChange(value, 'order_id_prefix')}
+                placeholder={__('#ORD-', 'kirki-ecommerce')}
+                helpText={__('Set order id prefix', 'kirki-ecommerce')}
+                error={
+                  errors['data.order_id_prefix'] as string | boolean | undefined
+                }
+              />
+
+              <Input
+                label={__('Suffix', 'kirki-ecommerce')}
+                value={dataObj?.order_id_suffix}
+                onChange={(value) => handleOnChange(value, 'order_id_suffix')}
+                placeholder={__('', 'kirki-ecommerce')}
+                helpText={__('Set order id suffix', 'kirki-ecommerce')}
+                error={
+                  errors['data.order_id_suffix'] as string | boolean | undefined
+                }
+              />
+            </Grid>
+
+            <Card
+              type="innerDark"
+              style={{
+                padding: 'var(--decom-spacing-2) var(--decom-spacing-3)',
+              }}
+            >
+              <Input
+                label={__('Next order IDs will look like:', 'kirki-ecommerce')}
+                value={orderID}
+                style={{
+                  padding: 'var(--decom-spacing-2)',
+                  textAlign: 'center',
+                  color: 'var(--decom-text-text-special-3)',
+                }}
+                error={errors['data.orderID'] as string | boolean | undefined}
+              />
+            </Card>
+
+            <Card
+              type="large"
+              style={{
+                borderRadius: 'var(--decom-radius-rounded-lg)',
+                border: '1px solid var(--decom-border-border)',
+              }}
+            >
+              <Flex direction="column" gap={10}>
+                <Flex style={{ alignItems: 'center' }}>
+                  <Text
+                    type="secondary"
+                    header={__('Reset Order ID', 'kirki-ecommerce')}
+                  />
+                  <ActionGroup>
+                    <Button
+                      text={__('Reset Now', 'kirki-ecommerce')}
+                      size="small"
+                      type="secondary"
+                      leftIcon={<ReplaceIcon />}
+                      onClick={() => handleResetIDField('order')}
+                    />
+                  </ActionGroup>
+                </Flex>
+                <Text
+                  type="primary"
+                  subHeader={__(
+                    'Reset the order ID to your base ID for new fiscal years, system migration, or legal compliance.',
+                    'kirki-ecommerce',
+                  )}
+                />
+              </Flex>
+            </Card>
+          </Flex>
+        </Card>
+      </Card>
+    </div>
+  );
+};
+
+export default OrderId;

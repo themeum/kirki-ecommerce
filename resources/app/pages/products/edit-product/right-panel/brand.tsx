@@ -1,0 +1,118 @@
+import { useEffect, useState } from 'react';
+
+import { useGetListAPI } from '@/hooks';
+import { MinusIcon } from '@/icons';
+import ActionGroup from '@/molecules/action-group';
+import Button from '@/molecules/button';
+import Card from '@/molecules/card';
+import Flex from '@/molecules/flex';
+import Label from '@/molecules/label';
+import Searchbox from '@/molecules/searchbox';
+import Text from '@/molecules/text';
+import Thumbnail from '@/molecules/thumbnail';
+import { getBrandsAPI, setKeyValue } from '@/store/brandsSlice';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { updateProduct } from '@/store/productSlice';
+import type { Brand as BrandEntity, MediaRef, SelectOption } from '@/types';
+import { __ } from '@/wpi18n';
+
+import BrandAddEditPopover from '../../../brands/brand-add-edit-popover';
+
+type BrandSuggestion = SelectOption & BrandEntity;
+
+const Brand = () => {
+  const dispatch = useAppDispatch();
+  const { data: productData } = useAppSelector((state) => state.product);
+  const { data: brandData } = useAppSelector((state) => state.brands);
+  useGetListAPI({
+    reducerName: 'brands',
+    page: 1,
+    search: '',
+    sort_by: 'id',
+    sort_order: 'asc',
+    limit: -1,
+    apiCallBack: getBrandsAPI,
+  });
+  const [suggestionArray, setSuggestionArray] = useState<BrandSuggestion[]>(
+    [],
+  );
+  const [openBrandCreatePopup, setOpenBrandCreatePopup] = useState(false);
+  const [brandTitle, setBrandTitle] = useState('');
+
+  const productBrand = productData.brand as BrandEntity | null;
+
+  useEffect(() => {
+    const suggestionList = brandData?.results.map((item) => ({
+      value: item.id,
+      title: item.name,
+      ...item,
+    }));
+    setSuggestionArray(suggestionList as BrandSuggestion[]);
+  }, [productData.brand, brandData]);
+
+  const handleSearchChange = (searchText: string) => {
+    dispatch(setKeyValue({ key: 'search', value: searchText }));
+  };
+
+  const handleRemoveBrand = () => {
+    dispatch(updateProduct({ key: 'brand', value: null }));
+  };
+  const handleAddBrand = (brand: SelectOption) => {
+    dispatch(updateProduct({ key: 'brand', value: brand }));
+  };
+  const handleAddNewBrand = (searchText: string) => {
+    setBrandTitle(searchText);
+    setOpenBrandCreatePopup(true);
+  };
+
+  const brandLogo =
+    productBrand?.logo && typeof productBrand.logo === 'object'
+      ? (productBrand.logo as MediaRef)
+      : null;
+
+  return (
+    <>
+      {productBrand?.id ? (
+        <Flex direction="column" gap={8}>
+          <Label
+            text={__('Brand', 'kirki-ecommerce')}
+            helpText={__('Brand', 'kirki-ecommerce')}
+          />
+          <Card type="inner">
+            <Flex gap={8} style={{ alignItems: 'center' }}>
+              <Thumbnail src={brandLogo?.url} />
+              <Text type="xsm" header={productBrand?.name} />
+              <ActionGroup style={{ cursor: 'pointer' }}>
+                <Button
+                  type="ghost"
+                  size="small"
+                  icon={<MinusIcon />}
+                  onClick={handleRemoveBrand}
+                />
+              </ActionGroup>
+            </Flex>
+          </Card>
+        </Flex>
+      ) : (
+        <Searchbox
+          value={brandTitle}
+          label={__('Brand', 'kirki-ecommerce')}
+          helpText={__('Brand', 'kirki-ecommerce')}
+          placeholder={__('Search or Add Brand', 'kirki-ecommerce')}
+          suggestionArray={suggestionArray || []}
+          onChange={(searchText) => handleSearchChange(String(searchText))}
+          onEnter={(value) => handleAddNewBrand(String(value))}
+          onOptionClick={(brand) => handleAddBrand(brand)}
+        />
+      )}
+      {openBrandCreatePopup && (
+        <BrandAddEditPopover
+          brand={{ name: brandTitle }}
+          onClose={() => setOpenBrandCreatePopup(false)}
+        />
+      )}
+    </>
+  );
+};
+
+export default Brand;

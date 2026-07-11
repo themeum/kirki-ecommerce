@@ -12,6 +12,7 @@ ehthumbs.db
 Thumbs.db
 bundle-analysis.html
 *.zip
+checklist.md
 
 docker/php/conf.d/99-local.ini
 config/listeners.cache.php
