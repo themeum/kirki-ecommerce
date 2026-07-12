@@ -3,7 +3,7 @@ import Input from '@/molecules/input';
 import Checkbox from '@/molecules/checkbox';
 import { __ } from '@/wpi18n';
 
-import type { ShippingMethodData } from '../utils';
+import type { ShippingMethodData } from '@/pages/settings/shipping-settings/utils';
 
 type FlatRateSettingsProps = {
   handleOnChange: (value: unknown, key: string) => void;

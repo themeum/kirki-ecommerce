@@ -9,7 +9,7 @@ import axios from 'axios';
 import { APP_PREFIX } from '@/conf';
 import type { ListQueryParams, PageItem, PaginatedData } from '@/types';
 
-import { getOptions } from './utils';
+import { getOptions } from '@/store/utils';
 
 type PagesState = PageItem & {
   data?: PageItem[] | PaginatedData<PageItem> | null;

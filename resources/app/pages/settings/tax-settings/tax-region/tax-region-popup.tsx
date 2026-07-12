@@ -25,10 +25,10 @@ import { useAppSelector } from '@/store/hooks';
 import type { FormErrors } from '@/types';
 import { __, sprintf } from '@/wpi18n';
 
-import { getSearchedCountries } from '../../utils';
-import type { CountryWithGroup } from '../helper';
-import { groupEUCountries } from '../helper';
-import type { SelectedTaxRegionDraft, TaxRegion } from '../utils';
+import { getSearchedCountries } from '@/pages/settings/utils';
+import type { CountryWithGroup } from '@/pages/settings/tax-settings/helper';
+import { groupEUCountries } from '@/pages/settings/tax-settings/helper';
+import type { SelectedTaxRegionDraft, TaxRegion } from '@/pages/settings/tax-settings/utils';
 
 type TaxRegionPopupProps = {
   openPopup: boolean;

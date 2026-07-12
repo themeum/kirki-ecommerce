@@ -4,7 +4,7 @@ import Button from '@/molecules/button';
 import type { CategoryFormData } from '@/types';
 import { __ } from '@/wpi18n';
 
-import CategoryAddEditPopover from './category-add-edit-popover';
+import CategoryAddEditPopover from '@/pages/categories/category-add-edit-popover';
 
 const initialState: CategoryFormData = {
   name: '',

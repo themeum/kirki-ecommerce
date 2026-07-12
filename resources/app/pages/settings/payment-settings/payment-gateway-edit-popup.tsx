@@ -14,8 +14,8 @@ import type { FormErrors, PaymentGateway } from '@/types';
 import { isApiSuccess } from '@/types/pages/api-guards';
 import { __ } from '@/wpi18n';
 
-import { dispatchToastMessage } from '../../utils';
-import { getFormField } from './utils';
+import { dispatchToastMessage } from '@/pages/utils';
+import { getFormField } from '@/pages/settings/payment-settings/utils';
 
 type PaymentGatewayField = {
   name: string;

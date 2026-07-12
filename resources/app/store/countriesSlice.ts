@@ -9,7 +9,7 @@ import type {
   ListState,
 } from '@/types';
 
-import { commonActions, getOptions } from './utils';
+import { commonActions, getOptions } from '@/store/utils';
 
 type CountriesState = ListState<Country[]>;
 

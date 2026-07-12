@@ -14,9 +14,9 @@ import type {
   UpdateProductPayload,
   UpdateVariantsPayload,
 } from '@/types';
-import { createVariantCombinations } from '../pages/products/utils';
+import { createVariantCombinations } from '@/pages/products/utils';
 
-import { commonActions, getOptions, postOptions, putOptions } from './utils';
+import { commonActions, getOptions, postOptions, putOptions } from '@/store/utils';
 
 type ProductState = {
   loaded: boolean;

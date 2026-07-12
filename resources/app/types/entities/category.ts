@@ -1,4 +1,4 @@
-import type { MediaRef } from './media';
+import type { MediaRef } from '@/types/entities/media';
 
 type Category = {
   id: number;

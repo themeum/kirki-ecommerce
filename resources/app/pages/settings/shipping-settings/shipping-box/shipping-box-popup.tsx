@@ -22,7 +22,7 @@ import { dispatchToastMessage } from '@/pages/utils';
 import type { FormErrors, ShippingBox } from '@/types';
 import { isApiSuccess } from '@/types';
 
-import { BoxGenerator } from './box-generator';
+import { BoxGenerator } from '@/pages/settings/shipping-settings/shipping-box/box-generator';
 
 type ShippingBoxFormData = {
   length?: number | string;

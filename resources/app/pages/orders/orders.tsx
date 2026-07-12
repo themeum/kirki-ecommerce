@@ -3,9 +3,9 @@ import Card from '@/molecules/card';
 import Container from '@/molecules/container';
 import PageHeading from '@/molecules/page-heading';
 
-import OrderTable from './order-table/order-table';
-import OrderTableAction from './order-table/order-table-action';
-import TableInfo from './order-table/table-info';
+import OrderTable from '@/pages/orders/order-table/order-table';
+import OrderTableAction from '@/pages/orders/order-table/order-table-action';
+import TableInfo from '@/pages/orders/order-table/table-info';
 
 const Orders = () => {
   return (

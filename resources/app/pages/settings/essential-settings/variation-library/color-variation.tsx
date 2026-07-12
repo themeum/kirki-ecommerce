@@ -12,8 +12,8 @@ import { useAppSelector } from '@/store/hooks';
 import type { Attribute, AttributeValue, TaxonomyTableHeader } from '@/types';
 import { __, sprintf } from '@/wpi18n';
 
-import VariationTable from './variation-table/variation-table';
-import VariationValuePopup from './variation-value-popup';
+import VariationTable from '@/pages/settings/essential-settings/variation-library/variation-table/variation-table';
+import VariationValuePopup from '@/pages/settings/essential-settings/variation-library/variation-value-popup';
 
 type AttributeWithMeta = Attribute & { updated_at?: string };
 

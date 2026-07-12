@@ -25,7 +25,7 @@ import type {
 import { isApiSuccess } from '@/types/pages/api-guards';
 import { __ } from '@/wpi18n';
 
-import { dispatchToastMessage } from '../../../utils';
+import { dispatchToastMessage } from '@/pages/utils';
 
 type VariationFormState = {
   value: string;

@@ -18,7 +18,7 @@ import { dispatchToastMessage } from '@/pages/utils';
 import type { TaxProfile as TaxProfileType } from '@/types';
 import { isApiSuccess } from '@/types';
 
-import { TaxProfilePopup } from './tax-profile-popup';
+import { TaxProfilePopup } from '@/pages/settings/tax-settings/tax-profile/tax-profile-popup';
 
 type TaxProfileListItem = TaxProfileType & {
   icon?: ReactNode;

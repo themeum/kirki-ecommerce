@@ -14,7 +14,7 @@ import type {
   PaginatedData,
 } from '@/types';
 
-import { commonActions, getOptions } from './utils';
+import { commonActions, getOptions } from '@/store/utils';
 
 type InventoryStoredData = {
   results: Record<number, InventoryVariant>;

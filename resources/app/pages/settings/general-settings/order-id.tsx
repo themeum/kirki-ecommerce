@@ -9,7 +9,7 @@ import Text from '@/molecules/text';
 import type { FormErrors } from '@/types';
 import { __ } from '@/wpi18n';
 
-import type { GeneralSettingsFormData } from './utils';
+import type { GeneralSettingsFormData } from '@/pages/settings/general-settings/utils';
 
 type OrderIdProps = {
   dataObj: GeneralSettingsFormData | null;

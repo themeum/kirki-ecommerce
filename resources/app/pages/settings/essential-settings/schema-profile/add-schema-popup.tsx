@@ -27,7 +27,7 @@ import {
   groupDetails,
   optionsList,
   requiredFields,
-} from '../../../products/edit-product/seo-settings/utils';
+} from '@/pages/products/edit-product/seo-settings/utils';
 
 type AddSchemaPopupProps = {
   isOpen: boolean;

@@ -36,13 +36,13 @@ import {
   type ShippingMethodData,
   type ShippingRegion,
   type ShippingZone,
-} from './utils';
-import { ShippingMethod } from './shipping-method/shipping-method';
-import { ShippingRegionPopup } from './shipping-zone/shipping-region-popup';
-import ShippingZoneActions from './shipping-zone-actions';
-import ShippingProfile from './shipping-profile/shipping-profile';
-import ShippingBox from './shipping-box/shipping-box';
-import { setUnsavedDataStatus } from '../utils';
+} from '@/pages/settings/shipping-settings/utils';
+import { ShippingMethod } from '@/pages/settings/shipping-settings/shipping-method/shipping-method';
+import { ShippingRegionPopup } from '@/pages/settings/shipping-settings/shipping-zone/shipping-region-popup';
+import ShippingZoneActions from '@/pages/settings/shipping-settings/shipping-zone-actions';
+import ShippingProfile from '@/pages/settings/shipping-settings/shipping-profile/shipping-profile';
+import ShippingBox from '@/pages/settings/shipping-settings/shipping-box/shipping-box';
+import { setUnsavedDataStatus } from '@/pages/settings/utils';
 
 type SettingsOutletContext = {
   confirmAction: (opts: {

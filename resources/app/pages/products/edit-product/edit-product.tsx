@@ -44,13 +44,13 @@ import type {
 import { isApiSuccess } from '@/types/pages/api-guards';
 import { __ } from '@/wpi18n';
 
-import AdditionalInfo from './additional-info/additional-info';
-import Inventory from './inventory/inventory';
-import Price from './price/price';
-import RightPanel from './right-panel/right-panel';
-import SEOSettings from './seo-settings/seo-settings';
-import Shipping from './shipping/shipping';
-import Variants from './variants/variants';
+import AdditionalInfo from '@/pages/products/edit-product/additional-info/additional-info';
+import Inventory from '@/pages/products/edit-product/inventory/inventory';
+import Price from '@/pages/products/edit-product/price/price';
+import RightPanel from '@/pages/products/edit-product/right-panel/right-panel';
+import SEOSettings from '@/pages/products/edit-product/seo-settings/seo-settings';
+import Shipping from '@/pages/products/edit-product/shipping/shipping';
+import Variants from '@/pages/products/edit-product/variants/variants';
 
 type MediaItem = Omit<MediaRef, 'id'> & {
   id?: string | number;

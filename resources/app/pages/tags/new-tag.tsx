@@ -4,7 +4,7 @@ import Button from '@/molecules/button';
 import type { TagFormData } from '@/types';
 import { __ } from '@/wpi18n';
 
-import TagAddEditPopover from './tag-add-edit-popover';
+import TagAddEditPopover from '@/pages/tags/tag-add-edit-popover';
 
 const initialState: TagFormData = {
   name: '',

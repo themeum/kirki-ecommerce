@@ -11,7 +11,7 @@ import type { MarkListHandlers, Tag } from '@/types';
 import { isApiSuccess } from '@/types/pages/api-guards';
 import { __ } from '@/wpi18n';
 
-import TagAddEditPopover from '../tag-add-edit-popover';
+import TagAddEditPopover from '@/pages/tags/tag-add-edit-popover';
 
 type SingleRowProps = MarkListHandlers & {
   item: Tag;

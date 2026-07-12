@@ -13,7 +13,7 @@ import { getShippingBoxListAPI } from '@/store/settingsSlice';
 import type { FormErrors, SelectOption, ShippingBox } from '@/types';
 import { __ } from '@/wpi18n';
 
-import ShippingBoxPopup from '../../../settings/shipping-settings/shipping-box/shipping-box-popup';
+import ShippingBoxPopup from '@/pages/settings/shipping-settings/shipping-box/shipping-box-popup';
 
 type ShippingBoxProps = {
   value?: number | string | null;

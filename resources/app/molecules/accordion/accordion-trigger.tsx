@@ -5,7 +5,7 @@ import { CollapseIcon, ExpandIcon } from '@/icons';
 import Flex from '@/molecules/flex';
 import type { StyleProps } from '@/types';
 
-import { AccordionContext } from './accordion';
+import { AccordionContext } from '@/molecules/accordion/accordion';
 
 type AccordionTriggerProps = StyleProps & {
   children?: ReactNode;

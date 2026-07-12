@@ -18,8 +18,8 @@ import type { TaxonomyTableHeader } from '@/types';
 import { isApiSuccess } from '@/types/pages/api-guards';
 import { __ } from '@/wpi18n';
 
-import CategoryTableAction from './category-table-action';
-import SingleRow from './single-row';
+import CategoryTableAction from '@/pages/categories/category-table/category-table-action';
+import SingleRow from '@/pages/categories/category-table/single-row';
 
 const CategoryTable = () => {
   const tableHeaders: TaxonomyTableHeader[] = [

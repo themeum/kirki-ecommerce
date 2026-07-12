@@ -8,7 +8,7 @@ import Flex from '@/molecules/flex';
 import Text from '@/molecules/text';
 import { __ } from '@/wpi18n';
 
-import { mapEmailGroup } from './utils';
+import { mapEmailGroup } from '@/pages/settings/email-settings/utils';
 
 type EmailGroupData = {
   order_notifications?: Record<string, { name?: string; is_enabled?: boolean; [key: string]: unknown }>;

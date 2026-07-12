@@ -10,8 +10,8 @@ import { updateProduct } from '@/store/productSlice';
 import type { Category, FormErrors, ProductCategoryRef } from '@/types';
 import { __ } from '@/wpi18n';
 
-import AddNewCategory from './add-new-category';
-import List from './list';
+import AddNewCategory from '@/pages/products/edit-product/right-panel/categories/add-new-category';
+import List from '@/pages/products/edit-product/right-panel/categories/list';
 
 type CategoriesProps = {
   errors?: FormErrors;

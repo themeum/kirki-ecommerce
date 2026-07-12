@@ -22,7 +22,7 @@ import {
   patchOptions,
   postOptions,
   putOptions,
-} from './utils';
+} from '@/store/utils';
 
 const initialState: SettingsState = {
   general: { loaded: false, data: null },

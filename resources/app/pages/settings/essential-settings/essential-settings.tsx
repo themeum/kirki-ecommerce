@@ -5,8 +5,8 @@ import PageHeading from '@/molecules/page-heading';
 import PageNavbar from '@/components/page-navbar';
 import { __ } from '@/wpi18n';
 
-import SchemaProfile from './schema-profile/schema-profile';
-import VariationList from './variation-library/variation-library';
+import SchemaProfile from '@/pages/settings/essential-settings/schema-profile/schema-profile';
+import VariationList from '@/pages/settings/essential-settings/variation-library/variation-library';
 
 const EssentialsSettings = () => {
   return (

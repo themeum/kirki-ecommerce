@@ -18,7 +18,7 @@ import {
   deleteOptions,
   getOptions,
   postOptions,
-} from './utils';
+} from '@/store/utils';
 
 type ProductsState = ListState<PaginatedData<ProductListItem>>;
 

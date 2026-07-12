@@ -1,6 +1,6 @@
 import type { ActionCreatorWithPayload } from '@reduxjs/toolkit';
 
-import type { SetKeyValuePayload } from '../store/common-actions';
+import type { SetKeyValuePayload } from '@/types/store/common-actions';
 
 type FormErrors = Record<string, string | string[] | null | undefined>;
 

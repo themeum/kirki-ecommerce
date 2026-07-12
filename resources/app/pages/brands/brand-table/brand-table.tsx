@@ -18,8 +18,8 @@ import type { TaxonomyTableHeader } from '@/types';
 import { isApiSuccess } from '@/types/pages/api-guards';
 import { __ } from '@/wpi18n';
 
-import BrandTableAction from './brand-table-action';
-import SingleRow from './single-row';
+import BrandTableAction from '@/pages/brands/brand-table/brand-table-action';
+import SingleRow from '@/pages/brands/brand-table/single-row';
 
 const BrandTable = () => {
   const tableHeaders: TaxonomyTableHeader[] = [

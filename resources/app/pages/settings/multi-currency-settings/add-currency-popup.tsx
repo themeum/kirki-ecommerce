@@ -21,8 +21,8 @@ import { useAppDispatch } from '@/store/hooks';
 import type { Currency, PaginatedData } from '@/types';
 import { __ } from '@/wpi18n';
 
-import { getSearchedValue } from '../utils';
-import ExchangeRatePopup from './exchange-rate-popup';
+import { getSearchedValue } from '@/pages/settings/utils';
+import ExchangeRatePopup from '@/pages/settings/multi-currency-settings/exchange-rate-popup';
 
 type AddCurrencyPopupProps = {
   setIsNewCurrencyAdded: Dispatch<SetStateAction<boolean>>;

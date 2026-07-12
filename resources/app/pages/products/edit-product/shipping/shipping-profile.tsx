@@ -10,7 +10,7 @@ import { getShippingProfileList } from '@/store/settingsSlice';
 import type { FormErrors, SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
 
-import { CreateProfilePopup } from '../../../settings/shipping-settings/shipping-profile/create-profile-popup';
+import { CreateProfilePopup } from '@/pages/settings/shipping-settings/shipping-profile/create-profile-popup';
 
 type ShippingProfileProps = {
   errors?: FormErrors;

@@ -6,10 +6,10 @@ import Text from '@/molecules/text';
 import type { FormErrors } from '@/types';
 import { __ } from '@/wpi18n';
 
-import AEO from './aeo';
-import Schema from './schema';
-import SearchEngines from './search-engines';
-import SocialShare from './social-share';
+import AEO from '@/pages/products/edit-product/seo-settings/aeo';
+import Schema from '@/pages/products/edit-product/seo-settings/schema';
+import SearchEngines from '@/pages/products/edit-product/seo-settings/search-engines';
+import SocialShare from '@/pages/products/edit-product/seo-settings/social-share';
 
 type SEOSettingsProps = {
   errors: FormErrors;

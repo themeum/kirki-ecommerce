@@ -15,8 +15,8 @@ import {
 import { CLASS_PREFIX } from '@/conf';
 import { __, sprintf } from '@/wpi18n';
 
-import { getSearchedValue } from '../../../utils';
-import type { TaxRegionState } from '../../utils';
+import { getSearchedValue } from '@/pages/settings/utils';
+import type { TaxRegionState } from '@/pages/settings/tax-settings/utils';
 
 type DestinationSelection = string | number;
 

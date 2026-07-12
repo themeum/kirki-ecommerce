@@ -17,8 +17,8 @@ import type { PaymentMethod } from '@/types';
 import { isApiSuccess } from '@/types/pages/api-guards';
 import { __, sprintf } from '@/wpi18n';
 
-import { dispatchToastMessage } from '../../utils';
-import ManualPaymentPopup from './manual-payment-popup';
+import { dispatchToastMessage } from '@/pages/utils';
+import ManualPaymentPopup from '@/pages/settings/payment-settings/manual-payment-popup';
 
 type ManualPaymentProps = {
   manualPaymentList: PaymentMethod[];

@@ -18,9 +18,9 @@ import { updateProduct } from '@/store/productSlice';
 import type { FormErrors, ShippingBox } from '@/types';
 import { __ } from '@/wpi18n';
 
-import { BoxGenerator } from '../../../settings/shipping-settings/shipping-box/box-generator';
-import ShippingBoxSelect from './shipping-box';
-import ShippingProfile from './shipping-profile';
+import { BoxGenerator } from '@/pages/settings/shipping-settings/shipping-box/box-generator';
+import ShippingBoxSelect from '@/pages/products/edit-product/shipping/shipping-box';
+import ShippingProfile from '@/pages/products/edit-product/shipping/shipping-profile';
 
 type ShippingProps = {
   errors: FormErrors;

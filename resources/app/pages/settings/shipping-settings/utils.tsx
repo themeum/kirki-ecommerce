@@ -11,7 +11,7 @@ import {
 } from '@/store/settingsSlice';
 import { dispatchToastMessage } from '@/pages/utils';
 
-import { getNestedSearchedValue, setUnsavedDataStatus } from '../utils';
+import { getNestedSearchedValue, setUnsavedDataStatus } from '@/pages/settings/utils';
 
 type CountryState = {
   id: string | number;

@@ -14,8 +14,8 @@ import { CLASS_PREFIX } from '@/conf';
 import type { FormErrors } from '@/types';
 import { __ } from '@/wpi18n';
 
-import type { SelectedTaxRegionDraft, TaxRegion } from '../utils';
-import TaxRegionPopup from './tax-region-popup';
+import type { SelectedTaxRegionDraft, TaxRegion } from '@/pages/settings/tax-settings/utils';
+import TaxRegionPopup from '@/pages/settings/tax-settings/tax-region/tax-region-popup';
 
 type SettingsOutletContext = {
   confirmAction: (opts: {

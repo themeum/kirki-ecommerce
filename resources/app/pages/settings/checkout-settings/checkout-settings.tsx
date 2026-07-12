@@ -22,10 +22,10 @@ import type { FormErrors, SettingsSectionData } from '@/types';
 import { isApiSuccess } from '@/types/pages/api-guards';
 import { __ } from '@/wpi18n';
 
-import { dispatchToastMessage } from '../../utils';
-import { checkUnsavedDataStatus, setUnsavedDataStatus } from '../utils';
-import CheckoutConf from './checkout-conf';
-import LegalInfo from './legal-info';
+import { dispatchToastMessage } from '@/pages/utils';
+import { checkUnsavedDataStatus, setUnsavedDataStatus } from '@/pages/settings/utils';
+import CheckoutConf from '@/pages/settings/checkout-settings/checkout-conf';
+import LegalInfo from '@/pages/settings/checkout-settings/legal-info';
 
 type SettingsOutletContext = {
   confirmAction: (params: { action?: () => void }) => void;

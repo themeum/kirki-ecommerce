@@ -17,9 +17,9 @@ import type { PaymentGateway } from '@/types';
 import { isApiSuccess } from '@/types/pages/api-guards';
 import { __, sprintf } from '@/wpi18n';
 
-import { dispatchToastMessage } from '../../utils';
-import PaymentGatewayEditPopup from './payment-gateway-edit-popup';
-import PaymentGatewayPopup from './payment-gateway-popup';
+import { dispatchToastMessage } from '@/pages/utils';
+import PaymentGatewayEditPopup from '@/pages/settings/payment-settings/payment-gateway-edit-popup';
+import PaymentGatewayPopup from '@/pages/settings/payment-settings/payment-gateway-popup';
 
 type PaymentGatewayDetail = PaymentGateway & {
   settings?: Record<string, unknown>;

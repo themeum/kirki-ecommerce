@@ -19,10 +19,10 @@ import type { SettingsSectionData } from '@/types';
 import { isApiSuccess } from '@/types/pages/api-guards';
 import { __ } from '@/wpi18n';
 
-import { checkUnsavedDataStatus, setUnsavedDataStatus } from '../utils';
-import AdminEmail from './admin-email';
-import CustomerEmail from './customer-email';
-import { EMAIL_CONFIG, findEmailKeyByName, buildTogglePayload } from './utils';
+import { checkUnsavedDataStatus, setUnsavedDataStatus } from '@/pages/settings/utils';
+import AdminEmail from '@/pages/settings/email-settings/admin-email';
+import CustomerEmail from '@/pages/settings/email-settings/customer-email';
+import { EMAIL_CONFIG, findEmailKeyByName, buildTogglePayload } from '@/pages/settings/email-settings/utils';
 
 type SettingsOutletContext = {
   confirmAction: (params: { action?: () => void }) => void;

@@ -11,9 +11,9 @@ import { CLASS_PREFIX } from '@/conf';
 import { dispatchToastMessage } from '@/pages/utils';
 import { __, sprintf } from '@/wpi18n';
 
-import type { TaxRegion, TaxRule } from '../../utils';
-import { getDestinationDisplayValue } from './helper';
-import TaxRulesModal from './tax-rules-modal';
+import type { TaxRegion, TaxRule } from '@/pages/settings/tax-settings/utils';
+import { getDestinationDisplayValue } from '@/pages/settings/tax-settings/tax-region/tax-rules/helper';
+import TaxRulesModal from '@/pages/settings/tax-settings/tax-region/tax-rules/tax-rules-modal';
 
 type TaxRulesProps = {
   region?: TaxRegion;

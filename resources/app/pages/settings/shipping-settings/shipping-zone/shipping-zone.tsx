@@ -28,8 +28,8 @@ import type { FormErrors, SelectOption, SettingsSectionData } from '@/types';
 import { isApiSuccess } from '@/types';
 import { __ } from '@/wpi18n';
 
-import { ShippingRegionPopup } from './shipping-region-popup';
-import { ShippingMethod } from '../shipping-method/shipping-method';
+import { ShippingRegionPopup } from '@/pages/settings/shipping-settings/shipping-zone/shipping-region-popup';
+import { ShippingMethod } from '@/pages/settings/shipping-settings/shipping-method/shipping-method';
 import {
   getSearchedCountries,
   getSelectedRegionTags,
@@ -38,11 +38,11 @@ import {
   type ShippingMethodData,
   type ShippingRegion,
   type ShippingZone,
-} from '../utils';
+} from '@/pages/settings/shipping-settings/utils';
 import {
   checkUnsavedDataStatus,
   setUnsavedDataStatus,
-} from '../../utils';
+} from '@/pages/settings/utils';
 
 type SettingsOutletContext = {
   confirmAction: (opts: {

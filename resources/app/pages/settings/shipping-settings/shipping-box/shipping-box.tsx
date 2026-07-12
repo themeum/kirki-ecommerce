@@ -16,7 +16,7 @@ import type { ShippingBox as ShippingBoxType } from '@/types';
 import { isApiSuccess } from '@/types';
 import { __ } from '@/wpi18n';
 
-import ShippingBoxPopup from './shipping-box-popup';
+import ShippingBoxPopup from '@/pages/settings/shipping-settings/shipping-box/shipping-box-popup';
 
 type BoxAction = {
   title: string;

@@ -19,7 +19,7 @@ import type {
 } from '@/types';
 import { __ } from '@/wpi18n';
 
-import { getSpecifiedUnitList, normalizedUnit, unitList } from './utils';
+import { getSpecifiedUnitList, normalizedUnit, unitList } from '@/pages/products/edit-product/price/utils';
 
 type SelectInputValue = {
   value?: string | number;

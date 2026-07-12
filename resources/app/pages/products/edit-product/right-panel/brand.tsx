@@ -16,7 +16,7 @@ import { updateProduct } from '@/store/productSlice';
 import type { Brand as BrandEntity, SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
 
-import BrandAddEditPopover from '../../../brands/brand-add-edit-popover';
+import BrandAddEditPopover from '@/pages/brands/brand-add-edit-popover';
 
 type BrandSuggestion = SelectOption & BrandEntity;
 

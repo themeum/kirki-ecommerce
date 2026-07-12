@@ -8,7 +8,7 @@ import Flex from '@/molecules/flex';
 import Text from '@/molecules/text';
 import { __ } from '@/wpi18n';
 
-import NotFoundIllustration from './not-found-illustration/not-found-illustration';
+import NotFoundIllustration from '@/pages/not-found/not-found-illustration/not-found-illustration';
 
 const NotFound = () => {
   const navigate = useNavigate();

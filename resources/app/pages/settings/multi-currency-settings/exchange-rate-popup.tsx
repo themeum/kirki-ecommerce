@@ -20,7 +20,7 @@ import type { Currency, CurrencyFormData, FormErrors } from '@/types';
 import { isApiSuccess } from '@/types/pages/api-guards';
 import { __, sprintf } from '@/wpi18n';
 
-import { dispatchToastMessage } from '../../utils';
+import { dispatchToastMessage } from '@/pages/utils';
 
 type ExchangeRatePopupProps = {
   selectedCurrencyList?: Currency[];

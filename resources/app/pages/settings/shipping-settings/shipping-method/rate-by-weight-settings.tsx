@@ -11,7 +11,7 @@ import { __ } from '@/wpi18n';
 import { PlusIcon, TrashIcon } from '@/icons';
 import { CLASS_PREFIX } from '@/conf';
 
-import type { ShippingMethodData } from '../utils';
+import type { ShippingMethodData } from '@/pages/settings/shipping-settings/utils';
 
 type WeightRange = {
   from: number | string;

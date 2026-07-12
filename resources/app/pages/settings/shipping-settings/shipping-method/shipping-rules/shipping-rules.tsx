@@ -14,8 +14,8 @@ import { useAppSelector } from '@/store/hooks';
 import { dispatchToastMessage } from '@/pages/utils';
 import type { SettingsSectionData } from '@/types';
 
-import { saveShippingZones, type ShippingRule, type ShippingZone } from '../../utils';
-import ShippingRuleModal from './shipping-rule-modal';
+import { saveShippingZones, type ShippingRule, type ShippingZone } from '@/pages/settings/shipping-settings/utils';
+import ShippingRuleModal from '@/pages/settings/shipping-settings/shipping-method/shipping-rules/shipping-rule-modal';
 
 type ShippingRulesProps = {
   methodId: string | number;

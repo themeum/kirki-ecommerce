@@ -9,10 +9,10 @@ import Text from '@/molecules/text';
 import { CLASS_PREFIX } from '@/conf';
 import { __ } from '@/wpi18n';
 
-import { taxRuleConditionOptions } from '../../utils';
-import type { TaxConditionRow, TaxRegion } from '../../utils';
-import { AddStatePopup } from './add-state-popup';
-import { getDestinationDisplayValue } from './helper';
+import { taxRuleConditionOptions } from '@/pages/settings/tax-settings/utils';
+import type { TaxConditionRow, TaxRegion } from '@/pages/settings/tax-settings/utils';
+import { AddStatePopup } from '@/pages/settings/tax-settings/tax-region/tax-rules/add-state-popup';
+import { getDestinationDisplayValue } from '@/pages/settings/tax-settings/tax-region/tax-rules/helper';
 
 type ConditionOption = {
   title: string;

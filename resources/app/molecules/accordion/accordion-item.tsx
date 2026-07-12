@@ -4,7 +4,7 @@ import { CLASS_PREFIX } from '@/conf';
 import Separator from '@/molecules/separator';
 import type { StyleProps } from '@/types';
 
-import { AccordionContext } from './accordion';
+import { AccordionContext } from '@/molecules/accordion/accordion';
 
 type AccordionItemProps = StyleProps & {
   children?: ReactNode;

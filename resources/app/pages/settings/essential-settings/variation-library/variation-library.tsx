@@ -12,8 +12,8 @@ import { useAppSelector } from '@/store/hooks';
 import type { Attribute } from '@/types';
 import { __ } from '@/wpi18n';
 
-import { dispatchToastMessage } from '../../../utils';
-import AddVariationPopup from './add-variation-popup';
+import { dispatchToastMessage } from '@/pages/utils';
+import AddVariationPopup from '@/pages/settings/essential-settings/variation-library/add-variation-popup';
 
 type AttributeListItem = Attribute & {
   badge1?: string;

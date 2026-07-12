@@ -9,8 +9,8 @@ import { getTagsAPI, setKeyValue } from '@/store/tagsSlice';
 import type { PaginationData } from '@/types';
 import { __ } from '@/wpi18n';
 
-import TagTable from './tag-table/tag-table';
-import NewTag from './new-tag';
+import TagTable from '@/pages/tags/tag-table/tag-table';
+import NewTag from '@/pages/tags/new-tag';
 
 const Tags = () => {
   const dispatch = useAppDispatch();

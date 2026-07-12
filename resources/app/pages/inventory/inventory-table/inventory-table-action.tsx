@@ -11,7 +11,7 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { setKeyValue } from '@/store/inventorySlice';
 import { __ } from '@/wpi18n';
 
-import { allTableHeaders } from '../utils';
+import { allTableHeaders } from '@/pages/inventory/utils';
 
 type InventoryTableActionProps = {
   selectedFields: string[];

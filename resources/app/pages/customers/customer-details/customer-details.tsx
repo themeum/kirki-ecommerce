@@ -27,9 +27,9 @@ import type {
 import { isApiSuccess } from '@/types/pages/api-guards';
 import { __ } from '@/wpi18n';
 
-import BillingAddress from './billing-address';
-import CustomerOverview from './customer-overview';
-import ShippingAddress from './shipping-address';
+import BillingAddress from '@/pages/customers/customer-details/billing-address';
+import CustomerOverview from '@/pages/customers/customer-details/customer-overview';
+import ShippingAddress from '@/pages/customers/customer-details/shipping-address';
 
 type CustomerDetailsFormData = CustomerFormData & {
   id?: number;

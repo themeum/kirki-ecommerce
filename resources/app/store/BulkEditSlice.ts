@@ -17,7 +17,7 @@ import type {
   UpdateVariantsPayload,
 } from '@/types';
 
-import { commonActions, getOptions, putOptions } from './utils';
+import { commonActions, getOptions, putOptions } from '@/store/utils';
 
 type BulkEditData = {
   variants: ProductVariant[];

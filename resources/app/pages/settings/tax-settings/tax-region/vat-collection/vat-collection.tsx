@@ -11,8 +11,8 @@ import { dispatchToastMessage } from '@/pages/utils';
 import type { SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
 
-import type { TaxRate, TaxRegion } from '../../utils';
-import VatCollectionPopup from './vat-collection-popup';
+import type { TaxRate, TaxRegion } from '@/pages/settings/tax-settings/utils';
+import VatCollectionPopup from '@/pages/settings/tax-settings/tax-region/vat-collection/vat-collection-popup';
 
 type VatStateOption = SelectOption & {
   leftIcon?: ReactNode;

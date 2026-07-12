@@ -28,10 +28,10 @@ import type {
 import { isApiSuccess } from '@/types/pages/api-guards';
 import { __ } from '@/wpi18n';
 
-import { dispatchToastMessage } from '../../../../utils';
-import { getSearchedValue, setUnsavedDataStatus } from '../../../utils';
-import SingleRow from './single-row';
-import VariantTableAction from './variant-table-action';
+import { dispatchToastMessage } from '@/pages/utils';
+import { getSearchedValue, setUnsavedDataStatus } from '@/pages/settings/utils';
+import SingleRow from '@/pages/settings/essential-settings/variation-library/variation-table/single-row';
+import VariantTableAction from '@/pages/settings/essential-settings/variation-library/variation-table/variant-table-action';
 
 type AttributeWithMeta = Attribute & { updated_at?: string };
 
