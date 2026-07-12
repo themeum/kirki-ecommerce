@@ -23,14 +23,14 @@ import type {
 import { isApiSuccess } from '@/types/pages/api-guards';
 import { __ } from '@/wpi18n';
 
-import { dispatchToastMessage } from '../../utils';
-import { checkUnsavedDataStatus, setUnsavedDataStatus } from '../utils';
-import InvoiceId from './invoice-id';
-import OrderId from './order-id';
-import SellingLocation from './selling-location';
-import StoreAddressDetails from './store-address-details';
-import StoreContactDetails from './store-contact-details';
-import type { GeneralSettingsFormData } from './utils';
+import { dispatchToastMessage } from '@/pages/utils';
+import { checkUnsavedDataStatus, setUnsavedDataStatus } from '@/pages/settings/utils';
+import InvoiceId from '@/pages/settings/general-settings/invoice-id';
+import OrderId from '@/pages/settings/general-settings/order-id';
+import SellingLocation from '@/pages/settings/general-settings/selling-location';
+import StoreAddressDetails from '@/pages/settings/general-settings/store-address-details';
+import StoreContactDetails from '@/pages/settings/general-settings/store-contact-details';
+import type { GeneralSettingsFormData } from '@/pages/settings/general-settings/utils';
 
 type SettingsOutletContext = {
   confirmAction: (params: { action?: () => void }) => void;

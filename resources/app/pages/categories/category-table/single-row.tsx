@@ -15,7 +15,7 @@ import type { Category, MarkListHandlers } from '@/types';
 import { isApiSuccess } from '@/types/pages/api-guards';
 import { __ } from '@/wpi18n';
 
-import CategoryAddEditPopover from '../category-add-edit-popover';
+import CategoryAddEditPopover from '@/pages/categories/category-add-edit-popover';
 
 type SingleRowProps = MarkListHandlers & {
   item: Category;

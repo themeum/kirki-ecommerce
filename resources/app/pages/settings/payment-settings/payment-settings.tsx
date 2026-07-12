@@ -13,8 +13,8 @@ import type { PaymentGateway, PaymentMethod } from '@/types';
 import { isApiSuccess } from '@/types/pages/api-guards';
 import { __ } from '@/wpi18n';
 
-import ManualPayment from './manual-payment';
-import PaymentGatewayList from './payment-gateway';
+import ManualPayment from '@/pages/settings/payment-settings/manual-payment';
+import PaymentGatewayList from '@/pages/settings/payment-settings/payment-gateway';
 
 const PaymentSettings = () => {
   const [manualPaymentMethod, setManualPaymentMethod] = useState<

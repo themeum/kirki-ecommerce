@@ -13,7 +13,7 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import type { PaginationData } from '@/types';
 import { __ } from '@/wpi18n';
 
-import CollectionTable from './collection-table/collection-table';
+import CollectionTable from '@/pages/collections/collection-table/collection-table';
 
 const Collections = () => {
   const navigate = useNavigate();

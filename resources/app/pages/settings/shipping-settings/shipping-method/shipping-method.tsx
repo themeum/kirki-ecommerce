@@ -15,7 +15,7 @@ import {
   shippingMethodIconMap,
   type ShippingMethodData,
   type ShippingZone,
-} from '../utils';
+} from '@/pages/settings/shipping-settings/utils';
 
 type ShippingMethodProps = {
   from?: string;

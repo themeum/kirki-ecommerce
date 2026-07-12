@@ -4,8 +4,8 @@ import Text from '@/molecules/text';
 import type { TextType } from '@/types';
 import { __ } from '@/wpi18n';
 
-import AttributeList from './attribute-list/attribute-list';
-import VariationTable from './variation-table/variation-table';
+import AttributeList from '@/pages/products/edit-product/variants/attribute-list/attribute-list';
+import VariationTable from '@/pages/products/edit-product/variants/variation-table/variation-table';
 
 type SaveResult = {
   success?: boolean;

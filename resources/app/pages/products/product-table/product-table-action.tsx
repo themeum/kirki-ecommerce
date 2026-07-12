@@ -8,7 +8,7 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { setKeyValue } from '@/store/productsSlice';
 import { __ } from '@/wpi18n';
 
-import FilterPopup from './filter-popup/filter-popup';
+import FilterPopup from '@/pages/products/product-table/filter-popup/filter-popup';
 
 const ProductTableAction = () => {
   const dispatch = useAppDispatch();

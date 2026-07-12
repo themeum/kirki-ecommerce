@@ -7,10 +7,10 @@ import { useAppSelector } from '@/store/hooks';
 import type { FormErrors } from '@/types';
 import { __ } from '@/wpi18n';
 
-import Brand from './brand';
-import Categories from './categories/categories';
-import Collections from './collections';
-import Tags from './tags';
+import Brand from '@/pages/products/edit-product/right-panel/brand';
+import Categories from '@/pages/products/edit-product/right-panel/categories/categories';
+import Collections from '@/pages/products/edit-product/right-panel/collections';
+import Tags from '@/pages/products/edit-product/right-panel/tags';
 
 type RightPanelProps = {
   handleOnChange: (value: unknown, fieldName: string) => void;

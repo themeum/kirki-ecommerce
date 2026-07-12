@@ -9,9 +9,9 @@ import { PaymentIcon, LocationIcon, TrashIcon } from '@/icons';
 import { __, sprintf } from '@/wpi18n';
 import { CLASS_PREFIX } from '@/conf';
 
-import { setUnsavedDataStatus } from '../../utils';
+import { setUnsavedDataStatus } from '@/pages/settings/utils';
 import { dispatchToastMessage } from '@/pages/utils';
-import type { TaxRate } from '../utils';
+import type { TaxRate } from '@/pages/settings/tax-settings/utils';
 
 type TaxRateListProps = {
   taxRates: TaxRate[];

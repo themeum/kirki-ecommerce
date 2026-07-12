@@ -20,10 +20,10 @@ import type { SettingsSectionData } from '@/types';
 import { isApiSuccess } from '@/types';
 import { __ } from '@/wpi18n';
 
-import { checkUnsavedDataStatus, setUnsavedDataStatus } from '../../utils';
-import type { TaxRate, TaxRegion, TaxRule } from '../utils';
-import TaxRules from './tax-rules/tax-rules';
-import { VatCollection } from './vat-collection/vat-collection';
+import { checkUnsavedDataStatus, setUnsavedDataStatus } from '@/pages/settings/utils';
+import type { TaxRate, TaxRegion, TaxRule } from '@/pages/settings/tax-settings/utils';
+import TaxRules from '@/pages/settings/tax-settings/tax-region/tax-rules/tax-rules';
+import { VatCollection } from '@/pages/settings/tax-settings/tax-region/vat-collection/vat-collection';
 
 type SettingsOutletContext = {
   confirmAction: (params: { action?: () => void }) => void;

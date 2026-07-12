@@ -4,7 +4,7 @@ import Button from '@/molecules/button';
 import type { BrandFormData } from '@/types';
 import { __ } from '@/wpi18n';
 
-import BrandAddEditPopover from './brand-add-edit-popover';
+import BrandAddEditPopover from '@/pages/brands/brand-add-edit-popover';
 
 const initialState: BrandFormData = {
   name: '',

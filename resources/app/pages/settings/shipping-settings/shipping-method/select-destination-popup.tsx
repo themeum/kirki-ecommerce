@@ -21,7 +21,7 @@ import type {
   CountryWithStates,
   ShippingRegion,
   ShippingRule,
-} from '../utils';
+} from '@/pages/settings/shipping-settings/utils';
 
 type DestinationConditionValue = {
   country: string;

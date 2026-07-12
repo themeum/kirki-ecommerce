@@ -21,12 +21,12 @@ import type { SettingsSectionData } from '@/types';
 import { isApiSuccess } from '@/types';
 import { __ } from '@/wpi18n';
 
-import FlatRateSettings from './flat-rate-settings';
-import LocalPickupSettings from './local-pickup-settings';
-import RateByWeightSettings from './rate-by-weight-settings';
-import { ShippingRules } from './shipping-rules/shipping-rules';
-import { METHOD_SCHEMAS, type ShippingMethodData, type ShippingZone } from '../utils';
-import { checkUnsavedDataStatus, setUnsavedDataStatus } from '../../utils';
+import FlatRateSettings from '@/pages/settings/shipping-settings/shipping-method/flat-rate-settings';
+import LocalPickupSettings from '@/pages/settings/shipping-settings/shipping-method/local-pickup-settings';
+import RateByWeightSettings from '@/pages/settings/shipping-settings/shipping-method/rate-by-weight-settings';
+import { ShippingRules } from '@/pages/settings/shipping-settings/shipping-method/shipping-rules/shipping-rules';
+import { METHOD_SCHEMAS, type ShippingMethodData, type ShippingZone } from '@/pages/settings/shipping-settings/utils';
+import { checkUnsavedDataStatus, setUnsavedDataStatus } from '@/pages/settings/utils';
 
 type SettingsOutletContext = {
   confirmAction: (opts: {

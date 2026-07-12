@@ -23,11 +23,11 @@ import type {
 import { isApiSuccess } from '@/types/pages/api-guards';
 import { __ } from '@/wpi18n';
 
-import { dispatchToastMessage } from '../../utils';
-import { checkUnsavedDataStatus, setUnsavedDataStatus } from '../utils';
-import { Review } from './review';
-import { ShopPage } from './shop-page';
-import { StandardUnit } from './standard-unit';
+import { dispatchToastMessage } from '@/pages/utils';
+import { checkUnsavedDataStatus, setUnsavedDataStatus } from '@/pages/settings/utils';
+import { Review } from '@/pages/settings/products-settings/review';
+import { ShopPage } from '@/pages/settings/products-settings/shop-page';
+import { StandardUnit } from '@/pages/settings/products-settings/standard-unit';
 
 type SettingsOutletContext = {
   confirmAction: (params: { action?: () => void }) => void;

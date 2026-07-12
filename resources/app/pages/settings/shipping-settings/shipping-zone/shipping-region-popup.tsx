@@ -19,7 +19,7 @@ import { __ } from '@/wpi18n';
 import type {
   CountryWithStates,
   ShippingRegion,
-} from '../utils';
+} from '@/pages/settings/shipping-settings/utils';
 
 type ShippingRegionPopupProps = {
   filteredCountries: CountryWithStates[];

@@ -1,5 +1,5 @@
-import type { Attribute } from './attribute';
-import type { MediaRef } from './media';
+import type { Attribute } from '@/types/entities/attribute';
+import type { MediaRef } from '@/types/entities/media';
 
 type ProductStatus = 'draft' | 'published' | 'unpublished' | 'archived';
 

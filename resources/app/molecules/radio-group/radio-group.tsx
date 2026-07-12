@@ -5,7 +5,7 @@ import Flex from '@/molecules/flex';
 import Label from '@/molecules/label';
 import type { LabelFieldProps, SelectOption, StyleProps } from '@/types';
 
-import RadioItem from './radio-item';
+import RadioItem from '@/molecules/radio-group/radio-item';
 
 type RadioItemType = 'checked' | 'tick';
 

@@ -12,8 +12,8 @@ import { useAppSelector } from '@/store/hooks';
 import type { TaxonomyTableHeader } from '@/types';
 import { __ } from '@/wpi18n';
 
-import CollectionTableAction from './collection-table-action';
-import SingleRow from './single-row';
+import CollectionTableAction from '@/pages/collections/collection-table/collection-table-action';
+import SingleRow from '@/pages/collections/collection-table/single-row';
 
 const CollectionTable = () => {
   const data = useAppSelector((state) => state.collections?.data);

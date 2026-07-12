@@ -15,8 +15,8 @@ import type { TaxonomyTableHeader } from '@/types';
 import { isApiSuccess } from '@/types/pages/api-guards';
 import { __ } from '@/wpi18n';
 
-import CustomerTableAction from './customer-table-action';
-import SingleRow from './single-row';
+import CustomerTableAction from '@/pages/customers/customer-table/customer-table-action';
+import SingleRow from '@/pages/customers/customer-table/single-row';
 
 const CustomerTable = () => {
   const data = useAppSelector((state) => state.customers?.data);

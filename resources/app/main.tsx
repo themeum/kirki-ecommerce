@@ -1,7 +1,7 @@
 import './styles/main.scss';
 import { createRoot } from 'react-dom/client';
 
-import App from './app';
+import App from '@/app';
 
 const rootElement = document.getElementById('kirki-ecommerce-root');
 

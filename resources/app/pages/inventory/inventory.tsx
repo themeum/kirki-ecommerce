@@ -11,7 +11,7 @@ import { getInventoryAPI, setKeyValue } from '@/store/inventorySlice';
 import { isApiSuccess } from '@/types/pages/api-guards';
 import { __ } from '@/wpi18n';
 
-import InventoryTable from './inventory-table/inventory-table';
+import InventoryTable from '@/pages/inventory/inventory-table/inventory-table';
 
 const Inventory = () => {
   const dispatch = useAppDispatch();

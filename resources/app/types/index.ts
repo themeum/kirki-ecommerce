@@ -5,50 +5,50 @@ export type {
   PaginatedResponse,
   ApiError,
   ApiErrorPayload,
-} from './api/response';
+} from '@/types/api/response';
 
 export type {
   BulkActionParams,
   ApiCallResult,
   AxiosErrorLike,
-} from './api/result';
+} from '@/types/api/result';
 
 export type {
   SortOrder,
   ListFilter,
   ListState,
   ListQueryParams,
-} from './store/list-state';
+} from '@/types/store/list-state';
 
-export type { SetKeyValuePayload } from './store/common-actions';
+export type { SetKeyValuePayload } from '@/types/store/common-actions';
 
-export type { MediaRef, MediaSize } from './entities/media';
-export type { Category, CategoryFormData } from './entities/category';
-export type { Tag, TagFormData } from './entities/tag';
-export type { Brand, BrandFormData } from './entities/brand';
-export type { Collection, CollectionFormData } from './entities/collection';
+export type { MediaRef, MediaSize } from '@/types/entities/media';
+export type { Category, CategoryFormData } from '@/types/entities/category';
+export type { Tag, TagFormData } from '@/types/entities/tag';
+export type { Brand, BrandFormData } from '@/types/entities/brand';
+export type { Collection, CollectionFormData } from '@/types/entities/collection';
 export type {
   Customer,
   CustomerListItem,
   CustomerFormData,
   CustomerAddress,
-} from './entities/customer';
+} from '@/types/entities/customer';
 export type {
   Order,
   OrderCustomer,
   OrderItem,
   OrderPayment,
-} from './entities/order';
-export type { Country } from './entities/country';
-export type { Currency, CurrencyFormData } from './entities/currency';
+} from '@/types/entities/order';
+export type { Country } from '@/types/entities/country';
+export type { Currency, CurrencyFormData } from '@/types/entities/currency';
 export type {
   AttributeType,
   Attribute,
   AttributeValue,
   AttributeFormData,
   AttributeValueFormData,
-} from './entities/attribute';
-export type { SchemaProfile, SchemaFormData } from './entities/schema';
+} from '@/types/entities/attribute';
+export type { SchemaProfile, SchemaFormData } from '@/types/entities/schema';
 export type {
   ProductStatus,
   UnitPriceValue,
@@ -67,9 +67,9 @@ export type {
   ProductFormData,
   UpdateProductPayload,
   UpdateVariantsPayload,
-} from './entities/product';
-export type { PageItem } from './entities/page';
-export type { Toast, ToastVariant, ShowToastPayload } from './entities/toast';
+} from '@/types/entities/product';
+export type { PageItem } from '@/types/entities/page';
+export type { Toast, ToastVariant, ShowToastPayload } from '@/types/entities/toast';
 export type {
   SettingsSectionKey,
   StoreAddressSettings,
@@ -97,7 +97,7 @@ export type {
   EmailTemplate,
   CheckoutConfiguration,
   CurrencyApiConfig,
-} from './entities/settings';
+} from '@/types/entities/settings';
 
 export type {
   StyleProps,
@@ -126,7 +126,7 @@ export type {
   DropdownItemState,
   ConfirmationVariant,
   PaginationData,
-} from './components/common';
+} from '@/types/components/common';
 
 export type {
   IconProps,
@@ -134,7 +134,7 @@ export type {
   IconDimensionProps,
   IconStyleProps,
   ArrowDownUpFilledProps,
-} from './components/icon';
+} from '@/types/components/icon';
 
 export type {
   FormErrors,
@@ -146,6 +146,6 @@ export type {
   MarkListHandlers,
   TaxonomyTableHeader,
   MediaChangePayload,
-} from './pages/common';
+} from '@/types/pages/common';
 
-export { isApiSuccess } from './pages/api-guards';
+export { isApiSuccess } from '@/types/pages/api-guards';

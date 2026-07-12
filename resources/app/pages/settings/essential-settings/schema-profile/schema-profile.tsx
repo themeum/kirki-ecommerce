@@ -15,8 +15,8 @@ import { useAppSelector } from '@/store/hooks';
 import type { SchemaProfile } from '@/types';
 import { __ } from '@/wpi18n';
 
-import { dispatchToastMessage } from '../../../utils';
-import AddSchemaPopup from './add-schema-popup';
+import { dispatchToastMessage } from '@/pages/utils';
+import AddSchemaPopup from '@/pages/settings/essential-settings/schema-profile/add-schema-popup';
 
 type SchemaListItem = SchemaProfile & {
   badge1?: string;

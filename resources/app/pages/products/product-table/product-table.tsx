@@ -15,10 +15,10 @@ import { deleteProductsAPI, setKeyValue } from '@/store/productsSlice';
 import { isApiSuccess } from '@/types/pages/api-guards';
 import { __ } from '@/wpi18n';
 
-import FilterPopup from './filter-popup/filter-popup';
-import ProductTableAction from './product-table-action';
-import ProductTableFilterAction from './product-table-filter-action';
-import SingleRow from './single-row';
+import FilterPopup from '@/pages/products/product-table/filter-popup/filter-popup';
+import ProductTableAction from '@/pages/products/product-table/product-table-action';
+import ProductTableFilterAction from '@/pages/products/product-table/product-table-filter-action';
+import SingleRow from '@/pages/products/product-table/single-row';
 
 type TableHeader = {
   title: string;

@@ -10,8 +10,8 @@ import {
 } from '@/molecules/table';
 import { useAppSelector } from '@/store/hooks';
 
-import { allTableHeaders } from '../utils';
-import SingleRow from './single-row';
+import { allTableHeaders } from '@/pages/bulk-edit/utils';
+import SingleRow from '@/pages/bulk-edit/bulk-edit-table/single-row';
 
 type BulkEditSelectionData = {
   fieldName?: string;

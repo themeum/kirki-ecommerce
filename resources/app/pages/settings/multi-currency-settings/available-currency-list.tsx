@@ -22,9 +22,9 @@ import type {
 import { isApiSuccess } from '@/types/pages/api-guards';
 import { __, sprintf } from '@/wpi18n';
 
-import { dateFormatter, dispatchToastMessage } from '../../utils';
-import AddCurrencyPopup from './add-currency-popup';
-import EditCurrencyPopup from './edit-currency-popup';
+import { dateFormatter, dispatchToastMessage } from '@/pages/utils';
+import AddCurrencyPopup from '@/pages/settings/multi-currency-settings/add-currency-popup';
+import EditCurrencyPopup from '@/pages/settings/multi-currency-settings/edit-currency-popup';
 
 type CurrencyListItem = Currency & {
   badge1?: string;

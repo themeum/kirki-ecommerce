@@ -9,7 +9,7 @@ import { updateProduct } from '@/store/productSlice';
 import type { FormErrors, SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
 
-import { groupDetails, optionsList, requiredFields } from './utils';
+import { groupDetails, optionsList, requiredFields } from '@/pages/products/edit-product/seo-settings/utils';
 
 type SchemaProps = {
   errors: FormErrors;

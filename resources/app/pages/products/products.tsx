@@ -13,7 +13,7 @@ import { getProductsAPI, setKeyValue } from '@/store/productsSlice';
 import type { PaginationData } from '@/types';
 import { __ } from '@/wpi18n';
 
-import ProductTable from './product-table/product-table';
+import ProductTable from '@/pages/products/product-table/product-table';
 
 const Products = () => {
   const dispatch = useAppDispatch();

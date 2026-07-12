@@ -29,9 +29,9 @@ import {
   type ShippingRegion,
   type ShippingRule,
   type ShippingZone,
-} from '../../utils';
-import { SelectDestinationPopup } from '../select-destination-popup';
-import { resolveDestinationRegion } from './helper';
+} from '@/pages/settings/shipping-settings/utils';
+import { SelectDestinationPopup } from '@/pages/settings/shipping-settings/shipping-method/select-destination-popup';
+import { resolveDestinationRegion } from '@/pages/settings/shipping-settings/shipping-method/shipping-rules/helper';
 
 type ShippingRuleModalProps = {
   showModal: boolean;

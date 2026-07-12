@@ -22,7 +22,7 @@ import type {
 } from '@/types';
 import { __ } from '@/wpi18n';
 
-import SelectDropdown from './select-dropdown';
+import SelectDropdown from '@/molecules/select/select-dropdown';
 
 type SelectOptionItem = SelectOption & {
   leftIcon?: ReactNode;

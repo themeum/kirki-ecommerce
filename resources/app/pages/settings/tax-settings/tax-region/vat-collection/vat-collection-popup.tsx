@@ -12,7 +12,7 @@ import { Select } from '@/molecules/select';
 import type { SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
 
-import type { TaxRate } from '../../utils';
+import type { TaxRate } from '@/pages/settings/tax-settings/utils';
 
 type VatStateOption = SelectOption & {
   leftIcon?: ReactNode;

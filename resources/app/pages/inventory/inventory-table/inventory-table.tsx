@@ -17,9 +17,9 @@ import { useAppSelector } from '@/store/hooks';
 import type { InventoryVariant } from '@/types';
 import { __ } from '@/wpi18n';
 
-import { allTableHeaders } from '../utils';
-import InventoryTableAction from './inventory-table-action';
-import SingleRow from './single-row';
+import { allTableHeaders } from '@/pages/inventory/utils';
+import InventoryTableAction from '@/pages/inventory/inventory-table/inventory-table-action';
+import SingleRow from '@/pages/inventory/inventory-table/single-row';
 
 const InventoryTable = () => {
   const navigate = useNavigate();

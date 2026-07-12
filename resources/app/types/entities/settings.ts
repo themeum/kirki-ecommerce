@@ -1,5 +1,5 @@
-import type { MediaRef } from './media';
-import type { ProductCurrency } from './product';
+import type { MediaRef } from '@/types/entities/media';
+import type { ProductCurrency } from '@/types/entities/product';
 
 type SettingsSectionKey =
   | 'general'

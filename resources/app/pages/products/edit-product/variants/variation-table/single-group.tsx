@@ -24,7 +24,7 @@ import {
   generateVariantIndexById,
   generateVariantIndexes,
   getAttributeByValueId,
-} from '../../../utils';
+} from '@/pages/products/utils';
 
 type CombinedData = {
   price?: number | string | null;

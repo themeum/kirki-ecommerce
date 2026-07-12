@@ -11,7 +11,7 @@ import type {
   SortOrder,
 } from '@/types';
 
-import { deleteOptions, getOptions, postOptions, putOptions } from './utils';
+import { deleteOptions, getOptions, postOptions, putOptions } from '@/store/utils';
 
 type CurrenciesState = {
   loaded: boolean;

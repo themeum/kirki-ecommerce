@@ -14,9 +14,9 @@ import { getTaxProfileListAPI } from '@/store/settingsSlice';
 import { useAppSelector } from '@/store/hooks';
 import { __ } from '@/wpi18n';
 
-import { taxRuleActionOptionsArray } from '../../utils';
-import type { TaxConditionRow, TaxRegion, TaxRule } from '../../utils';
-import ConditionRow from './condition-row';
+import { taxRuleActionOptionsArray } from '@/pages/settings/tax-settings/utils';
+import type { TaxConditionRow, TaxRegion, TaxRule } from '@/pages/settings/tax-settings/utils';
+import ConditionRow from '@/pages/settings/tax-settings/tax-region/tax-rules/condition-row';
 
 type TaxRulesModalProps = {
   showModal: boolean;

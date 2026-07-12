@@ -18,7 +18,7 @@ import { useAppSelector } from '@/store/hooks';
 import type { Country, FormErrors } from '@/types';
 import { __ } from '@/wpi18n';
 
-import { getSearchedValue, setUnsavedDataStatus } from '../utils';
+import { getSearchedValue, setUnsavedDataStatus } from '@/pages/settings/utils';
 
 type SellingLocationProps = {
   handleOnChange: (value: unknown, key: string) => void;

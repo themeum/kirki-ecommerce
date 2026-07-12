@@ -29,7 +29,7 @@ import { updateProductAttributes } from '@/store/productSlice';
 import type { Attribute } from '@/types';
 import { __ } from '@/wpi18n';
 
-import AddOrEditAttribute from './add-or-edit-attribute';
+import AddOrEditAttribute from '@/pages/products/edit-product/variants/attribute-list/add-or-edit-attribute';
 
 type SaveResult = {
   success?: boolean;

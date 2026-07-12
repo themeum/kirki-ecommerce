@@ -7,13 +7,13 @@ import Searchbox from '@/molecules/searchbox';
 import Text from '@/molecules/text';
 import { __ } from '@/wpi18n';
 
-import { SettingsItem } from './settings-item';
+import { SettingsItem } from '@/pages/settings/settings-item';
 import {
   advancedSettings,
   businessOperationSettings,
   storeManagementSettings,
   type SettingsNavItem,
-} from './utils';
+} from '@/pages/settings/utils';
 
 const Settings = () => {
   const renderSettingsSection = (

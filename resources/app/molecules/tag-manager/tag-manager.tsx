@@ -14,7 +14,7 @@ import Text from '@/molecules/text';
 import type { LabelFieldProps, SelectOption, StyleProps } from '@/types';
 import { __ } from '@/wpi18n';
 
-import SelectedTags from './selected-tags';
+import SelectedTags from '@/molecules/tag-manager/selected-tags';
 
 type TagOption = SelectOption & {
   leftIcon?: ReactNode;

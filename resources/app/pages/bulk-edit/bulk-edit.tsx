@@ -17,8 +17,8 @@ import type { MediaRef } from '@/types';
 import { isApiSuccess } from '@/types/pages/api-guards';
 import { __ } from '@/wpi18n';
 
-import BulkEditTable from './bulk-edit-table/bulk-edit-table';
-import { allTableHeaders } from './utils';
+import BulkEditTable from '@/pages/bulk-edit/bulk-edit-table/bulk-edit-table';
+import { allTableHeaders } from '@/pages/bulk-edit/utils';
 
 const BulkEdit = () => {
   const dispatch = useAppDispatch();

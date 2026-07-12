@@ -10,7 +10,7 @@ import Text from '@/molecules/text';
 import type { SettingsSectionData } from '@/types';
 import { __, sprintf } from '@/wpi18n';
 
-import { dateFormatter } from '../../../utils';
+import { dateFormatter } from '@/pages/utils';
 
 type ApiConfigData = {
   api_key?: string;

@@ -21,9 +21,9 @@ import type {
 import { isApiSuccess } from '@/types/pages/api-guards';
 import { __ } from '@/wpi18n';
 
-import { dispatchToastMessage } from '../../../../utils';
-import { setUnsavedDataStatus } from '../../../utils';
-import VariationValuePopup from '../variation-value-popup';
+import { dispatchToastMessage } from '@/pages/utils';
+import { setUnsavedDataStatus } from '@/pages/settings/utils';
+import VariationValuePopup from '@/pages/settings/essential-settings/variation-library/variation-value-popup';
 
 type AttributeWithMeta = Attribute & { updated_at?: string };
 

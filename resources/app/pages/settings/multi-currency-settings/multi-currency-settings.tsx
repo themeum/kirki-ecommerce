@@ -24,11 +24,11 @@ import type {
 import { isApiSuccess } from '@/types/pages/api-guards';
 import { __ } from '@/wpi18n';
 
-import { dispatchToastMessage } from '../../utils';
-import { checkUnsavedDataStatus, setUnsavedDataStatus } from '../utils';
-import ApiConfig from './api-config/api-config';
-import { AvailableCurrencyList } from './available-currency-list';
-import CurrencyFormatSettings from './currency-format-settings';
+import { dispatchToastMessage } from '@/pages/utils';
+import { checkUnsavedDataStatus, setUnsavedDataStatus } from '@/pages/settings/utils';
+import ApiConfig from '@/pages/settings/multi-currency-settings/api-config/api-config';
+import { AvailableCurrencyList } from '@/pages/settings/multi-currency-settings/available-currency-list';
+import CurrencyFormatSettings from '@/pages/settings/multi-currency-settings/currency-format-settings';
 
 type SettingsOutletContext = {
   confirmAction: (params: {

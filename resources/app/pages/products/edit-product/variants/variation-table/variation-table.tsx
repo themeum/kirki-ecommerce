@@ -22,7 +22,7 @@ import { updateVariants } from '@/store/productSlice';
 import type { SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
 
-import SingleGroup from './single-group';
+import SingleGroup from '@/pages/products/edit-product/variants/variation-table/single-group';
 
 const VariationTable = () => {
   const dispatch = useAppDispatch();

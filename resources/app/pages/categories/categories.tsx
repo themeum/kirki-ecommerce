@@ -9,8 +9,8 @@ import { getCategoriesAPI, setKeyValue } from '@/store/categoriesSlice';
 import type { PaginationData } from '@/types';
 import { __ } from '@/wpi18n';
 
-import CategoryTable from './category-table/category-table';
-import NewCategory from './new-category';
+import CategoryTable from '@/pages/categories/category-table/category-table';
+import NewCategory from '@/pages/categories/new-category';
 
 const Categories = () => {
   const dispatch = useAppDispatch();

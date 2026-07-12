@@ -14,8 +14,8 @@ import type { FormErrors, SettingsSectionData } from '@/types';
 import { isApiSuccess } from '@/types/pages/api-guards';
 import { __ } from '@/wpi18n';
 
-import ApiConfigurationCard from './api-configuration-card';
-import ApiConfigurationPopup from './api-configuration-popup';
+import ApiConfigurationCard from '@/pages/settings/multi-currency-settings/api-config/api-configuration-card';
+import ApiConfigurationPopup from '@/pages/settings/multi-currency-settings/api-config/api-configuration-popup';
 
 type ApiProvider = {
   id: string | number;

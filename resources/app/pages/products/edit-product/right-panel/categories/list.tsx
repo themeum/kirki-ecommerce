@@ -2,7 +2,7 @@ import React from 'react';
 
 import type { Category } from '@/types';
 
-import SingleItem from './single-item';
+import SingleItem from '@/pages/products/edit-product/right-panel/categories/single-item';
 
 type ProductCategorySelection = {
   id: number;

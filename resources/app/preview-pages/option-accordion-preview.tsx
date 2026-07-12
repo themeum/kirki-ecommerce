@@ -1,5 +1,5 @@
 import OptionAccordion from '@/components/option-accordion';
-import GroupOptionCardPreview from './group-option-card-preview';
+import GroupOptionCardPreview from '@/preview-pages/group-option-card-preview';
 import { LocationIcon, ShowMoreIcon } from '@/icons';
 import ActionGroup from '@/molecules/action-group';
 import Button from '@/molecules/button';

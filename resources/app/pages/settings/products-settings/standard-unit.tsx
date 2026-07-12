@@ -7,7 +7,7 @@ import ToggleButton from '@/molecules/toggle-button';
 import type { FormErrors, SettingsSectionData } from '@/types';
 import { __ } from '@/wpi18n';
 
-import { dimensionUnitList, weightUnitList } from '../utils';
+import { dimensionUnitList, weightUnitList } from '@/pages/settings/utils';
 
 type StandardUnitProps = {
   dataObj: SettingsSectionData;

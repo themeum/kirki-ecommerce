@@ -24,10 +24,10 @@ import type { FormErrors, SettingsSectionData } from '@/types';
 import { isApiSuccess } from '@/types';
 import { __ } from '@/wpi18n';
 
-import { checkUnsavedDataStatus, setUnsavedDataStatus } from '../utils';
-import type { TaxRegion } from './utils';
-import TaxProfile from './tax-profile/tax-profile';
-import TaxRegions from './tax-region/tax-region';
+import { checkUnsavedDataStatus, setUnsavedDataStatus } from '@/pages/settings/utils';
+import type { TaxRegion } from '@/pages/settings/tax-settings/utils';
+import TaxProfile from '@/pages/settings/tax-settings/tax-profile/tax-profile';
+import TaxRegions from '@/pages/settings/tax-settings/tax-region/tax-region';
 
 type SettingsOutletContext = {
   confirmAction: (params: { action?: () => void }) => void;

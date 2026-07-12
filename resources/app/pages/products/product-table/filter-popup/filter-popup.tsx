@@ -12,9 +12,9 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { setKeyValue } from '@/store/productsSlice';
 import { __, sprintf } from '@/wpi18n';
 
-import BrandFilter from './brand-filter';
-import CategoriesFilter from './categories-filter';
-import CollectionFilter from './collection-filter';
+import BrandFilter from '@/pages/products/product-table/filter-popup/brand-filter';
+import CategoriesFilter from '@/pages/products/product-table/filter-popup/categories-filter';
+import CollectionFilter from '@/pages/products/product-table/filter-popup/collection-filter';
 
 type ProductFilterState = {
   category_ids?: number[] | string;

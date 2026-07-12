@@ -1,6 +1,6 @@
 import type { AxiosResponse } from 'axios';
 
-import type { ApiErrorPayload, ApiResponse } from './response';
+import type { ApiErrorPayload, ApiResponse } from '@/types/api/response';
 
 type BulkActionParams = {
   action?: string;

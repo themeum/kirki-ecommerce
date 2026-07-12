@@ -9,7 +9,7 @@ import PageHeading from '@/molecules/page-heading';
 import { Select } from '@/molecules/select';
 import type { SelectOption } from '@/types';
 
-import CustomerGroupTable from './customer-group-table';
+import CustomerGroupTable from '@/pages/customers/customer-groups/customer-group-table';
 
 const CustomerGroups = () => {
   const selectOptions: SelectOption[] = [

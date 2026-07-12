@@ -15,7 +15,7 @@ import type { Brand, MarkListHandlers } from '@/types';
 import { isApiSuccess } from '@/types/pages/api-guards';
 import { __ } from '@/wpi18n';
 
-import BrandAddEditPopover from '../brand-add-edit-popover';
+import BrandAddEditPopover from '@/pages/brands/brand-add-edit-popover';
 
 type SingleRowProps = MarkListHandlers & {
   item: Brand;

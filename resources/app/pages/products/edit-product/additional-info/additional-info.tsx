@@ -11,7 +11,7 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { updateProduct } from '@/store/productSlice';
 import { __ } from '@/wpi18n';
 
-import AddOrEditInfo from './add-or-edit-info';
+import AddOrEditInfo from '@/pages/products/edit-product/additional-info/add-or-edit-info';
 
 const AdditionalInfo = () => {
   const dispatch = useAppDispatch();

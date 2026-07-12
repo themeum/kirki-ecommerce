@@ -19,10 +19,10 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import type { MediaRef, ProductVariant, UnitPriceValue } from '@/types';
 import { __ } from '@/wpi18n';
 
-import BaseUnitPopup from '../../products/edit-product/price/base-unit-popup';
-import ShippingBox from '../../products/edit-product/shipping/shipping-box';
-import { calculateProfit } from '../../utils';
-import type { BulkEditSelectionData } from './bulk-edit-table';
+import BaseUnitPopup from '@/pages/products/edit-product/price/base-unit-popup';
+import ShippingBox from '@/pages/products/edit-product/shipping/shipping-box';
+import { calculateProfit } from '@/pages/utils';
+import type { BulkEditSelectionData } from '@/pages/bulk-edit/bulk-edit-table/bulk-edit-table';
 
 type BulkEditVariant = ProductVariant & {
   has_limit_per_order?: boolean;

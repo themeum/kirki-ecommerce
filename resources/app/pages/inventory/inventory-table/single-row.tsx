@@ -7,7 +7,7 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { setKeyValue, updateInventory } from '@/store/inventorySlice';
 import type { InventoryVariant, MarkListHandlers } from '@/types';
 
-import { calculateProfit } from '../../utils';
+import { calculateProfit } from '@/pages/utils';
 
 type SingleRowProps = MarkListHandlers & {
   item: InventoryVariant;

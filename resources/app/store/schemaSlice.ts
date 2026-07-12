@@ -22,7 +22,7 @@ import {
   getOptions,
   postOptions,
   putOptions,
-} from './utils';
+} from '@/store/utils';
 
 type SchemaState = ListState<SchemaProfile[]>;
 

@@ -24,7 +24,7 @@ import {
   getOptions,
   postOptions,
   putOptions,
-} from './utils';
+} from '@/store/utils';
 
 type AttributesState = ListState<Attribute[]>;
 

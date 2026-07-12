@@ -21,7 +21,7 @@ import {
   getOptions,
   postOptions,
   putOptions,
-} from './utils';
+} from '@/store/utils';
 
 type CustomersState = Omit<ListState<PaginatedData<Customer>>, 'limit'>;
 

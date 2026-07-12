@@ -12,9 +12,9 @@ import { Select } from '@/molecules/select';
 import Text from '@/molecules/text';
 import type { SelectOption } from '@/types';
 
-import CustomerInfo from './customer-info';
-import ItemsTable from './items-table';
-import Payment from './payment';
+import CustomerInfo from '@/pages/orders/order-details/customer-info';
+import ItemsTable from '@/pages/orders/order-details/items-table';
+import Payment from '@/pages/orders/order-details/payment';
 
 const OrderDetails = () => {
   const optionsArray: SelectOption[] = [

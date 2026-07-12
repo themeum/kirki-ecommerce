@@ -18,7 +18,7 @@ import type { ShippingProfile as ShippingProfileType } from '@/types';
 import { isApiSuccess } from '@/types';
 import { __ } from '@/wpi18n';
 
-import { CreateProfilePopup } from './create-profile-popup';
+import { CreateProfilePopup } from '@/pages/settings/shipping-settings/shipping-profile/create-profile-popup';
 
 type ShippingProfileListItem = ShippingProfileType & {
   icon?: ReactNode;

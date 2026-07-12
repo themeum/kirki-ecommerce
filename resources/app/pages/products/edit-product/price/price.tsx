@@ -21,9 +21,9 @@ import { getTaxProfileListAPI } from '@/store/settingsSlice';
 import type { FormErrors, SelectOption, UnitPriceValue } from '@/types';
 import { __ } from '@/wpi18n';
 
-import { TaxProfilePopup } from '../../../settings/tax-settings/tax-profile/tax-profile-popup';
-import { calculateProfit } from '../../../utils';
-import BaseUnitPopup from './base-unit-popup';
+import { TaxProfilePopup } from '@/pages/settings/tax-settings/tax-profile/tax-profile-popup';
+import { calculateProfit } from '@/pages/utils';
+import BaseUnitPopup from '@/pages/products/edit-product/price/base-unit-popup';
 
 type PriceProps = {
   errors: FormErrors;

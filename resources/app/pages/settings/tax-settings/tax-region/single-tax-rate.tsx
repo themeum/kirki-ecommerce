@@ -5,7 +5,7 @@ import Input from '@/molecules/input';
 import { CLASS_PREFIX } from '@/conf';
 import { __ } from '@/wpi18n';
 
-import { setUnsavedDataStatus } from '../../utils';
+import { setUnsavedDataStatus } from '@/pages/settings/utils';
 
 type SingleTaxRateProps = {
   centralTaxValue: number | string;

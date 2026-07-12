@@ -15,8 +15,8 @@ import type { TaxonomyTableHeader } from '@/types';
 import { isApiSuccess } from '@/types/pages/api-guards';
 import { __ } from '@/wpi18n';
 
-import TagTableAction from './tag-table-action';
-import SingleRow from './single-row';
+import TagTableAction from '@/pages/tags/tag-table/tag-table-action';
+import SingleRow from '@/pages/tags/tag-table/single-row';
 
 const TagTable = () => {
   const tableHeaders: TaxonomyTableHeader[] = [

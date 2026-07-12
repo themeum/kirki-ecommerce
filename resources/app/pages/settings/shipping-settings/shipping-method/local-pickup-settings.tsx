@@ -6,7 +6,7 @@ import Checkbox from '@/molecules/checkbox';
 import Grid from '@/molecules/grid';
 import { __ } from '@/wpi18n';
 
-import type { ShippingMethodData } from '../utils';
+import type { ShippingMethodData } from '@/pages/settings/shipping-settings/utils';
 
 type LocalPickupSettingsProps = {
   handleOnChange: (value: unknown, key: string) => void;

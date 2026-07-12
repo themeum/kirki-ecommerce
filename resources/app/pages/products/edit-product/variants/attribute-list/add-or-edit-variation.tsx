@@ -19,7 +19,7 @@ import type {
 import { isApiSuccess } from '@/types/pages/api-guards';
 import { __ } from '@/wpi18n';
 
-import VariationPopover from '../variation-popover';
+import VariationPopover from '@/pages/products/edit-product/variants/variation-popover';
 
 type AttributeFormValue = {
   id?: number;

@@ -16,7 +16,7 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import type { PaginationData } from '@/types';
 import { __ } from '@/wpi18n';
 
-import CustomerTable from './customer-table/customer-table';
+import CustomerTable from '@/pages/customers/customer-table/customer-table';
 
 const Customers = () => {
   const navigate = useNavigate();

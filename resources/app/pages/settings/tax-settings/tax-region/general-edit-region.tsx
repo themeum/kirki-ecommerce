@@ -20,12 +20,12 @@ import type { SettingsSectionData } from '@/types';
 import { isApiSuccess } from '@/types';
 import { __ } from '@/wpi18n';
 
-import { checkUnsavedDataStatus, setUnsavedDataStatus } from '../../utils';
-import type { TaxRate, TaxRegion, TaxRegionState, TaxRule } from '../utils';
-import AddCitiesPopup from './add-cities-popup';
-import { SingleTaxRate } from './single-tax-rate';
-import { TaxRateList } from './tax-rate-list';
-import TaxRules from './tax-rules/tax-rules';
+import { checkUnsavedDataStatus, setUnsavedDataStatus } from '@/pages/settings/utils';
+import type { TaxRate, TaxRegion, TaxRegionState, TaxRule } from '@/pages/settings/tax-settings/utils';
+import AddCitiesPopup from '@/pages/settings/tax-settings/tax-region/add-cities-popup';
+import { SingleTaxRate } from '@/pages/settings/tax-settings/tax-region/single-tax-rate';
+import { TaxRateList } from '@/pages/settings/tax-settings/tax-region/tax-rate-list';
+import TaxRules from '@/pages/settings/tax-settings/tax-region/tax-rules/tax-rules';
 
 type SettingsOutletContext = {
   confirmAction: (params: { action?: () => void }) => void;

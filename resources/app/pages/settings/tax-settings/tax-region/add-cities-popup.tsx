@@ -16,8 +16,8 @@ import Text from '@/molecules/text';
 import { CLASS_PREFIX } from '@/conf';
 import { __ } from '@/wpi18n';
 
-import { getSearchedValue } from '../../utils';
-import type { TaxRate, TaxRegionState } from '../utils';
+import { getSearchedValue } from '@/pages/settings/utils';
+import type { TaxRate, TaxRegionState } from '@/pages/settings/tax-settings/utils';
 
 type AddCitiesPopupProps = {
   openPopup: boolean;

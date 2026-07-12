@@ -9,8 +9,8 @@ import { getBrandsAPI, setKeyValue } from '@/store/brandsSlice';
 import type { PaginationData } from '@/types';
 import { __ } from '@/wpi18n';
 
-import BrandTable from './brand-table/brand-table';
-import NewBrand from './new-brand';
+import BrandTable from '@/pages/brands/brand-table/brand-table';
+import NewBrand from '@/pages/brands/new-brand';
 
 const Brands = () => {
   const dispatch = useAppDispatch();

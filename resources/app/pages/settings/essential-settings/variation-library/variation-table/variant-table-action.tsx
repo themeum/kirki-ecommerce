@@ -7,7 +7,7 @@ import Flex from '@/molecules/flex';
 import Searchbox from '@/molecules/searchbox';
 import type { AttributeValue, SortOrder } from '@/types';
 
-import { getSortedList } from '../../../utils';
+import { getSortedList } from '@/pages/settings/utils';
 
 type VariantTableActionProps = {
   dataList: AttributeValue[];

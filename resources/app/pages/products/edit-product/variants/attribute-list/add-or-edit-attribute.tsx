@@ -27,7 +27,7 @@ import type {
 import { isApiSuccess } from '@/types/pages/api-guards';
 import { __ } from '@/wpi18n';
 
-import AddOrEditVariation from './add-or-edit-variation';
+import AddOrEditVariation from '@/pages/products/edit-product/variants/attribute-list/add-or-edit-variation';
 
 type SaveResult = {
   success?: boolean;

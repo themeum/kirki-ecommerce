@@ -5,8 +5,8 @@ import { ShowMoreIcon, EditIcon, TrashIcon } from '@/icons';
 import { useOutletContext, useNavigate } from 'react-router';
 import { __ } from '@/wpi18n';
 
-import { setUnsavedDataStatus } from '../utils';
-import type { ShippingZone } from './utils';
+import { setUnsavedDataStatus } from '@/pages/settings/utils';
+import type { ShippingZone } from '@/pages/settings/shipping-settings/utils';
 
 type SettingsOutletContext = {
   confirmAction: (opts: {
