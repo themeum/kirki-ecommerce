@@ -3,19 +3,14 @@ import { useState, useEffect, type ReactNode } from 'react';
 import HeaderActionsCard from '@/components/header-actions-card';
 import GroupOptionCard from '@/components/group-option-card';
 import { CLASS_PREFIX } from '@/conf';
-import { useGetListAPI } from '@/hooks';
 import { BoxOpenIcon } from '@/icons';
 import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
-import {
-  deleteSchemaByIdAPI,
-  getSchemaProfileListAPI,
-} from '@/store/schemaSlice';
-import { useAppSelector } from '@/store/hooks';
+import { dispatchToastMessage } from '@/pages/utils';
+import { useSchemasQuery, useDeleteSchemaMutation } from '@/services/schema';
 import type { SchemaProfile } from '@/types';
 import { __ } from '@/wpi18n';
 
-import { dispatchToastMessage } from '@/pages/utils';
 import AddSchemaPopup from '@/pages/settings/essential-settings/schema-profile/add-schema-popup';
 
 type SchemaListItem = SchemaProfile & {
@@ -28,32 +23,24 @@ const SchemaProfileComponent = () => {
   const [editedItem, setEditedItem] = useState<SchemaProfile | null>(null);
   const [schemaProfileList, setSchemaProfileList] = useState<SchemaListItem[]>([]);
 
-  useGetListAPI({
-    reducerName: 'schema',
-    apiCallBack: getSchemaProfileListAPI,
-  });
-  const schemaList = useAppSelector((state) => state.schema);
+  const { data: schemaList = [], refetch } = useSchemasQuery();
+  const { mutate: deleteSchema } = useDeleteSchemaMutation();
 
   useEffect(() => {
-    fetchSchemaList();
-  }, [schemaList?.data]);
-
-  const fetchSchemaList = () => {
-    const updatedSchemaList = schemaList?.data?.map((schema) => {
+    const updatedSchemaList = schemaList.map((schema) => {
       return {
         ...schema,
         badge1: `${Object.keys(schema?.schema)?.length} Schemas`,
       };
     });
-    setSchemaProfileList(updatedSchemaList ?? []);
-  };
+    setSchemaProfileList(updatedSchemaList);
+  }, [schemaList]);
 
   const handleDeleteSchema = (item: SchemaListItem) => {
     const initialList = [...schemaProfileList];
-    const updatedSchemaList = schemaProfileList?.filter(
-      (schema) => schema?.id !== item?.id,
+    setSchemaProfileList((prev) =>
+      prev.filter((schema) => schema?.id !== item?.id),
     );
-    setSchemaProfileList(updatedSchemaList);
     dispatchToastMessage('delete', {
       title: __('Schema deleted', 'kirki-ecommerce'),
       duration: 5000,
@@ -61,10 +48,11 @@ const SchemaProfileComponent = () => {
         setSchemaProfileList(initialList);
       },
       onSuccess: async () => {
-        await deleteSchemaByIdAPI(item.id);
+        deleteSchema(item.id as number, { onSuccess: () => refetch() });
       },
     });
   };
+
   const handleEditSchema = (item: SchemaListItem) => {
     setEditedItem(item);
     setShowPopup(true);
@@ -115,5 +103,7 @@ const SchemaProfileComponent = () => {
     </Card>
   );
 };
+
+SchemaProfileComponent.displayName = 'SchemaProfileComponent';
 
 export default SchemaProfileComponent;

@@ -8,10 +8,9 @@ import {
   PopoverFooter,
   PopoverHeader,
 } from '@/molecules/popover';
-import { updatePaymentGatewayAPI } from '@/store/settingsSlice';
-import { getErrorsObject } from '@/store/utils';
+import { getErrorsObject } from '@/libs/api';
+import { useUpdatePaymentGatewayMutation } from '@/services/payment';
 import type { FormErrors, PaymentGateway } from '@/types';
-import { isApiSuccess } from '@/types/pages/api-guards';
 import { __ } from '@/wpi18n';
 
 import { dispatchToastMessage } from '@/pages/utils';
@@ -48,6 +47,8 @@ const PaymentGatewayEditPopup = ({
   );
   const [errors, setErrors] = useState<FormErrors>({});
 
+  const { mutate: updateGateway } = useUpdatePaymentGatewayMutation();
+
   useEffect(() => {
     if (editedItem?.settings) {
       setGatewayConfObj(editedItem?.settings);
@@ -74,28 +75,29 @@ const PaymentGatewayEditPopup = ({
     }));
   };
 
-  const handleUpdateData = async () => {
+  const handleUpdateData = () => {
     const updatedObj = {
       data: {
         ...gatewayConfObj,
         is_enabled: true,
       },
     };
-    const result = await updatePaymentGatewayAPI(
-      editedItem?.id as number,
-      updatedObj,
+    updateGateway(
+      { id: editedItem?.id as number, data: updatedObj },
+      {
+        onSuccess: () => {
+          dispatchToastMessage('success', {
+            title: __('Payment gateway updated', 'kirki-ecommerce'),
+          });
+          onClose();
+          setGatewayConfObj({});
+        },
+        onError: (error) => {
+          const errObj = error as { errors?: Record<string, string[]> };
+          setErrors(getErrorsObject(errObj.errors));
+        },
+      },
     );
-
-    if (isApiSuccess(result)) {
-      dispatchToastMessage('success', {
-        title: __('Payment gateway updated', 'kirki-ecommerce'),
-      });
-      onClose();
-      setGatewayConfObj({});
-    } else {
-      const errorPayload = result as { errors?: Record<string, string[]> };
-      setErrors(getErrorsObject(errorPayload.errors));
-    }
   };
 
   return (
@@ -148,5 +150,7 @@ const PaymentGatewayEditPopup = ({
     </Popover>
   );
 };
+
+PaymentGatewayEditPopup.displayName = 'PaymentGatewayEditPopup';
 
 export default PaymentGatewayEditPopup;

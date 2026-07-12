@@ -2,6 +2,7 @@ import { useState } from 'react';
 
 import ThumbnailSelector from '@/components/thumbnail-selector';
 import { BrandIcon } from '@/icons';
+import { getErrorsObject } from '@/libs/api';
 import Button from '@/molecules/button';
 import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
@@ -13,16 +14,9 @@ import {
   PopoverHeader,
 } from '@/molecules/popover';
 import Text from '@/molecules/text';
-import {
-  addBrandAPI,
-  setKeyValue,
-  updateBrand,
-  updateBrandAPI,
-} from '@/store/brandsSlice';
-import { useAppDispatch } from '@/store/hooks';
-import { getErrorsObject } from '@/store/utils';
+import { useCreateBrandMutation, useUpdateBrandMutation } from '@/services/brand';
+import type { ErrorResponse } from '@/libs/api';
 import type { Brand, BrandFormData, FormErrors, MediaChangePayload } from '@/types';
-import { isApiSuccess } from '@/types/pages/api-guards';
 import { __ } from '@/wpi18n';
 
 type BrandAddEditPopoverProps = {
@@ -34,7 +28,8 @@ const BrandAddEditPopover = ({
   brand,
   onClose = () => {},
 }: BrandAddEditPopoverProps) => {
-  const dispatch = useAppDispatch();
+  const createMutation = useCreateBrandMutation();
+  const updateMutation = useUpdateBrandMutation();
   const logo =
     brand.logo && typeof brand.logo === 'object' ? brand.logo : null;
   const [imageUrl, setImageUrl] = useState<string | null>(logo?.url || null);
@@ -63,25 +58,19 @@ const BrandAddEditPopover = ({
   };
 
   const handleAddOrUpdateBrand = async () => {
-    let result = {} as Awaited<ReturnType<typeof addBrandAPI>>;
-    if (brandFormData.id) {
-      console.log(brandFormData);
-      result = await updateBrandAPI(brandFormData.id, brandFormData);
-    } else {
-      console.log(brandFormData);
-      result = await addBrandAPI(brandFormData);
-    }
-    if (isApiSuccess(result)) {
+    try {
       if (brandFormData.id) {
-        console.log(result);
-        dispatch(updateBrand(result.data));
+        await updateMutation.mutateAsync({
+          id: brandFormData.id,
+          data: brandFormData,
+        });
       } else {
-        dispatch(setKeyValue({ key: 'toggler', value: Date.now() }));
+        await createMutation.mutateAsync(brandFormData);
       }
       onClose();
-    } else {
-      const errorPayload = result as { errors?: Record<string, string[]> };
-      setErrors(getErrorsObject(errorPayload.errors));
+    } catch (error) {
+      const err = error as ErrorResponse;
+      setErrors(getErrorsObject(err.errors));
     }
   };
 
@@ -160,5 +149,7 @@ const BrandAddEditPopover = ({
     </Popover>
   );
 };
+
+BrandAddEditPopover.displayName = 'BrandAddEditPopover';
 
 export default BrandAddEditPopover;

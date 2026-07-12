@@ -1,6 +1,7 @@
 import { useState } from 'react';
 
 import { TagIcon } from '@/icons';
+import { getErrorsObject } from '@/libs/api';
 import Button from '@/molecules/button';
 import Flex from '@/molecules/flex';
 import Input from '@/molecules/input';
@@ -11,16 +12,9 @@ import {
   PopoverHeader,
 } from '@/molecules/popover';
 import Text from '@/molecules/text';
-import { useAppDispatch } from '@/store/hooks';
-import {
-  addTagAPI,
-  setKeyValue,
-  updateTag,
-  updateTagAPI,
-} from '@/store/tagsSlice';
-import { getErrorsObject } from '@/store/utils';
+import { useCreateTagMutation, useUpdateTagMutation } from '@/services/tag';
+import type { ErrorResponse } from '@/libs/api';
 import type { FormErrors, Tag, TagFormData } from '@/types';
-import { isApiSuccess } from '@/types/pages/api-guards';
 import { __ } from '@/wpi18n';
 
 type TagAddEditPopoverProps = {
@@ -32,7 +26,8 @@ const TagAddEditPopover = ({
   tag,
   onClose = () => {},
 }: TagAddEditPopoverProps) => {
-  const dispatch = useAppDispatch();
+  const createMutation = useCreateTagMutation();
+  const updateMutation = useUpdateTagMutation();
   const [errors, setErrors] = useState<FormErrors>({});
   const [tagFormData, setTagFormData] = useState<TagFormData & { id?: number }>(
     tag,
@@ -50,23 +45,19 @@ const TagAddEditPopover = ({
   };
 
   const handleAddOrUpdateTag = async () => {
-    let result = {} as Awaited<ReturnType<typeof addTagAPI>>;
-    if (tagFormData.id) {
-      result = await updateTagAPI(tagFormData.id, tagFormData);
-    } else {
-      result = await addTagAPI(tagFormData);
-    }
-    if (isApiSuccess(result)) {
+    try {
       if (tagFormData.id) {
-        console.log(result);
-        dispatch(updateTag(result.data));
+        await updateMutation.mutateAsync({
+          id: tagFormData.id,
+          data: tagFormData,
+        });
       } else {
-        dispatch(setKeyValue({ key: 'toggler', value: Date.now() }));
+        await createMutation.mutateAsync(tagFormData);
       }
       onClose();
-    } else {
-      const errorPayload = result as { errors?: Record<string, string[]> };
-      setErrors(getErrorsObject(errorPayload.errors));
+    } catch (error) {
+      const err = error as ErrorResponse;
+      setErrors(getErrorsObject(err.errors));
     }
   };
 
@@ -137,5 +128,7 @@ const TagAddEditPopover = ({
     </>
   );
 };
+
+TagAddEditPopover.displayName = 'TagAddEditPopover';
 
 export default TagAddEditPopover;

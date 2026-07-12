@@ -11,18 +11,12 @@ import Flex from '@/molecules/flex';
 import PageHeading from '@/molecules/page-heading';
 import Text from '@/molecules/text';
 import ToggleButton from '@/molecules/toggle-button';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import {
-  getSettingsAPI,
-  updateSettings,
-  updateSettingsAPI,
-} from '@/store/settingsSlice';
-import { getErrorsObject } from '@/store/utils';
+import { getErrorsObject } from '@/libs/api';
+import { useUnsavedStatus } from '@/libs/unsaved-store';
+import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import type { FormErrors, SettingsSectionData } from '@/types';
-import { isApiSuccess } from '@/types/pages/api-guards';
 import { __ } from '@/wpi18n';
 
-import { dispatchToastMessage } from '@/pages/utils';
 import { checkUnsavedDataStatus, setUnsavedDataStatus } from '@/pages/settings/utils';
 import CheckoutConf from '@/pages/settings/checkout-settings/checkout-conf';
 import LegalInfo from '@/pages/settings/checkout-settings/legal-info';
@@ -75,7 +69,6 @@ const initialDataObj: CheckoutSettingsFormData = {
 };
 
 const CheckoutSettings = () => {
-  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { confirmAction } = useOutletContext<SettingsOutletContext>();
 
@@ -85,16 +78,11 @@ const CheckoutSettings = () => {
     useState<CheckoutSettingsFormData>(initialDataObj);
   const [errors, setErrors] = useState<FormErrors>({});
 
-  const hasUnsavedData = useAppSelector((state) => state.unsaved?.hasUnsavedData);
-  const { loaded, data: checkoutSettingsData } = useAppSelector(
-    (state) => state.settings?.checkout,
-  );
+  const hasUnsavedData = useUnsavedStatus();
+  const { data: checkoutSettingsData, isLoading } = useSettingsQuery('checkout');
+  const { mutate: saveSettings } = useUpdateSettingsMutation();
 
-  useEffect(() => {
-    if (!loaded) {
-      dispatch(getSettingsAPI('checkout', {}));
-    }
-  }, []);
+  const loaded = !isLoading && Boolean(checkoutSettingsData);
 
   useEffect(() => {
     if (!checkoutSettingsData || !Object.keys(checkoutSettingsData).length) {
@@ -146,24 +134,19 @@ const CheckoutSettings = () => {
     }));
   };
 
-  const handleSaveData = async () => {
-    const result = await updateSettingsAPI('checkout', dataObj);
-
-    if (!isApiSuccess(result)) {
-      const errorPayload = result as { errors?: Record<string, string[]> };
-      setErrors(getErrorsObject(errorPayload.errors));
-      return;
-    }
-    dispatch(
-      updateSettings({
-        key: 'checkout',
-        value: result.data as SettingsSectionData,
-      }),
+  const handleSaveData = () => {
+    saveSettings(
+      { key: 'checkout', data: dataObj },
+      {
+        onSuccess: () => {
+          setUnsavedDataStatus(false);
+        },
+        onError: (error) => {
+          const errObj = error as { errors?: Record<string, string[]> };
+          setErrors(getErrorsObject(errObj.errors));
+        },
+      },
     );
-    dispatchToastMessage('success', {
-      title: __('Checkout settings updated', 'kirki-ecommerce'),
-    });
-    setUnsavedDataStatus(false);
   };
 
   const handleDiscardData = () => {
@@ -259,5 +242,7 @@ const CheckoutSettings = () => {
     </>
   );
 };
+
+CheckoutSettings.displayName = 'CheckoutSettings';
 
 export default CheckoutSettings;

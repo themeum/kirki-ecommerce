@@ -6,16 +6,13 @@ import { BoxClosedIcon, BoxOpenIcon } from '@/icons';
 import { CLASS_PREFIX } from '@/conf';
 import GroupOptionCard from '@/components/group-option-card';
 import HeaderActionsCard from '@/components/header-actions-card';
+import { queryClient } from '@/libs/query-client';
 import {
-  deleteShippingProfileById,
-  getShippingProfileList,
-  setKeyValue,
-} from '@/store/settingsSlice';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { useGetListAPI } from '@/hooks';
+  deleteShippingProfile,
+  useShippingProfilesQuery,
+} from '@/services/shipping';
 import { dispatchToastMessage } from '@/pages/utils';
 import type { ShippingProfile as ShippingProfileType } from '@/types';
-import { isApiSuccess } from '@/types';
 import { __ } from '@/wpi18n';
 
 import { CreateProfilePopup } from '@/pages/settings/shipping-settings/shipping-profile/create-profile-popup';
@@ -25,48 +22,30 @@ type ShippingProfileListItem = ShippingProfileType & {
 };
 
 const ShippingProfile = () => {
-  const dispatch = useAppDispatch();
   const [showPopup, setShowPopup] = useState(false);
   const [editProfileIndex, setEditProfileIndex] = useState<number | null>(null);
   const [shippingProfileList, setShippingProfileList] = useState<
     ShippingProfileListItem[]
   >([]);
-  useGetListAPI({
-    reducerName: 'settings',
-    apiCallBack: getShippingProfileList,
-    nestedToggler: ['shipping', 'shippingProfile'],
+
+  const { data: shippingProfiles = [] } = useShippingProfilesQuery({
+    limit: -1,
   });
 
-  const { data: shippingProfile } = useAppSelector(
-    (state) => state.settings?.shipping?.shippingProfile,
-  );
-
   useEffect(() => {
-    fetchProfileList();
-  }, [shippingProfile]);
-
-  const fetchProfileList = () => {
-    const updatedData = shippingProfile?.map((item) => ({
+    const updatedData = shippingProfiles.map((item) => ({
       ...item,
       icon: <BoxClosedIcon />,
     }));
+    setShippingProfileList(updatedData);
+  }, [shippingProfiles]);
 
-    setShippingProfileList(updatedData ?? []);
-  };
-
-  useEffect(() => {
-    if (shippingProfile && shippingProfile.length) {
-      fetchProfileList();
-    }
-  }, [shippingProfile?.length]);
-
-  const handleEditShippingProfile = async (item: ShippingProfileListItem) => {
-    setEditProfileIndex(item?.id);
+  const handleEditShippingProfile = (item: ShippingProfileListItem) => {
+    setEditProfileIndex(item?.id as number);
     setShowPopup(true);
   };
-  const handleDeleteShippingProfile = async (
-    item: ShippingProfileListItem,
-  ) => {
+
+  const handleDeleteShippingProfile = (item: ShippingProfileListItem) => {
     const initialList = [...shippingProfileList];
     setShippingProfileList((prev) =>
       prev.filter((profile) => profile.id !== item.id),
@@ -79,16 +58,8 @@ const ShippingProfile = () => {
         setShippingProfileList(initialList);
       },
       onSuccess: async () => {
-        const result = await deleteShippingProfileById(item?.id);
-        if (isApiSuccess(result as Parameters<typeof isApiSuccess>[0])) {
-          dispatch(
-            setKeyValue({
-              key: 'toggler',
-              value: Date.now(),
-              nestedToggler: ['shipping', 'shippingProfile'],
-            }),
-          );
-        }
+        await deleteShippingProfile(item?.id);
+        void queryClient.invalidateQueries({ queryKey: ['ShippingProfiles'] });
       },
     });
   };
@@ -143,7 +114,6 @@ const ShippingProfile = () => {
             setEditProfileIndex(null);
           }}
           shippingProfileList={shippingProfileList}
-          fetchProfileList={fetchProfileList}
           editIndex={editProfileIndex}
         />
       )}

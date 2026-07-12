@@ -6,13 +6,8 @@ import Button from '@/molecules/button';
 import Checkbox from '@/molecules/checkbox';
 import { TableCell, TableRow } from '@/molecules/table';
 import Thumbnail from '@/molecules/thumbnail';
-import {
-  deleteBrandByIdAPI,
-  setKeyValue,
-} from '@/store/brandsSlice';
-import { useAppDispatch } from '@/store/hooks';
+import { useDeleteBrandMutation } from '@/services/brand';
 import type { Brand, MarkListHandlers } from '@/types';
-import { isApiSuccess } from '@/types/pages/api-guards';
 import { __ } from '@/wpi18n';
 
 import BrandAddEditPopover from '@/pages/brands/brand-add-edit-popover';
@@ -27,16 +22,12 @@ const SingleRow = ({
   handleSingleCheckboxClick,
 }: SingleRowProps) => {
   const [openPopup, setOpenPopup] = useState(false);
-  const dispatch = useAppDispatch();
+  const deleteMutation = useDeleteBrandMutation();
 
-  const onItemDelete = async (id: number) => {
-    const result = await deleteBrandByIdAPI(id);
-    if (isApiSuccess(result)) {
-      dispatch(setKeyValue({ key: 'toggler', value: Date.now() }));
-    } else {
-      console.log(result);
-    }
+  const onItemDelete = (id: number) => {
+    deleteMutation.mutate(id);
   };
+
   const logo =
     item?.logo && typeof item.logo === 'object' ? item.logo : null;
 
@@ -63,7 +54,6 @@ const SingleRow = ({
         <TableCell>{item?.description || '--'}</TableCell>
         <TableCell>{item?.slug || '--'}</TableCell>
         <TableCell>{item?.count || 0}</TableCell>
-
         <TableCell alignment="right" style={{ width: '1%' }}>
           <ActionGroup>
             <Button
@@ -92,5 +82,7 @@ const SingleRow = ({
     </>
   );
 };
+
+SingleRow.displayName = 'SingleRow';
 
 export default SingleRow;

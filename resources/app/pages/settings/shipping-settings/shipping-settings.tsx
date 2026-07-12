@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate, useLocation, useOutletContext } from 'react-router';
+import { useNavigate, useOutletContext } from 'react-router';
 
 import { LocationIcon, TruckIcon } from '@/icons';
 import Button from '@/molecules/button';
@@ -11,26 +11,17 @@ import { TagManager } from '@/molecules/tag-manager';
 import PageNavbar from '@/components/page-navbar';
 import OptionAccordion from '@/components/option-accordion';
 import HeaderActionsCard from '@/components/header-actions-card';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import {
-  getSettingsAPI,
-  updateSettingsAPI,
-  setActiveZoneId,
-  updateSettings,
-  setSelectedCountryList,
-} from '@/store/settingsSlice';
-import { getCountriesAPI } from '@/store/countriesSlice';
-import { getErrorsObject } from '@/store/utils';
-import { useGetListAPI } from '@/hooks';
+import { getErrorsObject } from '@/libs/api';
+import { useUnsavedStatus } from '@/libs/unsaved-store';
 import { normalizeErrors } from '@/pages/utils';
+import { useCountriesQuery } from '@/services/country';
+import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import type { FormErrors, SelectOption, SettingsSectionData } from '@/types';
-import { isApiSuccess } from '@/types';
 import { __, sprintf } from '@/wpi18n';
 
 import {
   getSearchedCountries,
   getSelectedRegionTags,
-  saveShippingZones,
   shippingMethodIconMap,
   type CountryWithStates,
   type ShippingMethodData,
@@ -53,8 +44,6 @@ type SettingsOutletContext = {
 
 const ShippingSettings = () => {
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
-  const location = useLocation();
   const { confirmAction } = useOutletContext<SettingsOutletContext>();
 
   const newZoneIdRef = useRef(crypto.randomUUID());
@@ -66,29 +55,14 @@ const ShippingSettings = () => {
   const [selectedRegion, setSelectedRegion] = useState<ShippingRegion[]>([]);
   const [errors, setErrors] = useState<FormErrors>({});
 
-  const hasUnsavedData = useAppSelector((state) => state.unsaved?.hasUnsavedData);
-  const countryList = useAppSelector((state) => state.countries?.data);
-  const { loaded, data: shippingSettingsData } = useAppSelector(
-    (state) => state.settings?.shipping,
-  );
+  const hasUnsavedData = useUnsavedStatus();
+  const { data: countryData = [] } = useCountriesQuery({ limit: -1 });
+  const countryList = countryData as CountryWithStates[];
 
-  useGetListAPI({
-    reducerName: 'countries',
-    apiCallBack: getCountriesAPI,
-    limit: -1,
-  });
+  const { data: shippingSettingsData, isLoading } = useSettingsQuery('shipping');
+  const { mutate: updateSettings } = useUpdateSettingsMutation();
 
-  useEffect(() => {
-    if (location.pathname === '/settings/shipping') {
-      dispatch(setActiveZoneId(null));
-    }
-  }, [location.pathname]);
-
-  useEffect(() => {
-    if (!loaded) {
-      dispatch(getSettingsAPI('shipping'));
-    }
-  }, []);
+  const loaded = !isLoading && Boolean(shippingSettingsData);
 
   useEffect(() => {
     if (Object.keys(shippingSettingsData || {}).length) {
@@ -97,17 +71,24 @@ const ShippingSettings = () => {
     }
   }, [shippingSettingsData]);
 
-  const handleDeleteItem = async (item: ShippingZone) => {
+  const handleDeleteItem = (item: ShippingZone) => {
     const updatedZones = shippingZonesObj?.filter(
       (zone) => zone.id !== item.id,
     );
     setShippingZonesObj(updatedZones);
 
-    await saveShippingZones({
-      zones: updatedZones,
-      from: 'delete',
-      shippingSettingsData,
-    });
+    updateSettings(
+      {
+        key: 'shipping',
+        data: {
+          ...shippingSettingsData,
+          shipping_zones: updatedZones,
+        } as SettingsSectionData,
+      },
+      {
+        onSuccess: () => setUnsavedDataStatus(false),
+      },
+    );
   };
 
   const getShippingMethodData = (
@@ -152,7 +133,7 @@ const ShippingSettings = () => {
     });
   };
 
-  const handleCreateZone = async () => {
+  const handleCreateZone = () => {
     const updatedZones: ShippingZone[] = [
       ...shippingZonesObj,
       {
@@ -164,26 +145,39 @@ const ShippingSettings = () => {
         shipping_careers: [],
       },
     ];
-    const result = await updateSettingsAPI('shipping', {
-      shipping_zones: updatedZones,
-    });
 
-    if (isApiSuccess(result)) {
-      dispatch(
-        updateSettings({
-          key: 'shipping',
-          value: result.data as SettingsSectionData,
-        }),
-      );
-      dispatch(setSelectedCountryList(selectedCountries));
+    updateSettings(
+      {
+        key: 'shipping',
+        data: { shipping_zones: updatedZones },
+      },
+      {
+        onSuccess: () => {
+          setShowCreateZonePopup(false);
+          navigate(`/settings/shipping/zone/${newZoneIdRef.current}`);
+          newZoneIdRef.current = crypto.randomUUID();
+        },
+        onError: (error) => {
+          const errObj = error as { errors?: Record<string, string[]> };
+          setErrors(normalizeErrors(getErrorsObject(errObj.errors)) as FormErrors);
+        },
+      },
+    );
+  };
 
-      setShowCreateZonePopup(false);
-      navigate(`/settings/shipping/zone/${newZoneIdRef.current}`);
-    } else {
-      const errorResult = result as { errors?: Record<string, string[]> };
-      const errorObj = getErrorsObject(errorResult?.errors);
-      setErrors(normalizeErrors(errorObj) as FormErrors);
-    }
+  const handleSaveZones = () => {
+    updateSettings(
+      {
+        key: 'shipping',
+        data: {
+          ...shippingSettingsData,
+          shipping_zones: shippingZonesObj,
+        } as SettingsSectionData,
+      },
+      {
+        onSuccess: () => setUnsavedDataStatus(false),
+      },
+    );
   };
 
   const handleBackButton = () => {
@@ -219,13 +213,7 @@ const ShippingSettings = () => {
                 type="primary"
                 text={__('Save', 'kirki-ecommerce')}
                 size="small"
-                onClick={async () =>
-                  await saveShippingZones({
-                    zones: shippingZonesObj,
-                    shippingSettingsData,
-                    toastMessage: 'Shipping zone updated',
-                  })
-                }
+                onClick={handleSaveZones}
               />
             </>
           ) : (
@@ -308,6 +296,7 @@ const ShippingSettings = () => {
                           shippingMethodList={getShippingMethodData(item?.id)}
                           shippingZonesObj={shippingZonesObj}
                           setShippingZonesObj={setShippingZonesObj}
+                          zoneId={item?.id}
                         />
                       )}
                     </OptionAccordion>
@@ -317,7 +306,6 @@ const ShippingSettings = () => {
             </Card>
             <ShippingProfile />
             <ShippingBox />
-            {/* <ShippingSolution /> */}
           </Flex>
         ) : (
           <div>{__('Loading ...', 'kirki-ecommerce')}</div>

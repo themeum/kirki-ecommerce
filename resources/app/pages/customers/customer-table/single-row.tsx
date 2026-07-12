@@ -8,13 +8,8 @@ import Flex from '@/molecules/flex';
 import { TableCell, TableRow } from '@/molecules/table';
 import Text from '@/molecules/text';
 import Thumbnail from '@/molecules/thumbnail';
-import {
-  deleteCustomerByIdAPI,
-  setKeyValue,
-} from '@/store/customersSlice';
-import { useAppDispatch } from '@/store/hooks';
+import { useDeleteCustomerMutation } from '@/services/customer';
 import type { Customer, MarkListHandlers } from '@/types';
-import { isApiSuccess } from '@/types/pages/api-guards';
 import { __ } from '@/wpi18n';
 
 type SingleRowProps = MarkListHandlers & {
@@ -26,20 +21,15 @@ const SingleRow = ({
   isSelected,
   handleSingleCheckboxClick,
 }: SingleRowProps) => {
-  const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const deleteMutation = useDeleteCustomerMutation();
 
   const handleItemClick = (id: number) => {
     navigate('/customers/' + id);
   };
 
-  const onItemDelete = async (id: number) => {
-    const result = await deleteCustomerByIdAPI(id);
-    if (isApiSuccess(result)) {
-      dispatch(setKeyValue({ key: 'toggler', value: Date.now() }));
-    } else {
-      console.log(result);
-    }
+  const onItemDelete = (id: number) => {
+    deleteMutation.mutate(id);
   };
 
   const photo =
@@ -97,5 +87,7 @@ const SingleRow = ({
     </TableRow>
   );
 };
+
+SingleRow.displayName = 'SingleRow';
 
 export default SingleRow;

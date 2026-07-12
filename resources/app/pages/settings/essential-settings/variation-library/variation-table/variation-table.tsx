@@ -14,21 +14,15 @@ import {
   TableRow,
 } from '@/molecules/table';
 import Text from '@/molecules/text';
-import {
-  bulkDeleteAttributeValueByIdAPI,
-  setKeyValue,
-} from '@/store/attributesSlice';
-import { useAppDispatch } from '@/store/hooks';
+import { useBulkDeleteAttributeValuesMutation } from '@/services/attribute';
 import type {
   Attribute,
   AttributeValue,
   ConfirmationVariant,
   TaxonomyTableHeader,
 } from '@/types';
-import { isApiSuccess } from '@/types/pages/api-guards';
 import { __ } from '@/wpi18n';
 
-import { dispatchToastMessage } from '@/pages/utils';
 import { getSearchedValue, setUnsavedDataStatus } from '@/pages/settings/utils';
 import SingleRow from '@/pages/settings/essential-settings/variation-library/variation-table/single-row';
 import VariantTableAction from '@/pages/settings/essential-settings/variation-library/variation-table/variant-table-action';
@@ -60,8 +54,8 @@ const VariationTable = ({
   selectedItem,
   updateDataList,
 }: VariationTableProps) => {
-  const dispatch = useAppDispatch();
   const { confirmAction } = useOutletContext<SettingsOutletContext>();
+  const bulkDeleteMutation = useBulkDeleteAttributeValuesMutation();
   const {
     handleSelectAll,
     handleAllCheckboxClick,
@@ -98,18 +92,12 @@ const VariationTable = ({
     }
   };
 
-  const onBulkDelete = async () => {
+  const onBulkDelete = () => {
     const attribute_id = selectedItem?.id as number;
-    const result = await bulkDeleteAttributeValueByIdAPI({
+    bulkDeleteMutation.mutate({
       attribute_id,
       ids: selectedItems as number[],
     });
-    if (isApiSuccess(result)) {
-      dispatch(setKeyValue({ key: 'toggler', value: Date.now() }));
-      dispatchToastMessage('success', {
-        title: __('Attribute values deleted'),
-      });
-    }
   };
 
   return (
@@ -176,5 +164,7 @@ const VariationTable = ({
     </>
   );
 };
+
+VariationTable.displayName = 'VariationTable';
 
 export default VariationTable;

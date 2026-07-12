@@ -4,30 +4,32 @@ import Button from '@/molecules/button';
 import Flex from '@/molecules/flex';
 import Searchbox from '@/molecules/searchbox';
 import { Select } from '@/molecules/select';
-import { setKeyValue } from '@/store/customersSlice';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { useListParams } from '@/hooks';
 
 const CustomerTableAction = () => {
-  const dispatch = useAppDispatch();
-  const { search, sort_order } = useAppSelector((state) => state.customers);
+  const { params, setParam } = useListParams({
+    defaults: {
+      search: '',
+      sort_by: 'first_name',
+      sort_order: 'asc',
+      page: 1,
+      limit: 10,
+    },
+  });
 
   const handleSearchChange = (value: string) => {
-    dispatch(setKeyValue({ key: 'search', value: value }));
+    setParam('search', value);
   };
 
   const handleSortChange = () => {
-    if (sort_order === 'asc') {
-      dispatch(setKeyValue({ key: 'sort_order', value: 'desc' }));
-    } else {
-      dispatch(setKeyValue({ key: 'sort_order', value: 'asc' }));
-    }
+    setParam('sort_order', params.sort_order === 'asc' ? 'desc' : 'asc');
   };
 
   return (
     <Flex style={{ padding: '16px 12px' }}>
       <div style={{ width: '180px' }}>
         <Searchbox
-          value={search}
+          value={params.search || ''}
           onChange={(value) => handleSearchChange(value as string)}
         />
       </div>
@@ -52,5 +54,7 @@ const CustomerTableAction = () => {
     </Flex>
   );
 };
+
+CustomerTableAction.displayName = 'CustomerTableAction';
 
 export default CustomerTableAction;

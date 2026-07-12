@@ -13,19 +13,12 @@ import Input from '@/molecules/input';
 import PageHeading from '@/molecules/page-heading';
 import { TagManager } from '@/molecules/tag-manager';
 import PageNavbar from '@/components/page-navbar';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import {
-  getSettingsAPI,
-  updateSettingsAPI,
-  updateSettings,
-  setActiveZoneId,
-  setSelectedCountryList,
-} from '@/store/settingsSlice';
-import { getCountriesAPI } from '@/store/countriesSlice';
-import { useGetListAPI } from '@/hooks';
+import { getErrorsObject } from '@/libs/api';
+import { useUnsavedStatus } from '@/libs/unsaved-store';
 import { dispatchToastMessage, normalizeErrors } from '@/pages/utils';
+import { useCountriesQuery } from '@/services/country';
+import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import type { FormErrors, SelectOption, SettingsSectionData } from '@/types';
-import { isApiSuccess } from '@/types';
 import { __ } from '@/wpi18n';
 
 import { ShippingRegionPopup } from '@/pages/settings/shipping-settings/shipping-zone/shipping-region-popup';
@@ -52,7 +45,6 @@ type SettingsOutletContext = {
 };
 
 const ShippingZonePage = () => {
-  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { confirmAction } = useOutletContext<SettingsOutletContext>();
 
@@ -60,8 +52,10 @@ const ShippingZonePage = () => {
   const [openPopup, setOpenPopup] = useState(false);
   const [searchValue, setSearchValue] = useState('');
 
-  const hasUnsavedData = useAppSelector((state) => state.unsaved?.hasUnsavedData);
-  const countryList = useAppSelector((state) => state.countries?.data);
+  const hasUnsavedData = useUnsavedStatus();
+  const { data: countryData = [] } = useCountriesQuery({ limit: -1 });
+  const countryList = countryData as CountryWithStates[];
+
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
   const [selectedRegion, setSelectedRegion] = useState<ShippingRegion[]>([]);
   const [shippingZoneTitle, setShippingZoneTitle] = useState('');
@@ -71,23 +65,14 @@ const ShippingZonePage = () => {
   );
   const [errors, setErrors] = useState<FormErrors>({});
 
-  useGetListAPI({
-    reducerName: 'countries',
-    apiCallBack: getCountriesAPI,
-    limit: -1,
-  });
+  const { data: shippingSettingsData, isLoading } = useSettingsQuery('shipping');
+  const { mutate: saveSettings } = useUpdateSettingsMutation();
 
-  const {
-    loaded,
-    data: shippingSettingsData,
-    activeZoneId,
-    selectedCountryList,
-  } = useAppSelector((state) => state.settings?.shipping);
-
+  const loaded = !isLoading && Boolean(shippingSettingsData);
   const zones = (shippingSettingsData?.shipping_zones as ShippingZone[]) || [];
-  const zoneId = zone_Id || activeZoneId;
+  const zoneId = zone_Id;
 
-  const activeZone = zones.find((zone) => zone.id === zoneId);
+  const activeZone = zones.find((zone) => String(zone.id) === String(zoneId));
 
   const shippingMethodList = useMemo(() => {
     return shippingZonesObj.reduce<
@@ -102,12 +87,6 @@ const ShippingZonePage = () => {
   }, [shippingZonesObj]);
 
   useEffect(() => {
-    if (!loaded) {
-      dispatch(getSettingsAPI('shipping'));
-    }
-  }, []);
-
-  useEffect(() => {
     if (!zones.length) {
       return;
     }
@@ -119,7 +98,9 @@ const ShippingZonePage = () => {
     if (!shippingZonesObj.length) {
       return;
     }
-    const currentZone = shippingZonesObj.find((zone) => zone.id === zoneId);
+    const currentZone = shippingZonesObj.find(
+      (zone) => String(zone.id) === String(zoneId),
+    );
     if (!currentZone) {
       return;
     }
@@ -127,20 +108,9 @@ const ShippingZonePage = () => {
     setShippingZoneTitle(currentZone.title);
     setSelectedRegion(currentZone.regions);
 
-    if (
-      Array.isArray(selectedCountryList) &&
-      selectedCountryList.length
-    ) {
-      setSelectedCountries(selectedCountryList as string[]);
-    } else {
-      const derivedCountries = currentZone.regions.map((r) => r.country);
-      setSelectedCountries(derivedCountries);
-    }
-
-    if (zoneId !== undefined && zoneId !== null) {
-      dispatch(setActiveZoneId(zoneId as number));
-    }
-  }, [zoneId, shippingZonesObj, selectedCountryList]);
+    const derivedCountries = currentZone.regions.map((r) => r.country);
+    setSelectedCountries(derivedCountries);
+  }, [zoneId, shippingZonesObj]);
 
   const handleRemoveRegionTag = (removedTag: RegionTag) => {
     if (selectedCountries.length <= 1 || selectedRegion.length <= 1) {
@@ -158,7 +128,7 @@ const ShippingZonePage = () => {
     );
     setShippingZonesObj((prevZones) =>
       prevZones.map((zone) =>
-        zone.id === zoneId
+        String(zone.id) === String(zoneId)
           ? {
               ...zone,
               regions: zone.regions.filter((r) => r.country !== removedTag.id),
@@ -175,7 +145,7 @@ const ShippingZonePage = () => {
     setUnsavedDataStatus(true);
     setShippingZonesObj((prev) =>
       prev.map((zone) =>
-        zone.id === zoneId ? { ...zone, title } : zone,
+        String(zone.id) === String(zoneId) ? { ...zone, title } : zone,
       ),
     );
     setErrors((prev) => {
@@ -196,7 +166,7 @@ const ShippingZonePage = () => {
     setErrors({ ...errors, regions: '' });
     setShippingZonesObj((prevZones) =>
       prevZones.map((zone) =>
-        zone.id === zoneId
+        String(zone.id) === String(zoneId)
           ? {
               ...zone,
               regions: selectedRegion,
@@ -208,35 +178,27 @@ const ShippingZonePage = () => {
     setUnsavedDataStatus(true);
   };
 
-  const updateShippingZone = async () => {
-    const result = await updateSettingsAPI('shipping', {
-      shipping_zones: shippingZonesObj,
-    });
-
-    if (isApiSuccess(result)) {
-      dispatch(
-        updateSettings({
-          key: 'shipping',
-          value: result.data as SettingsSectionData,
-        }),
-      );
-      dispatch(setSelectedCountryList(selectedCountries));
-      if (zoneId !== undefined && zoneId !== null) {
-        dispatch(setActiveZoneId(zoneId as number));
-      }
-      setUnsavedDataStatus(false);
-      dispatchToastMessage('success', {
-        title: __('Shipping zone updated', 'kirki-ecommerce'),
-      });
-    } else {
-      const errorResult = result as { errors?: Record<string, unknown> };
-      setErrors(normalizeErrors(errorResult?.errors) as FormErrors);
-    }
+  const updateShippingZone = () => {
+    saveSettings(
+      {
+        key: 'shipping',
+        data: { shipping_zones: shippingZonesObj } as SettingsSectionData,
+      },
+      {
+        onSuccess: () => {
+          setUnsavedDataStatus(false);
+        },
+        onError: (error) => {
+          const errObj = error as { errors?: Record<string, unknown> };
+          setErrors(normalizeErrors(getErrorsObject(errObj.errors as Record<string, string[]>)) as FormErrors);
+        },
+      },
+    );
   };
 
   const handleBackButton = () => {
     const activeZoneData = shippingZonesObj?.find(
-      (zone) => zone?.id === zoneId,
+      (zone) => String(zone?.id) === String(zoneId),
     );
 
     checkUnsavedDataStatus({
@@ -258,11 +220,6 @@ const ShippingZonePage = () => {
       ),
     );
   };
-
-  const methodListKey =
-    activeZoneId !== null && activeZoneId !== undefined
-      ? activeZoneId
-      : zoneId;
 
   return (
     <>
@@ -352,14 +309,14 @@ const ShippingZonePage = () => {
             <ShippingMethod
               shippingSettingsData={shippingSettingsData}
               shippingMethodList={
-                methodListKey !== undefined && methodListKey !== null
-                  ? shippingMethodList[methodListKey] || []
+                activeZone
+                  ? shippingMethodList[activeZone.id] || []
                   : []
               }
               shippingZonesObj={shippingZonesObj}
               setShippingZonesObj={setShippingZonesObj}
+              zoneId={zoneId}
             />
-            {/* <ShippingCareer /> */}
           </Flex>
         ) : (
           <div>{__('Loading ...', 'kirki-ecommerce')}</div>

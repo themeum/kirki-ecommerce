@@ -1,14 +1,13 @@
 import type { Dispatch, SetStateAction } from 'react';
 
 import DropdownButton from '@/components/dropdown-button';
+import { useListParams } from '@/hooks';
 import { LayoutIcon, ListFilter } from '@/icons';
 import ActionGroup from '@/molecules/action-group';
 import Button from '@/molecules/button';
 import Flex from '@/molecules/flex';
 import Searchbox from '@/molecules/searchbox';
 import { Select } from '@/molecules/select';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { setKeyValue } from '@/store/inventorySlice';
 import { __ } from '@/wpi18n';
 
 import { allTableHeaders } from '@/pages/inventory/utils';
@@ -22,19 +21,16 @@ const InventoryTableAction = ({
   selectedFields,
   setSelectedFields,
 }: InventoryTableActionProps) => {
-  const dispatch = useAppDispatch();
-  const { search } = useAppSelector((state) => state.inventory);
-
-  const handleSearchChange = (value: string) => {
-    dispatch(setKeyValue({ key: 'search', value: value }));
-  };
+  const { params, setParam } = useListParams({
+    defaults: { sort_by: 'id', sort_order: 'asc', page: 1, limit: 20 },
+  });
 
   return (
     <Flex style={{ padding: '16px 12px' }}>
       <div style={{ width: '180px' }}>
         <Searchbox
-          onChange={(value) => handleSearchChange(value as string)}
-          value={search}
+          onChange={(value) => setParam('search', value as string)}
+          value={params.search}
           placeholder={__('Search Products', 'kirki-ecommerce')}
         />
       </div>
@@ -70,5 +66,7 @@ const InventoryTableAction = ({
     </Flex>
   );
 };
+
+InventoryTableAction.displayName = 'InventoryTableAction';
 
 export default InventoryTableAction;

@@ -17,16 +17,14 @@ import {
   TableHeader,
   TableRow,
 } from '@/molecules/table';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { updateVariants } from '@/store/productSlice';
+import { useProductForm } from '@/contexts/product-form-context';
 import type { SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
 
 import SingleGroup from '@/pages/products/edit-product/variants/variation-table/single-group';
 
 const VariationTable = () => {
-  const dispatch = useAppDispatch();
-  const { data: productData } = useAppSelector((state) => state.product);
+  const { product: productData, updateVariants } = useProductForm();
   const attributes = productData?.attributes || [];
   const variants = productData?.variants || [];
   const [showBy, setShowBy] = useState<number | null>(null);
@@ -68,13 +66,11 @@ const VariationTable = () => {
     value: unknown,
     fieldName: string,
   ) => {
-    dispatch(
-      updateVariants({
-        key: fieldName,
-        value: value,
-        variant_index: selectedIndex,
-      }),
-    );
+    updateVariants({
+      key: fieldName,
+      value: value,
+      variant_index: selectedIndex,
+    });
   };
 
   const showByOptions: SelectOption[] = attributes.map((attr) => ({

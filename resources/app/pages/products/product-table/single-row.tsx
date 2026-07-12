@@ -17,9 +17,11 @@ const SingleRow = ({
   handleSingleCheckboxClick,
 }: SingleRowProps) => {
   const navigate = useNavigate();
+
   const handleItemClick = (id: number) => {
     navigate('/products/' + id);
   };
+
   return (
     <TableRow key={item.id}>
       <TableCell onlyCheckbox>
@@ -51,5 +53,7 @@ const SingleRow = ({
     </TableRow>
   );
 };
+
+SingleRow.displayName = 'SingleRow';
 
 export default SingleRow;

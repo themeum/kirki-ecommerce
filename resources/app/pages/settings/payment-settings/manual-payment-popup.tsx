@@ -12,13 +12,12 @@ import {
 } from '@/molecules/popover';
 import RichText from '@/molecules/rich-text';
 import Text from '@/molecules/text';
+import { getErrorsObject } from '@/libs/api';
 import {
-  createPaymentMethodAPI,
-  updatePaymentMethodAPI,
-} from '@/store/settingsSlice';
-import { getErrorsObject } from '@/store/utils';
+  useCreatePaymentMethodMutation,
+  useUpdatePaymentMethodMutation,
+} from '@/services/payment';
 import type { FormErrors, MediaChangePayload, PaymentMethod } from '@/types';
-import { isApiSuccess } from '@/types/pages/api-guards';
 import { __, sprintf } from '@/wpi18n';
 
 type ManualPaymentFormData = PaymentMethod & {
@@ -32,7 +31,6 @@ type ManualPaymentFormData = PaymentMethod & {
 type ManualPaymentPopupProps = {
   openPopup: boolean;
   setOpenPopup: Dispatch<SetStateAction<boolean>>;
-  setIsMethodListUpdated: Dispatch<SetStateAction<boolean>>;
   editingMethod: PaymentMethod | null;
   setEditingMethod: Dispatch<SetStateAction<PaymentMethod | null>>;
 };
@@ -41,7 +39,6 @@ const ManualPaymentPopup = (props: ManualPaymentPopupProps) => {
   const {
     openPopup,
     setOpenPopup,
-    setIsMethodListUpdated,
     editingMethod,
     setEditingMethod,
   } = props;
@@ -49,6 +46,9 @@ const ManualPaymentPopup = (props: ManualPaymentPopupProps) => {
   const [manualPaymentData, setManualPaymentData] =
     useState<ManualPaymentFormData>({} as ManualPaymentFormData);
   const [errors, setErrors] = useState<FormErrors>({});
+
+  const { mutate: createMethod } = useCreatePaymentMethodMutation();
+  const { mutate: updateMethod } = useUpdatePaymentMethodMutation();
 
   useEffect(() => {
     if (editingMethod) {
@@ -80,27 +80,33 @@ const ManualPaymentPopup = (props: ManualPaymentPopupProps) => {
     }));
   };
 
-  const handleSaveOrUpdateData = async () => {
+  const handleSaveOrUpdateData = () => {
     const isEdit = Boolean(editingMethod);
-    const result = isEdit
-      ? await updatePaymentMethodAPI(
-          editingMethod!.id,
-          manualPaymentData as Record<string, unknown>,
-        )
-      : await createPaymentMethodAPI(
-          manualPaymentData as Record<string, unknown>,
-        );
+    const onSuccess = () => {
+      setIcon('');
+      setManualPaymentData({} as ManualPaymentFormData);
+      setOpenPopup(false);
+      setEditingMethod(null);
+    };
+    const onError = (error: unknown) => {
+      const errObj = error as { errors?: Record<string, string[]> };
+      setErrors(getErrorsObject(errObj.errors));
+    };
 
-    if (!isApiSuccess(result)) {
-      const errorPayload = result as { errors?: Record<string, string[]> };
-      setErrors(getErrorsObject(errorPayload.errors));
-      return;
+    if (isEdit) {
+      updateMethod(
+        {
+          id: editingMethod!.id,
+          data: manualPaymentData as Record<string, unknown>,
+        },
+        { onSuccess, onError },
+      );
+    } else {
+      createMethod(manualPaymentData as Record<string, unknown>, {
+        onSuccess,
+        onError,
+      });
     }
-    setIcon('');
-    setManualPaymentData({} as ManualPaymentFormData);
-    setOpenPopup(false);
-    setEditingMethod(null);
-    setIsMethodListUpdated(true);
   };
 
   return (
@@ -181,5 +187,7 @@ const ManualPaymentPopup = (props: ManualPaymentPopupProps) => {
     </>
   );
 };
+
+ManualPaymentPopup.displayName = 'ManualPaymentPopup';
 
 export default ManualPaymentPopup;

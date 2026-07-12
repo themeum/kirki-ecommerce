@@ -3,7 +3,7 @@ import React from 'react';
 import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
 import { Select } from '@/molecules/select';
-import { useAppSelector } from '@/store/hooks';
+import { useProductForm } from '@/contexts/product-form-context';
 import type { FormErrors } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -23,7 +23,7 @@ const RightPanel = ({
   errors,
   setErrors,
 }: RightPanelProps) => {
-  const { data: productData } = useAppSelector((state) => state.product);
+  const { product: productData } = useProductForm();
 
   return (
     <div style={{ width: '30%' }}>
@@ -62,5 +62,7 @@ const RightPanel = ({
     </div>
   );
 };
+
+RightPanel.displayName = 'RightPanel';
 
 export default RightPanel;

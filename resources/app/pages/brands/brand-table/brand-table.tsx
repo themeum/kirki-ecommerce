@@ -1,6 +1,6 @@
 import BulkActionHandler from '@/components/bulk-action-handler';
 import Sorting from '@/components/sorting';
-import { useMarkList } from '@/hooks';
+import { useListParams, useMarkList } from '@/hooks';
 import Checkbox from '@/molecules/checkbox';
 import {
   Table,
@@ -9,26 +9,42 @@ import {
   TableHeader,
   TableRow,
 } from '@/molecules/table';
-import {
-  deleteBrandsAPI,
-  setKeyValue,
-} from '@/store/brandsSlice';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import type { TaxonomyTableHeader } from '@/types';
-import { isApiSuccess } from '@/types/pages/api-guards';
+import { useBulkDeleteBrandsMutation } from '@/services/brand';
+import type { Brand, PaginatedData, TaxonomyTableHeader } from '@/types';
 import { __ } from '@/wpi18n';
 
 import BrandTableAction from '@/pages/brands/brand-table/brand-table-action';
 import SingleRow from '@/pages/brands/brand-table/single-row';
 
-const BrandTable = () => {
+type BrandTableProps = {
+  data: PaginatedData<Brand>;
+  isFetching?: boolean;
+};
+
+const BrandTable = ({ data }: BrandTableProps) => {
+  const { params, setParams } = useListParams({
+    defaults: {
+      search: '',
+      sort_by: 'name',
+      sort_order: 'asc',
+      page: 1,
+      limit: 10,
+    },
+  });
+  const bulkDeleteMutation = useBulkDeleteBrandsMutation();
+
+  const handleSort = (sortBy: string, sortOrder: 'asc' | 'desc') => {
+    setParams({ sort_by: sortBy, sort_order: sortOrder });
+  };
+
   const tableHeaders: TaxonomyTableHeader[] = [
     {
       title: __('Name', 'kirki-ecommerce'),
       sortable: {
         sort_by: 'name',
-        reducer: 'brands',
-        setKeyValue: setKeyValue,
+        activeSortBy: params.sort_by,
+        sortOrder: params.sort_order,
+        onSort: handleSort,
       },
     },
     { title: __('Image', 'kirki-ecommerce') },
@@ -36,30 +52,32 @@ const BrandTable = () => {
       title: __('Description', 'kirki-ecommerce'),
       sortable: {
         sort_by: 'description',
-        reducer: 'brands',
-        setKeyValue: setKeyValue,
+        activeSortBy: params.sort_by,
+        sortOrder: params.sort_order,
+        onSort: handleSort,
       },
     },
     {
       title: __('Slug', 'kirki-ecommerce'),
       sortable: {
         sort_by: 'slug',
-        reducer: 'brands',
-        setKeyValue: setKeyValue,
+        activeSortBy: params.sort_by,
+        sortOrder: params.sort_order,
+        onSort: handleSort,
       },
     },
     {
       title: __('Count', 'kirki-ecommerce'),
       sortable: {
         sort_by: 'count',
-        reducer: 'brands',
-        setKeyValue: setKeyValue,
+        activeSortBy: params.sort_by,
+        sortOrder: params.sort_order,
+        onSort: handleSort,
       },
     },
   ];
-  const dispatch = useAppDispatch();
-  const data = useAppSelector((state) => state.brands?.data);
-  const { results, total, per_page } = data!;
+
+  const { results, total, per_page } = data;
 
   const {
     handleSelectAll,
@@ -69,37 +87,34 @@ const BrandTable = () => {
     isSelected,
     selectedItems,
     itemCount,
-  } = useMarkList({ data: data! });
+  } = useMarkList({ data });
 
   const handleApplyAction = async (action: string) => {
-    if (action === 'delete') {
-      let result = {} as Awaited<ReturnType<typeof deleteBrandsAPI>>;
-      if (selectedItems.includes('*')) {
-        result = await deleteBrandsAPI({
-          action: 'delete-all',
-          ids: null,
-        });
-      } else {
-        result = await deleteBrandsAPI({
-          action: 'delete',
-          ids: selectedItems as number[],
-        });
-      }
-
-      if (isApiSuccess(result)) {
-        dispatch(setKeyValue({ key: 'toggler', value: Date.now() }));
-        handleClearSelection();
-      } else {
-        console.log(result);
-      }
+    if (action !== 'delete') {
+      return;
     }
+
+    if (selectedItems.includes('*')) {
+      await bulkDeleteMutation.mutateAsync({
+        action: 'delete-all',
+        ids: null,
+      });
+    } else {
+      await bulkDeleteMutation.mutateAsync({
+        action: 'delete',
+        ids: selectedItems as number[],
+      });
+    }
+    handleClearSelection();
   };
 
   return (
     <>
       {selectedItems.length > 0 ? (
         <BulkActionHandler
-          optionsArray={[{ value: 'delete', title: __('Delete', 'kirki-ecommerce') }]}
+          optionsArray={[
+            { value: 'delete', title: __('Delete', 'kirki-ecommerce') },
+          ]}
           itemCount={itemCount}
           onSelectAll={handleSelectAll}
           onApply={(action) => handleApplyAction(action as string)}
@@ -141,5 +156,7 @@ const BrandTable = () => {
     </>
   );
 };
+
+BrandTable.displayName = 'BrandTable';
 
 export default BrandTable;

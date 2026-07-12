@@ -1,6 +1,6 @@
 import BulkActionHandler from '@/components/bulk-action-handler';
 import Sorting from '@/components/sorting';
-import { useMarkList } from '@/hooks';
+import { useListParams, useMarkList } from '@/hooks';
 import Checkbox from '@/molecules/checkbox';
 import {
   Table,
@@ -9,53 +9,74 @@ import {
   TableHeader,
   TableRow,
 } from '@/molecules/table';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { deleteTagsAPI, setKeyValue } from '@/store/tagsSlice';
-import type { TaxonomyTableHeader } from '@/types';
-import { isApiSuccess } from '@/types/pages/api-guards';
+import { useBulkDeleteTagsMutation } from '@/services/tag';
+import type { PaginatedData, Tag, TaxonomyTableHeader } from '@/types';
 import { __ } from '@/wpi18n';
 
 import TagTableAction from '@/pages/tags/tag-table/tag-table-action';
 import SingleRow from '@/pages/tags/tag-table/single-row';
 
-const TagTable = () => {
+type TagTableProps = {
+  data: PaginatedData<Tag>;
+  isFetching?: boolean;
+};
+
+const TagTable = ({ data }: TagTableProps) => {
+  const { params, setParams } = useListParams({
+    defaults: {
+      search: '',
+      sort_by: 'name',
+      sort_order: 'asc',
+      page: 1,
+      limit: 10,
+    },
+  });
+  const bulkDeleteMutation = useBulkDeleteTagsMutation();
+
+  const handleSort = (sortBy: string, sortOrder: 'asc' | 'desc') => {
+    setParams({ sort_by: sortBy, sort_order: sortOrder });
+  };
+
   const tableHeaders: TaxonomyTableHeader[] = [
     {
       title: __('Name', 'kirki-ecommerce'),
       sortable: {
         sort_by: 'name',
-        reducer: 'tags',
-        setKeyValue: setKeyValue,
+        activeSortBy: params.sort_by,
+        sortOrder: params.sort_order,
+        onSort: handleSort,
       },
     },
     {
       title: __('Description', 'kirki-ecommerce'),
       sortable: {
         sort_by: 'description',
-        reducer: 'tags',
-        setKeyValue: setKeyValue,
+        activeSortBy: params.sort_by,
+        sortOrder: params.sort_order,
+        onSort: handleSort,
       },
     },
     {
       title: __('Slug', 'kirki-ecommerce'),
       sortable: {
         sort_by: 'slug',
-        reducer: 'tags',
-        setKeyValue: setKeyValue,
+        activeSortBy: params.sort_by,
+        sortOrder: params.sort_order,
+        onSort: handleSort,
       },
     },
     {
       title: __('Count', 'kirki-ecommerce'),
       sortable: {
         sort_by: 'count',
-        reducer: 'tags',
-        setKeyValue: setKeyValue,
+        activeSortBy: params.sort_by,
+        sortOrder: params.sort_order,
+        onSort: handleSort,
       },
     },
   ];
-  const dispatch = useAppDispatch();
-  const data = useAppSelector((state) => state.tags?.data);
-  const { results } = data!;
+
+  const { results, total, per_page } = data;
 
   const {
     handleSelectAll,
@@ -65,40 +86,39 @@ const TagTable = () => {
     isSelected,
     selectedItems,
     itemCount,
-  } = useMarkList({ data: data! });
+  } = useMarkList({ data });
 
   const handleApplyAction = async (action: string) => {
-    if (action === 'delete') {
-      let result = {} as Awaited<ReturnType<typeof deleteTagsAPI>>;
-      if (selectedItems.includes('*')) {
-        result = await deleteTagsAPI({
-          action: 'delete-all',
-          ids: null,
-        });
-      } else {
-        result = await deleteTagsAPI({
-          action: 'delete',
-          ids: selectedItems as number[],
-        });
-      }
-
-      if (isApiSuccess(result)) {
-        dispatch(setKeyValue({ key: 'toggler', value: Date.now() }));
-        handleClearSelection();
-      } else {
-        console.log(result);
-      }
+    if (action !== 'delete') {
+      return;
     }
+
+    if (selectedItems.includes('*')) {
+      await bulkDeleteMutation.mutateAsync({
+        action: 'delete-all',
+        ids: null,
+      });
+    } else {
+      await bulkDeleteMutation.mutateAsync({
+        action: 'delete',
+        ids: selectedItems as number[],
+      });
+    }
+    handleClearSelection();
   };
 
   return (
     <>
       {selectedItems.length > 0 ? (
         <BulkActionHandler
-          optionsArray={[{ value: 'delete', title: __('Delete', 'kirki-ecommerce') }]}
+          optionsArray={[
+            { value: 'delete', title: __('Delete', 'kirki-ecommerce') },
+          ]}
           itemCount={itemCount}
           onSelectAll={handleSelectAll}
           onApply={(action) => handleApplyAction(action as string)}
+          total={total}
+          per_page={per_page}
         />
       ) : (
         <TagTableAction />
@@ -110,6 +130,7 @@ const TagTable = () => {
               <Checkbox
                 value={isSelected('*')}
                 onChange={handleAllCheckboxClick}
+                isPartialChecked={itemCount > 0 && itemCount < total}
               />
             </TableHead>
             {tableHeaders.map((header, index) => (
@@ -134,5 +155,7 @@ const TagTable = () => {
     </>
   );
 };
+
+TagTable.displayName = 'TagTable';
 
 export default TagTable;

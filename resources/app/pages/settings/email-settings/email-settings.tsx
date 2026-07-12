@@ -9,14 +9,9 @@ import Container from '@/molecules/container';
 import Flex from '@/molecules/flex';
 import PageHeading from '@/molecules/page-heading';
 import Text from '@/molecules/text';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import {
-  getSettingsAPI,
-  updateSettings,
-  updateSettingsAPI,
-} from '@/store/settingsSlice';
+import { useUnsavedStatus } from '@/libs/unsaved-store';
+import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import type { SettingsSectionData } from '@/types';
-import { isApiSuccess } from '@/types/pages/api-guards';
 import { __ } from '@/wpi18n';
 
 import { checkUnsavedDataStatus, setUnsavedDataStatus } from '@/pages/settings/utils';
@@ -50,12 +45,13 @@ const handleEditOrder = (item: EmailListItem) => console.log('Edit:', item);
 
 const EmailSettings = () => {
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
   const { confirmAction } = useOutletContext<SettingsOutletContext>();
-  const hasUnsavedData = useAppSelector((state) => state.unsaved?.hasUnsavedData);
-  const { loaded, data: emailSettingsData } = useAppSelector(
-    (state) => state.settings?.email,
-  );
+  const hasUnsavedData = useUnsavedStatus();
+
+  const { data: emailSettingsData, isLoading } = useSettingsQuery('email');
+  const { mutate: saveSettings } = useUpdateSettingsMutation();
+
+  const loaded = !isLoading && Boolean(emailSettingsData);
   const [dataObj, setDataObj] = useState<EmailSettingsFormData>({});
   const adminEmails = dataObj?.admin_emails;
   const customerEmails = dataObj?.customer_emails;
@@ -66,26 +62,14 @@ const EmailSettings = () => {
     }
   }, [emailSettingsData]);
 
-  useEffect(() => {
-    if (!loaded) {
-      dispatch(getSettingsAPI('email', {}));
-    }
-  }, []);
-
-  const handleSaveData = async () => {
-    const result = await updateSettingsAPI('email', dataObj);
-    if (isApiSuccess(result)) {
-      setUnsavedDataStatus(false);
-      dispatch(
-        updateSettings({
-          key: 'email',
-          value: result.data as SettingsSectionData,
-        }),
-      );
-    }
+  const handleSaveData = () => {
+    saveSettings(
+      { key: 'email', data: dataObj },
+      { onSuccess: () => setUnsavedDataStatus(false) },
+    );
   };
 
-  const handleToggleOrder = async (item: EmailListItem) => {
+  const handleToggleOrder = (item: EmailListItem) => {
     const matchedConfigKey = Object.keys(EMAIL_CONFIG).find((k) =>
       item.key.includes(k),
     );
@@ -228,5 +212,7 @@ const EmailSettings = () => {
     </>
   );
 };
+
+EmailSettings.displayName = 'EmailSettings';
 
 export default EmailSettings;

@@ -3,9 +3,8 @@ import Container from '@/molecules/container';
 import Flex from '@/molecules/flex';
 import PageHeading from '@/molecules/page-heading';
 import Pagination from '@/components/pagination';
-import { useGetListAPI } from '@/hooks';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { getBrandsAPI, setKeyValue } from '@/store/brandsSlice';
+import { useListParams } from '@/hooks';
+import { useBrandsQuery } from '@/services/brand';
 import type { PaginationData } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -13,12 +12,22 @@ import BrandTable from '@/pages/brands/brand-table/brand-table';
 import NewBrand from '@/pages/brands/new-brand';
 
 const Brands = () => {
-  const dispatch = useAppDispatch();
-  const { loaded, data } = useAppSelector((state) => state.brands);
-  useGetListAPI({ reducerName: 'brands', apiCallBack: getBrandsAPI });
+  const { params, setParam } = useListParams({
+    defaults: {
+      search: '',
+      sort_by: 'name',
+      sort_order: 'asc',
+      page: 1,
+      limit: 10,
+    },
+  });
+  const { data, isLoading, isFetching } = useBrandsQuery(params);
+
   const handlePaginationChange = (value: number) => {
-    dispatch(setKeyValue({ key: 'page', value: value }));
+    setParam('page', value);
   };
+
+  const loaded = !isLoading && Boolean(data);
 
   return (
     <>
@@ -27,7 +36,7 @@ const Brands = () => {
         {loaded ? (
           <Flex direction="column" gap={16}>
             <Card type="table">
-              <BrandTable />
+              <BrandTable data={data!} isFetching={isFetching} />
             </Card>
             <Pagination
               data={data as PaginationData}
@@ -41,5 +50,7 @@ const Brands = () => {
     </>
   );
 };
+
+Brands.displayName = 'Brands';
 
 export default Brands;

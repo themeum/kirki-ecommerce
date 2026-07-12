@@ -1,30 +1,20 @@
 import { useEffect, useState } from 'react';
 
-import { useGetListAPI } from '@/hooks';
 import { ColorPaletteIcon, ListIcon } from '@/icons';
 import ActionGroup from '@/molecules/action-group';
 import Button from '@/molecules/button';
 import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
 import Searchbox from '@/molecules/searchbox';
-import {
-  addAttributeAPI,
-  getAttributesAPI,
-  setKeyValue,
-} from '@/store/attributesSlice';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import {
-  updateProduct,
-  updateProductAttributes,
-} from '@/store/productSlice';
-import { getErrorsObject } from '@/store/utils';
+import { useProductForm } from '@/contexts/product-form-context';
+import { useAttributesQuery, useCreateAttributeMutation } from '@/services/attribute';
+import { getErrorsObject } from '@/libs/api';
 import type {
   Attribute,
   AttributeFormData,
   FormErrors,
   SelectOption,
 } from '@/types';
-import { isApiSuccess } from '@/types/pages/api-guards';
 import { __ } from '@/wpi18n';
 
 import AddOrEditVariation from '@/pages/products/edit-product/variants/attribute-list/add-or-edit-variation';
@@ -61,17 +51,11 @@ type AddOrEditAttributeProps = {
 const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
   const { onClose = () => {}, data, onSave = () => {} } = props;
 
-  const dispatch = useAppDispatch();
-  const { data: productData } = useAppSelector((state) => state.product);
+  const { product: productData, updateProduct, updateProductAttributes } = useProductForm();
   const { attributes: productAttributes } = productData;
-  useGetListAPI({
-    reducerName: 'attributes',
-    apiCallBack: getAttributesAPI,
-    limit: -1,
-  });
-  const { loaded, data: allAttributesList } = useAppSelector(
-    (state) => state.attributes,
-  );
+  const { data: allAttributesList, isSuccess: loaded } = useAttributesQuery({ limit: -1 });
+  const createAttributeMutation = useCreateAttributeMutation();
+
   const [formData, setFormData] = useState<AttributeFormState | undefined>(
     data,
   );
@@ -147,12 +131,9 @@ const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
     const result = (await onSave()) as SaveResult | undefined;
 
     if (result?.success) {
-      console.log(result, 'success');
-      dispatch(updateProductAttributes(attribuleList));
-      dispatch(updateProduct({ key: 'has_variants', value: true }));
+      updateProductAttributes(attribuleList);
+      updateProduct({ key: 'has_variants', value: true });
       handleOnClose();
-    } else {
-      console.log(result, 'error');
     }
   };
 
@@ -177,7 +158,6 @@ const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
       name: v,
       type: type as string,
     }));
-    dispatch(setKeyValue({ key: 'search', value: v }));
     setVariationErrors((prev) => ({
       ...prev,
       attribute_id: null,
@@ -190,10 +170,9 @@ const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
       name: value,
       type: type as string,
     };
-    const result = await addAttributeAPI(newAttribute);
-    if (isApiSuccess(result)) {
-      dispatch(setKeyValue({ key: 'search', value: '' }));
-      const attributeData = result.data as Attribute & { slug?: string };
+    try {
+      const response = await createAttributeMutation.mutateAsync(newAttribute);
+      const attributeData = response.data as Attribute & { slug?: string };
       const { id, name, slug, type: attrType, values } = attributeData;
       setFormData({
         id,
@@ -202,10 +181,10 @@ const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
         type: attrType,
         values: values as AttributeFormValue[],
       });
-    } else {
-      const errorPayload = result as { errors?: Record<string, string[]> };
-      setVariationErrors(getErrorsObject(errorPayload.errors));
-      console.log(result, 'error');
+    } catch (error) {
+      setVariationErrors(
+        getErrorsObject((error as { errors?: Record<string, string[]> }).errors),
+      );
     }
   };
 
@@ -331,6 +310,8 @@ const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
     </>
   );
 };
+
+AddOrEditAttribute.displayName = 'AddOrEditAttribute';
 
 export default AddOrEditAttribute;
 

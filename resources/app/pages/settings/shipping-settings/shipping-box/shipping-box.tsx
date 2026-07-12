@@ -3,17 +3,13 @@ import { useEffect, useState, type ReactNode } from 'react';
 import Card from '@/molecules/card';
 import GroupOptionCard from '@/components/group-option-card';
 import HeaderActionsCard from '@/components/header-actions-card';
-import {
-  deleteShippingBoxByIdAPI,
-  getShippingBoxListAPI,
-  updateShippingBoxAPI,
-  setKeyValue,
-} from '@/store/settingsSlice';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { useGetListAPI } from '@/hooks';
 import { dispatchToastMessage } from '@/pages/utils';
+import {
+  useShippingBoxesQuery,
+  useUpdateShippingBoxMutation,
+  useDeleteShippingBoxMutation,
+} from '@/services/shipping';
 import type { ShippingBox as ShippingBoxType } from '@/types';
-import { isApiSuccess } from '@/types';
 import { __ } from '@/wpi18n';
 
 import ShippingBoxPopup from '@/pages/settings/shipping-settings/shipping-box/shipping-box-popup';
@@ -31,42 +27,13 @@ type ShippingBoxListItem = ShippingBoxType & {
 };
 
 const ShippingBox = () => {
-  const dispatch = useAppDispatch();
   const [openPopup, setOpenPopup] = useState(false);
-  const [shippingBoxList, setShippingBoxList] = useState<
-    ShippingBoxListItem[]
-  >([]);
-  const [editedItem, setEditedItem] = useState<ShippingBoxListItem | null>(
-    null,
-  );
-  useGetListAPI({
-    reducerName: 'settings',
-    apiCallBack: getShippingBoxListAPI,
-    nestedToggler: ['shipping', 'shippingBox'],
-    limit: -1,
-  });
-  const { data: shippingBox } = useAppSelector(
-    (state) => state.settings?.shipping?.shippingBox,
-  );
+  const [shippingBoxList, setShippingBoxList] = useState<ShippingBoxListItem[]>([]);
+  const [editedItem, setEditedItem] = useState<ShippingBoxListItem | null>(null);
 
-  useEffect(() => {
-    fetchShippingBoxList();
-  }, [shippingBox]);
-
-  const openCreatePopup = () => {
-    setEditedItem(null);
-    setOpenPopup(true);
-  };
-
-  const openEditPopup = (item: ShippingBoxListItem) => {
-    setEditedItem(item);
-    setOpenPopup(true);
-  };
-
-  const closePopup = () => {
-    setOpenPopup(false);
-    setEditedItem(null);
-  };
+  const { data: shippingBoxes = [], refetch } = useShippingBoxesQuery({ limit: -1 });
+  const { mutate: updateBox } = useUpdateShippingBoxMutation();
+  const { mutate: deleteBox } = useDeleteShippingBoxMutation();
 
   const getActionArray = (box: ShippingBoxListItem): BoxAction[] => {
     if (box.is_default) {
@@ -86,24 +53,31 @@ const ShippingBox = () => {
     ];
   };
 
-  const fetchShippingBoxList = () => {
-    const updatedList = shippingBox?.map((box) => ({
+  useEffect(() => {
+    const updatedList = shippingBoxes.map((box) => ({
       ...box,
-      is_action_disabled: box.is_default === true,
+      is_action_disabled: (box as ShippingBoxListItem).is_default === true,
       actionsArray: getActionArray(box as ShippingBoxListItem),
     }));
+    setShippingBoxList(updatedList as ShippingBoxListItem[]);
+  }, [shippingBoxes]);
 
-    setShippingBoxList((updatedList as ShippingBoxListItem[]) ?? []);
+  const openCreatePopup = () => {
+    setEditedItem(null);
+    setOpenPopup(true);
   };
 
-  useEffect(() => {
-    if (shippingBox && shippingBox.length) {
-      fetchShippingBoxList();
-    }
-  }, [shippingBox?.length]);
+  const openEditPopup = (item: ShippingBoxListItem) => {
+    setEditedItem(item);
+    setOpenPopup(true);
+  };
 
-  const handleAction = async (action: string, item: ShippingBoxListItem) => {
-    let result;
+  const closePopup = () => {
+    setOpenPopup(false);
+    setEditedItem(null);
+  };
+
+  const handleAction = (action: string, item: ShippingBoxListItem) => {
     if (action === 'delete') {
       const initialList = [...shippingBoxList];
       setShippingBoxList((boxList) =>
@@ -117,7 +91,9 @@ const ShippingBox = () => {
           setShippingBoxList(initialList);
         },
         onSuccess: async () => {
-          result = await deleteShippingBoxByIdAPI(item?.id);
+          deleteBox(item?.id as number, {
+            onSuccess: () => refetch(),
+          });
         },
       });
     } else {
@@ -125,21 +101,19 @@ const ShippingBox = () => {
         ...item,
         is_default: !item?.is_default,
       };
-      result = await updateShippingBoxAPI(item?.id, data);
-    }
-    if (isApiSuccess(result)) {
-      dispatch(
-        setKeyValue({
-          key: 'toggler',
-          value: Date.now(),
-          nestedToggler: ['shipping', 'shippingBox'],
-        }),
+      updateBox(
+        { id: item?.id as number, data: data as Record<string, unknown> },
+        {
+          onSuccess: () => {
+            dispatchToastMessage('success', {
+              title: item?.is_default
+                ? __('Shipping box unset as default', 'kirki-ecommerce')
+                : __('Shipping box set as default', 'kirki-ecommerce'),
+            });
+            refetch();
+          },
+        },
       );
-      dispatchToastMessage('success', {
-        title: item?.is_default
-          ? __('Shipping box unset as default', 'kirki-ecommerce')
-          : __('Shipping box set as default', 'kirki-ecommerce'),
-      });
     }
   };
 
@@ -172,7 +146,7 @@ const ShippingBox = () => {
           isOpen={openPopup}
           onClose={closePopup}
           selectedItem={editedItem}
-          fetchShippingBoxList={fetchShippingBoxList}
+          onSave={() => refetch()}
         />
       )}
     </>

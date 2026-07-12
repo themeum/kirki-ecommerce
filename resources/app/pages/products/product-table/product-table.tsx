@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
 import BulkActionHandler from '@/components/bulk-action-handler';
-import { useMarkList } from '@/hooks';
+import { useListParams, useMarkList } from '@/hooks';
 import Checkbox from '@/molecules/checkbox';
 import {
   Table,
@@ -10,9 +10,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/molecules/table';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { deleteProductsAPI, setKeyValue } from '@/store/productsSlice';
-import { isApiSuccess } from '@/types/pages/api-guards';
+import { useBulkDeleteProductsMutation } from '@/services/product';
+import type { PaginatedData, ProductListItem } from '@/types';
 import { __ } from '@/wpi18n';
 
 import FilterPopup from '@/pages/products/product-table/filter-popup/filter-popup';
@@ -24,7 +23,12 @@ type TableHeader = {
   title: string;
 };
 
-const ProductTable = () => {
+type ProductTableProps = {
+  data: PaginatedData<ProductListItem>;
+  isFetching?: boolean;
+};
+
+const ProductTable = ({ data }: ProductTableProps) => {
   const tableHeaders: TableHeader[] = [
     { title: __('Product', 'kirki-ecommerce') },
     { title: __('SKU', 'kirki-ecommerce') },
@@ -34,10 +38,19 @@ const ProductTable = () => {
     { title: __('Date', 'kirki-ecommerce') },
   ];
 
-  const dispatch = useAppDispatch();
-  const data = useAppSelector((state) => state.products?.data);
-  const filterData = useAppSelector((state) => state.products?.filter);
-  const { results, total, per_page } = data!;
+  const { params } = useListParams({
+    defaults: {
+      search: '',
+      sort_by: 'title',
+      sort_order: 'asc',
+      page: 1,
+      limit: 10,
+    },
+  });
+
+  const { results, total, per_page } = data;
+
+  const bulkDeleteMutation = useBulkDeleteProductsMutation();
 
   const {
     handleSelectAll,
@@ -48,34 +61,43 @@ const ProductTable = () => {
     isPartiallySelected,
     selectedItems,
     itemCount,
-  } = useMarkList({ data: data! });
+  } = useMarkList({ data });
+
+  const hasActiveFilters = Boolean(
+    params.category_ids?.length ||
+      params.brand_ids?.length ||
+      params.collection_ids?.length ||
+      params.status ||
+      params.stock_status,
+  );
 
   useEffect(() => {
     handleClearSelection();
-  }, [filterData]);
+  }, [
+    params.category_ids,
+    params.brand_ids,
+    params.collection_ids,
+    params.status,
+    params.stock_status,
+  ]);
 
   const handleApplyAction = async (action: string) => {
-    if (action === 'delete') {
-      let result = {} as Awaited<ReturnType<typeof deleteProductsAPI>>;
-      if (selectedItems.includes('*')) {
-        result = await deleteProductsAPI({
-          action: 'delete-all',
-          ids: null,
-        });
-      } else {
-        result = await deleteProductsAPI({
-          action: 'delete',
-          ids: selectedItems as number[],
-        });
-      }
-
-      if (isApiSuccess(result)) {
-        dispatch(setKeyValue({ key: 'toggler', value: Date.now() }));
-        handleClearSelection();
-      } else {
-        console.log(result);
-      }
+    if (action !== 'delete') {
+      return;
     }
+
+    if (selectedItems.includes('*')) {
+      await bulkDeleteMutation.mutateAsync({
+        action: 'delete-all',
+        ids: null,
+      });
+    } else {
+      await bulkDeleteMutation.mutateAsync({
+        action: 'delete',
+        ids: selectedItems as number[],
+      });
+    }
+    handleClearSelection();
   };
 
   return (
@@ -95,9 +117,7 @@ const ProductTable = () => {
       ) : (
         <ProductTableAction />
       )}
-      {filterData && Object.keys(filterData).length > 0 ? (
-        <ProductTableFilterAction />
-      ) : null}
+      {hasActiveFilters ? <ProductTableFilterAction /> : null}
 
       <Table fixed>
         <TableHeader>
@@ -128,5 +148,7 @@ const ProductTable = () => {
     </>
   );
 };
+
+ProductTable.displayName = 'ProductTable';
 
 export default ProductTable;

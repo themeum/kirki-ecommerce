@@ -4,8 +4,7 @@ import GroupTagTable from '@/components/group-tag-table';
 import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
 import { Select } from '@/molecules/select';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { updateProduct } from '@/store/productSlice';
+import { useProductForm } from '@/contexts/product-form-context';
 import type { FormErrors, SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -19,15 +18,14 @@ type SchemaProps = {
 type GroupedValues = Record<string, Array<string | number>>;
 
 const Schema = ({ errors, setErrors }: SchemaProps) => {
-  const dispatch = useAppDispatch();
-  const { data: productData } = useAppSelector((state) => state.product);
+  const { product: productData, updateProduct } = useProductForm();
   const [selectedValues, setSelectedValues] = useState<GroupedValues>({
     Product: ['name'],
     Offer: ['price'],
   });
 
   const handleOnChange = (value: unknown, fieldName: string) => {
-    dispatch(updateProduct({ key: fieldName, value: value }));
+    updateProduct({ key: fieldName, value: value });
     setErrors((prev) => ({
       ...prev,
       [fieldName]: null,

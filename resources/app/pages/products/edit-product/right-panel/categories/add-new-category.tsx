@@ -7,21 +7,15 @@ import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
 import Input from '@/molecules/input';
 import { Select } from '@/molecules/select';
-import {
-  addCategoryAPI,
-  setKeyValue,
-} from '@/store/categoriesSlice';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { getErrorsObject } from '@/store/utils';
+import { useCreateCategoryMutation, useCategoriesQuery } from '@/services/category';
+import { getErrorsObject } from '@/libs/api';
 import type { CategoryFormData, FormErrors, SelectOption } from '@/types';
-import { isApiSuccess } from '@/types/pages/api-guards';
 import { __ } from '@/wpi18n';
 
 const AddNewCategory = () => {
-  const dispatch = useAppDispatch();
-  const { results: categories } = useAppSelector(
-    (state) => state.categories?.data,
-  ) ?? { results: [] };
+  const { data: categoryData } = useCategoriesQuery({ limit: -1 });
+  const categories = categoryData?.results ?? [];
+  const createCategoryMutation = useCreateCategoryMutation();
   const [show, setShow] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [categoryFormData, setCategoryFormData] = useState<CategoryFormData>(
@@ -45,13 +39,13 @@ const AddNewCategory = () => {
   };
 
   const handleAddOrUpdateCategory = async () => {
-    const result = await addCategoryAPI(categoryFormData);
-    if (isApiSuccess(result)) {
-      dispatch(setKeyValue({ key: 'toggler', value: Date.now() }));
+    try {
+      await createCategoryMutation.mutateAsync(categoryFormData);
       setShow(false);
-    } else {
-      const errorPayload = result as { errors?: Record<string, string[]> };
-      setErrors(getErrorsObject(errorPayload.errors));
+    } catch (error) {
+      setErrors(
+        getErrorsObject((error as { errors?: Record<string, string[]> }).errors),
+      );
     }
   };
 
@@ -60,11 +54,12 @@ const AddNewCategory = () => {
       title: __('None', 'kirki-ecommerce'),
       value: null as unknown as string | number,
     },
-    ...(categories || []).map((category) => ({
+    ...categories.map((category) => ({
       title: category.name,
       value: category.id,
     })),
   ];
+
   return (
     <>
       {show ? (
@@ -110,5 +105,7 @@ const AddNewCategory = () => {
     </>
   );
 };
+
+AddNewCategory.displayName = 'AddNewCategory';
 
 export default AddNewCategory;

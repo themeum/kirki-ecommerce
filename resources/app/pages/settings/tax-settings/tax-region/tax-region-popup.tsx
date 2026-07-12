@@ -6,7 +6,6 @@ import {
   type SetStateAction,
 } from 'react';
 
-import { useGetListAPI } from '@/hooks';
 import { LocationIcon, SearchIcon } from '@/icons';
 import Button from '@/molecules/button';
 import Card from '@/molecules/card';
@@ -20,8 +19,7 @@ import {
   PopoverHeader,
 } from '@/molecules/popover';
 import { CLASS_PREFIX } from '@/conf';
-import { getCountriesAPI } from '@/store/countriesSlice';
-import { useAppSelector } from '@/store/hooks';
+import { useCountriesQuery } from '@/services/country';
 import type { FormErrors } from '@/types';
 import { __, sprintf } from '@/wpi18n';
 
@@ -70,16 +68,10 @@ const TaxRegionPopup = (props: TaxRegionPopupProps) => {
     countries: [],
     regions: [],
   });
-  const countryList = useAppSelector((state) => state.countries?.data);
+  const { data: countryList } = useCountriesQuery({ limit: -1 });
   const updatedCountryList = groupEUCountries(
     countryList as CountryWithGroup[] | null | undefined,
   );
-
-  useGetListAPI({
-    reducerName: 'countries',
-    apiCallBack: getCountriesAPI,
-    limit: -1,
-  });
 
   useEffect(() => {
     if (openPopup) {

@@ -1,6 +1,6 @@
 import BulkActionHandler from '@/components/bulk-action-handler';
 import Sorting from '@/components/sorting';
-import { useMarkList } from '@/hooks';
+import { useListParams, useMarkList } from '@/hooks';
 import Checkbox from '@/molecules/checkbox';
 import {
   Table,
@@ -9,47 +9,54 @@ import {
   TableHeader,
   TableRow,
 } from '@/molecules/table';
-import { deleteCustomersAPI, setKeyValue } from '@/store/customersSlice';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import type { TaxonomyTableHeader } from '@/types';
-import { isApiSuccess } from '@/types/pages/api-guards';
+import { useBulkDeleteCustomersMutation } from '@/services/customer';
+import type { Customer, PaginatedData, TaxonomyTableHeader } from '@/types';
 import { __ } from '@/wpi18n';
 
 import CustomerTableAction from '@/pages/customers/customer-table/customer-table-action';
 import SingleRow from '@/pages/customers/customer-table/single-row';
 
-const CustomerTable = () => {
-  const data = useAppSelector((state) => state.customers?.data);
-  const dispatch = useAppDispatch();
-  const { results, total, per_page } = data!;
+type CustomerTableProps = {
+  data: PaginatedData<Customer>;
+  isFetching?: boolean;
+};
+
+const CustomerTable = ({ data }: CustomerTableProps) => {
+  const { params, setParams } = useListParams({
+    defaults: {
+      search: '',
+      sort_by: 'first_name',
+      sort_order: 'asc',
+      page: 1,
+      limit: 10,
+    },
+  });
+  const bulkDeleteMutation = useBulkDeleteCustomersMutation();
+
+  const handleSort = (sortBy: string, sortOrder: 'asc' | 'desc') => {
+    setParams({ sort_by: sortBy, sort_order: sortOrder });
+  };
+
+  const { results, total, per_page } = data;
+
   const tableHeaders: TaxonomyTableHeader[] = [
     {
       title: __('Customer', 'kirki-ecommerce'),
       sortable: {
         sort_by: 'first_name',
-        reducer: 'customers',
-        setKeyValue: setKeyValue,
+        activeSortBy: params.sort_by,
+        sortOrder: params.sort_order,
+        onSort: handleSort,
       },
     },
-    {
-      title: __('Orders', 'kirki-ecommerce'),
-    },
-    {
-      title: __('Amount Spent', 'kirki-ecommerce'),
-    },
-    {
-      title: __('Location', 'kirki-ecommerce'),
-    },
-    {
-      title: __('Last Order', 'kirki-ecommerce'),
-    },
-    {
-      title: __('Joined at', 'kirki-ecommerce'),
-    },
-    {
-      title: __('', 'kirki-ecommerce'),
-    },
+    { title: __('Orders', 'kirki-ecommerce') },
+    { title: __('Amount Spent', 'kirki-ecommerce') },
+    { title: __('Location', 'kirki-ecommerce') },
+    { title: __('Last Order', 'kirki-ecommerce') },
+    { title: __('Joined at', 'kirki-ecommerce') },
+    { title: __('', 'kirki-ecommerce') },
   ];
+
   const {
     handleSelectAll,
     handleAllCheckboxClick,
@@ -58,30 +65,25 @@ const CustomerTable = () => {
     isSelected,
     selectedItems,
     itemCount,
-  } = useMarkList({ data: data! });
+  } = useMarkList({ data });
 
   const handleApplyAction = async (action: string) => {
-    if (action === 'delete') {
-      let result = {} as Awaited<ReturnType<typeof deleteCustomersAPI>>;
-      if (selectedItems.includes('*')) {
-        result = await deleteCustomersAPI({
-          action: 'delete-all',
-          ids: null,
-        });
-      } else {
-        result = await deleteCustomersAPI({
-          action: 'delete',
-          ids: selectedItems as number[],
-        });
-      }
-
-      if (isApiSuccess(result)) {
-        dispatch(setKeyValue({ key: 'toggler', value: Date.now() }));
-        handleClearSelection();
-      } else {
-        console.log(result);
-      }
+    if (action !== 'delete') {
+      return;
     }
+
+    if (selectedItems.includes('*')) {
+      await bulkDeleteMutation.mutateAsync({
+        action: 'delete-all',
+        ids: null,
+      });
+    } else {
+      await bulkDeleteMutation.mutateAsync({
+        action: 'delete',
+        ids: selectedItems as number[],
+      });
+    }
+    handleClearSelection();
   };
 
   return (
@@ -131,5 +133,7 @@ const CustomerTable = () => {
     </>
   );
 };
+
+CustomerTable.displayName = 'CustomerTable';
 
 export default CustomerTable;

@@ -65,4 +65,6 @@ const CurrencyFormatSettings = ({
   );
 };
 
+CurrencyFormatSettings.displayName = 'CurrencyFormatSettings';
+
 export default CurrencyFormatSettings;

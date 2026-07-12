@@ -1,16 +1,14 @@
-import { useEffect, useState, type ReactElement } from 'react';
+import { type ReactElement, useState } from 'react';
 import { useNavigate } from 'react-router';
 
-import { useGetListAPI } from '@/hooks';
 import { PlusIcon } from '@/icons';
 import ActionGroup from '@/molecules/action-group';
 import Button from '@/molecules/button';
 import Flex from '@/molecules/flex';
 import { Select } from '@/molecules/select';
 import Text from '@/molecules/text';
-import { useAppSelector } from '@/store/hooks';
-import { getShippingBoxListAPI } from '@/store/settingsSlice';
-import type { FormErrors, SelectOption, ShippingBox } from '@/types';
+import { useShippingBoxesQuery } from '@/services/shipping';
+import type { FormErrors } from '@/types';
 import { __ } from '@/wpi18n';
 
 import ShippingBoxPopup from '@/pages/settings/shipping-settings/shipping-box/shipping-box-popup';
@@ -29,33 +27,13 @@ const ShippingBoxSelect = ({
   invisible,
 }: ShippingBoxProps) => {
   const navigate = useNavigate();
-  const { loaded: shippingBoxLoaded, data: shippingBox } = useAppSelector(
-    (state) => state.settings?.shipping?.shippingBox,
-  );
+  const { data: shippingBoxes } = useShippingBoxesQuery({ limit: -1 });
   const [openShippingBoxPopup, setOpenShippingBoxPopup] = useState(false);
-  const [shippingBoxList, setShippingBoxList] = useState<SelectOption[]>([]);
-  useGetListAPI({
-    reducerName: 'settings',
-    apiCallBack: getShippingBoxListAPI,
-    nestedToggler: ['shipping', 'shippingBox'],
-    limit: -1,
-  });
 
-  useEffect(() => {
-    if (shippingBoxLoaded) {
-      formatBoxList(shippingBox ?? []);
-    }
-  }, [shippingBox]);
-
-  const formatBoxList = (boxList: ShippingBox[] = []) => {
-    const allBoxList = boxList.map((item) => {
-      return {
-        value: item.id,
-        title: `${item.name} - ${item.length} x ${item.width} x ${item.height} ${item.unit}`,
-      };
-    });
-    setShippingBoxList(allBoxList);
-  };
+  const shippingBoxList = (shippingBoxes ?? []).map((item) => ({
+    value: item.id,
+    title: `${item.name} - ${item.length} x ${item.width} x ${item.height} ${item.unit}`,
+  }));
 
   const handleOnChange = (id: unknown) => {
     onChange(id, 'shipping_box_id');

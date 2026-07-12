@@ -17,20 +17,14 @@ import PageHeading from '@/molecules/page-heading';
 import ProgressBar from '@/molecules/progressbar';
 import Tab from '@/molecules/tab';
 import Text from '@/molecules/text';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import {
-  getSettingsAPI,
-  updateSettings,
-  updateSettingsAPI,
-} from '@/store/settingsSlice';
-import { getErrorsObject } from '@/store/utils';
+import { getErrorsObject } from '@/libs/api';
+import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import type {
   EmailTemplate as SettingsEmailTemplate,
   FormErrors,
   MediaChangePayload,
   SettingsSectionData,
 } from '@/types';
-import { isApiSuccess } from '@/types/pages/api-guards';
 import { __ } from '@/wpi18n';
 
 type EmailTemplateColors = {
@@ -57,11 +51,11 @@ const EditTemplate = () => {
     end: 2,
   };
 
-  const dispatch = useAppDispatch();
   const INDEX_TO_POSITION = ['start', 'center', 'end'];
-  const { loaded, data: emailSettingsData } = useAppSelector(
-    (state) => state.settings?.email,
-  );
+  const { data: emailSettingsData, isLoading } = useSettingsQuery('email');
+  const { mutate: saveSettings } = useUpdateSettingsMutation();
+
+  const loaded = !isLoading && Boolean(emailSettingsData);
   const defaultEmail = emailSettingsData?.default_template as
     | EmailTemplate
     | undefined;
@@ -84,12 +78,6 @@ const EditTemplate = () => {
     setLogo(defaultEmail?.logo || '');
     setPosition(POSITION_MAP[defaultEmail.position || ''] || 0);
   }, [defaultEmail]);
-
-  useEffect(() => {
-    if (!loaded) {
-      dispatch(getSettingsAPI('email', {}));
-    }
-  }, []);
 
   const handleOnchange = (key: string, value: unknown) => {
     const colors = [
@@ -135,7 +123,7 @@ const EditTemplate = () => {
     }));
   };
 
-  const handleSaveData = async () => {
+  const handleSaveData = () => {
     if (!emailSettingsData) {
       return;
     }
@@ -149,18 +137,15 @@ const EditTemplate = () => {
       } as SettingsEmailTemplate,
     };
 
-    const result = await updateSettingsAPI('email', payload);
-    if (isApiSuccess(result)) {
-      dispatch(
-        updateSettings({
-          key: 'email',
-          value: result.data as SettingsSectionData,
-        }),
-      );
-    } else {
-      const errorPayload = result as { errors?: Record<string, string[]> };
-      setErrors(getErrorsObject(errorPayload.errors));
-    }
+    saveSettings(
+      { key: 'email', data: payload },
+      {
+        onError: (error) => {
+          const errObj = error as { errors?: Record<string, string[]> };
+          setErrors(getErrorsObject(errObj.errors));
+        },
+      },
+    );
   };
 
   const handleDiscard = () => {
@@ -364,5 +349,7 @@ const EditTemplate = () => {
     </>
   );
 };
+
+EditTemplate.displayName = 'EditTemplate';
 
 export default EditTemplate;

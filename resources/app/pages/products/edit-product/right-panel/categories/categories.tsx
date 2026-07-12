@@ -1,12 +1,10 @@
 import React from 'react';
 
-import { useGetListAPI } from '@/hooks';
 import Card from '@/molecules/card';
 import Checkbox from '@/molecules/checkbox';
 import Label from '@/molecules/label';
-import { getCategoriesAPI } from '@/store/categoriesSlice';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { updateProduct } from '@/store/productSlice';
+import { useProductForm } from '@/contexts/product-form-context';
+import { useCategoriesQuery } from '@/services/category';
 import type { Category, FormErrors, ProductCategoryRef } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -19,23 +17,13 @@ type CategoriesProps = {
 };
 
 const Categories = (_props: CategoriesProps) => {
-  const dispatch = useAppDispatch();
-  const categories = useAppSelector(
-    (state) => state.categories?.data?.results,
-  );
-  const loaded = useAppSelector((state) => state.categories?.loaded);
-  const { data: productData } = useAppSelector((state) => state.product);
-  const selectedCategories: ProductCategoryRef[] =
-    productData?.categories || [];
-  useGetListAPI({
-    reducerName: 'categories',
-    apiCallBack: getCategoriesAPI,
-    page: 1,
-    search: '',
-    sort_by: 'id',
-    sort_order: 'asc',
+  const { product: productData, updateProduct } = useProductForm();
+  const { data: categoryData, isSuccess: loaded } = useCategoriesQuery({
     limit: -1,
   });
+  const categories = categoryData?.results ?? [];
+  const selectedCategories: ProductCategoryRef[] =
+    productData?.categories || [];
 
   const getParentsToDeselect = (
     category: Category,
@@ -45,7 +33,7 @@ const Categories = (_props: CategoriesProps) => {
       return acc;
     }
 
-    const parent = (categories || []).find(
+    const parent = categories.find(
       (item) => item.id === category.parent_id,
     );
     if (!parent) {
@@ -60,7 +48,7 @@ const Categories = (_props: CategoriesProps) => {
     parentId: number,
     all: Category[] = [],
   ): Category[] => {
-    const children = (categories || []).filter(
+    const children = categories.filter(
       (item) => item.parent_id === parentId,
     );
 
@@ -76,7 +64,7 @@ const Categories = (_props: CategoriesProps) => {
     categoryId: number,
     selectedIds: number[],
   ): boolean => {
-    const children = (categories || []).filter(
+    const children = categories.filter(
       (c) => c.parent_id === categoryId,
     );
 
@@ -93,7 +81,7 @@ const Categories = (_props: CategoriesProps) => {
     parentId: number,
     selectedIds: number[],
   ): boolean => {
-    const children = (categories || []).filter(
+    const children = categories.filter(
       (c) => c.parent_id === parentId,
     );
     if (!children.length) {
@@ -115,7 +103,7 @@ const Categories = (_props: CategoriesProps) => {
     }
 
     if (areAllChildrenSelected(category.parent_id, selectedIds)) {
-      const parent = (categories || []).find(
+      const parent = categories.find(
         (item) => item.id === category.parent_id,
       );
 
@@ -168,35 +156,29 @@ const Categories = (_props: CategoriesProps) => {
       });
     }
 
-    dispatch(
-      updateProduct({
-        key: 'categories',
-        value: newCategoryList,
-      }),
-    );
+    updateProduct({
+      key: 'categories',
+      value: newCategoryList,
+    });
   };
 
   const onSelectAll = () => {
-    if (selectedCategories.length < (categories || []).length) {
-      const allCategories = (categories || []).map((item) => ({
+    if (selectedCategories.length < categories.length) {
+      const allCategories = categories.map((item) => ({
         id: item?.id,
         name: item?.name,
         parent_id: item?.parent_id,
         level: (item as Category & { level?: number })?.level,
       }));
-      dispatch(
-        updateProduct({
-          key: 'categories',
-          value: allCategories,
-        }),
-      );
+      updateProduct({
+        key: 'categories',
+        value: allCategories,
+      });
     } else {
-      dispatch(
-        updateProduct({
-          key: 'categories',
-          value: null,
-        }),
-      );
+      updateProduct({
+        key: 'categories',
+        value: null,
+      });
     }
   };
 
@@ -206,21 +188,21 @@ const Categories = (_props: CategoriesProps) => {
       {!loaded && <div>{__('Loading...', 'kirki-ecommerce')}</div>}
       {loaded && (
         <>
-          {(categories?.length ?? 0) > 0 && (
+          {categories.length > 0 && (
             <div>
               <Checkbox
                 label={__('All Products', 'kirki-ecommerce')}
                 isPartialChecked={
-                  selectedCategories.length < (categories || []).length &&
+                  selectedCategories.length < categories.length &&
                   selectedCategories.length !== 0
                 }
                 value={
-                  selectedCategories.length === (categories || []).length
+                  selectedCategories.length === categories.length
                 }
                 onChange={(_value) => onSelectAll()}
               />
               <List
-                categories={categories || []}
+                categories={categories}
                 parent_id={null}
                 selectedCategories={selectedCategories}
                 onSelectCategory={onSelectCategory}
@@ -233,5 +215,7 @@ const Categories = (_props: CategoriesProps) => {
     </Card>
   );
 };
+
+Categories.displayName = 'Categories';
 
 export default Categories;

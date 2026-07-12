@@ -1,28 +1,24 @@
-import { useEffect, useState, type ComponentProps, type ReactNode } from 'react';
+import { type ComponentProps, type ReactNode, useState } from 'react';
 
 import GroupOptionCard from '@/components/group-option-card';
 import { InfoIcon, IncreaseIcon } from '@/icons';
 import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
 import Text from '@/molecules/text';
+import { dispatchToastMessage, dateFormatter } from '@/pages/utils';
 import {
-  deleteCurrencyDataByIdAPI,
-  getAvailableCurrenciesAPI,
-  setAvailableCurrencies,
-  updateCurrencyData,
-} from '@/store/currenciesSlice';
-import { useAppDispatch } from '@/store/hooks';
+  useAvailableCurrenciesQuery,
+  useUpdateCurrencyMutation,
+  useDeleteCurrencyMutation,
+} from '@/services/currency';
 import type {
   Currency,
   CurrencyFormData,
-  PaginatedData,
-  SelectOption,
   SettingsSectionData,
+  SelectOption,
 } from '@/types';
-import { isApiSuccess } from '@/types/pages/api-guards';
 import { __, sprintf } from '@/wpi18n';
 
-import { dateFormatter, dispatchToastMessage } from '@/pages/utils';
 import AddCurrencyPopup from '@/pages/settings/multi-currency-settings/add-currency-popup';
 import EditCurrencyPopup from '@/pages/settings/multi-currency-settings/edit-currency-popup';
 
@@ -43,11 +39,32 @@ type AvailableCurrencyListProps = {
   };
 };
 
+const getActionArray = (item: Currency): SelectOption[] => {
+  if (item?.is_base) {
+    return [];
+  }
+  return [
+    {
+      title: __('Edit', 'kirki-ecommerce'),
+      value: 'edit',
+    },
+    {
+      title: __('Delete', 'kirki-ecommerce'),
+      value: 'delete',
+    },
+    {
+      title: __('Set as base currency', 'kirki-ecommerce'),
+      value: 'set_base',
+    },
+  ];
+};
+
 export const AvailableCurrencyList = ({ dataObj }: AvailableCurrencyListProps) => {
-  const dispatch = useAppDispatch();
-  const [currencyList, setCurrencyList] = useState<CurrencyListItem[]>([]);
-  const [isNewCurrencyAdded, setIsNewCurrencyAdded] = useState(false);
   const [editCurrency, setEditCurrency] = useState<(Currency & { icon?: string }) | null>(null);
+
+  const { data: rawCurrencies = [], refetch } = useAvailableCurrenciesQuery();
+  const { mutate: updateCurrencyMutate } = useUpdateCurrencyMutation();
+  const { mutate: deleteCurrencyMutate } = useDeleteCurrencyMutation();
 
   const showApiProviderStatus =
     dataObj?.is_automatic_update_enabled === true &&
@@ -55,39 +72,30 @@ export const AvailableCurrencyList = ({ dataObj }: AvailableCurrencyListProps) =
     dataObj?.last_sync_at &&
     dataObj?.next_sync_at;
 
-  const fetchCurrencies = async () => {
-    try {
-      const data = await getAvailableCurrenciesAPI();
-      const currencyListData = (data as PaginatedData<Currency>)?.results;
+  const currencyList: CurrencyListItem[] = (rawCurrencies as Currency[]).map(
+    (item) => ({
+      ...item,
+      ...(item?.is_base && {
+        badge1: __('Base Currency', 'kirki-ecommerce'),
+        is_toggle_disabled: true,
+        is_action_disabled: true,
+      }),
+      is_enabled: item?.is_active,
+      rightIcon: <IncreaseIcon />,
+      rightText:
+        item?.exchange_rate != null ? String(item.exchange_rate) : undefined,
+      icon: item?.symbol,
+      actionsArray: getActionArray(item),
+    }),
+  );
 
-      dispatch(setAvailableCurrencies(currencyListData));
-      const formattedCurrencies = currencyListData?.map((item) => ({
-        ...item,
-        ...(item?.is_base && {
-          badge1: __('Base Currency', 'kirki-ecommerce'),
-          is_toggle_disabled: true,
-          is_action_disabled: true,
-        }),
-        is_enabled: item?.is_active,
-        rightIcon: <IncreaseIcon />,
-        rightText:
-          item?.exchange_rate != null ? String(item.exchange_rate) : undefined,
-        icon: item?.symbol,
-        actionsArray: getActionArray(item),
-      }));
-
-      setCurrencyList(formattedCurrencies ?? []);
-    } catch (error) {
-      console.error('Failed to load currencies', error);
-    }
+  const updateData = (payload: CurrencyFormData) => {
+    updateCurrencyMutate(payload, {
+      onSuccess: () => refetch(),
+    });
   };
 
-  useEffect(() => {
-    fetchCurrencies();
-    setIsNewCurrencyAdded(false);
-  }, [isNewCurrencyAdded]);
-
-  const updateCurrencyList = async (item: CurrencyListItem, key: keyof Currency) => {
+  const updateCurrencyList = (item: CurrencyListItem, key: keyof Currency) => {
     if (key !== 'is_base') {
       const selectedCurrency = currencyList?.find(
         (currency) => currency?.id === item?.id,
@@ -105,7 +113,7 @@ export const AvailableCurrencyList = ({ dataObj }: AvailableCurrencyListProps) =
         ],
       };
 
-      await updateData(payload);
+      updateData(payload);
       return;
     }
 
@@ -115,47 +123,27 @@ export const AvailableCurrencyList = ({ dataObj }: AvailableCurrencyListProps) =
         is_base: currency?.id === item?.id,
       })),
     };
-    await updateData(payload);
+    updateData(payload);
   };
 
-  const updateData = async (payload: CurrencyFormData) => {
-    const result = await updateCurrencyData(payload);
-    if (!isApiSuccess(result)) {
-      return;
-    }
-    dispatchToastMessage('success', {
-      title: __('Currency value updated', 'kirki-ecommerce'),
-    });
-
-    fetchCurrencies();
+  const handleToggleCurrencyItem = (item: CurrencyListItem) => {
+    updateCurrencyList(item, 'is_active');
   };
 
-  const handleToggleCurrencyItem = async (item: CurrencyListItem) => {
-    await updateCurrencyList(item, 'is_active');
-  };
-
-  const handleDeleteCurrencyItem = async (item: CurrencyListItem) => {
-    const initialList = [...currencyList];
-
-    const updatedCurrencyList = currencyList?.filter(
-      (currency) => currency?.id !== item?.id,
-    );
-    setCurrencyList(updatedCurrencyList);
-
+  const handleDeleteCurrencyItem = (item: CurrencyListItem) => {
     dispatchToastMessage('delete', {
       title: __('Currency deleted', 'kirki-ecommerce'),
       duration: 5000,
-      undoAction: () => {
-        setCurrencyList(initialList);
-      },
+      undoAction: () => refetch(),
       onSuccess: async () => {
-        await deleteCurrencyDataByIdAPI(item.id);
-        fetchCurrencies();
+        deleteCurrencyMutate(item.id as number, {
+          onSuccess: () => refetch(),
+        });
       },
     });
   };
 
-  const handleAction = async (
+  const handleAction = (
     action: string | number | Array<string | number>,
     item: CurrencyListItem,
   ) => {
@@ -167,28 +155,8 @@ export const AvailableCurrencyList = ({ dataObj }: AvailableCurrencyListProps) =
         icon: typeof item.icon === 'string' ? item.icon : item.symbol,
       });
     } else {
-      await updateCurrencyList(item, 'is_base');
+      updateCurrencyList(item, 'is_base');
     }
-  };
-
-  const getActionArray = (item: Currency): SelectOption[] => {
-    if (item?.is_base) {
-      return [];
-    }
-    return [
-      {
-        title: __('Edit', 'kirki-ecommerce'),
-        value: 'edit',
-      },
-      {
-        title: __('Delete', 'kirki-ecommerce'),
-        value: 'delete',
-      },
-      {
-        title: __('Set as base currency', 'kirki-ecommerce'),
-        value: 'set_base',
-      },
-    ];
   };
 
   return (
@@ -206,7 +174,7 @@ export const AvailableCurrencyList = ({ dataObj }: AvailableCurrencyListProps) =
           }}
         >
           <Text header={__('Available Currencies', 'kirki-ecommerce')} type="primary" />
-          <AddCurrencyPopup setIsNewCurrencyAdded={setIsNewCurrencyAdded} />
+          <AddCurrencyPopup />
         </Flex>
         <GroupOptionCard
           dataArr={
@@ -245,7 +213,7 @@ export const AvailableCurrencyList = ({ dataObj }: AvailableCurrencyListProps) =
         <EditCurrencyPopup
           editCurrency={editCurrency}
           setEditCurrency={setEditCurrency}
-          handleUpdateData={updateData}
+          handleUpdateData={(currency) => updateData({ items: [currency] })}
         />
       )}
     </>

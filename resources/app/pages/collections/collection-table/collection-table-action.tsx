@@ -4,30 +4,33 @@ import Button from '@/molecules/button';
 import Flex from '@/molecules/flex';
 import Searchbox from '@/molecules/searchbox';
 import { Select } from '@/molecules/select';
-import { setKeyValue } from '@/store/collectionsSlice';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { useListParams } from '@/hooks';
 import { __ } from '@/wpi18n';
 
-const CollectionTableAction = () => {
-  const dispatch = useAppDispatch();
-  const { search, sort_order } = useAppSelector((state) => state.collections);
+type CollectionTableActionProps = {
+  onSortChange?: () => void;
+};
+
+const CollectionTableAction = ({ onSortChange }: CollectionTableActionProps) => {
+  const { params, setParam } = useListParams({
+    defaults: {
+      search: '',
+      sort_by: 'title',
+      sort_order: 'asc',
+      page: 1,
+      limit: 10,
+    },
+  });
 
   const handleSearchChange = (value: string | number) => {
-    dispatch(setKeyValue({ key: 'search', value: value }));
+    setParam('search', value);
   };
 
-  const handleSortChange = () => {
-    if (sort_order === 'asc') {
-      dispatch(setKeyValue({ key: 'sort_order', value: 'desc' }));
-    } else {
-      dispatch(setKeyValue({ key: 'sort_order', value: 'asc' }));
-    }
-  };
   return (
     <Flex style={{ padding: '16px 12px' }}>
       <div style={{ width: '180px' }}>
         <Searchbox
-          value={search}
+          value={params.search || ''}
           onChange={(value) => handleSearchChange(value)}
         />
       </div>
@@ -40,11 +43,13 @@ const CollectionTableAction = () => {
           type="outlined"
           size="small"
           icon={<ArrowDownUp />}
-          onClick={handleSortChange}
+          onClick={onSortChange}
         />
       </ActionGroup>
     </Flex>
   );
 };
+
+CollectionTableAction.displayName = 'CollectionTableAction';
 
 export default CollectionTableAction;

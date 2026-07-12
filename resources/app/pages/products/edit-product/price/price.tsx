@@ -1,12 +1,10 @@
 import {
-  useEffect,
   useState,
   type Dispatch,
   type ReactElement,
   type SetStateAction,
 } from 'react';
 
-import { useGetListAPI } from '@/hooks';
 import Card from '@/molecules/card';
 import Checkbox from '@/molecules/checkbox';
 import Flex from '@/molecules/flex';
@@ -15,10 +13,9 @@ import Input from '@/molecules/input';
 import { Select } from '@/molecules/select';
 import Separator from '@/molecules/separator';
 import Text from '@/molecules/text';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { updateProduct } from '@/store/productSlice';
-import { getTaxProfileListAPI } from '@/store/settingsSlice';
-import type { FormErrors, SelectOption, UnitPriceValue } from '@/types';
+import { useProductForm } from '@/contexts/product-form-context';
+import { useTaxProfilesQuery } from '@/services/tax';
+import type { FormErrors, UnitPriceValue } from '@/types';
 import { __ } from '@/wpi18n';
 
 import { TaxProfilePopup } from '@/pages/settings/tax-settings/tax-profile/tax-profile-popup';
@@ -36,47 +33,25 @@ type CurrencyRef = {
 };
 
 const Price = ({ errors, setErrors }: PriceProps) => {
-  const dispatch = useAppDispatch();
-  const [taxProfileList, setTaxProfileList] = useState<SelectOption[]>([]);
+  const { product: productData, updateProduct } = useProductForm();
   const [openTaxProfilePopup, setOpenTaxProfilePopup] = useState(false);
-  const { data: productData } = useAppSelector((state) => state?.product);
-  useGetListAPI({
-    reducerName: 'settings',
-    apiCallBack: getTaxProfileListAPI,
-    nestedToggler: ['tax', 'taxProfile'],
-    limit: -1,
-  });
-  const { loaded: taxLoaded, data: taxProfile } = useAppSelector(
-    (state) => state?.settings?.tax?.taxProfile,
-  );
+  const { data: taxProfiles } = useTaxProfilesQuery({ limit: -1 });
 
-  useEffect(() => {
-    if (taxLoaded) {
-      formatTaxProfileList();
-    }
-  }, [taxProfile]);
+  const taxProfileList = (taxProfiles ?? []).map((item) => ({
+    value: item?.id,
+    title: item?.name,
+  }));
 
   const handleOnVariantInfoChange = (value: unknown, fieldName: string) => {
-    dispatch(
-      updateProduct({
-        key: fieldName,
-        value: value,
-        variants: true,
-      }),
-    );
+    updateProduct({
+      key: fieldName,
+      value: value,
+      variants: true,
+    });
     setErrors((prev) => ({
       ...prev,
       [`variants.0.${fieldName}`]: null,
     }));
-  };
-
-  const formatTaxProfileList = () => {
-    const updatedData = (taxProfile ?? []).map((item) => ({
-      value: item?.id,
-      title: item?.name,
-    }));
-
-    setTaxProfileList(updatedData);
   };
 
   const currency = productData?.currency as CurrencyRef;

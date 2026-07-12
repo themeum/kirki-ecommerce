@@ -1,23 +1,14 @@
-import { useEffect, useState } from 'react';
-
 import { CLASS_PREFIX } from '@/conf';
+import { useListParams } from '@/hooks';
 import Button from '@/molecules/button';
 import Capsule from '@/molecules/capsule';
 import Flex from '@/molecules/flex';
 import { makeSuggestionList } from '@/pages/utils';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { setKeyValue } from '@/store/productsSlice';
+import { useBrandsQuery } from '@/services/brand';
+import { useCategoriesQuery } from '@/services/category';
+import { useCollectionsQuery } from '@/services/collection';
 import type { SuggestionOption } from '@/types';
 import { __ } from '@/wpi18n';
-
-type ProductFilterState = {
-  category_ids?: number[] | string;
-  status?: string;
-  inventory_type?: string;
-  collection_id?: string | number;
-  brand_id?: string | number;
-  [key: string]: unknown;
-};
 
 type FilterValue = string | number | Array<string | number>;
 
@@ -26,95 +17,108 @@ const statusOptions: SuggestionOption[] = [
   { value: 'draft', title: __('Draft', 'kirki-ecommerce') },
 ];
 
-const inventoryOptions: SuggestionOption[] = [
+const stockStatusOptions: SuggestionOption[] = [
   { value: 'in_stock', title: __('In stock', 'kirki-ecommerce') },
   { value: 'out_of_stock', title: __('Out of stock', 'kirki-ecommerce') },
 ];
 
+const PRODUCT_FILTER_KEYS = [
+  'category_ids',
+  'brand_ids',
+  'collection_ids',
+  'status',
+  'stock_status',
+] as const;
+
+type ProductFilterKey = (typeof PRODUCT_FILTER_KEYS)[number];
+
 const ProductTableFilterAction = () => {
-  const dispatch = useAppDispatch();
-  const { filter: filterData } = useAppSelector((state) => state.products);
-  const { results: brandData } = useAppSelector((state) => state.brands?.data!);
-  const { results: categoriesData } = useAppSelector(
-    (state) => state.categories?.data!,
-  );
-  const { results: collectionData } = useAppSelector(
-    (state) => state.collections?.data!,
-  );
-  const [filterObject, setFilterObject] = useState<ProductFilterState>({});
+  const { params, setParam, setParams } = useListParams({
+    defaults: {
+      search: '',
+      sort_by: 'title',
+      sort_order: 'asc',
+      page: 1,
+      limit: 10,
+    },
+  });
 
-  const brandOptions = makeSuggestionList(brandData, []);
-  const categoryOptions = makeSuggestionList(categoriesData, []);
-  const collectionOptions = makeSuggestionList(collectionData, []);
+  const { data: brandsData } = useBrandsQuery({ limit: -1 });
+  const { data: categoriesData } = useCategoriesQuery({ limit: -1 });
+  const { data: collectionsData } = useCollectionsQuery({ limit: -1 });
 
-  const filterOptionsMap: Record<string, SuggestionOption[]> = {
+  const brandOptions = makeSuggestionList(brandsData?.results || [], []);
+  const categoryOptions = makeSuggestionList(categoriesData?.results || [], []);
+  const collectionOptions = makeSuggestionList(collectionsData?.results || [], []);
+
+  const filterOptionsMap: Record<ProductFilterKey, SuggestionOption[]> = {
     category_ids: categoryOptions,
     status: statusOptions,
-    inventory_type: inventoryOptions,
-    collection_id: collectionOptions,
-    brand_id: brandOptions,
+    stock_status: stockStatusOptions,
+    collection_ids: collectionOptions,
+    brand_ids: brandOptions,
   };
 
-  useEffect(() => {
-    const { category_ids, status } = filterData as ProductFilterState;
-    let formattedFilter: ProductFilterState = {
-      ...(filterData as ProductFilterState),
-    };
-    if (status) {
-      if ((filterData as ProductFilterState).status === '') {
-        formattedFilter = { ...formattedFilter, status: 'all' };
-      }
+  const activeFilterKeys = PRODUCT_FILTER_KEYS.filter((key) => {
+    const val = params[key];
+    if (Array.isArray(val)) {
+      return val.length > 0;
     }
-    if (category_ids) {
-      const idArray = String(category_ids)
-        .split(',')
-        .map(Number);
-      formattedFilter = { ...formattedFilter, category_ids: idArray };
-    }
-    setFilterObject(formattedFilter);
-  }, [filterData]);
+    return Boolean(val);
+  });
 
-  const handleFilterChange = (val: FilterValue, filterName: string) => {
-    const newFilter = { ...filterObject, [filterName]: val };
-    setFilterObject(newFilter);
-    handleOnApplyFilter(newFilter);
+  const getFilterValue = (key: ProductFilterKey): FilterValue => {
+    if (key === 'category_ids') {
+      return (params.category_ids || []) as FilterValue;
+    }
+    if (key === 'collection_ids') {
+      return (params.collection_ids?.[0] ?? '') as FilterValue;
+    }
+    if (key === 'brand_ids') {
+      return (params.brand_ids?.[0] ?? '') as FilterValue;
+    }
+    if (key === 'status') {
+      return (params.status as FilterValue) ?? '';
+    }
+    if (key === 'stock_status') {
+      return params.stock_status ?? '';
+    }
+    return '';
   };
 
-  const handleOnApplyFilter = (filter: ProductFilterState) => {
-    const formattedData: ProductFilterState = { ...filter };
-    if (filter?.category_ids) {
-      if (Array.isArray(filter.category_ids) && filter.category_ids.length > 0) {
-        formattedData.category_ids = filter.category_ids.join(',');
-      }
+  const handleFilterChange = (val: FilterValue, key: ProductFilterKey) => {
+    if (key === 'collection_ids' || key === 'brand_ids') {
+      setParam(key, val ? [Number(val)] : undefined);
+    } else {
+      setParam(key, val || undefined);
     }
-    if (filter?.status === 'all') {
-      delete formattedData.status;
-    }
-    dispatch(setKeyValue({ key: 'filter', value: formattedData }));
   };
 
-  const handleClearSingleFilter = (filterName: string) => {
-    const newFilter = { ...filterObject };
-    delete newFilter[filterName];
-    setFilterObject(newFilter);
-    handleOnApplyFilter(newFilter);
+  const handleClearSingleFilter = (key: ProductFilterKey) => {
+    setParam(key, undefined);
   };
 
   const handleClearAll = () => {
-    dispatch(setKeyValue({ key: 'filter', value: {} }));
+    setParams({
+      category_ids: undefined,
+      brand_ids: undefined,
+      collection_ids: undefined,
+      status: undefined,
+      stock_status: undefined,
+    });
   };
 
   return (
     <Flex gap={12} className={`${CLASS_PREFIX}-filter-action-bar`}>
-      {Object.keys(filterData || {}).map((item) => (
+      {activeFilterKeys.map((key) => (
         <Capsule
-          key={item}
-          uniqueKey={item}
-          optionsArray={filterOptionsMap[item]}
-          value={filterObject[item] as FilterValue}
-          onValueChange={(val) => handleFilterChange(val, item)}
-          onClearItem={() => handleClearSingleFilter(item)}
-          multiple={item === 'category_ids'}
+          key={key}
+          uniqueKey={key}
+          optionsArray={filterOptionsMap[key]}
+          value={getFilterValue(key)}
+          onValueChange={(val) => handleFilterChange(val as FilterValue, key)}
+          onClearItem={() => handleClearSingleFilter(key)}
+          multiple={key === 'category_ids'}
         />
       ))}
       <Button
@@ -126,5 +130,7 @@ const ProductTableFilterAction = () => {
     </Flex>
   );
 };
+
+ProductTableFilterAction.displayName = 'ProductTableFilterAction';
 
 export default ProductTableFilterAction;

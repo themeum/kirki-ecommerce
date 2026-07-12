@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, type ReactNode } from 'react';
 import { useSearchParams, useNavigate, useOutletContext } from 'react-router';
+import { toast } from 'sonner';
 
 import { TruckIcon, WeightIcon, StoreIcon } from '@/icons';
 import PageHeading from '@/molecules/page-heading';
@@ -10,15 +11,12 @@ import Input from '@/molecules/input';
 import Card from '@/molecules/card';
 import { Select } from '@/molecules/select';
 import PageNavbar from '@/components/page-navbar';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import {
-  getSettingsAPI,
-  updateSettings,
-  updateSettingsAPI,
-} from '@/store/settingsSlice';
-import { dispatchToastMessage } from '@/pages/utils';
+import { queryClient } from '@/libs/query-client';
+import { queryKeys } from '@/libs/query-keys';
+import { useUnsavedStatus } from '@/libs/unsaved-store';
+import { getErrorMessage } from '@/services/helpers';
+import { useSettingsQuery, updateSettings } from '@/services/settings';
 import type { SettingsSectionData } from '@/types';
-import { isApiSuccess } from '@/types';
 import { __ } from '@/wpi18n';
 
 import FlatRateSettings from '@/pages/settings/shipping-settings/shipping-method/flat-rate-settings';
@@ -43,19 +41,16 @@ type MethodSettingsEntry = {
 };
 
 const ShippingDeliveryMethod = () => {
-  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { confirmAction } = useOutletContext<SettingsOutletContext>();
   const [searchParams] = useSearchParams();
 
-  const hasUnsavedData = useAppSelector((state) => state.unsaved?.hasUnsavedData);
-  const { data: shippingSettingsData, activeZoneId } = useAppSelector(
-    (state) => state.settings?.shipping,
-  );
+  const hasUnsavedData = useUnsavedStatus();
+  const { data: shippingSettingsData } = useSettingsQuery('shipping');
   const method_Id = searchParams.get('methodId');
   const zoneIdFromURL = searchParams.get('zoneId');
 
-  const final_zoneId = zoneIdFromURL || activeZoneId;
+  const final_zoneId = zoneIdFromURL;
   const [methodId] = useState(method_Id || crypto.randomUUID());
 
   const [methodType, setMethodType] = useState<MethodType>('flat_rate');
@@ -77,10 +72,6 @@ const ShippingDeliveryMethod = () => {
       zone.shipping_methods?.some((m) => m.id === methodId),
     );
   }, [shippingZones, methodId]);
-
-  useEffect(() => {
-    dispatch(getSettingsAPI('shipping'));
-  }, []);
 
   useEffect(() => {
     if (!editingMethod) {
@@ -186,7 +177,7 @@ const ShippingDeliveryMethod = () => {
         };
       }
 
-      if (!editingMethod && zone.id === final_zoneId) {
+      if (!editingMethod && String(zone.id) === String(final_zoneId)) {
         return {
           ...zone,
           shipping_methods: [...(zone.shipping_methods || []), shippingMethod],
@@ -201,21 +192,22 @@ const ShippingDeliveryMethod = () => {
       shipping_zones: updatedShippingZones,
     };
 
-    const result = await updateSettingsAPI('shipping', updatedData);
-    if (isApiSuccess(result)) {
-      dispatch(updateSettings({ key: 'shipping', value: updatedData }));
+    try {
+      await updateSettings({ key: 'shipping', data: updatedData });
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.Settings('shipping'),
+      });
       setUnsavedDataStatus(false);
-      dispatchToastMessage('success', {
-        title: methodExist
+      toast.success(
+        methodExist
           ? __('Shipping method updated', 'kirki-ecommerce')
           : __('New shipping method created', 'kirki-ecommerce'),
-      });
+      );
       navigate(
         `/settings/shipping/delivery-method?methodId=${methodId}&zoneId=${final_zoneId}`,
       );
-    } else {
-      const errorResult = result as { message?: string };
-      dispatchToastMessage('error', { title: errorResult?.message });
+    } catch (error) {
+      toast.error(getErrorMessage(error));
     }
   };
 

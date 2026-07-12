@@ -8,23 +8,17 @@ import {
   PopoverFooter,
   PopoverHeader,
 } from '@/molecules/popover';
-
 import {
-  createShippingProfile,
-  updateShippingProfileById,
-  setKeyValue,
-} from '@/store/settingsSlice';
-import { useAppDispatch } from '@/store/hooks';
-import { dispatchToastMessage } from '@/pages/utils';
+  useCreateShippingProfileMutation,
+  useUpdateShippingProfileMutation,
+} from '@/services/shipping';
 import type { ShippingProfile } from '@/types';
-import { isApiSuccess } from '@/types';
 import { __ } from '@/wpi18n';
 
 type CreateProfilePopupProps = {
   isOpen: boolean;
   onClose?: () => void;
   onSave?: (id: number) => void;
-  fetchProfileList?: () => void;
   editIndex?: number | null;
   shippingProfileList: ShippingProfile[];
 };
@@ -36,8 +30,10 @@ export const CreateProfilePopup = ({
   editIndex = null,
   shippingProfileList,
 }: CreateProfilePopupProps) => {
-  const dispatch = useAppDispatch();
   const [profileTitle, setProfileTitle] = useState('');
+
+  const { mutate: createProfile } = useCreateShippingProfileMutation();
+  const { mutate: updateProfile } = useUpdateShippingProfileMutation();
 
   useEffect(() => {
     if (editIndex) {
@@ -48,13 +44,12 @@ export const CreateProfilePopup = ({
     }
   }, [editIndex]);
 
-  const AddOrUpdateShippingProfile = async () => {
+  const handleAddOrUpdateShippingProfile = () => {
     if (!profileTitle.trim()) {
       return;
     }
 
     const data = { name: profileTitle };
-    let result;
 
     if (editIndex) {
       const selectedProfile = shippingProfileList.find(
@@ -63,26 +58,22 @@ export const CreateProfilePopup = ({
       if (!selectedProfile) {
         return;
       }
-      result = await updateShippingProfileById(selectedProfile.id, data);
-    } else {
-      result = await createShippingProfile(data);
-    }
-
-    if (isApiSuccess(result)) {
-      dispatch(
-        setKeyValue({
-          key: 'toggler',
-          value: Date.now(),
-          nestedToggler: ['shipping', 'shippingProfile'],
-        }),
+      updateProfile(
+        { id: selectedProfile.id, data },
+        {
+          onSuccess: (response) => {
+            onSave((response.data as { id?: number })?.id as number);
+            handleOnPopupClose();
+          },
+        },
       );
-      onSave((result.data as { id?: number }).id as number);
-      dispatchToastMessage('success', {
-        title: editIndex
-          ? __('Shipping profile updated', 'kirki-ecommerce')
-          : __('Shipping profile created', 'kirki-ecommerce'),
+    } else {
+      createProfile(data, {
+        onSuccess: (response) => {
+          onSave((response.data as { id?: number })?.id as number);
+          handleOnPopupClose();
+        },
       });
-      handleOnPopupClose();
     }
   };
 
@@ -126,7 +117,7 @@ export const CreateProfilePopup = ({
             type="primary"
             text={__('Save', 'kirki-ecommerce')}
             size="small"
-            onClick={AddOrUpdateShippingProfile}
+            onClick={handleAddOrUpdateShippingProfile}
             state={buttonState ? 'disabled' : ''}
           />
         </PopoverFooter>

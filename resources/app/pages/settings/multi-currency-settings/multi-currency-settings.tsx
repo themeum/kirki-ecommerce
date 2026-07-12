@@ -9,22 +9,16 @@ import Container from '@/molecules/container';
 import Flex from '@/molecules/flex';
 import PageHeading from '@/molecules/page-heading';
 import Text from '@/molecules/text';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import {
-  getSettingsAPI,
-  updateSettings,
-  updateSettingsAPI,
-} from '@/store/settingsSlice';
-import { getErrorsObject } from '@/store/utils';
+import { getErrorsObject } from '@/libs/api';
+import { useUnsavedStatus } from '@/libs/unsaved-store';
+import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import type {
   ConfirmationVariant,
   FormErrors,
   SettingsSectionData,
 } from '@/types';
-import { isApiSuccess } from '@/types/pages/api-guards';
 import { __ } from '@/wpi18n';
 
-import { dispatchToastMessage } from '@/pages/utils';
 import { checkUnsavedDataStatus, setUnsavedDataStatus } from '@/pages/settings/utils';
 import ApiConfig from '@/pages/settings/multi-currency-settings/api-config/api-config';
 import { AvailableCurrencyList } from '@/pages/settings/multi-currency-settings/available-currency-list';
@@ -43,18 +37,18 @@ type SettingsOutletContext = {
 };
 
 const MultiCurrencySettings = () => {
-  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { confirmAction } = useOutletContext<SettingsOutletContext>();
 
-  const { loaded, data: currencySettingsData } = useAppSelector(
-    (state) => state.settings?.currency,
-  );
+  const { data: currencySettingsData, isLoading } = useSettingsQuery('currency');
+  const { mutate: saveSettings } = useUpdateSettingsMutation();
 
-  const hasUnsavedData = useAppSelector((state) => state.unsaved?.hasUnsavedData);
+  const hasUnsavedData = useUnsavedStatus();
   const [dataObj, setDataObj] = useState<SettingsSectionData>({});
   const [initialData, setInitialData] = useState<SettingsSectionData>({});
   const [errors, setErrors] = useState<FormErrors>({});
+
+  const loaded = !isLoading && Boolean(currencySettingsData);
 
   const handleOnChange = (value: unknown, key: string) => {
     setUnsavedDataStatus(true);
@@ -71,12 +65,6 @@ const MultiCurrencySettings = () => {
   };
 
   useEffect(() => {
-    if (!loaded) {
-      dispatch(getSettingsAPI('currency'));
-    }
-  }, []);
-
-  useEffect(() => {
     if (!currencySettingsData) {
       return;
     }
@@ -85,24 +73,22 @@ const MultiCurrencySettings = () => {
     setInitialData(currencySettingsData);
   }, [currencySettingsData]);
 
-  const handleSaveData = async () => {
+  const handleSaveData = () => {
     const updatedObj: SettingsSectionData = {
       ...dataObj,
       is_automatic_update_enabled:
         dataObj?.is_automatic_update_enabled || false,
     };
-    const result = await updateSettingsAPI('currency', updatedObj);
-    if (isApiSuccess(result)) {
-      setUnsavedDataStatus(false);
-      dispatch(updateSettings({ key: 'currency', value: result.data as SettingsSectionData }));
-      dispatchToastMessage('success', {
-        title: __('Currency settings updated', 'kirki-ecommerce'),
-      });
-    } else {
-      const errorPayload = result as { errors?: Record<string, string[]>; message?: string };
-      setErrors(getErrorsObject(errorPayload.errors));
-      dispatchToastMessage('error', { title: errorPayload?.message });
-    }
+    saveSettings(
+      { key: 'currency', data: updatedObj },
+      {
+        onSuccess: () => setUnsavedDataStatus(false),
+        onError: (error) => {
+          const errObj = error as { errors?: Record<string, string[]> };
+          setErrors(getErrorsObject(errObj.errors));
+        },
+      },
+    );
   };
 
   const handleDiscardData = () => {
@@ -204,5 +190,7 @@ const MultiCurrencySettings = () => {
     </>
   );
 };
+
+MultiCurrencySettings.displayName = 'MultiCurrencySettings';
 
 export default MultiCurrencySettings;

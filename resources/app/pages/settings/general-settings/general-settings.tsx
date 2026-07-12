@@ -7,23 +7,17 @@ import Button from '@/molecules/button';
 import Container from '@/molecules/container';
 import Flex from '@/molecules/flex';
 import PageHeading from '@/molecules/page-heading';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import {
-  getSettingsAPI,
-  updateSettings,
-  updateSettingsAPI,
-} from '@/store/settingsSlice';
-import { getErrorsObject } from '@/store/utils';
+import { getErrorsObject } from '@/libs/api';
+import { useUnsavedStatus } from '@/libs/unsaved-store';
+import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import type {
   FormErrors,
   MediaChangePayload,
   MediaRef,
   SettingsSectionData,
 } from '@/types';
-import { isApiSuccess } from '@/types/pages/api-guards';
 import { __ } from '@/wpi18n';
 
-import { dispatchToastMessage } from '@/pages/utils';
 import { checkUnsavedDataStatus, setUnsavedDataStatus } from '@/pages/settings/utils';
 import InvoiceId from '@/pages/settings/general-settings/invoice-id';
 import OrderId from '@/pages/settings/general-settings/order-id';
@@ -37,7 +31,6 @@ type SettingsOutletContext = {
 };
 
 const GeneralSettings = () => {
-  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { confirmAction } = useOutletContext<SettingsOutletContext>();
 
@@ -48,39 +41,37 @@ const GeneralSettings = () => {
   const [initialData, setInitialData] = useState<GeneralSettingsFormData>({});
   const [errors, setErrors] = useState<FormErrors>({});
 
-  const hasUnsavedData = useAppSelector((state) => state.unsaved.hasUnsavedData);
-  const { loaded, data: generalSettingsData } = useAppSelector(
-    (state) => state.settings?.general,
-  );
+  const hasUnsavedData = useUnsavedStatus();
+  const { data: generalSettingsData, isLoading } = useSettingsQuery('general');
+  const { mutate: saveSettings } = useUpdateSettingsMutation();
+
+  const loaded = !isLoading && Boolean(generalSettingsData);
 
   useEffect(() => {
-    dispatch(getSettingsAPI('general'));
-  }, []);
-
-  useEffect(() => {
-    if (Object.keys(generalSettingsData || {}).length) {
-      const storeLogoValue = generalSettingsData?.store_logo;
-      const storeLogoMedia =
-        storeLogoValue && typeof storeLogoValue === 'object'
-          ? (storeLogoValue as MediaRef)
-          : null;
-
-      setDataObj({
-        ...generalSettingsData,
-        store_logo: storeLogoMedia?.id ?? null,
-      } as GeneralSettingsFormData);
-      setInitialData({
-        ...generalSettingsData,
-        store_logo: storeLogoMedia?.url ?? null,
-      } as GeneralSettingsFormData);
-      setStoreLogo(storeLogoMedia?.url || '');
-      setSelectedCountries(
-        (generalSettingsData?.selling_countries as string[]) || [],
-      );
-      setSellingLocation(
-        (generalSettingsData?.selling_location_type as string) || '',
-      );
+    if (!generalSettingsData || !Object.keys(generalSettingsData).length) {
+      return;
     }
+    const storeLogoValue = generalSettingsData?.store_logo;
+    const storeLogoMedia =
+      storeLogoValue && typeof storeLogoValue === 'object'
+        ? (storeLogoValue as MediaRef)
+        : null;
+
+    setDataObj({
+      ...generalSettingsData,
+      store_logo: storeLogoMedia?.id ?? null,
+    } as GeneralSettingsFormData);
+    setInitialData({
+      ...generalSettingsData,
+      store_logo: storeLogoMedia?.url ?? null,
+    } as GeneralSettingsFormData);
+    setStoreLogo(storeLogoMedia?.url || '');
+    setSelectedCountries(
+      (generalSettingsData?.selling_countries as string[]) || [],
+    );
+    setSellingLocation(
+      (generalSettingsData?.selling_location_type as string) || '',
+    );
   }, [generalSettingsData]);
 
   const handleResetIDField = (key: string) => {
@@ -154,29 +145,23 @@ const GeneralSettings = () => {
     }));
   };
 
-  const handleSaveData = async () => {
+  const handleSaveData = () => {
     const updatedData: GeneralSettingsFormData = {
       ...dataObj,
       selling_countries: selectedCountries,
     };
 
     setDataObj(updatedData);
-    const result = await updateSettingsAPI('general', updatedData);
-    if (isApiSuccess(result)) {
-      dispatch(
-        updateSettings({
-          key: 'general',
-          value: result.data as SettingsSectionData,
-        }),
-      );
-      setUnsavedDataStatus(false);
-      dispatchToastMessage('success', {
-        title: __('General settings updated', 'kirki-ecommerce'),
-      });
-    } else {
-      const errorPayload = result as { errors?: Record<string, string[]> };
-      setErrors(getErrorsObject(errorPayload.errors));
-    }
+    saveSettings(
+      { key: 'general', data: updatedData as SettingsSectionData },
+      {
+        onSuccess: () => setUnsavedDataStatus(false),
+        onError: (error) => {
+          const errObj = error as { errors?: Record<string, string[]> };
+          setErrors(getErrorsObject(errObj.errors));
+        },
+      },
+    );
   };
 
   const handleBackButton = () => {
@@ -283,5 +268,7 @@ const GeneralSettings = () => {
     </>
   );
 };
+
+GeneralSettings.displayName = 'GeneralSettings';
 
 export default GeneralSettings;

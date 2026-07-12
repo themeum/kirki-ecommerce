@@ -6,13 +6,8 @@ import Button from '@/molecules/button';
 import Checkbox from '@/molecules/checkbox';
 import { TableCell, TableRow } from '@/molecules/table';
 import Thumbnail from '@/molecules/thumbnail';
-import {
-  deleteCategoryByIdAPI,
-  setKeyValue,
-} from '@/store/categoriesSlice';
-import { useAppDispatch } from '@/store/hooks';
+import { useDeleteCategoryMutation } from '@/services/category';
 import type { Category, MarkListHandlers } from '@/types';
-import { isApiSuccess } from '@/types/pages/api-guards';
 import { __ } from '@/wpi18n';
 
 import CategoryAddEditPopover from '@/pages/categories/category-add-edit-popover';
@@ -27,16 +22,12 @@ const SingleRow = ({
   handleSingleCheckboxClick,
 }: SingleRowProps) => {
   const [openPopup, setOpenPopup] = useState(false);
-  const dispatch = useAppDispatch();
+  const deleteMutation = useDeleteCategoryMutation();
 
-  const onItemDelete = async (id: number) => {
-    const result = await deleteCategoryByIdAPI(id);
-    if (isApiSuccess(result)) {
-      dispatch(setKeyValue({ key: 'toggler', value: Date.now() }));
-    } else {
-      console.log(result);
-    }
+  const onItemDelete = (id: number) => {
+    deleteMutation.mutate(id);
   };
+
   const image =
     item?.image && typeof item.image === 'object' ? item.image : null;
 
@@ -96,5 +87,7 @@ const SingleRow = ({
     </>
   );
 };
+
+SingleRow.displayName = 'SingleRow';
 
 export default SingleRow;

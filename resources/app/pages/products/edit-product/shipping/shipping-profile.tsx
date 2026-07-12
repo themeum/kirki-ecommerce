@@ -1,12 +1,11 @@
-import { useEffect, useState, type ReactElement } from 'react';
+import { type ReactElement, useEffect, useState } from 'react';
 
-import { useGetListAPI } from '@/hooks';
 import Card from '@/molecules/card';
 import Checkbox from '@/molecules/checkbox';
 import Grid from '@/molecules/grid';
 import { Select } from '@/molecules/select';
-import { useAppSelector } from '@/store/hooks';
-import { getShippingProfileList } from '@/store/settingsSlice';
+import { useProductForm } from '@/contexts/product-form-context';
+import { useShippingProfilesQuery } from '@/services/shipping';
 import type { FormErrors, SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -21,41 +20,27 @@ const ShippingProfile = ({
   errors: _errors,
   onChange = () => {},
 }: ShippingProfileProps) => {
-  const { data: productData } = useAppSelector((state) => state.product);
-  useGetListAPI({
-    reducerName: 'settings',
-    apiCallBack: getShippingProfileList,
-    nestedToggler: ['shipping', 'shippingProfile'],
-  });
-
+  const { product: productData } = useProductForm();
+  const { data: shippingProfiles } = useShippingProfilesQuery({ limit: -1 });
   const [shippingProfileList, setShippingProfileList] = useState<
     SelectOption[]
   >([]);
   const [openAddProfilePopup, setOpenAddProfilePopup] = useState(false);
   const [show, setShow] = useState(false);
 
-  const { loaded, data: shippingProfile } = useAppSelector(
-    (state) => state.settings?.shipping?.shippingProfile,
-  );
-
   useEffect(() => {
-    if (loaded) {
-      formatProfileList();
+    if (shippingProfiles) {
+      const updatedData = (shippingProfiles ?? []).map((item) => ({
+        value: item.id,
+        title: item.name,
+      }));
+      setShippingProfileList(updatedData);
     }
-  }, [shippingProfile]);
+  }, [shippingProfiles]);
 
   useEffect(() => {
     setShow(productData?.variants[0].shipping_profile_id ? true : false);
   }, [productData]);
-
-  const formatProfileList = () => {
-    const updatedData = (shippingProfile ?? []).map((item) => ({
-      value: item.id,
-      title: item.name,
-    }));
-
-    setShippingProfileList(updatedData);
-  };
 
   const handleOnViewProfileOptions = (value: unknown, fieldName: string) => {
     setShow(Boolean(value));

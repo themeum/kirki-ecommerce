@@ -1,4 +1,5 @@
 import { useState, type Dispatch, type SetStateAction, type ReactNode } from 'react';
+import { toast } from 'sonner';
 
 import HeaderActionsCard from '@/components/header-actions-card';
 import { TrashIcon } from '@/icons';
@@ -7,7 +8,6 @@ import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
 import Text from '@/molecules/text';
 import { CLASS_PREFIX } from '@/conf';
-import { dispatchToastMessage } from '@/pages/utils';
 import type { SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -92,13 +92,15 @@ export const VatCollection = (props: VatCollectionProps) => {
         item.state !== itemToDelete.state || item.rate !== itemToDelete.rate,
     );
     setVatCollectionList(updatedList);
-    dispatchToastMessage('delete', {
-      title: __('VAT collection deleted', 'kirki-ecommerce'),
+    toast(__('VAT collection deleted', 'kirki-ecommerce'), {
       duration: 5000,
-      undoAction: () => {
-        setVatCollectionList(initialList);
+      action: {
+        label: __('Undo', 'kirki-ecommerce'),
+        onClick: () => {
+          setVatCollectionList(initialList);
+        },
       },
-      onSuccess: async () => {
+      onAutoClose: () => {
         updateVatCollection(updatedList, 'delete');
       },
     });
@@ -168,3 +170,5 @@ export const VatCollection = (props: VatCollectionProps) => {
     </div>
   );
 };
+
+VatCollection.displayName = 'VatCollection';

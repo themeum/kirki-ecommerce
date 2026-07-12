@@ -7,21 +7,15 @@ import Button from '@/molecules/button';
 import Checkbox from '@/molecules/checkbox';
 import Flex from '@/molecules/flex';
 import { TableCell, TableRow } from '@/molecules/table';
-import {
-  deleteAttributeValueByIdAPI,
-  setKeyValue,
-} from '@/store/attributesSlice';
-import { useAppDispatch } from '@/store/hooks';
+import { useDeleteAttributeValueMutation } from '@/services/attribute';
 import type {
   Attribute,
   AttributeValue,
   ConfirmationVariant,
   MarkListHandlers,
 } from '@/types';
-import { isApiSuccess } from '@/types/pages/api-guards';
 import { __ } from '@/wpi18n';
 
-import { dispatchToastMessage } from '@/pages/utils';
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
 import VariationValuePopup from '@/pages/settings/essential-settings/variation-library/variation-value-popup';
 
@@ -52,9 +46,9 @@ const SingleRow = ({
 }: SingleRowProps) => {
   const { confirmAction } = useOutletContext<SettingsOutletContext>();
   const [editedItem, setEditedItem] = useState<AttributeValue | null>(null);
-  const dispatch = useAppDispatch();
+  const deleteMutation = useDeleteAttributeValueMutation();
 
-  const handleAttributeValueRemove = async () => {
+  const handleAttributeValueRemove = () => {
     setUnsavedDataStatus(true);
     confirmAction({
       action: () => onDeleteValue(),
@@ -70,14 +64,11 @@ const SingleRow = ({
     });
   };
 
-  const onDeleteValue = async () => {
-    const params = { attribute_id: selectedItem?.id as number, value_id: item?.id };
-    const result = await deleteAttributeValueByIdAPI(params);
-    if (isApiSuccess(result)) {
-      dispatch(setKeyValue({ key: 'toggler', value: Date.now() }));
-    } else {
-      dispatchToastMessage('error', { title: 'Something went wrong' });
-    }
+  const onDeleteValue = () => {
+    deleteMutation.mutate({
+      attribute_id: selectedItem?.id as number,
+      value_id: item?.id,
+    });
   };
 
   return (
@@ -138,5 +129,7 @@ const SingleRow = ({
     </>
   );
 };
+
+SingleRow.displayName = 'SingleRow';
 
 export default SingleRow;

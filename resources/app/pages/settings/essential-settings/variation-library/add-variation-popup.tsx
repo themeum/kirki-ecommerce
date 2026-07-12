@@ -9,14 +9,9 @@ import {
   PopoverFooter,
   PopoverHeader,
 } from '@/molecules/popover';
-import {
-  addAttributeAPI,
-  setKeyValue,
-} from '@/store/attributesSlice';
-import { useAppDispatch } from '@/store/hooks';
-import { getErrorsObject } from '@/store/utils';
+import { getErrorsObject } from '@/libs/api';
+import { useCreateAttributeMutation } from '@/services/attribute';
 import type { AttributeFormData, ButtonState, FormErrors } from '@/types';
-import { isApiSuccess } from '@/types/pages/api-guards';
 import { __ } from '@/wpi18n';
 
 type AddVariationPopupProps = {
@@ -30,24 +25,27 @@ const AddVariationPopup = ({
   onClose,
   variationType,
 }: AddVariationPopupProps) => {
-  const dispatch = useAppDispatch();
   const [variationName, setVariationName] = useState('');
   const [errors, setErrors] = useState<FormErrors>({});
 
-  const handleAddNewVariation = async () => {
+  const { mutate: createAttribute } = useCreateAttributeMutation();
+
+  const handleAddNewVariation = () => {
     const newAttribute: AttributeFormData = {
       name: variationName,
       type: variationType ?? undefined,
     };
-    const result = await addAttributeAPI(newAttribute);
-    if (isApiSuccess(result)) {
-      dispatch(setKeyValue({ key: 'toggler', value: Date.now() }));
-      onClose();
-    } else {
-      const errorPayload = result as { errors?: Record<string, string[]> };
-      setErrors(getErrorsObject(errorPayload.errors));
-    }
-    setVariationName('');
+    createAttribute(newAttribute, {
+      onSuccess: () => {
+        setVariationName('');
+        onClose();
+      },
+      onError: (error) => {
+        const errObj = error as { errors?: Record<string, string[]> };
+        setErrors(getErrorsObject(errObj.errors));
+        setVariationName('');
+      },
+    });
   };
 
   const handleClosePopup = () => {
@@ -56,6 +54,7 @@ const AddVariationPopup = ({
   };
 
   const buttonState: ButtonState = variationName === '' ? 'disabled' : '';
+
   return (
     <div>
       <Popover
@@ -109,5 +108,7 @@ const AddVariationPopup = ({
     </div>
   );
 };
+
+AddVariationPopup.displayName = 'AddVariationPopup';
 
 export default AddVariationPopup;

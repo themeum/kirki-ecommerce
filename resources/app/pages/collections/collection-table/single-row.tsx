@@ -8,13 +8,8 @@ import Flex from '@/molecules/flex';
 import { TableCell, TableRow } from '@/molecules/table';
 import Text from '@/molecules/text';
 import Thumbnail from '@/molecules/thumbnail';
-import {
-  deleteCollectionByIdAPI,
-  setKeyValue,
-} from '@/store/collectionsSlice';
-import { useAppDispatch } from '@/store/hooks';
+import { useDeleteCollectionMutation } from '@/services/collection';
 import type { Collection, MarkListHandlers } from '@/types';
-import { isApiSuccess } from '@/types/pages/api-guards';
 import { __ } from '@/wpi18n';
 
 type SingleRowProps = MarkListHandlers & {
@@ -26,21 +21,17 @@ const SingleRow = ({
   isSelected,
   handleSingleCheckboxClick,
 }: SingleRowProps) => {
-  const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const deleteMutation = useDeleteCollectionMutation();
 
   const handleItemClick = (id: number) => {
     navigate('/collections/' + id);
   };
 
-  const onItemDelete = async (id: number) => {
-    const result = await deleteCollectionByIdAPI(id);
-    if (isApiSuccess(result)) {
-      dispatch(setKeyValue({ key: 'toggler', value: Date.now() }));
-    } else {
-      console.log(result);
-    }
+  const onItemDelete = (id: number) => {
+    deleteMutation.mutate(id);
   };
+
   const banner =
     item?.banner && typeof item.banner === 'object' ? item.banner : null;
 
@@ -89,5 +80,7 @@ const SingleRow = ({
     </>
   );
 };
+
+SingleRow.displayName = 'SingleRow';
 
 export default SingleRow;

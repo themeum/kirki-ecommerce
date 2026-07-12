@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useNavigate, useOutletContext } from 'react-router';
+import { useQueryClient } from '@tanstack/react-query';
 
 import PageNavbar from '@/components/page-navbar';
 import Button from '@/molecules/button';
@@ -9,15 +10,15 @@ import Flex from '@/molecules/flex';
 import PageHeading from '@/molecules/page-heading';
 import { RadioGroup } from '@/molecules/radio-group';
 import Text from '@/molecules/text';
-import { dispatchToastMessage } from '@/pages/utils';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { queryKeys } from '@/libs/query-keys';
+import { useUnsavedStatus } from '@/libs/unsaved-store';
+import { toastMutationError } from '@/services/helpers';
 import {
-  getSettingsAPI,
-  updateSettingsAPI,
   updateSettings,
-} from '@/store/settingsSlice';
+  useSettingsQuery,
+  useUpdateSettingsMutation,
+} from '@/services/settings';
 import type { SettingsSectionData } from '@/types';
-import { isApiSuccess } from '@/types';
 import { __ } from '@/wpi18n';
 
 import { checkUnsavedDataStatus, setUnsavedDataStatus } from '@/pages/settings/utils';
@@ -34,26 +35,22 @@ type TaxSettingsFormData = Omit<SettingsSectionData, 'tax_regions'> & {
 };
 
 const EditRegionEU = () => {
-  const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { confirmAction } = useOutletContext<SettingsOutletContext>();
   const [vatCollectionList, setVatCollectionList] = useState<TaxRate[]>([]);
   const [vatCollectionProcess, setVatCollectionProcess] = useState('oss');
   const [dataObj, setDataObj] = useState<TaxRegion[]>([]);
-  const hasUnsavedData = useAppSelector((state) => state.unsaved?.hasUnsavedData);
-  const { loaded, data: taxSettingsData } = useAppSelector(
-    (state) => state.settings?.tax,
-  );
+
+  const hasUnsavedData = useUnsavedStatus();
+  const { data: taxSettingsData, isLoading } = useSettingsQuery('tax');
+  const { mutate: saveSettings } = useUpdateSettingsMutation();
+
+  const loaded = !isLoading && Boolean(taxSettingsData);
 
   const euRegion = useMemo(() => {
     return dataObj.find((region) => region.code === 'EU');
   }, [dataObj]);
-
-  useEffect(() => {
-    if (!loaded) {
-      dispatch(getSettingsAPI('tax'));
-    }
-  }, []);
 
   const setInitialData = () => {
     const regions = (taxSettingsData as TaxSettingsFormData)?.tax_regions;
@@ -116,45 +113,45 @@ const EditRegionEU = () => {
       region.code === 'EU' ? { ...region, product_tax: vatList } : region,
     );
     setDataObj(updatedData);
-    await handleSaveData(updatedData, 'Vat collection list updated', from);
+    await handleSaveData(updatedData, from);
   };
 
-  const updateTaxRules = async (rulesList: TaxRule[]) => {
+  const updateTaxRules = async (rulesList: TaxRule[], from = '') => {
     const updatedRules = dataObj?.map((region) =>
       region.code === 'EU' ? { ...region, rules: rulesList } : region,
     );
     setDataObj(updatedRules);
-    await handleSaveData(updatedRules, 'Tax rule updated');
+    await handleSaveData(updatedRules, from);
   };
 
-  const handleSaveData = async (
-    updatedDataObj?: TaxRegion[],
-    message = '',
-    from = '',
-  ) => {
+  const handleSaveData = async (updatedDataObj?: TaxRegion[], from = '') => {
     const payload: TaxSettingsFormData = {
       ...(taxSettingsData as TaxSettingsFormData),
       tax_regions: updatedDataObj ?? dataObj,
     };
-    const defaultMessage = __('Tax region value updated', 'kirki-ecommerce');
-    const result = await updateSettingsAPI('tax', payload);
-    if (isApiSuccess(result)) {
-      if (from !== 'delete') {
-        dispatchToastMessage('success', { title: message || defaultMessage });
-      }
-      setUnsavedDataStatus(false);
-      dispatch(
-        updateSettings({
-          key: 'tax',
-          value: result.data as SettingsSectionData,
-        }),
-      );
-    } else {
-      const errorResult = result as { message?: string };
-      dispatchToastMessage('error', {
-        title: errorResult?.message || __('Something went wrong', 'kirki-ecommerce'),
-      });
+
+    if (from === 'delete') {
+      updateSettings({ key: 'tax', data: payload })
+        .then(() => {
+          setUnsavedDataStatus(false);
+          void queryClient.invalidateQueries({
+            queryKey: queryKeys.Settings('tax'),
+          });
+        })
+        .catch((error) => {
+          toastMutationError(error);
+        });
+      return;
     }
+
+    saveSettings(
+      { key: 'tax', data: payload },
+      {
+        onSuccess: () => {
+          setUnsavedDataStatus(false);
+        },
+      },
+    );
   };
 
   const handleDiscardData = () => {
@@ -195,7 +192,7 @@ const EditRegionEU = () => {
                 type="primary"
                 size="small"
                 text={__('Save', 'kirki-ecommerce')}
-                onClick={handleSaveData}
+                onClick={() => handleSaveData()}
               />
             </>
           ) : (

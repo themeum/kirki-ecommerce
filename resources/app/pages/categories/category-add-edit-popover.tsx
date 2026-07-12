@@ -2,6 +2,7 @@ import { useState } from 'react';
 
 import ThumbnailSelector from '@/components/thumbnail-selector';
 import { CategoryPopupIcon } from '@/icons';
+import { getErrorsObject } from '@/libs/api';
 import Button from '@/molecules/button';
 import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
@@ -15,15 +16,17 @@ import {
 import { Select } from '@/molecules/select';
 import Text from '@/molecules/text';
 import {
-  addCategoryAPI,
-  setKeyValue,
-  updateCategory,
-  updateCategoryAPI,
-} from '@/store/categoriesSlice';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { getErrorsObject } from '@/store/utils';
-import type { Category, CategoryFormData, FormErrors, MediaChangePayload } from '@/types';
-import { isApiSuccess } from '@/types/pages/api-guards';
+  useCategoriesQuery,
+  useCreateCategoryMutation,
+  useUpdateCategoryMutation,
+} from '@/services/category';
+import type {
+  Category,
+  CategoryFormData,
+  FormErrors,
+  MediaChangePayload,
+} from '@/types';
+import type { ErrorResponse } from '@/libs/api';
 import { __ } from '@/wpi18n';
 
 type CategoryAddEditPopoverProps = {
@@ -35,10 +38,11 @@ const CategoryAddEditPopover = ({
   category,
   onClose = () => {},
 }: CategoryAddEditPopoverProps) => {
-  const dispatch = useAppDispatch();
-  const categories = useAppSelector(
-    (state) => state.categories?.data?.results ?? [],
-  );
+  const { data: categoriesData } = useCategoriesQuery({ limit: -1 });
+  const categories = categoriesData?.results ?? [];
+  const createMutation = useCreateCategoryMutation();
+  const updateMutation = useUpdateCategoryMutation();
+
   const image =
     category.image && typeof category.image === 'object'
       ? category.image
@@ -49,7 +53,6 @@ const CategoryAddEditPopover = ({
     useState<CategoryFormData & { id?: number }>(category);
 
   const handleOnChange = (data: unknown, fieldName: string) => {
-    console.log(data, fieldName);
     setCategoryFormData((prev) => ({
       ...prev,
       [fieldName]: data,
@@ -60,7 +63,9 @@ const CategoryAddEditPopover = ({
     }));
   };
 
-  const handleMediaChange = (img: MediaChangePayload | MediaChangePayload[]) => {
+  const handleMediaChange = (
+    img: MediaChangePayload | MediaChangePayload[],
+  ) => {
     const media = img as MediaChangePayload;
     setImageUrl(media?.url ?? null);
     setCategoryFormData((prev) => ({
@@ -70,22 +75,19 @@ const CategoryAddEditPopover = ({
   };
 
   const handleAddOrUpdateCategory = async () => {
-    let result = {} as Awaited<ReturnType<typeof addCategoryAPI>>;
-    if (categoryFormData.id) {
-      result = await updateCategoryAPI(categoryFormData.id, categoryFormData);
-    } else {
-      result = await addCategoryAPI(categoryFormData);
-    }
-    if (isApiSuccess(result)) {
+    try {
       if (categoryFormData.id) {
-        dispatch(updateCategory(result.data));
+        await updateMutation.mutateAsync({
+          id: categoryFormData.id,
+          data: categoryFormData,
+        });
       } else {
-        dispatch(setKeyValue({ key: 'toggler', value: Date.now() }));
+        await createMutation.mutateAsync(categoryFormData);
       }
       onClose();
-    } else {
-      const errorPayload = result as { errors?: Record<string, string[]> };
-      setErrors(getErrorsObject(errorPayload.errors));
+    } catch (error) {
+      const err = error as ErrorResponse;
+      setErrors(getErrorsObject(err.errors));
     }
   };
 
@@ -188,5 +190,7 @@ const CategoryAddEditPopover = ({
     </>
   );
 };
+
+CategoryAddEditPopover.displayName = 'CategoryAddEditPopover';
 
 export default CategoryAddEditPopover;

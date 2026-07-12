@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react';
 
 import AnimatedPage from '@/components/animated-page/animated-page';
 import { ConfirmationModal } from '@/components/modal/confirmation-modal';
-import { setUnsavedDataStatus } from '@/pages/settings/utils';
-import { useAppSelector } from '@/store/hooks';
+import {
+  setUnsavedDataStatus,
+  useUnsavedStatus,
+} from '@/libs/unsaved-store';
 import type { ConfirmationVariant } from '@/types';
 
 type ConfirmActionOtherProps = {
@@ -28,8 +30,10 @@ type PendingAction = {
 };
 
 const UnsavedChangesController = () => {
-  const hasUnsavedData = useAppSelector((state) => state.unsaved?.hasUnsavedData);
-  const [pendingAction, setPendingAction] = useState<PendingAction | null>(null);
+  const hasUnsavedData = useUnsavedStatus();
+  const [pendingAction, setPendingAction] = useState<PendingAction | null>(
+    null,
+  );
 
   useEffect(() => {
     const handler = (e: BeforeUnloadEvent) => {
@@ -87,5 +91,7 @@ const UnsavedChangesController = () => {
     </>
   );
 };
+
+UnsavedChangesController.displayName = 'UnsavedChangesController';
 
 export default UnsavedChangesController;

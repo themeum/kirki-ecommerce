@@ -11,16 +11,13 @@ import { Popover, PopoverBody, PopoverHeader } from '@/molecules/popover';
 import { Select } from '@/molecules/select';
 import { __, sprintf } from '@/wpi18n';
 
+import { getErrorsObject } from '@/libs/api';
+import { useSettingsQuery } from '@/services/settings';
 import {
-  createShippingBoxAPI,
-  updateShippingBoxAPI,
-  setKeyValue,
-} from '@/store/settingsSlice';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { getErrorsObject } from '@/store/utils';
-import { dispatchToastMessage } from '@/pages/utils';
+  useCreateShippingBoxMutation,
+  useUpdateShippingBoxMutation,
+} from '@/services/shipping';
 import type { FormErrors, ShippingBox } from '@/types';
-import { isApiSuccess } from '@/types';
 
 import { BoxGenerator } from '@/pages/settings/shipping-settings/shipping-box/box-generator';
 
@@ -38,7 +35,6 @@ type ShippingBoxPopupProps = {
   isOpen: boolean;
   onClose?: () => void;
   onSave?: (id?: number) => void;
-  fetchShippingBoxList?: () => void;
 };
 
 const ShippingBoxPopup = ({
@@ -47,10 +43,10 @@ const ShippingBoxPopup = ({
   onClose = () => {},
   onSave = () => {},
 }: ShippingBoxPopupProps) => {
-  const dispatch = useAppDispatch();
-  const { data: productSettingsData } = useAppSelector(
-    (state) => state.settings?.product,
-  );
+  const { data: productSettingsData } = useSettingsQuery('product');
+  const { mutate: createBox } = useCreateShippingBoxMutation();
+  const { mutate: updateBox } = useUpdateShippingBoxMutation();
+
   const [shippingBoxData, setShippingBoxData] = useState<ShippingBoxFormData>(
     {},
   );
@@ -114,36 +110,36 @@ const ShippingBoxPopup = ({
     });
   };
 
-  const handleCreateOrUpdateBox = async () => {
-    let result;
-    if (selectedItem) {
-      result = await updateShippingBoxAPI(selectedItem?.id, shippingBoxData);
-    } else {
-      const data = {
-        ...shippingBoxData,
-        is_default: false,
-      };
-      result = await createShippingBoxAPI(data);
-    }
-
-    if (isApiSuccess(result)) {
-      dispatch(
-        setKeyValue({
-          key: 'toggler',
-          value: Date.now(),
-          nestedToggler: ['shipping', 'shippingBox'],
-        }),
-      );
-      onSave((result?.data as { id?: number })?.id);
-      dispatchToastMessage('success', {
-        title: selectedItem
-          ? __('Shipping box updated', 'kirki-ecommerce')
-          : __('Shipping box created', 'kirki-ecommerce'),
-      });
+  const handleCreateOrUpdateBox = () => {
+    const onMutateSuccess = (response: { data?: unknown }) => {
+      onSave((response?.data as { id?: number })?.id);
       handleOnclosePopup();
+    };
+
+    const onMutateError = (error: unknown) => {
+      const errObj = error as { errors?: Record<string, string[]> };
+      setErrors(getErrorsObject(errObj.errors));
+    };
+
+    if (selectedItem) {
+      updateBox(
+        {
+          id: selectedItem?.id as number,
+          data: shippingBoxData as Record<string, unknown>,
+        },
+        {
+          onSuccess: onMutateSuccess,
+          onError: onMutateError,
+        },
+      );
     } else {
-      const errorResult = result as { errors?: Record<string, string[]> };
-      setErrors(getErrorsObject(errorResult.errors));
+      createBox(
+        { ...shippingBoxData, is_default: false } as Record<string, unknown>,
+        {
+          onSuccess: onMutateSuccess,
+          onError: onMutateError,
+        },
+      );
     }
   };
 

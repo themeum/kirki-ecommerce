@@ -1,7 +1,3 @@
-import type { ActionCreatorWithPayload } from '@reduxjs/toolkit';
-
-import type { SetKeyValuePayload } from '@/types/store/common-actions';
-
 type FormErrors = Record<string, string | string[] | null | undefined>;
 
 type DateFormatType = 'date' | 'time' | 'datetime' | 'readable' | 'relative';
@@ -42,8 +38,9 @@ type TaxonomyTableHeader = {
   title: string;
   sortable?: {
     sort_by: string;
-    reducer: string;
-    setKeyValue: ActionCreatorWithPayload<SetKeyValuePayload>;
+    activeSortBy?: string;
+    sortOrder?: 'asc' | 'desc';
+    onSort?: (sortBy: string, sortOrder: 'asc' | 'desc') => void;
   };
 };
 

@@ -17,31 +17,18 @@ import Input from '@/molecules/input';
 import PageHeading from '@/molecules/page-heading';
 import RichText from '@/molecules/rich-text';
 import Separator from '@/molecules/separator';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import {
-  addProductAPI,
-  getProductByIdAPI,
-  setProduct,
-  updateProduct,
-  updateProductAPI,
-} from '@/store/productSlice';
-import {
-  getSettingsAPI,
-  getShippingBoxListAPI,
-  getShippingProfileList,
-  getTaxProfileListAPI,
-} from '@/store/settingsSlice';
-import { getErrorsObject } from '@/store/utils';
+import { ProductFormProvider, useProductForm } from '@/contexts/product-form-context';
+import { useProductQuery, useCreateProductMutation, useUpdateProductMutation } from '@/services/product';
+import { useDefaultSettingsQuery, useSettingsQuery } from '@/services/settings';
+import { useShippingBoxesQuery } from '@/services/shipping';
+import { getErrorsObject } from '@/libs/api';
 import type {
-  ApiCallResult,
   FormErrors,
   MediaRef,
-  Product,
   ProductFormData,
   SettingsSectionData,
   ShippingBox,
 } from '@/types';
-import { isApiSuccess } from '@/types/pages/api-guards';
 import { __ } from '@/wpi18n';
 
 import AdditionalInfo from '@/pages/products/edit-product/additional-info/additional-info';
@@ -62,10 +49,8 @@ type ProductSettingsData = SettingsSectionData & {
   dimension_unit?: string;
 };
 
-type ShippingBoxListResponse = {
-  data?: {
-    results?: Array<ShippingBox & { is_default?: boolean }>;
-  };
+type SaveResult = {
+  success?: boolean;
 };
 
 type VariantsProps = {
@@ -83,105 +68,50 @@ type RightPanelProps = {
 const VariantsView = Variants as ComponentType<VariantsProps>;
 const RightPanelView = RightPanel as ComponentType<RightPanelProps>;
 
-const EditProduct = () => {
-  const dispatch = useAppDispatch();
+const EditProductInner = () => {
   const navigate = useNavigate();
-  const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
   const { id } = useParams();
+  const isNew = id === NEW_ITEM_ID;
+  const { product: productData, setProduct, updateProduct } = useProductForm();
+  const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
   const [errors, setErrors] = useState<FormErrors>({});
-  const { loaded: defaultDataLoaded, data: defaultData } = useAppSelector(
-    (state) => state.settings?.default,
-  );
 
-  const { data: productData } = useAppSelector((state) => state.product);
-  const [, setHasVariation] = useState(false);
+  const { data: productResponse } = useProductQuery(id as string, !isNew);
+  const { data: defaultSettings } = useDefaultSettingsQuery();
+  const { data: productSettings } = useSettingsQuery('product', {}, isNew);
+  const { data: shippingBoxes } = useShippingBoxesQuery({ limit: -1 });
 
-  useEffect(() => {
-    const fetchInitialData = async () => {
-      try {
-        const [, , productSettings, shippingBox] = await Promise.all([
-          dispatch(getShippingProfileList({ limit: -1 })),
-          dispatch(getTaxProfileListAPI({ limit: -1 })),
-          dispatch(getSettingsAPI('product')),
-          dispatch(getShippingBoxListAPI({ limit: -1 })),
-        ]);
-        if (isNew()) {
-          const settingsData = productSettings as ProductSettingsData;
-          dispatch(
-            updateProduct({
-              key: 'weight_unit',
-              value: settingsData?.weight_unit,
-              variants: true,
-            }),
-          );
-          dispatch(
-            updateProduct({
-              key: 'show_unit_price',
-              value: settingsData?.is_unit_price_visible,
-              variants: true,
-            }),
-          );
-          const boxResponse = shippingBox as ShippingBoxListResponse;
-          const boxData = boxResponse?.data?.results?.find((item) =>
-            Boolean(item?.is_default),
-          );
-          dispatch(
-            updateProduct({
-              key: 'dimension_unit',
-              value: settingsData?.dimension_unit,
-              variants: true,
-            }),
-          );
-          dispatch(
-            updateProduct({
-              key: 'shipping_box_id',
-              value: boxData?.id,
-              variants: true,
-            }),
-          );
-        }
-      } catch (error) {
-        console.error('Initial load failed:', error);
-      }
-    };
-    fetchInitialData();
-
-    if (!isNew()) {
-      getProductByIdAPI(id as string).then((rawResult) => {
-        const result = rawResult as ApiCallResult<Product>;
-        if (isApiSuccess(result)) {
-          console.log(result.data);
-          dispatch(setProduct(result.data));
-          setMediaItems(result.data?.media as MediaItem[]);
-          setHasVariation(true);
-        }
-      });
-    }
-  }, []);
+  const createProductMutation = useCreateProductMutation();
+  const updateProductMutation = useUpdateProductMutation();
 
   useEffect(() => {
-    if (isNew() && productData?.variants[0]?.attribute_values.length > 0) {
-      setHasVariation(true);
+    if (productResponse) {
+      setProduct(productResponse);
+      setMediaItems(productResponse?.media as MediaItem[]);
     }
-  }, [productData]);
+  }, [productResponse]);
 
   useEffect(() => {
-    if (defaultDataLoaded && isNew()) {
-      dispatch(
-        updateProduct({
-          key: 'currency',
-          value: defaultData?.base_currency,
-        }),
-      );
+    if (!isNew || !productSettings || !shippingBoxes) {
+      return;
     }
-  }, [defaultData]);
+    const settings = productSettings as ProductSettingsData;
+    updateProduct({ key: 'weight_unit', value: settings.weight_unit, variants: true });
+    updateProduct({ key: 'show_unit_price', value: settings.is_unit_price_visible, variants: true });
+    updateProduct({ key: 'dimension_unit', value: settings.dimension_unit, variants: true });
+    const defaultBox = (shippingBoxes as (ShippingBox & { is_default?: boolean })[]).find(
+      (item) => Boolean(item.is_default),
+    );
+    updateProduct({ key: 'shipping_box_id', value: defaultBox?.id, variants: true });
+  }, [productSettings, shippingBoxes]);
 
-  const handleMediaUpdate = (media: MediaItem[]) => {
-    setMediaItems(media);
-  };
+  useEffect(() => {
+    if (isNew && defaultSettings) {
+      updateProduct({ key: 'currency', value: defaultSettings.base_currency });
+    }
+  }, [defaultSettings]);
 
-  const handleAddOrCreateProduct = async () => {
-    let result = {} as ApiCallResult<Product>;
+  const handleAddOrCreateProduct = async (): Promise<SaveResult> => {
     const attributes = productData.attributes.map((item) => ({
       id: item.id,
       values: (item.values ?? []).map((val) => Number(val.id)),
@@ -228,53 +158,44 @@ const EditProduct = () => {
       currency_id,
     };
 
-    if (productData.id) {
-      console.log(formattedData, 'final data');
-      result = (await updateProductAPI(
-        productData.id,
-        formattedData,
-      )) as ApiCallResult<Product>;
-    } else {
-      console.log(formattedData, 'final data');
-      result = (await addProductAPI(formattedData)) as ApiCallResult<Product>;
-    }
-
-    if (isApiSuccess(result)) {
-      if (isNew()) {
-        navigate('/products/' + result.data.id);
-      }
+    try {
       if (productData.id) {
-        dispatch(setProduct(result.data));
-        setMediaItems(result.data?.media as MediaItem[]);
+        const response = await updateProductMutation.mutateAsync({
+          id: productData.id,
+          data: formattedData,
+        });
+        setProduct(response.data);
+        setMediaItems(response.data?.media as MediaItem[]);
       } else {
-        setMediaItems(result.data?.media as MediaItem[]);
-        dispatch(setProduct(result.data));
+        const response = await createProductMutation.mutateAsync(formattedData);
+        setProduct(response.data);
+        setMediaItems(response.data?.media as MediaItem[]);
+        if (isNew) {
+          navigate('/products/' + response.data.id);
+        }
       }
-    } else {
-      console.log(result, 'error');
-      const errorPayload = result as { errors?: Record<string, string[]> };
-      setErrors(getErrorsObject(errorPayload.errors));
+      return { success: true };
+    } catch (error) {
+      setErrors(
+        getErrorsObject((error as { errors?: Record<string, string[]> }).errors),
+      );
+      return { success: false };
     }
-    return result;
   };
 
   const handleOnChange = (value: unknown, fieldName: string) => {
-    dispatch(updateProduct({ key: fieldName, value: value }));
+    updateProduct({ key: fieldName, value: value });
     setErrors((prev) => ({
       ...prev,
       [fieldName]: null,
     }));
   };
 
-  const isNew = () => {
-    return id === NEW_ITEM_ID;
-  };
-
   return (
     <>
       <PageHeading
         text={
-          isNew()
+          isNew
             ? __('New Product', 'kirki-ecommerce')
             : __('Edit Product', 'kirki-ecommerce')
         }
@@ -290,7 +211,7 @@ const EditProduct = () => {
             />
             <Button
               text={
-                isNew()
+                isNew
                   ? __('Create', 'kirki-ecommerce')
                   : __('Save', 'kirki-ecommerce')
               }
@@ -343,7 +264,7 @@ const EditProduct = () => {
                 <MediaGallery
                   label={__('Images and videos', 'kirki-ecommerce')}
                   mediaItems={mediaItems}
-                  onUpdate={(v) => handleMediaUpdate(v)}
+                  onUpdate={(v) => setMediaItems(v)}
                   error={errors?.media as string | boolean | undefined}
                 />
                 <RichText
@@ -359,7 +280,7 @@ const EditProduct = () => {
                 <Separator marginTop="8px" />
                 <AdditionalInfo />
               </Card>
-              {(isNew() ||
+              {(isNew ||
                 productData?.variants[0].attribute_values.length === 0) && (
                 <>
                   <Price errors={errors} setErrors={setErrors} />
@@ -383,6 +304,16 @@ const EditProduct = () => {
         </div>
       </Container>
     </>
+  );
+};
+
+EditProductInner.displayName = 'EditProductInner';
+
+const EditProduct = () => {
+  return (
+    <ProductFormProvider>
+      <EditProductInner />
+    </ProductFormProvider>
   );
 };
 

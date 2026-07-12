@@ -1,14 +1,11 @@
 import React, { useEffect, useState } from 'react';
 
-import { useGetListAPI } from '@/hooks';
 import { TagManager } from '@/molecules/tag-manager';
 import { makeSuggestionList } from '@/pages/utils';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { updateProduct } from '@/store/productSlice';
-import { addTagAPI, getTagsAPI, setKeyValue } from '@/store/tagsSlice';
-import { getErrorsObject } from '@/store/utils';
+import { useProductForm } from '@/contexts/product-form-context';
+import { useCreateTagMutation, useTagsQuery } from '@/services/tag';
+import { getErrorsObject } from '@/libs/api';
 import type { FormErrors, SuggestionOption } from '@/types';
-import { isApiSuccess } from '@/types/pages/api-guards';
 import { __ } from '@/wpi18n';
 
 type TagsProps = {
@@ -17,14 +14,9 @@ type TagsProps = {
 };
 
 const Tags = ({ errors, setErrors }: TagsProps) => {
-  const dispatch = useAppDispatch();
-  const { data: productData } = useAppSelector((state) => state.product);
-  const { data: tagData } = useAppSelector((state) => state.tags);
-  useGetListAPI({
-    reducerName: 'tags',
-    limit: -1,
-    apiCallBack: getTagsAPI,
-  });
+  const { product: productData, updateProduct } = useProductForm();
+  const { data: tagData } = useTagsQuery({ limit: -1 });
+  const createTagMutation = useCreateTagMutation();
 
   const [suggestionArray, setSuggestionArray] = useState<SuggestionOption[]>(
     [],
@@ -56,7 +48,7 @@ const Tags = ({ errors, setErrors }: TagsProps) => {
       { id: tag.value as number, name: tag.title },
       ...productTags,
     ];
-    dispatch(updateProduct({ key: 'tags', value: updatedTagList }));
+    updateProduct({ key: 'tags', value: updatedTagList });
     setErrors((prev) => ({
       ...prev,
       tags: null,
@@ -78,7 +70,7 @@ const Tags = ({ errors, setErrors }: TagsProps) => {
     const updatedTagList = productTags.filter(
       (item) => item.id !== tag.value,
     );
-    dispatch(updateProduct({ key: 'tags', value: updatedTagList }));
+    updateProduct({ key: 'tags', value: updatedTagList });
     setSuggestionArray((prev) => [tag, ...prev]);
     setErrors((prev) => ({
       ...prev,
@@ -86,22 +78,21 @@ const Tags = ({ errors, setErrors }: TagsProps) => {
     }));
   };
 
-  const handleSearchChange = (searchText: string) => {
-    dispatch(setKeyValue({ key: 'search', value: searchText }));
+  const handleSearchChange = (_searchText: string) => {
     setErrors((prev) => ({
       ...prev,
       tags: null,
     }));
   };
+
   const handleAddNewTag = async (tagTitle: string) => {
-    const tagFormData = { name: tagTitle };
-    const result = await addTagAPI(tagFormData);
-    if (isApiSuccess(result)) {
-      dispatch(setKeyValue({ key: 'toggler', value: Date.now() }));
-      handleAddTag({ value: result.data.id, title: tagTitle });
-    } else {
-      const errorPayload = result as { errors?: Record<string, string[]> };
-      setLocalError(getErrorsObject(errorPayload.errors));
+    try {
+      const response = await createTagMutation.mutateAsync({ name: tagTitle });
+      handleAddTag({ value: response.data.id, title: tagTitle });
+    } catch (error) {
+      setLocalError(
+        getErrorsObject((error as { errors?: Record<string, string[]> }).errors),
+      );
     }
   };
 
@@ -126,5 +117,7 @@ const Tags = ({ errors, setErrors }: TagsProps) => {
     />
   );
 };
+
+Tags.displayName = 'Tags';
 
 export default Tags;

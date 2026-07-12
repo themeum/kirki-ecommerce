@@ -3,12 +3,8 @@ import React, { useEffect, useState } from 'react';
 import { PlusIcon } from '@/icons';
 import { TagManager } from '@/molecules/tag-manager';
 import { getSearchedValue } from '@/pages/settings/utils';
-import {
-  addAttributeValueAPI,
-  setKeyValue,
-} from '@/store/attributesSlice';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { getErrorsObject } from '@/store/utils';
+import { useAttributesQuery, useCreateAttributeValueMutation } from '@/services/attribute';
+import { getErrorsObject } from '@/libs/api';
 import type {
   Attribute,
   AttributeValue,
@@ -16,7 +12,6 @@ import type {
   FormErrors,
   SelectOption,
 } from '@/types';
-import { isApiSuccess } from '@/types/pages/api-guards';
 import { __ } from '@/wpi18n';
 
 import VariationPopover from '@/pages/products/edit-product/variants/variation-popover';
@@ -53,10 +48,8 @@ const AddOrEditVariation = ({
   formData,
   setFormData,
 }: AddOrEditVariationProps) => {
-  const dispatch = useAppDispatch();
-  const { loaded, data: allAttributesList } = useAppSelector(
-    (state) => state.attributes,
-  );
+  const { data: allAttributesList, isSuccess: loaded } = useAttributesQuery({ limit: -1 });
+  const createAttributeValueMutation = useCreateAttributeValueMutation();
   const [addNewVariationPopup, setAddNewVariationPopup] = useState(false);
   const [variationSuggestionArray, setVariationSuggestionArray] = useState<
     SelectOption[]
@@ -148,10 +141,9 @@ const AddOrEditVariation = ({
         color: undefined,
       };
     }
-    const result = await addAttributeValueAPI(newValue);
-    if (isApiSuccess(result)) {
-      dispatch(setKeyValue({ key: 'toggler', value: Date.now() }));
-      const resultData = result.data as AttributeValue;
+    try {
+      const response = await createAttributeValueMutation.mutateAsync(newValue);
+      const resultData = response.data as AttributeValue;
       const { value, id, color } = resultData;
       const addedValue: AttributeFormValue = {
         value: id,
@@ -162,10 +154,10 @@ const AddOrEditVariation = ({
         ...prev,
         values: [addedValue, ...(prev?.values || [])],
       }));
-    } else {
-      const errorPayload = result as { errors?: Record<string, string[]> };
-      setVariationErrors(getErrorsObject(errorPayload.errors));
-      console.log(result, 'error');
+    } catch (error) {
+      setVariationErrors(
+        getErrorsObject((error as { errors?: Record<string, string[]> }).errors),
+      );
     }
   };
 
@@ -228,5 +220,7 @@ const AddOrEditVariation = ({
     </>
   );
 };
+
+AddOrEditVariation.displayName = 'AddOrEditVariation';
 
 export default AddOrEditVariation;

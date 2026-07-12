@@ -1,8 +1,8 @@
 import Card from '@/molecules/card';
 import { Select } from '@/molecules/select';
 import Text from '@/molecules/text';
-import { useAppSelector } from '@/store/hooks';
-import type { FormErrors, PageItem, SettingsSectionData } from '@/types';
+import { usePagesQuery } from '@/services/page';
+import type { FormErrors, PageItem, PaginatedData, SettingsSectionData } from '@/types';
 import { __ } from '@/wpi18n';
 
 type ShopPageProps = {
@@ -13,14 +13,17 @@ type ShopPageProps = {
 
 export const ShopPage = (props: ShopPageProps) => {
   const { dataObj, handleOnChange, errors } = props;
-  const { data: pageList } = useAppSelector((state) => state.pages);
+  const { data: pagesData } = usePagesQuery();
 
-  const shopPageOptions = Array.isArray(pageList)
-    ? pageList.map((page: PageItem) => ({
-        title: page.title,
-        value: page.id as number,
-      }))
-    : [];
+  const pageList = Array.isArray(pagesData)
+    ? pagesData
+    : ((pagesData as PaginatedData<PageItem>)?.results ?? []);
+
+  const shopPageOptions = pageList.map((page: PageItem) => ({
+    title: page.title,
+    value: page.id as number,
+  }));
+
   return (
     <div>
       <Card type="large">
@@ -48,3 +51,5 @@ export const ShopPage = (props: ShopPageProps) => {
     </div>
   );
 };
+
+ShopPage.displayName = 'ShopPage';
