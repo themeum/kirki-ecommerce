@@ -1,5 +1,14 @@
 type SortOrder = 'asc' | 'desc';
 
+type ListFilter = {
+  category_ids?: number[];
+  brand_ids?: number[];
+  collection_ids?: number[];
+  tag_ids?: number[];
+  status?: string | string[];
+  stock_status?: string;
+};
+
 type ListState<TData = unknown> = {
   loaded: boolean;
   data: TData | null;
@@ -9,7 +18,7 @@ type ListState<TData = unknown> = {
   sort_by: string;
   limit: string | number;
   toggler?: boolean | number;
-  filter?: Record<string, unknown>;
+  filter?: ListFilter;
 };
 
 type ListQueryParams = {
@@ -20,4 +29,4 @@ type ListQueryParams = {
   limit?: string | number;
 };
 
-export type { SortOrder, ListState, ListQueryParams };
+export type { SortOrder, ListFilter, ListState, ListQueryParams };

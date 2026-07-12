@@ -37,7 +37,10 @@ type CurrencyListItem = Currency & {
 };
 
 type AvailableCurrencyListProps = {
-  dataObj: SettingsSectionData;
+  dataObj: SettingsSectionData & {
+    last_sync_at?: string | null;
+    next_sync_at?: string | null;
+  };
 };
 
 export const AvailableCurrencyList = ({ dataObj }: AvailableCurrencyListProps) => {

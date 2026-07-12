@@ -96,7 +96,7 @@ export const deleteTagsAPI = async ({
     })
     .catch(function (error) {
       const err = error as AxiosErrorLike;
-      data = err.response!;
+      data = err.response?.data ?? false;
       console.error(error);
     });
 
@@ -114,7 +114,7 @@ export const deleteTagByIdAPI = async (
     })
     .catch(function (error) {
       const err = error as AxiosErrorLike;
-      data = err.response!;
+      data = err.response?.data ?? false;
       console.error(data);
     });
   return data;
@@ -131,7 +131,7 @@ export const addTagAPI = async (
     })
     .catch(function (error) {
       const err = error as AxiosErrorLike;
-      data = err.response!.data!;
+      data = err.response?.data ?? false;
     });
 
   return data;
@@ -143,14 +143,14 @@ export const updateTagAPI = async (
 ): Promise<ApiCallResult<Tag>> => {
   let data: ApiCallResult<Tag> = false;
   await axios
-    .request(putOptions('/tags/' + id, params as Record<string, unknown>))
+    .request(putOptions('/tags/' + id, params))
     .then(function (response) {
       data = response.data as ApiResponse<Tag>;
     })
     .catch(function (error) {
       console.log(error);
       const err = error as AxiosErrorLike;
-      data = err.response!.data!;
+      data = err.response?.data ?? false;
     });
 
   return data;

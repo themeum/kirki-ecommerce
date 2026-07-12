@@ -1,10 +1,9 @@
 import MediaSelector from '@/components/media-selector';
 import Grid from '@/molecules/grid';
+import type { MediaRef } from '@/types';
 
-type MediaItem = {
-  id?: number;
-  url: string;
-  alt?: string;
+type MediaItem = Omit<MediaRef, 'id'> & {
+  id?: string | number;
 };
 
 const MediaSelectorPreview = () => {

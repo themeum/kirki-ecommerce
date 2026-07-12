@@ -50,7 +50,7 @@ const CustomerOverview = ({
           />
           <Input
             label={__('Last Name', 'kirki-ecommerce')}
-            value={customerFormData?.last_name}
+            value={customerFormData?.last_name ?? ''}
             placeholder={__('e.g. Musk', 'kirki-ecommerce')}
             onChange={(value) => handleOnChange(value, 'last_name')}
             error={errors?.last_name as string | boolean | undefined}
@@ -72,7 +72,7 @@ const CustomerOverview = ({
           />
           <Input
             label={__('Phone Number', 'kirki-ecommerce')}
-            value={customerFormData?.phone}
+            value={customerFormData?.phone ?? ''}
             placeholder={__('+1 (555) 222 4354', 'kirki-ecommerce')}
             type="tel"
             onChange={(value) => handleOnChange(value, 'phone')}

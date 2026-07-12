@@ -8,7 +8,7 @@ type ApiResponseMeta = {
 type ApiResponse<T> = {
   data: T;
   message?: string;
-  success?: boolean;
+  success: boolean;
   meta?: ApiResponseMeta;
 };
 

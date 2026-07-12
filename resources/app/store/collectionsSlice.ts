@@ -93,7 +93,7 @@ export const getCollectionByIdAPI = async (
     })
     .catch(function (error) {
       const err = error as AxiosErrorLike;
-      data = err.response!;
+      data = err.response?.data ?? false;
       console.error(data);
     });
   return data;
@@ -115,7 +115,7 @@ export const deleteCollectionsAPI = async ({
     })
     .catch(function (error) {
       const err = error as AxiosErrorLike;
-      data = err.response!;
+      data = err.response?.data ?? false;
       console.error(error);
     });
 
@@ -133,7 +133,7 @@ export const deleteCollectionByIdAPI = async (
     })
     .catch(function (error) {
       const err = error as AxiosErrorLike;
-      data = err.response!;
+      data = err.response?.data ?? false;
       console.error(data);
     });
   return data;
@@ -150,7 +150,7 @@ export const addCollectionAPI = async (
     })
     .catch(function (error) {
       const err = error as AxiosErrorLike;
-      data = err.response!.data!;
+      data = err.response?.data ?? false;
     });
 
   return data;
@@ -167,7 +167,7 @@ export const updateCollectionAPI = async (
 
   await axios
     .request(
-      putOptions('/collections/' + id, params as Record<string, unknown>),
+      putOptions('/collections/' + id, params),
     )
     .then(function (response) {
       data = response.data as ApiResponse<Collection>;
@@ -175,7 +175,7 @@ export const updateCollectionAPI = async (
     .catch(function (error) {
       console.log(error);
       const err = error as AxiosErrorLike;
-      data = err.response!.data!;
+      data = err.response?.data ?? false;
     });
 
   return data;

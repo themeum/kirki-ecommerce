@@ -29,7 +29,7 @@ type SettingsOutletContext = {
   confirmAction: (params: { action?: () => void }) => void;
 };
 
-type TaxSettingsFormData = SettingsSectionData & {
+type TaxSettingsFormData = Omit<SettingsSectionData, 'tax_regions'> & {
   tax_regions?: TaxRegion[];
 };
 
@@ -64,10 +64,10 @@ const EditRegionEU = () => {
     const eu = regions.find((region) => region.code === 'EU');
 
     if (eu?.type) {
-      setVatCollectionProcess(eu.type);
+      setVatCollectionProcess(String(eu.type));
     }
     if (eu?.product_tax) {
-      setVatCollectionList(eu?.product_tax);
+      setVatCollectionList(eu.product_tax);
     }
   };
 

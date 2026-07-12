@@ -64,7 +64,7 @@ const ShippingAddress = ({
           />
           <Input
             label={__('Apartment, suite, etc. (optional)', 'kirki-ecommerce')}
-            value={customerFormData?.shipping_address?.address_line2}
+            value={customerFormData?.shipping_address?.address_line2 ?? ''}
             onChange={(value) =>
               handleOnChange(value, 'shipping_address', 'address_line2')
             }

@@ -9,9 +9,7 @@ import TagAddEditPopover from './tag-add-edit-popover';
 const initialState: TagFormData = {
   name: '',
   slug: '',
-  parent_id: null,
   description: '',
-  image: null,
 };
 
 const NewTag = () => {

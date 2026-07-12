@@ -20,6 +20,10 @@ type InventoryStoredData = {
   results: Record<number, InventoryVariant>;
   total: number;
   per_page: number;
+  current_page?: number;
+  last_page?: number;
+  from?: number;
+  has_more_pages?: boolean;
 };
 
 type InventoryState = ListState<InventoryStoredData> & {

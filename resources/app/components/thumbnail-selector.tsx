@@ -4,14 +4,11 @@ import Button from '@/molecules/button';
 import Placeholder from '@/molecules/placeholder';
 import Text from '@/molecules/text';
 import Thumbnail from '@/molecules/thumbnail';
-import type { LabelFieldProps, ThumbnailSize } from '@/types';
+import type { LabelFieldProps, MediaRef, ThumbnailSize } from '@/types';
 import { __ } from '@/wpi18n';
 
-type MediaItem = {
-  id?: number;
-  url: string;
-  alt?: string;
-  [key: string]: unknown;
+type MediaItem = Omit<MediaRef, 'id'> & {
+  id?: string | number;
 };
 
 type ThumbnailSelectorProps = LabelFieldProps & {

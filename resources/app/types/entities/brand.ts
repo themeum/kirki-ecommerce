@@ -4,17 +4,16 @@ type Brand = {
   id: number;
   name: string;
   slug: string;
-  description?: string;
+  description?: string | null;
   count?: number;
-  logo?: MediaRef | number | null;
+  logo?: MediaRef | string | number | null;
 };
 
 type BrandFormData = {
   name?: string;
   slug?: string;
-  description?: string;
-  logo?: MediaRef | number | null;
-  [key: string]: unknown;
+  description?: string | null;
+  logo?: MediaRef | string | number | null;
 };
 
 export type { Brand, BrandFormData };

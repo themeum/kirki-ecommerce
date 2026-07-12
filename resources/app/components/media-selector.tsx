@@ -3,13 +3,11 @@ import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 
 import Button from '@/molecules/button';
 import Flex from '@/molecules/flex';
 import Label from '@/molecules/label';
+import type { MediaRef } from '@/types';
 import { __ } from '@/wpi18n';
 
-type MediaItem = {
-  id?: number;
-  url: string;
-  alt?: string;
-  [key: string]: unknown;
+type MediaItem = Omit<MediaRef, 'id'> & {
+  id?: string | number;
 };
 
 type MediaFrame = {

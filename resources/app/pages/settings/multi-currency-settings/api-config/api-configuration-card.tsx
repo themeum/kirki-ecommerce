@@ -29,7 +29,11 @@ type ApiConfigurationCardProps = {
   selectedAPI: string;
   apiConfigObj: ApiConfigData;
   setOpenPopup: Dispatch<SetStateAction<boolean>>;
-  dataObj: SettingsSectionData;
+  dataObj: SettingsSectionData & {
+    usage?: ApiUsage | null;
+    last_sync_at?: string | null;
+    next_sync_at?: string | null;
+  };
 };
 
 const ApiConfigurationCard = ({

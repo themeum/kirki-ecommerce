@@ -4,14 +4,22 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import { APP_API_PREFIX } from '@/conf';
 import type { ListQueryParams, SetKeyValuePayload } from '@/types';
 
-type RequestParams = ListQueryParams & Record<string, unknown>;
+type RequestParams = ListQueryParams & {
+  category_ids?: number[];
+  brand_ids?: number[];
+  collection_ids?: number[];
+  tag_ids?: number[];
+  status?: string | string[];
+  stock_status?: string;
+  id?: number | string;
+};
 
-type RequestData = Record<string, unknown>;
+type RequestData = object;
 
 type ValidationErrors = Record<string, string[]>;
 
 type NestedRecord = {
-  [key: string]: NestedRecord | unknown;
+  [key: string]: NestedRecord | string | number | boolean | null | undefined | object;
   page?: number;
 };
 
@@ -26,7 +34,7 @@ const defaultGetParams: RequestParams = {
 const defaultPutData: RequestData = {
   name: 'Test Category',
   slug: 'test-category',
-  is_active: 0,
+  is_active: false,
 };
 
 export const getOptions = (

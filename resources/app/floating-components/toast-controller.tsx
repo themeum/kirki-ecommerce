@@ -38,7 +38,7 @@ const ToastController = () => {
         <Toast
           key={toast.id}
           title={toast.title}
-          variant={toast.variant as 'default' | 'warning' | 'delete' | 'success' | 'error'}
+          variant={toast.variant}
           duration={toast.duration}
           undoAction={toast.undoAction}
           onUndo={() => {

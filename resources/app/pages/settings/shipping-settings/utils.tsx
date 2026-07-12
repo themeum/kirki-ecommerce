@@ -1,7 +1,7 @@
 import type { Dispatch, ReactNode, SetStateAction } from 'react';
 
 import { StoreIcon, TruckIcon, WeightIcon } from '@/icons';
-import type { Country, SettingsSectionData } from '@/types';
+import type { Country, SettingsSectionData, ToastVariant } from '@/types';
 import { __ } from '@/wpi18n';
 
 import { store } from '@/store';
@@ -71,7 +71,8 @@ type ShippingMethodData = {
     to: number | string;
     amount: number | string;
   }>;
-  [key: string]: unknown;
+  is_free_shipping_enabled?: boolean;
+  free_shipping_min_amount?: number | string;
 };
 
 type ShippingZone = {
@@ -95,7 +96,7 @@ type SaveShippingZonesParams = {
   from?: string;
   shippingSettingsData: SettingsSectionData | null | undefined;
   toastMessage?: string;
-  variant?: string;
+  variant?: ToastVariant;
 };
 
 type MethodSchema = Record<string, unknown>;

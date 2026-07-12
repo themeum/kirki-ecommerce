@@ -24,7 +24,12 @@ import {
   updateSettingsAPI,
 } from '@/store/settingsSlice';
 import { getErrorsObject } from '@/store/utils';
-import type { FormErrors, MediaChangePayload, SettingsSectionData } from '@/types';
+import type {
+  EmailTemplate as SettingsEmailTemplate,
+  FormErrors,
+  MediaChangePayload,
+  SettingsSectionData,
+} from '@/types';
 import { isApiSuccess } from '@/types/pages/api-guards';
 import { __ } from '@/wpi18n';
 
@@ -141,7 +146,7 @@ const EditTemplate = () => {
         ...(emailSettingsData.default_template as EmailTemplate),
         ...dataObj,
         height: `${heightValue}px`,
-      },
+      } as SettingsEmailTemplate,
     };
 
     const result = await updateSettingsAPI('email', payload);

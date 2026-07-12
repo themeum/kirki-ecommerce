@@ -15,7 +15,11 @@ import {
   updateSettingsAPI,
 } from '@/store/settingsSlice';
 import { getErrorsObject } from '@/store/utils';
-import type { FormErrors, SettingsSectionData } from '@/types';
+import type {
+  BarcodeGenerationSettings,
+  FormErrors,
+  SettingsSectionData,
+} from '@/types';
 import { isApiSuccess } from '@/types/pages/api-guards';
 import { __ } from '@/wpi18n';
 
@@ -36,7 +40,7 @@ type ProductSettingsFormData = SettingsSectionData & {
   is_unit_price_visible?: boolean;
   is_enabled_reviews?: boolean;
   is_enabled_star_ratings?: boolean;
-  barcode_generation?: Record<string, unknown>;
+  barcode_generation?: BarcodeGenerationSettings;
 };
 
 const ProductsSettings = () => {
@@ -88,7 +92,7 @@ const ProductsSettings = () => {
         return {
           ...prev,
           barcode_generation: {
-            ...(prev.barcode_generation as Record<string, unknown>),
+            ...(prev.barcode_generation ?? {}),
             [key]: value,
           },
         };

@@ -27,7 +27,7 @@ const AEO = ({ errors, setErrors }: AEOProps) => {
     <Input
       label={__('LLM Instruction', 'kirki-ecommerce')}
       multiline={5}
-      value={productData?.llm_instructions}
+      value={productData?.llm_instructions ?? ''}
       error={errors?.llm_instructions as string | boolean | undefined}
       onChange={(value) => handleOnChange(value, 'llm_instructions')}
       placeholder={__('llm instructions', 'kirki-ecommerce')}

@@ -71,7 +71,9 @@ export const buildTogglePayload = ({
   selectedKey,
 }: BuildTogglePayloadParams): SettingsSectionData | null => {
   console.log({ selectedKey });
-  const rootData = baseData?.[rootKey] as Record<string, EmailGroup> | undefined;
+  const rootData = (
+    baseData as Record<string, Record<string, EmailGroup> | undefined>
+  )?.[rootKey];
   const current = rootData?.[groupKey]?.[selectedKey];
 
   if (!current) {

@@ -31,7 +31,7 @@ type SearchableItem = {
   title?: string;
   id?: string | number;
   code?: string;
-  color?: string;
+  color?: string | null;
   [key: string]: unknown;
 };
 

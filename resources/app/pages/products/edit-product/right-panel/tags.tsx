@@ -7,7 +7,7 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { updateProduct } from '@/store/productSlice';
 import { addTagAPI, getTagsAPI, setKeyValue } from '@/store/tagsSlice';
 import { getErrorsObject } from '@/store/utils';
-import type { FormErrors, SuggestionOption, Tag } from '@/types';
+import type { FormErrors, SuggestionOption } from '@/types';
 import { isApiSuccess } from '@/types/pages/api-guards';
 import { __ } from '@/wpi18n';
 
@@ -37,7 +37,7 @@ const Tags = ({ errors, setErrors }: TagsProps) => {
   }, [errors]);
 
   useEffect(() => {
-    const productTags = (productData?.tags || []) as unknown as Tag[];
+    const productTags = productData?.tags || [];
     const selectedList = productTags.map((item) => ({
       value: item.id,
       title: item.name,
@@ -51,7 +51,7 @@ const Tags = ({ errors, setErrors }: TagsProps) => {
     const updatedLocalTagList = [...selectedTags, tag];
     setSelectedTags(updatedLocalTagList);
 
-    const productTags = (productData?.tags || []) as unknown as Tag[];
+    const productTags = productData?.tags || [];
     const updatedTagList = [
       { id: tag.value as number, name: tag.title },
       ...productTags,
@@ -74,7 +74,7 @@ const Tags = ({ errors, setErrors }: TagsProps) => {
     );
     setSelectedTags(updatedLocalTagList);
 
-    const productTags = (productData?.tags || []) as unknown as Tag[];
+    const productTags = productData?.tags || [];
     const updatedTagList = productTags.filter(
       (item) => item.id !== tag.value,
     );
@@ -98,7 +98,7 @@ const Tags = ({ errors, setErrors }: TagsProps) => {
     const result = await addTagAPI(tagFormData);
     if (isApiSuccess(result)) {
       dispatch(setKeyValue({ key: 'toggler', value: Date.now() }));
-      handleAddTag({ value: (result.data as Tag).id, title: tagTitle });
+      handleAddTag({ value: result.data.id, title: tagTitle });
     } else {
       const errorPayload = result as { errors?: Record<string, string[]> };
       setLocalError(getErrorsObject(errorPayload.errors));

@@ -33,7 +33,7 @@ type SettingsOutletContext = {
   confirmAction: (params: { action?: () => void }) => void;
 };
 
-type TaxSettingsFormData = SettingsSectionData & {
+type TaxSettingsFormData = Omit<SettingsSectionData, 'tax_regions'> & {
   is_tax_inclusive_price?: boolean;
   is_enabled_taxed_price?: boolean;
   is_shipping_tax_enabled?: boolean;
@@ -136,7 +136,7 @@ const TaxSettings = () => {
     if (!taxSettings) {
       return;
     }
-    setTaxSettingsData(taxSettings);
+    setTaxSettingsData(taxSettings as TaxSettingsFormData);
     setIsTaxInclusivePrice(!!taxSettings.is_tax_inclusive_price);
     setTaxRegions(
       Array.isArray(taxSettings.tax_regions)

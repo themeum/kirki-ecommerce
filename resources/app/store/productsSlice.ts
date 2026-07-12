@@ -88,7 +88,7 @@ export const deleteProductsAPI = async ({
     })
     .catch(function (error) {
       const err = error as AxiosErrorLike;
-      data = err.response!;
+      data = err.response?.data ?? false;
       console.error(error);
     });
 
@@ -106,7 +106,7 @@ export const deleteProductByIdAPI = async (
     })
     .catch(function (error) {
       const err = error as AxiosErrorLike;
-      data = err.response!;
+      data = err.response?.data ?? false;
       console.error(data);
     });
   return data;

@@ -101,7 +101,7 @@ const SortableCard = ({
                     gap={6}
                     key={index}
                     text={variant?.value}
-                    color={variant?.color}
+                    color={variant?.color ?? undefined}
                   />
                 ))}
               </Flex>

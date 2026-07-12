@@ -93,7 +93,7 @@ export const getCustomerByIdAPI = async (
     })
     .catch(function (error) {
       const err = error as AxiosErrorLike;
-      data = err.response!;
+      data = err.response?.data ?? false;
       console.error(data);
     });
   return data;
@@ -110,7 +110,7 @@ export const addCustomerAPI = async (
     })
     .catch(function (error) {
       const err = error as AxiosErrorLike;
-      data = err.response!.data!;
+      data = err.response?.data ?? false;
       console.log(data);
     });
 
@@ -127,14 +127,14 @@ export const updateCustomerAPI = async (
   }
 
   await axios
-    .request(putOptions('/customers/' + id, params as Record<string, unknown>))
+    .request(putOptions('/customers/' + id, params))
     .then(function (response) {
       data = response.data as ApiResponse<Customer>;
     })
     .catch(function (error) {
       console.log(error);
       const err = error as AxiosErrorLike;
-      data = err.response!.data!;
+      data = err.response?.data ?? false;
     });
 
   return data;
@@ -156,7 +156,7 @@ export const deleteCustomersAPI = async ({
     })
     .catch(function (error) {
       const err = error as AxiosErrorLike;
-      data = err.response!;
+      data = err.response?.data ?? false;
       console.error(error);
     });
 
@@ -174,7 +174,7 @@ export const deleteCustomerByIdAPI = async (
     })
     .catch(function (error) {
       const err = error as AxiosErrorLike;
-      data = err.response!;
+      data = err.response?.data ?? false;
       console.error(data);
     });
   return data;

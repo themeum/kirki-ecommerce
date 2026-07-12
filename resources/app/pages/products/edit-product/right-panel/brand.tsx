@@ -13,7 +13,7 @@ import Thumbnail from '@/molecules/thumbnail';
 import { getBrandsAPI, setKeyValue } from '@/store/brandsSlice';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { updateProduct } from '@/store/productSlice';
-import type { Brand as BrandEntity, MediaRef, SelectOption } from '@/types';
+import type { Brand as BrandEntity, SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
 
 import BrandAddEditPopover from '../../../brands/brand-add-edit-popover';
@@ -39,15 +39,20 @@ const Brand = () => {
   const [openBrandCreatePopup, setOpenBrandCreatePopup] = useState(false);
   const [brandTitle, setBrandTitle] = useState('');
 
-  const productBrand = productData.brand as BrandEntity | null;
+  const productBrand = productData.brand;
 
   useEffect(() => {
     const suggestionList = brandData?.results.map((item) => ({
       value: item.id,
       title: item.name,
-      ...item,
+      id: item.id,
+      name: item.name,
+      slug: item.slug,
+      description: item.description,
+      count: item.count,
+      logo: item.logo,
     }));
-    setSuggestionArray(suggestionList as BrandSuggestion[]);
+    setSuggestionArray(suggestionList ?? []);
   }, [productData.brand, brandData]);
 
   const handleSearchChange = (searchText: string) => {
@@ -58,7 +63,26 @@ const Brand = () => {
     dispatch(updateProduct({ key: 'brand', value: null }));
   };
   const handleAddBrand = (brand: SelectOption) => {
-    dispatch(updateProduct({ key: 'brand', value: brand }));
+    const suggestion = suggestionArray.find((item) => item.value === brand.value);
+    dispatch(
+      updateProduct({
+        key: 'brand',
+        value: suggestion
+          ? {
+              id: suggestion.id,
+              name: suggestion.name,
+              logo:
+                suggestion.logo && typeof suggestion.logo === 'object'
+                  ? suggestion.logo
+                  : null,
+            }
+          : {
+              id: Number(brand.value),
+              name: brand.title,
+              logo: null,
+            },
+      }),
+    );
   };
   const handleAddNewBrand = (searchText: string) => {
     setBrandTitle(searchText);
@@ -67,7 +91,7 @@ const Brand = () => {
 
   const brandLogo =
     productBrand?.logo && typeof productBrand.logo === 'object'
-      ? (productBrand.logo as MediaRef)
+      ? productBrand.logo
       : null;
 
   return (

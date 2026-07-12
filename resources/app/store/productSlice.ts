@@ -46,6 +46,8 @@ const defaultVariant: ProductVariant = {
   available_quantity: 0,
   in_stock: true,
   committed_quantity: 0,
+  has_limit_per_order: true,
+  max_per_order: 1,
   is_visible: true,
   is_physical_product: true,
   is_default: true,
@@ -62,7 +64,7 @@ const initialState: ProductState = {
     slug: '',
     status: 'draft',
     ribbon: '',
-    currency: {},
+    currency: null,
     brand: null,
     description: '',
     additional_info: [],
@@ -182,7 +184,7 @@ export const addProductAPI = async (params: ProductFormData) => {
     })
     .catch(function (error: unknown) {
       const err = error as AxiosErrorLike;
-      data = err.response!.data;
+      data = err.response?.data ?? false;
     });
 
   return data;
@@ -201,7 +203,7 @@ export const updateProductAPI = async (
     .catch(function (error: unknown) {
       console.log(error);
       const err = error as AxiosErrorLike;
-      data = err.response!.data;
+      data = err.response?.data ?? false;
     });
 
   return data;
@@ -216,7 +218,7 @@ export const createShippingBoxAPI = async (params: Record<string, unknown>) => {
     })
     .catch(function (error: unknown) {
       const err = error as AxiosErrorLike;
-      data = err.response!.data;
+      data = err.response?.data ?? false;
     });
 
   return data;
@@ -239,7 +241,7 @@ export const getShippingBoxListAPI = async (
     })
     .catch(function (error: unknown) {
       const err = error as AxiosErrorLike;
-      data = err.response!.data;
+      data = err.response?.data ?? false;
     });
 
   return data;

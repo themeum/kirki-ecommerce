@@ -22,7 +22,6 @@ type CurrencyFormData = {
   is_active?: boolean;
   is_enabled?: boolean;
   items?: Currency[];
-  [key: string]: unknown;
 };
 
 export type { Currency, CurrencyFormData };

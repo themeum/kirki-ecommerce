@@ -29,7 +29,7 @@ const SearchEngines = ({ errors, setErrors }: SearchEnginesProps) => {
         label={__('Title', 'kirki-ecommerce')}
         placeholder={__('e.g. Example T-shirt', 'kirki-ecommerce')}
         type="text"
-        value={productData?.seo_title}
+        value={productData?.seo_title ?? ''}
         onChange={(value) => handleOnChange(value, 'seo_title')}
         error={errors?.seo_title as string | boolean | undefined}
       />
@@ -37,7 +37,7 @@ const SearchEngines = ({ errors, setErrors }: SearchEnginesProps) => {
         label={__('Meta description', 'kirki-ecommerce')}
         placeholder={__('e.g. Cotton shirts from our store.', 'kirki-ecommerce')}
         multiline={5}
-        value={productData?.seo_description}
+        value={productData?.seo_description ?? ''}
         onChange={(value) => handleOnChange(value, 'seo_description')}
         error={errors?.seo_description as string | boolean | undefined}
       />

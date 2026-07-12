@@ -21,7 +21,6 @@ export type GeneralSettingsFormData = {
   invoice_id_sequence?: string;
   invoice_id_suffix?: string;
   invoice_counter_reset_schedule?: string | null;
-  [key: string]: unknown;
 };
 
 export const initialData: GeneralSettingsFormData = {

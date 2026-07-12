@@ -16,7 +16,6 @@ import type {
   BulkActionParams,
   ListQueryParams,
   ListState,
-  PaginatedData,
 } from '@/types';
 
 import {
@@ -53,9 +52,12 @@ export const attributesSlice = createSlice({
     },
     updateAttributeValue: (state, action: PayloadAction<Attribute>) => {
       const { payload } = action;
-      (state.data as unknown as PaginatedData<Attribute>).results = (
-        state.data as unknown as PaginatedData<Attribute>
-      ).results.map((item) => (item.id === payload.id ? payload : item));
+      if (!state.data) {
+        return state;
+      }
+      state.data = state.data.map((item) =>
+        item.id === payload.id ? payload : item,
+      );
 
       return state;
     },

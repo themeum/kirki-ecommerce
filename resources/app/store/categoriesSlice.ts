@@ -99,7 +99,7 @@ export const deleteCategoriesAPI = async ({
     })
     .catch(function (error) {
       const err = error as AxiosErrorLike;
-      data = err.response!;
+      data = err.response?.data ?? false;
       console.error(error);
     });
 
@@ -117,7 +117,7 @@ export const deleteCategoryByIdAPI = async (
     })
     .catch(function (error) {
       const err = error as AxiosErrorLike;
-      data = err.response!;
+      data = err.response?.data ?? false;
       console.error(data);
     });
   return data;
@@ -134,7 +134,7 @@ export const addCategoryAPI = async (
     })
     .catch(function (error) {
       const err = error as AxiosErrorLike;
-      data = err.response!.data!;
+      data = err.response?.data ?? false;
     });
 
   return data;
@@ -150,14 +150,14 @@ export const updateCategoryAPI = async (
 
   let data: ApiCallResult<Category> = false;
   await axios
-    .request(putOptions('/categories/' + id, params as Record<string, unknown>))
+    .request(putOptions('/categories/' + id, params))
     .then(function (response) {
       data = response.data as ApiResponse<Category>;
     })
     .catch(function (error) {
       console.log(error);
       const err = error as AxiosErrorLike;
-      data = err.response!.data!;
+      data = err.response?.data ?? false;
     });
 
   return data;

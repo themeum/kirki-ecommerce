@@ -52,26 +52,8 @@ import SEOSettings from './seo-settings/seo-settings';
 import Shipping from './shipping/shipping';
 import Variants from './variants/variants';
 
-type MediaItem = {
-  id?: number;
-  url: string;
-  alt?: string;
-  [key: string]: unknown;
-};
-
-type TaxonomyRef = {
-  id: number;
-};
-
-type CurrencyRef = {
-  id?: number;
-  symbol?: string;
-  [key: string]: unknown;
-};
-
-type BrandRef = {
-  id?: number;
-  [key: string]: unknown;
+type MediaItem = Omit<MediaRef, 'id'> & {
+  id?: string | number;
 };
 
 type ProductSettingsData = SettingsSectionData & {
@@ -200,29 +182,42 @@ const EditProduct = () => {
 
   const handleAddOrCreateProduct = async () => {
     let result = {} as ApiCallResult<Product>;
-    let formattedData: ProductFormData = { ...productData };
     const attributes = productData.attributes.map((item) => ({
       id: item.id,
       values: (item.values ?? []).map((val) => Number(val.id)),
     }));
-    const currency_id = (productData?.currency as CurrencyRef)?.id;
+    const currency_id = productData.currency?.id ?? null;
     const media = mediaItems.map((item) => Number(item.id));
-    const brand_id = (productData?.brand as BrandRef | null)?.id;
-    const categories = (productData.categories as unknown as TaxonomyRef[])?.map(
-      (item) => item.id,
-    );
-    const tags = (productData.tags as unknown as TaxonomyRef[]).map(
-      (item) => item.id,
-    );
-    const collections = (productData.collections as unknown as TaxonomyRef[]).map(
-      (item) => item.id,
-    );
+    const brand_id = productData.brand?.id ?? null;
+    const categories = productData.categories.map((item) => item.id);
+    const tags = productData.tags.map((item) => item.id);
+    const collections = productData.collections.map((item) => item.id);
     const variants = productData.variants.map((item) => ({
       ...item,
-      media: Number((item.media as MediaRef | null)?.id) || null,
+      media: Number(item.media?.id) || null,
     }));
-    formattedData = {
-      ...formattedData,
+    const og_image =
+      typeof productData.og_image === 'object' && productData.og_image !== null
+        ? Number(productData.og_image.id)
+        : productData.og_image;
+
+    const formattedData: ProductFormData = {
+      title: productData.title,
+      slug: productData.slug,
+      status: productData.status,
+      ribbon: productData.ribbon,
+      description: productData.description,
+      additional_info: productData.additional_info,
+      allow_back_order: productData.allow_back_order,
+      seo_title: productData.seo_title,
+      seo_description: productData.seo_description,
+      seo_keywords: productData.seo_keywords,
+      og_title: productData.og_title,
+      og_description: productData.og_description,
+      og_image,
+      schema_id: productData.schema_id,
+      llm_instructions: productData.llm_instructions,
+      has_variants: productData.has_variants,
       attributes,
       media,
       brand_id,
@@ -233,8 +228,6 @@ const EditProduct = () => {
       currency_id,
     };
 
-    delete formattedData.brand;
-    delete formattedData.currency;
     if (productData.id) {
       console.log(formattedData, 'final data');
       result = (await updateProductAPI(

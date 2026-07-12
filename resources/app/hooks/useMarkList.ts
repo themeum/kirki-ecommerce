@@ -43,7 +43,7 @@ const useMarkList = ({ data }: UseMarkListParams) => {
     setItemCount(total ?? 0);
   };
 
-  const handleAllCheckboxClick = (_value?: unknown) => {
+  const handleAllCheckboxClick = (_value?: boolean | string | number) => {
     let arr: SelectedItem[] = [];
     const isAllSelected = checkIfAllIdExist();
     if (!isAllSelected) {
@@ -55,7 +55,10 @@ const useMarkList = ({ data }: UseMarkListParams) => {
     setItemCount(arr.length);
   };
 
-  const handleSingleCheckboxClick = (value: unknown, id: SelectedItem) => {
+  const handleSingleCheckboxClick = (
+    value: boolean | string | number,
+    id: SelectedItem,
+  ) => {
     let arr: SelectedItem[] = [...selectedItems];
     if (value) {
       arr = [...selectedItems, id];

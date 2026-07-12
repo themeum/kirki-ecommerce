@@ -1,29 +1,38 @@
+type AttributeType = 'color' | 'list';
+
 type AttributeValue = {
   id: number;
   value: string;
-  color?: string;
+  color?: string | null;
 };
 
 type Attribute = {
   id: number;
   name: string;
-  type: string;
+  slug?: string;
+  type: AttributeType | string;
   values?: AttributeValue[];
+  created_at?: string;
+  updated_at?: string;
 };
 
 type AttributeFormData = {
   name?: string;
-  type?: string;
+  type?: AttributeType | string;
   values?: AttributeValue[];
-  [key: string]: unknown;
 };
 
 type AttributeValueFormData = {
   attribute_id: number;
   value_id?: number;
   value?: string;
-  color?: string;
-  [key: string]: unknown;
+  color?: string | null;
 };
 
-export type { Attribute, AttributeValue, AttributeFormData, AttributeValueFormData };
+export type {
+  AttributeType,
+  Attribute,
+  AttributeValue,
+  AttributeFormData,
+  AttributeValueFormData,
+};

@@ -30,7 +30,7 @@ const SingleRow = ({
       </TableCell>
       <TableCell>
         <Flex gap={12} style={{ alignItems: 'center' }}>
-          <Thumbnail src={item?.image} size="small" />
+          <Thumbnail src={item?.image ?? undefined} size="small" />
           <span
             style={{ cursor: 'pointer' }}
             onClick={() => {

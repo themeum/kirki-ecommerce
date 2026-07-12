@@ -2,6 +2,7 @@ import { format, formatDistanceToNow, isValid, parse } from 'date-fns';
 
 import { store } from '@/store';
 import { showToast } from '@/store/toastSlice';
+import type { ToastVariant } from '@/types';
 import type {
   DateFormatType,
   ProfitData,
@@ -55,7 +56,7 @@ export const makeSuggestionList = (
 };
 
 export const dispatchToastMessage = (
-  variant = 'success',
+  variant: ToastVariant = 'success',
   config: ToastMessageConfig = {},
 ): void => {
   const { title, duration, undoAction, onSuccess } = config;

@@ -22,7 +22,6 @@ type SelectOption = {
   group?: string;
   tagIcon?: ReactNode;
   subText?: string;
-  [key: string]: unknown;
 };
 
 type ButtonSize = 'small' | 'large' | 'icon' | 'fullWidth' | 'xsm';
@@ -90,7 +89,6 @@ type DropdownPosition = {
   top?: boolean;
 };
 type DropdownItemState = 'disabled' | 'titleOnly' | 'defaultSelected' | '';
-type ToastVariant = 'default' | 'warning' | 'delete' | 'success' | 'error';
 type ConfirmationVariant = 'default' | 'warning' | 'delete';
 
 type PaginationData = {
@@ -128,7 +126,6 @@ export type {
   DropdownSize,
   DropdownPosition,
   DropdownItemState,
-  ToastVariant,
   ConfirmationVariant,
   PaginationData,
 };

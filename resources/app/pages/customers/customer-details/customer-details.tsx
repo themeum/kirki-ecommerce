@@ -69,7 +69,9 @@ const CustomerDetails = () => {
       [fieldName]: !subFieldName
         ? data
         : {
-            ...(prev[fieldName] as Record<string, unknown> | undefined),
+            ...(prev[fieldName as keyof CustomerDetailsFormData] as
+              | Record<string, unknown>
+              | undefined),
             [subFieldName]: data,
           },
     }));
@@ -100,7 +102,7 @@ const CustomerDetails = () => {
       first_name: customerFormData?.first_name,
       last_name: customerFormData?.last_name,
       email: customerFormData?.email,
-      phone: customerFormData?.phone,
+      phone: customerFormData?.phone ?? undefined,
     };
     if (!customerFormData?.is_billing_same_as_shipping) {
       updatedCustomerData.billing_address = {
@@ -108,7 +110,7 @@ const CustomerDetails = () => {
         first_name: customerFormData?.first_name,
         last_name: customerFormData?.last_name,
         email: customerFormData?.email,
-        phone: customerFormData?.phone,
+        phone: customerFormData?.phone ?? undefined,
       };
     }
 

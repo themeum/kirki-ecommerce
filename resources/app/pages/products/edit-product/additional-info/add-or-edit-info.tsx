@@ -28,7 +28,7 @@ const AddOrEditInfo = (props: AddOrEditInfoProps) => {
 
   useEffect(() => {
     if (index || index === 0) {
-      const infoItem = productData?.additional_info[index] as
+      const infoItem = (productData?.additional_info ?? [])[index] as
         | AdditionalInfoItem
         | undefined;
       setInfoData({

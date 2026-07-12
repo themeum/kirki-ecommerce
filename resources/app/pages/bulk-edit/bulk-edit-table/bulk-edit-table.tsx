@@ -17,7 +17,7 @@ type BulkEditSelectionData = {
   fieldName?: string;
   start: number;
   end: number;
-  mode?: 'select' | 'fill' | string;
+  mode?: 'select' | 'fill';
   baseIndex?: number;
   lastIndex?: number;
   grabberIndex?: number;

@@ -8,7 +8,6 @@ import PageHeading from '@/molecules/page-heading';
 import { updateBulkVariantAPI } from '@/store/BulkEditSlice';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { getInventoryAPI, setKeyValue } from '@/store/inventorySlice';
-import type { PaginationData } from '@/types';
 import { isApiSuccess } from '@/types/pages/api-guards';
 import { __ } from '@/wpi18n';
 
@@ -84,7 +83,13 @@ const Inventory = () => {
               <InventoryTable />
             </Card>
             <Pagination
-              data={data as unknown as PaginationData}
+              data={{
+                current_page: data?.current_page ?? 1,
+                last_page: data?.last_page ?? 1,
+                from: data?.from ?? 0,
+                total: data?.total ?? 0,
+                has_more_pages: data?.has_more_pages ?? false,
+              }}
               onChange={(page) => handlePaginationChange(page)}
             />
           </Flex>

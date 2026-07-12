@@ -30,7 +30,7 @@ const AdditionalInfo = () => {
   };
 
   const onDeleteInfo = (deletedIndex: number) => {
-    const newDataList = productData?.additional_info.filter(
+    const newDataList = (productData?.additional_info ?? []).filter(
       (_item, index) => index !== deletedIndex,
     );
     dispatch(
@@ -63,7 +63,7 @@ const AdditionalInfo = () => {
                     type="inner"
                     key={index}
                     className={`${CLASS_PREFIX}-option-card ${CLASS_PREFIX}-hover-parent ${
-                      productData?.additional_info?.length > 1
+                      (productData?.additional_info ?? []).length > 1
                         ? `${CLASS_PREFIX}-option-card-border-radius`
                         : `${CLASS_PREFIX}-option-card-border-radius-single`
                     }`}

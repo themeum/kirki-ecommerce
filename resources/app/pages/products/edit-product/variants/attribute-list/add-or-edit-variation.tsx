@@ -91,7 +91,7 @@ const AddOrEditVariation = ({
       const variationArray = valuesList
         ?.map((item) => ({
           value: item?.id,
-          color: item?.color,
+          color: item?.color ?? undefined,
           title: item?.value,
         }))
         .filter(

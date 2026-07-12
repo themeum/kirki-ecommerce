@@ -65,7 +65,7 @@ export const settingsSlice = createSlice({
       state.shipping.activeZoneId = action.payload;
     },
 
-    setSelectedCountryList: (state, action: PayloadAction<unknown>) => {
+    setSelectedCountryList: (state, action: PayloadAction<string[] | null>) => {
       state.shipping.selectedCountryList = action.payload;
     },
 

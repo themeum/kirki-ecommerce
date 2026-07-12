@@ -10,8 +10,7 @@ type BulkActionParams = {
 type ApiCallResult<T = unknown> =
   | false
   | ApiResponse<T>
-  | ApiErrorPayload
-  | AxiosResponse<ApiErrorPayload>;
+  | ApiErrorPayload;
 
 type AxiosErrorLike = {
   response?: AxiosResponse<ApiErrorPayload> & {

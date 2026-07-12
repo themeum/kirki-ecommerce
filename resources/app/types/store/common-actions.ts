@@ -1,6 +1,6 @@
 type SetKeyValuePayload = {
   key: string;
-  value: unknown;
+  value: string | number | boolean | null | undefined | object;
   nestedToggler?: string[];
 };
 

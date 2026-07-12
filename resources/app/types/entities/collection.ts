@@ -4,18 +4,21 @@ type Collection = {
   id: number;
   title: string;
   slug: string;
-  description?: string;
+  description?: string | null;
   count?: number;
   created_at?: string;
-  banner?: MediaRef | number | null;
+  banner?: MediaRef | string | number | null;
+  seo_title?: string | null;
+  seo_description?: string | null;
 };
 
 type CollectionFormData = {
   title?: string;
   slug?: string;
-  description?: string;
-  banner?: MediaRef | number | null;
-  [key: string]: unknown;
+  description?: string | null;
+  banner?: MediaRef | string | number | null;
+  seo_title?: string | null;
+  seo_description?: string | null;
 };
 
 export type { Collection, CollectionFormData };

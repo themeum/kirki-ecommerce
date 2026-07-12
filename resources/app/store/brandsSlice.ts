@@ -96,7 +96,7 @@ export const deleteBrandsAPI = async ({
     })
     .catch(function (error) {
       const err = error as AxiosErrorLike;
-      data = err.response!;
+      data = err.response?.data ?? false;
       console.error(error);
     });
 
@@ -114,7 +114,7 @@ export const deleteBrandByIdAPI = async (
     })
     .catch(function (error) {
       const err = error as AxiosErrorLike;
-      data = err.response!;
+      data = err.response?.data ?? false;
       console.error(data);
     });
   return data;
@@ -131,7 +131,7 @@ export const addBrandAPI = async (
     })
     .catch(function (error) {
       const err = error as AxiosErrorLike;
-      data = err.response!.data!;
+      data = err.response?.data ?? false;
     });
 
   return data;
@@ -147,14 +147,14 @@ export const updateBrandAPI = async (
   }
 
   await axios
-    .request(putOptions('/brands/' + id, params as Record<string, unknown>))
+    .request(putOptions('/brands/' + id, params))
     .then(function (response) {
       data = response.data as ApiResponse<Brand>;
     })
     .catch(function (error) {
       console.log(error);
       const err = error as AxiosErrorLike;
-      data = err.response!.data!;
+      data = err.response?.data ?? false;
     });
 
   return data;

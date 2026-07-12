@@ -95,7 +95,9 @@ const EmailSettings = () => {
     }
 
     const { root, group } = EMAIL_CONFIG[matchedConfigKey];
-    const rootData = emailSettingsData?.[root] as EmailGroupData | undefined;
+    const rootData = (
+      emailSettingsData as Record<string, EmailGroupData | undefined> | null
+    )?.[root];
     const groupData = rootData?.[group as keyof EmailGroupData];
     if (!groupData) {
       return;

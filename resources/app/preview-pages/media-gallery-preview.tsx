@@ -1,11 +1,10 @@
 import { useState } from 'react';
 
 import MediaGallery from '@/components/media-gallery';
+import type { MediaRef } from '@/types';
 
-type MediaItem = {
-  id?: number;
-  url: string;
-  alt?: string;
+type MediaItem = Omit<MediaRef, 'id'> & {
+  id?: string | number;
 };
 
 const mediaItems: MediaItem[] = [

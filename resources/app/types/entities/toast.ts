@@ -1,4 +1,4 @@
-type ToastVariant = string;
+type ToastVariant = 'default' | 'warning' | 'delete' | 'success' | 'error';
 
 type Toast = {
   id: string;

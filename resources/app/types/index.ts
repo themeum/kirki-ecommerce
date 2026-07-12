@@ -15,19 +15,21 @@ export type {
 
 export type {
   SortOrder,
+  ListFilter,
   ListState,
   ListQueryParams,
 } from './store/list-state';
 
 export type { SetKeyValuePayload } from './store/common-actions';
 
-export type { MediaRef } from './entities/media';
+export type { MediaRef, MediaSize } from './entities/media';
 export type { Category, CategoryFormData } from './entities/category';
 export type { Tag, TagFormData } from './entities/tag';
 export type { Brand, BrandFormData } from './entities/brand';
 export type { Collection, CollectionFormData } from './entities/collection';
 export type {
   Customer,
+  CustomerListItem,
   CustomerFormData,
   CustomerAddress,
 } from './entities/customer';
@@ -40,6 +42,7 @@ export type {
 export type { Country } from './entities/country';
 export type { Currency, CurrencyFormData } from './entities/currency';
 export type {
+  AttributeType,
   Attribute,
   AttributeValue,
   AttributeFormData,
@@ -47,12 +50,20 @@ export type {
 } from './entities/attribute';
 export type { SchemaProfile, SchemaFormData } from './entities/schema';
 export type {
+  ProductStatus,
   UnitPriceValue,
+  ProductCurrency,
+  ProductBrand,
+  ProductCategoryRef,
+  ProductTagRef,
+  ProductCollectionRef,
   ProductVariant,
   InventoryVariant,
   AdditionalInfoItem,
   ProductListItem,
   Product,
+  ProductAttributePayload,
+  ProductVariantPayload,
   ProductFormData,
   UpdateProductPayload,
   UpdateVariantsPayload,
@@ -61,6 +72,16 @@ export type { PageItem } from './entities/page';
 export type { Toast, ToastVariant, ShowToastPayload } from './entities/toast';
 export type {
   SettingsSectionKey,
+  StoreAddressSettings,
+  BarcodeGenerationSettings,
+  ShippingRegion,
+  ShippingRuleCondition,
+  ShippingRuleAction,
+  ShippingRule,
+  ShippingMethodRange,
+  ShippingMethod,
+  ShippingZone,
+  PaymentGatewayConfig,
   SettingsSectionData,
   SettingsSection,
   ShippingProfile,
@@ -73,6 +94,9 @@ export type {
   SetSettingsPayload,
   PaymentGateway,
   PaymentMethod,
+  EmailTemplate,
+  CheckoutConfiguration,
+  CurrencyApiConfig,
 } from './entities/settings';
 
 export type {

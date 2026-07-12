@@ -116,9 +116,10 @@ const ShippingDeliveryMethod = () => {
     data: Record<string, unknown> | ShippingMethodData = {},
   ): Record<string, unknown> => {
     const schema = METHOD_SCHEMAS[type] || {};
+    const source = data as Record<string, unknown>;
 
     return Object.keys(schema).reduce<Record<string, unknown>>((acc, key) => {
-      acc[key] = data[key] ?? schema[key];
+      acc[key] = source[key] ?? schema[key];
       return acc;
     }, {});
   };

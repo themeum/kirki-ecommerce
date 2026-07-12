@@ -7,18 +7,11 @@ import Label from '@/molecules/label';
 import { getCategoriesAPI } from '@/store/categoriesSlice';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { updateProduct } from '@/store/productSlice';
-import type { Category, FormErrors } from '@/types';
+import type { Category, FormErrors, ProductCategoryRef } from '@/types';
 import { __ } from '@/wpi18n';
 
 import AddNewCategory from './add-new-category';
 import List from './list';
-
-type ProductCategorySelection = {
-  id: number;
-  name: string;
-  parent_id?: number | null;
-  level?: number;
-};
 
 type CategoriesProps = {
   errors?: FormErrors;
@@ -29,11 +22,11 @@ const Categories = (_props: CategoriesProps) => {
   const dispatch = useAppDispatch();
   const categories = useAppSelector(
     (state) => state.categories?.data?.results,
-  ) as Category[] | undefined;
+  );
   const loaded = useAppSelector((state) => state.categories?.loaded);
   const { data: productData } = useAppSelector((state) => state.product);
-  const selectedCategories = (productData?.categories ||
-    []) as unknown as ProductCategorySelection[];
+  const selectedCategories: ProductCategoryRef[] =
+    productData?.categories || [];
   useGetListAPI({
     reducerName: 'categories',
     apiCallBack: getCategoriesAPI,

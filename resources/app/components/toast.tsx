@@ -5,13 +5,12 @@ import Text from '@/molecules/text';
 import Button from '@/molecules/button';
 import { InfoIcon, AlertIcon, CloseIcon, CheckedIcon } from '@/icons';
 import { CLASS_PREFIX } from '@/conf';
+import type { ToastVariant } from '@/types';
 import { __ } from '@/wpi18n';
-
-type ToastUiVariant = 'default' | 'warning' | 'delete' | 'success' | 'error';
 
 type ToastProps = {
   title: string;
-  variant?: ToastUiVariant;
+  variant?: ToastVariant;
   duration?: number;
   undoAction?: () => void;
   onUndo?: () => void;
@@ -33,7 +32,7 @@ const Toast = ({
   onUndo,
   onClose,
 }: ToastProps) => {
-  const VARIANT_UI: Record<ToastUiVariant, ToastUi> = {
+  const VARIANT_UI: Record<ToastVariant, ToastUi> = {
     default: { icon: <InfoIcon />, bg: '#F4F4F5' },
     success: {
       icon: <CheckedIcon />,

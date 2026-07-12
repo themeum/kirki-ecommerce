@@ -11,7 +11,7 @@ import {
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { updateProduct } from '@/store/productSlice';
 import { getErrorsObject } from '@/store/utils';
-import type { Collection, FormErrors, SuggestionOption } from '@/types';
+import type { FormErrors, SuggestionOption } from '@/types';
 import { isApiSuccess } from '@/types/pages/api-guards';
 import { __ } from '@/wpi18n';
 
@@ -42,8 +42,7 @@ const Collections = ({ errors, setErrors }: CollectionsProps) => {
   }, [errors]);
 
   useEffect(() => {
-    const productCollections = (productData?.collections ||
-      []) as unknown as Collection[];
+    const productCollections = productData?.collections || [];
     const selectedList = productCollections.map((item) => ({
       value: item.id,
       title: item.title,
@@ -60,8 +59,7 @@ const Collections = ({ errors, setErrors }: CollectionsProps) => {
     const updatedLocalCollectionList = [...selectedTags, tag];
     setSelectedTags(updatedLocalCollectionList);
 
-    const productCollections = (productData?.collections ||
-      []) as unknown as Collection[];
+    const productCollections = productData?.collections || [];
     const updatedCollectionList = [
       { id: tag.value as number, title: tag.title },
       ...productCollections,
@@ -85,8 +83,7 @@ const Collections = ({ errors, setErrors }: CollectionsProps) => {
     );
     setSelectedTags(updatedLocalCollectionList);
 
-    const productCollections = (productData?.collections ||
-      []) as unknown as Collection[];
+    const productCollections = productData?.collections || [];
     const updatedCollectionList = productCollections.filter(
       (item) => item.id !== tag.value,
     );
@@ -115,7 +112,7 @@ const Collections = ({ errors, setErrors }: CollectionsProps) => {
     if (isApiSuccess(result)) {
       dispatch(setKeyValue({ key: 'toggler', value: Date.now() }));
       handleAddTag({
-        value: (result.data as Collection).id,
+        value: result.data.id,
         title: tagTitle,
       });
     } else {

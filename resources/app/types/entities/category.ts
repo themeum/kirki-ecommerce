@@ -4,21 +4,25 @@ type Category = {
   id: number;
   name: string;
   slug: string;
-  description?: string;
+  description?: string | null;
   count?: number;
-  image?: MediaRef | number | null;
+  image?: MediaRef | string | number | null;
   parent_id?: number | null;
-  is_active?: number | boolean;
+  level?: number;
+  ordering?: number;
+  is_active?: boolean;
+  is_deletable?: boolean;
+  created_at?: string;
+  updated_at?: string;
 };
 
 type CategoryFormData = {
   name?: string;
   slug?: string;
-  description?: string;
-  image?: MediaRef | number | null;
+  description?: string | null;
+  image?: MediaRef | string | number | null;
   parent_id?: number | null;
-  is_active?: number | boolean;
-  [key: string]: unknown;
+  is_active?: boolean;
 };
 
 export type { Category, CategoryFormData };

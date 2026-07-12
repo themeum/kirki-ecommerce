@@ -106,6 +106,10 @@ const CheckoutSettings = () => {
     const mergedData: CheckoutSettingsFormData = {
       ...initialDataObj,
       ...checkoutSettingsData,
+      terms_and_conditions_content:
+        checkoutSettingsData.terms_and_conditions_content ?? '',
+      privacy_policy_content:
+        checkoutSettingsData.privacy_policy_content ?? '',
       checkout_configuration: {
         ...initialDataObj.checkout_configuration,
         ...checkoutConfig,

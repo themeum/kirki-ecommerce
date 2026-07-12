@@ -33,7 +33,7 @@ type ProfitData = {
 type MarkListHandlers = {
   isSelected: (id: string | number) => boolean;
   handleSingleCheckboxClick: (
-    value: unknown,
+    value: boolean | string | number,
     id: string | number,
   ) => void;
 };
@@ -48,7 +48,7 @@ type TaxonomyTableHeader = {
 };
 
 type MediaChangePayload = {
-  id?: number;
+  id?: string | number;
   url?: string;
 };
 
