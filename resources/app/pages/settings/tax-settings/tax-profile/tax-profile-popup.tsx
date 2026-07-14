@@ -10,21 +10,16 @@ import {
 } from '@/molecules/popover';
 
 import {
-  createTaxProfile,
-  setKeyValue,
-  updateTaxProfileAPI,
-} from '@/store/settingsSlice';
-import { useAppDispatch } from '@/store/hooks';
-import { dispatchToastMessage } from '@/pages/utils';
+  useCreateTaxProfileMutation,
+  useUpdateTaxProfileMutation,
+} from '@/services/tax';
 import type { TaxProfile } from '@/types';
-import { isApiSuccess } from '@/types';
 import { __ } from '@/wpi18n';
 
 type TaxProfilePopupProps = {
   isOpen: boolean | TaxProfile;
   onClose?: () => void;
   onSave?: (id: number) => void;
-  fetchTaxProfileList?: () => void;
   from?: string;
   taxProfile?: TaxProfile | null;
 };
@@ -36,8 +31,9 @@ export const TaxProfilePopup = ({
   from = '',
   taxProfile = null,
 }: TaxProfilePopupProps) => {
-  const dispatch = useAppDispatch();
   const [profileTitle, setProfileTitle] = useState('');
+  const { mutate: createTaxProfile } = useCreateTaxProfileMutation();
+  const { mutate: updateTaxProfile } = useUpdateTaxProfileMutation();
 
   useEffect(() => {
     if (taxProfile) {
@@ -45,31 +41,30 @@ export const TaxProfilePopup = ({
     }
   }, []);
 
-  const AddOrUpdateTaxProfile = async () => {
+  const AddOrUpdateTaxProfile = () => {
     const data = {
       name: profileTitle,
     };
-    const result =
-      from === 'edit'
-        ? await updateTaxProfileAPI(taxProfile?.id as number, data)
-        : await createTaxProfile(data);
-    if (isApiSuccess(result)) {
-      dispatch(
-        setKeyValue({
-          key: 'toggler',
-          value: Date.now(),
-          nestedToggler: ['tax', 'taxProfile'],
-        }),
+
+    if (from === 'edit') {
+      updateTaxProfile(
+        { id: taxProfile?.id as number, data },
+        {
+          onSuccess: (response) => {
+            onSave((response.data as { id: number })?.id);
+            handleOnPopupClose();
+          },
+        },
       );
-      onSave((result.data as { id: number })?.id);
-      dispatchToastMessage('success', {
-        title:
-          from === 'edit'
-            ? __('Tax profile updated', 'kirki-ecommerce')
-            : __('Tax profile created', 'kirki-ecommerce'),
-      });
-      handleOnPopupClose();
+      return;
     }
+
+    createTaxProfile(data, {
+      onSuccess: (response) => {
+        onSave((response.data as { id: number })?.id);
+        handleOnPopupClose();
+      },
+    });
   };
 
   const handleOnPopupClose = () => {
@@ -124,3 +119,5 @@ export const TaxProfilePopup = ({
     </div>
   );
 };
+
+TaxProfilePopup.displayName = 'TaxProfilePopup';

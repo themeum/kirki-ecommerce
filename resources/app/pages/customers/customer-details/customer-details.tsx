@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router';
 
 import { NEW_ITEM_ID } from '@/conf';
 import { PlusIcon } from '@/icons';
+import { getErrorsObject, type ErrorResponse } from '@/libs/api';
 import Button from '@/molecules/button';
 import Card from '@/molecules/card';
 import Container from '@/molecules/container';
@@ -11,20 +12,15 @@ import Label from '@/molecules/label';
 import PageHeading from '@/molecules/page-heading';
 import { TagManager } from '@/molecules/tag-manager';
 import {
-  addCustomerAPI,
-  getCustomerByIdAPI,
-  setKeyValue,
-  updateCustomer,
-  updateCustomerAPI,
-} from '@/store/customersSlice';
-import { useAppDispatch } from '@/store/hooks';
-import { getErrorsObject } from '@/store/utils';
+  useCreateCustomerMutation,
+  useCustomerQuery,
+  useUpdateCustomerMutation,
+} from '@/services/customer';
 import type {
   CustomerFormData,
   FormErrors,
   SelectOption,
 } from '@/types';
-import { isApiSuccess } from '@/types/pages/api-guards';
 import { __ } from '@/wpi18n';
 
 import BillingAddress from '@/pages/customers/customer-details/billing-address';
@@ -38,26 +34,29 @@ type CustomerDetailsFormData = CustomerFormData & {
 const CustomerDetails = () => {
   let { id } = useParams();
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
   const [errors, setErrors] = useState<FormErrors>({});
   const [customerFormData, setCustomerFormData] =
     useState<CustomerDetailsFormData>({});
   const [selectedTags, setSelectedTags] = useState<SelectOption[]>([]);
 
+  const isNew = id === NEW_ITEM_ID;
+  const numericId = isNew ? 0 : Number(id);
+
+  const { data: customerData } = useCustomerQuery(numericId, !isNew);
+  const createMutation = useCreateCustomerMutation();
+  const updateMutation = useUpdateCustomerMutation();
+
   useEffect(() => {
-    if (!isNew()) {
-      getCustomerByIdAPI(id as unknown as number).then((result) => {
-        if (isApiSuccess(result)) {
-          console.log(result);
-          setCustomerFormData(result.data);
-          const tagList = (result?.data?.tags || []).map((tag) => {
-            return { title: tag, value: tag };
-          });
-          setSelectedTags(tagList);
-        }
-      });
+    if (!customerData) {
+      return;
     }
-  }, [id]);
+    setCustomerFormData(customerData);
+    const tagList = (customerData?.tags || []).map((tag) => ({
+      title: tag,
+      value: tag,
+    }));
+    setSelectedTags(tagList);
+  }, [customerData]);
 
   const handleOnChange = (
     data: unknown,
@@ -94,8 +93,6 @@ const CustomerDetails = () => {
   };
 
   const handleAddOrUpdateCustomer = async () => {
-    let result = {} as Awaited<ReturnType<typeof addCustomerAPI>>;
-    console.log(customerFormData);
     let updatedCustomerData: CustomerDetailsFormData = { ...customerFormData };
     updatedCustomerData.shipping_address = {
       ...customerFormData?.shipping_address,
@@ -114,31 +111,22 @@ const CustomerDetails = () => {
       };
     }
 
-    if (customerFormData.id) {
-      result = await updateCustomerAPI(
-        customerFormData.id,
-        updatedCustomerData,
-      );
-    } else {
-      result = await addCustomerAPI(updatedCustomerData);
-    }
-
-    if (isApiSuccess(result)) {
-      if (isNew()) {
+    try {
+      if (customerFormData.id) {
+        await updateMutation.mutateAsync({
+          id: customerFormData.id,
+          data: updatedCustomerData,
+        });
+      } else {
+        const result = await createMutation.mutateAsync(updatedCustomerData);
         navigate('/customers/' + result.data.id);
       }
-      if (customerFormData.id) {
-        dispatch(updateCustomer(result.data));
-      } else {
-        dispatch(setKeyValue({ key: 'toggler', value: Date.now() }));
+    } catch (error) {
+      const err = error as ErrorResponse;
+      if (err.errors) {
+        setErrors(getErrorsObject(err.errors));
       }
-    } else {
-      const errorPayload = result as { errors?: Record<string, string[]> };
-      setErrors(getErrorsObject(errorPayload.errors));
     }
-  };
-  const isNew = () => {
-    return id === NEW_ITEM_ID;
   };
 
   const handleTagRemove = (tag: SelectOption) => {
@@ -168,7 +156,7 @@ const CustomerDetails = () => {
     <>
       <PageHeading
         text={
-          isNew()
+          isNew
             ? __('New Customer', 'kirki-ecommerce')
             : __('Edit Customer', 'kirki-ecommerce')
         }
@@ -188,7 +176,7 @@ const CustomerDetails = () => {
               size="small"
               onClick={handleAddOrUpdateCustomer}
               text={
-                isNew()
+                isNew
                   ? __('Create', 'kirki-ecommerce')
                   : __('Save', 'kirki-ecommerce')
               }
@@ -251,5 +239,7 @@ const CustomerDetails = () => {
     </>
   );
 };
+
+CustomerDetails.displayName = 'CustomerDetails';
 
 export default CustomerDetails;

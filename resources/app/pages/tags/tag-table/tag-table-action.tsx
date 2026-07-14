@@ -1,24 +1,34 @@
 import Flex from '@/molecules/flex';
 import Searchbox from '@/molecules/searchbox';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { setKeyValue } from '@/store/tagsSlice';
+import { useListParams } from '@/hooks';
 
 const TagTableAction = () => {
-  const dispatch = useAppDispatch();
-  const { search } = useAppSelector((state) => state.tags);
+  const { params, setParam } = useListParams({
+    defaults: {
+      search: '',
+      sort_by: 'name',
+      sort_order: 'asc',
+      page: 1,
+      limit: 10,
+    },
+  });
+
   const handleSearchChange = (value: string) => {
-    dispatch(setKeyValue({ key: 'search', value: value }));
+    setParam('search', value);
   };
+
   return (
     <Flex style={{ padding: '16px 12px' }}>
       <div style={{ width: '160px' }}>
         <Searchbox
           onChange={(value) => handleSearchChange(value as string)}
-          value={search}
+          value={params.search || ''}
         />
       </div>
     </Flex>
   );
 };
+
+TagTableAction.displayName = 'TagTableAction';
 
 export default TagTableAction;

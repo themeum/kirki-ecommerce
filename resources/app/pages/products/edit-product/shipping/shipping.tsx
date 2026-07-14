@@ -13,8 +13,8 @@ import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
 import SelectInput from '@/molecules/select-input';
 import Text from '@/molecules/text';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { updateProduct } from '@/store/productSlice';
+import { useProductForm } from '@/contexts/product-form-context';
+import { useShippingBoxesQuery } from '@/services/shipping';
 import type { FormErrors, ShippingBox } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -40,51 +40,42 @@ type BoxGeneratorData = ShippingBox & {
 };
 
 const Shipping = ({ errors, setErrors }: ShippingProps) => {
-  const dispatch = useAppDispatch();
-  const { data: productData } = useAppSelector((state) => state.product);
-  const { loaded: boxListLoaded, data: shippingBox } = useAppSelector(
-    (state) => state.settings?.shipping?.shippingBox,
-  );
+  const { product: productData, updateProduct } = useProductForm();
+  const { data: shippingBoxes } = useShippingBoxesQuery({ limit: -1 });
   const [boxGeneratorData, setBoxGeneratorData] = useState<
     Partial<BoxGeneratorData>
   >({});
   const [showShippingBox, setShowShippingBox] = useState(true);
 
   useEffect(() => {
-    if (productData.variants[0]?.shipping_box_id && boxListLoaded) {
-      const boxData = shippingBox?.find(
+    if (productData.variants[0]?.shipping_box_id && shippingBoxes) {
+      const boxData = shippingBoxes?.find(
         (item) => item.id === productData.variants[0]?.shipping_box_id,
       );
       setBoxGeneratorData((boxData as BoxGeneratorData) || {});
     }
-  }, [productData.variants[0]?.shipping_box_id, shippingBox]);
+  }, [productData.variants[0]?.shipping_box_id, shippingBoxes]);
 
   const handleOnVariantInfoChange = (value: unknown, fieldName: string) => {
     if (fieldName === 'weight') {
       const weightValue = value as SelectInputValue;
-      dispatch(
-        updateProduct({
-          key: 'weight',
-          value: weightValue.value,
-          variants: true,
-        }),
-      );
-      dispatch(
-        updateProduct({
-          key: 'weight_unit',
-          value: weightValue.unit,
-          variants: true,
-        }),
-      );
+      updateProduct({
+        key: 'weight',
+        value: weightValue.value,
+        variants: true,
+      });
+      updateProduct({
+        key: 'weight_unit',
+        value: weightValue.unit,
+        variants: true,
+      });
       setErrors((prev) => ({
         ...prev,
         [`variants.0.weight`]: null,
         [`variants.0.weight_unit`]: null,
       }));
     } else {
-      dispatch(
-        updateProduct({ key: fieldName, value: value, variants: true }),
-      );
+      updateProduct({ key: fieldName, value: value, variants: true });
       setErrors((prev) => ({
         ...prev,
         [fieldName]: null,

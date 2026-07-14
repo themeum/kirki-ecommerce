@@ -8,7 +8,7 @@ import Card from '@/molecules/card';
 import Container from '@/molecules/container';
 import Flex from '@/molecules/flex';
 import PageHeading from '@/molecules/page-heading';
-import { useAppSelector } from '@/store/hooks';
+import { useAttributeQuery } from '@/services/attribute';
 import type { Attribute, AttributeValue, TaxonomyTableHeader } from '@/types';
 import { __, sprintf } from '@/wpi18n';
 
@@ -19,23 +19,21 @@ type AttributeWithMeta = Attribute & { updated_at?: string };
 
 const ColorVariation = () => {
   const { id } = useParams();
-  const attributeList = useAppSelector((state) => state.attributes?.data) || [];
+  const { data: selectedItem } = useAttributeQuery(Number(id), Boolean(id));
 
   const [colorList, setColorList] = useState<AttributeValue[]>([]);
   const [addVariantPopup, setAddVariantPopup] = useState(false);
-  const selectedItem = attributeList.find(
-    (attribute) => attribute?.id === Number(id),
-  ) as AttributeWithMeta | undefined;
+  const selectedAttribute = selectedItem as AttributeWithMeta | undefined;
   const tableHeaders: TaxonomyTableHeader[] = [
-    { title: sprintf(__('%s', 'kirki-ecommerce'), selectedItem?.name ?? '') },
+    { title: sprintf(__('%s', 'kirki-ecommerce'), selectedAttribute?.name ?? '') },
     { title: __('Hex code', 'kirki-ecommerce') },
     { title: __('Updated', 'kirki-ecommerce') },
     { title: __('', 'kirki-ecommerce') },
   ];
 
   useEffect(() => {
-    setColorList(selectedItem?.values ?? []);
-  }, [selectedItem]);
+    setColorList(selectedAttribute?.values ?? []);
+  }, [selectedAttribute]);
 
   return (
     <div>
@@ -80,7 +78,7 @@ const ColorVariation = () => {
                 results={colorList}
                 updateDataList={setColorList}
                 tableHeaders={tableHeaders}
-                selectedItem={selectedItem}
+                selectedItem={selectedAttribute}
               />
             </Card>
           )}
@@ -88,12 +86,14 @@ const ColorVariation = () => {
       </Container>
       <VariationValuePopup
         isOpen={addVariantPopup}
-        selectedItem={selectedItem}
-        type={selectedItem?.type}
+        selectedItem={selectedAttribute}
+        type={selectedAttribute?.type}
         onClose={() => setAddVariantPopup(false)}
       />
     </div>
   );
 };
+
+ColorVariation.displayName = 'ColorVariation';
 
 export default ColorVariation;

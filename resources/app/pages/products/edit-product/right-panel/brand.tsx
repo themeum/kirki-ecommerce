@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 
-import { useGetListAPI } from '@/hooks';
 import { MinusIcon } from '@/icons';
 import ActionGroup from '@/molecules/action-group';
 import Button from '@/molecules/button';
@@ -10,9 +9,8 @@ import Label from '@/molecules/label';
 import Searchbox from '@/molecules/searchbox';
 import Text from '@/molecules/text';
 import Thumbnail from '@/molecules/thumbnail';
-import { getBrandsAPI, setKeyValue } from '@/store/brandsSlice';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { updateProduct } from '@/store/productSlice';
+import { useProductForm } from '@/contexts/product-form-context';
+import { useBrandsQuery } from '@/services/brand';
 import type { Brand as BrandEntity, SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -21,18 +19,8 @@ import BrandAddEditPopover from '@/pages/brands/brand-add-edit-popover';
 type BrandSuggestion = SelectOption & BrandEntity;
 
 const Brand = () => {
-  const dispatch = useAppDispatch();
-  const { data: productData } = useAppSelector((state) => state.product);
-  const { data: brandData } = useAppSelector((state) => state.brands);
-  useGetListAPI({
-    reducerName: 'brands',
-    page: 1,
-    search: '',
-    sort_by: 'id',
-    sort_order: 'asc',
-    limit: -1,
-    apiCallBack: getBrandsAPI,
-  });
+  const { product: productData, updateProduct } = useProductForm();
+  const { data: brandData } = useBrandsQuery({ limit: -1 });
   const [suggestionArray, setSuggestionArray] = useState<BrandSuggestion[]>(
     [],
   );
@@ -56,34 +44,34 @@ const Brand = () => {
   }, [productData.brand, brandData]);
 
   const handleSearchChange = (searchText: string) => {
-    dispatch(setKeyValue({ key: 'search', value: searchText }));
+    setBrandTitle(String(searchText));
   };
 
   const handleRemoveBrand = () => {
-    dispatch(updateProduct({ key: 'brand', value: null }));
+    updateProduct({ key: 'brand', value: null });
   };
+
   const handleAddBrand = (brand: SelectOption) => {
     const suggestion = suggestionArray.find((item) => item.value === brand.value);
-    dispatch(
-      updateProduct({
-        key: 'brand',
-        value: suggestion
-          ? {
-              id: suggestion.id,
-              name: suggestion.name,
-              logo:
-                suggestion.logo && typeof suggestion.logo === 'object'
-                  ? suggestion.logo
-                  : null,
-            }
-          : {
-              id: Number(brand.value),
-              name: brand.title,
-              logo: null,
-            },
-      }),
-    );
+    updateProduct({
+      key: 'brand',
+      value: suggestion
+        ? {
+            id: suggestion.id,
+            name: suggestion.name,
+            logo:
+              suggestion.logo && typeof suggestion.logo === 'object'
+                ? suggestion.logo
+                : null,
+          }
+        : {
+            id: Number(brand.value),
+            name: brand.title,
+            logo: null,
+          },
+    });
   };
+
   const handleAddNewBrand = (searchText: string) => {
     setBrandTitle(searchText);
     setOpenBrandCreatePopup(true);
@@ -138,5 +126,7 @@ const Brand = () => {
     </>
   );
 };
+
+Brand.displayName = 'Brand';
 
 export default Brand;

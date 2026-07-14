@@ -11,21 +11,16 @@ import {
   PopoverHeader,
 } from '@/molecules/popover';
 import {
-  addAttributeValueAPI,
-  setKeyValue,
-  updateAttributeValueAPI,
-} from '@/store/attributesSlice';
-import { useAppDispatch } from '@/store/hooks';
+  useCreateAttributeValueMutation,
+  useUpdateAttributeValueMutation,
+} from '@/services/attribute';
 import type {
   Attribute,
   AttributeValue,
   AttributeValueFormData,
   ButtonState,
 } from '@/types';
-import { isApiSuccess } from '@/types/pages/api-guards';
 import { __ } from '@/wpi18n';
-
-import { dispatchToastMessage } from '@/pages/utils';
 
 type VariationFormState = {
   value: string;
@@ -47,7 +42,8 @@ const VariationValuePopup = ({
   selectedItem,
   editedItem = null,
 }: VariationValuePopupProps) => {
-  const dispatch = useAppDispatch();
+  const createMutation = useCreateAttributeValueMutation();
+  const updateMutation = useUpdateAttributeValueMutation();
   const [newVariation, setNewVariation] = useState<VariationFormState>({
     value: '',
     color: '',
@@ -79,28 +75,24 @@ const VariationValuePopup = ({
     } else {
       handleAddAttributeValue(newVariation);
     }
-    setNewVariation({ value: '', color: '' });
-    onClose();
   };
 
-  const handleAddAttributeValue = async (v: VariationFormState) => {
+  const handleAddAttributeValue = (v: VariationFormState) => {
     const payload = {
       attribute_id: selectedItem?.id as number,
       value: v?.value,
       color: type === 'color' ? v?.color : null,
     } as AttributeValueFormData;
 
-    try {
-      const result = await addAttributeValueAPI(payload);
-      handleResult(result, false);
-    } catch {
-      dispatchToastMessage('error', {
-        title: __('Something went wrong', 'kirki-ecommerce'),
-      });
-    }
+    createMutation.mutate(payload, {
+      onSuccess: () => {
+        setNewVariation({ value: '', color: '' });
+        onClose();
+      },
+    });
   };
 
-  const handleUpdateAttributeValue = async (v: VariationFormState) => {
+  const handleUpdateAttributeValue = (v: VariationFormState) => {
     const payload = {
       attribute_id: selectedItem?.id as number,
       value_id: editedItem?.id,
@@ -108,39 +100,12 @@ const VariationValuePopup = ({
       color: type === 'color' ? v?.color : null,
     } as AttributeValueFormData;
 
-    try {
-      const result = await updateAttributeValueAPI(payload);
-      handleResult(result, true);
-    } catch {
-      dispatchToastMessage('error', {
-        title: __('Something went wrong', 'kirki-ecommerce'),
-      });
-    }
-  };
-
-  const handleResult = (
-    result: Awaited<ReturnType<typeof addAttributeValueAPI>>,
-    isEdit: boolean,
-  ) => {
-    if (isApiSuccess(result)) {
-      dispatch(setKeyValue({ key: 'toggler', value: Date.now() }));
-      dispatchToastMessage('success', {
-        title: isEdit
-          ? type === 'color'
-            ? __('Color updated', 'kirki-ecommerce')
-            : __('Value updated', 'kirki-ecommerce')
-          : type === 'color'
-            ? __('New color added', 'kirki-ecommerce')
-            : __('New value added', 'kirki-ecommerce'),
-      });
-    } else {
-      const errorPayload = result as { message?: string };
-      dispatchToastMessage('error', {
-        title: errorPayload?.message?.toLowerCase().includes('duplicate')
-          ? __('Value already existed', 'kirki-ecommerce')
-          : __('Something went wrong', 'kirki-ecommerce'),
-      });
-    }
+    updateMutation.mutate(payload, {
+      onSuccess: () => {
+        setNewVariation({ value: '', color: '' });
+        onClose();
+      },
+    });
   };
 
   const btnState: ButtonState =
@@ -206,5 +171,7 @@ const VariationValuePopup = ({
     </div>
   );
 };
+
+VariationValuePopup.displayName = 'VariationValuePopup';
 
 export default VariationValuePopup;

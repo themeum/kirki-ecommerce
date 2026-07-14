@@ -34,4 +34,6 @@ const NewBrand = () => {
   );
 };
 
+NewBrand.displayName = 'NewBrand';
+
 export default NewBrand;

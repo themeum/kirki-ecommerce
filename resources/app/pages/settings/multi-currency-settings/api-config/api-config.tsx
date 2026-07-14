@@ -9,9 +9,8 @@ import Flex from '@/molecules/flex';
 import { Select } from '@/molecules/select';
 import Text from '@/molecules/text';
 import ToggleButton from '@/molecules/toggle-button';
-import { getCurrencyAPIProviderListAPI } from '@/store/currenciesSlice';
+import { useCurrencyExchangeProvidersQuery } from '@/services/currency';
 import type { FormErrors, SettingsSectionData } from '@/types';
-import { isApiSuccess } from '@/types/pages/api-guards';
 import { __ } from '@/wpi18n';
 
 import ApiConfigurationCard from '@/pages/settings/multi-currency-settings/api-config/api-configuration-card';
@@ -38,13 +37,14 @@ type ApiConfigProps = {
 
 const ApiConfig = ({ dataObj, handleOnChange, errors }: ApiConfigProps) => {
   const [selectedAPI, setSelectedAPI] = useState('');
-  const [apiProviderList, setAPIProviderList] = useState<ApiProvider[]>([]);
   const [apiConfigObj, setApiConfigObj] = useState<ApiConfigData>({});
   const [openPopup, setOpenPopup] = useState(false);
 
+  const { data: providersData } = useCurrencyExchangeProvidersQuery();
+  const apiProviderList = (providersData as ApiProvider[]) || [];
+
   useEffect(() => {
     setSelectedAPI((dataObj?.api_provider as string) || '');
-    fetchAPIProviderList();
   }, [dataObj]);
 
   useEffect(() => {
@@ -54,15 +54,6 @@ const ApiConfig = ({ dataObj, handleOnChange, errors }: ApiConfigProps) => {
       setApiConfigObj({});
     }
   }, [selectedAPI, dataObj]);
-
-  const fetchAPIProviderList = async () => {
-    const result = await getCurrencyAPIProviderListAPI();
-    if (isApiSuccess(result)) {
-      setAPIProviderList((result?.data as ApiProvider[]) || []);
-    } else {
-      setAPIProviderList([]);
-    }
-  };
 
   const rightActions = () => (
     <ActionGroup gap={8} style={{ alignItems: 'center' }}>
@@ -146,5 +137,7 @@ const ApiConfig = ({ dataObj, handleOnChange, errors }: ApiConfigProps) => {
     </>
   );
 };
+
+ApiConfig.displayName = 'ApiConfig';
 
 export default ApiConfig;

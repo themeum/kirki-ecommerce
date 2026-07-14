@@ -10,8 +10,7 @@ import Flex from '@/molecules/flex';
 import Input from '@/molecules/input';
 import { Select } from '@/molecules/select';
 import { TableCell, TableRow } from '@/molecules/table';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { updateVariants } from '@/store/productSlice';
+import { useProductForm } from '@/contexts/product-form-context';
 import type {
   AttributeValue,
   MediaChangePayload,
@@ -46,8 +45,7 @@ const SingleGroup = ({
   setSelectedIndex,
   expandVariation,
 }: SingleGroupProps) => {
-  const dispatch = useAppDispatch();
-  const { data: productData } = useAppSelector((state) => state.product);
+  const { product: productData, updateVariants } = useProductForm();
   const attributes = productData?.attributes || [];
   const variants = productData?.variants || [];
   const [selectedCheckedIndex, setSelectedCheckedIndex] = useState<number[]>(
@@ -127,13 +125,11 @@ const SingleGroup = ({
       delete mediaValue?.modified;
     }
 
-    dispatch(
-      updateVariants({
-        key: fieldName,
-        value: value,
-        variant_index: [...selectedIndex, ...indexList],
-      }),
-    );
+    updateVariants({
+      key: fieldName,
+      value: value,
+      variant_index: [...selectedIndex, ...indexList],
+    });
   };
 
   const handleOnParentValueChange = (value: unknown, fieldName: string) => {
@@ -148,16 +144,14 @@ const SingleGroup = ({
       delete mediaValue?.date;
       delete mediaValue?.modified;
     }
-    dispatch(
-      updateVariants({
-        key: fieldName,
-        value: value,
-        variant_index: [
-          ...selectedIndex,
-          ...indexList.filter((item: number) => !selectedIndex.includes(item)),
-        ],
-      }),
-    );
+    updateVariants({
+      key: fieldName,
+      value: value,
+      variant_index: [
+        ...selectedIndex,
+        ...indexList.filter((item: number) => !selectedIndex.includes(item)),
+      ],
+    });
     setSelectedCheckedIndex([]);
     setSelectedIndex([]);
   };

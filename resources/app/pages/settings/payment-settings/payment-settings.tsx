@@ -1,48 +1,19 @@
-import { useEffect, useState } from 'react';
-
 import PageNavbar from '@/components/page-navbar';
 import { PaymentIcon } from '@/icons';
 import Container from '@/molecules/container';
 import Flex from '@/molecules/flex';
 import PageHeading from '@/molecules/page-heading';
-import {
-  getAddedPaymentGatewayAPI,
-  getPaymentMethodListAPI,
-} from '@/store/settingsSlice';
-import type { PaymentGateway, PaymentMethod } from '@/types';
-import { isApiSuccess } from '@/types/pages/api-guards';
+import { usePaymentGatewaysQuery } from '@/services/payment';
+import { usePaymentMethodsQuery } from '@/services/payment';
 import { __ } from '@/wpi18n';
 
 import ManualPayment from '@/pages/settings/payment-settings/manual-payment';
 import PaymentGatewayList from '@/pages/settings/payment-settings/payment-gateway';
 
 const PaymentSettings = () => {
-  const [manualPaymentMethod, setManualPaymentMethod] = useState<
-    PaymentMethod[]
-  >([]);
-  const [paymentGatewayList, setPaymentGatewayList] = useState<
-    PaymentGateway[]
-  >([]);
-  const [isMethodListUpdated, setIsMethodListUpdated] = useState(false);
-
-  useEffect(() => {
-    const fetchAddedPaymentList = async () => {
-      const gatewayResult = await getAddedPaymentGatewayAPI();
-      const methodResult = await getPaymentMethodListAPI();
-
-      if (isApiSuccess(gatewayResult) && Array.isArray(gatewayResult.data)) {
-        setPaymentGatewayList(gatewayResult.data as PaymentGateway[]);
-      }
-      if (isApiSuccess(methodResult) && Array.isArray(methodResult.data)) {
-        setManualPaymentMethod(methodResult.data as PaymentMethod[]);
-      }
-    };
-
-    fetchAddedPaymentList();
-    if (isMethodListUpdated) {
-      setIsMethodListUpdated(false);
-    }
-  }, [isMethodListUpdated]);
+  const { data: paymentGatewayList = [] } = usePaymentGatewaysQuery();
+  const { data: manualPaymentMethod = [], refetch: refetchMethods } =
+    usePaymentMethodsQuery();
 
   return (
     <>
@@ -62,18 +33,15 @@ const PaymentSettings = () => {
 
           <ManualPayment
             manualPaymentList={manualPaymentMethod}
-            setManualPaymentMethod={setManualPaymentMethod}
-            setIsMethodListUpdated={setIsMethodListUpdated}
+            refetch={refetchMethods}
           />
-          <PaymentGatewayList
-            paymentGatewayList={paymentGatewayList}
-            setPaymentGatewayList={setPaymentGatewayList}
-            setIsMethodListUpdated={setIsMethodListUpdated}
-          />
+          <PaymentGatewayList paymentGatewayList={paymentGatewayList} />
         </Flex>
       </Container>
     </>
   );
 };
+
+PaymentSettings.displayName = 'PaymentSettings';
 
 export default PaymentSettings;

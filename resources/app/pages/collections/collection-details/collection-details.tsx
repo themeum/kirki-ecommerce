@@ -15,20 +15,16 @@ import Separator from '@/molecules/separator';
 import Text from '@/molecules/text';
 import Thumbnail from '@/molecules/thumbnail';
 import {
-  addCollectionAPI,
-  getCollectionByIdAPI,
-  setKeyValue,
-  updateCollection,
-  updateCollectionAPI,
-} from '@/store/collectionsSlice';
-import { useAppDispatch } from '@/store/hooks';
-import { getErrorsObject } from '@/store/utils';
+  useCollectionQuery,
+  useCreateCollectionMutation,
+  useUpdateCollectionMutation,
+} from '@/services/collection';
+import { getErrorsObject } from '@/libs/api';
 import type {
   CollectionFormData,
   FormErrors,
   MediaChangePayload,
 } from '@/types';
-import { isApiSuccess } from '@/types/pages/api-guards';
 import { __ } from '@/wpi18n';
 
 type CollectionDetailsFormData = CollectionFormData & {
@@ -36,30 +32,32 @@ type CollectionDetailsFormData = CollectionFormData & {
 };
 
 const CollectionDetails = () => {
-  let { id } = useParams();
+  const { id } = useParams();
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
+  const isNew = id === NEW_ITEM_ID;
+
+  const { data: collectionResponse } = useCollectionQuery(
+    Number(id),
+    !isNew,
+  );
+  const createMutation = useCreateCollectionMutation();
+  const updateMutation = useUpdateCollectionMutation();
+
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [errors, setErrors] = useState<FormErrors>({});
   const [collectionFormData, setCollectionFormData] =
     useState<CollectionDetailsFormData>({});
-  const [, setLoaded] = useState(false);
 
   useEffect(() => {
-    if (!isNew()) {
-      getCollectionByIdAPI(id as unknown as number).then((result) => {
-        if (isApiSuccess(result)) {
-          setCollectionFormData(result.data);
-          const banner =
-            result.data.banner && typeof result.data.banner === 'object'
-              ? result.data.banner
-              : null;
-          setImageUrl(banner?.url ?? null);
-          setLoaded(true);
-        }
-      });
+    if (collectionResponse) {
+      setCollectionFormData(collectionResponse);
+      const banner =
+        collectionResponse.banner && typeof collectionResponse.banner === 'object'
+          ? (collectionResponse.banner as { url?: string })
+          : null;
+      setImageUrl(banner?.url ?? null);
     }
-  }, []);
+  }, [collectionResponse]);
 
   const handleOnChange = (data: unknown, fieldName: string) => {
     setCollectionFormData((prev) => ({
@@ -82,40 +80,28 @@ const CollectionDetails = () => {
   };
 
   const handleAddOrUpdateCollection = async () => {
-    let result = {} as Awaited<ReturnType<typeof addCollectionAPI>>;
-    if (collectionFormData.id) {
-      result = await updateCollectionAPI(
-        collectionFormData.id,
-        collectionFormData,
-      );
-    } else {
-      result = await addCollectionAPI(collectionFormData);
-    }
-
-    if (isApiSuccess(result)) {
-      if (isNew()) {
-        navigate('/collections/' + result.data.id);
-      }
+    try {
       if (collectionFormData.id) {
-        dispatch(updateCollection(result.data));
+        await updateMutation.mutateAsync({
+          id: collectionFormData.id,
+          data: collectionFormData,
+        });
       } else {
-        dispatch(setKeyValue({ key: 'toggler', value: Date.now() }));
+        const response = await createMutation.mutateAsync(collectionFormData);
+        navigate('/collections/' + response.data.id);
       }
-    } else {
-      const errorPayload = result as { errors?: Record<string, string[]> };
-      setErrors(getErrorsObject(errorPayload.errors));
+    } catch (error) {
+      setErrors(
+        getErrorsObject((error as { errors?: Record<string, string[]> }).errors),
+      );
     }
-  };
-
-  const isNew = () => {
-    return id === NEW_ITEM_ID;
   };
 
   return (
     <>
       <PageHeading
         text={
-          isNew()
+          isNew
             ? __('New Collection', 'kirki-ecommerce')
             : __('Edit Collection', 'kirki-ecommerce')
         }
@@ -127,7 +113,7 @@ const CollectionDetails = () => {
             <Button
               type="primary"
               size="small"
-              text={isNew() ? __('Create', 'kirki-ecommerce') : __('Save', 'kirki-ecommerce')}
+              text={isNew ? __('Create', 'kirki-ecommerce') : __('Save', 'kirki-ecommerce')}
               onClick={handleAddOrUpdateCollection}
             />
           </>
@@ -255,5 +241,7 @@ const CollectionDetails = () => {
     </>
   );
 };
+
+CollectionDetails.displayName = 'CollectionDetails';
 
 export default CollectionDetails;

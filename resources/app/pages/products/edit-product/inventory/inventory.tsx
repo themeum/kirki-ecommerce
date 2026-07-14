@@ -10,8 +10,7 @@ import Input from '@/molecules/input';
 import Label from '@/molecules/label';
 import { Select } from '@/molecules/select';
 import Text from '@/molecules/text';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { updateProduct } from '@/store/productSlice';
+import { useProductForm } from '@/contexts/product-form-context';
 import type { FormErrors } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -21,28 +20,25 @@ type InventoryProps = {
 };
 
 const Inventory = ({ errors, setErrors }: InventoryProps) => {
-  const dispatch = useAppDispatch();
-  const { data: productData } = useAppSelector((state) => state.product);
+  const { product: productData, updateProduct } = useProductForm();
 
   const handleOnVariantInfoChange = (value: unknown, fieldName: string) => {
-    dispatch(updateProduct({ key: fieldName, value: value, variants: true }));
+    updateProduct({ key: fieldName, value: value, variants: true });
     setErrors((prev) => ({
       ...prev,
       [`variants.0.${fieldName}`]: null,
     }));
     if (fieldName === 'track_inventory') {
-      dispatch(
-        updateProduct({
-          key: 'available_quantity',
-          value: 0,
-          variants: true,
-        }),
-      );
+      updateProduct({
+        key: 'available_quantity',
+        value: 0,
+        variants: true,
+      });
     }
   };
 
   const handleOnChange = (value: unknown, fieldName: string) => {
-    dispatch(updateProduct({ key: fieldName, value: value }));
+    updateProduct({ key: fieldName, value: value });
     setErrors((prev) => ({
       ...prev,
       [fieldName]: null,

@@ -1,7 +1,5 @@
 import { Select } from '@/molecules/select';
-import useGetListAPI from '@/hooks/useGetListAPI';
-import { useAppSelector } from '@/store/hooks';
-import { getCountriesAPI } from '@/store/countriesSlice';
+import { useCountriesQuery } from '@/services/country';
 import type { LabelFieldProps } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -19,17 +17,14 @@ const CountrySelector = ({
   error,
   multiple = false,
 }: CountrySelectorProps) => {
-  useGetListAPI({
-    reducerName: 'countries',
-    apiCallBack: getCountriesAPI,
-    limit: -1,
-  });
-  const countries = useAppSelector((state) => state.countries?.data) || [];
+  const { data: countries = [] } = useCountriesQuery({ limit: -1 });
+
   const optionsArray = countries.map((country) => ({
     value: country.code,
     title: country.name,
     leftIcon: country.flag,
   }));
+
   return (
     <Select
       label={label || __('Country / Region', 'kirki-ecommerce')}
@@ -43,5 +38,7 @@ const CountrySelector = ({
     />
   );
 };
+
+CountrySelector.displayName = 'CountrySelector';
 
 export default CountrySelector;

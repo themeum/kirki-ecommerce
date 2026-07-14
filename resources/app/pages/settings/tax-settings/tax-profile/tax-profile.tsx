@@ -1,4 +1,6 @@
 import { useState, useEffect, type ReactNode } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
 import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
@@ -6,17 +8,10 @@ import HeaderActionsCard from '@/components/header-actions-card';
 import GroupOptionCard from '@/components/group-option-card';
 import { BoxOpenIcon, BoxClosedIcon } from '@/icons';
 import { CLASS_PREFIX } from '@/conf';
-import { __ } from '@/wpi18n';
-import {
-  deleteTaxProfileById,
-  getTaxProfileListAPI,
-  setKeyValue,
-} from '@/store/settingsSlice';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { useGetListAPI } from '@/hooks';
-import { dispatchToastMessage } from '@/pages/utils';
+import { toastMutationError } from '@/services/helpers';
+import { deleteTaxProfile, useTaxProfilesQuery } from '@/services/tax';
 import type { TaxProfile as TaxProfileType } from '@/types';
-import { isApiSuccess } from '@/types';
+import { __ } from '@/wpi18n';
 
 import { TaxProfilePopup } from '@/pages/settings/tax-settings/tax-profile/tax-profile-popup';
 
@@ -25,64 +20,47 @@ type TaxProfileListItem = TaxProfileType & {
 };
 
 const TaxProfile = () => {
-  const dispatch = useAppDispatch();
+  const queryClient = useQueryClient();
   const [showPopup, setShowPopup] = useState(false);
   const [editingProfile, setEditingProfile] =
     useState<TaxProfileListItem | null>(null);
   const [taxProfileList, setTaxProfileList] = useState<TaxProfileListItem[]>(
     [],
   );
-  useGetListAPI({
-    reducerName: 'settings',
-    apiCallBack: getTaxProfileListAPI,
-    nestedToggler: ['tax', 'taxProfile'],
-  });
-  const { data: taxProfile } = useAppSelector(
-    (state) => state.settings?.tax?.taxProfile,
-  );
+
+  const { data: taxProfiles } = useTaxProfilesQuery();
 
   useEffect(() => {
-    fetchTaxProfileList();
-  }, [taxProfile]);
-
-  const fetchTaxProfileList = async () => {
-    const updatedData = taxProfile?.map((item) => ({
+    const updatedData = (taxProfiles ?? []).map((item) => ({
       ...item,
       icon: <BoxClosedIcon />,
     }));
+    setTaxProfileList(updatedData);
+  }, [taxProfiles]);
 
-    setTaxProfileList(updatedData ?? []);
-  };
-
-  useEffect(() => {
-    if (taxProfile && taxProfile?.length) {
-      fetchTaxProfileList();
-    }
-  }, [taxProfile?.length]);
-
-  const handleDeleteTaxProfile = async (item: TaxProfileListItem) => {
+  const handleDeleteTaxProfile = (item: TaxProfileListItem) => {
     const initialList = [...taxProfileList];
 
     setTaxProfileList((prev) =>
       prev.filter((profile) => profile?.id !== item?.id),
     );
-    dispatchToastMessage('delete', {
-      title: __('Tax profile deleted', 'kirki-ecommerce'),
+    toast(__('Tax profile deleted', 'kirki-ecommerce'), {
       duration: 5000,
-      undoAction: () => {
-        setTaxProfileList(initialList);
+      action: {
+        label: __('Undo', 'kirki-ecommerce'),
+        onClick: () => {
+          setTaxProfileList(initialList);
+        },
       },
-      onSuccess: async () => {
-        const result = await deleteTaxProfileById(item?.id);
-        if (isApiSuccess(result)) {
-          dispatch(
-            setKeyValue({
-              key: 'toggler',
-              value: Date.now(),
-              nestedToggler: ['tax', 'taxProfile'],
-            }),
-          );
-        }
+      onAutoClose: () => {
+        deleteTaxProfile(item?.id)
+          .then(() => {
+            void queryClient.invalidateQueries({ queryKey: ['TaxProfiles'] });
+          })
+          .catch((error) => {
+            toastMutationError(error);
+            setTaxProfileList(initialList);
+          });
       },
     });
   };
@@ -134,14 +112,12 @@ const TaxProfile = () => {
         <TaxProfilePopup
           isOpen={showPopup}
           onClose={() => setShowPopup(false)}
-          fetchTaxProfileList={fetchTaxProfileList}
         />
       )}
       {editingProfile && (
         <TaxProfilePopup
           isOpen={editingProfile}
           onClose={() => setEditingProfile(null)}
-          fetchTaxProfileList={fetchTaxProfileList}
           from="edit"
           taxProfile={editingProfile}
         />

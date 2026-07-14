@@ -3,9 +3,8 @@ import Container from '@/molecules/container';
 import Flex from '@/molecules/flex';
 import PageHeading from '@/molecules/page-heading';
 import Pagination from '@/components/pagination';
-import { useGetListAPI } from '@/hooks';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { getCategoriesAPI, setKeyValue } from '@/store/categoriesSlice';
+import { useListParams } from '@/hooks';
+import { useCategoriesQuery } from '@/services/category';
 import type { PaginationData } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -13,21 +12,34 @@ import CategoryTable from '@/pages/categories/category-table/category-table';
 import NewCategory from '@/pages/categories/new-category';
 
 const Categories = () => {
-  const dispatch = useAppDispatch();
-  const { loaded, data } = useAppSelector((state) => state.categories);
-  useGetListAPI({ reducerName: 'categories', apiCallBack: getCategoriesAPI });
+  const { params, setParam } = useListParams({
+    defaults: {
+      search: '',
+      sort_by: 'name',
+      sort_order: 'asc',
+      page: 1,
+      limit: 10,
+    },
+  });
+  const { data, isLoading, isFetching } = useCategoriesQuery(params);
+
   const handlePaginationChange = (value: number) => {
-    dispatch(setKeyValue({ key: 'page', value: value }));
+    setParam('page', value);
   };
+
+  const loaded = !isLoading && Boolean(data);
 
   return (
     <>
-      <PageHeading text={__('Categories', 'kirki-ecommerce')} actions={<NewCategory />} />
+      <PageHeading
+        text={__('Categories', 'kirki-ecommerce')}
+        actions={<NewCategory />}
+      />
       <Container>
         {loaded ? (
           <Flex direction="column" gap={16}>
             <Card type="table">
-              <CategoryTable />
+              <CategoryTable data={data!} isFetching={isFetching} />
             </Card>
             <Pagination
               data={data as PaginationData}
@@ -41,5 +53,7 @@ const Categories = () => {
     </>
   );
 };
+
+Categories.displayName = 'Categories';
 
 export default Categories;

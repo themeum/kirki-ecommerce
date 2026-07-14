@@ -5,10 +5,8 @@ import ActionGroup from '@/molecules/action-group';
 import Button from '@/molecules/button';
 import Checkbox from '@/molecules/checkbox';
 import { TableCell, TableRow } from '@/molecules/table';
-import { useAppDispatch } from '@/store/hooks';
-import { deleteTagByIdAPI, setKeyValue } from '@/store/tagsSlice';
+import { useDeleteTagMutation } from '@/services/tag';
 import type { MarkListHandlers, Tag } from '@/types';
-import { isApiSuccess } from '@/types/pages/api-guards';
 import { __ } from '@/wpi18n';
 
 import TagAddEditPopover from '@/pages/tags/tag-add-edit-popover';
@@ -23,16 +21,12 @@ const SingleRow = ({
   handleSingleCheckboxClick,
 }: SingleRowProps) => {
   const [openPopup, setOpenPopup] = useState(false);
-  const dispatch = useAppDispatch();
+  const deleteMutation = useDeleteTagMutation();
 
-  const onItemDelete = async (id: number) => {
-    const result = await deleteTagByIdAPI(id);
-    if (isApiSuccess(result)) {
-      dispatch(setKeyValue({ key: 'toggler', value: Date.now() }));
-    } else {
-      console.log(result);
-    }
+  const onItemDelete = (id: number) => {
+    deleteMutation.mutate(id);
   };
+
   return (
     <>
       <TableRow
@@ -80,5 +74,7 @@ const SingleRow = ({
     </>
   );
 };
+
+SingleRow.displayName = 'SingleRow';
 
 export default SingleRow;

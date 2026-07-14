@@ -1,6 +1,6 @@
-import axios from 'axios';
-
 import { ShowMoreIcon } from '@/icons';
+import { apiClient } from '@/libs/api';
+import { endpoints } from '@/libs/endpoints';
 import Button from '@/molecules/button';
 import Card from '@/molecules/card';
 import Container from '@/molecules/container';
@@ -35,7 +35,6 @@ import TabPreview from '@/preview-pages/tab-preview';
 import TagManagerPreview from '@/preview-pages/tag-manager-preview';
 import ThumbnailPreview from '@/preview-pages/thumbnail-preview';
 import ToggleButtonPreview from '@/preview-pages/toggle-button-preview';
-import { getOptions } from '@/store/utils';
 import type { FlexDirection } from '@/types';
 
 const Tryouts = () => {
@@ -59,7 +58,9 @@ const Tryouts = () => {
           <Button
             type="primary"
             text="App Config"
-            onClick={() => axios.request(getOptions('/app-config'))}
+            onClick={() => {
+              void apiClient.get(endpoints.APP_CONFIG);
+            }}
           />
           Page Navigation
           <PageNavbarPreview />

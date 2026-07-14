@@ -13,14 +13,13 @@ import {
   PopoverHeader,
 } from '@/molecules/popover';
 import Text from '@/molecules/text';
-import { createNewCurrencyAPI } from '@/store/currenciesSlice';
-import { useAppSelector } from '@/store/hooks';
-import { getErrorsObject } from '@/store/utils';
+import { getErrorsObject } from '@/libs/api';
+import {
+  useAvailableCurrenciesQuery,
+  useCreateCurrencyMutation,
+} from '@/services/currency';
 import type { Currency, CurrencyFormData, FormErrors } from '@/types';
-import { isApiSuccess } from '@/types/pages/api-guards';
 import { __, sprintf } from '@/wpi18n';
-
-import { dispatchToastMessage } from '@/pages/utils';
 
 type ExchangeRatePopupProps = {
   selectedCurrencyList?: Currency[];
@@ -28,7 +27,6 @@ type ExchangeRatePopupProps = {
   isOpen: boolean;
   setIsOpen: Dispatch<SetStateAction<boolean>>;
   setAddCurrencyPopup: Dispatch<SetStateAction<boolean>>;
-  setIsNewCurrencyAdded: Dispatch<SetStateAction<boolean>>;
   setSearchValue: Dispatch<SetStateAction<string>>;
 };
 
@@ -38,15 +36,14 @@ const ExchangeRatePopup = ({
   isOpen,
   setIsOpen,
   setAddCurrencyPopup,
-  setIsNewCurrencyAdded,
   setSearchValue,
 }: ExchangeRatePopupProps) => {
   const [currencies, setCurrencies] = useState<Currency[]>(selectedCurrencyList || []);
   const [errors, setErrors] = useState<FormErrors>({});
-
-  const availableCurrencyList = useAppSelector(
-    (state) => state.currencies?.data?.available,
-  );
+  const { data: availableCurrencyList = [] } = useAvailableCurrenciesQuery({
+    limit: -1,
+  });
+  const createMutation = useCreateCurrencyMutation();
 
   const handleOnChange = (value: unknown, currency: Currency, index: number) => {
     setCurrencies((prev = []) =>
@@ -62,7 +59,7 @@ const ExchangeRatePopup = ({
     }));
   };
 
-  const handleSaveCurrencyData = async () => {
+  const handleSaveCurrencyData = () => {
     const payload: CurrencyFormData = {
       items: currencies.map((item, idx) => ({
         ...item,
@@ -73,18 +70,17 @@ const ExchangeRatePopup = ({
       })),
     };
 
-    const result = await createNewCurrencyAPI(payload);
-
-    if (isApiSuccess(result)) {
-      dispatchToastMessage('success', { title: 'New currency added' });
-      setIsOpen(false);
-      setSelectedCurrencyList([]);
-      setSearchValue('');
-      setIsNewCurrencyAdded(true);
-    } else {
-      const errorPayload = result as { errors?: Record<string, string[]> };
-      setErrors(getErrorsObject(errorPayload.errors));
-    }
+    createMutation.mutate(payload, {
+      onSuccess: () => {
+        setIsOpen(false);
+        setSelectedCurrencyList([]);
+        setSearchValue('');
+      },
+      onError: (error) => {
+        const errObj = error as { errors?: Record<string, string[]> };
+        setErrors(getErrorsObject(errObj.errors));
+      },
+    });
   };
 
   const handleClosePopup = () => {
@@ -178,5 +174,7 @@ const ExchangeRatePopup = ({
     </>
   );
 };
+
+ExchangeRatePopup.displayName = 'ExchangeRatePopup';
 
 export default ExchangeRatePopup;

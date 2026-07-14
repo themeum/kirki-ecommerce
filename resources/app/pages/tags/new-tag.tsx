@@ -33,4 +33,6 @@ const NewTag = () => {
   );
 };
 
+NewTag.displayName = 'NewTag';
+
 export default NewTag;

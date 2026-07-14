@@ -1,24 +1,34 @@
 import Flex from '@/molecules/flex';
 import Searchbox from '@/molecules/searchbox';
-import { setKeyValue } from '@/store/categoriesSlice';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { useListParams } from '@/hooks';
 
 const CategoryTableAction = () => {
-  const dispatch = useAppDispatch();
-  const { search } = useAppSelector((state) => state.categories);
+  const { params, setParam } = useListParams({
+    defaults: {
+      search: '',
+      sort_by: 'name',
+      sort_order: 'asc',
+      page: 1,
+      limit: 10,
+    },
+  });
+
   const handleSearchChange = (value: string) => {
-    dispatch(setKeyValue({ key: 'search', value: value }));
+    setParam('search', value);
   };
+
   return (
     <Flex style={{ padding: '16px 12px' }}>
       <div style={{ width: '160px' }}>
         <Searchbox
           onChange={(value) => handleSearchChange(value as string)}
-          value={search}
+          value={params.search || ''}
         />
       </div>
     </Flex>
   );
 };
+
+CategoryTableAction.displayName = 'CategoryTableAction';
 
 export default CategoryTableAction;

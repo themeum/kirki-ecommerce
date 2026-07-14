@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState, type Dispatch, type SetStateAction } from 'react';
 
-import { useGetListAPI } from '@/hooks';
 import { CLASS_PREFIX } from '@/conf';
 import { CloseIcon, PlusCircleIcon, SearchIcon } from '@/icons';
 import ActionGroup from '@/molecules/action-group';
@@ -13,8 +12,7 @@ import Input from '@/molecules/input';
 import { Select } from '@/molecules/select';
 import Tag from '@/molecules/tag';
 import Text from '@/molecules/text';
-import { getCountriesAPI } from '@/store/countriesSlice';
-import { useAppSelector } from '@/store/hooks';
+import { useCountriesQuery } from '@/services/country';
 import type { Country, FormErrors } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -44,20 +42,14 @@ const SellingLocation = (props: SellingLocationProps) => {
   const [showCountrySelector, setShowCountrySelector] = useState(false);
   const [isSelectedAllCountries, setIsSelectedAllCountries] = useState(false);
 
-  const countryList = useAppSelector((state) => state.countries?.data);
+  const { data: countryList } = useCountriesQuery({ limit: -1 });
   const [searchValue, setSearchValue] = useState('');
   const [filteredCountries, setFilteredCountries] = useState<Country[] | null>(
-    countryList,
+    countryList ?? null,
   );
 
-  useGetListAPI({
-    reducerName: 'countries',
-    apiCallBack: getCountriesAPI,
-    limit: -1,
-  });
-
   useEffect(() => {
-    setFilteredCountries(countryList);
+    setFilteredCountries(countryList ?? null);
     setSearchValue('');
   }, [countryList, showCountrySelector]);
 
@@ -105,7 +97,7 @@ const SellingLocation = (props: SellingLocationProps) => {
     setSearchValue(value);
 
     if (!value) {
-      setFilteredCountries(countryList);
+      setFilteredCountries(countryList ?? null);
       return;
     }
     const result = getSearchedValue(value, countryList || []);
@@ -276,5 +268,7 @@ const SellingLocation = (props: SellingLocationProps) => {
     </div>
   );
 };
+
+SellingLocation.displayName = 'SellingLocation';
 
 export default SellingLocation;

@@ -1,23 +1,16 @@
 import { useEffect, useState } from 'react';
 
-import { useGetListAPI } from '@/hooks';
 import { Select } from '@/molecules/select';
-import { getCollectionsAPI } from '@/store/collectionsSlice';
-import { useAppSelector } from '@/store/hooks';
+import { useCollectionsQuery } from '@/services/collection';
 import type { SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
 
-type ProductFilterState = {
-  category_ids?: number[] | string;
-  status?: string;
-  inventory_type?: string;
-  collection_id?: string | number;
-  brand_id?: string | number;
-  [key: string]: unknown;
+type FilterObject = {
+  collection_ids?: number | undefined;
 };
 
 type CollectionFilterProps = {
-  filterObject: ProductFilterState;
+  filterObject: FilterObject;
   onChange?: (val: string | number | Array<string | number>) => void;
 };
 
@@ -25,15 +18,8 @@ const CollectionFilter = ({
   filterObject,
   onChange = () => {},
 }: CollectionFilterProps) => {
-  const { data: collectionData } = useAppSelector((state) => state.collections);
-  useGetListAPI({
-    reducerName: 'collections',
-    limit: -1,
-    apiCallBack: getCollectionsAPI,
-  });
-  const [collectionOptions, setCollectionOptions] = useState<SelectOption[]>(
-    [],
-  );
+  const { data: collectionData } = useCollectionsQuery({ limit: -1 });
+  const [collectionOptions, setCollectionOptions] = useState<SelectOption[]>([]);
 
   useEffect(() => {
     const suggestionList = collectionData?.results.map((item) => ({
@@ -47,7 +33,7 @@ const CollectionFilter = ({
   return (
     <Select
       label={__('Collection', 'kirki-ecommerce')}
-      value={filterObject?.collection_id || 'all'}
+      value={filterObject?.collection_ids || 'all'}
       optionsArray={[
         { value: 'all', title: __('All', 'kirki-ecommerce') },
         ...(collectionOptions || []),
@@ -56,5 +42,7 @@ const CollectionFilter = ({
     />
   );
 };
+
+CollectionFilter.displayName = 'CollectionFilter';
 
 export default CollectionFilter;

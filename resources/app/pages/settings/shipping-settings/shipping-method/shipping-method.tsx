@@ -23,6 +23,7 @@ type ShippingMethodProps = {
   shippingMethodList: ShippingMethodData[];
   setShippingZonesObj: Dispatch<SetStateAction<ShippingZone[]>>;
   shippingZonesObj: ShippingZone[];
+  zoneId?: string | number | null;
 };
 
 export const ShippingMethod = ({
@@ -31,6 +32,7 @@ export const ShippingMethod = ({
   shippingMethodList,
   setShippingZonesObj,
   shippingZonesObj,
+  zoneId = null,
 }: ShippingMethodProps) => {
   const navigate = useNavigate();
 
@@ -101,6 +103,14 @@ export const ShippingMethod = ({
     );
   };
 
+  const handleAddMethod = () => {
+    if (zoneId !== undefined && zoneId !== null) {
+      navigate(`/settings/shipping/delivery-method?zoneId=${zoneId}`);
+      return;
+    }
+    navigate('/settings/shipping/delivery-method');
+  };
+
   return (
     <div>
       {from === 'edit_zone' ? (
@@ -127,7 +137,7 @@ export const ShippingMethod = ({
               'kirki-ecommerce',
             )}
             buttonText={__('Add Method', 'kirki-ecommerce')}
-            onAdd={() => navigate(`/settings/shipping/delivery-method`)}
+            onAdd={handleAddMethod}
           />
 
           {!shippingMethodList?.length ? (

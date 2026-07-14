@@ -1,10 +1,9 @@
+import { useInventoryForm } from '@/contexts/inventory-form-context';
 import Checkbox from '@/molecules/checkbox';
 import Flex from '@/molecules/flex';
 import Input from '@/molecules/input';
 import { TableCell, TableRow } from '@/molecules/table';
 import Thumbnail from '@/molecules/thumbnail';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { setKeyValue, updateInventory } from '@/store/inventorySlice';
 import type { InventoryVariant, MarkListHandlers } from '@/types';
 
 import { calculateProfit } from '@/pages/utils';
@@ -20,15 +19,10 @@ const SingleRow = ({
   handleSingleCheckboxClick,
   selectedFields,
 }: SingleRowProps) => {
-  const dispatch = useAppDispatch();
-  const { hasChanges } = useAppSelector((state) => state.inventory);
+  const { updateInventory } = useInventoryForm();
 
   const handleOnChange = (value: string | number, fieldName: string) => {
-    if (!hasChanges) {
-      dispatch(setKeyValue({ key: 'hasChanges', value: true }));
-    }
-    const changes = { [fieldName]: value };
-    dispatch(updateInventory({ id: item.id, changes }));
+    updateInventory({ id: item.id, changes: { [fieldName]: value } });
   };
 
   return (
@@ -42,7 +36,6 @@ const SingleRow = ({
       <TableCell style={{ minWidth: '208px', padding: '7px 12px' }}>
         <Flex gap={12} style={{ alignItems: 'center' }}>
           <Thumbnail src={item?.product?.image?.url} size="small" />
-
           <Flex direction="column" gap={4} style={{ color: '#878593' }}>
             <span>{item?.product?.name} </span>
             <span>{item?.name}</span>
@@ -106,5 +99,7 @@ const SingleRow = ({
     </TableRow>
   );
 };
+
+SingleRow.displayName = 'SingleRow';
 
 export default SingleRow;

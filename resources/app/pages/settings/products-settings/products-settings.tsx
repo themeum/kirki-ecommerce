@@ -7,23 +7,16 @@ import Button from '@/molecules/button';
 import Container from '@/molecules/container';
 import Flex from '@/molecules/flex';
 import PageHeading from '@/molecules/page-heading';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { getPagesAPI } from '@/store/pageSlice';
-import {
-  getSettingsAPI,
-  updateSettings,
-  updateSettingsAPI,
-} from '@/store/settingsSlice';
-import { getErrorsObject } from '@/store/utils';
+import { getErrorsObject } from '@/libs/api';
+import { useUnsavedStatus } from '@/libs/unsaved-store';
+import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import type {
   BarcodeGenerationSettings,
   FormErrors,
   SettingsSectionData,
 } from '@/types';
-import { isApiSuccess } from '@/types/pages/api-guards';
 import { __ } from '@/wpi18n';
 
-import { dispatchToastMessage } from '@/pages/utils';
 import { checkUnsavedDataStatus, setUnsavedDataStatus } from '@/pages/settings/utils';
 import { Review } from '@/pages/settings/products-settings/review';
 import { ShopPage } from '@/pages/settings/products-settings/shop-page';
@@ -44,7 +37,6 @@ type ProductSettingsFormData = SettingsSectionData & {
 };
 
 const ProductsSettings = () => {
-  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [dataObj, setDataObj] = useState<ProductSettingsFormData>({
     weight_unit: 'kg',
@@ -57,15 +49,11 @@ const ProductsSettings = () => {
   const [errors, setErrors] = useState<FormErrors>({});
   const { confirmAction } = useOutletContext<SettingsOutletContext>();
 
-  const hasUnsavedData = useAppSelector((state) => state.unsaved?.hasUnsavedData);
-  const { loaded, data: productSettingsData } = useAppSelector(
-    (state) => state.settings?.product,
-  );
+  const hasUnsavedData = useUnsavedStatus();
+  const { data: productSettingsData, isLoading } = useSettingsQuery('product');
+  const { mutate: saveSettings } = useUpdateSettingsMutation();
 
-  useEffect(() => {
-    dispatch(getPagesAPI());
-    dispatch(getSettingsAPI('product'));
-  }, []);
+  const loaded = !isLoading && Boolean(productSettingsData);
 
   useEffect(() => {
     if (Object.keys(productSettingsData || {}).length) {
@@ -108,23 +96,17 @@ const ProductsSettings = () => {
     }));
   };
 
-  const handleSaveData = async () => {
-    const result = await updateSettingsAPI('product', dataObj);
-    if (isApiSuccess(result)) {
-      dispatch(
-        updateSettings({
-          key: 'product',
-          value: result.data as SettingsSectionData,
-        }),
-      );
-      dispatchToastMessage('success', {
-        title: __('Product settings updated', 'kirki-ecommerce'),
-      });
-      setUnsavedDataStatus(false);
-    } else {
-      const errorPayload = result as { errors?: Record<string, string[]> };
-      setErrors(getErrorsObject(errorPayload.errors));
-    }
+  const handleSaveData = () => {
+    saveSettings(
+      { key: 'product', data: dataObj },
+      {
+        onSuccess: () => setUnsavedDataStatus(false),
+        onError: (error) => {
+          const errObj = error as { errors?: Record<string, string[]> };
+          setErrors(getErrorsObject(errObj.errors));
+        },
+      },
+    );
   };
 
   const handleBackButton = () => {
@@ -143,6 +125,7 @@ const ProductsSettings = () => {
 
   const handleDiscardData = () => {
     setDataObj(initialData);
+    setUnsavedDataStatus(false);
   };
 
   return (
@@ -194,31 +177,6 @@ const ProductsSettings = () => {
               errors={errors}
             />
 
-            {/* TODO: enable when feature is finalized */}
-            {/* <Card type="large">
-              <Text
-                header={__("Variant configuration", "kirki-ecommerce")}
-                subHeader={__(
-                  "Manage and customize product variant settings to suit your needs.",
-                  "kirki-ecommerce"
-                )}
-                type="primary"
-                style={{ gap: "12px" }}
-              />
-
-              <Card type="inner" style={{ padding: "16px" }}>
-                <Select
-                  label={__("Display layout", "kirki-ecommerce")}
-                  value={dataObj?.["display_layout"]}
-                  onChange={(value) => handleOnChange(value, "display_layout")}
-                  helpText={__("Display layout", "kirki-ecommerce")}
-                  optionsArray={[{ title: "List view", value: "list" }]}
-                  defaultValue="list"
-                  error={errors["data.display_layout"]}
-                />
-              </Card>
-            </Card> */}
-
             <Review
               dataObj={dataObj}
               handleOnChange={handleOnChange}
@@ -232,5 +190,7 @@ const ProductsSettings = () => {
     </>
   );
 };
+
+ProductsSettings.displayName = 'ProductsSettings';
 
 export default ProductsSettings;

@@ -1,23 +1,16 @@
 import { useEffect, useState } from 'react';
 
-import { useGetListAPI } from '@/hooks';
 import { Select } from '@/molecules/select';
-import { getBrandsAPI } from '@/store/brandsSlice';
-import { useAppSelector } from '@/store/hooks';
+import { useBrandsQuery } from '@/services/brand';
 import type { SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
 
-type ProductFilterState = {
-  category_ids?: number[] | string;
-  status?: string;
-  inventory_type?: string;
-  collection_id?: string | number;
-  brand_id?: string | number;
-  [key: string]: unknown;
+type FilterObject = {
+  brand_ids?: number | undefined;
 };
 
 type BrandFilterProps = {
-  filterObject: ProductFilterState;
+  filterObject: FilterObject;
   onChange?: (val: string | number | Array<string | number>) => void;
 };
 
@@ -25,16 +18,7 @@ const BrandFilter = ({
   filterObject,
   onChange = () => {},
 }: BrandFilterProps) => {
-  const { data: brandData } = useAppSelector((state) => state.brands);
-  useGetListAPI({
-    reducerName: 'brands',
-    page: 1,
-    search: '',
-    sort_by: 'id',
-    sort_order: 'asc',
-    limit: -1,
-    apiCallBack: getBrandsAPI,
-  });
+  const { data: brandData } = useBrandsQuery({ limit: -1 });
   const [brandOptions, setBrandOptions] = useState<SelectOption[]>([]);
 
   useEffect(() => {
@@ -45,14 +29,17 @@ const BrandFilter = ({
     }));
     setBrandOptions(suggestionList || []);
   }, [brandData]);
+
   return (
     <Select
       label={__('Brand', 'kirki-ecommerce')}
-      value={filterObject?.brand_id || 'none'}
+      value={filterObject?.brand_ids || 'none'}
       optionsArray={brandOptions}
       onChange={(val) => onChange(val)}
     />
   );
 };
+
+BrandFilter.displayName = 'BrandFilter';
 
 export default BrandFilter;

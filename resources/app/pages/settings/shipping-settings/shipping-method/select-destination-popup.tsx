@@ -12,9 +12,7 @@ import {
 import { Select } from '@/molecules/select';
 import { CLASS_PREFIX } from '@/conf';
 import { LocationIcon, SearchIcon } from '@/icons';
-import { useGetListAPI } from '@/hooks';
-import { getCountriesAPI } from '@/store/countriesSlice';
-import { useAppSelector } from '@/store/hooks';
+import { useCountriesQuery } from '@/services/country';
 import { __ } from '@/wpi18n';
 
 import type {
@@ -53,21 +51,14 @@ export const SelectDestinationPopup = ({
   setRulesObj,
   ruleIndex,
 }: SelectDestinationPopupProps) => {
-  const countryList = useAppSelector((state) => state.countries?.data) as
-    | CountryWithStates[]
-    | null;
+  const { data: countries } = useCountriesQuery({ limit: -1 });
+  const countryList = countries as CountryWithStates[] | null | undefined;
   const [stateList, setStateList] = useState<
     Array<{ id: string | number; name: string }>
   >([]);
   const [selectedStates, setSelectedStates] = useState<Array<string | number>>(
     [],
   );
-
-  useGetListAPI({
-    reducerName: 'countries',
-    apiCallBack: getCountriesAPI,
-    limit: -1,
-  });
 
   const countryOptions = countryList
     ?.filter((country) =>

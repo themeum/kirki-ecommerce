@@ -1,18 +1,11 @@
 import React, { useEffect, useState } from 'react';
 
-import { useGetListAPI } from '@/hooks';
 import { TagManager } from '@/molecules/tag-manager';
 import { makeSuggestionList } from '@/pages/utils';
-import {
-  addCollectionAPI,
-  getCollectionsAPI,
-  setKeyValue,
-} from '@/store/collectionsSlice';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { updateProduct } from '@/store/productSlice';
-import { getErrorsObject } from '@/store/utils';
+import { useProductForm } from '@/contexts/product-form-context';
+import { useCreateCollectionMutation, useCollectionsQuery } from '@/services/collection';
+import { getErrorsObject } from '@/libs/api';
 import type { FormErrors, SuggestionOption } from '@/types';
-import { isApiSuccess } from '@/types/pages/api-guards';
 import { __ } from '@/wpi18n';
 
 type CollectionsProps = {
@@ -21,15 +14,9 @@ type CollectionsProps = {
 };
 
 const Collections = ({ errors, setErrors }: CollectionsProps) => {
-  const dispatch = useAppDispatch();
-
-  const { data: productData } = useAppSelector((state) => state.product);
-  const { data: collectionData } = useAppSelector((state) => state.collections);
-  useGetListAPI({
-    reducerName: 'collections',
-    limit: -1,
-    apiCallBack: getCollectionsAPI,
-  });
+  const { product: productData, updateProduct } = useProductForm();
+  const { data: collectionData } = useCollectionsQuery({ limit: -1 });
+  const createCollectionMutation = useCreateCollectionMutation();
 
   const [suggestionArray, setSuggestionArray] = useState<SuggestionOption[]>(
     [],
@@ -64,9 +51,7 @@ const Collections = ({ errors, setErrors }: CollectionsProps) => {
       { id: tag.value as number, title: tag.title },
       ...productCollections,
     ];
-    dispatch(
-      updateProduct({ key: 'collections', value: updatedCollectionList }),
-    );
+    updateProduct({ key: 'collections', value: updatedCollectionList });
     const updatedSuggestions = suggestionArray.filter(
       (item) => item.value !== tag.value,
     );
@@ -87,9 +72,7 @@ const Collections = ({ errors, setErrors }: CollectionsProps) => {
     const updatedCollectionList = productCollections.filter(
       (item) => item.id !== tag.value,
     );
-    dispatch(
-      updateProduct({ key: 'collections', value: updatedCollectionList }),
-    );
+    updateProduct({ key: 'collections', value: updatedCollectionList });
     setSuggestionArray((prev) => [tag, ...prev]);
 
     setErrors((prev) => ({
@@ -98,8 +81,7 @@ const Collections = ({ errors, setErrors }: CollectionsProps) => {
     }));
   };
 
-  const handleSearchChange = (searchText: string) => {
-    dispatch(setKeyValue({ key: 'search', value: searchText }));
+  const handleSearchChange = (_searchText: string) => {
     setErrors((prev) => ({
       ...prev,
       collections: null,
@@ -107,17 +89,16 @@ const Collections = ({ errors, setErrors }: CollectionsProps) => {
   };
 
   const handleAddNewTag = async (tagTitle: string) => {
-    const collectionFormData = { title: tagTitle };
-    const result = await addCollectionAPI(collectionFormData);
-    if (isApiSuccess(result)) {
-      dispatch(setKeyValue({ key: 'toggler', value: Date.now() }));
+    try {
+      const response = await createCollectionMutation.mutateAsync({ title: tagTitle });
       handleAddTag({
-        value: result.data.id,
+        value: response.data.id,
         title: tagTitle,
       });
-    } else {
-      const errorPayload = result as { errors?: Record<string, string[]> };
-      setLocalError(getErrorsObject(errorPayload.errors));
+    } catch (error) {
+      setLocalError(
+        getErrorsObject((error as { errors?: Record<string, string[]> }).errors),
+      );
     }
   };
 
@@ -143,5 +124,7 @@ const Collections = ({ errors, setErrors }: CollectionsProps) => {
     />
   );
 };
+
+Collections.displayName = 'Collections';
 
 export default Collections;

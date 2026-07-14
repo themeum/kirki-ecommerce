@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router';
 
 import BulkActionHandler from '@/components/bulk-action-handler';
+import { useInventoryForm } from '@/contexts/inventory-form-context';
 import { useMarkList } from '@/hooks';
 import Button from '@/molecules/button';
 import Checkbox from '@/molecules/checkbox';
@@ -13,7 +14,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/molecules/table';
-import { useAppSelector } from '@/store/hooks';
 import type { InventoryVariant } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -23,7 +23,7 @@ import SingleRow from '@/pages/inventory/inventory-table/single-row';
 
 const InventoryTable = () => {
   const navigate = useNavigate();
-  const { data } = useAppSelector((state) => state.inventory);
+  const { data } = useInventoryForm();
   const { results, per_page } = data!;
   const [selectedFields, setSelectedFields] = useState(
     allTableHeaders.map((item) => item.value),
@@ -45,6 +45,7 @@ const InventoryTable = () => {
   const handleApplyAction = () => {
     navigate(`/variants/bulk?ids=${selectedItems.join(',')}`);
   };
+
   return (
     <>
       {selectedItems.length > 0 ? (
@@ -105,5 +106,7 @@ const InventoryTable = () => {
     </>
   );
 };
+
+InventoryTable.displayName = 'InventoryTable';
 
 export default InventoryTable;

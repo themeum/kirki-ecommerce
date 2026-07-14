@@ -1,16 +1,14 @@
-import type { ActionCreatorWithPayload } from '@reduxjs/toolkit';
 import type { CSSProperties, ReactNode } from 'react';
 
 import { ArrowDownUpFilled } from '@/icons';
 import Flex from '@/molecules/flex';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import type { RootState } from '@/store/hooks';
-import type { SetKeyValuePayload, SortOrder } from '@/types';
+import type { SortOrder } from '@/types';
 
 type SortableConfig = {
-  reducer: string;
   sort_by: string;
-  setKeyValue: ActionCreatorWithPayload<SetKeyValuePayload>;
+  activeSortBy?: string;
+  sortOrder?: SortOrder;
+  onSort?: (sortBy: string, sortOrder: SortOrder) => void;
 };
 
 type SortingData = {
@@ -22,42 +20,21 @@ type SortingProps = {
   data: SortingData;
 };
 
-type ListSliceState = {
-  sort_order?: SortOrder;
-  sort_by?: string;
-};
-
 const Sorting = ({ data }: SortingProps) => {
   const { title, sortable } = data;
-  const { reducer, sort_by, setKeyValue } = sortable || {};
-  const dispatch = useAppDispatch();
-  const sort_order = useAppSelector((state) => {
-    if (!reducer) {
-      return undefined;
-    }
-    const slice = state[reducer as keyof RootState] as ListSliceState | undefined;
-    return slice?.sort_order;
-  });
-  const _sort_by = useAppSelector((state) => {
-    if (!reducer) {
-      return undefined;
-    }
-    const slice = state[reducer as keyof RootState] as ListSliceState | undefined;
-    return slice?.sort_by;
-  });
+  const { sort_by, activeSortBy, sortOrder, onSort } = sortable || {};
+
   const handleSorting = () => {
-    if (setKeyValue) {
-      if (sort_order === 'asc') {
-        dispatch(setKeyValue({ key: 'sort_order', value: 'desc' }));
-      } else {
-        dispatch(setKeyValue({ key: 'sort_order', value: 'asc' }));
-      }
-      dispatch(setKeyValue({ key: 'sort_by', value: sort_by }));
+    if (!onSort || !sort_by) {
+      return;
     }
+    const nextOrder: SortOrder =
+      activeSortBy === sort_by && sortOrder === 'asc' ? 'desc' : 'asc';
+    onSort(sort_by, nextOrder);
   };
 
   const isActive = () => {
-    if (_sort_by === sort_by) {
+    if (activeSortBy === sort_by) {
       return true;
     }
     return false;
@@ -66,8 +43,8 @@ const Sorting = ({ data }: SortingProps) => {
   const getArrowColor = (type = 'top') => {
     if (
       isActive() &&
-      ((type === 'top' && sort_order === 'desc') ||
-        (type === 'bottom' && sort_order === 'asc'))
+      ((type === 'top' && sortOrder === 'desc') ||
+        (type === 'bottom' && sortOrder === 'asc'))
     ) {
       return '#5641f3';
     } else {
@@ -99,4 +76,7 @@ const Sorting = ({ data }: SortingProps) => {
   );
 };
 
+Sorting.displayName = 'Sorting';
+
 export default Sorting;
+export type { SortableConfig, SortingData };

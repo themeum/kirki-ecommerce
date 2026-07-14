@@ -184,4 +184,6 @@ const ApiConfigurationPopup = ({
   );
 };
 
+ApiConfigurationPopup.displayName = 'ApiConfigurationPopup';
+
 export default ApiConfigurationPopup;

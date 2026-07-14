@@ -1,4 +1,4 @@
-import { useState, type Dispatch, type SetStateAction } from 'react';
+import { useState } from 'react';
 
 import DropdownButton from '@/components/dropdown-button';
 import HeaderActionsCard from '@/components/header-actions-card';
@@ -9,50 +9,41 @@ import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
 import Text from '@/molecules/text';
 import ToggleButton from '@/molecules/toggle-button';
+import { dispatchToastMessage } from '@/pages/utils';
 import {
-  deletePaymentMethodAPI,
-  updatePaymentMethodAPI,
-} from '@/store/settingsSlice';
+  useDeletePaymentMethodMutation,
+  useUpdatePaymentMethodMutation,
+} from '@/services/payment';
 import type { PaymentMethod } from '@/types';
-import { isApiSuccess } from '@/types/pages/api-guards';
 import { __, sprintf } from '@/wpi18n';
 
-import { dispatchToastMessage } from '@/pages/utils';
 import ManualPaymentPopup from '@/pages/settings/payment-settings/manual-payment-popup';
 
 type ManualPaymentProps = {
   manualPaymentList: PaymentMethod[];
-  setManualPaymentMethod: Dispatch<SetStateAction<PaymentMethod[]>>;
-  setIsMethodListUpdated: Dispatch<SetStateAction<boolean>>;
+  refetch: () => void;
 };
 
 const ManualPayment = (props: ManualPaymentProps) => {
-  const { manualPaymentList, setManualPaymentMethod, setIsMethodListUpdated } =
-    props;
+  const { manualPaymentList, refetch } = props;
 
   const [isPopupOpen, setIsPopupOpen] = useState(false);
-  const [editingMethod, setEditingMethod] = useState<PaymentMethod | null>(
-    null,
-  );
+  const [editingMethod, setEditingMethod] = useState<PaymentMethod | null>(null);
+
+  const { mutate: deleteMethod } = useDeletePaymentMethodMutation();
+  const { mutate: updateMethod } = useUpdatePaymentMethodMutation();
 
   const handleAction = (
     action: string | number | Array<string | number>,
     item: PaymentMethod,
   ) => {
     if (action === 'delete') {
-      const initialList = [...manualPaymentList];
-      const updatedPaymentList = manualPaymentList?.filter(
-        (method) => method?.id !== item?.id,
-      );
-      setManualPaymentMethod(updatedPaymentList);
       dispatchToastMessage('delete', {
         title: __('Payment method deleted', 'kirki-ecommerce'),
         duration: 5000,
-        undoAction: () => {
-          setManualPaymentMethod(initialList);
-        },
+        undoAction: () => refetch(),
         onSuccess: async () => {
-          await deletePaymentMethodAPI(item.id);
+          deleteMethod(item.id, { onSuccess: () => refetch() });
         },
       });
     }
@@ -62,27 +53,28 @@ const ManualPayment = (props: ManualPaymentProps) => {
     }
   };
 
-  const handleToggleMethod = async (item: PaymentMethod) => {
+  const handleToggleMethod = (item: PaymentMethod) => {
     const isEnabled = Boolean(item?.is_enabled);
     const updatedItem = { ...item, is_enabled: !isEnabled };
 
-    const result = await updatePaymentMethodAPI(item?.id, updatedItem);
-    if (isApiSuccess(result)) {
-      setManualPaymentMethod((prev) =>
-        prev.map((method) =>
-          method.id === item.id ? (result.data as PaymentMethod) : method,
-        ),
-      );
-
-      dispatchToastMessage('success', {
-        title: __('Payment method updated', 'kirki-ecommerce'),
-      });
-    } else {
-      dispatchToastMessage('error', {
-        title: __('Something went wrong', 'kirki-ecommerce'),
-      });
-    }
+    updateMethod(
+      { id: item?.id, data: updatedItem as Record<string, unknown> },
+      {
+        onSuccess: () => {
+          dispatchToastMessage('success', {
+            title: __('Payment method updated', 'kirki-ecommerce'),
+          });
+          refetch();
+        },
+        onError: () => {
+          dispatchToastMessage('error', {
+            title: __('Something went wrong', 'kirki-ecommerce'),
+          });
+        },
+      },
+    );
   };
+
   return (
     <>
       <Card type="large">
@@ -179,12 +171,13 @@ const ManualPayment = (props: ManualPaymentProps) => {
       <ManualPaymentPopup
         openPopup={isPopupOpen}
         setOpenPopup={setIsPopupOpen}
-        setIsMethodListUpdated={setIsMethodListUpdated}
         editingMethod={editingMethod}
         setEditingMethod={setEditingMethod}
       />
     </>
   );
 };
+
+ManualPayment.displayName = 'ManualPayment';
 
 export default ManualPayment;

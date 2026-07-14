@@ -7,6 +7,7 @@ import type {
 import { useEffect, useState } from 'react';
 
 import ThumbnailSelector from '@/components/thumbnail-selector';
+import { useBulkEditForm } from '@/contexts/bulk-edit-form-context';
 import { CLASS_PREFIX } from '@/conf';
 import { useBulkEditList } from '@/hooks';
 import Checkbox from '@/molecules/checkbox';
@@ -14,8 +15,7 @@ import Flex from '@/molecules/flex';
 import Input from '@/molecules/input';
 import { Select } from '@/molecules/select';
 import { TableCell, TableRow } from '@/molecules/table';
-import { updateBulkVariants } from '@/store/BulkEditSlice';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { useAttributesQuery } from '@/services/attribute';
 import type { MediaRef, ProductVariant, UnitPriceValue } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -67,11 +67,10 @@ const SingleRow = (props: SingleRowProps) => {
     selectedFields,
   } = props;
 
-  const { variants } = useAppSelector((state) => state.bulk?.data)!;
-  const attributes = useAppSelector((state) => state.attributes?.data);
+  const { variants, updateVariants } = useBulkEditForm();
+  const { data: attributes = [] } = useAttributesQuery({ limit: -1 });
   const currentVariation = variants[index] as BulkEditVariant;
   const [varTitle, setVarTitle] = useState<(string | undefined)[]>([]);
-  const dispatch = useAppDispatch();
 
   const { isSelected, getVariantList, getActiveState } = useBulkEditList({
     selectionData,
@@ -107,13 +106,11 @@ const SingleRow = (props: SingleRowProps) => {
             selectionData.fieldName as keyof ProductVariant
           ];
 
-        dispatch(
-          updateBulkVariants({
-            key: selectionData.fieldName as string,
-            value: sourceValue,
-            variant_index: variantIndexes,
-          }),
-        );
+        updateVariants({
+          key: selectionData.fieldName as string,
+          value: sourceValue,
+          variant_index: variantIndexes,
+        });
       }
       setSelectionData((prev) => ({
         ...prev!,
@@ -128,13 +125,11 @@ const SingleRow = (props: SingleRowProps) => {
 
   const handleOnChange = (value: unknown, fieldName: string) => {
     if (selectionData!.start === selectionData!.end) {
-      dispatch(
-        updateBulkVariants({
-          key: fieldName,
-          value: value,
-          variant_index: [index],
-        }),
-      );
+      updateVariants({
+        key: fieldName,
+        value: value,
+        variant_index: [index],
+      });
       return;
     }
 
@@ -151,13 +146,11 @@ const SingleRow = (props: SingleRowProps) => {
     if (fieldName === 'base_price_per_unit') {
       handleUnitInfoChange(variantIndexes, value as UnitPriceValue);
     } else {
-      dispatch(
-        updateBulkVariants({
-          key: fieldName || (selectionData.fieldName as string),
-          value: value,
-          variant_index: variantIndexes,
-        }),
-      );
+      updateVariants({
+        key: fieldName || (selectionData.fieldName as string),
+        value: value,
+        variant_index: variantIndexes,
+      });
     }
   };
 
@@ -229,13 +222,11 @@ const SingleRow = (props: SingleRowProps) => {
         variants[selectionData!.baseIndex as number]?.base_unit_amount,
       ...newValue,
     };
-    dispatch(
-      updateBulkVariants({
-        key: 'base_price_per_unit',
-        value: unitValues,
-        variant_index: variantIndexes,
-      }),
-    );
+    updateVariants({
+      key: 'base_price_per_unit',
+      value: unitValues,
+      variant_index: variantIndexes,
+    });
   };
 
   const isMaxIndex = (rowIndex: number) => {
@@ -255,13 +246,11 @@ const SingleRow = (props: SingleRowProps) => {
   ) => {
     delete img?.date;
     delete img?.modified;
-    dispatch(
-      updateBulkVariants({
-        key: fieldName,
-        value: img,
-        variant_index: [index],
-      }),
-    );
+    updateVariants({
+      key: fieldName,
+      value: img,
+      variant_index: [index],
+    });
   };
 
   const media = currentVariation?.media as MediaRef | null | undefined;
@@ -677,5 +666,7 @@ const SingleRow = (props: SingleRowProps) => {
     </TableRow>
   );
 };
+
+SingleRow.displayName = 'SingleRow';
 
 export default SingleRow;

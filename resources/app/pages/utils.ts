@@ -1,7 +1,6 @@
 import { format, formatDistanceToNow, isValid, parse } from 'date-fns';
+import { toast } from 'sonner';
 
-import { store } from '@/store';
-import { showToast } from '@/store/toastSlice';
 import type { ToastVariant } from '@/types';
 import type {
   DateFormatType,
@@ -10,6 +9,7 @@ import type {
   SuggestionOption,
   ToastMessageConfig,
 } from '@/types/pages/common';
+import { __ } from '@/wpi18n';
 
 export const dateFormatter = (
   value: string | number | Date | null | undefined,
@@ -59,16 +59,43 @@ export const dispatchToastMessage = (
   variant: ToastVariant = 'success',
   config: ToastMessageConfig = {},
 ): void => {
-  const { title, duration, undoAction, onSuccess } = config;
-  store.dispatch(
-    showToast({
-      title: title ?? '',
-      variant,
-      duration,
-      undoAction,
-      onSuccess,
-    }),
-  );
+  const { title, duration = 2000, undoAction, onSuccess } = config;
+  const message = title ?? '';
+
+  const options = {
+    duration,
+    action: undoAction
+      ? {
+          label: __('Undo', 'kirki-ecommerce'),
+          onClick: () => {
+            undoAction();
+          },
+        }
+      : undefined,
+    onAutoClose: () => {
+      void onSuccess?.();
+    },
+    onDismiss: () => {
+      void onSuccess?.();
+    },
+  };
+
+  if (variant === 'error' || variant === 'delete') {
+    toast.error(message, options);
+    return;
+  }
+
+  if (variant === 'warning') {
+    toast.warning(message, options);
+    return;
+  }
+
+  if (variant === 'success') {
+    toast.success(message, options);
+    return;
+  }
+
+  toast(message, options);
 };
 
 export const calculateProfit = (

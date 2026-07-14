@@ -56,4 +56,6 @@ const VariantTableAction = ({
   );
 };
 
+VariantTableAction.displayName = 'VariantTableAction';
+
 export default VariantTableAction;

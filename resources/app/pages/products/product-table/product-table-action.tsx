@@ -4,33 +4,36 @@ import Button from '@/molecules/button';
 import Flex from '@/molecules/flex';
 import Searchbox from '@/molecules/searchbox';
 import { Select } from '@/molecules/select';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { setKeyValue } from '@/store/productsSlice';
+import { useListParams } from '@/hooks';
 import { __ } from '@/wpi18n';
 
 import FilterPopup from '@/pages/products/product-table/filter-popup/filter-popup';
 
 const ProductTableAction = () => {
-  const dispatch = useAppDispatch();
-  const { search, sort_order } = useAppSelector((state) => state.products);
+  const { params, setParam } = useListParams({
+    defaults: {
+      search: '',
+      sort_by: 'title',
+      sort_order: 'asc',
+      page: 1,
+      limit: 10,
+    },
+  });
 
   const handleSearchChange = (value: string) => {
-    dispatch(setKeyValue({ key: 'search', value: value }));
+    setParam('search', value);
   };
 
   const handleSortChange = () => {
-    if (sort_order === 'asc') {
-      dispatch(setKeyValue({ key: 'sort_order', value: 'desc' }));
-    } else {
-      dispatch(setKeyValue({ key: 'sort_order', value: 'asc' }));
-    }
+    setParam('sort_order', params.sort_order === 'asc' ? 'desc' : 'asc');
   };
+
   return (
     <Flex style={{ padding: '16px 12px' }}>
       <div style={{ width: '160px' }}>
         <Searchbox
           onChange={(value) => handleSearchChange(value as string)}
-          value={search}
+          value={params.search || ''}
         />
       </div>
       <ActionGroup>
@@ -50,5 +53,7 @@ const ProductTableAction = () => {
     </Flex>
   );
 };
+
+ProductTableAction.displayName = 'ProductTableAction';
 
 export default ProductTableAction;

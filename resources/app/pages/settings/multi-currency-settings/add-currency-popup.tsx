@@ -1,4 +1,4 @@
-import { useState, useEffect, type Dispatch, type SetStateAction } from 'react';
+import { useState, useEffect } from 'react';
 
 import { PlusIcon, SearchIcon } from '@/icons';
 import Button from '@/molecules/button';
@@ -13,23 +13,16 @@ import {
 } from '@/molecules/popover';
 import Text from '@/molecules/text';
 import {
-  getAllCurrencyAPI,
-  getAvailableCurrenciesAPI,
-  setAllCurrencies,
-} from '@/store/currenciesSlice';
-import { useAppDispatch } from '@/store/hooks';
-import type { Currency, PaginatedData } from '@/types';
+  useAllCurrenciesQuery,
+  useAvailableCurrenciesQuery,
+} from '@/services/currency';
+import type { Currency } from '@/types';
 import { __ } from '@/wpi18n';
 
 import { getSearchedValue } from '@/pages/settings/utils';
 import ExchangeRatePopup from '@/pages/settings/multi-currency-settings/exchange-rate-popup';
 
-type AddCurrencyPopupProps = {
-  setIsNewCurrencyAdded: Dispatch<SetStateAction<boolean>>;
-};
-
-const AddCurrencyPopup = ({ setIsNewCurrencyAdded }: AddCurrencyPopupProps) => {
-  const dispatch = useAppDispatch();
+const AddCurrencyPopup = () => {
   const [openPopup, setOpenPopup] = useState(false);
   const [openExchangePopup, setOpenExchangePopup] = useState(false);
   const [allCurrency, setAllCurrency] = useState<Currency[]>([]);
@@ -37,37 +30,29 @@ const AddCurrencyPopup = ({ setIsNewCurrencyAdded }: AddCurrencyPopupProps) => {
   const [searchValue, setSearchValue] = useState('');
   const [filteredCurrency, setFilteredCurrency] = useState<Currency[]>([]);
 
-  const fetchAllCurrencyList = async () => {
-    try {
-      const currencyData = await getAvailableCurrenciesAPI();
-      const availableCurrencyList =
-        (currencyData as PaginatedData<Currency>).results;
+  const { data: availableCurrencies = [] } = useAvailableCurrenciesQuery({
+    limit: -1,
+  });
+  const { data: allCurrenciesData = [] } = useAllCurrenciesQuery();
 
-      const data = await getAllCurrencyAPI();
-      const allCurrencyData = data as Currency[];
-      dispatch(setAllCurrencies(allCurrencyData));
-      const availableCodes = new Set(
-        availableCurrencyList.map((item) => item.code.toLowerCase()),
-      );
-
-      const filteredData = allCurrencyData.filter(
-        (item) => !availableCodes.has(item.code.toLowerCase()),
-      );
-      setAllCurrency(filteredData);
-    } catch (error) {
-      console.error('Failed to load currencies', error);
+  useEffect(() => {
+    if (!openPopup) {
+      return;
     }
-  };
+
+    const availableCodes = new Set(
+      availableCurrencies.map((item) => item.code.toLowerCase()),
+    );
+
+    const filteredData = allCurrenciesData.filter(
+      (item) => !availableCodes.has(item.code.toLowerCase()),
+    );
+    setAllCurrency(filteredData);
+  }, [openPopup, availableCurrencies, allCurrenciesData]);
 
   useEffect(() => {
     setFilteredCurrency(allCurrency);
   }, [allCurrency]);
-
-  useEffect(() => {
-    if (openPopup) {
-      fetchAllCurrencyList();
-    }
-  }, [openPopup]);
 
   const handleSelectCurrencies = (currency: Currency) => {
     setSelectedCurrencyList((prev) => {
@@ -198,11 +183,12 @@ const AddCurrencyPopup = ({ setIsNewCurrencyAdded }: AddCurrencyPopupProps) => {
           setIsOpen={setOpenExchangePopup}
           setAddCurrencyPopup={setOpenPopup}
           setSearchValue={setSearchValue}
-          setIsNewCurrencyAdded={setIsNewCurrencyAdded}
         />
       )}
     </>
   );
 };
+
+AddCurrencyPopup.displayName = 'AddCurrencyPopup';
 
 export default AddCurrencyPopup;

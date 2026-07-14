@@ -24,8 +24,7 @@ import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
 import Tag from '@/molecules/tag';
 import Text from '@/molecules/text';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { updateProductAttributes } from '@/store/productSlice';
+import { useProductForm } from '@/contexts/product-form-context';
 import type { Attribute } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -131,8 +130,7 @@ const SortableCard = ({
 };
 
 const AttributeList = ({ onSave = () => {} }: AttributeListProps) => {
-  const dispatch = useAppDispatch();
-  const { data: productData } = useAppSelector((state) => state.product);
+  const { product: productData, updateProductAttributes } = useProductForm();
   const [attributeValues, setAttributeValues] = useState<Attribute[]>([]);
   const [editingId, setEditingId] = useState<number | string | null>(null);
 
@@ -146,7 +144,7 @@ const AttributeList = ({ onSave = () => {} }: AttributeListProps) => {
 
   const handleAttributeRemove = (id: number) => {
     const attributeList = attributeValues?.filter((item) => item.id !== id);
-    dispatch(updateProductAttributes(attributeList));
+    updateProductAttributes(attributeList);
   };
 
   const handleDragEnd = (event: DragEndEvent) => {

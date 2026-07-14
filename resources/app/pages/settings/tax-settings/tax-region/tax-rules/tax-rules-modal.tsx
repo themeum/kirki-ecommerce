@@ -1,6 +1,5 @@
 import { useState, useEffect, type Dispatch, type SetStateAction } from 'react';
 
-import { useGetListAPI } from '@/hooks';
 import { LighteningIcon } from '@/icons';
 import Button from '@/molecules/button';
 import Flex from '@/molecules/flex';
@@ -10,8 +9,7 @@ import Placeholder from '@/molecules/placeholder';
 import { Select } from '@/molecules/select';
 import Text from '@/molecules/text';
 import { CLASS_PREFIX } from '@/conf';
-import { getTaxProfileListAPI } from '@/store/settingsSlice';
-import { useAppSelector } from '@/store/hooks';
+import { useTaxProfilesQuery } from '@/services/tax';
 import { __ } from '@/wpi18n';
 
 import { taxRuleActionOptionsArray } from '@/pages/settings/tax-settings/utils';
@@ -58,7 +56,7 @@ const TaxRulesModal = (props: TaxRulesModalProps) => {
     Array<string | number>
   >([]);
 
-  const { taxProfile } = useAppSelector((state) => state.settings?.tax);
+  const { data: taxProfiles } = useTaxProfilesQuery();
 
   const [conditions, setConditions] = useState<TaxConditionRow[]>([
     {
@@ -67,12 +65,6 @@ const TaxRulesModal = (props: TaxRulesModalProps) => {
       value: null,
     },
   ]);
-
-  useGetListAPI({
-    reducerName: 'settings',
-    apiCallBack: getTaxProfileListAPI,
-    nestedToggler: ['tax', 'taxProfile'],
-  });
 
   useEffect(() => {
     if (from === 'edit' && ruleIndex !== undefined && rulesObj?.[ruleIndex]) {
@@ -136,7 +128,7 @@ const TaxRulesModal = (props: TaxRulesModalProps) => {
   const getConditionValue = (condition: string): ConditionOption[] => {
     if (condition === 'tax_profile') {
       return (
-        taxProfile?.data?.map((item) => ({
+        taxProfiles?.map((item) => ({
           title: item.name,
           value: item.name,
           id: item.id,

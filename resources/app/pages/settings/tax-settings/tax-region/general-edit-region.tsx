@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useOutletContext, useParams } from 'react-router';
+import { useQueryClient } from '@tanstack/react-query';
 
 import HeaderActionsCard from '@/components/header-actions-card';
 import PageNavbar from '@/components/page-navbar';
@@ -9,15 +10,15 @@ import Checkbox from '@/molecules/checkbox';
 import Container from '@/molecules/container';
 import Flex from '@/molecules/flex';
 import PageHeading from '@/molecules/page-heading';
-import { dispatchToastMessage } from '@/pages/utils';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { queryKeys } from '@/libs/query-keys';
+import { useUnsavedStatus } from '@/libs/unsaved-store';
+import { toastMutationError } from '@/services/helpers';
 import {
   updateSettings,
-  getSettingsAPI,
-  updateSettingsAPI,
-} from '@/store/settingsSlice';
+  useSettingsQuery,
+  useUpdateSettingsMutation,
+} from '@/services/settings';
 import type { SettingsSectionData } from '@/types';
-import { isApiSuccess } from '@/types';
 import { __ } from '@/wpi18n';
 
 import { checkUnsavedDataStatus, setUnsavedDataStatus } from '@/pages/settings/utils';
@@ -37,8 +38,8 @@ type TaxSettingsFormData = SettingsSectionData & {
 
 const GeneralEditRegion = () => {
   let { code } = useParams();
-  const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { confirmAction } = useOutletContext<SettingsOutletContext>();
   const [dataObj, setDataObj] = useState<TaxRegion[]>([]);
   const [taxRates, setTaxRates] = useState<TaxRate[]>([]);
@@ -47,16 +48,11 @@ const GeneralEditRegion = () => {
   const [centralTaxValue, setCentralTaxValue] = useState<number | string>(0);
   const [showPopup, setShowPopup] = useState(false);
 
-  const hasUnsavedData = useAppSelector((state) => state.unsaved?.hasUnsavedData);
-  const { loaded, data: taxSettingsData } = useAppSelector(
-    (state) => state.settings?.tax,
-  );
+  const hasUnsavedData = useUnsavedStatus();
+  const { data: taxSettingsData, isLoading } = useSettingsQuery('tax');
+  const { mutate: saveSettings } = useUpdateSettingsMutation();
 
-  useEffect(() => {
-    if (!loaded) {
-      dispatch(getSettingsAPI('tax'));
-    }
-  }, []);
+  const loaded = !isLoading && Boolean(taxSettingsData);
 
   const selectedCountry = useMemo(() => {
     return dataObj.find((country) => country.code === code);
@@ -134,32 +130,36 @@ const GeneralEditRegion = () => {
     saveDataToDB(updatedDataObj, from);
   };
 
-  const saveDataToDB = async (updatedDataObj: TaxRegion[], from = '') => {
+  const saveDataToDB = (updatedDataObj: TaxRegion[], from = '') => {
     const payload: TaxSettingsFormData = {
       ...(taxSettingsData as TaxSettingsFormData),
       tax_regions: updatedDataObj,
     };
-    const result = await updateSettingsAPI('tax', payload);
-    if (isApiSuccess(result)) {
-      setSelectedCities([]);
-      dispatch(
-        updateSettings({
-          key: 'tax',
-          value: result.data as SettingsSectionData,
-        }),
-      );
-      if (from !== 'delete') {
-        dispatchToastMessage('success', {
-          title: __('Tax value updated', 'kirki-ecommerce'),
+
+    if (from === 'delete') {
+      updateSettings({ key: 'tax', data: payload })
+        .then(() => {
+          setSelectedCities([]);
+          setUnsavedDataStatus(false);
+          void queryClient.invalidateQueries({
+            queryKey: queryKeys.Settings('tax'),
+          });
+        })
+        .catch((error) => {
+          toastMutationError(error);
         });
-      }
-      setUnsavedDataStatus(false);
-    } else {
-      const errorResult = result as { message?: string };
-      dispatchToastMessage('error', {
-        title: errorResult?.message || __('Something went wrong', 'kirki-ecommerce'),
-      });
+      return;
     }
+
+    saveSettings(
+      { key: 'tax', data: payload },
+      {
+        onSuccess: () => {
+          setSelectedCities([]);
+          setUnsavedDataStatus(false);
+        },
+      },
+    );
   };
 
   const handleDiscardData = () => {

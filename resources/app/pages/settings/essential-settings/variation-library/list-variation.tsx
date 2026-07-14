@@ -8,7 +8,7 @@ import Card from '@/molecules/card';
 import Container from '@/molecules/container';
 import Flex from '@/molecules/flex';
 import PageHeading from '@/molecules/page-heading';
-import { useAppSelector } from '@/store/hooks';
+import { useAttributeQuery } from '@/services/attribute';
 import type { Attribute, AttributeValue, TaxonomyTableHeader } from '@/types';
 import { __, sprintf } from '@/wpi18n';
 
@@ -19,23 +19,21 @@ type AttributeWithMeta = Attribute & { updated_at?: string };
 
 const ListVariation = () => {
   const { id } = useParams();
-  const attributeList = useAppSelector((state) => state.attributes?.data) || [];
+  const { data: selectedItem } = useAttributeQuery(Number(id), Boolean(id));
 
   const [attributeValueList, setAttributeValueList] = useState<AttributeValue[]>([]);
   const [addVariantPopup, setAddVariantPopup] = useState(false);
-  const selectedItem = attributeList.find(
-    (attribute) => attribute?.id === Number(id),
-  ) as AttributeWithMeta | undefined;
+  const selectedAttribute = selectedItem as AttributeWithMeta | undefined;
 
   const tableHeaders: TaxonomyTableHeader[] = [
-    { title: sprintf(__('%s', 'kirki-ecommerce'), selectedItem?.name ?? '') },
+    { title: sprintf(__('%s', 'kirki-ecommerce'), selectedAttribute?.name ?? '') },
     { title: __('Updated', 'kirki-ecommerce') },
     { title: __('', 'kirki-ecommerce') },
   ];
 
   useEffect(() => {
-    setAttributeValueList(selectedItem?.values ?? []);
-  }, [attributeList, selectedItem]);
+    setAttributeValueList(selectedAttribute?.values ?? []);
+  }, [selectedAttribute]);
 
   return (
     <div>
@@ -50,7 +48,7 @@ const ListVariation = () => {
         <Flex direction="column" gap={16}>
           <PageNavbar
             textIcon={<BoxIcon />}
-            text={sprintf(__('%s', 'kirki-ecommerce'), selectedItem?.name ?? '')}
+            text={sprintf(__('%s', 'kirki-ecommerce'), selectedAttribute?.name ?? '')}
             rightAction={
               <div>
                 <Button
@@ -80,7 +78,7 @@ const ListVariation = () => {
                 tableHeaders={tableHeaders}
                 results={attributeValueList}
                 updateDataList={setAttributeValueList}
-                selectedItem={selectedItem}
+                selectedItem={selectedAttribute}
               />
             </Card>
           )}
@@ -88,12 +86,14 @@ const ListVariation = () => {
       </Container>
       <VariationValuePopup
         isOpen={addVariantPopup}
-        selectedItem={selectedItem}
+        selectedItem={selectedAttribute}
         onClose={() => setAddVariantPopup(false)}
-        type={selectedItem?.type}
+        type={selectedAttribute?.type}
       />
     </div>
   );
 };
+
+ListVariation.displayName = 'ListVariation';
 
 export default ListVariation;

@@ -7,15 +7,13 @@ import Button from '@/molecules/button';
 import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
 import Text from '@/molecules/text';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { updateProduct } from '@/store/productSlice';
+import { useProductForm } from '@/contexts/product-form-context';
 import { __ } from '@/wpi18n';
 
 import AddOrEditInfo from '@/pages/products/edit-product/additional-info/add-or-edit-info';
 
 const AdditionalInfo = () => {
-  const dispatch = useAppDispatch();
-  const { data: productData } = useAppSelector((state) => state.product);
+  const { product: productData, updateProduct } = useProductForm();
   const [showInfoForm, setShowInfoForm] = useState(false);
   const [editedIndex, setEditedIndex] = useState<number | null>(null);
 
@@ -33,12 +31,10 @@ const AdditionalInfo = () => {
     const newDataList = (productData?.additional_info ?? []).filter(
       (_item, index) => index !== deletedIndex,
     );
-    dispatch(
-      updateProduct({
-        key: 'additional_info',
-        value: newDataList,
-      }),
-    );
+    updateProduct({
+      key: 'additional_info',
+      value: newDataList,
+    });
   };
 
   return (

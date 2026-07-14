@@ -13,7 +13,7 @@ import {
   PopoverHeader,
 } from '@/molecules/popover';
 import Text from '@/molecules/text';
-import type { Currency, CurrencyFormData } from '@/types';
+import type { Currency } from '@/types';
 import { __, sprintf } from '@/wpi18n';
 
 type EditCurrencyItem = Currency & {
@@ -23,7 +23,7 @@ type EditCurrencyItem = Currency & {
 type EditCurrencyPopupProps = {
   editCurrency: EditCurrencyItem;
   setEditCurrency: Dispatch<SetStateAction<EditCurrencyItem | null>>;
-  handleUpdateData: (payload: CurrencyFormData) => Promise<void>;
+  handleUpdateData: (currency: Currency) => void;
 };
 
 const EditCurrencyPopup = ({
@@ -110,5 +110,7 @@ const EditCurrencyPopup = ({
     </div>
   );
 };
+
+EditCurrencyPopup.displayName = 'EditCurrencyPopup';
 
 export default EditCurrencyPopup;

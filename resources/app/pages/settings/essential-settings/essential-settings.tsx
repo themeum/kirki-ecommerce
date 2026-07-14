@@ -32,4 +32,6 @@ const EssentialsSettings = () => {
   );
 };
 
+EssentialsSettings.displayName = 'EssentialsSettings';
+
 export default EssentialsSettings;

@@ -1,5 +1,5 @@
 import BulkActionHandler from '@/components/bulk-action-handler';
-import { useMarkList } from '@/hooks';
+import { useListParams, useMarkList } from '@/hooks';
 import Checkbox from '@/molecules/checkbox';
 import {
   Table,
@@ -8,25 +8,31 @@ import {
   TableHeader,
   TableRow,
 } from '@/molecules/table';
-import { useAppSelector } from '@/store/hooks';
-import type { TaxonomyTableHeader } from '@/types';
+import { useBulkDeleteCollectionsMutation } from '@/services/collection';
+import type { Collection, PaginatedData, TaxonomyTableHeader } from '@/types';
 import { __ } from '@/wpi18n';
 
 import CollectionTableAction from '@/pages/collections/collection-table/collection-table-action';
 import SingleRow from '@/pages/collections/collection-table/single-row';
 
-const CollectionTable = () => {
-  const data = useAppSelector((state) => state.collections?.data);
-  const { results, total, per_page } = data!;
+type CollectionTableProps = {
+  data: PaginatedData<Collection>;
+  isFetching?: boolean;
+};
 
-  const {
-    handleSelectAll,
-    handleAllCheckboxClick,
-    handleSingleCheckboxClick,
-    isSelected,
-    selectedItems,
-    itemCount,
-  } = useMarkList({ data: data! });
+const CollectionTable = ({ data }: CollectionTableProps) => {
+  const { params, setParam } = useListParams({
+    defaults: {
+      search: '',
+      sort_by: 'title',
+      sort_order: 'asc',
+      page: 1,
+      limit: 10,
+    },
+  });
+  const bulkDeleteMutation = useBulkDeleteCollectionsMutation();
+
+  const { results, total, per_page } = data;
 
   const tableHeaders: TaxonomyTableHeader[] = [
     { title: __('Collection', 'kirki-ecommerce') },
@@ -35,7 +41,38 @@ const CollectionTable = () => {
     { title: __('', 'kirki-ecommerce') },
   ];
 
-  const handleApplyAction = async (_action: string | number | null) => {};
+  const {
+    handleSelectAll,
+    handleAllCheckboxClick,
+    handleSingleCheckboxClick,
+    handleClearSelection,
+    isSelected,
+    selectedItems,
+    itemCount,
+  } = useMarkList({ data });
+
+  const handleApplyAction = async (action: string) => {
+    if (action !== 'delete') {
+      return;
+    }
+
+    if (selectedItems.includes('*')) {
+      await bulkDeleteMutation.mutateAsync({
+        action: 'delete-all',
+        ids: null,
+      });
+    } else {
+      await bulkDeleteMutation.mutateAsync({
+        action: 'delete',
+        ids: selectedItems as number[],
+      });
+    }
+    handleClearSelection();
+  };
+
+  const handleSortChange = () => {
+    setParam('sort_order', params.sort_order === 'asc' ? 'desc' : 'asc');
+  };
 
   return (
     <>
@@ -44,12 +81,12 @@ const CollectionTable = () => {
           optionsArray={[{ value: 'delete', title: __('Delete', 'kirki-ecommerce') }]}
           itemCount={itemCount}
           onSelectAll={handleSelectAll}
-          onApply={(action) => handleApplyAction(action)}
+          onApply={(action) => handleApplyAction(action as string)}
           total={total}
           per_page={per_page}
         />
       ) : (
-        <CollectionTableAction />
+        <CollectionTableAction onSortChange={handleSortChange} />
       )}
 
       <Table fixed>
@@ -81,5 +118,7 @@ const CollectionTable = () => {
     </>
   );
 };
+
+CollectionTable.displayName = 'CollectionTable';
 
 export default CollectionTable;

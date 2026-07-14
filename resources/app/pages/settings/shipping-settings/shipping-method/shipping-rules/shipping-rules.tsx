@@ -10,7 +10,7 @@ import { __, sprintf } from '@/wpi18n';
 import { CLASS_PREFIX } from '@/conf';
 import { LighteningIcon, EditPenIcon, TrashIcon } from '@/icons';
 import HeaderActionsCard from '@/components/header-actions-card';
-import { useAppSelector } from '@/store/hooks';
+import { useSettingsQuery } from '@/services/settings';
 import { dispatchToastMessage } from '@/pages/utils';
 import type { SettingsSectionData } from '@/types';
 
@@ -29,9 +29,7 @@ export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
   const [editingRuleIndex, setEditingRuleIndex] = useState<number | null>(null);
 
   const [rulesObj, setRulesObj] = useState<ShippingRule[]>([]);
-  const { data: shippingSettingsData, activeZoneId } = useAppSelector(
-    (state) => state.settings?.shipping,
-  );
+  const { data: shippingSettingsData } = useSettingsQuery('shipping');
 
   useEffect(() => {
     if (!shippingSettingsData?.shipping_zones || !methodId) {
@@ -63,7 +61,7 @@ export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
 
     const zones = shippingSettingsData?.shipping_zones as ShippingZone[];
     const updatedShippingZones = zones?.map((zone) => {
-      if (zone.id !== zoneId) {
+      if (String(zone.id) !== String(zoneId)) {
         return zone;
       }
 
@@ -118,7 +116,7 @@ export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
                 setRulesObj={setRulesObj as Dispatch<SetStateAction<ShippingRule[] | ShippingRule>>}
                 showModal={addRuleModal}
                 setShowModal={setAddRuleModal}
-                from={activeZoneId ? 'add' : 'edit'}
+                from="add"
               />
             )}
 

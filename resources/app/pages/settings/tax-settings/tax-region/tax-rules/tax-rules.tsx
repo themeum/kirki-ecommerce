@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 import HeaderActionsCard from '@/components/header-actions-card';
 import { EditPenIcon, LighteningIcon, TrashIcon } from '@/icons';
@@ -8,7 +9,6 @@ import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
 import Text from '@/molecules/text';
 import { CLASS_PREFIX } from '@/conf';
-import { dispatchToastMessage } from '@/pages/utils';
 import { __, sprintf } from '@/wpi18n';
 
 import type { TaxRegion, TaxRule } from '@/pages/settings/tax-settings/utils';
@@ -38,13 +38,15 @@ const TaxRules = (props: TaxRulesProps) => {
     const updatedRules = initialRules.filter((_, i) => i !== index);
     setRulesObj(updatedRules);
 
-    dispatchToastMessage('delete', {
-      title: __('Tax rule deleted', 'kirki-ecommerce'),
+    toast(__('Tax rule deleted', 'kirki-ecommerce'), {
       duration: 5000,
-      undoAction: () => {
-        setRulesObj(initialRules);
+      action: {
+        label: __('Undo', 'kirki-ecommerce'),
+        onClick: () => {
+          setRulesObj(initialRules);
+        },
       },
-      onSuccess: async () => {
+      onAutoClose: () => {
         updateTaxRules(updatedRules, 'delete');
       },
     });

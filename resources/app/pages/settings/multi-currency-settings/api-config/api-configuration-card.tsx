@@ -139,4 +139,6 @@ const ApiConfigurationCard = ({
   );
 };
 
+ApiConfigurationCard.displayName = 'ApiConfigurationCard';
+
 export default ApiConfigurationCard;

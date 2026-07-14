@@ -2,57 +2,45 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router';
 
 import DropdownButton from '@/components/dropdown-button';
+import { BulkEditFormProvider, useBulkEditForm } from '@/contexts/bulk-edit-form-context';
 import { LayoutIcon } from '@/icons';
 import Badge from '@/molecules/badge';
 import Button from '@/molecules/button';
 import FullPageContainer from '@/molecules/full-page-container';
 import PageHeading from '@/molecules/page-heading';
-import {
-  getVariantsListByIdAPI,
-  setKeyValue,
-  updateBulkVariantAPI,
-} from '@/store/BulkEditSlice';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { useBulkVariantsQuery, useUpdateBulkVariantsMutation } from '@/services/bulk-edit';
 import type { MediaRef } from '@/types';
-import { isApiSuccess } from '@/types/pages/api-guards';
 import { __ } from '@/wpi18n';
 
 import BulkEditTable from '@/pages/bulk-edit/bulk-edit-table/bulk-edit-table';
 import { allTableHeaders } from '@/pages/bulk-edit/utils';
 
-const BulkEdit = () => {
-  const dispatch = useAppDispatch();
-  const { loaded, data } = useAppSelector((state) => state.bulk);
+const BulkEditPage = () => {
+  const [searchParams] = useSearchParams();
+  const ids = searchParams.get('ids')?.split(',') ?? [];
   const [selectedFields, setSelectedFields] = useState(
     allTableHeaders.map((item) => item.value),
   );
-  const [searchParams] = useSearchParams();
-  const ids = searchParams.get('ids')?.split(',').map(Number);
+
+  const { data: bulkData, isLoading } = useBulkVariantsQuery(ids);
+  const { setVariants, variants, loaded } = useBulkEditForm();
+  const { mutate: updateBulkVariants } = useUpdateBulkVariantsMutation();
 
   useEffect(() => {
-    dispatch(
-      getVariantsListByIdAPI(ids as number[], {
-        search: '',
-        sort_by: 'id',
-        sort_order: 'asc',
-        page: 1,
-      }),
-    );
-  }, []);
-
-  const handleProductBulkSave = async () => {
-    if (loaded) {
-      const { variants } = data!;
-      const formattedData = variants.map((item) => ({
-        ...item,
-        media: Number((item.media as MediaRef | null)?.id),
-      }));
-      const result = await updateBulkVariantAPI({ variants: formattedData });
-      if (isApiSuccess(result)) {
-        console.log(result);
-        dispatch(setKeyValue({ key: 'toggler', value: Date.now() }));
-      }
+    if (bulkData) {
+      setVariants(bulkData);
     }
+  }, [bulkData]);
+
+  const handleProductBulkSave = () => {
+    if (!loaded) {
+      return;
+    }
+    const formattedData = variants.map((item) => ({
+      ...item,
+      media: Number((item.media as MediaRef | null)?.id),
+    }));
+    updateBulkVariants({ variants: formattedData });
   };
 
   return (
@@ -108,7 +96,7 @@ const BulkEdit = () => {
       </PageHeading>
 
       <FullPageContainer scrollable>
-        {loaded ? (
+        {loaded && !isLoading ? (
           <BulkEditTable selectedFields={selectedFields} />
         ) : (
           <div>{__('Loading...', 'kirki-ecommerce')}</div>
@@ -117,5 +105,15 @@ const BulkEdit = () => {
     </>
   );
 };
+
+BulkEditPage.displayName = 'BulkEditPage';
+
+const BulkEdit = () => (
+  <BulkEditFormProvider>
+    <BulkEditPage />
+  </BulkEditFormProvider>
+);
+
+BulkEdit.displayName = 'BulkEdit';
 
 export default BulkEdit;

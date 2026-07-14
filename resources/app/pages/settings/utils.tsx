@@ -13,8 +13,7 @@ import {
   TaxIcon,
   TruckIcon,
 } from '@/icons';
-import { store } from '@/store';
-import { setDirty } from '@/store/unsavedSlice';
+import { setUnsavedDataStatus as setStatus } from '@/libs/unsaved-store';
 import type { SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -304,13 +303,11 @@ export const checkUnsavedDataStatus = ({
   if (hasUnsavedChanges) {
     onUnsaved();
   } else {
-    store.dispatch(setDirty(false));
+    setStatus(false);
     onClean();
   }
 
   return hasUnsavedChanges;
 };
 
-export const setUnsavedDataStatus = (status: boolean): void => {
-  store.dispatch(setDirty(status));
-};
+export { setUnsavedDataStatus } from '@/libs/unsaved-store';

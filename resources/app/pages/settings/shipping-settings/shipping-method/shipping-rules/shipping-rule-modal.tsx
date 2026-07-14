@@ -1,5 +1,6 @@
 import { useEffect, useState, type Dispatch, type SetStateAction } from 'react';
 import { useSearchParams } from 'react-router';
+import { toast } from 'sonner';
 
 import Flex from '@/molecules/flex';
 import Placeholder from '@/molecules/placeholder';
@@ -10,17 +11,15 @@ import Button from '@/molecules/button';
 import { Select } from '@/molecules/select';
 import { LighteningIcon } from '@/icons';
 import { CLASS_PREFIX } from '@/conf';
-import { getCategoriesAPI } from '@/store/categoriesSlice';
-import {
-  updateSettingsAPI,
-  updateSettings,
-  getShippingProfileList,
-} from '@/store/settingsSlice';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { useGetListAPI } from '@/hooks';
-import { dispatchToastMessage, normalizeErrors } from '@/pages/utils';
+import { getErrorsObject } from '@/libs/api';
+import { queryClient } from '@/libs/query-client';
+import { queryKeys } from '@/libs/query-keys';
+import { useCategoriesQuery } from '@/services/category';
+import { getErrorMessage } from '@/services/helpers';
+import { useSettingsQuery, updateSettings } from '@/services/settings';
+import { useShippingProfilesQuery } from '@/services/shipping';
+import { normalizeErrors } from '@/pages/utils';
 import type { FormErrors, SettingsSectionData } from '@/types';
-import { isApiSuccess } from '@/types';
 import { __ } from '@/wpi18n';
 
 import {
@@ -54,8 +53,6 @@ const ShippingRuleModal = ({
   from = '',
   ruleIndex = -1,
 }: ShippingRuleModalProps) => {
-  const dispatch = useAppDispatch();
-
   const [searchParams] = useSearchParams();
   const selectedMethod = searchParams.get('methodId');
   const selectedZone = searchParams.get('zoneId');
@@ -74,27 +71,18 @@ const ShippingRuleModal = ({
   >('');
   const [errors, setErrors] = useState<FormErrors>({});
 
-  useGetListAPI({
-    reducerName: 'settings',
-    apiCallBack: getShippingProfileList,
-    nestedToggler: ['shipping', 'shippingProfile'],
+  const { data: shippingSettingsData } = useSettingsQuery('shipping');
+  const { data: shippingProfile } = useShippingProfilesQuery({ limit: -1 });
+  const { data: categoryData, isSuccess: categoryLoaded } = useCategoriesQuery({
+    limit: -1,
   });
-
-  const {
-    data: shippingSettingsData,
-    activeZoneId,
-    shippingProfile,
-  } = useAppSelector((state) => state.settings?.shipping);
-  const { loaded: categoryLoaded, data: categoryList } = useAppSelector(
-    (state) => state.categories,
-  );
 
   const [conditionData, setConditionData] = useState<ConditionDataMap>({
     product_category: null,
     shipping_profile: null,
   });
   const methodID = from === 'edit' ? selectedMethod : methodId;
-  const zoneID = from === 'edit' ? selectedZone : activeZoneId;
+  const zoneID = selectedZone;
 
   useEffect(() => {
     if (selectedCondition !== 'destination_region') {
@@ -161,17 +149,17 @@ const ShippingRuleModal = ({
     if (
       selectedCondition === 'product_category' &&
       categoryLoaded &&
-      categoryList?.results
+      categoryData?.results
     ) {
       setConditionData((prev) => ({
         ...prev,
-        product_category: categoryList.results as Array<{
+        product_category: categoryData.results as Array<{
           id: number | string;
           name: string;
         }>,
       }));
     }
-  }, [categoryLoaded, categoryList, selectedCondition]);
+  }, [categoryLoaded, categoryData, selectedCondition]);
 
   useEffect(() => {
     if (!selectedCondition) {
@@ -183,18 +171,15 @@ const ShippingRuleModal = ({
 
     switch (selectedCondition) {
       case 'product_category':
-        if (!categoryLoaded) {
-          dispatch(getCategoriesAPI());
-        }
         break;
 
       case 'shipping_profile':
         setConditionData((prev) => ({
           ...prev,
-          shipping_profile: shippingProfile?.data as Array<{
+          shipping_profile: (shippingProfile as Array<{
             id: number | string;
             name: string;
-          }> | null,
+          }> | null) ?? null,
         }));
         break;
 
@@ -205,14 +190,14 @@ const ShippingRuleModal = ({
           },
           methodID,
           setSelectedRegion: setSelectedRegion as (regions: unknown) => void,
-          activeZoneId,
+          activeZoneId: zoneID,
         });
         break;
 
       default:
         break;
     }
-  }, [selectedCondition]);
+  }, [selectedCondition, shippingProfile, shippingSettingsData, methodID, zoneID]);
 
   const getConditionValue = () => {
     const data = conditionData[selectedCondition];
@@ -234,7 +219,7 @@ const ShippingRuleModal = ({
     }
   };
 
-  function getOperatorOptions() {
+  const getOperatorOptions = () => {
     if (selectedCondition === 'cart_weight') {
       return [
         { title: __('> (Greater than)', 'kirki-ecommerce'), value: '>' },
@@ -244,7 +229,7 @@ const ShippingRuleModal = ({
     } else {
       return [{ title: __('is', 'kirki-ecommerce'), value: 'is' }];
     }
-  }
+  };
 
   const buildRule = (): ShippingRule => ({
     relation: 'AND',
@@ -280,7 +265,7 @@ const ShippingRuleModal = ({
     const zones = (shippingSettingsData as SettingsSectionData)
       ?.shipping_zones as ShippingZone[];
     const updatedShippingZones = zones.map((zone) => {
-      if (zone.id !== zoneID) {
+      if (String(zone.id) !== String(zoneID)) {
         return zone;
       }
 
@@ -308,24 +293,26 @@ const ShippingRuleModal = ({
   };
 
   const updateData = async (updatedData: SettingsSectionData) => {
-    const result = await updateSettingsAPI('shipping', updatedData);
-
-    if (isApiSuccess(result)) {
-      dispatch(updateSettings({ key: 'shipping', value: updatedData }));
-      dispatchToastMessage('success', {
-        title: __('Shipping rule updated', 'kirki-ecommerce'),
+    try {
+      await updateSettings({ key: 'shipping', data: updatedData });
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.Settings('shipping'),
       });
-
+      toast.success(__('Shipping rule updated', 'kirki-ecommerce'));
       setShowModal(false);
-    } else {
-      const errorResult = result as {
+    } catch (error) {
+      const errObj = error as {
         errors?: Record<string, unknown>;
         message?: string;
       };
-      if (errorResult?.errors) {
-        setErrors(normalizeErrors(errorResult?.errors) as FormErrors);
+      if (errObj?.errors) {
+        setErrors(
+          normalizeErrors(
+            getErrorsObject(errObj.errors as Record<string, string[]>),
+          ) as FormErrors,
+        );
       } else {
-        dispatchToastMessage('error', { title: errorResult?.message });
+        toast.error(getErrorMessage(error));
       }
     }
   };

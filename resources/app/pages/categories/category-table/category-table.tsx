@@ -1,6 +1,6 @@
 import BulkActionHandler from '@/components/bulk-action-handler';
 import Sorting from '@/components/sorting';
-import { useMarkList } from '@/hooks';
+import { useListParams, useMarkList } from '@/hooks';
 import Checkbox from '@/molecules/checkbox';
 import {
   Table,
@@ -9,26 +9,42 @@ import {
   TableHeader,
   TableRow,
 } from '@/molecules/table';
-import {
-  deleteCategoriesAPI,
-  setKeyValue,
-} from '@/store/categoriesSlice';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import type { TaxonomyTableHeader } from '@/types';
-import { isApiSuccess } from '@/types/pages/api-guards';
+import { useBulkDeleteCategoriesMutation } from '@/services/category';
+import type { Category, PaginatedData, TaxonomyTableHeader } from '@/types';
 import { __ } from '@/wpi18n';
 
 import CategoryTableAction from '@/pages/categories/category-table/category-table-action';
 import SingleRow from '@/pages/categories/category-table/single-row';
 
-const CategoryTable = () => {
+type CategoryTableProps = {
+  data: PaginatedData<Category>;
+  isFetching?: boolean;
+};
+
+const CategoryTable = ({ data }: CategoryTableProps) => {
+  const { params, setParams } = useListParams({
+    defaults: {
+      search: '',
+      sort_by: 'name',
+      sort_order: 'asc',
+      page: 1,
+      limit: 10,
+    },
+  });
+  const bulkDeleteMutation = useBulkDeleteCategoriesMutation();
+
+  const handleSort = (sortBy: string, sortOrder: 'asc' | 'desc') => {
+    setParams({ sort_by: sortBy, sort_order: sortOrder });
+  };
+
   const tableHeaders: TaxonomyTableHeader[] = [
     {
       title: __('Name', 'kirki-ecommerce'),
       sortable: {
         sort_by: 'name',
-        reducer: 'categories',
-        setKeyValue: setKeyValue,
+        activeSortBy: params.sort_by,
+        sortOrder: params.sort_order,
+        onSort: handleSort,
       },
     },
     { title: __('Image', 'kirki-ecommerce') },
@@ -36,30 +52,32 @@ const CategoryTable = () => {
       title: __('Description', 'kirki-ecommerce'),
       sortable: {
         sort_by: 'description',
-        reducer: 'categories',
-        setKeyValue: setKeyValue,
+        activeSortBy: params.sort_by,
+        sortOrder: params.sort_order,
+        onSort: handleSort,
       },
     },
     {
       title: __('Slug', 'kirki-ecommerce'),
       sortable: {
         sort_by: 'slug',
-        reducer: 'categories',
-        setKeyValue: setKeyValue,
+        activeSortBy: params.sort_by,
+        sortOrder: params.sort_order,
+        onSort: handleSort,
       },
     },
     {
       title: __('Count', 'kirki-ecommerce'),
       sortable: {
         sort_by: 'count',
-        reducer: 'categories',
-        setKeyValue: setKeyValue,
+        activeSortBy: params.sort_by,
+        sortOrder: params.sort_order,
+        onSort: handleSort,
       },
     },
   ];
-  const dispatch = useAppDispatch();
-  const data = useAppSelector((state) => state.categories?.data);
-  const { results, total, per_page } = data!;
+
+  const { results, total, per_page } = data;
 
   const {
     handleSelectAll,
@@ -69,37 +87,34 @@ const CategoryTable = () => {
     isSelected,
     selectedItems,
     itemCount,
-  } = useMarkList({ data: data! });
+  } = useMarkList({ data });
 
   const handleApplyAction = async (action: string) => {
-    if (action === 'delete') {
-      let result = {} as Awaited<ReturnType<typeof deleteCategoriesAPI>>;
-      if (selectedItems.includes('*')) {
-        result = await deleteCategoriesAPI({
-          action: 'delete-all',
-          ids: null,
-        });
-      } else {
-        result = await deleteCategoriesAPI({
-          action: 'delete',
-          ids: selectedItems as number[],
-        });
-      }
-
-      if (isApiSuccess(result)) {
-        dispatch(setKeyValue({ key: 'toggler', value: Date.now() }));
-        handleClearSelection();
-      } else {
-        console.log(result);
-      }
+    if (action !== 'delete') {
+      return;
     }
+
+    if (selectedItems.includes('*')) {
+      await bulkDeleteMutation.mutateAsync({
+        action: 'delete-all',
+        ids: null,
+      });
+    } else {
+      await bulkDeleteMutation.mutateAsync({
+        action: 'delete',
+        ids: selectedItems as number[],
+      });
+    }
+    handleClearSelection();
   };
 
   return (
     <>
       {selectedItems.length > 0 ? (
         <BulkActionHandler
-          optionsArray={[{ value: 'delete', title: __('Delete', 'kirki-ecommerce') }]}
+          optionsArray={[
+            { value: 'delete', title: __('Delete', 'kirki-ecommerce') },
+          ]}
           itemCount={itemCount}
           onSelectAll={handleSelectAll}
           onApply={(action) => handleApplyAction(action as string)}
@@ -141,5 +156,7 @@ const CategoryTable = () => {
     </>
   );
 };
+
+CategoryTable.displayName = 'CategoryTable';
 
 export default CategoryTable;

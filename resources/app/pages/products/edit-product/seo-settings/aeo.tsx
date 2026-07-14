@@ -1,8 +1,7 @@
 import type { Dispatch, SetStateAction } from 'react';
 
 import Input from '@/molecules/input';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { updateProduct } from '@/store/productSlice';
+import { useProductForm } from '@/contexts/product-form-context';
 import type { FormErrors } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -12,11 +11,10 @@ type AEOProps = {
 };
 
 const AEO = ({ errors, setErrors }: AEOProps) => {
-  const dispatch = useAppDispatch();
-  const { data: productData } = useAppSelector((state) => state.product);
+  const { product: productData, updateProduct } = useProductForm();
 
   const handleOnChange = (value: unknown, fieldName: string) => {
-    dispatch(updateProduct({ key: fieldName, value: value }));
+    updateProduct({ key: fieldName, value: value });
     setErrors((prev) => ({
       ...prev,
       [fieldName]: null,

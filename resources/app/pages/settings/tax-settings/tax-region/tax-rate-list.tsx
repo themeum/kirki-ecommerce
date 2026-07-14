@@ -1,4 +1,5 @@
 import type { Dispatch, SetStateAction } from 'react';
+import { toast } from 'sonner';
 
 import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
@@ -10,7 +11,6 @@ import { __, sprintf } from '@/wpi18n';
 import { CLASS_PREFIX } from '@/conf';
 
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
-import { dispatchToastMessage } from '@/pages/utils';
 import type { TaxRate } from '@/pages/settings/tax-settings/utils';
 
 type TaxRateListProps = {
@@ -45,14 +45,16 @@ export const TaxRateList = ({
       (taxItem) => taxItem.state !== item.state,
     );
     setTaxRates(updatedTaxRates);
-    dispatchToastMessage('delete', {
-      title: __('VAT rate deleted', 'kirki-ecommerce'),
+    toast(__('VAT rate deleted', 'kirki-ecommerce'), {
       duration: 5000,
-      undoAction: () => {
-        setTaxRates(initialList);
+      action: {
+        label: __('Undo', 'kirki-ecommerce'),
+        onClick: () => {
+          setTaxRates(initialList);
+        },
       },
-      onSuccess: async () => {
-        await handleSaveData(updatedTaxRates, 'delete');
+      onAutoClose: () => {
+        void handleSaveData(updatedTaxRates, 'delete');
       },
     });
   };
@@ -118,3 +120,5 @@ export const TaxRateList = ({
     </div>
   );
 };
+
+TaxRateList.displayName = 'TaxRateList';

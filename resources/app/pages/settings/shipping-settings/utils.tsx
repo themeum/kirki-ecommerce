@@ -1,15 +1,13 @@
 import type { Dispatch, ReactNode, SetStateAction } from 'react';
+import { toast } from 'sonner';
 
 import { StoreIcon, TruckIcon, WeightIcon } from '@/icons';
+import { queryClient } from '@/libs/query-client';
+import { queryKeys } from '@/libs/query-keys';
+import { getErrorMessage } from '@/services/helpers';
+import { updateSettings } from '@/services/settings';
 import type { Country, SettingsSectionData, ToastVariant } from '@/types';
 import { __ } from '@/wpi18n';
-
-import { store } from '@/store';
-import {
-  updateSettings,
-  updateSettingsAPI,
-} from '@/store/settingsSlice';
-import { dispatchToastMessage } from '@/pages/utils';
 
 import { getNestedSearchedValue, setUnsavedDataStatus } from '@/pages/settings/utils';
 
@@ -167,23 +165,24 @@ export const saveShippingZones = async ({
   from = '',
   shippingSettingsData,
   toastMessage = '',
-  variant = 'success',
 }: SaveShippingZonesParams): Promise<void> => {
-  const data = {
-    ...shippingSettingsData,
-    shipping_zones: zones,
-  };
-  const result = await updateSettingsAPI('shipping', data);
-  if (result?.success) {
-    store.dispatch(updateSettings({ key: 'shipping', value: result.data }));
-    setUnsavedDataStatus(false);
-    if (from !== 'delete') {
-      dispatchToastMessage(variant, { title: toastMessage });
-    }
-  } else {
-    dispatchToastMessage('error', {
-      title: (result as { message?: string })?.message,
+  try {
+    await updateSettings({
+      key: 'shipping',
+      data: {
+        ...shippingSettingsData,
+        shipping_zones: zones,
+      },
     });
+    void queryClient.invalidateQueries({
+      queryKey: queryKeys.Settings('shipping'),
+    });
+    setUnsavedDataStatus(false);
+    if (from !== 'delete' && toastMessage) {
+      toast.success(toastMessage);
+    }
+  } catch (error) {
+    toast.error(getErrorMessage(error));
   }
 };
 

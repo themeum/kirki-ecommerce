@@ -5,8 +5,7 @@ import Button from '@/molecules/button';
 import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
 import Input from '@/molecules/input';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { updateProduct } from '@/store/productSlice';
+import { useProductForm } from '@/contexts/product-form-context';
 import type { AdditionalInfoItem } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -22,8 +21,7 @@ type InfoFormData = {
 
 const AddOrEditInfo = (props: AddOrEditInfoProps) => {
   const { index, onClose = () => {} } = props;
-  const dispatch = useAppDispatch();
-  const { data: productData } = useAppSelector((state) => state.product);
+  const { product: productData, updateProduct } = useProductForm();
   const [infoData, setInfoData] = useState<InfoFormData>({});
 
   useEffect(() => {
@@ -49,19 +47,15 @@ const AddOrEditInfo = (props: AddOrEditInfoProps) => {
     if (index || index === 0) {
       const allData = [...(productData?.additional_info ?? [])];
       allData[index] = infoData;
-      dispatch(
-        updateProduct({
-          key: 'additional_info',
-          value: allData,
-        }),
-      );
+      updateProduct({
+        key: 'additional_info',
+        value: allData,
+      });
     } else {
-      dispatch(
-        updateProduct({
-          key: 'additional_info',
-          value: [...(productData?.additional_info || []), infoData],
-        }),
-      );
+      updateProduct({
+        key: 'additional_info',
+        value: [...(productData?.additional_info || []), infoData],
+      });
     }
     setInfoData({});
     onClose();

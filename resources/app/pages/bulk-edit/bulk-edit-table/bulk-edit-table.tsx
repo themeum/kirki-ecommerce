@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+import { useBulkEditForm } from '@/contexts/bulk-edit-form-context';
 import { CLASS_PREFIX } from '@/conf';
 import {
   Table,
@@ -8,7 +9,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/molecules/table';
-import { useAppSelector } from '@/store/hooks';
 
 import { allTableHeaders } from '@/pages/bulk-edit/utils';
 import SingleRow from '@/pages/bulk-edit/bulk-edit-table/single-row';
@@ -28,7 +28,7 @@ type BulkEditTableProps = {
 };
 
 const BulkEditTable = ({ selectedFields }: BulkEditTableProps) => {
-  const { variants } = useAppSelector((state) => state.bulk?.data)!;
+  const { variants } = useBulkEditForm();
   const [selectionData, setSelectionData] =
     useState<BulkEditSelectionData | null>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -66,6 +66,8 @@ const BulkEditTable = ({ selectedFields }: BulkEditTableProps) => {
     </Table>
   );
 };
+
+BulkEditTable.displayName = 'BulkEditTable';
 
 export default BulkEditTable;
 

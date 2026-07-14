@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router';
 
 import Pagination from '@/components/pagination';
 import { CLASS_PREFIX, NEW_ITEM_ID } from '@/conf';
-import { useGetListAPI } from '@/hooks';
+import { useListParams } from '@/hooks';
 import { CustomerInfoIcon } from '@/icons';
 import ActionGroup from '@/molecules/action-group';
 import Button from '@/molecules/button';
@@ -11,8 +11,7 @@ import Container from '@/molecules/container';
 import Flex from '@/molecules/flex';
 import PageHeading from '@/molecules/page-heading';
 import Text from '@/molecules/text';
-import { getCustomersAPI, setKeyValue } from '@/store/customersSlice';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { useCustomersQuery } from '@/services/customer';
 import type { PaginationData } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -20,18 +19,31 @@ import CustomerTable from '@/pages/customers/customer-table/customer-table';
 
 const Customers = () => {
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
-  const { loaded, data } = useAppSelector((state) => state.customers);
-  useGetListAPI({ reducerName: 'customers', apiCallBack: getCustomersAPI });
+  const { params, setParam } = useListParams({
+    defaults: {
+      search: '',
+      sort_by: 'first_name',
+      sort_order: 'asc',
+      page: 1,
+      limit: 10,
+    },
+  });
+  const { data, isLoading, isFetching } = useCustomersQuery(params);
+
   const handleGroupManage = () => {
     navigate('/customers/groups');
   };
+
   const handleAddNewCustomer = () => {
     navigate('/customers/' + NEW_ITEM_ID);
   };
+
   const handlePaginationChange = (value: number) => {
-    dispatch(setKeyValue({ key: 'page', value: value }));
+    setParam('page', value);
   };
+
+  const loaded = !isLoading && Boolean(data);
+
   return (
     <>
       <PageHeading
@@ -69,12 +81,12 @@ const Customers = () => {
                     size="small"
                     onClick={handleGroupManage}
                   />
-                  <Button text="Create Group" type="secondary" size="small" />
+                  <Button text={__('Create Group', 'kirki-ecommerce')} type="secondary" size="small" />
                 </ActionGroup>
               </Flex>
             </Card>
             <Card type="table">
-              <CustomerTable />
+              <CustomerTable data={data!} isFetching={isFetching} />
             </Card>
             <Pagination
               data={data as PaginationData}
@@ -82,11 +94,13 @@ const Customers = () => {
             />
           </Flex>
         ) : (
-          <div>Loading...</div>
+          <div>{__('Loading...', 'kirki-ecommerce')}</div>
         )}
       </Container>
     </>
   );
 };
+
+Customers.displayName = 'Customers';
 
 export default Customers;

@@ -2,14 +2,13 @@ import { useNavigate } from 'react-router';
 
 import Pagination from '@/components/pagination';
 import { NEW_ITEM_ID } from '@/conf';
-import { useGetListAPI } from '@/hooks';
+import { useListParams } from '@/hooks';
 import Button from '@/molecules/button';
 import Card from '@/molecules/card';
 import Container from '@/molecules/container';
 import Flex from '@/molecules/flex';
 import PageHeading from '@/molecules/page-heading';
-import { getCollectionsAPI, setKeyValue } from '@/store/collectionsSlice';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { useCollectionsQuery } from '@/services/collection';
 import type { PaginationData } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -17,12 +16,23 @@ import CollectionTable from '@/pages/collections/collection-table/collection-tab
 
 const Collections = () => {
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
-  const { loaded, data } = useAppSelector((state) => state.collections);
-  useGetListAPI({ reducerName: 'collections', apiCallBack: getCollectionsAPI });
+  const { params, setParam } = useListParams({
+    defaults: {
+      search: '',
+      sort_by: 'title',
+      sort_order: 'asc',
+      page: 1,
+      limit: 10,
+    },
+  });
+  const { data, isLoading, isFetching } = useCollectionsQuery(params);
+
   const handlePaginationChange = (value: number) => {
-    dispatch(setKeyValue({ key: 'page', value: value }));
+    setParam('page', value);
   };
+
+  const loaded = !isLoading && Boolean(data);
+
   return (
     <>
       <PageHeading
@@ -42,7 +52,7 @@ const Collections = () => {
         {loaded ? (
           <Flex direction="column" gap={16}>
             <Card type="table">
-              <CollectionTable />
+              <CollectionTable data={data!} isFetching={isFetching} />
             </Card>
             <Pagination
               data={data as PaginationData}
@@ -56,5 +66,7 @@ const Collections = () => {
     </>
   );
 };
+
+Collections.displayName = 'Collections';
 
 export default Collections;

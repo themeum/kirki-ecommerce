@@ -1,11 +1,11 @@
 import { useEffect } from 'react';
-import { Provider } from 'react-redux';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { RouterProvider } from 'react-router';
+import { Toaster } from 'sonner';
 
-import ToastController from '@/floating-components/toast-controller';
 import Init from '@/init/init';
+import { queryClient } from '@/libs/query-client';
 import { router } from '@/routes';
-import { store } from '@/store';
 
 const App = () => {
   useEffect(() => {
@@ -13,12 +13,12 @@ const App = () => {
   }, []);
 
   return (
-    <Provider store={store}>
+    <QueryClientProvider client={queryClient}>
       <Init>
-        <ToastController />
+        <Toaster richColors closeButton position="bottom-right" />
         <RouterProvider router={router} />
       </Init>
-    </Provider>
+    </QueryClientProvider>
   );
 };
 

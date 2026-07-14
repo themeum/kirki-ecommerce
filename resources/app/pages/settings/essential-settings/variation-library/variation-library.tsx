@@ -7,12 +7,11 @@ import { CLASS_PREFIX } from '@/conf';
 import { BoxIcon, ColorPaletteIcon } from '@/icons';
 import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
-import { deleteAttributeByIdAPI } from '@/store/attributesSlice';
-import { useAppSelector } from '@/store/hooks';
+import { dispatchToastMessage } from '@/pages/utils';
+import { useAttributesQuery, useDeleteAttributeMutation } from '@/services/attribute';
 import type { Attribute } from '@/types';
 import { __ } from '@/wpi18n';
 
-import { dispatchToastMessage } from '@/pages/utils';
 import AddVariationPopup from '@/pages/settings/essential-settings/variation-library/add-variation-popup';
 
 type AttributeListItem = Attribute & {
@@ -26,14 +25,23 @@ const VariationList = () => {
   const [variationType, setVariationType] = useState<string | null>(null);
   const [attributeListArr, setAttributeListArr] = useState<AttributeListItem[]>([]);
 
-  const attributeList = useAppSelector((state) => state.attributes?.data) || [];
+  const { data: attributeList = [], refetch } = useAttributesQuery({ limit: -1 });
+  const { mutate: deleteAttribute } = useDeleteAttributeMutation();
+
+  useEffect(() => {
+    const formattedAttributes = attributeList.map((item) => ({
+      ...item,
+      badge1: `${item.values?.length || 0} values`,
+      icon: item.type === 'color' ? <ColorPaletteIcon /> : <BoxIcon />,
+    }));
+    setAttributeListArr(formattedAttributes);
+  }, [attributeList]);
 
   const handleDeleteVariation = (item: AttributeListItem) => {
     const initialList = [...attributeListArr];
-    const updatedAttributeList = attributeListArr?.filter(
-      (attribute) => attribute?.id !== item?.id,
+    setAttributeListArr((prev) =>
+      prev.filter((attribute) => attribute?.id !== item?.id),
     );
-    setAttributeListArr(updatedAttributeList);
     dispatchToastMessage('delete', {
       title: __('Attribute deleted', 'kirki-ecommerce'),
       duration: 5000,
@@ -41,31 +49,17 @@ const VariationList = () => {
         setAttributeListArr(initialList);
       },
       onSuccess: async () => {
-        await deleteAttributeByIdAPI(item.id);
+        deleteAttribute(item.id as number, { onSuccess: () => refetch() });
       },
     });
   };
+
   const handleEditVariation = (item: AttributeListItem) => {
     if (item?.type === 'color') {
       navigate(`/settings/essential/color/${item?.id}`);
     } else {
       navigate(`/settings/essential/list/${item?.id}`);
     }
-  };
-
-  useEffect(() => {
-    if (attributeList && attributeList.length) {
-      fetchAttributeList();
-    }
-  }, [attributeList?.length]);
-
-  const fetchAttributeList = () => {
-    const formattedAttributes = attributeList.map((item) => ({
-      ...item,
-      badge1: `${item.values?.length || 0} values`,
-      icon: item.type === 'color' ? <ColorPaletteIcon /> : <BoxIcon />,
-    }));
-    setAttributeListArr(formattedAttributes);
   };
 
   return (
@@ -104,10 +98,15 @@ const VariationList = () => {
       <AddVariationPopup
         isOpen={showPopup}
         variationType={variationType}
-        onClose={() => setShowPopup(false)}
+        onClose={() => {
+          setShowPopup(false);
+          refetch();
+        }}
       />
     </Card>
   );
 };
+
+VariationList.displayName = 'VariationList';
 
 export default VariationList;

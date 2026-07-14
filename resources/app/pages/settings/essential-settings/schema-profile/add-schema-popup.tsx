@@ -12,15 +12,9 @@ import {
   PopoverHeader,
 } from '@/molecules/popover';
 import Text from '@/molecules/text';
-import {
-  createSchemaProfileAPI,
-  setKeyValue,
-  updateSchemaProfileAPI,
-} from '@/store/schemaSlice';
-import { useAppDispatch } from '@/store/hooks';
-import { getErrorsObject } from '@/store/utils';
+import { getErrorsObject } from '@/libs/api';
+import { useCreateSchemaMutation, useUpdateSchemaMutation } from '@/services/schema';
 import type { FormErrors, SchemaFormData, SchemaProfile, SelectOption } from '@/types';
-import { isApiSuccess } from '@/types/pages/api-guards';
 import { __, sprintf } from '@/wpi18n';
 
 import {
@@ -34,6 +28,7 @@ type AddSchemaPopupProps = {
   onClose: () => void;
   editedItem: SchemaProfile | null;
   setEditedItem: Dispatch<SetStateAction<SchemaProfile | null>>;
+  onSuccess?: () => void;
 };
 
 const AddSchemaPopup = ({
@@ -41,15 +36,17 @@ const AddSchemaPopup = ({
   onClose,
   editedItem,
   setEditedItem,
+  onSuccess,
 }: AddSchemaPopupProps) => {
-  const dispatch = useAppDispatch();
-
   const [errors, setErrors] = useState<FormErrors>({});
   const [schemaName, setSchemaName] = useState('');
   const [selectedValues, setSelectedValues] = useState<Record<string, string[]>>({
     Product: ['name'],
     Offer: ['price'],
   });
+
+  const { mutate: createSchema } = useCreateSchemaMutation();
+  const { mutate: updateSchema } = useUpdateSchemaMutation();
 
   useEffect(() => {
     if (editedItem) {
@@ -62,7 +59,7 @@ const AddSchemaPopup = ({
     setSelectedValues(value);
   };
 
-  const handleAddOrUpdateSchema = async () => {
+  const handleAddOrUpdateSchema = () => {
     const data: SchemaFormData = {
       name: schemaName,
       is_default: editedItem?.is_default || false,
@@ -72,19 +69,25 @@ const AddSchemaPopup = ({
       setErrors({ name: 'Schema name cannot be empty' });
       return;
     }
-    let result: Awaited<ReturnType<typeof createSchemaProfileAPI>>;
-    if (editedItem) {
-      result = await updateSchemaProfileAPI(editedItem?.id, data);
-    } else {
-      result = await createSchemaProfileAPI(data);
-    }
-    if (isApiSuccess(result)) {
-      dispatch(setKeyValue({ key: 'toggler', value: Date.now() }));
+
+    const handleSuccess = () => {
       setEditedItem(null);
+      onSuccess?.();
       onClose();
+    };
+
+    const handleError = (error: unknown) => {
+      const errObj = error as { errors?: Record<string, string[]> };
+      setErrors(getErrorsObject(errObj.errors));
+    };
+
+    if (editedItem) {
+      updateSchema(
+        { id: editedItem?.id as number, data },
+        { onSuccess: handleSuccess, onError: handleError },
+      );
     } else {
-      const errorPayload = result as { errors?: Record<string, string[]> };
-      setErrors(getErrorsObject(errorPayload.errors));
+      createSchema(data, { onSuccess: handleSuccess, onError: handleError });
     }
   };
 
@@ -160,5 +163,7 @@ const AddSchemaPopup = ({
     </Popover>
   );
 };
+
+AddSchemaPopup.displayName = 'AddSchemaPopup';
 
 export default AddSchemaPopup;

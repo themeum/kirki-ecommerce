@@ -1,4 +1,4 @@
-import { useState, type Dispatch, type SetStateAction } from 'react';
+import { useState } from 'react';
 
 import DropdownButton from '@/components/dropdown-button';
 import HeaderActionsCard from '@/components/header-actions-card';
@@ -9,15 +9,14 @@ import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
 import Text from '@/molecules/text';
 import ToggleButton from '@/molecules/toggle-button';
+import { dispatchToastMessage } from '@/pages/utils';
 import {
-  getPaymentGatewayById,
-  setEnabledPaymentGateway,
-} from '@/store/settingsSlice';
+  getPaymentGateway,
+  useSetEnabledPaymentGatewayMutation,
+} from '@/services/payment';
 import type { PaymentGateway } from '@/types';
-import { isApiSuccess } from '@/types/pages/api-guards';
 import { __, sprintf } from '@/wpi18n';
 
-import { dispatchToastMessage } from '@/pages/utils';
 import PaymentGatewayEditPopup from '@/pages/settings/payment-settings/payment-gateway-edit-popup';
 import PaymentGatewayPopup from '@/pages/settings/payment-settings/payment-gateway-popup';
 
@@ -29,13 +28,10 @@ type PaymentGatewayDetail = PaymentGateway & {
 
 type PaymentGatewayProps = {
   paymentGatewayList: PaymentGateway[];
-  setPaymentGatewayList: Dispatch<SetStateAction<PaymentGateway[]>>;
-  setIsMethodListUpdated: Dispatch<SetStateAction<boolean>>;
 };
 
 const PaymentGatewayComponent = (props: PaymentGatewayProps) => {
-  const { paymentGatewayList, setPaymentGatewayList, setIsMethodListUpdated } =
-    props;
+  const { paymentGatewayList } = props;
 
   const [isEditPopupOpen, setIsEditPopupOpen] = useState(false);
   const [editedItem, setEditedItem] = useState<PaymentGatewayDetail | null>(
@@ -43,28 +39,21 @@ const PaymentGatewayComponent = (props: PaymentGatewayProps) => {
   );
   const [openPopup, setOpenPopup] = useState(false);
 
-  const handleToggleMethod = async (item: PaymentGateway) => {
+  const { mutate: setEnabledGateway } = useSetEnabledPaymentGatewayMutation();
+
+  const handleToggleMethod = (item: PaymentGateway) => {
     const isEnabled = Boolean(item?.is_enabled);
     const params = { is_enabled: !isEnabled };
-    const result = await setEnabledPaymentGateway(item?.id, params);
-
-    if (isApiSuccess(result)) {
-      setPaymentGatewayList((prev) =>
-        prev.map((method) =>
-          method.id === item.id
-            ? { ...method, is_enabled: !isEnabled }
-            : method,
-        ),
-      );
-
-      dispatchToastMessage('success', {
-        title: __('Payment gateway updated', 'kirki-ecommerce'),
-      });
-    } else {
-      dispatchToastMessage('error', {
-        title: __('Something went wrong', 'kirki-ecommerce'),
-      });
-    }
+    setEnabledGateway(
+      { id: item?.id, data: params },
+      {
+        onError: () => {
+          dispatchToastMessage('error', {
+            title: __('Something went wrong', 'kirki-ecommerce'),
+          });
+        },
+      },
+    );
   };
 
   const handleAction = async (
@@ -72,23 +61,15 @@ const PaymentGatewayComponent = (props: PaymentGatewayProps) => {
     item: PaymentGateway,
   ) => {
     if (action === 'delete') {
-      const initialList = [...paymentGatewayList];
-      const updatedPaymentList = paymentGatewayList?.filter(
-        (method) => method?.id !== item?.id,
-      );
-      setPaymentGatewayList(updatedPaymentList);
       dispatchToastMessage('delete', {
         title: __('Payment gateway deleted', 'kirki-ecommerce'),
         duration: 5000,
-        undoAction: () => {
-          setPaymentGatewayList(initialList);
-        },
         onSuccess: async () => {},
       });
     } else if (action === 'edit') {
-      const result = await getPaymentGatewayById(item?.id);
-      if (isApiSuccess(result)) {
-        setEditedItem(result?.data as PaymentGatewayDetail);
+      const result = await getPaymentGateway(item?.id);
+      if (result) {
+        setEditedItem(result as PaymentGatewayDetail);
         setOpenPopup(true);
       }
     }
@@ -182,11 +163,12 @@ const PaymentGatewayComponent = (props: PaymentGatewayProps) => {
         <PaymentGatewayPopup
           openPopup={isEditPopupOpen}
           setOpenPopup={setIsEditPopupOpen}
-          setIsMethodListUpdated={setIsMethodListUpdated}
         />
       )}
     </>
   );
 };
+
+PaymentGatewayComponent.displayName = 'PaymentGatewayComponent';
 
 export default PaymentGatewayComponent;

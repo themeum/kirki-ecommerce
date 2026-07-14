@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ComponentProps } from 'react';
 
 import { CloseIcon, ListFilter } from '@/icons';
+import { useListParams } from '@/hooks';
 import ActionGroup from '@/molecules/action-group';
 import Button from '@/molecules/button';
 import { DropdownMenuContent } from '@/molecules/dropdown';
@@ -8,21 +9,18 @@ import Flex from '@/molecules/flex';
 import { RadioGroup } from '@/molecules/radio-group';
 import { Select } from '@/molecules/select';
 import Text from '@/molecules/text';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { setKeyValue } from '@/store/productsSlice';
 import { __, sprintf } from '@/wpi18n';
 
 import BrandFilter from '@/pages/products/product-table/filter-popup/brand-filter';
 import CategoriesFilter from '@/pages/products/product-table/filter-popup/categories-filter';
 import CollectionFilter from '@/pages/products/product-table/filter-popup/collection-filter';
 
-type ProductFilterState = {
-  category_ids?: number[] | string;
-  status?: string;
-  inventory_type?: string;
-  collection_id?: string | number;
-  brand_id?: string | number;
-  [key: string]: unknown;
+type LocalFilterState = {
+  category_ids: number[];
+  status: string;
+  stock_status: string;
+  collection_ids: number | undefined;
+  brand_ids: number | undefined;
 };
 
 type FilterPopupProps = {
@@ -36,32 +34,49 @@ const FilterPopup = ({
   buttonProps,
   data: _data,
 }: FilterPopupProps) => {
-  const dispatch = useAppDispatch();
+  const { params, setParams } = useListParams({
+    defaults: {
+      search: '',
+      sort_by: 'title',
+      sort_order: 'asc',
+      page: 1,
+      limit: 10,
+    },
+  });
   const popoverRef = useRef<HTMLSpanElement | HTMLAnchorElement>(null);
   const [openPopup, setOpenPopup] = useState(false);
-  const [filterObject, setFilterObject] = useState<ProductFilterState>({});
-  const { loaded, filter: filterData } = useAppSelector((state) => state.products);
-  const hasFilter = Object.keys(filterData || {}).length;
+  const [filterObject, setFilterObject] = useState<LocalFilterState>({
+    category_ids: [],
+    status: 'all',
+    stock_status: '',
+    collection_ids: undefined,
+    brand_ids: undefined,
+  });
+
+  const hasFilter = [
+    params.category_ids?.length,
+    params.status,
+    params.stock_status,
+    params.collection_ids?.length,
+    params.brand_ids?.length,
+  ].filter(Boolean).length;
 
   useEffect(() => {
-    const { category_ids } = (filterData || {}) as ProductFilterState;
-
-    if (category_ids) {
-      const idArray = String(category_ids)
-        .split(',')
-        .map(Number);
-      setFilterObject({
-        ...(filterData as ProductFilterState),
-        category_ids: idArray,
-      });
-    } else {
-      setFilterObject((filterData || {}) as ProductFilterState);
+    if (!openPopup) {
+      return;
     }
-  }, [loaded, filterData, openPopup]);
+    setFilterObject({
+      category_ids: params.category_ids || [],
+      status: (params.status as string) || 'all',
+      stock_status: params.stock_status || '',
+      collection_ids: params.collection_ids?.[0],
+      brand_ids: params.brand_ids?.[0],
+    });
+  }, [openPopup]);
 
   const handleOnFilterChange = (
     val: string | number | Array<string | number>,
-    filterName: string,
+    filterName: keyof LocalFilterState,
   ) => {
     setFilterObject((prev) => ({
       ...prev,
@@ -70,35 +85,34 @@ const FilterPopup = ({
   };
 
   const handleOnApplyFilter = () => {
-    const formattedData: ProductFilterState = { ...filterObject };
-    Object.keys(filterObject).forEach((key) => {
-      const value = formattedData[key];
-      if (
-        value === 'all' ||
-        value === 'none' ||
-        (Array.isArray(value) && value.length === 0) ||
-        (typeof value === 'string' && value.length === 0)
-      ) {
-        delete formattedData[key];
-      }
+    setParams({
+      category_ids: filterObject.category_ids.length
+        ? filterObject.category_ids
+        : undefined,
+      status:
+        filterObject.status && filterObject.status !== 'all'
+          ? filterObject.status
+          : undefined,
+      stock_status: filterObject.stock_status || undefined,
+      collection_ids: filterObject.collection_ids
+        ? [filterObject.collection_ids]
+        : undefined,
+      brand_ids: filterObject.brand_ids ? [filterObject.brand_ids] : undefined,
     });
-    if (filterObject?.category_ids) {
-      if (
-        Array.isArray(filterObject.category_ids) &&
-        filterObject.category_ids.length > 0
-      ) {
-        formattedData.category_ids = filterObject.category_ids.join(',');
-      }
-    }
-
-    dispatch(setKeyValue({ key: 'filter', value: formattedData }));
     handleFilterClose();
   };
 
   const handleFilterClose = () => {
-    setFilterObject({});
+    setFilterObject({
+      category_ids: [],
+      status: 'all',
+      stock_status: '',
+      collection_ids: undefined,
+      brand_ids: undefined,
+    });
     setOpenPopup(false);
   };
+
   return (
     <>
       <Flex>
@@ -117,7 +131,7 @@ const FilterPopup = ({
           ref={popoverRef}
           {...buttonProps}
         />
-        {Object.keys(filterData || {}).length ? (
+        {hasFilter ? (
           <Button
             type="outlined"
             size="small"
@@ -129,7 +143,7 @@ const FilterPopup = ({
               borderRadius:
                 'var(--decom-radius-rounded-none) var(--decom-radius-rounded-md) var(--decom-radius-rounded-md) var(--decom-radius-rounded-none)',
             }}
-            text={sprintf(__('%d', 'kirki-ecommerce'), Object.keys(filterData || {}).length)}
+            text={sprintf(__('%d', 'kirki-ecommerce'), hasFilter)}
           />
         ) : null}
       </Flex>
@@ -179,27 +193,27 @@ const FilterPopup = ({
               { value: 'all', title: __('All', 'kirki-ecommerce') },
             ]}
             defaultValue="all"
-            value={filterObject?.status || 'all'}
+            value={filterObject.status || 'all'}
             onChange={(val) => handleOnFilterChange(val, 'status')}
             label={__('Status', 'kirki-ecommerce')}
           />
           <Select
             label={__('Inventory', 'kirki-ecommerce')}
-            value={filterObject?.inventory_type}
+            value={filterObject.stock_status}
             defaultValue="true"
             optionsArray={[
               { value: 'in_stock', title: __('In stock', 'kirki-ecommerce') },
               { value: 'out_of_stock', title: __('Out of stock', 'kirki-ecommerce') },
             ]}
-            onChange={(val) => handleOnFilterChange(val, 'inventory_type')}
+            onChange={(val) => handleOnFilterChange(val, 'stock_status')}
           />
           <CollectionFilter
             filterObject={filterObject}
-            onChange={(val) => handleOnFilterChange(val, 'collection_id')}
+            onChange={(val) => handleOnFilterChange(val, 'collection_ids')}
           />
           <BrandFilter
             filterObject={filterObject}
-            onChange={(val) => handleOnFilterChange(val, 'brand_id')}
+            onChange={(val) => handleOnFilterChange(val, 'brand_ids')}
           />
         </Flex>
 
@@ -225,5 +239,7 @@ const FilterPopup = ({
     </>
   );
 };
+
+FilterPopup.displayName = 'FilterPopup';
 
 export default FilterPopup;
