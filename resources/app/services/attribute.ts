@@ -9,44 +9,54 @@ import { apiClient } from '@/libs/api';
 import { endpoints } from '@/libs/endpoints';
 import { queryKeys, type QueryParams } from '@/libs/query-keys';
 import {
+  AttributeSchema,
+  AttributeValueSchema,
+} from '@/schemas/catalog/attribute';
+import {
+  PaginatedDataSchema,
+  ResourceCollectionSchema,
+} from '@/schemas/shared/api';
+import {
+  parseData,
+  parseResponse,
   toastMutationError,
   toastMutationSuccess,
-  unwrapData,
   unwrapResponse,
 } from '@/services/helpers';
 import type {
-  Attribute,
   AttributeFormData,
-  AttributeValue,
   AttributeValueFormData,
   BulkActionParams,
-  PaginatedData,
 } from '@/types';
 import { __ } from '@/wpi18n';
 
 const getAttributes = async (params: QueryParams = {}) => {
   const data = await apiClient
     .get(endpoints.ATTRIBUTES, { params })
-    .then((response) => unwrapData<PaginatedData<Attribute>>(response));
+    .then((response) =>
+      parseData(PaginatedDataSchema(AttributeSchema), response),
+    );
   return data.results;
 };
 
 const getAttribute = (id: number) => {
   return apiClient
     .get(endpoints.ATTRIBUTE(id))
-    .then((response) => unwrapData<Attribute>(response));
+    .then((response) => parseData(AttributeSchema, response));
 };
 
 const getAttributeValues = (id: number, params: QueryParams = {}) => {
   return apiClient
     .get(endpoints.ATTRIBUTE_VALUES(id), { params })
-    .then((response) => unwrapData<PaginatedData<AttributeValue>>(response));
+    .then((response) =>
+      parseData(ResourceCollectionSchema(AttributeValueSchema), response),
+    );
 };
 
 const createAttribute = (data: AttributeFormData) => {
   return apiClient
     .post(endpoints.ATTRIBUTES, data)
-    .then((response) => unwrapResponse<Attribute>(response));
+    .then((response) => parseResponse(AttributeSchema, response));
 };
 
 const updateAttribute = ({
@@ -58,7 +68,7 @@ const updateAttribute = ({
 }) => {
   return apiClient
     .put(endpoints.ATTRIBUTE(id), data)
-    .then((response) => unwrapResponse<Attribute>(response));
+    .then((response) => parseResponse(AttributeSchema, response));
 };
 
 const deleteAttribute = (id: number) => {
@@ -70,7 +80,7 @@ const deleteAttribute = (id: number) => {
 const createAttributeValue = (data: AttributeValueFormData) => {
   return apiClient
     .post(endpoints.ATTRIBUTE_VALUES(data.attribute_id!), data)
-    .then((response) => unwrapResponse<AttributeValue>(response));
+    .then((response) => parseResponse(AttributeValueSchema, response));
 };
 
 const updateAttributeValue = (params: AttributeValueFormData) => {
@@ -81,7 +91,7 @@ const updateAttributeValue = (params: AttributeValueFormData) => {
   };
   return apiClient
     .put(endpoints.ATTRIBUTE_VALUE(attribute_id!, value_id!), data)
-    .then((response) => unwrapResponse<AttributeValue>(response));
+    .then((response) => parseResponse(AttributeValueSchema, response));
 };
 
 const deleteAttributeValue = (params: AttributeValueFormData) => {

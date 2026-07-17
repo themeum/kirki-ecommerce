@@ -2,7 +2,7 @@ import Card from '@/molecules/card';
 import { Select } from '@/molecules/select';
 import Text from '@/molecules/text';
 import { usePagesQuery } from '@/services/page';
-import type { FormErrors, PageItem, PaginatedData, SettingsSectionData } from '@/types';
+import type { FormErrors, PageItem, SettingsSectionData } from '@/types';
 import { __ } from '@/wpi18n';
 
 type ShopPageProps = {
@@ -15,9 +15,7 @@ export const ShopPage = (props: ShopPageProps) => {
   const { dataObj, handleOnChange, errors } = props;
   const { data: pagesData } = usePagesQuery();
 
-  const pageList = Array.isArray(pagesData)
-    ? pagesData
-    : ((pagesData as PaginatedData<PageItem>)?.results ?? []);
+  const pageList = pagesData ?? [];
 
   const shopPageOptions = pageList.map((page: PageItem) => ({
     title: page.title,

@@ -1,8 +1,1 @@
-type Country = {
-  id: number;
-  name: string;
-  code: string;
-  flag?: string;
-};
-
-export type { Country };
+export type { Country } from '@/schemas/reference/country';

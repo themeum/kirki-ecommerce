@@ -1,10 +1,4 @@
-type Tag = {
-  id: number;
-  name: string;
-  slug: string;
-  description?: string | null;
-  count?: number;
-};
+export type { Tag } from '@/schemas/catalog/tag';
 
 type TagFormData = {
   name?: string;
@@ -12,4 +6,4 @@ type TagFormData = {
   description?: string | null;
 };
 
-export type { Tag, TagFormData };
+export type { TagFormData };

@@ -60,7 +60,7 @@ export const groupEUCountries = (
       id: country.name,
       name: country.name,
       code: country.code,
-      flag: country.flag,
+      flag: country.flag ?? undefined,
     })),
   };
 

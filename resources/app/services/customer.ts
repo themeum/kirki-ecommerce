@@ -9,35 +9,38 @@ import { apiClient } from '@/libs/api';
 import { endpoints } from '@/libs/endpoints';
 import { queryKeys, type QueryParams } from '@/libs/query-keys';
 import {
+  CustomerListItemSchema,
+  CustomerSchema,
+} from '@/schemas/catalog/customer';
+import { PaginatedDataSchema } from '@/schemas/shared/api';
+import {
+  parseData,
+  parseResponse,
   toastMutationError,
   toastMutationSuccess,
-  unwrapData,
   unwrapResponse,
 } from '@/services/helpers';
-import type {
-  BulkActionParams,
-  Customer,
-  CustomerFormData,
-  PaginatedData,
-} from '@/types';
+import type { BulkActionParams, CustomerFormData } from '@/types';
 import { __ } from '@/wpi18n';
 
 const getCustomers = (params: QueryParams = {}) => {
   return apiClient
     .get(endpoints.CUSTOMERS, { params })
-    .then((response) => unwrapData<PaginatedData<Customer>>(response));
+    .then((response) =>
+      parseData(PaginatedDataSchema(CustomerListItemSchema), response),
+    );
 };
 
 const getCustomer = (id: number) => {
   return apiClient
     .get(endpoints.CUSTOMER(id))
-    .then((response) => unwrapData<Customer>(response));
+    .then((response) => parseData(CustomerSchema, response));
 };
 
 const createCustomer = (data: CustomerFormData) => {
   return apiClient
     .post(endpoints.CUSTOMERS, data)
-    .then((response) => unwrapResponse<Customer>(response));
+    .then((response) => parseResponse(CustomerSchema, response));
 };
 
 const updateCustomer = ({
@@ -49,7 +52,7 @@ const updateCustomer = ({
 }) => {
   return apiClient
     .put(endpoints.CUSTOMER(id), data)
-    .then((response) => unwrapResponse<Customer>(response));
+    .then((response) => parseResponse(CustomerSchema, response));
 };
 
 const deleteCustomer = (id: number) => {

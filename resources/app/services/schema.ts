@@ -8,26 +8,31 @@ import {
 import { apiClient } from '@/libs/api';
 import { endpoints } from '@/libs/endpoints';
 import { queryKeys, type QueryParams } from '@/libs/query-keys';
+import { SchemaProfileSchema } from '@/schemas/catalog/schema-profile';
+import { PaginatedDataSchema } from '@/schemas/shared/api';
 import {
+  parseData,
+  parseResponse,
   toastMutationError,
   toastMutationSuccess,
-  unwrapData,
   unwrapResponse,
 } from '@/services/helpers';
-import type { PaginatedData, SchemaFormData, SchemaProfile } from '@/types';
+import type { SchemaFormData } from '@/types';
 import { __ } from '@/wpi18n';
 
 const getSchemas = async (params: QueryParams = {}) => {
   const data = await apiClient
     .get(endpoints.PRODUCT_SCHEMAS, { params })
-    .then((response) => unwrapData<PaginatedData<SchemaProfile>>(response));
+    .then((response) =>
+      parseData(PaginatedDataSchema(SchemaProfileSchema), response),
+    );
   return data.results;
 };
 
 const createSchema = (data: SchemaFormData) => {
   return apiClient
     .post(endpoints.PRODUCT_SCHEMAS, data)
-    .then((response) => unwrapResponse<SchemaProfile>(response));
+    .then((response) => parseResponse(SchemaProfileSchema, response));
 };
 
 const updateSchema = ({
@@ -39,7 +44,7 @@ const updateSchema = ({
 }) => {
   return apiClient
     .put(endpoints.PRODUCT_SCHEMA(id), data)
-    .then((response) => unwrapResponse<SchemaProfile>(response));
+    .then((response) => parseResponse(SchemaProfileSchema, response));
 };
 
 const deleteSchema = (id: number) => {

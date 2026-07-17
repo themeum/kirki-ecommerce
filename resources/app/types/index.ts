@@ -62,6 +62,7 @@ export type {
   AdditionalInfoItem,
   ProductListItem,
   Product,
+  ProductAttribute,
   ProductAttributePayload,
   ProductVariantPayload,
   ProductFormData,

@@ -13,6 +13,8 @@ class AttributeValue extends Model
     protected $casts = [
         'id' => 'integer',
         'attribute_id' => 'integer',
+        'created_by' => 'integer',
+        'updated_by' => 'integer',
     ];
 
     protected $fillable = [

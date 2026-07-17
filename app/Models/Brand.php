@@ -16,7 +16,9 @@ class Brand extends Model
 
     protected $casts = [
         'id' => 'integer',
-        'is_active' => 'boolean'
+        'is_active' => 'boolean',
+        'created_by' => 'integer',
+        'updated_by' => 'integer',
     ];
 
     protected $fillable = [

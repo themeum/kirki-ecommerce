@@ -35,6 +35,8 @@ class Variant extends Model
         'shipping_profile_id' => 'integer',
         'shipping_box_id' => 'integer',
         'is_visible' => 'boolean',
+        'created_by' => 'integer',
+        'updated_by' => 'integer',
     ];
 
     protected $fillable = [
