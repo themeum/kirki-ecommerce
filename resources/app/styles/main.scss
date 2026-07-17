@@ -1,7 +1,13 @@
 @import "./variables";
 @import "./mixins";
-@import "./classes.scss";
+@import "./normalize";
 @import "./global";
-@import "./molecules/index.scss";
-@import "./components/index.scss";
+
+#wpbody-content .kirki-ecommerce-root {
+  @import "./classes.scss";
+  @import "./molecules/index.scss";
+  @import "./components/index.scss";
+  @import "./ui/index.scss";
+}
+
 @import "./pages/index.scss";

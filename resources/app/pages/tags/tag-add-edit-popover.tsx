@@ -1,10 +1,13 @@
-import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
+import Button from '@/components/ui/button';
+import { Form } from '@/components/ui/form';
+import TextField from '@/components/form/text-field';
+import TextareaField from '@/components/form/textarea-field';
 import { TagIcon } from '@/icons';
 import { getErrorsObject } from '@/libs/api';
-import Button from '@/molecules/button';
 import Flex from '@/molecules/flex';
-import Input from '@/molecules/input';
 import {
   Popover,
   PopoverBody,
@@ -12,9 +15,13 @@ import {
   PopoverHeader,
 } from '@/molecules/popover';
 import Text from '@/molecules/text';
+import {
+  TagFormSchema,
+  type TagFormValues,
+} from '@/schemas/forms/tag-form';
 import { useCreateTagMutation, useUpdateTagMutation } from '@/services/tag';
 import type { ErrorResponse } from '@/libs/api';
-import type { FormErrors, Tag, TagFormData } from '@/types';
+import type { Tag, TagFormData } from '@/types';
 import { __ } from '@/wpi18n';
 
 type TagAddEditPopoverProps = {
@@ -28,104 +35,101 @@ const TagAddEditPopover = ({
 }: TagAddEditPopoverProps) => {
   const createMutation = useCreateTagMutation();
   const updateMutation = useUpdateTagMutation();
-  const [errors, setErrors] = useState<FormErrors>({});
-  const [tagFormData, setTagFormData] = useState<TagFormData & { id?: number }>(
-    tag,
-  );
+  const tagId = 'id' in tag ? tag.id : undefined;
 
-  const handleOnChange = (data: unknown, fieldName: string) => {
-    setTagFormData((prev) => ({
-      ...prev,
-      [fieldName]: data,
-    }));
-    setErrors((prev) => ({
-      ...prev,
-      [fieldName]: null,
-    }));
-  };
+  const form = useForm<TagFormValues>({
+    resolver: zodResolver(TagFormSchema),
+    defaultValues: {
+      name: tag.name ?? '',
+      slug: tag.slug ?? '',
+      description: tag.description ?? '',
+    },
+  });
 
-  const handleAddOrUpdateTag = async () => {
+  const handleSubmit = async (values: TagFormValues) => {
     try {
-      if (tagFormData.id) {
+      if (tagId) {
         await updateMutation.mutateAsync({
-          id: tagFormData.id,
-          data: tagFormData,
+          id: tagId,
+          data: values,
         });
       } else {
-        await createMutation.mutateAsync(tagFormData);
+        await createMutation.mutateAsync(values);
       }
       onClose();
     } catch (error) {
       const err = error as ErrorResponse;
-      setErrors(getErrorsObject(err.errors));
+      const fieldErrors = getErrorsObject(err.errors);
+      Object.entries(fieldErrors).forEach(([key, message]) => {
+        if (message) {
+          form.setError(key as keyof TagFormValues, {
+            message: String(message),
+          });
+        }
+      });
     }
   };
 
   return (
-    <>
-      <Popover isOpen={true} onClose={onClose}>
-        <PopoverHeader
-          onClose={onClose}
-          leftIcon={<TagIcon />}
-          style={{ borderBottom: '1px solid #E4E3E9' }}
-        >
-          <Text
-            type="primary"
-            header={
-              tagFormData.id
-                ? __('Edit Tag', 'kirki-ecommerce')
-                : __('New Tag', 'kirki-ecommerce')
-            }
-          />
-        </PopoverHeader>
-        <PopoverBody>
-          <Flex direction="column" gap={16}>
-            <Input
-              label={__('Name', 'kirki-ecommerce')}
-              placeholder={__('e.g., fundraising', 'kirki-ecommerce')}
-              value={tagFormData.name as string}
-              onChange={(value) => handleOnChange(value, 'name')}
-              error={errors.name as string | boolean | undefined}
-            />
-            <Input
-              label={__('Slug', 'kirki-ecommerce')}
-              placeholder={__('e.g., fund-raising', 'kirki-ecommerce')}
-              value={tagFormData.slug as string}
-              onChange={(value) => handleOnChange(value, 'slug')}
-              error={errors.slug as string | boolean | undefined}
-            />
-            <Input
-              label={__('Description', 'kirki-ecommerce')}
-              multiline={2}
-              style={{ padding: '8px 12px' }}
-              error={errors.description as string | boolean | undefined}
-              value={tagFormData.description as string}
-              onChange={(value) => handleOnChange(value, 'description')}
-              placeholder={__(
-                'e.g., Dedicated to providing immediate support and essential resources to communities affected by unexpected crises.',
-                'kirki-ecommerce',
-              )}
-            />
-          </Flex>
-        </PopoverBody>
-        <PopoverFooter>
-          <Button
-            type="outlined"
-            text={__('Cancel', 'kirki-ecommerce')}
-            onClick={onClose}
-          />
-          <Button
-            type="primary"
-            text={
-              tagFormData.id
+    <Popover isOpen={true} onClose={onClose}>
+      <PopoverHeader
+        onClose={onClose}
+        leftIcon={<TagIcon />}
+        style={{ borderBottom: '1px solid #E4E3E9' }}
+      >
+        <Text
+          type="primary"
+          header={
+            tagId
+              ? __('Edit Tag', 'kirki-ecommerce')
+              : __('New Tag', 'kirki-ecommerce')
+          }
+        />
+      </PopoverHeader>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(handleSubmit)}>
+          <PopoverBody>
+            <Flex direction="column" gap={16}>
+              <TextField
+                name="name"
+                label={__('Name', 'kirki-ecommerce')}
+                placeholder={__('e.g., fundraising', 'kirki-ecommerce')}
+              />
+              <TextField
+                name="slug"
+                label={__('Slug', 'kirki-ecommerce')}
+                placeholder={__('e.g., fund-raising', 'kirki-ecommerce')}
+              />
+              <TextareaField
+                name="description"
+                label={__('Description', 'kirki-ecommerce')}
+                rows={5}
+                placeholder={__(
+                  'e.g., Dedicated to providing immediate support and essential resources to communities affected by unexpected crises.',
+                  'kirki-ecommerce',
+                )}
+              />
+            </Flex>
+          </PopoverBody>
+          <PopoverFooter>
+            <Button variant="outline" onClick={onClose}>
+              {__('Cancel', 'kirki-ecommerce')}
+            </Button>
+            <Button
+              variant="primary"
+              onClick={() => {
+                form.handleSubmit(handleSubmit)();
+              }}
+            >
+              {tagId
                 ? __('Save', 'kirki-ecommerce')
-                : __('Add', 'kirki-ecommerce')
-            }
-            onClick={handleAddOrUpdateTag}
-          />
-        </PopoverFooter>
-      </Popover>
-    </>
+                : __('Add', 'kirki-ecommerce')}
+            </Button>
+            <button type="submit" hidden tabIndex={-1} aria-hidden="true" />
+          </PopoverFooter>
+        </form>
+      </Form>
+    </Popover>
   );
 };
 

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import Button from '@/molecules/button';
+import Button from '@/components/ui/button';
 import type { TagFormData } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -17,11 +17,12 @@ const NewTag = () => {
   return (
     <>
       <Button
-        type="primary"
-        text={__('New Tag', 'kirki-ecommerce')}
-        size="small"
+        variant="primary"
+        size="sm"
         onClick={() => setOpenPopup(true)}
-      />
+      >
+        {__('New Tag', 'kirki-ecommerce')}
+      </Button>
 
       {openPopup && (
         <TagAddEditPopover
