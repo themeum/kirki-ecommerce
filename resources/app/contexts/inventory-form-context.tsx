@@ -12,10 +12,12 @@ import type { InventoryVariant, PaginatedData } from '@/types';
 type InventoryStoredData = {
   results: Record<number, InventoryVariant>;
   total: number;
+  count?: number;
   per_page: number;
   current_page?: number;
   last_page?: number;
-  from?: number;
+  from?: number | null;
+  to?: number | null;
   has_more_pages?: boolean;
 };
 

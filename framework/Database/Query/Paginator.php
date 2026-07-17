@@ -70,10 +70,10 @@ class Paginator implements Arrayable, Jsonable
     public function __construct(Collection $items, $total, $per_page, $current_page)
     {
         $this->items = $items;
-        $this->total = $total;
-        $this->per_page = $per_page;
-        $this->current_page = $current_page;
-        $this->last_page = $total > 0 ? (int) ceil($total / $per_page) : $current_page;
+        $this->total = (int) $total;
+        $this->per_page = (int) $per_page;
+        $this->current_page = (int) $current_page;
+        $this->last_page = $this->total > 0 ? (int) ceil($this->total / $this->per_page) : $this->current_page;
     }
 
     /**

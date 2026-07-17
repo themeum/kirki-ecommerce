@@ -1,13 +1,6 @@
-import type { MediaRef } from '@/types/entities/media';
+import type { MediaRef } from '@/schemas/shared/media';
 
-type Brand = {
-  id: number;
-  name: string;
-  slug: string;
-  description?: string | null;
-  count?: number;
-  logo?: MediaRef | string | number | null;
-};
+export type { Brand } from '@/schemas/catalog/brand';
 
 type BrandFormData = {
   name?: string;
@@ -16,4 +9,4 @@ type BrandFormData = {
   logo?: MediaRef | string | number | null;
 };
 
-export type { Brand, BrandFormData };
+export type { BrandFormData };

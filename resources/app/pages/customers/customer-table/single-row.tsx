@@ -9,11 +9,11 @@ import { TableCell, TableRow } from '@/molecules/table';
 import Text from '@/molecules/text';
 import Thumbnail from '@/molecules/thumbnail';
 import { useDeleteCustomerMutation } from '@/services/customer';
-import type { Customer, MarkListHandlers } from '@/types';
+import type { CustomerListItem, MarkListHandlers } from '@/types';
 import { __ } from '@/wpi18n';
 
 type SingleRowProps = MarkListHandlers & {
-  item: Customer;
+  item: CustomerListItem;
 };
 
 const SingleRow = ({

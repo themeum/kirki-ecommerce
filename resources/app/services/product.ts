@@ -8,37 +8,36 @@ import {
 import { apiClient } from '@/libs/api';
 import { endpoints } from '@/libs/endpoints';
 import { queryKeys, type QueryParams } from '@/libs/query-keys';
+import { ProductListItemSchema, ProductSchema } from '@/schemas/catalog/product';
+import { PaginatedDataSchema } from '@/schemas/shared/api';
 import {
+  parseData,
+  parseResponse,
   toastMutationError,
   toastMutationSuccess,
-  unwrapData,
   unwrapResponse,
 } from '@/services/helpers';
-import type {
-  BulkActionParams,
-  PaginatedData,
-  Product,
-  ProductFormData,
-  ProductListItem,
-} from '@/types';
+import type { BulkActionParams, ProductFormData } from '@/types';
 import { __ } from '@/wpi18n';
 
 const getProducts = (params: QueryParams = {}) => {
   return apiClient
     .get(endpoints.PRODUCTS, { params })
-    .then((response) => unwrapData<PaginatedData<ProductListItem>>(response));
+    .then((response) =>
+      parseData(PaginatedDataSchema(ProductListItemSchema), response),
+    );
 };
 
 const getProduct = (id: string | number) => {
   return apiClient
     .get(endpoints.PRODUCT(id))
-    .then((response) => unwrapData<Product>(response));
+    .then((response) => parseData(ProductSchema, response));
 };
 
 const createProduct = (data: ProductFormData) => {
   return apiClient
     .post(endpoints.PRODUCTS, data)
-    .then((response) => unwrapResponse<Product>(response));
+    .then((response) => parseResponse(ProductSchema, response));
 };
 
 const updateProduct = ({
@@ -50,7 +49,7 @@ const updateProduct = ({
 }) => {
   return apiClient
     .put(endpoints.PRODUCT(id), data)
-    .then((response) => unwrapResponse<Product>(response));
+    .then((response) => parseResponse(ProductSchema, response));
 };
 
 const deleteProduct = (id: number) => {
@@ -91,7 +90,7 @@ const useCreateProductMutation = () => {
     onSuccess(response) {
       toastMutationSuccess(
         response.message ||
-          __('Product created successfully.', 'kirki-ecommerce'),
+        __('Product created successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: ['Products'] });
     },
@@ -108,7 +107,7 @@ const useUpdateProductMutation = () => {
     onSuccess(response, variables) {
       toastMutationSuccess(
         response.message ||
-          __('Product updated successfully.', 'kirki-ecommerce'),
+        __('Product updated successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: ['Products'] });
       void queryClient.invalidateQueries({
@@ -129,7 +128,7 @@ const useDeleteProductMutation = () => {
     onSuccess(response) {
       toastMutationSuccess(
         response.message ||
-          __('Product deleted successfully.', 'kirki-ecommerce'),
+        __('Product deleted successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: ['Products'] });
     },
@@ -146,7 +145,7 @@ const useBulkDeleteProductsMutation = () => {
     onSuccess(response) {
       toastMutationSuccess(
         response.message ||
-          __('Products deleted successfully.', 'kirki-ecommerce'),
+        __('Products deleted successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: ['Products'] });
     },
@@ -157,16 +156,5 @@ const useBulkDeleteProductsMutation = () => {
 };
 
 export {
-  getProducts,
-  getProduct,
-  createProduct,
-  updateProduct,
-  deleteProduct,
-  bulkDeleteProducts,
-  useProductsQuery,
-  useProductQuery,
-  useCreateProductMutation,
-  useUpdateProductMutation,
-  useDeleteProductMutation,
-  useBulkDeleteProductsMutation,
+  bulkDeleteProducts, createProduct, deleteProduct, getProduct, getProducts, updateProduct, useBulkDeleteProductsMutation, useCreateProductMutation, useDeleteProductMutation, useProductQuery, useProductsQuery, useUpdateProductMutation
 };

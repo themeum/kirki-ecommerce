@@ -1,20 +1,10 @@
-type AttributeType = 'color' | 'list';
+export type {
+  AttributeType,
+  Attribute,
+  AttributeValue,
+} from '@/schemas/catalog/attribute';
 
-type AttributeValue = {
-  id: number;
-  value: string;
-  color?: string | null;
-};
-
-type Attribute = {
-  id: number;
-  name: string;
-  slug?: string;
-  type: AttributeType | string;
-  values?: AttributeValue[];
-  created_at?: string;
-  updated_at?: string;
-};
+import type { AttributeType, AttributeValue } from '@/schemas/catalog/attribute';
 
 type AttributeFormData = {
   name?: string;
@@ -29,10 +19,4 @@ type AttributeValueFormData = {
   color?: string | null;
 };
 
-export type {
-  AttributeType,
-  Attribute,
-  AttributeValue,
-  AttributeFormData,
-  AttributeValueFormData,
-};
+export type { AttributeFormData, AttributeValueFormData };

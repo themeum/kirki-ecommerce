@@ -1,9 +1,4 @@
-type SchemaProfile = {
-  id: number;
-  name: string;
-  is_default?: boolean;
-  schema: Record<string, string[]>;
-};
+export type { SchemaProfile } from '@/schemas/catalog/schema-profile';
 
 type SchemaFormData = {
   name?: string;
@@ -11,4 +6,4 @@ type SchemaFormData = {
   schema?: Record<string, string[]>;
 };
 
-export type { SchemaProfile, SchemaFormData };
+export type { SchemaFormData };

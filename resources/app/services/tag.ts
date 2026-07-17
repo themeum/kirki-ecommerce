@@ -8,31 +8,34 @@ import {
 import { apiClient } from '@/libs/api';
 import { endpoints } from '@/libs/endpoints';
 import { queryKeys, type QueryParams } from '@/libs/query-keys';
+import { TagSchema } from '@/schemas/catalog/tag';
+import { PaginatedDataSchema } from '@/schemas/shared/api';
 import {
+  parseData,
+  parseResponse,
   toastMutationError,
   toastMutationSuccess,
-  unwrapData,
   unwrapResponse,
 } from '@/services/helpers';
-import type { BulkActionParams, PaginatedData, Tag, TagFormData } from '@/types';
+import type { BulkActionParams, TagFormData } from '@/types';
 import { __ } from '@/wpi18n';
 
 const getTags = (params: QueryParams = {}) => {
   return apiClient
     .get(endpoints.TAGS, { params })
-    .then((response) => unwrapData<PaginatedData<Tag>>(response));
+    .then((response) => parseData(PaginatedDataSchema(TagSchema), response));
 };
 
 const createTag = (data: TagFormData) => {
   return apiClient
     .post(endpoints.TAGS, data)
-    .then((response) => unwrapResponse<Tag>(response));
+    .then((response) => parseResponse(TagSchema, response));
 };
 
 const updateTag = ({ id, data }: { id: number; data: TagFormData }) => {
   return apiClient
     .put(endpoints.TAG(id), data)
-    .then((response) => unwrapResponse<Tag>(response));
+    .then((response) => parseResponse(TagSchema, response));
 };
 
 const deleteTag = (id: number) => {

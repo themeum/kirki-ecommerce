@@ -8,36 +8,34 @@ import {
 import { apiClient } from '@/libs/api';
 import { endpoints } from '@/libs/endpoints';
 import { queryKeys, type QueryParams } from '@/libs/query-keys';
+import { BrandSchema } from '@/schemas/catalog/brand';
+import { PaginatedDataSchema } from '@/schemas/shared/api';
 import {
+  parseData,
+  parseResponse,
   toastMutationError,
   toastMutationSuccess,
-  unwrapData,
   unwrapResponse,
 } from '@/services/helpers';
-import type {
-  Brand,
-  BrandFormData,
-  BulkActionParams,
-  PaginatedData,
-} from '@/types';
+import type { BrandFormData, BulkActionParams } from '@/types';
 import { __ } from '@/wpi18n';
 
 const getBrands = (params: QueryParams = {}) => {
   return apiClient
     .get(endpoints.BRANDS, { params })
-    .then((response) => unwrapData<PaginatedData<Brand>>(response));
+    .then((response) => parseData(PaginatedDataSchema(BrandSchema), response));
 };
 
 const createBrand = (data: BrandFormData) => {
   return apiClient
     .post(endpoints.BRANDS, data)
-    .then((response) => unwrapResponse<Brand>(response));
+    .then((response) => parseResponse(BrandSchema, response));
 };
 
 const updateBrand = ({ id, data }: { id: number; data: BrandFormData }) => {
   return apiClient
     .put(endpoints.BRAND(id), data)
-    .then((response) => unwrapResponse<Brand>(response));
+    .then((response) => parseResponse(BrandSchema, response));
 };
 
 const deleteBrand = (id: number) => {

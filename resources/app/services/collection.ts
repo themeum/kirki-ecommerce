@@ -8,36 +8,36 @@ import {
 import { apiClient } from '@/libs/api';
 import { endpoints } from '@/libs/endpoints';
 import { queryKeys, type QueryParams } from '@/libs/query-keys';
+import { CollectionSchema } from '@/schemas/catalog/collection';
+import { PaginatedDataSchema } from '@/schemas/shared/api';
 import {
+  parseData,
+  parseResponse,
   toastMutationError,
   toastMutationSuccess,
-  unwrapData,
   unwrapResponse,
 } from '@/services/helpers';
-import type {
-  BulkActionParams,
-  Collection,
-  CollectionFormData,
-  PaginatedData,
-} from '@/types';
+import type { BulkActionParams, CollectionFormData } from '@/types';
 import { __ } from '@/wpi18n';
 
 const getCollections = (params: QueryParams = {}) => {
   return apiClient
     .get(endpoints.COLLECTIONS, { params })
-    .then((response) => unwrapData<PaginatedData<Collection>>(response));
+    .then((response) =>
+      parseData(PaginatedDataSchema(CollectionSchema), response),
+    );
 };
 
 const getCollection = (id: number) => {
   return apiClient
     .get(endpoints.COLLECTION(id))
-    .then((response) => unwrapData<Collection>(response));
+    .then((response) => parseData(CollectionSchema, response));
 };
 
 const createCollection = (data: CollectionFormData) => {
   return apiClient
     .post(endpoints.COLLECTIONS, data)
-    .then((response) => unwrapResponse<Collection>(response));
+    .then((response) => parseResponse(CollectionSchema, response));
 };
 
 const updateCollection = ({
@@ -49,7 +49,7 @@ const updateCollection = ({
 }) => {
   return apiClient
     .put(endpoints.COLLECTION(id), data)
-    .then((response) => unwrapResponse<Collection>(response));
+    .then((response) => parseResponse(CollectionSchema, response));
 };
 
 const deleteCollection = (id: number) => {

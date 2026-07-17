@@ -15,10 +15,12 @@ type ApiResponse<T> = {
 type PaginatedData<T> = {
   results: T[];
   total: number;
+  count?: number;
   per_page: number;
   current_page?: number;
   last_page?: number;
-  from?: number;
+  from?: number | null;
+  to?: number | null;
   has_more_pages?: boolean;
 };
 

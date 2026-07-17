@@ -1,20 +1,6 @@
-import type { MediaRef } from '@/types/entities/media';
+import type { MediaRef } from '@/schemas/shared/media';
 
-type Category = {
-  id: number;
-  name: string;
-  slug: string;
-  description?: string | null;
-  count?: number;
-  image?: MediaRef | string | number | null;
-  parent_id?: number | null;
-  level?: number;
-  ordering?: number;
-  is_active?: boolean;
-  is_deletable?: boolean;
-  created_at?: string;
-  updated_at?: string;
-};
+export type { Category } from '@/schemas/catalog/category';
 
 type CategoryFormData = {
   name?: string;
@@ -25,4 +11,4 @@ type CategoryFormData = {
   is_active?: boolean;
 };
 
-export type { Category, CategoryFormData };
+export type { CategoryFormData };

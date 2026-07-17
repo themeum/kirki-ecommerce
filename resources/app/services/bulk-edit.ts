@@ -8,13 +8,14 @@ import {
 import { apiClient } from '@/libs/api';
 import { endpoints } from '@/libs/endpoints';
 import { queryKeys, type QueryParams } from '@/libs/query-keys';
+import { VariantSchema } from '@/schemas/catalog/variant';
+import { ResourceCollectionSchema } from '@/schemas/shared/api';
 import {
+  parseData,
+  parseResponse,
   toastMutationError,
   toastMutationSuccess,
-  unwrapData,
-  unwrapResponse,
 } from '@/services/helpers';
-import type { ProductVariant } from '@/types';
 import { __ } from '@/wpi18n';
 
 const getBulkVariants = (
@@ -23,13 +24,17 @@ const getBulkVariants = (
 ) => {
   return apiClient
     .get(endpoints.VARIANTS_BULK_BY_IDS(ids), { params })
-    .then((response) => unwrapData<ProductVariant[]>(response));
+    .then((response) =>
+      parseData(ResourceCollectionSchema(VariantSchema), response),
+    );
 };
 
 const updateBulkVariants = (data: Record<string, unknown>) => {
   return apiClient
     .put(endpoints.VARIANTS_BULK, data)
-    .then((response) => unwrapResponse(response));
+    .then((response) =>
+      parseResponse(ResourceCollectionSchema(VariantSchema), response),
+    );
 };
 
 const useBulkVariantsQuery = (

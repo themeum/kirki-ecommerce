@@ -3,13 +3,16 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { apiClient } from '@/libs/api';
 import { endpoints } from '@/libs/endpoints';
 import { queryKeys, type QueryParams } from '@/libs/query-keys';
-import { unwrapData } from '@/services/helpers';
-import type { InventoryVariant, PaginatedData } from '@/types';
+import { InventoryVariantSchema } from '@/schemas/catalog/variant';
+import { PaginatedDataSchema } from '@/schemas/shared/api';
+import { parseData } from '@/services/helpers';
 
 const getInventory = (params: QueryParams = {}) => {
   return apiClient
     .get(endpoints.VARIANTS, { params })
-    .then((response) => unwrapData<PaginatedData<InventoryVariant>>(response));
+    .then((response) =>
+      parseData(PaginatedDataSchema(InventoryVariantSchema), response),
+    );
 };
 
 const useInventoryQuery = (params: QueryParams = {}) => {

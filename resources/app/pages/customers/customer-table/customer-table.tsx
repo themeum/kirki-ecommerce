@@ -10,14 +10,18 @@ import {
   TableRow,
 } from '@/molecules/table';
 import { useBulkDeleteCustomersMutation } from '@/services/customer';
-import type { Customer, PaginatedData, TaxonomyTableHeader } from '@/types';
+import type {
+  CustomerListItem,
+  PaginatedData,
+  TaxonomyTableHeader,
+} from '@/types';
 import { __ } from '@/wpi18n';
 
 import CustomerTableAction from '@/pages/customers/customer-table/customer-table-action';
 import SingleRow from '@/pages/customers/customer-table/single-row';
 
 type CustomerTableProps = {
-  data: PaginatedData<Customer>;
+  data: PaginatedData<CustomerListItem>;
   isFetching?: boolean;
 };
 
