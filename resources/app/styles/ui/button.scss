@@ -27,6 +27,7 @@
   margin: 0;
   appearance: none;
   -webkit-appearance: none;
+  transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
 
   &:hover,
   &:active,
@@ -34,6 +35,10 @@
   &:visited {
     text-decoration: none;
     outline: none;
+  }
+
+  &:active:not([aria-haspopup]) {
+    transform: translateY(1px);
   }
 
   &:focus-visible {
@@ -52,13 +57,6 @@
       background-color: var(--decom-background-bg-fill-brand-hover);
       color: var(--decom-text-text-light);
     }
-
-    &:focus,
-    &:focus-visible,
-    &:active {
-      background-color: var(--decom-background-bg-fill-brand);
-      color: var(--decom-text-text-light);
-    }
   }
 
   &--secondary {
@@ -69,13 +67,6 @@
       background-color: var(--decom-background-bg-fill-secondary-hover);
       color: var(--decom-text-text-primary);
     }
-
-    &:focus,
-    &:focus-visible,
-    &:active {
-      background-color: var(--decom-background-bg-fill-secondary);
-      color: var(--decom-text-text-primary);
-    }
   }
 
   &--destructive {
@@ -84,13 +75,6 @@
 
     &:hover {
       background-color: var(--decom-border-border-critical);
-      color: var(--decom-text-text-light);
-    }
-
-    &:focus,
-    &:focus-visible,
-    &:active {
-      background-color: var(--decom-background-bg-fill-critical);
       color: var(--decom-text-text-light);
     }
   }
@@ -104,13 +88,6 @@
       background-color: var(--decom-background-bg-fill-hover);
       color: var(--decom-text-text-primary);
     }
-
-    &:focus,
-    &:focus-visible,
-    &:active {
-      background-color: var(--decom-background-bg-fill);
-      color: var(--decom-text-text-primary);
-    }
   }
 
   &--ghost {
@@ -119,13 +96,6 @@
 
     &:hover {
       background-color: var(--decom-background-bg-fill-special-3-tertiary);
-      color: var(--decom-text-text-primary);
-    }
-
-    &:focus,
-    &:focus-visible,
-    &:active {
-      background-color: var(--decom-background-bg-fill);
       color: var(--decom-text-text-primary);
     }
   }
