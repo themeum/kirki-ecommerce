@@ -8,6 +8,7 @@ import { CheckIcon, ChevronDownIcon } from '@radix-ui/react-icons';
 import classNames from 'classnames';
 
 import { CLASS_PREFIX } from '@/conf';
+import { getPortalContainer } from '@/libs/portal-container';
 
 const Select = SelectPrimitive.Root;
 
@@ -57,7 +58,7 @@ const SelectContent = forwardRef<
   const { className, children, position = 'popper', ...rest } = props;
 
   return (
-    <SelectPrimitive.Portal>
+    <SelectPrimitive.Portal container={getPortalContainer()}>
       <SelectPrimitive.Content
         ref={ref}
         position={position}
