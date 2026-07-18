@@ -1,0 +1,79 @@
+@keyframes #{$class-prefix}-ui-overlay-in-from-top {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes #{$class-prefix}-ui-overlay-in-from-bottom {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes #{$class-prefix}-ui-overlay-in-from-left {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateX(-0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateX(0);
+  }
+}
+
+@keyframes #{$class-prefix}-ui-overlay-in-from-right {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateX(0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateX(0);
+  }
+}
+
+@keyframes #{$class-prefix}-ui-overlay-out {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
+@mixin ui-overlay-motion($transform-origin) {
+  z-index: 100000;
+  transform-origin: $transform-origin;
+
+  &[data-state="open"][data-side="bottom"] {
+    animation: #{$class-prefix}-ui-overlay-in-from-top 150ms ease;
+  }
+
+  &[data-state="open"][data-side="top"] {
+    animation: #{$class-prefix}-ui-overlay-in-from-bottom 150ms ease;
+  }
+
+  &[data-state="open"][data-side="left"] {
+    animation: #{$class-prefix}-ui-overlay-in-from-right 150ms ease;
+  }
+
+  &[data-state="open"][data-side="right"] {
+    animation: #{$class-prefix}-ui-overlay-in-from-left 150ms ease;
+  }
+
+  &[data-state="closed"] {
+    animation: #{$class-prefix}-ui-overlay-out 150ms ease;
+  }
+}

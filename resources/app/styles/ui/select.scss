@@ -12,27 +12,21 @@
   @include fontGeneralSettings();
   cursor: pointer;
 
-  &:focus,
   &:focus-visible,
-  &:active,
   &[data-state="open"] {
-    outline: none;
     border-color: var(--decom-border-border);
-    box-shadow: 0px 0px 0px 1.5px #4a4852;
+    @include ui-focus-ring;
   }
 
   &.#{$class-prefix}-ui-select-trigger--error,
   &[data-error="true"] {
     border: 1px solid var(--decom-border-border-critical);
-    box-shadow: 0px 0px 0px 1px var(--decom-background-bg-fill-critical);
+    box-shadow: none;
 
-    &:focus,
     &:focus-visible,
-    &:active,
     &[data-state="open"] {
-      border: 1px solid var(--decom-border-border-critical);
-      box-shadow: 0px 0px 0px 1px var(--decom-background-bg-fill-critical);
-      outline: none;
+      border-color: var(--decom-border-border-critical);
+      @include ui-focus-ring(var(--decom-border-border-critical));
     }
   }
 
@@ -66,8 +60,7 @@
   box-shadow: 0px 4px 6px -1px #0000001a;
   background-color: var(--decom-background-bg-fill);
   min-height: 33px;
-  z-index: 100;
-  max-height: 320px;
+  z-index: 100000;
   overflow-x: hidden;
   @include fontGeneralSettings();
 
@@ -75,10 +68,20 @@
   &:focus-visible {
     outline: none;
   }
+
+  &--popper {
+    max-height: var(--radix-select-content-available-height);
+  }
 }
 
 .#{$class-prefix}-ui-select-viewport {
   width: 100%;
+
+  &--popper {
+    width: 100%;
+    min-width: var(--radix-select-trigger-width);
+    height: var(--radix-select-trigger-height);
+  }
 }
 
 .#{$class-prefix}-ui-select-label {

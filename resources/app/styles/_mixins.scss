@@ -55,6 +55,15 @@
   color: var(--decom-text-text-primary);
 }
 
+@mixin ui-focus-ring(
+  $ring-color: var(--decom-border-border-ring)
+) {
+  outline: none;
+  box-shadow:
+    0 0 0 2px var(--decom-background-bg-fill),
+    0 0 0 4px $ring-color;
+}
+
 @mixin scrollbar($thickness, $activeColor, $inactiveColor) {
   scrollbar-width: thin;
   scrollbar-color: $activeColor $inactiveColor;

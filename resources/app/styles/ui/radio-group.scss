@@ -17,10 +17,8 @@
   color: #5641f3;
   box-sizing: border-box;
 
-  &:focus,
   &:focus-visible {
-    outline: none;
-    box-shadow: 0px 0px 0px 1.5px var(--decom-border-border-ring);
+    @include ui-focus-ring;
   }
 
   &[data-state="checked"] {

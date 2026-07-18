@@ -1,0 +1,55 @@
+.#{$class-prefix}-ui-tabs-list {
+  display: flex;
+  align-items: center;
+  background-color: var(--decom-background-bg-surface-secondary);
+  border-radius: var(--decom-radius-rounded-md);
+  padding: var(--decom-spacing-1);
+  min-height: 36px;
+  box-sizing: border-box;
+  @include fontGeneralSettings();
+  font-weight: 500;
+  color: var(--decom-text-text-secondary);
+}
+
+.#{$class-prefix}-ui-tabs-trigger {
+  flex: 1;
+  height: 100%;
+  min-height: 28px;
+  padding: var(--decom-spacing-1) var(--decom-spacing-3);
+  border: none;
+  border-radius: var(--decom-radius-rounded-sm);
+  background-color: transparent;
+  color: var(--decom-text-text-secondary);
+  font-family: inherit;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 20px;
+  cursor: pointer;
+  @include flexCenter();
+  white-space: nowrap;
+
+  &[data-state="active"] {
+    background-color: var(--decom-background-bg-fill);
+    color: var(--decom-text-text-primary);
+    box-shadow: 0px 1px 2px 0px #0000000d;
+  }
+
+  &:focus-visible {
+    @include ui-focus-ring;
+  }
+
+  &[data-disabled] {
+    opacity: 50%;
+    pointer-events: none;
+  }
+}
+
+.#{$class-prefix}-ui-tabs-content {
+  margin-top: var(--decom-spacing-4);
+  @include fontGeneralSettings();
+
+  &:focus,
+  &:focus-visible {
+    outline: none;
+  }
+}

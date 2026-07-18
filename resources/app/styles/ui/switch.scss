@@ -1,6 +1,7 @@
 .#{$class-prefix}-ui-switch {
   position: relative;
   display: inline-flex;
+  align-items: center;
   width: 36px;
   height: 20px;
   flex-shrink: 0;
@@ -9,13 +10,11 @@
   margin: 0;
   border: none;
   border-radius: var(--decom-radius-rounded-full);
-  background-color: #d2d1db;
+  background-color: var(--decom-color-gray-9);
   transition: background-color 0.15s ease;
 
-  &:focus,
   &:focus-visible {
-    outline: none;
-    box-shadow: 0px 0px 0px 1.5px var(--decom-border-border-ring);
+    @include ui-focus-ring;
   }
 
   &[data-state="checked"] {
@@ -25,7 +24,7 @@
   &:disabled,
   &[data-disabled] {
     cursor: not-allowed !important;
-    opacity: 0.3;
+    opacity: 50%;
     pointer-events: none;
   }
 
@@ -34,7 +33,7 @@
     width: 16px;
     height: 16px;
     border-radius: var(--decom-radius-rounded-full);
-    background-color: #ffffff;
+    background-color: var(--decom-background-bg-fill);
     transform: translateX(2px);
     transition: transform 0.15s ease;
     will-change: transform;
