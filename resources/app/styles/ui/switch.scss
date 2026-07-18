@@ -1,0 +1,45 @@
+.#{$class-prefix}-ui-switch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  width: 36px;
+  height: 20px;
+  flex-shrink: 0;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  border: none;
+  border-radius: var(--decom-radius-rounded-full);
+  background-color: var(--decom-color-gray-9);
+  transition: background-color 0.15s ease;
+
+  &:focus-visible {
+    @include ui-focus-ring;
+  }
+
+  &[data-state="checked"] {
+    background-color: #5641f3;
+  }
+
+  &:disabled,
+  &[data-disabled] {
+    cursor: not-allowed !important;
+    opacity: 50%;
+    pointer-events: none;
+  }
+
+  .#{$class-prefix}-ui-switch-thumb {
+    display: block;
+    width: 16px;
+    height: 16px;
+    border-radius: var(--decom-radius-rounded-full);
+    background-color: var(--decom-background-bg-fill);
+    transform: translateX(2px);
+    transition: transform 0.15s ease;
+    will-change: transform;
+  }
+
+  &[data-state="checked"] .#{$class-prefix}-ui-switch-thumb {
+    transform: translateX(18px);
+  }
+}

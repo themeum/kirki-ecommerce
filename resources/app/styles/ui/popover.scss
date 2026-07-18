@@ -1,0 +1,39 @@
+.#{$class-prefix}-ui-popover-content {
+  width: max-content;
+  min-width: 224px;
+  max-width: 320px;
+  padding: var(--decom-spacing-3);
+  border: 1px solid var(--decom-border-border);
+  border-radius: var(--decom-radius-rounded-md);
+  background-color: var(--decom-background-bg-fill);
+  box-shadow: 0px 4px 6px -1px #0000001a;
+  box-sizing: border-box;
+  color: var(--decom-text-text-primary);
+  @include fontGeneralSettings();
+  font-size: 14px;
+  line-height: 20px;
+  display: flex;
+  flex-direction: column;
+  row-gap: var(--decom-spacing-1);
+  @include ui-overlay-motion(var(--radix-popover-content-transform-origin));
+
+  &:focus,
+  &:focus-visible {
+    outline: none;
+  }
+
+  strong {
+    display: block;
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 20px;
+    color: var(--decom-text-text-primary);
+  }
+
+  p {
+    margin: 0;
+    color: var(--decom-text-text-secondary);
+    font-size: 14px;
+    line-height: 20px;
+  }
+}

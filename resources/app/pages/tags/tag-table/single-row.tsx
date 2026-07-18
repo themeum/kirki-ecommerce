@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type MouseEvent } from 'react';
 
 import { EditPenIcon, TrashIcon } from '@/icons';
 import ActionGroup from '@/molecules/action-group';
@@ -9,7 +9,7 @@ import { useDeleteTagMutation } from '@/services/tag';
 import type { MarkListHandlers, Tag } from '@/types';
 import { __ } from '@/wpi18n';
 
-import TagAddEditPopover from '@/pages/tags/tag-add-edit-popover';
+import TagAddEditDialog from '@/pages/tags/tag-add-edit-dialog';
 
 type SingleRowProps = MarkListHandlers & {
   item: Tag;
@@ -20,18 +20,26 @@ const SingleRow = ({
   isSelected,
   handleSingleCheckboxClick,
 }: SingleRowProps) => {
-  const [openPopup, setOpenPopup] = useState(false);
+  const [open, setOpen] = useState(false);
   const deleteMutation = useDeleteTagMutation();
 
-  const onItemDelete = (id: number) => {
-    deleteMutation.mutate(id);
+  const handleOpenEdit = () => {
+    setOpen(true);
+  };
+
+  const handleDelete = () => {
+    deleteMutation.mutate(item.id);
+  };
+
+  const handleStopPropagation = (event: MouseEvent) => {
+    event.stopPropagation();
   };
 
   return (
     <>
       <TableRow
         key={item.id}
-        onClick={() => setOpenPopup(true)}
+        onClick={handleOpenEdit}
         style={{ cursor: 'pointer' }}
       >
         <TableCell onlyCheckbox>
@@ -47,30 +55,30 @@ const SingleRow = ({
         <TableCell>{item?.slug || '--'}</TableCell>
         <TableCell>{item?.count || 0}</TableCell>
         <TableCell alignment="right" style={{ width: '1%' }}>
-          <ActionGroup>
-            <Button
-              size="small"
-              text={__('Edit', 'kirki-ecommerce')}
-              type="secondary"
-              leftIcon={<EditPenIcon />}
-              onClick={() => {
-                setOpenPopup(true);
-              }}
-            />
-            <Button
-              size="small"
-              type="destructiveSoft"
-              icon={<TrashIcon />}
-              onClick={() => {
-                onItemDelete(item.id);
-              }}
-            />
-          </ActionGroup>
+          <div onClick={handleStopPropagation}>
+            <ActionGroup>
+              <Button
+                size="small"
+                text={__('Edit', 'kirki-ecommerce')}
+                type="secondary"
+                leftIcon={<EditPenIcon />}
+                onClick={handleOpenEdit}
+              />
+              <Button
+                size="small"
+                type="destructiveSoft"
+                icon={<TrashIcon />}
+                onClick={handleDelete}
+              />
+            </ActionGroup>
+          </div>
         </TableCell>
       </TableRow>
-      {openPopup && (
-        <TagAddEditPopover tag={item} onClose={() => setOpenPopup(false)} />
-      )}
+      <TagAddEditDialog
+        tag={item}
+        open={open}
+        onClose={() => setOpen(false)}
+      />
     </>
   );
 };

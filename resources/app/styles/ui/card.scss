@@ -1,0 +1,42 @@
+.#{$class-prefix}-ui-card {
+  width: 100%;
+  background-color: var(--decom-background-bg-fill);
+  border: 1px solid var(--decom-border-border-secondary);
+  border-radius: var(--decom-radius-rounded-xl);
+  box-sizing: border-box;
+  @include fontGeneralSettings();
+}
+
+.#{$class-prefix}-ui-card-header {
+  display: flex;
+  flex-direction: column;
+  row-gap: var(--decom-spacing-f2);
+  padding: var(--decom-spacing-4);
+}
+
+.#{$class-prefix}-ui-card-title {
+  margin: 0;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: -0.025em;
+  color: var(--decom-text-text-primary);
+}
+
+.#{$class-prefix}-ui-card-description {
+  margin: 0;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--decom-text-text-secondary);
+}
+
+.#{$class-prefix}-ui-card-content {
+  padding: 0 var(--decom-spacing-4) var(--decom-spacing-4);
+}
+
+.#{$class-prefix}-ui-card-footer {
+  display: flex;
+  align-items: center;
+  padding: 0 var(--decom-spacing-4) var(--decom-spacing-4);
+  column-gap: var(--decom-spacing-2);
+}

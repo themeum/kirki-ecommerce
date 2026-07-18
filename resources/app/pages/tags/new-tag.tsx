@@ -1,10 +1,10 @@
 import { useState } from 'react';
 
-import Button from '@/molecules/button';
+import Button from '@/components/ui/button';
 import type { TagFormData } from '@/types';
 import { __ } from '@/wpi18n';
 
-import TagAddEditPopover from '@/pages/tags/tag-add-edit-popover';
+import TagAddEditDialog from '@/pages/tags/tag-add-edit-dialog';
 
 const initialState: TagFormData = {
   name: '',
@@ -13,22 +13,18 @@ const initialState: TagFormData = {
 };
 
 const NewTag = () => {
-  const [openPopup, setOpenPopup] = useState(false);
+  const [open, setOpen] = useState(false);
+
   return (
     <>
-      <Button
-        type="primary"
-        text={__('New Tag', 'kirki-ecommerce')}
-        size="small"
-        onClick={() => setOpenPopup(true)}
+      <Button variant="primary" size="sm" onClick={() => setOpen(true)}>
+        {__('New Tag', 'kirki-ecommerce')}
+      </Button>
+      <TagAddEditDialog
+        tag={initialState}
+        open={open}
+        onClose={() => setOpen(false)}
       />
-
-      {openPopup && (
-        <TagAddEditPopover
-          tag={initialState}
-          onClose={() => setOpenPopup(false)}
-        />
-      )}
     </>
   );
 };

@@ -1,0 +1,38 @@
+.#{$class-prefix}-ui-radio-group {
+  @include flexColumn();
+  gap: var(--decom-spacing-2);
+}
+
+.#{$class-prefix}-ui-radio-item {
+  @include flexCenter();
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  border: 1px solid #4a4852;
+  border-radius: var(--decom-radius-rounded-full);
+  background-color: transparent;
+  color: #5641f3;
+  box-sizing: border-box;
+
+  &:focus-visible {
+    @include ui-focus-ring;
+  }
+
+  &[data-state="checked"] {
+    border-color: #5641f3;
+  }
+
+  &:disabled {
+    opacity: 50%;
+    pointer-events: none;
+  }
+
+  .#{$class-prefix}-ui-radio-indicator {
+    @include flexCenter();
+    display: flex;
+    color: #5641f3;
+  }
+}
