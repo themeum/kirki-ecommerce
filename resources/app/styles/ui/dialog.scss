@@ -1,8 +1,56 @@
+@keyframes #{$class-prefix}-ui-dialog-overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes #{$class-prefix}-ui-dialog-overlay-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes #{$class-prefix}-ui-dialog-content-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes #{$class-prefix}-ui-dialog-content-out {
+  from {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.95);
+  }
+}
+
 .#{$class-prefix}-ui-dialog-overlay {
   position: fixed;
   inset: 0;
   z-index: 1000;
   background: #1c1b1dcc;
+
+  &[data-state="open"] {
+    animation: #{$class-prefix}-ui-dialog-overlay-in 150ms ease;
+  }
+
+  &[data-state="closed"] {
+    animation: #{$class-prefix}-ui-dialog-overlay-out 150ms ease;
+  }
 }
 
 .#{$class-prefix}-ui-dialog-content {
@@ -28,6 +76,14 @@
   &:focus,
   &:focus-visible {
     outline: none;
+  }
+
+  &[data-state="open"] {
+    animation: #{$class-prefix}-ui-dialog-content-in 200ms ease;
+  }
+
+  &[data-state="closed"] {
+    animation: #{$class-prefix}-ui-dialog-content-out 200ms ease;
   }
 }
 

@@ -6,13 +6,15 @@
   border-radius: var(--decom-radius-rounded-md);
   background-color: var(--decom-background-bg-fill);
   box-shadow: 0px 4px 6px -1px #0000001a;
-  z-index: 1000;
   max-height: 424px;
   overflow-x: hidden;
   overflow-y: auto;
   box-sizing: border-box;
   color: var(--decom-text-text-primary);
   @include fontGeneralSettings();
+  @include ui-overlay-motion(
+    var(--radix-dropdown-menu-content-transform-origin)
+  );
 
   &:focus,
   &:focus-visible {

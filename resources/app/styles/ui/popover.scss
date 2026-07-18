@@ -1,5 +1,4 @@
 .#{$class-prefix}-ui-popover-content {
-  z-index: 1000;
   width: max-content;
   min-width: 224px;
   max-width: 320px;
@@ -13,10 +12,10 @@
   @include fontGeneralSettings();
   font-size: 14px;
   line-height: 20px;
-
   display: flex;
   flex-direction: column;
   row-gap: var(--decom-spacing-1);
+  @include ui-overlay-motion(var(--radix-popover-content-transform-origin));
 
   &:focus,
   &:focus-visible {
