@@ -12,10 +12,8 @@
   background-color: #d2d1db;
   transition: background-color 0.15s ease;
 
-  &:focus,
   &:focus-visible {
-    outline: none;
-    box-shadow: 0px 0px 0px 1.5px var(--decom-border-border-ring);
+    @include ui-focus-ring;
   }
 
   &[data-state="checked"] {

@@ -12,27 +12,21 @@
   @include fontGeneralSettings();
   cursor: pointer;
 
-  &:focus,
   &:focus-visible,
-  &:active,
   &[data-state="open"] {
-    outline: none;
     border-color: var(--decom-border-border);
-    box-shadow: 0px 0px 0px 1.5px #4a4852;
+    @include ui-focus-ring;
   }
 
   &.#{$class-prefix}-ui-select-trigger--error,
   &[data-error="true"] {
     border: 1px solid var(--decom-border-border-critical);
-    box-shadow: 0px 0px 0px 1px var(--decom-background-bg-fill-critical);
+    box-shadow: none;
 
-    &:focus,
     &:focus-visible,
-    &:active,
     &[data-state="open"] {
-      border: 1px solid var(--decom-border-border-critical);
-      box-shadow: 0px 0px 0px 1px var(--decom-background-bg-fill-critical);
-      outline: none;
+      border-color: var(--decom-border-border-critical);
+      @include ui-focus-ring(var(--decom-border-border-critical));
     }
   }
 
