@@ -55,18 +55,26 @@ const SelectContent = forwardRef<
   ElementRef<typeof SelectPrimitive.Content>,
   ComponentPropsWithoutRef<typeof SelectPrimitive.Content>
 >((props, ref) => {
-  const { className, children, position = 'popper', ...rest } = props;
+  const { className, children, position = 'item-aligned', ...rest } = props;
+  const isPopper = position === 'popper';
 
   return (
     <SelectPrimitive.Portal container={getPortalContainer()}>
       <SelectPrimitive.Content
         ref={ref}
         position={position}
-        className={classNames(`${CLASS_PREFIX}-ui-select-content`, className)}
+        className={classNames(
+          `${CLASS_PREFIX}-ui-select-content`,
+          isPopper && `${CLASS_PREFIX}-ui-select-content--popper`,
+          className,
+        )}
         {...rest}
       >
         <SelectPrimitive.Viewport
-          className={`${CLASS_PREFIX}-ui-select-viewport`}
+          className={classNames(
+            `${CLASS_PREFIX}-ui-select-viewport`,
+            isPopper && `${CLASS_PREFIX}-ui-select-viewport--popper`,
+          )}
         >
           {children}
         </SelectPrimitive.Viewport>

@@ -61,7 +61,6 @@
   background-color: var(--decom-background-bg-fill);
   min-height: 33px;
   z-index: 100;
-  max-height: 320px;
   overflow-x: hidden;
   @include fontGeneralSettings();
 
@@ -69,10 +68,20 @@
   &:focus-visible {
     outline: none;
   }
+
+  &--popper {
+    max-height: var(--radix-select-content-available-height);
+  }
 }
 
 .#{$class-prefix}-ui-select-viewport {
   width: 100%;
+
+  &--popper {
+    width: 100%;
+    min-width: var(--radix-select-trigger-width);
+    height: var(--radix-select-trigger-height);
+  }
 }
 
 .#{$class-prefix}-ui-select-label {
