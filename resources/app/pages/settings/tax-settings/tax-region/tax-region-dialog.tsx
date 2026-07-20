@@ -8,25 +8,27 @@ import {
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-import { Form } from '@/components/ui/form';
-import { LocationIcon, SearchIcon } from '@/icons';
-import Button from '@/molecules/button';
-import Card from '@/molecules/card';
-import Checkbox from '@/molecules/checkbox';
-import Flex from '@/molecules/flex';
-import Input from '@/molecules/input';
+import Button from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import Checkbox from '@/components/ui/checkbox';
 import {
-  Popover,
-  PopoverBody,
-  PopoverFooter,
-  PopoverHeader,
-} from '@/molecules/popover';
+  Dialog,
+  DialogCloseButton,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Form } from '@/components/ui/form';
+import Input from '@/components/ui/input';
+import Label from '@/components/ui/label';
 import { CLASS_PREFIX } from '@/conf';
-import { useCountriesQuery } from '@/services/country';
+import Flex from '@/molecules/flex';
 import {
   TaxRegionPopupFormSchema,
   type TaxRegionPopupFormValues,
 } from '@/schemas/forms/tax-region-popup-form';
+import { useCountriesQuery } from '@/services/country';
 import type { FormErrors } from '@/types';
 import { __, sprintf } from '@/wpi18n';
 
@@ -242,33 +244,35 @@ const TaxRegionPopup = (props: TaxRegionPopupProps) => {
   };
 
   return (
-    <>
-      <Popover isOpen={openPopup}>
-        <PopoverHeader
-          borderBottom
-          leftIcon={<LocationIcon />}
-          onClose={() => setOpenPopup(false)}
-        >
-          {__('Add tax region', 'kirki-ecommerce')}
-        </PopoverHeader>
+    <Dialog
+      open={openPopup}
+      onOpenChange={(next) => {
+        if (!next) {
+          setOpenPopup(false);
+        }
+      }}
+    >
+      <DialogContent>
+        <DialogCloseButton />
+        <DialogHeader>
+          <DialogTitle>{__('Add tax region', 'kirki-ecommerce')}</DialogTitle>
+        </DialogHeader>
         <Form {...form}>
-          <PopoverBody
-            style={{
-              rowGap: 'var(--decom-spacing-3)',
-            }}
-          >
-            <Input
-              type="search"
-              leftIcon={<SearchIcon />}
-              label={__('Select countries', 'kirki-ecommerce')}
-              placeholder="Cities"
-              onChange={(value: string | number) =>
-                handleSearchRegion(String(value))
-              }
-            />
+          <div className={`${CLASS_PREFIX}-ui-dialog-body`}>
+            <Flex direction="column" gap={8}>
+              <Label htmlFor="tax-region-search">
+                {__('Select countries', 'kirki-ecommerce')}
+              </Label>
+              <Input
+                id="tax-region-search"
+                type="search"
+                placeholder="Cities"
+                onChange={(e) => handleSearchRegion(e.target.value)}
+              />
+            </Flex>
 
             <Card
-              type={'table'}
+              className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-table`}
               style={{ borderRadius: 'var(--decom-radius-rounded-md)' }}
             >
               <div
@@ -294,18 +298,23 @@ const TaxRegionPopup = (props: TaxRegionPopupProps) => {
                         key={index}
                         className={`${CLASS_PREFIX}-checkbox-item`}
                       >
-                        <Checkbox
-                          value={formCountries?.includes(country?.code)}
-                          isPartialChecked={regionInfo?.hasDeselectedState}
-                          label={sprintf(
-                            __('%s', 'kirki-ecommerce'),
-                            country.name,
-                          )}
-                          onChange={() =>
-                            handleSelectCountries(country as CountryWithGroup)
-                          }
-                          leftIcon={country?.flag}
-                        />
+                        <Flex gap={8} style={{ alignItems: 'center' }}>
+                          <Checkbox
+                            id={`tax-region-country-${country.code}`}
+                            checked={
+                              regionInfo?.hasDeselectedState
+                                ? 'indeterminate'
+                                : formCountries?.includes(country?.code)
+                            }
+                            onCheckedChange={() =>
+                              handleSelectCountries(country as CountryWithGroup)
+                            }
+                          />
+                          <Label htmlFor={`tax-region-country-${country.code}`}>
+                            {country?.flag}
+                            {sprintf(__('%s', 'kirki-ecommerce'), country.name)}
+                          </Label>
+                        </Flex>
                         {formCountries?.includes(country.code) &&
                         countryStates.length > 0 ? (
                           <div
@@ -319,23 +328,30 @@ const TaxRegionPopup = (props: TaxRegionPopupProps) => {
                                   key={stateIndex}
                                   className={`${CLASS_PREFIX}-checkbox-item`}
                                 >
-                                  <Checkbox
-                                    value={formRegions
-                                      ?.find((r) => r.id === country.code)
-                                      ?.states.some((s) => s.id === state?.id)}
-                                    label={sprintf(
-                                      __('%s', 'kirki-ecommerce'),
-                                      state.name,
-                                    )}
-                                    onChange={() =>
-                                      handleSelectStates(
-                                        state.id,
-                                        country.code,
-                                        countryStates,
-                                        state?.flag,
-                                      )
-                                    }
-                                  />
+                                  <Flex gap={8} style={{ alignItems: 'center' }}>
+                                    <Checkbox
+                                      id={`tax-region-state-${country.code}-${state?.id}`}
+                                      checked={formRegions
+                                        ?.find((r) => r.id === country.code)
+                                        ?.states.some((s) => s.id === state?.id)}
+                                      onCheckedChange={() =>
+                                        handleSelectStates(
+                                          state.id,
+                                          country.code,
+                                          countryStates,
+                                          state?.flag,
+                                        )
+                                      }
+                                    />
+                                    <Label
+                                      htmlFor={`tax-region-state-${country.code}-${state?.id}`}
+                                    >
+                                      {sprintf(
+                                        __('%s', 'kirki-ecommerce'),
+                                        state.name,
+                                      )}
+                                    </Label>
+                                  </Flex>
                                 </div>
                               );
                             })}
@@ -346,25 +362,23 @@ const TaxRegionPopup = (props: TaxRegionPopupProps) => {
                   })}
               </div>
             </Card>
-          </PopoverBody>
-          <PopoverFooter>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" size="sm" onClick={handleClose}>
+              {__('Cancel', 'kirki-ecommerce')}
+            </Button>
             <Button
-              type="outlined"
-              text={__('Cancel', 'kirki-ecommerce')}
-              size="small"
-              onClick={handleClose}
-            />
-            <Button
-              type="primary"
-              text={__('Done', 'kirki-ecommerce')}
-              size="small"
+              variant="primary"
+              size="sm"
               onClick={form.handleSubmit(handleSubmit)}
-              state={buttonState ? '' : 'disabled'}
-            />
-          </PopoverFooter>
+              disabled={!buttonState}
+            >
+              {__('Done', 'kirki-ecommerce')}
+            </Button>
+          </DialogFooter>
         </Form>
-      </Popover>
-    </>
+      </DialogContent>
+    </Dialog>
   );
 };
 

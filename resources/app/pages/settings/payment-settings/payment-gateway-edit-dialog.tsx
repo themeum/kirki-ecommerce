@@ -2,17 +2,21 @@ import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
+import Button from '@/components/ui/button';
+import {
+  Dialog,
+  DialogClose,
+  DialogCloseButton,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
+import { CLASS_PREFIX } from '@/conf';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import Button from '@/molecules/button';
 import Flex from '@/molecules/flex';
-import {
-  Popover,
-  PopoverBody,
-  PopoverFooter,
-  PopoverHeader,
-} from '@/molecules/popover';
 import {
   PaymentGatewayEditFormSchema,
   paymentGatewayEditDefaultValues,
@@ -93,39 +97,52 @@ const PaymentGatewayEditPopup = ({
   };
 
   return (
-    <Popover isOpen={isOpen} style={{ width: '600px' }}>
-      <PopoverHeader onClose={handleClose}>
-        {__('Edit Payment Gateways', 'kirki-ecommerce')}
-      </PopoverHeader>
-      <Form {...form}>
-        <PopoverBody
-          style={{
-            padding:
-              'var(--decom-spacing-0) var(--decom-spacing-5) var(--decom-spacing-5) var(--decom-spacing-5)',
-          }}
-        >
-          <Flex direction="column" gap={16}>
-            <DynamicGatewayFields fields={editedItem?.fields} />
-          </Flex>
-        </PopoverBody>
-        <PopoverFooter>
-          <Button
-            type="secondary"
-            size="small"
-            text={__('Cancel', 'kirki-ecommerce')}
-            onClick={handleClose}
-            state={isSubmitting ? 'disabled' : undefined}
-          />
-          <Button
-            type="primary"
-            size="small"
-            text={__('Save', 'kirki-ecommerce')}
-            onClick={form.handleSubmit(handleUpdateData)}
-            state={isSubmitting ? 'loading' : undefined}
-          />
-        </PopoverFooter>
-      </Form>
-    </Popover>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(next) => {
+        if (!next) {
+          handleClose();
+        }
+      }}
+    >
+      <DialogContent>
+        <DialogCloseButton />
+        <DialogHeader>
+          <DialogTitle>
+            {__('Edit Payment Gateways', 'kirki-ecommerce')}
+          </DialogTitle>
+        </DialogHeader>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleUpdateData)}>
+            <div className={`${CLASS_PREFIX}-ui-dialog-body`}>
+              <Flex direction="column" gap={16}>
+                <DynamicGatewayFields fields={editedItem?.fields} />
+              </Flex>
+            </div>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={isSubmitting}
+                  size="sm"
+                >
+                  {__('Cancel', 'kirki-ecommerce')}
+                </Button>
+              </DialogClose>
+              <Button
+                type="submit"
+                variant="primary"
+                loading={isSubmitting}
+                size="sm"
+              >
+                {__('Save', 'kirki-ecommerce')}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
   );
 };
 

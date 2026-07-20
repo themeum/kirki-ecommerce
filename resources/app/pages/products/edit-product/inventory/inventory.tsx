@@ -2,24 +2,21 @@ import { useEffect, type Dispatch, type SetStateAction } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
+import CheckboxField from '@/components/form/checkbox-field';
 import SelectField from '@/components/form/select-field';
 import TextField from '@/components/form/text-field';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-} from '@/components/ui/form';
+import Button from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import Checkbox from '@/components/ui/checkbox';
+import { Form, FormField, FormItem } from '@/components/ui/form';
+import Input from '@/components/ui/input';
+import Label from '@/components/ui/label';
+import { CLASS_PREFIX } from '@/conf';
 import { WandIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import Button from '@/molecules/button';
-import Card from '@/molecules/card';
-import Checkbox from '@/molecules/checkbox';
 import Flex from '@/molecules/flex';
 import Grid from '@/molecules/grid';
-import Input from '@/molecules/input';
-import Label from '@/molecules/label';
 import Text from '@/molecules/text';
 import { useProductForm } from '@/contexts/product-form-context';
 import {
@@ -107,163 +104,139 @@ const Inventory = ({ errors, setErrors, formSyncKey = 0 }: InventoryProps) => {
 
   return (
     <Form {...form}>
-      <Card type="form">
-        <Text
-          header={__('Inventory', 'kirki-ecommerce')}
-          type="primary"
-          padding="large"
-        />
-        <FormField
-          control={form.control}
-          name="track_inventory"
-          render={({ field }) => (
-            <FormItem>
-              <Checkbox
-                label={__('Track quantity', 'kirki-ecommerce')}
-                value={Boolean(field.value)}
-                onChange={field.onChange}
-              />
-            </FormItem>
-          )}
-        />
-
-        {trackInventory ? (
-          <Card type="inner">
-            <Grid columns={3}>
-              <FormField
-                control={form.control}
-                name="available_quantity"
-                render={({ field, fieldState }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Input
-                        value={field.value as string | number | undefined}
-                        label={__('Available', 'kirki-ecommerce')}
-                        placeholder={__('600', 'kirki-ecommerce')}
-                        type="number"
-                        onChange={field.onChange}
-                        error={fieldState.error?.message}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="committed_quantity"
-                render={({ field, fieldState }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Input
-                        value={field.value as string | number | undefined}
-                        label={__('Committed', 'kirki-ecommerce')}
-                        placeholder={__('600', 'kirki-ecommerce')}
-                        type="number"
-                        state="disabled"
-                        onChange={field.onChange}
-                        error={fieldState.error?.message}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-
-              <Input
-                label={__('Minimum stock threshold', 'kirki-ecommerce')}
-                helpText={__('Minimum stock threshold', 'kirki-ecommerce')}
-                placeholder={__('600', 'kirki-ecommerce')}
-                type="number"
-              />
-            </Grid>
-          </Card>
-        ) : (
-          <SelectField
-            name="in_stock"
-            label={__('Status', 'kirki-ecommerce')}
-            options={[
-              { label: __('In Stock', 'kirki-ecommerce'), value: 'true' },
-              {
-                label: __('Out of Stock', 'kirki-ecommerce'),
-                value: 'false',
-              },
-            ]}
+      <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-form`}>
+        <CardContent>
+          <Text
+            header={__('Inventory', 'kirki-ecommerce')}
+            type="primary"
+            padding="large"
           />
-        )}
-
-        <Flex gap={8} direction="column">
-          <Flex style={{ justifyContent: 'space-between' }}>
-            <Label
-              text={__('SKU', 'kirki-ecommerce')}
-              helpText={
-                skuError || __('SKU (Stock Keeping Unit)', 'kirki-ecommerce')
-              }
-            />
-            <Button type="blank" icon={<WandIcon />} />
-          </Flex>
-          <TextField
-            name="sku"
-            placeholder={__('SKU-XYZ-1234', 'kirki-ecommerce')}
-            description={__('SKU (Stock Keeping Unit)', 'kirki-ecommerce')}
+          <CheckboxField
+            name="track_inventory"
+            label={__('Track quantity', 'kirki-ecommerce')}
           />
-        </Flex>
-        <Flex gap={8}>
-          {trackInventory && (
-            <Card type="innerDark" style={{ width: '30%' }}>
-              <Checkbox
-                label={__('Sell when out of stock', 'kirki-ecommerce')}
-                value={true}
-              />
-            </Card>
-          )}
 
-          <Card type="innerDark" style={{ padding: '4px 8px 4px 12px' }}>
-            <Flex gap={30} style={{ justifyContent: 'space-between' }}>
-              <FormField
-                control={form.control}
-                name="has_limit_per_order"
-                render={({ field }) => (
-                  <FormItem>
-                    <Checkbox
-                      value={Boolean(field.value)}
-                      label={__(
-                        'Limit orders to number of item',
-                        'kirki-ecommerce',
-                      )}
-                      helpText={__(
-                        'Limit orders to number of item',
-                        'kirki-ecommerce',
-                      )}
-                      onChange={field.onChange}
+          {trackInventory ? (
+            <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner`}>
+              <CardContent>
+                <Grid columns={3}>
+                  <TextField
+                    name="available_quantity"
+                    label={__('Available', 'kirki-ecommerce')}
+                    placeholder={__('600', 'kirki-ecommerce')}
+                    type="number"
+                  />
+                  <TextField
+                    name="committed_quantity"
+                    label={__('Committed', 'kirki-ecommerce')}
+                    placeholder={__('600', 'kirki-ecommerce')}
+                    type="number"
+                    disabled
+                  />
+                  <Flex direction="column" gap={8}>
+                    <Label helpText={__('Minimum stock threshold', 'kirki-ecommerce')}>
+                      {__('Minimum stock threshold', 'kirki-ecommerce')}
+                    </Label>
+                    <Input
+                      placeholder={__('600', 'kirki-ecommerce')}
+                      type="number"
                     />
-                  </FormItem>
-                )}
-              />
-              <span style={{ maxWidth: '88px' }}>
+                  </Flex>
+                </Grid>
+              </CardContent>
+            </Card>
+          ) : (
+            <SelectField
+              name="in_stock"
+              label={__('Status', 'kirki-ecommerce')}
+              options={[
+                { label: __('In Stock', 'kirki-ecommerce'), value: 'true' },
+                {
+                  label: __('Out of Stock', 'kirki-ecommerce'),
+                  value: 'false',
+                },
+              ]}
+            />
+          )}
+
+          <Flex gap={8} direction="column">
+            <Flex style={{ justifyContent: 'space-between' }}>
+              <Label helpText={skuError || __('SKU (Stock Keeping Unit)', 'kirki-ecommerce')}>
+                {__('SKU', 'kirki-ecommerce')}
+              </Label>
+              <Button variant="ghost" size="icon">
+                <WandIcon />
+              </Button>
+            </Flex>
+            <TextField
+              name="sku"
+              placeholder={__('SKU-XYZ-1234', 'kirki-ecommerce')}
+              description={__('SKU (Stock Keeping Unit)', 'kirki-ecommerce')}
+            />
+          </Flex>
+          <Flex gap={8}>
+            {trackInventory && (
+              <Card
+                className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner-dark`}
+                style={{ width: '30%' }}
+              >
+                <CardContent>
+                  <Flex gap={8} style={{ alignItems: 'center' }}>
+                    <Checkbox id="sell-when-out-of-stock" defaultChecked />
+                    <Label htmlFor="sell-when-out-of-stock">
+                      {__('Sell when out of stock', 'kirki-ecommerce')}
+                    </Label>
+                  </Flex>
+                </CardContent>
+              </Card>
+            )}
+
+            <Card
+              className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner-dark`}
+              style={{ padding: '4px 8px 4px 12px' }}
+            >
+              <Flex gap={30} style={{ justifyContent: 'space-between' }}>
                 <FormField
                   control={form.control}
-                  name="max_per_order"
-                  render={({ field, fieldState }) => (
+                  name="has_limit_per_order"
+                  render={({ field }) => (
                     <FormItem>
-                      <FormControl>
-                        <Input
-                          style={{
-                            visibility: hasLimitPerOrder
-                              ? 'visible'
-                              : 'hidden',
-                          }}
-                          value={field.value || 1}
-                          onChange={field.onChange}
-                          error={fieldState.error?.message}
+                      <Flex gap={8} style={{ alignItems: 'center' }}>
+                        <Checkbox
+                          id="has-limit-per-order"
+                          checked={Boolean(field.value)}
+                          onCheckedChange={(checked) =>
+                            field.onChange(checked === true)
+                          }
                         />
-                      </FormControl>
+                        <Label
+                          htmlFor="has-limit-per-order"
+                          helpText={__(
+                            'Limit orders to number of item',
+                            'kirki-ecommerce',
+                          )}
+                        >
+                          {__(
+                            'Limit orders to number of item',
+                            'kirki-ecommerce',
+                          )}
+                        </Label>
+                      </Flex>
                     </FormItem>
                   )}
                 />
-              </span>
-            </Flex>
-          </Card>
-        </Flex>
+                <span
+                  style={{
+                    maxWidth: '88px',
+                    visibility: hasLimitPerOrder ? 'visible' : 'hidden',
+                  }}
+                >
+                  <TextField name="max_per_order" />
+                </span>
+              </Flex>
+            </Card>
+          </Flex>
+        </CardContent>
       </Card>
     </Form>
   );

@@ -1,7 +1,8 @@
 import CountryField from '@/components/form/country-field';
 import TextField from '@/components/form/text-field';
+import { Card } from '@/components/ui/card';
+import { CLASS_PREFIX } from '@/conf';
 import { ShippingAddressIcon } from '@/icons';
-import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
 import Grid from '@/molecules/grid';
 import Text from '@/molecules/text';
@@ -10,7 +11,7 @@ import { __ } from '@/wpi18n';
 const ShippingAddress = () => {
   return (
     <Card
-      type="form"
+      className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-form`}
       style={{ padding: '20px', borderRadius: '20px', gap: '20px' }}
     >
       <Text
@@ -18,7 +19,10 @@ const ShippingAddress = () => {
         type="primary"
         leftIcon={<ShippingAddressIcon />}
       />
-      <Card type="inner" style={{ padding: '16px' }}>
+      <Card
+        className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner`}
+        style={{ padding: '16px' }}
+      >
         <Flex direction="column" gap={16}>
           <CountryField
             name="shipping_address.country"

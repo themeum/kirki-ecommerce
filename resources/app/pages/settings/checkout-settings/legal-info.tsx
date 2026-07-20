@@ -1,14 +1,15 @@
 import RichTextField from '@/components/form/rich-text-field';
 import SwitchField from '@/components/form/switch-field';
+import { Card } from '@/components/ui/card';
+import { CLASS_PREFIX } from '@/conf';
 import ActionGroup from '@/molecules/action-group';
-import Card from '@/molecules/card';
 import Text from '@/molecules/text';
 import { __ } from '@/wpi18n';
 
 const LegalInfo = () => {
   return (
     <>
-      <Card type="large">
+      <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
         <Text
           type="primary"
           header={__('Legal Information', 'kirki-ecommerce')}
@@ -19,7 +20,7 @@ const LegalInfo = () => {
           style={{ gap: 'var(--decom-spacing-f3)' }}
         />
         <Card
-          type="form"
+          className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-form`}
           style={{
             border: '1px solid var(--decom-border-border)',
             borderRadius: 'var(--decom-radius-rounded-lg)',
@@ -43,7 +44,7 @@ const LegalInfo = () => {
           />
         </Card>
         <Card
-          type="form"
+          className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-form`}
           style={{
             border: '1px solid var(--decom-border-border)',
             borderRadius: 'var(--decom-radius-rounded-lg)',

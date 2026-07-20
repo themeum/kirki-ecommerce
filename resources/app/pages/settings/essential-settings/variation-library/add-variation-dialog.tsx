@@ -3,17 +3,20 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import TextField from '@/components/form/text-field';
+import Button from '@/components/ui/button';
+import {
+  Dialog,
+  DialogCloseButton,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
+import { CLASS_PREFIX } from '@/conf';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import Button from '@/molecules/button';
 import Flex from '@/molecules/flex';
-import {
-  Popover,
-  PopoverBody,
-  PopoverFooter,
-  PopoverHeader,
-} from '@/molecules/popover';
 import {
   AddVariationFormSchema,
   type AddVariationFormValues,
@@ -76,25 +79,23 @@ const AddVariationPopup = ({
   const buttonState: ButtonState = nameValue === '' ? 'disabled' : '';
 
   return (
-    <div>
-      <Popover
-        isOpen={isOpen}
-        style={{ width: '400px' }}
-        onClose={handleClosePopup}
-      >
-        <PopoverHeader
-          style={{ padding: 'var(--decom-spacing-5)' }}
-          onClose={handleClosePopup}
-        >
-          {__('Add Variation Name', 'kirki-ecommerce')}
-        </PopoverHeader>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(next) => {
+        if (!next) {
+          handleClosePopup();
+        }
+      }}
+    >
+      <DialogContent>
+        <DialogCloseButton />
+        <DialogHeader>
+          <DialogTitle>
+            {__('Add Variation Name', 'kirki-ecommerce')}
+          </DialogTitle>
+        </DialogHeader>
         <Form {...form}>
-          <PopoverBody
-            style={{
-              padding:
-                'var(--decom-spacing-0) var(--decom-spacing-5) var(--decom-spacing-5) var(--decom-spacing-5)',
-            }}
-          >
+          <div className={`${CLASS_PREFIX}-ui-dialog-body`}>
             <Flex direction="column" gap={16}>
               <TextField
                 name="name"
@@ -105,27 +106,24 @@ const AddVariationPopup = ({
                 )}
               />
             </Flex>
-          </PopoverBody>
-          <PopoverFooter>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" size="sm" onClick={handleClosePopup}>
+              {__('Cancel', 'kirki-ecommerce')}
+            </Button>
             <Button
-              text={__('Cancel', 'kirki-ecommerce')}
-              type="outlined"
-              size="small"
-              onClick={handleClosePopup}
-            />
-            <Button
-              text={__('Save', 'kirki-ecommerce')}
-              type="primary"
-              size="small"
-              state={
-                createMutation.isPending ? 'loading' : buttonState
-              }
+              variant="primary"
+              size="sm"
+              loading={createMutation.isPending}
+              disabled={buttonState === 'disabled'}
               onClick={form.handleSubmit(handleSubmit)}
-            />
-          </PopoverFooter>
+            >
+              {__('Save', 'kirki-ecommerce')}
+            </Button>
+          </DialogFooter>
         </Form>
-      </Popover>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 

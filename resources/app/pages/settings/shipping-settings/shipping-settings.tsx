@@ -7,12 +7,13 @@ import { LocationIcon, TruckIcon } from '@/icons';
 import PageNavbar from '@/components/page-navbar';
 import OptionAccordion from '@/components/option-accordion';
 import HeaderActionsCard from '@/components/header-actions-card';
+import Button from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
+import { CLASS_PREFIX } from '@/conf';
 import { getErrorsObject, type ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { useUnsavedStatus } from '@/libs/unsaved-store';
-import Button from '@/molecules/button';
-import Card from '@/molecules/card';
 import Container from '@/molecules/container';
 import Flex from '@/molecules/flex';
 import PageHeading from '@/molecules/page-heading';
@@ -38,7 +39,7 @@ import {
   type ShippingZone,
 } from '@/pages/settings/shipping-settings/utils';
 import { ShippingMethod } from '@/pages/settings/shipping-settings/shipping-method/shipping-method';
-import { ShippingRegionPopup } from '@/pages/settings/shipping-settings/shipping-zone/shipping-region-popup';
+import { ShippingRegionPopup } from '@/pages/settings/shipping-settings/shipping-zone/shipping-region-dialog';
 import ShippingZoneActions from '@/pages/settings/shipping-settings/shipping-zone-actions';
 import ShippingProfile from '@/pages/settings/shipping-settings/shipping-profile/shipping-profile';
 import ShippingBox from '@/pages/settings/shipping-settings/shipping-box/shipping-box';
@@ -248,19 +249,21 @@ const ShippingSettings = () => {
           hasUnsavedData ? (
             <>
               <Button
-                type="ghost"
-                text={__('Cancel', 'kirki-ecommerce')}
+                variant="ghost"
+                size="sm"
                 onClick={handleDiscardData}
-                size="small"
-                state={isSaving ? 'disabled' : undefined}
-              />
+                disabled={isSaving}
+              >
+                {__('Cancel', 'kirki-ecommerce')}
+              </Button>
               <Button
-                type="primary"
-                text={__('Save', 'kirki-ecommerce')}
-                size="small"
+                variant="primary"
+                size="sm"
                 onClick={form.handleSubmit(handleSaveZones)}
-                state={isSaving ? 'loading' : undefined}
-              />
+                loading={isSaving}
+              >
+                {__('Save', 'kirki-ecommerce')}
+              </Button>
             </>
           ) : (
             <></>
@@ -276,7 +279,7 @@ const ShippingSettings = () => {
                 textIcon={<TruckIcon />}
                 text={__('Shipping', 'kirki-ecommerce')}
               />
-              <Card type="large">
+              <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
                 <HeaderActionsCard
                   header={__('Shipping Zones', 'kirki-ecommerce')}
                   subHeader={__(
@@ -289,7 +292,7 @@ const ShippingSettings = () => {
 
                 {!shippingZonesObj.length ? (
                   <Card
-                    type="innerDark"
+                    className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner-dark`}
                     style={{
                       padding: 'var(--decom-spacing-9) var(--decom-spacing-0)',
                     }}

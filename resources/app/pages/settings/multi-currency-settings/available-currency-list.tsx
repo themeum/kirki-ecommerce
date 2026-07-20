@@ -2,8 +2,9 @@ import { type ComponentProps, type ReactNode, useState } from 'react';
 import { useWatch } from 'react-hook-form';
 
 import GroupOptionCard from '@/components/group-option-card';
+import { Card } from '@/components/ui/card';
+import { CLASS_PREFIX } from '@/conf';
 import { InfoIcon, IncreaseIcon } from '@/icons';
-import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
 import Text from '@/molecules/text';
 import { dispatchToastMessage, dateFormatter } from '@/pages/utils';
@@ -20,8 +21,8 @@ import type {
 } from '@/types';
 import { __, sprintf } from '@/wpi18n';
 
-import AddCurrencyPopup from '@/pages/settings/multi-currency-settings/add-currency-popup';
-import EditCurrencyPopup from '@/pages/settings/multi-currency-settings/edit-currency-popup';
+import AddCurrencyPopup from '@/pages/settings/multi-currency-settings/add-currency-dialog';
+import EditCurrencyPopup from '@/pages/settings/multi-currency-settings/edit-currency-dialog';
 
 type CurrencyListItem = Currency & {
   badge1?: string;
@@ -157,7 +158,7 @@ export const AvailableCurrencyList = () => {
   return (
     <>
       <Card
-        type="inner"
+        className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner`}
         style={{
           padding: 'var(--decom-spacing-5)',
         }}

@@ -5,6 +5,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import ColorPickerField from '@/components/form/color-picker-field';
 import TextField from '@/components/form/text-field';
 import ThumbnailField from '@/components/form/thumbnail-field';
+import Button from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import {
   Form,
   FormControl,
@@ -12,6 +14,7 @@ import {
   FormItem,
   FormMessage,
 } from '@/components/ui/form';
+import { CLASS_PREFIX } from '@/conf';
 import {
   BrushIcon,
   AlignLeftIcon,
@@ -20,8 +23,6 @@ import {
 } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import Button from '@/molecules/button';
-import Card from '@/molecules/card';
 import Container from '@/molecules/container';
 import Flex from '@/molecules/flex';
 import PageHeading from '@/molecules/page-heading';
@@ -141,19 +142,17 @@ const EditTemplate = () => {
         sticky
         actions={
           <>
+            <Button variant="ghost" size="sm" onClick={handleDiscard}>
+              {__('Discard', 'kirki-ecommerce')}
+            </Button>
             <Button
-              type="ghost"
-              text={__('Discard', 'kirki-ecommerce')}
-              size="small"
-              onClick={handleDiscard}
-            />
-            <Button
-              type="primary"
-              text={__('Save', 'kirki-ecommerce')}
-              size="small"
+              variant="primary"
+              size="sm"
               onClick={form.handleSubmit(handleSaveData)}
-              state={isPending ? 'loading' : undefined}
-            />
+              loading={isPending}
+            >
+              {__('Save', 'kirki-ecommerce')}
+            </Button>
           </>
         }
       />
@@ -165,7 +164,10 @@ const EditTemplate = () => {
           <Form {...form}>
             <Flex gap={48} style={{ width: '100%' }}>
               <Flex direction="column" gap={20} style={{ width: '44%' }}>
-                <Card type="large" style={{ borderRadius: '8px' }}>
+                <Card
+                  className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}
+                  style={{ borderRadius: '8px' }}
+                >
                   <Text
                     type="primary"
                     header={'Logo'}
@@ -227,7 +229,10 @@ const EditTemplate = () => {
                     )}
                   />
                 </Card>
-                <Card type="large" style={{ borderRadius: '8px' }}>
+                <Card
+                  className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}
+                  style={{ borderRadius: '8px' }}
+                >
                   <Text
                     header={'Colors'}
                     subHeader={'Style how the emails will look'}
@@ -267,7 +272,10 @@ const EditTemplate = () => {
                     leftIcon={<SendIcon />}
                   />
                 </Flex>
-                <Card style={{ borderRadius: '0px' }}></Card>
+                <Card
+                  className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-default`}
+                  style={{ borderRadius: '0px' }}
+                ></Card>
               </Flex>
             </Flex>
           </Form>

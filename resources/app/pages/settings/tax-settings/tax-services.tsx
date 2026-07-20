@@ -1,8 +1,8 @@
-import Card from '@/molecules/card';
+import { Card } from '@/components/ui/card';
+import Button from '@/components/ui/button';
 import Flex from '@/molecules/flex';
 import Text from '@/molecules/text';
 import ActionGroup from '@/molecules/action-group';
-import Button from '@/molecules/button';
 import Badge from '@/molecules/badge';
 import { __ } from '@/wpi18n';
 import { CLASS_PREFIX } from '@/conf';
@@ -11,7 +11,7 @@ import { BoxClosedIcon, PlusIcon } from '@/icons';
 const TaxServices = () => {
   return (
     <div>
-      <Card type="large">
+      <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
         <Flex direction="column" gap={6}>
           <Flex style={{ alignItems: 'center' }}>
             <Text
@@ -30,9 +30,8 @@ const TaxServices = () => {
         <Flex direction="column" className={`${CLASS_PREFIX}-box-wrapper`}>
           {[1, 2, 3].map((_item, index) => (
             <Card
-              type="inner"
               key={index}
-              className={`${CLASS_PREFIX}-box-card ${CLASS_PREFIX}-hover-parent`}
+              className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner ${CLASS_PREFIX}-box-card ${CLASS_PREFIX}-hover-parent`}
             >
               <Flex style={{ alignItems: 'center', minHeight: '36px' }} gap={8}>
                 <Text
@@ -54,12 +53,10 @@ const TaxServices = () => {
                   />
                 )}
                 <ActionGroup className={`${CLASS_PREFIX}-hover-visible`}>
-                  <Button
-                    text="Setup"
-                    type="tartiary"
-                    leftIcon={<PlusIcon />}
-                    size="small"
-                  />
+                  <Button variant="secondary" size="sm">
+                    <PlusIcon />
+                    Setup
+                  </Button>
                 </ActionGroup>
               </Flex>
             </Card>

@@ -2,13 +2,19 @@ import React, { useEffect, useState } from 'react';
 
 import MediaStack from '@/components/media-stack';
 import ThumbnailSelector from '@/components/thumbnail-selector';
+import Button from '@/components/ui/button';
+import Checkbox from '@/components/ui/checkbox';
+import Input from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { CLASS_PREFIX } from '@/conf';
 import { ChevronDownIcon } from '@/icons';
-import Button from '@/molecules/button';
-import Checkbox from '@/molecules/checkbox';
 import Flex from '@/molecules/flex';
-import Input from '@/molecules/input';
-import { Select } from '@/molecules/select';
 import { TableCell, TableRow } from '@/molecules/table';
 import { useProductForm } from '@/contexts/product-form-context';
 import type {
@@ -220,13 +226,14 @@ const SingleGroup = ({
       <TableRow className={`${CLASS_PREFIX}-hover-parent`}>
         <TableCell onlyCheckbox>
           <Checkbox
-            value={selectedCheckedIndex.length === thisVariants.length}
-            onChange={(value) => handleParentCheckboxClick(value, [parentId])}
-            isPartialChecked={
-              !!(
-                selectedCheckedIndex.length &&
-                selectedCheckedIndex.length < thisVariants.length
-              )
+            checked={
+              selectedCheckedIndex.length > 0 &&
+              selectedCheckedIndex.length < thisVariants.length
+                ? 'indeterminate'
+                : selectedCheckedIndex.length === thisVariants.length
+            }
+            onCheckedChange={(checked) =>
+              handleParentCheckboxClick(checked === true, [parentId])
             }
           />
         </TableCell>
@@ -256,15 +263,16 @@ const SingleGroup = ({
               )}
             </Flex>
             <Button
-              size="xsm"
-              icon={<ChevronDownIcon />}
-              type="ghost"
+              variant="ghost"
+              size="sm"
               className={`${thisVariants[0]?.attribute_values.length > 1 ? `${CLASS_PREFIX}-hover-visible` : `${CLASS_PREFIX}-visibility-hidden`}`}
               onClick={() => setShow(!show)}
               style={{
                 transform: show ? 'rotate(180deg)' : '',
               }}
-            />
+            >
+              <ChevronDownIcon />
+            </Button>
           </Flex>
         </TableCell>
         <TableCell style={{ width: '170px' }}>
@@ -272,8 +280,15 @@ const SingleGroup = ({
             placeholder={__('19.99', 'kirki-ecommerce')}
             style={{ textAlign: 'center' }}
             value={combinedData?.price || ''}
-            onChange={(value) => handleOnParentValueChange(value, 'price')}
-            state={hasVariation ? 'muted' : ''}
+            onChange={(event) =>
+              handleOnParentValueChange(
+                !hasVariation
+                  ? parseFloat(event.target.value)
+                  : event.target.value,
+                'price',
+              )
+            }
+            disabled={!!hasVariation}
             type={!hasVariation ? 'number' : 'text'}
           />
         </TableCell>
@@ -281,25 +296,33 @@ const SingleGroup = ({
           {!productData?.variants[0]?.track_inventory ? (
             <Select
               value={combinedData?.in_stock?.toString()}
-              optionsArray={[
-                { value: 'true', title: __('In Stock', 'kirki-ecommerce') },
-                {
-                  value: 'false',
-                  title: __('Out of Stock', 'kirki-ecommerce'),
-                },
-              ]}
-              forceText="--"
-              onChange={(value) => handleOnParentValueChange(value, 'in_stock')}
-              onClose={() => console.log('dropdown closed')}
-            />
+              onValueChange={(value) =>
+                handleOnParentValueChange(value, 'in_stock')
+              }
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="--" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="true">
+                  {__('In Stock', 'kirki-ecommerce')}
+                </SelectItem>
+                <SelectItem value="false">
+                  {__('Out of Stock', 'kirki-ecommerce')}
+                </SelectItem>
+              </SelectContent>
+            </Select>
           ) : (
             <Input
               value={combinedData?.available_quantity}
-              state={hasVariation ? 'muted' : ''}
+              disabled={!!hasVariation}
               type="number"
               style={{ textAlign: 'center' }}
-              onChange={(value) =>
-                handleOnParentValueChange(value, 'available_quantity')
+              onChange={(event) =>
+                handleOnParentValueChange(
+                  parseFloat(event.target.value),
+                  'available_quantity',
+                )
               }
             />
           )}
@@ -313,9 +336,9 @@ const SingleGroup = ({
               <TableCell>
                 <Flex gap={12} style={{ alignItems: 'center' }}>
                   <Checkbox
-                    value={selectedCheckedIndex.includes(index)}
-                    onChange={(value) =>
-                      handleChildCheckboxClick(value, item, index)
+                    checked={selectedCheckedIndex.includes(index)}
+                    onCheckedChange={(checked) =>
+                      handleChildCheckboxClick(checked === true, item, index)
                     }
                   />
                   <ThumbnailSelector
@@ -347,8 +370,12 @@ const SingleGroup = ({
                   style={{ textAlign: 'center' }}
                   value={item?.price || ''}
                   type="number"
-                  onChange={(value) =>
-                    handleOnChildValueChange(value, 'price', item)
+                  onChange={(event) =>
+                    handleOnChildValueChange(
+                      parseFloat(event.target.value),
+                      'price',
+                      item,
+                    )
                   }
                 />
               </TableCell>
@@ -356,29 +383,30 @@ const SingleGroup = ({
                 {!productData?.variants[0]?.track_inventory ? (
                   <Select
                     value={item?.in_stock.toString()}
-                    optionsArray={[
-                      {
-                        value: 'true',
-                        title: __('In Stock', 'kirki-ecommerce'),
-                      },
-                      {
-                        value: 'false',
-                        title: __('Out of Stock', 'kirki-ecommerce'),
-                      },
-                    ]}
-                    onClose={() => console.log('dropdown closed')}
-                    onChange={(value) =>
+                    onValueChange={(value) =>
                       handleOnChildValueChange(value, 'in_stock', item)
                     }
-                  />
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="true">
+                        {__('In Stock', 'kirki-ecommerce')}
+                      </SelectItem>
+                      <SelectItem value="false">
+                        {__('Out of Stock', 'kirki-ecommerce')}
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
                 ) : (
                   <Input
                     value={item?.available_quantity}
                     style={{ textAlign: 'center' }}
                     type="number"
-                    onChange={(value) =>
+                    onChange={(event) =>
                       handleOnChildValueChange(
-                        value,
+                        parseFloat(event.target.value),
                         'available_quantity',
                         item,
                       )
@@ -393,5 +421,7 @@ const SingleGroup = ({
     </>
   );
 };
+
+SingleGroup.displayName = 'SingleGroup';
 
 export default SingleGroup;

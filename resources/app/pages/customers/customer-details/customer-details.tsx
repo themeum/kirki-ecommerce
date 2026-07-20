@@ -4,16 +4,16 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate, useParams } from 'react-router';
 
 import TagManagerField from '@/components/form/tag-manager-field';
+import Button from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
-import { NEW_ITEM_ID } from '@/conf';
+import Label from '@/components/ui/label';
+import { CLASS_PREFIX, NEW_ITEM_ID } from '@/conf';
 import { PlusIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import Button from '@/molecules/button';
-import Card from '@/molecules/card';
 import Container from '@/molecules/container';
 import Flex from '@/molecules/flex';
-import Label from '@/molecules/label';
 import PageHeading from '@/molecules/page-heading';
 import {
   CustomerFormSchema,
@@ -153,24 +153,24 @@ const CustomerDetails = () => {
         actions={
           <>
             <Button
-              type="ghost"
-              size="small"
-              text={__('Cancel', 'kirki-ecommerce')}
+              variant="ghost"
+              size="sm"
               onClick={() => {
                 window.history.back();
               }}
-            />
+            >
+              {__('Cancel', 'kirki-ecommerce')}
+            </Button>
             <Button
-              type="primary"
-              size="small"
+              variant="primary"
+              size="sm"
               onClick={form.handleSubmit(handleSubmit)}
-              state={isSubmitting ? 'loading' : undefined}
-              text={
-                isNew
-                  ? __('Create', 'kirki-ecommerce')
-                  : __('Save', 'kirki-ecommerce')
-              }
-            />
+              loading={isSubmitting}
+            >
+              {isNew
+                ? __('Create', 'kirki-ecommerce')
+                : __('Save', 'kirki-ecommerce')}
+            </Button>
           </>
         }
         hasBack
@@ -185,26 +185,30 @@ const CustomerDetails = () => {
           </Flex>
 
           <Flex direction="column" gap={16} style={{ width: '30%' }}>
-            <Card type="form">
-              <Label text={__('Notes', 'kirki-ecommerce')} />
-              <Button
-                type="secondary"
-                text={__('Add note', 'kirki-ecommerce')}
-                leftIcon={<PlusIcon />}
-                style={{ width: '100%' }}
-              />
+            <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-form`}>
+              <CardContent>
+                <Flex direction="column" gap={16}>
+                  <Label>{__('Notes', 'kirki-ecommerce')}</Label>
+                  <Button variant="secondary" style={{ width: '100%' }}>
+                    <PlusIcon />
+                    {__('Add note', 'kirki-ecommerce')}
+                  </Button>
+                </Flex>
+              </CardContent>
             </Card>
 
-            <Card type="form">
-              <TagManagerField
-                name="tags"
-                valueAs="strings"
-                label={__('Tags', 'kirki-ecommerce')}
-                placeholder={__('i.e VIP, Wholsale, Local', 'kirki-ecommerce')}
-                hasAddBtn={false}
-                hasSearchIcon={false}
-                suggestions={[]}
-              />
+            <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-form`}>
+              <CardContent>
+                <TagManagerField
+                  name="tags"
+                  valueAs="strings"
+                  label={__('Tags', 'kirki-ecommerce')}
+                  placeholder={__('i.e VIP, Wholsale, Local', 'kirki-ecommerce')}
+                  hasAddBtn={false}
+                  hasSearchIcon={false}
+                  suggestions={[]}
+                />
+              </CardContent>
             </Card>
           </Flex>
         </Flex>

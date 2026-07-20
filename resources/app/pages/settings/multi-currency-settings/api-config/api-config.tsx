@@ -3,12 +3,20 @@ import { useFormContext, useWatch } from 'react-hook-form';
 
 import SwitchField from '@/components/form/switch-field';
 import OptionAccordion from '@/components/option-accordion';
+import Button from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import Label from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { CLASS_PREFIX } from '@/conf';
 import { ReplaceIcon, FlagIcon, WrenchIcon } from '@/icons';
 import ActionGroup from '@/molecules/action-group';
-import Button from '@/molecules/button';
-import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
-import { Select } from '@/molecules/select';
 import Text from '@/molecules/text';
 import type { ApiConfigurationFormValues } from '@/schemas/forms/api-configuration-form';
 import type { MultiCurrencySettingsFormValues } from '@/schemas/forms/multi-currency-settings-form';
@@ -17,7 +25,7 @@ import type { SettingsSectionData } from '@/types';
 import { __ } from '@/wpi18n';
 
 import ApiConfigurationCard from '@/pages/settings/multi-currency-settings/api-config/api-configuration-card';
-import ApiConfigurationPopup from '@/pages/settings/multi-currency-settings/api-config/api-configuration-popup';
+import ApiConfigurationPopup from '@/pages/settings/multi-currency-settings/api-config/api-configuration-dialog';
 
 type ApiProvider = {
   id: string | number;
@@ -85,15 +93,23 @@ const ApiConfig = () => {
         leftIcon={<ReplaceIcon />}
         rightActions={rightActions()}
       >
-        <Select
-          label={__('Select API Provider', 'kirki-ecommerce')}
-          value={selectedAPI}
-          onChange={(value) => setSelectedAPI(String(value))}
-          optionsArray={apiProviderList?.map((item) => ({
-            title: item?.name,
-            value: item?.id,
-          }))}
-        />
+        <Flex direction="column" gap={8}>
+          <Label htmlFor="api-provider-select">
+            {__('Select API Provider', 'kirki-ecommerce')}
+          </Label>
+          <Select value={selectedAPI} onValueChange={setSelectedAPI}>
+            <SelectTrigger id="api-provider-select">
+              <SelectValue placeholder={__('Select', 'kirki-ecommerce')} />
+            </SelectTrigger>
+            <SelectContent>
+              {apiProviderList?.map((item) => (
+                <SelectItem key={item.id} value={String(item.id)}>
+                  {item.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </Flex>
         {selectedAPI &&
           (hasAPIConfiguration ? (
             <ApiConfigurationCard
@@ -103,7 +119,7 @@ const ApiConfig = () => {
               dataObj={(formValues || {}) as SettingsSectionData}
             />
           ) : (
-            <Card type="inner">
+            <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner`}>
               <Flex
                 style={{
                   justifyContent: 'space-between',
@@ -121,12 +137,13 @@ const ApiConfig = () => {
                 </Flex>
                 <ActionGroup>
                   <Button
-                    text={__('Configure', 'kirki-ecommerce')}
-                    size="small"
-                    type="outlined"
-                    leftIcon={<WrenchIcon />}
+                    variant="outline"
+                    size="sm"
                     onClick={() => setOpenPopup(true)}
-                  />
+                  >
+                    <WrenchIcon />
+                    {__('Configure', 'kirki-ecommerce')}
+                  </Button>
                 </ActionGroup>
               </Flex>
             </Card>

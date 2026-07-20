@@ -1,10 +1,10 @@
 import { useState } from 'react';
 
-import Button from '@/molecules/button';
+import Button from '@/components/ui/button';
 import type { BrandFormData } from '@/types';
 import { __ } from '@/wpi18n';
 
-import BrandAddEditPopover from '@/pages/brands/brand-add-edit-popover';
+import BrandAddEditPopover from '@/pages/brands/brand-add-edit-dialog';
 
 const initialState: BrandFormData = {
   name: '',
@@ -18,11 +18,12 @@ const NewBrand = () => {
   return (
     <>
       <Button
-        type="primary"
-        text={__('New Brand', 'kirki-ecommerce')}
-        size="small"
+        variant="primary"
+        size="sm"
         onClick={() => setOpenPopup(true)}
-      />
+      >
+        {__('New Brand', 'kirki-ecommerce')}
+      </Button>
 
       {openPopup && (
         <BrandAddEditPopover

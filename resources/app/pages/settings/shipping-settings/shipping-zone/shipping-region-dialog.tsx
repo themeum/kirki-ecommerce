@@ -3,20 +3,22 @@ import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import TextField from '@/components/form/text-field';
-import { Form } from '@/components/ui/form';
-import { SearchIcon, LocationIcon } from '@/icons';
-import Button from '@/molecules/button';
-import Card from '@/molecules/card';
-import Checkbox from '@/molecules/checkbox';
-import Flex from '@/molecules/flex';
-import Input from '@/molecules/input';
+import Button from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import Checkbox from '@/components/ui/checkbox';
 import {
-  Popover,
-  PopoverBody,
-  PopoverFooter,
-  PopoverHeader,
-} from '@/molecules/popover';
+  Dialog,
+  DialogCloseButton,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Form } from '@/components/ui/form';
+import Input from '@/components/ui/input';
+import Label from '@/components/ui/label';
 import { CLASS_PREFIX } from '@/conf';
+import Flex from '@/molecules/flex';
 import {
   ShippingRegionFormSchema,
   shippingRegionDefaultValues,
@@ -222,129 +224,158 @@ export const ShippingRegionPopup = ({
     (from === 'add' && !String(formTitle || '').trim()) ||
     formCountries.length === 0;
 
+  const searchError =
+    (form.formState.errors.regions?.message as string) ||
+    (errors?.regions as string) ||
+    '';
+
   return (
-    <Popover isOpen={openPopup}>
-      <PopoverHeader
-        borderBottom
-        leftIcon={<LocationIcon />}
-        onClose={() => setOpenPopup(false)}
-      >
-        {__('Add shipping region', 'kirki-ecommerce')}
-      </PopoverHeader>
-      <Form {...form}>
-        <PopoverBody
-          style={{
-            padding: 'var(--decom-spacing-2) var(--decom-spacing-5)',
-            rowGap: 'var( --decom-spacing-2)',
-          }}
-        >
-          {from === 'add' && (
-            <TextField
-              name="title"
-              label={__('Title', 'kirki-ecommerce')}
-              placeholder={__('Zone 2- South Asia', 'kirki-ecommerce')}
-            />
-          )}
+    <Dialog
+      open={openPopup}
+      onOpenChange={(next) => {
+        if (!next) {
+          setOpenPopup(false);
+        }
+      }}
+    >
+      <DialogContent>
+        <DialogCloseButton />
+        <DialogHeader>
+          <DialogTitle>
+            {__('Add shipping region', 'kirki-ecommerce')}
+          </DialogTitle>
+        </DialogHeader>
+        <Form {...form}>
+          <div className={`${CLASS_PREFIX}-ui-dialog-body`}>
+            {from === 'add' && (
+              <TextField
+                name="title"
+                label={__('Title', 'kirki-ecommerce')}
+                placeholder={__('Zone 2- South Asia', 'kirki-ecommerce')}
+              />
+            )}
 
-          <Input
-            type="search"
-            leftIcon={<SearchIcon />}
-            label={__('Select countries', 'kirki-ecommerce')}
-            placeholder={__('Search country or state', 'kirki-ecommerce')}
-            onChange={(value) => handleSearchRegion(String(value))}
-            error={
-              (form.formState.errors.regions?.message as string) ||
-              (errors?.regions as string) ||
-              ''
-            }
-          />
+            <Flex direction="column" gap={8}>
+              <Label htmlFor="shipping-region-search">
+                {__('Select countries', 'kirki-ecommerce')}
+              </Label>
+              <Input
+                id="shipping-region-search"
+                type="search"
+                placeholder={__('Search country or state', 'kirki-ecommerce')}
+                onChange={(e) => handleSearchRegion(e.target.value)}
+                error={Boolean(searchError)}
+              />
+            </Flex>
 
-          <Card
-            type={'table'}
-            style={{ borderRadius: 'var(--decom-radius-rounded-md)' }}
-          >
-            <div
-              style={{
-                height: '432px',
-                overflowX: 'hidden',
-                overflowY: 'scroll',
-              }}
+            <Card
+              className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-table`}
+              style={{ borderRadius: 'var(--decom-radius-rounded-md)' }}
             >
-              <Flex className={`${CLASS_PREFIX}-popover-heading-wrapper-dark`}>
-                {__('Name', 'kirki-ecommerce')}
-              </Flex>
+              <div
+                style={{
+                  height: '432px',
+                  overflowX: 'hidden',
+                  overflowY: 'scroll',
+                }}
+              >
+                <Flex className={`${CLASS_PREFIX}-popover-heading-wrapper-dark`}>
+                  {__('Name', 'kirki-ecommerce')}
+                </Flex>
 
-              {filteredCountries?.length > 0 &&
-                filteredCountries.map((country, index) => {
-                  const regionInfo = formRegions.find(
-                    (r) => r.country === country.code,
-                  );
-                  return (
-                    <div key={index}>
-                      <div className={`${CLASS_PREFIX}-checkbox-item`}>
-                        <Checkbox
-                          value={formCountries.includes(country?.code)}
-                          isPartialChecked={regionInfo?.hasDeselectedState}
-                          label={country.name}
-                          onChange={() => handleSelectCountries(country)}
-                          leftIcon={country?.flag}
-                        />
-                      </div>
-                      {formCountries.includes(country.code) &&
-                      (country?.states?.length ?? 0) > 0 ? (
-                        <div
-                          style={{
-                            padding:
-                              'var(--decom-spacing-0) var(--decom-spacing-3)',
-                          }}
-                        >
-                          {(country?.states ?? []).map((state, stateIndex) => (
-                            <div
-                              key={stateIndex}
-                              className={`${CLASS_PREFIX}-checkbox-item`}
+                {filteredCountries?.length > 0 &&
+                  filteredCountries.map((country, index) => {
+                    const regionInfo = formRegions.find(
+                      (r) => r.country === country.code,
+                    );
+                    return (
+                      <div key={index}>
+                        <div className={`${CLASS_PREFIX}-checkbox-item`}>
+                          <Flex gap={8} style={{ alignItems: 'center' }}>
+                            <Checkbox
+                              id={`shipping-region-country-${country.code}`}
+                              checked={
+                                regionInfo?.hasDeselectedState
+                                  ? 'indeterminate'
+                                  : formCountries.includes(country?.code)
+                              }
+                              onCheckedChange={() =>
+                                handleSelectCountries(country)
+                              }
+                            />
+                            <Label
+                              htmlFor={`shipping-region-country-${country.code}`}
                             >
-                              <Checkbox
-                                value={formRegions
-                                  ?.find((r) => r.country === country.code)
-                                  ?.states.includes(state.id)}
-                                label={state.name}
-                                onChange={() =>
-                                  handleSelectStates(
-                                    state.id,
-                                    country.code,
-                                    country.states,
-                                  )
-                                }
-                              />
-                            </div>
-                          ))}
+                              {country?.flag}
+                              {country.name}
+                            </Label>
+                          </Flex>
                         </div>
-                      ) : (
-                        ''
-                      )}
-                    </div>
-                  );
-                })}
-            </div>
-          </Card>
-        </PopoverBody>
-        <PopoverFooter>
-          <Button
-            type="outlined"
-            text={__('Cancel', 'kirki-ecommerce')}
-            size="small"
-            onClick={() => handleCancelButton()}
-          />
-          <Button
-            type="primary"
-            text={__('Done', 'kirki-ecommerce')}
-            size="small"
-            onClick={form.handleSubmit(handleDone)}
-            state={buttonState ? 'disabled' : ''}
-          />
-        </PopoverFooter>
-      </Form>
-    </Popover>
+                        {formCountries.includes(country.code) &&
+                        (country?.states?.length ?? 0) > 0 ? (
+                          <div
+                            style={{
+                              padding:
+                                'var(--decom-spacing-0) var(--decom-spacing-3)',
+                            }}
+                          >
+                            {(country?.states ?? []).map((state, stateIndex) => (
+                              <div
+                                key={stateIndex}
+                                className={`${CLASS_PREFIX}-checkbox-item`}
+                              >
+                                <Flex gap={8} style={{ alignItems: 'center' }}>
+                                  <Checkbox
+                                    id={`shipping-region-state-${country.code}-${state.id}`}
+                                    checked={formRegions
+                                      ?.find((r) => r.country === country.code)
+                                      ?.states.includes(state.id)}
+                                    onCheckedChange={() =>
+                                      handleSelectStates(
+                                        state.id,
+                                        country.code,
+                                        country.states,
+                                      )
+                                    }
+                                  />
+                                  <Label
+                                    htmlFor={`shipping-region-state-${country.code}-${state.id}`}
+                                  >
+                                    {state.name}
+                                  </Label>
+                                </Flex>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          ''
+                        )}
+                      </div>
+                    );
+                  })}
+              </div>
+            </Card>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleCancelButton()}
+            >
+              {__('Cancel', 'kirki-ecommerce')}
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={form.handleSubmit(handleDone)}
+              disabled={buttonState}
+            >
+              {__('Done', 'kirki-ecommerce')}
+            </Button>
+          </DialogFooter>
+        </Form>
+      </DialogContent>
+    </Dialog>
   );
 };
 

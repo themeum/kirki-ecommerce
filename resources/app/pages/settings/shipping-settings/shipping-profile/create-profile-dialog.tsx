@@ -3,16 +3,20 @@ import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import TextField from '@/components/form/text-field';
+import Button from '@/components/ui/button';
+import {
+  Dialog,
+  DialogClose,
+  DialogCloseButton,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
+import { CLASS_PREFIX } from '@/conf';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import Button from '@/molecules/button';
-import {
-  Popover,
-  PopoverBody,
-  PopoverFooter,
-  PopoverHeader,
-} from '@/molecules/popover';
 import {
   ShippingProfileFormSchema,
   shippingProfileDefaultValues,
@@ -103,48 +107,47 @@ export const CreateProfilePopup = ({
   const buttonState = !profileTitle?.trim();
 
   return (
-    <div>
-      <Popover isOpen={isOpen} style={{ width: '400px' }}>
-        <PopoverHeader
-          style={{ padding: 'var(--decom-spacing-5)' }}
-          onClose={handleOnPopupClose}
-        >
-          {__('Create shipping profile', 'kirki-ecommerce')}
-        </PopoverHeader>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(next) => {
+        if (!next) {
+          handleOnPopupClose();
+        }
+      }}
+    >
+      <DialogContent style={{ width: '400px' }}>
+        <DialogCloseButton />
+        <DialogHeader>
+          <DialogTitle>
+            {__('Create shipping profile', 'kirki-ecommerce')}
+          </DialogTitle>
+        </DialogHeader>
         <Form {...form}>
-          <PopoverBody
-            style={{
-              padding:
-                'var(--decom-spacing-0) var(--decom-spacing-5) var(--decom-spacing-5) var(--decom-spacing-5)',
-            }}
-          >
+          <div className={`${CLASS_PREFIX}-ui-dialog-body`}>
             <TextField
               name="name"
               label={__('Title', 'kirki-ecommerce')}
               placeholder={__('e.g. Fragile', 'kirki-ecommerce')}
             />
-          </PopoverBody>
-          <PopoverFooter>
+          </div>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="outline" size="sm" disabled={isSubmitting}>
+                {__('Cancel', 'kirki-ecommerce')}
+              </Button>
+            </DialogClose>
             <Button
-              type="outlined"
-              text={__('Cancel', 'kirki-ecommerce')}
-              size="small"
-              onClick={handleOnPopupClose}
-              state={isSubmitting ? 'disabled' : undefined}
-            />
-            <Button
-              type="primary"
-              text={__('Save', 'kirki-ecommerce')}
-              size="small"
+              variant="primary"
+              size="sm"
               onClick={form.handleSubmit(handleAddOrUpdateShippingProfile)}
-              state={
-                buttonState || isSubmitting ? 'disabled' : undefined
-              }
-            />
-          </PopoverFooter>
+              disabled={buttonState || isSubmitting}
+            >
+              {__('Save', 'kirki-ecommerce')}
+            </Button>
+          </DialogFooter>
         </Form>
-      </Popover>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 

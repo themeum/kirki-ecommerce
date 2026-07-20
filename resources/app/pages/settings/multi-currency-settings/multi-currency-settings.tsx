@@ -4,13 +4,14 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate, useOutletContext } from 'react-router';
 
 import PageNavbar from '@/components/page-navbar';
+import Button from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
+import { CLASS_PREFIX } from '@/conf';
 import { CurrencyIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { useUnsavedStatus } from '@/libs/unsaved-store';
-import Button from '@/molecules/button';
-import Card from '@/molecules/card';
 import Container from '@/molecules/container';
 import Flex from '@/molecules/flex';
 import PageHeading from '@/molecules/page-heading';
@@ -132,19 +133,21 @@ const MultiCurrencySettings = () => {
           hasUnsavedData ? (
             <>
               <Button
-                type="ghost"
-                text={__('Cancel', 'kirki-ecommerce')}
-                size="small"
+                variant="ghost"
+                size="sm"
                 onClick={handleDiscardData}
-                state={isSaving ? 'disabled' : undefined}
-              />
+                disabled={isSaving}
+              >
+                {__('Cancel', 'kirki-ecommerce')}
+              </Button>
               <Button
-                type="primary"
-                text={__('Save', 'kirki-ecommerce')}
-                size="small"
+                variant="primary"
+                size="sm"
                 onClick={form.handleSubmit(handleSaveData)}
-                state={isSaving ? 'loading' : undefined}
-              />
+                loading={isSaving}
+              >
+                {__('Save', 'kirki-ecommerce')}
+              </Button>
             </>
           ) : (
             <></>
@@ -161,7 +164,7 @@ const MultiCurrencySettings = () => {
                 handleBack={handleBackButton}
               />
 
-              <Card type={'large'}>
+              <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
                 <Text
                   header={__('Currency Management', 'kirki-ecommerce')}
                   subHeader={__(
@@ -174,7 +177,7 @@ const MultiCurrencySettings = () => {
                 <AvailableCurrencyList />
                 <ApiConfig />
               </Card>
-              <Card type={'large'}>
+              <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
                 <Text
                   header={__('Currency Preferences', 'kirki-ecommerce')}
                   subHeader={__(

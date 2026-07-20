@@ -2,9 +2,9 @@ import { useState, type Dispatch, type SetStateAction, type ReactNode } from 're
 import { toast } from 'sonner';
 
 import HeaderActionsCard from '@/components/header-actions-card';
+import Button from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { TrashIcon } from '@/icons';
-import Button from '@/molecules/button';
-import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
 import Text from '@/molecules/text';
 import { CLASS_PREFIX } from '@/conf';
@@ -12,7 +12,7 @@ import type { SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
 
 import type { TaxRate, TaxRegion } from '@/pages/settings/tax-settings/utils';
-import VatCollectionPopup from '@/pages/settings/tax-settings/tax-region/vat-collection/vat-collection-popup';
+import VatCollectionPopup from '@/pages/settings/tax-settings/tax-region/vat-collection/vat-collection-dialog';
 
 type VatStateOption = SelectOption & {
   leftIcon?: ReactNode;
@@ -113,7 +113,7 @@ export const VatCollection = (props: VatCollectionProps) => {
 
   return (
     <div>
-      <Card type="large">
+      <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
         <HeaderActionsCard
           header={__('VAT Collection', 'kirki-ecommerce')}
           subHeader={__(
@@ -127,9 +127,8 @@ export const VatCollection = (props: VatCollectionProps) => {
         <Flex direction="column" gap={8}>
           {vatCollectionList?.map((item, index) => (
             <Card
-              type={'inner'}
               key={index}
-              className={`${CLASS_PREFIX}-vat-row`}
+              className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner ${CLASS_PREFIX}-vat-row`}
             >
               <Text
                 header={item?.state}
@@ -141,16 +140,18 @@ export const VatCollection = (props: VatCollectionProps) => {
               />
               <Flex gap={8} className={`${CLASS_PREFIX}-vat-actions`}>
                 <Button
-                  type={'tartiary'}
-                  text={__('Edit Rates', 'kirki-ecommerce')}
+                  variant="secondary"
                   onClick={() => handleEditVatRate(index)}
-                />
+                >
+                  {__('Edit Rates', 'kirki-ecommerce')}
+                </Button>
                 <Button
-                  type={'secondary'}
-                  size={'icon'}
-                  icon={<TrashIcon />}
+                  variant="secondary"
+                  size="icon"
                   onClick={() => handleDeleteItem(item)}
-                />
+                >
+                  <TrashIcon />
+                </Button>
               </Flex>
             </Card>
           ))}

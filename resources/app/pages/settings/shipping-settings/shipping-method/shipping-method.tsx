@@ -1,11 +1,12 @@
 import { useMemo, type Dispatch, type SetStateAction } from 'react';
 import { useNavigate } from 'react-router';
 
-import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
 import { BoxOpenIcon } from '@/icons';
 import HeaderActionsCard from '@/components/header-actions-card';
 import GroupOptionCard from '@/components/group-option-card';
+import { Card } from '@/components/ui/card';
+import { CLASS_PREFIX } from '@/conf';
 import { dispatchToastMessage } from '@/pages/utils';
 import type { SettingsSectionData } from '@/types';
 import { __ } from '@/wpi18n';
@@ -129,7 +130,7 @@ export const ShippingMethod = ({
           />
         </div>
       ) : (
-        <Card type="large">
+        <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
           <HeaderActionsCard
             header={__('Shipping Methods', 'kirki-ecommerce')}
             subHeader={__(
@@ -142,7 +143,7 @@ export const ShippingMethod = ({
 
           {!shippingMethodList?.length ? (
             <Card
-              type="innerDark"
+              className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner-dark`}
               style={{
                 padding: 'var(--decom-spacing-9) var(--decom-spacing-0)',
               }}

@@ -2,10 +2,10 @@ import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 import HeaderActionsCard from '@/components/header-actions-card';
+import Button from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { EditPenIcon, LighteningIcon, TrashIcon } from '@/icons';
 import ActionGroup from '@/molecules/action-group';
-import Button from '@/molecules/button';
-import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
 import Text from '@/molecules/text';
 import { CLASS_PREFIX } from '@/conf';
@@ -13,7 +13,7 @@ import { __, sprintf } from '@/wpi18n';
 
 import type { TaxRegion, TaxRule } from '@/pages/settings/tax-settings/utils';
 import { getDestinationDisplayValue } from '@/pages/settings/tax-settings/tax-region/tax-rules/helper';
-import TaxRulesModal from '@/pages/settings/tax-settings/tax-region/tax-rules/tax-rules-modal';
+import TaxRulesModal from '@/pages/settings/tax-settings/tax-region/tax-rules/tax-rules-dialog';
 
 type TaxRulesProps = {
   region?: TaxRegion;
@@ -54,7 +54,7 @@ const TaxRules = (props: TaxRulesProps) => {
 
   return (
     <div>
-      <Card type="large">
+      <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
         <HeaderActionsCard
           header={__('Tax Rules', 'kirki-ecommerce')}
           subHeader={__(
@@ -80,14 +80,13 @@ const TaxRules = (props: TaxRulesProps) => {
             <div>
               {rulesObj?.map((item, index) => (
                 <Card
-                  className={`${CLASS_PREFIX}-shipping-rules-card`}
+                  className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-default ${CLASS_PREFIX}-shipping-rules-card`}
                   key={index}
                 >
                   <Flex style={{ justifyContent: 'space-between' }}>
                     <Flex direction={'column'} gap={16}>
                       <Card
-                        type="dark"
-                        className={`${CLASS_PREFIX}-rules-number-badge`}
+                        className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-dark ${CLASS_PREFIX}-rules-number-badge`}
                       >
                         <Text
                           type="xsm"
@@ -156,17 +155,19 @@ const TaxRules = (props: TaxRulesProps) => {
                     </Flex>
                     <ActionGroup className={`${CLASS_PREFIX}-card-actions`}>
                       <Button
-                        type={'secondary'}
-                        size={'icon'}
-                        icon={<TrashIcon />}
+                        variant="secondary"
+                        size="icon"
                         onClick={() => handleDeleteRules(item, index)}
-                      />
+                      >
+                        <TrashIcon />
+                      </Button>
                       <Button
-                        type={'secondary'}
-                        size={'icon'}
-                        icon={<EditPenIcon />}
+                        variant="secondary"
+                        size="icon"
                         onClick={() => setEditingRuleIndex(index)}
-                      />
+                      >
+                        <EditPenIcon />
+                      </Button>
                     </ActionGroup>
                   </Flex>
                   {editingRuleIndex === index && (

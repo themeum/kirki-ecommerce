@@ -4,13 +4,14 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 import SelectField from '@/components/form/select-field';
 import TextField from '@/components/form/text-field';
+import Button from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
+import { CLASS_PREFIX } from '@/conf';
 import { PlusIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import ActionGroup from '@/molecules/action-group';
-import Button from '@/molecules/button';
-import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
 import {
   ProductAddCategoryFormSchema,
@@ -81,42 +82,44 @@ const AddNewCategory = () => {
   return (
     <>
       {show ? (
-        <Card type="inner">
-          <Form {...form}>
-            <Flex direction="column" gap={16}>
-              <TextField
-                name="name"
-                placeholder={__('Category Name', 'kirki-ecommerce')}
-              />
-              <SelectField
-                name="parent_id"
-                placeholder={__('Select Parent', 'kirki-ecommerce')}
-                options={parentOptions}
-              />
-              <ActionGroup>
-                <Button
-                  type="secondary"
-                  size="small"
-                  text={__('Cancel', 'kirki-ecommerce')}
-                  onClick={() => setShow(false)}
+        <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner`}>
+          <CardContent>
+            <Form {...form}>
+              <Flex direction="column" gap={16}>
+                <TextField
+                  name="name"
+                  placeholder={__('Category Name', 'kirki-ecommerce')}
                 />
-                <Button
-                  type="primary"
-                  size="small"
-                  text={__('OK', 'kirki-ecommerce')}
-                  onClick={form.handleSubmit(handleAddOrUpdateCategory)}
+                <SelectField
+                  name="parent_id"
+                  placeholder={__('Select Parent', 'kirki-ecommerce')}
+                  options={parentOptions}
                 />
-              </ActionGroup>
-            </Flex>
-          </Form>
+                <ActionGroup>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => setShow(false)}
+                  >
+                    {__('Cancel', 'kirki-ecommerce')}
+                  </Button>
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={form.handleSubmit(handleAddOrUpdateCategory)}
+                  >
+                    {__('OK', 'kirki-ecommerce')}
+                  </Button>
+                </ActionGroup>
+              </Flex>
+            </Form>
+          </CardContent>
         </Card>
       ) : (
-        <Button
-          type="blank"
-          text={__('Create New Category', 'kirki-ecommerce')}
-          leftIcon={<PlusIcon />}
-          onClick={() => setShow(true)}
-        />
+        <Button variant="ghost" size="sm" onClick={() => setShow(true)}>
+          <PlusIcon />
+          {__('Create New Category', 'kirki-ecommerce')}
+        </Button>
       )}
     </>
   );

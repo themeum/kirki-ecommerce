@@ -19,7 +19,7 @@ import { useAttributesQuery } from '@/services/attribute';
 import type { MediaRef, ProductVariant, UnitPriceValue } from '@/types';
 import { __ } from '@/wpi18n';
 
-import BaseUnitPopup from '@/pages/products/edit-product/price/base-unit-popup';
+import BaseUnitPopup from '@/pages/products/edit-product/price/base-unit-dialog';
 import ShippingBox from '@/pages/products/edit-product/shipping/shipping-box';
 import { calculateProfit } from '@/pages/utils';
 import type { BulkEditSelectionData } from '@/pages/bulk-edit/bulk-edit-table/bulk-edit-table';

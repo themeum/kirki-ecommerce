@@ -1,6 +1,7 @@
 import TextField from '@/components/form/text-field';
 import ThumbnailField from '@/components/form/thumbnail-field';
-import Card from '@/molecules/card';
+import { Card } from '@/components/ui/card';
+import { CLASS_PREFIX } from '@/conf';
 import Flex from '@/molecules/flex';
 import Text from '@/molecules/text';
 import { __ } from '@/wpi18n';
@@ -15,7 +16,7 @@ const StoreContactDetails = ({
   onStoreLogoPreviewChange,
 }: StoreContactDetailsProps) => {
   return (
-    <Card type="large">
+    <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
       <Text
         header={__('Store Contact Details', 'kirki-ecommerce')}
         subHeader={__(
@@ -26,7 +27,10 @@ const StoreContactDetails = ({
         style={{ gap: 'var(--decom-spacing-f3)' }}
       />
 
-      <Card type="inner" style={{ padding: 'var(--decom-spacing-4)' }}>
+      <Card
+        className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner`}
+        style={{ padding: 'var(--decom-spacing-4)' }}
+      >
         <Flex direction="column" gap={16}>
           <TextField
             name="store_name"

@@ -2,9 +2,10 @@ import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
+import { Card, CardContent } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
+import { CLASS_PREFIX } from '@/conf';
 import { useProductForm } from '@/contexts/product-form-context';
-import Card from '@/molecules/card';
 import Tab from '@/molecules/tab';
 import Text from '@/molecules/text';
 import {
@@ -80,24 +81,26 @@ const SEOSettings = () => {
   };
 
   return (
-    <Card type="form">
-      <Text
-        header={__('AI & Web Presence', 'kirki-ecommerce')}
-        type="primary"
-      />
-      <Tab activeIndex={activeTab} onChange={handleTabChange}>
-        <div>{__('Search Engines', 'kirki-ecommerce')}</div>
-        <div>{__('AEO', 'kirki-ecommerce')}</div>
-        <div>{__('Social Share', 'kirki-ecommerce')}</div>
-        <div>{__('Schema', 'kirki-ecommerce')}</div>
-      </Tab>
+    <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-form`}>
+      <CardContent>
+        <Text
+          header={__('AI & Web Presence', 'kirki-ecommerce')}
+          type="primary"
+        />
+        <Tab activeIndex={activeTab} onChange={handleTabChange}>
+          <div>{__('Search Engines', 'kirki-ecommerce')}</div>
+          <div>{__('AEO', 'kirki-ecommerce')}</div>
+          <div>{__('Social Share', 'kirki-ecommerce')}</div>
+          <div>{__('Schema', 'kirki-ecommerce')}</div>
+        </Tab>
 
-      <Form {...form}>
-        {activeTab === 0 && <SearchEngines />}
-        {activeTab === 1 && <AEO />}
-        {activeTab === 2 && <SocialShare />}
-        {activeTab === 3 && <Schema />}
-      </Form>
+        <Form {...form}>
+          {activeTab === 0 && <SearchEngines />}
+          {activeTab === 1 && <AEO />}
+          {activeTab === 2 && <SocialShare />}
+          {activeTab === 3 && <Schema />}
+        </Form>
+      </CardContent>
     </Card>
   );
 };

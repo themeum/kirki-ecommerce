@@ -2,13 +2,15 @@ import { useFormContext, useWatch } from 'react-hook-form';
 
 import SelectField from '@/components/form/select-field';
 import TextField from '@/components/form/text-field';
+import Button from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import Input from '@/components/ui/input';
+import Label from '@/components/ui/label';
+import { CLASS_PREFIX } from '@/conf';
 import { ReplaceIcon } from '@/icons';
 import ActionGroup from '@/molecules/action-group';
-import Button from '@/molecules/button';
-import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
 import Grid from '@/molecules/grid';
-import Input from '@/molecules/input';
 import Text from '@/molecules/text';
 import type { GeneralSettingsFormValues } from '@/schemas/forms/general-settings-form';
 import { __ } from '@/wpi18n';
@@ -44,7 +46,7 @@ const InvoiceId = () => {
 
   return (
     <div>
-      <Card type="large">
+      <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
         <Text
           header={__('Invoice ID', 'kirki-ecommerce')}
           subHeader={__(
@@ -55,7 +57,10 @@ const InvoiceId = () => {
           style={{ gap: 'var(--decom-spacing-f3)' }}
         />
         <Flex direction="column" gap={8}>
-          <Card type="inner" style={{ padding: 'var(--decom-spacing-4)' }}>
+          <Card
+            className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner`}
+            style={{ padding: 'var(--decom-spacing-4)' }}
+          >
             <Flex direction="column" gap={16}>
               <Grid columns={3}>
                 <TextField
@@ -81,23 +86,26 @@ const InvoiceId = () => {
               </Grid>
 
               <Card
-                type="innerDark"
+                className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-innerDark`}
                 style={{
                   padding: 'var(--decom-spacing-2) var(--decom-spacing-3)',
                 }}
               >
-                <Input
-                  label={__(
-                    'Next invoice IDs will look like:',
-                    'kirki-ecommerce',
-                  )}
-                  value={__(invoiceID, 'kirki-ecommerce')}
-                  style={{
-                    padding: 'var(--decom-spacing-2)',
-                    textAlign: 'center',
-                    color: 'var(--decom-text-text-special-3)',
-                  }}
-                />
+                <Flex direction="column" gap={8}>
+                  <Label htmlFor="invoice-id-preview">
+                    {__('Next invoice IDs will look like:', 'kirki-ecommerce')}
+                  </Label>
+                  <Input
+                    id="invoice-id-preview"
+                    value={__(invoiceID, 'kirki-ecommerce')}
+                    readOnly
+                    style={{
+                      padding: 'var(--decom-spacing-2)',
+                      textAlign: 'center',
+                      color: 'var(--decom-text-text-special-3)',
+                    }}
+                  />
+                </Flex>
               </Card>
 
               <SelectField
@@ -108,7 +116,7 @@ const InvoiceId = () => {
             </Flex>
           </Card>
           <Card
-            type="large"
+            className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}
             style={{
               borderRadius: 'var(--decom-radius-rounded-lg)',
               border: '1px solid var(--decom-border-border)',
@@ -122,12 +130,13 @@ const InvoiceId = () => {
                 />
                 <ActionGroup>
                   <Button
-                    text={__('Reset Now', 'kirki-ecommerce')}
-                    size="small"
-                    type="secondary"
-                    leftIcon={<ReplaceIcon />}
+                    variant="secondary"
+                    size="sm"
                     onClick={handleResetIDField}
-                  />
+                  >
+                    <ReplaceIcon />
+                    {__('Reset Now', 'kirki-ecommerce')}
+                  </Button>
                 </ActionGroup>
               </Flex>
               <Text

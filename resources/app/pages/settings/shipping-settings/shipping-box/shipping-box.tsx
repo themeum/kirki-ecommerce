@@ -1,8 +1,9 @@
 import { useEffect, useState, type ReactNode } from 'react';
 
-import Card from '@/molecules/card';
 import GroupOptionCard from '@/components/group-option-card';
 import HeaderActionsCard from '@/components/header-actions-card';
+import { Card } from '@/components/ui/card';
+import { CLASS_PREFIX } from '@/conf';
 import { dispatchToastMessage } from '@/pages/utils';
 import {
   useShippingBoxesQuery,
@@ -12,7 +13,7 @@ import {
 import type { ShippingBox as ShippingBoxType } from '@/types';
 import { __ } from '@/wpi18n';
 
-import ShippingBoxPopup from '@/pages/settings/shipping-settings/shipping-box/shipping-box-popup';
+import ShippingBoxPopup from '@/pages/settings/shipping-settings/shipping-box/shipping-box-dialog';
 
 type BoxAction = {
   title: string;
@@ -119,7 +120,7 @@ const ShippingBox = () => {
 
   return (
     <>
-      <Card type="large">
+      <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
         <HeaderActionsCard
           header={__('Shipping Box', 'kirki-ecommerce')}
           subHeader={__(

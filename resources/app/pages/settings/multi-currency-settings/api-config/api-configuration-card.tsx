@@ -1,9 +1,10 @@
 import { type Dispatch, type SetStateAction } from 'react';
 
+import Button from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { CLASS_PREFIX } from '@/conf';
 import { EditIcon, FlagIcon, RadioTickIcon } from '@/icons';
 import Badge from '@/molecules/badge';
-import Button from '@/molecules/button';
-import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
 import ProgressBar from '@/molecules/progressbar';
 import Text from '@/molecules/text';
@@ -50,7 +51,7 @@ const ApiConfigurationCard = ({
   const usage = dataObj?.usage as ApiUsage | null | undefined;
 
   return (
-    <Card>
+    <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-default`}>
       <Flex direction={'column'} gap={20}>
         <Flex
           style={{
@@ -79,11 +80,12 @@ const ApiConfigurationCard = ({
             />
           </Flex>
           <Button
+            variant="outline"
             size="icon"
-            icon={<EditIcon />}
-            type="outlined"
             onClick={() => setOpenPopup(true)}
-          />
+          >
+            <EditIcon />
+          </Button>
         </Flex>
         {usage && usage !== null && (
           <Flex direction={'column'} gap={6}>
@@ -110,7 +112,7 @@ const ApiConfigurationCard = ({
           </Flex>
         )}
         <Card
-          type="innerDark"
+          className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-innerDark`}
           style={{
             display: 'flex',
             flexDirection: 'column',

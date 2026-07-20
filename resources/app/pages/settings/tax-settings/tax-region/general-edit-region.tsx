@@ -7,13 +7,14 @@ import { useQueryClient } from '@tanstack/react-query';
 import CheckboxField from '@/components/form/checkbox-field';
 import HeaderActionsCard from '@/components/header-actions-card';
 import PageNavbar from '@/components/page-navbar';
+import Button from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
+import { CLASS_PREFIX } from '@/conf';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { queryKeys } from '@/libs/query-keys';
 import { useUnsavedStatus } from '@/libs/unsaved-store';
-import Button from '@/molecules/button';
-import Card from '@/molecules/card';
 import Container from '@/molecules/container';
 import Flex from '@/molecules/flex';
 import PageHeading from '@/molecules/page-heading';
@@ -33,7 +34,7 @@ import { __ } from '@/wpi18n';
 
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
 import type { TaxRate, TaxRegion, TaxRegionState, TaxRule } from '@/pages/settings/tax-settings/utils';
-import AddCitiesPopup from '@/pages/settings/tax-settings/tax-region/add-cities-popup';
+import AddCitiesPopup from '@/pages/settings/tax-settings/tax-region/add-cities-dialog';
 import { SingleTaxRate } from '@/pages/settings/tax-settings/tax-region/single-tax-rate';
 import { TaxRateList } from '@/pages/settings/tax-settings/tax-region/tax-rate-list';
 import TaxRules from '@/pages/settings/tax-settings/tax-region/tax-rules/tax-rules';
@@ -232,21 +233,23 @@ const GeneralEditRegion = () => {
             hasUnsavedData ? (
               <>
                 <Button
-                  type="ghost"
-                  size="small"
+                  variant="ghost"
+                  size="sm"
                   onClick={handleDiscardData}
-                  text={__('Cancel', 'kirki-ecommerce')}
-                  state={isSaving ? 'disabled' : undefined}
-                />
+                  disabled={isSaving}
+                >
+                  {__('Cancel', 'kirki-ecommerce')}
+                </Button>
                 <Button
-                  type="primary"
-                  size="small"
-                  text={__('Save', 'kirki-ecommerce')}
+                  variant="primary"
+                  size="sm"
                   onClick={form.handleSubmit((values) =>
                     handleSaveData(values),
                   )}
-                  state={isSaving ? 'loading' : undefined}
-                />
+                  loading={isSaving}
+                >
+                  {__('Save', 'kirki-ecommerce')}
+                </Button>
               </>
             ) : (
               <></>
@@ -263,7 +266,10 @@ const GeneralEditRegion = () => {
                   handleBack={handleBackButton}
                 />
 
-                <Card type="large" style={{ gap: 'var(--decom-spacing-4)' }}>
+                <Card
+                  className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}
+                  style={{ gap: 'var(--decom-spacing-4)' }}
+                >
                   <HeaderActionsCard
                     header={__('Cities', 'kirki-ecommerce')}
                     subHeader={__('Set tax rates for specific cities', 'kirki-ecommerce')}

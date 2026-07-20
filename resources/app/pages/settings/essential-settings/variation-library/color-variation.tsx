@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 
 import PageNavbar from '@/components/page-navbar';
+import Button from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { CLASS_PREFIX } from '@/conf';
 import { ColorPaletteIcon } from '@/icons';
-import Button from '@/molecules/button';
-import Card from '@/molecules/card';
 import Container from '@/molecules/container';
 import Flex from '@/molecules/flex';
 import PageHeading from '@/molecules/page-heading';
@@ -13,7 +14,7 @@ import type { Attribute, AttributeValue, TaxonomyTableHeader } from '@/types';
 import { __, sprintf } from '@/wpi18n';
 
 import VariationTable from '@/pages/settings/essential-settings/variation-library/variation-table/variation-table';
-import VariationValuePopup from '@/pages/settings/essential-settings/variation-library/variation-value-popup';
+import VariationValuePopup from '@/pages/settings/essential-settings/variation-library/variation-value-dialog';
 
 type AttributeWithMeta = Attribute & { updated_at?: string };
 
@@ -52,17 +53,18 @@ const ColorVariation = () => {
             rightAction={
               <div>
                 <Button
-                  type="link"
-                  text={__('Add color', 'kirki-ecommerce')}
+                  variant="link"
                   style={{ color: 'var(--decom-color-blue-3)', padding: 0 }}
                   onClick={() => setAddVariantPopup(true)}
-                />
+                >
+                  {__('Add color', 'kirki-ecommerce')}
+                </Button>
               </div>
             }
           />
           {!colorList?.length ? (
             <Card
-              type="large"
+              className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}
               style={{ borderRadius: '8px', padding: '36px 0' }}
             >
               <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
@@ -73,7 +75,7 @@ const ColorVariation = () => {
               </Flex>
             </Card>
           ) : (
-            <Card type="table">
+            <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-table`}>
               <VariationTable
                 results={colorList}
                 updateDataList={setColorList}

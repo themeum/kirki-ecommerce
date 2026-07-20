@@ -2,6 +2,7 @@ import { useFormContext } from 'react-hook-form';
 
 import SelectField from '@/components/form/select-field';
 import TextField from '@/components/form/text-field';
+import { Card, CardContent } from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
 import {
   FormControl,
@@ -12,7 +13,6 @@ import {
 } from '@/components/ui/form';
 import { CLASS_PREFIX } from '@/conf';
 import { PaymentIcon } from '@/icons';
-import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
 import Grid from '@/molecules/grid';
 import Text from '@/molecules/text';
@@ -32,7 +32,7 @@ const BillingAddress = () => {
 
   return (
     <Card
-      type="form"
+      className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-form`}
       style={{ padding: '20px', borderRadius: '20px', gap: '20px' }}
     >
       <Text
@@ -42,33 +42,40 @@ const BillingAddress = () => {
         style={{ paddingBottom: '4px' }}
       />
       <Flex direction="column" gap={8}>
-        <Card type="innerDark">
-          <FormField
-            control={control}
-            name="is_billing_same_as_shipping"
-            render={({ field }) => (
-              <FormItem>
-                <div className={`${CLASS_PREFIX}-ui-checkbox-field`}>
-                  <FormControl>
-                    <Checkbox
-                      checked={Boolean(field.value)}
-                      onCheckedChange={(checked) => {
-                        const nextValue = checked === true;
-                        field.onChange(nextValue);
-                        if (nextValue) {
-                          setValue('billing_address', {});
-                        }
-                      }}
-                    />
-                  </FormControl>
-                  <FormLabel>Same as shipping address</FormLabel>
-                </div>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+        <Card
+          className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner-dark`}
+        >
+          <CardContent>
+            <FormField
+              control={control}
+              name="is_billing_same_as_shipping"
+              render={({ field }) => (
+                <FormItem>
+                  <div className={`${CLASS_PREFIX}-ui-checkbox-field`}>
+                    <FormControl>
+                      <Checkbox
+                        checked={Boolean(field.value)}
+                        onCheckedChange={(checked) => {
+                          const nextValue = checked === true;
+                          field.onChange(nextValue);
+                          if (nextValue) {
+                            setValue('billing_address', {});
+                          }
+                        }}
+                      />
+                    </FormControl>
+                    <FormLabel>Same as shipping address</FormLabel>
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </CardContent>
         </Card>
-        <Card type="inner" style={{ padding: '16px' }}>
+        <Card
+          className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner`}
+          style={{ padding: '16px' }}
+        >
           <Flex direction="column" gap={16}>
             <SelectField
               name="billing_address.country"

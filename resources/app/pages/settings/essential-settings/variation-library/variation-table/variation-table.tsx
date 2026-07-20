@@ -2,9 +2,10 @@ import { useState, useMemo, type Dispatch, type SetStateAction } from 'react';
 import { useOutletContext } from 'react-router';
 
 import BulkActionHandler from '@/components/bulk-action-handler';
+import { Card } from '@/components/ui/card';
+import Checkbox from '@/components/ui/checkbox';
+import { CLASS_PREFIX } from '@/conf';
 import { useMarkList } from '@/hooks';
-import Checkbox from '@/molecules/checkbox';
-import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
 import {
   Table,
@@ -119,7 +120,7 @@ const VariationTable = ({
       )}
       {!filteredList?.length ? (
         <Card
-          type="innerDark"
+          className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-innerDark`}
           style={{ padding: '36px 0', borderRadius: '0px' }}
         >
           <Flex style={{ alignItems: 'center', justifyContent: 'center' }}>
@@ -136,8 +137,8 @@ const VariationTable = ({
             <TableRow>
               <TableHead onlyCheckbox>
                 <Checkbox
-                  value={isSelected('*')}
-                  onChange={handleAllCheckboxClick}
+                  checked={isSelected('*')}
+                  onCheckedChange={handleAllCheckboxClick}
                 />
               </TableHead>
               {tableHeaders?.map((header, index) => (

@@ -6,13 +6,13 @@ import { useNavigate, useParams } from 'react-router';
 import TextareaField from '@/components/form/textarea-field';
 import TextField from '@/components/form/text-field';
 import ThumbnailField from '@/components/form/thumbnail-field';
+import Button from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
-import { NEW_ITEM_ID } from '@/conf';
+import { CLASS_PREFIX, NEW_ITEM_ID } from '@/conf';
 import { PlusIcon, ProductIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import Button from '@/molecules/button';
-import Card from '@/molecules/card';
 import Container from '@/molecules/container';
 import Flex from '@/molecules/flex';
 import Grid from '@/molecules/grid';
@@ -121,22 +121,19 @@ const CollectionDetails = () => {
         sticky
         actions={
           <>
+            <Button variant="ghost" size="sm">
+              {__('Cancel', 'kirki-ecommerce')}
+            </Button>
             <Button
-              type="ghost"
-              size="small"
-              text={__('Cancel', 'kirki-ecommerce')}
-            />
-            <Button
-              type="primary"
-              size="small"
-              text={
-                isNew
-                  ? __('Create', 'kirki-ecommerce')
-                  : __('Save', 'kirki-ecommerce')
-              }
+              variant="primary"
+              size="sm"
               onClick={form.handleSubmit(handleSubmit)}
-              state={isSubmitting ? 'loading' : undefined}
-            />
+              loading={isSubmitting}
+            >
+              {isNew
+                ? __('Create', 'kirki-ecommerce')
+                : __('Save', 'kirki-ecommerce')}
+            </Button>
           </>
         }
         hasBack
@@ -144,102 +141,121 @@ const CollectionDetails = () => {
 
       <Container size="md">
         <Flex direction="column" gap={16}>
-          <Card type="form">
-            <Grid>
-              <TextField
-                name="title"
-                label={__('Title', 'kirki-ecommerce')}
-                placeholder={__('e.g. Winter sale', 'kirki-ecommerce')}
-              />
-              <TextField
-                name="slug"
-                label={__('Slug', 'kirki-ecommerce')}
-                placeholder={__('winter-sale', 'kirki-ecommerce')}
-              />
-            </Grid>
-            <TextareaField
-              name="description"
-              label={__('Description', 'kirki-ecommerce')}
-              rows={5}
-              placeholder={__(
-                'e.g. Discover our exciting winter sale! Enjoy amazing discounts on cozy sweaters, stylish boots, and essential winter gear.',
-                'kirki-ecommerce',
-              )}
-            />
-            <ThumbnailField
-              name="banner"
-              label={__('Banner', 'kirki-ecommerce')}
-              valueAs="id"
-              previewUrl={imageUrl}
-              onPreviewChange={setImageUrl}
-            />
+          <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-form`}>
+            <CardContent>
+              <Flex direction="column" gap={16}>
+                <Grid>
+                  <TextField
+                    name="title"
+                    label={__('Title', 'kirki-ecommerce')}
+                    placeholder={__('e.g. Winter sale', 'kirki-ecommerce')}
+                  />
+                  <TextField
+                    name="slug"
+                    label={__('Slug', 'kirki-ecommerce')}
+                    placeholder={__('winter-sale', 'kirki-ecommerce')}
+                  />
+                </Grid>
+                <TextareaField
+                  name="description"
+                  label={__('Description', 'kirki-ecommerce')}
+                  rows={5}
+                  placeholder={__(
+                    'e.g. Discover our exciting winter sale! Enjoy amazing discounts on cozy sweaters, stylish boots, and essential winter gear.',
+                    'kirki-ecommerce',
+                  )}
+                />
+                <ThumbnailField
+                  name="banner"
+                  label={__('Banner', 'kirki-ecommerce')}
+                  valueAs="id"
+                  previewUrl={imageUrl}
+                  onPreviewChange={setImageUrl}
+                />
+              </Flex>
+            </CardContent>
           </Card>
 
-          <Card type="form" style={{ padding: '43.5px' }}>
+          <Card
+            className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-form`}
+            style={{ padding: '43.5px' }}
+          >
             <Flex
               direction="column"
               gap={12}
               style={{ alignItems: 'center', justifyContent: 'center' }}
             >
               <ProductIcon />
-              <Button
-                size="small"
-                text={__('Select Products', 'kirki-ecommerce')}
-                type="secondary"
-                leftIcon={<PlusIcon />}
-              />
+              <Button variant="secondary" size="sm">
+                <PlusIcon />
+                {__('Select Products', 'kirki-ecommerce')}
+              </Button>
             </Flex>
           </Card>
 
-          <Card type="form">
-            <Text
-              header={__('SEO Settings', 'kirki-ecommerce')}
-              type="primary"
-              padding="large"
-            />
-            <Card type="inner">
-              <Flex gap={16} style={{ justifyContent: 'space-between' }}>
-                <Flex direction="column" gap={6}>
-                  <Text
-                    type="xsm"
-                    style={{ color: '#4D5157' }}
-                    header={
-                      window.kirki_ecommerce.site_url +
-                      ' › collections › ' +
-                      (watchedSlug || '')
-                    }
-                  />
-                  <Text
-                    type="primary"
-                    header={watchedSeoTitle || watchedTitle || ''}
-                    style={{ color: '#000091' }}
-                  />
-                  <Text
-                    type="xsm"
-                    style={{ color: '#616161' }}
-                    header={watchedSeoDescription || watchedDescription || ''}
-                  />
-                </Flex>
-                <Thumbnail
-                  src={imageUrl ?? undefined}
-                  style={{ height: '92px', width: '92px', flexShrink: 0 }}
+          <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-form`}>
+            <CardContent>
+              <Flex direction="column" gap={16}>
+                <Text
+                  header={__('SEO Settings', 'kirki-ecommerce')}
+                  type="primary"
+                  padding="large"
+                />
+                <Card
+                  className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner`}
+                >
+                  <CardContent>
+                    <Flex gap={16} style={{ justifyContent: 'space-between' }}>
+                      <Flex direction="column" gap={6}>
+                        <Text
+                          type="xsm"
+                          style={{ color: '#4D5157' }}
+                          header={
+                            window.kirki_ecommerce.site_url +
+                            ' › collections › ' +
+                            (watchedSlug || '')
+                          }
+                        />
+                        <Text
+                          type="primary"
+                          header={watchedSeoTitle || watchedTitle || ''}
+                          style={{ color: '#000091' }}
+                        />
+                        <Text
+                          type="xsm"
+                          style={{ color: '#616161' }}
+                          header={
+                            watchedSeoDescription || watchedDescription || ''
+                          }
+                        />
+                      </Flex>
+                      <Thumbnail
+                        src={imageUrl ?? undefined}
+                        style={{
+                          height: '92px',
+                          width: '92px',
+                          flexShrink: 0,
+                        }}
+                      />
+                    </Flex>
+                  </CardContent>
+                </Card>
+                <Separator
+                  style={{ margin: 'auto -16px', backgroundColor: '#EEEDF3' }}
+                />
+                <TextField
+                  name="seo_title"
+                  label={__('Title', 'kirki-ecommerce')}
+                  placeholder={__('Placeholder', 'kirki-ecommerce')}
+                />
+                <TextareaField
+                  name="seo_description"
+                  label={__('Meta Description', 'kirki-ecommerce')}
+                  rows={5}
+                  placeholder={__('Placeholder', 'kirki-ecommerce')}
                 />
               </Flex>
-            </Card>
-            <Separator
-              style={{ margin: 'auto -16px', backgroundColor: '#EEEDF3' }}
-            />
-            <TextField
-              name="seo_title"
-              label={__('Title', 'kirki-ecommerce')}
-              placeholder={__('Placeholder', 'kirki-ecommerce')}
-            />
-            <TextareaField
-              name="seo_description"
-              label={__('Meta Description', 'kirki-ecommerce')}
-              rows={5}
-              placeholder={__('Placeholder', 'kirki-ecommerce')}
-            />
+            </CardContent>
           </Card>
         </Flex>
       </Container>

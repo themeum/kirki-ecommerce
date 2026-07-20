@@ -5,17 +5,21 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import RichTextField from '@/components/form/rich-text-field';
 import TextField from '@/components/form/text-field';
 import ThumbnailField from '@/components/form/thumbnail-field';
+import Button from '@/components/ui/button';
+import {
+  Dialog,
+  DialogClose,
+  DialogCloseButton,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
+import { CLASS_PREFIX } from '@/conf';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import Button from '@/molecules/button';
 import Flex from '@/molecules/flex';
-import {
-  Popover,
-  PopoverBody,
-  PopoverFooter,
-  PopoverHeader,
-} from '@/molecules/popover';
 import {
   ManualPaymentFormSchema,
   manualPaymentDefaultValues,
@@ -115,76 +119,86 @@ const ManualPaymentPopup = (props: ManualPaymentPopupProps) => {
   };
 
   return (
-    <Popover isOpen={openPopup} style={{ width: '600px' }}>
-      <PopoverHeader
-        style={{ padding: 'var(--decom-spacing-5)' }}
-        onClose={handleClose}
-      >
-        {__('Add Manual Payment Method', 'kirki-ecommerce')}
-      </PopoverHeader>
-      <Form {...form}>
-        <PopoverBody
-          style={{
-            padding:
-              'var(--decom-spacing-0) var(--decom-spacing-5) var(--decom-spacing-5) var(--decom-spacing-5)',
-          }}
-        >
-          <Flex direction="column" gap={16}>
-            <TextField
-              name="name"
-              label={__('Method Name', 'kirki-ecommerce')}
-              placeholder={__(
-                'e.g. Cash on Delivery (COD)',
-                'kirki-ecommerce',
-              )}
-            />
-            <ThumbnailField
-              name="icon"
-              label={__('Icon', 'kirki-ecommerce')}
-              description={__('Icon', 'kirki-ecommerce')}
-              placeholder={__(
-                'Recommended image size: 48x48',
-                'kirki-ecommerce',
-              )}
-              valueAs="object"
-              previewUrl={iconPreview}
-              onPreviewChange={setIconPreview}
-              getPreviewUrl={(value) =>
-                typeof value === 'string' ? value : undefined
-              }
-            />
-            <RichTextField
-              name="instructions"
-              label={__('Payment Instructions', 'kirki-ecommerce')}
-              placeholder={__(
-                'Type instructions related to payment method',
-                'kirki-ecommerce',
-              )}
-              description={__(
-                'Provide clear, step-by-step instructions on how to complete the payment',
-                'kirki-ecommerce',
-              )}
-            />
-          </Flex>
-        </PopoverBody>
-        <PopoverFooter>
-          <Button
-            type="secondary"
-            size="small"
-            text={__('Cancel', 'kirki-ecommerce')}
-            onClick={handleClose}
-            state={isSubmitting ? 'disabled' : undefined}
-          />
-          <Button
-            type="primary"
-            size="small"
-            text={__('Save', 'kirki-ecommerce')}
-            onClick={form.handleSubmit(handleSaveOrUpdateData)}
-            state={isSubmitting ? 'loading' : undefined}
-          />
-        </PopoverFooter>
-      </Form>
-    </Popover>
+    <Dialog
+      open={openPopup}
+      onOpenChange={(next) => {
+        if (!next) {
+          handleClose();
+        }
+      }}
+    >
+      <DialogContent>
+        <DialogCloseButton />
+        <DialogHeader>
+          <DialogTitle>
+            {__('Add Manual Payment Method', 'kirki-ecommerce')}
+          </DialogTitle>
+        </DialogHeader>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleSaveOrUpdateData)}>
+            <div className={`${CLASS_PREFIX}-ui-dialog-body`}>
+              <Flex direction="column" gap={16}>
+                <TextField
+                  name="name"
+                  label={__('Method Name', 'kirki-ecommerce')}
+                  placeholder={__(
+                    'e.g. Cash on Delivery (COD)',
+                    'kirki-ecommerce',
+                  )}
+                />
+                <ThumbnailField
+                  name="icon"
+                  label={__('Icon', 'kirki-ecommerce')}
+                  description={__('Icon', 'kirki-ecommerce')}
+                  placeholder={__(
+                    'Recommended image size: 48x48',
+                    'kirki-ecommerce',
+                  )}
+                  valueAs="object"
+                  previewUrl={iconPreview}
+                  onPreviewChange={setIconPreview}
+                  getPreviewUrl={(value) =>
+                    typeof value === 'string' ? value : undefined
+                  }
+                />
+                <RichTextField
+                  name="instructions"
+                  label={__('Payment Instructions', 'kirki-ecommerce')}
+                  placeholder={__(
+                    'Type instructions related to payment method',
+                    'kirki-ecommerce',
+                  )}
+                  description={__(
+                    'Provide clear, step-by-step instructions on how to complete the payment',
+                    'kirki-ecommerce',
+                  )}
+                />
+              </Flex>
+            </div>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={isSubmitting}
+                  size="sm"
+                >
+                  {__('Cancel', 'kirki-ecommerce')}
+                </Button>
+              </DialogClose>
+              <Button
+                type="submit"
+                variant="primary"
+                loading={isSubmitting}
+                size="sm"
+              >
+                {__('Save', 'kirki-ecommerce')}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
   );
 };
 

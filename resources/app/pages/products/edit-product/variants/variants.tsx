@@ -1,4 +1,5 @@
-import Card from '@/molecules/card';
+import { Card, CardContent } from '@/components/ui/card';
+import { CLASS_PREFIX } from '@/conf';
 import Flex from '@/molecules/flex';
 import Text from '@/molecules/text';
 import type { TextType } from '@/types';
@@ -17,21 +18,25 @@ type VariantsProps = {
 
 const Variants = ({ onSave = () => {} }: VariantsProps) => {
   return (
-    <Card type="form">
-      <Flex>
-        <Text
-          type={__('primary', 'kirki-ecommerce') as TextType}
-          header={__('Product Variations', 'kirki-ecommerce')}
-          subHeader={__(
-            'Manage the options this product comes in.',
-            'kirki-ecommerce',
-          )}
-        />
-      </Flex>
-      <AttributeList onSave={onSave} />
-      <VariationTable />
+    <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-form`}>
+      <CardContent>
+        <Flex>
+          <Text
+            type={__('primary', 'kirki-ecommerce') as TextType}
+            header={__('Product Variations', 'kirki-ecommerce')}
+            subHeader={__(
+              'Manage the options this product comes in.',
+              'kirki-ecommerce',
+            )}
+          />
+        </Flex>
+        <AttributeList onSave={onSave} />
+        <VariationTable />
+      </CardContent>
     </Card>
   );
 };
+
+Variants.displayName = 'Variants';
 
 export default Variants;

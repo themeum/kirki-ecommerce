@@ -28,7 +28,7 @@ import type {
 } from '@/types';
 import { __ } from '@/wpi18n';
 
-import VariationPopover from '@/pages/products/edit-product/variants/variation-popover';
+import VariationPopover from '@/pages/products/edit-product/variants/variation-dialog';
 
 const AddOrEditVariation = () => {
   const { control, setValue, watch, clearErrors, setError } =

@@ -2,16 +2,16 @@ import { useState, useEffect, type ReactNode } from 'react';
 
 import HeaderActionsCard from '@/components/header-actions-card';
 import GroupOptionCard from '@/components/group-option-card';
+import { Card } from '@/components/ui/card';
 import { CLASS_PREFIX } from '@/conf';
 import { BoxOpenIcon } from '@/icons';
-import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
 import { dispatchToastMessage } from '@/pages/utils';
 import { useSchemasQuery, useDeleteSchemaMutation } from '@/services/schema';
 import type { SchemaProfile } from '@/types';
 import { __ } from '@/wpi18n';
 
-import AddSchemaPopup from '@/pages/settings/essential-settings/schema-profile/add-schema-popup';
+import AddSchemaPopup from '@/pages/settings/essential-settings/schema-profile/add-schema-dialog';
 
 type SchemaListItem = SchemaProfile & {
   badge1?: string;
@@ -64,7 +64,7 @@ const SchemaProfileComponent = () => {
   };
 
   return (
-    <Card type="large">
+    <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
       <HeaderActionsCard
         header={__('Schema Profile', 'kirki-ecommerce')}
         subHeader={__(
@@ -75,7 +75,10 @@ const SchemaProfileComponent = () => {
         onAdd={() => setShowPopup(true)}
       />
       {!schemaProfileList?.length ? (
-        <Card type="innerDark" style={{ padding: '36px 0' }}>
+        <Card
+          className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-innerDark`}
+          style={{ padding: '36px 0' }}
+        >
           <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
             <BoxOpenIcon />
             <span style={{ color: '#878593' }}>

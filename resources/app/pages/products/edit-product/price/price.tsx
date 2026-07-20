@@ -8,18 +8,35 @@ import {
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
-import Card from '@/molecules/card';
-import Checkbox from '@/molecules/checkbox';
-import Flex from '@/molecules/flex';
-import Grid from '@/molecules/grid';
-import Input from '@/molecules/input';
-import { Select } from '@/molecules/select';
-import Separator from '@/molecules/separator';
-import Text from '@/molecules/text';
+import { Card, CardContent } from '@/components/ui/card';
+import Checkbox from '@/components/ui/checkbox';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import Input from '@/components/ui/input';
+import Label from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectSeparator,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { CLASS_PREFIX } from '@/conf';
+import { PlusCircleIcon } from '@/icons';
 import { useProductForm } from '@/contexts/product-form-context';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
+import Flex from '@/molecules/flex';
+import Grid from '@/molecules/grid';
+import Separator from '@/molecules/separator';
+import Text from '@/molecules/text';
 import {
   mapProductPriceFromProduct,
   ProductPriceFormSchema,
@@ -30,9 +47,9 @@ import { useTaxProfilesQuery } from '@/services/tax';
 import type { FormErrors, UnitPriceValue } from '@/types';
 import { __ } from '@/wpi18n';
 
-import { TaxProfilePopup } from '@/pages/settings/tax-settings/tax-profile/tax-profile-popup';
+import { TaxProfilePopup } from '@/pages/settings/tax-settings/tax-profile/tax-profile-dialog';
 import { calculateProfit } from '@/pages/utils';
-import BaseUnitPopup from '@/pages/products/edit-product/price/base-unit-popup';
+import BaseUnitPopup from '@/pages/products/edit-product/price/base-unit-dialog';
 
 type PriceProps = {
   errors: FormErrors;
@@ -44,6 +61,8 @@ type CurrencyRef = {
   symbol?: string;
   [key: string]: unknown;
 };
+
+const ADD_TAX_PROFILE_VALUE = '__add_tax_profile__';
 
 const Price = ({ errors, setErrors, formSyncKey = 0 }: PriceProps) => {
   const { product: productData, updateProduct } = useProductForm();
@@ -101,6 +120,7 @@ const Price = ({ errors, setErrors, formSyncKey = 0 }: PriceProps) => {
   };
 
   const currency = productData?.currency as CurrencyRef;
+  const currencySymbol = (currency?.symbol as string) || '$';
   const TaxProfilePopupView = TaxProfilePopup as (props: {
     isOpen: boolean;
     onClose: () => void;
@@ -109,218 +129,326 @@ const Price = ({ errors, setErrors, formSyncKey = 0 }: PriceProps) => {
 
   return (
     <Form {...form}>
-      <Card type="form">
-        <Text
-          header={__('Price', 'kirki-ecommerce')}
-          type="primary"
-          padding="large"
-        />
-        <Grid columns={2}>
-          <FormField
-            control={form.control}
-            name="price"
-            render={({ field, fieldState }) => (
-              <FormItem>
-                <FormControl>
-                  <Input
-                    leftSymbol={(currency?.symbol as string) || '$'}
-                    style={{ textIndent: '12px' }}
-                    value={field.value as string | number | undefined}
-                    label={__('Regular price', 'kirki-ecommerce')}
-                    placeholder={__('29.00', 'kirki-ecommerce')}
-                    type="number"
-                    onChange={(value) => {
-                      field.onChange(value);
-                      syncVariantField('price', value);
-                    }}
-                    error={fieldState.error?.message}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
+      <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-form`}>
+        <CardContent>
+          <Text
+            header={__('Price', 'kirki-ecommerce')}
+            type="primary"
+            padding="large"
           />
-          <FormField
-            control={form.control}
-            name="sale_price"
-            render={({ field, fieldState }) => (
-              <FormItem>
-                <FormControl>
-                  <Input
-                    value={field.value as string | number | undefined}
-                    leftSymbol={(currency?.symbol as string) || '$'}
-                    style={{ textIndent: '12px' }}
-                    label={__('Sale price', 'kirki-ecommerce')}
-                    placeholder={__('19.99', 'kirki-ecommerce')}
-                    type="number"
-                    onChange={(value) => {
-                      field.onChange(value);
-                      syncVariantField('sale_price', value);
-                    }}
-                    error={fieldState.error?.message}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-        </Grid>
+          <Grid columns={2}>
+            <FormField
+              control={form.control}
+              name="price"
+              render={({ field, fieldState }) => (
+                <FormItem>
+                  <FormLabel>{__('Regular price', 'kirki-ecommerce')}</FormLabel>
+                  <FormControl>
+                    <div style={{ position: 'relative' }}>
+                      <span
+                        className={`${CLASS_PREFIX}-input-left-symbol`}
+                        style={{
+                          position: 'absolute',
+                          left: '12px',
+                          top: '50%',
+                          transform: 'translateY(-50%)',
+                          pointerEvents: 'none',
+                        }}
+                      >
+                        {currencySymbol}
+                      </span>
+                      <Input
+                        style={{ textIndent: '12px' }}
+                        value={field.value ?? ''}
+                        placeholder={__('29.00', 'kirki-ecommerce')}
+                        type="number"
+                        onChange={(event) => {
+                          const value = event.target.value;
+                          field.onChange(value);
+                          syncVariantField('price', value);
+                        }}
+                        error={Boolean(fieldState.error)}
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="sale_price"
+              render={({ field, fieldState }) => (
+                <FormItem>
+                  <FormLabel>{__('Sale price', 'kirki-ecommerce')}</FormLabel>
+                  <FormControl>
+                    <div style={{ position: 'relative' }}>
+                      <span
+                        className={`${CLASS_PREFIX}-input-left-symbol`}
+                        style={{
+                          position: 'absolute',
+                          left: '12px',
+                          top: '50%',
+                          transform: 'translateY(-50%)',
+                          pointerEvents: 'none',
+                        }}
+                      >
+                        {currencySymbol}
+                      </span>
+                      <Input
+                        value={field.value ?? ''}
+                        style={{ textIndent: '12px' }}
+                        placeholder={__('19.99', 'kirki-ecommerce')}
+                        type="number"
+                        onChange={(event) => {
+                          const value = event.target.value;
+                          field.onChange(value);
+                          syncVariantField('sale_price', value);
+                        }}
+                        error={Boolean(fieldState.error)}
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </Grid>
 
-        <Flex direction="column" gap={8}>
-          <Card
-            type="innerDark"
-            style={{
-              padding: '4px 8px 4px 12px',
-              height: '44px',
-            }}
-          >
-            <Flex
+          <Flex direction="column" gap={8}>
+            <Card
+              className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner-dark`}
               style={{
-                alignItems: 'center',
-                justifyContent: 'space-between',
+                padding: '4px 8px 4px 12px',
+                height: '44px',
               }}
             >
-              <FormField
-                control={form.control}
-                name="show_unit_price"
-                render={({ field }) => (
-                  <FormItem style={{ flex: '1' }}>
-                    <Checkbox
-                      style={{ flex: '1' }}
-                      value={Boolean(field.value)}
-                      label={__('Show unit price', 'kirki-ecommerce')}
-                      helpText={__('Show unit price', 'kirki-ecommerce')}
-                      onChange={(value) => {
-                        field.onChange(value);
-                        syncVariantField('show_unit_price', value);
-                      }}
+              <Flex
+                style={{
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                }}
+              >
+                <FormField
+                  control={form.control}
+                  name="show_unit_price"
+                  render={({ field }) => (
+                    <FormItem style={{ flex: '1' }}>
+                      <Flex gap={8} style={{ alignItems: 'center', flex: '1' }}>
+                        <Checkbox
+                          id="show-unit-price"
+                          checked={Boolean(field.value)}
+                          onCheckedChange={(checked) => {
+                            const value = checked === true;
+                            field.onChange(value);
+                            syncVariantField('show_unit_price', value);
+                          }}
+                        />
+                        <Label
+                          htmlFor="show-unit-price"
+                          helpText={__('Show unit price', 'kirki-ecommerce')}
+                        >
+                          {__('Show unit price', 'kirki-ecommerce')}
+                        </Label>
+                      </Flex>
+                    </FormItem>
+                  )}
+                />
+                <div>
+                  <Flex
+                    gap={8}
+                    style={{
+                      flex: '2',
+                      alignItems: 'center',
+                      justifyContent: 'flex-end',
+                      visibility: showUnitPrice ? 'visible' : 'hidden',
+                    }}
+                  >
+                    <Text
+                      subHeader={__('Base price per unit', 'kirki-ecommerce')}
                     />
-                  </FormItem>
-                )}
-              />
-              <div>
-                <Flex
-                  gap={8}
-                  style={{
-                    flex: '2',
-                    alignItems: 'center',
-                    justifyContent: 'flex-end',
-                    visibility: showUnitPrice ? 'visible' : 'hidden',
-                  }}
-                >
-                  <Text
-                    subHeader={__('Base price per unit', 'kirki-ecommerce')}
-                  />
-                  <BaseUnitPopup
-                    errors={errors}
-                    setErrors={setErrors}
-                    data={productData?.variants[0]}
-                    onChange={(value: UnitPriceValue) =>
-                      syncVariantField('base_price_per_unit', value)
-                    }
-                  />
-                </Flex>
-              </div>
-            </Flex>
-          </Card>
-
-          <Card
-            type="innerDark"
-            style={{
-              padding: '4px 8px 4px 12px',
-              height: '44px',
-            }}
-          >
-            <Grid style={{ alignItems: 'center' }}>
-              <FormField
-                control={form.control}
-                name="charge_taxes"
-                render={({ field }) => (
-                  <FormItem>
-                    <Checkbox
-                      value={Boolean(field.value)}
-                      label={__(
-                        'Charge tax on this product',
-                        'kirki-ecommerce',
-                      )}
-                      helpText={__(
-                        'Charge tax on this product',
-                        'kirki-ecommerce',
-                      )}
-                      onChange={(value) => {
-                        field.onChange(value);
-                        syncVariantField('charge_taxes', value);
-                      }}
+                    <BaseUnitPopup
+                      errors={errors}
+                      setErrors={setErrors}
+                      data={productData?.variants[0]}
+                      onChange={(value: UnitPriceValue) =>
+                        syncVariantField('base_price_per_unit', value)
+                      }
                     />
-                  </FormItem>
-                )}
-              />
+                  </Flex>
+                </div>
+              </Flex>
+            </Card>
 
-              <FormField
-                control={form.control}
-                name="tax_profile_id"
-                render={({ field, fieldState }) => (
-                  <FormItem>
-                    <Select
-                      value={field.value as string | number | undefined}
+            <Card
+              className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner-dark`}
+              style={{
+                padding: '4px 8px 4px 12px',
+                height: '44px',
+              }}
+            >
+              <Grid style={{ alignItems: 'center' }}>
+                <FormField
+                  control={form.control}
+                  name="charge_taxes"
+                  render={({ field }) => (
+                    <FormItem>
+                      <Flex gap={8} style={{ alignItems: 'center' }}>
+                        <Checkbox
+                          id="charge-taxes"
+                          checked={Boolean(field.value)}
+                          onCheckedChange={(checked) => {
+                            const value = checked === true;
+                            field.onChange(value);
+                            syncVariantField('charge_taxes', value);
+                          }}
+                        />
+                        <Label
+                          htmlFor="charge-taxes"
+                          helpText={__(
+                            'Charge tax on this product',
+                            'kirki-ecommerce',
+                          )}
+                        >
+                          {__('Charge tax on this product', 'kirki-ecommerce')}
+                        </Label>
+                      </Flex>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="tax_profile_id"
+                  render={({ field, fieldState }) => (
+                    <FormItem
                       style={{
                         visibility: chargeTaxes ? 'visible' : 'hidden',
                       }}
-                      btnText="Add Tax Profile"
-                      onNewItemAdd={() => setOpenTaxProfilePopup(true)}
-                      optionsArray={taxProfileList}
-                      onChange={(value) => {
-                        field.onChange(value);
-                        syncVariantField('tax_profile_id', value);
-                      }}
-                      error={fieldState.error?.message}
-                    />
-                  </FormItem>
-                )}
+                    >
+                      <Select
+                        value={
+                          field.value === null || field.value === undefined
+                            ? ''
+                            : String(field.value)
+                        }
+                        onValueChange={(value) => {
+                          if (value === ADD_TAX_PROFILE_VALUE) {
+                            setOpenTaxProfilePopup(true);
+                            return;
+                          }
+                          field.onChange(value);
+                          syncVariantField('tax_profile_id', value);
+                        }}
+                      >
+                        <FormControl>
+                          <SelectTrigger error={Boolean(fieldState.error)}>
+                            <SelectValue
+                              placeholder={__('Add Tax Profile', 'kirki-ecommerce')}
+                            />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value={ADD_TAX_PROFILE_VALUE}>
+                            <Flex gap={8} style={{ alignItems: 'center' }}>
+                              <PlusCircleIcon />
+                              {__('Add Tax Profile', 'kirki-ecommerce')}
+                            </Flex>
+                          </SelectItem>
+                          {taxProfileList.length > 0 && <SelectSeparator />}
+                          {taxProfileList.map((option) => (
+                            <SelectItem
+                              key={option.value}
+                              value={String(option.value)}
+                            >
+                              {option.title}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormItem>
+                  )}
+                />
+              </Grid>
+            </Card>
+          </Flex>
+
+          <Separator />
+
+          <Grid columns={3}>
+            <FormField
+              control={form.control}
+              name="cost_of_goods"
+              render={({ field, fieldState }) => (
+                <FormItem>
+                  <FormLabel>{__('Cost of goods', 'kirki-ecommerce')}</FormLabel>
+                  <FormControl>
+                    <div style={{ position: 'relative' }}>
+                      {field.value && (
+                        <span
+                          className={`${CLASS_PREFIX}-input-left-symbol`}
+                          style={{
+                            position: 'absolute',
+                            left: '12px',
+                            top: '50%',
+                            transform: 'translateY(-50%)',
+                            pointerEvents: 'none',
+                          }}
+                        >
+                          {currencySymbol}
+                        </span>
+                      )}
+                      <Input
+                        value={field.value ?? ''}
+                        style={{ textIndent: field.value ? '12px' : undefined }}
+                        placeholder={__('--', 'kirki-ecommerce')}
+                        type="number"
+                        onChange={(event) => {
+                          const value = event.target.value;
+                          field.onChange(value);
+                          syncVariantField('cost_of_goods', value);
+                        }}
+                        error={Boolean(fieldState.error)}
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Flex direction="column" gap={8}>
+              <Label>{__('Profit', 'kirki-ecommerce')}</Label>
+              <div style={{ position: 'relative' }}>
+                <span
+                  className={`${CLASS_PREFIX}-input-left-symbol`}
+                  style={{
+                    position: 'absolute',
+                    left: '12px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    pointerEvents: 'none',
+                  }}
+                >
+                  {currencySymbol}
+                </span>
+                <Input
+                  value={calculateProfit('profit', productData?.variants[0])}
+                  style={{ textIndent: '12px' }}
+                  type="number"
+                  disabled
+                />
+              </div>
+            </Flex>
+            <Flex direction="column" gap={8}>
+              <Label>{__('Margin(%)', 'kirki-ecommerce')}</Label>
+              <Input
+                value={calculateProfit('margin', productData?.variants[0])}
+                type="number"
+                disabled
               />
-            </Grid>
-          </Card>
-        </Flex>
-
-        <Separator />
-
-        <Grid columns={3}>
-          <FormField
-            control={form.control}
-            name="cost_of_goods"
-            render={({ field, fieldState }) => (
-              <FormItem>
-                <FormControl>
-                  <Input
-                    value={field.value || ''}
-                    leftSymbol={
-                      field.value ? (currency?.symbol as string) || '$' : null
-                    }
-                    label={__('Cost of goods', 'kirki-ecommerce')}
-                    placeholder={__('--', 'kirki-ecommerce')}
-                    type="number"
-                    onChange={(value) => {
-                      field.onChange(value);
-                      syncVariantField('cost_of_goods', value);
-                    }}
-                    error={fieldState.error?.message}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-          <Input
-            value={calculateProfit('profit', productData?.variants[0])}
-            label={__('Profit', 'kirki-ecommerce')}
-            type="number"
-            leftSymbol={(currency?.symbol as string) || '$'}
-            state="disabled"
-          />
-          <Input
-            value={calculateProfit('margin', productData?.variants[0])}
-            label={__('Margin(%)', 'kirki-ecommerce')}
-            type="number"
-            state="disabled"
-          />
-        </Grid>
+            </Flex>
+          </Grid>
+        </CardContent>
         <TaxProfilePopupView
           isOpen={openTaxProfilePopup}
           onClose={() => setOpenTaxProfilePopup(false)}

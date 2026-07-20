@@ -3,9 +3,10 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import SelectField from '@/components/form/select-field';
+import { Card, CardContent } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
+import { CLASS_PREFIX } from '@/conf';
 import { useProductForm } from '@/contexts/product-form-context';
-import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
 import {
   ProductRightPanelFormSchema,
@@ -81,18 +82,22 @@ const RightPanel = () => {
     <div style={{ width: '30%' }}>
       <Form {...form}>
         <Flex direction="column" gap={16}>
-          <Card type="form">
-            <SelectField
-              name="status"
-              label={__('Status', 'kirki-ecommerce')}
-              options={statusOptions}
-            />
+          <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-form`}>
+            <CardContent>
+              <SelectField
+                name="status"
+                label={__('Status', 'kirki-ecommerce')}
+                options={statusOptions}
+              />
+            </CardContent>
           </Card>
           <Categories />
-          <Card type="form">
-            <Tags />
-            <Collections />
-            <Brand />
+          <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-form`}>
+            <CardContent>
+              <Tags />
+              <Collections />
+              <Brand />
+            </CardContent>
           </Card>
         </Flex>
       </Form>

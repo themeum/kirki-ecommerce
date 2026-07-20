@@ -4,17 +4,18 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 import TextareaField from '@/components/form/textarea-field';
 import TextField from '@/components/form/text-field';
+import Button from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
+import { CLASS_PREFIX } from '@/conf';
 import { useProductForm } from '@/contexts/product-form-context';
 import ActionGroup from '@/molecules/action-group';
-import Button from '@/molecules/button';
-import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
 import {
   ProductAdditionalInfoFormSchema,
   type ProductAdditionalInfoFormValues,
 } from '@/schemas/forms/product-additional-info-form';
-import type { AdditionalInfoItem, ButtonState } from '@/types';
+import type { AdditionalInfoItem } from '@/types';
 import { __ } from '@/wpi18n';
 
 type AddOrEditInfoProps = {
@@ -73,47 +74,50 @@ const AddOrEditInfo = (props: AddOrEditInfoProps) => {
     onClose();
   };
 
-  const btnState: ButtonState =
-    !titleValue || !descriptionValue ? 'disabled' : '';
+  const isSaveDisabled = !titleValue || !descriptionValue;
 
   return (
-    <Card type="inner">
-      <Form {...form}>
-        <Flex direction="column" gap={16}>
-          <TextField
-            name="title"
-            label={__('Title', 'kirki-ecommerce')}
-            placeholder={__('e.g. Care Instructions', 'kirki-ecommerce')}
-          />
-          <TextareaField
-            name="description"
-            label={__('Description', 'kirki-ecommerce')}
-            rows={4}
-            placeholder={__(
-              'e.g. Clean with a damp cloth, avoid harsh chemicals, and store in a cool, dry place. Regular maintenance will keep it lookingnew!',
-              'kirki-ecommerce',
-            )}
-          />
-          <ActionGroup>
-            <Button
-              text={__('Cancel', 'kirki-ecommerce')}
-              type="secondary"
-              size="small"
-              onClick={() => {
-                form.reset({ title: '', description: '' });
-                onClose();
-              }}
+    <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner`}>
+      <CardContent>
+        <Form {...form}>
+          <Flex direction="column" gap={16}>
+            <TextField
+              name="title"
+              label={__('Title', 'kirki-ecommerce')}
+              placeholder={__('e.g. Care Instructions', 'kirki-ecommerce')}
             />
-            <Button
-              text={__('OK', 'kirki-ecommerce')}
-              type="primary"
-              size="small"
-              state={btnState}
-              onClick={form.handleSubmit(handleSaveInfo)}
+            <TextareaField
+              name="description"
+              label={__('Description', 'kirki-ecommerce')}
+              rows={4}
+              placeholder={__(
+                'e.g. Clean with a damp cloth, avoid harsh chemicals, and store in a cool, dry place. Regular maintenance will keep it lookingnew!',
+                'kirki-ecommerce',
+              )}
             />
-          </ActionGroup>
-        </Flex>
-      </Form>
+            <ActionGroup>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => {
+                  form.reset({ title: '', description: '' });
+                  onClose();
+                }}
+              >
+                {__('Cancel', 'kirki-ecommerce')}
+              </Button>
+              <Button
+                variant="primary"
+                size="sm"
+                disabled={isSaveDisabled}
+                onClick={form.handleSubmit(handleSaveInfo)}
+              >
+                {__('OK', 'kirki-ecommerce')}
+              </Button>
+            </ActionGroup>
+          </Flex>
+        </Form>
+      </CardContent>
     </Card>
   );
 };

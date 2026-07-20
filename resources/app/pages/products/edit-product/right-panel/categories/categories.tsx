@@ -1,8 +1,10 @@
 import { useFormContext } from 'react-hook-form';
 
-import Card from '@/molecules/card';
-import Checkbox from '@/molecules/checkbox';
-import Label from '@/molecules/label';
+import { Card, CardContent } from '@/components/ui/card';
+import Checkbox from '@/components/ui/checkbox';
+import Label from '@/components/ui/label';
+import { CLASS_PREFIX } from '@/conf';
+import Flex from '@/molecules/flex';
 import type { ProductRightPanelFormValues } from '@/schemas/forms/product-right-panel-form';
 import { useCategoriesQuery } from '@/services/category';
 import type { Category, ProductCategoryRef } from '@/types';
@@ -169,33 +171,41 @@ const Categories = () => {
   };
 
   return (
-    <Card type="form">
-      <Label text={__('Categories', 'kirki-ecommerce')} />
-      {!loaded && <div>{__('Loading...', 'kirki-ecommerce')}</div>}
-      {loaded && (
-        <>
-          {categories.length > 0 && (
-            <div>
-              <Checkbox
-                label={__('All Products', 'kirki-ecommerce')}
-                isPartialChecked={
-                  selectedCategories.length < categories.length &&
-                  selectedCategories.length !== 0
-                }
-                value={selectedCategories.length === categories.length}
-                onChange={(_value) => onSelectAll()}
-              />
-              <List
-                categories={categories}
-                parent_id={null}
-                selectedCategories={selectedCategories}
-                onSelectCategory={onSelectCategory}
-              />
-            </div>
-          )}
-          <AddNewCategory />
-        </>
-      )}
+    <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-form`}>
+      <CardContent>
+        <Label>{__('Categories', 'kirki-ecommerce')}</Label>
+        {!loaded && <div>{__('Loading...', 'kirki-ecommerce')}</div>}
+        {loaded && (
+          <>
+            {categories.length > 0 && (
+              <div>
+                <Flex gap={8} style={{ alignItems: 'center' }}>
+                  <Checkbox
+                    id="categories-all-products"
+                    checked={
+                      selectedCategories.length < categories.length &&
+                      selectedCategories.length !== 0
+                        ? 'indeterminate'
+                        : selectedCategories.length === categories.length
+                    }
+                    onCheckedChange={() => onSelectAll()}
+                  />
+                  <Label htmlFor="categories-all-products">
+                    {__('All Products', 'kirki-ecommerce')}
+                  </Label>
+                </Flex>
+                <List
+                  categories={categories}
+                  parent_id={null}
+                  selectedCategories={selectedCategories}
+                  onSelectCategory={onSelectCategory}
+                />
+              </div>
+            )}
+            <AddNewCategory />
+          </>
+        )}
+      </CardContent>
     </Card>
   );
 };
