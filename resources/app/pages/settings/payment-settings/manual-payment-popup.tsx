@@ -1,32 +1,32 @@
 import { useEffect, useState, type Dispatch, type SetStateAction } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
-import ThumbnailSelector from '@/components/thumbnail-selector';
+import RichTextField from '@/components/form/rich-text-field';
+import TextField from '@/components/form/text-field';
+import ThumbnailField from '@/components/form/thumbnail-field';
+import { Form } from '@/components/ui/form';
+import type { ErrorResponse } from '@/libs/api';
+import { applyServerErrors } from '@/libs/form-errors';
 import Button from '@/molecules/button';
 import Flex from '@/molecules/flex';
-import Input from '@/molecules/input';
 import {
   Popover,
   PopoverBody,
   PopoverFooter,
   PopoverHeader,
 } from '@/molecules/popover';
-import RichText from '@/molecules/rich-text';
-import Text from '@/molecules/text';
-import { getErrorsObject } from '@/libs/api';
+import {
+  ManualPaymentFormSchema,
+  manualPaymentDefaultValues,
+  type ManualPaymentFormValues,
+} from '@/schemas/forms/manual-payment-form';
 import {
   useCreatePaymentMethodMutation,
   useUpdatePaymentMethodMutation,
 } from '@/services/payment';
-import type { FormErrors, MediaChangePayload, PaymentMethod } from '@/types';
-import { __, sprintf } from '@/wpi18n';
-
-type ManualPaymentFormData = PaymentMethod & {
-  description?: string;
-  instructions?: string;
-  icon?: string;
-  is_manual?: boolean;
-  is_enabled?: boolean;
-};
+import type { PaymentMethod } from '@/types';
+import { __ } from '@/wpi18n';
 
 type ManualPaymentPopupProps = {
   openPopup: boolean;
@@ -35,89 +35,94 @@ type ManualPaymentPopupProps = {
   setEditingMethod: Dispatch<SetStateAction<PaymentMethod | null>>;
 };
 
-const ManualPaymentPopup = (props: ManualPaymentPopupProps) => {
-  const {
-    openPopup,
-    setOpenPopup,
-    editingMethod,
-    setEditingMethod,
-  } = props;
-  const [icon, setIcon] = useState('');
-  const [manualPaymentData, setManualPaymentData] =
-    useState<ManualPaymentFormData>({} as ManualPaymentFormData);
-  const [errors, setErrors] = useState<FormErrors>({});
+const getIconUrl = (method: PaymentMethod | null) => {
+  if (!method?.icon) {
+    return '';
+  }
+  if (typeof method.icon === 'string') {
+    return method.icon;
+  }
+  return '';
+};
 
-  const { mutate: createMethod } = useCreatePaymentMethodMutation();
-  const { mutate: updateMethod } = useUpdatePaymentMethodMutation();
+const ManualPaymentPopup = (props: ManualPaymentPopupProps) => {
+  const { openPopup, setOpenPopup, editingMethod, setEditingMethod } = props;
+  const [iconPreview, setIconPreview] = useState<string | null>('');
+
+  const { mutateAsync: createMethod, isPending: isCreating } =
+    useCreatePaymentMethodMutation();
+  const { mutateAsync: updateMethod, isPending: isUpdating } =
+    useUpdatePaymentMethodMutation();
+  const isSubmitting = isCreating || isUpdating;
+
+  const form = useForm<ManualPaymentFormValues>({
+    resolver: zodResolver(ManualPaymentFormSchema),
+    defaultValues: manualPaymentDefaultValues,
+  });
 
   useEffect(() => {
-    if (editingMethod) {
-      setManualPaymentData(editingMethod as ManualPaymentFormData);
-      setIcon((editingMethod?.icon as string) || '');
+    if (!openPopup) {
+      return;
     }
-  }, [editingMethod]);
 
-  const handleOnChange = (value: unknown, key: string) => {
-    setManualPaymentData((prev) => {
-      if (key === 'icon') {
-        const media = value as MediaChangePayload;
-        setIcon(media?.url || '');
-        return {
-          ...prev,
-          [key]: media?.url,
-        };
-      }
-      return {
-        ...prev,
-        [key]: value,
-        ['is_manual']: true,
-      };
+    const iconUrl = getIconUrl(editingMethod);
+    setIconPreview(iconUrl);
+    form.reset({
+      name: editingMethod?.name ?? '',
+      icon: iconUrl,
+      instructions:
+        (editingMethod?.instructions as string) ||
+        ((editingMethod as PaymentMethod & { description?: string })
+          ?.description ??
+          ''),
+      is_manual: true,
+      is_enabled: editingMethod?.is_enabled ?? true,
     });
+  }, [openPopup, editingMethod, form]);
 
-    setErrors((prev) => ({
-      ...prev,
-      [key]: null,
-    }));
+  const handleClose = () => {
+    setIconPreview('');
+    form.reset(manualPaymentDefaultValues);
+    setOpenPopup(false);
+    setEditingMethod(null);
   };
 
-  const handleSaveOrUpdateData = () => {
-    const isEdit = Boolean(editingMethod);
-    const onSuccess = () => {
-      setIcon('');
-      setManualPaymentData({} as ManualPaymentFormData);
-      setOpenPopup(false);
-      setEditingMethod(null);
-    };
-    const onError = (error: unknown) => {
-      const errObj = error as { errors?: Record<string, string[]> };
-      setErrors(getErrorsObject(errObj.errors));
+  const handleSaveOrUpdateData = async (values: ManualPaymentFormValues) => {
+    const iconValue =
+      typeof values.icon === 'object' && values.icon !== null
+        ? ((values.icon as { url?: string }).url ?? '')
+        : (values.icon ?? '');
+
+    const payload = {
+      ...values,
+      icon: iconValue,
+      is_manual: true,
     };
 
-    if (isEdit) {
-      updateMethod(
-        {
-          id: editingMethod!.id,
-          data: manualPaymentData as Record<string, unknown>,
-        },
-        { onSuccess, onError },
-      );
-    } else {
-      createMethod(manualPaymentData as Record<string, unknown>, {
-        onSuccess,
-        onError,
-      });
+    try {
+      if (editingMethod) {
+        await updateMethod({
+          id: editingMethod.id,
+          data: payload as Record<string, unknown>,
+        });
+      } else {
+        await createMethod(payload as Record<string, unknown>);
+      }
+      handleClose();
+    } catch (error) {
+      applyServerErrors(form, error as ErrorResponse);
     }
   };
 
   return (
-    <>
-      <Popover isOpen={openPopup} style={{ width: '600px' }}>
-        <PopoverHeader
-          style={{ padding: 'var(--decom-spacing-5)' }}
-          onClose={() => setOpenPopup(false)}
-        >
-          {__('Add Manual Payment Method', 'kirki-ecommerce')}
-        </PopoverHeader>
+    <Popover isOpen={openPopup} style={{ width: '600px' }}>
+      <PopoverHeader
+        style={{ padding: 'var(--decom-spacing-5)' }}
+        onClose={handleClose}
+      >
+        {__('Add Manual Payment Method', 'kirki-ecommerce')}
+      </PopoverHeader>
+      <Form {...form}>
         <PopoverBody
           style={{
             padding:
@@ -125,48 +130,41 @@ const ManualPaymentPopup = (props: ManualPaymentPopupProps) => {
           }}
         >
           <Flex direction="column" gap={16}>
-            <Input
+            <TextField
+              name="name"
               label={__('Method Name', 'kirki-ecommerce')}
-              value={(manualPaymentData?.name as string) || ''}
               placeholder={__(
                 'e.g. Cash on Delivery (COD)',
                 'kirki-ecommerce',
               )}
-              onChange={(value) => handleOnChange(value, 'name')}
-              error={errors['name'] as string | boolean | undefined}
             />
-            <ThumbnailSelector
+            <ThumbnailField
+              name="icon"
               label={__('Icon', 'kirki-ecommerce')}
-              helpText={__('Icon', 'kirki-ecommerce')}
-              src={icon}
+              description={__('Icon', 'kirki-ecommerce')}
               placeholder={__(
                 'Recommended image size: 48x48',
                 'kirki-ecommerce',
               )}
-              onChange={(img) => handleOnChange(img, 'icon')}
-              error={errors['icon'] as string | boolean | undefined}
+              valueAs="object"
+              previewUrl={iconPreview}
+              onPreviewChange={setIconPreview}
+              getPreviewUrl={(value) =>
+                typeof value === 'string' ? value : undefined
+              }
             />
-            <Flex direction="column" gap={8}>
-              <RichText
-                label={__('Payment Instructions', 'kirki-ecommerce')}
-                placeholder={__(
-                  'Type instructions related to payment method',
-                  'kirki-ecommerce',
-                )}
-                value={sprintf(
-                  __('%s', 'kirki-ecommerce'),
-                  (manualPaymentData?.description as string) || '',
-                )}
-                onChange={(value) => handleOnChange(value, 'instructions')}
-              />
-              <Text
-                subHeader={__(
-                  'Provide clear, step-by-step instructions on how to complete the payment',
-                  'kirki-ecommerce',
-                )}
-                type="xsm"
-              />
-            </Flex>
+            <RichTextField
+              name="instructions"
+              label={__('Payment Instructions', 'kirki-ecommerce')}
+              placeholder={__(
+                'Type instructions related to payment method',
+                'kirki-ecommerce',
+              )}
+              description={__(
+                'Provide clear, step-by-step instructions on how to complete the payment',
+                'kirki-ecommerce',
+              )}
+            />
           </Flex>
         </PopoverBody>
         <PopoverFooter>
@@ -174,17 +172,19 @@ const ManualPaymentPopup = (props: ManualPaymentPopupProps) => {
             type="secondary"
             size="small"
             text={__('Cancel', 'kirki-ecommerce')}
-            onClick={() => setOpenPopup(false)}
+            onClick={handleClose}
+            state={isSubmitting ? 'disabled' : undefined}
           />
           <Button
             type="primary"
             size="small"
             text={__('Save', 'kirki-ecommerce')}
-            onClick={handleSaveOrUpdateData}
+            onClick={form.handleSubmit(handleSaveOrUpdateData)}
+            state={isSubmitting ? 'loading' : undefined}
           />
         </PopoverFooter>
-      </Popover>
-    </>
+      </Form>
+    </Popover>
   );
 };
 

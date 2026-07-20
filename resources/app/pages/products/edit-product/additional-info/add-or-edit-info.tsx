@@ -1,12 +1,20 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
+import TextareaField from '@/components/form/textarea-field';
+import TextField from '@/components/form/text-field';
+import { Form } from '@/components/ui/form';
+import { useProductForm } from '@/contexts/product-form-context';
 import ActionGroup from '@/molecules/action-group';
 import Button from '@/molecules/button';
 import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
-import Input from '@/molecules/input';
-import { useProductForm } from '@/contexts/product-form-context';
-import type { AdditionalInfoItem } from '@/types';
+import {
+  ProductAdditionalInfoFormSchema,
+  type ProductAdditionalInfoFormValues,
+} from '@/schemas/forms/product-additional-info-form';
+import type { AdditionalInfoItem, ButtonState } from '@/types';
 import { __ } from '@/wpi18n';
 
 type AddOrEditInfoProps = {
@@ -14,39 +22,43 @@ type AddOrEditInfoProps = {
   onClose?: () => void;
 };
 
-type InfoFormData = {
-  title?: string;
-  description?: string;
-};
-
 const AddOrEditInfo = (props: AddOrEditInfoProps) => {
   const { index, onClose = () => {} } = props;
   const { product: productData, updateProduct } = useProductForm();
-  const [infoData, setInfoData] = useState<InfoFormData>({});
+
+  const form = useForm<ProductAdditionalInfoFormValues>({
+    resolver: zodResolver(ProductAdditionalInfoFormSchema),
+    defaultValues: {
+      title: '',
+      description: '',
+    },
+  });
+
+  const titleValue = form.watch('title');
+  const descriptionValue = form.watch('description');
 
   useEffect(() => {
     if (index || index === 0) {
       const infoItem = (productData?.additional_info ?? [])[index] as
         | AdditionalInfoItem
         | undefined;
-      setInfoData({
-        title: infoItem?.title,
-        description: infoItem?.description as string | undefined,
+      form.reset({
+        title: infoItem?.title ?? '',
+        description: (infoItem?.description as string | undefined) ?? '',
       });
+      return;
     }
-  }, [index]);
 
-  const handleOnChange = (value: unknown, fieldName: string) => {
-    setInfoData((prev) => ({
-      ...prev,
-      [fieldName]: value,
-    }));
-  };
+    form.reset({
+      title: '',
+      description: '',
+    });
+  }, [index, form]);
 
-  const onSaveInfo = () => {
+  const handleSaveInfo = (values: ProductAdditionalInfoFormValues) => {
     if (index || index === 0) {
       const allData = [...(productData?.additional_info ?? [])];
-      allData[index] = infoData;
+      allData[index] = values;
       updateProduct({
         key: 'additional_info',
         value: allData,
@@ -54,51 +66,54 @@ const AddOrEditInfo = (props: AddOrEditInfoProps) => {
     } else {
       updateProduct({
         key: 'additional_info',
-        value: [...(productData?.additional_info || []), infoData],
+        value: [...(productData?.additional_info || []), values],
       });
     }
-    setInfoData({});
+    form.reset({ title: '', description: '' });
     onClose();
   };
 
+  const btnState: ButtonState =
+    !titleValue || !descriptionValue ? 'disabled' : '';
+
   return (
     <Card type="inner">
-      <Flex direction="column" gap={16}>
-        <Input
-          label={__('Title', 'kirki-ecommerce')}
-          placeholder={__('e.g. Care Instructions', 'kirki-ecommerce')}
-          value={infoData?.title || ''}
-          onChange={(value) => handleOnChange(value, 'title')}
-        />
-        <Input
-          label={__('Description', 'kirki-ecommerce')}
-          multiline={4}
-          value={infoData?.description || ''}
-          placeholder={__(
-            'e.g. Clean with a damp cloth, avoid harsh chemicals, and store in a cool, dry place. Regular maintenance will keep it lookingnew!',
-            'kirki-ecommerce',
-          )}
-          onChange={(value) => handleOnChange(value, 'description')}
-        />
-        <ActionGroup>
-          <Button
-            text={__('Cancel', 'kirki-ecommerce')}
-            type="secondary"
-            size="small"
-            onClick={() => {
-              setInfoData({});
-              onClose();
-            }}
+      <Form {...form}>
+        <Flex direction="column" gap={16}>
+          <TextField
+            name="title"
+            label={__('Title', 'kirki-ecommerce')}
+            placeholder={__('e.g. Care Instructions', 'kirki-ecommerce')}
           />
-          <Button
-            text={__('OK', 'kirki-ecommerce')}
-            type="primary"
-            size="small"
-            state={!infoData.title || !infoData?.description ? 'disabled' : ''}
-            onClick={onSaveInfo}
+          <TextareaField
+            name="description"
+            label={__('Description', 'kirki-ecommerce')}
+            rows={4}
+            placeholder={__(
+              'e.g. Clean with a damp cloth, avoid harsh chemicals, and store in a cool, dry place. Regular maintenance will keep it lookingnew!',
+              'kirki-ecommerce',
+            )}
           />
-        </ActionGroup>
-      </Flex>
+          <ActionGroup>
+            <Button
+              text={__('Cancel', 'kirki-ecommerce')}
+              type="secondary"
+              size="small"
+              onClick={() => {
+                form.reset({ title: '', description: '' });
+                onClose();
+              }}
+            />
+            <Button
+              text={__('OK', 'kirki-ecommerce')}
+              type="primary"
+              size="small"
+              state={btnState}
+              onClick={form.handleSubmit(handleSaveInfo)}
+            />
+          </ActionGroup>
+        </Flex>
+      </Form>
     </Card>
   );
 };

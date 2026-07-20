@@ -1,25 +1,40 @@
 import { useEffect, useState, type Dispatch, type SetStateAction } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useSearchParams } from 'react-router';
 import { toast } from 'sonner';
 
+import SelectField from '@/components/form/select-field';
+import TextField from '@/components/form/text-field';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from '@/components/ui/form';
+import Input from '@/components/ui/input';
 import Flex from '@/molecules/flex';
 import Placeholder from '@/molecules/placeholder';
 import Text from '@/molecules/text';
 import Grid from '@/molecules/grid';
-import Input from '@/molecules/input';
 import Button from '@/molecules/button';
-import { Select } from '@/molecules/select';
 import { LighteningIcon } from '@/icons';
 import { CLASS_PREFIX } from '@/conf';
-import { getErrorsObject } from '@/libs/api';
+import type { ErrorResponse } from '@/libs/api';
+import { applyServerErrors } from '@/libs/form-errors';
 import { queryClient } from '@/libs/query-client';
 import { queryKeys } from '@/libs/query-keys';
 import { useCategoriesQuery } from '@/services/category';
 import { getErrorMessage } from '@/services/helpers';
 import { useSettingsQuery, updateSettings } from '@/services/settings';
 import { useShippingProfilesQuery } from '@/services/shipping';
-import { normalizeErrors } from '@/pages/utils';
-import type { FormErrors, SettingsSectionData } from '@/types';
+import {
+  ShippingRuleFormSchema,
+  shippingRuleDefaultValues,
+  type ShippingRuleFormValues,
+} from '@/schemas/forms/shipping-rule-form';
+import type { SettingsSectionData } from '@/types';
 import { __ } from '@/wpi18n';
 
 import {
@@ -42,7 +57,10 @@ type ShippingRuleModalProps = {
   ruleIndex?: number;
 };
 
-type ConditionDataMap = Record<string, Array<{ id: number | string; name: string }> | null>;
+type ConditionDataMap = Record<
+  string,
+  Array<{ id: number | string; name: string }> | null
+>;
 
 const ShippingRuleModal = ({
   showModal,
@@ -58,18 +76,7 @@ const ShippingRuleModal = ({
   const selectedZone = searchParams.get('zoneId');
 
   const [openDestinationPopup, setOpenDestinationPopup] = useState(false);
-  const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
   const [selectedRegion, setSelectedRegion] = useState<ShippingRegion[]>([]);
-  const [selectedCondition, setSelectedCondition] =
-    useState('product_category');
-  const [selectedConditionValue, setSelectedConditionValue] =
-    useState<unknown>(null);
-  const [selectedOperator, setSelectedOperator] = useState('');
-  const [selectedAction, setSelectedAction] = useState('set_shipping_cost');
-  const [selectedActionValue, setSelectedActionValue] = useState<
-    string | number
-  >('');
-  const [errors, setErrors] = useState<FormErrors>({});
 
   const { data: shippingSettingsData } = useSettingsQuery('shipping');
   const { data: shippingProfile } = useShippingProfilesQuery({ limit: -1 });
@@ -81,13 +88,69 @@ const ShippingRuleModal = ({
     product_category: null,
     shipping_profile: null,
   });
+
+  const form = useForm<ShippingRuleFormValues>({
+    resolver: zodResolver(ShippingRuleFormSchema),
+    defaultValues: shippingRuleDefaultValues,
+  });
+
+  const selectedCondition = useWatch({
+    control: form.control,
+    name: 'condition',
+  });
+  const selectedAction = useWatch({ control: form.control, name: 'action' });
+  const selectedCountry = useWatch({
+    control: form.control,
+    name: 'selected_country',
+  });
+  const selectedConditionValue = useWatch({
+    control: form.control,
+    name: 'condition_value',
+  });
+
   const methodID = from === 'edit' ? selectedMethod : methodId;
   const zoneID = selectedZone;
+
+  useEffect(() => {
+    if (!showModal) {
+      return;
+    }
+
+    if (from === 'edit' && rulesObj) {
+      const rule = rulesObj as ShippingRule;
+      const condition = rule?.conditions?.[0];
+      const action = rule?.action;
+
+      form.reset({
+        condition: condition?.type || 'product_category',
+        operator: condition?.operator || 'is',
+        condition_value:
+          condition?.type === 'destination_region'
+            ? {
+                country: (condition.value as { country: string }).country,
+                states:
+                  (condition.value as { states?: Array<string | number> })
+                    .states || [],
+              }
+            : (condition?.value ?? null),
+        action: action?.type || 'set_shipping_cost',
+        action_value: (action?.value as string | number) ?? '',
+        selected_country:
+          condition?.type === 'destination_region'
+            ? (condition.value as { country: string }).country
+            : null,
+      });
+      return;
+    }
+
+    form.reset(shippingRuleDefaultValues);
+  }, [showModal, from, rulesObj, form]);
 
   useEffect(() => {
     if (selectedCondition !== 'destination_region') {
       return;
     }
+
     let regionForCountry;
     let selected_country = '';
 
@@ -102,48 +165,16 @@ const ShippingRuleModal = ({
         (r) => r.country === selected_country,
       );
     }
-    setSelectedCountry(selected_country);
+
+    form.setValue('selected_country', selected_country || null);
 
     if (selected_country && from !== 'edit') {
-      setSelectedConditionValue({
+      form.setValue('condition_value', {
         country: selected_country,
         states: regionForCountry?.states || [],
       });
     }
-  }, [selectedCountry, selectedRegion, selectedCondition]);
-
-  useEffect(() => {
-    if (from !== 'edit' || !rulesObj) {
-      return;
-    }
-
-    const rule = rulesObj as ShippingRule;
-    const condition = rule?.conditions?.[0];
-    const action = rule?.action;
-
-    if (condition) {
-      setSelectedCondition(condition.type);
-      setSelectedOperator(condition.operator);
-      if (condition.type === 'destination_region') {
-        const value = condition.value as {
-          country: string;
-          states?: Array<string | number>;
-        };
-        setSelectedConditionValue({
-          country: value.country,
-          states: value.states || [],
-        });
-        setSelectedCountry(value.country);
-      } else {
-        setSelectedConditionValue(condition.value);
-      }
-    }
-
-    if (action) {
-      setSelectedAction(action.type);
-      setSelectedActionValue(action.value as string | number);
-    }
-  }, [from, rulesObj]);
+  }, [selectedCountry, selectedRegion, selectedCondition, from, form]);
 
   useEffect(() => {
     if (
@@ -176,10 +207,11 @@ const ShippingRuleModal = ({
       case 'shipping_profile':
         setConditionData((prev) => ({
           ...prev,
-          shipping_profile: (shippingProfile as Array<{
-            id: number | string;
-            name: string;
-          }> | null) ?? null,
+          shipping_profile:
+            (shippingProfile as Array<{
+              id: number | string;
+              name: string;
+            }> | null) ?? null,
         }));
         break;
 
@@ -197,22 +229,27 @@ const ShippingRuleModal = ({
       default:
         break;
     }
-  }, [selectedCondition, shippingProfile, shippingSettingsData, methodID, zoneID]);
+  }, [
+    selectedCondition,
+    shippingProfile,
+    shippingSettingsData,
+    methodID,
+    zoneID,
+    conditionData,
+  ]);
 
-  const getConditionValue = () => {
-    const data = conditionData[selectedCondition];
+  const getConditionValueOptions = () => {
+    const data = conditionData[selectedCondition || ''];
 
     switch (selectedCondition) {
       case 'product_category':
       case 'shipping_profile':
-        return data?.map((item) => ({
-          title: item.name,
-          value: item.name,
-          id: item.id,
-        }));
-
-      case 'cart_weight':
-        return [];
+        return (
+          data?.map((item) => ({
+            label: item.name,
+            value: item.name,
+          })) ?? []
+        );
 
       default:
         return [];
@@ -222,43 +259,58 @@ const ShippingRuleModal = ({
   const getOperatorOptions = () => {
     if (selectedCondition === 'cart_weight') {
       return [
-        { title: __('> (Greater than)', 'kirki-ecommerce'), value: '>' },
-        { title: __('= (Equal to)', 'kirki-ecommerce'), value: '=' },
-        { title: __('< (Less than)', 'kirki-ecommerce'), value: '<' },
+        {
+          label: __('> (Greater than)', 'kirki-ecommerce'),
+          value: '>',
+        },
+        {
+          label: __('= (Equal to)', 'kirki-ecommerce'),
+          value: '=',
+        },
+        {
+          label: __('< (Less than)', 'kirki-ecommerce'),
+          value: '<',
+        },
       ];
-    } else {
-      return [{ title: __('is', 'kirki-ecommerce'), value: 'is' }];
     }
+    return [{ label: __('is', 'kirki-ecommerce'), value: 'is' }];
   };
 
-  const buildRule = (): ShippingRule => ({
+  const buildRule = (values: ShippingRuleFormValues): ShippingRule => ({
     relation: 'AND',
     conditions: [
       {
-        type: selectedCondition,
-        operator: selectedOperator || '=',
-        value: selectedConditionValue,
+        type: values.condition,
+        operator: values.operator || '=',
+        value: values.condition_value,
       },
     ],
     action: {
-      type: selectedAction,
-      value: ['set_shipping_cost', 'add_shipping_cost'].includes(selectedAction)
-        ? selectedActionValue
+      type: values.action,
+      value: ['set_shipping_cost', 'add_shipping_cost'].includes(values.action)
+        ? values.action_value
         : null,
     },
   });
 
-  const updateMethodRules = (method: { shipping_rules?: ShippingRule[] }) => {
+  const updateMethodRules = (
+    method: { shipping_rules?: ShippingRule[] },
+    values: ShippingRuleFormValues,
+  ) => {
     const rules = method.shipping_rules || [];
 
     if (ruleIndex !== -1) {
-      return rules.map((rule, idx) => (idx === ruleIndex ? buildRule() : rule));
+      return rules.map((rule, idx) =>
+        idx === ruleIndex ? buildRule(values) : rule,
+      );
     }
-    return [...rules, buildRule()];
+    return [...rules, buildRule(values)];
   };
 
-  const handleAddOrUpdateShippingRule = async () => {
-    if (!selectedCondition || !selectedAction) {
+  const handleAddOrUpdateShippingRule = async (
+    values: ShippingRuleFormValues,
+  ) => {
+    if (!values.condition || !values.action) {
       return;
     }
 
@@ -278,7 +330,7 @@ const ShippingRuleModal = ({
 
           return {
             ...method,
-            shipping_rules: updateMethodRules(method),
+            shipping_rules: updateMethodRules(method, values),
           };
         }),
       };
@@ -289,10 +341,6 @@ const ShippingRuleModal = ({
       shipping_zones: updatedShippingZones,
     };
 
-    await updateData(updatedData);
-  };
-
-  const updateData = async (updatedData: SettingsSectionData) => {
     try {
       await updateSettings({ key: 'shipping', data: updatedData });
       void queryClient.invalidateQueries({
@@ -301,21 +349,24 @@ const ShippingRuleModal = ({
       toast.success(__('Shipping rule updated', 'kirki-ecommerce'));
       setShowModal(false);
     } catch (error) {
-      const errObj = error as {
-        errors?: Record<string, unknown>;
-        message?: string;
-      };
+      const errObj = error as ErrorResponse & { message?: string };
       if (errObj?.errors) {
-        setErrors(
-          normalizeErrors(
-            getErrorsObject(errObj.errors as Record<string, string[]>),
-          ) as FormErrors,
-        );
+        applyServerErrors(form, errObj);
       } else {
         toast.error(getErrorMessage(error));
       }
     }
   };
+
+  const conditionSelectOptions = conditionOptions.map((option) => ({
+    label: option.title,
+    value: option.value,
+  }));
+
+  const actionSelectOptions = actionOptionsArray.map((option) => ({
+    label: option.title,
+    value: option.value,
+  }));
 
   return (
     <>
@@ -325,114 +376,126 @@ const ShippingRuleModal = ({
           showModal ? 'is-open' : ''
         }`}
       >
-        <Flex
-          direction={'column'}
-          gap={16}
-          style={{ padding: 'var(--decom-spacing-3)' }}
-        >
-          {from !== 'edit' && (
-            <Text
-              header={__('New Shipping Rules', 'kirki-ecommerce')}
-              leftIcon={<LighteningIcon />}
-            />
-          )}
-          <Flex direction={'column'} gap={8}>
-            <Text header="IF" />
-            <Grid columns={3}>
-              <Select
-                value={selectedCondition}
-                optionsArray={conditionOptions}
-                placeholder={__('Product profile', 'kirki-ecommerce')}
-                onChange={(value: string) => setSelectedCondition(value)}
+        <Form {...form}>
+          <Flex
+            direction={'column'}
+            gap={16}
+            style={{ padding: 'var(--decom-spacing-3)' }}
+          >
+            {from !== 'edit' && (
+              <Text
+                header={__('New Shipping Rules', 'kirki-ecommerce')}
+                leftIcon={<LighteningIcon />}
               />
-              {selectedCondition === 'cart_weight' ? (
-                <Select
-                  value={selectedOperator}
-                  optionsArray={getOperatorOptions()}
-                  onChange={(value: string) => setSelectedOperator(value)}
+            )}
+            <Flex direction={'column'} gap={8}>
+              <Text header="IF" />
+              <Grid columns={3}>
+                <SelectField
+                  name="condition"
+                  options={conditionSelectOptions}
+                  placeholder={__('Product profile', 'kirki-ecommerce')}
                 />
-              ) : (
-                <Input value={__('is', 'kirki-ecommerce')} readOnly />
-              )}
+                {selectedCondition === 'cart_weight' ? (
+                  <SelectField
+                    name="operator"
+                    options={getOperatorOptions()}
+                  />
+                ) : (
+                  <Input value={__('is', 'kirki-ecommerce')} readOnly />
+                )}
 
-              {selectedCondition === 'destination_region' ? (
-                <Input
-                  value={selectedCountry ?? ''}
-                  onClick={() => setOpenDestinationPopup(true)}
-                  readOnly
-                  error={errors['value'] as string | undefined}
-                />
-              ) : selectedCondition === 'cart_weight' ? (
-                <Input
-                  value={selectedConditionValue as string | number}
-                  onChange={(value: unknown) =>
-                    setSelectedConditionValue(value)
-                  }
-                  error={errors['value'] as string | undefined}
-                />
-              ) : (
-                <Select
-                  value={selectedConditionValue as string}
-                  optionsArray={getConditionValue()}
-                  onChange={(value: unknown) =>
-                    setSelectedConditionValue(value)
-                  }
-                  error={errors['value'] as string | undefined}
-                />
-              )}
-            </Grid>
-          </Flex>
-          <Flex direction={'column'} gap={8}>
-            <Text header={__('THEN', 'kirki-ecommerce')} />
-            <Grid columns={2}>
-              <Select
-                optionsArray={actionOptionsArray}
-                value={selectedAction}
-                onChange={(value: string) => setSelectedAction(value)}
+                {selectedCondition === 'destination_region' ? (
+                  <FormField
+                    control={form.control}
+                    name="selected_country"
+                    render={({ field, fieldState }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input
+                            value={field.value ?? ''}
+                            onClick={() => setOpenDestinationPopup(true)}
+                            readOnly
+                            error={Boolean(fieldState.error)}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                ) : selectedCondition === 'cart_weight' ? (
+                  <TextField name="condition_value" />
+                ) : (
+                  <SelectField
+                    name="condition_value"
+                    options={getConditionValueOptions()}
+                  />
+                )}
+              </Grid>
+            </Flex>
+            <Flex direction={'column'} gap={8}>
+              <Text header={__('THEN', 'kirki-ecommerce')} />
+              <Grid columns={2}>
+                <SelectField name="action" options={actionSelectOptions} />
+                {(selectedAction === 'set_shipping_cost' ||
+                  selectedAction === 'add_shipping_cost') && (
+                  <TextField
+                    name="action_value"
+                    placeholder="e.g., $100"
+                  />
+                )}
+              </Grid>
+            </Flex>
+            <Flex gap={8} style={{ justifyContent: 'flex-end' }}>
+              <Button
+                type="secondary"
+                text={__('Cancel', 'kirki-ecommerce')}
+                onClick={() => setShowModal(false)}
               />
-              {(selectedAction === 'set_shipping_cost' ||
-                selectedAction === 'add_shipping_cost') && (
-                <Input
-                  value={selectedActionValue}
-                  placeholder="e.g., $100"
-                  onChange={(value: string | number) =>
-                    setSelectedActionValue(value)
-                  }
-                  error={errors['value'] as string | undefined}
-                />
-              )}
-            </Grid>
+              <Button
+                type="primary"
+                text={
+                  from === 'edit'
+                    ? __('Save', 'kirki-ecommerce')
+                    : __('Add Rule', 'kirki-ecommerce')
+                }
+                onClick={form.handleSubmit(handleAddOrUpdateShippingRule)}
+              />
+            </Flex>
           </Flex>
-          <Flex gap={8} style={{ justifyContent: 'flex-end' }}>
-            <Button
-              type="secondary"
-              text={__('Cancel', 'kirki-ecommerce')}
-              onClick={() => setShowModal(false)}
-            />
-            <Button
-              type="primary"
-              text={
-                from === 'edit'
-                  ? __('Save', 'kirki-ecommerce')
-                  : __('Add Rule', 'kirki-ecommerce')
-              }
-              onClick={handleAddOrUpdateShippingRule}
-            />
-          </Flex>
-        </Flex>
+        </Form>
       </Placeholder>
       {openDestinationPopup && (
         <SelectDestinationPopup
           openPopup={openDestinationPopup}
           setOpenPopup={setOpenDestinationPopup}
           selectedRegion={selectedRegion}
-          selectedCountry={selectedCountry}
-          setSelectedCountry={setSelectedCountry}
+          selectedCountry={selectedCountry ?? null}
+          setSelectedCountry={(value) => {
+            const next =
+              typeof value === 'function'
+                ? value(selectedCountry ?? null)
+                : value;
+            form.setValue('selected_country', next);
+          }}
           setSelectedRegion={setSelectedRegion}
           selectedConditionValue={selectedConditionValue}
-          setSelectedConditionValue={setSelectedConditionValue}
+          setSelectedConditionValue={(value) => {
+            const next =
+              typeof value === 'function'
+                ? value(selectedConditionValue)
+                : value;
+            form.setValue('condition_value', next);
+          }}
           setRulesObj={setRulesObj as Dispatch<SetStateAction<ShippingRule[]>>}
           ruleIndex={ruleIndex}
+          onSave={(values) => {
+            form.setValue('selected_country', values.country);
+            form.setValue('condition_value', {
+              country: values.country,
+              states: values.states,
+            });
+          }}
         />
       )}
     </>

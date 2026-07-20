@@ -1,3 +1,6 @@
+import { useFormContext, useWatch } from 'react-hook-form';
+
+import TextField from '@/components/form/text-field';
 import { ReplaceIcon } from '@/icons';
 import ActionGroup from '@/molecules/action-group';
 import Button from '@/molecules/button';
@@ -6,24 +9,25 @@ import Flex from '@/molecules/flex';
 import Grid from '@/molecules/grid';
 import Input from '@/molecules/input';
 import Text from '@/molecules/text';
-import type { FormErrors } from '@/types';
+import type { GeneralSettingsFormValues } from '@/schemas/forms/general-settings-form';
 import { __ } from '@/wpi18n';
 
-import type { GeneralSettingsFormData } from '@/pages/settings/general-settings/utils';
+const OrderId = () => {
+  const { setValue } = useFormContext<GeneralSettingsFormValues>();
+  const orderIdPrefix = useWatch<GeneralSettingsFormValues>({
+    name: 'order_id_prefix',
+  });
+  const orderIdSuffix = useWatch<GeneralSettingsFormValues>({
+    name: 'order_id_suffix',
+  });
 
-type OrderIdProps = {
-  dataObj: GeneralSettingsFormData | null;
-  handleOnChange: (value: unknown, key: string) => void;
-  handleResetIDField: (key: string) => void;
-  errors: FormErrors;
-};
+  const orderID = `${orderIdPrefix || ''}${orderIdSuffix || ''}`;
 
-const OrderId = (props: OrderIdProps) => {
-  const { dataObj, handleOnChange, handleResetIDField, errors } = props;
+  const handleResetIDField = () => {
+    setValue('order_id_prefix', '', { shouldDirty: true });
+    setValue('order_id_suffix', '', { shouldDirty: true });
+  };
 
-  const orderID = `${dataObj?.order_id_prefix || ''}${
-    dataObj?.order_id_suffix || ''
-  }`;
   return (
     <div>
       <Card type="large">
@@ -40,26 +44,18 @@ const OrderId = (props: OrderIdProps) => {
         <Card type="inner" style={{ padding: 'var(--decom-spacing-4)' }}>
           <Flex direction="column" gap={16}>
             <Grid>
-              <Input
+              <TextField
+                name="order_id_prefix"
                 label={__('Prefix', 'kirki-ecommerce')}
-                value={dataObj?.order_id_prefix}
-                onChange={(value) => handleOnChange(value, 'order_id_prefix')}
                 placeholder={__('#ORD-', 'kirki-ecommerce')}
-                helpText={__('Set order id prefix', 'kirki-ecommerce')}
-                error={
-                  errors['data.order_id_prefix'] as string | boolean | undefined
-                }
+                description={__('Set order id prefix', 'kirki-ecommerce')}
               />
 
-              <Input
+              <TextField
+                name="order_id_suffix"
                 label={__('Suffix', 'kirki-ecommerce')}
-                value={dataObj?.order_id_suffix}
-                onChange={(value) => handleOnChange(value, 'order_id_suffix')}
                 placeholder={__('', 'kirki-ecommerce')}
-                helpText={__('Set order id suffix', 'kirki-ecommerce')}
-                error={
-                  errors['data.order_id_suffix'] as string | boolean | undefined
-                }
+                description={__('Set order id suffix', 'kirki-ecommerce')}
               />
             </Grid>
 
@@ -77,7 +73,6 @@ const OrderId = (props: OrderIdProps) => {
                   textAlign: 'center',
                   color: 'var(--decom-text-text-special-3)',
                 }}
-                error={errors['data.orderID'] as string | boolean | undefined}
               />
             </Card>
 
@@ -100,7 +95,7 @@ const OrderId = (props: OrderIdProps) => {
                       size="small"
                       type="secondary"
                       leftIcon={<ReplaceIcon />}
-                      onClick={() => handleResetIDField('order')}
+                      onClick={handleResetIDField}
                     />
                   </ActionGroup>
                 </Flex>
@@ -119,5 +114,7 @@ const OrderId = (props: OrderIdProps) => {
     </div>
   );
 };
+
+OrderId.displayName = 'OrderId';
 
 export default OrderId;

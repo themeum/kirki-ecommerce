@@ -5,12 +5,23 @@ import {
   type Dispatch,
   type SetStateAction,
 } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
+import { Form, FormField, FormItem } from '@/components/ui/form';
 import { ChevronDownIcon } from '@/icons';
+import type { ErrorResponse } from '@/libs/api';
+import { applyServerErrors } from '@/libs/form-errors';
 import Button from '@/molecules/button';
 import { DropdownMenuContent } from '@/molecules/dropdown';
 import Flex from '@/molecules/flex';
 import SelectInput from '@/molecules/select-input';
+import {
+  BaseUnitFormSchema,
+  mapBaseUnitFromVariant,
+  toUnitPriceValue,
+  type BaseUnitFormValues,
+} from '@/schemas/forms/base-unit-form';
 import type {
   FormErrors,
   ProductVariant,
@@ -19,7 +30,11 @@ import type {
 } from '@/types';
 import { __ } from '@/wpi18n';
 
-import { getSpecifiedUnitList, normalizedUnit, unitList } from '@/pages/products/edit-product/price/utils';
+import {
+  getSpecifiedUnitList,
+  normalizedUnit,
+  unitList,
+} from '@/pages/products/edit-product/price/utils';
 
 type SelectInputValue = {
   value?: string | number;
@@ -34,10 +49,6 @@ type BaseUnitPopupProps = {
   buttonProps?: Record<string, unknown>;
 };
 
-type UnitDataState = UnitPriceValue & {
-  price?: number | string | null;
-};
-
 const BaseUnitPopup = ({
   errors,
   onChange,
@@ -48,24 +59,27 @@ const BaseUnitPopup = ({
   const baseUnitAnchorRef = useRef<HTMLDivElement>(null);
   const popoverRef = useRef<HTMLSpanElement | HTMLAnchorElement>(null);
   const [openUnitPopup, setOpenUnitPopup] = useState(false);
-  const [unitData, setUnitData] = useState<UnitDataState>({
-    total_unit_amount: data?.total_unit_amount,
-    total_unit: data?.total_unit,
-    base_unit_amount: data?.base_unit_amount,
-    base_unit: data?.base_unit,
-    price: data?.price,
+
+  const form = useForm<BaseUnitFormValues>({
+    resolver: zodResolver(BaseUnitFormSchema),
+    defaultValues: mapBaseUnitFromVariant(data),
   });
 
+  const unitData = form.watch();
+
   useEffect(() => {
-    setUnitData((prev) => ({
-      ...prev,
-      total_unit_amount: data?.total_unit_amount,
-      total_unit: data?.total_unit,
-      base_unit_amount: data?.base_unit_amount,
-      base_unit: data?.base_unit,
-      price: data?.price,
-    }));
-  }, [data]);
+    form.reset(mapBaseUnitFromVariant(data));
+  }, [data, form]);
+
+  useEffect(() => {
+    const hasErrors = Object.values(errors).some(Boolean);
+    if (!hasErrors) {
+      return;
+    }
+    applyServerErrors(form, { errors } as ErrorResponse, {
+      stripPrefix: 'variants.0.',
+    });
+  }, [errors, form]);
 
   const basePricePerBaseUnitAmount = () => {
     const {
@@ -77,8 +91,7 @@ const BaseUnitPopup = ({
     } = unitData;
 
     const totalAmountInGrams =
-      (total_unit_amount as number) *
-      normalizedUnit[total_unit as string];
+      (total_unit_amount as number) * normalizedUnit[total_unit as string];
 
     const baseAmountInGrams =
       (base_unit_amount as number) * normalizedUnit[base_unit as string];
@@ -89,39 +102,13 @@ const BaseUnitPopup = ({
     return basePricePerUnit;
   };
 
-  const handleOnVariantInfoChange = (
-    value: SelectInputValue,
-    fieldName: string,
-  ) => {
-    if (fieldName === 'total') {
-      setUnitData((prev) => ({
-        ...prev,
-        total_unit_amount: value.value,
-        total_unit: value.unit as string | null | undefined,
-      }));
-    } else {
-      setUnitData((prev) => ({
-        ...prev,
-        base_unit_amount: value.value,
-        base_unit: value.unit as string | null | undefined,
-      }));
-    }
-  };
-
   const handleSaveUnitData = () => {
-    onChange(unitData);
+    onChange(toUnitPriceValue(form.getValues()));
     setOpenUnitPopup(false);
   };
 
   const handleOnClose = () => {
-    setUnitData((prev) => ({
-      ...prev,
-      total_unit_amount: data?.total_unit_amount,
-      total_unit: data?.total_unit,
-      base_unit_amount: data?.base_unit_amount,
-      base_unit: data?.base_unit,
-      price: data?.price,
-    }));
+    form.reset(mapBaseUnitFromVariant(data));
     setOpenUnitPopup(false);
   };
 
@@ -149,67 +136,103 @@ const BaseUnitPopup = ({
         triggerRef={popoverRef}
         onClose={() => setOpenUnitPopup(false)}
       >
-        <Flex direction="column" gap={16} style={{ padding: '16px' }}>
-          <Flex direction="column" gap={12}>
-            <div ref={totalUnitAnchorRef}>
-              <SelectInput
-                label={__('Total unit in product', 'kirki-ecommerce')}
-                min={0}
-                value={{
-                  value: unitData?.total_unit_amount || '',
-                  unit: unitData?.total_unit ?? undefined,
-                }}
-                optionsArray={unitList as SelectOption[]}
-                onChange={(value) => handleOnVariantInfoChange(value, 'total')}
-                error={
-                  (errors?.total_unit_amount || errors?.total_unit) as
-                    | string
-                    | boolean
-                    | undefined
-                }
-                anchorRef={totalUnitAnchorRef}
-                selectWidth="50%"
+        <Form {...form}>
+          <Flex direction="column" gap={16} style={{ padding: '16px' }}>
+            <Flex direction="column" gap={12}>
+              <FormField
+                control={form.control}
+                name="total_unit_amount"
+                render={({ field, fieldState }) => (
+                  <FormItem>
+                    <div ref={totalUnitAnchorRef}>
+                      <SelectInput
+                        label={__('Total unit in product', 'kirki-ecommerce')}
+                        min={0}
+                        value={{
+                          value: field.value || '',
+                          unit: form.getValues('total_unit') ?? undefined,
+                        }}
+                        optionsArray={unitList as SelectOption[]}
+                        onChange={(value: SelectInputValue) => {
+                          field.onChange(value.value);
+                          form.setValue(
+                            'total_unit',
+                            (value.unit as string) ?? null,
+                          );
+                          form.clearErrors(['total_unit_amount', 'total_unit']);
+                        }}
+                        error={
+                          (fieldState.error?.message ||
+                            form.formState.errors.total_unit?.message) as
+                            | string
+                            | boolean
+                            | undefined
+                        }
+                        anchorRef={totalUnitAnchorRef}
+                        selectWidth="50%"
+                      />
+                    </div>
+                  </FormItem>
+                )}
               />
-            </div>
-            <div ref={baseUnitAnchorRef}>
-              <SelectInput
-                label={__('Base unit', 'kirki-ecommerce')}
-                min={0}
-                value={{
-                  value: unitData?.base_unit_amount || '',
-                  unit: unitData?.base_unit ?? undefined,
-                }}
-                optionsArray={
-                  getSpecifiedUnitList(unitData?.total_unit) as SelectOption[]
-                }
-                onChange={(value) => handleOnVariantInfoChange(value, 'base')}
-                error={
-                  (errors?.base_unit_amount || errors?.base_unit) as
-                    | string
-                    | boolean
-                    | undefined
-                }
-                anchorRef={baseUnitAnchorRef}
-                selectWidth="50%"
+              <FormField
+                control={form.control}
+                name="base_unit_amount"
+                render={({ field, fieldState }) => (
+                  <FormItem>
+                    <div ref={baseUnitAnchorRef}>
+                      <SelectInput
+                        label={__('Base unit', 'kirki-ecommerce')}
+                        min={0}
+                        value={{
+                          value: field.value || '',
+                          unit: form.getValues('base_unit') ?? undefined,
+                        }}
+                        optionsArray={
+                          getSpecifiedUnitList(
+                            form.getValues('total_unit'),
+                          ) as SelectOption[]
+                        }
+                        onChange={(value: SelectInputValue) => {
+                          field.onChange(value.value);
+                          form.setValue(
+                            'base_unit',
+                            (value.unit as string) ?? null,
+                          );
+                          form.clearErrors(['base_unit_amount', 'base_unit']);
+                        }}
+                        error={
+                          (fieldState.error?.message ||
+                            form.formState.errors.base_unit?.message) as
+                            | string
+                            | boolean
+                            | undefined
+                        }
+                        anchorRef={baseUnitAnchorRef}
+                        selectWidth="50%"
+                      />
+                    </div>
+                  </FormItem>
+                )}
               />
-            </div>
+            </Flex>
+            <Flex>
+              <Button
+                type="ghost"
+                text={__('Cancel', 'kirki-ecommerce')}
+                size="fullWidth"
+                onClick={handleOnClose}
+              />
+              <Button
+                type="primary"
+                text={__('Okay', 'kirki-ecommerce')}
+                size="fullWidth"
+                state={basePricePerBaseUnitAmount() ? '' : 'disabled'}
+                onClick={handleSaveUnitData}
+              />
+            </Flex>
           </Flex>
-          <Flex>
-            <Button
-              type="ghost"
-              text={__('Cancel', 'kirki-ecommerce')}
-              size="fullWidth"
-              onClick={handleOnClose}
-            />
-            <Button
-              type="primary"
-              text={__('Okay', 'kirki-ecommerce')}
-              size="fullWidth"
-              state={basePricePerBaseUnitAmount() ? '' : 'disabled'}
-              onClick={handleSaveUnitData}
-            />
-          </Flex>
-        </Flex>
+        </Form>
       </DropdownMenuContent>
     </>
   );

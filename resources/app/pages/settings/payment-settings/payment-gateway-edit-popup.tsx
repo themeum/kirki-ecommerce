@@ -1,5 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
+import { Form } from '@/components/ui/form';
+import type { ErrorResponse } from '@/libs/api';
+import { applyServerErrors } from '@/libs/form-errors';
 import Button from '@/molecules/button';
 import Flex from '@/molecules/flex';
 import {
@@ -8,13 +13,17 @@ import {
   PopoverFooter,
   PopoverHeader,
 } from '@/molecules/popover';
-import { getErrorsObject } from '@/libs/api';
+import {
+  PaymentGatewayEditFormSchema,
+  paymentGatewayEditDefaultValues,
+  type PaymentGatewayEditFormValues,
+} from '@/schemas/forms/payment-gateway-form';
 import { useUpdatePaymentGatewayMutation } from '@/services/payment';
-import type { FormErrors, PaymentGateway } from '@/types';
+import type { PaymentGateway } from '@/types';
 import { __ } from '@/wpi18n';
 
 import { dispatchToastMessage } from '@/pages/utils';
-import { getFormField } from '@/pages/settings/payment-settings/utils';
+import { DynamicGatewayFields } from '@/pages/settings/payment-settings/utils';
 
 type PaymentGatewayField = {
   name: string;
@@ -39,114 +48,83 @@ const PaymentGatewayEditPopup = ({
   isOpen,
   onClose,
 }: PaymentGatewayEditPopupProps) => {
-  const [gatewayConfObj, setGatewayConfObj] = useState<Record<string, unknown>>(
-    {},
-  );
-  const [inputFieldType, setInputFieldType] = useState<Record<string, string>>(
-    {},
-  );
-  const [errors, setErrors] = useState<FormErrors>({});
+  const { mutateAsync: updateGateway, isPending: isSubmitting } =
+    useUpdatePaymentGatewayMutation();
 
-  const { mutate: updateGateway } = useUpdatePaymentGatewayMutation();
+  const form = useForm<PaymentGatewayEditFormValues>({
+    resolver: zodResolver(PaymentGatewayEditFormSchema),
+    defaultValues: paymentGatewayEditDefaultValues,
+  });
 
   useEffect(() => {
-    if (editedItem?.settings) {
-      setGatewayConfObj(editedItem?.settings);
+    if (!isOpen) {
+      return;
     }
-  }, [editedItem]);
 
-  const handleRightAction = (key: string) => {
-    setInputFieldType((prev) => ({
-      ...prev,
-      [key]: (prev[key] || 'password') === 'password' ? 'text' : 'password',
-    }));
-  };
-
-  const handleOnChange = (value: unknown, key = '') => {
-    setGatewayConfObj((prev) => {
-      return {
-        ...prev,
-        [key]: value,
-      };
-    });
-    setErrors((prev) => ({
-      ...prev,
-      [key]: null,
-    }));
-  };
-
-  const handleUpdateData = () => {
-    const updatedObj = {
-      data: {
-        ...gatewayConfObj,
-        is_enabled: true,
-      },
-    };
-    updateGateway(
-      { id: editedItem?.id as number, data: updatedObj },
-      {
-        onSuccess: () => {
-          dispatchToastMessage('success', {
-            title: __('Payment gateway updated', 'kirki-ecommerce'),
-          });
-          onClose();
-          setGatewayConfObj({});
-        },
-        onError: (error) => {
-          const errObj = error as { errors?: Record<string, string[]> };
-          setErrors(getErrorsObject(errObj.errors));
-        },
-      },
+    form.reset(
+      (editedItem?.settings as PaymentGatewayEditFormValues) ||
+        paymentGatewayEditDefaultValues,
     );
+  }, [isOpen, editedItem, form]);
+
+  const handleClose = () => {
+    form.reset(paymentGatewayEditDefaultValues);
+    onClose();
+  };
+
+  const handleUpdateData = async (values: PaymentGatewayEditFormValues) => {
+    try {
+      await updateGateway({
+        id: editedItem?.id as number,
+        data: {
+          data: {
+            ...values,
+            is_enabled: true,
+          },
+        },
+      });
+      dispatchToastMessage('success', {
+        title: __('Payment gateway updated', 'kirki-ecommerce'),
+      });
+      handleClose();
+    } catch (error) {
+      applyServerErrors(form, error as ErrorResponse);
+    }
   };
 
   return (
     <Popover isOpen={isOpen} style={{ width: '600px' }}>
-      <PopoverHeader onClose={onClose}>
+      <PopoverHeader onClose={handleClose}>
         {__('Edit Payment Gateways', 'kirki-ecommerce')}
       </PopoverHeader>
-      <PopoverBody
-        style={{
-          padding:
-            'var(--decom-spacing-0) var(--decom-spacing-5) var(--decom-spacing-5) var(--decom-spacing-5)',
-        }}
-      >
-        <Flex direction="column" gap={16}>
-          {editedItem?.fields?.map((field) => {
-            const fieldKey = field?.name;
-            const isSecret = fieldKey.includes('secret');
-            const currentType =
-              inputFieldType[fieldKey] || (isSecret ? 'password' : 'text');
-            return (
-              <div key={fieldKey}>
-                {getFormField(
-                  field,
-                  handleOnChange,
-                  fieldKey,
-                  handleRightAction,
-                  currentType,
-                  gatewayConfObj,
-                  errors,
-                )}
-              </div>
-            );
-          })}
-        </Flex>
-      </PopoverBody>
-      <PopoverFooter>
-        <Button
-          type="secondary"
-          size="small"
-          text={__('Cancel', 'kirki-ecommerce')}
-          onClick={onClose}
-        />
-        <Button
-          type="primary"
-          size="small"
-          text={__('Save', 'kirki-ecommerce')}
-          onClick={handleUpdateData}
-        />
-      </PopoverFooter>
+      <Form {...form}>
+        <PopoverBody
+          style={{
+            padding:
+              'var(--decom-spacing-0) var(--decom-spacing-5) var(--decom-spacing-5) var(--decom-spacing-5)',
+          }}
+        >
+          <Flex direction="column" gap={16}>
+            <DynamicGatewayFields fields={editedItem?.fields} />
+          </Flex>
+        </PopoverBody>
+        <PopoverFooter>
+          <Button
+            type="secondary"
+            size="small"
+            text={__('Cancel', 'kirki-ecommerce')}
+            onClick={handleClose}
+            state={isSubmitting ? 'disabled' : undefined}
+          />
+          <Button
+            type="primary"
+            size="small"
+            text={__('Save', 'kirki-ecommerce')}
+            onClick={form.handleSubmit(handleUpdateData)}
+            state={isSubmitting ? 'loading' : undefined}
+          />
+        </PopoverFooter>
+      </Form>
     </Popover>
   );
 };

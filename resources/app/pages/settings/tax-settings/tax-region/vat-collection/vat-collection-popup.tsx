@@ -1,7 +1,16 @@
-import { useState, useEffect, type ReactNode } from 'react';
+import { useEffect, type ReactNode } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
+import TextField from '@/components/form/text-field';
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
 import Button from '@/molecules/button';
-import Input from '@/molecules/input';
 import {
   Popover,
   PopoverBody,
@@ -9,6 +18,10 @@ import {
   PopoverHeader,
 } from '@/molecules/popover';
 import { Select } from '@/molecules/select';
+import {
+  VatCollectionFormSchema,
+  type VatCollectionFormValues,
+} from '@/schemas/forms/vat-collection-form';
 import type { SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -16,12 +29,6 @@ import type { TaxRate } from '@/pages/settings/tax-settings/utils';
 
 type VatStateOption = SelectOption & {
   leftIcon?: ReactNode;
-};
-
-type VatItemForm = {
-  state: string;
-  rate: string | number;
-  flag: string;
 };
 
 type VatCollectionPopupProps = {
@@ -45,102 +52,116 @@ const VatCollectionPopup = (props: VatCollectionPopupProps) => {
     vatCollectionList,
   } = props;
 
-  const [vatItem, setVatItem] = useState<VatItemForm>({
-    state: '',
-    rate: '',
-    flag: '',
+  const form = useForm<VatCollectionFormValues>({
+    resolver: zodResolver(VatCollectionFormSchema),
+    defaultValues: {
+      state: '',
+      rate: '',
+      flag: '',
+    },
   });
 
+  const stateValue = form.watch('state');
+  const rateValue = form.watch('rate');
+
   useEffect(() => {
+    if (!openPopup) {
+      return;
+    }
+
     if (typeof editIndex === 'number' && vatCollectionList?.[editIndex]) {
       const item = vatCollectionList[editIndex];
-
-      setVatItem({
+      form.reset({
         state: String(item.state),
         rate: item.rate,
         flag: item.flag || '',
       });
-    } else {
-      setVatItem({ state: '', rate: '', flag: '' });
+      return;
     }
-  }, [editIndex, vatCollectionList, openPopup]);
 
-  const handleOnChange = (value: string | number, key: keyof VatItemForm) => {
-    setVatItem((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
+    form.reset({ state: '', rate: '', flag: '' });
+  }, [editIndex, vatCollectionList, openPopup, form]);
+
+  const handleClose = () => {
+    setOpenPopup(false);
+    setEditIndex(null);
   };
-  const buttonState = vatItem?.state === '' || vatItem?.rate === '';
+
+  const handleSubmit = (values: VatCollectionFormValues) => {
+    onAdd(
+      {
+        state: values.state,
+        rate: values.rate,
+        flag: values.flag,
+      },
+      editIndex,
+    );
+    setOpenPopup(false);
+  };
+
+  const buttonState = stateValue === '' || rateValue === '';
 
   return (
     <Popover isOpen={openPopup} style={{ width: '400px' }}>
       <PopoverHeader
         style={{ padding: 'var(--decom-spacing-5)' }}
-        onClose={() => {
-          setOpenPopup(false);
-          setEditIndex(null);
-        }}
+        onClose={handleClose}
       >
         {__('Collect VAT', 'kirki-ecommerce')}
       </PopoverHeader>
-
-      <PopoverBody
-        style={{
-          padding:
-            'var(--decom-spacing-0) var(--decom-spacing-5) var(--decom-spacing-5) var(--decom-spacing-5)',
-          gap: 'var(--decom-spacing-4)',
-        }}
-      >
-        <Select
-          label={__('Select country', 'kirki-ecommerce')}
-          optionsArray={statesOption}
-          value={vatItem.state}
-          onChange={(value) => {
-            const nextValue = Array.isArray(value) ? value[0] : value;
-            handleOnChange(nextValue ?? '', 'state');
+      <Form {...form}>
+        <PopoverBody
+          style={{
+            padding:
+              'var(--decom-spacing-0) var(--decom-spacing-5) var(--decom-spacing-5) var(--decom-spacing-5)',
+            gap: 'var(--decom-spacing-4)',
           }}
-        />
-
-        <Input
-          label={__('VAT (%)', 'kirki-ecommerce')}
-          placeholder="e.g. 20%"
-          value={vatItem.rate}
-          onChange={(value: string | number) => handleOnChange(value, 'rate')}
-        />
-      </PopoverBody>
-      <PopoverFooter>
-        <Button
-          type="outlined"
-          text={__('Cancel', 'kirki-ecommerce')}
-          size="small"
-          onClick={() => {
-            setOpenPopup(false);
-            setEditIndex(null);
-          }}
-        />
-        <Button
-          type="primary"
-          text={
-            typeof editIndex === 'number'
-              ? __('Update', 'kirki-ecommerce')
-              : __('Done', 'kirki-ecommerce')
-          }
-          size="small"
-          onClick={() => {
-            onAdd(
-              {
-                state: vatItem.state,
-                rate: vatItem.rate,
-                flag: vatItem.flag,
-              },
-              editIndex,
-            );
-            setOpenPopup(false);
-          }}
-          state={buttonState ? 'disabled' : ''}
-        />
-      </PopoverFooter>
+        >
+          <FormField
+            control={form.control}
+            name="state"
+            render={({ field, fieldState }) => (
+              <FormItem>
+                <FormLabel>{__('Select country', 'kirki-ecommerce')}</FormLabel>
+                <Select
+                  optionsArray={statesOption}
+                  value={field.value}
+                  onChange={(value) => {
+                    const nextValue = Array.isArray(value) ? value[0] : value;
+                    field.onChange(nextValue ?? '');
+                  }}
+                  error={fieldState.error?.message}
+                />
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <TextField
+            name="rate"
+            label={__('VAT (%)', 'kirki-ecommerce')}
+            placeholder="e.g. 20%"
+          />
+        </PopoverBody>
+        <PopoverFooter>
+          <Button
+            type="outlined"
+            text={__('Cancel', 'kirki-ecommerce')}
+            size="small"
+            onClick={handleClose}
+          />
+          <Button
+            type="primary"
+            text={
+              typeof editIndex === 'number'
+                ? __('Update', 'kirki-ecommerce')
+                : __('Done', 'kirki-ecommerce')
+            }
+            size="small"
+            onClick={form.handleSubmit(handleSubmit)}
+            state={buttonState ? 'disabled' : ''}
+          />
+        </PopoverFooter>
+      </Form>
     </Popover>
   );
 };

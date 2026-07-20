@@ -1,19 +1,30 @@
-import { useState, useEffect, type Dispatch, type SetStateAction } from 'react';
+import { useEffect, type Dispatch, type SetStateAction } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
+import SelectField from '@/components/form/select-field';
+import TextField from '@/components/form/text-field';
+import { Form } from '@/components/ui/form';
 import { LighteningIcon } from '@/icons';
 import Button from '@/molecules/button';
 import Flex from '@/molecules/flex';
 import Grid from '@/molecules/grid';
-import Input from '@/molecules/input';
 import Placeholder from '@/molecules/placeholder';
-import { Select } from '@/molecules/select';
 import Text from '@/molecules/text';
 import { CLASS_PREFIX } from '@/conf';
+import {
+  TaxRulesFormSchema,
+  type TaxRulesFormValues,
+} from '@/schemas/forms/tax-rules-form';
 import { useTaxProfilesQuery } from '@/services/tax';
 import { __ } from '@/wpi18n';
 
 import { taxRuleActionOptionsArray } from '@/pages/settings/tax-settings/utils';
-import type { TaxConditionRow, TaxRegion, TaxRule } from '@/pages/settings/tax-settings/utils';
+import type {
+  TaxConditionRow,
+  TaxRegion,
+  TaxRule,
+} from '@/pages/settings/tax-settings/utils';
 import ConditionRow from '@/pages/settings/tax-settings/tax-region/tax-rules/condition-row';
 
 type TaxRulesModalProps = {
@@ -48,77 +59,102 @@ const TaxRulesModal = (props: TaxRulesModalProps) => {
     region,
   } = props;
 
-  const [selectedAction, setSelectedAction] = useState('set_tax_rate');
-  const [selectedActionValue, setSelectedActionValue] = useState<
-    string | number
-  >('');
-  const [selectedCountries, setSelectedCountries] = useState<
-    Array<string | number>
-  >([]);
-
   const { data: taxProfiles } = useTaxProfilesQuery();
 
-  const [conditions, setConditions] = useState<TaxConditionRow[]>([
-    {
-      id: crypto.randomUUID(),
-      condition: 'tax_profile',
-      value: null,
+  const form = useForm<TaxRulesFormValues>({
+    resolver: zodResolver(TaxRulesFormSchema),
+    defaultValues: {
+      conditions: [
+        {
+          id: crypto.randomUUID(),
+          condition: 'tax_profile',
+          value: null,
+        },
+      ],
+      action_type: 'set_tax_rate',
+      action_value: '',
+      selectedCountries: [],
     },
-  ]);
+  });
+
+  const conditions = form.watch('conditions') as TaxConditionRow[];
+  const selectedAction = form.watch('action_type');
+  const selectedCountries = form.watch('selectedCountries');
 
   useEffect(() => {
+    if (!showModal) {
+      return;
+    }
+
     if (from === 'edit' && ruleIndex !== undefined && rulesObj?.[ruleIndex]) {
       const existingRule = rulesObj[ruleIndex];
-
-      setConditions(
-        existingRule.conditions.map((c) => ({
-          id: crypto.randomUUID(),
-          condition: c.type,
-          value: c.value ?? null,
-        })),
-      );
-      setSelectedAction(existingRule.action?.type);
-      setSelectedActionValue(
-        (existingRule.action?.value as string | number) ?? '',
-      );
       const destinationCondition = existingRule.conditions.find(
         (c) => c.type === 'destination_region',
       );
 
-      setSelectedCountries(
-        Array.isArray(destinationCondition?.value)
+      form.reset({
+        conditions: existingRule.conditions.map((c) => ({
+          id: crypto.randomUUID(),
+          condition: c.type,
+          value: c.value ?? null,
+        })),
+        action_type: existingRule.action?.type || 'set_tax_rate',
+        action_value:
+          (existingRule.action?.value as string | number) ?? '',
+        selectedCountries: Array.isArray(destinationCondition?.value)
           ? (destinationCondition.value as Array<string | number>)
           : [],
-      );
-    } else {
-      setConditions([
-        { id: crypto.randomUUID(), condition: 'tax_profile', value: null },
-      ]);
-      setSelectedCountries([]);
+      });
+      return;
     }
-  }, [from, ruleIndex, rulesObj]);
 
-  const buildRule = (): TaxRule => ({
+    form.reset({
+      conditions: [
+        { id: crypto.randomUUID(), condition: 'tax_profile', value: null },
+      ],
+      action_type: 'set_tax_rate',
+      action_value: '',
+      selectedCountries: [],
+    });
+  }, [showModal, from, ruleIndex, rulesObj, form]);
+
+  const setConditions: Dispatch<SetStateAction<TaxConditionRow[]>> = (
+    updater,
+  ) => {
+    const current = form.getValues('conditions') as TaxConditionRow[];
+    const next = typeof updater === 'function' ? updater(current) : updater;
+    form.setValue('conditions', next, { shouldDirty: true });
+  };
+
+  const setSelectedCountries: Dispatch<
+    SetStateAction<Array<string | number>>
+  > = (updater) => {
+    const current = form.getValues('selectedCountries');
+    const next = typeof updater === 'function' ? updater(current) : updater;
+    form.setValue('selectedCountries', next, { shouldDirty: true });
+  };
+
+  const buildRule = (values: TaxRulesFormValues): TaxRule => ({
     relation: 'AND',
-    conditions: conditions.map((c) => ({
+    conditions: values.conditions.map((c) => ({
       type: c.condition,
       operator: '=',
       value: c.value ?? '',
     })),
     action: {
-      type: selectedAction,
-      value: selectedActionValue ?? 0,
+      type: values.action_type,
+      value: values.action_value ?? 0,
     },
   });
 
-  const handleAddOrUpdateTaxRule = () => {
+  const handleSubmit = (values: TaxRulesFormValues) => {
     const newRulesObj = Array.isArray(rulesObj) ? rulesObj : [];
     const updatedRules =
       from === 'edit' && typeof ruleIndex === 'number'
         ? newRulesObj.map((rule, index) =>
-            index === ruleIndex ? buildRule() : rule,
+            index === ruleIndex ? buildRule(values) : rule,
           )
-        : [...newRulesObj, buildRule()];
+        : [...newRulesObj, buildRule(values)];
 
     setRulesObj(updatedRules);
     updateTaxRules(updatedRules);
@@ -138,6 +174,11 @@ const TaxRulesModal = (props: TaxRulesModalProps) => {
     return [];
   };
 
+  const actionOptions = taxRuleActionOptionsArray.map((option) => ({
+    label: option.title,
+    value: option.value,
+  }));
+
   return (
     <div>
       <Placeholder
@@ -146,73 +187,68 @@ const TaxRulesModal = (props: TaxRulesModalProps) => {
           showModal ? 'is-open' : ''
         }`}
       >
-        <Flex
-          direction={'column'}
-          gap={16}
-          style={{ padding: 'var(--decom-spacing-3)' }}
-        >
-          {from !== 'edit' && (
-            <Text
-              header={__('New Tax Rules', 'kirki-ecommerce')}
-              leftIcon={<LighteningIcon />}
-            />
-          )}
-          <Flex direction={'column'} gap={8}>
-            <div className={`${CLASS_PREFIX}-condition-row`}>
-              {conditions?.map((row, index) => (
-                <ConditionRow
-                  key={index}
-                  row={row}
-                  index={index}
-                  conditions={conditions}
-                  setConditions={setConditions}
-                  getConditionValue={getConditionValue}
-                  selectedCountries={selectedCountries}
-                  setSelectedCountries={setSelectedCountries}
-                  from={from}
-                  region={region}
-                />
-              ))}
-            </div>
-          </Flex>
-          <Flex direction={'column'} gap={8}>
-            <Text header={__('THEN', 'kirki-ecommerce')} />
-            <Grid columns={2}>
-              <Select
-                optionsArray={taxRuleActionOptionsArray}
-                value={selectedAction}
-                onChange={(value) => setSelectedAction(String(value))}
+        <Form {...form}>
+          <Flex
+            direction={'column'}
+            gap={16}
+            style={{ padding: 'var(--decom-spacing-3)' }}
+          >
+            {from !== 'edit' && (
+              <Text
+                header={__('New Tax Rules', 'kirki-ecommerce')}
+                leftIcon={<LighteningIcon />}
               />
-              {selectedAction === 'set_tax_rate' && (
-                <Input
-                  value={selectedActionValue}
-                  placeholder={__('e.g., $100', 'kirki-ecommerce')}
-                  onChange={(value: string | number) =>
-                    setSelectedActionValue(value)
-                  }
-                />
-              )}
-            </Grid>
+            )}
+            <Flex direction={'column'} gap={8}>
+              <div className={`${CLASS_PREFIX}-condition-row`}>
+                {conditions?.map((row, index) => (
+                  <ConditionRow
+                    key={row.id}
+                    row={row}
+                    index={index}
+                    conditions={conditions}
+                    setConditions={setConditions}
+                    getConditionValue={getConditionValue}
+                    selectedCountries={selectedCountries}
+                    setSelectedCountries={setSelectedCountries}
+                    from={from}
+                    region={region}
+                  />
+                ))}
+              </div>
+            </Flex>
+            <Flex direction={'column'} gap={8}>
+              <Text header={__('THEN', 'kirki-ecommerce')} />
+              <Grid columns={2}>
+                <SelectField name="action_type" options={actionOptions} />
+                {selectedAction === 'set_tax_rate' && (
+                  <TextField
+                    name="action_value"
+                    placeholder={__('e.g., $100', 'kirki-ecommerce')}
+                  />
+                )}
+              </Grid>
+            </Flex>
+            <Flex gap={8} style={{ justifyContent: 'flex-end' }}>
+              <Button
+                type="secondary"
+                text={__('Cancel', 'kirki-ecommerce')}
+                size="small"
+                onClick={() => setShowModal(false)}
+              />
+              <Button
+                type="primary"
+                text={
+                  from === 'edit'
+                    ? __('Update', 'kirki-ecommerce')
+                    : __('Add Rule', 'kirki-ecommerce')
+                }
+                size="small"
+                onClick={form.handleSubmit(handleSubmit)}
+              />
+            </Flex>
           </Flex>
-          <Flex gap={8} style={{ justifyContent: 'flex-end' }}>
-            <Button
-              type="secondary"
-              text={__('Cancel', 'kirki-ecommerce')}
-              size="small"
-              onClick={() => setShowModal(false)}
-            />
-            <Button
-              type="primary"
-              text={
-                from === 'edit'
-                  ? __('Update', 'kirki-ecommerce')
-                  : __('Add Rule', 'kirki-ecommerce')
-              }
-              size="small"
-              onClick={handleAddOrUpdateTaxRule}
-            />
-          </Flex>
-        </Flex>
+        </Form>
       </Placeholder>
     </div>
   );

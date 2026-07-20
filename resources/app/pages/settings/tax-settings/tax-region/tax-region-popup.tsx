@@ -5,7 +5,10 @@ import {
   type Dispatch,
   type SetStateAction,
 } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
+import { Form } from '@/components/ui/form';
 import { LocationIcon, SearchIcon } from '@/icons';
 import Button from '@/molecules/button';
 import Card from '@/molecules/card';
@@ -20,13 +23,20 @@ import {
 } from '@/molecules/popover';
 import { CLASS_PREFIX } from '@/conf';
 import { useCountriesQuery } from '@/services/country';
+import {
+  TaxRegionPopupFormSchema,
+  type TaxRegionPopupFormValues,
+} from '@/schemas/forms/tax-region-popup-form';
 import type { FormErrors } from '@/types';
 import { __, sprintf } from '@/wpi18n';
 
 import { getSearchedCountries } from '@/pages/settings/utils';
 import type { CountryWithGroup } from '@/pages/settings/tax-settings/helper';
 import { groupEUCountries } from '@/pages/settings/tax-settings/helper';
-import type { SelectedTaxRegionDraft, TaxRegion } from '@/pages/settings/tax-settings/utils';
+import type {
+  SelectedTaxRegionDraft,
+  TaxRegion,
+} from '@/pages/settings/tax-settings/utils';
 
 type TaxRegionPopupProps = {
   openPopup: boolean;
@@ -73,14 +83,44 @@ const TaxRegionPopup = (props: TaxRegionPopupProps) => {
     countryList as CountryWithGroup[] | null | undefined,
   );
 
+  const form = useForm<TaxRegionPopupFormValues>({
+    resolver: zodResolver(TaxRegionPopupFormSchema),
+    defaultValues: {
+      selectedCountries,
+      selectedRegion,
+    },
+  });
+
+  const formCountries = form.watch('selectedCountries');
+  const formRegions = form.watch(
+    'selectedRegion',
+  ) as SelectedTaxRegionDraft[];
+
   useEffect(() => {
-    if (openPopup) {
-      setInitialObj({
-        countries: [...selectedCountries],
-        regions: [...selectedRegion],
-      });
+    if (!openPopup) {
+      return;
     }
+
+    setInitialObj({
+      countries: [...selectedCountries],
+      regions: [...selectedRegion],
+    });
+    form.reset({
+      selectedCountries: [...selectedCountries],
+      selectedRegion: [...selectedRegion],
+    });
+    setSearchValue('');
   }, [openPopup]);
+
+  const syncSelection = (
+    nextCountries: string[],
+    nextRegions: SelectedTaxRegionDraft[],
+  ) => {
+    form.setValue('selectedCountries', nextCountries, { shouldDirty: true });
+    form.setValue('selectedRegion', nextRegions, { shouldDirty: true });
+    setSelectedCountries(nextCountries);
+    setSelectedRegion(nextRegions);
+  };
 
   const filteredCountries = useMemo(() => {
     if (!updatedCountryList?.length) {
@@ -97,23 +137,25 @@ const TaxRegionPopup = (props: TaxRegionPopupProps) => {
   }, [searchValue, updatedCountryList, regions]);
 
   const handleSelectCountries = (country: CountryWithGroup) => {
-    setSelectedCountries((prev = []) => {
-      const isSelected = prev.includes(country.code);
-      if (isSelected) {
-        return prev.filter((c) => c !== country.code);
-      }
-      return [...prev, country.code];
-    });
+    const prevCountries = form.getValues('selectedCountries');
+    const prevRegions = form.getValues(
+      'selectedRegion',
+    ) as SelectedTaxRegionDraft[];
+    const isSelected = prevCountries.includes(country.code);
 
-    setSelectedRegion((prev = []) => {
-      const exists = prev.find((r) => r.country === country.name);
+    const nextCountries = isSelected
+      ? prevCountries.filter((c) => c !== country.code)
+      : [...prevCountries, country.code];
 
-      if (exists) {
-        return prev.filter((r) => r.country !== country.name);
-      }
+    let nextRegions: SelectedTaxRegionDraft[];
+    const exists = prevRegions.find((r) => r.country === country.name);
+
+    if (exists) {
+      nextRegions = prevRegions.filter((r) => r.country !== country.name);
+    } else {
       const states = (country.states || []) as CountryStateOption[];
-      return [
-        ...prev,
+      nextRegions = [
+        ...prevRegions,
         {
           id: country.code,
           country: country.name,
@@ -126,7 +168,9 @@ const TaxRegionPopup = (props: TaxRegionPopupProps) => {
           flag: country.flag || '',
         },
       ];
-    });
+    }
+
+    syncSelection(nextCountries, nextRegions);
   };
 
   const handleSelectStates = (
@@ -135,44 +179,52 @@ const TaxRegionPopup = (props: TaxRegionPopupProps) => {
     allStates: CountryStateOption[] = [],
     flag?: string,
   ) => {
-    setSelectedRegion((prev = []) => {
-      const countryIndex = prev.findIndex((item) => item.id === countryCode);
-      if (countryIndex === -1) {
-        return prev;
-      }
-      const countryItem = prev[countryIndex];
-      const stateExists = countryItem.states.some((s) => s.id === stateId);
+    const prevCountries = form.getValues('selectedCountries');
+    const prevRegions = form.getValues(
+      'selectedRegion',
+    ) as SelectedTaxRegionDraft[];
+    const countryIndex = prevRegions.findIndex((item) => item.id === countryCode);
 
-      let updatedStates: SelectedTaxRegionDraft['states'];
-      if (stateExists) {
-        updatedStates = countryItem.states.filter((s) => s.id !== stateId);
-      } else {
-        updatedStates = [
-          ...countryItem.states,
-          {
-            id: stateId,
-            title: String(
-              allStates.find((s) => s.id === stateId)?.name || stateId,
-            ),
-            flag: flag || '',
-          },
-        ];
-      }
+    if (countryIndex === -1) {
+      return;
+    }
 
-      if (updatedStates.length === 0) {
-        setSelectedCountries((prevCountries = []) =>
-          prevCountries.filter((c) => c !== countryCode),
-        );
-        return prev.filter((_, i) => i !== countryIndex);
-      }
-      const hasDeselectedState = updatedStates.length !== allStates.length;
-      return prev.map((item, index) =>
-        index === countryIndex
-          ? { ...item, states: updatedStates, hasDeselectedState }
-          : item,
+    const countryItem = prevRegions[countryIndex];
+    const stateExists = countryItem.states.some((s) => s.id === stateId);
+
+    let updatedStates: SelectedTaxRegionDraft['states'];
+    if (stateExists) {
+      updatedStates = countryItem.states.filter((s) => s.id !== stateId);
+    } else {
+      updatedStates = [
+        ...countryItem.states,
+        {
+          id: stateId,
+          title: String(
+            allStates.find((s) => s.id === stateId)?.name || stateId,
+          ),
+          flag: flag || '',
+        },
+      ];
+    }
+
+    if (updatedStates.length === 0) {
+      syncSelection(
+        prevCountries.filter((c) => c !== countryCode),
+        prevRegions.filter((_, i) => i !== countryIndex),
       );
-    });
+      return;
+    }
+
+    const hasDeselectedState = updatedStates.length !== allStates.length;
+    const nextRegions = prevRegions.map((item, index) =>
+      index === countryIndex
+        ? { ...item, states: updatedStates, hasDeselectedState }
+        : item,
+    );
+    syncSelection(prevCountries, nextRegions);
   };
+
   const handleSearchRegion = (value: string) => {
     setSearchValue(value);
   };
@@ -183,7 +235,11 @@ const TaxRegionPopup = (props: TaxRegionPopupProps) => {
     setOpenPopup(false);
   };
 
-  const buttonState = selectedCountries?.length >= 1;
+  const buttonState = formCountries?.length >= 1;
+
+  const handleSubmit = () => {
+    onAdd();
+  };
 
   return (
     <>
@@ -195,111 +251,118 @@ const TaxRegionPopup = (props: TaxRegionPopupProps) => {
         >
           {__('Add tax region', 'kirki-ecommerce')}
         </PopoverHeader>
-        <PopoverBody
-          style={{
-            rowGap: 'var(--decom-spacing-3)',
-          }}
-        >
-          <Input
-            type="search"
-            leftIcon={<SearchIcon />}
-            label={__('Select countries', 'kirki-ecommerce')}
-            placeholder="Cities"
-            onChange={(value: string | number) =>
-              handleSearchRegion(String(value))
-            }
-          />
-
-          <Card
-            type={'table'}
-            style={{ borderRadius: 'var(--decom-radius-rounded-md)' }}
+        <Form {...form}>
+          <PopoverBody
+            style={{
+              rowGap: 'var(--decom-spacing-3)',
+            }}
           >
-            <div
-              style={{
-                height: '350px',
-                overflowX: 'hidden',
-                overflowY: 'scroll',
-              }}
-            >
-              <Flex className={`${CLASS_PREFIX}-popover-heading-wrapper-dark`}>
-                {__('Name', 'kirki-ecommerce')}
-              </Flex>
+            <Input
+              type="search"
+              leftIcon={<SearchIcon />}
+              label={__('Select countries', 'kirki-ecommerce')}
+              placeholder="Cities"
+              onChange={(value: string | number) =>
+                handleSearchRegion(String(value))
+              }
+            />
 
-              {filteredCountries?.length > 0 &&
-                filteredCountries?.map((country, index) => {
-                  const regionInfo = selectedRegion.find(
-                    (region) => region?.country === country.code,
-                  );
-                  const countryStates = (country.states ||
-                    []) as CountryStateOption[];
-                  return (
-                    <div
-                      key={index}
-                      className={`${CLASS_PREFIX}-checkbox-item`}
-                    >
-                      <Checkbox
-                        value={selectedCountries?.includes(country?.code)}
-                        isPartialChecked={regionInfo?.hasDeselectedState}
-                        label={sprintf(__('%s', 'kirki-ecommerce'), country.name)}
-                        onChange={() =>
-                          handleSelectCountries(country as CountryWithGroup)
-                        }
-                        leftIcon={country?.flag}
-                      />
-                      {selectedCountries?.includes(country.code) &&
-                      countryStates.length > 0 ? (
-                        <div
-                          style={{ padding: 'var(--decom-radius-rounded-xl)' }}
-                        >
-                          {countryStates.map((state, stateIndex) => {
-                            return (
-                              <div
-                                key={stateIndex}
-                                className={`${CLASS_PREFIX}-checkbox-item`}
-                              >
-                                <Checkbox
-                                  value={selectedRegion
-                                    ?.find((r) => r.id === country.code)
-                                    ?.states.some((s) => s.id === state?.id)}
-                                  label={sprintf(
-                                    __('%s', 'kirki-ecommerce'),
-                                    state.name,
-                                  )}
-                                  onChange={() =>
-                                    handleSelectStates(
-                                      state.id,
-                                      country.code,
-                                      countryStates,
-                                      state?.flag,
-                                    )
-                                  }
-                                />
-                              </div>
-                            );
-                          })}
-                        </div>
-                      ) : null}
-                    </div>
-                  );
-                })}
-            </div>
-          </Card>
-        </PopoverBody>
-        <PopoverFooter>
-          <Button
-            type="outlined"
-            text={__('Cancel', 'kirki-ecommerce')}
-            size="small"
-            onClick={handleClose}
-          />
-          <Button
-            type="primary"
-            text={__('Done', 'kirki-ecommerce')}
-            size="small"
-            onClick={onAdd}
-            state={buttonState ? '' : 'disabled'}
-          />
-        </PopoverFooter>
+            <Card
+              type={'table'}
+              style={{ borderRadius: 'var(--decom-radius-rounded-md)' }}
+            >
+              <div
+                style={{
+                  height: '350px',
+                  overflowX: 'hidden',
+                  overflowY: 'scroll',
+                }}
+              >
+                <Flex className={`${CLASS_PREFIX}-popover-heading-wrapper-dark`}>
+                  {__('Name', 'kirki-ecommerce')}
+                </Flex>
+
+                {filteredCountries?.length > 0 &&
+                  filteredCountries?.map((country, index) => {
+                    const regionInfo = formRegions.find(
+                      (region) => region?.country === country.code,
+                    );
+                    const countryStates = (country.states ||
+                      []) as CountryStateOption[];
+                    return (
+                      <div
+                        key={index}
+                        className={`${CLASS_PREFIX}-checkbox-item`}
+                      >
+                        <Checkbox
+                          value={formCountries?.includes(country?.code)}
+                          isPartialChecked={regionInfo?.hasDeselectedState}
+                          label={sprintf(
+                            __('%s', 'kirki-ecommerce'),
+                            country.name,
+                          )}
+                          onChange={() =>
+                            handleSelectCountries(country as CountryWithGroup)
+                          }
+                          leftIcon={country?.flag}
+                        />
+                        {formCountries?.includes(country.code) &&
+                        countryStates.length > 0 ? (
+                          <div
+                            style={{
+                              padding: 'var(--decom-radius-rounded-xl)',
+                            }}
+                          >
+                            {countryStates.map((state, stateIndex) => {
+                              return (
+                                <div
+                                  key={stateIndex}
+                                  className={`${CLASS_PREFIX}-checkbox-item`}
+                                >
+                                  <Checkbox
+                                    value={formRegions
+                                      ?.find((r) => r.id === country.code)
+                                      ?.states.some((s) => s.id === state?.id)}
+                                    label={sprintf(
+                                      __('%s', 'kirki-ecommerce'),
+                                      state.name,
+                                    )}
+                                    onChange={() =>
+                                      handleSelectStates(
+                                        state.id,
+                                        country.code,
+                                        countryStates,
+                                        state?.flag,
+                                      )
+                                    }
+                                  />
+                                </div>
+                              );
+                            })}
+                          </div>
+                        ) : null}
+                      </div>
+                    );
+                  })}
+              </div>
+            </Card>
+          </PopoverBody>
+          <PopoverFooter>
+            <Button
+              type="outlined"
+              text={__('Cancel', 'kirki-ecommerce')}
+              size="small"
+              onClick={handleClose}
+            />
+            <Button
+              type="primary"
+              text={__('Done', 'kirki-ecommerce')}
+              size="small"
+              onClick={form.handleSubmit(handleSubmit)}
+              state={buttonState ? '' : 'disabled'}
+            />
+          </PopoverFooter>
+        </Form>
       </Popover>
     </>
   );

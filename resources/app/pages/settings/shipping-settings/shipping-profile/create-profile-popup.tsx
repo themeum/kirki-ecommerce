@@ -1,6 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
-import Input from '@/molecules/input';
+import TextField from '@/components/form/text-field';
+import { Form } from '@/components/ui/form';
+import type { ErrorResponse } from '@/libs/api';
+import { applyServerErrors } from '@/libs/form-errors';
 import Button from '@/molecules/button';
 import {
   Popover,
@@ -8,6 +13,11 @@ import {
   PopoverFooter,
   PopoverHeader,
 } from '@/molecules/popover';
+import {
+  ShippingProfileFormSchema,
+  shippingProfileDefaultValues,
+  type ShippingProfileFormValues,
+} from '@/schemas/forms/shipping-profile-form';
 import {
   useCreateShippingProfileMutation,
   useUpdateShippingProfileMutation,
@@ -20,7 +30,7 @@ type CreateProfilePopupProps = {
   onClose?: () => void;
   onSave?: (id: number) => void;
   editIndex?: number | null;
-  shippingProfileList: ShippingProfile[];
+  shippingProfileList?: ShippingProfile[];
 };
 
 export const CreateProfilePopup = ({
@@ -28,61 +38,69 @@ export const CreateProfilePopup = ({
   onClose = () => {},
   onSave = () => {},
   editIndex = null,
-  shippingProfileList,
+  shippingProfileList = [],
 }: CreateProfilePopupProps) => {
-  const [profileTitle, setProfileTitle] = useState('');
+  const { mutateAsync: createProfile, isPending: isCreating } =
+    useCreateShippingProfileMutation();
+  const { mutateAsync: updateProfile, isPending: isUpdating } =
+    useUpdateShippingProfileMutation();
+  const isSubmitting = isCreating || isUpdating;
 
-  const { mutate: createProfile } = useCreateShippingProfileMutation();
-  const { mutate: updateProfile } = useUpdateShippingProfileMutation();
+  const form = useForm<ShippingProfileFormValues>({
+    resolver: zodResolver(ShippingProfileFormSchema),
+    defaultValues: shippingProfileDefaultValues,
+  });
+
+  const profileTitle = useWatch({ control: form.control, name: 'name' });
 
   useEffect(() => {
-    if (editIndex) {
-      const selectedProfile = shippingProfileList.find(
-        (profile) => profile?.id === editIndex,
-      );
-      setProfileTitle(selectedProfile?.name ?? '');
-    }
-  }, [editIndex]);
-
-  const handleAddOrUpdateShippingProfile = () => {
-    if (!profileTitle.trim()) {
+    if (!isOpen) {
       return;
     }
 
-    const data = { name: profileTitle };
-
     if (editIndex) {
       const selectedProfile = shippingProfileList.find(
         (profile) => profile?.id === editIndex,
       );
-      if (!selectedProfile) {
-        return;
-      }
-      updateProfile(
-        { id: selectedProfile.id, data },
-        {
-          onSuccess: (response) => {
-            onSave((response.data as { id?: number })?.id as number);
-            handleOnPopupClose();
-          },
-        },
-      );
-    } else {
-      createProfile(data, {
-        onSuccess: (response) => {
-          onSave((response.data as { id?: number })?.id as number);
-          handleOnPopupClose();
-        },
-      });
+      form.reset({ name: selectedProfile?.name ?? '' });
+      return;
     }
-  };
+
+    form.reset(shippingProfileDefaultValues);
+  }, [isOpen, editIndex, shippingProfileList, form]);
 
   const handleOnPopupClose = () => {
-    setProfileTitle('');
+    form.reset(shippingProfileDefaultValues);
     onClose();
   };
 
-  const buttonState = profileTitle === '';
+  const handleAddOrUpdateShippingProfile = async (
+    values: ShippingProfileFormValues,
+  ) => {
+    try {
+      if (editIndex) {
+        const selectedProfile = shippingProfileList.find(
+          (profile) => profile?.id === editIndex,
+        );
+        if (!selectedProfile) {
+          return;
+        }
+        const response = await updateProfile({
+          id: selectedProfile.id,
+          data: values,
+        });
+        onSave((response.data as { id?: number })?.id as number);
+      } else {
+        const response = await createProfile(values);
+        onSave((response.data as { id?: number })?.id as number);
+      }
+      handleOnPopupClose();
+    } catch (error) {
+      applyServerErrors(form, error as ErrorResponse);
+    }
+  };
+
+  const buttonState = !profileTitle?.trim();
 
   return (
     <div>
@@ -93,35 +111,41 @@ export const CreateProfilePopup = ({
         >
           {__('Create shipping profile', 'kirki-ecommerce')}
         </PopoverHeader>
-        <PopoverBody
-          style={{
-            padding:
-              'var(--decom-spacing-0) var(--decom-spacing-5) var(--decom-spacing-5) var(--decom-spacing-5)',
-          }}
-        >
-          <Input
-            label={__('Title', 'kirki-ecommerce')}
-            placeholder={__('e.g. Fragile', 'kirki-ecommerce')}
-            value={profileTitle}
-            onChange={(value) => setProfileTitle(String(value))}
-          />
-        </PopoverBody>
-        <PopoverFooter>
-          <Button
-            type="outlined"
-            text={__('Cancel', 'kirki-ecommerce')}
-            size="small"
-            onClick={handleOnPopupClose}
-          />
-          <Button
-            type="primary"
-            text={__('Save', 'kirki-ecommerce')}
-            size="small"
-            onClick={handleAddOrUpdateShippingProfile}
-            state={buttonState ? 'disabled' : ''}
-          />
-        </PopoverFooter>
+        <Form {...form}>
+          <PopoverBody
+            style={{
+              padding:
+                'var(--decom-spacing-0) var(--decom-spacing-5) var(--decom-spacing-5) var(--decom-spacing-5)',
+            }}
+          >
+            <TextField
+              name="name"
+              label={__('Title', 'kirki-ecommerce')}
+              placeholder={__('e.g. Fragile', 'kirki-ecommerce')}
+            />
+          </PopoverBody>
+          <PopoverFooter>
+            <Button
+              type="outlined"
+              text={__('Cancel', 'kirki-ecommerce')}
+              size="small"
+              onClick={handleOnPopupClose}
+              state={isSubmitting ? 'disabled' : undefined}
+            />
+            <Button
+              type="primary"
+              text={__('Save', 'kirki-ecommerce')}
+              size="small"
+              onClick={form.handleSubmit(handleAddOrUpdateShippingProfile)}
+              state={
+                buttonState || isSubmitting ? 'disabled' : undefined
+              }
+            />
+          </PopoverFooter>
+        </Form>
       </Popover>
     </div>
   );
 };
+
+CreateProfilePopup.displayName = 'CreateProfilePopup';

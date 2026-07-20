@@ -1,24 +1,39 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
+import { useForm, useFormContext, useWatch } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate, useOutletContext } from 'react-router';
 
+import CheckboxField from '@/components/form/checkbox-field';
 import PageNavbar from '@/components/page-navbar';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from '@/components/ui/form';
 import { TaxIcon } from '@/icons';
+import type { ErrorResponse } from '@/libs/api';
+import { applyServerErrors } from '@/libs/form-errors';
+import { useUnsavedStatus } from '@/libs/unsaved-store';
 import Button from '@/molecules/button';
 import Card from '@/molecules/card';
-import Checkbox from '@/molecules/checkbox';
 import Container from '@/molecules/container';
 import Flex from '@/molecules/flex';
 import PageHeading from '@/molecules/page-heading';
 import { RadioGroup } from '@/molecules/radio-group';
 import Separator from '@/molecules/separator';
 import Text from '@/molecules/text';
-import { getErrorsObject } from '@/libs/api';
-import { useUnsavedStatus } from '@/libs/unsaved-store';
+import {
+  TaxSettingsFormSchema,
+  taxSettingsDefaultValues,
+  type TaxSettingsFormValues,
+} from '@/schemas/forms/tax-settings-form';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
-import type { FormErrors, SettingsSectionData } from '@/types';
+import type { SettingsSectionData } from '@/types';
 import { __ } from '@/wpi18n';
 
-import { checkUnsavedDataStatus, setUnsavedDataStatus } from '@/pages/settings/utils';
+import { setUnsavedDataStatus } from '@/pages/settings/utils';
 import type { TaxRegion } from '@/pages/settings/tax-settings/utils';
 import TaxProfile from '@/pages/settings/tax-settings/tax-profile/tax-profile';
 import TaxRegions from '@/pages/settings/tax-settings/tax-region/tax-region';
@@ -27,39 +42,36 @@ type SettingsOutletContext = {
   confirmAction: (params: { action?: () => void }) => void;
 };
 
-type TaxSettingsFormData = Omit<SettingsSectionData, 'tax_regions'> & {
-  is_tax_inclusive_price?: boolean;
-  is_enabled_taxed_price?: boolean;
-  is_shipping_tax_enabled?: boolean;
-  tax_regions?: TaxRegion[];
-  tax_services?: unknown[];
-  tax_ids?: unknown[];
+const TaxCollectionOptions = () => {
+  const isTaxInclusivePrice = useWatch<TaxSettingsFormValues>({
+    name: 'is_tax_inclusive_price',
+  });
+
+  return (
+    <div>
+      <Separator style={{ marginBottom: 'var(--decom-spacing-3)' }} />
+      {isTaxInclusivePrice ? (
+        <CheckboxField
+          name="is_shipping_tax_enabled"
+          label={__('Charge shipping tax', 'kirki-ecommerce')}
+          description={__('Set charge for shipping tax', 'kirki-ecommerce')}
+        />
+      ) : (
+        <CheckboxField
+          name="is_enabled_taxed_price"
+          label={__('Display prices inclusive tax', 'kirki-ecommerce')}
+          description={__(
+            'Tax value will be included inside the product price',
+            'kirki-ecommerce',
+          )}
+        />
+      )}
+    </div>
+  );
 };
 
-const TaxSettings = () => {
-  const navigate = useNavigate();
-  const { confirmAction } = useOutletContext<SettingsOutletContext>();
-  const [isTaxInclusivePrice, setIsTaxInclusivePrice] = useState(false);
-  const [enableShippingTax, setEnableShippingTax] = useState(false);
-  const [enableTaxPrice, setEnableTaxPrice] = useState(false);
-  const [taxSettingsData, setTaxSettingsData] = useState<TaxSettingsFormData>(
-    {},
-  );
-  const [taxRegions, setTaxRegions] = useState<TaxRegion[]>([]);
-  const [errors, setErrors] = useState<FormErrors>({});
-
-  const hasUnsavedData = useUnsavedStatus();
-  const { data: taxSettings, isLoading } = useSettingsQuery('tax');
-  const { mutate: saveSettings } = useUpdateSettingsMutation();
-
-  const loaded = !isLoading && Boolean(taxSettings);
-
-  useEffect(() => {
-    if (!taxSettings || !Object.keys(taxSettings).length) {
-      return;
-    }
-    setInitialData();
-  }, [taxSettings]);
+const TaxCollectionRadio = () => {
+  const { control } = useFormContext<TaxSettingsFormValues>();
 
   const optionsArray = [
     {
@@ -78,77 +90,108 @@ const TaxSettings = () => {
     },
   ];
 
-  const handleTaxCollection = (value: string | number, _unused?: string) => {
-    if (!value) {
+  return (
+    <FormField
+      control={control}
+      name="is_tax_inclusive_price"
+      render={({ field }) => (
+        <FormItem>
+          <FormControl>
+            <RadioGroup
+              optionsArray={optionsArray}
+              onChange={(value) => {
+                if (!value) {
+                  return;
+                }
+                field.onChange(value === 'inclusive');
+              }}
+              type="checked"
+              value={field.value ? 'inclusive' : 'not_inclusive'}
+            />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  );
+};
+
+const TaxSettings = () => {
+  const navigate = useNavigate();
+  const { confirmAction } = useOutletContext<SettingsOutletContext>();
+
+  const hasUnsavedData = useUnsavedStatus();
+  const { data: taxSettings, isLoading } = useSettingsQuery('tax');
+  const { mutateAsync: saveSettings, isPending: isSaving } =
+    useUpdateSettingsMutation();
+
+  const loaded = !isLoading && Boolean(taxSettings);
+
+  const form = useForm<TaxSettingsFormValues>({
+    resolver: zodResolver(TaxSettingsFormSchema),
+    defaultValues: taxSettingsDefaultValues,
+  });
+
+  const { isDirty } = form.formState;
+
+  useEffect(() => {
+    if (!taxSettings || !Object.keys(taxSettings).length) {
       return;
     }
-    setUnsavedDataStatus(true);
-    if (value === 'inclusive') {
-      setIsTaxInclusivePrice(true);
-    } else {
-      setIsTaxInclusivePrice(false);
-    }
-  };
 
-  const handleSaveTaxSettings = (updatedRegions?: TaxRegion[]) => {
-    const data: TaxSettingsFormData = {
-      ...taxSettingsData,
-      is_tax_inclusive_price: isTaxInclusivePrice,
-      is_enabled_taxed_price: enableTaxPrice,
-      is_shipping_tax_enabled: enableShippingTax,
-      tax_regions: updatedRegions ?? taxRegions,
+    form.reset({
+      ...taxSettingsDefaultValues,
+      ...taxSettings,
+      is_tax_inclusive_price: !!taxSettings.is_tax_inclusive_price,
+      is_enabled_taxed_price: !!taxSettings.is_enabled_taxed_price,
+      is_shipping_tax_enabled: !!taxSettings.is_shipping_tax_enabled,
+      tax_regions: Array.isArray(taxSettings.tax_regions)
+        ? (taxSettings.tax_regions as TaxRegion[])
+        : [],
       tax_services: [],
       tax_ids: [],
-    };
+    });
+  }, [taxSettings, form]);
 
-    saveSettings(
-      { key: 'tax', data: data as SettingsSectionData },
-      {
-        onSuccess: () => setUnsavedDataStatus(false),
-        onError: (error) => {
-          const errObj = error as { errors?: Record<string, string[]> };
-          setErrors(getErrorsObject(errObj.errors));
-        },
-      },
-    );
+  useEffect(() => {
+    setUnsavedDataStatus(isDirty);
+  }, [isDirty]);
+
+  const handleSaveTaxSettings = async (
+    values: TaxSettingsFormValues,
+    updatedRegions?: TaxRegion[],
+  ) => {
+    const data = {
+      ...values,
+      tax_regions: (updatedRegions ?? values.tax_regions ?? []) as TaxSettingsFormValues['tax_regions'],
+      tax_services: [],
+      tax_ids: [],
+    } as TaxSettingsFormValues;
+
+    try {
+      await saveSettings({ key: 'tax', data: data as SettingsSectionData });
+      form.reset(data);
+    } catch (error) {
+      applyServerErrors(form, error as ErrorResponse);
+    }
   };
 
   const handleDiscardData = () => {
-    setInitialData();
-    setUnsavedDataStatus(false);
-  };
-
-  const setInitialData = () => {
-    if (!taxSettings) {
-      return;
-    }
-    setTaxSettingsData(taxSettings as TaxSettingsFormData);
-    setIsTaxInclusivePrice(!!taxSettings.is_tax_inclusive_price);
-    setTaxRegions(
-      Array.isArray(taxSettings.tax_regions)
-        ? (taxSettings.tax_regions as TaxRegion[])
-        : [],
-    );
-    setEnableShippingTax(!!taxSettings.is_shipping_tax_enabled);
-    setEnableTaxPrice(!!taxSettings.is_enabled_taxed_price);
+    form.reset();
   };
 
   const handleBackButton = () => {
-    const updatedData = {
-      ...taxSettingsData,
-      is_tax_inclusive_price: isTaxInclusivePrice,
-      is_enabled_taxed_price: enableTaxPrice,
-      is_shipping_tax_enabled: enableShippingTax,
-    };
-    checkUnsavedDataStatus({
-      initialDataObj: taxSettings,
-      updatedDataObj: updatedData,
-      onUnsaved: () =>
-        confirmAction({
-          action: () => navigate('/settings'),
-        }),
-      onClean: () => navigate('/settings'),
-    });
+    if (isDirty) {
+      confirmAction({
+        action: () => navigate('/settings'),
+      });
+      return;
+    }
+    navigate('/settings');
+  };
+
+  const handleSaveFromRegions = async (updatedRegions?: TaxRegion[]) => {
+    await handleSaveTaxSettings(form.getValues(), updatedRegions);
   };
 
   return (
@@ -167,12 +210,16 @@ const TaxSettings = () => {
                 text={__('Cancel', 'kirki-ecommerce')}
                 onClick={handleDiscardData}
                 size="small"
+                state={isSaving ? 'disabled' : undefined}
               />
               <Button
                 type="primary"
                 text={__('Save', 'kirki-ecommerce')}
-                onClick={() => handleSaveTaxSettings()}
+                onClick={form.handleSubmit((values) =>
+                  handleSaveTaxSettings(values),
+                )}
                 size="small"
+                state={isSaving ? 'loading' : undefined}
               />
             </>
           ) : (
@@ -182,70 +229,32 @@ const TaxSettings = () => {
       />
       <Container size="sm">
         {loaded ? (
-          <Flex direction="column" gap={16}>
-            <PageNavbar
-              textIcon={<TaxIcon />}
-              text={'Tax'}
-              handleBack={handleBackButton}
-            />
-            <Card type="large">
-              <Text
-                type="primary"
-                header={__('How would you like to collect tax?', 'kirki-ecommerce')}
-                subHeader={__(
-                  'Configure how tax is displayed and how it appears on your product listings.',
-                  'kirki-ecommerce',
-                )}
-                style={{ gap: 'var(--decom-spacing-f3)' }}
+          <Form {...form}>
+            <Flex direction="column" gap={16}>
+              <PageNavbar
+                textIcon={<TaxIcon />}
+                text={'Tax'}
+                handleBack={handleBackButton}
               />
-              <Flex direction="column" gap={12}>
-                <RadioGroup
-                  optionsArray={optionsArray}
-                  onChange={(value) => handleTaxCollection(value, '')}
-                  type="checked"
-                  value={
-                    isTaxInclusivePrice
-                      ? __('inclusive', 'kirki-ecommerce')
-                      : __('not_inclusive', 'kirki-ecommerce')
-                  }
-                />
-                <div>
-                  <Separator style={{ marginBottom: 'var(--decom-spacing-3)' }} />
-                  {isTaxInclusivePrice ? (
-                    <Checkbox
-                      label={__('Charge shipping tax', 'kirki-ecommerce')}
-                      helpText={__('Set charge for shipping tax', 'kirki-ecommerce')}
-                      onChange={(value) => {
-                        setEnableShippingTax(value);
-                        setUnsavedDataStatus(true);
-                      }}
-                      value={enableShippingTax}
-                    />
-                  ) : (
-                    <Checkbox
-                      label={__('Display prices inclusive tax', 'kirki-ecommerce')}
-                      helpText={__(
-                        'Tax value will be included inside the product price',
-                        'kirki-ecommerce',
-                      )}
-                      onChange={(value) => {
-                        setEnableTaxPrice(value);
-                        setUnsavedDataStatus(true);
-                      }}
-                      value={enableTaxPrice}
-                    />
+              <Card type="large">
+                <Text
+                  type="primary"
+                  header={__('How would you like to collect tax?', 'kirki-ecommerce')}
+                  subHeader={__(
+                    'Configure how tax is displayed and how it appears on your product listings.',
+                    'kirki-ecommerce',
                   )}
-                </div>
-              </Flex>
-            </Card>
-            <TaxRegions
-              taxRegions={taxRegions}
-              setTaxRegions={setTaxRegions}
-              handleSave={handleSaveTaxSettings}
-              errors={errors}
-            />
-            <TaxProfile />
-          </Flex>
+                  style={{ gap: 'var(--decom-spacing-f3)' }}
+                />
+                <Flex direction="column" gap={12}>
+                  <TaxCollectionRadio />
+                  <TaxCollectionOptions />
+                </Flex>
+              </Card>
+              <TaxRegions handleSave={handleSaveFromRegions} />
+              <TaxProfile />
+            </Flex>
+          </Form>
         ) : (
           <div>{__('Loading ...', 'kirki-ecommerce')}</div>
         )}

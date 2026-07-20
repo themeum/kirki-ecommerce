@@ -1,19 +1,26 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
-import { ConfigureKeyIcon, EyeClosedIcon, EyeIcon } from '@/icons';
+import CheckboxField from '@/components/form/checkbox-field';
+import PasswordField from '@/components/form/password-field';
+import SelectField from '@/components/form/select-field';
+import { Form } from '@/components/ui/form';
+import { ConfigureKeyIcon } from '@/icons';
 import ActionGroup from '@/molecules/action-group';
 import Button from '@/molecules/button';
-import Checkbox from '@/molecules/checkbox';
 import Flex from '@/molecules/flex';
-import Input from '@/molecules/input';
 import {
   Popover,
   PopoverBody,
   PopoverHeader,
 } from '@/molecules/popover';
-import { Select } from '@/molecules/select';
 import Text from '@/molecules/text';
-import type { FormErrors } from '@/types';
+import {
+  ApiConfigurationFormSchema,
+  apiConfigurationDefaultValues,
+  type ApiConfigurationFormValues,
+} from '@/schemas/forms/api-configuration-form';
 import { __ } from '@/wpi18n';
 
 type ApiConfigData = {
@@ -27,66 +34,81 @@ type ApiConfigData = {
 type ApiConfigurationPopupProps = {
   isOpen: boolean;
   onClose?: () => void;
-  handleOnChange: (value: unknown, key: string) => void;
+  onSave?: (values: ApiConfigurationFormValues) => void;
+  handleOnChange?: (value: unknown, key: string) => void;
   dataObj: ApiConfigData;
   selectedAPI: string;
-  errors: FormErrors;
 };
 
 const ApiConfigurationPopup = ({
   isOpen,
   onClose = () => {},
+  onSave,
   handleOnChange,
   dataObj,
   selectedAPI,
-  errors,
 }: ApiConfigurationPopupProps) => {
-  const initialData: ApiConfigData = {
-    api_key: '',
-    update_frequency: 'every_1_hour',
-    fallback_behaviour: 'last_known_rate',
-    is_cache_enabled: false,
-  };
-  const [localConfig, setLocalConfig] = useState<ApiConfigData>(initialData);
-  const [inputType, setInputType] = useState<'password' | 'text'>('password');
-
-  const updateFrequencyOptions = [
-    { title: __('Every 15 minutes', 'kirki-ecommerce'), value: 'every_15_min' },
-    { title: __('Every 30 minutes', 'kirki-ecommerce'), value: 'every_30_min' },
-    { title: __('Every hour', 'kirki-ecommerce'), value: 'every_1_hour' },
-    { title: __('Every 6 hours', 'kirki-ecommerce'), value: 'every_6_hours' },
-    { title: __('Every 12 hours', 'kirki-ecommerce'), value: 'every_12_hours' },
-    { title: __('Daily (24 hours)', 'kirki-ecommerce'), value: 'daily_24_hours' },
-  ];
+  const form = useForm<ApiConfigurationFormValues>({
+    resolver: zodResolver(ApiConfigurationFormSchema),
+    defaultValues: apiConfigurationDefaultValues,
+  });
 
   useEffect(() => {
-    if (isOpen) {
-      const hasData = dataObj?.api_key;
-      setLocalConfig(hasData ? dataObj : initialData);
-      setInputType('password');
-    } else {
-      setLocalConfig(initialData);
+    if (!isOpen) {
+      form.reset(apiConfigurationDefaultValues);
+      return;
     }
-  }, [selectedAPI, dataObj, isOpen]);
 
-  const updateApiConfig = (value: unknown, field: string) => {
-    setLocalConfig((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
+    const hasData = dataObj?.api_key;
+    form.reset(
+      hasData
+        ? {
+            api_key: dataObj.api_key || '',
+            update_frequency:
+              dataObj.update_frequency ||
+              apiConfigurationDefaultValues.update_frequency,
+            fallback_behaviour:
+              dataObj.fallback_behaviour ||
+              apiConfigurationDefaultValues.fallback_behaviour,
+            is_cache_enabled: Boolean(dataObj.is_cache_enabled),
+          }
+        : apiConfigurationDefaultValues,
+    );
+  }, [selectedAPI, dataObj, isOpen, form]);
 
-  const handleShowApiKey = () => {
-    if (inputType === 'password') {
-      setInputType('text');
-    } else {
-      setInputType('password');
+  const updateFrequencyOptions = [
+    { label: __('Every 15 minutes', 'kirki-ecommerce'), value: 'every_15_min' },
+    { label: __('Every 30 minutes', 'kirki-ecommerce'), value: 'every_30_min' },
+    { label: __('Every hour', 'kirki-ecommerce'), value: 'every_1_hour' },
+    { label: __('Every 6 hours', 'kirki-ecommerce'), value: 'every_6_hours' },
+    {
+      label: __('Every 12 hours', 'kirki-ecommerce'),
+      value: 'every_12_hours',
+    },
+    {
+      label: __('Daily (24 hours)', 'kirki-ecommerce'),
+      value: 'daily_24_hours',
+    },
+  ];
+
+  const fallbackOptions = [
+    {
+      label: __('Use base currency only', 'kirki-ecommerce'),
+      value: 'base_currency',
+    },
+    {
+      label: __('Use last known rate', 'kirki-ecommerce'),
+      value: 'last_known_rate',
+    },
+  ];
+
+  const handleConfiguration = (values: ApiConfigurationFormValues) => {
+    if (onSave) {
+      onSave(values);
+    } else if (handleOnChange) {
+      handleOnChange(selectedAPI, 'api_provider');
+      handleOnChange(values, 'api_config');
     }
-  };
-
-  const handleConfiguration = () => {
-    handleOnChange(selectedAPI, 'api_provider');
-    handleOnChange(localConfig, 'api_config');
     onClose();
   };
 
@@ -96,89 +118,71 @@ const ApiConfigurationPopup = ({
         <PopoverHeader onClose={onClose}>
           {__('API Configuration', 'kirki-ecommerce')}
         </PopoverHeader>
-        <PopoverBody
-          style={{
-            padding: '20px',
-            borderTop: '1px solid #E4E3E9',
-            borderBottom: '1px solid #E4E3E9',
-          }}
-        >
-          <Flex direction="column" gap={16}>
-            <Input
-              type={inputType}
-              label={__('API Key', 'kirki-ecommerce')}
-              rightIcon={
-                inputType === 'password' ? <EyeClosedIcon /> : <EyeIcon />
-              }
-              placeholder={'******'}
-              handleRightAction={handleShowApiKey}
-              value={localConfig?.api_key || ''}
-              onChange={(val) => updateApiConfig(val, 'api_key')}
-              error={errors['data.api_config.api_key'] as string | boolean | undefined}
-            />
-            <Text
-              type={'secondary'}
-              style={{ fontWeight: 400 }}
-              header={__(
-                'Your API key is encrypted and stored securely. Get your API key from ExchangeRate API',
-                'kirki-ecommerce',
-              )}
-            />
-            <Select
-              label={__('Update Frequency', 'kirki-ecommerce')}
-              value={localConfig?.update_frequency}
-              onChange={(val) => updateApiConfig(val, 'update_frequency')}
-              optionsArray={updateFrequencyOptions}
-              error={errors['data.api_config.update_frequency'] as string | boolean | undefined}
-            />
-            <Select
-              label={__('Fallback Behavior', 'kirki-ecommerce')}
-              value={localConfig?.fallback_behaviour}
-              onChange={(val) => updateApiConfig(val, 'fallback_behaviour')}
-              optionsArray={[
-                {
-                  title: __('Use base currency only', 'kirki-ecommerce'),
-                  value: 'base_currency',
-                },
-                {
-                  title: __('Use last known rate', 'kirki-ecommerce'),
-                  value: 'last_known_rate',
-                },
-              ]}
-              error={errors['data.api_config.fallback_behaviour'] as string | boolean | undefined}
-            />
-            <Checkbox
-              label={__('Cache exchange rates to reduce API calls', 'kirki-ecommerce')}
-              value={localConfig?.is_cache_enabled || false}
-              onChange={(checked) =>
-                updateApiConfig(checked, 'is_cache_enabled')
-              }
-            />
-          </Flex>
-        </PopoverBody>
-        <Flex style={{ padding: '12px 20px' }}>
-          <Button
-            type={'destructiveSoft'}
-            text={__('Remove', 'kirki-ecommerce')}
-            onClick={() => {
-              setLocalConfig(initialData);
+        <Form {...form}>
+          <PopoverBody
+            style={{
+              padding: '20px',
+              borderTop: '1px solid #E4E3E9',
+              borderBottom: '1px solid #E4E3E9',
             }}
-          />
-          <ActionGroup gap={12}>
+          >
+            <Flex direction="column" gap={16}>
+              <PasswordField
+                name="api_key"
+                label={__('API Key', 'kirki-ecommerce')}
+                placeholder={'******'}
+              />
+              <Text
+                type={'secondary'}
+                style={{ fontWeight: 400 }}
+                header={__(
+                  'Your API key is encrypted and stored securely. Get your API key from ExchangeRate API',
+                  'kirki-ecommerce',
+                )}
+              />
+              <SelectField
+                name="update_frequency"
+                label={__('Update Frequency', 'kirki-ecommerce')}
+                options={updateFrequencyOptions}
+              />
+              <SelectField
+                name="fallback_behaviour"
+                label={__('Fallback Behavior', 'kirki-ecommerce')}
+                options={fallbackOptions}
+              />
+              <CheckboxField
+                name="is_cache_enabled"
+                label={__(
+                  'Cache exchange rates to reduce API calls',
+                  'kirki-ecommerce',
+                )}
+              />
+            </Flex>
+          </PopoverBody>
+          <Flex style={{ padding: '12px 20px' }}>
             <Button
-              text={__('Cancel', 'kirki-ecommerce')}
-              type={'ghost'}
-              onClick={onClose}
-              style={{ boxShadow: '0 1px 1px 0 rgba(86, 65, 243, 0.3)' }}
+              type={'destructiveSoft'}
+              text={__('Remove', 'kirki-ecommerce')}
+              onClick={() => {
+                form.reset(apiConfigurationDefaultValues);
+              }}
             />
-            <Button
-              leftIcon={<ConfigureKeyIcon />}
-              text={__('Configure', 'kirki-ecommerce')}
-              onClick={handleConfiguration}
-              type={'primary'}
-            />
-          </ActionGroup>
-        </Flex>
+            <ActionGroup gap={12}>
+              <Button
+                text={__('Cancel', 'kirki-ecommerce')}
+                type={'ghost'}
+                onClick={onClose}
+                style={{ boxShadow: '0 1px 1px 0 rgba(86, 65, 243, 0.3)' }}
+              />
+              <Button
+                leftIcon={<ConfigureKeyIcon />}
+                text={__('Configure', 'kirki-ecommerce')}
+                onClick={form.handleSubmit(handleConfiguration)}
+                type={'primary'}
+              />
+            </ActionGroup>
+          </Flex>
+        </Form>
       </Popover>
     </>
   );

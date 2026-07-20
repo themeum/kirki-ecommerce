@@ -1,5 +1,9 @@
-import { useState, useEffect, type Dispatch, type SetStateAction } from 'react';
+import { useEffect, useMemo, useState, type Dispatch, type SetStateAction } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
+import SelectField from '@/components/form/select-field';
+import { Form } from '@/components/ui/form';
 import Checkbox from '@/molecules/checkbox';
 import Button from '@/molecules/button';
 import Input from '@/molecules/input';
@@ -9,9 +13,13 @@ import {
   PopoverFooter,
   PopoverHeader,
 } from '@/molecules/popover';
-import { Select } from '@/molecules/select';
 import { CLASS_PREFIX } from '@/conf';
 import { LocationIcon, SearchIcon } from '@/icons';
+import {
+  SelectDestinationFormSchema,
+  selectDestinationDefaultValues,
+  type SelectDestinationFormValues,
+} from '@/schemas/forms/select-destination-form';
 import { useCountriesQuery } from '@/services/country';
 import { __ } from '@/wpi18n';
 
@@ -37,6 +45,7 @@ type SelectDestinationPopupProps = {
   setSelectedConditionValue: Dispatch<SetStateAction<unknown>>;
   setRulesObj: Dispatch<SetStateAction<ShippingRule[]>>;
   ruleIndex: number;
+  onSave?: (values: SelectDestinationFormValues) => void;
 };
 
 export const SelectDestinationPopup = ({
@@ -50,67 +59,115 @@ export const SelectDestinationPopup = ({
   setSelectedConditionValue,
   setRulesObj,
   ruleIndex,
+  onSave,
 }: SelectDestinationPopupProps) => {
   const { data: countries } = useCountriesQuery({ limit: -1 });
   const countryList = countries as CountryWithStates[] | null | undefined;
   const [stateList, setStateList] = useState<
     Array<{ id: string | number; name: string }>
   >([]);
-  const [selectedStates, setSelectedStates] = useState<Array<string | number>>(
-    [],
+
+  const form = useForm<SelectDestinationFormValues>({
+    resolver: zodResolver(SelectDestinationFormSchema),
+    defaultValues: selectDestinationDefaultValues,
+  });
+
+  const formCountry = useWatch({ control: form.control, name: 'country' });
+  const selectedStates =
+    useWatch({ control: form.control, name: 'states' }) || [];
+  const [searchValue, setSearchValue] = useState('');
+
+  const countryOptions = useMemo(
+    () =>
+      countryList
+        ?.filter((country) =>
+          selectedRegion?.some((region) => region.country === country.code),
+        )
+        .map((country) => ({
+          label: country.name,
+          value: country.code,
+        })) ?? [],
+    [countryList, selectedRegion],
   );
 
-  const countryOptions = countryList
-    ?.filter((country) =>
-      selectedRegion?.some((region) => region.country === country.code),
-    )
-    .map((country) => ({
-      title: country.name,
-      value: country.code,
-      leftIcon: country.flag,
-    }));
-
   useEffect(() => {
-    if (!selectedCountry) {
+    if (!openPopup) {
       return;
     }
 
-    const country = countryList?.find(
-      (country) =>
-        country.code.toLowerCase() === selectedCountry.toLowerCase(),
-    );
-
-    setStateList(country?.states || []);
+    const country = selectedCountry ?? '';
     const conditionValue = selectedConditionValue as
       | DestinationConditionValue
       | null;
     const statesFromCondition =
-      conditionValue?.country === selectedCountry
-        ? conditionValue.states
-        : null;
-
+      conditionValue?.country === country ? conditionValue.states : null;
     const regionForCountry = selectedRegion?.find(
-      (r) => r.country.toLowerCase() === selectedCountry.toLowerCase(),
+      (r) => r.country.toLowerCase() === country.toLowerCase(),
     );
 
-    setSelectedStates(statesFromCondition ?? regionForCountry?.states ?? []);
-  }, [selectedCountry, countryList]);
+    form.reset({
+      country,
+      states: statesFromCondition ?? regionForCountry?.states ?? [],
+    });
+    setSearchValue('');
+  }, [openPopup, form]);
+
+  useEffect(() => {
+    if (!formCountry) {
+      setStateList([]);
+      return;
+    }
+
+    const country = countryList?.find(
+      (item) => item.code.toLowerCase() === formCountry.toLowerCase(),
+    );
+
+    setStateList(country?.states || []);
+
+    const conditionValue = selectedConditionValue as
+      | DestinationConditionValue
+      | null;
+    const statesFromCondition =
+      conditionValue?.country === formCountry ? conditionValue.states : null;
+    const regionForCountry = selectedRegion?.find(
+      (r) => r.country.toLowerCase() === formCountry.toLowerCase(),
+    );
+
+    form.setValue(
+      'states',
+      statesFromCondition ?? regionForCountry?.states ?? [],
+    );
+  }, [formCountry, countryList]);
+
+  const filteredStates = useMemo(() => {
+    if (!searchValue.trim()) {
+      return stateList;
+    }
+    const query = searchValue.toLowerCase();
+    return stateList.filter((state) =>
+      state.name.toLowerCase().includes(query),
+    );
+  }, [stateList, searchValue]);
 
   const handleSelectState = (stateId: string | number) => {
-    setSelectedStates((prev) =>
-      prev.includes(stateId)
-        ? prev.filter((id) => id !== stateId)
-        : [...prev, stateId],
-    );
+    const current = form.getValues('states') || [];
+    const next = current.includes(stateId)
+      ? current.filter((id) => id !== stateId)
+      : [...current, stateId];
+    form.setValue('states', next, { shouldDirty: true });
   };
 
-  const updateRegionList = () => {
+  const updateRegionList = (values: SelectDestinationFormValues) => {
+    setSelectedCountry(values.country);
     setSelectedRegion((prev) =>
       prev.map((r) =>
-        r.country === selectedCountry ? { ...r, states: selectedStates } : r,
+        r.country === values.country ? { ...r, states: values.states } : r,
       ),
     );
-    if (ruleIndex !== -1) {
+
+    if (onSave) {
+      onSave(values);
+    } else if (ruleIndex !== -1) {
       setRulesObj((prev) =>
         prev.map((rule, idx) => {
           if (idx !== ruleIndex) {
@@ -123,7 +180,7 @@ export const SelectDestinationPopup = ({
           }
 
           const conditionValue = condition.value as DestinationConditionValue;
-          const isSameCountry = conditionValue?.country === selectedCountry;
+          const isSameCountry = conditionValue?.country === values.country;
 
           return {
             ...rule,
@@ -133,11 +190,11 @@ export const SelectDestinationPopup = ({
                 value: isSameCountry
                   ? {
                       ...conditionValue,
-                      states: selectedStates,
+                      states: values.states,
                     }
                   : {
-                      country: selectedCountry,
-                      states: selectedStates,
+                      country: values.country,
+                      states: values.states,
                     },
               },
             ],
@@ -146,65 +203,60 @@ export const SelectDestinationPopup = ({
       );
     } else {
       setSelectedConditionValue({
-        country: selectedCountry,
-        states: selectedStates || [],
+        country: values.country,
+        states: values.states || [],
       });
     }
     setOpenPopup(false);
   };
 
-  const handleSelectCountry = (value: string) => {
-    setSelectedCountry(value);
-  };
-
   return (
-    <>
-      <Popover isOpen={openPopup}>
-        <PopoverHeader
-          borderBottom
-          onClose={() => setOpenPopup(false)}
-          leftIcon={<LocationIcon />}
-        >
-          {__('Select destination', 'kirki-ecommerce')}
-        </PopoverHeader>
+    <Popover isOpen={openPopup}>
+      <PopoverHeader
+        borderBottom
+        onClose={() => setOpenPopup(false)}
+        leftIcon={<LocationIcon />}
+      >
+        {__('Select destination', 'kirki-ecommerce')}
+      </PopoverHeader>
+      <Form {...form}>
         <PopoverBody
           style={{
             padding: 'var(--decom-spacing-4) var(--decom-spacing-5)',
           }}
         >
-          <Select
+          <SelectField
+            name="country"
             label={__('Select country', 'kirki-ecommerce')}
-            optionsArray={countryOptions}
-            value={selectedCountry ?? undefined}
-            onChange={(value) => handleSelectCountry(String(value))}
+            options={countryOptions}
           />
 
-          <>
-            <Input
-              type="search"
-              leftIcon={<SearchIcon />}
-              label={__('Regions', 'kirki-ecommerce')}
-              placeholder={__('Search region or state', 'kirki-ecommerce')}
-            />
+          <Input
+            type="search"
+            leftIcon={<SearchIcon />}
+            label={__('Regions', 'kirki-ecommerce')}
+            placeholder={__('Search region or state', 'kirki-ecommerce')}
+            value={searchValue}
+            onChange={(value) => setSearchValue(String(value))}
+          />
 
-            <div
-              style={{
-                height: '350px',
-                overflowX: 'hidden',
-                overflowY: 'scroll',
-              }}
-            >
-              {stateList?.map((state, index) => (
-                <div key={index} className={`${CLASS_PREFIX}-checkbox-item`}>
-                  <Checkbox
-                    value={selectedStates.includes(state.id)}
-                    label={state.name}
-                    onChange={() => handleSelectState(state?.id)}
-                  />
-                </div>
-              ))}
-            </div>
-          </>
+          <div
+            style={{
+              height: '350px',
+              overflowX: 'hidden',
+              overflowY: 'scroll',
+            }}
+          >
+            {filteredStates?.map((state, index) => (
+              <div key={index} className={`${CLASS_PREFIX}-checkbox-item`}>
+                <Checkbox
+                  value={selectedStates.includes(state.id)}
+                  label={state.name}
+                  onChange={() => handleSelectState(state?.id)}
+                />
+              </div>
+            ))}
+          </div>
         </PopoverBody>
         <PopoverFooter>
           <Button
@@ -217,10 +269,12 @@ export const SelectDestinationPopup = ({
           <Button
             type="primary"
             text={__('Done', 'kirki-ecommerce')}
-            onClick={() => updateRegionList()}
+            onClick={form.handleSubmit(updateRegionList)}
           />
         </PopoverFooter>
-      </Popover>
-    </>
+      </Form>
+    </Popover>
   );
 };
+
+SelectDestinationPopup.displayName = 'SelectDestinationPopup';

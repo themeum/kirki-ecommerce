@@ -156,20 +156,28 @@ const ShippingZonePage = () => {
     });
   };
 
-  const handleAddRegion = () => {
-    if (selectedRegion?.length < 1) {
+  const handleAddRegion = (values?: {
+    regions?: ShippingRegion[];
+    countries?: string[];
+  }) => {
+    const regions = values?.regions ?? selectedRegion;
+    if (regions?.length < 1) {
       dispatchToastMessage('warning', {
         title: __('Regions cannot be empty', 'kirki-ecommerce'),
       });
       return;
     }
+    if (values?.countries) {
+      setSelectedCountries(values.countries);
+    }
+    setSelectedRegion(regions);
     setErrors({ ...errors, regions: '' });
     setShippingZonesObj((prevZones) =>
       prevZones.map((zone) =>
         String(zone.id) === String(zoneId)
           ? {
               ...zone,
-              regions: selectedRegion,
+              regions,
             }
           : zone,
       ),
@@ -302,6 +310,7 @@ const ShippingZonePage = () => {
                   setShippingZoneTitle={setShippingZoneTitle}
                   from="edit"
                   onAdd={handleAddRegion}
+                  onSave={handleAddRegion}
                 />
               )}
             </Card>

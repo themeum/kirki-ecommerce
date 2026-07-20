@@ -1,12 +1,17 @@
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
-import ThumbnailSelector from '@/components/thumbnail-selector';
+import TextareaField from '@/components/form/textarea-field';
+import TextField from '@/components/form/text-field';
+import ThumbnailField from '@/components/form/thumbnail-field';
+import { Form } from '@/components/ui/form';
 import { BrandIcon } from '@/icons';
-import { getErrorsObject } from '@/libs/api';
+import type { ErrorResponse } from '@/libs/api';
+import { applyServerErrors } from '@/libs/form-errors';
 import Button from '@/molecules/button';
 import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
-import Input from '@/molecules/input';
 import {
   Popover,
   PopoverBody,
@@ -14,14 +19,33 @@ import {
   PopoverHeader,
 } from '@/molecules/popover';
 import Text from '@/molecules/text';
+import {
+  BrandFormSchema,
+  type BrandFormValues,
+} from '@/schemas/forms/brand-form';
 import { useCreateBrandMutation, useUpdateBrandMutation } from '@/services/brand';
-import type { ErrorResponse } from '@/libs/api';
-import type { Brand, BrandFormData, FormErrors, MediaChangePayload } from '@/types';
+import type { Brand, BrandFormData } from '@/types';
 import { __ } from '@/wpi18n';
 
 type BrandAddEditPopoverProps = {
   brand: Brand | BrandFormData;
   onClose?: () => void;
+};
+
+const getInitialLogoUrl = (brand: Brand | BrandFormData) => {
+  const logo =
+    brand.logo && typeof brand.logo === 'object' ? brand.logo : null;
+  return logo?.url || null;
+};
+
+const getLogoId = (brand: Brand | BrandFormData) => {
+  if (brand.logo && typeof brand.logo === 'object') {
+    return brand.logo.id ?? null;
+  }
+  if (typeof brand.logo === 'number' || typeof brand.logo === 'string') {
+    return brand.logo;
+  }
+  return null;
 };
 
 const BrandAddEditPopover = ({
@@ -30,47 +54,40 @@ const BrandAddEditPopover = ({
 }: BrandAddEditPopoverProps) => {
   const createMutation = useCreateBrandMutation();
   const updateMutation = useUpdateBrandMutation();
-  const logo =
-    brand.logo && typeof brand.logo === 'object' ? brand.logo : null;
-  const [imageUrl, setImageUrl] = useState<string | null>(logo?.url || null);
-  const [errors, setErrors] = useState<FormErrors>({});
-  const [brandFormData, setBrandFormData] =
-    useState<BrandFormData & { id?: number }>(brand);
+  const brandId = 'id' in brand ? brand.id : undefined;
+  const isSubmitting = createMutation.isPending || updateMutation.isPending;
+  const [imageUrl, setImageUrl] = useState<string | null>(
+    getInitialLogoUrl(brand),
+  );
 
-  const handleOnChange = (data: unknown, fieldName: string) => {
-    setBrandFormData((prev) => ({
-      ...prev,
-      [fieldName]: data,
-    }));
-    setErrors((prev) => ({
-      ...prev,
-      [fieldName]: null,
-    }));
-  };
+  const form = useForm<BrandFormValues>({
+    resolver: zodResolver(BrandFormSchema),
+    defaultValues: {
+      name: brand.name ?? '',
+      slug: brand.slug ?? '',
+      description: brand.description ?? '',
+      logo: getLogoId(brand),
+    },
+  });
 
-  const handleMediaChange = (img: MediaChangePayload | MediaChangePayload[]) => {
-    const media = img as MediaChangePayload;
-    setImageUrl(media?.url ?? null);
-    setBrandFormData((prev) => ({
-      ...prev,
-      logo: media?.id,
-    }));
-  };
+  const handleSubmit = async (values: BrandFormValues) => {
+    const payload: BrandFormData = {
+      ...values,
+      logo: values.logo ?? null,
+    };
 
-  const handleAddOrUpdateBrand = async () => {
     try {
-      if (brandFormData.id) {
+      if (brandId) {
         await updateMutation.mutateAsync({
-          id: brandFormData.id,
-          data: brandFormData,
+          id: brandId,
+          data: payload,
         });
       } else {
-        await createMutation.mutateAsync(brandFormData);
+        await createMutation.mutateAsync(payload);
       }
       onClose();
     } catch (error) {
-      const err = error as ErrorResponse;
-      setErrors(getErrorsObject(err.errors));
+      applyServerErrors(form, error as ErrorResponse);
     }
   };
 
@@ -84,68 +101,66 @@ const BrandAddEditPopover = ({
         <Text
           type="primary"
           header={
-            brandFormData.id
+            brandId
               ? __('Edit Brand', 'kirki-ecommerce')
               : __('New Brand', 'kirki-ecommerce')
           }
         />
       </PopoverHeader>
-      <PopoverBody>
-        <Flex direction="column" gap={16}>
-          <Card type="light">
-            <Flex direction="column" gap={16}>
-              <Input
-                label={__('Name', 'kirki-ecommerce')}
-                placeholder={__('e.g., fundraising', 'kirki-ecommerce')}
-                value={brandFormData.name as string}
-                onChange={(value) => handleOnChange(value, 'name')}
-                error={errors.name as string | boolean | undefined}
-              />
-              <Input
-                label={__('Slug', 'kirki-ecommerce')}
-                placeholder={__('e.g., fund-raising', 'kirki-ecommerce')}
-                value={brandFormData.slug as string}
-                onChange={(value) => handleOnChange(value, 'slug')}
-                error={errors.slug as string | boolean | undefined}
-              />
-              <Input
-                label={__('Description', 'kirki-ecommerce')}
-                multiline={2}
-                style={{ padding: '8px 12px' }}
-                placeholder={__(
-                  'e.g., Dedicated to providing immediate support and essential resources to communities affected by unexpected crises.',
-                  'kirki-ecommerce',
-                )}
-                value={brandFormData.description as string}
-                onChange={(value) => handleOnChange(value, 'description')}
-                error={errors.description as string | boolean | undefined}
-              />
-              <ThumbnailSelector
-                src={imageUrl ?? undefined}
-                label={__('Thumb', 'kirki-ecommerce')}
-                error={errors.logo as string | boolean | undefined}
-                onChange={(img) => handleMediaChange(img)}
-              />
-            </Flex>
-          </Card>
-        </Flex>
-      </PopoverBody>
-      <PopoverFooter>
-        <Button
-          type="outlined"
-          text={__('Cancel', 'kirki-ecommerce')}
-          onClick={onClose}
-        />
-        <Button
-          type="primary"
-          text={
-            brandFormData.id
-              ? __('Save', 'kirki-ecommerce')
-              : __('Add', 'kirki-ecommerce')
-          }
-          onClick={handleAddOrUpdateBrand}
-        />
-      </PopoverFooter>
+      <Form {...form}>
+        <PopoverBody>
+          <Flex direction="column" gap={16}>
+            <Card type="light">
+              <Flex direction="column" gap={16}>
+                <TextField
+                  name="name"
+                  label={__('Name', 'kirki-ecommerce')}
+                  placeholder={__('e.g., fundraising', 'kirki-ecommerce')}
+                />
+                <TextField
+                  name="slug"
+                  label={__('Slug', 'kirki-ecommerce')}
+                  placeholder={__('e.g., fund-raising', 'kirki-ecommerce')}
+                />
+                <TextareaField
+                  name="description"
+                  label={__('Description', 'kirki-ecommerce')}
+                  rows={2}
+                  placeholder={__(
+                    'e.g., Dedicated to providing immediate support and essential resources to communities affected by unexpected crises.',
+                    'kirki-ecommerce',
+                  )}
+                />
+                <ThumbnailField
+                  name="logo"
+                  label={__('Thumb', 'kirki-ecommerce')}
+                  valueAs="id"
+                  previewUrl={imageUrl}
+                  onPreviewChange={setImageUrl}
+                />
+              </Flex>
+            </Card>
+          </Flex>
+        </PopoverBody>
+        <PopoverFooter>
+          <Button
+            type="outlined"
+            text={__('Cancel', 'kirki-ecommerce')}
+            onClick={onClose}
+            state={isSubmitting ? 'disabled' : undefined}
+          />
+          <Button
+            type="primary"
+            text={
+              brandId
+                ? __('Save', 'kirki-ecommerce')
+                : __('Add', 'kirki-ecommerce')
+            }
+            onClick={form.handleSubmit(handleSubmit)}
+            state={isSubmitting ? 'loading' : undefined}
+          />
+        </PopoverFooter>
+      </Form>
     </Popover>
   );
 };

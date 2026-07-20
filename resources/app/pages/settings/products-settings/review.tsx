@@ -1,19 +1,11 @@
+import SwitchField from '@/components/form/switch-field';
 import ActionGroup from '@/molecules/action-group';
 import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
 import Text from '@/molecules/text';
-import ToggleButton from '@/molecules/toggle-button';
-import type { FormErrors, SettingsSectionData } from '@/types';
 import { __ } from '@/wpi18n';
 
-type ReviewProps = {
-  dataObj: SettingsSectionData;
-  handleOnChange: (value: unknown, key: string) => void;
-  errors: FormErrors;
-};
-
-export const Review = (props: ReviewProps) => {
-  const { dataObj, handleOnChange } = props;
+export const Review = () => {
   return (
     <Card type="large">
       <Text
@@ -43,12 +35,7 @@ export const Review = (props: ReviewProps) => {
               />
             </Flex>
             <ActionGroup>
-              <ToggleButton
-                value={dataObj?.is_enabled_reviews as boolean}
-                onChange={(value) =>
-                  handleOnChange(value, 'is_enabled_reviews')
-                }
-              />
+              <SwitchField name="is_enabled_reviews" />
             </ActionGroup>
           </Flex>
         </Card>
@@ -72,12 +59,7 @@ export const Review = (props: ReviewProps) => {
               />
             </Flex>
             <ActionGroup>
-              <ToggleButton
-                value={dataObj?.is_enabled_star_ratings as boolean}
-                onChange={(value) =>
-                  handleOnChange(value, 'is_enabled_star_ratings')
-                }
-              />
+              <SwitchField name="is_enabled_star_ratings" />
             </ActionGroup>
           </Flex>
         </Card>
@@ -85,3 +67,5 @@ export const Review = (props: ReviewProps) => {
     </Card>
   );
 };
+
+Review.displayName = 'Review';

@@ -1,25 +1,30 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate, useOutletContext } from 'react-router';
 
 import PageNavbar from '@/components/page-navbar';
+import { Form } from '@/components/ui/form';
 import { CurrencyIcon } from '@/icons';
+import type { ErrorResponse } from '@/libs/api';
+import { applyServerErrors } from '@/libs/form-errors';
+import { useUnsavedStatus } from '@/libs/unsaved-store';
 import Button from '@/molecules/button';
 import Card from '@/molecules/card';
 import Container from '@/molecules/container';
 import Flex from '@/molecules/flex';
 import PageHeading from '@/molecules/page-heading';
 import Text from '@/molecules/text';
-import { getErrorsObject } from '@/libs/api';
-import { useUnsavedStatus } from '@/libs/unsaved-store';
+import {
+  MultiCurrencySettingsFormSchema,
+  multiCurrencySettingsDefaultValues,
+  type MultiCurrencySettingsFormValues,
+} from '@/schemas/forms/multi-currency-settings-form';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
-import type {
-  ConfirmationVariant,
-  FormErrors,
-  SettingsSectionData,
-} from '@/types';
+import type { ConfirmationVariant, SettingsSectionData } from '@/types';
 import { __ } from '@/wpi18n';
 
-import { checkUnsavedDataStatus, setUnsavedDataStatus } from '@/pages/settings/utils';
+import { setUnsavedDataStatus } from '@/pages/settings/utils';
 import ApiConfig from '@/pages/settings/multi-currency-settings/api-config/api-config';
 import { AvailableCurrencyList } from '@/pages/settings/multi-currency-settings/available-currency-list';
 import CurrencyFormatSettings from '@/pages/settings/multi-currency-settings/currency-format-settings';
@@ -41,74 +46,78 @@ const MultiCurrencySettings = () => {
   const { confirmAction } = useOutletContext<SettingsOutletContext>();
 
   const { data: currencySettingsData, isLoading } = useSettingsQuery('currency');
-  const { mutate: saveSettings } = useUpdateSettingsMutation();
+  const { mutateAsync: saveSettings, isPending: isSaving } =
+    useUpdateSettingsMutation();
 
   const hasUnsavedData = useUnsavedStatus();
-  const [dataObj, setDataObj] = useState<SettingsSectionData>({});
-  const [initialData, setInitialData] = useState<SettingsSectionData>({});
-  const [errors, setErrors] = useState<FormErrors>({});
+  const form = useForm<MultiCurrencySettingsFormValues>({
+    resolver: zodResolver(MultiCurrencySettingsFormSchema),
+    defaultValues: multiCurrencySettingsDefaultValues,
+  });
 
+  const { isDirty } = form.formState;
   const loaded = !isLoading && Boolean(currencySettingsData);
 
-  const handleOnChange = (value: unknown, key: string) => {
-    setUnsavedDataStatus(true);
-    setDataObj((prev) => {
-      return {
-        ...prev,
-        [key]: value,
-      };
-    });
-    setErrors((prev) => ({
-      ...prev,
-      ['data.' + key]: null,
-    }));
-  };
-
   useEffect(() => {
-    if (!currencySettingsData) {
+    if (!currencySettingsData || !Object.keys(currencySettingsData).length) {
       return;
     }
 
-    setDataObj(currencySettingsData);
-    setInitialData(currencySettingsData);
-  }, [currencySettingsData]);
+    const apiConfigData =
+      (currencySettingsData.api_config as Record<string, unknown> | null) || {};
 
-  const handleSaveData = () => {
-    const updatedObj: SettingsSectionData = {
-      ...dataObj,
+    form.reset({
+      ...multiCurrencySettingsDefaultValues,
+      ...currencySettingsData,
       is_automatic_update_enabled:
-        dataObj?.is_automatic_update_enabled || false,
-    };
-    saveSettings(
-      { key: 'currency', data: updatedObj },
-      {
-        onSuccess: () => setUnsavedDataStatus(false),
-        onError: (error) => {
-          const errObj = error as { errors?: Record<string, string[]> };
-          setErrors(getErrorsObject(errObj.errors));
-        },
+        currencySettingsData.is_automatic_update_enabled || false,
+      api_config: {
+        ...multiCurrencySettingsDefaultValues.api_config,
+        api_key:
+          typeof apiConfigData.api_key === 'string' ? apiConfigData.api_key : '',
+        update_frequency:
+          typeof apiConfigData.update_frequency === 'string'
+            ? apiConfigData.update_frequency
+            : 'every_1_hour',
+        fallback_behaviour:
+          typeof apiConfigData.fallback_behaviour === 'string'
+            ? apiConfigData.fallback_behaviour
+            : 'last_known_rate',
+        is_cache_enabled: Boolean(apiConfigData.is_cache_enabled),
       },
-    );
+    });
+  }, [currencySettingsData, form]);
+
+  useEffect(() => {
+    setUnsavedDataStatus(isDirty);
+  }, [isDirty]);
+
+  const handleSaveData = async (values: MultiCurrencySettingsFormValues) => {
+    const updatedObj = {
+      ...values,
+      is_automatic_update_enabled: values?.is_automatic_update_enabled || false,
+    } as SettingsSectionData;
+
+    try {
+      await saveSettings({ key: 'currency', data: updatedObj });
+      form.reset(values);
+    } catch (error) {
+      applyServerErrors(form, error as ErrorResponse);
+    }
   };
 
   const handleDiscardData = () => {
-    setDataObj(initialData);
-    setErrors({});
-    setUnsavedDataStatus(false);
+    form.reset();
   };
 
   const handleBackButton = () => {
-    checkUnsavedDataStatus({
-      initialDataObj: initialData,
-      updatedDataObj: dataObj,
-      onUnsaved: () =>
-        confirmAction({
-          action: () => navigate(`/settings`),
-        }),
-      onClean: () => {
-        navigate(`/settings`);
-      },
-    });
+    if (isDirty) {
+      confirmAction({
+        action: () => navigate(`/settings`),
+      });
+      return;
+    }
+    navigate(`/settings`);
   };
 
   return (
@@ -127,12 +136,14 @@ const MultiCurrencySettings = () => {
                 text={__('Cancel', 'kirki-ecommerce')}
                 size="small"
                 onClick={handleDiscardData}
+                state={isSaving ? 'disabled' : undefined}
               />
               <Button
                 type="primary"
                 text={__('Save', 'kirki-ecommerce')}
                 size="small"
-                onClick={handleSaveData}
+                onClick={form.handleSubmit(handleSaveData)}
+                state={isSaving ? 'loading' : undefined}
               />
             </>
           ) : (
@@ -142,47 +153,41 @@ const MultiCurrencySettings = () => {
       />
       <Container size="sm">
         {loaded ? (
-          <Flex direction="column" gap={16}>
-            <PageNavbar
-              textIcon={<CurrencyIcon />}
-              text={__('Currency', 'kirki-ecommerce')}
-              handleBack={handleBackButton}
-            />
+          <Form {...form}>
+            <Flex direction="column" gap={16}>
+              <PageNavbar
+                textIcon={<CurrencyIcon />}
+                text={__('Currency', 'kirki-ecommerce')}
+                handleBack={handleBackButton}
+              />
 
-            <Card type={'large'}>
-              <Text
-                header={__('Currency Management', 'kirki-ecommerce')}
-                subHeader={__(
-                  'Manage product pricing across multiple currencies with manual or automatic conversion rates.',
-                  'kirki-ecommerce',
-                )}
-                type="primary"
-                style={{ gap: 'var(--decom-spacing-f3)' }}
-              />
-              <AvailableCurrencyList dataObj={dataObj} />
-              <ApiConfig
-                dataObj={dataObj}
-                handleOnChange={handleOnChange}
-                errors={errors}
-              />
-            </Card>
-            <Card type={'large'}>
-              <Text
-                header={__('Currency Preferences', 'kirki-ecommerce')}
-                subHeader={__(
-                  'Set your preferences for how currency is displayed.',
-                  'kirki-ecommerce',
-                )}
-                type="primary"
-                style={{ gap: '12px' }}
-              />
-              <CurrencyFormatSettings
-                dataObj={dataObj}
-                handleOnChange={handleOnChange}
-                errors={errors}
-              />
-            </Card>
-          </Flex>
+              <Card type={'large'}>
+                <Text
+                  header={__('Currency Management', 'kirki-ecommerce')}
+                  subHeader={__(
+                    'Manage product pricing across multiple currencies with manual or automatic conversion rates.',
+                    'kirki-ecommerce',
+                  )}
+                  type="primary"
+                  style={{ gap: 'var(--decom-spacing-f3)' }}
+                />
+                <AvailableCurrencyList />
+                <ApiConfig />
+              </Card>
+              <Card type={'large'}>
+                <Text
+                  header={__('Currency Preferences', 'kirki-ecommerce')}
+                  subHeader={__(
+                    'Set your preferences for how currency is displayed.',
+                    'kirki-ecommerce',
+                  )}
+                  type="primary"
+                  style={{ gap: '12px' }}
+                />
+                <CurrencyFormatSettings />
+              </Card>
+            </Flex>
+          </Form>
         ) : (
           <div>{__('Loading ...', 'kirki-ecommerce')}</div>
         )}

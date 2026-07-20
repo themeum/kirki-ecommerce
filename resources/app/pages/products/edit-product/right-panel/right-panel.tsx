@@ -1,10 +1,18 @@
-import React from 'react';
+import { useEffect, useRef } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
+import SelectField from '@/components/form/select-field';
+import { Form } from '@/components/ui/form';
+import { useProductForm } from '@/contexts/product-form-context';
 import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
-import { Select } from '@/molecules/select';
-import { useProductForm } from '@/contexts/product-form-context';
-import type { FormErrors } from '@/types';
+import {
+  ProductRightPanelFormSchema,
+  productRightPanelDefaultValues,
+  type ProductRightPanelFormValues,
+} from '@/schemas/forms/product-right-panel-form';
+import type { Product } from '@/types';
 import { __ } from '@/wpi18n';
 
 import Brand from '@/pages/products/edit-product/right-panel/brand';
@@ -12,53 +20,82 @@ import Categories from '@/pages/products/edit-product/right-panel/categories/cat
 import Collections from '@/pages/products/edit-product/right-panel/collections';
 import Tags from '@/pages/products/edit-product/right-panel/tags';
 
-type RightPanelProps = {
-  handleOnChange: (value: unknown, fieldName: string) => void;
-  errors: FormErrors;
-  setErrors: React.Dispatch<React.SetStateAction<FormErrors>>;
-};
+const mapProductToRightPanelValues = (
+  product: Product,
+): ProductRightPanelFormValues => ({
+  status: product.status ?? 'draft',
+  brand: product.brand ?? null,
+  categories: product.categories ?? [],
+  tags: product.tags ?? [],
+  collections: product.collections ?? [],
+});
 
-const RightPanel = ({
-  handleOnChange,
-  errors,
-  setErrors,
-}: RightPanelProps) => {
-  const { product: productData } = useProductForm();
+const RightPanel = () => {
+  const { product, updateProduct, loaded } = useProductForm();
+  const isSyncingRef = useRef(false);
+
+  const form = useForm<ProductRightPanelFormValues>({
+    resolver: zodResolver(ProductRightPanelFormSchema),
+    defaultValues: productRightPanelDefaultValues,
+  });
+
+  useEffect(() => {
+    if (!loaded && !product.id) {
+      return;
+    }
+
+    isSyncingRef.current = true;
+    form.reset(mapProductToRightPanelValues(product));
+    queueMicrotask(() => {
+      isSyncingRef.current = false;
+    });
+  }, [loaded, product.id, form]);
+
+  useEffect(() => {
+    const subscription = form.watch((values, info) => {
+      if (isSyncingRef.current || !info.name) {
+        return;
+      }
+
+      const rootKey = info.name.split(
+        '.',
+      )[0] as keyof ProductRightPanelFormValues;
+
+      updateProduct({
+        key: rootKey,
+        value: values[rootKey] ?? null,
+      });
+    });
+
+    return () => subscription.unsubscribe();
+  }, [form, updateProduct]);
+
+  const statusOptions = [
+    { value: 'draft', label: __('Draft', 'kirki-ecommerce') },
+    { value: 'published', label: __('Published', 'kirki-ecommerce') },
+    { value: 'unpublished', label: __('Unpublished', 'kirki-ecommerce') },
+    { value: 'archived', label: __('Archived', 'kirki-ecommerce') },
+  ];
 
   return (
     <div style={{ width: '30%' }}>
-      <Flex direction="column" gap={16}>
-        <Card type="form">
-          <Select
-            value={productData?.status}
-            label={__('Status', 'kirki-ecommerce')}
-            optionsArray={[
-              { value: 'draft', title: __('Draft', 'kirki-ecommerce') },
-              {
-                value: 'published',
-                title: __('Published', 'kirki-ecommerce'),
-              },
-              {
-                value: 'unpublished',
-                title: __('Unpublished', 'kirki-ecommerce'),
-              },
-              {
-                value: 'archived',
-                title: __('Archived', 'kirki-ecommerce'),
-              },
-            ]}
-            onChange={(value) => handleOnChange(value, 'status')}
-            onClose={() => console.log('dropdown closed')}
-            error={errors?.status as string | boolean | undefined}
-          />
-        </Card>
-        <Categories errors={errors} setErrors={setErrors} />
-        <Card type="form">
-          <Tags errors={errors} setErrors={setErrors} />
-          <Collections errors={errors} setErrors={setErrors} />
-          <Brand />
-        </Card>
-      </Flex>
+      <Form {...form}>
+        <Flex direction="column" gap={16}>
+          <Card type="form">
+            <SelectField
+              name="status"
+              label={__('Status', 'kirki-ecommerce')}
+              options={statusOptions}
+            />
+          </Card>
+          <Categories />
+          <Card type="form">
+            <Tags />
+            <Collections />
+            <Brand />
+          </Card>
+        </Flex>
+      </Form>
     </div>
   );
 };

@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useFormContext, useWatch } from 'react-hook-form';
 
 import GroupOptionCard from '@/components/group-option-card';
 import OptionAccordion from '@/components/option-accordion';
@@ -6,15 +7,10 @@ import { SettingsIcon, CartIcon, InventoryBoxIcon, UserIcon } from '@/icons';
 import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
 import Text from '@/molecules/text';
+import type { EmailSettingsFormValues } from '@/schemas/forms/email-settings-form';
 import { __ } from '@/wpi18n';
 
 import { mapEmailGroup } from '@/pages/settings/email-settings/utils';
-
-type EmailGroupData = {
-  order_notifications?: Record<string, { name?: string; is_enabled?: boolean; [key: string]: unknown }>;
-  user_notifications?: Record<string, { name?: string; is_enabled?: boolean; [key: string]: unknown }>;
-  inventory_notifications?: Record<string, { name?: string; is_enabled?: boolean; [key: string]: unknown }>;
-};
 
 type EmailListItem = {
   key: string;
@@ -24,13 +20,14 @@ type EmailListItem = {
 };
 
 type AdminEmailProps = {
-  adminEmails?: EmailGroupData;
   handleToggleOrder: (item: EmailListItem) => void;
   handleEditOrder: (item: EmailListItem) => void;
 };
 
 const AdminEmail = (props: AdminEmailProps) => {
-  const { adminEmails, handleToggleOrder, handleEditOrder } = props;
+  const { handleToggleOrder, handleEditOrder } = props;
+  const { control } = useFormContext<EmailSettingsFormValues>();
+  const adminEmails = useWatch({ control, name: 'admin_emails' });
 
   const { orderEmails, inventoryEmails, userEmails } = useMemo(() => {
     if (!adminEmails) {
@@ -123,5 +120,7 @@ const AdminEmail = (props: AdminEmailProps) => {
     </>
   );
 };
+
+AdminEmail.displayName = 'AdminEmail';
 
 export default AdminEmail;

@@ -1,129 +1,101 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
-import ThumbnailSelector from '@/components/thumbnail-selector';
+import ColorPickerField from '@/components/form/color-picker-field';
+import TextField from '@/components/form/text-field';
+import ThumbnailField from '@/components/form/thumbnail-field';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from '@/components/ui/form';
 import {
   BrushIcon,
   AlignLeftIcon,
   AlignCenterIcon,
   SendIcon,
 } from '@/icons';
+import type { ErrorResponse } from '@/libs/api';
+import { applyServerErrors } from '@/libs/form-errors';
 import Button from '@/molecules/button';
 import Card from '@/molecules/card';
-import ColorPicker from '@/molecules/color-picker';
 import Container from '@/molecules/container';
 import Flex from '@/molecules/flex';
-import Input from '@/molecules/input';
 import PageHeading from '@/molecules/page-heading';
 import ProgressBar from '@/molecules/progressbar';
 import Tab from '@/molecules/tab';
 import Text from '@/molecules/text';
-import { getErrorsObject } from '@/libs/api';
+import {
+  EmailTemplateFormSchema,
+  emailTemplateDefaultValues,
+  type EmailTemplateFormValues,
+} from '@/schemas/forms/email-template-form';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import type {
   EmailTemplate as SettingsEmailTemplate,
-  FormErrors,
-  MediaChangePayload,
   SettingsSectionData,
 } from '@/types';
 import { __ } from '@/wpi18n';
 
-type EmailTemplateColors = {
-  background?: string;
-  text?: string;
-  link?: string;
-  label?: string;
-  button?: string;
-  button_bg?: string;
+const POSITION_MAP: Record<string, number> = {
+  start: 0,
+  center: 1,
+  end: 2,
 };
 
-type EmailTemplate = {
-  logo?: string;
-  height?: string | number;
-  position?: string;
-  colors?: EmailTemplateColors;
-  [key: string]: unknown;
+const INDEX_TO_POSITION = ['start', 'center', 'end'];
+
+const resolveLogoUrl = (logo: EmailTemplateFormValues['logo']) => {
+  if (!logo) {
+    return '';
+  }
+  if (typeof logo === 'string') {
+    return logo;
+  }
+  if (typeof logo === 'object' && 'url' in logo) {
+    return String(logo.url ?? '');
+  }
+  return '';
 };
 
 const EditTemplate = () => {
-  const POSITION_MAP: Record<string, number> = {
-    start: 0,
-    center: 1,
-    end: 2,
-  };
-
-  const INDEX_TO_POSITION = ['start', 'center', 'end'];
   const { data: emailSettingsData, isLoading } = useSettingsQuery('email');
-  const { mutate: saveSettings } = useUpdateSettingsMutation();
+  const { mutateAsync: saveSettings, isPending } = useUpdateSettingsMutation();
 
   const loaded = !isLoading && Boolean(emailSettingsData);
   const defaultEmail = emailSettingsData?.default_template as
-    | EmailTemplate
+    | EmailTemplateFormValues
     | undefined;
-  const [dataObj, setDataObj] = useState<EmailTemplate>(defaultEmail || {});
-  const [heightValue, setHeightValue] = useState(
-    parseInt(String(defaultEmail?.height), 10) || 50,
-  );
-  const [logo, setLogo] = useState(defaultEmail?.logo || '');
-  const [errors, setErrors] = useState<FormErrors>({});
-  const [position, setPosition] = useState(
-    POSITION_MAP[defaultEmail?.position || ''] || 0,
-  );
+
+  const form = useForm<EmailTemplateFormValues>({
+    resolver: zodResolver(EmailTemplateFormSchema),
+    defaultValues: emailTemplateDefaultValues,
+  });
+
+  const heightValue = form.watch('height') ?? 50;
 
   useEffect(() => {
     if (!defaultEmail) {
       return;
     }
-    setDataObj(defaultEmail);
-    setHeightValue(parseInt(String(defaultEmail?.height), 10));
-    setLogo(defaultEmail?.logo || '');
-    setPosition(POSITION_MAP[defaultEmail.position || ''] || 0);
-  }, [defaultEmail]);
 
-  const handleOnchange = (key: string, value: unknown) => {
-    const colors = [
-      'background',
-      'text',
-      'link',
-      'label',
-      'button',
-      'button_bg',
-    ];
-    setDataObj((prev) => {
-      if (colors.includes(key)) {
-        return {
-          ...prev,
-          colors: {
-            ...(prev.colors as EmailTemplateColors),
-            [key]: value,
-          },
-        };
-      }
-      if (key === 'position') {
-        setPosition(value as number);
-        const positionValue = INDEX_TO_POSITION[value as number];
-        return {
-          ...prev,
-          [key]: positionValue,
-        };
-      }
-      if (key === 'logo') {
-        const media = value as MediaChangePayload;
-        setLogo(media?.url || '');
-        return {
-          ...prev,
-          [key]: media?.url,
-        };
-      }
-      return { ...prev, [key]: value };
+    form.reset({
+      ...emailTemplateDefaultValues,
+      ...defaultEmail,
+      logo: resolveLogoUrl(defaultEmail.logo),
+      height: parseInt(String(defaultEmail.height), 10) || 50,
+      position: defaultEmail.position || 'start',
+      colors: {
+        ...emailTemplateDefaultValues.colors,
+        ...(defaultEmail.colors ?? {}),
+      },
     });
+  }, [defaultEmail, form]);
 
-    setErrors((prev) => ({
-      ...prev,
-      ['data.' + key]: null,
-    }));
-  };
-
-  const handleSaveData = () => {
+  const handleSaveData = async (values: EmailTemplateFormValues) => {
     if (!emailSettingsData) {
       return;
     }
@@ -131,33 +103,25 @@ const EditTemplate = () => {
     const payload: SettingsSectionData = {
       ...emailSettingsData,
       default_template: {
-        ...(emailSettingsData.default_template as EmailTemplate),
-        ...dataObj,
-        height: `${heightValue}px`,
+        ...(emailSettingsData.default_template as SettingsEmailTemplate),
+        ...values,
+        logo: resolveLogoUrl(values.logo),
+        height: `${values.height ?? 50}px`,
       } as SettingsEmailTemplate,
     };
 
-    saveSettings(
-      { key: 'email', data: payload },
-      {
-        onError: (error) => {
-          const errObj = error as { errors?: Record<string, string[]> };
-          setErrors(getErrorsObject(errObj.errors));
-        },
-      },
-    );
+    try {
+      await saveSettings({ key: 'email', data: payload });
+      form.reset(values);
+    } catch (error) {
+      applyServerErrors(form, error as ErrorResponse, {
+        stripPrefix: 'data.default_template.',
+      });
+    }
   };
 
   const handleDiscard = () => {
-    if (!defaultEmail) {
-      return;
-    }
-
-    setDataObj(defaultEmail);
-    setHeightValue(parseInt(String(defaultEmail.height), 10) || 50);
-    setLogo(defaultEmail.logo || '');
-    setPosition(POSITION_MAP[defaultEmail.position || ''] || 0);
-    setErrors({});
+    form.reset();
   };
 
   return (
@@ -187,7 +151,8 @@ const EditTemplate = () => {
               type="primary"
               text={__('Save', 'kirki-ecommerce')}
               size="small"
-              onClick={handleSaveData}
+              onClick={form.handleSubmit(handleSaveData)}
+              state={isPending ? 'loading' : undefined}
             />
           </>
         }
@@ -197,151 +162,115 @@ const EditTemplate = () => {
         style={{ width: '100%', padding: '16px 103px' }}
       >
         {loaded ? (
-          <Flex gap={48} style={{ width: '100%' }}>
-            <Flex direction="column" gap={20} style={{ width: '44%' }}>
-              <Card type="large" style={{ borderRadius: '8px' }}>
-                <Text
-                  type="primary"
-                  header={'Logo'}
-                  subHeader={'Update the logo & style your way'}
-                />
-                <ThumbnailSelector
-                  placeholder={__(
-                    'Drag and drop, or upload images',
-                    'kirki-ecommerce',
-                  )}
-                  src={logo || ''}
-                  helpText={__('Set store logo', 'kirki-ecommerce')}
-                  onChange={(img) => handleOnchange('logo', img)}
-                  error={
-                    errors['data.default_template.logo'] as
-                      | string
-                      | boolean
-                      | undefined
-                  }
-                />
-                <Input
-                  label={__('Height', 'kirki-ecommerce')}
-                  type="number"
-                  value={heightValue}
-                  onChange={(value) => setHeightValue(Number(value))}
-                  error={
-                    errors['data.default_template.height'] as
-                      | string
-                      | boolean
-                      | undefined
-                  }
-                />
-                <ProgressBar
-                  value={heightValue}
-                  onChange={setHeightValue}
-                  label={'Height'}
-                  rightText={`${heightValue}px`}
-                />
-                <Tab
-                  key={position}
-                  activeIndex={position}
-                  onChange={(value) => handleOnchange('position', value)}
-                >
-                  <AlignLeftIcon />
-                  <AlignCenterIcon />
-                  <AlignLeftIcon style={{ transform: 'scaleX(-1)' }} />
-                </Tab>
-              </Card>
-              <Card type="large" style={{ borderRadius: '8px' }}>
-                <Text
-                  header={'Colors'}
-                  subHeader={'Style how the emails will look'}
-                />
-                <ColorPicker
-                  value={dataObj?.colors?.background}
-                  onChange={(value) => handleOnchange('background', value)}
-                  label={'Background'}
-                  error={
-                    errors['data.default_template.colors.background'] as
-                      | string
-                      | boolean
-                      | undefined
-                  }
-                />
-                <ColorPicker
-                  value={dataObj?.colors?.text}
-                  onChange={(value) => handleOnchange('text', value)}
-                  label={'Text'}
-                  error={
-                    errors['data.default_template.colors.text'] as
-                      | string
-                      | boolean
-                      | undefined
-                  }
-                />
-                <ColorPicker
-                  value={dataObj?.colors?.link}
-                  onChange={(value) => handleOnchange('link', value)}
-                  label={'Link'}
-                  error={
-                    errors['data.default_template.colors.link'] as
-                      | string
-                      | boolean
-                      | undefined
-                  }
-                />
-                <ColorPicker
-                  value={dataObj?.colors?.label}
-                  onChange={(value) => handleOnchange('label', value)}
-                  label={'Label'}
-                  error={
-                    errors['data.default_template.colors.label'] as
-                      | string
-                      | boolean
-                      | undefined
-                  }
-                />
-                <ColorPicker
-                  value={dataObj?.colors?.button}
-                  onChange={(value) => handleOnchange('button', value)}
-                  label={'Button Color'}
-                  error={
-                    errors['data.default_template.colors.button'] as
-                      | string
-                      | boolean
-                      | undefined
-                  }
-                />
-                <ColorPicker
-                  value={dataObj?.colors?.button_bg}
-                  onChange={(value) => handleOnchange('button_bg', value)}
-                  label={'Button BG'}
-                  error={
-                    errors['data.default_template.colors.button_bg'] as
-                      | string
-                      | boolean
-                      | undefined
-                  }
-                />
-              </Card>
-            </Flex>
-
-            <Flex style={{ width: '56%' }} direction="column" gap={16}>
-              <Flex
-                style={{
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                }}
-              >
-                <Text header={'Template Preview'} />
-                <Text
-                  style={{
-                    fontSize: '12px',
-                    lineHeight: '18px',
-                  }}
-                  header={'Send Text Mail'}
-                  leftIcon={<SendIcon />}
-                />
+          <Form {...form}>
+            <Flex gap={48} style={{ width: '100%' }}>
+              <Flex direction="column" gap={20} style={{ width: '44%' }}>
+                <Card type="large" style={{ borderRadius: '8px' }}>
+                  <Text
+                    type="primary"
+                    header={'Logo'}
+                    subHeader={'Update the logo & style your way'}
+                  />
+                  <ThumbnailField
+                    name="logo"
+                    placeholder={__(
+                      'Drag and drop, or upload images',
+                      'kirki-ecommerce',
+                    )}
+                    description={__('Set store logo', 'kirki-ecommerce')}
+                    getPreviewUrl={(value) => resolveLogoUrl(value as EmailTemplateFormValues['logo'])}
+                  />
+                  <TextField
+                    name="height"
+                    label={__('Height', 'kirki-ecommerce')}
+                    type="number"
+                  />
+                  <FormField
+                    control={form.control}
+                    name="height"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <ProgressBar
+                            value={Number(field.value) || 0}
+                            onChange={(value) => field.onChange(value)}
+                            label={'Height'}
+                            rightText={`${heightValue}px`}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="position"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Tab
+                            key={POSITION_MAP[field.value || ''] ?? 0}
+                            activeIndex={POSITION_MAP[field.value || ''] ?? 0}
+                            onChange={(value) => {
+                              field.onChange(
+                                INDEX_TO_POSITION[value as number] || 'start',
+                              );
+                            }}
+                          >
+                            <AlignLeftIcon />
+                            <AlignCenterIcon />
+                            <AlignLeftIcon style={{ transform: 'scaleX(-1)' }} />
+                          </Tab>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </Card>
+                <Card type="large" style={{ borderRadius: '8px' }}>
+                  <Text
+                    header={'Colors'}
+                    subHeader={'Style how the emails will look'}
+                  />
+                  <ColorPickerField
+                    name="colors.background"
+                    label={'Background'}
+                  />
+                  <ColorPickerField name="colors.text" label={'Text'} />
+                  <ColorPickerField name="colors.link" label={'Link'} />
+                  <ColorPickerField name="colors.label" label={'Label'} />
+                  <ColorPickerField
+                    name="colors.button"
+                    label={'Button Color'}
+                  />
+                  <ColorPickerField
+                    name="colors.button_bg"
+                    label={'Button BG'}
+                  />
+                </Card>
               </Flex>
-              <Card style={{ borderRadius: '0px' }}></Card>
+
+              <Flex style={{ width: '56%' }} direction="column" gap={16}>
+                <Flex
+                  style={{
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                  }}
+                >
+                  <Text header={'Template Preview'} />
+                  <Text
+                    style={{
+                      fontSize: '12px',
+                      lineHeight: '18px',
+                    }}
+                    header={'Send Text Mail'}
+                    leftIcon={<SendIcon />}
+                  />
+                </Flex>
+                <Card style={{ borderRadius: '0px' }}></Card>
+              </Flex>
             </Flex>
-          </Flex>
+          </Form>
         ) : (
           <div>{__('Loading ...', 'kirki-ecommerce')}</div>
         )}

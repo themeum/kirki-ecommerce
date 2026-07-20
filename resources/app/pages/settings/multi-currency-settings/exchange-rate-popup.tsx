@@ -1,10 +1,15 @@
-import { useState, type Dispatch, type SetStateAction } from 'react';
+import { useEffect, type Dispatch, type SetStateAction } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
+import TextField from '@/components/form/text-field';
+import { Form } from '@/components/ui/form';
 import { CLASS_PREFIX } from '@/conf';
 import { ArrowLeftIcon, InfoIcon } from '@/icons';
+import type { ErrorResponse } from '@/libs/api';
+import { applyServerErrors } from '@/libs/form-errors';
 import Button from '@/molecules/button';
 import Flex from '@/molecules/flex';
-import Input from '@/molecules/input';
 import Label from '@/molecules/label';
 import {
   Popover,
@@ -13,12 +18,15 @@ import {
   PopoverHeader,
 } from '@/molecules/popover';
 import Text from '@/molecules/text';
-import { getErrorsObject } from '@/libs/api';
+import {
+  ExchangeRateFormSchema,
+  type ExchangeRateFormValues,
+} from '@/schemas/forms/exchange-rate-form';
 import {
   useAvailableCurrenciesQuery,
   useCreateCurrencyMutation,
 } from '@/services/currency';
-import type { Currency, CurrencyFormData, FormErrors } from '@/types';
+import type { Currency, CurrencyFormData } from '@/types';
 import { __, sprintf } from '@/wpi18n';
 
 type ExchangeRatePopupProps = {
@@ -38,49 +46,48 @@ const ExchangeRatePopup = ({
   setAddCurrencyPopup,
   setSearchValue,
 }: ExchangeRatePopupProps) => {
-  const [currencies, setCurrencies] = useState<Currency[]>(selectedCurrencyList || []);
-  const [errors, setErrors] = useState<FormErrors>({});
   const { data: availableCurrencyList = [] } = useAvailableCurrenciesQuery({
     limit: -1,
   });
   const createMutation = useCreateCurrencyMutation();
 
-  const handleOnChange = (value: unknown, currency: Currency, index: number) => {
-    setCurrencies((prev = []) =>
-      prev.map((item) =>
-        item?.code.toLowerCase() === currency?.code.toLowerCase()
-          ? { ...item, exchange_rate: value as string | number, is_base: false, is_active: true }
-          : item,
-      ),
-    );
-    setErrors((prev) => ({
-      ...prev,
-      [`items.${index}.exchange_rate`]: null,
-    }));
-  };
+  const form = useForm<ExchangeRateFormValues>({
+    resolver: zodResolver(ExchangeRateFormSchema),
+    defaultValues: {
+      items: selectedCurrencyList || [],
+    },
+  });
 
-  const handleSaveCurrencyData = () => {
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    form.reset({
+      items: selectedCurrencyList || [],
+    });
+  }, [isOpen, selectedCurrencyList, form]);
+
+  const handleSaveCurrencyData = async (values: ExchangeRateFormValues) => {
     const payload: CurrencyFormData = {
-      items: currencies.map((item, idx) => ({
+      items: values.items.map((item, idx) => ({
         ...item,
         is_base:
           availableCurrencyList?.length === 0 && idx === 0
             ? true
             : item?.is_base,
-      })),
+        is_active: true,
+      })) as Currency[],
     };
 
-    createMutation.mutate(payload, {
-      onSuccess: () => {
-        setIsOpen(false);
-        setSelectedCurrencyList([]);
-        setSearchValue('');
-      },
-      onError: (error) => {
-        const errObj = error as { errors?: Record<string, string[]> };
-        setErrors(getErrorsObject(errObj.errors));
-      },
-    });
+    try {
+      await createMutation.mutateAsync(payload);
+      setIsOpen(false);
+      setSelectedCurrencyList([]);
+      setSearchValue('');
+    } catch (error) {
+      applyServerErrors(form, error as ErrorResponse);
+    }
   };
 
   const handleClosePopup = () => {
@@ -99,77 +106,85 @@ const ExchangeRatePopup = ({
         >
           {__('Set Exchange Rates', 'kirki-ecommerce')}
         </PopoverHeader>
-        <PopoverBody
-          style={{
-            padding: 'var(--decom-spacing-5)',
-            gap: 'var(--decom-spacing-4)',
-          }}
-        >
-          <Label
-            className={`${CLASS_PREFIX}-edit-currency-rate-popup-label`}
-            text={__('Enter rates per 1 USD', 'kirki-ecommerce')}
-            leftIcon={<InfoIcon />}
-          />
-          <Flex
-            direction="column"
-            gap={16}
+        <Form {...form}>
+          <PopoverBody
             style={{
-              maxHeight: '200px',
-              overflowX: 'scroll',
+              padding: 'var(--decom-spacing-5)',
+              gap: 'var(--decom-spacing-4)',
             }}
           >
-            {selectedCurrencyList?.length > 0 &&
-              selectedCurrencyList?.map((currency, index) => (
-                <Flex key={index} style={{ justifyContent: 'space-between' }}>
-                  <Flex gap={12}>
-                    <Text
-                      type="primary"
-                      header={sprintf(__('%s', 'kirki-ecommerce'), currency?.symbol ?? '')}
-                    />
-                    <Text
-                      type="secondary"
-                      header={sprintf(__('%s', 'kirki-ecommerce'), currency?.code ?? '')}
-                    />
-                    <Text
-                      type="xsm"
-                      style={{ color: 'var(--decom-text-text-subdued)' }}
-                      header={sprintf(__('%s', 'kirki-ecommerce'), currency?.name ?? '')}
-                    />
+            <Label
+              className={`${CLASS_PREFIX}-edit-currency-rate-popup-label`}
+              text={__('Enter rates per 1 USD', 'kirki-ecommerce')}
+              leftIcon={<InfoIcon />}
+            />
+            <Flex
+              direction="column"
+              gap={16}
+              style={{
+                maxHeight: '200px',
+                overflowX: 'scroll',
+              }}
+            >
+              {selectedCurrencyList?.length > 0 &&
+                selectedCurrencyList?.map((currency, index) => (
+                  <Flex key={index} style={{ justifyContent: 'space-between' }}>
+                    <Flex gap={12}>
+                      <Text
+                        type="primary"
+                        header={sprintf(
+                          __('%s', 'kirki-ecommerce'),
+                          currency?.symbol ?? '',
+                        )}
+                      />
+                      <Text
+                        type="secondary"
+                        header={sprintf(
+                          __('%s', 'kirki-ecommerce'),
+                          currency?.code ?? '',
+                        )}
+                      />
+                      <Text
+                        type="xsm"
+                        style={{ color: 'var(--decom-text-text-subdued)' }}
+                        header={sprintf(
+                          __('%s', 'kirki-ecommerce'),
+                          currency?.name ?? '',
+                        )}
+                      />
+                    </Flex>
+                    <div
+                      style={{
+                        width: 'auto',
+                        margin: 'var(--decom-spacing-f1)',
+                      }}
+                    >
+                      <TextField
+                        name={`items.${index}.exchange_rate`}
+                        placeholder={__('0.730', 'kirki-ecommerce')}
+                      />
+                    </div>
                   </Flex>
-                  <div
-                    style={{
-                      width: 'auto',
-                      margin: 'var(--decom-spacing-f1)',
-                    }}
-                  >
-                    <Input
-                      placeholder={__('0.730', 'kirki-ecommerce')}
-                      style={{ width: 'auto' }}
-                      onChange={(value) =>
-                        handleOnChange(value, currency, index)
-                      }
-                      error={errors[`items.${index}.exchange_rate`] as string | boolean | undefined}
-                    />
-                  </div>
-                </Flex>
-              ))}
-          </Flex>
-        </PopoverBody>
-        <PopoverFooter>
-          <Button
-            text={__('Cancel', 'kirki-ecommerce')}
-            type={'outlined'}
-            onClick={() => {
-              setIsOpen(false);
-              setAddCurrencyPopup(true);
-            }}
-          />
-          <Button
-            text={__('Save', 'kirki-ecommerce')}
-            type={'primary'}
-            onClick={handleSaveCurrencyData}
-          />
-        </PopoverFooter>
+                ))}
+            </Flex>
+          </PopoverBody>
+          <PopoverFooter>
+            <Button
+              text={__('Cancel', 'kirki-ecommerce')}
+              type={'outlined'}
+              onClick={() => {
+                setIsOpen(false);
+                setAddCurrencyPopup(true);
+              }}
+            />
+            <Button
+              text={__('Save', 'kirki-ecommerce')}
+              type={'primary'}
+              onClick={form.handleSubmit(handleSaveCurrencyData)}
+              state={createMutation.isPending ? 'loading' : undefined}
+            />
+          </PopoverFooter>
+        </Form>
       </Popover>
     </>
   );

@@ -1,5 +1,8 @@
-import { useState, useMemo, type Dispatch, type SetStateAction } from 'react';
+import { useEffect, useMemo, useState, type Dispatch, type SetStateAction } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
+import { Form } from '@/components/ui/form';
 import { LocationIcon, SearchIcon } from '@/icons';
 import Button from '@/molecules/button';
 import Card from '@/molecules/card';
@@ -14,6 +17,10 @@ import {
 } from '@/molecules/popover';
 import Text from '@/molecules/text';
 import { CLASS_PREFIX } from '@/conf';
+import {
+  AddCitiesPopupFormSchema,
+  type AddCitiesPopupFormValues,
+} from '@/schemas/forms/add-cities-popup-form';
 import { __ } from '@/wpi18n';
 
 import { getSearchedValue } from '@/pages/settings/utils';
@@ -44,27 +51,49 @@ const AddCitiesPopup = (props: AddCitiesPopupProps) => {
 
   const [searchValue, setSearchValue] = useState('');
 
+  const form = useForm<AddCitiesPopupFormValues>({
+    resolver: zodResolver(AddCitiesPopupFormSchema),
+    defaultValues: {
+      selectedCities,
+    },
+  });
+
+  const formSelectedCities = form.watch('selectedCities') as TaxRegionState[];
+
+  useEffect(() => {
+    if (!openPopup) {
+      return;
+    }
+
+    form.reset({ selectedCities });
+    setSearchValue('');
+  }, [openPopup]);
+
+  const syncSelection = (next: TaxRegionState[]) => {
+    form.setValue('selectedCities', next, { shouldDirty: true });
+    setSelectedCities(next);
+  };
+
   const allCityIds = useMemo(
     () => cityList?.map((city) => city.id) || [],
     [cityList],
   );
 
   const selectAll =
-    selectedCities.length > 0 && selectedCities.length === allCityIds.length;
+    formSelectedCities.length > 0 &&
+    formSelectedCities.length === allCityIds.length;
 
   const isPartialChecked =
-    selectedCities.length > 0 && selectedCities.length < allCityIds.length;
+    formSelectedCities.length > 0 &&
+    formSelectedCities.length < allCityIds.length;
 
   const handleToggleCity = (city: TaxRegionState) => {
-    setSelectedCities((prev = []) => {
-      const exists = prev.some((c) => c.id === city.id);
-
-      if (exists) {
-        return prev.filter((c) => c.id !== city.id);
-      }
-
-      return [...prev, city];
-    });
+    const current = form.getValues('selectedCities') as TaxRegionState[];
+    const exists = current.some((c) => c.id === city.id);
+    const next = exists
+      ? current.filter((c) => c.id !== city.id)
+      : [...current, city];
+    syncSelection(next);
   };
 
   const filteredCities = getSearchedValue(
@@ -76,13 +105,18 @@ const AddCitiesPopup = (props: AddCitiesPopupProps) => {
 
   const handleSelectAll = () => {
     if (isPartialChecked) {
-      setSelectedCities([]);
-    } else {
-      setSelectedCities(selectAll ? [] : [...(cityList || [])]);
+      syncSelection([]);
+      return;
     }
+
+    syncSelection(selectAll ? [] : [...(cityList || [])]);
   };
 
-  const buttonState = selectedCities?.length <= 0;
+  const buttonState = formSelectedCities?.length <= 0;
+
+  const handleSubmit = () => {
+    onAdd();
+  };
 
   return (
     <div>
@@ -94,89 +128,96 @@ const AddCitiesPopup = (props: AddCitiesPopupProps) => {
         >
           {__('Add cities', 'kirki-ecommerce')}
         </PopoverHeader>
-        <PopoverBody>
-          <Input
-            type="search"
-            leftIcon={<SearchIcon />}
-            label={__('Cities', 'kirki-ecommerce')}
-            placeholder="Search"
-            onChange={(value: string | number) => setSearchValue(String(value))}
-          />
+        <Form {...form}>
+          <PopoverBody>
+            <Input
+              type="search"
+              leftIcon={<SearchIcon />}
+              label={__('Cities', 'kirki-ecommerce')}
+              placeholder="Search"
+              onChange={(value: string | number) =>
+                setSearchValue(String(value))
+              }
+            />
 
-          <Card
-            type={'table'}
-            style={{ borderRadius: 'var(--decom-radius-rounded-md)' }}
-          >
-            <div
-              style={{
-                height: '350px',
-                overflowX: 'hidden',
-                overflowY: 'scroll',
-              }}
+            <Card
+              type={'table'}
+              style={{ borderRadius: 'var(--decom-radius-rounded-md)' }}
             >
-              <Flex className={`${CLASS_PREFIX}-popover-heading-wrapper-dark`}>
-                <Checkbox
-                  value={isPartialChecked || selectAll}
-                  isPartialChecked={isPartialChecked}
-                  label={countryName}
-                  onChange={handleSelectAll}
-                />
-              </Flex>
+              <div
+                style={{
+                  height: '350px',
+                  overflowX: 'hidden',
+                  overflowY: 'scroll',
+                }}
+              >
+                <Flex className={`${CLASS_PREFIX}-popover-heading-wrapper-dark`}>
+                  <Checkbox
+                    value={isPartialChecked || selectAll}
+                    isPartialChecked={isPartialChecked}
+                    label={countryName}
+                    onChange={handleSelectAll}
+                  />
+                </Flex>
 
-              {filteredCities?.length > 0 ? (
-                filteredCities.map((city, index) => {
-                  return (
-                    <div
-                      key={index}
-                      className={`${CLASS_PREFIX}-checkbox-item`}
-                      style={{
-                        padding:
-                          'var(--decom-spacing-2) var(--decom-spacing-5)',
-                        width: 'auto',
-                      }}
+                {filteredCities?.length > 0 ? (
+                  filteredCities.map((city, index) => {
+                    return (
+                      <div
+                        key={index}
+                        className={`${CLASS_PREFIX}-checkbox-item`}
+                        style={{
+                          padding:
+                            'var(--decom-spacing-2) var(--decom-spacing-5)',
+                          width: 'auto',
+                        }}
+                      >
+                        <Checkbox
+                          value={formSelectedCities.some(
+                            (item) => item.id === city.id,
+                          )}
+                          label={city.title}
+                          onChange={() => handleToggleCity(city)}
+                        />
+                      </div>
+                    );
+                  })
+                ) : (
+                  <Card style={{ padding: '36px 0' }}>
+                    <Flex
+                      direction="column"
+                      gap={8}
+                      style={{ alignItems: 'center' }}
                     >
-                      <Checkbox
-                        value={selectedCities.some(
-                          (item) => item.id === city.id,
-                        )}
-                        label={city.title}
-                        onChange={() => handleToggleCity(city)}
+                      <Text
+                        header={__('No cities available')}
+                        type="secondary"
                       />
-                    </div>
-                  );
-                })
-              ) : (
-                <Card style={{ padding: '36px 0' }}>
-                  <Flex
-                    direction="column"
-                    gap={8}
-                    style={{ alignItems: 'center' }}
-                  >
-                    <Text header={__('No cities available')} type="secondary" />
-                  </Flex>
-                </Card>
-              )}
-            </div>
-          </Card>
-        </PopoverBody>
-        <PopoverFooter>
-          <Button
-            type="outlined"
-            text={__('Cancel', 'kirki-ecommerce')}
-            size="small"
-            onClick={() => {
-              setSelectedCities(selectedCities);
-              setOpenPopup(false);
-            }}
-          />
-          <Button
-            type="primary"
-            text={__('Done', 'kirki-ecommerce')}
-            size="small"
-            onClick={onAdd}
-            state={buttonState ? 'disabled' : ''}
-          />
-        </PopoverFooter>
+                    </Flex>
+                  </Card>
+                )}
+              </div>
+            </Card>
+          </PopoverBody>
+          <PopoverFooter>
+            <Button
+              type="outlined"
+              text={__('Cancel', 'kirki-ecommerce')}
+              size="small"
+              onClick={() => {
+                setSelectedCities(selectedCities);
+                setOpenPopup(false);
+              }}
+            />
+            <Button
+              type="primary"
+              text={__('Done', 'kirki-ecommerce')}
+              size="small"
+              onClick={form.handleSubmit(handleSubmit)}
+              state={buttonState ? 'disabled' : ''}
+            />
+          </PopoverFooter>
+        </Form>
       </Popover>
     </div>
   );

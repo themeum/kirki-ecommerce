@@ -1,3 +1,7 @@
+import { useFormContext, useWatch } from 'react-hook-form';
+
+import SelectField from '@/components/form/select-field';
+import TextField from '@/components/form/text-field';
 import { ReplaceIcon } from '@/icons';
 import ActionGroup from '@/molecules/action-group';
 import Button from '@/molecules/button';
@@ -5,26 +9,38 @@ import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
 import Grid from '@/molecules/grid';
 import Input from '@/molecules/input';
-import { Select } from '@/molecules/select';
 import Text from '@/molecules/text';
-import type { FormErrors } from '@/types';
+import type { GeneralSettingsFormValues } from '@/schemas/forms/general-settings-form';
 import { __ } from '@/wpi18n';
 
-import type { GeneralSettingsFormData } from '@/pages/settings/general-settings/utils';
+const invoiceResetScheduleOptions = [
+  {
+    label: __('No Schedule', 'kirki-ecommerce'),
+    value: 'none',
+  },
+];
 
-type InvoiceIdProps = {
-  dataObj: GeneralSettingsFormData | null;
-  handleOnChange: (value: unknown, key: string) => void;
-  handleResetIDField: (key: string) => void;
-  errors: FormErrors;
-};
+const InvoiceId = () => {
+  const { setValue } = useFormContext<GeneralSettingsFormValues>();
+  const invoiceIdPrefix = useWatch<GeneralSettingsFormValues>({
+    name: 'invoice_id_prefix',
+  });
+  const invoiceIdSequence = useWatch<GeneralSettingsFormValues>({
+    name: 'invoice_id_sequence',
+  });
+  const invoiceIdSuffix = useWatch<GeneralSettingsFormValues>({
+    name: 'invoice_id_suffix',
+  });
 
-const InvoiceId = (props: InvoiceIdProps) => {
-  const { dataObj, handleOnChange, handleResetIDField, errors } = props;
+  const invoiceID = `${invoiceIdPrefix || ''}${invoiceIdSequence || ''} ${
+    invoiceIdSuffix || ''
+  }`;
 
-  const invoiceID = `${dataObj?.invoice_id_prefix || ''}${
-    dataObj?.invoice_id_sequence || ''
-  } ${dataObj?.invoice_id_suffix || ''}`;
+  const handleResetIDField = () => {
+    setValue('invoice_id_prefix', '', { shouldDirty: true });
+    setValue('invoice_id_sequence', '', { shouldDirty: true });
+    setValue('invoice_id_suffix', '', { shouldDirty: true });
+  };
 
   return (
     <div>
@@ -42,52 +58,25 @@ const InvoiceId = (props: InvoiceIdProps) => {
           <Card type="inner" style={{ padding: 'var(--decom-spacing-4)' }}>
             <Flex direction="column" gap={16}>
               <Grid columns={3}>
-                <Input
+                <TextField
+                  name="invoice_id_prefix"
                   label={__('Prefix', 'kirki-ecommerce')}
-                  value={dataObj?.invoice_id_prefix}
-                  onChange={(value) =>
-                    handleOnChange(value, 'invoice_id_prefix')
-                  }
                   placeholder={__('INV-26-', 'kirki-ecommerce')}
-                  helpText={__('Set invoice id prefix', 'kirki-ecommerce')}
-                  error={
-                    errors['data.invoice_id_prefix'] as
-                      | string
-                      | boolean
-                      | undefined
-                  }
+                  description={__('Set invoice id prefix', 'kirki-ecommerce')}
                 />
 
-                <Input
+                <TextField
+                  name="invoice_id_sequence"
                   label={__('Sequence', 'kirki-ecommerce')}
-                  value={dataObj?.invoice_id_sequence}
-                  onChange={(value) =>
-                    handleOnChange(value, 'invoice_id_sequence')
-                  }
                   placeholder={__('000001', 'kirki-ecommerce')}
-                  helpText={__('Set invoice id sequence', 'kirki-ecommerce')}
-                  error={
-                    (
-                      errors as FormErrors & {
-                        data?: { invoice_id_sequence?: string };
-                      }
-                    )?.data?.invoice_id_sequence as string | boolean | undefined
-                  }
+                  description={__('Set invoice id sequence', 'kirki-ecommerce')}
                 />
-                <Input
+
+                <TextField
+                  name="invoice_id_suffix"
                   label={__('Suffix', 'kirki-ecommerce')}
-                  value={dataObj?.invoice_id_suffix}
-                  onChange={(value) =>
-                    handleOnChange(value, 'invoice_id_suffix')
-                  }
                   placeholder={__('KIRKI', 'kirki-ecommerce')}
-                  helpText={__('Set invoice id suffix', 'kirki-ecommerce')}
-                  error={
-                    errors['data.invoice_id_suffix'] as
-                      | string
-                      | boolean
-                      | undefined
-                  }
+                  description={__('Set invoice id suffix', 'kirki-ecommerce')}
                 />
               </Grid>
 
@@ -108,30 +97,13 @@ const InvoiceId = (props: InvoiceIdProps) => {
                     textAlign: 'center',
                     color: 'var(--decom-text-text-special-3)',
                   }}
-                  error={
-                    errors['data.invoiceID'] as string | boolean | undefined
-                  }
                 />
               </Card>
 
-              <Select
+              <SelectField
+                name="invoice_counter_reset_schedule"
                 label={__('Invoice Counter Reset Schedule', 'kirki-ecommerce')}
-                onChange={(value) =>
-                  handleOnChange(value, 'invoice_counter_reset_schedule')
-                }
-                optionsArray={[
-                  {
-                    title: __('No Schedule', 'kirki-ecommerce'),
-                    value: 'none',
-                  },
-                ]}
-                defaultValue="none"
-                error={
-                  errors['data.invoice_counter_reset_schedule'] as
-                    | string
-                    | boolean
-                    | undefined
-                }
+                options={invoiceResetScheduleOptions}
               />
             </Flex>
           </Card>
@@ -154,7 +126,7 @@ const InvoiceId = (props: InvoiceIdProps) => {
                     size="small"
                     type="secondary"
                     leftIcon={<ReplaceIcon />}
-                    onClick={() => handleResetIDField('invoice')}
+                    onClick={handleResetIDField}
                   />
                 </ActionGroup>
               </Flex>
@@ -172,5 +144,7 @@ const InvoiceId = (props: InvoiceIdProps) => {
     </div>
   );
 };
+
+InvoiceId.displayName = 'InvoiceId';
 
 export default InvoiceId;

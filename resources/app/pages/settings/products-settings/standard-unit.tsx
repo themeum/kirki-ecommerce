@@ -1,22 +1,24 @@
+import SelectField from '@/components/form/select-field';
+import SwitchField from '@/components/form/switch-field';
+import ActionGroup from '@/molecules/action-group';
 import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
-import ActionGroup from '@/molecules/action-group';
-import { Select } from '@/molecules/select';
 import Text from '@/molecules/text';
-import ToggleButton from '@/molecules/toggle-button';
-import type { FormErrors, SettingsSectionData } from '@/types';
 import { __ } from '@/wpi18n';
 
 import { dimensionUnitList, weightUnitList } from '@/pages/settings/utils';
 
-type StandardUnitProps = {
-  dataObj: SettingsSectionData;
-  handleOnChange: (value: unknown, key: string) => void;
-  errors: FormErrors;
-};
+export const StandardUnit = () => {
+  const weightOptions = weightUnitList.map((option) => ({
+    label: option.title,
+    value: String(option.value),
+  }));
 
-export const StandardUnit = (props: StandardUnitProps) => {
-  const { dataObj, handleOnChange, errors } = props;
+  const dimensionOptions = dimensionUnitList.map((option) => ({
+    label: option.title,
+    value: String(option.value),
+  }));
+
   return (
     <div>
       <Card type="large">
@@ -37,23 +39,15 @@ export const StandardUnit = (props: StandardUnitProps) => {
             }}
           >
             <Flex direction="column" gap={16}>
-              <Select
+              <SelectField
+                name="weight_unit"
                 label={__('Weight unit', 'kirki-ecommerce')}
-                value={(dataObj?.['weight_unit'] as string) || 'kg'}
-                onChange={(value) => handleOnChange(value, 'weight_unit')}
-                optionsArray={weightUnitList}
-                error={
-                  errors['data.weight_unit'] as string | boolean | undefined
-                }
+                options={weightOptions}
               />
-              <Select
+              <SelectField
+                name="dimension_unit"
                 label={__('Dimension unit', 'kirki-ecommerce')}
-                value={(dataObj?.['dimension_unit'] as string) || 'm'}
-                onChange={(value) => handleOnChange(value, 'dimension_unit')}
-                optionsArray={dimensionUnitList}
-                error={
-                  errors['data.dimension_unit'] as string | boolean | undefined
-                }
+                options={dimensionOptions}
               />
             </Flex>
           </Card>
@@ -78,12 +72,7 @@ export const StandardUnit = (props: StandardUnitProps) => {
                 />
               </Flex>
               <ActionGroup>
-                <ToggleButton
-                  value={dataObj?.is_unit_price_visible as boolean}
-                  onChange={(value) =>
-                    handleOnChange(value, 'is_unit_price_visible')
-                  }
-                />
+                <SwitchField name="is_unit_price_visible" />
               </ActionGroup>
             </Flex>
           </Card>
@@ -92,3 +81,5 @@ export const StandardUnit = (props: StandardUnitProps) => {
     </div>
   );
 };
+
+StandardUnit.displayName = 'StandardUnit';

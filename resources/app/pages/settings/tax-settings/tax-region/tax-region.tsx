@@ -1,4 +1,5 @@
-import { useState, type Dispatch, type SetStateAction } from 'react';
+import { useState } from 'react';
+import { useFormContext, useWatch } from 'react-hook-form';
 import { useNavigate, useOutletContext } from 'react-router';
 
 import DropdownButton from '@/components/dropdown-button';
@@ -11,7 +12,7 @@ import Flex from '@/molecules/flex';
 import Text from '@/molecules/text';
 import ToggleButton from '@/molecules/toggle-button';
 import { CLASS_PREFIX } from '@/conf';
-import type { FormErrors } from '@/types';
+import type { TaxSettingsFormValues } from '@/schemas/forms/tax-settings-form';
 import { __ } from '@/wpi18n';
 
 import type { SelectedTaxRegionDraft, TaxRegion } from '@/pages/settings/tax-settings/utils';
@@ -25,22 +26,30 @@ type SettingsOutletContext = {
 };
 
 type TaxRegionsProps = {
-  taxRegions: TaxRegion[];
-  setTaxRegions: Dispatch<SetStateAction<TaxRegion[]>>;
   handleSave: (updatedRegions?: TaxRegion[]) => void | Promise<void>;
-  errors?: FormErrors;
 };
 
 const TaxRegions = (props: TaxRegionsProps) => {
   const navigate = useNavigate();
   const { confirmAction } = useOutletContext<SettingsOutletContext>();
-  const { taxRegions, setTaxRegions, handleSave, errors } = props;
+  const { handleSave } = props;
+  const { setValue, formState } = useFormContext<TaxSettingsFormValues>();
+  const taxRegions =
+    (useWatch<TaxSettingsFormValues>({ name: 'tax_regions' }) as TaxRegion[]) ||
+    [];
+
   const [showPopup, setShowPopup] = useState(false);
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
   const [selectedRegion, setSelectedRegion] = useState<SelectedTaxRegionDraft[]>(
     [],
   );
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+
+  const popupErrors = {
+    ...(formState.errors.tax_regions?.message
+      ? { 'data.tax_regions': formState.errors.tax_regions.message }
+      : {}),
+  };
 
   const handleEditAndDelete = (action: string, item: TaxRegion) => {
     if (action === 'edit') {
@@ -70,7 +79,9 @@ const TaxRegions = (props: TaxRegionsProps) => {
     const updatedRegions = (Array.isArray(taxRegions) ? taxRegions : []).filter(
       (region) => region?.code !== item?.code,
     );
-    setTaxRegions(updatedRegions);
+    setValue('tax_regions', updatedRegions as TaxSettingsFormValues['tax_regions'], {
+      shouldDirty: true,
+    });
     await handleSave(updatedRegions);
   };
 
@@ -82,7 +93,9 @@ const TaxRegions = (props: TaxRegionsProps) => {
           : region,
     );
 
-    setTaxRegions(updatedRegions);
+    setValue('tax_regions', updatedRegions as TaxSettingsFormValues['tax_regions'], {
+      shouldDirty: true,
+    });
     await handleSave(updatedRegions);
   };
 
@@ -105,15 +118,14 @@ const TaxRegions = (props: TaxRegionsProps) => {
         rules: [],
       };
     });
-    let finalRegions: TaxRegion[] = [];
 
-    setTaxRegions((prev = []) => {
-      const existingCodes = new Set(prev.map((r) => r.code));
-      const filtered = updatedRegions.filter((r) => !existingCodes.has(r.code));
-      finalRegions = [...prev, ...filtered];
-      return finalRegions;
+    const existingCodes = new Set(taxRegions.map((r) => r.code));
+    const filtered = updatedRegions.filter((r) => !existingCodes.has(r.code));
+    const finalRegions = [...taxRegions, ...filtered];
+
+    setValue('tax_regions', finalRegions as TaxSettingsFormValues['tax_regions'], {
+      shouldDirty: true,
     });
-
     await handleSave(finalRegions);
     setShowPopup(false);
   };
@@ -193,9 +205,11 @@ const TaxRegions = (props: TaxRegionsProps) => {
                         },
                       ]}
                       onOptionToggle={(value) => {
-                        value === true
-                          ? setActiveIndex(index)
-                          : setActiveIndex(null);
+                        if (value === true) {
+                          setActiveIndex(index);
+                        } else {
+                          setActiveIndex(null);
+                        }
                       }}
                       onOptionSelect={(action) =>
                         handleEditAndDelete(String(action), item)
@@ -218,7 +232,7 @@ const TaxRegions = (props: TaxRegionsProps) => {
           selectedRegion={selectedRegion}
           setSelectedRegion={setSelectedRegion}
           onAdd={handleAddRegion}
-          errors={errors}
+          errors={popupErrors}
         />
       )}
     </>

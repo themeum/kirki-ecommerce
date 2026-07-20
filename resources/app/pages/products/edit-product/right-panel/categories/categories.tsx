@@ -1,29 +1,23 @@
-import React from 'react';
+import { useFormContext } from 'react-hook-form';
 
 import Card from '@/molecules/card';
 import Checkbox from '@/molecules/checkbox';
 import Label from '@/molecules/label';
-import { useProductForm } from '@/contexts/product-form-context';
+import type { ProductRightPanelFormValues } from '@/schemas/forms/product-right-panel-form';
 import { useCategoriesQuery } from '@/services/category';
-import type { Category, FormErrors, ProductCategoryRef } from '@/types';
+import type { Category, ProductCategoryRef } from '@/types';
 import { __ } from '@/wpi18n';
 
 import AddNewCategory from '@/pages/products/edit-product/right-panel/categories/add-new-category';
 import List from '@/pages/products/edit-product/right-panel/categories/list';
 
-type CategoriesProps = {
-  errors?: FormErrors;
-  setErrors?: React.Dispatch<React.SetStateAction<FormErrors>>;
-};
-
-const Categories = (_props: CategoriesProps) => {
-  const { product: productData, updateProduct } = useProductForm();
+const Categories = () => {
+  const { watch, setValue } = useFormContext<ProductRightPanelFormValues>();
   const { data: categoryData, isSuccess: loaded } = useCategoriesQuery({
     limit: -1,
   });
   const categories = categoryData?.results ?? [];
-  const selectedCategories: ProductCategoryRef[] =
-    productData?.categories || [];
+  const selectedCategories: ProductCategoryRef[] = watch('categories') || [];
 
   const getParentsToDeselect = (
     category: Category,
@@ -33,9 +27,7 @@ const Categories = (_props: CategoriesProps) => {
       return acc;
     }
 
-    const parent = categories.find(
-      (item) => item.id === category.parent_id,
-    );
+    const parent = categories.find((item) => item.id === category.parent_id);
     if (!parent) {
       return acc;
     }
@@ -48,9 +40,7 @@ const Categories = (_props: CategoriesProps) => {
     parentId: number,
     all: Category[] = [],
   ): Category[] => {
-    const children = categories.filter(
-      (item) => item.parent_id === parentId,
-    );
+    const children = categories.filter((item) => item.parent_id === parentId);
 
     for (const child of children) {
       all.push(child);
@@ -64,9 +54,7 @@ const Categories = (_props: CategoriesProps) => {
     categoryId: number,
     selectedIds: number[],
   ): boolean => {
-    const children = categories.filter(
-      (c) => c.parent_id === categoryId,
-    );
+    const children = categories.filter((c) => c.parent_id === categoryId);
 
     if (!children.length) {
       return selectedIds.includes(categoryId);
@@ -81,9 +69,7 @@ const Categories = (_props: CategoriesProps) => {
     parentId: number,
     selectedIds: number[],
   ): boolean => {
-    const children = categories.filter(
-      (c) => c.parent_id === parentId,
-    );
+    const children = categories.filter((c) => c.parent_id === parentId);
     if (!children.length) {
       return false;
     }
@@ -156,9 +142,9 @@ const Categories = (_props: CategoriesProps) => {
       });
     }
 
-    updateProduct({
-      key: 'categories',
-      value: newCategoryList,
+    setValue('categories', newCategoryList, {
+      shouldDirty: true,
+      shouldValidate: true,
     });
   };
 
@@ -170,14 +156,14 @@ const Categories = (_props: CategoriesProps) => {
         parent_id: item?.parent_id,
         level: (item as Category & { level?: number })?.level,
       }));
-      updateProduct({
-        key: 'categories',
-        value: allCategories,
+      setValue('categories', allCategories, {
+        shouldDirty: true,
+        shouldValidate: true,
       });
     } else {
-      updateProduct({
-        key: 'categories',
-        value: null,
+      setValue('categories', null, {
+        shouldDirty: true,
+        shouldValidate: true,
       });
     }
   };
@@ -196,9 +182,7 @@ const Categories = (_props: CategoriesProps) => {
                   selectedCategories.length < categories.length &&
                   selectedCategories.length !== 0
                 }
-                value={
-                  selectedCategories.length === categories.length
-                }
+                value={selectedCategories.length === categories.length}
                 onChange={(_value) => onSelectAll()}
               />
               <List

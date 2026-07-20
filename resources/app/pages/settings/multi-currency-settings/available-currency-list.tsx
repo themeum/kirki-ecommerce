@@ -1,4 +1,5 @@
 import { type ComponentProps, type ReactNode, useState } from 'react';
+import { useWatch } from 'react-hook-form';
 
 import GroupOptionCard from '@/components/group-option-card';
 import { InfoIcon, IncreaseIcon } from '@/icons';
@@ -6,6 +7,7 @@ import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
 import Text from '@/molecules/text';
 import { dispatchToastMessage, dateFormatter } from '@/pages/utils';
+import type { MultiCurrencySettingsFormValues } from '@/schemas/forms/multi-currency-settings-form';
 import {
   useAvailableCurrenciesQuery,
   useUpdateCurrencyMutation,
@@ -14,7 +16,6 @@ import {
 import type {
   Currency,
   CurrencyFormData,
-  SettingsSectionData,
   SelectOption,
 } from '@/types';
 import { __, sprintf } from '@/wpi18n';
@@ -30,13 +31,6 @@ type CurrencyListItem = Currency & {
   rightText?: string;
   icon?: ReactNode;
   actionsArray?: SelectOption[];
-};
-
-type AvailableCurrencyListProps = {
-  dataObj: SettingsSectionData & {
-    last_sync_at?: string | null;
-    next_sync_at?: string | null;
-  };
 };
 
 const getActionArray = (item: Currency): SelectOption[] => {
@@ -59,8 +53,9 @@ const getActionArray = (item: Currency): SelectOption[] => {
   ];
 };
 
-export const AvailableCurrencyList = ({ dataObj }: AvailableCurrencyListProps) => {
+export const AvailableCurrencyList = () => {
   const [editCurrency, setEditCurrency] = useState<(Currency & { icon?: string }) | null>(null);
+  const dataObj = useWatch<MultiCurrencySettingsFormValues>();
 
   const { data: rawCurrencies = [], refetch } = useAvailableCurrenciesQuery();
   const { mutate: updateCurrencyMutate } = useUpdateCurrencyMutation();

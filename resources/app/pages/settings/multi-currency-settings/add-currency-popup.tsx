@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
+import { Form } from '@/components/ui/form';
 import { PlusIcon, SearchIcon } from '@/icons';
 import Button from '@/molecules/button';
 import Checkbox from '@/molecules/checkbox';
@@ -12,6 +15,10 @@ import {
   PopoverHeader,
 } from '@/molecules/popover';
 import Text from '@/molecules/text';
+import {
+  AddCurrencyPopupFormSchema,
+  type AddCurrencyPopupFormValues,
+} from '@/schemas/forms/add-currency-popup-form';
 import {
   useAllCurrenciesQuery,
   useAvailableCurrenciesQuery,
@@ -26,7 +33,9 @@ const AddCurrencyPopup = () => {
   const [openPopup, setOpenPopup] = useState(false);
   const [openExchangePopup, setOpenExchangePopup] = useState(false);
   const [allCurrency, setAllCurrency] = useState<Currency[]>([]);
-  const [selectedCurrencyList, setSelectedCurrencyList] = useState<Currency[]>([]);
+  const [selectedCurrencyList, setSelectedCurrencyList] = useState<Currency[]>(
+    [],
+  );
   const [searchValue, setSearchValue] = useState('');
   const [filteredCurrency, setFilteredCurrency] = useState<Currency[]>([]);
 
@@ -34,6 +43,15 @@ const AddCurrencyPopup = () => {
     limit: -1,
   });
   const { data: allCurrenciesData = [] } = useAllCurrenciesQuery();
+
+  const form = useForm<AddCurrencyPopupFormValues>({
+    resolver: zodResolver(AddCurrencyPopupFormSchema),
+    defaultValues: {
+      selectedCurrencies: [],
+    },
+  });
+
+  const formSelected = form.watch('selectedCurrencies') as Currency[];
 
   useEffect(() => {
     if (!openPopup) {
@@ -48,22 +66,21 @@ const AddCurrencyPopup = () => {
       (item) => !availableCodes.has(item.code.toLowerCase()),
     );
     setAllCurrency(filteredData);
-  }, [openPopup, availableCurrencies, allCurrenciesData]);
+    form.reset({ selectedCurrencies: [] });
+    setSearchValue('');
+  }, [openPopup, availableCurrencies, allCurrenciesData, form]);
 
   useEffect(() => {
     setFilteredCurrency(allCurrency);
   }, [allCurrency]);
 
   const handleSelectCurrencies = (currency: Currency) => {
-    setSelectedCurrencyList((prev) => {
-      const exists = prev.some((item) => item.name === currency.name);
-
-      if (exists) {
-        return prev.filter((item) => item.name !== currency.name);
-      }
-
-      return [...prev, currency];
-    });
+    const current = form.getValues('selectedCurrencies') as Currency[];
+    const exists = current.some((item) => item.name === currency.name);
+    const next = exists
+      ? current.filter((item) => item.name !== currency.name)
+      : [...current, currency];
+    form.setValue('selectedCurrencies', next, { shouldDirty: true });
   };
 
   const handleSearchCurrency = (e: unknown) => {
@@ -85,7 +102,14 @@ const AddCurrencyPopup = () => {
   const handleClosePopup = () => {
     setSearchValue('');
     setSelectedCurrencyList([]);
+    form.reset({ selectedCurrencies: [] });
     setOpenPopup(false);
+  };
+
+  const handleSubmit = (values: AddCurrencyPopupFormValues) => {
+    setSelectedCurrencyList(values.selectedCurrencies as Currency[]);
+    setOpenPopup(false);
+    setOpenExchangePopup(true);
   };
 
   return (
@@ -101,79 +125,81 @@ const AddCurrencyPopup = () => {
         <PopoverHeader borderBottom onClose={() => handleClosePopup()}>
           {__('Select Additional Currencies', 'kirki-ecommerce')}
         </PopoverHeader>
-        <PopoverBody
-          style={{
-            padding: 'var(--decom-spacing-3) var(--decom-spacing-5)',
-          }}
-        >
-          <Flex direction="column" gap={16}>
-            <Input
-              label={__('Search currency', 'kirki-ecommerce')}
-              type="search"
-              leftIcon={<SearchIcon />}
-              value={searchValue}
-              placeholder={__('e.g United States', 'kirki-ecommerce')}
-              onChange={(e) => handleSearchCurrency(e)}
-            />
-
-            <Flex
-              direction="column"
-              gap={12}
-              style={{
-                height: '200px',
-                overflowX: 'scroll',
-              }}
-            >
-              {filteredCurrency?.length > 0 &&
-                filteredCurrency.map((currency, index) => (
-                  <Flex
-                    key={index}
-                    gap={12}
-                    onClick={() => handleSelectCurrencies(currency)}
-                    style={{ cursor: 'pointer' }}
-                  >
-                    <Checkbox
-                      value={selectedCurrencyList?.some(
-                        (c) => c.name === currency.name,
-                      )}
-                      label={currency.code}
-                      onChange={() => handleSelectCurrencies(currency)}
-                    />
-                    <Flex
-                      style={{ justifyContent: 'space-between', width: '100%' }}
-                    >
-                      <Text
-                        type="xsm"
-                        header={currency.name}
-                        style={{ color: 'var(--decom-text-text-subdued)' }}
-                      />
-                      <Text
-                        style={{ paddingRight: 'var(--decom-spacing-3)' }}
-                        type="primary"
-                        header={currency.symbol}
-                      />
-                    </Flex>
-                  </Flex>
-                ))}
-            </Flex>
-          </Flex>
-        </PopoverBody>
-        <PopoverFooter>
-          <Button
-            text={__('Cancel', 'kirki-ecommerce')}
-            type={'outlined'}
-            onClick={() => handleClosePopup()}
-          />
-          <Button
-            text={__('Next', 'kirki-ecommerce')}
-            state={selectedCurrencyList?.length > 0 ? 'active' : 'disabled'}
-            type={'primary'}
-            onClick={() => {
-              setOpenPopup(false);
-              setOpenExchangePopup(true);
+        <Form {...form}>
+          <PopoverBody
+            style={{
+              padding: 'var(--decom-spacing-3) var(--decom-spacing-5)',
             }}
-          />
-        </PopoverFooter>
+          >
+            <Flex direction="column" gap={16}>
+              <Input
+                label={__('Search currency', 'kirki-ecommerce')}
+                type="search"
+                leftIcon={<SearchIcon />}
+                value={searchValue}
+                placeholder={__('e.g United States', 'kirki-ecommerce')}
+                onChange={(e) => handleSearchCurrency(e)}
+              />
+
+              <Flex
+                direction="column"
+                gap={12}
+                style={{
+                  height: '200px',
+                  overflowX: 'scroll',
+                }}
+              >
+                {filteredCurrency?.length > 0 &&
+                  filteredCurrency.map((currency, index) => (
+                    <Flex
+                      key={index}
+                      gap={12}
+                      onClick={() => handleSelectCurrencies(currency)}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      <Checkbox
+                        value={formSelected?.some(
+                          (c) => c.name === currency.name,
+                        )}
+                        label={currency.code}
+                        onChange={() => handleSelectCurrencies(currency)}
+                      />
+                      <Flex
+                        style={{
+                          justifyContent: 'space-between',
+                          width: '100%',
+                        }}
+                      >
+                        <Text
+                          type="xsm"
+                          header={currency.name}
+                          style={{ color: 'var(--decom-text-text-subdued)' }}
+                        />
+                        <Text
+                          style={{ paddingRight: 'var(--decom-spacing-3)' }}
+                          type="primary"
+                          header={currency.symbol}
+                        />
+                      </Flex>
+                    </Flex>
+                  ))}
+              </Flex>
+            </Flex>
+          </PopoverBody>
+          <PopoverFooter>
+            <Button
+              text={__('Cancel', 'kirki-ecommerce')}
+              type={'outlined'}
+              onClick={() => handleClosePopup()}
+            />
+            <Button
+              text={__('Next', 'kirki-ecommerce')}
+              state={formSelected?.length > 0 ? 'active' : 'disabled'}
+              type={'primary'}
+              onClick={form.handleSubmit(handleSubmit)}
+            />
+          </PopoverFooter>
+        </Form>
       </Popover>
       {openExchangePopup && (
         <ExchangeRatePopup

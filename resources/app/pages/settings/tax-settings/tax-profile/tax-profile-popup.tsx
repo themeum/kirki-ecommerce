@@ -1,6 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
-import Input from '@/molecules/input';
+import TextField from '@/components/form/text-field';
+import { Form } from '@/components/ui/form';
+import type { ErrorResponse } from '@/libs/api';
+import { applyServerErrors } from '@/libs/form-errors';
 import Button from '@/molecules/button';
 import {
   Popover,
@@ -8,7 +13,10 @@ import {
   PopoverFooter,
   PopoverHeader,
 } from '@/molecules/popover';
-
+import {
+  TaxProfileFormSchema,
+  type TaxProfileFormValues,
+} from '@/schemas/forms/tax-profile-form';
 import {
   useCreateTaxProfileMutation,
   useUpdateTaxProfileMutation,
@@ -31,47 +39,54 @@ export const TaxProfilePopup = ({
   from = '',
   taxProfile = null,
 }: TaxProfilePopupProps) => {
-  const [profileTitle, setProfileTitle] = useState('');
-  const { mutate: createTaxProfile } = useCreateTaxProfileMutation();
-  const { mutate: updateTaxProfile } = useUpdateTaxProfileMutation();
+  const createMutation = useCreateTaxProfileMutation();
+  const updateMutation = useUpdateTaxProfileMutation();
+  const isSubmitting = createMutation.isPending || updateMutation.isPending;
+
+  const form = useForm<TaxProfileFormValues>({
+    resolver: zodResolver(TaxProfileFormSchema),
+    defaultValues: {
+      name: '',
+    },
+  });
+
+  const nameValue = form.watch('name');
 
   useEffect(() => {
-    if (taxProfile) {
-      setProfileTitle(taxProfile?.name);
-    }
-  }, []);
-
-  const AddOrUpdateTaxProfile = () => {
-    const data = {
-      name: profileTitle,
-    };
-
-    if (from === 'edit') {
-      updateTaxProfile(
-        { id: taxProfile?.id as number, data },
-        {
-          onSuccess: (response) => {
-            onSave((response.data as { id: number })?.id);
-            handleOnPopupClose();
-          },
-        },
-      );
+    if (!isOpen) {
       return;
     }
 
-    createTaxProfile(data, {
-      onSuccess: (response) => {
-        onSave((response.data as { id: number })?.id);
-        handleOnPopupClose();
-      },
+    form.reset({
+      name: taxProfile?.name ?? '',
     });
-  };
+  }, [isOpen, taxProfile, form]);
 
   const handleOnPopupClose = () => {
-    setProfileTitle('');
+    form.reset({ name: '' });
     onClose();
   };
-  const buttonState = profileTitle === '';
+
+  const handleSubmit = async (values: TaxProfileFormValues) => {
+    try {
+      if (from === 'edit') {
+        const response = await updateMutation.mutateAsync({
+          id: taxProfile?.id as number,
+          data: values,
+        });
+        onSave(response.data?.id as number);
+        handleOnPopupClose();
+        return;
+      }
+
+      const response = await createMutation.mutateAsync(values);
+      onSave(response.data?.id as number);
+      handleOnPopupClose();
+    } catch (error) {
+      applyServerErrors(form, error as ErrorResponse);
+    }
+  };
+
   return (
     <div>
       <Popover isOpen={!!isOpen} style={{ width: '400px' }}>
@@ -81,40 +96,46 @@ export const TaxProfilePopup = ({
         >
           {__('Create tax profile', 'kirki-ecommerce')}
         </PopoverHeader>
-        <PopoverBody
-          style={{
-            padding:
-              'var(--decom-spacing-0) var(--decom-spacing-5) var(--decom-spacing-5) var(--decom-spacing-5)',
-          }}
-        >
-          <Input
-            label={__('Title', 'kirki-ecommerce')}
-            placeholder={__('e.g. Books', 'kirki-ecommerce')}
-            value={profileTitle}
-            onChange={(value: string | number) =>
-              setProfileTitle(String(value))
-            }
-          />
-        </PopoverBody>
-        <PopoverFooter>
-          <Button
-            type="outlined"
-            text={__('Cancel', 'kirki-ecommerce')}
-            size="small"
-            onClick={handleOnPopupClose}
-          />
-          <Button
-            type="primary"
-            text={
-              from === 'edit'
-                ? __('Update', 'kirki-ecommerce')
-                : __('Save', 'kirki-ecommerce')
-            }
-            size="small"
-            onClick={AddOrUpdateTaxProfile}
-            state={buttonState ? 'disabled' : ''}
-          />
-        </PopoverFooter>
+        <Form {...form}>
+          <PopoverBody
+            style={{
+              padding:
+                'var(--decom-spacing-0) var(--decom-spacing-5) var(--decom-spacing-5) var(--decom-spacing-5)',
+            }}
+          >
+            <TextField
+              name="name"
+              label={__('Title', 'kirki-ecommerce')}
+              placeholder={__('e.g. Books', 'kirki-ecommerce')}
+            />
+          </PopoverBody>
+          <PopoverFooter>
+            <Button
+              type="outlined"
+              text={__('Cancel', 'kirki-ecommerce')}
+              size="small"
+              onClick={handleOnPopupClose}
+              state={isSubmitting ? 'disabled' : undefined}
+            />
+            <Button
+              type="primary"
+              text={
+                from === 'edit'
+                  ? __('Update', 'kirki-ecommerce')
+                  : __('Save', 'kirki-ecommerce')
+              }
+              size="small"
+              onClick={form.handleSubmit(handleSubmit)}
+              state={
+                isSubmitting
+                  ? 'loading'
+                  : nameValue === ''
+                    ? 'disabled'
+                    : undefined
+              }
+            />
+          </PopoverFooter>
+        </Form>
       </Popover>
     </div>
   );

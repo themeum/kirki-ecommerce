@@ -1,58 +1,47 @@
-import { useState, type Dispatch, type SetStateAction } from 'react';
+import { useState } from 'react';
 
+import SelectField from '@/components/form/select-field';
 import GroupTagTable from '@/components/group-tag-table';
 import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
-import { Select } from '@/molecules/select';
-import { useProductForm } from '@/contexts/product-form-context';
-import type { FormErrors, SelectOption } from '@/types';
+import type { SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
 
-import { groupDetails, optionsList, requiredFields } from '@/pages/products/edit-product/seo-settings/utils';
-
-type SchemaProps = {
-  errors: FormErrors;
-  setErrors: Dispatch<SetStateAction<FormErrors>>;
-};
+import {
+  groupDetails,
+  optionsList,
+  requiredFields,
+} from '@/pages/products/edit-product/seo-settings/utils';
 
 type GroupedValues = Record<string, Array<string | number>>;
 
-const Schema = ({ errors, setErrors }: SchemaProps) => {
-  const { product: productData, updateProduct } = useProductForm();
+const Schema = () => {
   const [selectedValues, setSelectedValues] = useState<GroupedValues>({
     Product: ['name'],
     Offer: ['price'],
   });
 
-  const handleOnChange = (value: unknown, fieldName: string) => {
-    updateProduct({ key: fieldName, value: value });
-    setErrors((prev) => ({
-      ...prev,
-      [fieldName]: null,
-    }));
-  };
-
   const handleOnSelectionChange = (value: GroupedValues) => {
     setSelectedValues(value);
   };
 
+  const schemaOptions = [
+    {
+      value: 'default',
+      label: __('Default SEO Profile', 'kirki-ecommerce'),
+    },
+    {
+      value: 'custom',
+      label: __('Custom SEO Profile', 'kirki-ecommerce'),
+    },
+  ];
+
   return (
     <Flex direction="column" gap={16}>
-      <Select
+      <SelectField
+        name="schema_id"
         label={__('Schema', 'kirki-ecommerce')}
-        optionsArray={[
-          {
-            value: 'default',
-            title: __('Default SEO Profile', 'kirki-ecommerce'),
-          },
-          {
-            value: 'custom',
-            title: __('Custom SEO Profile', 'kirki-ecommerce'),
-          },
-        ]}
-        value={productData?.schema_id as string | number | undefined}
-        onChange={(value) => handleOnChange(value, 'schema_id')}
-        error={errors?.schema_id as string | boolean | undefined}
+        options={schemaOptions}
       />
       <GroupTagTable
         groupDetails={groupDetails}

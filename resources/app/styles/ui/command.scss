@@ -1,0 +1,119 @@
+.#{$class-prefix}-ui-command {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  overflow: hidden;
+  background-color: var(--decom-background-bg-fill);
+  border-radius: var(--decom-radius-rounded-md);
+  @include fontGeneralSettings();
+}
+
+.#{$class-prefix}-ui-command-input-wrapper {
+  @include itemCenterContentStart();
+  gap: var(--decom-spacing-2);
+  width: 100%;
+  padding: var(--decom-spacing-2) var(--decom-spacing-3);
+  border-bottom: 1px solid var(--decom-border-border);
+  box-sizing: border-box;
+}
+
+.#{$class-prefix}-ui-command-search-icon {
+  flex-shrink: 0;
+  color: var(--decom-text-text-secondary);
+}
+
+.#{$class-prefix}-ui-command-input {
+  flex: 1;
+  width: 100%;
+  min-height: 28px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  outline: none;
+  box-shadow: none;
+  @include fontGeneralSettings();
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--decom-text-text-primary);
+
+  &::placeholder {
+    color: var(--decom-text-text-secondary);
+    opacity: 80%;
+  }
+}
+
+.#{$class-prefix}-ui-command-list {
+  max-height: 240px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: var(--decom-spacing-1);
+}
+
+.#{$class-prefix}-ui-command-empty {
+  padding: var(--decom-spacing-4) var(--decom-spacing-2);
+  text-align: center;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--decom-text-text-secondary);
+}
+
+.#{$class-prefix}-ui-command-group {
+  overflow: hidden;
+  padding: var(--decom-spacing-1) 0;
+
+  [cmdk-group-heading] {
+    padding: var(--decom-spacing-1) var(--decom-spacing-2);
+    font-size: 12px;
+    line-height: 18px;
+    font-weight: 500;
+    color: var(--decom-text-text-secondary);
+  }
+}
+
+.#{$class-prefix}-ui-command-item {
+  @include itemCenterContentStart();
+  gap: var(--decom-spacing-2);
+  width: 100%;
+  min-height: 32px;
+  padding: var(--decom-spacing-1) var(--decom-spacing-2);
+  border-radius: var(--decom-radius-rounded-md);
+  box-sizing: border-box;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--decom-text-text-primary);
+  outline: none;
+
+  &[data-selected="true"],
+  &[aria-selected="true"] {
+    background-color: var(--decom-background-bg-surface-alt);
+  }
+
+  &[data-disabled="true"],
+  &[aria-disabled="true"] {
+    opacity: 50%;
+    pointer-events: none;
+  }
+}
+
+.#{$class-prefix}-ui-command-separator {
+  height: 1px;
+  margin: var(--decom-spacing-1) 0;
+  background-color: var(--decom-border-border);
+}
+
+.#{$class-prefix}-ui-command-shortcut {
+  margin-left: auto;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--decom-text-text-secondary);
+}
+
+.#{$class-prefix}-ui-command-item-check {
+  @include flexCenter();
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: var(--decom-text-text-primary);
+}

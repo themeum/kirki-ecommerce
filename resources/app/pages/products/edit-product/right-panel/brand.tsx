@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useFormContext } from 'react-hook-form';
 
 import { MinusIcon } from '@/icons';
 import ActionGroup from '@/molecules/action-group';
@@ -9,7 +10,7 @@ import Label from '@/molecules/label';
 import Searchbox from '@/molecules/searchbox';
 import Text from '@/molecules/text';
 import Thumbnail from '@/molecules/thumbnail';
-import { useProductForm } from '@/contexts/product-form-context';
+import type { ProductRightPanelFormValues } from '@/schemas/forms/product-right-panel-form';
 import { useBrandsQuery } from '@/services/brand';
 import type { Brand as BrandEntity, SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
@@ -19,15 +20,14 @@ import BrandAddEditPopover from '@/pages/brands/brand-add-edit-popover';
 type BrandSuggestion = SelectOption & BrandEntity;
 
 const Brand = () => {
-  const { product: productData, updateProduct } = useProductForm();
+  const { watch, setValue } = useFormContext<ProductRightPanelFormValues>();
+  const productBrand = watch('brand');
   const { data: brandData } = useBrandsQuery({ limit: -1 });
   const [suggestionArray, setSuggestionArray] = useState<BrandSuggestion[]>(
     [],
   );
   const [openBrandCreatePopup, setOpenBrandCreatePopup] = useState(false);
   const [brandTitle, setBrandTitle] = useState('');
-
-  const productBrand = productData.brand;
 
   useEffect(() => {
     const suggestionList = brandData?.results.map((item) => ({
@@ -41,21 +41,21 @@ const Brand = () => {
       logo: item.logo,
     }));
     setSuggestionArray(suggestionList ?? []);
-  }, [productData.brand, brandData]);
+  }, [productBrand, brandData]);
 
   const handleSearchChange = (searchText: string) => {
     setBrandTitle(String(searchText));
   };
 
   const handleRemoveBrand = () => {
-    updateProduct({ key: 'brand', value: null });
+    setValue('brand', null, { shouldDirty: true, shouldValidate: true });
   };
 
   const handleAddBrand = (brand: SelectOption) => {
     const suggestion = suggestionArray.find((item) => item.value === brand.value);
-    updateProduct({
-      key: 'brand',
-      value: suggestion
+    setValue(
+      'brand',
+      suggestion
         ? {
             id: suggestion.id,
             name: suggestion.name,
@@ -69,7 +69,8 @@ const Brand = () => {
             name: brand.title,
             logo: null,
           },
-    });
+      { shouldDirty: true, shouldValidate: true },
+    );
   };
 
   const handleAddNewBrand = (searchText: string) => {
