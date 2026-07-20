@@ -1,5 +1,9 @@
 /// <reference types="vite/client" />
 
+import '@emotion/react';
+
+import type { AppTheme } from '@/theme';
+
 type KirkiEcommerceConfig = {
   site_url: string;
   rest_url_base: string;
@@ -83,6 +87,10 @@ declare global {
   }
 
   const wp: WpGlobal | undefined;
+}
+
+declare module '@emotion/react' {
+  export interface Theme extends AppTheme {}
 }
 
 declare module '*.scss' {
