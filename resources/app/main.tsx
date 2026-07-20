@@ -3,6 +3,29 @@ import { createRoot } from 'react-dom/client';
 
 import App from '@/app';
 
+const INTER_FONT_LOADS = [
+  '400 14px Inter',
+  '500 14px Inter',
+  '600 14px Inter',
+  '700 14px Inter',
+];
+
+const wait_for_app_fonts = async (): Promise<void> => {
+  if (!document.fonts) {
+    return;
+  }
+
+  await document.fonts.ready;
+
+  await Promise.all(
+    INTER_FONT_LOADS.map((font) => {
+      return document.fonts.load(font);
+    }),
+  );
+
+  await document.fonts.ready;
+};
+
 const rootElement = document.getElementById('kirki-ecommerce-root');
 
 if (rootElement) {
@@ -12,9 +35,9 @@ if (rootElement) {
     rootElement.classList.add('kirki-ecommerce-root--ready');
   };
 
-  if (document.fonts?.ready) {
+  if (document.fonts) {
     Promise.race([
-      document.fonts.ready,
+      wait_for_app_fonts(),
       new Promise<void>((resolve) => {
         setTimeout(resolve, 3000);
       }),

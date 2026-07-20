@@ -111,7 +111,8 @@ const styles = {
     width: 'max-content',
     padding: `${theme.spacing.md} ${theme.spacing['2xl']}`,
     borderRadius: theme.radius.lg,
-    fontFamily: 'Inter',
+    fontFamily:
+      'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
     fontWeight: 500,
     fontSize: '14px',
     lineHeight: '21px',

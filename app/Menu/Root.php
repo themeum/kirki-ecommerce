@@ -116,6 +116,27 @@ class Root extends Menu
                 font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
             }
 
+            /* Warm Inter 500/600 during the hidden shell so Emotion UI does not FOIT after reveal. */
+            .kirki-ecommerce-root::before,
+            .kirki-ecommerce-root::after {
+                content: ".";
+                position: absolute;
+                width: 0;
+                height: 0;
+                overflow: hidden;
+                opacity: 0;
+                pointer-events: none;
+                font-family: "Inter", sans-serif;
+            }
+
+            .kirki-ecommerce-root::before {
+                font-weight: 500;
+            }
+
+            .kirki-ecommerce-root::after {
+                font-weight: 600;
+            }
+
             .kirki-ecommerce-root:not(.kirki-ecommerce-root--ready) {
                 visibility: hidden;
                 min-height: calc(100vh - 32px);
