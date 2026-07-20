@@ -1,12 +1,20 @@
 import CountrySelector from '@/components/country-selector';
+import Button from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import Checkbox from '@/components/ui/checkbox';
+import Input from '@/components/ui/input';
+import Label from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { CLASS_PREFIX } from '@/conf';
 import ActionGroup from '@/molecules/action-group';
-import Button from '@/molecules/button';
-import Card from '@/molecules/card';
-import Checkbox from '@/molecules/checkbox';
 import Flex from '@/molecules/flex';
 import Grid from '@/molecules/grid';
-import Input from '@/molecules/input';
-import { Select } from '@/molecules/select';
 import Text from '@/molecules/text';
 import type { FormErrors, SettingsSectionData } from '@/types';
 import { __ } from '@/wpi18n';
@@ -20,7 +28,7 @@ type BarcodeGenerationProps = {
 const BarcodeGeneration = (_props: BarcodeGenerationProps) => {
   return (
     <div>
-      <Card type="large">
+      <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
         <Text
           header={__('Barcode Generation', 'kirki-ecommerce')}
           subHeader={__(
@@ -31,38 +39,66 @@ const BarcodeGeneration = (_props: BarcodeGenerationProps) => {
           style={{ gap: '12px' }}
         />
 
-        <Card type="inner" style={{ padding: '16px' }}>
+        <Card
+          className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner`}
+          style={{ padding: '16px' }}
+        >
           <Flex direction="column" gap={16}>
-            <Select
-              label={__('Data origin', 'kirki-ecommerce')}
-              optionsArray={[{ title: __('SKU', 'kirki-ecommerce'), value: 'sku' }]}
-              defaultValue="sku"
-            />
-            <Select
-              label={__('Format', 'kirki-ecommerce')}
-              optionsArray={[
-                {
-                  title: __(
-                    'Code 128 (recommended for SKU/internal use)',
-                    'kirki-ecommerce',
-                  ),
-                  value: 'sku',
-                },
-              ]}
-              defaultValue="sku"
-            />
+            <Flex direction="column" gap={8}>
+              <Label htmlFor="barcode-data-origin">
+                {__('Data origin', 'kirki-ecommerce')}
+              </Label>
+              <Select defaultValue="sku">
+                <SelectTrigger id="barcode-data-origin">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="sku">
+                    {__('SKU', 'kirki-ecommerce')}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </Flex>
+            <Flex direction="column" gap={8}>
+              <Label htmlFor="barcode-format">
+                {__('Format', 'kirki-ecommerce')}
+              </Label>
+              <Select defaultValue="sku">
+                <SelectTrigger id="barcode-format">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="sku">
+                    {__(
+                      'Code 128 (recommended for SKU/internal use)',
+                      'kirki-ecommerce',
+                    )}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </Flex>
             <Grid>
-              <Input
-                label={__('Width', 'kirki-ecommerce')}
-                type="number"
-                placeholder={__('2.5', 'kirki-ecommerce')}
-              />
+              <Flex direction="column" gap={8}>
+                <Label htmlFor="barcode-width">
+                  {__('Width', 'kirki-ecommerce')}
+                </Label>
+                <Input
+                  id="barcode-width"
+                  type="number"
+                  placeholder={__('2.5', 'kirki-ecommerce')}
+                />
+              </Flex>
 
-              <Input
-                label={__('Height', 'kirki-ecommerce')}
-                type="number"
-                placeholder={__('2.5', 'kirki-ecommerce')}
-              />
+              <Flex direction="column" gap={8}>
+                <Label htmlFor="barcode-height">
+                  {__('Height', 'kirki-ecommerce')}
+                </Label>
+                <Input
+                  id="barcode-height"
+                  type="number"
+                  placeholder={__('2.5', 'kirki-ecommerce')}
+                />
+              </Flex>
             </Grid>
 
             <CountrySelector
@@ -70,19 +106,31 @@ const BarcodeGeneration = (_props: BarcodeGenerationProps) => {
               onChange={() => {}}
             />
 
-            <Checkbox
-              label={__('Show human-readable text under barcode', 'kirki-ecommerce')}
-            />
-            <Checkbox
-              label={__('Include product name above barcode', 'kirki-ecommerce')}
-            />
-            <Checkbox
-              label={__('Include country of origin', 'kirki-ecommerce')}
-            />
+            <Flex gap={8} style={{ alignItems: 'center' }}>
+              <Checkbox id="barcode-show-readable-text" />
+              <Label htmlFor="barcode-show-readable-text">
+                {__(
+                  'Show human-readable text under barcode',
+                  'kirki-ecommerce',
+                )}
+              </Label>
+            </Flex>
+            <Flex gap={8} style={{ alignItems: 'center' }}>
+              <Checkbox id="barcode-include-product-name" />
+              <Label htmlFor="barcode-include-product-name">
+                {__('Include product name above barcode', 'kirki-ecommerce')}
+              </Label>
+            </Flex>
+            <Flex gap={8} style={{ alignItems: 'center' }}>
+              <Checkbox id="barcode-include-country-of-origin" />
+              <Label htmlFor="barcode-include-country-of-origin">
+                {__('Include country of origin', 'kirki-ecommerce')}
+              </Label>
+            </Flex>
           </Flex>
         </Card>
         <Card
-          type="innerDark"
+          className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-innerDark`}
           style={{
             height: '158px',
             display: 'flex',
@@ -95,7 +143,10 @@ const BarcodeGeneration = (_props: BarcodeGenerationProps) => {
             <img src="https://kirki-ecommerce.test/wp-content/uploads/2025/10/Screenshot-2025-07-24-at-2.29.50-PM-1.png" />
           </span>
         </Card>
-        <Card type="inner" style={{ padding: '16px' }}>
+        <Card
+          className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner`}
+          style={{ padding: '16px' }}
+        >
           <Flex>
             <Flex direction="column" gap={6}>
               <Text
@@ -111,7 +162,9 @@ const BarcodeGeneration = (_props: BarcodeGenerationProps) => {
               />
             </Flex>
             <ActionGroup>
-              <Button text={__('Generate', 'kirki-ecommerce')} type="secondary" />
+              <Button variant="secondary">
+                {__('Generate', 'kirki-ecommerce')}
+              </Button>
             </ActionGroup>
           </Flex>
         </Card>

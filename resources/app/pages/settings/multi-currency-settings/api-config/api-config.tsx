@@ -1,20 +1,31 @@
 import { useEffect, useState } from 'react';
+import { useFormContext, useWatch } from 'react-hook-form';
 
+import SwitchField from '@/components/form/switch-field';
 import OptionAccordion from '@/components/option-accordion';
+import Button from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import Label from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { CLASS_PREFIX } from '@/conf';
 import { ReplaceIcon, FlagIcon, WrenchIcon } from '@/icons';
 import ActionGroup from '@/molecules/action-group';
-import Button from '@/molecules/button';
-import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
-import { Select } from '@/molecules/select';
 import Text from '@/molecules/text';
-import ToggleButton from '@/molecules/toggle-button';
+import type { ApiConfigurationFormValues } from '@/schemas/forms/api-configuration-form';
+import type { MultiCurrencySettingsFormValues } from '@/schemas/forms/multi-currency-settings-form';
 import { useCurrencyExchangeProvidersQuery } from '@/services/currency';
-import type { FormErrors, SettingsSectionData } from '@/types';
+import type { SettingsSectionData } from '@/types';
 import { __ } from '@/wpi18n';
 
 import ApiConfigurationCard from '@/pages/settings/multi-currency-settings/api-config/api-configuration-card';
-import ApiConfigurationPopup from '@/pages/settings/multi-currency-settings/api-config/api-configuration-popup';
+import ApiConfigurationPopup from '@/pages/settings/multi-currency-settings/api-config/api-configuration-dialog';
 
 type ApiProvider = {
   id: string | number;
@@ -29,13 +40,16 @@ type ApiConfigData = {
   [key: string]: unknown;
 };
 
-type ApiConfigProps = {
-  dataObj: SettingsSectionData;
-  handleOnChange: (value: unknown, key: string) => void;
-  errors: FormErrors;
-};
+const ApiConfig = () => {
+  const { setValue } = useFormContext<MultiCurrencySettingsFormValues>();
+  const formValues = useWatch<MultiCurrencySettingsFormValues>();
+  const apiProvider = useWatch<MultiCurrencySettingsFormValues>({
+    name: 'api_provider',
+  });
+  const apiConfig = useWatch<MultiCurrencySettingsFormValues>({
+    name: 'api_config',
+  });
 
-const ApiConfig = ({ dataObj, handleOnChange, errors }: ApiConfigProps) => {
   const [selectedAPI, setSelectedAPI] = useState('');
   const [apiConfigObj, setApiConfigObj] = useState<ApiConfigData>({});
   const [openPopup, setOpenPopup] = useState(false);
@@ -44,29 +58,29 @@ const ApiConfig = ({ dataObj, handleOnChange, errors }: ApiConfigProps) => {
   const apiProviderList = (providersData as ApiProvider[]) || [];
 
   useEffect(() => {
-    setSelectedAPI((dataObj?.api_provider as string) || '');
-  }, [dataObj]);
+    setSelectedAPI(apiProvider != null ? String(apiProvider) : '');
+  }, [apiProvider]);
 
   useEffect(() => {
-    if (selectedAPI === dataObj?.api_provider) {
-      setApiConfigObj((dataObj?.api_config as ApiConfigData) || {});
+    if (selectedAPI === apiProvider) {
+      setApiConfigObj((apiConfig as ApiConfigData) || {});
     } else {
       setApiConfigObj({});
     }
-  }, [selectedAPI, dataObj]);
+  }, [selectedAPI, apiProvider, apiConfig]);
 
   const rightActions = () => (
     <ActionGroup gap={8} style={{ alignItems: 'center' }}>
-      <ToggleButton
-        value={Boolean(dataObj['is_automatic_update_enabled'])}
-        onChange={(value) =>
-          handleOnChange(value, 'is_automatic_update_enabled')
-        }
-      />
+      <SwitchField name="is_automatic_update_enabled" />
     </ActionGroup>
   );
 
   const hasAPIConfiguration = apiConfigObj?.api_key;
+
+  const handlePopupSave = (values: ApiConfigurationFormValues) => {
+    setValue('api_provider', selectedAPI, { shouldDirty: true });
+    setValue('api_config', values, { shouldDirty: true });
+  };
 
   return (
     <>
@@ -79,25 +93,33 @@ const ApiConfig = ({ dataObj, handleOnChange, errors }: ApiConfigProps) => {
         leftIcon={<ReplaceIcon />}
         rightActions={rightActions()}
       >
-        <Select
-          label={__('Select API Provider', 'kirki-ecommerce')}
-          value={selectedAPI}
-          onChange={(value) => setSelectedAPI(String(value))}
-          optionsArray={apiProviderList?.map((item) => ({
-            title: item?.name,
-            value: item?.id,
-          }))}
-        />
+        <Flex direction="column" gap={8}>
+          <Label htmlFor="api-provider-select">
+            {__('Select API Provider', 'kirki-ecommerce')}
+          </Label>
+          <Select value={selectedAPI} onValueChange={setSelectedAPI}>
+            <SelectTrigger id="api-provider-select">
+              <SelectValue placeholder={__('Select', 'kirki-ecommerce')} />
+            </SelectTrigger>
+            <SelectContent>
+              {apiProviderList?.map((item) => (
+                <SelectItem key={item.id} value={String(item.id)}>
+                  {item.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </Flex>
         {selectedAPI &&
           (hasAPIConfiguration ? (
             <ApiConfigurationCard
               setOpenPopup={setOpenPopup}
               selectedAPI={selectedAPI}
               apiConfigObj={apiConfigObj}
-              dataObj={dataObj}
+              dataObj={(formValues || {}) as SettingsSectionData}
             />
           ) : (
-            <Card type="inner">
+            <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner`}>
               <Flex
                 style={{
                   justifyContent: 'space-between',
@@ -115,12 +137,13 @@ const ApiConfig = ({ dataObj, handleOnChange, errors }: ApiConfigProps) => {
                 </Flex>
                 <ActionGroup>
                   <Button
-                    text={__('Configure', 'kirki-ecommerce')}
-                    size="small"
-                    type="outlined"
-                    leftIcon={<WrenchIcon />}
+                    variant="outline"
+                    size="sm"
                     onClick={() => setOpenPopup(true)}
-                  />
+                  >
+                    <WrenchIcon />
+                    {__('Configure', 'kirki-ecommerce')}
+                  </Button>
                 </ActionGroup>
               </Flex>
             </Card>
@@ -130,9 +153,8 @@ const ApiConfig = ({ dataObj, handleOnChange, errors }: ApiConfigProps) => {
         isOpen={openPopup}
         onClose={() => setOpenPopup(false)}
         dataObj={apiConfigObj}
-        handleOnChange={handleOnChange}
+        onSave={handlePopupSave}
         selectedAPI={selectedAPI}
-        errors={errors}
       />
     </>
   );

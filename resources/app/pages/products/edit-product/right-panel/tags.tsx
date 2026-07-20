@@ -1,88 +1,71 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useFormContext } from 'react-hook-form';
 
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { getErrorsObject, type ErrorResponse } from '@/libs/api';
 import { TagManager } from '@/molecules/tag-manager';
 import { makeSuggestionList } from '@/pages/utils';
-import { useProductForm } from '@/contexts/product-form-context';
+import type { ProductRightPanelFormValues } from '@/schemas/forms/product-right-panel-form';
 import { useCreateTagMutation, useTagsQuery } from '@/services/tag';
-import { getErrorsObject } from '@/libs/api';
-import type { FormErrors, SuggestionOption } from '@/types';
+import type { SuggestionOption } from '@/types';
 import { __ } from '@/wpi18n';
 
-type TagsProps = {
-  errors: FormErrors;
-  setErrors: React.Dispatch<React.SetStateAction<FormErrors>>;
-};
-
-const Tags = ({ errors, setErrors }: TagsProps) => {
-  const { product: productData, updateProduct } = useProductForm();
+const Tags = () => {
+  const { control, setValue, watch, setError, clearErrors } =
+    useFormContext<ProductRightPanelFormValues>();
+  const selectedTagsValue = watch('tags') || [];
   const { data: tagData } = useTagsQuery({ limit: -1 });
   const createTagMutation = useCreateTagMutation();
 
   const [suggestionArray, setSuggestionArray] = useState<SuggestionOption[]>(
     [],
   );
-  const [selectedTags, setSelectedTags] = useState<SuggestionOption[]>([]);
-  const [localError, setLocalError] = useState<FormErrors>({});
+
+  const selectedTags: SuggestionOption[] = selectedTagsValue.map((item) => ({
+    value: item.id,
+    title: item.name,
+  }));
 
   useEffect(() => {
-    setLocalError({ name: errors?.tags });
-  }, [errors]);
-
-  useEffect(() => {
-    const productTags = productData?.tags || [];
-    const selectedList = productTags.map((item) => ({
-      value: item.id,
-      title: item.name,
-    }));
-    setSelectedTags(selectedList);
-    const suggestionList = makeSuggestionList(tagData?.results, selectedList);
+    const suggestionList = makeSuggestionList(tagData?.results, selectedTags);
     setSuggestionArray(suggestionList);
-  }, [productData, tagData]);
+  }, [selectedTagsValue, tagData]);
 
   const handleAddTag = (tag: SuggestionOption) => {
-    const updatedLocalTagList = [...selectedTags, tag];
-    setSelectedTags(updatedLocalTagList);
-
-    const productTags = productData?.tags || [];
     const updatedTagList = [
       { id: tag.value as number, name: tag.title },
-      ...productTags,
+      ...selectedTagsValue,
     ];
-    updateProduct({ key: 'tags', value: updatedTagList });
-    setErrors((prev) => ({
-      ...prev,
-      tags: null,
-    }));
-
-    const updatedSuggestions = suggestionArray.filter(
-      (item) => item.value !== tag.value,
+    setValue('tags', updatedTagList, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+    clearErrors('tags');
+    setSuggestionArray((prev) =>
+      prev.filter((item) => item.value !== tag.value),
     );
-    setSuggestionArray(updatedSuggestions);
   };
 
   const handleTagRemove = (tag: SuggestionOption) => {
-    const updatedLocalTagList = selectedTags.filter(
-      (item) => item.value !== tag.value,
-    );
-    setSelectedTags(updatedLocalTagList);
-
-    const productTags = productData?.tags || [];
-    const updatedTagList = productTags.filter(
+    const updatedTagList = selectedTagsValue.filter(
       (item) => item.id !== tag.value,
     );
-    updateProduct({ key: 'tags', value: updatedTagList });
+    setValue('tags', updatedTagList, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
     setSuggestionArray((prev) => [tag, ...prev]);
-    setErrors((prev) => ({
-      ...prev,
-      tags: null,
-    }));
+    clearErrors('tags');
   };
 
   const handleSearchChange = (_searchText: string) => {
-    setErrors((prev) => ({
-      ...prev,
-      tags: null,
-    }));
+    clearErrors('tags');
   };
 
   const handleAddNewTag = async (tagTitle: string) => {
@@ -90,30 +73,42 @@ const Tags = ({ errors, setErrors }: TagsProps) => {
       const response = await createTagMutation.mutateAsync({ name: tagTitle });
       handleAddTag({ value: response.data.id, title: tagTitle });
     } catch (error) {
-      setLocalError(
-        getErrorsObject((error as { errors?: Record<string, string[]> }).errors),
-      );
+      const fieldErrors = getErrorsObject((error as ErrorResponse).errors);
+      if (fieldErrors.name) {
+        setError('tags', { message: String(fieldErrors.name) });
+      }
     }
   };
 
   return (
-    <TagManager
-      label={__('Tags', 'kirki-ecommerce')}
-      selectedTags={selectedTags || []}
-      suggestions={suggestionArray || []}
-      error={localError?.name as string | boolean | undefined}
-      onTagAdd={(tag) => {
-        handleAddTag(tag);
-      }}
-      onTagRemove={(tag) => {
-        handleTagRemove(tag);
-      }}
-      onNewTagAdd={(tagTitle) => {
-        handleAddNewTag(tagTitle);
-      }}
-      onSearchChange={(searchText) => {
-        handleSearchChange(searchText);
-      }}
+    <FormField
+      control={control}
+      name="tags"
+      render={({ fieldState }) => (
+        <FormItem>
+          <FormLabel>{__('Tags', 'kirki-ecommerce')}</FormLabel>
+          <FormControl>
+            <TagManager
+              selectedTags={selectedTags || []}
+              suggestions={suggestionArray || []}
+              error={Boolean(fieldState.error)}
+              onTagAdd={(tag) => {
+                handleAddTag(tag);
+              }}
+              onTagRemove={(tag) => {
+                handleTagRemove(tag);
+              }}
+              onNewTagAdd={(tagTitle) => {
+                handleAddNewTag(tagTitle);
+              }}
+              onSearchChange={(searchText) => {
+                handleSearchChange(searchText);
+              }}
+            />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
     />
   );
 };

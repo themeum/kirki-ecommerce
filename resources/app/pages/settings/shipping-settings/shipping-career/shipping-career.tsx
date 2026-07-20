@@ -1,8 +1,9 @@
-import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
 import { BoxOpenIcon } from '@/icons';
 import HeaderActionsCard from '@/components/header-actions-card';
 import GroupOptionCard from '@/components/group-option-card';
+import { Card } from '@/components/ui/card';
+import { CLASS_PREFIX } from '@/conf';
 import { __ } from '@/wpi18n';
 
 type ShippingCareerProps = Record<string, unknown>;
@@ -11,7 +12,7 @@ const ShippingCareer = (_props: ShippingCareerProps) => {
   const hasShippingCareers = false;
   return (
     <div>
-      <Card type="large">
+      <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
         <HeaderActionsCard
           header={__('Shipping Careers', 'kirki-ecommerce')}
           subHeader={__(
@@ -23,7 +24,10 @@ const ShippingCareer = (_props: ShippingCareerProps) => {
         />
 
         {!hasShippingCareers ? (
-          <Card type="innerDark" style={{ padding: '36px 0' }}>
+          <Card
+            className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner-dark`}
+            style={{ padding: '36px 0' }}
+          >
             <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
               <BoxOpenIcon />
               <span style={{ color: '#878593' }}>

@@ -1,6 +1,9 @@
+import Checkbox from '@/components/ui/checkbox';
+import Input from '@/components/ui/input';
+import Label from '@/components/ui/label';
+import Textarea from '@/components/ui/textarea';
+import { CLASS_PREFIX } from '@/conf';
 import Flex from '@/molecules/flex';
-import Input from '@/molecules/input';
-import Checkbox from '@/molecules/checkbox';
 import { __ } from '@/wpi18n';
 
 import type { ShippingMethodData } from '@/pages/settings/shipping-settings/utils';
@@ -16,31 +19,43 @@ const FlatRateSettings = ({
 }: FlatRateSettingsProps) => {
   return (
     <Flex direction="column" gap={16}>
-      <Input
-        label={__('Rate', 'kirki-ecommerce')}
-        value={(dataObj?.amount as string | number) || ''}
-        type="number"
-        placeholder={__('$0.00', 'kirki-ecommerce')}
-        onChange={(value: unknown) => handleOnChange(value, 'amount')}
-      />
+      <Flex direction="column" gap={8}>
+        <Label htmlFor="flat-rate-amount">{__('Rate', 'kirki-ecommerce')}</Label>
+        <Input
+          id="flat-rate-amount"
+          value={(dataObj?.amount as string | number) || ''}
+          type="number"
+          placeholder={__('$0.00', 'kirki-ecommerce')}
+          onChange={(e) => handleOnChange(e.target.value, 'amount')}
+        />
+      </Flex>
 
-      <Checkbox
-        value={(dataObj?.['is_taxable'] as boolean) || false}
-        label={__('This method is taxable', 'kirki-ecommerce')}
-        onChange={(value: unknown) => handleOnChange(value, 'is_taxable')}
-      />
+      <div className={`${CLASS_PREFIX}-ui-checkbox-field`}>
+        <Checkbox
+          id="flat-rate-is-taxable"
+          checked={(dataObj?.['is_taxable'] as boolean) || false}
+          onCheckedChange={(checked) => handleOnChange(checked === true, 'is_taxable')}
+        />
+        <Label htmlFor="flat-rate-is-taxable">
+          {__('This method is taxable', 'kirki-ecommerce')}
+        </Label>
+      </div>
 
-      <Input
-        multiline
-        value={(dataObj?.description as string) || ''}
-        label={__('Description', 'kirki-ecommerce')}
-        placeholder={__('e.g., 3–5 business days', 'kirki-ecommerce')}
-        onChange={(value: unknown) => handleOnChange(value, 'description')}
-        style={{
-          padding: 'var(--decom-spacing-2) var(--decom-spacing-3)',
-          minHeight: '108px',
-        }}
-      />
+      <Flex direction="column" gap={8}>
+        <Label htmlFor="flat-rate-description">
+          {__('Description', 'kirki-ecommerce')}
+        </Label>
+        <Textarea
+          id="flat-rate-description"
+          value={(dataObj?.description as string) || ''}
+          placeholder={__('e.g., 3–5 business days', 'kirki-ecommerce')}
+          onChange={(e) => handleOnChange(e.target.value, 'description')}
+          style={{
+            padding: 'var(--decom-spacing-2) var(--decom-spacing-3)',
+            minHeight: '108px',
+          }}
+        />
+      </Flex>
     </Flex>
   );
 };

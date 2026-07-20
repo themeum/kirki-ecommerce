@@ -5,15 +5,35 @@ import {
   type ReactElement,
   type SetStateAction,
 } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
+import Button from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
+import Input from '@/components/ui/input';
+import Label from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { CLASS_PREFIX } from '@/conf';
 import { EyeClosedIcon, EyeIcon } from '@/icons';
+import type { ErrorResponse } from '@/libs/api';
+import { applyServerErrors } from '@/libs/form-errors';
 import ActionGroup from '@/molecules/action-group';
-import Button from '@/molecules/button';
-import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
-import SelectInput from '@/molecules/select-input';
 import Text from '@/molecules/text';
 import { useProductForm } from '@/contexts/product-form-context';
+import {
+  mapProductShippingFromProduct,
+  ProductShippingFormSchema,
+  productShippingDefaultValues,
+  type ProductShippingFormValues,
+} from '@/schemas/forms/product-shipping-form';
 import { useShippingBoxesQuery } from '@/services/shipping';
 import type { FormErrors, ShippingBox } from '@/types';
 import { __ } from '@/wpi18n';
@@ -25,6 +45,7 @@ import ShippingProfile from '@/pages/products/edit-product/shipping/shipping-pro
 type ShippingProps = {
   errors: FormErrors;
   setErrors: Dispatch<SetStateAction<FormErrors>>;
+  formSyncKey?: number;
 };
 
 type SelectInputValue = {
@@ -39,7 +60,14 @@ type BoxGeneratorData = ShippingBox & {
   unit?: string;
 };
 
-const Shipping = ({ errors, setErrors }: ShippingProps) => {
+const weightUnitOptions = [
+  { value: 'kg', label: __('KG', 'kirki-ecommerce') },
+  { value: 'g', label: __('G', 'kirki-ecommerce') },
+  { value: 'lb', label: __('LB', 'kirki-ecommerce') },
+  { value: 'oz', label: __('OZ', 'kirki-ecommerce') },
+];
+
+const Shipping = ({ errors, setErrors, formSyncKey = 0 }: ShippingProps) => {
   const { product: productData, updateProduct } = useProductForm();
   const { data: shippingBoxes } = useShippingBoxesQuery({ limit: -1 });
   const [boxGeneratorData, setBoxGeneratorData] = useState<
@@ -47,40 +75,59 @@ const Shipping = ({ errors, setErrors }: ShippingProps) => {
   >({});
   const [showShippingBox, setShowShippingBox] = useState(true);
 
+  const form = useForm<ProductShippingFormValues>({
+    resolver: zodResolver(ProductShippingFormSchema),
+    defaultValues: productShippingDefaultValues,
+  });
+
+  const shippingBoxId = form.watch('shipping_box_id');
+
   useEffect(() => {
-    if (productData.variants[0]?.shipping_box_id && shippingBoxes) {
-      const boxData = shippingBoxes?.find(
-        (item) => item.id === productData.variants[0]?.shipping_box_id,
-      );
+    form.reset(mapProductShippingFromProduct(productData));
+  }, [formSyncKey]);
+
+  useEffect(() => {
+    const hasErrors = Object.values(errors).some(Boolean);
+    if (!hasErrors) {
+      return;
+    }
+    applyServerErrors(form, { errors } as ErrorResponse, {
+      stripPrefix: 'variants.0.',
+    });
+  }, [errors]);
+
+  useEffect(() => {
+    if (shippingBoxId && shippingBoxes) {
+      const boxData = shippingBoxes?.find((item) => item.id === shippingBoxId);
       setBoxGeneratorData((boxData as BoxGeneratorData) || {});
     }
-  }, [productData.variants[0]?.shipping_box_id, shippingBoxes]);
+  }, [shippingBoxId, shippingBoxes]);
+
+  const syncVariantField = (
+    fieldName: keyof ProductShippingFormValues,
+    value: unknown,
+  ) => {
+    form.setValue(fieldName, value as never, {
+      shouldDirty: true,
+      shouldTouch: true,
+    });
+    form.clearErrors(fieldName);
+    updateProduct({ key: fieldName, value, variants: true });
+    setErrors((prev) => ({
+      ...prev,
+      [`variants.0.${fieldName}`]: null,
+    }));
+  };
 
   const handleOnVariantInfoChange = (value: unknown, fieldName: string) => {
     if (fieldName === 'weight') {
       const weightValue = value as SelectInputValue;
-      updateProduct({
-        key: 'weight',
-        value: weightValue.value,
-        variants: true,
-      });
-      updateProduct({
-        key: 'weight_unit',
-        value: weightValue.unit,
-        variants: true,
-      });
-      setErrors((prev) => ({
-        ...prev,
-        [`variants.0.weight`]: null,
-        [`variants.0.weight_unit`]: null,
-      }));
-    } else {
-      updateProduct({ key: fieldName, value: value, variants: true });
-      setErrors((prev) => ({
-        ...prev,
-        [fieldName]: null,
-      }));
+      syncVariantField('weight', weightValue.value);
+      syncVariantField('weight_unit', weightValue.unit);
+      return;
     }
+
+    syncVariantField(fieldName as keyof ProductShippingFormValues, value);
   };
 
   const BoxGeneratorView = BoxGenerator as (props: {
@@ -90,112 +137,186 @@ const Shipping = ({ errors, setErrors }: ShippingProps) => {
     unit?: string;
   }) => ReactElement;
 
+  const weightError =
+    form.formState.errors.weight?.message ||
+    form.formState.errors.weight_unit?.message;
+
   return (
-    <Card type="form">
-      <Text
-        header={__('Shipping', 'kirki-ecommerce')}
-        type="primary"
-        padding="large"
-      />
-      <SelectInput
-        label={__('Weight', 'kirki-ecommerce')}
-        value={{
-          value: productData?.variants[0].weight || '',
-          unit: productData?.variants[0]?.weight_unit || '',
-        }}
-        optionsArray={[
-          { value: 'kg', title: __('KG', 'kirki-ecommerce'), fallback: true },
-          { value: 'g', title: __('G', 'kirki-ecommerce') },
-          { value: 'lb', title: __('LB', 'kirki-ecommerce') },
-          { value: 'oz', title: __('OZ', 'kirki-ecommerce') },
-        ]}
-        onChange={(value) => handleOnVariantInfoChange(value, 'weight')}
-        error={
-          (errors?.weight || errors?.weight_unit) as
-            | string
-            | boolean
-            | undefined
-        }
-      />
-      <div>
-        <Card
-          type="inner"
-          style={{
-            position: 'relative',
-            overflow: 'visible',
-            marginTop: '16px',
-            paddingTop: '20px',
-          }}
-        >
-          <Flex
-            style={{
-              top: '-18px',
-              left: '8px',
-              right: '8px',
-              position: 'absolute',
-            }}
-          >
-            <span
+    <Form {...form}>
+      <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-form`}>
+        <CardContent>
+          <Text
+            header={__('Shipping', 'kirki-ecommerce')}
+            type="primary"
+            padding="large"
+          />
+          <Flex direction="column" gap={8}>
+            <Label>{__('Weight', 'kirki-ecommerce')}</Label>
+            <Flex gap={8}>
+              <div style={{ flex: 1 }}>
+                <FormField
+                  control={form.control}
+                  name="weight"
+                  render={({ field, fieldState }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          value={field.value ?? ''}
+                          onChange={(event) => {
+                            field.onChange(event.target.value);
+                            handleOnVariantInfoChange(
+                              {
+                                value: event.target.value,
+                                unit: form.getValues('weight_unit') || '',
+                              },
+                              'weight',
+                            );
+                          }}
+                          error={Boolean(fieldState.error) || Boolean(weightError)}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <div style={{ width: '96px' }}>
+                <FormField
+                  control={form.control}
+                  name="weight_unit"
+                  render={({ field, fieldState }) => (
+                    <FormItem>
+                      <Select
+                        value={field.value || ''}
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                          handleOnVariantInfoChange(
+                            {
+                              value: form.getValues('weight') || '',
+                              unit: value,
+                            },
+                            'weight',
+                          );
+                        }}
+                      >
+                        <FormControl>
+                          <SelectTrigger
+                            error={Boolean(fieldState.error) || Boolean(weightError)}
+                          >
+                            <SelectValue />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {weightUnitOptions.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </Flex>
+            {weightError && (
+              <p className={`${CLASS_PREFIX}-ui-form-message`}>
+                {String(weightError)}
+              </p>
+            )}
+          </Flex>
+          <div>
+            <Card
+              className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner`}
               style={{
-                backgroundColor: '#ffffff',
-                paddingLeft: '8px',
+                position: 'relative',
+                overflow: 'visible',
+                marginTop: '16px',
+                paddingTop: '20px',
               }}
             >
-              <Text
-                type="secondary"
-                header={__('Shipping Box', 'kirki-ecommerce')}
-              />
-            </span>
-            <ActionGroup>
-              <span
+              <Flex
                 style={{
-                  backgroundColor: '#ffffff',
-                  paddingRight: '8px',
+                  top: '-18px',
+                  left: '8px',
+                  right: '8px',
+                  position: 'absolute',
                 }}
               >
-                <Button
-                  type="secondary"
-                  size="small"
-                  leftIcon={showShippingBox ? <EyeIcon /> : <EyeClosedIcon />}
-                  onClick={() => {
-                    setShowShippingBox((prev) => !prev);
+                <span
+                  style={{
+                    backgroundColor: '#ffffff',
+                    paddingLeft: '8px',
                   }}
+                >
+                  <Text
+                    type="secondary"
+                    header={__('Shipping Box', 'kirki-ecommerce')}
+                  />
+                </span>
+                <ActionGroup>
+                  <span
+                    style={{
+                      backgroundColor: '#ffffff',
+                      paddingRight: '8px',
+                    }}
+                  >
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => {
+                        setShowShippingBox((prev) => !prev);
+                      }}
+                    >
+                      {showShippingBox ? <EyeIcon /> : <EyeClosedIcon />}
+                    </Button>
+                  </span>
+                </ActionGroup>
+              </Flex>
+              <Flex gap={8} direction="column">
+                <ShippingBoxSelect
+                  value={shippingBoxId}
+                  errors={{
+                    shipping_box_id:
+                      form.formState.errors.shipping_box_id?.message,
+                  }}
+                  onChange={(value, fieldName) =>
+                    handleOnVariantInfoChange(value, fieldName)
+                  }
                 />
-              </span>
-            </ActionGroup>
-          </Flex>
-          <Flex gap={8} direction="column">
-            <ShippingBoxSelect
-              value={productData?.variants[0]?.shipping_box_id}
-              onChange={(value, fieldName) =>
-                handleOnVariantInfoChange(value, fieldName)
-              }
-            />
-          </Flex>
-        </Card>
-        {showShippingBox && (
-          <Card
-            type="dark"
-            style={{
-              borderRadius: '0px 0px 6px 6px',
-              marginTop: '-8px',
-              padding: '4px',
-              height: '230px',
+              </Flex>
+            </Card>
+            {showShippingBox && (
+              <Card
+                className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-dark`}
+                style={{
+                  borderRadius: '0px 0px 6px 6px',
+                  marginTop: '-8px',
+                  padding: '4px',
+                  height: '230px',
+                }}
+              >
+                <BoxGeneratorView
+                  length={boxGeneratorData?.length || 0}
+                  height={boxGeneratorData?.height || 0}
+                  width={boxGeneratorData?.width || 0}
+                  unit={boxGeneratorData?.unit || 'in'}
+                />
+              </Card>
+            )}
+          </div>
+          <ShippingProfile
+            errors={{
+              shipping_profile_id:
+                form.formState.errors.shipping_profile_id?.message,
             }}
-          >
-            <BoxGeneratorView
-              length={boxGeneratorData?.length || 0}
-              height={boxGeneratorData?.height || 0}
-              width={boxGeneratorData?.width || 0}
-              unit={boxGeneratorData?.unit || 'in'}
-            />
-          </Card>
-        )}
-      </div>
-      <ShippingProfile
-        onChange={(val, fieldName) => handleOnVariantInfoChange(val, fieldName)}
-      />
-    </Card>
+            onChange={(val, fieldName) =>
+              handleOnVariantInfoChange(val, fieldName)
+            }
+          />
+        </CardContent>
+      </Card>
+    </Form>
   );
 };
 

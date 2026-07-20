@@ -1,7 +1,7 @@
-import Card from '@/molecules/card';
+import { Card } from '@/components/ui/card';
+import Input from '@/components/ui/input';
 import Text from '@/molecules/text';
 import Flex from '@/molecules/flex';
-import Input from '@/molecules/input';
 import { CLASS_PREFIX } from '@/conf';
 import { __ } from '@/wpi18n';
 
@@ -22,7 +22,9 @@ export const SingleTaxRate = ({
   };
   return (
     <div>
-      <Card type={'innerDark'} className={`${CLASS_PREFIX}-tax-card`}>
+      <Card
+        className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner-dark ${CLASS_PREFIX}-tax-card`}
+      >
         <Text type="secondary" header={__('Tax rates', 'kirki-ecommerce')} />
         <div className={`${CLASS_PREFIX}-tax-card-content`}>
           <Text
@@ -34,8 +36,8 @@ export const SingleTaxRate = ({
             <Input
               value={centralTaxValue}
               style={{ width: '72px' }}
-              onChange={(value: number | string) => handleTaxRate(value)}
-              onBlur={(value: number | string) => handleTaxRate(value)}
+              onChange={(e) => handleTaxRate(e.target.value)}
+              onBlur={(e) => handleTaxRate(e.target.value)}
               type="number"
               min={0}
               max={100}

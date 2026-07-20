@@ -1,23 +1,33 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate, useOutletContext } from 'react-router';
 
+import SwitchField from '@/components/form/switch-field';
 import PageNavbar from '@/components/page-navbar';
+import Button from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Form } from '@/components/ui/form';
+import { CLASS_PREFIX } from '@/conf';
 import { CartIcon } from '@/icons';
+import type { ErrorResponse } from '@/libs/api';
+import { applyServerErrors } from '@/libs/form-errors';
+import { useUnsavedStatus } from '@/libs/unsaved-store';
 import ActionGroup from '@/molecules/action-group';
-import Button from '@/molecules/button';
-import Card from '@/molecules/card';
 import Container from '@/molecules/container';
 import Flex from '@/molecules/flex';
 import PageHeading from '@/molecules/page-heading';
 import Text from '@/molecules/text';
-import ToggleButton from '@/molecules/toggle-button';
-import { getErrorsObject } from '@/libs/api';
-import { useUnsavedStatus } from '@/libs/unsaved-store';
+import {
+  CheckoutSettingsFormSchema,
+  checkoutSettingsDefaultValues,
+  type CheckoutSettingsFormValues,
+} from '@/schemas/forms/checkout-settings-form';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
-import type { FormErrors, SettingsSectionData } from '@/types';
+import type { SettingsSectionData } from '@/types';
 import { __ } from '@/wpi18n';
 
-import { checkUnsavedDataStatus, setUnsavedDataStatus } from '@/pages/settings/utils';
+import { setUnsavedDataStatus } from '@/pages/settings/utils';
 import CheckoutConf from '@/pages/settings/checkout-settings/checkout-conf';
 import LegalInfo from '@/pages/settings/checkout-settings/legal-info';
 
@@ -25,146 +35,71 @@ type SettingsOutletContext = {
   confirmAction: (params: { action?: () => void }) => void;
 };
 
-type CheckoutConfiguration = {
-  address_line_validation?: string;
-  phone_number_validation?: string;
-  company_name_validation?: string;
-  company_id_validation?: string;
-  vat_identification_number_validation?: string;
-  has_apply_coupon_code?: boolean;
-};
-
-type CheckoutSettingsFormData = SettingsSectionData & {
-  is_allowed_guest_checkout?: boolean;
-  checkout_configuration?: CheckoutConfiguration;
-  is_terms_and_conditions_visible?: boolean;
-  terms_and_conditions_content?: string;
-  is_privacy_policy_visible?: boolean;
-  privacy_policy_content?: string;
-};
-
-const CONF_KEYS = [
-  'address_line_validation',
-  'phone_number_validation',
-  'company_name_validation',
-  'company_id_validation',
-  'vat_identification_number_validation',
-  'has_apply_coupon_code',
-];
-
-const initialDataObj: CheckoutSettingsFormData = {
-  is_allowed_guest_checkout: false,
-  checkout_configuration: {
-    address_line_validation: '',
-    phone_number_validation: '',
-    company_name_validation: '',
-    company_id_validation: '',
-    vat_identification_number_validation: '',
-    has_apply_coupon_code: true,
-  },
-  is_terms_and_conditions_visible: false,
-  terms_and_conditions_content: '',
-  is_privacy_policy_visible: false,
-  privacy_policy_content: '',
-};
-
 const CheckoutSettings = () => {
   const navigate = useNavigate();
   const { confirmAction } = useOutletContext<SettingsOutletContext>();
 
-  const [dataObj, setDataObj] =
-    useState<CheckoutSettingsFormData>(initialDataObj);
-  const [initialData, setInitialData] =
-    useState<CheckoutSettingsFormData>(initialDataObj);
-  const [errors, setErrors] = useState<FormErrors>({});
-
   const hasUnsavedData = useUnsavedStatus();
   const { data: checkoutSettingsData, isLoading } = useSettingsQuery('checkout');
-  const { mutate: saveSettings } = useUpdateSettingsMutation();
+  const { mutateAsync: saveSettings, isPending } = useUpdateSettingsMutation();
 
   const loaded = !isLoading && Boolean(checkoutSettingsData);
+
+  const form = useForm<CheckoutSettingsFormValues>({
+    resolver: zodResolver(CheckoutSettingsFormSchema),
+    defaultValues: checkoutSettingsDefaultValues,
+  });
 
   useEffect(() => {
     if (!checkoutSettingsData || !Object.keys(checkoutSettingsData).length) {
       return;
     }
+
     const checkoutConfig =
-      (checkoutSettingsData.checkout_configuration as CheckoutConfiguration) ||
-      {};
-    const mergedData: CheckoutSettingsFormData = {
-      ...initialDataObj,
+      checkoutSettingsData.checkout_configuration || {};
+
+    form.reset({
+      ...checkoutSettingsDefaultValues,
       ...checkoutSettingsData,
       terms_and_conditions_content:
         checkoutSettingsData.terms_and_conditions_content ?? '',
       privacy_policy_content:
         checkoutSettingsData.privacy_policy_content ?? '',
       checkout_configuration: {
-        ...initialDataObj.checkout_configuration,
+        ...checkoutSettingsDefaultValues.checkout_configuration,
         ...checkoutConfig,
       },
-    };
+    });
+  }, [checkoutSettingsData, form]);
 
-    setDataObj(mergedData);
-    setInitialData(mergedData);
-  }, [checkoutSettingsData]);
+  useEffect(() => {
+    setUnsavedDataStatus(form.formState.isDirty);
+  }, [form.formState.isDirty]);
 
-  const handleOnChange = (value: unknown, key: string) => {
-    setUnsavedDataStatus(true);
-
-    setDataObj((prev) =>
-      CONF_KEYS.includes(key)
-        ? {
-            ...prev,
-            checkout_configuration: {
-              ...prev.checkout_configuration,
-              [key]: value,
-            },
-          }
-        : {
-            ...prev,
-            [key]: value,
-          },
-    );
-
-    setErrors((prev) => ({
-      ...prev,
-      [CONF_KEYS.includes(key)
-        ? `data.checkout_configuration.${key}`
-        : `data.${key}`]: null,
-    }));
-  };
-
-  const handleSaveData = () => {
-    saveSettings(
-      { key: 'checkout', data: dataObj },
-      {
-        onSuccess: () => {
-          setUnsavedDataStatus(false);
-        },
-        onError: (error) => {
-          const errObj = error as { errors?: Record<string, string[]> };
-          setErrors(getErrorsObject(errObj.errors));
-        },
-      },
-    );
+  const handleSaveData = async (values: CheckoutSettingsFormValues) => {
+    try {
+      await saveSettings({
+        key: 'checkout',
+        data: values as SettingsSectionData,
+      });
+      form.reset(values);
+    } catch (error) {
+      applyServerErrors(form, error as ErrorResponse);
+    }
   };
 
   const handleDiscardData = () => {
-    setDataObj(initialData);
-    setErrors({});
-    setUnsavedDataStatus(false);
+    form.reset();
   };
 
   const handleBackButton = () => {
-    checkUnsavedDataStatus({
-      initialDataObj: initialData,
-      updatedDataObj: dataObj,
-      onUnsaved: () =>
-        confirmAction({
-          action: () => navigate('/settings'),
-        }),
-      onClean: () => navigate('/settings'),
-    });
+    if (form.formState.isDirty) {
+      confirmAction({
+        action: () => navigate('/settings'),
+      });
+      return;
+    }
+    navigate('/settings');
   };
 
   return (
@@ -179,17 +114,20 @@ const CheckoutSettings = () => {
           hasUnsavedData ? (
             <>
               <Button
-                type="ghost"
-                text={__('Cancel', 'kirki-ecommerce')}
-                size="small"
+                variant="ghost"
+                size="sm"
                 onClick={handleDiscardData}
-              />
+              >
+                {__('Cancel', 'kirki-ecommerce')}
+              </Button>
               <Button
-                type="primary"
-                text={__('Save', 'kirki-ecommerce')}
-                size="small"
-                onClick={handleSaveData}
-              />
+                variant="primary"
+                size="sm"
+                onClick={form.handleSubmit(handleSaveData)}
+                loading={isPending}
+              >
+                {__('Save', 'kirki-ecommerce')}
+              </Button>
             </>
           ) : (
             <></>
@@ -198,43 +136,32 @@ const CheckoutSettings = () => {
       />
       <Container size="sm">
         {loaded ? (
-          <Flex direction="column" gap={16}>
-            <PageNavbar
-              textIcon={<CartIcon />}
-              text={__('Checkout', 'kirki-ecommerce')}
-              handleBack={handleBackButton}
-            />
-            <Card type="large">
-              <Flex style={{ alignItems: 'center' }}>
-                <Text
-                  header={__('Allow Guest Checkout', 'kirki-ecommerce')}
-                  subHeader={__(
-                    'Let customers buy without logging in or creating an account.',
-                    'kirki-ecommerce',
-                  )}
-                  type="secondary"
-                />
-                <ActionGroup>
-                  <ToggleButton
-                    value={dataObj?.is_allowed_guest_checkout as boolean}
-                    onChange={(value) =>
-                      handleOnChange(value, 'is_allowed_guest_checkout')
-                    }
+          <Form {...form}>
+            <Flex direction="column" gap={16}>
+              <PageNavbar
+                textIcon={<CartIcon />}
+                text={__('Checkout', 'kirki-ecommerce')}
+                handleBack={handleBackButton}
+              />
+              <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
+                <Flex style={{ alignItems: 'center' }}>
+                  <Text
+                    header={__('Allow Guest Checkout', 'kirki-ecommerce')}
+                    subHeader={__(
+                      'Let customers buy without logging in or creating an account.',
+                      'kirki-ecommerce',
+                    )}
+                    type="secondary"
                   />
-                </ActionGroup>
-              </Flex>
-            </Card>
-            <CheckoutConf
-              dataObj={dataObj}
-              handleOnChange={handleOnChange}
-              errors={errors}
-            />
-            <LegalInfo
-              dataObj={dataObj}
-              handleOnChange={handleOnChange}
-              errors={errors}
-            />
-          </Flex>
+                  <ActionGroup>
+                    <SwitchField name="is_allowed_guest_checkout" />
+                  </ActionGroup>
+                </Flex>
+              </Card>
+              <CheckoutConf />
+              <LegalInfo />
+            </Flex>
+          </Form>
         ) : (
           <div>{__('Loading ...', 'kirki-ecommerce')}</div>
         )}

@@ -1,27 +1,41 @@
-import type { Dispatch, SetStateAction } from 'react';
+import { useState } from 'react';
+import { useFormContext } from 'react-hook-form';
 
-import Input from '@/molecules/input';
-import type { FormErrors } from '@/types';
+import TextareaField from '@/components/form/textarea-field';
+import TextField from '@/components/form/text-field';
+import ThumbnailField from '@/components/form/thumbnail-field';
+import type { ProductSeoFormValues } from '@/schemas/forms/product-seo-form';
+import type { MediaRef } from '@/types';
 import { __ } from '@/wpi18n';
 
-type SocialShareProps = {
-  errors: FormErrors;
-  setErrors: Dispatch<SetStateAction<FormErrors>>;
-};
+const SocialShare = () => {
+  const { getValues } = useFormContext<ProductSeoFormValues>();
+  const initialOgImage = getValues('og_image');
+  const [ogImageUrl, setOgImageUrl] = useState<string | null>(
+    initialOgImage && typeof initialOgImage === 'object'
+      ? (initialOgImage as MediaRef).url ?? null
+      : null,
+  );
 
-const SocialShare = (_props: SocialShareProps) => {
   return (
     <>
-      Image
-      <Input
+      <ThumbnailField
+        name="og_image"
+        label={__('Image', 'kirki-ecommerce')}
+        valueAs="object"
+        previewUrl={ogImageUrl}
+        onPreviewChange={setOgImageUrl}
+      />
+      <TextField
+        name="og_title"
         label={__('Title', 'kirki-ecommerce')}
         placeholder={__('e.g. Example T-shirt', 'kirki-ecommerce')}
-        type="text"
       />
-      <Input
+      <TextareaField
+        name="og_description"
         label={__('Meta description', 'kirki-ecommerce')}
         placeholder={__('e.g. Cotton shirts from our store.', 'kirki-ecommerce')}
-        multiline={5}
+        rows={5}
       />
     </>
   );

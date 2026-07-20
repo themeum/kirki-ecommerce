@@ -1,29 +1,25 @@
-import React from 'react';
+import { useFormContext } from 'react-hook-form';
 
-import Card from '@/molecules/card';
-import Checkbox from '@/molecules/checkbox';
-import Label from '@/molecules/label';
-import { useProductForm } from '@/contexts/product-form-context';
+import { Card, CardContent } from '@/components/ui/card';
+import Checkbox from '@/components/ui/checkbox';
+import Label from '@/components/ui/label';
+import { CLASS_PREFIX } from '@/conf';
+import Flex from '@/molecules/flex';
+import type { ProductRightPanelFormValues } from '@/schemas/forms/product-right-panel-form';
 import { useCategoriesQuery } from '@/services/category';
-import type { Category, FormErrors, ProductCategoryRef } from '@/types';
+import type { Category, ProductCategoryRef } from '@/types';
 import { __ } from '@/wpi18n';
 
 import AddNewCategory from '@/pages/products/edit-product/right-panel/categories/add-new-category';
 import List from '@/pages/products/edit-product/right-panel/categories/list';
 
-type CategoriesProps = {
-  errors?: FormErrors;
-  setErrors?: React.Dispatch<React.SetStateAction<FormErrors>>;
-};
-
-const Categories = (_props: CategoriesProps) => {
-  const { product: productData, updateProduct } = useProductForm();
+const Categories = () => {
+  const { watch, setValue } = useFormContext<ProductRightPanelFormValues>();
   const { data: categoryData, isSuccess: loaded } = useCategoriesQuery({
     limit: -1,
   });
   const categories = categoryData?.results ?? [];
-  const selectedCategories: ProductCategoryRef[] =
-    productData?.categories || [];
+  const selectedCategories: ProductCategoryRef[] = watch('categories') || [];
 
   const getParentsToDeselect = (
     category: Category,
@@ -33,9 +29,7 @@ const Categories = (_props: CategoriesProps) => {
       return acc;
     }
 
-    const parent = categories.find(
-      (item) => item.id === category.parent_id,
-    );
+    const parent = categories.find((item) => item.id === category.parent_id);
     if (!parent) {
       return acc;
     }
@@ -48,9 +42,7 @@ const Categories = (_props: CategoriesProps) => {
     parentId: number,
     all: Category[] = [],
   ): Category[] => {
-    const children = categories.filter(
-      (item) => item.parent_id === parentId,
-    );
+    const children = categories.filter((item) => item.parent_id === parentId);
 
     for (const child of children) {
       all.push(child);
@@ -64,9 +56,7 @@ const Categories = (_props: CategoriesProps) => {
     categoryId: number,
     selectedIds: number[],
   ): boolean => {
-    const children = categories.filter(
-      (c) => c.parent_id === categoryId,
-    );
+    const children = categories.filter((c) => c.parent_id === categoryId);
 
     if (!children.length) {
       return selectedIds.includes(categoryId);
@@ -81,9 +71,7 @@ const Categories = (_props: CategoriesProps) => {
     parentId: number,
     selectedIds: number[],
   ): boolean => {
-    const children = categories.filter(
-      (c) => c.parent_id === parentId,
-    );
+    const children = categories.filter((c) => c.parent_id === parentId);
     if (!children.length) {
       return false;
     }
@@ -156,9 +144,9 @@ const Categories = (_props: CategoriesProps) => {
       });
     }
 
-    updateProduct({
-      key: 'categories',
-      value: newCategoryList,
+    setValue('categories', newCategoryList, {
+      shouldDirty: true,
+      shouldValidate: true,
     });
   };
 
@@ -170,48 +158,54 @@ const Categories = (_props: CategoriesProps) => {
         parent_id: item?.parent_id,
         level: (item as Category & { level?: number })?.level,
       }));
-      updateProduct({
-        key: 'categories',
-        value: allCategories,
+      setValue('categories', allCategories, {
+        shouldDirty: true,
+        shouldValidate: true,
       });
     } else {
-      updateProduct({
-        key: 'categories',
-        value: null,
+      setValue('categories', null, {
+        shouldDirty: true,
+        shouldValidate: true,
       });
     }
   };
 
   return (
-    <Card type="form">
-      <Label text={__('Categories', 'kirki-ecommerce')} />
-      {!loaded && <div>{__('Loading...', 'kirki-ecommerce')}</div>}
-      {loaded && (
-        <>
-          {categories.length > 0 && (
-            <div>
-              <Checkbox
-                label={__('All Products', 'kirki-ecommerce')}
-                isPartialChecked={
-                  selectedCategories.length < categories.length &&
-                  selectedCategories.length !== 0
-                }
-                value={
-                  selectedCategories.length === categories.length
-                }
-                onChange={(_value) => onSelectAll()}
-              />
-              <List
-                categories={categories}
-                parent_id={null}
-                selectedCategories={selectedCategories}
-                onSelectCategory={onSelectCategory}
-              />
-            </div>
-          )}
-          <AddNewCategory />
-        </>
-      )}
+    <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-form`}>
+      <CardContent>
+        <Label>{__('Categories', 'kirki-ecommerce')}</Label>
+        {!loaded && <div>{__('Loading...', 'kirki-ecommerce')}</div>}
+        {loaded && (
+          <>
+            {categories.length > 0 && (
+              <div>
+                <Flex gap={8} style={{ alignItems: 'center' }}>
+                  <Checkbox
+                    id="categories-all-products"
+                    checked={
+                      selectedCategories.length < categories.length &&
+                      selectedCategories.length !== 0
+                        ? 'indeterminate'
+                        : selectedCategories.length === categories.length
+                    }
+                    onCheckedChange={() => onSelectAll()}
+                  />
+                  <Label htmlFor="categories-all-products">
+                    {__('All Products', 'kirki-ecommerce')}
+                  </Label>
+                </Flex>
+                <List
+                  categories={categories}
+                  parent_id={null}
+                  selectedCategories={selectedCategories}
+                  onSelectCategory={onSelectCategory}
+                />
+              </div>
+            )}
+            <AddNewCategory />
+          </>
+        )}
+      </CardContent>
     </Card>
   );
 };

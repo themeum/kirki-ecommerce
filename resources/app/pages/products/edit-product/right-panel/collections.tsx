@@ -1,126 +1,128 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useFormContext } from 'react-hook-form';
 
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { getErrorsObject, type ErrorResponse } from '@/libs/api';
 import { TagManager } from '@/molecules/tag-manager';
 import { makeSuggestionList } from '@/pages/utils';
-import { useProductForm } from '@/contexts/product-form-context';
-import { useCreateCollectionMutation, useCollectionsQuery } from '@/services/collection';
-import { getErrorsObject } from '@/libs/api';
-import type { FormErrors, SuggestionOption } from '@/types';
+import type { ProductRightPanelFormValues } from '@/schemas/forms/product-right-panel-form';
+import {
+  useCreateCollectionMutation,
+  useCollectionsQuery,
+} from '@/services/collection';
+import type { SuggestionOption } from '@/types';
 import { __ } from '@/wpi18n';
 
-type CollectionsProps = {
-  errors: FormErrors;
-  setErrors: React.Dispatch<React.SetStateAction<FormErrors>>;
-};
-
-const Collections = ({ errors, setErrors }: CollectionsProps) => {
-  const { product: productData, updateProduct } = useProductForm();
+const Collections = () => {
+  const { control, setValue, watch, setError, clearErrors } =
+    useFormContext<ProductRightPanelFormValues>();
+  const selectedCollectionsValue = watch('collections') || [];
   const { data: collectionData } = useCollectionsQuery({ limit: -1 });
   const createCollectionMutation = useCreateCollectionMutation();
 
   const [suggestionArray, setSuggestionArray] = useState<SuggestionOption[]>(
     [],
   );
-  const [selectedTags, setSelectedTags] = useState<SuggestionOption[]>([]);
-  const [localError, setLocalError] = useState<FormErrors>({});
 
-  useEffect(() => {
-    setLocalError({ title: errors?.collections });
-  }, [errors]);
-
-  useEffect(() => {
-    const productCollections = productData?.collections || [];
-    const selectedList = productCollections.map((item) => ({
+  const selectedTags: SuggestionOption[] = selectedCollectionsValue.map(
+    (item) => ({
       value: item.id,
       title: item.title,
-    }));
-    setSelectedTags(selectedList);
+    }),
+  );
+
+  useEffect(() => {
     const suggestionList = makeSuggestionList(
       collectionData?.results,
-      selectedList,
+      selectedTags,
     );
     setSuggestionArray(suggestionList);
-  }, [productData, collectionData]);
+  }, [selectedCollectionsValue, collectionData]);
 
   const handleAddTag = (tag: SuggestionOption) => {
-    const updatedLocalCollectionList = [...selectedTags, tag];
-    setSelectedTags(updatedLocalCollectionList);
-
-    const productCollections = productData?.collections || [];
     const updatedCollectionList = [
       { id: tag.value as number, title: tag.title },
-      ...productCollections,
+      ...selectedCollectionsValue,
     ];
-    updateProduct({ key: 'collections', value: updatedCollectionList });
-    const updatedSuggestions = suggestionArray.filter(
-      (item) => item.value !== tag.value,
+    setValue('collections', updatedCollectionList, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+    setSuggestionArray((prev) =>
+      prev.filter((item) => item.value !== tag.value),
     );
-    setSuggestionArray(updatedSuggestions);
-    setErrors((prev) => ({
-      ...prev,
-      collections: null,
-    }));
+    clearErrors('collections');
   };
 
   const handleTagRemove = (tag: SuggestionOption) => {
-    const updatedLocalCollectionList = selectedTags.filter(
-      (item) => item.value !== tag.value,
-    );
-    setSelectedTags(updatedLocalCollectionList);
-
-    const productCollections = productData?.collections || [];
-    const updatedCollectionList = productCollections.filter(
+    const updatedCollectionList = selectedCollectionsValue.filter(
       (item) => item.id !== tag.value,
     );
-    updateProduct({ key: 'collections', value: updatedCollectionList });
+    setValue('collections', updatedCollectionList, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
     setSuggestionArray((prev) => [tag, ...prev]);
-
-    setErrors((prev) => ({
-      ...prev,
-      collections: null,
-    }));
+    clearErrors('collections');
   };
 
   const handleSearchChange = (_searchText: string) => {
-    setErrors((prev) => ({
-      ...prev,
-      collections: null,
-    }));
+    clearErrors('collections');
   };
 
   const handleAddNewTag = async (tagTitle: string) => {
     try {
-      const response = await createCollectionMutation.mutateAsync({ title: tagTitle });
+      const response = await createCollectionMutation.mutateAsync({
+        title: tagTitle,
+      });
       handleAddTag({
         value: response.data.id,
         title: tagTitle,
       });
     } catch (error) {
-      setLocalError(
-        getErrorsObject((error as { errors?: Record<string, string[]> }).errors),
-      );
+      const fieldErrors = getErrorsObject((error as ErrorResponse).errors);
+      if (fieldErrors.title) {
+        setError('collections', { message: String(fieldErrors.title) });
+      }
     }
   };
 
   return (
-    <TagManager
-      label={__('Collections', 'kirki-ecommerce')}
-      selectedTags={selectedTags || []}
-      suggestions={suggestionArray || []}
-      btnText={__('Add Collection', 'kirki-ecommerce')}
-      error={localError?.title as string | boolean | undefined}
-      onTagAdd={(tag) => {
-        handleAddTag(tag);
-      }}
-      onTagRemove={(tag) => {
-        handleTagRemove(tag);
-      }}
-      onNewTagAdd={(tagTitle) => {
-        handleAddNewTag(tagTitle);
-      }}
-      onSearchChange={(searchText) => {
-        handleSearchChange(searchText);
-      }}
+    <FormField
+      control={control}
+      name="collections"
+      render={({ fieldState }) => (
+        <FormItem>
+          <FormLabel>{__('Collections', 'kirki-ecommerce')}</FormLabel>
+          <FormControl>
+            <TagManager
+              selectedTags={selectedTags || []}
+              suggestions={suggestionArray || []}
+              btnText={__('Add Collection', 'kirki-ecommerce')}
+              error={Boolean(fieldState.error)}
+              onTagAdd={(tag) => {
+                handleAddTag(tag);
+              }}
+              onTagRemove={(tag) => {
+                handleTagRemove(tag);
+              }}
+              onNewTagAdd={(tagTitle) => {
+                handleAddNewTag(tagTitle);
+              }}
+              onSearchChange={(searchText) => {
+                handleSearchChange(searchText);
+              }}
+            />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
     />
   );
 };

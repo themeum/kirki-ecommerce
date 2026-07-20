@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { useOutletContext } from 'react-router';
 
+import Button from '@/components/ui/button';
+import Checkbox from '@/components/ui/checkbox';
 import { EditPenIcon, TrashIcon } from '@/icons';
 import ActionGroup from '@/molecules/action-group';
-import Button from '@/molecules/button';
-import Checkbox from '@/molecules/checkbox';
 import Flex from '@/molecules/flex';
 import { TableCell, TableRow } from '@/molecules/table';
 import { useDeleteAttributeValueMutation } from '@/services/attribute';
@@ -17,7 +17,7 @@ import type {
 import { __ } from '@/wpi18n';
 
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
-import VariationValuePopup from '@/pages/settings/essential-settings/variation-library/variation-value-popup';
+import VariationValuePopup from '@/pages/settings/essential-settings/variation-library/variation-value-dialog';
 
 type AttributeWithMeta = Attribute & { updated_at?: string };
 
@@ -76,8 +76,10 @@ const SingleRow = ({
       <TableRow key={item.id}>
         <TableCell onlyCheckbox>
           <Checkbox
-            value={isSelected(item.id)}
-            onChange={(value) => handleSingleCheckboxClick(value, item.id)}
+            checked={isSelected(item.id)}
+            onCheckedChange={(value) =>
+              handleSingleCheckboxClick(value, item.id)
+            }
           />
         </TableCell>
         <TableCell>
@@ -103,17 +105,19 @@ const SingleRow = ({
         <TableCell alignment="right" style={{ width: '1%' }}>
           <ActionGroup>
             <Button
-              type="secondary"
-              icon={<TrashIcon />}
+              variant="secondary"
+              size="icon"
               onClick={handleAttributeValueRemove}
-              size="small"
-            />
+            >
+              <TrashIcon />
+            </Button>
             <Button
-              type="secondary"
-              icon={<EditPenIcon />}
+              variant="secondary"
+              size="icon"
               onClick={() => setEditedItem(item)}
-              size="small"
-            />
+            >
+              <EditPenIcon />
+            </Button>
           </ActionGroup>
         </TableCell>
       </TableRow>

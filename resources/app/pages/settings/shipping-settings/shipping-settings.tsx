@@ -1,19 +1,29 @@
 import { useState, useEffect, useRef } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate, useOutletContext } from 'react-router';
 
 import { LocationIcon, TruckIcon } from '@/icons';
-import Button from '@/molecules/button';
-import Card from '@/molecules/card';
+import PageNavbar from '@/components/page-navbar';
+import OptionAccordion from '@/components/option-accordion';
+import HeaderActionsCard from '@/components/header-actions-card';
+import Button from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Form } from '@/components/ui/form';
+import { CLASS_PREFIX } from '@/conf';
+import { getErrorsObject, type ErrorResponse } from '@/libs/api';
+import { applyServerErrors } from '@/libs/form-errors';
+import { useUnsavedStatus } from '@/libs/unsaved-store';
 import Container from '@/molecules/container';
 import Flex from '@/molecules/flex';
 import PageHeading from '@/molecules/page-heading';
 import { TagManager } from '@/molecules/tag-manager';
-import PageNavbar from '@/components/page-navbar';
-import OptionAccordion from '@/components/option-accordion';
-import HeaderActionsCard from '@/components/header-actions-card';
-import { getErrorsObject } from '@/libs/api';
-import { useUnsavedStatus } from '@/libs/unsaved-store';
 import { normalizeErrors } from '@/pages/utils';
+import {
+  ShippingSettingsFormSchema,
+  shippingSettingsDefaultValues,
+  type ShippingSettingsFormValues,
+} from '@/schemas/forms/shipping-settings-form';
 import { useCountriesQuery } from '@/services/country';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import type { FormErrors, SelectOption, SettingsSectionData } from '@/types';
@@ -29,7 +39,7 @@ import {
   type ShippingZone,
 } from '@/pages/settings/shipping-settings/utils';
 import { ShippingMethod } from '@/pages/settings/shipping-settings/shipping-method/shipping-method';
-import { ShippingRegionPopup } from '@/pages/settings/shipping-settings/shipping-zone/shipping-region-popup';
+import { ShippingRegionPopup } from '@/pages/settings/shipping-settings/shipping-zone/shipping-region-dialog';
 import ShippingZoneActions from '@/pages/settings/shipping-settings/shipping-zone-actions';
 import ShippingProfile from '@/pages/settings/shipping-settings/shipping-profile/shipping-profile';
 import ShippingBox from '@/pages/settings/shipping-settings/shipping-box/shipping-box';
@@ -49,46 +59,86 @@ const ShippingSettings = () => {
   const newZoneIdRef = useRef(crypto.randomUUID());
   const [searchValue, setSearchValue] = useState('');
   const [showCreateZonePopup, setShowCreateZonePopup] = useState(false);
-  const [shippingZonesObj, setShippingZonesObj] = useState<ShippingZone[]>([]);
   const [shippingZoneTitle, setShippingZoneTitle] = useState('');
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
   const [selectedRegion, setSelectedRegion] = useState<ShippingRegion[]>([]);
-  const [errors, setErrors] = useState<FormErrors>({});
+  const [popupErrors, setPopupErrors] = useState<FormErrors>({});
 
   const hasUnsavedData = useUnsavedStatus();
   const { data: countryData = [] } = useCountriesQuery({ limit: -1 });
   const countryList = countryData as CountryWithStates[];
 
   const { data: shippingSettingsData, isLoading } = useSettingsQuery('shipping');
-  const { mutate: updateSettings } = useUpdateSettingsMutation();
+  const { mutateAsync: updateSettings, isPending: isSaving } =
+    useUpdateSettingsMutation();
 
   const loaded = !isLoading && Boolean(shippingSettingsData);
 
-  useEffect(() => {
-    if (Object.keys(shippingSettingsData || {}).length) {
-      const zones = shippingSettingsData?.['shipping_zones'];
-      setShippingZonesObj(Array.isArray(zones) ? (zones as ShippingZone[]) : []);
-    }
-  }, [shippingSettingsData]);
+  const form = useForm<ShippingSettingsFormValues>({
+    resolver: zodResolver(ShippingSettingsFormSchema),
+    defaultValues: shippingSettingsDefaultValues,
+  });
 
-  const handleDeleteItem = (item: ShippingZone) => {
+  const { isDirty } = form.formState;
+  const shippingZonesObj =
+    (useWatch({
+      control: form.control,
+      name: 'shipping_zones',
+    }) as ShippingZone[]) || [];
+
+  useEffect(() => {
+    if (!shippingSettingsData || !Object.keys(shippingSettingsData).length) {
+      return;
+    }
+
+    const zones = shippingSettingsData?.['shipping_zones'];
+    form.reset({
+      ...shippingSettingsDefaultValues,
+      ...shippingSettingsData,
+      shipping_zones: Array.isArray(zones) ? (zones as ShippingZone[]) : [],
+    });
+  }, [shippingSettingsData, form]);
+
+  useEffect(() => {
+    setUnsavedDataStatus(isDirty);
+  }, [isDirty]);
+
+  const setShippingZonesObj = (
+    updater: ShippingZone[] | ((prev: ShippingZone[]) => ShippingZone[]),
+    options?: { shouldDirty?: boolean },
+  ) => {
+    const current = (form.getValues('shipping_zones') as ShippingZone[]) || [];
+    const next = typeof updater === 'function' ? updater(current) : updater;
+    form.setValue(
+      'shipping_zones',
+      next as ShippingSettingsFormValues['shipping_zones'],
+      {
+        shouldDirty: options?.shouldDirty ?? false,
+      },
+    );
+  };
+
+  const handleDeleteItem = async (item: ShippingZone) => {
     const updatedZones = shippingZonesObj?.filter(
       (zone) => zone.id !== item.id,
     );
-    setShippingZonesObj(updatedZones);
+    setShippingZonesObj(updatedZones, { shouldDirty: false });
 
-    updateSettings(
-      {
+    try {
+      await updateSettings({
         key: 'shipping',
         data: {
           ...shippingSettingsData,
           shipping_zones: updatedZones,
         } as SettingsSectionData,
-      },
-      {
-        onSuccess: () => setUnsavedDataStatus(false),
-      },
-    );
+      });
+      form.reset({
+        ...form.getValues(),
+        shipping_zones: updatedZones,
+      });
+    } catch (error) {
+      applyServerErrors(form, error as ErrorResponse);
+    }
   };
 
   const getShippingMethodData = (
@@ -106,90 +156,85 @@ const ShippingSettings = () => {
     }));
   };
 
-  const trackHasUnsavedData = (
-    currentZones: ShippingZone[],
-    originalZones: ShippingZone[],
-  ): boolean => {
-    return currentZones.some((zone) => {
-      const original = originalZones.find((z) => z.id === zone.id);
-      return original && zone.is_enabled !== original.is_enabled;
-    });
-  };
-
   const handleToggleZoneItem = (item: ShippingZone) => {
-    setShippingZonesObj((prev) => {
-      if (!Array.isArray(prev)) {
-        return prev;
-      }
-      const newValue = !item.is_enabled;
-      const updated = prev.map((zone) =>
-        zone.id === item.id ? { ...zone, is_enabled: newValue } : zone,
-      );
-      const originalZones = (shippingSettingsData?.shipping_zones ??
-        []) as ShippingZone[];
-      const isDataUnsaved = trackHasUnsavedData(updated, originalZones);
-      setUnsavedDataStatus(isDataUnsaved);
-      return updated;
-    });
+    setShippingZonesObj(
+      (prev) => {
+        if (!Array.isArray(prev)) {
+          return prev;
+        }
+        const newValue = !item.is_enabled;
+        return prev.map((zone) =>
+          zone.id === item.id ? { ...zone, is_enabled: newValue } : zone,
+        );
+      },
+      { shouldDirty: true },
+    );
   };
 
-  const handleCreateZone = () => {
+  const handleCreateZone = async (values?: {
+    title?: string | null;
+    regions?: ShippingRegion[];
+    countries?: string[];
+  }) => {
+    const title = values?.title ?? shippingZoneTitle;
+    const regions = values?.regions ?? selectedRegion;
+
     const updatedZones: ShippingZone[] = [
       ...shippingZonesObj,
       {
         id: newZoneIdRef.current,
         is_enabled: true,
-        title: shippingZoneTitle,
-        regions: selectedRegion,
+        title: title || '',
+        regions,
         shipping_methods: [],
         shipping_careers: [],
       },
     ];
 
-    updateSettings(
-      {
+    try {
+      await updateSettings({
         key: 'shipping',
         data: { shipping_zones: updatedZones },
-      },
-      {
-        onSuccess: () => {
-          setShowCreateZonePopup(false);
-          navigate(`/settings/shipping/zone/${newZoneIdRef.current}`);
-          newZoneIdRef.current = crypto.randomUUID();
-        },
-        onError: (error) => {
-          const errObj = error as { errors?: Record<string, string[]> };
-          setErrors(normalizeErrors(getErrorsObject(errObj.errors)) as FormErrors);
-        },
-      },
-    );
+      });
+      setShowCreateZonePopup(false);
+      setShippingZoneTitle('');
+      setSelectedCountries([]);
+      setSelectedRegion([]);
+      navigate(`/settings/shipping/zone/${newZoneIdRef.current}`);
+      newZoneIdRef.current = crypto.randomUUID();
+    } catch (error) {
+      const errObj = error as ErrorResponse;
+      setPopupErrors(
+        normalizeErrors(getErrorsObject(errObj.errors)) as FormErrors,
+      );
+    }
   };
 
-  const handleSaveZones = () => {
-    updateSettings(
-      {
+  const handleSaveZones = async (values: ShippingSettingsFormValues) => {
+    try {
+      await updateSettings({
         key: 'shipping',
         data: {
           ...shippingSettingsData,
-          shipping_zones: shippingZonesObj,
+          shipping_zones: values.shipping_zones,
         } as SettingsSectionData,
-      },
-      {
-        onSuccess: () => setUnsavedDataStatus(false),
-      },
-    );
+      });
+      form.reset(values);
+    } catch (error) {
+      applyServerErrors(form, error as ErrorResponse);
+    }
   };
 
   const handleBackButton = () => {
-    confirmAction({ action: () => navigate('/settings') });
+    if (isDirty) {
+      confirmAction({ action: () => navigate('/settings') });
+      return;
+    }
+    navigate('/settings');
   };
 
   const handleDiscardData = () => {
-    const zones = shippingSettingsData?.['shipping_zones'];
-    setShippingZonesObj(
-      Array.isArray(zones) ? (zones as ShippingZone[]) : [],
-    );
-    setUnsavedDataStatus(false);
+    form.reset();
   };
 
   return (
@@ -204,17 +249,21 @@ const ShippingSettings = () => {
           hasUnsavedData ? (
             <>
               <Button
-                type="ghost"
-                text={__('Cancel', 'kirki-ecommerce')}
+                variant="ghost"
+                size="sm"
                 onClick={handleDiscardData}
-                size="small"
-              />
+                disabled={isSaving}
+              >
+                {__('Cancel', 'kirki-ecommerce')}
+              </Button>
               <Button
-                type="primary"
-                text={__('Save', 'kirki-ecommerce')}
-                size="small"
-                onClick={handleSaveZones}
-              />
+                variant="primary"
+                size="sm"
+                onClick={form.handleSubmit(handleSaveZones)}
+                loading={isSaving}
+              >
+                {__('Save', 'kirki-ecommerce')}
+              </Button>
             </>
           ) : (
             <></>
@@ -223,90 +272,92 @@ const ShippingSettings = () => {
       />
       <Container size="sm">
         {loaded ? (
-          <Flex direction="column" gap={16}>
-            <PageNavbar
-              handleBack={handleBackButton}
-              textIcon={<TruckIcon />}
-              text={__('Shipping', 'kirki-ecommerce')}
-            />
-            <Card type="large">
-              <HeaderActionsCard
-                header={__('Shipping Zones', 'kirki-ecommerce')}
-                subHeader={__(
-                  'A shipping zone includes regions you ship to and available methods. Each shopper is matched to one zone based on their address.',
-                  'kirki-ecommerce',
-                )}
-                buttonText={__('Create Zone', 'kirki-ecommerce')}
-                onAdd={() => setShowCreateZonePopup(true)}
+          <Form {...form}>
+            <Flex direction="column" gap={16}>
+              <PageNavbar
+                handleBack={handleBackButton}
+                textIcon={<TruckIcon />}
+                text={__('Shipping', 'kirki-ecommerce')}
               />
+              <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
+                <HeaderActionsCard
+                  header={__('Shipping Zones', 'kirki-ecommerce')}
+                  subHeader={__(
+                    'A shipping zone includes regions you ship to and available methods. Each shopper is matched to one zone based on their address.',
+                    'kirki-ecommerce',
+                  )}
+                  buttonText={__('Create Zone', 'kirki-ecommerce')}
+                  onAdd={() => setShowCreateZonePopup(true)}
+                />
 
-              {!shippingZonesObj.length ? (
-                <Card
-                  type="innerDark"
-                  style={{
-                    padding: 'var(--decom-spacing-9) var(--decom-spacing-0)',
-                  }}
-                >
-                  <Flex
-                    direction="column"
-                    gap={8}
-                    style={{ alignItems: 'center' }}
+                {!shippingZonesObj.length ? (
+                  <Card
+                    className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner-dark`}
+                    style={{
+                      padding: 'var(--decom-spacing-9) var(--decom-spacing-0)',
+                    }}
                   >
-                    <LocationIcon />
-                    <span style={{ color: 'var(--decom-text-text-subdued)' }}>
-                      {__(
-                        'Added shipping zones will appear here',
-                        'kirki-ecommerce',
-                      )}
-                    </span>
-                  </Flex>
-                </Card>
-              ) : (
-                <Flex direction="column" gap={12}>
-                  {shippingZonesObj?.map((item) => (
-                    <OptionAccordion
-                      key={item?.id}
-                      header={sprintf(__('%s', 'kirki-ecommerce'), item.title)}
-                      subHeader={`${item?.regions?.length} regions, ${item?.['shipping_methods']?.length} shipping methods`}
-                      leftIcon={<LocationIcon height={20} width={20} />}
-                      rightActions={
-                        <ShippingZoneActions
-                          item={item}
-                          onToggle={handleToggleZoneItem}
-                          onDelete={handleDeleteItem}
-                        />
-                      }
-                      variant="shipping"
-                      state={item?.is_enabled}
+                    <Flex
+                      direction="column"
+                      gap={8}
+                      style={{ alignItems: 'center' }}
                     >
-                      <TagManager
-                        showInputField={false}
-                        selectedTags={
-                          getSelectedRegionTags(
-                            item?.regions,
-                            countryList as CountryWithStates[] | null,
-                          ) as unknown as SelectOption[]
+                      <LocationIcon />
+                      <span style={{ color: 'var(--decom-text-text-subdued)' }}>
+                        {__(
+                          'Added shipping zones will appear here',
+                          'kirki-ecommerce',
+                        )}
+                      </span>
+                    </Flex>
+                  </Card>
+                ) : (
+                  <Flex direction="column" gap={12}>
+                    {shippingZonesObj?.map((item) => (
+                      <OptionAccordion
+                        key={item?.id}
+                        header={sprintf(__('%s', 'kirki-ecommerce'), item.title)}
+                        subHeader={`${item?.regions?.length} regions, ${item?.['shipping_methods']?.length} shipping methods`}
+                        leftIcon={<LocationIcon height={20} width={20} />}
+                        rightActions={
+                          <ShippingZoneActions
+                            item={item}
+                            onToggle={handleToggleZoneItem}
+                            onDelete={handleDeleteItem}
+                          />
                         }
-                        showRemoveIcon={false}
-                      />
-                      {getShippingMethodData(item?.id).length > 0 && (
-                        <ShippingMethod
-                          from={'edit_zone'}
-                          shippingSettingsData={shippingSettingsData}
-                          shippingMethodList={getShippingMethodData(item?.id)}
-                          shippingZonesObj={shippingZonesObj}
-                          setShippingZonesObj={setShippingZonesObj}
-                          zoneId={item?.id}
+                        variant="shipping"
+                        state={item?.is_enabled}
+                      >
+                        <TagManager
+                          showInputField={false}
+                          selectedTags={
+                            getSelectedRegionTags(
+                              item?.regions,
+                              countryList as CountryWithStates[] | null,
+                            ) as unknown as SelectOption[]
+                          }
+                          showRemoveIcon={false}
                         />
-                      )}
-                    </OptionAccordion>
-                  ))}
-                </Flex>
-              )}
-            </Card>
-            <ShippingProfile />
-            <ShippingBox />
-          </Flex>
+                        {getShippingMethodData(item?.id).length > 0 && (
+                          <ShippingMethod
+                            from={'edit_zone'}
+                            shippingSettingsData={shippingSettingsData}
+                            shippingMethodList={getShippingMethodData(item?.id)}
+                            shippingZonesObj={shippingZonesObj}
+                            setShippingZonesObj={setShippingZonesObj}
+                            zoneId={item?.id}
+                          />
+                        )}
+                      </OptionAccordion>
+                    ))}
+                  </Flex>
+                )}
+              </Card>
+              <ShippingProfile />
+              <ShippingBox />
+            </Flex>
+          </Form>
         ) : (
           <div>{__('Loading ...', 'kirki-ecommerce')}</div>
         )}
@@ -326,9 +377,10 @@ const ShippingSettings = () => {
           selectedRegion={selectedRegion}
           setSelectedRegion={setSelectedRegion}
           onAdd={handleCreateZone}
+          onSave={handleCreateZone}
           shippingZoneTitle={shippingZoneTitle}
           setShippingZoneTitle={setShippingZoneTitle}
-          errors={errors}
+          errors={popupErrors}
         />
       )}
     </>

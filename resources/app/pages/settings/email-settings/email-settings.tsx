@@ -1,37 +1,56 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate, useOutletContext } from 'react-router';
 
 import PageNavbar from '@/components/page-navbar';
+import Button from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Form } from '@/components/ui/form';
+import { CLASS_PREFIX } from '@/conf';
 import { AtSignIcon, BrushIcon } from '@/icons';
-import Button from '@/molecules/button';
-import Card from '@/molecules/card';
+import type { ErrorResponse } from '@/libs/api';
+import { applyServerErrors } from '@/libs/form-errors';
+import { useUnsavedStatus } from '@/libs/unsaved-store';
 import Container from '@/molecules/container';
 import Flex from '@/molecules/flex';
 import PageHeading from '@/molecules/page-heading';
 import Text from '@/molecules/text';
-import { useUnsavedStatus } from '@/libs/unsaved-store';
+import {
+  EmailSettingsFormSchema,
+  emailSettingsDefaultValues,
+  type EmailSettingsFormValues,
+} from '@/schemas/forms/email-settings-form';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import type { SettingsSectionData } from '@/types';
 import { __ } from '@/wpi18n';
 
-import { checkUnsavedDataStatus, setUnsavedDataStatus } from '@/pages/settings/utils';
+import { setUnsavedDataStatus } from '@/pages/settings/utils';
 import AdminEmail from '@/pages/settings/email-settings/admin-email';
 import CustomerEmail from '@/pages/settings/email-settings/customer-email';
-import { EMAIL_CONFIG, findEmailKeyByName, buildTogglePayload } from '@/pages/settings/email-settings/utils';
+import {
+  EMAIL_CONFIG,
+  findEmailKeyByName,
+  buildTogglePayload,
+} from '@/pages/settings/email-settings/utils';
 
 type SettingsOutletContext = {
   confirmAction: (params: { action?: () => void }) => void;
 };
 
 type EmailGroupData = {
-  order_notifications?: Record<string, { name?: string; is_enabled?: boolean; [key: string]: unknown }>;
-  user_notifications?: Record<string, { name?: string; is_enabled?: boolean; [key: string]: unknown }>;
-  inventory_notifications?: Record<string, { name?: string; is_enabled?: boolean; [key: string]: unknown }>;
-};
-
-type EmailSettingsFormData = SettingsSectionData & {
-  admin_emails?: EmailGroupData;
-  customer_emails?: EmailGroupData;
+  order_notifications?: Record<
+    string,
+    { name?: string; is_enabled?: boolean; [key: string]: unknown }
+  >;
+  user_notifications?: Record<
+    string,
+    { name?: string; is_enabled?: boolean; [key: string]: unknown }
+  >;
+  inventory_notifications?: Record<
+    string,
+    { name?: string; is_enabled?: boolean; [key: string]: unknown }
+  >;
 };
 
 type EmailListItem = {
@@ -49,24 +68,36 @@ const EmailSettings = () => {
   const hasUnsavedData = useUnsavedStatus();
 
   const { data: emailSettingsData, isLoading } = useSettingsQuery('email');
-  const { mutate: saveSettings } = useUpdateSettingsMutation();
+  const { mutateAsync: saveSettings, isPending } = useUpdateSettingsMutation();
 
   const loaded = !isLoading && Boolean(emailSettingsData);
-  const [dataObj, setDataObj] = useState<EmailSettingsFormData>({});
-  const adminEmails = dataObj?.admin_emails;
-  const customerEmails = dataObj?.customer_emails;
+
+  const form = useForm<EmailSettingsFormValues>({
+    resolver: zodResolver(EmailSettingsFormSchema),
+    defaultValues: emailSettingsDefaultValues,
+  });
 
   useEffect(() => {
-    if (Object.keys(emailSettingsData || {}).length) {
-      setDataObj(emailSettingsData as EmailSettingsFormData);
+    if (!emailSettingsData || !Object.keys(emailSettingsData).length) {
+      return;
     }
-  }, [emailSettingsData]);
+    form.reset(emailSettingsData as EmailSettingsFormValues);
+  }, [emailSettingsData, form]);
 
-  const handleSaveData = () => {
-    saveSettings(
-      { key: 'email', data: dataObj },
-      { onSuccess: () => setUnsavedDataStatus(false) },
-    );
+  useEffect(() => {
+    setUnsavedDataStatus(form.formState.isDirty);
+  }, [form.formState.isDirty]);
+
+  const handleSaveData = async (values: EmailSettingsFormValues) => {
+    try {
+      await saveSettings({
+        key: 'email',
+        data: values as SettingsSectionData,
+      });
+      form.reset(values);
+    } catch (error) {
+      applyServerErrors(form, error as ErrorResponse);
+    }
   };
 
   const handleToggleOrder = (item: EmailListItem) => {
@@ -79,10 +110,12 @@ const EmailSettings = () => {
     }
 
     const { root, group } = EMAIL_CONFIG[matchedConfigKey];
+    const currentValues = form.getValues();
     const rootData = (
-      emailSettingsData as Record<string, EmailGroupData | undefined> | null
+      currentValues as Record<string, EmailGroupData | undefined>
     )?.[root];
     const groupData = rootData?.[group as keyof EmailGroupData];
+
     if (!groupData) {
       return;
     }
@@ -91,36 +124,39 @@ const EmailSettings = () => {
     if (!selectedKey) {
       return;
     }
-    setUnsavedDataStatus(true);
+
     const payload = buildTogglePayload({
-      baseData: dataObj,
+      baseData: currentValues as SettingsSectionData,
       rootKey: root,
       groupKey: group,
       selectedKey,
     });
 
-    if (payload) {
-      setDataObj(payload as EmailSettingsFormData);
+    if (!payload) {
+      return;
     }
+
+    form.setValue(
+      root as 'admin_emails' | 'customer_emails',
+      (payload as EmailSettingsFormValues)[
+        root as 'admin_emails' | 'customer_emails'
+      ],
+      { shouldDirty: true },
+    );
   };
 
   const handleBackButton = () => {
-    checkUnsavedDataStatus({
-      initialDataObj: emailSettingsData,
-      updatedDataObj: dataObj,
-      onUnsaved: () =>
-        confirmAction({
-          action: () => navigate(`/settings`),
-        }),
-      onClean: () => {
-        navigate(`/settings`);
-      },
-    });
+    if (form.formState.isDirty) {
+      confirmAction({
+        action: () => navigate('/settings'),
+      });
+      return;
+    }
+    navigate('/settings');
   };
 
   const handleDiscardData = () => {
-    setDataObj((emailSettingsData as EmailSettingsFormData) || {});
-    setUnsavedDataStatus(false);
+    form.reset();
   };
 
   return (
@@ -135,17 +171,20 @@ const EmailSettings = () => {
           hasUnsavedData ? (
             <>
               <Button
-                type="ghost"
-                text={__('Cancel', 'kirki-ecommerce')}
+                variant="ghost"
                 onClick={handleDiscardData}
-                size="small"
-              />
+                size="sm"
+              >
+                {__('Cancel', 'kirki-ecommerce')}
+              </Button>
               <Button
-                type="primary"
-                text={__('Save', 'kirki-ecommerce')}
-                onClick={handleSaveData}
-                size="small"
-              />
+                variant="primary"
+                onClick={form.handleSubmit(handleSaveData)}
+                size="sm"
+                loading={isPending}
+              >
+                {__('Save', 'kirki-ecommerce')}
+              </Button>
             </>
           ) : (
             <></>
@@ -154,57 +193,61 @@ const EmailSettings = () => {
       />
       <Container size="sm">
         {loaded ? (
-          <Flex direction="column" gap={16}>
-            <PageNavbar
-              textIcon={<AtSignIcon />}
-              text={__('Email', 'kirki-ecommerce')}
-              handleBack={handleBackButton}
-            />
-            <Card style={{ borderRadius: '8px' }}>
-              <Flex
-                style={{
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                }}
+          <Form {...form}>
+            <Flex direction="column" gap={16}>
+              <PageNavbar
+                textIcon={<AtSignIcon />}
+                text={__('Email', 'kirki-ecommerce')}
+                handleBack={handleBackButton}
+              />
+              <Card
+                className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-default`}
+                style={{ borderRadius: '8px' }}
               >
                 <Flex
-                  direction="column"
-                  style={{ alignItems: 'flex-start' }}
-                  gap={6}
-                >
-                  <Text
-                    header={__('Default Template', 'kirki-ecommerce')}
-                    type="primary"
-                    style={{ gap: '6px' }}
-                    leftIcon={<BrushIcon />}
-                  />
-                  <Text
-                    subHeader={__(
-                      'Configure logo, colors, sender email, and more for emails',
-                      'kirki-ecommerce',
-                    )}
-                  />
-                </Flex>
-                <Button
-                  text={__('Edit', 'kirki-ecommerce')}
-                  type="secondary"
-                  onClick={() => {
-                    navigate('/settings/email/edit-template');
+                  style={{
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
                   }}
-                />
-              </Flex>
-            </Card>
-            <CustomerEmail
-              customerEmails={customerEmails}
-              handleToggleOrder={handleToggleOrder}
-              handleEditOrder={handleEditOrder}
-            />
-            <AdminEmail
-              adminEmails={adminEmails}
-              handleToggleOrder={handleToggleOrder}
-              handleEditOrder={handleEditOrder}
-            />
-          </Flex>
+                >
+                  <Flex
+                    direction="column"
+                    style={{ alignItems: 'flex-start' }}
+                    gap={6}
+                  >
+                    <Text
+                      header={__('Default Template', 'kirki-ecommerce')}
+                      type="primary"
+                      style={{ gap: '6px' }}
+                      leftIcon={<BrushIcon />}
+                    />
+                    <Text
+                      subHeader={__(
+                        'Configure logo, colors, sender email, and more for emails',
+                        'kirki-ecommerce',
+                      )}
+                    />
+                  </Flex>
+                  <Button
+                    variant="secondary"
+                    onClick={() => {
+                      navigate('/settings/email/edit-template');
+                    }}
+                  >
+                    {__('Edit', 'kirki-ecommerce')}
+                  </Button>
+                </Flex>
+              </Card>
+              <CustomerEmail
+                handleToggleOrder={handleToggleOrder}
+                handleEditOrder={handleEditOrder}
+              />
+              <AdminEmail
+                handleToggleOrder={handleToggleOrder}
+                handleEditOrder={handleEditOrder}
+              />
+            </Flex>
+          </Form>
         ) : (
           <div>{__('Loading ...', 'kirki-ecommerce')}</div>
         )}

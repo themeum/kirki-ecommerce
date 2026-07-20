@@ -1,50 +1,38 @@
+import { useFormContext } from 'react-hook-form';
+
+import SelectField from '@/components/form/select-field';
+import TextField from '@/components/form/text-field';
+import { Card, CardContent } from '@/components/ui/card';
+import Checkbox from '@/components/ui/checkbox';
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { CLASS_PREFIX } from '@/conf';
 import { PaymentIcon } from '@/icons';
-import Card from '@/molecules/card';
-import Checkbox from '@/molecules/checkbox';
 import Flex from '@/molecules/flex';
 import Grid from '@/molecules/grid';
-import Input from '@/molecules/input';
-import { Select } from '@/molecules/select';
 import Text from '@/molecules/text';
-import type {
-  CustomerFormData,
-  FormErrors,
-  SelectOption,
-  SelectState,
-} from '@/types';
+import type { CustomerFormValues } from '@/schemas/forms/customer-form';
 import { __ } from '@/wpi18n';
 
-type BillingAddressProps = {
-  customerFormData: CustomerFormData;
-  errors: FormErrors;
-  handleOnChange: (
-    data: unknown,
-    fieldName: string,
-    subFieldName?: string,
-  ) => void;
-  handleSameAsShipping: (value: boolean) => void;
-};
-
-const regionArray: SelectOption[] = [
-  { value: 'bangladesh', title: 'Bangladesh' },
-  { value: 'uk', title: 'United Kingdom' },
-  { value: 'usa', title: 'United States' },
-  { value: 'spain', title: 'Spain' },
+const regionOptions = [
+  { value: 'bangladesh', label: 'Bangladesh' },
+  { value: 'uk', label: 'United Kingdom' },
+  { value: 'usa', label: 'United States' },
+  { value: 'spain', label: 'Spain' },
 ];
 
-const BillingAddress = ({
-  customerFormData,
-  errors,
-  handleOnChange,
-  handleSameAsShipping,
-}: BillingAddressProps) => {
-  const disabledState = (
-    customerFormData?.is_billing_same_as_shipping ? 'disabled' : ''
-  ) as SelectState;
+const BillingAddress = () => {
+  const { watch, setValue, control } = useFormContext<CustomerFormValues>();
+  const isSameAsShipping = Boolean(watch('is_billing_same_as_shipping'));
 
   return (
     <Card
-      type="form"
+      className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-form`}
       style={{ padding: '20px', borderRadius: '20px', gap: '20px' }}
     >
       <Text
@@ -54,105 +42,80 @@ const BillingAddress = ({
         style={{ paddingBottom: '4px' }}
       />
       <Flex direction="column" gap={8}>
-        <Card type="innerDark">
-          <Checkbox
-            value={customerFormData?.is_billing_same_as_shipping || false}
-            label="Same as shipping address"
-            onChange={(value) => handleSameAsShipping(value)}
-          />
+        <Card
+          className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner-dark`}
+        >
+          <CardContent>
+            <FormField
+              control={control}
+              name="is_billing_same_as_shipping"
+              render={({ field }) => (
+                <FormItem>
+                  <div className={`${CLASS_PREFIX}-ui-checkbox-field`}>
+                    <FormControl>
+                      <Checkbox
+                        checked={Boolean(field.value)}
+                        onCheckedChange={(checked) => {
+                          const nextValue = checked === true;
+                          field.onChange(nextValue);
+                          if (nextValue) {
+                            setValue('billing_address', {});
+                          }
+                        }}
+                      />
+                    </FormControl>
+                    <FormLabel>Same as shipping address</FormLabel>
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </CardContent>
         </Card>
-        <Card type="inner" style={{ padding: '16px' }}>
+        <Card
+          className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner`}
+          style={{ padding: '16px' }}
+        >
           <Flex direction="column" gap={16}>
-            <Select
+            <SelectField
+              name="billing_address.country"
               label={__('Country / Region', 'kirki-ecommerce')}
-              value={customerFormData?.billing_address?.country || ''}
-              optionsArray={regionArray}
-              defaultValue="bangladesh"
-              onChange={(value) =>
-                handleOnChange(value, 'billing_address', 'country')
-              }
-              error={
-                errors['billing_address.country'] as
-                  | string
-                  | boolean
-                  | undefined
-              }
-              state={disabledState}
+              options={regionOptions}
+              placeholder="Bangladesh"
+              disabled={isSameAsShipping}
             />
-            <Input
+            <TextField
+              name="billing_address.address_line1"
               label={__('Address', 'kirki-ecommerce')}
-              value={customerFormData?.billing_address?.address_line1 || ''}
               placeholder={__('e.g. 124 main st', 'kirki-ecommerce')}
-              onChange={(value) =>
-                handleOnChange(value, 'billing_address', 'address_line1')
-              }
-              error={
-                errors['billing_address.address_line1'] as
-                  | string
-                  | boolean
-                  | undefined
-              }
-              state={disabledState}
+              disabled={isSameAsShipping}
             />
-            <Input
-              label={__('Apartment, suite, etc. (optional)', 'kirki-ecommerce')}
-              value={customerFormData?.billing_address?.address_line2 || ''}
-              onChange={(value) =>
-                handleOnChange(value, 'billing_address', 'address_line2')
-              }
-              error={
-                errors['billing_address.address_line2'] as
-                  | string
-                  | boolean
-                  | undefined
-              }
-              state={disabledState}
+            <TextField
+              name="billing_address.address_line2"
+              label={__(
+                'Apartment, suite, etc. (optional)',
+                'kirki-ecommerce',
+              )}
+              disabled={isSameAsShipping}
             />
             <Grid>
-              <Input
+              <TextField
+                name="billing_address.city"
                 label={__('City', 'kirki-ecommerce')}
-                value={customerFormData?.billing_address?.city || ''}
-                onChange={(value) =>
-                  handleOnChange(value, 'billing_address', 'city')
-                }
-                error={
-                  errors['billing_address.city'] as
-                    | string
-                    | boolean
-                    | undefined
-                }
-                state={disabledState}
+                disabled={isSameAsShipping}
               />
-              <Input
+              <TextField
+                name="billing_address.state"
                 label={__('State / Province', 'kirki-ecommerce')}
-                value={customerFormData?.billing_address?.state || ''}
-                onChange={(value) =>
-                  handleOnChange(value, 'billing_address', 'state')
-                }
-                error={
-                  errors['billing_address.state'] as
-                    | string
-                    | boolean
-                    | undefined
-                }
-                state={disabledState}
+                disabled={isSameAsShipping}
               />
             </Grid>
-            <Input
+            <TextField
+              name="billing_address.postal_code"
               label={__('ZIP / Postal code', 'kirki-ecommerce')}
-              value={customerFormData?.billing_address?.postal_code || ''}
-              placeholder={__('+1 (555) 222 4354', 'kirki-ecommerce')}
               type="number"
-              onChange={(value) =>
-                handleOnChange(value, 'billing_address', 'postal_code')
-              }
-              error={
-                errors['billing_address.postal_code'] as
-                  | string
-                  | boolean
-                  | undefined
-              }
-              state={disabledState}
+              placeholder={__('+1 (555) 222 4354', 'kirki-ecommerce')}
+              disabled={isSameAsShipping}
             />
           </Flex>
         </Card>
@@ -160,5 +123,7 @@ const BillingAddress = ({
     </Card>
   );
 };
+
+BillingAddress.displayName = 'BillingAddress';
 
 export default BillingAddress;

@@ -5,23 +5,41 @@ import {
   type Dispatch,
   type SetStateAction,
 } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate, useParams } from 'react-router';
 
+import RichTextField from '@/components/form/rich-text-field';
+import TextField from '@/components/form/text-field';
 import MediaGallery from '@/components/media-gallery';
-import { NEW_ITEM_ID } from '@/conf';
-import Button from '@/molecules/button';
-import Card from '@/molecules/card';
+import Button from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Form } from '@/components/ui/form';
+import { CLASS_PREFIX, NEW_ITEM_ID } from '@/conf';
+import {
+  ProductFormProvider,
+  useProductForm,
+} from '@/contexts/product-form-context';
+import type { ErrorResponse } from '@/libs/api';
+import { getErrorsObject } from '@/libs/api';
+import { applyServerErrors } from '@/libs/form-errors';
 import Container from '@/molecules/container';
 import Flex from '@/molecules/flex';
-import Input from '@/molecules/input';
 import PageHeading from '@/molecules/page-heading';
-import RichText from '@/molecules/rich-text';
 import Separator from '@/molecules/separator';
-import { ProductFormProvider, useProductForm } from '@/contexts/product-form-context';
-import { useProductQuery, useCreateProductMutation, useUpdateProductMutation } from '@/services/product';
+import {
+  mapProductBasicsFromProduct,
+  ProductBasicsFormSchema,
+  productBasicsDefaultValues,
+  type ProductBasicsFormValues,
+} from '@/schemas/forms/product-basics-form';
+import {
+  useCreateProductMutation,
+  useProductQuery,
+  useUpdateProductMutation,
+} from '@/services/product';
 import { useDefaultSettingsQuery, useSettingsQuery } from '@/services/settings';
 import { useShippingBoxesQuery } from '@/services/shipping';
-import { getErrorsObject } from '@/libs/api';
 import type {
   FormErrors,
   MediaRef,
@@ -59,14 +77,7 @@ type VariantsProps = {
   onSave?: () => Promise<unknown>;
 };
 
-type RightPanelProps = {
-  handleOnChange: (value: unknown, fieldName: string) => void;
-  errors: FormErrors;
-  setErrors: Dispatch<SetStateAction<FormErrors>>;
-};
-
 const VariantsView = Variants as ComponentType<VariantsProps>;
-const RightPanelView = RightPanel as ComponentType<RightPanelProps>;
 
 const EditProductInner = () => {
   const navigate = useNavigate();
@@ -75,6 +86,12 @@ const EditProductInner = () => {
   const { product: productData, setProduct, updateProduct } = useProductForm();
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
   const [errors, setErrors] = useState<FormErrors>({});
+  const [formSyncKey, setFormSyncKey] = useState(0);
+
+  const basicsForm = useForm<ProductBasicsFormValues>({
+    resolver: zodResolver(ProductBasicsFormSchema),
+    defaultValues: productBasicsDefaultValues,
+  });
 
   const { data: productResponse } = useProductQuery(id as string, !isNew);
   const { data: defaultSettings } = useDefaultSettingsQuery();
@@ -88,6 +105,7 @@ const EditProductInner = () => {
     if (productResponse) {
       setProduct(productResponse);
       setMediaItems(productResponse?.media as MediaItem[]);
+      setFormSyncKey((prev) => prev + 1);
     }
   }, [productResponse]);
 
@@ -96,20 +114,68 @@ const EditProductInner = () => {
       return;
     }
     const settings = productSettings as ProductSettingsData;
-    updateProduct({ key: 'weight_unit', value: settings.weight_unit, variants: true });
-    updateProduct({ key: 'show_unit_price', value: settings.is_unit_price_visible, variants: true });
-    updateProduct({ key: 'dimension_unit', value: settings.dimension_unit, variants: true });
-    const defaultBox = (shippingBoxes as (ShippingBox & { is_default?: boolean })[]).find(
-      (item) => Boolean(item.is_default),
-    );
-    updateProduct({ key: 'shipping_box_id', value: defaultBox?.id, variants: true });
+    updateProduct({
+      key: 'weight_unit',
+      value: settings.weight_unit,
+      variants: true,
+    });
+    updateProduct({
+      key: 'show_unit_price',
+      value: settings.is_unit_price_visible,
+      variants: true,
+    });
+    updateProduct({
+      key: 'dimension_unit',
+      value: settings.dimension_unit,
+      variants: true,
+    });
+    const defaultBox = (
+      shippingBoxes as (ShippingBox & { is_default?: boolean })[]
+    ).find((item) => Boolean(item.is_default));
+    updateProduct({
+      key: 'shipping_box_id',
+      value: defaultBox?.id,
+      variants: true,
+    });
+    setFormSyncKey((prev) => prev + 1);
   }, [productSettings, shippingBoxes]);
 
   useEffect(() => {
     if (isNew && defaultSettings) {
       updateProduct({ key: 'currency', value: defaultSettings.base_currency });
+      setFormSyncKey((prev) => prev + 1);
     }
   }, [defaultSettings]);
+
+  useEffect(() => {
+    basicsForm.reset(mapProductBasicsFromProduct(productData));
+  }, [formSyncKey]);
+
+  useEffect(() => {
+    const subscription = basicsForm.watch((values, info) => {
+      if (info.type !== 'change' || !info.name) {
+        return;
+      }
+
+      const fieldName = info.name as keyof ProductBasicsFormValues;
+      updateProduct({ key: fieldName, value: values[fieldName] });
+      basicsForm.clearErrors(fieldName);
+      setErrors((prev) => ({
+        ...prev,
+        [fieldName]: null,
+      }));
+    });
+
+    return () => subscription.unsubscribe();
+  }, [basicsForm, updateProduct]);
+
+  useEffect(() => {
+    const hasErrors = Object.values(errors).some(Boolean);
+    if (!hasErrors) {
+      return;
+    }
+    applyServerErrors(basicsForm, { errors } as ErrorResponse);
+  }, [errors]);
 
   const handleAddOrCreateProduct = async (): Promise<SaveResult> => {
     const attributes = productData.attributes.map((item) => ({
@@ -174,21 +240,15 @@ const EditProductInner = () => {
           navigate('/products/' + response.data.id);
         }
       }
+      setErrors({});
+      setFormSyncKey((prev) => prev + 1);
       return { success: true };
     } catch (error) {
-      setErrors(
-        getErrorsObject((error as { errors?: Record<string, string[]> }).errors),
-      );
+      const errorResponse = error as ErrorResponse;
+      setErrors(getErrorsObject(errorResponse.errors));
+      applyServerErrors(basicsForm, errorResponse);
       return { success: false };
     }
-  };
-
-  const handleOnChange = (value: unknown, fieldName: string) => {
-    updateProduct({ key: fieldName, value: value });
-    setErrors((prev) => ({
-      ...prev,
-      [fieldName]: null,
-    }));
   };
 
   return (
@@ -204,21 +264,21 @@ const EditProductInner = () => {
         actions={
           <>
             <Button
-              text={__('Cancel', 'kirki-ecommerce')}
-              type="ghost"
-              size="small"
+              variant="ghost"
+              size="sm"
               onClick={() => window.history.back()}
-            />
+            >
+              {__('Cancel', 'kirki-ecommerce')}
+            </Button>
             <Button
-              text={
-                isNew
-                  ? __('Create', 'kirki-ecommerce')
-                  : __('Save', 'kirki-ecommerce')
-              }
-              type="primary"
+              variant="primary"
+              size="sm"
               onClick={handleAddOrCreateProduct}
-              size="small"
-            />
+            >
+              {isNew
+                ? __('Create', 'kirki-ecommerce')
+                : __('Save', 'kirki-ecommerce')}
+            </Button>
           </>
         }
       />
@@ -226,66 +286,75 @@ const EditProductInner = () => {
         <div style={{ display: 'flex', gap: 16, width: '100%' }}>
           <div style={{ width: '70%' }}>
             <Flex direction="column" gap={16}>
-              <Card type="form">
-                <Flex gap={12}>
-                  <div style={{ width: '70%' }}>
-                    <Input
-                      label={__('Title', 'kirki-ecommerce')}
-                      placeholder={__('e.g. Yellow T-Shirt', 'kirki-ecommerce')}
-                      type="text"
-                      value={productData?.title || ''}
-                      onChange={(value) => handleOnChange(value, 'title')}
-                      error={errors?.title as string | boolean | undefined}
+              <Form {...basicsForm}>
+                <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-form`}>
+                  <CardContent>
+                    <Flex gap={12}>
+                      <div style={{ width: '70%' }}>
+                        <TextField
+                          name="title"
+                          label={__('Title', 'kirki-ecommerce')}
+                          placeholder={__(
+                            'e.g. Yellow T-Shirt',
+                            'kirki-ecommerce',
+                          )}
+                        />
+                      </div>
+                      <div style={{ width: '30%' }}>
+                        <TextField
+                          name="ribbon"
+                          label={__('Ribbon', 'kirki-ecommerce')}
+                          placeholder={__(
+                            'e.g. Fresh Arrival',
+                            'kirki-ecommerce',
+                          )}
+                          description={__('Ribbon', 'kirki-ecommerce')}
+                        />
+                      </div>
+                    </Flex>
+                    <TextField
+                      name="slug"
+                      label={__('Slug', 'kirki-ecommerce')}
+                      placeholder={__('yellow-t-shirt', 'kirki-ecommerce')}
                     />
-                  </div>
-                  <div style={{ width: '30%' }}>
-                    <Input
-                      value={productData?.ribbon || ''}
-                      label={__('Ribbon', 'kirki-ecommerce')}
-                      placeholder={__('e.g. Fresh Arrival', 'kirki-ecommerce')}
-                      helpText={__('Ribbon', 'kirki-ecommerce')}
-                      type="text"
-                      onChange={(value) => handleOnChange(value, 'ribbon')}
-                      onBlur={(value) => console.log(value)}
-                      error={errors?.ribbon as string | boolean | undefined}
-                    />
-                  </div>
-                </Flex>
-                <Input
-                  value={productData?.slug || ''}
-                  label={__('Slug', 'kirki-ecommerce')}
-                  placeholder={__('yellow-t-shirt', 'kirki-ecommerce')}
-                  type="text"
-                  onChange={(value) => handleOnChange(value, 'slug')}
-                  onBlur={(value) => console.log(value)}
-                  error={errors?.slug as string | boolean | undefined}
-                />
 
-                <MediaGallery
-                  label={__('Images and videos', 'kirki-ecommerce')}
-                  mediaItems={mediaItems}
-                  onUpdate={(v) => setMediaItems(v)}
-                  error={errors?.media as string | boolean | undefined}
-                />
-                <RichText
-                  value={productData?.description || ''}
-                  label={__('Description', 'kirki-ecommerce')}
-                  placeholder={__(
-                    'Write product description here...',
-                    'kirki-ecommerce',
-                  )}
-                  onChange={(value) => handleOnChange(value, 'description')}
-                  error={errors?.description as string | boolean | undefined}
-                />
-                <Separator marginTop="8px" />
-                <AdditionalInfo />
-              </Card>
+                    <MediaGallery
+                      label={__('Images and videos', 'kirki-ecommerce')}
+                      mediaItems={mediaItems}
+                      onUpdate={(v) => setMediaItems(v)}
+                      error={errors?.media as string | boolean | undefined}
+                    />
+                    <RichTextField
+                      name="description"
+                      label={__('Description', 'kirki-ecommerce')}
+                      placeholder={__(
+                        'Write product description here...',
+                        'kirki-ecommerce',
+                      )}
+                    />
+                    <Separator marginTop="8px" />
+                    <AdditionalInfo />
+                  </CardContent>
+                </Card>
+              </Form>
               {(isNew ||
                 productData?.variants[0].attribute_values.length === 0) && (
                 <>
-                  <Price errors={errors} setErrors={setErrors} />
-                  <Inventory errors={errors} setErrors={setErrors} />
-                  <Shipping errors={errors} setErrors={setErrors} />
+                  <Price
+                    errors={errors}
+                    setErrors={setErrors}
+                    formSyncKey={formSyncKey}
+                  />
+                  <Inventory
+                    errors={errors}
+                    setErrors={setErrors}
+                    formSyncKey={formSyncKey}
+                  />
+                  <Shipping
+                    errors={errors}
+                    setErrors={setErrors}
+                    formSyncKey={formSyncKey}
+                  />
                 </>
               )}
               <VariantsView
@@ -293,14 +362,10 @@ const EditProductInner = () => {
                 setErrors={setErrors}
                 onSave={handleAddOrCreateProduct}
               />
-              <SEOSettings errors={errors} setErrors={setErrors} />
+              <SEOSettings />
             </Flex>
           </div>
-          <RightPanelView
-            handleOnChange={handleOnChange}
-            errors={errors}
-            setErrors={setErrors}
-          />
+          <RightPanel />
         </div>
       </Container>
     </>

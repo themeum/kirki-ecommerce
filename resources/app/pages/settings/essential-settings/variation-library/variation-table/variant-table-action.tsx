@@ -1,8 +1,8 @@
 import { useState, type Dispatch, type SetStateAction } from 'react';
 
+import Button from '@/components/ui/button';
 import { ArrowDownUp } from '@/icons';
 import ActionGroup from '@/molecules/action-group';
-import Button from '@/molecules/button';
 import Flex from '@/molecules/flex';
 import Searchbox from '@/molecules/searchbox';
 import type { AttributeValue, SortOrder } from '@/types';
@@ -45,12 +45,9 @@ const VariantTableAction = ({
         />
       </div>
       <ActionGroup>
-        <Button
-          type="outlined"
-          size="small"
-          icon={<ArrowDownUp />}
-          onClick={handleSortChange}
-        />
+        <Button variant="outline" size="icon" onClick={handleSortChange}>
+          <ArrowDownUp />
+        </Button>
       </ActionGroup>
     </Flex>
   );

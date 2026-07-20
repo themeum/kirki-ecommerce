@@ -61,8 +61,14 @@ const SelectField = <
         <FormItem className={className}>
           {label && <FormLabel>{label}</FormLabel>}
           <Select
-            value={field.value ?? ''}
-            onValueChange={field.onChange}
+            value={
+              field.value === null || field.value === undefined
+                ? ''
+                : String(field.value)
+            }
+            onValueChange={(nextValue) => {
+              field.onChange(nextValue === '' ? null : nextValue);
+            }}
             disabled={disabled}
           >
             <FormControl>

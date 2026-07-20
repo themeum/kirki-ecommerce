@@ -1,9 +1,19 @@
-import { useState, type Dispatch, type SetStateAction } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
-import Card from '@/molecules/card';
+import { Card, CardContent } from '@/components/ui/card';
+import { Form } from '@/components/ui/form';
+import { CLASS_PREFIX } from '@/conf';
+import { useProductForm } from '@/contexts/product-form-context';
 import Tab from '@/molecules/tab';
 import Text from '@/molecules/text';
-import type { FormErrors } from '@/types';
+import {
+  ProductSeoFormSchema,
+  productSeoDefaultValues,
+  type ProductSeoFormValues,
+} from '@/schemas/forms/product-seo-form';
+import type { Product } from '@/types';
 import { __ } from '@/wpi18n';
 
 import AEO from '@/pages/products/edit-product/seo-settings/aeo';
@@ -11,37 +21,86 @@ import Schema from '@/pages/products/edit-product/seo-settings/schema';
 import SearchEngines from '@/pages/products/edit-product/seo-settings/search-engines';
 import SocialShare from '@/pages/products/edit-product/seo-settings/social-share';
 
-type SEOSettingsProps = {
-  errors: FormErrors;
-  setErrors: Dispatch<SetStateAction<FormErrors>>;
+const mapProductToSeoValues = (product: Product): ProductSeoFormValues => {
+  const ogImage =
+    product.og_image && typeof product.og_image === 'object'
+      ? product.og_image
+      : null;
+
+  return {
+    seo_title: product.seo_title ?? '',
+    seo_description: product.seo_description ?? '',
+    llm_instructions: product.llm_instructions ?? '',
+    og_title: product.og_title ?? '',
+    og_description: product.og_description ?? '',
+    og_image: ogImage,
+    schema_id: product.schema_id ?? null,
+  };
 };
 
-const SEOSettings = ({ errors, setErrors }: SEOSettingsProps) => {
+const SEOSettings = () => {
+  const { product, updateProduct, loaded } = useProductForm();
   const [activeTab, setActiveTab] = useState(0);
+  const isSyncingRef = useRef(false);
+
+  const form = useForm<ProductSeoFormValues>({
+    resolver: zodResolver(ProductSeoFormSchema),
+    defaultValues: productSeoDefaultValues,
+  });
+
+  useEffect(() => {
+    if (!loaded && !product.id) {
+      return;
+    }
+
+    isSyncingRef.current = true;
+    form.reset(mapProductToSeoValues(product));
+    queueMicrotask(() => {
+      isSyncingRef.current = false;
+    });
+  }, [loaded, product.id, form]);
+
+  useEffect(() => {
+    const subscription = form.watch((values, info) => {
+      if (isSyncingRef.current || !info.name) {
+        return;
+      }
+
+      const fieldName = info.name as keyof ProductSeoFormValues;
+      updateProduct({
+        key: fieldName,
+        value: values[fieldName] ?? null,
+      });
+    });
+
+    return () => subscription.unsubscribe();
+  }, [form, updateProduct]);
 
   const handleTabChange = (index: number) => {
     setActiveTab(index);
   };
 
   return (
-    <Card type="form">
-      <Text
-        header={__('AI & Web Presence', 'kirki-ecommerce')}
-        type="primary"
-      />
-      <Tab activeIndex={activeTab} onChange={handleTabChange}>
-        <div>{__('Search Engines', 'kirki-ecommerce')}</div>
-        <div>{__('AEO', 'kirki-ecommerce')}</div>
-        <div>{__('Social Share', 'kirki-ecommerce')}</div>
-        <div>{__('Schema', 'kirki-ecommerce')}</div>
-      </Tab>
+    <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-form`}>
+      <CardContent>
+        <Text
+          header={__('AI & Web Presence', 'kirki-ecommerce')}
+          type="primary"
+        />
+        <Tab activeIndex={activeTab} onChange={handleTabChange}>
+          <div>{__('Search Engines', 'kirki-ecommerce')}</div>
+          <div>{__('AEO', 'kirki-ecommerce')}</div>
+          <div>{__('Social Share', 'kirki-ecommerce')}</div>
+          <div>{__('Schema', 'kirki-ecommerce')}</div>
+        </Tab>
 
-      {activeTab === 0 && (
-        <SearchEngines errors={errors} setErrors={setErrors} />
-      )}
-      {activeTab === 1 && <AEO errors={errors} setErrors={setErrors} />}
-      {activeTab === 2 && <SocialShare errors={errors} setErrors={setErrors} />}
-      {activeTab === 3 && <Schema errors={errors} setErrors={setErrors} />}
+        <Form {...form}>
+          {activeTab === 0 && <SearchEngines />}
+          {activeTab === 1 && <AEO />}
+          {activeTab === 2 && <SocialShare />}
+          {activeTab === 3 && <Schema />}
+        </Form>
+      </CardContent>
     </Card>
   );
 };

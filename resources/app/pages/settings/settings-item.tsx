@@ -1,10 +1,10 @@
 import type { ReactNode } from 'react';
 import { useNavigate } from 'react-router';
 
+import Button from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { CLASS_PREFIX } from '@/conf';
 import { DropdownSubmenuIcon } from '@/icons';
-import Button from '@/molecules/button';
-import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
 import Text from '@/molecules/text';
 
@@ -25,10 +25,12 @@ export const SettingsItem = (props: SettingsItemProps) => {
   return (
     <>
       <Card
+        className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-default`}
         style={{
           padding: 'var(--decom-spacing-2) var(--decom-spacing-3)',
+          cursor: 'pointer',
         }}
-        link={link}
+        onClick={handleClick}
       >
         <Flex gap={8} style={{ position: 'relative' }}>
           <div className={`${CLASS_PREFIX}-settings-card-identifier`}></div>
@@ -42,14 +44,16 @@ export const SettingsItem = (props: SettingsItemProps) => {
         </Flex>
         <Flex>
           <Button
+            variant="ghost"
+            size="icon"
             className={`${CLASS_PREFIX}-settings-card-button`}
             style={{
               backgroundColor: 'var(--decom-background-bg-fill-secondary)',
             }}
-            icon={<DropdownSubmenuIcon />}
-            size="xsm"
             onClick={handleClick}
-          />
+          >
+            <DropdownSubmenuIcon />
+          </Button>
         </Flex>
       </Card>
     </>

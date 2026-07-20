@@ -16,11 +16,11 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { useEffect, useState } from 'react';
 
+import Button from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { CLASS_PREFIX } from '@/conf';
 import { DragIcon, EditIcon, PlusIcon, TrashIcon } from '@/icons';
 import ActionGroup from '@/molecules/action-group';
-import Button from '@/molecules/button';
-import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
 import Tag from '@/molecules/tag';
 import Text from '@/molecules/text';
@@ -67,10 +67,9 @@ const SortableCard = ({
   return (
     <div ref={setNodeRef} style={style}>
       <Card
-        type="inner"
         style={{ padding: '12px 16px' }}
         key={item.id}
-        className={`${CLASS_PREFIX}-hover-parent`}
+        className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner ${CLASS_PREFIX}-hover-parent`}
       >
         {editingId !== item.id ? (
           <Flex gap={12}>
@@ -108,17 +107,19 @@ const SortableCard = ({
 
             <ActionGroup className={`${CLASS_PREFIX}-hover-visible`}>
               <Button
-                type="secondary"
-                icon={<EditIcon />}
+                variant="secondary"
                 onClick={() => handleAttributeEdit(item)}
-                size="small"
-              />
+                size="sm"
+              >
+                <EditIcon />
+              </Button>
               <Button
-                type="secondary"
-                icon={<TrashIcon />}
+                variant="secondary"
                 onClick={() => handleAttributeRemove(item.id)}
-                size="small"
-              />
+                size="sm"
+              >
+                <TrashIcon />
+              </Button>
             </ActionGroup>
           </Flex>
         ) : (
@@ -128,6 +129,8 @@ const SortableCard = ({
     </div>
   );
 };
+
+SortableCard.displayName = 'SortableCard';
 
 const AttributeList = ({ onSave = () => {} }: AttributeListProps) => {
   const { product: productData, updateProductAttributes } = useProductForm();
@@ -198,12 +201,10 @@ const AttributeList = ({ onSave = () => {} }: AttributeListProps) => {
           </Flex>
         )}
         {!editingId && (
-          <Button
-            type="primary"
-            text={__('Add', 'kirki-ecommerce')}
-            leftIcon={<PlusIcon />}
-            onClick={() => setEditingId('new')}
-          />
+          <Button variant="primary" onClick={() => setEditingId('new')}>
+            <PlusIcon />
+            {__('Add', 'kirki-ecommerce')}
+          </Button>
         )}
       </>
       {editingId === 'new' && (
@@ -212,5 +213,7 @@ const AttributeList = ({ onSave = () => {} }: AttributeListProps) => {
     </>
   );
 };
+
+AttributeList.displayName = 'AttributeList';
 
 export default AttributeList;

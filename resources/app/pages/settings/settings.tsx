@@ -1,5 +1,5 @@
+import { Card } from '@/components/ui/card';
 import { CLASS_PREFIX } from '@/conf';
-import Card from '@/molecules/card';
 import Container from '@/molecules/container';
 import Flex from '@/molecules/flex';
 import PageHeading from '@/molecules/page-heading';
@@ -45,7 +45,7 @@ const Settings = () => {
       />
       <Container size="sm">
         <Card
-          type="shadow"
+          className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-shadow`}
           style={{
             padding: 'var(--decom-spacing-4) var(--decom-spacing-3)',
             backgroundColor: 'var(--decom-background-bg-surface-secondary)',

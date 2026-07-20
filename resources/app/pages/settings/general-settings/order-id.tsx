@@ -1,32 +1,38 @@
+import { useFormContext, useWatch } from 'react-hook-form';
+
+import TextField from '@/components/form/text-field';
+import Button from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import Input from '@/components/ui/input';
+import Label from '@/components/ui/label';
+import { CLASS_PREFIX } from '@/conf';
 import { ReplaceIcon } from '@/icons';
 import ActionGroup from '@/molecules/action-group';
-import Button from '@/molecules/button';
-import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
 import Grid from '@/molecules/grid';
-import Input from '@/molecules/input';
 import Text from '@/molecules/text';
-import type { FormErrors } from '@/types';
+import type { GeneralSettingsFormValues } from '@/schemas/forms/general-settings-form';
 import { __ } from '@/wpi18n';
 
-import type { GeneralSettingsFormData } from '@/pages/settings/general-settings/utils';
+const OrderId = () => {
+  const { setValue } = useFormContext<GeneralSettingsFormValues>();
+  const orderIdPrefix = useWatch<GeneralSettingsFormValues>({
+    name: 'order_id_prefix',
+  });
+  const orderIdSuffix = useWatch<GeneralSettingsFormValues>({
+    name: 'order_id_suffix',
+  });
 
-type OrderIdProps = {
-  dataObj: GeneralSettingsFormData | null;
-  handleOnChange: (value: unknown, key: string) => void;
-  handleResetIDField: (key: string) => void;
-  errors: FormErrors;
-};
+  const orderID = `${orderIdPrefix || ''}${orderIdSuffix || ''}`;
 
-const OrderId = (props: OrderIdProps) => {
-  const { dataObj, handleOnChange, handleResetIDField, errors } = props;
+  const handleResetIDField = () => {
+    setValue('order_id_prefix', '', { shouldDirty: true });
+    setValue('order_id_suffix', '', { shouldDirty: true });
+  };
 
-  const orderID = `${dataObj?.order_id_prefix || ''}${
-    dataObj?.order_id_suffix || ''
-  }`;
   return (
     <div>
-      <Card type="large">
+      <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
         <Text
           header={__('Order ID', 'kirki-ecommerce')}
           subHeader={__(
@@ -37,52 +43,52 @@ const OrderId = (props: OrderIdProps) => {
           style={{ gap: 'var(--decom-spacing-f3)' }}
         />
 
-        <Card type="inner" style={{ padding: 'var(--decom-spacing-4)' }}>
+        <Card
+          className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner`}
+          style={{ padding: 'var(--decom-spacing-4)' }}
+        >
           <Flex direction="column" gap={16}>
             <Grid>
-              <Input
+              <TextField
+                name="order_id_prefix"
                 label={__('Prefix', 'kirki-ecommerce')}
-                value={dataObj?.order_id_prefix}
-                onChange={(value) => handleOnChange(value, 'order_id_prefix')}
                 placeholder={__('#ORD-', 'kirki-ecommerce')}
-                helpText={__('Set order id prefix', 'kirki-ecommerce')}
-                error={
-                  errors['data.order_id_prefix'] as string | boolean | undefined
-                }
+                description={__('Set order id prefix', 'kirki-ecommerce')}
               />
 
-              <Input
+              <TextField
+                name="order_id_suffix"
                 label={__('Suffix', 'kirki-ecommerce')}
-                value={dataObj?.order_id_suffix}
-                onChange={(value) => handleOnChange(value, 'order_id_suffix')}
                 placeholder={__('', 'kirki-ecommerce')}
-                helpText={__('Set order id suffix', 'kirki-ecommerce')}
-                error={
-                  errors['data.order_id_suffix'] as string | boolean | undefined
-                }
+                description={__('Set order id suffix', 'kirki-ecommerce')}
               />
             </Grid>
 
             <Card
-              type="innerDark"
+              className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-innerDark`}
               style={{
                 padding: 'var(--decom-spacing-2) var(--decom-spacing-3)',
               }}
             >
-              <Input
-                label={__('Next order IDs will look like:', 'kirki-ecommerce')}
-                value={orderID}
-                style={{
-                  padding: 'var(--decom-spacing-2)',
-                  textAlign: 'center',
-                  color: 'var(--decom-text-text-special-3)',
-                }}
-                error={errors['data.orderID'] as string | boolean | undefined}
-              />
+              <Flex direction="column" gap={8}>
+                <Label htmlFor="order-id-preview">
+                  {__('Next order IDs will look like:', 'kirki-ecommerce')}
+                </Label>
+                <Input
+                  id="order-id-preview"
+                  value={orderID}
+                  readOnly
+                  style={{
+                    padding: 'var(--decom-spacing-2)',
+                    textAlign: 'center',
+                    color: 'var(--decom-text-text-special-3)',
+                  }}
+                />
+              </Flex>
             </Card>
 
             <Card
-              type="large"
+              className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}
               style={{
                 borderRadius: 'var(--decom-radius-rounded-lg)',
                 border: '1px solid var(--decom-border-border)',
@@ -96,12 +102,13 @@ const OrderId = (props: OrderIdProps) => {
                   />
                   <ActionGroup>
                     <Button
-                      text={__('Reset Now', 'kirki-ecommerce')}
-                      size="small"
-                      type="secondary"
-                      leftIcon={<ReplaceIcon />}
-                      onClick={() => handleResetIDField('order')}
-                    />
+                      variant="secondary"
+                      size="sm"
+                      onClick={handleResetIDField}
+                    >
+                      <ReplaceIcon />
+                      {__('Reset Now', 'kirki-ecommerce')}
+                    </Button>
                   </ActionGroup>
                 </Flex>
                 <Text
@@ -119,5 +126,7 @@ const OrderId = (props: OrderIdProps) => {
     </div>
   );
 };
+
+OrderId.displayName = 'OrderId';
 
 export default OrderId;

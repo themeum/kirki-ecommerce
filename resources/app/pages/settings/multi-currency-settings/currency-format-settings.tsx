@@ -1,64 +1,50 @@
-import Card from '@/molecules/card';
+import SelectField from '@/components/form/select-field';
+import { Card } from '@/components/ui/card';
+import { CLASS_PREFIX } from '@/conf';
 import Flex from '@/molecules/flex';
-import { Select } from '@/molecules/select';
-import type { FormErrors, SettingsSectionData } from '@/types';
 import { __ } from '@/wpi18n';
 
-type CurrencyFormatSettingsProps = {
-  handleOnChange: (value: unknown, key: string) => void;
-  dataObj: SettingsSectionData;
-  errors: FormErrors;
-};
-
-const CurrencyFormatSettings = ({
-  handleOnChange,
-  dataObj,
-  errors,
-}: CurrencyFormatSettingsProps) => {
-  const optionsArray = [
-    { title: __('Comma (,)', 'kirki-ecommerce'), value: ',' },
-    { title: __('Dot (.)', 'kirki-ecommerce'), value: '.' },
-    { title: __('Space', 'kirki-ecommerce'), value: 'space' },
+const CurrencyFormatSettings = () => {
+  const separatorOptions = [
+    { label: __('Comma (,)', 'kirki-ecommerce'), value: ',' },
+    { label: __('Dot (.)', 'kirki-ecommerce'), value: '.' },
+    { label: __('Space', 'kirki-ecommerce'), value: 'space' },
   ];
+
   return (
-    <Card type="inner" style={{ padding: '16px' }}>
+    <Card
+      className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner`}
+      style={{ padding: '16px' }}
+    >
       <Flex direction="column" gap={16}>
-        <Select
+        <SelectField
+          name="currency_format"
           label={__('Currency format', 'kirki-ecommerce')}
-          onChange={(value) => handleOnChange(value, 'currency_format')}
-          optionsArray={[
-            { title: __('Short', 'kirki-ecommerce'), value: 'short' },
-            { title: __('Long', 'kirki-ecommerce'), value: 'long' },
+          options={[
+            { label: __('Short', 'kirki-ecommerce'), value: 'short' },
+            { label: __('Long', 'kirki-ecommerce'), value: 'long' },
           ]}
-          value={dataObj['currency_format'] as string | number | undefined}
-          error={errors['data.currency_format'] as string | boolean | undefined}
         />
 
-        <Select
+        <SelectField
+          name="currency_position"
           label={__('Currency position', 'kirki-ecommerce')}
-          onChange={(value) => handleOnChange(value, 'currency_position')}
-          optionsArray={[
-            { title: __('Before', 'kirki-ecommerce'), value: 'before' },
-            { title: __('After', 'kirki-ecommerce'), value: 'after' },
+          options={[
+            { label: __('Before', 'kirki-ecommerce'), value: 'before' },
+            { label: __('After', 'kirki-ecommerce'), value: 'after' },
           ]}
-          value={dataObj['currency_position'] as string | number | undefined}
-          error={errors['data.currency_position'] as string | boolean | undefined}
         />
 
-        <Select
+        <SelectField
+          name="thousand_separator"
           label={__('Thousands separator', 'kirki-ecommerce')}
-          onChange={(value) => handleOnChange(value, 'thousand_separator')}
-          optionsArray={optionsArray}
-          value={dataObj['thousand_separator'] as string | number | undefined}
-          error={errors['data.thousand_separator'] as string | boolean | undefined}
+          options={separatorOptions}
         />
 
-        <Select
+        <SelectField
+          name="decimal_separator"
           label={__('Decimals separator', 'kirki-ecommerce')}
-          onChange={(value) => handleOnChange(value, 'decimal_separator')}
-          optionsArray={optionsArray}
-          value={dataObj['decimal_separator'] as string | number | undefined}
-          error={errors['data.decimal_separator'] as string | boolean | undefined}
+          options={separatorOptions}
         />
       </Flex>
     </Card>

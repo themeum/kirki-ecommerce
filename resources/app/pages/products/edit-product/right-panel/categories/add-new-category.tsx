@@ -1,15 +1,27 @@
 import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
+import SelectField from '@/components/form/select-field';
+import TextField from '@/components/form/text-field';
+import Button from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Form } from '@/components/ui/form';
+import { CLASS_PREFIX } from '@/conf';
 import { PlusIcon } from '@/icons';
+import type { ErrorResponse } from '@/libs/api';
+import { applyServerErrors } from '@/libs/form-errors';
 import ActionGroup from '@/molecules/action-group';
-import Button from '@/molecules/button';
-import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
-import Input from '@/molecules/input';
-import { Select } from '@/molecules/select';
-import { useCreateCategoryMutation, useCategoriesQuery } from '@/services/category';
-import { getErrorsObject } from '@/libs/api';
-import type { CategoryFormData, FormErrors, SelectOption } from '@/types';
+import {
+  ProductAddCategoryFormSchema,
+  type ProductAddCategoryFormValues,
+} from '@/schemas/forms/product-add-category-form';
+import {
+  useCreateCategoryMutation,
+  useCategoriesQuery,
+} from '@/services/category';
+import type { CategoryFormData } from '@/types';
 import { __ } from '@/wpi18n';
 
 const AddNewCategory = () => {
@@ -17,90 +29,97 @@ const AddNewCategory = () => {
   const categories = categoryData?.results ?? [];
   const createCategoryMutation = useCreateCategoryMutation();
   const [show, setShow] = useState(false);
-  const [errors, setErrors] = useState<FormErrors>({});
-  const [categoryFormData, setCategoryFormData] = useState<CategoryFormData>(
-    {},
-  );
+
+  const form = useForm<ProductAddCategoryFormValues>({
+    resolver: zodResolver(ProductAddCategoryFormSchema),
+    defaultValues: {
+      name: '',
+      parent_id: null,
+    },
+  });
 
   useEffect(() => {
-    setCategoryFormData({});
-    setErrors({});
-  }, [show]);
+    if (!show) {
+      return;
+    }
 
-  const handleOnChange = (data: unknown, fieldName: string) => {
-    setCategoryFormData((prev) => ({
-      ...prev,
-      [fieldName]: data,
-    }));
-    setErrors((prev) => ({
-      ...prev,
-      [fieldName]: null,
-    }));
-  };
+    form.reset({
+      name: '',
+      parent_id: null,
+    });
+  }, [show, form]);
 
-  const handleAddOrUpdateCategory = async () => {
+  const handleAddOrUpdateCategory = async (
+    values: ProductAddCategoryFormValues,
+  ) => {
+    const payload: CategoryFormData = {
+      name: values.name,
+      parent_id:
+        values.parent_id === '' || values.parent_id == null
+          ? null
+          : Number(values.parent_id),
+    };
+
     try {
-      await createCategoryMutation.mutateAsync(categoryFormData);
+      await createCategoryMutation.mutateAsync(payload);
       setShow(false);
     } catch (error) {
-      setErrors(
-        getErrorsObject((error as { errors?: Record<string, string[]> }).errors),
-      );
+      applyServerErrors(form, error as ErrorResponse);
     }
   };
 
-  const parentOptions: SelectOption[] = [
+  const parentOptions = [
     {
-      title: __('None', 'kirki-ecommerce'),
-      value: null as unknown as string | number,
+      label: __('None', 'kirki-ecommerce'),
+      value: '',
     },
     ...categories.map((category) => ({
-      title: category.name,
-      value: category.id,
+      label: category.name,
+      value: String(category.id),
     })),
   ];
 
   return (
     <>
       {show ? (
-        <Card type="inner">
-          <Flex direction="column" gap={16}>
-            <Input
-              placeholder={__('Category Name', 'kirki-ecommerce')}
-              value={(categoryFormData?.name as string) || ''}
-              onChange={(value) => handleOnChange(value, 'name')}
-              error={errors.name as string | boolean | undefined}
-            />
-            <Select
-              placeholder={__('Select Parent', 'kirki-ecommerce')}
-              value={(categoryFormData?.parent_id as string | number) || ''}
-              onChange={(value) => handleOnChange(value, 'parent_id')}
-              optionsArray={parentOptions}
-              error={errors.parent_id as string | boolean | undefined}
-            />
-            <ActionGroup>
-              <Button
-                type="secondary"
-                size="small"
-                text={__('Cancel', 'kirki-ecommerce')}
-                onClick={() => setShow(false)}
-              />
-              <Button
-                type="primary"
-                size="small"
-                text={__('OK', 'kirki-ecommerce')}
-                onClick={handleAddOrUpdateCategory}
-              />
-            </ActionGroup>
-          </Flex>
+        <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner`}>
+          <CardContent>
+            <Form {...form}>
+              <Flex direction="column" gap={16}>
+                <TextField
+                  name="name"
+                  placeholder={__('Category Name', 'kirki-ecommerce')}
+                />
+                <SelectField
+                  name="parent_id"
+                  placeholder={__('Select Parent', 'kirki-ecommerce')}
+                  options={parentOptions}
+                />
+                <ActionGroup>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => setShow(false)}
+                  >
+                    {__('Cancel', 'kirki-ecommerce')}
+                  </Button>
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={form.handleSubmit(handleAddOrUpdateCategory)}
+                  >
+                    {__('OK', 'kirki-ecommerce')}
+                  </Button>
+                </ActionGroup>
+              </Flex>
+            </Form>
+          </CardContent>
         </Card>
       ) : (
-        <Button
-          type="blank"
-          text={__('Create New Category', 'kirki-ecommerce')}
-          leftIcon={<PlusIcon />}
-          onClick={() => setShow(true)}
-        />
+        <Button variant="ghost" size="sm" onClick={() => setShow(true)}>
+          <PlusIcon />
+          {__('Create New Category', 'kirki-ecommerce')}
+        </Button>
       )}
     </>
   );

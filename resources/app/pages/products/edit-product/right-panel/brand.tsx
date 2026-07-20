@@ -1,33 +1,34 @@
 import { useEffect, useState } from 'react';
+import { useFormContext } from 'react-hook-form';
 
+import Button from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import Label from '@/components/ui/label';
+import { CLASS_PREFIX } from '@/conf';
 import { MinusIcon } from '@/icons';
 import ActionGroup from '@/molecules/action-group';
-import Button from '@/molecules/button';
-import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
-import Label from '@/molecules/label';
 import Searchbox from '@/molecules/searchbox';
 import Text from '@/molecules/text';
 import Thumbnail from '@/molecules/thumbnail';
-import { useProductForm } from '@/contexts/product-form-context';
+import type { ProductRightPanelFormValues } from '@/schemas/forms/product-right-panel-form';
 import { useBrandsQuery } from '@/services/brand';
 import type { Brand as BrandEntity, SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
 
-import BrandAddEditPopover from '@/pages/brands/brand-add-edit-popover';
+import BrandAddEditPopover from '@/pages/brands/brand-add-edit-dialog';
 
 type BrandSuggestion = SelectOption & BrandEntity;
 
 const Brand = () => {
-  const { product: productData, updateProduct } = useProductForm();
+  const { watch, setValue } = useFormContext<ProductRightPanelFormValues>();
+  const productBrand = watch('brand');
   const { data: brandData } = useBrandsQuery({ limit: -1 });
   const [suggestionArray, setSuggestionArray] = useState<BrandSuggestion[]>(
     [],
   );
   const [openBrandCreatePopup, setOpenBrandCreatePopup] = useState(false);
   const [brandTitle, setBrandTitle] = useState('');
-
-  const productBrand = productData.brand;
 
   useEffect(() => {
     const suggestionList = brandData?.results.map((item) => ({
@@ -41,21 +42,21 @@ const Brand = () => {
       logo: item.logo,
     }));
     setSuggestionArray(suggestionList ?? []);
-  }, [productData.brand, brandData]);
+  }, [productBrand, brandData]);
 
   const handleSearchChange = (searchText: string) => {
     setBrandTitle(String(searchText));
   };
 
   const handleRemoveBrand = () => {
-    updateProduct({ key: 'brand', value: null });
+    setValue('brand', null, { shouldDirty: true, shouldValidate: true });
   };
 
   const handleAddBrand = (brand: SelectOption) => {
     const suggestion = suggestionArray.find((item) => item.value === brand.value);
-    updateProduct({
-      key: 'brand',
-      value: suggestion
+    setValue(
+      'brand',
+      suggestion
         ? {
             id: suggestion.id,
             name: suggestion.name,
@@ -69,7 +70,8 @@ const Brand = () => {
             name: brand.title,
             logo: null,
           },
-    });
+      { shouldDirty: true, shouldValidate: true },
+    );
   };
 
   const handleAddNewBrand = (searchText: string) => {
@@ -86,23 +88,25 @@ const Brand = () => {
     <>
       {productBrand?.id ? (
         <Flex direction="column" gap={8}>
-          <Label
-            text={__('Brand', 'kirki-ecommerce')}
-            helpText={__('Brand', 'kirki-ecommerce')}
-          />
-          <Card type="inner">
-            <Flex gap={8} style={{ alignItems: 'center' }}>
-              <Thumbnail src={brandLogo?.url} />
-              <Text type="xsm" header={productBrand?.name} />
-              <ActionGroup style={{ cursor: 'pointer' }}>
-                <Button
-                  type="ghost"
-                  size="small"
-                  icon={<MinusIcon />}
-                  onClick={handleRemoveBrand}
-                />
-              </ActionGroup>
-            </Flex>
+          <Label helpText={__('Brand', 'kirki-ecommerce')}>
+            {__('Brand', 'kirki-ecommerce')}
+          </Label>
+          <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner`}>
+            <CardContent>
+              <Flex gap={8} style={{ alignItems: 'center' }}>
+                <Thumbnail src={brandLogo?.url} />
+                <Text type="xsm" header={productBrand?.name} />
+                <ActionGroup style={{ cursor: 'pointer' }}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleRemoveBrand}
+                  >
+                    <MinusIcon />
+                  </Button>
+                </ActionGroup>
+              </Flex>
+            </CardContent>
           </Card>
         </Flex>
       ) : (

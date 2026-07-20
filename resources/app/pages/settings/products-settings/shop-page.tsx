@@ -1,30 +1,24 @@
-import Card from '@/molecules/card';
-import { Select } from '@/molecules/select';
+import SelectField from '@/components/form/select-field';
+import { Card } from '@/components/ui/card';
+import { CLASS_PREFIX } from '@/conf';
 import Text from '@/molecules/text';
 import { usePagesQuery } from '@/services/page';
-import type { FormErrors, PageItem, SettingsSectionData } from '@/types';
+import type { PageItem } from '@/types';
 import { __ } from '@/wpi18n';
 
-type ShopPageProps = {
-  dataObj: SettingsSectionData;
-  handleOnChange: (value: unknown, key: string) => void;
-  errors: FormErrors;
-};
-
-export const ShopPage = (props: ShopPageProps) => {
-  const { dataObj, handleOnChange, errors } = props;
+export const ShopPage = () => {
   const { data: pagesData } = usePagesQuery();
 
   const pageList = pagesData ?? [];
 
   const shopPageOptions = pageList.map((page: PageItem) => ({
-    title: page.title,
-    value: page.id as number,
+    label: page.title,
+    value: String(page.id),
   }));
 
   return (
     <div>
-      <Card type="large">
+      <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
         <Text
           header={__('Shop page', 'kirki-ecommerce')}
           subHeader={__(
@@ -35,14 +29,15 @@ export const ShopPage = (props: ShopPageProps) => {
           style={{ gap: 'var(--decom-spacing-f3)' }}
         />
 
-        <Card type="inner" style={{ padding: 'var(--decom-spacing-4)' }}>
-          <Select
+        <Card
+          className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner`}
+          style={{ padding: 'var(--decom-spacing-4)' }}
+        >
+          <SelectField
+            name="shop_page"
             label={__('Shop page', 'kirki-ecommerce')}
-            value={dataObj?.['shop_page'] as string | number}
-            onChange={(value) => handleOnChange(value, 'shop_page')}
-            optionsArray={shopPageOptions}
+            options={shopPageOptions}
             placeholder={__('Select Page', 'kirki-ecommerce')}
-            error={errors['data.shop_page'] as string | boolean | undefined}
           />
         </Card>
       </Card>
