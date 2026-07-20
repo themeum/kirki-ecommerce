@@ -3,16 +3,16 @@ import { useNavigate } from 'react-router';
 
 import HeaderActionsCard from '@/components/header-actions-card';
 import GroupOptionCard from '@/components/group-option-card';
+import { Card } from '@/components/ui/card';
 import { CLASS_PREFIX } from '@/conf';
 import { BoxIcon, ColorPaletteIcon } from '@/icons';
-import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
 import { dispatchToastMessage } from '@/pages/utils';
 import { useAttributesQuery, useDeleteAttributeMutation } from '@/services/attribute';
 import type { Attribute } from '@/types';
 import { __ } from '@/wpi18n';
 
-import AddVariationPopup from '@/pages/settings/essential-settings/variation-library/add-variation-popup';
+import AddVariationPopup from '@/pages/settings/essential-settings/variation-library/add-variation-dialog';
 
 type AttributeListItem = Attribute & {
   badge1?: string;
@@ -63,7 +63,7 @@ const VariationList = () => {
   };
 
   return (
-    <Card type="large">
+    <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
       <HeaderActionsCard
         header={__('Variation Library', 'kirki-ecommerce')}
         subHeader={__(
@@ -78,7 +78,10 @@ const VariationList = () => {
         }}
       />
       {!attributeListArr.length ? (
-        <Card type="innerDark" style={{ padding: '36px 0' }}>
+        <Card
+          className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-innerDark`}
+          style={{ padding: '36px 0' }}
+        >
           <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
             <BoxIcon />
             <span style={{ color: '#878593' }}>

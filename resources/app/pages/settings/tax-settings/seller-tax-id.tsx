@@ -1,15 +1,16 @@
-import Card from '@/molecules/card';
+import { Card } from '@/components/ui/card';
+import Button from '@/components/ui/button';
 import Flex from '@/molecules/flex';
 import Text from '@/molecules/text';
 import ActionGroup from '@/molecules/action-group';
-import Button from '@/molecules/button';
 import { PlusIcon } from '@/icons';
+import { CLASS_PREFIX } from '@/conf';
 import { __ } from '@/wpi18n';
 
 const SellerTaxID = () => {
   return (
     <div>
-      <Card type="large">
+      <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
         <Flex direction="column" gap={6}>
           <Flex style={{ alignItems: 'center' }}>
             <Text
@@ -18,12 +19,10 @@ const SellerTaxID = () => {
               style={{ gap: '12px' }}
             />
             <ActionGroup>
-              <Button
-                text="Add ID"
-                type="secondary"
-                size="small"
-                leftIcon={<PlusIcon />}
-              />
+              <Button variant="secondary" size="sm">
+                <PlusIcon />
+                Add ID
+              </Button>
             </ActionGroup>
           </Flex>
           <Text

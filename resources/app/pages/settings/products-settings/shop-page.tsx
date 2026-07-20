@@ -1,5 +1,6 @@
 import SelectField from '@/components/form/select-field';
-import Card from '@/molecules/card';
+import { Card } from '@/components/ui/card';
+import { CLASS_PREFIX } from '@/conf';
 import Text from '@/molecules/text';
 import { usePagesQuery } from '@/services/page';
 import type { PageItem } from '@/types';
@@ -17,7 +18,7 @@ export const ShopPage = () => {
 
   return (
     <div>
-      <Card type="large">
+      <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
         <Text
           header={__('Shop page', 'kirki-ecommerce')}
           subHeader={__(
@@ -28,7 +29,10 @@ export const ShopPage = () => {
           style={{ gap: 'var(--decom-spacing-f3)' }}
         />
 
-        <Card type="inner" style={{ padding: 'var(--decom-spacing-4)' }}>
+        <Card
+          className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner`}
+          style={{ padding: 'var(--decom-spacing-4)' }}
+        >
           <SelectField
             name="shop_page"
             label={__('Shop page', 'kirki-ecommerce')}

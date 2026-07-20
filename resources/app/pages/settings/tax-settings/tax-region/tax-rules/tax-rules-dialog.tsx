@@ -4,12 +4,19 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 import SelectField from '@/components/form/select-field';
 import TextField from '@/components/form/text-field';
+import Button from '@/components/ui/button';
+import {
+  Dialog,
+  DialogCloseButton,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
 import { LighteningIcon } from '@/icons';
-import Button from '@/molecules/button';
 import Flex from '@/molecules/flex';
 import Grid from '@/molecules/grid';
-import Placeholder from '@/molecules/placeholder';
 import Text from '@/molecules/text';
 import { CLASS_PREFIX } from '@/conf';
 import {
@@ -180,77 +187,75 @@ const TaxRulesModal = (props: TaxRulesModalProps) => {
   }));
 
   return (
-    <div>
-      <Placeholder
-        style={{ minHeight: 'fit-content', alignItems: 'stretch' }}
-        className={`${CLASS_PREFIX}-add-rule-modal ${
-          showModal ? 'is-open' : ''
-        }`}
-      >
+    <Dialog open={showModal} onOpenChange={setShowModal}>
+      <DialogContent>
+        <DialogCloseButton />
+        {from !== 'edit' && (
+          <DialogHeader>
+            <DialogTitle>
+              <Flex gap={8} style={{ alignItems: 'center' }}>
+                <LighteningIcon />
+                {__('New Tax Rules', 'kirki-ecommerce')}
+              </Flex>
+            </DialogTitle>
+          </DialogHeader>
+        )}
         <Form {...form}>
-          <Flex
-            direction={'column'}
-            gap={16}
-            style={{ padding: 'var(--decom-spacing-3)' }}
-          >
-            {from !== 'edit' && (
-              <Text
-                header={__('New Tax Rules', 'kirki-ecommerce')}
-                leftIcon={<LighteningIcon />}
-              />
-            )}
-            <Flex direction={'column'} gap={8}>
-              <div className={`${CLASS_PREFIX}-condition-row`}>
-                {conditions?.map((row, index) => (
-                  <ConditionRow
-                    key={row.id}
-                    row={row}
-                    index={index}
-                    conditions={conditions}
-                    setConditions={setConditions}
-                    getConditionValue={getConditionValue}
-                    selectedCountries={selectedCountries}
-                    setSelectedCountries={setSelectedCountries}
-                    from={from}
-                    region={region}
-                  />
-                ))}
-              </div>
+          <div className={`${CLASS_PREFIX}-ui-dialog-body`}>
+            <Flex direction={'column'} gap={16}>
+              <Flex direction={'column'} gap={8}>
+                <div className={`${CLASS_PREFIX}-condition-row`}>
+                  {conditions?.map((row, index) => (
+                    <ConditionRow
+                      key={row.id}
+                      row={row}
+                      index={index}
+                      conditions={conditions}
+                      setConditions={setConditions}
+                      getConditionValue={getConditionValue}
+                      selectedCountries={selectedCountries}
+                      setSelectedCountries={setSelectedCountries}
+                      from={from}
+                      region={region}
+                    />
+                  ))}
+                </div>
+              </Flex>
+              <Flex direction={'column'} gap={8}>
+                <Text header={__('THEN', 'kirki-ecommerce')} />
+                <Grid columns={2}>
+                  <SelectField name="action_type" options={actionOptions} />
+                  {selectedAction === 'set_tax_rate' && (
+                    <TextField
+                      name="action_value"
+                      placeholder={__('e.g., $100', 'kirki-ecommerce')}
+                    />
+                  )}
+                </Grid>
+              </Flex>
             </Flex>
-            <Flex direction={'column'} gap={8}>
-              <Text header={__('THEN', 'kirki-ecommerce')} />
-              <Grid columns={2}>
-                <SelectField name="action_type" options={actionOptions} />
-                {selectedAction === 'set_tax_rate' && (
-                  <TextField
-                    name="action_value"
-                    placeholder={__('e.g., $100', 'kirki-ecommerce')}
-                  />
-                )}
-              </Grid>
-            </Flex>
-            <Flex gap={8} style={{ justifyContent: 'flex-end' }}>
-              <Button
-                type="secondary"
-                text={__('Cancel', 'kirki-ecommerce')}
-                size="small"
-                onClick={() => setShowModal(false)}
-              />
-              <Button
-                type="primary"
-                text={
-                  from === 'edit'
-                    ? __('Update', 'kirki-ecommerce')
-                    : __('Add Rule', 'kirki-ecommerce')
-                }
-                size="small"
-                onClick={form.handleSubmit(handleSubmit)}
-              />
-            </Flex>
-          </Flex>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setShowModal(false)}
+            >
+              {__('Cancel', 'kirki-ecommerce')}
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={form.handleSubmit(handleSubmit)}
+            >
+              {from === 'edit'
+                ? __('Update', 'kirki-ecommerce')
+                : __('Add Rule', 'kirki-ecommerce')}
+            </Button>
+          </DialogFooter>
         </Form>
-      </Placeholder>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 

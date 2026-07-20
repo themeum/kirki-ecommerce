@@ -2,7 +2,7 @@ import { useState, useEffect, type ReactNode } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
-import Card from '@/molecules/card';
+import { Card } from '@/components/ui/card';
 import Flex from '@/molecules/flex';
 import HeaderActionsCard from '@/components/header-actions-card';
 import GroupOptionCard from '@/components/group-option-card';
@@ -13,7 +13,7 @@ import { deleteTaxProfile, useTaxProfilesQuery } from '@/services/tax';
 import type { TaxProfile as TaxProfileType } from '@/types';
 import { __ } from '@/wpi18n';
 
-import { TaxProfilePopup } from '@/pages/settings/tax-settings/tax-profile/tax-profile-popup';
+import { TaxProfilePopup } from '@/pages/settings/tax-settings/tax-profile/tax-profile-dialog';
 
 type TaxProfileListItem = TaxProfileType & {
   icon?: ReactNode;
@@ -71,7 +71,7 @@ const TaxProfile = () => {
 
   return (
     <div>
-      <Card type="large">
+      <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
         <HeaderActionsCard
           header={__('Tax Profiles', 'kirki-ecommerce')}
           subHeader={__(
@@ -83,7 +83,10 @@ const TaxProfile = () => {
         />
 
         {!taxProfileList?.length ? (
-          <Card type="innerDark" style={{ padding: '36px 0' }}>
+          <Card
+            className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner-dark`}
+            style={{ padding: '36px 0' }}
+          >
             <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
               <BoxOpenIcon />
               <span style={{ color: '#878593' }}>

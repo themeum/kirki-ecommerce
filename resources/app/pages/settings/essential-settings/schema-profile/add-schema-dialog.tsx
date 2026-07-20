@@ -4,23 +4,21 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 import GroupTagTable from '@/components/group-tag-table';
 import TextField from '@/components/form/text-field';
+import Button from '@/components/ui/button';
 import {
-  Form,
-  FormField,
-  FormItem,
-  FormMessage,
-} from '@/components/ui/form';
+  Dialog,
+  DialogCloseButton,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Form, FormField, FormItem, FormMessage } from '@/components/ui/form';
+import { CLASS_PREFIX } from '@/conf';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import ActionGroup from '@/molecules/action-group';
-import Button from '@/molecules/button';
 import Flex from '@/molecules/flex';
-import {
-  Popover,
-  PopoverBody,
-  PopoverFooter,
-  PopoverHeader,
-} from '@/molecules/popover';
 import Text from '@/molecules/text';
 import {
   SchemaProfileFormSchema,
@@ -124,78 +122,79 @@ const AddSchemaPopup = ({
     nameValue === '' || Object.values(selectedValues)?.length <= 0;
 
   return (
-    <Popover isOpen={isOpen} onClose={onClose}>
-      <PopoverHeader
-        style={{ padding: 'var(--decom-spacing-5)' }}
-        onClose={onClose}
-      >
-        {editedItem
-          ? __('Update schema profile', 'kirki-ecommerce')
-          : __('Create schema profile', 'kirki-ecommerce')}
-      </PopoverHeader>
-      <Form {...form}>
-        <PopoverBody
-          style={{
-            padding:
-              'var(--decom-spacing-0) var(--decom-spacing-5) var(--decom-spacing-5) var(--decom-spacing-5)',
-          }}
-        >
-          <Flex direction="column" gap={16}>
-            <TextField
-              name="name"
-              label={__('Schema preset name', 'kirki-ecommerce')}
-              placeholder={__('e.g General', 'kirki-ecommerce')}
-            />
-            <FormField
-              control={form.control}
-              name="schema"
-              render={({ field }) => (
-                <FormItem>
-                  <GroupTagTable
-                    groupDetails={groupDetails}
-                    selectedValues={field.value}
-                    optionsArray={optionsList as SelectOption[]}
-                    requiredFields={requiredFields}
-                    onChange={(value) =>
-                      field.onChange(value as Record<string, string[]>)
-                    }
-                    hasSelect
-                    isEditable
-                  />
-                  <FormMessage />
-                </FormItem>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(next) => {
+        if (!next) {
+          onClose();
+        }
+      }}
+    >
+      <DialogContent>
+        <DialogCloseButton />
+        <DialogHeader>
+          <DialogTitle>
+            {editedItem
+              ? __('Update schema profile', 'kirki-ecommerce')
+              : __('Create schema profile', 'kirki-ecommerce')}
+          </DialogTitle>
+        </DialogHeader>
+        <Form {...form}>
+          <div className={`${CLASS_PREFIX}-ui-dialog-body`}>
+            <Flex direction="column" gap={16}>
+              <TextField
+                name="name"
+                label={__('Schema preset name', 'kirki-ecommerce')}
+                placeholder={__('e.g General', 'kirki-ecommerce')}
+              />
+              <FormField
+                control={form.control}
+                name="schema"
+                render={({ field }) => (
+                  <FormItem>
+                    <GroupTagTable
+                      groupDetails={groupDetails}
+                      selectedValues={field.value}
+                      optionsArray={optionsList as SelectOption[]}
+                      requiredFields={requiredFields}
+                      onChange={(value) =>
+                        field.onChange(value as Record<string, string[]>)
+                      }
+                      hasSelect
+                      isEditable
+                    />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </Flex>
+          </div>
+          <DialogFooter style={{ justifyContent: 'space-between' }}>
+            <Text
+              type="secondary"
+              header={sprintf(
+                __('%d selected', 'kirki-ecommerce'),
+                Object.keys(selectedValues)?.length,
               )}
             />
-          </Flex>
-        </PopoverBody>
-        <PopoverFooter style={{ justifyContent: 'space-between' }}>
-          <Text
-            type="secondary"
-            header={sprintf(
-              __('%d selected', 'kirki-ecommerce'),
-              Object.keys(selectedValues)?.length,
-            )}
-          />
-          <ActionGroup>
-            <Button
-              text={__('Cancel', 'kirki-ecommerce')}
-              type="outlined"
-              size="small"
-              onClick={onClose}
-            />
-            <Button
-              text={__('Save schema', 'kirki-ecommerce')}
-              type="primary"
-              size="small"
-              onClick={form.handleSubmit(handleSubmit)}
-              state={
-                isSubmitting ? 'loading' : buttonState ? 'disabled' : ''
-              }
-            />
-          </ActionGroup>
-        </PopoverFooter>
-      </Form>
-    </Popover>
+            <ActionGroup>
+              <Button variant="outline" size="sm" onClick={onClose}>
+                {__('Cancel', 'kirki-ecommerce')}
+              </Button>
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={form.handleSubmit(handleSubmit)}
+                loading={isSubmitting}
+                disabled={buttonState}
+              >
+                {__('Save schema', 'kirki-ecommerce')}
+              </Button>
+            </ActionGroup>
+          </DialogFooter>
+        </Form>
+      </DialogContent>
+    </Dialog>
   );
 };
 

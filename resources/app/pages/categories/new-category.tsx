@@ -1,10 +1,10 @@
 import { useState } from 'react';
 
-import Button from '@/molecules/button';
+import Button from '@/components/ui/button';
 import type { CategoryFormData } from '@/types';
 import { __ } from '@/wpi18n';
 
-import CategoryAddEditPopover from '@/pages/categories/category-add-edit-popover';
+import CategoryAddEditPopover from '@/pages/categories/category-add-edit-dialog';
 
 const initialState: CategoryFormData = {
   name: '',
@@ -19,11 +19,12 @@ const NewCategory = () => {
   return (
     <>
       <Button
-        type="primary"
-        text={__('New Category', 'kirki-ecommerce')}
-        size="small"
+        variant="primary"
+        size="sm"
         onClick={() => setOpenPopup(true)}
-      />
+      >
+        {__('New Category', 'kirki-ecommerce')}
+      </Button>
 
       {openPopup && (
         <CategoryAddEditPopover

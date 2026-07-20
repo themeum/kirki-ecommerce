@@ -1,14 +1,15 @@
-import Card from '@/molecules/card';
+import { Card } from '@/components/ui/card';
+import Button from '@/components/ui/button';
 import Flex from '@/molecules/flex';
 import Text from '@/molecules/text';
-import Button from '@/molecules/button';
 import { SimulatorIcon } from '@/icons';
+import { CLASS_PREFIX } from '@/conf';
 import { __ } from '@/wpi18n';
 
 const TaxSimulator = () => {
   return (
     <div>
-      <Card type="large">
+      <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
         <Flex gap={8}>
           <Flex gap={12} direction="column" style={{ width: '55%' }}>
             <Flex gap={6} direction="column">
@@ -24,14 +25,15 @@ const TaxSimulator = () => {
                 )}
               />
             </Flex>
-            <Button
-              type="tartiary"
-              size="small"
-              text="Try Simulator"
-              leftIcon={<SimulatorIcon />}
-            />
+            <Button variant="secondary" size="sm">
+              <SimulatorIcon />
+              Try Simulator
+            </Button>
           </Flex>
-          <Card type="tartiary" style={{ width: '45%' }}></Card>
+          <Card
+            className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-tartiary`}
+            style={{ width: '45%' }}
+          ></Card>
         </Flex>
       </Card>
     </div>

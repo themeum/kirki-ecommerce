@@ -5,14 +5,15 @@ import { useNavigate, useOutletContext } from 'react-router';
 
 import SwitchField from '@/components/form/switch-field';
 import PageNavbar from '@/components/page-navbar';
+import Button from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
+import { CLASS_PREFIX } from '@/conf';
 import { CartIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { useUnsavedStatus } from '@/libs/unsaved-store';
 import ActionGroup from '@/molecules/action-group';
-import Button from '@/molecules/button';
-import Card from '@/molecules/card';
 import Container from '@/molecules/container';
 import Flex from '@/molecules/flex';
 import PageHeading from '@/molecules/page-heading';
@@ -113,18 +114,20 @@ const CheckoutSettings = () => {
           hasUnsavedData ? (
             <>
               <Button
-                type="ghost"
-                text={__('Cancel', 'kirki-ecommerce')}
-                size="small"
+                variant="ghost"
+                size="sm"
                 onClick={handleDiscardData}
-              />
+              >
+                {__('Cancel', 'kirki-ecommerce')}
+              </Button>
               <Button
-                type="primary"
-                text={__('Save', 'kirki-ecommerce')}
-                size="small"
+                variant="primary"
+                size="sm"
                 onClick={form.handleSubmit(handleSaveData)}
-                state={isPending ? 'loading' : undefined}
-              />
+                loading={isPending}
+              >
+                {__('Save', 'kirki-ecommerce')}
+              </Button>
             </>
           ) : (
             <></>
@@ -140,7 +143,7 @@ const CheckoutSettings = () => {
                 text={__('Checkout', 'kirki-ecommerce')}
                 handleBack={handleBackButton}
               />
-              <Card type="large">
+              <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
                 <Flex style={{ alignItems: 'center' }}>
                   <Text
                     header={__('Allow Guest Checkout', 'kirki-ecommerce')}

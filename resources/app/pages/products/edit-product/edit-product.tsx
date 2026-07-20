@@ -12,8 +12,10 @@ import { useNavigate, useParams } from 'react-router';
 import RichTextField from '@/components/form/rich-text-field';
 import TextField from '@/components/form/text-field';
 import MediaGallery from '@/components/media-gallery';
+import Button from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
-import { NEW_ITEM_ID } from '@/conf';
+import { CLASS_PREFIX, NEW_ITEM_ID } from '@/conf';
 import {
   ProductFormProvider,
   useProductForm,
@@ -21,8 +23,6 @@ import {
 import type { ErrorResponse } from '@/libs/api';
 import { getErrorsObject } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import Button from '@/molecules/button';
-import Card from '@/molecules/card';
 import Container from '@/molecules/container';
 import Flex from '@/molecules/flex';
 import PageHeading from '@/molecules/page-heading';
@@ -264,21 +264,21 @@ const EditProductInner = () => {
         actions={
           <>
             <Button
-              text={__('Cancel', 'kirki-ecommerce')}
-              type="ghost"
-              size="small"
+              variant="ghost"
+              size="sm"
               onClick={() => window.history.back()}
-            />
+            >
+              {__('Cancel', 'kirki-ecommerce')}
+            </Button>
             <Button
-              text={
-                isNew
-                  ? __('Create', 'kirki-ecommerce')
-                  : __('Save', 'kirki-ecommerce')
-              }
-              type="primary"
+              variant="primary"
+              size="sm"
               onClick={handleAddOrCreateProduct}
-              size="small"
-            />
+            >
+              {isNew
+                ? __('Create', 'kirki-ecommerce')
+                : __('Save', 'kirki-ecommerce')}
+            </Button>
           </>
         }
       />
@@ -287,52 +287,54 @@ const EditProductInner = () => {
           <div style={{ width: '70%' }}>
             <Flex direction="column" gap={16}>
               <Form {...basicsForm}>
-                <Card type="form">
-                  <Flex gap={12}>
-                    <div style={{ width: '70%' }}>
-                      <TextField
-                        name="title"
-                        label={__('Title', 'kirki-ecommerce')}
-                        placeholder={__(
-                          'e.g. Yellow T-Shirt',
-                          'kirki-ecommerce',
-                        )}
-                      />
-                    </div>
-                    <div style={{ width: '30%' }}>
-                      <TextField
-                        name="ribbon"
-                        label={__('Ribbon', 'kirki-ecommerce')}
-                        placeholder={__(
-                          'e.g. Fresh Arrival',
-                          'kirki-ecommerce',
-                        )}
-                        description={__('Ribbon', 'kirki-ecommerce')}
-                      />
-                    </div>
-                  </Flex>
-                  <TextField
-                    name="slug"
-                    label={__('Slug', 'kirki-ecommerce')}
-                    placeholder={__('yellow-t-shirt', 'kirki-ecommerce')}
-                  />
+                <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-form`}>
+                  <CardContent>
+                    <Flex gap={12}>
+                      <div style={{ width: '70%' }}>
+                        <TextField
+                          name="title"
+                          label={__('Title', 'kirki-ecommerce')}
+                          placeholder={__(
+                            'e.g. Yellow T-Shirt',
+                            'kirki-ecommerce',
+                          )}
+                        />
+                      </div>
+                      <div style={{ width: '30%' }}>
+                        <TextField
+                          name="ribbon"
+                          label={__('Ribbon', 'kirki-ecommerce')}
+                          placeholder={__(
+                            'e.g. Fresh Arrival',
+                            'kirki-ecommerce',
+                          )}
+                          description={__('Ribbon', 'kirki-ecommerce')}
+                        />
+                      </div>
+                    </Flex>
+                    <TextField
+                      name="slug"
+                      label={__('Slug', 'kirki-ecommerce')}
+                      placeholder={__('yellow-t-shirt', 'kirki-ecommerce')}
+                    />
 
-                  <MediaGallery
-                    label={__('Images and videos', 'kirki-ecommerce')}
-                    mediaItems={mediaItems}
-                    onUpdate={(v) => setMediaItems(v)}
-                    error={errors?.media as string | boolean | undefined}
-                  />
-                  <RichTextField
-                    name="description"
-                    label={__('Description', 'kirki-ecommerce')}
-                    placeholder={__(
-                      'Write product description here...',
-                      'kirki-ecommerce',
-                    )}
-                  />
-                  <Separator marginTop="8px" />
-                  <AdditionalInfo />
+                    <MediaGallery
+                      label={__('Images and videos', 'kirki-ecommerce')}
+                      mediaItems={mediaItems}
+                      onUpdate={(v) => setMediaItems(v)}
+                      error={errors?.media as string | boolean | undefined}
+                    />
+                    <RichTextField
+                      name="description"
+                      label={__('Description', 'kirki-ecommerce')}
+                      placeholder={__(
+                        'Write product description here...',
+                        'kirki-ecommerce',
+                      )}
+                    />
+                    <Separator marginTop="8px" />
+                    <AdditionalInfo />
+                  </CardContent>
                 </Card>
               </Form>
               {(isNew ||

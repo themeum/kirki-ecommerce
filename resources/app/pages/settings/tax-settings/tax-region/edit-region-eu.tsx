@@ -5,6 +5,8 @@ import { useNavigate, useOutletContext } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
 
 import PageNavbar from '@/components/page-navbar';
+import Button from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import {
   Form,
   FormControl,
@@ -12,16 +14,16 @@ import {
   FormItem,
   FormMessage,
 } from '@/components/ui/form';
+import Label from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { CLASS_PREFIX } from '@/conf';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { queryKeys } from '@/libs/query-keys';
 import { useUnsavedStatus } from '@/libs/unsaved-store';
-import Button from '@/molecules/button';
-import Card from '@/molecules/card';
 import Container from '@/molecules/container';
 import Flex from '@/molecules/flex';
 import PageHeading from '@/molecules/page-heading';
-import { RadioGroup } from '@/molecules/radio-group';
 import Text from '@/molecules/text';
 import {
   TaxRegionEuFormSchema,
@@ -69,7 +71,7 @@ const VatCollectionProcessRadios = () => {
   return (
     <Flex direction={'column'} gap={8}>
       <Card
-        type="inner"
+        className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner`}
         style={{
           display: 'flex',
           flexDirection: 'column',
@@ -83,15 +85,16 @@ const VatCollectionProcessRadios = () => {
             <FormItem>
               <FormControl>
                 <RadioGroup
-                  optionsArray={[
-                    {
-                      title: __('One Stop Shop (OSS)', 'kirki-ecommerce'),
-                      value: 'oss',
-                    },
-                  ]}
                   value={field.value}
-                  onChange={(value) => handleProcessChange(value)}
-                />
+                  onValueChange={(value) => handleProcessChange(value)}
+                >
+                  <div className={`${CLASS_PREFIX}-ui-radio-field-row`}>
+                    <RadioGroupItem value="oss" id="vat-process-oss" />
+                    <Label htmlFor="vat-process-oss">
+                      {__('One Stop Shop (OSS)', 'kirki-ecommerce')}
+                    </Label>
+                  </div>
+                </RadioGroup>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -102,7 +105,7 @@ const VatCollectionProcessRadios = () => {
       </Card>
 
       <Card
-        type="inner"
+        className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner`}
         style={{
           display: 'flex',
           flexDirection: 'column',
@@ -116,15 +119,19 @@ const VatCollectionProcessRadios = () => {
             <FormItem>
               <FormControl>
                 <RadioGroup
-                  optionsArray={[
-                    {
-                      title: __('Micro Business', 'kirki-ecommerce'),
-                      value: 'micro_business',
-                    },
-                  ]}
                   value={field.value}
-                  onChange={(value) => handleProcessChange(value)}
-                />
+                  onValueChange={(value) => handleProcessChange(value)}
+                >
+                  <div className={`${CLASS_PREFIX}-ui-radio-field-row`}>
+                    <RadioGroupItem
+                      value="micro_business"
+                      id="vat-process-micro-business"
+                    />
+                    <Label htmlFor="vat-process-micro-business">
+                      {__('Micro Business', 'kirki-ecommerce')}
+                    </Label>
+                  </div>
+                </RadioGroup>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -149,7 +156,7 @@ const VatProcessDescription = ({
   }
 
   return (
-    <Card type="innerDark">
+    <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner-dark`}>
       <Text
         subHeader={
           processValue === 'oss'
@@ -318,19 +325,21 @@ const EditRegionEU = () => {
           hasUnsavedData ? (
             <>
               <Button
-                type="ghost"
-                size="small"
+                variant="ghost"
+                size="sm"
                 onClick={handleDiscardData}
-                text={__('Cancel', 'kirki-ecommerce')}
-                state={isSaving ? 'disabled' : undefined}
-              />
+                disabled={isSaving}
+              >
+                {__('Cancel', 'kirki-ecommerce')}
+              </Button>
               <Button
-                type="primary"
-                size="small"
-                text={__('Save', 'kirki-ecommerce')}
+                variant="primary"
+                size="sm"
                 onClick={form.handleSubmit(() => handleSaveData())}
-                state={isSaving ? 'loading' : undefined}
-              />
+                loading={isSaving}
+              >
+                {__('Save', 'kirki-ecommerce')}
+              </Button>
             </>
           ) : (
             <></>
@@ -348,7 +357,7 @@ const EditRegionEU = () => {
                 handleBack={handleBackButton}
               />
 
-              <Card type="large">
+              <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
                 <Text
                   type="primary"
                   header={__('How would you like to collect VAT?', 'kirki-ecommerce')}

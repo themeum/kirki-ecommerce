@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
+import Button from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Form,
   FormControl,
@@ -10,12 +12,11 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import { CLASS_PREFIX } from '@/conf';
 import { ColorPaletteIcon, ListIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import ActionGroup from '@/molecules/action-group';
-import Button from '@/molecules/button';
-import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
 import Searchbox from '@/molecules/searchbox';
 import { useProductForm } from '@/contexts/product-form-context';
@@ -237,101 +238,110 @@ const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
 
   return (
     <Form {...form}>
-      <Card type="inner">
-        <Flex direction="column" gap={16}>
-          {!data && (
-            <Flex direction="column" gap={8}>
-              <div>{__('Show in Product page as', 'kirki-ecommerce')}</div>
-              <Flex
-                style={{
-                  border: '1px solid #eeedf3',
-                  borderRadius: '8px',
-                  width: 'max-content',
-                }}
-              >
-                <Button
-                  type="outlined"
-                  text={__('List', 'kirki-ecommerce')}
-                  leftIcon={<ListIcon />}
-                  size="large"
+      <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner`}>
+        <CardContent>
+          <Flex direction="column" gap={16}>
+            {!data && (
+              <Flex direction="column" gap={8}>
+                <div>{__('Show in Product page as', 'kirki-ecommerce')}</div>
+                <Flex
                   style={{
-                    borderColor: type === 'list' ? '#5641f3' : 'transparent',
+                    border: '1px solid #eeedf3',
+                    borderRadius: '8px',
+                    width: 'max-content',
                   }}
-                  onClick={() => handleOnTypeChange('list')}
-                />
-                <Button
-                  type="outlined"
-                  text={__('Color', 'kirki-ecommerce')}
-                  leftIcon={<ColorPaletteIcon />}
-                  size="large"
-                  style={{
-                    borderColor: type === 'color' ? '#5641f3' : 'transparent',
-                  }}
-                  onClick={() => handleOnTypeChange('color')}
-                />
+                >
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    style={{
+                      borderColor: type === 'list' ? '#5641f3' : 'transparent',
+                    }}
+                    onClick={() => handleOnTypeChange('list')}
+                  >
+                    <ListIcon />
+                    {__('List', 'kirki-ecommerce')}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    style={{
+                      borderColor:
+                        type === 'color' ? '#5641f3' : 'transparent',
+                    }}
+                    onClick={() => handleOnTypeChange('color')}
+                  >
+                    <ColorPaletteIcon />
+                    {__('Color', 'kirki-ecommerce')}
+                  </Button>
+                </Flex>
               </Flex>
-            </Flex>
-          )}
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field, fieldState }) => (
-              <FormItem>
-                <FormLabel>
-                  {__('Variation Name', 'kirki-ecommerce')}
-                </FormLabel>
-                <FormControl>
-                  <Searchbox
-                    error={Boolean(
-                      fieldState.error ||
-                        form.formState.errors.id ||
-                        form.formState.errors.name,
-                    )}
-                    value={field.value || ''}
-                    placeholder={__('e.g. Size or Material', 'kirki-ecommerce')}
-                    onChange={(value) =>
-                      handleAttributeSearchChange(String(value))
-                    }
-                    hasIcon={false}
-                    suggestionArray={attributeSuggestionArray}
-                    onOptionClick={(value) => handleAttributeSelect(value)}
-                    onEnter={(value) => handleNewAttributeAdd(String(value))}
-                    onNewOptionAdd={(value) =>
-                      handleNewAttributeAdd(String(value))
-                    }
-                    hasAddBtn
-                    btnText="Add Attribute"
-                    onClearInput={
-                      field.value ? handleClearAttributeName : undefined
-                    }
-                    readOnly={!!formData?.id}
-                    state={formData?.id ? 'disabled' : ''}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
             )}
-          />
-          <AddOrEditVariation />
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field, fieldState }) => (
+                <FormItem>
+                  <FormLabel>
+                    {__('Variation Name', 'kirki-ecommerce')}
+                  </FormLabel>
+                  <FormControl>
+                    <Searchbox
+                      error={Boolean(
+                        fieldState.error ||
+                          form.formState.errors.id ||
+                          form.formState.errors.name,
+                      )}
+                      value={field.value || ''}
+                      placeholder={__(
+                        'e.g. Size or Material',
+                        'kirki-ecommerce',
+                      )}
+                      onChange={(value) =>
+                        handleAttributeSearchChange(String(value))
+                      }
+                      hasIcon={false}
+                      suggestionArray={attributeSuggestionArray}
+                      onOptionClick={(value) => handleAttributeSelect(value)}
+                      onEnter={(value) => handleNewAttributeAdd(String(value))}
+                      onNewOptionAdd={(value) =>
+                        handleNewAttributeAdd(String(value))
+                      }
+                      hasAddBtn
+                      btnText="Add Attribute"
+                      onClearInput={
+                        field.value ? handleClearAttributeName : undefined
+                      }
+                      readOnly={!!formData?.id}
+                      state={formData?.id ? 'disabled' : ''}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <AddOrEditVariation />
 
-          <ActionGroup>
-            <Button
-              type="secondary"
-              text={__('Cancel', 'kirki-ecommerce')}
-              onClick={handleOnClose}
-            />
-            <Button
-              type="primary"
-              text={__('Apply', 'kirki-ecommerce')}
-              state={
-                formData?.id && formData?.values && formData.values.length > 0
-                  ? ''
-                  : 'disabled'
-              }
-              onClick={handleSaveAttribute}
-            />
-          </ActionGroup>
-        </Flex>
+            <ActionGroup>
+              <Button variant="secondary" onClick={handleOnClose}>
+                {__('Cancel', 'kirki-ecommerce')}
+              </Button>
+              <Button
+                variant="primary"
+                disabled={
+                  !(
+                    formData?.id &&
+                    formData?.values &&
+                    formData.values.length > 0
+                  )
+                }
+                onClick={handleSaveAttribute}
+              >
+                {__('Apply', 'kirki-ecommerce')}
+              </Button>
+            </ActionGroup>
+          </Flex>
+        </CardContent>
       </Card>
     </Form>
   );

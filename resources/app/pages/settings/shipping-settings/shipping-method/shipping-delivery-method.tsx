@@ -4,13 +4,21 @@ import { toast } from 'sonner';
 
 import { TruckIcon, WeightIcon, StoreIcon } from '@/icons';
 import PageHeading from '@/molecules/page-heading';
-import Button from '@/molecules/button';
 import Container from '@/molecules/container';
 import Flex from '@/molecules/flex';
-import Input from '@/molecules/input';
-import Card from '@/molecules/card';
-import { Select } from '@/molecules/select';
 import PageNavbar from '@/components/page-navbar';
+import Button from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import Input from '@/components/ui/input';
+import Label from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { CLASS_PREFIX } from '@/conf';
 import { queryClient } from '@/libs/query-client';
 import { queryKeys } from '@/libs/query-keys';
 import { useUnsavedStatus } from '@/libs/unsaved-store';
@@ -236,17 +244,16 @@ const ShippingDeliveryMethod = () => {
         actions={
           hasUnsavedData ? (
             <>
+              <Button variant="ghost" size="sm">
+                {__('Cancel', 'kirki-ecommerce')}
+              </Button>
               <Button
-                type="ghost"
-                text={__('Cancel', 'kirki-ecommerce')}
-                size="small"
-              />
-              <Button
-                type="primary"
-                text={__('Save', 'kirki-ecommerce')}
+                variant="primary"
+                size="sm"
                 onClick={handleCreateOrUpdateData}
-                size="small"
-              />
+              >
+                {__('Save', 'kirki-ecommerce')}
+              </Button>
             </>
           ) : (
             <></>
@@ -260,44 +267,47 @@ const ShippingDeliveryMethod = () => {
             handleBack={handleBackButton}
           />
           <Card
-            type="large"
+            className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}
             style={{
               gap: 'var(--decom-spacing-4)',
             }}
           >
-            <Input
-              value={(dataObj?.name as string) || ''}
-              placeholder={__('Standard Delivery', 'kirki-ecommerce')}
-              onChange={(value) => handleOnChange(value, 'name')}
-              label={__('Method Name', 'kirki-ecommerce')}
-            />
-            <Select
-              label={__('Method Type', 'kirki-ecommerce')}
-              placeholder={__('Flat Rate', 'kirki-ecommerce')}
-              optionsArray={[
-                {
-                  title: __('Flat Rate', 'kirki-ecommerce'),
-                  value: 'flat_rate',
-                  leftIcon: <TruckIcon />,
-                },
-                {
-                  title: __('Local Pickup', 'kirki-ecommerce'),
-                  value: 'local_pickup',
-                  leftIcon: <WeightIcon />,
-                },
-                {
-                  title: __('Rate by Weight', 'kirki-ecommerce'),
-                  value: 'weight',
-                  leftIcon: <StoreIcon />,
-                },
-              ]}
-              value={methodType}
-              onChange={(value) => {
-                if (typeof value === 'string') {
-                  setMethodType(value as MethodType);
-                }
-              }}
-            />
+            <Flex direction="column" gap={8}>
+              <Label htmlFor="shipping-method-name">
+                {__('Method Name', 'kirki-ecommerce')}
+              </Label>
+              <Input
+                id="shipping-method-name"
+                value={(dataObj?.name as string) || ''}
+                placeholder={__('Standard Delivery', 'kirki-ecommerce')}
+                onChange={(e) => handleOnChange(e.target.value, 'name')}
+              />
+            </Flex>
+            <Flex direction="column" gap={8}>
+              <Label>{__('Method Type', 'kirki-ecommerce')}</Label>
+              <Select
+                value={methodType}
+                onValueChange={(value) => setMethodType(value as MethodType)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={__('Flat Rate', 'kirki-ecommerce')} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="flat_rate">
+                    <TruckIcon />
+                    {__('Flat Rate', 'kirki-ecommerce')}
+                  </SelectItem>
+                  <SelectItem value="local_pickup">
+                    <WeightIcon />
+                    {__('Local Pickup', 'kirki-ecommerce')}
+                  </SelectItem>
+                  <SelectItem value="weight">
+                    <StoreIcon />
+                    {__('Rate by Weight', 'kirki-ecommerce')}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </Flex>
 
             {methodSettingsMap[methodType].comp}
           </Card>

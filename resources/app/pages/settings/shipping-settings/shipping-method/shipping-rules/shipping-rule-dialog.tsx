@@ -6,6 +6,15 @@ import { toast } from 'sonner';
 
 import SelectField from '@/components/form/select-field';
 import TextField from '@/components/form/text-field';
+import Button from '@/components/ui/button';
+import {
+  Dialog,
+  DialogCloseButton,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import {
   Form,
   FormControl,
@@ -15,10 +24,8 @@ import {
 } from '@/components/ui/form';
 import Input from '@/components/ui/input';
 import Flex from '@/molecules/flex';
-import Placeholder from '@/molecules/placeholder';
 import Text from '@/molecules/text';
 import Grid from '@/molecules/grid';
-import Button from '@/molecules/button';
 import { LighteningIcon } from '@/icons';
 import { CLASS_PREFIX } from '@/conf';
 import type { ErrorResponse } from '@/libs/api';
@@ -44,7 +51,7 @@ import {
   type ShippingRule,
   type ShippingZone,
 } from '@/pages/settings/shipping-settings/utils';
-import { SelectDestinationPopup } from '@/pages/settings/shipping-settings/shipping-method/select-destination-popup';
+import { SelectDestinationPopup } from '@/pages/settings/shipping-settings/shipping-method/select-destination-dialog';
 import { resolveDestinationRegion } from '@/pages/settings/shipping-settings/shipping-method/shipping-rules/helper';
 
 type ShippingRuleModalProps = {
@@ -370,101 +377,104 @@ const ShippingRuleModal = ({
 
   return (
     <>
-      <Placeholder
-        style={{ minHeight: 'fit-content', alignItems: 'stretch' }}
-        className={`${CLASS_PREFIX}-add-rule-modal ${
-          showModal ? 'is-open' : ''
-        }`}
-      >
-        <Form {...form}>
-          <Flex
-            direction={'column'}
-            gap={16}
-            style={{ padding: 'var(--decom-spacing-3)' }}
-          >
-            {from !== 'edit' && (
-              <Text
-                header={__('New Shipping Rules', 'kirki-ecommerce')}
-                leftIcon={<LighteningIcon />}
-              />
-            )}
-            <Flex direction={'column'} gap={8}>
-              <Text header="IF" />
-              <Grid columns={3}>
-                <SelectField
-                  name="condition"
-                  options={conditionSelectOptions}
-                  placeholder={__('Product profile', 'kirki-ecommerce')}
-                />
-                {selectedCondition === 'cart_weight' ? (
-                  <SelectField
-                    name="operator"
-                    options={getOperatorOptions()}
-                  />
-                ) : (
-                  <Input value={__('is', 'kirki-ecommerce')} readOnly />
-                )}
-
-                {selectedCondition === 'destination_region' ? (
-                  <FormField
-                    control={form.control}
-                    name="selected_country"
-                    render={({ field, fieldState }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Input
-                            value={field.value ?? ''}
-                            onClick={() => setOpenDestinationPopup(true)}
-                            readOnly
-                            error={Boolean(fieldState.error)}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
+      <Dialog open={showModal} onOpenChange={setShowModal}>
+        <DialogContent>
+          <DialogCloseButton />
+          {from !== 'edit' && (
+            <DialogHeader>
+              <DialogTitle>
+                <Flex gap={8} style={{ alignItems: 'center' }}>
+                  <LighteningIcon />
+                  {__('New Shipping Rules', 'kirki-ecommerce')}
+                </Flex>
+              </DialogTitle>
+            </DialogHeader>
+          )}
+          <Form {...form}>
+            <div className={`${CLASS_PREFIX}-ui-dialog-body`}>
+              <Flex direction={'column'} gap={16}>
+                <Flex direction={'column'} gap={8}>
+                  <Text header="IF" />
+                  <Grid columns={3}>
+                    <SelectField
+                      name="condition"
+                      options={conditionSelectOptions}
+                      placeholder={__('Product profile', 'kirki-ecommerce')}
+                    />
+                    {selectedCondition === 'cart_weight' ? (
+                      <SelectField
+                        name="operator"
+                        options={getOperatorOptions()}
+                      />
+                    ) : (
+                      <Input value={__('is', 'kirki-ecommerce')} readOnly />
                     )}
-                  />
-                ) : selectedCondition === 'cart_weight' ? (
-                  <TextField name="condition_value" />
-                ) : (
-                  <SelectField
-                    name="condition_value"
-                    options={getConditionValueOptions()}
-                  />
-                )}
-              </Grid>
-            </Flex>
-            <Flex direction={'column'} gap={8}>
-              <Text header={__('THEN', 'kirki-ecommerce')} />
-              <Grid columns={2}>
-                <SelectField name="action" options={actionSelectOptions} />
-                {(selectedAction === 'set_shipping_cost' ||
-                  selectedAction === 'add_shipping_cost') && (
-                  <TextField
-                    name="action_value"
-                    placeholder="e.g., $100"
-                  />
-                )}
-              </Grid>
-            </Flex>
-            <Flex gap={8} style={{ justifyContent: 'flex-end' }}>
+
+                    {selectedCondition === 'destination_region' ? (
+                      <FormField
+                        control={form.control}
+                        name="selected_country"
+                        render={({ field, fieldState }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Input
+                                value={field.value ?? ''}
+                                onClick={() => setOpenDestinationPopup(true)}
+                                readOnly
+                                error={Boolean(fieldState.error)}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    ) : selectedCondition === 'cart_weight' ? (
+                      <TextField name="condition_value" />
+                    ) : (
+                      <SelectField
+                        name="condition_value"
+                        options={getConditionValueOptions()}
+                      />
+                    )}
+                  </Grid>
+                </Flex>
+                <Flex direction={'column'} gap={8}>
+                  <Text header={__('THEN', 'kirki-ecommerce')} />
+                  <Grid columns={2}>
+                    <SelectField
+                      name="action"
+                      options={actionSelectOptions}
+                    />
+                    {(selectedAction === 'set_shipping_cost' ||
+                      selectedAction === 'add_shipping_cost') && (
+                      <TextField
+                        name="action_value"
+                        placeholder="e.g., $100"
+                      />
+                    )}
+                  </Grid>
+                </Flex>
+              </Flex>
+            </div>
+            <DialogFooter>
               <Button
-                type="secondary"
-                text={__('Cancel', 'kirki-ecommerce')}
+                variant="secondary"
                 onClick={() => setShowModal(false)}
-              />
+              >
+                {__('Cancel', 'kirki-ecommerce')}
+              </Button>
               <Button
-                type="primary"
-                text={
-                  from === 'edit'
-                    ? __('Save', 'kirki-ecommerce')
-                    : __('Add Rule', 'kirki-ecommerce')
-                }
+                variant="primary"
                 onClick={form.handleSubmit(handleAddOrUpdateShippingRule)}
-              />
-            </Flex>
-          </Flex>
-        </Form>
-      </Placeholder>
+              >
+                {from === 'edit'
+                  ? __('Save', 'kirki-ecommerce')
+                  : __('Add Rule', 'kirki-ecommerce')}
+              </Button>
+            </DialogFooter>
+          </Form>
+        </DialogContent>
+      </Dialog>
       {openDestinationPopup && (
         <SelectDestinationPopup
           openPopup={openDestinationPopup}

@@ -5,14 +5,16 @@ import {
   useNavigate,
 } from 'react-router';
 
-import Button from '@/molecules/button';
-import Card from '@/molecules/card';
 import Container from '@/molecules/container';
 import Flex from '@/molecules/flex';
-import Input from '@/molecules/input';
 import PageHeading from '@/molecules/page-heading';
 import { TagManager } from '@/molecules/tag-manager';
 import PageNavbar from '@/components/page-navbar';
+import Button from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import Input from '@/components/ui/input';
+import Label from '@/components/ui/label';
+import { CLASS_PREFIX } from '@/conf';
 import { getErrorsObject } from '@/libs/api';
 import { useUnsavedStatus } from '@/libs/unsaved-store';
 import { dispatchToastMessage, normalizeErrors } from '@/pages/utils';
@@ -21,7 +23,7 @@ import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings
 import type { FormErrors, SelectOption, SettingsSectionData } from '@/types';
 import { __ } from '@/wpi18n';
 
-import { ShippingRegionPopup } from '@/pages/settings/shipping-settings/shipping-zone/shipping-region-popup';
+import { ShippingRegionPopup } from '@/pages/settings/shipping-settings/shipping-zone/shipping-region-dialog';
 import { ShippingMethod } from '@/pages/settings/shipping-settings/shipping-method/shipping-method';
 import {
   getSearchedCountries,
@@ -139,8 +141,7 @@ const ShippingZonePage = () => {
     setUnsavedDataStatus(true);
   };
 
-  const handleShippingZoneTitle = (value: string | number) => {
-    const title = String(value);
+  const handleShippingZoneTitle = (title: string) => {
     setShippingZoneTitle(title);
     setUnsavedDataStatus(true);
     setShippingZonesObj((prev) =>
@@ -240,18 +241,12 @@ const ShippingZonePage = () => {
         actions={
           hasUnsavedData ? (
             <>
-              <Button
-                type="ghost"
-                text={__('Cancel', 'kirki-ecommerce')}
-                size="small"
-                onClick={handleDiscardData}
-              />
-              <Button
-                type="primary"
-                text={__('Save', 'kirki-ecommerce')}
-                onClick={updateShippingZone}
-                size="small"
-              />
+              <Button variant="ghost" size="sm" onClick={handleDiscardData}>
+                {__('Cancel', 'kirki-ecommerce')}
+              </Button>
+              <Button variant="primary" size="sm" onClick={updateShippingZone}>
+                {__('Save', 'kirki-ecommerce')}
+              </Button>
             </>
           ) : (
             <></>
@@ -265,14 +260,26 @@ const ShippingZonePage = () => {
               text={__('Set Zone Details', 'kirki-ecommerce')}
               handleBack={handleBackButton}
             />
-            <Card type="large" style={{ gap: 'var(--decom-spacing-4)' }}>
-              <Input
-                label={__('Title', 'kirki-ecommerce')}
-                placeholder="Zone 2- South Asia"
-                value={shippingZoneTitle}
-                onChange={(value) => handleShippingZoneTitle(value)}
-                error={(errors?.title as string) || ''}
-              />
+            <Card
+              className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}
+              style={{ gap: 'var(--decom-spacing-4)' }}
+            >
+              <Flex direction="column" gap={8}>
+                <Label
+                  htmlFor="shipping-zone-title"
+                  error={Boolean(errors?.title)}
+                  helpText={errors?.title as string}
+                >
+                  {__('Title', 'kirki-ecommerce')}
+                </Label>
+                <Input
+                  id="shipping-zone-title"
+                  placeholder="Zone 2- South Asia"
+                  value={shippingZoneTitle}
+                  onChange={(e) => handleShippingZoneTitle(e.target.value)}
+                  error={Boolean(errors?.title)}
+                />
+              </Flex>
               <TagManager
                 label={__('Regions', 'kirki-ecommerce')}
                 placeholder={__(

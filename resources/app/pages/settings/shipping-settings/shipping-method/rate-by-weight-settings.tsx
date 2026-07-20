@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 
+import Button from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import Checkbox from '@/components/ui/checkbox';
+import Input from '@/components/ui/input';
+import Label from '@/components/ui/label';
+import Textarea from '@/components/ui/textarea';
 import Flex from '@/molecules/flex';
-import Input from '@/molecules/input';
-import Checkbox from '@/molecules/checkbox';
 import Grid from '@/molecules/grid';
-import Card from '@/molecules/card';
-import Button from '@/molecules/button';
 import Text from '@/molecules/text';
 import { __ } from '@/wpi18n';
 import { PlusIcon, TrashIcon } from '@/icons';
@@ -71,20 +73,23 @@ const RateByWeightSettings = ({
 
   return (
     <Flex direction="column" gap={16}>
-      <Input
-        type="text"
-        multiline
-        value={(dataObj?.description as string) || ''}
-        label={__('Pickup Instructions', 'kirki-ecommerce')}
-        placeholder={__('e.g., 3-5 business days', 'kirki-ecommerce')}
-        style={{
-          padding: 'var(--decom-spacing-2) var(--decom-spacing-3)',
-          minHeight: '108px',
-        }}
-        onChange={(value: unknown) => handleOnChange(value, 'description')}
-      />
+      <Flex direction="column" gap={8}>
+        <Label htmlFor="rate-by-weight-description">
+          {__('Pickup Instructions', 'kirki-ecommerce')}
+        </Label>
+        <Textarea
+          id="rate-by-weight-description"
+          value={(dataObj?.description as string) || ''}
+          placeholder={__('e.g., 3-5 business days', 'kirki-ecommerce')}
+          style={{
+            padding: 'var(--decom-spacing-2) var(--decom-spacing-3)',
+            minHeight: '108px',
+          }}
+          onChange={(e) => handleOnChange(e.target.value, 'description')}
+        />
+      </Flex>
       <Card
-        type="form"
+        className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-form`}
         style={{
           border: '1px solid var(--decom-border-border)',
           borderRadius: 'var(--decom-radius-rounded-md)',
@@ -105,13 +110,13 @@ const RateByWeightSettings = ({
               value={range.from || ''}
               type="number"
               placeholder={__('e.g. 12', 'kirki-ecommerce')}
-              onChange={(value: unknown) => updateRange(index, 'from', value)}
+              onChange={(e) => updateRange(index, 'from', e.target.value)}
             />
             <Input
               value={range.to || ''}
               type="number"
               placeholder={__('e.g. 12', 'kirki-ecommerce')}
-              onChange={(value: unknown) => updateRange(index, 'to', value)}
+              onChange={(e) => updateRange(index, 'to', e.target.value)}
             />
             <div
               style={{
@@ -124,51 +129,63 @@ const RateByWeightSettings = ({
                 value={range.amount || ''}
                 type="number"
                 placeholder={__('e.g. 120Tk', 'kirki-ecommerce')}
-                onChange={(value: unknown) =>
-                  updateRange(index, 'amount', value)
-                }
+                onChange={(e) => updateRange(index, 'amount', e.target.value)}
               />
 
               {index !== 0 && (
                 <Button
-                  type="secondary"
-                  icon={<TrashIcon />}
+                  variant="secondary"
                   style={{ padding: 'var(--decom-spacing-1)' }}
                   onClick={() => removeRange(index)}
-                />
+                >
+                  <TrashIcon />
+                </Button>
               )}
             </div>
           </Grid>
         ))}
-        <Button
-          type={'blank'}
-          text={__('Add Another Range', 'kirki-ecommerce')}
-          leftIcon={<PlusIcon />}
-          onClick={addRange}
-        />
+        <Button variant="ghost" onClick={addRange}>
+          <PlusIcon />
+          {__('Add Another Range', 'kirki-ecommerce')}
+        </Button>
       </Card>
 
-      <Checkbox
-        value={dataObj?.['is_taxable'] as boolean}
-        label={__('Tax applies to the shipping charge', 'kirki-ecommerce')}
-        onChange={(value: unknown) => handleOnChange(value, 'is_taxable')}
-      />
-      <Checkbox
-        value={hasFreeShipping}
-        label={__(
-          'Offer free shipping when a customer buys over a certain amount',
-          'kirki-ecommerce',
-        )}
-        onChange={() => setHasFreeShipping(!hasFreeShipping)}
-      />
-      {hasFreeShipping && (
-        <Input
-          label={__('Amount', 'kirki-ecommerce')}
-          placeholder={__('$0.00', 'kirki-ecommerce')}
-          type={'number'}
-          value={dataObj?.amount as string | number}
-          onChange={(value: unknown) => handleOnChange(value, 'amount')}
+      <div className={`${CLASS_PREFIX}-ui-checkbox-field`}>
+        <Checkbox
+          id="rate-by-weight-is-taxable"
+          checked={dataObj?.['is_taxable'] as boolean}
+          onCheckedChange={(checked) => handleOnChange(checked === true, 'is_taxable')}
         />
+        <Label htmlFor="rate-by-weight-is-taxable">
+          {__('Tax applies to the shipping charge', 'kirki-ecommerce')}
+        </Label>
+      </div>
+      <div className={`${CLASS_PREFIX}-ui-checkbox-field`}>
+        <Checkbox
+          id="rate-by-weight-has-free-shipping"
+          checked={hasFreeShipping}
+          onCheckedChange={() => setHasFreeShipping(!hasFreeShipping)}
+        />
+        <Label htmlFor="rate-by-weight-has-free-shipping">
+          {__(
+            'Offer free shipping when a customer buys over a certain amount',
+            'kirki-ecommerce',
+          )}
+        </Label>
+      </div>
+      {hasFreeShipping && (
+        <Flex direction="column" gap={8}>
+          <Label htmlFor="rate-by-weight-amount">
+            {__('Amount', 'kirki-ecommerce')}
+          </Label>
+          <Input
+            id="rate-by-weight-amount"
+            placeholder={__('$0.00', 'kirki-ecommerce')}
+            type="number"
+            value={dataObj?.amount as string | number}
+            onChange={(e) => handleOnChange(e.target.value, 'amount')}
+          />
+        </Flex>
       )}
     </Flex>
   );

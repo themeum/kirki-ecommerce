@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 
+import Button from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import Label from '@/components/ui/label';
+import { CLASS_PREFIX } from '@/conf';
 import { MinusIcon } from '@/icons';
 import ActionGroup from '@/molecules/action-group';
-import Button from '@/molecules/button';
-import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
-import Label from '@/molecules/label';
 import Searchbox from '@/molecules/searchbox';
 import Text from '@/molecules/text';
 import Thumbnail from '@/molecules/thumbnail';
@@ -15,7 +16,7 @@ import { useBrandsQuery } from '@/services/brand';
 import type { Brand as BrandEntity, SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
 
-import BrandAddEditPopover from '@/pages/brands/brand-add-edit-popover';
+import BrandAddEditPopover from '@/pages/brands/brand-add-edit-dialog';
 
 type BrandSuggestion = SelectOption & BrandEntity;
 
@@ -87,23 +88,25 @@ const Brand = () => {
     <>
       {productBrand?.id ? (
         <Flex direction="column" gap={8}>
-          <Label
-            text={__('Brand', 'kirki-ecommerce')}
-            helpText={__('Brand', 'kirki-ecommerce')}
-          />
-          <Card type="inner">
-            <Flex gap={8} style={{ alignItems: 'center' }}>
-              <Thumbnail src={brandLogo?.url} />
-              <Text type="xsm" header={productBrand?.name} />
-              <ActionGroup style={{ cursor: 'pointer' }}>
-                <Button
-                  type="ghost"
-                  size="small"
-                  icon={<MinusIcon />}
-                  onClick={handleRemoveBrand}
-                />
-              </ActionGroup>
-            </Flex>
+          <Label helpText={__('Brand', 'kirki-ecommerce')}>
+            {__('Brand', 'kirki-ecommerce')}
+          </Label>
+          <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner`}>
+            <CardContent>
+              <Flex gap={8} style={{ alignItems: 'center' }}>
+                <Thumbnail src={brandLogo?.url} />
+                <Text type="xsm" header={productBrand?.name} />
+                <ActionGroup style={{ cursor: 'pointer' }}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleRemoveBrand}
+                  >
+                    <MinusIcon />
+                  </Button>
+                </ActionGroup>
+              </Flex>
+            </CardContent>
           </Card>
         </Flex>
       ) : (

@@ -1,17 +1,24 @@
 import { type ReactElement, useState } from 'react';
 import { useNavigate } from 'react-router';
 
+import Button from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectSeparator,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { PlusIcon } from '@/icons';
 import ActionGroup from '@/molecules/action-group';
-import Button from '@/molecules/button';
 import Flex from '@/molecules/flex';
-import { Select } from '@/molecules/select';
 import Text from '@/molecules/text';
 import { useShippingBoxesQuery } from '@/services/shipping';
 import type { FormErrors } from '@/types';
 import { __ } from '@/wpi18n';
 
-import ShippingBoxPopup from '@/pages/settings/shipping-settings/shipping-box/shipping-box-popup';
+import ShippingBoxPopup from '@/pages/settings/shipping-settings/shipping-box/shipping-box-dialog';
 
 type ShippingBoxProps = {
   value?: number | string | null;
@@ -48,45 +55,55 @@ const ShippingBoxSelect = ({
   return (
     <>
       <Select
-        optionsArray={shippingBoxList}
-        invisible={invisible}
-        value={value as string | number | undefined}
-        onChange={(changeValue) => handleOnChange(changeValue)}
-        error={errors?.shipping_box_id as string | boolean | undefined}
-        dropdownHeader={
-          <>
-            <Flex
-              style={{
-                alignItems: 'center',
-                justifyContent: 'space-between',
-              }}
-            >
-              <Text
-                subHeader={__('Available shipping boxes', 'kirki-ecommerce')}
-                type="primary"
-              />
-
-              <Button
-                text={__('Manage', 'kirki-ecommerce')}
-                type="blank"
-                style={{ color: '#5641F3' }}
-                onClick={() => navigate('/settings/shipping')}
-              />
-            </Flex>
-          </>
-        }
-        dropdownFooter={
-          <ActionGroup>
-            <Button
-              type="secondary"
-              text={__('Add new shipping box', 'kirki-ecommerce')}
-              size="small"
-              leftIcon={<PlusIcon />}
-              onClick={() => setOpenShippingBoxPopup(true)}
+        value={value !== null && value !== undefined ? String(value) : ''}
+        onValueChange={(next) => handleOnChange(next)}
+      >
+        <SelectTrigger
+          error={Boolean(errors?.shipping_box_id)}
+          style={{ visibility: invisible ? 'hidden' : 'visible' }}
+        >
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <Flex
+            style={{
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '8px 12px',
+            }}
+          >
+            <Text
+              subHeader={__('Available shipping boxes', 'kirki-ecommerce')}
+              type="primary"
             />
+            <Button
+              variant="ghost"
+              size="sm"
+              style={{ color: '#5641F3' }}
+              onClick={() => navigate('/settings/shipping')}
+            >
+              {__('Manage', 'kirki-ecommerce')}
+            </Button>
+          </Flex>
+          <SelectSeparator />
+          {shippingBoxList.map((option) => (
+            <SelectItem key={option.value} value={String(option.value)}>
+              {option.title}
+            </SelectItem>
+          ))}
+          <SelectSeparator />
+          <ActionGroup style={{ padding: '8px 12px' }}>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setOpenShippingBoxPopup(true)}
+            >
+              <PlusIcon />
+              {__('Add new shipping box', 'kirki-ecommerce')}
+            </Button>
           </ActionGroup>
-        }
-      />
+        </SelectContent>
+      </Select>
       {openShippingBoxPopup && (
         <ShippingBoxPopupView
           isOpen={openShippingBoxPopup}

@@ -3,18 +3,22 @@ import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import SelectField from '@/components/form/select-field';
-import { Form } from '@/components/ui/form';
-import Checkbox from '@/molecules/checkbox';
-import Button from '@/molecules/button';
-import Input from '@/molecules/input';
+import Button from '@/components/ui/button';
+import Checkbox from '@/components/ui/checkbox';
 import {
-  Popover,
-  PopoverBody,
-  PopoverFooter,
-  PopoverHeader,
-} from '@/molecules/popover';
+  Dialog,
+  DialogClose,
+  DialogCloseButton,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Form } from '@/components/ui/form';
+import Input from '@/components/ui/input';
+import Label from '@/components/ui/label';
 import { CLASS_PREFIX } from '@/conf';
-import { LocationIcon, SearchIcon } from '@/icons';
+import Flex from '@/molecules/flex';
 import {
   SelectDestinationFormSchema,
   selectDestinationDefaultValues,
@@ -211,69 +215,81 @@ export const SelectDestinationPopup = ({
   };
 
   return (
-    <Popover isOpen={openPopup}>
-      <PopoverHeader
-        borderBottom
-        onClose={() => setOpenPopup(false)}
-        leftIcon={<LocationIcon />}
-      >
-        {__('Select destination', 'kirki-ecommerce')}
-      </PopoverHeader>
-      <Form {...form}>
-        <PopoverBody
-          style={{
-            padding: 'var(--decom-spacing-4) var(--decom-spacing-5)',
-          }}
-        >
-          <SelectField
-            name="country"
-            label={__('Select country', 'kirki-ecommerce')}
-            options={countryOptions}
-          />
+    <Dialog
+      open={openPopup}
+      onOpenChange={(next) => {
+        if (!next) {
+          setOpenPopup(false);
+        }
+      }}
+    >
+      <DialogContent>
+        <DialogCloseButton />
+        <DialogHeader>
+          <DialogTitle>
+            {__('Select destination', 'kirki-ecommerce')}
+          </DialogTitle>
+        </DialogHeader>
+        <Form {...form}>
+          <div className={`${CLASS_PREFIX}-ui-dialog-body`}>
+            <SelectField
+              name="country"
+              label={__('Select country', 'kirki-ecommerce')}
+              options={countryOptions}
+            />
 
-          <Input
-            type="search"
-            leftIcon={<SearchIcon />}
-            label={__('Regions', 'kirki-ecommerce')}
-            placeholder={__('Search region or state', 'kirki-ecommerce')}
-            value={searchValue}
-            onChange={(value) => setSearchValue(String(value))}
-          />
+            <Flex direction="column" gap={8}>
+              <Label htmlFor="select-destination-search">
+                {__('Regions', 'kirki-ecommerce')}
+              </Label>
+              <Input
+                id="select-destination-search"
+                type="search"
+                placeholder={__('Search region or state', 'kirki-ecommerce')}
+                value={searchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
+              />
+            </Flex>
 
-          <div
-            style={{
-              height: '350px',
-              overflowX: 'hidden',
-              overflowY: 'scroll',
-            }}
-          >
-            {filteredStates?.map((state, index) => (
-              <div key={index} className={`${CLASS_PREFIX}-checkbox-item`}>
-                <Checkbox
-                  value={selectedStates.includes(state.id)}
-                  label={state.name}
-                  onChange={() => handleSelectState(state?.id)}
-                />
-              </div>
-            ))}
+            <div
+              style={{
+                height: '350px',
+                overflowX: 'hidden',
+                overflowY: 'scroll',
+              }}
+            >
+              {filteredStates?.map((state, index) => (
+                <div key={index} className={`${CLASS_PREFIX}-checkbox-item`}>
+                  <Flex gap={8} style={{ alignItems: 'center' }}>
+                    <Checkbox
+                      id={`select-destination-state-${index}`}
+                      checked={selectedStates.includes(state.id)}
+                      onCheckedChange={() => handleSelectState(state?.id)}
+                    />
+                    <Label htmlFor={`select-destination-state-${index}`}>
+                      {state.name}
+                    </Label>
+                  </Flex>
+                </div>
+              ))}
+            </div>
           </div>
-        </PopoverBody>
-        <PopoverFooter>
-          <Button
-            type="outlined"
-            text={__('Cancel', 'kirki-ecommerce')}
-            onClick={() => {
-              setOpenPopup(false);
-            }}
-          />
-          <Button
-            type="primary"
-            text={__('Done', 'kirki-ecommerce')}
-            onClick={form.handleSubmit(updateRegionList)}
-          />
-        </PopoverFooter>
-      </Form>
-    </Popover>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="outline">
+                {__('Cancel', 'kirki-ecommerce')}
+              </Button>
+            </DialogClose>
+            <Button
+              variant="primary"
+              onClick={form.handleSubmit(updateRegionList)}
+            >
+              {__('Done', 'kirki-ecommerce')}
+            </Button>
+          </DialogFooter>
+        </Form>
+      </DialogContent>
+    </Dialog>
   );
 };
 

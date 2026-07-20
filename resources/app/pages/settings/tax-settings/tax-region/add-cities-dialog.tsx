@@ -2,21 +2,23 @@ import { useEffect, useMemo, useState, type Dispatch, type SetStateAction } from
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-import { Form } from '@/components/ui/form';
-import { LocationIcon, SearchIcon } from '@/icons';
-import Button from '@/molecules/button';
-import Card from '@/molecules/card';
-import Checkbox from '@/molecules/checkbox';
-import Flex from '@/molecules/flex';
-import Input from '@/molecules/input';
+import Button from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import Checkbox from '@/components/ui/checkbox';
 import {
-  Popover,
-  PopoverBody,
-  PopoverFooter,
-  PopoverHeader,
-} from '@/molecules/popover';
-import Text from '@/molecules/text';
+  Dialog,
+  DialogCloseButton,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Form } from '@/components/ui/form';
+import Input from '@/components/ui/input';
+import Label from '@/components/ui/label';
 import { CLASS_PREFIX } from '@/conf';
+import Flex from '@/molecules/flex';
+import Text from '@/molecules/text';
 import {
   AddCitiesPopupFormSchema,
   type AddCitiesPopupFormValues,
@@ -119,29 +121,35 @@ const AddCitiesPopup = (props: AddCitiesPopupProps) => {
   };
 
   return (
-    <div>
-      <Popover isOpen={openPopup}>
-        <PopoverHeader
-          borderBottom
-          leftIcon={<LocationIcon />}
-          onClose={() => setOpenPopup(false)}
-        >
-          {__('Add cities', 'kirki-ecommerce')}
-        </PopoverHeader>
+    <Dialog
+      open={openPopup}
+      onOpenChange={(next) => {
+        if (!next) {
+          setOpenPopup(false);
+        }
+      }}
+    >
+      <DialogContent>
+        <DialogCloseButton />
+        <DialogHeader>
+          <DialogTitle>{__('Add cities', 'kirki-ecommerce')}</DialogTitle>
+        </DialogHeader>
         <Form {...form}>
-          <PopoverBody>
-            <Input
-              type="search"
-              leftIcon={<SearchIcon />}
-              label={__('Cities', 'kirki-ecommerce')}
-              placeholder="Search"
-              onChange={(value: string | number) =>
-                setSearchValue(String(value))
-              }
-            />
+          <div className={`${CLASS_PREFIX}-ui-dialog-body`}>
+            <Flex direction="column" gap={8}>
+              <Label htmlFor="add-cities-search">
+                {__('Cities', 'kirki-ecommerce')}
+              </Label>
+              <Input
+                id="add-cities-search"
+                type="search"
+                placeholder="Search"
+                onChange={(e) => setSearchValue(e.target.value)}
+              />
+            </Flex>
 
             <Card
-              type={'table'}
+              className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-table`}
               style={{ borderRadius: 'var(--decom-radius-rounded-md)' }}
             >
               <div
@@ -152,12 +160,18 @@ const AddCitiesPopup = (props: AddCitiesPopupProps) => {
                 }}
               >
                 <Flex className={`${CLASS_PREFIX}-popover-heading-wrapper-dark`}>
-                  <Checkbox
-                    value={isPartialChecked || selectAll}
-                    isPartialChecked={isPartialChecked}
-                    label={countryName}
-                    onChange={handleSelectAll}
-                  />
+                  <Flex gap={8} style={{ alignItems: 'center' }}>
+                    <Checkbox
+                      id="add-cities-select-all"
+                      checked={
+                        isPartialChecked ? 'indeterminate' : selectAll
+                      }
+                      onCheckedChange={handleSelectAll}
+                    />
+                    <Label htmlFor="add-cities-select-all">
+                      {countryName}
+                    </Label>
+                  </Flex>
                 </Flex>
 
                 {filteredCities?.length > 0 ? (
@@ -172,54 +186,66 @@ const AddCitiesPopup = (props: AddCitiesPopupProps) => {
                           width: 'auto',
                         }}
                       >
-                        <Checkbox
-                          value={formSelectedCities.some(
-                            (item) => item.id === city.id,
-                          )}
-                          label={city.title}
-                          onChange={() => handleToggleCity(city)}
-                        />
+                        <Flex gap={8} style={{ alignItems: 'center' }}>
+                          <Checkbox
+                            id={`add-cities-city-${city.id}`}
+                            checked={formSelectedCities.some(
+                              (item) => item.id === city.id,
+                            )}
+                            onCheckedChange={() => handleToggleCity(city)}
+                          />
+                          <Label htmlFor={`add-cities-city-${city.id}`}>
+                            {city.title}
+                          </Label>
+                        </Flex>
                       </div>
                     );
                   })
                 ) : (
-                  <Card style={{ padding: '36px 0' }}>
-                    <Flex
-                      direction="column"
-                      gap={8}
-                      style={{ alignItems: 'center' }}
-                    >
-                      <Text
-                        header={__('No cities available')}
-                        type="secondary"
-                      />
-                    </Flex>
+                  <Card
+                    className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-default`}
+                    style={{ padding: '36px 0' }}
+                  >
+                    <CardContent>
+                      <Flex
+                        direction="column"
+                        gap={8}
+                        style={{ alignItems: 'center' }}
+                      >
+                        <Text
+                          header={__('No cities available')}
+                          type="secondary"
+                        />
+                      </Flex>
+                    </CardContent>
                   </Card>
                 )}
               </div>
             </Card>
-          </PopoverBody>
-          <PopoverFooter>
+          </div>
+          <DialogFooter>
             <Button
-              type="outlined"
-              text={__('Cancel', 'kirki-ecommerce')}
-              size="small"
+              variant="outline"
+              size="sm"
               onClick={() => {
                 setSelectedCities(selectedCities);
                 setOpenPopup(false);
               }}
-            />
+            >
+              {__('Cancel', 'kirki-ecommerce')}
+            </Button>
             <Button
-              type="primary"
-              text={__('Done', 'kirki-ecommerce')}
-              size="small"
+              variant="primary"
+              size="sm"
               onClick={form.handleSubmit(handleSubmit)}
-              state={buttonState ? 'disabled' : ''}
-            />
-          </PopoverFooter>
+              disabled={buttonState}
+            >
+              {__('Done', 'kirki-ecommerce')}
+            </Button>
+          </DialogFooter>
         </Form>
-      </Popover>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 

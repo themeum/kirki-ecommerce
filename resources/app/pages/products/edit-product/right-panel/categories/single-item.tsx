@@ -1,4 +1,6 @@
-import Checkbox from '@/molecules/checkbox';
+import Checkbox from '@/components/ui/checkbox';
+import Label from '@/components/ui/label';
+import Flex from '@/molecules/flex';
 import type { Category } from '@/types';
 
 type ProductCategorySelection = {
@@ -19,15 +21,22 @@ const SingleItem = ({
   selectedCategories,
   onSelectCategory,
 }: SingleItemProps) => {
+  const isChecked = selectedCategories.some((c) => c.id === category.id);
+
   return (
     <div style={{ padding: '8px 16px 8px 0px' }}>
-      <Checkbox
-        label={category.name}
-        value={selectedCategories.some((c) => c.id === category.id)}
-        onChange={(value) => onSelectCategory(value)}
-      />
+      <Flex gap={8} style={{ alignItems: 'center' }}>
+        <Checkbox
+          id={`category-${category.id}`}
+          checked={isChecked}
+          onCheckedChange={(checked) => onSelectCategory(checked === true)}
+        />
+        <Label htmlFor={`category-${category.id}`}>{category.name}</Label>
+      </Flex>
     </div>
   );
 };
+
+SingleItem.displayName = 'SingleItem';
 
 export default SingleItem;

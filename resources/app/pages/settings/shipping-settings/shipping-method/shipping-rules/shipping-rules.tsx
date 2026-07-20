@@ -1,11 +1,11 @@
 import { useState, useEffect, type Dispatch, type SetStateAction } from 'react';
 import { useSearchParams } from 'react-router';
 
-import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
 import ActionGroup from '@/molecules/action-group';
 import Text from '@/molecules/text';
-import Button from '@/molecules/button';
+import Button from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { __, sprintf } from '@/wpi18n';
 import { CLASS_PREFIX } from '@/conf';
 import { LighteningIcon, EditPenIcon, TrashIcon } from '@/icons';
@@ -15,7 +15,7 @@ import { dispatchToastMessage } from '@/pages/utils';
 import type { SettingsSectionData } from '@/types';
 
 import { saveShippingZones, type ShippingRule, type ShippingZone } from '@/pages/settings/shipping-settings/utils';
-import ShippingRuleModal from '@/pages/settings/shipping-settings/shipping-method/shipping-rules/shipping-rule-modal';
+import ShippingRuleModal from '@/pages/settings/shipping-settings/shipping-method/shipping-rules/shipping-rule-dialog';
 
 type ShippingRulesProps = {
   methodId: string | number;
@@ -97,7 +97,7 @@ export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
   };
   return (
     <div>
-      <Card type="large">
+      <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
         <HeaderActionsCard
           header={__('Shipping Rules', 'kirki-ecommerce')}
           subHeader={__(
@@ -123,13 +123,12 @@ export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
             {rulesObj?.map((item, index) => (
               <div key={index}>
                 <Card
-                  className={`${CLASS_PREFIX}-shipping-rules-card`}
+                  className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-default ${CLASS_PREFIX}-shipping-rules-card`}
                 >
                   <Flex style={{ justifyContent: 'space-between' }}>
                     <Flex direction={'column'} gap={16}>
                       <Card
-                        type="dark"
-                        className={`${CLASS_PREFIX}-rules-number-badge`}
+                        className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-dark ${CLASS_PREFIX}-rules-number-badge`}
                       >
                         <Text
                           type="xsm"
@@ -184,18 +183,20 @@ export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
                     </Flex>
                     <ActionGroup className={`${CLASS_PREFIX}-card-actions`}>
                       <Button
-                        type="secondary"
-                        size="small"
-                        icon={<TrashIcon />}
+                        variant="secondary"
+                        size="sm"
                         onClick={() => handleDeleteRules(index)}
-                      />
+                      >
+                        <TrashIcon />
+                      </Button>
 
                       <Button
-                        type="secondary"
-                        size="small"
-                        icon={<EditPenIcon />}
+                        variant="secondary"
+                        size="sm"
                         onClick={() => setEditingRuleIndex(index)}
-                      />
+                      >
+                        <EditPenIcon />
+                      </Button>
                     </ActionGroup>
                   </Flex>
                   {editingRuleIndex === index && (

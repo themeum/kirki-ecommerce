@@ -1,11 +1,11 @@
 import type { Dispatch, SetStateAction } from 'react';
 import { toast } from 'sonner';
 
-import Card from '@/molecules/card';
+import { Card } from '@/components/ui/card';
+import Button from '@/components/ui/button';
+import Input from '@/components/ui/input';
 import Flex from '@/molecules/flex';
 import Text from '@/molecules/text';
-import Input from '@/molecules/input';
-import Button from '@/molecules/button';
 import { PaymentIcon, LocationIcon, TrashIcon } from '@/icons';
 import { __, sprintf } from '@/wpi18n';
 import { CLASS_PREFIX } from '@/conf';
@@ -62,7 +62,10 @@ export const TaxRateList = ({
   return (
     <div>
       {!applySingleTax && !taxRates.length ? (
-        <Card type="innerDark" style={{ padding: '36px 0' }}>
+        <Card
+          className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner-dark`}
+          style={{ padding: '36px 0' }}
+        >
           <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
             <PaymentIcon />
             <span style={{ color: '#878593' }}>
@@ -71,7 +74,7 @@ export const TaxRateList = ({
           </Flex>
         </Card>
       ) : (
-        <Card type={'innerDark'}>
+        <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner-dark`}>
           <Text
             header={__('Tax rates', 'kirki-ecommerce')}
             style={{ marginBottom: 'var(--decom-spacing-2)' }}
@@ -79,9 +82,8 @@ export const TaxRateList = ({
           <Flex gap={2} direction={'column'}>
             {taxRates?.map((item, index) => (
               <Card
-                type={'default'}
                 key={index}
-                className={`${CLASS_PREFIX}-tax-card`}
+                className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-default ${CLASS_PREFIX}-tax-card`}
               >
                 <Text header={item?.state} leftIcon={<LocationIcon />} />
                 <div className={`${CLASS_PREFIX}-tax-card-content`}>
@@ -94,22 +96,19 @@ export const TaxRateList = ({
                     <Input
                       value={item?.rate ?? ''}
                       style={{ width: '72px' }}
-                      onChange={(value: number | string) =>
-                        handleTaxRate(item, value)
-                      }
-                      onBlur={(value: number | string) =>
-                        handleTaxRate(item, value)
-                      }
+                      onChange={(e) => handleTaxRate(item, e.target.value)}
+                      onBlur={(e) => handleTaxRate(item, e.target.value)}
                       type="number"
                       min={0}
                       max={100}
                     />
                     <Button
-                      type={'secondary'}
-                      size={'icon'}
-                      icon={<TrashIcon />}
+                      variant="secondary"
+                      size="icon"
                       onClick={() => handleDeleteRate(item)}
-                    />
+                    >
+                      <TrashIcon />
+                    </Button>
                   </Flex>
                 </div>
               </Card>

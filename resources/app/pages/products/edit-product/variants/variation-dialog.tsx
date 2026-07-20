@@ -4,15 +4,18 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 import ColorPickerField from '@/components/form/color-picker-field';
 import TextField from '@/components/form/text-field';
-import { Form } from '@/components/ui/form';
-import Button from '@/molecules/button';
-import Flex from '@/molecules/flex';
+import Button from '@/components/ui/button';
 import {
-  Popover,
-  PopoverBody,
-  PopoverFooter,
-  PopoverHeader,
-} from '@/molecules/popover';
+  Dialog,
+  DialogCloseButton,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Form } from '@/components/ui/form';
+import { CLASS_PREFIX } from '@/conf';
+import Flex from '@/molecules/flex';
 import {
   ProductVariationPopoverFormSchema,
   type ProductVariationPopoverFormValues,
@@ -72,46 +75,53 @@ const VariationPopover = ({
     onClose();
   };
 
-  const btnState: ButtonState =
-    !titleValue || !colorValue ? 'disabled' : '';
+  const btnState: ButtonState = !titleValue || !colorValue ? 'disabled' : '';
 
   return (
-    <Popover isOpen={isOpen} style={{ width: '365px' }} onClose={onClose}>
-      <PopoverHeader style={{ padding: '20px' }} onClose={onClose}>
-        {__('Add Color', 'kirki-ecommerce')}
-      </PopoverHeader>
-      <Form {...form}>
-        <PopoverBody style={{ padding: '0 20px 20px 20px' }}>
-          <Flex direction="column" gap={16}>
-            <TextField
-              name="title"
-              label={__('Title', 'kirki-ecommerce')}
-              placeholder={__('Cerulean', 'kirki-ecommerce')}
-            />
-            <ColorPickerField
-              name="color"
-              label={__('Color', 'kirki-ecommerce')}
-              placeholder={__('#007ba7', 'kirki-ecommerce')}
-            />
-          </Flex>
-        </PopoverBody>
-        <PopoverFooter style={{ padding: '20px' }}>
-          <Button
-            text={__('Cancel', 'kirki-ecommerce')}
-            type="outlined"
-            size="small"
-            onClick={onClose}
-          />
-          <Button
-            text={__('Save', 'kirki-ecommerce')}
-            type="primary"
-            size="small"
-            state={btnState}
-            onClick={form.handleSubmit(handleNewValueSave)}
-          />
-        </PopoverFooter>
-      </Form>
-    </Popover>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(next) => {
+        if (!next) {
+          onClose();
+        }
+      }}
+    >
+      <DialogContent>
+        <DialogCloseButton />
+        <DialogHeader>
+          <DialogTitle>{__('Add Color', 'kirki-ecommerce')}</DialogTitle>
+        </DialogHeader>
+        <Form {...form}>
+          <div className={`${CLASS_PREFIX}-ui-dialog-body`}>
+            <Flex direction="column" gap={16}>
+              <TextField
+                name="title"
+                label={__('Title', 'kirki-ecommerce')}
+                placeholder={__('Cerulean', 'kirki-ecommerce')}
+              />
+              <ColorPickerField
+                name="color"
+                label={__('Color', 'kirki-ecommerce')}
+                placeholder={__('#007ba7', 'kirki-ecommerce')}
+              />
+            </Flex>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" size="sm" onClick={onClose}>
+              {__('Cancel', 'kirki-ecommerce')}
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              disabled={btnState === 'disabled'}
+              onClick={form.handleSubmit(handleNewValueSave)}
+            >
+              {__('Save', 'kirki-ecommerce')}
+            </Button>
+          </DialogFooter>
+        </Form>
+      </DialogContent>
+    </Dialog>
   );
 };
 

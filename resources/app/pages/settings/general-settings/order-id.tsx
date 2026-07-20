@@ -1,13 +1,15 @@
 import { useFormContext, useWatch } from 'react-hook-form';
 
 import TextField from '@/components/form/text-field';
+import Button from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import Input from '@/components/ui/input';
+import Label from '@/components/ui/label';
+import { CLASS_PREFIX } from '@/conf';
 import { ReplaceIcon } from '@/icons';
 import ActionGroup from '@/molecules/action-group';
-import Button from '@/molecules/button';
-import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
 import Grid from '@/molecules/grid';
-import Input from '@/molecules/input';
 import Text from '@/molecules/text';
 import type { GeneralSettingsFormValues } from '@/schemas/forms/general-settings-form';
 import { __ } from '@/wpi18n';
@@ -30,7 +32,7 @@ const OrderId = () => {
 
   return (
     <div>
-      <Card type="large">
+      <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
         <Text
           header={__('Order ID', 'kirki-ecommerce')}
           subHeader={__(
@@ -41,7 +43,10 @@ const OrderId = () => {
           style={{ gap: 'var(--decom-spacing-f3)' }}
         />
 
-        <Card type="inner" style={{ padding: 'var(--decom-spacing-4)' }}>
+        <Card
+          className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner`}
+          style={{ padding: 'var(--decom-spacing-4)' }}
+        >
           <Flex direction="column" gap={16}>
             <Grid>
               <TextField
@@ -60,24 +65,30 @@ const OrderId = () => {
             </Grid>
 
             <Card
-              type="innerDark"
+              className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-innerDark`}
               style={{
                 padding: 'var(--decom-spacing-2) var(--decom-spacing-3)',
               }}
             >
-              <Input
-                label={__('Next order IDs will look like:', 'kirki-ecommerce')}
-                value={orderID}
-                style={{
-                  padding: 'var(--decom-spacing-2)',
-                  textAlign: 'center',
-                  color: 'var(--decom-text-text-special-3)',
-                }}
-              />
+              <Flex direction="column" gap={8}>
+                <Label htmlFor="order-id-preview">
+                  {__('Next order IDs will look like:', 'kirki-ecommerce')}
+                </Label>
+                <Input
+                  id="order-id-preview"
+                  value={orderID}
+                  readOnly
+                  style={{
+                    padding: 'var(--decom-spacing-2)',
+                    textAlign: 'center',
+                    color: 'var(--decom-text-text-special-3)',
+                  }}
+                />
+              </Flex>
             </Card>
 
             <Card
-              type="large"
+              className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}
               style={{
                 borderRadius: 'var(--decom-radius-rounded-lg)',
                 border: '1px solid var(--decom-border-border)',
@@ -91,12 +102,13 @@ const OrderId = () => {
                   />
                   <ActionGroup>
                     <Button
-                      text={__('Reset Now', 'kirki-ecommerce')}
-                      size="small"
-                      type="secondary"
-                      leftIcon={<ReplaceIcon />}
+                      variant="secondary"
+                      size="sm"
                       onClick={handleResetIDField}
-                    />
+                    >
+                      <ReplaceIcon />
+                      {__('Reset Now', 'kirki-ecommerce')}
+                    </Button>
                   </ActionGroup>
                 </Flex>
                 <Text

@@ -2,10 +2,11 @@ import { useState } from 'react';
 
 import DropdownButton from '@/components/dropdown-button';
 import HeaderActionsCard from '@/components/header-actions-card';
+import { Card } from '@/components/ui/card';
+import { CLASS_PREFIX } from '@/conf';
 import { BankIconLarge, ShowMoreIcon, CashIcon } from '@/icons';
 import ActionGroup from '@/molecules/action-group';
 import Badge from '@/molecules/badge';
-import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
 import Text from '@/molecules/text';
 import ToggleButton from '@/molecules/toggle-button';
@@ -17,7 +18,7 @@ import {
 import type { PaymentMethod } from '@/types';
 import { __, sprintf } from '@/wpi18n';
 
-import ManualPaymentPopup from '@/pages/settings/payment-settings/manual-payment-popup';
+import ManualPaymentPopup from '@/pages/settings/payment-settings/manual-payment-dialog';
 
 type ManualPaymentProps = {
   manualPaymentList: PaymentMethod[];
@@ -77,7 +78,7 @@ const ManualPayment = (props: ManualPaymentProps) => {
 
   return (
     <>
-      <Card type="large">
+      <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
         <HeaderActionsCard
           header={__('Manual payment methods', 'kirki-ecommerce')}
           subHeader={__(
@@ -90,7 +91,7 @@ const ManualPayment = (props: ManualPaymentProps) => {
 
         {manualPaymentList?.length === 0 ? (
           <Card
-            type="innerDark"
+            className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-innerDark`}
             style={{ padding: 'var(--decom-spacing-9) var(--decom-spacing-0)' }}
           >
             <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
@@ -104,7 +105,7 @@ const ManualPayment = (props: ManualPaymentProps) => {
           <Flex direction="column" gap={16}>
             {manualPaymentList?.map((item, index) => (
               <Card
-                type="inner"
+                className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner`}
                 key={index}
                 style={{
                   padding: 'var(--decom-spacing-3) var(--decom-spacing-4)',

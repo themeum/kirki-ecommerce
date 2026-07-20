@@ -1,17 +1,23 @@
 import { useState, type Dispatch, type SetStateAction } from 'react';
 
+import Button from '@/components/ui/button';
+import Input from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { PlusIcon, TrashIcon } from '@/icons';
-import Button from '@/molecules/button';
 import Grid from '@/molecules/grid';
-import Input from '@/molecules/input';
-import { Select } from '@/molecules/select';
 import Text from '@/molecules/text';
 import { CLASS_PREFIX } from '@/conf';
 import { __ } from '@/wpi18n';
 
 import { taxRuleConditionOptions } from '@/pages/settings/tax-settings/utils';
 import type { TaxConditionRow, TaxRegion } from '@/pages/settings/tax-settings/utils';
-import { AddStatePopup } from '@/pages/settings/tax-settings/tax-region/tax-rules/add-state-popup';
+import { AddStatePopup } from '@/pages/settings/tax-settings/tax-region/tax-rules/add-state-dialog';
 import { getDestinationDisplayValue } from '@/pages/settings/tax-settings/tax-region/tax-rules/helper';
 
 type ConditionOption = {
@@ -84,6 +90,11 @@ const ConditionRow = (props: ConditionRowProps) => {
   const displayedValue = row.value;
   const displayedCondition = row.type;
 
+  const conditionOptions =
+    index === 1
+      ? [{ title: __('Tax Profile', 'kirki-ecommerce'), value: 'tax_profile' }]
+      : taxRuleConditionOptions;
+
   return (
     <div key={row.id}>
       {index > 0 ? (
@@ -101,14 +112,20 @@ const ConditionRow = (props: ConditionRowProps) => {
         }}
       >
         <Select
-          value={displayedCondition || row.condition}
-          optionsArray={
-            index === 1
-              ? [{ title: __('Tax Profile', 'kirki-ecommerce'), value: 'tax_profile' }]
-              : taxRuleConditionOptions
-          }
-          onChange={(value) => updateCondition(row.id, 'condition', value)}
-        />
+          value={String(displayedCondition || row.condition)}
+          onValueChange={(value) => updateCondition(row.id, 'condition', value)}
+        >
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {conditionOptions.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.title}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
         <Input value={__('is', 'kirki-ecommerce')} readOnly />
 
@@ -120,33 +137,45 @@ const ConditionRow = (props: ConditionRowProps) => {
           />
         ) : (
           <Select
-            value={(displayedValue || row.value) as string | number}
-            optionsArray={getConditionValue(
-              displayedCondition || row.condition,
-            )}
-            onChange={(value) => updateCondition(row.id, 'value', value)}
-          />
+            value={String(displayedValue || row.value || '')}
+            onValueChange={(value) => updateCondition(row.id, 'value', value)}
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {getConditionValue(displayedCondition || row.condition).map(
+                (option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.title}
+                  </SelectItem>
+                ),
+              )}
+            </SelectContent>
+          </Select>
         )}
 
         {row.condition === 'destination_region' && conditions.length < 2 && (
           <Button
             size="icon"
-            type="outlined"
-            icon={<PlusIcon />}
+            variant="outline"
             onClick={handleAddConditionRow}
             style={{ padding: '8px' }}
             className={`${CLASS_PREFIX}-condition-actions`}
-          />
+          >
+            <PlusIcon />
+          </Button>
         )}
         {index > 0 && (
           <Button
             size="icon"
-            type="secondary"
-            icon={<TrashIcon />}
+            variant="secondary"
             onClick={() => handleDeleteConditionRow(row.id)}
             style={{ padding: '8px' }}
             className={`${CLASS_PREFIX}-condition-actions`}
-          />
+          >
+            <TrashIcon />
+          </Button>
         )}
       </Grid>
       {showStatesPopup && (

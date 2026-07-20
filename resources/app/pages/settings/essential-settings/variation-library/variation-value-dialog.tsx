@@ -4,17 +4,20 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 import ColorPickerField from '@/components/form/color-picker-field';
 import TextField from '@/components/form/text-field';
+import Button from '@/components/ui/button';
+import {
+  Dialog,
+  DialogCloseButton,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
+import { CLASS_PREFIX } from '@/conf';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import Button from '@/molecules/button';
 import Flex from '@/molecules/flex';
-import {
-  Popover,
-  PopoverBody,
-  PopoverFooter,
-  PopoverHeader,
-} from '@/molecules/popover';
 import {
   VariationValueFormSchema,
   type VariationValueFormValues,
@@ -101,23 +104,25 @@ const VariationValuePopup = ({
       : '';
 
   return (
-    <div>
-      <Popover isOpen={isOpen} style={{ width: '365px' }} onClose={onClose}>
-        <PopoverHeader
-          style={{ padding: 'var(--decom-spacing-5)' }}
-          onClose={onClose}
-        >
-          {type === 'color'
-            ? __('Add Color', 'kirki-ecommerce')
-            : __('Add Value', 'kirki-ecommerce')}
-        </PopoverHeader>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(next) => {
+        if (!next) {
+          onClose();
+        }
+      }}
+    >
+      <DialogContent>
+        <DialogCloseButton />
+        <DialogHeader>
+          <DialogTitle>
+            {type === 'color'
+              ? __('Add Color', 'kirki-ecommerce')
+              : __('Add Value', 'kirki-ecommerce')}
+          </DialogTitle>
+        </DialogHeader>
         <Form {...form}>
-          <PopoverBody
-            style={{
-              padding:
-                'var(--decom-spacing-0) var(--decom-spacing-5) var(--decom-spacing-5) var(--decom-spacing-5)',
-            }}
-          >
+          <div className={`${CLASS_PREFIX}-ui-dialog-body`}>
             <Flex direction="column" gap={16}>
               <TextField
                 name="value"
@@ -136,25 +141,24 @@ const VariationValuePopup = ({
                 />
               )}
             </Flex>
-          </PopoverBody>
-          <PopoverFooter>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" size="sm" onClick={onClose}>
+              {__('Cancel', 'kirki-ecommerce')}
+            </Button>
             <Button
-              text={__('Cancel', 'kirki-ecommerce')}
-              type="outlined"
-              size="small"
-              onClick={onClose}
-            />
-            <Button
-              text={__('Save', 'kirki-ecommerce')}
-              type="primary"
-              size="small"
-              state={isSubmitting ? 'loading' : btnState}
+              variant="primary"
+              size="sm"
+              loading={isSubmitting}
+              disabled={btnState === 'disabled'}
               onClick={form.handleSubmit(handleSubmit)}
-            />
-          </PopoverFooter>
+            >
+              {__('Save', 'kirki-ecommerce')}
+            </Button>
+          </DialogFooter>
         </Form>
-      </Popover>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 

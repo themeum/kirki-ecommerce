@@ -6,20 +6,22 @@ import SelectField from '@/components/form/select-field';
 import TextareaField from '@/components/form/textarea-field';
 import TextField from '@/components/form/text-field';
 import ThumbnailField from '@/components/form/thumbnail-field';
+import Button from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogClose,
+  DialogCloseButton,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
-import { CategoryPopupIcon } from '@/icons';
+import { CLASS_PREFIX } from '@/conf';
 import { applyServerErrors } from '@/libs/form-errors';
 import type { ErrorResponse } from '@/libs/api';
-import Button from '@/molecules/button';
-import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
-import {
-  Popover,
-  PopoverBody,
-  PopoverFooter,
-  PopoverHeader,
-} from '@/molecules/popover';
-import Text from '@/molecules/text';
 import {
   CategoryFormSchema,
   type CategoryFormValues,
@@ -92,6 +94,12 @@ const CategoryAddEditPopover = ({
     })),
   ];
 
+  const handleOpenChange = (nextOpen: boolean) => {
+    if (!nextOpen) {
+      onClose();
+    }
+  };
+
   const handleSubmit = async (values: CategoryFormValues) => {
     const payload: CategoryFormData = {
       ...values,
@@ -118,80 +126,80 @@ const CategoryAddEditPopover = ({
   };
 
   return (
-    <Popover isOpen={true} onClose={onClose}>
-      <PopoverHeader
-        onClose={onClose}
-        leftIcon={<CategoryPopupIcon />}
-        style={{ borderBottom: '1px solid #E4E3E9' }}
-      >
-        <Text
-          type="primary"
-          header={
-            categoryId
+    <Dialog open={true} onOpenChange={handleOpenChange}>
+      <DialogContent>
+        <DialogCloseButton />
+        <DialogHeader>
+          <DialogTitle>
+            {categoryId
               ? __('Edit Category', 'kirki-ecommerce')
-              : __('New Category', 'kirki-ecommerce')
-          }
-        />
-      </PopoverHeader>
-      <Form {...form}>
-        <PopoverBody>
-          <Card type="light">
-            <Flex direction="column" gap={16}>
-              <TextField
-                name="name"
-                label={__('Name', 'kirki-ecommerce')}
-                placeholder={__('e.g., Fundraising', 'kirki-ecommerce')}
-              />
-              <TextField
-                name="slug"
-                label={__('Slug', 'kirki-ecommerce')}
-                placeholder={__('e.g., fundraising', 'kirki-ecommerce')}
-              />
-              <SelectField
-                name="parent_id"
-                label={__('Parent', 'kirki-ecommerce')}
-                options={parentOptions}
-                placeholder={__('None', 'kirki-ecommerce')}
-              />
-              <TextareaField
-                name="description"
-                label={__('Description', 'kirki-ecommerce')}
-                rows={2}
-                placeholder={__(
-                  'e.g., Dedicated to providing immediate support and essential resources to communities affected by unexpected crises.',
-                  'kirki-ecommerce',
-                )}
-              />
-              <ThumbnailField
-                name="image"
-                label={__('Thumb', 'kirki-ecommerce')}
-                valueAs="id"
-                previewUrl={imageUrl}
-                onPreviewChange={setImageUrl}
-              />
-            </Flex>
-          </Card>
-        </PopoverBody>
-        <PopoverFooter>
-          <Button
-            type="outlined"
-            text={__('Cancel', 'kirki-ecommerce')}
-            onClick={onClose}
-            state={isSubmitting ? 'disabled' : undefined}
-          />
-          <Button
-            type="primary"
-            text={
-              categoryId
-                ? __('Save', 'kirki-ecommerce')
-                : __('Add', 'kirki-ecommerce')
-            }
-            onClick={form.handleSubmit(handleSubmit)}
-            state={isSubmitting ? 'loading' : undefined}
-          />
-        </PopoverFooter>
-      </Form>
-    </Popover>
+              : __('New Category', 'kirki-ecommerce')}
+          </DialogTitle>
+        </DialogHeader>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleSubmit)}>
+            <div className={`${CLASS_PREFIX}-ui-dialog-body`}>
+              <Card
+                className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-light`}
+              >
+                <CardContent>
+                  <Flex direction="column" gap={16}>
+                    <TextField
+                      name="name"
+                      label={__('Name', 'kirki-ecommerce')}
+                      placeholder={__('e.g., Fundraising', 'kirki-ecommerce')}
+                    />
+                    <TextField
+                      name="slug"
+                      label={__('Slug', 'kirki-ecommerce')}
+                      placeholder={__('e.g., fundraising', 'kirki-ecommerce')}
+                    />
+                    <SelectField
+                      name="parent_id"
+                      label={__('Parent', 'kirki-ecommerce')}
+                      options={parentOptions}
+                      placeholder={__('None', 'kirki-ecommerce')}
+                    />
+                    <TextareaField
+                      name="description"
+                      label={__('Description', 'kirki-ecommerce')}
+                      rows={2}
+                      placeholder={__(
+                        'e.g., Dedicated to providing immediate support and essential resources to communities affected by unexpected crises.',
+                        'kirki-ecommerce',
+                      )}
+                    />
+                    <ThumbnailField
+                      name="image"
+                      label={__('Thumb', 'kirki-ecommerce')}
+                      valueAs="id"
+                      previewUrl={imageUrl}
+                      onPreviewChange={setImageUrl}
+                    />
+                  </Flex>
+                </CardContent>
+              </Card>
+            </div>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={isSubmitting}
+                >
+                  {__('Cancel', 'kirki-ecommerce')}
+                </Button>
+              </DialogClose>
+              <Button type="submit" variant="primary" loading={isSubmitting}>
+                {categoryId
+                  ? __('Save', 'kirki-ecommerce')
+                  : __('Add', 'kirki-ecommerce')}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
   );
 };
 

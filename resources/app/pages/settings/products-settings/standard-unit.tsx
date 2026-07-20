@@ -1,7 +1,8 @@
 import SelectField from '@/components/form/select-field';
 import SwitchField from '@/components/form/switch-field';
+import { Card } from '@/components/ui/card';
+import { CLASS_PREFIX } from '@/conf';
 import ActionGroup from '@/molecules/action-group';
-import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
 import Text from '@/molecules/text';
 import { __ } from '@/wpi18n';
@@ -21,7 +22,7 @@ export const StandardUnit = () => {
 
   return (
     <div>
-      <Card type="large">
+      <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
         <Text
           header={__('Standards', 'kirki-ecommerce')}
           subHeader={__(
@@ -33,6 +34,7 @@ export const StandardUnit = () => {
         />
         <Flex direction="column" gap={8}>
           <Card
+            className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-default`}
             style={{
               borderRadius: 'var(--decom-radius-rounded-lg)',
               border: '1px solid var(--decom-border-border)',
@@ -52,6 +54,7 @@ export const StandardUnit = () => {
             </Flex>
           </Card>
           <Card
+            className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-default`}
             style={{
               borderRadius: 'var(--decom-radius-rounded-lg)',
               border: '1px solid var(--decom-border-border)',

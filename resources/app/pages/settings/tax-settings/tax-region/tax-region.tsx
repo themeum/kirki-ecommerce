@@ -4,10 +4,10 @@ import { useNavigate, useOutletContext } from 'react-router';
 
 import DropdownButton from '@/components/dropdown-button';
 import HeaderActionsCard from '@/components/header-actions-card';
+import { Card } from '@/components/ui/card';
 import { LocationIcon, ShowMoreIcon, EditIcon, TrashIcon } from '@/icons';
 import ActionGroup from '@/molecules/action-group';
 import Badge from '@/molecules/badge';
-import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
 import Text from '@/molecules/text';
 import ToggleButton from '@/molecules/toggle-button';
@@ -16,7 +16,7 @@ import type { TaxSettingsFormValues } from '@/schemas/forms/tax-settings-form';
 import { __ } from '@/wpi18n';
 
 import type { SelectedTaxRegionDraft, TaxRegion } from '@/pages/settings/tax-settings/utils';
-import TaxRegionPopup from '@/pages/settings/tax-settings/tax-region/tax-region-popup';
+import TaxRegionPopup from '@/pages/settings/tax-settings/tax-region/tax-region-dialog';
 
 type SettingsOutletContext = {
   confirmAction: (opts: {
@@ -132,7 +132,7 @@ const TaxRegions = (props: TaxRegionsProps) => {
 
   return (
     <>
-      <Card type="large">
+      <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
         <HeaderActionsCard
           header={__('Tax Regions', 'kirki-ecommerce')}
           subHeader={__(
@@ -144,7 +144,10 @@ const TaxRegions = (props: TaxRegionsProps) => {
         />
 
         {!taxRegions.length ? (
-          <Card type="innerDark" style={{ padding: '36px 0' }}>
+          <Card
+            className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner-dark`}
+            style={{ padding: '36px 0' }}
+          >
             <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
               <LocationIcon />
               <span style={{ color: '#878593' }}>
@@ -156,12 +159,11 @@ const TaxRegions = (props: TaxRegionsProps) => {
           <Flex direction="column" gap={12}>
             {taxRegions.map((item, index) => (
               <Card
-                type="inner"
                 key={index}
                 style={{
                   padding: 'var(--decom-spacing-3) var(--decom-spacing-4)',
                 }}
-                className={`${CLASS_PREFIX}-hover-parent`}
+                className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner ${CLASS_PREFIX}-hover-parent`}
               >
                 <Flex style={{ alignItems: 'flex-start' }} gap={8}>
                   <span>{item?.flag}</span>

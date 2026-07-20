@@ -1,11 +1,11 @@
 import { useState, useEffect, type ReactNode } from 'react';
 
-import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
 import { BoxClosedIcon, BoxOpenIcon } from '@/icons';
 import { CLASS_PREFIX } from '@/conf';
 import GroupOptionCard from '@/components/group-option-card';
 import HeaderActionsCard from '@/components/header-actions-card';
+import { Card } from '@/components/ui/card';
 import { queryClient } from '@/libs/query-client';
 import {
   deleteShippingProfile,
@@ -15,7 +15,7 @@ import { dispatchToastMessage } from '@/pages/utils';
 import type { ShippingProfile as ShippingProfileType } from '@/types';
 import { __ } from '@/wpi18n';
 
-import { CreateProfilePopup } from '@/pages/settings/shipping-settings/shipping-profile/create-profile-popup';
+import { CreateProfilePopup } from '@/pages/settings/shipping-settings/shipping-profile/create-profile-dialog';
 
 type ShippingProfileListItem = ShippingProfileType & {
   icon?: ReactNode;
@@ -66,7 +66,7 @@ const ShippingProfile = () => {
 
   return (
     <>
-      <Card type="large">
+      <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
         <HeaderActionsCard
           header={__('Shipping Profiles', 'kirki-ecommerce')}
           subHeader={__(
@@ -79,7 +79,7 @@ const ShippingProfile = () => {
 
         {!shippingProfileList?.length ? (
           <Card
-            type="innerDark"
+            className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner-dark`}
             style={{ padding: 'var(--decom-spacing-9) var(--decom-spacing-0)' }}
           >
             <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>

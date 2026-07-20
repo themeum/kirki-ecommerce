@@ -1,16 +1,16 @@
 import { useState } from 'react';
 
+import Button from '@/components/ui/button';
+import Checkbox from '@/components/ui/checkbox';
 import { EditPenIcon, TrashIcon } from '@/icons';
 import ActionGroup from '@/molecules/action-group';
-import Button from '@/molecules/button';
-import Checkbox from '@/molecules/checkbox';
 import { TableCell, TableRow } from '@/molecules/table';
 import Thumbnail from '@/molecules/thumbnail';
 import { useDeleteBrandMutation } from '@/services/brand';
 import type { Brand, MarkListHandlers } from '@/types';
 import { __ } from '@/wpi18n';
 
-import BrandAddEditPopover from '@/pages/brands/brand-add-edit-popover';
+import BrandAddEditPopover from '@/pages/brands/brand-add-edit-dialog';
 
 type SingleRowProps = MarkListHandlers & {
   item: Brand;
@@ -40,8 +40,11 @@ const SingleRow = ({
       >
         <TableCell onlyCheckbox>
           <Checkbox
-            value={isSelected(item.id)}
-            onChange={(value) => handleSingleCheckboxClick(value, item.id)}
+            checked={isSelected(item.id)}
+            onCheckedChange={(value) =>
+              handleSingleCheckboxClick(value === true, item.id)
+            }
+            onClick={(e) => e.stopPropagation()}
           />
         </TableCell>
         <TableCell>{item?.name || '--'}</TableCell>
@@ -57,22 +60,26 @@ const SingleRow = ({
         <TableCell alignment="right" style={{ width: '1%' }}>
           <ActionGroup>
             <Button
-              size="small"
-              text={__('Edit', 'kirki-ecommerce')}
-              type="secondary"
-              leftIcon={<EditPenIcon />}
-              onClick={() => {
+              size="sm"
+              variant="secondary"
+              onClick={(e) => {
+                e.stopPropagation();
                 setOpenPopup(true);
               }}
-            />
+            >
+              <EditPenIcon />
+              {__('Edit', 'kirki-ecommerce')}
+            </Button>
             <Button
-              size="small"
-              type="destructiveSoft"
-              icon={<TrashIcon />}
-              onClick={() => {
+              size="icon"
+              variant="destructive"
+              onClick={(e) => {
+                e.stopPropagation();
                 onItemDelete(item.id);
               }}
-            />
+            >
+              <TrashIcon />
+            </Button>
           </ActionGroup>
         </TableCell>
       </TableRow>

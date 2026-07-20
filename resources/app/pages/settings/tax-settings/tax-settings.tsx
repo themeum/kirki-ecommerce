@@ -5,6 +5,8 @@ import { useNavigate, useOutletContext } from 'react-router';
 
 import CheckboxField from '@/components/form/checkbox-field';
 import PageNavbar from '@/components/page-navbar';
+import Button from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import {
   Form,
   FormControl,
@@ -12,16 +14,16 @@ import {
   FormItem,
   FormMessage,
 } from '@/components/ui/form';
+import Label from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { CLASS_PREFIX } from '@/conf';
 import { TaxIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { useUnsavedStatus } from '@/libs/unsaved-store';
-import Button from '@/molecules/button';
-import Card from '@/molecules/card';
 import Container from '@/molecules/container';
 import Flex from '@/molecules/flex';
 import PageHeading from '@/molecules/page-heading';
-import { RadioGroup } from '@/molecules/radio-group';
 import Separator from '@/molecules/separator';
 import Text from '@/molecules/text';
 import {
@@ -98,16 +100,24 @@ const TaxCollectionRadio = () => {
         <FormItem>
           <FormControl>
             <RadioGroup
-              optionsArray={optionsArray}
-              onChange={(value) => {
-                if (!value) {
-                  return;
-                }
-                field.onChange(value === 'inclusive');
-              }}
-              type="checked"
               value={field.value ? 'inclusive' : 'not_inclusive'}
-            />
+              onValueChange={(value) => field.onChange(value === 'inclusive')}
+            >
+              {optionsArray.map((option) => (
+                <div
+                  key={option.value}
+                  className={`${CLASS_PREFIX}-ui-radio-field-row`}
+                >
+                  <RadioGroupItem
+                    value={option.value}
+                    id={`tax-collection-${option.value}`}
+                  />
+                  <Label htmlFor={`tax-collection-${option.value}`}>
+                    {option.title}
+                  </Label>
+                </div>
+              ))}
+            </RadioGroup>
           </FormControl>
           <FormMessage />
         </FormItem>
@@ -206,21 +216,23 @@ const TaxSettings = () => {
           hasUnsavedData ? (
             <>
               <Button
-                type="ghost"
-                text={__('Cancel', 'kirki-ecommerce')}
+                variant="ghost"
+                size="sm"
                 onClick={handleDiscardData}
-                size="small"
-                state={isSaving ? 'disabled' : undefined}
-              />
+                disabled={isSaving}
+              >
+                {__('Cancel', 'kirki-ecommerce')}
+              </Button>
               <Button
-                type="primary"
-                text={__('Save', 'kirki-ecommerce')}
+                variant="primary"
+                size="sm"
                 onClick={form.handleSubmit((values) =>
                   handleSaveTaxSettings(values),
                 )}
-                size="small"
-                state={isSaving ? 'loading' : undefined}
-              />
+                loading={isSaving}
+              >
+                {__('Save', 'kirki-ecommerce')}
+              </Button>
             </>
           ) : (
             <></>
@@ -236,7 +248,7 @@ const TaxSettings = () => {
                 text={'Tax'}
                 handleBack={handleBackButton}
               />
-              <Card type="large">
+              <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
                 <Text
                   type="primary"
                   header={__('How would you like to collect tax?', 'kirki-ecommerce')}
