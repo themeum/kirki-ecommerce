@@ -6,10 +6,10 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from '@/molecules/accordion';
-import Badge from '@/molecules/badge';
-import Card from '@/molecules/card';
-import Text from '@/molecules/text';
+} from '@/components/ui/accordion';
+import Badge from '@/components/ui/badge';
+import { Card } from '@/components/ui/card';
+import Text from '@/components/ui/text';
 import { __ } from '@/wpi18n';
 
 type OptionAccordionProps = {

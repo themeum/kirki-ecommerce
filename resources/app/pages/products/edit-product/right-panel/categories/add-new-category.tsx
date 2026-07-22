@@ -11,8 +11,8 @@ import { CLASS_PREFIX } from '@/conf';
 import { PlusIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import ActionGroup from '@/molecules/action-group';
-import Flex from '@/molecules/flex';
+import ActionGroup from '@/components/ui/action-group';
+import Flex from '@/components/ui/flex';
 import {
   ProductAddCategoryFormSchema,
   type ProductAddCategoryFormValues,

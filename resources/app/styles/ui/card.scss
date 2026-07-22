@@ -7,6 +7,150 @@
   @include fontGeneralSettings();
 }
 
+.#{$class-prefix}-ui-card--default {
+  padding: var(--decom-spacing-4);
+}
+
+.#{$class-prefix}-ui-card--large {
+  padding: var(--decom-spacing-5);
+  gap: var(--decom-spacing-5);
+  display: flex;
+  flex-direction: column;
+}
+
+.#{$class-prefix}-ui-card--table {
+  padding: var(--decom-spacing-0);
+  overflow: hidden;
+  border: 1px solid #e6e6e6;
+}
+
+.#{$class-prefix}-ui-card--form {
+  display: flex;
+  flex-direction: column;
+  row-gap: var(--decom-spacing-4);
+  padding: var(--decom-spacing-4);
+}
+
+.#{$class-prefix}-ui-card--inner {
+  padding: var(--decom-spacing-3);
+  border: 1px solid var(--decom-border-border-secondary);
+  border-radius: var(--decom-radius-rounded-lg);
+  box-shadow: none;
+}
+
+.#{$class-prefix}-ui-card--dark {
+  padding: var(--decom-spacing-4);
+  background-color: var(--decom-background-bg-surface-secondary);
+}
+
+.#{$class-prefix}-ui-card--light {
+  padding: var(--decom-spacing-4);
+  background-color: var(--decom-background-bg-fill);
+  border: 1px solid var(--decom-border-border-secondary);
+  border-radius: var(--decom-radius-rounded-md);
+}
+
+.#{$class-prefix}-ui-card--innerDark {
+  padding: var(--decom-spacing-3);
+  border-radius: var(--decom-radius-rounded-lg);
+  background-color: var(--decom-background-bg-surface-secondary);
+}
+
+.#{$class-prefix}-ui-card--shadow {
+  padding: var(--decom-spacing-4);
+  box-shadow: 0px -1px 1px 0.5px #0000001a inset;
+  border: none;
+}
+
+.#{$class-prefix}-ui-card--tartiary {
+  background-color: var(--decom-background-bg-surface-secondary);
+}
+
+.#{$class-prefix}-ui-card--navbar {
+  padding: var(--decom-spacing-0) var(--decom-spacing-3);
+  border-radius: var(--decom-radius-rounded-sm);
+  min-height: 36px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.#{$class-prefix}-card {
+  width: 100%;
+  background-color: var(--decom-background-bg-fill);
+  border-radius: var(--decom-radius-rounded-xl);
+  box-sizing: border-box;
+}
+
+.#{$class-prefix}-card-default {
+  padding: var(--decom-spacing-4);
+}
+
+.#{$class-prefix}-card-large {
+  padding: var(--decom-spacing-5);
+  gap: var(--decom-spacing-5);
+  display: flex;
+  flex-direction: column;
+}
+
+.#{$class-prefix}-card-table {
+  padding: var(--decom-spacing-0);
+  overflow: hidden;
+  border: 1px solid #e6e6e6;
+}
+
+.#{$class-prefix}-card-form {
+  display: flex;
+  flex-direction: column;
+  row-gap: var(--decom-spacing-4);
+  padding: var(--decom-spacing-4);
+}
+
+.#{$class-prefix}-card-inner {
+  padding: var(--decom-spacing-3);
+  border: 1px solid var(--decom-border-border-secondary);
+  border-radius: var(--decom-radius-rounded-lg);
+  box-shadow: none;
+}
+
+.#{$class-prefix}-card-dark {
+  padding: var(--decom-spacing-4);
+  background-color: var(--decom-background-bg-surface-secondary);
+}
+
+.#{$class-prefix}-card-light {
+  padding: var(--decom-spacing-4);
+  background-color: var(--decom-background-bg-fill);
+  border: 1px solid var(--decom-border-border-secondary);
+  border-radius: var(--decom-radius-rounded-md);
+}
+
+.#{$class-prefix}-card-inner-dark,
+.#{$class-prefix}-card-innerDark {
+  padding: var(--decom-spacing-3);
+  border-radius: var(--decom-radius-rounded-lg);
+  background-color: var(--decom-background-bg-surface-secondary);
+}
+
+.#{$class-prefix}-card-shadow {
+  padding: var(--decom-spacing-4);
+  box-shadow: 0px -1px 1px 0.5px #0000001a inset;
+  border: none;
+}
+
+.#{$class-prefix}-card-tartiary {
+  background-color: var(--decom-background-bg-surface-secondary);
+}
+
+.#{$class-prefix}-card-navbar {
+  padding: var(--decom-spacing-0) var(--decom-spacing-3);
+  border-radius: var(--decom-radius-rounded-sm);
+  min-height: 36px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .#{$class-prefix}-ui-card-header {
   display: flex;
   flex-direction: column;
@@ -39,4 +183,75 @@
   align-items: center;
   padding: 0 var(--decom-spacing-4) var(--decom-spacing-4);
   column-gap: var(--decom-spacing-2);
+}
+
+.#{$class-prefix}-option-card {
+  border-radius: var(--decom-radius-rounded-none);
+}
+
+.#{$class-prefix}-option-card-border-radius-single {
+  border-radius: var(--decom-radius-rounded-lg);
+}
+
+.#{$class-prefix}-option-card-border-radius:first-child {
+  border-top-color: var(--decom-border-border-secondary);
+  border-radius: var(--decom-radius-rounded-lg) var(--decom-radius-rounded-lg)
+    var(--decom-radius-rounded-none) var(--decom-radius-rounded-none);
+}
+
+.#{$class-prefix}-option-card-border-radius:last-child {
+  border-radius: var(--decom-radius-rounded-none)
+    var(--decom-radius-rounded-none) var(--decom-radius-rounded-lg)
+    var(--decom-radius-rounded-lg);
+}
+
+.#{$class-prefix}-option-card-border-radius {
+  border-top-color: transparent;
+}
+
+.#{$class-prefix}-card-actions {
+  display: none;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+}
+
+.#{$class-prefix}-group-option-card-right-text {
+  align-items: center;
+}
+
+.#{$class-prefix}-option-card:hover .#{$class-prefix}-card-actions {
+  pointer-events: auto;
+  display: flex;
+}
+
+.#{$class-prefix}-option-card:hover
+  .#{$class-prefix}-group-option-card-right-text {
+  display: none;
+}
+
+.#{$class-prefix}-option-card-active {
+  .#{$class-prefix}-card-actions {
+    display: flex;
+  }
+  .#{$class-prefix}-group-option-card-right-text {
+    display: none;
+  }
+}
+
+.#{$class-prefix}-group-option-card-icon {
+  padding: var(--decom-spacing-f2);
+
+  &.#{$class-prefix}-icon-disabled {
+    cursor: not-allowed !important;
+    opacity: 0.5;
+    pointer-events: none;
+  }
+}
+
+.#{$class-prefix}-active-card .#{$class-prefix}-hover-visible-reverse {
+  display: none;
+}
+
+.#{$class-prefix}-active-card .#{$class-prefix}-hover-visible {
+  display: inherit;
 }

@@ -1,7 +1,7 @@
 import { Card } from '@/components/ui/card';
 import Input from '@/components/ui/input';
-import Text from '@/molecules/text';
-import Flex from '@/molecules/flex';
+import Text from '@/components/ui/text';
+import Flex from '@/components/ui/flex';
 import { CLASS_PREFIX } from '@/conf';
 import { __ } from '@/wpi18n';
 

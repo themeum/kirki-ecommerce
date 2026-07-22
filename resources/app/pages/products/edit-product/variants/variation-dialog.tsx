@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
 import { CLASS_PREFIX } from '@/conf';
-import Flex from '@/molecules/flex';
+import Flex from '@/components/ui/flex';
 import {
   ProductVariationPopoverFormSchema,
   type ProductVariationPopoverFormValues,

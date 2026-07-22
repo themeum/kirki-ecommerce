@@ -155,3 +155,8 @@
 .#{$class-prefix}-drag-handler:active {
   cursor: grabbing;
 }
+
+.#{$class-prefix}-input-left-symbol {
+  @include flexCenter();
+  color: var(--decom-text-text-secondary);
+}

@@ -9,8 +9,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import { CLASS_PREFIX } from '@/conf';
 import { useProductForm } from '@/contexts/product-form-context';
-import ActionGroup from '@/molecules/action-group';
-import Flex from '@/molecules/flex';
+import ActionGroup from '@/components/ui/action-group';
+import Flex from '@/components/ui/flex';
 import {
   ProductAdditionalInfoFormSchema,
   type ProductAdditionalInfoFormValues,

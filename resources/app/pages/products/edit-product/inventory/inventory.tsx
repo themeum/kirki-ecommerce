@@ -15,9 +15,9 @@ import { CLASS_PREFIX } from '@/conf';
 import { WandIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import Flex from '@/molecules/flex';
-import Grid from '@/molecules/grid';
-import Text from '@/molecules/text';
+import Flex from '@/components/ui/flex';
+import Grid from '@/components/ui/grid';
+import Text from '@/components/ui/text';
 import { useProductForm } from '@/contexts/product-form-context';
 import {
   mapProductInventoryFromProduct,

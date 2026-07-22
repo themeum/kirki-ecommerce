@@ -3,13 +3,13 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from '@/molecules/accordion';
+} from '@/components/ui/accordion';
 
 const AccordionPreview = () => {
   return (
     <div style={{ marginLeft: '400px' }}>
-      <Accordion>
-        <AccordionItem>
+      <Accordion type="multiple" defaultValue={['product-information']}>
+        <AccordionItem value="product-information">
           <AccordionTrigger>Product Information</AccordionTrigger>
           <AccordionContent>
             Our flagship product combines cutting-edge technology with sleek
@@ -21,7 +21,7 @@ const AccordionPreview = () => {
             intuitive user interface designed for both beginners and experts.
           </AccordionContent>
         </AccordionItem>
-        <AccordionItem>
+        <AccordionItem value="shipping-details">
           <AccordionTrigger>Shipping Details</AccordionTrigger>
           <AccordionContent>
             We offer worldwide shipping through trusted courier partners.
@@ -33,7 +33,7 @@ const AccordionPreview = () => {
             shipment in real-time through our dedicated tracking portal.
           </AccordionContent>
         </AccordionItem>
-        <AccordionItem>
+        <AccordionItem value="return-policy">
           <AccordionTrigger>Return Policy</AccordionTrigger>
           <AccordionContent>
             We stand behind our products with a comprehensive 30-day return

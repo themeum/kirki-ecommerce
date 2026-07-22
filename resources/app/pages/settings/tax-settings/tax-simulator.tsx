@@ -1,7 +1,7 @@
 import { Card } from '@/components/ui/card';
 import Button from '@/components/ui/button';
-import Flex from '@/molecules/flex';
-import Text from '@/molecules/text';
+import Flex from '@/components/ui/flex';
+import Text from '@/components/ui/text';
 import { SimulatorIcon } from '@/icons';
 import { CLASS_PREFIX } from '@/conf';
 import { __ } from '@/wpi18n';

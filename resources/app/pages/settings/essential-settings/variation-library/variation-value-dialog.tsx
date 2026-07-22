@@ -17,7 +17,7 @@ import { Form } from '@/components/ui/form';
 import { CLASS_PREFIX } from '@/conf';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import Flex from '@/molecules/flex';
+import Flex from '@/components/ui/flex';
 import {
   VariationValueFormSchema,
   type VariationValueFormValues,

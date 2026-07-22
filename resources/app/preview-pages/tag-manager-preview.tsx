@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { TagManager } from '@/molecules/tag-manager';
+import TagManager from '@/components/tag-manager/tag-manager';
 import type { SelectOption } from '@/types';
 
 type TagOption = SelectOption;

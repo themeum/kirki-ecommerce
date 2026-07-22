@@ -1,25 +1,40 @@
-import { RadioGroup } from '@/molecules/radio-group';
-import type { SelectOption } from '@/types';
+import Flex from '@/components/ui/flex';
+import Label from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { CLASS_PREFIX } from '@/conf';
 
 const RadioGroupPreview = () => {
-  const optionsArray: SelectOption[] = [
-    { value: 'item-1', title: 'Item 1' },
-    { value: 'item-2', title: 'Item 2' },
-    { value: 'item-3', title: 'Item 3' },
-    { value: 'item-4', title: 'Item 4' },
+  const options = [
+    { value: 'item-1', label: 'Item 1' },
+    { value: 'item-2', label: 'Item 2' },
+    { value: 'item-3', label: 'Item 3' },
+    { value: 'item-4', label: 'Item 4' },
   ];
 
   return (
-    <div>
-      <RadioGroup
-        optionsArray={optionsArray}
-        defaultValue="item-1"
-        onChange={(selectedValue) => {
-          console.log(selectedValue);
-        }}
-        type="checked"
-      />
-    </div>
+    <RadioGroup
+      defaultValue="item-1"
+      onValueChange={(selectedValue) => {
+        console.log(selectedValue);
+      }}
+    >
+      <Flex direction="column" gap={8}>
+        {options.map((option) => (
+          <div
+            key={option.value}
+            className={`${CLASS_PREFIX}-ui-radio-field-row`}
+          >
+            <RadioGroupItem
+              value={option.value}
+              id={`radio-preview-${option.value}`}
+            />
+            <Label htmlFor={`radio-preview-${option.value}`}>
+              {option.label}
+            </Label>
+          </div>
+        ))}
+      </Flex>
+    </RadioGroup>
   );
 };
 

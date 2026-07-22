@@ -1,6 +1,6 @@
 import PasswordField from '@/components/form/password-field';
 import TextField from '@/components/form/text-field';
-import Flex from '@/molecules/flex';
+import Flex from '@/components/ui/flex';
 import { __ } from '@/wpi18n';
 
 type GatewayField = {

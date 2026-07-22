@@ -1,13 +1,13 @@
 import { useNavigate } from 'react-router';
 
+import Button from '@/components/ui/button';
 import { EditPenIcon, TrashIcon } from '@/icons';
-import ActionGroup from '@/molecules/action-group';
-import Button from '@/molecules/button';
-import Checkbox from '@/molecules/checkbox';
-import Flex from '@/molecules/flex';
-import { TableCell, TableRow } from '@/molecules/table';
-import Text from '@/molecules/text';
-import Thumbnail from '@/molecules/thumbnail';
+import ActionGroup from '@/components/ui/action-group';
+import Checkbox from '@/components/ui/checkbox';
+import Flex from '@/components/ui/flex';
+import { TableCell, TableRow } from '@/components/ui/table';
+import Text from '@/components/ui/text';
+import Thumbnail from '@/components/ui/thumbnail';
 import { useDeleteCustomerMutation } from '@/services/customer';
 import type { CustomerListItem, MarkListHandlers } from '@/types';
 import { __ } from '@/wpi18n';
@@ -66,22 +66,25 @@ const SingleRow = ({
       <TableCell alignment="right">
         <ActionGroup>
           <Button
-            size="small"
-            text={__('Edit', 'kirki-ecommerce')}
-            type="secondary"
-            leftIcon={<EditPenIcon />}
+            size="sm"
+            variant="secondary"
             onClick={() => {
               handleItemClick(item.id);
             }}
-          />
+          >
+            <EditPenIcon />
+            {__('Edit', 'kirki-ecommerce')}
+          </Button>
           <Button
-            size="small"
-            type="destructiveSoft"
-            icon={<TrashIcon />}
+            size="sm"
+            variant="secondary"
+            aria-label={__('Delete', 'kirki-ecommerce')}
             onClick={() => {
               onItemDelete(item.id);
             }}
-          />
+          >
+            <TrashIcon />
+          </Button>
         </ActionGroup>
       </TableCell>
     </TableRow>

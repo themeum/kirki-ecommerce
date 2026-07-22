@@ -6,15 +6,15 @@ import { Card } from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
 import { CLASS_PREFIX } from '@/conf';
 import { useMarkList } from '@/hooks';
-import Flex from '@/molecules/flex';
+import Flex from '@/components/ui/flex';
 import {
   Table,
   TableBody,
   TableHead,
   TableHeader,
   TableRow,
-} from '@/molecules/table';
-import Text from '@/molecules/text';
+} from '@/components/ui/table';
+import Text from '@/components/ui/text';
 import { useBulkDeleteAttributeValuesMutation } from '@/services/attribute';
 import type {
   Attribute,

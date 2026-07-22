@@ -1,6 +1,6 @@
 import { useForm } from 'react-hook-form';
 
-import Flex from '@/molecules/flex';
+import Flex from '@/components/ui/flex';
 
 import Button from '@/components/ui/button';
 import {

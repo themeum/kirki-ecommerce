@@ -1,7 +1,7 @@
 import Button from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import Text from '@/molecules/text';
-import Grid from '@/molecules/grid';
+import Text from '@/components/ui/text';
+import Grid from '@/components/ui/grid';
 import { CLASS_PREFIX } from '@/conf';
 import { ShippoIcon, EasyShipIcon } from '@/icons';
 import { __ } from '@/wpi18n';

@@ -18,8 +18,8 @@ import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
 import { CLASS_PREFIX } from '@/conf';
 import { PlusIcon, SearchIcon } from '@/icons';
-import Flex from '@/molecules/flex';
-import Text from '@/molecules/text';
+import Flex from '@/components/ui/flex';
+import Text from '@/components/ui/text';
 import {
   AddCurrencyPopupFormSchema,
   type AddCurrencyPopupFormValues,

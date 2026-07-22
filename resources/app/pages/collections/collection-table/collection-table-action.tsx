@@ -1,9 +1,14 @@
+import {
+  Select,
+  SelectContent,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import Button from '@/components/ui/button';
 import { ArrowDownUp } from '@/icons';
-import ActionGroup from '@/molecules/action-group';
-import Button from '@/molecules/button';
-import Flex from '@/molecules/flex';
-import Searchbox from '@/molecules/searchbox';
-import { Select } from '@/molecules/select';
+import ActionGroup from '@/components/ui/action-group';
+import Flex from '@/components/ui/flex';
+import Searchbox from '@/components/ui/searchbox';
 import { useListParams } from '@/hooks';
 import { __ } from '@/wpi18n';
 
@@ -35,16 +40,20 @@ const CollectionTableAction = ({ onSortChange }: CollectionTableActionProps) => 
         />
       </div>
       <ActionGroup>
-        <Select
-          placeholder={__('Date: This Month', 'kirki-ecommerce')}
-          style={{ padding: '8px 16px' }}
-        />
+        <Select disabled>
+          <SelectTrigger style={{ padding: '8px 16px' }}>
+            <SelectValue placeholder={__('Date: This Month', 'kirki-ecommerce')} />
+          </SelectTrigger>
+          <SelectContent />
+        </Select>
         <Button
-          type="outlined"
-          size="small"
-          icon={<ArrowDownUp />}
+          variant="outline"
+          size="sm"
+          aria-label={__('Sort', 'kirki-ecommerce')}
           onClick={onSortChange}
-        />
+        >
+          <ArrowDownUp />
+        </Button>
       </ActionGroup>
     </Flex>
   );

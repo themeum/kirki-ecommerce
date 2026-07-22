@@ -30,9 +30,9 @@ import {
 import { CLASS_PREFIX } from '@/conf';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import Flex from '@/molecules/flex';
-import Separator from '@/molecules/separator';
-import Text from '@/molecules/text';
+import Flex from '@/components/ui/flex';
+import { Separator } from '@/components/ui/separator';
+import Text from '@/components/ui/text';
 import {
   ShippingBoxFormSchema,
   shippingBoxDefaultValues,

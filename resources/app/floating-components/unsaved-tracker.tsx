@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import AnimatedPage from '@/components/animated-page/animated-page';
-import { ConfirmationModal } from '@/components/modal/confirmation-modal';
+import ConfirmationDialog from '@/components/modal/confirmation-dialog';
 import {
   setUnsavedDataStatus,
   useUnsavedStatus,
@@ -78,7 +78,7 @@ const UnsavedChangesController = () => {
   return (
     <>
       {pendingAction && (
-        <ConfirmationModal
+        <ConfirmationDialog
           variant={pendingAction.otherProps.variant}
           title={pendingAction.otherProps.title}
           subtitle={pendingAction.otherProps.subtitle}

@@ -18,7 +18,7 @@ import { Form } from '@/components/ui/form';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
 import { CLASS_PREFIX } from '@/conf';
-import Flex from '@/molecules/flex';
+import Flex from '@/components/ui/flex';
 import {
   ShippingRegionFormSchema,
   shippingRegionDefaultValues,

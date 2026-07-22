@@ -1,22 +1,73 @@
-import { useRef, useState, useEffect, type CSSProperties, type ReactNode } from 'react';
-
-import Button from '@/molecules/button';
-import Checkbox from '@/molecules/checkbox';
 import {
-  Dropdown,
+  useState,
+  useEffect,
+  type ComponentProps,
+  type CSSProperties,
+  type ReactNode,
+} from 'react';
+
+import Button from '@/components/ui/button';
+import {
+  DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownTrigger,
-} from '@/molecules/dropdown';
-import type { DropdownSize, SelectOption } from '@/types';
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import Checkbox from '@/components/ui/checkbox';
+import type { ButtonSize, ButtonState, ButtonType, DropdownSize, SelectOption } from '@/types';
 
 type DropdownOption = SelectOption & {
   isDefault?: boolean;
   style?: CSSProperties;
 };
 
+type DropdownTriggerButtonProps = {
+  text?: ReactNode;
+  type?: ButtonType;
+  size?: ButtonSize;
+  state?: ButtonState;
+  icon?: ReactNode;
+  leftIcon?: ReactNode;
+  rightIcon?: ReactNode;
+  className?: string;
+  style?: CSSProperties;
+  onClick?: () => void;
+};
+
+type ButtonVariant = NonNullable<ComponentProps<typeof Button>['variant']>;
+type NewButtonSize = NonNullable<ComponentProps<typeof Button>['size']>;
+
+const LEGACY_VARIANT_MAP: Record<ButtonType, ButtonVariant> = {
+  primary: 'primary',
+  secondary: 'secondary',
+  destructive: 'destructive',
+  outlined: 'outline',
+  ghost: 'ghost',
+  primarySoft: 'secondary',
+  destructiveSoft: 'secondary',
+  link: 'link',
+  inverse: 'ghost',
+  blank: 'ghost',
+  tartiary: 'ghost',
+  invisible: 'ghost',
+};
+
+const LEGACY_SIZE_MAP: Record<ButtonSize, NewButtonSize> = {
+  small: 'sm',
+  xsm: 'sm',
+  large: 'lg',
+  icon: 'icon',
+  fullWidth: 'default',
+};
+
+const mapButtonVariant = (type?: ButtonType): ButtonVariant =>
+  type ? LEGACY_VARIANT_MAP[type] : 'ghost';
+
+const mapButtonSize = (size?: ButtonSize): NewButtonSize =>
+  size ? LEGACY_SIZE_MAP[size] : 'default';
+
 type DropdownButtonProps = {
-  buttonProps?: Record<string, unknown>;
+  buttonProps?: DropdownTriggerButtonProps;
   dropdownStyle?: CSSProperties;
   value?: Array<string | number>;
   options?: DropdownOption[];
@@ -37,12 +88,11 @@ const DropdownButton = ({
   onOptionToggle = () => {},
   onOptionSelect = () => {},
   children,
-  size,
-  hasLeftIcon,
+  size: _size,
+  hasLeftIcon: _hasLeftIcon,
   checkboxField,
   multiple,
 }: DropdownButtonProps) => {
-  const triggerRef = useRef<HTMLDivElement | null>(null);
   const [openDropdown, setOpenDropdown] = useState(false);
   const [selectedValues, setSelectedValues] = useState<Array<string | number>>(
     value ?? [],
@@ -56,11 +106,6 @@ const DropdownButton = ({
     fontSize: '12px',
     fontWeight: '400',
     lineHeight: '18px',
-  };
-
-  const toggleDropdownOpen = () => {
-    const v = !openDropdown;
-    openCloseDropdown(v);
   };
 
   const openCloseDropdown = (v: boolean) => {
@@ -89,28 +134,47 @@ const DropdownButton = ({
     onOptionSelect(newValues);
   };
 
+  const {
+    text,
+    type,
+    size: buttonSize,
+    state,
+    icon,
+    leftIcon,
+    rightIcon,
+    className: buttonClassName,
+    style: buttonStyle = {},
+  } = buttonProps ?? {};
+
   return (
-    <Dropdown>
-      <DropdownTrigger ref={triggerRef}>
-        <Button {...buttonProps} onClick={toggleDropdownOpen} />
-      </DropdownTrigger>
-      <DropdownMenuContent
-        style={dropdownStyle}
-        hasLeftIcon={hasLeftIcon}
-        triggerRef={triggerRef}
-        isOpen={openDropdown}
-        size={size}
-        onClose={() => {
-          openCloseDropdown(false);
-        }}
-      >
+    <DropdownMenu open={openDropdown} onOpenChange={openCloseDropdown}>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant={mapButtonVariant(type)}
+          size={mapButtonSize(buttonSize)}
+          loading={state === 'loading'}
+          disabled={state === 'disabled'}
+          className={buttonClassName}
+          style={
+            buttonSize === 'fullWidth'
+              ? { width: '100%', ...buttonStyle }
+              : buttonStyle
+          }
+        >
+          {icon ?? (
+            <>
+              {leftIcon}
+              {text}
+              {rightIcon}
+            </>
+          )}
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent style={dropdownStyle}>
         {options.map((option) => (
           <DropdownMenuItem
-            onItemClick={() => handleOnOptionClick(option)}
-            leftIcon={option.icon}
+            onSelect={() => handleOnOptionClick(option)}
             key={option.value}
-            checkboxField={checkboxField}
-            state={option?.isDefault ? 'defaultSelected' : ''}
             style={option?.style}
           >
             {checkboxField ? (
@@ -123,13 +187,16 @@ const DropdownButton = ({
                 onChange={() => handleOnOptionClick(option)}
               />
             ) : (
-              option.title
+              <>
+                {option.icon}
+                {option.title}
+              </>
             )}
           </DropdownMenuItem>
         ))}
         {children}
       </DropdownMenuContent>
-    </Dropdown>
+    </DropdownMenu>
   );
 };
 

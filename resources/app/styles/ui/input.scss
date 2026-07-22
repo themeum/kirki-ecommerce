@@ -65,4 +65,17 @@ input.#{$class-prefix}-ui-input {
       -webkit-appearance: none;
     }
   }
+
+  &.#{$class-prefix}-ui-input--invisible {
+    background-color: transparent;
+    outline: none;
+    border-color: transparent;
+    box-shadow: none;
+    height: 100%;
+
+    &:focus-visible {
+      box-shadow: none;
+      border-color: transparent;
+    }
+  }
 }

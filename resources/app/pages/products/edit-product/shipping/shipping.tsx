@@ -24,9 +24,9 @@ import { CLASS_PREFIX } from '@/conf';
 import { EyeClosedIcon, EyeIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import ActionGroup from '@/molecules/action-group';
-import Flex from '@/molecules/flex';
-import Text from '@/molecules/text';
+import ActionGroup from '@/components/ui/action-group';
+import Flex from '@/components/ui/flex';
+import Text from '@/components/ui/text';
 import { useProductForm } from '@/contexts/product-form-context';
 import {
   mapProductShippingFromProduct,

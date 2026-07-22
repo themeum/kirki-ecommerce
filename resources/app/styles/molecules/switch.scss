@@ -1,8 +1,0 @@
-.#{$class-prefix}-toggle-btn {
-  cursor: pointer;
-  &.#{$class-prefix}-toggle-disabled {
-    cursor: not-allowed !important;
-    opacity: 0.3;
-    pointer-events: none;
-  }
-}

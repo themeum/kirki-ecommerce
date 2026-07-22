@@ -13,13 +13,13 @@ import { CLASS_PREFIX, NEW_ITEM_ID } from '@/conf';
 import { PlusIcon, ProductIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import Container from '@/molecules/container';
-import Flex from '@/molecules/flex';
-import Grid from '@/molecules/grid';
-import PageHeading from '@/molecules/page-heading';
-import Separator from '@/molecules/separator';
-import Text from '@/molecules/text';
-import Thumbnail from '@/molecules/thumbnail';
+import Container from '@/components/ui/container';
+import Flex from '@/components/ui/flex';
+import Grid from '@/components/ui/grid';
+import PageHeading from '@/components/ui/page-heading';
+import { Separator } from '@/components/ui/separator';
+import Text from '@/components/ui/text';
+import Thumbnail from '@/components/ui/thumbnail';
 import {
   CollectionFormSchema,
   type CollectionFormValues,

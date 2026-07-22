@@ -10,8 +10,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { PlusIcon, TrashIcon } from '@/icons';
-import Grid from '@/molecules/grid';
-import Text from '@/molecules/text';
+import Grid from '@/components/ui/grid';
+import Text from '@/components/ui/text';
 import { CLASS_PREFIX } from '@/conf';
 import { __ } from '@/wpi18n';
 

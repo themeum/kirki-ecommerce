@@ -8,7 +8,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/molecules/table';
+} from '@/components/ui/table';
 
 type TableHeaderItem = {
   title: string;

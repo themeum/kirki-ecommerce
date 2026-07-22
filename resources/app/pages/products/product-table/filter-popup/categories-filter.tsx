@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { TagManager } from '@/molecules/tag-manager';
+import TagManager from '@/components/tag-manager/tag-manager';
 import { useCategoriesQuery } from '@/services/category';
 import type { SelectOption } from '@/types';
 import { __ } from '@/wpi18n';

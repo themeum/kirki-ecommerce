@@ -7,7 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import { CLASS_PREFIX } from '@/conf';
 import { useProductForm } from '@/contexts/product-form-context';
-import Flex from '@/molecules/flex';
+import Flex from '@/components/ui/flex';
 import {
   ProductRightPanelFormSchema,
   productRightPanelDefaultValues,

@@ -4,9 +4,9 @@ import { useOutletContext } from 'react-router';
 import Button from '@/components/ui/button';
 import Checkbox from '@/components/ui/checkbox';
 import { EditPenIcon, TrashIcon } from '@/icons';
-import ActionGroup from '@/molecules/action-group';
-import Flex from '@/molecules/flex';
-import { TableCell, TableRow } from '@/molecules/table';
+import ActionGroup from '@/components/ui/action-group';
+import Flex from '@/components/ui/flex';
+import { TableCell, TableRow } from '@/components/ui/table';
 import { useDeleteAttributeValueMutation } from '@/services/attribute';
 import type {
   Attribute,

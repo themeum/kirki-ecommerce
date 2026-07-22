@@ -33,10 +33,10 @@ import { PlusCircleIcon } from '@/icons';
 import { useProductForm } from '@/contexts/product-form-context';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import Flex from '@/molecules/flex';
-import Grid from '@/molecules/grid';
-import Separator from '@/molecules/separator';
-import Text from '@/molecules/text';
+import Flex from '@/components/ui/flex';
+import Grid from '@/components/ui/grid';
+import { Separator } from '@/components/ui/separator';
+import Text from '@/components/ui/text';
 import {
   mapProductPriceFromProduct,
   ProductPriceFormSchema,

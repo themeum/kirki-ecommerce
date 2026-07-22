@@ -1,6 +1,6 @@
 import Checkbox from '@/components/ui/checkbox';
 import Label from '@/components/ui/label';
-import Flex from '@/molecules/flex';
+import Flex from '@/components/ui/flex';
 import type { Category } from '@/types';
 
 type ProductCategorySelection = {

@@ -1,7 +1,7 @@
 import SelectField from '@/components/form/select-field';
 import { Card } from '@/components/ui/card';
 import { CLASS_PREFIX } from '@/conf';
-import Text from '@/molecules/text';
+import Text from '@/components/ui/text';
 import { usePagesQuery } from '@/services/page';
 import type { PageItem } from '@/types';
 import { __ } from '@/wpi18n';

@@ -1,9 +1,9 @@
 import { useState, useEffect, type Dispatch, type SetStateAction } from 'react';
 import { useSearchParams } from 'react-router';
 
-import Flex from '@/molecules/flex';
-import ActionGroup from '@/molecules/action-group';
-import Text from '@/molecules/text';
+import Flex from '@/components/ui/flex';
+import ActionGroup from '@/components/ui/action-group';
+import Text from '@/components/ui/text';
 import Button from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { __, sprintf } from '@/wpi18n';

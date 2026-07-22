@@ -1,13 +1,13 @@
 import { useNavigate } from 'react-router';
 
 import Pagination from '@/components/pagination';
+import Button from '@/components/ui/button';
 import { NEW_ITEM_ID } from '@/conf';
 import { useListParams } from '@/hooks';
-import Button from '@/molecules/button';
-import Card from '@/molecules/card';
-import Container from '@/molecules/container';
-import Flex from '@/molecules/flex';
-import PageHeading from '@/molecules/page-heading';
+import { Card } from '@/components/ui/card';
+import Container from '@/components/ui/container';
+import Flex from '@/components/ui/flex';
+import PageHeading from '@/components/ui/page-heading';
 import { useProductsQuery } from '@/services/product';
 import type { PaginationData } from '@/types';
 import { __ } from '@/wpi18n';
@@ -39,16 +39,21 @@ const Products = () => {
         text={__('Products', 'kirki-ecommerce')}
         actions={
           <>
-            <Button text={__('Import', 'kirki-ecommerce')} type="ghost" size="small" />
-            <Button text={__('Export', 'kirki-ecommerce')} type="ghost" size="small" />
+            <Button variant="ghost" size="sm">
+              {__('Import', 'kirki-ecommerce')}
+            </Button>
+            <Button variant="ghost" size="sm">
+              {__('Export', 'kirki-ecommerce')}
+            </Button>
             <Button
-              text={__('Add Product', 'kirki-ecommerce')}
-              type="primary"
-              size="small"
+              variant="primary"
+              size="sm"
               onClick={() => {
                 navigate('/products/' + NEW_ITEM_ID);
               }}
-            />
+            >
+              {__('Add Product', 'kirki-ecommerce')}
+            </Button>
           </>
         }
       />

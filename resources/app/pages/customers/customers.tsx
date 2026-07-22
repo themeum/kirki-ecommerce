@@ -1,16 +1,16 @@
 import { useNavigate } from 'react-router';
 
 import Pagination from '@/components/pagination';
+import Button from '@/components/ui/button';
 import { CLASS_PREFIX, NEW_ITEM_ID } from '@/conf';
 import { useListParams } from '@/hooks';
 import { CustomerInfoIcon } from '@/icons';
-import ActionGroup from '@/molecules/action-group';
-import Button from '@/molecules/button';
-import Card from '@/molecules/card';
-import Container from '@/molecules/container';
-import Flex from '@/molecules/flex';
-import PageHeading from '@/molecules/page-heading';
-import Text from '@/molecules/text';
+import ActionGroup from '@/components/ui/action-group';
+import { Card } from '@/components/ui/card';
+import Container from '@/components/ui/container';
+import Flex from '@/components/ui/flex';
+import PageHeading from '@/components/ui/page-heading';
+import Text from '@/components/ui/text';
 import { useCustomersQuery } from '@/services/customer';
 import type { PaginationData } from '@/types';
 import { __ } from '@/wpi18n';
@@ -50,11 +50,12 @@ const Customers = () => {
         text={__('Customers', 'kirki-ecommerce')}
         actions={
           <Button
-            type="primary"
-            text={__('Add Customer', 'kirki-ecommerce')}
-            size="small"
+            variant="primary"
+            size="sm"
             onClick={handleAddNewCustomer}
-          />
+          >
+            {__('Add Customer', 'kirki-ecommerce')}
+          </Button>
         }
       />
 
@@ -76,12 +77,15 @@ const Customers = () => {
                 />
                 <ActionGroup>
                   <Button
-                    text={__('Manage Group', 'kirki-ecommerce')}
-                    type="ghost"
-                    size="small"
+                    variant="ghost"
+                    size="sm"
                     onClick={handleGroupManage}
-                  />
-                  <Button text={__('Create Group', 'kirki-ecommerce')} type="secondary" size="small" />
+                  >
+                    {__('Manage Group', 'kirki-ecommerce')}
+                  </Button>
+                  <Button variant="secondary" size="sm">
+                    {__('Create Group', 'kirki-ecommerce')}
+                  </Button>
                 </ActionGroup>
               </Flex>
             </Card>

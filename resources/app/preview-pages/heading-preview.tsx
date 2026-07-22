@@ -1,4 +1,4 @@
-import Heading from '@/molecules/heading';
+import Heading from '@/components/ui/heading';
 
 const HeadingPreview = () => {
   return (

@@ -1,11 +1,11 @@
 import { useLocation, useNavigate } from 'react-router';
 
+import Button from '@/components/ui/button';
 import { CLASS_PREFIX } from '@/conf';
 import { ArrowLeftIcon, BoxIcon } from '@/icons';
-import Button from '@/molecules/button';
-import Container from '@/molecules/container';
-import Flex from '@/molecules/flex';
-import Text from '@/molecules/text';
+import Container from '@/components/ui/container';
+import Flex from '@/components/ui/flex';
+import Text from '@/components/ui/text';
 import { __ } from '@/wpi18n';
 
 import NotFoundIllustration from '@/pages/not-found/not-found-illustration/not-found-illustration';
@@ -63,18 +63,14 @@ const NotFound = () => {
             gap={12}
             className={`${CLASS_PREFIX}-not-found-actions`}
           >
-            <Button
-              type="primary"
-              text={__('Go to Products', 'kirki-ecommerce')}
-              leftIcon={<BoxIcon color="var(--decom-text-text-light)" />}
-              onClick={handleGoToProducts}
-            />
-            <Button
-              type="secondary"
-              text={__('Go back', 'kirki-ecommerce')}
-              leftIcon={<ArrowLeftIcon />}
-              onClick={handleGoBack}
-            />
+            <Button variant="primary" onClick={handleGoToProducts}>
+              <BoxIcon color="var(--decom-text-text-light)" />
+              {__('Go to Products', 'kirki-ecommerce')}
+            </Button>
+            <Button variant="secondary" onClick={handleGoBack}>
+              <ArrowLeftIcon />
+              {__('Go back', 'kirki-ecommerce')}
+            </Button>
           </Flex>
         </div>
 
