@@ -1,14 +1,14 @@
 import BulkActionHandler from '@/components/bulk-action-handler';
 import Sorting from '@/components/sorting';
 import { useListParams, useMarkList } from '@/hooks';
-import Checkbox from '@/molecules/checkbox';
+import Checkbox from '@/components/ui/checkbox';
 import {
   Table,
   TableBody,
   TableHead,
   TableHeader,
   TableRow,
-} from '@/molecules/table';
+} from '@/components/ui/table';
 import { useBulkDeleteBrandsMutation } from '@/services/brand';
 import type { Brand, PaginatedData, TaxonomyTableHeader } from '@/types';
 import { __ } from '@/wpi18n';

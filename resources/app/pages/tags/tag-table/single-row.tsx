@@ -2,9 +2,9 @@ import { useState, type MouseEvent } from 'react';
 
 import Button from '@/components/ui/button';
 import { EditPenIcon, TrashIcon } from '@/icons';
-import ActionGroup from '@/molecules/action-group';
-import Checkbox from '@/molecules/checkbox';
-import { TableCell, TableRow } from '@/molecules/table';
+import ActionGroup from '@/components/ui/action-group';
+import Checkbox from '@/components/ui/checkbox';
+import { TableCell, TableRow } from '@/components/ui/table';
 import { useDeleteTagMutation } from '@/services/tag';
 import type { MarkListHandlers, Tag } from '@/types';
 import { __ } from '@/wpi18n';

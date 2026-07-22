@@ -1,13 +1,13 @@
 import BulkActionHandler from '@/components/bulk-action-handler';
 import { useListParams, useMarkList } from '@/hooks';
-import Checkbox from '@/molecules/checkbox';
+import Checkbox from '@/components/ui/checkbox';
 import {
   Table,
   TableBody,
   TableHead,
   TableHeader,
   TableRow,
-} from '@/molecules/table';
+} from '@/components/ui/table';
 import { useBulkDeleteCollectionsMutation } from '@/services/collection';
 import type { Collection, PaginatedData, TaxonomyTableHeader } from '@/types';
 import { __ } from '@/wpi18n';

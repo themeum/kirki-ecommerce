@@ -10,8 +10,8 @@ import {
 } from '@/components/ui/select';
 import { useListParams } from '@/hooks';
 import { LayoutIcon, ListFilter } from '@/icons';
-import ActionGroup from '@/molecules/action-group';
-import Flex from '@/molecules/flex';
+import ActionGroup from '@/components/ui/action-group';
+import Flex from '@/components/ui/flex';
 import Searchbox from '@/components/ui/searchbox';
 import { __ } from '@/wpi18n';
 

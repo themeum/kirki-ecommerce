@@ -5,15 +5,15 @@ import BulkActionHandler from '@/components/bulk-action-handler';
 import Button from '@/components/ui/button';
 import { useInventoryForm } from '@/contexts/inventory-form-context';
 import { useMarkList } from '@/hooks';
-import Checkbox from '@/molecules/checkbox';
-import Flex from '@/molecules/flex';
+import Checkbox from '@/components/ui/checkbox';
+import Flex from '@/components/ui/flex';
 import {
   Table,
   TableBody,
   TableHead,
   TableHeader,
   TableRow,
-} from '@/molecules/table';
+} from '@/components/ui/table';
 import type { InventoryVariant } from '@/types';
 import { __ } from '@/wpi18n';
 

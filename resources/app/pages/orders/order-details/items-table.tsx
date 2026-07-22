@@ -1,13 +1,13 @@
 import Input from '@/components/ui/input';
-import Flex from '@/molecules/flex';
+import Flex from '@/components/ui/flex';
 import {
   Table,
   TableBody,
   TableCell,
   TableRow,
-} from '@/molecules/table';
-import Text from '@/molecules/text';
-import Thumbnail from '@/molecules/thumbnail';
+} from '@/components/ui/table';
+import Text from '@/components/ui/text';
+import Thumbnail from '@/components/ui/thumbnail';
 import type { MediaRef } from '@/types';
 
 const ItemsTable = () => {

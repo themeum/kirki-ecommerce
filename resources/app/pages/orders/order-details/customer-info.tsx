@@ -8,12 +8,12 @@ import {
   TrashIcon,
   TruckIcon,
 } from '@/icons';
-import ActionGroup from '@/molecules/action-group';
-import Badge from '@/molecules/badge';
-import Card from '@/molecules/card';
-import Flex from '@/molecules/flex';
-import Text from '@/molecules/text';
-import Thumbnail from '@/molecules/thumbnail';
+import ActionGroup from '@/components/ui/action-group';
+import Badge from '@/components/ui/badge';
+import { Card } from '@/components/ui/card';
+import Flex from '@/components/ui/flex';
+import Text from '@/components/ui/text';
+import Thumbnail from '@/components/ui/thumbnail';
 
 const CustomerInfo = () => {
   return (

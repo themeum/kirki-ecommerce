@@ -3,7 +3,7 @@ import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
 import Textarea from '@/components/ui/textarea';
 import { CLASS_PREFIX } from '@/conf';
-import Flex from '@/molecules/flex';
+import Flex from '@/components/ui/flex';
 import { __ } from '@/wpi18n';
 
 import type { ShippingMethodData } from '@/pages/settings/shipping-settings/utils';

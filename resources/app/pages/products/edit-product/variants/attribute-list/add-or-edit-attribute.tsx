@@ -16,8 +16,8 @@ import { CLASS_PREFIX } from '@/conf';
 import { ColorPaletteIcon, ListIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import ActionGroup from '@/molecules/action-group';
-import Flex from '@/molecules/flex';
+import ActionGroup from '@/components/ui/action-group';
+import Flex from '@/components/ui/flex';
 import Searchbox from '@/components/ui/searchbox';
 import { useProductForm } from '@/contexts/product-form-context';
 import {

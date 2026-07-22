@@ -8,8 +8,8 @@ import {
 import Button from '@/components/ui/button';
 import { CLASS_PREFIX } from '@/conf';
 import { ArrowDownUp, ListFilter } from '@/icons';
-import ActionGroup from '@/molecules/action-group';
-import Flex from '@/molecules/flex';
+import ActionGroup from '@/components/ui/action-group';
+import Flex from '@/components/ui/flex';
 import Searchbox from '@/components/ui/searchbox';
 import type { SelectOption } from '@/types';
 

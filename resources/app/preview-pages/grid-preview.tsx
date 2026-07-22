@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import Grid from '@/molecules/grid';
+import Grid from '@/components/ui/grid';
 import type { SelectOption } from '@/types';
 
 const options: SelectOption[] = [

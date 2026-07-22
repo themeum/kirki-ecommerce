@@ -1,4 +1,4 @@
-import Checkbox from '@/molecules/checkbox';
+import Checkbox from '@/components/ui/checkbox';
 
 const CheckboxPreview = () => {
   return (

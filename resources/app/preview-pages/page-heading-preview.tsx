@@ -1,5 +1,5 @@
 import Button from '@/components/ui/button';
-import PageHeading from '@/molecules/page-heading';
+import PageHeading from '@/components/ui/page-heading';
 
 const PageHeadingPreview = () => {
   const actionButtons = (
@@ -13,6 +13,12 @@ const PageHeadingPreview = () => {
   return (
     <div>
       <PageHeading text="Products Table" actions={actionButtons} />
+      <PageHeading
+        text="Edit Product"
+        type="primary"
+        hasBack
+        actions={<Button variant="primary">Save</Button>}
+      />
     </div>
   );
 };

@@ -1,13 +1,15 @@
 import { useEffect, useState, type ComponentProps } from 'react';
 
+import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import UiFlex from '@/components/ui/flex';
-import UiLabel from '@/components/ui/label';
+import Flex from '@/components/ui/flex';
+import Label from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
   Select,
   SelectContent,
@@ -15,12 +17,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import Text from '@/components/ui/text';
+import { CLASS_PREFIX } from '@/conf';
 import { useListParams } from '@/hooks';
 import { CloseIcon, ListFilter } from '@/icons';
-import ActionGroup from '@/molecules/action-group';
-import Flex from '@/molecules/flex';
-import { RadioGroup } from '@/molecules/radio-group';
-import Text from '@/molecules/text';
 import { __, sprintf } from '@/wpi18n';
 
 import BrandFilter from '@/pages/products/product-table/filter-popup/brand-filter';
@@ -204,19 +204,38 @@ const FilterPopup = ({
             filterObject={filterObject}
             onChange={(val) => handleOnFilterChange(val, 'category_ids')}
           />
-          <RadioGroup
-            optionsArray={[
-              { value: 'published', title: __('Published', 'kirki-ecommerce') },
-              { value: 'draft', title: __('Draft', 'kirki-ecommerce') },
-              { value: 'all', title: __('All', 'kirki-ecommerce') },
-            ]}
-            defaultValue="all"
-            value={filterObject.status || 'all'}
-            onChange={(val) => handleOnFilterChange(val, 'status')}
-            label={__('Status', 'kirki-ecommerce')}
-          />
-          <UiFlex direction="column" gap={8}>
-            <UiLabel>{__('Inventory', 'kirki-ecommerce')}</UiLabel>
+          <Flex direction="column" gap={8}>
+            <Label>{__('Status', 'kirki-ecommerce')}</Label>
+            <RadioGroup
+              defaultValue="all"
+              value={filterObject.status || 'all'}
+              onValueChange={(val) => handleOnFilterChange(val, 'status')}
+            >
+              {[
+                {
+                  value: 'published',
+                  label: __('Published', 'kirki-ecommerce'),
+                },
+                { value: 'draft', label: __('Draft', 'kirki-ecommerce') },
+                { value: 'all', label: __('All', 'kirki-ecommerce') },
+              ].map((option) => (
+                <div
+                  key={option.value}
+                  className={`${CLASS_PREFIX}-ui-radio-field-row`}
+                >
+                  <RadioGroupItem
+                    value={option.value}
+                    id={`filter-status-${option.value}`}
+                  />
+                  <Label htmlFor={`filter-status-${option.value}`}>
+                    {option.label}
+                  </Label>
+                </div>
+              ))}
+            </RadioGroup>
+          </Flex>
+          <Flex direction="column" gap={8}>
+            <Label>{__('Inventory', 'kirki-ecommerce')}</Label>
             <Select
               value={filterObject.stock_status || undefined}
               onValueChange={(val) => handleOnFilterChange(val, 'stock_status')}
@@ -233,7 +252,7 @@ const FilterPopup = ({
                 </SelectItem>
               </SelectContent>
             </Select>
-          </UiFlex>
+          </Flex>
           <CollectionFilter
             filterObject={filterObject}
             onChange={(val) => handleOnFilterChange(val, 'collection_ids')}

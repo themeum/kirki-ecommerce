@@ -1,4 +1,4 @@
-import ToggleButton from '@/molecules/toggle-button';
+import ToggleButton from '@/components/ui/toggle-button';
 
 const ToggleButtonPreview = () => {
   const handleOnClick = (nextValue: boolean) => {
@@ -7,7 +7,7 @@ const ToggleButtonPreview = () => {
 
   return (
     <ToggleButton
-      value={'false' as unknown as boolean}
+      value={false}
       onChange={(nextValue) => {
         handleOnClick(nextValue);
       }}

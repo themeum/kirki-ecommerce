@@ -2,7 +2,7 @@ import Button from '@/components/ui/button';
 import { CLASS_PREFIX } from '@/conf';
 import { useListParams } from '@/hooks';
 import Capsule from '@/components/ui/capsule';
-import Flex from '@/molecules/flex';
+import Flex from '@/components/ui/flex';
 import { makeSuggestionList } from '@/pages/utils';
 import { useBrandsQuery } from '@/services/brand';
 import { useCategoriesQuery } from '@/services/category';

@@ -3,9 +3,9 @@ import TextField from '@/components/form/text-field';
 import { Card } from '@/components/ui/card';
 import { CLASS_PREFIX } from '@/conf';
 import { ShippingAddressIcon } from '@/icons';
-import Flex from '@/molecules/flex';
-import Grid from '@/molecules/grid';
-import Text from '@/molecules/text';
+import Flex from '@/components/ui/flex';
+import Grid from '@/components/ui/grid';
+import Text from '@/components/ui/text';
 import { __ } from '@/wpi18n';
 
 const ShippingAddress = () => {

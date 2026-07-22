@@ -7,12 +7,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import Card from '@/molecules/card';
-import Checkbox from '@/molecules/checkbox';
-import Flex from '@/molecules/flex';
-import Grid from '@/molecules/grid';
-import Separator from '@/molecules/separator';
-import Text from '@/molecules/text';
+import { Card } from '@/components/ui/card';
+import Checkbox from '@/components/ui/checkbox';
+import Flex from '@/components/ui/flex';
+import Grid from '@/components/ui/grid';
+import { Separator } from '@/components/ui/separator';
+import Text from '@/components/ui/text';
 import type { SelectOption } from '@/types';
 
 const optionsArray: SelectOption[] = [

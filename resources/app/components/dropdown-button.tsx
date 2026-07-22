@@ -13,7 +13,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import Checkbox from '@/molecules/checkbox';
+import Checkbox from '@/components/ui/checkbox';
 import type { ButtonSize, ButtonState, ButtonType, DropdownSize, SelectOption } from '@/types';
 
 type DropdownOption = SelectOption & {

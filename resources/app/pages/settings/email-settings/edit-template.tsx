@@ -24,11 +24,11 @@ import {
 } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import Container from '@/molecules/container';
-import Flex from '@/molecules/flex';
-import PageHeading from '@/molecules/page-heading';
-import ProgressBar from '@/molecules/progressbar';
-import Text from '@/molecules/text';
+import Container from '@/components/ui/container';
+import Flex from '@/components/ui/flex';
+import PageHeading from '@/components/ui/page-heading';
+import ProgressBar from '@/components/ui/progressbar';
+import Text from '@/components/ui/text';
 import {
   EmailTemplateFormSchema,
   emailTemplateDefaultValues,

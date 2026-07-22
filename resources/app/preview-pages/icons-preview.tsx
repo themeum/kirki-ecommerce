@@ -1,5 +1,5 @@
 import * as Components from '@/icons';
-import Grid from '@/molecules/grid';
+import Grid from '@/components/ui/grid';
 
 type IconComponent = (typeof Components)[keyof typeof Components];
 

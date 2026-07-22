@@ -1,16 +1,13 @@
-import type { ReactNode } from 'react';
-
 import Button from '@/components/ui/button';
 import { ButtonDefaultIcon } from '@/icons';
-import Flex from '@/molecules/flex';
-import Tooltip from '@/molecules/tooltip';
+import Flex from '@/components/ui/flex';
+import Tooltip from '@/components/ui/tooltip';
 
 const ButtonPreview = () => {
   return (
-    <Flex gap={8}>
+    <Flex gap={8} style={{ flexWrap: 'wrap', alignItems: 'center' }}>
       <Tooltip tip="This is tooltip" position="bottom">
         <Button
-          className=""
           variant="primary"
           onClick={() => {
             console.log('primary');
@@ -22,7 +19,6 @@ const ButtonPreview = () => {
       </Tooltip>
       <Tooltip tip="This is tooltip" position="top">
         <Button
-          className=""
           variant="primary"
           onClick={() => {
             console.log('primary');
@@ -34,7 +30,6 @@ const ButtonPreview = () => {
       </Tooltip>
       <Tooltip tip="This is tooltip" position="left">
         <Button
-          className=""
           variant="primary"
           onClick={() => {
             console.log('primary');
@@ -44,10 +39,8 @@ const ButtonPreview = () => {
           Button
         </Button>
       </Tooltip>
-
       <Tooltip tip="This is tooltip" position="right">
         <Button
-          className=""
           variant="primary"
           disabled
           onClick={() => {
@@ -63,22 +56,17 @@ const ButtonPreview = () => {
       </Tooltip>
       <Tooltip tip="This is tooltip" position="bottom" type="dark">
         <Button
-          className=""
           variant="primary"
           onClick={() => {
             console.log('clicked');
           }}
           loading
-          asChild
         >
-          <a href="https://www.google.com" target="_blank" rel="noreferrer">
-            Button
-          </a>
+          Button
         </Button>
       </Tooltip>
       <Tooltip tip="This is tooltip" position="top" type="dark">
         <Button
-          className=""
           variant="primary"
           onClick={() => {
             console.log('clicked');
@@ -91,7 +79,6 @@ const ButtonPreview = () => {
         </Button>
       </Tooltip>
       <Button
-        className=""
         variant="primary"
         onClick={() => {
           console.log('clicked');
@@ -103,7 +90,6 @@ const ButtonPreview = () => {
         </a>
       </Button>
       <Button
-        className=""
         variant="primary"
         onClick={() => {
           console.log('clicked');
@@ -115,7 +101,6 @@ const ButtonPreview = () => {
         </a>
       </Button>
       <Button
-        className=""
         variant="primary"
         disabled
         onClick={() => {
@@ -128,17 +113,13 @@ const ButtonPreview = () => {
         </a>
       </Button>
       <Button
-        className=""
         variant="primary"
         onClick={() => {
           console.log('clicked');
         }}
         loading
-        asChild
       >
-        <a href="https://www.google.com" target="_blank" rel="noreferrer">
-          {true as unknown as ReactNode}
-        </a>
+        Button
       </Button>
     </Flex>
   );

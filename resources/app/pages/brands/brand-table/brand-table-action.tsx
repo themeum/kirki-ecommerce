@@ -1,4 +1,4 @@
-import Flex from '@/molecules/flex';
+import Flex from '@/components/ui/flex';
 import Searchbox from '@/components/ui/searchbox';
 import { useListParams } from '@/hooks';
 

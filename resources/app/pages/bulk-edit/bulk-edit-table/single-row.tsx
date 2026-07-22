@@ -20,9 +20,9 @@ import {
 import { useBulkEditForm } from '@/contexts/bulk-edit-form-context';
 import { CLASS_PREFIX } from '@/conf';
 import { useBulkEditList } from '@/hooks';
-import Checkbox from '@/molecules/checkbox';
-import Flex from '@/molecules/flex';
-import { TableCell, TableRow } from '@/molecules/table';
+import Checkbox from '@/components/ui/checkbox';
+import Flex from '@/components/ui/flex';
+import { TableCell, TableRow } from '@/components/ui/table';
 import { useAttributesQuery } from '@/services/attribute';
 import type { MediaRef, ProductVariant, UnitPriceValue } from '@/types';
 import { __ } from '@/wpi18n';

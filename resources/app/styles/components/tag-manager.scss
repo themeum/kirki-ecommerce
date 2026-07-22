@@ -1,13 +1,11 @@
 .#{$class-prefix}-tag-manager {
   overflow: hidden;
 
-  .kirki-ecom-input-wrapper {
-    input {
-      border-radius: var(--decom-radius-rounded-lg);
-      &:focus {
-        outline: none;
-        box-shadow: none;
-      }
+  .#{$class-prefix}-ui-input {
+    border-radius: var(--decom-radius-rounded-lg);
+    &:focus {
+      outline: none;
+      box-shadow: none;
     }
   }
 
@@ -33,14 +31,12 @@
     border: 1px solid var(--decom-border-border);
     border-radius: var(--decom-radius-rounded-lg);
 
-    .kirki-ecom-input-wrapper {
-      input {
-        border: none;
-        padding: var(--decom-spacing-3);
-        &:focus {
-          outline: none;
-          box-shadow: none;
-        }
+    .#{$class-prefix}-ui-input {
+      border: none;
+      padding: var(--decom-spacing-3);
+      &:focus {
+        outline: none;
+        box-shadow: none;
       }
     }
   }

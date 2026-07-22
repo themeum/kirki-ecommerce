@@ -3,9 +3,9 @@ import { useLocation, useNavigate } from 'react-router';
 import Button from '@/components/ui/button';
 import { CLASS_PREFIX } from '@/conf';
 import { ArrowLeftIcon, BoxIcon } from '@/icons';
-import Container from '@/molecules/container';
-import Flex from '@/molecules/flex';
-import Text from '@/molecules/text';
+import Container from '@/components/ui/container';
+import Flex from '@/components/ui/flex';
+import Text from '@/components/ui/text';
 import { __ } from '@/wpi18n';
 
 import NotFoundIllustration from '@/pages/not-found/not-found-illustration/not-found-illustration';

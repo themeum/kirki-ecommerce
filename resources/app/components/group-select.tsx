@@ -9,13 +9,13 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { CLASS_PREFIX } from '@/conf';
-import ActionGroup from '@/molecules/action-group';
-import Badge from '@/molecules/badge';
-import Checkbox from '@/molecules/checkbox';
-import Flex from '@/molecules/flex';
-import Label from '@/molecules/label';
+import ActionGroup from '@/components/ui/action-group';
+import Badge from '@/components/ui/badge';
+import Checkbox from '@/components/ui/checkbox';
+import Flex from '@/components/ui/flex';
+import Label from '@/components/ui/label';
 import Searchbox from '@/components/ui/searchbox';
-import Separator from '@/molecules/separator';
+import { Separator } from '@/components/ui/separator';
 import type { LabelFieldProps, SelectOption, SelectState } from '@/types';
 import { __ } from '@/wpi18n';
 

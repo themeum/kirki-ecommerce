@@ -4,7 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
 import Label from '@/components/ui/label';
 import { CLASS_PREFIX } from '@/conf';
-import Flex from '@/molecules/flex';
+import Flex from '@/components/ui/flex';
 import type { ProductRightPanelFormValues } from '@/schemas/forms/product-right-panel-form';
 import { useCategoriesQuery } from '@/services/category';
 import type { Category, ProductCategoryRef } from '@/types';

@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react';
 
-import Thumbnail from '@/molecules/thumbnail';
+import Thumbnail from '@/components/ui/thumbnail';
 import type { ThumbnailSize } from '@/types';
 
 type MediaStackItem = {

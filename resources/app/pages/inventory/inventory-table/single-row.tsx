@@ -1,10 +1,10 @@
 import Input from '@/components/ui/input';
 import { CLASS_PREFIX } from '@/conf';
 import { useInventoryForm } from '@/contexts/inventory-form-context';
-import Checkbox from '@/molecules/checkbox';
-import Flex from '@/molecules/flex';
-import { TableCell, TableRow } from '@/molecules/table';
-import Thumbnail from '@/molecules/thumbnail';
+import Checkbox from '@/components/ui/checkbox';
+import Flex from '@/components/ui/flex';
+import { TableCell, TableRow } from '@/components/ui/table';
+import Thumbnail from '@/components/ui/thumbnail';
 import type { InventoryVariant, MarkListHandlers } from '@/types';
 
 import { calculateProfit } from '@/pages/utils';

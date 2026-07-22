@@ -7,8 +7,8 @@ import {
 import Button from '@/components/ui/button';
 import { CLASS_PREFIX } from '@/conf';
 import { InfoIcon } from '@/icons';
-import ActionGroup from '@/molecules/action-group';
-import Flex from '@/molecules/flex';
+import ActionGroup from '@/components/ui/action-group';
+import Flex from '@/components/ui/flex';
 
 const TableInfo = () => {
   return (

@@ -1,9 +1,9 @@
 import MediaSelector from '@/components/media-selector';
 import Button from '@/components/ui/button';
 import { CloudUpload } from '@/icons';
-import Placeholder from '@/molecules/placeholder';
-import Text from '@/molecules/text';
-import Thumbnail from '@/molecules/thumbnail';
+import Placeholder from '@/components/ui/placeholder';
+import Text from '@/components/ui/text';
+import Thumbnail from '@/components/ui/thumbnail';
 import type { LabelFieldProps, MediaRef, ThumbnailSize } from '@/types';
 import { __ } from '@/wpi18n';
 

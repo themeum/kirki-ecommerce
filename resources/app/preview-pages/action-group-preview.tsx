@@ -6,9 +6,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { ArrowDownUp, ListFilter } from '@/icons';
-import ActionGroup from '@/molecules/action-group';
-import Flex from '@/molecules/flex';
-import Label from '@/molecules/label';
+import ActionGroup from '@/components/ui/action-group';
+import Flex from '@/components/ui/flex';
+import Label from '@/components/ui/label';
 import Searchbox from '@/components/ui/searchbox';
 import { __ } from '@/wpi18n';
 

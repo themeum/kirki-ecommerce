@@ -1,6 +1,6 @@
 import PageNavbar from '@/components/page-navbar';
 import { HomeIcon } from '@/icons';
-import Flex from '@/molecules/flex';
+import Flex from '@/components/ui/flex';
 
 const PageNavbarPreview = () => {
   return (

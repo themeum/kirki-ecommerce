@@ -3,7 +3,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
 import { Card } from '@/components/ui/card';
-import Flex from '@/molecules/flex';
+import Flex from '@/components/ui/flex';
 import HeaderActionsCard from '@/components/header-actions-card';
 import GroupOptionCard from '@/components/group-option-card';
 import { BoxOpenIcon, BoxClosedIcon } from '@/icons';

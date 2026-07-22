@@ -2,9 +2,9 @@ import { useNavigate } from 'react-router';
 
 import { CLASS_PREFIX } from '@/conf';
 import { FileSpreadSheetIcon, InfoIcon, StripeIcon } from '@/icons';
-import Badge from '@/molecules/badge';
-import Checkbox from '@/molecules/checkbox';
-import Flex from '@/molecules/flex';
+import Badge from '@/components/ui/badge';
+import Checkbox from '@/components/ui/checkbox';
+import Flex from '@/components/ui/flex';
 import {
   Table,
   TableBody,
@@ -12,8 +12,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/molecules/table';
-import Text from '@/molecules/text';
+} from '@/components/ui/table';
+import Text from '@/components/ui/text';
 import type { TaxonomyTableHeader } from '@/types';
 
 const OrderTable = () => {

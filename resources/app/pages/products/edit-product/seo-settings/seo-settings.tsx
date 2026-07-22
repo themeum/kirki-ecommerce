@@ -7,7 +7,7 @@ import { Form } from '@/components/ui/form';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CLASS_PREFIX } from '@/conf';
 import { useProductForm } from '@/contexts/product-form-context';
-import Text from '@/molecules/text';
+import Text from '@/components/ui/text';
 import {
   ProductSeoFormSchema,
   productSeoDefaultValues,

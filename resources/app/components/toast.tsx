@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 
-import Flex from '@/molecules/flex';
-import Text from '@/molecules/text';
+import Flex from '@/components/ui/flex';
+import Text from '@/components/ui/text';
 import Button from '@/components/ui/button';
 import { InfoIcon, AlertIcon, CloseIcon, CheckedIcon } from '@/icons';
 import { CLASS_PREFIX } from '@/conf';

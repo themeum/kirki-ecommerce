@@ -9,11 +9,11 @@ import {
 } from '@/components/ui/select';
 import { CLASS_PREFIX } from '@/conf';
 import { ArrowDownUp, ListFilter } from '@/icons';
-import ActionGroup from '@/molecules/action-group';
-import Card from '@/molecules/card';
-import Container from '@/molecules/container';
-import Flex from '@/molecules/flex';
-import PageHeading from '@/molecules/page-heading';
+import ActionGroup from '@/components/ui/action-group';
+import { Card } from '@/components/ui/card';
+import Container from '@/components/ui/container';
+import Flex from '@/components/ui/flex';
+import PageHeading from '@/components/ui/page-heading';
 import type { SelectOption } from '@/types';
 
 import CustomerGroupTable from '@/pages/customers/customer-groups/customer-group-table';

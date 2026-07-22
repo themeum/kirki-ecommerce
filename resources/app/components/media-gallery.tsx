@@ -22,9 +22,9 @@ import MediaSelector from '@/components/media-selector';
 import Button from '@/components/ui/button';
 import { CLASS_PREFIX } from '@/conf';
 import { MoveIcon, PlusIcon, TrashIcon } from '@/icons';
-import Checkbox from '@/molecules/checkbox';
-import Flex from '@/molecules/flex';
-import Label from '@/molecules/label';
+import Checkbox from '@/components/ui/checkbox';
+import Flex from '@/components/ui/flex';
+import Label from '@/components/ui/label';
 import type { MediaRef } from '@/types';
 import { __ } from '@/wpi18n';
 

@@ -13,8 +13,8 @@ import {
 } from '@/components/ui/select';
 import { CLASS_PREFIX } from '@/conf';
 import { PlusCircleIcon } from '@/icons';
-import Flex from '@/molecules/flex';
-import Grid from '@/molecules/grid';
+import Flex from '@/components/ui/flex';
+import Grid from '@/components/ui/grid';
 import { useProductForm } from '@/contexts/product-form-context';
 import { useShippingProfilesQuery } from '@/services/shipping';
 import type { FormErrors, SelectOption } from '@/types';

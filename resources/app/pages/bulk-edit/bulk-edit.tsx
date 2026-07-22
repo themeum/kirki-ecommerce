@@ -5,9 +5,9 @@ import DropdownButton from '@/components/dropdown-button';
 import Button from '@/components/ui/button';
 import { BulkEditFormProvider, useBulkEditForm } from '@/contexts/bulk-edit-form-context';
 import { LayoutIcon } from '@/icons';
-import Badge from '@/molecules/badge';
-import FullPageContainer from '@/molecules/full-page-container';
-import PageHeading from '@/molecules/page-heading';
+import Badge from '@/components/ui/badge';
+import FullPageContainer from '@/components/ui/full-page-container';
+import PageHeading from '@/components/ui/page-heading';
 import { useBulkVariantsQuery, useUpdateBulkVariantsMutation } from '@/services/bulk-edit';
 import type { MediaRef } from '@/types';
 import { __ } from '@/wpi18n';
@@ -57,8 +57,8 @@ const BulkEditPage = () => {
         hasBack
         noMargin
         buttonProps={{
-          type: 'outlined',
-          size: 'small',
+          variant: 'outline',
+          size: 'sm',
         }}
         actions={
           <>

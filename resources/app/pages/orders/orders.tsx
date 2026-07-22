@@ -1,7 +1,7 @@
 import Button from '@/components/ui/button';
-import Card from '@/molecules/card';
-import Container from '@/molecules/container';
-import PageHeading from '@/molecules/page-heading';
+import { Card } from '@/components/ui/card';
+import Container from '@/components/ui/container';
+import PageHeading from '@/components/ui/page-heading';
 
 import OrderTable from '@/pages/orders/order-table/order-table';
 import OrderTableAction from '@/pages/orders/order-table/order-table-action';

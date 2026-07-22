@@ -1,9 +1,9 @@
 import Button from '@/components/ui/button';
-import ActionGroup from '@/molecules/action-group';
-import Badge from '@/molecules/badge';
-import Card from '@/molecules/card';
-import Flex from '@/molecules/flex';
-import Text from '@/molecules/text';
+import ActionGroup from '@/components/ui/action-group';
+import Badge from '@/components/ui/badge';
+import { Card } from '@/components/ui/card';
+import Flex from '@/components/ui/flex';
+import Text from '@/components/ui/text';
 
 const Payment = () => {
   return (

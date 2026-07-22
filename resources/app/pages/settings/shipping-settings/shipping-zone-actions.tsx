@@ -1,5 +1,5 @@
-import ActionGroup from '@/molecules/action-group';
-import ToggleButton from '@/molecules/toggle-button';
+import ActionGroup from '@/components/ui/action-group';
+import ToggleButton from '@/components/ui/toggle-button';
 import DropdownButton from '@/components/dropdown-button';
 import { ShowMoreIcon, EditIcon, TrashIcon } from '@/icons';
 import { useOutletContext, useNavigate } from 'react-router';

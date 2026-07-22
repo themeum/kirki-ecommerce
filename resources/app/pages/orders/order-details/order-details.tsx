@@ -8,14 +8,14 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { FlagIcon, PlusIcon, ShowMoreIcon } from '@/icons';
-import Alert from '@/molecules/alert';
-import Badge from '@/molecules/badge';
-import Card from '@/molecules/card';
-import Container from '@/molecules/container';
-import Flex from '@/molecules/flex';
-import Label from '@/molecules/label';
-import PageHeading from '@/molecules/page-heading';
-import Text from '@/molecules/text';
+import Alert from '@/components/ui/alert';
+import Badge from '@/components/ui/badge';
+import { Card } from '@/components/ui/card';
+import Container from '@/components/ui/container';
+import Flex from '@/components/ui/flex';
+import Label from '@/components/ui/label';
+import PageHeading from '@/components/ui/page-heading';
+import Text from '@/components/ui/text';
 import type { SelectOption } from '@/types';
 
 import CustomerInfo from '@/pages/orders/order-details/customer-info';

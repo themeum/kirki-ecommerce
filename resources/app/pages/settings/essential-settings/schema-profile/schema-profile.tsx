@@ -5,7 +5,7 @@ import GroupOptionCard from '@/components/group-option-card';
 import { Card } from '@/components/ui/card';
 import { CLASS_PREFIX } from '@/conf';
 import { BoxOpenIcon } from '@/icons';
-import Flex from '@/molecules/flex';
+import Flex from '@/components/ui/flex';
 import { dispatchToastMessage } from '@/pages/utils';
 import { useSchemasQuery, useDeleteSchemaMutation } from '@/services/schema';
 import type { SchemaProfile } from '@/types';

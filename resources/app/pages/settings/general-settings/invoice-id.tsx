@@ -8,10 +8,10 @@ import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
 import { CLASS_PREFIX } from '@/conf';
 import { ReplaceIcon } from '@/icons';
-import ActionGroup from '@/molecules/action-group';
-import Flex from '@/molecules/flex';
-import Grid from '@/molecules/grid';
-import Text from '@/molecules/text';
+import ActionGroup from '@/components/ui/action-group';
+import Flex from '@/components/ui/flex';
+import Grid from '@/components/ui/grid';
+import Text from '@/components/ui/text';
 import type { GeneralSettingsFormValues } from '@/schemas/forms/general-settings-form';
 import { __ } from '@/wpi18n';
 

@@ -1,9 +1,9 @@
 import { Card } from '@/components/ui/card';
 import Button from '@/components/ui/button';
-import Flex from '@/molecules/flex';
-import Text from '@/molecules/text';
-import ActionGroup from '@/molecules/action-group';
-import Badge from '@/molecules/badge';
+import Flex from '@/components/ui/flex';
+import Text from '@/components/ui/text';
+import ActionGroup from '@/components/ui/action-group';
+import Badge from '@/components/ui/badge';
 import { __ } from '@/wpi18n';
 import { CLASS_PREFIX } from '@/conf';
 import { BoxClosedIcon, PlusIcon } from '@/icons';

@@ -8,7 +8,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/molecules/table';
+} from '@/components/ui/table';
 
 import { allTableHeaders } from '@/pages/bulk-edit/utils';
 import SingleRow from '@/pages/bulk-edit/bulk-edit-table/single-row';

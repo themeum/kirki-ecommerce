@@ -1,8 +1,8 @@
 import PageNavbar from '@/components/page-navbar';
 import { PaymentIcon } from '@/icons';
-import Container from '@/molecules/container';
-import Flex from '@/molecules/flex';
-import PageHeading from '@/molecules/page-heading';
+import Container from '@/components/ui/container';
+import Flex from '@/components/ui/flex';
+import PageHeading from '@/components/ui/page-heading';
 import { usePaymentGatewaysQuery } from '@/services/payment';
 import { usePaymentMethodsQuery } from '@/services/payment';
 import { __ } from '@/wpi18n';

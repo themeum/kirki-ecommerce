@@ -275,6 +275,7 @@
   }
 }
 
-.#{$class-prefix}-ui-table-highlighted-cell {
+.#{$class-prefix}-ui-table-highlighted-cell,
+.#{$class-prefix}-table-highlighted-cell {
   font-weight: 500;
 }

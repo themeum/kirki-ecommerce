@@ -6,8 +6,8 @@ import {
 } from '@/components/ui/select';
 import Button from '@/components/ui/button';
 import { ArrowDownUp, ListFilter } from '@/icons';
-import ActionGroup from '@/molecules/action-group';
-import Flex from '@/molecules/flex';
+import ActionGroup from '@/components/ui/action-group';
+import Flex from '@/components/ui/flex';
 import Searchbox from '@/components/ui/searchbox';
 import { useListParams } from '@/hooks';
 

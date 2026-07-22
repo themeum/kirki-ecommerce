@@ -9,7 +9,13 @@ import classNames from 'classnames';
 import { CLASS_PREFIX } from '@/conf';
 import Tooltip from '@/components/ui/tooltip';
 
-type LabelProps = ComponentPropsWithoutRef<typeof LabelPrimitive.Root> & {
+type LabelProps = Omit<
+  ComponentPropsWithoutRef<typeof LabelPrimitive.Root>,
+  'children'
+> & {
+  children?: ReactNode;
+  text?: ReactNode;
+  type?: 'error' | 'disabled' | '';
   helpText?: ReactNode;
   infoText?: ReactNode;
   error?: boolean;
@@ -21,6 +27,8 @@ const Label = forwardRef<HTMLLabelElement, LabelProps>((props, ref) => {
   const {
     className,
     children,
+    text,
+    type,
     helpText,
     infoText,
     error,
@@ -28,15 +36,18 @@ const Label = forwardRef<HTMLLabelElement, LabelProps>((props, ref) => {
     rightIcon,
     ...rest
   } = props;
+  const content = children ?? text;
+  const isError = error || type === 'error';
 
-  const iconColor = error ? '#d40000' : 'currentColor';
+  const iconColor = isError ? '#d40000' : 'currentColor';
 
   return (
     <LabelPrimitive.Root
       ref={ref}
       className={classNames(
         `${CLASS_PREFIX}-ui-label`,
-        error && `${CLASS_PREFIX}-ui-label--error`,
+        isError && `${CLASS_PREFIX}-ui-label--error`,
+        type === 'disabled' && `${CLASS_PREFIX}-ui-label--disabled`,
         className,
       )}
       {...rest}
@@ -44,7 +55,7 @@ const Label = forwardRef<HTMLLabelElement, LabelProps>((props, ref) => {
       {leftIcon && (
         <span className={`${CLASS_PREFIX}-ui-label-icon`}>{leftIcon}</span>
       )}
-      {children}
+      {content}
       {helpText && (
         <Tooltip type="dark" tip={helpText}>
           <span className={`${CLASS_PREFIX}-ui-label-icon`}>

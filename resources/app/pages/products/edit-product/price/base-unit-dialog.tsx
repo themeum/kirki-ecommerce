@@ -28,7 +28,7 @@ import {
 import { ChevronDownIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import Flex from '@/molecules/flex';
+import Flex from '@/components/ui/flex';
 import {
   BaseUnitFormSchema,
   mapBaseUnitFromVariant,

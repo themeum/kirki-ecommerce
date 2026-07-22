@@ -26,6 +26,10 @@
   width: 256px;
 }
 
+.#{$class-prefix}-select-dropdown-item-padding {
+  padding: var(--decom-spacing-f2) var(--decom-spacing-2);
+}
+
 .#{$class-prefix}-ui-dropdown-menu-sub-content {
   width: max-content;
   min-width: 160px;

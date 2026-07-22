@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 
 import Button from '@/components/ui/button';
-import Flex from '@/molecules/flex';
-import Label from '@/molecules/label';
+import Flex from '@/components/ui/flex';
+import Label from '@/components/ui/label';
 import type { MediaRef } from '@/types';
 import { __ } from '@/wpi18n';
 

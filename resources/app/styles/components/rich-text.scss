@@ -1,4 +1,16 @@
 .#{$class-prefix}-richtext {
+  @include itemCenterContentStart();
+  column-gap: var(--decom-spacing-4);
+  width: 100%;
+
+  .#{$class-prefix}-richtext-controller {
+    width: 100%;
+    @include contentStart();
+    flex-direction: column;
+    row-gap: var(--decom-spacing-2);
+    position: relative;
+  }
+
   .mce-tinymce {
     border: 0.63px solid var(--decom-border-border);
     box-shadow: none;

@@ -5,11 +5,11 @@ import HeaderActionsCard from '@/components/header-actions-card';
 import { Card } from '@/components/ui/card';
 import { CLASS_PREFIX } from '@/conf';
 import { BankIconLarge, ShowMoreIcon, CashIcon } from '@/icons';
-import ActionGroup from '@/molecules/action-group';
-import Badge from '@/molecules/badge';
-import Flex from '@/molecules/flex';
-import Text from '@/molecules/text';
-import ToggleButton from '@/molecules/toggle-button';
+import ActionGroup from '@/components/ui/action-group';
+import Badge from '@/components/ui/badge';
+import Flex from '@/components/ui/flex';
+import Text from '@/components/ui/text';
+import ToggleButton from '@/components/ui/toggle-button';
 import { dispatchToastMessage } from '@/pages/utils';
 import {
   useDeletePaymentMethodMutation,

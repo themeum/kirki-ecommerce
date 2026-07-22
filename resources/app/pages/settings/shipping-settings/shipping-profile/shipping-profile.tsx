@@ -1,6 +1,6 @@
 import { useState, useEffect, type ReactNode } from 'react';
 
-import Flex from '@/molecules/flex';
+import Flex from '@/components/ui/flex';
 import { BoxClosedIcon, BoxOpenIcon } from '@/icons';
 import { CLASS_PREFIX } from '@/conf';
 import GroupOptionCard from '@/components/group-option-card';

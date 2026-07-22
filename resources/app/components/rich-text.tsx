@@ -79,9 +79,9 @@ const RichText = ({
 
   return (
     <div
-      className={`${CLASS_PREFIX}-richtext ${CLASS_PREFIX}-input-wrapper ${className}`}
+      className={`${CLASS_PREFIX}-richtext ${className}`}
     >
-      <div className={`${CLASS_PREFIX}-input-controller`}>
+      <div className={`${CLASS_PREFIX}-richtext-controller`}>
         {label && (
           <Label error={Boolean(error)} helpText={error ? error : helpText}>
             {label}

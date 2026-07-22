@@ -2,12 +2,12 @@ import Button from '@/components/ui/button';
 import { ShowMoreIcon } from '@/icons';
 import { apiClient } from '@/libs/api';
 import { endpoints } from '@/libs/endpoints';
-import Card from '@/molecules/card';
-import Container from '@/molecules/container';
-import Flex from '@/molecules/flex';
-import PageHeading from '@/molecules/page-heading';
+import { Card } from '@/components/ui/card';
+import Container from '@/components/ui/container';
+import Flex from '@/components/ui/flex';
+import PageHeading from '@/components/ui/page-heading';
 import RichText from '@/components/rich-text';
-import Text from '@/molecules/text';
+import Text from '@/components/ui/text';
 import AccordionPreview from '@/preview-pages/accordion-preview';
 import ActionGroupPreview from '@/preview-pages/action-group-preview';
 import AlertboxPreview from '@/preview-pages/alertbox-preview';
@@ -18,6 +18,7 @@ import ColorPickerPreview from '@/preview-pages/color-picker-preview';
 import DialogPreview from '@/preview-pages/dialog-preview';
 import DrowdownPreview from '@/preview-pages/drowdown-preview';
 import DropdownMenuPreview from '@/preview-pages/dropdown-menu-preview';
+import GridPreview from '@/preview-pages/grid-preview';
 import GridTemplatePreview from '@/preview-pages/grid-template-preview';
 import GroupOptionCardPreview from '@/preview-pages/group-option-card-preview';
 import HeadingPreview from '@/preview-pages/heading-preview';
@@ -26,6 +27,7 @@ import InputPreview from '@/preview-pages/input-preview';
 import MediaGalleryPreview from '@/preview-pages/media-gallery-preview';
 import MediaSelectorPreview from '@/preview-pages/media-selector-preview';
 import OptionAccordionPreview from '@/preview-pages/option-accordion-preview';
+import PageHeadingPreview from '@/preview-pages/page-heading-preview';
 import PageNavbarPreview from '@/preview-pages/page-navbar-preview';
 import PlaceholderPreview from '@/preview-pages/placeholder-preview';
 import PopoverPreview from '@/preview-pages/popover-preview';
@@ -50,7 +52,6 @@ import UiRadioGroupPreview from '@/preview-pages/ui-radio-group-preview';
 import UiSelectPreview from '@/preview-pages/ui-select-preview';
 import UiSwitchPreview from '@/preview-pages/ui-switch-preview';
 import UiTextareaPreview from '@/preview-pages/ui-textarea-preview';
-import type { FlexDirection } from '@/types';
 import { __ } from '@/wpi18n';
 
 const Tryouts = () => {
@@ -141,7 +142,7 @@ const Tryouts = () => {
             <TabsPreview />
           </Card>
 
-          <Text header="Legacy" type="primary" />
+          <Text header="Composites & Layout" type="primary" />
 
           <Button
             variant="primary"
@@ -151,40 +152,52 @@ const Tryouts = () => {
           >
             App Config
           </Button>
-          Page Navigation
-          <PageNavbarPreview />
-          Option Accordion
-          <Card>
+          <Card type="form">
+            Page Navigation
+            <PageNavbarPreview />
+          </Card>
+          <Card type="form">
+            Option Accordion
             <OptionAccordionPreview />
           </Card>
-          Group Option Card
-          <Card>
+          <Card type="form">
+            Group Option Card
             <GroupOptionCardPreview />
           </Card>
-          <Card>
+          <Card type="form">
+            Progress Bar
             <ProgressBarPreview />
           </Card>
-          <Card>
+          <Card type="form">
+            Color Picker
             <ColorPickerPreview />
           </Card>
-          RichText
-          <Card>
+          <Card type="form">
+            Rich Text
             <RichText
               onChange={(content) => console.log(content)}
               label="Rich Text Editor"
             />
           </Card>
-          <Card>
+          <Card type="form">
+            Select Input
             <SelectInputPreview />
           </Card>
-          <Card>
+          <Card type="form">
+            Placeholder
             <PlaceholderPreview />
           </Card>
-          <Card>
+          <Card type="form">
+            Thumbnail
             <ThumbnailPreview />
           </Card>
+          <Card type="form">
+            Grid
+            <GridPreview />
+          </Card>
           <GridTemplatePreview />
-          <Card>
+          <Card type="form">
+            Action Group
             <ActionGroupPreview />
           </Card>
           <Card type="form">
@@ -192,19 +205,23 @@ const Tryouts = () => {
             <TagManagerPreview />
           </Card>
           <Card type="form">
-            <span>Tab Preview</span>
+            Tab
             <Flex direction="column" gap={16}>
               <TabPreview />
             </Flex>
           </Card>
           <Card type="form">
-            Page Heading
+            Heading
             <Flex direction="column" gap={16}>
               <HeadingPreview />
             </Flex>
           </Card>
           <Card type="form">
-            Button Component
+            Page Heading
+            <PageHeadingPreview />
+          </Card>
+          <Card type="form">
+            Button + Tooltip
             <ButtonPreview />
           </Card>
           <Card type="form">
@@ -214,11 +231,7 @@ const Tryouts = () => {
               <div>Flex Item 2</div>
               <div>Flex Item 3</div>
             </Flex>
-            <Flex
-              direction={'col' as FlexDirection}
-              gap={12}
-              style={{ marginTop: 16 }}
-            >
+            <Flex direction="column" gap={12} style={{ marginTop: 16 }}>
               <div>Flex Item 1</div>
               <div>Flex Item 2</div>
               <div>Flex Item 3</div>
@@ -233,15 +246,15 @@ const Tryouts = () => {
             <RadioGroupPreview />
           </Card>
           <Card type="form">
-            Checkbox Component
+            Checkbox
             <CheckboxPreview />
           </Card>
           <Card type="form">
-            Input Molecule
+            Input
             <InputPreview />
           </Card>
           <Card type="form">
-            Select Component
+            Combobox Select
             <SelectPreview />
           </Card>
           <Card type="form">
@@ -249,15 +262,15 @@ const Tryouts = () => {
             <AccordionPreview />
           </Card>
           <Card type="form">
-            General Popover
+            Dialog (legacy popover)
             <PopoverPreview />
           </Card>
           <Card type="form">
-            Alertbox Component
+            Alert Dialog
             <AlertboxPreview />
           </Card>
           <Card type="form">
-            Dropdown Component
+            Dropdown
             <DrowdownPreview />
           </Card>
           <Card type="form">
@@ -269,7 +282,7 @@ const Tryouts = () => {
           <Card type="table">
             <TablePreview />
           </Card>
-          <Card>
+          <Card type="form">
             <Text header="Icons Preview" type="primary" />
             <IconsPreview />
           </Card>

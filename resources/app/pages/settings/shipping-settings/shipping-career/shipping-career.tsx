@@ -1,4 +1,4 @@
-import Flex from '@/molecules/flex';
+import Flex from '@/components/ui/flex';
 import { BoxOpenIcon } from '@/icons';
 import HeaderActionsCard from '@/components/header-actions-card';
 import GroupOptionCard from '@/components/group-option-card';
