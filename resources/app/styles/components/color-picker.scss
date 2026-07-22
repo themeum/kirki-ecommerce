@@ -8,6 +8,23 @@
   }
 }
 
+.#{$class-prefix}-color-picker-inner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.#{$class-prefix}-color-picker-swatch {
+  background-color: transparent;
+  height: 16px;
+  width: 16px;
+  border: 1px solid #e6e6e6;
+  border-radius: 50%;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
 .#{$class-prefix}-color-picker-input {
   border: none !important;
   outline: none !important;

@@ -1,9 +1,11 @@
 import type { KeyboardEvent } from 'react';
 import { useState, useEffect } from 'react';
+import classNames from 'classnames';
 
+import Flex from '@/components/ui/flex';
+import Label from '@/components/ui/label';
 import { CLASS_PREFIX } from '@/conf';
-import Label from '@/molecules/label';
-import Flex from '@/molecules/flex';
+import { __ } from '@/wpi18n';
 
 type ColorPickerProps = {
   value?: string;
@@ -49,49 +51,50 @@ const ColorPicker = ({
     }
   };
 
+  const handleSwatchToggle = () => {
+    setOpen(!open);
+  };
+
+  const handleSwatchKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleSwatchToggle();
+    }
+  };
+
   return (
-    <Flex direction={'column'} gap={8}>
+    <Flex direction="column" gap={8}>
       {label && (
-        <Label
-          text={label}
-          type={error ? 'error' : ''}
-          helpText={error ? error : helpText}
-        />
+        <Label error={Boolean(error)} helpText={error ? error : helpText}>
+          {label}
+        </Label>
       )}
       <div className={`${CLASS_PREFIX}-color-picker-wrapper`}>
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            width: '100%',
-          }}
-        >
+        <div className={`${CLASS_PREFIX}-color-picker-inner`}>
           <div
-            style={{
-              backgroundColor: inputValue || placeholder,
-              height: '16px',
-              width: '16px',
-              border: '1px solid #E6E6E6',
-              borderRadius: '50%',
-            }}
-            onClick={() => setOpen(!open)}
+            role="button"
+            tabIndex={0}
+            aria-label={__('Toggle color picker', 'kirki-ecommerce')}
+            className={`${CLASS_PREFIX}-color-picker-swatch`}
+            style={{ backgroundColor: inputValue || placeholder }}
+            onClick={handleSwatchToggle}
+            onKeyDown={handleSwatchKeyDown}
           />
-
           <input
             type="text"
-            // maxLength={7}
             value={inputValue}
             onChange={(e) => handleChange(e.target.value)}
             onKeyDown={handleKeyDown}
-            className={`${CLASS_PREFIX}-color-picker-input`}
+            className={classNames(`${CLASS_PREFIX}-color-picker-input`)}
             placeholder={placeholder}
+            aria-invalid={Boolean(error) || undefined}
           />
         </div>
-
-        {/* {open && <div>{"color picker opened"}</div>} */}
       </div>
     </Flex>
   );
 };
+
+ColorPicker.displayName = 'ColorPicker';
+
 export default ColorPicker;

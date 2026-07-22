@@ -1,4 +1,4 @@
-import ColorPicker from '@/molecules/color-picker';
+import ColorPicker from '@/components/color-picker';
 
 const ColorPickerPreview = () => {
   return (

@@ -13,7 +13,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import RichText from '@/molecules/rich-text';
+import RichText from '@/components/rich-text';
 
 type RichTextFieldProps<
   TFieldValues extends FieldValues = FieldValues,

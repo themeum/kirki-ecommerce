@@ -17,7 +17,7 @@ import { useUnsavedStatus } from '@/libs/unsaved-store';
 import Container from '@/molecules/container';
 import Flex from '@/molecules/flex';
 import PageHeading from '@/molecules/page-heading';
-import { TagManager } from '@/molecules/tag-manager';
+import TagManager from '@/components/tag-manager/tag-manager';
 import { normalizeErrors } from '@/pages/utils';
 import {
   ShippingSettingsFormSchema,

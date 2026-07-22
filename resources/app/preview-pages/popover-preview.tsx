@@ -1,37 +1,42 @@
 import { useState } from 'react';
 
-import Button from '@/molecules/button';
-import { Popover, PopoverBody, PopoverFooter, PopoverHeader } from '@/molecules/popover';
+import Button from '@/components/ui/button';
+import {
+  Dialog,
+  DialogClose,
+  DialogCloseButton,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 
 const PopoverPreview = () => {
-  const [openPopover, setOpenPopover] = useState(false);
-
-  const handleOpenPopover = () => {
-    setOpenPopover(true);
-  };
-
-  const handleClosePopover = () => {
-    setOpenPopover(false);
-  };
+  const [open, setOpen] = useState(false);
 
   return (
     <div>
-      <Button type="outlined" text="Click" onClick={handleOpenPopover} />
-      <Popover isOpen={openPopover} onClose={handleClosePopover}>
-        <PopoverHeader onClose={handleClosePopover}>
-          This is Header
-        </PopoverHeader>
-        <PopoverBody>
-          This is popover body. Contains the description
-        </PopoverBody>
-        <PopoverFooter>
-          <Button
-            type="outlined"
-            text="Close"
-            onClick={handleClosePopover}
-          />
-        </PopoverFooter>
-      </Popover>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger asChild>
+          <Button variant="outline">Click</Button>
+        </DialogTrigger>
+        <DialogContent style={{ width: 400 }}>
+          <DialogCloseButton />
+          <DialogHeader>
+            <DialogTitle>This is Header</DialogTitle>
+            <DialogDescription>
+              This is popover body. Contains the description
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="outline">Close</Button>
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

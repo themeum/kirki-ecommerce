@@ -13,7 +13,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import TagManager from '@/molecules/tag-manager/tag-manager';
+import TagManager from '@/components/tag-manager/tag-manager';
 
 type TagManagerProps = ComponentProps<typeof TagManager>;
 

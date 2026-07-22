@@ -6,7 +6,7 @@ import Card from '@/molecules/card';
 import Container from '@/molecules/container';
 import Flex from '@/molecules/flex';
 import PageHeading from '@/molecules/page-heading';
-import RichText from '@/molecules/rich-text';
+import RichText from '@/components/rich-text';
 import Text from '@/molecules/text';
 import AccordionPreview from '@/preview-pages/accordion-preview';
 import ActionGroupPreview from '@/preview-pages/action-group-preview';

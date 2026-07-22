@@ -13,7 +13,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import ColorPicker from '@/molecules/color-picker';
+import ColorPicker from '@/components/color-picker';
 
 type ColorPickerFieldProps<
   TFieldValues extends FieldValues = FieldValues,

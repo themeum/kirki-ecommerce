@@ -1,16 +1,10 @@
 import { useEffect, useRef } from 'react';
 
-import Label from '@/molecules/label';
+import Label from '@/components/ui/label';
 import { CLASS_PREFIX } from '@/conf';
 import { __ } from '@/wpi18n';
 
-/**
- * Must ensure these are enqueued in PHP:
- * wp_enqueue_script('wp-tinymce');
- * wp_enqueue_editor();
- *
- */
-type CustomRichTextProps = {
+type RichTextProps = {
   id?: string;
   value?: string;
   onChange?: (content: string) => void;
@@ -28,7 +22,7 @@ type TinyMceEditorInstance = {
   remove: () => void;
 };
 
-const CustomRichText = ({
+const RichText = ({
   id = 'my-wp-editor',
   value = '',
   onChange = () => {},
@@ -37,7 +31,7 @@ const CustomRichText = ({
   label = false,
   helpText,
   error,
-}: CustomRichTextProps) => {
+}: RichTextProps) => {
   const editorRef = useRef<TinyMceEditorInstance | null>(null);
 
   useEffect(() => {
@@ -89,11 +83,9 @@ const CustomRichText = ({
     >
       <div className={`${CLASS_PREFIX}-input-controller`}>
         {label && (
-          <Label
-            text={label}
-            type={error ? 'error' : ''}
-            helpText={error ? error : helpText}
-          />
+          <Label error={Boolean(error)} helpText={error ? error : helpText}>
+            {label}
+          </Label>
         )}
         <textarea
           id={id}
@@ -106,4 +98,6 @@ const CustomRichText = ({
   );
 };
 
-export default CustomRichText;
+RichText.displayName = 'RichText';
+
+export default RichText;

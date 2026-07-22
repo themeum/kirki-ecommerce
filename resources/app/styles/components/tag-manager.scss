@@ -1,5 +1,6 @@
 .#{$class-prefix}-tag-manager {
   overflow: hidden;
+
   .kirki-ecom-input-wrapper {
     input {
       border-radius: var(--decom-radius-rounded-lg);
@@ -9,11 +10,13 @@
       }
     }
   }
+
   .#{$class-prefix}-tag-manager-input {
     background-color: var(--decom-background-bg-fill);
     width: 100%;
     outline: none;
     cursor: text;
+
     &.#{$class-prefix}-border-none {
       border-bottom: none;
       border-radius: var(--decom-radius-rounded-lg)
@@ -25,9 +28,11 @@
       }
     }
   }
+
   &.#{$class-prefix}-tag-manager-list {
     border: 1px solid var(--decom-border-border);
     border-radius: var(--decom-radius-rounded-lg);
+
     .kirki-ecom-input-wrapper {
       input {
         border: none;
@@ -39,6 +44,13 @@
       }
     }
   }
+}
+
+.#{$class-prefix}-tag-manager-swatch {
+  height: 16px;
+  width: 16px;
+  border-radius: 50%;
+  flex-shrink: 0;
 }
 
 .#{$class-prefix}-selected-tags {

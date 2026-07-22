@@ -1,20 +1,20 @@
 import { useState, useEffect, useRef, type ReactNode } from 'react';
+import { Minus, PlusCircle, Trash2 } from 'lucide-react';
+import classNames from 'classnames';
 
+import SelectedTags from '@/components/tag-manager/selected-tags';
+import ActionGroup from '@/components/ui/action-group';
+import Button from '@/components/ui/button';
+import Flex from '@/components/ui/flex';
+import Label from '@/components/ui/label';
+import Searchbox from '@/components/ui/searchbox';
+import { Separator } from '@/components/ui/separator';
+import SuggestionDropdown from '@/components/ui/suggestion-dropdown';
+import Tag from '@/components/ui/tag';
+import Text from '@/components/ui/text';
 import { CLASS_PREFIX } from '@/conf';
-import { MinusIcon, PlusCircleIcon, TrashIcon } from '@/icons';
-import ActionGroup from '@/molecules/action-group';
-import Button from '@/molecules/button';
-import Flex from '@/molecules/flex';
-import Label from '@/molecules/label';
-import Searchbox from '@/molecules/searchbox';
-import Separator from '@/molecules/separator';
-import SuggestionDropdown from '@/molecules/suggestion-dropdown';
-import Tag from '@/molecules/tag';
-import Text from '@/molecules/text';
 import type { LabelFieldProps, SelectOption, StyleProps } from '@/types';
 import { __ } from '@/wpi18n';
-
-import SelectedTags from '@/molecules/tag-manager/selected-tags';
 
 type TagOption = SelectOption & {
   leftIcon?: ReactNode;
@@ -109,16 +109,16 @@ const TagManager = (props: TagManagerProps) => {
   return (
     <Flex direction="column" gap={8}>
       {label && (
-        <Label
-          text={label}
-          type={error ? 'error' : ''}
-          helpText={error ? error : helpText}
-        />
+        <Label error={Boolean(error)} helpText={error ? error : helpText}>
+          {label}
+        </Label>
       )}
       <div
-        className={`${CLASS_PREFIX}-tag-manager ${
-          type === 'list' ? `${CLASS_PREFIX}-tag-manager-list` : ''
-        } ${className}`}
+        className={classNames(
+          `${CLASS_PREFIX}-tag-manager`,
+          type === 'list' && `${CLASS_PREFIX}-tag-manager-list`,
+          className,
+        )}
         style={style}
       >
         {showInputField && (
@@ -129,7 +129,10 @@ const TagManager = (props: TagManagerProps) => {
                 key={searchKey}
                 value={inputValue}
                 placeholder={placeholder}
-                className={`${CLASS_PREFIX}-tag-manager-input ${selectedTags.length > 0 ? `${CLASS_PREFIX}-border-none` : ''}`}
+                className={classNames(
+                  `${CLASS_PREFIX}-tag-manager-input`,
+                  selectedTags.length > 0 && `${CLASS_PREFIX}-border-none`,
+                )}
                 onChange={(nextValue) =>
                   handleSearchChange(String(nextValue))
                 }
@@ -156,13 +159,21 @@ const TagManager = (props: TagManagerProps) => {
                 {hasAddBtn && (
                   <>
                     <div
-                      className={`${CLASS_PREFIX}-select-item`}
+                      role="option"
+                      tabIndex={0}
+                      className={`${CLASS_PREFIX}-ui-suggestion-item`}
                       onClick={() => {
                         handleNewTagAdd(triggerRef.current!.value);
                       }}
+                      onKeyDown={(event) => {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                          event.preventDefault();
+                          handleNewTagAdd(triggerRef.current!.value);
+                        }
+                      }}
                     >
-                      <span className={`${CLASS_PREFIX}-select-icon`}>
-                        <PlusCircleIcon />
+                      <span className={`${CLASS_PREFIX}-ui-suggestion-icon`}>
+                        <PlusCircle size={16} aria-hidden="true" />
                       </span>
                       <span>{btnText}</span>
                     </div>
@@ -171,22 +182,31 @@ const TagManager = (props: TagManagerProps) => {
                 )}
                 {suggestions.map((option, key) => (
                   <div
-                    className={`${CLASS_PREFIX}-select-item`}
+                    role="option"
+                    tabIndex={0}
+                    className={`${CLASS_PREFIX}-ui-suggestion-item`}
                     key={key}
                     onClick={() => handleOptionClick(option)}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        handleOptionClick(option);
+                      }
+                    }}
                   >
                     {option?.leftIcon && (
-                      <div className={`${CLASS_PREFIX}-select-icon`}>
+                      <div className={`${CLASS_PREFIX}-ui-suggestion-icon`}>
                         {option.leftIcon}
                       </div>
                     )}
                     {option?.color && (
                       <div
-                        className={`${CLASS_PREFIX}-color-swatch`}
+                        className={`${CLASS_PREFIX}-tag-manager-swatch`}
                         style={{ background: option?.color }}
+                        aria-hidden="true"
                       />
                     )}
-                    <div className={`${CLASS_PREFIX}-select-text-wrapper`}>
+                    <div className={`${CLASS_PREFIX}-ui-suggestion-text`}>
                       {option.title}
                     </div>
                   </div>
@@ -202,12 +222,9 @@ const TagManager = (props: TagManagerProps) => {
                 <Flex style={{ alignItems: 'center', padding: '12px' }} gap={8}>
                   {item?.color && (
                     <div
-                      style={{
-                        height: '16px',
-                        width: '16px',
-                        borderRadius: '50%',
-                        background: item?.color,
-                      }}
+                      className={`${CLASS_PREFIX}-tag-manager-swatch`}
+                      style={{ background: item?.color }}
+                      aria-hidden="true"
                     />
                   )}
                   <Text
@@ -217,11 +234,13 @@ const TagManager = (props: TagManagerProps) => {
                   />
                   <ActionGroup>
                     <Button
-                      size="xsm"
-                      type="outlined"
-                      icon={<TrashIcon />}
+                      size="icon"
+                      variant="outline"
                       onClick={() => onTagRemove(item)}
-                    />
+                      aria-label={__('Remove tag', 'kirki-ecommerce')}
+                    >
+                      <Trash2 size={16} aria-hidden="true" />
+                    </Button>
                   </ActionGroup>
                 </Flex>
                 <Separator style={{ margin: '0' }} />
@@ -262,7 +281,11 @@ const TagManager = (props: TagManagerProps) => {
                     subText={tag?.subText}
                     key={index}
                     onTagRemove={() => onTagRemove(tag)}
-                    closeIcon={showRemoveIcon && <MinusIcon />}
+                    closeIcon={
+                      showRemoveIcon ? (
+                        <Minus size={14} aria-hidden="true" />
+                      ) : undefined
+                    }
                     color={tag?.color}
                   />
                 ))}
@@ -274,5 +297,7 @@ const TagManager = (props: TagManagerProps) => {
     </Flex>
   );
 };
+
+TagManager.displayName = 'TagManager';
 
 export default TagManager;
