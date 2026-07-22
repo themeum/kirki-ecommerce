@@ -7,7 +7,7 @@ import {
 import classNames from 'classnames';
 
 import { CLASS_PREFIX } from '@/conf';
-import Tooltip from '@/molecules/tooltip';
+import Tooltip from '@/components/ui/tooltip';
 
 type LabelProps = ComponentPropsWithoutRef<typeof LabelPrimitive.Root> & {
   helpText?: ReactNode;

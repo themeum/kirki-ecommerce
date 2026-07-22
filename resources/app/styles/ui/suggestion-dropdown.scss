@@ -1,0 +1,49 @@
+.#{$class-prefix}-ui-suggestion-backdrop {
+  position: fixed;
+  inset: 0;
+  background: transparent;
+  z-index: 100;
+}
+
+.#{$class-prefix}-ui-suggestion-dropdown {
+  padding: var(--decom-spacing-1);
+  position: absolute;
+  border: 1px solid var(--decom-border-border);
+  border-radius: var(--decom-radius-rounded-md);
+  box-shadow: 0px 4px 6px -1px #0000001a;
+  background-color: var(--decom-background-bg-fill);
+  z-index: 101;
+  box-sizing: border-box;
+  max-height: 240px;
+  overflow-y: auto;
+  @include scrollbar(
+    4px,
+    var(--decom-background-bg-fill-brand),
+    var(--decom-background-bg-surface-tertiary)
+  );
+
+  .#{$class-prefix}-ui-suggestion-item {
+    padding: var(--decom-spacing-f2) var(--decom-spacing-2);
+    @include itemCenterContentStart();
+    column-gap: var(--decom-spacing-2);
+    border-radius: var(--decom-radius-rounded-sm);
+    cursor: pointer;
+
+    &:hover {
+      background-color: var(--decom-background-bg-surface-secondary);
+    }
+  }
+
+  .#{$class-prefix}-ui-suggestion-icon {
+    min-width: 16px;
+    @include itemCenter();
+  }
+
+  .#{$class-prefix}-ui-suggestion-text {
+    @include itemCenter();
+    column-gap: var(--decom-spacing-2);
+    max-width: 85%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}

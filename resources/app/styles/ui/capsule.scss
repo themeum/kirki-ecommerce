@@ -1,0 +1,13 @@
+.#{$class-prefix}-ui-capsule {
+  min-width: 126px;
+  border-radius: var(--decom-radius-rounded-md);
+  height: 32px;
+  @include flexCenter();
+  background-color: hsla(0, 0%, 96%, 1);
+
+  .#{$class-prefix}-ui-capsule-separator {
+    height: 100%;
+    width: 1px;
+    background-color: var(--decom-border-border);
+  }
+}

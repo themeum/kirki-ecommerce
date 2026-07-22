@@ -1,0 +1,30 @@
+.#{$class-prefix}-ui-tag {
+  background-color: var(--decom-background-bg-surface-secondary);
+  padding: var(--decom-spacing-1) var(--decom-spacing-2);
+  border-radius: var(--decom-radius-rounded-sm);
+  @include flexCenter();
+  width: max-content;
+  gap: var(--decom-spacing-2);
+  font-size: 12px;
+  line-height: 18px;
+
+  .#{$class-prefix}-ui-tag-subtext {
+    color: var(--decom-text-text-subdued);
+  }
+
+  .#{$class-prefix}-ui-tag-swatch {
+    border-radius: var(--decom-radius-rounded-full);
+    height: 16px;
+    width: 16px;
+  }
+
+  .#{$class-prefix}-ui-tag-close {
+    cursor: pointer;
+    @include flexCenter();
+    padding: 0;
+    margin: 0;
+    border: none;
+    background: transparent;
+    appearance: none;
+  }
+}

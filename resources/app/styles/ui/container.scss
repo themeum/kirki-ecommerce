@@ -1,0 +1,35 @@
+.#{$class-prefix}-ui-container {
+  max-width: 1024px;
+  margin: var(--decom-spacing-0) auto;
+
+  &--sm {
+    max-width: 600px;
+  }
+
+  &--md {
+    max-width: 752px;
+  }
+
+  &--lg {
+    max-width: 1024px;
+  }
+
+  &--fullWidth {
+    max-width: 100%;
+  }
+
+  &--scrollable {
+    overflow: scroll;
+    @include scrollbar(
+      4px,
+      var(--decom-background-bg-fill-brand),
+      var(--decom-background-bg-surface-tertiary)
+    );
+  }
+}
+
+.#{$class-prefix}-ui-full-page-container {
+  min-height: 100vh;
+  max-width: 100%;
+  background-color: var(--decom-background-bg-fill);
+}
