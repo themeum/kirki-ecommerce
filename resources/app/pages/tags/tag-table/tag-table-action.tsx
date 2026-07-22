@@ -1,5 +1,5 @@
 import Flex from '@/molecules/flex';
-import Searchbox from '@/molecules/searchbox';
+import Searchbox from '@/components/ui/searchbox';
 import { useListParams } from '@/hooks';
 
 const TagTableAction = () => {

@@ -1,20 +1,23 @@
 import OptionAccordion from '@/components/option-accordion';
+import Button from '@/components/ui/button';
 import GroupOptionCardPreview from '@/preview-pages/group-option-card-preview';
 import { LocationIcon, ShowMoreIcon } from '@/icons';
 import ActionGroup from '@/molecules/action-group';
-import Button from '@/molecules/button';
 import ToggleButton from '@/molecules/toggle-button';
+import { __ } from '@/wpi18n';
 
 const OptionAccordionPreview = () => {
   const rightActions = (
     <ActionGroup gap={8} style={{ alignItems: 'center' }}>
       <ToggleButton value={true} />
       <Button
-        type="ghost"
-        size="small"
-        icon={<ShowMoreIcon />}
+        variant="ghost"
+        size="sm"
+        aria-label={__('More options', 'kirki-ecommerce')}
         style={{ transform: 'rotate(90deg)' }}
-      />
+      >
+        <ShowMoreIcon />
+      </Button>
     </ActionGroup>
   );
 

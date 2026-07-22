@@ -18,7 +18,7 @@ import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import ActionGroup from '@/molecules/action-group';
 import Flex from '@/molecules/flex';
-import Searchbox from '@/molecules/searchbox';
+import Searchbox from '@/components/ui/searchbox';
 import { useProductForm } from '@/contexts/product-form-context';
 import {
   ProductAttributeFormSchema,

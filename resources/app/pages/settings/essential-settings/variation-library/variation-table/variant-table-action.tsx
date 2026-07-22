@@ -4,7 +4,7 @@ import Button from '@/components/ui/button';
 import { ArrowDownUp } from '@/icons';
 import ActionGroup from '@/molecules/action-group';
 import Flex from '@/molecules/flex';
-import Searchbox from '@/molecules/searchbox';
+import Searchbox from '@/components/ui/searchbox';
 import type { AttributeValue, SortOrder } from '@/types';
 
 import { getSortedList } from '@/pages/settings/utils';

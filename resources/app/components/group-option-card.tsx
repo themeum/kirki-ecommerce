@@ -1,11 +1,11 @@
 import { useState, type ReactNode } from 'react';
 
 import DropdownButton from '@/components/dropdown-button';
+import Button from '@/components/ui/button';
 import { CLASS_PREFIX } from '@/conf';
 import { EditPenIcon, TrashIcon, ShowMoreIcon } from '@/icons';
 import ActionGroup from '@/molecules/action-group';
 import Badge from '@/molecules/badge';
-import Button from '@/molecules/button';
 import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
 import Text from '@/molecules/text';
@@ -154,8 +154,9 @@ const GroupOptionCard = (props: GroupOptionCardProps) => {
               )}
               {handleDeleteItem && (
                 <Button
-                  type="secondary"
-                  icon={<TrashIcon />}
+                  variant="secondary"
+                  size="icon"
+                  aria-label={__('Delete', 'kirki-ecommerce')}
                   className={`${CLASS_PREFIX}-group-option-card-icon ${
                     item?.is_delete_disabled
                       ? `${CLASS_PREFIX}-icon-disabled`
@@ -166,15 +167,20 @@ const GroupOptionCard = (props: GroupOptionCardProps) => {
                       ? undefined
                       : () => handleDeleteItem(item)
                   }
-                />
+                >
+                  <TrashIcon />
+                </Button>
               )}
               {handleEditItem && (
                 <Button
-                  type="secondary"
-                  icon={<EditPenIcon />}
+                  variant="secondary"
+                  size="icon"
+                  aria-label={__('Edit', 'kirki-ecommerce')}
                   onClick={() => handleEditItem(item)}
                   className={`${CLASS_PREFIX}-group-option-card-icon`}
-                />
+                >
+                  <EditPenIcon />
+                </Button>
               )}
               {handleMoreOption && !item?.is_action_disabled && (
                 <DropdownButton

@@ -1,13 +1,25 @@
-import { useEffect, useRef, useState, type ComponentProps } from 'react';
+import { useEffect, useState, type ComponentProps } from 'react';
 
-import { CloseIcon, ListFilter } from '@/icons';
+import Button from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import UiFlex from '@/components/ui/flex';
+import UiLabel from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { useListParams } from '@/hooks';
+import { CloseIcon, ListFilter } from '@/icons';
 import ActionGroup from '@/molecules/action-group';
-import Button from '@/molecules/button';
-import { DropdownMenuContent } from '@/molecules/dropdown';
 import Flex from '@/molecules/flex';
 import { RadioGroup } from '@/molecules/radio-group';
-import { Select } from '@/molecules/select';
 import Text from '@/molecules/text';
 import { __, sprintf } from '@/wpi18n';
 
@@ -43,7 +55,6 @@ const FilterPopup = ({
       limit: 10,
     },
   });
-  const popoverRef = useRef<HTMLSpanElement | HTMLAnchorElement>(null);
   const [openPopup, setOpenPopup] = useState(false);
   const [filterObject, setFilterObject] = useState<LocalFilterState>({
     category_ids: [],
@@ -113,28 +124,37 @@ const FilterPopup = ({
     setOpenPopup(false);
   };
 
+  const handleOpenChange = (open: boolean) => {
+    if (open) {
+      setOpenPopup(true);
+    } else {
+      handleFilterClose();
+    }
+  };
+
   return (
-    <>
+    <DropdownMenu open={openPopup} onOpenChange={handleOpenChange}>
       <Flex>
-        <Button
-          type="outlined"
-          size="small"
-          text={__('Filter', 'kirki-ecommerce')}
-          leftIcon={<ListFilter />}
-          style={{
-            borderRightColor: hasFilter ? 'none' : 'var(--decom-border-border)',
-            borderRadius: hasFilter
-              ? 'var(--decom-radius-rounded-md) var(--decom-radius-rounded-none) var(--decom-radius-rounded-none) var(--decom-radius-rounded-md)'
-              : 'var(--decom-radius-rounded-md)',
-          }}
-          onClick={() => setOpenPopup((prev) => !prev)}
-          ref={popoverRef}
-          {...buttonProps}
-        />
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="outline"
+            size="sm"
+            style={{
+              borderRightColor: hasFilter ? 'none' : 'var(--decom-border-border)',
+              borderRadius: hasFilter
+                ? 'var(--decom-radius-rounded-md) var(--decom-radius-rounded-none) var(--decom-radius-rounded-none) var(--decom-radius-rounded-md)'
+                : 'var(--decom-radius-rounded-md)',
+            }}
+            {...buttonProps}
+          >
+            <ListFilter />
+            {__('Filter', 'kirki-ecommerce')}
+          </Button>
+        </DropdownMenuTrigger>
         {hasFilter ? (
           <Button
-            type="outlined"
-            size="small"
+            variant="outline"
+            size="sm"
             style={{
               color: 'var(--decom-text-text-emphasis)',
               backgroundColor: 'var(--decom-background-bg-fill-secondary)',
@@ -143,16 +163,12 @@ const FilterPopup = ({
               borderRadius:
                 'var(--decom-radius-rounded-none) var(--decom-radius-rounded-md) var(--decom-radius-rounded-md) var(--decom-radius-rounded-none)',
             }}
-            text={sprintf(__('%d', 'kirki-ecommerce'), hasFilter)}
-          />
+          >
+            {sprintf(__('%d', 'kirki-ecommerce'), hasFilter)}
+          </Button>
         ) : null}
       </Flex>
-      <DropdownMenuContent
-        isOpen={openPopup}
-        triggerRef={popoverRef}
-        onClose={handleFilterClose}
-        style={{ width: '288px', maxHeight: '522px' }}
-      >
+      <DropdownMenuContent style={{ width: '288px', maxHeight: '522px' }}>
         <Flex
           style={{
             top: '-4px',
@@ -165,11 +181,13 @@ const FilterPopup = ({
           <Text header={__('Filter', 'kirki-ecommerce')} />
           <ActionGroup>
             <Button
-              icon={<CloseIcon />}
-              type="blank"
+              variant="ghost"
+              size="icon"
               onClick={handleFilterClose}
               style={{ color: 'var(--decom-text-text-primary)' }}
-            />
+            >
+              <CloseIcon />
+            </Button>
           </ActionGroup>
         </Flex>
 
@@ -197,16 +215,25 @@ const FilterPopup = ({
             onChange={(val) => handleOnFilterChange(val, 'status')}
             label={__('Status', 'kirki-ecommerce')}
           />
-          <Select
-            label={__('Inventory', 'kirki-ecommerce')}
-            value={filterObject.stock_status}
-            defaultValue="true"
-            optionsArray={[
-              { value: 'in_stock', title: __('In stock', 'kirki-ecommerce') },
-              { value: 'out_of_stock', title: __('Out of stock', 'kirki-ecommerce') },
-            ]}
-            onChange={(val) => handleOnFilterChange(val, 'stock_status')}
-          />
+          <UiFlex direction="column" gap={8}>
+            <UiLabel>{__('Inventory', 'kirki-ecommerce')}</UiLabel>
+            <Select
+              value={filterObject.stock_status || undefined}
+              onValueChange={(val) => handleOnFilterChange(val, 'stock_status')}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder={__('Select', 'kirki-ecommerce')} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="in_stock">
+                  {__('In stock', 'kirki-ecommerce')}
+                </SelectItem>
+                <SelectItem value="out_of_stock">
+                  {__('Out of stock', 'kirki-ecommerce')}
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </UiFlex>
           <CollectionFilter
             filterObject={filterObject}
             onChange={(val) => handleOnFilterChange(val, 'collection_ids')}
@@ -227,16 +254,13 @@ const FilterPopup = ({
           }}
         >
           <ActionGroup>
-            <Button
-              type="primary"
-              text={__('Apply Filter', 'kirki-ecommerce')}
-              size="small"
-              onClick={handleOnApplyFilter}
-            />
+            <Button variant="primary" size="sm" onClick={handleOnApplyFilter}>
+              {__('Apply Filter', 'kirki-ecommerce')}
+            </Button>
           </ActionGroup>
         </Flex>
       </DropdownMenuContent>
-    </>
+    </DropdownMenu>
   );
 };
 

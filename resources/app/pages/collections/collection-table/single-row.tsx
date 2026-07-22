@@ -1,8 +1,8 @@
 import { useNavigate } from 'react-router';
 
+import Button from '@/components/ui/button';
 import { EditPenIcon, TrashIcon } from '@/icons';
 import ActionGroup from '@/molecules/action-group';
-import Button from '@/molecules/button';
 import Checkbox from '@/molecules/checkbox';
 import Flex from '@/molecules/flex';
 import { TableCell, TableRow } from '@/molecules/table';
@@ -58,22 +58,25 @@ const SingleRow = ({
         <TableCell alignment="right">
           <ActionGroup>
             <Button
-              size="small"
-              text={__('Edit', 'kirki-ecommerce')}
-              type="secondary"
-              leftIcon={<EditPenIcon />}
+              size="sm"
+              variant="secondary"
               onClick={() => {
                 handleItemClick(item.id);
               }}
-            />
+            >
+              <EditPenIcon />
+              {__('Edit', 'kirki-ecommerce')}
+            </Button>
             <Button
-              size="small"
-              type="destructiveSoft"
-              icon={<TrashIcon />}
+              size="sm"
+              variant="secondary"
+              aria-label={__('Delete', 'kirki-ecommerce')}
               onClick={() => {
                 onItemDelete(item.id);
               }}
-            />
+            >
+              <TrashIcon />
+            </Button>
           </ActionGroup>
         </TableCell>
       </TableRow>

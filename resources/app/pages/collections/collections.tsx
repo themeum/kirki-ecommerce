@@ -1,9 +1,9 @@
 import { useNavigate } from 'react-router';
 
 import Pagination from '@/components/pagination';
+import Button from '@/components/ui/button';
 import { NEW_ITEM_ID } from '@/conf';
 import { useListParams } from '@/hooks';
-import Button from '@/molecules/button';
 import Card from '@/molecules/card';
 import Container from '@/molecules/container';
 import Flex from '@/molecules/flex';
@@ -39,13 +39,14 @@ const Collections = () => {
         text={__('Collections', 'kirki-ecommerce')}
         actions={
           <Button
-            type="primary"
-            size="small"
-            text={__('Add Collection', 'kirki-ecommerce')}
+            variant="primary"
+            size="sm"
             onClick={() => {
               navigate('/collections/' + NEW_ITEM_ID);
             }}
-          />
+          >
+            {__('Add Collection', 'kirki-ecommerce')}
+          </Button>
         }
       />
       <Container>

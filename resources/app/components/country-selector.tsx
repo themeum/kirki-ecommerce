@@ -1,11 +1,13 @@
-import { Select } from '@/molecules/select';
+import Combobox from '@/components/ui/combobox';
+import Flex from '@/components/ui/flex';
+import Label from '@/components/ui/label';
 import { useCountriesQuery } from '@/services/country';
 import type { LabelFieldProps } from '@/types';
 import { __ } from '@/wpi18n';
 
 type CountrySelectorProps = LabelFieldProps & {
-  value?: string | number | Array<string | number>;
-  onChange: (value: string | number | Array<string | number>) => void;
+  value?: string | string[];
+  onChange: (value: string | string[]) => void;
   multiple?: boolean;
 };
 
@@ -19,23 +21,24 @@ const CountrySelector = ({
 }: CountrySelectorProps) => {
   const { data: countries = [] } = useCountriesQuery({ limit: -1 });
 
-  const optionsArray = countries.map((country) => ({
+  const options = countries.map((country) => ({
     value: country.code,
-    title: country.name,
-    leftIcon: country.flag,
+    label: country.name,
   }));
 
   return (
-    <Select
-      label={label || __('Country / Region', 'kirki-ecommerce')}
-      value={value}
-      optionsArray={optionsArray}
-      defaultValue={value}
-      onChange={(nextValue: string | number | Array<string | number>) => onChange(nextValue)}
-      error={error}
-      helpText={helpText}
-      multiple={multiple}
-    />
+    <Flex direction="column" gap={8}>
+      <Label error={Boolean(error)} helpText={error || helpText}>
+        {label || __('Country / Region', 'kirki-ecommerce')}
+      </Label>
+      <Combobox
+        options={options}
+        value={value}
+        onChange={onChange}
+        error={Boolean(error)}
+        multiple={multiple}
+      />
+    </Flex>
   );
 };
 

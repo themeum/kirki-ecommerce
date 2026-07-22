@@ -1,6 +1,6 @@
 import MediaSelector from '@/components/media-selector';
+import Button from '@/components/ui/button';
 import { CloudUpload } from '@/icons';
-import Button from '@/molecules/button';
 import Placeholder from '@/molecules/placeholder';
 import Text from '@/molecules/text';
 import Thumbnail from '@/molecules/thumbnail';
@@ -80,7 +80,10 @@ const ThumbnailSelector = (props: ThumbnailSelectorProps) => {
           helpText={helpText}
         >
           <MediaSelector onSelect={onChange}>
-            <Button type="ghost" text={btnText} leftIcon={<CloudUpload />} />
+            <Button variant="ghost">
+              <CloudUpload />
+              {btnText}
+            </Button>
           </MediaSelector>
           <Text type="primary" subHeader={placeholder} />
         </Placeholder>

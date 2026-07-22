@@ -1,5 +1,5 @@
+import Input from '@/components/ui/input';
 import Flex from '@/molecules/flex';
-import Input from '@/molecules/input';
 import {
   Table,
   TableBody,
@@ -48,8 +48,8 @@ const ItemsTable = () => {
                 <Input
                   placeholder="19.99"
                   style={{ textAlign: 'center' }}
-                  onChange={(value) => {
-                    console.log(value);
+                  onChange={(event) => {
+                    console.log(event.target.value);
                   }}
                   value={19}
                 />

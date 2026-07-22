@@ -1,9 +1,14 @@
+import {
+  Select,
+  SelectContent,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import Button from '@/components/ui/button';
 import { CLASS_PREFIX } from '@/conf';
 import { InfoIcon } from '@/icons';
 import ActionGroup from '@/molecules/action-group';
-import Button from '@/molecules/button';
 import Flex from '@/molecules/flex';
-import { Select } from '@/molecules/select';
 
 const TableInfo = () => {
   return (
@@ -32,8 +37,15 @@ const TableInfo = () => {
         </Flex>
       </Flex>
       <ActionGroup>
-        <Select placeholder="This Week" style={{ padding: '8px 16px' }} />
-        <Button type="secondary" size="small" text="Go to Analytics" />
+        <Select disabled>
+          <SelectTrigger style={{ padding: '8px 16px' }}>
+            <SelectValue placeholder="This Week" />
+          </SelectTrigger>
+          <SelectContent />
+        </Select>
+        <Button variant="secondary" size="sm">
+          Go to Analytics
+        </Button>
       </ActionGroup>
     </Flex>
   );

@@ -1,6 +1,14 @@
+import Flex from '@/components/ui/flex';
+import Input from '@/components/ui/input';
+import Label from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import Grid from '@/molecules/grid';
-import Input from '@/molecules/input';
-import { Select } from '@/molecules/select';
 import type { SelectOption } from '@/types';
 
 const options: SelectOption[] = [
@@ -12,25 +20,34 @@ const options: SelectOption[] = [
 const GridPreview = () => {
   return (
     <Grid columns={3}>
+      <Flex direction="column" gap={8}>
+        <Label>Input</Label>
+        <Input
+          placeholder="placeholder text"
+          onChange={(event) => console.log(event.target.value)}
+        />
+      </Flex>
       <div>
         <Input
           placeholder="placeholder text"
-          label="Input"
-          onChange={(value) => console.log(value)}
+          onChange={(event) => console.log(event.target.value)}
         />
       </div>
-      <div>
-        <Input
-          placeholder="placeholder text"
-          onChange={(value) => console.log(value)}
-        />
-      </div>
-      <Select
-        label="Select dropdown 2"
-        optionsArray={options}
-        onChange={(value) => console.log(value)}
-        onClose={() => console.log('dropdown closed')}
-      />
+      <Flex direction="column" gap={8}>
+        <Label>Select dropdown 2</Label>
+        <Select onValueChange={(value) => console.log(value)}>
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {options.map((option) => (
+              <SelectItem key={option.value} value={String(option.value)}>
+                {option.title}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </Flex>
     </Grid>
   );
 };

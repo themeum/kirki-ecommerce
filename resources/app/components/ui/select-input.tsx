@@ -1,16 +1,22 @@
 import {
   useEffect,
   useState,
+  type ChangeEvent,
   type CSSProperties,
-  type RefObject,
 } from 'react';
 import classNames from 'classnames';
 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import Flex from '@/components/ui/flex';
+import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
 import { CLASS_PREFIX } from '@/conf';
-import Input from '@/molecules/input';
-import { Select } from '@/molecules/select';
 import type { SelectOption } from '@/types';
 
 type SelectInputValue = {
@@ -32,7 +38,6 @@ type SelectInputProps = {
   error?: string | boolean;
   onChange?: (value: SelectInputValue) => void;
   invisible?: boolean;
-  anchorRef?: RefObject<HTMLElement | null>;
   selectWidth?: string | number;
 };
 
@@ -50,14 +55,13 @@ const SelectInput = ({
   error,
   onChange = () => {},
   invisible,
-  anchorRef,
   selectWidth,
 }: SelectInputProps) => {
   const [inputValue, setInputValue] = useState<string | number>(
     value?.value || defaultValue?.value || '',
   );
-  const [selectValue, setSelectValue] = useState<string | number>(
-    value?.unit || defaultValue?.unit || '',
+  const [selectValue, setSelectValue] = useState<string>(
+    String(value?.unit ?? defaultValue?.unit ?? ''),
   );
 
   const fallbackOption = optionsArray.find((item) => item?.fallback);
@@ -65,12 +69,8 @@ const SelectInput = ({
 
   useEffect(() => {
     setInputValue(value?.value ?? '');
-    setSelectValue(value?.unit ?? '');
+    setSelectValue(String(value?.unit ?? ''));
   }, [value]);
-
-  const handleInputChange = (nextValue: string | number) => {
-    setInputValue(nextValue);
-  };
 
   const separateUnitAndvalue = (rawValue: string) => {
     const match = /^(-?\d*\.?\d+)\s*([a-zA-Z%]+)$/.exec(rawValue.trim());
@@ -86,10 +86,10 @@ const SelectInput = ({
       const unitValue = optionsArray.find(
         (item) => item.value === match[2].toLowerCase(),
       );
-      setSelectValue(unitValue?.value || fallbackOption!.value);
+      setSelectValue(String(unitValue?.value ?? fallbackOption!.value));
       return {
         value: parseFloat(match[1]),
-        unit: unitValue?.value || fallbackOption!.value,
+        unit: unitValue?.value ?? fallbackOption!.value,
       };
     }
 
@@ -108,16 +108,23 @@ const SelectInput = ({
     };
   };
 
-  const handleInputBlur = (blurValue: string | number) => {
-    const formattedValue = separateUnitAndvalue(String(blurValue));
+  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setInputValue(event.target.value);
+  };
+
+  const handleInputBlur = (event: ChangeEvent<HTMLInputElement>) => {
+    const formattedValue = separateUnitAndvalue(event.target.value);
     onChange(formattedValue);
   };
 
-  const handleSelectChange = (nextValue: string | number) => {
+  const handleSelectChange = (nextValue: string) => {
     setSelectValue(nextValue);
+    const matchedOption = optionsArray.find(
+      (item) => String(item.value) === nextValue,
+    );
     onChange({
       value: inputValue,
-      unit: nextValue,
+      unit: matchedOption ? matchedOption.value : nextValue,
     });
   };
 
@@ -139,8 +146,9 @@ const SelectInput = ({
       >
         <div style={{ flex: '1' }}>
           <Input
-            onBlur={(blurValue) => handleInputBlur(blurValue)}
-            onChange={(changeValue) => handleInputChange(changeValue)}
+            type="number"
+            onBlur={handleInputBlur}
+            onChange={handleInputChange}
             value={inputValue}
             step={step}
             max={max}
@@ -148,14 +156,18 @@ const SelectInput = ({
           />
         </div>
         <div style={{ width: selectWidth ? selectWidth : 'auto' }}>
-          <Select
-            value={selectValue}
-            optionsArray={optionsArray}
-            onChange={(changeValue: string | number) =>
-              handleSelectChange(changeValue)
-            }
-            anchorRef={anchorRef}
-          />
+          <Select value={selectValue} onValueChange={handleSelectChange}>
+            <SelectTrigger error={Boolean(error)}>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {optionsArray.map((option) => (
+                <SelectItem key={option.value} value={String(option.value)}>
+                  {option.title}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </Flex>
     </Flex>

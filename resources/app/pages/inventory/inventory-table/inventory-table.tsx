@@ -2,9 +2,9 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router';
 
 import BulkActionHandler from '@/components/bulk-action-handler';
+import Button from '@/components/ui/button';
 import { useInventoryForm } from '@/contexts/inventory-form-context';
 import { useMarkList } from '@/hooks';
-import Button from '@/molecules/button';
 import Checkbox from '@/molecules/checkbox';
 import Flex from '@/molecules/flex';
 import {
@@ -57,11 +57,12 @@ const InventoryTable = () => {
             per_page={per_page}
           />
           <Button
-            type="secondary"
-            text={__('Bulk Edit', 'kirki-ecommerce')}
+            variant="secondary"
+            size="sm"
             onClick={handleApplyAction}
-            size="small"
-          />
+          >
+            {__('Bulk Edit', 'kirki-ecommerce')}
+          </Button>
         </Flex>
       ) : (
         <InventoryTableAction

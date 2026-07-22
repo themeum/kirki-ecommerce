@@ -1,11 +1,18 @@
+import Input from '@/components/ui/input';
+import Label from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import Card from '@/molecules/card';
 import Checkbox from '@/molecules/checkbox';
 import Flex from '@/molecules/flex';
 import Grid from '@/molecules/grid';
-import Input from '@/molecules/input';
 import Separator from '@/molecules/separator';
 import Text from '@/molecules/text';
-import { Select } from '@/molecules/select';
 import type { SelectOption } from '@/types';
 
 const optionsArray: SelectOption[] = [
@@ -18,33 +25,58 @@ const GridTemplatePreview = () => {
     <Card type="form">
       <Text header="Price" subHeader="This is subheading" type="primary" />
       <Grid columns={2}>
-        <Input label="Regular price" placeholder="29.00" />
-        <Input label="Sale price" placeholder="19.99" />
+        <Flex direction="column" gap={8}>
+          <Label>Regular price</Label>
+          <Input placeholder="29.00" />
+        </Flex>
+        <Flex direction="column" gap={8}>
+          <Label>Sale price</Label>
+          <Input placeholder="19.99" />
+        </Flex>
       </Grid>
       <Grid columns={1}>
         <Flex direction="column" gap={8}>
           <Checkbox label="Charge tax on this product" value={true} />
-          <Select
-            optionsArray={optionsArray}
-            onChange={(value) => console.log(value)}
-            onClose={() => console.log('dropdown closed')}
-          />
+          <Select onValueChange={(value) => console.log(value)}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {optionsArray.map((option) => (
+                <SelectItem key={option.value} value={String(option.value)}>
+                  {option.title}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </Flex>
       </Grid>
       <Separator />
       <Grid columns={3}>
-        <Input
-          label="Cost of goods"
-          placeholder="15.00"
-          type="number"
-          min={-3}
-          max={10}
-          onEnter={(value) => console.log(value, 'enter')}
-          onChange={(value) => console.log(value, 'change')}
-          onBlur={(value) => console.log(value, 'blur')}
-        />
-        <Input label="Profit" placeholder="4.99" type="number" max={10} />
-        <Input label="Margin(%)" placeholder="24.96" type="number" />
+        <Flex direction="column" gap={8}>
+          <Label>Cost of goods</Label>
+          <Input
+            placeholder="15.00"
+            type="number"
+            min={-3}
+            max={10}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') {
+                console.log(event.currentTarget.value, 'enter');
+              }
+            }}
+            onChange={(event) => console.log(event.target.value, 'change')}
+            onBlur={(event) => console.log(event.target.value, 'blur')}
+          />
+        </Flex>
+        <Flex direction="column" gap={8}>
+          <Label>Profit</Label>
+          <Input placeholder="4.99" type="number" max={10} />
+        </Flex>
+        <Flex direction="column" gap={8}>
+          <Label>Margin(%)</Label>
+          <Input placeholder="24.96" type="number" />
+        </Flex>
       </Grid>
 
       <Card type="inner">

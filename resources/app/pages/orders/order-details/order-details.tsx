@@ -1,14 +1,20 @@
+import Button from '@/components/ui/button';
+import Input from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { FlagIcon, PlusIcon, ShowMoreIcon } from '@/icons';
 import Alert from '@/molecules/alert';
 import Badge from '@/molecules/badge';
-import Button from '@/molecules/button';
 import Card from '@/molecules/card';
 import Container from '@/molecules/container';
 import Flex from '@/molecules/flex';
-import Input from '@/molecules/input';
 import Label from '@/molecules/label';
 import PageHeading from '@/molecules/page-heading';
-import { Select } from '@/molecules/select';
 import Text from '@/molecules/text';
 import type { SelectOption } from '@/types';
 
@@ -30,9 +36,15 @@ const OrderDetails = () => {
         type="primary"
         actions={
           <>
-            <Button type="ghost" size="small" icon={<ShowMoreIcon />} />
-            <Button type="ghost" size="small" text="Cancel Order" />
-            <Button type="primary" size="small" text="Update" />
+            <Button variant="ghost" size="sm" aria-label="More options">
+              <ShowMoreIcon />
+            </Button>
+            <Button variant="ghost" size="sm">
+              Cancel Order
+            </Button>
+            <Button variant="primary" size="sm">
+              Update
+            </Button>
           </>
         }
         hasBack
@@ -68,36 +80,59 @@ const OrderDetails = () => {
             />
 
             <Card type="form">
-              <Select
-                value="pending"
-                label="Order Status"
-                optionsArray={optionsArray}
-              />
-              <Select
-                value="unpaid"
-                label="Payment Status"
-                optionsArray={optionsArray}
-              />
+              <Flex direction="column" gap={8}>
+                <Label text="Order Status" />
+                <Select defaultValue="pending">
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {optionsArray.map((option) => (
+                      <SelectItem
+                        key={option.value}
+                        value={String(option.value)}
+                      >
+                        {option.title}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </Flex>
+              <Flex direction="column" gap={8}>
+                <Label text="Payment Status" />
+                <Select defaultValue="unpaid">
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {optionsArray.map((option) => (
+                      <SelectItem
+                        key={option.value}
+                        value={String(option.value)}
+                      >
+                        {option.title}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </Flex>
             </Card>
 
             <CustomerInfo />
 
             <Card type="form">
-              <Input
-                label="Flag"
-                placeholder="i.e Backorder, Urgent"
-                value="skjl"
-              />
+              <Flex direction="column" gap={8}>
+                <Label text="Flag" />
+                <Input placeholder="i.e Backorder, Urgent" defaultValue="skjl" />
+              </Flex>
             </Card>
 
             <Card type="form">
               <Label text="Notes" />
-              <Button
-                type="secondary"
-                text="Add note"
-                leftIcon={<PlusIcon />}
-                style={{ width: '100%' }}
-              />
+              <Button variant="secondary" style={{ width: '100%' }}>
+                <PlusIcon />
+                Add note
+              </Button>
             </Card>
           </Flex>
         </Flex>

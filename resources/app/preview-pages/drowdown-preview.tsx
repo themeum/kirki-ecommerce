@@ -1,131 +1,82 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 
-import { ButtonDefaultIcon } from '@/icons';
-import Button from '@/molecules/button';
-import Separator from '@/molecules/separator';
+import Button from '@/components/ui/button';
 import {
-  Dropdown,
+  DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownTrigger,
-} from '@/molecules/dropdown';
-
-type InvalidDropdownMenuItemProps = {
-  onClick?: () => void;
-};
-
-const invalidOnClickProps = (
-  onClick: () => void,
-): InvalidDropdownMenuItemProps =>
-  ({ onClick }) as unknown as InvalidDropdownMenuItemProps;
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { ButtonDefaultIcon } from '@/icons';
 
 const DrowdownPreview = () => {
-  const [openDropdown, setOpenDropdown] = useState<boolean>(false);
-  const [openDropdownSubmenu, setOpenDropdownSubmenu] = useState<boolean>(false);
-  const triggerRef = useRef<HTMLDivElement | null>(null);
-  const triggerSubmenuRef = useRef<HTMLDivElement | null>(null);
+  const [openDropdown, setOpenDropdown] = useState(false);
 
-  const toggleDropdownOpen = () => {
-    setOpenDropdown((prev) => !prev);
-  };
-  const toggleDropdownSubmenu = () => {
-    setOpenDropdownSubmenu((prev) => !prev);
-  };
-  const closeSubmenu = () => {
-    setOpenDropdownSubmenu(false);
-  };
   return (
     <div>
-      <Dropdown>
-        <DropdownTrigger ref={triggerRef}>
-          <Button
-            onClick={toggleDropdownOpen}
-            type="outlined"
-            text="Click Me"
-          />
-        </DropdownTrigger>
-        <DropdownMenuContent
-          hasLeftIcon
-          triggerRef={triggerRef}
-          isOpen={openDropdown}
-          onClose={() => {
-            setOpenDropdown(false);
-            setOpenDropdownSubmenu(false);
-          }}
-        >
-          <DropdownMenuItem state="titleOnly">My Account</DropdownMenuItem>
-          <Separator />
+      <DropdownMenu open={openDropdown} onOpenChange={setOpenDropdown}>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline">Click Me</Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuLabel>My Account</DropdownMenuLabel>
+          <DropdownMenuSeparator />
           <DropdownMenuItem
-            onItemClick={() => {
+            onSelect={() => {
               setOpenDropdown(false);
             }}
-            rightContent="⇧⌘P"
           >
             This is Profile
+            <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
           </DropdownMenuItem>
-          <DropdownMenuItem
-            leftIcon={<ButtonDefaultIcon />}
-            state="disabled"
-            rightContent="⌘B"
-          >
+          <DropdownMenuItem disabled>
+            <ButtonDefaultIcon />
             Billing
+            <DropdownMenuShortcut>⌘B</DropdownMenuShortcut>
           </DropdownMenuItem>
-          <DropdownMenuItem rightContent="⌘S">Settings</DropdownMenuItem>
-          <DropdownMenuItem rightContent="⌘K" state="disabled">
+          <DropdownMenuItem>
+            Settings
+            <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
+          </DropdownMenuItem>
+          <DropdownMenuItem disabled>
             Keyboard shortcuts
+            <DropdownMenuShortcut>⌘K</DropdownMenuShortcut>
           </DropdownMenuItem>
-          <Separator />
+          <DropdownMenuSeparator />
           <DropdownMenuItem>Team</DropdownMenuItem>
-          <DropdownMenuItem
-            ref={triggerSubmenuRef}
-            onItemClick={() => setOpenDropdownSubmenu(true)}
-            state="hasChild"
-            onMouseEnter={() => {
-              setOpenDropdownSubmenu(true);
-            }}
-            onMouseLeave={() => {
-              setOpenDropdownSubmenu(false);
-            }}
-          >
-            Invite users
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger>Invite users</DropdownMenuSubTrigger>
+            <DropdownMenuSubContent>
+              <DropdownMenuItem>
+                <ButtonDefaultIcon />
+                Email
+              </DropdownMenuItem>
+              <DropdownMenuItem>Message</DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>More...</DropdownMenuItem>
+            </DropdownMenuSubContent>
+          </DropdownMenuSub>
+          <DropdownMenuItem>
+            New Team
+            <DropdownMenuShortcut>⌘+T</DropdownMenuShortcut>
           </DropdownMenuItem>
-          <DropdownMenuContent
-            hasLeftIcon
-            triggerRef={triggerSubmenuRef}
-            isOpen={openDropdownSubmenu}
-            onClose={closeSubmenu}
-            onMouseLeave={closeSubmenu}
-            onMouseEnter={() => {
-              setOpenDropdownSubmenu(true);
-            }}
-            size="small"
-            position={{
-              right: true,
-              top: true,
-            }}
-          >
-            <DropdownMenuItem
-              leftIcon={<ButtonDefaultIcon />}
-              {...invalidOnClickProps(toggleDropdownSubmenu)}
-            >
-              Email
-            </DropdownMenuItem>
-
-            <DropdownMenuItem {...invalidOnClickProps(toggleDropdownSubmenu)}>
-              Message
-            </DropdownMenuItem>
-            <Separator />
-            <DropdownMenuItem>More...</DropdownMenuItem>
-          </DropdownMenuContent>
-          <DropdownMenuItem rightContent="⌘+T">New Team</DropdownMenuItem>
-          <Separator />
+          <DropdownMenuSeparator />
           <DropdownMenuItem>Github</DropdownMenuItem>
           <DropdownMenuItem>Support</DropdownMenuItem>
-          <DropdownMenuItem state="disabled">API</DropdownMenuItem>
-          <Separator />
-          <DropdownMenuItem rightContent="⇧⌘Q">Logout</DropdownMenuItem>
+          <DropdownMenuItem disabled>API</DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem>
+            Logout
+            <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
+          </DropdownMenuItem>
         </DropdownMenuContent>
-      </Dropdown>
+      </DropdownMenu>
     </div>
   );
 };

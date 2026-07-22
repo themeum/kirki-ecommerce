@@ -1,12 +1,12 @@
-import Button from '@/molecules/button';
+import Button from '@/components/ui/button';
 import PageHeading from '@/molecules/page-heading';
 
 const PageHeadingPreview = () => {
   const actionButtons = (
     <>
-      <Button text="Import" type="ghost" />
-      <Button text="Export" type="ghost" />
-      <Button text="Add Product" type="primary" />
+      <Button variant="ghost">Import</Button>
+      <Button variant="ghost">Export</Button>
+      <Button variant="primary">Add Product</Button>
     </>
   );
 

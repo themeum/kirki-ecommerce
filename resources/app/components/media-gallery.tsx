@@ -19,9 +19,9 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 
 import MediaSelector from '@/components/media-selector';
+import Button from '@/components/ui/button';
 import { CLASS_PREFIX } from '@/conf';
 import { MoveIcon, PlusIcon, TrashIcon } from '@/icons';
-import Button from '@/molecules/button';
 import Checkbox from '@/molecules/checkbox';
 import Flex from '@/molecules/flex';
 import Label from '@/molecules/label';
@@ -119,8 +119,9 @@ const SortableItem = ({
       >
         {!disableDrag && (
           <Button
-            type="ghost"
-            size="small"
+            variant="ghost"
+            size="sm"
+            aria-label={__('Move', 'kirki-ecommerce')}
             {...listeners}
             style={{
               transform: isDragging
@@ -128,10 +129,9 @@ const SortableItem = ({
                 : '',
             }}
             className={`${CLASS_PREFIX}-gallery-item-drag-handler`}
-            icon={
-              <MoveIcon {...(isLarge ? { width: '20', height: '20' } : {})} />
-            }
-          />
+          >
+            <MoveIcon {...(isLarge ? { width: '20', height: '20' } : {})} />
+          </Button>
         )}
       </div>
       {!isDragging && (
@@ -146,11 +146,13 @@ const SortableItem = ({
           />
           {!selectedImages?.length && (
             <Button
-              size="xsm"
-              type="ghost"
-              icon={<TrashIcon color="#D40000" />}
+              size="sm"
+              variant="ghost"
+              aria-label={__('Delete', 'kirki-ecommerce')}
               onClick={onDeleteImage}
-            />
+            >
+              <TrashIcon color="#D40000" />
+            </Button>
           )}
         </div>
       )}
@@ -265,11 +267,12 @@ const MediaGallery = ({
             onChange={() => handleSelectAllImages()}
           />
           <Button
-            type="blank"
-            text={__('Delete', 'kirki-ecommerce')}
+            variant="link"
             style={{ color: '#D40000' }}
             onClick={handleDeleteSelectedImages}
-          />
+          >
+            {__('Delete', 'kirki-ecommerce')}
+          </Button>
         </Flex>
       ) : (
         <>

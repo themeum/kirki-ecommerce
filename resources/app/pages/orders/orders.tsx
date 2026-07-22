@@ -1,4 +1,4 @@
-import Button from '@/molecules/button';
+import Button from '@/components/ui/button';
 import Card from '@/molecules/card';
 import Container from '@/molecules/container';
 import PageHeading from '@/molecules/page-heading';
@@ -14,9 +14,15 @@ const Orders = () => {
         text="Orders"
         actions={
           <>
-            <Button type="ghost" size="small" text="Import" />
-            <Button type="ghost" size="small" text="Export" />
-            <Button type="primary" size="small" text="Add Order" />
+            <Button variant="ghost" size="sm">
+              Import
+            </Button>
+            <Button variant="ghost" size="sm">
+              Export
+            </Button>
+            <Button variant="primary" size="sm">
+              Add Order
+            </Button>
           </>
         }
       />

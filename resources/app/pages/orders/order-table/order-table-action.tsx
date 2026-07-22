@@ -1,9 +1,16 @@
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import Button from '@/components/ui/button';
+import { CLASS_PREFIX } from '@/conf';
 import { ArrowDownUp, ListFilter } from '@/icons';
 import ActionGroup from '@/molecules/action-group';
-import Button from '@/molecules/button';
 import Flex from '@/molecules/flex';
-import Searchbox from '@/molecules/searchbox';
-import { Select } from '@/molecules/select';
+import Searchbox from '@/components/ui/searchbox';
 import type { SelectOption } from '@/types';
 
 const OrderTableAction = () => {
@@ -15,24 +22,32 @@ const OrderTableAction = () => {
 
   return (
     <Flex style={{ padding: '16px 12px' }}>
-      <Select
-        defaultValue="all"
-        optionsArray={selectOptions}
-        value="new"
-        type="secondary"
-      />
+      <Select defaultValue="new">
+        <SelectTrigger className={`${CLASS_PREFIX}-ui-select-trigger--secondary`}>
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {selectOptions.map((option) => (
+            <SelectItem key={option.value} value={String(option.value)}>
+              {option.title}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
       <ActionGroup>
-        <Select
-          placeholder="Date: This Month"
-          style={{ padding: '8px 16px' }}
-        />
-        <Button
-          type="outlined"
-          size="small"
-          text="Filter"
-          leftIcon={<ListFilter />}
-        />
-        <Button type="outlined" size="small" icon={<ArrowDownUp />} />
+        <Select disabled>
+          <SelectTrigger style={{ padding: '8px 16px' }}>
+            <SelectValue placeholder="Date: This Month" />
+          </SelectTrigger>
+          <SelectContent />
+        </Select>
+        <Button variant="outline" size="sm">
+          <ListFilter />
+          Filter
+        </Button>
+        <Button variant="outline" size="sm" aria-label="Sort">
+          <ArrowDownUp />
+        </Button>
         <Searchbox placeholder="Search" />
       </ActionGroup>
     </Flex>

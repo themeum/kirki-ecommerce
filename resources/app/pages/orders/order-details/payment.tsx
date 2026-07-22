@@ -1,6 +1,6 @@
+import Button from '@/components/ui/button';
 import ActionGroup from '@/molecules/action-group';
 import Badge from '@/molecules/badge';
-import Button from '@/molecules/button';
 import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
 import Text from '@/molecules/text';
@@ -33,8 +33,8 @@ const Payment = () => {
         </Flex>
       </Card>
       <ActionGroup>
-        <Button type="outlined" text="Send invoice" />
-        <Button type="secondary" text="Mark as read" />
+        <Button variant="outline">Send invoice</Button>
+        <Button variant="secondary">Mark as read</Button>
       </ActionGroup>
     </Flex>
   );

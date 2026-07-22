@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 
 import Flex from '@/molecules/flex';
 import Text from '@/molecules/text';
-import Button from '@/molecules/button';
+import Button from '@/components/ui/button';
 import { InfoIcon, AlertIcon, CloseIcon, CheckedIcon } from '@/icons';
 import { CLASS_PREFIX } from '@/conf';
 import type { ToastVariant } from '@/types';
@@ -91,20 +91,25 @@ const Toast = ({
         <Flex style={{ alignItems: 'center' }}>
           {undoAction && (
             <Button
-              size="small"
-              text={__('Undo', 'kirki-ecommerce')}
+              variant="ghost"
+              size="sm"
               style={{ padding: '6px' }}
               onClick={() => {
                 onUndo?.();
               }}
-            />
+            >
+              {__('Undo', 'kirki-ecommerce')}
+            </Button>
           )}
           <Button
-            size="small"
+            variant="ghost"
+            size="sm"
+            aria-label={__('Close', 'kirki-ecommerce')}
             style={{ pointerEvents: 'auto', padding: '2px' }}
-            icon={<CloseIcon />}
             onClick={onClose}
-          />
+          >
+            <CloseIcon />
+          </Button>
         </Flex>
       </Flex>
       {variant === 'delete' && (

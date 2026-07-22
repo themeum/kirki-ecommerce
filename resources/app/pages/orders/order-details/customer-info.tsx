@@ -1,3 +1,4 @@
+import Button from '@/components/ui/button';
 import { CLASS_PREFIX } from '@/conf';
 import {
   EditIcon,
@@ -9,7 +10,6 @@ import {
 } from '@/icons';
 import ActionGroup from '@/molecules/action-group';
 import Badge from '@/molecules/badge';
-import Button from '@/molecules/button';
 import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
 import Text from '@/molecules/text';
@@ -21,8 +21,12 @@ const CustomerInfo = () => {
       <Flex style={{ justifyContent: 'space-between', alignItems: 'center' }}>
         <Text header="Customer" type="secondary" />
         <ActionGroup>
-          <Button type="secondary" icon={<TrashIcon />} />
-          <Button type="secondary" icon={<EditIcon />} />
+          <Button variant="secondary" size="icon" aria-label="Delete">
+            <TrashIcon />
+          </Button>
+          <Button variant="secondary" size="icon" aria-label="Edit">
+            <EditIcon />
+          </Button>
         </ActionGroup>
       </Flex>
 

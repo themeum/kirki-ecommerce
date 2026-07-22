@@ -1,8 +1,8 @@
 import { useState, type MouseEvent } from 'react';
 
+import Button from '@/components/ui/button';
 import { EditPenIcon, TrashIcon } from '@/icons';
 import ActionGroup from '@/molecules/action-group';
-import Button from '@/molecules/button';
 import Checkbox from '@/molecules/checkbox';
 import { TableCell, TableRow } from '@/molecules/table';
 import { useDeleteTagMutation } from '@/services/tag';
@@ -57,19 +57,18 @@ const SingleRow = ({
         <TableCell alignment="right" style={{ width: '1%' }}>
           <div onClick={handleStopPropagation}>
             <ActionGroup>
+              <Button size="sm" variant="secondary" onClick={handleOpenEdit}>
+                <EditPenIcon />
+                {__('Edit', 'kirki-ecommerce')}
+              </Button>
               <Button
-                size="small"
-                text={__('Edit', 'kirki-ecommerce')}
-                type="secondary"
-                leftIcon={<EditPenIcon />}
-                onClick={handleOpenEdit}
-              />
-              <Button
-                size="small"
-                type="destructiveSoft"
-                icon={<TrashIcon />}
+                size="sm"
+                variant="secondary"
+                aria-label={__('Delete', 'kirki-ecommerce')}
                 onClick={handleDelete}
-              />
+              >
+                <TrashIcon />
+              </Button>
             </ActionGroup>
           </div>
         </TableCell>

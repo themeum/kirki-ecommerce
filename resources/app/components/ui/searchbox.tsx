@@ -4,15 +4,18 @@ import {
   useRef,
   useState,
   type CSSProperties,
+  type KeyboardEvent,
   type ReactNode,
   type RefObject,
 } from 'react';
 import { PlusCircle, Search } from 'lucide-react';
+import classNames from 'classnames';
 
+import Input from '@/components/ui/input';
+import Label from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import SuggestionDropdown from '@/components/ui/suggestion-dropdown';
 import { CLASS_PREFIX } from '@/conf';
-import Input from '@/molecules/input';
 import type { InputState, SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -56,156 +59,189 @@ function debounce<Args extends unknown[]>(
   };
 }
 
-const Searchbox = forwardRef<
-  HTMLInputElement | HTMLTextAreaElement,
-  SearchboxProps
->((props, ref) => {
-  const {
-    value,
-    onChange = () => {},
-    onClick = () => {},
-    onEnter = () => {},
-    onBlur = () => {},
-    onOptionClick = () => {},
-    style = {},
-    suggestionArray = [],
-    className = '',
-    label,
-    helpText,
-    placeholder = __('Search', 'kirki-ecommerce'),
-    leftIcon,
-    rightIcon,
-    hasIcon = true,
-    hasAddBtn = false,
-    btnText = 'Add',
-    onNewOptionAdd = () => {},
-    state,
-    error,
-    readOnly,
-    onClearInput,
-  } = props;
+const Searchbox = forwardRef<HTMLInputElement, SearchboxProps>(
+  (props, ref) => {
+    const {
+      value,
+      onChange = () => {},
+      onClick = () => {},
+      onEnter = () => {},
+      onBlur = () => {},
+      onOptionClick = () => {},
+      style = {},
+      suggestionArray = [],
+      className = '',
+      label,
+      helpText,
+      placeholder = __('Search', 'kirki-ecommerce'),
+      leftIcon,
+      rightIcon,
+      hasIcon = true,
+      hasAddBtn = false,
+      btnText = 'Add',
+      onNewOptionAdd = () => {},
+      state,
+      error,
+      readOnly,
+      onClearInput,
+    } = props;
 
-  const fallbackRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
-  const triggerRef =
-    (ref as RefObject<HTMLInputElement | HTMLTextAreaElement | null>) ||
-    fallbackRef;
-  const [openSuggestionDropdown, setOpenSuggestionDropDown] = useState(false);
-  const [searchValue, setSearchValue] = useState(value);
+    const fallbackRef = useRef<HTMLInputElement>(null);
+    const triggerRef =
+      (ref as RefObject<HTMLInputElement | null>) || fallbackRef;
+    const [openSuggestionDropdown, setOpenSuggestionDropDown] = useState(false);
+    const [searchValue, setSearchValue] = useState(value);
 
-  useEffect(() => {
-    setSearchValue(value);
-  }, [value]);
+    useEffect(() => {
+      setSearchValue(value);
+    }, [value]);
 
-  const debouncedOnChange = useRef(debounce(onChange, 300)).current;
+    const debouncedOnChange = useRef(debounce(onChange, 300)).current;
 
-  const handleSearchChange = (nextValue: string | number) => {
-    setSearchValue(String(nextValue));
-    debouncedOnChange(nextValue);
-  };
+    const handleSearchChange = (nextValue: string) => {
+      setSearchValue(nextValue);
+      debouncedOnChange(nextValue);
+    };
 
-  const handleOptionClick = (option: SearchSuggestionOption) => {
-    setOpenSuggestionDropDown(false);
-    onOptionClick(option);
-  };
+    const handleOptionClick = (option: SearchSuggestionOption) => {
+      setOpenSuggestionDropDown(false);
+      onOptionClick(option);
+    };
 
-  return (
-    <>
-      <Input
-        type={searchValue ? 'text' : 'search'}
-        label={label}
-        helpText={helpText}
-        ref={triggerRef}
-        onChange={handleSearchChange}
-        onBlur={onBlur}
-        value={searchValue}
-        placeholder={placeholder}
-        onClick={() => {
-          setOpenSuggestionDropDown(true);
-          onClick();
-        }}
-        onEnter={(enterValue) => {
-          setOpenSuggestionDropDown(false);
-          onEnter(enterValue);
-        }}
-        leftIcon={
-          leftIcon ? leftIcon : !hasIcon ? null : <Search size={16} aria-hidden="true" />
-        }
-        rightIcon={rightIcon}
-        className={className}
-        style={style}
-        state={state}
-        error={error}
-        readOnly={readOnly}
-        onClearInput={onClearInput}
-      />
-      {(suggestionArray.length > 0 || hasAddBtn) && (
-        <SuggestionDropdown
-          isOpen={openSuggestionDropdown}
-          triggerRef={triggerRef}
-          setIsOpen={setOpenSuggestionDropDown}
-          onClose={() => setOpenSuggestionDropDown(false)}
-        >
-          {hasAddBtn && (
-            <>
+    const handleInputKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+      if (event.key === 'Enter') {
+        setOpenSuggestionDropDown(false);
+        onEnter(event.currentTarget.value);
+      }
+    };
+
+    const resolvedLeftIcon = leftIcon
+      ? leftIcon
+      : !hasIcon
+        ? null
+        : <Search size={16} aria-hidden="true" />;
+
+    return (
+      <div className={`${CLASS_PREFIX}-ui-searchbox`} style={style}>
+        {label && (
+          <Label
+            error={Boolean(error)}
+            helpText={typeof error === 'string' ? error : helpText}
+          >
+            {label}
+          </Label>
+        )}
+        <div className={`${CLASS_PREFIX}-ui-searchbox-input-wrap`}>
+          {resolvedLeftIcon && (
+            <span
+              className={`${CLASS_PREFIX}-ui-searchbox-icon ${CLASS_PREFIX}-ui-searchbox-icon--left`}
+            >
+              {resolvedLeftIcon}
+            </span>
+          )}
+          <Input
+            type={searchValue ? 'text' : 'search'}
+            ref={triggerRef}
+            onChange={(event) => handleSearchChange(event.target.value)}
+            onBlur={(event) => onBlur(event.target.value)}
+            value={searchValue}
+            placeholder={placeholder}
+            onClick={() => {
+              setOpenSuggestionDropDown(true);
+              onClick();
+            }}
+            onKeyDown={handleInputKeyDown}
+            className={classNames(
+              Boolean(resolvedLeftIcon) &&
+                `${CLASS_PREFIX}-ui-searchbox-input--has-left-icon`,
+              Boolean(rightIcon || onClearInput) &&
+                `${CLASS_PREFIX}-ui-searchbox-input--has-right-icon`,
+              className,
+            )}
+            error={Boolean(error)}
+            readOnly={readOnly}
+            disabled={state === 'disabled'}
+          />
+          {onClearInput ? (
+            <span
+              className={`${CLASS_PREFIX}-ui-searchbox-icon ${CLASS_PREFIX}-ui-searchbox-icon--right`}
+              onClick={onClearInput}
+            >
+              {rightIcon}
+            </span>
+          ) : (
+            rightIcon && (
+              <span
+                className={`${CLASS_PREFIX}-ui-searchbox-icon ${CLASS_PREFIX}-ui-searchbox-icon--right`}
+              >
+                {rightIcon}
+              </span>
+            )
+          )}
+        </div>
+        {(suggestionArray.length > 0 || hasAddBtn) && (
+          <SuggestionDropdown
+            isOpen={openSuggestionDropdown}
+            triggerRef={triggerRef}
+            setIsOpen={setOpenSuggestionDropDown}
+            onClose={() => setOpenSuggestionDropDown(false)}
+          >
+            {hasAddBtn && (
+              <>
+                <div
+                  role="option"
+                  tabIndex={0}
+                  className={`${CLASS_PREFIX}-ui-suggestion-item`}
+                  onClick={() => {
+                    onNewOptionAdd(triggerRef.current?.value ?? '');
+                    setOpenSuggestionDropDown(false);
+                  }}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault();
+                      onNewOptionAdd(triggerRef.current?.value ?? '');
+                      setOpenSuggestionDropDown(false);
+                    }
+                  }}
+                >
+                  <span className={`${CLASS_PREFIX}-ui-suggestion-icon`}>
+                    <PlusCircle size={16} aria-hidden="true" />
+                  </span>
+                  <span>{btnText}</span>
+                </div>
+                {suggestionArray.length > 0 && <Separator />}
+              </>
+            )}
+            {suggestionArray.map((option, index) => (
               <div
                 role="option"
                 tabIndex={0}
                 className={`${CLASS_PREFIX}-ui-suggestion-item`}
-                onClick={() => {
-                  onNewOptionAdd(
-                    (triggerRef.current as HTMLInputElement | null)?.value ??
-                      '',
-                  );
-                  setOpenSuggestionDropDown(false);
-                }}
+                key={index}
+                onClick={() => handleOptionClick(option)}
                 onKeyDown={(event) => {
                   if (event.key === 'Enter' || event.key === ' ') {
                     event.preventDefault();
-                    onNewOptionAdd(
-                      (triggerRef.current as HTMLInputElement | null)?.value ??
-                        '',
-                    );
-                    setOpenSuggestionDropDown(false);
+                    handleOptionClick(option);
                   }
                 }}
               >
-                <span className={`${CLASS_PREFIX}-ui-suggestion-icon`}>
-                  <PlusCircle size={16} aria-hidden="true" />
-                </span>
-                <span>{btnText}</span>
-              </div>
-              {suggestionArray.length > 0 && <Separator />}
-            </>
-          )}
-          {suggestionArray.map((option, index) => (
-            <div
-              role="option"
-              tabIndex={0}
-              className={`${CLASS_PREFIX}-ui-suggestion-item`}
-              key={index}
-              onClick={() => handleOptionClick(option)}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter' || event.key === ' ') {
-                  event.preventDefault();
-                  handleOptionClick(option);
-                }
-              }}
-            >
-              {option.leftIcon && (
-                <div className={`${CLASS_PREFIX}-ui-suggestion-icon`}>
-                  {option.leftIcon}
+                {option.leftIcon && (
+                  <div className={`${CLASS_PREFIX}-ui-suggestion-icon`}>
+                    {option.leftIcon}
+                  </div>
+                )}
+                <div className={`${CLASS_PREFIX}-ui-suggestion-text`}>
+                  {option.title}
                 </div>
-              )}
-              <div className={`${CLASS_PREFIX}-ui-suggestion-text`}>
-                {option.title}
               </div>
-            </div>
-          ))}
-        </SuggestionDropdown>
-      )}
-    </>
-  );
-});
+            ))}
+          </SuggestionDropdown>
+        )}
+      </div>
+    );
+  },
+);
 
 Searchbox.displayName = 'Searchbox';
 

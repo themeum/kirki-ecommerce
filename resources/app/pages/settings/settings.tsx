@@ -3,7 +3,7 @@ import { CLASS_PREFIX } from '@/conf';
 import Container from '@/molecules/container';
 import Flex from '@/molecules/flex';
 import PageHeading from '@/molecules/page-heading';
-import Searchbox from '@/molecules/searchbox';
+import Searchbox from '@/components/ui/searchbox';
 import Text from '@/molecules/text';
 import { __ } from '@/wpi18n';
 

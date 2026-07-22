@@ -1,9 +1,14 @@
+import {
+  Select,
+  SelectContent,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import Button from '@/components/ui/button';
 import { ArrowDownUp, ListFilter } from '@/icons';
 import ActionGroup from '@/molecules/action-group';
-import Button from '@/molecules/button';
 import Flex from '@/molecules/flex';
-import Searchbox from '@/molecules/searchbox';
-import { Select } from '@/molecules/select';
+import Searchbox from '@/components/ui/searchbox';
 import { useListParams } from '@/hooks';
 
 const CustomerTableAction = () => {
@@ -34,22 +39,24 @@ const CustomerTableAction = () => {
         />
       </div>
       <ActionGroup>
-        <Select
-          placeholder="Date: This Month"
-          style={{ padding: '8px 16px' }}
-        />
+        <Select disabled>
+          <SelectTrigger style={{ padding: '8px 16px' }}>
+            <SelectValue placeholder="Date: This Month" />
+          </SelectTrigger>
+          <SelectContent />
+        </Select>
+        <Button variant="outline" size="sm">
+          <ListFilter />
+          Filter
+        </Button>
         <Button
-          type="outlined"
-          size="small"
-          text="Filter"
-          leftIcon={<ListFilter />}
-        />
-        <Button
-          type="outlined"
-          size="small"
-          icon={<ArrowDownUp />}
+          variant="outline"
+          size="sm"
+          aria-label="Sort"
           onClick={handleSortChange}
-        />
+        >
+          <ArrowDownUp />
+        </Button>
       </ActionGroup>
     </Flex>
   );

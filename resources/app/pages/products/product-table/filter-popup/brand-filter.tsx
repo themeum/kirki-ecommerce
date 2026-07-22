@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 
-import { Select } from '@/molecules/select';
+import Combobox from '@/components/ui/combobox';
+import Flex from '@/components/ui/flex';
+import Label from '@/components/ui/label';
 import { useBrandsQuery } from '@/services/brand';
-import type { SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
 
 type FilterObject = {
@@ -14,29 +15,41 @@ type BrandFilterProps = {
   onChange?: (val: string | number | Array<string | number>) => void;
 };
 
+type BrandOption = { label: string; value: string };
+
 const BrandFilter = ({
   filterObject,
   onChange = () => {},
 }: BrandFilterProps) => {
   const { data: brandData } = useBrandsQuery({ limit: -1 });
-  const [brandOptions, setBrandOptions] = useState<SelectOption[]>([]);
+  const [brandOptions, setBrandOptions] = useState<BrandOption[]>([]);
 
   useEffect(() => {
     const suggestionList = brandData?.results.map((item) => ({
-      ...item,
-      value: item.id,
-      title: item.name,
+      label: item.name,
+      value: String(item.id),
     }));
     setBrandOptions(suggestionList || []);
   }, [brandData]);
 
+  const handleChange = (value: string | string[]) => {
+    const nextValue = Array.isArray(value) ? value[0] : value;
+    onChange(nextValue ? Number(nextValue) : '');
+  };
+
   return (
-    <Select
-      label={__('Brand', 'kirki-ecommerce')}
-      value={filterObject?.brand_ids || 'none'}
-      optionsArray={brandOptions}
-      onChange={(val) => onChange(val)}
-    />
+    <Flex direction="column" gap={8}>
+      <Label>{__('Brand', 'kirki-ecommerce')}</Label>
+      <Combobox
+        options={brandOptions}
+        value={
+          filterObject?.brand_ids !== undefined
+            ? String(filterObject.brand_ids)
+            : undefined
+        }
+        onChange={handleChange}
+      />
+    </Flex>
   );
 };
 

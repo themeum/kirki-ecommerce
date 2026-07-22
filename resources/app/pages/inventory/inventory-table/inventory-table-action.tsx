@@ -1,13 +1,18 @@
 import type { Dispatch, SetStateAction } from 'react';
 
 import DropdownButton from '@/components/dropdown-button';
+import Button from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { useListParams } from '@/hooks';
 import { LayoutIcon, ListFilter } from '@/icons';
 import ActionGroup from '@/molecules/action-group';
-import Button from '@/molecules/button';
 import Flex from '@/molecules/flex';
-import Searchbox from '@/molecules/searchbox';
-import { Select } from '@/molecules/select';
+import Searchbox from '@/components/ui/searchbox';
 import { __ } from '@/wpi18n';
 
 import { allTableHeaders } from '@/pages/inventory/utils';
@@ -36,16 +41,16 @@ const InventoryTableAction = ({
       </div>
 
       <ActionGroup>
-        <Select
-          placeholder={__('Date: This Month', 'kirki-ecommerce')}
-          style={{ padding: '8px 16px' }}
-        />
-        <Button
-          type="outlined"
-          size="small"
-          text={__('Filter', 'kirki-ecommerce')}
-          leftIcon={<ListFilter />}
-        />
+        <Select disabled>
+          <SelectTrigger style={{ padding: '8px 16px' }}>
+            <SelectValue placeholder={__('Date: This Month', 'kirki-ecommerce')} />
+          </SelectTrigger>
+          <SelectContent />
+        </Select>
+        <Button variant="outline" size="sm">
+          <ListFilter />
+          {__('Filter', 'kirki-ecommerce')}
+        </Button>
         <DropdownButton
           buttonProps={{
             type: 'outlined',

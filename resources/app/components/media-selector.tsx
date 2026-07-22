@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 
-import Button from '@/molecules/button';
+import Button from '@/components/ui/button';
 import Flex from '@/molecules/flex';
 import Label from '@/molecules/label';
 import type { MediaRef } from '@/types';
@@ -107,7 +107,11 @@ const MediaSelector = ({
         className={className}
         style={{ cursor: 'pointer', ...style }}
       >
-        {children || <Button text={__('Select Image', 'kirki-ecommerce')} />}
+        {children || (
+          <Button variant="secondary">
+            {__('Select Image', 'kirki-ecommerce')}
+          </Button>
+        )}
       </div>
     </Flex>
   );

@@ -14,6 +14,7 @@ import {
   FormItem,
   FormMessage,
 } from '@/components/ui/form';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CLASS_PREFIX } from '@/conf';
 import {
   BrushIcon,
@@ -27,7 +28,6 @@ import Container from '@/molecules/container';
 import Flex from '@/molecules/flex';
 import PageHeading from '@/molecules/page-heading';
 import ProgressBar from '@/molecules/progressbar';
-import Tab from '@/molecules/tab';
 import Text from '@/molecules/text';
 import {
   EmailTemplateFormSchema,
@@ -210,19 +210,30 @@ const EditTemplate = () => {
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
-                          <Tab
-                            key={POSITION_MAP[field.value || ''] ?? 0}
-                            activeIndex={POSITION_MAP[field.value || ''] ?? 0}
-                            onChange={(value) => {
+                          <Tabs
+                            value={String(
+                              POSITION_MAP[field.value || ''] ?? 0,
+                            )}
+                            onValueChange={(value) => {
                               field.onChange(
-                                INDEX_TO_POSITION[value as number] || 'start',
+                                INDEX_TO_POSITION[Number(value)] || 'start',
                               );
                             }}
                           >
-                            <AlignLeftIcon />
-                            <AlignCenterIcon />
-                            <AlignLeftIcon style={{ transform: 'scaleX(-1)' }} />
-                          </Tab>
+                            <TabsList>
+                              <TabsTrigger value="0">
+                                <AlignLeftIcon />
+                              </TabsTrigger>
+                              <TabsTrigger value="1">
+                                <AlignCenterIcon />
+                              </TabsTrigger>
+                              <TabsTrigger value="2">
+                                <AlignLeftIcon
+                                  style={{ transform: 'scaleX(-1)' }}
+                                />
+                              </TabsTrigger>
+                            </TabsList>
+                          </Tabs>
                         </FormControl>
                         <FormMessage />
                       </FormItem>

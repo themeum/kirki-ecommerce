@@ -1,11 +1,12 @@
 import type { CSSProperties, ReactNode } from 'react';
 
+import Button from '@/components/ui/button';
 import { CLASS_PREFIX } from '@/conf';
 import { ArrowLeftIcon } from '@/icons';
-import Button from '@/molecules/button';
 import Card from '@/molecules/card';
 import Flex from '@/molecules/flex';
 import Text from '@/molecules/text';
+import { __ } from '@/wpi18n';
 
 type PageNavbarProps = {
   buttonIcon?: ReactNode;
@@ -30,12 +31,14 @@ const PageNavbar = (props: PageNavbarProps) => {
     <div style={style}>
       <Flex style={{ alignItems: 'center', justifyContent: 'center' }}>
         <Button
-          icon={buttonIcon}
-          size="small"
-          type="ghost"
+          size="sm"
+          variant="ghost"
+          aria-label={__('Back', 'kirki-ecommerce')}
           onClick={handleBack ?? (() => window.history.back())}
           className={`${CLASS_PREFIX}-page-navbar-back-button`}
-        />
+        >
+          {buttonIcon}
+        </Button>
         <div
           style={{
             height: '19px',

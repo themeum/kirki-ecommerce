@@ -1,7 +1,7 @@
+import Button from '@/components/ui/button';
 import { ShowMoreIcon } from '@/icons';
 import { apiClient } from '@/libs/api';
 import { endpoints } from '@/libs/endpoints';
-import Button from '@/molecules/button';
 import Card from '@/molecules/card';
 import Container from '@/molecules/container';
 import Flex from '@/molecules/flex';
@@ -51,6 +51,7 @@ import UiSelectPreview from '@/preview-pages/ui-select-preview';
 import UiSwitchPreview from '@/preview-pages/ui-switch-preview';
 import UiTextareaPreview from '@/preview-pages/ui-textarea-preview';
 import type { FlexDirection } from '@/types';
+import { __ } from '@/wpi18n';
 
 const Tryouts = () => {
   return (
@@ -61,9 +62,16 @@ const Tryouts = () => {
         sticky
         actions={
           <>
-            <Button type="ghost" icon={<ShowMoreIcon />} />
-            <Button type="ghost" text="Save as Draft" />
-            <Button type="primary" text="Create" />
+            <Button
+              variant="ghost"
+              aria-label={__('More options', 'kirki-ecommerce')}
+            >
+              <ShowMoreIcon />
+            </Button>
+            <Button variant="ghost">
+              {__('Save as Draft', 'kirki-ecommerce')}
+            </Button>
+            <Button variant="primary">{__('Create', 'kirki-ecommerce')}</Button>
           </>
         }
         hasBack
@@ -136,12 +144,13 @@ const Tryouts = () => {
           <Text header="Legacy" type="primary" />
 
           <Button
-            type="primary"
-            text="App Config"
+            variant="primary"
             onClick={() => {
               void apiClient.get(endpoints.APP_CONFIG);
             }}
-          />
+          >
+            App Config
+          </Button>
           Page Navigation
           <PageNavbarPreview />
           Option Accordion

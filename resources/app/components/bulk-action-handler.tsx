@@ -1,10 +1,16 @@
 import { useState, type CSSProperties, type ReactNode } from 'react';
 
+import Button from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { CLASS_PREFIX } from '@/conf';
 import ActionGroup from '@/molecules/action-group';
-import Button from '@/molecules/button';
 import Flex from '@/molecules/flex';
-import { Select } from '@/molecules/select';
 import Text from '@/molecules/text';
 import type { SelectOption } from '@/types';
 import { __, sprintf } from '@/wpi18n';
@@ -34,12 +40,8 @@ const BulkActionHandler = (props: BulkActionHandlerProps) => {
     per_page,
   } = props;
   const [selectAction, setSelectAction] = useState<string | number | null>(null);
-  const handleActionChange = (actionName: string | number | Array<string | number>) => {
-    if (Array.isArray(actionName)) {
-      setSelectAction(actionName[0] ?? null);
-      return;
-    }
-    setSelectAction(actionName);
+  const handleActionChange = (nextValue: string) => {
+    setSelectAction(nextValue);
   };
 
   return (
@@ -56,31 +58,35 @@ const BulkActionHandler = (props: BulkActionHandlerProps) => {
             type="xsm"
           />
           {onSelectAll && total !== undefined && per_page !== undefined && total > per_page && (
-            <Button
-              type="blank"
-              text={
-                itemCount === total
-                  ? sprintf(__('Deselect All %d items', 'kirki-ecommerce'), total)
-                  : sprintf(__('Select All %d items', 'kirki-ecommerce'), total)
-              }
-              onClick={onSelectAll}
-            />
+            <Button variant="link" onClick={onSelectAll}>
+              {itemCount === total
+                ? sprintf(__('Deselect All %d items', 'kirki-ecommerce'), total)
+                : sprintf(__('Select All %d items', 'kirki-ecommerce'), total)}
+            </Button>
           )}
         </Flex>
         {optionsArray && (
           <Flex gap={8} style={{ alignItems: 'center' }}>
-            <Select
-              optionsArray={optionsArray}
-              onChange={handleActionChange}
-              style={{ minWidth: '100px' }}
-            />
+            <Select onValueChange={handleActionChange}>
+              <SelectTrigger style={{ minWidth: '100px' }}>
+                <SelectValue placeholder={__('Select', 'kirki-ecommerce')} />
+              </SelectTrigger>
+              <SelectContent>
+                {optionsArray.map((option) => (
+                  <SelectItem key={option.value} value={String(option.value)}>
+                    {option.title}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <Button
-              text={__('Apply', 'kirki-ecommerce')}
-              type="secondary"
-              size="small"
+              variant="secondary"
+              size="sm"
               onClick={() => onApply(selectAction)}
-              state={!selectAction ? 'disabled' : undefined}
-            />
+              disabled={!selectAction}
+            >
+              {__('Apply', 'kirki-ecommerce')}
+            </Button>
           </Flex>
         )}
         {filterAction && <ActionGroup>{filterAction}</ActionGroup>}

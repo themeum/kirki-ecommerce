@@ -8,7 +8,7 @@ import { CLASS_PREFIX } from '@/conf';
 import { MinusIcon } from '@/icons';
 import ActionGroup from '@/molecules/action-group';
 import Flex from '@/molecules/flex';
-import Searchbox from '@/molecules/searchbox';
+import Searchbox from '@/components/ui/searchbox';
 import Text from '@/molecules/text';
 import Thumbnail from '@/molecules/thumbnail';
 import type { ProductRightPanelFormValues } from '@/schemas/forms/product-right-panel-form';

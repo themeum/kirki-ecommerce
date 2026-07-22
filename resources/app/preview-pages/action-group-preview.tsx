@@ -1,27 +1,39 @@
+import Button from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { ArrowDownUp, ListFilter } from '@/icons';
 import ActionGroup from '@/molecules/action-group';
-import Button from '@/molecules/button';
 import Flex from '@/molecules/flex';
 import Label from '@/molecules/label';
-import Searchbox from '@/molecules/searchbox';
-import { Select } from '@/molecules/select';
+import Searchbox from '@/components/ui/searchbox';
+import { __ } from '@/wpi18n';
 
 const ActionGroupPreview = () => {
   return (
     <Flex>
       <Label text="This is a random text" />
       <ActionGroup>
-        <Select
-          placeholder="Date: This Month"
-          style={{ padding: '8px 16px' }}
-        />
+        <Select disabled>
+          <SelectTrigger style={{ padding: '8px 16px' }}>
+            <SelectValue placeholder="Date: This Month" />
+          </SelectTrigger>
+          <SelectContent />
+        </Select>
+        <Button variant="outline" size="sm">
+          <ListFilter />
+          Filter
+        </Button>
         <Button
-          type="outlined"
-          size="small"
-          text="Filter"
-          leftIcon={<ListFilter />}
-        />
-        <Button type="outlined" size="small" icon={<ArrowDownUp />} />
+          variant="outline"
+          size="sm"
+          aria-label={__('Sort', 'kirki-ecommerce')}
+        >
+          <ArrowDownUp />
+        </Button>
         <Searchbox placeholder="Search" />
       </ActionGroup>
     </Flex>

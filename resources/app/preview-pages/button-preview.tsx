@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 
+import Button from '@/components/ui/button';
 import { ButtonDefaultIcon } from '@/icons';
-import Button from '@/molecules/button';
 import Flex from '@/molecules/flex';
 import Tooltip from '@/molecules/tooltip';
 
@@ -11,121 +11,135 @@ const ButtonPreview = () => {
       <Tooltip tip="This is tooltip" position="bottom">
         <Button
           className=""
-          type="primary"
-          leftIcon={<ButtonDefaultIcon />}
-          text="Button"
+          variant="primary"
           onClick={() => {
             console.log('primary');
           }}
-        />
+        >
+          <ButtonDefaultIcon />
+          Button
+        </Button>
       </Tooltip>
       <Tooltip tip="This is tooltip" position="top">
         <Button
           className=""
-          type="primary"
-          state="hover"
-          leftIcon={<ButtonDefaultIcon />}
-          text="Button"
+          variant="primary"
           onClick={() => {
             console.log('primary');
           }}
-        />
+        >
+          <ButtonDefaultIcon />
+          Button
+        </Button>
       </Tooltip>
       <Tooltip tip="This is tooltip" position="left">
         <Button
           className=""
-          type="primary"
-          state="active"
-          leftIcon={<ButtonDefaultIcon />}
-          text="Button"
+          variant="primary"
           onClick={() => {
             console.log('primary');
           }}
-        />
+        >
+          <ButtonDefaultIcon />
+          Button
+        </Button>
       </Tooltip>
 
       <Tooltip tip="This is tooltip" position="right">
         <Button
           className=""
-          type="primary"
-          leftIcon={<ButtonDefaultIcon />}
-          text="Button"
-          state="disabled"
+          variant="primary"
+          disabled
           onClick={() => {
             console.log('clicked');
           }}
-          href="https://www.google.com"
-        />
+          asChild
+        >
+          <a href="https://www.google.com">
+            <ButtonDefaultIcon />
+            Button
+          </a>
+        </Button>
       </Tooltip>
       <Tooltip tip="This is tooltip" position="bottom" type="dark">
         <Button
           className=""
-          type="primary"
-          text="Button"
+          variant="primary"
           onClick={() => {
             console.log('clicked');
           }}
-          state="loading"
-          href="https://www.google.com"
-          target="blank"
-        />
+          loading
+          asChild
+        >
+          <a href="https://www.google.com" target="_blank" rel="noreferrer">
+            Button
+          </a>
+        </Button>
       </Tooltip>
       <Tooltip tip="This is tooltip" position="top" type="dark">
         <Button
           className=""
-          type="primary"
-          icon={<ButtonDefaultIcon />}
+          variant="primary"
           onClick={() => {
             console.log('clicked');
           }}
-          href="https://www.google.com"
-          target={true as unknown as string}
-        />
+          asChild
+        >
+          <a href="https://www.google.com" target="_blank" rel="noreferrer">
+            <ButtonDefaultIcon />
+          </a>
+        </Button>
       </Tooltip>
       <Button
         className=""
-        type="primary"
-        state="hover"
-        icon={<ButtonDefaultIcon />}
+        variant="primary"
         onClick={() => {
           console.log('clicked');
         }}
-        href="https://www.google.com"
-        target={true as unknown as string}
-      />
+        asChild
+      >
+        <a href="https://www.google.com" target="_blank" rel="noreferrer">
+          <ButtonDefaultIcon />
+        </a>
+      </Button>
       <Button
         className=""
-        type="primary"
-        state="active"
-        icon={<ButtonDefaultIcon />}
+        variant="primary"
         onClick={() => {
           console.log('clicked');
         }}
-        href="https://www.google.com"
-        target={true as unknown as string}
-      />
+        asChild
+      >
+        <a href="https://www.google.com" target="_blank" rel="noreferrer">
+          <ButtonDefaultIcon />
+        </a>
+      </Button>
       <Button
         className=""
-        type="primary"
-        icon={<ButtonDefaultIcon />}
+        variant="primary"
+        disabled
         onClick={() => {
           console.log('clicked');
         }}
-        state="disabled"
-        href="https://www.google.com"
-        target={true as unknown as string}
-      />
+        asChild
+      >
+        <a href="https://www.google.com" target="_blank" rel="noreferrer">
+          <ButtonDefaultIcon />
+        </a>
+      </Button>
       <Button
         className=""
-        type="primary"
-        icon={true as unknown as ReactNode}
+        variant="primary"
         onClick={() => {
           console.log('clicked');
         }}
-        state="loading"
-        href="https://www.google.com"
-        target={true as unknown as string}
-      />
+        loading
+        asChild
+      >
+        <a href="https://www.google.com" target="_blank" rel="noreferrer">
+          {true as unknown as ReactNode}
+        </a>
+      </Button>
     </Flex>
   );
 };

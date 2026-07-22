@@ -4,9 +4,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 import { Card, CardContent } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CLASS_PREFIX } from '@/conf';
 import { useProductForm } from '@/contexts/product-form-context';
-import Tab from '@/molecules/tab';
 import Text from '@/molecules/text';
 import {
   ProductSeoFormSchema,
@@ -76,10 +76,6 @@ const SEOSettings = () => {
     return () => subscription.unsubscribe();
   }, [form, updateProduct]);
 
-  const handleTabChange = (index: number) => {
-    setActiveTab(index);
-  };
-
   return (
     <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-form`}>
       <CardContent>
@@ -87,12 +83,23 @@ const SEOSettings = () => {
           header={__('AI & Web Presence', 'kirki-ecommerce')}
           type="primary"
         />
-        <Tab activeIndex={activeTab} onChange={handleTabChange}>
-          <div>{__('Search Engines', 'kirki-ecommerce')}</div>
-          <div>{__('AEO', 'kirki-ecommerce')}</div>
-          <div>{__('Social Share', 'kirki-ecommerce')}</div>
-          <div>{__('Schema', 'kirki-ecommerce')}</div>
-        </Tab>
+        <Tabs
+          value={String(activeTab)}
+          onValueChange={(value) => setActiveTab(Number(value))}
+        >
+          <TabsList>
+            <TabsTrigger value="0">
+              {__('Search Engines', 'kirki-ecommerce')}
+            </TabsTrigger>
+            <TabsTrigger value="1">{__('AEO', 'kirki-ecommerce')}</TabsTrigger>
+            <TabsTrigger value="2">
+              {__('Social Share', 'kirki-ecommerce')}
+            </TabsTrigger>
+            <TabsTrigger value="3">
+              {__('Schema', 'kirki-ecommerce')}
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
 
         <Form {...form}>
           {activeTab === 0 && <SearchEngines />}

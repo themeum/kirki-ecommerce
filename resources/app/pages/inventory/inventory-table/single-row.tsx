@@ -1,7 +1,8 @@
+import Input from '@/components/ui/input';
+import { CLASS_PREFIX } from '@/conf';
 import { useInventoryForm } from '@/contexts/inventory-form-context';
 import Checkbox from '@/molecules/checkbox';
 import Flex from '@/molecules/flex';
-import Input from '@/molecules/input';
 import { TableCell, TableRow } from '@/molecules/table';
 import Thumbnail from '@/molecules/thumbnail';
 import type { InventoryVariant, MarkListHandlers } from '@/types';
@@ -21,7 +22,7 @@ const SingleRow = ({
 }: SingleRowProps) => {
   const { updateInventory } = useInventoryForm();
 
-  const handleOnChange = (value: string | number, fieldName: string) => {
+  const handleOnChange = (value: string, fieldName: string) => {
     updateInventory({ id: item.id, changes: { [fieldName]: value } });
   };
 
@@ -47,9 +48,9 @@ const SingleRow = ({
           <Input
             value={item?.sku ?? undefined}
             placeholder="--"
-            invisible
+            className={`${CLASS_PREFIX}-ui-input--invisible`}
             style={{ fontSize: '12px', lineHeight: '18px', fontWeight: '400' }}
-            onChange={(value) => handleOnChange(value, 'sku')}
+            onChange={(event) => handleOnChange(event.target.value, 'sku')}
           />
         </TableCell>
       )}
@@ -58,9 +59,9 @@ const SingleRow = ({
           <Input
             value={item?.price ?? undefined}
             placeholder="--"
-            invisible
+            className={`${CLASS_PREFIX}-ui-input--invisible`}
             style={{ fontSize: '12px', lineHeight: '18px', fontWeight: '400' }}
-            onChange={(value) => handleOnChange(value, 'price')}
+            onChange={(event) => handleOnChange(event.target.value, 'price')}
           />
         </TableCell>
       )}
@@ -69,9 +70,11 @@ const SingleRow = ({
           <Input
             value={item?.sale_price ?? undefined}
             placeholder="--"
-            invisible
+            className={`${CLASS_PREFIX}-ui-input--invisible`}
             style={{ fontSize: '12px', lineHeight: '18px', fontWeight: '400' }}
-            onChange={(value) => handleOnChange(value, 'sale_price')}
+            onChange={(event) =>
+              handleOnChange(event.target.value, 'sale_price')
+            }
           />
         </TableCell>
       )}
@@ -80,9 +83,11 @@ const SingleRow = ({
           <Input
             value={item?.cost_of_goods ?? undefined}
             placeholder="--"
-            invisible
+            className={`${CLASS_PREFIX}-ui-input--invisible`}
             style={{ fontSize: '12px', lineHeight: '18px', fontWeight: '400' }}
-            onChange={(value) => handleOnChange(value, 'cost_of_goods')}
+            onChange={(event) =>
+              handleOnChange(event.target.value, 'cost_of_goods')
+            }
           />
         </TableCell>
       )}
@@ -91,7 +96,8 @@ const SingleRow = ({
           <Input
             value={calculateProfit('profit', item)}
             placeholder="--"
-            invisible
+            readOnly
+            className={`${CLASS_PREFIX}-ui-input--invisible`}
             style={{ fontSize: '12px', lineHeight: '18px', fontWeight: '400' }}
           />
         </TableCell>

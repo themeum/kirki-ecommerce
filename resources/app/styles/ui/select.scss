@@ -30,6 +30,27 @@
     }
   }
 
+  &.#{$class-prefix}-ui-select-trigger--secondary {
+    background-color: var(--decom-background-bg-fill-secondary);
+    border: none;
+    font-size: 12px;
+    line-height: 18px;
+    border-radius: var(--decom-radius-rounded-md);
+  }
+
+  &.#{$class-prefix}-ui-select-trigger--invisible {
+    background-color: transparent;
+    border-color: transparent;
+    box-shadow: none;
+    height: 100%;
+
+    &:focus-visible,
+    &[data-state="open"] {
+      border-color: transparent;
+      box-shadow: none;
+    }
+  }
+
   &[data-disabled] {
     background-color: var(--decom-background-bg-surface-alt);
     color: var(--decom-text-text-secondary);
