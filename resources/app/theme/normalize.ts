@@ -27,12 +27,12 @@ const FORM_CONTROL_TYPES = [
  *
  * @returns Comma-separated selector list for text-like inputs, select, and textarea.
  */
-const form_control_selectors = (suffix = ''): string => {
-  const input_selectors = FORM_CONTROL_TYPES.map(
+const formControlSelectors = (suffix = ''): string => {
+  const inputSelectors = FORM_CONTROL_TYPES.map(
     (type) => `input[type="${type}"]${suffix}`,
   );
 
-  return [...input_selectors, `select${suffix}`, `textarea${suffix}`].join(', ');
+  return [...inputSelectors, `select${suffix}`, `textarea${suffix}`].join(', ');
 };
 
 /**
@@ -42,7 +42,7 @@ const form_control_selectors = (suffix = ''): string => {
  *
  * @returns CSS object keyed by the app root selector.
  */
-const get_normalize_styles = (theme: Theme): CSSObject => {
+const getNormalizeStyles = (theme: Theme): CSSObject => {
   return {
     [APP_ROOT_SELECTOR]: {
       '*, *::before, *::after': {
@@ -51,11 +51,10 @@ const get_normalize_styles = (theme: Theme): CSSObject => {
       margin: 0,
       padding: 0,
       color: theme.colors.text.primary,
-      fontSize: '14px',
-      fontFamily:
-        'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-      fontWeight: 400,
-      lineHeight: '21px',
+      fontSize: theme.typography.fontSize.base,
+      fontFamily: theme.typography.fontFamily,
+      fontWeight: theme.typography.fontWeight.normal,
+      lineHeight: theme.typography.lineHeight.base,
       WebkitFontSmoothing: 'antialiased',
       MozOsxFontSmoothing: 'grayscale',
       textRendering: 'optimizeLegibility',
@@ -137,7 +136,7 @@ const get_normalize_styles = (theme: Theme): CSSObject => {
         maxWidth: '100%',
         verticalAlign: 'middle',
       },
-      [form_control_selectors()]: {
+      [formControlSelectors()]: {
         margin: 0,
         padding: 0,
         minHeight: 0,
@@ -150,17 +149,17 @@ const get_normalize_styles = (theme: Theme): CSSObject => {
         boxShadow: 'none',
         outline: 'none',
       },
-      [form_control_selectors(':focus')]: {
+      [formControlSelectors(':focus')]: {
         borderColor: 'transparent',
         boxShadow: 'none',
         outline: 'none',
       },
-      [form_control_selectors(':focus-visible')]: {
+      [formControlSelectors(':focus-visible')]: {
         borderColor: 'transparent',
         boxShadow: 'none',
         outline: 'none',
       },
-      [form_control_selectors(':active')]: {
+      [formControlSelectors(':active')]: {
         borderColor: 'transparent',
         boxShadow: 'none',
         outline: 'none',
@@ -249,7 +248,7 @@ const get_normalize_styles = (theme: Theme): CSSObject => {
         border: 'none',
       },
       'strong, b': {
-        fontWeight: 600,
+        fontWeight: theme.typography.fontWeight.semibold,
       },
       'em, i': {
         fontStyle: 'italic',
@@ -272,4 +271,4 @@ const get_normalize_styles = (theme: Theme): CSSObject => {
   };
 };
 
-export { get_normalize_styles };
+export { getNormalizeStyles };

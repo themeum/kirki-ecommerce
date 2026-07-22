@@ -1,6 +1,6 @@
 const CSS_VAR_PREFIX = '--kirki-ecommerce';
 
-const primitive_colors = {
+const primitiveColors = {
   blue1: 'hsl(187 100% 93%)',
   blue2: 'hsl(205 100% 40%)',
   blue3: 'hsl(220 100% 50%)',
@@ -42,9 +42,23 @@ const primitive_colors = {
   violet3: 'hsl(248 79% 96%)',
   yellow1: 'hsl(61 100% 89%)',
   yellow2: 'hsl(54 100% 15%)',
+  neutralSurface: '#e9e9e9',
+  badgeDraft: '#09090B99',
+  buttonTertiary: '#F5F5F5',
+  optionHover: '#f4f4f5',
+  textMuted: '#71717a',
+  textDark: '#333333',
+  settingsHover: '#DEDAF4',
+  placeholderSurface: '#f7f7f7',
+  borderAlt: '#e6e6e6',
+  galleryBorder: '#E4E4E7',
+  galleryHover: '#f7f4ff',
+  shippingBoxLight: '#ceaaff',
+  shippingBoxMid: '#bf84e9',
+  shippingBoxDark: '#9663b6',
 } as const;
 
-type PrimitiveColorKey = keyof typeof primitive_colors;
+type PrimitiveColorKey = keyof typeof primitiveColors;
 
 const PRIMITIVE_CSS_VAR_KEYS: Record<PrimitiveColorKey, string> = {
   blue1: 'color-blue-1',
@@ -88,6 +102,20 @@ const PRIMITIVE_CSS_VAR_KEYS: Record<PrimitiveColorKey, string> = {
   violet3: 'color-violet-3',
   yellow1: 'color-yellow-1',
   yellow2: 'color-yellow-2',
+  neutralSurface: 'color-neutral-surface',
+  badgeDraft: 'color-badge-draft',
+  buttonTertiary: 'color-button-tertiary',
+  optionHover: 'color-option-hover',
+  textMuted: 'color-text-muted',
+  textDark: 'color-text-dark',
+  settingsHover: 'color-settings-hover',
+  placeholderSurface: 'color-placeholder-surface',
+  borderAlt: 'color-border-alt',
+  galleryBorder: 'color-gallery-border',
+  galleryHover: 'color-gallery-hover',
+  shippingBoxLight: 'color-shipping-box-light',
+  shippingBoxMid: 'color-shipping-box-mid',
+  shippingBoxDark: 'color-shipping-box-dark',
 };
 
 /**
@@ -97,7 +125,7 @@ const PRIMITIVE_CSS_VAR_KEYS: Record<PrimitiveColorKey, string> = {
  *
  * @returns CSS variable name with the kirki-ecommerce prefix.
  */
-const get_css_var_name = (key: PrimitiveColorKey): string => {
+const getCssVarName = (key: PrimitiveColorKey): string => {
   return `${CSS_VAR_PREFIX}-${PRIMITIVE_CSS_VAR_KEYS[key]}`;
 };
 
@@ -108,88 +136,124 @@ const get_css_var_name = (key: PrimitiveColorKey): string => {
  *
  * @returns CSS var() string pointing at the matching custom property.
  */
-const css_var = (key: PrimitiveColorKey): string => {
-  return `var(${get_css_var_name(key)})`;
+const cssVar = (key: PrimitiveColorKey): string => {
+  return `var(${getCssVarName(key)})`;
 };
 
 const theme = {
   primitives: {
-    colors: primitive_colors,
+    colors: primitiveColors,
   },
   colors: {
     background: {
-      fill: css_var('gray1'),
-      fillBrand: css_var('brand1'),
-      fillBrandHover: css_var('brand2'),
-      fillCaution: css_var('yellow2'),
-      fillCautionSecondary: css_var('yellow1'),
-      fillCritical: css_var('red3'),
-      fillCriticalSecondary: css_var('red1'),
-      fillDisabled: css_var('gray12'),
-      fillHover: css_var('gray6'),
-      fillSecondary: css_var('brand5'),
-      fillSecondaryHover: css_var('brand4'),
-      fillSpecial: css_var('blue2'),
-      fillSpecial2: css_var('violet2'),
-      fillSpecial2Secondary: css_var('violet1'),
-      fillSpecial3Tertiary: css_var('violet3'),
-      fillSpecialSecondary: css_var('blue1'),
-      fillSuccess: css_var('green6'),
-      fillSuccessSecondary: css_var('green1'),
-      fillTertiary: css_var('gray9'),
-      fillTertiaryHover: css_var('gray11'),
-      fillWarning: css_var('orange2'),
-      fillWarningSecondary: css_var('orange1'),
-      inverse: css_var('gray16'),
-      surface: css_var('gray1'),
-      surfaceAlt: css_var('gray2'),
-      surfaceDisabled: css_var('gray9'),
-      surfaceSecondary: css_var('gray4'),
-      surfaceSubdued: css_var('gray7'),
-      surfaceTertiary: css_var('gray5'),
+      fill: cssVar('gray1'),
+      fillBrand: cssVar('brand1'),
+      fillBrandHover: cssVar('brand2'),
+      fillCaution: cssVar('yellow2'),
+      fillCautionSecondary: cssVar('yellow1'),
+      fillCritical: cssVar('red3'),
+      fillCriticalSecondary: cssVar('red1'),
+      fillDisabled: cssVar('gray12'),
+      fillHover: cssVar('gray6'),
+      fillSecondary: cssVar('brand5'),
+      fillSecondaryHover: cssVar('brand4'),
+      fillSpecial: cssVar('blue2'),
+      fillSpecial2: cssVar('violet2'),
+      fillSpecial2Secondary: cssVar('violet1'),
+      fillSpecial3Tertiary: cssVar('violet3'),
+      fillSpecialSecondary: cssVar('blue1'),
+      fillSuccess: cssVar('green6'),
+      fillSuccessSecondary: cssVar('green1'),
+      fillTertiary: cssVar('gray9'),
+      fillTertiaryHover: cssVar('gray11'),
+      fillWarning: cssVar('orange2'),
+      fillWarningSecondary: cssVar('orange1'),
+      inverse: cssVar('gray16'),
+      surface: cssVar('gray1'),
+      surfaceAlt: cssVar('gray2'),
+      surfaceDisabled: cssVar('gray9'),
+      surfaceSecondary: cssVar('gray4'),
+      surfaceSubdued: cssVar('gray7'),
+      surfaceTertiary: cssVar('gray5'),
+      buttonTertiary: cssVar('buttonTertiary'),
+      settingsHover: cssVar('settingsHover'),
+      placeholderSurface: cssVar('placeholderSurface'),
+      galleryHover: cssVar('galleryHover'),
+      optionHover: cssVar('optionHover'),
+      neutralSurface: cssVar('neutralSurface'),
+      badgeDraft: cssVar('badgeDraft'),
     },
     border: {
-      default: css_var('gray8'),
-      critical: css_var('red2'),
-      disabled: css_var('gray10'),
-      hover: css_var('gray12'),
-      inverse: css_var('gray16'),
-      ring: css_var('gray14'),
-      secondary: css_var('gray6'),
-      tertiary: css_var('gray5'),
+      default: cssVar('gray8'),
+      critical: cssVar('red2'),
+      disabled: cssVar('gray10'),
+      hover: cssVar('gray12'),
+      inverse: cssVar('gray16'),
+      ring: cssVar('gray14'),
+      secondary: cssVar('gray6'),
+      tertiary: cssVar('gray5'),
+      alt: cssVar('borderAlt'),
+      gallery: cssVar('galleryBorder'),
     },
     icon: {
-      brand: css_var('green4'),
-      caution: css_var('yellow2'),
-      critical: css_var('red3'),
-      disabled: css_var('gray11'),
-      emphasis: css_var('blue3'),
-      inverse: css_var('gray5'),
-      primary: css_var('gray14'),
-      primaryActive: css_var('gray16'),
-      primaryHover: css_var('gray15'),
-      secondary: css_var('gray12'),
-      secondaryActive: css_var('gray14'),
-      secondaryHover: css_var('gray13'),
-      special: css_var('pink2'),
-      success: css_var('green5'),
-      warning: css_var('orange2'),
+      brand: cssVar('green4'),
+      caution: cssVar('yellow2'),
+      critical: cssVar('red3'),
+      disabled: cssVar('gray11'),
+      emphasis: cssVar('blue3'),
+      inverse: cssVar('gray5'),
+      primary: cssVar('gray14'),
+      primaryActive: cssVar('gray16'),
+      primaryHover: cssVar('gray15'),
+      secondary: cssVar('gray12'),
+      secondaryActive: cssVar('gray14'),
+      secondaryHover: cssVar('gray13'),
+      special: cssVar('pink2'),
+      success: cssVar('green5'),
+      warning: cssVar('orange2'),
     },
     text: {
-      brand: css_var('green4'),
-      caution: css_var('yellow2'),
-      critical: css_var('red3'),
-      disabled: css_var('gray11'),
-      emphasis: css_var('blue3'),
-      light: css_var('gray1'),
-      primary: css_var('gray15'),
-      secondary: css_var('gray13'),
-      special: css_var('pink2'),
-      special2: css_var('blue2'),
-      special3: css_var('violet2'),
-      subdued: css_var('gray12'),
-      success: css_var('green6'),
-      warning: css_var('orange2'),
+      brand: cssVar('green4'),
+      caution: cssVar('yellow2'),
+      critical: cssVar('red3'),
+      disabled: cssVar('gray11'),
+      emphasis: cssVar('blue3'),
+      light: cssVar('gray1'),
+      primary: cssVar('gray15'),
+      secondary: cssVar('gray13'),
+      special: cssVar('pink2'),
+      special2: cssVar('blue2'),
+      special3: cssVar('violet2'),
+      subdued: cssVar('gray12'),
+      success: cssVar('green6'),
+      warning: cssVar('orange2'),
+      muted: cssVar('textMuted'),
+      dark: cssVar('textDark'),
+    },
+    shipping: {
+      boxLight: cssVar('shippingBoxLight'),
+      boxMid: cssVar('shippingBoxMid'),
+      boxDark: cssVar('shippingBoxDark'),
+    },
+  },
+  typography: {
+    fontFamily:
+      'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+    fontSize: {
+      xs: '12px',
+      sm: '13px',
+      base: '14px',
+      lg: '16px',
+    },
+    lineHeight: {
+      base: '21px',
+      tight: '18px',
+    },
+    fontWeight: {
+      normal: 400,
+      medium: 500,
+      semibold: 600,
+      bold: 700,
     },
   },
   spacing: {
@@ -224,4 +288,4 @@ const theme = {
 type AppTheme = typeof theme;
 
 export type { AppTheme, PrimitiveColorKey };
-export { theme, get_css_var_name, CSS_VAR_PREFIX, PRIMITIVE_CSS_VAR_KEYS };
+export { theme, getCssVarName, CSS_VAR_PREFIX, PRIMITIVE_CSS_VAR_KEYS };

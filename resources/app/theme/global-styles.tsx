@@ -1,7 +1,8 @@
 import { Global, css, useTheme } from '@emotion/react';
 
-import { get_css_var_name, type PrimitiveColorKey } from '@/theme';
-import { get_normalize_styles } from '@/theme/normalize';
+import { getCssVarName, type PrimitiveColorKey } from '@/theme';
+import { getNormalizeStyles } from '@/theme/normalize';
+import { getShellStyles } from '@/theme/shell-styles';
 
 /**
  * Injects primitive CSS variables and the app normalize reset via Emotion Global.
@@ -10,21 +11,22 @@ import { get_normalize_styles } from '@/theme/normalize';
  */
 const GlobalStyles = () => {
   const theme = useTheme();
-  const primitive_entries = Object.entries(theme.primitives.colors) as Array<
+  const primitiveEntries = Object.entries(theme.primitives.colors) as Array<
     [PrimitiveColorKey, string]
   >;
 
-  const css_variables: Record<string, string> = {};
+  const cssVariables: Record<string, string> = {};
 
-  for (const [key, value] of primitive_entries) {
-    css_variables[get_css_var_name(key)] = value;
+  for (const [key, value] of primitiveEntries) {
+    cssVariables[getCssVarName(key)] = value;
   }
 
   return (
     <Global
       styles={css({
-        ':root': css_variables,
-        ...get_normalize_styles(theme),
+        ':root': cssVariables,
+        ...getShellStyles(theme),
+        ...getNormalizeStyles(theme),
       })}
     />
   );

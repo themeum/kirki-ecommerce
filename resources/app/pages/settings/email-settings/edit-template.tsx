@@ -1,12 +1,14 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 
 import ColorPickerField from '@/components/form/color-picker-field';
 import TextField from '@/components/form/text-field';
 import ThumbnailField from '@/components/form/thumbnail-field';
 import Button from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import Container from '@/components/ui/container';
+import Flex from '@/components/ui/flex';
 import {
   Form,
   FormControl,
@@ -14,21 +16,19 @@ import {
   FormItem,
   FormMessage,
 } from '@/components/ui/form';
+import PageHeading from '@/components/ui/page-heading';
+import ProgressBar from '@/components/ui/progressbar';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import Text from '@/components/ui/text';
 import { CLASS_PREFIX } from '@/conf';
 import {
-  BrushIcon,
-  AlignLeftIcon,
   AlignCenterIcon,
+  AlignLeftIcon,
+  BrushIcon,
   SendIcon,
 } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import Container from '@/components/ui/container';
-import Flex from '@/components/ui/flex';
-import PageHeading from '@/components/ui/page-heading';
-import ProgressBar from '@/components/ui/progressbar';
-import Text from '@/components/ui/text';
 import {
   EmailTemplateFormSchema,
   emailTemplateDefaultValues,

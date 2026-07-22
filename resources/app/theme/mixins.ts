@@ -20,7 +20,7 @@ const scoped = (styles: CSSObject) => {
  *
  * @returns CSS object for centered flex layout.
  */
-const flex_center = (): CSSObject => {
+const flexCenter = (): CSSObject => {
   return {
     display: 'flex',
     justifyContent: 'center',
@@ -32,12 +32,12 @@ const flex_center = (): CSSObject => {
  * Focus ring utility matching the SCSS ui-focus-ring mixin.
  *
  * @param theme Current Emotion theme.
- * @param ring_color Optional ring color override.
+ * @param ringColor Optional ring color override.
  *
  * @returns CSS object for the focus ring box-shadow.
  */
-const ui_focus_ring = (theme: Theme, ring_color?: string): CSSObject => {
-  const color = ring_color ?? theme.colors.border.ring;
+const uiFocusRing = (theme: Theme, ringColor?: string): CSSObject => {
+  const color = ringColor ?? theme.colors.border.ring;
 
   return {
     outline: 'none',
@@ -45,4 +45,21 @@ const ui_focus_ring = (theme: Theme, ring_color?: string): CSSObject => {
   };
 };
 
-export { APP_ROOT_SELECTOR, scoped, flex_center, ui_focus_ring };
+/**
+ * Typography defaults matching the SCSS fontGeneralSettings mixin.
+ *
+ * @param theme Current Emotion theme.
+ *
+ * @returns CSS object for base body text styling.
+ */
+const fontGeneralSettings = (theme: Theme): CSSObject => {
+  return {
+    fontSize: theme.typography.fontSize.base,
+    fontFamily: theme.typography.fontFamily,
+    fontWeight: theme.typography.fontWeight.normal,
+    lineHeight: theme.typography.lineHeight.base,
+    color: theme.colors.text.primary,
+  };
+};
+
+export { APP_ROOT_SELECTOR, scoped, flexCenter, uiFocusRing, fontGeneralSettings };

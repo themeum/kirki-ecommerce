@@ -7,7 +7,7 @@ import {
 } from 'react';
 
 import { theme } from '@/theme';
-import { flex_center, scoped, ui_focus_ring } from '@/theme/mixins';
+import { flexCenter, scoped, uiFocusRing } from '@/theme/mixins';
 
 type ButtonVariant =
   | 'primary'
@@ -94,7 +94,7 @@ Button.displayName = 'Button';
 
 export default Button;
 
-const button_spin = keyframes({
+const buttonSpin = keyframes({
   from: {
     transform: 'rotate(0deg)',
   },
@@ -105,7 +105,7 @@ const button_spin = keyframes({
 
 const styles = {
   base: scoped({
-    ...flex_center(),
+    ...flexCenter(),
     position: 'relative',
     height: 'max-content',
     width: 'max-content',
@@ -135,7 +135,7 @@ const styles = {
     },
     '&:focus-visible': {
       textDecoration: 'none',
-      ...ui_focus_ring(theme as Theme),
+      ...uiFocusRing(theme as Theme),
     },
   }),
   variants: {
@@ -210,7 +210,7 @@ const styles = {
     pointerEvents: 'none',
   }),
   content: scoped({
-    ...flex_center(),
+    ...flexCenter(),
     columnGap: theme.spacing.md,
     textDecoration: 'none',
     whiteSpace: 'nowrap',
@@ -221,11 +221,11 @@ const styles = {
     visibility: 'hidden',
   }),
   loader: scoped({
-    ...flex_center(),
+    ...flexCenter(),
     position: 'absolute',
     inset: 0,
     svg: {
-      animation: `${button_spin} 0.8s linear infinite`,
+      animation: `${buttonSpin} 0.8s linear infinite`,
     },
   }),
 };
