@@ -4,10 +4,10 @@ import Button from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { CLASS_PREFIX } from '@/conf';
 import { EditIcon, FlagIcon, RadioTickIcon } from '@/icons';
-import Badge from '@/molecules/badge';
-import Flex from '@/molecules/flex';
-import ProgressBar from '@/molecules/progressbar';
-import Text from '@/molecules/text';
+import Badge from '@/components/ui/badge';
+import Flex from '@/components/ui/flex';
+import ProgressBar from '@/components/ui/progressbar';
+import Text from '@/components/ui/text';
 import type { SettingsSectionData } from '@/types';
 import { __, sprintf } from '@/wpi18n';
 

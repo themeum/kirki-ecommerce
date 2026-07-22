@@ -1,7 +1,7 @@
 import { SnowflakeIcon } from '@/icons';
-import Container from '@/molecules/container';
-import Flex from '@/molecules/flex';
-import PageHeading from '@/molecules/page-heading';
+import Container from '@/components/ui/container';
+import Flex from '@/components/ui/flex';
+import PageHeading from '@/components/ui/page-heading';
 import PageNavbar from '@/components/page-navbar';
 import { __ } from '@/wpi18n';
 

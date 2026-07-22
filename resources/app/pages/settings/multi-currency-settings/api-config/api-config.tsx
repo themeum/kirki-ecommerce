@@ -15,9 +15,9 @@ import {
 } from '@/components/ui/select';
 import { CLASS_PREFIX } from '@/conf';
 import { ReplaceIcon, FlagIcon, WrenchIcon } from '@/icons';
-import ActionGroup from '@/molecules/action-group';
-import Flex from '@/molecules/flex';
-import Text from '@/molecules/text';
+import ActionGroup from '@/components/ui/action-group';
+import Flex from '@/components/ui/flex';
+import Text from '@/components/ui/text';
 import type { ApiConfigurationFormValues } from '@/schemas/forms/api-configuration-form';
 import type { MultiCurrencySettingsFormValues } from '@/schemas/forms/multi-currency-settings-form';
 import { useCurrencyExchangeProvidersQuery } from '@/services/currency';

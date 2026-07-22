@@ -1,13 +1,13 @@
 import { useEffect } from 'react';
 
 import Pagination from '@/components/pagination';
+import Button from '@/components/ui/button';
 import { InventoryFormProvider, useInventoryForm } from '@/contexts/inventory-form-context';
 import { useListParams } from '@/hooks';
-import Button from '@/molecules/button';
-import Card from '@/molecules/card';
-import Container from '@/molecules/container';
-import Flex from '@/molecules/flex';
-import PageHeading from '@/molecules/page-heading';
+import { Card } from '@/components/ui/card';
+import Container from '@/components/ui/container';
+import Flex from '@/components/ui/flex';
+import PageHeading from '@/components/ui/page-heading';
 import { useUpdateBulkVariantsMutation } from '@/services/bulk-edit';
 import { useInventoryQuery } from '@/services/inventory';
 import { __ } from '@/wpi18n';
@@ -57,30 +57,28 @@ const InventoryPage = () => {
           hasChanges ? (
             <>
               <Button
-                type="ghost"
-                text={__('Discard', 'kirki-ecommerce')}
-                size="small"
+                variant="ghost"
+                size="sm"
                 onClick={handleDiscardUpdate}
-              />
+              >
+                {__('Discard', 'kirki-ecommerce')}
+              </Button>
               <Button
-                type="primary"
-                text={__('Save', 'kirki-ecommerce')}
-                size="small"
+                variant="primary"
+                size="sm"
                 onClick={handleInventoryUpdate}
-              />
+              >
+                {__('Save', 'kirki-ecommerce')}
+              </Button>
             </>
           ) : (
             <>
-              <Button
-                type="ghost"
-                text={__('Import', 'kirki-ecommerce')}
-                size="small"
-              />
-              <Button
-                type="ghost"
-                text={__('Export', 'kirki-ecommerce')}
-                size="small"
-              />
+              <Button variant="ghost" size="sm">
+                {__('Import', 'kirki-ecommerce')}
+              </Button>
+              <Button variant="ghost" size="sm">
+                {__('Export', 'kirki-ecommerce')}
+              </Button>
             </>
           )
         }

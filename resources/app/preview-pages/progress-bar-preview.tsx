@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import ProgressBar from '@/molecules/progressbar';
+import ProgressBar from '@/components/ui/progressbar';
 
 const ProgressBarPreview = () => {
   const [value, setValue] = useState(46);

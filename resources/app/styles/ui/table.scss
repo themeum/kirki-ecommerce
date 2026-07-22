@@ -1,0 +1,281 @@
+.#{$class-prefix}-ui-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+  user-select: none;
+  font-family: "Inter";
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 18px;
+  color: var(--decom-text-text-primary);
+  box-shadow: 0px 0.5px 1px 0px #0000001a inset;
+
+  thead {
+    background-color: var(--decom-background-bg-surface-alt);
+    color: var(--decom-text-text-secondary);
+    border: 1px solid var(--decom-border-border-tertiary);
+
+    tr {
+      th {
+        padding: var(--decom-spacing-3);
+        text-align: left;
+        font-weight: 400;
+        white-space: nowrap;
+
+        &.#{$class-prefix}-ui-table-cell--only-checkbox {
+          width: 1%;
+        }
+
+        &.#{$class-prefix}-ui-table-cell--align-right {
+          margin-left: auto;
+          margin-right: var(--decom-spacing-0);
+          text-align: right;
+        }
+
+        &.#{$class-prefix}-ui-table-cell--align-center {
+          margin-left: auto;
+          margin-right: auto;
+          text-align: center;
+        }
+      }
+
+      &:hover {
+        background-color: var(--decom-background-bg-surface-alt);
+      }
+    }
+  }
+
+  tbody {
+    background-color: var(--decom-background-bg-fill);
+
+    tr {
+      border-bottom: 1px solid var(--decom-border-border-tertiary);
+
+      &:hover,
+      &.#{$class-prefix}-ui-table-row--active {
+        background-color: hsla(240, 20%, 98%, 0.5);
+
+        .#{$class-prefix}-ui-action-group,
+        .#{$class-prefix}-action-group {
+          visibility: visible;
+        }
+      }
+
+      td {
+        padding: var(--decom-spacing-3);
+        text-align: left;
+        color: var(--decom-text-text-primary);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+
+        &.#{$class-prefix}-ui-table-cell--only-checkbox {
+          width: 1%;
+        }
+
+        &.#{$class-prefix}-ui-table-cell--align-right {
+          margin-left: auto;
+          margin-right: var(--decom-spacing-0);
+          text-align: right;
+
+          label {
+            margin-left: auto;
+            margin-right: var(--decom-spacing-0);
+            text-align: right;
+          }
+        }
+
+        &.#{$class-prefix}-ui-table-cell--align-center {
+          margin-left: auto;
+          margin-right: auto;
+          text-align: center;
+
+          label {
+            margin-left: auto;
+            margin-right: auto;
+            text-align: center;
+          }
+        }
+
+        .#{$class-prefix}-ui-action-group,
+        .#{$class-prefix}-action-group {
+          gap: var(--decom-spacing-2);
+          display: inline-flex;
+          visibility: hidden;
+        }
+      }
+    }
+  }
+
+  &--variation {
+    td,
+    th {
+      padding: var(--decom-spacing-2) var(--decom-spacing-3);
+    }
+
+    tr:hover {
+      background-color: hsla(240, 20%, 98%, 0.5);
+    }
+  }
+
+  &--wide {
+    td,
+    th {
+      padding: var(--decom-spacing-4) var(--decom-spacing-3);
+    }
+  }
+
+  &--fixed {
+    table-layout: fixed;
+
+    th,
+    td {
+      &.#{$class-prefix}-ui-table-cell--only-checkbox {
+        width: 40px;
+      }
+    }
+  }
+
+  &--scrollable {
+    width: max-content;
+  }
+
+  &--multi-cell-edit {
+    user-select: none;
+    border-collapse: separate;
+    border-spacing: 0 0;
+    box-sizing: border-box;
+
+    thead {
+      background-color: var(--decom-background-bg-fill);
+
+      th {
+        border: 1px solid var(--decom-border-border-secondary);
+        border-top-color: transparent;
+        border-left-color: transparent;
+        background-color: var(--decom-background-bg-fill);
+        z-index: 10;
+
+        &.#{$class-prefix}-sticky-cell {
+          position: sticky;
+          left: 0;
+          z-index: 11;
+          border-top-color: var(--decom-border-border-secondary);
+        }
+      }
+    }
+
+    tr:hover {
+      background-color: var(--decom-background-bg-fill);
+    }
+
+    td {
+      box-sizing: border-box;
+      position: relative;
+      border: 1px solid var(--decom-border-border-secondary);
+      border-top-color: transparent;
+      border-left-color: transparent;
+      padding: var(--decom-spacing-1);
+      min-width: 110px;
+      overflow: visible;
+
+      &.#{$class-prefix}-sticky-cell {
+        position: sticky;
+        left: 0;
+        background: var(--decom-background-bg-fill);
+        z-index: 11;
+      }
+
+      &:hover {
+        background-color: var(--decom-background-bg-surface-alt);
+      }
+
+      &:first-child {
+        padding-left: var(--decom-spacing-3);
+      }
+
+      .#{$class-prefix}-grabber {
+        position: absolute;
+        bottom: -7px;
+        right: -4px;
+        width: 8px;
+        height: 14px;
+        background: var(--decom-background-bg-fill-brand);
+        border: 0.5px solid #ffffff;
+        border-radius: 9px;
+        cursor: crosshair;
+        box-shadow: 0px 4px 6px -1px #0000001a;
+        z-index: 10;
+        visibility: hidden;
+      }
+
+      &.#{$class-prefix}-selected-cell {
+        background-color: var(--decom-background-bg-fill-secondary);
+        border-left-color: var(--decom-background-bg-fill-brand);
+        border-right-color: var(--decom-background-bg-fill-brand);
+
+        &.#{$class-prefix}-selected-min {
+          border-bottom-color: var(--decom-background-bg-fill-brand);
+        }
+
+        &.#{$class-prefix}-selected-max {
+          border-top-color: var(--decom-background-bg-fill-brand);
+        }
+
+        .#{$class-prefix}-grabber {
+          visibility: visible;
+          z-index: 10;
+        }
+      }
+
+      &.#{$class-prefix}-fill-cell {
+        background-color: var(--decom-background-bg-surface-alt);
+        border-left-style: dashed;
+        border-right-style: dashed;
+        border-left-color: var(--decom-border-border-hover);
+        border-right-color: var(--decom-border-border-hover);
+
+        &.#{$class-prefix}-fill-min {
+          border-bottom-style: dashed;
+          border-bottom-color: var(--decom-border-border-hover);
+        }
+
+        &.#{$class-prefix}-fill-max {
+          border-top-style: dashed;
+          border-top-color: var(--decom-border-border-hover);
+        }
+
+        .#{$class-prefix}-grabber {
+          visibility: visible;
+        }
+      }
+
+      &.#{$class-prefix}-base-cell {
+        border: 1px solid var(--decom-background-bg-fill-brand);
+      }
+
+      &.#{$class-prefix}-ui-table-cell--disabled,
+      &.#{$class-prefix}-disabled {
+        opacity: 1;
+        cursor: no-drop;
+        pointer-events: visible;
+        background-color: var(--decom-background-bg-fill);
+      }
+    }
+  }
+
+  &--single-cell-edit {
+    tr:hover {
+      background-color: transparent;
+    }
+
+    td:hover {
+      background-color: var(--decom-background-bg-surface-secondary);
+    }
+  }
+}
+
+.#{$class-prefix}-ui-table-highlighted-cell,
+.#{$class-prefix}-table-highlighted-cell {
+  font-weight: 500;
+}

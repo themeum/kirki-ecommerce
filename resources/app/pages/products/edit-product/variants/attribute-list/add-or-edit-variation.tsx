@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/form';
 import { PlusIcon } from '@/icons';
 import { getErrorsObject, type ErrorResponse } from '@/libs/api';
-import { TagManager } from '@/molecules/tag-manager';
+import TagManager from '@/components/tag-manager/tag-manager';
 import { getSearchedValue } from '@/pages/settings/utils';
 import type {
   ProductAttributeFormValues,

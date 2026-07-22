@@ -1,18 +1,24 @@
-import Button from '@/molecules/button';
-import PageHeading from '@/molecules/page-heading';
+import Button from '@/components/ui/button';
+import PageHeading from '@/components/ui/page-heading';
 
 const PageHeadingPreview = () => {
   const actionButtons = (
     <>
-      <Button text="Import" type="ghost" />
-      <Button text="Export" type="ghost" />
-      <Button text="Add Product" type="primary" />
+      <Button variant="ghost">Import</Button>
+      <Button variant="ghost">Export</Button>
+      <Button variant="primary">Add Product</Button>
     </>
   );
 
   return (
     <div>
       <PageHeading text="Products Table" actions={actionButtons} />
+      <PageHeading
+        text="Edit Product"
+        type="primary"
+        hasBack
+        actions={<Button variant="primary">Save</Button>}
+      />
     </div>
   );
 };

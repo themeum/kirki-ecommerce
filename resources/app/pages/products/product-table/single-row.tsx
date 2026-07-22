@@ -1,10 +1,10 @@
 import { useNavigate } from 'react-router';
 
-import Badge from '@/molecules/badge';
-import Checkbox from '@/molecules/checkbox';
-import Flex from '@/molecules/flex';
-import { TableCell, TableRow } from '@/molecules/table';
-import Thumbnail from '@/molecules/thumbnail';
+import Badge from '@/components/ui/badge';
+import Checkbox from '@/components/ui/checkbox';
+import Flex from '@/components/ui/flex';
+import { TableCell, TableRow } from '@/components/ui/table';
+import Thumbnail from '@/components/ui/thumbnail';
 import type { BadgeType, MarkListHandlers, ProductListItem } from '@/types';
 
 type SingleRowProps = MarkListHandlers & {

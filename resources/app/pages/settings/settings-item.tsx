@@ -5,8 +5,8 @@ import Button from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { CLASS_PREFIX } from '@/conf';
 import { DropdownSubmenuIcon } from '@/icons';
-import Flex from '@/molecules/flex';
-import Text from '@/molecules/text';
+import Flex from '@/components/ui/flex';
+import Text from '@/components/ui/text';
 
 type SettingsItemProps = {
   link: string;

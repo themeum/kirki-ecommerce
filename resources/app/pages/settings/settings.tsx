@@ -1,10 +1,10 @@
 import { Card } from '@/components/ui/card';
 import { CLASS_PREFIX } from '@/conf';
-import Container from '@/molecules/container';
-import Flex from '@/molecules/flex';
-import PageHeading from '@/molecules/page-heading';
-import Searchbox from '@/molecules/searchbox';
-import Text from '@/molecules/text';
+import Container from '@/components/ui/container';
+import Flex from '@/components/ui/flex';
+import PageHeading from '@/components/ui/page-heading';
+import Searchbox from '@/components/ui/searchbox';
+import Text from '@/components/ui/text';
 import { __ } from '@/wpi18n';
 
 import { SettingsItem } from '@/pages/settings/settings-item';

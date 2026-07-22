@@ -13,9 +13,9 @@ import {
 } from '@/components/ui/form';
 import { CLASS_PREFIX } from '@/conf';
 import { PaymentIcon } from '@/icons';
-import Flex from '@/molecules/flex';
-import Grid from '@/molecules/grid';
-import Text from '@/molecules/text';
+import Flex from '@/components/ui/flex';
+import Grid from '@/components/ui/grid';
+import Text from '@/components/ui/text';
 import type { CustomerFormValues } from '@/schemas/forms/customer-form';
 import { __ } from '@/wpi18n';
 

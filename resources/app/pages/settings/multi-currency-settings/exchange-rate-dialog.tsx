@@ -18,8 +18,8 @@ import { CLASS_PREFIX } from '@/conf';
 import { ArrowLeftIcon, InfoIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import Flex from '@/molecules/flex';
-import Text from '@/molecules/text';
+import Flex from '@/components/ui/flex';
+import Text from '@/components/ui/text';
 import {
   ExchangeRateFormSchema,
   type ExchangeRateFormValues,

@@ -23,9 +23,9 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import Input from '@/components/ui/input';
-import Flex from '@/molecules/flex';
-import Text from '@/molecules/text';
-import Grid from '@/molecules/grid';
+import Flex from '@/components/ui/flex';
+import Text from '@/components/ui/text';
+import Grid from '@/components/ui/grid';
 import { LighteningIcon } from '@/icons';
 import { CLASS_PREFIX } from '@/conf';
 import type { ErrorResponse } from '@/libs/api';

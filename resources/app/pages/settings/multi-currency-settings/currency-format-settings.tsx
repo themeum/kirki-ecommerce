@@ -1,7 +1,7 @@
 import SelectField from '@/components/form/select-field';
 import { Card } from '@/components/ui/card';
 import { CLASS_PREFIX } from '@/conf';
-import Flex from '@/molecules/flex';
+import Flex from '@/components/ui/flex';
 import { __ } from '@/wpi18n';
 
 const CurrencyFormatSettings = () => {

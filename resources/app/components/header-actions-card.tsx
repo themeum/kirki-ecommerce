@@ -1,9 +1,9 @@
 import DropdownButton from '@/components/dropdown-button';
+import Button from '@/components/ui/button';
 import { PlusIcon } from '@/icons';
-import ActionGroup from '@/molecules/action-group';
-import Button from '@/molecules/button';
-import Flex from '@/molecules/flex';
-import Text from '@/molecules/text';
+import ActionGroup from '@/components/ui/action-group';
+import Flex from '@/components/ui/flex';
+import Text from '@/components/ui/text';
 import { __ } from '@/wpi18n';
 
 type HeaderActionsCardProps = {
@@ -60,13 +60,10 @@ const HeaderActionsCard = (props: HeaderActionsCardProps) => {
                   onOptionSelect={(value) => handleOptionSelect(value)}
                 />
               ) : (
-                <Button
-                  text={buttonText}
-                  size="small"
-                  type="secondary"
-                  leftIcon={<PlusIcon />}
-                  onClick={onAdd}
-                />
+                <Button size="sm" variant="secondary" onClick={onAdd}>
+                  <PlusIcon />
+                  {buttonText}
+                </Button>
               )}
             </ActionGroup>
           )}

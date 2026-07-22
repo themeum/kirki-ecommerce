@@ -1,4 +1,4 @@
-import Flex from '@/molecules/flex';
+import Flex from '@/components/ui/flex';
 
 import Label from '@/components/ui/label';
 

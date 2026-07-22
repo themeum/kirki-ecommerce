@@ -2,8 +2,8 @@ import TextField from '@/components/form/text-field';
 import ThumbnailField from '@/components/form/thumbnail-field';
 import { Card } from '@/components/ui/card';
 import { CLASS_PREFIX } from '@/conf';
-import Flex from '@/molecules/flex';
-import Text from '@/molecules/text';
+import Flex from '@/components/ui/flex';
+import Text from '@/components/ui/text';
 import { __ } from '@/wpi18n';
 
 type StoreContactDetailsProps = {

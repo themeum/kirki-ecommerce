@@ -1,0 +1,303 @@
+import { useState, useEffect, useRef, type ReactNode } from 'react';
+import { Minus, PlusCircle, Trash2 } from 'lucide-react';
+import classNames from 'classnames';
+
+import SelectedTags from '@/components/tag-manager/selected-tags';
+import ActionGroup from '@/components/ui/action-group';
+import Button from '@/components/ui/button';
+import Flex from '@/components/ui/flex';
+import Label from '@/components/ui/label';
+import Searchbox from '@/components/ui/searchbox';
+import { Separator } from '@/components/ui/separator';
+import SuggestionDropdown from '@/components/ui/suggestion-dropdown';
+import Tag from '@/components/ui/tag';
+import Text from '@/components/ui/text';
+import { CLASS_PREFIX } from '@/conf';
+import type { LabelFieldProps, SelectOption, StyleProps } from '@/types';
+import { __ } from '@/wpi18n';
+
+type TagOption = SelectOption & {
+  leftIcon?: ReactNode;
+};
+
+type TagManagerType = 'default' | 'list';
+
+type TagManagerProps = StyleProps &
+  LabelFieldProps & {
+    showInputField?: boolean;
+    selectedTags?: TagOption[];
+    suggestions?: TagOption[];
+    value?: string;
+    searchKey?: string | number;
+    placeholder?: string;
+    onTagAdd?: (tag: TagOption) => void;
+    onNewTagAdd?: (tagTitle: string) => void;
+    onTagRemove?: (tag: TagOption) => void;
+    onSearchChange?: (value: string) => void;
+    onClick?: () => void;
+    onBlur?: () => void;
+    type?: TagManagerType;
+    leftIcon?: ReactNode;
+    hasSearchIcon?: boolean;
+    btnText?: string;
+    hasAddBtn?: boolean;
+    showSuggestionDropdown?: boolean;
+    readOnly?: boolean;
+    showRemoveIcon?: boolean;
+  };
+
+const TagManager = (props: TagManagerProps) => {
+  const {
+    showInputField = true,
+    selectedTags = [],
+    suggestions = [],
+    label,
+    value,
+    searchKey,
+    helpText,
+    placeholder = __('Type to add tags..', 'kirki-ecommerce'),
+    onTagAdd = () => {},
+    onNewTagAdd = () => {},
+    onTagRemove = () => {},
+    onSearchChange = () => {},
+    onClick = () => {},
+    onBlur = () => {},
+    className = '',
+    style = {},
+    type = 'default',
+    leftIcon,
+    hasSearchIcon,
+    error,
+    btnText = __('Add Tag', 'kirki-ecommerce'),
+    hasAddBtn = true,
+    showSuggestionDropdown = true,
+    readOnly = false,
+    showRemoveIcon = true,
+  } = props;
+
+  const [openSuggestionDropdown, setOpenSuggestionDropDown] = useState(false);
+  const [inputValue, setInputValue] = useState<string | undefined>('');
+  const triggerRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setInputValue(value);
+  }, [value]);
+
+  const handleOptionClick = (tag: TagOption) => {
+    onTagAdd(tag);
+    setInputValue('');
+    setOpenSuggestionDropDown(false);
+  };
+
+  const handleOnEnterPress = (tagTitle: string) => {
+    onNewTagAdd(tagTitle);
+    handleSearchChange('');
+    setOpenSuggestionDropDown(false);
+  };
+
+  const handleNewTagAdd = (title: string) => {
+    onNewTagAdd(title);
+    handleSearchChange('');
+    setOpenSuggestionDropDown(false);
+  };
+
+  const handleSearchChange = (nextValue: string) => {
+    setInputValue(nextValue);
+    onSearchChange(nextValue);
+  };
+
+  return (
+    <Flex direction="column" gap={8}>
+      {label && (
+        <Label error={Boolean(error)} helpText={error ? error : helpText}>
+          {label}
+        </Label>
+      )}
+      <div
+        className={classNames(
+          `${CLASS_PREFIX}-tag-manager`,
+          type === 'list' && `${CLASS_PREFIX}-tag-manager-list`,
+          className,
+        )}
+        style={style}
+      >
+        {showInputField && (
+          <>
+            {type === 'default' && (
+              <Searchbox
+                ref={triggerRef}
+                key={searchKey}
+                value={inputValue}
+                placeholder={placeholder}
+                className={classNames(
+                  `${CLASS_PREFIX}-tag-manager-input`,
+                  selectedTags.length > 0 && `${CLASS_PREFIX}-border-none`,
+                )}
+                onChange={(nextValue) =>
+                  handleSearchChange(String(nextValue))
+                }
+                onBlur={onBlur}
+                onEnter={(title) => handleOnEnterPress(String(title))}
+                onClick={() => {
+                  setOpenSuggestionDropDown(
+                    hasAddBtn || suggestions.length > 0,
+                  );
+                  onClick();
+                }}
+                leftIcon={leftIcon}
+                hasIcon={hasSearchIcon}
+                readOnly={readOnly}
+              />
+            )}
+            {showSuggestionDropdown && (
+              <SuggestionDropdown
+                isOpen={openSuggestionDropdown}
+                triggerRef={triggerRef}
+                setIsOpen={setOpenSuggestionDropDown}
+                onClose={() => setOpenSuggestionDropDown(false)}
+              >
+                {hasAddBtn && (
+                  <>
+                    <div
+                      role="option"
+                      tabIndex={0}
+                      className={`${CLASS_PREFIX}-ui-suggestion-item`}
+                      onClick={() => {
+                        handleNewTagAdd(triggerRef.current!.value);
+                      }}
+                      onKeyDown={(event) => {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                          event.preventDefault();
+                          handleNewTagAdd(triggerRef.current!.value);
+                        }
+                      }}
+                    >
+                      <span className={`${CLASS_PREFIX}-ui-suggestion-icon`}>
+                        <PlusCircle size={16} aria-hidden="true" />
+                      </span>
+                      <span>{btnText}</span>
+                    </div>
+                    {suggestions.length > 0 && <Separator />}
+                  </>
+                )}
+                {suggestions.map((option, key) => (
+                  <div
+                    role="option"
+                    tabIndex={0}
+                    className={`${CLASS_PREFIX}-ui-suggestion-item`}
+                    key={key}
+                    onClick={() => handleOptionClick(option)}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        handleOptionClick(option);
+                      }
+                    }}
+                  >
+                    {option?.leftIcon && (
+                      <div className={`${CLASS_PREFIX}-ui-suggestion-icon`}>
+                        {option.leftIcon}
+                      </div>
+                    )}
+                    {option?.color && (
+                      <div
+                        className={`${CLASS_PREFIX}-tag-manager-swatch`}
+                        style={{ background: option?.color }}
+                        aria-hidden="true"
+                      />
+                    )}
+                    <div className={`${CLASS_PREFIX}-ui-suggestion-text`}>
+                      {option.title}
+                    </div>
+                  </div>
+                ))}
+              </SuggestionDropdown>
+            )}
+          </>
+        )}
+        {type === 'list' ? (
+          <Flex direction="column">
+            {selectedTags.map((item, index) => (
+              <div key={index}>
+                <Flex style={{ alignItems: 'center', padding: '12px' }} gap={8}>
+                  {item?.color && (
+                    <div
+                      className={`${CLASS_PREFIX}-tag-manager-swatch`}
+                      style={{ background: item?.color }}
+                      aria-hidden="true"
+                    />
+                  )}
+                  <Text
+                    header={item.title}
+                    type="xsm"
+                    style={{ fontWeight: '500' }}
+                  />
+                  <ActionGroup>
+                    <Button
+                      size="icon"
+                      variant="outline"
+                      onClick={() => onTagRemove(item)}
+                      aria-label={__('Remove tag', 'kirki-ecommerce')}
+                    >
+                      <Trash2 size={16} aria-hidden="true" />
+                    </Button>
+                  </ActionGroup>
+                </Flex>
+                <Separator style={{ margin: '0' }} />
+              </div>
+            ))}
+            {showInputField && (
+              <Searchbox
+                ref={triggerRef}
+                value={inputValue}
+                key={searchKey}
+                placeholder={placeholder}
+                onBlur={onBlur}
+                className={`${CLASS_PREFIX}-tag-manager-input`}
+                onChange={(nextValue) =>
+                  handleSearchChange(String(nextValue))
+                }
+                onEnter={(title) => handleOnEnterPress(String(title))}
+                onClick={() => {
+                  setOpenSuggestionDropDown(true);
+                  onClick();
+                }}
+                leftIcon={leftIcon}
+              />
+            )}
+          </Flex>
+        ) : (
+          <>
+            {selectedTags.length > 0 ? (
+              <SelectedTags
+                className={
+                  !showInputField ? `${CLASS_PREFIX}-has-border-radius` : ''
+                }
+              >
+                {selectedTags.map((tag, index) => (
+                  <Tag
+                    text={tag.title}
+                    img={tag.tagIcon}
+                    subText={tag?.subText}
+                    key={index}
+                    onTagRemove={() => onTagRemove(tag)}
+                    closeIcon={
+                      showRemoveIcon ? (
+                        <Minus size={14} aria-hidden="true" />
+                      ) : undefined
+                    }
+                    color={tag?.color}
+                  />
+                ))}
+              </SelectedTags>
+            ) : null}
+          </>
+        )}
+      </div>
+    </Flex>
+  );
+};
+
+TagManager.displayName = 'TagManager';
+
+export default TagManager;

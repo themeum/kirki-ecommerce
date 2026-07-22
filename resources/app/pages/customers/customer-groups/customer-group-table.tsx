@@ -1,5 +1,5 @@
-import Badge from '@/molecules/badge';
-import Checkbox from '@/molecules/checkbox';
+import Badge from '@/components/ui/badge';
+import Checkbox from '@/components/ui/checkbox';
 import {
   Table,
   TableBody,
@@ -7,7 +7,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/molecules/table';
+} from '@/components/ui/table';
 
 type GroupTableHeader = {
   title: string;

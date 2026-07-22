@@ -23,10 +23,10 @@ import {
 import type { ErrorResponse } from '@/libs/api';
 import { getErrorsObject } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import Container from '@/molecules/container';
-import Flex from '@/molecules/flex';
-import PageHeading from '@/molecules/page-heading';
-import Separator from '@/molecules/separator';
+import Container from '@/components/ui/container';
+import Flex from '@/components/ui/flex';
+import PageHeading from '@/components/ui/page-heading';
+import { Separator } from '@/components/ui/separator';
 import {
   mapProductBasicsFromProduct,
   ProductBasicsFormSchema,

@@ -2,12 +2,12 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router';
 
 import DropdownButton from '@/components/dropdown-button';
+import Button from '@/components/ui/button';
 import { BulkEditFormProvider, useBulkEditForm } from '@/contexts/bulk-edit-form-context';
 import { LayoutIcon } from '@/icons';
-import Badge from '@/molecules/badge';
-import Button from '@/molecules/button';
-import FullPageContainer from '@/molecules/full-page-container';
-import PageHeading from '@/molecules/page-heading';
+import Badge from '@/components/ui/badge';
+import FullPageContainer from '@/components/ui/full-page-container';
+import PageHeading from '@/components/ui/page-heading';
 import { useBulkVariantsQuery, useUpdateBulkVariantsMutation } from '@/services/bulk-edit';
 import type { MediaRef } from '@/types';
 import { __ } from '@/wpi18n';
@@ -57,8 +57,8 @@ const BulkEditPage = () => {
         hasBack
         noMargin
         buttonProps={{
-          type: 'outlined',
-          size: 'small',
+          variant: 'outline',
+          size: 'sm',
         }}
         actions={
           <>
@@ -78,17 +78,19 @@ const BulkEditPage = () => {
               }
             />
             <Button
-              text={__('Cancel', 'kirki-ecommerce')}
-              type="secondary"
+              variant="secondary"
+              size="sm"
               onClick={() => window.history.back()}
-              size="small"
-            />
+            >
+              {__('Cancel', 'kirki-ecommerce')}
+            </Button>
             <Button
-              text={__('Save', 'kirki-ecommerce')}
-              type="primary"
+              variant="primary"
+              size="sm"
               onClick={handleProductBulkSave}
-              size="small"
-            />
+            >
+              {__('Save', 'kirki-ecommerce')}
+            </Button>
           </>
         }
       >

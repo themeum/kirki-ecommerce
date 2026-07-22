@@ -5,8 +5,8 @@ import GroupOptionCard from '@/components/group-option-card';
 import { Card } from '@/components/ui/card';
 import { CLASS_PREFIX } from '@/conf';
 import { InfoIcon, IncreaseIcon } from '@/icons';
-import Flex from '@/molecules/flex';
-import Text from '@/molecules/text';
+import Flex from '@/components/ui/flex';
+import Text from '@/components/ui/text';
 import { dispatchToastMessage, dateFormatter } from '@/pages/utils';
 import type { MultiCurrencySettingsFormValues } from '@/schemas/forms/multi-currency-settings-form';
 import {

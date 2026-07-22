@@ -14,8 +14,8 @@ import {
 } from '@/components/ui/select';
 import { CLASS_PREFIX } from '@/conf';
 import { ChevronDownIcon } from '@/icons';
-import Flex from '@/molecules/flex';
-import { TableCell, TableRow } from '@/molecules/table';
+import Flex from '@/components/ui/flex';
+import { TableCell, TableRow } from '@/components/ui/table';
 import { useProductForm } from '@/contexts/product-form-context';
 import type {
   AttributeValue,

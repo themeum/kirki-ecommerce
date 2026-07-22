@@ -1,7 +1,7 @@
 import type { CSSProperties, ReactNode } from 'react';
 
 import { ArrowDownUpFilled } from '@/icons';
-import Flex from '@/molecules/flex';
+import Flex from '@/components/ui/flex';
 import type { SortOrder } from '@/types';
 
 type SortableConfig = {

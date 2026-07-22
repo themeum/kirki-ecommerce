@@ -1,3 +1,10 @@
+.#{$class-prefix}-ui-checkbox-wrapper {
+  display: inline-flex;
+  align-items: center;
+  column-gap: var(--decom-spacing-2);
+  cursor: pointer;
+}
+
 .#{$class-prefix}-ui-checkbox {
   @include flexCenter();
   width: 16px;

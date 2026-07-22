@@ -1,15 +1,21 @@
-import { useEffect, useState, useRef, type CSSProperties, type ReactNode } from 'react';
+import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 
+import Button from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { CLASS_PREFIX } from '@/conf';
-import ActionGroup from '@/molecules/action-group';
-import Badge from '@/molecules/badge';
-import Button from '@/molecules/button';
-import Checkbox from '@/molecules/checkbox';
-import { DropdownMenuContent, DropdownMenuItem } from '@/molecules/dropdown';
-import Flex from '@/molecules/flex';
-import Label from '@/molecules/label';
-import Searchbox from '@/molecules/searchbox';
-import Separator from '@/molecules/separator';
+import ActionGroup from '@/components/ui/action-group';
+import Badge from '@/components/ui/badge';
+import Checkbox from '@/components/ui/checkbox';
+import Flex from '@/components/ui/flex';
+import Label from '@/components/ui/label';
+import Searchbox from '@/components/ui/searchbox';
+import { Separator } from '@/components/ui/separator';
 import type { LabelFieldProps, SelectOption, SelectState } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -60,7 +66,6 @@ const GroupSelect = (props: GroupSelectProps) => {
 
   const [selectedValues, setSelectedValues] = useState<GroupedValues>(valueArray);
   const [isOpen, setIsOpen] = useState(false);
-  const triggerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     setSelectedValues(valueArray);
@@ -72,10 +77,6 @@ const GroupSelect = (props: GroupSelectProps) => {
       onClose();
     }
     setIsOpen(false);
-  };
-
-  const handleTriggerClick = () => {
-    setIsOpen((prev) => !prev);
   };
 
   const handleOptionClick = (option: string | number, groupName: string) => {
@@ -100,25 +101,19 @@ const GroupSelect = (props: GroupSelectProps) => {
   };
 
   return (
-    <>
-      <div ref={triggerRef} onClick={handleTriggerClick}>
-        <Searchbox
-          leftIcon={leftIcon}
-          placeholder={placeholder}
-          label={label}
-          error={error}
-          helpText={helpText}
-        />
-      </div>
+    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+      <DropdownMenuTrigger asChild>
+        <div>
+          <Searchbox
+            leftIcon={leftIcon}
+            placeholder={placeholder}
+            label={label}
+            error={error}
+            helpText={helpText}
+          />
+        </div>
+      </DropdownMenuTrigger>
       <DropdownMenuContent
-        isOpen={isOpen}
-        triggerRef={triggerRef}
-        onClose={() => setIsOpen(false)}
-        isFullWidth={true}
-        position={{
-          bottom: true,
-          left: true,
-        }}
         style={{ paddingBottom: dropdownFooter ? '0' : '4px' }}
       >
         {dropdownHeader && (
@@ -129,26 +124,25 @@ const GroupSelect = (props: GroupSelectProps) => {
             <Separator marginTop={4} marginBottom={4} />
           </DropdownMenuItem>
         )}
-        {optionsArray.map((option, index) => (
-          <DropdownMenuItem
-            key={index}
-            leftIcon={option.icon}
-            state={
-              option?.heading || option.isRequired ? 'defaultSelected' : ''
-            }
-            onItemClick={() =>
-              handleOptionClick(option.value, String(option.group ?? ''))
-            }
-            checkboxField={checkboxField}
-          >
-            {option?.heading ? (
+        {optionsArray.map((option, index) =>
+          option?.heading ? (
+            <DropdownMenuLabel key={index}>
               <Label
                 text={String(option.heading)}
                 infoText={option?.infoText}
                 style={{ ...labelFontStyle, color: '#878593' }}
               />
-            ) : (
+            </DropdownMenuLabel>
+          ) : (
+            <DropdownMenuItem
+              key={index}
+              disabled={option.isRequired}
+              onSelect={() =>
+                handleOptionClick(option.value, String(option.group ?? ''))
+              }
+            >
               <Flex style={{ alignItems: 'center' }} gap={8}>
+                {option.icon}
                 {checkboxField ? (
                   <Checkbox
                     value={
@@ -175,9 +169,9 @@ const GroupSelect = (props: GroupSelectProps) => {
                   <Badge text={__('Required', 'kirki-ecommerce')} type="trashed" />
                 )}
               </Flex>
-            )}
-          </DropdownMenuItem>
-        ))}
+            </DropdownMenuItem>
+          ),
+        )}
         {dropdownFooter && (
           <Flex
             style={{
@@ -190,22 +184,24 @@ const GroupSelect = (props: GroupSelectProps) => {
           >
             <ActionGroup>
               <Button
-                type="secondary"
-                text={__('Cancel', 'kirki-ecommerce')}
-                size="small"
+                variant="secondary"
+                size="sm"
                 onClick={handleSelectionClose}
-              />
+              >
+                {__('Cancel', 'kirki-ecommerce')}
+              </Button>
               <Button
-                type="primary"
-                text={__('Add', 'kirki-ecommerce')}
-                size="small"
+                variant="primary"
+                size="sm"
                 onClick={handleSelectionClose}
-              />
+              >
+                {__('Add', 'kirki-ecommerce')}
+              </Button>
             </ActionGroup>
           </Flex>
         )}
       </DropdownMenuContent>
-    </>
+    </DropdownMenu>
   );
 };
 

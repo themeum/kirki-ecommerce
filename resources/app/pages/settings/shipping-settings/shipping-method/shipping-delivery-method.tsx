@@ -3,9 +3,9 @@ import { useSearchParams, useNavigate, useOutletContext } from 'react-router';
 import { toast } from 'sonner';
 
 import { TruckIcon, WeightIcon, StoreIcon } from '@/icons';
-import PageHeading from '@/molecules/page-heading';
-import Container from '@/molecules/container';
-import Flex from '@/molecules/flex';
+import PageHeading from '@/components/ui/page-heading';
+import Container from '@/components/ui/container';
+import Flex from '@/components/ui/flex';
 import PageNavbar from '@/components/page-navbar';
 import Button from '@/components/ui/button';
 import { Card } from '@/components/ui/card';

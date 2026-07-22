@@ -5,9 +5,9 @@ import HeaderActionsCard from '@/components/header-actions-card';
 import Button from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { EditPenIcon, LighteningIcon, TrashIcon } from '@/icons';
-import ActionGroup from '@/molecules/action-group';
-import Flex from '@/molecules/flex';
-import Text from '@/molecules/text';
+import ActionGroup from '@/components/ui/action-group';
+import Flex from '@/components/ui/flex';
+import Text from '@/components/ui/text';
 import { CLASS_PREFIX } from '@/conf';
 import { __, sprintf } from '@/wpi18n';
 

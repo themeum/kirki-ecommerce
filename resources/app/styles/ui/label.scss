@@ -10,6 +10,10 @@
     color: var(--decom-text-text-critical);
   }
 
+  &.#{$class-prefix}-ui-label--disabled {
+    opacity: 0.5;
+  }
+
   .#{$class-prefix}-ui-label-icon {
     @include flexCenter();
     display: inline-flex;

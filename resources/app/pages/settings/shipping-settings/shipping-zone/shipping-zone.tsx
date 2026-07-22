@@ -5,10 +5,10 @@ import {
   useNavigate,
 } from 'react-router';
 
-import Container from '@/molecules/container';
-import Flex from '@/molecules/flex';
-import PageHeading from '@/molecules/page-heading';
-import { TagManager } from '@/molecules/tag-manager';
+import Container from '@/components/ui/container';
+import Flex from '@/components/ui/flex';
+import PageHeading from '@/components/ui/page-heading';
+import TagManager from '@/components/tag-manager/tag-manager';
 import PageNavbar from '@/components/page-navbar';
 import Button from '@/components/ui/button';
 import { Card } from '@/components/ui/card';

@@ -1,16 +1,10 @@
-import type { ComponentProps } from 'react';
-
-import Flex from '@/molecules/flex';
-import Thumbnail from '@/molecules/thumbnail';
+import Flex from '@/components/ui/flex';
+import Thumbnail from '@/components/ui/thumbnail';
 
 type MediaItem = {
   id: number;
   url: string;
   alt: string;
-};
-
-type ThumbnailPreviewProps = ComponentProps<typeof Thumbnail> & {
-  border?: string;
 };
 
 const ThumbnailPreview = () => {
@@ -40,7 +34,7 @@ const ThumbnailPreview = () => {
   return (
     <Flex gap={16} style={{ alignItems: 'center' }}>
       <Thumbnail />
-      <Thumbnail {...({ border: 'dashed', src: '' } satisfies ThumbnailPreviewProps)} />
+      <Thumbnail src="" />
       <Thumbnail type="circle" />
       <Thumbnail size="small" />
       <Thumbnail size="small" objectFit="contain" src={media_items[0].url} />

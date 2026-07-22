@@ -9,7 +9,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { getErrorsObject, type ErrorResponse } from '@/libs/api';
-import { TagManager } from '@/molecules/tag-manager';
+import TagManager from '@/components/tag-manager/tag-manager';
 import { makeSuggestionList } from '@/pages/utils';
 import type { ProductRightPanelFormValues } from '@/schemas/forms/product-right-panel-form';
 import {

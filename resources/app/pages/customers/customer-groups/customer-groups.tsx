@@ -1,12 +1,19 @@
+import Button from '@/components/ui/button';
+import Input from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { CLASS_PREFIX } from '@/conf';
 import { ArrowDownUp, ListFilter } from '@/icons';
-import ActionGroup from '@/molecules/action-group';
-import Button from '@/molecules/button';
-import Card from '@/molecules/card';
-import Container from '@/molecules/container';
-import Flex from '@/molecules/flex';
-import Input from '@/molecules/input';
-import PageHeading from '@/molecules/page-heading';
-import { Select } from '@/molecules/select';
+import ActionGroup from '@/components/ui/action-group';
+import { Card } from '@/components/ui/card';
+import Container from '@/components/ui/container';
+import Flex from '@/components/ui/flex';
+import PageHeading from '@/components/ui/page-heading';
 import type { SelectOption } from '@/types';
 
 import CustomerGroupTable from '@/pages/customers/customer-groups/customer-group-table';
@@ -22,7 +29,11 @@ const CustomerGroups = () => {
       <PageHeading
         text="Manage Groups"
         type="primary"
-        actions={<Button type="primary" text="Create Group" size="small" />}
+        actions={
+          <Button variant="primary" size="sm">
+            Create Group
+          </Button>
+        }
         style={{ columnGap: '12px' }}
         hasBack
         sticky
@@ -31,24 +42,34 @@ const CustomerGroups = () => {
       <Container>
         <Card type="table">
           <Flex style={{ padding: '16px 12px' }}>
-            <Select
-              defaultValue="all"
-              optionsArray={selectOptions}
-              value="all"
-              type="secondary"
-            />
+            <Select defaultValue="all">
+              <SelectTrigger
+                className={`${CLASS_PREFIX}-ui-select-trigger--secondary`}
+              >
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {selectOptions.map((option) => (
+                  <SelectItem key={option.value} value={String(option.value)}>
+                    {option.title}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <ActionGroup>
-              <Select
-                placeholder="Date: This Month"
-                style={{ padding: '8px 16px' }}
-              />
-              <Button
-                type="outlined"
-                size="small"
-                text="Filter"
-                leftIcon={<ListFilter />}
-              />
-              <Button type="outlined" size="small" icon={<ArrowDownUp />} />
+              <Select disabled>
+                <SelectTrigger style={{ padding: '8px 16px' }}>
+                  <SelectValue placeholder="Date: This Month" />
+                </SelectTrigger>
+                <SelectContent />
+              </Select>
+              <Button variant="outline" size="sm">
+                <ListFilter />
+                Filter
+              </Button>
+              <Button variant="outline" size="sm" aria-label="Sort">
+                <ArrowDownUp />
+              </Button>
               <Input placeholder="Search" />
             </ActionGroup>
           </Flex>

@@ -14,16 +14,16 @@ import {
 } from '@/components/ui/select';
 import { CLASS_PREFIX } from '@/conf';
 import { ChevronUpDownIcon, EditIcon } from '@/icons';
-import ActionGroup from '@/molecules/action-group';
-import Flex from '@/molecules/flex';
-import Separator from '@/molecules/separator';
+import ActionGroup from '@/components/ui/action-group';
+import Flex from '@/components/ui/flex';
+import { Separator } from '@/components/ui/separator';
 import {
   Table,
   TableBody,
   TableHead,
   TableHeader,
   TableRow,
-} from '@/molecules/table';
+} from '@/components/ui/table';
 import { useProductForm } from '@/contexts/product-form-context';
 import type { SelectOption } from '@/types';
 import { __ } from '@/wpi18n';

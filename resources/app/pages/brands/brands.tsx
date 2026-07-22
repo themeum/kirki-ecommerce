@@ -1,7 +1,7 @@
-import Card from '@/molecules/card';
-import Container from '@/molecules/container';
-import Flex from '@/molecules/flex';
-import PageHeading from '@/molecules/page-heading';
+import { Card } from '@/components/ui/card';
+import Container from '@/components/ui/container';
+import Flex from '@/components/ui/flex';
+import PageHeading from '@/components/ui/page-heading';
 import Pagination from '@/components/pagination';
 import { useListParams } from '@/hooks';
 import { useBrandsQuery } from '@/services/brand';

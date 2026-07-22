@@ -1,13 +1,13 @@
 import { useEffect, useState, type ReactNode } from 'react';
 
 import GroupSelect from '@/components/group-select';
+import Button from '@/components/ui/button';
 import { CLASS_PREFIX } from '@/conf';
 import { MinusIcon } from '@/icons';
-import Button from '@/molecules/button';
-import Card from '@/molecules/card';
-import Flex from '@/molecules/flex';
-import Tag from '@/molecules/tag';
-import Text from '@/molecules/text';
+import { Card } from '@/components/ui/card';
+import Flex from '@/components/ui/flex';
+import Tag from '@/components/ui/tag';
+import Text from '@/components/ui/text';
 import type { SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -134,12 +134,13 @@ const GroupTagTable = (props: GroupTagTableProps) => {
                   >
                     {isEditable && (
                       <Button
-                        text={__('Clear all', 'kirki-ecommerce')}
-                        type="blank"
-                        size="small"
+                        variant="link"
+                        size="sm"
                         className={`${CLASS_PREFIX}-hover-visible`}
                         onClick={() => handleClearSingleGroup(groupName)}
-                      />
+                      >
+                        {__('Clear all', 'kirki-ecommerce')}
+                      </Button>
                     )}
                     {groupedValueData[groupName].map((tagName, innerIndex) => (
                       <Tag

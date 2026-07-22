@@ -6,7 +6,7 @@ import GroupOptionCard from '@/components/group-option-card';
 import { Card } from '@/components/ui/card';
 import { CLASS_PREFIX } from '@/conf';
 import { BoxIcon, ColorPaletteIcon } from '@/icons';
-import Flex from '@/molecules/flex';
+import Flex from '@/components/ui/flex';
 import { dispatchToastMessage } from '@/pages/utils';
 import { useAttributesQuery, useDeleteAttributeMutation } from '@/services/attribute';
 import type { Attribute } from '@/types';

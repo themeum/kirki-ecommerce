@@ -1,16 +1,11 @@
-import { useState, type ComponentProps } from 'react';
+import { useState } from 'react';
 
-import SelectInput from '@/molecules/select-input';
+import SelectInput from '@/components/ui/select-input';
 import type { SelectOption } from '@/types';
 
 type SelectInputValue = {
   value?: string | number;
   unit?: string | number;
-};
-
-type SelectInputPreviewProps = ComponentProps<typeof SelectInput> & {
-  placeholder?: string;
-  onClose?: () => void;
 };
 
 const SelectInputPreview = () => {
@@ -25,42 +20,22 @@ const SelectInputPreview = () => {
     { value: 'fr', title: 'fr' },
     { value: 'mm', title: 'mm' },
   ];
-  const defaultValue: SelectInputValue = {
-    value: '33',
-    unit: 'px',
-  };
-  const initialValue: SelectInputValue = {
+
+  const [currentValue, setCurrentValue] = useState<SelectInputValue>({
     value: '0',
     unit: 'px',
-  };
-
-  const [currentValue, setCurrentValue] = useState<SelectInputValue>(
-    initialValue || defaultValue,
-  );
-
-  const handleChange = (nextValue: SelectInputValue) => {
-    setCurrentValue(nextValue);
-    console.log(nextValue, 'value changed');
-  };
+  });
 
   return (
     <SelectInput
-      {...({
-        step: 5,
-        max: 20,
-        min: -11,
-        label: 'Select Input',
-        value: currentValue,
-        placeholder: 'Select',
-        optionsArray: optionsArray,
-        onChange: (nextValue: SelectInputValue) => {
-          handleChange(nextValue);
-        },
-        onClose: () => {
-          console.log('dropdown closed');
-        },
-        error: 'There is an error',
-      } satisfies SelectInputPreviewProps)}
+      step={5}
+      max={20}
+      min={-11}
+      label="Select Input"
+      value={currentValue}
+      optionsArray={optionsArray}
+      onChange={setCurrentValue}
+      error="There is an error"
     />
   );
 };

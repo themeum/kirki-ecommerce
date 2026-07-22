@@ -13,11 +13,11 @@ import { CartIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { useUnsavedStatus } from '@/libs/unsaved-store';
-import ActionGroup from '@/molecules/action-group';
-import Container from '@/molecules/container';
-import Flex from '@/molecules/flex';
-import PageHeading from '@/molecules/page-heading';
-import Text from '@/molecules/text';
+import ActionGroup from '@/components/ui/action-group';
+import Container from '@/components/ui/container';
+import Flex from '@/components/ui/flex';
+import PageHeading from '@/components/ui/page-heading';
+import Text from '@/components/ui/text';
 import {
   CheckoutSettingsFormSchema,
   checkoutSettingsDefaultValues,

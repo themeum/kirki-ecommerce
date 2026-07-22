@@ -1,20 +1,28 @@
 import type {
+  ChangeEvent,
   ComponentType,
   Dispatch,
+  KeyboardEvent,
   MouseEvent,
   SetStateAction,
 } from 'react';
 import { useEffect, useState } from 'react';
 
 import ThumbnailSelector from '@/components/thumbnail-selector';
+import Input from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { useBulkEditForm } from '@/contexts/bulk-edit-form-context';
 import { CLASS_PREFIX } from '@/conf';
 import { useBulkEditList } from '@/hooks';
-import Checkbox from '@/molecules/checkbox';
-import Flex from '@/molecules/flex';
-import Input from '@/molecules/input';
-import { Select } from '@/molecules/select';
-import { TableCell, TableRow } from '@/molecules/table';
+import Checkbox from '@/components/ui/checkbox';
+import Flex from '@/components/ui/flex';
+import { TableCell, TableRow } from '@/components/ui/table';
 import { useAttributesQuery } from '@/services/attribute';
 import type { MediaRef, ProductVariant, UnitPriceValue } from '@/types';
 import { __ } from '@/wpi18n';
@@ -122,6 +130,19 @@ const SingleRow = (props: SingleRowProps) => {
     window.addEventListener('mouseup', handleMouseUp);
     return () => window.removeEventListener('mouseup', handleMouseUp);
   }, [selectionData]);
+
+  const handleInputEnterKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      setSelectionData(null);
+    }
+  };
+
+  const handleNumberInputChange = (
+    event: ChangeEvent<HTMLInputElement>,
+    fieldName: string,
+  ) => {
+    handleOnChange(parseFloat(event.target.value), fieldName);
+  };
 
   const handleOnChange = (value: unknown, fieldName: string) => {
     if (selectionData!.start === selectionData!.end) {
@@ -292,9 +313,9 @@ const SingleRow = (props: SingleRowProps) => {
           <Input
             value={currentVariation?.price ?? undefined}
             placeholder="--"
-            onChange={(value) => handleOnChange(value, 'price')}
-            onEnter={() => setSelectionData(null)}
-            invisible
+            onChange={(event) => handleNumberInputChange(event, 'price')}
+            onKeyDown={handleInputEnterKeyDown}
+            className={`${CLASS_PREFIX}-ui-input--invisible`}
             type="number"
           />
           <span
@@ -311,9 +332,9 @@ const SingleRow = (props: SingleRowProps) => {
         >
           <Input
             value={currentVariation?.sale_price ?? undefined}
-            onChange={(value) => handleOnChange(value, 'sale_price')}
-            onEnter={() => setSelectionData(null)}
-            invisible
+            onChange={(event) => handleNumberInputChange(event, 'sale_price')}
+            onKeyDown={handleInputEnterKeyDown}
+            className={`${CLASS_PREFIX}-ui-input--invisible`}
             type="number"
             placeholder="--"
           />
@@ -331,9 +352,11 @@ const SingleRow = (props: SingleRowProps) => {
         >
           <Input
             value={currentVariation?.cost_of_goods ?? undefined}
-            onChange={(value) => handleOnChange(value, 'cost_of_goods')}
-            onEnter={() => setSelectionData(null)}
-            invisible
+            onChange={(event) =>
+              handleNumberInputChange(event, 'cost_of_goods')
+            }
+            onKeyDown={handleInputEnterKeyDown}
+            className={`${CLASS_PREFIX}-ui-input--invisible`}
             type="number"
             placeholder="--"
           />
@@ -346,9 +369,10 @@ const SingleRow = (props: SingleRowProps) => {
       {selectedFields.includes('profit') && (
         <TableCell disabled>
           <Input
-            state="disabled"
+            disabled
+            readOnly
             value={calculateProfit('profit', currentVariation)}
-            invisible
+            className={`${CLASS_PREFIX}-ui-input--invisible`}
             placeholder="--"
           />
         </TableCell>
@@ -356,9 +380,10 @@ const SingleRow = (props: SingleRowProps) => {
       {selectedFields.includes('margin') && (
         <TableCell disabled>
           <Input
-            state="disabled"
+            disabled
+            readOnly
             value={calculateProfit('margin', currentVariation)}
-            invisible
+            className={`${CLASS_PREFIX}-ui-input--invisible`}
             placeholder="--"
           />
         </TableCell>
@@ -412,7 +437,8 @@ const SingleRow = (props: SingleRowProps) => {
         >
           <Input
             value={currentVariation?.sku ?? undefined}
-            invisible
+            readOnly
+            className={`${CLASS_PREFIX}-ui-input--invisible`}
             placeholder="--"
           />
           <span
@@ -449,10 +475,8 @@ const SingleRow = (props: SingleRowProps) => {
         >
           <Input
             value={currentVariation?.weight ?? undefined}
-            onChange={(value) => {
-              handleOnChange(value, 'weight');
-            }}
-            invisible
+            onChange={(event) => handleNumberInputChange(event, 'weight')}
+            className={`${CLASS_PREFIX}-ui-input--invisible`}
             placeholder="--"
             type="number"
           />
@@ -470,21 +494,20 @@ const SingleRow = (props: SingleRowProps) => {
         >
           <Select
             value={currentVariation?.weight_unit ?? undefined}
-            optionsArray={[
-              {
-                value: 'kg',
-                title: __('KG', 'kirki-ecommerce'),
-                fallback: true,
-              },
-              { value: 'g', title: __('G', 'kirki-ecommerce') },
-              { value: 'lb', title: __('LB', 'kirki-ecommerce') },
-              { value: 'oz', title: __('OZ', 'kirki-ecommerce') },
-            ]}
-            onChange={(value) => {
-              handleOnChange(value, 'weight_unit');
-            }}
-            invisible
-          />
+            onValueChange={(value) => handleOnChange(value, 'weight_unit')}
+          >
+            <SelectTrigger
+              className={`${CLASS_PREFIX}-ui-select-trigger--invisible`}
+            >
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="kg">{__('KG', 'kirki-ecommerce')}</SelectItem>
+              <SelectItem value="g">{__('G', 'kirki-ecommerce')}</SelectItem>
+              <SelectItem value="lb">{__('LB', 'kirki-ecommerce')}</SelectItem>
+              <SelectItem value="oz">{__('OZ', 'kirki-ecommerce')}</SelectItem>
+            </SelectContent>
+          </Select>
           <span
             className={isMaxIndex(index) ? `${CLASS_PREFIX}-grabber` : ''}
             onMouseDown={(e) => onGrabberMouseDown(e, 'weight_unit')}
@@ -517,9 +540,11 @@ const SingleRow = (props: SingleRowProps) => {
           {currentVariation?.track_inventory ? (
             <Input
               value={currentVariation?.available_quantity}
-              onChange={(value) => handleOnChange(value, 'available_quantity')}
-              onEnter={() => setSelectionData(null)}
-              invisible
+              onChange={(event) =>
+                handleNumberInputChange(event, 'available_quantity')
+              }
+              onKeyDown={handleInputEnterKeyDown}
+              className={`${CLASS_PREFIX}-ui-input--invisible`}
               type="number"
             />
           ) : (
@@ -535,9 +560,10 @@ const SingleRow = (props: SingleRowProps) => {
         <TableCell disabled>
           {currentVariation?.track_inventory ? (
             <Input
-              state="disabled"
+              disabled
+              readOnly
               value={currentVariation?.committed_quantity || 0}
-              invisible
+              className={`${CLASS_PREFIX}-ui-input--invisible`}
             />
           ) : (
             <span style={{ marginLeft: '12px' }}>_</span>
@@ -570,9 +596,11 @@ const SingleRow = (props: SingleRowProps) => {
           {currentVariation?.has_limit_per_order ? (
             <Input
               value={currentVariation?.max_per_order || 0}
-              onChange={(value) => handleOnChange(value, 'max_per_order')}
-              onEnter={() => setSelectionData(null)}
-              invisible
+              onChange={(event) =>
+                handleNumberInputChange(event, 'max_per_order')
+              }
+              onKeyDown={handleInputEnterKeyDown}
+              className={`${CLASS_PREFIX}-ui-input--invisible`}
               type="number"
             />
           ) : (
@@ -627,10 +655,21 @@ const SingleRow = (props: SingleRowProps) => {
         >
           {currentVariation?.charge_taxes ? (
             <Select
-              value={currentVariation?.tax_profile_id ?? undefined}
-              onChange={(value) => handleOnChange(value, 'tax_profile_id')}
-              invisible
-            />
+              value={
+                currentVariation?.tax_profile_id !== undefined &&
+                currentVariation?.tax_profile_id !== null
+                  ? String(currentVariation.tax_profile_id)
+                  : undefined
+              }
+              onValueChange={(value) => handleOnChange(value, 'tax_profile_id')}
+            >
+              <SelectTrigger
+                className={`${CLASS_PREFIX}-ui-select-trigger--invisible`}
+              >
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent />
+            </Select>
           ) : (
             <span style={{ marginLeft: '12px' }}>_</span>
           )}
@@ -647,16 +686,36 @@ const SingleRow = (props: SingleRowProps) => {
           className={getActiveState('shipping_profile_id')}
         >
           <Select
-            optionsArray={[
-              { value: '1', title: __('Heavy Weight', 'kirki-ecommerce') },
-              { value: '2', title: __('Fragile', 'kirki-ecommerce') },
-              { value: '3', title: __('Perishable', 'kirki-ecommerce') },
-              { value: '4', title: __('Flammable', 'kirki-ecommerce') },
-            ]}
-            value={currentVariation?.shipping_profile_id ?? undefined}
-            onChange={(value) => handleOnChange(value, 'shipping_profile_id')}
-            invisible
-          />
+            value={
+              currentVariation?.shipping_profile_id !== undefined &&
+              currentVariation?.shipping_profile_id !== null
+                ? String(currentVariation.shipping_profile_id)
+                : undefined
+            }
+            onValueChange={(value) =>
+              handleOnChange(value, 'shipping_profile_id')
+            }
+          >
+            <SelectTrigger
+              className={`${CLASS_PREFIX}-ui-select-trigger--invisible`}
+            >
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="1">
+                {__('Heavy Weight', 'kirki-ecommerce')}
+              </SelectItem>
+              <SelectItem value="2">
+                {__('Fragile', 'kirki-ecommerce')}
+              </SelectItem>
+              <SelectItem value="3">
+                {__('Perishable', 'kirki-ecommerce')}
+              </SelectItem>
+              <SelectItem value="4">
+                {__('Flammable', 'kirki-ecommerce')}
+              </SelectItem>
+            </SelectContent>
+          </Select>
           <span
             className={isMaxIndex(index) ? `${CLASS_PREFIX}-grabber` : ''}
             onMouseDown={(e) => onGrabberMouseDown(e, 'shipping_profile_id')}

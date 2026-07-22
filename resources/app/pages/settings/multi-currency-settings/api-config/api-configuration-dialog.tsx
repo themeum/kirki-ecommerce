@@ -18,9 +18,9 @@ import {
 import { Form } from '@/components/ui/form';
 import { CLASS_PREFIX } from '@/conf';
 import { ConfigureKeyIcon } from '@/icons';
-import ActionGroup from '@/molecules/action-group';
-import Flex from '@/molecules/flex';
-import Text from '@/molecules/text';
+import ActionGroup from '@/components/ui/action-group';
+import Flex from '@/components/ui/flex';
+import Text from '@/components/ui/text';
 import {
   ApiConfigurationFormSchema,
   apiConfigurationDefaultValues,

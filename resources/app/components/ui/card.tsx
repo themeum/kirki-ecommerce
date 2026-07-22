@@ -1,21 +1,63 @@
-import { forwardRef, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  type CSSProperties,
+  type HTMLAttributes,
+  type MouseEvent,
+  type ReactNode,
+} from 'react';
 import classNames from 'classnames';
+import { useNavigate } from 'react-router';
 
 import { CLASS_PREFIX } from '@/conf';
+import type { CardType } from '@/types';
 
-const Card = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
-  (props, ref) => {
-    const { className, ...rest } = props;
+type CardVariantType = CardType | 'large' | 'tartiary' | 'navbar';
 
-    return (
-      <div
-        ref={ref}
-        className={classNames(`${CLASS_PREFIX}-ui-card`, className)}
-        {...rest}
-      />
-    );
-  },
-);
+type CardProps = Omit<HTMLAttributes<HTMLDivElement>, 'children'> & {
+  children?: ReactNode;
+  type?: CardVariantType;
+  link?: string | false;
+  style?: CSSProperties;
+};
+
+const Card = forwardRef<HTMLDivElement, CardProps>((props, ref) => {
+  const {
+    children,
+    className,
+    style,
+    type = 'default',
+    link = false,
+    onClick,
+    ...rest
+  } = props;
+  const navigate = useNavigate();
+
+  const handleClick = (event: MouseEvent<HTMLDivElement>) => {
+    if (link) {
+      navigate(link);
+    }
+    onClick?.(event);
+  };
+
+  return (
+    <div
+      ref={ref}
+      className={classNames(
+        `${CLASS_PREFIX}-ui-card`,
+        `${CLASS_PREFIX}-ui-card--${type}`,
+        className,
+      )}
+      style={{
+        ...style,
+        cursor: link ? 'pointer' : style?.cursor,
+      }}
+      onClick={handleClick}
+      {...rest}
+    >
+      {children}
+    </div>
+  );
+});
 
 Card.displayName = 'Card';
 

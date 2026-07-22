@@ -1,8 +1,8 @@
+import Button from '@/components/ui/button';
 import { CLASS_PREFIX } from '@/conf';
 import { useListParams } from '@/hooks';
-import Button from '@/molecules/button';
-import Capsule from '@/molecules/capsule';
-import Flex from '@/molecules/flex';
+import Capsule from '@/components/ui/capsule';
+import Flex from '@/components/ui/flex';
 import { makeSuggestionList } from '@/pages/utils';
 import { useBrandsQuery } from '@/services/brand';
 import { useCategoriesQuery } from '@/services/category';
@@ -121,12 +121,9 @@ const ProductTableFilterAction = () => {
           multiple={key === 'category_ids'}
         />
       ))}
-      <Button
-        text={__('Clear All', 'kirki-ecommerce')}
-        onClick={handleClearAll}
-        type="link"
-        size="small"
-      />
+      <Button variant="link" size="sm" onClick={handleClearAll}>
+        {__('Clear All', 'kirki-ecommerce')}
+      </Button>
     </Flex>
   );
 };
