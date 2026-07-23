@@ -12,7 +12,6 @@ import {
 import * as AccordionPrimitive from '@radix-ui/react-accordion';
 import { ChevronDown } from 'lucide-react';
 
-import Flex from '@/components/ui/flex';
 import { Separator } from '@/components/ui/separator';
 import { theme } from '@/theme';
 import { fontGeneralSettings, scoped } from '@/theme/mixins';
@@ -140,24 +139,27 @@ const AccordionTrigger = forwardRef<
   ElementRef<typeof AccordionPrimitive.Trigger>,
   AccordionTriggerProps
 >((props, ref) => {
-  const { children, css: cssProp, gap = 8, ...rest } = props;
+  const { children, css: cssProp, gap = 8, style, ...rest } = props;
   const { rightActions } = useContext(AccordionContext);
 
   return (
-    <AccordionPrimitive.Header css={styles.header}>
+    <AccordionPrimitive.Header
+      css={[styles.header, cssProp]}
+      style={{ ...style, columnGap: `${gap}px` }}
+    >
       <AccordionPrimitive.Trigger
         ref={ref}
-        css={[styles.trigger, cssProp]}
+        css={styles.trigger}
         {...rest}
       >
         <div css={styles.title}>{children}</div>
-        <Flex gap={gap} style={{ alignItems: 'center' }}>
-          <span css={styles.chevron} data-accordion-chevron="">
-            <ChevronDown size={16} aria-hidden="true" />
-          </span>
-          {rightActions}
-        </Flex>
+        <span css={styles.chevron} data-accordion-chevron="">
+          <ChevronDown size={16} aria-hidden="true" />
+        </span>
       </AccordionPrimitive.Trigger>
+      {rightActions ? (
+        <div css={styles.rightActions}>{rightActions}</div>
+      ) : null}
     </AccordionPrimitive.Header>
   );
 });
@@ -221,25 +223,32 @@ const styles = {
   header: scoped({
     margin: 0,
     display: 'flex',
+    alignItems: 'center',
+    width: '100%',
+    boxSizing: 'border-box',
+    padding: `${theme.spacing['2xl']} ${theme.spacing.none}`,
+    '&:hover [data-accordion-chevron], &:focus-within [data-accordion-chevron]':
+      {
+        visibility: 'visible',
+      },
   }),
   trigger: scoped({
     all: 'unset',
     boxSizing: 'border-box',
-    width: '100%',
+    flex: 1,
+    minWidth: 0,
     cursor: 'pointer',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
     fontWeight: 500,
-    padding: `${theme.spacing['2xl']} ${theme.spacing.none}`,
     '&:focus-visible': {
       outline: `2px solid ${theme.colors.background.fillBrand}`,
       outlineOffset: '2px',
     },
-    '&[data-state="open"] [data-accordion-chevron], &:hover [data-accordion-chevron], &:focus-visible [data-accordion-chevron]':
-      {
-        visibility: 'visible',
-      },
+    '&[data-state="open"] [data-accordion-chevron]': {
+      visibility: 'visible',
+    },
     '&[data-state="open"] [data-accordion-chevron] svg': {
       transform: 'rotate(180deg)',
     },
@@ -247,6 +256,11 @@ const styles = {
   title: scoped({
     flex: 1,
     minWidth: 0,
+  }),
+  rightActions: scoped({
+    display: 'flex',
+    alignItems: 'center',
+    flexShrink: 0,
   }),
   chevron: scoped({
     display: 'inline-flex',
