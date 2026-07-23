@@ -11,7 +11,13 @@ const ActionGroup = forwardRef<HTMLDivElement, ActionGroupProps>(
     const { css: cssProp, gap = 8, children, ...rest } = props;
 
     return (
-      <Flex ref={ref} gap={gap} css={css(styles.root, cssProp)} {...rest}>
+      <Flex
+        ref={ref}
+        gap={gap}
+        data-action-group="true"
+        css={css(styles.root, cssProp)}
+        {...rest}
+      >
         {children}
       </Flex>
     );

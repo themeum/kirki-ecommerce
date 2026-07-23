@@ -1,7 +1,6 @@
 import { useState } from 'react';
 
 import { useBulkEditForm } from '@/contexts/bulk-edit-form-context';
-import { CLASS_PREFIX } from '@/conf';
 import {
   Table,
   TableBody,
@@ -43,7 +42,7 @@ const BulkEditTable = ({ selectedFields }: BulkEditTableProps) => {
               <TableHead
                 alignment={header?.alignment}
                 key={index}
-                className={index === 0 ? `${CLASS_PREFIX}-sticky-cell` : ''}
+                data-sticky-cell={index === 0 ? 'true' : undefined}
               >
                 {header.title}
               </TableHead>

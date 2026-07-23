@@ -195,7 +195,7 @@ const styles = {
     },
     '& tbody tr:hover, & tbody tr[data-active="true"]': {
       backgroundColor: 'hsla(240, 20%, 98%, 0.5)',
-      '& .kirki-ecom-ui-action-group, & .kirki-ecom-action-group': {
+      '& [data-action-group="true"]': {
         visibility: 'visible',
       },
     },
@@ -237,7 +237,7 @@ const styles = {
         borderLeftColor: 'transparent',
         backgroundColor: theme.colors.background.fill,
         zIndex: 10,
-        '&.kirki-ecom-sticky-cell': {
+        '&[data-sticky-cell="true"]': {
           position: 'sticky',
           left: 0,
           zIndex: 11,
@@ -256,7 +256,7 @@ const styles = {
         padding: theme.spacing.xs,
         minWidth: '110px',
         overflow: 'visible',
-        '&.kirki-ecom-sticky-cell': {
+        '&[data-sticky-cell="true"]': {
           position: 'sticky',
           left: 0,
           background: theme.colors.background.fill,
@@ -268,7 +268,7 @@ const styles = {
         '&:first-child': {
           paddingLeft: theme.spacing.lg,
         },
-        '& .kirki-ecom-grabber': {
+        '& [data-grabber="true"]': {
           position: 'absolute',
           bottom: '-7px',
           right: '-4px',
@@ -282,40 +282,40 @@ const styles = {
           zIndex: 10,
           visibility: 'hidden',
         },
-        '&.kirki-ecom-selected-cell': {
+        '&[data-bulk-cell="selected"]': {
           backgroundColor: theme.colors.background.fillSecondary,
           borderLeftColor: theme.colors.background.fillBrand,
           borderRightColor: theme.colors.background.fillBrand,
-          '&.kirki-ecom-selected-min': {
+          '&[data-bulk-edge="min"]': {
             borderBottomColor: theme.colors.background.fillBrand,
           },
-          '&.kirki-ecom-selected-max': {
+          '&[data-bulk-edge="max"]': {
             borderTopColor: theme.colors.background.fillBrand,
           },
-          '& .kirki-ecom-grabber': {
+          '& [data-grabber="true"]': {
             visibility: 'visible',
             zIndex: 10,
           },
         },
-        '&.kirki-ecom-fill-cell': {
+        '&[data-bulk-cell="fill"]': {
           backgroundColor: theme.colors.background.surfaceAlt,
           borderLeftStyle: 'dashed',
           borderRightStyle: 'dashed',
           borderLeftColor: theme.colors.border.hover,
           borderRightColor: theme.colors.border.hover,
-          '&.kirki-ecom-fill-min': {
+          '&[data-bulk-edge="min"]': {
             borderBottomStyle: 'dashed',
             borderBottomColor: theme.colors.border.hover,
           },
-          '&.kirki-ecom-fill-max': {
+          '&[data-bulk-edge="max"]': {
             borderTopStyle: 'dashed',
             borderTopColor: theme.colors.border.hover,
           },
-          '& .kirki-ecom-grabber': {
+          '& [data-grabber="true"]': {
             visibility: 'visible',
           },
         },
-        '&.kirki-ecom-base-cell': {
+        '&[data-bulk-edge="base"]': {
           border: `1px solid ${theme.colors.background.fillBrand}`,
         },
         '&[data-disabled="true"]': {
@@ -346,7 +346,7 @@ const styles = {
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
-    '& .kirki-ecom-ui-action-group, & .kirki-ecom-action-group': {
+    '& [data-action-group="true"]': {
       gap: theme.spacing.md,
       display: 'inline-flex',
       visibility: 'hidden',
