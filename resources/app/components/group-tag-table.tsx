@@ -5,7 +5,7 @@ import Button from '@/components/ui/button';
 import { MinusIcon } from '@/icons';
 import { Card } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
-import Tag from '@/components/ui/tag';
+import Chip from '@/components/ui/chip';
 import Text from '@/components/ui/text';
 import { scoped } from '@/theme/mixins';
 import type { SelectOption } from '@/types';
@@ -157,7 +157,7 @@ const GroupTagTable = (props: GroupTagTableProps) => {
                       </Button>
                     )}
                     {groupedValueData[groupName].map((tagName, innerIndex) => (
-                      <Tag
+                      <Chip
                         text={String(tagName)}
                         key={innerIndex}
                         closeIcon={
@@ -166,7 +166,7 @@ const GroupTagTable = (props: GroupTagTableProps) => {
                             <MinusIcon />
                           ) : null
                         }
-                        onTagRemove={() =>
+                        onRemove={() =>
                           handleDeleteSingleTag(tagName, groupName)
                         }
                       />

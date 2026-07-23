@@ -8,7 +8,6 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { PlusIcon } from '@/icons';
 import { getErrorsObject, type ErrorResponse } from '@/libs/api';
 import TagManager from '@/components/tag-manager/tag-manager';
 import { getSearchedValue } from '@/pages/settings/utils';
@@ -188,9 +187,8 @@ const AddOrEditVariation = () => {
                 suggestions={variationSuggestionArray}
                 selectedTags={formValues as SelectOption[]}
                 value={searchedText}
-                searchKey={formValues as unknown as string}
                 onTagAdd={(value) => handleVariationAdd(value)}
-                btnText="Add Variation"
+                addItemLabel={__('Add Variation', 'kirki-ecommerce')}
                 onSearchChange={(searchValue) => handleSearchChange(searchValue)}
                 onNewTagAdd={(value) =>
                   type === 'color'
@@ -198,8 +196,6 @@ const AddOrEditVariation = () => {
                     : handleNewVariationAdd(value)
                 }
                 onTagRemove={(value) => handleVariationRemove(value)}
-                leftIcon={<PlusIcon />}
-                type="list"
               />
             </FormControl>
             <FormMessage />

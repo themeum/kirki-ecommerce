@@ -43,7 +43,11 @@ const Settings = () => {
       <Container size="sm">
         <Card type="shadow" css={styles.pageCard}>
           <Flex direction="column" gap={24}>
-            <Searchbox />
+            <Searchbox
+              onChange={() => {
+                // @todo: will be implemented later
+              }}
+            />
             {renderSettingsSection('STORE MANAGEMENT', storeManagementSettings)}
             {renderSettingsSection(
               'BUSINESS OPERATION',

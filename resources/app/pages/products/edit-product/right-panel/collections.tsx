@@ -101,24 +101,24 @@ const Collections = () => {
         <FormItem>
           <FormLabel>{__('Collections', 'kirki-ecommerce')}</FormLabel>
           <FormControl>
-            <TagManager
-              selectedTags={selectedTags || []}
-              suggestions={suggestionArray || []}
-              btnText={__('Add Collection', 'kirki-ecommerce')}
-              error={Boolean(fieldState.error)}
-              onTagAdd={(tag) => {
-                handleAddTag(tag);
-              }}
-              onTagRemove={(tag) => {
-                handleTagRemove(tag);
-              }}
-              onNewTagAdd={(tagTitle) => {
-                handleAddNewTag(tagTitle);
-              }}
-              onSearchChange={(searchText) => {
-                handleSearchChange(searchText);
-              }}
-            />
+              <TagManager
+                selectedTags={selectedTags || []}
+                suggestions={suggestionArray || []}
+                addItemLabel={__('Add Collection', 'kirki-ecommerce')}
+                error={Boolean(fieldState.error)}
+                onTagAdd={(tag) => {
+                  handleAddTag(tag);
+                }}
+                onTagRemove={(tag) => {
+                  handleTagRemove(tag);
+                }}
+                onNewTagAdd={(tagTitle) => {
+                  handleAddNewTag(tagTitle);
+                }}
+                onSearchChange={(searchText) => {
+                  handleSearchChange(searchText);
+                }}
+              />
           </FormControl>
           <FormMessage />
         </FormItem>

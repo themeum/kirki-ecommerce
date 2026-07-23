@@ -47,7 +47,12 @@ const OrderTableAction = () => {
         <Button variant="outline" size="sm" aria-label="Sort">
           <ArrowDownUp />
         </Button>
-        <Searchbox placeholder="Search" />
+        <Searchbox
+          placeholder="Search"
+          onChange={() => {
+            // @todo: will be implemented later
+          }}
+        />
       </ActionGroup>
     </Flex>
   );

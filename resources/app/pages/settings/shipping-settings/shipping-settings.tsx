@@ -13,10 +13,10 @@ import { Form } from '@/components/ui/form';
 import { getErrorsObject, type ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { useUnsavedStatus } from '@/libs/unsaved-store';
+import Chip from '@/components/ui/chip';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import PageHeading from '@/components/ui/page-heading';
-import TagManager from '@/components/tag-manager/tag-manager';
 import { normalizeErrors } from '@/pages/utils';
 import {
   ShippingSettingsFormSchema,
@@ -325,16 +325,23 @@ const ShippingSettings = () => {
                         variant="shipping"
                         state={item?.is_enabled}
                       >
-                        <TagManager
-                          showInputField={false}
-                          selectedTags={
+                        <Flex
+                          gap={8}
+                          style={{ flexWrap: 'wrap', rowGap: '8px' }}
+                        >
+                          {(
                             getSelectedRegionTags(
                               item?.regions,
                               countryList as CountryWithStates[] | null,
                             ) as unknown as SelectOption[]
-                          }
-                          showRemoveIcon={false}
-                        />
+                          ).map((tag, index) => (
+                            <Chip
+                              key={`${tag.value}-${index}`}
+                              text={tag.title}
+                              color={tag.color}
+                            />
+                          ))}
+                        </Flex>
                         {getShippingMethodData(item?.id).length > 0 && (
                           <ShippingMethod
                             from={'edit_zone'}

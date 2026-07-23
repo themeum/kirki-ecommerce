@@ -285,8 +285,8 @@ const ShippingZonePage = () => {
                   'kirki-ecommerce',
                 )}
                 readOnly
+                hasAddBtn={false}
                 onClick={() => setOpenPopup(true)}
-                showSuggestionDropdown={false}
                 selectedTags={
                   getSelectedRegionTags(
                     selectedRegion,

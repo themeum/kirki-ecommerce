@@ -16,7 +16,7 @@ const DEFAULT_EXPORTS = [
   'thumbnail',
   'toggle-button',
   'progressbar',
-  'tag',
+  'chip',
   'placeholder',
   'tooltip',
   'heading',

@@ -16,8 +16,8 @@ import { ColorPaletteIcon, ListIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import ActionGroup from '@/components/ui/action-group';
+import Combobox from '@/components/ui/combobox';
 import Flex from '@/components/ui/flex';
-import Searchbox from '@/components/ui/searchbox';
 import { useProductForm } from '@/contexts/product-form-context';
 import {
   ProductAttributeFormSchema,
@@ -156,17 +156,18 @@ const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
     }
   };
 
-  const handleAttributeSelect = (v: SelectOption) => {
-    form.setValue('name', v.title, { shouldDirty: true });
-    form.setValue('id', v.value as number, { shouldDirty: true });
+  const handleAttributeSelect = (attributeValue: string) => {
+    const selected = attributeSuggestionArray.find(
+      (item) => String(item.value) === attributeValue,
+    );
+    if (!selected) {
+      return;
+    }
+
+    form.setValue('name', selected.title, { shouldDirty: true });
+    form.setValue('id', selected.value as number, { shouldDirty: true });
     form.setValue('type', type, { shouldDirty: true });
     form.setValue('values', [], { shouldDirty: true });
-    form.clearErrors(['id', 'name']);
-  };
-
-  const handleAttributeSearchChange = (v: string) => {
-    form.setValue('name', v, { shouldDirty: true });
-    form.setValue('type', type, { shouldDirty: true });
     form.clearErrors(['id', 'name']);
   };
 
@@ -189,27 +190,6 @@ const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
     } catch (error) {
       applyServerErrors(form, error as ErrorResponse);
     }
-  };
-
-  const handleClearAttributeName = () => {
-    const isListed = attributeSuggestionArray.some(
-      (item) => item.value === formData?.id,
-    );
-    if (!isListed) {
-      const clearedData: AttributeSuggestion = {
-        value: formData?.id as number,
-        title: formData?.name || '',
-        type: type as string,
-      };
-      setAttributeSuggestionArray((prev) => [...prev, clearedData]);
-    }
-    form.reset({
-      id: undefined,
-      name: '',
-      slug: undefined,
-      type,
-      values: [],
-    });
   };
 
   const handleOnClose = () => {
@@ -279,40 +259,54 @@ const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
             <FormField
               control={form.control}
               name="name"
-              render={({ field, fieldState }) => (
+              render={({ fieldState }) => (
                 <FormItem>
                   <FormLabel>
                     {__('Variation Name', 'kirki-ecommerce')}
                   </FormLabel>
                   <FormControl>
-                    <Searchbox
+                    <Combobox
                       error={Boolean(
                         fieldState.error ||
                           form.formState.errors.id ||
                           form.formState.errors.name,
                       )}
-                      value={field.value || ''}
+                      value={
+                        formData?.id != null ? String(formData.id) : undefined
+                      }
+                      options={[
+                        ...(formData?.id != null && formData?.name
+                          ? [
+                              {
+                                label: formData.name,
+                                value: String(formData.id),
+                              },
+                            ]
+                          : []),
+                        ...attributeSuggestionArray
+                          .filter(
+                            (item) => String(item.value) !== String(formData?.id),
+                          )
+                          .map((item) => ({
+                            label: item.title,
+                            value: String(item.value),
+                          })),
+                      ]}
                       placeholder={__(
                         'e.g. Size or Material',
                         'kirki-ecommerce',
                       )}
-                      onChange={(value) =>
-                        handleAttributeSearchChange(String(value))
+                      searchPlaceholder={__(
+                        'e.g. Size or Material',
+                        'kirki-ecommerce',
+                      )}
+                      creatable
+                      addItemLabel={__('Add Attribute', 'kirki-ecommerce')}
+                      onChange={(nextValue) =>
+                        handleAttributeSelect(String(nextValue))
                       }
-                      hasIcon={false}
-                      suggestionArray={attributeSuggestionArray}
-                      onOptionClick={(value) => handleAttributeSelect(value)}
-                      onEnter={(value) => handleNewAttributeAdd(String(value))}
-                      onNewOptionAdd={(value) =>
-                        handleNewAttributeAdd(String(value))
-                      }
-                      hasAddBtn
-                      btnText="Add Attribute"
-                      onClearInput={
-                        field.value ? handleClearAttributeName : undefined
-                      }
-                      readOnly={!!formData?.id}
-                      state={formData?.id ? 'disabled' : ''}
+                      onAddItem={(query) => handleNewAttributeAdd(query)}
+                      disabled={!!formData?.id}
                     />
                   </FormControl>
                   <FormMessage />

@@ -22,7 +22,7 @@ import { Card } from '@/components/ui/card';
 import { DragIcon, EditIcon, PlusIcon, TrashIcon } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
-import Tag from '@/components/ui/tag';
+import Chip from '@/components/ui/chip';
 import Text from '@/components/ui/text';
 import { useProductForm } from '@/contexts/product-form-context';
 import { flexCenter, scoped } from '@/theme/mixins';
@@ -107,7 +107,7 @@ const SortableCard = ({
                 }}
               >
                 {(item?.values || []).map((variant, index) => (
-                  <Tag
+                  <Chip
                     gap={6}
                     key={index}
                     text={variant?.value}

@@ -205,7 +205,6 @@ const CustomerDetails = () => {
                   label={__('Tags', 'kirki-ecommerce')}
                   placeholder={__('i.e VIP, Wholsale, Local', 'kirki-ecommerce')}
                   hasAddBtn={false}
-                  hasSearchIcon={false}
                   suggestions={[]}
                 />
               </CardContent>
