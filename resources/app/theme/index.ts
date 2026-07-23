@@ -260,35 +260,36 @@ const theme = {
     },
   },
   spacing: {
-    none: '0',
-    xxs: '0.125rem',
-    xs: '0.25rem',
-    sm: '0.375rem',
-    md: '0.5rem',
-    base: '0.625rem',
-    lg: '0.75rem',
-    xl: '0.875rem',
-    '2xl': '1rem',
-    '3xl': '1.25rem',
-    '4xl': '1.5rem',
-    '5xl': '1.75rem',
-    '6xl': '2rem',
-    '7xl': '2.25rem',
-    '8xl': '2.5rem',
-    '9xl': '2.75rem',
-    '10xl': '3rem',
+    none: '0', // 0px
+    xxs: '0.125rem', // 2px
+    xs: '0.25rem', // 4px
+    sm: '0.375rem', // 6px
+    md: '0.5rem', // 8px
+    base: '0.625rem', // 10px
+    lg: '0.75rem', // 12px
+    xl: '0.875rem', // 14px
+    '2xl': '1rem', // 16px
+    '3xl': '1.25rem', // 20px
+    '4xl': '1.5rem', // 24px
+    '5xl': '1.75rem', // 28px
+    '6xl': '2rem', // 32px
+    '7xl': '2.25rem', // 36px
+    '8xl': '2.5rem', // 40px
+    '9xl': '2.75rem', // 44px
+    '10xl': '3rem', // 48px
   },
   radius: {
-    none: '0',
-    sm: '0.25rem',
-    md: '0.375rem',
-    lg: '0.5rem',
-    xl: '0.75rem',
+    none: '0', // 0px
+    sm: '0.25rem', // 4px
+    md: '0.375rem', // 6px
+    lg: '0.5rem', // 8px
+    xl: '0.75rem', // 12px
     full: '9999px',
   },
 } as const;
 
 type AppTheme = typeof theme;
 
+export { CSS_VAR_PREFIX, getCssVarName, PRIMITIVE_CSS_VAR_KEYS, theme };
 export type { AppTheme, PrimitiveColorKey };
-export { theme, getCssVarName, CSS_VAR_PREFIX, PRIMITIVE_CSS_VAR_KEYS };
+

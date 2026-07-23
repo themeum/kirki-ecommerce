@@ -1,3 +1,5 @@
+import { css, type SerializedStyles } from '@emotion/react';
+import { Search } from 'lucide-react';
 import {
   forwardRef,
   useEffect,
@@ -7,8 +9,6 @@ import {
   type KeyboardEvent,
   type RefObject,
 } from 'react';
-import { type SerializedStyles } from '@emotion/react';
-import { Search } from 'lucide-react';
 
 import {
   InputGroup,
@@ -16,6 +16,7 @@ import {
   InputGroupInput,
 } from '@/components/ui/input-group';
 import Label from '@/components/ui/label';
+import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
 import type { InputState } from '@/types';
 import { __ } from '@/wpi18n';
@@ -67,10 +68,10 @@ function debounce<Args extends unknown[]>(
 const Searchbox = forwardRef<HTMLInputElement, SearchboxProps>((props, ref) => {
   const {
     value,
-    onChange = () => {},
-    onClick = () => {},
-    onEnter = () => {},
-    onBlur = () => {},
+    onChange = () => { },
+    onClick = () => { },
+    onEnter = () => { },
+    onBlur = () => { },
     style = {},
     css: cssProp,
     label,
@@ -118,7 +119,7 @@ const Searchbox = forwardRef<HTMLInputElement, SearchboxProps>((props, ref) => {
       <InputGroup
         error={Boolean(error)}
         disabled={isDisabled}
-        css={cssProp}
+        css={css(styles.group, cssProp)}
       >
         <InputGroupInput
           type={searchValue ? 'text' : 'search'}
@@ -147,5 +148,12 @@ export default Searchbox;
 const styles = {
   root: scoped({
     width: '100%',
+  }),
+  group: scoped({
+    minHeight: theme.spacing['6xl'],
+    height: theme.spacing['6xl'],
+    '& [data-slot="input-group-control"]': {
+      minHeight: theme.spacing['6xl'],
+    },
   }),
 };
