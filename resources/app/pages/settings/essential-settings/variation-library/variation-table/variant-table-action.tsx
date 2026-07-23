@@ -7,6 +7,8 @@ import Flex from '@/components/ui/flex';
 import Searchbox from '@/components/ui/searchbox';
 import type { AttributeValue, SortOrder } from '@/types';
 
+import { theme } from '@/theme';
+
 import { getSortedList } from '@/pages/settings/utils';
 
 type VariantTableActionProps = {
@@ -37,7 +39,7 @@ const VariantTableAction = ({
   };
 
   return (
-    <Flex style={{ padding: 'var(--decom-spacing-4) var(--decom-spacing-5)' }}>
+    <Flex style={{ padding: `${theme.spacing['2xl']} ${theme.spacing['3xl']}` }}>
       <div style={{ width: '160px' }}>
         <Searchbox
           onChange={(value) => setSearchValue(value as string)}

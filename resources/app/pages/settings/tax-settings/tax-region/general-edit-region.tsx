@@ -30,6 +30,8 @@ import {
 } from '@/services/settings';
 import type { SettingsSectionData } from '@/types';
 import { __ } from '@/wpi18n';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
 import type { TaxRate, TaxRegion, TaxRegionState, TaxRule } from '@/pages/settings/tax-settings/utils';
@@ -265,7 +267,7 @@ const GeneralEditRegion = () => {
                   handleBack={handleBackButton}
                 />
 
-                <Card type="large" style={{ gap: 'var(--decom-spacing-4)' }}>
+                <Card type="large" css={styles.citiesCard}>
                   <HeaderActionsCard
                     header={__('Cities', 'kirki-ecommerce')}
                     subHeader={__('Set tax rates for specific cities', 'kirki-ecommerce')}
@@ -336,3 +338,9 @@ const GeneralEditRegion = () => {
 GeneralEditRegion.displayName = 'GeneralEditRegion';
 
 export default GeneralEditRegion;
+
+const styles = {
+  citiesCard: scoped({
+    gap: theme.spacing['2xl'],
+  }),
+};

@@ -26,6 +26,8 @@ import {
 import { useCountriesQuery } from '@/services/country';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import type { FormErrors, SelectOption, SettingsSectionData } from '@/types';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import { __, sprintf } from '@/wpi18n';
 
 import {
@@ -290,19 +292,14 @@ const ShippingSettings = () => {
                 />
 
                 {!shippingZonesObj.length ? (
-                  <Card
-                    type="innerDark"
-                    style={{
-                      padding: 'var(--decom-spacing-9) var(--decom-spacing-0)',
-                    }}
-                  >
+                  <Card type="innerDark" css={styles.emptyState}>
                     <Flex
                       direction="column"
                       gap={8}
                       style={{ alignItems: 'center' }}
                     >
                       <LocationIcon />
-                      <span style={{ color: 'var(--decom-text-text-subdued)' }}>
+                      <span css={styles.emptyStateText}>
                         {__(
                           'Added shipping zones will appear here',
                           'kirki-ecommerce',
@@ -389,3 +386,12 @@ const ShippingSettings = () => {
 ShippingSettings.displayName = 'ShippingSettings';
 
 export default ShippingSettings;
+
+const styles = {
+  emptyState: scoped({
+    padding: `${theme.spacing['7xl']} ${theme.spacing.none}`,
+  }),
+  emptyStateText: scoped({
+    color: theme.colors.text.subdued,
+  }),
+};

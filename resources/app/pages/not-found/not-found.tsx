@@ -1,75 +1,14 @@
-import { css } from '@emotion/react';
 import { useLocation, useNavigate } from 'react-router';
 
 import Button from '@/components/ui/button';
-import { CLASS_PREFIX } from '@/conf';
-import { ArrowLeftIcon, BoxIcon } from '@/icons';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
-import { theme } from '@/theme';
 import Text from '@/components/ui/text';
-import { __ } from '@/wpi18n';
-
+import { ArrowLeftIcon, BoxIcon } from '@/icons';
 import NotFoundIllustration from '@/pages/not-found/not-found-illustration/not-found-illustration';
-
-const notFoundCss = css({
-  position: 'relative',
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-  minHeight: 'calc(100vh - 32px - 41px)',
-  marginTop: 0,
-  padding: `${theme.spacing['4xl']} ${theme.spacing['6xl']}`,
-  backgroundColor: theme.colors.background.surfaceTertiary,
-  boxSizing: 'border-box',
-  overflow: 'hidden',
-  '&::before, &::after': {
-    content: '""',
-    position: 'absolute',
-    borderRadius: theme.radius.full,
-    pointerEvents: 'none',
-  },
-  '&::before': {
-    top: '-120px',
-    right: '-80px',
-    width: '320px',
-    height: '320px',
-    background: `radial-gradient(circle, ${theme.colors.background.fillSecondary} 0%, transparent 70%)`,
-    opacity: 0.7,
-  },
-  '&::after': {
-    bottom: '-100px',
-    left: '-60px',
-    width: '280px',
-    height: '280px',
-    background: `radial-gradient(circle, ${theme.colors.background.fillSecondaryHover} 0%, transparent 70%)`,
-    opacity: 0.5,
-  },
-  '@media (max-width: 768px)': {
-    padding: theme.spacing['4xl'],
-  },
-});
-
-const notFoundCopyCss = css({
-  width: '100%',
-  maxWidth: '420px',
-  alignItems: 'flex-start',
-  textAlign: 'left',
-  '@media (max-width: 768px)': {
-    alignItems: 'center',
-    textAlign: 'center',
-  },
-});
-
-const notFoundActionsCss = css({
-  flexWrap: 'wrap',
-  justifyContent: 'flex-start',
-  width: '100%',
-  paddingTop: theme.spacing.xs,
-  '@media (max-width: 768px)': {
-    justifyContent: 'center',
-  },
-});
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
+import { __ } from '@/wpi18n';
 
 const NotFound = () => {
   const navigate = useNavigate();
@@ -86,20 +25,18 @@ const NotFound = () => {
   };
 
   return (
-    <div className={`${CLASS_PREFIX}-not-found`}>
-      <Container size="fullWidth" css={notFoundCss}>
-        <div className={`${CLASS_PREFIX}-not-found-inner`}>
-          <div className={`${CLASS_PREFIX}-not-found-copy-col`}>
-            <span
-              className={`${CLASS_PREFIX}-not-found-code`}
-              aria-hidden="true"
-            >
+    <div data-not-found="true" css={styles.root}>
+      <Container size="fullWidth">
+        <div css={styles.inner}>
+          <div css={styles.copyCol}>
+            <span css={styles.code} aria-hidden="true">
               404
             </span>
 
-            <Flex direction="column" gap={8} css={notFoundCopyCss}>
+            <Flex direction="column" gap={8} css={styles.copy}>
               <Text
                 type="primary"
+                css={styles.copyText}
                 header={__('Page not found', 'kirki-ecommerce')}
                 subHeader={__(
                   'Sorry, the page you are looking for could not be found. It may have been moved or never existed.',
@@ -109,17 +46,17 @@ const NotFound = () => {
             </Flex>
 
             {showPath && (
-              <div className={`${CLASS_PREFIX}-not-found-path`}>
-                <span className={`${CLASS_PREFIX}-not-found-path-label`}>
+              <div css={styles.path}>
+                <span css={styles.pathLabel}>
                   {__('Requested path', 'kirki-ecommerce')}
                 </span>
-                <code>{pathname}</code>
+                <code css={styles.pathCode}>{pathname}</code>
               </div>
             )}
 
-            <Flex gap={12} css={notFoundActionsCss}>
+            <Flex gap={12} css={styles.actions}>
               <Button variant="primary" onClick={handleGoToProducts}>
-                <BoxIcon color="var(--decom-text-text-light)" />
+                <BoxIcon color={theme.colors.text.light} />
                 {__('Go to Products', 'kirki-ecommerce')}
               </Button>
               <Button variant="secondary" onClick={handleGoBack}>
@@ -129,10 +66,7 @@ const NotFound = () => {
             </Flex>
           </div>
 
-          <div
-            className={`${CLASS_PREFIX}-not-found-illustration-col`}
-            aria-hidden="true"
-          >
+          <div css={styles.illustrationCol} aria-hidden="true">
             <NotFoundIllustration />
           </div>
         </div>
@@ -144,3 +78,164 @@ const NotFound = () => {
 NotFound.displayName = 'NotFound';
 
 export default NotFound;
+
+const styles = {
+  root: scoped({
+    position: 'relative',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    minHeight: 'calc(100vh - 32px - 41px)',
+    marginTop: 0,
+    padding: `${theme.spacing['4xl']} ${theme.spacing['6xl']}`,
+    backgroundColor: theme.colors.background.surfaceTertiary,
+    boxSizing: 'border-box',
+    overflow: 'hidden',
+    '&::before, &::after': {
+      content: '""',
+      position: 'absolute',
+      borderRadius: theme.radius.full,
+      pointerEvents: 'none',
+    },
+    '&::before': {
+      top: '-120px',
+      right: '-80px',
+      width: '320px',
+      height: '320px',
+      background: `radial-gradient(circle, ${theme.colors.background.fillSecondary} 0%, transparent 70%)`,
+      opacity: 0.7,
+    },
+    '&::after': {
+      bottom: '-100px',
+      left: '-60px',
+      width: '280px',
+      height: '280px',
+      background: `radial-gradient(circle, ${theme.colors.background.fillSecondaryHover} 0%, transparent 70%)`,
+      opacity: 0.5,
+    },
+    '@media (max-width: 768px)': {
+      padding: theme.spacing['4xl'],
+    },
+  }),
+  inner: scoped({
+    position: 'relative',
+    zIndex: 1,
+    display: 'flex',
+    alignItems: 'center',
+    gap: theme.spacing['8xl'],
+    width: '100%',
+    maxWidth: '960px',
+    '@media (max-width: 768px)': {
+      flexDirection: 'column',
+      alignItems: 'stretch',
+      gap: theme.spacing['6xl'],
+    },
+  }),
+  copyCol: scoped({
+    display: 'flex',
+    flex: '1 1 0',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    gap: theme.spacing['4xl'],
+    minWidth: 0,
+    '@media (max-width: 768px)': {
+      alignItems: 'center',
+      textAlign: 'center',
+    },
+  }),
+  code: scoped({
+    fontSize: 'clamp(72px, 10vw, 112px)',
+    fontWeight: theme.typography.fontWeight.bold,
+    lineHeight: 1,
+    letterSpacing: '-0.04em',
+    color: theme.colors.text.subdued,
+    opacity: 0.28,
+    userSelect: 'none',
+    '@media (max-width: 768px)': {
+      fontSize: 'clamp(64px, 22vw, 96px)',
+    },
+  }),
+  copy: scoped({
+    width: '100%',
+    maxWidth: '420px',
+    alignItems: 'flex-start',
+    textAlign: 'left',
+    '@media (max-width: 768px)': {
+      alignItems: 'center',
+      textAlign: 'center',
+    },
+  }),
+  copyText: scoped({
+    alignItems: 'flex-start',
+    textAlign: 'left',
+    '& > div span': {
+      fontSize: '24px',
+      lineHeight: '30px',
+      letterSpacing: '-0.02em',
+    },
+    '& > span': {
+      fontSize: '15px',
+      lineHeight: '24px',
+    },
+    '@media (max-width: 768px)': {
+      alignItems: 'center',
+      textAlign: 'center',
+    },
+  }),
+  path: scoped({
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    gap: theme.spacing.md,
+    width: '100%',
+    maxWidth: '420px',
+    padding: `${theme.spacing.lg} ${theme.spacing['2xl']}`,
+    backgroundColor: theme.colors.background.surfaceAlt,
+    border: `1px solid ${theme.colors.border.tertiary}`,
+    borderRadius: theme.radius.lg,
+    boxSizing: 'border-box',
+    textAlign: 'left',
+  }),
+  pathLabel: scoped({
+    fontSize: '11px',
+    fontWeight: theme.typography.fontWeight.medium,
+    lineHeight: '14px',
+    letterSpacing: '0.04em',
+    textTransform: 'uppercase',
+    color: theme.colors.text.subdued,
+  }),
+  pathCode: scoped({
+    display: 'block',
+    width: '100%',
+    padding: `${theme.spacing.sm} ${theme.spacing.lg}`,
+    fontFamily:
+      'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
+    fontSize: theme.typography.fontSize.sm,
+    lineHeight: '20px',
+    color: theme.colors.text.primary,
+    backgroundColor: theme.colors.background.fill,
+    border: `1px solid ${theme.colors.border.secondary}`,
+    borderRadius: theme.radius.md,
+    wordBreak: 'break-all',
+    boxSizing: 'border-box',
+  }),
+  actions: scoped({
+    flexWrap: 'wrap',
+    justifyContent: 'flex-start',
+    width: '100%',
+    paddingTop: theme.spacing.xs,
+    '@media (max-width: 768px)': {
+      justifyContent: 'center',
+    },
+  }),
+  illustrationCol: scoped({
+    display: 'flex',
+    flex: '1 1 0',
+    justifyContent: 'center',
+    alignItems: 'center',
+    minWidth: 0,
+    '@media (max-width: 768px)': {
+      order: 2,
+    },
+  }),
+};

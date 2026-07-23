@@ -7,34 +7,10 @@ import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import ActionGroup from '@/components/ui/action-group';
 import Badge from '@/components/ui/badge';
-import { __ } from '@/wpi18n';
+import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { __ } from '@/wpi18n';
 import { BoxClosedIcon, PlusIcon } from '@/icons';
-
-const boxCardCss = scoped({
-  borderTop: 'none',
-  borderRadius: 'var(--decom-radius-rounded-none)',
-});
-
-const boxCardBorderRadiusCss = scoped({
-  '&:first-of-type': {
-    borderTop: '1px solid var(--decom-border-border-secondary)',
-    borderRadius:
-      'var(--decom-radius-rounded-md) var(--decom-radius-rounded-md) var(--decom-radius-rounded-none) var(--decom-radius-rounded-none)',
-  },
-  '&:last-of-type': {
-    borderRadius:
-      'var(--decom-radius-rounded-none) var(--decom-radius-rounded-none) var(--decom-radius-rounded-md) var(--decom-radius-rounded-md)',
-  },
-});
-
-const hoverVisibleCss = css({
-  visibility: 'hidden',
-});
-
-const hoverVisibleActiveCss = css({
-  visibility: 'visible',
-});
 
 const TaxServices = () => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
@@ -62,7 +38,8 @@ const TaxServices = () => {
             <Card
               key={index}
               type="inner"
-              css={css(boxCardCss, boxCardBorderRadiusCss)}
+              data-box-card
+              css={css(styles.boxCard, styles.boxCardBorderRadius)}
               onMouseEnter={() => setHoveredIndex(index)}
               onMouseLeave={() => setHoveredIndex(null)}
             >
@@ -87,8 +64,8 @@ const TaxServices = () => {
                 )}
                 <ActionGroup
                   css={css(
-                    hoverVisibleCss,
-                    hoveredIndex === index && hoverVisibleActiveCss,
+                    styles.hoverVisible,
+                    hoveredIndex === index && styles.hoverVisibleActive,
                   )}
                 >
                   <Button variant="secondary" size="sm">
@@ -108,3 +85,25 @@ const TaxServices = () => {
 TaxServices.displayName = 'TaxServices';
 
 export default TaxServices;
+
+const styles = {
+  boxCard: scoped({
+    borderTop: 'none',
+    borderRadius: theme.radius.none,
+  }),
+  boxCardBorderRadius: scoped({
+    '&:first-of-type': {
+      borderTop: `1px solid ${theme.colors.border.secondary}`,
+      borderRadius: `${theme.radius.md} ${theme.radius.md} ${theme.radius.none} ${theme.radius.none}`,
+    },
+    '&:last-of-type': {
+      borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.md} ${theme.radius.md}`,
+    },
+  }),
+  hoverVisible: css({
+    visibility: 'hidden',
+  }),
+  hoverVisibleActive: css({
+    visibility: 'visible',
+  }),
+};

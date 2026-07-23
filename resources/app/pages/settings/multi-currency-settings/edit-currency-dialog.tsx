@@ -38,14 +38,6 @@ type EditCurrencyPopupProps = {
   handleUpdateData: (currency: Currency) => void;
 };
 
-const editCurrencyRatePopupLabelCss = css({
-  padding: theme.spacing.lg,
-  gap: theme.spacing.md,
-  background: theme.colors.background.surfaceAlt,
-  borderRadius: theme.radius.md,
-  color: theme.colors.text.secondary,
-});
-
 const EditCurrencyPopup = ({
   editCurrency,
   setEditCurrency,
@@ -96,7 +88,7 @@ const EditCurrencyPopup = ({
           <form onSubmit={form.handleSubmit(handleSubmit)}>
             <DialogBody>
               <Label
-                css={editCurrencyRatePopupLabelCss}
+                css={styles.ratePopupLabel}
                 leftIcon={<InfoIcon />}
               >
                 {__('Enter rates per 1 USD', 'kirki-ecommerce')}
@@ -134,7 +126,7 @@ const EditCurrencyPopup = ({
                     />
                   </Flex>
                   <div
-                    style={{ width: 'auto', margin: 'var(--decom-spacing-f1)' }}
+                    style={{ width: 'auto', margin: theme.spacing.xxs }}
                   >
                     <TextField
                       name="exchange_rate"
@@ -164,3 +156,13 @@ const EditCurrencyPopup = ({
 EditCurrencyPopup.displayName = 'EditCurrencyPopup';
 
 export default EditCurrencyPopup;
+
+const styles = {
+  ratePopupLabel: css({
+    padding: theme.spacing.lg,
+    gap: theme.spacing.md,
+    background: theme.colors.background.surfaceAlt,
+    borderRadius: theme.radius.md,
+    color: theme.colors.text.secondary,
+  }),
+};

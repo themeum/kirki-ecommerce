@@ -41,6 +41,8 @@ type ComboboxProps = {
   error?: boolean;
   multiple?: boolean;
   css?: SerializedStyles;
+  listCss?: SerializedStyles;
+  searchInputCss?: SerializedStyles;
 };
 
 const Combobox = ({
@@ -54,6 +56,8 @@ const Combobox = ({
   error = false,
   multiple = false,
   css: cssProp,
+  listCss,
+  searchInputCss,
 }: ComboboxProps) => {
   const [open, setOpen] = useState(false);
 
@@ -141,8 +145,8 @@ const Combobox = ({
       </PopoverTrigger>
       <PopoverContent align="start" css={styles.content}>
         <Command>
-          <CommandInput placeholder={searchPlaceholder} />
-          <CommandList>
+          <CommandInput placeholder={searchPlaceholder} css={searchInputCss} />
+          <CommandList css={listCss}>
             <CommandEmpty>{emptyText}</CommandEmpty>
             <CommandGroup>
               {options.map((option) => {

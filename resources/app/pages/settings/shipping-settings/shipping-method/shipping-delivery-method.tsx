@@ -24,6 +24,8 @@ import { useUnsavedStatus } from '@/libs/unsaved-store';
 import { getErrorMessage } from '@/services/helpers';
 import { useSettingsQuery, updateSettings } from '@/services/settings';
 import type { SettingsSectionData } from '@/types';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 import FlatRateSettings from '@/pages/settings/shipping-settings/shipping-method/flat-rate-settings';
@@ -265,12 +267,7 @@ const ShippingDeliveryMethod = () => {
             text={methodSettingsMap[methodType].title ?? ''}
             handleBack={handleBackButton}
           />
-          <Card
-            type="large"
-            style={{
-              gap: 'var(--decom-spacing-4)',
-            }}
-          >
+          <Card type="large" css={styles.formCard}>
             <Flex direction="column" gap={8}>
               <Label htmlFor="shipping-method-name">
                 {__('Method Name', 'kirki-ecommerce')}
@@ -320,3 +317,9 @@ const ShippingDeliveryMethod = () => {
 ShippingDeliveryMethod.displayName = 'ShippingDeliveryMethod';
 
 export default ShippingDeliveryMethod;
+
+const styles = {
+  formCard: scoped({
+    gap: theme.spacing['2xl'],
+  }),
+};

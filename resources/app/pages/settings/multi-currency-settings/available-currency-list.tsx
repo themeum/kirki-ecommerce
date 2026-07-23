@@ -18,6 +18,7 @@ import type {
   CurrencyFormData,
   SelectOption,
 } from '@/types';
+import { theme } from '@/theme';
 import { __, sprintf } from '@/wpi18n';
 
 import AddCurrencyPopup from '@/pages/settings/multi-currency-settings/add-currency-dialog';
@@ -159,13 +160,13 @@ export const AvailableCurrencyList = () => {
       <Card
         type="inner"
         style={{
-          padding: 'var(--decom-spacing-5)',
+          padding: theme.spacing['3xl'],
         }}
       >
         <Flex
           style={{
             justifyContent: 'space-between',
-            paddingBottom: 'var(--decom-spacing-3)',
+            paddingBottom: theme.spacing.lg,
           }}
         >
           <Text header={__('Available Currencies', 'kirki-ecommerce')} type="primary" />
@@ -183,7 +184,7 @@ export const AvailableCurrencyList = () => {
         <Flex
           gap={8}
           style={{
-            paddingTop: 'var(--decom-spacing-2)',
+            paddingTop: theme.spacing.md,
           }}
         >
           <InfoIcon />

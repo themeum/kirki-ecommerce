@@ -14,6 +14,8 @@ import Text from '@/components/ui/text';
 import ToggleButton from '@/components/ui/toggle-button';
 import type { TaxSettingsFormValues } from '@/schemas/forms/tax-settings-form';
 import { __ } from '@/wpi18n';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 
 import type { SelectedTaxRegionDraft, TaxRegion } from '@/pages/settings/tax-settings/utils';
 import TaxRegionPopup from '@/pages/settings/tax-settings/tax-region/tax-region-dialog';
@@ -166,9 +168,7 @@ const TaxRegions = (props: TaxRegionsProps) => {
               <Card
                 key={index}
                 type="inner"
-                style={{
-                  padding: 'var(--decom-spacing-3) var(--decom-spacing-4)',
-                }}
+                css={styles.regionCard}
               >
                 <Flex style={{ alignItems: 'flex-start' }} gap={8}>
                   <span>{item?.flag}</span>
@@ -250,3 +250,9 @@ const TaxRegions = (props: TaxRegionsProps) => {
 TaxRegions.displayName = 'TaxRegions';
 
 export default TaxRegions;
+
+const styles = {
+  regionCard: scoped({
+    padding: `${theme.spacing.lg} ${theme.spacing['2xl']}`,
+  }),
+};

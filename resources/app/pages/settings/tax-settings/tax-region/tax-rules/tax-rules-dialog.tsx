@@ -19,7 +19,6 @@ import { LighteningIcon } from '@/icons';
 import Flex from '@/components/ui/flex';
 import Grid from '@/components/ui/grid';
 import Text from '@/components/ui/text';
-import { CLASS_PREFIX } from '@/conf';
 import {
   TaxRulesFormSchema,
   type TaxRulesFormValues,
@@ -205,7 +204,6 @@ const TaxRulesModal = (props: TaxRulesModalProps) => {
           <DialogBody>
             <Flex direction={'column'} gap={16}>
               <Flex direction={'column'} gap={8}>
-                <div className={`${CLASS_PREFIX}-condition-row`}>
                   {conditions?.map((row, index) => (
                     <ConditionRow
                       key={row.id}
@@ -220,7 +218,6 @@ const TaxRulesModal = (props: TaxRulesModalProps) => {
                       region={region}
                     />
                   ))}
-                </div>
               </Flex>
               <Flex direction={'column'} gap={8}>
                 <Text header={__('THEN', 'kirki-ecommerce')} />

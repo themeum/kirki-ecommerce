@@ -6,6 +6,7 @@ import { ArrowLeftIcon } from '@/icons';
 import { Card } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
+import { theme } from '@/theme';
 import { __ } from '@/wpi18n';
 
 const backButtonCss = css({
@@ -15,7 +16,7 @@ const backButtonCss = css({
   transition: 'stroke 0.2s ease, stroke-width 0.2s ease',
   '&:hover': {
     'svg path': {
-      stroke: 'var(--decom-background-bg-fill-brand)',
+      stroke: theme.colors.background.fillBrand,
       strokeWidth: 1.5,
     },
   },

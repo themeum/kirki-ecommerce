@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/card';
 import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
+import { theme } from '@/theme';
 import { __ } from '@/wpi18n';
 
 import { dimensionUnitList, weightUnitList } from '@/pages/settings/utils';
@@ -29,14 +30,14 @@ export const StandardUnit = () => {
             'kirki-ecommerce',
           )}
           type="primary"
-          style={{ gap: 'var(--decom-spacing-f3)' }}
+          style={{ gap: theme.spacing.base }}
         />
         <Flex direction="column" gap={8}>
           <Card
             type="default"
             style={{
-              borderRadius: 'var(--decom-radius-rounded-lg)',
-              border: '1px solid var(--decom-border-border)',
+              borderRadius: theme.radius.lg,
+              border: `1px solid ${theme.colors.border.default}`,
             }}
           >
             <Flex direction="column" gap={16}>
@@ -55,8 +56,8 @@ export const StandardUnit = () => {
           <Card
             type="default"
             style={{
-              borderRadius: 'var(--decom-radius-rounded-lg)',
-              border: '1px solid var(--decom-border-border)',
+              borderRadius: theme.radius.lg,
+              border: `1px solid ${theme.colors.border.default}`,
             }}
           >
             <Flex>

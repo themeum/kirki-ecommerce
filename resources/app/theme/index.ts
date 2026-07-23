@@ -52,6 +52,7 @@ const primitiveColors = {
   placeholderSurface: '#f7f7f7',
   borderAlt: '#e6e6e6',
   galleryBorder: '#E4E4E7',
+  borderMuted: '#d2d4d8',
   galleryHover: '#f7f4ff',
   shippingBoxLight: '#ceaaff',
   shippingBoxMid: '#bf84e9',
@@ -112,6 +113,7 @@ const PRIMITIVE_CSS_VAR_KEYS: Record<PrimitiveColorKey, string> = {
   placeholderSurface: 'color-placeholder-surface',
   borderAlt: 'color-border-alt',
   galleryBorder: 'color-gallery-border',
+  borderMuted: 'color-border-muted',
   galleryHover: 'color-gallery-hover',
   shippingBoxLight: 'color-shipping-box-light',
   shippingBoxMid: 'color-shipping-box-mid',
@@ -194,6 +196,7 @@ const theme = {
       tertiary: cssVar('gray5'),
       alt: cssVar('borderAlt'),
       gallery: cssVar('galleryBorder'),
+      muted: cssVar('borderMuted'),
     },
     icon: {
       brand: cssVar('green4'),

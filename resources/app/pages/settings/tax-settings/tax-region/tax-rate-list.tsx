@@ -8,8 +8,9 @@ import Input from '@/components/ui/input';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { PaymentIcon, LocationIcon, TrashIcon } from '@/icons';
-import { __, sprintf } from '@/wpi18n';
+import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { __, sprintf } from '@/wpi18n';
 
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
 import type { TaxRate } from '@/pages/settings/tax-settings/utils';
@@ -23,41 +24,6 @@ type TaxRateListProps = {
     from?: string,
   ) => void | Promise<void>;
 };
-
-const taxCardCss = scoped({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  borderRadius: 'var(--decom-radius-rounded-md)',
-  maxHeight: '44px',
-  height: '44px',
-  padding: 'var(--decom-spacing-3)',
-});
-
-const editGroupCss = css({
-  display: 'none',
-  pointerEvents: 'none',
-  transition: 'opacity 0.2s',
-});
-
-const editGroupActiveCss = css({
-  display: 'flex',
-  pointerEvents: 'auto',
-});
-
-const rateDisplayCss = scoped({
-  transition: 'opacity 0.2s',
-  display: 'flex',
-});
-
-const rateDisplayHiddenCss = css({
-  display: 'none',
-});
-
-const taxCardContentCss = scoped({
-  display: 'flex',
-  alignItems: 'center',
-});
 
 export const TaxRateList = ({
   taxRates,
@@ -112,32 +78,32 @@ export const TaxRateList = ({
         <Card type="innerDark">
           <Text
             header={__('Tax rates', 'kirki-ecommerce')}
-            style={{ marginBottom: 'var(--decom-spacing-2)' }}
+            css={styles.taxRatesHeader}
           />
           <Flex gap={2} direction={'column'}>
             {taxRates?.map((item, index) => (
               <Card
                 key={index}
                 type="default"
-                css={taxCardCss}
+                css={styles.taxCard}
                 onMouseEnter={() => setHoveredIndex(index)}
                 onMouseLeave={() => setHoveredIndex(null)}
               >
                 <Text header={item?.state} leftIcon={<LocationIcon />} />
-                <div css={taxCardContentCss}>
+                <div css={styles.taxCardContent}>
                   <Text
                     header={sprintf(__('%s %', 'kirki-ecommerce'), item?.rate)}
                     css={css(
-                      rateDisplayCss,
-                      hoveredIndex === index && rateDisplayHiddenCss,
+                      styles.rateDisplay,
+                      hoveredIndex === index && styles.rateDisplayHidden,
                     )}
                   />
 
                   <Flex
                     gap={8}
                     css={css(
-                      editGroupCss,
-                      hoveredIndex === index && editGroupActiveCss,
+                      styles.editGroup,
+                      hoveredIndex === index && styles.editGroupActive,
                     )}
                   >
                     <Input
@@ -168,3 +134,38 @@ export const TaxRateList = ({
 };
 
 TaxRateList.displayName = 'TaxRateList';
+
+const styles = {
+  taxCard: scoped({
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderRadius: theme.radius.md,
+    maxHeight: '44px',
+    height: '44px',
+    padding: theme.spacing.lg,
+  }),
+  editGroup: css({
+    display: 'none',
+    pointerEvents: 'none',
+    transition: 'opacity 0.2s',
+  }),
+  editGroupActive: css({
+    display: 'flex',
+    pointerEvents: 'auto',
+  }),
+  rateDisplay: scoped({
+    transition: 'opacity 0.2s',
+    display: 'flex',
+  }),
+  rateDisplayHidden: css({
+    display: 'none',
+  }),
+  taxCardContent: scoped({
+    display: 'flex',
+    alignItems: 'center',
+  }),
+  taxRatesHeader: scoped({
+    marginBottom: theme.spacing.md,
+  }),
+};

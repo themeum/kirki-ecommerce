@@ -1,16 +1,16 @@
-import { css } from '@emotion/react';
 import { useState, useEffect, type ReactNode } from 'react';
 import { useNavigate } from 'react-router';
 
 import HeaderActionsCard from '@/components/header-actions-card';
 import GroupOptionCard from '@/components/group-option-card';
 import { Card } from '@/components/ui/card';
-import { CLASS_PREFIX } from '@/conf';
 import { BoxIcon, ColorPaletteIcon } from '@/icons';
 import Flex from '@/components/ui/flex';
 import { dispatchToastMessage } from '@/pages/utils';
 import { useAttributesQuery, useDeleteAttributeMutation } from '@/services/attribute';
 import type { Attribute } from '@/types';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 import AddVariationPopup from '@/pages/settings/essential-settings/variation-library/add-variation-dialog';
@@ -19,22 +19,6 @@ type AttributeListItem = Attribute & {
   badge1?: string;
   icon?: ReactNode;
 };
-
-const boxWrapperCss = css({
-  [`.${CLASS_PREFIX}-box-card`]: {
-    borderTop: 'none',
-    borderRadius: 'var(--decom-radius-rounded-none)',
-  },
-  [`.${CLASS_PREFIX}-box-card:first-child`]: {
-    borderTop: '1px solid var(--decom-border-border-secondary)',
-    borderRadius:
-      'var(--decom-radius-rounded-md) var(--decom-radius-rounded-md) var(--decom-radius-rounded-none) var(--decom-radius-rounded-none)',
-  },
-  [`.${CLASS_PREFIX}-box-card:last-child`]: {
-    borderRadius:
-      'var(--decom-radius-rounded-none) var(--decom-radius-rounded-none) var(--decom-radius-rounded-md) var(--decom-radius-rounded-md)',
-  },
-});
 
 const VariationList = () => {
   const navigate = useNavigate();
@@ -95,16 +79,16 @@ const VariationList = () => {
         }}
       />
       {!attributeListArr.length ? (
-        <Card type="innerDark" style={{ padding: '36px 0' }}>
+        <Card type="innerDark" css={styles.emptyState}>
           <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
             <BoxIcon />
-            <span style={{ color: '#878593' }}>
+            <span css={styles.emptyStateText}>
               {__('Added variation library will appear here', 'kirki-ecommerce')}
             </span>
           </Flex>
         </Card>
       ) : (
-        <Flex direction="column" css={boxWrapperCss}>
+        <Flex direction="column" data-box-wrapper css={styles.boxWrapper}>
           <GroupOptionCard
             dataArr={attributeListArr}
             handleDeleteItem={(item) => handleDeleteVariation(item as AttributeListItem)}
@@ -127,3 +111,25 @@ const VariationList = () => {
 VariationList.displayName = 'VariationList';
 
 export default VariationList;
+
+const styles = {
+  boxWrapper: scoped({
+    '[data-box-card]': {
+      borderTop: 'none',
+      borderRadius: theme.radius.none,
+    },
+    '[data-box-card]:first-of-type': {
+      borderTop: `1px solid ${theme.colors.border.secondary}`,
+      borderRadius: `${theme.radius.md} ${theme.radius.md} ${theme.radius.none} ${theme.radius.none}`,
+    },
+    '[data-box-card]:last-of-type': {
+      borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.md} ${theme.radius.md}`,
+    },
+  }),
+  emptyState: scoped({
+    padding: `${theme.spacing['7xl']} ${theme.spacing.none}`,
+  }),
+  emptyStateText: scoped({
+    color: theme.colors.text.subdued,
+  }),
+};

@@ -9,9 +9,9 @@ import { EditPenIcon, LighteningIcon, TrashIcon } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
-import { __, sprintf } from '@/wpi18n';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { __, sprintf } from '@/wpi18n';
 
 import type { TaxRegion, TaxRule } from '@/pages/settings/tax-settings/utils';
 import { getDestinationDisplayValue } from '@/pages/settings/tax-settings/tax-region/tax-rules/helper';
@@ -24,48 +24,6 @@ type TaxRulesProps = {
     from?: string,
   ) => void | Promise<void>;
 };
-
-const cardActionsCss = css({
-  display: 'none',
-  pointerEvents: 'none',
-  transition: 'opacity 0.15s ease',
-});
-
-const cardActionsActiveCss = css({
-  display: 'flex',
-  pointerEvents: 'auto',
-});
-
-const shippingRulesCardCss = scoped({
-  padding: 'var(--decom-spacing-3)',
-  minHeight: '118px',
-  borderRadius: theme.radius.none,
-  border: '1px solid var(--decom-border-border)',
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 'var(--decom-spacing-4)',
-});
-
-const shippingRulesCardSingleCss = scoped({
-  borderRadius: theme.radius.lg,
-});
-
-const shippingRulesCardBorderRadiusCss = scoped({
-  '&:first-of-type': {
-    borderRadius: `${theme.radius.lg} ${theme.radius.lg} ${theme.radius.none} ${theme.radius.none}`,
-  },
-  '&:last-of-type': {
-    borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.lg} ${theme.radius.lg}`,
-  },
-});
-
-const rulesNumberBadgeCss = scoped({
-  maxHeight: '26px',
-  maxWidth: 'fit-content',
-  borderRadius: theme.radius.sm,
-  display: 'flex',
-  padding: 'var(--decom-spacing-1) var(--decom-spacing-2)',
-});
 
 const TaxRules = (props: TaxRulesProps) => {
   const { region, updateTaxRules } = props;
@@ -128,17 +86,17 @@ const TaxRules = (props: TaxRulesProps) => {
                   type="default"
                   key={index}
                   css={css(
-                    shippingRulesCardCss,
+                    styles.shippingRulesCard,
                     rulesObj.length > 1
-                      ? shippingRulesCardBorderRadiusCss
-                      : shippingRulesCardSingleCss,
+                      ? styles.shippingRulesCardBorderRadius
+                      : styles.shippingRulesCardSingle,
                   )}
                   onMouseEnter={() => setHoveredRuleIndex(index)}
                   onMouseLeave={() => setHoveredRuleIndex(null)}
                 >
                   <Flex style={{ justifyContent: 'space-between' }}>
                     <Flex direction={'column'} gap={16}>
-                      <Card type="dark" css={rulesNumberBadgeCss}>
+                      <Card type="dark" css={styles.rulesNumberBadge}>
                         <Text
                           type="xsm"
                           header={sprintf(__('Rule %s', 'kirki-ecommerce'), index + 1)}
@@ -178,9 +136,7 @@ const TaxRules = (props: TaxRulesProps) => {
                                         condition?.value as string | number,
                                       )
                                 }
-                                style={{
-                                  color: 'var(--decom-text-text-special-3)',
-                                }}
+                                css={styles.conditionValue}
                               />
                             </Flex>
                           ))}
@@ -196,9 +152,7 @@ const TaxRules = (props: TaxRulesProps) => {
                           {item?.action?.type === 'set_tax_rate' && (
                             <Text
                               header={`${item?.action?.value}`}
-                              style={{
-                                color: 'var(--decom-text-text-special-3)',
-                              }}
+                              css={styles.conditionValue}
                             />
                           )}
                         </Flex>
@@ -206,8 +160,8 @@ const TaxRules = (props: TaxRulesProps) => {
                     </Flex>
                     <ActionGroup
                       css={css(
-                        cardActionsCss,
-                        hoveredRuleIndex === index && cardActionsActiveCss,
+                        styles.cardActions,
+                        hoveredRuleIndex === index && styles.cardActionsActive,
                       )}
                     >
                       <Button
@@ -251,3 +205,45 @@ const TaxRules = (props: TaxRulesProps) => {
 TaxRules.displayName = 'TaxRules';
 
 export default TaxRules;
+
+const styles = {
+  cardActions: css({
+    display: 'none',
+    pointerEvents: 'none',
+    transition: 'opacity 0.15s ease',
+  }),
+  cardActionsActive: css({
+    display: 'flex',
+    pointerEvents: 'auto',
+  }),
+  shippingRulesCard: scoped({
+    padding: theme.spacing.lg,
+    minHeight: '118px',
+    borderRadius: theme.radius.none,
+    border: `1px solid ${theme.colors.border.default}`,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: theme.spacing['2xl'],
+  }),
+  shippingRulesCardSingle: scoped({
+    borderRadius: theme.radius.lg,
+  }),
+  shippingRulesCardBorderRadius: scoped({
+    '&:first-of-type': {
+      borderRadius: `${theme.radius.lg} ${theme.radius.lg} ${theme.radius.none} ${theme.radius.none}`,
+    },
+    '&:last-of-type': {
+      borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.lg} ${theme.radius.lg}`,
+    },
+  }),
+  rulesNumberBadge: scoped({
+    maxHeight: '26px',
+    maxWidth: 'fit-content',
+    borderRadius: theme.radius.sm,
+    display: 'flex',
+    padding: `${theme.spacing.xs} ${theme.spacing.md}`,
+  }),
+  conditionValue: scoped({
+    color: theme.colors.text.special3,
+  }),
+};

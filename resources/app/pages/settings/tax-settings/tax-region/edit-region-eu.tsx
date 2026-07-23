@@ -37,6 +37,8 @@ import {
   useUpdateSettingsMutation,
 } from '@/services/settings';
 import type { SettingsSectionData } from '@/types';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
@@ -72,11 +74,7 @@ const VatCollectionProcessRadios = () => {
     <Flex direction={'column'} gap={8}>
       <Card
         type="inner"
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 'var(--decom-spacing-2)',
-        }}
+        css={styles.vatProcessCard}
       >
         <FormField
           control={control}
@@ -106,11 +104,7 @@ const VatCollectionProcessRadios = () => {
 
       <Card
         type="inner"
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 'var(--decom-spacing-2)',
-        }}
+        css={styles.vatProcessCard}
       >
         <FormField
           control={control}
@@ -392,3 +386,11 @@ const EditRegionEU = () => {
 EditRegionEU.displayName = 'EditRegionEU';
 
 export default EditRegionEU;
+
+const styles = {
+  vatProcessCard: scoped({
+    display: 'flex',
+    flexDirection: 'column',
+    gap: theme.spacing.md,
+  }),
+};

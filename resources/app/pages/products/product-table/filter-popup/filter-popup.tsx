@@ -21,6 +21,7 @@ import {
 import Text from '@/components/ui/text';
 import { useListParams } from '@/hooks';
 import { CloseIcon, ListFilter } from '@/icons';
+import { theme } from '@/theme';
 import { __, sprintf } from '@/wpi18n';
 
 import BrandFilter from '@/pages/products/product-table/filter-popup/brand-filter';
@@ -140,10 +141,10 @@ const FilterPopup = ({
             variant="outline"
             size="sm"
             style={{
-              borderRightColor: hasFilter ? 'none' : 'var(--decom-border-border)',
+              borderRightColor: hasFilter ? 'none' : theme.colors.border.default,
               borderRadius: hasFilter
-                ? 'var(--decom-radius-rounded-md) var(--decom-radius-rounded-none) var(--decom-radius-rounded-none) var(--decom-radius-rounded-md)'
-                : 'var(--decom-radius-rounded-md)',
+                ? `${theme.radius.md} ${theme.radius.none} ${theme.radius.none} ${theme.radius.md}`
+                : theme.radius.md,
             }}
             {...buttonProps}
           >
@@ -156,12 +157,11 @@ const FilterPopup = ({
             variant="outline"
             size="sm"
             style={{
-              color: 'var(--decom-text-text-emphasis)',
-              backgroundColor: 'var(--decom-background-bg-fill-secondary)',
+              color: theme.colors.text.emphasis,
+              backgroundColor: theme.colors.background.fillSecondary,
               borderLeft: 'none',
               cursor: 'default',
-              borderRadius:
-                'var(--decom-radius-rounded-none) var(--decom-radius-rounded-md) var(--decom-radius-rounded-md) var(--decom-radius-rounded-none)',
+              borderRadius: `${theme.radius.none} ${theme.radius.md} ${theme.radius.md} ${theme.radius.none}`,
             }}
           >
             {sprintf(__('%d', 'kirki-ecommerce'), hasFilter)}
@@ -184,7 +184,7 @@ const FilterPopup = ({
               variant="ghost"
               size="icon"
               onClick={handleFilterClose}
-              style={{ color: 'var(--decom-text-text-primary)' }}
+              style={{ color: theme.colors.text.primary }}
             >
               <CloseIcon />
             </Button>

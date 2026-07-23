@@ -9,8 +9,9 @@ import { TrashIcon } from '@/icons';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import type { SelectOption } from '@/types';
-import { __ } from '@/wpi18n';
+import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { __ } from '@/wpi18n';
 
 import type { TaxRate, TaxRegion } from '@/pages/settings/tax-settings/utils';
 import VatCollectionPopup from '@/pages/settings/tax-settings/tax-region/vat-collection/vat-collection-dialog';
@@ -29,41 +30,6 @@ type VatCollectionProps = {
     from?: string,
   ) => void | Promise<void>;
 };
-
-const vatRowCss = scoped({
-  height: '56px',
-  maxHeight: '56px',
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  padding: 'var(--decom-spacing-3)',
-});
-
-const vatActionsCss = css({
-  opacity: 0,
-  visibility: 'hidden',
-  display: 'none',
-  pointerEvents: 'none',
-  transition: 'all 0.2s ease',
-});
-
-const vatActionsActiveCss = css({
-  opacity: 1,
-  display: 'flex',
-  visibility: 'visible',
-  pointerEvents: 'auto',
-});
-
-const vatTextCss = scoped({
-  opacity: 1,
-  display: 'block',
-  transition: 'opacity 0.2s ease',
-});
-
-const vatTextHiddenCss = css({
-  opacity: 0,
-  display: 'none',
-});
 
 export const VatCollection = (props: VatCollectionProps) => {
   const {
@@ -166,7 +132,7 @@ export const VatCollection = (props: VatCollectionProps) => {
             <Card
               key={index}
               type="inner"
-              css={vatRowCss}
+              css={styles.vatRow}
               onMouseEnter={() => setHoveredIndex(index)}
               onMouseLeave={() => setHoveredIndex(null)}
             >
@@ -177,15 +143,15 @@ export const VatCollection = (props: VatCollectionProps) => {
               <Text
                 header={`${item?.rate}%`}
                 css={css(
-                  vatTextCss,
-                  hoveredIndex === index && vatTextHiddenCss,
+                  styles.vatText,
+                  hoveredIndex === index && styles.vatTextHidden,
                 )}
               />
               <Flex
                 gap={8}
                 css={css(
-                  vatActionsCss,
-                  hoveredIndex === index && vatActionsActiveCss,
+                  styles.vatActions,
+                  hoveredIndex === index && styles.vatActionsActive,
                 )}
               >
                 <Button
@@ -222,3 +188,36 @@ export const VatCollection = (props: VatCollectionProps) => {
 };
 
 VatCollection.displayName = 'VatCollection';
+
+const styles = {
+  vatRow: scoped({
+    height: '56px',
+    maxHeight: '56px',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: theme.spacing.lg,
+  }),
+  vatActions: css({
+    opacity: 0,
+    visibility: 'hidden',
+    display: 'none',
+    pointerEvents: 'none',
+    transition: 'all 0.2s ease',
+  }),
+  vatActionsActive: css({
+    opacity: 1,
+    display: 'flex',
+    visibility: 'visible',
+    pointerEvents: 'auto',
+  }),
+  vatText: scoped({
+    opacity: 1,
+    display: 'block',
+    transition: 'opacity 0.2s ease',
+  }),
+  vatTextHidden: css({
+    opacity: 0,
+    display: 'none',
+  }),
+};

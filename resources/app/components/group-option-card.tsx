@@ -120,6 +120,7 @@ const GroupOptionCard = (props: GroupOptionCardProps) => {
         <Card
           type="inner"
           key={index}
+          data-box-card
           css={css(
             optionCardCss,
             dataLength > 1
@@ -154,7 +155,7 @@ const GroupOptionCard = (props: GroupOptionCardProps) => {
               />
               {item?.subText && (
                 <Text
-                  style={{ color: 'var(--decom-text-text-subdued)' }}
+                  style={{ color: theme.colors.text.subdued }}
                   header={item?.subText ?? ''}
                   type="xsm"
                 />

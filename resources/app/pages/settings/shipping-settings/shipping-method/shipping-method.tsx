@@ -8,6 +8,8 @@ import GroupOptionCard from '@/components/group-option-card';
 import { Card } from '@/components/ui/card';
 import { dispatchToastMessage } from '@/pages/utils';
 import type { SettingsSectionData } from '@/types';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 import {
@@ -114,7 +116,7 @@ export const ShippingMethod = ({
   return (
     <div>
       {from === 'edit_zone' ? (
-        <div style={{ marginTop: 'var(--decom-spacing-3)' }}>
+        <div css={styles.zoneMethodsWrap}>
           <GroupOptionCard
             dataArr={shippingMethodList}
             handleDeleteItem={(item) =>
@@ -141,15 +143,10 @@ export const ShippingMethod = ({
           />
 
           {!shippingMethodList?.length ? (
-            <Card
-              type="innerDark"
-              style={{
-                padding: 'var(--decom-spacing-9) var(--decom-spacing-0)',
-              }}
-            >
+            <Card type="innerDark" css={styles.emptyState}>
               <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
                 <BoxOpenIcon />
-                <span style={{ color: 'var(--decom-text-text-subdued)' }}>
+                <span css={styles.emptyStateText}>
                   {__(
                     'Added shipping profiles will appear here',
                     'kirki-ecommerce',
@@ -172,4 +169,16 @@ export const ShippingMethod = ({
       )}
     </div>
   );
+};
+
+const styles = {
+  zoneMethodsWrap: scoped({
+    marginTop: theme.spacing.lg,
+  }),
+  emptyState: scoped({
+    padding: `${theme.spacing['7xl']} ${theme.spacing.none}`,
+  }),
+  emptyStateText: scoped({
+    color: theme.colors.text.subdued,
+  }),
 };

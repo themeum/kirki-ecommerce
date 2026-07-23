@@ -11,6 +11,8 @@ import Flex from '@/components/ui/flex';
 import Grid from '@/components/ui/grid';
 import Text from '@/components/ui/text';
 import type { GeneralSettingsFormValues } from '@/schemas/forms/general-settings-form';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 const OrderId = () => {
@@ -39,10 +41,10 @@ const OrderId = () => {
             'kirki-ecommerce',
           )}
           type="primary"
-          style={{ gap: 'var(--decom-spacing-f3)' }}
+          css={styles.sectionHeader}
         />
 
-        <Card type="inner" style={{ padding: 'var(--decom-spacing-4)' }}>
+        <Card type="inner" css={styles.innerCard}>
           <Flex direction="column" gap={16}>
             <Grid>
               <TextField
@@ -60,12 +62,7 @@ const OrderId = () => {
               />
             </Grid>
 
-            <Card
-              type="innerDark"
-              style={{
-                padding: 'var(--decom-spacing-2) var(--decom-spacing-3)',
-              }}
-            >
+            <Card type="innerDark" css={styles.previewCard}>
               <Flex direction="column" gap={8}>
                 <Label htmlFor="order-id-preview">
                   {__('Next order IDs will look like:', 'kirki-ecommerce')}
@@ -74,22 +71,12 @@ const OrderId = () => {
                   id="order-id-preview"
                   value={orderID}
                   readOnly
-                  style={{
-                    padding: 'var(--decom-spacing-2)',
-                    textAlign: 'center',
-                    color: 'var(--decom-text-text-special-3)',
-                  }}
+                  css={styles.previewInput}
                 />
               </Flex>
             </Card>
 
-            <Card
-              type="large"
-              style={{
-                borderRadius: 'var(--decom-radius-rounded-lg)',
-                border: '1px solid var(--decom-border-border)',
-              }}
-            >
+            <Card type="large" css={styles.resetCard}>
               <Flex direction="column" gap={10}>
                 <Flex style={{ alignItems: 'center' }}>
                   <Text
@@ -126,3 +113,24 @@ const OrderId = () => {
 OrderId.displayName = 'OrderId';
 
 export default OrderId;
+
+const styles = {
+  sectionHeader: scoped({
+    gap: theme.spacing.base,
+  }),
+  innerCard: scoped({
+    padding: theme.spacing['2xl'],
+  }),
+  previewCard: scoped({
+    padding: `${theme.spacing.md} ${theme.spacing.lg}`,
+  }),
+  previewInput: scoped({
+    padding: theme.spacing.md,
+    textAlign: 'center',
+    color: theme.colors.text.special3,
+  }),
+  resetCard: scoped({
+    borderRadius: theme.radius.lg,
+    border: `1px solid ${theme.colors.border.default}`,
+  }),
+};

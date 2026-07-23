@@ -15,6 +15,7 @@ import {
   useSetEnabledPaymentGatewayMutation,
 } from '@/services/payment';
 import type { PaymentGateway } from '@/types';
+import { theme } from '@/theme';
 import { __, sprintf } from '@/wpi18n';
 
 import PaymentGatewayEditPopup from '@/pages/settings/payment-settings/payment-gateway-edit-dialog';
@@ -103,7 +104,7 @@ const PaymentGatewayComponent = (props: PaymentGatewayProps) => {
                 type="inner"
                 key={index}
                 style={{
-                  padding: 'var(--decom-spacing-3) var(--decom-spacing-4)',
+                  padding: `${theme.spacing.lg} ${theme.spacing['2xl']}`,
                 }}
               >
                 <Flex style={{ alignItems: 'center' }}>

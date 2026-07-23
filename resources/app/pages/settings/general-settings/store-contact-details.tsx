@@ -3,6 +3,8 @@ import ThumbnailField from '@/components/form/thumbnail-field';
 import { Card } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 type StoreContactDetailsProps = {
@@ -23,10 +25,10 @@ const StoreContactDetails = ({
           'kirki-ecommerce',
         )}
         type="primary"
-        style={{ gap: 'var(--decom-spacing-f3)' }}
+        css={styles.sectionHeader}
       />
 
-      <Card type="inner" style={{ padding: 'var(--decom-spacing-4)' }}>
+      <Card type="inner" css={styles.innerCard}>
         <Flex direction="column" gap={16}>
           <TextField
             name="store_name"
@@ -63,3 +65,12 @@ const StoreContactDetails = ({
 StoreContactDetails.displayName = 'StoreContactDetails';
 
 export default StoreContactDetails;
+
+const styles = {
+  sectionHeader: scoped({
+    gap: theme.spacing.base,
+  }),
+  innerCard: scoped({
+    padding: theme.spacing['2xl'],
+  }),
+};

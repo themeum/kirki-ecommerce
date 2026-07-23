@@ -29,6 +29,7 @@ import {
   useAvailableCurrenciesQuery,
 } from '@/services/currency';
 import type { Currency } from '@/types';
+import { theme } from '@/theme';
 import { __ } from '@/wpi18n';
 
 import { getSearchedValue } from '@/pages/settings/utils';
@@ -150,7 +151,7 @@ const AddCurrencyPopup = () => {
                       <span
                         style={{
                           position: 'absolute',
-                          left: 'var(--decom-spacing-3)',
+                          left: theme.spacing.lg,
                           top: '50%',
                           transform: 'translateY(-50%)',
                           pointerEvents: 'none',
@@ -167,7 +168,7 @@ const AddCurrencyPopup = () => {
                           'kirki-ecommerce',
                         )}
                         onChange={(e) => handleSearchCurrency(e)}
-                        style={{ paddingLeft: 'var(--decom-spacing-8)' }}
+                        style={{ paddingLeft: theme.spacing['6xl'] }}
                       />
                     </div>
                   </div>
@@ -214,12 +215,12 @@ const AddCurrencyPopup = () => {
                               type="xsm"
                               header={currency.name}
                               style={{
-                                color: 'var(--decom-text-text-subdued)',
+                                color: theme.colors.text.subdued,
                               }}
                             />
                             <Text
                               style={{
-                                paddingRight: 'var(--decom-spacing-3)',
+                                paddingRight: theme.spacing.lg,
                               }}
                               type="primary"
                               header={currency.symbol}

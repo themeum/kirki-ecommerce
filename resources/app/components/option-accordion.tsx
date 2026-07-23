@@ -9,6 +9,7 @@ import {
 import Badge from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import Text from '@/components/ui/text';
+import { theme } from '@/theme';
 import { __ } from '@/wpi18n';
 
 type OptionAccordionProps = {
@@ -36,8 +37,8 @@ const OptionAccordion = (props: OptionAccordionProps) => {
   return (
     <div
       style={{
-        borderRadius: 'var(--decom-radius-rounded-xl)',
-        border: '1px solid var(--decom-icon-inverse)',
+        borderRadius: theme.radius.xl,
+        border: `1px solid ${theme.colors.icon.inverse}`,
       }}
     >
       <Accordion
@@ -48,7 +49,7 @@ const OptionAccordion = (props: OptionAccordionProps) => {
       >
         <AccordionItem>
           <AccordionTrigger
-            style={{ padding: 'var(--decom-spacing-3) var(--decom-spacing-4)' }}
+            style={{ padding: `${theme.spacing.lg} ${theme.spacing['2xl']}` }}
             gap={16}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
@@ -67,8 +68,7 @@ const OptionAccordion = (props: OptionAccordionProps) => {
             <Card
               type="dark"
               style={{
-                borderRadius:
-                  'var(--decom-radius-rounded-none) var(--decom-radius-rounded-none) var(--decom-radius-rounded-lg) var(--decom-radius-rounded-lg)',
+                borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.lg} ${theme.radius.lg}`,
                 display: 'flex',
                 flexDirection: 'column',
               }}

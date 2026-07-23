@@ -3,6 +3,7 @@ import { Card } from '@/components/ui/card';
 import Text from '@/components/ui/text';
 import { usePagesQuery } from '@/services/page';
 import type { PageItem } from '@/types';
+import { theme } from '@/theme';
 import { __ } from '@/wpi18n';
 
 export const ShopPage = () => {
@@ -25,10 +26,10 @@ export const ShopPage = () => {
             'kirki-ecommerce',
           )}
           type="primary"
-          style={{ gap: 'var(--decom-spacing-f3)' }}
+          style={{ gap: theme.spacing.base }}
         />
 
-        <Card type="inner" style={{ padding: 'var(--decom-spacing-4)' }}>
+        <Card type="inner" style={{ padding: theme.spacing['2xl'] }}>
           <SelectField
             name="shop_page"
             label={__('Shop page', 'kirki-ecommerce')}

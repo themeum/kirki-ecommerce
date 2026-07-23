@@ -22,6 +22,7 @@ import {
 } from '@/schemas/forms/multi-currency-settings-form';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import type { ConfirmationVariant, SettingsSectionData } from '@/types';
+import { theme } from '@/theme';
 import { __ } from '@/wpi18n';
 
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
@@ -171,7 +172,7 @@ const MultiCurrencySettings = () => {
                     'kirki-ecommerce',
                   )}
                   type="primary"
-                  style={{ gap: 'var(--decom-spacing-f3)' }}
+                  style={{ gap: theme.spacing.base }}
                 />
                 <AvailableCurrencyList />
                 <ApiConfig />

@@ -1,4 +1,3 @@
-import { css } from '@emotion/react';
 import { useState, useEffect, type ReactNode } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -8,7 +7,8 @@ import Flex from '@/components/ui/flex';
 import HeaderActionsCard from '@/components/header-actions-card';
 import GroupOptionCard from '@/components/group-option-card';
 import { BoxOpenIcon, BoxClosedIcon } from '@/icons';
-import { CLASS_PREFIX } from '@/conf';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import { toastMutationError } from '@/services/helpers';
 import { deleteTaxProfile, useTaxProfilesQuery } from '@/services/tax';
 import type { TaxProfile as TaxProfileType } from '@/types';
@@ -19,22 +19,6 @@ import { TaxProfilePopup } from '@/pages/settings/tax-settings/tax-profile/tax-p
 type TaxProfileListItem = TaxProfileType & {
   icon?: ReactNode;
 };
-
-const boxWrapperCss = css({
-  [`.${CLASS_PREFIX}-box-card`]: {
-    borderTop: 'none',
-    borderRadius: 'var(--decom-radius-rounded-none)',
-  },
-  [`.${CLASS_PREFIX}-box-card:first-child`]: {
-    borderTop: '1px solid var(--decom-border-border-secondary)',
-    borderRadius:
-      'var(--decom-radius-rounded-md) var(--decom-radius-rounded-md) var(--decom-radius-rounded-none) var(--decom-radius-rounded-none)',
-  },
-  [`.${CLASS_PREFIX}-box-card:last-child`]: {
-    borderRadius:
-      'var(--decom-radius-rounded-none) var(--decom-radius-rounded-none) var(--decom-radius-rounded-md) var(--decom-radius-rounded-md)',
-  },
-});
 
 const TaxProfile = () => {
   const queryClient = useQueryClient();
@@ -100,10 +84,10 @@ const TaxProfile = () => {
         />
 
         {!taxProfileList?.length ? (
-          <Card type="innerDark" style={{ padding: '36px 0' }}>
+          <Card type="innerDark" css={styles.emptyState}>
             <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
               <BoxOpenIcon />
-              <span style={{ color: '#878593' }}>
+              <span css={styles.emptyStateText}>
                 {__(
                   'Added shipping profiles will appear here',
                   'kirki-ecommerce',
@@ -112,7 +96,7 @@ const TaxProfile = () => {
             </Flex>
           </Card>
         ) : (
-          <Flex direction="column" css={boxWrapperCss}>
+          <Flex direction="column" data-box-wrapper css={styles.boxWrapper}>
             <GroupOptionCard
               dataArr={taxProfileList}
               handleDeleteItem={(item) =>
@@ -146,3 +130,25 @@ const TaxProfile = () => {
 TaxProfile.displayName = 'TaxProfile';
 
 export default TaxProfile;
+
+const styles = {
+  boxWrapper: scoped({
+    '[data-box-card]': {
+      borderTop: 'none',
+      borderRadius: theme.radius.none,
+    },
+    '[data-box-card]:first-of-type': {
+      borderTop: `1px solid ${theme.colors.border.secondary}`,
+      borderRadius: `${theme.radius.md} ${theme.radius.md} ${theme.radius.none} ${theme.radius.none}`,
+    },
+    '[data-box-card]:last-of-type': {
+      borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.md} ${theme.radius.md}`,
+    },
+  }),
+  emptyState: scoped({
+    padding: `${theme.spacing['7xl']} ${theme.spacing.none}`,
+  }),
+  emptyStateText: scoped({
+    color: theme.colors.text.subdued,
+  }),
+};

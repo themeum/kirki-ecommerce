@@ -10,6 +10,8 @@ import Textarea from '@/components/ui/textarea';
 import Flex from '@/components/ui/flex';
 import Grid from '@/components/ui/grid';
 import Text from '@/components/ui/text';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 import { PlusIcon, TrashIcon } from '@/icons';
 
@@ -81,20 +83,11 @@ const RateByWeightSettings = ({
           id="rate-by-weight-description"
           value={(dataObj?.description as string) || ''}
           placeholder={__('e.g., 3-5 business days', 'kirki-ecommerce')}
-          style={{
-            padding: 'var(--decom-spacing-2) var(--decom-spacing-3)',
-            minHeight: '108px',
-          }}
+          css={styles.textarea}
           onChange={(e) => handleOnChange(e.target.value, 'description')}
         />
       </Flex>
-      <Card
-        type="form"
-        style={{
-          border: '1px solid var(--decom-border-border)',
-          borderRadius: 'var(--decom-radius-rounded-md)',
-        }}
-      >
+      <Card type="form" css={styles.rangesCard}>
         <Grid columns={3}>
           <Text header={__('Weight Range (kg)', 'kirki-ecommerce')} />
           <Text />
@@ -114,13 +107,7 @@ const RateByWeightSettings = ({
               placeholder={__('e.g. 12', 'kirki-ecommerce')}
               onChange={(e) => updateRange(index, 'to', e.target.value)}
             />
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '16px',
-              }}
-            >
+            <div css={styles.rateRow} data-hover-parent>
               <Input
                 value={range.amount || ''}
                 type="number"
@@ -131,7 +118,8 @@ const RateByWeightSettings = ({
               {index !== 0 && (
                 <Button
                   variant="secondary"
-                  style={{ padding: 'var(--decom-spacing-1)' }}
+                  css={styles.deleteButton}
+                  data-hover-reveal
                   onClick={() => removeRange(index)}
                 >
                   <TrashIcon />
@@ -190,3 +178,34 @@ const RateByWeightSettings = ({
 RateByWeightSettings.displayName = 'RateByWeightSettings';
 
 export default RateByWeightSettings;
+
+const styles = {
+  textarea: scoped({
+    padding: `${theme.spacing.md} ${theme.spacing.lg}`,
+    minHeight: '108px',
+  }),
+  rangesCard: scoped({
+    border: `1px solid ${theme.colors.border.default}`,
+    borderRadius: theme.radius.md,
+  }),
+  rateRow: scoped({
+    display: 'flex',
+    alignItems: 'center',
+    gap: theme.spacing['2xl'],
+    '&:hover [data-hover-reveal]': {
+      opacity: 1,
+      visibility: 'visible',
+      display: 'block',
+    },
+  }),
+  deleteButton: scoped({
+    padding: theme.spacing.xs,
+    opacity: 0,
+    display: 'none',
+    visibility: 'hidden',
+    transition: 'opacity 0.2s ease',
+    cursor: 'pointer',
+    background: theme.colors.background.fillSecondary,
+    borderRadius: theme.radius.lg,
+  }),
+};

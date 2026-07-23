@@ -168,7 +168,7 @@ const ExchangeRatePopup = ({
                           />
                           <Text
                             type="xsm"
-                            style={{ color: 'var(--decom-text-text-subdued)' }}
+                            style={{ color: theme.colors.text.subdued }}
                             header={sprintf(
                               __('%s', 'kirki-ecommerce'),
                               currency?.name ?? '',
@@ -178,7 +178,7 @@ const ExchangeRatePopup = ({
                         <div
                           style={{
                             width: 'auto',
-                            margin: 'var(--decom-spacing-f1)',
+                            margin: theme.spacing.xxs,
                           }}
                         >
                           <TextField

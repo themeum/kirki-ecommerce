@@ -5,8 +5,9 @@ import { Card } from '@/components/ui/card';
 import Input from '@/components/ui/input';
 import Text from '@/components/ui/text';
 import Flex from '@/components/ui/flex';
-import { __ } from '@/wpi18n';
+import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { __ } from '@/wpi18n';
 
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
 
@@ -14,41 +15,6 @@ type SingleTaxRateProps = {
   centralTaxValue: number | string;
   setCentralTaxValue: (value: number | string) => void;
 };
-
-const taxCardCss = scoped({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  borderRadius: 'var(--decom-radius-rounded-md)',
-  maxHeight: '44px',
-  height: '44px',
-  padding: 'var(--decom-spacing-3)',
-});
-
-const editGroupCss = css({
-  display: 'none',
-  pointerEvents: 'none',
-  transition: 'opacity 0.2s',
-});
-
-const editGroupActiveCss = css({
-  display: 'flex',
-  pointerEvents: 'auto',
-});
-
-const rateDisplayCss = scoped({
-  transition: 'opacity 0.2s',
-  display: 'flex',
-});
-
-const rateDisplayHiddenCss = css({
-  display: 'none',
-});
-
-const taxCardContentCss = scoped({
-  display: 'flex',
-  alignItems: 'center',
-});
 
 export const SingleTaxRate = ({
   centralTaxValue,
@@ -60,24 +26,25 @@ export const SingleTaxRate = ({
     setCentralTaxValue(value);
     setUnsavedDataStatus(true);
   };
+
   return (
     <div>
       <Card
         type="innerDark"
-        css={taxCardCss}
+        css={styles.taxCard}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
         <Text type="secondary" header={__('Tax rates', 'kirki-ecommerce')} />
-        <div css={taxCardContentCss}>
+        <div css={styles.taxCardContent}>
           <Text
             header={centralTaxValue}
-            css={css(rateDisplayCss, isHovered && rateDisplayHiddenCss)}
+            css={css(styles.rateDisplay, isHovered && styles.rateDisplayHidden)}
           />
 
           <Flex
             gap={8}
-            css={css(editGroupCss, isHovered && editGroupActiveCss)}
+            css={css(styles.editGroup, isHovered && styles.editGroupActive)}
           >
             <Input
               value={centralTaxValue}
@@ -93,4 +60,38 @@ export const SingleTaxRate = ({
       </Card>
     </div>
   );
+};
+
+SingleTaxRate.displayName = 'SingleTaxRate';
+
+const styles = {
+  taxCard: scoped({
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderRadius: theme.radius.md,
+    maxHeight: '44px',
+    height: '44px',
+    padding: theme.spacing.lg,
+  }),
+  editGroup: css({
+    display: 'none',
+    pointerEvents: 'none',
+    transition: 'opacity 0.2s',
+  }),
+  editGroupActive: css({
+    display: 'flex',
+    pointerEvents: 'auto',
+  }),
+  rateDisplay: scoped({
+    transition: 'opacity 0.2s',
+    display: 'flex',
+  }),
+  rateDisplayHidden: css({
+    display: 'none',
+  }),
+  taxCardContent: scoped({
+    display: 'flex',
+    alignItems: 'center',
+  }),
 };

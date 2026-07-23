@@ -26,6 +26,8 @@ import Flex from '@/components/ui/flex';
 import PageHeading from '@/components/ui/page-heading';
 import { Separator } from '@/components/ui/separator';
 import Text from '@/components/ui/text';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import {
   TaxSettingsFormSchema,
   taxSettingsDefaultValues,
@@ -51,7 +53,7 @@ const TaxCollectionOptions = () => {
 
   return (
     <div>
-      <Separator style={{ marginBottom: 'var(--decom-spacing-3)' }} />
+      <Separator css={styles.separator} />
       {isTaxInclusivePrice ? (
         <CheckboxField
           name="is_shipping_tax_enabled"
@@ -253,7 +255,7 @@ const TaxSettings = () => {
                     'Configure how tax is displayed and how it appears on your product listings.',
                     'kirki-ecommerce',
                   )}
-                  style={{ gap: 'var(--decom-spacing-f3)' }}
+                  css={styles.taxCollectionHeader}
                 />
                 <Flex direction="column" gap={12}>
                   <TaxCollectionRadio />
@@ -275,3 +277,12 @@ const TaxSettings = () => {
 TaxSettings.displayName = 'TaxSettings';
 
 export default TaxSettings;
+
+const styles = {
+  separator: scoped({
+    marginBottom: theme.spacing.lg,
+  }),
+  taxCollectionHeader: scoped({
+    gap: theme.spacing.base,
+  }),
+};

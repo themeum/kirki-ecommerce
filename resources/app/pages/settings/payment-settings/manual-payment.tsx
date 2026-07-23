@@ -15,6 +15,7 @@ import {
   useUpdatePaymentMethodMutation,
 } from '@/services/payment';
 import type { PaymentMethod } from '@/types';
+import { theme } from '@/theme';
 import { __, sprintf } from '@/wpi18n';
 
 import ManualPaymentPopup from '@/pages/settings/payment-settings/manual-payment-dialog';
@@ -91,11 +92,11 @@ const ManualPayment = (props: ManualPaymentProps) => {
         {manualPaymentList?.length === 0 ? (
           <Card
             type="innerDark"
-            style={{ padding: 'var(--decom-spacing-9) var(--decom-spacing-0)' }}
+            style={{ padding: `${theme.spacing['7xl']} ${theme.spacing.none}` }}
           >
             <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
               <CashIcon />
-              <span style={{ color: 'var(--decom-text-text-subdued)' }}>
+              <span style={{ color: theme.colors.text.subdued }}>
                 {__('No payment added yet', 'kirki-ecommerce')}
               </span>
             </Flex>
@@ -107,7 +108,7 @@ const ManualPayment = (props: ManualPaymentProps) => {
                 type="inner"
                 key={index}
                 style={{
-                  padding: 'var(--decom-spacing-3) var(--decom-spacing-4)',
+                  padding: `${theme.spacing.lg} ${theme.spacing['2xl']}`,
                 }}
               >
                 <Flex style={{ alignItems: 'center' }}>

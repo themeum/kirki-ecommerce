@@ -3,6 +3,8 @@ import Flex from '@/components/ui/flex';
 import Label from '@/components/ui/label';
 import { useCountriesQuery } from '@/services/country';
 import type { LabelFieldProps } from '@/types';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 type CountrySelectorProps = LabelFieldProps & {
@@ -37,6 +39,8 @@ const CountrySelector = ({
         onChange={onChange}
         error={Boolean(error)}
         multiple={multiple}
+        listCss={styles.wrapper}
+        searchInputCss={styles.searchInput}
       />
     </Flex>
   );
@@ -45,3 +49,16 @@ const CountrySelector = ({
 CountrySelector.displayName = 'CountrySelector';
 
 export default CountrySelector;
+
+const styles = {
+  wrapper: scoped({
+    height: '220px',
+    overflowY: 'scroll',
+    overflowX: 'hidden',
+    borderTop: `1px solid ${theme.colors.border.muted}`,
+    borderBottom: `1px solid ${theme.colors.border.muted}`,
+  }),
+  searchInput: scoped({
+    padding: theme.spacing.lg,
+  }),
+};

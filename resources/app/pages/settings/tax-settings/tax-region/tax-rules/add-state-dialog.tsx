@@ -17,8 +17,9 @@ import {
 import { Form } from '@/components/ui/form';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
-import { CLASS_PREFIX } from '@/conf';
 import Flex from '@/components/ui/flex';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import {
   AddStatePopupFormSchema,
   type AddStatePopupFormValues,
@@ -128,10 +129,7 @@ export const AddStatePopup = (props: AddStatePopupProps) => {
               />
             </Flex>
 
-            <Card
-              type="table"
-              style={{ borderRadius: 'var(--decom-radius-rounded-md)' }}
-            >
+            <Card type="table" css={styles.tableCard}>
               <div
                 style={{
                   height: '350px',
@@ -154,15 +152,7 @@ export const AddStatePopup = (props: AddStatePopupProps) => {
 
                 {filteredCountries?.map((country, index) => {
                   return (
-                    <div
-                      key={index}
-                      style={{
-                        padding:
-                          'var(--decom-spacing-2) var(--decom-spacing-5)',
-                        width: 'auto',
-                      }}
-                      className={`${CLASS_PREFIX}-checkbox-item`}
-                    >
+                    <div key={index} css={styles.checkboxItemIndented}>
                       <Flex gap={8} style={{ alignItems: 'center' }}>
                         <Checkbox
                           id={`add-state-country-${index}`}
@@ -210,3 +200,17 @@ export const AddStatePopup = (props: AddStatePopupProps) => {
 };
 
 AddStatePopup.displayName = 'AddStatePopup';
+
+const styles = {
+  tableCard: scoped({
+    borderRadius: theme.radius.md,
+  }),
+  checkboxItemIndented: scoped({
+    width: 'auto',
+    padding: `${theme.spacing.md} ${theme.spacing['3xl']}`,
+    '&:hover': {
+      background: theme.colors.background.surfaceSecondary,
+      borderRadius: theme.radius.sm,
+    },
+  }),
+};

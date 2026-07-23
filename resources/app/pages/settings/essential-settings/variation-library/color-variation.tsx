@@ -10,6 +10,7 @@ import Flex from '@/components/ui/flex';
 import PageHeading from '@/components/ui/page-heading';
 import { useAttributeQuery } from '@/services/attribute';
 import type { Attribute, AttributeValue, TaxonomyTableHeader } from '@/types';
+import { theme } from '@/theme';
 import { __, sprintf } from '@/wpi18n';
 
 import VariationTable from '@/pages/settings/essential-settings/variation-library/variation-table/variation-table';
@@ -53,7 +54,7 @@ const ColorVariation = () => {
               <div>
                 <Button
                   variant="link"
-                  style={{ color: 'var(--decom-color-blue-3)', padding: 0 }}
+                  style={{ color: theme.colors.text.emphasis, padding: 0 }}
                   onClick={() => setAddVariantPopup(true)}
                 >
                   {__('Add color', 'kirki-ecommerce')}
