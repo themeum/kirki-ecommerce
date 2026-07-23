@@ -5,7 +5,10 @@ import { useNavigate, useOutletContext } from 'react-router';
 
 import PageNavbar from '@/components/page-navbar';
 import Button from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+} from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import { CurrencyIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
@@ -23,6 +26,7 @@ import {
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import type { ConfirmationVariant, SettingsSectionData } from '@/types';
 import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
@@ -164,30 +168,36 @@ const MultiCurrencySettings = () => {
                 handleBack={handleBackButton}
               />
 
-              <Card type="large">
+              <Card css={styles.largeCard} >
+                <CardContent css={styles.largeContent}>
+
                 <Text
-                  header={__('Currency Management', 'kirki-ecommerce')}
-                  subHeader={__(
-                    'Manage product pricing across multiple currencies with manual or automatic conversion rates.',
-                    'kirki-ecommerce',
-                  )}
-                  type="primary"
-                  style={{ gap: theme.spacing.base }}
+                header={__('Currency Management', 'kirki-ecommerce')}
+                subHeader={__(
+                'Manage product pricing across multiple currencies with manual or automatic conversion rates.',
+                'kirki-ecommerce',
+                )}
+                type="primary"
+                style={{ gap: theme.spacing.base }}
                 />
                 <AvailableCurrencyList />
                 <ApiConfig />
+                </CardContent>
               </Card>
-              <Card type="large">
+              <Card css={styles.largeCard} >
+                <CardContent css={styles.largeContent}>
+
                 <Text
-                  header={__('Currency Preferences', 'kirki-ecommerce')}
-                  subHeader={__(
-                    'Set your preferences for how currency is displayed.',
-                    'kirki-ecommerce',
-                  )}
-                  type="primary"
-                  style={{ gap: '12px' }}
+                header={__('Currency Preferences', 'kirki-ecommerce')}
+                subHeader={__(
+                'Set your preferences for how currency is displayed.',
+                'kirki-ecommerce',
+                )}
+                type="primary"
+                style={{ gap: '12px' }}
                 />
                 <CurrencyFormatSettings />
+                </CardContent>
               </Card>
             </Flex>
           </Form>
@@ -200,5 +210,38 @@ const MultiCurrencySettings = () => {
 };
 
 MultiCurrencySettings.displayName = 'MultiCurrencySettings';
+
+const styles = {
+  formCard: scoped({ rowGap: theme.spacing['2xl'] }),
+  largeCard: scoped({ gap: theme.spacing['3xl'],
+    padding: theme.spacing.none,
+  }),
+  largeContent: scoped({ padding: theme.spacing['3xl'] }),
+  innerCard: scoped({ borderRadius: theme.radius.lg, boxShadow: 'none',
+    padding: theme.spacing.none,
+  }),
+  innerContent: scoped({ padding: theme.spacing.lg }),
+  innerDarkCard: scoped({
+    borderRadius: theme.radius.lg,
+    backgroundColor: theme.colors.background.surfaceSecondary,
+    border: 'none',
+    padding: theme.spacing.none,
+  }),
+  innerDarkContent: scoped({ padding: theme.spacing.lg }),
+  darkCard: scoped({ backgroundColor: theme.colors.background.surfaceSecondary,
+    padding: theme.spacing.none,
+  }),
+  lightCard: scoped({ borderRadius: theme.radius.md,
+    padding: theme.spacing.none,
+  }),
+  shadowCard: scoped({
+    boxShadow: '0px -1px 1px 0.5px #0000001a inset',
+    border: 'none',
+  }),
+  tartiaryCard: scoped({
+    backgroundColor: theme.colors.background.surfaceSecondary,
+    padding: theme.spacing.none,
+  }),
+};
 
 export default MultiCurrencySettings;

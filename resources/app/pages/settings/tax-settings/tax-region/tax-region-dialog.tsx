@@ -273,7 +273,7 @@ const TaxRegionPopup = (props: TaxRegionPopupProps) => {
               />
             </Flex>
 
-            <Card type="table" css={styles.tableCard}>
+            <Card css={styles.tableCard}>
               <div
                 style={{
                   height: '350px',
@@ -378,6 +378,7 @@ export default TaxRegionPopup;
 const styles = {
   tableCard: scoped({
     borderRadius: theme.radius.md,
+    padding: theme.spacing.none,
   }),
   checkboxItem: scoped({
     width: 'auto',

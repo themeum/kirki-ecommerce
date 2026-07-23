@@ -6,7 +6,10 @@ import ColorPickerField from '@/components/form/color-picker-field';
 import TextField from '@/components/form/text-field';
 import ThumbnailField from '@/components/form/thumbnail-field';
 import Button from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+} from '@/components/ui/card';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import {
@@ -39,6 +42,9 @@ import type {
   SettingsSectionData,
 } from '@/types';
 import { __ } from '@/wpi18n';
+
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 
 const POSITION_MAP: Record<string, number> = {
   start: 0,
@@ -163,99 +169,105 @@ const EditTemplate = () => {
           <Form {...form}>
             <Flex gap={48} style={{ width: '100%' }}>
               <Flex direction="column" gap={20} style={{ width: '44%' }}>
-                <Card type="large" style={{ borderRadius: '8px' }}>
+                <Card css={styles.largeCard}  style={{ borderRadius: '8px' }}>
+                  <CardContent css={styles.largeContent}>
+
                   <Text
-                    type="primary"
-                    header={'Logo'}
-                    subHeader={'Update the logo & style your way'}
+                  type="primary"
+                  header={'Logo'}
+                  subHeader={'Update the logo & style your way'}
                   />
                   <ThumbnailField
-                    name="logo"
-                    placeholder={__(
-                      'Drag and drop, or upload images',
-                      'kirki-ecommerce',
-                    )}
-                    description={__('Set store logo', 'kirki-ecommerce')}
-                    getPreviewUrl={(value) => resolveLogoUrl(value as EmailTemplateFormValues['logo'])}
+                  name="logo"
+                  placeholder={__(
+                  'Drag and drop, or upload images',
+                  'kirki-ecommerce',
+                  )}
+                  description={__('Set store logo', 'kirki-ecommerce')}
+                  getPreviewUrl={(value) => resolveLogoUrl(value as EmailTemplateFormValues['logo'])}
                   />
                   <TextField
-                    name="height"
-                    label={__('Height', 'kirki-ecommerce')}
-                    type="number"
+                  name="height"
+                  label={__('Height', 'kirki-ecommerce')}
+                  type="number"
                   />
                   <FormField
-                    control={form.control}
-                    name="height"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <ProgressBar
-                            value={Number(field.value) || 0}
-                            onChange={(value) => field.onChange(value)}
-                            label={'Height'}
-                            rightText={`${heightValue}px`}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                  control={form.control}
+                  name="height"
+                  render={({ field }) => (
+                  <FormItem>
+                  <FormControl>
+                  <ProgressBar
+                  value={Number(field.value) || 0}
+                  onChange={(value) => field.onChange(value)}
+                  label={'Height'}
+                  rightText={`${heightValue}px`}
+                  />
+                  </FormControl>
+                  <FormMessage />
+                  </FormItem>
+                  )}
                   />
                   <FormField
-                    control={form.control}
-                    name="position"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Tabs
-                            value={String(
-                              POSITION_MAP[field.value || ''] ?? 0,
-                            )}
-                            onValueChange={(value) => {
-                              field.onChange(
-                                INDEX_TO_POSITION[Number(value)] || 'start',
-                              );
-                            }}
-                          >
-                            <TabsList>
-                              <TabsTrigger value="0">
-                                <AlignLeftIcon />
-                              </TabsTrigger>
-                              <TabsTrigger value="1">
-                                <AlignCenterIcon />
-                              </TabsTrigger>
-                              <TabsTrigger value="2">
-                                <AlignLeftIcon
-                                  style={{ transform: 'scaleX(-1)' }}
-                                />
-                              </TabsTrigger>
-                            </TabsList>
-                          </Tabs>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                  control={form.control}
+                  name="position"
+                  render={({ field }) => (
+                  <FormItem>
+                  <FormControl>
+                  <Tabs
+                  value={String(
+                  POSITION_MAP[field.value || ''] ?? 0,
+                  )}
+                  onValueChange={(value) => {
+                  field.onChange(
+                  INDEX_TO_POSITION[Number(value)] || 'start',
+                  );
+                  }}
+                  >
+                  <TabsList>
+                  <TabsTrigger value="0">
+                  <AlignLeftIcon />
+                  </TabsTrigger>
+                  <TabsTrigger value="1">
+                  <AlignCenterIcon />
+                  </TabsTrigger>
+                  <TabsTrigger value="2">
+                  <AlignLeftIcon
+                  style={{ transform: 'scaleX(-1)' }}
                   />
+                  </TabsTrigger>
+                  </TabsList>
+                  </Tabs>
+                  </FormControl>
+                  <FormMessage />
+                  </FormItem>
+                  )}
+                  />
+                  </CardContent>
                 </Card>
-                <Card type="large" style={{ borderRadius: '8px' }}>
+                <Card css={styles.largeCard}  style={{ borderRadius: '8px' }}>
+                  <CardContent css={styles.largeContent}>
+
                   <Text
-                    header={'Colors'}
-                    subHeader={'Style how the emails will look'}
+                  header={'Colors'}
+                  subHeader={'Style how the emails will look'}
                   />
                   <ColorPickerField
-                    name="colors.background"
-                    label={'Background'}
+                  name="colors.background"
+                  label={'Background'}
                   />
                   <ColorPickerField name="colors.text" label={'Text'} />
                   <ColorPickerField name="colors.link" label={'Link'} />
                   <ColorPickerField name="colors.label" label={'Label'} />
                   <ColorPickerField
-                    name="colors.button"
-                    label={'Button Color'}
+                  name="colors.button"
+                  label={'Button Color'}
                   />
                   <ColorPickerField
-                    name="colors.button_bg"
-                    label={'Button BG'}
+                  name="colors.button_bg"
+                  label={'Button BG'}
                   />
+                  </CardContent>
                 </Card>
               </Flex>
 
@@ -276,7 +288,10 @@ const EditTemplate = () => {
                     leftIcon={<SendIcon />}
                   />
                 </Flex>
-                <Card type="default" style={{ borderRadius: '0px' }}></Card>
+                <Card  style={{ borderRadius: '0px' }}>
+                  <CardContent>
+                  </CardContent>
+                </Card>
               </Flex>
             </Flex>
           </Form>
@@ -289,5 +304,38 @@ const EditTemplate = () => {
 };
 
 EditTemplate.displayName = 'EditTemplate';
+
+const styles = {
+  formCard: scoped({ rowGap: theme.spacing['2xl'] }),
+  largeCard: scoped({ gap: theme.spacing['3xl'],
+    padding: theme.spacing.none,
+  }),
+  largeContent: scoped({ padding: theme.spacing['3xl'] }),
+  innerCard: scoped({ borderRadius: theme.radius.lg, boxShadow: 'none',
+    padding: theme.spacing.none,
+  }),
+  innerContent: scoped({ padding: theme.spacing.lg }),
+  innerDarkCard: scoped({
+    borderRadius: theme.radius.lg,
+    backgroundColor: theme.colors.background.surfaceSecondary,
+    border: 'none',
+    padding: theme.spacing.none,
+  }),
+  innerDarkContent: scoped({ padding: theme.spacing.lg }),
+  darkCard: scoped({ backgroundColor: theme.colors.background.surfaceSecondary,
+    padding: theme.spacing.none,
+  }),
+  lightCard: scoped({ borderRadius: theme.radius.md,
+    padding: theme.spacing.none,
+  }),
+  shadowCard: scoped({
+    boxShadow: '0px -1px 1px 0.5px #0000001a inset',
+    border: 'none',
+  }),
+  tartiaryCard: scoped({
+    backgroundColor: theme.colors.background.surfaceSecondary,
+    padding: theme.spacing.none,
+  }),
+};
 
 export default EditTemplate;

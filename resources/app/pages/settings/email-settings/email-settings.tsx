@@ -5,7 +5,10 @@ import { useNavigate, useOutletContext } from 'react-router';
 
 import PageNavbar from '@/components/page-navbar';
 import Button from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+} from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import { AtSignIcon, BrushIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
@@ -199,40 +202,43 @@ const EmailSettings = () => {
                 text={__('Email', 'kirki-ecommerce')}
                 handleBack={handleBackButton}
               />
-              <Card type="default" style={{ borderRadius: '8px' }}>
+              <Card  style={{ borderRadius: '8px' }}>
+                <CardContent>
+
                 <Flex
-                  style={{
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                  }}
+                style={{
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                }}
                 >
-                  <Flex
-                    direction="column"
-                    style={{ alignItems: 'flex-start' }}
-                    gap={6}
-                  >
-                    <Text
-                      header={__('Default Template', 'kirki-ecommerce')}
-                      type="primary"
-                      style={{ gap: '6px' }}
-                      leftIcon={<BrushIcon />}
-                    />
-                    <Text
-                      subHeader={__(
-                        'Configure logo, colors, sender email, and more for emails',
-                        'kirki-ecommerce',
-                      )}
-                    />
-                  </Flex>
-                  <Button
-                    variant="secondary"
-                    onClick={() => {
-                      navigate('/settings/email/edit-template');
-                    }}
-                  >
-                    {__('Edit', 'kirki-ecommerce')}
-                  </Button>
+                <Flex
+                direction="column"
+                style={{ alignItems: 'flex-start' }}
+                gap={6}
+                >
+                <Text
+                header={__('Default Template', 'kirki-ecommerce')}
+                type="primary"
+                style={{ gap: '6px' }}
+                leftIcon={<BrushIcon />}
+                />
+                <Text
+                subHeader={__(
+                'Configure logo, colors, sender email, and more for emails',
+                'kirki-ecommerce',
+                )}
+                />
                 </Flex>
+                <Button
+                variant="secondary"
+                onClick={() => {
+                navigate('/settings/email/edit-template');
+                }}
+                >
+                {__('Edit', 'kirki-ecommerce')}
+                </Button>
+                </Flex>
+                </CardContent>
               </Card>
               <CustomerEmail
                 handleToggleOrder={handleToggleOrder}

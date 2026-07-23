@@ -83,7 +83,7 @@ const RightPanel = () => {
     <div style={{ width: '30%' }}>
       <Form {...form}>
         <Flex direction="column" gap={16}>
-          <Card type="form">
+          <Card css={styles.formCard}>
             <CardContent>
               <SelectField
                 name="status"
@@ -93,7 +93,7 @@ const RightPanel = () => {
             </CardContent>
           </Card>
           <Categories />
-          <Card type="form">
+          <Card css={styles.formCard}>
             <CardContent css={styles.fields}>
               <Tags />
               <Collections />
@@ -111,6 +111,9 @@ RightPanel.displayName = 'RightPanel';
 export default RightPanel;
 
 const styles = {
+  formCard: scoped({
+    rowGap: theme.spacing['2xl'],
+  }),
   fields: scoped({
     display: 'flex',
     flexDirection: 'column',

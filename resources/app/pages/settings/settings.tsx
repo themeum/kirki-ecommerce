@@ -1,4 +1,4 @@
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import PageHeading from '@/components/ui/page-heading';
@@ -41,20 +41,22 @@ const Settings = () => {
         style={{ height: '32px' }}
       />
       <Container size="sm">
-        <Card type="shadow" css={styles.pageCard}>
-          <Flex direction="column" gap={24}>
-            <Searchbox
-              onChange={() => {
-                // @todo: will be implemented later
-              }}
-            />
-            {renderSettingsSection('STORE MANAGEMENT', storeManagementSettings)}
-            {renderSettingsSection(
-              'BUSINESS OPERATION',
-              businessOperationSettings,
-            )}
-            {renderSettingsSection('ADVANCED CONFIGURATION', advancedSettings)}
-          </Flex>
+        <Card css={[styles.shadowCard, styles.pageCard]}>
+          <CardContent css={styles.pageContent}>
+            <Flex direction="column" gap={24}>
+              <Searchbox
+                onChange={() => {
+                  // @todo: will be implemented later
+                }}
+              />
+              {renderSettingsSection('STORE MANAGEMENT', storeManagementSettings)}
+              {renderSettingsSection(
+                'BUSINESS OPERATION',
+                businessOperationSettings,
+              )}
+              {renderSettingsSection('ADVANCED CONFIGURATION', advancedSettings)}
+            </Flex>
+          </CardContent>
         </Card>
       </Container>
     </>
@@ -64,9 +66,17 @@ const Settings = () => {
 export default Settings;
 
 const styles = {
+  shadowCard: scoped({
+    boxShadow: '0px -1px 1px 0.5px #0000001a inset',
+    border: 'none',
+  }),
   pageCard: scoped({
-    padding: `${theme.spacing['2xl']} ${theme.spacing.lg}`,
     backgroundColor: theme.colors.background.surfaceSecondary,
+    gap: 0,
+    padding: theme.spacing.none,
+  }),
+  pageContent: scoped({
+    padding: `${theme.spacing['2xl']} ${theme.spacing.lg}`,
   }),
   settingsCardWrapper: scoped({
     alignItems: 'center',

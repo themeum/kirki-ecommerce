@@ -6,7 +6,12 @@ import CheckboxField from '@/components/form/checkbox-field';
 import SelectField from '@/components/form/select-field';
 import TextField from '@/components/form/text-field';
 import Button from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
 import { Form, FormField, FormItem } from '@/components/ui/form';
 import Input from '@/components/ui/input';
@@ -16,7 +21,6 @@ import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import Flex from '@/components/ui/flex';
 import Grid from '@/components/ui/grid';
-import Text from '@/components/ui/text';
 import { useProductForm } from '@/contexts/product-form-context';
 import {
   mapProductInventoryFromProduct,
@@ -25,6 +29,8 @@ import {
   type ProductInventoryFormValues,
 } from '@/schemas/forms/product-inventory-form';
 import type { FormErrors } from '@/types';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 type InventoryProps = {
@@ -103,21 +109,19 @@ const Inventory = ({ errors, setErrors, formSyncKey = 0 }: InventoryProps) => {
 
   return (
     <Form {...form}>
-      <Card type="form">
+      <Card css={styles.formCard}>
+        <CardHeader>
+          <CardTitle>{__('Inventory', 'kirki-ecommerce')}</CardTitle>
+        </CardHeader>
         <CardContent>
-          <Text
-            header={__('Inventory', 'kirki-ecommerce')}
-            type="primary"
-            padding="large"
-          />
           <CheckboxField
             name="track_inventory"
             label={__('Track quantity', 'kirki-ecommerce')}
           />
 
           {trackInventory ? (
-            <Card type="inner">
-              <CardContent>
+            <Card css={styles.innerCard}>
+              <CardContent css={styles.innerContent}>
                 <Grid columns={3}>
                   <TextField
                     name="available_quantity"
@@ -175,11 +179,8 @@ const Inventory = ({ errors, setErrors, formSyncKey = 0 }: InventoryProps) => {
           </Flex>
           <Flex gap={8}>
             {trackInventory && (
-              <Card
-                type="innerDark"
-                style={{ width: '30%' }}
-              >
-                <CardContent>
+              <Card css={[styles.innerDarkCard, styles.innerDarkNarrowCard]}>
+                <CardContent css={styles.innerDarkContent}>
                   <Flex gap={8} style={{ alignItems: 'center' }}>
                     <Checkbox id="sell-when-out-of-stock" defaultChecked />
                     <Label htmlFor="sell-when-out-of-stock">
@@ -190,10 +191,8 @@ const Inventory = ({ errors, setErrors, formSyncKey = 0 }: InventoryProps) => {
               </Card>
             )}
 
-            <Card
-              type="innerDark"
-              style={{ padding: '4px 8px 4px 12px' }}
-            >
+            <Card css={styles.innerDarkCard}>
+              <CardContent css={styles.innerDarkRowContent}>
               <Flex gap={30} style={{ justifyContent: 'space-between' }}>
                 <FormField
                   control={form.control}
@@ -233,6 +232,7 @@ const Inventory = ({ errors, setErrors, formSyncKey = 0 }: InventoryProps) => {
                   <TextField name="max_per_order" />
                 </span>
               </Flex>
+              </CardContent>
             </Card>
           </Flex>
         </CardContent>
@@ -244,3 +244,32 @@ const Inventory = ({ errors, setErrors, formSyncKey = 0 }: InventoryProps) => {
 Inventory.displayName = 'Inventory';
 
 export default Inventory;
+
+const styles = {
+  formCard: scoped({
+    rowGap: theme.spacing['2xl'],
+  }),
+  innerCard: scoped({
+    borderRadius: theme.radius.lg,
+    boxShadow: 'none',
+    padding: theme.spacing.none,
+  }),
+  innerContent: scoped({
+    padding: theme.spacing.lg,
+  }),
+  innerDarkCard: scoped({
+    borderRadius: theme.radius.lg,
+    backgroundColor: theme.colors.background.surfaceSecondary,
+    border: 'none',
+    padding: theme.spacing.none,
+  }),
+  innerDarkNarrowCard: scoped({
+    width: '30%',
+  }),
+  innerDarkContent: scoped({
+    padding: theme.spacing.lg,
+  }),
+  innerDarkRowContent: scoped({
+    padding: '4px 8px 4px 12px',
+  }),
+};

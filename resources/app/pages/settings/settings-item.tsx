@@ -25,7 +25,7 @@ export const SettingsItem = (props: SettingsItemProps) => {
   };
 
   return (
-    <Card type="default" css={styles.card} onClick={handleClick}>
+    <Card css={styles.card} onClick={handleClick}>
       <Flex gap={8} css={styles.content}>
         <div css={styles.identifier} data-settings-identifier />
         <span css={styles.iconWrap}>{icon}</span>
@@ -56,6 +56,10 @@ const styles = {
   card: scoped({
     padding: `${theme.spacing.md} ${theme.spacing.lg}`,
     cursor: 'pointer',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 0,
   }),
   content: scoped({
     position: 'relative',

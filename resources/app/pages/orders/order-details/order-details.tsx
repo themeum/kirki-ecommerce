@@ -10,12 +10,13 @@ import {
 import { FlagIcon, PlusIcon, ShowMoreIcon } from '@/icons';
 import Alert from '@/components/ui/alert';
 import Badge from '@/components/ui/badge';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import Label from '@/components/ui/label';
 import PageHeading from '@/components/ui/page-heading';
-import Text from '@/components/ui/text';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import type { SelectOption } from '@/types';
 
 import CustomerInfo from '@/pages/orders/order-details/customer-info';
@@ -55,20 +56,30 @@ const OrderDetails = () => {
       <Container>
         <Flex gap={16}>
           <Flex direction="column" gap={16} style={{ width: '70%' }}>
-            <Card type="form">
-              <Text header="Items(4)" type="primary" padding="large" />
-              <Card type="inner" style={{ padding: '0' }}>
-                <ItemsTable />
-              </Card>
+            <Card css={styles.formCard}>
+              <CardHeader>
+                <CardTitle>Items(4)</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Card css={styles.innerCard}>
+                  <CardContent css={styles.zeroPadding}>
+                    <ItemsTable />
+                  </CardContent>
+                </Card>
+              </CardContent>
             </Card>
 
-            <Card type="form">
-              <Payment />
+            <Card css={styles.formCard}>
+              <CardContent>
+                <Payment />
+              </CardContent>
             </Card>
 
-            <Card type="form">
-              <Text header="Timeline" type="primary" padding="large" />
-              This is timeline section
+            <Card css={styles.formCard}>
+              <CardHeader>
+                <CardTitle>Timeline</CardTitle>
+              </CardHeader>
+              <CardContent>This is timeline section</CardContent>
             </Card>
           </Flex>
 
@@ -79,60 +90,66 @@ const OrderDetails = () => {
               text="Manually created by the Admin."
             />
 
-            <Card type="form">
-              <Flex direction="column" gap={8}>
-                <Label text="Order Status" />
-                <Select defaultValue="pending">
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {optionsArray.map((option) => (
-                      <SelectItem
-                        key={option.value}
-                        value={String(option.value)}
-                      >
-                        {option.title}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </Flex>
-              <Flex direction="column" gap={8}>
-                <Label text="Payment Status" />
-                <Select defaultValue="unpaid">
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {optionsArray.map((option) => (
-                      <SelectItem
-                        key={option.value}
-                        value={String(option.value)}
-                      >
-                        {option.title}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </Flex>
+            <Card css={styles.formCard}>
+              <CardContent>
+                <Flex direction="column" gap={8}>
+                  <Label text="Order Status" />
+                  <Select defaultValue="pending">
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {optionsArray.map((option) => (
+                        <SelectItem
+                          key={option.value}
+                          value={String(option.value)}
+                        >
+                          {option.title}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Flex>
+                <Flex direction="column" gap={8}>
+                  <Label text="Payment Status" />
+                  <Select defaultValue="unpaid">
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {optionsArray.map((option) => (
+                        <SelectItem
+                          key={option.value}
+                          value={String(option.value)}
+                        >
+                          {option.title}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Flex>
+              </CardContent>
             </Card>
 
             <CustomerInfo />
 
-            <Card type="form">
-              <Flex direction="column" gap={8}>
-                <Label text="Flag" />
-                <Input placeholder="i.e Backorder, Urgent" defaultValue="skjl" />
-              </Flex>
+            <Card css={styles.formCard}>
+              <CardContent>
+                <Flex direction="column" gap={8}>
+                  <Label text="Flag" />
+                  <Input placeholder="i.e Backorder, Urgent" defaultValue="skjl" />
+                </Flex>
+              </CardContent>
             </Card>
 
-            <Card type="form">
-              <Label text="Notes" />
-              <Button variant="secondary" style={{ width: '100%' }}>
-                <PlusIcon />
-                Add note
-              </Button>
+            <Card css={styles.formCard}>
+              <CardContent>
+                <Label text="Notes" />
+                <Button variant="secondary" style={{ width: '100%' }}>
+                  <PlusIcon />
+                  Add note
+                </Button>
+              </CardContent>
             </Card>
           </Flex>
         </Flex>
@@ -142,3 +159,17 @@ const OrderDetails = () => {
 };
 
 export default OrderDetails;
+
+const styles = {
+  formCard: scoped({
+    rowGap: theme.spacing['2xl'],
+  }),
+  innerCard: scoped({
+    borderRadius: theme.radius.lg,
+    boxShadow: 'none',
+    padding: theme.spacing.none,
+  }),
+  zeroPadding: scoped({
+    padding: theme.spacing.none,
+  }),
+};

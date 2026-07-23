@@ -4,7 +4,10 @@ import { toast } from 'sonner';
 
 import HeaderActionsCard from '@/components/header-actions-card';
 import Button from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+} from '@/components/ui/card';
 import { EditPenIcon, LighteningIcon, TrashIcon } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
@@ -57,52 +60,55 @@ const TaxRules = (props: TaxRulesProps) => {
 
   return (
     <div>
-      <Card type="large">
-        <HeaderActionsCard
-          header={__('Tax Rules', 'kirki-ecommerce')}
-          subHeader={__(
-            'Define conditional rules to adjust tax prices based on product type, weight, zone, or cart value.',
-            'kirki-ecommerce',
-          )}
-          buttonText={__('Add Rule', 'kirki-ecommerce')}
-          onAdd={() => setAddRuleModal(true)}
-        />
-        {(addRuleModal || rulesObj.length > 0) && (
-          <Flex direction={'column'} gap={16}>
-            {addRuleModal && (
-              <TaxRulesModal
-                showModal={addRuleModal}
-                setShowModal={setAddRuleModal}
-                rulesObj={rulesObj}
-                setRulesObj={setRulesObj}
-                updateTaxRules={updateTaxRules}
-                from={'add'}
-                region={region}
-              />
+      <Card css={styles.largeCard}>
+        <CardContent css={styles.largeContent}>
+          <HeaderActionsCard
+            header={__('Tax Rules', 'kirki-ecommerce')}
+            subHeader={__(
+              'Define conditional rules to adjust tax prices based on product type, weight, zone, or cart value.',
+              'kirki-ecommerce',
             )}
-            <div>
-              {rulesObj?.map((item, index) => (
-                <Card
-                  type="default"
-                  key={index}
-                  css={css(
-                    styles.shippingRulesCard,
-                    rulesObj.length > 1
-                      ? styles.shippingRulesCardBorderRadius
-                      : styles.shippingRulesCardSingle,
-                  )}
-                  onMouseEnter={() => setHoveredRuleIndex(index)}
-                  onMouseLeave={() => setHoveredRuleIndex(null)}
-                >
-                  <Flex style={{ justifyContent: 'space-between' }}>
-                    <Flex direction={'column'} gap={16}>
-                      <Card type="dark" css={styles.rulesNumberBadge}>
-                        <Text
-                          type="xsm"
-                          header={sprintf(__('Rule %s', 'kirki-ecommerce'), index + 1)}
-                          leftIcon={<LighteningIcon />}
-                        />
-                      </Card>
+            buttonText={__('Add Rule', 'kirki-ecommerce')}
+            onAdd={() => setAddRuleModal(true)}
+          />
+          {(addRuleModal || rulesObj.length > 0) && (
+            <Flex direction={'column'} gap={16}>
+              {addRuleModal && (
+                <TaxRulesModal
+                  showModal={addRuleModal}
+                  setShowModal={setAddRuleModal}
+                  rulesObj={rulesObj}
+                  setRulesObj={setRulesObj}
+                  updateTaxRules={updateTaxRules}
+                  from={'add'}
+                  region={region}
+                />
+              )}
+              <div>
+                {rulesObj?.map((item, index) => (
+                  <Card
+                    key={index}
+                    css={css(
+                      styles.shippingRulesCard,
+                      rulesObj.length > 1
+                        ? styles.shippingRulesCardBorderRadius
+                        : styles.shippingRulesCardSingle,
+                    )}
+                    onMouseEnter={() => setHoveredRuleIndex(index)}
+                    onMouseLeave={() => setHoveredRuleIndex(null)}
+                  >
+                    <CardContent>
+                      <Flex style={{ justifyContent: 'space-between' }}>
+                        <Flex direction={'column'} gap={16}>
+                          <Card css={[styles.darkCard, styles.rulesNumberBadge]}>
+                            <CardContent>
+                              <Text
+                                type="xsm"
+                                header={sprintf(__('Rule %s', 'kirki-ecommerce'), index + 1)}
+                                leftIcon={<LighteningIcon />}
+                              />
+                            </CardContent>
+                          </Card>
                       <Flex direction={'column'} gap={8}>
                         <Flex direction={'column'} gap={8}>
                           {item?.conditions.map((condition, conditionIndex) => (
@@ -191,12 +197,14 @@ const TaxRules = (props: TaxRulesProps) => {
                       from={'edit'}
                       ruleIndex={index}
                     />
-                  )}
-                </Card>
-              ))}
-            </div>
-          </Flex>
-        )}
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </Flex>
+          )}
+        </CardContent>
       </Card>
     </div>
   );
@@ -207,6 +215,14 @@ TaxRules.displayName = 'TaxRules';
 export default TaxRules;
 
 const styles = {
+  largeCard: scoped({ gap: theme.spacing['3xl'],
+    padding: theme.spacing.none,
+  }),
+  largeContent: scoped({ padding: theme.spacing['3xl'] }),
+  darkCard: scoped({
+    backgroundColor: theme.colors.background.surfaceSecondary,
+    padding: theme.spacing.none,
+  }),
   cardActions: css({
     display: 'none',
     pointerEvents: 'none',

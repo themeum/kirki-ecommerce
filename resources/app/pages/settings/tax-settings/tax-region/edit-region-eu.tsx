@@ -6,7 +6,10 @@ import { useQueryClient } from '@tanstack/react-query';
 
 import PageNavbar from '@/components/page-navbar';
 import Button from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+} from '@/components/ui/card';
 import {
   Form,
   FormControl,
@@ -72,67 +75,67 @@ const VatCollectionProcessRadios = () => {
 
   return (
     <Flex direction={'column'} gap={8}>
-      <Card
-        type="inner"
-        css={styles.vatProcessCard}
-      >
+      <Card css={[styles.innerCard, styles.vatProcessCard]} >
+        <CardContent css={styles.innerContent}>
+
         <FormField
-          control={control}
-          name="type"
-          render={({ field }) => (
-            <FormItem>
-              <FormControl>
-                <RadioGroup
-                  value={field.value}
-                  onValueChange={(value) => handleProcessChange(value)}
-                >
-                  <FormFieldRow>
-                    <RadioGroupItem value="oss" id="vat-process-oss" />
-                    <Label htmlFor="vat-process-oss">
-                      {__('One Stop Shop (OSS)', 'kirki-ecommerce')}
-                    </Label>
-                  </FormFieldRow>
-                </RadioGroup>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+        control={control}
+        name="type"
+        render={({ field }) => (
+        <FormItem>
+        <FormControl>
+        <RadioGroup
+        value={field.value}
+        onValueChange={(value) => handleProcessChange(value)}
+        >
+        <FormFieldRow>
+        <RadioGroupItem value="oss" id="vat-process-oss" />
+        <Label htmlFor="vat-process-oss">
+        {__('One Stop Shop (OSS)', 'kirki-ecommerce')}
+        </Label>
+        </FormFieldRow>
+        </RadioGroup>
+        </FormControl>
+        <FormMessage />
+        </FormItem>
+        )}
         />
 
         <VatProcessDescription processValue="oss" />
+        </CardContent>
       </Card>
 
-      <Card
-        type="inner"
-        css={styles.vatProcessCard}
-      >
+      <Card css={[styles.innerCard, styles.vatProcessCard]} >
+        <CardContent css={styles.innerContent}>
+
         <FormField
-          control={control}
-          name="type"
-          render={({ field }) => (
-            <FormItem>
-              <FormControl>
-                <RadioGroup
-                  value={field.value}
-                  onValueChange={(value) => handleProcessChange(value)}
-                >
-                  <FormFieldRow>
-                    <RadioGroupItem
-                      value="micro_business"
-                      id="vat-process-micro-business"
-                    />
-                    <Label htmlFor="vat-process-micro-business">
-                      {__('Micro Business', 'kirki-ecommerce')}
-                    </Label>
-                  </FormFieldRow>
-                </RadioGroup>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+        control={control}
+        name="type"
+        render={({ field }) => (
+        <FormItem>
+        <FormControl>
+        <RadioGroup
+        value={field.value}
+        onValueChange={(value) => handleProcessChange(value)}
+        >
+        <FormFieldRow>
+        <RadioGroupItem
+        value="micro_business"
+        id="vat-process-micro-business"
+        />
+        <Label htmlFor="vat-process-micro-business">
+        {__('Micro Business', 'kirki-ecommerce')}
+        </Label>
+        </FormFieldRow>
+        </RadioGroup>
+        </FormControl>
+        <FormMessage />
+        </FormItem>
+        )}
         />
 
         <VatProcessDescription processValue="micro_business" />
+        </CardContent>
       </Card>
     </Flex>
   );
@@ -150,20 +153,23 @@ const VatProcessDescription = ({
   }
 
   return (
-    <Card type="innerDark">
+    <Card css={styles.innerDarkCard} >
+      <CardContent css={styles.innerDarkContent}>
+
       <Text
-        subHeader={
-          processValue === 'oss'
-            ? __(
-                'Applies to businesses selling across multiple EU countries under OSS.',
-                'kirki-ecommerce',
-              )
-            : __(
-                'Applies to businesses with less than €10,000 EU sales.',
-                'kirki-ecommerce',
-              )
-        }
+      subHeader={
+      processValue === 'oss'
+      ? __(
+      'Applies to businesses selling across multiple EU countries under OSS.',
+      'kirki-ecommerce',
+      )
+      : __(
+      'Applies to businesses with less than €10,000 EU sales.',
+      'kirki-ecommerce',
+      )
+      }
       />
+      </CardContent>
     </Card>
   );
 };
@@ -351,12 +357,15 @@ const EditRegionEU = () => {
                 handleBack={handleBackButton}
               />
 
-              <Card type="large">
+              <Card css={styles.largeCard} >
+                <CardContent css={styles.largeContent}>
+
                 <Text
-                  type="primary"
-                  header={__('How would you like to collect VAT?', 'kirki-ecommerce')}
+                type="primary"
+                header={__('How would you like to collect VAT?', 'kirki-ecommerce')}
                 />
                 <VatCollectionProcessRadios />
+                </CardContent>
               </Card>
 
               <VatCollection
@@ -388,6 +397,18 @@ EditRegionEU.displayName = 'EditRegionEU';
 export default EditRegionEU;
 
 const styles = {
+  largeCard: scoped({ gap: theme.spacing['3xl'],
+    padding: theme.spacing.none,
+  }),
+  largeContent: scoped({ padding: theme.spacing['3xl'] }),
+  innerCard: scoped({ borderRadius: theme.radius.lg, boxShadow: 'none',
+    padding: theme.spacing.none,
+  }),
+  innerContent: scoped({ padding: theme.spacing.lg }),
+  innerDarkCard: scoped({ borderRadius: theme.radius.lg, backgroundColor: theme.colors.background.surfaceSecondary, border: 'none',
+    padding: theme.spacing.none,
+  }),
+  innerDarkContent: scoped({ padding: theme.spacing.lg }),
   vatProcessCard: scoped({
     display: 'flex',
     flexDirection: 'column',

@@ -4,7 +4,9 @@ import Pagination from '@/components/pagination';
 import Button from '@/components/ui/button';
 import { NEW_ITEM_ID } from '@/conf';
 import { useListParams } from '@/hooks';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import PageHeading from '@/components/ui/page-heading';
@@ -60,8 +62,10 @@ const Products = () => {
       <Container>
         {loaded ? (
           <Flex direction="column" gap={16}>
-            <Card type="table">
-              <ProductTable data={data!} isFetching={isFetching} />
+            <Card css={styles.tableCard}>
+              <CardContent css={styles.tableContent}>
+                <ProductTable data={data!} isFetching={isFetching} />
+              </CardContent>
             </Card>
             <Pagination
               data={data as PaginationData}
@@ -79,3 +83,15 @@ const Products = () => {
 Products.displayName = 'Products';
 
 export default Products;
+
+const styles = {
+  tableCard: scoped({
+    overflow: 'hidden',
+    border: '1px solid #e6e6e6',
+    gap: 0,
+    padding: theme.spacing.none,
+  }),
+  tableContent: scoped({
+    padding: theme.spacing.none,
+  }),
+};

@@ -3,7 +3,10 @@ import { useNavigate } from 'react-router';
 
 import HeaderActionsCard from '@/components/header-actions-card';
 import GroupOptionCard from '@/components/group-option-card';
-import { Card } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+} from '@/components/ui/card';
 import { BoxIcon, ColorPaletteIcon } from '@/icons';
 import Flex from '@/components/ui/flex';
 import { dispatchToastMessage } from '@/pages/utils';
@@ -64,46 +67,50 @@ const VariationList = () => {
   };
 
   return (
-    <Card type="large">
-      <HeaderActionsCard
-        header={__('Variation Library', 'kirki-ecommerce')}
-        subHeader={__(
-          'Used to create tax rates for different product groups, like heavy items needing higher fees.',
-          'kirki-ecommerce',
-        )}
-        dropDownButton
-        buttonText={__('Add Variation', 'kirki-ecommerce')}
-        handleOptionSelect={(value) => {
-          setVariationType(String(value));
-          setShowPopup(true);
-        }}
-      />
-      {!attributeListArr.length ? (
-        <Card type="innerDark" css={styles.emptyState}>
-          <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
-            <BoxIcon />
-            <span css={styles.emptyStateText}>
-              {__('Added variation library will appear here', 'kirki-ecommerce')}
-            </span>
+    <Card css={styles.largeCard}>
+      <CardContent css={styles.largeContent}>
+        <HeaderActionsCard
+          header={__('Variation Library', 'kirki-ecommerce')}
+          subHeader={__(
+            'Used to create tax rates for different product groups, like heavy items needing higher fees.',
+            'kirki-ecommerce',
+          )}
+          dropDownButton
+          buttonText={__('Add Variation', 'kirki-ecommerce')}
+          handleOptionSelect={(value) => {
+            setVariationType(String(value));
+            setShowPopup(true);
+          }}
+        />
+        {!attributeListArr.length ? (
+          <Card css={styles.innerDarkCard}>
+            <CardContent css={[styles.innerDarkContent, styles.emptyState]}>
+              <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
+                <BoxIcon />
+                <span css={styles.emptyStateText}>
+                  {__('Added variation library will appear here', 'kirki-ecommerce')}
+                </span>
+              </Flex>
+            </CardContent>
+          </Card>
+        ) : (
+          <Flex direction="column" data-box-wrapper css={styles.boxWrapper}>
+            <GroupOptionCard
+              dataArr={attributeListArr}
+              handleDeleteItem={(item) => handleDeleteVariation(item as AttributeListItem)}
+              handleEditItem={(item) => handleEditVariation(item as AttributeListItem)}
+            />
           </Flex>
-        </Card>
-      ) : (
-        <Flex direction="column" data-box-wrapper css={styles.boxWrapper}>
-          <GroupOptionCard
-            dataArr={attributeListArr}
-            handleDeleteItem={(item) => handleDeleteVariation(item as AttributeListItem)}
-            handleEditItem={(item) => handleEditVariation(item as AttributeListItem)}
-          />
-        </Flex>
-      )}
-      <AddVariationPopup
-        isOpen={showPopup}
-        variationType={variationType}
-        onClose={() => {
-          setShowPopup(false);
-          refetch();
-        }}
-      />
+        )}
+        <AddVariationPopup
+          isOpen={showPopup}
+          variationType={variationType}
+          onClose={() => {
+            setShowPopup(false);
+            refetch();
+          }}
+        />
+      </CardContent>
     </Card>
   );
 };
@@ -113,6 +120,17 @@ VariationList.displayName = 'VariationList';
 export default VariationList;
 
 const styles = {
+  largeCard: scoped({ gap: theme.spacing['3xl'],
+    padding: theme.spacing.none,
+  }),
+  largeContent: scoped({ padding: theme.spacing['3xl'] }),
+  innerDarkCard: scoped({
+    borderRadius: theme.radius.lg,
+    backgroundColor: theme.colors.background.surfaceSecondary,
+    border: 'none',
+    padding: theme.spacing.none,
+  }),
+  innerDarkContent: scoped({ padding: theme.spacing.lg }),
   boxWrapper: scoped({
     '[data-box-card]': {
       borderTop: 'none',

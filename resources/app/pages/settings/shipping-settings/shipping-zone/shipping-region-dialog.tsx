@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 import TextField from '@/components/form/text-field';
 import Button from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
 import {
   Dialog,
@@ -270,14 +270,15 @@ export const ShippingRegionPopup = ({
               />
             </Flex>
 
-            <Card type="table" css={styles.tableCard}>
-              <div
-                style={{
-                  height: '432px',
-                  overflowX: 'hidden',
-                  overflowY: 'scroll',
-                }}
-              >
+            <Card css={styles.tableCard}>
+              <CardContent css={styles.tableContent}>
+                <div
+                  style={{
+                    height: '432px',
+                    overflowX: 'hidden',
+                    overflowY: 'scroll',
+                  }}
+                >
                 <Flex>
                   {__('Name', 'kirki-ecommerce')}
                 </Flex>
@@ -345,6 +346,7 @@ export const ShippingRegionPopup = ({
                     );
                   })}
               </div>
+              </CardContent>
             </Card>
           </DialogBody>
           <DialogFooter>
@@ -374,7 +376,14 @@ ShippingRegionPopup.displayName = 'ShippingRegionPopup';
 
 const styles = {
   tableCard: scoped({
+    overflow: 'hidden',
+    border: '1px solid #e6e6e6',
+    gap: 0,
     borderRadius: theme.radius.md,
+    padding: theme.spacing.none,
+  }),
+  tableContent: scoped({
+    padding: theme.spacing.none,
   }),
   checkboxItem: scoped({
     width: 'auto',

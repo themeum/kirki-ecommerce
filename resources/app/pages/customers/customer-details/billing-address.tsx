@@ -2,7 +2,11 @@ import { useFormContext } from 'react-hook-form';
 
 import SelectField from '@/components/form/select-field';
 import TextField from '@/components/form/text-field';
-import { Card, CardContent } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+} from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
 import {
   FormControl,
@@ -17,6 +21,8 @@ import Flex from '@/components/ui/flex';
 import Grid from '@/components/ui/grid';
 import Text from '@/components/ui/text';
 import type { CustomerFormValues } from '@/schemas/forms/customer-form';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 const regionOptions = [
@@ -32,89 +38,95 @@ const BillingAddress = () => {
 
   return (
     <Card
-      type="form"
+      css={styles.formCard}
       style={{ padding: '20px', borderRadius: '20px', gap: '20px' }}
     >
-      <Text
-        header={__('Billing Address', 'kirki-ecommerce')}
-        type="primary"
-        leftIcon={<PaymentIcon />}
-        style={{ paddingBottom: '4px' }}
-      />
-      <Flex direction="column" gap={8}>
-        <Card type="innerDark">
-          <CardContent>
-            <FormField
-              control={control}
-              name="is_billing_same_as_shipping"
-              render={({ field }) => (
-                <FormItem>
-                  <FormFieldRow>
-                    <FormControl>
-                      <Checkbox
-                        checked={Boolean(field.value)}
-                        onCheckedChange={(checked) => {
-                          const nextValue = checked === true;
-                          field.onChange(nextValue);
-                          if (nextValue) {
-                            setValue('billing_address', {});
-                          }
-                        }}
-                      />
-                    </FormControl>
-                    <FormLabel>Same as shipping address</FormLabel>
-                  </FormFieldRow>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </CardContent>
-        </Card>
-        <Card type="inner" style={{ padding: '16px' }}>
-          <Flex direction="column" gap={16}>
-            <SelectField
-              name="billing_address.country"
-              label={__('Country / Region', 'kirki-ecommerce')}
-              options={regionOptions}
-              placeholder="Bangladesh"
-              disabled={isSameAsShipping}
-            />
-            <TextField
-              name="billing_address.address_line1"
-              label={__('Address', 'kirki-ecommerce')}
-              placeholder={__('e.g. 124 main st', 'kirki-ecommerce')}
-              disabled={isSameAsShipping}
-            />
-            <TextField
-              name="billing_address.address_line2"
-              label={__(
-                'Apartment, suite, etc. (optional)',
-                'kirki-ecommerce',
-              )}
-              disabled={isSameAsShipping}
-            />
-            <Grid>
-              <TextField
-                name="billing_address.city"
-                label={__('City', 'kirki-ecommerce')}
-                disabled={isSameAsShipping}
+      <CardHeader>
+        <Text
+          header={__('Billing Address', 'kirki-ecommerce')}
+          type="primary"
+          leftIcon={<PaymentIcon />}
+          style={{ paddingBottom: '4px' }}
+        />
+      </CardHeader>
+      <CardContent>
+        <Flex direction="column" gap={8}>
+          <Card css={styles.innerDarkCard}>
+            <CardContent css={styles.innerDarkContent}>
+              <FormField
+                control={control}
+                name="is_billing_same_as_shipping"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormFieldRow>
+                      <FormControl>
+                        <Checkbox
+                          checked={Boolean(field.value)}
+                          onCheckedChange={(checked) => {
+                            const nextValue = checked === true;
+                            field.onChange(nextValue);
+                            if (nextValue) {
+                              setValue('billing_address', {});
+                            }
+                          }}
+                        />
+                      </FormControl>
+                      <FormLabel>Same as shipping address</FormLabel>
+                    </FormFieldRow>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-              <TextField
-                name="billing_address.state"
-                label={__('State / Province', 'kirki-ecommerce')}
-                disabled={isSameAsShipping}
-              />
-            </Grid>
-            <TextField
-              name="billing_address.postal_code"
-              label={__('ZIP / Postal code', 'kirki-ecommerce')}
-              type="number"
-              placeholder={__('+1 (555) 222 4354', 'kirki-ecommerce')}
-              disabled={isSameAsShipping}
-            />
-          </Flex>
-        </Card>
-      </Flex>
+            </CardContent>
+          </Card>
+          <Card css={styles.innerCard}>
+            <CardContent css={styles.innerContent}>
+              <Flex direction="column" gap={16}>
+                <SelectField
+                  name="billing_address.country"
+                  label={__('Country / Region', 'kirki-ecommerce')}
+                  options={regionOptions}
+                  placeholder="Bangladesh"
+                  disabled={isSameAsShipping}
+                />
+                <TextField
+                  name="billing_address.address_line1"
+                  label={__('Address', 'kirki-ecommerce')}
+                  placeholder={__('e.g. 124 main st', 'kirki-ecommerce')}
+                  disabled={isSameAsShipping}
+                />
+                <TextField
+                  name="billing_address.address_line2"
+                  label={__(
+                    'Apartment, suite, etc. (optional)',
+                    'kirki-ecommerce',
+                  )}
+                  disabled={isSameAsShipping}
+                />
+                <Grid>
+                  <TextField
+                    name="billing_address.city"
+                    label={__('City', 'kirki-ecommerce')}
+                    disabled={isSameAsShipping}
+                  />
+                  <TextField
+                    name="billing_address.state"
+                    label={__('State / Province', 'kirki-ecommerce')}
+                    disabled={isSameAsShipping}
+                  />
+                </Grid>
+                <TextField
+                  name="billing_address.postal_code"
+                  label={__('ZIP / Postal code', 'kirki-ecommerce')}
+                  type="number"
+                  placeholder={__('+1 (555) 222 4354', 'kirki-ecommerce')}
+                  disabled={isSameAsShipping}
+                />
+              </Flex>
+            </CardContent>
+          </Card>
+        </Flex>
+      </CardContent>
     </Card>
   );
 };
@@ -122,3 +134,26 @@ const BillingAddress = () => {
 BillingAddress.displayName = 'BillingAddress';
 
 export default BillingAddress;
+
+const styles = {
+  formCard: scoped({
+    rowGap: theme.spacing['2xl'],
+  }),
+  innerCard: scoped({
+    borderRadius: theme.radius.lg,
+    boxShadow: 'none',
+    padding: theme.spacing.none,
+  }),
+  innerContent: scoped({
+    padding: theme.spacing.lg,
+  }),
+  innerDarkCard: scoped({
+    borderRadius: theme.radius.lg,
+    backgroundColor: theme.colors.background.surfaceSecondary,
+    border: 'none',
+    padding: theme.spacing.none,
+  }),
+  innerDarkContent: scoped({
+    padding: theme.spacing.lg,
+  }),
+};

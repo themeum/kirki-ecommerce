@@ -1,13 +1,13 @@
+import RichText from '@/components/rich-text';
 import Button from '@/components/ui/button';
-import { ShowMoreIcon } from '@/icons';
-import { apiClient } from '@/libs/api';
-import { endpoints } from '@/libs/endpoints';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import PageHeading from '@/components/ui/page-heading';
-import RichText from '@/components/rich-text';
 import Text from '@/components/ui/text';
+import { ShowMoreIcon } from '@/icons';
+import { apiClient } from '@/libs/api';
+import { endpoints } from '@/libs/endpoints';
 import AccordionPreview from '@/preview-pages/accordion-preview';
 import ActionGroupPreview from '@/preview-pages/action-group-preview';
 import AlertboxPreview from '@/preview-pages/alertbox-preview';
@@ -16,8 +16,8 @@ import CardPreview from '@/preview-pages/card-preview';
 import CheckboxPreview from '@/preview-pages/checkbox-preview';
 import ColorPickerPreview from '@/preview-pages/color-picker-preview';
 import DialogPreview from '@/preview-pages/dialog-preview';
-import DrowdownPreview from '@/preview-pages/drowdown-preview';
 import DropdownMenuPreview from '@/preview-pages/dropdown-menu-preview';
+import DrowdownPreview from '@/preview-pages/drowdown-preview';
 import GridPreview from '@/preview-pages/grid-preview';
 import GridTemplatePreview from '@/preview-pages/grid-template-preview';
 import GroupOptionCardPreview from '@/preview-pages/group-option-card-preview';
@@ -36,8 +36,8 @@ import RadioGroupPreview from '@/preview-pages/radio-group-preview';
 import SelectInputPreview from '@/preview-pages/select-input-preview';
 import SelectPreview from '@/preview-pages/select-preview';
 import SeparatorPreview from '@/preview-pages/separator-preview';
-import TablePreview from '@/preview-pages/table-preview';
 import TabPreview from '@/preview-pages/tab-preview';
+import TablePreview from '@/preview-pages/table-preview';
 import TabsPreview from '@/preview-pages/tabs-preview';
 import TagManagerPreview from '@/preview-pages/tag-manager-preview';
 import ThumbnailPreview from '@/preview-pages/thumbnail-preview';
@@ -52,6 +52,8 @@ import UiRadioGroupPreview from '@/preview-pages/ui-radio-group-preview';
 import UiSelectPreview from '@/preview-pages/ui-select-preview';
 import UiSwitchPreview from '@/preview-pages/ui-switch-preview';
 import UiTextareaPreview from '@/preview-pages/ui-textarea-preview';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 const Tryouts = () => {
@@ -81,65 +83,126 @@ const Tryouts = () => {
         <Flex direction="column" gap={16}>
           <Text header="UI Components" type="primary" />
 
-          <Card type="form">
-            Button
-            <UiButtonPreview />
+          <Card css={styles.formCard}>
+            <CardHeader>
+              <CardTitle>Buttons</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <UiButtonPreview />
+            </CardContent>
           </Card>
-          <Card type="form">
-            Input
-            <UiInputPreview />
+          <Card css={styles.formCard}>
+            <CardHeader>
+              <CardTitle>Input</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <UiInputPreview />
+            </CardContent>
           </Card>
-          <Card type="form">
-            Textarea
-            <UiTextareaPreview />
+          <Card css={styles.formCard}>
+            <CardHeader>
+              <CardTitle>Textarea</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <UiTextareaPreview />
+            </CardContent>
           </Card>
-          <Card type="form">
-            Label
-            <UiLabelPreview />
+          <Card css={styles.formCard}>
+            <CardHeader>
+              <CardTitle>Label</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <UiLabelPreview />
+            </CardContent>
           </Card>
-          <Card type="form">
-            Checkbox
-            <UiCheckboxPreview />
+          <Card css={styles.formCard}>
+            <CardHeader>
+              <CardTitle>Checkbox</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <UiCheckboxPreview />
+            </CardContent>
           </Card>
-          <Card type="form">
-            Radio Group
-            <UiRadioGroupPreview />
+          <Card css={styles.formCard}>
+            <CardHeader>
+              <CardTitle>Radio Group</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <UiRadioGroupPreview />
+            </CardContent>
           </Card>
-          <Card type="form">
-            Select
-            <UiSelectPreview />
+          <Card css={styles.formCard}>
+            <CardHeader>
+              <CardTitle>Select</CardTitle>
+            </CardHeader>
+            <CardContent>
+              Select
+              <UiSelectPreview />
+            </CardContent>
           </Card>
-          <Card type="form">
-            Switch
-            <UiSwitchPreview />
+          <Card css={styles.formCard}>
+            <CardHeader>
+              <CardTitle>Switch</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <UiSwitchPreview />
+            </CardContent>
           </Card>
-          <Card type="form">
-            Form
-            <UiFormPreview />
+          <Card css={styles.formCard}>
+            <CardHeader>
+              <CardTitle>Form</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <UiFormPreview />
+            </CardContent>
           </Card>
-          <Card type="form">
-            Card
-            <CardPreview />
+          <Card css={styles.formCard}>
+            <CardHeader>
+              <CardTitle>Card</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <CardPreview />
+            </CardContent>
           </Card>
-          <Card type="form">
-            Dialog
-            <DialogPreview />
+          <Card css={styles.formCard}>
+            <CardHeader>
+              <CardTitle>Dialog</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <DialogPreview />
+            </CardContent>
           </Card>
-          <Card type="form">
-            Dropdown Menu
-            <DropdownMenuPreview />
+          <Card css={styles.formCard}>
+            <CardHeader>
+              <CardTitle>Dropdown Menu</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <DropdownMenuPreview />
+            </CardContent>
           </Card>
-          <Card type="form">
-            Popover
-            <UiPopoverPreview />
+          <Card css={styles.formCard}>
+            <CardHeader>
+              <CardTitle>Popover</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <UiPopoverPreview />
+            </CardContent>
           </Card>
-          <Card type="form">
-            Separator
-            <SeparatorPreview />
+          <Card css={styles.formCard}>
+            <CardHeader>
+              <CardTitle>Separator</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <SeparatorPreview />
+            </CardContent>
           </Card>
-          <Card type="form">
-            Tabs
-            <TabsPreview />
+          <Card css={styles.formCard}>
+            <CardHeader>
+              <CardTitle>Tabs</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <TabsPreview />
+            </CardContent>
           </Card>
 
           <Text header="Composites & Layout" type="primary" />
@@ -152,139 +215,244 @@ const Tryouts = () => {
           >
             App Config
           </Button>
-          <Card type="form">
-            Page Navigation
-            <PageNavbarPreview />
+          <Card css={styles.formCard}>
+            <CardHeader>
+              <CardTitle>Page Navigation</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <PageNavbarPreview />
+            </CardContent>
           </Card>
-          <Card type="form">
-            Option Accordion
-            <OptionAccordionPreview />
+          <Card css={styles.formCard}>
+            <CardContent>
+              <OptionAccordionPreview />
+            </CardContent>
           </Card>
-          <Card type="form">
-            Group Option Card
-            <GroupOptionCardPreview />
+          <Card css={styles.formCard}>
+            <CardHeader>
+              <CardTitle>Group Option Card</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <GroupOptionCardPreview />
+            </CardContent>
           </Card>
-          <Card type="form">
-            Progress Bar
-            <ProgressBarPreview />
+          <Card css={styles.formCard}>
+            <CardHeader>
+              <CardTitle>Progress Bar</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ProgressBarPreview />
+            </CardContent>
           </Card>
-          <Card type="form">
-            Color Picker
-            <ColorPickerPreview />
+          <Card css={styles.formCard}>
+            <CardContent>
+              <ColorPickerPreview />
+            </CardContent>
           </Card>
-          <Card type="form">
-            Rich Text
-            <RichText
-              onChange={(content) => console.log(content)}
-              label="Rich Text Editor"
-            />
+          <Card css={styles.formCard}>
+            <CardHeader>
+              <CardTitle>Rich Text</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <RichText
+                onChange={(content) => console.log(content)}
+                label="Rich Text Editor"
+              />
+            </CardContent>
           </Card>
-          <Card type="form">
-            Select Input
-            <SelectInputPreview />
+          <Card css={styles.formCard}>
+            <CardHeader>
+              <CardTitle>Select Input</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <SelectInputPreview />
+            </CardContent>
           </Card>
-          <Card type="form">
-            Placeholder
-            <PlaceholderPreview />
+          <Card css={styles.formCard}>
+            <CardHeader>
+              <CardTitle>Placeholder</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <PlaceholderPreview />
+            </CardContent>
           </Card>
-          <Card type="form">
-            Thumbnail
-            <ThumbnailPreview />
+          <Card css={styles.formCard}>
+            <CardHeader>
+              <CardTitle>Thumbnail</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ThumbnailPreview />
+            </CardContent>
           </Card>
-          <Card type="form">
-            Grid
-            <GridPreview />
+          <Card css={styles.formCard}>
+            <CardHeader>
+              <CardTitle>Grid</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <GridPreview />
+            </CardContent>
           </Card>
           <GridTemplatePreview />
-          <Card type="form">
-            Action Group
-            <ActionGroupPreview />
+          <Card css={styles.formCard}>
+            <CardHeader>
+              <CardTitle>Action Group</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ActionGroupPreview />
+            </CardContent>
           </Card>
-          <Card type="form">
-            Tag Manager
-            <TagManagerPreview />
+          <Card css={styles.formCard}>
+            <CardHeader>
+              <CardTitle>Tag Manager</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <TagManagerPreview />
+            </CardContent>
           </Card>
-          <Card type="form">
-            Tab
-            <Flex direction="column" gap={16}>
-              <TabPreview />
-            </Flex>
+          <Card css={styles.formCard}>
+            <CardHeader>
+              <CardTitle>Tab</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Flex direction="column" gap={16}>
+                <TabPreview />
+              </Flex>
+            </CardContent>
           </Card>
-          <Card type="form">
-            Heading
-            <Flex direction="column" gap={16}>
-              <HeadingPreview />
-            </Flex>
+          <Card css={styles.formCard}>
+            <CardHeader>
+              <CardTitle>Heading</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Flex direction="column" gap={16}>
+                <HeadingPreview />
+              </Flex>
+            </CardContent>
           </Card>
-          <Card type="form">
-            Page Heading
-            <PageHeadingPreview />
+          <Card css={styles.formCard}>
+            <CardHeader>
+              <CardTitle>Page Heading</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <PageHeadingPreview />
+            </CardContent>
           </Card>
-          <Card type="form">
-            Button + Tooltip
-            <ButtonPreview />
+          <Card css={styles.formCard}>
+            <CardHeader>
+              <CardTitle>Button + Tooltip</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ButtonPreview />
+            </CardContent>
           </Card>
-          <Card type="form">
-            Flex
-            <Flex gap={40}>
-              <div>Flex Item 1</div>
-              <div>Flex Item 2</div>
-              <div>Flex Item 3</div>
-            </Flex>
-            <Flex direction="column" gap={12} style={{ marginTop: 16 }}>
-              <div>Flex Item 1</div>
-              <div>Flex Item 2</div>
-              <div>Flex Item 3</div>
-            </Flex>
+          <Card css={styles.formCard}>
+            <CardHeader>
+              <CardTitle>Flex</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Flex gap={40}>
+                <div>Flex Item 1</div>
+                <div>Flex Item 2</div>
+                <div>Flex Item 3</div>
+              </Flex>
+              <Flex direction="column" gap={12} style={{ marginTop: 16 }}>
+                <div>Flex Item 1</div>
+                <div>Flex Item 2</div>
+                <div>Flex Item 3</div>
+              </Flex>
+            </CardContent>
           </Card>
-          <Card type="form">
-            Toggle Button
-            <ToggleButtonPreview />
+          <Card css={styles.formCard}>
+            <CardHeader>
+              <CardTitle>Toggle Button</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ToggleButtonPreview />
+            </CardContent>
           </Card>
-          <Card type="form">
-            Radio Group
-            <RadioGroupPreview />
+          <Card css={styles.formCard}>
+            <CardHeader>
+              <CardTitle>Radio Group</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <RadioGroupPreview />
+            </CardContent>
           </Card>
-          <Card type="form">
-            Checkbox
-            <CheckboxPreview />
+          <Card css={styles.formCard}>
+            <CardHeader>
+              <CardTitle>Checkbox</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <CheckboxPreview />
+            </CardContent>
           </Card>
-          <Card type="form">
-            Input
-            <InputPreview />
+          <Card css={styles.formCard}>
+            <CardHeader>
+              <CardTitle>Input</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <InputPreview />
+            </CardContent>
           </Card>
-          <Card type="form">
-            Combobox Select
-            <SelectPreview />
+          <Card css={styles.formCard}>
+            <CardHeader>
+              <CardTitle>Combobox Select</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <SelectPreview />
+            </CardContent>
           </Card>
-          <Card type="form">
-            Accordion
-            <AccordionPreview />
+          <Card css={styles.formCard}>
+            <CardHeader>
+              <CardTitle>Accordion</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <AccordionPreview />
+            </CardContent>
           </Card>
-          <Card type="form">
-            Dialog (legacy popover)
-            <PopoverPreview />
+          <Card css={styles.formCard}>
+            <CardHeader>
+              <CardTitle>Dialog (legacy popover)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <PopoverPreview />
+            </CardContent>
           </Card>
-          <Card type="form">
-            Alert Dialog
-            <AlertboxPreview />
+          <Card css={styles.formCard}>
+            <CardHeader>
+              <CardTitle>Alert Dialog</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <AlertboxPreview />
+            </CardContent>
           </Card>
-          <Card type="form">
-            Dropdown
-            <DrowdownPreview />
+          <Card css={styles.formCard}>
+            <CardHeader>
+              <CardTitle>Dropdown</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <DrowdownPreview />
+            </CardContent>
           </Card>
-          <Card type="form">
-            Media Selector
-            <MediaSelectorPreview />
-            Media Gallery
-            <MediaGalleryPreview />
+          <Card css={styles.formCard}>
+            <CardHeader>
+              <CardTitle>Media Selector</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <MediaSelectorPreview />
+              <MediaGalleryPreview />
+            </CardContent>
           </Card>
-          <Card type="table">
-            <TablePreview />
+          <Card css={styles.tableCard}>
+            <CardContent css={styles.tableContent}>
+              <TablePreview />
+            </CardContent>
           </Card>
-          <Card type="form">
-            <Text header="Icons Preview" type="primary" />
-            <IconsPreview />
+          <Card css={styles.formCard}>
+            <CardContent>
+              <Text header="Icons Preview" type="primary" />
+              <IconsPreview />
+            </CardContent>
           </Card>
         </Flex>
       </Container>
@@ -293,3 +461,18 @@ const Tryouts = () => {
 };
 
 export default Tryouts;
+
+const styles = {
+  formCard: scoped({
+    rowGap: theme.spacing['2xl'],
+  }),
+  tableCard: scoped({
+    overflow: 'hidden',
+    border: '1px solid #e6e6e6',
+    gap: 0,
+    padding: theme.spacing.none,
+  }),
+  tableContent: scoped({
+    padding: theme.spacing.none,
+  }),
+};

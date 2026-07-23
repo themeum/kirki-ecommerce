@@ -2,7 +2,10 @@ import { useState, useEffect, type ReactNode } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
-import { Card } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+} from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import HeaderActionsCard from '@/components/header-actions-card';
 import GroupOptionCard from '@/components/group-option-card';
@@ -72,42 +75,46 @@ const TaxProfile = () => {
 
   return (
     <div>
-      <Card type="large">
-        <HeaderActionsCard
-          header={__('Tax Profiles', 'kirki-ecommerce')}
-          subHeader={__(
-            'Used to create tax rates for different product groups, like heavy items needing higher fees.',
-            'kirki-ecommerce',
-          )}
-          buttonText={__('Create Profile', 'kirki-ecommerce')}
-          onAdd={() => setShowPopup(true)}
-        />
+      <Card css={styles.largeCard}>
+        <CardContent css={styles.largeContent}>
+          <HeaderActionsCard
+            header={__('Tax Profiles', 'kirki-ecommerce')}
+            subHeader={__(
+              'Used to create tax rates for different product groups, like heavy items needing higher fees.',
+              'kirki-ecommerce',
+            )}
+            buttonText={__('Create Profile', 'kirki-ecommerce')}
+            onAdd={() => setShowPopup(true)}
+          />
 
-        {!taxProfileList?.length ? (
-          <Card type="innerDark" css={styles.emptyState}>
-            <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
-              <BoxOpenIcon />
-              <span css={styles.emptyStateText}>
-                {__(
-                  'Added shipping profiles will appear here',
-                  'kirki-ecommerce',
-                )}
-              </span>
+          {!taxProfileList?.length ? (
+            <Card css={styles.innerDarkCard}>
+              <CardContent css={[styles.innerDarkContent, styles.emptyState]}>
+                <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
+                  <BoxOpenIcon />
+                  <span css={styles.emptyStateText}>
+                    {__(
+                      'Added shipping profiles will appear here',
+                      'kirki-ecommerce',
+                    )}
+                  </span>
+                </Flex>
+              </CardContent>
+            </Card>
+          ) : (
+            <Flex direction="column" data-box-wrapper css={styles.boxWrapper}>
+              <GroupOptionCard
+                dataArr={taxProfileList}
+                handleDeleteItem={(item) =>
+                  handleDeleteTaxProfile(item as TaxProfileListItem)
+                }
+                handleEditItem={(item) =>
+                  handleEditTaxProfile(item as TaxProfileListItem)
+                }
+              />
             </Flex>
-          </Card>
-        ) : (
-          <Flex direction="column" data-box-wrapper css={styles.boxWrapper}>
-            <GroupOptionCard
-              dataArr={taxProfileList}
-              handleDeleteItem={(item) =>
-                handleDeleteTaxProfile(item as TaxProfileListItem)
-              }
-              handleEditItem={(item) =>
-                handleEditTaxProfile(item as TaxProfileListItem)
-              }
-            />
-          </Flex>
-        )}
+          )}
+        </CardContent>
       </Card>
       {showPopup && (
         <TaxProfilePopup
@@ -132,6 +139,17 @@ TaxProfile.displayName = 'TaxProfile';
 export default TaxProfile;
 
 const styles = {
+  largeCard: scoped({ gap: theme.spacing['3xl'],
+    padding: theme.spacing.none,
+  }),
+  largeContent: scoped({ padding: theme.spacing['3xl'] }),
+  innerDarkCard: scoped({
+    borderRadius: theme.radius.lg,
+    backgroundColor: theme.colors.background.surfaceSecondary,
+    border: 'none',
+    padding: theme.spacing.none,
+  }),
+  innerDarkContent: scoped({ padding: theme.spacing.lg }),
   boxWrapper: scoped({
     '[data-box-card]': {
       borderTop: 'none',

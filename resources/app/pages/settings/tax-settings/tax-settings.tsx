@@ -6,7 +6,10 @@ import { useNavigate, useOutletContext } from 'react-router';
 import CheckboxField from '@/components/form/checkbox-field';
 import PageNavbar from '@/components/page-navbar';
 import Button from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+} from '@/components/ui/card';
 import {
   Form,
   FormControl,
@@ -247,20 +250,23 @@ const TaxSettings = () => {
                 text={'Tax'}
                 handleBack={handleBackButton}
               />
-              <Card type="large">
+              <Card css={styles.largeCard} >
+                <CardContent css={styles.largeContent}>
+
                 <Text
-                  type="primary"
-                  header={__('How would you like to collect tax?', 'kirki-ecommerce')}
-                  subHeader={__(
-                    'Configure how tax is displayed and how it appears on your product listings.',
-                    'kirki-ecommerce',
-                  )}
-                  css={styles.taxCollectionHeader}
+                type="primary"
+                header={__('How would you like to collect tax?', 'kirki-ecommerce')}
+                subHeader={__(
+                'Configure how tax is displayed and how it appears on your product listings.',
+                'kirki-ecommerce',
+                )}
+                css={styles.taxCollectionHeader}
                 />
                 <Flex direction="column" gap={12}>
-                  <TaxCollectionRadio />
-                  <TaxCollectionOptions />
+                <TaxCollectionRadio />
+                <TaxCollectionOptions />
                 </Flex>
+                </CardContent>
               </Card>
               <TaxRegions handleSave={handleSaveFromRegions} />
               <TaxProfile />
@@ -279,6 +285,8 @@ TaxSettings.displayName = 'TaxSettings';
 export default TaxSettings;
 
 const styles = {
+  largeCard: scoped({ gap: theme.spacing['3xl'] }),
+  largeContent: scoped({ padding: theme.spacing['3xl'] }),
   separator: scoped({
     marginBottom: theme.spacing.lg,
   }),

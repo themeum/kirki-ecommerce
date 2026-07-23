@@ -150,14 +150,15 @@ const AddCitiesPopup = (props: AddCitiesPopupProps) => {
               />
             </Flex>
 
-            <Card type="table" css={styles.tableCard}>
-              <div
-                style={{
-                  height: '350px',
-                  overflowX: 'hidden',
-                  overflowY: 'scroll',
-                }}
-              >
+            <Card css={styles.tableCard}>
+              <CardContent css={styles.tableContent}>
+                <div
+                  style={{
+                    height: '350px',
+                    overflowX: 'hidden',
+                    overflowY: 'scroll',
+                  }}
+                >
                 <Flex>
                   <Flex gap={8} style={{ alignItems: 'center' }}>
                     <Checkbox
@@ -193,10 +194,7 @@ const AddCitiesPopup = (props: AddCitiesPopupProps) => {
                     );
                   })
                 ) : (
-                  <Card
-                    type="default"
-                    style={{ padding: '36px 0' }}
-                  >
+                  <Card style={{ padding: '36px 0' }}>
                     <CardContent>
                       <Flex
                         direction="column"
@@ -211,7 +209,8 @@ const AddCitiesPopup = (props: AddCitiesPopupProps) => {
                     </CardContent>
                   </Card>
                 )}
-              </div>
+                </div>
+              </CardContent>
             </Card>
           </DialogBody>
           <DialogFooter>
@@ -246,7 +245,14 @@ export default AddCitiesPopup;
 
 const styles = {
   tableCard: scoped({
+    overflow: 'hidden',
+    border: '1px solid #e6e6e6',
+    gap: 0,
     borderRadius: theme.radius.md,
+    padding: theme.spacing.none,
+  }),
+  tableContent: scoped({
+    padding: theme.spacing.none,
   }),
   checkboxItemIndented: scoped({
     width: 'auto',

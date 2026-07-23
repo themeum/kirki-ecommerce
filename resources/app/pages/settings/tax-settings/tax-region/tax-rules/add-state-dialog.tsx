@@ -129,7 +129,7 @@ export const AddStatePopup = (props: AddStatePopupProps) => {
               />
             </Flex>
 
-            <Card type="table" css={styles.tableCard}>
+            <Card css={styles.tableCard}>
               <div
                 style={{
                   height: '350px',
@@ -204,6 +204,7 @@ AddStatePopup.displayName = 'AddStatePopup';
 const styles = {
   tableCard: scoped({
     borderRadius: theme.radius.md,
+    padding: theme.spacing.none,
   }),
   checkboxItemIndented: scoped({
     width: 'auto',

@@ -19,6 +19,8 @@ import ActionGroup from '@/components/ui/action-group';
 import Combobox from '@/components/ui/combobox';
 import Flex from '@/components/ui/flex';
 import { useProductForm } from '@/contexts/product-form-context';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import {
   ProductAttributeFormSchema,
   type ProductAttributeFormValues,
@@ -217,8 +219,8 @@ const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
 
   return (
     <Form {...form}>
-      <Card type="inner">
-        <CardContent>
+      <Card css={styles.innerCard}>
+        <CardContent css={styles.innerContent}>
           <Flex direction="column" gap={16}>
             {!data && (
               <Flex direction="column" gap={8}>
@@ -343,6 +345,17 @@ const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
 AddOrEditAttribute.displayName = 'AddOrEditAttribute';
 
 export default AddOrEditAttribute;
+
+const styles = {
+  innerCard: scoped({
+    borderRadius: theme.radius.lg,
+    boxShadow: 'none',
+    padding: theme.spacing.none,
+  }),
+  innerContent: scoped({
+    padding: theme.spacing.lg,
+  }),
+};
 
 export type {
   ProductAttributeFormValues as AttributeFormState,

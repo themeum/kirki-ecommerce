@@ -172,7 +172,7 @@ const Categories = () => {
   };
 
   return (
-    <Card type="form" css={styles.card}>
+    <Card css={styles.card}>
       <div css={styles.header}>
         <Label>{__('Categories', 'kirki-ecommerce')}</Label>
       </div>

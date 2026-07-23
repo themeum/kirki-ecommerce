@@ -2,7 +2,10 @@ import { css } from '@emotion/react';
 import { useState, type Dispatch, type SetStateAction } from 'react';
 import { toast } from 'sonner';
 
-import { Card } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+} from '@/components/ui/card';
 import Button from '@/components/ui/button';
 import Input from '@/components/ui/input';
 import Flex from '@/components/ui/flex';
@@ -66,67 +69,72 @@ export const TaxRateList = ({
   return (
     <div>
       {!applySingleTax && !taxRates.length ? (
-        <Card type="innerDark" style={{ padding: '36px 0' }}>
-          <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
-            <PaymentIcon />
-            <span style={{ color: '#878593' }}>
-              {__('Added tax rates will appear here', 'kirki-ecommerce')}
-            </span>
-          </Flex>
+        <Card css={styles.innerDarkCard}>
+          <CardContent css={[styles.innerDarkContent, styles.emptyContent]}>
+            <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
+              <PaymentIcon />
+              <span style={{ color: '#878593' }}>
+                {__('Added tax rates will appear here', 'kirki-ecommerce')}
+              </span>
+            </Flex>
+          </CardContent>
         </Card>
       ) : (
-        <Card type="innerDark">
-          <Text
-            header={__('Tax rates', 'kirki-ecommerce')}
-            css={styles.taxRatesHeader}
-          />
-          <Flex gap={2} direction={'column'}>
-            {taxRates?.map((item, index) => (
-              <Card
-                key={index}
-                type="default"
-                css={styles.taxCard}
-                onMouseEnter={() => setHoveredIndex(index)}
-                onMouseLeave={() => setHoveredIndex(null)}
-              >
-                <Text header={item?.state} leftIcon={<LocationIcon />} />
-                <div css={styles.taxCardContent}>
-                  <Text
-                    header={sprintf(__('%s %', 'kirki-ecommerce'), item?.rate)}
-                    css={css(
-                      styles.rateDisplay,
-                      hoveredIndex === index && styles.rateDisplayHidden,
-                    )}
-                  />
+        <Card css={styles.innerDarkCard}>
+          <CardContent css={styles.innerDarkContent}>
+            <Text
+              header={__('Tax rates', 'kirki-ecommerce')}
+              css={styles.taxRatesHeader}
+            />
+            <Flex gap={2} direction={'column'}>
+              {taxRates?.map((item, index) => (
+                <Card
+                  key={index}
+                  css={styles.taxCard}
+                  onMouseEnter={() => setHoveredIndex(index)}
+                  onMouseLeave={() => setHoveredIndex(null)}
+                >
+                  <CardContent>
+                    <Text header={item?.state} leftIcon={<LocationIcon />} />
+                    <div css={styles.taxCardContent}>
+                      <Text
+                        header={sprintf(__('%s %', 'kirki-ecommerce'), item?.rate)}
+                        css={css(
+                          styles.rateDisplay,
+                          hoveredIndex === index && styles.rateDisplayHidden,
+                        )}
+                      />
 
-                  <Flex
-                    gap={8}
-                    css={css(
-                      styles.editGroup,
-                      hoveredIndex === index && styles.editGroupActive,
-                    )}
-                  >
-                    <Input
-                      value={item?.rate ?? ''}
-                      style={{ width: '72px' }}
-                      onChange={(e) => handleTaxRate(item, e.target.value)}
-                      onBlur={(e) => handleTaxRate(item, e.target.value)}
-                      type="number"
-                      min={0}
-                      max={100}
-                    />
-                    <Button
-                      variant="secondary"
-                      size="icon"
-                      onClick={() => handleDeleteRate(item)}
-                    >
-                      <TrashIcon />
-                    </Button>
-                  </Flex>
-                </div>
-              </Card>
-            ))}
-          </Flex>
+                      <Flex
+                        gap={8}
+                        css={css(
+                          styles.editGroup,
+                          hoveredIndex === index && styles.editGroupActive,
+                        )}
+                      >
+                        <Input
+                          value={item?.rate ?? ''}
+                          style={{ width: '72px' }}
+                          onChange={(e) => handleTaxRate(item, e.target.value)}
+                          onBlur={(e) => handleTaxRate(item, e.target.value)}
+                          type="number"
+                          min={0}
+                          max={100}
+                        />
+                        <Button
+                          variant="secondary"
+                          size="icon"
+                          onClick={() => handleDeleteRate(item)}
+                        >
+                          <TrashIcon />
+                        </Button>
+                      </Flex>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </Flex>
+          </CardContent>
         </Card>
       )}
     </div>
@@ -136,6 +144,14 @@ export const TaxRateList = ({
 TaxRateList.displayName = 'TaxRateList';
 
 const styles = {
+  innerDarkCard: scoped({
+    borderRadius: theme.radius.lg,
+    backgroundColor: theme.colors.background.surfaceSecondary,
+    border: 'none',
+    padding: theme.spacing.none,
+  }),
+  innerDarkContent: scoped({ padding: theme.spacing.lg }),
+  emptyContent: scoped({ padding: '36px 0' }),
   taxCard: scoped({
     display: 'flex',
     alignItems: 'center',

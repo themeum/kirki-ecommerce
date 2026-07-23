@@ -6,7 +6,7 @@ import Button from '@/components/ui/button';
 import { EditPenIcon, TrashIcon, ShowMoreIcon } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
 import Badge from '@/components/ui/badge';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
@@ -118,10 +118,10 @@ const GroupOptionCard = (props: GroupOptionCardProps) => {
     <div>
       {dataArr.map((item, index) => (
         <Card
-          type="inner"
           key={index}
           data-box-card
           css={css(
+            styles.innerCard,
             optionCardCss,
             dataLength > 1
               ? optionCardBorderRadiusCss
@@ -133,6 +133,7 @@ const GroupOptionCard = (props: GroupOptionCardProps) => {
             alignItems: 'center',
           }}
         >
+          <CardContent css={styles.innerContent}>
           <Flex
             style={{
               alignItems: 'center',
@@ -265,6 +266,7 @@ const GroupOptionCard = (props: GroupOptionCardProps) => {
               )}
             </ActionGroup>
           </Flex>
+          </CardContent>
         </Card>
       ))}
     </div>
@@ -272,3 +274,14 @@ const GroupOptionCard = (props: GroupOptionCardProps) => {
 };
 
 export default GroupOptionCard;
+
+const styles = {
+  innerCard: scoped({
+    borderRadius: theme.radius.lg,
+    boxShadow: 'none',
+    padding: theme.spacing.none,
+  }),
+  innerContent: scoped({
+    padding: theme.spacing.lg,
+  }),
+};

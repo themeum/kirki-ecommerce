@@ -4,7 +4,10 @@ import { toast } from 'sonner';
 
 import HeaderActionsCard from '@/components/header-actions-card';
 import Button from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+} from '@/components/ui/card';
 import { TrashIcon } from '@/icons';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
@@ -116,61 +119,64 @@ export const VatCollection = (props: VatCollectionProps) => {
 
   return (
     <div>
-      <Card type="large">
-        <HeaderActionsCard
-          header={__('VAT Collection', 'kirki-ecommerce')}
-          subHeader={__(
-            'Used to create shipping rates for different product groups, like heavy items needing higher fees.',
-            'kirki-ecommerce',
-          )}
-          buttonText={__('Collect VAT', 'kirki-ecommerce')}
-          hideButton={disableAddVatButton}
-          onAdd={() => setShowVatCollectionPopup(true)}
-        />
-        <Flex direction="column" gap={8}>
-          {vatCollectionList?.map((item, index) => (
-            <Card
-              key={index}
-              type="inner"
-              css={styles.vatRow}
-              onMouseEnter={() => setHoveredIndex(index)}
-              onMouseLeave={() => setHoveredIndex(null)}
-            >
-              <Text
-                header={item?.state}
-                leftIcon={getFlagForState(item?.state)}
-              />
-              <Text
-                header={`${item?.rate}%`}
-                css={css(
-                  styles.vatText,
-                  hoveredIndex === index && styles.vatTextHidden,
-                )}
-              />
-              <Flex
-                gap={8}
-                css={css(
-                  styles.vatActions,
-                  hoveredIndex === index && styles.vatActionsActive,
-                )}
+      <Card css={styles.largeCard}>
+        <CardContent css={styles.largeContent}>
+          <HeaderActionsCard
+            header={__('VAT Collection', 'kirki-ecommerce')}
+            subHeader={__(
+              'Used to create shipping rates for different product groups, like heavy items needing higher fees.',
+              'kirki-ecommerce',
+            )}
+            buttonText={__('Collect VAT', 'kirki-ecommerce')}
+            hideButton={disableAddVatButton}
+            onAdd={() => setShowVatCollectionPopup(true)}
+          />
+          <Flex direction="column" gap={8}>
+            {vatCollectionList?.map((item, index) => (
+              <Card
+                key={index}
+                css={[styles.innerCard, styles.vatRow]}
+                onMouseEnter={() => setHoveredIndex(index)}
+                onMouseLeave={() => setHoveredIndex(null)}
               >
-                <Button
-                  variant="secondary"
-                  onClick={() => handleEditVatRate(index)}
-                >
-                  {__('Edit Rates', 'kirki-ecommerce')}
-                </Button>
-                <Button
-                  variant="secondary"
-                  size="icon"
-                  onClick={() => handleDeleteItem(item)}
-                >
-                  <TrashIcon />
-                </Button>
-              </Flex>
-            </Card>
-          ))}
-        </Flex>
+                <CardContent css={styles.innerContent}>
+                  <Text
+                    header={item?.state}
+                    leftIcon={getFlagForState(item?.state)}
+                  />
+                  <Text
+                    header={`${item?.rate}%`}
+                    css={css(
+                      styles.vatText,
+                      hoveredIndex === index && styles.vatTextHidden,
+                    )}
+                  />
+                  <Flex
+                    gap={8}
+                    css={css(
+                      styles.vatActions,
+                      hoveredIndex === index && styles.vatActionsActive,
+                    )}
+                  >
+                    <Button
+                      variant="secondary"
+                      onClick={() => handleEditVatRate(index)}
+                    >
+                      {__('Edit Rates', 'kirki-ecommerce')}
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      size="icon"
+                      onClick={() => handleDeleteItem(item)}
+                    >
+                      <TrashIcon />
+                    </Button>
+                  </Flex>
+                </CardContent>
+              </Card>
+            ))}
+          </Flex>
+        </CardContent>
       </Card>
       {showVatCollectionPopup && (
         <VatCollectionPopup
@@ -190,6 +196,14 @@ export const VatCollection = (props: VatCollectionProps) => {
 VatCollection.displayName = 'VatCollection';
 
 const styles = {
+  largeCard: scoped({ gap: theme.spacing['3xl'],
+    padding: theme.spacing.none,
+  }),
+  largeContent: scoped({ padding: theme.spacing['3xl'] }),
+  innerCard: scoped({ borderRadius: theme.radius.lg, boxShadow: 'none',
+    padding: theme.spacing.none,
+  }),
+  innerContent: scoped({ padding: theme.spacing.lg }),
   vatRow: scoped({
     height: '56px',
     maxHeight: '56px',

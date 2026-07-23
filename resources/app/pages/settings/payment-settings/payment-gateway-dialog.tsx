@@ -14,6 +14,8 @@ import { CheckedIcon, StripeIcon } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import {
   useInstallablePaymentGatewaysQuery,
   useInstallPaymentGatewayMutation,
@@ -63,8 +65,8 @@ const PaymentGatewayPopup = ({
           <Flex direction="column" gap={16}>
             {(availableGatewayList as AvailablePaymentGateway[])?.map(
               (item, index) => (
-                <Card key={index} type="inner">
-                  <CardContent>
+                <Card key={index} css={styles.innerCard}>
+                  <CardContent css={styles.innerContent}>
                     <Flex style={{ alignItems: 'center' }}>
                       <Text
                         header={item?.name}
@@ -100,5 +102,16 @@ const PaymentGatewayPopup = ({
 };
 
 PaymentGatewayPopup.displayName = 'PaymentGatewayPopup';
+
+const styles = {
+  innerCard: scoped({
+    borderRadius: theme.radius.lg,
+    boxShadow: 'none',
+    padding: theme.spacing.none,
+  }),
+  innerContent: scoped({
+    padding: theme.spacing.lg,
+  }),
+};
 
 export default PaymentGatewayPopup;

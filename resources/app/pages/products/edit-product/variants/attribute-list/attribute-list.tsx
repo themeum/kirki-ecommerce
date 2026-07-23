@@ -18,7 +18,7 @@ import { css } from '@emotion/react';
 import { useEffect, useState } from 'react';
 
 import Button from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { DragIcon, EditIcon, PlusIcon, TrashIcon } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
@@ -26,6 +26,7 @@ import Chip from '@/components/ui/chip';
 import Text from '@/components/ui/text';
 import { useProductForm } from '@/contexts/product-form-context';
 import { flexCenter, scoped } from '@/theme/mixins';
+import { theme } from '@/theme';
 import type { Attribute } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -77,12 +78,12 @@ const SortableCard = ({
   return (
     <div ref={setNodeRef} style={style}>
       <Card
-        type="inner"
-        style={{ padding: '12px 16px' }}
+        css={styles.innerCard}
         key={item.id}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
+        <CardContent css={styles.innerContent}>
         {editingId !== item.id ? (
           <Flex gap={12}>
             <span
@@ -139,6 +140,7 @@ const SortableCard = ({
         ) : (
           <AddOrEditAttribute data={item} onClose={onClose} onSave={onSave} />
         )}
+        </CardContent>
       </Card>
     </div>
   );
@@ -233,6 +235,14 @@ AttributeList.displayName = 'AttributeList';
 export default AttributeList;
 
 const styles = {
+  innerCard: scoped({
+    borderRadius: theme.radius.lg,
+    boxShadow: 'none',
+    padding: theme.spacing.none,
+  }),
+  innerContent: scoped({
+    padding: '12px 16px',
+  }),
   svgClass: scoped(flexCenter()),
   dragHandler: scoped({
     cursor: 'grab',

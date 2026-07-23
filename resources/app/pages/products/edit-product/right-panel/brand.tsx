@@ -12,6 +12,8 @@ import Text from '@/components/ui/text';
 import Thumbnail from '@/components/ui/thumbnail';
 import type { ProductRightPanelFormValues } from '@/schemas/forms/product-right-panel-form';
 import { useBrandsQuery } from '@/services/brand';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import type { Brand as BrandEntity, SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -101,8 +103,8 @@ const Brand = () => {
           <Label helpText={__('Brand', 'kirki-ecommerce')}>
             {__('Brand', 'kirki-ecommerce')}
           </Label>
-          <Card type="inner">
-            <CardContent>
+          <Card css={styles.innerCard}>
+            <CardContent css={styles.innerContent}>
               <Flex gap={8} style={{ alignItems: 'center' }}>
                 <Thumbnail src={brandLogo?.url} />
                 <Text type="xsm" header={productBrand?.name} />
@@ -148,3 +150,14 @@ const Brand = () => {
 Brand.displayName = 'Brand';
 
 export default Brand;
+
+const styles = {
+  innerCard: scoped({
+    borderRadius: theme.radius.lg,
+    boxShadow: 'none',
+    padding: theme.spacing.none,
+  }),
+  innerContent: scoped({
+    padding: theme.spacing.lg,
+  }),
+};

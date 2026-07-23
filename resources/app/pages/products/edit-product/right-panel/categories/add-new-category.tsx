@@ -6,7 +6,7 @@ import SelectField from '@/components/form/select-field';
 import TextField from '@/components/form/text-field';
 import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import { PlusIcon } from '@/icons';
@@ -83,7 +83,8 @@ const AddNewCategory = () => {
   if (show) {
     return (
       <div css={styles.formWrap}>
-        <Card type="inner" css={styles.formCard}>
+        <Card css={styles.innerCard}>
+          <CardContent css={styles.formCard}>
           <Form {...form}>
             <Flex direction="column" gap={16}>
               <TextField
@@ -113,6 +114,7 @@ const AddNewCategory = () => {
               </ActionGroup>
             </Flex>
           </Form>
+          </CardContent>
         </Card>
       </div>
     );
@@ -137,6 +139,11 @@ export default AddNewCategory;
 const styles = {
   formWrap: scoped({
     width: '100%',
+  }),
+  innerCard: scoped({
+    borderRadius: theme.radius.lg,
+    boxShadow: 'none',
+    padding: theme.spacing.none,
   }),
   formCard: scoped({
     padding: theme.spacing['2xl'],

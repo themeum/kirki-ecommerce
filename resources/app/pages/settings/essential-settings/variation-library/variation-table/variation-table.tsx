@@ -2,7 +2,10 @@ import { useState, useMemo, type Dispatch, type SetStateAction } from 'react';
 import { useOutletContext } from 'react-router';
 
 import BulkActionHandler from '@/components/bulk-action-handler';
-import { Card } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+} from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
 import { useMarkList } from '@/hooks';
 import Flex from '@/components/ui/flex';
@@ -22,6 +25,9 @@ import type {
   TaxonomyTableHeader,
 } from '@/types';
 import { __ } from '@/wpi18n';
+
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 
 import { getSearchedValue, setUnsavedDataStatus } from '@/pages/settings/utils';
 import SingleRow from '@/pages/settings/essential-settings/variation-library/variation-table/single-row';
@@ -118,17 +124,16 @@ const VariationTable = ({
         />
       )}
       {!filteredList?.length ? (
-        <Card
-          type="innerDark"
-          style={{ padding: '36px 0', borderRadius: '0px' }}
-        >
-          <Flex style={{ alignItems: 'center', justifyContent: 'center' }}>
-            <Text
-              type="primary"
-              style={{ color: '#878593' }}
-              header={__('No data found', 'kirki-ecommerce')}
-            />
-          </Flex>
+        <Card css={styles.innerDarkCard}>
+          <CardContent css={[styles.innerDarkContent, styles.emptyStateContent]}>
+            <Flex style={{ alignItems: 'center', justifyContent: 'center' }}>
+              <Text
+                type="primary"
+                style={{ color: '#878593' }}
+                header={__('No data found', 'kirki-ecommerce')}
+              />
+            </Flex>
+          </CardContent>
         </Card>
       ) : (
         <Table fixed>
@@ -166,5 +171,42 @@ const VariationTable = ({
 };
 
 VariationTable.displayName = 'VariationTable';
+
+const styles = {
+  formCard: scoped({ rowGap: theme.spacing['2xl'] }),
+  largeCard: scoped({ gap: theme.spacing['3xl'],
+    padding: theme.spacing.none,
+  }),
+  largeContent: scoped({ padding: theme.spacing['3xl'] }),
+  innerCard: scoped({ borderRadius: theme.radius.lg, boxShadow: 'none',
+    padding: theme.spacing.none,
+  }),
+  innerContent: scoped({ padding: theme.spacing.lg }),
+  innerDarkCard: scoped({
+    borderRadius: theme.radius.lg,
+    backgroundColor: theme.colors.background.surfaceSecondary,
+    border: 'none',
+    padding: theme.spacing.none,
+  }),
+  innerDarkContent: scoped({ padding: theme.spacing.lg }),
+  emptyStateContent: scoped({
+    padding: '36px 0',
+    borderRadius: '0px',
+  }),
+  darkCard: scoped({ backgroundColor: theme.colors.background.surfaceSecondary,
+    padding: theme.spacing.none,
+  }),
+  lightCard: scoped({ borderRadius: theme.radius.md,
+    padding: theme.spacing.none,
+  }),
+  shadowCard: scoped({
+    boxShadow: '0px -1px 1px 0.5px #0000001a inset',
+    border: 'none',
+  }),
+  tartiaryCard: scoped({
+    backgroundColor: theme.colors.background.surfaceSecondary,
+    padding: theme.spacing.none,
+  }),
+};
 
 export default VariationTable;

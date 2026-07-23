@@ -7,9 +7,10 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import Badge from '@/components/ui/badge';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 type OptionAccordionProps = {
@@ -66,14 +67,14 @@ const OptionAccordion = (props: OptionAccordionProps) => {
           </AccordionTrigger>
           <AccordionContent>
             <Card
-              type="dark"
+              css={styles.darkCard}
               style={{
                 borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.lg} ${theme.radius.lg}`,
                 display: 'flex',
                 flexDirection: 'column',
               }}
             >
-              {children}
+              <CardContent>{children}</CardContent>
             </Card>
           </AccordionContent>
         </AccordionItem>
@@ -83,3 +84,10 @@ const OptionAccordion = (props: OptionAccordionProps) => {
 };
 
 export default OptionAccordion;
+
+const styles = {
+  darkCard: scoped({
+    backgroundColor: theme.colors.background.surfaceSecondary,
+    padding: theme.spacing.none,
+  }),
+};

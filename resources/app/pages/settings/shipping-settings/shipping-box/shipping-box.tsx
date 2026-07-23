@@ -2,7 +2,10 @@ import { useEffect, useState, type ReactNode } from 'react';
 
 import GroupOptionCard from '@/components/group-option-card';
 import HeaderActionsCard from '@/components/header-actions-card';
-import { Card } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+} from '@/components/ui/card';
 import { dispatchToastMessage } from '@/pages/utils';
 import {
   useShippingBoxesQuery,
@@ -11,6 +14,9 @@ import {
 } from '@/services/shipping';
 import type { ShippingBox as ShippingBoxType } from '@/types';
 import { __ } from '@/wpi18n';
+
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 
 import ShippingBoxPopup from '@/pages/settings/shipping-settings/shipping-box/shipping-box-dialog';
 
@@ -119,27 +125,30 @@ const ShippingBox = () => {
 
   return (
     <>
-      <Card type="large">
+      <Card css={styles.largeCard} >
+        <CardContent css={styles.largeContent}>
+
         <HeaderActionsCard
-          header={__('Shipping Box', 'kirki-ecommerce')}
-          subHeader={__(
-            'Configure box sizes for accurate shipping cost calculations.',
-            'kirki-ecommerce',
-          )}
-          buttonText={__('Create Box', 'kirki-ecommerce')}
-          onAdd={openCreatePopup}
+        header={__('Shipping Box', 'kirki-ecommerce')}
+        subHeader={__(
+        'Configure box sizes for accurate shipping cost calculations.',
+        'kirki-ecommerce',
+        )}
+        buttonText={__('Create Box', 'kirki-ecommerce')}
+        onAdd={openCreatePopup}
         />
         <GroupOptionCard
-          dataArr={shippingBoxList}
-          handleEditItem={(item) =>
-            openEditPopup(item as ShippingBoxListItem)
-          }
-          handleMoreOption={true}
-          actionsArray={[]}
-          handleAction={(action, item) =>
-            handleAction(String(action), item as ShippingBoxListItem)
-          }
+        dataArr={shippingBoxList}
+        handleEditItem={(item) =>
+        openEditPopup(item as ShippingBoxListItem)
+        }
+        handleMoreOption={true}
+        actionsArray={[]}
+        handleAction={(action, item) =>
+        handleAction(String(action), item as ShippingBoxListItem)
+        }
         />
+        </CardContent>
       </Card>
       {openPopup && (
         <ShippingBoxPopup
@@ -154,5 +163,38 @@ const ShippingBox = () => {
 };
 
 ShippingBox.displayName = 'ShippingBox';
+
+const styles = {
+  formCard: scoped({ rowGap: theme.spacing['2xl'] }),
+  largeCard: scoped({ gap: theme.spacing['3xl'],
+    padding: theme.spacing.none,
+  }),
+  largeContent: scoped({ padding: theme.spacing['3xl'] }),
+  innerCard: scoped({ borderRadius: theme.radius.lg, boxShadow: 'none',
+    padding: theme.spacing.none,
+  }),
+  innerContent: scoped({ padding: theme.spacing.lg }),
+  innerDarkCard: scoped({
+    borderRadius: theme.radius.lg,
+    backgroundColor: theme.colors.background.surfaceSecondary,
+    border: 'none',
+    padding: theme.spacing.none,
+  }),
+  innerDarkContent: scoped({ padding: theme.spacing.lg }),
+  darkCard: scoped({ backgroundColor: theme.colors.background.surfaceSecondary,
+    padding: theme.spacing.none,
+  }),
+  lightCard: scoped({ borderRadius: theme.radius.md,
+    padding: theme.spacing.none,
+  }),
+  shadowCard: scoped({
+    boxShadow: '0px -1px 1px 0.5px #0000001a inset',
+    border: 'none',
+  }),
+  tartiaryCard: scoped({
+    backgroundColor: theme.colors.background.surfaceSecondary,
+    padding: theme.spacing.none,
+  }),
+};
 
 export default ShippingBox;

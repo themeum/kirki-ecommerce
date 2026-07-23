@@ -1,4 +1,6 @@
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import PageHeading from '@/components/ui/page-heading';
@@ -35,8 +37,10 @@ const Tags = () => {
       <Container>
         {loaded ? (
           <Flex direction="column" gap={16}>
-            <Card type="table">
-              <TagTable data={data!} isFetching={isFetching} />
+            <Card css={styles.tableCard}>
+              <CardContent css={styles.tableContent}>
+                <TagTable data={data!} isFetching={isFetching} />
+              </CardContent>
             </Card>
             <Pagination
               data={data as PaginationData}
@@ -54,3 +58,15 @@ const Tags = () => {
 Tags.displayName = 'Tags';
 
 export default Tags;
+
+const styles = {
+  tableCard: scoped({
+    overflow: 'hidden',
+    border: '1px solid #e6e6e6',
+    gap: 0,
+    padding: theme.spacing.none,
+  }),
+  tableContent: scoped({
+    padding: theme.spacing.none,
+  }),
+};

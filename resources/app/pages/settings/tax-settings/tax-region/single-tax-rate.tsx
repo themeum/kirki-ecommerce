@@ -1,7 +1,10 @@
 import { css } from '@emotion/react';
 import { useState } from 'react';
 
-import { Card } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+} from '@/components/ui/card';
 import Input from '@/components/ui/input';
 import Text from '@/components/ui/text';
 import Flex from '@/components/ui/flex';
@@ -30,33 +33,34 @@ export const SingleTaxRate = ({
   return (
     <div>
       <Card
-        type="innerDark"
-        css={styles.taxCard}
+        css={[styles.innerDarkCard, styles.taxCard]}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        <Text type="secondary" header={__('Tax rates', 'kirki-ecommerce')} />
-        <div css={styles.taxCardContent}>
-          <Text
-            header={centralTaxValue}
-            css={css(styles.rateDisplay, isHovered && styles.rateDisplayHidden)}
-          />
-
-          <Flex
-            gap={8}
-            css={css(styles.editGroup, isHovered && styles.editGroupActive)}
-          >
-            <Input
-              value={centralTaxValue}
-              style={{ width: '72px' }}
-              onChange={(e) => handleTaxRate(e.target.value)}
-              onBlur={(e) => handleTaxRate(e.target.value)}
-              type="number"
-              min={0}
-              max={100}
+        <CardContent css={styles.innerDarkContent}>
+          <Text type="secondary" header={__('Tax rates', 'kirki-ecommerce')} />
+          <div css={styles.taxCardContent}>
+            <Text
+              header={centralTaxValue}
+              css={css(styles.rateDisplay, isHovered && styles.rateDisplayHidden)}
             />
-          </Flex>
-        </div>
+
+            <Flex
+              gap={8}
+              css={css(styles.editGroup, isHovered && styles.editGroupActive)}
+            >
+              <Input
+                value={centralTaxValue}
+                style={{ width: '72px' }}
+                onChange={(e) => handleTaxRate(e.target.value)}
+                onBlur={(e) => handleTaxRate(e.target.value)}
+                type="number"
+                min={0}
+                max={100}
+              />
+            </Flex>
+          </div>
+        </CardContent>
       </Card>
     </div>
   );
@@ -65,6 +69,15 @@ export const SingleTaxRate = ({
 SingleTaxRate.displayName = 'SingleTaxRate';
 
 const styles = {
+  innerDarkCard: scoped({
+    borderRadius: theme.radius.lg,
+    backgroundColor: theme.colors.background.surfaceSecondary,
+    border: 'none',
+    padding: theme.spacing.none,
+  }),
+  innerDarkContent: scoped({
+    padding: theme.spacing.lg,
+  }),
   taxCard: scoped({
     display: 'flex',
     alignItems: 'center',

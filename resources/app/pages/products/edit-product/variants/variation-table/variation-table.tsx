@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 
 import Button from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
 import Input from '@/components/ui/input';
 import {
@@ -24,6 +24,8 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useProductForm } from '@/contexts/product-form-context';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import type { SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -131,10 +133,8 @@ const VariationTable = () => {
         </ActionGroup>
       </Flex>
 
-      <Card
-        type="inner"
-        style={{ padding: 0 }}
-      >
+      <Card css={[styles.innerCard, styles.tableCard]}>
+        <CardContent css={styles.tableContent}>
         <Table type="variation">
           <TableHeader>
             <TableRow style={{ height: '53px' }}>
@@ -251,6 +251,7 @@ const VariationTable = () => {
             ))}
           </TableBody>
         </Table>
+        </CardContent>
       </Card>
     </>
   );
@@ -259,3 +260,19 @@ const VariationTable = () => {
 VariationTable.displayName = 'VariationTable';
 
 export default VariationTable;
+
+const styles = {
+  innerCard: scoped({
+    borderRadius: theme.radius.lg,
+    boxShadow: 'none',
+    padding: theme.spacing.none,
+  }),
+  tableCard: scoped({
+    overflow: 'hidden',
+    gap: 0,
+    padding: theme.spacing.none,
+  }),
+  tableContent: scoped({
+    padding: theme.spacing.none,
+  }),
+};

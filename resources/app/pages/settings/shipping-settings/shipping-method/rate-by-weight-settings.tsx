@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react';
 
 import Button from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+} from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
 import { FormFieldRow } from '@/components/ui/form';
 import Input from '@/components/ui/input';
@@ -87,51 +90,54 @@ const RateByWeightSettings = ({
           onChange={(e) => handleOnChange(e.target.value, 'description')}
         />
       </Flex>
-      <Card type="form" css={styles.rangesCard}>
+      <Card css={[styles.formCard, styles.rangesCard]} >
+        <CardContent>
+
         <Grid columns={3}>
-          <Text header={__('Weight Range (kg)', 'kirki-ecommerce')} />
-          <Text />
-          <Text header={__('Rate', 'kirki-ecommerce')} />
+        <Text header={__('Weight Range (kg)', 'kirki-ecommerce')} />
+        <Text />
+        <Text header={__('Rate', 'kirki-ecommerce')} />
         </Grid>
         {ranges?.map((range, index) => (
-          <Grid columns={3} key={index}>
-            <Input
-              value={range.from || ''}
-              type="number"
-              placeholder={__('e.g. 12', 'kirki-ecommerce')}
-              onChange={(e) => updateRange(index, 'from', e.target.value)}
-            />
-            <Input
-              value={range.to || ''}
-              type="number"
-              placeholder={__('e.g. 12', 'kirki-ecommerce')}
-              onChange={(e) => updateRange(index, 'to', e.target.value)}
-            />
-            <div css={styles.rateRow} data-hover-parent>
-              <Input
-                value={range.amount || ''}
-                type="number"
-                placeholder={__('e.g. 120Tk', 'kirki-ecommerce')}
-                onChange={(e) => updateRange(index, 'amount', e.target.value)}
-              />
+        <Grid columns={3} key={index}>
+        <Input
+        value={range.from || ''}
+        type="number"
+        placeholder={__('e.g. 12', 'kirki-ecommerce')}
+        onChange={(e) => updateRange(index, 'from', e.target.value)}
+        />
+        <Input
+        value={range.to || ''}
+        type="number"
+        placeholder={__('e.g. 12', 'kirki-ecommerce')}
+        onChange={(e) => updateRange(index, 'to', e.target.value)}
+        />
+        <div css={styles.rateRow} data-hover-parent>
+        <Input
+        value={range.amount || ''}
+        type="number"
+        placeholder={__('e.g. 120Tk', 'kirki-ecommerce')}
+        onChange={(e) => updateRange(index, 'amount', e.target.value)}
+        />
 
-              {index !== 0 && (
-                <Button
-                  variant="secondary"
-                  css={styles.deleteButton}
-                  data-hover-reveal
-                  onClick={() => removeRange(index)}
-                >
-                  <TrashIcon />
-                </Button>
-              )}
-            </div>
-          </Grid>
+        {index !== 0 && (
+        <Button
+        variant="secondary"
+        css={styles.deleteButton}
+        data-hover-reveal
+        onClick={() => removeRange(index)}
+        >
+        <TrashIcon />
+        </Button>
+        )}
+        </div>
+        </Grid>
         ))}
         <Button variant="ghost" onClick={addRange}>
-          <PlusIcon />
-          {__('Add Another Range', 'kirki-ecommerce')}
+        <PlusIcon />
+        {__('Add Another Range', 'kirki-ecommerce')}
         </Button>
+        </CardContent>
       </Card>
 
       <FormFieldRow>
@@ -180,6 +186,7 @@ RateByWeightSettings.displayName = 'RateByWeightSettings';
 export default RateByWeightSettings;
 
 const styles = {
+  formCard: scoped({ rowGap: theme.spacing['2xl'] }),
   textarea: scoped({
     padding: `${theme.spacing.md} ${theme.spacing.lg}`,
     minHeight: '108px',

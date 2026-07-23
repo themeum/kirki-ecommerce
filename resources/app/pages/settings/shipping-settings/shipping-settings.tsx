@@ -8,7 +8,10 @@ import PageNavbar from '@/components/page-navbar';
 import OptionAccordion from '@/components/option-accordion';
 import HeaderActionsCard from '@/components/header-actions-card';
 import Button from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+} from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import { getErrorsObject, type ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
@@ -280,34 +283,37 @@ const ShippingSettings = () => {
                 textIcon={<TruckIcon />}
                 text={__('Shipping', 'kirki-ecommerce')}
               />
-              <Card type="large">
-                <HeaderActionsCard
-                  header={__('Shipping Zones', 'kirki-ecommerce')}
-                  subHeader={__(
-                    'A shipping zone includes regions you ship to and available methods. Each shopper is matched to one zone based on their address.',
-                    'kirki-ecommerce',
-                  )}
-                  buttonText={__('Create Zone', 'kirki-ecommerce')}
-                  onAdd={() => setShowCreateZonePopup(true)}
-                />
+              <Card css={styles.largeCard}>
+                <CardContent css={styles.largeContent}>
+                  <HeaderActionsCard
+                    header={__('Shipping Zones', 'kirki-ecommerce')}
+                    subHeader={__(
+                      'A shipping zone includes regions you ship to and available methods. Each shopper is matched to one zone based on their address.',
+                      'kirki-ecommerce',
+                    )}
+                    buttonText={__('Create Zone', 'kirki-ecommerce')}
+                    onAdd={() => setShowCreateZonePopup(true)}
+                  />
 
-                {!shippingZonesObj.length ? (
-                  <Card type="innerDark" css={styles.emptyState}>
-                    <Flex
-                      direction="column"
-                      gap={8}
-                      style={{ alignItems: 'center' }}
-                    >
-                      <LocationIcon />
-                      <span css={styles.emptyStateText}>
-                        {__(
-                          'Added shipping zones will appear here',
-                          'kirki-ecommerce',
-                        )}
-                      </span>
-                    </Flex>
-                  </Card>
-                ) : (
+                  {!shippingZonesObj.length ? (
+                    <Card css={styles.innerDarkCard}>
+                      <CardContent css={[styles.innerDarkContent, styles.emptyState]}>
+                        <Flex
+                          direction="column"
+                          gap={8}
+                          style={{ alignItems: 'center' }}
+                        >
+                          <LocationIcon />
+                          <span css={styles.emptyStateText}>
+                            {__(
+                              'Added shipping zones will appear here',
+                              'kirki-ecommerce',
+                            )}
+                          </span>
+                        </Flex>
+                      </CardContent>
+                    </Card>
+                  ) : (
                   <Flex direction="column" gap={12}>
                     {shippingZonesObj?.map((item) => (
                       <OptionAccordion
@@ -355,7 +361,8 @@ const ShippingSettings = () => {
                       </OptionAccordion>
                     ))}
                   </Flex>
-                )}
+                  )}
+                </CardContent>
               </Card>
               <ShippingProfile />
               <ShippingBox />
@@ -395,6 +402,17 @@ ShippingSettings.displayName = 'ShippingSettings';
 export default ShippingSettings;
 
 const styles = {
+  largeCard: scoped({ gap: theme.spacing['3xl'],
+    padding: theme.spacing.none,
+  }),
+  largeContent: scoped({ padding: theme.spacing['3xl'] }),
+  innerDarkCard: scoped({
+    borderRadius: theme.radius.lg,
+    backgroundColor: theme.colors.background.surfaceSecondary,
+    border: 'none',
+    padding: theme.spacing.none,
+  }),
+  innerDarkContent: scoped({ padding: theme.spacing.lg }),
   emptyState: scoped({
     padding: `${theme.spacing['7xl']} ${theme.spacing.none}`,
   }),

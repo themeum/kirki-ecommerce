@@ -65,15 +65,6 @@ type TextType =
   | 'inner';
 type HeadingType = 'primary' | 'secondary' | 'tertiary' | '';
 type LabelType = 'error' | '';
-type CardType =
-  | 'default'
-  | 'table'
-  | 'form'
-  | 'inner'
-  | 'dark'
-  | 'innerDark'
-  | 'light'
-  | 'shadow';
 type TableType = 'default' | 'variation' | 'wide';
 type TableAlignment = 'right' | 'center';
 type ContainerSize = 'sm' | 'md' | 'lg' | 'fullWidth';
@@ -115,7 +106,6 @@ export type {
   TextType,
   HeadingType,
   LabelType,
-  CardType,
   TableType,
   TableAlignment,
   ContainerSize,

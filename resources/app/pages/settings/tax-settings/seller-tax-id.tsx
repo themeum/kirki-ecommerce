@@ -1,37 +1,44 @@
-import { Card } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+} from '@/components/ui/card';
 import Button from '@/components/ui/button';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import ActionGroup from '@/components/ui/action-group';
 import { PlusIcon } from '@/icons';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 const SellerTaxID = () => {
   return (
     <div>
-      <Card type="large">
-        <Flex direction="column" gap={6}>
-          <Flex style={{ alignItems: 'center' }}>
+      <Card css={styles.largeCard}>
+        <CardContent css={styles.largeContent}>
+          <Flex direction="column" gap={6}>
+            <Flex style={{ alignItems: 'center' }}>
+              <Text
+                type="primary"
+                header={__('Seller Tax ID', 'kirki-ecommerce')}
+                style={{ gap: '12px' }}
+              />
+              <ActionGroup>
+                <Button variant="secondary" size="sm">
+                  <PlusIcon />
+                  Add ID
+                </Button>
+              </ActionGroup>
+            </Flex>
             <Text
               type="primary"
-              header={__('Seller Tax ID', 'kirki-ecommerce')}
-              style={{ gap: '12px' }}
+              subHeader={__(
+                'This information will be used on invoices where tax is applied, based on buyer region and your registration scope.',
+                'kirki-ecommerce',
+              )}
             />
-            <ActionGroup>
-              <Button variant="secondary" size="sm">
-                <PlusIcon />
-                Add ID
-              </Button>
-            </ActionGroup>
           </Flex>
-          <Text
-            type="primary"
-            subHeader={__(
-              'This information will be used on invoices where tax is applied, based on buyer region and your registration scope.',
-              'kirki-ecommerce',
-            )}
-          />
-        </Flex>
+        </CardContent>
       </Card>
     </div>
   );
@@ -40,3 +47,12 @@ const SellerTaxID = () => {
 SellerTaxID.displayName = 'SellerTaxID';
 
 export default SellerTaxID;
+
+const styles = {
+  largeCard: scoped({
+    gap: theme.spacing['3xl'],
+  }),
+  largeContent: scoped({
+    padding: theme.spacing['3xl'],
+  }),
+};

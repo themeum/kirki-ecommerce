@@ -4,7 +4,10 @@ import Flex from '@/components/ui/flex';
 import { BoxClosedIcon, BoxOpenIcon } from '@/icons';
 import GroupOptionCard from '@/components/group-option-card';
 import HeaderActionsCard from '@/components/header-actions-card';
-import { Card } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+} from '@/components/ui/card';
 import { queryClient } from '@/libs/query-client';
 import {
   deleteShippingProfile,
@@ -67,42 +70,46 @@ const ShippingProfile = () => {
 
   return (
     <>
-      <Card type="large">
-        <HeaderActionsCard
-          header={__('Shipping Profiles', 'kirki-ecommerce')}
-          subHeader={__(
-            'Used to create shipping rates for different product groups, like heavy items needing higher fees.',
-            'kirki-ecommerce',
-          )}
-          buttonText={__('Create Profile', 'kirki-ecommerce')}
-          onAdd={() => setShowPopup(true)}
-        />
+      <Card css={styles.largeCard}>
+        <CardContent css={styles.largeContent}>
+          <HeaderActionsCard
+            header={__('Shipping Profiles', 'kirki-ecommerce')}
+            subHeader={__(
+              'Used to create shipping rates for different product groups, like heavy items needing higher fees.',
+              'kirki-ecommerce',
+            )}
+            buttonText={__('Create Profile', 'kirki-ecommerce')}
+            onAdd={() => setShowPopup(true)}
+          />
 
-        {!shippingProfileList?.length ? (
-          <Card type="innerDark" css={styles.emptyState}>
-            <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
-              <BoxOpenIcon />
-              <span css={styles.emptyStateText}>
-                {__(
-                  'Added shipping profiles will appear here',
-                  'kirki-ecommerce',
-                )}
-              </span>
+          {!shippingProfileList?.length ? (
+            <Card css={styles.innerDarkCard}>
+              <CardContent css={[styles.innerDarkContent, styles.emptyState]}>
+                <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
+                  <BoxOpenIcon />
+                  <span css={styles.emptyStateText}>
+                    {__(
+                      'Added shipping profiles will appear here',
+                      'kirki-ecommerce',
+                    )}
+                  </span>
+                </Flex>
+              </CardContent>
+            </Card>
+          ) : (
+            <Flex direction="column" data-box-wrapper css={styles.boxWrapper}>
+              <GroupOptionCard
+                dataArr={shippingProfileList}
+                handleDeleteItem={(item) =>
+                  handleDeleteShippingProfile(item as ShippingProfileListItem)
+                }
+                handleEditItem={(item) =>
+                  handleEditShippingProfile(item as ShippingProfileListItem)
+                }
+              />
             </Flex>
-          </Card>
-        ) : (
-          <Flex direction="column" data-box-wrapper css={styles.boxWrapper}>
-            <GroupOptionCard
-              dataArr={shippingProfileList}
-              handleDeleteItem={(item) =>
-                handleDeleteShippingProfile(item as ShippingProfileListItem)
-              }
-              handleEditItem={(item) =>
-                handleEditShippingProfile(item as ShippingProfileListItem)
-              }
-            />
-          </Flex>
-        )}
+          )}
+        </CardContent>
       </Card>
       {showPopup && (
         <CreateProfilePopup
@@ -124,6 +131,17 @@ ShippingProfile.displayName = 'ShippingProfile';
 export default ShippingProfile;
 
 const styles = {
+  largeCard: scoped({ gap: theme.spacing['3xl'],
+    padding: theme.spacing.none,
+  }),
+  largeContent: scoped({ padding: theme.spacing['3xl'] }),
+  innerDarkCard: scoped({
+    borderRadius: theme.radius.lg,
+    backgroundColor: theme.colors.background.surfaceSecondary,
+    border: 'none',
+    padding: theme.spacing.none,
+  }),
+  innerDarkContent: scoped({ padding: theme.spacing.lg }),
   boxWrapper: scoped({
     '[data-box-card]': {
       borderTop: 'none',

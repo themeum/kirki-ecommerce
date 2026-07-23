@@ -1,9 +1,11 @@
 import Button from '@/components/ui/button';
 import ActionGroup from '@/components/ui/action-group';
 import Badge from '@/components/ui/badge';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 
 const Payment = () => {
   return (
@@ -12,8 +14,9 @@ const Payment = () => {
         <Text header="Payment" type="primary" />
         <Badge type="pending" text="UNPAID" />
       </Flex>
-      <Card type="inner" style={{ borderStyle: 'dashed' }}>
-        <Flex direction="column" gap={4}>
+      <Card css={styles.innerCard} style={{ borderStyle: 'dashed' }}>
+        <CardContent css={styles.innerContent}>
+          <Flex direction="column" gap={4}>
           <Flex style={{ justifyContent: 'space-between' }}>
             <span>Items</span>
             <span>$900</span>
@@ -30,7 +33,8 @@ const Payment = () => {
             <span>Total</span>
             <span>$1200</span>
           </Flex>
-        </Flex>
+          </Flex>
+        </CardContent>
       </Card>
       <ActionGroup>
         <Button variant="outline">Send invoice</Button>
@@ -41,3 +45,14 @@ const Payment = () => {
 };
 
 export default Payment;
+
+const styles = {
+  innerCard: scoped({
+    borderRadius: theme.radius.lg,
+    boxShadow: 'none',
+    padding: theme.spacing.none,
+  }),
+  innerContent: scoped({
+    padding: theme.spacing.lg,
+  }),
+};

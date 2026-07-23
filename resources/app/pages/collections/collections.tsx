@@ -4,7 +4,9 @@ import Pagination from '@/components/pagination';
 import Button from '@/components/ui/button';
 import { NEW_ITEM_ID } from '@/conf';
 import { useListParams } from '@/hooks';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import PageHeading from '@/components/ui/page-heading';
@@ -52,8 +54,10 @@ const Collections = () => {
       <Container>
         {loaded ? (
           <Flex direction="column" gap={16}>
-            <Card type="table">
-              <CollectionTable data={data!} isFetching={isFetching} />
+            <Card css={styles.tableCard}>
+              <CardContent css={styles.tableContent}>
+                <CollectionTable data={data!} isFetching={isFetching} />
+              </CardContent>
             </Card>
             <Pagination
               data={data as PaginationData}
@@ -71,3 +75,15 @@ const Collections = () => {
 Collections.displayName = 'Collections';
 
 export default Collections;
+
+const styles = {
+  tableCard: scoped({
+    overflow: 'hidden',
+    border: '1px solid #e6e6e6',
+    gap: 0,
+    padding: theme.spacing.none,
+  }),
+  tableContent: scoped({
+    padding: theme.spacing.none,
+  }),
+};

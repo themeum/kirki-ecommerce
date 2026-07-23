@@ -15,6 +15,8 @@ import { applyServerErrors } from '@/libs/form-errors';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import PageHeading from '@/components/ui/page-heading';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import {
   CustomerFormSchema,
   type CustomerFormValues,
@@ -185,7 +187,7 @@ const CustomerDetails = () => {
           </Flex>
 
           <Flex direction="column" gap={16} style={{ width: '30%' }}>
-            <Card type="form">
+            <Card css={styles.formCard}>
               <CardContent>
                 <Flex direction="column" gap={16}>
                   <Label>{__('Notes', 'kirki-ecommerce')}</Label>
@@ -197,7 +199,7 @@ const CustomerDetails = () => {
               </CardContent>
             </Card>
 
-            <Card type="form">
+            <Card css={styles.formCard}>
               <CardContent>
                 <TagManagerField
                   name="tags"
@@ -219,3 +221,9 @@ const CustomerDetails = () => {
 CustomerDetails.displayName = 'CustomerDetails';
 
 export default CustomerDetails;
+
+const styles = {
+  formCard: scoped({
+    rowGap: theme.spacing['2xl'],
+  }),
+};

@@ -1,7 +1,12 @@
-import { Card, CardContent } from '@/components/ui/card';
-import Flex from '@/components/ui/flex';
-import Text from '@/components/ui/text';
-import type { TextType } from '@/types';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 import AttributeList from '@/pages/products/edit-product/variants/attribute-list/attribute-list';
@@ -17,18 +22,14 @@ type VariantsProps = {
 
 const Variants = ({ onSave = () => {} }: VariantsProps) => {
   return (
-    <Card type="form">
+    <Card css={styles.formCard}>
+      <CardHeader>
+        <CardTitle>{__('Product Variations', 'kirki-ecommerce')}</CardTitle>
+        <CardDescription>
+          {__('Manage the options this product comes in.', 'kirki-ecommerce')}
+        </CardDescription>
+      </CardHeader>
       <CardContent>
-        <Flex>
-          <Text
-            type={__('primary', 'kirki-ecommerce') as TextType}
-            header={__('Product Variations', 'kirki-ecommerce')}
-            subHeader={__(
-              'Manage the options this product comes in.',
-              'kirki-ecommerce',
-            )}
-          />
-        </Flex>
         <AttributeList onSave={onSave} />
         <VariationTable />
       </CardContent>
@@ -39,3 +40,9 @@ const Variants = ({ onSave = () => {} }: VariantsProps) => {
 Variants.displayName = 'Variants';
 
 export default Variants;
+
+const styles = {
+  formCard: scoped({
+    rowGap: theme.spacing['2xl'],
+  }),
+};

@@ -8,7 +8,10 @@ import CheckboxField from '@/components/form/checkbox-field';
 import HeaderActionsCard from '@/components/header-actions-card';
 import PageNavbar from '@/components/page-navbar';
 import Button from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+} from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
@@ -267,46 +270,49 @@ const GeneralEditRegion = () => {
                   handleBack={handleBackButton}
                 />
 
-                <Card type="large" css={styles.citiesCard}>
+                <Card css={[styles.largeCard, styles.citiesCard]} >
+                  <CardContent css={styles.largeContent}>
+
                   <HeaderActionsCard
-                    header={__('Cities', 'kirki-ecommerce')}
-                    subHeader={__('Set tax rates for specific cities', 'kirki-ecommerce')}
-                    buttonText={__('Add', 'kirki-ecommerce')}
-                    onAdd={() => setShowPopup(true)}
-                    hideButton={!!applySingleTax}
+                  header={__('Cities', 'kirki-ecommerce')}
+                  subHeader={__('Set tax rates for specific cities', 'kirki-ecommerce')}
+                  buttonText={__('Add', 'kirki-ecommerce')}
+                  onAdd={() => setShowPopup(true)}
+                  hideButton={!!applySingleTax}
                   />
                   <CheckboxField
-                    name="is_central_tax_enabled"
-                    label={__(
-                      'Apply single tax rate for entire country',
-                      'kirki-ecommerce',
-                    )}
+                  name="is_central_tax_enabled"
+                  label={__(
+                  'Apply single tax rate for entire country',
+                  'kirki-ecommerce',
+                  )}
                   />
                   {applySingleTax ? (
-                    <SingleTaxRate
-                      centralTaxValue={centralTaxValue ?? 0}
-                      setCentralTaxValue={(value) =>
-                        form.setValue('central_product_tax', value, {
-                          shouldDirty: true,
-                        })
-                      }
-                    />
+                  <SingleTaxRate
+                  centralTaxValue={centralTaxValue ?? 0}
+                  setCentralTaxValue={(value) =>
+                  form.setValue('central_product_tax', value, {
+                  shouldDirty: true,
+                  })
+                  }
+                  />
                   ) : (
-                    <TaxRateList
-                      taxRates={taxRates}
-                      applySingleTax={!!applySingleTax}
-                      setTaxRates={(updater) => {
-                        const next =
-                          typeof updater === 'function'
-                            ? updater(taxRates)
-                            : updater;
-                        form.setValue('product_tax', next, {
-                          shouldDirty: true,
-                        });
-                      }}
-                      handleSaveData={handleSaveFromRateList}
-                    />
+                  <TaxRateList
+                  taxRates={taxRates}
+                  applySingleTax={!!applySingleTax}
+                  setTaxRates={(updater) => {
+                  const next =
+                  typeof updater === 'function'
+                  ? updater(taxRates)
+                  : updater;
+                  form.setValue('product_tax', next, {
+                  shouldDirty: true,
+                  });
+                  }}
+                  handleSaveData={handleSaveFromRateList}
+                  />
                   )}
+                  </CardContent>
                 </Card>
                 <TaxRules
                   region={selectedCountry}
@@ -340,6 +346,8 @@ GeneralEditRegion.displayName = 'GeneralEditRegion';
 export default GeneralEditRegion;
 
 const styles = {
+  largeCard: scoped({ gap: theme.spacing['3xl'] }),
+  largeContent: scoped({ padding: theme.spacing['3xl'] }),
   citiesCard: scoped({
     gap: theme.spacing['2xl'],
   }),

@@ -9,17 +9,18 @@ import {
 } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
 import Badge from '@/components/ui/badge';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import Thumbnail from '@/components/ui/thumbnail';
+import { theme } from '@/theme';
 import { flexCenter, scoped } from '@/theme/mixins';
 
 const CustomerInfo = () => {
   return (
-    <Card type="form">
-      <Flex style={{ justifyContent: 'space-between', alignItems: 'center' }}>
-        <Text header="Customer" type="secondary" />
+    <Card css={styles.formCard}>
+      <CardHeader css={styles.headerRow}>
+        <CardTitle>Customer</CardTitle>
         <ActionGroup>
           <Button variant="secondary" size="icon" aria-label="Delete">
             <TrashIcon />
@@ -28,8 +29,8 @@ const CustomerInfo = () => {
             <EditIcon />
           </Button>
         </ActionGroup>
-      </Flex>
-
+      </CardHeader>
+      <CardContent>
       <Flex gap={8}>
         <span css={styles.svgClass}>
           <Thumbnail
@@ -82,6 +83,7 @@ const CustomerInfo = () => {
           Montebello, 65082
         </Flex>
       </Flex>
+      </CardContent>
     </Card>
   );
 };
@@ -89,5 +91,13 @@ const CustomerInfo = () => {
 export default CustomerInfo;
 
 const styles = {
+  formCard: scoped({
+    rowGap: theme.spacing['2xl'],
+  }),
+  headerRow: scoped({
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  }),
   svgClass: scoped(flexCenter()),
 };

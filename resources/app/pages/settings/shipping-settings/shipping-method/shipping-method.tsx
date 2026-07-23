@@ -5,7 +5,10 @@ import Flex from '@/components/ui/flex';
 import { BoxOpenIcon } from '@/icons';
 import HeaderActionsCard from '@/components/header-actions-card';
 import GroupOptionCard from '@/components/group-option-card';
-import { Card } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+} from '@/components/ui/card';
 import { dispatchToastMessage } from '@/pages/utils';
 import type { SettingsSectionData } from '@/types';
 import { theme } from '@/theme';
@@ -131,40 +134,44 @@ export const ShippingMethod = ({
           />
         </div>
       ) : (
-        <Card type="large">
-          <HeaderActionsCard
-            header={__('Shipping Methods', 'kirki-ecommerce')}
-            subHeader={__(
-              'Used to create shipping rates for different product groups, like heavy items needing higher fees.',
-              'kirki-ecommerce',
-            )}
-            buttonText={__('Add Method', 'kirki-ecommerce')}
-            onAdd={handleAddMethod}
-          />
-
-          {!shippingMethodList?.length ? (
-            <Card type="innerDark" css={styles.emptyState}>
-              <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
-                <BoxOpenIcon />
-                <span css={styles.emptyStateText}>
-                  {__(
-                    'Added shipping profiles will appear here',
-                    'kirki-ecommerce',
-                  )}
-                </span>
-              </Flex>
-            </Card>
-          ) : (
-            <GroupOptionCard
-              dataArr={shippingMethodListWithIcon}
-              handleDeleteItem={(item) =>
-                handleDeleteMethodItem(item as ShippingMethodData)
-              }
-              handleEditItem={(item) =>
-                handleEditDeliveryMethod(item as ShippingMethodData)
-              }
+        <Card css={styles.largeCard}>
+          <CardContent css={styles.largeContent}>
+            <HeaderActionsCard
+              header={__('Shipping Methods', 'kirki-ecommerce')}
+              subHeader={__(
+                'Used to create shipping rates for different product groups, like heavy items needing higher fees.',
+                'kirki-ecommerce',
+              )}
+              buttonText={__('Add Method', 'kirki-ecommerce')}
+              onAdd={handleAddMethod}
             />
-          )}
+
+            {!shippingMethodList?.length ? (
+              <Card css={styles.innerDarkCard}>
+                <CardContent css={[styles.innerDarkContent, styles.emptyState]}>
+                  <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
+                    <BoxOpenIcon />
+                    <span css={styles.emptyStateText}>
+                      {__(
+                        'Added shipping profiles will appear here',
+                        'kirki-ecommerce',
+                      )}
+                    </span>
+                  </Flex>
+                </CardContent>
+              </Card>
+            ) : (
+              <GroupOptionCard
+                dataArr={shippingMethodListWithIcon}
+                handleDeleteItem={(item) =>
+                  handleDeleteMethodItem(item as ShippingMethodData)
+                }
+                handleEditItem={(item) =>
+                  handleEditDeliveryMethod(item as ShippingMethodData)
+                }
+              />
+            )}
+          </CardContent>
         </Card>
       )}
     </div>
@@ -172,6 +179,17 @@ export const ShippingMethod = ({
 };
 
 const styles = {
+  largeCard: scoped({ gap: theme.spacing['3xl'],
+    padding: theme.spacing.none,
+  }),
+  largeContent: scoped({ padding: theme.spacing['3xl'] }),
+  innerDarkCard: scoped({
+    borderRadius: theme.radius.lg,
+    backgroundColor: theme.colors.background.surfaceSecondary,
+    border: 'none',
+    padding: theme.spacing.none,
+  }),
+  innerDarkContent: scoped({ padding: theme.spacing.lg }),
   zoneMethodsWrap: scoped({
     marginTop: theme.spacing.lg,
   }),

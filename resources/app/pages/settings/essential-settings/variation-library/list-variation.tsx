@@ -3,7 +3,7 @@ import { useParams } from 'react-router';
 
 import PageNavbar from '@/components/page-navbar';
 import Button from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { BoxIcon } from '@/icons';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
@@ -11,6 +11,7 @@ import PageHeading from '@/components/ui/page-heading';
 import { useAttributeQuery } from '@/services/attribute';
 import type { Attribute, AttributeValue, TaxonomyTableHeader } from '@/types';
 import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import { __, sprintf } from '@/wpi18n';
 
 import VariationTable from '@/pages/settings/essential-settings/variation-library/variation-table/variation-table';
@@ -63,25 +64,26 @@ const ListVariation = () => {
             }
           />
           {!attributeValueList?.length ? (
-            <Card
-              type="large"
-              style={{ borderRadius: '8px', padding: '36px 0' }}
-            >
-              <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
-                <BoxIcon />
-                <span style={{ color: '#878593' }}>
-                  {__('No value added yet', 'kirki-ecommerce')}
-                </span>
-              </Flex>
+            <Card css={styles.largeCard} style={{ borderRadius: '8px' }}>
+              <CardContent css={styles.largeContent} style={{ padding: '36px 0' }}>
+                <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
+                  <BoxIcon />
+                  <span style={{ color: '#878593' }}>
+                    {__('No value added yet', 'kirki-ecommerce')}
+                  </span>
+                </Flex>
+              </CardContent>
             </Card>
           ) : (
-            <Card type="table">
-              <VariationTable
-                tableHeaders={tableHeaders}
-                results={attributeValueList}
-                updateDataList={setAttributeValueList}
-                selectedItem={selectedAttribute}
-              />
+            <Card css={styles.tableCard}>
+              <CardContent css={styles.tableContent}>
+                <VariationTable
+                  tableHeaders={tableHeaders}
+                  results={attributeValueList}
+                  updateDataList={setAttributeValueList}
+                  selectedItem={selectedAttribute}
+                />
+              </CardContent>
             </Card>
           )}
         </Flex>
@@ -99,3 +101,22 @@ const ListVariation = () => {
 ListVariation.displayName = 'ListVariation';
 
 export default ListVariation;
+
+const styles = {
+  largeCard: scoped({
+    gap: theme.spacing['3xl'],
+    padding: theme.spacing.none,
+  }),
+  largeContent: scoped({
+    padding: theme.spacing['3xl'],
+  }),
+  tableCard: scoped({
+    overflow: 'hidden',
+    border: '1px solid #e6e6e6',
+    gap: 0,
+    padding: theme.spacing.none,
+  }),
+  tableContent: scoped({
+    padding: theme.spacing.none,
+  }),
+};

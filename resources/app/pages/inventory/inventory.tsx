@@ -4,7 +4,9 @@ import Pagination from '@/components/pagination';
 import Button from '@/components/ui/button';
 import { InventoryFormProvider, useInventoryForm } from '@/contexts/inventory-form-context';
 import { useListParams } from '@/hooks';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import PageHeading from '@/components/ui/page-heading';
@@ -86,8 +88,10 @@ const InventoryPage = () => {
       <Container>
         {loaded && !isLoading ? (
           <Flex direction="column" gap={16}>
-            <Card type="table">
-              <InventoryTable />
+            <Card css={styles.tableCard}>
+              <CardContent css={styles.tableContent}>
+                <InventoryTable />
+              </CardContent>
             </Card>
             <Pagination
               data={{
@@ -119,3 +123,15 @@ const Inventory = () => (
 Inventory.displayName = 'Inventory';
 
 export default Inventory;
+
+const styles = {
+  tableCard: scoped({
+    overflow: 'hidden',
+    border: '1px solid #e6e6e6',
+    gap: 0,
+    padding: theme.spacing.none,
+  }),
+  tableContent: scoped({
+    padding: theme.spacing.none,
+  }),
+};

@@ -4,7 +4,10 @@ import { useFormContext, useWatch } from 'react-hook-form';
 import SwitchField from '@/components/form/switch-field';
 import OptionAccordion from '@/components/option-accordion';
 import Button from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+} from '@/components/ui/card';
 import Label from '@/components/ui/label';
 import {
   Select,
@@ -22,6 +25,9 @@ import type { MultiCurrencySettingsFormValues } from '@/schemas/forms/multi-curr
 import { useCurrencyExchangeProvidersQuery } from '@/services/currency';
 import type { SettingsSectionData } from '@/types';
 import { __ } from '@/wpi18n';
+
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 
 import ApiConfigurationCard from '@/pages/settings/multi-currency-settings/api-config/api-configuration-card';
 import ApiConfigurationPopup from '@/pages/settings/multi-currency-settings/api-config/api-configuration-dialog';
@@ -118,33 +124,36 @@ const ApiConfig = () => {
               dataObj={(formValues || {}) as SettingsSectionData}
             />
           ) : (
-            <Card type="inner">
+            <Card css={styles.innerCard} >
+              <CardContent css={styles.innerContent}>
+
               <Flex
-                style={{
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                }}
+              style={{
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              }}
               >
-                <Flex direction={'column'} gap={8}>
-                  <Text header={selectedAPI} leftIcon={<FlagIcon />} />
-                  <Text
-                    subHeader={__(
-                      'Configure your API key and connection settings for ExchangeRate API',
-                      'kirki-ecommerce',
-                    )}
-                  />
-                </Flex>
-                <ActionGroup>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setOpenPopup(true)}
-                  >
-                    <WrenchIcon />
-                    {__('Configure', 'kirki-ecommerce')}
-                  </Button>
-                </ActionGroup>
+              <Flex direction={'column'} gap={8}>
+              <Text header={selectedAPI} leftIcon={<FlagIcon />} />
+              <Text
+              subHeader={__(
+              'Configure your API key and connection settings for ExchangeRate API',
+              'kirki-ecommerce',
+              )}
+              />
               </Flex>
+              <ActionGroup>
+              <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setOpenPopup(true)}
+              >
+              <WrenchIcon />
+              {__('Configure', 'kirki-ecommerce')}
+              </Button>
+              </ActionGroup>
+              </Flex>
+              </CardContent>
             </Card>
           ))}
       </OptionAccordion>
@@ -160,5 +169,38 @@ const ApiConfig = () => {
 };
 
 ApiConfig.displayName = 'ApiConfig';
+
+const styles = {
+  formCard: scoped({ rowGap: theme.spacing['2xl'] }),
+  largeCard: scoped({ gap: theme.spacing['3xl'],
+    padding: theme.spacing.none,
+  }),
+  largeContent: scoped({ padding: theme.spacing['3xl'] }),
+  innerCard: scoped({ borderRadius: theme.radius.lg, boxShadow: 'none',
+    padding: theme.spacing.none,
+  }),
+  innerContent: scoped({ padding: theme.spacing.lg }),
+  innerDarkCard: scoped({
+    borderRadius: theme.radius.lg,
+    backgroundColor: theme.colors.background.surfaceSecondary,
+    border: 'none',
+    padding: theme.spacing.none,
+  }),
+  innerDarkContent: scoped({ padding: theme.spacing.lg }),
+  darkCard: scoped({ backgroundColor: theme.colors.background.surfaceSecondary,
+    padding: theme.spacing.none,
+  }),
+  lightCard: scoped({ borderRadius: theme.radius.md,
+    padding: theme.spacing.none,
+  }),
+  shadowCard: scoped({
+    boxShadow: '0px -1px 1px 0.5px #0000001a inset',
+    border: 'none',
+  }),
+  tartiaryCard: scoped({
+    backgroundColor: theme.colors.background.surfaceSecondary,
+    padding: theme.spacing.none,
+  }),
+};
 
 export default ApiConfig;
