@@ -1,36 +1,32 @@
-import { forwardRef, type CSSProperties, type HTMLAttributes } from 'react';
-import classNames from 'classnames';
+import type { SerializedStyles } from '@emotion/react';
+import { forwardRef, type ComponentPropsWithoutRef, type CSSProperties } from 'react';
 
-import { CLASS_PREFIX } from '@/conf';
+import { scoped } from '@/theme/mixins';
 
-type GridProps = HTMLAttributes<HTMLDivElement> & {
+type GridProps = Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'css'> & {
   columns?: number;
   gap?: string | number;
+  css?: SerializedStyles;
 };
 
 const Grid = forwardRef<HTMLDivElement, GridProps>((props, ref) => {
   const {
+    css: cssProp,
     columns = 2,
     gap = '12px',
+    style,
     children,
-    className,
-    style = {},
     ...rest
   } = props;
 
-  const gridStyle: CSSProperties = {
-    gridTemplateColumns: `repeat(${columns}, 1fr)`,
-    gap,
+  const gridStyle = {
+    '--grid-columns': columns,
+    '--grid-gap': typeof gap === 'number' ? `${gap}px` : gap,
     ...style,
-  };
+  } as CSSProperties;
 
   return (
-    <div
-      ref={ref}
-      className={classNames(`${CLASS_PREFIX}-ui-grid`, className)}
-      style={gridStyle}
-      {...rest}
-    >
+    <div ref={ref} style={gridStyle} css={[styles.root, cssProp]} {...rest}>
       {children}
     </div>
   );
@@ -39,3 +35,12 @@ const Grid = forwardRef<HTMLDivElement, GridProps>((props, ref) => {
 Grid.displayName = 'Grid';
 
 export default Grid;
+
+const styles = {
+  root: scoped({
+    display: 'grid',
+    alignItems: 'end',
+    gridTemplateColumns: 'repeat(var(--grid-columns), 1fr)',
+    gap: 'var(--grid-gap)',
+  }),
+};

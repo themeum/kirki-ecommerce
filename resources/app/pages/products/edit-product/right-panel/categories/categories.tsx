@@ -3,7 +3,6 @@ import { useFormContext } from 'react-hook-form';
 import { Card, CardContent } from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
 import Label from '@/components/ui/label';
-import { CLASS_PREFIX } from '@/conf';
 import Flex from '@/components/ui/flex';
 import type { ProductRightPanelFormValues } from '@/schemas/forms/product-right-panel-form';
 import { useCategoriesQuery } from '@/services/category';
@@ -171,7 +170,7 @@ const Categories = () => {
   };
 
   return (
-    <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-form`}>
+    <Card type="form">
       <CardContent>
         <Label>{__('Categories', 'kirki-ecommerce')}</Label>
         {!loaded && <div>{__('Loading...', 'kirki-ecommerce')}</div>}

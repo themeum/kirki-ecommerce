@@ -1,24 +1,32 @@
+import { type SerializedStyles, type Theme } from '@emotion/react';
+import * as RadioGroupPrimitive from '@radix-ui/react-radio-group';
+import { Circle } from 'lucide-react';
 import {
   forwardRef,
   type ComponentPropsWithoutRef,
   type ElementRef,
 } from 'react';
-import * as RadioGroupPrimitive from '@radix-ui/react-radio-group';
-import { Circle } from 'lucide-react';
-import classNames from 'classnames';
 
-import { CLASS_PREFIX } from '@/conf';
+import { theme } from '@/theme';
+import { flexCenter, scoped, uiFocusRing } from '@/theme/mixins';
+
+type RadioGroupProps = Omit<
+  ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Root>,
+  'className' | 'css'
+> & {
+  css?: SerializedStyles;
+};
 
 const RadioGroup = forwardRef<
   ElementRef<typeof RadioGroupPrimitive.Root>,
-  ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Root>
+  RadioGroupProps
 >((props, ref) => {
-  const { className, ...rest } = props;
+  const { css: cssProp, ...rest } = props;
 
   return (
     <RadioGroupPrimitive.Root
       ref={ref}
-      className={classNames(`${CLASS_PREFIX}-ui-radio-group`, className)}
+      css={[styles.root, cssProp]}
       {...rest}
     />
   );
@@ -26,21 +34,22 @@ const RadioGroup = forwardRef<
 
 RadioGroup.displayName = 'RadioGroup';
 
+type RadioGroupItemProps = Omit<
+  ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Item>,
+  'className' | 'css'
+> & {
+  css?: SerializedStyles;
+};
+
 const RadioGroupItem = forwardRef<
   ElementRef<typeof RadioGroupPrimitive.Item>,
-  ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Item>
+  RadioGroupItemProps
 >((props, ref) => {
-  const { className, ...rest } = props;
+  const { css: cssProp, ...rest } = props;
 
   return (
-    <RadioGroupPrimitive.Item
-      ref={ref}
-      className={classNames(`${CLASS_PREFIX}-ui-radio-item`, className)}
-      {...rest}
-    >
-      <RadioGroupPrimitive.Indicator
-        className={`${CLASS_PREFIX}-ui-radio-indicator`}
-      >
+    <RadioGroupPrimitive.Item ref={ref} css={[styles.item, cssProp]} {...rest}>
+      <RadioGroupPrimitive.Indicator css={styles.indicator}>
         <Circle size={8} fill="currentColor" strokeWidth={0} />
       </RadioGroupPrimitive.Indicator>
     </RadioGroupPrimitive.Item>
@@ -50,3 +59,40 @@ const RadioGroupItem = forwardRef<
 RadioGroupItem.displayName = 'RadioGroupItem';
 
 export { RadioGroup, RadioGroupItem };
+
+const styles = {
+  root: scoped({
+    display: 'flex',
+    flexDirection: 'column',
+    gap: theme.spacing.md,
+  }),
+  item: scoped({
+    ...flexCenter(),
+    width: '16px',
+    height: '16px',
+    flexShrink: 0,
+    cursor: 'pointer',
+    padding: 0,
+    margin: 0,
+    border: '1px solid #4a4852',
+    borderRadius: theme.radius.full,
+    backgroundColor: 'transparent',
+    color: '#5641f3',
+    boxSizing: 'border-box',
+    '&:focus-visible': {
+      ...uiFocusRing(theme as Theme),
+    },
+    '&[data-state="checked"]': {
+      borderColor: '#5641f3',
+    },
+    '&:disabled': {
+      opacity: 0.5,
+      pointerEvents: 'none',
+    },
+  }),
+  indicator: scoped({
+    ...flexCenter(),
+    display: 'flex',
+    color: '#5641f3',
+  }),
+};

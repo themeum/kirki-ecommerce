@@ -2,14 +2,13 @@ import Button from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import Text from '@/components/ui/text';
 import Grid from '@/components/ui/grid';
-import { CLASS_PREFIX } from '@/conf';
 import { ShippoIcon, EasyShipIcon } from '@/icons';
 import { __ } from '@/wpi18n';
 
 const ShippingSolution = () => {
   return (
     <>
-      <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
+      <Card type="large">
         <Text
           type="primary"
           header={__('Shipping Solution', 'kirki-ecommerce')}

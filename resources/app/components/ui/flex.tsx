@@ -1,38 +1,33 @@
-import { forwardRef, type CSSProperties, type HTMLAttributes } from 'react';
-import classNames from 'classnames';
+import type { SerializedStyles } from '@emotion/react';
+import { forwardRef, type ComponentPropsWithoutRef, type CSSProperties } from 'react';
 
-import { CLASS_PREFIX } from '@/conf';
+import { scoped } from '@/theme/mixins';
 import type { FlexDirection } from '@/types';
 
-type FlexProps = HTMLAttributes<HTMLDivElement> & {
+type FlexProps = Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'css'> & {
   direction?: FlexDirection;
   gap?: number;
+  css?: SerializedStyles;
 };
 
 const Flex = forwardRef<HTMLDivElement, FlexProps>((props, ref) => {
-  const {
-    children,
-    direction,
-    gap,
-    style = {},
-    className,
-    ...rest
-  } = props;
+  const { css: cssProp, direction, gap, style, children, ...rest } = props;
 
-  const flexStyle: CSSProperties = {
-    ...(gap !== undefined ? { gap } : {}),
+  const flexStyle = {
+    ...(gap !== undefined ? { '--flex-gap': `${gap}px` } : {}),
     ...style,
-  };
+  } as CSSProperties;
 
   return (
     <div
       ref={ref}
-      className={classNames(
-        `${CLASS_PREFIX}-ui-flex`,
-        direction && `${CLASS_PREFIX}-ui-flex--${direction}`,
-        className,
-      )}
       style={flexStyle}
+      css={[
+        styles.root,
+        direction === 'column' && styles.column,
+        direction === 'row' && styles.row,
+        cssProp,
+      ]}
       {...rest}
     >
       {children}
@@ -43,3 +38,16 @@ const Flex = forwardRef<HTMLDivElement, FlexProps>((props, ref) => {
 Flex.displayName = 'Flex';
 
 export default Flex;
+
+const styles = {
+  root: scoped({
+    display: 'flex',
+    gap: 'var(--flex-gap)',
+  }),
+  column: scoped({
+    flexDirection: 'column',
+  }),
+  row: scoped({
+    flexDirection: 'row',
+  }),
+};

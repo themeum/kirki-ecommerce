@@ -1,3 +1,4 @@
+import { type SerializedStyles } from '@emotion/react';
 import {
   forwardRef,
   useEffect,
@@ -6,14 +7,14 @@ import {
   type CSSProperties,
 } from 'react';
 import { Replace, Trash2 } from 'lucide-react';
-import classNames from 'classnames';
 
 import MediaSelector from '@/components/media-selector';
 import Button from '@/components/ui/button';
 import Flex from '@/components/ui/flex';
 import Label from '@/components/ui/label';
-import { CLASS_PREFIX } from '@/conf';
 import { ThumbnailPlaceholder } from '@/icons';
+import { theme } from '@/theme';
+import { flexCenter, scoped } from '@/theme/mixins';
 import type { ThumbnailSize, ThumbnailType } from '@/types';
 
 type MediaSelectorOnSelect = NonNullable<
@@ -23,7 +24,7 @@ type MediaSelectorOnSelect = NonNullable<
 type ThumbnailProps = {
   src?: string;
   style?: CSSProperties;
-  className?: string;
+  css?: SerializedStyles;
   size?: ThumbnailSize;
   type?: ThumbnailType;
   alt?: string;
@@ -38,7 +39,7 @@ const Thumbnail = forwardRef<HTMLDivElement, ThumbnailProps>((props, ref) => {
   const {
     src,
     style = {},
-    className,
+    css: cssProp,
     size,
     type,
     alt,
@@ -65,28 +66,21 @@ const Thumbnail = forwardRef<HTMLDivElement, ThumbnailProps>((props, ref) => {
       )}
       <div
         ref={ref}
-        className={classNames(
-          `${CLASS_PREFIX}-ui-thumbnail`,
-          size && `${CLASS_PREFIX}-ui-thumbnail--${size}`,
-          type && `${CLASS_PREFIX}-ui-thumbnail--${type}`,
-          error && `${CLASS_PREFIX}-ui-thumbnail--error`,
-          className,
-        )}
+        css={[
+          styles.base,
+          size && styles.sizes[size],
+          type && styles.types[type],
+          error && styles.error,
+          cssProp,
+        ]}
         style={style}
       >
         {imgSrc ? (
           <>
-            <img
-              src={imgSrc}
-              alt={alt || 'thumbnail'}
-              style={{ objectFit }}
-            />
+            <img src={imgSrc} alt={alt || 'thumbnail'} style={{ objectFit }} />
             {size === 'fullWidth' && (
-              <div className={`${CLASS_PREFIX}-ui-thumbnail-overlay`}>
-                <Flex
-                  gap={8}
-                  className={`${CLASS_PREFIX}-ui-thumbnail-actions`}
-                >
+              <div css={[styles.overlay, styles.overlayFullWidth]}>
+                <Flex gap={8} css={styles.actions}>
                   <MediaSelector onSelect={(img) => onChange(img)}>
                     <Button size="sm" variant="ghost" aria-label="Replace image">
                       <Replace size={16} aria-hidden="true" />
@@ -115,3 +109,76 @@ const Thumbnail = forwardRef<HTMLDivElement, ThumbnailProps>((props, ref) => {
 Thumbnail.displayName = 'Thumbnail';
 
 export default Thumbnail;
+
+const styles = {
+  base: scoped({
+    height: '40px',
+    width: '40px',
+    borderRadius: theme.radius.md,
+    border: `1px solid ${theme.colors.border.default}`,
+    ...flexCenter(),
+    display: 'inline-flex',
+    overflow: 'hidden',
+    position: 'relative',
+    img: {
+      height: '100%',
+      width: '100%',
+      display: 'block',
+    },
+  }),
+  overlay: scoped({
+    position: 'absolute',
+    inset: 0,
+    background: '#1c1c1c99',
+    display: 'flex',
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+    opacity: 0,
+    transition: 'opacity 0.25s ease',
+  }),
+  overlayFullWidth: scoped({
+    padding: theme.spacing['3xl'],
+    '&:hover': {
+      opacity: 1,
+    },
+  }),
+  actions: scoped({
+    paddingBottom: theme.spacing.xs,
+    alignItems: 'center',
+    justifyContent: 'center',
+  }),
+  error: scoped({
+    border: `1px solid ${theme.colors.border.critical}`,
+    boxShadow: `0px 0px 0px 1px ${theme.colors.background.fillCritical}`,
+  }),
+  sizes: {
+    small: scoped({
+      width: '32px',
+      height: '32px',
+      borderRadius: theme.radius.sm,
+    }),
+    xsm: scoped({
+      width: '16px',
+      height: '16px',
+    }),
+    fullWidth: scoped({
+      padding: theme.spacing['3xl'],
+      width: '100%',
+      height: 'auto',
+      border: '1px solid #e4e4e7',
+      backgroundColor: '#f7f7f7',
+      boxSizing: 'border-box',
+      img: {
+        borderRadius: theme.radius.md,
+        maxHeight: '202px',
+        width: 'auto',
+      },
+    }),
+  },
+  types: {
+    circle: scoped({
+      borderRadius: theme.radius.full,
+      border: 'none',
+    }),
+  },
+};

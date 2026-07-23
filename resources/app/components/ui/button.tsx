@@ -1,4 +1,4 @@
-import { keyframes, type Theme } from '@emotion/react';
+import { keyframes, type SerializedStyles, type Theme } from '@emotion/react';
 import { Slot } from '@radix-ui/react-slot';
 import { Loader2 } from 'lucide-react';
 import {
@@ -19,16 +19,20 @@ type ButtonVariant =
 
 type ButtonSize = 'default' | 'sm' | 'lg' | 'icon';
 
-type ButtonProps = ComponentPropsWithoutRef<'button'> & {
+type ButtonProps = Omit<
+  ComponentPropsWithoutRef<'button'>,
+  'className' | 'css'
+> & {
   variant?: ButtonVariant;
   size?: ButtonSize;
   asChild?: boolean;
   loading?: boolean;
+  css?: SerializedStyles;
 };
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
   const {
-    className,
+    css: cssProp,
     variant = 'primary',
     size = 'default',
     asChild = false,
@@ -46,7 +50,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
     styles.sizes[size],
     isDisabled && styles.disabled,
     loading && styles.loading,
-    className,
+    cssProp,
   ];
 
   if (asChild && !loading) {

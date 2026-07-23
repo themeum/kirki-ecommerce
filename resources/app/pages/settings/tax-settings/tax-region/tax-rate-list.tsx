@@ -1,4 +1,5 @@
-import type { Dispatch, SetStateAction } from 'react';
+import { css } from '@emotion/react';
+import { useState, type Dispatch, type SetStateAction } from 'react';
 import { toast } from 'sonner';
 
 import { Card } from '@/components/ui/card';
@@ -8,7 +9,7 @@ import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { PaymentIcon, LocationIcon, TrashIcon } from '@/icons';
 import { __, sprintf } from '@/wpi18n';
-import { CLASS_PREFIX } from '@/conf';
+import { scoped } from '@/theme/mixins';
 
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
 import type { TaxRate } from '@/pages/settings/tax-settings/utils';
@@ -23,12 +24,49 @@ type TaxRateListProps = {
   ) => void | Promise<void>;
 };
 
+const taxCardCss = scoped({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  borderRadius: 'var(--decom-radius-rounded-md)',
+  maxHeight: '44px',
+  height: '44px',
+  padding: 'var(--decom-spacing-3)',
+});
+
+const editGroupCss = css({
+  display: 'none',
+  pointerEvents: 'none',
+  transition: 'opacity 0.2s',
+});
+
+const editGroupActiveCss = css({
+  display: 'flex',
+  pointerEvents: 'auto',
+});
+
+const rateDisplayCss = scoped({
+  transition: 'opacity 0.2s',
+  display: 'flex',
+});
+
+const rateDisplayHiddenCss = css({
+  display: 'none',
+});
+
+const taxCardContentCss = scoped({
+  display: 'flex',
+  alignItems: 'center',
+});
+
 export const TaxRateList = ({
   taxRates,
   applySingleTax,
   setTaxRates,
   handleSaveData,
 }: TaxRateListProps) => {
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
   const handleTaxRate = (item: TaxRate, value: number | string) => {
     setUnsavedDataStatus(true);
     setTaxRates((prev) =>
@@ -62,10 +100,7 @@ export const TaxRateList = ({
   return (
     <div>
       {!applySingleTax && !taxRates.length ? (
-        <Card
-          className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner-dark`}
-          style={{ padding: '36px 0' }}
-        >
+        <Card type="innerDark" style={{ padding: '36px 0' }}>
           <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
             <PaymentIcon />
             <span style={{ color: '#878593' }}>
@@ -74,7 +109,7 @@ export const TaxRateList = ({
           </Flex>
         </Card>
       ) : (
-        <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner-dark`}>
+        <Card type="innerDark">
           <Text
             header={__('Tax rates', 'kirki-ecommerce')}
             style={{ marginBottom: 'var(--decom-spacing-2)' }}
@@ -83,16 +118,28 @@ export const TaxRateList = ({
             {taxRates?.map((item, index) => (
               <Card
                 key={index}
-                className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-default ${CLASS_PREFIX}-tax-card`}
+                type="default"
+                css={taxCardCss}
+                onMouseEnter={() => setHoveredIndex(index)}
+                onMouseLeave={() => setHoveredIndex(null)}
               >
                 <Text header={item?.state} leftIcon={<LocationIcon />} />
-                <div className={`${CLASS_PREFIX}-tax-card-content`}>
+                <div css={taxCardContentCss}>
                   <Text
                     header={sprintf(__('%s %', 'kirki-ecommerce'), item?.rate)}
-                    className={`${CLASS_PREFIX}-rate-display`}
+                    css={css(
+                      rateDisplayCss,
+                      hoveredIndex === index && rateDisplayHiddenCss,
+                    )}
                   />
 
-                  <Flex gap={8} className={`${CLASS_PREFIX}-edit-group`}>
+                  <Flex
+                    gap={8}
+                    css={css(
+                      editGroupCss,
+                      hoveredIndex === index && editGroupActiveCss,
+                    )}
+                  >
                     <Input
                       value={item?.rate ?? ''}
                       style={{ width: '72px' }}

@@ -315,7 +315,7 @@ const SingleRow = (props: SingleRowProps) => {
             placeholder="--"
             onChange={(event) => handleNumberInputChange(event, 'price')}
             onKeyDown={handleInputEnterKeyDown}
-            className={`${CLASS_PREFIX}-ui-input--invisible`}
+            invisible
             type="number"
           />
           <span
@@ -334,7 +334,7 @@ const SingleRow = (props: SingleRowProps) => {
             value={currentVariation?.sale_price ?? undefined}
             onChange={(event) => handleNumberInputChange(event, 'sale_price')}
             onKeyDown={handleInputEnterKeyDown}
-            className={`${CLASS_PREFIX}-ui-input--invisible`}
+            invisible
             type="number"
             placeholder="--"
           />
@@ -356,7 +356,7 @@ const SingleRow = (props: SingleRowProps) => {
               handleNumberInputChange(event, 'cost_of_goods')
             }
             onKeyDown={handleInputEnterKeyDown}
-            className={`${CLASS_PREFIX}-ui-input--invisible`}
+            invisible
             type="number"
             placeholder="--"
           />
@@ -372,7 +372,7 @@ const SingleRow = (props: SingleRowProps) => {
             disabled
             readOnly
             value={calculateProfit('profit', currentVariation)}
-            className={`${CLASS_PREFIX}-ui-input--invisible`}
+            invisible
             placeholder="--"
           />
         </TableCell>
@@ -383,7 +383,7 @@ const SingleRow = (props: SingleRowProps) => {
             disabled
             readOnly
             value={calculateProfit('margin', currentVariation)}
-            className={`${CLASS_PREFIX}-ui-input--invisible`}
+            invisible
             placeholder="--"
           />
         </TableCell>
@@ -438,7 +438,7 @@ const SingleRow = (props: SingleRowProps) => {
           <Input
             value={currentVariation?.sku ?? undefined}
             readOnly
-            className={`${CLASS_PREFIX}-ui-input--invisible`}
+            invisible
             placeholder="--"
           />
           <span
@@ -476,7 +476,7 @@ const SingleRow = (props: SingleRowProps) => {
           <Input
             value={currentVariation?.weight ?? undefined}
             onChange={(event) => handleNumberInputChange(event, 'weight')}
-            className={`${CLASS_PREFIX}-ui-input--invisible`}
+            invisible
             placeholder="--"
             type="number"
           />
@@ -496,9 +496,7 @@ const SingleRow = (props: SingleRowProps) => {
             value={currentVariation?.weight_unit ?? undefined}
             onValueChange={(value) => handleOnChange(value, 'weight_unit')}
           >
-            <SelectTrigger
-              className={`${CLASS_PREFIX}-ui-select-trigger--invisible`}
-            >
+            <SelectTrigger variant="invisible">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -544,7 +542,7 @@ const SingleRow = (props: SingleRowProps) => {
                 handleNumberInputChange(event, 'available_quantity')
               }
               onKeyDown={handleInputEnterKeyDown}
-              className={`${CLASS_PREFIX}-ui-input--invisible`}
+              invisible
               type="number"
             />
           ) : (
@@ -563,7 +561,7 @@ const SingleRow = (props: SingleRowProps) => {
               disabled
               readOnly
               value={currentVariation?.committed_quantity || 0}
-              className={`${CLASS_PREFIX}-ui-input--invisible`}
+              invisible
             />
           ) : (
             <span style={{ marginLeft: '12px' }}>_</span>
@@ -600,7 +598,7 @@ const SingleRow = (props: SingleRowProps) => {
                 handleNumberInputChange(event, 'max_per_order')
               }
               onKeyDown={handleInputEnterKeyDown}
-              className={`${CLASS_PREFIX}-ui-input--invisible`}
+              invisible
               type="number"
             />
           ) : (
@@ -663,9 +661,7 @@ const SingleRow = (props: SingleRowProps) => {
               }
               onValueChange={(value) => handleOnChange(value, 'tax_profile_id')}
             >
-              <SelectTrigger
-                className={`${CLASS_PREFIX}-ui-select-trigger--invisible`}
-              >
+              <SelectTrigger variant="invisible">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent />
@@ -696,9 +692,7 @@ const SingleRow = (props: SingleRowProps) => {
               handleOnChange(value, 'shipping_profile_id')
             }
           >
-            <SelectTrigger
-              className={`${CLASS_PREFIX}-ui-select-trigger--invisible`}
-            >
+            <SelectTrigger variant="invisible">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>

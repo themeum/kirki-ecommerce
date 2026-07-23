@@ -1,3 +1,4 @@
+import { css } from '@emotion/react';
 import type { ReactNode } from 'react';
 
 import Flex from '@/components/ui/flex';
@@ -7,6 +8,18 @@ import { InfoIcon, AlertIcon, CloseIcon, CheckedIcon } from '@/icons';
 import { CLASS_PREFIX } from '@/conf';
 import type { ToastVariant } from '@/types';
 import { __ } from '@/wpi18n';
+
+const toastElementCss = css({
+  minWidth: '330px',
+  maxWidth: 'auto',
+  height: '68px',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  padding: '12px 16px',
+  borderRadius: '16px 16px 4px 4px',
+  boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+  animation: 'toast-slide-in 0.2s ease-out',
+});
 
 type ToastProps = {
   title: string;
@@ -66,7 +79,7 @@ const Toast = ({
     <Flex direction={'column'}>
       <Flex
         gap={20}
-        className={`${CLASS_PREFIX}-toast-element`}
+        css={toastElementCss}
         style={{
           background: ui.bg,
         }}

@@ -4,7 +4,7 @@ import {
   type ChangeEvent,
   type CSSProperties,
 } from 'react';
-import classNames from 'classnames';
+import { css, type SerializedStyles } from '@emotion/react';
 
 import {
   Select,
@@ -16,7 +16,8 @@ import {
 import Flex from '@/components/ui/flex';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
-import { CLASS_PREFIX } from '@/conf';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import type { SelectOption } from '@/types';
 
 type SelectInputValue = {
@@ -25,8 +26,8 @@ type SelectInputValue = {
 };
 
 type SelectInputProps = {
-  className?: string;
   style?: CSSProperties;
+  css?: SerializedStyles;
   optionsArray?: SelectOption[];
   value?: SelectInputValue;
   defaultValue?: SelectInputValue;
@@ -42,8 +43,8 @@ type SelectInputProps = {
 };
 
 const SelectInput = ({
-  className,
   style = {},
+  css: cssProp,
   optionsArray = [],
   value,
   defaultValue,
@@ -136,12 +137,12 @@ const SelectInput = ({
         </Label>
       )}
       <Flex
-        className={classNames(
-          `${CLASS_PREFIX}-ui-select-input`,
-          invisible && `${CLASS_PREFIX}-ui-select-input--invisible`,
-          error && `${CLASS_PREFIX}-ui-select-input--error`,
-          className,
-        )}
+        css={css([
+          styles.wrapper,
+          invisible && styles.wrapperInvisible,
+          error && styles.wrapperError,
+          cssProp,
+        ])}
         style={style}
       >
         <div style={{ flex: '1' }}>
@@ -153,11 +154,15 @@ const SelectInput = ({
             step={step}
             max={max}
             min={min}
+            css={styles.input}
           />
         </div>
         <div style={{ width: selectWidth ? selectWidth : 'auto' }}>
           <Select value={selectValue} onValueChange={handleSelectChange}>
-            <SelectTrigger error={Boolean(error)}>
+            <SelectTrigger
+              error={Boolean(error)}
+              css={invisible ? styles.selectTrigger : styles.selectTriggerDivider}
+            >
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -177,3 +182,45 @@ const SelectInput = ({
 SelectInput.displayName = 'SelectInput';
 
 export default SelectInput;
+
+const styles = {
+  wrapper: scoped({
+    width: '100%',
+    alignItems: 'center',
+    borderRadius: theme.radius.lg,
+    border: `1px solid ${theme.colors.border.default}`,
+    overflow: 'hidden',
+  }),
+  wrapperInvisible: scoped({
+    borderColor: 'transparent',
+    boxShadow: 'none',
+    height: '100%',
+    outline: 'none',
+  }),
+  wrapperError: scoped({
+    border: `1px solid ${theme.colors.border.critical}`,
+    boxShadow: `0px 0px 0px 1px ${theme.colors.background.fillCritical}`,
+  }),
+  input: css({
+    border: 'none',
+    borderRadius: theme.radius.none,
+    '&:focus, &:focus-visible, &:active': {
+      boxShadow: 'none',
+    },
+  }),
+  selectTrigger: css({
+    border: 'none',
+    boxShadow: 'none',
+    borderRadius: theme.radius.none,
+  }),
+  selectTriggerDivider: css([
+    {
+      border: 'none',
+      boxShadow: 'none',
+      borderRadius: theme.radius.none,
+    },
+    {
+      borderLeft: `1px solid ${theme.colors.border.default}`,
+    },
+  ]),
+};

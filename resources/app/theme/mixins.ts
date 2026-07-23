@@ -29,6 +29,18 @@ const flexCenter = (): CSSObject => {
 };
 
 /**
+ * Horizontal item alignment utility matching the SCSS itemCenter mixin.
+ *
+ * @returns CSS object for flex row with vertically centered items.
+ */
+const itemCenter = (): CSSObject => {
+  return {
+    display: 'flex',
+    alignItems: 'center',
+  };
+};
+
+/**
  * Focus ring utility matching the SCSS ui-focus-ring mixin.
  *
  * @param theme Current Emotion theme.
@@ -62,4 +74,11 @@ const fontGeneralSettings = (theme: Theme): CSSObject => {
   };
 };
 
-export { APP_ROOT_SELECTOR, scoped, flexCenter, uiFocusRing, fontGeneralSettings };
+export {
+  APP_ROOT_SELECTOR,
+  scoped,
+  flexCenter,
+  itemCenter,
+  uiFocusRing,
+  fontGeneralSettings,
+};

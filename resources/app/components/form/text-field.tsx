@@ -1,3 +1,4 @@
+import { type SerializedStyles } from '@emotion/react';
 import type { ComponentPropsWithoutRef, ReactNode } from 'react';
 import {
   useFormContext,
@@ -25,7 +26,7 @@ type TextFieldProps<
   placeholder?: string;
   type?: ComponentPropsWithoutRef<typeof Input>['type'];
   disabled?: boolean;
-  className?: string;
+  css?: SerializedStyles;
 };
 
 const TextField = <
@@ -38,7 +39,7 @@ const TextField = <
   placeholder,
   type = 'text',
   disabled,
-  className,
+  css,
 }: TextFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
 
@@ -47,7 +48,7 @@ const TextField = <
       control={control}
       name={name}
       render={({ field, fieldState }) => (
-        <FormItem className={className}>
+        <FormItem css={css}>
           {label && <FormLabel>{label}</FormLabel>}
           <FormControl>
             <Input

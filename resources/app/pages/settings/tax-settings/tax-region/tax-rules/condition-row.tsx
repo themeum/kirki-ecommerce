@@ -1,3 +1,4 @@
+import { css } from '@emotion/react';
 import { useState, type Dispatch, type SetStateAction } from 'react';
 
 import Button from '@/components/ui/button';
@@ -25,6 +26,19 @@ type ConditionOption = {
   value: string;
   id?: number | string;
 };
+
+const conditionActionButtonCss = css({
+  opacity: 0,
+  visibility: 'hidden',
+  transition: 'opacity 0.2s ease',
+  display: 'none',
+  gap: 'var(--decom-spacing-2)',
+  [`.${CLASS_PREFIX}-condition-row:hover &`]: {
+    opacity: 1,
+    visibility: 'visible',
+    display: 'flex',
+  },
+});
 
 type ConditionRowProps = {
   row: TaxConditionRow;
@@ -161,7 +175,7 @@ const ConditionRow = (props: ConditionRowProps) => {
             variant="outline"
             onClick={handleAddConditionRow}
             style={{ padding: '8px' }}
-            className={`${CLASS_PREFIX}-condition-actions`}
+            css={conditionActionButtonCss}
           >
             <PlusIcon />
           </Button>
@@ -172,7 +186,7 @@ const ConditionRow = (props: ConditionRowProps) => {
             variant="secondary"
             onClick={() => handleDeleteConditionRow(row.id)}
             style={{ padding: '8px' }}
-            className={`${CLASS_PREFIX}-condition-actions`}
+            css={conditionActionButtonCss}
           >
             <TrashIcon />
           </Button>

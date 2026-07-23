@@ -1,3 +1,4 @@
+import { css } from '@emotion/react';
 import { useState, useEffect, type ReactNode } from 'react';
 
 import HeaderActionsCard from '@/components/header-actions-card';
@@ -17,6 +18,22 @@ type SchemaListItem = SchemaProfile & {
   badge1?: string;
   icon?: ReactNode;
 };
+
+const boxWrapperCss = css({
+  [`.${CLASS_PREFIX}-box-card`]: {
+    borderTop: 'none',
+    borderRadius: 'var(--decom-radius-rounded-none)',
+  },
+  [`.${CLASS_PREFIX}-box-card:first-child`]: {
+    borderTop: '1px solid var(--decom-border-border-secondary)',
+    borderRadius:
+      'var(--decom-radius-rounded-md) var(--decom-radius-rounded-md) var(--decom-radius-rounded-none) var(--decom-radius-rounded-none)',
+  },
+  [`.${CLASS_PREFIX}-box-card:last-child`]: {
+    borderRadius:
+      'var(--decom-radius-rounded-none) var(--decom-radius-rounded-none) var(--decom-radius-rounded-md) var(--decom-radius-rounded-md)',
+  },
+});
 
 const SchemaProfileComponent = () => {
   const [showPopup, setShowPopup] = useState(false);
@@ -64,7 +81,7 @@ const SchemaProfileComponent = () => {
   };
 
   return (
-    <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
+    <Card type="large">
       <HeaderActionsCard
         header={__('Schema Profile', 'kirki-ecommerce')}
         subHeader={__(
@@ -75,10 +92,7 @@ const SchemaProfileComponent = () => {
         onAdd={() => setShowPopup(true)}
       />
       {!schemaProfileList?.length ? (
-        <Card
-          className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-innerDark`}
-          style={{ padding: '36px 0' }}
-        >
+        <Card type="innerDark" style={{ padding: '36px 0' }}>
           <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
             <BoxOpenIcon />
             <span style={{ color: '#878593' }}>
@@ -87,7 +101,7 @@ const SchemaProfileComponent = () => {
           </Flex>
         </Card>
       ) : (
-        <Flex direction="column" className={`${CLASS_PREFIX}-box-wrapper`}>
+        <Flex direction="column" css={boxWrapperCss}>
           <GroupOptionCard
             dataArr={schemaProfileList}
             handleDeleteItem={(item) => handleDeleteSchema(item as SchemaListItem)}

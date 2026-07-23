@@ -1,14 +1,16 @@
+import { css } from '@emotion/react';
 import { useState, type ReactNode } from 'react';
 
 import DropdownButton from '@/components/dropdown-button';
 import Button from '@/components/ui/button';
-import { CLASS_PREFIX } from '@/conf';
 import { EditPenIcon, TrashIcon, ShowMoreIcon } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
 import Badge from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import ToggleButton from '@/components/ui/toggle-button';
 import type { SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
@@ -47,6 +49,54 @@ type GroupOptionCardProps = {
       ) => void);
 };
 
+const cardActionsCss = css({
+  display: 'none',
+  pointerEvents: 'none',
+  transition: 'opacity 0.15s ease',
+});
+
+const cardActionsActiveCss = css({
+  display: 'flex',
+  pointerEvents: 'auto',
+});
+
+const groupOptionCardRightTextCss = css({
+  alignItems: 'center',
+});
+
+const groupOptionCardRightTextActiveCss = css({
+  display: 'none',
+});
+
+const groupOptionCardIconCss = scoped({
+  padding: theme.spacing.xxs,
+});
+
+const groupOptionCardIconDisabledCss = scoped({
+  cursor: 'not-allowed',
+  opacity: 0.5,
+  pointerEvents: 'none',
+});
+
+const optionCardCss = scoped({
+  borderRadius: theme.radius.none,
+  borderTopColor: 'transparent',
+});
+
+const optionCardBorderRadiusCss = scoped({
+  '&:first-of-type': {
+    borderTopColor: theme.colors.border.secondary,
+    borderRadius: `${theme.radius.lg} ${theme.radius.lg} ${theme.radius.none} ${theme.radius.none}`,
+  },
+  '&:last-of-type': {
+    borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.lg} ${theme.radius.lg}`,
+  },
+});
+
+const optionCardBorderRadiusSingleCss = scoped({
+  borderRadius: theme.radius.lg,
+});
+
 const GroupOptionCard = (props: GroupOptionCardProps) => {
   const {
     dataArr = [],
@@ -70,14 +120,12 @@ const GroupOptionCard = (props: GroupOptionCardProps) => {
         <Card
           type="inner"
           key={index}
-          className={`${CLASS_PREFIX}-option-card ${CLASS_PREFIX}-hover-parent 
-          ${
-            activeIndex === index ? `${CLASS_PREFIX}-option-card-active` : ''
-          } ${
+          css={css(
+            optionCardCss,
             dataLength > 1
-              ? `${CLASS_PREFIX}-option-card-border-radius`
-              : `${CLASS_PREFIX}-option-card-border-radius-single`
-          }`}
+              ? optionCardBorderRadiusCss
+              : optionCardBorderRadiusSingleCss,
+          )}
           style={{
             maxHeight: '44px',
             display: 'flex',
@@ -136,7 +184,10 @@ const GroupOptionCard = (props: GroupOptionCardProps) => {
             </Flex>
             {(item?.rightIcon || item?.rightText) && (
               <Flex
-                className={`${CLASS_PREFIX}-group-option-card-right-text`}
+                css={css(
+                  groupOptionCardRightTextCss,
+                  activeIndex === index && groupOptionCardRightTextActiveCss,
+                )}
                 gap={12}
               >
                 {item.rightIcon && item.rightIcon}
@@ -145,7 +196,12 @@ const GroupOptionCard = (props: GroupOptionCardProps) => {
                 )}
               </Flex>
             )}
-            <ActionGroup className={`${CLASS_PREFIX}-card-actions`}>
+            <ActionGroup
+              css={css(
+                cardActionsCss,
+                activeIndex === index && cardActionsActiveCss,
+              )}
+            >
               {handleToggleItem && !item?.is_toggle_disabled && (
                 <ToggleButton
                   onChange={() => handleToggleItem(item)}
@@ -157,11 +213,11 @@ const GroupOptionCard = (props: GroupOptionCardProps) => {
                   variant="secondary"
                   size="icon"
                   aria-label={__('Delete', 'kirki-ecommerce')}
-                  className={`${CLASS_PREFIX}-group-option-card-icon ${
+                  css={
                     item?.is_delete_disabled
-                      ? `${CLASS_PREFIX}-icon-disabled`
-                      : ''
-                  }`}
+                      ? css(groupOptionCardIconCss, groupOptionCardIconDisabledCss)
+                      : groupOptionCardIconCss
+                  }
                   onClick={
                     item?.is_delete_disabled
                       ? undefined
@@ -177,7 +233,7 @@ const GroupOptionCard = (props: GroupOptionCardProps) => {
                   size="icon"
                   aria-label={__('Edit', 'kirki-ecommerce')}
                   onClick={() => handleEditItem(item)}
-                  className={`${CLASS_PREFIX}-group-option-card-icon`}
+                  css={groupOptionCardIconCss}
                 >
                   <EditPenIcon />
                 </Button>
@@ -188,7 +244,7 @@ const GroupOptionCard = (props: GroupOptionCardProps) => {
                     type: 'secondary',
                     style: { transform: 'rotate(90deg)' },
                     icon: <ShowMoreIcon />,
-                    className: `${CLASS_PREFIX}-group-option-card-icon `,
+                    css: groupOptionCardIconCss,
                   }}
                   dropdownStyle={{ minWidth: '170px' }}
                   size="small"

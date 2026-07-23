@@ -1,3 +1,4 @@
+import { css } from '@emotion/react';
 import { useState, useEffect, type ReactNode } from 'react';
 
 import Flex from '@/components/ui/flex';
@@ -20,6 +21,22 @@ import { CreateProfilePopup } from '@/pages/settings/shipping-settings/shipping-
 type ShippingProfileListItem = ShippingProfileType & {
   icon?: ReactNode;
 };
+
+const boxWrapperCss = css({
+  [`.${CLASS_PREFIX}-box-card`]: {
+    borderTop: 'none',
+    borderRadius: 'var(--decom-radius-rounded-none)',
+  },
+  [`.${CLASS_PREFIX}-box-card:first-child`]: {
+    borderTop: '1px solid var(--decom-border-border-secondary)',
+    borderRadius:
+      'var(--decom-radius-rounded-md) var(--decom-radius-rounded-md) var(--decom-radius-rounded-none) var(--decom-radius-rounded-none)',
+  },
+  [`.${CLASS_PREFIX}-box-card:last-child`]: {
+    borderRadius:
+      'var(--decom-radius-rounded-none) var(--decom-radius-rounded-none) var(--decom-radius-rounded-md) var(--decom-radius-rounded-md)',
+  },
+});
 
 const ShippingProfile = () => {
   const [showPopup, setShowPopup] = useState(false);
@@ -66,7 +83,7 @@ const ShippingProfile = () => {
 
   return (
     <>
-      <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
+      <Card type="large">
         <HeaderActionsCard
           header={__('Shipping Profiles', 'kirki-ecommerce')}
           subHeader={__(
@@ -79,7 +96,7 @@ const ShippingProfile = () => {
 
         {!shippingProfileList?.length ? (
           <Card
-            className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner-dark`}
+            type="innerDark"
             style={{ padding: 'var(--decom-spacing-9) var(--decom-spacing-0)' }}
           >
             <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
@@ -93,7 +110,7 @@ const ShippingProfile = () => {
             </Flex>
           </Card>
         ) : (
-          <Flex direction="column" className={`${CLASS_PREFIX}-box-wrapper`}>
+          <Flex direction="column" css={boxWrapperCss}>
             <GroupOptionCard
               dataArr={shippingProfileList}
               handleDeleteItem={(item) =>

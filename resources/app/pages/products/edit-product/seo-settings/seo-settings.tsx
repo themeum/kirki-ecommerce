@@ -5,7 +5,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Card, CardContent } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { CLASS_PREFIX } from '@/conf';
 import { useProductForm } from '@/contexts/product-form-context';
 import Text from '@/components/ui/text';
 import {
@@ -77,7 +76,7 @@ const SEOSettings = () => {
   }, [form, updateProduct]);
 
   return (
-    <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-form`}>
+    <Card type="form">
       <CardContent>
         <Text
           header={__('AI & Web Presence', 'kirki-ecommerce')}

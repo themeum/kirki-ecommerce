@@ -1,7 +1,6 @@
 import SelectField from '@/components/form/select-field';
 import SwitchField from '@/components/form/switch-field';
 import { Card } from '@/components/ui/card';
-import { CLASS_PREFIX } from '@/conf';
 import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
@@ -15,7 +14,7 @@ const CheckoutConf = () => {
 
   return (
     <>
-      <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
+      <Card type="large">
         <Text
           type="primary"
           header={__('Checkout Configuration', 'kirki-ecommerce')}
@@ -26,7 +25,7 @@ const CheckoutConf = () => {
           style={{ gap: 'var(--decom-spacing-f3)' }}
         />
         <Card
-          className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-form`}
+          type="form"
           style={{
             border: '1px solid var(--decom-border-border)',
             borderRadius: 'var(--decom-radius-rounded-lg)',

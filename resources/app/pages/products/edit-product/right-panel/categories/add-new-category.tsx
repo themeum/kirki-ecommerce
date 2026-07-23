@@ -7,7 +7,6 @@ import TextField from '@/components/form/text-field';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
-import { CLASS_PREFIX } from '@/conf';
 import { PlusIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
@@ -82,7 +81,7 @@ const AddNewCategory = () => {
   return (
     <>
       {show ? (
-        <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner`}>
+        <Card type="inner">
           <CardContent>
             <Form {...form}>
               <Flex direction="column" gap={16}>

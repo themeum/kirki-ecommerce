@@ -7,7 +7,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { CLASS_PREFIX } from '@/conf';
 import { ArrowDownUp, ListFilter } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
 import { Card } from '@/components/ui/card';
@@ -43,9 +42,7 @@ const CustomerGroups = () => {
         <Card type="table">
           <Flex style={{ padding: '16px 12px' }}>
             <Select defaultValue="all">
-              <SelectTrigger
-                className={`${CLASS_PREFIX}-ui-select-trigger--secondary`}
-              >
+              <SelectTrigger variant="secondary">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

@@ -1,3 +1,4 @@
+import { css } from '@emotion/react';
 import { useEffect, useState, type ReactNode } from 'react';
 
 import GroupSelect from '@/components/group-select';
@@ -31,6 +32,13 @@ type GroupTagTableProps = {
   hasSelect?: boolean;
   isEditable?: boolean;
 };
+
+const clearAllButtonCss = css({
+  visibility: 'hidden',
+  [`.${CLASS_PREFIX}-hover-parent:hover &`]: {
+    visibility: 'visible',
+  },
+});
 
 const GroupTagTable = (props: GroupTagTableProps) => {
   const {
@@ -109,14 +117,13 @@ const GroupTagTable = (props: GroupTagTableProps) => {
         >
           <Flex gap={8} direction="column">
             {(Object.keys(groupedValueData) || []).map((groupName, index) => (
-              <div key={index}>
+              <div key={index} className={`${CLASS_PREFIX}-hover-parent`}>
                 <Flex
                   key={index}
                   style={{
                     alignItems: 'center',
                     justifyContent: 'space-between',
                   }}
-                  className={`${CLASS_PREFIX}-hover-parent`}
                 >
                   <Text
                     gap={4}
@@ -136,7 +143,7 @@ const GroupTagTable = (props: GroupTagTableProps) => {
                       <Button
                         variant="link"
                         size="sm"
-                        className={`${CLASS_PREFIX}-hover-visible`}
+                        css={clearAllButtonCss}
                         onClick={() => handleClearSingleGroup(groupName)}
                       >
                         {__('Clear all', 'kirki-ecommerce')}

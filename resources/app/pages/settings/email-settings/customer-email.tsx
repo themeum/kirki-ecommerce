@@ -4,7 +4,6 @@ import { useFormContext, useWatch } from 'react-hook-form';
 import GroupOptionCard from '@/components/group-option-card';
 import OptionAccordion from '@/components/option-accordion';
 import { Card } from '@/components/ui/card';
-import { CLASS_PREFIX } from '@/conf';
 import { PersonIcon, CartIcon, UserIcon } from '@/icons';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
@@ -52,10 +51,7 @@ const CustomerEmail = (props: CustomerEmailProps) => {
 
   return (
     <div>
-      <Card
-        className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-default`}
-        style={{ borderRadius: '12px' }}
-      >
+      <Card type="default" style={{ borderRadius: '12px' }}>
         <Flex direction="column" gap={16}>
           <Flex direction="column" style={{ alignItems: 'flex-start' }} gap={6}>
             <Text

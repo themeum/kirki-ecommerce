@@ -7,11 +7,11 @@ import Checkbox from '@/components/ui/checkbox';
 import {
   FormControl,
   FormField,
+  FormFieldRow,
   FormItem,
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { CLASS_PREFIX } from '@/conf';
 import { PaymentIcon } from '@/icons';
 import Flex from '@/components/ui/flex';
 import Grid from '@/components/ui/grid';
@@ -32,7 +32,7 @@ const BillingAddress = () => {
 
   return (
     <Card
-      className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-form`}
+      type="form"
       style={{ padding: '20px', borderRadius: '20px', gap: '20px' }}
     >
       <Text
@@ -42,16 +42,14 @@ const BillingAddress = () => {
         style={{ paddingBottom: '4px' }}
       />
       <Flex direction="column" gap={8}>
-        <Card
-          className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner-dark`}
-        >
+        <Card type="innerDark">
           <CardContent>
             <FormField
               control={control}
               name="is_billing_same_as_shipping"
               render={({ field }) => (
                 <FormItem>
-                  <div className={`${CLASS_PREFIX}-ui-checkbox-field`}>
+                  <FormFieldRow>
                     <FormControl>
                       <Checkbox
                         checked={Boolean(field.value)}
@@ -65,17 +63,14 @@ const BillingAddress = () => {
                       />
                     </FormControl>
                     <FormLabel>Same as shipping address</FormLabel>
-                  </div>
+                  </FormFieldRow>
                   <FormMessage />
                 </FormItem>
               )}
             />
           </CardContent>
         </Card>
-        <Card
-          className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner`}
-          style={{ padding: '16px' }}
-        >
+        <Card type="inner" style={{ padding: '16px' }}>
           <Flex direction="column" gap={16}>
             <SelectField
               name="billing_address.country"

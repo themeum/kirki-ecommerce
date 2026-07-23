@@ -4,7 +4,6 @@ import { useFormContext, useWatch } from 'react-hook-form';
 import MultiSelectField from '@/components/form/multi-select-field';
 import SelectField from '@/components/form/select-field';
 import { Card } from '@/components/ui/card';
-import { CLASS_PREFIX } from '@/conf';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import type { GeneralSettingsFormValues } from '@/schemas/forms/general-settings-form';
@@ -58,7 +57,7 @@ const SellingLocation = () => {
 
   return (
     <div>
-      <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
+      <Card type="large">
         <Text
           header={__('Selling Locations', 'kirki-ecommerce')}
           subHeader={__(
@@ -69,10 +68,7 @@ const SellingLocation = () => {
           style={{ gap: 'var(--decom-spacing-f3)' }}
         />
 
-        <Card
-          className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner`}
-          style={{ padding: 'var(--decom-spacing-4)' }}
-        >
+        <Card type="inner" style={{ padding: 'var(--decom-spacing-4)' }}>
           <Flex direction="column" gap={16}>
             <SelectField
               name="selling_location_type"

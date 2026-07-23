@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import Button from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
+import { FormFieldRow } from '@/components/ui/form';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
 import Textarea from '@/components/ui/textarea';
@@ -11,7 +12,6 @@ import Grid from '@/components/ui/grid';
 import Text from '@/components/ui/text';
 import { __ } from '@/wpi18n';
 import { PlusIcon, TrashIcon } from '@/icons';
-import { CLASS_PREFIX } from '@/conf';
 
 import type { ShippingMethodData } from '@/pages/settings/shipping-settings/utils';
 
@@ -89,7 +89,7 @@ const RateByWeightSettings = ({
         />
       </Flex>
       <Card
-        className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-form`}
+        type="form"
         style={{
           border: '1px solid var(--decom-border-border)',
           borderRadius: 'var(--decom-radius-rounded-md)',
@@ -101,11 +101,7 @@ const RateByWeightSettings = ({
           <Text header={__('Rate', 'kirki-ecommerce')} />
         </Grid>
         {ranges?.map((range, index) => (
-          <Grid
-            columns={3}
-            key={index}
-            className={`${CLASS_PREFIX}-weight-rate-delete-icon`}
-          >
+          <Grid columns={3} key={index}>
             <Input
               value={range.from || ''}
               type="number"
@@ -150,7 +146,7 @@ const RateByWeightSettings = ({
         </Button>
       </Card>
 
-      <div className={`${CLASS_PREFIX}-ui-checkbox-field`}>
+      <FormFieldRow>
         <Checkbox
           id="rate-by-weight-is-taxable"
           checked={dataObj?.['is_taxable'] as boolean}
@@ -159,8 +155,8 @@ const RateByWeightSettings = ({
         <Label htmlFor="rate-by-weight-is-taxable">
           {__('Tax applies to the shipping charge', 'kirki-ecommerce')}
         </Label>
-      </div>
-      <div className={`${CLASS_PREFIX}-ui-checkbox-field`}>
+      </FormFieldRow>
+      <FormFieldRow>
         <Checkbox
           id="rate-by-weight-has-free-shipping"
           checked={hasFreeShipping}
@@ -172,7 +168,7 @@ const RateByWeightSettings = ({
             'kirki-ecommerce',
           )}
         </Label>
-      </div>
+      </FormFieldRow>
       {hasFreeShipping && (
         <Flex direction="column" gap={8}>
           <Label htmlFor="rate-by-weight-amount">

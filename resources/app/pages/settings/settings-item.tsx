@@ -25,7 +25,7 @@ export const SettingsItem = (props: SettingsItemProps) => {
   return (
     <>
       <Card
-        className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-default`}
+        type="default"
         style={{
           padding: 'var(--decom-spacing-2) var(--decom-spacing-3)',
           cursor: 'pointer',
@@ -43,17 +43,18 @@ export const SettingsItem = (props: SettingsItemProps) => {
           />
         </Flex>
         <Flex>
-          <Button
-            variant="ghost"
-            size="icon"
-            className={`${CLASS_PREFIX}-settings-card-button`}
-            style={{
-              backgroundColor: 'var(--decom-background-bg-fill-secondary)',
-            }}
-            onClick={handleClick}
-          >
-            <DropdownSubmenuIcon />
-          </Button>
+          <span className={`${CLASS_PREFIX}-settings-card-button`}>
+            <Button
+              variant="ghost"
+              size="icon"
+              style={{
+                backgroundColor: 'var(--decom-background-bg-fill-secondary)',
+              }}
+              onClick={handleClick}
+            >
+              <DropdownSubmenuIcon />
+            </Button>
+          </span>
         </Flex>
       </Card>
     </>

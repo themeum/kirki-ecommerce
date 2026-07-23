@@ -1,6 +1,5 @@
 import SwitchField from '@/components/form/switch-field';
 import { Card } from '@/components/ui/card';
-import { CLASS_PREFIX } from '@/conf';
 import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
@@ -8,7 +7,7 @@ import { __ } from '@/wpi18n';
 
 export const Review = () => {
   return (
-    <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
+    <Card type="large">
       <Text
         header={__('Reviews', 'kirki-ecommerce')}
         subHeader={__(
@@ -20,7 +19,7 @@ export const Review = () => {
       />
       <Flex gap={12} direction="column">
         <Card
-          className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-default`}
+          type="default"
           style={{
             borderRadius: 'var(--decom-radius-rounded-lg)',
             border: '1px solid var(--decom-border-border)',
@@ -42,7 +41,7 @@ export const Review = () => {
           </Flex>
         </Card>
         <Card
-          className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-default`}
+          type="default"
           style={{
             borderRadius: 'var(--decom-radius-rounded-lg)',
             border: '1px solid var(--decom-border-border)',

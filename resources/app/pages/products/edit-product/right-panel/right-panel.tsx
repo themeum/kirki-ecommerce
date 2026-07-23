@@ -5,7 +5,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import SelectField from '@/components/form/select-field';
 import { Card, CardContent } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
-import { CLASS_PREFIX } from '@/conf';
 import { useProductForm } from '@/contexts/product-form-context';
 import Flex from '@/components/ui/flex';
 import {
@@ -82,7 +81,7 @@ const RightPanel = () => {
     <div style={{ width: '30%' }}>
       <Form {...form}>
         <Flex direction="column" gap={16}>
-          <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-form`}>
+          <Card type="form">
             <CardContent>
               <SelectField
                 name="status"
@@ -92,7 +91,7 @@ const RightPanel = () => {
             </CardContent>
           </Card>
           <Categories />
-          <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-form`}>
+          <Card type="form">
             <CardContent>
               <Tags />
               <Collections />

@@ -7,6 +7,7 @@ import Button from '@/components/ui/button';
 import Checkbox from '@/components/ui/checkbox';
 import {
   Dialog,
+  DialogBody,
   DialogClose,
   DialogCloseButton,
   DialogContent,
@@ -231,7 +232,7 @@ export const SelectDestinationPopup = ({
           </DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <div className={`${CLASS_PREFIX}-ui-dialog-body`}>
+          <DialogBody>
             <SelectField
               name="country"
               label={__('Select country', 'kirki-ecommerce')}
@@ -273,7 +274,7 @@ export const SelectDestinationPopup = ({
                 </div>
               ))}
             </div>
-          </div>
+          </DialogBody>
           <DialogFooter>
             <DialogClose asChild>
               <Button variant="outline">

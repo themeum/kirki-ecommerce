@@ -1,3 +1,4 @@
+import { type SerializedStyles } from '@emotion/react';
 import {
   useEffect,
   useRef,
@@ -6,10 +7,10 @@ import {
   type RefObject,
 } from 'react';
 import { createPortal } from 'react-dom';
-import classNames from 'classnames';
 
-import { CLASS_PREFIX } from '@/conf';
 import { getPortalContainer } from '@/libs/portal-container';
+import { theme } from '@/theme';
+import { itemCenter, scoped } from '@/theme/mixins';
 
 type SuggestionDropdownProps = {
   children?: ReactNode;
@@ -17,7 +18,7 @@ type SuggestionDropdownProps = {
   triggerRef: RefObject<HTMLElement | null>;
   onClose?: () => void;
   setIsOpen?: (open: boolean) => void;
-  className?: string;
+  css?: SerializedStyles;
 };
 
 const SuggestionDropdown = ({
@@ -25,7 +26,7 @@ const SuggestionDropdown = ({
   isOpen,
   triggerRef,
   onClose,
-  className,
+  css: cssProp,
 }: SuggestionDropdownProps) => {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -70,7 +71,7 @@ const SuggestionDropdown = ({
   return createPortal(
     <>
       <div
-        className={`${CLASS_PREFIX}-ui-suggestion-backdrop`}
+        css={styles.backdrop}
         onPointerDown={(e: PointerEvent) => {
           if (
             dropdownRef.current &&
@@ -83,10 +84,7 @@ const SuggestionDropdown = ({
       <div
         ref={dropdownRef}
         role="listbox"
-        className={classNames(
-          `${CLASS_PREFIX}-ui-suggestion-dropdown`,
-          className,
-        )}
+        css={[styles.dropdown, cssProp]}
         onPointerDown={(e: PointerEvent) => {
           e.stopPropagation();
         }}
@@ -101,3 +99,64 @@ const SuggestionDropdown = ({
 SuggestionDropdown.displayName = 'SuggestionDropdown';
 
 export default SuggestionDropdown;
+
+const styles = {
+  backdrop: scoped({
+    position: 'fixed',
+    inset: 0,
+    background: 'transparent',
+    zIndex: 100,
+  }),
+  dropdown: scoped({
+    padding: theme.spacing.xs,
+    position: 'absolute',
+    border: `1px solid ${theme.colors.border.default}`,
+    borderRadius: theme.radius.md,
+    boxShadow: '0px 4px 6px -1px #0000001a',
+    backgroundColor: theme.colors.background.fill,
+    zIndex: 101,
+    boxSizing: 'border-box',
+    maxHeight: '240px',
+    overflowY: 'auto',
+    scrollbarWidth: 'thin',
+    scrollbarColor: `${theme.colors.background.fillBrand} ${theme.colors.background.surfaceTertiary}`,
+    '&::-webkit-scrollbar': {
+      height: '4px',
+      width: '100%',
+      WebkitAppearance: 'none',
+    },
+    '&::-webkit-scrollbar-track': {
+      background: theme.colors.background.fill,
+    },
+    '&::-webkit-scrollbar-thumb': {
+      backgroundColor: theme.colors.background.fillBrand,
+      borderRadius: theme.radius.sm,
+    },
+  }),
+  item: scoped({
+    padding: `${theme.spacing.sm} ${theme.spacing.md}`,
+    ...itemCenter(),
+    justifyContent: 'flex-start',
+    columnGap: theme.spacing.md,
+    borderRadius: theme.radius.sm,
+    cursor: 'pointer',
+    '&:hover': {
+      backgroundColor: theme.colors.background.surfaceSecondary,
+    },
+  }),
+  icon: scoped({
+    minWidth: '16px',
+    ...itemCenter(),
+  }),
+  text: scoped({
+    ...itemCenter(),
+    columnGap: theme.spacing.md,
+    maxWidth: '85%',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+  }),
+};
+
+export const suggestionItemStyle = styles.item;
+export const suggestionIconStyle = styles.icon;
+export const suggestionTextStyle = styles.text;

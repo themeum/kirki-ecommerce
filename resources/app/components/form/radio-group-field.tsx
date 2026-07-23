@@ -1,3 +1,4 @@
+import { type SerializedStyles } from '@emotion/react';
 import type { ReactNode } from 'react';
 import {
   useFormContext,
@@ -9,13 +10,13 @@ import {
   FormControl,
   FormDescription,
   FormField,
+  FormFieldRow,
   FormItem,
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import Label from '@/components/ui/label';
-import { CLASS_PREFIX } from '@/conf';
 
 type RadioGroupFieldOption = {
   label: string;
@@ -31,7 +32,7 @@ type RadioGroupFieldProps<
   description?: ReactNode;
   options: RadioGroupFieldOption[];
   disabled?: boolean;
-  className?: string;
+  css?: SerializedStyles;
 };
 
 const RadioGroupField = <
@@ -43,7 +44,7 @@ const RadioGroupField = <
   description,
   options,
   disabled,
-  className,
+  css,
 }: RadioGroupFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
 
@@ -52,7 +53,7 @@ const RadioGroupField = <
       control={control}
       name={name}
       render={({ field }) => (
-        <FormItem className={className}>
+        <FormItem css={css}>
           {label && <FormLabel>{label}</FormLabel>}
           <FormControl>
             <RadioGroup
@@ -61,15 +62,12 @@ const RadioGroupField = <
               disabled={disabled}
             >
               {options.map((option) => (
-                <div
-                  key={option.value}
-                  className={`${CLASS_PREFIX}-ui-radio-field-row`}
-                >
+                <FormFieldRow key={option.value}>
                   <RadioGroupItem value={option.value} id={`${name}-${option.value}`} />
                   <Label htmlFor={`${name}-${option.value}`}>
                     {option.label}
                   </Label>
-                </div>
+                </FormFieldRow>
               ))}
             </RadioGroup>
           </FormControl>

@@ -8,7 +8,6 @@ import PageNavbar from '@/components/page-navbar';
 import Button from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
-import { CLASS_PREFIX } from '@/conf';
 import { CartIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
@@ -143,7 +142,7 @@ const CheckoutSettings = () => {
                 text={__('Checkout', 'kirki-ecommerce')}
                 handleBack={handleBackButton}
               />
-              <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
+              <Card type="large">
                 <Flex style={{ alignItems: 'center' }}>
                   <Text
                     header={__('Allow Guest Checkout', 'kirki-ecommerce')}

@@ -11,12 +11,12 @@ import {
   Form,
   FormControl,
   FormField,
+  FormFieldRow,
   FormItem,
   FormMessage,
 } from '@/components/ui/form';
 import Label from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { CLASS_PREFIX } from '@/conf';
 import { TaxIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
@@ -104,10 +104,7 @@ const TaxCollectionRadio = () => {
               onValueChange={(value) => field.onChange(value === 'inclusive')}
             >
               {optionsArray.map((option) => (
-                <div
-                  key={option.value}
-                  className={`${CLASS_PREFIX}-ui-radio-field-row`}
-                >
+                <FormFieldRow key={option.value}>
                   <RadioGroupItem
                     value={option.value}
                     id={`tax-collection-${option.value}`}
@@ -115,7 +112,7 @@ const TaxCollectionRadio = () => {
                   <Label htmlFor={`tax-collection-${option.value}`}>
                     {option.title}
                   </Label>
-                </div>
+                </FormFieldRow>
               ))}
             </RadioGroup>
           </FormControl>
@@ -248,7 +245,7 @@ const TaxSettings = () => {
                 text={'Tax'}
                 handleBack={handleBackButton}
               />
-              <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
+              <Card type="large">
                 <Text
                   type="primary"
                   header={__('How would you like to collect tax?', 'kirki-ecommerce')}

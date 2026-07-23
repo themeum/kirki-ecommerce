@@ -3,7 +3,6 @@ import { useWatch } from 'react-hook-form';
 
 import GroupOptionCard from '@/components/group-option-card';
 import { Card } from '@/components/ui/card';
-import { CLASS_PREFIX } from '@/conf';
 import { InfoIcon, IncreaseIcon } from '@/icons';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
@@ -158,7 +157,7 @@ export const AvailableCurrencyList = () => {
   return (
     <>
       <Card
-        className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner`}
+        type="inner"
         style={{
           padding: 'var(--decom-spacing-5)',
         }}

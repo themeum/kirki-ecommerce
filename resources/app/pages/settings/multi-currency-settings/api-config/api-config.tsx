@@ -13,7 +13,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { CLASS_PREFIX } from '@/conf';
 import { ReplaceIcon, FlagIcon, WrenchIcon } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
@@ -119,7 +118,7 @@ const ApiConfig = () => {
               dataObj={(formValues || {}) as SettingsSectionData}
             />
           ) : (
-            <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner`}>
+            <Card type="inner">
               <Flex
                 style={{
                   justifyContent: 'space-between',

@@ -7,6 +7,7 @@ import Button from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import {
   Dialog,
+  DialogBody,
   DialogCloseButton,
   DialogContent,
   DialogFooter,
@@ -27,7 +28,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { CLASS_PREFIX } from '@/conf';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import Flex from '@/components/ui/flex';
@@ -170,10 +170,7 @@ const ShippingBoxPopup = ({
           </DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <div
-            className={`${CLASS_PREFIX}-ui-dialog-body`}
-            style={{ gap: '25px' }}
-          >
+          <DialogBody style={{ gap: '25px' }}>
             <TextField
               name="name"
               label={__('Title', 'kirki-ecommerce')}
@@ -181,7 +178,7 @@ const ShippingBoxPopup = ({
             />
             <div>
               <Card
-                className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner`}
+                type="inner"
                 style={{
                   position: 'relative',
                   overflow: 'visible',
@@ -248,7 +245,7 @@ const ShippingBoxPopup = ({
                 </Flex>
               </Card>
               <Card
-                className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-dark`}
+                type="dark"
                 style={{
                   borderRadius:
                     'var(--decom-radius-rounded-none) var(--decom-radius-rounded-none) var(--decom-radius-rounded-md) var(--decom-radius-rounded-md)',
@@ -265,7 +262,7 @@ const ShippingBoxPopup = ({
                 />
               </Card>
             </div>
-          </div>
+          </DialogBody>
           <Separator style={{ margin: 'var(--decom-spacing-0)' }} />
           <DialogFooter>
             <Button

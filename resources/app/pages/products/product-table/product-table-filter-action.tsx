@@ -1,5 +1,6 @@
+import { css } from '@emotion/react';
+
 import Button from '@/components/ui/button';
-import { CLASS_PREFIX } from '@/conf';
 import { useListParams } from '@/hooks';
 import Capsule from '@/components/ui/capsule';
 import Flex from '@/components/ui/flex';
@@ -7,6 +8,7 @@ import { makeSuggestionList } from '@/pages/utils';
 import { useBrandsQuery } from '@/services/brand';
 import { useCategoriesQuery } from '@/services/category';
 import { useCollectionsQuery } from '@/services/collection';
+import { theme } from '@/theme';
 import type { SuggestionOption } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -31,6 +33,13 @@ const PRODUCT_FILTER_KEYS = [
 ] as const;
 
 type ProductFilterKey = (typeof PRODUCT_FILTER_KEYS)[number];
+
+const filterActionBarCss = css({
+  flexWrap: 'wrap',
+  borderTop: `1px solid ${theme.colors.border.tertiary}`,
+  backgroundColor: theme.colors.background.surface,
+  padding: theme.spacing.lg,
+});
 
 const ProductTableFilterAction = () => {
   const { params, setParam, setParams } = useListParams({
@@ -109,7 +118,7 @@ const ProductTableFilterAction = () => {
   };
 
   return (
-    <Flex gap={12} className={`${CLASS_PREFIX}-filter-action-bar`}>
+    <Flex gap={12} css={filterActionBarCss}>
       {activeFilterKeys.map((key) => (
         <Capsule
           key={key}

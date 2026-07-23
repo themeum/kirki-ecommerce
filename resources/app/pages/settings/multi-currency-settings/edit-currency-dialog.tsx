@@ -1,3 +1,4 @@
+import { css } from '@emotion/react';
 import { useEffect, type Dispatch, type SetStateAction } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -6,6 +7,7 @@ import TextField from '@/components/form/text-field';
 import Button from '@/components/ui/button';
 import {
   Dialog,
+  DialogBody,
   DialogClose,
   DialogCloseButton,
   DialogContent,
@@ -15,9 +17,9 @@ import {
 } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
 import Label from '@/components/ui/label';
-import { CLASS_PREFIX } from '@/conf';
 import { InfoIcon } from '@/icons';
 import Flex from '@/components/ui/flex';
+import { theme } from '@/theme';
 import Text from '@/components/ui/text';
 import {
   EditCurrencyFormSchema,
@@ -35,6 +37,14 @@ type EditCurrencyPopupProps = {
   setEditCurrency: Dispatch<SetStateAction<EditCurrencyItem | null>>;
   handleUpdateData: (currency: Currency) => void;
 };
+
+const editCurrencyRatePopupLabelCss = css({
+  padding: theme.spacing.lg,
+  gap: theme.spacing.md,
+  background: theme.colors.background.surfaceAlt,
+  borderRadius: theme.radius.md,
+  color: theme.colors.text.secondary,
+});
 
 const EditCurrencyPopup = ({
   editCurrency,
@@ -84,9 +94,9 @@ const EditCurrencyPopup = ({
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)}>
-            <div className={`${CLASS_PREFIX}-ui-dialog-body`}>
+            <DialogBody>
               <Label
-                className={`${CLASS_PREFIX}-edit-currency-rate-popup-label`}
+                css={editCurrencyRatePopupLabelCss}
                 leftIcon={<InfoIcon />}
               >
                 {__('Enter rates per 1 USD', 'kirki-ecommerce')}
@@ -133,7 +143,7 @@ const EditCurrencyPopup = ({
                   </div>
                 </Flex>
               </Flex>
-            </div>
+            </DialogBody>
             <DialogFooter>
               <DialogClose asChild>
                 <Button type="button" variant="outline" size="sm">

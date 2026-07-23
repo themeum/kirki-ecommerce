@@ -15,7 +15,7 @@ import MediaGallery from '@/components/media-gallery';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
-import { CLASS_PREFIX, NEW_ITEM_ID } from '@/conf';
+import { NEW_ITEM_ID } from '@/conf';
 import {
   ProductFormProvider,
   useProductForm,
@@ -287,7 +287,7 @@ const EditProductInner = () => {
           <div style={{ width: '70%' }}>
             <Flex direction="column" gap={16}>
               <Form {...basicsForm}>
-                <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-form`}>
+                <Card type="form">
                   <CardContent>
                     <Flex gap={12}>
                       <div style={{ width: '70%' }}>

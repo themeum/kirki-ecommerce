@@ -11,7 +11,6 @@ import Checkbox from '@/components/ui/checkbox';
 import { Form, FormField, FormItem } from '@/components/ui/form';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
-import { CLASS_PREFIX } from '@/conf';
 import { WandIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
@@ -104,7 +103,7 @@ const Inventory = ({ errors, setErrors, formSyncKey = 0 }: InventoryProps) => {
 
   return (
     <Form {...form}>
-      <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-form`}>
+      <Card type="form">
         <CardContent>
           <Text
             header={__('Inventory', 'kirki-ecommerce')}
@@ -117,7 +116,7 @@ const Inventory = ({ errors, setErrors, formSyncKey = 0 }: InventoryProps) => {
           />
 
           {trackInventory ? (
-            <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner`}>
+            <Card type="inner">
               <CardContent>
                 <Grid columns={3}>
                   <TextField
@@ -177,7 +176,7 @@ const Inventory = ({ errors, setErrors, formSyncKey = 0 }: InventoryProps) => {
           <Flex gap={8}>
             {trackInventory && (
               <Card
-                className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner-dark`}
+                type="innerDark"
                 style={{ width: '30%' }}
               >
                 <CardContent>
@@ -192,7 +191,7 @@ const Inventory = ({ errors, setErrors, formSyncKey = 0 }: InventoryProps) => {
             )}
 
             <Card
-              className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner-dark`}
+              type="innerDark"
               style={{ padding: '4px 8px 4px 12px' }}
             >
               <Flex gap={30} style={{ justifyContent: 'space-between' }}>

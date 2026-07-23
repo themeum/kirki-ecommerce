@@ -7,6 +7,7 @@ import TextField from '@/components/form/text-field';
 import Button from '@/components/ui/button';
 import {
   Dialog,
+  DialogBody,
   DialogClose,
   DialogCloseButton,
   DialogContent,
@@ -15,7 +16,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
-import { CLASS_PREFIX } from '@/conf';
 import { getErrorsObject, type ErrorResponse } from '@/libs/api';
 import Flex from '@/components/ui/flex';
 import {
@@ -106,7 +106,7 @@ const TagAddEditDialog = ({
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)}>
-            <div className={`${CLASS_PREFIX}-ui-dialog-body`}>
+            <DialogBody>
               <Flex direction="column" gap={16}>
                 <TextField
                   name="name"
@@ -128,7 +128,7 @@ const TagAddEditDialog = ({
                   )}
                 />
               </Flex>
-            </div>
+            </DialogBody>
             <DialogFooter>
               <DialogClose asChild>
                 <Button type="button" variant="outline" disabled={isSubmitting}>

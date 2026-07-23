@@ -1,3 +1,4 @@
+import { css } from '@emotion/react';
 import { useState, type Dispatch, type SetStateAction, type ReactNode } from 'react';
 import { toast } from 'sonner';
 
@@ -7,9 +8,9 @@ import { Card } from '@/components/ui/card';
 import { TrashIcon } from '@/icons';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
-import { CLASS_PREFIX } from '@/conf';
 import type { SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
+import { scoped } from '@/theme/mixins';
 
 import type { TaxRate, TaxRegion } from '@/pages/settings/tax-settings/utils';
 import VatCollectionPopup from '@/pages/settings/tax-settings/tax-region/vat-collection/vat-collection-dialog';
@@ -29,6 +30,41 @@ type VatCollectionProps = {
   ) => void | Promise<void>;
 };
 
+const vatRowCss = scoped({
+  height: '56px',
+  maxHeight: '56px',
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  padding: 'var(--decom-spacing-3)',
+});
+
+const vatActionsCss = css({
+  opacity: 0,
+  visibility: 'hidden',
+  display: 'none',
+  pointerEvents: 'none',
+  transition: 'all 0.2s ease',
+});
+
+const vatActionsActiveCss = css({
+  opacity: 1,
+  display: 'flex',
+  visibility: 'visible',
+  pointerEvents: 'auto',
+});
+
+const vatTextCss = scoped({
+  opacity: 1,
+  display: 'block',
+  transition: 'opacity 0.2s ease',
+});
+
+const vatTextHiddenCss = css({
+  opacity: 0,
+  display: 'none',
+});
+
 export const VatCollection = (props: VatCollectionProps) => {
   const {
     region,
@@ -39,6 +75,7 @@ export const VatCollection = (props: VatCollectionProps) => {
   } = props;
   const [showVatCollectionPopup, setShowVatCollectionPopup] = useState(false);
   const [editIndex, setEditIndex] = useState<number | null>(null);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   const disableAddVatButton =
     process !== 'oss' && vatCollectionList?.length >= 1;
@@ -113,7 +150,7 @@ export const VatCollection = (props: VatCollectionProps) => {
 
   return (
     <div>
-      <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
+      <Card type="large">
         <HeaderActionsCard
           header={__('VAT Collection', 'kirki-ecommerce')}
           subHeader={__(
@@ -128,7 +165,10 @@ export const VatCollection = (props: VatCollectionProps) => {
           {vatCollectionList?.map((item, index) => (
             <Card
               key={index}
-              className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner ${CLASS_PREFIX}-vat-row`}
+              type="inner"
+              css={vatRowCss}
+              onMouseEnter={() => setHoveredIndex(index)}
+              onMouseLeave={() => setHoveredIndex(null)}
             >
               <Text
                 header={item?.state}
@@ -136,9 +176,18 @@ export const VatCollection = (props: VatCollectionProps) => {
               />
               <Text
                 header={`${item?.rate}%`}
-                className={`${CLASS_PREFIX}-vat-text`}
+                css={css(
+                  vatTextCss,
+                  hoveredIndex === index && vatTextHiddenCss,
+                )}
               />
-              <Flex gap={8} className={`${CLASS_PREFIX}-vat-actions`}>
+              <Flex
+                gap={8}
+                css={css(
+                  vatActionsCss,
+                  hoveredIndex === index && vatActionsActiveCss,
+                )}
+              >
                 <Button
                   variant="secondary"
                   onClick={() => handleEditVatRate(index)}

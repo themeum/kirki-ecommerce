@@ -1,12 +1,12 @@
 import { useState } from 'react';
 
 import Checkbox from '@/components/ui/checkbox';
+import Flex from '@/components/ui/flex';
+import { FormFieldRow } from '@/components/ui/form';
+import Grid from '@/components/ui/grid';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
 import Textarea from '@/components/ui/textarea';
-import { CLASS_PREFIX } from '@/conf';
-import Flex from '@/components/ui/flex';
-import Grid from '@/components/ui/grid';
 import { __ } from '@/wpi18n';
 
 import type { ShippingMethodData } from '@/pages/settings/shipping-settings/utils';
@@ -55,7 +55,7 @@ const LocalPickupSettings = ({
           onChange={(e) => handleOnChange(e.target.value, 'description')}
         />
       </Flex>
-      <div className={`${CLASS_PREFIX}-ui-checkbox-field`}>
+      <FormFieldRow>
         <Checkbox
           id="local-pickup-has-fee"
           checked={hasFee}
@@ -67,7 +67,7 @@ const LocalPickupSettings = ({
         <Label htmlFor="local-pickup-has-fee">
           {__('Has a pickup fee', 'kirki-ecommerce')}
         </Label>
-      </div>
+      </FormFieldRow>
       {hasFee && (
         <Flex direction="column" gap={8}>
           <Label htmlFor="local-pickup-fee">{__('Fee', 'kirki-ecommerce')}</Label>
@@ -80,7 +80,7 @@ const LocalPickupSettings = ({
           />
         </Flex>
       )}
-      <div className={`${CLASS_PREFIX}-ui-checkbox-field`}>
+      <FormFieldRow>
         <Checkbox
           id="local-pickup-has-pick-time"
           checked={hasPickTime}
@@ -92,7 +92,7 @@ const LocalPickupSettings = ({
         <Label htmlFor="local-pickup-has-pick-time">
           {__('Pickup time available', 'kirki-ecommerce')}
         </Label>
-      </div>
+      </FormFieldRow>
       {hasPickTime && (
         <Grid>
           <Flex direction="column" gap={8}>

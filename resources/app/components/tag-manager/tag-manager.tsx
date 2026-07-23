@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, type ReactNode } from 'react';
+import { css } from '@emotion/react';
 import { Minus, PlusCircle, Trash2 } from 'lucide-react';
 import classNames from 'classnames';
 
@@ -9,10 +10,15 @@ import Flex from '@/components/ui/flex';
 import Label from '@/components/ui/label';
 import Searchbox from '@/components/ui/searchbox';
 import { Separator } from '@/components/ui/separator';
-import SuggestionDropdown from '@/components/ui/suggestion-dropdown';
+import SuggestionDropdown, {
+  suggestionIconStyle,
+  suggestionItemStyle,
+  suggestionTextStyle,
+} from '@/components/ui/suggestion-dropdown';
 import Tag from '@/components/ui/tag';
 import Text from '@/components/ui/text';
 import { CLASS_PREFIX } from '@/conf';
+import { theme } from '@/theme';
 import type { LabelFieldProps, SelectOption, StyleProps } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -129,10 +135,10 @@ const TagManager = (props: TagManagerProps) => {
                 key={searchKey}
                 value={inputValue}
                 placeholder={placeholder}
-                className={classNames(
-                  `${CLASS_PREFIX}-tag-manager-input`,
-                  selectedTags.length > 0 && `${CLASS_PREFIX}-border-none`,
-                )}
+                css={css([
+                  tagManagerInputStyles.input,
+                  selectedTags.length > 0 && tagManagerInputStyles.borderNone,
+                ])}
                 onChange={(nextValue) =>
                   handleSearchChange(String(nextValue))
                 }
@@ -161,7 +167,7 @@ const TagManager = (props: TagManagerProps) => {
                     <div
                       role="option"
                       tabIndex={0}
-                      className={`${CLASS_PREFIX}-ui-suggestion-item`}
+                      css={suggestionItemStyle}
                       onClick={() => {
                         handleNewTagAdd(triggerRef.current!.value);
                       }}
@@ -172,7 +178,7 @@ const TagManager = (props: TagManagerProps) => {
                         }
                       }}
                     >
-                      <span className={`${CLASS_PREFIX}-ui-suggestion-icon`}>
+                      <span css={suggestionIconStyle}>
                         <PlusCircle size={16} aria-hidden="true" />
                       </span>
                       <span>{btnText}</span>
@@ -184,7 +190,7 @@ const TagManager = (props: TagManagerProps) => {
                   <div
                     role="option"
                     tabIndex={0}
-                    className={`${CLASS_PREFIX}-ui-suggestion-item`}
+                    css={suggestionItemStyle}
                     key={key}
                     onClick={() => handleOptionClick(option)}
                     onKeyDown={(event) => {
@@ -195,9 +201,7 @@ const TagManager = (props: TagManagerProps) => {
                     }}
                   >
                     {option?.leftIcon && (
-                      <div className={`${CLASS_PREFIX}-ui-suggestion-icon`}>
-                        {option.leftIcon}
-                      </div>
+                      <div css={suggestionIconStyle}>{option.leftIcon}</div>
                     )}
                     {option?.color && (
                       <div
@@ -206,9 +210,7 @@ const TagManager = (props: TagManagerProps) => {
                         aria-hidden="true"
                       />
                     )}
-                    <div className={`${CLASS_PREFIX}-ui-suggestion-text`}>
-                      {option.title}
-                    </div>
+                    <div css={suggestionTextStyle}>{option.title}</div>
                   </div>
                 ))}
               </SuggestionDropdown>
@@ -253,7 +255,7 @@ const TagManager = (props: TagManagerProps) => {
                 key={searchKey}
                 placeholder={placeholder}
                 onBlur={onBlur}
-                className={`${CLASS_PREFIX}-tag-manager-input`}
+                css={tagManagerInputStyles.input}
                 onChange={(nextValue) =>
                   handleSearchChange(String(nextValue))
                 }
@@ -301,3 +303,20 @@ const TagManager = (props: TagManagerProps) => {
 TagManager.displayName = 'TagManager';
 
 export default TagManager;
+
+const tagManagerInputStyles = {
+  input: css({
+    backgroundColor: theme.colors.background.fill,
+    width: '100%',
+    outline: 'none',
+    cursor: 'text',
+  }),
+  borderNone: css({
+    borderBottom: 'none',
+    borderRadius: `${theme.radius.lg} ${theme.radius.lg} ${theme.radius.none} ${theme.radius.none}`,
+    '&:focus': {
+      outline: 'none',
+      boxShadow: 'none',
+    },
+  }),
+};

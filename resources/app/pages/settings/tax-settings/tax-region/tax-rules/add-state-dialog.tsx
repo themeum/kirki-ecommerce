@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
 import {
   Dialog,
+  DialogBody,
   DialogCloseButton,
   DialogContent,
   DialogFooter,
@@ -114,7 +115,7 @@ export const AddStatePopup = (props: AddStatePopupProps) => {
           </DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <div className={`${CLASS_PREFIX}-ui-dialog-body`}>
+          <DialogBody>
             <Flex direction="column" gap={8}>
               <Label htmlFor="add-state-search">
                 {__('Regions', 'kirki-ecommerce')}
@@ -128,7 +129,7 @@ export const AddStatePopup = (props: AddStatePopupProps) => {
             </Flex>
 
             <Card
-              className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-table`}
+              type="table"
               style={{ borderRadius: 'var(--decom-radius-rounded-md)' }}
             >
               <div
@@ -138,7 +139,7 @@ export const AddStatePopup = (props: AddStatePopupProps) => {
                   overflowY: 'scroll',
                 }}
               >
-                <Flex className={`${CLASS_PREFIX}-popover-heading-wrapper-dark`}>
+                <Flex>
                   <Flex gap={8} style={{ alignItems: 'center' }}>
                     <Checkbox
                       id="add-state-select-all"
@@ -182,7 +183,7 @@ export const AddStatePopup = (props: AddStatePopupProps) => {
                 })}
               </div>
             </Card>
-          </div>
+          </DialogBody>
           <DialogFooter>
             <Button
               variant="outline"

@@ -5,7 +5,6 @@ import Button from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
-import { CLASS_PREFIX } from '@/conf';
 import { ReplaceIcon } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
@@ -32,7 +31,7 @@ const OrderId = () => {
 
   return (
     <div>
-      <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
+      <Card type="large">
         <Text
           header={__('Order ID', 'kirki-ecommerce')}
           subHeader={__(
@@ -43,10 +42,7 @@ const OrderId = () => {
           style={{ gap: 'var(--decom-spacing-f3)' }}
         />
 
-        <Card
-          className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner`}
-          style={{ padding: 'var(--decom-spacing-4)' }}
-        >
+        <Card type="inner" style={{ padding: 'var(--decom-spacing-4)' }}>
           <Flex direction="column" gap={16}>
             <Grid>
               <TextField
@@ -65,7 +61,7 @@ const OrderId = () => {
             </Grid>
 
             <Card
-              className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-innerDark`}
+              type="innerDark"
               style={{
                 padding: 'var(--decom-spacing-2) var(--decom-spacing-3)',
               }}
@@ -88,7 +84,7 @@ const OrderId = () => {
             </Card>
 
             <Card
-              className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}
+              type="large"
               style={{
                 borderRadius: 'var(--decom-radius-rounded-lg)',
                 border: '1px solid var(--decom-border-border)',

@@ -1,3 +1,4 @@
+import { css, type SerializedStyles } from '@emotion/react';
 import { useState, type ReactNode } from 'react';
 import {
   useFormContext,
@@ -28,7 +29,7 @@ type PasswordFieldProps<
   description?: ReactNode;
   placeholder?: string;
   disabled?: boolean;
-  className?: string;
+  css?: SerializedStyles;
 };
 
 const PasswordField = <
@@ -40,7 +41,7 @@ const PasswordField = <
   description,
   placeholder,
   disabled,
-  className,
+  css,
 }: PasswordFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
   const [visible, setVisible] = useState(false);
@@ -50,7 +51,7 @@ const PasswordField = <
       control={control}
       name={name}
       render={({ field, fieldState }) => (
-        <FormItem className={className}>
+        <FormItem css={css}>
           {label && <FormLabel>{label}</FormLabel>}
           <div className={`${CLASS_PREFIX}-ui-password-field`}>
             <FormControl>
@@ -61,7 +62,7 @@ const PasswordField = <
                 placeholder={placeholder}
                 disabled={disabled}
                 error={Boolean(fieldState.error)}
-                className={`${CLASS_PREFIX}-ui-password-field-input`}
+                css={inputCss}
               />
             </FormControl>
             <button
@@ -89,3 +90,5 @@ const PasswordField = <
 PasswordField.displayName = 'PasswordField';
 
 export default PasswordField;
+
+const inputCss = css({ paddingRight: '40px' });

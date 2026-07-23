@@ -11,7 +11,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { CLASS_PREFIX } from '@/conf';
 import { PlusCircleIcon } from '@/icons';
 import Flex from '@/components/ui/flex';
 import Grid from '@/components/ui/grid';
@@ -73,7 +72,7 @@ const ShippingProfile = ({
 
   return (
     <Card
-      className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner-dark`}
+      type="innerDark"
       style={{
         padding: '4px 8px 4px 12px',
         height: '44px',

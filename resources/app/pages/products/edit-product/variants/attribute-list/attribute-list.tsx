@@ -14,6 +14,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { css } from '@emotion/react';
 import { useEffect, useState } from 'react';
 
 import Button from '@/components/ui/button';
@@ -47,6 +48,14 @@ type SortableCardProps = {
   handleAttributeRemove: (id: number) => void;
 };
 
+const hoverVisibleCss = css({
+  visibility: 'hidden',
+});
+
+const hoverVisibleActiveCss = css({
+  visibility: 'visible',
+});
+
 const SortableCard = ({
   item,
   editingId,
@@ -56,6 +65,7 @@ const SortableCard = ({
   handleAttributeRemove,
 }: SortableCardProps) => {
   const isEditing = editingId !== null;
+  const [isHovered, setIsHovered] = useState(false);
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: item.id, disabled: isEditing });
 
@@ -67,9 +77,11 @@ const SortableCard = ({
   return (
     <div ref={setNodeRef} style={style}>
       <Card
+        type="inner"
         style={{ padding: '12px 16px' }}
         key={item.id}
-        className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner ${CLASS_PREFIX}-hover-parent`}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
       >
         {editingId !== item.id ? (
           <Flex gap={12}>
@@ -105,7 +117,9 @@ const SortableCard = ({
               </Flex>
             </Flex>
 
-            <ActionGroup className={`${CLASS_PREFIX}-hover-visible`}>
+            <ActionGroup
+              css={css(hoverVisibleCss, isHovered && hoverVisibleActiveCss)}
+            >
               <Button
                 variant="secondary"
                 onClick={() => handleAttributeEdit(item)}

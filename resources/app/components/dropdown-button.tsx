@@ -5,6 +5,7 @@ import {
   type CSSProperties,
   type ReactNode,
 } from 'react';
+import type { SerializedStyles } from '@emotion/react';
 
 import Button from '@/components/ui/button';
 import {
@@ -29,7 +30,7 @@ type DropdownTriggerButtonProps = {
   icon?: ReactNode;
   leftIcon?: ReactNode;
   rightIcon?: ReactNode;
-  className?: string;
+  css?: SerializedStyles;
   style?: CSSProperties;
   onClick?: () => void;
 };
@@ -142,7 +143,7 @@ const DropdownButton = ({
     icon,
     leftIcon,
     rightIcon,
-    className: buttonClassName,
+    css: buttonCss,
     style: buttonStyle = {},
   } = buttonProps ?? {};
 
@@ -154,7 +155,7 @@ const DropdownButton = ({
           size={mapButtonSize(buttonSize)}
           loading={state === 'loading'}
           disabled={state === 'disabled'}
-          className={buttonClassName}
+          css={buttonCss}
           style={
             buttonSize === 'fullWidth'
               ? { width: '100%', ...buttonStyle }

@@ -8,6 +8,7 @@ import SelectField from '@/components/form/select-field';
 import Button from '@/components/ui/button';
 import {
   Dialog,
+  DialogBody,
   DialogClose,
   DialogCloseButton,
   DialogContent,
@@ -16,7 +17,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
-import { CLASS_PREFIX } from '@/conf';
 import { ConfigureKeyIcon } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
@@ -135,7 +135,7 @@ const ApiConfigurationPopup = ({
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleConfiguration)}>
-            <div className={`${CLASS_PREFIX}-ui-dialog-body`}>
+            <DialogBody>
               <Flex direction="column" gap={16}>
                 <PasswordField
                   name="api_key"
@@ -168,7 +168,7 @@ const ApiConfigurationPopup = ({
                   )}
                 />
               </Flex>
-            </div>
+            </DialogBody>
             <DialogFooter style={{ justifyContent: 'space-between' }}>
               <Button
                 type="button"

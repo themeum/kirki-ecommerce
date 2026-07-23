@@ -1,7 +1,7 @@
 import Flex from '@/components/ui/flex';
+import { FormFieldRow } from '@/components/ui/form';
 import Label from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { CLASS_PREFIX } from '@/conf';
 
 const RadioGroupPreview = () => {
   const options = [
@@ -20,10 +20,7 @@ const RadioGroupPreview = () => {
     >
       <Flex direction="column" gap={8}>
         {options.map((option) => (
-          <div
-            key={option.value}
-            className={`${CLASS_PREFIX}-ui-radio-field-row`}
-          >
+          <FormFieldRow key={option.value}>
             <RadioGroupItem
               value={option.value}
               id={`radio-preview-${option.value}`}
@@ -31,7 +28,7 @@ const RadioGroupPreview = () => {
             <Label htmlFor={`radio-preview-${option.value}`}>
               {option.label}
             </Label>
-          </div>
+          </FormFieldRow>
         ))}
       </Flex>
     </RadioGroup>

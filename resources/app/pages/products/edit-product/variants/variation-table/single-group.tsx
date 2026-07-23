@@ -1,3 +1,4 @@
+import { css } from '@emotion/react';
 import React, { useEffect, useState } from 'react';
 
 import MediaStack from '@/components/media-stack';
@@ -37,6 +38,17 @@ type CombinedData = {
   available_quantity?: number;
   media?: ({ url?: string; [key: string]: unknown } | null | undefined)[];
 };
+
+const expandButtonHoverVisibleCss = css({
+  visibility: 'hidden',
+  [`.${CLASS_PREFIX}-hover-parent:hover &`]: {
+    visibility: 'visible',
+  },
+});
+
+const expandButtonHiddenCss = css({
+  visibility: 'hidden',
+});
 
 type SingleGroupProps = {
   parentId: number;
@@ -265,7 +277,11 @@ const SingleGroup = ({
             <Button
               variant="ghost"
               size="sm"
-              className={`${thisVariants[0]?.attribute_values.length > 1 ? `${CLASS_PREFIX}-hover-visible` : `${CLASS_PREFIX}-visibility-hidden`}`}
+              css={
+                thisVariants[0]?.attribute_values.length > 1
+                  ? expandButtonHoverVisibleCss
+                  : expandButtonHiddenCss
+              }
               onClick={() => setShow(!show)}
               style={{
                 transform: show ? 'rotate(180deg)' : '',

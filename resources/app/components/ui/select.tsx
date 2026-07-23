@@ -3,11 +3,12 @@ import {
   type ComponentPropsWithoutRef,
   type ElementRef,
 } from 'react';
+import { type SerializedStyles, type Theme } from '@emotion/react';
 import * as SelectPrimitive from '@radix-ui/react-select';
 import { CheckIcon, ChevronDownIcon } from '@radix-ui/react-icons';
-import classNames from 'classnames';
 
-import { CLASS_PREFIX } from '@/conf';
+import { theme } from '@/theme';
+import { fontGeneralSettings, flexCenter, itemCenter, scoped, uiFocusRing } from '@/theme/mixins';
 import { getPortalContainer } from '@/libs/portal-container';
 
 const Select = SelectPrimitive.Root;
@@ -16,32 +17,44 @@ const SelectGroup = SelectPrimitive.Group;
 
 const SelectValue = SelectPrimitive.Value;
 
-type SelectTriggerProps = ComponentPropsWithoutRef<
-  typeof SelectPrimitive.Trigger
+type SelectTriggerVariant = 'default' | 'secondary' | 'invisible';
+
+type SelectTriggerProps = Omit<
+  ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger>,
+  'className' | 'css'
 > & {
+  variant?: SelectTriggerVariant;
   error?: boolean;
+  css?: SerializedStyles;
 };
 
 const SelectTrigger = forwardRef<
   ElementRef<typeof SelectPrimitive.Trigger>,
   SelectTriggerProps
 >((props, ref) => {
-  const { className, children, error, ...rest } = props;
+  const {
+    css: cssProp,
+    variant = 'default',
+    error,
+    children,
+    ...rest
+  } = props;
 
   return (
     <SelectPrimitive.Trigger
       ref={ref}
       data-error={error ? 'true' : undefined}
-      className={classNames(
-        `${CLASS_PREFIX}-ui-select-trigger`,
-        error && `${CLASS_PREFIX}-ui-select-trigger--error`,
-        className,
-      )}
+      css={[
+        styles.trigger,
+        styles.variants[variant],
+        error && styles.error,
+        cssProp,
+      ]}
       {...rest}
     >
-      <span className={`${CLASS_PREFIX}-ui-select-value`}>{children}</span>
+      <span css={styles.value}>{children}</span>
       <SelectPrimitive.Icon asChild>
-        <span className={`${CLASS_PREFIX}-ui-select-chevron`}>
+        <span css={styles.chevron}>
           <ChevronDownIcon width={16} height={16} />
         </span>
       </SelectPrimitive.Icon>
@@ -51,11 +64,23 @@ const SelectTrigger = forwardRef<
 
 SelectTrigger.displayName = 'SelectTrigger';
 
+type SelectContentProps = Omit<
+  ComponentPropsWithoutRef<typeof SelectPrimitive.Content>,
+  'className' | 'css'
+> & {
+  css?: SerializedStyles;
+};
+
 const SelectContent = forwardRef<
   ElementRef<typeof SelectPrimitive.Content>,
-  ComponentPropsWithoutRef<typeof SelectPrimitive.Content>
+  SelectContentProps
 >((props, ref) => {
-  const { className, children, position = 'item-aligned', ...rest } = props;
+  const {
+    css: cssProp,
+    children,
+    position = 'item-aligned',
+    ...rest
+  } = props;
   const isPopper = position === 'popper';
 
   return (
@@ -63,18 +88,11 @@ const SelectContent = forwardRef<
       <SelectPrimitive.Content
         ref={ref}
         position={position}
-        className={classNames(
-          `${CLASS_PREFIX}-ui-select-content`,
-          isPopper && `${CLASS_PREFIX}-ui-select-content--popper`,
-          className,
-        )}
+        css={[styles.content, isPopper && styles.contentPopper, cssProp]}
         {...rest}
       >
         <SelectPrimitive.Viewport
-          className={classNames(
-            `${CLASS_PREFIX}-ui-select-viewport`,
-            isPopper && `${CLASS_PREFIX}-ui-select-viewport--popper`,
-          )}
+          css={[styles.viewport, isPopper && styles.viewportPopper]}
         >
           {children}
         </SelectPrimitive.Viewport>
@@ -85,36 +103,40 @@ const SelectContent = forwardRef<
 
 SelectContent.displayName = 'SelectContent';
 
+type SelectLabelProps = Omit<
+  ComponentPropsWithoutRef<typeof SelectPrimitive.Label>,
+  'className' | 'css'
+> & {
+  css?: SerializedStyles;
+};
+
 const SelectLabel = forwardRef<
   ElementRef<typeof SelectPrimitive.Label>,
-  ComponentPropsWithoutRef<typeof SelectPrimitive.Label>
+  SelectLabelProps
 >((props, ref) => {
-  const { className, ...rest } = props;
+  const { css: cssProp, ...rest } = props;
 
-  return (
-    <SelectPrimitive.Label
-      ref={ref}
-      className={classNames(`${CLASS_PREFIX}-ui-select-label`, className)}
-      {...rest}
-    />
-  );
+  return <SelectPrimitive.Label ref={ref} css={[styles.label, cssProp]} {...rest} />;
 });
 
 SelectLabel.displayName = 'SelectLabel';
 
+type SelectItemProps = Omit<
+  ComponentPropsWithoutRef<typeof SelectPrimitive.Item>,
+  'className' | 'css'
+> & {
+  css?: SerializedStyles;
+};
+
 const SelectItem = forwardRef<
   ElementRef<typeof SelectPrimitive.Item>,
-  ComponentPropsWithoutRef<typeof SelectPrimitive.Item>
+  SelectItemProps
 >((props, ref) => {
-  const { className, children, ...rest } = props;
+  const { css: cssProp, children, ...rest } = props;
 
   return (
-    <SelectPrimitive.Item
-      ref={ref}
-      className={classNames(`${CLASS_PREFIX}-ui-select-item`, className)}
-      {...rest}
-    >
-      <span className={`${CLASS_PREFIX}-ui-select-item-indicator`}>
+    <SelectPrimitive.Item ref={ref} css={[styles.item, cssProp]} {...rest}>
+      <span css={styles.itemIndicator}>
         <SelectPrimitive.ItemIndicator>
           <CheckIcon width={16} height={16} />
         </SelectPrimitive.ItemIndicator>
@@ -126,16 +148,23 @@ const SelectItem = forwardRef<
 
 SelectItem.displayName = 'SelectItem';
 
+type SelectSeparatorProps = Omit<
+  ComponentPropsWithoutRef<typeof SelectPrimitive.Separator>,
+  'className' | 'css'
+> & {
+  css?: SerializedStyles;
+};
+
 const SelectSeparator = forwardRef<
   ElementRef<typeof SelectPrimitive.Separator>,
-  ComponentPropsWithoutRef<typeof SelectPrimitive.Separator>
+  SelectSeparatorProps
 >((props, ref) => {
-  const { className, ...rest } = props;
+  const { css: cssProp, ...rest } = props;
 
   return (
     <SelectPrimitive.Separator
       ref={ref}
-      className={classNames(`${CLASS_PREFIX}-ui-select-separator`, className)}
+      css={[styles.separator, cssProp]}
       {...rest}
     />
   );
@@ -152,4 +181,134 @@ export {
   SelectLabel,
   SelectItem,
   SelectSeparator,
+};
+
+const styles = {
+  trigger: scoped({
+    width: '100%',
+    minWidth: '90px',
+    height: '36px',
+    border: `1px solid ${theme.colors.border.default}`,
+    padding: `${theme.spacing.md} ${theme.spacing.lg}`,
+    borderRadius: theme.radius.lg,
+    backgroundColor: theme.colors.background.fill,
+    boxSizing: 'border-box',
+    justifyContent: 'space-between',
+    ...itemCenter(),
+    gap: theme.spacing.md,
+    ...fontGeneralSettings(theme as Theme),
+    cursor: 'pointer',
+    '&:focus-visible, &[data-state="open"]': {
+      borderColor: theme.colors.border.default,
+      ...uiFocusRing(theme as Theme),
+    },
+    '&[data-disabled]': {
+      backgroundColor: theme.colors.background.surfaceAlt,
+      color: theme.colors.text.secondary,
+      opacity: 0.8,
+      borderColor: 'transparent',
+      pointerEvents: 'none',
+    },
+  }),
+  variants: {
+    default: scoped({}),
+    secondary: scoped({
+      backgroundColor: theme.colors.background.fillSecondary,
+      border: 'none',
+      fontSize: '12px',
+      lineHeight: '18px',
+      borderRadius: theme.radius.md,
+    }),
+    invisible: scoped({
+      backgroundColor: 'transparent',
+      borderColor: 'transparent',
+      boxShadow: 'none',
+      height: '100%',
+      '&:focus-visible, &[data-state="open"]': {
+        borderColor: 'transparent',
+        boxShadow: 'none',
+      },
+    }),
+  },
+  error: scoped({
+    border: `1px solid ${theme.colors.border.critical}`,
+    boxShadow: 'none',
+    '&:focus-visible, &[data-state="open"]': {
+      borderColor: theme.colors.border.critical,
+      ...uiFocusRing(theme as Theme, theme.colors.border.critical),
+    },
+  }),
+  value: scoped({
+    ...itemCenter(),
+    columnGap: theme.spacing.md,
+    maxWidth: '85%',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  }),
+  chevron: scoped({
+    ...flexCenter(),
+    flexShrink: 0,
+  }),
+  content: scoped({
+    padding: theme.spacing.xs,
+    border: `1px solid ${theme.colors.border.default}`,
+    borderRadius: theme.radius.md,
+    boxShadow: '0px 4px 6px -1px #0000001a',
+    backgroundColor: theme.colors.background.fill,
+    minHeight: '33px',
+    zIndex: 100000,
+    overflowX: 'hidden',
+    ...fontGeneralSettings(theme as Theme),
+    '&:focus, &:focus-visible': {
+      outline: 'none',
+    },
+  }),
+  contentPopper: scoped({
+    maxHeight: 'var(--radix-select-content-available-height)',
+  }),
+  viewport: scoped({
+    width: '100%',
+  }),
+  viewportPopper: scoped({
+    width: '100%',
+    minWidth: 'var(--radix-select-trigger-width)',
+    height: 'var(--radix-select-trigger-height)',
+  }),
+  label: scoped({
+    padding: `${theme.spacing.sm} ${theme.spacing.md}`,
+    ...fontGeneralSettings(theme as Theme),
+    fontWeight: 500,
+    color: theme.colors.text.secondary,
+  }),
+  item: scoped({
+    padding: `${theme.spacing.sm} ${theme.spacing.md}`,
+    paddingLeft: `calc(${theme.spacing.md} + 16px + ${theme.spacing.md})`,
+    ...itemCenter(),
+    justifyContent: 'flex-start',
+    columnGap: theme.spacing.md,
+    borderRadius: theme.radius.sm,
+    cursor: 'pointer',
+    position: 'relative',
+    outline: 'none',
+    ...fontGeneralSettings(theme as Theme),
+    '&:hover, &[data-highlighted]': {
+      backgroundColor: theme.colors.background.optionHover,
+    },
+    '&[data-disabled]': {
+      opacity: 0.5,
+      pointerEvents: 'none',
+    },
+  }),
+  itemIndicator: scoped({
+    position: 'absolute',
+    left: theme.spacing.md,
+    minWidth: '16px',
+    ...itemCenter(),
+  }),
+  separator: scoped({
+    height: '1px',
+    backgroundColor: theme.colors.border.default,
+    margin: `${theme.spacing.xs} 0`,
+  }),
 };

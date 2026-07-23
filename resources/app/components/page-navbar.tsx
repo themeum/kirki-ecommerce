@@ -1,12 +1,25 @@
+import { css } from '@emotion/react';
 import type { CSSProperties, ReactNode } from 'react';
 
 import Button from '@/components/ui/button';
-import { CLASS_PREFIX } from '@/conf';
 import { ArrowLeftIcon } from '@/icons';
 import { Card } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { __ } from '@/wpi18n';
+
+const backButtonCss = css({
+  height: '36px',
+  width: '36px',
+  background: 'white',
+  transition: 'stroke 0.2s ease, stroke-width 0.2s ease',
+  '&:hover': {
+    'svg path': {
+      stroke: 'var(--decom-background-bg-fill-brand)',
+      strokeWidth: 1.5,
+    },
+  },
+});
 
 type PageNavbarProps = {
   buttonIcon?: ReactNode;
@@ -35,7 +48,7 @@ const PageNavbar = (props: PageNavbarProps) => {
           variant="ghost"
           aria-label={__('Back', 'kirki-ecommerce')}
           onClick={handleBack ?? (() => window.history.back())}
-          className={`${CLASS_PREFIX}-page-navbar-back-button`}
+          css={backButtonCss}
         >
           {buttonIcon}
         </Button>

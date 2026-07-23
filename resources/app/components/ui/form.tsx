@@ -1,3 +1,4 @@
+import { type SerializedStyles, type Theme } from '@emotion/react';
 import {
   createContext,
   forwardRef,
@@ -9,7 +10,6 @@ import {
   type ReactNode,
 } from 'react';
 import { Slot } from '@radix-ui/react-slot';
-import classNames from 'classnames';
 import {
   Controller,
   FormProvider,
@@ -21,7 +21,8 @@ import {
 } from 'react-hook-form';
 
 import Label from '@/components/ui/label';
-import { CLASS_PREFIX } from '@/conf';
+import { theme } from '@/theme';
+import { fontGeneralSettings, scoped } from '@/theme/mixins';
 
 type FormProps<TFieldValues extends FieldValues> = UseFormReturn<TFieldValues> & {
   children: ReactNode;
@@ -92,22 +93,23 @@ const useFormField = () => {
   };
 };
 
-const FormItem = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
-  (props, ref) => {
-    const { className, ...rest } = props;
-    const id = useId();
+type FormItemProps = Omit<
+  HTMLAttributes<HTMLDivElement>,
+  'className' | 'css'
+> & {
+  css?: SerializedStyles;
+};
 
-    return (
-      <FormItemContext.Provider value={{ id }}>
-        <div
-          ref={ref}
-          className={classNames(`${CLASS_PREFIX}-ui-form-item`, className)}
-          {...rest}
-        />
-      </FormItemContext.Provider>
-    );
-  },
-);
+const FormItem = forwardRef<HTMLDivElement, FormItemProps>((props, ref) => {
+  const { css: cssProp, ...rest } = props;
+  const id = useId();
+
+  return (
+    <FormItemContext.Provider value={{ id }}>
+      <div ref={ref} css={[styles.item, cssProp]} {...rest} />
+    </FormItemContext.Provider>
+  );
+});
 
 FormItem.displayName = 'FormItem';
 
@@ -115,18 +117,9 @@ const FormLabel = forwardRef<
   ElementRef<typeof Label>,
   ComponentPropsWithoutRef<typeof Label>
 >((props, ref) => {
-  const { className, ...rest } = props;
   const { error, formItemId } = useFormField();
 
-  return (
-    <Label
-      ref={ref}
-      className={className}
-      htmlFor={formItemId}
-      error={Boolean(error)}
-      {...rest}
-    />
-  );
+  return <Label ref={ref} htmlFor={formItemId} error={Boolean(error)} {...props} />;
 });
 
 FormLabel.displayName = 'FormLabel';
@@ -154,58 +147,114 @@ const FormControl = forwardRef<
 
 FormControl.displayName = 'FormControl';
 
-const FormDescription = forwardRef<
-  HTMLParagraphElement,
-  HTMLAttributes<HTMLParagraphElement>
->((props, ref) => {
-  const { className, ...rest } = props;
-  const { formDescriptionId } = useFormField();
+type FormDescriptionProps = Omit<
+  HTMLAttributes<HTMLParagraphElement>,
+  'className' | 'css'
+> & {
+  css?: SerializedStyles;
+};
 
-  return (
-    <p
-      ref={ref}
-      id={formDescriptionId}
-      className={classNames(`${CLASS_PREFIX}-ui-form-description`, className)}
-      {...rest}
-    />
-  );
-});
+const FormDescription = forwardRef<HTMLParagraphElement, FormDescriptionProps>(
+  (props, ref) => {
+    const { css: cssProp, ...rest } = props;
+    const { formDescriptionId } = useFormField();
+
+    return (
+      <p
+        ref={ref}
+        id={formDescriptionId}
+        css={[styles.description, cssProp]}
+        {...rest}
+      />
+    );
+  },
+);
 
 FormDescription.displayName = 'FormDescription';
 
-const FormMessage = forwardRef<
-  HTMLParagraphElement,
-  HTMLAttributes<HTMLParagraphElement>
->((props, ref) => {
-  const { className, children, ...rest } = props;
-  const { error, formMessageId } = useFormField();
-  const body = error ? String(error.message ?? '') : children;
+type FormMessageProps = Omit<
+  HTMLAttributes<HTMLParagraphElement>,
+  'className' | 'css'
+> & {
+  css?: SerializedStyles;
+};
 
-  if (!body) {
-    return null;
-  }
+const FormMessage = forwardRef<HTMLParagraphElement, FormMessageProps>(
+  (props, ref) => {
+    const { css: cssProp, children, ...rest } = props;
+    const { error, formMessageId } = useFormField();
+    const body = error ? String(error.message ?? '') : children;
 
-  return (
-    <p
-      ref={ref}
-      id={formMessageId}
-      className={classNames(`${CLASS_PREFIX}-ui-form-message`, className)}
-      {...rest}
-    >
-      {body}
-    </p>
-  );
-});
+    if (!body) {
+      return null;
+    }
+
+    return (
+      <p ref={ref} id={formMessageId} css={[styles.message, cssProp]} {...rest}>
+        {body}
+      </p>
+    );
+  },
+);
 
 FormMessage.displayName = 'FormMessage';
+
+type FormFieldRowProps = Omit<
+  HTMLAttributes<HTMLDivElement>,
+  'className' | 'css'
+> & {
+  css?: SerializedStyles;
+};
+
+const FormFieldRow = forwardRef<HTMLDivElement, FormFieldRowProps>(
+  (props, ref) => {
+    const { css: cssProp, ...rest } = props;
+
+    return <div ref={ref} css={[styles.fieldRow, cssProp]} {...rest} />;
+  },
+);
+
+FormFieldRow.displayName = 'FormFieldRow';
 
 export {
   Form,
   FormControl,
   FormDescription,
   FormField,
+  FormFieldRow,
   FormItem,
   FormLabel,
   FormMessage,
   useFormField,
 };
+
+const styles = {
+  item: scoped({
+    display: 'flex',
+    flexDirection: 'column',
+    gap: theme.spacing.md,
+    width: '100%',
+  }),
+  description: scoped({
+    ...fontGeneralSettings(theme as Theme),
+    fontSize: '12px',
+    lineHeight: '18px',
+    color: theme.colors.text.secondary,
+  }),
+  message: scoped({
+    ...fontGeneralSettings(theme as Theme),
+    fontSize: '12px',
+    lineHeight: '18px',
+    color: theme.colors.text.critical,
+    fontWeight: 400,
+  }),
+  fieldRow: scoped({
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    columnGap: theme.spacing.md,
+    width: 'max-content',
+  }),
+};
+
+export const formMessageStyle = styles.message;

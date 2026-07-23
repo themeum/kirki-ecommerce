@@ -18,7 +18,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { CLASS_PREFIX } from '@/conf';
 import { queryClient } from '@/libs/query-client';
 import { queryKeys } from '@/libs/query-keys';
 import { useUnsavedStatus } from '@/libs/unsaved-store';
@@ -267,7 +266,7 @@ const ShippingDeliveryMethod = () => {
             handleBack={handleBackButton}
           />
           <Card
-            className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}
+            type="large"
             style={{
               gap: 'var(--decom-spacing-4)',
             }}

@@ -8,14 +8,15 @@ import {
   type ReactNode,
   type RefObject,
 } from 'react';
+import { css, type SerializedStyles } from '@emotion/react';
 import { PlusCircle, Search } from 'lucide-react';
-import classNames from 'classnames';
 
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import SuggestionDropdown from '@/components/ui/suggestion-dropdown';
-import { CLASS_PREFIX } from '@/conf';
+import { theme } from '@/theme';
+import { flexCenter, itemCenter, scoped } from '@/theme/mixins';
 import type { InputState, SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -32,7 +33,7 @@ type SearchboxProps = {
   onOptionClick?: (option: SearchSuggestionOption) => void;
   style?: CSSProperties;
   suggestionArray?: SearchSuggestionOption[];
-  className?: string;
+  css?: SerializedStyles;
   label?: string;
   helpText?: string;
   placeholder?: string;
@@ -70,7 +71,7 @@ const Searchbox = forwardRef<HTMLInputElement, SearchboxProps>(
       onOptionClick = () => {},
       style = {},
       suggestionArray = [],
-      className = '',
+      css: cssProp,
       label,
       helpText,
       placeholder = __('Search', 'kirki-ecommerce'),
@@ -122,7 +123,7 @@ const Searchbox = forwardRef<HTMLInputElement, SearchboxProps>(
         : <Search size={16} aria-hidden="true" />;
 
     return (
-      <div className={`${CLASS_PREFIX}-ui-searchbox`} style={style}>
+      <div css={styles.root} style={style}>
         {label && (
           <Label
             error={Boolean(error)}
@@ -131,13 +132,9 @@ const Searchbox = forwardRef<HTMLInputElement, SearchboxProps>(
             {label}
           </Label>
         )}
-        <div className={`${CLASS_PREFIX}-ui-searchbox-input-wrap`}>
+        <div css={styles.inputWrap}>
           {resolvedLeftIcon && (
-            <span
-              className={`${CLASS_PREFIX}-ui-searchbox-icon ${CLASS_PREFIX}-ui-searchbox-icon--left`}
-            >
-              {resolvedLeftIcon}
-            </span>
+            <span css={[styles.icon, styles.iconLeft]}>{resolvedLeftIcon}</span>
           )}
           <Input
             type={searchValue ? 'text' : 'search'}
@@ -151,31 +148,25 @@ const Searchbox = forwardRef<HTMLInputElement, SearchboxProps>(
               onClick();
             }}
             onKeyDown={handleInputKeyDown}
-            className={classNames(
-              Boolean(resolvedLeftIcon) &&
-                `${CLASS_PREFIX}-ui-searchbox-input--has-left-icon`,
-              Boolean(rightIcon || onClearInput) &&
-                `${CLASS_PREFIX}-ui-searchbox-input--has-right-icon`,
-              className,
-            )}
+            css={css([
+              Boolean(resolvedLeftIcon) && styles.inputHasLeftIcon,
+              Boolean(rightIcon || onClearInput) && styles.inputHasRightIcon,
+              cssProp,
+            ])}
             error={Boolean(error)}
             readOnly={readOnly}
             disabled={state === 'disabled'}
           />
           {onClearInput ? (
             <span
-              className={`${CLASS_PREFIX}-ui-searchbox-icon ${CLASS_PREFIX}-ui-searchbox-icon--right`}
+              css={[styles.icon, styles.iconRight]}
               onClick={onClearInput}
             >
               {rightIcon}
             </span>
           ) : (
             rightIcon && (
-              <span
-                className={`${CLASS_PREFIX}-ui-searchbox-icon ${CLASS_PREFIX}-ui-searchbox-icon--right`}
-              >
-                {rightIcon}
-              </span>
+              <span css={[styles.icon, styles.iconRight]}>{rightIcon}</span>
             )
           )}
         </div>
@@ -191,7 +182,7 @@ const Searchbox = forwardRef<HTMLInputElement, SearchboxProps>(
                 <div
                   role="option"
                   tabIndex={0}
-                  className={`${CLASS_PREFIX}-ui-suggestion-item`}
+                  css={styles.suggestionItem}
                   onClick={() => {
                     onNewOptionAdd(triggerRef.current?.value ?? '');
                     setOpenSuggestionDropDown(false);
@@ -204,7 +195,7 @@ const Searchbox = forwardRef<HTMLInputElement, SearchboxProps>(
                     }
                   }}
                 >
-                  <span className={`${CLASS_PREFIX}-ui-suggestion-icon`}>
+                  <span css={styles.suggestionIcon}>
                     <PlusCircle size={16} aria-hidden="true" />
                   </span>
                   <span>{btnText}</span>
@@ -216,7 +207,7 @@ const Searchbox = forwardRef<HTMLInputElement, SearchboxProps>(
               <div
                 role="option"
                 tabIndex={0}
-                className={`${CLASS_PREFIX}-ui-suggestion-item`}
+                css={styles.suggestionItem}
                 key={index}
                 onClick={() => handleOptionClick(option)}
                 onKeyDown={(event) => {
@@ -227,13 +218,9 @@ const Searchbox = forwardRef<HTMLInputElement, SearchboxProps>(
                 }}
               >
                 {option.leftIcon && (
-                  <div className={`${CLASS_PREFIX}-ui-suggestion-icon`}>
-                    {option.leftIcon}
-                  </div>
+                  <div css={styles.suggestionIcon}>{option.leftIcon}</div>
                 )}
-                <div className={`${CLASS_PREFIX}-ui-suggestion-text`}>
-                  {option.title}
-                </div>
+                <div css={styles.suggestionText}>{option.title}</div>
               </div>
             ))}
           </SuggestionDropdown>
@@ -246,3 +233,56 @@ const Searchbox = forwardRef<HTMLInputElement, SearchboxProps>(
 Searchbox.displayName = 'Searchbox';
 
 export default Searchbox;
+
+const styles = {
+  root: scoped({
+    width: '100%',
+  }),
+  inputWrap: scoped({
+    position: 'relative',
+    width: '100%',
+  }),
+  icon: scoped({
+    ...flexCenter(),
+    position: 'absolute',
+    top: '50%',
+    transform: 'translateY(-50%)',
+    color: theme.colors.text.secondary,
+  }),
+  iconLeft: scoped({
+    left: theme.spacing.lg,
+    pointerEvents: 'none',
+  }),
+  iconRight: scoped({
+    right: theme.spacing.lg,
+    cursor: 'pointer',
+  }),
+  inputHasLeftIcon: scoped({
+    paddingLeft: '36px',
+  }),
+  inputHasRightIcon: scoped({
+    paddingRight: '36px',
+  }),
+  suggestionItem: scoped({
+    padding: `${theme.spacing.sm} ${theme.spacing.md}`,
+    ...itemCenter(),
+    justifyContent: 'flex-start',
+    columnGap: theme.spacing.md,
+    borderRadius: theme.radius.sm,
+    cursor: 'pointer',
+    '&:hover': {
+      backgroundColor: theme.colors.background.surfaceSecondary,
+    },
+  }),
+  suggestionIcon: scoped({
+    minWidth: '16px',
+    ...itemCenter(),
+  }),
+  suggestionText: scoped({
+    ...itemCenter(),
+    columnGap: theme.spacing.md,
+    maxWidth: '85%',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+  }),
+};

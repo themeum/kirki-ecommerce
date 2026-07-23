@@ -1,3 +1,4 @@
+import { type SerializedStyles } from '@emotion/react';
 import type { ReactNode } from 'react';
 import {
   useFormContext,
@@ -27,7 +28,7 @@ type MultiSelectFieldProps<
   emptyText?: string;
   options: ComboboxOption[];
   disabled?: boolean;
-  className?: string;
+  css?: SerializedStyles;
   multiple?: boolean;
 };
 
@@ -43,7 +44,7 @@ const MultiSelectField = <
   emptyText,
   options,
   disabled,
-  className,
+  css,
   multiple = true,
 }: MultiSelectFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
@@ -53,7 +54,7 @@ const MultiSelectField = <
       control={control}
       name={name}
       render={({ field, fieldState }) => (
-        <FormItem className={className}>
+        <FormItem css={css}>
           {label && <FormLabel>{label}</FormLabel>}
           <FormControl>
             <Combobox

@@ -1,3 +1,4 @@
+import { css } from '@emotion/react';
 import { useState, useEffect, type ReactNode } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -18,6 +19,22 @@ import { TaxProfilePopup } from '@/pages/settings/tax-settings/tax-profile/tax-p
 type TaxProfileListItem = TaxProfileType & {
   icon?: ReactNode;
 };
+
+const boxWrapperCss = css({
+  [`.${CLASS_PREFIX}-box-card`]: {
+    borderTop: 'none',
+    borderRadius: 'var(--decom-radius-rounded-none)',
+  },
+  [`.${CLASS_PREFIX}-box-card:first-child`]: {
+    borderTop: '1px solid var(--decom-border-border-secondary)',
+    borderRadius:
+      'var(--decom-radius-rounded-md) var(--decom-radius-rounded-md) var(--decom-radius-rounded-none) var(--decom-radius-rounded-none)',
+  },
+  [`.${CLASS_PREFIX}-box-card:last-child`]: {
+    borderRadius:
+      'var(--decom-radius-rounded-none) var(--decom-radius-rounded-none) var(--decom-radius-rounded-md) var(--decom-radius-rounded-md)',
+  },
+});
 
 const TaxProfile = () => {
   const queryClient = useQueryClient();
@@ -71,7 +88,7 @@ const TaxProfile = () => {
 
   return (
     <div>
-      <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
+      <Card type="large">
         <HeaderActionsCard
           header={__('Tax Profiles', 'kirki-ecommerce')}
           subHeader={__(
@@ -83,10 +100,7 @@ const TaxProfile = () => {
         />
 
         {!taxProfileList?.length ? (
-          <Card
-            className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner-dark`}
-            style={{ padding: '36px 0' }}
-          >
+          <Card type="innerDark" style={{ padding: '36px 0' }}>
             <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
               <BoxOpenIcon />
               <span style={{ color: '#878593' }}>
@@ -98,7 +112,7 @@ const TaxProfile = () => {
             </Flex>
           </Card>
         ) : (
-          <Flex direction="column" className={`${CLASS_PREFIX}-box-wrapper`}>
+          <Flex direction="column" css={boxWrapperCss}>
             <GroupOptionCard
               dataArr={taxProfileList}
               handleDeleteItem={(item) =>

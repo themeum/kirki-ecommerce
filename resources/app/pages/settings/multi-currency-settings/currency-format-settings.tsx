@@ -1,6 +1,5 @@
 import SelectField from '@/components/form/select-field';
 import { Card } from '@/components/ui/card';
-import { CLASS_PREFIX } from '@/conf';
 import Flex from '@/components/ui/flex';
 import { __ } from '@/wpi18n';
 
@@ -12,10 +11,7 @@ const CurrencyFormatSettings = () => {
   ];
 
   return (
-    <Card
-      className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner`}
-      style={{ padding: '16px' }}
-    >
+    <Card type="inner" style={{ padding: '16px' }}>
       <Flex direction="column" gap={16}>
         <SelectField
           name="currency_format"

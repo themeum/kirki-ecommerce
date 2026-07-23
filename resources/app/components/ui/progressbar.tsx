@@ -10,7 +10,8 @@ import {
 
 import Flex from '@/components/ui/flex';
 import Label from '@/components/ui/label';
-import { CLASS_PREFIX } from '@/conf';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 
 type ProgressBarProps = {
   value?: number;
@@ -94,11 +95,7 @@ const ProgressBar = forwardRef<HTMLDivElement, ProgressBarProps>(
       <Flex ref={ref} direction="column" gap={16} style={style}>
         <Flex style={{ justifyContent: 'space-between', alignItems: 'center' }}>
           {label && <Label style={labelStyle}>{label}</Label>}
-          {rightText && (
-            <span className={`${CLASS_PREFIX}-ui-progressbar-right`}>
-              {rightText}
-            </span>
-          )}
+          {rightText && <span css={styles.rightText}>{rightText}</span>}
         </Flex>
         <div
           ref={barRef}
@@ -108,20 +105,22 @@ const ProgressBar = forwardRef<HTMLDivElement, ProgressBarProps>(
           aria-valuenow={progress}
           aria-label={label || 'Progress'}
           tabIndex={onChange ? 0 : undefined}
-          className={`${CLASS_PREFIX}-ui-progressbar`}
+          css={styles.track}
           onMouseDown={handleMouseDown}
         >
           <div
-            className={`${CLASS_PREFIX}-ui-progressbar-fill`}
-            style={{
-              width: `${progress}%`,
-              backgroundColor: progressBarColor || undefined,
-            }}
+            css={styles.fill}
+            style={
+              {
+                '--progressbar-fill-width': `${progress}%`,
+                '--progressbar-fill-color': progressBarColor || undefined,
+              } as CSSProperties
+            }
           />
           {showProgressIndicator && (
             <div
-              className={`${CLASS_PREFIX}-ui-progressbar-thumb`}
-              style={{ left: `${progress}%` }}
+              css={styles.thumb}
+              style={{ '--progressbar-thumb-left': `${progress}%` } as CSSProperties}
               onMouseDown={handleThumbMouseDown}
             />
           )}
@@ -134,3 +133,46 @@ const ProgressBar = forwardRef<HTMLDivElement, ProgressBarProps>(
 ProgressBar.displayName = 'ProgressBar';
 
 export default ProgressBar;
+
+const styles = {
+  track: scoped({
+    position: 'relative',
+    height: '6px',
+    width: '100%',
+    backgroundColor: theme.colors.background.surfaceSecondary,
+    borderRadius: theme.radius.full,
+    cursor: 'pointer',
+    userSelect: 'none',
+  }),
+  fill: scoped({
+    height: '100%',
+    width: 'var(--progressbar-fill-width)',
+    backgroundColor: 'var(--progressbar-fill-color, ' +
+      theme.colors.background.fillBrand +
+      ')',
+    borderRadius: 'inherit',
+    transition: 'width 0.2s ease',
+    zIndex: 1,
+  }),
+  thumb: scoped({
+    position: 'absolute',
+    top: '50%',
+    left: 'var(--progressbar-thumb-left)',
+    transform: 'translate(-50%, -50%)',
+    height: '16px',
+    width: '16px',
+    backgroundColor: theme.colors.background.surfaceSecondary,
+    borderRadius: theme.radius.full,
+    border: `1px solid ${theme.colors.border.hover}`,
+    cursor: 'grab',
+    zIndex: 9999,
+    transition: 'transform 0.2s ease, left 0.2s ease',
+    '&:active': {
+      cursor: 'grabbing',
+      transform: 'translate(-50%, -50%) scale(0.95)',
+    },
+  }),
+  rightText: scoped({
+    color: '#71717a',
+  }),
+};

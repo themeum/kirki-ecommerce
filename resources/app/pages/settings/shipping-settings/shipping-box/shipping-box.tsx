@@ -3,7 +3,6 @@ import { useEffect, useState, type ReactNode } from 'react';
 import GroupOptionCard from '@/components/group-option-card';
 import HeaderActionsCard from '@/components/header-actions-card';
 import { Card } from '@/components/ui/card';
-import { CLASS_PREFIX } from '@/conf';
 import { dispatchToastMessage } from '@/pages/utils';
 import {
   useShippingBoxesQuery,
@@ -120,7 +119,7 @@ const ShippingBox = () => {
 
   return (
     <>
-      <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
+      <Card type="large">
         <HeaderActionsCard
           header={__('Shipping Box', 'kirki-ecommerce')}
           subHeader={__(

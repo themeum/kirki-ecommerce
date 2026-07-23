@@ -1,3 +1,4 @@
+import { css } from '@emotion/react';
 import { useState, useEffect, type Dispatch, type SetStateAction } from 'react';
 import { useSearchParams } from 'react-router';
 
@@ -7,12 +8,13 @@ import Text from '@/components/ui/text';
 import Button from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { __, sprintf } from '@/wpi18n';
-import { CLASS_PREFIX } from '@/conf';
 import { LighteningIcon, EditPenIcon, TrashIcon } from '@/icons';
 import HeaderActionsCard from '@/components/header-actions-card';
 import { useSettingsQuery } from '@/services/settings';
 import { dispatchToastMessage } from '@/pages/utils';
 import type { SettingsSectionData } from '@/types';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 
 import { saveShippingZones, type ShippingRule, type ShippingZone } from '@/pages/settings/shipping-settings/utils';
 import ShippingRuleModal from '@/pages/settings/shipping-settings/shipping-method/shipping-rules/shipping-rule-dialog';
@@ -21,12 +23,55 @@ type ShippingRulesProps = {
   methodId: string | number;
 };
 
+const cardActionsCss = css({
+  display: 'none',
+  pointerEvents: 'none',
+  transition: 'opacity 0.15s ease',
+});
+
+const cardActionsActiveCss = css({
+  display: 'flex',
+  pointerEvents: 'auto',
+});
+
+const shippingRulesCardCss = scoped({
+  padding: 'var(--decom-spacing-3)',
+  minHeight: '118px',
+  borderRadius: theme.radius.none,
+  border: '1px solid var(--decom-border-border)',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 'var(--decom-spacing-4)',
+});
+
+const shippingRulesCardSingleCss = scoped({
+  borderRadius: theme.radius.lg,
+});
+
+const shippingRulesCardBorderRadiusCss = scoped({
+  '&:first-of-type': {
+    borderRadius: `${theme.radius.lg} ${theme.radius.lg} ${theme.radius.none} ${theme.radius.none}`,
+  },
+  '&:last-of-type': {
+    borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.lg} ${theme.radius.lg}`,
+  },
+});
+
+const rulesNumberBadgeCss = scoped({
+  maxHeight: '26px',
+  maxWidth: 'fit-content',
+  borderRadius: theme.radius.sm,
+  display: 'flex',
+  padding: 'var(--decom-spacing-1) var(--decom-spacing-2)',
+});
+
 export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
   const [searchParams] = useSearchParams();
   const zoneId = searchParams.get('zoneId');
 
   const [addRuleModal, setAddRuleModal] = useState(false);
   const [editingRuleIndex, setEditingRuleIndex] = useState<number | null>(null);
+  const [hoveredRuleIndex, setHoveredRuleIndex] = useState<number | null>(null);
 
   const [rulesObj, setRulesObj] = useState<ShippingRule[]>([]);
   const { data: shippingSettingsData } = useSettingsQuery('shipping');
@@ -97,7 +142,7 @@ export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
   };
   return (
     <div>
-      <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
+      <Card type="large">
         <HeaderActionsCard
           header={__('Shipping Rules', 'kirki-ecommerce')}
           subHeader={__(
@@ -123,13 +168,19 @@ export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
             {rulesObj?.map((item, index) => (
               <div key={index}>
                 <Card
-                  className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-default ${CLASS_PREFIX}-shipping-rules-card`}
+                  type="default"
+                  css={css(
+                    shippingRulesCardCss,
+                    rulesObj.length > 1
+                      ? shippingRulesCardBorderRadiusCss
+                      : shippingRulesCardSingleCss,
+                  )}
+                  onMouseEnter={() => setHoveredRuleIndex(index)}
+                  onMouseLeave={() => setHoveredRuleIndex(null)}
                 >
                   <Flex style={{ justifyContent: 'space-between' }}>
                     <Flex direction={'column'} gap={16}>
-                      <Card
-                        className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-dark ${CLASS_PREFIX}-rules-number-badge`}
-                      >
+                      <Card type="dark" css={rulesNumberBadgeCss}>
                         <Text
                           type="xsm"
                           header={sprintf(
@@ -181,7 +232,12 @@ export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
                         </Flex>
                       </Flex>
                     </Flex>
-                    <ActionGroup className={`${CLASS_PREFIX}-card-actions`}>
+                    <ActionGroup
+                      css={css(
+                        cardActionsCss,
+                        hoveredRuleIndex === index && cardActionsActiveCss,
+                      )}
+                    >
                       <Button
                         variant="secondary"
                         size="sm"

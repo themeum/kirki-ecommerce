@@ -4,7 +4,6 @@ import { useParams } from 'react-router';
 import PageNavbar from '@/components/page-navbar';
 import Button from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { CLASS_PREFIX } from '@/conf';
 import { ColorPaletteIcon } from '@/icons';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
@@ -64,7 +63,7 @@ const ColorVariation = () => {
           />
           {!colorList?.length ? (
             <Card
-              className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}
+              type="large"
               style={{ borderRadius: '8px', padding: '36px 0' }}
             >
               <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
@@ -75,7 +74,7 @@ const ColorVariation = () => {
               </Flex>
             </Card>
           ) : (
-            <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-table`}>
+            <Card type="table">
               <VariationTable
                 results={colorList}
                 updateDataList={setColorList}

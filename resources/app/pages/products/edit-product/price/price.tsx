@@ -129,7 +129,7 @@ const Price = ({ errors, setErrors, formSyncKey = 0 }: PriceProps) => {
 
   return (
     <Form {...form}>
-      <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-form`}>
+      <Card type="form">
         <CardContent>
           <Text
             header={__('Price', 'kirki-ecommerce')}
@@ -217,7 +217,7 @@ const Price = ({ errors, setErrors, formSyncKey = 0 }: PriceProps) => {
 
           <Flex direction="column" gap={8}>
             <Card
-              className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner-dark`}
+              type="innerDark"
               style={{
                 padding: '4px 8px 4px 12px',
                 height: '44px',
@@ -281,7 +281,7 @@ const Price = ({ errors, setErrors, formSyncKey = 0 }: PriceProps) => {
             </Card>
 
             <Card
-              className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner-dark`}
+              type="innerDark"
               style={{
                 padding: '4px 8px 4px 12px',
                 height: '44px',

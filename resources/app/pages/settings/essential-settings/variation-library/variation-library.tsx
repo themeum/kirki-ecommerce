@@ -1,3 +1,4 @@
+import { css } from '@emotion/react';
 import { useState, useEffect, type ReactNode } from 'react';
 import { useNavigate } from 'react-router';
 
@@ -18,6 +19,22 @@ type AttributeListItem = Attribute & {
   badge1?: string;
   icon?: ReactNode;
 };
+
+const boxWrapperCss = css({
+  [`.${CLASS_PREFIX}-box-card`]: {
+    borderTop: 'none',
+    borderRadius: 'var(--decom-radius-rounded-none)',
+  },
+  [`.${CLASS_PREFIX}-box-card:first-child`]: {
+    borderTop: '1px solid var(--decom-border-border-secondary)',
+    borderRadius:
+      'var(--decom-radius-rounded-md) var(--decom-radius-rounded-md) var(--decom-radius-rounded-none) var(--decom-radius-rounded-none)',
+  },
+  [`.${CLASS_PREFIX}-box-card:last-child`]: {
+    borderRadius:
+      'var(--decom-radius-rounded-none) var(--decom-radius-rounded-none) var(--decom-radius-rounded-md) var(--decom-radius-rounded-md)',
+  },
+});
 
 const VariationList = () => {
   const navigate = useNavigate();
@@ -63,7 +80,7 @@ const VariationList = () => {
   };
 
   return (
-    <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
+    <Card type="large">
       <HeaderActionsCard
         header={__('Variation Library', 'kirki-ecommerce')}
         subHeader={__(
@@ -78,10 +95,7 @@ const VariationList = () => {
         }}
       />
       {!attributeListArr.length ? (
-        <Card
-          className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-innerDark`}
-          style={{ padding: '36px 0' }}
-        >
+        <Card type="innerDark" style={{ padding: '36px 0' }}>
           <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
             <BoxIcon />
             <span style={{ color: '#878593' }}>
@@ -90,7 +104,7 @@ const VariationList = () => {
           </Flex>
         </Card>
       ) : (
-        <Flex direction="column" className={`${CLASS_PREFIX}-box-wrapper`}>
+        <Flex direction="column" css={boxWrapperCss}>
           <GroupOptionCard
             dataArr={attributeListArr}
             handleDeleteItem={(item) => handleDeleteVariation(item as AttributeListItem)}

@@ -1,10 +1,11 @@
-import { useMemo } from 'react';
+import type { SerializedStyles } from '@emotion/react';
 import { Minus } from 'lucide-react';
-import classNames from 'classnames';
+import { useMemo } from 'react';
 
 import Button from '@/components/ui/button';
 import Combobox from '@/components/ui/combobox';
-import { CLASS_PREFIX } from '@/conf';
+import { theme } from '@/theme';
+import { flexCenter, scoped } from '@/theme/mixins';
 import type { SelectOption } from '@/types';
 
 type CapsuleValue = string | number;
@@ -17,11 +18,12 @@ type CapsuleProps = {
   onValueChange?: (value: CapsuleValueOrArray) => void;
   uniqueKey?: string | number;
   multiple?: boolean;
-  className?: string;
+  css?: SerializedStyles;
 };
 
-const toStringValue = (value?: CapsuleValue) =>
-  value === undefined || value === null ? '' : String(value);
+const toStringValue = (value?: CapsuleValue) => {
+  return value === undefined || value === null ? '' : String(value);
+};
 
 const Capsule = ({
   optionsArray,
@@ -30,7 +32,7 @@ const Capsule = ({
   onValueChange = () => [],
   uniqueKey,
   multiple,
-  className,
+  css: cssProp,
 }: CapsuleProps) => {
   const options = useMemo(
     () =>
@@ -63,21 +65,14 @@ const Capsule = ({
   };
 
   return (
-    <div
-      className={classNames(`${CLASS_PREFIX}-ui-capsule`, className)}
-      key={uniqueKey}
-    >
+    <div css={[styles.root, cssProp]} key={uniqueKey}>
       <Combobox
         options={options}
         value={comboboxValue}
         onChange={handleChange}
         multiple={multiple}
-        className={`${CLASS_PREFIX}-ui-capsule-combobox`}
       />
-      <div
-        className={`${CLASS_PREFIX}-ui-capsule-separator`}
-        aria-hidden="true"
-      />
+      <div css={styles.separator} aria-hidden="true" />
       <Button
         variant="ghost"
         size="sm"
@@ -93,3 +88,29 @@ const Capsule = ({
 Capsule.displayName = 'Capsule';
 
 export default Capsule;
+
+const styles = {
+  root: scoped({
+    minWidth: '126px',
+    borderRadius: theme.radius.md,
+    height: '32px',
+    ...flexCenter(),
+    backgroundColor: 'hsla(0, 0%, 96%, 1)',
+    '& > button[role="combobox"]': {
+      backgroundColor: 'transparent',
+      borderColor: 'transparent',
+      boxShadow: 'none',
+      height: '100%',
+      minHeight: 0,
+      '&:focus-visible, &[data-state="open"]': {
+        borderColor: 'transparent',
+        boxShadow: 'none',
+      },
+    },
+  }),
+  separator: scoped({
+    height: '100%',
+    width: '1px',
+    backgroundColor: theme.colors.border.default,
+  }),
+};

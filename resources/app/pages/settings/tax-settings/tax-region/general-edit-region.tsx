@@ -10,7 +10,6 @@ import PageNavbar from '@/components/page-navbar';
 import Button from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
-import { CLASS_PREFIX } from '@/conf';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { queryKeys } from '@/libs/query-keys';
@@ -266,10 +265,7 @@ const GeneralEditRegion = () => {
                   handleBack={handleBackButton}
                 />
 
-                <Card
-                  className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}
-                  style={{ gap: 'var(--decom-spacing-4)' }}
-                >
+                <Card type="large" style={{ gap: 'var(--decom-spacing-4)' }}>
                   <HeaderActionsCard
                     header={__('Cities', 'kirki-ecommerce')}
                     subHeader={__('Set tax rates for specific cities', 'kirki-ecommerce')}

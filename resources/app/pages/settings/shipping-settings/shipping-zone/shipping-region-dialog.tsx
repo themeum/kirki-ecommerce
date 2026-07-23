@@ -8,6 +8,7 @@ import { Card } from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
 import {
   Dialog,
+  DialogBody,
   DialogCloseButton,
   DialogContent,
   DialogFooter,
@@ -246,7 +247,7 @@ export const ShippingRegionPopup = ({
           </DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <div className={`${CLASS_PREFIX}-ui-dialog-body`}>
+          <DialogBody>
             {from === 'add' && (
               <TextField
                 name="title"
@@ -269,7 +270,7 @@ export const ShippingRegionPopup = ({
             </Flex>
 
             <Card
-              className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-table`}
+              type="table"
               style={{ borderRadius: 'var(--decom-radius-rounded-md)' }}
             >
               <div
@@ -279,7 +280,7 @@ export const ShippingRegionPopup = ({
                   overflowY: 'scroll',
                 }}
               >
-                <Flex className={`${CLASS_PREFIX}-popover-heading-wrapper-dark`}>
+                <Flex>
                   {__('Name', 'kirki-ecommerce')}
                 </Flex>
 
@@ -355,7 +356,7 @@ export const ShippingRegionPopup = ({
                   })}
               </div>
             </Card>
-          </div>
+          </DialogBody>
           <DialogFooter>
             <Button
               variant="outline"

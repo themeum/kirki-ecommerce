@@ -3,7 +3,6 @@ import { useState } from 'react';
 import DropdownButton from '@/components/dropdown-button';
 import HeaderActionsCard from '@/components/header-actions-card';
 import { Card } from '@/components/ui/card';
-import { CLASS_PREFIX } from '@/conf';
 import { BankIconLarge, ShowMoreIcon, CashIcon } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
 import Badge from '@/components/ui/badge';
@@ -78,7 +77,7 @@ const ManualPayment = (props: ManualPaymentProps) => {
 
   return (
     <>
-      <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
+      <Card type="large">
         <HeaderActionsCard
           header={__('Manual payment methods', 'kirki-ecommerce')}
           subHeader={__(
@@ -91,7 +90,7 @@ const ManualPayment = (props: ManualPaymentProps) => {
 
         {manualPaymentList?.length === 0 ? (
           <Card
-            className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-innerDark`}
+            type="innerDark"
             style={{ padding: 'var(--decom-spacing-9) var(--decom-spacing-0)' }}
           >
             <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
@@ -105,7 +104,7 @@ const ManualPayment = (props: ManualPaymentProps) => {
           <Flex direction="column" gap={16}>
             {manualPaymentList?.map((item, index) => (
               <Card
-                className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner`}
+                type="inner"
                 key={index}
                 style={{
                   padding: 'var(--decom-spacing-3) var(--decom-spacing-4)',

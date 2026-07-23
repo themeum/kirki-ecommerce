@@ -1,3 +1,4 @@
+import { css } from '@emotion/react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -8,8 +9,9 @@ import { EditPenIcon, LighteningIcon, TrashIcon } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
-import { CLASS_PREFIX } from '@/conf';
 import { __, sprintf } from '@/wpi18n';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 
 import type { TaxRegion, TaxRule } from '@/pages/settings/tax-settings/utils';
 import { getDestinationDisplayValue } from '@/pages/settings/tax-settings/tax-region/tax-rules/helper';
@@ -23,11 +25,54 @@ type TaxRulesProps = {
   ) => void | Promise<void>;
 };
 
+const cardActionsCss = css({
+  display: 'none',
+  pointerEvents: 'none',
+  transition: 'opacity 0.15s ease',
+});
+
+const cardActionsActiveCss = css({
+  display: 'flex',
+  pointerEvents: 'auto',
+});
+
+const shippingRulesCardCss = scoped({
+  padding: 'var(--decom-spacing-3)',
+  minHeight: '118px',
+  borderRadius: theme.radius.none,
+  border: '1px solid var(--decom-border-border)',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 'var(--decom-spacing-4)',
+});
+
+const shippingRulesCardSingleCss = scoped({
+  borderRadius: theme.radius.lg,
+});
+
+const shippingRulesCardBorderRadiusCss = scoped({
+  '&:first-of-type': {
+    borderRadius: `${theme.radius.lg} ${theme.radius.lg} ${theme.radius.none} ${theme.radius.none}`,
+  },
+  '&:last-of-type': {
+    borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.lg} ${theme.radius.lg}`,
+  },
+});
+
+const rulesNumberBadgeCss = scoped({
+  maxHeight: '26px',
+  maxWidth: 'fit-content',
+  borderRadius: theme.radius.sm,
+  display: 'flex',
+  padding: 'var(--decom-spacing-1) var(--decom-spacing-2)',
+});
+
 const TaxRules = (props: TaxRulesProps) => {
   const { region, updateTaxRules } = props;
   const [addRuleModal, setAddRuleModal] = useState(false);
   const [rulesObj, setRulesObj] = useState<TaxRule[]>([]);
   const [editingRuleIndex, setEditingRuleIndex] = useState<number | null>(null);
+  const [hoveredRuleIndex, setHoveredRuleIndex] = useState<number | null>(null);
 
   useEffect(() => {
     setRulesObj(Array.isArray(region?.rules) ? [...region.rules] : []);
@@ -54,7 +99,7 @@ const TaxRules = (props: TaxRulesProps) => {
 
   return (
     <div>
-      <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
+      <Card type="large">
         <HeaderActionsCard
           header={__('Tax Rules', 'kirki-ecommerce')}
           subHeader={__(
@@ -80,14 +125,20 @@ const TaxRules = (props: TaxRulesProps) => {
             <div>
               {rulesObj?.map((item, index) => (
                 <Card
-                  className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-default ${CLASS_PREFIX}-shipping-rules-card`}
+                  type="default"
                   key={index}
+                  css={css(
+                    shippingRulesCardCss,
+                    rulesObj.length > 1
+                      ? shippingRulesCardBorderRadiusCss
+                      : shippingRulesCardSingleCss,
+                  )}
+                  onMouseEnter={() => setHoveredRuleIndex(index)}
+                  onMouseLeave={() => setHoveredRuleIndex(null)}
                 >
                   <Flex style={{ justifyContent: 'space-between' }}>
                     <Flex direction={'column'} gap={16}>
-                      <Card
-                        className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-dark ${CLASS_PREFIX}-rules-number-badge`}
-                      >
+                      <Card type="dark" css={rulesNumberBadgeCss}>
                         <Text
                           type="xsm"
                           header={sprintf(__('Rule %s', 'kirki-ecommerce'), index + 1)}
@@ -153,7 +204,12 @@ const TaxRules = (props: TaxRulesProps) => {
                         </Flex>
                       </Flex>
                     </Flex>
-                    <ActionGroup className={`${CLASS_PREFIX}-card-actions`}>
+                    <ActionGroup
+                      css={css(
+                        cardActionsCss,
+                        hoveredRuleIndex === index && cardActionsActiveCss,
+                      )}
+                    >
                       <Button
                         variant="secondary"
                         size="icon"

@@ -6,7 +6,6 @@ import Button from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
-import { CLASS_PREFIX } from '@/conf';
 import { ReplaceIcon } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
@@ -46,7 +45,7 @@ const InvoiceId = () => {
 
   return (
     <div>
-      <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
+      <Card type="large">
         <Text
           header={__('Invoice ID', 'kirki-ecommerce')}
           subHeader={__(
@@ -57,10 +56,7 @@ const InvoiceId = () => {
           style={{ gap: 'var(--decom-spacing-f3)' }}
         />
         <Flex direction="column" gap={8}>
-          <Card
-            className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner`}
-            style={{ padding: 'var(--decom-spacing-4)' }}
-          >
+          <Card type="inner" style={{ padding: 'var(--decom-spacing-4)' }}>
             <Flex direction="column" gap={16}>
               <Grid columns={3}>
                 <TextField
@@ -86,7 +82,7 @@ const InvoiceId = () => {
               </Grid>
 
               <Card
-                className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-innerDark`}
+                type="innerDark"
                 style={{
                   padding: 'var(--decom-spacing-2) var(--decom-spacing-3)',
                 }}
@@ -116,7 +112,7 @@ const InvoiceId = () => {
             </Flex>
           </Card>
           <Card
-            className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}
+            type="large"
             style={{
               borderRadius: 'var(--decom-radius-rounded-lg)',
               border: '1px solid var(--decom-border-border)',

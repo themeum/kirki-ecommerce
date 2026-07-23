@@ -13,6 +13,7 @@ import { Card } from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
 import {
   Dialog,
+  DialogBody,
   DialogCloseButton,
   DialogContent,
   DialogFooter,
@@ -258,7 +259,7 @@ const TaxRegionPopup = (props: TaxRegionPopupProps) => {
           <DialogTitle>{__('Add tax region', 'kirki-ecommerce')}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <div className={`${CLASS_PREFIX}-ui-dialog-body`}>
+          <DialogBody>
             <Flex direction="column" gap={8}>
               <Label htmlFor="tax-region-search">
                 {__('Select countries', 'kirki-ecommerce')}
@@ -272,7 +273,7 @@ const TaxRegionPopup = (props: TaxRegionPopupProps) => {
             </Flex>
 
             <Card
-              className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-table`}
+              type="table"
               style={{ borderRadius: 'var(--decom-radius-rounded-md)' }}
             >
               <div
@@ -282,7 +283,7 @@ const TaxRegionPopup = (props: TaxRegionPopupProps) => {
                   overflowY: 'scroll',
                 }}
               >
-                <Flex className={`${CLASS_PREFIX}-popover-heading-wrapper-dark`}>
+                <Flex>
                   {__('Name', 'kirki-ecommerce')}
                 </Flex>
 
@@ -362,7 +363,7 @@ const TaxRegionPopup = (props: TaxRegionPopupProps) => {
                   })}
               </div>
             </Card>
-          </div>
+          </DialogBody>
           <DialogFooter>
             <Button variant="outline" size="sm" onClick={handleClose}>
               {__('Cancel', 'kirki-ecommerce')}

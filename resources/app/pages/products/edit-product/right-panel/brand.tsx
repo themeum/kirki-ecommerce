@@ -4,7 +4,6 @@ import { useFormContext } from 'react-hook-form';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Label from '@/components/ui/label';
-import { CLASS_PREFIX } from '@/conf';
 import { MinusIcon } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
@@ -91,7 +90,7 @@ const Brand = () => {
           <Label helpText={__('Brand', 'kirki-ecommerce')}>
             {__('Brand', 'kirki-ecommerce')}
           </Label>
-          <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner`}>
+          <Card type="inner">
             <CardContent>
               <Flex gap={8} style={{ alignItems: 'center' }}>
                 <Thumbnail src={brandLogo?.url} />

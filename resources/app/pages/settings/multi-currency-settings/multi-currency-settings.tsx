@@ -7,7 +7,6 @@ import PageNavbar from '@/components/page-navbar';
 import Button from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
-import { CLASS_PREFIX } from '@/conf';
 import { CurrencyIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
@@ -164,7 +163,7 @@ const MultiCurrencySettings = () => {
                 handleBack={handleBackButton}
               />
 
-              <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
+              <Card type="large">
                 <Text
                   header={__('Currency Management', 'kirki-ecommerce')}
                   subHeader={__(
@@ -177,7 +176,7 @@ const MultiCurrencySettings = () => {
                 <AvailableCurrencyList />
                 <ApiConfig />
               </Card>
-              <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
+              <Card type="large">
                 <Text
                   header={__('Currency Preferences', 'kirki-ecommerce')}
                   subHeader={__(

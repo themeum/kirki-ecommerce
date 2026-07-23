@@ -1,3 +1,4 @@
+import { type SerializedStyles } from '@emotion/react';
 import type { ReactNode } from 'react';
 import {
   useFormContext,
@@ -22,7 +23,7 @@ type CountryFieldProps<
   name: TName;
   label?: string;
   description?: ReactNode;
-  className?: string;
+  css?: SerializedStyles;
 };
 
 const CountryField = <
@@ -32,7 +33,7 @@ const CountryField = <
   name,
   label = __('Country / Region', 'kirki-ecommerce'),
   description,
-  className,
+  css,
 }: CountryFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
 
@@ -41,7 +42,7 @@ const CountryField = <
       control={control}
       name={name}
       render={({ field, fieldState }) => (
-        <FormItem className={className}>
+        <FormItem css={css}>
           <FormControl>
             <CountrySelector
               label={label}

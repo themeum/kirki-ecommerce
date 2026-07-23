@@ -1,27 +1,17 @@
-import { forwardRef, type CSSProperties, type ReactNode } from 'react';
-import classNames from 'classnames';
+import { css } from '@emotion/react';
+import { forwardRef, type ComponentPropsWithoutRef } from 'react';
 
 import Flex from '@/components/ui/flex';
-import { CLASS_PREFIX } from '@/conf';
+import { scoped } from '@/theme/mixins';
 
-type ActionGroupProps = {
-  children?: ReactNode;
-  style?: CSSProperties;
-  className?: string;
-  gap?: number;
-};
+type ActionGroupProps = ComponentPropsWithoutRef<typeof Flex>;
 
 const ActionGroup = forwardRef<HTMLDivElement, ActionGroupProps>(
   (props, ref) => {
-    const { children, style = {}, className, gap = 8 } = props;
+    const { css: cssProp, gap = 8, children, ...rest } = props;
 
     return (
-      <Flex
-        ref={ref}
-        className={classNames(`${CLASS_PREFIX}-ui-action-group`, className)}
-        gap={gap}
-        style={style}
-      >
+      <Flex ref={ref} gap={gap} css={css(styles.root, cssProp)} {...rest}>
         {children}
       </Flex>
     );
@@ -31,3 +21,10 @@ const ActionGroup = forwardRef<HTMLDivElement, ActionGroupProps>(
 ActionGroup.displayName = 'ActionGroup';
 
 export default ActionGroup;
+
+const styles = {
+  root: scoped({
+    marginLeft: 'auto',
+    alignItems: 'center',
+  }),
+};

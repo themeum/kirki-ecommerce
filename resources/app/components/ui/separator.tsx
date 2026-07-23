@@ -1,21 +1,28 @@
+import type { SerializedStyles } from '@emotion/react';
+import * as SeparatorPrimitive from '@radix-ui/react-separator';
 import {
   forwardRef,
   type ComponentPropsWithoutRef,
   type CSSProperties,
   type ElementRef,
 } from 'react';
-import * as SeparatorPrimitive from '@radix-ui/react-separator';
-import classNames from 'classnames';
 
-import { CLASS_PREFIX } from '@/conf';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 
-type SeparatorProps = ComponentPropsWithoutRef<
-  typeof SeparatorPrimitive.Root
+type SeparatorProps = Omit<
+  ComponentPropsWithoutRef<typeof SeparatorPrimitive.Root>,
+  'className' | 'css'
 > & {
   marginTop?: string | number;
   marginBottom?: string | number;
   color?: string;
   height?: string | number;
+  css?: SerializedStyles;
+};
+
+const toCssLength = (value: string | number) => {
+  return typeof value === 'number' ? `${value}px` : value;
 };
 
 const Separator = forwardRef<
@@ -23,7 +30,7 @@ const Separator = forwardRef<
   SeparatorProps
 >((props, ref) => {
   const {
-    className,
+    css: cssProp,
     orientation = 'horizontal',
     decorative = true,
     marginTop,
@@ -34,29 +41,31 @@ const Separator = forwardRef<
     ...rest
   } = props;
 
-  const resolvedStyle: CSSProperties = {
-    ...(marginTop !== undefined ? { marginTop } : null),
-    ...(marginBottom !== undefined ? { marginBottom } : null),
-    ...(color !== undefined ? { backgroundColor: color } : null),
+  const separatorStyle = {
+    ...(marginTop !== undefined
+      ? { '--separator-margin-top': toCssLength(marginTop) }
+      : {}),
+    ...(marginBottom !== undefined
+      ? { '--separator-margin-bottom': toCssLength(marginBottom) }
+      : {}),
+    ...(color !== undefined ? { '--separator-color': color } : {}),
     ...(height !== undefined
-      ? orientation === 'horizontal'
-        ? { height }
-        : { width: height }
-      : null),
+      ? { '--separator-size': toCssLength(height) }
+      : {}),
     ...style,
-  };
+  } as CSSProperties;
 
   return (
     <SeparatorPrimitive.Root
       ref={ref}
       decorative={decorative}
       orientation={orientation}
-      className={classNames(
-        `${CLASS_PREFIX}-ui-separator`,
-        `${CLASS_PREFIX}-ui-separator--${orientation}`,
-        className,
-      )}
-      style={resolvedStyle}
+      style={separatorStyle}
+      css={[
+        styles.root,
+        orientation === 'horizontal' ? styles.horizontal : styles.vertical,
+        cssProp,
+      ]}
       {...rest}
     />
   );
@@ -65,3 +74,21 @@ const Separator = forwardRef<
 Separator.displayName = 'Separator';
 
 export { Separator };
+
+const styles = {
+  root: scoped({
+    flexShrink: 0,
+    backgroundColor: `var(--separator-color, ${theme.colors.border.default})`,
+    border: 'none',
+    marginTop: 'var(--separator-margin-top, 0)',
+    marginBottom: 'var(--separator-margin-bottom, 0)',
+  }),
+  horizontal: scoped({
+    height: 'var(--separator-size, 1px)',
+    width: '100%',
+  }),
+  vertical: scoped({
+    height: '100%',
+    width: 'var(--separator-size, 1px)',
+  }),
+};

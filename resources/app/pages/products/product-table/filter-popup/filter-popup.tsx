@@ -8,6 +8,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import Flex from '@/components/ui/flex';
+import { FormFieldRow } from '@/components/ui/form';
 import Label from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
@@ -18,7 +19,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import Text from '@/components/ui/text';
-import { CLASS_PREFIX } from '@/conf';
 import { useListParams } from '@/hooks';
 import { CloseIcon, ListFilter } from '@/icons';
 import { __, sprintf } from '@/wpi18n';
@@ -219,10 +219,7 @@ const FilterPopup = ({
                 { value: 'draft', label: __('Draft', 'kirki-ecommerce') },
                 { value: 'all', label: __('All', 'kirki-ecommerce') },
               ].map((option) => (
-                <div
-                  key={option.value}
-                  className={`${CLASS_PREFIX}-ui-radio-field-row`}
-                >
+                <FormFieldRow key={option.value}>
                   <RadioGroupItem
                     value={option.value}
                     id={`filter-status-${option.value}`}
@@ -230,7 +227,7 @@ const FilterPopup = ({
                   <Label htmlFor={`filter-status-${option.value}`}>
                     {option.label}
                   </Label>
-                </div>
+                </FormFieldRow>
               ))}
             </RadioGroup>
           </Flex>

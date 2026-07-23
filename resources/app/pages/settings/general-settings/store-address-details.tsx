@@ -1,7 +1,6 @@
 import CountryField from '@/components/form/country-field';
 import TextField from '@/components/form/text-field';
 import { Card } from '@/components/ui/card';
-import { CLASS_PREFIX } from '@/conf';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { __ } from '@/wpi18n';
@@ -9,7 +8,7 @@ import { __ } from '@/wpi18n';
 const StoreAddressDetails = () => {
   return (
     <div>
-      <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
+      <Card type="large">
         <Text
           header={__('Store address', 'kirki-ecommerce')}
           subHeader={__(
@@ -20,10 +19,7 @@ const StoreAddressDetails = () => {
           style={{ gap: 'var(--decom-spacing-f3)' }}
         />
 
-        <Card
-          className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner`}
-          style={{ padding: 'var(--decom-spacing-4)' }}
-        >
+        <Card type="inner" style={{ padding: 'var(--decom-spacing-4)' }}>
           <Flex direction="column" gap={16}>
             <TextField
               name="store_address.address_line_1"

@@ -1,3 +1,4 @@
+import { type SerializedStyles } from '@emotion/react';
 import {
   forwardRef,
   type ComponentProps,
@@ -5,13 +6,13 @@ import {
   type ReactNode,
 } from 'react';
 import { ArrowLeft } from 'lucide-react';
-import classNames from 'classnames';
 
 import Button from '@/components/ui/button';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import Heading from '@/components/ui/heading';
-import { CLASS_PREFIX } from '@/conf';
+import { theme } from '@/theme';
+import { flexCenter, itemCenter, scoped } from '@/theme/mixins';
 import type { ContainerSize, HeadingType } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -22,24 +23,24 @@ type PageHeadingProps = {
   size?: ContainerSize;
   sticky?: boolean;
   children?: ReactNode;
-  className?: string;
   style?: CSSProperties;
   actions?: ReactNode;
   leftIcon?: ReactNode;
   noMargin?: boolean;
   buttonProps?: Partial<ComponentProps<typeof Button>>;
+  css?: SerializedStyles;
 };
 
 const PageHeading = forwardRef<HTMLDivElement, PageHeadingProps>(
   (props, ref) => {
     const {
+      css: cssProp,
       type = '',
       text = __('Button', 'kirki-ecommerce'),
       hasBack = false,
       size,
       sticky,
       children,
-      className,
       style = {},
       actions,
       leftIcon,
@@ -48,7 +49,7 @@ const PageHeading = forwardRef<HTMLDivElement, PageHeadingProps>(
     } = props;
 
     const {
-      className: buttonClassName,
+      css: buttonCss,
       children: buttonChildren,
       onClick: buttonOnClick,
       ...restButtonProps
@@ -57,26 +58,26 @@ const PageHeading = forwardRef<HTMLDivElement, PageHeadingProps>(
     return (
       <div
         ref={ref}
-        className={classNames(
-          `${CLASS_PREFIX}-ui-heading-wrapper`,
-          sticky && `${CLASS_PREFIX}-ui-heading-wrapper--sticky`,
-          noMargin && `${CLASS_PREFIX}-ui-heading-wrapper--no-margin`,
-        )}
+        css={[
+          styles.wrapper,
+          sticky && styles.wrapperSticky,
+          noMargin && styles.wrapperNoMargin,
+        ]}
       >
         <Container size={size} style={{ width: '100%' }}>
           <div
-            className={classNames(
-              `${CLASS_PREFIX}-ui-page-heading`,
-              hasBack && `${CLASS_PREFIX}-ui-page-heading--has-back`,
-              className,
-            )}
+            css={[
+              styles.heading,
+              hasBack && styles.headingHasBack,
+              cssProp,
+            ]}
             style={style}
           >
             {hasBack && (
               <Button
                 variant="link"
                 size="sm"
-                className={buttonClassName}
+                css={buttonCss}
                 onClick={(event) => {
                   if (buttonOnClick) {
                     buttonOnClick(event);
@@ -91,19 +92,13 @@ const PageHeading = forwardRef<HTMLDivElement, PageHeadingProps>(
               </Button>
             )}
             {leftIcon && (
-              <span
-                className={`${CLASS_PREFIX}-ui-page-heading-icon`}
-                aria-hidden="true"
-              >
+              <span css={styles.icon} aria-hidden="true">
                 {leftIcon}
               </span>
             )}
             <Heading type={type} text={text} />
             {children}
-            <Flex
-              className={`${CLASS_PREFIX}-ui-page-heading-actions`}
-              gap={8}
-            >
+            <Flex css={styles.actions} gap={8}>
               {actions}
             </Flex>
           </div>
@@ -116,3 +111,42 @@ const PageHeading = forwardRef<HTMLDivElement, PageHeadingProps>(
 PageHeading.displayName = 'PageHeading';
 
 export default PageHeading;
+
+const styles = {
+  wrapper: scoped({
+    marginBottom: theme.spacing['6xl'],
+    marginTop: theme.spacing['6xl'],
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  }),
+  wrapperSticky: scoped({
+    top: '32px',
+    left: 0,
+    padding: `${theme.spacing['2xl']} ${theme.spacing.none}`,
+    marginTop: theme.spacing.none,
+    position: 'sticky',
+    borderBottom: `1px solid ${theme.colors.border.default}`,
+    backgroundColor: theme.colors.background.surfaceTertiary,
+    zIndex: 100,
+  }),
+  wrapperNoMargin: scoped({
+    marginTop: theme.spacing.none,
+    marginBottom: theme.spacing.none,
+  }),
+  heading: scoped({
+    width: '100%',
+    ...itemCenter(),
+    columnGap: theme.spacing.lg,
+    paddingLeft: theme.spacing.sm,
+  }),
+  headingHasBack: scoped({
+    paddingLeft: theme.spacing.none,
+  }),
+  icon: scoped({
+    ...flexCenter(),
+  }),
+  actions: scoped({
+    marginLeft: 'auto',
+  }),
+};

@@ -1,3 +1,4 @@
+import { css } from '@emotion/react';
 import { useState } from 'react';
 import {
   DndContext,
@@ -37,6 +38,14 @@ type SortableData = {
     index: number;
   };
 };
+
+const dragHandlerButtonCss = css({
+  borderRadius: 'var(--decom-radius-rounded-full)',
+  cursor: 'grab',
+  '&:active': {
+    cursor: 'grabbing',
+  },
+});
 
 type SortableItemProps = {
   id: string;
@@ -128,7 +137,7 @@ const SortableItem = ({
                 ? `scale(${normalizedScaleX}, ${normalizedScaleY})`
                 : '',
             }}
-            className={`${CLASS_PREFIX}-gallery-item-drag-handler`}
+            css={dragHandlerButtonCss}
           >
             <MoveIcon {...(isLarge ? { width: '20', height: '20' } : {})} />
           </Button>

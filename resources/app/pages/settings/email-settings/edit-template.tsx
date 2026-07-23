@@ -20,7 +20,6 @@ import PageHeading from '@/components/ui/page-heading';
 import ProgressBar from '@/components/ui/progressbar';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Text from '@/components/ui/text';
-import { CLASS_PREFIX } from '@/conf';
 import {
   AlignCenterIcon,
   AlignLeftIcon,
@@ -164,10 +163,7 @@ const EditTemplate = () => {
           <Form {...form}>
             <Flex gap={48} style={{ width: '100%' }}>
               <Flex direction="column" gap={20} style={{ width: '44%' }}>
-                <Card
-                  className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}
-                  style={{ borderRadius: '8px' }}
-                >
+                <Card type="large" style={{ borderRadius: '8px' }}>
                   <Text
                     type="primary"
                     header={'Logo'}
@@ -240,10 +236,7 @@ const EditTemplate = () => {
                     )}
                   />
                 </Card>
-                <Card
-                  className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}
-                  style={{ borderRadius: '8px' }}
-                >
+                <Card type="large" style={{ borderRadius: '8px' }}>
                   <Text
                     header={'Colors'}
                     subHeader={'Style how the emails will look'}
@@ -283,10 +276,7 @@ const EditTemplate = () => {
                     leftIcon={<SendIcon />}
                   />
                 </Flex>
-                <Card
-                  className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-default`}
-                  style={{ borderRadius: '0px' }}
-                ></Card>
+                <Card type="default" style={{ borderRadius: '0px' }}></Card>
               </Flex>
             </Flex>
           </Form>

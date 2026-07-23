@@ -2,7 +2,6 @@ import { type Dispatch, type SetStateAction } from 'react';
 
 import Button from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { CLASS_PREFIX } from '@/conf';
 import { EditIcon, FlagIcon, RadioTickIcon } from '@/icons';
 import Badge from '@/components/ui/badge';
 import Flex from '@/components/ui/flex';
@@ -51,7 +50,7 @@ const ApiConfigurationCard = ({
   const usage = dataObj?.usage as ApiUsage | null | undefined;
 
   return (
-    <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-default`}>
+    <Card type="default">
       <Flex direction={'column'} gap={20}>
         <Flex
           style={{
@@ -112,7 +111,7 @@ const ApiConfigurationCard = ({
           </Flex>
         )}
         <Card
-          className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-innerDark`}
+          type="innerDark"
           style={{
             display: 'flex',
             flexDirection: 'column',

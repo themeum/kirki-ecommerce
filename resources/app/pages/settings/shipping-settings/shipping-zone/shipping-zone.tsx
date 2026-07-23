@@ -14,7 +14,6 @@ import Button from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
-import { CLASS_PREFIX } from '@/conf';
 import { getErrorsObject } from '@/libs/api';
 import { useUnsavedStatus } from '@/libs/unsaved-store';
 import { dispatchToastMessage, normalizeErrors } from '@/pages/utils';
@@ -260,10 +259,7 @@ const ShippingZonePage = () => {
               text={__('Set Zone Details', 'kirki-ecommerce')}
               handleBack={handleBackButton}
             />
-            <Card
-              className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}
-              style={{ gap: 'var(--decom-spacing-4)' }}
-            >
+            <Card type="large" style={{ gap: 'var(--decom-spacing-4)' }}>
               <Flex direction="column" gap={8}>
                 <Label
                   htmlFor="shipping-zone-title"

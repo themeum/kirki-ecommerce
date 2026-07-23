@@ -10,7 +10,6 @@ import HeaderActionsCard from '@/components/header-actions-card';
 import Button from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
-import { CLASS_PREFIX } from '@/conf';
 import { getErrorsObject, type ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { useUnsavedStatus } from '@/libs/unsaved-store';
@@ -279,7 +278,7 @@ const ShippingSettings = () => {
                 textIcon={<TruckIcon />}
                 text={__('Shipping', 'kirki-ecommerce')}
               />
-              <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
+              <Card type="large">
                 <HeaderActionsCard
                   header={__('Shipping Zones', 'kirki-ecommerce')}
                   subHeader={__(
@@ -292,7 +291,7 @@ const ShippingSettings = () => {
 
                 {!shippingZonesObj.length ? (
                   <Card
-                    className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner-dark`}
+                    type="innerDark"
                     style={{
                       padding: 'var(--decom-spacing-9) var(--decom-spacing-0)',
                     }}

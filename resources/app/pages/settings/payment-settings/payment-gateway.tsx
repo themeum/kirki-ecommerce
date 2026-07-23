@@ -3,7 +3,6 @@ import { useState } from 'react';
 import DropdownButton from '@/components/dropdown-button';
 import HeaderActionsCard from '@/components/header-actions-card';
 import { Card } from '@/components/ui/card';
-import { CLASS_PREFIX } from '@/conf';
 import { MapIcon, StripeIcon, ShowMoreIcon } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
 import Badge from '@/components/ui/badge';
@@ -78,7 +77,7 @@ const PaymentGatewayComponent = (props: PaymentGatewayProps) => {
 
   return (
     <>
-      <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
+      <Card type="large">
         <HeaderActionsCard
           header={__('Payment gateways', 'kirki-ecommerce')}
           subHeader={__(
@@ -89,10 +88,7 @@ const PaymentGatewayComponent = (props: PaymentGatewayProps) => {
           onAdd={() => setIsEditPopupOpen(true)}
         />
         {paymentGatewayList?.length === 0 ? (
-          <Card
-            className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-innerDark`}
-            style={{ padding: '36px 0' }}
-          >
+          <Card type="innerDark" style={{ padding: '36px 0' }}>
             <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
               <MapIcon />
               <span style={{ color: '#878593' }}>
@@ -104,7 +100,7 @@ const PaymentGatewayComponent = (props: PaymentGatewayProps) => {
           <Flex direction="column" gap={16}>
             {paymentGatewayList?.map((item, index) => (
               <Card
-                className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner`}
+                type="inner"
                 key={index}
                 style={{
                   padding: 'var(--decom-spacing-3) var(--decom-spacing-4)',
