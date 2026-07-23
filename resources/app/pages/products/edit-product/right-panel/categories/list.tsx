@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import type { Category } from '@/types';
 
 import SingleItem from '@/pages/products/edit-product/right-panel/categories/single-item';
@@ -27,9 +29,11 @@ const List = ({
   const data = categories.filter(
     (category) => category.parent_id === parent_id,
   );
+
   const handleParentCategorySelect = (value: boolean, category: Category) => {
     onSelectCategory(value, category);
   };
+
   return (
     <div>
       {data.map((category) => (
@@ -39,7 +43,7 @@ const List = ({
             selectedCategories={selectedCategories}
             onSelectCategory={(v) => handleParentCategorySelect(v, category)}
           />
-          <div style={{ paddingLeft: '16px' }}>
+          <div css={styles.nested}>
             <List
               categories={categories}
               parent_id={category.id}
@@ -53,4 +57,12 @@ const List = ({
   );
 };
 
+List.displayName = 'List';
+
 export default List;
+
+const styles = {
+  nested: scoped({
+    paddingLeft: theme.spacing['2xl'],
+  }),
+};

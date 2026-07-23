@@ -1,11 +1,13 @@
 import { useFormContext } from 'react-hook-form';
 
-import { Card, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
-import Label from '@/components/ui/label';
 import Flex from '@/components/ui/flex';
+import Label from '@/components/ui/label';
 import type { ProductRightPanelFormValues } from '@/schemas/forms/product-right-panel-form';
 import { useCategoriesQuery } from '@/services/category';
+import { theme } from '@/theme';
+import { itemCenter, scoped } from '@/theme/mixins';
 import type { Category, ProductCategoryRef } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -170,14 +172,18 @@ const Categories = () => {
   };
 
   return (
-    <Card type="form">
-      <CardContent>
+    <Card type="form" css={styles.card}>
+      <div css={styles.header}>
         <Label>{__('Categories', 'kirki-ecommerce')}</Label>
-        {!loaded && <div>{__('Loading...', 'kirki-ecommerce')}</div>}
-        {loaded && (
-          <>
-            {categories.length > 0 && (
-              <div>
+      </div>
+      {!loaded && (
+        <div css={styles.loading}>{__('Loading...', 'kirki-ecommerce')}</div>
+      )}
+      {loaded && (
+        <>
+          {categories.length > 0 && (
+            <div css={styles.list}>
+              <div css={styles.row}>
                 <Flex gap={8} style={{ alignItems: 'center' }}>
                   <Checkbox
                     id="categories-all-products"
@@ -193,18 +199,20 @@ const Categories = () => {
                     {__('All Products', 'kirki-ecommerce')}
                   </Label>
                 </Flex>
-                <List
-                  categories={categories}
-                  parent_id={null}
-                  selectedCategories={selectedCategories}
-                  onSelectCategory={onSelectCategory}
-                />
               </div>
-            )}
+              <List
+                categories={categories}
+                parent_id={null}
+                selectedCategories={selectedCategories}
+                onSelectCategory={onSelectCategory}
+              />
+            </div>
+          )}
+          <div css={styles.footer}>
             <AddNewCategory />
-          </>
-        )}
-      </CardContent>
+          </div>
+        </>
+      )}
     </Card>
   );
 };
@@ -212,3 +220,46 @@ const Categories = () => {
 Categories.displayName = 'Categories';
 
 export default Categories;
+
+const styles = {
+  card: scoped({
+    padding: theme.spacing.none,
+    rowGap: theme.spacing.none,
+    overflow: 'hidden',
+  }),
+  header: scoped({
+    padding: theme.spacing['2xl'],
+  }),
+  list: scoped({
+    width: '100%',
+    maxHeight: '300px',
+    overflowY: 'auto',
+    scrollbarWidth: 'thin',
+    scrollbarColor: `${theme.colors.background.fillBrand} ${theme.colors.background.surfaceTertiary}`,
+    '&::-webkit-scrollbar': {
+      width: '4px',
+      WebkitAppearance: 'none',
+    },
+    '&::-webkit-scrollbar-track': {
+      background: theme.colors.background.fill,
+    },
+    '&::-webkit-scrollbar-thumb': {
+      backgroundColor: theme.colors.background.fillBrand,
+      borderRadius: theme.radius.sm,
+    },
+  }),
+  row: scoped({
+    width: '100%',
+    boxSizing: 'border-box',
+    padding: `${theme.spacing.md} ${theme.spacing['2xl']}`,
+    ...itemCenter(),
+  }),
+  footer: scoped({
+    width: '100%',
+    padding: `${theme.spacing.md} ${theme.spacing['2xl']} ${theme.spacing['2xl']}`,
+    boxSizing: 'border-box',
+  }),
+  loading: scoped({
+    padding: `0 ${theme.spacing['2xl']} ${theme.spacing['2xl']}`,
+  }),
+};

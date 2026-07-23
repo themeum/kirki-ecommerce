@@ -6,9 +6,10 @@ import {
   type KeyboardEvent,
   type ReactNode,
 } from 'react';
-import { css, type SerializedStyles } from '@emotion/react';
+import { css, type SerializedStyles, type Theme } from '@emotion/react';
 import { Minus, PlusCircle } from 'lucide-react';
 
+import Chip from '@/components/ui/chip';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
 import {
@@ -17,9 +18,8 @@ import {
   PopoverContent,
 } from '@/components/ui/popover';
 import { Separator } from '@/components/ui/separator';
-import Chip from '@/components/ui/chip';
 import { theme } from '@/theme';
-import { itemCenter, scoped } from '@/theme/mixins';
+import { itemCenter, scoped, uiFocusRing } from '@/theme/mixins';
 import type { LabelFieldProps, SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -79,7 +79,7 @@ const Suggestions = (props: SuggestionsProps) => {
 
   const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState(value ?? '');
-  const anchorRef = useRef<HTMLDivElement>(null);
+  const fieldRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setInputValue(value ?? '');
@@ -107,6 +107,8 @@ const Suggestions = (props: SuggestionsProps) => {
   }, [suggestions, selectedValues, inputValue]);
 
   const canOpen = hasAddBtn || filteredSuggestions.length > 0;
+  const hasSelectedItems = selectedItems.length > 0;
+  const canAddItem = inputValue.trim().length > 0;
 
   const handleSearchChange = (nextValue: string) => {
     setInputValue(nextValue);
@@ -151,113 +153,129 @@ const Suggestions = (props: SuggestionsProps) => {
           {label}
         </Label>
       )}
-      <div css={styles.shell}>
-        <Popover open={isOpen} onOpenChange={setIsOpen}>
-          <PopoverAnchor asChild>
-            <div ref={anchorRef} css={styles.inputWrap}>
-              <Input
-                key={searchKey}
-                value={inputValue}
-                placeholder={placeholder}
-                error={Boolean(error)}
-                readOnly={readOnly}
-                css={css([
-                  styles.input,
-                  selectedItems.length > 0 && styles.inputBorderNone,
-                ])}
-                onChange={(event) => handleSearchChange(event.target.value)}
-                onBlur={onBlur}
-                onClick={handleInputClick}
-                onKeyDown={handleInputKeyDown}
-              />
-            </div>
-          </PopoverAnchor>
-          {canOpen && (
-            <PopoverContent
-              align="start"
-              sideOffset={4}
-              role="listbox"
-              css={styles.content}
-              onOpenAutoFocus={(event) => event.preventDefault()}
-              onCloseAutoFocus={(event) => event.preventDefault()}
-              onInteractOutside={(event) => {
-                if (anchorRef.current?.contains(event.target as Node)) {
-                  event.preventDefault();
-                }
-              }}
-            >
-              {hasAddBtn && (
-                <>
-                  <div
-                    role="option"
-                    tabIndex={0}
-                    css={styles.item}
-                    onClick={() => handleAddItem(inputValue)}
-                    onKeyDown={(event) => {
-                      if (event.key === 'Enter' || event.key === ' ') {
-                        event.preventDefault();
-                        handleAddItem(inputValue);
-                      }
-                    }}
-                  >
-                    <span css={styles.itemIcon}>
-                      <PlusCircle size={16} aria-hidden="true" />
-                    </span>
-                    <span>{addItemLabel}</span>
-                  </div>
-                  {filteredSuggestions.length > 0 && <Separator />}
-                </>
-              )}
-              {filteredSuggestions.map((option, index) => (
+      <Popover open={isOpen} onOpenChange={setIsOpen}>
+        <PopoverAnchor asChild>
+          <div
+            ref={fieldRef}
+            data-error={error ? 'true' : undefined}
+            css={styles.field}
+          >
+            <Input
+              key={searchKey}
+              value={inputValue}
+              placeholder={placeholder}
+              readOnly={readOnly}
+              css={css([
+                styles.input,
+                hasSelectedItems && styles.inputWithChips,
+              ])}
+              onChange={(event) => handleSearchChange(event.target.value)}
+              onBlur={onBlur}
+              onClick={handleInputClick}
+              onKeyDown={handleInputKeyDown}
+            />
+            {hasSelectedItems && (
+              <div css={styles.chips}>
+                {selectedItems.map((item, index) => (
+                  <Chip
+                    key={`${item.value}-${index}`}
+                    text={item.title}
+                    img={item.tagIcon}
+                    subText={item.subText}
+                    color={item.color}
+                    onRemove={() => onRemove(item)}
+                    closeIcon={
+                      showRemoveIcon ? (
+                        <Minus size={14} aria-hidden="true" />
+                      ) : undefined
+                    }
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        </PopoverAnchor>
+        {canOpen && (
+          <PopoverContent
+            align="start"
+            sideOffset={4}
+            role="listbox"
+            css={styles.content}
+            onOpenAutoFocus={(event) => event.preventDefault()}
+            onCloseAutoFocus={(event) => event.preventDefault()}
+            onInteractOutside={(event) => {
+              if (fieldRef.current?.contains(event.target as Node)) {
+                event.preventDefault();
+              }
+            }}
+          >
+            {hasAddBtn && (
+              <>
                 <div
                   role="option"
-                  tabIndex={0}
-                  css={styles.item}
-                  key={`${option.value}-${index}`}
-                  onClick={() => handleSelect(option)}
+                  tabIndex={canAddItem ? 0 : -1}
+                  aria-disabled={!canAddItem}
+                  css={[styles.item, !canAddItem && styles.itemDisabled]}
+                  onClick={() => {
+                    if (!canAddItem) {
+                      return;
+                    }
+                    handleAddItem(inputValue);
+                  }}
                   onKeyDown={(event) => {
+                    if (!canAddItem) {
+                      return;
+                    }
                     if (event.key === 'Enter' || event.key === ' ') {
                       event.preventDefault();
-                      handleSelect(option);
+                      handleAddItem(inputValue);
                     }
                   }}
                 >
-                  {option.leftIcon && (
-                    <div css={styles.itemIcon}>{option.leftIcon}</div>
-                  )}
-                  {option.color && (
-                    <div
-                      css={styles.swatch}
-                      style={{ background: option.color }}
-                      aria-hidden="true"
-                    />
-                  )}
-                  <div css={styles.itemText}>{option.title}</div>
+                  <span css={styles.itemIcon}>
+                    <PlusCircle size={16} aria-hidden="true" />
+                  </span>
+                  <span>{addItemLabel}</span>
                 </div>
-              ))}
-            </PopoverContent>
-          )}
-        </Popover>
-        {selectedItems.length > 0 && (
-          <div css={styles.chips}>
-            {selectedItems.map((item, index) => (
-              <Chip
-                key={`${item.value}-${index}`}
-                text={item.title}
-                img={item.tagIcon}
-                subText={item.subText}
-                color={item.color}
-                onRemove={() => onRemove(item)}
-                closeIcon={
-                  showRemoveIcon ? (
-                    <Minus size={14} aria-hidden="true" />
-                  ) : undefined
-                }
-              />
+                {filteredSuggestions.length > 0 && (
+                  <Separator
+                    marginTop={theme.spacing.sm}
+                    marginBottom={theme.spacing.sm}
+                    css={styles.separator}
+                  />
+                )}
+              </>
+            )}
+            {filteredSuggestions.map((option, index) => (
+              <div
+                role="option"
+                tabIndex={0}
+                css={styles.item}
+                key={`${option.value}-${index}`}
+                onClick={() => handleSelect(option)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    handleSelect(option);
+                  }
+                }}
+              >
+                {option.leftIcon && (
+                  <div css={styles.itemIcon}>{option.leftIcon}</div>
+                )}
+                {option.color && (
+                  <div
+                    css={styles.swatch}
+                    style={{ background: option.color }}
+                    aria-hidden="true"
+                  />
+                )}
+                <div css={styles.itemText}>{option.title}</div>
+              </div>
             ))}
-          </div>
+          </PopoverContent>
         )}
-      </div>
+      </Popover>
     </div>
   );
 };
@@ -274,26 +292,41 @@ const styles = {
     flexDirection: 'column',
     gap: theme.spacing.md,
   }),
-  shell: scoped({
-    overflow: 'hidden',
-  }),
-  inputWrap: scoped({
-    position: 'relative',
+  field: scoped({
     width: '100%',
+    border: `1px solid ${theme.colors.border.default}`,
+    borderRadius: theme.radius.lg,
+    backgroundColor: theme.colors.background.fill,
+    boxSizing: 'border-box',
+    overflow: 'hidden',
+    '&:focus-within': {
+      borderColor: theme.colors.border.default,
+      ...uiFocusRing(theme as Theme),
+    },
+    '&[data-error="true"]': {
+      borderColor: theme.colors.border.critical,
+      '&:focus-within': {
+        borderColor: theme.colors.border.critical,
+        ...uiFocusRing(theme as Theme, theme.colors.border.critical),
+      },
+    },
   }),
   input: scoped({
-    backgroundColor: theme.colors.background.fill,
     width: '100%',
+    border: 'none',
+    borderRadius: theme.radius.none,
+    backgroundColor: 'transparent',
     outline: 'none',
     cursor: 'text',
-  }),
-  inputBorderNone: scoped({
-    borderBottom: 'none',
-    borderRadius: `${theme.radius.lg} ${theme.radius.lg} ${theme.radius.none} ${theme.radius.none}`,
-    '&:focus': {
+    boxShadow: 'none',
+    '&:focus, &:focus-visible': {
       outline: 'none',
       boxShadow: 'none',
+      borderColor: 'transparent',
     },
+  }),
+  inputWithChips: scoped({
+    borderBottom: `1px solid ${theme.colors.border.default}`,
   }),
   content: scoped({
     width: 'var(--radix-popover-trigger-width)',
@@ -318,6 +351,11 @@ const styles = {
       borderRadius: theme.radius.sm,
     },
   }),
+  separator: scoped({
+    width: `calc(100% + ${theme.spacing.xs} + ${theme.spacing.xs})`,
+    marginLeft: `-${theme.spacing.xs}`,
+    marginRight: `-${theme.spacing.xs}`,
+  }),
   item: scoped({
     padding: `${theme.spacing.sm} ${theme.spacing.md}`,
     ...itemCenter(),
@@ -327,6 +365,14 @@ const styles = {
     cursor: 'pointer',
     '&:hover': {
       backgroundColor: theme.colors.background.surfaceSecondary,
+    },
+  }),
+  itemDisabled: scoped({
+    opacity: 0.5,
+    cursor: 'not-allowed',
+    pointerEvents: 'none',
+    '&:hover': {
+      backgroundColor: 'transparent',
     },
   }),
   itemIcon: scoped({
@@ -342,11 +388,7 @@ const styles = {
   }),
   chips: scoped({
     minHeight: '52.2px',
-    backgroundColor: theme.colors.background.fill,
-    border: `1px solid ${theme.colors.border.default}`,
     padding: theme.spacing.lg,
-    borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.lg} ${theme.radius.lg}`,
-    overflow: 'hidden',
     ...itemCenter(),
     justifyContent: 'flex-start',
     gap: theme.spacing.md,
