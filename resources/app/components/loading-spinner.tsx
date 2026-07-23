@@ -1,34 +1,43 @@
+import { keyframes } from '@emotion/react';
+
+import { theme } from '@/theme';
+import { flexCenter, scoped } from '@/theme/mixins';
+import { __ } from '@/wpi18n';
+
 const LoadingSpinner = () => {
   return (
     <div
-      className="kirki-ecom-page-loading"
+      css={styles.root}
       role="status"
-      aria-label="Loading page"
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: '200px',
-        width: '100%',
-      }}
+      aria-label={__('Loading page', 'kirki-ecommerce')}
     >
-      <span
-        style={{
-          width: '32px',
-          height: '32px',
-          border: '3px solid var(--decom-border-border-secondary, #e5e5e5)',
-          borderTopColor: 'var(--decom-background-bg-brand, #2271b1)',
-          borderRadius: '50%',
-          animation: 'kirki-ecom-spin 0.8s linear infinite',
-        }}
-      />
-      <style>{`
-        @keyframes kirki-ecom-spin {
-          to { transform: rotate(360deg); }
-        }
-      `}</style>
+      <span css={styles.spinner} />
     </div>
   );
 };
 
+LoadingSpinner.displayName = 'LoadingSpinner';
+
 export default LoadingSpinner;
+
+const spinnerSpin = keyframes({
+  to: {
+    transform: 'rotate(360deg)',
+  },
+});
+
+const styles = {
+  root: scoped({
+    ...flexCenter(),
+    minHeight: '200px',
+    width: '100%',
+  }),
+  spinner: scoped({
+    width: '32px',
+    height: '32px',
+    border: `3px solid ${theme.colors.border.secondary}`,
+    borderTopColor: theme.colors.background.fillBrand,
+    borderRadius: theme.radius.full,
+    animation: `${spinnerSpin} 0.8s linear infinite`,
+  }),
+};

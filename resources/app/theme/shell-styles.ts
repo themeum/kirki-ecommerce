@@ -1,6 +1,5 @@
 import { keyframes, type CSSObject, type Theme } from '@emotion/react';
 
-import { APP_PREFIX } from '@/conf';
 import { APP_ROOT_SELECTOR } from '@/theme/mixins';
 
 const pageEnterKeyframes = keyframes({
@@ -15,11 +14,11 @@ const pageEnterKeyframes = keyframes({
 });
 
 /**
- * WordPress admin shell and route transition styles ported from global.scss and page-enter.scss.
+ * WordPress admin shell styles ported from global.scss.
  *
  * @param theme Current Emotion theme.
  *
- * @returns CSS object for shell layout and page-enter animation.
+ * @returns CSS object for shell layout.
  */
 const getShellStyles = (theme: Theme): CSSObject => {
   return {
@@ -28,9 +27,6 @@ const getShellStyles = (theme: Theme): CSSObject => {
     },
     [APP_ROOT_SELECTOR]: {
       marginLeft: '-20px',
-    },
-    [`${APP_ROOT_SELECTOR} .${APP_PREFIX}-page-enter`]: {
-      animation: `${pageEnterKeyframes} 0.45s ease-out both`,
     },
   };
 };

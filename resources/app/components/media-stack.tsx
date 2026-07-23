@@ -12,7 +12,6 @@ type MediaStackProps = {
   mediaArray?: MediaStackItem[];
   size?: ThumbnailSize;
   style?: CSSProperties;
-  className?: string;
 };
 
 const MediaStack = (props: MediaStackProps) => {

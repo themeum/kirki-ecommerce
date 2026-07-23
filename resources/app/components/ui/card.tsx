@@ -128,14 +128,10 @@ const CardFooter = forwardRef<HTMLDivElement, CardSectionProps>(
 CardFooter.displayName = 'CardFooter';
 
 export {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-  CardFooter,
+  Card, CardContent, CardDescription, CardFooter, CardHeader,
+  CardTitle
 };
-export type { CardVariantType, CardProps };
+export type { CardProps, CardVariantType };
 
 const styles = {
   base: scoped({

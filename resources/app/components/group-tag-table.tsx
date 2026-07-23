@@ -1,14 +1,13 @@
-import { css } from '@emotion/react';
 import { useEffect, useState, type ReactNode } from 'react';
 
 import GroupSelect from '@/components/group-select';
 import Button from '@/components/ui/button';
-import { CLASS_PREFIX } from '@/conf';
 import { MinusIcon } from '@/icons';
 import { Card } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Tag from '@/components/ui/tag';
 import Text from '@/components/ui/text';
+import { scoped } from '@/theme/mixins';
 import type { SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -33,12 +32,19 @@ type GroupTagTableProps = {
   isEditable?: boolean;
 };
 
-const clearAllButtonCss = css({
-  visibility: 'hidden',
-  [`.${CLASS_PREFIX}-hover-parent:hover &`]: {
-    visibility: 'visible',
-  },
-});
+const styles = {
+  shell: scoped({
+    overflow: 'hidden',
+  }),
+  hoverParent: scoped({
+    '&:hover [data-hover-reveal]': {
+      visibility: 'visible',
+    },
+  }),
+  hoverReveal: scoped({
+    visibility: 'hidden',
+  }),
+};
 
 const GroupTagTable = (props: GroupTagTableProps) => {
   const {
@@ -96,7 +102,7 @@ const GroupTagTable = (props: GroupTagTableProps) => {
   };
 
   return (
-    <div className={`${CLASS_PREFIX}-tag-manager`}>
+    <div css={styles.shell}>
       {hasSelect && (
         <GroupSelect
           placeholder={placeholder}
@@ -117,7 +123,7 @@ const GroupTagTable = (props: GroupTagTableProps) => {
         >
           <Flex gap={8} direction="column">
             {(Object.keys(groupedValueData) || []).map((groupName, index) => (
-              <div key={index} className={`${CLASS_PREFIX}-hover-parent`}>
+              <div key={index} css={styles.hoverParent}>
                 <Flex
                   key={index}
                   style={{
@@ -143,7 +149,8 @@ const GroupTagTable = (props: GroupTagTableProps) => {
                       <Button
                         variant="link"
                         size="sm"
-                        css={clearAllButtonCss}
+                        data-hover-reveal="true"
+                        css={styles.hoverReveal}
                         onClick={() => handleClearSingleGroup(groupName)}
                       >
                         {__('Clear all', 'kirki-ecommerce')}

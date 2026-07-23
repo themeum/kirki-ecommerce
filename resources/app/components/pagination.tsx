@@ -1,3 +1,5 @@
+import { type SerializedStyles } from '@emotion/react';
+
 import {
   Select,
   SelectContent,
@@ -6,21 +8,23 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import Button from '@/components/ui/button';
-import { CLASS_PREFIX } from '@/conf';
 import { ArrowLeftIcon } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
+import { theme } from '@/theme';
+import { itemCenter, scoped } from '@/theme/mixins';
 import type { PaginationData } from '@/types';
 import { __ } from '@/wpi18n';
 
 type PaginationProps = {
   data: PaginationData;
   onChange: (page: number) => void;
+  css?: SerializedStyles;
 };
 
 const Pagination = (props: PaginationProps) => {
-  const { data, onChange } = props;
+  const { data, onChange, css: cssProp } = props;
   const {
     current_page,
     last_page,
@@ -44,7 +48,7 @@ const Pagination = (props: PaginationProps) => {
   }
 
   return (
-    <div className={`${CLASS_PREFIX}-pagination-wrapper`}>
+    <div css={[styles.wrapper, cssProp]}>
       <Flex gap={8} style={{ alignItems: 'center' }}>
         <Text header={__('Page', 'kirki-ecommerce')} type="xsm" />
         <Select
@@ -104,3 +108,11 @@ const Pagination = (props: PaginationProps) => {
 };
 
 export default Pagination;
+
+const styles = {
+  wrapper: scoped({
+    ...itemCenter(),
+    justifyContent: 'space-between',
+    padding: `${theme.spacing.base} ${theme.spacing.none} ${theme.spacing.xl} ${theme.spacing.none}`,
+  }),
+};

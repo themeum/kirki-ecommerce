@@ -1,9 +1,4 @@
 @import './variables';
 @import './mixins';
 
-#wpbody-content .kirki-ecommerce-root {
-  @import './classes.scss';
-  @import './components/index.scss';
-}
-
 @import './pages/index.scss';

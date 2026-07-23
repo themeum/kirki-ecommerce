@@ -1,4 +1,4 @@
-import { css, type SerializedStyles } from '@emotion/react';
+import { type SerializedStyles } from '@emotion/react';
 import { useState, type ReactNode } from 'react';
 import {
   useFormContext,
@@ -6,7 +6,6 @@ import {
   type FieldValues,
 } from 'react-hook-form';
 import { Eye, EyeOff } from 'lucide-react';
-import classNames from 'classnames';
 
 import {
   FormControl,
@@ -17,7 +16,8 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import Input from '@/components/ui/input';
-import { CLASS_PREFIX } from '@/conf';
+import { theme } from '@/theme';
+import { flexCenter, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 type PasswordFieldProps<
@@ -53,7 +53,7 @@ const PasswordField = <
       render={({ field, fieldState }) => (
         <FormItem css={css}>
           {label && <FormLabel>{label}</FormLabel>}
-          <div className={`${CLASS_PREFIX}-ui-password-field`}>
+          <div css={styles.wrapper}>
             <FormControl>
               <Input
                 {...field}
@@ -62,12 +62,12 @@ const PasswordField = <
                 placeholder={placeholder}
                 disabled={disabled}
                 error={Boolean(fieldState.error)}
-                css={inputCss}
+                css={styles.input}
               />
             </FormControl>
             <button
               type="button"
-              className={classNames(`${CLASS_PREFIX}-ui-password-field-toggle`)}
+              css={styles.toggle}
               onClick={() => setVisible((prev) => !prev)}
               aria-label={
                 visible
@@ -91,4 +91,31 @@ PasswordField.displayName = 'PasswordField';
 
 export default PasswordField;
 
-const inputCss = css({ paddingRight: '40px' });
+const styles = {
+  wrapper: scoped({
+    position: 'relative',
+    width: '100%',
+  }),
+  input: scoped({
+    paddingRight: '40px',
+  }),
+  toggle: scoped({
+    ...flexCenter(),
+    position: 'absolute',
+    top: '50%',
+    right: theme.spacing.md,
+    transform: 'translateY(-50%)',
+    width: '28px',
+    height: '28px',
+    padding: 0,
+    margin: 0,
+    border: 'none',
+    background: 'transparent',
+    cursor: 'pointer',
+    color: theme.colors.text.secondary,
+    '&:hover, &:focus-visible': {
+      color: theme.colors.text.primary,
+      outline: 'none',
+    },
+  }),
+};

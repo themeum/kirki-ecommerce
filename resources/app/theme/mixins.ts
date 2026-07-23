@@ -75,10 +75,6 @@ const fontGeneralSettings = (theme: Theme): CSSObject => {
 };
 
 export {
-  APP_ROOT_SELECTOR,
-  scoped,
-  flexCenter,
-  itemCenter,
-  uiFocusRing,
-  fontGeneralSettings,
+  APP_ROOT_SELECTOR, flexCenter, fontGeneralSettings, itemCenter, scoped, uiFocusRing
 };
+

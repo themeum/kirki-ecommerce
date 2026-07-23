@@ -1,21 +1,21 @@
-import type { CSSProperties, ReactNode } from 'react';
-import classNames from 'classnames';
+import { type SerializedStyles } from '@emotion/react';
+import type { ReactNode } from 'react';
 
-import { CLASS_PREFIX } from '@/conf';
+import { theme } from '@/theme';
+import { itemCenter, scoped } from '@/theme/mixins';
 
 type SelectedTagsProps = {
   children?: ReactNode;
-  className?: string;
-  style?: CSSProperties;
+  hasBorderRadius?: boolean;
+  css?: SerializedStyles;
 };
 
 const SelectedTags = (props: SelectedTagsProps) => {
-  const { children, className, style = {} } = props;
+  const { children, hasBorderRadius = false, css: cssProp } = props;
 
   return (
     <div
-      className={classNames(`${CLASS_PREFIX}-selected-tags`, className)}
-      style={style}
+      css={[styles.root, hasBorderRadius && styles.hasBorderRadius, cssProp]}
     >
       {children}
     </div>
@@ -25,3 +25,21 @@ const SelectedTags = (props: SelectedTagsProps) => {
 SelectedTags.displayName = 'SelectedTags';
 
 export default SelectedTags;
+
+const styles = {
+  root: scoped({
+    minHeight: '52.2px',
+    backgroundColor: theme.colors.background.fill,
+    border: `1px solid ${theme.colors.border.default}`,
+    padding: theme.spacing.lg,
+    borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.lg} ${theme.radius.lg}`,
+    overflow: 'hidden',
+    ...itemCenter(),
+    justifyContent: 'flex-start',
+    gap: theme.spacing.md,
+    flexWrap: 'wrap',
+  }),
+  hasBorderRadius: scoped({
+    borderRadius: theme.radius.lg,
+  }),
+};

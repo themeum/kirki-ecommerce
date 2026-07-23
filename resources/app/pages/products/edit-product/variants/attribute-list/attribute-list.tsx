@@ -19,13 +19,13 @@ import { useEffect, useState } from 'react';
 
 import Button from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { CLASS_PREFIX } from '@/conf';
 import { DragIcon, EditIcon, PlusIcon, TrashIcon } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
 import Tag from '@/components/ui/tag';
 import Text from '@/components/ui/text';
 import { useProductForm } from '@/contexts/product-form-context';
+import { flexCenter, scoped } from '@/theme/mixins';
 import type { Attribute } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -89,7 +89,7 @@ const SortableCard = ({
               {...(!isEditing ? attributes : {})}
               {...(!isEditing ? listeners : {})}
               role="button"
-              className={`${CLASS_PREFIX}-svg-class ${CLASS_PREFIX}-drag-handler`}
+              css={[styles.svgClass, styles.dragHandler]}
               style={{
                 opacity: isEditing ? 0.5 : 1,
               }}
@@ -231,3 +231,13 @@ const AttributeList = ({ onSave = () => {} }: AttributeListProps) => {
 AttributeList.displayName = 'AttributeList';
 
 export default AttributeList;
+
+const styles = {
+  svgClass: scoped(flexCenter()),
+  dragHandler: scoped({
+    cursor: 'grab',
+    '&:active': {
+      cursor: 'grabbing',
+    },
+  }),
+};

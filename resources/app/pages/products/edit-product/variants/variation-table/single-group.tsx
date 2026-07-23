@@ -1,4 +1,3 @@
-import { css } from '@emotion/react';
 import React, { useEffect, useState } from 'react';
 
 import MediaStack from '@/components/media-stack';
@@ -13,11 +12,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { CLASS_PREFIX } from '@/conf';
 import { ChevronDownIcon } from '@/icons';
 import Flex from '@/components/ui/flex';
 import { TableCell, TableRow } from '@/components/ui/table';
 import { useProductForm } from '@/contexts/product-form-context';
+import { scoped } from '@/theme/mixins';
 import type {
   AttributeValue,
   MediaChangePayload,
@@ -39,16 +38,16 @@ type CombinedData = {
   media?: ({ url?: string; [key: string]: unknown } | null | undefined)[];
 };
 
-const expandButtonHoverVisibleCss = css({
-  visibility: 'hidden',
-  [`.${CLASS_PREFIX}-hover-parent:hover &`]: {
-    visibility: 'visible',
-  },
-});
-
-const expandButtonHiddenCss = css({
-  visibility: 'hidden',
-});
+const styles = {
+  hoverParent: scoped({
+    '&:hover [data-hover-reveal]': {
+      visibility: 'visible',
+    },
+  }),
+  hoverReveal: scoped({
+    visibility: 'hidden',
+  }),
+};
 
 type SingleGroupProps = {
   parentId: number;
@@ -235,7 +234,7 @@ const SingleGroup = ({
 
   return (
     <>
-      <TableRow className={`${CLASS_PREFIX}-hover-parent`}>
+      <TableRow css={styles.hoverParent}>
         <TableCell onlyCheckbox>
           <Checkbox
             checked={
@@ -277,11 +276,12 @@ const SingleGroup = ({
             <Button
               variant="ghost"
               size="sm"
-              css={
+              data-hover-reveal={
                 thisVariants[0]?.attribute_values.length > 1
-                  ? expandButtonHoverVisibleCss
-                  : expandButtonHiddenCss
+                  ? 'true'
+                  : undefined
               }
+              css={styles.hoverReveal}
               onClick={() => setShow(!show)}
               style={{
                 transform: show ? 'rotate(180deg)' : '',

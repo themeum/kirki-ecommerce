@@ -5,10 +5,10 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import Button from '@/components/ui/button';
-import { CLASS_PREFIX } from '@/conf';
 import { InfoIcon } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
+import { flexCenter, scoped } from '@/theme/mixins';
 
 const TableInfo = () => {
   return (
@@ -17,21 +17,21 @@ const TableInfo = () => {
         <Flex gap={4}>
           <span>Sales</span>
           <span style={{ fontWeight: '500' }}>$11,200</span>
-          <span className={`${CLASS_PREFIX}-svg-class`}>
+          <span css={styles.svgClass}>
             <InfoIcon />
           </span>
         </Flex>
         <Flex gap={4}>
           <span>Orders</span>
           <span style={{ fontWeight: '500' }}>12</span>
-          <span className={`${CLASS_PREFIX}-svg-class`}>
+          <span css={styles.svgClass}>
             <InfoIcon />
           </span>
         </Flex>
         <Flex gap={4}>
           <span>Avg. order value</span>
           <span style={{ fontWeight: '500' }}>$5,600</span>
-          <span className={`${CLASS_PREFIX}-svg-class`}>
+          <span css={styles.svgClass}>
             <InfoIcon />
           </span>
         </Flex>
@@ -52,3 +52,7 @@ const TableInfo = () => {
 };
 
 export default TableInfo;
+
+const styles = {
+  svgClass: scoped(flexCenter()),
+};

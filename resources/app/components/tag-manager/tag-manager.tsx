@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef, type ReactNode } from 'react';
-import { css } from '@emotion/react';
+import { css, type SerializedStyles } from '@emotion/react';
 import { Minus, PlusCircle, Trash2 } from 'lucide-react';
-import classNames from 'classnames';
 
 import SelectedTags from '@/components/tag-manager/selected-tags';
 import ActionGroup from '@/components/ui/action-group';
@@ -17,9 +16,9 @@ import SuggestionDropdown, {
 } from '@/components/ui/suggestion-dropdown';
 import Tag from '@/components/ui/tag';
 import Text from '@/components/ui/text';
-import { CLASS_PREFIX } from '@/conf';
 import { theme } from '@/theme';
-import type { LabelFieldProps, SelectOption, StyleProps } from '@/types';
+import { scoped } from '@/theme/mixins';
+import type { LabelFieldProps, SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
 
 type TagOption = SelectOption & {
@@ -28,29 +27,29 @@ type TagOption = SelectOption & {
 
 type TagManagerType = 'default' | 'list';
 
-type TagManagerProps = StyleProps &
-  LabelFieldProps & {
-    showInputField?: boolean;
-    selectedTags?: TagOption[];
-    suggestions?: TagOption[];
-    value?: string;
-    searchKey?: string | number;
-    placeholder?: string;
-    onTagAdd?: (tag: TagOption) => void;
-    onNewTagAdd?: (tagTitle: string) => void;
-    onTagRemove?: (tag: TagOption) => void;
-    onSearchChange?: (value: string) => void;
-    onClick?: () => void;
-    onBlur?: () => void;
-    type?: TagManagerType;
-    leftIcon?: ReactNode;
-    hasSearchIcon?: boolean;
-    btnText?: string;
-    hasAddBtn?: boolean;
-    showSuggestionDropdown?: boolean;
-    readOnly?: boolean;
-    showRemoveIcon?: boolean;
-  };
+type TagManagerProps = LabelFieldProps & {
+  css?: SerializedStyles;
+  showInputField?: boolean;
+  selectedTags?: TagOption[];
+  suggestions?: TagOption[];
+  value?: string;
+  searchKey?: string | number;
+  placeholder?: string;
+  onTagAdd?: (tag: TagOption) => void;
+  onNewTagAdd?: (tagTitle: string) => void;
+  onTagRemove?: (tag: TagOption) => void;
+  onSearchChange?: (value: string) => void;
+  onClick?: () => void;
+  onBlur?: () => void;
+  type?: TagManagerType;
+  leftIcon?: ReactNode;
+  hasSearchIcon?: boolean;
+  btnText?: string;
+  hasAddBtn?: boolean;
+  showSuggestionDropdown?: boolean;
+  readOnly?: boolean;
+  showRemoveIcon?: boolean;
+};
 
 const TagManager = (props: TagManagerProps) => {
   const {
@@ -68,8 +67,7 @@ const TagManager = (props: TagManagerProps) => {
     onSearchChange = () => {},
     onClick = () => {},
     onBlur = () => {},
-    className = '',
-    style = {},
+    css: cssProp,
     type = 'default',
     leftIcon,
     hasSearchIcon,
@@ -119,14 +117,7 @@ const TagManager = (props: TagManagerProps) => {
           {label}
         </Label>
       )}
-      <div
-        className={classNames(
-          `${CLASS_PREFIX}-tag-manager`,
-          type === 'list' && `${CLASS_PREFIX}-tag-manager-list`,
-          className,
-        )}
-        style={style}
-      >
+      <div css={[styles.shell, type === 'list' && styles.list, cssProp]}>
         {showInputField && (
           <>
             {type === 'default' && (
@@ -136,8 +127,8 @@ const TagManager = (props: TagManagerProps) => {
                 value={inputValue}
                 placeholder={placeholder}
                 css={css([
-                  tagManagerInputStyles.input,
-                  selectedTags.length > 0 && tagManagerInputStyles.borderNone,
+                  styles.input,
+                  selectedTags.length > 0 && styles.inputBorderNone,
                 ])}
                 onChange={(nextValue) =>
                   handleSearchChange(String(nextValue))
@@ -205,7 +196,7 @@ const TagManager = (props: TagManagerProps) => {
                     )}
                     {option?.color && (
                       <div
-                        className={`${CLASS_PREFIX}-tag-manager-swatch`}
+                        css={styles.swatch}
                         style={{ background: option?.color }}
                         aria-hidden="true"
                       />
@@ -224,7 +215,7 @@ const TagManager = (props: TagManagerProps) => {
                 <Flex style={{ alignItems: 'center', padding: '12px' }} gap={8}>
                   {item?.color && (
                     <div
-                      className={`${CLASS_PREFIX}-tag-manager-swatch`}
+                      css={styles.swatch}
                       style={{ background: item?.color }}
                       aria-hidden="true"
                     />
@@ -255,7 +246,7 @@ const TagManager = (props: TagManagerProps) => {
                 key={searchKey}
                 placeholder={placeholder}
                 onBlur={onBlur}
-                css={tagManagerInputStyles.input}
+                css={styles.input}
                 onChange={(nextValue) =>
                   handleSearchChange(String(nextValue))
                 }
@@ -271,11 +262,7 @@ const TagManager = (props: TagManagerProps) => {
         ) : (
           <>
             {selectedTags.length > 0 ? (
-              <SelectedTags
-                className={
-                  !showInputField ? `${CLASS_PREFIX}-has-border-radius` : ''
-                }
-              >
+              <SelectedTags hasBorderRadius={!showInputField}>
                 {selectedTags.map((tag, index) => (
                   <Tag
                     text={tag.title}
@@ -304,14 +291,27 @@ TagManager.displayName = 'TagManager';
 
 export default TagManager;
 
-const tagManagerInputStyles = {
-  input: css({
+const styles = {
+  shell: scoped({
+    overflow: 'hidden',
+  }),
+  list: scoped({
+    border: `1px solid ${theme.colors.border.default}`,
+    borderRadius: theme.radius.lg,
+  }),
+  swatch: scoped({
+    height: '16px',
+    width: '16px',
+    borderRadius: theme.radius.full,
+    flexShrink: 0,
+  }),
+  input: scoped({
     backgroundColor: theme.colors.background.fill,
     width: '100%',
     outline: 'none',
     cursor: 'text',
   }),
-  borderNone: css({
+  inputBorderNone: scoped({
     borderBottom: 'none',
     borderRadius: `${theme.radius.lg} ${theme.radius.lg} ${theme.radius.none} ${theme.radius.none}`,
     '&:focus': {

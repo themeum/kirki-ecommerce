@@ -1,4 +1,4 @@
-import { css } from '@emotion/react';
+import { type SerializedStyles } from '@emotion/react';
 import { useState } from 'react';
 import {
   DndContext,
@@ -21,11 +21,12 @@ import { CSS } from '@dnd-kit/utilities';
 
 import MediaSelector from '@/components/media-selector';
 import Button from '@/components/ui/button';
-import { CLASS_PREFIX } from '@/conf';
 import { MoveIcon, PlusIcon, TrashIcon } from '@/icons';
 import Checkbox from '@/components/ui/checkbox';
 import Flex from '@/components/ui/flex';
 import Label from '@/components/ui/label';
+import { theme } from '@/theme';
+import { flexCenter, scoped } from '@/theme/mixins';
 import type { MediaRef } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -39,20 +40,12 @@ type SortableData = {
   };
 };
 
-const dragHandlerButtonCss = css({
-  borderRadius: 'var(--decom-radius-rounded-full)',
-  cursor: 'grab',
-  '&:active': {
-    cursor: 'grabbing',
-  },
-});
-
 type SortableItemProps = {
   id: string;
   index: number;
   url: string;
   alt?: string;
-  className?: string;
+  css?: SerializedStyles;
   onSelectImage?: (value: boolean) => void;
   onDeleteImage?: () => void;
   selectedImages?: number[];
@@ -65,7 +58,7 @@ const SortableItem = ({
   index,
   url,
   alt = '',
-  className,
+  css: cssProp,
   onSelectImage = () => {},
   onDeleteImage = () => {},
   selectedImages = [],
@@ -113,17 +106,18 @@ const SortableItem = ({
             ? 1.5
             : scaleY;
 
+  const isActive = Boolean(selectedImages?.includes(index));
+
   return (
     <div
       ref={setNodeRef}
       style={style}
-      className={`${CLASS_PREFIX}-gallery-item ${className || ''}`}
+      css={[styles.galleryItem, isLarge && styles.galleryItemLarge, cssProp]}
       {...attributes}
     >
       <div
-        className={`${CLASS_PREFIX}-gallery-item-overlay ${
-          selectedImages?.includes(index) ? `${CLASS_PREFIX}-active` : ''
-        }`}
+        css={[styles.itemOverlay, isActive && styles.itemActive]}
+        data-gallery-overlay
         {...listeners}
       >
         {!disableDrag && (
@@ -137,7 +131,7 @@ const SortableItem = ({
                 ? `scale(${normalizedScaleX}, ${normalizedScaleY})`
                 : '',
             }}
-            css={dragHandlerButtonCss}
+            css={styles.dragHandlerButton}
           >
             <MoveIcon {...(isLarge ? { width: '20', height: '20' } : {})} />
           </Button>
@@ -145,9 +139,8 @@ const SortableItem = ({
       </div>
       {!isDragging && (
         <div
-          className={`${CLASS_PREFIX}-gallery-item-actions ${
-            selectedImages?.includes(index) ? `${CLASS_PREFIX}-active` : ''
-          }`}
+          css={[styles.itemActions, isActive && styles.itemActive]}
+          data-gallery-actions
         >
           <Checkbox
             value={selectedImages?.includes(index)}
@@ -305,11 +298,7 @@ const MediaGallery = ({
           items={mediaItems.map((img, index) => `${img.id}-${index}`)}
           strategy={rectSortingStrategy}
         >
-          <div
-            className={`${CLASS_PREFIX}-media-gallery ${
-              expanded ? `${CLASS_PREFIX}-expanded` : ''
-            }`}
-          >
+          <div css={styles.mediaGallery}>
             {visibleItems.map((img, index) => {
               const isLarge = index === 0;
 
@@ -322,7 +311,6 @@ const MediaGallery = ({
                   url={img.url}
                   alt={img.alt || ''}
                   isLarge={isLarge}
-                  className={`${isLarge ? `${CLASS_PREFIX}-large` : ''}`}
                   selectedImages={selectedImages}
                   onSelectImage={(value) =>
                     updateSelectedImageList(value, index)
@@ -334,25 +322,19 @@ const MediaGallery = ({
 
             {!expanded && remainingCount > 0 && (
               <div
-                className={`${CLASS_PREFIX}-gallery-item ${CLASS_PREFIX}-overlay`}
+                css={[styles.galleryItem, styles.remainingOverlay]}
                 onClick={() => setExpanded(true)}
               >
                 {fourthItem.url && (
                   <img src={fourthItem.url} alt={fourthItem.alt || ''} />
                 )}
-                <div className={`${CLASS_PREFIX}-overlay-text`}>
-                  +{remainingCount}
-                </div>
+                <div css={styles.remainingOverlayText}>+{remainingCount}</div>
               </div>
             )}
 
             <MediaSelector onSelect={handleOnAddNewImages} multiple={true}>
-              <div
-                className={`${CLASS_PREFIX}-gallery-item ${CLASS_PREFIX}-add`}
-              >
-                <div className={`${CLASS_PREFIX}-add-icon`}>
-                  <PlusIcon height={24} width={24} />
-                </div>
+              <div css={[styles.galleryItem, styles.addItem]}>
+                <PlusIcon height={24} width={24} />
               </div>
             </MediaSelector>
           </div>
@@ -363,3 +345,91 @@ const MediaGallery = ({
 };
 
 export default MediaGallery;
+
+const styles = {
+  mediaGallery: scoped({
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(138px, 1fr))',
+    gap: theme.spacing.lg,
+  }),
+  galleryItem: scoped({
+    aspectRatio: '1 / 1',
+    overflow: 'hidden',
+    position: 'relative',
+    background: 'transparent',
+    cursor: 'pointer',
+    borderRadius: theme.radius.lg,
+    border: `1px solid ${theme.colors.background.surface}`,
+    userSelect: 'none',
+    img: {
+      width: '100%',
+      height: '100%',
+      objectFit: 'cover',
+      display: 'block',
+    },
+    '&:hover [data-gallery-overlay], &:hover [data-gallery-actions]': {
+      opacity: 1,
+    },
+  }),
+  galleryItemLarge: scoped({
+    gridColumn: 'span 2',
+    gridRow: 'span 2',
+  }),
+  itemOverlay: scoped({
+    position: 'absolute',
+    inset: 0,
+    background: '#00000033',
+    opacity: 0,
+    transition: 'opacity 0.2s ease',
+    zIndex: 2,
+    ...flexCenter(),
+  }),
+  itemActive: scoped({
+    opacity: 1,
+  }),
+  itemActions: scoped({
+    position: 'absolute',
+    top: '8px',
+    left: '6px',
+    right: '6px',
+    zIndex: 3,
+    display: 'flex',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    opacity: 0,
+    transition: 'opacity 0.2s ease',
+  }),
+  remainingOverlay: scoped({
+    img: {
+      transform: 'scale(1.05)',
+    },
+  }),
+  remainingOverlayText: scoped({
+    position: 'absolute',
+    inset: 0,
+    fontSize: '18px',
+    fontWeight: 400,
+    color: theme.colors.text.light,
+    background: 'rgba(0, 0, 0, 0.35)',
+    borderRadius: 'inherit',
+    ...flexCenter(),
+  }),
+  addItem: scoped({
+    border: `2px dashed ${theme.colors.border.gallery}`,
+    color: theme.colors.background.fillBrand,
+    fontSize: '32px',
+    cursor: 'pointer',
+    background: theme.colors.background.surfaceSecondary,
+    ...flexCenter(),
+    '&:hover': {
+      background: theme.colors.background.galleryHover,
+    },
+  }),
+  dragHandlerButton: scoped({
+    borderRadius: theme.radius.full,
+    cursor: 'grab',
+    '&:active': {
+      cursor: 'grabbing',
+    },
+  }),
+};

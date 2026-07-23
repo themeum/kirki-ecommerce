@@ -1,7 +1,9 @@
+import { type SerializedStyles } from '@emotion/react';
 import { useEffect, useRef } from 'react';
 
 import Label from '@/components/ui/label';
-import { CLASS_PREFIX } from '@/conf';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 type RichTextProps = {
@@ -9,10 +11,10 @@ type RichTextProps = {
   value?: string;
   onChange?: (content: string) => void;
   placeholder?: string;
-  className?: string;
   label?: string | false;
   helpText?: string;
   error?: string | boolean;
+  css?: SerializedStyles;
 };
 
 type TinyMceEditorInstance = {
@@ -27,10 +29,10 @@ const RichText = ({
   value = '',
   onChange = () => {},
   placeholder = __('Type something...', 'kirki-ecommerce'),
-  className = '',
   label = false,
   helpText,
   error,
+  css: cssProp,
 }: RichTextProps) => {
   const editorRef = useRef<TinyMceEditorInstance | null>(null);
 
@@ -78,10 +80,8 @@ const RichText = ({
   }, [id]);
 
   return (
-    <div
-      className={`${CLASS_PREFIX}-richtext ${className}`}
-    >
-      <div className={`${CLASS_PREFIX}-richtext-controller`}>
+    <div css={[styles.root, cssProp]}>
+      <div css={styles.controller}>
         {label && (
           <Label error={Boolean(error)} helpText={error ? error : helpText}>
             {label}
@@ -101,3 +101,34 @@ const RichText = ({
 RichText.displayName = 'RichText';
 
 export default RichText;
+
+const styles = {
+  root: scoped({
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    columnGap: theme.spacing['2xl'],
+    width: '100%',
+    '.mce-tinymce': {
+      border: `0.63px solid ${theme.colors.border.default}`,
+      boxShadow: 'none',
+      borderRadius: theme.radius.sm,
+      overflow: 'hidden',
+    },
+    '.mce-statusbar': {
+      display: 'none',
+    },
+    '.mce-top-part::before': {
+      boxShadow: 'none',
+    },
+  }),
+  controller: scoped({
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start',
+    rowGap: theme.spacing.md,
+    position: 'relative',
+  }),
+};
