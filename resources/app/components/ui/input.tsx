@@ -19,6 +19,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>((props, ref) => {
     error,
     invisible,
     type = 'text',
+    value,
     ...rest
   } = props;
 
@@ -33,6 +34,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>((props, ref) => {
         cssProp,
       ]}
       {...rest}
+      {...('value' in props ? { value: value ?? '' } : {})}
     />
   );
 });

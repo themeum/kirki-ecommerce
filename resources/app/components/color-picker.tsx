@@ -24,11 +24,11 @@ const ColorPicker = ({
   placeholder,
   helpText,
 }: ColorPickerProps) => {
-  const [inputValue, setInputValue] = useState(value || '');
+  const [inputValue, setInputValue] = useState(value ?? '');
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    setInputValue(value || '');
+    setInputValue(value ?? '');
   }, [value]);
 
   const validateInputColor = (colorValue: string) => {

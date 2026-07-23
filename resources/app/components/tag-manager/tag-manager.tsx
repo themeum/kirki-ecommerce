@@ -80,11 +80,11 @@ const TagManager = (props: TagManagerProps) => {
   } = props;
 
   const [openSuggestionDropdown, setOpenSuggestionDropDown] = useState(false);
-  const [inputValue, setInputValue] = useState<string | undefined>('');
+  const [inputValue, setInputValue] = useState('');
   const triggerRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    setInputValue(value);
+    setInputValue(value ?? '');
   }, [value]);
 
   const handleOptionClick = (tag: TagOption) => {

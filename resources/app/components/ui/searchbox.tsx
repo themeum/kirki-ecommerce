@@ -91,10 +91,10 @@ const Searchbox = forwardRef<HTMLInputElement, SearchboxProps>(
     const triggerRef =
       (ref as RefObject<HTMLInputElement | null>) || fallbackRef;
     const [openSuggestionDropdown, setOpenSuggestionDropDown] = useState(false);
-    const [searchValue, setSearchValue] = useState(value);
+    const [searchValue, setSearchValue] = useState(value ?? '');
 
     useEffect(() => {
-      setSearchValue(value);
+      setSearchValue(value ?? '');
     }, [value]);
 
     const debouncedOnChange = useRef(debounce(onChange, 300)).current;

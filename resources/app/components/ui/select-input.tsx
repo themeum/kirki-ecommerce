@@ -59,7 +59,7 @@ const SelectInput = ({
   selectWidth,
 }: SelectInputProps) => {
   const [inputValue, setInputValue] = useState<string | number>(
-    value?.value || defaultValue?.value || '',
+    value?.value ?? defaultValue?.value ?? '',
   );
   const [selectValue, setSelectValue] = useState<string>(
     String(value?.unit ?? defaultValue?.unit ?? ''),
@@ -69,6 +69,9 @@ const SelectInput = ({
   const help = typeof error === 'string' ? error : helpText;
 
   useEffect(() => {
+    if (value === undefined) {
+      return;
+    }
     setInputValue(value?.value ?? '');
     setSelectValue(String(value?.unit ?? ''));
   }, [value]);
