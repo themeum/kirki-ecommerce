@@ -1,5 +1,3 @@
-import { CLASS_PREFIX } from '@/conf';
-
 type BulkEditMode = 'select' | 'fill';
 
 type BulkEditSelectionData = {
@@ -18,6 +16,11 @@ type UseBulkEditListParams = {
 };
 
 type VariantListType = BulkEditMode | 'range';
+
+type BulkEditCellAttrs = {
+  'data-bulk-cell'?: 'selected' | 'fill';
+  'data-bulk-edge'?: 'base' | 'min' | 'max';
+};
 
 const useBulkEditList = ({ selectionData, index }: UseBulkEditListParams) => {
   const getVariantList = (type: VariantListType) => {
@@ -72,52 +75,59 @@ const useBulkEditList = ({ selectionData, index }: UseBulkEditListParams) => {
     return index >= min && index <= max;
   };
 
-  const getActiveState = (fieldName: string) => {
+  const getActiveState = (fieldName: string): BulkEditCellAttrs => {
     if (isSelected(fieldName)) {
-      let styleClass = `${CLASS_PREFIX}-selected-cell `;
+      const attrs: BulkEditCellAttrs = {
+        'data-bulk-cell': 'selected',
+      };
+
       if (index === selectionData?.baseIndex) {
-        styleClass = styleClass + `${CLASS_PREFIX}-base-cell`;
+        attrs['data-bulk-edge'] = 'base';
       } else if (
         index === selectionData?.end &&
         selectionData?.start <= selectionData?.end
       ) {
-        styleClass = styleClass + `${CLASS_PREFIX}-selected-min `;
+        attrs['data-bulk-edge'] = 'min';
       } else if (
         index === selectionData?.end &&
         selectionData?.start >= selectionData?.end
       ) {
-        styleClass = styleClass + `${CLASS_PREFIX}-selected-max`;
+        attrs['data-bulk-edge'] = 'max';
       }
 
-      return styleClass;
+      return attrs;
     }
 
     if (isFilled(fieldName)) {
-      let styleClass = `${CLASS_PREFIX}-fill-cell `;
+      const attrs: BulkEditCellAttrs = {
+        'data-bulk-cell': 'fill',
+      };
+
       if (
         index === selectionData?.baseIndex ||
         index === selectionData?.grabberIndex
       ) {
-        styleClass = styleClass + `${CLASS_PREFIX}-base-cell`;
+        attrs['data-bulk-edge'] = 'base';
       } else if (
         selectionData?.baseIndex !== undefined &&
         selectionData?.lastIndex !== undefined &&
         index === selectionData.lastIndex &&
         selectionData.baseIndex <= selectionData.lastIndex
       ) {
-        styleClass = styleClass + `${CLASS_PREFIX}-fill-min `;
+        attrs['data-bulk-edge'] = 'min';
       } else if (
         selectionData?.baseIndex !== undefined &&
         selectionData?.lastIndex !== undefined &&
         index === selectionData.lastIndex &&
         selectionData.baseIndex >= selectionData.lastIndex
       ) {
-        styleClass = styleClass + `${CLASS_PREFIX}-fill-max`;
+        attrs['data-bulk-edge'] = 'max';
       }
-      return styleClass;
+
+      return attrs;
     }
 
-    return '';
+    return {};
   };
 
   return {
@@ -129,3 +139,5 @@ const useBulkEditList = ({ selectionData, index }: UseBulkEditListParams) => {
 };
 
 export default useBulkEditList;
+
+export type { BulkEditCellAttrs, BulkEditSelectionData };

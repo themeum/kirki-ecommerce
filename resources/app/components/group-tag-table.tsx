@@ -2,12 +2,12 @@ import { useEffect, useState, type ReactNode } from 'react';
 
 import GroupSelect from '@/components/group-select';
 import Button from '@/components/ui/button';
-import { CLASS_PREFIX } from '@/conf';
 import { MinusIcon } from '@/icons';
 import { Card } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Tag from '@/components/ui/tag';
 import Text from '@/components/ui/text';
+import { scoped } from '@/theme/mixins';
 import type { SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -30,6 +30,20 @@ type GroupTagTableProps = {
   placeholder?: string;
   hasSelect?: boolean;
   isEditable?: boolean;
+};
+
+const styles = {
+  shell: scoped({
+    overflow: 'hidden',
+  }),
+  hoverParent: scoped({
+    '&:hover [data-hover-reveal]': {
+      visibility: 'visible',
+    },
+  }),
+  hoverReveal: scoped({
+    visibility: 'hidden',
+  }),
 };
 
 const GroupTagTable = (props: GroupTagTableProps) => {
@@ -88,7 +102,7 @@ const GroupTagTable = (props: GroupTagTableProps) => {
   };
 
   return (
-    <div className={`${CLASS_PREFIX}-tag-manager`}>
+    <div css={styles.shell}>
       {hasSelect && (
         <GroupSelect
           placeholder={placeholder}
@@ -109,14 +123,13 @@ const GroupTagTable = (props: GroupTagTableProps) => {
         >
           <Flex gap={8} direction="column">
             {(Object.keys(groupedValueData) || []).map((groupName, index) => (
-              <div key={index}>
+              <div key={index} css={styles.hoverParent}>
                 <Flex
                   key={index}
                   style={{
                     alignItems: 'center',
                     justifyContent: 'space-between',
                   }}
-                  className={`${CLASS_PREFIX}-hover-parent`}
                 >
                   <Text
                     gap={4}
@@ -136,7 +149,8 @@ const GroupTagTable = (props: GroupTagTableProps) => {
                       <Button
                         variant="link"
                         size="sm"
-                        className={`${CLASS_PREFIX}-hover-visible`}
+                        data-hover-reveal="true"
+                        css={styles.hoverReveal}
                         onClick={() => handleClearSingleGroup(groupName)}
                       >
                         {__('Clear all', 'kirki-ecommerce')}

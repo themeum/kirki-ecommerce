@@ -11,12 +11,12 @@ import {
   Form,
   FormControl,
   FormField,
+  FormFieldRow,
   FormItem,
   FormMessage,
 } from '@/components/ui/form';
 import Label from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { CLASS_PREFIX } from '@/conf';
 import { TaxIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
@@ -26,6 +26,8 @@ import Flex from '@/components/ui/flex';
 import PageHeading from '@/components/ui/page-heading';
 import { Separator } from '@/components/ui/separator';
 import Text from '@/components/ui/text';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import {
   TaxSettingsFormSchema,
   taxSettingsDefaultValues,
@@ -51,7 +53,7 @@ const TaxCollectionOptions = () => {
 
   return (
     <div>
-      <Separator style={{ marginBottom: 'var(--decom-spacing-3)' }} />
+      <Separator css={styles.separator} />
       {isTaxInclusivePrice ? (
         <CheckboxField
           name="is_shipping_tax_enabled"
@@ -104,10 +106,7 @@ const TaxCollectionRadio = () => {
               onValueChange={(value) => field.onChange(value === 'inclusive')}
             >
               {optionsArray.map((option) => (
-                <div
-                  key={option.value}
-                  className={`${CLASS_PREFIX}-ui-radio-field-row`}
-                >
+                <FormFieldRow key={option.value}>
                   <RadioGroupItem
                     value={option.value}
                     id={`tax-collection-${option.value}`}
@@ -115,7 +114,7 @@ const TaxCollectionRadio = () => {
                   <Label htmlFor={`tax-collection-${option.value}`}>
                     {option.title}
                   </Label>
-                </div>
+                </FormFieldRow>
               ))}
             </RadioGroup>
           </FormControl>
@@ -248,7 +247,7 @@ const TaxSettings = () => {
                 text={'Tax'}
                 handleBack={handleBackButton}
               />
-              <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
+              <Card type="large">
                 <Text
                   type="primary"
                   header={__('How would you like to collect tax?', 'kirki-ecommerce')}
@@ -256,7 +255,7 @@ const TaxSettings = () => {
                     'Configure how tax is displayed and how it appears on your product listings.',
                     'kirki-ecommerce',
                   )}
-                  style={{ gap: 'var(--decom-spacing-f3)' }}
+                  css={styles.taxCollectionHeader}
                 />
                 <Flex direction="column" gap={12}>
                   <TaxCollectionRadio />
@@ -278,3 +277,12 @@ const TaxSettings = () => {
 TaxSettings.displayName = 'TaxSettings';
 
 export default TaxSettings;
+
+const styles = {
+  separator: scoped({
+    marginBottom: theme.spacing.lg,
+  }),
+  taxCollectionHeader: scoped({
+    gap: theme.spacing.base,
+  }),
+};

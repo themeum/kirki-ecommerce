@@ -7,7 +7,8 @@ import Flex from '@/components/ui/flex';
 import HeaderActionsCard from '@/components/header-actions-card';
 import GroupOptionCard from '@/components/group-option-card';
 import { BoxOpenIcon, BoxClosedIcon } from '@/icons';
-import { CLASS_PREFIX } from '@/conf';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import { toastMutationError } from '@/services/helpers';
 import { deleteTaxProfile, useTaxProfilesQuery } from '@/services/tax';
 import type { TaxProfile as TaxProfileType } from '@/types';
@@ -71,7 +72,7 @@ const TaxProfile = () => {
 
   return (
     <div>
-      <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
+      <Card type="large">
         <HeaderActionsCard
           header={__('Tax Profiles', 'kirki-ecommerce')}
           subHeader={__(
@@ -83,13 +84,10 @@ const TaxProfile = () => {
         />
 
         {!taxProfileList?.length ? (
-          <Card
-            className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner-dark`}
-            style={{ padding: '36px 0' }}
-          >
+          <Card type="innerDark" css={styles.emptyState}>
             <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
               <BoxOpenIcon />
-              <span style={{ color: '#878593' }}>
+              <span css={styles.emptyStateText}>
                 {__(
                   'Added shipping profiles will appear here',
                   'kirki-ecommerce',
@@ -98,7 +96,7 @@ const TaxProfile = () => {
             </Flex>
           </Card>
         ) : (
-          <Flex direction="column" className={`${CLASS_PREFIX}-box-wrapper`}>
+          <Flex direction="column" data-box-wrapper css={styles.boxWrapper}>
             <GroupOptionCard
               dataArr={taxProfileList}
               handleDeleteItem={(item) =>
@@ -132,3 +130,25 @@ const TaxProfile = () => {
 TaxProfile.displayName = 'TaxProfile';
 
 export default TaxProfile;
+
+const styles = {
+  boxWrapper: scoped({
+    '[data-box-card]': {
+      borderTop: 'none',
+      borderRadius: theme.radius.none,
+    },
+    '[data-box-card]:first-of-type': {
+      borderTop: `1px solid ${theme.colors.border.secondary}`,
+      borderRadius: `${theme.radius.md} ${theme.radius.md} ${theme.radius.none} ${theme.radius.none}`,
+    },
+    '[data-box-card]:last-of-type': {
+      borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.md} ${theme.radius.md}`,
+    },
+  }),
+  emptyState: scoped({
+    padding: `${theme.spacing['7xl']} ${theme.spacing.none}`,
+  }),
+  emptyStateText: scoped({
+    color: theme.colors.text.subdued,
+  }),
+};

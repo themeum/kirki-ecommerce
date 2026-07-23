@@ -1,10 +1,10 @@
 import SelectField from '@/components/form/select-field';
 import SwitchField from '@/components/form/switch-field';
 import { Card } from '@/components/ui/card';
-import { CLASS_PREFIX } from '@/conf';
 import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
+import { theme } from '@/theme';
 import { __ } from '@/wpi18n';
 
 import { dimensionUnitList, weightUnitList } from '@/pages/settings/utils';
@@ -22,7 +22,7 @@ export const StandardUnit = () => {
 
   return (
     <div>
-      <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
+      <Card type="large">
         <Text
           header={__('Standards', 'kirki-ecommerce')}
           subHeader={__(
@@ -30,14 +30,14 @@ export const StandardUnit = () => {
             'kirki-ecommerce',
           )}
           type="primary"
-          style={{ gap: 'var(--decom-spacing-f3)' }}
+          style={{ gap: theme.spacing.base }}
         />
         <Flex direction="column" gap={8}>
           <Card
-            className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-default`}
+            type="default"
             style={{
-              borderRadius: 'var(--decom-radius-rounded-lg)',
-              border: '1px solid var(--decom-border-border)',
+              borderRadius: theme.radius.lg,
+              border: `1px solid ${theme.colors.border.default}`,
             }}
           >
             <Flex direction="column" gap={16}>
@@ -54,10 +54,10 @@ export const StandardUnit = () => {
             </Flex>
           </Card>
           <Card
-            className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-default`}
+            type="default"
             style={{
-              borderRadius: 'var(--decom-radius-rounded-lg)',
-              border: '1px solid var(--decom-border-border)',
+              borderRadius: theme.radius.lg,
+              border: `1px solid ${theme.colors.border.default}`,
             }}
           >
             <Flex>

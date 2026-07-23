@@ -1,3 +1,4 @@
+import { type SerializedStyles } from '@emotion/react';
 import type { ReactNode } from 'react';
 import {
   useFormContext,
@@ -24,7 +25,7 @@ type RichTextFieldProps<
   description?: ReactNode;
   placeholder?: string;
   id?: string;
-  className?: string;
+  css?: SerializedStyles;
 };
 
 const RichTextField = <
@@ -36,7 +37,7 @@ const RichTextField = <
   description,
   placeholder,
   id,
-  className,
+  css,
 }: RichTextFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
 
@@ -45,7 +46,7 @@ const RichTextField = <
       control={control}
       name={name}
       render={({ field, fieldState }) => (
-        <FormItem className={className}>
+        <FormItem css={css}>
           {label && <FormLabel>{label}</FormLabel>}
           <FormControl>
             <RichText

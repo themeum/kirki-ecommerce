@@ -1,3 +1,4 @@
+import { type SerializedStyles, type Theme } from '@emotion/react';
 import {
   forwardRef,
   type ComponentPropsWithoutRef,
@@ -8,14 +9,14 @@ import {
 } from 'react';
 import * as CheckboxPrimitive from '@radix-ui/react-checkbox';
 import { Check, Minus } from 'lucide-react';
-import classNames from 'classnames';
 
 import Label from '@/components/ui/label';
-import { CLASS_PREFIX } from '@/conf';
+import { theme } from '@/theme';
+import { flexCenter, scoped, uiFocusRing } from '@/theme/mixins';
 
 type CheckboxProps = Omit<
   ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>,
-  'value' | 'onChange'
+  'value' | 'onChange' | 'className' | 'css'
 > & {
   value?: boolean;
   onChange?: (value: boolean) => void;
@@ -24,6 +25,7 @@ type CheckboxProps = Omit<
   label?: string;
   helpText?: string;
   labelStyle?: CSSProperties;
+  css?: SerializedStyles;
 };
 
 const Checkbox = forwardRef<
@@ -31,7 +33,7 @@ const Checkbox = forwardRef<
   CheckboxProps
 >((props, ref) => {
   const {
-    className,
+    css: cssProp,
     checked,
     value,
     onCheckedChange,
@@ -68,16 +70,14 @@ const Checkbox = forwardRef<
   const control = (
     <CheckboxPrimitive.Root
       ref={ref}
-      className={classNames(`${CLASS_PREFIX}-ui-checkbox`, className)}
+      css={[styles.checkbox, cssProp]}
       checked={resolvedChecked}
       onCheckedChange={handleCheckedChange}
       onClick={handleRootClick}
       style={label ? undefined : style}
       {...rest}
     >
-      <CheckboxPrimitive.Indicator
-        className={`${CLASS_PREFIX}-ui-checkbox-indicator`}
-      >
+      <CheckboxPrimitive.Indicator css={styles.indicator}>
         {isPartialChecked ? (
           <Minus size={12} strokeWidth={3} />
         ) : (
@@ -92,11 +92,7 @@ const Checkbox = forwardRef<
   }
 
   return (
-    <label
-      style={style}
-      className={`${CLASS_PREFIX}-ui-checkbox-wrapper`}
-      onClick={handleWrapperClick}
-    >
+    <label css={styles.wrapper} style={style} onClick={handleWrapperClick}>
       {control}
       {leftIcon && <span>{leftIcon}</span>}
       {label && (
@@ -111,3 +107,42 @@ const Checkbox = forwardRef<
 Checkbox.displayName = 'Checkbox';
 
 export default Checkbox;
+
+const styles = {
+  wrapper: scoped({
+    display: 'inline-flex',
+    alignItems: 'center',
+    columnGap: theme.spacing.md,
+    cursor: 'pointer',
+  }),
+  checkbox: scoped({
+    ...flexCenter(),
+    width: '16px',
+    height: '16px',
+    flexShrink: 0,
+    cursor: 'pointer',
+    padding: 0,
+    margin: 0,
+    border: '1px solid #e4e3ea',
+    borderRadius: theme.radius.sm,
+    backgroundColor: '#ffffff',
+    color: '#f3f3f7',
+    boxSizing: 'border-box',
+    '&:focus-visible': {
+      ...uiFocusRing(theme as Theme),
+    },
+    '&[data-state="checked"], &[data-state="indeterminate"]': {
+      backgroundColor: '#5641f3',
+      borderColor: '#5641f3',
+    },
+    '&:disabled': {
+      opacity: 0.5,
+      pointerEvents: 'none',
+    },
+  }),
+  indicator: scoped({
+    ...flexCenter(),
+    display: 'flex',
+    color: '#f3f3f7',
+  }),
+};

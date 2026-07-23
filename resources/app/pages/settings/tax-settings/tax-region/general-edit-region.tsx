@@ -10,7 +10,6 @@ import PageNavbar from '@/components/page-navbar';
 import Button from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
-import { CLASS_PREFIX } from '@/conf';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { queryKeys } from '@/libs/query-keys';
@@ -31,6 +30,8 @@ import {
 } from '@/services/settings';
 import type { SettingsSectionData } from '@/types';
 import { __ } from '@/wpi18n';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
 import type { TaxRate, TaxRegion, TaxRegionState, TaxRule } from '@/pages/settings/tax-settings/utils';
@@ -266,10 +267,7 @@ const GeneralEditRegion = () => {
                   handleBack={handleBackButton}
                 />
 
-                <Card
-                  className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}
-                  style={{ gap: 'var(--decom-spacing-4)' }}
-                >
+                <Card type="large" css={styles.citiesCard}>
                   <HeaderActionsCard
                     header={__('Cities', 'kirki-ecommerce')}
                     subHeader={__('Set tax rates for specific cities', 'kirki-ecommerce')}
@@ -340,3 +338,9 @@ const GeneralEditRegion = () => {
 GeneralEditRegion.displayName = 'GeneralEditRegion';
 
 export default GeneralEditRegion;
+
+const styles = {
+  citiesCard: scoped({
+    gap: theme.spacing['2xl'],
+  }),
+};

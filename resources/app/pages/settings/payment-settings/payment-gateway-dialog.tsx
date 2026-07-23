@@ -4,12 +4,12 @@ import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
   Dialog,
+  DialogBody,
   DialogCloseButton,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { CLASS_PREFIX } from '@/conf';
 import { CheckedIcon, StripeIcon } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
@@ -59,14 +59,11 @@ const PaymentGatewayPopup = ({
             {__('Available Payment Gateways', 'kirki-ecommerce')}
           </DialogTitle>
         </DialogHeader>
-        <div className={`${CLASS_PREFIX}-ui-dialog-body`}>
+        <DialogBody>
           <Flex direction="column" gap={16}>
             {(availableGatewayList as AvailablePaymentGateway[])?.map(
               (item, index) => (
-                <Card
-                  key={index}
-                  className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner`}
-                >
+                <Card key={index} type="inner">
                   <CardContent>
                     <Flex style={{ alignItems: 'center' }}>
                       <Text
@@ -96,7 +93,7 @@ const PaymentGatewayPopup = ({
               ),
             )}
           </Flex>
-        </div>
+        </DialogBody>
       </DialogContent>
     </Dialog>
   );

@@ -1,5 +1,4 @@
 import Button from '@/components/ui/button';
-import { CLASS_PREFIX } from '@/conf';
 import {
   EditIcon,
   EmailIcon,
@@ -14,6 +13,7 @@ import { Card } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import Thumbnail from '@/components/ui/thumbnail';
+import { flexCenter, scoped } from '@/theme/mixins';
 
 const CustomerInfo = () => {
   return (
@@ -31,7 +31,7 @@ const CustomerInfo = () => {
       </Flex>
 
       <Flex gap={8}>
-        <span className={`${CLASS_PREFIX}-svg-class`}>
+        <span css={styles.svgClass}>
           <Thumbnail
             type="circle"
             src="https://kirki-ecommerce.test/wp-content/uploads/2025/10/Avatar.png"
@@ -53,7 +53,7 @@ const CustomerInfo = () => {
       </Flex>
 
       <Flex gap={8} style={{ alignItems: 'center' }}>
-        <span className={`${CLASS_PREFIX}-svg-class`}>
+        <span css={styles.svgClass}>
           <PhoneIcon />
         </span>
         <Text header="+1 555-123-4567" />
@@ -87,3 +87,7 @@ const CustomerInfo = () => {
 };
 
 export default CustomerInfo;
+
+const styles = {
+  svgClass: scoped(flexCenter()),
+};

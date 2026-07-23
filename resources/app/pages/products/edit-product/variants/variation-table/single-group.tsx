@@ -12,11 +12,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { CLASS_PREFIX } from '@/conf';
 import { ChevronDownIcon } from '@/icons';
 import Flex from '@/components/ui/flex';
 import { TableCell, TableRow } from '@/components/ui/table';
 import { useProductForm } from '@/contexts/product-form-context';
+import { scoped } from '@/theme/mixins';
 import type {
   AttributeValue,
   MediaChangePayload,
@@ -36,6 +36,17 @@ type CombinedData = {
   in_stock?: boolean | string;
   available_quantity?: number;
   media?: ({ url?: string; [key: string]: unknown } | null | undefined)[];
+};
+
+const styles = {
+  hoverParent: scoped({
+    '&:hover [data-hover-reveal]': {
+      visibility: 'visible',
+    },
+  }),
+  hoverReveal: scoped({
+    visibility: 'hidden',
+  }),
 };
 
 type SingleGroupProps = {
@@ -223,7 +234,7 @@ const SingleGroup = ({
 
   return (
     <>
-      <TableRow className={`${CLASS_PREFIX}-hover-parent`}>
+      <TableRow css={styles.hoverParent}>
         <TableCell onlyCheckbox>
           <Checkbox
             checked={
@@ -265,7 +276,12 @@ const SingleGroup = ({
             <Button
               variant="ghost"
               size="sm"
-              className={`${thisVariants[0]?.attribute_values.length > 1 ? `${CLASS_PREFIX}-hover-visible` : `${CLASS_PREFIX}-visibility-hidden`}`}
+              data-hover-reveal={
+                thisVariants[0]?.attribute_values.length > 1
+                  ? 'true'
+                  : undefined
+              }
+              css={styles.hoverReveal}
               onClick={() => setShow(!show)}
               style={{
                 transform: show ? 'rotate(180deg)' : '',

@@ -1,3 +1,4 @@
+import { type SerializedStyles } from '@emotion/react';
 import type { ReactNode } from 'react';
 import {
   useFormContext,
@@ -23,7 +24,7 @@ type ColorPickerFieldProps<
   label?: ReactNode;
   description?: ReactNode;
   placeholder?: string;
-  className?: string;
+  css?: SerializedStyles;
 };
 
 const ColorPickerField = <
@@ -34,7 +35,7 @@ const ColorPickerField = <
   label,
   description,
   placeholder,
-  className,
+  css,
 }: ColorPickerFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
 
@@ -43,7 +44,7 @@ const ColorPickerField = <
       control={control}
       name={name}
       render={({ field, fieldState }) => (
-        <FormItem className={className}>
+        <FormItem css={css}>
           {label && <FormLabel>{label}</FormLabel>}
           <FormControl>
             <ColorPicker

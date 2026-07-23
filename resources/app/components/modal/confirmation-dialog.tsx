@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react';
 import { Info, Trash2 } from 'lucide-react';
-import classNames from 'classnames';
 
 import Button from '@/components/ui/button';
 import {
@@ -12,7 +11,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { CLASS_PREFIX } from '@/conf';
+import { theme } from '@/theme';
+import { flexCenter, scoped } from '@/theme/mixins';
 import type { ConfirmationVariant } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -84,36 +84,31 @@ const ConfirmationDialog = (props: ConfirmationDialogProps) => {
         }
       }}
     >
-      <DialogContent
-        className={`${CLASS_PREFIX}-confirmation-dialog`}
-        style={{ width: 400 }}
-      >
+      <DialogContent css={styles.content}>
         <DialogCloseButton />
-        <DialogHeader className={`${CLASS_PREFIX}-confirmation-dialog-header`}>
+        <DialogHeader css={styles.header}>
           <span
-            className={`${CLASS_PREFIX}-confirmation-dialog-icon`}
+            css={styles.icon}
             style={{ background: ui.iconBg }}
             aria-hidden="true"
           >
             {ui.icon}
           </span>
-          <DialogTitle>{finalTitle || __('Confirm', 'kirki-ecommerce')}</DialogTitle>
+          <DialogTitle css={styles.title}>
+            {finalTitle || __('Confirm', 'kirki-ecommerce')}
+          </DialogTitle>
           {!!finalSubtitle && (
-            <DialogDescription>{finalSubtitle}</DialogDescription>
+            <DialogDescription css={styles.description}>
+              {finalSubtitle}
+            </DialogDescription>
           )}
         </DialogHeader>
-        <DialogFooter className={`${CLASS_PREFIX}-confirmation-dialog-footer`}>
-          <Button
-            className={`${CLASS_PREFIX}-confirmation-dialog-action`}
-            variant="outline"
-            onClick={onCancel}
-          >
+        <DialogFooter css={styles.footer}>
+          <Button css={styles.action} variant="outline" onClick={onCancel}>
             {__('Cancel', 'kirki-ecommerce')}
           </Button>
           <Button
-            className={classNames(
-              `${CLASS_PREFIX}-confirmation-dialog-action`,
-            )}
+            css={styles.action}
             variant={ui.confirmVariant}
             onClick={onConfirm}
           >
@@ -128,3 +123,37 @@ const ConfirmationDialog = (props: ConfirmationDialogProps) => {
 ConfirmationDialog.displayName = 'ConfirmationDialog';
 
 export default ConfirmationDialog;
+
+const styles = {
+  content: scoped({
+    width: '400px',
+  }),
+  header: scoped({
+    alignItems: 'center',
+    textAlign: 'center',
+    paddingTop: theme.spacing['4xl'],
+  }),
+  icon: scoped({
+    ...flexCenter(),
+    height: '40px',
+    width: '40px',
+    borderRadius: '50%',
+    marginBottom: theme.spacing.md,
+  }),
+  title: scoped({
+    fontSize: '20px',
+    lineHeight: '28px',
+    textAlign: 'center',
+  }),
+  description: scoped({
+    textAlign: 'center',
+  }),
+  footer: scoped({
+    justifyContent: 'space-between',
+    width: '100%',
+    boxSizing: 'border-box',
+  }),
+  action: scoped({
+    flex: 1,
+  }),
+};

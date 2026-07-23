@@ -6,6 +6,7 @@ import Button from '@/components/ui/button';
 import Checkbox from '@/components/ui/checkbox';
 import {
   Dialog,
+  DialogBody,
   DialogClose,
   DialogCloseButton,
   DialogContent,
@@ -16,7 +17,6 @@ import {
 import { Form } from '@/components/ui/form';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
-import { CLASS_PREFIX } from '@/conf';
 import { PlusIcon, SearchIcon } from '@/icons';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
@@ -29,6 +29,7 @@ import {
   useAvailableCurrenciesQuery,
 } from '@/services/currency';
 import type { Currency } from '@/types';
+import { theme } from '@/theme';
 import { __ } from '@/wpi18n';
 
 import { getSearchedValue } from '@/pages/settings/utils';
@@ -140,7 +141,7 @@ const AddCurrencyPopup = () => {
           </DialogHeader>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(handleSubmit)}>
-              <div className={`${CLASS_PREFIX}-ui-dialog-body`}>
+              <DialogBody>
                 <Flex direction="column" gap={16}>
                   <div>
                     <Label htmlFor="add-currency-search">
@@ -150,7 +151,7 @@ const AddCurrencyPopup = () => {
                       <span
                         style={{
                           position: 'absolute',
-                          left: 'var(--decom-spacing-3)',
+                          left: theme.spacing.lg,
                           top: '50%',
                           transform: 'translateY(-50%)',
                           pointerEvents: 'none',
@@ -167,7 +168,7 @@ const AddCurrencyPopup = () => {
                           'kirki-ecommerce',
                         )}
                         onChange={(e) => handleSearchCurrency(e)}
-                        style={{ paddingLeft: 'var(--decom-spacing-8)' }}
+                        style={{ paddingLeft: theme.spacing['6xl'] }}
                       />
                     </div>
                   </div>
@@ -214,12 +215,12 @@ const AddCurrencyPopup = () => {
                               type="xsm"
                               header={currency.name}
                               style={{
-                                color: 'var(--decom-text-text-subdued)',
+                                color: theme.colors.text.subdued,
                               }}
                             />
                             <Text
                               style={{
-                                paddingRight: 'var(--decom-spacing-3)',
+                                paddingRight: theme.spacing.lg,
                               }}
                               type="primary"
                               header={currency.symbol}
@@ -229,7 +230,7 @@ const AddCurrencyPopup = () => {
                       ))}
                   </Flex>
                 </Flex>
-              </div>
+              </DialogBody>
               <DialogFooter>
                 <DialogClose asChild>
                   <Button type="button" variant="outline">

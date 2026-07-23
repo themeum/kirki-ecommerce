@@ -14,6 +14,7 @@ import type {
   ConfirmationVariant,
   MarkListHandlers,
 } from '@/types';
+import { theme } from '@/theme';
 import { __ } from '@/wpi18n';
 
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
@@ -90,8 +91,8 @@ const SingleRow = ({
                   height: '32px',
                   width: '32px',
                   minWidth: '32px',
-                  borderRadius: 'var(--decom-radius-rounded-md)',
-                  border: '1.17px solid var(--decom-border-border) ',
+                  borderRadius: theme.radius.md,
+                  border: `1.17px solid ${theme.colors.border.default}`,
                   background: `${item?.color}`,
                 }}
               ></div>

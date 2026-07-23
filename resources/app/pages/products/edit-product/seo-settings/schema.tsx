@@ -3,7 +3,6 @@ import { useState } from 'react';
 import SelectField from '@/components/form/select-field';
 import GroupTagTable from '@/components/group-tag-table';
 import { Card, CardContent } from '@/components/ui/card';
-import { CLASS_PREFIX } from '@/conf';
 import Flex from '@/components/ui/flex';
 import type { SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
@@ -53,7 +52,7 @@ const Schema = () => {
         hasSelect
         isEditable
       />
-      <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner`}>
+      <Card type="inner">
         <CardContent>askjdasjdajosidaosij</CardContent>
       </Card>
     </Flex>

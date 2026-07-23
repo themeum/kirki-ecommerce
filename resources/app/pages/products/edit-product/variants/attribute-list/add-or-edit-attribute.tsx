@@ -12,7 +12,6 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { CLASS_PREFIX } from '@/conf';
 import { ColorPaletteIcon, ListIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
@@ -238,7 +237,7 @@ const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
 
   return (
     <Form {...form}>
-      <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner`}>
+      <Card type="inner">
         <CardContent>
           <Flex direction="column" gap={16}>
             {!data && (

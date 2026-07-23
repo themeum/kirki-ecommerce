@@ -1,6 +1,5 @@
 import { useNavigate } from 'react-router';
 
-import { CLASS_PREFIX } from '@/conf';
 import { FileSpreadSheetIcon, InfoIcon, StripeIcon } from '@/icons';
 import Badge from '@/components/ui/badge';
 import Checkbox from '@/components/ui/checkbox';
@@ -14,6 +13,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import Text from '@/components/ui/text';
+import { flexCenter, scoped } from '@/theme/mixins';
 import type { TaxonomyTableHeader } from '@/types';
 
 const OrderTable = () => {
@@ -72,7 +72,7 @@ const OrderTable = () => {
             <TableCell>
               <Flex gap={8}>
                 <span>33</span>
-                <span className={`${CLASS_PREFIX}-svg-class`}>
+                <span css={styles.svgClass}>
                   <InfoIcon />
                 </span>
               </Flex>
@@ -80,7 +80,7 @@ const OrderTable = () => {
             <TableCell>
               <Flex gap={4}>
                 <span>BDT 4,000</span>
-                <span className={`${CLASS_PREFIX}-svg-class`}>
+                <span css={styles.svgClass}>
                   <FileSpreadSheetIcon />
                 </span>
               </Flex>
@@ -90,7 +90,7 @@ const OrderTable = () => {
             </TableCell>
             <TableCell>
               <Flex gap={12}>
-                <span className={`${CLASS_PREFIX}-svg-class`}>
+                <span css={styles.svgClass}>
                   <StripeIcon />
                 </span>
                 <span>Stripe</span>
@@ -105,3 +105,7 @@ const OrderTable = () => {
 };
 
 export default OrderTable;
+
+const styles = {
+  svgClass: scoped(flexCenter()),
+};

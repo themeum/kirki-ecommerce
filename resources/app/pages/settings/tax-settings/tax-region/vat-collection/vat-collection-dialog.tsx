@@ -6,6 +6,7 @@ import TextField from '@/components/form/text-field';
 import Button from '@/components/ui/button';
 import {
   Dialog,
+  DialogBody,
   DialogClose,
   DialogCloseButton,
   DialogContent,
@@ -28,7 +29,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { CLASS_PREFIX } from '@/conf';
 import {
   VatCollectionFormSchema,
   type VatCollectionFormValues,
@@ -127,7 +127,7 @@ const VatCollectionPopup = (props: VatCollectionPopupProps) => {
           <DialogTitle>{__('Collect VAT', 'kirki-ecommerce')}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <div className={`${CLASS_PREFIX}-ui-dialog-body`}>
+          <DialogBody>
             <FormField
               control={form.control}
               name="state"
@@ -166,7 +166,7 @@ const VatCollectionPopup = (props: VatCollectionPopupProps) => {
               label={__('VAT (%)', 'kirki-ecommerce')}
               placeholder="e.g. 20%"
             />
-          </div>
+          </DialogBody>
           <DialogFooter>
             <DialogClose asChild>
               <Button variant="outline" size="sm">

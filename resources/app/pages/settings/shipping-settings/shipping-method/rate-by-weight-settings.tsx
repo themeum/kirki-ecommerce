@@ -3,15 +3,17 @@ import { useState, useEffect } from 'react';
 import Button from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
+import { FormFieldRow } from '@/components/ui/form';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
 import Textarea from '@/components/ui/textarea';
 import Flex from '@/components/ui/flex';
 import Grid from '@/components/ui/grid';
 import Text from '@/components/ui/text';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 import { PlusIcon, TrashIcon } from '@/icons';
-import { CLASS_PREFIX } from '@/conf';
 
 import type { ShippingMethodData } from '@/pages/settings/shipping-settings/utils';
 
@@ -81,31 +83,18 @@ const RateByWeightSettings = ({
           id="rate-by-weight-description"
           value={(dataObj?.description as string) || ''}
           placeholder={__('e.g., 3-5 business days', 'kirki-ecommerce')}
-          style={{
-            padding: 'var(--decom-spacing-2) var(--decom-spacing-3)',
-            minHeight: '108px',
-          }}
+          css={styles.textarea}
           onChange={(e) => handleOnChange(e.target.value, 'description')}
         />
       </Flex>
-      <Card
-        className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-form`}
-        style={{
-          border: '1px solid var(--decom-border-border)',
-          borderRadius: 'var(--decom-radius-rounded-md)',
-        }}
-      >
+      <Card type="form" css={styles.rangesCard}>
         <Grid columns={3}>
           <Text header={__('Weight Range (kg)', 'kirki-ecommerce')} />
           <Text />
           <Text header={__('Rate', 'kirki-ecommerce')} />
         </Grid>
         {ranges?.map((range, index) => (
-          <Grid
-            columns={3}
-            key={index}
-            className={`${CLASS_PREFIX}-weight-rate-delete-icon`}
-          >
+          <Grid columns={3} key={index}>
             <Input
               value={range.from || ''}
               type="number"
@@ -118,13 +107,7 @@ const RateByWeightSettings = ({
               placeholder={__('e.g. 12', 'kirki-ecommerce')}
               onChange={(e) => updateRange(index, 'to', e.target.value)}
             />
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '16px',
-              }}
-            >
+            <div css={styles.rateRow} data-hover-parent>
               <Input
                 value={range.amount || ''}
                 type="number"
@@ -135,7 +118,8 @@ const RateByWeightSettings = ({
               {index !== 0 && (
                 <Button
                   variant="secondary"
-                  style={{ padding: 'var(--decom-spacing-1)' }}
+                  css={styles.deleteButton}
+                  data-hover-reveal
                   onClick={() => removeRange(index)}
                 >
                   <TrashIcon />
@@ -150,7 +134,7 @@ const RateByWeightSettings = ({
         </Button>
       </Card>
 
-      <div className={`${CLASS_PREFIX}-ui-checkbox-field`}>
+      <FormFieldRow>
         <Checkbox
           id="rate-by-weight-is-taxable"
           checked={dataObj?.['is_taxable'] as boolean}
@@ -159,8 +143,8 @@ const RateByWeightSettings = ({
         <Label htmlFor="rate-by-weight-is-taxable">
           {__('Tax applies to the shipping charge', 'kirki-ecommerce')}
         </Label>
-      </div>
-      <div className={`${CLASS_PREFIX}-ui-checkbox-field`}>
+      </FormFieldRow>
+      <FormFieldRow>
         <Checkbox
           id="rate-by-weight-has-free-shipping"
           checked={hasFreeShipping}
@@ -172,7 +156,7 @@ const RateByWeightSettings = ({
             'kirki-ecommerce',
           )}
         </Label>
-      </div>
+      </FormFieldRow>
       {hasFreeShipping && (
         <Flex direction="column" gap={8}>
           <Label htmlFor="rate-by-weight-amount">
@@ -194,3 +178,34 @@ const RateByWeightSettings = ({
 RateByWeightSettings.displayName = 'RateByWeightSettings';
 
 export default RateByWeightSettings;
+
+const styles = {
+  textarea: scoped({
+    padding: `${theme.spacing.md} ${theme.spacing.lg}`,
+    minHeight: '108px',
+  }),
+  rangesCard: scoped({
+    border: `1px solid ${theme.colors.border.default}`,
+    borderRadius: theme.radius.md,
+  }),
+  rateRow: scoped({
+    display: 'flex',
+    alignItems: 'center',
+    gap: theme.spacing['2xl'],
+    '&:hover [data-hover-reveal]': {
+      opacity: 1,
+      visibility: 'visible',
+      display: 'block',
+    },
+  }),
+  deleteButton: scoped({
+    padding: theme.spacing.xs,
+    opacity: 0,
+    display: 'none',
+    visibility: 'hidden',
+    transition: 'opacity 0.2s ease',
+    cursor: 'pointer',
+    background: theme.colors.background.fillSecondary,
+    borderRadius: theme.radius.lg,
+  }),
+};

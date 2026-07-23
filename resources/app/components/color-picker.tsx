@@ -1,10 +1,10 @@
 import type { KeyboardEvent } from 'react';
 import { useState, useEffect } from 'react';
-import classNames from 'classnames';
 
 import Flex from '@/components/ui/flex';
 import Label from '@/components/ui/label';
-import { CLASS_PREFIX } from '@/conf';
+import { theme } from '@/theme';
+import { itemCenter, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 type ColorPickerProps = {
@@ -69,13 +69,13 @@ const ColorPicker = ({
           {label}
         </Label>
       )}
-      <div className={`${CLASS_PREFIX}-color-picker-wrapper`}>
-        <div className={`${CLASS_PREFIX}-color-picker-inner`}>
+      <div css={styles.wrapper}>
+        <div css={styles.inner}>
           <div
             role="button"
             tabIndex={0}
             aria-label={__('Toggle color picker', 'kirki-ecommerce')}
-            className={`${CLASS_PREFIX}-color-picker-swatch`}
+            css={styles.swatch}
             style={{ backgroundColor: inputValue || placeholder }}
             onClick={handleSwatchToggle}
             onKeyDown={handleSwatchKeyDown}
@@ -85,7 +85,7 @@ const ColorPicker = ({
             value={inputValue}
             onChange={(e) => handleChange(e.target.value)}
             onKeyDown={handleKeyDown}
-            className={classNames(`${CLASS_PREFIX}-color-picker-input`)}
+            css={styles.input}
             placeholder={placeholder}
             aria-invalid={Boolean(error) || undefined}
           />
@@ -98,3 +98,39 @@ const ColorPicker = ({
 ColorPicker.displayName = 'ColorPicker';
 
 export default ColorPicker;
+
+const styles = {
+  wrapper: scoped({
+    border: `1px solid ${theme.colors.border.alt}`,
+    borderRadius: theme.radius.md,
+    padding: `${theme.spacing.xxs} ${theme.spacing.md}`,
+    '&:focus-within': {
+      boxShadow: `0px 0px 0px 1.5px ${theme.colors.border.ring}`,
+    },
+  }),
+  inner: scoped({
+    ...itemCenter(),
+    gap: theme.spacing.md,
+    width: '100%',
+  }),
+  swatch: scoped({
+    backgroundColor: 'transparent',
+    height: '16px',
+    width: '16px',
+    border: `1px solid ${theme.colors.border.alt}`,
+    borderRadius: '50%',
+    flexShrink: 0,
+    cursor: 'pointer',
+  }),
+  input: scoped({
+    border: 'none !important',
+    outline: 'none !important',
+    flex: '1 !important',
+    padding: `${theme.spacing.none} !important`,
+    '&:focus, &:focus-visible, &:active': {
+      border: 'none !important',
+      outline: 'none !important',
+      boxShadow: 'none !important',
+    },
+  }),
+};

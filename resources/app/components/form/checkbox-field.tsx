@@ -1,3 +1,4 @@
+import { type SerializedStyles } from '@emotion/react';
 import type { ReactNode } from 'react';
 import {
   useFormContext,
@@ -9,12 +10,12 @@ import {
   FormControl,
   FormDescription,
   FormField,
+  FormFieldRow,
   FormItem,
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
 import Checkbox from '@/components/ui/checkbox';
-import { CLASS_PREFIX } from '@/conf';
 
 type CheckboxFieldProps<
   TFieldValues extends FieldValues = FieldValues,
@@ -24,7 +25,7 @@ type CheckboxFieldProps<
   label?: ReactNode;
   description?: ReactNode;
   disabled?: boolean;
-  className?: string;
+  css?: SerializedStyles;
 };
 
 const CheckboxField = <
@@ -35,7 +36,7 @@ const CheckboxField = <
   label,
   description,
   disabled,
-  className,
+  css,
 }: CheckboxFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
 
@@ -44,8 +45,8 @@ const CheckboxField = <
       control={control}
       name={name}
       render={({ field }) => (
-        <FormItem className={className}>
-          <div className={`${CLASS_PREFIX}-ui-checkbox-field`}>
+        <FormItem css={css}>
+          <FormFieldRow>
             <FormControl>
               <Checkbox
                 checked={Boolean(field.value)}
@@ -56,7 +57,7 @@ const CheckboxField = <
               />
             </FormControl>
             {label && <FormLabel>{label}</FormLabel>}
-          </div>
+          </FormFieldRow>
           {description && <FormDescription>{description}</FormDescription>}
           <FormMessage />
         </FormItem>

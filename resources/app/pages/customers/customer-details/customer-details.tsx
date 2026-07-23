@@ -8,7 +8,7 @@ import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import Label from '@/components/ui/label';
-import { CLASS_PREFIX, NEW_ITEM_ID } from '@/conf';
+import { NEW_ITEM_ID } from '@/conf';
 import { PlusIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
@@ -185,7 +185,7 @@ const CustomerDetails = () => {
           </Flex>
 
           <Flex direction="column" gap={16} style={{ width: '30%' }}>
-            <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-form`}>
+            <Card type="form">
               <CardContent>
                 <Flex direction="column" gap={16}>
                   <Label>{__('Notes', 'kirki-ecommerce')}</Label>
@@ -197,7 +197,7 @@ const CustomerDetails = () => {
               </CardContent>
             </Card>
 
-            <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-form`}>
+            <Card type="form">
               <CardContent>
                 <TagManagerField
                   name="tags"

@@ -7,6 +7,7 @@ import TextField from '@/components/form/text-field';
 import Button from '@/components/ui/button';
 import {
   Dialog,
+  DialogBody,
   DialogCloseButton,
   DialogContent,
   DialogFooter,
@@ -14,7 +15,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
-import { CLASS_PREFIX } from '@/conf';
 import Flex from '@/components/ui/flex';
 import {
   ProductVariationPopoverFormSchema,
@@ -92,7 +92,7 @@ const VariationPopover = ({
           <DialogTitle>{__('Add Color', 'kirki-ecommerce')}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <div className={`${CLASS_PREFIX}-ui-dialog-body`}>
+          <DialogBody>
             <Flex direction="column" gap={16}>
               <TextField
                 name="title"
@@ -105,7 +105,7 @@ const VariationPopover = ({
                 placeholder={__('#007ba7', 'kirki-ecommerce')}
               />
             </Flex>
-          </div>
+          </DialogBody>
           <DialogFooter>
             <Button variant="outline" size="sm" onClick={onClose}>
               {__('Cancel', 'kirki-ecommerce')}

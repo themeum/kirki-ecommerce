@@ -9,6 +9,7 @@ import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
   Dialog,
+  DialogBody,
   DialogClose,
   DialogCloseButton,
   DialogContent,
@@ -17,7 +18,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
-import { CLASS_PREFIX } from '@/conf';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import Flex from '@/components/ui/flex';
@@ -112,11 +112,9 @@ const BrandAddEditPopover = ({
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)}>
-            <div className={`${CLASS_PREFIX}-ui-dialog-body`}>
+            <DialogBody>
               <Flex direction="column" gap={16}>
-                <Card
-                  className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-light`}
-                >
+                <Card type="light">
                   <CardContent>
                     <Flex direction="column" gap={16}>
                       <TextField
@@ -149,7 +147,7 @@ const BrandAddEditPopover = ({
                   </CardContent>
                 </Card>
               </Flex>
-            </div>
+            </DialogBody>
             <DialogFooter>
               <DialogClose asChild>
                 <Button

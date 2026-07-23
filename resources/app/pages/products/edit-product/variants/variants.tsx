@@ -1,5 +1,4 @@
 import { Card, CardContent } from '@/components/ui/card';
-import { CLASS_PREFIX } from '@/conf';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import type { TextType } from '@/types';
@@ -18,7 +17,7 @@ type VariantsProps = {
 
 const Variants = ({ onSave = () => {} }: VariantsProps) => {
   return (
-    <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-form`}>
+    <Card type="form">
       <CardContent>
         <Flex>
           <Text

@@ -1,3 +1,4 @@
+import { type SerializedStyles } from '@emotion/react';
 import type { ReactNode } from 'react';
 import {
   useFormContext,
@@ -25,7 +26,7 @@ type TextareaFieldProps<
   placeholder?: string;
   rows?: number;
   disabled?: boolean;
-  className?: string;
+  css?: SerializedStyles;
 };
 
 const TextareaField = <
@@ -38,7 +39,7 @@ const TextareaField = <
   placeholder,
   rows = 5,
   disabled,
-  className,
+  css,
 }: TextareaFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
 
@@ -47,7 +48,7 @@ const TextareaField = <
       control={control}
       name={name}
       render={({ field, fieldState }) => (
-        <FormItem className={className}>
+        <FormItem css={css}>
           {label && <FormLabel>{label}</FormLabel>}
           <FormControl>
             <Textarea

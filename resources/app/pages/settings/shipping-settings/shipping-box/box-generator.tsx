@@ -1,6 +1,7 @@
 import type { CSSProperties } from 'react';
 
-import { CLASS_PREFIX } from '@/conf';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 
 type BoxGeneratorProps = {
   length: number;
@@ -37,11 +38,11 @@ export const BoxGenerator = ({
 
   return (
     <div
-      className={`${CLASS_PREFIX}-box-container`}
+      css={styles.container}
       style={{ perspective: Math.max(600, lengthF * 3) }}
     >
       <div
-        className={`${CLASS_PREFIX}-box`}
+        css={styles.box}
         style={
           {
             '--w': `${widthF}px`,
@@ -51,13 +52,78 @@ export const BoxGenerator = ({
           } as CSSProperties
         }
       >
-        <div className="face front" />
-        <div className="face back" />
-        <div className="face left" />
-        <div className="face right" />
-        <div className="face top" />
-        <div className="face bottom" />
+        <div css={[styles.face, styles.front]} />
+        <div css={[styles.face, styles.back]} />
+        <div css={[styles.face, styles.left]} />
+        <div css={[styles.face, styles.right]} />
+        <div css={[styles.face, styles.top]} />
+        <div css={[styles.face, styles.bottom]} />
       </div>
     </div>
   );
+};
+
+const styles = {
+  container: scoped({
+    height: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+  }),
+  box: scoped({
+    position: 'relative',
+    transformStyle: 'preserve-3d',
+    margin: 'auto',
+    width: 'var(--w)',
+    height: 'var(--h)',
+  }),
+  face: scoped({
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transformStyle: 'preserve-3d',
+    boxSizing: 'border-box',
+  }),
+  front: scoped({
+    width: 'var(--w)',
+    height: 'var(--h)',
+    transform: 'translate(-50%, -50%) translateZ(calc(var(--l) / 2))',
+    background: theme.colors.shipping.boxDark,
+  }),
+  back: scoped({
+    width: 'var(--w)',
+    height: 'var(--h)',
+    transform:
+      'translate(-50%, -50%) rotateY(180deg) translateZ(calc(var(--l) / 2))',
+    background: theme.colors.shipping.boxDark,
+  }),
+  right: scoped({
+    width: 'var(--l)',
+    height: 'var(--h)',
+    transform:
+      'translate(-50%, -50%) rotateY(90deg) translateZ(calc(var(--w) / 2))',
+    background: theme.colors.shipping.boxMid,
+  }),
+  left: scoped({
+    width: 'var(--l)',
+    height: 'var(--h)',
+    transform:
+      'translate(-50%, -50%) rotateY(-90deg) translateZ(calc(var(--w) / 2))',
+    background: theme.colors.shipping.boxMid,
+  }),
+  top: scoped({
+    width: 'var(--w)',
+    height: 'var(--l)',
+    transform:
+      'translate(-50%, -50%) rotateX(90deg) translateZ(calc(var(--h) / 2))',
+    background: theme.colors.shipping.boxLight,
+  }),
+  bottom: scoped({
+    width: 'var(--w)',
+    height: 'var(--l)',
+    transform:
+      'translate(-50%, -50%) rotateX(-90deg) translateZ(calc(var(--h) / 2))',
+    background: theme.colors.shipping.boxLight,
+  }),
 };

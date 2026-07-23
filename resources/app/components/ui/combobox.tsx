@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react';
+import { type SerializedStyles, type Theme } from '@emotion/react';
 import { Check, ChevronsUpDown, X } from 'lucide-react';
-import classNames from 'classnames';
 
 import {
   Command,
@@ -15,7 +15,14 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { CLASS_PREFIX } from '@/conf';
+import { theme } from '@/theme';
+import {
+  flexCenter,
+  fontGeneralSettings,
+  itemCenter,
+  scoped,
+  uiFocusRing,
+} from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 type ComboboxOption = {
@@ -33,7 +40,9 @@ type ComboboxProps = {
   disabled?: boolean;
   error?: boolean;
   multiple?: boolean;
-  className?: string;
+  css?: SerializedStyles;
+  listCss?: SerializedStyles;
+  searchInputCss?: SerializedStyles;
 };
 
 const Combobox = ({
@@ -46,7 +55,9 @@ const Combobox = ({
   disabled = false,
   error = false,
   multiple = false,
-  className,
+  css: cssProp,
+  listCss,
+  searchInputCss,
 }: ComboboxProps) => {
   const [open, setOpen] = useState(false);
 
@@ -85,24 +96,17 @@ const Combobox = ({
   const triggerLabel = (): ReactNode => {
     if (multiple) {
       if (selectedOptions.length === 0) {
-        return (
-          <span className={`${CLASS_PREFIX}-ui-combobox-placeholder`}>
-            {placeholder}
-          </span>
-        );
+        return <span css={styles.placeholder}>{placeholder}</span>;
       }
 
       return (
-        <span className={`${CLASS_PREFIX}-ui-combobox-tags`}>
+        <span css={styles.tags}>
           {selectedOptions.map((option) => (
-            <span
-              key={option.value}
-              className={`${CLASS_PREFIX}-ui-combobox-tag`}
-            >
+            <span key={option.value} css={styles.tag}>
               {option.label}
               <button
                 type="button"
-                className={`${CLASS_PREFIX}-ui-combobox-tag-remove`}
+                css={styles.tagRemove}
                 onClick={(event) => {
                   event.stopPropagation();
                   handleRemove(option.value);
@@ -121,11 +125,7 @@ const Combobox = ({
       return selectedOptions[0].label;
     }
 
-    return (
-      <span className={`${CLASS_PREFIX}-ui-combobox-placeholder`}>
-        {placeholder}
-      </span>
-    );
+    return <span css={styles.placeholder}>{placeholder}</span>;
   };
 
   return (
@@ -137,28 +137,16 @@ const Combobox = ({
           aria-expanded={open}
           disabled={disabled}
           data-error={error ? 'true' : undefined}
-          className={classNames(
-            `${CLASS_PREFIX}-ui-combobox-trigger`,
-            error && `${CLASS_PREFIX}-ui-combobox-trigger--error`,
-            className,
-          )}
+          css={[styles.trigger, error && styles.triggerError, cssProp]}
         >
-          <span className={`${CLASS_PREFIX}-ui-combobox-value`}>
-            {triggerLabel()}
-          </span>
-          <ChevronsUpDown
-            size={16}
-            className={`${CLASS_PREFIX}-ui-combobox-chevron`}
-          />
+          <span css={styles.value}>{triggerLabel()}</span>
+          <ChevronsUpDown size={16} css={styles.chevron} />
         </button>
       </PopoverTrigger>
-      <PopoverContent
-        className={`${CLASS_PREFIX}-ui-combobox-content`}
-        align="start"
-      >
+      <PopoverContent align="start" css={styles.content}>
         <Command>
-          <CommandInput placeholder={searchPlaceholder} />
-          <CommandList>
+          <CommandInput placeholder={searchPlaceholder} css={searchInputCss} />
+          <CommandList css={listCss}>
             <CommandEmpty>{emptyText}</CommandEmpty>
             <CommandGroup>
               {options.map((option) => {
@@ -171,11 +159,7 @@ const Combobox = ({
                     onSelect={() => handleSelect(option.value)}
                   >
                     <span
-                      className={classNames(
-                        `${CLASS_PREFIX}-ui-command-item-check`,
-                        !isSelected &&
-                          `${CLASS_PREFIX}-ui-command-item-check--empty`,
-                      )}
+                      css={[styles.itemCheck, !isSelected && styles.itemCheckEmpty]}
                     >
                       {isSelected && <Check size={14} />}
                     </span>
@@ -195,3 +179,107 @@ Combobox.displayName = 'Combobox';
 
 export default Combobox;
 export type { ComboboxOption, ComboboxProps };
+
+const styles = {
+  trigger: scoped({
+    width: '100%',
+    minHeight: '36px',
+    border: `1px solid ${theme.colors.border.default}`,
+    padding: `${theme.spacing.md} ${theme.spacing.lg}`,
+    borderRadius: theme.radius.lg,
+    backgroundColor: theme.colors.background.fill,
+    boxSizing: 'border-box',
+    justifyContent: 'space-between',
+    ...itemCenter(),
+    gap: theme.spacing.md,
+    ...fontGeneralSettings(theme as Theme),
+    cursor: 'pointer',
+    textAlign: 'left',
+    '&:focus-visible, &[data-state="open"]': {
+      borderColor: theme.colors.border.default,
+      ...uiFocusRing(theme as Theme),
+    },
+    '&:disabled': {
+      backgroundColor: theme.colors.background.surfaceAlt,
+      color: theme.colors.text.secondary,
+      opacity: 0.8,
+      borderColor: 'transparent',
+      pointerEvents: 'none',
+    },
+  }),
+  triggerError: scoped({
+    border: `1px solid ${theme.colors.border.critical}`,
+    boxShadow: 'none',
+    '&:focus-visible, &[data-state="open"]': {
+      borderColor: theme.colors.border.critical,
+      ...uiFocusRing(theme as Theme, theme.colors.border.critical),
+    },
+  }),
+  value: scoped({
+    flex: 1,
+    minWidth: 0,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+    fontSize: '14px',
+    lineHeight: '20px',
+    color: theme.colors.text.primary,
+  }),
+  placeholder: scoped({
+    color: theme.colors.text.secondary,
+    opacity: 0.8,
+  }),
+  chevron: scoped({
+    flexShrink: 0,
+    color: theme.colors.text.secondary,
+    opacity: 0.5,
+  }),
+  tags: scoped({
+    ...itemCenter(),
+    justifyContent: 'flex-start',
+    flexWrap: 'wrap',
+    gap: theme.spacing.xs,
+    whiteSpace: 'normal',
+  }),
+  tag: scoped({
+    ...itemCenter(),
+    justifyContent: 'flex-start',
+    gap: theme.spacing.xs,
+    maxWidth: '100%',
+    padding: `2px ${theme.spacing.md}`,
+    borderRadius: theme.radius.md,
+    backgroundColor: theme.colors.background.surfaceAlt,
+    fontSize: '12px',
+    lineHeight: '18px',
+  }),
+  tagRemove: scoped({
+    ...itemCenter(),
+    justifyContent: 'center',
+    padding: 0,
+    margin: 0,
+    border: 'none',
+    background: 'transparent',
+    cursor: 'pointer',
+    color: theme.colors.text.secondary,
+    '&:hover': {
+      color: theme.colors.text.primary,
+    },
+  }),
+  content: scoped({
+    width: 'var(--radix-popover-trigger-width)',
+    minWidth: 'var(--radix-popover-trigger-width)',
+    maxWidth: 'var(--radix-popover-trigger-width)',
+    padding: 0,
+    overflow: 'hidden',
+  }),
+  itemCheck: scoped({
+    ...flexCenter(),
+    width: '16px',
+    height: '16px',
+    flexShrink: 0,
+    color: theme.colors.text.primary,
+  }),
+  itemCheckEmpty: scoped({
+    opacity: 0,
+  }),
+};

@@ -4,7 +4,6 @@ import { useOutletContext } from 'react-router';
 import BulkActionHandler from '@/components/bulk-action-handler';
 import { Card } from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
-import { CLASS_PREFIX } from '@/conf';
 import { useMarkList } from '@/hooks';
 import Flex from '@/components/ui/flex';
 import {
@@ -120,7 +119,7 @@ const VariationTable = ({
       )}
       {!filteredList?.length ? (
         <Card
-          className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-innerDark`}
+          type="innerDark"
           style={{ padding: '36px 0', borderRadius: '0px' }}
         >
           <Flex style={{ alignItems: 'center', justifyContent: 'center' }}>

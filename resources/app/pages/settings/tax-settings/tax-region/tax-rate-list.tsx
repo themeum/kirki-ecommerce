@@ -1,4 +1,5 @@
-import type { Dispatch, SetStateAction } from 'react';
+import { css } from '@emotion/react';
+import { useState, type Dispatch, type SetStateAction } from 'react';
 import { toast } from 'sonner';
 
 import { Card } from '@/components/ui/card';
@@ -7,8 +8,9 @@ import Input from '@/components/ui/input';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { PaymentIcon, LocationIcon, TrashIcon } from '@/icons';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import { __, sprintf } from '@/wpi18n';
-import { CLASS_PREFIX } from '@/conf';
 
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
 import type { TaxRate } from '@/pages/settings/tax-settings/utils';
@@ -29,6 +31,8 @@ export const TaxRateList = ({
   setTaxRates,
   handleSaveData,
 }: TaxRateListProps) => {
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
   const handleTaxRate = (item: TaxRate, value: number | string) => {
     setUnsavedDataStatus(true);
     setTaxRates((prev) =>
@@ -62,10 +66,7 @@ export const TaxRateList = ({
   return (
     <div>
       {!applySingleTax && !taxRates.length ? (
-        <Card
-          className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner-dark`}
-          style={{ padding: '36px 0' }}
-        >
+        <Card type="innerDark" style={{ padding: '36px 0' }}>
           <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
             <PaymentIcon />
             <span style={{ color: '#878593' }}>
@@ -74,25 +75,37 @@ export const TaxRateList = ({
           </Flex>
         </Card>
       ) : (
-        <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner-dark`}>
+        <Card type="innerDark">
           <Text
             header={__('Tax rates', 'kirki-ecommerce')}
-            style={{ marginBottom: 'var(--decom-spacing-2)' }}
+            css={styles.taxRatesHeader}
           />
           <Flex gap={2} direction={'column'}>
             {taxRates?.map((item, index) => (
               <Card
                 key={index}
-                className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-default ${CLASS_PREFIX}-tax-card`}
+                type="default"
+                css={styles.taxCard}
+                onMouseEnter={() => setHoveredIndex(index)}
+                onMouseLeave={() => setHoveredIndex(null)}
               >
                 <Text header={item?.state} leftIcon={<LocationIcon />} />
-                <div className={`${CLASS_PREFIX}-tax-card-content`}>
+                <div css={styles.taxCardContent}>
                   <Text
                     header={sprintf(__('%s %', 'kirki-ecommerce'), item?.rate)}
-                    className={`${CLASS_PREFIX}-rate-display`}
+                    css={css(
+                      styles.rateDisplay,
+                      hoveredIndex === index && styles.rateDisplayHidden,
+                    )}
                   />
 
-                  <Flex gap={8} className={`${CLASS_PREFIX}-edit-group`}>
+                  <Flex
+                    gap={8}
+                    css={css(
+                      styles.editGroup,
+                      hoveredIndex === index && styles.editGroupActive,
+                    )}
+                  >
                     <Input
                       value={item?.rate ?? ''}
                       style={{ width: '72px' }}
@@ -121,3 +134,38 @@ export const TaxRateList = ({
 };
 
 TaxRateList.displayName = 'TaxRateList';
+
+const styles = {
+  taxCard: scoped({
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderRadius: theme.radius.md,
+    maxHeight: '44px',
+    height: '44px',
+    padding: theme.spacing.lg,
+  }),
+  editGroup: css({
+    display: 'none',
+    pointerEvents: 'none',
+    transition: 'opacity 0.2s',
+  }),
+  editGroupActive: css({
+    display: 'flex',
+    pointerEvents: 'auto',
+  }),
+  rateDisplay: scoped({
+    transition: 'opacity 0.2s',
+    display: 'flex',
+  }),
+  rateDisplayHidden: css({
+    display: 'none',
+  }),
+  taxCardContent: scoped({
+    display: 'flex',
+    alignItems: 'center',
+  }),
+  taxRatesHeader: scoped({
+    marginBottom: theme.spacing.md,
+  }),
+};

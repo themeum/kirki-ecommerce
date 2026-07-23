@@ -1,3 +1,4 @@
+import { type SerializedStyles } from '@emotion/react';
 import type { ComponentProps, ReactNode } from 'react';
 import {
   useFormContext,
@@ -27,7 +28,7 @@ type ThumbnailFieldProps<
   name: TName;
   label?: ReactNode;
   description?: ReactNode;
-  className?: string;
+  css?: SerializedStyles;
   placeholder?: string;
   btnText?: string;
   size?: ComponentProps<typeof ThumbnailSelector>['size'];
@@ -44,7 +45,7 @@ const ThumbnailField = <
   name,
   label,
   description,
-  className,
+  css,
   placeholder,
   btnText,
   size,
@@ -72,7 +73,7 @@ const ThumbnailField = <
               : undefined);
 
         return (
-          <FormItem className={className}>
+          <FormItem css={css}>
             {label && <FormLabel>{label}</FormLabel>}
             <FormControl>
               <ThumbnailSelector

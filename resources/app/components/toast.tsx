@@ -1,10 +1,11 @@
+import { keyframes } from '@emotion/react';
 import type { ReactNode } from 'react';
 
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import Button from '@/components/ui/button';
 import { InfoIcon, AlertIcon, CloseIcon, CheckedIcon } from '@/icons';
-import { CLASS_PREFIX } from '@/conf';
+import { scoped } from '@/theme/mixins';
 import type { ToastVariant } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -66,14 +67,14 @@ const Toast = ({
     <Flex direction={'column'}>
       <Flex
         gap={20}
-        className={`${CLASS_PREFIX}-toast-element`}
+        css={styles.element}
         style={{
           background: ui.bg,
         }}
       >
         <Flex gap={8}>
           <span
-            className={`${CLASS_PREFIX}-toast-icon`}
+            css={styles.icon}
             style={{
               background: ui.iconColor,
             }}
@@ -113,9 +114,9 @@ const Toast = ({
         </Flex>
       </Flex>
       {variant === 'delete' && (
-        <div className={`${CLASS_PREFIX}-toast-timer`}>
+        <div css={styles.timer}>
           <div
-            className={`${CLASS_PREFIX}-toast-timer-bar`}
+            css={styles.timerBar}
             style={{
               animationDuration: `${duration}ms`,
               background: ui.iconColor,
@@ -128,3 +129,71 @@ const Toast = ({
 };
 
 export default Toast;
+
+const shrink = keyframes({
+  from: {
+    transform: 'scaleX(1)',
+  },
+  to: {
+    transform: 'scaleX(0)',
+  },
+});
+
+const toastSlideIn = keyframes({
+  from: {
+    opacity: 0,
+    transform: 'translateY(-6px)',
+  },
+  to: {
+    opacity: 1,
+    transform: 'translateY(0)',
+  },
+});
+
+const styles = {
+  container: scoped({
+    position: 'fixed',
+    bottom: '30px',
+    right: '-8%',
+    transform: 'translateX(-50%)',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '8px',
+    zIndex: 9999,
+  }),
+  element: scoped({
+    minWidth: '330px',
+    maxWidth: 'auto',
+    height: '68px',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: '12px 16px',
+    borderRadius: '16px 16px 4px 4px',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+    animation: `${toastSlideIn} 0.2s ease-out`,
+  }),
+  icon: scoped({
+    height: '30px',
+    width: '30px',
+    borderRadius: '50%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: '#F3F3F7',
+  }),
+  timer: scoped({
+    height: '3px',
+    width: '100%',
+    background: 'rgba(0, 0, 0, 0.1)',
+    overflow: 'hidden',
+    borderRadius: '2px',
+  }),
+  timerBar: scoped({
+    height: '100%',
+    width: '100%',
+    transformOrigin: 'left',
+    animationName: shrink,
+    animationTimingFunction: 'linear',
+    animationFillMode: 'forwards',
+  }),
+};

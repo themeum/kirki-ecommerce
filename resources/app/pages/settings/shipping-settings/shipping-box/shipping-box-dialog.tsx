@@ -7,6 +7,7 @@ import Button from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import {
   Dialog,
+  DialogBody,
   DialogCloseButton,
   DialogContent,
   DialogFooter,
@@ -27,7 +28,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { CLASS_PREFIX } from '@/conf';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import Flex from '@/components/ui/flex';
@@ -44,6 +44,8 @@ import {
   useUpdateShippingBoxMutation,
 } from '@/services/shipping';
 import type { ShippingBox } from '@/types';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 import { BoxGenerator } from '@/pages/settings/shipping-settings/shipping-box/box-generator';
@@ -170,34 +172,18 @@ const ShippingBoxPopup = ({
           </DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <div
-            className={`${CLASS_PREFIX}-ui-dialog-body`}
-            style={{ gap: '25px' }}
-          >
+          <DialogBody style={{ gap: '25px' }}>
             <TextField
               name="name"
               label={__('Title', 'kirki-ecommerce')}
               placeholder={__('Regular box', 'kirki-ecommerce')}
             />
             <div>
-              <Card
-                className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner`}
-                style={{
-                  position: 'relative',
-                  overflow: 'visible',
-                  paddingTop: 'var(--decom-spacing-5)',
-                }}
-              >
+              <Card type="inner" css={styles.dimensionsCard}>
                 <Text
                   type="secondary"
                   header={__('Dimensions', 'kirki-ecommerce')}
-                  style={{
-                    top: '-12px',
-                    left: '240px',
-                    position: 'absolute',
-                    padding: 'var(--decom-spacing-0) var(--decom-spacing-2)',
-                    backgroundColor: 'var(--decom-text-text-light)',
-                  }}
+                  css={styles.dimensionsLabel}
                 />
                 <Flex gap={16} style={{ alignItems: 'flex-end' }}>
                   <TextField
@@ -247,16 +233,7 @@ const ShippingBoxPopup = ({
                   />
                 </Flex>
               </Card>
-              <Card
-                className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-dark`}
-                style={{
-                  borderRadius:
-                    'var(--decom-radius-rounded-none) var(--decom-radius-rounded-none) var(--decom-radius-rounded-md) var(--decom-radius-rounded-md)',
-                  marginTop: '-8px',
-                  padding: 'var(--decom-spacing-1)',
-                  height: '230px',
-                }}
-              >
+              <Card type="dark" css={styles.previewCard}>
                 <BoxGenerator
                   length={Number(length) || 0}
                   width={Number(width) ?? 0}
@@ -265,8 +242,8 @@ const ShippingBoxPopup = ({
                 />
               </Card>
             </div>
-          </div>
-          <Separator style={{ margin: 'var(--decom-spacing-0)' }} />
+          </DialogBody>
+          <Separator css={styles.footerSeparator} />
           <DialogFooter>
             <Button
               variant="outline"
@@ -296,3 +273,27 @@ const ShippingBoxPopup = ({
 ShippingBoxPopup.displayName = 'ShippingBoxPopup';
 
 export default ShippingBoxPopup;
+
+const styles = {
+  dimensionsCard: scoped({
+    position: 'relative',
+    overflow: 'visible',
+    paddingTop: theme.spacing['3xl'],
+  }),
+  dimensionsLabel: scoped({
+    top: '-12px',
+    left: '240px',
+    position: 'absolute',
+    padding: `${theme.spacing.none} ${theme.spacing.md}`,
+    backgroundColor: theme.colors.text.light,
+  }),
+  previewCard: scoped({
+    borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.md} ${theme.radius.md}`,
+    marginTop: '-8px',
+    padding: theme.spacing.xs,
+    height: '230px',
+  }),
+  footerSeparator: scoped({
+    margin: theme.spacing.none,
+  }),
+};

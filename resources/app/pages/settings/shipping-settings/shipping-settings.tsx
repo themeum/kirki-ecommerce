@@ -10,7 +10,6 @@ import HeaderActionsCard from '@/components/header-actions-card';
 import Button from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
-import { CLASS_PREFIX } from '@/conf';
 import { getErrorsObject, type ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { useUnsavedStatus } from '@/libs/unsaved-store';
@@ -27,6 +26,8 @@ import {
 import { useCountriesQuery } from '@/services/country';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import type { FormErrors, SelectOption, SettingsSectionData } from '@/types';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import { __, sprintf } from '@/wpi18n';
 
 import {
@@ -279,7 +280,7 @@ const ShippingSettings = () => {
                 textIcon={<TruckIcon />}
                 text={__('Shipping', 'kirki-ecommerce')}
               />
-              <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
+              <Card type="large">
                 <HeaderActionsCard
                   header={__('Shipping Zones', 'kirki-ecommerce')}
                   subHeader={__(
@@ -291,19 +292,14 @@ const ShippingSettings = () => {
                 />
 
                 {!shippingZonesObj.length ? (
-                  <Card
-                    className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner-dark`}
-                    style={{
-                      padding: 'var(--decom-spacing-9) var(--decom-spacing-0)',
-                    }}
-                  >
+                  <Card type="innerDark" css={styles.emptyState}>
                     <Flex
                       direction="column"
                       gap={8}
                       style={{ alignItems: 'center' }}
                     >
                       <LocationIcon />
-                      <span style={{ color: 'var(--decom-text-text-subdued)' }}>
+                      <span css={styles.emptyStateText}>
                         {__(
                           'Added shipping zones will appear here',
                           'kirki-ecommerce',
@@ -390,3 +386,12 @@ const ShippingSettings = () => {
 ShippingSettings.displayName = 'ShippingSettings';
 
 export default ShippingSettings;
+
+const styles = {
+  emptyState: scoped({
+    padding: `${theme.spacing['7xl']} ${theme.spacing.none}`,
+  }),
+  emptyStateText: scoped({
+    color: theme.colors.text.subdued,
+  }),
+};

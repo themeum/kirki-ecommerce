@@ -1,33 +1,30 @@
+import { type SerializedStyles } from '@emotion/react';
 import { forwardRef, type CSSProperties } from 'react';
-import classNames from 'classnames';
 
-import { CLASS_PREFIX } from '@/conf';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import type { HeadingType } from '@/types';
 import { __ } from '@/wpi18n';
 
 type HeadingProps = {
   type?: HeadingType;
   text?: string;
-  className?: string;
   style?: CSSProperties;
+  css?: SerializedStyles;
 };
 
 const Heading = forwardRef<HTMLHeadingElement, HeadingProps>((props, ref) => {
   const {
+    css: cssProp,
     type = '',
     text = __('Heading', 'kirki-ecommerce'),
-    className,
     style = {},
   } = props;
 
   return (
     <h2
       ref={ref}
-      className={classNames(
-        `${CLASS_PREFIX}-ui-heading`,
-        type && `${CLASS_PREFIX}-ui-heading--${type}`,
-        className,
-      )}
+      css={[styles.base, type && styles.types[type], cssProp]}
       style={style}
     >
       {text}
@@ -38,3 +35,28 @@ const Heading = forwardRef<HTMLHeadingElement, HeadingProps>((props, ref) => {
 Heading.displayName = 'Heading';
 
 export default Heading;
+
+const styles = {
+  base: scoped({
+    margin: 0,
+    fontWeight: 600,
+    fontSize: '18px',
+    lineHeight: '24px',
+    color: theme.colors.text.primary,
+  }),
+  types: {
+    primary: scoped({
+      fontSize: '20px',
+      lineHeight: '28px',
+    }),
+    secondary: scoped({
+      fontSize: '18px',
+      lineHeight: '24px',
+    }),
+    tertiary: scoped({
+      fontSize: '16px',
+      lineHeight: '20px',
+    }),
+    '': scoped({}),
+  },
+};

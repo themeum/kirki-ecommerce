@@ -9,7 +9,7 @@ import ThumbnailField from '@/components/form/thumbnail-field';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
-import { CLASS_PREFIX, NEW_ITEM_ID } from '@/conf';
+import { NEW_ITEM_ID } from '@/conf';
 import { PlusIcon, ProductIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
@@ -141,7 +141,7 @@ const CollectionDetails = () => {
 
       <Container size="md">
         <Flex direction="column" gap={16}>
-          <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-form`}>
+          <Card type="form">
             <CardContent>
               <Flex direction="column" gap={16}>
                 <Grid>
@@ -176,10 +176,7 @@ const CollectionDetails = () => {
             </CardContent>
           </Card>
 
-          <Card
-            className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-form`}
-            style={{ padding: '43.5px' }}
-          >
+          <Card type="form" style={{ padding: '43.5px' }}>
             <Flex
               direction="column"
               gap={12}
@@ -193,7 +190,7 @@ const CollectionDetails = () => {
             </Flex>
           </Card>
 
-          <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-form`}>
+          <Card type="form">
             <CardContent>
               <Flex direction="column" gap={16}>
                 <Text
@@ -201,9 +198,7 @@ const CollectionDetails = () => {
                   type="primary"
                   padding="large"
                 />
-                <Card
-                  className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner`}
-                >
+                <Card type="inner">
                   <CardContent>
                     <Flex gap={16} style={{ justifyContent: 'space-between' }}>
                       <Flex direction="column" gap={6}>

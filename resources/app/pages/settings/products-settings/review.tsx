@@ -1,14 +1,14 @@
 import SwitchField from '@/components/form/switch-field';
 import { Card } from '@/components/ui/card';
-import { CLASS_PREFIX } from '@/conf';
 import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
+import { theme } from '@/theme';
 import { __ } from '@/wpi18n';
 
 export const Review = () => {
   return (
-    <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
+    <Card type="large">
       <Text
         header={__('Reviews', 'kirki-ecommerce')}
         subHeader={__(
@@ -16,14 +16,14 @@ export const Review = () => {
           'kirki-ecommerce',
         )}
         type="primary"
-        style={{ gap: 'var(--decom-spacing-f3)' }}
+        style={{ gap: theme.spacing.base }}
       />
       <Flex gap={12} direction="column">
         <Card
-          className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-default`}
+          type="default"
           style={{
-            borderRadius: 'var(--decom-radius-rounded-lg)',
-            border: '1px solid var(--decom-border-border)',
+            borderRadius: theme.radius.lg,
+            border: `1px solid ${theme.colors.border.default}`,
           }}
         >
           <Flex>
@@ -42,10 +42,10 @@ export const Review = () => {
           </Flex>
         </Card>
         <Card
-          className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-default`}
+          type="default"
           style={{
-            borderRadius: 'var(--decom-radius-rounded-lg)',
-            border: '1px solid var(--decom-border-border)',
+            borderRadius: theme.radius.lg,
+            border: `1px solid ${theme.colors.border.default}`,
           }}
         >
           <Flex>

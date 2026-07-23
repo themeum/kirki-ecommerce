@@ -10,6 +10,7 @@ import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
   Dialog,
+  DialogBody,
   DialogClose,
   DialogCloseButton,
   DialogContent,
@@ -18,7 +19,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
-import { CLASS_PREFIX } from '@/conf';
 import { applyServerErrors } from '@/libs/form-errors';
 import type { ErrorResponse } from '@/libs/api';
 import Flex from '@/components/ui/flex';
@@ -138,10 +138,8 @@ const CategoryAddEditPopover = ({
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)}>
-            <div className={`${CLASS_PREFIX}-ui-dialog-body`}>
-              <Card
-                className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-light`}
-              >
+            <DialogBody>
+              <Card type="light">
                 <CardContent>
                   <Flex direction="column" gap={16}>
                     <TextField
@@ -179,7 +177,7 @@ const CategoryAddEditPopover = ({
                   </Flex>
                 </CardContent>
               </Card>
-            </div>
+            </DialogBody>
             <DialogFooter>
               <DialogClose asChild>
                 <Button

@@ -1,12 +1,14 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 
 import ColorPickerField from '@/components/form/color-picker-field';
 import TextField from '@/components/form/text-field';
 import ThumbnailField from '@/components/form/thumbnail-field';
 import Button from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import Container from '@/components/ui/container';
+import Flex from '@/components/ui/flex';
 import {
   Form,
   FormControl,
@@ -14,21 +16,18 @@ import {
   FormItem,
   FormMessage,
 } from '@/components/ui/form';
+import PageHeading from '@/components/ui/page-heading';
+import ProgressBar from '@/components/ui/progressbar';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { CLASS_PREFIX } from '@/conf';
+import Text from '@/components/ui/text';
 import {
-  BrushIcon,
-  AlignLeftIcon,
   AlignCenterIcon,
+  AlignLeftIcon,
+  BrushIcon,
   SendIcon,
 } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import Container from '@/components/ui/container';
-import Flex from '@/components/ui/flex';
-import PageHeading from '@/components/ui/page-heading';
-import ProgressBar from '@/components/ui/progressbar';
-import Text from '@/components/ui/text';
 import {
   EmailTemplateFormSchema,
   emailTemplateDefaultValues,
@@ -164,10 +163,7 @@ const EditTemplate = () => {
           <Form {...form}>
             <Flex gap={48} style={{ width: '100%' }}>
               <Flex direction="column" gap={20} style={{ width: '44%' }}>
-                <Card
-                  className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}
-                  style={{ borderRadius: '8px' }}
-                >
+                <Card type="large" style={{ borderRadius: '8px' }}>
                   <Text
                     type="primary"
                     header={'Logo'}
@@ -240,10 +236,7 @@ const EditTemplate = () => {
                     )}
                   />
                 </Card>
-                <Card
-                  className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}
-                  style={{ borderRadius: '8px' }}
-                >
+                <Card type="large" style={{ borderRadius: '8px' }}>
                   <Text
                     header={'Colors'}
                     subHeader={'Style how the emails will look'}
@@ -283,10 +276,7 @@ const EditTemplate = () => {
                     leftIcon={<SendIcon />}
                   />
                 </Flex>
-                <Card
-                  className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-default`}
-                  style={{ borderRadius: '0px' }}
-                ></Card>
+                <Card type="default" style={{ borderRadius: '0px' }}></Card>
               </Flex>
             </Flex>
           </Form>

@@ -7,7 +7,6 @@ import TextField from '@/components/form/text-field';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
-import { CLASS_PREFIX } from '@/conf';
 import { useProductForm } from '@/contexts/product-form-context';
 import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
@@ -77,7 +76,7 @@ const AddOrEditInfo = (props: AddOrEditInfoProps) => {
   const isSaveDisabled = !titleValue || !descriptionValue;
 
   return (
-    <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner`}>
+    <Card type="inner">
       <CardContent>
         <Form {...form}>
           <Flex direction="column" gap={16}>

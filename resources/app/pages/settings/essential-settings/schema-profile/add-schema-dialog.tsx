@@ -7,6 +7,7 @@ import TextField from '@/components/form/text-field';
 import Button from '@/components/ui/button';
 import {
   Dialog,
+  DialogBody,
   DialogCloseButton,
   DialogContent,
   DialogFooter,
@@ -14,7 +15,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Form, FormField, FormItem, FormMessage } from '@/components/ui/form';
-import { CLASS_PREFIX } from '@/conf';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import ActionGroup from '@/components/ui/action-group';
@@ -140,7 +140,7 @@ const AddSchemaPopup = ({
           </DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <div className={`${CLASS_PREFIX}-ui-dialog-body`}>
+          <DialogBody>
             <Flex direction="column" gap={16}>
               <TextField
                 name="name"
@@ -168,7 +168,7 @@ const AddSchemaPopup = ({
                 )}
               />
             </Flex>
-          </div>
+          </DialogBody>
           <DialogFooter style={{ justifyContent: 'space-between' }}>
             <Text
               type="secondary"

@@ -1,53 +1,45 @@
-import { forwardRef, type CSSProperties, type ReactNode } from 'react';
-import classNames from 'classnames';
+import type { SerializedStyles } from '@emotion/react';
+import { forwardRef, type ComponentPropsWithoutRef, type ReactNode } from 'react';
 
 import Flex from '@/components/ui/flex';
-import { CLASS_PREFIX } from '@/conf';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import type { AlertType } from '@/types';
 
-type AlertProps = {
+type AlertProps = Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'css'> & {
   type?: AlertType;
   icon?: ReactNode;
   text?: ReactNode;
-  className?: string;
-  style?: CSSProperties;
   hasHighlight?: boolean;
+  css?: SerializedStyles;
 };
 
 const Alert = forwardRef<HTMLDivElement, AlertProps>((props, ref) => {
   const {
+    css: cssProp,
     type,
     icon,
     text,
-    className,
-    style = {},
     hasHighlight = false,
+    ...rest
   } = props;
 
   return (
     <div
       ref={ref}
       role="alert"
-      className={classNames(
-        `${CLASS_PREFIX}-ui-alert`,
-        type && `${CLASS_PREFIX}-ui-alert--${type}`,
-        className,
-      )}
-      style={style}
+      data-type={type}
+      css={[styles.root, cssProp]}
+      {...rest}
     >
-      {hasHighlight && (
-        <div
-          className={`${CLASS_PREFIX}-ui-alert-highlight`}
-          aria-hidden="true"
-        />
-      )}
+      {hasHighlight && <div css={styles.highlight} aria-hidden="true" />}
       <Flex gap={8} style={{ alignItems: 'flex-start' }}>
         {icon && (
-          <span className={`${CLASS_PREFIX}-ui-alert-icon`} aria-hidden="true">
+          <span css={styles.icon} aria-hidden="true">
             {icon}
           </span>
         )}
-        <span className={`${CLASS_PREFIX}-ui-alert-text`}>{text}</span>
+        <span css={styles.text}>{text}</span>
       </Flex>
     </div>
   );
@@ -56,3 +48,28 @@ const Alert = forwardRef<HTMLDivElement, AlertProps>((props, ref) => {
 Alert.displayName = 'Alert';
 
 export default Alert;
+
+const styles = {
+  root: scoped({
+    width: '100%',
+    padding: `${theme.spacing.lg} ${theme.spacing.lg} ${theme.spacing.lg} ${theme.spacing['3xl']}`,
+    borderRadius: `${theme.radius.sm} ${theme.radius.xl} ${theme.radius.xl} ${theme.radius.sm}`,
+    backgroundColor: theme.colors.background.fillSecondary,
+    position: 'relative',
+    overflow: 'hidden',
+  }),
+  highlight: scoped({
+    backgroundColor: theme.colors.background.fillBrand,
+    height: '100%',
+    width: '4px',
+    position: 'absolute',
+    left: 0,
+    top: 0,
+  }),
+  text: scoped({
+    maxWidth: '85%',
+  }),
+  icon: scoped({
+    flexShrink: 0,
+  }),
+};

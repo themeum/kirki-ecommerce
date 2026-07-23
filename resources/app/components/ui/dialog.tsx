@@ -1,3 +1,4 @@
+import { css, keyframes, type SerializedStyles, type Theme } from '@emotion/react';
 import {
   forwardRef,
   type ComponentPropsWithoutRef,
@@ -6,11 +7,11 @@ import {
 } from 'react';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { X } from 'lucide-react';
-import classNames from 'classnames';
 
 import Button from '@/components/ui/button';
-import { CLASS_PREFIX } from '@/conf';
 import { getPortalContainer } from '@/libs/portal-container';
+import { theme } from '@/theme';
+import { fontGeneralSettings, scoped } from '@/theme/mixins';
 
 const Dialog = DialogPrimitive.Root;
 
@@ -28,35 +29,45 @@ DialogPortal.displayName = 'DialogPortal';
 
 const DialogClose = DialogPrimitive.Close;
 
+type DialogOverlayProps = Omit<
+  ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay>,
+  'className'
+> & {
+  css?: SerializedStyles;
+};
+
 const DialogOverlay = forwardRef<
   ElementRef<typeof DialogPrimitive.Overlay>,
-  ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay>
+  DialogOverlayProps
 >((props, ref) => {
-  const { className, ...rest } = props;
+  const { css: cssProp, ...rest } = props;
 
   return (
-    <DialogPrimitive.Overlay
-      ref={ref}
-      className={classNames(`${CLASS_PREFIX}-ui-dialog-overlay`, className)}
-      {...rest}
-    />
+    <DialogPrimitive.Overlay ref={ref} css={[styles.overlay, cssProp]} {...rest} />
   );
 });
 
 DialogOverlay.displayName = 'DialogOverlay';
 
+type DialogContentProps = Omit<
+  ComponentPropsWithoutRef<typeof DialogPrimitive.Content>,
+  'className'
+> & {
+  css?: SerializedStyles;
+};
+
 const DialogContent = forwardRef<
   ElementRef<typeof DialogPrimitive.Content>,
-  ComponentPropsWithoutRef<typeof DialogPrimitive.Content>
+  DialogContentProps
 >((props, ref) => {
-  const { className, children, ...rest } = props;
+  const { css: cssProp, children, ...rest } = props;
 
   return (
     <DialogPortal>
       <DialogOverlay />
       <DialogPrimitive.Content
         ref={ref}
-        className={classNames(`${CLASS_PREFIX}-ui-dialog-content`, className)}
+        css={[styles.content, cssProp]}
         {...rest}
       >
         {children}
@@ -71,7 +82,7 @@ const DialogCloseButton = forwardRef<
   HTMLButtonElement,
   ComponentPropsWithoutRef<typeof Button>
 >((props, ref) => {
-  const { className, ...rest } = props;
+  const { css: cssProp, ...rest } = props;
 
   return (
     <DialogPrimitive.Close asChild>
@@ -80,10 +91,7 @@ const DialogCloseButton = forwardRef<
         variant="ghost"
         size="icon"
         aria-label="Close"
-        className={classNames(
-          `${CLASS_PREFIX}-ui-dialog-close-button`,
-          className,
-        )}
+        css={css([styles.closeButton, cssProp])}
         {...rest}
       >
         <X size={16} aria-hidden="true" />
@@ -94,59 +102,71 @@ const DialogCloseButton = forwardRef<
 
 DialogCloseButton.displayName = 'DialogCloseButton';
 
-const DialogHeader = (props: HTMLAttributes<HTMLDivElement>) => {
-  const { className, ...rest } = props;
+type DialogSectionProps = Omit<HTMLAttributes<HTMLDivElement>, 'className'> & {
+  css?: SerializedStyles;
+};
 
-  return (
-    <div
-      className={classNames(`${CLASS_PREFIX}-ui-dialog-header`, className)}
-      {...rest}
-    />
-  );
+const DialogHeader = (props: DialogSectionProps) => {
+  const { css: cssProp, ...rest } = props;
+
+  return <div css={[styles.header, cssProp]} {...rest} />;
 };
 
 DialogHeader.displayName = 'DialogHeader';
 
-const DialogFooter = (props: HTMLAttributes<HTMLDivElement>) => {
-  const { className, ...rest } = props;
+const DialogFooter = (props: DialogSectionProps) => {
+  const { css: cssProp, ...rest } = props;
 
-  return (
-    <div
-      className={classNames(`${CLASS_PREFIX}-ui-dialog-footer`, className)}
-      {...rest}
-    />
-  );
+  return <div css={[styles.footer, cssProp]} {...rest} />;
 };
 
 DialogFooter.displayName = 'DialogFooter';
 
+const DialogBody = (props: DialogSectionProps) => {
+  const { css: cssProp, ...rest } = props;
+
+  return <div css={[styles.body, cssProp]} {...rest} />;
+};
+
+DialogBody.displayName = 'DialogBody';
+
+type DialogTitleProps = Omit<
+  ComponentPropsWithoutRef<typeof DialogPrimitive.Title>,
+  'className'
+> & {
+  css?: SerializedStyles;
+};
+
 const DialogTitle = forwardRef<
   ElementRef<typeof DialogPrimitive.Title>,
-  ComponentPropsWithoutRef<typeof DialogPrimitive.Title>
+  DialogTitleProps
 >((props, ref) => {
-  const { className, ...rest } = props;
+  const { css: cssProp, ...rest } = props;
 
   return (
-    <DialogPrimitive.Title
-      ref={ref}
-      className={classNames(`${CLASS_PREFIX}-ui-dialog-title`, className)}
-      {...rest}
-    />
+    <DialogPrimitive.Title ref={ref} css={[styles.title, cssProp]} {...rest} />
   );
 });
 
 DialogTitle.displayName = 'DialogTitle';
 
+type DialogDescriptionProps = Omit<
+  ComponentPropsWithoutRef<typeof DialogPrimitive.Description>,
+  'className'
+> & {
+  css?: SerializedStyles;
+};
+
 const DialogDescription = forwardRef<
   ElementRef<typeof DialogPrimitive.Description>,
-  ComponentPropsWithoutRef<typeof DialogPrimitive.Description>
+  DialogDescriptionProps
 >((props, ref) => {
-  const { className, ...rest } = props;
+  const { css: cssProp, ...rest } = props;
 
   return (
     <DialogPrimitive.Description
       ref={ref}
-      className={classNames(`${CLASS_PREFIX}-ui-dialog-description`, className)}
+      css={[styles.description, cssProp]}
       {...rest}
     />
   );
@@ -164,6 +184,122 @@ export {
   DialogContent,
   DialogHeader,
   DialogFooter,
+  DialogBody,
   DialogTitle,
   DialogDescription,
+};
+
+const dialogOverlayIn = keyframes({
+  from: { opacity: 0 },
+  to: { opacity: 1 },
+});
+
+const dialogOverlayOut = keyframes({
+  from: { opacity: 1 },
+  to: { opacity: 0 },
+});
+
+const dialogContentIn = keyframes({
+  from: {
+    opacity: 0,
+    transform: 'translate(-50%, -50%) scale(0.95)',
+  },
+  to: {
+    opacity: 1,
+    transform: 'translate(-50%, -50%) scale(1)',
+  },
+});
+
+const dialogContentOut = keyframes({
+  from: {
+    opacity: 1,
+    transform: 'translate(-50%, -50%) scale(1)',
+  },
+  to: {
+    opacity: 0,
+    transform: 'translate(-50%, -50%) scale(0.95)',
+  },
+});
+
+const styles = {
+  overlay: scoped({
+    position: 'fixed',
+    inset: 0,
+    zIndex: 1000,
+    background: '#1c1b1dcc',
+    '&[data-state="open"]': {
+      animation: `${dialogOverlayIn} 150ms ease`,
+    },
+    '&[data-state="closed"]': {
+      animation: `${dialogOverlayOut} 150ms ease`,
+    },
+  }),
+  content: scoped({
+    position: 'fixed',
+    left: '50%',
+    top: '50%',
+    zIndex: 1001,
+    display: 'flex',
+    flexDirection: 'column',
+    width: '512px',
+    maxWidth: `calc(100vw - ${theme.spacing['6xl']})`,
+    maxHeight: '85%',
+    transform: 'translate(-50%, -50%)',
+    border: `1px solid ${theme.colors.border.default}`,
+    borderRadius: theme.radius.lg,
+    backgroundColor: theme.colors.background.fill,
+    boxShadow: '0px 10px 15px -3px #0000001a',
+    boxSizing: 'border-box',
+    overflow: 'hidden',
+    color: theme.colors.text.primary,
+    ...fontGeneralSettings(theme as Theme),
+    '&:focus, &:focus-visible': {
+      outline: 'none',
+    },
+    '&[data-state="open"]': {
+      animation: `${dialogContentIn} 200ms ease`,
+    },
+    '&[data-state="closed"]': {
+      animation: `${dialogContentOut} 200ms ease`,
+    },
+  }),
+  closeButton: scoped({
+    position: 'absolute',
+    top: theme.spacing.lg,
+    right: theme.spacing.lg,
+  }),
+  header: scoped({
+    display: 'flex',
+    flexDirection: 'column',
+    rowGap: theme.spacing.sm,
+    padding: `${theme.spacing['2xl']} ${theme.spacing['4xl']}`,
+    paddingRight: theme.spacing['10xl'],
+  }),
+  footer: scoped({
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    columnGap: theme.spacing.md,
+    padding: `${theme.spacing['2xl']} ${theme.spacing['4xl']}`,
+  }),
+  title: scoped({
+    margin: 0,
+    fontWeight: 600,
+    fontSize: '18px',
+    lineHeight: '28px',
+    color: theme.colors.text.primary,
+  }),
+  description: scoped({
+    margin: 0,
+    fontSize: '14px',
+    lineHeight: '20px',
+    color: theme.colors.text.secondary,
+  }),
+  body: scoped({
+    display: 'flex',
+    flexDirection: 'column',
+    rowGap: theme.spacing.md,
+    padding: `${theme.spacing['2xl']} ${theme.spacing['4xl']}`,
+    overflowY: 'auto',
+  }),
 };

@@ -1,3 +1,4 @@
+import { css } from '@emotion/react';
 import { useEffect, type Dispatch, type SetStateAction } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -6,6 +7,7 @@ import TextField from '@/components/form/text-field';
 import Button from '@/components/ui/button';
 import {
   Dialog,
+  DialogBody,
   DialogCloseButton,
   DialogContent,
   DialogFooter,
@@ -14,11 +16,11 @@ import {
 } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
 import Label from '@/components/ui/label';
-import { CLASS_PREFIX } from '@/conf';
 import { ArrowLeftIcon, InfoIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import Flex from '@/components/ui/flex';
+import { theme } from '@/theme';
 import Text from '@/components/ui/text';
 import {
   ExchangeRateFormSchema,
@@ -39,6 +41,14 @@ type ExchangeRatePopupProps = {
   setAddCurrencyPopup: Dispatch<SetStateAction<boolean>>;
   setSearchValue: Dispatch<SetStateAction<string>>;
 };
+
+const editCurrencyRatePopupLabelCss = css({
+  padding: theme.spacing.lg,
+  gap: theme.spacing.md,
+  background: theme.colors.background.surfaceAlt,
+  borderRadius: theme.radius.md,
+  color: theme.colors.text.secondary,
+});
 
 const ExchangeRatePopup = ({
   selectedCurrencyList = [],
@@ -119,10 +129,10 @@ const ExchangeRatePopup = ({
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSaveCurrencyData)}>
-            <div className={`${CLASS_PREFIX}-ui-dialog-body`}>
+            <DialogBody>
               <Flex direction="column" gap={16}>
                 <Label
-                  className={`${CLASS_PREFIX}-edit-currency-rate-popup-label`}
+                  css={editCurrencyRatePopupLabelCss}
                   leftIcon={<InfoIcon />}
                 >
                   {__('Enter rates per 1 USD', 'kirki-ecommerce')}
@@ -158,7 +168,7 @@ const ExchangeRatePopup = ({
                           />
                           <Text
                             type="xsm"
-                            style={{ color: 'var(--decom-text-text-subdued)' }}
+                            style={{ color: theme.colors.text.subdued }}
                             header={sprintf(
                               __('%s', 'kirki-ecommerce'),
                               currency?.name ?? '',
@@ -168,7 +178,7 @@ const ExchangeRatePopup = ({
                         <div
                           style={{
                             width: 'auto',
-                            margin: 'var(--decom-spacing-f1)',
+                            margin: theme.spacing.xxs,
                           }}
                         >
                           <TextField
@@ -180,7 +190,7 @@ const ExchangeRatePopup = ({
                     ))}
                 </Flex>
               </Flex>
-            </div>
+            </DialogBody>
             <DialogFooter>
               <Button
                 type="button"

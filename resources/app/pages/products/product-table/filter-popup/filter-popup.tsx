@@ -8,6 +8,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import Flex from '@/components/ui/flex';
+import { FormFieldRow } from '@/components/ui/form';
 import Label from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
@@ -18,9 +19,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import Text from '@/components/ui/text';
-import { CLASS_PREFIX } from '@/conf';
 import { useListParams } from '@/hooks';
 import { CloseIcon, ListFilter } from '@/icons';
+import { theme } from '@/theme';
 import { __, sprintf } from '@/wpi18n';
 
 import BrandFilter from '@/pages/products/product-table/filter-popup/brand-filter';
@@ -140,10 +141,10 @@ const FilterPopup = ({
             variant="outline"
             size="sm"
             style={{
-              borderRightColor: hasFilter ? 'none' : 'var(--decom-border-border)',
+              borderRightColor: hasFilter ? 'none' : theme.colors.border.default,
               borderRadius: hasFilter
-                ? 'var(--decom-radius-rounded-md) var(--decom-radius-rounded-none) var(--decom-radius-rounded-none) var(--decom-radius-rounded-md)'
-                : 'var(--decom-radius-rounded-md)',
+                ? `${theme.radius.md} ${theme.radius.none} ${theme.radius.none} ${theme.radius.md}`
+                : theme.radius.md,
             }}
             {...buttonProps}
           >
@@ -156,12 +157,11 @@ const FilterPopup = ({
             variant="outline"
             size="sm"
             style={{
-              color: 'var(--decom-text-text-emphasis)',
-              backgroundColor: 'var(--decom-background-bg-fill-secondary)',
+              color: theme.colors.text.emphasis,
+              backgroundColor: theme.colors.background.fillSecondary,
               borderLeft: 'none',
               cursor: 'default',
-              borderRadius:
-                'var(--decom-radius-rounded-none) var(--decom-radius-rounded-md) var(--decom-radius-rounded-md) var(--decom-radius-rounded-none)',
+              borderRadius: `${theme.radius.none} ${theme.radius.md} ${theme.radius.md} ${theme.radius.none}`,
             }}
           >
             {sprintf(__('%d', 'kirki-ecommerce'), hasFilter)}
@@ -184,7 +184,7 @@ const FilterPopup = ({
               variant="ghost"
               size="icon"
               onClick={handleFilterClose}
-              style={{ color: 'var(--decom-text-text-primary)' }}
+              style={{ color: theme.colors.text.primary }}
             >
               <CloseIcon />
             </Button>
@@ -219,10 +219,7 @@ const FilterPopup = ({
                 { value: 'draft', label: __('Draft', 'kirki-ecommerce') },
                 { value: 'all', label: __('All', 'kirki-ecommerce') },
               ].map((option) => (
-                <div
-                  key={option.value}
-                  className={`${CLASS_PREFIX}-ui-radio-field-row`}
-                >
+                <FormFieldRow key={option.value}>
                   <RadioGroupItem
                     value={option.value}
                     id={`filter-status-${option.value}`}
@@ -230,7 +227,7 @@ const FilterPopup = ({
                   <Label htmlFor={`filter-status-${option.value}`}>
                     {option.label}
                   </Label>
-                </div>
+                </FormFieldRow>
               ))}
             </RadioGroup>
           </Flex>

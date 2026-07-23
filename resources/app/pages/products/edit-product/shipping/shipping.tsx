@@ -10,7 +10,13 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  formMessageStyle,
+} from '@/components/ui/form';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
 import {
@@ -20,7 +26,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { CLASS_PREFIX } from '@/conf';
 import { EyeClosedIcon, EyeIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
@@ -143,7 +148,7 @@ const Shipping = ({ errors, setErrors, formSyncKey = 0 }: ShippingProps) => {
 
   return (
     <Form {...form}>
-      <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-form`}>
+      <Card type="form">
         <CardContent>
           <Text
             header={__('Shipping', 'kirki-ecommerce')}
@@ -220,14 +225,12 @@ const Shipping = ({ errors, setErrors, formSyncKey = 0 }: ShippingProps) => {
               </div>
             </Flex>
             {weightError && (
-              <p className={`${CLASS_PREFIX}-ui-form-message`}>
-                {String(weightError)}
-              </p>
+              <p css={formMessageStyle}>{String(weightError)}</p>
             )}
           </Flex>
           <div>
             <Card
-              className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner`}
+              type="inner"
               style={{
                 position: 'relative',
                 overflow: 'visible',
@@ -288,7 +291,7 @@ const Shipping = ({ errors, setErrors, formSyncKey = 0 }: ShippingProps) => {
             </Card>
             {showShippingBox && (
               <Card
-                className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-dark`}
+                type="dark"
                 style={{
                   borderRadius: '0px 0px 6px 6px',
                   marginTop: '-8px',

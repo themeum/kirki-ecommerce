@@ -18,7 +18,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useBulkEditForm } from '@/contexts/bulk-edit-form-context';
-import { CLASS_PREFIX } from '@/conf';
 import { useBulkEditList } from '@/hooks';
 import Checkbox from '@/components/ui/checkbox';
 import Flex from '@/components/ui/flex';
@@ -283,7 +282,7 @@ const SingleRow = (props: SingleRowProps) => {
     >
       <TableCell
         style={{ minWidth: '260px', paddingRight: '12px' }}
-        className={`${CLASS_PREFIX}-sticky-cell`}
+        data-sticky-cell="true"
       >
         <Flex gap={12} style={{ alignItems: 'center' }}>
           <ThumbnailSelector
@@ -308,18 +307,18 @@ const SingleRow = (props: SingleRowProps) => {
         <TableCell
           onMouseDown={(e) => onCellMouseDown(e, 'price')}
           onMouseEnter={(e) => onCellMouseEnter(e, 'price')}
-          className={getActiveState('price')}
+          {...getActiveState('price')}
         >
           <Input
             value={currentVariation?.price ?? undefined}
             placeholder="--"
             onChange={(event) => handleNumberInputChange(event, 'price')}
             onKeyDown={handleInputEnterKeyDown}
-            className={`${CLASS_PREFIX}-ui-input--invisible`}
+            invisible
             type="number"
           />
           <span
-            className={isMaxIndex(index) ? `${CLASS_PREFIX}-grabber` : ''}
+            data-grabber={isMaxIndex(index) ? 'true' : undefined}
             onMouseDown={(e) => onGrabberMouseDown(e, 'price')}
           />
         </TableCell>
@@ -328,18 +327,18 @@ const SingleRow = (props: SingleRowProps) => {
         <TableCell
           onMouseDown={(e) => onCellMouseDown(e, 'sale_price')}
           onMouseEnter={(e) => onCellMouseEnter(e, 'sale_price')}
-          className={getActiveState('sale_price')}
+          {...getActiveState('sale_price')}
         >
           <Input
             value={currentVariation?.sale_price ?? undefined}
             onChange={(event) => handleNumberInputChange(event, 'sale_price')}
             onKeyDown={handleInputEnterKeyDown}
-            className={`${CLASS_PREFIX}-ui-input--invisible`}
+            invisible
             type="number"
             placeholder="--"
           />
           <span
-            className={isMaxIndex(index) ? `${CLASS_PREFIX}-grabber` : ''}
+            data-grabber={isMaxIndex(index) ? 'true' : undefined}
             onMouseDown={(e) => onGrabberMouseDown(e, 'sale_price')}
           />
         </TableCell>
@@ -348,7 +347,7 @@ const SingleRow = (props: SingleRowProps) => {
         <TableCell
           onMouseDown={(e) => onCellMouseDown(e, 'cost_of_goods')}
           onMouseEnter={(e) => onCellMouseEnter(e, 'cost_of_goods')}
-          className={getActiveState('cost_of_goods')}
+          {...getActiveState('cost_of_goods')}
         >
           <Input
             value={currentVariation?.cost_of_goods ?? undefined}
@@ -356,12 +355,12 @@ const SingleRow = (props: SingleRowProps) => {
               handleNumberInputChange(event, 'cost_of_goods')
             }
             onKeyDown={handleInputEnterKeyDown}
-            className={`${CLASS_PREFIX}-ui-input--invisible`}
+            invisible
             type="number"
             placeholder="--"
           />
           <span
-            className={isMaxIndex(index) ? `${CLASS_PREFIX}-grabber` : ''}
+            data-grabber={isMaxIndex(index) ? 'true' : undefined}
             onMouseDown={(e) => onGrabberMouseDown(e, 'cost_of_goods')}
           />
         </TableCell>
@@ -372,7 +371,7 @@ const SingleRow = (props: SingleRowProps) => {
             disabled
             readOnly
             value={calculateProfit('profit', currentVariation)}
-            className={`${CLASS_PREFIX}-ui-input--invisible`}
+            invisible
             placeholder="--"
           />
         </TableCell>
@@ -383,7 +382,7 @@ const SingleRow = (props: SingleRowProps) => {
             disabled
             readOnly
             value={calculateProfit('margin', currentVariation)}
-            className={`${CLASS_PREFIX}-ui-input--invisible`}
+            invisible
             placeholder="--"
           />
         </TableCell>
@@ -393,14 +392,14 @@ const SingleRow = (props: SingleRowProps) => {
           alignment="center"
           onMouseDown={(e) => onCellMouseDown(e, 'show_unit_price')}
           onMouseEnter={(e) => onCellMouseEnter(e, 'show_unit_price')}
-          className={getActiveState('show_unit_price')}
+          {...getActiveState('show_unit_price')}
         >
           <Checkbox
             value={!!currentVariation?.show_unit_price}
             onChange={(value) => handleOnChange(value, 'show_unit_price')}
           />
           <span
-            className={isMaxIndex(index) ? `${CLASS_PREFIX}-grabber` : ''}
+            data-grabber={isMaxIndex(index) ? 'true' : undefined}
             onMouseDown={(e) => onGrabberMouseDown(e, 'show_unit_price')}
           />
         </TableCell>
@@ -409,7 +408,7 @@ const SingleRow = (props: SingleRowProps) => {
         <TableCell
           onMouseDown={(e) => onCellMouseDown(e, 'base_price_per_unit')}
           onMouseEnter={(e) => onCellMouseEnter(e, 'base_price_per_unit')}
-          className={getActiveState('base_price_per_unit')}
+          {...getActiveState('base_price_per_unit')}
         >
           {currentVariation?.show_unit_price ? (
             <BaseUnitPopupComponent
@@ -424,7 +423,7 @@ const SingleRow = (props: SingleRowProps) => {
             <span style={{ marginLeft: '12px' }}>_</span>
           )}
           <span
-            className={isMaxIndex(index) ? `${CLASS_PREFIX}-grabber` : ''}
+            data-grabber={isMaxIndex(index) ? 'true' : undefined}
             onMouseDown={(e) => onGrabberMouseDown(e, 'base_price_per_unit')}
           />
         </TableCell>
@@ -433,16 +432,16 @@ const SingleRow = (props: SingleRowProps) => {
         <TableCell
           onMouseDown={(e) => onCellMouseDown(e, 'sku')}
           onMouseEnter={(e) => onCellMouseEnter(e, 'sku')}
-          className={getActiveState('sku')}
+          {...getActiveState('sku')}
         >
           <Input
             value={currentVariation?.sku ?? undefined}
             readOnly
-            className={`${CLASS_PREFIX}-ui-input--invisible`}
+            invisible
             placeholder="--"
           />
           <span
-            className={isMaxIndex(index) ? `${CLASS_PREFIX}-grabber` : ''}
+            data-grabber={isMaxIndex(index) ? 'true' : undefined}
             onMouseDown={(e) => onGrabberMouseDown(e, 'sku')}
           />
         </TableCell>
@@ -451,7 +450,7 @@ const SingleRow = (props: SingleRowProps) => {
         <TableCell
           onMouseDown={(e) => onCellMouseDown(e, 'shipping_box_id')}
           onMouseEnter={(e) => onCellMouseEnter(e, 'shipping_box_id')}
-          className={getActiveState('shipping_box_id')}
+          {...getActiveState('shipping_box_id')}
           style={{ minWidth: '300px' }}
         >
           <ShippingBoxComponent
@@ -462,7 +461,7 @@ const SingleRow = (props: SingleRowProps) => {
             invisible
           />
           <span
-            className={isMaxIndex(index) ? `${CLASS_PREFIX}-grabber` : ''}
+            data-grabber={isMaxIndex(index) ? 'true' : undefined}
             onMouseDown={(e) => onGrabberMouseDown(e, 'shipping_box_id')}
           />
         </TableCell>
@@ -471,17 +470,17 @@ const SingleRow = (props: SingleRowProps) => {
         <TableCell
           onMouseDown={(e) => onCellMouseDown(e, 'weight')}
           onMouseEnter={(e) => onCellMouseEnter(e, 'weight')}
-          className={getActiveState('weight')}
+          {...getActiveState('weight')}
         >
           <Input
             value={currentVariation?.weight ?? undefined}
             onChange={(event) => handleNumberInputChange(event, 'weight')}
-            className={`${CLASS_PREFIX}-ui-input--invisible`}
+            invisible
             placeholder="--"
             type="number"
           />
           <span
-            className={isMaxIndex(index) ? `${CLASS_PREFIX}-grabber` : ''}
+            data-grabber={isMaxIndex(index) ? 'true' : undefined}
             onMouseDown={(e) => onGrabberMouseDown(e, 'weight')}
           />
         </TableCell>
@@ -490,15 +489,13 @@ const SingleRow = (props: SingleRowProps) => {
         <TableCell
           onMouseDown={(e) => onCellMouseDown(e, 'weight_unit')}
           onMouseEnter={(e) => onCellMouseEnter(e, 'weight_unit')}
-          className={getActiveState('weight_unit')}
+          {...getActiveState('weight_unit')}
         >
           <Select
             value={currentVariation?.weight_unit ?? undefined}
             onValueChange={(value) => handleOnChange(value, 'weight_unit')}
           >
-            <SelectTrigger
-              className={`${CLASS_PREFIX}-ui-select-trigger--invisible`}
-            >
+            <SelectTrigger variant="invisible">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -509,7 +506,7 @@ const SingleRow = (props: SingleRowProps) => {
             </SelectContent>
           </Select>
           <span
-            className={isMaxIndex(index) ? `${CLASS_PREFIX}-grabber` : ''}
+            data-grabber={isMaxIndex(index) ? 'true' : undefined}
             onMouseDown={(e) => onGrabberMouseDown(e, 'weight_unit')}
           />
         </TableCell>
@@ -519,14 +516,14 @@ const SingleRow = (props: SingleRowProps) => {
           alignment="center"
           onMouseDown={(e) => onCellMouseDown(e, 'track_inventory')}
           onMouseEnter={(e) => onCellMouseEnter(e, 'track_inventory')}
-          className={getActiveState('track_inventory')}
+          {...getActiveState('track_inventory')}
         >
           <Checkbox
             value={!!currentVariation?.track_inventory}
             onChange={(value) => handleOnChange(value, 'track_inventory')}
           />
           <span
-            className={isMaxIndex(index) ? `${CLASS_PREFIX}-grabber` : ''}
+            data-grabber={isMaxIndex(index) ? 'true' : undefined}
             onMouseDown={(e) => onGrabberMouseDown(e, 'track_inventory')}
           />
         </TableCell>
@@ -535,7 +532,7 @@ const SingleRow = (props: SingleRowProps) => {
         <TableCell
           onMouseDown={(e) => onCellMouseDown(e, 'available_quantity')}
           onMouseEnter={(e) => onCellMouseEnter(e, 'available_quantity')}
-          className={getActiveState('available_quantity')}
+          {...getActiveState('available_quantity')}
         >
           {currentVariation?.track_inventory ? (
             <Input
@@ -544,14 +541,14 @@ const SingleRow = (props: SingleRowProps) => {
                 handleNumberInputChange(event, 'available_quantity')
               }
               onKeyDown={handleInputEnterKeyDown}
-              className={`${CLASS_PREFIX}-ui-input--invisible`}
+              invisible
               type="number"
             />
           ) : (
             <span style={{ marginLeft: '12px' }}>_</span>
           )}
           <span
-            className={isMaxIndex(index) ? `${CLASS_PREFIX}-grabber` : ''}
+            data-grabber={isMaxIndex(index) ? 'true' : undefined}
             onMouseDown={(e) => onGrabberMouseDown(e, 'available_quantity')}
           />
         </TableCell>
@@ -563,7 +560,7 @@ const SingleRow = (props: SingleRowProps) => {
               disabled
               readOnly
               value={currentVariation?.committed_quantity || 0}
-              className={`${CLASS_PREFIX}-ui-input--invisible`}
+              invisible
             />
           ) : (
             <span style={{ marginLeft: '12px' }}>_</span>
@@ -575,14 +572,14 @@ const SingleRow = (props: SingleRowProps) => {
           alignment="center"
           onMouseDown={(e) => onCellMouseDown(e, 'has_limit_per_order')}
           onMouseEnter={(e) => onCellMouseEnter(e, 'has_limit_per_order')}
-          className={getActiveState('has_limit_per_order')}
+          {...getActiveState('has_limit_per_order')}
         >
           <Checkbox
             value={!!currentVariation?.has_limit_per_order}
             onChange={(value) => handleOnChange(value, 'has_limit_per_order')}
           />
           <span
-            className={isMaxIndex(index) ? `${CLASS_PREFIX}-grabber` : ''}
+            data-grabber={isMaxIndex(index) ? 'true' : undefined}
             onMouseDown={(e) => onGrabberMouseDown(e, 'has_limit_per_order')}
           />
         </TableCell>
@@ -591,7 +588,7 @@ const SingleRow = (props: SingleRowProps) => {
         <TableCell
           onMouseDown={(e) => onCellMouseDown(e, 'max_per_order')}
           onMouseEnter={(e) => onCellMouseEnter(e, 'max_per_order')}
-          className={getActiveState('max_per_order')}
+          {...getActiveState('max_per_order')}
         >
           {currentVariation?.has_limit_per_order ? (
             <Input
@@ -600,7 +597,7 @@ const SingleRow = (props: SingleRowProps) => {
                 handleNumberInputChange(event, 'max_per_order')
               }
               onKeyDown={handleInputEnterKeyDown}
-              className={`${CLASS_PREFIX}-ui-input--invisible`}
+              invisible
               type="number"
             />
           ) : (
@@ -608,7 +605,7 @@ const SingleRow = (props: SingleRowProps) => {
           )}
 
           <span
-            className={isMaxIndex(index) ? `${CLASS_PREFIX}-grabber` : ''}
+            data-grabber={isMaxIndex(index) ? 'true' : undefined}
             onMouseDown={(e) => onGrabberMouseDown(e, 'max_per_order')}
           />
         </TableCell>
@@ -618,14 +615,14 @@ const SingleRow = (props: SingleRowProps) => {
           alignment="center"
           onMouseDown={(e) => onCellMouseDown(e, 'is_visible')}
           onMouseEnter={(e) => onCellMouseEnter(e, 'is_visible')}
-          className={getActiveState('is_visible')}
+          {...getActiveState('is_visible')}
         >
           <Checkbox
             value={!!currentVariation?.is_visible}
             onChange={(value) => handleOnChange(value, 'is_visible')}
           />
           <span
-            className={isMaxIndex(index) ? `${CLASS_PREFIX}-grabber` : ''}
+            data-grabber={isMaxIndex(index) ? 'true' : undefined}
             onMouseDown={(e) => onGrabberMouseDown(e, 'is_visible')}
           />
         </TableCell>
@@ -635,14 +632,14 @@ const SingleRow = (props: SingleRowProps) => {
           alignment="center"
           onMouseDown={(e) => onCellMouseDown(e, 'charge_taxes')}
           onMouseEnter={(e) => onCellMouseEnter(e, 'charge_taxes')}
-          className={getActiveState('charge_taxes')}
+          {...getActiveState('charge_taxes')}
         >
           <Checkbox
             value={!!currentVariation?.charge_taxes}
             onChange={(value) => handleOnChange(value, 'charge_taxes')}
           />
           <span
-            className={isMaxIndex(index) ? `${CLASS_PREFIX}-grabber` : ''}
+            data-grabber={isMaxIndex(index) ? 'true' : undefined}
             onMouseDown={(e) => onGrabberMouseDown(e, 'charge_taxes')}
           />
         </TableCell>
@@ -651,7 +648,7 @@ const SingleRow = (props: SingleRowProps) => {
         <TableCell
           onMouseDown={(e) => onCellMouseDown(e, 'tax_profile_id')}
           onMouseEnter={(e) => onCellMouseEnter(e, 'tax_profile_id')}
-          className={getActiveState('tax_profile_id')}
+          {...getActiveState('tax_profile_id')}
         >
           {currentVariation?.charge_taxes ? (
             <Select
@@ -663,9 +660,7 @@ const SingleRow = (props: SingleRowProps) => {
               }
               onValueChange={(value) => handleOnChange(value, 'tax_profile_id')}
             >
-              <SelectTrigger
-                className={`${CLASS_PREFIX}-ui-select-trigger--invisible`}
-              >
+              <SelectTrigger variant="invisible">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent />
@@ -674,7 +669,7 @@ const SingleRow = (props: SingleRowProps) => {
             <span style={{ marginLeft: '12px' }}>_</span>
           )}
           <span
-            className={isMaxIndex(index) ? `${CLASS_PREFIX}-grabber` : ''}
+            data-grabber={isMaxIndex(index) ? 'true' : undefined}
             onMouseDown={(e) => onGrabberMouseDown(e, 'tax_profile_id')}
           />
         </TableCell>
@@ -683,7 +678,7 @@ const SingleRow = (props: SingleRowProps) => {
         <TableCell
           onMouseDown={(e) => onCellMouseDown(e, 'shipping_profile_id')}
           onMouseEnter={(e) => onCellMouseEnter(e, 'shipping_profile_id')}
-          className={getActiveState('shipping_profile_id')}
+          {...getActiveState('shipping_profile_id')}
         >
           <Select
             value={
@@ -696,9 +691,7 @@ const SingleRow = (props: SingleRowProps) => {
               handleOnChange(value, 'shipping_profile_id')
             }
           >
-            <SelectTrigger
-              className={`${CLASS_PREFIX}-ui-select-trigger--invisible`}
-            >
+            <SelectTrigger variant="invisible">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -717,7 +710,7 @@ const SingleRow = (props: SingleRowProps) => {
             </SelectContent>
           </Select>
           <span
-            className={isMaxIndex(index) ? `${CLASS_PREFIX}-grabber` : ''}
+            data-grabber={isMaxIndex(index) ? 'true' : undefined}
             onMouseDown={(e) => onGrabberMouseDown(e, 'shipping_profile_id')}
           />
         </TableCell>

@@ -1,6 +1,5 @@
 import type { CSSProperties } from 'react';
 
-import { CLASS_PREFIX } from '@/conf';
 import {
   Table,
   TableBody,
@@ -9,6 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { scoped } from '@/theme/mixins';
 
 type TableHeaderItem = {
   title: string;
@@ -92,9 +92,7 @@ const TablePreview = () => {
       <TableBody>
         {tableData.map((data, index) => (
           <TableRow key={index}>
-            <TableCell className={`${CLASS_PREFIX}-table-highlighted-cell`}>
-              {data.invoice}
-            </TableCell>
+            <TableCell css={styles.highlightedCell}>{data.invoice}</TableCell>
             <TableCell>{data.paymentStatus}</TableCell>
             <TableCell>{data.paymentMethod}</TableCell>
             <TableCell>{data.totalAmount}</TableCell>
@@ -108,3 +106,9 @@ const TablePreview = () => {
 TablePreview.displayName = 'TablePreview';
 
 export default TablePreview;
+
+const styles = {
+  highlightedCell: scoped({
+    fontWeight: 500,
+  }),
+};

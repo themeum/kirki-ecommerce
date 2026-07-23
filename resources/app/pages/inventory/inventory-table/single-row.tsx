@@ -1,5 +1,4 @@
 import Input from '@/components/ui/input';
-import { CLASS_PREFIX } from '@/conf';
 import { useInventoryForm } from '@/contexts/inventory-form-context';
 import Checkbox from '@/components/ui/checkbox';
 import Flex from '@/components/ui/flex';
@@ -48,7 +47,7 @@ const SingleRow = ({
           <Input
             value={item?.sku ?? undefined}
             placeholder="--"
-            className={`${CLASS_PREFIX}-ui-input--invisible`}
+            invisible
             style={{ fontSize: '12px', lineHeight: '18px', fontWeight: '400' }}
             onChange={(event) => handleOnChange(event.target.value, 'sku')}
           />
@@ -59,7 +58,7 @@ const SingleRow = ({
           <Input
             value={item?.price ?? undefined}
             placeholder="--"
-            className={`${CLASS_PREFIX}-ui-input--invisible`}
+            invisible
             style={{ fontSize: '12px', lineHeight: '18px', fontWeight: '400' }}
             onChange={(event) => handleOnChange(event.target.value, 'price')}
           />
@@ -70,7 +69,7 @@ const SingleRow = ({
           <Input
             value={item?.sale_price ?? undefined}
             placeholder="--"
-            className={`${CLASS_PREFIX}-ui-input--invisible`}
+            invisible
             style={{ fontSize: '12px', lineHeight: '18px', fontWeight: '400' }}
             onChange={(event) =>
               handleOnChange(event.target.value, 'sale_price')
@@ -83,7 +82,7 @@ const SingleRow = ({
           <Input
             value={item?.cost_of_goods ?? undefined}
             placeholder="--"
-            className={`${CLASS_PREFIX}-ui-input--invisible`}
+            invisible
             style={{ fontSize: '12px', lineHeight: '18px', fontWeight: '400' }}
             onChange={(event) =>
               handleOnChange(event.target.value, 'cost_of_goods')
@@ -97,7 +96,7 @@ const SingleRow = ({
             value={calculateProfit('profit', item)}
             placeholder="--"
             readOnly
-            className={`${CLASS_PREFIX}-ui-input--invisible`}
+            invisible
             style={{ fontSize: '12px', lineHeight: '18px', fontWeight: '400' }}
           />
         </TableCell>

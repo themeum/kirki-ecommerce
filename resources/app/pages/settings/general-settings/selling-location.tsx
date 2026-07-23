@@ -4,11 +4,12 @@ import { useFormContext, useWatch } from 'react-hook-form';
 import MultiSelectField from '@/components/form/multi-select-field';
 import SelectField from '@/components/form/select-field';
 import { Card } from '@/components/ui/card';
-import { CLASS_PREFIX } from '@/conf';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import type { GeneralSettingsFormValues } from '@/schemas/forms/general-settings-form';
 import { useCountriesQuery } from '@/services/country';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 const sellingLocationOptions = [
@@ -58,7 +59,7 @@ const SellingLocation = () => {
 
   return (
     <div>
-      <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
+      <Card type="large">
         <Text
           header={__('Selling Locations', 'kirki-ecommerce')}
           subHeader={__(
@@ -66,13 +67,10 @@ const SellingLocation = () => {
             'kirki-ecommerce',
           )}
           type="primary"
-          style={{ gap: 'var(--decom-spacing-f3)' }}
+          css={styles.sectionHeader}
         />
 
-        <Card
-          className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner`}
-          style={{ padding: 'var(--decom-spacing-4)' }}
-        >
+        <Card type="inner" css={styles.innerCard}>
           <Flex direction="column" gap={16}>
             <SelectField
               name="selling_location_type"
@@ -103,3 +101,12 @@ const SellingLocation = () => {
 SellingLocation.displayName = 'SellingLocation';
 
 export default SellingLocation;
+
+const styles = {
+  sectionHeader: scoped({
+    gap: theme.spacing.base,
+  }),
+  innerCard: scoped({
+    padding: theme.spacing['2xl'],
+  }),
+};

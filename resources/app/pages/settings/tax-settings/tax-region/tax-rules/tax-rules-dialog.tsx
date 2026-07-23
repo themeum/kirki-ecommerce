@@ -7,6 +7,7 @@ import TextField from '@/components/form/text-field';
 import Button from '@/components/ui/button';
 import {
   Dialog,
+  DialogBody,
   DialogCloseButton,
   DialogContent,
   DialogFooter,
@@ -18,7 +19,6 @@ import { LighteningIcon } from '@/icons';
 import Flex from '@/components/ui/flex';
 import Grid from '@/components/ui/grid';
 import Text from '@/components/ui/text';
-import { CLASS_PREFIX } from '@/conf';
 import {
   TaxRulesFormSchema,
   type TaxRulesFormValues,
@@ -201,10 +201,9 @@ const TaxRulesModal = (props: TaxRulesModalProps) => {
           </DialogHeader>
         )}
         <Form {...form}>
-          <div className={`${CLASS_PREFIX}-ui-dialog-body`}>
+          <DialogBody>
             <Flex direction={'column'} gap={16}>
               <Flex direction={'column'} gap={8}>
-                <div className={`${CLASS_PREFIX}-condition-row`}>
                   {conditions?.map((row, index) => (
                     <ConditionRow
                       key={row.id}
@@ -219,7 +218,6 @@ const TaxRulesModal = (props: TaxRulesModalProps) => {
                       region={region}
                     />
                   ))}
-                </div>
               </Flex>
               <Flex direction={'column'} gap={8}>
                 <Text header={__('THEN', 'kirki-ecommerce')} />
@@ -234,7 +232,7 @@ const TaxRulesModal = (props: TaxRulesModalProps) => {
                 </Grid>
               </Flex>
             </Flex>
-          </div>
+          </DialogBody>
           <DialogFooter>
             <Button
               variant="secondary"

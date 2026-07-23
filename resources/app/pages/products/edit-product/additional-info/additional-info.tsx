@@ -1,21 +1,50 @@
+import { css } from '@emotion/react';
 import { useState } from 'react';
 
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { CLASS_PREFIX } from '@/conf';
 import { EditIcon, PlusIcon, TrashIcon } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { useProductForm } from '@/contexts/product-form-context';
+import { theme } from '@/theme';
 import { __ } from '@/wpi18n';
 
 import AddOrEditInfo from '@/pages/products/edit-product/additional-info/add-or-edit-info';
+
+const hoverVisibleCss = css({
+  visibility: 'hidden',
+});
+
+const hoverVisibleActiveCss = css({
+  visibility: 'visible',
+});
+
+const optionCardCss = css({
+  borderRadius: theme.radius.none,
+  borderTopColor: 'transparent',
+});
+
+const optionCardBorderRadiusCss = css({
+  '&:first-of-type': {
+    borderTopColor: theme.colors.border.secondary,
+    borderRadius: `${theme.radius.lg} ${theme.radius.lg} ${theme.radius.none} ${theme.radius.none}`,
+  },
+  '&:last-of-type': {
+    borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.lg} ${theme.radius.lg}`,
+  },
+});
+
+const optionCardBorderRadiusSingleCss = css({
+  borderRadius: theme.radius.lg,
+});
 
 const AdditionalInfo = () => {
   const { product: productData, updateProduct } = useProductForm();
   const [showInfoForm, setShowInfoForm] = useState(false);
   const [editedIndex, setEditedIndex] = useState<number | null>(null);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   const onClose = () => {
     setEditedIndex(null);
@@ -56,11 +85,15 @@ const AdditionalInfo = () => {
               <div>
                 {productData?.additional_info.map((item, index) => (
                   <Card
-                    className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner ${CLASS_PREFIX}-option-card ${CLASS_PREFIX}-hover-parent ${
+                    type="inner"
+                    css={css(
+                      optionCardCss,
                       (productData?.additional_info ?? []).length > 1
-                        ? `${CLASS_PREFIX}-option-card-border-radius`
-                        : `${CLASS_PREFIX}-option-card-border-radius-single`
-                    }`}
+                        ? optionCardBorderRadiusCss
+                        : optionCardBorderRadiusSingleCss,
+                    )}
+                    onMouseEnter={() => setHoveredIndex(index)}
+                    onMouseLeave={() => setHoveredIndex(null)}
                     key={index}
                   >
                     <CardContent>
@@ -74,7 +107,12 @@ const AdditionalInfo = () => {
                           header={item?.title}
                           subHeader={item?.description as string | undefined}
                         />
-                        <ActionGroup className={`${CLASS_PREFIX}-hover-visible`}>
+                        <ActionGroup
+                          css={css(
+                            hoverVisibleCss,
+                            hoveredIndex === index && hoverVisibleActiveCss,
+                          )}
+                        >
                           <Button
                             variant="secondary"
                             size="sm"

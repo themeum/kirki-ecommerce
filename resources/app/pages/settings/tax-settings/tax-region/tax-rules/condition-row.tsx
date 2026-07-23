@@ -1,3 +1,4 @@
+import { css } from '@emotion/react';
 import { useState, type Dispatch, type SetStateAction } from 'react';
 
 import Button from '@/components/ui/button';
@@ -12,7 +13,8 @@ import {
 import { PlusIcon, TrashIcon } from '@/icons';
 import Grid from '@/components/ui/grid';
 import Text from '@/components/ui/text';
-import { CLASS_PREFIX } from '@/conf';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 import { taxRuleConditionOptions } from '@/pages/settings/tax-settings/utils';
@@ -51,6 +53,8 @@ const ConditionRow = (props: ConditionRowProps) => {
   } = props;
 
   const [showStatesPopup, setShowStatesPopup] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+
   const handleAddStates = () => {
     setConditions((prev) =>
       prev.map((item) =>
@@ -96,15 +100,19 @@ const ConditionRow = (props: ConditionRowProps) => {
       : taxRuleConditionOptions;
 
   return (
-    <div key={row.id}>
+    <div
+      key={row.id}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       {index > 0 ? (
         <Text header={__('AND IF', 'kirki-ecommerce')} />
       ) : (
         <Text header={__(' IF', 'kirki-ecommerce')} />
       )}
       <Grid
+        css={styles.conditionGrid}
         style={{
-          marginTop: 'var(--decom-spacing-2)',
           gridTemplateColumns:
             row.condition === 'destination_region' || index > 0
               ? 'minmax(0, 2fr) 0.5fr minmax(0, 2fr) auto'
@@ -161,7 +169,10 @@ const ConditionRow = (props: ConditionRowProps) => {
             variant="outline"
             onClick={handleAddConditionRow}
             style={{ padding: '8px' }}
-            className={`${CLASS_PREFIX}-condition-actions`}
+            css={css(
+              styles.conditionActions,
+              isHovered && styles.conditionActionsActive,
+            )}
           >
             <PlusIcon />
           </Button>
@@ -172,7 +183,10 @@ const ConditionRow = (props: ConditionRowProps) => {
             variant="secondary"
             onClick={() => handleDeleteConditionRow(row.id)}
             style={{ padding: '8px' }}
-            className={`${CLASS_PREFIX}-condition-actions`}
+            css={css(
+              styles.conditionActions,
+              isHovered && styles.conditionActionsActive,
+            )}
           >
             <TrashIcon />
           </Button>
@@ -196,3 +210,21 @@ const ConditionRow = (props: ConditionRowProps) => {
 ConditionRow.displayName = 'ConditionRow';
 
 export default ConditionRow;
+
+const styles = {
+  conditionGrid: scoped({
+    marginTop: theme.spacing.md,
+  }),
+  conditionActions: css({
+    opacity: 0,
+    visibility: 'hidden',
+    transition: 'opacity 0.2s ease',
+    display: 'none',
+    gap: theme.spacing.md,
+  }),
+  conditionActionsActive: css({
+    opacity: 1,
+    visibility: 'visible',
+    display: 'flex',
+  }),
+};

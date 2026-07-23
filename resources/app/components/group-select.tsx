@@ -8,7 +8,6 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { CLASS_PREFIX } from '@/conf';
 import ActionGroup from '@/components/ui/action-group';
 import Badge from '@/components/ui/badge';
 import Checkbox from '@/components/ui/checkbox';
@@ -34,7 +33,6 @@ type GroupSelectProps = LabelFieldProps & {
   onChange?: (values: GroupedValues) => void;
   onClose?: () => void;
   state?: SelectState;
-  className?: string;
   style?: CSSProperties;
   leftIcon?: ReactNode;
   checkboxField?: boolean;
@@ -118,9 +116,7 @@ const GroupSelect = (props: GroupSelectProps) => {
       >
         {dropdownHeader && (
           <DropdownMenuItem>
-            <div className={`${CLASS_PREFIX}-select-dropdown-item-padding`}>
-              {dropdownHeader}
-            </div>
+            <div>{dropdownHeader}</div>
             <Separator marginTop={4} marginBottom={4} />
           </DropdownMenuItem>
         )}
@@ -204,5 +200,7 @@ const GroupSelect = (props: GroupSelectProps) => {
     </DropdownMenu>
   );
 };
+
+GroupSelect.displayName = 'GroupSelect';
 
 export default GroupSelect;

@@ -3,13 +3,12 @@ import Button from '@/components/ui/button';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { SimulatorIcon } from '@/icons';
-import { CLASS_PREFIX } from '@/conf';
 import { __ } from '@/wpi18n';
 
 const TaxSimulator = () => {
   return (
     <div>
-      <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
+      <Card type="large">
         <Flex gap={8}>
           <Flex gap={12} direction="column" style={{ width: '55%' }}>
             <Flex gap={6} direction="column">
@@ -30,10 +29,7 @@ const TaxSimulator = () => {
               Try Simulator
             </Button>
           </Flex>
-          <Card
-            className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-tartiary`}
-            style={{ width: '45%' }}
-          ></Card>
+          <Card type="tartiary" style={{ width: '45%' }}></Card>
         </Flex>
       </Card>
     </div>

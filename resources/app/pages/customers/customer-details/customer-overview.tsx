@@ -2,7 +2,6 @@ import CheckboxField from '@/components/form/checkbox-field';
 import SelectField from '@/components/form/select-field';
 import TextField from '@/components/form/text-field';
 import { Card } from '@/components/ui/card';
-import { CLASS_PREFIX } from '@/conf';
 import { FileTextIcon } from '@/icons';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
@@ -17,7 +16,7 @@ const languageOptions = [
 const CustomerOverview = () => {
   return (
     <Card
-      className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-form`}
+      type="form"
       style={{ padding: '20px', borderRadius: '20px', gap: '20px' }}
     >
       <Text
@@ -25,10 +24,7 @@ const CustomerOverview = () => {
         type="primary"
         leftIcon={<FileTextIcon />}
       />
-      <Card
-        className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner`}
-        style={{ padding: '16px' }}
-      >
+      <Card type="inner" style={{ padding: '16px' }}>
         <Flex direction="column" gap={16}>
           <TextField
             name="first_name"

@@ -13,6 +13,7 @@ import { Card } from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
 import {
   Dialog,
+  DialogBody,
   DialogCloseButton,
   DialogContent,
   DialogFooter,
@@ -22,8 +23,9 @@ import {
 import { Form } from '@/components/ui/form';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
-import { CLASS_PREFIX } from '@/conf';
 import Flex from '@/components/ui/flex';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import {
   TaxRegionPopupFormSchema,
   type TaxRegionPopupFormValues,
@@ -258,7 +260,7 @@ const TaxRegionPopup = (props: TaxRegionPopupProps) => {
           <DialogTitle>{__('Add tax region', 'kirki-ecommerce')}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <div className={`${CLASS_PREFIX}-ui-dialog-body`}>
+          <DialogBody>
             <Flex direction="column" gap={8}>
               <Label htmlFor="tax-region-search">
                 {__('Select countries', 'kirki-ecommerce')}
@@ -271,10 +273,7 @@ const TaxRegionPopup = (props: TaxRegionPopupProps) => {
               />
             </Flex>
 
-            <Card
-              className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-table`}
-              style={{ borderRadius: 'var(--decom-radius-rounded-md)' }}
-            >
+            <Card type="table" css={styles.tableCard}>
               <div
                 style={{
                   height: '350px',
@@ -282,7 +281,7 @@ const TaxRegionPopup = (props: TaxRegionPopupProps) => {
                   overflowY: 'scroll',
                 }}
               >
-                <Flex className={`${CLASS_PREFIX}-popover-heading-wrapper-dark`}>
+                <Flex>
                   {__('Name', 'kirki-ecommerce')}
                 </Flex>
 
@@ -294,10 +293,7 @@ const TaxRegionPopup = (props: TaxRegionPopupProps) => {
                     const countryStates = (country.states ||
                       []) as CountryStateOption[];
                     return (
-                      <div
-                        key={index}
-                        className={`${CLASS_PREFIX}-checkbox-item`}
-                      >
+                      <div key={index} css={styles.checkboxItem}>
                         <Flex gap={8} style={{ alignItems: 'center' }}>
                           <Checkbox
                             id={`tax-region-country-${country.code}`}
@@ -317,17 +313,10 @@ const TaxRegionPopup = (props: TaxRegionPopupProps) => {
                         </Flex>
                         {formCountries?.includes(country.code) &&
                         countryStates.length > 0 ? (
-                          <div
-                            style={{
-                              padding: 'var(--decom-radius-rounded-xl)',
-                            }}
-                          >
+                          <div css={styles.nestedStates}>
                             {countryStates.map((state, stateIndex) => {
                               return (
-                                <div
-                                  key={stateIndex}
-                                  className={`${CLASS_PREFIX}-checkbox-item`}
-                                >
+                                <div key={stateIndex} css={styles.checkboxItem}>
                                   <Flex gap={8} style={{ alignItems: 'center' }}>
                                     <Checkbox
                                       id={`tax-region-state-${country.code}-${state?.id}`}
@@ -362,7 +351,7 @@ const TaxRegionPopup = (props: TaxRegionPopupProps) => {
                   })}
               </div>
             </Card>
-          </div>
+          </DialogBody>
           <DialogFooter>
             <Button variant="outline" size="sm" onClick={handleClose}>
               {__('Cancel', 'kirki-ecommerce')}
@@ -385,3 +374,20 @@ const TaxRegionPopup = (props: TaxRegionPopupProps) => {
 TaxRegionPopup.displayName = 'TaxRegionPopup';
 
 export default TaxRegionPopup;
+
+const styles = {
+  tableCard: scoped({
+    borderRadius: theme.radius.md,
+  }),
+  checkboxItem: scoped({
+    width: 'auto',
+    padding: `${theme.spacing.md} ${theme.spacing.lg}`,
+    '&:hover': {
+      background: theme.colors.background.surfaceSecondary,
+      borderRadius: theme.radius.sm,
+    },
+  }),
+  nestedStates: scoped({
+    padding: theme.spacing.lg,
+  }),
+};

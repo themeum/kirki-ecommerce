@@ -7,6 +7,7 @@ import Button from '@/components/ui/button';
 import Checkbox from '@/components/ui/checkbox';
 import {
   Dialog,
+  DialogBody,
   DialogClose,
   DialogCloseButton,
   DialogContent,
@@ -17,8 +18,9 @@ import {
 import { Form } from '@/components/ui/form';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
-import { CLASS_PREFIX } from '@/conf';
 import Flex from '@/components/ui/flex';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import {
   SelectDestinationFormSchema,
   selectDestinationDefaultValues,
@@ -231,7 +233,7 @@ export const SelectDestinationPopup = ({
           </DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <div className={`${CLASS_PREFIX}-ui-dialog-body`}>
+          <DialogBody>
             <SelectField
               name="country"
               label={__('Select country', 'kirki-ecommerce')}
@@ -259,7 +261,7 @@ export const SelectDestinationPopup = ({
               }}
             >
               {filteredStates?.map((state, index) => (
-                <div key={index} className={`${CLASS_PREFIX}-checkbox-item`}>
+                <div key={index} css={styles.checkboxItem}>
                   <Flex gap={8} style={{ alignItems: 'center' }}>
                     <Checkbox
                       id={`select-destination-state-${index}`}
@@ -273,7 +275,7 @@ export const SelectDestinationPopup = ({
                 </div>
               ))}
             </div>
-          </div>
+          </DialogBody>
           <DialogFooter>
             <DialogClose asChild>
               <Button variant="outline">
@@ -294,3 +296,14 @@ export const SelectDestinationPopup = ({
 };
 
 SelectDestinationPopup.displayName = 'SelectDestinationPopup';
+
+const styles = {
+  checkboxItem: scoped({
+    width: 'auto',
+    padding: `${theme.spacing.md} ${theme.spacing.lg}`,
+    '&:hover': {
+      background: theme.colors.background.surfaceSecondary,
+      borderRadius: theme.radius.sm,
+    },
+  }),
+};

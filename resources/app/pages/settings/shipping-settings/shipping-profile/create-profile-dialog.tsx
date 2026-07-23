@@ -6,6 +6,7 @@ import TextField from '@/components/form/text-field';
 import Button from '@/components/ui/button';
 import {
   Dialog,
+  DialogBody,
   DialogClose,
   DialogCloseButton,
   DialogContent,
@@ -14,7 +15,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
-import { CLASS_PREFIX } from '@/conf';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import {
@@ -123,13 +123,13 @@ export const CreateProfilePopup = ({
           </DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <div className={`${CLASS_PREFIX}-ui-dialog-body`}>
+          <DialogBody>
             <TextField
               name="name"
               label={__('Title', 'kirki-ecommerce')}
               placeholder={__('e.g. Fragile', 'kirki-ecommerce')}
             />
-          </div>
+          </DialogBody>
           <DialogFooter>
             <DialogClose asChild>
               <Button variant="outline" size="sm" disabled={isSubmitting}>

@@ -1,6 +1,5 @@
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 
-import { CLASS_PREFIX } from '@/conf';
 import {
   Accordion,
   AccordionContent,
@@ -10,6 +9,7 @@ import {
 import Badge from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import Text from '@/components/ui/text';
+import { theme } from '@/theme';
 import { __ } from '@/wpi18n';
 
 type OptionAccordionProps = {
@@ -32,23 +32,13 @@ const OptionAccordion = (props: OptionAccordionProps) => {
     variant,
     state = true,
   } = props;
-  const variants: Record<string, string> = {
-    shipping: `${CLASS_PREFIX}-option-accordion--shipping`,
-    inactive: `${CLASS_PREFIX}-option-accordion--inactive`,
-  };
-
-  const variantClass = [
-    variant ? variants[variant] : undefined,
-    state === false && variants.inactive,
-  ]
-    .filter(Boolean)
-    .join(' ');
+  const [isHovered, setIsHovered] = useState(false);
 
   return (
     <div
       style={{
-        borderRadius: 'var(--decom-radius-rounded-xl)',
-        border: '1px solid var(--decom-icon-inverse)',
+        borderRadius: theme.radius.xl,
+        border: `1px solid ${theme.colors.icon.inverse}`,
       }}
     >
       <Accordion
@@ -59,9 +49,10 @@ const OptionAccordion = (props: OptionAccordionProps) => {
       >
         <AccordionItem>
           <AccordionTrigger
-            className={`${variantClass} ${CLASS_PREFIX}-option-accordion-trigger`}
-            style={{ padding: 'var(--decom-spacing-3) var(--decom-spacing-4)' }}
+            style={{ padding: `${theme.spacing.lg} ${theme.spacing['2xl']}` }}
             gap={16}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
           >
             <Text
               header={header}
@@ -70,14 +61,14 @@ const OptionAccordion = (props: OptionAccordionProps) => {
               leftIcon={leftIcon}
               badge={!state && <Badge text={__('Inactive', 'kirki-ecommerce')} type="trashed" />}
               type={!state ? 'disabled' : 'secondary'}
+              emphasis={variant === 'shipping' && state && isHovered}
             />
           </AccordionTrigger>
           <AccordionContent>
             <Card
               type="dark"
               style={{
-                borderRadius:
-                  'var(--decom-radius-rounded-none) var(--decom-radius-rounded-none) var(--decom-radius-rounded-lg) var(--decom-radius-rounded-lg)',
+                borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.lg} ${theme.radius.lg}`,
                 display: 'flex',
                 flexDirection: 'column',
               }}

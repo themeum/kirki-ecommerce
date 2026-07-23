@@ -11,7 +11,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { CLASS_PREFIX } from '@/conf';
 import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
 import Grid from '@/components/ui/grid';
@@ -28,7 +27,7 @@ type BarcodeGenerationProps = {
 const BarcodeGeneration = (_props: BarcodeGenerationProps) => {
   return (
     <div>
-      <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
+      <Card type="large">
         <Text
           header={__('Barcode Generation', 'kirki-ecommerce')}
           subHeader={__(
@@ -39,10 +38,7 @@ const BarcodeGeneration = (_props: BarcodeGenerationProps) => {
           style={{ gap: '12px' }}
         />
 
-        <Card
-          className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner`}
-          style={{ padding: '16px' }}
-        >
+        <Card type="inner" style={{ padding: '16px' }}>
           <Flex direction="column" gap={16}>
             <Flex direction="column" gap={8}>
               <Label htmlFor="barcode-data-origin">
@@ -130,7 +126,7 @@ const BarcodeGeneration = (_props: BarcodeGenerationProps) => {
           </Flex>
         </Card>
         <Card
-          className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-innerDark`}
+          type="innerDark"
           style={{
             height: '158px',
             display: 'flex',
@@ -143,10 +139,7 @@ const BarcodeGeneration = (_props: BarcodeGenerationProps) => {
             <img src="https://kirki-ecommerce.test/wp-content/uploads/2025/10/Screenshot-2025-07-24-at-2.29.50-PM-1.png" />
           </span>
         </Card>
-        <Card
-          className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner`}
-          style={{ padding: '16px' }}
-        >
+        <Card type="inner" style={{ padding: '16px' }}>
           <Flex>
             <Flex direction="column" gap={6}>
               <Text

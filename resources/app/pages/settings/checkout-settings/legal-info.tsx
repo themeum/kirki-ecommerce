@@ -1,15 +1,15 @@
 import RichTextField from '@/components/form/rich-text-field';
 import SwitchField from '@/components/form/switch-field';
 import { Card } from '@/components/ui/card';
-import { CLASS_PREFIX } from '@/conf';
 import ActionGroup from '@/components/ui/action-group';
 import Text from '@/components/ui/text';
+import { theme } from '@/theme';
 import { __ } from '@/wpi18n';
 
 const LegalInfo = () => {
   return (
     <>
-      <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
+      <Card type="large">
         <Text
           type="primary"
           header={__('Legal Information', 'kirki-ecommerce')}
@@ -17,13 +17,13 @@ const LegalInfo = () => {
             'show or hide your terms & conditions and privacy policy on the checkout page',
             'kirki-ecommerce',
           )}
-          style={{ gap: 'var(--decom-spacing-f3)' }}
+          style={{ gap: theme.spacing.base }}
         />
         <Card
-          className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-form`}
+          type="form"
           style={{
-            border: '1px solid var(--decom-border-border)',
-            borderRadius: 'var(--decom-radius-rounded-lg)',
+            border: `1px solid ${theme.colors.border.default}`,
+            borderRadius: theme.radius.lg,
           }}
         >
           <ActionGroup
@@ -44,10 +44,10 @@ const LegalInfo = () => {
           />
         </Card>
         <Card
-          className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-form`}
+          type="form"
           style={{
-            border: '1px solid var(--decom-border-border)',
-            borderRadius: 'var(--decom-radius-rounded-lg)',
+            border: `1px solid ${theme.colors.border.default}`,
+            borderRadius: theme.radius.lg,
           }}
         >
           <ActionGroup

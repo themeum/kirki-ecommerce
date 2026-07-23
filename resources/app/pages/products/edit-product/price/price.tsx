@@ -28,7 +28,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { CLASS_PREFIX } from '@/conf';
 import { PlusCircleIcon } from '@/icons';
 import { useProductForm } from '@/contexts/product-form-context';
 import type { ErrorResponse } from '@/libs/api';
@@ -44,6 +43,8 @@ import {
   type ProductPriceFormValues,
 } from '@/schemas/forms/product-price-form';
 import { useTaxProfilesQuery } from '@/services/tax';
+import { theme } from '@/theme';
+import { flexCenter, scoped } from '@/theme/mixins';
 import type { FormErrors, UnitPriceValue } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -129,7 +130,7 @@ const Price = ({ errors, setErrors, formSyncKey = 0 }: PriceProps) => {
 
   return (
     <Form {...form}>
-      <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-form`}>
+      <Card type="form">
         <CardContent>
           <Text
             header={__('Price', 'kirki-ecommerce')}
@@ -146,7 +147,7 @@ const Price = ({ errors, setErrors, formSyncKey = 0 }: PriceProps) => {
                   <FormControl>
                     <div style={{ position: 'relative' }}>
                       <span
-                        className={`${CLASS_PREFIX}-input-left-symbol`}
+                        css={styles.inputLeftSymbol}
                         style={{
                           position: 'absolute',
                           left: '12px',
@@ -184,7 +185,7 @@ const Price = ({ errors, setErrors, formSyncKey = 0 }: PriceProps) => {
                   <FormControl>
                     <div style={{ position: 'relative' }}>
                       <span
-                        className={`${CLASS_PREFIX}-input-left-symbol`}
+                        css={styles.inputLeftSymbol}
                         style={{
                           position: 'absolute',
                           left: '12px',
@@ -217,7 +218,7 @@ const Price = ({ errors, setErrors, formSyncKey = 0 }: PriceProps) => {
 
           <Flex direction="column" gap={8}>
             <Card
-              className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner-dark`}
+              type="innerDark"
               style={{
                 padding: '4px 8px 4px 12px',
                 height: '44px',
@@ -281,7 +282,7 @@ const Price = ({ errors, setErrors, formSyncKey = 0 }: PriceProps) => {
             </Card>
 
             <Card
-              className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner-dark`}
+              type="innerDark"
               style={{
                 padding: '4px 8px 4px 12px',
                 height: '44px',
@@ -386,7 +387,7 @@ const Price = ({ errors, setErrors, formSyncKey = 0 }: PriceProps) => {
                     <div style={{ position: 'relative' }}>
                       {field.value && (
                         <span
-                          className={`${CLASS_PREFIX}-input-left-symbol`}
+                          css={styles.inputLeftSymbol}
                           style={{
                             position: 'absolute',
                             left: '12px',
@@ -420,7 +421,7 @@ const Price = ({ errors, setErrors, formSyncKey = 0 }: PriceProps) => {
               <Label>{__('Profit', 'kirki-ecommerce')}</Label>
               <div style={{ position: 'relative' }}>
                 <span
-                  className={`${CLASS_PREFIX}-input-left-symbol`}
+                  css={styles.inputLeftSymbol}
                   style={{
                     position: 'absolute',
                     left: '12px',
@@ -462,3 +463,10 @@ const Price = ({ errors, setErrors, formSyncKey = 0 }: PriceProps) => {
 Price.displayName = 'Price';
 
 export default Price;
+
+const styles = {
+  inputLeftSymbol: scoped({
+    ...flexCenter(),
+    color: theme.colors.text.secondary,
+  }),
+};

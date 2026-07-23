@@ -14,13 +14,14 @@ import Button from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
-import { CLASS_PREFIX } from '@/conf';
 import { getErrorsObject } from '@/libs/api';
 import { useUnsavedStatus } from '@/libs/unsaved-store';
 import { dispatchToastMessage, normalizeErrors } from '@/pages/utils';
 import { useCountriesQuery } from '@/services/country';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import type { FormErrors, SelectOption, SettingsSectionData } from '@/types';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 import { ShippingRegionPopup } from '@/pages/settings/shipping-settings/shipping-zone/shipping-region-dialog';
@@ -260,10 +261,7 @@ const ShippingZonePage = () => {
               text={__('Set Zone Details', 'kirki-ecommerce')}
               handleBack={handleBackButton}
             />
-            <Card
-              className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}
-              style={{ gap: 'var(--decom-spacing-4)' }}
-            >
+            <Card type="large" css={styles.formCard}>
               <Flex direction="column" gap={8}>
                 <Label
                   htmlFor="shipping-zone-title"
@@ -345,3 +343,9 @@ const ShippingZonePage = () => {
 ShippingZonePage.displayName = 'ShippingZone';
 
 export default ShippingZonePage;
+
+const styles = {
+  formCard: scoped({
+    gap: theme.spacing['2xl'],
+  }),
+};

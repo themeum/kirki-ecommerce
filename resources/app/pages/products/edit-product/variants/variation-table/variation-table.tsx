@@ -12,7 +12,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { CLASS_PREFIX } from '@/conf';
 import { ChevronUpDownIcon, EditIcon } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
@@ -133,7 +132,7 @@ const VariationTable = () => {
       </Flex>
 
       <Card
-        className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner`}
+        type="inner"
         style={{ padding: 0 }}
       >
         <Table type="variation">

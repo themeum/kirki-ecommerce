@@ -1,3 +1,4 @@
+import { type SerializedStyles } from '@emotion/react';
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 
 import Button from '@/components/ui/button';
@@ -26,7 +27,7 @@ type MediaSelectorProps = {
   onSelect?: (media: MediaItem | MediaItem[]) => void;
   children?: ReactNode;
   label?: string;
-  className?: string;
+  css?: SerializedStyles;
   style?: CSSProperties;
 };
 
@@ -35,7 +36,7 @@ const MediaSelector = ({
   onSelect,
   children,
   label,
-  className = '',
+  css: cssProp,
   style = {},
 }: MediaSelectorProps) => {
   const mediaFrameRef = useRef<MediaFrame | null>(null);
@@ -104,8 +105,17 @@ const MediaSelector = ({
       {label && <Label text={label} />}
       <div
         onClick={openMediaFrame}
-        className={className}
+        css={cssProp}
         style={{ cursor: 'pointer', ...style }}
+        role="button"
+        tabIndex={0}
+        aria-label={label || __('Select Image', 'kirki-ecommerce')}
+        onKeyDown={(event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            openMediaFrame();
+          }
+        }}
       >
         {children || (
           <Button variant="secondary">
@@ -116,5 +126,7 @@ const MediaSelector = ({
     </Flex>
   );
 };
+
+MediaSelector.displayName = 'MediaSelector';
 
 export default MediaSelector;

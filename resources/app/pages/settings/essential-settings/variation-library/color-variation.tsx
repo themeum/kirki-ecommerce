@@ -4,13 +4,13 @@ import { useParams } from 'react-router';
 import PageNavbar from '@/components/page-navbar';
 import Button from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { CLASS_PREFIX } from '@/conf';
 import { ColorPaletteIcon } from '@/icons';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import PageHeading from '@/components/ui/page-heading';
 import { useAttributeQuery } from '@/services/attribute';
 import type { Attribute, AttributeValue, TaxonomyTableHeader } from '@/types';
+import { theme } from '@/theme';
 import { __, sprintf } from '@/wpi18n';
 
 import VariationTable from '@/pages/settings/essential-settings/variation-library/variation-table/variation-table';
@@ -54,7 +54,7 @@ const ColorVariation = () => {
               <div>
                 <Button
                   variant="link"
-                  style={{ color: 'var(--decom-color-blue-3)', padding: 0 }}
+                  style={{ color: theme.colors.text.emphasis, padding: 0 }}
                   onClick={() => setAddVariantPopup(true)}
                 >
                   {__('Add color', 'kirki-ecommerce')}
@@ -64,7 +64,7 @@ const ColorVariation = () => {
           />
           {!colorList?.length ? (
             <Card
-              className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}
+              type="large"
               style={{ borderRadius: '8px', padding: '36px 0' }}
             >
               <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
@@ -75,7 +75,7 @@ const ColorVariation = () => {
               </Flex>
             </Card>
           ) : (
-            <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-table`}>
+            <Card type="table">
               <VariationTable
                 results={colorList}
                 updateDataList={setColorList}

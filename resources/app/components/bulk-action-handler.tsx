@@ -1,3 +1,4 @@
+import { type SerializedStyles } from '@emotion/react';
 import { useState, type CSSProperties, type ReactNode } from 'react';
 
 import Button from '@/components/ui/button';
@@ -8,10 +9,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { CLASS_PREFIX } from '@/conf';
 import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import type { SelectOption } from '@/types';
 import { __, sprintf } from '@/wpi18n';
 
@@ -20,11 +22,11 @@ type BulkActionHandlerProps = {
   optionsArray?: SelectOption[];
   onSelectAll?: false | (() => void);
   onApply?: (action: string | number | null) => void;
-  className?: string;
   style?: CSSProperties;
   filterAction?: ReactNode;
   total?: number;
   per_page?: number;
+  css?: SerializedStyles;
 };
 
 const BulkActionHandler = (props: BulkActionHandlerProps) => {
@@ -33,11 +35,11 @@ const BulkActionHandler = (props: BulkActionHandlerProps) => {
     optionsArray,
     onSelectAll = false,
     onApply = () => {},
-    className = '',
     style = {},
     filterAction,
     total,
     per_page,
+    css: cssProp,
   } = props;
   const [selectAction, setSelectAction] = useState<string | number | null>(null);
   const handleActionChange = (nextValue: string) => {
@@ -46,7 +48,7 @@ const BulkActionHandler = (props: BulkActionHandlerProps) => {
 
   return (
     <div
-      className={`${CLASS_PREFIX}-bulk-action-bar ${className}`}
+      css={[styles.wrapper, cssProp]}
       style={style}
     >
       <Flex gap={20}>
@@ -96,3 +98,10 @@ const BulkActionHandler = (props: BulkActionHandlerProps) => {
 };
 
 export default BulkActionHandler;
+
+const styles = {
+  wrapper: scoped({
+    backgroundColor: theme.colors.background.fill,
+    padding: `${theme.spacing['2xl']} ${theme.spacing.lg}`,
+  }),
+};

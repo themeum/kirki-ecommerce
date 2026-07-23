@@ -4,13 +4,12 @@ import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import ActionGroup from '@/components/ui/action-group';
 import { PlusIcon } from '@/icons';
-import { CLASS_PREFIX } from '@/conf';
 import { __ } from '@/wpi18n';
 
 const SellerTaxID = () => {
   return (
     <div>
-      <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
+      <Card type="large">
         <Flex direction="column" gap={6}>
           <Flex style={{ alignItems: 'center' }}>
             <Text

@@ -1,3 +1,4 @@
+import { type SerializedStyles } from '@emotion/react';
 import type { ReactNode } from 'react';
 import {
   useFormContext,
@@ -9,12 +10,12 @@ import {
   FormControl,
   FormDescription,
   FormField,
+  FormFieldRow,
   FormItem,
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
 import Switch from '@/components/ui/switch';
-import { CLASS_PREFIX } from '@/conf';
 
 type SwitchFieldProps<
   TFieldValues extends FieldValues = FieldValues,
@@ -24,7 +25,7 @@ type SwitchFieldProps<
   label?: ReactNode;
   description?: ReactNode;
   disabled?: boolean;
-  className?: string;
+  css?: SerializedStyles;
 };
 
 const SwitchField = <
@@ -35,7 +36,7 @@ const SwitchField = <
   label,
   description,
   disabled,
-  className,
+  css,
 }: SwitchFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
 
@@ -44,8 +45,8 @@ const SwitchField = <
       control={control}
       name={name}
       render={({ field }) => (
-        <FormItem className={className}>
-          <div className={`${CLASS_PREFIX}-ui-switch-field`}>
+        <FormItem css={css}>
+          <FormFieldRow>
             <FormControl>
               <Switch
                 checked={Boolean(field.value)}
@@ -54,7 +55,7 @@ const SwitchField = <
               />
             </FormControl>
             {label && <FormLabel>{label}</FormLabel>}
-          </div>
+          </FormFieldRow>
           {description && <FormDescription>{description}</FormDescription>}
           <FormMessage />
         </FormItem>

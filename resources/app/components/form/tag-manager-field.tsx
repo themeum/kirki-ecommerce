@@ -1,3 +1,4 @@
+import { type SerializedStyles } from '@emotion/react';
 import type { ComponentProps, ReactNode } from 'react';
 import {
   useFormContext,
@@ -24,7 +25,7 @@ type TagManagerFieldProps<
   name: TName;
   label?: ReactNode;
   description?: ReactNode;
-  className?: string;
+  css?: SerializedStyles;
   valueAs?: 'options' | 'strings';
 } & Omit<
   TagManagerProps,
@@ -44,7 +45,7 @@ const TagManagerField = <
   name,
   label,
   description,
-  className,
+  css,
   valueAs = 'options',
   ...tagManagerProps
 }: TagManagerFieldProps<TFieldValues, TName>) => {
@@ -62,7 +63,7 @@ const TagManagerField = <
             : rawValue;
 
         return (
-          <FormItem className={className}>
+          <FormItem css={css}>
             {label && <FormLabel>{label}</FormLabel>}
             <FormControl>
               <TagManager

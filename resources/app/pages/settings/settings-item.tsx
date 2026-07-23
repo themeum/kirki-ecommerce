@@ -3,9 +3,10 @@ import { useNavigate } from 'react-router';
 
 import Button from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { CLASS_PREFIX } from '@/conf';
 import { DropdownSubmenuIcon } from '@/icons';
 import Flex from '@/components/ui/flex';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import Text from '@/components/ui/text';
 
 type SettingsItemProps = {
@@ -22,40 +23,64 @@ export const SettingsItem = (props: SettingsItemProps) => {
   const handleClick = () => {
     navigate(link);
   };
+
   return (
-    <>
-      <Card
-        className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-default`}
-        style={{
-          padding: 'var(--decom-spacing-2) var(--decom-spacing-3)',
-          cursor: 'pointer',
-        }}
-        onClick={handleClick}
-      >
-        <Flex gap={8} style={{ position: 'relative' }}>
-          <div className={`${CLASS_PREFIX}-settings-card-identifier`}></div>
-          <span style={{ marginTop: 'var(--decom-spacing-1)' }}>{icon}</span>
-          <Text
-            header={header}
-            subHeader={subHeader}
-            type="secondary"
-            style={{ gap: 0 }}
-          />
-        </Flex>
-        <Flex>
+    <Card type="default" css={styles.card} onClick={handleClick}>
+      <Flex gap={8} css={styles.content}>
+        <div css={styles.identifier} data-settings-identifier />
+        <span css={styles.iconWrap}>{icon}</span>
+        <Text
+          header={<span data-settings-heading>{header}</span>}
+          subHeader={subHeader}
+          type="secondary"
+          style={{ gap: 0 }}
+        />
+      </Flex>
+      <Flex>
+        <span css={styles.buttonWrap} data-settings-button>
           <Button
             variant="ghost"
             size="icon"
-            className={`${CLASS_PREFIX}-settings-card-button`}
-            style={{
-              backgroundColor: 'var(--decom-background-bg-fill-secondary)',
-            }}
+            css={styles.actionButton}
             onClick={handleClick}
           >
             <DropdownSubmenuIcon />
           </Button>
-        </Flex>
-      </Card>
-    </>
+        </span>
+      </Flex>
+    </Card>
   );
+};
+
+const styles = {
+  card: scoped({
+    padding: `${theme.spacing.md} ${theme.spacing.lg}`,
+    cursor: 'pointer',
+  }),
+  content: scoped({
+    position: 'relative',
+  }),
+  identifier: scoped({
+    background: theme.colors.background.fillBrand,
+    height: '40px',
+    width: '4px',
+    position: 'absolute',
+    top: '2px',
+    left: '-12px',
+    borderRadius: theme.radius.xl,
+    opacity: 0,
+    visibility: 'hidden',
+    transition: 'all 0.3s ease',
+  }),
+  iconWrap: scoped({
+    marginTop: theme.spacing.xs,
+  }),
+  buttonWrap: scoped({
+    opacity: 0,
+    visibility: 'hidden',
+    transition: 'all 0.3s ease',
+  }),
+  actionButton: scoped({
+    backgroundColor: theme.colors.background.fillSecondary,
+  }),
 };

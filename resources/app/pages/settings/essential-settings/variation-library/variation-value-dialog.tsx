@@ -7,6 +7,7 @@ import TextField from '@/components/form/text-field';
 import Button from '@/components/ui/button';
 import {
   Dialog,
+  DialogBody,
   DialogCloseButton,
   DialogContent,
   DialogFooter,
@@ -14,7 +15,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
-import { CLASS_PREFIX } from '@/conf';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import Flex from '@/components/ui/flex';
@@ -122,7 +122,7 @@ const VariationValuePopup = ({
           </DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <div className={`${CLASS_PREFIX}-ui-dialog-body`}>
+          <DialogBody>
             <Flex direction="column" gap={16}>
               <TextField
                 name="value"
@@ -141,7 +141,7 @@ const VariationValuePopup = ({
                 />
               )}
             </Flex>
-          </div>
+          </DialogBody>
           <DialogFooter>
             <Button variant="outline" size="sm" onClick={onClose}>
               {__('Cancel', 'kirki-ecommerce')}

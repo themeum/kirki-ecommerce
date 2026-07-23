@@ -2,7 +2,6 @@ import { useState, useEffect, type ReactNode } from 'react';
 
 import Flex from '@/components/ui/flex';
 import { BoxClosedIcon, BoxOpenIcon } from '@/icons';
-import { CLASS_PREFIX } from '@/conf';
 import GroupOptionCard from '@/components/group-option-card';
 import HeaderActionsCard from '@/components/header-actions-card';
 import { Card } from '@/components/ui/card';
@@ -13,6 +12,8 @@ import {
 } from '@/services/shipping';
 import { dispatchToastMessage } from '@/pages/utils';
 import type { ShippingProfile as ShippingProfileType } from '@/types';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 import { CreateProfilePopup } from '@/pages/settings/shipping-settings/shipping-profile/create-profile-dialog';
@@ -66,7 +67,7 @@ const ShippingProfile = () => {
 
   return (
     <>
-      <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
+      <Card type="large">
         <HeaderActionsCard
           header={__('Shipping Profiles', 'kirki-ecommerce')}
           subHeader={__(
@@ -78,13 +79,10 @@ const ShippingProfile = () => {
         />
 
         {!shippingProfileList?.length ? (
-          <Card
-            className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner-dark`}
-            style={{ padding: 'var(--decom-spacing-9) var(--decom-spacing-0)' }}
-          >
+          <Card type="innerDark" css={styles.emptyState}>
             <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
               <BoxOpenIcon />
-              <span style={{ color: 'var(--decom-text-text-subdued)' }}>
+              <span css={styles.emptyStateText}>
                 {__(
                   'Added shipping profiles will appear here',
                   'kirki-ecommerce',
@@ -93,7 +91,7 @@ const ShippingProfile = () => {
             </Flex>
           </Card>
         ) : (
-          <Flex direction="column" className={`${CLASS_PREFIX}-box-wrapper`}>
+          <Flex direction="column" data-box-wrapper css={styles.boxWrapper}>
             <GroupOptionCard
               dataArr={shippingProfileList}
               handleDeleteItem={(item) =>
@@ -124,3 +122,25 @@ const ShippingProfile = () => {
 ShippingProfile.displayName = 'ShippingProfile';
 
 export default ShippingProfile;
+
+const styles = {
+  boxWrapper: scoped({
+    '[data-box-card]': {
+      borderTop: 'none',
+      borderRadius: theme.radius.none,
+    },
+    '[data-box-card]:first-of-type': {
+      borderTop: `1px solid ${theme.colors.border.secondary}`,
+      borderRadius: `${theme.radius.md} ${theme.radius.md} ${theme.radius.none} ${theme.radius.none}`,
+    },
+    '[data-box-card]:last-of-type': {
+      borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.md} ${theme.radius.md}`,
+    },
+  }),
+  emptyState: scoped({
+    padding: `${theme.spacing['7xl']} ${theme.spacing.none}`,
+  }),
+  emptyStateText: scoped({
+    color: theme.colors.text.subdued,
+  }),
+};

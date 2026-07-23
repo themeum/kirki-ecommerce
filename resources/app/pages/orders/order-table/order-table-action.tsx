@@ -6,7 +6,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import Button from '@/components/ui/button';
-import { CLASS_PREFIX } from '@/conf';
 import { ArrowDownUp, ListFilter } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
@@ -23,7 +22,7 @@ const OrderTableAction = () => {
   return (
     <Flex style={{ padding: '16px 12px' }}>
       <Select defaultValue="new">
-        <SelectTrigger className={`${CLASS_PREFIX}-ui-select-trigger--secondary`}>
+        <SelectTrigger variant="secondary">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>

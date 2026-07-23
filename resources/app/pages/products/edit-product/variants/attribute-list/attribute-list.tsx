@@ -14,17 +14,18 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { css } from '@emotion/react';
 import { useEffect, useState } from 'react';
 
 import Button from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { CLASS_PREFIX } from '@/conf';
 import { DragIcon, EditIcon, PlusIcon, TrashIcon } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
 import Tag from '@/components/ui/tag';
 import Text from '@/components/ui/text';
 import { useProductForm } from '@/contexts/product-form-context';
+import { flexCenter, scoped } from '@/theme/mixins';
 import type { Attribute } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -47,6 +48,14 @@ type SortableCardProps = {
   handleAttributeRemove: (id: number) => void;
 };
 
+const hoverVisibleCss = css({
+  visibility: 'hidden',
+});
+
+const hoverVisibleActiveCss = css({
+  visibility: 'visible',
+});
+
 const SortableCard = ({
   item,
   editingId,
@@ -56,6 +65,7 @@ const SortableCard = ({
   handleAttributeRemove,
 }: SortableCardProps) => {
   const isEditing = editingId !== null;
+  const [isHovered, setIsHovered] = useState(false);
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: item.id, disabled: isEditing });
 
@@ -67,9 +77,11 @@ const SortableCard = ({
   return (
     <div ref={setNodeRef} style={style}>
       <Card
+        type="inner"
         style={{ padding: '12px 16px' }}
         key={item.id}
-        className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner ${CLASS_PREFIX}-hover-parent`}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
       >
         {editingId !== item.id ? (
           <Flex gap={12}>
@@ -77,7 +89,7 @@ const SortableCard = ({
               {...(!isEditing ? attributes : {})}
               {...(!isEditing ? listeners : {})}
               role="button"
-              className={`${CLASS_PREFIX}-svg-class ${CLASS_PREFIX}-drag-handler`}
+              css={[styles.svgClass, styles.dragHandler]}
               style={{
                 opacity: isEditing ? 0.5 : 1,
               }}
@@ -105,7 +117,9 @@ const SortableCard = ({
               </Flex>
             </Flex>
 
-            <ActionGroup className={`${CLASS_PREFIX}-hover-visible`}>
+            <ActionGroup
+              css={css(hoverVisibleCss, isHovered && hoverVisibleActiveCss)}
+            >
               <Button
                 variant="secondary"
                 onClick={() => handleAttributeEdit(item)}
@@ -217,3 +231,13 @@ const AttributeList = ({ onSave = () => {} }: AttributeListProps) => {
 AttributeList.displayName = 'AttributeList';
 
 export default AttributeList;
+
+const styles = {
+  svgClass: scoped(flexCenter()),
+  dragHandler: scoped({
+    cursor: 'grab',
+    '&:active': {
+      cursor: 'grabbing',
+    },
+  }),
+};

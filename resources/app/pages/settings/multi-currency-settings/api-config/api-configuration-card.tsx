@@ -2,13 +2,13 @@ import { type Dispatch, type SetStateAction } from 'react';
 
 import Button from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { CLASS_PREFIX } from '@/conf';
 import { EditIcon, FlagIcon, RadioTickIcon } from '@/icons';
 import Badge from '@/components/ui/badge';
 import Flex from '@/components/ui/flex';
 import ProgressBar from '@/components/ui/progressbar';
 import Text from '@/components/ui/text';
 import type { SettingsSectionData } from '@/types';
+import { theme } from '@/theme';
 import { __, sprintf } from '@/wpi18n';
 
 import { dateFormatter } from '@/pages/utils';
@@ -51,7 +51,7 @@ const ApiConfigurationCard = ({
   const usage = dataObj?.usage as ApiUsage | null | undefined;
 
   return (
-    <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-default`}>
+    <Card type="default">
       <Flex direction={'column'} gap={20}>
         <Flex
           style={{
@@ -94,7 +94,7 @@ const ApiConfigurationCard = ({
               labelStyle={{ fontWeight: '400' }}
               showProgressIndicator={false}
               style={{ gap: '10px' }}
-              progressBarColor={'var(--decom-color-gray-16)'}
+              progressBarColor={theme.primitives.colors.gray16}
               label={__('API Usage', 'kirki-ecommerce')}
               rightText={sprintf(
                 __('%d/%d', 'kirki-ecommerce'),
@@ -107,31 +107,31 @@ const ApiConfigurationCard = ({
                 __('Resets on %s', 'kirki-ecommerce'),
                 dateFormatter(dataObj?.next_sync_at as string),
               )}
-              style={{ color: 'var(--decom-color-gray-12)' }}
+              style={{ color: theme.primitives.colors.gray12 }}
             />
           </Flex>
         )}
         <Card
-          className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-innerDark`}
+          type="innerDark"
           style={{
             display: 'flex',
             flexDirection: 'column',
-            gap: 'var(--decom-spacing-1)',
-            borderRadius: 'var(--decom-radius-rounded-sm)',
-            padding: 'var(--decom-spacing-2)',
+            gap: theme.spacing.xs,
+            borderRadius: theme.radius.sm,
+            padding: theme.spacing.md,
           }}
         >
           <Flex gap={4}>
             <Text
               header={__('Fallback Behavior: ', 'kirki-ecommerce')}
-              style={{ color: 'var(--decom-color-gray-12)' }}
+              style={{ color: theme.primitives.colors.gray12 }}
             />
             <Text header={formatValue(apiConfigObj?.fallback_behaviour)} />
           </Flex>
           <Flex gap={4}>
             <Text
               header={__('Update Frequency: ', 'kirki-ecommerce')}
-              style={{ color: 'var(--decom-color-gray-12)' }}
+              style={{ color: theme.primitives.colors.gray12 }}
             />
             <Text header={formatValue(apiConfigObj?.update_frequency)} />
           </Flex>

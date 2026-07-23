@@ -1,3 +1,4 @@
+import { type SerializedStyles } from '@emotion/react';
 import { useState, type ReactNode } from 'react';
 import {
   useFormContext,
@@ -5,7 +6,6 @@ import {
   type FieldValues,
 } from 'react-hook-form';
 import { Eye, EyeOff } from 'lucide-react';
-import classNames from 'classnames';
 
 import {
   FormControl,
@@ -16,7 +16,8 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import Input from '@/components/ui/input';
-import { CLASS_PREFIX } from '@/conf';
+import { theme } from '@/theme';
+import { flexCenter, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 type PasswordFieldProps<
@@ -28,7 +29,7 @@ type PasswordFieldProps<
   description?: ReactNode;
   placeholder?: string;
   disabled?: boolean;
-  className?: string;
+  css?: SerializedStyles;
 };
 
 const PasswordField = <
@@ -40,7 +41,7 @@ const PasswordField = <
   description,
   placeholder,
   disabled,
-  className,
+  css,
 }: PasswordFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
   const [visible, setVisible] = useState(false);
@@ -50,9 +51,9 @@ const PasswordField = <
       control={control}
       name={name}
       render={({ field, fieldState }) => (
-        <FormItem className={className}>
+        <FormItem css={css}>
           {label && <FormLabel>{label}</FormLabel>}
-          <div className={`${CLASS_PREFIX}-ui-password-field`}>
+          <div css={styles.wrapper}>
             <FormControl>
               <Input
                 {...field}
@@ -61,12 +62,12 @@ const PasswordField = <
                 placeholder={placeholder}
                 disabled={disabled}
                 error={Boolean(fieldState.error)}
-                className={`${CLASS_PREFIX}-ui-password-field-input`}
+                css={styles.input}
               />
             </FormControl>
             <button
               type="button"
-              className={classNames(`${CLASS_PREFIX}-ui-password-field-toggle`)}
+              css={styles.toggle}
               onClick={() => setVisible((prev) => !prev)}
               aria-label={
                 visible
@@ -89,3 +90,32 @@ const PasswordField = <
 PasswordField.displayName = 'PasswordField';
 
 export default PasswordField;
+
+const styles = {
+  wrapper: scoped({
+    position: 'relative',
+    width: '100%',
+  }),
+  input: scoped({
+    paddingRight: '40px',
+  }),
+  toggle: scoped({
+    ...flexCenter(),
+    position: 'absolute',
+    top: '50%',
+    right: theme.spacing.md,
+    transform: 'translateY(-50%)',
+    width: '28px',
+    height: '28px',
+    padding: 0,
+    margin: 0,
+    border: 'none',
+    background: 'transparent',
+    cursor: 'pointer',
+    color: theme.colors.text.secondary,
+    '&:hover, &:focus-visible': {
+      color: theme.colors.text.primary,
+      outline: 'none',
+    },
+  }),
+};

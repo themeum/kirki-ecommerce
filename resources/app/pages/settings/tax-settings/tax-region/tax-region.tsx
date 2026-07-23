@@ -1,3 +1,4 @@
+import { css } from '@emotion/react';
 import { useState } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 import { useNavigate, useOutletContext } from 'react-router';
@@ -11,9 +12,10 @@ import Badge from '@/components/ui/badge';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import ToggleButton from '@/components/ui/toggle-button';
-import { CLASS_PREFIX } from '@/conf';
 import type { TaxSettingsFormValues } from '@/schemas/forms/tax-settings-form';
 import { __ } from '@/wpi18n';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 
 import type { SelectedTaxRegionDraft, TaxRegion } from '@/pages/settings/tax-settings/utils';
 import TaxRegionPopup from '@/pages/settings/tax-settings/tax-region/tax-region-dialog';
@@ -28,6 +30,14 @@ type SettingsOutletContext = {
 type TaxRegionsProps = {
   handleSave: (updatedRegions?: TaxRegion[]) => void | Promise<void>;
 };
+
+const hoverVisibleCss = css({
+  visibility: 'hidden',
+});
+
+const activeCardCss = css({
+  visibility: 'visible',
+});
 
 const TaxRegions = (props: TaxRegionsProps) => {
   const navigate = useNavigate();
@@ -132,7 +142,7 @@ const TaxRegions = (props: TaxRegionsProps) => {
 
   return (
     <>
-      <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
+      <Card type="large">
         <HeaderActionsCard
           header={__('Tax Regions', 'kirki-ecommerce')}
           subHeader={__(
@@ -144,10 +154,7 @@ const TaxRegions = (props: TaxRegionsProps) => {
         />
 
         {!taxRegions.length ? (
-          <Card
-            className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner-dark`}
-            style={{ padding: '36px 0' }}
-          >
+          <Card type="innerDark" style={{ padding: '36px 0' }}>
             <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
               <LocationIcon />
               <span style={{ color: '#878593' }}>
@@ -160,10 +167,8 @@ const TaxRegions = (props: TaxRegionsProps) => {
             {taxRegions.map((item, index) => (
               <Card
                 key={index}
-                style={{
-                  padding: 'var(--decom-spacing-3) var(--decom-spacing-4)',
-                }}
-                className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner ${CLASS_PREFIX}-hover-parent`}
+                type="inner"
+                css={styles.regionCard}
               >
                 <Flex style={{ alignItems: 'flex-start' }} gap={8}>
                   <span>{item?.flag}</span>
@@ -179,9 +184,10 @@ const TaxRegions = (props: TaxRegionsProps) => {
                     type={!item?.is_enabled ? 'disabled' : 'secondary'}
                   />
                   <ActionGroup
-                    className={`${CLASS_PREFIX}-hover-visible ${
-                      activeIndex === index ? `${CLASS_PREFIX}-active-card` : ''
-                    }`}
+                    css={css(
+                      hoverVisibleCss,
+                      activeIndex === index && activeCardCss,
+                    )}
                   >
                     <ToggleButton
                       value={item?.is_enabled}
@@ -244,3 +250,9 @@ const TaxRegions = (props: TaxRegionsProps) => {
 TaxRegions.displayName = 'TaxRegions';
 
 export default TaxRegions;
+
+const styles = {
+  regionCard: scoped({
+    padding: `${theme.spacing.lg} ${theme.spacing['2xl']}`,
+  }),
+};

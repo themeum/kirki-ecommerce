@@ -8,6 +8,7 @@ import ThumbnailField from '@/components/form/thumbnail-field';
 import Button from '@/components/ui/button';
 import {
   Dialog,
+  DialogBody,
   DialogClose,
   DialogCloseButton,
   DialogContent,
@@ -16,7 +17,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
-import { CLASS_PREFIX } from '@/conf';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import Flex from '@/components/ui/flex';
@@ -136,7 +136,7 @@ const ManualPaymentPopup = (props: ManualPaymentPopupProps) => {
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSaveOrUpdateData)}>
-            <div className={`${CLASS_PREFIX}-ui-dialog-body`}>
+            <DialogBody>
               <Flex direction="column" gap={16}>
                 <TextField
                   name="name"
@@ -174,7 +174,7 @@ const ManualPaymentPopup = (props: ManualPaymentPopupProps) => {
                   )}
                 />
               </Flex>
-            </div>
+            </DialogBody>
             <DialogFooter>
               <DialogClose asChild>
                 <Button

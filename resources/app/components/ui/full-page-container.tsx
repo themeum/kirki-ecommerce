@@ -1,23 +1,21 @@
+import { css } from '@emotion/react';
 import { forwardRef, type ComponentPropsWithoutRef } from 'react';
-import classNames from 'classnames';
 
 import Container from '@/components/ui/container';
-import { CLASS_PREFIX } from '@/conf';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 
 type FullPageContainerProps = ComponentPropsWithoutRef<typeof Container>;
 
 const FullPageContainer = forwardRef<HTMLDivElement, FullPageContainerProps>(
   (props, ref) => {
-    const { scrollable = false, className, children, ...rest } = props;
+    const { css: cssProp, scrollable = false, children, ...rest } = props;
 
     return (
       <Container
         ref={ref}
         scrollable={scrollable}
-        className={classNames(
-          `${CLASS_PREFIX}-ui-full-page-container`,
-          className,
-        )}
+        css={css(styles.root, cssProp)}
         {...rest}
       >
         {children}
@@ -29,3 +27,11 @@ const FullPageContainer = forwardRef<HTMLDivElement, FullPageContainerProps>(
 FullPageContainer.displayName = 'FullPageContainer';
 
 export default FullPageContainer;
+
+const styles = {
+  root: scoped({
+    minHeight: '100vh',
+    maxWidth: '100%',
+    backgroundColor: theme.colors.background.fill,
+  }),
+};

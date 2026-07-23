@@ -1,3 +1,4 @@
+import type { SerializedStyles } from '@emotion/react';
 import {
   forwardRef,
   useEffect,
@@ -5,17 +6,17 @@ import {
   type CSSProperties,
   type KeyboardEvent,
 } from 'react';
-import classNames from 'classnames';
 
 import Flex from '@/components/ui/flex';
 import Label from '@/components/ui/label';
-import { CLASS_PREFIX } from '@/conf';
 import { SwitchCheckedIcon, SwitchUncheckedIcon } from '@/icons';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 
 type ToggleButtonProps = {
   value?: boolean;
   style?: CSSProperties;
-  className?: string;
+  css?: SerializedStyles;
   onChange?: (value: boolean) => void;
   label?: string;
   disabled?: boolean;
@@ -24,9 +25,9 @@ type ToggleButtonProps = {
 const ToggleButton = forwardRef<HTMLButtonElement, ToggleButtonProps>(
   (props, ref) => {
     const {
+      css: cssProp,
       value,
       style,
-      className,
       onChange,
       label,
       disabled = false,
@@ -62,12 +63,8 @@ const ToggleButton = forwardRef<HTMLButtonElement, ToggleButtonProps>(
         aria-checked={isSelected}
         aria-label={label}
         disabled={disabled}
-        className={classNames(
-          `${CLASS_PREFIX}-ui-toggle-button`,
-          disabled && `${CLASS_PREFIX}-ui-toggle-button--disabled`,
-          className,
-        )}
         style={style}
+        css={[styles.root, disabled && styles.disabled, cssProp]}
         onClick={handleToggle}
         onKeyDown={handleKeyDown}
       >
@@ -83,3 +80,21 @@ const ToggleButton = forwardRef<HTMLButtonElement, ToggleButtonProps>(
 ToggleButton.displayName = 'ToggleButton';
 
 export default ToggleButton;
+
+const styles = {
+  root: scoped({
+    all: 'unset',
+    cursor: 'pointer',
+    display: 'inline-flex',
+    boxSizing: 'border-box',
+    '&:focus-visible': {
+      outline: `2px solid ${theme.colors.background.fillBrand}`,
+      outlineOffset: '2px',
+    },
+  }),
+  disabled: scoped({
+    cursor: 'not-allowed !important',
+    opacity: 0.3,
+    pointerEvents: 'none',
+  }),
+};

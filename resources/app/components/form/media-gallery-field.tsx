@@ -1,3 +1,4 @@
+import { type SerializedStyles } from '@emotion/react';
 import type { ReactNode } from 'react';
 import {
   useFormContext,
@@ -27,7 +28,7 @@ type MediaGalleryFieldProps<
   name: TName;
   label?: ReactNode;
   description?: ReactNode;
-  className?: string;
+  css?: SerializedStyles;
 };
 
 const MediaGalleryField = <
@@ -37,7 +38,7 @@ const MediaGalleryField = <
   name,
   label,
   description,
-  className,
+  css,
 }: MediaGalleryFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
 
@@ -46,7 +47,7 @@ const MediaGalleryField = <
       control={control}
       name={name}
       render={({ field, fieldState }) => (
-        <FormItem className={className}>
+        <FormItem css={css}>
           {label && <FormLabel>{label}</FormLabel>}
           <FormControl>
             <MediaGallery

@@ -11,12 +11,12 @@ import {
   Form,
   FormControl,
   FormField,
+  FormFieldRow,
   FormItem,
   FormMessage,
 } from '@/components/ui/form';
 import Label from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { CLASS_PREFIX } from '@/conf';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { queryKeys } from '@/libs/query-keys';
@@ -37,6 +37,8 @@ import {
   useUpdateSettingsMutation,
 } from '@/services/settings';
 import type { SettingsSectionData } from '@/types';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
@@ -71,12 +73,8 @@ const VatCollectionProcessRadios = () => {
   return (
     <Flex direction={'column'} gap={8}>
       <Card
-        className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner`}
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 'var(--decom-spacing-2)',
-        }}
+        type="inner"
+        css={styles.vatProcessCard}
       >
         <FormField
           control={control}
@@ -88,12 +86,12 @@ const VatCollectionProcessRadios = () => {
                   value={field.value}
                   onValueChange={(value) => handleProcessChange(value)}
                 >
-                  <div className={`${CLASS_PREFIX}-ui-radio-field-row`}>
+                  <FormFieldRow>
                     <RadioGroupItem value="oss" id="vat-process-oss" />
                     <Label htmlFor="vat-process-oss">
                       {__('One Stop Shop (OSS)', 'kirki-ecommerce')}
                     </Label>
-                  </div>
+                  </FormFieldRow>
                 </RadioGroup>
               </FormControl>
               <FormMessage />
@@ -105,12 +103,8 @@ const VatCollectionProcessRadios = () => {
       </Card>
 
       <Card
-        className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner`}
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 'var(--decom-spacing-2)',
-        }}
+        type="inner"
+        css={styles.vatProcessCard}
       >
         <FormField
           control={control}
@@ -122,7 +116,7 @@ const VatCollectionProcessRadios = () => {
                   value={field.value}
                   onValueChange={(value) => handleProcessChange(value)}
                 >
-                  <div className={`${CLASS_PREFIX}-ui-radio-field-row`}>
+                  <FormFieldRow>
                     <RadioGroupItem
                       value="micro_business"
                       id="vat-process-micro-business"
@@ -130,7 +124,7 @@ const VatCollectionProcessRadios = () => {
                     <Label htmlFor="vat-process-micro-business">
                       {__('Micro Business', 'kirki-ecommerce')}
                     </Label>
-                  </div>
+                  </FormFieldRow>
                 </RadioGroup>
               </FormControl>
               <FormMessage />
@@ -156,7 +150,7 @@ const VatProcessDescription = ({
   }
 
   return (
-    <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner-dark`}>
+    <Card type="innerDark">
       <Text
         subHeader={
           processValue === 'oss'
@@ -357,7 +351,7 @@ const EditRegionEU = () => {
                 handleBack={handleBackButton}
               />
 
-              <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
+              <Card type="large">
                 <Text
                   type="primary"
                   header={__('How would you like to collect VAT?', 'kirki-ecommerce')}
@@ -392,3 +386,11 @@ const EditRegionEU = () => {
 EditRegionEU.displayName = 'EditRegionEU';
 
 export default EditRegionEU;
+
+const styles = {
+  vatProcessCard: scoped({
+    display: 'flex',
+    flexDirection: 'column',
+    gap: theme.spacing.md,
+  }),
+};

@@ -1,26 +1,28 @@
-import { forwardRef, type HTMLAttributes } from 'react';
-import classNames from 'classnames';
+import type { SerializedStyles } from '@emotion/react';
+import { forwardRef, type ComponentPropsWithoutRef } from 'react';
 
-import { CLASS_PREFIX } from '@/conf';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import type { ContainerSize } from '@/types';
 
-type ContainerProps = HTMLAttributes<HTMLDivElement> & {
+type ContainerProps = Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'css'> & {
   size?: ContainerSize;
   scrollable?: boolean;
+  css?: SerializedStyles;
 };
 
 const Container = forwardRef<HTMLDivElement, ContainerProps>((props, ref) => {
-  const { children, className, size, scrollable, ...rest } = props;
+  const { css: cssProp, size, scrollable, children, ...rest } = props;
 
   return (
     <div
       ref={ref}
-      className={classNames(
-        `${CLASS_PREFIX}-ui-container`,
-        size && `${CLASS_PREFIX}-ui-container--${size}`,
-        scrollable && `${CLASS_PREFIX}-ui-container--scrollable`,
-        className,
-      )}
+      css={[
+        styles.root,
+        size && styles.sizes[size],
+        scrollable && styles.scrollable,
+        cssProp,
+      ]}
       {...rest}
     >
       {children}
@@ -31,3 +33,45 @@ const Container = forwardRef<HTMLDivElement, ContainerProps>((props, ref) => {
 Container.displayName = 'Container';
 
 export default Container;
+
+const styles = {
+  root: scoped({
+    maxWidth: '1024px',
+    margin: `${theme.spacing.none} auto`,
+  }),
+  sizes: {
+    sm: scoped({
+      maxWidth: '600px',
+    }),
+    md: scoped({
+      maxWidth: '752px',
+    }),
+    lg: scoped({
+      maxWidth: '1024px',
+    }),
+    fullWidth: scoped({
+      maxWidth: '100%',
+    }),
+  },
+  scrollable: scoped({
+    overflow: 'scroll',
+    scrollbarWidth: 'thin',
+    scrollbarColor: `${theme.colors.background.fillBrand} ${theme.colors.background.surfaceTertiary}`,
+    '&::-webkit-scrollbar': {
+      height: '4px',
+      width: '100%',
+      WebkitAppearance: 'none',
+    },
+    '&::-webkit-scrollbar-track': {
+      background: theme.colors.background.fill,
+    },
+    '&::-webkit-scrollbar-thumb': {
+      backgroundColor: theme.colors.background.fillBrand,
+      borderRadius: theme.radius.sm,
+      border: 0,
+      minWidth: '100px !important',
+      width: '40px !important',
+      maxWidth: '40px !important',
+    },
+  }),
+};

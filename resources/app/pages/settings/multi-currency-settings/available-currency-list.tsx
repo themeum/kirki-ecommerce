@@ -3,7 +3,6 @@ import { useWatch } from 'react-hook-form';
 
 import GroupOptionCard from '@/components/group-option-card';
 import { Card } from '@/components/ui/card';
-import { CLASS_PREFIX } from '@/conf';
 import { InfoIcon, IncreaseIcon } from '@/icons';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
@@ -19,6 +18,7 @@ import type {
   CurrencyFormData,
   SelectOption,
 } from '@/types';
+import { theme } from '@/theme';
 import { __, sprintf } from '@/wpi18n';
 
 import AddCurrencyPopup from '@/pages/settings/multi-currency-settings/add-currency-dialog';
@@ -158,15 +158,15 @@ export const AvailableCurrencyList = () => {
   return (
     <>
       <Card
-        className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-inner`}
+        type="inner"
         style={{
-          padding: 'var(--decom-spacing-5)',
+          padding: theme.spacing['3xl'],
         }}
       >
         <Flex
           style={{
             justifyContent: 'space-between',
-            paddingBottom: 'var(--decom-spacing-3)',
+            paddingBottom: theme.spacing.lg,
           }}
         >
           <Text header={__('Available Currencies', 'kirki-ecommerce')} type="primary" />
@@ -184,7 +184,7 @@ export const AvailableCurrencyList = () => {
         <Flex
           gap={8}
           style={{
-            paddingTop: 'var(--decom-spacing-2)',
+            paddingTop: theme.spacing.md,
           }}
         >
           <InfoIcon />

@@ -8,6 +8,7 @@ import { Card } from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
 import {
   Dialog,
+  DialogBody,
   DialogCloseButton,
   DialogContent,
   DialogFooter,
@@ -17,8 +18,9 @@ import {
 import { Form } from '@/components/ui/form';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
-import { CLASS_PREFIX } from '@/conf';
 import Flex from '@/components/ui/flex';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import {
   ShippingRegionFormSchema,
   shippingRegionDefaultValues,
@@ -246,7 +248,7 @@ export const ShippingRegionPopup = ({
           </DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <div className={`${CLASS_PREFIX}-ui-dialog-body`}>
+          <DialogBody>
             {from === 'add' && (
               <TextField
                 name="title"
@@ -268,10 +270,7 @@ export const ShippingRegionPopup = ({
               />
             </Flex>
 
-            <Card
-              className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-table`}
-              style={{ borderRadius: 'var(--decom-radius-rounded-md)' }}
-            >
+            <Card type="table" css={styles.tableCard}>
               <div
                 style={{
                   height: '432px',
@@ -279,7 +278,7 @@ export const ShippingRegionPopup = ({
                   overflowY: 'scroll',
                 }}
               >
-                <Flex className={`${CLASS_PREFIX}-popover-heading-wrapper-dark`}>
+                <Flex>
                   {__('Name', 'kirki-ecommerce')}
                 </Flex>
 
@@ -290,7 +289,7 @@ export const ShippingRegionPopup = ({
                     );
                     return (
                       <div key={index}>
-                        <div className={`${CLASS_PREFIX}-checkbox-item`}>
+                        <div css={styles.checkboxItem}>
                           <Flex gap={8} style={{ alignItems: 'center' }}>
                             <Checkbox
                               id={`shipping-region-country-${country.code}`}
@@ -313,17 +312,9 @@ export const ShippingRegionPopup = ({
                         </div>
                         {formCountries.includes(country.code) &&
                         (country?.states?.length ?? 0) > 0 ? (
-                          <div
-                            style={{
-                              padding:
-                                'var(--decom-spacing-0) var(--decom-spacing-3)',
-                            }}
-                          >
+                          <div css={styles.nestedStates}>
                             {(country?.states ?? []).map((state, stateIndex) => (
-                              <div
-                                key={stateIndex}
-                                className={`${CLASS_PREFIX}-checkbox-item`}
-                              >
+                              <div key={stateIndex} css={styles.checkboxItem}>
                                 <Flex gap={8} style={{ alignItems: 'center' }}>
                                   <Checkbox
                                     id={`shipping-region-state-${country.code}-${state.id}`}
@@ -355,7 +346,7 @@ export const ShippingRegionPopup = ({
                   })}
               </div>
             </Card>
-          </div>
+          </DialogBody>
           <DialogFooter>
             <Button
               variant="outline"
@@ -380,3 +371,20 @@ export const ShippingRegionPopup = ({
 };
 
 ShippingRegionPopup.displayName = 'ShippingRegionPopup';
+
+const styles = {
+  tableCard: scoped({
+    borderRadius: theme.radius.md,
+  }),
+  checkboxItem: scoped({
+    width: 'auto',
+    padding: `${theme.spacing.md} ${theme.spacing.lg}`,
+    '&:hover': {
+      background: theme.colors.background.surfaceSecondary,
+      borderRadius: theme.radius.sm,
+    },
+  }),
+  nestedStates: scoped({
+    padding: `${theme.spacing.none} ${theme.spacing.lg}`,
+  }),
+};

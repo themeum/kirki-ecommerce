@@ -1,10 +1,10 @@
 import SelectField from '@/components/form/select-field';
 import SwitchField from '@/components/form/switch-field';
 import { Card } from '@/components/ui/card';
-import { CLASS_PREFIX } from '@/conf';
 import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
+import { theme } from '@/theme';
 import { __ } from '@/wpi18n';
 
 const CheckoutConf = () => {
@@ -15,7 +15,7 @@ const CheckoutConf = () => {
 
   return (
     <>
-      <Card className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-large`}>
+      <Card type="large">
         <Text
           type="primary"
           header={__('Checkout Configuration', 'kirki-ecommerce')}
@@ -23,13 +23,13 @@ const CheckoutConf = () => {
             'Customize your checkout process to suit your preferences.',
             'kirki-ecommerce',
           )}
-          style={{ gap: 'var(--decom-spacing-f3)' }}
+          style={{ gap: theme.spacing.base }}
         />
         <Card
-          className={`${CLASS_PREFIX}-card ${CLASS_PREFIX}-card-form`}
+          type="form"
           style={{
-            border: '1px solid var(--decom-border-border)',
-            borderRadius: 'var(--decom-radius-rounded-lg)',
+            border: `1px solid ${theme.colors.border.default}`,
+            borderRadius: theme.radius.lg,
           }}
         >
           <SelectField
