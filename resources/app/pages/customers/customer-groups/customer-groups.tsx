@@ -10,11 +10,12 @@ import {
 import { ArrowDownUp, ListFilter } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
 import { Card, CardContent } from '@/components/ui/card';
-import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import PageHeading from '@/components/ui/page-heading';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import type { SelectOption } from '@/types';
 
 import CustomerGroupTable from '@/pages/customers/customer-groups/customer-group-table';
@@ -41,9 +42,9 @@ const CustomerGroups = () => {
       />
 
       <Container>
-        <Card css={styles.tableCard}>
-          <CardContent css={styles.tableContent}>
-            <Flex style={{ padding: '16px 12px' }}>
+        <Card css={cardStyles.tableCard}>
+          <CardContent css={cardStyles.tableContent}>
+            <Flex css={styles.wrapper}>
               <Select defaultValue="all">
                 <SelectTrigger variant="secondary">
                   <SelectValue />
@@ -58,7 +59,7 @@ const CustomerGroups = () => {
               </Select>
               <ActionGroup>
                 <Select disabled>
-                  <SelectTrigger style={{ padding: '8px 16px' }}>
+                  <SelectTrigger css={styles.selectTrigger}>
                     <SelectValue placeholder="Date: This Month" />
                   </SelectTrigger>
                   <SelectContent />
@@ -84,13 +85,11 @@ const CustomerGroups = () => {
 export default CustomerGroups;
 
 const styles = {
-  tableCard: scoped({
-    overflow: 'hidden',
-    border: '1px solid #e6e6e6',
-    gap: 0,
-    padding: theme.spacing.none,
+  wrapper: scoped({
+    padding: `${theme.spacing['2xl']} ${theme.spacing.lg}`,
   }),
-  tableContent: scoped({
-    padding: theme.spacing.none,
+  selectTrigger: scoped({
+    padding: `${theme.spacing.md} ${theme.spacing['2xl']}`,
   }),
 };
+

@@ -18,6 +18,7 @@ import { dispatchToastMessage } from '@/pages/utils';
 import type { SettingsSectionData } from '@/types';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 
 import { saveShippingZones, type ShippingRule, type ShippingZone } from '@/pages/settings/shipping-settings/utils';
 import ShippingRuleModal from '@/pages/settings/shipping-settings/shipping-method/shipping-rules/shipping-rule-dialog';
@@ -103,8 +104,8 @@ export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
   };
   return (
     <div>
-      <Card css={styles.largeCard}>
-        <CardContent css={styles.largeContent}>
+      <Card css={cardStyles.largeCard}>
+        <CardContent css={cardStyles.largeContentPadded}>
           <HeaderActionsCard
             header={__('Shipping Rules', 'kirki-ecommerce')}
             subHeader={__(
@@ -142,7 +143,7 @@ export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
                     <CardContent>
                       <Flex style={{ justifyContent: 'space-between' }}>
                         <Flex direction={'column'} gap={16}>
-                          <Card css={[styles.darkCard, styles.rulesNumberBadge]}>
+                          <Card css={[cardStyles.darkCard, styles.rulesNumberBadge]}>
                             <CardContent>
                               <Text
                                 type="xsm"
@@ -243,14 +244,6 @@ export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
 };
 
 const styles = {
-  largeCard: scoped({ gap: theme.spacing['3xl'],
-    padding: theme.spacing.none,
-  }),
-  largeContent: scoped({ padding: theme.spacing['3xl'] }),
-  darkCard: scoped({
-    backgroundColor: theme.colors.background.surfaceSecondary,
-    padding: theme.spacing.none,
-  }),
   cardActions: css({
     display: 'none',
     pointerEvents: 'none',
@@ -286,5 +279,5 @@ const styles = {
     borderRadius: theme.radius.sm,
     display: 'flex',
     padding: `${theme.spacing.xs} ${theme.spacing.md}`,
-  }),
+  })
 };

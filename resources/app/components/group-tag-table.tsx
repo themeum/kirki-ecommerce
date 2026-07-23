@@ -7,8 +7,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Chip from '@/components/ui/chip';
 import Text from '@/components/ui/text';
-import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import type { SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -37,14 +37,6 @@ const styles = {
   shell: scoped({
     overflow: 'hidden',
   }),
-  innerCard: scoped({
-    borderRadius: theme.radius.lg,
-    boxShadow: 'none',
-    padding: theme.spacing.none,
-  }),
-  innerContent: scoped({
-    padding: theme.spacing.lg,
-  }),
   hoverParent: scoped({
     '&:hover [data-hover-reveal]': {
       visibility: 'visible',
@@ -52,7 +44,7 @@ const styles = {
   }),
   hoverReveal: scoped({
     visibility: 'hidden',
-  }),
+  })
 };
 
 const GroupTagTable = (props: GroupTagTableProps) => {
@@ -124,13 +116,13 @@ const GroupTagTable = (props: GroupTagTableProps) => {
       )}
       {Object.keys(groupedValueData).length ? (
         <Card
-          css={styles.innerCard}
+          css={cardStyles.innerCard}
           style={{
             borderColor: '#E6E6E6',
             borderRadius: hasSelect ? '0 0 8px 8px' : '8px',
           }}
         >
-          <CardContent css={styles.innerContent}>
+          <CardContent css={cardStyles.innerContent}>
           <Flex gap={8} direction="column">
             {(Object.keys(groupedValueData) || []).map((groupName, index) => (
               <div key={index} css={styles.hoverParent}>

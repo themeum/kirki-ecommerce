@@ -12,6 +12,7 @@ import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
 const CheckoutConf = () => {
@@ -22,8 +23,8 @@ const CheckoutConf = () => {
 
   return (
     <>
-      <Card css={styles.largeCard}>
-        <CardHeader css={styles.sectionHeader}>
+      <Card css={cardStyles.largeCard}>
+        <CardHeader css={cardStyles.sectionHeader}>
           <CardTitle>{__('Checkout Configuration', 'kirki-ecommerce')}</CardTitle>
           <CardDescription>
             {__(
@@ -32,8 +33,8 @@ const CheckoutConf = () => {
             )}
           </CardDescription>
         </CardHeader>
-        <CardContent css={styles.largeContent}>
-          <Card css={[styles.formCard, styles.formCardBorder]}>
+        <CardContent css={cardStyles.largeContent}>
+          <Card css={[cardStyles.formCard, styles.formCardBorder]}>
             <CardContent>
               <SelectField
                 name="checkout_configuration.address_line_validation"
@@ -92,15 +93,8 @@ CheckoutConf.displayName = 'CheckoutConf';
 export default CheckoutConf;
 
 const styles = {
-  largeCard: scoped({ gap: theme.spacing['3xl'] }),
-  largeContent: scoped({ paddingInline: theme.spacing['3xl'] }),
-  sectionHeader: scoped({
-    gap: theme.spacing.base,
-    paddingInline: theme.spacing['3xl'],
-  }),
-  formCard: scoped({ rowGap: theme.spacing['2xl'] }),
   formCardBorder: scoped({
     border: `1px solid ${theme.colors.border.default}`,
     borderRadius: theme.radius.lg,
-  }),
+  })
 };

@@ -5,6 +5,7 @@ import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import Button from '@/components/ui/button';
 import { InfoIcon, AlertIcon, CloseIcon, CheckedIcon } from '@/icons';
+import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
 import type { ToastVariant } from '@/types';
 import { __ } from '@/wpi18n';
@@ -94,7 +95,7 @@ const Toast = ({
             <Button
               variant="ghost"
               size="sm"
-              style={{ padding: '6px' }}
+              css={styles.undoButton}
               onClick={() => {
                 onUndo?.();
               }}
@@ -106,7 +107,7 @@ const Toast = ({
             variant="ghost"
             size="sm"
             aria-label={__('Close', 'kirki-ecommerce')}
-            style={{ pointerEvents: 'auto', padding: '2px' }}
+            css={styles.closeButton}
             onClick={onClose}
           >
             <CloseIcon />
@@ -195,5 +196,12 @@ const styles = {
     animationName: shrink,
     animationTimingFunction: 'linear',
     animationFillMode: 'forwards',
+  }),
+  undoButton: scoped({
+    padding: theme.spacing.sm,
+  }),
+  closeButton: scoped({
+    pointerEvents: 'auto',
+    padding: theme.spacing.xxs,
   }),
 };

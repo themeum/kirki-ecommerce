@@ -22,6 +22,7 @@ import Grid from '@/components/ui/grid';
 import Text from '@/components/ui/text';
 import type { CustomerFormValues } from '@/schemas/forms/customer-form';
 import { theme } from '@/theme';
+import { cardStyles } from '@/theme/card-styles';
 import { scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
@@ -37,22 +38,19 @@ const BillingAddress = () => {
   const isSameAsShipping = Boolean(watch('is_billing_same_as_shipping'));
 
   return (
-    <Card
-      css={styles.formCard}
-      style={{ padding: '20px', borderRadius: '20px', gap: '20px' }}
-    >
+    <Card css={[cardStyles.formCard, styles.roundedCard]}>
       <CardHeader>
         <Text
           header={__('Billing Address', 'kirki-ecommerce')}
           type="primary"
           leftIcon={<PaymentIcon />}
-          style={{ paddingBottom: '4px' }}
+          css={styles.header}
         />
       </CardHeader>
       <CardContent>
         <Flex direction="column" gap={8}>
-          <Card css={styles.innerDarkCard}>
-            <CardContent css={styles.innerDarkContent}>
+          <Card css={cardStyles.innerDarkCard}>
+            <CardContent css={cardStyles.innerDarkContent}>
               <FormField
                 control={control}
                 name="is_billing_same_as_shipping"
@@ -79,8 +77,8 @@ const BillingAddress = () => {
               />
             </CardContent>
           </Card>
-          <Card css={styles.innerCard}>
-            <CardContent css={styles.innerContent}>
+          <Card css={cardStyles.innerCard}>
+            <CardContent css={cardStyles.innerContent}>
               <Flex direction="column" gap={16}>
                 <SelectField
                   name="billing_address.country"
@@ -136,24 +134,13 @@ BillingAddress.displayName = 'BillingAddress';
 export default BillingAddress;
 
 const styles = {
-  formCard: scoped({
-    rowGap: theme.spacing['2xl'],
+  roundedCard: scoped({
+    padding: theme.spacing['3xl'],
+    borderRadius: theme.radius.xl,
+    gap: theme.spacing['3xl'],
   }),
-  innerCard: scoped({
-    borderRadius: theme.radius.lg,
-    boxShadow: 'none',
-    padding: theme.spacing.none,
-  }),
-  innerContent: scoped({
-    padding: theme.spacing.lg,
-  }),
-  innerDarkCard: scoped({
-    borderRadius: theme.radius.lg,
-    backgroundColor: theme.colors.background.surfaceSecondary,
-    border: 'none',
-    padding: theme.spacing.none,
-  }),
-  innerDarkContent: scoped({
-    padding: theme.spacing.lg,
+  header: scoped({
+    paddingBottom: theme.spacing.xs,
   }),
 };
+

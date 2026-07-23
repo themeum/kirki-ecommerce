@@ -17,8 +17,7 @@ import {
   type ProductSeoFormValues,
 } from '@/schemas/forms/product-seo-form';
 import type { Product } from '@/types';
-import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
 import AEO from '@/pages/products/edit-product/seo-settings/aeo';
@@ -82,7 +81,7 @@ const SEOSettings = () => {
   }, [form, updateProduct]);
 
   return (
-    <Card css={styles.formCard}>
+    <Card css={cardStyles.formCard}>
       <CardHeader>
         <CardTitle>{__('AI & Web Presence', 'kirki-ecommerce')}</CardTitle>
       </CardHeader>
@@ -120,8 +119,3 @@ SEOSettings.displayName = 'SEOSettings';
 
 export default SEOSettings;
 
-const styles = {
-  formCard: scoped({
-    rowGap: theme.spacing['2xl'],
-  }),
-};

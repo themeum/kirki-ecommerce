@@ -22,8 +22,8 @@ import Flex from '@/components/ui/flex';
 import Grid from '@/components/ui/grid';
 import Text from '@/components/ui/text';
 import type { FormErrors, SettingsSectionData } from '@/types';
-import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
 type BarcodeGenerationProps = {
@@ -35,8 +35,8 @@ type BarcodeGenerationProps = {
 const BarcodeGeneration = (_props: BarcodeGenerationProps) => {
   return (
     <div>
-      <Card css={styles.largeCard}>
-        <CardHeader css={styles.sectionHeader}>
+      <Card css={cardStyles.largeCard}>
+        <CardHeader css={cardStyles.sectionHeader}>
           <CardTitle>{__('Barcode Generation', 'kirki-ecommerce')}</CardTitle>
           <CardDescription>
             {__(
@@ -45,9 +45,9 @@ const BarcodeGeneration = (_props: BarcodeGenerationProps) => {
             )}
           </CardDescription>
         </CardHeader>
-        <CardContent css={styles.largeContent}>
-          <Card css={styles.innerCard}>
-            <CardContent css={styles.innerContent}>
+        <CardContent css={cardStyles.largeContent}>
+          <Card css={cardStyles.innerCard}>
+            <CardContent css={cardStyles.innerContent}>
               <Flex direction="column" gap={16}>
                 <Flex direction="column" gap={8}>
                   <Label htmlFor="barcode-data-origin">
@@ -135,15 +135,15 @@ const BarcodeGeneration = (_props: BarcodeGenerationProps) => {
               </Flex>
             </CardContent>
           </Card>
-          <Card css={styles.innerDarkCard}>
+          <Card css={cardStyles.innerDarkCard}>
             <CardContent css={styles.previewContent}>
               <span>
                 <img src="https://kirki-ecommerce.test/wp-content/uploads/2025/10/Screenshot-2025-07-24-at-2.29.50-PM-1.png" />
               </span>
             </CardContent>
           </Card>
-          <Card css={styles.innerCard}>
-            <CardContent css={styles.innerContent}>
+          <Card css={cardStyles.innerCard}>
+            <CardContent css={cardStyles.innerContent}>
               <Flex>
                 <Flex direction="column" gap={6}>
                   <Text
@@ -178,36 +178,11 @@ const BarcodeGeneration = (_props: BarcodeGenerationProps) => {
 export default BarcodeGeneration;
 
 const styles = {
-  largeCard: scoped({
-    gap: theme.spacing['3xl'],
-    padding: theme.spacing.none,
-  }),
-  largeContent: scoped({
-    paddingInline: theme.spacing['3xl'],
-  }),
-  sectionHeader: scoped({
-    gap: theme.spacing.base,
-    paddingInline: theme.spacing['3xl'],
-  }),
-  innerCard: scoped({
-    borderRadius: theme.radius.lg,
-    boxShadow: 'none',
-    padding: theme.spacing.none,
-  }),
-  innerContent: scoped({
-    padding: theme.spacing.lg,
-  }),
-  innerDarkCard: scoped({
-    borderRadius: theme.radius.lg,
-    backgroundColor: theme.colors.background.surfaceSecondary,
-    border: 'none',
-    padding: theme.spacing.none,
-  }),
   previewContent: scoped({
     height: '158px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     border: '1px solid #E4E3E9',
-  }),
+  })
 };

@@ -13,12 +13,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import Thumbnail from '@/components/ui/thumbnail';
-import { theme } from '@/theme';
 import { flexCenter, scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 
 const CustomerInfo = () => {
   return (
-    <Card css={styles.formCard}>
+    <Card css={cardStyles.formCard}>
       <CardHeader css={styles.headerRow}>
         <CardTitle>Customer</CardTitle>
         <ActionGroup>
@@ -91,13 +91,10 @@ const CustomerInfo = () => {
 export default CustomerInfo;
 
 const styles = {
-  formCard: scoped({
-    rowGap: theme.spacing['2xl'],
-  }),
   headerRow: scoped({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   }),
-  svgClass: scoped(flexCenter()),
+  svgClass: scoped(flexCenter())
 };

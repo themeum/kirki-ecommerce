@@ -20,6 +20,7 @@ import {
 import type { PaymentMethod } from '@/types';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import { __, sprintf } from '@/wpi18n';
 
 import ManualPaymentPopup from '@/pages/settings/payment-settings/manual-payment-dialog';
@@ -82,8 +83,8 @@ const ManualPayment = (props: ManualPaymentProps) => {
 
   return (
     <>
-      <Card css={styles.largeCard} >
-        <CardContent css={styles.largeContent}>
+      <Card css={cardStyles.largeCard} >
+        <CardContent css={cardStyles.largeContentPadded}>
 
         <HeaderActionsCard
         header={__('Manual payment methods', 'kirki-ecommerce')}
@@ -96,8 +97,8 @@ const ManualPayment = (props: ManualPaymentProps) => {
         />
 
         {manualPaymentList?.length === 0 ? (
-        <Card css={styles.innerDarkCard}>
-          <CardContent css={[styles.innerDarkContent, styles.emptyStateContent]}>
+        <Card css={cardStyles.innerDarkCard}>
+          <CardContent css={[cardStyles.innerDarkContent, styles.emptyStateContent]}>
             <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
               <CashIcon />
               <span style={{ color: theme.colors.text.subdued }}>
@@ -109,11 +110,11 @@ const ManualPayment = (props: ManualPaymentProps) => {
         ) : (
         <Flex direction="column" gap={16}>
         {manualPaymentList?.map((item, index) => (
-        <Card css={styles.innerCard}
+        <Card css={cardStyles.innerCard}
                 
         key={index}
         >
-          <CardContent css={[styles.innerContent, styles.gatewayItemContent]}>
+          <CardContent css={[cardStyles.innerContent, styles.gatewayItemContent]}>
 
           <Flex style={{ alignItems: 'center' }}>
           <Text
@@ -190,42 +191,12 @@ const ManualPayment = (props: ManualPaymentProps) => {
 ManualPayment.displayName = 'ManualPayment';
 
 const styles = {
-  formCard: scoped({ rowGap: theme.spacing['2xl'] }),
-  largeCard: scoped({ gap: theme.spacing['3xl'],
-    padding: theme.spacing.none,
-  }),
-  largeContent: scoped({ padding: theme.spacing['3xl'] }),
-  innerCard: scoped({ borderRadius: theme.radius.lg, boxShadow: 'none',
-    padding: theme.spacing.none,
-  }),
-  innerContent: scoped({ padding: theme.spacing.lg }),
   gatewayItemContent: scoped({
     padding: `${theme.spacing.lg} ${theme.spacing['2xl']}`,
   }),
-  innerDarkCard: scoped({
-    borderRadius: theme.radius.lg,
-    backgroundColor: theme.colors.background.surfaceSecondary,
-    border: 'none',
-    padding: theme.spacing.none,
-  }),
-  innerDarkContent: scoped({ padding: theme.spacing.lg }),
   emptyStateContent: scoped({
     padding: `${theme.spacing['7xl']} ${theme.spacing.none}`,
-  }),
-  darkCard: scoped({ backgroundColor: theme.colors.background.surfaceSecondary,
-    padding: theme.spacing.none,
-  }),
-  lightCard: scoped({ borderRadius: theme.radius.md,
-    padding: theme.spacing.none,
-  }),
-  shadowCard: scoped({
-    boxShadow: '0px -1px 1px 0.5px #0000001a inset',
-    border: 'none',
-  }),
-  tartiaryCard: scoped({
-    backgroundColor: theme.colors.background.surfaceSecondary,
-    padding: theme.spacing.none,
-  }),
+  })
 };
 
 export default ManualPayment;

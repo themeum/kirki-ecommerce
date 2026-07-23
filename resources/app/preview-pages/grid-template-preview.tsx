@@ -18,8 +18,7 @@ import Flex from '@/components/ui/flex';
 import Grid from '@/components/ui/grid';
 import { Separator } from '@/components/ui/separator';
 import Text from '@/components/ui/text';
-import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import type { SelectOption } from '@/types';
 
 const optionsArray: SelectOption[] = [
@@ -29,7 +28,7 @@ const optionsArray: SelectOption[] = [
 
 const GridTemplatePreview = () => {
   return (
-    <Card css={styles.formCard}>
+    <Card css={cardStyles.formCard}>
       <CardHeader>
         <CardTitle>Price</CardTitle>
         <Text subHeader="This is subheading" type="primary" />
@@ -90,8 +89,8 @@ const GridTemplatePreview = () => {
           </Flex>
         </Grid>
 
-        <Card css={styles.innerCard}>
-          <CardContent css={styles.innerContent}>
+        <Card css={cardStyles.innerCard}>
+          <CardContent css={cardStyles.innerContent}>
             <Text
               header="Limit Orders to One Item"
               subHeader="Let customers purchase only one item in a single order. Particularly use full for items that are limited in quantity i.e. handmade items"
@@ -108,16 +107,3 @@ GridTemplatePreview.displayName = 'GridTemplatePreview';
 
 export default GridTemplatePreview;
 
-const styles = {
-  formCard: scoped({
-    rowGap: theme.spacing['2xl'],
-  }),
-  innerCard: scoped({
-    borderRadius: theme.radius.lg,
-    boxShadow: 'none',
-    padding: theme.spacing.none,
-  }),
-  innerContent: scoped({
-    padding: theme.spacing.lg,
-  }),
-};

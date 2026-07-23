@@ -42,6 +42,7 @@ import {
 import type { SettingsSectionData } from '@/types';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
@@ -75,8 +76,8 @@ const VatCollectionProcessRadios = () => {
 
   return (
     <Flex direction={'column'} gap={8}>
-      <Card css={[styles.innerCard, styles.vatProcessCard]} >
-        <CardContent css={styles.innerContent}>
+      <Card css={[cardStyles.innerCard, styles.vatProcessCard]} >
+        <CardContent css={cardStyles.innerContent}>
 
         <FormField
         control={control}
@@ -105,8 +106,8 @@ const VatCollectionProcessRadios = () => {
         </CardContent>
       </Card>
 
-      <Card css={[styles.innerCard, styles.vatProcessCard]} >
-        <CardContent css={styles.innerContent}>
+      <Card css={[cardStyles.innerCard, styles.vatProcessCard]} >
+        <CardContent css={cardStyles.innerContent}>
 
         <FormField
         control={control}
@@ -153,8 +154,8 @@ const VatProcessDescription = ({
   }
 
   return (
-    <Card css={styles.innerDarkCard} >
-      <CardContent css={styles.innerDarkContent}>
+    <Card css={cardStyles.innerDarkCard} >
+      <CardContent css={cardStyles.innerDarkContent}>
 
       <Text
       subHeader={
@@ -357,8 +358,8 @@ const EditRegionEU = () => {
                 handleBack={handleBackButton}
               />
 
-              <Card css={styles.largeCard} >
-                <CardContent css={styles.largeContent}>
+              <Card css={cardStyles.largeCard} >
+                <CardContent css={cardStyles.largeContentPadded}>
 
                 <Text
                 type="primary"
@@ -397,21 +398,9 @@ EditRegionEU.displayName = 'EditRegionEU';
 export default EditRegionEU;
 
 const styles = {
-  largeCard: scoped({ gap: theme.spacing['3xl'],
-    padding: theme.spacing.none,
-  }),
-  largeContent: scoped({ padding: theme.spacing['3xl'] }),
-  innerCard: scoped({ borderRadius: theme.radius.lg, boxShadow: 'none',
-    padding: theme.spacing.none,
-  }),
-  innerContent: scoped({ padding: theme.spacing.lg }),
-  innerDarkCard: scoped({ borderRadius: theme.radius.lg, backgroundColor: theme.colors.background.surfaceSecondary, border: 'none',
-    padding: theme.spacing.none,
-  }),
-  innerDarkContent: scoped({ padding: theme.spacing.lg }),
   vatProcessCard: scoped({
     display: 'flex',
     flexDirection: 'column',
     gap: theme.spacing.md,
-  }),
+  })
 };

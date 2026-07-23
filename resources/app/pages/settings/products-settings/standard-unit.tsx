@@ -12,6 +12,7 @@ import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
 import { dimensionUnitList, weightUnitList } from '@/pages/settings/utils';
@@ -29,8 +30,8 @@ export const StandardUnit = () => {
 
   return (
     <div>
-      <Card css={styles.largeCard}>
-        <CardHeader css={styles.sectionHeader}>
+      <Card css={cardStyles.largeCard}>
+        <CardHeader css={cardStyles.sectionHeader}>
           <CardTitle>{__('Standards', 'kirki-ecommerce')}</CardTitle>
           <CardDescription>
             {__(
@@ -39,7 +40,7 @@ export const StandardUnit = () => {
             )}
           </CardDescription>
         </CardHeader>
-        <CardContent css={styles.largeContent}>
+        <CardContent css={cardStyles.largeContent}>
           <Flex direction="column" gap={8}>
             <Card css={styles.optionCard}>
               <CardContent>
@@ -89,14 +90,8 @@ export const StandardUnit = () => {
 StandardUnit.displayName = 'StandardUnit';
 
 const styles = {
-  largeCard: scoped({ gap: theme.spacing['3xl'] }),
-  largeContent: scoped({ paddingInline: theme.spacing['3xl'] }),
-  sectionHeader: scoped({
-    gap: theme.spacing.base,
-    paddingInline: theme.spacing['3xl'],
-  }),
   optionCard: scoped({
     borderRadius: theme.radius.lg,
     border: `1px solid ${theme.colors.border.default}`,
-  }),
+  })
 };

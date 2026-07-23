@@ -14,6 +14,7 @@ import Text from '@/components/ui/text';
 import type { SelectOption } from '@/types';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
 import type { TaxRate, TaxRegion } from '@/pages/settings/tax-settings/utils';
@@ -119,8 +120,8 @@ export const VatCollection = (props: VatCollectionProps) => {
 
   return (
     <div>
-      <Card css={styles.largeCard}>
-        <CardContent css={styles.largeContent}>
+      <Card css={cardStyles.largeCard}>
+        <CardContent css={cardStyles.largeContentPadded}>
           <HeaderActionsCard
             header={__('VAT Collection', 'kirki-ecommerce')}
             subHeader={__(
@@ -135,11 +136,11 @@ export const VatCollection = (props: VatCollectionProps) => {
             {vatCollectionList?.map((item, index) => (
               <Card
                 key={index}
-                css={[styles.innerCard, styles.vatRow]}
+                css={[cardStyles.innerCard, styles.vatRow]}
                 onMouseEnter={() => setHoveredIndex(index)}
                 onMouseLeave={() => setHoveredIndex(null)}
               >
-                <CardContent css={styles.innerContent}>
+                <CardContent css={cardStyles.innerContent}>
                   <Text
                     header={item?.state}
                     leftIcon={getFlagForState(item?.state)}
@@ -196,14 +197,6 @@ export const VatCollection = (props: VatCollectionProps) => {
 VatCollection.displayName = 'VatCollection';
 
 const styles = {
-  largeCard: scoped({ gap: theme.spacing['3xl'],
-    padding: theme.spacing.none,
-  }),
-  largeContent: scoped({ padding: theme.spacing['3xl'] }),
-  innerCard: scoped({ borderRadius: theme.radius.lg, boxShadow: 'none',
-    padding: theme.spacing.none,
-  }),
-  innerContent: scoped({ padding: theme.spacing.lg }),
   vatRow: scoped({
     height: '56px',
     maxHeight: '56px',
@@ -233,5 +226,5 @@ const styles = {
   vatTextHidden: css({
     opacity: 0,
     display: 'none',
-  }),
+  })
 };

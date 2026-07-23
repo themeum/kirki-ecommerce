@@ -14,6 +14,7 @@ import {
 } from '@/schemas/forms/product-right-panel-form';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import type { Product } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -83,7 +84,7 @@ const RightPanel = () => {
     <div style={{ width: '30%' }}>
       <Form {...form}>
         <Flex direction="column" gap={16}>
-          <Card css={styles.formCard}>
+          <Card css={cardStyles.formCard}>
             <CardContent>
               <SelectField
                 name="status"
@@ -93,7 +94,7 @@ const RightPanel = () => {
             </CardContent>
           </Card>
           <Categories />
-          <Card css={styles.formCard}>
+          <Card css={cardStyles.formCard}>
             <CardContent css={styles.fields}>
               <Tags />
               <Collections />
@@ -111,12 +112,9 @@ RightPanel.displayName = 'RightPanel';
 export default RightPanel;
 
 const styles = {
-  formCard: scoped({
-    rowGap: theme.spacing['2xl'],
-  }),
   fields: scoped({
     display: 'flex',
     flexDirection: 'column',
     gap: theme.spacing['2xl'],
-  }),
+  })
 };

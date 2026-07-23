@@ -11,6 +11,7 @@ import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import ToggleButton from '@/components/ui/toggle-button';
 import type { SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
@@ -121,7 +122,7 @@ const GroupOptionCard = (props: GroupOptionCardProps) => {
           key={index}
           data-box-card
           css={css(
-            styles.innerCard,
+            cardStyles.innerCard,
             optionCardCss,
             dataLength > 1
               ? optionCardBorderRadiusCss
@@ -133,7 +134,7 @@ const GroupOptionCard = (props: GroupOptionCardProps) => {
             alignItems: 'center',
           }}
         >
-          <CardContent css={styles.innerContent}>
+          <CardContent css={cardStyles.innerContent}>
           <Flex
             style={{
               alignItems: 'center',
@@ -275,13 +276,3 @@ const GroupOptionCard = (props: GroupOptionCardProps) => {
 
 export default GroupOptionCard;
 
-const styles = {
-  innerCard: scoped({
-    borderRadius: theme.radius.lg,
-    boxShadow: 'none',
-    padding: theme.spacing.none,
-  }),
-  innerContent: scoped({
-    padding: theme.spacing.lg,
-  }),
-};

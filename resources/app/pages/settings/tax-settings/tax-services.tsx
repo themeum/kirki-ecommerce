@@ -12,6 +12,7 @@ import ActionGroup from '@/components/ui/action-group';
 import Badge from '@/components/ui/badge';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 import { BoxClosedIcon, PlusIcon } from '@/icons';
 
@@ -20,8 +21,8 @@ const TaxServices = () => {
 
   return (
     <div>
-      <Card css={styles.largeCard}>
-        <CardContent css={styles.largeContent}>
+      <Card css={cardStyles.largeCard}>
+        <CardContent css={cardStyles.largeContentPadded}>
           <Flex direction="column" gap={6}>
             <Flex style={{ alignItems: 'center' }}>
               <Text
@@ -42,11 +43,11 @@ const TaxServices = () => {
               <Card
                 key={index}
                 data-box-card
-                css={css(styles.innerCard, styles.boxCard, styles.boxCardBorderRadius)}
+                css={css(cardStyles.innerCard, styles.boxCard, styles.boxCardBorderRadius)}
                 onMouseEnter={() => setHoveredIndex(index)}
                 onMouseLeave={() => setHoveredIndex(null)}
               >
-                <CardContent css={styles.innerContent}>
+                <CardContent css={cardStyles.innerContent}>
                   <Flex style={{ alignItems: 'center', minHeight: '36px' }} gap={8}>
                     <Text
                       header="Stripe Tax"
@@ -93,14 +94,6 @@ TaxServices.displayName = 'TaxServices';
 export default TaxServices;
 
 const styles = {
-  largeCard: scoped({ gap: theme.spacing['3xl'],
-    padding: theme.spacing.none,
-  }),
-  largeContent: scoped({ padding: theme.spacing['3xl'] }),
-  innerCard: scoped({ borderRadius: theme.radius.lg, boxShadow: 'none',
-    padding: theme.spacing.none,
-  }),
-  innerContent: scoped({ padding: theme.spacing.lg }),
   boxCard: scoped({
     borderTop: 'none',
     borderRadius: theme.radius.none,
@@ -119,5 +112,5 @@ const styles = {
   }),
   hoverVisibleActive: css({
     visibility: 'visible',
-  }),
+  })
 };

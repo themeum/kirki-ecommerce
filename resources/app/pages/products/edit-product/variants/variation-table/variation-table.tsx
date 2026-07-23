@@ -24,8 +24,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useProductForm } from '@/contexts/product-form-context';
-import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import type { SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -133,8 +132,8 @@ const VariationTable = () => {
         </ActionGroup>
       </Flex>
 
-      <Card css={[styles.innerCard, styles.tableCard]}>
-        <CardContent css={styles.tableContent}>
+      <Card css={[cardStyles.innerCard, cardStyles.tableCard]}>
+        <CardContent css={cardStyles.tableContent}>
         <Table type="variation">
           <TableHeader>
             <TableRow style={{ height: '53px' }}>
@@ -261,18 +260,3 @@ VariationTable.displayName = 'VariationTable';
 
 export default VariationTable;
 
-const styles = {
-  innerCard: scoped({
-    borderRadius: theme.radius.lg,
-    boxShadow: 'none',
-    padding: theme.spacing.none,
-  }),
-  tableCard: scoped({
-    overflow: 'hidden',
-    gap: 0,
-    padding: theme.spacing.none,
-  }),
-  tableContent: scoped({
-    padding: theme.spacing.none,
-  }),
-};

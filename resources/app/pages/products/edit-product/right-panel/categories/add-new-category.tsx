@@ -22,6 +22,7 @@ import {
 } from '@/services/category';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import type { CategoryFormData } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -83,7 +84,7 @@ const AddNewCategory = () => {
   if (show) {
     return (
       <div css={styles.formWrap}>
-        <Card css={styles.innerCard}>
+        <Card css={cardStyles.innerCard}>
           <CardContent css={styles.formCard}>
           <Form {...form}>
             <Flex direction="column" gap={16}>
@@ -140,11 +141,6 @@ const styles = {
   formWrap: scoped({
     width: '100%',
   }),
-  innerCard: scoped({
-    borderRadius: theme.radius.lg,
-    boxShadow: 'none',
-    padding: theme.spacing.none,
-  }),
   formCard: scoped({
     padding: theme.spacing['2xl'],
     boxSizing: 'border-box',
@@ -160,5 +156,5 @@ const styles = {
       backgroundColor: 'transparent',
       color: theme.colors.background.fillBrandHover,
     },
-  }),
+  })
 };

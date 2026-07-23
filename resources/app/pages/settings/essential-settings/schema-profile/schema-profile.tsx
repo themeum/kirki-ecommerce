@@ -13,6 +13,7 @@ import { useSchemasQuery, useDeleteSchemaMutation } from '@/services/schema';
 import type { SchemaProfile } from '@/types';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
 import AddSchemaPopup from '@/pages/settings/essential-settings/schema-profile/add-schema-dialog';
@@ -68,8 +69,8 @@ const SchemaProfileComponent = () => {
   };
 
   return (
-    <Card css={styles.largeCard}>
-      <CardContent css={styles.largeContent}>
+    <Card css={cardStyles.largeCard}>
+      <CardContent css={cardStyles.largeContentPadded}>
         <HeaderActionsCard
           header={__('Schema Profile', 'kirki-ecommerce')}
           subHeader={__(
@@ -80,8 +81,8 @@ const SchemaProfileComponent = () => {
           onAdd={() => setShowPopup(true)}
         />
         {!schemaProfileList?.length ? (
-          <Card css={styles.innerDarkCard}>
-            <CardContent css={[styles.innerDarkContent, styles.emptyState]}>
+          <Card css={cardStyles.innerDarkCard}>
+            <CardContent css={[cardStyles.innerDarkContent, styles.emptyState]}>
               <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
                 <BoxOpenIcon />
                 <span css={styles.emptyStateText}>
@@ -117,17 +118,6 @@ SchemaProfileComponent.displayName = 'SchemaProfileComponent';
 export default SchemaProfileComponent;
 
 const styles = {
-  largeCard: scoped({ gap: theme.spacing['3xl'],
-    padding: theme.spacing.none,
-  }),
-  largeContent: scoped({ padding: theme.spacing['3xl'] }),
-  innerDarkCard: scoped({
-    borderRadius: theme.radius.lg,
-    backgroundColor: theme.colors.background.surfaceSecondary,
-    border: 'none',
-    padding: theme.spacing.none,
-  }),
-  innerDarkContent: scoped({ padding: theme.spacing.lg }),
   boxWrapper: scoped({
     '[data-box-card]': {
       borderTop: 'none',
@@ -146,5 +136,5 @@ const styles = {
   }),
   emptyStateText: scoped({
     color: theme.colors.text.subdued,
-  }),
+  })
 };

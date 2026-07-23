@@ -31,6 +31,7 @@ import {
 } from '@/services/collection';
 import type { CollectionFormData } from '@/types';
 import { theme } from '@/theme';
+import { cardStyles } from '@/theme/card-styles';
 import { scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
@@ -143,7 +144,7 @@ const CollectionDetails = () => {
 
       <Container size="md">
         <Flex direction="column" gap={16}>
-          <Card css={styles.formCard}>
+          <Card css={cardStyles.formCard}>
             <CardContent>
               <Flex direction="column" gap={16}>
                 <Grid>
@@ -178,7 +179,7 @@ const CollectionDetails = () => {
             </CardContent>
           </Card>
 
-          <Card css={styles.formCard} style={{ padding: '43.5px' }}>
+          <Card css={[cardStyles.formCard, styles.productPlaceholderCard]}>
             <CardContent>
               <Flex
                 direction="column"
@@ -194,13 +195,13 @@ const CollectionDetails = () => {
             </CardContent>
           </Card>
 
-          <Card css={styles.formCard}>
+          <Card css={cardStyles.formCard}>
             <CardContent>
               <Flex direction="column" gap={16}>
                 <CardHeader>
                   <CardTitle>{__('SEO Settings', 'kirki-ecommerce')}</CardTitle>
                 </CardHeader>
-                <Card css={styles.innerCard}>
+                <Card css={cardStyles.innerCard}>
                   <CardContent>
                     <Flex gap={16} style={{ justifyContent: 'space-between' }}>
                       <Flex direction="column" gap={6}>
@@ -265,12 +266,8 @@ CollectionDetails.displayName = 'CollectionDetails';
 export default CollectionDetails;
 
 const styles = {
-  formCard: scoped({
-    rowGap: theme.spacing['2xl'],
-  }),
-  innerCard: scoped({
-    borderRadius: theme.radius.lg,
-    boxShadow: 'none',
-    padding: theme.spacing.none,
+  productPlaceholderCard: scoped({
+    padding: theme.spacing['9xl'],
   }),
 };
+

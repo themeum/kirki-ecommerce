@@ -11,12 +11,13 @@ import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
 export const Review = () => {
   return (
-    <Card css={styles.largeCard}>
-      <CardHeader css={styles.sectionHeader}>
+    <Card css={cardStyles.largeCard}>
+      <CardHeader css={cardStyles.sectionHeader}>
         <CardTitle>{__('Reviews', 'kirki-ecommerce')}</CardTitle>
         <CardDescription>
           {__(
@@ -25,7 +26,7 @@ export const Review = () => {
           )}
         </CardDescription>
       </CardHeader>
-      <CardContent css={styles.largeContent}>
+      <CardContent css={cardStyles.largeContent}>
         <Flex gap={12} direction="column">
           <Card css={styles.optionCard}>
             <CardContent>
@@ -75,14 +76,8 @@ export const Review = () => {
 Review.displayName = 'Review';
 
 const styles = {
-  largeCard: scoped({ gap: theme.spacing['3xl'] }),
-  largeContent: scoped({ paddingInline: theme.spacing['3xl'] }),
-  sectionHeader: scoped({
-    gap: theme.spacing.base,
-    paddingInline: theme.spacing['3xl'],
-  }),
   optionCard: scoped({
     borderRadius: theme.radius.lg,
     border: `1px solid ${theme.colors.border.default}`,
-  }),
+  })
 };

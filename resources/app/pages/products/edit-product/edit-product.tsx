@@ -16,8 +16,7 @@ import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import { NEW_ITEM_ID } from '@/conf';
-import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import {
   ProductFormProvider,
   useProductForm,
@@ -289,7 +288,7 @@ const EditProductInner = () => {
           <div style={{ width: '70%' }}>
             <Flex direction="column" gap={16}>
               <Form {...basicsForm}>
-                <Card css={styles.formCard}>
+                <Card css={cardStyles.formCard}>
                   <CardContent>
                     <Flex gap={12}>
                       <div style={{ width: '70%' }}>
@@ -388,8 +387,3 @@ EditProduct.displayName = 'EditProduct';
 
 export default EditProduct;
 
-const styles = {
-  formCard: scoped({
-    rowGap: theme.spacing['2xl'],
-  }),
-};

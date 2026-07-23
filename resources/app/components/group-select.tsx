@@ -131,7 +131,7 @@ const GroupSelect = (props: GroupSelectProps) => {
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent
-          style={{ paddingBottom: dropdownFooter ? '0' : '4px' }}
+          css={dropdownFooter ? styles.contentWithFooter : styles.contentWithoutFooter}
         >
           {dropdownHeader && (
             <DropdownMenuItem>
@@ -191,15 +191,7 @@ const GroupSelect = (props: GroupSelectProps) => {
             ),
           )}
           {dropdownFooter && (
-            <Flex
-              style={{
-                padding: '12px 16px 8px 12px',
-                borderTop: '1px solid #E4E3E9',
-                bottom: '0',
-                position: 'sticky',
-                backgroundColor: 'white',
-              }}
-            >
+            <Flex css={styles.footer}>
               <ActionGroup>
                 <Button
                   variant="secondary"
@@ -269,5 +261,18 @@ const styles = {
     flexShrink: 0,
     color: theme.colors.text.secondary,
     opacity: 0.5,
+  }),
+  contentWithFooter: scoped({
+    paddingBottom: theme.spacing.none,
+  }),
+  contentWithoutFooter: scoped({
+    paddingBottom: theme.spacing.xs,
+  }),
+  footer: scoped({
+    padding: `${theme.spacing.md} ${theme.spacing['2xl']} ${theme.spacing.md} ${theme.spacing.lg}`,
+    borderTop: '1px solid #E4E3E9',
+    bottom: 0,
+    position: 'sticky',
+    backgroundColor: 'white',
   }),
 };

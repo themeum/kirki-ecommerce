@@ -10,6 +10,8 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useBulkDeleteTagsMutation } from '@/services/tag';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import type { PaginatedData, Tag, TaxonomyTableHeader } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -126,7 +128,7 @@ const TagTable = ({ data }: TagTableProps) => {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead onlyCheckbox style={{ padding: '20px 12px' }}>
+            <TableHead onlyCheckbox css={styles.headCell}>
               <Checkbox
                 value={isSelected('*')}
                 onChange={handleAllCheckboxClick}
@@ -134,7 +136,7 @@ const TagTable = ({ data }: TagTableProps) => {
               />
             </TableHead>
             {tableHeaders.map((header, index) => (
-              <TableHead key={index} style={{ padding: '20px 12px' }}>
+              <TableHead key={index} css={styles.headCell}>
                 <Sorting data={header} />
               </TableHead>
             ))}
@@ -159,3 +161,9 @@ const TagTable = ({ data }: TagTableProps) => {
 TagTable.displayName = 'TagTable';
 
 export default TagTable;
+
+const styles = {
+  headCell: scoped({
+    padding: `${theme.spacing['3xl']} ${theme.spacing.lg}`,
+  }),
+};

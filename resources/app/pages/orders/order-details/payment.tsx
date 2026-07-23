@@ -4,7 +4,7 @@ import Badge from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
-import { theme } from '@/theme';
+import { cardStyles } from '@/theme/card-styles';
 import { scoped } from '@/theme/mixins';
 
 const Payment = () => {
@@ -14,8 +14,8 @@ const Payment = () => {
         <Text header="Payment" type="primary" />
         <Badge type="pending" text="UNPAID" />
       </Flex>
-      <Card css={styles.innerCard} style={{ borderStyle: 'dashed' }}>
-        <CardContent css={styles.innerContent}>
+      <Card css={[cardStyles.innerCard, styles.dashedCard]}>
+        <CardContent css={cardStyles.innerContent}>
           <Flex direction="column" gap={4}>
           <Flex style={{ justifyContent: 'space-between' }}>
             <span>Items</span>
@@ -47,12 +47,7 @@ const Payment = () => {
 export default Payment;
 
 const styles = {
-  innerCard: scoped({
-    borderRadius: theme.radius.lg,
-    boxShadow: 'none',
-    padding: theme.spacing.none,
-  }),
-  innerContent: scoped({
-    padding: theme.spacing.lg,
+  dashedCard: scoped({
+    borderStyle: 'dashed',
   }),
 };

@@ -17,6 +17,7 @@ import Label from '@/components/ui/label';
 import PageHeading from '@/components/ui/page-heading';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import type { SelectOption } from '@/types';
 
 import CustomerInfo from '@/pages/orders/order-details/customer-info';
@@ -56,12 +57,12 @@ const OrderDetails = () => {
       <Container>
         <Flex gap={16}>
           <Flex direction="column" gap={16} style={{ width: '70%' }}>
-            <Card css={styles.formCard}>
+            <Card css={cardStyles.formCard}>
               <CardHeader>
                 <CardTitle>Items(4)</CardTitle>
               </CardHeader>
               <CardContent>
-                <Card css={styles.innerCard}>
+                <Card css={cardStyles.innerCard}>
                   <CardContent css={styles.zeroPadding}>
                     <ItemsTable />
                   </CardContent>
@@ -69,13 +70,13 @@ const OrderDetails = () => {
               </CardContent>
             </Card>
 
-            <Card css={styles.formCard}>
+            <Card css={cardStyles.formCard}>
               <CardContent>
                 <Payment />
               </CardContent>
             </Card>
 
-            <Card css={styles.formCard}>
+            <Card css={cardStyles.formCard}>
               <CardHeader>
                 <CardTitle>Timeline</CardTitle>
               </CardHeader>
@@ -90,7 +91,7 @@ const OrderDetails = () => {
               text="Manually created by the Admin."
             />
 
-            <Card css={styles.formCard}>
+            <Card css={cardStyles.formCard}>
               <CardContent>
                 <Flex direction="column" gap={8}>
                   <Label text="Order Status" />
@@ -133,7 +134,7 @@ const OrderDetails = () => {
 
             <CustomerInfo />
 
-            <Card css={styles.formCard}>
+            <Card css={cardStyles.formCard}>
               <CardContent>
                 <Flex direction="column" gap={8}>
                   <Label text="Flag" />
@@ -142,7 +143,7 @@ const OrderDetails = () => {
               </CardContent>
             </Card>
 
-            <Card css={styles.formCard}>
+            <Card css={cardStyles.formCard}>
               <CardContent>
                 <Label text="Notes" />
                 <Button variant="secondary" style={{ width: '100%' }}>
@@ -161,15 +162,7 @@ const OrderDetails = () => {
 export default OrderDetails;
 
 const styles = {
-  formCard: scoped({
-    rowGap: theme.spacing['2xl'],
-  }),
-  innerCard: scoped({
-    borderRadius: theme.radius.lg,
-    boxShadow: 'none',
-    padding: theme.spacing.none,
-  }),
   zeroPadding: scoped({
     padding: theme.spacing.none,
-  }),
+  })
 };

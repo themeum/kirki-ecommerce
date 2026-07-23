@@ -8,6 +8,7 @@ import Searchbox from '@/components/ui/searchbox';
 import type { AttributeValue, SortOrder } from '@/types';
 
 import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 
 import { getSortedList } from '@/pages/settings/utils';
 
@@ -39,7 +40,7 @@ const VariantTableAction = ({
   };
 
   return (
-    <Flex style={{ padding: `${theme.spacing['2xl']} ${theme.spacing['3xl']}` }}>
+    <Flex css={styles.wrapper}>
       <div style={{ width: '160px' }}>
         <Searchbox
           onChange={(value) => setSearchValue(value as string)}
@@ -58,3 +59,9 @@ const VariantTableAction = ({
 VariantTableAction.displayName = 'VariantTableAction';
 
 export default VariantTableAction;
+
+const styles = {
+  wrapper: scoped({
+    padding: `${theme.spacing['2xl']} ${theme.spacing['3xl']}`,
+  }),
+};

@@ -15,6 +15,7 @@ import Grid from '@/components/ui/grid';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 import { PlusIcon, TrashIcon } from '@/icons';
 
@@ -90,7 +91,7 @@ const RateByWeightSettings = ({
           onChange={(e) => handleOnChange(e.target.value, 'description')}
         />
       </Flex>
-      <Card css={[styles.formCard, styles.rangesCard]} >
+      <Card css={[cardStyles.formCard, styles.rangesCard]} >
         <CardContent>
 
         <Grid columns={3}>
@@ -186,7 +187,6 @@ RateByWeightSettings.displayName = 'RateByWeightSettings';
 export default RateByWeightSettings;
 
 const styles = {
-  formCard: scoped({ rowGap: theme.spacing['2xl'] }),
   textarea: scoped({
     padding: `${theme.spacing.md} ${theme.spacing.lg}`,
     minHeight: '108px',
@@ -214,5 +214,5 @@ const styles = {
     cursor: 'pointer',
     background: theme.colors.background.fillSecondary,
     borderRadius: theme.radius.lg,
-  }),
+  })
 };

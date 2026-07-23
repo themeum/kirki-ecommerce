@@ -4,8 +4,7 @@ import {
   CardContent,
 } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
-import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
 const CurrencyFormatSettings = () => {
@@ -16,8 +15,8 @@ const CurrencyFormatSettings = () => {
   ];
 
   return (
-    <Card css={styles.innerCard}>
-      <CardContent css={styles.innerContent}>
+    <Card css={cardStyles.innerCard}>
+      <CardContent css={cardStyles.innerContent}>
         <Flex direction="column" gap={16}>
           <SelectField
             name="currency_format"
@@ -58,13 +57,3 @@ CurrencyFormatSettings.displayName = 'CurrencyFormatSettings';
 
 export default CurrencyFormatSettings;
 
-const styles = {
-  innerCard: scoped({
-    borderRadius: theme.radius.lg,
-    boxShadow: 'none',
-    padding: theme.spacing.none,
-  }),
-  innerContent: scoped({
-    padding: theme.spacing.lg,
-  }),
-};

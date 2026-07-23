@@ -10,15 +10,13 @@ import Flex from '@/components/ui/flex';
 import Grid from '@/components/ui/grid';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
+import { cardStyles } from '@/theme/card-styles';
 import { scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 const ShippingAddress = () => {
   return (
-    <Card
-      css={styles.formCard}
-      style={{ padding: '20px', borderRadius: '20px', gap: '20px' }}
-    >
+    <Card css={[cardStyles.formCard, styles.roundedCard]}>
       <CardHeader>
         <Text
           header={__('Shipping Address', 'kirki-ecommerce')}
@@ -26,8 +24,8 @@ const ShippingAddress = () => {
           leftIcon={<ShippingAddressIcon />}
         />
       </CardHeader>
-      <Card css={styles.innerCard}>
-        <CardContent css={styles.innerContent}>
+      <Card css={cardStyles.innerCard}>
+        <CardContent css={cardStyles.innerContent}>
           <Flex direction="column" gap={16}>
             <CountryField
               name="shipping_address.country"
@@ -72,15 +70,10 @@ ShippingAddress.displayName = 'ShippingAddress';
 export default ShippingAddress;
 
 const styles = {
-  formCard: scoped({
-    rowGap: theme.spacing['2xl'],
-  }),
-  innerCard: scoped({
-    borderRadius: theme.radius.lg,
-    boxShadow: 'none',
-    padding: theme.spacing.none,
-  }),
-  innerContent: scoped({
-    padding: theme.spacing.lg,
+  roundedCard: scoped({
+    padding: theme.spacing['3xl'],
+    borderRadius: theme.radius.xl,
+    gap: theme.spacing['3xl'],
   }),
 };
+

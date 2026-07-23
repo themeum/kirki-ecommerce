@@ -23,8 +23,7 @@ import { dispatchToastMessage, normalizeErrors } from '@/pages/utils';
 import { useCountriesQuery } from '@/services/country';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import type { FormErrors, SelectOption, SettingsSectionData } from '@/types';
-import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
 import { ShippingRegionPopup } from '@/pages/settings/shipping-settings/shipping-zone/shipping-region-dialog';
@@ -264,8 +263,8 @@ const ShippingZonePage = () => {
               text={__('Set Zone Details', 'kirki-ecommerce')}
               handleBack={handleBackButton}
             />
-            <Card css={[styles.largeCard, styles.formCard]} >
-              <CardContent css={styles.largeContent}>
+            <Card css={[cardStyles.largeCard, cardStyles.formCard]} >
+              <CardContent css={cardStyles.largeContentPadded}>
 
               <Flex direction="column" gap={8}>
               <Label
@@ -350,10 +349,3 @@ ShippingZonePage.displayName = 'ShippingZone';
 
 export default ShippingZonePage;
 
-const styles = {
-  largeCard: scoped({ gap: theme.spacing['3xl'] }),
-  largeContent: scoped({ padding: theme.spacing['3xl'] }),
-  formCard: scoped({
-    gap: theme.spacing['2xl'],
-  }),
-};

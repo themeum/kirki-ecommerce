@@ -17,6 +17,7 @@ import { dispatchToastMessage } from '@/pages/utils';
 import type { ShippingProfile as ShippingProfileType } from '@/types';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
 import { CreateProfilePopup } from '@/pages/settings/shipping-settings/shipping-profile/create-profile-dialog';
@@ -70,8 +71,8 @@ const ShippingProfile = () => {
 
   return (
     <>
-      <Card css={styles.largeCard}>
-        <CardContent css={styles.largeContent}>
+      <Card css={cardStyles.largeCard}>
+        <CardContent css={cardStyles.largeContentPadded}>
           <HeaderActionsCard
             header={__('Shipping Profiles', 'kirki-ecommerce')}
             subHeader={__(
@@ -83,8 +84,8 @@ const ShippingProfile = () => {
           />
 
           {!shippingProfileList?.length ? (
-            <Card css={styles.innerDarkCard}>
-              <CardContent css={[styles.innerDarkContent, styles.emptyState]}>
+            <Card css={cardStyles.innerDarkCard}>
+              <CardContent css={[cardStyles.innerDarkContent, styles.emptyState]}>
                 <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
                   <BoxOpenIcon />
                   <span css={styles.emptyStateText}>
@@ -131,17 +132,6 @@ ShippingProfile.displayName = 'ShippingProfile';
 export default ShippingProfile;
 
 const styles = {
-  largeCard: scoped({ gap: theme.spacing['3xl'],
-    padding: theme.spacing.none,
-  }),
-  largeContent: scoped({ padding: theme.spacing['3xl'] }),
-  innerDarkCard: scoped({
-    borderRadius: theme.radius.lg,
-    backgroundColor: theme.colors.background.surfaceSecondary,
-    border: 'none',
-    padding: theme.spacing.none,
-  }),
-  innerDarkContent: scoped({ padding: theme.spacing.lg }),
   boxWrapper: scoped({
     '[data-box-card]': {
       borderTop: 'none',
@@ -160,5 +150,5 @@ const styles = {
   }),
   emptyStateText: scoped({
     color: theme.colors.text.subdued,
-  }),
+  })
 };

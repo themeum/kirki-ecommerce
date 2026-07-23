@@ -19,6 +19,7 @@ import type { TaxSettingsFormValues } from '@/schemas/forms/tax-settings-form';
 import { __ } from '@/wpi18n';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 
 import type { SelectedTaxRegionDraft, TaxRegion } from '@/pages/settings/tax-settings/utils';
 import TaxRegionPopup from '@/pages/settings/tax-settings/tax-region/tax-region-dialog';
@@ -145,8 +146,8 @@ const TaxRegions = (props: TaxRegionsProps) => {
 
   return (
     <>
-      <Card css={styles.largeCard} >
-        <CardContent css={styles.largeContent}>
+      <Card css={cardStyles.largeCard} >
+        <CardContent css={cardStyles.largeContentPadded}>
 
         <HeaderActionsCard
         header={__('Tax Regions', 'kirki-ecommerce')}
@@ -159,8 +160,8 @@ const TaxRegions = (props: TaxRegionsProps) => {
         />
 
         {!taxRegions.length ? (
-        <Card css={styles.innerDarkCard}>
-          <CardContent css={[styles.innerDarkContent, styles.emptyStateContent]}>
+        <Card css={cardStyles.innerDarkCard}>
+          <CardContent css={[cardStyles.innerDarkContent, styles.emptyStateContent]}>
             <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
               <LocationIcon />
               <span style={{ color: '#878593' }}>
@@ -172,8 +173,8 @@ const TaxRegions = (props: TaxRegionsProps) => {
         ) : (
         <Flex direction="column" gap={12}>
         {taxRegions.map((item, index) => (
-        <Card css={[styles.innerCard, styles.regionCard]} key={index} >
-          <CardContent css={styles.innerContent}>
+        <Card css={[cardStyles.innerCard, styles.regionCard]} key={index} >
+          <CardContent css={cardStyles.innerContent}>
 
           <Flex style={{ alignItems: 'flex-start' }} gap={8}>
           <span>{item?.flag}</span>
@@ -261,20 +262,8 @@ TaxRegions.displayName = 'TaxRegions';
 export default TaxRegions;
 
 const styles = {
-  largeCard: scoped({ gap: theme.spacing['3xl'],
-    padding: theme.spacing.none,
-  }),
-  largeContent: scoped({ padding: theme.spacing['3xl'] }),
-  innerCard: scoped({ borderRadius: theme.radius.lg, boxShadow: 'none',
-    padding: theme.spacing.none,
-  }),
-  innerContent: scoped({ padding: theme.spacing.lg }),
-  innerDarkCard: scoped({ borderRadius: theme.radius.lg, backgroundColor: theme.colors.background.surfaceSecondary, border: 'none',
-    padding: theme.spacing.none,
-  }),
-  innerDarkContent: scoped({ padding: theme.spacing.lg }),
   emptyStateContent: scoped({ padding: '36px 0' }),
   regionCard: scoped({
     padding: `${theme.spacing.lg} ${theme.spacing['2xl']}`,
-  }),
+  })
 };

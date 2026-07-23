@@ -20,6 +20,7 @@ import {
 import type { PaymentGateway } from '@/types';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import { __, sprintf } from '@/wpi18n';
 
 import PaymentGatewayEditPopup from '@/pages/settings/payment-settings/payment-gateway-edit-dialog';
@@ -82,8 +83,8 @@ const PaymentGatewayComponent = (props: PaymentGatewayProps) => {
 
   return (
     <>
-      <Card css={styles.largeCard} >
-        <CardContent css={styles.largeContent}>
+      <Card css={cardStyles.largeCard} >
+        <CardContent css={cardStyles.largeContentPadded}>
 
         <HeaderActionsCard
         header={__('Payment gateways', 'kirki-ecommerce')}
@@ -95,8 +96,8 @@ const PaymentGatewayComponent = (props: PaymentGatewayProps) => {
         onAdd={() => setIsEditPopupOpen(true)}
         />
         {paymentGatewayList?.length === 0 ? (
-        <Card css={styles.innerDarkCard}>
-          <CardContent css={[styles.innerDarkContent, styles.emptyStateContent]}>
+        <Card css={cardStyles.innerDarkCard}>
+          <CardContent css={[cardStyles.innerDarkContent, styles.emptyStateContent]}>
             <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
               <MapIcon />
               <span style={{ color: '#878593' }}>
@@ -108,11 +109,11 @@ const PaymentGatewayComponent = (props: PaymentGatewayProps) => {
         ) : (
         <Flex direction="column" gap={16}>
         {paymentGatewayList?.map((item, index) => (
-        <Card css={styles.innerCard}
+        <Card css={cardStyles.innerCard}
                 
         key={index}
         >
-          <CardContent css={[styles.innerContent, styles.gatewayItemContent]}>
+          <CardContent css={[cardStyles.innerContent, styles.gatewayItemContent]}>
 
           <Flex style={{ alignItems: 'center' }}>
           <Text
@@ -184,40 +185,10 @@ const PaymentGatewayComponent = (props: PaymentGatewayProps) => {
 PaymentGatewayComponent.displayName = 'PaymentGatewayComponent';
 
 const styles = {
-  formCard: scoped({ rowGap: theme.spacing['2xl'] }),
-  largeCard: scoped({ gap: theme.spacing['3xl'],
-    padding: theme.spacing.none,
-  }),
-  largeContent: scoped({ padding: theme.spacing['3xl'] }),
-  innerCard: scoped({ borderRadius: theme.radius.lg, boxShadow: 'none',
-    padding: theme.spacing.none,
-  }),
-  innerContent: scoped({ padding: theme.spacing.lg }),
-  innerDarkCard: scoped({
-    borderRadius: theme.radius.lg,
-    backgroundColor: theme.colors.background.surfaceSecondary,
-    border: 'none',
-    padding: theme.spacing.none,
-  }),
-  innerDarkContent: scoped({ padding: theme.spacing.lg }),
   emptyStateContent: scoped({ padding: '36px 0' }),
   gatewayItemContent: scoped({
     padding: `${theme.spacing.lg} ${theme.spacing['2xl']}`,
-  }),
-  darkCard: scoped({ backgroundColor: theme.colors.background.surfaceSecondary,
-    padding: theme.spacing.none,
-  }),
-  lightCard: scoped({ borderRadius: theme.radius.md,
-    padding: theme.spacing.none,
-  }),
-  shadowCard: scoped({
-    boxShadow: '0px -1px 1px 0.5px #0000001a inset',
-    border: 'none',
-  }),
-  tartiaryCard: scoped({
-    backgroundColor: theme.colors.background.surfaceSecondary,
-    padding: theme.spacing.none,
-  }),
+  })
 };
 
 export default PaymentGatewayComponent;

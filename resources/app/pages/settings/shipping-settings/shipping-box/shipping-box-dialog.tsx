@@ -49,6 +49,7 @@ import {
 import type { ShippingBox } from '@/types';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
 import { BoxGenerator } from '@/pages/settings/shipping-settings/shipping-box/box-generator';
@@ -182,8 +183,8 @@ const ShippingBoxPopup = ({
               placeholder={__('Regular box', 'kirki-ecommerce')}
             />
             <div>
-              <Card css={[styles.innerCard, styles.dimensionsCard]} >
-                <CardContent css={styles.innerContent}>
+              <Card css={[cardStyles.innerCard, styles.dimensionsCard]} >
+                <CardContent css={cardStyles.innerContent}>
 
                 <Text
                 type="secondary"
@@ -239,7 +240,7 @@ const ShippingBoxPopup = ({
                 </Flex>
                 </CardContent>
               </Card>
-              <Card css={[styles.darkCard, styles.previewCard]} >
+              <Card css={[cardStyles.darkCard, styles.previewCard]} >
                 <CardContent>
 
                 <BoxGenerator
@@ -284,13 +285,6 @@ ShippingBoxPopup.displayName = 'ShippingBoxPopup';
 export default ShippingBoxPopup;
 
 const styles = {
-  innerCard: scoped({ borderRadius: theme.radius.lg, boxShadow: 'none',
-    padding: theme.spacing.none,
-  }),
-  innerContent: scoped({ padding: theme.spacing.lg }),
-  darkCard: scoped({ backgroundColor: theme.colors.background.surfaceSecondary,
-    padding: theme.spacing.none,
-  }),
   dimensionsCard: scoped({
     position: 'relative',
     overflow: 'visible',
@@ -311,5 +305,5 @@ const styles = {
   }),
   footerSeparator: scoped({
     margin: theme.spacing.none,
-  }),
+  })
 };

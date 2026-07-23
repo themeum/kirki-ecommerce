@@ -45,8 +45,8 @@ import {
   type ProductShippingFormValues,
 } from '@/schemas/forms/product-shipping-form';
 import { useShippingBoxesQuery } from '@/services/shipping';
-import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import type { FormErrors, ShippingBox } from '@/types';
 
 import { __ } from '@/wpi18n';
@@ -156,7 +156,7 @@ const Shipping = ({ errors, setErrors, formSyncKey = 0 }: ShippingProps) => {
 
   return (
     <Form {...form}>
-      <Card css={styles.formCard}>
+      <Card css={cardStyles.formCard}>
         <CardHeader>
           <CardTitle>{__('Shipping', 'kirki-ecommerce')}</CardTitle>
         </CardHeader>
@@ -236,7 +236,7 @@ const Shipping = ({ errors, setErrors, formSyncKey = 0 }: ShippingProps) => {
           </Flex>
           <div>
             <Card
-              css={styles.innerCard}
+              css={cardStyles.innerCard}
               style={{
                 position: 'relative',
                 overflow: 'visible',
@@ -297,7 +297,7 @@ const Shipping = ({ errors, setErrors, formSyncKey = 0 }: ShippingProps) => {
             </Card>
             {showShippingBox && (
               <Card
-                css={styles.darkCard}
+                css={cardStyles.darkCard}
                 style={{
                   borderRadius: '0px 0px 6px 6px',
                   marginTop: '-8px',
@@ -335,19 +335,7 @@ Shipping.displayName = 'Shipping';
 export default Shipping;
 
 const styles = {
-  formCard: scoped({
-    rowGap: theme.spacing['2xl'],
-  }),
-  innerCard: scoped({
-    borderRadius: theme.radius.lg,
-    boxShadow: 'none',
-    padding: theme.spacing.none,
-  }),
-  darkCard: scoped({
-    backgroundColor: theme.colors.background.surfaceSecondary,
-    padding: theme.spacing.none,
-  }),
   darkCardContent: scoped({
     padding: '4px',
-  }),
+  })
 };

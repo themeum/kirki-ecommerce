@@ -50,6 +50,7 @@ import {
 import { useTaxProfilesQuery } from '@/services/tax';
 import { theme } from '@/theme';
 import { flexCenter, scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import type { FormErrors, UnitPriceValue } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -135,7 +136,7 @@ const Price = ({ errors, setErrors, formSyncKey = 0 }: PriceProps) => {
 
   return (
     <Form {...form}>
-      <Card css={styles.formCard}>
+      <Card css={cardStyles.formCard}>
         <CardHeader>
           <CardTitle>{__('Price', 'kirki-ecommerce')}</CardTitle>
         </CardHeader>
@@ -220,7 +221,7 @@ const Price = ({ errors, setErrors, formSyncKey = 0 }: PriceProps) => {
           </Grid>
 
           <Flex direction="column" gap={8}>
-            <Card css={styles.innerDarkCard}>
+            <Card css={cardStyles.innerDarkCard}>
               <CardContent css={styles.innerDarkRowContent}>
                 <Flex
                   style={{
@@ -280,7 +281,7 @@ const Price = ({ errors, setErrors, formSyncKey = 0 }: PriceProps) => {
               </CardContent>
             </Card>
 
-            <Card css={styles.innerDarkCard}>
+            <Card css={cardStyles.innerDarkCard}>
               <CardContent css={styles.innerDarkRowContent}>
                 <Grid style={{ alignItems: 'center' }}>
                 <FormField
@@ -460,15 +461,6 @@ Price.displayName = 'Price';
 export default Price;
 
 const styles = {
-  formCard: scoped({
-    rowGap: theme.spacing['2xl'],
-  }),
-  innerDarkCard: scoped({
-    borderRadius: theme.radius.lg,
-    backgroundColor: theme.colors.background.surfaceSecondary,
-    border: 'none',
-    padding: theme.spacing.none,
-  }),
   innerDarkRowContent: scoped({
     padding: '4px 8px 4px 12px',
     height: '44px',
@@ -477,5 +469,5 @@ const styles = {
   inputLeftSymbol: scoped({
     ...flexCenter(),
     color: theme.colors.text.secondary,
-  }),
+  })
 };

@@ -7,15 +7,14 @@ import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import ActionGroup from '@/components/ui/action-group';
 import { PlusIcon } from '@/icons';
-import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
 const SellerTaxID = () => {
   return (
     <div>
-      <Card css={styles.largeCard}>
-        <CardContent css={styles.largeContent}>
+      <Card css={cardStyles.largeCard}>
+        <CardContent css={cardStyles.largeContentPadded}>
           <Flex direction="column" gap={6}>
             <Flex style={{ alignItems: 'center' }}>
               <Text
@@ -48,11 +47,3 @@ SellerTaxID.displayName = 'SellerTaxID';
 
 export default SellerTaxID;
 
-const styles = {
-  largeCard: scoped({
-    gap: theme.spacing['3xl'],
-  }),
-  largeContent: scoped({
-    padding: theme.spacing['3xl'],
-  }),
-};

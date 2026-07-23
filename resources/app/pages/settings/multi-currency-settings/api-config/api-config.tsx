@@ -26,8 +26,7 @@ import { useCurrencyExchangeProvidersQuery } from '@/services/currency';
 import type { SettingsSectionData } from '@/types';
 import { __ } from '@/wpi18n';
 
-import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 
 import ApiConfigurationCard from '@/pages/settings/multi-currency-settings/api-config/api-configuration-card';
 import ApiConfigurationPopup from '@/pages/settings/multi-currency-settings/api-config/api-configuration-dialog';
@@ -124,8 +123,8 @@ const ApiConfig = () => {
               dataObj={(formValues || {}) as SettingsSectionData}
             />
           ) : (
-            <Card css={styles.innerCard} >
-              <CardContent css={styles.innerContent}>
+            <Card css={cardStyles.innerCard} >
+              <CardContent css={cardStyles.innerContent}>
 
               <Flex
               style={{
@@ -169,38 +168,5 @@ const ApiConfig = () => {
 };
 
 ApiConfig.displayName = 'ApiConfig';
-
-const styles = {
-  formCard: scoped({ rowGap: theme.spacing['2xl'] }),
-  largeCard: scoped({ gap: theme.spacing['3xl'],
-    padding: theme.spacing.none,
-  }),
-  largeContent: scoped({ padding: theme.spacing['3xl'] }),
-  innerCard: scoped({ borderRadius: theme.radius.lg, boxShadow: 'none',
-    padding: theme.spacing.none,
-  }),
-  innerContent: scoped({ padding: theme.spacing.lg }),
-  innerDarkCard: scoped({
-    borderRadius: theme.radius.lg,
-    backgroundColor: theme.colors.background.surfaceSecondary,
-    border: 'none',
-    padding: theme.spacing.none,
-  }),
-  innerDarkContent: scoped({ padding: theme.spacing.lg }),
-  darkCard: scoped({ backgroundColor: theme.colors.background.surfaceSecondary,
-    padding: theme.spacing.none,
-  }),
-  lightCard: scoped({ borderRadius: theme.radius.md,
-    padding: theme.spacing.none,
-  }),
-  shadowCard: scoped({
-    boxShadow: '0px -1px 1px 0.5px #0000001a inset',
-    border: 'none',
-  }),
-  tartiaryCard: scoped({
-    backgroundColor: theme.colors.background.surfaceSecondary,
-    padding: theme.spacing.none,
-  }),
-};
 
 export default ApiConfig;

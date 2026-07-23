@@ -5,6 +5,7 @@ import PageHeading from '@/components/ui/page-heading';
 import Searchbox from '@/components/ui/searchbox';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import Text from '@/components/ui/text';
 import { __ } from '@/wpi18n';
 
@@ -41,7 +42,7 @@ const Settings = () => {
         style={{ height: '32px' }}
       />
       <Container size="sm">
-        <Card css={[styles.shadowCard, styles.pageCard]}>
+        <Card css={[cardStyles.shadowCard, cardStyles.pageCard]}>
           <CardContent css={styles.pageContent}>
             <Flex direction="column" gap={24}>
               <Searchbox
@@ -66,15 +67,6 @@ const Settings = () => {
 export default Settings;
 
 const styles = {
-  shadowCard: scoped({
-    boxShadow: '0px -1px 1px 0.5px #0000001a inset',
-    border: 'none',
-  }),
-  pageCard: scoped({
-    backgroundColor: theme.colors.background.surfaceSecondary,
-    gap: 0,
-    padding: theme.spacing.none,
-  }),
   pageContent: scoped({
     padding: `${theme.spacing['2xl']} ${theme.spacing.lg}`,
   }),
@@ -117,5 +109,5 @@ const styles = {
     '&:hover > div': {
       borderRadius: theme.radius.xl,
     },
-  }),
+  })
 };

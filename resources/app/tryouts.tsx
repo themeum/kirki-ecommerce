@@ -52,8 +52,7 @@ import UiRadioGroupPreview from '@/preview-pages/ui-radio-group-preview';
 import UiSelectPreview from '@/preview-pages/ui-select-preview';
 import UiSwitchPreview from '@/preview-pages/ui-switch-preview';
 import UiTextareaPreview from '@/preview-pages/ui-textarea-preview';
-import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
 const Tryouts = () => {
@@ -83,7 +82,7 @@ const Tryouts = () => {
         <Flex direction="column" gap={16}>
           <Text header="UI Components" type="primary" />
 
-          <Card css={styles.formCard}>
+          <Card css={cardStyles.formCard}>
             <CardHeader>
               <CardTitle>Buttons</CardTitle>
             </CardHeader>
@@ -91,7 +90,7 @@ const Tryouts = () => {
               <UiButtonPreview />
             </CardContent>
           </Card>
-          <Card css={styles.formCard}>
+          <Card css={cardStyles.formCard}>
             <CardHeader>
               <CardTitle>Input</CardTitle>
             </CardHeader>
@@ -99,7 +98,7 @@ const Tryouts = () => {
               <UiInputPreview />
             </CardContent>
           </Card>
-          <Card css={styles.formCard}>
+          <Card css={cardStyles.formCard}>
             <CardHeader>
               <CardTitle>Textarea</CardTitle>
             </CardHeader>
@@ -107,7 +106,7 @@ const Tryouts = () => {
               <UiTextareaPreview />
             </CardContent>
           </Card>
-          <Card css={styles.formCard}>
+          <Card css={cardStyles.formCard}>
             <CardHeader>
               <CardTitle>Label</CardTitle>
             </CardHeader>
@@ -115,7 +114,7 @@ const Tryouts = () => {
               <UiLabelPreview />
             </CardContent>
           </Card>
-          <Card css={styles.formCard}>
+          <Card css={cardStyles.formCard}>
             <CardHeader>
               <CardTitle>Checkbox</CardTitle>
             </CardHeader>
@@ -123,7 +122,7 @@ const Tryouts = () => {
               <UiCheckboxPreview />
             </CardContent>
           </Card>
-          <Card css={styles.formCard}>
+          <Card css={cardStyles.formCard}>
             <CardHeader>
               <CardTitle>Radio Group</CardTitle>
             </CardHeader>
@@ -131,7 +130,7 @@ const Tryouts = () => {
               <UiRadioGroupPreview />
             </CardContent>
           </Card>
-          <Card css={styles.formCard}>
+          <Card css={cardStyles.formCard}>
             <CardHeader>
               <CardTitle>Select</CardTitle>
             </CardHeader>
@@ -140,7 +139,7 @@ const Tryouts = () => {
               <UiSelectPreview />
             </CardContent>
           </Card>
-          <Card css={styles.formCard}>
+          <Card css={cardStyles.formCard}>
             <CardHeader>
               <CardTitle>Switch</CardTitle>
             </CardHeader>
@@ -148,7 +147,7 @@ const Tryouts = () => {
               <UiSwitchPreview />
             </CardContent>
           </Card>
-          <Card css={styles.formCard}>
+          <Card css={cardStyles.formCard}>
             <CardHeader>
               <CardTitle>Form</CardTitle>
             </CardHeader>
@@ -156,7 +155,7 @@ const Tryouts = () => {
               <UiFormPreview />
             </CardContent>
           </Card>
-          <Card css={styles.formCard}>
+          <Card css={cardStyles.formCard}>
             <CardHeader>
               <CardTitle>Card</CardTitle>
             </CardHeader>
@@ -164,7 +163,7 @@ const Tryouts = () => {
               <CardPreview />
             </CardContent>
           </Card>
-          <Card css={styles.formCard}>
+          <Card css={cardStyles.formCard}>
             <CardHeader>
               <CardTitle>Dialog</CardTitle>
             </CardHeader>
@@ -172,7 +171,7 @@ const Tryouts = () => {
               <DialogPreview />
             </CardContent>
           </Card>
-          <Card css={styles.formCard}>
+          <Card css={cardStyles.formCard}>
             <CardHeader>
               <CardTitle>Dropdown Menu</CardTitle>
             </CardHeader>
@@ -180,7 +179,7 @@ const Tryouts = () => {
               <DropdownMenuPreview />
             </CardContent>
           </Card>
-          <Card css={styles.formCard}>
+          <Card css={cardStyles.formCard}>
             <CardHeader>
               <CardTitle>Popover</CardTitle>
             </CardHeader>
@@ -188,7 +187,7 @@ const Tryouts = () => {
               <UiPopoverPreview />
             </CardContent>
           </Card>
-          <Card css={styles.formCard}>
+          <Card css={cardStyles.formCard}>
             <CardHeader>
               <CardTitle>Separator</CardTitle>
             </CardHeader>
@@ -196,7 +195,7 @@ const Tryouts = () => {
               <SeparatorPreview />
             </CardContent>
           </Card>
-          <Card css={styles.formCard}>
+          <Card css={cardStyles.formCard}>
             <CardHeader>
               <CardTitle>Tabs</CardTitle>
             </CardHeader>
@@ -215,7 +214,7 @@ const Tryouts = () => {
           >
             App Config
           </Button>
-          <Card css={styles.formCard}>
+          <Card css={cardStyles.formCard}>
             <CardHeader>
               <CardTitle>Page Navigation</CardTitle>
             </CardHeader>
@@ -223,12 +222,12 @@ const Tryouts = () => {
               <PageNavbarPreview />
             </CardContent>
           </Card>
-          <Card css={styles.formCard}>
+          <Card css={cardStyles.formCard}>
             <CardContent>
               <OptionAccordionPreview />
             </CardContent>
           </Card>
-          <Card css={styles.formCard}>
+          <Card css={cardStyles.formCard}>
             <CardHeader>
               <CardTitle>Group Option Card</CardTitle>
             </CardHeader>
@@ -236,7 +235,7 @@ const Tryouts = () => {
               <GroupOptionCardPreview />
             </CardContent>
           </Card>
-          <Card css={styles.formCard}>
+          <Card css={cardStyles.formCard}>
             <CardHeader>
               <CardTitle>Progress Bar</CardTitle>
             </CardHeader>
@@ -244,12 +243,12 @@ const Tryouts = () => {
               <ProgressBarPreview />
             </CardContent>
           </Card>
-          <Card css={styles.formCard}>
+          <Card css={cardStyles.formCard}>
             <CardContent>
               <ColorPickerPreview />
             </CardContent>
           </Card>
-          <Card css={styles.formCard}>
+          <Card css={cardStyles.formCard}>
             <CardHeader>
               <CardTitle>Rich Text</CardTitle>
             </CardHeader>
@@ -260,7 +259,7 @@ const Tryouts = () => {
               />
             </CardContent>
           </Card>
-          <Card css={styles.formCard}>
+          <Card css={cardStyles.formCard}>
             <CardHeader>
               <CardTitle>Select Input</CardTitle>
             </CardHeader>
@@ -268,7 +267,7 @@ const Tryouts = () => {
               <SelectInputPreview />
             </CardContent>
           </Card>
-          <Card css={styles.formCard}>
+          <Card css={cardStyles.formCard}>
             <CardHeader>
               <CardTitle>Placeholder</CardTitle>
             </CardHeader>
@@ -276,7 +275,7 @@ const Tryouts = () => {
               <PlaceholderPreview />
             </CardContent>
           </Card>
-          <Card css={styles.formCard}>
+          <Card css={cardStyles.formCard}>
             <CardHeader>
               <CardTitle>Thumbnail</CardTitle>
             </CardHeader>
@@ -284,7 +283,7 @@ const Tryouts = () => {
               <ThumbnailPreview />
             </CardContent>
           </Card>
-          <Card css={styles.formCard}>
+          <Card css={cardStyles.formCard}>
             <CardHeader>
               <CardTitle>Grid</CardTitle>
             </CardHeader>
@@ -293,7 +292,7 @@ const Tryouts = () => {
             </CardContent>
           </Card>
           <GridTemplatePreview />
-          <Card css={styles.formCard}>
+          <Card css={cardStyles.formCard}>
             <CardHeader>
               <CardTitle>Action Group</CardTitle>
             </CardHeader>
@@ -301,7 +300,7 @@ const Tryouts = () => {
               <ActionGroupPreview />
             </CardContent>
           </Card>
-          <Card css={styles.formCard}>
+          <Card css={cardStyles.formCard}>
             <CardHeader>
               <CardTitle>Tag Manager</CardTitle>
             </CardHeader>
@@ -309,7 +308,7 @@ const Tryouts = () => {
               <TagManagerPreview />
             </CardContent>
           </Card>
-          <Card css={styles.formCard}>
+          <Card css={cardStyles.formCard}>
             <CardHeader>
               <CardTitle>Tab</CardTitle>
             </CardHeader>
@@ -319,7 +318,7 @@ const Tryouts = () => {
               </Flex>
             </CardContent>
           </Card>
-          <Card css={styles.formCard}>
+          <Card css={cardStyles.formCard}>
             <CardHeader>
               <CardTitle>Heading</CardTitle>
             </CardHeader>
@@ -329,7 +328,7 @@ const Tryouts = () => {
               </Flex>
             </CardContent>
           </Card>
-          <Card css={styles.formCard}>
+          <Card css={cardStyles.formCard}>
             <CardHeader>
               <CardTitle>Page Heading</CardTitle>
             </CardHeader>
@@ -337,7 +336,7 @@ const Tryouts = () => {
               <PageHeadingPreview />
             </CardContent>
           </Card>
-          <Card css={styles.formCard}>
+          <Card css={cardStyles.formCard}>
             <CardHeader>
               <CardTitle>Button + Tooltip</CardTitle>
             </CardHeader>
@@ -345,7 +344,7 @@ const Tryouts = () => {
               <ButtonPreview />
             </CardContent>
           </Card>
-          <Card css={styles.formCard}>
+          <Card css={cardStyles.formCard}>
             <CardHeader>
               <CardTitle>Flex</CardTitle>
             </CardHeader>
@@ -362,7 +361,7 @@ const Tryouts = () => {
               </Flex>
             </CardContent>
           </Card>
-          <Card css={styles.formCard}>
+          <Card css={cardStyles.formCard}>
             <CardHeader>
               <CardTitle>Toggle Button</CardTitle>
             </CardHeader>
@@ -370,7 +369,7 @@ const Tryouts = () => {
               <ToggleButtonPreview />
             </CardContent>
           </Card>
-          <Card css={styles.formCard}>
+          <Card css={cardStyles.formCard}>
             <CardHeader>
               <CardTitle>Radio Group</CardTitle>
             </CardHeader>
@@ -378,7 +377,7 @@ const Tryouts = () => {
               <RadioGroupPreview />
             </CardContent>
           </Card>
-          <Card css={styles.formCard}>
+          <Card css={cardStyles.formCard}>
             <CardHeader>
               <CardTitle>Checkbox</CardTitle>
             </CardHeader>
@@ -386,7 +385,7 @@ const Tryouts = () => {
               <CheckboxPreview />
             </CardContent>
           </Card>
-          <Card css={styles.formCard}>
+          <Card css={cardStyles.formCard}>
             <CardHeader>
               <CardTitle>Input</CardTitle>
             </CardHeader>
@@ -394,7 +393,7 @@ const Tryouts = () => {
               <InputPreview />
             </CardContent>
           </Card>
-          <Card css={styles.formCard}>
+          <Card css={cardStyles.formCard}>
             <CardHeader>
               <CardTitle>Combobox Select</CardTitle>
             </CardHeader>
@@ -402,7 +401,7 @@ const Tryouts = () => {
               <SelectPreview />
             </CardContent>
           </Card>
-          <Card css={styles.formCard}>
+          <Card css={cardStyles.formCard}>
             <CardHeader>
               <CardTitle>Accordion</CardTitle>
             </CardHeader>
@@ -410,7 +409,7 @@ const Tryouts = () => {
               <AccordionPreview />
             </CardContent>
           </Card>
-          <Card css={styles.formCard}>
+          <Card css={cardStyles.formCard}>
             <CardHeader>
               <CardTitle>Dialog (legacy popover)</CardTitle>
             </CardHeader>
@@ -418,7 +417,7 @@ const Tryouts = () => {
               <PopoverPreview />
             </CardContent>
           </Card>
-          <Card css={styles.formCard}>
+          <Card css={cardStyles.formCard}>
             <CardHeader>
               <CardTitle>Alert Dialog</CardTitle>
             </CardHeader>
@@ -426,7 +425,7 @@ const Tryouts = () => {
               <AlertboxPreview />
             </CardContent>
           </Card>
-          <Card css={styles.formCard}>
+          <Card css={cardStyles.formCard}>
             <CardHeader>
               <CardTitle>Dropdown</CardTitle>
             </CardHeader>
@@ -434,7 +433,7 @@ const Tryouts = () => {
               <DrowdownPreview />
             </CardContent>
           </Card>
-          <Card css={styles.formCard}>
+          <Card css={cardStyles.formCard}>
             <CardHeader>
               <CardTitle>Media Selector</CardTitle>
             </CardHeader>
@@ -443,12 +442,12 @@ const Tryouts = () => {
               <MediaGalleryPreview />
             </CardContent>
           </Card>
-          <Card css={styles.tableCard}>
-            <CardContent css={styles.tableContent}>
+          <Card css={cardStyles.tableCard}>
+            <CardContent css={cardStyles.tableContent}>
               <TablePreview />
             </CardContent>
           </Card>
-          <Card css={styles.formCard}>
+          <Card css={cardStyles.formCard}>
             <CardContent>
               <Text header="Icons Preview" type="primary" />
               <IconsPreview />
@@ -462,17 +461,3 @@ const Tryouts = () => {
 
 export default Tryouts;
 
-const styles = {
-  formCard: scoped({
-    rowGap: theme.spacing['2xl'],
-  }),
-  tableCard: scoped({
-    overflow: 'hidden',
-    border: '1px solid #e6e6e6',
-    gap: 0,
-    padding: theme.spacing.none,
-  }),
-  tableContent: scoped({
-    padding: theme.spacing.none,
-  }),
-};

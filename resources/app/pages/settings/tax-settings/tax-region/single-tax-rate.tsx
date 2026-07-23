@@ -10,6 +10,7 @@ import Text from '@/components/ui/text';
 import Flex from '@/components/ui/flex';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
@@ -33,11 +34,11 @@ export const SingleTaxRate = ({
   return (
     <div>
       <Card
-        css={[styles.innerDarkCard, styles.taxCard]}
+        css={[cardStyles.innerDarkCard, styles.taxCard]}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        <CardContent css={styles.innerDarkContent}>
+        <CardContent css={cardStyles.innerDarkContent}>
           <Text type="secondary" header={__('Tax rates', 'kirki-ecommerce')} />
           <div css={styles.taxCardContent}>
             <Text
@@ -69,15 +70,6 @@ export const SingleTaxRate = ({
 SingleTaxRate.displayName = 'SingleTaxRate';
 
 const styles = {
-  innerDarkCard: scoped({
-    borderRadius: theme.radius.lg,
-    backgroundColor: theme.colors.background.surfaceSecondary,
-    border: 'none',
-    padding: theme.spacing.none,
-  }),
-  innerDarkContent: scoped({
-    padding: theme.spacing.lg,
-  }),
   taxCard: scoped({
     display: 'flex',
     alignItems: 'center',
@@ -106,5 +98,5 @@ const styles = {
   taxCardContent: scoped({
     display: 'flex',
     alignItems: 'center',
-  }),
+  })
 };

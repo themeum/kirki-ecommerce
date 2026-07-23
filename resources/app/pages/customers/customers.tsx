@@ -13,7 +13,7 @@ import PageHeading from '@/components/ui/page-heading';
 import Text from '@/components/ui/text';
 import { useCustomersQuery } from '@/services/customer';
 import { flexCenter, scoped } from '@/theme/mixins';
-import { theme } from '@/theme';
+import { cardStyles } from '@/theme/card-styles';
 import type { PaginationData } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -64,7 +64,7 @@ const Customers = () => {
       <Container>
         {loaded ? (
           <Flex direction="column" gap={8}>
-            <Card css={styles.formCard}>
+            <Card css={cardStyles.formCard}>
               <CardContent>
                 <Flex gap={12}>
                   <span css={styles.svgClass}>
@@ -93,8 +93,8 @@ const Customers = () => {
                 </Flex>
               </CardContent>
             </Card>
-            <Card css={styles.tableCard}>
-              <CardContent css={styles.tableContent}>
+            <Card css={cardStyles.tableCard}>
+              <CardContent css={cardStyles.tableContent}>
                 <CustomerTable data={data!} isFetching={isFetching} />
               </CardContent>
             </Card>
@@ -116,17 +116,5 @@ Customers.displayName = 'Customers';
 export default Customers;
 
 const styles = {
-  svgClass: scoped(flexCenter()),
-  formCard: scoped({
-    rowGap: theme.spacing['2xl'],
-  }),
-  tableCard: scoped({
-    overflow: 'hidden',
-    border: '1px solid #e6e6e6',
-    gap: 0,
-    padding: theme.spacing.none,
-  }),
-  tableContent: scoped({
-    padding: theme.spacing.none,
-  }),
+  svgClass: scoped(flexCenter())
 };

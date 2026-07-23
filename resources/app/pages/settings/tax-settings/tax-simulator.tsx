@@ -6,15 +6,15 @@ import Button from '@/components/ui/button';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { SimulatorIcon } from '@/icons';
-import { theme } from '@/theme';
+import { cardStyles } from '@/theme/card-styles';
 import { scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 const TaxSimulator = () => {
   return (
     <div>
-      <Card css={styles.largeCard}>
-        <CardContent css={styles.largeContent}>
+      <Card css={cardStyles.largeCard}>
+        <CardContent css={cardStyles.largeContentPadded}>
           <Flex gap={8}>
             <Flex gap={12} direction="column" style={{ width: '55%' }}>
               <Flex gap={6} direction="column">
@@ -35,7 +35,7 @@ const TaxSimulator = () => {
                 Try Simulator
               </Button>
             </Flex>
-            <Card css={styles.tartiaryCard} style={{ width: '45%' }}>
+            <Card css={[cardStyles.tartiaryCard, styles.previewCard]}>
               <CardContent />
             </Card>
           </Flex>
@@ -50,13 +50,8 @@ TaxSimulator.displayName = 'TaxSimulator';
 export default TaxSimulator;
 
 const styles = {
-  largeCard: scoped({
-    gap: theme.spacing['3xl'],
-  }),
-  largeContent: scoped({
-    padding: theme.spacing['3xl'],
-  }),
-  tartiaryCard: scoped({
-    backgroundColor: theme.colors.background.surfaceSecondary,
+  previewCard: scoped({
+    width: '45%',
   }),
 };
+

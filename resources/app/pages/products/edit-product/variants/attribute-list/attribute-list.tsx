@@ -26,7 +26,7 @@ import Chip from '@/components/ui/chip';
 import Text from '@/components/ui/text';
 import { useProductForm } from '@/contexts/product-form-context';
 import { flexCenter, scoped } from '@/theme/mixins';
-import { theme } from '@/theme';
+import { cardStyles } from '@/theme/card-styles';
 import type { Attribute } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -78,7 +78,7 @@ const SortableCard = ({
   return (
     <div ref={setNodeRef} style={style}>
       <Card
-        css={styles.innerCard}
+        css={cardStyles.innerCard}
         key={item.id}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
@@ -235,11 +235,6 @@ AttributeList.displayName = 'AttributeList';
 export default AttributeList;
 
 const styles = {
-  innerCard: scoped({
-    borderRadius: theme.radius.lg,
-    boxShadow: 'none',
-    padding: theme.spacing.none,
-  }),
   innerContent: scoped({
     padding: '12px 16px',
   }),
@@ -249,5 +244,5 @@ const styles = {
     '&:active': {
       cursor: 'grabbing',
     },
-  }),
+  })
 };

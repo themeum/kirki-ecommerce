@@ -27,8 +27,7 @@ import { useUnsavedStatus } from '@/libs/unsaved-store';
 import { getErrorMessage } from '@/services/helpers';
 import { useSettingsQuery, updateSettings } from '@/services/settings';
 import type { SettingsSectionData } from '@/types';
-import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
 import FlatRateSettings from '@/pages/settings/shipping-settings/shipping-method/flat-rate-settings';
@@ -270,8 +269,8 @@ const ShippingDeliveryMethod = () => {
             text={methodSettingsMap[methodType].title ?? ''}
             handleBack={handleBackButton}
           />
-          <Card css={[styles.largeCard, styles.formCard]} >
-            <CardContent css={styles.largeContent}>
+          <Card css={[cardStyles.largeCard, cardStyles.formCard]} >
+            <CardContent css={cardStyles.largeContentPadded}>
 
             <Flex direction="column" gap={8}>
             <Label htmlFor="shipping-method-name">
@@ -324,10 +323,3 @@ ShippingDeliveryMethod.displayName = 'ShippingDeliveryMethod';
 
 export default ShippingDeliveryMethod;
 
-const styles = {
-  largeCard: scoped({ gap: theme.spacing['3xl'] }),
-  largeContent: scoped({ padding: theme.spacing['3xl'] }),
-  formCard: scoped({
-    gap: theme.spacing['2xl'],
-  }),
-};

@@ -29,8 +29,8 @@ import {
   type ProductInventoryFormValues,
 } from '@/schemas/forms/product-inventory-form';
 import type { FormErrors } from '@/types';
-import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
 type InventoryProps = {
@@ -109,7 +109,7 @@ const Inventory = ({ errors, setErrors, formSyncKey = 0 }: InventoryProps) => {
 
   return (
     <Form {...form}>
-      <Card css={styles.formCard}>
+      <Card css={cardStyles.formCard}>
         <CardHeader>
           <CardTitle>{__('Inventory', 'kirki-ecommerce')}</CardTitle>
         </CardHeader>
@@ -120,8 +120,8 @@ const Inventory = ({ errors, setErrors, formSyncKey = 0 }: InventoryProps) => {
           />
 
           {trackInventory ? (
-            <Card css={styles.innerCard}>
-              <CardContent css={styles.innerContent}>
+            <Card css={cardStyles.innerCard}>
+              <CardContent css={cardStyles.innerContent}>
                 <Grid columns={3}>
                   <TextField
                     name="available_quantity"
@@ -179,8 +179,8 @@ const Inventory = ({ errors, setErrors, formSyncKey = 0 }: InventoryProps) => {
           </Flex>
           <Flex gap={8}>
             {trackInventory && (
-              <Card css={[styles.innerDarkCard, styles.innerDarkNarrowCard]}>
-                <CardContent css={styles.innerDarkContent}>
+              <Card css={[cardStyles.innerDarkCard, styles.innerDarkNarrowCard]}>
+                <CardContent css={cardStyles.innerDarkContent}>
                   <Flex gap={8} style={{ alignItems: 'center' }}>
                     <Checkbox id="sell-when-out-of-stock" defaultChecked />
                     <Label htmlFor="sell-when-out-of-stock">
@@ -191,7 +191,7 @@ const Inventory = ({ errors, setErrors, formSyncKey = 0 }: InventoryProps) => {
               </Card>
             )}
 
-            <Card css={styles.innerDarkCard}>
+            <Card css={cardStyles.innerDarkCard}>
               <CardContent css={styles.innerDarkRowContent}>
               <Flex gap={30} style={{ justifyContent: 'space-between' }}>
                 <FormField
@@ -246,30 +246,10 @@ Inventory.displayName = 'Inventory';
 export default Inventory;
 
 const styles = {
-  formCard: scoped({
-    rowGap: theme.spacing['2xl'],
-  }),
-  innerCard: scoped({
-    borderRadius: theme.radius.lg,
-    boxShadow: 'none',
-    padding: theme.spacing.none,
-  }),
-  innerContent: scoped({
-    padding: theme.spacing.lg,
-  }),
-  innerDarkCard: scoped({
-    borderRadius: theme.radius.lg,
-    backgroundColor: theme.colors.background.surfaceSecondary,
-    border: 'none',
-    padding: theme.spacing.none,
-  }),
   innerDarkNarrowCard: scoped({
     width: '30%',
   }),
-  innerDarkContent: scoped({
-    padding: theme.spacing.lg,
-  }),
   innerDarkRowContent: scoped({
     padding: '4px 8px 4px 12px',
-  }),
+  })
 };

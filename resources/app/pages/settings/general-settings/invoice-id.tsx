@@ -20,6 +20,7 @@ import Text from '@/components/ui/text';
 import type { GeneralSettingsFormValues } from '@/schemas/forms/general-settings-form';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
 const invoiceResetScheduleOptions = [
@@ -53,8 +54,8 @@ const InvoiceId = () => {
 
   return (
     <div>
-      <Card css={styles.largeCard}>
-        <CardHeader css={styles.sectionHeader}>
+      <Card css={cardStyles.largeCard}>
+        <CardHeader css={cardStyles.sectionHeader}>
           <CardTitle>{__('Invoice ID', 'kirki-ecommerce')}</CardTitle>
           <CardDescription>
             {__(
@@ -63,10 +64,10 @@ const InvoiceId = () => {
             )}
           </CardDescription>
         </CardHeader>
-        <CardContent css={styles.largeContent}>
+        <CardContent css={cardStyles.largeContent}>
           <Flex direction="column" gap={8}>
-            <Card css={styles.innerCard}>
-              <CardContent css={styles.innerCardContent}>
+            <Card css={cardStyles.innerCard}>
+              <CardContent css={cardStyles.innerCardContent}>
                 <Flex direction="column" gap={16}>
                   <Grid columns={3}>
                     <TextField
@@ -94,7 +95,7 @@ const InvoiceId = () => {
                     />
                   </Grid>
 
-                  <Card css={[styles.innerDarkCard, styles.previewCard]}>
+                  <Card css={[cardStyles.innerDarkCard, styles.previewCard]}>
                     <CardContent css={styles.previewCardContent}>
                       <Flex direction="column" gap={8}>
                         <Label htmlFor="invoice-id-preview">
@@ -124,8 +125,8 @@ const InvoiceId = () => {
                 </Flex>
               </CardContent>
             </Card>
-            <Card css={[styles.largeCard, styles.resetCard]}>
-              <CardContent css={styles.largeContentPadded}>
+            <Card css={[cardStyles.largeCard, styles.resetCard]}>
+              <CardContent css={cardStyles.largeContentPadded}>
                 <Flex direction="column" gap={10}>
                   <Flex style={{ alignItems: 'center' }}>
                     <Text
@@ -165,34 +166,6 @@ InvoiceId.displayName = 'InvoiceId';
 export default InvoiceId;
 
 const styles = {
-  largeCard: scoped({
-    gap: theme.spacing['3xl'],
-    padding: theme.spacing.none,
-  }),
-  largeContent: scoped({
-    paddingInline: theme.spacing['3xl'],
-  }),
-  largeContentPadded: scoped({
-    padding: theme.spacing['3xl'],
-  }),
-  sectionHeader: scoped({
-    gap: theme.spacing.base,
-    paddingInline: theme.spacing['3xl'],
-  }),
-  innerCard: scoped({
-    borderRadius: theme.radius.lg,
-    boxShadow: 'none',
-    padding: theme.spacing.none,
-  }),
-  innerCardContent: scoped({
-    padding: theme.spacing['2xl'],
-  }),
-  innerDarkCard: scoped({
-    borderRadius: theme.radius.lg,
-    backgroundColor: theme.colors.background.surfaceSecondary,
-    border: 'none',
-    padding: theme.spacing.none,
-  }),
   previewCard: scoped({}),
   previewCardContent: scoped({
     padding: `${theme.spacing.md} ${theme.spacing.lg}`,
@@ -205,5 +178,5 @@ const styles = {
   resetCard: scoped({
     borderRadius: theme.radius.lg,
     border: `1px solid ${theme.colors.border.default}`,
-  }),
+  })
 };

@@ -25,6 +25,8 @@ import {
 } from '@/schemas/forms/email-settings-form';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import type { SettingsSectionData } from '@/types';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
@@ -202,7 +204,7 @@ const EmailSettings = () => {
                 text={__('Email', 'kirki-ecommerce')}
                 handleBack={handleBackButton}
               />
-              <Card  style={{ borderRadius: '8px' }}>
+              <Card css={styles.roundedCard}>
                 <CardContent>
 
                 <Flex
@@ -261,3 +263,9 @@ const EmailSettings = () => {
 EmailSettings.displayName = 'EmailSettings';
 
 export default EmailSettings;
+
+const styles = {
+  roundedCard: scoped({
+    borderRadius: theme.radius.lg,
+  }),
+};

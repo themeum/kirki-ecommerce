@@ -41,10 +41,11 @@ import type {
   EmailTemplate as SettingsEmailTemplate,
   SettingsSectionData,
 } from '@/types';
-import { __ } from '@/wpi18n';
-
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { __ } from '@/wpi18n';
+
+import { cardStyles } from '@/theme/card-styles';
 
 const POSITION_MAP: Record<string, number> = {
   start: 0,
@@ -135,13 +136,7 @@ const EditTemplate = () => {
       <PageHeading
         text={__('Edit Template', 'kirki-ecommerce')}
         hasBack
-        style={{
-          fontSize: '16px',
-          fontWeight: '400',
-          lineHeight: '28px',
-          padding: '0px 32px',
-          height: '32px',
-        }}
+        css={styles.pageHeading}
         leftIcon={<BrushIcon />}
         size="fullWidth"
         sticky
@@ -161,16 +156,13 @@ const EditTemplate = () => {
           </>
         }
       />
-      <Container
-        size="fullWidth"
-        style={{ width: '100%', padding: '16px 103px' }}
-      >
+      <Container size="fullWidth" css={styles.container}>
         {loaded ? (
           <Form {...form}>
             <Flex gap={48} style={{ width: '100%' }}>
               <Flex direction="column" gap={20} style={{ width: '44%' }}>
-                <Card css={styles.largeCard}  style={{ borderRadius: '8px' }}>
-                  <CardContent css={styles.largeContent}>
+                <Card css={[cardStyles.largeCard, styles.roundedCard]}>
+                  <CardContent css={cardStyles.largeContentPadded}>
 
                   <Text
                   type="primary"
@@ -245,8 +237,8 @@ const EditTemplate = () => {
                   />
                   </CardContent>
                 </Card>
-                <Card css={styles.largeCard}  style={{ borderRadius: '8px' }}>
-                  <CardContent css={styles.largeContent}>
+                <Card css={[cardStyles.largeCard, styles.roundedCard]}>
+                  <CardContent css={cardStyles.largeContentPadded}>
 
                   <Text
                   header={'Colors'}
@@ -288,7 +280,7 @@ const EditTemplate = () => {
                     leftIcon={<SendIcon />}
                   />
                 </Flex>
-                <Card  style={{ borderRadius: '0px' }}>
+                <Card css={styles.squareCard}>
                   <CardContent>
                   </CardContent>
                 </Card>
@@ -305,37 +297,24 @@ const EditTemplate = () => {
 
 EditTemplate.displayName = 'EditTemplate';
 
+export default EditTemplate;
+
 const styles = {
-  formCard: scoped({ rowGap: theme.spacing['2xl'] }),
-  largeCard: scoped({ gap: theme.spacing['3xl'],
-    padding: theme.spacing.none,
+  pageHeading: scoped({
+    fontSize: '16px',
+    fontWeight: 400,
+    lineHeight: '28px',
+    padding: `0px ${theme.spacing['6xl']}`,
+    height: '32px',
   }),
-  largeContent: scoped({ padding: theme.spacing['3xl'] }),
-  innerCard: scoped({ borderRadius: theme.radius.lg, boxShadow: 'none',
-    padding: theme.spacing.none,
+  container: scoped({
+    width: '100%',
+    padding: `${theme.spacing.lg} 103px`,
   }),
-  innerContent: scoped({ padding: theme.spacing.lg }),
-  innerDarkCard: scoped({
+  roundedCard: scoped({
     borderRadius: theme.radius.lg,
-    backgroundColor: theme.colors.background.surfaceSecondary,
-    border: 'none',
-    padding: theme.spacing.none,
   }),
-  innerDarkContent: scoped({ padding: theme.spacing.lg }),
-  darkCard: scoped({ backgroundColor: theme.colors.background.surfaceSecondary,
-    padding: theme.spacing.none,
-  }),
-  lightCard: scoped({ borderRadius: theme.radius.md,
-    padding: theme.spacing.none,
-  }),
-  shadowCard: scoped({
-    boxShadow: '0px -1px 1px 0.5px #0000001a inset',
-    border: 'none',
-  }),
-  tartiaryCard: scoped({
-    backgroundColor: theme.colors.background.surfaceSecondary,
-    padding: theme.spacing.none,
+  squareCard: scoped({
+    borderRadius: theme.radius.none,
   }),
 };
-
-export default EditTemplate;

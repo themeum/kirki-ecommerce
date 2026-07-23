@@ -14,8 +14,8 @@ import {
 import { PlusCircleIcon } from '@/icons';
 import Flex from '@/components/ui/flex';
 import Grid from '@/components/ui/grid';
-import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import { useProductForm } from '@/contexts/product-form-context';
 import { useShippingProfilesQuery } from '@/services/shipping';
 import type { FormErrors, SelectOption } from '@/types';
@@ -73,7 +73,7 @@ const ShippingProfile = ({
   }) => ReactElement;
 
   return (
-    <Card css={styles.innerDarkCard}>
+    <Card css={cardStyles.innerDarkCard}>
       <CardContent css={styles.innerDarkRowContent}>
         <Grid style={{ alignItems: 'center' }}>
         <Flex gap={8} style={{ alignItems: 'center' }}>
@@ -141,15 +141,9 @@ ShippingProfile.displayName = 'ShippingProfile';
 export default ShippingProfile;
 
 const styles = {
-  innerDarkCard: scoped({
-    borderRadius: theme.radius.lg,
-    backgroundColor: theme.colors.background.surfaceSecondary,
-    border: 'none',
-    padding: theme.spacing.none,
-  }),
   innerDarkRowContent: scoped({
     padding: '4px 8px 4px 12px',
     height: '44px',
     boxSizing: 'border-box',
-  }),
+  })
 };

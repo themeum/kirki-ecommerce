@@ -23,6 +23,7 @@ import type {
 } from '@/types';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import { __, sprintf } from '@/wpi18n';
 
 import AddCurrencyPopup from '@/pages/settings/multi-currency-settings/add-currency-dialog';
@@ -161,7 +162,7 @@ export const AvailableCurrencyList = () => {
 
   return (
     <>
-      <Card css={styles.innerCard}>
+      <Card css={cardStyles.innerCard}>
         <CardContent css={styles.innerCardContent}>
           <Flex
             style={{
@@ -218,12 +219,7 @@ export const AvailableCurrencyList = () => {
 };
 
 const styles = {
-  innerCard: scoped({
-    borderRadius: theme.radius.lg,
-    boxShadow: 'none',
-    padding: theme.spacing.none,
-  }),
   innerCardContent: scoped({
     padding: theme.spacing['3xl'],
-  }),
+  })
 };

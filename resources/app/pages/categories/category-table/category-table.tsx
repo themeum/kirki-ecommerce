@@ -10,6 +10,8 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useBulkDeleteCategoriesMutation } from '@/services/category';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import type { Category, PaginatedData, TaxonomyTableHeader } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -127,7 +129,7 @@ const CategoryTable = ({ data }: CategoryTableProps) => {
       <Table type="variation">
         <TableHeader>
           <TableRow>
-            <TableHead onlyCheckbox style={{ padding: '20px 12px' }}>
+            <TableHead onlyCheckbox css={styles.headCell}>
               <Checkbox
                 value={isSelected('*')}
                 onChange={handleAllCheckboxClick}
@@ -135,7 +137,7 @@ const CategoryTable = ({ data }: CategoryTableProps) => {
               />
             </TableHead>
             {tableHeaders.map((header, index) => (
-              <TableHead key={index} style={{ padding: '20px 12px' }}>
+              <TableHead key={index} css={styles.headCell}>
                 <Sorting data={header} />
               </TableHead>
             ))}
@@ -160,3 +162,9 @@ const CategoryTable = ({ data }: CategoryTableProps) => {
 CategoryTable.displayName = 'CategoryTable';
 
 export default CategoryTable;
+
+const styles = {
+  headCell: scoped({
+    padding: `${theme.spacing['3xl']} ${theme.spacing.lg}`,
+  }),
+};

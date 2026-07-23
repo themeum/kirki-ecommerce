@@ -21,6 +21,7 @@ import Label from '@/components/ui/label';
 import Flex from '@/components/ui/flex';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import {
   ShippingRegionFormSchema,
   shippingRegionDefaultValues,
@@ -270,8 +271,8 @@ export const ShippingRegionPopup = ({
               />
             </Flex>
 
-            <Card css={styles.tableCard}>
-              <CardContent css={styles.tableContent}>
+            <Card css={cardStyles.tableCardRounded}>
+              <CardContent css={cardStyles.tableContent}>
                 <div
                   style={{
                     height: '432px',
@@ -375,16 +376,6 @@ export const ShippingRegionPopup = ({
 ShippingRegionPopup.displayName = 'ShippingRegionPopup';
 
 const styles = {
-  tableCard: scoped({
-    overflow: 'hidden',
-    border: '1px solid #e6e6e6',
-    gap: 0,
-    borderRadius: theme.radius.md,
-    padding: theme.spacing.none,
-  }),
-  tableContent: scoped({
-    padding: theme.spacing.none,
-  }),
   checkboxItem: scoped({
     width: 'auto',
     padding: `${theme.spacing.md} ${theme.spacing.lg}`,
@@ -395,5 +386,5 @@ const styles = {
   }),
   nestedStates: scoped({
     padding: `${theme.spacing.none} ${theme.spacing.lg}`,
-  }),
+  })
 };

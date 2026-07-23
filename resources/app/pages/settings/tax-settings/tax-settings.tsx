@@ -31,6 +31,7 @@ import { Separator } from '@/components/ui/separator';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import {
   TaxSettingsFormSchema,
   taxSettingsDefaultValues,
@@ -250,8 +251,8 @@ const TaxSettings = () => {
                 text={'Tax'}
                 handleBack={handleBackButton}
               />
-              <Card css={styles.largeCard} >
-                <CardContent css={styles.largeContent}>
+              <Card css={cardStyles.largeCard} >
+                <CardContent css={cardStyles.largeContentPadded}>
 
                 <Text
                 type="primary"
@@ -285,12 +286,10 @@ TaxSettings.displayName = 'TaxSettings';
 export default TaxSettings;
 
 const styles = {
-  largeCard: scoped({ gap: theme.spacing['3xl'] }),
-  largeContent: scoped({ padding: theme.spacing['3xl'] }),
   separator: scoped({
     marginBottom: theme.spacing.lg,
   }),
   taxCollectionHeader: scoped({
     gap: theme.spacing.base,
-  }),
+  })
 };

@@ -4,6 +4,8 @@ import Checkbox from '@/components/ui/checkbox';
 import Flex from '@/components/ui/flex';
 import { TableCell, TableRow } from '@/components/ui/table';
 import Thumbnail from '@/components/ui/thumbnail';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import type { InventoryVariant, MarkListHandlers } from '@/types';
 
 import { calculateProfit } from '@/pages/utils';
@@ -33,7 +35,7 @@ const SingleRow = ({
           onChange={(value) => handleSingleCheckboxClick(value, item.id)}
         />
       </TableCell>
-      <TableCell style={{ minWidth: '208px', padding: '7px 12px' }}>
+      <TableCell css={styles.productCell}>
         <Flex gap={12} style={{ alignItems: 'center' }}>
           <Thumbnail src={item?.product?.image?.url} size="small" />
           <Flex direction="column" gap={4} style={{ color: '#878593' }}>
@@ -43,7 +45,7 @@ const SingleRow = ({
         </Flex>
       </TableCell>
       {selectedFields.includes('sku') && (
-        <TableCell style={{ padding: '0' }}>
+        <TableCell css={styles.inputCell}>
           <Input
             value={item?.sku ?? undefined}
             placeholder="--"
@@ -54,7 +56,7 @@ const SingleRow = ({
         </TableCell>
       )}
       {selectedFields.includes('price') && (
-        <TableCell style={{ padding: '0' }}>
+        <TableCell css={styles.inputCell}>
           <Input
             value={item?.price ?? undefined}
             placeholder="--"
@@ -65,7 +67,7 @@ const SingleRow = ({
         </TableCell>
       )}
       {selectedFields.includes('sale_price') && (
-        <TableCell style={{ padding: '0' }}>
+        <TableCell css={styles.inputCell}>
           <Input
             value={item?.sale_price ?? undefined}
             placeholder="--"
@@ -78,7 +80,7 @@ const SingleRow = ({
         </TableCell>
       )}
       {selectedFields.includes('cost_of_goods') && (
-        <TableCell style={{ padding: '0' }}>
+        <TableCell css={styles.inputCell}>
           <Input
             value={item?.cost_of_goods ?? undefined}
             placeholder="--"
@@ -91,7 +93,7 @@ const SingleRow = ({
         </TableCell>
       )}
       {selectedFields.includes('profit') && (
-        <TableCell disabled style={{ padding: '0', pointerEvents: 'none' }}>
+        <TableCell disabled css={styles.profitCell}>
           <Input
             value={calculateProfit('profit', item)}
             placeholder="--"
@@ -108,3 +110,17 @@ const SingleRow = ({
 SingleRow.displayName = 'SingleRow';
 
 export default SingleRow;
+
+const styles = {
+  productCell: scoped({
+    minWidth: '208px',
+    padding: `7px ${theme.spacing.lg}`,
+  }),
+  inputCell: scoped({
+    padding: theme.spacing.none,
+  }),
+  profitCell: scoped({
+    padding: theme.spacing.none,
+    pointerEvents: 'none',
+  }),
+};

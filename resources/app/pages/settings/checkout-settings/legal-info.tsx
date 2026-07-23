@@ -11,13 +11,14 @@ import ActionGroup from '@/components/ui/action-group';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
 const LegalInfo = () => {
   return (
     <>
-      <Card css={styles.largeCard}>
-        <CardHeader css={styles.sectionHeader}>
+      <Card css={cardStyles.largeCard}>
+        <CardHeader css={cardStyles.sectionHeader}>
           <CardTitle>{__('Legal Information', 'kirki-ecommerce')}</CardTitle>
           <CardDescription>
             {__(
@@ -26,8 +27,8 @@ const LegalInfo = () => {
             )}
           </CardDescription>
         </CardHeader>
-        <CardContent css={styles.largeContent}>
-          <Card css={[styles.formCard, styles.formCardBorder]}>
+        <CardContent css={cardStyles.largeContent}>
+          <Card css={[cardStyles.formCard, styles.formCardBorder]}>
             <CardContent>
               <ActionGroup
                 style={{ width: '100%', justifyContent: 'space-between' }}
@@ -47,7 +48,7 @@ const LegalInfo = () => {
               />
             </CardContent>
           </Card>
-          <Card css={[styles.formCard, styles.formCardBorder]}>
+          <Card css={[cardStyles.formCard, styles.formCardBorder]}>
             <CardContent>
               <ActionGroup
                 style={{ width: '100%', justifyContent: 'space-between' }}
@@ -78,15 +79,8 @@ LegalInfo.displayName = 'LegalInfo';
 export default LegalInfo;
 
 const styles = {
-  largeCard: scoped({ gap: theme.spacing['3xl'] }),
-  largeContent: scoped({ paddingInline: theme.spacing['3xl'] }),
-  sectionHeader: scoped({
-    gap: theme.spacing.base,
-    paddingInline: theme.spacing['3xl'],
-  }),
-  formCard: scoped({ rowGap: theme.spacing['2xl'] }),
   formCardBorder: scoped({
     border: `1px solid ${theme.colors.border.default}`,
     borderRadius: theme.radius.lg,
-  }),
+  })
 };

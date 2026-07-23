@@ -12,6 +12,7 @@ import { useAttributeQuery } from '@/services/attribute';
 import type { Attribute, AttributeValue, TaxonomyTableHeader } from '@/types';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import { __, sprintf } from '@/wpi18n';
 
 import VariationTable from '@/pages/settings/essential-settings/variation-library/variation-table/variation-table';
@@ -55,7 +56,7 @@ const ColorVariation = () => {
               <div>
                 <Button
                   variant="link"
-                  style={{ color: theme.colors.text.emphasis, padding: 0 }}
+                  css={styles.addColorButton}
                   onClick={() => setAddVariantPopup(true)}
                 >
                   {__('Add color', 'kirki-ecommerce')}
@@ -64,8 +65,8 @@ const ColorVariation = () => {
             }
           />
           {!colorList?.length ? (
-            <Card css={styles.largeCard} style={{ borderRadius: '8px' }}>
-              <CardContent css={[styles.largeContent, styles.emptyContent]}>
+            <Card css={[cardStyles.largeCard, styles.roundedCard]}>
+              <CardContent css={[cardStyles.largeContentPadded, styles.emptyContent]}>
                 <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
                   <ColorPaletteIcon />
                   <span style={{ color: '#878593' }}>
@@ -75,8 +76,8 @@ const ColorVariation = () => {
               </CardContent>
             </Card>
           ) : (
-            <Card css={styles.tableCard}>
-              <CardContent css={styles.tableContent}>
+            <Card css={cardStyles.tableCard}>
+              <CardContent css={cardStyles.tableContent}>
                 <VariationTable
                   results={colorList}
                   updateDataList={setColorList}
@@ -103,23 +104,14 @@ ColorVariation.displayName = 'ColorVariation';
 export default ColorVariation;
 
 const styles = {
-  largeCard: scoped({
-    gap: theme.spacing['3xl'],
+  addColorButton: scoped({
+    color: theme.colors.text.emphasis,
     padding: theme.spacing.none,
   }),
-  largeContent: scoped({
-    padding: theme.spacing['3xl'],
+  roundedCard: scoped({
+    borderRadius: theme.radius.lg,
   }),
   emptyContent: scoped({
-    padding: '36px 0',
-  }),
-  tableCard: scoped({
-    overflow: 'hidden',
-    border: '1px solid #e6e6e6',
-    gap: 0,
-    padding: theme.spacing.none,
-  }),
-  tableContent: scoped({
-    padding: theme.spacing.none,
+    padding: `${theme.spacing['7xl']} 0`,
   }),
 };

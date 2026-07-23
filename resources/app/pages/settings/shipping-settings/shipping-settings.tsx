@@ -31,6 +31,7 @@ import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings
 import type { FormErrors, SelectOption, SettingsSectionData } from '@/types';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import { __, sprintf } from '@/wpi18n';
 
 import {
@@ -283,8 +284,8 @@ const ShippingSettings = () => {
                 textIcon={<TruckIcon />}
                 text={__('Shipping', 'kirki-ecommerce')}
               />
-              <Card css={styles.largeCard}>
-                <CardContent css={styles.largeContent}>
+              <Card css={cardStyles.largeCard}>
+                <CardContent css={cardStyles.largeContentPadded}>
                   <HeaderActionsCard
                     header={__('Shipping Zones', 'kirki-ecommerce')}
                     subHeader={__(
@@ -296,8 +297,8 @@ const ShippingSettings = () => {
                   />
 
                   {!shippingZonesObj.length ? (
-                    <Card css={styles.innerDarkCard}>
-                      <CardContent css={[styles.innerDarkContent, styles.emptyState]}>
+                    <Card css={cardStyles.innerDarkCard}>
+                      <CardContent css={[cardStyles.innerDarkContent, styles.emptyState]}>
                         <Flex
                           direction="column"
                           gap={8}
@@ -402,21 +403,10 @@ ShippingSettings.displayName = 'ShippingSettings';
 export default ShippingSettings;
 
 const styles = {
-  largeCard: scoped({ gap: theme.spacing['3xl'],
-    padding: theme.spacing.none,
-  }),
-  largeContent: scoped({ padding: theme.spacing['3xl'] }),
-  innerDarkCard: scoped({
-    borderRadius: theme.radius.lg,
-    backgroundColor: theme.colors.background.surfaceSecondary,
-    border: 'none',
-    padding: theme.spacing.none,
-  }),
-  innerDarkContent: scoped({ padding: theme.spacing.lg }),
   emptyState: scoped({
     padding: `${theme.spacing['7xl']} ${theme.spacing.none}`,
   }),
   emptyStateText: scoped({
     color: theme.colors.text.subdued,
-  }),
+  })
 };

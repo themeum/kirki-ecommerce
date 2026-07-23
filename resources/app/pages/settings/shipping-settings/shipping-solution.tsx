@@ -6,16 +6,17 @@ import {
 import Text from '@/components/ui/text';
 import Grid from '@/components/ui/grid';
 import { ShippoIcon, EasyShipIcon } from '@/icons';
-import { __ } from '@/wpi18n';
-
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { __ } from '@/wpi18n';
+
+import { cardStyles } from '@/theme/card-styles';
 
 const ShippingSolution = () => {
   return (
     <>
-      <Card css={styles.largeCard} >
-        <CardContent css={styles.largeContent}>
+      <Card css={cardStyles.largeCard} >
+        <CardContent css={cardStyles.largeContentPadded}>
 
         <Text
         type="primary"
@@ -26,13 +27,13 @@ const ShippingSolution = () => {
         <Grid>
         <Button
         variant="outline"
-        style={{ width: '100%', padding: '20px 0' }}
+        css={styles.solutionButton}
         >
         <ShippoIcon />
         </Button>
         <Button
         variant="outline"
-        style={{ width: '100%', padding: '20px 0' }}
+        css={styles.solutionButton}
         >
         <EasyShipIcon />
         </Button>
@@ -43,37 +44,11 @@ const ShippingSolution = () => {
   );
 };
 
+export default ShippingSolution;
+
 const styles = {
-  formCard: scoped({ rowGap: theme.spacing['2xl'] }),
-  largeCard: scoped({ gap: theme.spacing['3xl'],
-    padding: theme.spacing.none,
-  }),
-  largeContent: scoped({ padding: theme.spacing['3xl'] }),
-  innerCard: scoped({ borderRadius: theme.radius.lg, boxShadow: 'none',
-    padding: theme.spacing.none,
-  }),
-  innerContent: scoped({ padding: theme.spacing.lg }),
-  innerDarkCard: scoped({
-    borderRadius: theme.radius.lg,
-    backgroundColor: theme.colors.background.surfaceSecondary,
-    border: 'none',
-    padding: theme.spacing.none,
-  }),
-  innerDarkContent: scoped({ padding: theme.spacing.lg }),
-  darkCard: scoped({ backgroundColor: theme.colors.background.surfaceSecondary,
-    padding: theme.spacing.none,
-  }),
-  lightCard: scoped({ borderRadius: theme.radius.md,
-    padding: theme.spacing.none,
-  }),
-  shadowCard: scoped({
-    boxShadow: '0px -1px 1px 0.5px #0000001a inset',
-    border: 'none',
-  }),
-  tartiaryCard: scoped({
-    backgroundColor: theme.colors.background.surfaceSecondary,
-    padding: theme.spacing.none,
+  solutionButton: scoped({
+    width: '100%',
+    padding: `${theme.spacing['3xl']} 0`,
   }),
 };
-
-export default ShippingSolution;

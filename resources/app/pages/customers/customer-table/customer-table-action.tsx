@@ -10,6 +10,8 @@ import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
 import Searchbox from '@/components/ui/searchbox';
 import { useListParams } from '@/hooks';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 
 const CustomerTableAction = () => {
   const { params, setParam } = useListParams({
@@ -31,7 +33,7 @@ const CustomerTableAction = () => {
   };
 
   return (
-    <Flex style={{ padding: '16px 12px' }}>
+    <Flex css={styles.wrapper}>
       <div style={{ width: '180px' }}>
         <Searchbox
           value={params.search || ''}
@@ -40,7 +42,7 @@ const CustomerTableAction = () => {
       </div>
       <ActionGroup>
         <Select disabled>
-          <SelectTrigger style={{ padding: '8px 16px' }}>
+          <SelectTrigger css={styles.selectTrigger}>
             <SelectValue placeholder="Date: This Month" />
           </SelectTrigger>
           <SelectContent />
@@ -65,3 +67,12 @@ const CustomerTableAction = () => {
 CustomerTableAction.displayName = 'CustomerTableAction';
 
 export default CustomerTableAction;
+
+const styles = {
+  wrapper: scoped({
+    padding: `${theme.spacing['2xl']} ${theme.spacing.lg}`,
+  }),
+  selectTrigger: scoped({
+    padding: `${theme.spacing.md} ${theme.spacing['2xl']}`,
+  }),
+};

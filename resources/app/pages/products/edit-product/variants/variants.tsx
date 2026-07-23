@@ -5,8 +5,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
 import AttributeList from '@/pages/products/edit-product/variants/attribute-list/attribute-list';
@@ -22,7 +21,7 @@ type VariantsProps = {
 
 const Variants = ({ onSave = () => {} }: VariantsProps) => {
   return (
-    <Card css={styles.formCard}>
+    <Card css={cardStyles.formCard}>
       <CardHeader>
         <CardTitle>{__('Product Variations', 'kirki-ecommerce')}</CardTitle>
         <CardDescription>
@@ -41,8 +40,3 @@ Variants.displayName = 'Variants';
 
 export default Variants;
 
-const styles = {
-  formCard: scoped({
-    rowGap: theme.spacing['2xl'],
-  }),
-};

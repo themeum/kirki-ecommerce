@@ -10,6 +10,7 @@ import { FileTextIcon } from '@/icons';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
+import { cardStyles } from '@/theme/card-styles';
 import { scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
@@ -21,10 +22,7 @@ const languageOptions = [
 
 const CustomerOverview = () => {
   return (
-    <Card
-      css={styles.formCard}
-      style={{ padding: '20px', borderRadius: '20px', gap: '20px' }}
-    >
+    <Card css={[cardStyles.formCard, styles.roundedCard]}>
       <CardHeader>
         <Text
           header={__('Basic Info', 'kirki-ecommerce')}
@@ -32,8 +30,8 @@ const CustomerOverview = () => {
           leftIcon={<FileTextIcon />}
         />
       </CardHeader>
-      <Card css={styles.innerCard}>
-        <CardContent css={styles.innerContent}>
+      <Card css={cardStyles.innerCard}>
+        <CardContent css={cardStyles.innerContent}>
           <Flex direction="column" gap={16}>
             <TextField
               name="first_name"
@@ -82,15 +80,10 @@ CustomerOverview.displayName = 'CustomerOverview';
 export default CustomerOverview;
 
 const styles = {
-  formCard: scoped({
-    rowGap: theme.spacing['2xl'],
-  }),
-  innerCard: scoped({
-    borderRadius: theme.radius.lg,
-    boxShadow: 'none',
-    padding: theme.spacing.none,
-  }),
-  innerContent: scoped({
-    padding: theme.spacing.lg,
+  roundedCard: scoped({
+    padding: theme.spacing['3xl'],
+    borderRadius: theme.radius.xl,
+    gap: theme.spacing['3xl'],
   }),
 };
+

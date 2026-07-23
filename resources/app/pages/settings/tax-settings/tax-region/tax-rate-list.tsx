@@ -13,6 +13,7 @@ import Text from '@/components/ui/text';
 import { PaymentIcon, LocationIcon, TrashIcon } from '@/icons';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import { __, sprintf } from '@/wpi18n';
 
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
@@ -69,8 +70,8 @@ export const TaxRateList = ({
   return (
     <div>
       {!applySingleTax && !taxRates.length ? (
-        <Card css={styles.innerDarkCard}>
-          <CardContent css={[styles.innerDarkContent, styles.emptyContent]}>
+        <Card css={cardStyles.innerDarkCard}>
+          <CardContent css={[cardStyles.innerDarkContent, styles.emptyContent]}>
             <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
               <PaymentIcon />
               <span style={{ color: '#878593' }}>
@@ -80,8 +81,8 @@ export const TaxRateList = ({
           </CardContent>
         </Card>
       ) : (
-        <Card css={styles.innerDarkCard}>
-          <CardContent css={styles.innerDarkContent}>
+        <Card css={cardStyles.innerDarkCard}>
+          <CardContent css={cardStyles.innerDarkContent}>
             <Text
               header={__('Tax rates', 'kirki-ecommerce')}
               css={styles.taxRatesHeader}
@@ -144,13 +145,6 @@ export const TaxRateList = ({
 TaxRateList.displayName = 'TaxRateList';
 
 const styles = {
-  innerDarkCard: scoped({
-    borderRadius: theme.radius.lg,
-    backgroundColor: theme.colors.background.surfaceSecondary,
-    border: 'none',
-    padding: theme.spacing.none,
-  }),
-  innerDarkContent: scoped({ padding: theme.spacing.lg }),
   emptyContent: scoped({ padding: '36px 0' }),
   taxCard: scoped({
     display: 'flex',
@@ -183,5 +177,5 @@ const styles = {
   }),
   taxRatesHeader: scoped({
     marginBottom: theme.spacing.md,
-  }),
+  })
 };

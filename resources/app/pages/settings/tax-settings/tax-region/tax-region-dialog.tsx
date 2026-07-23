@@ -25,6 +25,7 @@ import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
 import Flex from '@/components/ui/flex';
 import { theme } from '@/theme';
+import { cardStyles } from '@/theme/card-styles';
 import { scoped } from '@/theme/mixins';
 import {
   TaxRegionPopupFormSchema,
@@ -273,7 +274,7 @@ const TaxRegionPopup = (props: TaxRegionPopupProps) => {
               />
             </Flex>
 
-            <Card css={styles.tableCard}>
+            <Card css={cardStyles.lightCard}>
               <div
                 style={{
                   height: '350px',
@@ -376,10 +377,6 @@ TaxRegionPopup.displayName = 'TaxRegionPopup';
 export default TaxRegionPopup;
 
 const styles = {
-  tableCard: scoped({
-    borderRadius: theme.radius.md,
-    padding: theme.spacing.none,
-  }),
   checkboxItem: scoped({
     width: 'auto',
     padding: `${theme.spacing.md} ${theme.spacing.lg}`,

@@ -3,6 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import Container from '@/components/ui/container';
 import PageHeading from '@/components/ui/page-heading';
 import { theme } from '@/theme';
+import { cardStyles } from '@/theme/card-styles';
 import { scoped } from '@/theme/mixins';
 
 import OrderTable from '@/pages/orders/order-table/order-table';
@@ -29,13 +30,13 @@ const Orders = () => {
         }
       />
       <Container>
-        <Card css={styles.formCard} style={{ marginBottom: '8px' }}>
+        <Card css={[cardStyles.formCard, styles.tableInfoCard]}>
           <CardContent>
             <TableInfo />
           </CardContent>
         </Card>
-        <Card css={styles.tableCard}>
-          <CardContent css={styles.tableContent}>
+        <Card css={cardStyles.tableCard}>
+          <CardContent css={cardStyles.tableContent}>
             <OrderTableAction />
             <OrderTable />
           </CardContent>
@@ -48,16 +49,7 @@ const Orders = () => {
 export default Orders;
 
 const styles = {
-  formCard: scoped({
-    rowGap: theme.spacing['2xl'],
-  }),
-  tableCard: scoped({
-    overflow: 'hidden',
-    border: '1px solid #e6e6e6',
-    gap: 0,
-    padding: theme.spacing.none,
-  }),
-  tableContent: scoped({
-    padding: theme.spacing.none,
+  tableInfoCard: scoped({
+    marginBottom: theme.spacing.md,
   }),
 };

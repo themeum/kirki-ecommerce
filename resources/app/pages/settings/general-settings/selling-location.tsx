@@ -13,8 +13,7 @@ import {
 import Flex from '@/components/ui/flex';
 import type { GeneralSettingsFormValues } from '@/schemas/forms/general-settings-form';
 import { useCountriesQuery } from '@/services/country';
-import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
 const sellingLocationOptions = [
@@ -64,8 +63,8 @@ const SellingLocation = () => {
 
   return (
     <div>
-      <Card css={styles.largeCard}>
-        <CardHeader css={styles.sectionHeader}>
+      <Card css={cardStyles.largeCard}>
+        <CardHeader css={cardStyles.sectionHeader}>
           <CardTitle>{__('Selling Locations', 'kirki-ecommerce')}</CardTitle>
           <CardDescription>
             {__(
@@ -74,9 +73,9 @@ const SellingLocation = () => {
             )}
           </CardDescription>
         </CardHeader>
-        <CardContent css={styles.largeContent}>
-          <Card css={styles.innerCard}>
-            <CardContent css={styles.innerCardContent}>
+        <CardContent css={cardStyles.largeContent}>
+          <Card css={cardStyles.innerCard}>
+            <CardContent css={cardStyles.innerCardContent}>
               <Flex direction="column" gap={16}>
                 <SelectField
                   name="selling_location_type"
@@ -110,24 +109,3 @@ SellingLocation.displayName = 'SellingLocation';
 
 export default SellingLocation;
 
-const styles = {
-  largeCard: scoped({
-    gap: theme.spacing['3xl'],
-    padding: theme.spacing.none,
-  }),
-  largeContent: scoped({
-    paddingInline: theme.spacing['3xl'],
-  }),
-  sectionHeader: scoped({
-    gap: theme.spacing.base,
-    paddingInline: theme.spacing['3xl'],
-  }),
-  innerCard: scoped({
-    borderRadius: theme.radius.lg,
-    boxShadow: 'none',
-    padding: theme.spacing.none,
-  }),
-  innerCardContent: scoped({
-    padding: theme.spacing['2xl'],
-  }),
-};

@@ -11,6 +11,8 @@ import { PersonIcon, CartIcon, UserIcon } from '@/icons';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import type { EmailSettingsFormValues } from '@/schemas/forms/email-settings-form';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 import { mapEmailGroup } from '@/pages/settings/email-settings/utils';
@@ -54,7 +56,7 @@ const CustomerEmail = (props: CustomerEmailProps) => {
 
   return (
     <div>
-      <Card  style={{ borderRadius: '12px' }}>
+      <Card css={styles.roundedCard}>
         <CardContent>
 
         <Flex direction="column" gap={16}>
@@ -112,3 +114,9 @@ const CustomerEmail = (props: CustomerEmailProps) => {
 CustomerEmail.displayName = 'CustomerEmail';
 
 export default CustomerEmail;
+
+const styles = {
+  roundedCard: scoped({
+    borderRadius: theme.radius.xl,
+  }),
+};

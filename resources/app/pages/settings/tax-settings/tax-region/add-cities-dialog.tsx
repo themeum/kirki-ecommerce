@@ -21,6 +21,7 @@ import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import {
   AddCitiesPopupFormSchema,
   type AddCitiesPopupFormValues,
@@ -150,8 +151,8 @@ const AddCitiesPopup = (props: AddCitiesPopupProps) => {
               />
             </Flex>
 
-            <Card css={styles.tableCard}>
-              <CardContent css={styles.tableContent}>
+            <Card css={cardStyles.tableCardRounded}>
+              <CardContent css={cardStyles.tableContent}>
                 <div
                   style={{
                     height: '350px',
@@ -194,7 +195,7 @@ const AddCitiesPopup = (props: AddCitiesPopupProps) => {
                     );
                   })
                 ) : (
-                  <Card style={{ padding: '36px 0' }}>
+                  <Card css={styles.emptyCitiesCard}>
                     <CardContent>
                       <Flex
                         direction="column"
@@ -244,16 +245,6 @@ AddCitiesPopup.displayName = 'AddCitiesPopup';
 export default AddCitiesPopup;
 
 const styles = {
-  tableCard: scoped({
-    overflow: 'hidden',
-    border: '1px solid #e6e6e6',
-    gap: 0,
-    borderRadius: theme.radius.md,
-    padding: theme.spacing.none,
-  }),
-  tableContent: scoped({
-    padding: theme.spacing.none,
-  }),
   checkboxItemIndented: scoped({
     width: 'auto',
     padding: `${theme.spacing.md} ${theme.spacing['3xl']}`,
@@ -261,5 +252,8 @@ const styles = {
       background: theme.colors.background.surfaceSecondary,
       borderRadius: theme.radius.sm,
     },
+  }),
+  emptyCitiesCard: scoped({
+    padding: `${theme.spacing['7xl']} 0`,
   }),
 };

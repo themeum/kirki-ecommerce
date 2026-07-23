@@ -9,7 +9,7 @@ import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { useProductForm } from '@/contexts/product-form-context';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
 import AddOrEditInfo from '@/pages/products/edit-product/additional-info/add-or-edit-info';
@@ -87,7 +87,7 @@ const AdditionalInfo = () => {
                 {productData?.additional_info.map((item, index) => (
                   <Card
                     css={css(
-                      styles.innerCard,
+                      cardStyles.innerCard,
                       optionCardCss,
                       (productData?.additional_info ?? []).length > 1
                         ? optionCardBorderRadiusCss
@@ -153,10 +153,3 @@ AdditionalInfo.displayName = 'AdditionalInfo';
 
 export default AdditionalInfo;
 
-const styles = {
-  innerCard: scoped({
-    borderRadius: theme.radius.lg,
-    boxShadow: 'none',
-    padding: theme.spacing.none,
-  }),
-};

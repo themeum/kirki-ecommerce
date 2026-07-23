@@ -10,6 +10,8 @@ import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
 import Label from '@/components/ui/label';
 import Searchbox from '@/components/ui/searchbox';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 const ActionGroupPreview = () => {
@@ -18,7 +20,7 @@ const ActionGroupPreview = () => {
       <Label text="This is a random text" />
       <ActionGroup>
         <Select disabled>
-          <SelectTrigger style={{ padding: '8px 16px' }}>
+          <SelectTrigger css={styles.selectTrigger}>
             <SelectValue placeholder="Date: This Month" />
           </SelectTrigger>
           <SelectContent />
@@ -43,3 +45,9 @@ const ActionGroupPreview = () => {
 ActionGroupPreview.displayName = 'ActionGroupPreview';
 
 export default ActionGroupPreview;
+
+const styles = {
+  selectTrigger: scoped({
+    padding: `${theme.spacing.md} ${theme.spacing['2xl']}`,
+  }),
+};

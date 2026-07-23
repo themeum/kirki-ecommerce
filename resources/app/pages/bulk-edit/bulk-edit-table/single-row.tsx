@@ -23,6 +23,8 @@ import Checkbox from '@/components/ui/checkbox';
 import Flex from '@/components/ui/flex';
 import { TableCell, TableRow } from '@/components/ui/table';
 import { useAttributesQuery } from '@/services/attribute';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import type { MediaRef, ProductVariant, UnitPriceValue } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -281,7 +283,7 @@ const SingleRow = (props: SingleRowProps) => {
       style={{ cursor: isDragging ? 'crosshair' : 'default' }}
     >
       <TableCell
-        style={{ minWidth: '260px', paddingRight: '12px' }}
+        css={styles.stickyCell}
         data-sticky-cell="true"
       >
         <Flex gap={12} style={{ alignItems: 'center' }}>
@@ -722,3 +724,10 @@ const SingleRow = (props: SingleRowProps) => {
 SingleRow.displayName = 'SingleRow';
 
 export default SingleRow;
+
+const styles = {
+  stickyCell: scoped({
+    minWidth: '260px',
+    paddingRight: theme.spacing.lg,
+  }),
+};
