@@ -71,9 +71,9 @@ export default ShippingAddress;
 
 const styles = {
   roundedCard: scoped({
-    padding: theme.spacing['3xl'],
+    padding: theme.spacing[5],
     borderRadius: theme.radius.xl,
-    gap: theme.spacing['3xl'],
+    gap: theme.spacing[5],
   }),
 };
 

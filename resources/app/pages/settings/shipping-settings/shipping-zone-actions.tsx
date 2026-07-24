@@ -86,6 +86,6 @@ export default ShippingZoneActions;
 const styles = {
   menuButton: scoped({
     transform: 'rotate(90deg)',
-    padding: theme.spacing.md,
+    padding: theme.spacing[2],
   }),
 };

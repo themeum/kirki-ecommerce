@@ -205,7 +205,7 @@ AddStatePopup.displayName = 'AddStatePopup';
 const styles = {
   checkboxItemIndented: scoped({
     width: 'auto',
-    padding: `${theme.spacing.md} ${theme.spacing['3xl']}`,
+    padding: `${theme.spacing[2]} ${theme.spacing[5]}`,
     '&:hover': {
       background: theme.colors.background.surfaceSecondary,
       borderRadius: theme.radius.sm,

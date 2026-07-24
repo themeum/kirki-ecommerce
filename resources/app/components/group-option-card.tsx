@@ -70,7 +70,7 @@ const groupOptionCardRightTextActiveCss = css({
 });
 
 const groupOptionCardIconCss = scoped({
-  padding: theme.spacing.xxs,
+  padding: theme.spacing[1],
 });
 
 const groupOptionCardIconDisabledCss = scoped({

@@ -223,12 +223,12 @@ export default Categories;
 
 const styles = {
   card: scoped({
-    padding: theme.spacing.none,
-    rowGap: theme.spacing.none,
+    padding: theme.spacing[0],
+    rowGap: theme.spacing[0],
     overflow: 'hidden',
   }),
   header: scoped({
-    padding: theme.spacing['2xl'],
+    padding: theme.spacing[4],
   }),
   list: scoped({
     width: '100%',
@@ -251,15 +251,15 @@ const styles = {
   row: scoped({
     width: '100%',
     boxSizing: 'border-box',
-    padding: `${theme.spacing.md} ${theme.spacing['2xl']}`,
+    padding: `${theme.spacing[2]} ${theme.spacing[4]}`,
     ...itemCenter(),
   }),
   footer: scoped({
     width: '100%',
-    padding: `${theme.spacing.md} ${theme.spacing['2xl']} ${theme.spacing['2xl']}`,
+    padding: `${theme.spacing[2]} ${theme.spacing[4]} ${theme.spacing[4]}`,
     boxSizing: 'border-box',
   }),
   loading: scoped({
-    padding: `0 ${theme.spacing['2xl']} ${theme.spacing['2xl']}`,
+    padding: `0 ${theme.spacing[4]} ${theme.spacing[4]}`,
   }),
 };

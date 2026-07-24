@@ -43,8 +43,8 @@ type ExchangeRatePopupProps = {
 };
 
 const editCurrencyRatePopupLabelCss = css({
-  padding: theme.spacing.lg,
-  gap: theme.spacing.md,
+  padding: theme.spacing[3],
+  gap: theme.spacing[2],
   background: theme.colors.background.surfaceAlt,
   borderRadius: theme.radius.md,
   color: theme.colors.text.secondary,
@@ -178,7 +178,7 @@ const ExchangeRatePopup = ({
                         <div
                           style={{
                             width: 'auto',
-                            margin: theme.spacing.xxs,
+                            margin: theme.spacing[1],
                           }}
                         >
                           <TextField

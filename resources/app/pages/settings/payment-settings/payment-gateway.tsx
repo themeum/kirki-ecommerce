@@ -185,9 +185,9 @@ const PaymentGatewayComponent = (props: PaymentGatewayProps) => {
 PaymentGatewayComponent.displayName = 'PaymentGatewayComponent';
 
 const styles = {
-  emptyStateContent: scoped({ padding: '36px 0' }),
+  emptyStateContent: scoped({ padding: `${theme.spacing[9]} 0` }),
   gatewayItemContent: scoped({
-    padding: `${theme.spacing.lg} ${theme.spacing['2xl']}`,
+    padding: `${theme.spacing[3]} ${theme.spacing[4]}`,
   })
 };
 

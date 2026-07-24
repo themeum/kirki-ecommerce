@@ -50,6 +50,6 @@ export default Orders;
 
 const styles = {
   tableInfoCard: scoped({
-    marginBottom: theme.spacing.md,
+    marginBottom: theme.spacing[2],
   }),
 };

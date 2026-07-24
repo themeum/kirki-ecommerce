@@ -167,7 +167,7 @@ export const AvailableCurrencyList = () => {
           <Flex
             style={{
               justifyContent: 'space-between',
-              paddingBottom: theme.spacing.lg,
+              paddingBottom: theme.spacing[3],
             }}
           >
             <Text header={__('Available Currencies', 'kirki-ecommerce')} type="primary" />
@@ -185,7 +185,7 @@ export const AvailableCurrencyList = () => {
           <Flex
             gap={8}
             style={{
-              paddingTop: theme.spacing.md,
+              paddingTop: theme.spacing[2],
             }}
           >
             <InfoIcon />
@@ -220,6 +220,6 @@ export const AvailableCurrencyList = () => {
 
 const styles = {
   innerCardContent: scoped({
-    padding: theme.spacing['3xl'],
+    padding: theme.spacing[5],
   })
 };

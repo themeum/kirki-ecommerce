@@ -119,9 +119,9 @@ const styles = {
   header: scoped({
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: `${theme.spacing.md} ${theme.spacing.lg}`,
+    padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
   }),
   footer: scoped({
-    padding: `${theme.spacing.md} ${theme.spacing.lg}`,
+    padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
   }),
 };

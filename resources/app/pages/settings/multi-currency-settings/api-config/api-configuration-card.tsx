@@ -149,12 +149,12 @@ const styles = {
     borderRadius: theme.radius.sm,
     backgroundColor: theme.colors.background.surfaceSecondary,
     border: 'none',
-    padding: theme.spacing.none,
+    padding: theme.spacing[0],
   }),
   innerDarkContent: scoped({
     display: 'flex',
     flexDirection: 'column',
-    gap: theme.spacing.xs,
-    padding: theme.spacing.md,
+    gap: theme.spacing[1],
+    padding: theme.spacing[2],
   }),
 };

@@ -11,6 +11,8 @@ import { __ } from '@/wpi18n';
 import { scoped } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 
+import { theme } from '@/theme';
+
 type ShippingCareerProps = Record<string, unknown>;
 
 const ShippingCareer = (_props: ShippingCareerProps) => {
@@ -56,7 +58,7 @@ const ShippingCareer = (_props: ShippingCareerProps) => {
 ShippingCareer.displayName = 'ShippingCareer';
 
 const styles = {
-  emptyStateContent: scoped({ padding: '36px 0' })
+  emptyStateContent: scoped({ padding: `${theme.spacing[9]} 0` })
 };
 
 export default ShippingCareer;

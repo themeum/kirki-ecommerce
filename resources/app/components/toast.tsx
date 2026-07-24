@@ -159,7 +159,7 @@ const styles = {
     transform: 'translateX(-50%)',
     display: 'flex',
     flexDirection: 'column',
-    gap: '8px',
+    gap: theme.spacing[2],
     zIndex: 9999,
   }),
   element: scoped({
@@ -168,7 +168,7 @@ const styles = {
     height: '68px',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: '12px 16px',
+    padding: `${theme.spacing[3]} ${theme.spacing[4]}`,
     borderRadius: '16px 16px 4px 4px',
     boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
     animation: `${toastSlideIn} 0.2s ease-out`,
@@ -198,10 +198,10 @@ const styles = {
     animationFillMode: 'forwards',
   }),
   undoButton: scoped({
-    padding: theme.spacing.sm,
+    padding: theme.spacing[2],
   }),
   closeButton: scoped({
     pointerEvents: 'auto',
-    padding: theme.spacing.xxs,
+    padding: theme.spacing[1],
   }),
 };

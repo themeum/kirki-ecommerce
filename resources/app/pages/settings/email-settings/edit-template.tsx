@@ -304,12 +304,12 @@ const styles = {
     fontSize: '16px',
     fontWeight: 400,
     lineHeight: '28px',
-    padding: `0px ${theme.spacing['6xl']}`,
+    padding: `${theme.spacing[0]} ${theme.spacing[8]}`,
     height: '32px',
   }),
   container: scoped({
     width: '100%',
-    padding: `${theme.spacing.lg} 103px`,
+    padding: `${theme.spacing[3]} 103px`,
   }),
   roundedCard: scoped({
     borderRadius: theme.radius.lg,

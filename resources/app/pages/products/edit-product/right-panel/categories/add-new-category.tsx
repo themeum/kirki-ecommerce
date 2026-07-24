@@ -142,7 +142,7 @@ const styles = {
     width: '100%',
   }),
   formCard: scoped({
-    padding: theme.spacing['2xl'],
+    padding: theme.spacing[4],
     boxSizing: 'border-box',
   }),
   createButton: scoped({

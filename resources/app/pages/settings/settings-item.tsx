@@ -54,7 +54,7 @@ export const SettingsItem = (props: SettingsItemProps) => {
 
 const styles = {
   card: scoped({
-    padding: `${theme.spacing.md} ${theme.spacing.lg}`,
+    padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
     cursor: 'pointer',
     flexDirection: 'row',
     alignItems: 'center',
@@ -77,7 +77,7 @@ const styles = {
     transition: 'all 0.3s ease',
   }),
   iconWrap: scoped({
-    marginTop: theme.spacing.xs,
+    marginTop: theme.spacing[1],
   }),
   buttonWrap: scoped({
     opacity: 0,

@@ -168,10 +168,10 @@ export default InvoiceId;
 const styles = {
   previewCard: scoped({}),
   previewCardContent: scoped({
-    padding: `${theme.spacing.md} ${theme.spacing.lg}`,
+    padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
   }),
   previewInput: scoped({
-    padding: theme.spacing.md,
+    padding: theme.spacing[2],
     textAlign: 'center',
     color: theme.colors.text.special3,
   }),

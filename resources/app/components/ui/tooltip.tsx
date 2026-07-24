@@ -100,7 +100,7 @@ const styles = {
   }),
   content: scoped({
     zIndex: 1000,
-    padding: `${theme.spacing.sm} ${theme.spacing.lg}`,
+    padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
     border: `1px solid ${theme.colors.border.default}`,
     borderRadius: theme.radius.md,
     backgroundColor: theme.colors.background.fill,

@@ -145,7 +145,7 @@ export const TaxRateList = ({
 TaxRateList.displayName = 'TaxRateList';
 
 const styles = {
-  emptyContent: scoped({ padding: '36px 0' }),
+  emptyContent: scoped({ padding: `${theme.spacing[9]} 0` }),
   taxCard: scoped({
     display: 'flex',
     alignItems: 'center',
@@ -153,7 +153,7 @@ const styles = {
     borderRadius: theme.radius.md,
     maxHeight: '44px',
     height: '44px',
-    padding: theme.spacing.lg,
+    padding: theme.spacing[3],
   }),
   editGroup: css({
     display: 'none',
@@ -176,6 +176,6 @@ const styles = {
     alignItems: 'center',
   }),
   taxRatesHeader: scoped({
-    marginBottom: theme.spacing.md,
+    marginBottom: theme.spacing[2],
   })
 };

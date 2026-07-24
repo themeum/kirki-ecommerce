@@ -57,6 +57,6 @@ export default TableInfo;
 const styles = {
   svgClass: scoped(flexCenter()),
   selectTrigger: scoped({
-    padding: `${theme.spacing.md} ${theme.spacing['2xl']}`,
+    padding: `${theme.spacing[2]} ${theme.spacing[4]}`,
   }),
 };

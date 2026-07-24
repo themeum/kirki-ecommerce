@@ -55,6 +55,8 @@ import { BoxGenerator } from '@/pages/settings/shipping-settings/shipping-box/bo
 import ShippingBoxSelect from '@/pages/products/edit-product/shipping/shipping-box';
 import ShippingProfile from '@/pages/products/edit-product/shipping/shipping-profile';
 
+import { theme } from '@/theme';
+
 type ShippingProps = {
   errors: FormErrors;
   setErrors: Dispatch<SetStateAction<FormErrors>>;
@@ -240,8 +242,8 @@ const Shipping = ({ errors, setErrors, formSyncKey = 0 }: ShippingProps) => {
               style={{
                 position: 'relative',
                 overflow: 'visible',
-                marginTop: '16px',
-                paddingTop: '20px',
+                marginTop: theme.spacing[4],
+                paddingTop: theme.spacing[5],
               }}
             >
               <Flex
@@ -255,7 +257,7 @@ const Shipping = ({ errors, setErrors, formSyncKey = 0 }: ShippingProps) => {
                 <span
                   style={{
                     backgroundColor: '#ffffff',
-                    paddingLeft: '8px',
+                    paddingLeft: theme.spacing[2],
                   }}
                 >
                   <Text
@@ -267,7 +269,7 @@ const Shipping = ({ errors, setErrors, formSyncKey = 0 }: ShippingProps) => {
                   <span
                     style={{
                       backgroundColor: '#ffffff',
-                      paddingRight: '8px',
+                      paddingRight: theme.spacing[2],
                     }}
                   >
                     <Button
@@ -300,7 +302,7 @@ const Shipping = ({ errors, setErrors, formSyncKey = 0 }: ShippingProps) => {
                 css={cardStyles.darkCard}
                 style={{
                   borderRadius: '0px 0px 6px 6px',
-                  marginTop: '-8px',
+                  marginTop: `-${theme.spacing[2]}`,
                   height: '230px',
                 }}
               >
@@ -336,6 +338,6 @@ export default Shipping;
 
 const styles = {
   darkCardContent: scoped({
-    padding: '4px',
+    padding: theme.spacing[1],
   })
 };

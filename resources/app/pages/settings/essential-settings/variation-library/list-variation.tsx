@@ -106,13 +106,13 @@ export default ListVariation;
 const styles = {
   addValueButton: scoped({
     color: theme.colors.text.emphasis,
-    padding: theme.spacing.none,
+    padding: theme.spacing[0],
   }),
   roundedCard: scoped({
     borderRadius: theme.radius.lg,
   }),
   emptyContent: scoped({
-    padding: `${theme.spacing['7xl']} 0`,
+    padding: `${theme.spacing[9]} 0`,
   }),
 };
 

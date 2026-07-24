@@ -30,6 +30,8 @@ import { __ } from '@/wpi18n';
 
 import SingleGroup from '@/pages/products/edit-product/variants/variation-table/single-group';
 
+import { theme } from '@/theme';
+
 const VariationTable = () => {
   const { product: productData, updateVariants } = useProductForm();
   const attributes = productData?.attributes || [];
@@ -92,7 +94,7 @@ const VariationTable = () => {
   }
   return (
     <>
-      <Separator style={{ margin: 'auto -16px' }} />
+      <Separator style={{ margin: `auto -${theme.spacing[4]}` }} />
       <Flex>
         <Flex gap={12}>
           <Select

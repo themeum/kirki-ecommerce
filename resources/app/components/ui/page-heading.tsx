@@ -114,8 +114,8 @@ export default PageHeading;
 
 const styles = {
   wrapper: scoped({
-    marginBottom: theme.spacing['6xl'],
-    marginTop: theme.spacing['6xl'],
+    marginBottom: theme.spacing[8],
+    marginTop: theme.spacing[8],
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -123,25 +123,25 @@ const styles = {
   wrapperSticky: scoped({
     top: '32px',
     left: 0,
-    padding: `${theme.spacing['2xl']} ${theme.spacing.none}`,
-    marginTop: theme.spacing.none,
+    padding: `${theme.spacing[4]} ${theme.spacing[0]}`,
+    marginTop: theme.spacing[0],
     position: 'sticky',
     borderBottom: `1px solid ${theme.colors.border.default}`,
     backgroundColor: theme.colors.background.surfaceTertiary,
     zIndex: 100,
   }),
   wrapperNoMargin: scoped({
-    marginTop: theme.spacing.none,
-    marginBottom: theme.spacing.none,
+    marginTop: theme.spacing[0],
+    marginBottom: theme.spacing[0],
   }),
   heading: scoped({
     width: '100%',
     ...itemCenter(),
-    columnGap: theme.spacing.lg,
-    paddingLeft: theme.spacing.sm,
+    columnGap: theme.spacing[3],
+    paddingLeft: theme.spacing[2],
   }),
   headingHasBack: scoped({
-    paddingLeft: theme.spacing.none,
+    paddingLeft: theme.spacing[0],
   }),
   icon: scoped({
     ...flexCenter(),

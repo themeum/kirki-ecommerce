@@ -211,15 +211,15 @@ export default ConditionRow;
 
 const styles = {
   conditionGrid: scoped({
-    marginTop: theme.spacing.md,
+    marginTop: theme.spacing[2],
   }),
   conditionActions: css({
     opacity: 0,
     visibility: 'hidden',
     transition: 'opacity 0.2s ease',
     display: 'none',
-    gap: theme.spacing.md,
-    padding: theme.spacing.md,
+    gap: theme.spacing[2],
+    padding: theme.spacing[2],
   }),
   conditionActionsActive: css({
     opacity: 1,

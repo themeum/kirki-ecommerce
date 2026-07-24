@@ -125,7 +125,7 @@ const styles = {
       'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
     fontWeight: 500,
     cursor: 'pointer',
-    columnGap: theme.spacing.md,
+    columnGap: theme.spacing[2],
     textDecoration: 'none',
     boxSizing: 'border-box',
     whiteSpace: 'nowrap',
@@ -200,7 +200,7 @@ const styles = {
   sizes: {
     xs: scoped({
       height: '24px',
-      padding: '0 8px',
+      padding: `0 ${theme.spacing[2]}`,
       fontSize: '12px',
       lineHeight: '18px',
       borderRadius: theme.radius.md,
@@ -222,7 +222,7 @@ const styles = {
     }),
     default: scoped({
       height: '32px',
-      padding: '0 12px',
+      padding: `0 ${theme.spacing[3]}`,
       fontSize: '14px',
       lineHeight: '21px',
       borderRadius: theme.radius.md,
@@ -233,7 +233,7 @@ const styles = {
     }),
     lg: scoped({
       height: '36px',
-      padding: '0 16px',
+      padding: `0 ${theme.spacing[4]}`,
       fontSize: '14px',
       lineHeight: '21px',
       borderRadius: theme.radius.lg,
@@ -297,7 +297,7 @@ const styles = {
   }),
   content: scoped({
     ...flexCenter(),
-    columnGap: theme.spacing.md,
+    columnGap: theme.spacing[2],
     textDecoration: 'none',
     whiteSpace: 'nowrap',
     overflow: 'hidden',

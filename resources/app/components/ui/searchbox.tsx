@@ -150,10 +150,10 @@ const styles = {
     width: '100%',
   }),
   group: scoped({
-    minHeight: theme.spacing['6xl'],
-    height: theme.spacing['6xl'],
+    minHeight: theme.spacing[8],
+    height: theme.spacing[8],
     '& [data-slot="input-group-control"]': {
-      minHeight: theme.spacing['6xl'],
+      minHeight: theme.spacing[8],
     },
   }),
 };

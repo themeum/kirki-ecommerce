@@ -239,7 +239,7 @@ const CollectionDetails = () => {
                   </CardContent>
                 </Card>
                 <Separator
-                  style={{ margin: 'auto -16px', backgroundColor: '#EEEDF3' }}
+                  style={{ margin: `auto -${theme.spacing[4]}`, backgroundColor: '#EEEDF3' }}
                 />
                 <TextField
                   name="seo_title"
@@ -267,7 +267,7 @@ export default CollectionDetails;
 
 const styles = {
   productPlaceholderCard: scoped({
-    padding: theme.spacing['9xl'],
+    padding: theme.spacing[11],
   }),
 };
 

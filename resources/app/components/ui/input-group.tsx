@@ -322,7 +322,7 @@ const styles = {
   addon: scoped({
     ...itemCenter(),
     justifyContent: 'center',
-    gap: theme.spacing.md,
+    gap: theme.spacing[2],
     height: 'auto',
     color: theme.colors.text.secondary,
     cursor: 'text',
@@ -335,7 +335,7 @@ const styles = {
   addonAlign: {
     'inline-start': scoped({
       order: -1,
-      paddingLeft: theme.spacing.lg,
+      paddingLeft: theme.spacing[3],
       pointerEvents: 'none',
       '& > button': {
         pointerEvents: 'auto',
@@ -343,7 +343,7 @@ const styles = {
     }),
     'inline-end': scoped({
       order: 1,
-      paddingRight: theme.spacing.lg,
+      paddingRight: theme.spacing[3],
       '& > button': {
         pointerEvents: 'auto',
       },
@@ -352,13 +352,13 @@ const styles = {
       order: -1,
       width: '100%',
       justifyContent: 'flex-start',
-      padding: `${theme.spacing.lg} ${theme.spacing.lg} 0`,
+      padding: `${theme.spacing[3]} ${theme.spacing[3]} 0`,
     }),
     'block-end': scoped({
       order: 1,
       width: '100%',
       justifyContent: 'flex-start',
-      padding: `0 ${theme.spacing.lg} ${theme.spacing.lg}`,
+      padding: `0 ${theme.spacing[3]} ${theme.spacing[3]}`,
     }),
   },
   control: scoped({
@@ -393,12 +393,12 @@ const styles = {
   }),
   input: scoped({
     minHeight: '36px',
-    padding: `${theme.spacing.xs} ${theme.spacing.lg}`,
+    padding: `${theme.spacing[1]} ${theme.spacing[3]}`,
     '&[type="number"]': {
       MozAppearance: 'textfield',
       '&::-webkit-inner-spin-button, &::-webkit-outer-spin-button': {
         WebkitAppearance: 'none',
-        margin: theme.spacing.none,
+        margin: theme.spacing[0],
       },
     },
     '&[type="search"]': {
@@ -413,13 +413,13 @@ const styles = {
   }),
   textarea: scoped({
     minHeight: '36px',
-    padding: `${theme.spacing.xs} ${theme.spacing.lg}`,
+    padding: `${theme.spacing[1]} ${theme.spacing[3]}`,
     resize: 'none',
     height: 'auto',
   }),
   text: scoped({
     ...itemCenter(),
-    gap: theme.spacing.md,
+    gap: theme.spacing[2],
     color: theme.colors.text.secondary,
     fontSize: theme.typography.fontSize.sm,
     lineHeight: theme.typography.lineHeight.tight,
@@ -434,17 +434,17 @@ const styles = {
   buttonSizes: {
     xs: scoped({
       height: '24px',
-      gap: theme.spacing.xs,
+      gap: theme.spacing[1],
       borderRadius: theme.radius.md,
-      padding: `0 ${theme.spacing.md}`,
+      padding: `0 ${theme.spacing[2]}`,
       fontSize: theme.typography.fontSize.xs,
       lineHeight: theme.typography.lineHeight.tight,
     }),
     sm: scoped({
       height: '32px',
-      gap: theme.spacing.sm,
+      gap: theme.spacing[2],
       borderRadius: theme.radius.md,
-      padding: `0 ${theme.spacing.base}`,
+      padding: `0 ${theme.spacing[2]}`,
     }),
     'icon-xs': scoped({
       ...flexCenter(),

@@ -10,6 +10,8 @@ import { PlusIcon } from '@/icons';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
+import { theme } from '@/theme';
+
 const SellerTaxID = () => {
   return (
     <div>
@@ -20,7 +22,7 @@ const SellerTaxID = () => {
               <Text
                 type="primary"
                 header={__('Seller Tax ID', 'kirki-ecommerce')}
-                style={{ gap: '12px' }}
+                style={{ gap: theme.spacing[3] }}
               />
               <ActionGroup>
                 <Button variant="secondary" size="sm">

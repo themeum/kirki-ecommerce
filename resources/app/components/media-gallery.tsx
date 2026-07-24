@@ -350,7 +350,7 @@ const styles = {
   mediaGallery: scoped({
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fill, minmax(138px, 1fr))',
-    gap: theme.spacing.lg,
+    gap: theme.spacing[3],
   }),
   galleryItem: scoped({
     aspectRatio: '1 / 1',

@@ -68,7 +68,7 @@ export default Settings;
 
 const styles = {
   pageContent: scoped({
-    padding: `${theme.spacing['2xl']} ${theme.spacing.lg}`,
+    padding: `${theme.spacing[4]} ${theme.spacing[3]}`,
   }),
   settingsCardWrapper: scoped({
     alignItems: 'center',
@@ -76,7 +76,7 @@ const styles = {
       borderRadius: theme.radius.none,
       height: '56px',
       transition: 'all 0.3s ease',
-      padding: `${theme.spacing.lg} ${theme.spacing.md}`,
+      padding: `${theme.spacing[3]} ${theme.spacing[2]}`,
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',

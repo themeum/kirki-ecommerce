@@ -33,6 +33,8 @@ import { scoped } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
+import { theme } from '@/theme';
+
 type InventoryProps = {
   errors: FormErrors;
   setErrors: Dispatch<SetStateAction<FormErrors>>;
@@ -250,6 +252,6 @@ const styles = {
     width: '30%',
   }),
   innerDarkRowContent: scoped({
-    padding: '4px 8px 4px 12px',
+    padding: `${theme.spacing[1]} ${theme.spacing[2]} ${theme.spacing[1]} ${theme.spacing[3]}`,
   })
 };

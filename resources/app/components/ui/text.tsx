@@ -107,10 +107,10 @@ const styles = {
       fontWeight: 600,
       fontSize: '16px',
       lineHeight: '20px',
-      rowGap: theme.spacing.md,
+      rowGap: theme.spacing[2],
     }),
     secondary: scoped({
-      rowGap: theme.spacing.sm,
+      rowGap: theme.spacing[2],
       ...fontGeneralSettings(theme as Theme),
       fontWeight: 500,
     }),
@@ -132,10 +132,10 @@ const styles = {
   }),
   padding: {
     large: scoped({
-      padding: `${theme.spacing.md} ${theme.spacing.none}`,
+      padding: `${theme.spacing[2]} ${theme.spacing[0]}`,
     }),
     small: scoped({
-      padding: `${theme.spacing.xs} ${theme.spacing.none}`,
+      padding: `${theme.spacing[1]} ${theme.spacing[0]}`,
     }),
   },
 };

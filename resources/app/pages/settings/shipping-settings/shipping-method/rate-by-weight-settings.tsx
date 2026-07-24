@@ -188,7 +188,7 @@ export default RateByWeightSettings;
 
 const styles = {
   textarea: scoped({
-    padding: `${theme.spacing.md} ${theme.spacing.lg}`,
+    padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
     minHeight: '108px',
   }),
   rangesCard: scoped({
@@ -198,7 +198,7 @@ const styles = {
   rateRow: scoped({
     display: 'flex',
     alignItems: 'center',
-    gap: theme.spacing['2xl'],
+    gap: theme.spacing[4],
     '&:hover [data-hover-reveal]': {
       opacity: 1,
       visibility: 'visible',
@@ -206,7 +206,7 @@ const styles = {
     },
   }),
   deleteButton: scoped({
-    padding: theme.spacing.xs,
+    padding: theme.spacing[1],
     opacity: 0,
     display: 'none',
     visibility: 'hidden',

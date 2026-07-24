@@ -115,6 +115,6 @@ const styles = {
   fields: scoped({
     display: 'flex',
     flexDirection: 'column',
-    gap: theme.spacing['2xl'],
+    gap: theme.spacing[4],
   })
 };

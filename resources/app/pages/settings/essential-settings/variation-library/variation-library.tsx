@@ -135,7 +135,7 @@ const styles = {
     },
   }),
   emptyState: scoped({
-    padding: `${theme.spacing['7xl']} ${theme.spacing.none}`,
+    padding: `${theme.spacing[9]} ${theme.spacing[0]}`,
   }),
   emptyStateText: scoped({
     color: theme.colors.text.subdued,

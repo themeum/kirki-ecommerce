@@ -47,7 +47,7 @@ const styles = {
   row: scoped({
     width: '100%',
     boxSizing: 'border-box',
-    padding: `${theme.spacing.md} ${theme.spacing['2xl']}`,
+    padding: `${theme.spacing[2]} ${theme.spacing[4]}`,
     ...itemCenter(),
   }),
 };

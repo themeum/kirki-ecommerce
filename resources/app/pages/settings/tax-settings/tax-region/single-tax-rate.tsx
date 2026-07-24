@@ -77,7 +77,7 @@ const styles = {
     borderRadius: theme.radius.md,
     maxHeight: '44px',
     height: '44px',
-    padding: theme.spacing.lg,
+    padding: theme.spacing[3],
   }),
   editGroup: css({
     display: 'none',

@@ -64,7 +64,7 @@ const styles = {
   root: scoped({
     display: 'flex',
     flexDirection: 'column',
-    gap: theme.spacing.md,
+    gap: theme.spacing[2],
   }),
   item: scoped({
     ...flexCenter(),

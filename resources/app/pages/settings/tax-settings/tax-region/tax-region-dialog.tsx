@@ -379,13 +379,13 @@ export default TaxRegionPopup;
 const styles = {
   checkboxItem: scoped({
     width: 'auto',
-    padding: `${theme.spacing.md} ${theme.spacing.lg}`,
+    padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
     '&:hover': {
       background: theme.colors.background.surfaceSecondary,
       borderRadius: theme.radius.sm,
     },
   }),
   nestedStates: scoped({
-    padding: theme.spacing.lg,
+    padding: theme.spacing[3],
   }),
 };

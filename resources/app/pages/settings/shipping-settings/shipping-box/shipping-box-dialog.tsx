@@ -288,22 +288,22 @@ const styles = {
   dimensionsCard: scoped({
     position: 'relative',
     overflow: 'visible',
-    paddingTop: theme.spacing['3xl'],
+    paddingTop: theme.spacing[5],
   }),
   dimensionsLabel: scoped({
     top: '-12px',
     left: '240px',
     position: 'absolute',
-    padding: `${theme.spacing.none} ${theme.spacing.md}`,
+    padding: `${theme.spacing[0]} ${theme.spacing[2]}`,
     backgroundColor: theme.colors.text.light,
   }),
   previewCard: scoped({
     borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.md} ${theme.radius.md}`,
-    marginTop: '-8px',
-    padding: theme.spacing.xs,
+    marginTop: `-${theme.spacing[2]}`,
+    padding: theme.spacing[1],
     height: '230px',
   }),
   footerSeparator: scoped({
-    margin: theme.spacing.none,
+    margin: theme.spacing[0],
   })
 };

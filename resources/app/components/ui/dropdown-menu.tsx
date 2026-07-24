@@ -284,7 +284,7 @@ export {
 const styles = {
   content: scoped({
     minWidth: '128px',
-    padding: `${theme.spacing.xs} 0`,
+    padding: `${theme.spacing[1]} 0`,
     border: `1px solid ${theme.colors.border.default}`,
     borderRadius: theme.radius.md,
     backgroundColor: theme.colors.background.fill,
@@ -314,9 +314,9 @@ const styles = {
     position: 'relative',
     display: 'flex',
     alignItems: 'center',
-    columnGap: theme.spacing.md,
-    margin: `0 ${theme.spacing.xs}`,
-    padding: `${theme.spacing.sm} ${theme.spacing.md}`,
+    columnGap: theme.spacing[2],
+    margin: `0 ${theme.spacing[1]}`,
+    padding: `${theme.spacing[2]} ${theme.spacing[2]}`,
     height: '32px',
     boxSizing: 'border-box',
     borderRadius: theme.radius.sm,
@@ -340,14 +340,14 @@ const styles = {
     },
   }),
   itemInset: scoped({
-    paddingLeft: theme.spacing['6xl'],
+    paddingLeft: theme.spacing[8],
   }),
   checkboxOrRadioItem: scoped({
-    paddingLeft: `calc(${theme.spacing.md} + 16px + ${theme.spacing.md})`,
+    paddingLeft: `calc(${theme.spacing[2]} + ${theme.spacing[4]} + ${theme.spacing[2]})`,
   }),
   itemIndicator: scoped({
     position: 'absolute',
-    left: theme.spacing.md,
+    left: theme.spacing[2],
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -362,8 +362,8 @@ const styles = {
     color: theme.colors.icon.secondary,
   }),
   label: scoped({
-    padding: `${theme.spacing.sm} ${theme.spacing.md}`,
-    margin: `0 ${theme.spacing.xs}`,
+    padding: `${theme.spacing[2]} ${theme.spacing[2]}`,
+    margin: `0 ${theme.spacing[1]}`,
     fontWeight: 600,
     fontSize: '14px',
     lineHeight: '20px',
@@ -373,12 +373,12 @@ const styles = {
   separator: scoped({
     height: '1px',
     backgroundColor: theme.colors.border.default,
-    margin: `${theme.spacing.xs} 0`,
+    margin: `${theme.spacing[1]} 0`,
     border: 'none',
   }),
   shortcut: scoped({
     marginLeft: 'auto',
-    paddingLeft: theme.spacing['2xl'],
+    paddingLeft: theme.spacing[4],
     fontSize: '12px',
     lineHeight: '16px',
     letterSpacing: '0.1px',

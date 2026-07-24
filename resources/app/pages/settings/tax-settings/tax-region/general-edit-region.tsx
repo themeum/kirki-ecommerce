@@ -348,6 +348,6 @@ export default GeneralEditRegion;
 
 const styles = {
   citiesCard: scoped({
-    gap: theme.spacing['2xl'],
+    gap: theme.spacing[4],
   })
 };

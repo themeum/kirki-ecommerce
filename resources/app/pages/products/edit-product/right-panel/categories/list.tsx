@@ -63,6 +63,6 @@ export default List;
 
 const styles = {
   nested: scoped({
-    paddingLeft: theme.spacing['2xl'],
+    paddingLeft: theme.spacing[4],
   }),
 };

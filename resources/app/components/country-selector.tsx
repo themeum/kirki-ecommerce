@@ -59,6 +59,6 @@ const styles = {
     borderBottom: `1px solid ${theme.colors.border.muted}`,
   }),
   searchInput: scoped({
-    padding: theme.spacing.lg,
+    padding: theme.spacing[3],
   }),
 };

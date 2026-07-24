@@ -462,7 +462,7 @@ export default Price;
 
 const styles = {
   innerDarkRowContent: scoped({
-    padding: '4px 8px 4px 12px',
+    padding: `${theme.spacing[1]} ${theme.spacing[2]} ${theme.spacing[1]} ${theme.spacing[3]}`,
     height: '44px',
     boxSizing: 'border-box',
   }),

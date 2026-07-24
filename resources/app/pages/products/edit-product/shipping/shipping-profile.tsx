@@ -23,6 +23,8 @@ import { __ } from '@/wpi18n';
 
 import { CreateProfilePopup } from '@/pages/settings/shipping-settings/shipping-profile/create-profile-dialog';
 
+import { theme } from '@/theme';
+
 type ShippingProfileProps = {
   errors?: FormErrors;
   onChange?: (value: unknown, fieldName: string) => void;
@@ -142,7 +144,7 @@ export default ShippingProfile;
 
 const styles = {
   innerDarkRowContent: scoped({
-    padding: '4px 8px 4px 12px',
+    padding: `${theme.spacing[1]} ${theme.spacing[2]} ${theme.spacing[1]} ${theme.spacing[3]}`,
     height: '44px',
     boxSizing: 'border-box',
   })

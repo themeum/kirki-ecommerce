@@ -36,7 +36,7 @@ const CustomerGroups = () => {
             Create Group
           </Button>
         }
-        style={{ columnGap: '12px' }}
+        style={{ columnGap: theme.spacing[3] }}
         hasBack
         sticky
       />
@@ -86,10 +86,10 @@ export default CustomerGroups;
 
 const styles = {
   wrapper: scoped({
-    padding: `${theme.spacing['2xl']} ${theme.spacing.lg}`,
+    padding: `${theme.spacing[4]} ${theme.spacing[3]}`,
   }),
   selectTrigger: scoped({
-    padding: `${theme.spacing.md} ${theme.spacing['2xl']}`,
+    padding: `${theme.spacing[2]} ${theme.spacing[4]}`,
   }),
 };
 

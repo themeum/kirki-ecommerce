@@ -90,7 +90,7 @@ const styles = {
     fontWeight: 500,
     color: theme.colors.text.primary,
     ...itemCenter(),
-    gap: theme.spacing.xs,
+    gap: theme.spacing[1],
     cursor: 'default',
   }),
   error: scoped({

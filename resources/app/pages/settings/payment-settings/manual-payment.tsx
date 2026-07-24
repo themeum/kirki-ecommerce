@@ -192,10 +192,10 @@ ManualPayment.displayName = 'ManualPayment';
 
 const styles = {
   gatewayItemContent: scoped({
-    padding: `${theme.spacing.lg} ${theme.spacing['2xl']}`,
+    padding: `${theme.spacing[3]} ${theme.spacing[4]}`,
   }),
   emptyStateContent: scoped({
-    padding: `${theme.spacing['7xl']} ${theme.spacing.none}`,
+    padding: `${theme.spacing[9]} ${theme.spacing[0]}`,
   })
 };
 

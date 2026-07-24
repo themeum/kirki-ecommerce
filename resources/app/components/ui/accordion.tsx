@@ -226,7 +226,7 @@ const styles = {
     alignItems: 'center',
     width: '100%',
     boxSizing: 'border-box',
-    padding: `${theme.spacing['2xl']} ${theme.spacing.none}`,
+    padding: `${theme.spacing[4]} ${theme.spacing[0]}`,
     '&:hover [data-accordion-chevron], &:focus-within [data-accordion-chevron]':
       {
         visibility: 'visible',
@@ -281,7 +281,7 @@ const styles = {
   }),
   contentSpaced: scoped({
     '& [data-accordion-content-inner]': {
-      paddingBottom: theme.spacing['2xl'],
+      paddingBottom: theme.spacing[4],
     },
   }),
   contentInner: scoped({}),

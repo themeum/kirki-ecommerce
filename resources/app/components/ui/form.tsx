@@ -232,7 +232,7 @@ const styles = {
   item: scoped({
     display: 'flex',
     flexDirection: 'column',
-    gap: theme.spacing.md,
+    gap: theme.spacing[2],
     width: '100%',
   }),
   description: scoped({
@@ -252,7 +252,7 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'flex-start',
-    columnGap: theme.spacing.md,
+    columnGap: theme.spacing[2],
     width: 'max-content',
   }),
 };

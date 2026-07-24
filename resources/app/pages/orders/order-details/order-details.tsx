@@ -163,6 +163,6 @@ export default OrderDetails;
 
 const styles = {
   zeroPadding: scoped({
-    padding: theme.spacing.none,
+    padding: theme.spacing[0],
   })
 };

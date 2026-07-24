@@ -32,7 +32,7 @@ const TaxServices = () => {
                   'Connect your preferred sales tax service to Kirki store',
                   'kirki-ecommerce',
                 )}
-                style={{ gap: '12px' }}
+                style={{ gap: theme.spacing[3] }}
               />
             </Flex>
             <Text type="primary" />

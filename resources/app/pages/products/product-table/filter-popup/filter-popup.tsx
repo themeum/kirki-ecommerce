@@ -174,7 +174,7 @@ const FilterPopup = ({
             top: '-4px',
             position: 'sticky',
             backgroundColor: 'white',
-            padding: '12px 12px 8px 12px',
+            padding: `${theme.spacing[3]} ${theme.spacing[3]} ${theme.spacing[2]} ${theme.spacing[3]}`,
             zIndex: '100',
           }}
         >
@@ -195,7 +195,7 @@ const FilterPopup = ({
           direction="column"
           gap={16}
           style={{
-            padding: '8px 12px',
+            padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
             overflowY: 'auto',
             minHeight: '400px',
           }}
@@ -262,7 +262,7 @@ const FilterPopup = ({
 
         <Flex
           style={{
-            padding: '8px 12px 12px 12px',
+            padding: `${theme.spacing[2]} ${theme.spacing[3]} ${theme.spacing[3]} ${theme.spacing[3]}`,
             borderTop: '1px solid #E4E3E9',
             bottom: '-4px',
             position: 'sticky',

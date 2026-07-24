@@ -254,13 +254,13 @@ const styles = {
     pointerEvents: 'auto',
   }),
   shippingRulesCard: scoped({
-    padding: theme.spacing.lg,
+    padding: theme.spacing[3],
     minHeight: '118px',
     borderRadius: theme.radius.none,
     border: `1px solid ${theme.colors.border.default}`,
     display: 'flex',
     flexDirection: 'column',
-    gap: theme.spacing['2xl'],
+    gap: theme.spacing[4],
   }),
   shippingRulesCardSingle: scoped({
     borderRadius: theme.radius.lg,
@@ -278,6 +278,6 @@ const styles = {
     maxWidth: 'fit-content',
     borderRadius: theme.radius.sm,
     display: 'flex',
-    padding: `${theme.spacing.xs} ${theme.spacing.md}`,
+    padding: `${theme.spacing[1]} ${theme.spacing[2]}`,
   })
 };

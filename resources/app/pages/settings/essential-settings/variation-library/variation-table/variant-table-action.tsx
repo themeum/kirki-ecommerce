@@ -62,6 +62,6 @@ export default VariantTableAction;
 
 const styles = {
   wrapper: scoped({
-    padding: `${theme.spacing['2xl']} ${theme.spacing['3xl']}`,
+    padding: `${theme.spacing[4]} ${theme.spacing[5]}`,
   }),
 };

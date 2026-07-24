@@ -102,6 +102,6 @@ export default BulkActionHandler;
 const styles = {
   wrapper: scoped({
     backgroundColor: theme.colors.background.fill,
-    padding: `${theme.spacing['2xl']} ${theme.spacing.lg}`,
+    padding: `${theme.spacing[4]} ${theme.spacing[3]}`,
   }),
 };

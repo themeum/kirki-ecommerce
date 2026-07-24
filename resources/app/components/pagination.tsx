@@ -113,6 +113,6 @@ const styles = {
   wrapper: scoped({
     ...itemCenter(),
     justifyContent: 'space-between',
-    padding: `${theme.spacing.base} ${theme.spacing.none} ${theme.spacing.xl} ${theme.spacing.none}`,
+    padding: `${theme.spacing[2]} ${theme.spacing[0]} ${theme.spacing[3]} ${theme.spacing[0]}`,
   }),
 };

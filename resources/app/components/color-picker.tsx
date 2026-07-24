@@ -103,14 +103,14 @@ const styles = {
   wrapper: scoped({
     border: `1px solid ${theme.colors.border.alt}`,
     borderRadius: theme.radius.md,
-    padding: `${theme.spacing.xxs} ${theme.spacing.md}`,
+    padding: `${theme.spacing[1]} ${theme.spacing[2]}`,
     '&:focus-within': {
       boxShadow: `0px 0px 0px 1.5px ${theme.colors.border.ring}`,
     },
   }),
   inner: scoped({
     ...itemCenter(),
-    gap: theme.spacing.md,
+    gap: theme.spacing[2],
     width: '100%',
   }),
   swatch: scoped({
@@ -126,7 +126,7 @@ const styles = {
     border: 'none !important',
     outline: 'none !important',
     flex: '1 !important',
-    padding: `${theme.spacing.none} !important`,
+    padding: `${theme.spacing[0]} !important`,
     '&:focus, &:focus-visible, &:active': {
       border: 'none !important',
       outline: 'none !important',

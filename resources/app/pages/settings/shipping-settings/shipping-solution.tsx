@@ -49,6 +49,6 @@ export default ShippingSolution;
 const styles = {
   solutionButton: scoped({
     width: '100%',
-    padding: `${theme.spacing['3xl']} 0`,
+    padding: `${theme.spacing[5]} 0`,
   }),
 };

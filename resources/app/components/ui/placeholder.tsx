@@ -84,7 +84,7 @@ const styles = {
     border: '1px dashed #e4e4e7',
     ...flexCenter(),
     flexDirection: 'column',
-    gap: theme.spacing.lg,
+    gap: theme.spacing[3],
     fontWeight: 500,
     color: theme.colors.text.secondary,
   }),

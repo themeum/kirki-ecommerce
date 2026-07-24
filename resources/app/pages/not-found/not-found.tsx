@@ -87,7 +87,7 @@ const styles = {
     alignItems: 'center',
     minHeight: 'calc(100vh - 32px - 41px)',
     marginTop: 0,
-    padding: `${theme.spacing['4xl']} ${theme.spacing['6xl']}`,
+    padding: `${theme.spacing[6]} ${theme.spacing[8]}`,
     backgroundColor: theme.colors.background.surfaceTertiary,
     boxSizing: 'border-box',
     overflow: 'hidden',
@@ -114,7 +114,7 @@ const styles = {
       opacity: 0.5,
     },
     '@media (max-width: 768px)': {
-      padding: theme.spacing['4xl'],
+      padding: theme.spacing[6],
     },
   }),
   inner: scoped({
@@ -122,13 +122,13 @@ const styles = {
     zIndex: 1,
     display: 'flex',
     alignItems: 'center',
-    gap: theme.spacing['8xl'],
+    gap: theme.spacing[10],
     width: '100%',
     maxWidth: '960px',
     '@media (max-width: 768px)': {
       flexDirection: 'column',
       alignItems: 'stretch',
-      gap: theme.spacing['6xl'],
+      gap: theme.spacing[8],
     },
   }),
   copyCol: scoped({
@@ -136,7 +136,7 @@ const styles = {
     flex: '1 1 0',
     flexDirection: 'column',
     alignItems: 'flex-start',
-    gap: theme.spacing['4xl'],
+    gap: theme.spacing[6],
     minWidth: 0,
     '@media (max-width: 768px)': {
       alignItems: 'center',
@@ -186,10 +186,10 @@ const styles = {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'flex-start',
-    gap: theme.spacing.md,
+    gap: theme.spacing[2],
     width: '100%',
     maxWidth: '420px',
-    padding: `${theme.spacing.lg} ${theme.spacing['2xl']}`,
+    padding: `${theme.spacing[3]} ${theme.spacing[4]}`,
     backgroundColor: theme.colors.background.surfaceAlt,
     border: `1px solid ${theme.colors.border.tertiary}`,
     borderRadius: theme.radius.lg,
@@ -207,7 +207,7 @@ const styles = {
   pathCode: scoped({
     display: 'block',
     width: '100%',
-    padding: `${theme.spacing.sm} ${theme.spacing.lg}`,
+    padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
     fontFamily:
       'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
     fontSize: theme.typography.fontSize.sm,
@@ -223,7 +223,7 @@ const styles = {
     flexWrap: 'wrap',
     justifyContent: 'flex-start',
     width: '100%',
-    paddingTop: theme.spacing.xs,
+    paddingTop: theme.spacing[1],
     '@media (max-width: 768px)': {
       justifyContent: 'center',
     },

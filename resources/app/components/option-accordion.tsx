@@ -83,7 +83,7 @@ const styles = {
     width: '100%',
   }),
   trigger: scoped({
-    padding: `${theme.spacing.lg} ${theme.spacing['2xl']}`,
+    padding: `${theme.spacing[3]} ${theme.spacing[4]}`,
   }),
   contentCard: scoped({
     borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.lg} ${theme.radius.lg}`,

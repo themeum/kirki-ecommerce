@@ -114,13 +114,13 @@ export default SingleRow;
 const styles = {
   productCell: scoped({
     minWidth: '208px',
-    padding: `7px ${theme.spacing.lg}`,
+    padding: `7px ${theme.spacing[3]}`,
   }),
   inputCell: scoped({
-    padding: theme.spacing.none,
+    padding: theme.spacing[0],
   }),
   profitCell: scoped({
-    padding: theme.spacing.none,
+    padding: theme.spacing[0],
     pointerEvents: 'none',
   }),
 };

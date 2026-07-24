@@ -188,9 +188,9 @@ const styles = {
   inputWrapper: scoped({
     ...itemCenter(),
     justifyContent: 'flex-start',
-    gap: theme.spacing.md,
+    gap: theme.spacing[2],
     width: '100%',
-    padding: `${theme.spacing.md} ${theme.spacing.lg}`,
+    padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
     borderBottom: `1px solid ${theme.colors.border.default}`,
     boxSizing: 'border-box',
   }),
@@ -221,10 +221,10 @@ const styles = {
     maxHeight: '240px',
     overflowY: 'auto',
     overflowX: 'hidden',
-    padding: theme.spacing.xs,
+    padding: theme.spacing[1],
   }),
   empty: scoped({
-    padding: `${theme.spacing['2xl']} ${theme.spacing.md}`,
+    padding: `${theme.spacing[4]} ${theme.spacing[2]}`,
     textAlign: 'center',
     fontSize: '14px',
     lineHeight: '20px',
@@ -232,9 +232,9 @@ const styles = {
   }),
   group: scoped({
     overflow: 'hidden',
-    padding: `${theme.spacing.xs} 0`,
+    padding: `${theme.spacing[1]} 0`,
     '& [cmdk-group-heading]': {
-      padding: `${theme.spacing.xs} ${theme.spacing.md}`,
+      padding: `${theme.spacing[1]} ${theme.spacing[2]}`,
       fontSize: '12px',
       lineHeight: '18px',
       fontWeight: 500,
@@ -244,10 +244,10 @@ const styles = {
   item: scoped({
     ...itemCenter(),
     justifyContent: 'flex-start',
-    gap: theme.spacing.md,
+    gap: theme.spacing[2],
     width: '100%',
     minHeight: '32px',
-    padding: `${theme.spacing.xs} ${theme.spacing.md}`,
+    padding: `${theme.spacing[1]} ${theme.spacing[2]}`,
     borderRadius: theme.radius.md,
     boxSizing: 'border-box',
     cursor: 'pointer',
@@ -265,7 +265,7 @@ const styles = {
   }),
   separator: scoped({
     height: '1px',
-    margin: `${theme.spacing.xs} 0`,
+    margin: `${theme.spacing[1]} 0`,
     backgroundColor: theme.colors.border.default,
   }),
   shortcut: scoped({

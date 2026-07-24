@@ -203,7 +203,7 @@ const styles = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: theme.spacing.lg,
+    padding: theme.spacing[3],
   }),
   vatActions: css({
     opacity: 0,

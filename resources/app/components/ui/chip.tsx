@@ -72,10 +72,10 @@ const styles = {
   root: scoped({
     ...flexCenter(),
     backgroundColor: theme.colors.background.surfaceSecondary,
-    padding: `${theme.spacing.xs} ${theme.spacing.md}`,
+    padding: `${theme.spacing[1]} ${theme.spacing[2]}`,
     borderRadius: theme.radius.sm,
     width: 'max-content',
-    gap: theme.spacing.md,
+    gap: theme.spacing[2],
     fontSize: '12px',
     lineHeight: '18px',
   }),

@@ -185,7 +185,7 @@ const styles = {
       border: `1px solid ${theme.colors.border.tertiary}`,
     },
     '& th, & td': {
-      padding: theme.spacing.lg,
+      padding: theme.spacing[3],
     },
     '& tbody': {
       backgroundColor: theme.colors.background.fill,
@@ -204,12 +204,12 @@ const styles = {
     default: scoped({}),
     variation: scoped({
       '& th, & td': {
-        padding: `${theme.spacing.md} ${theme.spacing.lg}`,
+        padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
       },
     }),
     wide: scoped({
       '& th, & td': {
-        padding: `${theme.spacing['2xl']} ${theme.spacing.lg}`,
+        padding: `${theme.spacing[4]} ${theme.spacing[3]}`,
       },
     }),
   },
@@ -253,7 +253,7 @@ const styles = {
         border: `1px solid ${theme.colors.border.secondary}`,
         borderTopColor: 'transparent',
         borderLeftColor: 'transparent',
-        padding: theme.spacing.xs,
+        padding: theme.spacing[1],
         minWidth: '110px',
         overflow: 'visible',
         '&[data-sticky-cell="true"]': {
@@ -266,7 +266,7 @@ const styles = {
           backgroundColor: theme.colors.background.surfaceAlt,
         },
         '&:first-child': {
-          paddingLeft: theme.spacing.lg,
+          paddingLeft: theme.spacing[3],
         },
         '& [data-grabber="true"]': {
           position: 'absolute',
@@ -347,7 +347,7 @@ const styles = {
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     '& [data-action-group="true"]': {
-      gap: theme.spacing.md,
+      gap: theme.spacing[2],
       display: 'inline-flex',
       visibility: 'hidden',
     },
@@ -358,7 +358,7 @@ const styles = {
   headAlignments: {
     right: scoped({
       marginLeft: 'auto',
-      marginRight: theme.spacing.none,
+      marginRight: theme.spacing[0],
       textAlign: 'right',
     }),
     center: scoped({
@@ -370,11 +370,11 @@ const styles = {
   cellAlignments: {
     right: scoped({
       marginLeft: 'auto',
-      marginRight: theme.spacing.none,
+      marginRight: theme.spacing[0],
       textAlign: 'right',
       '& label': {
         marginLeft: 'auto',
-        marginRight: theme.spacing.none,
+        marginRight: theme.spacing[0],
         textAlign: 'right',
       },
     }),

@@ -72,7 +72,7 @@ const styles = {
     alignItems: 'center',
     backgroundColor: theme.colors.background.surfaceSecondary,
     borderRadius: theme.radius.md,
-    padding: theme.spacing.xs,
+    padding: theme.spacing[1],
     minHeight: '36px',
     boxSizing: 'border-box',
     ...fontGeneralSettings(theme as Theme),
@@ -83,7 +83,7 @@ const styles = {
     flex: 1,
     height: '100%',
     minHeight: '28px',
-    padding: `${theme.spacing.xs} ${theme.spacing.lg}`,
+    padding: `${theme.spacing[1]} ${theme.spacing[3]}`,
     border: 'none',
     borderRadius: theme.radius.sm,
     backgroundColor: 'transparent',
@@ -109,7 +109,7 @@ const styles = {
     },
   }),
   content: scoped({
-    marginTop: theme.spacing['2xl'],
+    marginTop: theme.spacing[4],
     ...fontGeneralSettings(theme as Theme),
     '&:focus, &:focus-visible': {
       outline: 'none',

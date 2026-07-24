@@ -58,6 +58,8 @@ import SEOSettings from '@/pages/products/edit-product/seo-settings/seo-settings
 import Shipping from '@/pages/products/edit-product/shipping/shipping';
 import Variants from '@/pages/products/edit-product/variants/variants';
 
+import { theme } from '@/theme';
+
 type MediaItem = Omit<MediaRef, 'id'> & {
   id?: string | number;
 };
@@ -333,7 +335,7 @@ const EditProductInner = () => {
                         'kirki-ecommerce',
                       )}
                     />
-                    <Separator marginTop="8px" />
+                    <Separator marginTop={theme.spacing[2]} />
                     <AdditionalInfo />
                   </CardContent>
                 </Card>

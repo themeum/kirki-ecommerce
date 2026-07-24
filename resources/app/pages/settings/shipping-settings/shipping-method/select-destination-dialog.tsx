@@ -300,7 +300,7 @@ SelectDestinationPopup.displayName = 'SelectDestinationPopup';
 const styles = {
   checkboxItem: scoped({
     width: 'auto',
-    padding: `${theme.spacing.md} ${theme.spacing.lg}`,
+    padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
     '&:hover': {
       background: theme.colors.background.surfaceSecondary,
       borderRadius: theme.radius.sm,

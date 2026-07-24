@@ -51,7 +51,7 @@ const styles = {
     backgroundColor: theme.colors.background.fill,
     border: `1px solid ${theme.colors.border.default}`,
     borderRadius: theme.radius.lg,
-    padding: `${theme.spacing.xs} ${theme.spacing.lg}`,
+    padding: `${theme.spacing[1]} ${theme.spacing[3]}`,
     boxSizing: 'border-box',
     ...fontGeneralSettings(theme as Theme),
     cursor: 'text',
@@ -85,7 +85,7 @@ const styles = {
       MozAppearance: 'textfield',
       '&::-webkit-inner-spin-button, &::-webkit-outer-spin-button': {
         WebkitAppearance: 'none',
-        margin: theme.spacing.none,
+        margin: theme.spacing[0],
       },
     },
     '&[type="search"]': {

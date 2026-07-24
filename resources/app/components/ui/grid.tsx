@@ -1,6 +1,7 @@
 import type { SerializedStyles } from '@emotion/react';
 import { forwardRef, type ComponentPropsWithoutRef, type CSSProperties } from 'react';
 
+import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
 
 type GridProps = Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'css'> & {
@@ -13,7 +14,7 @@ const Grid = forwardRef<HTMLDivElement, GridProps>((props, ref) => {
   const {
     css: cssProp,
     columns = 2,
-    gap = '12px',
+    gap = theme.spacing[3],
     style,
     children,
     ...rest

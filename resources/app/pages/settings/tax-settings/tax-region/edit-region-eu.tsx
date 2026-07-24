@@ -401,6 +401,6 @@ const styles = {
   vatProcessCard: scoped({
     display: 'flex',
     flexDirection: 'column',
-    gap: theme.spacing.md,
+    gap: theme.spacing[2],
   })
 };

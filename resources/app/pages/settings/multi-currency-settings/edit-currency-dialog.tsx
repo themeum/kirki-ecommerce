@@ -126,7 +126,7 @@ const EditCurrencyPopup = ({
                     />
                   </Flex>
                   <div
-                    style={{ width: 'auto', margin: theme.spacing.xxs }}
+                    style={{ width: 'auto', margin: theme.spacing[1] }}
                   >
                     <TextField
                       name="exchange_rate"
@@ -159,8 +159,8 @@ export default EditCurrencyPopup;
 
 const styles = {
   ratePopupLabel: css({
-    padding: theme.spacing.lg,
-    gap: theme.spacing.md,
+    padding: theme.spacing[3],
+    gap: theme.spacing[2],
     background: theme.colors.background.surfaceAlt,
     borderRadius: theme.radius.md,
     color: theme.colors.text.secondary,

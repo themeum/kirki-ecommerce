@@ -137,13 +137,13 @@ const styles = {
     transition: 'opacity 0.25s ease',
   }),
   overlayFullWidth: scoped({
-    padding: theme.spacing['3xl'],
+    padding: theme.spacing[5],
     '&:hover': {
       opacity: 1,
     },
   }),
   actions: scoped({
-    paddingBottom: theme.spacing.xs,
+    paddingBottom: theme.spacing[1],
     alignItems: 'center',
     justifyContent: 'center',
   }),
@@ -162,7 +162,7 @@ const styles = {
       height: '16px',
     }),
     fullWidth: scoped({
-      padding: theme.spacing['3xl'],
+      padding: theme.spacing[5],
       width: '100%',
       height: 'auto',
       border: '1px solid #e4e4e7',

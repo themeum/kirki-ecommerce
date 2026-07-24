@@ -178,7 +178,7 @@ const MultiCurrencySettings = () => {
                 'kirki-ecommerce',
                 )}
                 type="primary"
-                style={{ gap: theme.spacing.base }}
+                style={{ gap: theme.spacing[2] }}
                 />
                 <AvailableCurrencyList />
                 <ApiConfig />
@@ -194,7 +194,7 @@ const MultiCurrencySettings = () => {
                 'kirki-ecommerce',
                 )}
                 type="primary"
-                style={{ gap: '12px' }}
+                style={{ gap: theme.spacing[3] }}
                 />
                 <CurrencyFormatSettings />
                 </CardContent>

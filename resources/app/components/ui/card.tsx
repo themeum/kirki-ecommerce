@@ -88,9 +88,9 @@ const styles = {
   card: scoped({
     display: 'flex',
     flexDirection: 'column',
-    gap: theme.spacing['2xl'],
+    gap: theme.spacing[4],
     width: '100%',
-    paddingBlock: theme.spacing['2xl'],
+    paddingBlock: theme.spacing[4],
     borderRadius: theme.radius.xl,
     border: `1px solid ${theme.colors.border.secondary}`,
     backgroundColor: theme.colors.background.fill,
@@ -101,8 +101,8 @@ const styles = {
   header: scoped({
     display: 'flex',
     flexDirection: 'column',
-    gap: theme.spacing.sm,
-    paddingInline: theme.spacing['2xl'],
+    gap: theme.spacing[2],
+    paddingInline: theme.spacing[4],
   }),
   title: scoped({
     margin: 0,
@@ -119,12 +119,12 @@ const styles = {
     color: theme.colors.text.secondary,
   }),
   content: scoped({
-    paddingInline: theme.spacing['2xl'],
+    paddingInline: theme.spacing[4],
   }),
   footer: scoped({
     display: 'flex',
     alignItems: 'center',
-    gap: theme.spacing.md,
-    paddingInline: theme.spacing['2xl'],
+    gap: theme.spacing[2],
+    paddingInline: theme.spacing[4],
   }),
 };

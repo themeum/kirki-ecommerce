@@ -239,8 +239,8 @@ const Suggestions = (props: SuggestionsProps) => {
                 </div>
                 {filteredSuggestions.length > 0 && (
                   <Separator
-                    marginTop={theme.spacing.sm}
-                    marginBottom={theme.spacing.sm}
+                    marginTop={theme.spacing[2]}
+                    marginBottom={theme.spacing[2]}
                     css={styles.separator}
                   />
                 )}
@@ -290,7 +290,7 @@ const styles = {
     width: '100%',
     display: 'flex',
     flexDirection: 'column',
-    gap: theme.spacing.md,
+    gap: theme.spacing[2],
   }),
   field: scoped({
     width: '100%',
@@ -332,7 +332,7 @@ const styles = {
     width: 'var(--radix-popover-trigger-width)',
     minWidth: 'var(--radix-popover-trigger-width)',
     maxWidth: 'var(--radix-popover-trigger-width)',
-    padding: theme.spacing.xs,
+    padding: theme.spacing[1],
     maxHeight: '240px',
     overflowY: 'auto',
     rowGap: 0,
@@ -352,15 +352,15 @@ const styles = {
     },
   }),
   separator: scoped({
-    width: `calc(100% + ${theme.spacing.xs} + ${theme.spacing.xs})`,
-    marginLeft: `-${theme.spacing.xs}`,
-    marginRight: `-${theme.spacing.xs}`,
+    width: `calc(100% + ${theme.spacing[1]} + ${theme.spacing[1]})`,
+    marginLeft: `-${theme.spacing[1]}`,
+    marginRight: `-${theme.spacing[1]}`,
   }),
   item: scoped({
-    padding: `${theme.spacing.sm} ${theme.spacing.md}`,
+    padding: `${theme.spacing[2]} ${theme.spacing[2]}`,
     ...itemCenter(),
     justifyContent: 'flex-start',
-    columnGap: theme.spacing.md,
+    columnGap: theme.spacing[2],
     borderRadius: theme.radius.sm,
     cursor: 'pointer',
     '&:hover': {
@@ -381,17 +381,17 @@ const styles = {
   }),
   itemText: scoped({
     ...itemCenter(),
-    columnGap: theme.spacing.md,
+    columnGap: theme.spacing[2],
     maxWidth: '85%',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
   }),
   chips: scoped({
     minHeight: '52.2px',
-    padding: theme.spacing.lg,
+    padding: theme.spacing[3],
     ...itemCenter(),
     justifyContent: 'flex-start',
-    gap: theme.spacing.md,
+    gap: theme.spacing[2],
     flexWrap: 'wrap',
   }),
   swatch: scoped({

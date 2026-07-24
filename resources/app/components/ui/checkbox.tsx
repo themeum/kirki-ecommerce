@@ -112,7 +112,7 @@ const styles = {
   wrapper: scoped({
     display: 'inline-flex',
     alignItems: 'center',
-    columnGap: theme.spacing.md,
+    columnGap: theme.spacing[2],
     cursor: 'pointer',
   }),
   checkbox: scoped({

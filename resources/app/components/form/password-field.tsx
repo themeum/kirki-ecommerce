@@ -103,7 +103,7 @@ const styles = {
     ...flexCenter(),
     position: 'absolute',
     top: '50%',
-    right: theme.spacing.md,
+    right: theme.spacing[2],
     transform: 'translateY(-50%)',
     width: '28px',
     height: '28px',

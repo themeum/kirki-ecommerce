@@ -152,7 +152,7 @@ const AddCurrencyPopup = () => {
                       <span
                         style={{
                           position: 'absolute',
-                          left: theme.spacing.lg,
+                          left: theme.spacing[3],
                           top: '50%',
                           transform: 'translateY(-50%)',
                           pointerEvents: 'none',
@@ -268,9 +268,9 @@ export default AddCurrencyPopup;
 
 const styles = {
   searchInput: scoped({
-    paddingLeft: theme.spacing['6xl'],
+    paddingLeft: theme.spacing[8],
   }),
   symbolText: scoped({
-    paddingRight: theme.spacing.lg,
+    paddingRight: theme.spacing[3],
   }),
 };

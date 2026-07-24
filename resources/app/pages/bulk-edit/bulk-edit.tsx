@@ -15,6 +15,8 @@ import { __ } from '@/wpi18n';
 import BulkEditTable from '@/pages/bulk-edit/bulk-edit-table/bulk-edit-table';
 import { allTableHeaders } from '@/pages/bulk-edit/utils';
 
+import { theme } from '@/theme';
+
 const BulkEditPage = () => {
   const [searchParams] = useSearchParams();
   const ids = searchParams.get('ids')?.split(',') ?? [];
@@ -48,10 +50,10 @@ const BulkEditPage = () => {
       <PageHeading
         text={__('Bulk Edit', 'kirki-ecommerce')}
         style={{
-          padding: '16px 12px',
+          padding: `${theme.spacing[4]} ${theme.spacing[3]}`,
           backgroundColor: '#ffffff',
           borderBottom: '1px solid #f3f3f7',
-          columnGap: '8px',
+          columnGap: theme.spacing[2],
         }}
         size="fullWidth"
         hasBack

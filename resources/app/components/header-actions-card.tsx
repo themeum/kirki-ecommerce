@@ -34,7 +34,7 @@ const HeaderActionsCard = (props: HeaderActionsCardProps) => {
           <Text
             type="primary"
             header={header}
-            style={{ gap: theme.spacing.lg }}
+            style={{ gap: theme.spacing[3] }}
           />
           {!hideButton && (
             <ActionGroup>

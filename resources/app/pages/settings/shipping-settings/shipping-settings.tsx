@@ -334,7 +334,7 @@ const ShippingSettings = () => {
                       >
                         <Flex
                           gap={8}
-                          style={{ flexWrap: 'wrap', rowGap: '8px' }}
+                          style={{ flexWrap: 'wrap', rowGap: theme.spacing[2] }}
                         >
                           {(
                             getSelectedRegionTags(
@@ -404,7 +404,7 @@ export default ShippingSettings;
 
 const styles = {
   emptyState: scoped({
-    padding: `${theme.spacing['7xl']} ${theme.spacing.none}`,
+    padding: `${theme.spacing[9]} ${theme.spacing[0]}`,
   }),
   emptyStateText: scoped({
     color: theme.colors.text.subdued,

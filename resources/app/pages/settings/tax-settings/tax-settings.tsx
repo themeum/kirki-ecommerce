@@ -287,9 +287,9 @@ export default TaxSettings;
 
 const styles = {
   separator: scoped({
-    marginBottom: theme.spacing.lg,
+    marginBottom: theme.spacing[3],
   }),
   taxCollectionHeader: scoped({
-    gap: theme.spacing.base,
+    gap: theme.spacing[2],
   })
 };

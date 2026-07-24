@@ -107,7 +107,7 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'flex-start',
-    columnGap: theme.spacing['2xl'],
+    columnGap: theme.spacing[4],
     width: '100%',
     '.mce-tinymce': {
       border: `0.63px solid ${theme.colors.border.default}`,
@@ -128,7 +128,7 @@ const styles = {
     flexDirection: 'column',
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
-    rowGap: theme.spacing.md,
+    rowGap: theme.spacing[2],
     position: 'relative',
   }),
 };

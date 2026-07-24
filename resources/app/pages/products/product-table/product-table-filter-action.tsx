@@ -38,7 +38,7 @@ const filterActionBarCss = css({
   flexWrap: 'wrap',
   borderTop: `1px solid ${theme.colors.border.tertiary}`,
   backgroundColor: theme.colors.background.surface,
-  padding: theme.spacing.lg,
+  padding: theme.spacing[3],
 });
 
 const ProductTableFilterAction = () => {

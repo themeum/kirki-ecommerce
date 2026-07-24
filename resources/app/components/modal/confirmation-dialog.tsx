@@ -131,14 +131,14 @@ const styles = {
   header: scoped({
     alignItems: 'center',
     textAlign: 'center',
-    paddingTop: theme.spacing['4xl'],
+    paddingTop: theme.spacing[6],
   }),
   icon: scoped({
     ...flexCenter(),
     height: '40px',
     width: '40px',
     borderRadius: '50%',
-    marginBottom: theme.spacing.md,
+    marginBottom: theme.spacing[2],
   }),
   title: scoped({
     fontSize: '20px',

@@ -48,6 +48,6 @@ export default ActionGroupPreview;
 
 const styles = {
   selectTrigger: scoped({
-    padding: `${theme.spacing.md} ${theme.spacing['2xl']}`,
+    padding: `${theme.spacing[2]} ${theme.spacing[4]}`,
   }),
 };

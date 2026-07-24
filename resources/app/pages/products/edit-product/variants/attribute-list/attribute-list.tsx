@@ -32,6 +32,8 @@ import { __ } from '@/wpi18n';
 
 import AddOrEditAttribute from '@/pages/products/edit-product/variants/attribute-list/add-or-edit-attribute';
 
+import { theme } from '@/theme';
+
 type SaveResult = {
   success?: boolean;
 };
@@ -104,7 +106,7 @@ const SortableCard = ({
                 style={{
                   maxWidth: '480px',
                   flexWrap: 'wrap',
-                  rowGap: '12px',
+                  rowGap: theme.spacing[3],
                 }}
               >
                 {(item?.values || []).map((variant, index) => (
@@ -236,7 +238,7 @@ export default AttributeList;
 
 const styles = {
   innerContent: scoped({
-    padding: '12px 16px',
+    padding: `${theme.spacing[3]} ${theme.spacing[4]}`,
   }),
   svgClass: scoped(flexCenter()),
   dragHandler: scoped({

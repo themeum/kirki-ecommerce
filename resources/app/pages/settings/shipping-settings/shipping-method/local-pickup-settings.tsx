@@ -132,7 +132,7 @@ export default LocalPickupSettings;
 
 const styles = {
   textarea: scoped({
-    padding: `${theme.spacing.md} ${theme.spacing.lg}`,
+    padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
     minHeight: '108px',
   }),
 };

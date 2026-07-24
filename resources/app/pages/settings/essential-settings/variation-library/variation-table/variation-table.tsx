@@ -33,6 +33,8 @@ import { getSearchedValue, setUnsavedDataStatus } from '@/pages/settings/utils';
 import SingleRow from '@/pages/settings/essential-settings/variation-library/variation-table/single-row';
 import VariantTableAction from '@/pages/settings/essential-settings/variation-library/variation-table/variant-table-action';
 
+import { theme } from '@/theme';
+
 type AttributeWithMeta = Attribute & { updated_at?: string };
 
 type SettingsOutletContext = {
@@ -174,7 +176,7 @@ VariationTable.displayName = 'VariationTable';
 
 const styles = {
   emptyStateContent: scoped({
-    padding: '36px 0',
+    padding: `${theme.spacing[9]} 0`,
     borderRadius: '0px',
   })
 };

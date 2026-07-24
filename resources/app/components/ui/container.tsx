@@ -37,7 +37,7 @@ export default Container;
 const styles = {
   root: scoped({
     maxWidth: '1024px',
-    margin: `${theme.spacing.none} auto`,
+    margin: `${theme.spacing[0]} auto`,
   }),
   sizes: {
     sm: scoped({

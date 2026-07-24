@@ -52,7 +52,7 @@ export default Alert;
 const styles = {
   root: scoped({
     width: '100%',
-    padding: `${theme.spacing.lg} ${theme.spacing.lg} ${theme.spacing.lg} ${theme.spacing['3xl']}`,
+    padding: `${theme.spacing[3]} ${theme.spacing[3]} ${theme.spacing[3]} ${theme.spacing[5]}`,
     borderRadius: `${theme.radius.sm} ${theme.radius.xl} ${theme.radius.xl} ${theme.radius.sm}`,
     backgroundColor: theme.colors.background.fillSecondary,
     position: 'relative',

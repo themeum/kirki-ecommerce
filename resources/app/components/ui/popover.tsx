@@ -52,7 +52,7 @@ const styles = {
     width: 'max-content',
     minWidth: '224px',
     maxWidth: '320px',
-    padding: theme.spacing.lg,
+    padding: theme.spacing[3],
     border: `1px solid ${theme.colors.border.default}`,
     borderRadius: theme.radius.md,
     backgroundColor: theme.colors.background.fill,
@@ -64,7 +64,7 @@ const styles = {
     lineHeight: '20px',
     display: 'flex',
     flexDirection: 'column',
-    rowGap: theme.spacing.xs,
+    rowGap: theme.spacing[1],
     ...getOverlayMotionStyles(
       'var(--radix-popover-content-transform-origin)',
     ),
