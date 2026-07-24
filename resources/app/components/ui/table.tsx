@@ -173,7 +173,7 @@ const styles = {
     borderCollapse: 'collapse',
     borderSpacing: 0,
     userSelect: 'none',
-    ...theme.typography.small(),
+    ...theme.typography.tiny(),
     color: theme.colors.text.primary,
     boxShadow: theme.shadow.sm,
     '& thead': {

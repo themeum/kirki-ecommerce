@@ -319,13 +319,19 @@ const theme = {
     }),
     small: createTypographyStyle({
       fontSize: '14px',
-      lineHeight: '21px',
+      lineHeight: '20px',
+      letterSpacing: '0',
+      defaultWeight: 'normal',
+    }),
+    tiny: createTypographyStyle({
+      fontSize: '12px',
+      lineHeight: '18px',
       letterSpacing: '0',
       defaultWeight: 'normal',
     }),
     large: createTypographyStyle({
       fontSize: '18px',
-      lineHeight: '27px',
+      lineHeight: '28px',
       letterSpacing: '0',
       defaultWeight: 'semibold',
     }),
