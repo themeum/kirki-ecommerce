@@ -2,6 +2,7 @@ x-wordpress-volumes: &wordpress-volumes
   - wordpress_data:/var/www/html
   - .:/var/www/html/wp-content/plugins/kirki-ecommerce:cached
   - ./docker/wp-config.php:/var/www/html/wp-config.php:ro
+  - ./docker/php/php.ini:/usr/local/etc/php/conf.d/zz-php.ini:ro
 
 services:
   nginx:
@@ -109,6 +110,7 @@ services:
       - wordpress_data:/var/www/html
       - .:/var/www/html/wp-content/plugins/kirki-ecommerce:cached
       - ./docker/wp-config.php:/var/www/html/wp-config.php:ro
+      - ./docker/php/php.ini:/usr/local/etc/php/conf.d/zz-php.ini:ro
       - ./docker/scripts/install-wordpress.sh:/usr/local/bin/install-wordpress.sh:ro
     environment:
       DB_NAME: ${DB_NAME:-kirki_ecommerce}
