@@ -107,7 +107,7 @@ const styles = {
     height: 'max-content',
     width: 'max-content',
     ...fontGeneralSettings(theme as Theme),
-    boxShadow: '0px 4px 6px -1px #0000001a',
+    boxShadow: theme.shadow.md,
   }),
   dark: scoped({
     backgroundColor: theme.colors.background.inverse,

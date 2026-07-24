@@ -288,7 +288,7 @@ const styles = {
     border: `1px solid ${theme.colors.border.default}`,
     borderRadius: theme.radius.md,
     backgroundColor: theme.colors.background.fill,
-    boxShadow: '0px 4px 6px -1px #0000001a',
+    boxShadow: theme.shadow.md,
     maxHeight: '424px',
     overflowX: 'hidden',
     overflowY: 'auto',

@@ -98,7 +98,7 @@ const styles = {
     '&[data-state="active"]': {
       backgroundColor: theme.colors.background.fill,
       color: theme.colors.text.primary,
-      boxShadow: '0px 1px 2px 0px #0000000d',
+      boxShadow: theme.shadow.sm,
     },
     '&:focus-visible': {
       ...uiFocusRing(theme as Theme),

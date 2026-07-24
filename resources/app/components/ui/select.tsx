@@ -254,7 +254,7 @@ const styles = {
     padding: theme.spacing[1],
     border: `1px solid ${theme.colors.border.default}`,
     borderRadius: theme.radius.md,
-    boxShadow: '0px 4px 6px -1px #0000001a',
+    boxShadow: theme.shadow.md,
     backgroundColor: theme.colors.background.fill,
     minHeight: '33px',
     zIndex: 100000,

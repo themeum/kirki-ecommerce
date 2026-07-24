@@ -40,7 +40,7 @@ const styles = {
     width: '100%',
     backgroundColor: theme.colors.background.fill,
     border: `1px solid ${theme.colors.border.default}`,
-    boxShadow: '0px 1px 2px 0px #0000000d',
+    boxShadow: theme.shadow.sm,
     borderRadius: theme.radius.lg,
     padding: `${theme.spacing[1]} ${theme.spacing[3]}`,
     boxSizing: 'border-box',

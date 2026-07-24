@@ -56,7 +56,7 @@ const styles = {
     border: `1px solid ${theme.colors.border.default}`,
     borderRadius: theme.radius.md,
     backgroundColor: theme.colors.background.fill,
-    boxShadow: '0px 4px 6px -1px #0000001a',
+    boxShadow: theme.shadow.md,
     boxSizing: 'border-box',
     color: theme.colors.text.primary,
     ...fontGeneralSettings(theme as Theme),

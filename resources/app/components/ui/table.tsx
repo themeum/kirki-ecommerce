@@ -278,7 +278,7 @@ const styles = {
           border: '0.5px solid #ffffff',
           borderRadius: theme.radius.lg,
           cursor: 'crosshair',
-          boxShadow: '0px 4px 6px -1px #0000001a',
+          boxShadow: theme.shadow.md,
           zIndex: 10,
           visibility: 'hidden',
         },

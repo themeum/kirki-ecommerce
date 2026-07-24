@@ -248,7 +248,7 @@ const styles = {
     border: `1px solid ${theme.colors.border.default}`,
     borderRadius: theme.radius.lg,
     backgroundColor: theme.colors.background.fill,
-    boxShadow: '0px 10px 15px -3px #0000001a',
+    boxShadow: theme.shadow.lg,
     boxSizing: 'border-box',
     overflow: 'hidden',
     color: theme.colors.text.primary,
