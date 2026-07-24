@@ -19,7 +19,9 @@ import ActionGroup from '@/components/ui/action-group';
 import Combobox from '@/components/ui/combobox';
 import Flex from '@/components/ui/flex';
 import { useProductForm } from '@/contexts/product-form-context';
+import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
+import { scoped } from '@/theme/mixins';
 import {
   ProductAttributeFormSchema,
   type ProductAttributeFormValues,
@@ -225,9 +227,9 @@ const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
               <Flex direction="column" gap={8}>
                 <div>{__('Show in Product page as', 'kirki-ecommerce')}</div>
                 <Flex
+                  css={styles.typeSelector}
                   style={{
                     border: '1px solid #eeedf3',
-                    borderRadius: '8px',
                     width: 'max-content',
                   }}
                 >
@@ -344,6 +346,12 @@ const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
 AddOrEditAttribute.displayName = 'AddOrEditAttribute';
 
 export default AddOrEditAttribute;
+
+const styles = {
+  typeSelector: scoped({
+    borderRadius: theme.radius.lg,
+  }),
+};
 
 export type {
   ProductAttributeFormValues as AttributeFormState,

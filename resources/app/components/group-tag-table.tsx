@@ -7,8 +7,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Chip from '@/components/ui/chip';
 import Text from '@/components/ui/text';
-import { scoped } from '@/theme/mixins';
+import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
+import { scoped } from '@/theme/mixins';
 import type { SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -44,7 +45,13 @@ const styles = {
   }),
   hoverReveal: scoped({
     visibility: 'hidden',
-  })
+  }),
+  cardAllRounded: scoped({
+    borderRadius: theme.radius.lg,
+  }),
+  cardBottomRounded: scoped({
+    borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.lg} ${theme.radius.lg}`,
+  }),
 };
 
 const GroupTagTable = (props: GroupTagTableProps) => {
@@ -116,10 +123,12 @@ const GroupTagTable = (props: GroupTagTableProps) => {
       )}
       {Object.keys(groupedValueData).length ? (
         <Card
-          css={cardStyles.innerCard}
+          css={[
+            cardStyles.innerCard,
+            hasSelect ? styles.cardBottomRounded : styles.cardAllRounded,
+          ]}
           style={{
             borderColor: '#E6E6E6',
-            borderRadius: hasSelect ? '0 0 8px 8px' : '8px',
           }}
         >
           <CardContent css={cardStyles.innerContent}>

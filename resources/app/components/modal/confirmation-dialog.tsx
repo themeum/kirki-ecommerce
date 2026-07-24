@@ -1,5 +1,5 @@
-import type { ReactNode } from 'react';
 import { Info, Trash2 } from 'lucide-react';
+import type { ReactNode } from 'react';
 
 import Button from '@/components/ui/button';
 import {
@@ -137,7 +137,7 @@ const styles = {
     ...flexCenter(),
     height: '40px',
     width: '40px',
-    borderRadius: '50%',
+    borderRadius: theme.radius.full,
     marginBottom: theme.spacing[2],
   }),
   title: scoped({

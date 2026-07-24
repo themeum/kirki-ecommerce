@@ -177,7 +177,7 @@ VariationTable.displayName = 'VariationTable';
 const styles = {
   emptyStateContent: scoped({
     padding: `${theme.spacing[9]} 0`,
-    borderRadius: '0px',
+    borderRadius: theme.radius.none,
   })
 };
 

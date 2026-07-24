@@ -299,12 +299,7 @@ const Shipping = ({ errors, setErrors, formSyncKey = 0 }: ShippingProps) => {
             </Card>
             {showShippingBox && (
               <Card
-                css={cardStyles.darkCard}
-                style={{
-                  borderRadius: '0px 0px 6px 6px',
-                  marginTop: `-${theme.spacing[2]}`,
-                  height: '230px',
-                }}
+                css={[cardStyles.darkCard, styles.shippingBoxPreview]}
               >
                 <CardContent css={styles.darkCardContent}>
                   <BoxGeneratorView
@@ -339,5 +334,10 @@ export default Shipping;
 const styles = {
   darkCardContent: scoped({
     padding: theme.spacing[1],
-  })
+  }),
+  shippingBoxPreview: scoped({
+    borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.md} ${theme.radius.md}`,
+    marginTop: `-${theme.spacing[2]}`,
+    height: '230px',
+  }),
 };

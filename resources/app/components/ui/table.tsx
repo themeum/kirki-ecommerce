@@ -276,7 +276,7 @@ const styles = {
           height: '14px',
           backgroundColor: theme.colors.background.fillBrand,
           border: '0.5px solid #ffffff',
-          borderRadius: '9px',
+          borderRadius: theme.radius.lg,
           cursor: 'crosshair',
           boxShadow: '0px 4px 6px -1px #0000001a',
           zIndex: 10,
