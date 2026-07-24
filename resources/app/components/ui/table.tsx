@@ -262,7 +262,7 @@ const styles = {
         '&:hover': {
           backgroundColor: theme.colors.background.surfaceAlt,
         },
-        '&:first-child': {
+        '&:first-of-type': {
           paddingLeft: theme.spacing[3],
         },
         '& [data-grabber="true"]': {

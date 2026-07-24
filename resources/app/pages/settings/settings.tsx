@@ -80,11 +80,11 @@ const styles = {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
-      '&:first-child': {
+      '&:first-of-type': {
         borderTopLeftRadius: theme.radius.xl,
         borderTopRightRadius: theme.radius.xl,
       },
-      '&:last-child': {
+      '&:last-of-type': {
         borderBottomLeftRadius: theme.radius.xl,
         borderBottomRightRadius: theme.radius.xl,
       },
