@@ -7,9 +7,11 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import Badge from '@/components/ui/badge';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
+import { cardStyles } from '@/theme/card-styles';
+import { scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 type OptionAccordionProps = {
@@ -35,21 +37,16 @@ const OptionAccordion = (props: OptionAccordionProps) => {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <div
-      style={{
-        borderRadius: theme.radius.xl,
-        border: `1px solid ${theme.colors.icon.inverse}`,
-      }}
-    >
+    <div css={styles.wrapper}>
       <Accordion
-        style={{ width: '100%' }}
+        css={styles.accordion}
         hideSeparator={true}
         hasBottomSpace={false}
         rightActions={rightActions}
       >
         <AccordionItem>
           <AccordionTrigger
-            style={{ padding: `${theme.spacing.lg} ${theme.spacing['2xl']}` }}
+            css={styles.trigger}
             gap={16}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
@@ -65,15 +62,8 @@ const OptionAccordion = (props: OptionAccordionProps) => {
             />
           </AccordionTrigger>
           <AccordionContent>
-            <Card
-              type="dark"
-              style={{
-                borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.lg} ${theme.radius.lg}`,
-                display: 'flex',
-                flexDirection: 'column',
-              }}
-            >
-              {children}
+            <Card css={[cardStyles.darkCard, styles.contentCard]}>
+              <CardContent>{children}</CardContent>
             </Card>
           </AccordionContent>
         </AccordionItem>
@@ -83,3 +73,22 @@ const OptionAccordion = (props: OptionAccordionProps) => {
 };
 
 export default OptionAccordion;
+
+const styles = {
+  wrapper: scoped({
+    borderRadius: theme.radius.xl,
+    border: `1px solid ${theme.colors.icon.inverse}`,
+  }),
+  accordion: scoped({
+    width: '100%',
+  }),
+  trigger: scoped({
+    padding: `${theme.spacing.lg} ${theme.spacing['2xl']}`,
+  }),
+  contentCard: scoped({
+    borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.lg} ${theme.radius.lg}`,
+    display: 'flex',
+    flexDirection: 'column',
+  }),
+};
+

@@ -4,7 +4,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 import TextField from '@/components/form/text-field';
 import Button from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+} from '@/components/ui/card';
 import {
   Dialog,
   DialogBody,
@@ -46,6 +49,7 @@ import {
 import type { ShippingBox } from '@/types';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
 import { BoxGenerator } from '@/pages/settings/shipping-settings/shipping-box/box-generator';
@@ -179,67 +183,73 @@ const ShippingBoxPopup = ({
               placeholder={__('Regular box', 'kirki-ecommerce')}
             />
             <div>
-              <Card type="inner" css={styles.dimensionsCard}>
+              <Card css={[cardStyles.innerCard, styles.dimensionsCard]} >
+                <CardContent css={cardStyles.innerContent}>
+
                 <Text
-                  type="secondary"
-                  header={__('Dimensions', 'kirki-ecommerce')}
-                  css={styles.dimensionsLabel}
+                type="secondary"
+                header={__('Dimensions', 'kirki-ecommerce')}
+                css={styles.dimensionsLabel}
                 />
                 <Flex gap={16} style={{ alignItems: 'flex-end' }}>
-                  <TextField
-                    name="length"
-                    label={__('Length', 'kirki-ecommerce')}
-                    placeholder={__('12', 'kirki-ecommerce')}
-                    type="number"
-                  />
-                  <TextField
-                    name="width"
-                    label={__('Width', 'kirki-ecommerce')}
-                    placeholder={__('12', 'kirki-ecommerce')}
-                    type="number"
-                  />
-                  <TextField
-                    name="height"
-                    label={__('Height', 'kirki-ecommerce')}
-                    placeholder={__('12', 'kirki-ecommerce')}
-                    type="number"
-                  />
-                  <FormField
-                    control={form.control}
-                    name="unit"
-                    render={({ field, fieldState }) => (
-                      <FormItem style={{ width: '70px' }}>
-                        <Select
-                          value={field.value}
-                          onValueChange={(value) => handleUnitChange(value)}
-                        >
-                          <FormControl>
-                            <SelectTrigger error={Boolean(fieldState.error)}>
-                              <SelectValue />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="cm">
-                              {__('cm', 'kirki-ecommerce')}
-                            </SelectItem>
-                            <SelectItem value="in">
-                              {__('in', 'kirki-ecommerce')}
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </Flex>
-              </Card>
-              <Card type="dark" css={styles.previewCard}>
-                <BoxGenerator
-                  length={Number(length) || 0}
-                  width={Number(width) ?? 0}
-                  height={Number(height) ?? 0}
-                  unit={unit ?? 'in'}
+                <TextField
+                name="length"
+                label={__('Length', 'kirki-ecommerce')}
+                placeholder={__('12', 'kirki-ecommerce')}
+                type="number"
                 />
+                <TextField
+                name="width"
+                label={__('Width', 'kirki-ecommerce')}
+                placeholder={__('12', 'kirki-ecommerce')}
+                type="number"
+                />
+                <TextField
+                name="height"
+                label={__('Height', 'kirki-ecommerce')}
+                placeholder={__('12', 'kirki-ecommerce')}
+                type="number"
+                />
+                <FormField
+                control={form.control}
+                name="unit"
+                render={({ field, fieldState }) => (
+                <FormItem style={{ width: '70px' }}>
+                <Select
+                value={field.value}
+                onValueChange={(value) => handleUnitChange(value)}
+                >
+                <FormControl>
+                <SelectTrigger error={Boolean(fieldState.error)}>
+                <SelectValue />
+                </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                <SelectItem value="cm">
+                {__('cm', 'kirki-ecommerce')}
+                </SelectItem>
+                <SelectItem value="in">
+                {__('in', 'kirki-ecommerce')}
+                </SelectItem>
+                </SelectContent>
+                </Select>
+                <FormMessage />
+                </FormItem>
+                )}
+                />
+                </Flex>
+                </CardContent>
+              </Card>
+              <Card css={[cardStyles.darkCard, styles.previewCard]} >
+                <CardContent>
+
+                <BoxGenerator
+                length={Number(length) || 0}
+                width={Number(width) ?? 0}
+                height={Number(height) ?? 0}
+                unit={unit ?? 'in'}
+                />
+                </CardContent>
               </Card>
             </div>
           </DialogBody>
@@ -295,5 +305,5 @@ const styles = {
   }),
   footerSeparator: scoped({
     margin: theme.spacing.none,
-  }),
+  })
 };

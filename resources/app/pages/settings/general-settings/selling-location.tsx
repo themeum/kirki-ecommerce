@@ -3,13 +3,17 @@ import { useFormContext, useWatch } from 'react-hook-form';
 
 import MultiSelectField from '@/components/form/multi-select-field';
 import SelectField from '@/components/form/select-field';
-import { Card } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
-import Text from '@/components/ui/text';
 import type { GeneralSettingsFormValues } from '@/schemas/forms/general-settings-form';
 import { useCountriesQuery } from '@/services/country';
-import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
 const sellingLocationOptions = [
@@ -59,40 +63,43 @@ const SellingLocation = () => {
 
   return (
     <div>
-      <Card type="large">
-        <Text
-          header={__('Selling Locations', 'kirki-ecommerce')}
-          subHeader={__(
-            'Select the countries where you want to sell your products.',
-            'kirki-ecommerce',
-          )}
-          type="primary"
-          css={styles.sectionHeader}
-        />
-
-        <Card type="inner" css={styles.innerCard}>
-          <Flex direction="column" gap={16}>
-            <SelectField
-              name="selling_location_type"
-              label={__('Selling', 'kirki-ecommerce')}
-              description={__(
-                'Select the countries where you want to sell your products.',
-                'kirki-ecommerce',
-              )}
-              options={sellingLocationOptions}
-            />
-
-            {showCountrySelector && (
-              <MultiSelectField
-                name="selling_countries"
-                label={__('Countries', 'kirki-ecommerce')}
-                placeholder={__('Add Countries', 'kirki-ecommerce')}
-                searchPlaceholder={__('e.g United States', 'kirki-ecommerce')}
-                options={countryOptions}
-              />
+      <Card css={cardStyles.largeCard}>
+        <CardHeader css={cardStyles.sectionHeader}>
+          <CardTitle>{__('Selling Locations', 'kirki-ecommerce')}</CardTitle>
+          <CardDescription>
+            {__(
+              'Select the countries where you want to sell your products.',
+              'kirki-ecommerce',
             )}
-          </Flex>
-        </Card>
+          </CardDescription>
+        </CardHeader>
+        <CardContent css={cardStyles.largeContent}>
+          <Card css={cardStyles.innerCard}>
+            <CardContent css={cardStyles.innerCardContent}>
+              <Flex direction="column" gap={16}>
+                <SelectField
+                  name="selling_location_type"
+                  label={__('Selling', 'kirki-ecommerce')}
+                  description={__(
+                    'Select the countries where you want to sell your products.',
+                    'kirki-ecommerce',
+                  )}
+                  options={sellingLocationOptions}
+                />
+
+                {showCountrySelector && (
+                  <MultiSelectField
+                    name="selling_countries"
+                    label={__('Countries', 'kirki-ecommerce')}
+                    placeholder={__('Add Countries', 'kirki-ecommerce')}
+                    searchPlaceholder={__('e.g United States', 'kirki-ecommerce')}
+                    options={countryOptions}
+                  />
+                )}
+              </Flex>
+            </CardContent>
+          </Card>
+        </CardContent>
       </Card>
     </div>
   );
@@ -102,11 +109,3 @@ SellingLocation.displayName = 'SellingLocation';
 
 export default SellingLocation;
 
-const styles = {
-  sectionHeader: scoped({
-    gap: theme.spacing.base,
-  }),
-  innerCard: scoped({
-    padding: theme.spacing['2xl'],
-  }),
-};

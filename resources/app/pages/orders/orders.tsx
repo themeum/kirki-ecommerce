@@ -1,7 +1,10 @@
 import Button from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import Container from '@/components/ui/container';
 import PageHeading from '@/components/ui/page-heading';
+import { theme } from '@/theme';
+import { cardStyles } from '@/theme/card-styles';
+import { scoped } from '@/theme/mixins';
 
 import OrderTable from '@/pages/orders/order-table/order-table';
 import OrderTableAction from '@/pages/orders/order-table/order-table-action';
@@ -27,12 +30,16 @@ const Orders = () => {
         }
       />
       <Container>
-        <Card type="form" style={{ marginBottom: '8px' }}>
-          <TableInfo />
+        <Card css={[cardStyles.formCard, styles.tableInfoCard]}>
+          <CardContent>
+            <TableInfo />
+          </CardContent>
         </Card>
-        <Card type="table">
-          <OrderTableAction />
-          <OrderTable />
+        <Card css={cardStyles.tableCard}>
+          <CardContent css={cardStyles.tableContent}>
+            <OrderTableAction />
+            <OrderTable />
+          </CardContent>
         </Card>
       </Container>
     </>
@@ -40,3 +47,9 @@ const Orders = () => {
 };
 
 export default Orders;
+
+const styles = {
+  tableInfoCard: scoped({
+    marginBottom: theme.spacing.md,
+  }),
+};

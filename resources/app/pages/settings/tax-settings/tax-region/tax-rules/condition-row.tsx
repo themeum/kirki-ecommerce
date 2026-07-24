@@ -168,7 +168,6 @@ const ConditionRow = (props: ConditionRowProps) => {
             size="icon"
             variant="outline"
             onClick={handleAddConditionRow}
-            style={{ padding: '8px' }}
             css={css(
               styles.conditionActions,
               isHovered && styles.conditionActionsActive,
@@ -182,7 +181,6 @@ const ConditionRow = (props: ConditionRowProps) => {
             size="icon"
             variant="secondary"
             onClick={() => handleDeleteConditionRow(row.id)}
-            style={{ padding: '8px' }}
             css={css(
               styles.conditionActions,
               isHovered && styles.conditionActionsActive,
@@ -221,6 +219,7 @@ const styles = {
     transition: 'opacity 0.2s ease',
     display: 'none',
     gap: theme.spacing.md,
+    padding: theme.spacing.md,
   }),
   conditionActionsActive: css({
     opacity: 1,

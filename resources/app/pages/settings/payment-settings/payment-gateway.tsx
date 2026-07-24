@@ -2,7 +2,10 @@ import { useState } from 'react';
 
 import DropdownButton from '@/components/dropdown-button';
 import HeaderActionsCard from '@/components/header-actions-card';
-import { Card } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+} from '@/components/ui/card';
 import { MapIcon, StripeIcon, ShowMoreIcon } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
 import Badge from '@/components/ui/badge';
@@ -16,6 +19,8 @@ import {
 } from '@/services/payment';
 import type { PaymentGateway } from '@/types';
 import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import { __, sprintf } from '@/wpi18n';
 
 import PaymentGatewayEditPopup from '@/pages/settings/payment-settings/payment-gateway-edit-dialog';
@@ -78,87 +83,94 @@ const PaymentGatewayComponent = (props: PaymentGatewayProps) => {
 
   return (
     <>
-      <Card type="large">
+      <Card css={cardStyles.largeCard} >
+        <CardContent css={cardStyles.largeContentPadded}>
+
         <HeaderActionsCard
-          header={__('Payment gateways', 'kirki-ecommerce')}
-          subHeader={__(
-            "Set up and manage your online store's payment options.",
-            'kirki-ecommerce',
-          )}
-          buttonText={__('Add Payment Methods', 'kirki-ecommerce')}
-          onAdd={() => setIsEditPopupOpen(true)}
+        header={__('Payment gateways', 'kirki-ecommerce')}
+        subHeader={__(
+        "Set up and manage your online store's payment options.",
+        'kirki-ecommerce',
+        )}
+        buttonText={__('Add Payment Methods', 'kirki-ecommerce')}
+        onAdd={() => setIsEditPopupOpen(true)}
         />
         {paymentGatewayList?.length === 0 ? (
-          <Card type="innerDark" style={{ padding: '36px 0' }}>
+        <Card css={cardStyles.innerDarkCard}>
+          <CardContent css={[cardStyles.innerDarkContent, styles.emptyStateContent]}>
             <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
               <MapIcon />
               <span style={{ color: '#878593' }}>
                 {__('No payment added yet', 'kirki-ecommerce')}
               </span>
             </Flex>
-          </Card>
+          </CardContent>
+        </Card>
         ) : (
-          <Flex direction="column" gap={16}>
-            {paymentGatewayList?.map((item, index) => (
-              <Card
-                type="inner"
-                key={index}
-                style={{
-                  padding: `${theme.spacing.lg} ${theme.spacing['2xl']}`,
-                }}
-              >
-                <Flex style={{ alignItems: 'center' }}>
-                  <Text
-                    header={sprintf(
-                      __('%s', 'kirki-ecommerce'),
-                      item?.name || '',
-                    )}
-                    leftIcon={<StripeIcon />}
-                    badge={
-                      !item?.is_enabled && (
-                        <Badge
-                          text={__('Inactive', 'kirki-ecommerce')}
-                          type="trashed"
-                        />
-                      )
-                    }
-                    type={!item?.is_enabled ? 'disabled' : 'secondary'}
-                  />
-                  <ActionGroup>
-                    <ToggleButton
-                      value={Boolean(item?.is_enabled)}
-                      onChange={() => handleToggleMethod(item)}
-                    />
-                    <DropdownButton
-                      dropdownStyle={{ width: '115px' }}
-                      buttonProps={{
-                        size: 'small',
-                        style: { transform: 'rotate(90deg)' },
-                        icon: <ShowMoreIcon />,
-                      }}
-                      options={[
-                        {
-                          title: __('Edit', 'kirki-ecommerce'),
-                          value: 'edit',
-                        },
-                        {
-                          title: __('Delete', 'kirki-ecommerce'),
-                          value: 'delete',
-                        },
-                      ]}
-                      onOptionSelect={(action) => handleAction(action, item)}
-                    />
-                  </ActionGroup>
-                </Flex>
-              </Card>
-            ))}
+        <Flex direction="column" gap={16}>
+        {paymentGatewayList?.map((item, index) => (
+        <Card css={cardStyles.innerCard}
+                
+        key={index}
+        >
+          <CardContent css={[cardStyles.innerContent, styles.gatewayItemContent]}>
+
+          <Flex style={{ alignItems: 'center' }}>
+          <Text
+          header={sprintf(
+          __('%s', 'kirki-ecommerce'),
+          item?.name || '',
+          )}
+          leftIcon={<StripeIcon />}
+          badge={
+          !item?.is_enabled && (
+          <Badge
+          text={__('Inactive', 'kirki-ecommerce')}
+          type="trashed"
+          />
+          )
+          }
+          type={!item?.is_enabled ? 'disabled' : 'secondary'}
+          />
+          <ActionGroup>
+          <ToggleButton
+          value={Boolean(item?.is_enabled)}
+          onChange={() => handleToggleMethod(item)}
+          />
+          <DropdownButton
+          dropdownStyle={{ width: '115px' }}
+          buttonProps={{
+          size: 'small',
+          style: { transform: 'rotate(90deg)' },
+          icon: <ShowMoreIcon />,
+          }}
+          options={[
+          {
+          title: __('Edit', 'kirki-ecommerce'),
+          value: 'edit',
+          },
+          {
+          title: __('Delete', 'kirki-ecommerce'),
+          value: 'delete',
+          },
+          ]}
+          onOptionSelect={(action) => handleAction(action, item)}
+          />
+          </ActionGroup>
           </Flex>
+          </CardContent>
+
+          </Card>
+
+          ))}
+        </Flex>
         )}
         <PaymentGatewayEditPopup
-          editedItem={editedItem}
-          isOpen={openPopup}
-          onClose={() => setOpenPopup(false)}
+        editedItem={editedItem}
+        isOpen={openPopup}
+        onClose={() => setOpenPopup(false)}
         />
+        </CardContent>
       </Card>
       {isEditPopupOpen && (
         <PaymentGatewayPopup
@@ -171,5 +183,12 @@ const PaymentGatewayComponent = (props: PaymentGatewayProps) => {
 };
 
 PaymentGatewayComponent.displayName = 'PaymentGatewayComponent';
+
+const styles = {
+  emptyStateContent: scoped({ padding: '36px 0' }),
+  gatewayItemContent: scoped({
+    padding: `${theme.spacing.lg} ${theme.spacing['2xl']}`,
+  })
+};
 
 export default PaymentGatewayComponent;

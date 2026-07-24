@@ -11,7 +11,10 @@ import PageHeading from '@/components/ui/page-heading';
 import TagManager from '@/components/tag-manager/tag-manager';
 import PageNavbar from '@/components/page-navbar';
 import Button from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+} from '@/components/ui/card';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
 import { getErrorsObject } from '@/libs/api';
@@ -20,8 +23,7 @@ import { dispatchToastMessage, normalizeErrors } from '@/pages/utils';
 import { useCountriesQuery } from '@/services/country';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import type { FormErrors, SelectOption, SettingsSectionData } from '@/types';
-import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
 import { ShippingRegionPopup } from '@/pages/settings/shipping-settings/shipping-zone/shipping-region-dialog';
@@ -261,63 +263,66 @@ const ShippingZonePage = () => {
               text={__('Set Zone Details', 'kirki-ecommerce')}
               handleBack={handleBackButton}
             />
-            <Card type="large" css={styles.formCard}>
+            <Card css={[cardStyles.largeCard, cardStyles.formCard]} >
+              <CardContent css={cardStyles.largeContentPadded}>
+
               <Flex direction="column" gap={8}>
-                <Label
-                  htmlFor="shipping-zone-title"
-                  error={Boolean(errors?.title)}
-                  helpText={errors?.title as string}
-                >
-                  {__('Title', 'kirki-ecommerce')}
-                </Label>
-                <Input
-                  id="shipping-zone-title"
-                  placeholder="Zone 2- South Asia"
-                  value={shippingZoneTitle}
-                  onChange={(e) => handleShippingZoneTitle(e.target.value)}
-                  error={Boolean(errors?.title)}
-                />
+              <Label
+              htmlFor="shipping-zone-title"
+              error={Boolean(errors?.title)}
+              helpText={errors?.title as string}
+              >
+              {__('Title', 'kirki-ecommerce')}
+              </Label>
+              <Input
+              id="shipping-zone-title"
+              placeholder="Zone 2- South Asia"
+              value={shippingZoneTitle}
+              onChange={(e) => handleShippingZoneTitle(e.target.value)}
+              error={Boolean(errors?.title)}
+              />
               </Flex>
               <TagManager
-                label={__('Regions', 'kirki-ecommerce')}
-                placeholder={__(
-                  'Click to add destinations..',
-                  'kirki-ecommerce',
-                )}
-                readOnly
-                onClick={() => setOpenPopup(true)}
-                showSuggestionDropdown={false}
-                selectedTags={
-                  getSelectedRegionTags(
-                    selectedRegion,
-                    countryList as CountryWithStates[] | null,
-                  ) as unknown as SelectOption[]
-                }
-                onTagRemove={(tag) =>
-                  handleRemoveRegionTag(tag as unknown as RegionTag)
-                }
-                error={(errors?.regions as string) || ''}
+              label={__('Regions', 'kirki-ecommerce')}
+              placeholder={__(
+              'Click to add destinations..',
+              'kirki-ecommerce',
+              )}
+              readOnly
+              hasAddBtn={false}
+              onClick={() => setOpenPopup(true)}
+              selectedTags={
+              getSelectedRegionTags(
+              selectedRegion,
+              countryList as CountryWithStates[] | null,
+              ) as unknown as SelectOption[]
+              }
+              onTagRemove={(tag) =>
+              handleRemoveRegionTag(tag as unknown as RegionTag)
+              }
+              error={(errors?.regions as string) || ''}
               />
 
               {openPopup && (
-                <ShippingRegionPopup
-                  filteredCountries={getSearchedCountries(
-                    searchValue,
-                    countryList as CountryWithStates[] | null,
-                  )}
-                  openPopup={openPopup}
-                  setOpenPopup={setOpenPopup}
-                  setSearchValue={setSearchValue}
-                  selectedCountries={selectedCountries}
-                  setSelectedCountries={setSelectedCountries}
-                  selectedRegion={selectedRegion}
-                  setSelectedRegion={setSelectedRegion}
-                  setShippingZoneTitle={setShippingZoneTitle}
-                  from="edit"
-                  onAdd={handleAddRegion}
-                  onSave={handleAddRegion}
-                />
+              <ShippingRegionPopup
+              filteredCountries={getSearchedCountries(
+              searchValue,
+              countryList as CountryWithStates[] | null,
               )}
+              openPopup={openPopup}
+              setOpenPopup={setOpenPopup}
+              setSearchValue={setSearchValue}
+              selectedCountries={selectedCountries}
+              setSelectedCountries={setSelectedCountries}
+              selectedRegion={selectedRegion}
+              setSelectedRegion={setSelectedRegion}
+              setShippingZoneTitle={setShippingZoneTitle}
+              from="edit"
+              onAdd={handleAddRegion}
+              onSave={handleAddRegion}
+              />
+              )}
+              </CardContent>
             </Card>
 
             <ShippingMethod
@@ -344,8 +349,3 @@ ShippingZonePage.displayName = 'ShippingZone';
 
 export default ShippingZonePage;
 
-const styles = {
-  formCard: scoped({
-    gap: theme.spacing['2xl'],
-  }),
-};

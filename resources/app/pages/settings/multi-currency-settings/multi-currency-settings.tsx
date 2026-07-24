@@ -5,7 +5,10 @@ import { useNavigate, useOutletContext } from 'react-router';
 
 import PageNavbar from '@/components/page-navbar';
 import Button from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+} from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import { CurrencyIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
@@ -23,6 +26,7 @@ import {
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import type { ConfirmationVariant, SettingsSectionData } from '@/types';
 import { theme } from '@/theme';
+import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
@@ -164,30 +168,36 @@ const MultiCurrencySettings = () => {
                 handleBack={handleBackButton}
               />
 
-              <Card type="large">
+              <Card css={cardStyles.largeCard} >
+                <CardContent css={cardStyles.largeContentPadded}>
+
                 <Text
-                  header={__('Currency Management', 'kirki-ecommerce')}
-                  subHeader={__(
-                    'Manage product pricing across multiple currencies with manual or automatic conversion rates.',
-                    'kirki-ecommerce',
-                  )}
-                  type="primary"
-                  style={{ gap: theme.spacing.base }}
+                header={__('Currency Management', 'kirki-ecommerce')}
+                subHeader={__(
+                'Manage product pricing across multiple currencies with manual or automatic conversion rates.',
+                'kirki-ecommerce',
+                )}
+                type="primary"
+                style={{ gap: theme.spacing.base }}
                 />
                 <AvailableCurrencyList />
                 <ApiConfig />
+                </CardContent>
               </Card>
-              <Card type="large">
+              <Card css={cardStyles.largeCard} >
+                <CardContent css={cardStyles.largeContentPadded}>
+
                 <Text
-                  header={__('Currency Preferences', 'kirki-ecommerce')}
-                  subHeader={__(
-                    'Set your preferences for how currency is displayed.',
-                    'kirki-ecommerce',
-                  )}
-                  type="primary"
-                  style={{ gap: '12px' }}
+                header={__('Currency Preferences', 'kirki-ecommerce')}
+                subHeader={__(
+                'Set your preferences for how currency is displayed.',
+                'kirki-ecommerce',
+                )}
+                type="primary"
+                style={{ gap: '12px' }}
                 />
                 <CurrencyFormatSettings />
+                </CardContent>
               </Card>
             </Flex>
           </Form>

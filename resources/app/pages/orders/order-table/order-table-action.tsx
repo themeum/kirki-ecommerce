@@ -10,6 +10,8 @@ import { ArrowDownUp, ListFilter } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
 import Searchbox from '@/components/ui/searchbox';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import type { SelectOption } from '@/types';
 
 const OrderTableAction = () => {
@@ -20,7 +22,7 @@ const OrderTableAction = () => {
   ];
 
   return (
-    <Flex style={{ padding: '16px 12px' }}>
+    <Flex css={styles.wrapper}>
       <Select defaultValue="new">
         <SelectTrigger variant="secondary">
           <SelectValue />
@@ -35,7 +37,7 @@ const OrderTableAction = () => {
       </Select>
       <ActionGroup>
         <Select disabled>
-          <SelectTrigger style={{ padding: '8px 16px' }}>
+          <SelectTrigger css={styles.selectTrigger}>
             <SelectValue placeholder="Date: This Month" />
           </SelectTrigger>
           <SelectContent />
@@ -47,10 +49,24 @@ const OrderTableAction = () => {
         <Button variant="outline" size="sm" aria-label="Sort">
           <ArrowDownUp />
         </Button>
-        <Searchbox placeholder="Search" />
+        <Searchbox
+          placeholder="Search"
+          onChange={() => {
+            // @todo: will be implemented later
+          }}
+        />
       </ActionGroup>
     </Flex>
   );
 };
 
 export default OrderTableAction;
+
+const styles = {
+  wrapper: scoped({
+    padding: `${theme.spacing['2xl']} ${theme.spacing.lg}`,
+  }),
+  selectTrigger: scoped({
+    padding: `${theme.spacing.md} ${theme.spacing['2xl']}`,
+  }),
+};

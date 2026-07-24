@@ -1,17 +1,18 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import Combobox from '@/components/ui/combobox';
 import Label from '@/components/ui/label';
 import { MinusIcon } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
-import Searchbox from '@/components/ui/searchbox';
 import Text from '@/components/ui/text';
 import Thumbnail from '@/components/ui/thumbnail';
 import type { ProductRightPanelFormValues } from '@/schemas/forms/product-right-panel-form';
 import { useBrandsQuery } from '@/services/brand';
+import { cardStyles } from '@/theme/card-styles';
 import type { Brand as BrandEntity, SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -19,6 +20,12 @@ import BrandAddEditPopover from '@/pages/brands/brand-add-edit-dialog';
 
 type BrandSuggestion = SelectOption & BrandEntity;
 
+/**
+ * Product brand picker using Combobox with creatable support.
+ *
+ * @returns Brand panel element.
+ * @since 1.0.0
+ */
 const Brand = () => {
   const { watch, setValue } = useFormContext<ProductRightPanelFormValues>();
   const productBrand = watch('brand');
@@ -43,32 +50,37 @@ const Brand = () => {
     setSuggestionArray(suggestionList ?? []);
   }, [productBrand, brandData]);
 
-  const handleSearchChange = (searchText: string) => {
-    setBrandTitle(String(searchText));
-  };
+  const comboboxOptions = useMemo(
+    () =>
+      suggestionArray.map((item) => ({
+        label: item.title,
+        value: String(item.value),
+      })),
+    [suggestionArray],
+  );
 
   const handleRemoveBrand = () => {
     setValue('brand', null, { shouldDirty: true, shouldValidate: true });
   };
 
-  const handleAddBrand = (brand: SelectOption) => {
-    const suggestion = suggestionArray.find((item) => item.value === brand.value);
+  const handleAddBrand = (brandValue: string) => {
+    const suggestion = suggestionArray.find(
+      (item) => String(item.value) === brandValue,
+    );
+    if (!suggestion) {
+      return;
+    }
+
     setValue(
       'brand',
-      suggestion
-        ? {
-            id: suggestion.id,
-            name: suggestion.name,
-            logo:
-              suggestion.logo && typeof suggestion.logo === 'object'
-                ? suggestion.logo
-                : null,
-          }
-        : {
-            id: Number(brand.value),
-            name: brand.title,
-            logo: null,
-          },
+      {
+        id: suggestion.id,
+        name: suggestion.name,
+        logo:
+          suggestion.logo && typeof suggestion.logo === 'object'
+            ? suggestion.logo
+            : null,
+      },
       { shouldDirty: true, shouldValidate: true },
     );
   };
@@ -90,8 +102,8 @@ const Brand = () => {
           <Label helpText={__('Brand', 'kirki-ecommerce')}>
             {__('Brand', 'kirki-ecommerce')}
           </Label>
-          <Card type="inner">
-            <CardContent>
+          <Card css={cardStyles.innerCard}>
+            <CardContent css={cardStyles.innerContent}>
               <Flex gap={8} style={{ alignItems: 'center' }}>
                 <Thumbnail src={brandLogo?.url} />
                 <Text type="xsm" header={productBrand?.name} />
@@ -109,16 +121,20 @@ const Brand = () => {
           </Card>
         </Flex>
       ) : (
-        <Searchbox
-          value={brandTitle}
-          label={__('Brand', 'kirki-ecommerce')}
-          helpText={__('Brand', 'kirki-ecommerce')}
-          placeholder={__('Search or Add Brand', 'kirki-ecommerce')}
-          suggestionArray={suggestionArray || []}
-          onChange={(searchText) => handleSearchChange(String(searchText))}
-          onEnter={(value) => handleAddNewBrand(String(value))}
-          onOptionClick={(brand) => handleAddBrand(brand)}
-        />
+        <Flex direction="column" gap={8}>
+          <Label helpText={__('Brand', 'kirki-ecommerce')}>
+            {__('Brand', 'kirki-ecommerce')}
+          </Label>
+          <Combobox
+            options={comboboxOptions}
+            placeholder={__('Search or Add Brand', 'kirki-ecommerce')}
+            searchPlaceholder={__('Search or Add Brand', 'kirki-ecommerce')}
+            creatable
+            addItemLabel={__('Add Brand', 'kirki-ecommerce')}
+            onChange={(nextValue) => handleAddBrand(String(nextValue))}
+            onAddItem={handleAddNewBrand}
+          />
+        </Flex>
       )}
       {openBrandCreatePopup && (
         <BrandAddEditPopover
@@ -133,3 +149,4 @@ const Brand = () => {
 Brand.displayName = 'Brand';
 
 export default Brand;
+

@@ -9,7 +9,12 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import Button from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import {
   Form,
   FormControl,
@@ -40,7 +45,10 @@ import {
   type ProductShippingFormValues,
 } from '@/schemas/forms/product-shipping-form';
 import { useShippingBoxesQuery } from '@/services/shipping';
+import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import type { FormErrors, ShippingBox } from '@/types';
+
 import { __ } from '@/wpi18n';
 
 import { BoxGenerator } from '@/pages/settings/shipping-settings/shipping-box/box-generator';
@@ -148,13 +156,11 @@ const Shipping = ({ errors, setErrors, formSyncKey = 0 }: ShippingProps) => {
 
   return (
     <Form {...form}>
-      <Card type="form">
+      <Card css={cardStyles.formCard}>
+        <CardHeader>
+          <CardTitle>{__('Shipping', 'kirki-ecommerce')}</CardTitle>
+        </CardHeader>
         <CardContent>
-          <Text
-            header={__('Shipping', 'kirki-ecommerce')}
-            type="primary"
-            padding="large"
-          />
           <Flex direction="column" gap={8}>
             <Label>{__('Weight', 'kirki-ecommerce')}</Label>
             <Flex gap={8}>
@@ -230,7 +236,7 @@ const Shipping = ({ errors, setErrors, formSyncKey = 0 }: ShippingProps) => {
           </Flex>
           <div>
             <Card
-              type="inner"
+              css={cardStyles.innerCard}
               style={{
                 position: 'relative',
                 overflow: 'visible',
@@ -291,20 +297,21 @@ const Shipping = ({ errors, setErrors, formSyncKey = 0 }: ShippingProps) => {
             </Card>
             {showShippingBox && (
               <Card
-                type="dark"
+                css={cardStyles.darkCard}
                 style={{
                   borderRadius: '0px 0px 6px 6px',
                   marginTop: '-8px',
-                  padding: '4px',
                   height: '230px',
                 }}
               >
-                <BoxGeneratorView
-                  length={boxGeneratorData?.length || 0}
-                  height={boxGeneratorData?.height || 0}
-                  width={boxGeneratorData?.width || 0}
-                  unit={boxGeneratorData?.unit || 'in'}
-                />
+                <CardContent css={styles.darkCardContent}>
+                  <BoxGeneratorView
+                    length={boxGeneratorData?.length || 0}
+                    height={boxGeneratorData?.height || 0}
+                    width={boxGeneratorData?.width || 0}
+                    unit={boxGeneratorData?.unit || 'in'}
+                  />
+                </CardContent>
               </Card>
             )}
           </div>
@@ -326,3 +333,9 @@ const Shipping = ({ errors, setErrors, formSyncKey = 0 }: ShippingProps) => {
 Shipping.displayName = 'Shipping';
 
 export default Shipping;
+
+const styles = {
+  darkCardContent: scoped({
+    padding: '4px',
+  })
+};

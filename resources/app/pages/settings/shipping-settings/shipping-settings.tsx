@@ -8,15 +8,18 @@ import PageNavbar from '@/components/page-navbar';
 import OptionAccordion from '@/components/option-accordion';
 import HeaderActionsCard from '@/components/header-actions-card';
 import Button from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+} from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import { getErrorsObject, type ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { useUnsavedStatus } from '@/libs/unsaved-store';
+import Chip from '@/components/ui/chip';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import PageHeading from '@/components/ui/page-heading';
-import TagManager from '@/components/tag-manager/tag-manager';
 import { normalizeErrors } from '@/pages/utils';
 import {
   ShippingSettingsFormSchema,
@@ -28,6 +31,7 @@ import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings
 import type { FormErrors, SelectOption, SettingsSectionData } from '@/types';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import { __, sprintf } from '@/wpi18n';
 
 import {
@@ -280,34 +284,37 @@ const ShippingSettings = () => {
                 textIcon={<TruckIcon />}
                 text={__('Shipping', 'kirki-ecommerce')}
               />
-              <Card type="large">
-                <HeaderActionsCard
-                  header={__('Shipping Zones', 'kirki-ecommerce')}
-                  subHeader={__(
-                    'A shipping zone includes regions you ship to and available methods. Each shopper is matched to one zone based on their address.',
-                    'kirki-ecommerce',
-                  )}
-                  buttonText={__('Create Zone', 'kirki-ecommerce')}
-                  onAdd={() => setShowCreateZonePopup(true)}
-                />
+              <Card css={cardStyles.largeCard}>
+                <CardContent css={cardStyles.largeContentPadded}>
+                  <HeaderActionsCard
+                    header={__('Shipping Zones', 'kirki-ecommerce')}
+                    subHeader={__(
+                      'A shipping zone includes regions you ship to and available methods. Each shopper is matched to one zone based on their address.',
+                      'kirki-ecommerce',
+                    )}
+                    buttonText={__('Create Zone', 'kirki-ecommerce')}
+                    onAdd={() => setShowCreateZonePopup(true)}
+                  />
 
-                {!shippingZonesObj.length ? (
-                  <Card type="innerDark" css={styles.emptyState}>
-                    <Flex
-                      direction="column"
-                      gap={8}
-                      style={{ alignItems: 'center' }}
-                    >
-                      <LocationIcon />
-                      <span css={styles.emptyStateText}>
-                        {__(
-                          'Added shipping zones will appear here',
-                          'kirki-ecommerce',
-                        )}
-                      </span>
-                    </Flex>
-                  </Card>
-                ) : (
+                  {!shippingZonesObj.length ? (
+                    <Card css={cardStyles.innerDarkCard}>
+                      <CardContent css={[cardStyles.innerDarkContent, styles.emptyState]}>
+                        <Flex
+                          direction="column"
+                          gap={8}
+                          style={{ alignItems: 'center' }}
+                        >
+                          <LocationIcon />
+                          <span css={styles.emptyStateText}>
+                            {__(
+                              'Added shipping zones will appear here',
+                              'kirki-ecommerce',
+                            )}
+                          </span>
+                        </Flex>
+                      </CardContent>
+                    </Card>
+                  ) : (
                   <Flex direction="column" gap={12}>
                     {shippingZonesObj?.map((item) => (
                       <OptionAccordion
@@ -325,16 +332,23 @@ const ShippingSettings = () => {
                         variant="shipping"
                         state={item?.is_enabled}
                       >
-                        <TagManager
-                          showInputField={false}
-                          selectedTags={
+                        <Flex
+                          gap={8}
+                          style={{ flexWrap: 'wrap', rowGap: '8px' }}
+                        >
+                          {(
                             getSelectedRegionTags(
                               item?.regions,
                               countryList as CountryWithStates[] | null,
                             ) as unknown as SelectOption[]
-                          }
-                          showRemoveIcon={false}
-                        />
+                          ).map((tag, index) => (
+                            <Chip
+                              key={`${tag.value}-${index}`}
+                              text={tag.title}
+                              color={tag.color}
+                            />
+                          ))}
+                        </Flex>
                         {getShippingMethodData(item?.id).length > 0 && (
                           <ShippingMethod
                             from={'edit_zone'}
@@ -348,7 +362,8 @@ const ShippingSettings = () => {
                       </OptionAccordion>
                     ))}
                   </Flex>
-                )}
+                  )}
+                </CardContent>
               </Card>
               <ShippingProfile />
               <ShippingBox />
@@ -393,5 +408,5 @@ const styles = {
   }),
   emptyStateText: scoped({
     color: theme.colors.text.subdued,
-  }),
+  })
 };

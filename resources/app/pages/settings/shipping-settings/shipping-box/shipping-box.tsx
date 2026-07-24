@@ -2,7 +2,10 @@ import { useEffect, useState, type ReactNode } from 'react';
 
 import GroupOptionCard from '@/components/group-option-card';
 import HeaderActionsCard from '@/components/header-actions-card';
-import { Card } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+} from '@/components/ui/card';
 import { dispatchToastMessage } from '@/pages/utils';
 import {
   useShippingBoxesQuery,
@@ -11,6 +14,8 @@ import {
 } from '@/services/shipping';
 import type { ShippingBox as ShippingBoxType } from '@/types';
 import { __ } from '@/wpi18n';
+
+import { cardStyles } from '@/theme/card-styles';
 
 import ShippingBoxPopup from '@/pages/settings/shipping-settings/shipping-box/shipping-box-dialog';
 
@@ -119,27 +124,30 @@ const ShippingBox = () => {
 
   return (
     <>
-      <Card type="large">
+      <Card css={cardStyles.largeCard} >
+        <CardContent css={cardStyles.largeContentPadded}>
+
         <HeaderActionsCard
-          header={__('Shipping Box', 'kirki-ecommerce')}
-          subHeader={__(
-            'Configure box sizes for accurate shipping cost calculations.',
-            'kirki-ecommerce',
-          )}
-          buttonText={__('Create Box', 'kirki-ecommerce')}
-          onAdd={openCreatePopup}
+        header={__('Shipping Box', 'kirki-ecommerce')}
+        subHeader={__(
+        'Configure box sizes for accurate shipping cost calculations.',
+        'kirki-ecommerce',
+        )}
+        buttonText={__('Create Box', 'kirki-ecommerce')}
+        onAdd={openCreatePopup}
         />
         <GroupOptionCard
-          dataArr={shippingBoxList}
-          handleEditItem={(item) =>
-            openEditPopup(item as ShippingBoxListItem)
-          }
-          handleMoreOption={true}
-          actionsArray={[]}
-          handleAction={(action, item) =>
-            handleAction(String(action), item as ShippingBoxListItem)
-          }
+        dataArr={shippingBoxList}
+        handleEditItem={(item) =>
+        openEditPopup(item as ShippingBoxListItem)
+        }
+        handleMoreOption={true}
+        actionsArray={[]}
+        handleAction={(action, item) =>
+        handleAction(String(action), item as ShippingBoxListItem)
+        }
         />
+        </CardContent>
       </Card>
       {openPopup && (
         <ShippingBoxPopup

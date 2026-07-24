@@ -1,57 +1,65 @@
 import CountryField from '@/components/form/country-field';
 import TextField from '@/components/form/text-field';
-import { Card } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+} from '@/components/ui/card';
 import { ShippingAddressIcon } from '@/icons';
 import Flex from '@/components/ui/flex';
 import Grid from '@/components/ui/grid';
 import Text from '@/components/ui/text';
+import { theme } from '@/theme';
+import { cardStyles } from '@/theme/card-styles';
+import { scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 const ShippingAddress = () => {
   return (
-    <Card
-      type="form"
-      style={{ padding: '20px', borderRadius: '20px', gap: '20px' }}
-    >
-      <Text
-        header={__('Shipping Address', 'kirki-ecommerce')}
-        type="primary"
-        leftIcon={<ShippingAddressIcon />}
-      />
-      <Card type="inner" style={{ padding: '16px' }}>
-        <Flex direction="column" gap={16}>
-          <CountryField
-            name="shipping_address.country"
-            label={__('Country / Region', 'kirki-ecommerce')}
-          />
-          <TextField
-            name="shipping_address.address_line1"
-            label={__('Address', 'kirki-ecommerce')}
-            placeholder={__('e.g. 124 main st', 'kirki-ecommerce')}
-          />
-          <TextField
-            name="shipping_address.address_line2"
-            label={__(
-              'Apartment, suite, etc. (optional)',
-              'kirki-ecommerce',
-            )}
-          />
-          <Grid>
-            <TextField
-              name="shipping_address.city"
-              label={__('City', 'kirki-ecommerce')}
+    <Card css={[cardStyles.formCard, styles.roundedCard]}>
+      <CardHeader>
+        <Text
+          header={__('Shipping Address', 'kirki-ecommerce')}
+          type="primary"
+          leftIcon={<ShippingAddressIcon />}
+        />
+      </CardHeader>
+      <Card css={cardStyles.innerCard}>
+        <CardContent css={cardStyles.innerContent}>
+          <Flex direction="column" gap={16}>
+            <CountryField
+              name="shipping_address.country"
+              label={__('Country / Region', 'kirki-ecommerce')}
             />
             <TextField
-              name="shipping_address.state"
-              label={__('State / Province', 'kirki-ecommerce')}
+              name="shipping_address.address_line1"
+              label={__('Address', 'kirki-ecommerce')}
+              placeholder={__('e.g. 124 main st', 'kirki-ecommerce')}
             />
-          </Grid>
-          <TextField
-            name="shipping_address.postal_code"
-            label={__('ZIP / Postal code', 'kirki-ecommerce')}
-            placeholder={__('+1 (555) 222 4354', 'kirki-ecommerce')}
-          />
-        </Flex>
+            <TextField
+              name="shipping_address.address_line2"
+              label={__(
+                'Apartment, suite, etc. (optional)',
+                'kirki-ecommerce',
+              )}
+            />
+            <Grid>
+              <TextField
+                name="shipping_address.city"
+                label={__('City', 'kirki-ecommerce')}
+              />
+              <TextField
+                name="shipping_address.state"
+                label={__('State / Province', 'kirki-ecommerce')}
+              />
+            </Grid>
+            <TextField
+              name="shipping_address.postal_code"
+              label={__('ZIP / Postal code', 'kirki-ecommerce')}
+              placeholder={__('+1 (555) 222 4354', 'kirki-ecommerce')}
+            />
+          </Flex>
+        </CardContent>
       </Card>
     </Card>
   );
@@ -60,3 +68,12 @@ const ShippingAddress = () => {
 ShippingAddress.displayName = 'ShippingAddress';
 
 export default ShippingAddress;
+
+const styles = {
+  roundedCard: scoped({
+    padding: theme.spacing['3xl'],
+    borderRadius: theme.radius.xl,
+    gap: theme.spacing['3xl'],
+  }),
+};
+

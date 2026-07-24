@@ -1,6 +1,8 @@
 import Flex from '@/components/ui/flex';
 import Searchbox from '@/components/ui/searchbox';
 import { useListParams } from '@/hooks';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 
 const BrandTableAction = () => {
   const { params, setParam } = useListParams({
@@ -18,7 +20,7 @@ const BrandTableAction = () => {
   };
 
   return (
-    <Flex style={{ padding: '16px 12px' }}>
+    <Flex css={styles.wrapper}>
       <div style={{ width: '160px' }}>
         <Searchbox
           onChange={(value) => handleSearchChange(value as string)}
@@ -32,3 +34,9 @@ const BrandTableAction = () => {
 BrandTableAction.displayName = 'BrandTableAction';
 
 export default BrandTableAction;
+
+const styles = {
+  wrapper: scoped({
+    padding: `${theme.spacing['2xl']} ${theme.spacing.lg}`,
+  }),
+};

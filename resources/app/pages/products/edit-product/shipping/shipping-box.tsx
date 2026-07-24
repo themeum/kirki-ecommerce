@@ -15,6 +15,8 @@ import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { useShippingBoxesQuery } from '@/services/shipping';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import type { FormErrors } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -65,13 +67,7 @@ const ShippingBoxSelect = ({
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          <Flex
-            style={{
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              padding: '8px 12px',
-            }}
-          >
+          <Flex css={styles.header}>
             <Text
               subHeader={__('Available shipping boxes', 'kirki-ecommerce')}
               type="primary"
@@ -92,7 +88,7 @@ const ShippingBoxSelect = ({
             </SelectItem>
           ))}
           <SelectSeparator />
-          <ActionGroup style={{ padding: '8px 12px' }}>
+          <ActionGroup css={styles.footer}>
             <Button
               variant="secondary"
               size="sm"
@@ -118,3 +114,14 @@ const ShippingBoxSelect = ({
 ShippingBoxSelect.displayName = 'ShippingBox';
 
 export default ShippingBoxSelect;
+
+const styles = {
+  header: scoped({
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: `${theme.spacing.md} ${theme.spacing.lg}`,
+  }),
+  footer: scoped({
+    padding: `${theme.spacing.md} ${theme.spacing.lg}`,
+  }),
+};

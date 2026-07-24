@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
+import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
 const backButtonCss = css({
@@ -61,7 +62,7 @@ const PageNavbar = (props: PageNavbarProps) => {
             clipPath: "path('M0,0 Q4.25,6 8.5,0 L8.5,19 Q4.25,13 0,19 Z')",
           }}
         ></div>
-        <Card type="navbar">
+        <Card css={cardStyles.navbarCard}>
           <Text type="primary" header={text} leftIcon={textIcon} />
           {rightAction}
         </Card>
@@ -71,3 +72,4 @@ const PageNavbar = (props: PageNavbarProps) => {
 };
 
 export default PageNavbar;
+

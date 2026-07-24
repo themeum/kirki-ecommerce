@@ -1,6 +1,8 @@
 import Checkbox from '@/components/ui/checkbox';
-import Label from '@/components/ui/label';
 import Flex from '@/components/ui/flex';
+import Label from '@/components/ui/label';
+import { theme } from '@/theme';
+import { itemCenter, scoped } from '@/theme/mixins';
 import type { Category } from '@/types';
 
 type ProductCategorySelection = {
@@ -24,7 +26,7 @@ const SingleItem = ({
   const isChecked = selectedCategories.some((c) => c.id === category.id);
 
   return (
-    <div style={{ padding: '8px 16px 8px 0px' }}>
+    <div css={styles.row}>
       <Flex gap={8} style={{ alignItems: 'center' }}>
         <Checkbox
           id={`category-${category.id}`}
@@ -40,3 +42,12 @@ const SingleItem = ({
 SingleItem.displayName = 'SingleItem';
 
 export default SingleItem;
+
+const styles = {
+  row: scoped({
+    width: '100%',
+    boxSizing: 'border-box',
+    padding: `${theme.spacing.md} ${theme.spacing['2xl']}`,
+    ...itemCenter(),
+  }),
+};

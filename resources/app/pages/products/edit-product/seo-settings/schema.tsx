@@ -4,6 +4,7 @@ import SelectField from '@/components/form/select-field';
 import GroupTagTable from '@/components/group-tag-table';
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
+import { cardStyles } from '@/theme/card-styles';
 import type { SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -52,8 +53,8 @@ const Schema = () => {
         hasSelect
         isEditable
       />
-      <Card type="inner">
-        <CardContent>askjdasjdajosidaosij</CardContent>
+      <Card css={cardStyles.innerCard}>
+        <CardContent css={cardStyles.innerContent}>askjdasjdajosidaosij</CardContent>
       </Card>
     </Flex>
   );
@@ -62,3 +63,4 @@ const Schema = () => {
 Schema.displayName = 'Schema';
 
 export default Schema;
+

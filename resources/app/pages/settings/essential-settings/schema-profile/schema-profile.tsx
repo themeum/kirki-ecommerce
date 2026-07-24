@@ -2,7 +2,10 @@ import { useState, useEffect, type ReactNode } from 'react';
 
 import HeaderActionsCard from '@/components/header-actions-card';
 import GroupOptionCard from '@/components/group-option-card';
-import { Card } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+} from '@/components/ui/card';
 import { BoxOpenIcon } from '@/icons';
 import Flex from '@/components/ui/flex';
 import { dispatchToastMessage } from '@/pages/utils';
@@ -10,6 +13,7 @@ import { useSchemasQuery, useDeleteSchemaMutation } from '@/services/schema';
 import type { SchemaProfile } from '@/types';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
 import AddSchemaPopup from '@/pages/settings/essential-settings/schema-profile/add-schema-dialog';
@@ -65,42 +69,46 @@ const SchemaProfileComponent = () => {
   };
 
   return (
-    <Card type="large">
-      <HeaderActionsCard
-        header={__('Schema Profile', 'kirki-ecommerce')}
-        subHeader={__(
-          'Used to create tax rates for different product groups, like heavy items needing higher fees.',
-          'kirki-ecommerce',
-        )}
-        buttonText={__('Add Profile', 'kirki-ecommerce')}
-        onAdd={() => setShowPopup(true)}
-      />
-      {!schemaProfileList?.length ? (
-        <Card type="innerDark" css={styles.emptyState}>
-          <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
-            <BoxOpenIcon />
-            <span css={styles.emptyStateText}>
-              {__('Added schema profiles will appear here', 'kirki-ecommerce')}
-            </span>
-          </Flex>
-        </Card>
-      ) : (
-        <Flex direction="column" data-box-wrapper css={styles.boxWrapper}>
-          <GroupOptionCard
-            dataArr={schemaProfileList}
-            handleDeleteItem={(item) => handleDeleteSchema(item as SchemaListItem)}
-            handleEditItem={(item) => handleEditSchema(item as SchemaListItem)}
-          />
-        </Flex>
-      )}
-      {showPopup && (
-        <AddSchemaPopup
-          isOpen={showPopup}
-          onClose={handleClosePopup}
-          editedItem={editedItem}
-          setEditedItem={setEditedItem}
+    <Card css={cardStyles.largeCard}>
+      <CardContent css={cardStyles.largeContentPadded}>
+        <HeaderActionsCard
+          header={__('Schema Profile', 'kirki-ecommerce')}
+          subHeader={__(
+            'Used to create tax rates for different product groups, like heavy items needing higher fees.',
+            'kirki-ecommerce',
+          )}
+          buttonText={__('Add Profile', 'kirki-ecommerce')}
+          onAdd={() => setShowPopup(true)}
         />
-      )}
+        {!schemaProfileList?.length ? (
+          <Card css={cardStyles.innerDarkCard}>
+            <CardContent css={[cardStyles.innerDarkContent, styles.emptyState]}>
+              <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
+                <BoxOpenIcon />
+                <span css={styles.emptyStateText}>
+                  {__('Added schema profiles will appear here', 'kirki-ecommerce')}
+                </span>
+              </Flex>
+            </CardContent>
+          </Card>
+        ) : (
+          <Flex direction="column" data-box-wrapper css={styles.boxWrapper}>
+            <GroupOptionCard
+              dataArr={schemaProfileList}
+              handleDeleteItem={(item) => handleDeleteSchema(item as SchemaListItem)}
+              handleEditItem={(item) => handleEditSchema(item as SchemaListItem)}
+            />
+          </Flex>
+        )}
+        {showPopup && (
+          <AddSchemaPopup
+            isOpen={showPopup}
+            onClose={handleClosePopup}
+            editedItem={editedItem}
+            setEditedItem={setEditedItem}
+          />
+        )}
+      </CardContent>
     </Card>
   );
 };
@@ -128,5 +136,5 @@ const styles = {
   }),
   emptyStateText: scoped({
     color: theme.colors.text.subdued,
-  }),
+  })
 };

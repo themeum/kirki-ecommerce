@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 
 import Button from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
 import Input from '@/components/ui/input';
 import {
@@ -24,6 +24,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useProductForm } from '@/contexts/product-form-context';
+import { cardStyles } from '@/theme/card-styles';
 import type { SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -131,10 +132,8 @@ const VariationTable = () => {
         </ActionGroup>
       </Flex>
 
-      <Card
-        type="inner"
-        style={{ padding: 0 }}
-      >
+      <Card css={[cardStyles.innerCard, cardStyles.tableCard]}>
+        <CardContent css={cardStyles.tableContent}>
         <Table type="variation">
           <TableHeader>
             <TableRow style={{ height: '53px' }}>
@@ -251,6 +250,7 @@ const VariationTable = () => {
             ))}
           </TableBody>
         </Table>
+        </CardContent>
       </Card>
     </>
   );
@@ -259,3 +259,4 @@ const VariationTable = () => {
 VariationTable.displayName = 'VariationTable';
 
 export default VariationTable;
+

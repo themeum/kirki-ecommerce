@@ -9,19 +9,20 @@ import {
 import Flex from '@/components/ui/flex';
 import { theme } from '@/theme';
 import { flexCenter, scoped } from '@/theme/mixins';
+import { __ } from '@/wpi18n';
 
-type TagProps = Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'css'> & {
+type ChipProps = Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'css'> & {
   text?: ReactNode;
   subText?: ReactNode;
   img?: ReactNode;
   color?: string;
   gap?: number;
   closeIcon?: ReactNode;
-  onTagRemove?: () => void;
+  onRemove?: () => void;
   css?: SerializedStyles;
 };
 
-const Tag = forwardRef<HTMLDivElement, TagProps>((props, ref) => {
+const Chip = forwardRef<HTMLDivElement, ChipProps>((props, ref) => {
   const {
     css: cssProp,
     text,
@@ -31,17 +32,17 @@ const Tag = forwardRef<HTMLDivElement, TagProps>((props, ref) => {
     gap = 8,
     closeIcon,
     style,
-    onTagRemove = () => {},
+    onRemove = () => {},
     ...rest
   } = props;
 
-  const tagStyle = {
-    ...(color !== undefined ? { '--tag-swatch-color': color } : {}),
+  const chipStyle = {
+    ...(color !== undefined ? { '--chip-swatch-color': color } : {}),
     ...style,
   } as CSSProperties;
 
   return (
-    <div ref={ref} style={tagStyle} css={[styles.root, cssProp]} {...rest}>
+    <div ref={ref} style={chipStyle} css={[styles.root, cssProp]} {...rest}>
       <Flex gap={gap} style={{ alignItems: 'center' }}>
         {img}
         {color && <div css={styles.swatch} aria-hidden="true" />}
@@ -51,8 +52,8 @@ const Tag = forwardRef<HTMLDivElement, TagProps>((props, ref) => {
           <button
             type="button"
             css={styles.close}
-            onClick={onTagRemove}
-            aria-label="Remove tag"
+            onClick={onRemove}
+            aria-label={__('Remove', 'kirki-ecommerce')}
           >
             {closeIcon}
           </button>
@@ -62,9 +63,10 @@ const Tag = forwardRef<HTMLDivElement, TagProps>((props, ref) => {
   );
 });
 
-Tag.displayName = 'Tag';
+Chip.displayName = 'Chip';
 
-export default Tag;
+export default Chip;
+export type { ChipProps };
 
 const styles = {
   root: scoped({
@@ -84,7 +86,7 @@ const styles = {
     borderRadius: theme.radius.full,
     height: '16px',
     width: '16px',
-    backgroundColor: 'var(--tag-swatch-color)',
+    backgroundColor: 'var(--chip-swatch-color)',
   }),
   close: scoped({
     ...flexCenter(),

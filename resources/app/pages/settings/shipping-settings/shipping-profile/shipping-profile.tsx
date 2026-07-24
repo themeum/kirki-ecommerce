@@ -4,7 +4,10 @@ import Flex from '@/components/ui/flex';
 import { BoxClosedIcon, BoxOpenIcon } from '@/icons';
 import GroupOptionCard from '@/components/group-option-card';
 import HeaderActionsCard from '@/components/header-actions-card';
-import { Card } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+} from '@/components/ui/card';
 import { queryClient } from '@/libs/query-client';
 import {
   deleteShippingProfile,
@@ -14,6 +17,7 @@ import { dispatchToastMessage } from '@/pages/utils';
 import type { ShippingProfile as ShippingProfileType } from '@/types';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
 import { CreateProfilePopup } from '@/pages/settings/shipping-settings/shipping-profile/create-profile-dialog';
@@ -67,42 +71,46 @@ const ShippingProfile = () => {
 
   return (
     <>
-      <Card type="large">
-        <HeaderActionsCard
-          header={__('Shipping Profiles', 'kirki-ecommerce')}
-          subHeader={__(
-            'Used to create shipping rates for different product groups, like heavy items needing higher fees.',
-            'kirki-ecommerce',
-          )}
-          buttonText={__('Create Profile', 'kirki-ecommerce')}
-          onAdd={() => setShowPopup(true)}
-        />
+      <Card css={cardStyles.largeCard}>
+        <CardContent css={cardStyles.largeContentPadded}>
+          <HeaderActionsCard
+            header={__('Shipping Profiles', 'kirki-ecommerce')}
+            subHeader={__(
+              'Used to create shipping rates for different product groups, like heavy items needing higher fees.',
+              'kirki-ecommerce',
+            )}
+            buttonText={__('Create Profile', 'kirki-ecommerce')}
+            onAdd={() => setShowPopup(true)}
+          />
 
-        {!shippingProfileList?.length ? (
-          <Card type="innerDark" css={styles.emptyState}>
-            <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
-              <BoxOpenIcon />
-              <span css={styles.emptyStateText}>
-                {__(
-                  'Added shipping profiles will appear here',
-                  'kirki-ecommerce',
-                )}
-              </span>
+          {!shippingProfileList?.length ? (
+            <Card css={cardStyles.innerDarkCard}>
+              <CardContent css={[cardStyles.innerDarkContent, styles.emptyState]}>
+                <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
+                  <BoxOpenIcon />
+                  <span css={styles.emptyStateText}>
+                    {__(
+                      'Added shipping profiles will appear here',
+                      'kirki-ecommerce',
+                    )}
+                  </span>
+                </Flex>
+              </CardContent>
+            </Card>
+          ) : (
+            <Flex direction="column" data-box-wrapper css={styles.boxWrapper}>
+              <GroupOptionCard
+                dataArr={shippingProfileList}
+                handleDeleteItem={(item) =>
+                  handleDeleteShippingProfile(item as ShippingProfileListItem)
+                }
+                handleEditItem={(item) =>
+                  handleEditShippingProfile(item as ShippingProfileListItem)
+                }
+              />
             </Flex>
-          </Card>
-        ) : (
-          <Flex direction="column" data-box-wrapper css={styles.boxWrapper}>
-            <GroupOptionCard
-              dataArr={shippingProfileList}
-              handleDeleteItem={(item) =>
-                handleDeleteShippingProfile(item as ShippingProfileListItem)
-              }
-              handleEditItem={(item) =>
-                handleEditShippingProfile(item as ShippingProfileListItem)
-              }
-            />
-          </Flex>
-        )}
+          )}
+        </CardContent>
       </Card>
       {showPopup && (
         <CreateProfilePopup
@@ -142,5 +150,5 @@ const styles = {
   }),
   emptyStateText: scoped({
     color: theme.colors.text.subdued,
-  }),
+  })
 };

@@ -10,6 +10,8 @@ import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
 import Searchbox from '@/components/ui/searchbox';
 import { useListParams } from '@/hooks';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 import FilterPopup from '@/pages/products/product-table/filter-popup/filter-popup';
@@ -34,7 +36,7 @@ const ProductTableAction = () => {
   };
 
   return (
-    <Flex style={{ padding: '16px 12px' }}>
+    <Flex css={styles.wrapper}>
       <div style={{ width: '160px' }}>
         <Searchbox
           onChange={(value) => handleSearchChange(value as string)}
@@ -43,7 +45,7 @@ const ProductTableAction = () => {
       </div>
       <ActionGroup>
         <Select disabled>
-          <SelectTrigger style={{ padding: '8px 16px' }}>
+          <SelectTrigger css={styles.selectTrigger}>
             <SelectValue placeholder={__('Date: This Month', 'kirki-ecommerce')} />
           </SelectTrigger>
           <SelectContent />
@@ -65,3 +67,12 @@ const ProductTableAction = () => {
 ProductTableAction.displayName = 'ProductTableAction';
 
 export default ProductTableAction;
+
+const styles = {
+  wrapper: scoped({
+    padding: `${theme.spacing['2xl']} ${theme.spacing.lg}`,
+  }),
+  selectTrigger: scoped({
+    padding: `${theme.spacing.md} ${theme.spacing['2xl']}`,
+  }),
+};

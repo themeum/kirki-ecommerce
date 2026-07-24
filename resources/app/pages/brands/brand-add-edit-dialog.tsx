@@ -27,6 +27,7 @@ import {
 } from '@/schemas/forms/brand-form';
 import { useCreateBrandMutation, useUpdateBrandMutation } from '@/services/brand';
 import type { Brand, BrandFormData } from '@/types';
+import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
 type BrandAddEditPopoverProps = {
@@ -114,7 +115,7 @@ const BrandAddEditPopover = ({
           <form onSubmit={form.handleSubmit(handleSubmit)}>
             <DialogBody>
               <Flex direction="column" gap={16}>
-                <Card type="light">
+                <Card css={cardStyles.lightCard}>
                   <CardContent>
                     <Flex direction="column" gap={16}>
                       <TextField
@@ -174,3 +175,4 @@ const BrandAddEditPopover = ({
 BrandAddEditPopover.displayName = 'BrandAddEditPopover';
 
 export default BrandAddEditPopover;
+

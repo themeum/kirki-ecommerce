@@ -15,7 +15,7 @@ export const BARREL_EXPORTS = {
   RichText: 'rich-text',
   Tab: 'tab',
   TagManager: 'tag-manager/tag-manager',
-  Tag: 'tag',
+  Chip: 'chip',
   SuggestionDropdown: 'suggestion-dropdown',
   Flex: 'flex',
   RadioGroup: 'radio-group/radio-group',

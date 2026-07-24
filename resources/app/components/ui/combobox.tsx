@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import { type SerializedStyles, type Theme } from '@emotion/react';
-import { Check, ChevronsUpDown, X } from 'lucide-react';
+import { Check, ChevronsUpDown, PlusCircle, X } from 'lucide-react';
 
 import {
   Command,
@@ -15,6 +15,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import { Separator } from '@/components/ui/separator';
 import { theme } from '@/theme';
 import {
   flexCenter,
@@ -40,11 +41,22 @@ type ComboboxProps = {
   disabled?: boolean;
   error?: boolean;
   multiple?: boolean;
+  creatable?: boolean;
+  addItemLabel?: string;
+  onAddItem?: (query: string) => void;
   css?: SerializedStyles;
   listCss?: SerializedStyles;
   searchInputCss?: SerializedStyles;
 };
 
+/**
+ * Searchable select with optional creatable add-item row.
+ *
+ * @param props Component props.
+ *
+ * @returns Combobox element.
+ * @since 1.0.0
+ */
 const Combobox = ({
   options,
   value,
@@ -55,11 +67,15 @@ const Combobox = ({
   disabled = false,
   error = false,
   multiple = false,
+  creatable = false,
+  addItemLabel = __('Add item', 'kirki-ecommerce'),
+  onAddItem = () => {},
   css: cssProp,
   listCss,
   searchInputCss,
 }: ComboboxProps) => {
   const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState('');
 
   const selectedValues = multiple
     ? Array.isArray(value)
@@ -73,6 +89,13 @@ const Combobox = ({
     selectedValues.includes(option.value),
   );
 
+  const trimmedSearch = search.trim();
+  const hasExactMatch = options.some(
+    (option) => option.label.toLowerCase() === trimmedSearch.toLowerCase(),
+  );
+  const showCreatable =
+    creatable && trimmedSearch.length > 0 && !hasExactMatch;
+
   const handleSelect = (optionValue: string) => {
     if (multiple) {
       const nextValues = selectedValues.includes(optionValue)
@@ -84,6 +107,7 @@ const Combobox = ({
 
     onChange(optionValue === value ? '' : optionValue);
     setOpen(false);
+    setSearch('');
   };
 
   const handleRemove = (optionValue: string) => {
@@ -91,6 +115,16 @@ const Combobox = ({
       return;
     }
     onChange(selectedValues.filter((item) => item !== optionValue));
+  };
+
+  const handleAddItem = () => {
+    if (!trimmedSearch) {
+      return;
+    }
+
+    onAddItem(trimmedSearch);
+    setOpen(false);
+    setSearch('');
   };
 
   const triggerLabel = (): ReactNode => {
@@ -129,7 +163,15 @@ const Combobox = ({
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover
+      open={open}
+      onOpenChange={(nextOpen) => {
+        setOpen(nextOpen);
+        if (!nextOpen) {
+          setSearch('');
+        }
+      }}
+    >
       <PopoverTrigger asChild>
         <button
           type="button"
@@ -145,9 +187,27 @@ const Combobox = ({
       </PopoverTrigger>
       <PopoverContent align="start" css={styles.content}>
         <Command>
-          <CommandInput placeholder={searchPlaceholder} css={searchInputCss} />
+          <CommandInput
+            placeholder={searchPlaceholder}
+            css={searchInputCss}
+            value={search}
+            onValueChange={setSearch}
+          />
           <CommandList css={listCss}>
-            <CommandEmpty>{emptyText}</CommandEmpty>
+            {!showCreatable && <CommandEmpty>{emptyText}</CommandEmpty>}
+            {showCreatable && (
+              <>
+                <CommandGroup>
+                  <CommandItem value={trimmedSearch} onSelect={handleAddItem}>
+                    <span css={styles.addIcon}>
+                      <PlusCircle size={16} aria-hidden="true" />
+                    </span>
+                    {addItemLabel}
+                  </CommandItem>
+                </CommandGroup>
+                {options.length > 0 && <Separator />}
+              </>
+            )}
             <CommandGroup>
               {options.map((option) => {
                 const isSelected = selectedValues.includes(option.value);
@@ -159,7 +219,10 @@ const Combobox = ({
                     onSelect={() => handleSelect(option.value)}
                   >
                     <span
-                      css={[styles.itemCheck, !isSelected && styles.itemCheckEmpty]}
+                      css={[
+                        styles.itemCheck,
+                        !isSelected && styles.itemCheckEmpty,
+                      ]}
                     >
                       {isSelected && <Check size={14} />}
                     </span>
@@ -281,5 +344,9 @@ const styles = {
   }),
   itemCheckEmpty: scoped({
     opacity: 0,
+  }),
+  addIcon: scoped({
+    ...itemCenter(),
+    flexShrink: 0,
   }),
 };

@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 import TextField from '@/components/form/text-field';
 import Button from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
 import {
   Dialog,
@@ -21,6 +21,7 @@ import Label from '@/components/ui/label';
 import Flex from '@/components/ui/flex';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import {
   ShippingRegionFormSchema,
   shippingRegionDefaultValues,
@@ -270,14 +271,15 @@ export const ShippingRegionPopup = ({
               />
             </Flex>
 
-            <Card type="table" css={styles.tableCard}>
-              <div
-                style={{
-                  height: '432px',
-                  overflowX: 'hidden',
-                  overflowY: 'scroll',
-                }}
-              >
+            <Card css={cardStyles.tableCardRounded}>
+              <CardContent css={cardStyles.tableContent}>
+                <div
+                  style={{
+                    height: '432px',
+                    overflowX: 'hidden',
+                    overflowY: 'scroll',
+                  }}
+                >
                 <Flex>
                   {__('Name', 'kirki-ecommerce')}
                 </Flex>
@@ -345,6 +347,7 @@ export const ShippingRegionPopup = ({
                     );
                   })}
               </div>
+              </CardContent>
             </Card>
           </DialogBody>
           <DialogFooter>
@@ -373,9 +376,6 @@ export const ShippingRegionPopup = ({
 ShippingRegionPopup.displayName = 'ShippingRegionPopup';
 
 const styles = {
-  tableCard: scoped({
-    borderRadius: theme.radius.md,
-  }),
   checkboxItem: scoped({
     width: 'auto',
     padding: `${theme.spacing.md} ${theme.spacing.lg}`,
@@ -386,5 +386,5 @@ const styles = {
   }),
   nestedStates: scoped({
     padding: `${theme.spacing.none} ${theme.spacing.lg}`,
-  }),
+  })
 };

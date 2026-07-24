@@ -2,7 +2,10 @@ import { type ComponentProps, type ReactNode, useState } from 'react';
 import { useWatch } from 'react-hook-form';
 
 import GroupOptionCard from '@/components/group-option-card';
-import { Card } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+} from '@/components/ui/card';
 import { InfoIcon, IncreaseIcon } from '@/icons';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
@@ -19,6 +22,8 @@ import type {
   SelectOption,
 } from '@/types';
 import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import { __, sprintf } from '@/wpi18n';
 
 import AddCurrencyPopup from '@/pages/settings/multi-currency-settings/add-currency-dialog';
@@ -157,53 +162,50 @@ export const AvailableCurrencyList = () => {
 
   return (
     <>
-      <Card
-        type="inner"
-        style={{
-          padding: theme.spacing['3xl'],
-        }}
-      >
-        <Flex
-          style={{
-            justifyContent: 'space-between',
-            paddingBottom: theme.spacing.lg,
-          }}
-        >
-          <Text header={__('Available Currencies', 'kirki-ecommerce')} type="primary" />
-          <AddCurrencyPopup />
-        </Flex>
-        <GroupOptionCard
-          dataArr={
-            currencyList as ComponentProps<typeof GroupOptionCard>['dataArr']
-          }
-          handleToggleItem={(item) => handleToggleCurrencyItem(item as CurrencyListItem)}
-          handleMoreOption={true}
-          actionsArray={[]}
-          handleAction={(action, item) => handleAction(action, item as CurrencyListItem)}
-        />
-        <Flex
-          gap={8}
-          style={{
-            paddingTop: theme.spacing.md,
-          }}
-        >
-          <InfoIcon />
-          <Text
-            type="xsm"
-            subHeader={
-              showApiProviderStatus
-                ? sprintf(
-                    __(
-                      'API connection is active. Last sync: %s. Next update %s.',
-                      'kirki-ecommerce',
-                    ),
-                    dateFormatter(dataObj?.last_sync_at as string, 'relative'),
-                    dateFormatter(dataObj?.next_sync_at as string, 'relative'),
-                  )
-                : __('API connection is inactive', 'kirki-ecommerce')
+      <Card css={cardStyles.innerCard}>
+        <CardContent css={styles.innerCardContent}>
+          <Flex
+            style={{
+              justifyContent: 'space-between',
+              paddingBottom: theme.spacing.lg,
+            }}
+          >
+            <Text header={__('Available Currencies', 'kirki-ecommerce')} type="primary" />
+            <AddCurrencyPopup />
+          </Flex>
+          <GroupOptionCard
+            dataArr={
+              currencyList as ComponentProps<typeof GroupOptionCard>['dataArr']
             }
+            handleToggleItem={(item) => handleToggleCurrencyItem(item as CurrencyListItem)}
+            handleMoreOption={true}
+            actionsArray={[]}
+            handleAction={(action, item) => handleAction(action, item as CurrencyListItem)}
           />
-        </Flex>
+          <Flex
+            gap={8}
+            style={{
+              paddingTop: theme.spacing.md,
+            }}
+          >
+            <InfoIcon />
+            <Text
+              type="xsm"
+              subHeader={
+                showApiProviderStatus
+                  ? sprintf(
+                      __(
+                        'API connection is active. Last sync: %s. Next update %s.',
+                        'kirki-ecommerce',
+                      ),
+                      dateFormatter(dataObj?.last_sync_at as string, 'relative'),
+                      dateFormatter(dataObj?.next_sync_at as string, 'relative'),
+                    )
+                  : __('API connection is inactive', 'kirki-ecommerce')
+              }
+            />
+          </Flex>
+        </CardContent>
       </Card>
       {editCurrency && (
         <EditCurrencyPopup
@@ -214,4 +216,10 @@ export const AvailableCurrencyList = () => {
       )}
     </>
   );
+};
+
+const styles = {
+  innerCardContent: scoped({
+    padding: theme.spacing['3xl'],
+  })
 };

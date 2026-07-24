@@ -6,7 +6,10 @@ import { useQueryClient } from '@tanstack/react-query';
 
 import PageNavbar from '@/components/page-navbar';
 import Button from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+} from '@/components/ui/card';
 import {
   Form,
   FormControl,
@@ -39,6 +42,7 @@ import {
 import type { SettingsSectionData } from '@/types';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
@@ -72,67 +76,67 @@ const VatCollectionProcessRadios = () => {
 
   return (
     <Flex direction={'column'} gap={8}>
-      <Card
-        type="inner"
-        css={styles.vatProcessCard}
-      >
+      <Card css={[cardStyles.innerCard, styles.vatProcessCard]} >
+        <CardContent css={cardStyles.innerContent}>
+
         <FormField
-          control={control}
-          name="type"
-          render={({ field }) => (
-            <FormItem>
-              <FormControl>
-                <RadioGroup
-                  value={field.value}
-                  onValueChange={(value) => handleProcessChange(value)}
-                >
-                  <FormFieldRow>
-                    <RadioGroupItem value="oss" id="vat-process-oss" />
-                    <Label htmlFor="vat-process-oss">
-                      {__('One Stop Shop (OSS)', 'kirki-ecommerce')}
-                    </Label>
-                  </FormFieldRow>
-                </RadioGroup>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+        control={control}
+        name="type"
+        render={({ field }) => (
+        <FormItem>
+        <FormControl>
+        <RadioGroup
+        value={field.value}
+        onValueChange={(value) => handleProcessChange(value)}
+        >
+        <FormFieldRow>
+        <RadioGroupItem value="oss" id="vat-process-oss" />
+        <Label htmlFor="vat-process-oss">
+        {__('One Stop Shop (OSS)', 'kirki-ecommerce')}
+        </Label>
+        </FormFieldRow>
+        </RadioGroup>
+        </FormControl>
+        <FormMessage />
+        </FormItem>
+        )}
         />
 
         <VatProcessDescription processValue="oss" />
+        </CardContent>
       </Card>
 
-      <Card
-        type="inner"
-        css={styles.vatProcessCard}
-      >
+      <Card css={[cardStyles.innerCard, styles.vatProcessCard]} >
+        <CardContent css={cardStyles.innerContent}>
+
         <FormField
-          control={control}
-          name="type"
-          render={({ field }) => (
-            <FormItem>
-              <FormControl>
-                <RadioGroup
-                  value={field.value}
-                  onValueChange={(value) => handleProcessChange(value)}
-                >
-                  <FormFieldRow>
-                    <RadioGroupItem
-                      value="micro_business"
-                      id="vat-process-micro-business"
-                    />
-                    <Label htmlFor="vat-process-micro-business">
-                      {__('Micro Business', 'kirki-ecommerce')}
-                    </Label>
-                  </FormFieldRow>
-                </RadioGroup>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+        control={control}
+        name="type"
+        render={({ field }) => (
+        <FormItem>
+        <FormControl>
+        <RadioGroup
+        value={field.value}
+        onValueChange={(value) => handleProcessChange(value)}
+        >
+        <FormFieldRow>
+        <RadioGroupItem
+        value="micro_business"
+        id="vat-process-micro-business"
+        />
+        <Label htmlFor="vat-process-micro-business">
+        {__('Micro Business', 'kirki-ecommerce')}
+        </Label>
+        </FormFieldRow>
+        </RadioGroup>
+        </FormControl>
+        <FormMessage />
+        </FormItem>
+        )}
         />
 
         <VatProcessDescription processValue="micro_business" />
+        </CardContent>
       </Card>
     </Flex>
   );
@@ -150,20 +154,23 @@ const VatProcessDescription = ({
   }
 
   return (
-    <Card type="innerDark">
+    <Card css={cardStyles.innerDarkCard} >
+      <CardContent css={cardStyles.innerDarkContent}>
+
       <Text
-        subHeader={
-          processValue === 'oss'
-            ? __(
-                'Applies to businesses selling across multiple EU countries under OSS.',
-                'kirki-ecommerce',
-              )
-            : __(
-                'Applies to businesses with less than €10,000 EU sales.',
-                'kirki-ecommerce',
-              )
-        }
+      subHeader={
+      processValue === 'oss'
+      ? __(
+      'Applies to businesses selling across multiple EU countries under OSS.',
+      'kirki-ecommerce',
+      )
+      : __(
+      'Applies to businesses with less than €10,000 EU sales.',
+      'kirki-ecommerce',
+      )
+      }
       />
+      </CardContent>
     </Card>
   );
 };
@@ -351,12 +358,15 @@ const EditRegionEU = () => {
                 handleBack={handleBackButton}
               />
 
-              <Card type="large">
+              <Card css={cardStyles.largeCard} >
+                <CardContent css={cardStyles.largeContentPadded}>
+
                 <Text
-                  type="primary"
-                  header={__('How would you like to collect VAT?', 'kirki-ecommerce')}
+                type="primary"
+                header={__('How would you like to collect VAT?', 'kirki-ecommerce')}
                 />
                 <VatCollectionProcessRadios />
+                </CardContent>
               </Card>
 
               <VatCollection
@@ -392,5 +402,5 @@ const styles = {
     display: 'flex',
     flexDirection: 'column',
     gap: theme.spacing.md,
-  }),
+  })
 };

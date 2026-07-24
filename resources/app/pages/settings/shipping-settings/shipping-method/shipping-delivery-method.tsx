@@ -8,7 +8,10 @@ import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import PageNavbar from '@/components/page-navbar';
 import Button from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+} from '@/components/ui/card';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
 import {
@@ -24,8 +27,7 @@ import { useUnsavedStatus } from '@/libs/unsaved-store';
 import { getErrorMessage } from '@/services/helpers';
 import { useSettingsQuery, updateSettings } from '@/services/settings';
 import type { SettingsSectionData } from '@/types';
-import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
 import FlatRateSettings from '@/pages/settings/shipping-settings/shipping-method/flat-rate-settings';
@@ -267,45 +269,48 @@ const ShippingDeliveryMethod = () => {
             text={methodSettingsMap[methodType].title ?? ''}
             handleBack={handleBackButton}
           />
-          <Card type="large" css={styles.formCard}>
+          <Card css={[cardStyles.largeCard, cardStyles.formCard]} >
+            <CardContent css={cardStyles.largeContentPadded}>
+
             <Flex direction="column" gap={8}>
-              <Label htmlFor="shipping-method-name">
-                {__('Method Name', 'kirki-ecommerce')}
-              </Label>
-              <Input
-                id="shipping-method-name"
-                value={(dataObj?.name as string) || ''}
-                placeholder={__('Standard Delivery', 'kirki-ecommerce')}
-                onChange={(e) => handleOnChange(e.target.value, 'name')}
-              />
+            <Label htmlFor="shipping-method-name">
+            {__('Method Name', 'kirki-ecommerce')}
+            </Label>
+            <Input
+            id="shipping-method-name"
+            value={(dataObj?.name as string) || ''}
+            placeholder={__('Standard Delivery', 'kirki-ecommerce')}
+            onChange={(e) => handleOnChange(e.target.value, 'name')}
+            />
             </Flex>
             <Flex direction="column" gap={8}>
-              <Label>{__('Method Type', 'kirki-ecommerce')}</Label>
-              <Select
-                value={methodType}
-                onValueChange={(value) => setMethodType(value as MethodType)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder={__('Flat Rate', 'kirki-ecommerce')} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="flat_rate">
-                    <TruckIcon />
-                    {__('Flat Rate', 'kirki-ecommerce')}
-                  </SelectItem>
-                  <SelectItem value="local_pickup">
-                    <WeightIcon />
-                    {__('Local Pickup', 'kirki-ecommerce')}
-                  </SelectItem>
-                  <SelectItem value="weight">
-                    <StoreIcon />
-                    {__('Rate by Weight', 'kirki-ecommerce')}
-                  </SelectItem>
-                </SelectContent>
-              </Select>
+            <Label>{__('Method Type', 'kirki-ecommerce')}</Label>
+            <Select
+            value={methodType}
+            onValueChange={(value) => setMethodType(value as MethodType)}
+            >
+            <SelectTrigger>
+            <SelectValue placeholder={__('Flat Rate', 'kirki-ecommerce')} />
+            </SelectTrigger>
+            <SelectContent>
+            <SelectItem value="flat_rate">
+            <TruckIcon />
+            {__('Flat Rate', 'kirki-ecommerce')}
+            </SelectItem>
+            <SelectItem value="local_pickup">
+            <WeightIcon />
+            {__('Local Pickup', 'kirki-ecommerce')}
+            </SelectItem>
+            <SelectItem value="weight">
+            <StoreIcon />
+            {__('Rate by Weight', 'kirki-ecommerce')}
+            </SelectItem>
+            </SelectContent>
+            </Select>
             </Flex>
 
             {methodSettingsMap[methodType].comp}
+            </CardContent>
           </Card>
           {methodExist && <ShippingRules methodId={methodId} />}
         </Flex>
@@ -318,8 +323,3 @@ ShippingDeliveryMethod.displayName = 'ShippingDeliveryMethod';
 
 export default ShippingDeliveryMethod;
 
-const styles = {
-  formCard: scoped({
-    gap: theme.spacing['2xl'],
-  }),
-};

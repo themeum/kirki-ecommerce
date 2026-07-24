@@ -6,7 +6,10 @@ import Flex from '@/components/ui/flex';
 import ActionGroup from '@/components/ui/action-group';
 import Text from '@/components/ui/text';
 import Button from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+} from '@/components/ui/card';
 import { __, sprintf } from '@/wpi18n';
 import { LighteningIcon, EditPenIcon, TrashIcon } from '@/icons';
 import HeaderActionsCard from '@/components/header-actions-card';
@@ -15,6 +18,7 @@ import { dispatchToastMessage } from '@/pages/utils';
 import type { SettingsSectionData } from '@/types';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 
 import { saveShippingZones, type ShippingRule, type ShippingZone } from '@/pages/settings/shipping-settings/utils';
 import ShippingRuleModal from '@/pages/settings/shipping-settings/shipping-method/shipping-rules/shipping-rule-dialog';
@@ -100,54 +104,57 @@ export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
   };
   return (
     <div>
-      <Card type="large">
-        <HeaderActionsCard
-          header={__('Shipping Rules', 'kirki-ecommerce')}
-          subHeader={__(
-            'Define conditional rules to adjust shipping prices based on product type, weight, zone, or cart value.',
-            'kirki-ecommerce',
-          )}
-          buttonText={__('Add Rule', 'kirki-ecommerce')}
-          onAdd={() => setAddRuleModal(true)}
-        />
-        {(addRuleModal || rulesObj.length > 0) && (
-          <Flex direction={'column'} gap={16}>
-            {addRuleModal && (
-              <ShippingRuleModal
-                methodId={methodId}
-                rulesObj={rulesObj}
-                setRulesObj={setRulesObj as Dispatch<SetStateAction<ShippingRule[] | ShippingRule>>}
-                showModal={addRuleModal}
-                setShowModal={setAddRuleModal}
-                from="add"
-              />
+      <Card css={cardStyles.largeCard}>
+        <CardContent css={cardStyles.largeContentPadded}>
+          <HeaderActionsCard
+            header={__('Shipping Rules', 'kirki-ecommerce')}
+            subHeader={__(
+              'Define conditional rules to adjust shipping prices based on product type, weight, zone, or cart value.',
+              'kirki-ecommerce',
             )}
+            buttonText={__('Add Rule', 'kirki-ecommerce')}
+            onAdd={() => setAddRuleModal(true)}
+          />
+          {(addRuleModal || rulesObj.length > 0) && (
+            <Flex direction={'column'} gap={16}>
+              {addRuleModal && (
+                <ShippingRuleModal
+                  methodId={methodId}
+                  rulesObj={rulesObj}
+                  setRulesObj={setRulesObj as Dispatch<SetStateAction<ShippingRule[] | ShippingRule>>}
+                  showModal={addRuleModal}
+                  setShowModal={setAddRuleModal}
+                  from="add"
+                />
+              )}
 
-            {rulesObj?.map((item, index) => (
-              <div key={index}>
-                <Card
-                  type="default"
-                  css={css(
-                    styles.shippingRulesCard,
-                    rulesObj.length > 1
-                      ? styles.shippingRulesCardBorderRadius
-                      : styles.shippingRulesCardSingle,
-                  )}
-                  onMouseEnter={() => setHoveredRuleIndex(index)}
-                  onMouseLeave={() => setHoveredRuleIndex(null)}
-                >
-                  <Flex style={{ justifyContent: 'space-between' }}>
-                    <Flex direction={'column'} gap={16}>
-                      <Card type="dark" css={styles.rulesNumberBadge}>
-                        <Text
-                          type="xsm"
-                          header={sprintf(
-                            __('Rule %s', 'kirki-ecommerce'),
-                            index + 1,
-                          )}
-                          leftIcon={<LighteningIcon />}
-                        />
-                      </Card>
+              {rulesObj?.map((item, index) => (
+                <div key={index}>
+                  <Card
+                    css={css(
+                      styles.shippingRulesCard,
+                      rulesObj.length > 1
+                        ? styles.shippingRulesCardBorderRadius
+                        : styles.shippingRulesCardSingle,
+                    )}
+                    onMouseEnter={() => setHoveredRuleIndex(index)}
+                    onMouseLeave={() => setHoveredRuleIndex(null)}
+                  >
+                    <CardContent>
+                      <Flex style={{ justifyContent: 'space-between' }}>
+                        <Flex direction={'column'} gap={16}>
+                          <Card css={[cardStyles.darkCard, styles.rulesNumberBadge]}>
+                            <CardContent>
+                              <Text
+                                type="xsm"
+                                header={sprintf(
+                                  __('Rule %s', 'kirki-ecommerce'),
+                                  index + 1,
+                                )}
+                                leftIcon={<LighteningIcon />}
+                              />
+                            </CardContent>
+                          </Card>
                       <Flex direction={'column'} gap={8}>
                         <Flex gap={8}>
                           <Text
@@ -224,11 +231,13 @@ export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
                       ruleIndex={index}
                     />
                   )}
-                </Card>
-              </div>
-            ))}
-          </Flex>
-        )}
+                    </CardContent>
+                  </Card>
+                </div>
+              ))}
+            </Flex>
+          )}
+        </CardContent>
       </Card>
     </div>
   );
@@ -270,5 +279,5 @@ const styles = {
     borderRadius: theme.radius.sm,
     display: 'flex',
     padding: `${theme.spacing.xs} ${theme.spacing.md}`,
-  }),
+  })
 };

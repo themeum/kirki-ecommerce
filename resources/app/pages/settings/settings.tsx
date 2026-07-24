@@ -1,10 +1,11 @@
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import PageHeading from '@/components/ui/page-heading';
 import Searchbox from '@/components/ui/searchbox';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import Text from '@/components/ui/text';
 import { __ } from '@/wpi18n';
 
@@ -41,16 +42,22 @@ const Settings = () => {
         style={{ height: '32px' }}
       />
       <Container size="sm">
-        <Card type="shadow" css={styles.pageCard}>
-          <Flex direction="column" gap={24}>
-            <Searchbox />
-            {renderSettingsSection('STORE MANAGEMENT', storeManagementSettings)}
-            {renderSettingsSection(
-              'BUSINESS OPERATION',
-              businessOperationSettings,
-            )}
-            {renderSettingsSection('ADVANCED CONFIGURATION', advancedSettings)}
-          </Flex>
+        <Card css={[cardStyles.shadowCard, cardStyles.pageCard]}>
+          <CardContent css={styles.pageContent}>
+            <Flex direction="column" gap={24}>
+              <Searchbox
+                onChange={() => {
+                  // @todo: will be implemented later
+                }}
+              />
+              {renderSettingsSection('STORE MANAGEMENT', storeManagementSettings)}
+              {renderSettingsSection(
+                'BUSINESS OPERATION',
+                businessOperationSettings,
+              )}
+              {renderSettingsSection('ADVANCED CONFIGURATION', advancedSettings)}
+            </Flex>
+          </CardContent>
         </Card>
       </Container>
     </>
@@ -60,9 +67,8 @@ const Settings = () => {
 export default Settings;
 
 const styles = {
-  pageCard: scoped({
+  pageContent: scoped({
     padding: `${theme.spacing['2xl']} ${theme.spacing.lg}`,
-    backgroundColor: theme.colors.background.surfaceSecondary,
   }),
   settingsCardWrapper: scoped({
     alignItems: 'center',
@@ -103,5 +109,5 @@ const styles = {
     '&:hover > div': {
       borderRadius: theme.radius.xl,
     },
-  }),
+  })
 };

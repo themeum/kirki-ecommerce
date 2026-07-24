@@ -10,6 +10,8 @@ import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
 import Searchbox from '@/components/ui/searchbox';
 import { useListParams } from '@/hooks';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 type CollectionTableActionProps = {
@@ -32,7 +34,7 @@ const CollectionTableAction = ({ onSortChange }: CollectionTableActionProps) => 
   };
 
   return (
-    <Flex style={{ padding: '16px 12px' }}>
+    <Flex css={styles.wrapper}>
       <div style={{ width: '180px' }}>
         <Searchbox
           value={params.search || ''}
@@ -41,7 +43,7 @@ const CollectionTableAction = ({ onSortChange }: CollectionTableActionProps) => 
       </div>
       <ActionGroup>
         <Select disabled>
-          <SelectTrigger style={{ padding: '8px 16px' }}>
+          <SelectTrigger css={styles.selectTrigger}>
             <SelectValue placeholder={__('Date: This Month', 'kirki-ecommerce')} />
           </SelectTrigger>
           <SelectContent />
@@ -62,3 +64,12 @@ const CollectionTableAction = ({ onSortChange }: CollectionTableActionProps) => 
 CollectionTableAction.displayName = 'CollectionTableAction';
 
 export default CollectionTableAction;
+
+const styles = {
+  wrapper: scoped({
+    padding: `${theme.spacing['2xl']} ${theme.spacing.lg}`,
+  }),
+  selectTrigger: scoped({
+    padding: `${theme.spacing.md} ${theme.spacing['2xl']}`,
+  }),
+};

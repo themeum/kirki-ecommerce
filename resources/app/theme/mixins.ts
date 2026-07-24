@@ -4,6 +4,7 @@ const APP_ROOT_SELECTOR = '#wpbody-content .kirki-ecommerce-root';
 
 /**
  * Scope Emotion styles under the app root so they beat the normalize button/input resets.
+ * Uses `&&` to raise specificity above typed form-control selectors (e.g. input[type="text"]).
  *
  * @param styles CSS object to apply to the element.
  *
@@ -11,7 +12,7 @@ const APP_ROOT_SELECTOR = '#wpbody-content .kirki-ecommerce-root';
  */
 const scoped = (styles: CSSObject) => {
   return css({
-    [`${APP_ROOT_SELECTOR} &`]: styles,
+    [`${APP_ROOT_SELECTOR} &&`]: styles,
   });
 };
 

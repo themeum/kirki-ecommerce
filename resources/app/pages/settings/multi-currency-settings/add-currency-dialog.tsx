@@ -30,6 +30,7 @@ import {
 } from '@/services/currency';
 import type { Currency } from '@/types';
 import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 import { getSearchedValue } from '@/pages/settings/utils';
@@ -168,7 +169,7 @@ const AddCurrencyPopup = () => {
                           'kirki-ecommerce',
                         )}
                         onChange={(e) => handleSearchCurrency(e)}
-                        style={{ paddingLeft: theme.spacing['6xl'] }}
+                        css={styles.searchInput}
                       />
                     </div>
                   </div>
@@ -219,9 +220,7 @@ const AddCurrencyPopup = () => {
                               }}
                             />
                             <Text
-                              style={{
-                                paddingRight: theme.spacing.lg,
-                              }}
+                              css={styles.symbolText}
                               type="primary"
                               header={currency.symbol}
                             />
@@ -266,3 +265,12 @@ const AddCurrencyPopup = () => {
 AddCurrencyPopup.displayName = 'AddCurrencyPopup';
 
 export default AddCurrencyPopup;
+
+const styles = {
+  searchInput: scoped({
+    paddingLeft: theme.spacing['6xl'],
+  }),
+  symbolText: scoped({
+    paddingRight: theme.spacing.lg,
+  }),
+};

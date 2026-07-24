@@ -114,7 +114,6 @@ export type {
   TextType,
   HeadingType,
   LabelType,
-  CardType,
   TableType,
   TableAlignment,
   ContainerSize,

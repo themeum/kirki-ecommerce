@@ -2,7 +2,10 @@ import { useState } from 'react';
 
 import DropdownButton from '@/components/dropdown-button';
 import HeaderActionsCard from '@/components/header-actions-card';
-import { Card } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+} from '@/components/ui/card';
 import { BankIconLarge, ShowMoreIcon, CashIcon } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
 import Badge from '@/components/ui/badge';
@@ -16,6 +19,8 @@ import {
 } from '@/services/payment';
 import type { PaymentMethod } from '@/types';
 import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import { __, sprintf } from '@/wpi18n';
 
 import ManualPaymentPopup from '@/pages/settings/payment-settings/manual-payment-dialog';
@@ -78,96 +83,100 @@ const ManualPayment = (props: ManualPaymentProps) => {
 
   return (
     <>
-      <Card type="large">
+      <Card css={cardStyles.largeCard} >
+        <CardContent css={cardStyles.largeContentPadded}>
+
         <HeaderActionsCard
-          header={__('Manual payment methods', 'kirki-ecommerce')}
-          subHeader={__(
-            "For manual payments, you'll need to approve orders made outside your online store. Add Manual Payment",
-            'kirki-ecommerce',
-          )}
-          buttonText={__('Add Payment Methods', 'kirki-ecommerce')}
-          onAdd={() => setIsPopupOpen(true)}
+        header={__('Manual payment methods', 'kirki-ecommerce')}
+        subHeader={__(
+        "For manual payments, you'll need to approve orders made outside your online store. Add Manual Payment",
+        'kirki-ecommerce',
+        )}
+        buttonText={__('Add Payment Methods', 'kirki-ecommerce')}
+        onAdd={() => setIsPopupOpen(true)}
         />
 
         {manualPaymentList?.length === 0 ? (
-          <Card
-            type="innerDark"
-            style={{ padding: `${theme.spacing['7xl']} ${theme.spacing.none}` }}
-          >
+        <Card css={cardStyles.innerDarkCard}>
+          <CardContent css={[cardStyles.innerDarkContent, styles.emptyStateContent]}>
             <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
               <CashIcon />
               <span style={{ color: theme.colors.text.subdued }}>
                 {__('No payment added yet', 'kirki-ecommerce')}
               </span>
             </Flex>
-          </Card>
+          </CardContent>
+        </Card>
         ) : (
-          <Flex direction="column" gap={16}>
-            {manualPaymentList?.map((item, index) => (
-              <Card
-                type="inner"
-                key={index}
-                style={{
-                  padding: `${theme.spacing.lg} ${theme.spacing['2xl']}`,
-                }}
-              >
-                <Flex style={{ alignItems: 'center' }}>
-                  <Text
-                    header={sprintf(
-                      __('%s', 'kirki-ecommerce'),
-                      item?.name || '',
-                    )}
-                    leftIcon={
-                      item?.icon ? (
-                        <img
-                          height={20}
-                          width={20}
-                          src={item?.icon as string}
-                        ></img>
-                      ) : (
-                        <BankIconLarge />
-                      )
-                    }
-                    badge={
-                      !item?.is_enabled && (
-                        <Badge
-                          text={__('Inactive', 'kirki-ecommerce')}
-                          type="trashed"
-                        />
-                      )
-                    }
-                    type={!item?.is_enabled ? 'disabled' : 'secondary'}
-                  />
-                  <ActionGroup>
-                    <ToggleButton
-                      value={Boolean(item?.is_enabled)}
-                      onChange={() => handleToggleMethod(item)}
-                    />
-                    <DropdownButton
-                      dropdownStyle={{ width: '115px' }}
-                      buttonProps={{
-                        size: 'small',
-                        style: { transform: 'rotate(90deg)' },
-                        icon: <ShowMoreIcon />,
-                      }}
-                      options={[
-                        {
-                          title: __('Edit', 'kirki-ecommerce'),
-                          value: 'edit',
-                        },
-                        {
-                          title: __('Delete', 'kirki-ecommerce'),
-                          value: 'delete',
-                        },
-                      ]}
-                      onOptionSelect={(action) => handleAction(action, item)}
-                    />
-                  </ActionGroup>
-                </Flex>
-              </Card>
-            ))}
+        <Flex direction="column" gap={16}>
+        {manualPaymentList?.map((item, index) => (
+        <Card css={cardStyles.innerCard}
+                
+        key={index}
+        >
+          <CardContent css={[cardStyles.innerContent, styles.gatewayItemContent]}>
+
+          <Flex style={{ alignItems: 'center' }}>
+          <Text
+          header={sprintf(
+          __('%s', 'kirki-ecommerce'),
+          item?.name || '',
+          )}
+          leftIcon={
+          item?.icon ? (
+          <img
+          height={20}
+          width={20}
+          src={item?.icon as string}
+          ></img>
+          ) : (
+          <BankIconLarge />
+          )
+          }
+          badge={
+          !item?.is_enabled && (
+          <Badge
+          text={__('Inactive', 'kirki-ecommerce')}
+          type="trashed"
+          />
+          )
+          }
+          type={!item?.is_enabled ? 'disabled' : 'secondary'}
+          />
+          <ActionGroup>
+          <ToggleButton
+          value={Boolean(item?.is_enabled)}
+          onChange={() => handleToggleMethod(item)}
+          />
+          <DropdownButton
+          dropdownStyle={{ width: '115px' }}
+          buttonProps={{
+          size: 'small',
+          style: { transform: 'rotate(90deg)' },
+          icon: <ShowMoreIcon />,
+          }}
+          options={[
+          {
+          title: __('Edit', 'kirki-ecommerce'),
+          value: 'edit',
+          },
+          {
+          title: __('Delete', 'kirki-ecommerce'),
+          value: 'delete',
+          },
+          ]}
+          onOptionSelect={(action) => handleAction(action, item)}
+          />
+          </ActionGroup>
           </Flex>
+          </CardContent>
+
+          </Card>
+
+          ))}
+        </Flex>
         )}
+        </CardContent>
       </Card>
       <ManualPaymentPopup
         openPopup={isPopupOpen}
@@ -180,5 +189,14 @@ const ManualPayment = (props: ManualPaymentProps) => {
 };
 
 ManualPayment.displayName = 'ManualPayment';
+
+const styles = {
+  gatewayItemContent: scoped({
+    padding: `${theme.spacing.lg} ${theme.spacing['2xl']}`,
+  }),
+  emptyStateContent: scoped({
+    padding: `${theme.spacing['7xl']} ${theme.spacing.none}`,
+  })
+};
 
 export default ManualPayment;

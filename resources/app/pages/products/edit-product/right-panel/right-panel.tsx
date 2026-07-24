@@ -1,17 +1,20 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 
 import SelectField from '@/components/form/select-field';
 import { Card, CardContent } from '@/components/ui/card';
+import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import { useProductForm } from '@/contexts/product-form-context';
-import Flex from '@/components/ui/flex';
 import {
   ProductRightPanelFormSchema,
   productRightPanelDefaultValues,
   type ProductRightPanelFormValues,
 } from '@/schemas/forms/product-right-panel-form';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import type { Product } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -81,7 +84,7 @@ const RightPanel = () => {
     <div style={{ width: '30%' }}>
       <Form {...form}>
         <Flex direction="column" gap={16}>
-          <Card type="form">
+          <Card css={cardStyles.formCard}>
             <CardContent>
               <SelectField
                 name="status"
@@ -91,8 +94,8 @@ const RightPanel = () => {
             </CardContent>
           </Card>
           <Categories />
-          <Card type="form">
-            <CardContent>
+          <Card css={cardStyles.formCard}>
+            <CardContent css={styles.fields}>
               <Tags />
               <Collections />
               <Brand />
@@ -107,3 +110,11 @@ const RightPanel = () => {
 RightPanel.displayName = 'RightPanel';
 
 export default RightPanel;
+
+const styles = {
+  fields: scoped({
+    display: 'flex',
+    flexDirection: 'column',
+    gap: theme.spacing['2xl'],
+  })
+};

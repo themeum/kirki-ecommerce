@@ -3,11 +3,12 @@ import { useEffect, useState, type ReactNode } from 'react';
 import GroupSelect from '@/components/group-select';
 import Button from '@/components/ui/button';
 import { MinusIcon } from '@/icons';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
-import Tag from '@/components/ui/tag';
+import Chip from '@/components/ui/chip';
 import Text from '@/components/ui/text';
 import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import type { SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -43,7 +44,7 @@ const styles = {
   }),
   hoverReveal: scoped({
     visibility: 'hidden',
-  }),
+  })
 };
 
 const GroupTagTable = (props: GroupTagTableProps) => {
@@ -115,12 +116,13 @@ const GroupTagTable = (props: GroupTagTableProps) => {
       )}
       {Object.keys(groupedValueData).length ? (
         <Card
-          type="inner"
+          css={cardStyles.innerCard}
           style={{
             borderColor: '#E6E6E6',
             borderRadius: hasSelect ? '0 0 8px 8px' : '8px',
           }}
         >
+          <CardContent css={cardStyles.innerContent}>
           <Flex gap={8} direction="column">
             {(Object.keys(groupedValueData) || []).map((groupName, index) => (
               <div key={index} css={styles.hoverParent}>
@@ -157,7 +159,7 @@ const GroupTagTable = (props: GroupTagTableProps) => {
                       </Button>
                     )}
                     {groupedValueData[groupName].map((tagName, innerIndex) => (
-                      <Tag
+                      <Chip
                         text={String(tagName)}
                         key={innerIndex}
                         closeIcon={
@@ -166,7 +168,7 @@ const GroupTagTable = (props: GroupTagTableProps) => {
                             <MinusIcon />
                           ) : null
                         }
-                        onTagRemove={() =>
+                        onRemove={() =>
                           handleDeleteSingleTag(tagName, groupName)
                         }
                       />
@@ -176,6 +178,7 @@ const GroupTagTable = (props: GroupTagTableProps) => {
               </div>
             ))}
           </Flex>
+          </CardContent>
         </Card>
       ) : null}
     </div>

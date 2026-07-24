@@ -6,7 +6,10 @@ import { useNavigate, useOutletContext } from 'react-router';
 import CheckboxField from '@/components/form/checkbox-field';
 import PageNavbar from '@/components/page-navbar';
 import Button from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+} from '@/components/ui/card';
 import {
   Form,
   FormControl,
@@ -28,6 +31,7 @@ import { Separator } from '@/components/ui/separator';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import {
   TaxSettingsFormSchema,
   taxSettingsDefaultValues,
@@ -247,20 +251,23 @@ const TaxSettings = () => {
                 text={'Tax'}
                 handleBack={handleBackButton}
               />
-              <Card type="large">
+              <Card css={cardStyles.largeCard} >
+                <CardContent css={cardStyles.largeContentPadded}>
+
                 <Text
-                  type="primary"
-                  header={__('How would you like to collect tax?', 'kirki-ecommerce')}
-                  subHeader={__(
-                    'Configure how tax is displayed and how it appears on your product listings.',
-                    'kirki-ecommerce',
-                  )}
-                  css={styles.taxCollectionHeader}
+                type="primary"
+                header={__('How would you like to collect tax?', 'kirki-ecommerce')}
+                subHeader={__(
+                'Configure how tax is displayed and how it appears on your product listings.',
+                'kirki-ecommerce',
+                )}
+                css={styles.taxCollectionHeader}
                 />
                 <Flex direction="column" gap={12}>
-                  <TaxCollectionRadio />
-                  <TaxCollectionOptions />
+                <TaxCollectionRadio />
+                <TaxCollectionOptions />
                 </Flex>
+                </CardContent>
               </Card>
               <TaxRegions handleSave={handleSaveFromRegions} />
               <TaxProfile />
@@ -284,5 +291,5 @@ const styles = {
   }),
   taxCollectionHeader: scoped({
     gap: theme.spacing.base,
-  }),
+  })
 };

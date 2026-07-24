@@ -6,11 +6,12 @@ import Button from '@/components/ui/button';
 import { EditPenIcon, TrashIcon, ShowMoreIcon } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
 import Badge from '@/components/ui/badge';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import ToggleButton from '@/components/ui/toggle-button';
 import type { SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
@@ -118,10 +119,10 @@ const GroupOptionCard = (props: GroupOptionCardProps) => {
     <div>
       {dataArr.map((item, index) => (
         <Card
-          type="inner"
           key={index}
           data-box-card
           css={css(
+            cardStyles.innerCard,
             optionCardCss,
             dataLength > 1
               ? optionCardBorderRadiusCss
@@ -133,6 +134,7 @@ const GroupOptionCard = (props: GroupOptionCardProps) => {
             alignItems: 'center',
           }}
         >
+          <CardContent css={cardStyles.innerContent}>
           <Flex
             style={{
               alignItems: 'center',
@@ -265,6 +267,7 @@ const GroupOptionCard = (props: GroupOptionCardProps) => {
               )}
             </ActionGroup>
           </Flex>
+          </CardContent>
         </Card>
       ))}
     </div>
@@ -272,3 +275,4 @@ const GroupOptionCard = (props: GroupOptionCardProps) => {
 };
 
 export default GroupOptionCard;
+

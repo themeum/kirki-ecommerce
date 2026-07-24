@@ -32,6 +32,7 @@ import {
   useUpdateCategoryMutation,
 } from '@/services/category';
 import type { Category, CategoryFormData } from '@/types';
+import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
 type CategoryAddEditPopoverProps = {
@@ -139,7 +140,7 @@ const CategoryAddEditPopover = ({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)}>
             <DialogBody>
-              <Card type="light">
+              <Card css={cardStyles.lightCard}>
                 <CardContent>
                   <Flex direction="column" gap={16}>
                     <TextField
@@ -204,3 +205,4 @@ const CategoryAddEditPopover = ({
 CategoryAddEditPopover.displayName = 'CategoryAddEditPopover';
 
 export default CategoryAddEditPopover;
+

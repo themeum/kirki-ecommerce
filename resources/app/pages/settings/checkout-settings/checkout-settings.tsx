@@ -6,7 +6,10 @@ import { useNavigate, useOutletContext } from 'react-router';
 import SwitchField from '@/components/form/switch-field';
 import PageNavbar from '@/components/page-navbar';
 import Button from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+} from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import { CartIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
@@ -25,6 +28,8 @@ import {
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import type { SettingsSectionData } from '@/types';
 import { __ } from '@/wpi18n';
+
+import { cardStyles } from '@/theme/card-styles';
 
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
 import CheckoutConf from '@/pages/settings/checkout-settings/checkout-conf';
@@ -142,20 +147,23 @@ const CheckoutSettings = () => {
                 text={__('Checkout', 'kirki-ecommerce')}
                 handleBack={handleBackButton}
               />
-              <Card type="large">
+              <Card css={cardStyles.largeCard} >
+                <CardContent css={cardStyles.largeContentPadded}>
+
                 <Flex style={{ alignItems: 'center' }}>
-                  <Text
-                    header={__('Allow Guest Checkout', 'kirki-ecommerce')}
-                    subHeader={__(
-                      'Let customers buy without logging in or creating an account.',
-                      'kirki-ecommerce',
-                    )}
-                    type="secondary"
-                  />
-                  <ActionGroup>
-                    <SwitchField name="is_allowed_guest_checkout" />
-                  </ActionGroup>
+                <Text
+                header={__('Allow Guest Checkout', 'kirki-ecommerce')}
+                subHeader={__(
+                'Let customers buy without logging in or creating an account.',
+                'kirki-ecommerce',
+                )}
+                type="secondary"
+                />
+                <ActionGroup>
+                <SwitchField name="is_allowed_guest_checkout" />
+                </ActionGroup>
                 </Flex>
+                </CardContent>
               </Card>
               <CheckoutConf />
               <LegalInfo />

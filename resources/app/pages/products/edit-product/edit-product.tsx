@@ -16,6 +16,7 @@ import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import { NEW_ITEM_ID } from '@/conf';
+import { cardStyles } from '@/theme/card-styles';
 import {
   ProductFormProvider,
   useProductForm,
@@ -287,7 +288,7 @@ const EditProductInner = () => {
           <div style={{ width: '70%' }}>
             <Flex direction="column" gap={16}>
               <Form {...basicsForm}>
-                <Card type="form">
+                <Card css={cardStyles.formCard}>
                   <CardContent>
                     <Flex gap={12}>
                       <div style={{ width: '70%' }}>
@@ -385,3 +386,4 @@ const EditProduct = () => {
 EditProduct.displayName = 'EditProduct';
 
 export default EditProduct;
+

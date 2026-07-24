@@ -8,6 +8,7 @@ import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import { useProductForm } from '@/contexts/product-form-context';
+import { cardStyles } from '@/theme/card-styles';
 import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
 import {
@@ -76,8 +77,8 @@ const AddOrEditInfo = (props: AddOrEditInfoProps) => {
   const isSaveDisabled = !titleValue || !descriptionValue;
 
   return (
-    <Card type="inner">
-      <CardContent>
+    <Card css={cardStyles.innerCard}>
+      <CardContent css={cardStyles.innerContent}>
         <Form {...form}>
           <Flex direction="column" gap={16}>
             <TextField
@@ -124,3 +125,4 @@ const AddOrEditInfo = (props: AddOrEditInfoProps) => {
 AddOrEditInfo.displayName = 'AddOrEditInfo';
 
 export default AddOrEditInfo;
+

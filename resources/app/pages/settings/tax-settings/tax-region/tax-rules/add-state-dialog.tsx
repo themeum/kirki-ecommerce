@@ -19,6 +19,7 @@ import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
 import Flex from '@/components/ui/flex';
 import { theme } from '@/theme';
+import { cardStyles } from '@/theme/card-styles';
 import { scoped } from '@/theme/mixins';
 import {
   AddStatePopupFormSchema,
@@ -129,7 +130,7 @@ export const AddStatePopup = (props: AddStatePopupProps) => {
               />
             </Flex>
 
-            <Card type="table" css={styles.tableCard}>
+            <Card css={cardStyles.lightCard}>
               <div
                 style={{
                   height: '350px',
@@ -202,9 +203,6 @@ export const AddStatePopup = (props: AddStatePopupProps) => {
 AddStatePopup.displayName = 'AddStatePopup';
 
 const styles = {
-  tableCard: scoped({
-    borderRadius: theme.radius.md,
-  }),
   checkboxItemIndented: scoped({
     width: 'auto',
     padding: `${theme.spacing.md} ${theme.spacing['3xl']}`,

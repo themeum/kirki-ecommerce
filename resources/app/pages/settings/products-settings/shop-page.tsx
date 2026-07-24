@@ -1,9 +1,14 @@
 import SelectField from '@/components/form/select-field';
-import { Card } from '@/components/ui/card';
-import Text from '@/components/ui/text';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { usePagesQuery } from '@/services/page';
 import type { PageItem } from '@/types';
-import { theme } from '@/theme';
+import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
 export const ShopPage = () => {
@@ -18,28 +23,32 @@ export const ShopPage = () => {
 
   return (
     <div>
-      <Card type="large">
-        <Text
-          header={__('Shop page', 'kirki-ecommerce')}
-          subHeader={__(
-            'Choose the page that customers will be directed to when they click Continue Shopping.',
-            'kirki-ecommerce',
-          )}
-          type="primary"
-          style={{ gap: theme.spacing.base }}
-        />
-
-        <Card type="inner" style={{ padding: theme.spacing['2xl'] }}>
-          <SelectField
-            name="shop_page"
-            label={__('Shop page', 'kirki-ecommerce')}
-            options={shopPageOptions}
-            placeholder={__('Select Page', 'kirki-ecommerce')}
-          />
-        </Card>
+      <Card css={cardStyles.largeCard}>
+        <CardHeader css={cardStyles.sectionHeader}>
+          <CardTitle>{__('Shop page', 'kirki-ecommerce')}</CardTitle>
+          <CardDescription>
+            {__(
+              'Choose the page that customers will be directed to when they click Continue Shopping.',
+              'kirki-ecommerce',
+            )}
+          </CardDescription>
+        </CardHeader>
+        <CardContent css={cardStyles.largeContent}>
+          <Card css={cardStyles.innerCard}>
+            <CardContent css={cardStyles.innerCardContent}>
+              <SelectField
+                name="shop_page"
+                label={__('Shop page', 'kirki-ecommerce')}
+                options={shopPageOptions}
+                placeholder={__('Select Page', 'kirki-ecommerce')}
+              />
+            </CardContent>
+          </Card>
+        </CardContent>
       </Card>
     </div>
   );
 };
 
 ShopPage.displayName = 'ShopPage';
+

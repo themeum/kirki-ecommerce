@@ -21,6 +21,7 @@ import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import {
   AddCitiesPopupFormSchema,
   type AddCitiesPopupFormValues,
@@ -150,14 +151,15 @@ const AddCitiesPopup = (props: AddCitiesPopupProps) => {
               />
             </Flex>
 
-            <Card type="table" css={styles.tableCard}>
-              <div
-                style={{
-                  height: '350px',
-                  overflowX: 'hidden',
-                  overflowY: 'scroll',
-                }}
-              >
+            <Card css={cardStyles.tableCardRounded}>
+              <CardContent css={cardStyles.tableContent}>
+                <div
+                  style={{
+                    height: '350px',
+                    overflowX: 'hidden',
+                    overflowY: 'scroll',
+                  }}
+                >
                 <Flex>
                   <Flex gap={8} style={{ alignItems: 'center' }}>
                     <Checkbox
@@ -193,10 +195,7 @@ const AddCitiesPopup = (props: AddCitiesPopupProps) => {
                     );
                   })
                 ) : (
-                  <Card
-                    type="default"
-                    style={{ padding: '36px 0' }}
-                  >
+                  <Card css={styles.emptyCitiesCard}>
                     <CardContent>
                       <Flex
                         direction="column"
@@ -211,7 +210,8 @@ const AddCitiesPopup = (props: AddCitiesPopupProps) => {
                     </CardContent>
                   </Card>
                 )}
-              </div>
+                </div>
+              </CardContent>
             </Card>
           </DialogBody>
           <DialogFooter>
@@ -245,9 +245,6 @@ AddCitiesPopup.displayName = 'AddCitiesPopup';
 export default AddCitiesPopup;
 
 const styles = {
-  tableCard: scoped({
-    borderRadius: theme.radius.md,
-  }),
   checkboxItemIndented: scoped({
     width: 'auto',
     padding: `${theme.spacing.md} ${theme.spacing['3xl']}`,
@@ -255,5 +252,8 @@ const styles = {
       background: theme.colors.background.surfaceSecondary,
       borderRadius: theme.radius.sm,
     },
+  }),
+  emptyCitiesCard: scoped({
+    padding: `${theme.spacing['7xl']} 0`,
   }),
 };

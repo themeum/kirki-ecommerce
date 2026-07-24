@@ -8,7 +8,12 @@ import {
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-import { Card, CardContent } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
 import {
   Form,
@@ -45,6 +50,7 @@ import {
 import { useTaxProfilesQuery } from '@/services/tax';
 import { theme } from '@/theme';
 import { flexCenter, scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import type { FormErrors, UnitPriceValue } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -130,13 +136,11 @@ const Price = ({ errors, setErrors, formSyncKey = 0 }: PriceProps) => {
 
   return (
     <Form {...form}>
-      <Card type="form">
+      <Card css={cardStyles.formCard}>
+        <CardHeader>
+          <CardTitle>{__('Price', 'kirki-ecommerce')}</CardTitle>
+        </CardHeader>
         <CardContent>
-          <Text
-            header={__('Price', 'kirki-ecommerce')}
-            type="primary"
-            padding="large"
-          />
           <Grid columns={2}>
             <FormField
               control={form.control}
@@ -217,19 +221,14 @@ const Price = ({ errors, setErrors, formSyncKey = 0 }: PriceProps) => {
           </Grid>
 
           <Flex direction="column" gap={8}>
-            <Card
-              type="innerDark"
-              style={{
-                padding: '4px 8px 4px 12px',
-                height: '44px',
-              }}
-            >
-              <Flex
-                style={{
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                }}
-              >
+            <Card css={cardStyles.innerDarkCard}>
+              <CardContent css={styles.innerDarkRowContent}>
+                <Flex
+                  style={{
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                  }}
+                >
                 <FormField
                   control={form.control}
                   name="show_unit_price"
@@ -278,17 +277,13 @@ const Price = ({ errors, setErrors, formSyncKey = 0 }: PriceProps) => {
                     />
                   </Flex>
                 </div>
-              </Flex>
+                </Flex>
+              </CardContent>
             </Card>
 
-            <Card
-              type="innerDark"
-              style={{
-                padding: '4px 8px 4px 12px',
-                height: '44px',
-              }}
-            >
-              <Grid style={{ alignItems: 'center' }}>
+            <Card css={cardStyles.innerDarkCard}>
+              <CardContent css={styles.innerDarkRowContent}>
+                <Grid style={{ alignItems: 'center' }}>
                 <FormField
                   control={form.control}
                   name="charge_taxes"
@@ -370,7 +365,8 @@ const Price = ({ errors, setErrors, formSyncKey = 0 }: PriceProps) => {
                     </FormItem>
                   )}
                 />
-              </Grid>
+                </Grid>
+              </CardContent>
             </Card>
           </Flex>
 
@@ -465,8 +461,13 @@ Price.displayName = 'Price';
 export default Price;
 
 const styles = {
+  innerDarkRowContent: scoped({
+    padding: '4px 8px 4px 12px',
+    height: '44px',
+    boxSizing: 'border-box',
+  }),
   inputLeftSymbol: scoped({
     ...flexCenter(),
     color: theme.colors.text.secondary,
-  }),
+  })
 };

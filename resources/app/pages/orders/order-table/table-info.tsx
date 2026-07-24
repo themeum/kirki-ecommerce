@@ -8,6 +8,7 @@ import Button from '@/components/ui/button';
 import { InfoIcon } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
+import { theme } from '@/theme';
 import { flexCenter, scoped } from '@/theme/mixins';
 
 const TableInfo = () => {
@@ -38,7 +39,7 @@ const TableInfo = () => {
       </Flex>
       <ActionGroup>
         <Select disabled>
-          <SelectTrigger style={{ padding: '8px 16px' }}>
+          <SelectTrigger css={styles.selectTrigger}>
             <SelectValue placeholder="This Week" />
           </SelectTrigger>
           <SelectContent />
@@ -55,4 +56,7 @@ export default TableInfo;
 
 const styles = {
   svgClass: scoped(flexCenter()),
+  selectTrigger: scoped({
+    padding: `${theme.spacing.md} ${theme.spacing['2xl']}`,
+  }),
 };

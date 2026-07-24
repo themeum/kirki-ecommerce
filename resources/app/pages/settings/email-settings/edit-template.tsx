@@ -6,7 +6,10 @@ import ColorPickerField from '@/components/form/color-picker-field';
 import TextField from '@/components/form/text-field';
 import ThumbnailField from '@/components/form/thumbnail-field';
 import Button from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+} from '@/components/ui/card';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import {
@@ -38,7 +41,11 @@ import type {
   EmailTemplate as SettingsEmailTemplate,
   SettingsSectionData,
 } from '@/types';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
+
+import { cardStyles } from '@/theme/card-styles';
 
 const POSITION_MAP: Record<string, number> = {
   start: 0,
@@ -129,13 +136,7 @@ const EditTemplate = () => {
       <PageHeading
         text={__('Edit Template', 'kirki-ecommerce')}
         hasBack
-        style={{
-          fontSize: '16px',
-          fontWeight: '400',
-          lineHeight: '28px',
-          padding: '0px 32px',
-          height: '32px',
-        }}
+        css={styles.pageHeading}
         leftIcon={<BrushIcon />}
         size="fullWidth"
         sticky
@@ -155,107 +156,110 @@ const EditTemplate = () => {
           </>
         }
       />
-      <Container
-        size="fullWidth"
-        style={{ width: '100%', padding: '16px 103px' }}
-      >
+      <Container size="fullWidth" css={styles.container}>
         {loaded ? (
           <Form {...form}>
             <Flex gap={48} style={{ width: '100%' }}>
               <Flex direction="column" gap={20} style={{ width: '44%' }}>
-                <Card type="large" style={{ borderRadius: '8px' }}>
+                <Card css={[cardStyles.largeCard, styles.roundedCard]}>
+                  <CardContent css={cardStyles.largeContentPadded}>
+
                   <Text
-                    type="primary"
-                    header={'Logo'}
-                    subHeader={'Update the logo & style your way'}
+                  type="primary"
+                  header={'Logo'}
+                  subHeader={'Update the logo & style your way'}
                   />
                   <ThumbnailField
-                    name="logo"
-                    placeholder={__(
-                      'Drag and drop, or upload images',
-                      'kirki-ecommerce',
-                    )}
-                    description={__('Set store logo', 'kirki-ecommerce')}
-                    getPreviewUrl={(value) => resolveLogoUrl(value as EmailTemplateFormValues['logo'])}
+                  name="logo"
+                  placeholder={__(
+                  'Drag and drop, or upload images',
+                  'kirki-ecommerce',
+                  )}
+                  description={__('Set store logo', 'kirki-ecommerce')}
+                  getPreviewUrl={(value) => resolveLogoUrl(value as EmailTemplateFormValues['logo'])}
                   />
                   <TextField
-                    name="height"
-                    label={__('Height', 'kirki-ecommerce')}
-                    type="number"
+                  name="height"
+                  label={__('Height', 'kirki-ecommerce')}
+                  type="number"
                   />
                   <FormField
-                    control={form.control}
-                    name="height"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <ProgressBar
-                            value={Number(field.value) || 0}
-                            onChange={(value) => field.onChange(value)}
-                            label={'Height'}
-                            rightText={`${heightValue}px`}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                  control={form.control}
+                  name="height"
+                  render={({ field }) => (
+                  <FormItem>
+                  <FormControl>
+                  <ProgressBar
+                  value={Number(field.value) || 0}
+                  onChange={(value) => field.onChange(value)}
+                  label={'Height'}
+                  rightText={`${heightValue}px`}
+                  />
+                  </FormControl>
+                  <FormMessage />
+                  </FormItem>
+                  )}
                   />
                   <FormField
-                    control={form.control}
-                    name="position"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Tabs
-                            value={String(
-                              POSITION_MAP[field.value || ''] ?? 0,
-                            )}
-                            onValueChange={(value) => {
-                              field.onChange(
-                                INDEX_TO_POSITION[Number(value)] || 'start',
-                              );
-                            }}
-                          >
-                            <TabsList>
-                              <TabsTrigger value="0">
-                                <AlignLeftIcon />
-                              </TabsTrigger>
-                              <TabsTrigger value="1">
-                                <AlignCenterIcon />
-                              </TabsTrigger>
-                              <TabsTrigger value="2">
-                                <AlignLeftIcon
-                                  style={{ transform: 'scaleX(-1)' }}
-                                />
-                              </TabsTrigger>
-                            </TabsList>
-                          </Tabs>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                  control={form.control}
+                  name="position"
+                  render={({ field }) => (
+                  <FormItem>
+                  <FormControl>
+                  <Tabs
+                  value={String(
+                  POSITION_MAP[field.value || ''] ?? 0,
+                  )}
+                  onValueChange={(value) => {
+                  field.onChange(
+                  INDEX_TO_POSITION[Number(value)] || 'start',
+                  );
+                  }}
+                  >
+                  <TabsList>
+                  <TabsTrigger value="0">
+                  <AlignLeftIcon />
+                  </TabsTrigger>
+                  <TabsTrigger value="1">
+                  <AlignCenterIcon />
+                  </TabsTrigger>
+                  <TabsTrigger value="2">
+                  <AlignLeftIcon
+                  style={{ transform: 'scaleX(-1)' }}
                   />
+                  </TabsTrigger>
+                  </TabsList>
+                  </Tabs>
+                  </FormControl>
+                  <FormMessage />
+                  </FormItem>
+                  )}
+                  />
+                  </CardContent>
                 </Card>
-                <Card type="large" style={{ borderRadius: '8px' }}>
+                <Card css={[cardStyles.largeCard, styles.roundedCard]}>
+                  <CardContent css={cardStyles.largeContentPadded}>
+
                   <Text
-                    header={'Colors'}
-                    subHeader={'Style how the emails will look'}
+                  header={'Colors'}
+                  subHeader={'Style how the emails will look'}
                   />
                   <ColorPickerField
-                    name="colors.background"
-                    label={'Background'}
+                  name="colors.background"
+                  label={'Background'}
                   />
                   <ColorPickerField name="colors.text" label={'Text'} />
                   <ColorPickerField name="colors.link" label={'Link'} />
                   <ColorPickerField name="colors.label" label={'Label'} />
                   <ColorPickerField
-                    name="colors.button"
-                    label={'Button Color'}
+                  name="colors.button"
+                  label={'Button Color'}
                   />
                   <ColorPickerField
-                    name="colors.button_bg"
-                    label={'Button BG'}
+                  name="colors.button_bg"
+                  label={'Button BG'}
                   />
+                  </CardContent>
                 </Card>
               </Flex>
 
@@ -276,7 +280,10 @@ const EditTemplate = () => {
                     leftIcon={<SendIcon />}
                   />
                 </Flex>
-                <Card type="default" style={{ borderRadius: '0px' }}></Card>
+                <Card css={styles.squareCard}>
+                  <CardContent>
+                  </CardContent>
+                </Card>
               </Flex>
             </Flex>
           </Form>
@@ -291,3 +298,23 @@ const EditTemplate = () => {
 EditTemplate.displayName = 'EditTemplate';
 
 export default EditTemplate;
+
+const styles = {
+  pageHeading: scoped({
+    fontSize: '16px',
+    fontWeight: 400,
+    lineHeight: '28px',
+    padding: `0px ${theme.spacing['6xl']}`,
+    height: '32px',
+  }),
+  container: scoped({
+    width: '100%',
+    padding: `${theme.spacing.lg} 103px`,
+  }),
+  roundedCard: scoped({
+    borderRadius: theme.radius.lg,
+  }),
+  squareCard: scoped({
+    borderRadius: theme.radius.none,
+  }),
+};

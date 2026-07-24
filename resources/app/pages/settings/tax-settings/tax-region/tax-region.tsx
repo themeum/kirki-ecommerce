@@ -5,7 +5,10 @@ import { useNavigate, useOutletContext } from 'react-router';
 
 import DropdownButton from '@/components/dropdown-button';
 import HeaderActionsCard from '@/components/header-actions-card';
-import { Card } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+} from '@/components/ui/card';
 import { LocationIcon, ShowMoreIcon, EditIcon, TrashIcon } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
 import Badge from '@/components/ui/badge';
@@ -16,6 +19,7 @@ import type { TaxSettingsFormValues } from '@/schemas/forms/tax-settings-form';
 import { __ } from '@/wpi18n';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 
 import type { SelectedTaxRegionDraft, TaxRegion } from '@/pages/settings/tax-settings/utils';
 import TaxRegionPopup from '@/pages/settings/tax-settings/tax-region/tax-region-dialog';
@@ -142,93 +146,99 @@ const TaxRegions = (props: TaxRegionsProps) => {
 
   return (
     <>
-      <Card type="large">
+      <Card css={cardStyles.largeCard} >
+        <CardContent css={cardStyles.largeContentPadded}>
+
         <HeaderActionsCard
-          header={__('Tax Regions', 'kirki-ecommerce')}
-          subHeader={__(
-            'A shipping zone includes regions you ship to and available methods. Each shopper is matched to one zone based on their address.',
-            'kirki-ecommerce',
-          )}
-          buttonText={__('Add Region', 'kirki-ecommerce')}
-          onAdd={() => setShowPopup(true)}
+        header={__('Tax Regions', 'kirki-ecommerce')}
+        subHeader={__(
+        'A shipping zone includes regions you ship to and available methods. Each shopper is matched to one zone based on their address.',
+        'kirki-ecommerce',
+        )}
+        buttonText={__('Add Region', 'kirki-ecommerce')}
+        onAdd={() => setShowPopup(true)}
         />
 
         {!taxRegions.length ? (
-          <Card type="innerDark" style={{ padding: '36px 0' }}>
+        <Card css={cardStyles.innerDarkCard}>
+          <CardContent css={[cardStyles.innerDarkContent, styles.emptyStateContent]}>
             <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
               <LocationIcon />
               <span style={{ color: '#878593' }}>
                 {__('Added tax zones will appear here', 'kirki-ecommerce')}
               </span>
             </Flex>
-          </Card>
+          </CardContent>
+        </Card>
         ) : (
-          <Flex direction="column" gap={12}>
-            {taxRegions.map((item, index) => (
-              <Card
-                key={index}
-                type="inner"
-                css={styles.regionCard}
-              >
-                <Flex style={{ alignItems: 'flex-start' }} gap={8}>
-                  <span>{item?.flag}</span>
-                  <Text
-                    header={item?.name}
-                    subHeader={`${item?.states.length} states`}
-                    gap={12}
-                    badge={
-                      !item?.is_enabled && (
-                        <Badge text={__('Inactive', 'kirki-ecommerce')} type="trashed" />
-                      )
-                    }
-                    type={!item?.is_enabled ? 'disabled' : 'secondary'}
-                  />
-                  <ActionGroup
-                    css={css(
-                      hoverVisibleCss,
-                      activeIndex === index && activeCardCss,
-                    )}
-                  >
-                    <ToggleButton
-                      value={item?.is_enabled}
-                      onChange={() => handleToggleRegion(item)}
-                    />
-                    <DropdownButton
-                      buttonProps={{
-                        size: 'small',
-                        style: { transform: 'rotate(90deg)' },
-                        icon: <ShowMoreIcon />,
-                      }}
-                      dropdownStyle={{ width: '115px' }}
-                      options={[
-                        {
-                          title: __('Edit', 'kirki-ecommerce'),
-                          value: 'edit',
-                          icon: <EditIcon />,
-                        },
-                        {
-                          title: __('Delete', 'kirki-ecommerce'),
-                          value: 'delete',
-                          icon: <TrashIcon />,
-                        },
-                      ]}
-                      onOptionToggle={(value) => {
-                        if (value === true) {
-                          setActiveIndex(index);
-                        } else {
-                          setActiveIndex(null);
-                        }
-                      }}
-                      onOptionSelect={(action) =>
-                        handleEditAndDelete(String(action), item)
-                      }
-                    />
-                  </ActionGroup>
-                </Flex>
-              </Card>
-            ))}
+        <Flex direction="column" gap={12}>
+        {taxRegions.map((item, index) => (
+        <Card css={[cardStyles.innerCard, styles.regionCard]} key={index} >
+          <CardContent css={cardStyles.innerContent}>
+
+          <Flex style={{ alignItems: 'flex-start' }} gap={8}>
+          <span>{item?.flag}</span>
+          <Text
+          header={item?.name}
+          subHeader={`${item?.states.length} states`}
+          gap={12}
+          badge={
+          !item?.is_enabled && (
+          <Badge text={__('Inactive', 'kirki-ecommerce')} type="trashed" />
+          )
+          }
+          type={!item?.is_enabled ? 'disabled' : 'secondary'}
+          />
+          <ActionGroup
+          css={css(
+          hoverVisibleCss,
+          activeIndex === index && activeCardCss,
+          )}
+          >
+          <ToggleButton
+          value={item?.is_enabled}
+          onChange={() => handleToggleRegion(item)}
+          />
+          <DropdownButton
+          buttonProps={{
+          size: 'small',
+          style: { transform: 'rotate(90deg)' },
+          icon: <ShowMoreIcon />,
+          }}
+          dropdownStyle={{ width: '115px' }}
+          options={[
+          {
+          title: __('Edit', 'kirki-ecommerce'),
+          value: 'edit',
+          icon: <EditIcon />,
+          },
+          {
+          title: __('Delete', 'kirki-ecommerce'),
+          value: 'delete',
+          icon: <TrashIcon />,
+          },
+          ]}
+          onOptionToggle={(value) => {
+          if (value === true) {
+          setActiveIndex(index);
+          } else {
+          setActiveIndex(null);
+          }
+          }}
+          onOptionSelect={(action) =>
+          handleEditAndDelete(String(action), item)
+          }
+          />
+          </ActionGroup>
           </Flex>
+          </CardContent>
+
+          </Card>
+
+          ))}
+        </Flex>
         )}
+        </CardContent>
       </Card>
       {showPopup && (
         <TaxRegionPopup
@@ -252,7 +262,8 @@ TaxRegions.displayName = 'TaxRegions';
 export default TaxRegions;
 
 const styles = {
+  emptyStateContent: scoped({ padding: '36px 0' }),
   regionCard: scoped({
     padding: `${theme.spacing.lg} ${theme.spacing['2xl']}`,
-  }),
+  })
 };

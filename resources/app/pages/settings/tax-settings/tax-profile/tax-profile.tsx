@@ -2,13 +2,17 @@ import { useState, useEffect, type ReactNode } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
-import { Card } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+} from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import HeaderActionsCard from '@/components/header-actions-card';
 import GroupOptionCard from '@/components/group-option-card';
 import { BoxOpenIcon, BoxClosedIcon } from '@/icons';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import { toastMutationError } from '@/services/helpers';
 import { deleteTaxProfile, useTaxProfilesQuery } from '@/services/tax';
 import type { TaxProfile as TaxProfileType } from '@/types';
@@ -72,42 +76,46 @@ const TaxProfile = () => {
 
   return (
     <div>
-      <Card type="large">
-        <HeaderActionsCard
-          header={__('Tax Profiles', 'kirki-ecommerce')}
-          subHeader={__(
-            'Used to create tax rates for different product groups, like heavy items needing higher fees.',
-            'kirki-ecommerce',
-          )}
-          buttonText={__('Create Profile', 'kirki-ecommerce')}
-          onAdd={() => setShowPopup(true)}
-        />
+      <Card css={cardStyles.largeCard}>
+        <CardContent css={cardStyles.largeContentPadded}>
+          <HeaderActionsCard
+            header={__('Tax Profiles', 'kirki-ecommerce')}
+            subHeader={__(
+              'Used to create tax rates for different product groups, like heavy items needing higher fees.',
+              'kirki-ecommerce',
+            )}
+            buttonText={__('Create Profile', 'kirki-ecommerce')}
+            onAdd={() => setShowPopup(true)}
+          />
 
-        {!taxProfileList?.length ? (
-          <Card type="innerDark" css={styles.emptyState}>
-            <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
-              <BoxOpenIcon />
-              <span css={styles.emptyStateText}>
-                {__(
-                  'Added shipping profiles will appear here',
-                  'kirki-ecommerce',
-                )}
-              </span>
+          {!taxProfileList?.length ? (
+            <Card css={cardStyles.innerDarkCard}>
+              <CardContent css={[cardStyles.innerDarkContent, styles.emptyState]}>
+                <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
+                  <BoxOpenIcon />
+                  <span css={styles.emptyStateText}>
+                    {__(
+                      'Added shipping profiles will appear here',
+                      'kirki-ecommerce',
+                    )}
+                  </span>
+                </Flex>
+              </CardContent>
+            </Card>
+          ) : (
+            <Flex direction="column" data-box-wrapper css={styles.boxWrapper}>
+              <GroupOptionCard
+                dataArr={taxProfileList}
+                handleDeleteItem={(item) =>
+                  handleDeleteTaxProfile(item as TaxProfileListItem)
+                }
+                handleEditItem={(item) =>
+                  handleEditTaxProfile(item as TaxProfileListItem)
+                }
+              />
             </Flex>
-          </Card>
-        ) : (
-          <Flex direction="column" data-box-wrapper css={styles.boxWrapper}>
-            <GroupOptionCard
-              dataArr={taxProfileList}
-              handleDeleteItem={(item) =>
-                handleDeleteTaxProfile(item as TaxProfileListItem)
-              }
-              handleEditItem={(item) =>
-                handleEditTaxProfile(item as TaxProfileListItem)
-              }
-            />
-          </Flex>
-        )}
+          )}
+        </CardContent>
       </Card>
       {showPopup && (
         <TaxProfilePopup
@@ -150,5 +158,5 @@ const styles = {
   }),
   emptyStateText: scoped({
     color: theme.colors.text.subdued,
-  }),
+  })
 };

@@ -9,10 +9,13 @@ import {
 } from '@/components/ui/select';
 import { ArrowDownUp, ListFilter } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
+import { cardStyles } from '@/theme/card-styles';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import PageHeading from '@/components/ui/page-heading';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import type { SelectOption } from '@/types';
 
 import CustomerGroupTable from '@/pages/customers/customer-groups/customer-group-table';
@@ -39,38 +42,40 @@ const CustomerGroups = () => {
       />
 
       <Container>
-        <Card type="table">
-          <Flex style={{ padding: '16px 12px' }}>
-            <Select defaultValue="all">
-              <SelectTrigger variant="secondary">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {selectOptions.map((option) => (
-                  <SelectItem key={option.value} value={String(option.value)}>
-                    {option.title}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <ActionGroup>
-              <Select disabled>
-                <SelectTrigger style={{ padding: '8px 16px' }}>
-                  <SelectValue placeholder="Date: This Month" />
+        <Card css={cardStyles.tableCard}>
+          <CardContent css={cardStyles.tableContent}>
+            <Flex css={styles.wrapper}>
+              <Select defaultValue="all">
+                <SelectTrigger variant="secondary">
+                  <SelectValue />
                 </SelectTrigger>
-                <SelectContent />
+                <SelectContent>
+                  {selectOptions.map((option) => (
+                    <SelectItem key={option.value} value={String(option.value)}>
+                      {option.title}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
               </Select>
-              <Button variant="outline" size="sm">
-                <ListFilter />
-                Filter
-              </Button>
-              <Button variant="outline" size="sm" aria-label="Sort">
-                <ArrowDownUp />
-              </Button>
-              <Input placeholder="Search" />
-            </ActionGroup>
-          </Flex>
-          <CustomerGroupTable />
+              <ActionGroup>
+                <Select disabled>
+                  <SelectTrigger css={styles.selectTrigger}>
+                    <SelectValue placeholder="Date: This Month" />
+                  </SelectTrigger>
+                  <SelectContent />
+                </Select>
+                <Button variant="outline" size="sm">
+                  <ListFilter />
+                  Filter
+                </Button>
+                <Button variant="outline" size="sm" aria-label="Sort">
+                  <ArrowDownUp />
+                </Button>
+                <Input placeholder="Search" />
+              </ActionGroup>
+            </Flex>
+            <CustomerGroupTable />
+          </CardContent>
         </Card>
       </Container>
     </>
@@ -78,3 +83,13 @@ const CustomerGroups = () => {
 };
 
 export default CustomerGroups;
+
+const styles = {
+  wrapper: scoped({
+    padding: `${theme.spacing['2xl']} ${theme.spacing.lg}`,
+  }),
+  selectTrigger: scoped({
+    padding: `${theme.spacing.md} ${theme.spacing['2xl']}`,
+  }),
+};
+

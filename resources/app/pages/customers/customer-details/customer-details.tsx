@@ -15,6 +15,7 @@ import { applyServerErrors } from '@/libs/form-errors';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import PageHeading from '@/components/ui/page-heading';
+import { cardStyles } from '@/theme/card-styles';
 import {
   CustomerFormSchema,
   type CustomerFormValues,
@@ -185,7 +186,7 @@ const CustomerDetails = () => {
           </Flex>
 
           <Flex direction="column" gap={16} style={{ width: '30%' }}>
-            <Card type="form">
+            <Card css={cardStyles.formCard}>
               <CardContent>
                 <Flex direction="column" gap={16}>
                   <Label>{__('Notes', 'kirki-ecommerce')}</Label>
@@ -197,7 +198,7 @@ const CustomerDetails = () => {
               </CardContent>
             </Card>
 
-            <Card type="form">
+            <Card css={cardStyles.formCard}>
               <CardContent>
                 <TagManagerField
                   name="tags"
@@ -205,7 +206,6 @@ const CustomerDetails = () => {
                   label={__('Tags', 'kirki-ecommerce')}
                   placeholder={__('i.e VIP, Wholsale, Local', 'kirki-ecommerce')}
                   hasAddBtn={false}
-                  hasSearchIcon={false}
                   suggestions={[]}
                 />
               </CardContent>
@@ -220,3 +220,4 @@ const CustomerDetails = () => {
 CustomerDetails.displayName = 'CustomerDetails';
 
 export default CustomerDetails;
+

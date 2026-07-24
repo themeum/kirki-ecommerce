@@ -2,7 +2,10 @@ import { useState, useMemo, type Dispatch, type SetStateAction } from 'react';
 import { useOutletContext } from 'react-router';
 
 import BulkActionHandler from '@/components/bulk-action-handler';
-import { Card } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+} from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
 import { useMarkList } from '@/hooks';
 import Flex from '@/components/ui/flex';
@@ -22,6 +25,9 @@ import type {
   TaxonomyTableHeader,
 } from '@/types';
 import { __ } from '@/wpi18n';
+
+import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 
 import { getSearchedValue, setUnsavedDataStatus } from '@/pages/settings/utils';
 import SingleRow from '@/pages/settings/essential-settings/variation-library/variation-table/single-row';
@@ -118,17 +124,16 @@ const VariationTable = ({
         />
       )}
       {!filteredList?.length ? (
-        <Card
-          type="innerDark"
-          style={{ padding: '36px 0', borderRadius: '0px' }}
-        >
-          <Flex style={{ alignItems: 'center', justifyContent: 'center' }}>
-            <Text
-              type="primary"
-              style={{ color: '#878593' }}
-              header={__('No data found', 'kirki-ecommerce')}
-            />
-          </Flex>
+        <Card css={cardStyles.innerDarkCard}>
+          <CardContent css={[cardStyles.innerDarkContent, styles.emptyStateContent]}>
+            <Flex style={{ alignItems: 'center', justifyContent: 'center' }}>
+              <Text
+                type="primary"
+                style={{ color: '#878593' }}
+                header={__('No data found', 'kirki-ecommerce')}
+              />
+            </Flex>
+          </CardContent>
         </Card>
       ) : (
         <Table fixed>
@@ -166,5 +171,12 @@ const VariationTable = ({
 };
 
 VariationTable.displayName = 'VariationTable';
+
+const styles = {
+  emptyStateContent: scoped({
+    padding: '36px 0',
+    borderRadius: '0px',
+  })
+};
 
 export default VariationTable;

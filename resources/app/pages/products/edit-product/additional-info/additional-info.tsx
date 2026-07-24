@@ -9,6 +9,7 @@ import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { useProductForm } from '@/contexts/product-form-context';
 import { theme } from '@/theme';
+import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
 import AddOrEditInfo from '@/pages/products/edit-product/additional-info/add-or-edit-info';
@@ -85,8 +86,8 @@ const AdditionalInfo = () => {
               <div>
                 {productData?.additional_info.map((item, index) => (
                   <Card
-                    type="inner"
                     css={css(
+                      cardStyles.innerCard,
                       optionCardCss,
                       (productData?.additional_info ?? []).length > 1
                         ? optionCardBorderRadiusCss
@@ -151,3 +152,4 @@ const AdditionalInfo = () => {
 AdditionalInfo.displayName = 'AdditionalInfo';
 
 export default AdditionalInfo;
+

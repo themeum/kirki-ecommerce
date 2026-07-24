@@ -3,7 +3,10 @@ import { useNavigate } from 'react-router';
 
 import HeaderActionsCard from '@/components/header-actions-card';
 import GroupOptionCard from '@/components/group-option-card';
-import { Card } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+} from '@/components/ui/card';
 import { BoxIcon, ColorPaletteIcon } from '@/icons';
 import Flex from '@/components/ui/flex';
 import { dispatchToastMessage } from '@/pages/utils';
@@ -11,6 +14,7 @@ import { useAttributesQuery, useDeleteAttributeMutation } from '@/services/attri
 import type { Attribute } from '@/types';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
 import AddVariationPopup from '@/pages/settings/essential-settings/variation-library/add-variation-dialog';
@@ -64,46 +68,50 @@ const VariationList = () => {
   };
 
   return (
-    <Card type="large">
-      <HeaderActionsCard
-        header={__('Variation Library', 'kirki-ecommerce')}
-        subHeader={__(
-          'Used to create tax rates for different product groups, like heavy items needing higher fees.',
-          'kirki-ecommerce',
-        )}
-        dropDownButton
-        buttonText={__('Add Variation', 'kirki-ecommerce')}
-        handleOptionSelect={(value) => {
-          setVariationType(String(value));
-          setShowPopup(true);
-        }}
-      />
-      {!attributeListArr.length ? (
-        <Card type="innerDark" css={styles.emptyState}>
-          <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
-            <BoxIcon />
-            <span css={styles.emptyStateText}>
-              {__('Added variation library will appear here', 'kirki-ecommerce')}
-            </span>
+    <Card css={cardStyles.largeCard}>
+      <CardContent css={cardStyles.largeContentPadded}>
+        <HeaderActionsCard
+          header={__('Variation Library', 'kirki-ecommerce')}
+          subHeader={__(
+            'Used to create tax rates for different product groups, like heavy items needing higher fees.',
+            'kirki-ecommerce',
+          )}
+          dropDownButton
+          buttonText={__('Add Variation', 'kirki-ecommerce')}
+          handleOptionSelect={(value) => {
+            setVariationType(String(value));
+            setShowPopup(true);
+          }}
+        />
+        {!attributeListArr.length ? (
+          <Card css={cardStyles.innerDarkCard}>
+            <CardContent css={[cardStyles.innerDarkContent, styles.emptyState]}>
+              <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
+                <BoxIcon />
+                <span css={styles.emptyStateText}>
+                  {__('Added variation library will appear here', 'kirki-ecommerce')}
+                </span>
+              </Flex>
+            </CardContent>
+          </Card>
+        ) : (
+          <Flex direction="column" data-box-wrapper css={styles.boxWrapper}>
+            <GroupOptionCard
+              dataArr={attributeListArr}
+              handleDeleteItem={(item) => handleDeleteVariation(item as AttributeListItem)}
+              handleEditItem={(item) => handleEditVariation(item as AttributeListItem)}
+            />
           </Flex>
-        </Card>
-      ) : (
-        <Flex direction="column" data-box-wrapper css={styles.boxWrapper}>
-          <GroupOptionCard
-            dataArr={attributeListArr}
-            handleDeleteItem={(item) => handleDeleteVariation(item as AttributeListItem)}
-            handleEditItem={(item) => handleEditVariation(item as AttributeListItem)}
-          />
-        </Flex>
-      )}
-      <AddVariationPopup
-        isOpen={showPopup}
-        variationType={variationType}
-        onClose={() => {
-          setShowPopup(false);
-          refetch();
-        }}
-      />
+        )}
+        <AddVariationPopup
+          isOpen={showPopup}
+          variationType={variationType}
+          onClose={() => {
+            setShowPopup(false);
+            refetch();
+          }}
+        />
+      </CardContent>
     </Card>
   );
 };
@@ -131,5 +139,5 @@ const styles = {
   }),
   emptyStateText: scoped({
     color: theme.colors.text.subdued,
-  }),
+  })
 };

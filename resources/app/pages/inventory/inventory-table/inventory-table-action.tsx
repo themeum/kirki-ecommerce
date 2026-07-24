@@ -13,6 +13,8 @@ import { LayoutIcon, ListFilter } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
 import Searchbox from '@/components/ui/searchbox';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 import { allTableHeaders } from '@/pages/inventory/utils';
@@ -31,7 +33,7 @@ const InventoryTableAction = ({
   });
 
   return (
-    <Flex style={{ padding: '16px 12px' }}>
+    <Flex css={styles.wrapper}>
       <div style={{ width: '180px' }}>
         <Searchbox
           onChange={(value) => setParam('search', value as string)}
@@ -42,7 +44,7 @@ const InventoryTableAction = ({
 
       <ActionGroup>
         <Select disabled>
-          <SelectTrigger style={{ padding: '8px 16px' }}>
+          <SelectTrigger css={styles.selectTrigger}>
             <SelectValue placeholder={__('Date: This Month', 'kirki-ecommerce')} />
           </SelectTrigger>
           <SelectContent />
@@ -75,3 +77,12 @@ const InventoryTableAction = ({
 InventoryTableAction.displayName = 'InventoryTableAction';
 
 export default InventoryTableAction;
+
+const styles = {
+  wrapper: scoped({
+    padding: `${theme.spacing['2xl']} ${theme.spacing.lg}`,
+  }),
+  selectTrigger: scoped({
+    padding: `${theme.spacing.md} ${theme.spacing['2xl']}`,
+  }),
+};

@@ -3,11 +3,16 @@ import { useFormContext, useWatch } from 'react-hook-form';
 
 import GroupOptionCard from '@/components/group-option-card';
 import OptionAccordion from '@/components/option-accordion';
-import { Card } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+} from '@/components/ui/card';
 import { SettingsIcon, CartIcon, InventoryBoxIcon, UserIcon } from '@/icons';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import type { EmailSettingsFormValues } from '@/schemas/forms/email-settings-form';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 import { mapEmailGroup } from '@/pages/settings/email-settings/utils';
@@ -53,69 +58,72 @@ const AdminEmail = (props: AdminEmailProps) => {
 
   return (
     <>
-      <Card type="default" style={{ borderRadius: '12px' }}>
-        <Flex direction="column" gap={16}>
-          <Flex direction="column" style={{ alignItems: 'flex-start' }} gap={6}>
-            <Text
-              header={__('Admin Emails', 'kirki-ecommerce')}
-              type="primary"
-              style={{ gap: '6px' }}
-              leftIcon={<SettingsIcon />}
-            />
-            <Text
-              subHeader={__('Manage admin emails here', 'kirki-ecommerce')}
-            />
-          </Flex>
+      <Card css={styles.roundedCard}>
+        <CardContent>
 
-          <OptionAccordion
-            header={__('Order', 'kirki-ecommerce')}
-            subHeader={__(
-              "Get notified about updates on your customer's orders.",
-              'kirki-ecommerce',
-            )}
-            leftIcon={<CartIcon />}
-          >
-            <GroupOptionCard
-              dataArr={orderEmails}
-              handleToggleItem={(item) =>
-                handleToggleOrder(item as EmailListItem)
-              }
-              handleEditItem={(item) => handleEditOrder(item as EmailListItem)}
-            />
-          </OptionAccordion>
-          <OptionAccordion
-            header={__('Inventory', 'kirki-ecommerce')}
-            subHeader={__(
-              'Get notified about your inventory status',
-              'kirki-ecommerce',
-            )}
-            leftIcon={<InventoryBoxIcon />}
-          >
-            <GroupOptionCard
-              dataArr={inventoryEmails}
-              handleToggleItem={(item) =>
-                handleToggleOrder(item as EmailListItem)
-              }
-              handleEditItem={(item) => handleEditOrder(item as EmailListItem)}
-            />
-          </OptionAccordion>
-          <OptionAccordion
-            header={__('User', 'kirki-ecommerce')}
-            subHeader={__(
-              'Get notified about new user registration',
-              'kirki-ecommerce',
-            )}
-            leftIcon={<UserIcon />}
-          >
-            <GroupOptionCard
-              dataArr={userEmails}
-              handleToggleItem={(item) =>
-                handleToggleOrder(item as EmailListItem)
-              }
-              handleEditItem={(item) => handleEditOrder(item as EmailListItem)}
-            />
-          </OptionAccordion>
+        <Flex direction="column" gap={16}>
+        <Flex direction="column" style={{ alignItems: 'flex-start' }} gap={6}>
+        <Text
+        header={__('Admin Emails', 'kirki-ecommerce')}
+        type="primary"
+        style={{ gap: '6px' }}
+        leftIcon={<SettingsIcon />}
+        />
+        <Text
+        subHeader={__('Manage admin emails here', 'kirki-ecommerce')}
+        />
         </Flex>
+
+        <OptionAccordion
+        header={__('Order', 'kirki-ecommerce')}
+        subHeader={__(
+        "Get notified about updates on your customer's orders.",
+        'kirki-ecommerce',
+        )}
+        leftIcon={<CartIcon />}
+        >
+        <GroupOptionCard
+        dataArr={orderEmails}
+        handleToggleItem={(item) =>
+        handleToggleOrder(item as EmailListItem)
+        }
+        handleEditItem={(item) => handleEditOrder(item as EmailListItem)}
+        />
+        </OptionAccordion>
+        <OptionAccordion
+        header={__('Inventory', 'kirki-ecommerce')}
+        subHeader={__(
+        'Get notified about your inventory status',
+        'kirki-ecommerce',
+        )}
+        leftIcon={<InventoryBoxIcon />}
+        >
+        <GroupOptionCard
+        dataArr={inventoryEmails}
+        handleToggleItem={(item) =>
+        handleToggleOrder(item as EmailListItem)
+        }
+        handleEditItem={(item) => handleEditOrder(item as EmailListItem)}
+        />
+        </OptionAccordion>
+        <OptionAccordion
+        header={__('User', 'kirki-ecommerce')}
+        subHeader={__(
+        'Get notified about new user registration',
+        'kirki-ecommerce',
+        )}
+        leftIcon={<UserIcon />}
+        >
+        <GroupOptionCard
+        dataArr={userEmails}
+        handleToggleItem={(item) =>
+        handleToggleOrder(item as EmailListItem)
+        }
+        handleEditItem={(item) => handleEditOrder(item as EmailListItem)}
+        />
+        </OptionAccordion>
+        </Flex>
+        </CardContent>
       </Card>
     </>
   );
@@ -124,3 +132,9 @@ const AdminEmail = (props: AdminEmailProps) => {
 AdminEmail.displayName = 'AdminEmail';
 
 export default AdminEmail;
+
+const styles = {
+  roundedCard: scoped({
+    borderRadius: theme.radius.xl,
+  }),
+};

@@ -4,22 +4,25 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 import SelectField from '@/components/form/select-field';
 import TextField from '@/components/form/text-field';
+import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import { PlusIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import ActionGroup from '@/components/ui/action-group';
-import Flex from '@/components/ui/flex';
 import {
   ProductAddCategoryFormSchema,
   type ProductAddCategoryFormValues,
 } from '@/schemas/forms/product-add-category-form';
 import {
-  useCreateCategoryMutation,
   useCategoriesQuery,
+  useCreateCategoryMutation,
 } from '@/services/category';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import type { CategoryFormData } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -78,52 +81,80 @@ const AddNewCategory = () => {
     })),
   ];
 
-  return (
-    <>
-      {show ? (
-        <Card type="inner">
-          <CardContent>
-            <Form {...form}>
-              <Flex direction="column" gap={16}>
-                <TextField
-                  name="name"
-                  placeholder={__('Category Name', 'kirki-ecommerce')}
-                />
-                <SelectField
-                  name="parent_id"
-                  placeholder={__('Select Parent', 'kirki-ecommerce')}
-                  options={parentOptions}
-                />
-                <ActionGroup>
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => setShow(false)}
-                  >
-                    {__('Cancel', 'kirki-ecommerce')}
-                  </Button>
-                  <Button
-                    variant="primary"
-                    size="sm"
-                    onClick={form.handleSubmit(handleAddOrUpdateCategory)}
-                  >
-                    {__('OK', 'kirki-ecommerce')}
-                  </Button>
-                </ActionGroup>
-              </Flex>
-            </Form>
+  if (show) {
+    return (
+      <div css={styles.formWrap}>
+        <Card css={cardStyles.innerCard}>
+          <CardContent css={styles.formCard}>
+          <Form {...form}>
+            <Flex direction="column" gap={16}>
+              <TextField
+                name="name"
+                placeholder={__('Category name', 'kirki-ecommerce')}
+              />
+              <SelectField
+                name="parent_id"
+                placeholder={__('Select Parent', 'kirki-ecommerce')}
+                options={parentOptions}
+              />
+              <ActionGroup>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShow(false)}
+                >
+                  {__('Cancel', 'kirki-ecommerce')}
+                </Button>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={form.handleSubmit(handleAddOrUpdateCategory)}
+                >
+                  {__('OK', 'kirki-ecommerce')}
+                </Button>
+              </ActionGroup>
+            </Flex>
+          </Form>
           </CardContent>
         </Card>
-      ) : (
-        <Button variant="ghost" size="sm" onClick={() => setShow(true)}>
-          <PlusIcon />
-          {__('Create New Category', 'kirki-ecommerce')}
-        </Button>
-      )}
-    </>
+      </div>
+    );
+  }
+
+  return (
+    <Button
+      variant="link"
+      css={styles.createButton}
+      onClick={() => setShow(true)}
+    >
+      <PlusIcon />
+      {__('Create New Category', 'kirki-ecommerce')}
+    </Button>
   );
 };
 
 AddNewCategory.displayName = 'AddNewCategory';
 
 export default AddNewCategory;
+
+const styles = {
+  formWrap: scoped({
+    width: '100%',
+  }),
+  formCard: scoped({
+    padding: theme.spacing['2xl'],
+    boxSizing: 'border-box',
+  }),
+  createButton: scoped({
+    backgroundColor: 'transparent',
+    color: theme.colors.background.fillBrand,
+    padding: 0,
+    height: 'auto',
+    minHeight: 'unset',
+    borderRadius: theme.radius.md,
+    '&:hover, &:active, &:focus, &:visited': {
+      backgroundColor: 'transparent',
+      color: theme.colors.background.fillBrandHover,
+    },
+  })
+};

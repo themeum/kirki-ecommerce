@@ -1,6 +1,6 @@
 import { type ReactElement, useEffect, useState } from 'react';
 
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
 import Label from '@/components/ui/label';
 import {
@@ -14,6 +14,8 @@ import {
 import { PlusCircleIcon } from '@/icons';
 import Flex from '@/components/ui/flex';
 import Grid from '@/components/ui/grid';
+import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import { useProductForm } from '@/contexts/product-form-context';
 import { useShippingProfilesQuery } from '@/services/shipping';
 import type { FormErrors, SelectOption } from '@/types';
@@ -71,14 +73,9 @@ const ShippingProfile = ({
   }) => ReactElement;
 
   return (
-    <Card
-      type="innerDark"
-      style={{
-        padding: '4px 8px 4px 12px',
-        height: '44px',
-      }}
-    >
-      <Grid style={{ alignItems: 'center' }}>
+    <Card css={cardStyles.innerDarkCard}>
+      <CardContent css={styles.innerDarkRowContent}>
+        <Grid style={{ alignItems: 'center' }}>
         <Flex gap={8} style={{ alignItems: 'center' }}>
           <Checkbox
             id="assign-shipping-profile"
@@ -128,7 +125,8 @@ const ShippingProfile = ({
             ))}
           </SelectContent>
         </Select>
-      </Grid>
+        </Grid>
+      </CardContent>
       <CreateProfilePopupView
         isOpen={openAddProfilePopup}
         onClose={() => setOpenAddProfilePopup(false)}
@@ -141,3 +139,11 @@ const ShippingProfile = ({
 ShippingProfile.displayName = 'ShippingProfile';
 
 export default ShippingProfile;
+
+const styles = {
+  innerDarkRowContent: scoped({
+    padding: '4px 8px 4px 12px',
+    height: '44px',
+    boxSizing: 'border-box',
+  })
+};

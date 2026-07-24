@@ -14,6 +14,7 @@ import { CheckedIcon, StripeIcon } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
+import { cardStyles } from '@/theme/card-styles';
 import {
   useInstallablePaymentGatewaysQuery,
   useInstallPaymentGatewayMutation,
@@ -63,8 +64,8 @@ const PaymentGatewayPopup = ({
           <Flex direction="column" gap={16}>
             {(availableGatewayList as AvailablePaymentGateway[])?.map(
               (item, index) => (
-                <Card key={index} type="inner">
-                  <CardContent>
+                <Card key={index} css={cardStyles.innerCard}>
+                  <CardContent css={cardStyles.innerContent}>
                     <Flex style={{ alignItems: 'center' }}>
                       <Text
                         header={item?.name}

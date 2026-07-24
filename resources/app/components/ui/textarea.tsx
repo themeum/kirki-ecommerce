@@ -14,7 +14,7 @@ type TextareaProps = Omit<
 
 const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
   (props, ref) => {
-    const { css: cssProp, error, rows = 5, ...rest } = props;
+    const { css: cssProp, error, rows = 5, value, ...rest } = props;
 
     return (
       <textarea
@@ -23,6 +23,7 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
         data-error={error ? 'true' : undefined}
         css={[styles.base, cssProp]}
         {...rest}
+        {...('value' in props ? { value: value ?? '' } : {})}
       />
     );
   },

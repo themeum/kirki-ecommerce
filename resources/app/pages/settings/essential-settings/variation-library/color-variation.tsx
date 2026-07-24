@@ -3,7 +3,7 @@ import { useParams } from 'react-router';
 
 import PageNavbar from '@/components/page-navbar';
 import Button from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { ColorPaletteIcon } from '@/icons';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
@@ -11,6 +11,8 @@ import PageHeading from '@/components/ui/page-heading';
 import { useAttributeQuery } from '@/services/attribute';
 import type { Attribute, AttributeValue, TaxonomyTableHeader } from '@/types';
 import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import { __, sprintf } from '@/wpi18n';
 
 import VariationTable from '@/pages/settings/essential-settings/variation-library/variation-table/variation-table';
@@ -54,7 +56,7 @@ const ColorVariation = () => {
               <div>
                 <Button
                   variant="link"
-                  style={{ color: theme.colors.text.emphasis, padding: 0 }}
+                  css={styles.addColorButton}
                   onClick={() => setAddVariantPopup(true)}
                 >
                   {__('Add color', 'kirki-ecommerce')}
@@ -63,25 +65,26 @@ const ColorVariation = () => {
             }
           />
           {!colorList?.length ? (
-            <Card
-              type="large"
-              style={{ borderRadius: '8px', padding: '36px 0' }}
-            >
-              <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
-                <ColorPaletteIcon />
-                <span style={{ color: '#878593' }}>
-                  {__('No color added yet', 'kirki-ecommerce')}
-                </span>
-              </Flex>
+            <Card css={[cardStyles.largeCard, styles.roundedCard]}>
+              <CardContent css={[cardStyles.largeContentPadded, styles.emptyContent]}>
+                <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
+                  <ColorPaletteIcon />
+                  <span style={{ color: '#878593' }}>
+                    {__('No color added yet', 'kirki-ecommerce')}
+                  </span>
+                </Flex>
+              </CardContent>
             </Card>
           ) : (
-            <Card type="table">
-              <VariationTable
-                results={colorList}
-                updateDataList={setColorList}
-                tableHeaders={tableHeaders}
-                selectedItem={selectedAttribute}
-              />
+            <Card css={cardStyles.tableCard}>
+              <CardContent css={cardStyles.tableContent}>
+                <VariationTable
+                  results={colorList}
+                  updateDataList={setColorList}
+                  tableHeaders={tableHeaders}
+                  selectedItem={selectedAttribute}
+                />
+              </CardContent>
             </Card>
           )}
         </Flex>
@@ -89,8 +92,8 @@ const ColorVariation = () => {
       <VariationValuePopup
         isOpen={addVariantPopup}
         selectedItem={selectedAttribute}
-        type={selectedAttribute?.type}
         onClose={() => setAddVariantPopup(false)}
+        type={selectedAttribute?.type}
       />
     </div>
   );
@@ -99,3 +102,16 @@ const ColorVariation = () => {
 ColorVariation.displayName = 'ColorVariation';
 
 export default ColorVariation;
+
+const styles = {
+  addColorButton: scoped({
+    color: theme.colors.text.emphasis,
+    padding: theme.spacing.none,
+  }),
+  roundedCard: scoped({
+    borderRadius: theme.radius.lg,
+  }),
+  emptyContent: scoped({
+    padding: `${theme.spacing['7xl']} 0`,
+  }),
+};

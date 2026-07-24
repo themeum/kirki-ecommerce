@@ -4,7 +4,10 @@ import { useFormContext, useWatch } from 'react-hook-form';
 import SwitchField from '@/components/form/switch-field';
 import OptionAccordion from '@/components/option-accordion';
 import Button from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+} from '@/components/ui/card';
 import Label from '@/components/ui/label';
 import {
   Select,
@@ -22,6 +25,8 @@ import type { MultiCurrencySettingsFormValues } from '@/schemas/forms/multi-curr
 import { useCurrencyExchangeProvidersQuery } from '@/services/currency';
 import type { SettingsSectionData } from '@/types';
 import { __ } from '@/wpi18n';
+
+import { cardStyles } from '@/theme/card-styles';
 
 import ApiConfigurationCard from '@/pages/settings/multi-currency-settings/api-config/api-configuration-card';
 import ApiConfigurationPopup from '@/pages/settings/multi-currency-settings/api-config/api-configuration-dialog';
@@ -118,33 +123,36 @@ const ApiConfig = () => {
               dataObj={(formValues || {}) as SettingsSectionData}
             />
           ) : (
-            <Card type="inner">
+            <Card css={cardStyles.innerCard} >
+              <CardContent css={cardStyles.innerContent}>
+
               <Flex
-                style={{
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                }}
+              style={{
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              }}
               >
-                <Flex direction={'column'} gap={8}>
-                  <Text header={selectedAPI} leftIcon={<FlagIcon />} />
-                  <Text
-                    subHeader={__(
-                      'Configure your API key and connection settings for ExchangeRate API',
-                      'kirki-ecommerce',
-                    )}
-                  />
-                </Flex>
-                <ActionGroup>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setOpenPopup(true)}
-                  >
-                    <WrenchIcon />
-                    {__('Configure', 'kirki-ecommerce')}
-                  </Button>
-                </ActionGroup>
+              <Flex direction={'column'} gap={8}>
+              <Text header={selectedAPI} leftIcon={<FlagIcon />} />
+              <Text
+              subHeader={__(
+              'Configure your API key and connection settings for ExchangeRate API',
+              'kirki-ecommerce',
+              )}
+              />
               </Flex>
+              <ActionGroup>
+              <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setOpenPopup(true)}
+              >
+              <WrenchIcon />
+              {__('Configure', 'kirki-ecommerce')}
+              </Button>
+              </ActionGroup>
+              </Flex>
+              </CardContent>
             </Card>
           ))}
       </OptionAccordion>

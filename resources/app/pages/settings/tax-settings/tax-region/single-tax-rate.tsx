@@ -1,12 +1,16 @@
 import { css } from '@emotion/react';
 import { useState } from 'react';
 
-import { Card } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+} from '@/components/ui/card';
 import Input from '@/components/ui/input';
 import Text from '@/components/ui/text';
 import Flex from '@/components/ui/flex';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
@@ -30,33 +34,34 @@ export const SingleTaxRate = ({
   return (
     <div>
       <Card
-        type="innerDark"
-        css={styles.taxCard}
+        css={[cardStyles.innerDarkCard, styles.taxCard]}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        <Text type="secondary" header={__('Tax rates', 'kirki-ecommerce')} />
-        <div css={styles.taxCardContent}>
-          <Text
-            header={centralTaxValue}
-            css={css(styles.rateDisplay, isHovered && styles.rateDisplayHidden)}
-          />
-
-          <Flex
-            gap={8}
-            css={css(styles.editGroup, isHovered && styles.editGroupActive)}
-          >
-            <Input
-              value={centralTaxValue}
-              style={{ width: '72px' }}
-              onChange={(e) => handleTaxRate(e.target.value)}
-              onBlur={(e) => handleTaxRate(e.target.value)}
-              type="number"
-              min={0}
-              max={100}
+        <CardContent css={cardStyles.innerDarkContent}>
+          <Text type="secondary" header={__('Tax rates', 'kirki-ecommerce')} />
+          <div css={styles.taxCardContent}>
+            <Text
+              header={centralTaxValue}
+              css={css(styles.rateDisplay, isHovered && styles.rateDisplayHidden)}
             />
-          </Flex>
-        </div>
+
+            <Flex
+              gap={8}
+              css={css(styles.editGroup, isHovered && styles.editGroupActive)}
+            >
+              <Input
+                value={centralTaxValue}
+                style={{ width: '72px' }}
+                onChange={(e) => handleTaxRate(e.target.value)}
+                onBlur={(e) => handleTaxRate(e.target.value)}
+                type="number"
+                min={0}
+                max={100}
+              />
+            </Flex>
+          </div>
+        </CardContent>
       </Card>
     </div>
   );
@@ -93,5 +98,5 @@ const styles = {
   taxCardContent: scoped({
     display: 'flex',
     alignItems: 'center',
-  }),
+  })
 };

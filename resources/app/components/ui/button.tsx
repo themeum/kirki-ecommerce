@@ -17,7 +17,15 @@ type ButtonVariant =
   | 'ghost'
   | 'link';
 
-type ButtonSize = 'default' | 'sm' | 'lg' | 'icon';
+type ButtonSize =
+  | 'default'
+  | 'xs'
+  | 'sm'
+  | 'lg'
+  | 'icon'
+  | 'icon-xs'
+  | 'icon-sm'
+  | 'icon-lg';
 
 type ButtonProps = Omit<
   ComponentPropsWithoutRef<'button'>,
@@ -47,7 +55,8 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
   const buttonCss = [
     styles.base,
     styles.variants[variant],
-    styles.sizes[size],
+    variant !== 'link' && styles.sizes[size],
+    variant === 'link' && styles.linkSize,
     isDisabled && styles.disabled,
     loading && styles.loading,
     cssProp,
@@ -84,7 +93,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
             {children}
           </span>
           <span css={styles.loader}>
-            <Loader2 size={16} aria-hidden="true" />
+            <Loader2 aria-hidden="true" />
           </span>
         </>
       ) : (
@@ -111,15 +120,10 @@ const styles = {
   base: scoped({
     ...flexCenter(),
     position: 'relative',
-    height: 'max-content',
     width: 'max-content',
-    padding: `${theme.spacing.md} ${theme.spacing['2xl']}`,
-    borderRadius: theme.radius.lg,
     fontFamily:
       'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
     fontWeight: 500,
-    fontSize: '14px',
-    lineHeight: '21px',
     cursor: 'pointer',
     columnGap: theme.spacing.md,
     textDecoration: 'none',
@@ -130,6 +134,10 @@ const styles = {
     appearance: 'none',
     WebkitAppearance: 'none',
     transition: 'all 150ms cubic-bezier(0.4, 0, 0.2, 1)',
+    '& svg': {
+      flexShrink: 0,
+      pointerEvents: 'none',
+    },
     '&:hover, &:active, &:focus, &:visited': {
       textDecoration: 'none',
       outline: 'none',
@@ -190,22 +198,96 @@ const styles = {
     }),
   },
   sizes: {
-    default: scoped({
-      padding: `${theme.spacing.md} ${theme.spacing['2xl']}`,
-      fontSize: '14px',
-      lineHeight: '21px',
+    xs: scoped({
+      height: '24px',
+      padding: '0 8px',
+      fontSize: '12px',
+      lineHeight: '18px',
+      borderRadius: theme.radius.md,
+      '& svg': {
+        width: '12px',
+        height: '12px',
+      },
     }),
     sm: scoped({
+      height: '28px',
+      padding: '0 10px',
       fontSize: '12px',
-      padding: `${theme.spacing.sm} ${theme.spacing.lg}`,
+      lineHeight: '18px',
+      borderRadius: theme.radius.md,
+      '& svg': {
+        width: '14px',
+        height: '14px',
+      },
+    }),
+    default: scoped({
+      height: '32px',
+      padding: '0 12px',
+      fontSize: '14px',
+      lineHeight: '21px',
+      borderRadius: theme.radius.md,
+      '& svg': {
+        width: '16px',
+        height: '16px',
+      },
     }),
     lg: scoped({
-      padding: `${theme.spacing.base} ${theme.spacing['6xl']}`,
+      height: '36px',
+      padding: '0 16px',
+      fontSize: '14px',
+      lineHeight: '21px',
+      borderRadius: theme.radius.lg,
+      '& svg': {
+        width: '16px',
+        height: '16px',
+      },
+    }),
+    'icon-xs': scoped({
+      height: '24px',
+      width: '24px',
+      padding: 0,
+      borderRadius: theme.radius.md,
+      '& svg': {
+        width: '12px',
+        height: '12px',
+      },
+    }),
+    'icon-sm': scoped({
+      height: '28px',
+      width: '28px',
+      padding: 0,
+      borderRadius: theme.radius.md,
+      '& svg': {
+        width: '14px',
+        height: '14px',
+      },
     }),
     icon: scoped({
-      padding: theme.spacing.base,
+      height: '32px',
+      width: '32px',
+      padding: 0,
+      borderRadius: theme.radius.md,
+      '& svg': {
+        width: '16px',
+        height: '16px',
+      },
+    }),
+    'icon-lg': scoped({
+      height: '36px',
+      width: '36px',
+      padding: 0,
+      borderRadius: theme.radius.lg,
+      '& svg': {
+        width: '16px',
+        height: '16px',
+      },
     }),
   },
+  linkSize: scoped({
+    height: 'auto',
+    width: 'auto',
+    padding: 0,
+  }),
   disabled: scoped({
     opacity: 0.5,
     pointerEvents: 'none',

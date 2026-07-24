@@ -8,6 +8,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
+import { cardStyles } from '@/theme/card-styles';
 
 const CardPreview = () => {
   return (
@@ -27,10 +28,34 @@ const CardPreview = () => {
           <Button variant="primary">Save</Button>
         </CardFooter>
       </Card>
-      <Card type="form">Form card variant</Card>
-      <Card type="inner">Inner card variant</Card>
-      <Card type="dark">Dark card variant</Card>
-      <Card type="light">Light card variant</Card>
+
+      <Card css={cardStyles.formCard}>
+        <CardContent>Form card variant</CardContent>
+      </Card>
+
+      <Card css={cardStyles.innerCard}>
+        <CardContent css={cardStyles.innerContent}>Inner card variant</CardContent>
+      </Card>
+
+      <Card css={cardStyles.darkCard}>
+        <CardContent>Dark card variant</CardContent>
+      </Card>
+
+      <Card css={cardStyles.lightCard}>
+        <CardContent>Light card variant</CardContent>
+      </Card>
+
+      <Card css={cardStyles.tableCard}>
+        <CardContent css={cardStyles.tableContent}>Table card variant</CardContent>
+      </Card>
+
+      <Card css={cardStyles.shadowCard}>
+        <CardContent>Shadow card variant</CardContent>
+      </Card>
+
+      <Card css={cardStyles.largeCard}>
+        <CardContent css={cardStyles.largeContentPadded}>Large card variant</CardContent>
+      </Card>
     </Flex>
   );
 };
@@ -38,3 +63,4 @@ const CardPreview = () => {
 CardPreview.displayName = 'CardPreview';
 
 export default CardPreview;
+

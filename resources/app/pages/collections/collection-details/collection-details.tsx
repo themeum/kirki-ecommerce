@@ -7,7 +7,7 @@ import TextareaField from '@/components/form/textarea-field';
 import TextField from '@/components/form/text-field';
 import ThumbnailField from '@/components/form/thumbnail-field';
 import Button from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import { NEW_ITEM_ID } from '@/conf';
 import { PlusIcon, ProductIcon } from '@/icons';
@@ -30,6 +30,9 @@ import {
   useUpdateCollectionMutation,
 } from '@/services/collection';
 import type { CollectionFormData } from '@/types';
+import { theme } from '@/theme';
+import { cardStyles } from '@/theme/card-styles';
+import { scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 const emptyValues: CollectionFormValues = {
@@ -141,7 +144,7 @@ const CollectionDetails = () => {
 
       <Container size="md">
         <Flex direction="column" gap={16}>
-          <Card type="form">
+          <Card css={cardStyles.formCard}>
             <CardContent>
               <Flex direction="column" gap={16}>
                 <Grid>
@@ -176,29 +179,29 @@ const CollectionDetails = () => {
             </CardContent>
           </Card>
 
-          <Card type="form" style={{ padding: '43.5px' }}>
-            <Flex
-              direction="column"
-              gap={12}
-              style={{ alignItems: 'center', justifyContent: 'center' }}
-            >
-              <ProductIcon />
-              <Button variant="secondary" size="sm">
-                <PlusIcon />
-                {__('Select Products', 'kirki-ecommerce')}
-              </Button>
-            </Flex>
+          <Card css={[cardStyles.formCard, styles.productPlaceholderCard]}>
+            <CardContent>
+              <Flex
+                direction="column"
+                gap={12}
+                style={{ alignItems: 'center', justifyContent: 'center' }}
+              >
+                <ProductIcon />
+                <Button variant="secondary" size="sm">
+                  <PlusIcon />
+                  {__('Select Products', 'kirki-ecommerce')}
+                </Button>
+              </Flex>
+            </CardContent>
           </Card>
 
-          <Card type="form">
+          <Card css={cardStyles.formCard}>
             <CardContent>
               <Flex direction="column" gap={16}>
-                <Text
-                  header={__('SEO Settings', 'kirki-ecommerce')}
-                  type="primary"
-                  padding="large"
-                />
-                <Card type="inner">
+                <CardHeader>
+                  <CardTitle>{__('SEO Settings', 'kirki-ecommerce')}</CardTitle>
+                </CardHeader>
+                <Card css={cardStyles.innerCard}>
                   <CardContent>
                     <Flex gap={16} style={{ justifyContent: 'space-between' }}>
                       <Flex direction="column" gap={6}>
@@ -261,3 +264,10 @@ const CollectionDetails = () => {
 CollectionDetails.displayName = 'CollectionDetails';
 
 export default CollectionDetails;
+
+const styles = {
+  productPlaceholderCard: scoped({
+    padding: theme.spacing['9xl'],
+  }),
+};
+

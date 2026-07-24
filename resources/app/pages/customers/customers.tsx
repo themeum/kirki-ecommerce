@@ -6,13 +6,14 @@ import { NEW_ITEM_ID } from '@/conf';
 import { useListParams } from '@/hooks';
 import { CustomerInfoIcon } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import PageHeading from '@/components/ui/page-heading';
 import Text from '@/components/ui/text';
 import { useCustomersQuery } from '@/services/customer';
 import { flexCenter, scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
 import type { PaginationData } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -63,35 +64,39 @@ const Customers = () => {
       <Container>
         {loaded ? (
           <Flex direction="column" gap={8}>
-            <Card type="form">
-              <Flex gap={12}>
-                <span css={styles.svgClass}>
-                  <CustomerInfoIcon />
-                </span>
-                <Text
-                  type="secondary"
-                  header={__('Create Groups with Customers', 'kirki-ecommerce')}
-                  subHeader={__(
-                    'Organize customers for better targeting and management',
-                    'kirki-ecommerce',
-                  )}
-                />
-                <ActionGroup>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleGroupManage}
-                  >
-                    {__('Manage Group', 'kirki-ecommerce')}
-                  </Button>
-                  <Button variant="secondary" size="sm">
-                    {__('Create Group', 'kirki-ecommerce')}
-                  </Button>
-                </ActionGroup>
-              </Flex>
+            <Card css={cardStyles.formCard}>
+              <CardContent>
+                <Flex gap={12}>
+                  <span css={styles.svgClass}>
+                    <CustomerInfoIcon />
+                  </span>
+                  <Text
+                    type="secondary"
+                    header={__('Create Groups with Customers', 'kirki-ecommerce')}
+                    subHeader={__(
+                      'Organize customers for better targeting and management',
+                      'kirki-ecommerce',
+                    )}
+                  />
+                  <ActionGroup>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleGroupManage}
+                    >
+                      {__('Manage Group', 'kirki-ecommerce')}
+                    </Button>
+                    <Button variant="secondary" size="sm">
+                      {__('Create Group', 'kirki-ecommerce')}
+                    </Button>
+                  </ActionGroup>
+                </Flex>
+              </CardContent>
             </Card>
-            <Card type="table">
-              <CustomerTable data={data!} isFetching={isFetching} />
+            <Card css={cardStyles.tableCard}>
+              <CardContent css={cardStyles.tableContent}>
+                <CustomerTable data={data!} isFetching={isFetching} />
+              </CardContent>
             </Card>
             <Pagination
               data={data as PaginationData}
@@ -111,5 +116,5 @@ Customers.displayName = 'Customers';
 export default Customers;
 
 const styles = {
-  svgClass: scoped(flexCenter()),
+  svgClass: scoped(flexCenter())
 };
