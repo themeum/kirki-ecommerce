@@ -38,6 +38,7 @@ const styles = {
   root: scoped({
     maxWidth: '1024px',
     margin: `${theme.spacing[0]} auto`,
+    padding: `${theme.spacing[0]} ${theme.spacing[2]}`,
   }),
   sizes: {
     sm: scoped({
@@ -47,6 +48,9 @@ const styles = {
       maxWidth: '752px',
     }),
     lg: scoped({
+      maxWidth: '900px',
+    }),
+    xl: scoped({
       maxWidth: '1024px',
     }),
     fullWidth: scoped({

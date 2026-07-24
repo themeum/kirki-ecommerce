@@ -1,25 +1,25 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate, useParams } from 'react-router';
 
-import TextareaField from '@/components/form/textarea-field';
 import TextField from '@/components/form/text-field';
+import TextareaField from '@/components/form/textarea-field';
 import ThumbnailField from '@/components/form/thumbnail-field';
 import Button from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form } from '@/components/ui/form';
-import { NEW_ITEM_ID } from '@/conf';
-import { PlusIcon, ProductIcon } from '@/icons';
-import type { ErrorResponse } from '@/libs/api';
-import { applyServerErrors } from '@/libs/form-errors';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
+import { Form } from '@/components/ui/form';
 import Grid from '@/components/ui/grid';
 import PageHeading from '@/components/ui/page-heading';
 import { Separator } from '@/components/ui/separator';
 import Text from '@/components/ui/text';
 import Thumbnail from '@/components/ui/thumbnail';
+import { NEW_ITEM_ID } from '@/conf';
+import { PlusIcon, ProductIcon } from '@/icons';
+import type { ErrorResponse } from '@/libs/api';
+import { applyServerErrors } from '@/libs/form-errors';
 import {
   CollectionFormSchema,
   type CollectionFormValues,
@@ -29,10 +29,10 @@ import {
   useCreateCollectionMutation,
   useUpdateCollectionMutation,
 } from '@/services/collection';
-import type { CollectionFormData } from '@/types';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { scoped } from '@/theme/mixins';
+import type { CollectionFormData } from '@/types';
 import { __ } from '@/wpi18n';
 
 const emptyValues: CollectionFormValues = {

@@ -1,11 +1,11 @@
 import { type SerializedStyles } from '@emotion/react';
+import { ArrowLeft } from 'lucide-react';
 import {
   forwardRef,
   type ComponentProps,
   type CSSProperties,
   type ReactNode,
 } from 'react';
-import { ArrowLeft } from 'lucide-react';
 
 import Button from '@/components/ui/button';
 import Container from '@/components/ui/container';
@@ -88,7 +88,7 @@ const PageHeading = forwardRef<HTMLDivElement, PageHeadingProps>(
                 {...restButtonProps}
               >
                 <ArrowLeft size={16} aria-hidden="true" />
-                {buttonChildren ?? __('Cancel', 'kirki-ecommerce')}
+                {buttonChildren}
               </Button>
             )}
             {leftIcon && (

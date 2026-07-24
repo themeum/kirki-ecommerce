@@ -67,7 +67,7 @@ type HeadingType = 'primary' | 'secondary' | 'tertiary' | '';
 type LabelType = 'error' | '';
 type TableType = 'default' | 'variation' | 'wide';
 type TableAlignment = 'right' | 'center';
-type ContainerSize = 'sm' | 'md' | 'lg' | 'fullWidth';
+type ContainerSize = 'sm' | 'md' | 'lg' | 'xl' | 'fullWidth';
 type ThumbnailSize = 'fullWidth' | 'small' | 'xsm';
 type ThumbnailType = 'circle';
 type FlexDirection = 'column' | 'row' | '';
@@ -93,29 +93,7 @@ type PaginationData = {
 };
 
 export type {
-  StyleProps,
-  LabelFieldProps,
-  SelectOption,
-  ButtonSize,
-  ButtonType,
-  ButtonState,
-  InputState,
-  SelectState,
-  BadgeType,
-  AlertType,
-  TextType,
-  HeadingType,
-  LabelType,
-  TableType,
-  TableAlignment,
-  ContainerSize,
-  ThumbnailSize,
-  ThumbnailType,
-  FlexDirection,
-  TooltipPosition,
-  DropdownSize,
-  DropdownPosition,
-  DropdownItemState,
-  ConfirmationVariant,
-  PaginationData,
+  AlertType, BadgeType, ButtonSize, ButtonState, ButtonType, ConfirmationVariant, ContainerSize, DropdownItemState, DropdownPosition, DropdownSize, FlexDirection, HeadingType, InputState, LabelFieldProps, LabelType, PaginationData, SelectOption, SelectState, StyleProps, TableAlignment, TableType, TextType, ThumbnailSize,
+  ThumbnailType, TooltipPosition
 };
+
