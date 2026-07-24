@@ -220,7 +220,6 @@ const TaxSettings = () => {
             <>
               <Button
                 variant="ghost"
-                size="sm"
                 onClick={handleDiscardData}
                 disabled={isSaving}
               >
@@ -228,7 +227,6 @@ const TaxSettings = () => {
               </Button>
               <Button
                 variant="primary"
-                size="sm"
                 onClick={form.handleSubmit((values) =>
                   handleSaveTaxSettings(values),
                 )}

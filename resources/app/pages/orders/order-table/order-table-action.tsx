@@ -42,11 +42,11 @@ const OrderTableAction = () => {
           </SelectTrigger>
           <SelectContent />
         </Select>
-        <Button variant="outline" size="sm">
+        <Button variant="outline">
           <ListFilter />
           Filter
         </Button>
-        <Button variant="outline" size="sm" aria-label="Sort">
+        <Button variant="outline" aria-label="Sort">
           <ArrowDownUp />
         </Button>
         <Searchbox

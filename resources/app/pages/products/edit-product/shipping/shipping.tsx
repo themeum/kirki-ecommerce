@@ -264,7 +264,6 @@ const Shipping = ({ errors, setErrors, formSyncKey = 0 }: ShippingProps) => {
                   <span css={styles.actionBackground}>
                     <Button
                       variant="secondary"
-                      size="sm"
                       onClick={() => {
                         setShowShippingBox((prev) => !prev);
                       }}

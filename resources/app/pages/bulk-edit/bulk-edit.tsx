@@ -77,14 +77,12 @@ const BulkEditPage = () => {
             />
             <Button
               variant="secondary"
-              size="sm"
               onClick={() => window.history.back()}
             >
               {__('Cancel', 'kirki-ecommerce')}
             </Button>
             <Button
               variant="primary"
-              size="sm"
               onClick={handleProductBulkSave}
             >
               {__('Save', 'kirki-ecommerce')}

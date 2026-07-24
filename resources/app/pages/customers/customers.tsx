@@ -53,7 +53,6 @@ const Customers = () => {
         actions={
           <Button
             variant="primary"
-            size="sm"
             onClick={handleAddNewCustomer}
           >
             {__('Add Customer', 'kirki-ecommerce')}
@@ -81,12 +80,11 @@ const Customers = () => {
                   <ActionGroup>
                     <Button
                       variant="ghost"
-                      size="sm"
                       onClick={handleGroupManage}
                     >
                       {__('Manage Group', 'kirki-ecommerce')}
                     </Button>
-                    <Button variant="secondary" size="sm">
+                    <Button variant="secondary">
                       {__('Create Group', 'kirki-ecommerce')}
                     </Button>
                   </ActionGroup>

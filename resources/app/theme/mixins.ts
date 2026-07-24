@@ -6,12 +6,17 @@ const APP_ROOT_SELECTOR = '#wpbody-content .kirki-ecommerce-root';
  * Scope Emotion styles under the app root so they beat the normalize button/input resets.
  * Uses `&&` to raise specificity above typed form-control selectors (e.g. input[type="text"]).
  *
- * @param styles CSS object to apply to the element.
+ * @param stylesOrLabel CSS object, or a debug label when a second styles argument is provided.
+ * @param maybeStyles CSS object when the first argument is a debug label.
  *
  * @returns Emotion css styles nested under the app root selector.
  */
-const scoped = (styles: CSSObject) => {
+const scoped = (stylesOrLabel: CSSObject | string, maybeStyles?: CSSObject) => {
+  const label = typeof stylesOrLabel === 'string' ? stylesOrLabel : undefined;
+  const styles = typeof stylesOrLabel === 'string' ? (maybeStyles ?? {}) : stylesOrLabel;
+
   return css({
+    label: import.meta.env.DEV && label ? label : undefined,
     [`${APP_ROOT_SELECTOR} &&`]: styles,
   });
 };

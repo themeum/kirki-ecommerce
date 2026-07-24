@@ -155,7 +155,6 @@ const CustomerDetails = () => {
           <>
             <Button
               variant="ghost"
-              size="sm"
               onClick={() => {
                 window.history.back();
               }}
@@ -164,7 +163,6 @@ const CustomerDetails = () => {
             </Button>
             <Button
               variant="primary"
-              size="sm"
               onClick={form.handleSubmit(handleSubmit)}
               loading={isSubmitting}
             >

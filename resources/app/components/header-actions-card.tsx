@@ -61,7 +61,7 @@ const HeaderActionsCard = (props: HeaderActionsCardProps) => {
                   onOptionSelect={(value) => handleOptionSelect(value)}
                 />
               ) : (
-                <Button size="sm" variant="secondary" onClick={onAdd}>
+                <Button variant="secondary" onClick={onAdd}>
                   <PlusIcon />
                   {buttonText}
                 </Button>

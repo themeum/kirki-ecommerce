@@ -236,14 +236,12 @@ const TaxRulesModal = (props: TaxRulesModalProps) => {
           <DialogFooter>
             <Button
               variant="secondary"
-              size="sm"
               onClick={() => setShowModal(false)}
             >
               {__('Cancel', 'kirki-ecommerce')}
             </Button>
             <Button
               variant="primary"
-              size="sm"
               onClick={form.handleSubmit(handleSubmit)}
             >
               {from === 'edit'

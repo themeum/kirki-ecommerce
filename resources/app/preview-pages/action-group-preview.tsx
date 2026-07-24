@@ -25,13 +25,12 @@ const ActionGroupPreview = () => {
           </SelectTrigger>
           <SelectContent />
         </Select>
-        <Button variant="outline" size="sm">
+        <Button variant="outline">
           <ListFilter />
           Filter
         </Button>
         <Button
           variant="outline"
-          size="sm"
           aria-label={__('Sort', 'kirki-ecommerce')}
         >
           <ArrowDownUp />

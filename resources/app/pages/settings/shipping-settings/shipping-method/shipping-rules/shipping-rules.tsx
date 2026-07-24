@@ -205,7 +205,6 @@ export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
                     >
                       <Button
                         variant="secondary"
-                        size="sm"
                         onClick={() => handleDeleteRules(index)}
                       >
                         <TrashIcon />
@@ -213,7 +212,6 @@ export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
 
                       <Button
                         variant="secondary"
-                        size="sm"
                         onClick={() => setEditingRuleIndex(index)}
                       >
                         <EditPenIcon />

@@ -247,12 +247,11 @@ const ShippingDeliveryMethod = () => {
         actions={
           hasUnsavedData ? (
             <>
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost">
                 {__('Cancel', 'kirki-ecommerce')}
               </Button>
               <Button
                 variant="primary"
-                size="sm"
                 onClick={handleCreateOrUpdateData}
               >
                 {__('Save', 'kirki-ecommerce')}

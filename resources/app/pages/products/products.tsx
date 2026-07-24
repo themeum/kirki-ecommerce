@@ -40,15 +40,14 @@ const Products = () => {
         text={__('Products', 'kirki-ecommerce')}
         actions={
           <>
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost">
               {__('Import', 'kirki-ecommerce')}
             </Button>
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost">
               {__('Export', 'kirki-ecommerce')}
             </Button>
             <Button
               variant="primary"
-              size="sm"
               onClick={() => {
                 navigate('/products/' + NEW_ITEM_ID);
               }}

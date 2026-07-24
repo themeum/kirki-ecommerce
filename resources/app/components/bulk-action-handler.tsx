@@ -83,7 +83,6 @@ const BulkActionHandler = (props: BulkActionHandlerProps) => {
             </Select>
             <Button
               variant="secondary"
-              size="sm"
               onClick={() => onApply(selectAction)}
               disabled={!selectAction}
             >

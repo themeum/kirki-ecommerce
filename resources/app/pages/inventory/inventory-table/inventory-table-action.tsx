@@ -49,7 +49,7 @@ const InventoryTableAction = ({
           </SelectTrigger>
           <SelectContent />
         </Select>
-        <Button variant="outline" size="sm">
+        <Button variant="outline">
           <ListFilter />
           {__('Filter', 'kirki-ecommerce')}
         </Button>

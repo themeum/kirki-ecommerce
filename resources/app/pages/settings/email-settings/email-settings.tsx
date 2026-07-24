@@ -177,14 +177,12 @@ const EmailSettings = () => {
               <Button
                 variant="ghost"
                 onClick={handleDiscardData}
-                size="sm"
               >
                 {__('Cancel', 'kirki-ecommerce')}
               </Button>
               <Button
                 variant="primary"
                 onClick={form.handleSubmit(handleSaveData)}
-                size="sm"
                 loading={isPending}
               >
                 {__('Save', 'kirki-ecommerce')}

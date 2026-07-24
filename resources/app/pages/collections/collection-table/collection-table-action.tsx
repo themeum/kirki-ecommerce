@@ -50,7 +50,6 @@ const CollectionTableAction = ({ onSortChange }: CollectionTableActionProps) => 
         </Select>
         <Button
           variant="outline"
-          size="sm"
           aria-label={__('Sort', 'kirki-ecommerce')}
           onClick={onSortChange}
         >

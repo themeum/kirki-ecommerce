@@ -119,7 +119,6 @@ const ProductsSettings = () => {
             <>
               <Button
                 variant="ghost"
-                size="sm"
                 onClick={handleDiscardData}
               >
                 {__('Cancel', 'kirki-ecommerce')}
@@ -127,7 +126,6 @@ const ProductsSettings = () => {
               <Button
                 variant="primary"
                 onClick={form.handleSubmit(handleSaveData)}
-                size="sm"
                 loading={isPending}
               >
                 {__('Save', 'kirki-ecommerce')}

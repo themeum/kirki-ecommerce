@@ -124,12 +124,11 @@ const CollectionDetails = () => {
         sticky
         actions={
           <>
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost">
               {__('Cancel', 'kirki-ecommerce')}
             </Button>
             <Button
               variant="primary"
-              size="sm"
               onClick={form.handleSubmit(handleSubmit)}
               loading={isSubmitting}
             >
@@ -187,7 +186,7 @@ const CollectionDetails = () => {
                 style={{ alignItems: 'center', justifyContent: 'center' }}
               >
                 <ProductIcon />
-                <Button variant="secondary" size="sm">
+                <Button variant="secondary">
                   <PlusIcon />
                   {__('Select Products', 'kirki-ecommerce')}
                 </Button>

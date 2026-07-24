@@ -20,7 +20,6 @@ const NewCategory = () => {
     <>
       <Button
         variant="primary"
-        size="sm"
         onClick={() => setOpenPopup(true)}
       >
         {__('New Category', 'kirki-ecommerce')}

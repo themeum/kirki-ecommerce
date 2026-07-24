@@ -125,7 +125,6 @@ const PaymentGatewayEditPopup = ({
                   type="button"
                   variant="outline"
                   disabled={isSubmitting}
-                  size="sm"
                 >
                   {__('Cancel', 'kirki-ecommerce')}
                 </Button>
@@ -134,7 +133,6 @@ const PaymentGatewayEditPopup = ({
                 type="submit"
                 variant="primary"
                 loading={isSubmitting}
-                size="sm"
               >
                 {__('Save', 'kirki-ecommerce')}
               </Button>

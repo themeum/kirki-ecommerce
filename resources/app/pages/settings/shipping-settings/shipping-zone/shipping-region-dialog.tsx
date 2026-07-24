@@ -353,14 +353,12 @@ export const ShippingRegionPopup = ({
           <DialogFooter>
             <Button
               variant="outline"
-              size="sm"
               onClick={() => handleCancelButton()}
             >
               {__('Cancel', 'kirki-ecommerce')}
             </Button>
             <Button
               variant="primary"
-              size="sm"
               onClick={form.handleSubmit(handleDone)}
               disabled={buttonState}
             >

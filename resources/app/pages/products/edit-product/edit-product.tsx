@@ -268,14 +268,12 @@ const EditProductInner = () => {
           <>
             <Button
               variant="ghost"
-              size="sm"
               onClick={() => window.history.back()}
             >
               {__('Cancel', 'kirki-ecommerce')}
             </Button>
             <Button
               variant="primary"
-              size="sm"
               onClick={handleAddOrCreateProduct}
             >
               {isNew

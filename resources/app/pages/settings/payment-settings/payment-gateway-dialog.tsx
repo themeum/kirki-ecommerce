@@ -74,14 +74,13 @@ const PaymentGatewayPopup = ({
                       />
                       <ActionGroup>
                         {item?.is_installed === true ? (
-                          <Button variant="ghost" size="sm">
+                          <Button variant="ghost">
                             <CheckedIcon />
                             {__('Added', 'kirki-ecommerce')}
                           </Button>
                         ) : (
                           <Button
                             variant="secondary"
-                            size="sm"
                             onClick={() => handleInstallPaymentGateway(item)}
                           >
                             {__('Add', 'kirki-ecommerce')}

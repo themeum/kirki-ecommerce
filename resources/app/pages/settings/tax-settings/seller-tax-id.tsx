@@ -25,7 +25,7 @@ const SellerTaxID = () => {
                 style={{ gap: theme.spacing[3] }}
               />
               <ActionGroup>
-                <Button variant="secondary" size="sm">
+                <Button variant="secondary">
                   <PlusIcon />
                   Add ID
                 </Button>

@@ -108,12 +108,11 @@ const AddVariationPopup = ({
             </Flex>
           </DialogBody>
           <DialogFooter>
-            <Button variant="outline" size="sm" onClick={handleClosePopup}>
+            <Button variant="outline" onClick={handleClosePopup}>
               {__('Cancel', 'kirki-ecommerce')}
             </Button>
             <Button
               variant="primary"
-              size="sm"
               loading={createMutation.isPending}
               disabled={buttonState === 'disabled'}
               onClick={form.handleSubmit(handleSubmit)}

@@ -126,14 +126,12 @@ const SortableCard = ({
               <Button
                 variant="secondary"
                 onClick={() => handleAttributeEdit(item)}
-                size="sm"
               >
                 <EditIcon />
               </Button>
               <Button
                 variant="secondary"
                 onClick={() => handleAttributeRemove(item.id)}
-                size="sm"
               >
                 <TrashIcon />
               </Button>

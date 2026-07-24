@@ -74,7 +74,6 @@ const ShippingBoxSelect = ({
             />
             <Button
               variant="ghost"
-              size="sm"
               css={styles.manageButton}
               onClick={() => navigate('/settings/shipping')}
             >
@@ -91,7 +90,6 @@ const ShippingBoxSelect = ({
           <ActionGroup css={styles.footer}>
             <Button
               variant="secondary"
-              size="sm"
               onClick={() => setOpenShippingBoxPopup(true)}
             >
               <PlusIcon />

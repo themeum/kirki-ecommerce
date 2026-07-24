@@ -58,7 +58,6 @@ const InventoryTable = () => {
           />
           <Button
             variant="secondary"
-            size="sm"
             onClick={handleApplyAction}
           >
             {__('Bulk Edit', 'kirki-ecommerce')}

@@ -115,7 +115,6 @@ const VariationTable = () => {
           </Select>
           <Button
             variant="outline"
-            size="sm"
             onClick={() => setExpandVariation((prev) => !prev)}
           >
             <ChevronUpDownIcon />
@@ -124,7 +123,6 @@ const VariationTable = () => {
         <ActionGroup>
           <Button
             variant="secondary"
-            size="sm"
             onClick={handleBulkEditVariants}
           >
             <EditIcon />

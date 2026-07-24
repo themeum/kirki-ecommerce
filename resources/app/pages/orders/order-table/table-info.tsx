@@ -44,7 +44,7 @@ const TableInfo = () => {
           </SelectTrigger>
           <SelectContent />
         </Select>
-        <Button variant="secondary" size="sm">
+        <Button variant="secondary">
           Go to Analytics
         </Button>
       </ActionGroup>

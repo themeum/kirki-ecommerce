@@ -144,7 +144,6 @@ const ApiConfig = () => {
               <ActionGroup>
               <Button
               variant="outline"
-              size="sm"
               onClick={() => setOpenPopup(true)}
               >
               <WrenchIcon />

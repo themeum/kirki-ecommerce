@@ -33,7 +33,6 @@ const PageNavbar = (props: PageNavbarProps) => {
     <div style={style}>
       <Flex style={{ alignItems: 'center', justifyContent: 'center' }}>
         <Button
-          size="sm"
           variant="ghost"
           aria-label={__('Back', 'kirki-ecommerce')}
           onClick={handleBack ?? (() => window.history.back())}

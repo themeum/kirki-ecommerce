@@ -71,7 +71,6 @@ const Pagination = (props: PaginationProps) => {
       <ActionGroup>
         <Button
           variant="ghost"
-          size="sm"
           aria-label={__('Previous page', 'kirki-ecommerce')}
           disabled={_current_page === 1}
           onClick={() => onChange(_current_page - 1)}
@@ -82,7 +81,6 @@ const Pagination = (props: PaginationProps) => {
           <Button
             key={index}
             variant={_current_page === page.value ? 'primary' : 'link'}
-            size="sm"
             onClick={() => onChange(page.value)}
             style={{
               width: '32px',
@@ -94,7 +92,6 @@ const Pagination = (props: PaginationProps) => {
         ))}
         <Button
           variant="ghost"
-          size="sm"
           aria-label={__('Next page', 'kirki-ecommerce')}
           style={{ transform: 'rotate(180deg)' }}
           disabled={_current_page === last_page}

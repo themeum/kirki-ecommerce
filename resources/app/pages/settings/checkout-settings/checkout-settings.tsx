@@ -119,14 +119,12 @@ const CheckoutSettings = () => {
             <>
               <Button
                 variant="ghost"
-                size="sm"
                 onClick={handleDiscardData}
               >
                 {__('Cancel', 'kirki-ecommerce')}
               </Button>
               <Button
                 variant="primary"
-                size="sm"
                 onClick={form.handleSubmit(handleSaveData)}
                 loading={isPending}
               >

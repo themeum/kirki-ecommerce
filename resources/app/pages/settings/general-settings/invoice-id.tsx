@@ -136,7 +136,6 @@ const InvoiceId = () => {
                     <ActionGroup>
                       <Button
                         variant="secondary"
-                        size="sm"
                         onClick={handleResetIDField}
                       >
                         <ReplaceIcon />

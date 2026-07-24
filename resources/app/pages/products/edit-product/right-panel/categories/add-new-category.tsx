@@ -100,14 +100,12 @@ const AddNewCategory = () => {
               <ActionGroup>
                 <Button
                   variant="outline"
-                  size="sm"
                   onClick={() => setShow(false)}
                 >
                   {__('Cancel', 'kirki-ecommerce')}
                 </Button>
                 <Button
                   variant="primary"
-                  size="sm"
                   onClick={form.handleSubmit(handleAddOrUpdateCategory)}
                 >
                   {__('OK', 'kirki-ecommerce')}

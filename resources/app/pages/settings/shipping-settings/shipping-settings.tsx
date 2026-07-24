@@ -255,7 +255,6 @@ const ShippingSettings = () => {
             <>
               <Button
                 variant="ghost"
-                size="sm"
                 onClick={handleDiscardData}
                 disabled={isSaving}
               >
@@ -263,7 +262,6 @@ const ShippingSettings = () => {
               </Button>
               <Button
                 variant="primary"
-                size="sm"
                 onClick={form.handleSubmit(handleSaveZones)}
                 loading={isSaving}
               >

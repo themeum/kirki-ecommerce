@@ -12,7 +12,6 @@ const OptionAccordionPreview = () => {
       <ToggleButton value={true} />
       <Button
         variant="ghost"
-        size="sm"
         aria-label={__('More options', 'kirki-ecommerce')}
         style={{ transform: 'rotate(90deg)' }}
       >

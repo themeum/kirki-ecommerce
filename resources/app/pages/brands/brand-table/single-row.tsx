@@ -60,7 +60,6 @@ const SingleRow = ({
         <TableCell alignment="right" style={{ width: '1%' }}>
           <ActionGroup>
             <Button
-              size="sm"
               variant="secondary"
               onClick={(e) => {
                 e.stopPropagation();

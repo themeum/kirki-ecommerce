@@ -327,7 +327,6 @@ const EditRegionEU = () => {
             <>
               <Button
                 variant="ghost"
-                size="sm"
                 onClick={handleDiscardData}
                 disabled={isSaving}
               >
@@ -335,7 +334,6 @@ const EditRegionEU = () => {
               </Button>
               <Button
                 variant="primary"
-                size="sm"
                 onClick={form.handleSubmit(() => handleSaveData())}
                 loading={isSaving}
               >

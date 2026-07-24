@@ -97,7 +97,6 @@ const Toast = ({
           {undoAction && (
             <Button
               variant="ghost"
-              size="sm"
               css={styles.undoButton}
               onClick={() => {
                 onUndo?.();
@@ -108,7 +107,6 @@ const Toast = ({
           )}
           <Button
             variant="ghost"
-            size="sm"
             aria-label={__('Close', 'kirki-ecommerce')}
             css={styles.closeButton}
             onClick={onClose}

@@ -130,7 +130,7 @@ const ProductTableFilterAction = () => {
           multiple={key === 'category_ids'}
         />
       ))}
-      <Button variant="link" size="sm" onClick={handleClearAll}>
+      <Button variant="link" onClick={handleClearAll}>
         {__('Clear All', 'kirki-ecommerce')}
       </Button>
     </Flex>

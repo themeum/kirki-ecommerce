@@ -123,7 +123,6 @@ const SortableItem = ({
         {!disableDrag && (
           <Button
             variant="ghost"
-            size="sm"
             aria-label={__('Move', 'kirki-ecommerce')}
             {...listeners}
             style={{
@@ -148,7 +147,6 @@ const SortableItem = ({
           />
           {!selectedImages?.length && (
             <Button
-              size="sm"
               variant="ghost"
               aria-label={__('Delete', 'kirki-ecommerce')}
               onClick={onDeleteImage}

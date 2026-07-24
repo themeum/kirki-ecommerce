@@ -140,7 +140,6 @@ const FilterPopup = ({
         <DropdownMenuTrigger asChild>
           <Button
             variant="outline"
-            size="sm"
             style={{
               borderRightColor: hasFilter ? 'none' : theme.colors.border.default,
               borderRadius: hasFilter
@@ -156,7 +155,6 @@ const FilterPopup = ({
         {hasFilter ? (
           <Button
             variant="outline"
-            size="sm"
             style={{
               color: theme.colors.text.emphasis,
               backgroundColor: theme.colors.background.fillSecondary,
@@ -255,7 +253,7 @@ const FilterPopup = ({
 
         <Flex css={styles.footer}>
           <ActionGroup>
-            <Button variant="primary" size="sm" onClick={handleOnApplyFilter}>
+            <Button variant="primary" onClick={handleOnApplyFilter}>
               {__('Apply Filter', 'kirki-ecommerce')}
             </Button>
           </ActionGroup>

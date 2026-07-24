@@ -41,7 +41,6 @@ const Collections = () => {
         actions={
           <Button
             variant="primary"
-            size="sm"
             onClick={() => {
               navigate('/collections/' + NEW_ITEM_ID);
             }}

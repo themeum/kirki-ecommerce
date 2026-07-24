@@ -82,12 +82,11 @@ const Thumbnail = forwardRef<HTMLDivElement, ThumbnailProps>((props, ref) => {
               <div css={[styles.overlay, styles.overlayFullWidth]}>
                 <Flex gap={8} css={styles.actions}>
                   <MediaSelector onSelect={(img) => onChange(img)}>
-                    <Button size="sm" variant="ghost" aria-label="Replace image">
+                    <Button variant="ghost" aria-label="Replace image">
                       <Replace size={16} aria-hidden="true" />
                     </Button>
                   </MediaSelector>
                   <Button
-                    size="sm"
                     variant="ghost"
                     aria-label="Remove image"
                     onClick={() => onChange('')}

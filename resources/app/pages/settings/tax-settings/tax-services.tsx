@@ -73,7 +73,7 @@ const TaxServices = () => {
                         hoveredIndex === index && styles.hoverVisibleActive,
                       )}
                     >
-                      <Button variant="secondary" size="sm">
+                      <Button variant="secondary">
                         <PlusIcon />
                         Setup
                       </Button>

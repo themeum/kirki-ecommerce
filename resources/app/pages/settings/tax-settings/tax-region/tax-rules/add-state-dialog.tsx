@@ -178,7 +178,6 @@ export const AddStatePopup = (props: AddStatePopupProps) => {
           <DialogFooter>
             <Button
               variant="outline"
-              size="sm"
               onClick={() => {
                 setSelectedCountries(selectedCountries);
                 setOpenPopup(false);
@@ -188,7 +187,6 @@ export const AddStatePopup = (props: AddStatePopupProps) => {
             </Button>
             <Button
               variant="primary"
-              size="sm"
               onClick={form.handleSubmit(handleSubmit)}
             >
               {__('Done', 'kirki-ecommerce')}

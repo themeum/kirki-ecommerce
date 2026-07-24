@@ -66,7 +66,6 @@ const SingleRow = ({
       <TableCell alignment="right">
         <ActionGroup>
           <Button
-            size="sm"
             variant="secondary"
             onClick={() => {
               handleItemClick(item.id);
@@ -76,7 +75,6 @@ const SingleRow = ({
             {__('Edit', 'kirki-ecommerce')}
           </Button>
           <Button
-            size="sm"
             variant="secondary"
             aria-label={__('Delete', 'kirki-ecommerce')}
             onClick={() => {

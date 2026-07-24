@@ -163,7 +163,6 @@ const GroupTagTable = (props: GroupTagTableProps) => {
                     {isEditable && (
                       <Button
                         variant="link"
-                        size="sm"
                         data-hover-reveal="true"
                         css={styles.hoverReveal}
                         onClick={() => handleClearSingleGroup(groupName)}

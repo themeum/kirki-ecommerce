@@ -75,7 +75,6 @@ const Capsule = ({
       <div css={styles.separator} aria-hidden="true" />
       <Button
         variant="ghost"
-        size="sm"
         aria-label="Clear"
         onClick={onClearItem}
       >

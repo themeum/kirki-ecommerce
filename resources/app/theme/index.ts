@@ -157,14 +157,12 @@ type TypographyStyle = {
   fontWeight: number;
   lineHeight: string;
   letterSpacing: string;
-  color: string;
 };
 
 type TypographyStyleConfig = {
   fontSize: string;
   lineHeight: string;
   letterSpacing: string;
-  color: string;
   defaultWeight: TypographyWeight;
 };
 
@@ -182,7 +180,6 @@ const createTypographyStyle = (config: TypographyStyleConfig) => {
       fontWeight: fontWeight[weight],
       lineHeight: config.lineHeight,
       letterSpacing: config.letterSpacing,
-      color: config.color,
     };
   };
 };
@@ -294,56 +291,48 @@ const theme = {
       fontSize: '36px',
       lineHeight: '40px',
       letterSpacing: '-0.9px',
-      color: textPrimaryColor,
       defaultWeight: 'extrabold',
     }),
     heading2: createTypographyStyle({
       fontSize: '30px',
       lineHeight: '36px',
       letterSpacing: '-0.75px',
-      color: textPrimaryColor,
       defaultWeight: 'semibold',
     }),
     heading3: createTypographyStyle({
       fontSize: '24px',
       lineHeight: '32px',
       letterSpacing: '-0.6px',
-      color: textPrimaryColor,
       defaultWeight: 'semibold',
     }),
     heading4: createTypographyStyle({
       fontSize: '20px',
       lineHeight: '28px',
       letterSpacing: '-0.5px',
-      color: textPrimaryColor,
       defaultWeight: 'semibold',
     }),
     paragraph: createTypographyStyle({
       fontSize: '16px',
       lineHeight: '24px',
       letterSpacing: '0',
-      color: textPrimaryColor,
       defaultWeight: 'normal',
     }),
     small: createTypographyStyle({
       fontSize: '14px',
       lineHeight: '21px',
       letterSpacing: '0',
-      color: textPrimaryColor,
       defaultWeight: 'normal',
     }),
     large: createTypographyStyle({
       fontSize: '18px',
       lineHeight: '27px',
       letterSpacing: '0',
-      color: textPrimaryColor,
       defaultWeight: 'semibold',
     }),
     lead: createTypographyStyle({
       fontSize: '20px',
       lineHeight: '30px',
       letterSpacing: '0',
-      color: textPrimaryColor,
       defaultWeight: 'normal',
     }),
   },

@@ -76,7 +76,6 @@ const PageHeading = forwardRef<HTMLDivElement, PageHeadingProps>(
             {hasBack && (
               <Button
                 variant="link"
-                size="sm"
                 css={buttonCss}
                 onClick={(event) => {
                   if (buttonOnClick) {

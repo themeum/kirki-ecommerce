@@ -142,12 +142,11 @@ const EditTemplate = () => {
         sticky
         actions={
           <>
-            <Button variant="ghost" size="sm" onClick={handleDiscard}>
+            <Button variant="ghost" onClick={handleDiscard}>
               {__('Discard', 'kirki-ecommerce')}
             </Button>
             <Button
               variant="primary"
-              size="sm"
               onClick={form.handleSubmit(handleSaveData)}
               loading={isPending}
             >

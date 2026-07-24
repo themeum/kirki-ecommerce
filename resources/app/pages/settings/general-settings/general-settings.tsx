@@ -155,7 +155,6 @@ const GeneralSettings = () => {
             <>
               <Button
                 variant="ghost"
-                size="sm"
                 onClick={handleDiscardData}
                 disabled={isSaving}
               >
@@ -163,7 +162,6 @@ const GeneralSettings = () => {
               </Button>
               <Button
                 variant="primary"
-                size="sm"
                 onClick={form.handleSubmit(handleSaveData)}
                 loading={isSaving}
               >

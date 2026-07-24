@@ -32,7 +32,7 @@ const CustomerGroups = () => {
         text="Manage Groups"
         type="primary"
         actions={
-          <Button variant="primary" size="sm">
+          <Button variant="primary">
             Create Group
           </Button>
         }
@@ -64,11 +64,11 @@ const CustomerGroups = () => {
                   </SelectTrigger>
                   <SelectContent />
                 </Select>
-                <Button variant="outline" size="sm">
+                <Button variant="outline">
                   <ListFilter />
                   Filter
                 </Button>
-                <Button variant="outline" size="sm" aria-label="Sort">
+                <Button variant="outline" aria-label="Sort">
                   <ArrowDownUp />
                 </Button>
                 <Input placeholder="Search" />

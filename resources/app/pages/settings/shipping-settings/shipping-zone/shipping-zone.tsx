@@ -244,10 +244,10 @@ const ShippingZonePage = () => {
         actions={
           hasUnsavedData ? (
             <>
-              <Button variant="ghost" size="sm" onClick={handleDiscardData}>
+              <Button variant="ghost" onClick={handleDiscardData}>
                 {__('Cancel', 'kirki-ecommerce')}
               </Button>
-              <Button variant="primary" size="sm" onClick={updateShippingZone}>
+              <Button variant="primary" onClick={updateShippingZone}>
                 {__('Save', 'kirki-ecommerce')}
               </Button>
             </>

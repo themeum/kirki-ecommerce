@@ -169,13 +169,12 @@ const VatCollectionPopup = (props: VatCollectionPopupProps) => {
           </DialogBody>
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="outline" size="sm">
+              <Button variant="outline">
                 {__('Cancel', 'kirki-ecommerce')}
               </Button>
             </DialogClose>
             <Button
               variant="primary"
-              size="sm"
               onClick={form.handleSubmit(handleSubmit)}
               disabled={buttonState}
             >

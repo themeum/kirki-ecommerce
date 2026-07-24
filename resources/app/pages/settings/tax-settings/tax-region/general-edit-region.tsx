@@ -239,7 +239,6 @@ const GeneralEditRegion = () => {
               <>
                 <Button
                   variant="ghost"
-                  size="sm"
                   onClick={handleDiscardData}
                   disabled={isSaving}
                 >
@@ -247,7 +246,6 @@ const GeneralEditRegion = () => {
                 </Button>
                 <Button
                   variant="primary"
-                  size="sm"
                   onClick={form.handleSubmit((values) =>
                     handleSaveData(values),
                   )}

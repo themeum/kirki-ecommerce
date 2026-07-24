@@ -110,7 +110,6 @@ const Brand = () => {
                 <ActionGroup style={{ cursor: 'pointer' }}>
                   <Button
                     variant="ghost"
-                    size="sm"
                     onClick={handleRemoveBrand}
                   >
                     <MinusIcon />

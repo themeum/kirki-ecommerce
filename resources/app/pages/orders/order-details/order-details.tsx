@@ -38,13 +38,13 @@ const OrderDetails = () => {
         type="primary"
         actions={
           <>
-            <Button variant="ghost" size="sm" aria-label="More options">
+            <Button variant="ghost" aria-label="More options">
               <ShowMoreIcon />
             </Button>
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost">
               Cancel Order
             </Button>
-            <Button variant="primary" size="sm">
+            <Button variant="primary">
               Update
             </Button>
           </>

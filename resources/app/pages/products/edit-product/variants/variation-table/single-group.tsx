@@ -275,7 +275,6 @@ const SingleGroup = ({
             </Flex>
             <Button
               variant="ghost"
-              size="sm"
               data-hover-reveal={
                 thisVariants[0]?.attribute_values.length > 1
                   ? 'true'

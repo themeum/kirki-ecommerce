@@ -138,11 +138,11 @@ const EditCurrencyPopup = ({
             </DialogBody>
             <DialogFooter>
               <DialogClose asChild>
-                <Button type="button" variant="outline" size="sm">
+                <Button type="button" variant="outline">
                   {__('Cancel', 'kirki-ecommerce')}
                 </Button>
               </DialogClose>
-              <Button type="submit" variant="primary" size="sm">
+              <Button type="submit" variant="primary">
                 {__('Update', 'kirki-ecommerce')}
               </Button>
             </DialogFooter>

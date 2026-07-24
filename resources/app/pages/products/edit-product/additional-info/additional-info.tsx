@@ -116,14 +116,12 @@ const AdditionalInfo = () => {
                         >
                           <Button
                             variant="secondary"
-                            size="sm"
                             onClick={() => onDeleteInfo(index)}
                           >
                             <TrashIcon />
                           </Button>
                           <Button
                             variant="secondary"
-                            size="sm"
                             onClick={() => onEditInfo(index)}
                           >
                             <EditIcon />
@@ -137,7 +135,6 @@ const AdditionalInfo = () => {
             )}
           <Button
             variant="secondary"
-            size="sm"
             onClick={() => setShowInfoForm(true)}
           >
             <PlusIcon />

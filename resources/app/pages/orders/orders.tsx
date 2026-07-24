@@ -17,13 +17,13 @@ const Orders = () => {
         text="Orders"
         actions={
           <>
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost">
               Import
             </Button>
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost">
               Export
             </Button>
-            <Button variant="primary" size="sm">
+            <Button variant="primary">
               Add Order
             </Button>
           </>

@@ -132,13 +132,12 @@ export const CreateProfilePopup = ({
           </DialogBody>
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="outline" size="sm" disabled={isSubmitting}>
+              <Button variant="outline" disabled={isSubmitting}>
                 {__('Cancel', 'kirki-ecommerce')}
               </Button>
             </DialogClose>
             <Button
               variant="primary"
-              size="sm"
               onClick={form.handleSubmit(handleAddOrUpdateShippingProfile)}
               disabled={buttonState || isSubmitting}
             >

@@ -98,7 +98,6 @@ const AddOrEditInfo = (props: AddOrEditInfoProps) => {
             <ActionGroup>
               <Button
                 variant="secondary"
-                size="sm"
                 onClick={() => {
                   form.reset({ title: '', description: '' });
                   onClose();
@@ -108,7 +107,6 @@ const AddOrEditInfo = (props: AddOrEditInfoProps) => {
               </Button>
               <Button
                 variant="primary"
-                size="sm"
                 disabled={isSaveDisabled}
                 onClick={form.handleSubmit(handleSaveInfo)}
               >

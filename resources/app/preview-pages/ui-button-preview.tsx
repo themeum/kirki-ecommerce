@@ -11,7 +11,7 @@ const UiButtonPreview = () => {
       <Button variant="ghost">Ghost</Button>
       <Button variant="destructive">Destructive</Button>
       <Button variant="link">Link</Button>
-      <Button variant="outline" size="sm">
+      <Button variant="outline">
         Small
       </Button>
       <Button variant="outline" size="lg">

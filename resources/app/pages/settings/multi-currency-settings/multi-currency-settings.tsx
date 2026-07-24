@@ -138,7 +138,6 @@ const MultiCurrencySettings = () => {
             <>
               <Button
                 variant="ghost"
-                size="sm"
                 onClick={handleDiscardData}
                 disabled={isSaving}
               >
@@ -146,7 +145,6 @@ const MultiCurrencySettings = () => {
               </Button>
               <Button
                 variant="primary"
-                size="sm"
                 onClick={form.handleSubmit(handleSaveData)}
                 loading={isSaving}
               >

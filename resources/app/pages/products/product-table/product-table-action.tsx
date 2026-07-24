@@ -53,7 +53,6 @@ const ProductTableAction = () => {
         <FilterPopup />
         <Button
           variant="outline"
-          size="sm"
           aria-label={__('Sort', 'kirki-ecommerce')}
           onClick={handleSortChange}
         >

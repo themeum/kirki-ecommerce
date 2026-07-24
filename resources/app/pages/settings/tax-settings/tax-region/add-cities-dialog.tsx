@@ -217,7 +217,6 @@ const AddCitiesPopup = (props: AddCitiesPopupProps) => {
           <DialogFooter>
             <Button
               variant="outline"
-              size="sm"
               onClick={() => {
                 setSelectedCities(selectedCities);
                 setOpenPopup(false);
@@ -227,7 +226,6 @@ const AddCitiesPopup = (props: AddCitiesPopupProps) => {
             </Button>
             <Button
               variant="primary"
-              size="sm"
               onClick={form.handleSubmit(handleSubmit)}
               disabled={buttonState}
             >

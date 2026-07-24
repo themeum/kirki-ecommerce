@@ -257,7 +257,6 @@ const ShippingBoxPopup = ({
           <DialogFooter>
             <Button
               variant="outline"
-              size="sm"
               onClick={handleOnclosePopup}
               disabled={isSubmitting}
             >
@@ -265,7 +264,6 @@ const ShippingBoxPopup = ({
             </Button>
             <Button
               variant="primary"
-              size="sm"
               onClick={form.handleSubmit(handleCreateOrUpdateBox)}
               loading={isSubmitting}
             >

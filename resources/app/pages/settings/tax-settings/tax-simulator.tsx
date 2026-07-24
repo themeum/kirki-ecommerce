@@ -30,7 +30,7 @@ const TaxSimulator = () => {
                   )}
                 />
               </Flex>
-              <Button variant="secondary" size="sm">
+              <Button variant="secondary">
                 <SimulatorIcon />
                 Try Simulator
               </Button>

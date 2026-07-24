@@ -354,12 +354,11 @@ const TaxRegionPopup = (props: TaxRegionPopupProps) => {
             </Card>
           </DialogBody>
           <DialogFooter>
-            <Button variant="outline" size="sm" onClick={handleClose}>
+            <Button variant="outline" onClick={handleClose}>
               {__('Cancel', 'kirki-ecommerce')}
             </Button>
             <Button
               variant="primary"
-              size="sm"
               onClick={form.handleSubmit(handleSubmit)}
               disabled={!buttonState}
             >

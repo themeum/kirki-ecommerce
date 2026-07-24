@@ -186,14 +186,12 @@ const GroupSelect = (props: GroupSelectProps) => {
               <ActionGroup>
                 <Button
                   variant="secondary"
-                  size="sm"
                   onClick={handleSelectionClose}
                 >
                   {__('Cancel', 'kirki-ecommerce')}
                 </Button>
                 <Button
                   variant="primary"
-                  size="sm"
                   onClick={handleSelectionClose}
                 >
                   {__('Add', 'kirki-ecommerce')}
