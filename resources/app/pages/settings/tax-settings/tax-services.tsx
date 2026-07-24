@@ -53,7 +53,7 @@ const TaxServices = () => {
                       header="Stripe Tax"
                       type="xsm"
                       leftIcon={<BoxClosedIcon />}
-                      style={{ fontWeight: '500' }}
+                      css={styles.mediumHeader}
                     />
                     {index === 1 ? (
                       <Badge text="Active" type="published" />
@@ -115,5 +115,8 @@ const styles = {
   }),
   mutedText: scoped({
     color: theme.colors.text.subdued,
+  }),
+  mediumHeader: scoped({
+    ...theme.typography.paragraph('medium'),
   }),
 };

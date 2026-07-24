@@ -8,7 +8,7 @@ import * as SelectPrimitive from '@radix-ui/react-select';
 import { CheckIcon, ChevronDownIcon } from '@radix-ui/react-icons';
 
 import { theme } from '@/theme';
-import { fontGeneralSettings, flexCenter, itemCenter, scoped, uiFocusRing } from '@/theme/mixins';
+import { flexCenter, itemCenter, scoped, uiFocusRing } from '@/theme/mixins';
 import { getPortalContainer } from '@/libs/portal-container';
 
 const Select = SelectPrimitive.Root;
@@ -196,7 +196,7 @@ const styles = {
     justifyContent: 'space-between',
     ...itemCenter(),
     gap: theme.spacing[2],
-    ...fontGeneralSettings(theme as Theme),
+    ...theme.typography.small(),
     cursor: 'pointer',
     '&:focus-visible, &[data-state="open"]': {
       borderColor: theme.colors.border.default,
@@ -215,8 +215,7 @@ const styles = {
     secondary: scoped({
       backgroundColor: theme.colors.background.fillSecondary,
       border: 'none',
-      fontSize: '12px',
-      lineHeight: '18px',
+      ...theme.typography.small(),
       borderRadius: theme.radius.md,
     }),
     invisible: scoped({
@@ -259,7 +258,6 @@ const styles = {
     minHeight: '33px',
     zIndex: 100000,
     overflowX: 'hidden',
-    ...fontGeneralSettings(theme as Theme),
     '&:focus, &:focus-visible': {
       outline: 'none',
     },
@@ -277,8 +275,7 @@ const styles = {
   }),
   label: scoped({
     padding: `${theme.spacing[2]} ${theme.spacing[2]}`,
-    ...fontGeneralSettings(theme as Theme),
-    fontWeight: 500,
+    ...theme.typography.small('medium'),
     color: theme.colors.text.secondary,
   }),
   item: scoped({
@@ -291,7 +288,7 @@ const styles = {
     cursor: 'pointer',
     position: 'relative',
     outline: 'none',
-    ...fontGeneralSettings(theme as Theme),
+    ...theme.typography.small(),
     '&:hover, &[data-highlighted]': {
       backgroundColor: theme.colors.background.optionHover,
     },

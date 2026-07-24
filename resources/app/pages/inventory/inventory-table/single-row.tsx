@@ -50,7 +50,7 @@ const SingleRow = ({
             value={item?.sku ?? undefined}
             placeholder="--"
             invisible
-            style={{ fontSize: '12px', lineHeight: '18px', fontWeight: '400' }}
+            css={styles.tableInput}
             onChange={(event) => handleOnChange(event.target.value, 'sku')}
           />
         </TableCell>
@@ -61,7 +61,7 @@ const SingleRow = ({
             value={item?.price ?? undefined}
             placeholder="--"
             invisible
-            style={{ fontSize: '12px', lineHeight: '18px', fontWeight: '400' }}
+            css={styles.tableInput}
             onChange={(event) => handleOnChange(event.target.value, 'price')}
           />
         </TableCell>
@@ -72,7 +72,7 @@ const SingleRow = ({
             value={item?.sale_price ?? undefined}
             placeholder="--"
             invisible
-            style={{ fontSize: '12px', lineHeight: '18px', fontWeight: '400' }}
+            css={styles.tableInput}
             onChange={(event) =>
               handleOnChange(event.target.value, 'sale_price')
             }
@@ -85,7 +85,7 @@ const SingleRow = ({
             value={item?.cost_of_goods ?? undefined}
             placeholder="--"
             invisible
-            style={{ fontSize: '12px', lineHeight: '18px', fontWeight: '400' }}
+            css={styles.tableInput}
             onChange={(event) =>
               handleOnChange(event.target.value, 'cost_of_goods')
             }
@@ -99,7 +99,7 @@ const SingleRow = ({
             placeholder="--"
             readOnly
             invisible
-            style={{ fontSize: '12px', lineHeight: '18px', fontWeight: '400' }}
+            css={styles.tableInput}
           />
         </TableCell>
       )}
@@ -125,5 +125,8 @@ const styles = {
   }),
   mutedText: scoped({
     color: theme.colors.text.subdued,
+  }),
+  tableInput: scoped({
+    ...theme.typography.small(),
   }),
 };

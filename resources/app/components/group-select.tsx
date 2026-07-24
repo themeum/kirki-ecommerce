@@ -1,6 +1,5 @@
 import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 import { ChevronsUpDown } from 'lucide-react';
-import { type Theme } from '@emotion/react';
 
 import Button from '@/components/ui/button';
 import {
@@ -18,7 +17,6 @@ import Label from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { theme } from '@/theme';
 import {
-  fontGeneralSettings,
   itemCenter,
   scoped,
   uiFocusRing,
@@ -69,12 +67,6 @@ const GroupSelect = (props: GroupSelectProps) => {
     dropdownHeader,
     dropdownFooter,
   } = props;
-
-  const labelFontStyle = {
-    fontSize: '14px',
-    fontWeight: '500',
-    lineHeight: '21px',
-  };
 
   const [selectedValues, setSelectedValues] = useState<GroupedValues>(valueArray);
   const [isOpen, setIsOpen] = useState(false);
@@ -146,7 +138,6 @@ const GroupSelect = (props: GroupSelectProps) => {
                   text={String(option.heading)}
                   infoText={option?.infoText}
                   css={styles.headingLabel}
-                  style={labelFontStyle}
                 />
               </DropdownMenuLabel>
             ) : (
@@ -170,7 +161,6 @@ const GroupSelect = (props: GroupSelectProps) => {
                           false)
                       }
                       label={option?.title}
-                      labelStyle={labelFontStyle}
                       onChange={() =>
                         handleOptionClick(
                           option.value,
@@ -233,12 +223,12 @@ const styles = {
     justifyContent: 'space-between',
     ...itemCenter(),
     gap: theme.spacing[2],
-    ...fontGeneralSettings(theme as Theme),
+    ...theme.typography.paragraph(),
     cursor: 'pointer',
     textAlign: 'left',
     '&:focus-visible, &[data-state="open"]': {
       borderColor: theme.colors.border.default,
-      ...uiFocusRing(theme as Theme),
+      ...uiFocusRing(theme),
     },
   }),
   triggerError: scoped({
@@ -246,7 +236,7 @@ const styles = {
     boxShadow: 'none',
     '&:focus-visible, &[data-state="open"]': {
       borderColor: theme.colors.border.critical,
-      ...uiFocusRing(theme as Theme, theme.colors.border.critical),
+      ...uiFocusRing(theme, theme.colors.border.critical),
     },
   }),
   placeholder: scoped({
@@ -277,6 +267,7 @@ const styles = {
     backgroundColor: theme.colors.background.surface,
   }),
   headingLabel: scoped({
+    ...theme.typography.small('medium'),
     color: theme.colors.text.subdued,
   }),
 };

@@ -15,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import Checkbox from '@/components/ui/checkbox';
+import { theme } from '@/theme';
 import type { ButtonSize, ButtonState, ButtonType, DropdownSize, SelectOption } from '@/types';
 
 type DropdownOption = SelectOption & {
@@ -104,9 +105,7 @@ const DropdownButton = ({
   }, [value]);
 
   const labelFontStyle = {
-    fontSize: '12px',
-    fontWeight: '400',
-    lineHeight: '18px',
+    ...theme.typography.small(),
   };
 
   const openCloseDropdown = (v: boolean) => {

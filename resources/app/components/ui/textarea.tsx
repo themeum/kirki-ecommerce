@@ -2,7 +2,7 @@ import { type SerializedStyles, type Theme } from '@emotion/react';
 import { forwardRef, type ComponentPropsWithoutRef } from 'react';
 
 import { theme } from '@/theme';
-import { fontGeneralSettings, scoped, uiFocusRing } from '@/theme/mixins';
+import { scoped, uiFocusRing } from '@/theme/mixins';
 
 type TextareaProps = Omit<
   ComponentPropsWithoutRef<'textarea'>,
@@ -46,7 +46,7 @@ const styles = {
     boxSizing: 'border-box',
     resize: 'none',
     height: 'auto',
-    ...fontGeneralSettings(theme as Theme),
+    ...theme.typography.paragraph(),
     cursor: 'text',
     '&::placeholder': {
       color: theme.colors.text.secondary,

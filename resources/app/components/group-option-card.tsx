@@ -152,7 +152,7 @@ const GroupOptionCard = (props: GroupOptionCardProps) => {
               <Text
                 header={item?.name ?? ''}
                 leftIcon={item?.icon}
-                style={{ fontWeight: '500' }}
+                css={styles.mediumHeader}
                 type="xsm"
               />
               {item?.subText && (
@@ -275,4 +275,10 @@ const GroupOptionCard = (props: GroupOptionCardProps) => {
 };
 
 export default GroupOptionCard;
+
+const styles = {
+  mediumHeader: scoped({
+    ...theme.typography.paragraph('medium'),
+  }),
+};
 

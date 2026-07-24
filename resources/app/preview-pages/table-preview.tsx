@@ -8,6 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
 
 type TableHeaderItem = {
@@ -109,6 +110,6 @@ export default TablePreview;
 
 const styles = {
   highlightedCell: scoped({
-    fontWeight: 500,
+    ...theme.typography.paragraph('medium'),
   }),
 };

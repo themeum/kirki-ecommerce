@@ -142,6 +142,53 @@ const cssVar = (key: PrimitiveColorKey): string => {
   return `var(${getCssVarName(key)})`;
 };
 
+const fontWeight = {
+  normal: 400,
+  medium: 500,
+  semibold: 600,
+  bold: 700,
+  extrabold: 800,
+} as const;
+
+type TypographyWeight = keyof typeof fontWeight;
+
+type TypographyStyle = {
+  fontSize: string;
+  fontWeight: number;
+  lineHeight: string;
+  letterSpacing: string;
+  color: string;
+};
+
+type TypographyStyleConfig = {
+  fontSize: string;
+  lineHeight: string;
+  letterSpacing: string;
+  color: string;
+  defaultWeight: TypographyWeight;
+};
+
+/**
+ * Build a typography style factory with a Figma default weight and optional override.
+ *
+ * @param config Font size, line height, letter spacing, color, and default weight.
+ *
+ * @returns Function that returns a typography style object for an optional weight key.
+ */
+const createTypographyStyle = (config: TypographyStyleConfig) => {
+  return (weight: TypographyWeight = config.defaultWeight): TypographyStyle => {
+    return {
+      fontSize: config.fontSize,
+      fontWeight: fontWeight[weight],
+      lineHeight: config.lineHeight,
+      letterSpacing: config.letterSpacing,
+      color: config.color,
+    };
+  };
+};
+
+const textPrimaryColor = cssVar('gray15');
+
 const theme = {
   primitives: {
     colors: primitiveColors,
@@ -242,22 +289,63 @@ const theme = {
   typography: {
     fontFamily:
       'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-    fontSize: {
-      xs: '12px',
-      sm: '13px',
-      base: '14px',
-      lg: '16px',
-    },
-    lineHeight: {
-      base: '21px',
-      tight: '18px',
-    },
-    fontWeight: {
-      normal: 400,
-      medium: 500,
-      semibold: 600,
-      bold: 700,
-    },
+    fontWeight,
+    heading1: createTypographyStyle({
+      fontSize: '36px',
+      lineHeight: '40px',
+      letterSpacing: '-0.9px',
+      color: textPrimaryColor,
+      defaultWeight: 'extrabold',
+    }),
+    heading2: createTypographyStyle({
+      fontSize: '30px',
+      lineHeight: '36px',
+      letterSpacing: '-0.75px',
+      color: textPrimaryColor,
+      defaultWeight: 'semibold',
+    }),
+    heading3: createTypographyStyle({
+      fontSize: '24px',
+      lineHeight: '32px',
+      letterSpacing: '-0.6px',
+      color: textPrimaryColor,
+      defaultWeight: 'semibold',
+    }),
+    heading4: createTypographyStyle({
+      fontSize: '20px',
+      lineHeight: '28px',
+      letterSpacing: '-0.5px',
+      color: textPrimaryColor,
+      defaultWeight: 'semibold',
+    }),
+    paragraph: createTypographyStyle({
+      fontSize: '16px',
+      lineHeight: '24px',
+      letterSpacing: '0',
+      color: textPrimaryColor,
+      defaultWeight: 'normal',
+    }),
+    small: createTypographyStyle({
+      fontSize: '14px',
+      lineHeight: '21px',
+      letterSpacing: '0',
+      color: textPrimaryColor,
+      defaultWeight: 'normal',
+    }),
+    large: createTypographyStyle({
+      fontSize: '18px',
+      lineHeight: '27px',
+      letterSpacing: '0',
+      color: textPrimaryColor,
+      defaultWeight: 'semibold',
+    }),
+    lead: createTypographyStyle({
+      fontSize: '20px',
+      lineHeight: '30px',
+      letterSpacing: '0',
+      color: textPrimaryColor,
+      defaultWeight: 'normal',
+    }),
   },
   spacing: {
     0: '0', // 0px
@@ -295,5 +383,5 @@ const theme = {
 type AppTheme = typeof theme;
 
 export { CSS_VAR_PREFIX, getCssVarName, PRIMITIVE_CSS_VAR_KEYS, theme };
-export type { AppTheme, PrimitiveColorKey };
+export type { AppTheme, PrimitiveColorKey, TypographyStyle, TypographyWeight };
 

@@ -1,4 +1,4 @@
-import type { SerializedStyles, Theme } from '@emotion/react';
+import type { SerializedStyles } from '@emotion/react';
 import {
   forwardRef,
   type ComponentPropsWithoutRef,
@@ -10,7 +10,7 @@ import { Check, ChevronRight, Circle } from 'lucide-react';
 
 import { getPortalContainer } from '@/libs/portal-container';
 import { theme } from '@/theme';
-import { fontGeneralSettings, scoped } from '@/theme/mixins';
+import { scoped } from '@/theme/mixins';
 import { getOverlayMotionStyles } from '@/theme/overlay-motion';
 
 const DropdownMenu = DropdownMenuPrimitive.Root;
@@ -294,7 +294,6 @@ const styles = {
     overflowY: 'auto',
     boxSizing: 'border-box',
     color: theme.colors.text.primary,
-    ...fontGeneralSettings(theme as Theme),
     ...getOverlayMotionStyles(
       'var(--radix-dropdown-menu-content-transform-origin)',
     ),
@@ -322,10 +321,8 @@ const styles = {
     borderRadius: theme.radius.sm,
     cursor: 'pointer',
     outline: 'none',
+    ...theme.typography.small(),
     color: theme.colors.text.primary,
-    ...fontGeneralSettings(theme as Theme),
-    fontSize: '14px',
-    lineHeight: '20px',
     userSelect: 'none',
     '&:hover, &[data-highlighted]': {
       backgroundColor: theme.colors.background.optionHover,
@@ -364,9 +361,7 @@ const styles = {
   label: scoped({
     padding: `${theme.spacing[2]} ${theme.spacing[2]}`,
     margin: `0 ${theme.spacing[1]}`,
-    fontWeight: 600,
-    fontSize: '14px',
-    lineHeight: '20px',
+    ...theme.typography.small('semibold'),
     color: theme.colors.text.primary,
     pointerEvents: 'none',
   }),
@@ -379,9 +374,7 @@ const styles = {
   shortcut: scoped({
     marginLeft: 'auto',
     paddingLeft: theme.spacing[4],
-    fontSize: '12px',
-    lineHeight: '16px',
-    letterSpacing: '0.1px',
+    ...theme.typography.small(),
     color: theme.colors.text.muted,
   }),
 };

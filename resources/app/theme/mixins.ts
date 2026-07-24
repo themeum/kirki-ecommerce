@@ -58,24 +58,7 @@ const uiFocusRing = (theme: Theme, ringColor?: string): CSSObject => {
   };
 };
 
-/**
- * Typography defaults matching the SCSS fontGeneralSettings mixin.
- *
- * @param theme Current Emotion theme.
- *
- * @returns CSS object for base body text styling.
- */
-const fontGeneralSettings = (theme: Theme): CSSObject => {
-  return {
-    fontSize: theme.typography.fontSize.base,
-    fontFamily: theme.typography.fontFamily,
-    fontWeight: theme.typography.fontWeight.normal,
-    lineHeight: theme.typography.lineHeight.base,
-    color: theme.colors.text.primary,
-  };
-};
-
 export {
-  APP_ROOT_SELECTOR, flexCenter, fontGeneralSettings, itemCenter, scoped, uiFocusRing
+  APP_ROOT_SELECTOR, flexCenter, itemCenter, scoped, uiFocusRing
 };
 

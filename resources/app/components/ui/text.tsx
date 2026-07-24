@@ -1,9 +1,9 @@
-import { type SerializedStyles, type Theme } from '@emotion/react';
+import { type SerializedStyles } from '@emotion/react';
 import { forwardRef, type CSSProperties, type ReactNode } from 'react';
 
 import Flex from '@/components/ui/flex';
 import { theme } from '@/theme';
-import { flexCenter, fontGeneralSettings, scoped } from '@/theme/mixins';
+import { flexCenter, scoped } from '@/theme/mixins';
 import type { TextType } from '@/types';
 
 type TextProps = {
@@ -74,7 +74,7 @@ const styles = {
   text: scoped({
     display: 'flex',
     flexDirection: 'column',
-    ...fontGeneralSettings(theme as Theme),
+    ...theme.typography.paragraph(),
   }),
   icon: scoped({
     ...flexCenter(),
@@ -84,13 +84,11 @@ const styles = {
   }),
   subheadingTypes: {
     primary: scoped({
-      ...fontGeneralSettings(theme as Theme),
+      ...theme.typography.paragraph(),
       color: theme.colors.text.secondary,
     }),
     secondary: scoped({
-      fontSize: '12px',
-      lineHeight: '18px',
-      fontWeight: 400,
+      ...theme.typography.small(),
       color: theme.colors.text.secondary,
     }),
     disabled: scoped({
@@ -104,25 +102,18 @@ const styles = {
   },
   textTypes: {
     primary: scoped({
-      fontWeight: 600,
-      fontSize: '16px',
-      lineHeight: '20px',
+      ...theme.typography.paragraph('semibold'),
       rowGap: theme.spacing[2],
     }),
     secondary: scoped({
       rowGap: theme.spacing[2],
-      ...fontGeneralSettings(theme as Theme),
-      fontWeight: 500,
+      ...theme.typography.paragraph('medium'),
     }),
     disabled: scoped({
       color: theme.colors.text.disabled,
     }),
     xsm: scoped({
-      fontFamily: 'Inter',
-      fontWeight: 400,
-      fontSize: '12px',
-      lineHeight: '18px',
-      letterSpacing: '0%',
+      ...theme.typography.small(),
     }),
     tertiary: scoped({}),
     inner: scoped({}),

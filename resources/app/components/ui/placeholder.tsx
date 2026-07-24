@@ -85,7 +85,7 @@ const styles = {
     ...flexCenter(),
     flexDirection: 'column',
     gap: theme.spacing[3],
-    fontWeight: 500,
+    ...theme.typography.paragraph('medium'),
     color: theme.colors.text.secondary,
   }),
   types: {

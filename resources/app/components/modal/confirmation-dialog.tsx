@@ -141,11 +141,12 @@ const styles = {
     marginBottom: theme.spacing[2],
   }),
   title: scoped({
-    fontSize: '20px',
-    lineHeight: '28px',
+    ...theme.typography.heading4(),
     textAlign: 'center',
   }),
   description: scoped({
+    ...theme.typography.small(),
+    color: theme.colors.text.secondary,
     textAlign: 'center',
   }),
   footer: scoped({

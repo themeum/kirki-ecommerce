@@ -1,4 +1,4 @@
-import type { SerializedStyles, Theme } from '@emotion/react';
+import type { SerializedStyles } from '@emotion/react';
 import {
   forwardRef,
   type ComponentPropsWithoutRef,
@@ -8,7 +8,7 @@ import * as PopoverPrimitive from '@radix-ui/react-popover';
 
 import { getPortalContainer } from '@/libs/portal-container';
 import { theme } from '@/theme';
-import { fontGeneralSettings, scoped } from '@/theme/mixins';
+import { scoped } from '@/theme/mixins';
 import { getOverlayMotionStyles } from '@/theme/overlay-motion';
 
 const Popover = PopoverPrimitive.Root;
@@ -58,10 +58,8 @@ const styles = {
     backgroundColor: theme.colors.background.fill,
     boxShadow: theme.shadow.md,
     boxSizing: 'border-box',
+    ...theme.typography.small(),
     color: theme.colors.text.primary,
-    ...fontGeneralSettings(theme as Theme),
-    fontSize: '14px',
-    lineHeight: '20px',
     display: 'flex',
     flexDirection: 'column',
     rowGap: theme.spacing[1],
@@ -73,16 +71,13 @@ const styles = {
     },
     strong: {
       display: 'block',
-      fontWeight: 600,
-      fontSize: '14px',
-      lineHeight: '20px',
+      ...theme.typography.small('semibold'),
       color: theme.colors.text.primary,
     },
     p: {
       margin: 0,
+      ...theme.typography.small(),
       color: theme.colors.text.secondary,
-      fontSize: '14px',
-      lineHeight: '20px',
     },
   }),
 };

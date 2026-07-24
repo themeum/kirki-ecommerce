@@ -173,10 +173,7 @@ const styles = {
     borderCollapse: 'collapse',
     borderSpacing: 0,
     userSelect: 'none',
-    fontFamily: '"Inter"',
-    fontSize: '12px',
-    fontWeight: 400,
-    lineHeight: '18px',
+    ...theme.typography.small(),
     color: theme.colors.text.primary,
     boxShadow: theme.shadow.sm,
     '& thead': {
@@ -337,7 +334,6 @@ const styles = {
   },
   head: scoped({
     textAlign: 'left',
-    fontWeight: 400,
     whiteSpace: 'nowrap',
   }),
   cell: scoped({

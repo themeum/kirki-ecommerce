@@ -9,7 +9,6 @@ import Button from '@/components/ui/button';
 import { theme } from '@/theme';
 import {
   flexCenter,
-  fontGeneralSettings,
   itemCenter,
   scoped,
   uiFocusRing,
@@ -371,7 +370,7 @@ const styles = {
     outline: 'none',
     boxShadow: 'none',
     boxSizing: 'border-box',
-    ...fontGeneralSettings(theme as Theme),
+    ...theme.typography.paragraph(),
     cursor: 'text',
     '&::placeholder': {
       color: theme.colors.text.secondary,
@@ -420,9 +419,8 @@ const styles = {
   text: scoped({
     ...itemCenter(),
     gap: theme.spacing[2],
+    ...theme.typography.small(),
     color: theme.colors.text.secondary,
-    fontSize: theme.typography.fontSize.sm,
-    lineHeight: theme.typography.lineHeight.tight,
     whiteSpace: 'nowrap',
     '& svg': {
       pointerEvents: 'none',
@@ -433,12 +431,11 @@ const styles = {
   }),
   buttonSizes: {
     xs: scoped({
+      ...theme.typography.small(),
       height: '24px',
       gap: theme.spacing[1],
       borderRadius: theme.radius.md,
       padding: `0 ${theme.spacing[2]}`,
-      fontSize: theme.typography.fontSize.xs,
-      lineHeight: theme.typography.lineHeight.tight,
     }),
     sm: scoped({
       height: '32px',

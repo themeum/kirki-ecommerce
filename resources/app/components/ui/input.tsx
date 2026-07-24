@@ -2,7 +2,7 @@ import { type SerializedStyles, type Theme } from '@emotion/react';
 import { forwardRef, type ComponentPropsWithoutRef } from 'react';
 
 import { theme } from '@/theme';
-import { fontGeneralSettings, scoped, uiFocusRing } from '@/theme/mixins';
+import { scoped, uiFocusRing } from '@/theme/mixins';
 
 type InputProps = Omit<
   ComponentPropsWithoutRef<'input'>,
@@ -53,7 +53,7 @@ const styles = {
     borderRadius: theme.radius.lg,
     padding: `${theme.spacing[1]} ${theme.spacing[3]}`,
     boxSizing: 'border-box',
-    ...fontGeneralSettings(theme as Theme),
+    ...theme.typography.paragraph(),
     cursor: 'text',
     '&::placeholder': {
       color: theme.colors.text.secondary,

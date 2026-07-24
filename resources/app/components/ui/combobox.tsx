@@ -19,7 +19,6 @@ import { Separator } from '@/components/ui/separator';
 import { theme } from '@/theme';
 import {
   flexCenter,
-  fontGeneralSettings,
   itemCenter,
   scoped,
   uiFocusRing,
@@ -255,7 +254,6 @@ const styles = {
     justifyContent: 'space-between',
     ...itemCenter(),
     gap: theme.spacing[2],
-    ...fontGeneralSettings(theme as Theme),
     cursor: 'pointer',
     textAlign: 'left',
     '&:focus-visible, &[data-state="open"]': {
@@ -284,8 +282,7 @@ const styles = {
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
-    fontSize: '14px',
-    lineHeight: '20px',
+    ...theme.typography.small(),
     color: theme.colors.text.primary,
   }),
   placeholder: scoped({
@@ -312,8 +309,7 @@ const styles = {
     padding: `2px ${theme.spacing[2]}`,
     borderRadius: theme.radius.md,
     backgroundColor: theme.colors.background.surfaceAlt,
-    fontSize: '12px',
-    lineHeight: '18px',
+    ...theme.typography.small(),
   }),
   tagRemove: scoped({
     ...itemCenter(),

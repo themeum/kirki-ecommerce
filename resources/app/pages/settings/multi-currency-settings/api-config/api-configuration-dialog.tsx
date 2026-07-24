@@ -146,7 +146,7 @@ const ApiConfigurationPopup = ({
                 />
                 <Text
                   type={'secondary'}
-                  style={{ fontWeight: 400 }}
+                  css={styles.helperText}
                   header={__(
                     'Your API key is encrypted and stored securely. Get your API key from ExchangeRate API',
                     'kirki-ecommerce',
@@ -211,5 +211,8 @@ export default ApiConfigurationPopup;
 const styles = {
   cancelButton: scoped({
     boxShadow: theme.shadow.sm,
+  }),
+  helperText: scoped({
+    ...theme.typography.paragraph(),
   }),
 };

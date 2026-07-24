@@ -1,4 +1,4 @@
-import { css, keyframes, type SerializedStyles, type Theme } from '@emotion/react';
+import { css, keyframes, type SerializedStyles } from '@emotion/react';
 import {
   forwardRef,
   type ComponentPropsWithoutRef,
@@ -11,7 +11,7 @@ import { X } from 'lucide-react';
 import Button from '@/components/ui/button';
 import { getPortalContainer } from '@/libs/portal-container';
 import { theme } from '@/theme';
-import { fontGeneralSettings, scoped } from '@/theme/mixins';
+import { scoped } from '@/theme/mixins';
 
 const Dialog = DialogPrimitive.Root;
 
@@ -254,7 +254,6 @@ const styles = {
     boxSizing: 'border-box',
     overflow: 'hidden',
     color: theme.colors.text.primary,
-    ...fontGeneralSettings(theme as Theme),
     '&:focus, &:focus-visible': {
       outline: 'none',
     },
@@ -286,15 +285,12 @@ const styles = {
   }),
   title: scoped({
     margin: 0,
-    fontWeight: 600,
-    fontSize: '18px',
-    lineHeight: '28px',
+    ...theme.typography.large('semibold'),
     color: theme.colors.text.primary,
   }),
   description: scoped({
     margin: 0,
-    fontSize: '14px',
-    lineHeight: '20px',
+    ...theme.typography.small(),
     color: theme.colors.text.secondary,
   }),
   body: scoped({

@@ -1,4 +1,4 @@
-import { type SerializedStyles, type Theme } from '@emotion/react';
+import { type SerializedStyles } from '@emotion/react';
 import {
   InfoCircledIcon,
   QuestionMarkCircledIcon,
@@ -8,7 +8,7 @@ import { forwardRef, type ComponentPropsWithoutRef, type ReactNode } from 'react
 
 import Tooltip from '@/components/ui/tooltip';
 import { theme } from '@/theme';
-import { flexCenter, fontGeneralSettings, itemCenter, scoped } from '@/theme/mixins';
+import { flexCenter, itemCenter, scoped } from '@/theme/mixins';
 
 type LabelProps = Omit<
   ComponentPropsWithoutRef<typeof LabelPrimitive.Root>,
@@ -86,8 +86,7 @@ export default Label;
 
 const styles = {
   root: scoped({
-    ...fontGeneralSettings(theme as Theme),
-    fontWeight: 500,
+    ...theme.typography.paragraph('medium'),
     color: theme.colors.text.primary,
     ...itemCenter(),
     gap: theme.spacing[1],

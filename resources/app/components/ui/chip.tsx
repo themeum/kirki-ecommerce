@@ -76,8 +76,7 @@ const styles = {
     borderRadius: theme.radius.sm,
     width: 'max-content',
     gap: theme.spacing[2],
-    fontSize: '12px',
-    lineHeight: '18px',
+    ...theme.typography.small('medium'),
   }),
   subtext: scoped({
     color: theme.colors.text.subdued,

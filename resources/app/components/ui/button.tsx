@@ -119,11 +119,9 @@ const buttonSpin = keyframes({
 const styles = {
   base: scoped({
     ...flexCenter(),
+    ...theme.typography.small('medium'),
     position: 'relative',
     width: 'max-content',
-    fontFamily:
-      'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-    fontWeight: 500,
     cursor: 'pointer',
     columnGap: theme.spacing[2],
     textDecoration: 'none',
@@ -199,10 +197,9 @@ const styles = {
   },
   sizes: {
     xs: scoped({
+      ...theme.typography.small(),
       height: '24px',
       padding: `0 ${theme.spacing[2]}`,
-      fontSize: '12px',
-      lineHeight: '18px',
       borderRadius: theme.radius.md,
       '& svg': {
         width: '12px',
@@ -210,10 +207,9 @@ const styles = {
       },
     }),
     sm: scoped({
+      ...theme.typography.small(),
       height: '28px',
       padding: '0 10px',
-      fontSize: '12px',
-      lineHeight: '18px',
       borderRadius: theme.radius.md,
       '& svg': {
         width: '14px',
@@ -223,8 +219,6 @@ const styles = {
     default: scoped({
       height: '32px',
       padding: `0 ${theme.spacing[3]}`,
-      fontSize: '14px',
-      lineHeight: '21px',
       borderRadius: theme.radius.md,
       '& svg': {
         width: '16px',
@@ -234,8 +228,6 @@ const styles = {
     lg: scoped({
       height: '36px',
       padding: `0 ${theme.spacing[4]}`,
-      fontSize: '14px',
-      lineHeight: '21px',
       borderRadius: theme.radius.lg,
       '& svg': {
         width: '16px',

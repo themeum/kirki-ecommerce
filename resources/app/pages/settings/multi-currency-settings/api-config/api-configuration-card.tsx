@@ -96,7 +96,6 @@ const ApiConfigurationCard = ({
             <Flex direction={'column'} gap={6}>
               <ProgressBar
                 value={Number(usage?.used)}
-                labelStyle={{ fontWeight: '400' }}
                 showProgressIndicator={false}
                 style={{ gap: '10px' }}
                 progressBarColor={theme.primitives.colors.gray16}

@@ -144,16 +144,10 @@ const styles = {
     },
   }),
   code: scoped({
-    fontSize: 'clamp(72px, 10vw, 112px)',
-    fontWeight: theme.typography.fontWeight.bold,
-    lineHeight: 1,
-    letterSpacing: '-0.04em',
+    ...theme.typography.heading1(),
     color: theme.colors.text.subdued,
     opacity: 0.28,
     userSelect: 'none',
-    '@media (max-width: 768px)': {
-      fontSize: 'clamp(64px, 22vw, 96px)',
-    },
   }),
   copy: scoped({
     width: '100%',
@@ -169,13 +163,10 @@ const styles = {
     alignItems: 'flex-start',
     textAlign: 'left',
     '& > div span': {
-      fontSize: '24px',
-      lineHeight: '30px',
-      letterSpacing: '-0.02em',
+      ...theme.typography.heading3(),
     },
     '& > span': {
-      fontSize: '15px',
-      lineHeight: '24px',
+      ...theme.typography.paragraph(),
     },
     '@media (max-width: 768px)': {
       alignItems: 'center',
@@ -197,9 +188,7 @@ const styles = {
     textAlign: 'left',
   }),
   pathLabel: scoped({
-    fontSize: '11px',
-    fontWeight: theme.typography.fontWeight.medium,
-    lineHeight: '14px',
+    ...theme.typography.small('medium'),
     letterSpacing: '0.04em',
     textTransform: 'uppercase',
     color: theme.colors.text.subdued,
@@ -210,8 +199,7 @@ const styles = {
     padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
     fontFamily:
       'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
-    fontSize: theme.typography.fontSize.sm,
-    lineHeight: '20px',
+    ...theme.typography.small(),
     color: theme.colors.text.primary,
     backgroundColor: theme.colors.background.fill,
     border: `1px solid ${theme.colors.border.secondary}`,

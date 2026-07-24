@@ -272,10 +272,7 @@ const EditTemplate = () => {
                 >
                   <Text header={'Template Preview'} />
                   <Text
-                    style={{
-                      fontSize: '12px',
-                      lineHeight: '18px',
-                    }}
+                    css={styles.sendTextMail}
                     header={'Send Text Mail'}
                     leftIcon={<SendIcon />}
                   />
@@ -301,9 +298,7 @@ export default EditTemplate;
 
 const styles = {
   pageHeading: scoped({
-    fontSize: '16px',
-    fontWeight: 400,
-    lineHeight: '28px',
+    ...theme.typography.paragraph(),
     padding: `${theme.spacing[0]} ${theme.spacing[8]}`,
     height: '32px',
   }),
@@ -316,5 +311,8 @@ const styles = {
   }),
   squareCard: scoped({
     borderRadius: theme.radius.none,
+  }),
+  sendTextMail: scoped({
+    ...theme.typography.small(),
   }),
 };

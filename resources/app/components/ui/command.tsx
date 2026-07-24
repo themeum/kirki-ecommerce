@@ -4,12 +4,12 @@ import {
   type ElementRef,
   type HTMLAttributes,
 } from 'react';
-import { type SerializedStyles, type Theme } from '@emotion/react';
+import { type SerializedStyles } from '@emotion/react';
 import { Command as CommandPrimitive } from 'cmdk';
 import { Search } from 'lucide-react';
 
 import { theme } from '@/theme';
-import { fontGeneralSettings, itemCenter, scoped } from '@/theme/mixins';
+import { itemCenter, scoped } from '@/theme/mixins';
 
 type CommandProps = Omit<
   ComponentPropsWithoutRef<typeof CommandPrimitive>,
@@ -183,7 +183,6 @@ const styles = {
     overflow: 'hidden',
     backgroundColor: theme.colors.background.fill,
     borderRadius: theme.radius.md,
-    ...fontGeneralSettings(theme as Theme),
   }),
   inputWrapper: scoped({
     ...itemCenter(),
@@ -208,9 +207,7 @@ const styles = {
     background: 'transparent',
     outline: 'none',
     boxShadow: 'none',
-    ...fontGeneralSettings(theme as Theme),
-    fontSize: '14px',
-    lineHeight: '20px',
+    ...theme.typography.small(),
     color: theme.colors.text.primary,
     '&::placeholder': {
       color: theme.colors.text.secondary,
@@ -226,8 +223,7 @@ const styles = {
   empty: scoped({
     padding: `${theme.spacing[4]} ${theme.spacing[2]}`,
     textAlign: 'center',
-    fontSize: '14px',
-    lineHeight: '20px',
+    ...theme.typography.small(),
     color: theme.colors.text.secondary,
   }),
   group: scoped({
@@ -235,9 +231,7 @@ const styles = {
     padding: `${theme.spacing[1]} 0`,
     '& [cmdk-group-heading]': {
       padding: `${theme.spacing[1]} ${theme.spacing[2]}`,
-      fontSize: '12px',
-      lineHeight: '18px',
-      fontWeight: 500,
+      ...theme.typography.small('medium'),
       color: theme.colors.text.secondary,
     },
   }),
@@ -251,8 +245,7 @@ const styles = {
     borderRadius: theme.radius.md,
     boxSizing: 'border-box',
     cursor: 'pointer',
-    fontSize: '14px',
-    lineHeight: '20px',
+    ...theme.typography.small(),
     color: theme.colors.text.primary,
     outline: 'none',
     '&[data-selected="true"], &[aria-selected="true"]': {
@@ -270,8 +263,7 @@ const styles = {
   }),
   shortcut: scoped({
     marginLeft: 'auto',
-    fontSize: '12px',
-    lineHeight: '18px',
+    ...theme.typography.small(),
     color: theme.colors.text.secondary,
   }),
 };

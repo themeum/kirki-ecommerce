@@ -1,4 +1,4 @@
-import { type SerializedStyles, type Theme } from '@emotion/react';
+import { type SerializedStyles } from '@emotion/react';
 import {
   createContext,
   forwardRef,
@@ -22,7 +22,7 @@ import {
 
 import Label from '@/components/ui/label';
 import { theme } from '@/theme';
-import { fontGeneralSettings, scoped } from '@/theme/mixins';
+import { scoped } from '@/theme/mixins';
 
 type FormProps<TFieldValues extends FieldValues> = UseFormReturn<TFieldValues> & {
   children: ReactNode;
@@ -236,17 +236,12 @@ const styles = {
     width: '100%',
   }),
   description: scoped({
-    ...fontGeneralSettings(theme as Theme),
-    fontSize: '12px',
-    lineHeight: '18px',
+    ...theme.typography.small(),
     color: theme.colors.text.secondary,
   }),
   message: scoped({
-    ...fontGeneralSettings(theme as Theme),
-    fontSize: '12px',
-    lineHeight: '18px',
+    ...theme.typography.small(),
     color: theme.colors.text.critical,
-    fontWeight: 400,
   }),
   fieldRow: scoped({
     display: 'flex',

@@ -17,21 +17,21 @@ const TableInfo = () => {
       <Flex gap={32} style={{ alignItems: 'center' }}>
         <Flex gap={4}>
           <span>Sales</span>
-          <span style={{ fontWeight: '500' }}>$11,200</span>
+          <span css={styles.mediumText}>$11,200</span>
           <span css={styles.svgClass}>
             <InfoIcon />
           </span>
         </Flex>
         <Flex gap={4}>
           <span>Orders</span>
-          <span style={{ fontWeight: '500' }}>12</span>
+          <span css={styles.mediumText}>12</span>
           <span css={styles.svgClass}>
             <InfoIcon />
           </span>
         </Flex>
         <Flex gap={4}>
           <span>Avg. order value</span>
-          <span style={{ fontWeight: '500' }}>$5,600</span>
+          <span css={styles.mediumText}>$5,600</span>
           <span css={styles.svgClass}>
             <InfoIcon />
           </span>
@@ -58,5 +58,8 @@ const styles = {
   svgClass: scoped(flexCenter()),
   selectTrigger: scoped({
     padding: `${theme.spacing[2]} ${theme.spacing[4]}`,
+  }),
+  mediumText: scoped({
+    ...theme.typography.paragraph('medium'),
   }),
 };

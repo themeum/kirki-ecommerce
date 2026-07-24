@@ -7,7 +7,7 @@ import {
 import * as TabsPrimitive from '@radix-ui/react-tabs';
 
 import { theme } from '@/theme';
-import { flexCenter, fontGeneralSettings, scoped, uiFocusRing } from '@/theme/mixins';
+import { flexCenter, scoped, uiFocusRing } from '@/theme/mixins';
 
 const Tabs = TabsPrimitive.Root;
 
@@ -75,8 +75,6 @@ const styles = {
     padding: theme.spacing[1],
     minHeight: '36px',
     boxSizing: 'border-box',
-    ...fontGeneralSettings(theme as Theme),
-    fontWeight: 500,
     color: theme.colors.text.secondary,
   }),
   trigger: scoped({
@@ -87,11 +85,8 @@ const styles = {
     border: 'none',
     borderRadius: theme.radius.sm,
     backgroundColor: 'transparent',
+    ...theme.typography.small('medium'),
     color: theme.colors.text.secondary,
-    fontFamily: 'inherit',
-    fontWeight: 500,
-    fontSize: '14px',
-    lineHeight: '20px',
     cursor: 'pointer',
     ...flexCenter(),
     whiteSpace: 'nowrap',
@@ -110,7 +105,6 @@ const styles = {
   }),
   content: scoped({
     marginTop: theme.spacing[4],
-    ...fontGeneralSettings(theme as Theme),
     '&:focus, &:focus-visible': {
       outline: 'none',
     },

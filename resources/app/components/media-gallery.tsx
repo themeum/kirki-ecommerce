@@ -407,8 +407,7 @@ const styles = {
   remainingOverlayText: scoped({
     position: 'absolute',
     inset: 0,
-    fontSize: '18px',
-    fontWeight: 400,
+    ...theme.typography.large('normal'),
     color: theme.colors.text.light,
     background: theme.colors.background.badgeDraft,
     borderRadius: 'inherit',
@@ -417,7 +416,6 @@ const styles = {
   addItem: scoped({
     border: `2px dashed ${theme.colors.border.gallery}`,
     color: theme.colors.background.fillBrand,
-    fontSize: '32px',
     cursor: 'pointer',
     background: theme.colors.background.surfaceSecondary,
     ...flexCenter(),
