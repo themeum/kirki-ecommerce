@@ -264,9 +264,7 @@ const Price = ({ errors, setErrors, formSyncKey = 0 }: PriceProps) => {
                       visibility: showUnitPrice ? 'visible' : 'hidden',
                     }}
                   >
-                    <Text
-                      subHeader={__('Base price per unit', 'kirki-ecommerce')}
-                    />
+                    <Text color="secondary">{__('Base price per unit', 'kirki-ecommerce')}</Text>
                     <BaseUnitPopup
                       errors={errors}
                       setErrors={setErrors}

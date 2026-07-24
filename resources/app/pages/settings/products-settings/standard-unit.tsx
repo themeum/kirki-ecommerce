@@ -62,17 +62,11 @@ export const StandardUnit = () => {
               <CardContent>
                 <Flex>
                   <Flex direction="column" gap={6}>
-                    <Text
-                      type="secondary"
-                      header={__('Show unit price', 'kirki-ecommerce')}
-                    />
-                    <Text
-                      type="primary"
-                      subHeader={__(
+                    <Text weight="medium">{__('Show unit price', 'kirki-ecommerce')}</Text>
+                    <Text color="secondary">{__(
                         'Enable to show unit price in your products',
                         'kirki-ecommerce',
-                      )}
-                    />
+                      )}</Text>
                   </Flex>
                   <ActionGroup>
                     <SwitchField name="is_unit_price_visible" />

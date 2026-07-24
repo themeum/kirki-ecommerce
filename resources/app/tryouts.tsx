@@ -52,6 +52,7 @@ import UiRadioGroupPreview from '@/preview-pages/ui-radio-group-preview';
 import UiSelectPreview from '@/preview-pages/ui-select-preview';
 import UiSwitchPreview from '@/preview-pages/ui-switch-preview';
 import UiTextareaPreview from '@/preview-pages/ui-textarea-preview';
+import UiTextPreview from '@/preview-pages/ui-text-preview';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
@@ -80,7 +81,7 @@ const Tryouts = () => {
       />
       <Container>
         <Flex direction="column" gap={16}>
-          <Text header="UI Components" type="primary" />
+          <Text weight="semibold">UI Components</Text>
 
           <Card css={cardStyles.formCard}>
             <CardHeader>
@@ -88,6 +89,14 @@ const Tryouts = () => {
             </CardHeader>
             <CardContent>
               <UiButtonPreview />
+            </CardContent>
+          </Card>
+          <Card css={cardStyles.formCard}>
+            <CardHeader>
+              <CardTitle>Text</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <UiTextPreview />
             </CardContent>
           </Card>
           <Card css={cardStyles.formCard}>
@@ -204,7 +213,7 @@ const Tryouts = () => {
             </CardContent>
           </Card>
 
-          <Text header="Composites & Layout" type="primary" />
+          <Text weight="semibold">Composites & Layout</Text>
 
           <Button
             variant="primary"
@@ -449,7 +458,7 @@ const Tryouts = () => {
           </Card>
           <Card css={cardStyles.formCard}>
             <CardContent>
-              <Text header="Icons Preview" type="primary" />
+              <Text weight="semibold">Icons Preview</Text>
               <IconsPreview />
             </CardContent>
           </Card>

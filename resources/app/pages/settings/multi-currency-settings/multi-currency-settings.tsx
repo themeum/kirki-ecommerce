@@ -25,7 +25,6 @@ import {
 } from '@/schemas/forms/multi-currency-settings-form';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import type { ConfirmationVariant, SettingsSectionData } from '@/types';
-import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
@@ -169,15 +168,13 @@ const MultiCurrencySettings = () => {
               <Card css={cardStyles.largeCard} >
                 <CardContent css={cardStyles.largeContentPadded}>
 
-                <Text
-                header={__('Currency Management', 'kirki-ecommerce')}
-                subHeader={__(
+                <Flex direction="column" gap={8}>
+                  <Text weight="semibold">{__('Currency Management', 'kirki-ecommerce')}</Text>
+                  <Text color="secondary">{__(
                 'Manage product pricing across multiple currencies with manual or automatic conversion rates.',
                 'kirki-ecommerce',
-                )}
-                type="primary"
-                style={{ gap: theme.spacing[2] }}
-                />
+                )}</Text>
+                </Flex>
                 <AvailableCurrencyList />
                 <ApiConfig />
                 </CardContent>
@@ -185,15 +182,13 @@ const MultiCurrencySettings = () => {
               <Card css={cardStyles.largeCard} >
                 <CardContent css={cardStyles.largeContentPadded}>
 
-                <Text
-                header={__('Currency Preferences', 'kirki-ecommerce')}
-                subHeader={__(
+                <Flex direction="column" gap={8}>
+                  <Text weight="semibold">{__('Currency Preferences', 'kirki-ecommerce')}</Text>
+                  <Text color="secondary">{__(
                 'Set your preferences for how currency is displayed.',
                 'kirki-ecommerce',
-                )}
-                type="primary"
-                style={{ gap: theme.spacing[3] }}
-                />
+                )}</Text>
+                </Flex>
                 <CurrencyFormatSettings />
                 </CardContent>
               </Card>

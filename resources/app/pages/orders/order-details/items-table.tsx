@@ -39,7 +39,10 @@ const ItemsTable = () => {
               <Flex gap={12}>
                 <Flex gap={12} style={{ alignItems: 'center' }}>
                   <Thumbnail src={itemImg[item].url} />
-                  <Text header="Hockey Shoes" subHeader="Beige white" />
+                  <Flex direction="column" gap={8}>
+                    <Text>Hockey Shoes</Text>
+                    <Text color="secondary">Beige white</Text>
+                  </Flex>
                 </Flex>
               </Flex>
             </TableCell>

@@ -8,6 +8,7 @@ import {
 } from '@/components/ui/accordion';
 import Badge from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
+import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
@@ -36,6 +37,9 @@ const OptionAccordion = (props: OptionAccordionProps) => {
   } = props;
   const [isHovered, setIsHovered] = useState(false);
 
+  const isEmphasis = Boolean(variant === 'shipping' && state && isHovered);
+  const headerColor = !state ? 'disabled' : isEmphasis ? 'emphasis' : 'primary';
+
   return (
     <div css={styles.wrapper}>
       <Accordion
@@ -51,15 +55,25 @@ const OptionAccordion = (props: OptionAccordionProps) => {
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
           >
-            <Text
-              header={header}
-              subHeader={subHeader}
-              style={{ gap: '6px' }}
-              leftIcon={leftIcon}
-              badge={!state && <Badge text={__('Inactive', 'kirki-ecommerce')} type="trashed" />}
-              type={!state ? 'disabled' : 'secondary'}
-              emphasis={variant === 'shipping' && state && isHovered}
-            />
+            <Flex gap={8} style={{ alignItems: 'center' }}>
+              {leftIcon}
+              <Flex direction="column" gap={6}>
+                <Flex gap={8} style={{ alignItems: 'center' }}>
+                  <Text weight="medium" color={headerColor}>
+                    {header}
+                  </Text>
+                  {!state && (
+                    <Badge
+                      text={__('Inactive', 'kirki-ecommerce')}
+                      type="trashed"
+                    />
+                  )}
+                </Flex>
+                <Text variant="small" color="secondary">
+                  {subHeader}
+                </Text>
+              </Flex>
+            </Flex>
           </AccordionTrigger>
           <AccordionContent>
             <Card css={[cardStyles.darkCard, styles.contentCard]}>
@@ -91,4 +105,3 @@ const styles = {
     flexDirection: 'column',
   }),
 };
-

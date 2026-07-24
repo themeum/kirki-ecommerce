@@ -100,7 +100,7 @@ const SortableCard = ({
               <DragIcon />
             </span>
             <Flex direction="column" gap={8}>
-              <Text type="secondary" header={item?.name} />
+              <Text weight="medium">{item?.name}</Text>
               <Flex
                 gap={8}
                 style={{

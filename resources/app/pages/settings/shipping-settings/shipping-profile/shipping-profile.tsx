@@ -1,23 +1,23 @@
-import { useState, useEffect, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 
-import Flex from '@/components/ui/flex';
-import { BoxClosedIcon, BoxOpenIcon } from '@/icons';
 import GroupOptionCard from '@/components/group-option-card';
 import HeaderActionsCard from '@/components/header-actions-card';
 import {
   Card,
   CardContent,
 } from '@/components/ui/card';
+import Flex from '@/components/ui/flex';
+import { BoxClosedIcon, BoxOpenIcon } from '@/icons';
 import { queryClient } from '@/libs/query-client';
+import { dispatchToastMessage } from '@/pages/utils';
 import {
   deleteShippingProfile,
   useShippingProfilesQuery,
 } from '@/services/shipping';
-import { dispatchToastMessage } from '@/pages/utils';
-import type { ShippingProfile as ShippingProfileType } from '@/types';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
+import { scoped } from '@/theme/mixins';
+import type { ShippingProfile as ShippingProfileType } from '@/types';
 import { __ } from '@/wpi18n';
 
 import { CreateProfilePopup } from '@/pages/settings/shipping-settings/shipping-profile/create-profile-dialog';

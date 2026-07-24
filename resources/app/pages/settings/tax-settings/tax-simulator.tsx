@@ -18,17 +18,11 @@ const TaxSimulator = () => {
           <Flex gap={8}>
             <Flex gap={12} direction="column" style={{ width: '55%' }}>
               <Flex gap={6} direction="column">
-                <Text
-                  type="primary"
-                  header={__('Tax Simulator', 'kirki-ecommerce')}
-                />
-                <Text
-                  type="secondary"
-                  subHeader={__(
+                <Text weight="semibold">{__('Tax Simulator', 'kirki-ecommerce')}</Text>
+                <Text variant="small" color="secondary">{__(
                     'Test your real-world shipping outcomes instantly — no guesswork needed.',
                     'kirki-ecommerce',
-                  )}
-                />
+                  )}</Text>
               </Flex>
               <Button variant="secondary">
                 <SimulatorIcon />

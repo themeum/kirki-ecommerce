@@ -147,20 +147,14 @@ const BarcodeGeneration = (_props: BarcodeGenerationProps) => {
             <CardContent css={cardStyles.innerContent}>
               <Flex>
                 <Flex direction="column" gap={6}>
-                  <Text
-                    type="secondary"
-                    header={__(
+                  <Text weight="medium">{__(
                       'Generate barcodes for all products',
                       'kirki-ecommerce',
-                    )}
-                  />
-                  <Text
-                    type="primary"
-                    subHeader={__(
+                    )}</Text>
+                  <Text color="secondary">{__(
                       'Enable this option to let customers submit product reviews',
                       'kirki-ecommerce',
-                    )}
-                  />
+                    )}</Text>
                 </Flex>
                 <ActionGroup>
                   <Button variant="secondary">

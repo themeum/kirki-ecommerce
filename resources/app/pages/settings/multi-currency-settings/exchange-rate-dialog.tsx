@@ -152,28 +152,18 @@ const ExchangeRatePopup = ({
                         style={{ justifyContent: 'space-between' }}
                       >
                         <Flex gap={12}>
-                          <Text
-                            type="primary"
-                            header={sprintf(
+                          <Text weight="semibold">{sprintf(
                               __('%s', 'kirki-ecommerce'),
                               currency?.symbol ?? '',
-                            )}
-                          />
-                          <Text
-                            type="secondary"
-                            header={sprintf(
+                            )}</Text>
+                          <Text weight="medium">{sprintf(
                               __('%s', 'kirki-ecommerce'),
                               currency?.code ?? '',
-                            )}
-                          />
-                          <Text
-                            type="xsm"
-                            style={{ color: theme.colors.text.subdued }}
-                            header={sprintf(
+                            )}</Text>
+                          <Text variant="small" color="subdued">{sprintf(
                               __('%s', 'kirki-ecommerce'),
                               currency?.name ?? '',
-                            )}
-                          />
+                            )}</Text>
                         </Flex>
                         <div
                           style={{

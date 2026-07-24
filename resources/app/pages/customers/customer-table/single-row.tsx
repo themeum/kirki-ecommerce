@@ -54,7 +54,7 @@ const SingleRow = ({
             <div>
               {item?.first_name} {item?.last_name}
             </div>
-            <Text header={item?.email} type="xsm" emphasis />
+            <Text variant="small" color="emphasis">{item?.email}</Text>
           </Flex>
         </Flex>
       </TableCell>

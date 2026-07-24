@@ -95,9 +95,9 @@ const RateByWeightSettings = ({
         <CardContent>
 
         <Grid columns={3}>
-        <Text header={__('Weight Range (kg)', 'kirki-ecommerce')} />
+        <Text>{__('Weight Range (kg)', 'kirki-ecommerce')}</Text>
         <Text />
-        <Text header={__('Rate', 'kirki-ecommerce')} />
+        <Text>{__('Rate', 'kirki-ecommerce')}</Text>
         </Grid>
         {ranges?.map((range, index) => (
         <Grid columns={3} key={index}>

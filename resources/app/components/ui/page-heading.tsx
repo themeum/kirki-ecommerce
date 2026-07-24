@@ -10,7 +10,7 @@ import {
 import Button from '@/components/ui/button';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
-import Heading from '@/components/ui/heading';
+import Text from '@/components/ui/text';
 import { theme } from '@/theme';
 import { flexCenter, itemCenter, scoped } from '@/theme/mixins';
 import type { ContainerSize, HeadingType } from '@/types';
@@ -95,7 +95,8 @@ const PageHeading = forwardRef<HTMLDivElement, PageHeadingProps>(
                 {leftIcon}
               </span>
             )}
-            <Heading type={type} text={text} />
+            <Text variant='heading5'>{text}</Text>
+
             {children}
             <Flex css={styles.actions} gap={8}>
               {actions}

@@ -68,10 +68,7 @@ const ShippingBoxSelect = ({
         </SelectTrigger>
         <SelectContent>
           <Flex css={styles.header}>
-            <Text
-              subHeader={__('Available shipping boxes', 'kirki-ecommerce')}
-              type="primary"
-            />
+            <Text color="secondary">{__('Available shipping boxes', 'kirki-ecommerce')}</Text>
             <Button
               variant="ghost"
               css={styles.manageButton}

@@ -170,7 +170,7 @@ export const AvailableCurrencyList = () => {
               paddingBottom: theme.spacing[3],
             }}
           >
-            <Text header={__('Available Currencies', 'kirki-ecommerce')} type="primary" />
+            <Text weight="semibold">{__('Available Currencies', 'kirki-ecommerce')}</Text>
             <AddCurrencyPopup />
           </Flex>
           <GroupOptionCard
@@ -189,10 +189,7 @@ export const AvailableCurrencyList = () => {
             }}
           >
             <InfoIcon />
-            <Text
-              type="xsm"
-              subHeader={
-                showApiProviderStatus
+            <Text variant="small" color="subdued">{showApiProviderStatus
                   ? sprintf(
                       __(
                         'API connection is active. Last sync: %s. Next update %s.',
@@ -201,9 +198,7 @@ export const AvailableCurrencyList = () => {
                       dateFormatter(dataObj?.last_sync_at as string, 'relative'),
                       dateFormatter(dataObj?.next_sync_at as string, 'relative'),
                     )
-                  : __('API connection is inactive', 'kirki-ecommerce')
-              }
-            />
+                  : __('API connection is inactive', 'kirki-ecommerce')}</Text>
           </Flex>
         </CardContent>
       </Card>

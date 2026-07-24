@@ -202,10 +202,7 @@ const AddCitiesPopup = (props: AddCitiesPopupProps) => {
                         gap={8}
                         style={{ alignItems: 'center' }}
                       >
-                        <Text
-                          header={__('No cities available')}
-                          type="secondary"
-                        />
+                        <Text weight="medium">{__('No cities available')}</Text>
                       </Flex>
                     </CardContent>
                   </Card>

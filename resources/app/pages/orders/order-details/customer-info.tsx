@@ -38,17 +38,16 @@ const CustomerInfo = () => {
               src="https://kirki-ecommerce.test/wp-content/uploads/2025/10/Avatar.png"
             />
           </span>
-          <Text
-            type="secondary"
-            header="Oliver Thorne"
-            subHeader="oliverthorne@gmail.com"
-          />
+          <Flex direction="column" gap={8}>
+            <Text weight="medium">Oliver Thorne</Text>
+            <Text variant="small" color="secondary">oliverthorne@gmail.com</Text>
+          </Flex>
         </Flex>
 
         <Flex gap={8} style={{ alignItems: 'flex-start' }}>
           <EmailIcon style={{ opacity: '0.5' }} />
           <Flex direction="column" gap={8}>
-            <Text header="pabloesco.@gmail.com" />
+            <Text>pabloesco.@gmail.com</Text>
             <Badge type="draft" text="Awaiting Verification" />
           </Flex>
         </Flex>
@@ -57,7 +56,7 @@ const CustomerInfo = () => {
           <span css={styles.svgClass}>
             <PhoneIcon />
           </span>
-          <Text header="+1 555-123-4567" />
+          <Text>+1 555-123-4567</Text>
         </Flex>
 
         <Flex gap={8} style={{ alignItems: 'flex-start' }}>
@@ -65,7 +64,7 @@ const CustomerInfo = () => {
             <LocationIcon />
           </span>
           <Flex direction="column" gap={8}>
-            <Text type="xsm" subHeader="Billing Address" />
+            <Text variant="small" color="subdued">Billing Address</Text>
             56683 Schmidt Way, 4825 Welch Crossing
             <br />
             Montebello, 65082
@@ -77,7 +76,7 @@ const CustomerInfo = () => {
             <TruckIcon style={{ opacity: '0.5' }} />
           </span>
           <Flex direction="column" gap={8}>
-            <Text type="xsm" subHeader="Shipping Address" />
+            <Text variant="small" color="subdued">Shipping Address</Text>
             56683 Schmidt Way, 4825 Welch Crossing
             <br />
             Montebello, 65082

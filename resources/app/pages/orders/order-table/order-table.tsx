@@ -63,10 +63,10 @@ const OrderTable = () => {
             <TableCell>
               <Flex direction="column" gap={4}>
                 <Flex gap={4} style={{ alignItems: 'center' }}>
-                  <Text type="xsm" subHeader="# 029433" />
+                  <Text variant="small" color="subdued"># 029433</Text>
                   <Badge type="draft" text="Manual Order" />
                 </Flex>
-                <Text type="xsm" header="by Melanie Martinez" />
+                <Text variant="small">by Melanie Martinez</Text>
               </Flex>
             </TableCell>
             <TableCell>

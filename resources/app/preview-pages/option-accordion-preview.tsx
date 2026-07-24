@@ -1,9 +1,9 @@
 import OptionAccordion from '@/components/option-accordion';
-import Button from '@/components/ui/button';
-import GroupOptionCardPreview from '@/preview-pages/group-option-card-preview';
-import { LocationIcon, ShowMoreIcon } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
+import Button from '@/components/ui/button';
 import ToggleButton from '@/components/ui/toggle-button';
+import { LocationIcon, ShowMoreIcon } from '@/icons';
+import GroupOptionCardPreview from '@/preview-pages/group-option-card-preview';
 import { __ } from '@/wpi18n';
 
 const OptionAccordionPreview = () => {

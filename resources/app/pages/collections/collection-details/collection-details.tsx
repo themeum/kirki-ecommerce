@@ -204,27 +204,11 @@ const CollectionDetails = () => {
                   <CardContent>
                     <Flex gap={16} style={{ justifyContent: 'space-between' }}>
                       <Flex direction="column" gap={6}>
-                        <Text
-                          type="xsm"
-                          css={styles.seoUrl}
-                          header={
-                            window.kirki_ecommerce.site_url +
+                        <Text variant="small" css={styles.seoUrl}>{window.kirki_ecommerce.site_url +
                             ' › collections › ' +
-                            (watchedSlug || '')
-                          }
-                        />
-                        <Text
-                          type="primary"
-                          header={watchedSeoTitle || watchedTitle || ''}
-                          css={styles.seoTitle}
-                        />
-                        <Text
-                          type="xsm"
-                          css={styles.seoDescription}
-                          header={
-                            watchedSeoDescription || watchedDescription || ''
-                          }
-                        />
+                            (watchedSlug || '')}</Text>
+                        <Text weight="semibold" css={styles.seoTitle}>{watchedSeoTitle || watchedTitle || ''}</Text>
+                        <Text variant="small" css={styles.seoDescription}>{watchedSeoDescription || watchedDescription || ''}</Text>
                       </Flex>
                       <Thumbnail
                         src={imageUrl ?? undefined}

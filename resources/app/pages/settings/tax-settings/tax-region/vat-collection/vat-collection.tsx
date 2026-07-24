@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import { useState, type Dispatch, type SetStateAction, type ReactNode } from 'react';
+import { useState, type Dispatch, type ReactNode, type SetStateAction } from 'react';
 import { toast } from 'sonner';
 
 import HeaderActionsCard from '@/components/header-actions-card';
@@ -8,17 +8,17 @@ import {
   Card,
   CardContent,
 } from '@/components/ui/card';
-import { TrashIcon } from '@/icons';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
-import type { SelectOption } from '@/types';
+import { TrashIcon } from '@/icons';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
+import { scoped } from '@/theme/mixins';
+import type { SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
 
-import type { TaxRate, TaxRegion } from '@/pages/settings/tax-settings/utils';
 import VatCollectionPopup from '@/pages/settings/tax-settings/tax-region/vat-collection/vat-collection-dialog';
+import type { TaxRate, TaxRegion } from '@/pages/settings/tax-settings/utils';
 
 type VatStateOption = SelectOption & {
   leftIcon?: ReactNode;
@@ -52,20 +52,20 @@ export const VatCollection = (props: VatCollectionProps) => {
 
   const filteredStatesOption: VatStateOption[] = Array.isArray(region?.states)
     ? region.states
-        .filter((state) => {
-          if (editIndex === null || editIndex === undefined) {
-            return !vatCollectionList.some((vat) => vat.state === state?.id);
-          }
+      .filter((state) => {
+        if (editIndex === null || editIndex === undefined) {
+          return !vatCollectionList.some((vat) => vat.state === state?.id);
+        }
 
-          return !vatCollectionList.some(
-            (vat, index) => index !== editIndex && vat.state === state?.id,
-          );
-        })
-        .map((state) => ({
-          title: String(state?.id),
-          value: state?.id,
-          leftIcon: state?.flag,
-        }))
+        return !vatCollectionList.some(
+          (vat, index) => index !== editIndex && vat.state === state?.id,
+        );
+      })
+      .map((state) => ({
+        title: String(state?.id),
+        value: state?.id,
+        leftIcon: state?.flag,
+      }))
     : [];
 
   const handleAddOrUpdateVAT = (newItem: TaxRate, index?: number | null) => {
@@ -141,17 +141,18 @@ export const VatCollection = (props: VatCollectionProps) => {
                 onMouseLeave={() => setHoveredIndex(null)}
               >
                 <CardContent css={cardStyles.innerContent}>
+                  <Flex gap={8} style={{ alignItems: 'center' }}>
+                    {getFlagForState(item?.state)}
+                    <Text>{item?.state}</Text>
+                  </Flex>
                   <Text
-                    header={item?.state}
-                    leftIcon={getFlagForState(item?.state)}
-                  />
-                  <Text
-                    header={`${item?.rate}%`}
                     css={css(
                       styles.vatText,
                       hoveredIndex === index && styles.vatTextHidden,
                     )}
-                  />
+                  >
+                    {`${item?.rate}%`}
+                  </Text>
                   <Flex
                     gap={8}
                     css={css(

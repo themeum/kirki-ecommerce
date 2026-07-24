@@ -255,10 +255,7 @@ const Shipping = ({ errors, setErrors, formSyncKey = 0 }: ShippingProps) => {
                 }}
               >
                 <span css={styles.labelBackground}>
-                  <Text
-                    type="secondary"
-                    header={__('Shipping Box', 'kirki-ecommerce')}
-                  />
+                  <Text weight="medium">{__('Shipping Box', 'kirki-ecommerce')}</Text>
                 </span>
                 <ActionGroup>
                   <span css={styles.actionBackground}>

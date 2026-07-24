@@ -19,11 +19,7 @@ const SellerTaxID = () => {
         <CardContent css={cardStyles.largeContentPadded}>
           <Flex direction="column" gap={6}>
             <Flex style={{ alignItems: 'center' }}>
-              <Text
-                type="primary"
-                header={__('Seller Tax ID', 'kirki-ecommerce')}
-                style={{ gap: theme.spacing[3] }}
-              />
+              <Text weight="semibold" style={{ gap: theme.spacing[3] }}>{__('Seller Tax ID', 'kirki-ecommerce')}</Text>
               <ActionGroup>
                 <Button variant="secondary">
                   <PlusIcon />
@@ -31,13 +27,10 @@ const SellerTaxID = () => {
                 </Button>
               </ActionGroup>
             </Flex>
-            <Text
-              type="primary"
-              subHeader={__(
+            <Text color="secondary">{__(
                 'This information will be used on invoices where tax is applied, based on buyer region and your registration scope.',
                 'kirki-ecommerce',
-              )}
-            />
+              )}</Text>
           </Flex>
         </CardContent>
       </Card>

@@ -212,18 +212,10 @@ const AddCurrencyPopup = () => {
                               width: '100%',
                             }}
                           >
-                            <Text
-                              type="xsm"
-                              header={currency.name}
-                              style={{
+                            <Text variant="small" style={{
                                 color: theme.colors.text.subdued,
-                              }}
-                            />
-                            <Text
-                              css={styles.symbolText}
-                              type="primary"
-                              header={currency.symbol}
-                            />
+                              }}>{currency.name}</Text>
+                            <Text weight="semibold" css={styles.symbolText}>{currency.symbol}</Text>
                           </Flex>
                         </Flex>
                       ))}

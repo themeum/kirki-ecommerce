@@ -252,15 +252,13 @@ const TaxSettings = () => {
               <Card css={cardStyles.largeCard} >
                 <CardContent css={cardStyles.largeContentPadded}>
 
-                <Text
-                type="primary"
-                header={__('How would you like to collect tax?', 'kirki-ecommerce')}
-                subHeader={__(
+                <Flex direction="column" gap={8}>
+                  <Text weight="semibold" css={styles.taxCollectionHeader}>{__('How would you like to collect tax?', 'kirki-ecommerce')}</Text>
+                  <Text color="secondary">{__(
                 'Configure how tax is displayed and how it appears on your product listings.',
                 'kirki-ecommerce',
-                )}
-                css={styles.taxCollectionHeader}
-                />
+                )}</Text>
+                </Flex>
                 <Flex direction="column" gap={12}>
                 <TaxCollectionRadio />
                 <TaxCollectionOptions />

@@ -111,7 +111,6 @@ export type {
   SelectState,
   BadgeType,
   AlertType,
-  TextType,
   HeadingType,
   LabelType,
   TableType,

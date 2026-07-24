@@ -117,32 +117,29 @@ const ManualPayment = (props: ManualPaymentProps) => {
           <CardContent css={[cardStyles.innerContent, styles.gatewayItemContent]}>
 
           <Flex style={{ alignItems: 'center' }}>
-          <Text
-          header={sprintf(
-          __('%s', 'kirki-ecommerce'),
-          item?.name || '',
-          )}
-          leftIcon={
-          item?.icon ? (
-          <img
-          height={20}
-          width={20}
-          src={item?.icon as string}
-          ></img>
-          ) : (
-          <BankIconLarge />
-          )
-          }
-          badge={
-          !item?.is_enabled && (
-          <Badge
-          text={__('Inactive', 'kirki-ecommerce')}
-          type="trashed"
-          />
-          )
-          }
-          type={!item?.is_enabled ? 'disabled' : 'secondary'}
-          />
+          <Flex gap={8} style={{ alignItems: 'center' }}>
+            {item?.icon ? (
+              <img
+                height={20}
+                width={20}
+                src={item?.icon as string}
+              ></img>
+            ) : (
+              <BankIconLarge />
+            )}
+            <Text
+              weight="medium"
+              color={!item?.is_enabled ? 'disabled' : 'primary'}
+            >
+              {sprintf(__('%s', 'kirki-ecommerce'), item?.name || '')}
+            </Text>
+            {!item?.is_enabled && (
+              <Badge
+                text={__('Inactive', 'kirki-ecommerce')}
+                type="trashed"
+              />
+            )}
+          </Flex>
           <ActionGroup>
           <ToggleButton
           value={Boolean(item?.is_enabled)}

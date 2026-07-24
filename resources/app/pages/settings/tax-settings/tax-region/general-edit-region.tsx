@@ -1,8 +1,8 @@
-import { useState, useEffect, useMemo } from 'react';
-import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useNavigate, useOutletContext, useParams } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
+import { useEffect, useMemo, useState } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
+import { useNavigate, useOutletContext, useParams } from 'react-router';
 
 import CheckboxField from '@/components/form/checkbox-field';
 import HeaderActionsCard from '@/components/header-actions-card';
@@ -12,14 +12,14 @@ import {
   Card,
   CardContent,
 } from '@/components/ui/card';
+import Container from '@/components/ui/container';
+import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
+import PageHeading from '@/components/ui/page-heading';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { queryKeys } from '@/libs/query-keys';
 import { useUnsavedStatus } from '@/libs/unsaved-store';
-import Container from '@/components/ui/container';
-import Flex from '@/components/ui/flex';
-import PageHeading from '@/components/ui/page-heading';
 import {
   TaxRegionGeneralFormSchema,
   taxRegionGeneralDefaultValues,
@@ -31,18 +31,18 @@ import {
   useSettingsQuery,
   useUpdateSettingsMutation,
 } from '@/services/settings';
+import { theme } from '@/theme';
+import { cardStyles } from '@/theme/card-styles';
+import { scoped } from '@/theme/mixins';
 import type { SettingsSectionData } from '@/types';
 import { __ } from '@/wpi18n';
-import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
-import { cardStyles } from '@/theme/card-styles';
 
-import { setUnsavedDataStatus } from '@/pages/settings/utils';
-import type { TaxRate, TaxRegion, TaxRegionState, TaxRule } from '@/pages/settings/tax-settings/utils';
 import AddCitiesPopup from '@/pages/settings/tax-settings/tax-region/add-cities-dialog';
 import { SingleTaxRate } from '@/pages/settings/tax-settings/tax-region/single-tax-rate';
 import { TaxRateList } from '@/pages/settings/tax-settings/tax-region/tax-rate-list';
 import TaxRules from '@/pages/settings/tax-settings/tax-region/tax-rules/tax-rules';
+import type { TaxRate, TaxRegion, TaxRegionState, TaxRule } from '@/pages/settings/tax-settings/utils';
+import { setUnsavedDataStatus } from '@/pages/settings/utils';
 
 type SettingsOutletContext = {
   confirmAction: (params: { action?: () => void }) => void;
@@ -141,11 +141,11 @@ const GeneralEditRegion = () => {
     return regions.map((country) =>
       country.code === code
         ? {
-            ...country,
-            product_tax: updatedTaxRates ?? values.product_tax ?? [],
-            is_central_tax_enabled: values.is_central_tax_enabled,
-            central_product_tax: values.central_product_tax,
-          }
+          ...country,
+          product_tax: updatedTaxRates ?? values.product_tax ?? [],
+          is_central_tax_enabled: values.is_central_tax_enabled,
+          central_product_tax: values.central_product_tax,
+        }
         : country,
     );
   };
@@ -272,45 +272,45 @@ const GeneralEditRegion = () => {
                 <Card css={[cardStyles.largeCard, styles.citiesCard]} >
                   <CardContent css={cardStyles.largeContentPadded}>
 
-                  <HeaderActionsCard
-                  header={__('Cities', 'kirki-ecommerce')}
-                  subHeader={__('Set tax rates for specific cities', 'kirki-ecommerce')}
-                  buttonText={__('Add', 'kirki-ecommerce')}
-                  onAdd={() => setShowPopup(true)}
-                  hideButton={!!applySingleTax}
-                  />
-                  <CheckboxField
-                  name="is_central_tax_enabled"
-                  label={__(
-                  'Apply single tax rate for entire country',
-                  'kirki-ecommerce',
-                  )}
-                  />
-                  {applySingleTax ? (
-                  <SingleTaxRate
-                  centralTaxValue={centralTaxValue ?? 0}
-                  setCentralTaxValue={(value) =>
-                  form.setValue('central_product_tax', value, {
-                  shouldDirty: true,
-                  })
-                  }
-                  />
-                  ) : (
-                  <TaxRateList
-                  taxRates={taxRates}
-                  applySingleTax={!!applySingleTax}
-                  setTaxRates={(updater) => {
-                  const next =
-                  typeof updater === 'function'
-                  ? updater(taxRates)
-                  : updater;
-                  form.setValue('product_tax', next, {
-                  shouldDirty: true,
-                  });
-                  }}
-                  handleSaveData={handleSaveFromRateList}
-                  />
-                  )}
+                    <HeaderActionsCard
+                      header={__('Cities', 'kirki-ecommerce')}
+                      subHeader={__('Set tax rates for specific cities', 'kirki-ecommerce')}
+                      buttonText={__('Add', 'kirki-ecommerce')}
+                      onAdd={() => setShowPopup(true)}
+                      hideButton={!!applySingleTax}
+                    />
+                    <CheckboxField
+                      name="is_central_tax_enabled"
+                      label={__(
+                        'Apply single tax rate for entire country',
+                        'kirki-ecommerce',
+                      )}
+                    />
+                    {applySingleTax ? (
+                      <SingleTaxRate
+                        centralTaxValue={centralTaxValue ?? 0}
+                        setCentralTaxValue={(value) =>
+                          form.setValue('central_product_tax', value, {
+                            shouldDirty: true,
+                          })
+                        }
+                      />
+                    ) : (
+                      <TaxRateList
+                        taxRates={taxRates}
+                        applySingleTax={!!applySingleTax}
+                        setTaxRates={(updater) => {
+                          const next =
+                            typeof updater === 'function'
+                              ? updater(taxRates)
+                              : updater;
+                          form.setValue('product_tax', next, {
+                            shouldDirty: true,
+                          });
+                        }}
+                        handleSaveData={handleSaveFromRateList}
+                      />
+                    )}
                   </CardContent>
                 </Card>
                 <TaxRules

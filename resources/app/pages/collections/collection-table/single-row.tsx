@@ -50,7 +50,7 @@ const SingleRow = ({
         <TableCell>
           <Flex gap={8} style={{ alignItems: 'center' }}>
             <Thumbnail size="small" src={banner?.url} />
-            <Text type="xsm" header={item?.title || '--'} />
+            <Text variant="small">{item?.title || '--'}</Text>
           </Flex>
         </TableCell>
         <TableCell>{item?.count || 0}</TableCell>

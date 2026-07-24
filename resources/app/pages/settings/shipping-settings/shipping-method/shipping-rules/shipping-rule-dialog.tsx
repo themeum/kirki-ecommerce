@@ -394,7 +394,7 @@ const ShippingRuleModal = ({
             <DialogBody>
               <Flex direction={'column'} gap={16}>
                 <Flex direction={'column'} gap={8}>
-                  <Text header="IF" />
+                  <Text>IF</Text>
                   <Grid columns={3}>
                     <SelectField
                       name="condition"
@@ -439,7 +439,7 @@ const ShippingRuleModal = ({
                   </Grid>
                 </Flex>
                 <Flex direction={'column'} gap={8}>
-                  <Text header={__('THEN', 'kirki-ecommerce')} />
+                  <Text>{__('THEN', 'kirki-ecommerce')}</Text>
                   <Grid columns={2}>
                     <SelectField
                       name="action"

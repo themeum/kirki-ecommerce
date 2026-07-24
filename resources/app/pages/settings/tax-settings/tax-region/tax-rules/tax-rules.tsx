@@ -3,23 +3,23 @@ import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 import HeaderActionsCard from '@/components/header-actions-card';
+import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
 import {
   Card,
   CardContent,
 } from '@/components/ui/card';
-import { EditPenIcon, LighteningIcon, TrashIcon } from '@/icons';
-import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
+import { EditPenIcon, LighteningIcon, TrashIcon } from '@/icons';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
+import { scoped } from '@/theme/mixins';
 import { __, sprintf } from '@/wpi18n';
 
-import type { TaxRegion, TaxRule } from '@/pages/settings/tax-settings/utils';
 import { getDestinationDisplayValue } from '@/pages/settings/tax-settings/tax-region/tax-rules/helper';
 import TaxRulesModal from '@/pages/settings/tax-settings/tax-region/tax-rules/tax-rules-dialog';
+import type { TaxRegion, TaxRule } from '@/pages/settings/tax-settings/utils';
 
 type TaxRulesProps = {
   region?: TaxRegion;
@@ -103,101 +103,84 @@ const TaxRules = (props: TaxRulesProps) => {
                         <Flex direction={'column'} gap={16}>
                           <Card css={[cardStyles.darkCard, styles.rulesNumberBadge]}>
                             <CardContent>
-                              <Text
-                                type="xsm"
-                                header={sprintf(__('Rule %s', 'kirki-ecommerce'), index + 1)}
-                                leftIcon={<LighteningIcon />}
-                              />
+                              <Flex gap={8} style={{ alignItems: 'center' }}>
+                                <LighteningIcon />
+                                <Text variant="small">{sprintf(__('Rule %s', 'kirki-ecommerce'), index + 1)}</Text>
+                              </Flex>
                             </CardContent>
                           </Card>
-                      <Flex direction={'column'} gap={8}>
-                        <Flex direction={'column'} gap={8}>
-                          {item?.conditions.map((condition, conditionIndex) => (
-                            <Flex gap={8} key={conditionIndex}>
-                              <Text
-                                header={
-                                  conditionIndex === 0
+                          <Flex direction={'column'} gap={8}>
+                            <Flex direction={'column'} gap={8}>
+                              {item?.conditions.map((condition, conditionIndex) => (
+                                <Flex gap={8} key={conditionIndex}>
+                                  <Text>{conditionIndex === 0
                                     ? sprintf(
-                                        __('IF %1$s %2$s', 'kirki-ecommerce'),
-                                        condition?.type,
-                                        condition?.operator,
-                                      )
+                                      __('IF %1$s %2$s', 'kirki-ecommerce'),
+                                      condition?.type,
+                                      condition?.operator,
+                                    )
                                     : sprintf(
-                                        __('AND IF %1$s %2$s', 'kirki-ecommerce'),
-                                        condition?.type,
-                                        condition?.operator,
-                                      )
-                                }
-                              />
-                              <Text
-                                header={
-                                  condition?.type === 'destination_region'
+                                      __('AND IF %1$s %2$s', 'kirki-ecommerce'),
+                                      condition?.type,
+                                      condition?.operator,
+                                    )}</Text>
+                                  <Text css={styles.conditionValue}>{condition?.type === 'destination_region'
                                     ? __(
-                                        getDestinationDisplayValue(
-                                          condition?.value,
-                                        ),
-                                        'kirki-ecommerce',
-                                      )
+                                      getDestinationDisplayValue(
+                                        condition?.value,
+                                      ),
+                                      'kirki-ecommerce',
+                                    )
                                     : sprintf(
-                                        __('%s', 'kirki-ecommerce'),
-                                        condition?.value as string | number,
-                                      )
-                                }
-                                css={styles.conditionValue}
-                              />
+                                      __('%s', 'kirki-ecommerce'),
+                                      condition?.value as string | number,
+                                    )}</Text>
+                                </Flex>
+                              ))}
                             </Flex>
-                          ))}
-                        </Flex>
-                        <Flex gap={8}>
-                          <Text
-                            header={
-                              item?.action?.type === 'set_tax_rate'
+                            <Flex gap={8}>
+                              <Text>{item?.action?.type === 'set_tax_rate'
                                 ? `Then ${item?.action?.type}:`
-                                : `Then ${item?.action?.type}`
-                            }
-                          />
-                          {item?.action?.type === 'set_tax_rate' && (
-                            <Text
-                              header={`${item?.action?.value}`}
-                              css={styles.conditionValue}
-                            />
-                          )}
+                                : `Then ${item?.action?.type}`}</Text>
+                              {item?.action?.type === 'set_tax_rate' && (
+                                <Text css={styles.conditionValue}>{`${item?.action?.value}`}</Text>
+                              )}
+                            </Flex>
+                          </Flex>
                         </Flex>
+                        <ActionGroup
+                          css={css(
+                            styles.cardActions,
+                            hoveredRuleIndex === index && styles.cardActionsActive,
+                          )}
+                        >
+                          <Button
+                            variant="secondary"
+                            size="icon"
+                            onClick={() => handleDeleteRules(item, index)}
+                          >
+                            <TrashIcon />
+                          </Button>
+                          <Button
+                            variant="secondary"
+                            size="icon"
+                            onClick={() => setEditingRuleIndex(index)}
+                          >
+                            <EditPenIcon />
+                          </Button>
+                        </ActionGroup>
                       </Flex>
-                    </Flex>
-                    <ActionGroup
-                      css={css(
-                        styles.cardActions,
-                        hoveredRuleIndex === index && styles.cardActionsActive,
-                      )}
-                    >
-                      <Button
-                        variant="secondary"
-                        size="icon"
-                        onClick={() => handleDeleteRules(item, index)}
-                      >
-                        <TrashIcon />
-                      </Button>
-                      <Button
-                        variant="secondary"
-                        size="icon"
-                        onClick={() => setEditingRuleIndex(index)}
-                      >
-                        <EditPenIcon />
-                      </Button>
-                    </ActionGroup>
-                  </Flex>
-                  {editingRuleIndex === index && (
-                    <TaxRulesModal
-                      region={region}
-                      rulesObj={rulesObj}
-                      setRulesObj={setRulesObj}
-                      updateTaxRules={updateTaxRules}
-                      showModal={true}
-                      setShowModal={() => setEditingRuleIndex(null)}
-                      from={'edit'}
-                      ruleIndex={index}
-                    />
+                      {editingRuleIndex === index && (
+                        <TaxRulesModal
+                          region={region}
+                          rulesObj={rulesObj}
+                          setRulesObj={setRulesObj}
+                          updateTaxRules={updateTaxRules}
+                          showModal={true}
+                          setShowModal={() => setEditingRuleIndex(null)}
+                          from={'edit'}
+                          ruleIndex={index}
+                        />
                       )}
                     </CardContent>
                   </Card>

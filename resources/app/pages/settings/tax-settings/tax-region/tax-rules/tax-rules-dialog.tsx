@@ -220,7 +220,7 @@ const TaxRulesModal = (props: TaxRulesModalProps) => {
                   ))}
               </Flex>
               <Flex direction={'column'} gap={8}>
-                <Text header={__('THEN', 'kirki-ecommerce')} />
+                <Text>{__('THEN', 'kirki-ecommerce')}</Text>
                 <Grid columns={2}>
                   <SelectField name="action_type" options={actionOptions} />
                   {selectedAction === 'set_tax_rate' && (

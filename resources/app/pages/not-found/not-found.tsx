@@ -34,15 +34,13 @@ const NotFound = () => {
             </span>
 
             <Flex direction="column" gap={8} css={styles.copy}>
-              <Text
-                type="primary"
-                css={styles.copyText}
-                header={__('Page not found', 'kirki-ecommerce')}
-                subHeader={__(
+              <Flex direction="column" gap={8}>
+                <Text weight="semibold" css={styles.copyText}>{__('Page not found', 'kirki-ecommerce')}</Text>
+                <Text color="secondary">{__(
                   'Sorry, the page you are looking for could not be found. It may have been moved or never existed.',
                   'kirki-ecommerce',
-                )}
-              />
+                )}</Text>
+              </Flex>
             </Flex>
 
             {showPath && (

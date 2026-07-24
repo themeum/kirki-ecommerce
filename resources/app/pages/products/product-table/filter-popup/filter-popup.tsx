@@ -169,7 +169,7 @@ const FilterPopup = ({
       </Flex>
       <DropdownMenuContent style={{ width: '288px', maxHeight: '522px' }}>
         <Flex css={styles.header}>
-          <Text header={__('Filter', 'kirki-ecommerce')} />
+          <Text>{__('Filter', 'kirki-ecommerce')}</Text>
           <ActionGroup>
             <Button
               variant="ghost"

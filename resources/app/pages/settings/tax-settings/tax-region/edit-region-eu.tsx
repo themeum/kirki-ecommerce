@@ -157,9 +157,7 @@ const VatProcessDescription = ({
     <Card css={cardStyles.innerDarkCard} >
       <CardContent css={cardStyles.innerDarkContent}>
 
-      <Text
-      subHeader={
-      processValue === 'oss'
+      <Text color="secondary">{processValue === 'oss'
       ? __(
       'Applies to businesses selling across multiple EU countries under OSS.',
       'kirki-ecommerce',
@@ -167,9 +165,7 @@ const VatProcessDescription = ({
       : __(
       'Applies to businesses with less than €10,000 EU sales.',
       'kirki-ecommerce',
-      )
-      }
-      />
+      )}</Text>
       </CardContent>
     </Card>
   );
@@ -359,10 +355,7 @@ const EditRegionEU = () => {
               <Card css={cardStyles.largeCard} >
                 <CardContent css={cardStyles.largeContentPadded}>
 
-                <Text
-                type="primary"
-                header={__('How would you like to collect VAT?', 'kirki-ecommerce')}
-                />
+                <Text weight="semibold">{__('How would you like to collect VAT?', 'kirki-ecommerce')}</Text>
                 <VatCollectionProcessRadios />
                 </CardContent>
               </Card>

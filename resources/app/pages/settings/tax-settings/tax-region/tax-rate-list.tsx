@@ -83,10 +83,7 @@ export const TaxRateList = ({
       ) : (
         <Card css={cardStyles.innerDarkCard}>
           <CardContent css={cardStyles.innerDarkContent}>
-            <Text
-              header={__('Tax rates', 'kirki-ecommerce')}
-              css={styles.taxRatesHeader}
-            />
+            <Text css={styles.taxRatesHeader}>{__('Tax rates', 'kirki-ecommerce')}</Text>
             <Flex gap={2} direction={'column'}>
               {taxRates?.map((item, index) => (
                 <Card
@@ -96,15 +93,19 @@ export const TaxRateList = ({
                   onMouseLeave={() => setHoveredIndex(null)}
                 >
                   <CardContent>
-                    <Text header={item?.state} leftIcon={<LocationIcon />} />
+                    <Flex gap={8} style={{ alignItems: 'center' }}>
+                      <LocationIcon />
+                      <Text>{item?.state}</Text>
+                    </Flex>
                     <div css={styles.taxCardContent}>
                       <Text
-                        header={sprintf(__('%s %', 'kirki-ecommerce'), item?.rate)}
                         css={css(
                           styles.rateDisplay,
                           hoveredIndex === index && styles.rateDisplayHidden,
                         )}
-                      />
+                      >
+                        {sprintf(__('%s %', 'kirki-ecommerce'), item?.rate)}
+                      </Text>
 
                       <Flex
                         gap={8}

@@ -31,7 +31,7 @@ const GridTemplatePreview = () => {
     <Card css={cardStyles.formCard}>
       <CardHeader>
         <CardTitle>Price</CardTitle>
-        <Text subHeader="This is subheading" type="primary" />
+        <Text color="secondary">This is subheading</Text>
       </CardHeader>
       <CardContent>
         <Grid columns={2}>
@@ -91,11 +91,10 @@ const GridTemplatePreview = () => {
 
         <Card css={cardStyles.innerCard}>
           <CardContent css={cardStyles.innerContent}>
-            <Text
-              header="Limit Orders to One Item"
-              subHeader="Let customers purchase only one item in a single order. Particularly use full for items that are limited in quantity i.e. handmade items"
-              type="secondary"
-            />
+            <Flex direction="column" gap={8}>
+              <Text weight="medium">Limit Orders to One Item</Text>
+              <Text variant="small" color="secondary">Let customers purchase only one item in a single order. Particularly use full for items that are limited in quantity i.e. handmade items</Text>
+            </Flex>
           </CardContent>
         </Card>
       </CardContent>

@@ -69,14 +69,13 @@ const Customers = () => {
                   <span css={styles.svgClass}>
                     <CustomerInfoIcon />
                   </span>
-                  <Text
-                    type="secondary"
-                    header={__('Create Groups with Customers', 'kirki-ecommerce')}
-                    subHeader={__(
+                  <Flex direction="column" gap={8}>
+                    <Text weight="medium">{__('Create Groups with Customers', 'kirki-ecommerce')}</Text>
+                    <Text variant="small" color="secondary">{__(
                       'Organize customers for better targeting and management',
                       'kirki-ecommerce',
-                    )}
-                  />
+                    )}</Text>
+                  </Flex>
                   <ActionGroup>
                     <Button
                       variant="ghost"

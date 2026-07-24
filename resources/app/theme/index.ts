@@ -184,7 +184,6 @@ const createTypographyStyle = (config: TypographyStyleConfig) => {
   };
 };
 
-const textPrimaryColor = cssVar('gray15');
 
 const theme = {
   primitives: {
@@ -309,6 +308,18 @@ const theme = {
       fontSize: '20px',
       lineHeight: '28px',
       letterSpacing: '-0.5px',
+      defaultWeight: 'semibold',
+    }),
+    heading5: createTypographyStyle({
+      fontSize: '18px',
+      lineHeight: '24px',
+      letterSpacing: '0',
+      defaultWeight: 'semibold',
+    }),
+    heading6: createTypographyStyle({
+      fontSize: '16px',
+      lineHeight: '20px',
+      letterSpacing: '0',
       defaultWeight: 'semibold',
     }),
     paragraph: createTypographyStyle({

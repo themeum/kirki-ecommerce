@@ -29,12 +29,10 @@ export const SettingsItem = (props: SettingsItemProps) => {
       <Flex gap={8} css={styles.content}>
         <div css={styles.identifier} data-settings-identifier />
         <span css={styles.iconWrap}>{icon}</span>
-        <Text
-          header={<span data-settings-heading>{header}</span>}
-          subHeader={subHeader}
-          type="secondary"
-          style={{ gap: 0 }}
-        />
+        <Flex direction="column" gap={8}>
+          <Text weight="medium">{<span data-settings-heading>{header}</span>}</Text>
+          <Text variant="small" color="secondary">{subHeader}</Text>
+        </Flex>
       </Flex>
       <Flex>
         <span css={styles.buttonWrap} data-settings-button>

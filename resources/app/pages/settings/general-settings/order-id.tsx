@@ -90,10 +90,7 @@ const OrderId = () => {
                   <CardContent css={cardStyles.largeContentPadded}>
                     <Flex direction="column" gap={10}>
                       <Flex style={{ alignItems: 'center' }}>
-                        <Text
-                          type="secondary"
-                          header={__('Reset Order ID', 'kirki-ecommerce')}
-                        />
+                        <Text weight="medium">{__('Reset Order ID', 'kirki-ecommerce')}</Text>
                         <ActionGroup>
                           <Button
                             variant="secondary"
@@ -104,13 +101,10 @@ const OrderId = () => {
                           </Button>
                         </ActionGroup>
                       </Flex>
-                      <Text
-                        type="primary"
-                        subHeader={__(
+                      <Text color="secondary">{__(
                           'Reset the order ID to your base ID for new fiscal years, system migration, or legal compliance.',
                           'kirki-ecommerce',
-                        )}
-                      />
+                        )}</Text>
                     </Flex>
                   </CardContent>
                 </Card>

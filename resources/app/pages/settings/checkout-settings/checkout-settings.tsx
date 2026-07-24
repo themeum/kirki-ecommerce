@@ -149,14 +149,13 @@ const CheckoutSettings = () => {
                 <CardContent css={cardStyles.largeContentPadded}>
 
                 <Flex style={{ alignItems: 'center' }}>
-                <Text
-                header={__('Allow Guest Checkout', 'kirki-ecommerce')}
-                subHeader={__(
+                <Flex direction="column" gap={8}>
+                  <Text weight="medium">{__('Allow Guest Checkout', 'kirki-ecommerce')}</Text>
+                  <Text variant="small" color="secondary">{__(
                 'Let customers buy without logging in or creating an account.',
                 'kirki-ecommerce',
-                )}
-                type="secondary"
-                />
+                )}</Text>
+                </Flex>
                 <ActionGroup>
                 <SwitchField name="is_allowed_guest_checkout" />
                 </ActionGroup>

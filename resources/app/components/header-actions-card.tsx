@@ -4,7 +4,6 @@ import { PlusIcon } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
-import { theme } from '@/theme';
 import { __ } from '@/wpi18n';
 
 type HeaderActionsCardProps = {
@@ -31,11 +30,7 @@ const HeaderActionsCard = (props: HeaderActionsCardProps) => {
     <>
       <Flex direction="column" gap={4}>
         <Flex style={{ alignItems: 'center' }}>
-          <Text
-            type="primary"
-            header={header}
-            style={{ gap: theme.spacing[3] }}
-          />
+          <Text weight="semibold">{header}</Text>
           {!hideButton && (
             <ActionGroup>
               {dropDownButton ? (
@@ -69,7 +64,7 @@ const HeaderActionsCard = (props: HeaderActionsCardProps) => {
             </ActionGroup>
           )}
         </Flex>
-        <Text type="primary" subHeader={subHeader} />
+        <Text color="secondary">{subHeader}</Text>
       </Flex>
     </>
   );

@@ -11,7 +11,7 @@ const Payment = () => {
   return (
     <Flex direction="column" gap={16}>
       <Flex style={{ justifyContent: 'space-between' }}>
-        <Text header="Payment" type="primary" />
+        <Text weight="semibold">Payment</Text>
         <Badge type="pending" text="UNPAID" />
       </Flex>
       <Card css={[cardStyles.innerCard, styles.dashedCard]}>

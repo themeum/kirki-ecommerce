@@ -103,27 +103,18 @@ const EditCurrencyPopup = ({
               >
                 <Flex style={{ justifyContent: 'space-between' }}>
                   <Flex gap={12}>
-                    <Text
-                      type="primary"
-                      header={sprintf(
+                    <Text weight="semibold">{sprintf(
                         __('%s', 'kirki-ecommerce'),
                         editCurrency?.icon ?? '',
-                      )}
-                    />
-                    <Text
-                      type="secondary"
-                      header={sprintf(
+                      )}</Text>
+                    <Text weight="medium">{sprintf(
                         __('%s', 'kirki-ecommerce'),
                         editCurrency?.code ?? '',
-                      )}
-                    />
-                    <Text
-                      type="xsm"
-                      header={sprintf(
+                      )}</Text>
+                    <Text variant="small">{sprintf(
                         __('%s', 'kirki-ecommerce'),
                         editCurrency?.name ?? '',
-                      )}
-                    />
+                      )}</Text>
                   </Flex>
                   <div
                     style={{ width: 'auto', margin: theme.spacing[1] }}

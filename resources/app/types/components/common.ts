@@ -56,13 +56,6 @@ type BadgeType =
   | 'default';
 
 type AlertType = 'success' | 'fail' | 'pending';
-type TextType =
-  | 'primary'
-  | 'secondary'
-  | 'disabled'
-  | 'xsm'
-  | 'tertiary'
-  | 'inner';
 type HeadingType = 'primary' | 'secondary' | 'tertiary' | '';
 type LabelType = 'error' | '';
 type TableType = 'default' | 'variation' | 'wide';
@@ -93,7 +86,7 @@ type PaginationData = {
 };
 
 export type {
-  AlertType, BadgeType, ButtonSize, ButtonState, ButtonType, ConfirmationVariant, ContainerSize, DropdownItemState, DropdownPosition, DropdownSize, FlexDirection, HeadingType, InputState, LabelFieldProps, LabelType, PaginationData, SelectOption, SelectState, StyleProps, TableAlignment, TableType, TextType, ThumbnailSize,
+  AlertType, BadgeType, ButtonSize, ButtonState, ButtonType, ConfirmationVariant, ContainerSize, DropdownItemState, DropdownPosition, DropdownSize, FlexDirection, HeadingType, InputState, LabelFieldProps, LabelType, PaginationData, SelectOption, SelectState, StyleProps, TableAlignment, TableType, ThumbnailSize,
   ThumbnailType, TooltipPosition
 };
 

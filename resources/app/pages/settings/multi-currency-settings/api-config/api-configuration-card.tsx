@@ -65,24 +65,19 @@ const ApiConfigurationCard = ({
             }}
           >
             <Flex direction={'column'} gap={8}>
-              <Text
-                type="primary"
-                header={selectedAPI}
-                leftIcon={<FlagIcon />}
-                badge={
-                  <Badge
-                    text={'Configured'}
-                    type="published"
-                    leftIcon={<RadioTickIcon />}
-                  />
-                }
-              />
-              <Text
-                subHeader={sprintf(
+              <Flex gap={8} style={{ alignItems: 'center' }}>
+                <FlagIcon />
+                <Text weight="semibold">{selectedAPI}</Text>
+                <Badge
+                  text={'Configured'}
+                  type="published"
+                  leftIcon={<RadioTickIcon />}
+                />
+              </Flex>
+              <Text color="secondary">{sprintf(
                   __(`Last tested: %s`, 'kirki-ecommerce'),
                   dateFormatter(dataObj?.last_sync_at as string, 'datetime'),
-                )}
-              />
+                )}</Text>
             </Flex>
             <Button
               variant="outline"
@@ -106,30 +101,21 @@ const ApiConfigurationCard = ({
                   usage?.total ?? 0,
                 )}
               />
-              <Text
-                header={sprintf(
+              <Text style={{ color: theme.primitives.colors.gray12 }}>{sprintf(
                   __('Resets on %s', 'kirki-ecommerce'),
                   dateFormatter(dataObj?.next_sync_at as string),
-                )}
-                style={{ color: theme.primitives.colors.gray12 }}
-              />
+                )}</Text>
             </Flex>
           )}
           <Card css={styles.innerDarkCard}>
             <CardContent css={styles.innerDarkContent}>
               <Flex gap={4}>
-                <Text
-                  header={__('Fallback Behavior: ', 'kirki-ecommerce')}
-                  style={{ color: theme.primitives.colors.gray12 }}
-                />
-                <Text header={formatValue(apiConfigObj?.fallback_behaviour)} />
+                <Text style={{ color: theme.primitives.colors.gray12 }}>{__('Fallback Behavior: ', 'kirki-ecommerce')}</Text>
+                <Text>{formatValue(apiConfigObj?.fallback_behaviour)}</Text>
               </Flex>
               <Flex gap={4}>
-                <Text
-                  header={__('Update Frequency: ', 'kirki-ecommerce')}
-                  style={{ color: theme.primitives.colors.gray12 }}
-                />
-                <Text header={formatValue(apiConfigObj?.update_frequency)} />
+                <Text style={{ color: theme.primitives.colors.gray12 }}>{__('Update Frequency: ', 'kirki-ecommerce')}</Text>
+                <Text>{formatValue(apiConfigObj?.update_frequency)}</Text>
               </Flex>
             </CardContent>
           </Card>

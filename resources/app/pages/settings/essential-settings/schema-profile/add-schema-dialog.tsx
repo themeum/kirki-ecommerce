@@ -170,13 +170,10 @@ const AddSchemaPopup = ({
             </Flex>
           </DialogBody>
           <DialogFooter style={{ justifyContent: 'space-between' }}>
-            <Text
-              type="secondary"
-              header={sprintf(
+            <Text weight="medium">{sprintf(
                 __('%d selected', 'kirki-ecommerce'),
                 Object.keys(selectedValues)?.length,
-              )}
-            />
+              )}</Text>
             <ActionGroup>
               <Button variant="outline" onClick={onClose}>
                 {__('Cancel', 'kirki-ecommerce')}

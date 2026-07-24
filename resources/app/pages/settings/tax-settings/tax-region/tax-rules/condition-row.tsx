@@ -106,9 +106,9 @@ const ConditionRow = (props: ConditionRowProps) => {
       onMouseLeave={() => setIsHovered(false)}
     >
       {index > 0 ? (
-        <Text header={__('AND IF', 'kirki-ecommerce')} />
+        <Text>{__('AND IF', 'kirki-ecommerce')}</Text>
       ) : (
-        <Text header={__(' IF', 'kirki-ecommerce')} />
+        <Text>{__(' IF', 'kirki-ecommerce')}</Text>
       )}
       <Grid
         css={styles.conditionGrid}

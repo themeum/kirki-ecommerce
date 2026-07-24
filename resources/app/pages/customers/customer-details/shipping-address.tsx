@@ -18,11 +18,12 @@ const ShippingAddress = () => {
   return (
     <Card css={[cardStyles.formCard, styles.roundedCard]}>
       <CardHeader>
-        <Text
-          header={__('Shipping Address', 'kirki-ecommerce')}
-          type="primary"
-          leftIcon={<ShippingAddressIcon />}
-        />
+        <Flex gap={8} style={{ alignItems: 'center' }}>
+          <ShippingAddressIcon />
+          <Text weight="semibold">
+            {__('Shipping Address', 'kirki-ecommerce')}
+          </Text>
+        </Flex>
       </CardHeader>
       <Card css={cardStyles.innerCard}>
         <CardContent css={cardStyles.innerContent}>

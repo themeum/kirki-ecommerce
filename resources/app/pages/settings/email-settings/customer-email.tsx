@@ -7,9 +7,9 @@ import {
   Card,
   CardContent,
 } from '@/components/ui/card';
-import { PersonIcon, CartIcon, UserIcon } from '@/icons';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
+import { CartIcon, PersonIcon, UserIcon } from '@/icons';
 import type { EmailSettingsFormValues } from '@/schemas/forms/email-settings-form';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
@@ -59,52 +59,48 @@ const CustomerEmail = (props: CustomerEmailProps) => {
       <Card css={styles.roundedCard}>
         <CardContent>
 
-        <Flex direction="column" gap={16}>
-        <Flex direction="column" style={{ alignItems: 'flex-start' }} gap={6}>
-        <Text
-        header={__('Customer Emails', 'kirki-ecommerce')}
-        type="primary"
-        style={{ gap: '6px' }}
-        leftIcon={<PersonIcon />}
-        />
-        <Text
-        subHeader={__('Manage customer emails here', 'kirki-ecommerce')}
-        />
-        </Flex>
+          <Flex direction="column" gap={16}>
+            <Flex direction="column" style={{ alignItems: 'flex-start' }} gap={6}>
+              <Flex gap={8} style={{ alignItems: 'center' }}>
+                <PersonIcon />
+                <Text weight="semibold">{__('Customer Emails', 'kirki-ecommerce')}</Text>
+              </Flex>
+              <Text color="secondary">{__('Manage customer emails here', 'kirki-ecommerce')}</Text>
+            </Flex>
 
-        <OptionAccordion
-        header={__('Order', 'kirki-ecommerce')}
-        subHeader={__(
-        'Customers get updates about their orders.',
-        'kirki-ecommerce',
-        )}
-        leftIcon={<CartIcon />}
-        >
-        <GroupOptionCard
-        handleToggleItem={(item) =>
-        handleToggleOrder(item as EmailListItem)
-        }
-        handleEditItem={(item) => handleEditOrder(item as EmailListItem)}
-        dataArr={orderEmails}
-        />
-        </OptionAccordion>
-        <OptionAccordion
-        header={__('User', 'kirki-ecommerce')}
-        subHeader={__(
-        'Customers get updates regarding registration.',
-        'kirki-ecommerce',
-        )}
-        leftIcon={<UserIcon />}
-        >
-        <GroupOptionCard
-        dataArr={userEmails}
-        handleToggleItem={(item) =>
-        handleToggleOrder(item as EmailListItem)
-        }
-        handleEditItem={(item) => handleEditOrder(item as EmailListItem)}
-        />
-        </OptionAccordion>
-        </Flex>
+            <OptionAccordion
+              header={__('Order', 'kirki-ecommerce')}
+              subHeader={__(
+                'Customers get updates about their orders.',
+                'kirki-ecommerce',
+              )}
+              leftIcon={<CartIcon />}
+            >
+              <GroupOptionCard
+                handleToggleItem={(item) =>
+                  handleToggleOrder(item as EmailListItem)
+                }
+                handleEditItem={(item) => handleEditOrder(item as EmailListItem)}
+                dataArr={orderEmails}
+              />
+            </OptionAccordion>
+            <OptionAccordion
+              header={__('User', 'kirki-ecommerce')}
+              subHeader={__(
+                'Customers get updates regarding registration.',
+                'kirki-ecommerce',
+              )}
+              leftIcon={<UserIcon />}
+            >
+              <GroupOptionCard
+                dataArr={userEmails}
+                handleToggleItem={(item) =>
+                  handleToggleOrder(item as EmailListItem)
+                }
+                handleEditItem={(item) => handleEditOrder(item as EmailListItem)}
+              />
+            </OptionAccordion>
+          </Flex>
         </CardContent>
       </Card>
     </div>

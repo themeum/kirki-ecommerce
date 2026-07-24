@@ -53,12 +53,9 @@ const BulkActionHandler = (props: BulkActionHandlerProps) => {
     >
       <Flex gap={20}>
         <Flex gap={10} style={{ alignItems: 'center' }}>
-          <Text
-            subHeader={`${itemCount} ${
+          <Text variant="small" color="subdued">{`${itemCount} ${
               itemCount > 1 ? 'items' : 'item'
-            } selected`}
-            type="xsm"
-          />
+            } selected`}</Text>
           {onSelectAll && total !== undefined && per_page !== undefined && total > per_page && (
             <Button variant="link" onClick={onSelectAll}>
               {itemCount === total

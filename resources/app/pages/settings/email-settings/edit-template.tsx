@@ -163,11 +163,12 @@ const EditTemplate = () => {
                 <Card css={[cardStyles.largeCard, styles.roundedCard]}>
                   <CardContent css={cardStyles.largeContentPadded}>
 
-                  <Text
-                  type="primary"
-                  header={'Logo'}
-                  subHeader={'Update the logo & style your way'}
-                  />
+                  <Flex direction="column" gap={8}>
+                    <Text weight="semibold">Logo</Text>
+                    <Text color="secondary">
+                      Update the logo & style your way
+                    </Text>
+                  </Flex>
                   <ThumbnailField
                   name="logo"
                   placeholder={__(
@@ -239,10 +240,12 @@ const EditTemplate = () => {
                 <Card css={[cardStyles.largeCard, styles.roundedCard]}>
                   <CardContent css={cardStyles.largeContentPadded}>
 
-                  <Text
-                  header={'Colors'}
-                  subHeader={'Style how the emails will look'}
-                  />
+                  <Flex direction="column" gap={8}>
+                    <Text weight="semibold">Colors</Text>
+                    <Text color="secondary">
+                      Style how the emails will look
+                    </Text>
+                  </Flex>
                   <ColorPickerField
                   name="colors.background"
                   label={'Background'}
@@ -269,12 +272,11 @@ const EditTemplate = () => {
                     justifyContent: 'space-between',
                   }}
                 >
-                  <Text header={'Template Preview'} />
-                  <Text
-                    css={styles.sendTextMail}
-                    header={'Send Text Mail'}
-                    leftIcon={<SendIcon />}
-                  />
+                  <Text weight="semibold">Template Preview</Text>
+                  <Flex gap={8} style={{ alignItems: 'center' }}>
+                    <SendIcon />
+                    <Text css={styles.sendTextMail}>Send Text Mail</Text>
+                  </Flex>
                 </Flex>
                 <Card css={styles.squareCard}>
                   <CardContent>

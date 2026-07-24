@@ -133,13 +133,14 @@ const ApiConfig = () => {
               }}
               >
               <Flex direction={'column'} gap={8}>
-              <Text header={selectedAPI} leftIcon={<FlagIcon />} />
-              <Text
-              subHeader={__(
+              <Flex gap={8} style={{ alignItems: 'center' }}>
+                <FlagIcon />
+                <Text>{selectedAPI}</Text>
+              </Flex>
+              <Text color="secondary">{__(
               'Configure your API key and connection settings for ExchangeRate API',
               'kirki-ecommerce',
-              )}
-              />
+              )}</Text>
               </Flex>
               <ActionGroup>
               <Button

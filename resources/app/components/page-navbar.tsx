@@ -42,7 +42,10 @@ const PageNavbar = (props: PageNavbarProps) => {
         </Button>
         <div css={styles.connector} />
         <Card css={cardStyles.navbarCard}>
-          <Text type="primary" header={text} leftIcon={textIcon} />
+          <Flex gap={8} style={{ alignItems: 'center' }}>
+            {textIcon}
+            <Text weight="semibold">{text}</Text>
+          </Flex>
           {rightAction}
         </Card>
       </Flex>

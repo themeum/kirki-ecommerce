@@ -3,6 +3,7 @@ import {
   Card,
   CardContent,
 } from '@/components/ui/card';
+import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import Grid from '@/components/ui/grid';
 import { ShippoIcon, EasyShipIcon } from '@/icons';
@@ -18,11 +19,10 @@ const ShippingSolution = () => {
       <Card css={cardStyles.largeCard} >
         <CardContent css={cardStyles.largeContentPadded}>
 
-        <Text
-        type="primary"
-        header={__('Shipping Solution', 'kirki-ecommerce')}
-        subHeader="Used to create shipping rates for different product groups, like heavy items needing higher fees."
-        />
+        <Flex direction="column" gap={8}>
+          <Text weight="semibold">{__('Shipping Solution', 'kirki-ecommerce')}</Text>
+          <Text color="secondary">Used to create shipping rates for different product groups, like heavy items needing higher fees.</Text>
+        </Flex>
 
         <Grid>
         <Button

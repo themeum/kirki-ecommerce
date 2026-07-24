@@ -39,12 +39,9 @@ export const SingleTaxRate = ({
         onMouseLeave={() => setIsHovered(false)}
       >
         <CardContent css={cardStyles.innerDarkContent}>
-          <Text type="secondary" header={__('Tax rates', 'kirki-ecommerce')} />
+          <Text weight="medium">{__('Tax rates', 'kirki-ecommerce')}</Text>
           <div css={styles.taxCardContent}>
-            <Text
-              header={centralTaxValue}
-              css={css(styles.rateDisplay, isHovered && styles.rateDisplayHidden)}
-            />
+            <Text css={css(styles.rateDisplay, isHovered && styles.rateDisplayHidden)}>{centralTaxValue}</Text>
 
             <Flex
               gap={8}

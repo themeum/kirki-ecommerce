@@ -216,18 +216,14 @@ const EmailSettings = () => {
                 style={{ alignItems: 'flex-start' }}
                 gap={6}
                 >
-                <Text
-                header={__('Default Template', 'kirki-ecommerce')}
-                type="primary"
-                style={{ gap: '6px' }}
-                leftIcon={<BrushIcon />}
-                />
-                <Text
-                subHeader={__(
+                <Flex gap={8} style={{ alignItems: 'center' }}>
+                  <BrushIcon />
+                  <Text weight="semibold">{__('Default Template', 'kirki-ecommerce')}</Text>
+                </Flex>
+                <Text color="secondary">{__(
                 'Configure logo, colors, sender email, and more for emails',
                 'kirki-ecommerce',
-                )}
-                />
+                )}</Text>
                 </Flex>
                 <Button
                 variant="secondary"

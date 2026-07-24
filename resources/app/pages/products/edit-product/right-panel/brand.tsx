@@ -106,7 +106,7 @@ const Brand = () => {
             <CardContent css={cardStyles.innerContent}>
               <Flex gap={8} style={{ alignItems: 'center' }}>
                 <Thumbnail src={brandLogo?.url} />
-                <Text type="xsm" header={productBrand?.name} />
+                <Text variant="small">{productBrand?.name}</Text>
                 <ActionGroup style={{ cursor: 'pointer' }}>
                   <Button
                     variant="ghost"

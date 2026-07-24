@@ -50,7 +50,7 @@ const Pagination = (props: PaginationProps) => {
   return (
     <div css={[styles.wrapper, cssProp]}>
       <Flex gap={8} style={{ alignItems: 'center' }}>
-        <Text header={__('Page', 'kirki-ecommerce')} type="xsm" />
+        <Text variant="small">{__('Page', 'kirki-ecommerce')}</Text>
         <Select
           value={String(_current_page)}
           onValueChange={(value) => onChange(Number(value))}
@@ -66,7 +66,7 @@ const Pagination = (props: PaginationProps) => {
             ))}
           </SelectContent>
         </Select>
-        <Text header={`of ${last_page}`} type="xsm" />
+        <Text variant="small">{`of ${last_page}`}</Text>
       </Flex>
       <ActionGroup>
         <Button

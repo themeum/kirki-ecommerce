@@ -23,7 +23,7 @@ const Settings = () => {
     settingsList: SettingsNavItem[],
   ) => (
     <Flex direction="column" gap={8}>
-      <Text subHeader={title} type="xsm" />
+      <Text variant="small" color="subdued">{title}</Text>
       <Flex direction="column" gap={2} css={styles.settingsCardWrapper}>
         {settingsList.map((item, index) => (
           <SettingsItem key={index} {...item} />

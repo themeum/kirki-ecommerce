@@ -149,18 +149,12 @@ const GroupOptionCard = (props: GroupOptionCardProps) => {
               }}
               gap={8}
             >
-              <Text
-                header={item?.name ?? ''}
-                leftIcon={item?.icon}
-                css={styles.mediumHeader}
-                type="xsm"
-              />
+              <Flex gap={8} style={{ alignItems: 'center' }}>
+                {item?.icon}
+                <Text variant="small" css={styles.mediumHeader}>{item?.name ?? ''}</Text>
+              </Flex>
               {item?.subText && (
-                <Text
-                  style={{ color: theme.colors.text.subdued }}
-                  header={item?.subText ?? ''}
-                  type="xsm"
-                />
+                <Text variant="small" color="subdued">{item?.subText ?? ''}</Text>
               )}
               {item?.badge1 && (
                 <Badge
@@ -195,7 +189,7 @@ const GroupOptionCard = (props: GroupOptionCardProps) => {
               >
                 {item.rightIcon && item.rightIcon}
                 {item.rightText && (
-                  <Text subHeader={item?.rightText} type="secondary" />
+                  <Text variant="small" color="secondary">{item?.rightText}</Text>
                 )}
               </Flex>
             )}

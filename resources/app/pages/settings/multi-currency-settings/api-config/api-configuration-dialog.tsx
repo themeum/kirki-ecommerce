@@ -144,14 +144,10 @@ const ApiConfigurationPopup = ({
                   label={__('API Key', 'kirki-ecommerce')}
                   placeholder={'******'}
                 />
-                <Text
-                  type={'secondary'}
-                  css={styles.helperText}
-                  header={__(
+                <Text weight="medium" css={styles.helperText}>{__(
                     'Your API key is encrypted and stored securely. Get your API key from ExchangeRate API',
                     'kirki-ecommerce',
-                  )}
-                />
+                  )}</Text>
                 <SelectField
                   name="update_frequency"
                   label={__('Update Frequency', 'kirki-ecommerce')}

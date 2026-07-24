@@ -32,13 +32,11 @@ export const Review = () => {
             <CardContent>
               <Flex>
                 <Flex direction="column" gap={6}>
-                  <Text type="secondary" header={__('Reviews', 'kirki-ecommerce')} />
-                  <Text
-                    subHeader={__(
+                  <Text weight="medium">{__('Reviews', 'kirki-ecommerce')}</Text>
+                  <Text color="secondary">{__(
                       'Enable this option to let customers submit product reviews',
                       'kirki-ecommerce',
-                    )}
-                  />
+                    )}</Text>
                 </Flex>
                 <ActionGroup>
                   <SwitchField name="is_enabled_reviews" />
@@ -50,16 +48,11 @@ export const Review = () => {
             <CardContent>
               <Flex>
                 <Flex direction="column" gap={6}>
-                  <Text
-                    type="secondary"
-                    header={__('Star rating on reviews', 'kirki-ecommerce')}
-                  />
-                  <Text
-                    subHeader={__(
+                  <Text weight="medium">{__('Star rating on reviews', 'kirki-ecommerce')}</Text>
+                  <Text color="secondary">{__(
                       'Allow customers to submit product reviews with star ratings.',
                       'kirki-ecommerce',
-                    )}
-                  />
+                    )}</Text>
                 </Flex>
                 <ActionGroup>
                   <SwitchField name="is_enabled_star_ratings" />

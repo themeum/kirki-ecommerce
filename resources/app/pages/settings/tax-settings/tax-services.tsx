@@ -25,17 +25,18 @@ const TaxServices = () => {
         <CardContent css={cardStyles.largeContentPadded}>
           <Flex direction="column" gap={6}>
             <Flex style={{ alignItems: 'center' }}>
-              <Text
-                type="primary"
-                header={__('Tax Services', 'kirki-ecommerce')}
-                subHeader={__(
-                  'Connect your preferred sales tax service to Kirki store',
-                  'kirki-ecommerce',
-                )}
-                style={{ gap: theme.spacing[3] }}
-              />
+              <Flex direction="column" gap={8}>
+                <Text weight="semibold">
+                  {__('Tax Services', 'kirki-ecommerce')}
+                </Text>
+                <Text color="secondary">
+                  {__(
+                    'Connect your preferred sales tax service to Kirki store',
+                    'kirki-ecommerce',
+                  )}
+                </Text>
+              </Flex>
             </Flex>
-            <Text type="primary" />
           </Flex>
 
           <Flex direction="column">
@@ -49,23 +50,17 @@ const TaxServices = () => {
               >
                 <CardContent css={cardStyles.innerContent}>
                   <Flex style={{ alignItems: 'center', minHeight: '36px' }} gap={8}>
-                    <Text
-                      header="Stripe Tax"
-                      type="xsm"
-                      leftIcon={<BoxClosedIcon />}
-                      css={styles.mediumHeader}
-                    />
+                    <Flex gap={8} style={{ alignItems: 'center' }}>
+                      <BoxClosedIcon />
+                      <Text variant="small" css={styles.mediumHeader}>Stripe Tax</Text>
+                    </Flex>
                     {index === 1 ? (
                       <Badge text="Active" type="published" />
                     ) : (
-                      <Text
-                        subHeader={__(
+                      <Text variant="small" color="subdued" css={styles.mutedText}>{__(
                           'Calculate and collect tax globally in your Kirki store',
                           'kirki-ecommerce',
-                        )}
-                        type="xsm"
-                        css={styles.mutedText}
-                      />
+                        )}</Text>
                     )}
                     <ActionGroup
                       css={css(

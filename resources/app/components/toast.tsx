@@ -85,13 +85,9 @@ const Toast = ({
           >
             {ui.icon}
           </span>
-          <Text
-            type="secondary"
-            header={title}
-            style={{
+          <Text weight="medium" style={{
               color: ui.textColor,
-            }}
-          />
+            }}>{title}</Text>
         </Flex>
         <Flex style={{ alignItems: 'center' }}>
           {undoAction && (

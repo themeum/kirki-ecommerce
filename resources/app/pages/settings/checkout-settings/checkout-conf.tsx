@@ -68,14 +68,13 @@ const CheckoutConf = () => {
               />
 
               <Flex style={{ alignItems: 'center' }}>
-                <Text
-                  header={__('Apply Coupon Code', 'kirki-ecommerce')}
-                  subHeader={__(
+                <Flex direction="column" gap={8}>
+                  <Text weight="medium">{__('Apply Coupon Code', 'kirki-ecommerce')}</Text>
+                  <Text variant="small" color="secondary">{__(
                     'Coupons can be applied from the cart and checkout pages.',
                     'kirki-ecommerce',
-                  )}
-                  type="secondary"
-                />
+                  )}</Text>
+                </Flex>
                 <ActionGroup>
                   <SwitchField name="checkout_configuration.has_apply_coupon_code" />
                 </ActionGroup>

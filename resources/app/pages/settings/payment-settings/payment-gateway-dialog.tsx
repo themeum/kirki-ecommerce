@@ -67,11 +67,10 @@ const PaymentGatewayPopup = ({
                 <Card key={index} css={cardStyles.innerCard}>
                   <CardContent css={cardStyles.innerContent}>
                     <Flex style={{ alignItems: 'center' }}>
-                      <Text
-                        header={item?.name}
-                        type="secondary"
-                        leftIcon={<StripeIcon />}
-                      />
+                      <Flex gap={8} style={{ alignItems: 'center' }}>
+                        <StripeIcon />
+                        <Text weight="medium">{item?.name}</Text>
+                      </Flex>
                       <ActionGroup>
                         {item?.is_installed === true ? (
                           <Button variant="ghost">

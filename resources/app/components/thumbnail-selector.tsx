@@ -85,7 +85,7 @@ const ThumbnailSelector = (props: ThumbnailSelectorProps) => {
               {btnText}
             </Button>
           </MediaSelector>
-          <Text type="primary" subHeader={placeholder} />
+          <Text color="secondary">{placeholder}</Text>
         </Placeholder>
       )}
     </>

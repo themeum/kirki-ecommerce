@@ -40,12 +40,10 @@ const BillingAddress = () => {
   return (
     <Card css={[cardStyles.formCard, styles.roundedCard]}>
       <CardHeader>
-        <Text
-          header={__('Billing Address', 'kirki-ecommerce')}
-          type="primary"
-          leftIcon={<PaymentIcon />}
-          css={styles.header}
-        />
+        <Flex gap={8} style={{ alignItems: 'center' }}>
+          <PaymentIcon />
+          <Text weight="semibold" css={styles.header}>{__('Billing Address', 'kirki-ecommerce')}</Text>
+        </Flex>
       </CardHeader>
       <CardContent>
         <Flex direction="column" gap={8}>

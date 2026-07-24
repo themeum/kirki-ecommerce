@@ -146,13 +146,16 @@ const GroupTagTable = (props: GroupTagTableProps) => {
                     justifyContent: 'space-between',
                   }}
                 >
-                  <Text
-                    gap={4}
-                    type="xsm"
-                    leftIcon={groupDetails[groupName]?.icon}
-                    subHeader={groupDetails[groupName]?.title}
-                    css={styles.mutedText}
-                  />
+                  <Flex gap={8} style={{ alignItems: 'center' }}>
+                    {groupDetails[groupName]?.icon}
+                    <Text
+                      variant="small"
+                      color="subdued"
+                      css={styles.mutedText}
+                    >
+                      {groupDetails[groupName]?.title}
+                    </Text>
+                  </Flex>
                   <Flex
                     gap={8}
                     style={{
