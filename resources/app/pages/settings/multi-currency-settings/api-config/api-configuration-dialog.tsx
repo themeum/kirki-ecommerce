@@ -26,6 +26,8 @@ import {
   apiConfigurationDefaultValues,
   type ApiConfigurationFormValues,
 } from '@/schemas/forms/api-configuration-form';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 type ApiConfigData = {
@@ -184,7 +186,7 @@ const ApiConfigurationPopup = ({
                   <Button
                     type="button"
                     variant="ghost"
-                    style={{ boxShadow: '0 1px 1px 0 rgba(86, 65, 243, 0.3)' }}
+                    css={styles.cancelButton}
                   >
                     {__('Cancel', 'kirki-ecommerce')}
                   </Button>
@@ -205,3 +207,9 @@ const ApiConfigurationPopup = ({
 ApiConfigurationPopup.displayName = 'ApiConfigurationPopup';
 
 export default ApiConfigurationPopup;
+
+const styles = {
+  cancelButton: scoped({
+    boxShadow: theme.shadow.sm,
+  }),
+};

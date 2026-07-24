@@ -35,30 +35,33 @@ const Toast = ({
   onClose,
 }: ToastProps) => {
   const VARIANT_UI: Record<ToastVariant, ToastUi> = {
-    default: { icon: <InfoIcon />, bg: '#F4F4F5' },
+    default: {
+      icon: <InfoIcon />,
+      bg: theme.colors.background.surfaceTertiary,
+    },
     success: {
       icon: <CheckedIcon />,
-      bg: '#E3FFED',
-      iconColor: '#1C7330',
-      textColor: '#1C7330',
+      bg: theme.colors.background.fillSuccessSecondary,
+      iconColor: theme.colors.text.success,
+      textColor: theme.colors.text.success,
     },
     warning: {
       icon: <AlertIcon />,
-      bg: '#FFF4E5',
-      iconColor: '#E89100',
-      textColor: '#854A0E',
+      bg: theme.colors.background.fillWarningSecondary,
+      iconColor: theme.colors.text.warning,
+      textColor: theme.colors.text.warning,
     },
     delete: {
       icon: <CloseIcon style={{ width: '24px', height: '24px' }} />,
-      bg: '#FFE5E4',
-      iconColor: '#D40000',
-      textColor: '#D40000',
+      bg: theme.colors.background.fillCriticalSecondary,
+      iconColor: theme.colors.text.critical,
+      textColor: theme.colors.text.critical,
     },
     error: {
       icon: <CloseIcon style={{ width: '24px', height: '24px' }} />,
-      bg: '#FFE5E4',
-      iconColor: '#D40000',
-      textColor: '#D40000',
+      bg: theme.colors.background.fillCriticalSecondary,
+      iconColor: theme.colors.text.critical,
+      textColor: theme.colors.text.critical,
     },
   };
 
@@ -180,12 +183,12 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    color: '#F3F3F7',
+    color: theme.colors.background.surfaceTertiary,
   }),
   timer: scoped({
     height: '3px',
     width: '100%',
-    background: 'rgba(0, 0, 0, 0.1)',
+    background: theme.colors.background.fillTertiary,
     overflow: 'hidden',
     borderRadius: theme.radius.sm,
   }),

@@ -129,7 +129,7 @@ const styles = {
   overlay: scoped({
     position: 'absolute',
     inset: 0,
-    background: '#1c1c1c99',
+    background: theme.colors.background.badgeDraft,
     display: 'flex',
     alignItems: 'flex-end',
     justifyContent: 'center',
@@ -165,8 +165,8 @@ const styles = {
       padding: theme.spacing[5],
       width: '100%',
       height: 'auto',
-      border: '1px solid #e4e4e7',
-      backgroundColor: '#f7f7f7',
+      border: `1px solid ${theme.colors.border.gallery}`,
+      backgroundColor: theme.colors.background.placeholderSurface,
       boxSizing: 'border-box',
       img: {
         borderRadius: theme.radius.md,

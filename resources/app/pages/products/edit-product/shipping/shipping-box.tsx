@@ -75,7 +75,7 @@ const ShippingBoxSelect = ({
             <Button
               variant="ghost"
               size="sm"
-              style={{ color: '#5641F3' }}
+              css={styles.manageButton}
               onClick={() => navigate('/settings/shipping')}
             >
               {__('Manage', 'kirki-ecommerce')}
@@ -123,5 +123,8 @@ const styles = {
   }),
   footer: scoped({
     padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
+  }),
+  manageButton: scoped({
+    color: theme.colors.background.fillBrand,
   }),
 };

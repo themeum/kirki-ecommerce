@@ -131,7 +131,7 @@ const VariationTable = ({
             <Flex style={{ alignItems: 'center', justifyContent: 'center' }}>
               <Text
                 type="primary"
-                style={{ color: '#878593' }}
+                css={styles.mutedText}
                 header={__('No data found', 'kirki-ecommerce')}
               />
             </Flex>
@@ -178,7 +178,10 @@ const styles = {
   emptyStateContent: scoped({
     padding: `${theme.spacing[9]} 0`,
     borderRadius: theme.radius.none,
-  })
+  }),
+  mutedText: scoped({
+    color: theme.colors.text.subdued,
+  }),
 };
 
 export default VariationTable;

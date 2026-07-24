@@ -328,7 +328,7 @@ const styles = {
     lineHeight: '20px',
     userSelect: 'none',
     '&:hover, &[data-highlighted]': {
-      backgroundColor: '#f4f4f5',
+      backgroundColor: theme.colors.background.optionHover,
     },
     '&[data-disabled]': {
       opacity: 0.5,
@@ -336,7 +336,7 @@ const styles = {
       color: theme.colors.text.disabled,
     },
     '&[data-state="open"]': {
-      backgroundColor: '#f4f4f5',
+      backgroundColor: theme.colors.background.optionHover,
     },
   }),
   itemInset: scoped({
@@ -382,6 +382,6 @@ const styles = {
     fontSize: '12px',
     lineHeight: '16px',
     letterSpacing: '0.1px',
-    color: '#71717a',
+    color: theme.colors.text.muted,
   }),
 };

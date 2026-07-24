@@ -74,7 +74,7 @@ export const TaxRateList = ({
           <CardContent css={[cardStyles.innerDarkContent, styles.emptyContent]}>
             <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
               <PaymentIcon />
-              <span style={{ color: '#878593' }}>
+              <span css={styles.mutedText}>
                 {__('Added tax rates will appear here', 'kirki-ecommerce')}
               </span>
             </Flex>
@@ -146,6 +146,9 @@ TaxRateList.displayName = 'TaxRateList';
 
 const styles = {
   emptyContent: scoped({ padding: `${theme.spacing[9]} 0` }),
+  mutedText: scoped({
+    color: theme.colors.text.subdued,
+  }),
   taxCard: scoped({
     display: 'flex',
     alignItems: 'center',

@@ -153,7 +153,7 @@ const SortableItem = ({
               aria-label={__('Delete', 'kirki-ecommerce')}
               onClick={onDeleteImage}
             >
-              <TrashIcon color="#D40000" />
+              <TrashIcon color={theme.colors.text.critical} />
             </Button>
           )}
         </div>
@@ -270,7 +270,7 @@ const MediaGallery = ({
           />
           <Button
             variant="link"
-            style={{ color: '#D40000' }}
+            css={styles.deleteButton}
             onClick={handleDeleteSelectedImages}
           >
             {__('Delete', 'kirki-ecommerce')}
@@ -378,7 +378,7 @@ const styles = {
   itemOverlay: scoped({
     position: 'absolute',
     inset: 0,
-    background: '#00000033',
+    background: theme.colors.background.badgeDraft,
     opacity: 0,
     transition: 'opacity 0.2s ease',
     zIndex: 2,
@@ -410,7 +410,7 @@ const styles = {
     fontSize: '18px',
     fontWeight: 400,
     color: theme.colors.text.light,
-    background: 'rgba(0, 0, 0, 0.35)',
+    background: theme.colors.background.badgeDraft,
     borderRadius: 'inherit',
     ...flexCenter(),
   }),
@@ -431,5 +431,8 @@ const styles = {
     '&:active': {
       cursor: 'grabbing',
     },
+  }),
+  deleteButton: scoped({
+    color: theme.colors.text.critical,
   }),
 };

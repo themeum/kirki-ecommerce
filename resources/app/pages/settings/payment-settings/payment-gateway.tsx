@@ -100,7 +100,7 @@ const PaymentGatewayComponent = (props: PaymentGatewayProps) => {
           <CardContent css={[cardStyles.innerDarkContent, styles.emptyStateContent]}>
             <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
               <MapIcon />
-              <span style={{ color: '#878593' }}>
+              <span css={styles.mutedText}>
                 {__('No payment added yet', 'kirki-ecommerce')}
               </span>
             </Flex>
@@ -188,7 +188,10 @@ const styles = {
   emptyStateContent: scoped({ padding: `${theme.spacing[9]} 0` }),
   gatewayItemContent: scoped({
     padding: `${theme.spacing[3]} ${theme.spacing[4]}`,
-  })
+  }),
+  mutedText: scoped({
+    color: theme.colors.text.subdued,
+  }),
 };
 
 export default PaymentGatewayComponent;

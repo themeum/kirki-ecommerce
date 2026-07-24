@@ -178,7 +178,7 @@ const styles = {
     fontWeight: 400,
     lineHeight: '18px',
     color: theme.colors.text.primary,
-    boxShadow: '0px 0.5px 1px 0px #0000001a inset',
+    boxShadow: theme.shadow.sm,
     '& thead': {
       backgroundColor: theme.colors.background.surfaceAlt,
       color: theme.colors.text.secondary,
@@ -194,7 +194,7 @@ const styles = {
       borderBottom: `1px solid ${theme.colors.border.tertiary}`,
     },
     '& tbody tr:hover, & tbody tr[data-active="true"]': {
-      backgroundColor: 'hsla(240, 20%, 98%, 0.5)',
+      backgroundColor: theme.colors.background.surfaceAlt,
       '& [data-action-group="true"]': {
         visibility: 'visible',
       },
@@ -275,7 +275,7 @@ const styles = {
           width: '8px',
           height: '14px',
           backgroundColor: theme.colors.background.fillBrand,
-          border: '0.5px solid #ffffff',
+          border: `0.5px solid ${theme.colors.background.surface}`,
           borderRadius: theme.radius.lg,
           cursor: 'crosshair',
           boxShadow: theme.shadow.md,

@@ -254,24 +254,14 @@ const Shipping = ({ errors, setErrors, formSyncKey = 0 }: ShippingProps) => {
                   position: 'absolute',
                 }}
               >
-                <span
-                  style={{
-                    backgroundColor: '#ffffff',
-                    paddingLeft: theme.spacing[2],
-                  }}
-                >
+                <span css={styles.labelBackground}>
                   <Text
                     type="secondary"
                     header={__('Shipping Box', 'kirki-ecommerce')}
                   />
                 </span>
                 <ActionGroup>
-                  <span
-                    style={{
-                      backgroundColor: '#ffffff',
-                      paddingRight: theme.spacing[2],
-                    }}
-                  >
+                  <span css={styles.actionBackground}>
                     <Button
                       variant="secondary"
                       size="sm"
@@ -339,5 +329,13 @@ const styles = {
     borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.md} ${theme.radius.md}`,
     marginTop: `-${theme.spacing[2]}`,
     height: '230px',
+  }),
+  labelBackground: scoped({
+    backgroundColor: theme.colors.background.surface,
+    paddingLeft: theme.spacing[2],
+  }),
+  actionBackground: scoped({
+    backgroundColor: theme.colors.background.surface,
+    paddingRight: theme.spacing[2],
   }),
 };

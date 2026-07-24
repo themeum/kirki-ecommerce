@@ -177,7 +177,7 @@ export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
                                     | string
                                     | number),
                             )}
-                            style={{ color: '#9747FF' }}
+                            css={styles.accentText}
                           />
                         </Flex>
                         <Flex gap={8}>
@@ -191,7 +191,7 @@ export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
                                 __('%d', 'kirki-ecommerce'),
                                 item?.action?.value as string | number,
                               )}
-                              style={{ color: '#9747FF' }}
+                              css={styles.accentText}
                             />
                           )}
                         </Flex>
@@ -279,5 +279,8 @@ const styles = {
     borderRadius: theme.radius.sm,
     display: 'flex',
     padding: `${theme.spacing[1]} ${theme.spacing[2]}`,
-  })
+  }),
+  accentText: scoped({
+    color: theme.colors.text.special3,
+  }),
 };

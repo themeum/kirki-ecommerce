@@ -22,6 +22,7 @@ import Flex from '@/components/ui/flex';
 import Grid from '@/components/ui/grid';
 import Text from '@/components/ui/text';
 import type { FormErrors, SettingsSectionData } from '@/types';
+import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
@@ -183,6 +184,6 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    border: '1px solid #E4E3E9',
+    border: `1px solid ${theme.colors.border.default}`,
   })
 };

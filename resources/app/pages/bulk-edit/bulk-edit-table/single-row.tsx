@@ -298,7 +298,7 @@ const SingleRow = (props: SingleRowProps) => {
             size="small"
           />
           <span>
-            <span style={{ color: '#878593' }}>
+            <span css={styles.mutedText}>
               {`${currentVariation?.name} - `}
               {varTitle.join(' - ')}
             </span>
@@ -729,5 +729,8 @@ const styles = {
   stickyCell: scoped({
     minWidth: '260px',
     paddingRight: theme.spacing[3],
+  }),
+  mutedText: scoped({
+    color: theme.colors.text.subdued,
   }),
 };

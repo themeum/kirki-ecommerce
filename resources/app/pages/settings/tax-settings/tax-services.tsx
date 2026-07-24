@@ -64,7 +64,7 @@ const TaxServices = () => {
                           'kirki-ecommerce',
                         )}
                         type="xsm"
-                        style={{ color: '#878593' }}
+                        css={styles.mutedText}
                       />
                     )}
                     <ActionGroup
@@ -112,5 +112,8 @@ const styles = {
   }),
   hoverVisibleActive: css({
     visibility: 'visible',
-  })
+  }),
+  mutedText: scoped({
+    color: theme.colors.text.subdued,
+  }),
 };

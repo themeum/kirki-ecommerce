@@ -38,7 +38,7 @@ const SingleRow = ({
       <TableCell css={styles.productCell}>
         <Flex gap={12} style={{ alignItems: 'center' }}>
           <Thumbnail src={item?.product?.image?.url} size="small" />
-          <Flex direction="column" gap={4} style={{ color: '#878593' }}>
+          <Flex direction="column" gap={4} css={styles.mutedText}>
             <span>{item?.product?.name} </span>
             <span>{item?.name}</span>
           </Flex>
@@ -122,5 +122,8 @@ const styles = {
   profitCell: scoped({
     padding: theme.spacing[0],
     pointerEvents: 'none',
+  }),
+  mutedText: scoped({
+    color: theme.colors.text.subdued,
   }),
 };

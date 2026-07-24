@@ -207,7 +207,7 @@ const CollectionDetails = () => {
                       <Flex direction="column" gap={6}>
                         <Text
                           type="xsm"
-                          style={{ color: '#4D5157' }}
+                          css={styles.seoUrl}
                           header={
                             window.kirki_ecommerce.site_url +
                             ' › collections › ' +
@@ -217,11 +217,11 @@ const CollectionDetails = () => {
                         <Text
                           type="primary"
                           header={watchedSeoTitle || watchedTitle || ''}
-                          style={{ color: '#000091' }}
+                          css={styles.seoTitle}
                         />
                         <Text
                           type="xsm"
-                          style={{ color: '#616161' }}
+                          css={styles.seoDescription}
                           header={
                             watchedSeoDescription || watchedDescription || ''
                           }
@@ -238,9 +238,7 @@ const CollectionDetails = () => {
                     </Flex>
                   </CardContent>
                 </Card>
-                <Separator
-                  style={{ margin: `auto -${theme.spacing[4]}`, backgroundColor: '#EEEDF3' }}
-                />
+                <Separator css={styles.seoSeparator} />
                 <TextField
                   name="seo_title"
                   label={__('Title', 'kirki-ecommerce')}
@@ -268,6 +266,19 @@ export default CollectionDetails;
 const styles = {
   productPlaceholderCard: scoped({
     padding: theme.spacing[11],
+  }),
+  seoUrl: scoped({
+    color: theme.colors.icon.primary,
+  }),
+  seoTitle: scoped({
+    color: theme.colors.text.emphasis,
+  }),
+  seoDescription: scoped({
+    color: theme.colors.text.secondary,
+  }),
+  seoSeparator: scoped({
+    margin: `auto -${theme.spacing[4]}`,
+    backgroundColor: theme.colors.background.surfaceSubdued,
   }),
 };
 

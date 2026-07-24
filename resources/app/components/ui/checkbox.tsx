@@ -123,17 +123,17 @@ const styles = {
     cursor: 'pointer',
     padding: 0,
     margin: 0,
-    border: '1px solid #e4e3ea',
+    border: `1px solid ${theme.colors.border.default}`,
     borderRadius: theme.radius.sm,
-    backgroundColor: '#ffffff',
-    color: '#f3f3f7',
+    backgroundColor: theme.colors.background.surface,
+    color: theme.colors.background.surfaceTertiary,
     boxSizing: 'border-box',
     '&:focus-visible': {
       ...uiFocusRing(theme as Theme),
     },
     '&[data-state="checked"], &[data-state="indeterminate"]': {
-      backgroundColor: '#5641f3',
-      borderColor: '#5641f3',
+      backgroundColor: theme.colors.background.fillBrand,
+      borderColor: theme.colors.background.fillBrand,
     },
     '&:disabled': {
       opacity: 0.5,
@@ -143,6 +143,6 @@ const styles = {
   indicator: scoped({
     ...flexCenter(),
     display: 'flex',
-    color: '#f3f3f7',
+    color: theme.colors.background.surfaceTertiary,
   }),
 };

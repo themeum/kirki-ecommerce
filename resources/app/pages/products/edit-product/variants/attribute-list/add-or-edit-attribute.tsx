@@ -226,19 +226,11 @@ const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
             {!data && (
               <Flex direction="column" gap={8}>
                 <div>{__('Show in Product page as', 'kirki-ecommerce')}</div>
-                <Flex
-                  css={styles.typeSelector}
-                  style={{
-                    border: '1px solid #eeedf3',
-                    width: 'max-content',
-                  }}
-                >
+                <Flex css={styles.typeSelector}>
                   <Button
                     variant="outline"
                     size="lg"
-                    style={{
-                      borderColor: type === 'list' ? '#5641f3' : 'transparent',
-                    }}
+                    css={type === 'list' && styles.typeSelected}
                     onClick={() => handleOnTypeChange('list')}
                   >
                     <ListIcon />
@@ -247,10 +239,7 @@ const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
                   <Button
                     variant="outline"
                     size="lg"
-                    style={{
-                      borderColor:
-                        type === 'color' ? '#5641f3' : 'transparent',
-                    }}
+                    css={type === 'color' && styles.typeSelected}
                     onClick={() => handleOnTypeChange('color')}
                   >
                     <ColorPaletteIcon />
@@ -350,6 +339,11 @@ export default AddOrEditAttribute;
 const styles = {
   typeSelector: scoped({
     borderRadius: theme.radius.lg,
+    border: `1px solid ${theme.colors.background.surfaceSubdued}`,
+    width: 'max-content',
+  }),
+  typeSelected: scoped({
+    borderColor: theme.colors.background.fillBrand,
   }),
 };
 

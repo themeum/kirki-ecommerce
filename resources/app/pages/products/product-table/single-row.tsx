@@ -5,6 +5,8 @@ import Checkbox from '@/components/ui/checkbox';
 import Flex from '@/components/ui/flex';
 import { TableCell, TableRow } from '@/components/ui/table';
 import Thumbnail from '@/components/ui/thumbnail';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import type { BadgeType, MarkListHandlers, ProductListItem } from '@/types';
 
 type SingleRowProps = MarkListHandlers & {
@@ -23,7 +25,7 @@ const SingleRow = ({
   };
 
   return (
-    <TableRow key={item.id}>
+    <TableRow>
       <TableCell onlyCheckbox>
         <Checkbox
           value={isSelected(item.id)}
@@ -34,12 +36,12 @@ const SingleRow = ({
         <Flex gap={12} style={{ alignItems: 'center' }}>
           <Thumbnail src={item?.image ?? undefined} size="small" />
           <span
-            style={{ cursor: 'pointer' }}
+            css={styles.clickable}
             onClick={() => {
               handleItemClick(item.id);
             }}
           >
-            <span style={{ color: '#878593' }}>{item?.title} </span>
+            <span css={styles.mutedText}>{item?.title} </span>
           </span>
         </Flex>
       </TableCell>
@@ -57,3 +59,12 @@ const SingleRow = ({
 SingleRow.displayName = 'SingleRow';
 
 export default SingleRow;
+
+const styles = {
+  clickable: scoped({
+    cursor: 'pointer',
+  }),
+  mutedText: scoped({
+    color: theme.colors.text.subdued,
+  }),
+};

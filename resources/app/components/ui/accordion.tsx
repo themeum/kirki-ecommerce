@@ -218,7 +218,7 @@ const styles = {
     width: '397px',
     boxSizing: 'border-box',
     ...fontGeneralSettings(theme as Theme),
-    color: '#09090b',
+    color: theme.colors.text.primary,
   }),
   header: scoped({
     margin: 0,

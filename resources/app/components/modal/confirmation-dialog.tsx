@@ -47,19 +47,19 @@ const ConfirmationDialog = (props: ConfirmationDialogProps) => {
       confirmText: __('Leave', 'kirki-ecommerce'),
       confirmVariant: 'primary',
       icon: <Info size={20} aria-hidden="true" />,
-      iconBg: '#EBE8FE',
+      iconBg: theme.colors.background.fillSpecial2Secondary,
     },
     warning: {
       confirmText: __('Proceed', 'kirki-ecommerce'),
       confirmVariant: 'secondary',
       icon: <Info size={20} aria-hidden="true" />,
-      iconBg: '#EBE8FE',
+      iconBg: theme.colors.background.fillSpecial2Secondary,
     },
     delete: {
       confirmText: __('Delete', 'kirki-ecommerce'),
       confirmVariant: 'destructive',
       icon: <Trash2 size={20} aria-hidden="true" />,
-      iconBg: '#FFE5E4',
+      iconBg: theme.colors.background.fillCriticalSecondary,
     },
   };
 

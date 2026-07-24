@@ -22,6 +22,7 @@ import Text from '@/components/ui/text';
 import { useListParams } from '@/hooks';
 import { CloseIcon, ListFilter } from '@/icons';
 import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import { __, sprintf } from '@/wpi18n';
 
 import BrandFilter from '@/pages/products/product-table/filter-popup/brand-filter';
@@ -169,22 +170,14 @@ const FilterPopup = ({
         ) : null}
       </Flex>
       <DropdownMenuContent style={{ width: '288px', maxHeight: '522px' }}>
-        <Flex
-          style={{
-            top: '-4px',
-            position: 'sticky',
-            backgroundColor: 'white',
-            padding: `${theme.spacing[3]} ${theme.spacing[3]} ${theme.spacing[2]} ${theme.spacing[3]}`,
-            zIndex: '100',
-          }}
-        >
+        <Flex css={styles.header}>
           <Text header={__('Filter', 'kirki-ecommerce')} />
           <ActionGroup>
             <Button
               variant="ghost"
               size="icon"
               onClick={handleFilterClose}
-              style={{ color: theme.colors.text.primary }}
+              css={styles.closeButton}
             >
               <CloseIcon />
             </Button>
@@ -260,15 +253,7 @@ const FilterPopup = ({
           />
         </Flex>
 
-        <Flex
-          style={{
-            padding: `${theme.spacing[2]} ${theme.spacing[3]} ${theme.spacing[3]} ${theme.spacing[3]}`,
-            borderTop: '1px solid #E4E3E9',
-            bottom: '-4px',
-            position: 'sticky',
-            backgroundColor: 'white',
-          }}
-        >
+        <Flex css={styles.footer}>
           <ActionGroup>
             <Button variant="primary" size="sm" onClick={handleOnApplyFilter}>
               {__('Apply Filter', 'kirki-ecommerce')}
@@ -283,3 +268,23 @@ const FilterPopup = ({
 FilterPopup.displayName = 'FilterPopup';
 
 export default FilterPopup;
+
+const styles = {
+  header: scoped({
+    top: '-4px',
+    position: 'sticky',
+    backgroundColor: theme.colors.background.surface,
+    padding: `${theme.spacing[3]} ${theme.spacing[3]} ${theme.spacing[2]} ${theme.spacing[3]}`,
+    zIndex: 100,
+  }),
+  closeButton: scoped({
+    color: theme.colors.text.primary,
+  }),
+  footer: scoped({
+    padding: `${theme.spacing[2]} ${theme.spacing[3]} ${theme.spacing[3]} ${theme.spacing[3]}`,
+    borderTop: `1px solid ${theme.colors.border.default}`,
+    bottom: '-4px',
+    position: 'sticky',
+    backgroundColor: theme.colors.background.surface,
+  }),
+};

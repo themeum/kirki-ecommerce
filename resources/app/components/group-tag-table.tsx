@@ -52,6 +52,12 @@ const styles = {
   cardBottomRounded: scoped({
     borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.lg} ${theme.radius.lg}`,
   }),
+  cardBorder: scoped({
+    borderColor: theme.colors.border.alt,
+  }),
+  mutedText: scoped({
+    color: theme.colors.text.subdued,
+  }),
 };
 
 const GroupTagTable = (props: GroupTagTableProps) => {
@@ -126,10 +132,8 @@ const GroupTagTable = (props: GroupTagTableProps) => {
           css={[
             cardStyles.innerCard,
             hasSelect ? styles.cardBottomRounded : styles.cardAllRounded,
+            styles.cardBorder,
           ]}
-          style={{
-            borderColor: '#E6E6E6',
-          }}
         >
           <CardContent css={cardStyles.innerContent}>
           <Flex gap={8} direction="column">
@@ -147,7 +151,7 @@ const GroupTagTable = (props: GroupTagTableProps) => {
                     type="xsm"
                     leftIcon={groupDetails[groupName]?.icon}
                     subHeader={groupDetails[groupName]?.title}
-                    style={{ color: '#878593' }}
+                    css={styles.mutedText}
                   />
                   <Flex
                     gap={8}

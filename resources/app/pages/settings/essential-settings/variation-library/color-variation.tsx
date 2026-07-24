@@ -69,7 +69,7 @@ const ColorVariation = () => {
               <CardContent css={[cardStyles.largeContentPadded, styles.emptyContent]}>
                 <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
                   <ColorPaletteIcon />
-                  <span style={{ color: '#878593' }}>
+                  <span css={styles.mutedText}>
                     {__('No color added yet', 'kirki-ecommerce')}
                   </span>
                 </Flex>
@@ -113,5 +113,8 @@ const styles = {
   }),
   emptyContent: scoped({
     padding: `${theme.spacing[9]} 0`,
+  }),
+  mutedText: scoped({
+    color: theme.colors.text.subdued,
   }),
 };

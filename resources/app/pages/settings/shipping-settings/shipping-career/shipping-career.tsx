@@ -37,7 +37,7 @@ const ShippingCareer = (_props: ShippingCareerProps) => {
             <CardContent css={[cardStyles.innerDarkContent, styles.emptyStateContent]}>
               <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
                 <BoxOpenIcon />
-                <span style={{ color: '#878593' }}>
+                <span css={styles.mutedText}>
                   {__(
                     'Added shipping profiles will appear here',
                     'kirki-ecommerce',
@@ -58,7 +58,10 @@ const ShippingCareer = (_props: ShippingCareerProps) => {
 ShippingCareer.displayName = 'ShippingCareer';
 
 const styles = {
-  emptyStateContent: scoped({ padding: `${theme.spacing[9]} 0` })
+  emptyStateContent: scoped({ padding: `${theme.spacing[9]} 0` }),
+  mutedText: scoped({
+    color: theme.colors.text.subdued,
+  }),
 };
 
 export default ShippingCareer;

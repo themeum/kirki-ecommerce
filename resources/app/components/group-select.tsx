@@ -145,7 +145,8 @@ const GroupSelect = (props: GroupSelectProps) => {
                 <Label
                   text={String(option.heading)}
                   infoText={option?.infoText}
-                  style={{ ...labelFontStyle, color: '#878593' }}
+                  css={styles.headingLabel}
+                  style={labelFontStyle}
                 />
               </DropdownMenuLabel>
             ) : (
@@ -270,9 +271,12 @@ const styles = {
   }),
   footer: scoped({
     padding: `${theme.spacing[2]} ${theme.spacing[4]} ${theme.spacing[2]} ${theme.spacing[3]}`,
-    borderTop: '1px solid #E4E3E9',
+    borderTop: `1px solid ${theme.colors.border.default}`,
     bottom: 0,
     position: 'sticky',
-    backgroundColor: 'white',
+    backgroundColor: theme.colors.background.surface,
+  }),
+  headingLabel: scoped({
+    color: theme.colors.text.subdued,
   }),
 };

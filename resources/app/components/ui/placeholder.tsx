@@ -81,7 +81,7 @@ const styles = {
     height: '137px',
     width: '100%',
     borderRadius: theme.radius.md,
-    border: '1px dashed #e4e4e7',
+    border: `1px dashed ${theme.colors.border.gallery}`,
     ...flexCenter(),
     flexDirection: 'column',
     gap: theme.spacing[3],
@@ -90,7 +90,7 @@ const styles = {
   }),
   types: {
     primary: scoped({
-      backgroundColor: '#f7f7f7',
+      backgroundColor: theme.colors.background.placeholderSurface,
     }),
     secondary: scoped({
       backgroundColor: theme.colors.background.fillSpecial2Secondary,

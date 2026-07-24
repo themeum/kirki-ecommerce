@@ -173,6 +173,6 @@ const styles = {
     },
   }),
   rightText: scoped({
-    color: '#71717a',
+    color: theme.colors.text.muted,
   }),
 };

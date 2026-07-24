@@ -64,7 +64,7 @@ const cardStyles = {
     padding: theme.spacing[0],
   }),
   shadowCard: scoped({
-    boxShadow: '0px -1px 1px 0.5px #0000001a inset',
+    boxShadow: theme.shadow.sm,
     border: 'none',
   }),
   tartiaryCard: scoped({

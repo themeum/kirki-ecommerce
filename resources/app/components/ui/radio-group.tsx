@@ -74,16 +74,16 @@ const styles = {
     cursor: 'pointer',
     padding: 0,
     margin: 0,
-    border: '1px solid #4a4852',
+    border: `1px solid ${theme.colors.icon.primary}`,
     borderRadius: theme.radius.full,
     backgroundColor: 'transparent',
-    color: '#5641f3',
+    color: theme.colors.background.fillBrand,
     boxSizing: 'border-box',
     '&:focus-visible': {
       ...uiFocusRing(theme as Theme),
     },
     '&[data-state="checked"]': {
-      borderColor: '#5641f3',
+      borderColor: theme.colors.background.fillBrand,
     },
     '&:disabled': {
       opacity: 0.5,
@@ -93,6 +93,6 @@ const styles = {
   indicator: scoped({
     ...flexCenter(),
     display: 'flex',
-    color: '#5641f3',
+    color: theme.colors.background.fillBrand,
   }),
 };

@@ -226,7 +226,9 @@ const styles = {
     position: 'fixed',
     inset: 0,
     zIndex: 1000,
-    background: '#1c1b1dcc',
+    background: 'color-mix(in oklab, #000 10%, transparent)',
+    backdropFilter: 'blur(4px)',
+    WebkitBackdropFilter: 'blur(4px)',
     '&[data-state="open"]': {
       animation: `${dialogOverlayIn} 150ms ease`,
     },

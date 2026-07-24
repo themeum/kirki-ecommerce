@@ -164,7 +164,7 @@ const TaxRegions = (props: TaxRegionsProps) => {
           <CardContent css={[cardStyles.innerDarkContent, styles.emptyStateContent]}>
             <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
               <LocationIcon />
-              <span style={{ color: '#878593' }}>
+              <span css={styles.mutedText}>
                 {__('Added tax zones will appear here', 'kirki-ecommerce')}
               </span>
             </Flex>
@@ -263,7 +263,10 @@ export default TaxRegions;
 
 const styles = {
   emptyStateContent: scoped({ padding: `${theme.spacing[9]} 0` }),
+  mutedText: scoped({
+    color: theme.colors.text.subdued,
+  }),
   regionCard: scoped({
     padding: `${theme.spacing[3]} ${theme.spacing[4]}`,
-  })
+  }),
 };
