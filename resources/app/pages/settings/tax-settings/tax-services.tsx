@@ -55,7 +55,7 @@ const TaxServices = () => {
                       <Text variant="small" css={styles.mediumHeader}>Stripe Tax</Text>
                     </Flex>
                     {index === 1 ? (
-                      <Badge text="Active" type="published" />
+                      <Badge variant="success">Active</Badge>
                     ) : (
                       <Text variant="small" color="subdued" css={styles.mutedText}>{__(
                           'Calculate and collect tax globally in your Kirki store',

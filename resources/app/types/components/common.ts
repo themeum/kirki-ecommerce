@@ -69,18 +69,6 @@ type ButtonState = 'loading' | 'disabled' | 'active' | 'hover' | '';
 type InputState = 'muted' | 'disabled' | 'active' | '';
 type SelectState = 'disabled' | 'active' | '';
 
-type BadgeType =
-  | 'published'
-  | 'secondary'
-  | 'trashed'
-  | 'draft'
-  | 'pending'
-  | 'processing'
-  | 'onHold'
-  | 'refunded'
-  | 'requested'
-  | 'default';
-
 type AlertType = 'success' | 'fail' | 'pending';
 type HeadingType = 'primary' | 'secondary' | 'tertiary' | '';
 type LabelType = 'error' | '';
@@ -113,7 +101,6 @@ type PaginationData = {
 
 export type {
   AlertType,
-  BadgeType,
   ButtonSize,
   ButtonState,
   ButtonType,

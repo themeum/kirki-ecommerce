@@ -12,7 +12,7 @@ const Payment = () => {
     <Flex direction="column" gap={4}>
       <Flex justify="space-between">
         <Text weight="semibold">Payment</Text>
-        <Badge type="pending" text="UNPAID" />
+        <Badge variant="warning">UNPAID</Badge>
       </Flex>
       <Card css={[cardStyles.innerCard, styles.dashedCard]}>
         <CardContent css={cardStyles.innerContent}>

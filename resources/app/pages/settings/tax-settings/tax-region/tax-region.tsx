@@ -187,10 +187,9 @@ const TaxRegions = (props: TaxRegionsProps) => {
                             {item?.name}
                           </Text>
                           {!item?.is_enabled && (
-                            <Badge
-                              text={__('Inactive', 'kirki-ecommerce')}
-                              type="trashed"
-                            />
+                            <Badge variant="destructive">
+                              {__('Inactive', 'kirki-ecommerce')}
+                            </Badge>
                           )}
                         </Flex>
                         <Text variant="small" color="secondary">

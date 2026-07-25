@@ -174,10 +174,9 @@ const GroupSelect = (props: GroupSelectProps) => {
                     option.title
                   )}
                   {option?.isRequired && (
-                    <Badge
-                      text={__('Required', 'kirki-ecommerce')}
-                      type="trashed"
-                    />
+                    <Badge variant="destructive">
+                      {__('Required', 'kirki-ecommerce')}
+                    </Badge>
                   )}
                 </Flex>
               </DropdownMenuItem>

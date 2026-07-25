@@ -146,23 +146,25 @@ const GroupOptionCard = (props: GroupOptionCardProps) => {
               )}
               {item?.badge1 && (
                 <Badge
-                  text={item.badge1}
-                  type={item?.selected === true ? 'requested' : 'default'}
-                />
+                  variant={item?.selected === true ? 'requested' : 'default'}
+                >
+                  {item.badge1}
+                </Badge>
               )}
-              {item?.badge2 && <Badge text={item.badge2} type="default" />}
+              {item?.badge2 && (
+                <Badge variant="default">{item.badge2}</Badge>
+              )}
               {(item?.is_default || item?.is_base) && (
-                <Badge
-                  text={
-                    item?.is_default
-                      ? __('Default', 'kirki-ecommerce')
-                      : __('Base currency', 'kirki-ecommerce')
-                  }
-                  type={'refunded'}
-                />
+                <Badge variant="secondary">
+                  {item?.is_default
+                    ? __('Default', 'kirki-ecommerce')
+                    : __('Base currency', 'kirki-ecommerce')}
+                </Badge>
               )}
               {item?.is_enabled === false ? (
-                <Badge text={__('Inactive', 'kirki-ecommerce')} type="trashed" />
+                <Badge variant="destructive">
+                  {__('Inactive', 'kirki-ecommerce')}
+                </Badge>
               ) : (
                 ''
               )}

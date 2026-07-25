@@ -134,10 +134,9 @@ const ManualPayment = (props: ManualPaymentProps) => {
               {sprintf(__('%s', 'kirki-ecommerce'), item?.name || '')}
             </Text>
             {!item?.is_enabled && (
-              <Badge
-                text={__('Inactive', 'kirki-ecommerce')}
-                type="trashed"
-              />
+              <Badge variant="destructive">
+                {__('Inactive', 'kirki-ecommerce')}
+              </Badge>
             )}
           </Flex>
           <ActionGroup>

@@ -53,7 +53,7 @@ const OrderDetails = () => {
         hasBack
         sticky
       >
-        <Badge text="Pending" type="pending" />
+        <Badge variant="warning">Pending</Badge>
       </PageHeading>
       <Container>
         <Flex gap={4}>

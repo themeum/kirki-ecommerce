@@ -90,7 +90,9 @@ const BulkEditPage = () => {
           </>
         }
       >
-        <Badge type="secondary" text={__('Unsaved Changes', 'kirki-ecommerce')} />
+        <Badge variant="secondary">
+          {__('Unsaved Changes', 'kirki-ecommerce')}
+        </Badge>
       </PageHeading>
 
       <FullPageContainer scrollable>

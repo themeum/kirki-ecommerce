@@ -64,7 +64,7 @@ const OrderTable = () => {
               <Flex direction="column" gap={1}>
                 <Flex gap={1} align="center">
                   <Text variant="small" color="subdued"># 029433</Text>
-                  <Badge type="draft" text="Manual Order" />
+                  <Badge variant="secondary">Manual Order</Badge>
                 </Flex>
                 <Text variant="small">by Melanie Martinez</Text>
               </Flex>
@@ -86,7 +86,7 @@ const OrderTable = () => {
               </Flex>
             </TableCell>
             <TableCell>
-              <Badge type="pending" text="Pending" />
+              <Badge variant="warning">Pending</Badge>
             </TableCell>
             <TableCell>
               <Flex gap={3}>

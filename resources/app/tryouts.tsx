@@ -43,6 +43,7 @@ import TabsPreview from '@/preview-pages/tabs-preview';
 import TagManagerPreview from '@/preview-pages/tag-manager-preview';
 import ThumbnailPreview from '@/preview-pages/thumbnail-preview';
 import ToggleButtonPreview from '@/preview-pages/toggle-button-preview';
+import UiBadgePreview from '@/preview-pages/ui-badge-preview';
 import UiButtonPreview from '@/preview-pages/ui-button-preview';
 import UiCheckboxPreview from '@/preview-pages/ui-checkbox-preview';
 import UiFormPreview from '@/preview-pages/ui-form-preview';
@@ -90,6 +91,14 @@ const Tryouts = () => {
             </CardHeader>
             <CardContent>
               <UiButtonPreview />
+            </CardContent>
+          </Card>
+          <Card css={cardStyles.formCard}>
+            <CardHeader>
+              <CardTitle>Badge</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <UiBadgePreview />
             </CardContent>
           </Card>
           <Card css={cardStyles.formCard}>

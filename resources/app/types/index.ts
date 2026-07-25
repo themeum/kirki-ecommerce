@@ -109,7 +109,6 @@ export type {
   ButtonState,
   InputState,
   SelectState,
-  BadgeType,
   AlertType,
   HeadingType,
   LabelType,

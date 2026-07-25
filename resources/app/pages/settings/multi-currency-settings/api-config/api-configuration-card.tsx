@@ -64,11 +64,12 @@ const ApiConfigurationCard = ({
               <Flex gap={2} align="center">
                 <FlagIcon />
                 <Text weight="semibold">{selectedAPI}</Text>
-                <Badge
-                  text={'Configured'}
-                  type="published"
-                  leftIcon={<RadioTickIcon />}
-                />
+                <Badge variant="success">
+                  <span data-icon="inline-start" aria-hidden="true">
+                    <RadioTickIcon />
+                  </span>
+                  Configured
+                </Badge>
               </Flex>
               <Text color="secondary">{sprintf(
                   __(`Last tested: %s`, 'kirki-ecommerce'),

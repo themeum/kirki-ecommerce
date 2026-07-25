@@ -7,7 +7,8 @@ import { TableCell, TableRow } from '@/components/ui/table';
 import Thumbnail from '@/components/ui/thumbnail';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
-import type { BadgeType, MarkListHandlers, ProductListItem } from '@/types';
+import type { MarkListHandlers, ProductListItem } from '@/types';
+import { getBadgeVariantForStatus } from '@/utils/badge-status';
 
 type SingleRowProps = MarkListHandlers & {
   item: ProductListItem;
@@ -49,7 +50,9 @@ const SingleRow = ({
       <TableCell>{item?.inventory}</TableCell>
       <TableCell>{item?.price}</TableCell>
       <TableCell>
-        <Badge text={item?.status} type={item?.status as BadgeType} />
+        <Badge variant={getBadgeVariantForStatus(item?.status ?? '')}>
+          {item?.status}
+        </Badge>
       </TableCell>
       <TableCell>{item?.created_at}</TableCell>
     </TableRow>

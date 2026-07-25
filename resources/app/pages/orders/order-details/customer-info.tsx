@@ -48,7 +48,7 @@ const CustomerInfo = () => {
           <EmailIcon style={{ opacity: '0.5' }} />
           <Flex direction="column" gap={2}>
             <Text>pabloesco.@gmail.com</Text>
-            <Badge type="draft" text="Awaiting Verification" />
+            <Badge variant="secondary">Awaiting Verification</Badge>
           </Flex>
         </Flex>
 

@@ -340,6 +340,12 @@ const theme = {
       letterSpacing: '0',
       defaultWeight: 'normal',
     }),
+    micro: createTypographyStyle({
+      fontSize: '10px',
+      lineHeight: '14px',
+      letterSpacing: '0',
+      defaultWeight: 'normal',
+    }),
     large: createTypographyStyle({
       fontSize: '18px',
       lineHeight: '28px',
@@ -395,6 +401,6 @@ export type {
   PrimitiveColorKey,
   SpacingKey,
   TypographyStyle,
-  TypographyWeight,
+  TypographyWeight
 };
 

@@ -63,10 +63,9 @@ const OptionAccordion = (props: OptionAccordionProps) => {
                     {header}
                   </Text>
                   {!state && (
-                    <Badge
-                      text={__('Inactive', 'kirki-ecommerce')}
-                      type="trashed"
-                    />
+                    <Badge variant="destructive">
+                      {__('Inactive', 'kirki-ecommerce')}
+                    </Badge>
                   )}
                 </Flex>
                 <Text variant="small" color="secondary">
