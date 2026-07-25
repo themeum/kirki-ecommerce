@@ -1,18 +1,17 @@
 import type { ReactNode } from 'react';
-
 import {
-  AdvancedSettingsIcon,
-  BoxIcon,
-  ClipboardListIcon,
-  CurrencyIcon,
-  EmailIcon,
-  HomeIcon,
-  LicenseKeyIcon,
-  PaymentIcon,
-  SnowflakeIcon,
-  TaxIcon,
-  TruckIcon,
-} from '@/icons';
+  CircleDollarSign,
+  CreditCard,
+  Home,
+  KeyRound,
+  Mail,
+  Package,
+  Percent,
+  Settings2,
+  Snowflake,
+  Truck,
+} from 'lucide-react';
+
 import { setUnsavedDataStatus as setStatus } from '@/libs/unsaved-store';
 import type { SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
@@ -22,6 +21,7 @@ export type SettingsNavItem = {
   icon: ReactNode;
   header: string;
   subHeader: string;
+  disabled?: boolean;
 };
 
 type SearchableItem = {
@@ -170,61 +170,51 @@ export const getSearchedCountries = <T extends SearchableItem>(
   return getNestedSearchedValue(searchValue, countryList, ['states']);
 };
 
+const navIconProps = { size: 16, strokeWidth: 1.5, 'aria-hidden': true as const };
+
 export const storeManagementSettings: SettingsNavItem[] = [
   {
     link: '/settings/general',
-    icon: <HomeIcon />,
+    icon: <Home {...navIconProps} />,
     header: __('General', 'kirki-ecommerce'),
     subHeader: __('Basic settings of your store', 'kirki-ecommerce'),
   },
   {
     link: '/settings/products',
-    icon: <BoxIcon />,
+    icon: <Package {...navIconProps} />,
     header: __('Products', 'kirki-ecommerce'),
     subHeader: __('Product-related configurations', 'kirki-ecommerce'),
-  },
-  {
-    link: '',
-    icon: <ClipboardListIcon />,
-    header: __('Orders', 'kirki-ecommerce'),
-    subHeader: __('Order-related configurations', 'kirki-ecommerce'),
-  },
-  {
-    link: '/settings/checkout',
-    icon: <ClipboardListIcon />,
-    header: __('Checkout', 'kirki-ecommerce'),
-    subHeader: __('Text needs to be updated', 'kirki-ecommerce'),
   },
 ];
 
 export const businessOperationSettings: SettingsNavItem[] = [
   {
     link: '/settings/shipping',
-    icon: <TruckIcon />,
+    icon: <Truck {...navIconProps} />,
     header: __('Shipping', 'kirki-ecommerce'),
     subHeader: __('Delivery, pickup, and logistics setup', 'kirki-ecommerce'),
   },
   {
     link: '/settings/currency',
-    icon: <CurrencyIcon />,
+    icon: <CircleDollarSign {...navIconProps} />,
     header: __('Currency', 'kirki-ecommerce'),
-    subHeader: __('Currency setup', 'kirki-ecommerce'),
+    subHeader: __('Tax zones and rules setup', 'kirki-ecommerce'),
   },
   {
     link: '/settings/tax',
-    icon: <TaxIcon />,
+    icon: <Percent {...navIconProps} />,
     header: __('Tax', 'kirki-ecommerce'),
     subHeader: __('Tax zones and rules setup', 'kirki-ecommerce'),
   },
   {
     link: '/settings/payments',
-    icon: <PaymentIcon />,
+    icon: <CreditCard {...navIconProps} />,
     header: __('Payments', 'kirki-ecommerce'),
     subHeader: __('Configure how you accept payments', 'kirki-ecommerce'),
   },
   {
     link: '/settings/email',
-    icon: <EmailIcon />,
+    icon: <Mail {...navIconProps} />,
     header: __('Emails', 'kirki-ecommerce'),
     subHeader: __(
       'Order confirmations, receipts, and other customer emails',
@@ -236,21 +226,23 @@ export const businessOperationSettings: SettingsNavItem[] = [
 export const advancedSettings: SettingsNavItem[] = [
   {
     link: '',
-    icon: <AdvancedSettingsIcon />,
+    icon: <Settings2 {...navIconProps} />,
     header: __('Advanced', 'kirki-ecommerce'),
     subHeader: __('Advanced settings of your store', 'kirki-ecommerce'),
+    disabled: true,
   },
   {
     link: '/settings/essentials',
-    icon: <SnowflakeIcon />,
+    icon: <Snowflake {...navIconProps} />,
     header: __('Essentials', 'kirki-ecommerce'),
     subHeader: __('Advanced settings of your store', 'kirki-ecommerce'),
   },
   {
     link: '',
-    icon: <LicenseKeyIcon />,
+    icon: <KeyRound {...navIconProps} />,
     header: __('License', 'kirki-ecommerce'),
     subHeader: __('Basic settings of your store', 'kirki-ecommerce'),
+    disabled: true,
   },
 ];
 
