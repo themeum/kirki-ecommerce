@@ -8,6 +8,7 @@ import {
 } from '@/components/ui/accordion';
 import Badge from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
+import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
@@ -36,6 +37,9 @@ const OptionAccordion = (props: OptionAccordionProps) => {
   } = props;
   const [isHovered, setIsHovered] = useState(false);
 
+  const isEmphasis = Boolean(variant === 'shipping' && state && isHovered);
+  const headerColor = !state ? 'disabled' : isEmphasis ? 'emphasis' : 'primary';
+
   return (
     <div css={styles.wrapper}>
       <Accordion
@@ -47,19 +51,28 @@ const OptionAccordion = (props: OptionAccordionProps) => {
         <AccordionItem>
           <AccordionTrigger
             css={styles.trigger}
-            gap={16}
+            gap={4}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
           >
-            <Text
-              header={header}
-              subHeader={subHeader}
-              style={{ gap: '6px' }}
-              leftIcon={leftIcon}
-              badge={!state && <Badge text={__('Inactive', 'kirki-ecommerce')} type="trashed" />}
-              type={!state ? 'disabled' : 'secondary'}
-              emphasis={variant === 'shipping' && state && isHovered}
-            />
+            <Flex gap={2} align="center">
+              {leftIcon}
+              <Flex direction="column" gap={2}>
+                <Flex gap={2} align="center">
+                  <Text weight="medium" color={headerColor}>
+                    {header}
+                  </Text>
+                  {!state && (
+                    <Badge variant="destructive">
+                      {__('Inactive', 'kirki-ecommerce')}
+                    </Badge>
+                  )}
+                </Flex>
+                <Text variant="small" color="secondary">
+                  {subHeader}
+                </Text>
+              </Flex>
+            </Flex>
           </AccordionTrigger>
           <AccordionContent>
             <Card css={[cardStyles.darkCard, styles.contentCard]}>
@@ -83,7 +96,7 @@ const styles = {
     width: '100%',
   }),
   trigger: scoped({
-    padding: `${theme.spacing.lg} ${theme.spacing['2xl']}`,
+    padding: `${theme.spacing[3]} ${theme.spacing[4]}`,
   }),
   contentCard: scoped({
     borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.lg} ${theme.radius.lg}`,
@@ -91,4 +104,3 @@ const styles = {
     flexDirection: 'column',
   }),
 };
-

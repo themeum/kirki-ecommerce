@@ -96,7 +96,7 @@ const AddVariationPopup = ({
         </DialogHeader>
         <Form {...form}>
           <DialogBody>
-            <Flex direction="column" gap={16}>
+            <Flex direction="column" gap={4}>
               <TextField
                 name="name"
                 label={__('Title', 'kirki-ecommerce')}
@@ -108,12 +108,11 @@ const AddVariationPopup = ({
             </Flex>
           </DialogBody>
           <DialogFooter>
-            <Button variant="outline" size="sm" onClick={handleClosePopup}>
+            <Button variant="outline" onClick={handleClosePopup}>
               {__('Cancel', 'kirki-ecommerce')}
             </Button>
             <Button
               variant="primary"
-              size="sm"
               loading={createMutation.isPending}
               disabled={buttonState === 'disabled'}
               onClick={form.handleSubmit(handleSubmit)}

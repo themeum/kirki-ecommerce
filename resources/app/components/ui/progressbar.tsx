@@ -92,8 +92,8 @@ const ProgressBar = forwardRef<HTMLDivElement, ProgressBarProps>(
     }, []);
 
     return (
-      <Flex ref={ref} direction="column" gap={16} style={style}>
-        <Flex style={{ justifyContent: 'space-between', alignItems: 'center' }}>
+      <Flex ref={ref} direction="column" gap={4} style={style}>
+        <Flex justify="space-between" align="center">
           {label && <Label style={labelStyle}>{label}</Label>}
           {rightText && <span css={styles.rightText}>{rightText}</span>}
         </Flex>
@@ -173,6 +173,6 @@ const styles = {
     },
   }),
   rightText: scoped({
-    color: '#71717a',
+    color: theme.colors.text.muted,
   }),
 };

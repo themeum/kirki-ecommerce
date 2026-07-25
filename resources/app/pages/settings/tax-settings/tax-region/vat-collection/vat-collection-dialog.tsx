@@ -1,5 +1,5 @@
 import { useEffect, type ReactNode } from 'react';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import TextField from '@/components/form/text-field';
@@ -15,13 +15,11 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
+  Field,
+  FieldError,
+  FieldLabel,
+} from '@/components/ui/field';
+import { Form } from '@/components/ui/form';
 import {
   Select,
   SelectContent,
@@ -128,23 +126,25 @@ const VatCollectionPopup = (props: VatCollectionPopupProps) => {
         </DialogHeader>
         <Form {...form}>
           <DialogBody>
-            <FormField
+            <Controller
               control={form.control}
               name="state"
               render={({ field, fieldState }) => (
-                <FormItem>
-                  <FormLabel>
+                <Field data-invalid={fieldState.invalid || undefined}>
+                  <FieldLabel htmlFor="state">
                     {__('Select country', 'kirki-ecommerce')}
-                  </FormLabel>
+                  </FieldLabel>
                   <Select
                     value={field.value ? String(field.value) : ''}
                     onValueChange={(value) => field.onChange(value)}
                   >
-                    <FormControl>
-                      <SelectTrigger error={Boolean(fieldState.error)}>
-                        <SelectValue placeholder={__('Select', 'kirki-ecommerce')} />
-                      </SelectTrigger>
-                    </FormControl>
+                    <SelectTrigger
+                      id="state"
+                      error={Boolean(fieldState.error)}
+                      aria-invalid={fieldState.invalid}
+                    >
+                      <SelectValue placeholder={__('Select', 'kirki-ecommerce')} />
+                    </SelectTrigger>
                     <SelectContent>
                       {statesOption.map((option) => (
                         <SelectItem
@@ -157,8 +157,10 @@ const VatCollectionPopup = (props: VatCollectionPopupProps) => {
                       ))}
                     </SelectContent>
                   </Select>
-                  <FormMessage />
-                </FormItem>
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
               )}
             />
             <TextField
@@ -169,13 +171,12 @@ const VatCollectionPopup = (props: VatCollectionPopupProps) => {
           </DialogBody>
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="outline" size="sm">
+              <Button variant="outline">
                 {__('Cancel', 'kirki-ecommerce')}
               </Button>
             </DialogClose>
             <Button
               variant="primary"
-              size="sm"
               onClick={form.handleSubmit(handleSubmit)}
               disabled={buttonState}
             >

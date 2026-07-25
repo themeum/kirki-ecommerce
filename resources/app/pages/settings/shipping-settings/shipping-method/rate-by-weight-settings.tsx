@@ -6,7 +6,7 @@ import {
   CardContent,
 } from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
-import { FormFieldRow } from '@/components/ui/form';
+import { Field, FieldLabel } from '@/components/ui/field';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
 import Textarea from '@/components/ui/textarea';
@@ -78,8 +78,8 @@ const RateByWeightSettings = ({
   };
 
   return (
-    <Flex direction="column" gap={16}>
-      <Flex direction="column" gap={8}>
+    <Flex direction="column" gap={4}>
+      <Flex direction="column" gap={2}>
         <Label htmlFor="rate-by-weight-description">
           {__('Pickup Instructions', 'kirki-ecommerce')}
         </Label>
@@ -95,9 +95,9 @@ const RateByWeightSettings = ({
         <CardContent>
 
         <Grid columns={3}>
-        <Text header={__('Weight Range (kg)', 'kirki-ecommerce')} />
+        <Text>{__('Weight Range (kg)', 'kirki-ecommerce')}</Text>
         <Text />
-        <Text header={__('Rate', 'kirki-ecommerce')} />
+        <Text>{__('Rate', 'kirki-ecommerce')}</Text>
         </Grid>
         {ranges?.map((range, index) => (
         <Grid columns={3} key={index}>
@@ -141,31 +141,31 @@ const RateByWeightSettings = ({
         </CardContent>
       </Card>
 
-      <FormFieldRow>
+      <Field orientation="horizontal">
         <Checkbox
           id="rate-by-weight-is-taxable"
           checked={dataObj?.['is_taxable'] as boolean}
           onCheckedChange={(checked) => handleOnChange(checked === true, 'is_taxable')}
         />
-        <Label htmlFor="rate-by-weight-is-taxable">
+        <FieldLabel htmlFor="rate-by-weight-is-taxable">
           {__('Tax applies to the shipping charge', 'kirki-ecommerce')}
-        </Label>
-      </FormFieldRow>
-      <FormFieldRow>
+        </FieldLabel>
+      </Field>
+      <Field orientation="horizontal">
         <Checkbox
           id="rate-by-weight-has-free-shipping"
           checked={hasFreeShipping}
           onCheckedChange={() => setHasFreeShipping(!hasFreeShipping)}
         />
-        <Label htmlFor="rate-by-weight-has-free-shipping">
+        <FieldLabel htmlFor="rate-by-weight-has-free-shipping">
           {__(
             'Offer free shipping when a customer buys over a certain amount',
             'kirki-ecommerce',
           )}
-        </Label>
-      </FormFieldRow>
+        </FieldLabel>
+      </Field>
       {hasFreeShipping && (
-        <Flex direction="column" gap={8}>
+        <Flex direction="column" gap={2}>
           <Label htmlFor="rate-by-weight-amount">
             {__('Amount', 'kirki-ecommerce')}
           </Label>
@@ -188,7 +188,7 @@ export default RateByWeightSettings;
 
 const styles = {
   textarea: scoped({
-    padding: `${theme.spacing.md} ${theme.spacing.lg}`,
+    padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
     minHeight: '108px',
   }),
   rangesCard: scoped({
@@ -198,7 +198,7 @@ const styles = {
   rateRow: scoped({
     display: 'flex',
     alignItems: 'center',
-    gap: theme.spacing['2xl'],
+    gap: theme.spacing[4],
     '&:hover [data-hover-reveal]': {
       opacity: 1,
       visibility: 'visible',
@@ -206,7 +206,7 @@ const styles = {
     },
   }),
   deleteButton: scoped({
-    padding: theme.spacing.xs,
+    padding: theme.spacing[1],
     opacity: 0,
     display: 'none',
     visibility: 'hidden',

@@ -17,7 +17,7 @@ const CurrencyFormatSettings = () => {
   return (
     <Card css={cardStyles.innerCard}>
       <CardContent css={cardStyles.innerContent}>
-        <Flex direction="column" gap={16}>
+        <Flex direction="column" gap={4}>
           <SelectField
             name="currency_format"
             label={__('Currency format', 'kirki-ecommerce')}

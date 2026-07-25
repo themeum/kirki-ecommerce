@@ -193,7 +193,7 @@ const TaxRulesModal = (props: TaxRulesModalProps) => {
         {from !== 'edit' && (
           <DialogHeader>
             <DialogTitle>
-              <Flex gap={8} style={{ alignItems: 'center' }}>
+              <Flex gap={2} align="center">
                 <LighteningIcon />
                 {__('New Tax Rules', 'kirki-ecommerce')}
               </Flex>
@@ -202,8 +202,8 @@ const TaxRulesModal = (props: TaxRulesModalProps) => {
         )}
         <Form {...form}>
           <DialogBody>
-            <Flex direction={'column'} gap={16}>
-              <Flex direction={'column'} gap={8}>
+            <Flex direction={'column'} gap={4}>
+              <Flex direction={'column'} gap={2}>
                   {conditions?.map((row, index) => (
                     <ConditionRow
                       key={row.id}
@@ -219,8 +219,8 @@ const TaxRulesModal = (props: TaxRulesModalProps) => {
                     />
                   ))}
               </Flex>
-              <Flex direction={'column'} gap={8}>
-                <Text header={__('THEN', 'kirki-ecommerce')} />
+              <Flex direction={'column'} gap={2}>
+                <Text>{__('THEN', 'kirki-ecommerce')}</Text>
                 <Grid columns={2}>
                   <SelectField name="action_type" options={actionOptions} />
                   {selectedAction === 'set_tax_rate' && (
@@ -236,14 +236,12 @@ const TaxRulesModal = (props: TaxRulesModalProps) => {
           <DialogFooter>
             <Button
               variant="secondary"
-              size="sm"
               onClick={() => setShowModal(false)}
             >
               {__('Cancel', 'kirki-ecommerce')}
             </Button>
             <Button
               variant="primary"
-              size="sm"
               onClick={form.handleSubmit(handleSubmit)}
             >
               {from === 'edit'

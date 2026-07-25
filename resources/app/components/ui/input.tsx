@@ -2,7 +2,7 @@ import { type SerializedStyles, type Theme } from '@emotion/react';
 import { forwardRef, type ComponentPropsWithoutRef } from 'react';
 
 import { theme } from '@/theme';
-import { fontGeneralSettings, scoped, uiFocusRing } from '@/theme/mixins';
+import { scoped, uiFocusRing } from '@/theme/mixins';
 
 type InputProps = Omit<
   ComponentPropsWithoutRef<'input'>,
@@ -51,9 +51,9 @@ const styles = {
     backgroundColor: theme.colors.background.fill,
     border: `1px solid ${theme.colors.border.default}`,
     borderRadius: theme.radius.lg,
-    padding: `${theme.spacing.xs} ${theme.spacing.lg}`,
+    padding: `${theme.spacing[1]} ${theme.spacing[3]}`,
     boxSizing: 'border-box',
-    ...fontGeneralSettings(theme as Theme),
+    ...theme.typography.paragraph(),
     cursor: 'text',
     '&::placeholder': {
       color: theme.colors.text.secondary,
@@ -85,7 +85,7 @@ const styles = {
       MozAppearance: 'textfield',
       '&::-webkit-inner-spin-button, &::-webkit-outer-spin-button': {
         WebkitAppearance: 'none',
-        margin: theme.spacing.none,
+        margin: theme.spacing[0],
       },
     },
     '&[type="search"]': {

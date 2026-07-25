@@ -22,9 +22,9 @@ const Settings = () => {
     title: string,
     settingsList: SettingsNavItem[],
   ) => (
-    <Flex direction="column" gap={8}>
-      <Text subHeader={title} type="xsm" />
-      <Flex direction="column" gap={2} css={styles.settingsCardWrapper}>
+    <Flex direction="column" gap={2}>
+      <Text variant="small" color="subdued">{title}</Text>
+      <Flex direction="column" gap={1} css={styles.settingsCardWrapper}>
         {settingsList.map((item, index) => (
           <SettingsItem key={index} {...item} />
         ))}
@@ -44,7 +44,7 @@ const Settings = () => {
       <Container size="sm">
         <Card css={[cardStyles.shadowCard, cardStyles.pageCard]}>
           <CardContent css={styles.pageContent}>
-            <Flex direction="column" gap={24}>
+            <Flex direction="column" gap={6}>
               <Searchbox
                 onChange={() => {
                   // @todo: will be implemented later
@@ -68,7 +68,7 @@ export default Settings;
 
 const styles = {
   pageContent: scoped({
-    padding: `${theme.spacing['2xl']} ${theme.spacing.lg}`,
+    padding: `${theme.spacing[4]} ${theme.spacing[3]}`,
   }),
   settingsCardWrapper: scoped({
     alignItems: 'center',
@@ -76,15 +76,15 @@ const styles = {
       borderRadius: theme.radius.none,
       height: '56px',
       transition: 'all 0.3s ease',
-      padding: `${theme.spacing.lg} ${theme.spacing.md}`,
+      padding: `${theme.spacing[3]} ${theme.spacing[2]}`,
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
-      '&:first-child': {
+      '&:first-of-type': {
         borderTopLeftRadius: theme.radius.xl,
         borderTopRightRadius: theme.radius.xl,
       },
-      '&:last-child': {
+      '&:last-of-type': {
         borderBottomLeftRadius: theme.radius.xl,
         borderBottomRightRadius: theme.radius.xl,
       },

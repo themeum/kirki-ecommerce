@@ -15,6 +15,9 @@ import { __ } from '@/wpi18n';
 import BulkEditTable from '@/pages/bulk-edit/bulk-edit-table/bulk-edit-table';
 import { allTableHeaders } from '@/pages/bulk-edit/utils';
 
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
+
 const BulkEditPage = () => {
   const [searchParams] = useSearchParams();
   const ids = searchParams.get('ids')?.split(',') ?? [];
@@ -47,12 +50,7 @@ const BulkEditPage = () => {
     <>
       <PageHeading
         text={__('Bulk Edit', 'kirki-ecommerce')}
-        style={{
-          padding: '16px 12px',
-          backgroundColor: '#ffffff',
-          borderBottom: '1px solid #f3f3f7',
-          columnGap: '8px',
-        }}
+        css={styles.heading}
         size="fullWidth"
         hasBack
         noMargin
@@ -79,14 +77,12 @@ const BulkEditPage = () => {
             />
             <Button
               variant="secondary"
-              size="sm"
               onClick={() => window.history.back()}
             >
               {__('Cancel', 'kirki-ecommerce')}
             </Button>
             <Button
               variant="primary"
-              size="sm"
               onClick={handleProductBulkSave}
             >
               {__('Save', 'kirki-ecommerce')}
@@ -94,7 +90,9 @@ const BulkEditPage = () => {
           </>
         }
       >
-        <Badge type="secondary" text={__('Unsaved Changes', 'kirki-ecommerce')} />
+        <Badge variant="secondary">
+          {__('Unsaved Changes', 'kirki-ecommerce')}
+        </Badge>
       </PageHeading>
 
       <FullPageContainer scrollable>
@@ -119,3 +117,12 @@ const BulkEdit = () => (
 BulkEdit.displayName = 'BulkEdit';
 
 export default BulkEdit;
+
+const styles = {
+  heading: scoped({
+    padding: `${theme.spacing[4]} ${theme.spacing[3]}`,
+    backgroundColor: theme.colors.background.surface,
+    borderBottom: `1px solid ${theme.colors.background.surfaceTertiary}`,
+    columnGap: theme.spacing[2],
+  }),
+};

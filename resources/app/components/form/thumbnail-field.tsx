@@ -1,6 +1,7 @@
 import { type SerializedStyles } from '@emotion/react';
 import type { ComponentProps, ReactNode } from 'react';
 import {
+  Controller,
   useFormContext,
   type FieldPath,
   type FieldValues,
@@ -8,13 +9,11 @@ import {
 
 import ThumbnailSelector from '@/components/thumbnail-selector';
 import {
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from '@/components/ui/field';
 import type { MediaRef } from '@/types';
 
 type MediaItem = Omit<MediaRef, 'id'> & {
@@ -57,7 +56,7 @@ const ThumbnailField = <
   const { control } = useFormContext<TFieldValues>();
 
   return (
-    <FormField
+    <Controller
       control={control}
       name={name}
       render={({ field, fieldState }) => {
@@ -73,29 +72,27 @@ const ThumbnailField = <
               : undefined);
 
         return (
-          <FormItem css={css}>
-            {label && <FormLabel>{label}</FormLabel>}
-            <FormControl>
-              <ThumbnailSelector
-                src={resolvedPreview || undefined}
-                placeholder={placeholder}
-                btnText={btnText}
-                size={size}
-                error={Boolean(fieldState.error)}
-                onChange={(media) => {
-                  const item = Array.isArray(media) ? media[0] : media;
-                  onPreviewChange?.(item?.url ?? null);
-                  if (valueAs === 'id') {
-                    field.onChange(item?.id ?? null);
-                    return;
-                  }
-                  field.onChange(item ?? null);
-                }}
-              />
-            </FormControl>
-            {description && <FormDescription>{description}</FormDescription>}
-            <FormMessage />
-          </FormItem>
+          <Field data-invalid={fieldState.invalid || undefined} css={css}>
+            {label && <FieldLabel>{label}</FieldLabel>}
+            <ThumbnailSelector
+              src={resolvedPreview || undefined}
+              placeholder={placeholder}
+              btnText={btnText}
+              size={size}
+              error={Boolean(fieldState.error)}
+              onChange={(media) => {
+                const item = Array.isArray(media) ? media[0] : media;
+                onPreviewChange?.(item?.url ?? null);
+                if (valueAs === 'id') {
+                  field.onChange(item?.id ?? null);
+                  return;
+                }
+                field.onChange(item ?? null);
+              }}
+            />
+            {description && <FieldDescription>{description}</FieldDescription>}
+            {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+          </Field>
         );
       }}
     />

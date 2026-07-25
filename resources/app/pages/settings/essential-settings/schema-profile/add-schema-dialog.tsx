@@ -1,5 +1,5 @@
 import { useEffect, type Dispatch, type SetStateAction } from 'react';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import GroupTagTable from '@/components/group-tag-table';
@@ -14,7 +14,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Form, FormField, FormItem, FormMessage } from '@/components/ui/form';
+import { Field, FieldError } from '@/components/ui/field';
+import { Form } from '@/components/ui/form';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import ActionGroup from '@/components/ui/action-group';
@@ -141,17 +142,17 @@ const AddSchemaPopup = ({
         </DialogHeader>
         <Form {...form}>
           <DialogBody>
-            <Flex direction="column" gap={16}>
+            <Flex direction="column" gap={4}>
               <TextField
                 name="name"
                 label={__('Schema preset name', 'kirki-ecommerce')}
                 placeholder={__('e.g General', 'kirki-ecommerce')}
               />
-              <FormField
+              <Controller
                 control={form.control}
                 name="schema"
-                render={({ field }) => (
-                  <FormItem>
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid || undefined}>
                     <GroupTagTable
                       groupDetails={groupDetails}
                       selectedValues={field.value}
@@ -163,27 +164,25 @@ const AddSchemaPopup = ({
                       hasSelect
                       isEditable
                     />
-                    <FormMessage />
-                  </FormItem>
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
                 )}
               />
             </Flex>
           </DialogBody>
           <DialogFooter style={{ justifyContent: 'space-between' }}>
-            <Text
-              type="secondary"
-              header={sprintf(
+            <Text weight="medium">{sprintf(
                 __('%d selected', 'kirki-ecommerce'),
                 Object.keys(selectedValues)?.length,
-              )}
-            />
+              )}</Text>
             <ActionGroup>
-              <Button variant="outline" size="sm" onClick={onClose}>
+              <Button variant="outline" onClick={onClose}>
                 {__('Cancel', 'kirki-ecommerce')}
               </Button>
               <Button
                 variant="primary"
-                size="sm"
                 onClick={form.handleSubmit(handleSubmit)}
                 loading={isSubmitting}
                 disabled={buttonState}

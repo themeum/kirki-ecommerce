@@ -115,7 +115,7 @@ const PaymentGatewayEditPopup = ({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleUpdateData)}>
             <DialogBody>
-              <Flex direction="column" gap={16}>
+              <Flex direction="column" gap={4}>
                 <DynamicGatewayFields fields={editedItem?.fields} />
               </Flex>
             </DialogBody>
@@ -125,7 +125,6 @@ const PaymentGatewayEditPopup = ({
                   type="button"
                   variant="outline"
                   disabled={isSubmitting}
-                  size="sm"
                 >
                   {__('Cancel', 'kirki-ecommerce')}
                 </Button>
@@ -134,7 +133,6 @@ const PaymentGatewayEditPopup = ({
                 type="submit"
                 variant="primary"
                 loading={isSubmitting}
-                size="sm"
               >
                 {__('Save', 'kirki-ecommerce')}
               </Button>

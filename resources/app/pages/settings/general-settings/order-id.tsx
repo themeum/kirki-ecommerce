@@ -53,7 +53,7 @@ const OrderId = () => {
         <CardContent css={cardStyles.largeContent}>
           <Card css={cardStyles.innerCard}>
             <CardContent css={cardStyles.innerCardContent}>
-              <Flex direction="column" gap={16}>
+              <Flex direction="column" gap={4}>
                 <Grid>
                   <TextField
                     name="order_id_prefix"
@@ -72,7 +72,7 @@ const OrderId = () => {
 
                 <Card css={[cardStyles.innerDarkCard, styles.previewCard]}>
                   <CardContent css={styles.previewCardContent}>
-                    <Flex direction="column" gap={8}>
+                    <Flex direction="column" gap={2}>
                       <Label htmlFor="order-id-preview">
                         {__('Next order IDs will look like:', 'kirki-ecommerce')}
                       </Label>
@@ -88,16 +88,12 @@ const OrderId = () => {
 
                 <Card css={[cardStyles.largeCard, styles.resetCard]}>
                   <CardContent css={cardStyles.largeContentPadded}>
-                    <Flex direction="column" gap={10}>
-                      <Flex style={{ alignItems: 'center' }}>
-                        <Text
-                          type="secondary"
-                          header={__('Reset Order ID', 'kirki-ecommerce')}
-                        />
+                    <Flex direction="column" gap={3}>
+                      <Flex align="center">
+                        <Text weight="medium">{__('Reset Order ID', 'kirki-ecommerce')}</Text>
                         <ActionGroup>
                           <Button
                             variant="secondary"
-                            size="sm"
                             onClick={handleResetIDField}
                           >
                             <ReplaceIcon />
@@ -105,13 +101,10 @@ const OrderId = () => {
                           </Button>
                         </ActionGroup>
                       </Flex>
-                      <Text
-                        type="primary"
-                        subHeader={__(
+                      <Text color="secondary">{__(
                           'Reset the order ID to your base ID for new fiscal years, system migration, or legal compliance.',
                           'kirki-ecommerce',
-                        )}
-                      />
+                        )}</Text>
                     </Flex>
                   </CardContent>
                 </Card>
@@ -131,10 +124,10 @@ export default OrderId;
 const styles = {
   previewCard: scoped({}),
   previewCardContent: scoped({
-    padding: `${theme.spacing.md} ${theme.spacing.lg}`,
+    padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
   }),
   previewInput: scoped({
-    padding: theme.spacing.md,
+    padding: theme.spacing[2],
     textAlign: 'center',
     color: theme.colors.text.special3,
   }),

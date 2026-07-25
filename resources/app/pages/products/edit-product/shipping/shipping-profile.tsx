@@ -2,7 +2,7 @@ import { type ReactElement, useEffect, useState } from 'react';
 
 import { Card, CardContent } from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
-import Label from '@/components/ui/label';
+import { Field, FieldLabel } from '@/components/ui/field';
 import {
   Select,
   SelectContent,
@@ -22,6 +22,8 @@ import type { FormErrors, SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
 
 import { CreateProfilePopup } from '@/pages/settings/shipping-settings/shipping-profile/create-profile-dialog';
+
+import { theme } from '@/theme';
 
 type ShippingProfileProps = {
   errors?: FormErrors;
@@ -75,8 +77,8 @@ const ShippingProfile = ({
   return (
     <Card css={cardStyles.innerDarkCard}>
       <CardContent css={styles.innerDarkRowContent}>
-        <Grid style={{ alignItems: 'center' }}>
-        <Flex gap={8} style={{ alignItems: 'center' }}>
+        <Grid align="center">
+        <Field orientation="horizontal">
           <Checkbox
             id="assign-shipping-profile"
             checked={show}
@@ -84,13 +86,10 @@ const ShippingProfile = ({
               handleOnViewProfileOptions(checked === true, 'shipping_profile_id')
             }
           />
-          <Label
-            htmlFor="assign-shipping-profile"
-            helpText={__('Assign shipping profile', 'kirki-ecommerce')}
-          >
+          <FieldLabel htmlFor="assign-shipping-profile">
             {__('Assign shipping profile', 'kirki-ecommerce')}
-          </Label>
-        </Flex>
+          </FieldLabel>
+        </Field>
         <Select
           value={
             shippingProfileId !== undefined && shippingProfileId !== null
@@ -112,7 +111,7 @@ const ShippingProfile = ({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value={ADD_SHIPPING_PROFILE_VALUE}>
-              <Flex gap={8} style={{ alignItems: 'center' }}>
+              <Flex gap={2} align="center">
                 <PlusCircleIcon />
                 {__('Add Shipping Profile', 'kirki-ecommerce')}
               </Flex>
@@ -142,7 +141,7 @@ export default ShippingProfile;
 
 const styles = {
   innerDarkRowContent: scoped({
-    padding: '4px 8px 4px 12px',
+    padding: `${theme.spacing[1]} ${theme.spacing[2]} ${theme.spacing[1]} ${theme.spacing[3]}`,
     height: '44px',
     boxSizing: 'border-box',
   })

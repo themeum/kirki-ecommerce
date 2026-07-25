@@ -1,6 +1,6 @@
 import Checkbox from '@/components/ui/checkbox';
+import { Field, FieldLabel } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
-import { FormFieldRow } from '@/components/ui/form';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
 import Textarea from '@/components/ui/textarea';
@@ -20,8 +20,8 @@ const FlatRateSettings = ({
   dataObj,
 }: FlatRateSettingsProps) => {
   return (
-    <Flex direction="column" gap={16}>
-      <Flex direction="column" gap={8}>
+    <Flex direction="column" gap={4}>
+      <Flex direction="column" gap={2}>
         <Label htmlFor="flat-rate-amount">{__('Rate', 'kirki-ecommerce')}</Label>
         <Input
           id="flat-rate-amount"
@@ -32,18 +32,18 @@ const FlatRateSettings = ({
         />
       </Flex>
 
-      <FormFieldRow>
+      <Field orientation="horizontal">
         <Checkbox
           id="flat-rate-is-taxable"
           checked={(dataObj?.['is_taxable'] as boolean) || false}
           onCheckedChange={(checked) => handleOnChange(checked === true, 'is_taxable')}
         />
-        <Label htmlFor="flat-rate-is-taxable">
+        <FieldLabel htmlFor="flat-rate-is-taxable">
           {__('This method is taxable', 'kirki-ecommerce')}
-        </Label>
-      </FormFieldRow>
+        </FieldLabel>
+      </Field>
 
-      <Flex direction="column" gap={8}>
+      <Flex direction="column" gap={2}>
         <Label htmlFor="flat-rate-description">
           {__('Description', 'kirki-ecommerce')}
         </Label>
@@ -65,7 +65,7 @@ export default FlatRateSettings;
 
 const styles = {
   textarea: scoped({
-    padding: `${theme.spacing.md} ${theme.spacing.lg}`,
+    padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
     minHeight: '108px',
   }),
 };

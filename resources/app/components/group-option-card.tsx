@@ -70,7 +70,7 @@ const groupOptionCardRightTextActiveCss = css({
 });
 
 const groupOptionCardIconCss = scoped({
-  padding: theme.spacing.xxs,
+  padding: theme.spacing[1],
 });
 
 const groupOptionCardIconDisabledCss = scoped({
@@ -135,52 +135,36 @@ const GroupOptionCard = (props: GroupOptionCardProps) => {
           }}
         >
           <CardContent css={cardStyles.innerContent}>
-          <Flex
-            style={{
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              width: '100%',
-            }}
-          >
-            <Flex
-              style={{
-                alignItems: 'center',
-                minHeight: '36px',
-              }}
-              gap={8}
-            >
-              <Text
-                header={item?.name ?? ''}
-                leftIcon={item?.icon}
-                style={{ fontWeight: '500' }}
-                type="xsm"
-              />
+          <Flex align="center" justify="space-between" css={css({ width: '100%' })}>
+            <Flex gap={2} align="center" css={css({ minHeight: '36px' })}>
+              <Flex gap={2} align="center">
+                {item?.icon}
+                <Text variant="small" css={styles.mediumHeader}>{item?.name ?? ''}</Text>
+              </Flex>
               {item?.subText && (
-                <Text
-                  style={{ color: theme.colors.text.subdued }}
-                  header={item?.subText ?? ''}
-                  type="xsm"
-                />
+                <Text variant="small" color="subdued">{item?.subText ?? ''}</Text>
               )}
               {item?.badge1 && (
                 <Badge
-                  text={item.badge1}
-                  type={item?.selected === true ? 'requested' : 'default'}
-                />
+                  variant={item?.selected === true ? 'requested' : 'default'}
+                >
+                  {item.badge1}
+                </Badge>
               )}
-              {item?.badge2 && <Badge text={item.badge2} type="default" />}
+              {item?.badge2 && (
+                <Badge variant="default">{item.badge2}</Badge>
+              )}
               {(item?.is_default || item?.is_base) && (
-                <Badge
-                  text={
-                    item?.is_default
-                      ? __('Default', 'kirki-ecommerce')
-                      : __('Base currency', 'kirki-ecommerce')
-                  }
-                  type={'refunded'}
-                />
+                <Badge variant="secondary">
+                  {item?.is_default
+                    ? __('Default', 'kirki-ecommerce')
+                    : __('Base currency', 'kirki-ecommerce')}
+                </Badge>
               )}
               {item?.is_enabled === false ? (
-                <Badge text={__('Inactive', 'kirki-ecommerce')} type="trashed" />
+                <Badge variant="destructive">
+                  {__('Inactive', 'kirki-ecommerce')}
+                </Badge>
               ) : (
                 ''
               )}
@@ -188,14 +172,14 @@ const GroupOptionCard = (props: GroupOptionCardProps) => {
             {(item?.rightIcon || item?.rightText) && (
               <Flex
                 css={css(
-                  groupOptionCardRightTextCss,
-                  activeIndex === index && groupOptionCardRightTextActiveCss,
+                groupOptionCardRightTextCss,
+                activeIndex === index && groupOptionCardRightTextActiveCss,
                 )}
-                gap={12}
-              >
+                gap={3}
+                >
                 {item.rightIcon && item.rightIcon}
                 {item.rightText && (
-                  <Text subHeader={item?.rightText} type="secondary" />
+                  <Text variant="small" color="secondary">{item?.rightText}</Text>
                 )}
               </Flex>
             )}
@@ -275,4 +259,10 @@ const GroupOptionCard = (props: GroupOptionCardProps) => {
 };
 
 export default GroupOptionCard;
+
+const styles = {
+  mediumHeader: scoped({
+    ...theme.typography.paragraph('medium'),
+  }),
+};
 

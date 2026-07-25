@@ -7,8 +7,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Chip from '@/components/ui/chip';
 import Text from '@/components/ui/text';
-import { scoped } from '@/theme/mixins';
+import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
+import { scoped } from '@/theme/mixins';
 import type { SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -44,7 +45,19 @@ const styles = {
   }),
   hoverReveal: scoped({
     visibility: 'hidden',
-  })
+  }),
+  cardAllRounded: scoped({
+    borderRadius: theme.radius.lg,
+  }),
+  cardBottomRounded: scoped({
+    borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.lg} ${theme.radius.lg}`,
+  }),
+  cardBorder: scoped({
+    borderColor: theme.colors.border.alt,
+  }),
+  mutedText: scoped({
+    color: theme.colors.text.subdued,
+  }),
 };
 
 const GroupTagTable = (props: GroupTagTableProps) => {
@@ -116,41 +129,35 @@ const GroupTagTable = (props: GroupTagTableProps) => {
       )}
       {Object.keys(groupedValueData).length ? (
         <Card
-          css={cardStyles.innerCard}
-          style={{
-            borderColor: '#E6E6E6',
-            borderRadius: hasSelect ? '0 0 8px 8px' : '8px',
-          }}
+          css={[
+            cardStyles.innerCard,
+            hasSelect ? styles.cardBottomRounded : styles.cardAllRounded,
+            styles.cardBorder,
+          ]}
         >
           <CardContent css={cardStyles.innerContent}>
-          <Flex gap={8} direction="column">
+          <Flex gap={2} direction="column">
             {(Object.keys(groupedValueData) || []).map((groupName, index) => (
               <div key={index} css={styles.hoverParent}>
                 <Flex
                   key={index}
-                  style={{
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                  }}
-                >
-                  <Text
-                    gap={4}
-                    type="xsm"
-                    leftIcon={groupDetails[groupName]?.icon}
-                    subHeader={groupDetails[groupName]?.title}
-                    style={{ color: '#878593' }}
-                  />
+                  align="center" justify="space-between">
+                  <Flex gap={2} align="center">
+                    {groupDetails[groupName]?.icon}
+                    <Text
+                      variant="small"
+                      color="subdued"
+                      css={styles.mutedText}
+                    >
+                      {groupDetails[groupName]?.title}
+                    </Text>
+                  </Flex>
                   <Flex
-                    gap={8}
-                    style={{
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                    }}
-                  >
+                    gap={2}
+                    align="center" justify="space-between">
                     {isEditable && (
                       <Button
                         variant="link"
-                        size="sm"
                         data-hover-reveal="true"
                         css={styles.hoverReveal}
                         onClick={() => handleClearSingleGroup(groupName)}

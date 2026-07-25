@@ -7,7 +7,7 @@ import {
 import * as TabsPrimitive from '@radix-ui/react-tabs';
 
 import { theme } from '@/theme';
-import { flexCenter, fontGeneralSettings, scoped, uiFocusRing } from '@/theme/mixins';
+import { flexCenter, scoped, uiFocusRing } from '@/theme/mixins';
 
 const Tabs = TabsPrimitive.Root;
 
@@ -72,33 +72,28 @@ const styles = {
     alignItems: 'center',
     backgroundColor: theme.colors.background.surfaceSecondary,
     borderRadius: theme.radius.md,
-    padding: theme.spacing.xs,
+    padding: theme.spacing[1],
     minHeight: '36px',
     boxSizing: 'border-box',
-    ...fontGeneralSettings(theme as Theme),
-    fontWeight: 500,
     color: theme.colors.text.secondary,
   }),
   trigger: scoped({
     flex: 1,
     height: '100%',
     minHeight: '28px',
-    padding: `${theme.spacing.xs} ${theme.spacing.lg}`,
+    padding: `${theme.spacing[1]} ${theme.spacing[3]}`,
     border: 'none',
     borderRadius: theme.radius.sm,
     backgroundColor: 'transparent',
+    ...theme.typography.small('medium'),
     color: theme.colors.text.secondary,
-    fontFamily: 'inherit',
-    fontWeight: 500,
-    fontSize: '14px',
-    lineHeight: '20px',
     cursor: 'pointer',
     ...flexCenter(),
     whiteSpace: 'nowrap',
     '&[data-state="active"]': {
       backgroundColor: theme.colors.background.fill,
       color: theme.colors.text.primary,
-      boxShadow: '0px 1px 2px 0px #0000000d',
+      boxShadow: theme.shadow.sm,
     },
     '&:focus-visible': {
       ...uiFocusRing(theme as Theme),
@@ -109,8 +104,7 @@ const styles = {
     },
   }),
   content: scoped({
-    marginTop: theme.spacing['2xl'],
-    ...fontGeneralSettings(theme as Theme),
+    marginTop: theme.spacing[4],
     '&:focus, &:focus-visible': {
       outline: 'none',
     },

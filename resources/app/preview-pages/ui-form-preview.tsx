@@ -1,17 +1,16 @@
-import { useForm } from 'react-hook-form';
-
-import Flex from '@/components/ui/flex';
+import { css } from '@emotion/react';
+import { Controller, useForm } from 'react-hook-form';
 
 import Button from '@/components/ui/button';
 import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from '@/components/ui/field';
+import Flex from '@/components/ui/flex';
+import { Form } from '@/components/ui/form';
 import Input from '@/components/ui/input';
 
 type FormValues = {
@@ -32,24 +31,32 @@ const UiFormPreview = () => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)}>
-        <Flex direction="column" gap={12} style={{ maxWidth: 320 }}>
-          <FormField
-            control={form.control}
-            name="username"
-            rules={{ required: 'Username is required' }}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Username</FormLabel>
-                <FormControl>
-                  <Input placeholder="Enter username" {...field} />
-                </FormControl>
-                <FormDescription>
-                  This is your public display name.
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+        <Flex direction="column" gap={3} css={css({ maxWidth: 320 })}>
+          <FieldGroup>
+            <Controller
+              control={form.control}
+              name="username"
+              rules={{ required: 'Username is required' }}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid || undefined}>
+                  <FieldLabel htmlFor="username">Username</FieldLabel>
+                  <Input
+                    {...field}
+                    id="username"
+                    placeholder="Enter username"
+                    error={Boolean(fieldState.error)}
+                    aria-invalid={fieldState.invalid}
+                  />
+                  <FieldDescription>
+                    This is your public display name.
+                  </FieldDescription>
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+          </FieldGroup>
           <Button type="submit" variant="primary">
             Submit
           </Button>

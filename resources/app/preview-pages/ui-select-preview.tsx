@@ -1,6 +1,11 @@
-import Flex from '@/components/ui/flex';
+import { css } from '@emotion/react';
 
-import Label from '@/components/ui/label';
+import {
+  Field,
+  FieldError,
+  FieldLabel,
+} from '@/components/ui/field';
+import Flex from '@/components/ui/flex';
 import {
   Select,
   SelectContent,
@@ -11,9 +16,9 @@ import {
 
 const UiSelectPreview = () => {
   return (
-    <Flex direction="column" gap={12} style={{ maxWidth: 240 }}>
-      <div>
-        <Label>Default</Label>
+    <Flex direction="column" gap={3} css={css({ maxWidth: 240 })}>
+      <Field>
+        <FieldLabel>Default</FieldLabel>
         <Select defaultValue="apple">
           <SelectTrigger>
             <SelectValue placeholder="Select a fruit" />
@@ -24,11 +29,11 @@ const UiSelectPreview = () => {
             <SelectItem value="orange">Orange</SelectItem>
           </SelectContent>
         </Select>
-      </div>
-      <div>
-        <Label error>With error</Label>
+      </Field>
+      <Field data-invalid>
+        <FieldLabel>With error</FieldLabel>
         <Select>
-          <SelectTrigger error>
+          <SelectTrigger error aria-invalid>
             <SelectValue placeholder="Select a fruit" />
           </SelectTrigger>
           <SelectContent>
@@ -36,7 +41,8 @@ const UiSelectPreview = () => {
             <SelectItem value="banana">Banana</SelectItem>
           </SelectContent>
         </Select>
-      </div>
+        <FieldError>Selection required</FieldError>
+      </Field>
     </Flex>
   );
 };

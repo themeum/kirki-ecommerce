@@ -1,7 +1,9 @@
-import type { CSSProperties, ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
 import { ArrowDownUpFilled } from '@/icons';
 import Flex from '@/components/ui/flex';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import type { SortOrder } from '@/types';
 
 type SortableConfig = {
@@ -46,23 +48,19 @@ const Sorting = ({ data }: SortingProps) => {
       ((type === 'top' && sortOrder === 'desc') ||
         (type === 'bottom' && sortOrder === 'asc'))
     ) {
-      return '#5641f3';
-    } else {
-      return '#5f5d69';
+      return theme.colors.background.fillBrand;
     }
+    return theme.colors.icon.secondary;
   };
 
-  const styleObj: CSSProperties = {};
-  if (sortable) {
-    if (isActive()) {
-      styleObj.color = '#5641f3';
-    }
-    styleObj.cursor = 'pointer';
-  }
   return (
     <Flex
-      gap={4}
-      style={{ alignItems: 'center', ...styleObj }}
+      gap={1}
+      css={[
+        styles.base,
+        sortable && styles.sortable,
+        sortable && isActive() && styles.active,
+      ]}
       onClick={handleSorting}
     >
       {title}
@@ -80,3 +78,15 @@ Sorting.displayName = 'Sorting';
 
 export default Sorting;
 export type { SortableConfig, SortingData };
+
+const styles = {
+  base: scoped({
+    alignItems: 'center',
+  }),
+  sortable: scoped({
+    cursor: 'pointer',
+  }),
+  active: scoped({
+    color: theme.colors.background.fillBrand,
+  }),
+};

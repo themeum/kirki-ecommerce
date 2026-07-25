@@ -98,16 +98,16 @@ const PaymentGatewayComponent = (props: PaymentGatewayProps) => {
         {paymentGatewayList?.length === 0 ? (
         <Card css={cardStyles.innerDarkCard}>
           <CardContent css={[cardStyles.innerDarkContent, styles.emptyStateContent]}>
-            <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
+            <Flex direction="column" gap={2} align="center">
               <MapIcon />
-              <span style={{ color: '#878593' }}>
+              <span css={styles.mutedText}>
                 {__('No payment added yet', 'kirki-ecommerce')}
               </span>
             </Flex>
           </CardContent>
         </Card>
         ) : (
-        <Flex direction="column" gap={16}>
+        <Flex direction="column" gap={4}>
         {paymentGatewayList?.map((item, index) => (
         <Card css={cardStyles.innerCard}
                 
@@ -115,23 +115,21 @@ const PaymentGatewayComponent = (props: PaymentGatewayProps) => {
         >
           <CardContent css={[cardStyles.innerContent, styles.gatewayItemContent]}>
 
-          <Flex style={{ alignItems: 'center' }}>
-          <Text
-          header={sprintf(
-          __('%s', 'kirki-ecommerce'),
-          item?.name || '',
-          )}
-          leftIcon={<StripeIcon />}
-          badge={
-          !item?.is_enabled && (
-          <Badge
-          text={__('Inactive', 'kirki-ecommerce')}
-          type="trashed"
-          />
-          )
-          }
-          type={!item?.is_enabled ? 'disabled' : 'secondary'}
-          />
+          <Flex align="center">
+          <Flex gap={2} align="center">
+            <StripeIcon />
+            <Text
+              weight="medium"
+              color={!item?.is_enabled ? 'disabled' : 'primary'}
+            >
+              {sprintf(__('%s', 'kirki-ecommerce'), item?.name || '')}
+            </Text>
+            {!item?.is_enabled && (
+              <Badge variant="destructive">
+                {__('Inactive', 'kirki-ecommerce')}
+              </Badge>
+            )}
+          </Flex>
           <ActionGroup>
           <ToggleButton
           value={Boolean(item?.is_enabled)}
@@ -185,10 +183,13 @@ const PaymentGatewayComponent = (props: PaymentGatewayProps) => {
 PaymentGatewayComponent.displayName = 'PaymentGatewayComponent';
 
 const styles = {
-  emptyStateContent: scoped({ padding: '36px 0' }),
+  emptyStateContent: scoped({ padding: `${theme.spacing[9]} 0` }),
   gatewayItemContent: scoped({
-    padding: `${theme.spacing.lg} ${theme.spacing['2xl']}`,
-  })
+    padding: `${theme.spacing[3]} ${theme.spacing[4]}`,
+  }),
+  mutedText: scoped({
+    color: theme.colors.text.subdued,
+  }),
 };
 
 export default PaymentGatewayComponent;

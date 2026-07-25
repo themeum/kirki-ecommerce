@@ -1,25 +1,25 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate, useParams } from 'react-router';
 
-import TextareaField from '@/components/form/textarea-field';
 import TextField from '@/components/form/text-field';
+import TextareaField from '@/components/form/textarea-field';
 import ThumbnailField from '@/components/form/thumbnail-field';
 import Button from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form } from '@/components/ui/form';
-import { NEW_ITEM_ID } from '@/conf';
-import { PlusIcon, ProductIcon } from '@/icons';
-import type { ErrorResponse } from '@/libs/api';
-import { applyServerErrors } from '@/libs/form-errors';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
+import { Form } from '@/components/ui/form';
 import Grid from '@/components/ui/grid';
 import PageHeading from '@/components/ui/page-heading';
 import { Separator } from '@/components/ui/separator';
 import Text from '@/components/ui/text';
 import Thumbnail from '@/components/ui/thumbnail';
+import { NEW_ITEM_ID } from '@/conf';
+import { PlusIcon, ProductIcon } from '@/icons';
+import type { ErrorResponse } from '@/libs/api';
+import { applyServerErrors } from '@/libs/form-errors';
 import {
   CollectionFormSchema,
   type CollectionFormValues,
@@ -29,10 +29,10 @@ import {
   useCreateCollectionMutation,
   useUpdateCollectionMutation,
 } from '@/services/collection';
-import type { CollectionFormData } from '@/types';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { scoped } from '@/theme/mixins';
+import type { CollectionFormData } from '@/types';
 import { __ } from '@/wpi18n';
 
 const emptyValues: CollectionFormValues = {
@@ -124,12 +124,11 @@ const CollectionDetails = () => {
         sticky
         actions={
           <>
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost">
               {__('Cancel', 'kirki-ecommerce')}
             </Button>
             <Button
               variant="primary"
-              size="sm"
               onClick={form.handleSubmit(handleSubmit)}
               loading={isSubmitting}
             >
@@ -143,10 +142,10 @@ const CollectionDetails = () => {
       />
 
       <Container size="md">
-        <Flex direction="column" gap={16}>
+        <Flex direction="column" gap={4}>
           <Card css={cardStyles.formCard}>
             <CardContent>
-              <Flex direction="column" gap={16}>
+              <Flex direction="column" gap={4}>
                 <Grid>
                   <TextField
                     name="title"
@@ -183,11 +182,10 @@ const CollectionDetails = () => {
             <CardContent>
               <Flex
                 direction="column"
-                gap={12}
-                style={{ alignItems: 'center', justifyContent: 'center' }}
-              >
+                gap={3}
+                align="center" justify="center">
                 <ProductIcon />
-                <Button variant="secondary" size="sm">
+                <Button variant="secondary">
                   <PlusIcon />
                   {__('Select Products', 'kirki-ecommerce')}
                 </Button>
@@ -197,35 +195,19 @@ const CollectionDetails = () => {
 
           <Card css={cardStyles.formCard}>
             <CardContent>
-              <Flex direction="column" gap={16}>
+              <Flex direction="column" gap={4}>
                 <CardHeader>
                   <CardTitle>{__('SEO Settings', 'kirki-ecommerce')}</CardTitle>
                 </CardHeader>
                 <Card css={cardStyles.innerCard}>
                   <CardContent>
-                    <Flex gap={16} style={{ justifyContent: 'space-between' }}>
-                      <Flex direction="column" gap={6}>
-                        <Text
-                          type="xsm"
-                          style={{ color: '#4D5157' }}
-                          header={
-                            window.kirki_ecommerce.site_url +
+                    <Flex gap={4} justify="space-between">
+                      <Flex direction="column" gap={2}>
+                        <Text variant="small" css={styles.seoUrl}>{window.kirki_ecommerce.site_url +
                             ' › collections › ' +
-                            (watchedSlug || '')
-                          }
-                        />
-                        <Text
-                          type="primary"
-                          header={watchedSeoTitle || watchedTitle || ''}
-                          style={{ color: '#000091' }}
-                        />
-                        <Text
-                          type="xsm"
-                          style={{ color: '#616161' }}
-                          header={
-                            watchedSeoDescription || watchedDescription || ''
-                          }
-                        />
+                            (watchedSlug || '')}</Text>
+                        <Text weight="semibold" css={styles.seoTitle}>{watchedSeoTitle || watchedTitle || ''}</Text>
+                        <Text variant="small" css={styles.seoDescription}>{watchedSeoDescription || watchedDescription || ''}</Text>
                       </Flex>
                       <Thumbnail
                         src={imageUrl ?? undefined}
@@ -238,9 +220,7 @@ const CollectionDetails = () => {
                     </Flex>
                   </CardContent>
                 </Card>
-                <Separator
-                  style={{ margin: 'auto -16px', backgroundColor: '#EEEDF3' }}
-                />
+                <Separator css={styles.seoSeparator} />
                 <TextField
                   name="seo_title"
                   label={__('Title', 'kirki-ecommerce')}
@@ -267,7 +247,20 @@ export default CollectionDetails;
 
 const styles = {
   productPlaceholderCard: scoped({
-    padding: theme.spacing['9xl'],
+    padding: theme.spacing[11],
+  }),
+  seoUrl: scoped({
+    color: theme.colors.icon.primary,
+  }),
+  seoTitle: scoped({
+    color: theme.colors.text.emphasis,
+  }),
+  seoDescription: scoped({
+    color: theme.colors.text.secondary,
+  }),
+  seoSeparator: scoped({
+    margin: `auto -${theme.spacing[4]}`,
+    backgroundColor: theme.colors.background.surfaceSubdued,
   }),
 };
 

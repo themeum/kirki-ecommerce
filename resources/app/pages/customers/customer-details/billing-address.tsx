@@ -1,4 +1,4 @@
-import { useFormContext } from 'react-hook-form';
+import { Controller, useFormContext } from 'react-hook-form';
 
 import SelectField from '@/components/form/select-field';
 import TextField from '@/components/form/text-field';
@@ -9,13 +9,10 @@ import {
 } from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
 import {
-  FormControl,
-  FormField,
-  FormFieldRow,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
+  Field,
+  FieldError,
+  FieldLabel,
+} from '@/components/ui/field';
 import { PaymentIcon } from '@/icons';
 import Flex from '@/components/ui/flex';
 import Grid from '@/components/ui/grid';
@@ -40,46 +37,48 @@ const BillingAddress = () => {
   return (
     <Card css={[cardStyles.formCard, styles.roundedCard]}>
       <CardHeader>
-        <Text
-          header={__('Billing Address', 'kirki-ecommerce')}
-          type="primary"
-          leftIcon={<PaymentIcon />}
-          css={styles.header}
-        />
+        <Flex gap={2} align="center">
+          <PaymentIcon />
+          <Text weight="semibold" css={styles.header}>{__('Billing Address', 'kirki-ecommerce')}</Text>
+        </Flex>
       </CardHeader>
       <CardContent>
-        <Flex direction="column" gap={8}>
+        <Flex direction="column" gap={2}>
           <Card css={cardStyles.innerDarkCard}>
             <CardContent css={cardStyles.innerDarkContent}>
-              <FormField
+              <Controller
                 control={control}
                 name="is_billing_same_as_shipping"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormFieldRow>
-                      <FormControl>
-                        <Checkbox
-                          checked={Boolean(field.value)}
-                          onCheckedChange={(checked) => {
-                            const nextValue = checked === true;
-                            field.onChange(nextValue);
-                            if (nextValue) {
-                              setValue('billing_address', {});
-                            }
-                          }}
-                        />
-                      </FormControl>
-                      <FormLabel>Same as shipping address</FormLabel>
-                    </FormFieldRow>
-                    <FormMessage />
-                  </FormItem>
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid || undefined}>
+                    <Field orientation="horizontal">
+                      <Checkbox
+                        id="is-billing-same-as-shipping"
+                        checked={Boolean(field.value)}
+                        onCheckedChange={(checked) => {
+                          const nextValue = checked === true;
+                          field.onChange(nextValue);
+                          if (nextValue) {
+                            setValue('billing_address', {});
+                          }
+                        }}
+                        aria-invalid={fieldState.invalid}
+                      />
+                      <FieldLabel htmlFor="is-billing-same-as-shipping">
+                        Same as shipping address
+                      </FieldLabel>
+                    </Field>
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
                 )}
               />
             </CardContent>
           </Card>
           <Card css={cardStyles.innerCard}>
             <CardContent css={cardStyles.innerContent}>
-              <Flex direction="column" gap={16}>
+              <Flex direction="column" gap={4}>
                 <SelectField
                   name="billing_address.country"
                   label={__('Country / Region', 'kirki-ecommerce')}
@@ -135,12 +134,12 @@ export default BillingAddress;
 
 const styles = {
   roundedCard: scoped({
-    padding: theme.spacing['3xl'],
+    padding: theme.spacing[5],
     borderRadius: theme.radius.xl,
-    gap: theme.spacing['3xl'],
+    gap: theme.spacing[5],
   }),
   header: scoped({
-    paddingBottom: theme.spacing.xs,
+    paddingBottom: theme.spacing[1],
   }),
 };
 

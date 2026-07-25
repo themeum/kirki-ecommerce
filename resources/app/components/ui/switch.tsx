@@ -51,7 +51,7 @@ const styles = {
       ...uiFocusRing(theme as Theme),
     },
     '&[data-state="checked"]': {
-      backgroundColor: '#5641f3',
+      backgroundColor: theme.colors.background.fillBrand,
     },
     '&[data-state="checked"] > span': {
       transform: 'translateX(18px)',

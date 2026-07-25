@@ -1,3 +1,4 @@
+import { css } from '@emotion/react';
 import {
   Card,
   CardContent,
@@ -15,22 +16,16 @@ const TaxSimulator = () => {
     <div>
       <Card css={cardStyles.largeCard}>
         <CardContent css={cardStyles.largeContentPadded}>
-          <Flex gap={8}>
-            <Flex gap={12} direction="column" style={{ width: '55%' }}>
-              <Flex gap={6} direction="column">
-                <Text
-                  type="primary"
-                  header={__('Tax Simulator', 'kirki-ecommerce')}
-                />
-                <Text
-                  type="secondary"
-                  subHeader={__(
+          <Flex gap={2}>
+            <Flex gap={3} direction="column" css={css({ width: '55%' })}>
+              <Flex gap={2} direction="column">
+                <Text weight="semibold">{__('Tax Simulator', 'kirki-ecommerce')}</Text>
+                <Text variant="small" color="secondary">{__(
                     'Test your real-world shipping outcomes instantly — no guesswork needed.',
                     'kirki-ecommerce',
-                  )}
-                />
+                  )}</Text>
               </Flex>
-              <Button variant="secondary" size="sm">
+              <Button variant="secondary">
                 <SimulatorIcon />
                 Try Simulator
               </Button>

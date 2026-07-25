@@ -1,4 +1,4 @@
-import { keyframes, type SerializedStyles, type Theme } from '@emotion/react';
+import { keyframes, type SerializedStyles } from '@emotion/react';
 import {
   createContext,
   forwardRef,
@@ -14,7 +14,7 @@ import { ChevronDown } from 'lucide-react';
 
 import { Separator } from '@/components/ui/separator';
 import { theme } from '@/theme';
-import { fontGeneralSettings, scoped } from '@/theme/mixins';
+import { scoped } from '@/theme/mixins';
 
 type AccordionContextValue = {
   hideSeparator?: boolean;
@@ -217,8 +217,7 @@ const styles = {
   base: scoped({
     width: '397px',
     boxSizing: 'border-box',
-    ...fontGeneralSettings(theme as Theme),
-    color: '#09090b',
+    color: theme.colors.text.primary,
   }),
   header: scoped({
     margin: 0,
@@ -226,7 +225,7 @@ const styles = {
     alignItems: 'center',
     width: '100%',
     boxSizing: 'border-box',
-    padding: `${theme.spacing['2xl']} ${theme.spacing.none}`,
+    padding: `${theme.spacing[4]} ${theme.spacing[0]}`,
     '&:hover [data-accordion-chevron], &:focus-within [data-accordion-chevron]':
       {
         visibility: 'visible',
@@ -241,7 +240,7 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    fontWeight: 500,
+    ...theme.typography.paragraph('medium'),
     '&:focus-visible': {
       outline: `2px solid ${theme.colors.background.fillBrand}`,
       outlineOffset: '2px',
@@ -281,7 +280,7 @@ const styles = {
   }),
   contentSpaced: scoped({
     '& [data-accordion-content-inner]': {
-      paddingBottom: theme.spacing['2xl'],
+      paddingBottom: theme.spacing[4],
     },
   }),
   contentInner: scoped({}),

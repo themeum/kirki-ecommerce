@@ -13,9 +13,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
 import Input from '@/components/ui/input';
-import Label from '@/components/ui/label';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
 import type { SelectOption } from '@/types';
@@ -66,7 +71,6 @@ const SelectInput = ({
   );
 
   const fallbackOption = optionsArray.find((item) => item?.fallback);
-  const help = typeof error === 'string' ? error : helpText;
 
   useEffect(() => {
     if (value === undefined) {
@@ -133,12 +137,8 @@ const SelectInput = ({
   };
 
   return (
-    <Flex direction="column" gap={8}>
-      {label && (
-        <Label error={Boolean(error)} helpText={help}>
-          {label}
-        </Label>
-      )}
+    <Field data-invalid={error ? true : undefined}>
+      {label && <FieldLabel>{label}</FieldLabel>}
       <Flex
         css={css([
           styles.wrapper,
@@ -158,6 +158,7 @@ const SelectInput = ({
             max={max}
             min={min}
             css={styles.input}
+            aria-invalid={Boolean(error) || undefined}
           />
         </div>
         <div style={{ width: selectWidth ? selectWidth : 'auto' }}>
@@ -178,7 +179,9 @@ const SelectInput = ({
           </Select>
         </div>
       </Flex>
-    </Flex>
+      {helpText && !error && <FieldDescription>{helpText}</FieldDescription>}
+      {typeof error === 'string' && <FieldError>{error}</FieldError>}
+    </Field>
   );
 };
 

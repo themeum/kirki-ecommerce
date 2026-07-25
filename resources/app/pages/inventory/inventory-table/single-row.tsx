@@ -36,9 +36,9 @@ const SingleRow = ({
         />
       </TableCell>
       <TableCell css={styles.productCell}>
-        <Flex gap={12} style={{ alignItems: 'center' }}>
+        <Flex gap={3} align="center">
           <Thumbnail src={item?.product?.image?.url} size="small" />
-          <Flex direction="column" gap={4} style={{ color: '#878593' }}>
+          <Flex direction="column" gap={1} css={styles.mutedText}>
             <span>{item?.product?.name} </span>
             <span>{item?.name}</span>
           </Flex>
@@ -50,7 +50,7 @@ const SingleRow = ({
             value={item?.sku ?? undefined}
             placeholder="--"
             invisible
-            style={{ fontSize: '12px', lineHeight: '18px', fontWeight: '400' }}
+            css={styles.tableInput}
             onChange={(event) => handleOnChange(event.target.value, 'sku')}
           />
         </TableCell>
@@ -61,7 +61,7 @@ const SingleRow = ({
             value={item?.price ?? undefined}
             placeholder="--"
             invisible
-            style={{ fontSize: '12px', lineHeight: '18px', fontWeight: '400' }}
+            css={styles.tableInput}
             onChange={(event) => handleOnChange(event.target.value, 'price')}
           />
         </TableCell>
@@ -72,7 +72,7 @@ const SingleRow = ({
             value={item?.sale_price ?? undefined}
             placeholder="--"
             invisible
-            style={{ fontSize: '12px', lineHeight: '18px', fontWeight: '400' }}
+            css={styles.tableInput}
             onChange={(event) =>
               handleOnChange(event.target.value, 'sale_price')
             }
@@ -85,7 +85,7 @@ const SingleRow = ({
             value={item?.cost_of_goods ?? undefined}
             placeholder="--"
             invisible
-            style={{ fontSize: '12px', lineHeight: '18px', fontWeight: '400' }}
+            css={styles.tableInput}
             onChange={(event) =>
               handleOnChange(event.target.value, 'cost_of_goods')
             }
@@ -99,7 +99,7 @@ const SingleRow = ({
             placeholder="--"
             readOnly
             invisible
-            style={{ fontSize: '12px', lineHeight: '18px', fontWeight: '400' }}
+            css={styles.tableInput}
           />
         </TableCell>
       )}
@@ -114,13 +114,19 @@ export default SingleRow;
 const styles = {
   productCell: scoped({
     minWidth: '208px',
-    padding: `7px ${theme.spacing.lg}`,
+    padding: `7px ${theme.spacing[3]}`,
   }),
   inputCell: scoped({
-    padding: theme.spacing.none,
+    padding: theme.spacing[0],
   }),
   profitCell: scoped({
-    padding: theme.spacing.none,
+    padding: theme.spacing[0],
     pointerEvents: 'none',
+  }),
+  mutedText: scoped({
+    color: theme.colors.text.subdued,
+  }),
+  tableInput: scoped({
+    ...theme.typography.small(),
   }),
 };

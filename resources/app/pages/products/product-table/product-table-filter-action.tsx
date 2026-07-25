@@ -38,7 +38,7 @@ const filterActionBarCss = css({
   flexWrap: 'wrap',
   borderTop: `1px solid ${theme.colors.border.tertiary}`,
   backgroundColor: theme.colors.background.surface,
-  padding: theme.spacing.lg,
+  padding: theme.spacing[3],
 });
 
 const ProductTableFilterAction = () => {
@@ -118,7 +118,7 @@ const ProductTableFilterAction = () => {
   };
 
   return (
-    <Flex gap={12} css={filterActionBarCss}>
+    <Flex gap={3} css={filterActionBarCss}>
       {activeFilterKeys.map((key) => (
         <Capsule
           key={key}
@@ -130,7 +130,7 @@ const ProductTableFilterAction = () => {
           multiple={key === 'category_ids'}
         />
       ))}
-      <Button variant="link" size="sm" onClick={handleClearAll}>
+      <Button variant="link" onClick={handleClearAll}>
         {__('Clear All', 'kirki-ecommerce')}
       </Button>
     </Flex>

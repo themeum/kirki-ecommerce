@@ -41,10 +41,10 @@ export const StandardUnit = () => {
           </CardDescription>
         </CardHeader>
         <CardContent css={cardStyles.largeContent}>
-          <Flex direction="column" gap={8}>
+          <Flex direction="column" gap={2}>
             <Card css={styles.optionCard}>
               <CardContent>
-                <Flex direction="column" gap={16}>
+                <Flex direction="column" gap={4}>
                   <SelectField
                     name="weight_unit"
                     label={__('Weight unit', 'kirki-ecommerce')}
@@ -61,18 +61,12 @@ export const StandardUnit = () => {
             <Card css={styles.optionCard}>
               <CardContent>
                 <Flex>
-                  <Flex direction="column" gap={6}>
-                    <Text
-                      type="secondary"
-                      header={__('Show unit price', 'kirki-ecommerce')}
-                    />
-                    <Text
-                      type="primary"
-                      subHeader={__(
+                  <Flex direction="column" gap={2}>
+                    <Text weight="medium">{__('Show unit price', 'kirki-ecommerce')}</Text>
+                    <Text color="secondary">{__(
                         'Enable to show unit price in your products',
                         'kirki-ecommerce',
-                      )}
-                    />
+                      )}</Text>
                   </Flex>
                   <ActionGroup>
                     <SwitchField name="is_unit_price_visible" />

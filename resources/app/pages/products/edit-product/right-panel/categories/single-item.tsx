@@ -27,7 +27,7 @@ const SingleItem = ({
 
   return (
     <div css={styles.row}>
-      <Flex gap={8} style={{ alignItems: 'center' }}>
+      <Flex gap={2} align="center">
         <Checkbox
           id={`category-${category.id}`}
           checked={isChecked}
@@ -47,7 +47,7 @@ const styles = {
   row: scoped({
     width: '100%',
     boxSizing: 'border-box',
-    padding: `${theme.spacing.md} ${theme.spacing['2xl']}`,
+    padding: `${theme.spacing[2]} ${theme.spacing[4]}`,
     ...itemCenter(),
   }),
 };

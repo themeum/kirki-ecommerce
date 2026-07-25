@@ -1,8 +1,12 @@
 import type { KeyboardEvent } from 'react';
 import { useState, useEffect } from 'react';
 
-import Flex from '@/components/ui/flex';
-import Label from '@/components/ui/label';
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from '@/components/ui/field';
 import { theme } from '@/theme';
 import { itemCenter, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
@@ -63,12 +67,8 @@ const ColorPicker = ({
   };
 
   return (
-    <Flex direction="column" gap={8}>
-      {label && (
-        <Label error={Boolean(error)} helpText={error ? error : helpText}>
-          {label}
-        </Label>
-      )}
+    <Field data-invalid={error ? true : undefined}>
+      {label && <FieldLabel>{label}</FieldLabel>}
       <div css={styles.wrapper}>
         <div css={styles.inner}>
           <div
@@ -91,7 +91,9 @@ const ColorPicker = ({
           />
         </div>
       </div>
-    </Flex>
+      {helpText && !error && <FieldDescription>{helpText}</FieldDescription>}
+      {typeof error === 'string' && <FieldError>{error}</FieldError>}
+    </Field>
   );
 };
 
@@ -103,14 +105,14 @@ const styles = {
   wrapper: scoped({
     border: `1px solid ${theme.colors.border.alt}`,
     borderRadius: theme.radius.md,
-    padding: `${theme.spacing.xxs} ${theme.spacing.md}`,
+    padding: `${theme.spacing[1]} ${theme.spacing[2]}`,
     '&:focus-within': {
       boxShadow: `0px 0px 0px 1.5px ${theme.colors.border.ring}`,
     },
   }),
   inner: scoped({
     ...itemCenter(),
-    gap: theme.spacing.md,
+    gap: theme.spacing[2],
     width: '100%',
   }),
   swatch: scoped({
@@ -118,7 +120,7 @@ const styles = {
     height: '16px',
     width: '16px',
     border: `1px solid ${theme.colors.border.alt}`,
-    borderRadius: '50%',
+    borderRadius: theme.radius.full,
     flexShrink: 0,
     cursor: 'pointer',
   }),
@@ -126,7 +128,7 @@ const styles = {
     border: 'none !important',
     outline: 'none !important',
     flex: '1 !important',
-    padding: `${theme.spacing.none} !important`,
+    padding: `${theme.spacing[0]} !important`,
     '&:focus, &:focus-visible, &:active': {
       border: 'none !important',
       outline: 'none !important',

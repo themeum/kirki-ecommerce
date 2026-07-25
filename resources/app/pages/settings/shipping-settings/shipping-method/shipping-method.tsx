@@ -150,7 +150,7 @@ export const ShippingMethod = ({
             {!shippingMethodList?.length ? (
               <Card css={cardStyles.innerDarkCard}>
                 <CardContent css={[cardStyles.innerDarkContent, styles.emptyState]}>
-                  <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
+                  <Flex direction="column" gap={2} align="center">
                     <BoxOpenIcon />
                     <span css={styles.emptyStateText}>
                       {__(
@@ -181,10 +181,10 @@ export const ShippingMethod = ({
 
 const styles = {
   zoneMethodsWrap: scoped({
-    marginTop: theme.spacing.lg,
+    marginTop: theme.spacing[3],
   }),
   emptyState: scoped({
-    padding: `${theme.spacing['7xl']} ${theme.spacing.none}`,
+    padding: `${theme.spacing[9]} ${theme.spacing[0]}`,
   }),
   emptyStateText: scoped({
     color: theme.colors.text.subdued,

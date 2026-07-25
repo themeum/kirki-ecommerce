@@ -1,4 +1,4 @@
-import { type SerializedStyles } from '@emotion/react';
+import { type SerializedStyles, css } from '@emotion/react';
 import {
   forwardRef,
   useEffect,
@@ -11,7 +11,12 @@ import { Replace, Trash2 } from 'lucide-react';
 import MediaSelector from '@/components/media-selector';
 import Button from '@/components/ui/button';
 import Flex from '@/components/ui/flex';
-import Label from '@/components/ui/label';
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from '@/components/ui/field';
 import { ThumbnailPlaceholder } from '@/icons';
 import { theme } from '@/theme';
 import { flexCenter, scoped } from '@/theme/mixins';
@@ -51,19 +56,17 @@ const Thumbnail = forwardRef<HTMLDivElement, ThumbnailProps>((props, ref) => {
   } = props;
 
   const [imgSrc, setImgSrc] = useState(src);
-  const help = typeof error === 'string' ? error : helpText;
 
   useEffect(() => {
     setImgSrc(src);
   }, [src]);
 
   return (
-    <Flex direction="column" gap={8} style={{ maxWidth: '100%' }}>
-      {label && (
-        <Label error={Boolean(error)} helpText={help}>
-          {label}
-        </Label>
-      )}
+    <Field
+      data-invalid={error ? true : undefined}
+      css={css({ maxWidth: '100%' })}
+    >
+      {label && <FieldLabel>{label}</FieldLabel>}
       <div
         ref={ref}
         css={[
@@ -80,14 +83,13 @@ const Thumbnail = forwardRef<HTMLDivElement, ThumbnailProps>((props, ref) => {
             <img src={imgSrc} alt={alt || 'thumbnail'} style={{ objectFit }} />
             {size === 'fullWidth' && (
               <div css={[styles.overlay, styles.overlayFullWidth]}>
-                <Flex gap={8} css={styles.actions}>
+                <Flex gap={2} css={styles.actions}>
                   <MediaSelector onSelect={(img) => onChange(img)}>
-                    <Button size="sm" variant="ghost" aria-label="Replace image">
+                    <Button variant="ghost" aria-label="Replace image">
                       <Replace size={16} aria-hidden="true" />
                     </Button>
                   </MediaSelector>
                   <Button
-                    size="sm"
                     variant="ghost"
                     aria-label="Remove image"
                     onClick={() => onChange('')}
@@ -102,7 +104,9 @@ const Thumbnail = forwardRef<HTMLDivElement, ThumbnailProps>((props, ref) => {
           <ThumbnailPlaceholder />
         )}
       </div>
-    </Flex>
+      {helpText && !error && <FieldDescription>{helpText}</FieldDescription>}
+      {typeof error === 'string' && <FieldError>{error}</FieldError>}
+    </Field>
   );
 });
 
@@ -129,7 +133,7 @@ const styles = {
   overlay: scoped({
     position: 'absolute',
     inset: 0,
-    background: '#1c1c1c99',
+    background: theme.colors.background.badgeDraft,
     display: 'flex',
     alignItems: 'flex-end',
     justifyContent: 'center',
@@ -137,13 +141,13 @@ const styles = {
     transition: 'opacity 0.25s ease',
   }),
   overlayFullWidth: scoped({
-    padding: theme.spacing['3xl'],
+    padding: theme.spacing[5],
     '&:hover': {
       opacity: 1,
     },
   }),
   actions: scoped({
-    paddingBottom: theme.spacing.xs,
+    paddingBottom: theme.spacing[1],
     alignItems: 'center',
     justifyContent: 'center',
   }),
@@ -162,11 +166,11 @@ const styles = {
       height: '16px',
     }),
     fullWidth: scoped({
-      padding: theme.spacing['3xl'],
+      padding: theme.spacing[5],
       width: '100%',
       height: 'auto',
-      border: '1px solid #e4e4e7',
-      backgroundColor: '#f7f7f7',
+      border: `1px solid ${theme.colors.border.gallery}`,
+      backgroundColor: theme.colors.background.placeholderSurface,
       boxSizing: 'border-box',
       img: {
         borderRadius: theme.radius.md,

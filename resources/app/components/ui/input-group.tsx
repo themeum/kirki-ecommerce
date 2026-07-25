@@ -9,7 +9,6 @@ import Button from '@/components/ui/button';
 import { theme } from '@/theme';
 import {
   flexCenter,
-  fontGeneralSettings,
   itemCenter,
   scoped,
   uiFocusRing,
@@ -322,7 +321,7 @@ const styles = {
   addon: scoped({
     ...itemCenter(),
     justifyContent: 'center',
-    gap: theme.spacing.md,
+    gap: theme.spacing[2],
     height: 'auto',
     color: theme.colors.text.secondary,
     cursor: 'text',
@@ -335,7 +334,7 @@ const styles = {
   addonAlign: {
     'inline-start': scoped({
       order: -1,
-      paddingLeft: theme.spacing.lg,
+      paddingLeft: theme.spacing[3],
       pointerEvents: 'none',
       '& > button': {
         pointerEvents: 'auto',
@@ -343,7 +342,7 @@ const styles = {
     }),
     'inline-end': scoped({
       order: 1,
-      paddingRight: theme.spacing.lg,
+      paddingRight: theme.spacing[3],
       '& > button': {
         pointerEvents: 'auto',
       },
@@ -352,13 +351,13 @@ const styles = {
       order: -1,
       width: '100%',
       justifyContent: 'flex-start',
-      padding: `${theme.spacing.lg} ${theme.spacing.lg} 0`,
+      padding: `${theme.spacing[3]} ${theme.spacing[3]} 0`,
     }),
     'block-end': scoped({
       order: 1,
       width: '100%',
       justifyContent: 'flex-start',
-      padding: `0 ${theme.spacing.lg} ${theme.spacing.lg}`,
+      padding: `0 ${theme.spacing[3]} ${theme.spacing[3]}`,
     }),
   },
   control: scoped({
@@ -371,7 +370,7 @@ const styles = {
     outline: 'none',
     boxShadow: 'none',
     boxSizing: 'border-box',
-    ...fontGeneralSettings(theme as Theme),
+    ...theme.typography.paragraph(),
     cursor: 'text',
     '&::placeholder': {
       color: theme.colors.text.secondary,
@@ -393,12 +392,12 @@ const styles = {
   }),
   input: scoped({
     minHeight: '36px',
-    padding: `${theme.spacing.xs} ${theme.spacing.lg}`,
+    padding: `${theme.spacing[1]} ${theme.spacing[3]}`,
     '&[type="number"]': {
       MozAppearance: 'textfield',
       '&::-webkit-inner-spin-button, &::-webkit-outer-spin-button': {
         WebkitAppearance: 'none',
-        margin: theme.spacing.none,
+        margin: theme.spacing[0],
       },
     },
     '&[type="search"]': {
@@ -413,16 +412,15 @@ const styles = {
   }),
   textarea: scoped({
     minHeight: '36px',
-    padding: `${theme.spacing.xs} ${theme.spacing.lg}`,
+    padding: `${theme.spacing[1]} ${theme.spacing[3]}`,
     resize: 'none',
     height: 'auto',
   }),
   text: scoped({
     ...itemCenter(),
-    gap: theme.spacing.md,
+    gap: theme.spacing[2],
+    ...theme.typography.small(),
     color: theme.colors.text.secondary,
-    fontSize: theme.typography.fontSize.sm,
-    lineHeight: theme.typography.lineHeight.tight,
     whiteSpace: 'nowrap',
     '& svg': {
       pointerEvents: 'none',
@@ -433,18 +431,17 @@ const styles = {
   }),
   buttonSizes: {
     xs: scoped({
+      ...theme.typography.small(),
       height: '24px',
-      gap: theme.spacing.xs,
+      gap: theme.spacing[1],
       borderRadius: theme.radius.md,
-      padding: `0 ${theme.spacing.md}`,
-      fontSize: theme.typography.fontSize.xs,
-      lineHeight: theme.typography.lineHeight.tight,
+      padding: `0 ${theme.spacing[2]}`,
     }),
     sm: scoped({
       height: '32px',
-      gap: theme.spacing.sm,
+      gap: theme.spacing[2],
       borderRadius: theme.radius.md,
-      padding: `0 ${theme.spacing.base}`,
+      padding: `0 ${theme.spacing[2]}`,
     }),
     'icon-xs': scoped({
       ...flexCenter(),

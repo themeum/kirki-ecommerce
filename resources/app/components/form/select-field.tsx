@@ -1,19 +1,18 @@
 import { type SerializedStyles } from '@emotion/react';
 import type { ReactNode } from 'react';
 import {
+  Controller,
   useFormContext,
   type FieldPath,
   type FieldValues,
 } from 'react-hook-form';
 
 import {
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from '@/components/ui/field';
 import {
   Select,
   SelectContent,
@@ -53,14 +52,15 @@ const SelectField = <
   css,
 }: SelectFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
+  const fieldId = String(name);
 
   return (
-    <FormField
+    <Controller
       control={control}
       name={name}
       render={({ field, fieldState }) => (
-        <FormItem css={css}>
-          {label && <FormLabel>{label}</FormLabel>}
+        <Field data-invalid={fieldState.invalid || undefined} css={css}>
+          {label && <FieldLabel htmlFor={fieldId}>{label}</FieldLabel>}
           <Select
             value={
               field.value === null || field.value === undefined
@@ -72,11 +72,13 @@ const SelectField = <
             }}
             disabled={disabled}
           >
-            <FormControl>
-              <SelectTrigger error={Boolean(fieldState.error)}>
-                <SelectValue placeholder={placeholder} />
-              </SelectTrigger>
-            </FormControl>
+            <SelectTrigger
+              id={fieldId}
+              error={Boolean(fieldState.error)}
+              aria-invalid={fieldState.invalid}
+            >
+              <SelectValue placeholder={placeholder} />
+            </SelectTrigger>
             <SelectContent>
               {options.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
@@ -85,9 +87,9 @@ const SelectField = <
               ))}
             </SelectContent>
           </Select>
-          {description && <FormDescription>{description}</FormDescription>}
-          <FormMessage />
-        </FormItem>
+          {description && <FieldDescription>{description}</FieldDescription>}
+          {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+        </Field>
       )}
     />
   );

@@ -1,141 +1,181 @@
-import { type SerializedStyles, type Theme } from '@emotion/react';
-import { forwardRef, type CSSProperties, type ReactNode } from 'react';
+import { css, type SerializedStyles } from '@emotion/react';
+import {
+  forwardRef,
+  type ComponentPropsWithoutRef,
+  type ReactNode,
+  type Ref,
+} from 'react';
 
-import Flex from '@/components/ui/flex';
-import { theme } from '@/theme';
-import { flexCenter, fontGeneralSettings, scoped } from '@/theme/mixins';
-import type { TextType } from '@/types';
+import { theme, type TypographyWeight } from '@/theme';
+import { scoped } from '@/theme/mixins';
 
-type TextProps = {
-  type?: TextType;
-  header?: ReactNode;
-  subHeader?: ReactNode;
-  style?: CSSProperties;
-  padding?: 'large' | 'small';
-  emphasis?: boolean;
-  leftIcon?: ReactNode;
-  gap?: number;
-  badge?: ReactNode;
+type TextVariant =
+  | 'heading1'
+  | 'heading2'
+  | 'heading3'
+  | 'heading4'
+  | 'heading5'
+  | 'heading6'
+  | 'paragraph'
+  | 'small'
+  | 'tiny'
+  | 'lead';
+
+type TextColor = keyof typeof theme.colors.text;
+
+type TextProps = Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'css'> & {
+  children?: ReactNode;
+  variant?: TextVariant;
+  color?: TextColor;
+  weight?: TypographyWeight;
   css?: SerializedStyles;
 };
 
-const Text = forwardRef<HTMLDivElement, TextProps>((props, ref) => {
+const Text = forwardRef<HTMLElement, TextProps>((props, ref) => {
   const {
     css: cssProp,
-    type,
-    header,
-    subHeader,
-    style = {},
-    padding,
-    emphasis,
-    leftIcon,
-    gap = 8,
-    badge,
+    children,
+    variant = 'paragraph',
+    color = 'primary',
+    weight,
+    ...rest
   } = props;
 
+  const textCss = css(
+    styles.base,
+    styles.variants[variant](weight),
+    styles.colors[color],
+    cssProp,
+  );
+
+  if (variant === 'heading1') {
+    return (
+      <h1 ref={ref as Ref<HTMLHeadingElement>} css={textCss} {...rest}>
+        {children}
+      </h1>
+    );
+  }
+
+  if (variant === 'heading2') {
+    return (
+      <h2 ref={ref as Ref<HTMLHeadingElement>} css={textCss} {...rest}>
+        {children}
+      </h2>
+    );
+  }
+
+  if (variant === 'heading3') {
+    return (
+      <h3 ref={ref as Ref<HTMLHeadingElement>} css={textCss} {...rest}>
+        {children}
+      </h3>
+    );
+  }
+
+  if (variant === 'heading4') {
+    return (
+      <h4 ref={ref as Ref<HTMLHeadingElement>} css={textCss} {...rest}>
+        {children}
+      </h4>
+    );
+  }
+
+  if (variant === 'heading5') {
+    return (
+      <h5 ref={ref as Ref<HTMLHeadingElement>} css={textCss} {...rest}>
+        {children}
+      </h5>
+    );
+  }
+
+  if (variant === 'heading6') {
+    return (
+      <h6 ref={ref as Ref<HTMLHeadingElement>} css={textCss} {...rest}>
+        {children}
+      </h6>
+    );
+  }
+
   return (
-    <Flex ref={ref} gap={gap} style={{ alignItems: 'center' }}>
-      {leftIcon && (
-        <span css={styles.icon} aria-hidden="true">
-          {leftIcon}
-        </span>
-      )}
-      <div
-        css={[
-          styles.text,
-          type && styles.textTypes[type],
-          padding && styles.padding[padding],
-          emphasis && styles.emphasis,
-          cssProp,
-        ]}
-        style={style}
-      >
-        {header && (
-          <Flex gap={8}>
-            <span css={type && styles.subheadingTypes[type]}>{header}</span>
-            {badge && <span>{badge}</span>}
-          </Flex>
-        )}
-        {subHeader && (
-          <span css={[styles.subheading, type && styles.subheadingTypes[type]]}>
-            {subHeader}
-          </span>
-        )}
-      </div>
-    </Flex>
+    <div ref={ref as Ref<HTMLDivElement>} css={textCss} {...rest}>
+      {children}
+    </div>
   );
 });
 
 Text.displayName = 'Text';
 
 export default Text;
+export type { TextColor, TextProps, TextVariant };
 
 const styles = {
-  text: scoped({
-    display: 'flex',
-    flexDirection: 'column',
-    ...fontGeneralSettings(theme as Theme),
+  base: scoped({
+    margin: 0,
   }),
-  icon: scoped({
-    ...flexCenter(),
-  }),
-  subheading: scoped({
-    color: theme.colors.text.secondary,
-  }),
-  subheadingTypes: {
-    primary: scoped({
-      ...fontGeneralSettings(theme as Theme),
-      color: theme.colors.text.secondary,
-    }),
-    secondary: scoped({
-      fontSize: '12px',
-      lineHeight: '18px',
-      fontWeight: 400,
-      color: theme.colors.text.secondary,
-    }),
-    disabled: scoped({
-      color: theme.colors.text.disabled,
-    }),
-    xsm: scoped({
-      color: theme.colors.text.subdued,
-    }),
-    tertiary: scoped({}),
-    inner: scoped({}),
+  variants: {
+    heading1: (weight?: TypographyWeight) =>
+      scoped({
+        ...(weight
+          ? theme.typography.heading1(weight)
+          : theme.typography.heading1()),
+      }),
+    heading2: (weight?: TypographyWeight) =>
+      scoped({
+        ...(weight
+          ? theme.typography.heading2(weight)
+          : theme.typography.heading2()),
+      }),
+    heading3: (weight?: TypographyWeight) =>
+      scoped({
+        ...(weight
+          ? theme.typography.heading3(weight)
+          : theme.typography.heading3()),
+      }),
+    heading4: (weight?: TypographyWeight) =>
+      scoped({
+        ...(weight
+          ? theme.typography.heading4(weight)
+          : theme.typography.heading4()),
+      }),
+    heading5: (weight?: TypographyWeight) =>
+      scoped({
+        ...(weight
+          ? theme.typography.heading5(weight)
+          : theme.typography.heading5()),
+      }),
+    heading6: (weight?: TypographyWeight) =>
+      scoped({
+        ...(weight
+          ? theme.typography.heading6(weight)
+          : theme.typography.heading6()),
+      }),
+    paragraph: (weight?: TypographyWeight) =>
+      scoped({
+        ...(weight
+          ? theme.typography.paragraph(weight)
+          : theme.typography.paragraph()),
+      }),
+    small: (weight?: TypographyWeight) =>
+      scoped({
+        ...(weight
+          ? theme.typography.small(weight)
+          : theme.typography.small()),
+      }),
+    tiny: (weight?: TypographyWeight) =>
+      scoped({
+        ...(weight ? theme.typography.tiny(weight) : theme.typography.tiny()),
+      }),
+    lead: (weight?: TypographyWeight) =>
+      scoped({
+        ...(weight ? theme.typography.lead(weight) : theme.typography.lead()),
+      }),
   },
-  textTypes: {
-    primary: scoped({
-      fontWeight: 600,
-      fontSize: '16px',
-      lineHeight: '20px',
-      rowGap: theme.spacing.md,
-    }),
-    secondary: scoped({
-      rowGap: theme.spacing.sm,
-      ...fontGeneralSettings(theme as Theme),
-      fontWeight: 500,
-    }),
-    disabled: scoped({
-      color: theme.colors.text.disabled,
-    }),
-    xsm: scoped({
-      fontFamily: 'Inter',
-      fontWeight: 400,
-      fontSize: '12px',
-      lineHeight: '18px',
-      letterSpacing: '0%',
-    }),
-    tertiary: scoped({}),
-    inner: scoped({}),
-  },
-  emphasis: scoped({
-    color: theme.colors.text.emphasis,
-  }),
-  padding: {
-    large: scoped({
-      padding: `${theme.spacing.md} ${theme.spacing.none}`,
-    }),
-    small: scoped({
-      padding: `${theme.spacing.xs} ${theme.spacing.none}`,
-    }),
-  },
+  colors: Object.fromEntries(
+    (Object.keys(theme.colors.text) as TextColor[]).map((key) => [
+      key,
+      scoped({
+        color: theme.colors.text[key],
+      }),
+    ]),
+  ) as Record<TextColor, SerializedStyles>,
 };

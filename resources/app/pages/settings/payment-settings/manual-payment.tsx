@@ -99,7 +99,7 @@ const ManualPayment = (props: ManualPaymentProps) => {
         {manualPaymentList?.length === 0 ? (
         <Card css={cardStyles.innerDarkCard}>
           <CardContent css={[cardStyles.innerDarkContent, styles.emptyStateContent]}>
-            <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
+            <Flex direction="column" gap={2} align="center">
               <CashIcon />
               <span style={{ color: theme.colors.text.subdued }}>
                 {__('No payment added yet', 'kirki-ecommerce')}
@@ -108,7 +108,7 @@ const ManualPayment = (props: ManualPaymentProps) => {
           </CardContent>
         </Card>
         ) : (
-        <Flex direction="column" gap={16}>
+        <Flex direction="column" gap={4}>
         {manualPaymentList?.map((item, index) => (
         <Card css={cardStyles.innerCard}
                 
@@ -116,33 +116,29 @@ const ManualPayment = (props: ManualPaymentProps) => {
         >
           <CardContent css={[cardStyles.innerContent, styles.gatewayItemContent]}>
 
-          <Flex style={{ alignItems: 'center' }}>
-          <Text
-          header={sprintf(
-          __('%s', 'kirki-ecommerce'),
-          item?.name || '',
-          )}
-          leftIcon={
-          item?.icon ? (
-          <img
-          height={20}
-          width={20}
-          src={item?.icon as string}
-          ></img>
-          ) : (
-          <BankIconLarge />
-          )
-          }
-          badge={
-          !item?.is_enabled && (
-          <Badge
-          text={__('Inactive', 'kirki-ecommerce')}
-          type="trashed"
-          />
-          )
-          }
-          type={!item?.is_enabled ? 'disabled' : 'secondary'}
-          />
+          <Flex align="center">
+          <Flex gap={2} align="center">
+            {item?.icon ? (
+              <img
+                height={20}
+                width={20}
+                src={item?.icon as string}
+              ></img>
+            ) : (
+              <BankIconLarge />
+            )}
+            <Text
+              weight="medium"
+              color={!item?.is_enabled ? 'disabled' : 'primary'}
+            >
+              {sprintf(__('%s', 'kirki-ecommerce'), item?.name || '')}
+            </Text>
+            {!item?.is_enabled && (
+              <Badge variant="destructive">
+                {__('Inactive', 'kirki-ecommerce')}
+              </Badge>
+            )}
+          </Flex>
           <ActionGroup>
           <ToggleButton
           value={Boolean(item?.is_enabled)}
@@ -192,10 +188,10 @@ ManualPayment.displayName = 'ManualPayment';
 
 const styles = {
   gatewayItemContent: scoped({
-    padding: `${theme.spacing.lg} ${theme.spacing['2xl']}`,
+    padding: `${theme.spacing[3]} ${theme.spacing[4]}`,
   }),
   emptyStateContent: scoped({
-    padding: `${theme.spacing['7xl']} ${theme.spacing.none}`,
+    padding: `${theme.spacing[9]} ${theme.spacing[0]}`,
   })
 };
 

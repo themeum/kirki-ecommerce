@@ -119,7 +119,6 @@ const ProductsSettings = () => {
             <>
               <Button
                 variant="ghost"
-                size="sm"
                 onClick={handleDiscardData}
               >
                 {__('Cancel', 'kirki-ecommerce')}
@@ -127,7 +126,6 @@ const ProductsSettings = () => {
               <Button
                 variant="primary"
                 onClick={form.handleSubmit(handleSaveData)}
-                size="sm"
                 loading={isPending}
               >
                 {__('Save', 'kirki-ecommerce')}
@@ -141,7 +139,7 @@ const ProductsSettings = () => {
       <Container size="sm">
         {loaded ? (
           <Form {...form}>
-            <Flex direction="column" gap={16}>
+            <Flex direction="column" gap={4}>
               <PageNavbar
                 textIcon={<ProductSettingsIcon />}
                 text={__('Products', 'kirki-ecommerce')}

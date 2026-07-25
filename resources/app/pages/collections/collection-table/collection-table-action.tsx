@@ -50,7 +50,6 @@ const CollectionTableAction = ({ onSortChange }: CollectionTableActionProps) => 
         </Select>
         <Button
           variant="outline"
-          size="sm"
           aria-label={__('Sort', 'kirki-ecommerce')}
           onClick={onSortChange}
         >
@@ -67,9 +66,9 @@ export default CollectionTableAction;
 
 const styles = {
   wrapper: scoped({
-    padding: `${theme.spacing['2xl']} ${theme.spacing.lg}`,
+    padding: `${theme.spacing[4]} ${theme.spacing[3]}`,
   }),
   selectTrigger: scoped({
-    padding: `${theme.spacing.md} ${theme.spacing['2xl']}`,
+    padding: `${theme.spacing[2]} ${theme.spacing[4]}`,
   }),
 };

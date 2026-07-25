@@ -93,7 +93,7 @@ const VariationPopover = ({
         </DialogHeader>
         <Form {...form}>
           <DialogBody>
-            <Flex direction="column" gap={16}>
+            <Flex direction="column" gap={4}>
               <TextField
                 name="title"
                 label={__('Title', 'kirki-ecommerce')}
@@ -107,12 +107,11 @@ const VariationPopover = ({
             </Flex>
           </DialogBody>
           <DialogFooter>
-            <Button variant="outline" size="sm" onClick={onClose}>
+            <Button variant="outline" onClick={onClose}>
               {__('Cancel', 'kirki-ecommerce')}
             </Button>
             <Button
               variant="primary"
-              size="sm"
               disabled={btnState === 'disabled'}
               onClick={form.handleSubmit(handleNewValueSave)}
             >

@@ -36,14 +36,14 @@ const NotFoundIllustration = () => {
         cx="118"
         cy="118"
         r="34"
-        fill="#F06B7A"
+        fill={theme.colors.icon.critical}
         fillOpacity="0.85"
       />
       <circle
         cx="118"
         cy="118"
         r="24"
-        fill="#FF8A96"
+        fill={theme.colors.border.critical}
         fillOpacity="0.55"
       />
 

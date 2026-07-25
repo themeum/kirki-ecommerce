@@ -52,7 +52,7 @@ const ShippingZoneActions = ({
     }
   };
   return (
-    <ActionGroup gap={8} style={{ alignItems: 'center' }}>
+    <ActionGroup gap={2}>
       <ToggleButton value={item?.is_enabled} onChange={() => onToggle(item)} />
       <DropdownButton
         buttonProps={{
@@ -86,6 +86,6 @@ export default ShippingZoneActions;
 const styles = {
   menuButton: scoped({
     transform: 'rotate(90deg)',
-    padding: theme.spacing.md,
+    padding: theme.spacing[2],
   }),
 };

@@ -286,7 +286,7 @@ const SingleRow = (props: SingleRowProps) => {
         css={styles.stickyCell}
         data-sticky-cell="true"
       >
-        <Flex gap={12} style={{ alignItems: 'center' }}>
+        <Flex gap={3} align="center">
           <ThumbnailSelector
             src={media?.url}
             onChange={(img) =>
@@ -298,7 +298,7 @@ const SingleRow = (props: SingleRowProps) => {
             size="small"
           />
           <span>
-            <span style={{ color: '#878593' }}>
+            <span css={styles.mutedText}>
               {`${currentVariation?.name} - `}
               {varTitle.join(' - ')}
             </span>
@@ -422,7 +422,7 @@ const SingleRow = (props: SingleRowProps) => {
               data={currentVariation}
             />
           ) : (
-            <span style={{ marginLeft: '12px' }}>_</span>
+            <span style={{ marginLeft: theme.spacing[3] }}>_</span>
           )}
           <span
             data-grabber={isMaxIndex(index) ? 'true' : undefined}
@@ -547,7 +547,7 @@ const SingleRow = (props: SingleRowProps) => {
               type="number"
             />
           ) : (
-            <span style={{ marginLeft: '12px' }}>_</span>
+            <span style={{ marginLeft: theme.spacing[3] }}>_</span>
           )}
           <span
             data-grabber={isMaxIndex(index) ? 'true' : undefined}
@@ -565,7 +565,7 @@ const SingleRow = (props: SingleRowProps) => {
               invisible
             />
           ) : (
-            <span style={{ marginLeft: '12px' }}>_</span>
+            <span style={{ marginLeft: theme.spacing[3] }}>_</span>
           )}
         </TableCell>
       )}
@@ -603,7 +603,7 @@ const SingleRow = (props: SingleRowProps) => {
               type="number"
             />
           ) : (
-            <span style={{ marginLeft: '12px' }}>_</span>
+            <span style={{ marginLeft: theme.spacing[3] }}>_</span>
           )}
 
           <span
@@ -668,7 +668,7 @@ const SingleRow = (props: SingleRowProps) => {
               <SelectContent />
             </Select>
           ) : (
-            <span style={{ marginLeft: '12px' }}>_</span>
+            <span style={{ marginLeft: theme.spacing[3] }}>_</span>
           )}
           <span
             data-grabber={isMaxIndex(index) ? 'true' : undefined}
@@ -728,6 +728,9 @@ export default SingleRow;
 const styles = {
   stickyCell: scoped({
     minWidth: '260px',
-    paddingRight: theme.spacing.lg,
+    paddingRight: theme.spacing[3],
+  }),
+  mutedText: scoped({
+    color: theme.colors.text.subdued,
   }),
 };

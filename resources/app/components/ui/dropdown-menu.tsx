@@ -1,4 +1,4 @@
-import type { SerializedStyles, Theme } from '@emotion/react';
+import type { SerializedStyles } from '@emotion/react';
 import {
   forwardRef,
   type ComponentPropsWithoutRef,
@@ -10,7 +10,7 @@ import { Check, ChevronRight, Circle } from 'lucide-react';
 
 import { getPortalContainer } from '@/libs/portal-container';
 import { theme } from '@/theme';
-import { fontGeneralSettings, scoped } from '@/theme/mixins';
+import { scoped } from '@/theme/mixins';
 import { getOverlayMotionStyles } from '@/theme/overlay-motion';
 
 const DropdownMenu = DropdownMenuPrimitive.Root;
@@ -284,17 +284,16 @@ export {
 const styles = {
   content: scoped({
     minWidth: '128px',
-    padding: `${theme.spacing.xs} 0`,
+    padding: `${theme.spacing[1]} 0`,
     border: `1px solid ${theme.colors.border.default}`,
     borderRadius: theme.radius.md,
     backgroundColor: theme.colors.background.fill,
-    boxShadow: '0px 4px 6px -1px #0000001a',
+    boxShadow: theme.shadow.md,
     maxHeight: '424px',
     overflowX: 'hidden',
     overflowY: 'auto',
     boxSizing: 'border-box',
     color: theme.colors.text.primary,
-    ...fontGeneralSettings(theme as Theme),
     ...getOverlayMotionStyles(
       'var(--radix-dropdown-menu-content-transform-origin)',
     ),
@@ -314,21 +313,19 @@ const styles = {
     position: 'relative',
     display: 'flex',
     alignItems: 'center',
-    columnGap: theme.spacing.md,
-    margin: `0 ${theme.spacing.xs}`,
-    padding: `${theme.spacing.sm} ${theme.spacing.md}`,
+    columnGap: theme.spacing[2],
+    margin: `0 ${theme.spacing[1]}`,
+    padding: `${theme.spacing[2]} ${theme.spacing[2]}`,
     height: '32px',
     boxSizing: 'border-box',
     borderRadius: theme.radius.sm,
     cursor: 'pointer',
     outline: 'none',
+    ...theme.typography.small(),
     color: theme.colors.text.primary,
-    ...fontGeneralSettings(theme as Theme),
-    fontSize: '14px',
-    lineHeight: '20px',
     userSelect: 'none',
     '&:hover, &[data-highlighted]': {
-      backgroundColor: '#f4f4f5',
+      backgroundColor: theme.colors.background.optionHover,
     },
     '&[data-disabled]': {
       opacity: 0.5,
@@ -336,18 +333,18 @@ const styles = {
       color: theme.colors.text.disabled,
     },
     '&[data-state="open"]': {
-      backgroundColor: '#f4f4f5',
+      backgroundColor: theme.colors.background.optionHover,
     },
   }),
   itemInset: scoped({
-    paddingLeft: theme.spacing['6xl'],
+    paddingLeft: theme.spacing[8],
   }),
   checkboxOrRadioItem: scoped({
-    paddingLeft: `calc(${theme.spacing.md} + 16px + ${theme.spacing.md})`,
+    paddingLeft: `calc(${theme.spacing[2]} + ${theme.spacing[4]} + ${theme.spacing[2]})`,
   }),
   itemIndicator: scoped({
     position: 'absolute',
-    left: theme.spacing.md,
+    left: theme.spacing[2],
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -362,26 +359,22 @@ const styles = {
     color: theme.colors.icon.secondary,
   }),
   label: scoped({
-    padding: `${theme.spacing.sm} ${theme.spacing.md}`,
-    margin: `0 ${theme.spacing.xs}`,
-    fontWeight: 600,
-    fontSize: '14px',
-    lineHeight: '20px',
+    padding: `${theme.spacing[2]} ${theme.spacing[2]}`,
+    margin: `0 ${theme.spacing[1]}`,
+    ...theme.typography.small('semibold'),
     color: theme.colors.text.primary,
     pointerEvents: 'none',
   }),
   separator: scoped({
     height: '1px',
     backgroundColor: theme.colors.border.default,
-    margin: `${theme.spacing.xs} 0`,
+    margin: `${theme.spacing[1]} 0`,
     border: 'none',
   }),
   shortcut: scoped({
     marginLeft: 'auto',
-    paddingLeft: theme.spacing['2xl'],
-    fontSize: '12px',
-    lineHeight: '16px',
-    letterSpacing: '0.1px',
-    color: '#71717a',
+    paddingLeft: theme.spacing[4],
+    ...theme.typography.small(),
+    color: theme.colors.text.muted,
   }),
 };

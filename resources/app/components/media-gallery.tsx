@@ -23,8 +23,13 @@ import MediaSelector from '@/components/media-selector';
 import Button from '@/components/ui/button';
 import { MoveIcon, PlusIcon, TrashIcon } from '@/icons';
 import Checkbox from '@/components/ui/checkbox';
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
-import Label from '@/components/ui/label';
 import { theme } from '@/theme';
 import { flexCenter, scoped } from '@/theme/mixins';
 import type { MediaRef } from '@/types';
@@ -123,7 +128,6 @@ const SortableItem = ({
         {!disableDrag && (
           <Button
             variant="ghost"
-            size="sm"
             aria-label={__('Move', 'kirki-ecommerce')}
             {...listeners}
             style={{
@@ -148,12 +152,11 @@ const SortableItem = ({
           />
           {!selectedImages?.length && (
             <Button
-              size="sm"
               variant="ghost"
               aria-label={__('Delete', 'kirki-ecommerce')}
               onClick={onDeleteImage}
             >
-              <TrashIcon color="#D40000" />
+              <TrashIcon color={theme.colors.text.critical} />
             </Button>
           )}
         </div>
@@ -254,9 +257,9 @@ const MediaGallery = ({
   };
 
   return (
-    <Flex direction="column" gap={8}>
+    <Flex direction="column" gap={2}>
       {selectedImages?.length > 0 ? (
-        <Flex style={{ alignItems: 'center', justifyContent: 'space-between' }}>
+        <Flex align="center" justify="space-between">
           <Checkbox
             value={selectedImages?.length === mediaItems?.length}
             label={`${selectedImages?.length} ${
@@ -270,7 +273,7 @@ const MediaGallery = ({
           />
           <Button
             variant="link"
-            style={{ color: '#D40000' }}
+            css={styles.deleteButton}
             onClick={handleDeleteSelectedImages}
           >
             {__('Delete', 'kirki-ecommerce')}
@@ -279,12 +282,13 @@ const MediaGallery = ({
       ) : (
         <>
           {label && (
-            <Label
-              text={label}
-              type={error ? 'error' : ''}
-              helpText={error ? error : helpText}
-              style={{ minHeight: '23px' }}
-            />
+            <Field data-invalid={error ? true : undefined}>
+              <FieldLabel style={{ minHeight: '23px' }}>{label}</FieldLabel>
+              {helpText && !error && (
+                <FieldDescription>{helpText}</FieldDescription>
+              )}
+              {typeof error === 'string' && <FieldError>{error}</FieldError>}
+            </Field>
           )}
         </>
       )}
@@ -350,7 +354,7 @@ const styles = {
   mediaGallery: scoped({
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fill, minmax(138px, 1fr))',
-    gap: theme.spacing.lg,
+    gap: theme.spacing[3],
   }),
   galleryItem: scoped({
     aspectRatio: '1 / 1',
@@ -378,7 +382,7 @@ const styles = {
   itemOverlay: scoped({
     position: 'absolute',
     inset: 0,
-    background: '#00000033',
+    background: theme.colors.background.badgeDraft,
     opacity: 0,
     transition: 'opacity 0.2s ease',
     zIndex: 2,
@@ -407,17 +411,15 @@ const styles = {
   remainingOverlayText: scoped({
     position: 'absolute',
     inset: 0,
-    fontSize: '18px',
-    fontWeight: 400,
+    ...theme.typography.large('normal'),
     color: theme.colors.text.light,
-    background: 'rgba(0, 0, 0, 0.35)',
+    background: theme.colors.background.badgeDraft,
     borderRadius: 'inherit',
     ...flexCenter(),
   }),
   addItem: scoped({
     border: `2px dashed ${theme.colors.border.gallery}`,
     color: theme.colors.background.fillBrand,
-    fontSize: '32px',
     cursor: 'pointer',
     background: theme.colors.background.surfaceSecondary,
     ...flexCenter(),
@@ -431,5 +433,8 @@ const styles = {
     '&:active': {
       cursor: 'grabbing',
     },
+  }),
+  deleteButton: scoped({
+    color: theme.colors.text.critical,
   }),
 };

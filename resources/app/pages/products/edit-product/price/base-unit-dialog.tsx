@@ -1,16 +1,14 @@
 import { useEffect, useState, type Dispatch, type SetStateAction } from 'react';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import Button from '@/components/ui/button';
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
+  Field,
+  FieldError,
+  FieldLabel,
+} from '@/components/ui/field';
+import { Form } from '@/components/ui/form';
 import Input from '@/components/ui/input';
 import {
   Popover,
@@ -141,45 +139,47 @@ const BaseUnitPopup = ({
       </PopoverTrigger>
       <PopoverContent align="start" style={{ width: '280px' }}>
         <Form {...form}>
-          <Flex direction="column" gap={16}>
-            <Flex direction="column" gap={12}>
-              <Flex direction="column" gap={8}>
-                <FormLabel>
+          <Flex direction="column" gap={4}>
+            <Flex direction="column" gap={3}>
+              <Flex direction="column" gap={2}>
+                <FieldLabel>
                   {__('Total unit in product', 'kirki-ecommerce')}
-                </FormLabel>
-                <Flex gap={8}>
+                </FieldLabel>
+                <Flex gap={2}>
                   <div style={{ flex: 1 }}>
-                    <FormField
+                    <Controller
                       control={form.control}
                       name="total_unit_amount"
                       render={({ field, fieldState }) => (
-                        <FormItem>
-                          <FormControl>
-                            <Input
-                              type="number"
-                              min={0}
-                              value={field.value ?? ''}
-                              onChange={(event) => {
-                                field.onChange(event.target.value);
-                                form.clearErrors([
-                                  'total_unit_amount',
-                                  'total_unit',
-                                ]);
-                              }}
-                              error={Boolean(fieldState.error)}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
+                        <Field data-invalid={fieldState.invalid || undefined}>
+                          <Input
+                            id="total_unit_amount"
+                            type="number"
+                            min={0}
+                            value={field.value ?? ''}
+                            onChange={(event) => {
+                              field.onChange(event.target.value);
+                              form.clearErrors([
+                                'total_unit_amount',
+                                'total_unit',
+                              ]);
+                            }}
+                            error={Boolean(fieldState.error)}
+                            aria-invalid={fieldState.invalid}
+                          />
+                          {fieldState.invalid && (
+                            <FieldError errors={[fieldState.error]} />
+                          )}
+                        </Field>
                       )}
                     />
                   </div>
                   <div style={{ width: '50%' }}>
-                    <FormField
+                    <Controller
                       control={form.control}
                       name="total_unit"
                       render={({ field, fieldState }) => (
-                        <FormItem>
+                        <Field data-invalid={fieldState.invalid || undefined}>
                           <Select
                             value={field.value ?? ''}
                             onValueChange={(value) => {
@@ -187,11 +187,13 @@ const BaseUnitPopup = ({
                               form.clearErrors(['total_unit_amount', 'total_unit']);
                             }}
                           >
-                            <FormControl>
-                              <SelectTrigger error={Boolean(fieldState.error)}>
-                                <SelectValue />
-                              </SelectTrigger>
-                            </FormControl>
+                            <SelectTrigger
+                              id="total_unit"
+                              error={Boolean(fieldState.error)}
+                              aria-invalid={fieldState.invalid}
+                            >
+                              <SelectValue />
+                            </SelectTrigger>
                             <SelectContent>
                               {unitList.map((item, index) =>
                                 item.heading ? (
@@ -209,48 +211,52 @@ const BaseUnitPopup = ({
                               )}
                             </SelectContent>
                           </Select>
-                          <FormMessage />
-                        </FormItem>
+                          {fieldState.invalid && (
+                            <FieldError errors={[fieldState.error]} />
+                          )}
+                        </Field>
                       )}
                     />
                   </div>
                 </Flex>
               </Flex>
-              <Flex direction="column" gap={8}>
-                <FormLabel>{__('Base unit', 'kirki-ecommerce')}</FormLabel>
-                <Flex gap={8}>
+              <Flex direction="column" gap={2}>
+                <FieldLabel>{__('Base unit', 'kirki-ecommerce')}</FieldLabel>
+                <Flex gap={2}>
                   <div style={{ flex: 1 }}>
-                    <FormField
+                    <Controller
                       control={form.control}
                       name="base_unit_amount"
                       render={({ field, fieldState }) => (
-                        <FormItem>
-                          <FormControl>
-                            <Input
-                              type="number"
-                              min={0}
-                              value={field.value ?? ''}
-                              onChange={(event) => {
-                                field.onChange(event.target.value);
-                                form.clearErrors([
-                                  'base_unit_amount',
-                                  'base_unit',
-                                ]);
-                              }}
-                              error={Boolean(fieldState.error)}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
+                        <Field data-invalid={fieldState.invalid || undefined}>
+                          <Input
+                            id="base_unit_amount"
+                            type="number"
+                            min={0}
+                            value={field.value ?? ''}
+                            onChange={(event) => {
+                              field.onChange(event.target.value);
+                              form.clearErrors([
+                                'base_unit_amount',
+                                'base_unit',
+                              ]);
+                            }}
+                            error={Boolean(fieldState.error)}
+                            aria-invalid={fieldState.invalid}
+                          />
+                          {fieldState.invalid && (
+                            <FieldError errors={[fieldState.error]} />
+                          )}
+                        </Field>
                       )}
                     />
                   </div>
                   <div style={{ width: '50%' }}>
-                    <FormField
+                    <Controller
                       control={form.control}
                       name="base_unit"
                       render={({ field, fieldState }) => (
-                        <FormItem>
+                        <Field data-invalid={fieldState.invalid || undefined}>
                           <Select
                             value={field.value ?? ''}
                             onValueChange={(value) => {
@@ -258,11 +264,13 @@ const BaseUnitPopup = ({
                               form.clearErrors(['base_unit_amount', 'base_unit']);
                             }}
                           >
-                            <FormControl>
-                              <SelectTrigger error={Boolean(fieldState.error)}>
-                                <SelectValue />
-                              </SelectTrigger>
-                            </FormControl>
+                            <SelectTrigger
+                              id="base_unit"
+                              error={Boolean(fieldState.error)}
+                              aria-invalid={fieldState.invalid}
+                            >
+                              <SelectValue />
+                            </SelectTrigger>
                             <SelectContent>
                               {baseUnitOptions.map((item) => (
                                 <SelectItem
@@ -274,15 +282,17 @@ const BaseUnitPopup = ({
                               ))}
                             </SelectContent>
                           </Select>
-                          <FormMessage />
-                        </FormItem>
+                          {fieldState.invalid && (
+                            <FieldError errors={[fieldState.error]} />
+                          )}
+                        </Field>
                       )}
                     />
                   </div>
                 </Flex>
               </Flex>
             </Flex>
-            <Flex gap={8}>
+            <Flex gap={2}>
               <Button
                 variant="ghost"
                 style={{ flex: 1 }}

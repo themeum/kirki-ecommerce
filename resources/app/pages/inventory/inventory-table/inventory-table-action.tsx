@@ -49,7 +49,7 @@ const InventoryTableAction = ({
           </SelectTrigger>
           <SelectContent />
         </Select>
-        <Button variant="outline" size="sm">
+        <Button variant="outline">
           <ListFilter />
           {__('Filter', 'kirki-ecommerce')}
         </Button>
@@ -80,9 +80,9 @@ export default InventoryTableAction;
 
 const styles = {
   wrapper: scoped({
-    padding: `${theme.spacing['2xl']} ${theme.spacing.lg}`,
+    padding: `${theme.spacing[4]} ${theme.spacing[3]}`,
   }),
   selectTrigger: scoped({
-    padding: `${theme.spacing.md} ${theme.spacing['2xl']}`,
+    padding: `${theme.spacing[2]} ${theme.spacing[4]}`,
   }),
 };

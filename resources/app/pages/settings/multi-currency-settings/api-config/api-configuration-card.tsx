@@ -57,32 +57,24 @@ const ApiConfigurationCard = ({
   return (
     <Card>
       <CardContent>
-        <Flex direction={'column'} gap={20}>
+        <Flex direction={'column'} gap={5}>
           <Flex
-            style={{
-              justifyContent: 'space-between',
-              alignItems: 'flex-start',
-            }}
-          >
-            <Flex direction={'column'} gap={8}>
-              <Text
-                type="primary"
-                header={selectedAPI}
-                leftIcon={<FlagIcon />}
-                badge={
-                  <Badge
-                    text={'Configured'}
-                    type="published"
-                    leftIcon={<RadioTickIcon />}
-                  />
-                }
-              />
-              <Text
-                subHeader={sprintf(
+            justify="space-between" align="flex-start">
+            <Flex direction={'column'} gap={2}>
+              <Flex gap={2} align="center">
+                <FlagIcon />
+                <Text weight="semibold">{selectedAPI}</Text>
+                <Badge variant="success">
+                  <span data-icon="inline-start" aria-hidden="true">
+                    <RadioTickIcon />
+                  </span>
+                  Configured
+                </Badge>
+              </Flex>
+              <Text color="secondary">{sprintf(
                   __(`Last tested: %s`, 'kirki-ecommerce'),
                   dateFormatter(dataObj?.last_sync_at as string, 'datetime'),
-                )}
-              />
+                )}</Text>
             </Flex>
             <Button
               variant="outline"
@@ -93,10 +85,9 @@ const ApiConfigurationCard = ({
             </Button>
           </Flex>
           {usage && usage !== null && (
-            <Flex direction={'column'} gap={6}>
+            <Flex direction={'column'} gap={2}>
               <ProgressBar
                 value={Number(usage?.used)}
-                labelStyle={{ fontWeight: '400' }}
                 showProgressIndicator={false}
                 style={{ gap: '10px' }}
                 progressBarColor={theme.primitives.colors.gray16}
@@ -107,30 +98,21 @@ const ApiConfigurationCard = ({
                   usage?.total ?? 0,
                 )}
               />
-              <Text
-                header={sprintf(
+              <Text style={{ color: theme.primitives.colors.gray12 }}>{sprintf(
                   __('Resets on %s', 'kirki-ecommerce'),
                   dateFormatter(dataObj?.next_sync_at as string),
-                )}
-                style={{ color: theme.primitives.colors.gray12 }}
-              />
+                )}</Text>
             </Flex>
           )}
           <Card css={styles.innerDarkCard}>
             <CardContent css={styles.innerDarkContent}>
-              <Flex gap={4}>
-                <Text
-                  header={__('Fallback Behavior: ', 'kirki-ecommerce')}
-                  style={{ color: theme.primitives.colors.gray12 }}
-                />
-                <Text header={formatValue(apiConfigObj?.fallback_behaviour)} />
+              <Flex gap={1}>
+                <Text style={{ color: theme.primitives.colors.gray12 }}>{__('Fallback Behavior: ', 'kirki-ecommerce')}</Text>
+                <Text>{formatValue(apiConfigObj?.fallback_behaviour)}</Text>
               </Flex>
-              <Flex gap={4}>
-                <Text
-                  header={__('Update Frequency: ', 'kirki-ecommerce')}
-                  style={{ color: theme.primitives.colors.gray12 }}
-                />
-                <Text header={formatValue(apiConfigObj?.update_frequency)} />
+              <Flex gap={1}>
+                <Text style={{ color: theme.primitives.colors.gray12 }}>{__('Update Frequency: ', 'kirki-ecommerce')}</Text>
+                <Text>{formatValue(apiConfigObj?.update_frequency)}</Text>
               </Flex>
             </CardContent>
           </Card>
@@ -149,12 +131,12 @@ const styles = {
     borderRadius: theme.radius.sm,
     backgroundColor: theme.colors.background.surfaceSecondary,
     border: 'none',
-    padding: theme.spacing.none,
+    padding: theme.spacing[0],
   }),
   innerDarkContent: scoped({
     display: 'flex',
     flexDirection: 'column',
-    gap: theme.spacing.xs,
-    padding: theme.spacing.md,
+    gap: theme.spacing[1],
+    padding: theme.spacing[2],
   }),
 };

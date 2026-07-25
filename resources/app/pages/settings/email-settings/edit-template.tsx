@@ -1,6 +1,7 @@
+import { css } from '@emotion/react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 
 import ColorPickerField from '@/components/form/color-picker-field';
 import TextField from '@/components/form/text-field';
@@ -12,13 +13,8 @@ import {
 } from '@/components/ui/card';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from '@/components/ui/form';
+import { Field, FieldError } from '@/components/ui/field';
+import { Form } from '@/components/ui/form';
 import PageHeading from '@/components/ui/page-heading';
 import ProgressBar from '@/components/ui/progressbar';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -142,12 +138,11 @@ const EditTemplate = () => {
         sticky
         actions={
           <>
-            <Button variant="ghost" size="sm" onClick={handleDiscard}>
+            <Button variant="ghost" onClick={handleDiscard}>
               {__('Discard', 'kirki-ecommerce')}
             </Button>
             <Button
               variant="primary"
-              size="sm"
               onClick={form.handleSubmit(handleSaveData)}
               loading={isPending}
             >
@@ -159,16 +154,17 @@ const EditTemplate = () => {
       <Container size="fullWidth" css={styles.container}>
         {loaded ? (
           <Form {...form}>
-            <Flex gap={48} style={{ width: '100%' }}>
-              <Flex direction="column" gap={20} style={{ width: '44%' }}>
+            <Flex gap={12} css={css({ width: '100%' })}>
+              <Flex direction="column" gap={5} css={css({ width: '44%' })}>
                 <Card css={[cardStyles.largeCard, styles.roundedCard]}>
                   <CardContent css={cardStyles.largeContentPadded}>
 
-                  <Text
-                  type="primary"
-                  header={'Logo'}
-                  subHeader={'Update the logo & style your way'}
-                  />
+                  <Flex direction="column" gap={2}>
+                    <Text weight="semibold">Logo</Text>
+                    <Text color="secondary">
+                      Update the logo & style your way
+                    </Text>
+                  </Flex>
                   <ThumbnailField
                   name="logo"
                   placeholder={__(
@@ -183,67 +179,69 @@ const EditTemplate = () => {
                   label={__('Height', 'kirki-ecommerce')}
                   type="number"
                   />
-                  <FormField
-                  control={form.control}
-                  name="height"
-                  render={({ field }) => (
-                  <FormItem>
-                  <FormControl>
-                  <ProgressBar
-                  value={Number(field.value) || 0}
-                  onChange={(value) => field.onChange(value)}
-                  label={'Height'}
-                  rightText={`${heightValue}px`}
+                  <Controller
+                    control={form.control}
+                    name="height"
+                    render={({ field, fieldState }) => (
+                      <Field data-invalid={fieldState.invalid || undefined}>
+                        <ProgressBar
+                          value={Number(field.value) || 0}
+                          onChange={(value) => field.onChange(value)}
+                          label={'Height'}
+                          rightText={`${heightValue}px`}
+                        />
+                        {fieldState.invalid && (
+                          <FieldError errors={[fieldState.error]} />
+                        )}
+                      </Field>
+                    )}
                   />
-                  </FormControl>
-                  <FormMessage />
-                  </FormItem>
-                  )}
-                  />
-                  <FormField
-                  control={form.control}
-                  name="position"
-                  render={({ field }) => (
-                  <FormItem>
-                  <FormControl>
-                  <Tabs
-                  value={String(
-                  POSITION_MAP[field.value || ''] ?? 0,
-                  )}
-                  onValueChange={(value) => {
-                  field.onChange(
-                  INDEX_TO_POSITION[Number(value)] || 'start',
-                  );
-                  }}
-                  >
-                  <TabsList>
-                  <TabsTrigger value="0">
-                  <AlignLeftIcon />
-                  </TabsTrigger>
-                  <TabsTrigger value="1">
-                  <AlignCenterIcon />
-                  </TabsTrigger>
-                  <TabsTrigger value="2">
-                  <AlignLeftIcon
-                  style={{ transform: 'scaleX(-1)' }}
-                  />
-                  </TabsTrigger>
-                  </TabsList>
-                  </Tabs>
-                  </FormControl>
-                  <FormMessage />
-                  </FormItem>
-                  )}
+                  <Controller
+                    control={form.control}
+                    name="position"
+                    render={({ field, fieldState }) => (
+                      <Field data-invalid={fieldState.invalid || undefined}>
+                        <Tabs
+                          value={String(
+                            POSITION_MAP[field.value || ''] ?? 0,
+                          )}
+                          onValueChange={(value) => {
+                            field.onChange(
+                              INDEX_TO_POSITION[Number(value)] || 'start',
+                            );
+                          }}
+                        >
+                          <TabsList>
+                            <TabsTrigger value="0">
+                              <AlignLeftIcon />
+                            </TabsTrigger>
+                            <TabsTrigger value="1">
+                              <AlignCenterIcon />
+                            </TabsTrigger>
+                            <TabsTrigger value="2">
+                              <AlignLeftIcon
+                                style={{ transform: 'scaleX(-1)' }}
+                              />
+                            </TabsTrigger>
+                          </TabsList>
+                        </Tabs>
+                        {fieldState.invalid && (
+                          <FieldError errors={[fieldState.error]} />
+                        )}
+                      </Field>
+                    )}
                   />
                   </CardContent>
                 </Card>
                 <Card css={[cardStyles.largeCard, styles.roundedCard]}>
                   <CardContent css={cardStyles.largeContentPadded}>
 
-                  <Text
-                  header={'Colors'}
-                  subHeader={'Style how the emails will look'}
-                  />
+                  <Flex direction="column" gap={2}>
+                    <Text weight="semibold">Colors</Text>
+                    <Text color="secondary">
+                      Style how the emails will look
+                    </Text>
+                  </Flex>
                   <ColorPickerField
                   name="colors.background"
                   label={'Background'}
@@ -263,22 +261,14 @@ const EditTemplate = () => {
                 </Card>
               </Flex>
 
-              <Flex style={{ width: '56%' }} direction="column" gap={16}>
+              <Flex direction="column" gap={4} css={css({ width: '56%' })}>
                 <Flex
-                  style={{
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                  }}
-                >
-                  <Text header={'Template Preview'} />
-                  <Text
-                    style={{
-                      fontSize: '12px',
-                      lineHeight: '18px',
-                    }}
-                    header={'Send Text Mail'}
-                    leftIcon={<SendIcon />}
-                  />
+                  align="center" justify="space-between">
+                  <Text weight="semibold">Template Preview</Text>
+                  <Flex gap={2} align="center">
+                    <SendIcon />
+                    <Text css={styles.sendTextMail}>Send Text Mail</Text>
+                  </Flex>
                 </Flex>
                 <Card css={styles.squareCard}>
                   <CardContent>
@@ -301,20 +291,21 @@ export default EditTemplate;
 
 const styles = {
   pageHeading: scoped({
-    fontSize: '16px',
-    fontWeight: 400,
-    lineHeight: '28px',
-    padding: `0px ${theme.spacing['6xl']}`,
+    ...theme.typography.paragraph(),
+    padding: `${theme.spacing[0]} ${theme.spacing[8]}`,
     height: '32px',
   }),
   container: scoped({
     width: '100%',
-    padding: `${theme.spacing.lg} 103px`,
+    padding: `${theme.spacing[3]} 103px`,
   }),
   roundedCard: scoped({
     borderRadius: theme.radius.lg,
   }),
   squareCard: scoped({
     borderRadius: theme.radius.none,
+  }),
+  sendTextMail: scoped({
+    ...theme.typography.small(),
   }),
 };

@@ -24,15 +24,14 @@ const CustomerOverview = () => {
   return (
     <Card css={[cardStyles.formCard, styles.roundedCard]}>
       <CardHeader>
-        <Text
-          header={__('Basic Info', 'kirki-ecommerce')}
-          type="primary"
-          leftIcon={<FileTextIcon />}
-        />
+        <Flex gap={2} align="center">
+          <FileTextIcon />
+          <Text weight="semibold">{__('Basic Info', 'kirki-ecommerce')}</Text>
+        </Flex>
       </CardHeader>
       <Card css={cardStyles.innerCard}>
         <CardContent css={cardStyles.innerContent}>
-          <Flex direction="column" gap={16}>
+          <Flex direction="column" gap={4}>
             <TextField
               name="first_name"
               label={__('First Name', 'kirki-ecommerce')}
@@ -81,9 +80,9 @@ export default CustomerOverview;
 
 const styles = {
   roundedCard: scoped({
-    padding: theme.spacing['3xl'],
+    padding: theme.spacing[5],
     borderRadius: theme.radius.xl,
-    gap: theme.spacing['3xl'],
+    gap: theme.spacing[5],
   }),
 };
 

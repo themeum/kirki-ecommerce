@@ -118,7 +118,7 @@ export const AddStatePopup = (props: AddStatePopupProps) => {
         </DialogHeader>
         <Form {...form}>
           <DialogBody>
-            <Flex direction="column" gap={8}>
+            <Flex direction="column" gap={2}>
               <Label htmlFor="add-state-search">
                 {__('Regions', 'kirki-ecommerce')}
               </Label>
@@ -139,7 +139,7 @@ export const AddStatePopup = (props: AddStatePopupProps) => {
                 }}
               >
                 <Flex>
-                  <Flex gap={8} style={{ alignItems: 'center' }}>
+                  <Flex gap={2} align="center">
                     <Checkbox
                       id="add-state-select-all"
                       checked={selectAll}
@@ -154,7 +154,7 @@ export const AddStatePopup = (props: AddStatePopupProps) => {
                 {filteredCountries?.map((country, index) => {
                   return (
                     <div key={index} css={styles.checkboxItemIndented}>
-                      <Flex gap={8} style={{ alignItems: 'center' }}>
+                      <Flex gap={2} align="center">
                         <Checkbox
                           id={`add-state-country-${index}`}
                           checked={formSelected?.includes(
@@ -178,7 +178,6 @@ export const AddStatePopup = (props: AddStatePopupProps) => {
           <DialogFooter>
             <Button
               variant="outline"
-              size="sm"
               onClick={() => {
                 setSelectedCountries(selectedCountries);
                 setOpenPopup(false);
@@ -188,7 +187,6 @@ export const AddStatePopup = (props: AddStatePopupProps) => {
             </Button>
             <Button
               variant="primary"
-              size="sm"
               onClick={form.handleSubmit(handleSubmit)}
             >
               {__('Done', 'kirki-ecommerce')}
@@ -205,7 +203,7 @@ AddStatePopup.displayName = 'AddStatePopup';
 const styles = {
   checkboxItemIndented: scoped({
     width: 'auto',
-    padding: `${theme.spacing.md} ${theme.spacing['3xl']}`,
+    padding: `${theme.spacing[2]} ${theme.spacing[5]}`,
     '&:hover': {
       background: theme.colors.background.surfaceSecondary,
       borderRadius: theme.radius.sm,

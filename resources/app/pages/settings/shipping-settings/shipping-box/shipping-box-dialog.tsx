@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useForm, useWatch } from 'react-hook-form';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import TextField from '@/components/form/text-field';
@@ -17,13 +17,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from '@/components/ui/form';
+import { Field, FieldError } from '@/components/ui/field';
+import { Form } from '@/components/ui/form';
 import {
   Select,
   SelectContent,
@@ -186,12 +181,8 @@ const ShippingBoxPopup = ({
               <Card css={[cardStyles.innerCard, styles.dimensionsCard]} >
                 <CardContent css={cardStyles.innerContent}>
 
-                <Text
-                type="secondary"
-                header={__('Dimensions', 'kirki-ecommerce')}
-                css={styles.dimensionsLabel}
-                />
-                <Flex gap={16} style={{ alignItems: 'flex-end' }}>
+                <Text weight="medium" css={styles.dimensionsLabel}>{__('Dimensions', 'kirki-ecommerce')}</Text>
+                <Flex gap={4} align="flex-end">
                 <TextField
                 name="length"
                 label={__('Length', 'kirki-ecommerce')}
@@ -210,32 +201,39 @@ const ShippingBoxPopup = ({
                 placeholder={__('12', 'kirki-ecommerce')}
                 type="number"
                 />
-                <FormField
-                control={form.control}
-                name="unit"
-                render={({ field, fieldState }) => (
-                <FormItem style={{ width: '70px' }}>
-                <Select
-                value={field.value}
-                onValueChange={(value) => handleUnitChange(value)}
-                >
-                <FormControl>
-                <SelectTrigger error={Boolean(fieldState.error)}>
-                <SelectValue />
-                </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                <SelectItem value="cm">
-                {__('cm', 'kirki-ecommerce')}
-                </SelectItem>
-                <SelectItem value="in">
-                {__('in', 'kirki-ecommerce')}
-                </SelectItem>
-                </SelectContent>
-                </Select>
-                <FormMessage />
-                </FormItem>
-                )}
+                <Controller
+                  control={form.control}
+                  name="unit"
+                  render={({ field, fieldState }) => (
+                    <Field
+                      data-invalid={fieldState.invalid || undefined}
+                      style={{ width: '70px' }}
+                    >
+                      <Select
+                        value={field.value}
+                        onValueChange={(value) => handleUnitChange(value)}
+                      >
+                        <SelectTrigger
+                          id="unit"
+                          error={Boolean(fieldState.error)}
+                          aria-invalid={fieldState.invalid}
+                        >
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="cm">
+                            {__('cm', 'kirki-ecommerce')}
+                          </SelectItem>
+                          <SelectItem value="in">
+                            {__('in', 'kirki-ecommerce')}
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                      {fieldState.invalid && (
+                        <FieldError errors={[fieldState.error]} />
+                      )}
+                    </Field>
+                  )}
                 />
                 </Flex>
                 </CardContent>
@@ -257,7 +255,6 @@ const ShippingBoxPopup = ({
           <DialogFooter>
             <Button
               variant="outline"
-              size="sm"
               onClick={handleOnclosePopup}
               disabled={isSubmitting}
             >
@@ -265,7 +262,6 @@ const ShippingBoxPopup = ({
             </Button>
             <Button
               variant="primary"
-              size="sm"
               onClick={form.handleSubmit(handleCreateOrUpdateBox)}
               loading={isSubmitting}
             >
@@ -288,22 +284,22 @@ const styles = {
   dimensionsCard: scoped({
     position: 'relative',
     overflow: 'visible',
-    paddingTop: theme.spacing['3xl'],
+    paddingTop: theme.spacing[5],
   }),
   dimensionsLabel: scoped({
     top: '-12px',
     left: '240px',
     position: 'absolute',
-    padding: `${theme.spacing.none} ${theme.spacing.md}`,
+    padding: `${theme.spacing[0]} ${theme.spacing[2]}`,
     backgroundColor: theme.colors.text.light,
   }),
   previewCard: scoped({
     borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.md} ${theme.radius.md}`,
-    marginTop: '-8px',
-    padding: theme.spacing.xs,
+    marginTop: `-${theme.spacing[2]}`,
+    padding: theme.spacing[1],
     height: '230px',
   }),
   footerSeparator: scoped({
-    margin: theme.spacing.none,
+    margin: theme.spacing[0],
   })
 };

@@ -19,7 +19,6 @@ const NewBrand = () => {
     <>
       <Button
         variant="primary"
-        size="sm"
         onClick={() => setOpenPopup(true)}
       >
         {__('New Brand', 'kirki-ecommerce')}

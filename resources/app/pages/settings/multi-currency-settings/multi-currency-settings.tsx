@@ -25,7 +25,6 @@ import {
 } from '@/schemas/forms/multi-currency-settings-form';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import type { ConfirmationVariant, SettingsSectionData } from '@/types';
-import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
@@ -138,7 +137,6 @@ const MultiCurrencySettings = () => {
             <>
               <Button
                 variant="ghost"
-                size="sm"
                 onClick={handleDiscardData}
                 disabled={isSaving}
               >
@@ -146,7 +144,6 @@ const MultiCurrencySettings = () => {
               </Button>
               <Button
                 variant="primary"
-                size="sm"
                 onClick={form.handleSubmit(handleSaveData)}
                 loading={isSaving}
               >
@@ -161,7 +158,7 @@ const MultiCurrencySettings = () => {
       <Container size="sm">
         {loaded ? (
           <Form {...form}>
-            <Flex direction="column" gap={16}>
+            <Flex direction="column" gap={4}>
               <PageNavbar
                 textIcon={<CurrencyIcon />}
                 text={__('Currency', 'kirki-ecommerce')}
@@ -171,15 +168,13 @@ const MultiCurrencySettings = () => {
               <Card css={cardStyles.largeCard} >
                 <CardContent css={cardStyles.largeContentPadded}>
 
-                <Text
-                header={__('Currency Management', 'kirki-ecommerce')}
-                subHeader={__(
+                <Flex direction="column" gap={2}>
+                  <Text weight="semibold">{__('Currency Management', 'kirki-ecommerce')}</Text>
+                  <Text color="secondary">{__(
                 'Manage product pricing across multiple currencies with manual or automatic conversion rates.',
                 'kirki-ecommerce',
-                )}
-                type="primary"
-                style={{ gap: theme.spacing.base }}
-                />
+                )}</Text>
+                </Flex>
                 <AvailableCurrencyList />
                 <ApiConfig />
                 </CardContent>
@@ -187,15 +182,13 @@ const MultiCurrencySettings = () => {
               <Card css={cardStyles.largeCard} >
                 <CardContent css={cardStyles.largeContentPadded}>
 
-                <Text
-                header={__('Currency Preferences', 'kirki-ecommerce')}
-                subHeader={__(
+                <Flex direction="column" gap={2}>
+                  <Text weight="semibold">{__('Currency Preferences', 'kirki-ecommerce')}</Text>
+                  <Text color="secondary">{__(
                 'Set your preferences for how currency is displayed.',
                 'kirki-ecommerce',
-                )}
-                type="primary"
-                style={{ gap: '12px' }}
-                />
+                )}</Text>
+                </Flex>
                 <CurrencyFormatSettings />
                 </CardContent>
               </Card>

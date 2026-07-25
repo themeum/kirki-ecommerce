@@ -1,11 +1,11 @@
-import type { SerializedStyles, Theme } from '@emotion/react';
+import type { SerializedStyles } from '@emotion/react';
 import {
   forwardRef,
   type ComponentPropsWithoutRef,
 } from 'react';
 
 import { theme } from '@/theme';
-import { fontGeneralSettings, scoped } from '@/theme/mixins';
+import { scoped } from '@/theme/mixins';
 
 type CardProps = Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'css'> & {
   css?: SerializedStyles | SerializedStyles[];
@@ -88,43 +88,38 @@ const styles = {
   card: scoped({
     display: 'flex',
     flexDirection: 'column',
-    gap: theme.spacing['2xl'],
+    gap: theme.spacing[4],
     width: '100%',
-    paddingBlock: theme.spacing['2xl'],
+    paddingBlock: theme.spacing[4],
     borderRadius: theme.radius.xl,
     border: `1px solid ${theme.colors.border.secondary}`,
     backgroundColor: theme.colors.background.fill,
     color: theme.colors.text.primary,
     boxSizing: 'border-box',
-    ...fontGeneralSettings(theme as Theme),
   }),
   header: scoped({
     display: 'flex',
     flexDirection: 'column',
-    gap: theme.spacing.sm,
-    paddingInline: theme.spacing['2xl'],
+    gap: theme.spacing[2],
+    paddingInline: theme.spacing[4],
   }),
   title: scoped({
     margin: 0,
-    fontWeight: 600,
-    fontSize: '16px',
-    lineHeight: '24px',
-    letterSpacing: '-0.025em',
+    ...theme.typography.paragraph('semibold'),
     color: theme.colors.text.primary,
   }),
   description: scoped({
     margin: 0,
-    fontSize: '14px',
-    lineHeight: '20px',
+    ...theme.typography.small(),
     color: theme.colors.text.secondary,
   }),
   content: scoped({
-    paddingInline: theme.spacing['2xl'],
+    paddingInline: theme.spacing[4],
   }),
   footer: scoped({
     display: 'flex',
     alignItems: 'center',
-    gap: theme.spacing.md,
-    paddingInline: theme.spacing['2xl'],
+    gap: theme.spacing[2],
+    paddingInline: theme.spacing[4],
   }),
 };

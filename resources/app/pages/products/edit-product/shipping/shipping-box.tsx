@@ -68,14 +68,10 @@ const ShippingBoxSelect = ({
         </SelectTrigger>
         <SelectContent>
           <Flex css={styles.header}>
-            <Text
-              subHeader={__('Available shipping boxes', 'kirki-ecommerce')}
-              type="primary"
-            />
+            <Text color="secondary">{__('Available shipping boxes', 'kirki-ecommerce')}</Text>
             <Button
               variant="ghost"
-              size="sm"
-              style={{ color: '#5641F3' }}
+              css={styles.manageButton}
               onClick={() => navigate('/settings/shipping')}
             >
               {__('Manage', 'kirki-ecommerce')}
@@ -91,7 +87,6 @@ const ShippingBoxSelect = ({
           <ActionGroup css={styles.footer}>
             <Button
               variant="secondary"
-              size="sm"
               onClick={() => setOpenShippingBoxPopup(true)}
             >
               <PlusIcon />
@@ -119,9 +114,12 @@ const styles = {
   header: scoped({
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: `${theme.spacing.md} ${theme.spacing.lg}`,
+    padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
   }),
   footer: scoped({
-    padding: `${theme.spacing.md} ${theme.spacing.lg}`,
+    padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
+  }),
+  manageButton: scoped({
+    color: theme.colors.background.fillBrand,
   }),
 };

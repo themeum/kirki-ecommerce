@@ -1,3 +1,4 @@
+import { css } from '@emotion/react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 
@@ -49,7 +50,7 @@ const InventoryTable = () => {
   return (
     <>
       {selectedItems.length > 0 ? (
-        <Flex gap={8} style={{ alignItems: 'center', height: '68px' }}>
+        <Flex gap={2} align="center" css={css({ height: '68px' })}>
           <BulkActionHandler
             itemCount={itemCount}
             onSelectAll={() => handleAllCheckboxClick(true)}
@@ -58,7 +59,6 @@ const InventoryTable = () => {
           />
           <Button
             variant="secondary"
-            size="sm"
             onClick={handleApplyAction}
           >
             {__('Bulk Edit', 'kirki-ecommerce')}

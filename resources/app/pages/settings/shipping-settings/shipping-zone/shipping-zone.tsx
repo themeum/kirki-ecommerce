@@ -15,8 +15,12 @@ import {
   Card,
   CardContent,
 } from '@/components/ui/card';
+import {
+  Field,
+  FieldError,
+  FieldLabel,
+} from '@/components/ui/field';
 import Input from '@/components/ui/input';
-import Label from '@/components/ui/label';
 import { getErrorsObject } from '@/libs/api';
 import { useUnsavedStatus } from '@/libs/unsaved-store';
 import { dispatchToastMessage, normalizeErrors } from '@/pages/utils';
@@ -244,10 +248,10 @@ const ShippingZonePage = () => {
         actions={
           hasUnsavedData ? (
             <>
-              <Button variant="ghost" size="sm" onClick={handleDiscardData}>
+              <Button variant="ghost" onClick={handleDiscardData}>
                 {__('Cancel', 'kirki-ecommerce')}
               </Button>
-              <Button variant="primary" size="sm" onClick={updateShippingZone}>
+              <Button variant="primary" onClick={updateShippingZone}>
                 {__('Save', 'kirki-ecommerce')}
               </Button>
             </>
@@ -258,7 +262,7 @@ const ShippingZonePage = () => {
       />
       <Container size="sm">
         {loaded ? (
-          <Flex direction="column" gap={16}>
+          <Flex direction="column" gap={4}>
             <PageNavbar
               text={__('Set Zone Details', 'kirki-ecommerce')}
               handleBack={handleBackButton}
@@ -266,22 +270,22 @@ const ShippingZonePage = () => {
             <Card css={[cardStyles.largeCard, cardStyles.formCard]} >
               <CardContent css={cardStyles.largeContentPadded}>
 
-              <Flex direction="column" gap={8}>
-              <Label
-              htmlFor="shipping-zone-title"
-              error={Boolean(errors?.title)}
-              helpText={errors?.title as string}
-              >
-              {__('Title', 'kirki-ecommerce')}
-              </Label>
-              <Input
-              id="shipping-zone-title"
-              placeholder="Zone 2- South Asia"
-              value={shippingZoneTitle}
-              onChange={(e) => handleShippingZoneTitle(e.target.value)}
-              error={Boolean(errors?.title)}
-              />
-              </Flex>
+              <Field data-invalid={errors?.title ? true : undefined}>
+                <FieldLabel htmlFor="shipping-zone-title">
+                  {__('Title', 'kirki-ecommerce')}
+                </FieldLabel>
+                <Input
+                  id="shipping-zone-title"
+                  placeholder="Zone 2- South Asia"
+                  value={shippingZoneTitle}
+                  onChange={(e) => handleShippingZoneTitle(e.target.value)}
+                  error={Boolean(errors?.title)}
+                  aria-invalid={Boolean(errors?.title) || undefined}
+                />
+                {typeof errors?.title === 'string' && (
+                  <FieldError>{errors.title}</FieldError>
+                )}
+              </Field>
               <TagManager
               label={__('Regions', 'kirki-ecommerce')}
               placeholder={__(

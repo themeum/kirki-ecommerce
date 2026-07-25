@@ -137,7 +137,7 @@ const ManualPaymentPopup = (props: ManualPaymentPopupProps) => {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSaveOrUpdateData)}>
             <DialogBody>
-              <Flex direction="column" gap={16}>
+              <Flex direction="column" gap={4}>
                 <TextField
                   name="name"
                   label={__('Method Name', 'kirki-ecommerce')}
@@ -181,7 +181,6 @@ const ManualPaymentPopup = (props: ManualPaymentPopupProps) => {
                   type="button"
                   variant="outline"
                   disabled={isSubmitting}
-                  size="sm"
                 >
                   {__('Cancel', 'kirki-ecommerce')}
                 </Button>
@@ -190,7 +189,6 @@ const ManualPaymentPopup = (props: ManualPaymentPopupProps) => {
                 type="submit"
                 variant="primary"
                 loading={isSubmitting}
-                size="sm"
               >
                 {__('Save', 'kirki-ecommerce')}
               </Button>

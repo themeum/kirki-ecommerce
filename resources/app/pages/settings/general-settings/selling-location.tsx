@@ -76,7 +76,7 @@ const SellingLocation = () => {
         <CardContent css={cardStyles.largeContent}>
           <Card css={cardStyles.innerCard}>
             <CardContent css={cardStyles.innerCardContent}>
-              <Flex direction="column" gap={16}>
+              <Flex direction="column" gap={4}>
                 <SelectField
                   name="selling_location_type"
                   label={__('Selling', 'kirki-ecommerce')}

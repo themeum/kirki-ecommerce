@@ -11,6 +11,8 @@ import { __ } from '@/wpi18n';
 import { scoped } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 
+import { theme } from '@/theme';
+
 type ShippingCareerProps = Record<string, unknown>;
 
 const ShippingCareer = (_props: ShippingCareerProps) => {
@@ -33,9 +35,9 @@ const ShippingCareer = (_props: ShippingCareerProps) => {
         {!hasShippingCareers ? (
           <Card css={cardStyles.innerDarkCard}>
             <CardContent css={[cardStyles.innerDarkContent, styles.emptyStateContent]}>
-              <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
+              <Flex direction="column" gap={2} align="center">
                 <BoxOpenIcon />
-                <span style={{ color: '#878593' }}>
+                <span css={styles.mutedText}>
                   {__(
                     'Added shipping profiles will appear here',
                     'kirki-ecommerce',
@@ -56,7 +58,10 @@ const ShippingCareer = (_props: ShippingCareerProps) => {
 ShippingCareer.displayName = 'ShippingCareer';
 
 const styles = {
-  emptyStateContent: scoped({ padding: '36px 0' })
+  emptyStateContent: scoped({ padding: `${theme.spacing[9]} 0` }),
+  mutedText: scoped({
+    color: theme.colors.text.subdued,
+  }),
 };
 
 export default ShippingCareer;

@@ -38,7 +38,7 @@ const Schema = () => {
   ];
 
   return (
-    <Flex direction="column" gap={16}>
+    <Flex direction="column" gap={4}>
       <SelectField
         name="schema_id"
         label={__('Schema', 'kirki-ecommerce')}

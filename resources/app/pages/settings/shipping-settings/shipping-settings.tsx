@@ -255,7 +255,6 @@ const ShippingSettings = () => {
             <>
               <Button
                 variant="ghost"
-                size="sm"
                 onClick={handleDiscardData}
                 disabled={isSaving}
               >
@@ -263,7 +262,6 @@ const ShippingSettings = () => {
               </Button>
               <Button
                 variant="primary"
-                size="sm"
                 onClick={form.handleSubmit(handleSaveZones)}
                 loading={isSaving}
               >
@@ -278,7 +276,7 @@ const ShippingSettings = () => {
       <Container size="sm">
         {loaded ? (
           <Form {...form}>
-            <Flex direction="column" gap={16}>
+            <Flex direction="column" gap={4}>
               <PageNavbar
                 handleBack={handleBackButton}
                 textIcon={<TruckIcon />}
@@ -301,9 +299,8 @@ const ShippingSettings = () => {
                       <CardContent css={[cardStyles.innerDarkContent, styles.emptyState]}>
                         <Flex
                           direction="column"
-                          gap={8}
-                          style={{ alignItems: 'center' }}
-                        >
+                          gap={2}
+                          align="center">
                           <LocationIcon />
                           <span css={styles.emptyStateText}>
                             {__(
@@ -315,7 +312,7 @@ const ShippingSettings = () => {
                       </CardContent>
                     </Card>
                   ) : (
-                  <Flex direction="column" gap={12}>
+                  <Flex direction="column" gap={3}>
                     {shippingZonesObj?.map((item) => (
                       <OptionAccordion
                         key={item?.id}
@@ -333,9 +330,8 @@ const ShippingSettings = () => {
                         state={item?.is_enabled}
                       >
                         <Flex
-                          gap={8}
-                          style={{ flexWrap: 'wrap', rowGap: '8px' }}
-                        >
+                          gap={2}
+                          wrap="wrap" rowGap={2}>
                           {(
                             getSelectedRegionTags(
                               item?.regions,
@@ -404,7 +400,7 @@ export default ShippingSettings;
 
 const styles = {
   emptyState: scoped({
-    padding: `${theme.spacing['7xl']} ${theme.spacing.none}`,
+    padding: `${theme.spacing[9]} ${theme.spacing[0]}`,
   }),
   emptyStateText: scoped({
     color: theme.colors.text.subdued,

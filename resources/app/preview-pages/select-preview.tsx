@@ -39,7 +39,7 @@ const SelectPreview = () => {
   return (
     <>
       <div style={{ width: '200px' }}>
-        <Flex direction="column" gap={8}>
+        <Flex direction="column" gap={2}>
           <Label>Select dropdown 1</Label>
           <Combobox
             options={options}
@@ -50,7 +50,7 @@ const SelectPreview = () => {
         </Flex>
       </div>
       <div>
-        <Flex direction="column" gap={8}>
+        <Flex direction="column" gap={2}>
           <Label>Select dropdown 2</Label>
           <Combobox
             options={options}

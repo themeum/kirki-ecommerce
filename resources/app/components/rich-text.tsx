@@ -1,7 +1,12 @@
 import { type SerializedStyles } from '@emotion/react';
 import { useEffect, useRef } from 'react';
 
-import Label from '@/components/ui/label';
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from '@/components/ui/field';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
@@ -81,19 +86,18 @@ const RichText = ({
 
   return (
     <div css={[styles.root, cssProp]}>
-      <div css={styles.controller}>
-        {label && (
-          <Label error={Boolean(error)} helpText={error ? error : helpText}>
-            {label}
-          </Label>
-        )}
+      <Field data-invalid={error ? true : undefined} css={styles.controller}>
+        {label && <FieldLabel htmlFor={id}>{label}</FieldLabel>}
         <textarea
           id={id}
           defaultValue={value}
           placeholder={placeholder}
           style={{ width: '100%', minHeight: '200px' }}
+          aria-invalid={Boolean(error) || undefined}
         />
-      </div>
+        {helpText && !error && <FieldDescription>{helpText}</FieldDescription>}
+        {typeof error === 'string' && <FieldError>{error}</FieldError>}
+      </Field>
     </div>
   );
 };
@@ -107,7 +111,7 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'flex-start',
-    columnGap: theme.spacing['2xl'],
+    columnGap: theme.spacing[4],
     width: '100%',
     '.mce-tinymce': {
       border: `0.63px solid ${theme.colors.border.default}`,
@@ -128,7 +132,7 @@ const styles = {
     flexDirection: 'column',
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
-    rowGap: theme.spacing.md,
+    rowGap: theme.spacing[2],
     position: 'relative',
   }),
 };

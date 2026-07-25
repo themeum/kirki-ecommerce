@@ -42,11 +42,11 @@ const OrderTableAction = () => {
           </SelectTrigger>
           <SelectContent />
         </Select>
-        <Button variant="outline" size="sm">
+        <Button variant="outline">
           <ListFilter />
           Filter
         </Button>
-        <Button variant="outline" size="sm" aria-label="Sort">
+        <Button variant="outline" aria-label="Sort">
           <ArrowDownUp />
         </Button>
         <Searchbox
@@ -64,9 +64,9 @@ export default OrderTableAction;
 
 const styles = {
   wrapper: scoped({
-    padding: `${theme.spacing['2xl']} ${theme.spacing.lg}`,
+    padding: `${theme.spacing[4]} ${theme.spacing[3]}`,
   }),
   selectTrigger: scoped({
-    padding: `${theme.spacing.md} ${theme.spacing['2xl']}`,
+    padding: `${theme.spacing[2]} ${theme.spacing[4]}`,
   }),
 };

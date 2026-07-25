@@ -22,6 +22,7 @@ import Flex from '@/components/ui/flex';
 import Grid from '@/components/ui/grid';
 import Text from '@/components/ui/text';
 import type { FormErrors, SettingsSectionData } from '@/types';
+import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
@@ -48,8 +49,8 @@ const BarcodeGeneration = (_props: BarcodeGenerationProps) => {
         <CardContent css={cardStyles.largeContent}>
           <Card css={cardStyles.innerCard}>
             <CardContent css={cardStyles.innerContent}>
-              <Flex direction="column" gap={16}>
-                <Flex direction="column" gap={8}>
+              <Flex direction="column" gap={4}>
+                <Flex direction="column" gap={2}>
                   <Label htmlFor="barcode-data-origin">
                     {__('Data origin', 'kirki-ecommerce')}
                   </Label>
@@ -64,7 +65,7 @@ const BarcodeGeneration = (_props: BarcodeGenerationProps) => {
                     </SelectContent>
                   </Select>
                 </Flex>
-                <Flex direction="column" gap={8}>
+                <Flex direction="column" gap={2}>
                   <Label htmlFor="barcode-format">
                     {__('Format', 'kirki-ecommerce')}
                   </Label>
@@ -83,7 +84,7 @@ const BarcodeGeneration = (_props: BarcodeGenerationProps) => {
                   </Select>
                 </Flex>
                 <Grid>
-                  <Flex direction="column" gap={8}>
+                  <Flex direction="column" gap={2}>
                     <Label htmlFor="barcode-width">
                       {__('Width', 'kirki-ecommerce')}
                     </Label>
@@ -94,7 +95,7 @@ const BarcodeGeneration = (_props: BarcodeGenerationProps) => {
                     />
                   </Flex>
 
-                  <Flex direction="column" gap={8}>
+                  <Flex direction="column" gap={2}>
                     <Label htmlFor="barcode-height">
                       {__('Height', 'kirki-ecommerce')}
                     </Label>
@@ -111,7 +112,7 @@ const BarcodeGeneration = (_props: BarcodeGenerationProps) => {
                   onChange={() => {}}
                 />
 
-                <Flex gap={8} style={{ alignItems: 'center' }}>
+                <Flex gap={2} align="center">
                   <Checkbox id="barcode-show-readable-text" />
                   <Label htmlFor="barcode-show-readable-text">
                     {__(
@@ -120,13 +121,13 @@ const BarcodeGeneration = (_props: BarcodeGenerationProps) => {
                     )}
                   </Label>
                 </Flex>
-                <Flex gap={8} style={{ alignItems: 'center' }}>
+                <Flex gap={2} align="center">
                   <Checkbox id="barcode-include-product-name" />
                   <Label htmlFor="barcode-include-product-name">
                     {__('Include product name above barcode', 'kirki-ecommerce')}
                   </Label>
                 </Flex>
-                <Flex gap={8} style={{ alignItems: 'center' }}>
+                <Flex gap={2} align="center">
                   <Checkbox id="barcode-include-country-of-origin" />
                   <Label htmlFor="barcode-include-country-of-origin">
                     {__('Include country of origin', 'kirki-ecommerce')}
@@ -145,21 +146,15 @@ const BarcodeGeneration = (_props: BarcodeGenerationProps) => {
           <Card css={cardStyles.innerCard}>
             <CardContent css={cardStyles.innerContent}>
               <Flex>
-                <Flex direction="column" gap={6}>
-                  <Text
-                    type="secondary"
-                    header={__(
+                <Flex direction="column" gap={2}>
+                  <Text weight="medium">{__(
                       'Generate barcodes for all products',
                       'kirki-ecommerce',
-                    )}
-                  />
-                  <Text
-                    type="primary"
-                    subHeader={__(
+                    )}</Text>
+                  <Text color="secondary">{__(
                       'Enable this option to let customers submit product reviews',
                       'kirki-ecommerce',
-                    )}
-                  />
+                    )}</Text>
                 </Flex>
                 <ActionGroup>
                   <Button variant="secondary">
@@ -183,6 +178,6 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    border: '1px solid #E4E3E9',
+    border: `1px solid ${theme.colors.border.default}`,
   })
 };

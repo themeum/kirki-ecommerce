@@ -4,7 +4,7 @@ import Button from '@/components/ui/button';
 
 const UiButtonPreview = () => {
   return (
-    <Flex gap={8} style={{ flexWrap: 'wrap' }}>
+    <Flex gap={2} wrap="wrap">
       <Button variant="primary">Primary</Button>
       <Button variant="secondary">Secondary</Button>
       <Button variant="outline">Outline</Button>

@@ -1,4 +1,3 @@
-import { css } from '@emotion/react';
 import type { CSSProperties, ReactNode } from 'react';
 
 import Button from '@/components/ui/button';
@@ -8,20 +7,8 @@ import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
+import { scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
-
-const backButtonCss = css({
-  height: '36px',
-  width: '36px',
-  background: 'white',
-  transition: 'stroke 0.2s ease, stroke-width 0.2s ease',
-  '&:hover': {
-    'svg path': {
-      stroke: theme.colors.background.fillBrand,
-      strokeWidth: 1.5,
-    },
-  },
-});
 
 type PageNavbarProps = {
   buttonIcon?: ReactNode;
@@ -44,26 +31,21 @@ const PageNavbar = (props: PageNavbarProps) => {
 
   return (
     <div style={style}>
-      <Flex style={{ alignItems: 'center', justifyContent: 'center' }}>
+      <Flex align="center" justify="center">
         <Button
-          size="sm"
           variant="ghost"
           aria-label={__('Back', 'kirki-ecommerce')}
           onClick={handleBack ?? (() => window.history.back())}
-          css={backButtonCss}
+          css={styles.backButton}
         >
           {buttonIcon}
         </Button>
-        <div
-          style={{
-            height: '19px',
-            width: '8.5px',
-            background: 'white',
-            clipPath: "path('M0,0 Q4.25,6 8.5,0 L8.5,19 Q4.25,13 0,19 Z')",
-          }}
-        ></div>
+        <div css={styles.connector} />
         <Card css={cardStyles.navbarCard}>
-          <Text type="primary" header={text} leftIcon={textIcon} />
+          <Flex gap={2} align="center">
+            {textIcon}
+            <Text weight="semibold">{text}</Text>
+          </Flex>
           {rightAction}
         </Card>
       </Flex>
@@ -71,5 +53,27 @@ const PageNavbar = (props: PageNavbarProps) => {
   );
 };
 
+PageNavbar.displayName = 'PageNavbar';
+
 export default PageNavbar;
 
+const styles = {
+  backButton: scoped({
+    height: '36px',
+    width: '36px',
+    background: theme.colors.background.surface,
+    transition: 'stroke 0.2s ease, stroke-width 0.2s ease',
+    '&:hover': {
+      'svg path': {
+        stroke: theme.colors.background.fillBrand,
+        strokeWidth: 1.5,
+      },
+    },
+  }),
+  connector: scoped({
+    height: '19px',
+    width: '8.5px',
+    background: theme.colors.background.surface,
+    clipPath: "path('M0,0 Q4.25,6 8.5,0 L8.5,19 Q4.25,13 0,19 Z')",
+  }),
+};

@@ -58,6 +58,8 @@ import SEOSettings from '@/pages/products/edit-product/seo-settings/seo-settings
 import Shipping from '@/pages/products/edit-product/shipping/shipping';
 import Variants from '@/pages/products/edit-product/variants/variants';
 
+import { theme } from '@/theme';
+
 type MediaItem = Omit<MediaRef, 'id'> & {
   id?: string | number;
 };
@@ -266,14 +268,12 @@ const EditProductInner = () => {
           <>
             <Button
               variant="ghost"
-              size="sm"
               onClick={() => window.history.back()}
             >
               {__('Cancel', 'kirki-ecommerce')}
             </Button>
             <Button
               variant="primary"
-              size="sm"
               onClick={handleAddOrCreateProduct}
             >
               {isNew
@@ -286,11 +286,11 @@ const EditProductInner = () => {
       <Container>
         <div style={{ display: 'flex', gap: 16, width: '100%' }}>
           <div style={{ width: '70%' }}>
-            <Flex direction="column" gap={16}>
+            <Flex direction="column" gap={4}>
               <Form {...basicsForm}>
                 <Card css={cardStyles.formCard}>
                   <CardContent>
-                    <Flex gap={12}>
+                    <Flex gap={3}>
                       <div style={{ width: '70%' }}>
                         <TextField
                           name="title"
@@ -333,7 +333,7 @@ const EditProductInner = () => {
                         'kirki-ecommerce',
                       )}
                     />
-                    <Separator marginTop="8px" />
+                    <Separator marginTop={theme.spacing[2]} />
                     <AdditionalInfo />
                   </CardContent>
                 </Card>

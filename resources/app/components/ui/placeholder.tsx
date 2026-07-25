@@ -1,8 +1,12 @@
 import type { SerializedStyles } from '@emotion/react';
 import { forwardRef, type CSSProperties, type ReactNode } from 'react';
 
-import Flex from '@/components/ui/flex';
-import Label from '@/components/ui/label';
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from '@/components/ui/field';
 import { ThumbnailPlaceholder } from '@/icons';
 import { theme } from '@/theme';
 import { flexCenter, scoped } from '@/theme/mixins';
@@ -33,16 +37,11 @@ const Placeholder = forwardRef<HTMLDivElement, PlaceholderProps>(
       error,
     } = props;
 
-    const help = typeof error === 'string' ? error : helpText;
     const isInteractive = typeof onClick === 'function';
 
     return (
-      <Flex direction="column" gap={8}>
-        {label && (
-          <Label error={Boolean(error)} helpText={help}>
-            {label}
-          </Label>
-        )}
+      <Field data-invalid={error ? true : undefined}>
+        {label && <FieldLabel>{label}</FieldLabel>}
         <div
           ref={ref}
           role={isInteractive ? 'button' : undefined}
@@ -67,7 +66,9 @@ const Placeholder = forwardRef<HTMLDivElement, PlaceholderProps>(
         >
           {size === 'small' ? <ThumbnailPlaceholder /> : children}
         </div>
-      </Flex>
+        {helpText && !error && <FieldDescription>{helpText}</FieldDescription>}
+        {typeof error === 'string' && <FieldError>{error}</FieldError>}
+      </Field>
     );
   },
 );
@@ -81,16 +82,16 @@ const styles = {
     height: '137px',
     width: '100%',
     borderRadius: theme.radius.md,
-    border: '1px dashed #e4e4e7',
+    border: `1px dashed ${theme.colors.border.gallery}`,
     ...flexCenter(),
     flexDirection: 'column',
-    gap: theme.spacing.lg,
-    fontWeight: 500,
+    gap: theme.spacing[3],
+    ...theme.typography.paragraph('medium'),
     color: theme.colors.text.secondary,
   }),
   types: {
     primary: scoped({
-      backgroundColor: '#f7f7f7',
+      backgroundColor: theme.colors.background.placeholderSurface,
     }),
     secondary: scoped({
       backgroundColor: theme.colors.background.fillSpecial2Secondary,

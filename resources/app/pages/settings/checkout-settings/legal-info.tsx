@@ -33,10 +33,7 @@ const LegalInfo = () => {
               <ActionGroup
                 style={{ width: '100%', justifyContent: 'space-between' }}
               >
-                <Text
-                  type="secondary"
-                  header={__('Show Terms and Conditions', 'kirki-ecommerce')}
-                />
+                <Text weight="medium">{__('Show Terms and Conditions', 'kirki-ecommerce')}</Text>
                 <SwitchField name="is_terms_and_conditions_visible" />
               </ActionGroup>
               <RichTextField
@@ -53,10 +50,7 @@ const LegalInfo = () => {
               <ActionGroup
                 style={{ width: '100%', justifyContent: 'space-between' }}
               >
-                <Text
-                  type="secondary"
-                  header={__('Show Privacy Policy', 'kirki-ecommerce')}
-                />
+                <Text weight="medium">{__('Show Privacy Policy', 'kirki-ecommerce')}</Text>
                 <SwitchField name="is_privacy_policy_visible" />
               </ActionGroup>
               <RichTextField

@@ -7,7 +7,7 @@ const iconNames = Object.keys(Components) as Array<keyof typeof Components>;
 
 const IconsPreview = () => {
   return (
-    <Grid columns={6} gap="20px">
+    <Grid columns={6} gap={5}>
       {iconNames.map((iconName) => {
         const Icon = Components[iconName] as IconComponent;
         return (

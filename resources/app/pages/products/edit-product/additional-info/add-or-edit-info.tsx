@@ -80,7 +80,7 @@ const AddOrEditInfo = (props: AddOrEditInfoProps) => {
     <Card css={cardStyles.innerCard}>
       <CardContent css={cardStyles.innerContent}>
         <Form {...form}>
-          <Flex direction="column" gap={16}>
+          <Flex direction="column" gap={4}>
             <TextField
               name="title"
               label={__('Title', 'kirki-ecommerce')}
@@ -98,7 +98,6 @@ const AddOrEditInfo = (props: AddOrEditInfoProps) => {
             <ActionGroup>
               <Button
                 variant="secondary"
-                size="sm"
                 onClick={() => {
                   form.reset({ title: '', description: '' });
                   onClose();
@@ -108,7 +107,6 @@ const AddOrEditInfo = (props: AddOrEditInfoProps) => {
               </Button>
               <Button
                 variant="primary"
-                size="sm"
                 disabled={isSaveDisabled}
                 onClick={form.handleSubmit(handleSaveInfo)}
               >

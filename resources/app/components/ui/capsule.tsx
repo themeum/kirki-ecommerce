@@ -75,7 +75,6 @@ const Capsule = ({
       <div css={styles.separator} aria-hidden="true" />
       <Button
         variant="ghost"
-        size="sm"
         aria-label="Clear"
         onClick={onClearItem}
       >
@@ -95,7 +94,7 @@ const styles = {
     borderRadius: theme.radius.md,
     height: '32px',
     ...flexCenter(),
-    backgroundColor: 'hsla(0, 0%, 96%, 1)',
+    backgroundColor: theme.colors.background.surfaceTertiary,
     '& > button[role="combobox"]': {
       backgroundColor: 'transparent',
       borderColor: 'transparent',

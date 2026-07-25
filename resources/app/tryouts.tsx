@@ -1,3 +1,4 @@
+import { css } from '@emotion/react';
 import RichText from '@/components/rich-text';
 import Button from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -42,6 +43,7 @@ import TabsPreview from '@/preview-pages/tabs-preview';
 import TagManagerPreview from '@/preview-pages/tag-manager-preview';
 import ThumbnailPreview from '@/preview-pages/thumbnail-preview';
 import ToggleButtonPreview from '@/preview-pages/toggle-button-preview';
+import UiBadgePreview from '@/preview-pages/ui-badge-preview';
 import UiButtonPreview from '@/preview-pages/ui-button-preview';
 import UiCheckboxPreview from '@/preview-pages/ui-checkbox-preview';
 import UiFormPreview from '@/preview-pages/ui-form-preview';
@@ -52,6 +54,7 @@ import UiRadioGroupPreview from '@/preview-pages/ui-radio-group-preview';
 import UiSelectPreview from '@/preview-pages/ui-select-preview';
 import UiSwitchPreview from '@/preview-pages/ui-switch-preview';
 import UiTextareaPreview from '@/preview-pages/ui-textarea-preview';
+import UiTextPreview from '@/preview-pages/ui-text-preview';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
@@ -79,8 +82,8 @@ const Tryouts = () => {
         hasBack
       />
       <Container>
-        <Flex direction="column" gap={16}>
-          <Text header="UI Components" type="primary" />
+        <Flex direction="column" gap={4}>
+          <Text weight="semibold">UI Components</Text>
 
           <Card css={cardStyles.formCard}>
             <CardHeader>
@@ -88,6 +91,22 @@ const Tryouts = () => {
             </CardHeader>
             <CardContent>
               <UiButtonPreview />
+            </CardContent>
+          </Card>
+          <Card css={cardStyles.formCard}>
+            <CardHeader>
+              <CardTitle>Badge</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <UiBadgePreview />
+            </CardContent>
+          </Card>
+          <Card css={cardStyles.formCard}>
+            <CardHeader>
+              <CardTitle>Text</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <UiTextPreview />
             </CardContent>
           </Card>
           <Card css={cardStyles.formCard}>
@@ -204,7 +223,7 @@ const Tryouts = () => {
             </CardContent>
           </Card>
 
-          <Text header="Composites & Layout" type="primary" />
+          <Text weight="semibold">Composites & Layout</Text>
 
           <Button
             variant="primary"
@@ -313,7 +332,7 @@ const Tryouts = () => {
               <CardTitle>Tab</CardTitle>
             </CardHeader>
             <CardContent>
-              <Flex direction="column" gap={16}>
+              <Flex direction="column" gap={4}>
                 <TabPreview />
               </Flex>
             </CardContent>
@@ -323,7 +342,7 @@ const Tryouts = () => {
               <CardTitle>Heading</CardTitle>
             </CardHeader>
             <CardContent>
-              <Flex direction="column" gap={16}>
+              <Flex direction="column" gap={4}>
                 <HeadingPreview />
               </Flex>
             </CardContent>
@@ -349,12 +368,12 @@ const Tryouts = () => {
               <CardTitle>Flex</CardTitle>
             </CardHeader>
             <CardContent>
-              <Flex gap={40}>
+              <Flex gap={10}>
                 <div>Flex Item 1</div>
                 <div>Flex Item 2</div>
                 <div>Flex Item 3</div>
               </Flex>
-              <Flex direction="column" gap={12} style={{ marginTop: 16 }}>
+              <Flex direction="column" gap={3} css={css({ marginTop: 16 })}>
                 <div>Flex Item 1</div>
                 <div>Flex Item 2</div>
                 <div>Flex Item 3</div>
@@ -449,7 +468,7 @@ const Tryouts = () => {
           </Card>
           <Card css={cardStyles.formCard}>
             <CardContent>
-              <Text header="Icons Preview" type="primary" />
+              <Text weight="semibold">Icons Preview</Text>
               <IconsPreview />
             </CardContent>
           </Card>

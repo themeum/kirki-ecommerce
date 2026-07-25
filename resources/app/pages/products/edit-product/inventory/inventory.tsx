@@ -1,5 +1,5 @@
 import { useEffect, type Dispatch, type SetStateAction } from 'react';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import CheckboxField from '@/components/form/checkbox-field';
@@ -13,9 +13,13 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
-import { Form, FormField, FormItem } from '@/components/ui/form';
+import {
+  Field,
+  FieldDescription,
+  FieldLabel,
+} from '@/components/ui/field';
+import { Form } from '@/components/ui/form';
 import Input from '@/components/ui/input';
-import Label from '@/components/ui/label';
 import { WandIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
@@ -32,6 +36,8 @@ import type { FormErrors } from '@/types';
 import { scoped } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
+
+import { theme } from '@/theme';
 
 type InventoryProps = {
   errors: FormErrors;
@@ -54,8 +60,6 @@ const Inventory = ({ errors, setErrors, formSyncKey = 0 }: InventoryProps) => {
 
   const trackInventory = Boolean(form.watch('track_inventory'));
   const hasLimitPerOrder = Boolean(form.watch('has_limit_per_order'));
-  const skuError = form.formState.errors.sku?.message;
-
   useEffect(() => {
     form.reset(mapProductInventoryFromProduct(productData));
   }, [formSyncKey]);
@@ -136,15 +140,15 @@ const Inventory = ({ errors, setErrors, formSyncKey = 0 }: InventoryProps) => {
                     type="number"
                     disabled
                   />
-                  <Flex direction="column" gap={8}>
-                    <Label helpText={__('Minimum stock threshold', 'kirki-ecommerce')}>
+                  <Field>
+                    <FieldLabel>
                       {__('Minimum stock threshold', 'kirki-ecommerce')}
-                    </Label>
+                    </FieldLabel>
                     <Input
                       placeholder={__('600', 'kirki-ecommerce')}
                       type="number"
                     />
-                  </Flex>
+                  </Field>
                 </Grid>
               </CardContent>
             </Card>
@@ -162,11 +166,9 @@ const Inventory = ({ errors, setErrors, formSyncKey = 0 }: InventoryProps) => {
             />
           )}
 
-          <Flex gap={8} direction="column">
-            <Flex style={{ justifyContent: 'space-between' }}>
-              <Label helpText={skuError || __('SKU (Stock Keeping Unit)', 'kirki-ecommerce')}>
-                {__('SKU', 'kirki-ecommerce')}
-              </Label>
+          <Flex gap={2} direction="column">
+            <Flex justify="space-between">
+              <FieldLabel>{__('SKU', 'kirki-ecommerce')}</FieldLabel>
               <Button variant="ghost" size="icon">
                 <WandIcon />
               </Button>
@@ -177,29 +179,29 @@ const Inventory = ({ errors, setErrors, formSyncKey = 0 }: InventoryProps) => {
               description={__('SKU (Stock Keeping Unit)', 'kirki-ecommerce')}
             />
           </Flex>
-          <Flex gap={8}>
+          <Flex gap={2}>
             {trackInventory && (
               <Card css={[cardStyles.innerDarkCard, styles.innerDarkNarrowCard]}>
                 <CardContent css={cardStyles.innerDarkContent}>
-                  <Flex gap={8} style={{ alignItems: 'center' }}>
+                  <Field orientation="horizontal">
                     <Checkbox id="sell-when-out-of-stock" defaultChecked />
-                    <Label htmlFor="sell-when-out-of-stock">
+                    <FieldLabel htmlFor="sell-when-out-of-stock">
                       {__('Sell when out of stock', 'kirki-ecommerce')}
-                    </Label>
-                  </Flex>
+                    </FieldLabel>
+                  </Field>
                 </CardContent>
               </Card>
             )}
 
             <Card css={cardStyles.innerDarkCard}>
               <CardContent css={styles.innerDarkRowContent}>
-              <Flex gap={30} style={{ justifyContent: 'space-between' }}>
-                <FormField
+              <Flex gap={8} justify="space-between">
+                <Controller
                   control={form.control}
                   name="has_limit_per_order"
-                  render={({ field }) => (
-                    <FormItem>
-                      <Flex gap={8} style={{ alignItems: 'center' }}>
+                  render={({ field, fieldState }) => (
+                    <Field data-invalid={fieldState.invalid || undefined}>
+                      <Field orientation="horizontal">
                         <Checkbox
                           id="has-limit-per-order"
                           checked={Boolean(field.value)}
@@ -207,20 +209,20 @@ const Inventory = ({ errors, setErrors, formSyncKey = 0 }: InventoryProps) => {
                             field.onChange(checked === true)
                           }
                         />
-                        <Label
-                          htmlFor="has-limit-per-order"
-                          helpText={__(
-                            'Limit orders to number of item',
-                            'kirki-ecommerce',
-                          )}
-                        >
+                        <FieldLabel htmlFor="has-limit-per-order">
                           {__(
                             'Limit orders to number of item',
                             'kirki-ecommerce',
                           )}
-                        </Label>
-                      </Flex>
-                    </FormItem>
+                        </FieldLabel>
+                      </Field>
+                      <FieldDescription>
+                        {__(
+                          'Limit orders to number of item',
+                          'kirki-ecommerce',
+                        )}
+                      </FieldDescription>
+                    </Field>
                   )}
                 />
                 <span
@@ -250,6 +252,6 @@ const styles = {
     width: '30%',
   }),
   innerDarkRowContent: scoped({
-    padding: '4px 8px 4px 12px',
+    padding: `${theme.spacing[1]} ${theme.spacing[2]} ${theme.spacing[1]} ${theme.spacing[3]}`,
   })
 };

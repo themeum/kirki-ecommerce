@@ -1,20 +1,20 @@
-import { useState, useEffect, type ReactNode } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { useEffect, useState, type ReactNode } from 'react';
 import { toast } from 'sonner';
 
+import GroupOptionCard from '@/components/group-option-card';
+import HeaderActionsCard from '@/components/header-actions-card';
 import {
   Card,
   CardContent,
 } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
-import HeaderActionsCard from '@/components/header-actions-card';
-import GroupOptionCard from '@/components/group-option-card';
-import { BoxOpenIcon, BoxClosedIcon } from '@/icons';
-import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
-import { cardStyles } from '@/theme/card-styles';
+import { BoxClosedIcon, BoxOpenIcon } from '@/icons';
 import { toastMutationError } from '@/services/helpers';
 import { deleteTaxProfile, useTaxProfilesQuery } from '@/services/tax';
+import { theme } from '@/theme';
+import { cardStyles } from '@/theme/card-styles';
+import { scoped } from '@/theme/mixins';
 import type { TaxProfile as TaxProfileType } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -91,7 +91,7 @@ const TaxProfile = () => {
           {!taxProfileList?.length ? (
             <Card css={cardStyles.innerDarkCard}>
               <CardContent css={[cardStyles.innerDarkContent, styles.emptyState]}>
-                <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
+                <Flex direction="column" gap={2} align="center">
                   <BoxOpenIcon />
                   <span css={styles.emptyStateText}>
                     {__(
@@ -154,7 +154,7 @@ const styles = {
     },
   }),
   emptyState: scoped({
-    padding: `${theme.spacing['7xl']} ${theme.spacing.none}`,
+    padding: `${theme.spacing[9]} ${theme.spacing[0]}`,
   }),
   emptyStateText: scoped({
     color: theme.colors.text.subdued,

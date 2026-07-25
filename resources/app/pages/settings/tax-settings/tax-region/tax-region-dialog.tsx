@@ -262,7 +262,7 @@ const TaxRegionPopup = (props: TaxRegionPopupProps) => {
         </DialogHeader>
         <Form {...form}>
           <DialogBody>
-            <Flex direction="column" gap={8}>
+            <Flex direction="column" gap={2}>
               <Label htmlFor="tax-region-search">
                 {__('Select countries', 'kirki-ecommerce')}
               </Label>
@@ -295,7 +295,7 @@ const TaxRegionPopup = (props: TaxRegionPopupProps) => {
                       []) as CountryStateOption[];
                     return (
                       <div key={index} css={styles.checkboxItem}>
-                        <Flex gap={8} style={{ alignItems: 'center' }}>
+                        <Flex gap={2} align="center">
                           <Checkbox
                             id={`tax-region-country-${country.code}`}
                             checked={
@@ -318,7 +318,7 @@ const TaxRegionPopup = (props: TaxRegionPopupProps) => {
                             {countryStates.map((state, stateIndex) => {
                               return (
                                 <div key={stateIndex} css={styles.checkboxItem}>
-                                  <Flex gap={8} style={{ alignItems: 'center' }}>
+                                  <Flex gap={2} align="center">
                                     <Checkbox
                                       id={`tax-region-state-${country.code}-${state?.id}`}
                                       checked={formRegions
@@ -354,12 +354,11 @@ const TaxRegionPopup = (props: TaxRegionPopupProps) => {
             </Card>
           </DialogBody>
           <DialogFooter>
-            <Button variant="outline" size="sm" onClick={handleClose}>
+            <Button variant="outline" onClick={handleClose}>
               {__('Cancel', 'kirki-ecommerce')}
             </Button>
             <Button
               variant="primary"
-              size="sm"
               onClick={form.handleSubmit(handleSubmit)}
               disabled={!buttonState}
             >
@@ -379,13 +378,13 @@ export default TaxRegionPopup;
 const styles = {
   checkboxItem: scoped({
     width: 'auto',
-    padding: `${theme.spacing.md} ${theme.spacing.lg}`,
+    padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
     '&:hover': {
       background: theme.colors.background.surfaceSecondary,
       borderRadius: theme.radius.sm,
     },
   }),
   nestedStates: scoped({
-    padding: theme.spacing.lg,
+    padding: theme.spacing[3],
   }),
 };

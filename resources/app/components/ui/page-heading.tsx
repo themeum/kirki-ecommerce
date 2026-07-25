@@ -1,16 +1,16 @@
 import { type SerializedStyles } from '@emotion/react';
+import { ArrowLeft } from 'lucide-react';
 import {
   forwardRef,
   type ComponentProps,
   type CSSProperties,
   type ReactNode,
 } from 'react';
-import { ArrowLeft } from 'lucide-react';
 
 import Button from '@/components/ui/button';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
-import Heading from '@/components/ui/heading';
+import Text from '@/components/ui/text';
 import { theme } from '@/theme';
 import { flexCenter, itemCenter, scoped } from '@/theme/mixins';
 import type { ContainerSize, HeadingType } from '@/types';
@@ -35,7 +35,6 @@ const PageHeading = forwardRef<HTMLDivElement, PageHeadingProps>(
   (props, ref) => {
     const {
       css: cssProp,
-      type = '',
       text = __('Button', 'kirki-ecommerce'),
       hasBack = false,
       size,
@@ -76,7 +75,6 @@ const PageHeading = forwardRef<HTMLDivElement, PageHeadingProps>(
             {hasBack && (
               <Button
                 variant="link"
-                size="sm"
                 css={buttonCss}
                 onClick={(event) => {
                   if (buttonOnClick) {
@@ -88,7 +86,7 @@ const PageHeading = forwardRef<HTMLDivElement, PageHeadingProps>(
                 {...restButtonProps}
               >
                 <ArrowLeft size={16} aria-hidden="true" />
-                {buttonChildren ?? __('Cancel', 'kirki-ecommerce')}
+                {buttonChildren}
               </Button>
             )}
             {leftIcon && (
@@ -96,9 +94,10 @@ const PageHeading = forwardRef<HTMLDivElement, PageHeadingProps>(
                 {leftIcon}
               </span>
             )}
-            <Heading type={type} text={text} />
+            <Text variant='heading5'>{text}</Text>
+
             {children}
-            <Flex css={styles.actions} gap={8}>
+            <Flex css={styles.actions} gap={2}>
               {actions}
             </Flex>
           </div>
@@ -114,8 +113,8 @@ export default PageHeading;
 
 const styles = {
   wrapper: scoped({
-    marginBottom: theme.spacing['6xl'],
-    marginTop: theme.spacing['6xl'],
+    marginBottom: theme.spacing[8],
+    marginTop: theme.spacing[8],
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -123,25 +122,25 @@ const styles = {
   wrapperSticky: scoped({
     top: '32px',
     left: 0,
-    padding: `${theme.spacing['2xl']} ${theme.spacing.none}`,
-    marginTop: theme.spacing.none,
+    padding: `${theme.spacing[4]} ${theme.spacing[0]}`,
+    marginTop: theme.spacing[0],
     position: 'sticky',
     borderBottom: `1px solid ${theme.colors.border.default}`,
     backgroundColor: theme.colors.background.surfaceTertiary,
     zIndex: 100,
   }),
   wrapperNoMargin: scoped({
-    marginTop: theme.spacing.none,
-    marginBottom: theme.spacing.none,
+    marginTop: theme.spacing[0],
+    marginBottom: theme.spacing[0],
   }),
   heading: scoped({
     width: '100%',
     ...itemCenter(),
-    columnGap: theme.spacing.lg,
-    paddingLeft: theme.spacing.sm,
+    columnGap: theme.spacing[3],
+    paddingLeft: theme.spacing[2],
   }),
   headingHasBack: scoped({
-    paddingLeft: theme.spacing.none,
+    paddingLeft: theme.spacing[0],
   }),
   icon: scoped({
     ...flexCenter(),

@@ -139,7 +139,7 @@ const AddCitiesPopup = (props: AddCitiesPopupProps) => {
         </DialogHeader>
         <Form {...form}>
           <DialogBody>
-            <Flex direction="column" gap={8}>
+            <Flex direction="column" gap={2}>
               <Label htmlFor="add-cities-search">
                 {__('Cities', 'kirki-ecommerce')}
               </Label>
@@ -161,7 +161,7 @@ const AddCitiesPopup = (props: AddCitiesPopupProps) => {
                   }}
                 >
                 <Flex>
-                  <Flex gap={8} style={{ alignItems: 'center' }}>
+                  <Flex gap={2} align="center">
                     <Checkbox
                       id="add-cities-select-all"
                       checked={
@@ -179,7 +179,7 @@ const AddCitiesPopup = (props: AddCitiesPopupProps) => {
                   filteredCities.map((city, index) => {
                     return (
                       <div key={index} css={styles.checkboxItemIndented}>
-                        <Flex gap={8} style={{ alignItems: 'center' }}>
+                        <Flex gap={2} align="center">
                           <Checkbox
                             id={`add-cities-city-${city.id}`}
                             checked={formSelectedCities.some(
@@ -199,13 +199,9 @@ const AddCitiesPopup = (props: AddCitiesPopupProps) => {
                     <CardContent>
                       <Flex
                         direction="column"
-                        gap={8}
-                        style={{ alignItems: 'center' }}
-                      >
-                        <Text
-                          header={__('No cities available')}
-                          type="secondary"
-                        />
+                        gap={2}
+                        align="center">
+                        <Text weight="medium">{__('No cities available')}</Text>
                       </Flex>
                     </CardContent>
                   </Card>
@@ -217,7 +213,6 @@ const AddCitiesPopup = (props: AddCitiesPopupProps) => {
           <DialogFooter>
             <Button
               variant="outline"
-              size="sm"
               onClick={() => {
                 setSelectedCities(selectedCities);
                 setOpenPopup(false);
@@ -227,7 +222,6 @@ const AddCitiesPopup = (props: AddCitiesPopupProps) => {
             </Button>
             <Button
               variant="primary"
-              size="sm"
               onClick={form.handleSubmit(handleSubmit)}
               disabled={buttonState}
             >
@@ -247,13 +241,13 @@ export default AddCitiesPopup;
 const styles = {
   checkboxItemIndented: scoped({
     width: 'auto',
-    padding: `${theme.spacing.md} ${theme.spacing['3xl']}`,
+    padding: `${theme.spacing[2]} ${theme.spacing[5]}`,
     '&:hover': {
       background: theme.colors.background.surfaceSecondary,
       borderRadius: theme.radius.sm,
     },
   }),
   emptyCitiesCard: scoped({
-    padding: `${theme.spacing['7xl']} 0`,
+    padding: `${theme.spacing[9]} 0`,
   }),
 };

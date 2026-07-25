@@ -11,11 +11,16 @@ import {
 } from 'react';
 
 import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from '@/components/ui/field';
+import {
   InputGroup,
   InputGroupAddon,
   InputGroupInput,
 } from '@/components/ui/input-group';
-import Label from '@/components/ui/label';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
 import type { InputState } from '@/types';
@@ -107,15 +112,12 @@ const Searchbox = forwardRef<HTMLInputElement, SearchboxProps>((props, ref) => {
   const isDisabled = state === 'disabled';
 
   return (
-    <div css={styles.root} style={style}>
-      {label && (
-        <Label
-          error={Boolean(error)}
-          helpText={typeof error === 'string' ? error : helpText}
-        >
-          {label}
-        </Label>
-      )}
+    <Field
+      data-invalid={error ? true : undefined}
+      css={styles.root}
+      style={style}
+    >
+      {label && <FieldLabel>{label}</FieldLabel>}
       <InputGroup
         error={Boolean(error)}
         disabled={isDisabled}
@@ -132,12 +134,15 @@ const Searchbox = forwardRef<HTMLInputElement, SearchboxProps>((props, ref) => {
           onKeyDown={handleInputKeyDown}
           readOnly={readOnly}
           disabled={isDisabled}
+          aria-invalid={Boolean(error) || undefined}
         />
         <InputGroupAddon align="inline-start">
           <Search size={16} aria-hidden="true" />
         </InputGroupAddon>
       </InputGroup>
-    </div>
+      {helpText && !error && <FieldDescription>{helpText}</FieldDescription>}
+      {typeof error === 'string' && <FieldError>{error}</FieldError>}
+    </Field>
   );
 });
 
@@ -150,10 +155,10 @@ const styles = {
     width: '100%',
   }),
   group: scoped({
-    minHeight: theme.spacing['6xl'],
-    height: theme.spacing['6xl'],
+    minHeight: theme.spacing[8],
+    height: theme.spacing[8],
     '& [data-slot="input-group-control"]': {
-      minHeight: theme.spacing['6xl'],
+      minHeight: theme.spacing[8],
     },
   }),
 };

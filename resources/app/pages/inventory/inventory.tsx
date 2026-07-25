@@ -59,14 +59,12 @@ const InventoryPage = () => {
             <>
               <Button
                 variant="ghost"
-                size="sm"
                 onClick={handleDiscardUpdate}
               >
                 {__('Discard', 'kirki-ecommerce')}
               </Button>
               <Button
                 variant="primary"
-                size="sm"
                 onClick={handleInventoryUpdate}
               >
                 {__('Save', 'kirki-ecommerce')}
@@ -74,10 +72,10 @@ const InventoryPage = () => {
             </>
           ) : (
             <>
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost">
                 {__('Import', 'kirki-ecommerce')}
               </Button>
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost">
                 {__('Export', 'kirki-ecommerce')}
               </Button>
             </>
@@ -86,7 +84,7 @@ const InventoryPage = () => {
       />
       <Container>
         {loaded && !isLoading ? (
-          <Flex direction="column" gap={16}>
+          <Flex direction="column" gap={4}>
             <Card css={cardStyles.tableCard}>
               <CardContent css={cardStyles.tableContent}>
                 <InventoryTable />

@@ -44,17 +44,17 @@ const formControlSelectors = (suffix = ''): string => {
  */
 const getNormalizeStyles = (theme: Theme): CSSObject => {
   return {
+    '#wpbody-content .notice': {
+      display: 'none !important',
+    },
     [APP_ROOT_SELECTOR]: {
       '*, *::before, *::after': {
         boxSizing: 'border-box',
       },
       margin: 0,
       padding: 0,
-      color: theme.colors.text.primary,
-      fontSize: theme.typography.fontSize.base,
+      ...theme.typography.paragraph(),
       fontFamily: theme.typography.fontFamily,
-      fontWeight: theme.typography.fontWeight.normal,
-      lineHeight: theme.typography.lineHeight.base,
       WebkitFontSmoothing: 'antialiased',
       MozOsxFontSmoothing: 'grayscale',
       textRendering: 'optimizeLegibility',
@@ -176,17 +176,17 @@ const getNormalizeStyles = (theme: Theme): CSSObject => {
         },
       },
       'button:disabled, input[type="button"]:disabled, input[type="reset"]:disabled, input[type="submit"]:disabled, input:disabled, select:disabled, textarea:disabled':
-        {
-          cursor: 'not-allowed',
-        },
+      {
+        cursor: 'not-allowed',
+      },
       'input[type="search"]': {
         WebkitAppearance: 'none',
         appearance: 'none',
         '&::-webkit-search-cancel-button, &::-webkit-search-decoration, &::-webkit-search-results-button, &::-webkit-search-results-decoration':
-          {
-            display: 'none',
-            WebkitAppearance: 'none',
-          },
+        {
+          display: 'none',
+          WebkitAppearance: 'none',
+        },
       },
       'input[type="number"]': {
         MozAppearance: 'textfield',

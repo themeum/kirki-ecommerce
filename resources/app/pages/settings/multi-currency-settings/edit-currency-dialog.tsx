@@ -87,46 +87,28 @@ const EditCurrencyPopup = ({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)}>
             <DialogBody>
-              <Label
-                css={styles.ratePopupLabel}
-                leftIcon={<InfoIcon />}
-              >
+              <Label css={styles.ratePopupLabel}>
+                <InfoIcon />
                 {__('Enter rates per 1 USD', 'kirki-ecommerce')}
               </Label>
-              <Flex
-                direction="column"
-                gap={12}
-                style={{
-                  maxHeight: '200px',
-                  overflowX: 'scroll',
-                }}
-              >
-                <Flex style={{ justifyContent: 'space-between' }}>
-                  <Flex gap={12}>
-                    <Text
-                      type="primary"
-                      header={sprintf(
+              <Flex direction="column" gap={3} css={css({ maxHeight: '200px', overflowX: 'scroll' })}>
+                <Flex justify="space-between">
+                  <Flex gap={3}>
+                    <Text weight="semibold">{sprintf(
                         __('%s', 'kirki-ecommerce'),
                         editCurrency?.icon ?? '',
-                      )}
-                    />
-                    <Text
-                      type="secondary"
-                      header={sprintf(
+                      )}</Text>
+                    <Text weight="medium">{sprintf(
                         __('%s', 'kirki-ecommerce'),
                         editCurrency?.code ?? '',
-                      )}
-                    />
-                    <Text
-                      type="xsm"
-                      header={sprintf(
+                      )}</Text>
+                    <Text variant="small">{sprintf(
                         __('%s', 'kirki-ecommerce'),
                         editCurrency?.name ?? '',
-                      )}
-                    />
+                      )}</Text>
                   </Flex>
                   <div
-                    style={{ width: 'auto', margin: theme.spacing.xxs }}
+                    style={{ width: 'auto', margin: theme.spacing[1] }}
                   >
                     <TextField
                       name="exchange_rate"
@@ -138,11 +120,11 @@ const EditCurrencyPopup = ({
             </DialogBody>
             <DialogFooter>
               <DialogClose asChild>
-                <Button type="button" variant="outline" size="sm">
+                <Button type="button" variant="outline">
                   {__('Cancel', 'kirki-ecommerce')}
                 </Button>
               </DialogClose>
-              <Button type="submit" variant="primary" size="sm">
+              <Button type="submit" variant="primary">
                 {__('Update', 'kirki-ecommerce')}
               </Button>
             </DialogFooter>
@@ -159,8 +141,8 @@ export default EditCurrencyPopup;
 
 const styles = {
   ratePopupLabel: css({
-    padding: theme.spacing.lg,
-    gap: theme.spacing.md,
+    padding: theme.spacing[3],
+    gap: theme.spacing[2],
     background: theme.colors.background.surfaceAlt,
     borderRadius: theme.radius.md,
     color: theme.colors.text.secondary,

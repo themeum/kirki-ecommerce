@@ -1,13 +1,11 @@
 import { useEffect, useState } from 'react';
-import { useFormContext } from 'react-hook-form';
+import { Controller, useFormContext } from 'react-hook-form';
 
 import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
+  Field,
+  FieldError,
+  FieldLabel,
+} from '@/components/ui/field';
 import { getErrorsObject, type ErrorResponse } from '@/libs/api';
 import TagManager from '@/components/tag-manager/tag-manager';
 import { getSearchedValue } from '@/pages/settings/utils';
@@ -172,34 +170,32 @@ const AddOrEditVariation = () => {
 
   return (
     <>
-      <FormField
+      <Controller
         control={control}
         name="values"
         render={({ fieldState }) => (
-          <FormItem>
-            <FormLabel>
+          <Field data-invalid={fieldState.invalid || undefined}>
+            <FieldLabel>
               {__('Variation Values', 'kirki-ecommerce')}
-            </FormLabel>
-            <FormControl>
-              <TagManager
-                error={Boolean(fieldState.error)}
-                placeholder={__('Add', 'kirki-ecommerce')}
-                suggestions={variationSuggestionArray}
-                selectedTags={formValues as SelectOption[]}
-                value={searchedText}
-                onTagAdd={(value) => handleVariationAdd(value)}
-                addItemLabel={__('Add Variation', 'kirki-ecommerce')}
-                onSearchChange={(searchValue) => handleSearchChange(searchValue)}
-                onNewTagAdd={(value) =>
-                  type === 'color'
-                    ? setAddNewVariationPopup(true)
-                    : handleNewVariationAdd(value)
-                }
-                onTagRemove={(value) => handleVariationRemove(value)}
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
+            </FieldLabel>
+            <TagManager
+              error={Boolean(fieldState.error)}
+              placeholder={__('Add', 'kirki-ecommerce')}
+              suggestions={variationSuggestionArray}
+              selectedTags={formValues as SelectOption[]}
+              value={searchedText}
+              onTagAdd={(value) => handleVariationAdd(value)}
+              addItemLabel={__('Add Variation', 'kirki-ecommerce')}
+              onSearchChange={(searchValue) => handleSearchChange(searchValue)}
+              onNewTagAdd={(value) =>
+                type === 'color'
+                  ? setAddNewVariationPopup(true)
+                  : handleNewVariationAdd(value)
+              }
+              onTagRemove={(value) => handleVariationRemove(value)}
+            />
+            {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+          </Field>
         )}
       />
       <VariationPopover

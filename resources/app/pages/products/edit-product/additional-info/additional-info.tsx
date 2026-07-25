@@ -69,14 +69,13 @@ const AdditionalInfo = () => {
 
   return (
     <>
-      <Text
-        header={__('Additional Info', 'kirki-ecommerce')}
-        subHeader={__(
+      <Flex direction="column" gap={2}>
+        <Text weight="semibold">{__('Additional Info', 'kirki-ecommerce')}</Text>
+        <Text color="secondary">{__(
           'Share information like return policy or care instructions with your customers.',
           'kirki-ecommerce',
-        )}
-        type="primary"
-      />
+        )}</Text>
+      </Flex>
       {showInfoForm ? (
         <AddOrEditInfo index={editedIndex} onClose={onClose} />
       ) : (
@@ -99,15 +98,11 @@ const AdditionalInfo = () => {
                   >
                     <CardContent>
                       <Flex
-                        style={{
-                          alignItems: 'flex-start',
-                        }}
-                      >
-                        <Text
-                          type="primary"
-                          header={item?.title}
-                          subHeader={item?.description as string | undefined}
-                        />
+                        align="flex-start">
+                        <Flex direction="column" gap={2}>
+                          <Text weight="semibold">{item?.title}</Text>
+                          <Text color="secondary">{item?.description as string | undefined}</Text>
+                        </Flex>
                         <ActionGroup
                           css={css(
                             hoverVisibleCss,
@@ -116,14 +111,12 @@ const AdditionalInfo = () => {
                         >
                           <Button
                             variant="secondary"
-                            size="sm"
                             onClick={() => onDeleteInfo(index)}
                           >
                             <TrashIcon />
                           </Button>
                           <Button
                             variant="secondary"
-                            size="sm"
                             onClick={() => onEditInfo(index)}
                           >
                             <EditIcon />
@@ -137,7 +130,6 @@ const AdditionalInfo = () => {
             )}
           <Button
             variant="secondary"
-            size="sm"
             onClick={() => setShowInfoForm(true)}
           >
             <PlusIcon />

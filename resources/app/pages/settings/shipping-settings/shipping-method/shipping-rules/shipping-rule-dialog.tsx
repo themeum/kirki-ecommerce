@@ -1,5 +1,5 @@
 import { useEffect, useState, type Dispatch, type SetStateAction } from 'react';
-import { useForm, useWatch } from 'react-hook-form';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useSearchParams } from 'react-router';
 import { toast } from 'sonner';
@@ -16,13 +16,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from '@/components/ui/form';
+import { Field, FieldError } from '@/components/ui/field';
+import { Form } from '@/components/ui/form';
 import Input from '@/components/ui/input';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
@@ -383,7 +378,7 @@ const ShippingRuleModal = ({
           {from !== 'edit' && (
             <DialogHeader>
               <DialogTitle>
-                <Flex gap={8} style={{ alignItems: 'center' }}>
+                <Flex gap={2} align="center">
                   <LighteningIcon />
                   {__('New Shipping Rules', 'kirki-ecommerce')}
                 </Flex>
@@ -392,9 +387,9 @@ const ShippingRuleModal = ({
           )}
           <Form {...form}>
             <DialogBody>
-              <Flex direction={'column'} gap={16}>
-                <Flex direction={'column'} gap={8}>
-                  <Text header="IF" />
+              <Flex direction={'column'} gap={4}>
+                <Flex direction={'column'} gap={2}>
+                  <Text>IF</Text>
                   <Grid columns={3}>
                     <SelectField
                       name="condition"
@@ -411,21 +406,23 @@ const ShippingRuleModal = ({
                     )}
 
                     {selectedCondition === 'destination_region' ? (
-                      <FormField
+                      <Controller
                         control={form.control}
                         name="selected_country"
                         render={({ field, fieldState }) => (
-                          <FormItem>
-                            <FormControl>
-                              <Input
-                                value={field.value ?? ''}
-                                onClick={() => setOpenDestinationPopup(true)}
-                                readOnly
-                                error={Boolean(fieldState.error)}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
+                          <Field data-invalid={fieldState.invalid || undefined}>
+                            <Input
+                              id="selected_country"
+                              value={field.value ?? ''}
+                              onClick={() => setOpenDestinationPopup(true)}
+                              readOnly
+                              error={Boolean(fieldState.error)}
+                              aria-invalid={fieldState.invalid}
+                            />
+                            {fieldState.invalid && (
+                              <FieldError errors={[fieldState.error]} />
+                            )}
+                          </Field>
                         )}
                       />
                     ) : selectedCondition === 'cart_weight' ? (
@@ -438,8 +435,8 @@ const ShippingRuleModal = ({
                     )}
                   </Grid>
                 </Flex>
-                <Flex direction={'column'} gap={8}>
-                  <Text header={__('THEN', 'kirki-ecommerce')} />
+                <Flex direction={'column'} gap={2}>
+                  <Text>{__('THEN', 'kirki-ecommerce')}</Text>
                   <Grid columns={2}>
                     <SelectField
                       name="action"

@@ -1,6 +1,5 @@
 import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 import { ChevronsUpDown } from 'lucide-react';
-import { type Theme } from '@emotion/react';
 
 import Button from '@/components/ui/button';
 import {
@@ -13,12 +12,16 @@ import {
 import ActionGroup from '@/components/ui/action-group';
 import Badge from '@/components/ui/badge';
 import Checkbox from '@/components/ui/checkbox';
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
-import Label from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { theme } from '@/theme';
 import {
-  fontGeneralSettings,
   itemCenter,
   scoped,
   uiFocusRing,
@@ -70,12 +73,6 @@ const GroupSelect = (props: GroupSelectProps) => {
     dropdownFooter,
   } = props;
 
-  const labelFontStyle = {
-    fontSize: '14px',
-    fontWeight: '500',
-    lineHeight: '21px',
-  };
-
   const [selectedValues, setSelectedValues] = useState<GroupedValues>(valueArray);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -113,12 +110,8 @@ const GroupSelect = (props: GroupSelectProps) => {
   };
 
   return (
-    <Flex direction="column" gap={8}>
-      {label && (
-        <Label error={Boolean(error)} helpText={error ? error : helpText}>
-          {label}
-        </Label>
-      )}
+    <Field data-invalid={error ? true : undefined}>
+      {label && <FieldLabel>{label}</FieldLabel>}
       <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
         <DropdownMenuTrigger asChild>
           <button
@@ -142,11 +135,12 @@ const GroupSelect = (props: GroupSelectProps) => {
           {optionsArray.map((option, index) =>
             option?.heading ? (
               <DropdownMenuLabel key={index}>
-                <Label
-                  text={String(option.heading)}
-                  infoText={option?.infoText}
-                  style={{ ...labelFontStyle, color: '#878593' }}
-                />
+                <FieldLabel css={styles.headingLabel}>
+                  {String(option.heading)}
+                </FieldLabel>
+                {option?.infoText && (
+                  <FieldDescription>{option.infoText}</FieldDescription>
+                )}
               </DropdownMenuLabel>
             ) : (
               <DropdownMenuItem
@@ -156,7 +150,7 @@ const GroupSelect = (props: GroupSelectProps) => {
                   handleOptionClick(option.value, String(option.group ?? ''))
                 }
               >
-                <Flex style={{ alignItems: 'center' }} gap={8}>
+                <Flex gap={2} align="center">
                   {option.icon}
                   {checkboxField ? (
                     <Checkbox
@@ -169,7 +163,6 @@ const GroupSelect = (props: GroupSelectProps) => {
                           false)
                       }
                       label={option?.title}
-                      labelStyle={labelFontStyle}
                       onChange={() =>
                         handleOptionClick(
                           option.value,
@@ -181,10 +174,9 @@ const GroupSelect = (props: GroupSelectProps) => {
                     option.title
                   )}
                   {option?.isRequired && (
-                    <Badge
-                      text={__('Required', 'kirki-ecommerce')}
-                      type="trashed"
-                    />
+                    <Badge variant="destructive">
+                      {__('Required', 'kirki-ecommerce')}
+                    </Badge>
                   )}
                 </Flex>
               </DropdownMenuItem>
@@ -195,14 +187,12 @@ const GroupSelect = (props: GroupSelectProps) => {
               <ActionGroup>
                 <Button
                   variant="secondary"
-                  size="sm"
                   onClick={handleSelectionClose}
                 >
                   {__('Cancel', 'kirki-ecommerce')}
                 </Button>
                 <Button
                   variant="primary"
-                  size="sm"
                   onClick={handleSelectionClose}
                 >
                   {__('Add', 'kirki-ecommerce')}
@@ -212,7 +202,9 @@ const GroupSelect = (props: GroupSelectProps) => {
           )}
         </DropdownMenuContent>
       </DropdownMenu>
-    </Flex>
+      {helpText && !error && <FieldDescription>{helpText}</FieldDescription>}
+      {typeof error === 'string' && <FieldError>{error}</FieldError>}
+    </Field>
   );
 };
 
@@ -225,19 +217,19 @@ const styles = {
     width: '100%',
     minHeight: '36px',
     border: `1px solid ${theme.colors.border.default}`,
-    padding: `${theme.spacing.md} ${theme.spacing.lg}`,
+    padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
     borderRadius: theme.radius.lg,
     backgroundColor: theme.colors.background.fill,
     boxSizing: 'border-box',
     justifyContent: 'space-between',
     ...itemCenter(),
-    gap: theme.spacing.md,
-    ...fontGeneralSettings(theme as Theme),
+    gap: theme.spacing[2],
+    ...theme.typography.paragraph(),
     cursor: 'pointer',
     textAlign: 'left',
     '&:focus-visible, &[data-state="open"]': {
       borderColor: theme.colors.border.default,
-      ...uiFocusRing(theme as Theme),
+      ...uiFocusRing(theme),
     },
   }),
   triggerError: scoped({
@@ -245,7 +237,7 @@ const styles = {
     boxShadow: 'none',
     '&:focus-visible, &[data-state="open"]': {
       borderColor: theme.colors.border.critical,
-      ...uiFocusRing(theme as Theme, theme.colors.border.critical),
+      ...uiFocusRing(theme, theme.colors.border.critical),
     },
   }),
   placeholder: scoped({
@@ -263,16 +255,20 @@ const styles = {
     opacity: 0.5,
   }),
   contentWithFooter: scoped({
-    paddingBottom: theme.spacing.none,
+    paddingBottom: theme.spacing[0],
   }),
   contentWithoutFooter: scoped({
-    paddingBottom: theme.spacing.xs,
+    paddingBottom: theme.spacing[1],
   }),
   footer: scoped({
-    padding: `${theme.spacing.md} ${theme.spacing['2xl']} ${theme.spacing.md} ${theme.spacing.lg}`,
-    borderTop: '1px solid #E4E3E9',
+    padding: `${theme.spacing[2]} ${theme.spacing[4]} ${theme.spacing[2]} ${theme.spacing[3]}`,
+    borderTop: `1px solid ${theme.colors.border.default}`,
     bottom: 0,
     position: 'sticky',
-    backgroundColor: 'white',
+    backgroundColor: theme.colors.background.surface,
+  }),
+  headingLabel: scoped({
+    ...theme.typography.small('medium'),
+    color: theme.colors.text.subdued,
   }),
 };

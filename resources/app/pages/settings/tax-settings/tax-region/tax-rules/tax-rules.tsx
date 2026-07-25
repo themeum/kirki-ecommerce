@@ -3,23 +3,23 @@ import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 import HeaderActionsCard from '@/components/header-actions-card';
+import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
 import {
   Card,
   CardContent,
 } from '@/components/ui/card';
-import { EditPenIcon, LighteningIcon, TrashIcon } from '@/icons';
-import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
+import { EditPenIcon, LighteningIcon, TrashIcon } from '@/icons';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
+import { scoped } from '@/theme/mixins';
 import { __, sprintf } from '@/wpi18n';
 
-import type { TaxRegion, TaxRule } from '@/pages/settings/tax-settings/utils';
 import { getDestinationDisplayValue } from '@/pages/settings/tax-settings/tax-region/tax-rules/helper';
 import TaxRulesModal from '@/pages/settings/tax-settings/tax-region/tax-rules/tax-rules-dialog';
+import type { TaxRegion, TaxRule } from '@/pages/settings/tax-settings/utils';
 
 type TaxRulesProps = {
   region?: TaxRegion;
@@ -73,7 +73,7 @@ const TaxRules = (props: TaxRulesProps) => {
             onAdd={() => setAddRuleModal(true)}
           />
           {(addRuleModal || rulesObj.length > 0) && (
-            <Flex direction={'column'} gap={16}>
+            <Flex direction={'column'} gap={4}>
               {addRuleModal && (
                 <TaxRulesModal
                   showModal={addRuleModal}
@@ -99,105 +99,88 @@ const TaxRules = (props: TaxRulesProps) => {
                     onMouseLeave={() => setHoveredRuleIndex(null)}
                   >
                     <CardContent>
-                      <Flex style={{ justifyContent: 'space-between' }}>
-                        <Flex direction={'column'} gap={16}>
+                      <Flex justify="space-between">
+                        <Flex direction={'column'} gap={4}>
                           <Card css={[cardStyles.darkCard, styles.rulesNumberBadge]}>
                             <CardContent>
-                              <Text
-                                type="xsm"
-                                header={sprintf(__('Rule %s', 'kirki-ecommerce'), index + 1)}
-                                leftIcon={<LighteningIcon />}
-                              />
+                              <Flex gap={2} align="center">
+                                <LighteningIcon />
+                                <Text variant="small">{sprintf(__('Rule %s', 'kirki-ecommerce'), index + 1)}</Text>
+                              </Flex>
                             </CardContent>
                           </Card>
-                      <Flex direction={'column'} gap={8}>
-                        <Flex direction={'column'} gap={8}>
-                          {item?.conditions.map((condition, conditionIndex) => (
-                            <Flex gap={8} key={conditionIndex}>
-                              <Text
-                                header={
-                                  conditionIndex === 0
+                          <Flex direction={'column'} gap={2}>
+                            <Flex direction={'column'} gap={2}>
+                              {item?.conditions.map((condition, conditionIndex) => (
+                                <Flex gap={2} key={conditionIndex}>
+                                  <Text>{conditionIndex === 0
                                     ? sprintf(
-                                        __('IF %1$s %2$s', 'kirki-ecommerce'),
-                                        condition?.type,
-                                        condition?.operator,
-                                      )
+                                      __('IF %1$s %2$s', 'kirki-ecommerce'),
+                                      condition?.type,
+                                      condition?.operator,
+                                    )
                                     : sprintf(
-                                        __('AND IF %1$s %2$s', 'kirki-ecommerce'),
-                                        condition?.type,
-                                        condition?.operator,
-                                      )
-                                }
-                              />
-                              <Text
-                                header={
-                                  condition?.type === 'destination_region'
+                                      __('AND IF %1$s %2$s', 'kirki-ecommerce'),
+                                      condition?.type,
+                                      condition?.operator,
+                                    )}</Text>
+                                  <Text css={styles.conditionValue}>{condition?.type === 'destination_region'
                                     ? __(
-                                        getDestinationDisplayValue(
-                                          condition?.value,
-                                        ),
-                                        'kirki-ecommerce',
-                                      )
+                                      getDestinationDisplayValue(
+                                        condition?.value,
+                                      ),
+                                      'kirki-ecommerce',
+                                    )
                                     : sprintf(
-                                        __('%s', 'kirki-ecommerce'),
-                                        condition?.value as string | number,
-                                      )
-                                }
-                                css={styles.conditionValue}
-                              />
+                                      __('%s', 'kirki-ecommerce'),
+                                      condition?.value as string | number,
+                                    )}</Text>
+                                </Flex>
+                              ))}
                             </Flex>
-                          ))}
-                        </Flex>
-                        <Flex gap={8}>
-                          <Text
-                            header={
-                              item?.action?.type === 'set_tax_rate'
+                            <Flex gap={2}>
+                              <Text>{item?.action?.type === 'set_tax_rate'
                                 ? `Then ${item?.action?.type}:`
-                                : `Then ${item?.action?.type}`
-                            }
-                          />
-                          {item?.action?.type === 'set_tax_rate' && (
-                            <Text
-                              header={`${item?.action?.value}`}
-                              css={styles.conditionValue}
-                            />
-                          )}
+                                : `Then ${item?.action?.type}`}</Text>
+                              {item?.action?.type === 'set_tax_rate' && (
+                                <Text css={styles.conditionValue}>{`${item?.action?.value}`}</Text>
+                              )}
+                            </Flex>
+                          </Flex>
                         </Flex>
+                        <ActionGroup
+                          css={css(
+                            styles.cardActions,
+                            hoveredRuleIndex === index && styles.cardActionsActive,
+                          )}
+                        >
+                          <Button
+                            variant="secondary"
+                            size="icon"
+                            onClick={() => handleDeleteRules(item, index)}
+                          >
+                            <TrashIcon />
+                          </Button>
+                          <Button
+                            variant="secondary"
+                            size="icon"
+                            onClick={() => setEditingRuleIndex(index)}
+                          >
+                            <EditPenIcon />
+                          </Button>
+                        </ActionGroup>
                       </Flex>
-                    </Flex>
-                    <ActionGroup
-                      css={css(
-                        styles.cardActions,
-                        hoveredRuleIndex === index && styles.cardActionsActive,
-                      )}
-                    >
-                      <Button
-                        variant="secondary"
-                        size="icon"
-                        onClick={() => handleDeleteRules(item, index)}
-                      >
-                        <TrashIcon />
-                      </Button>
-                      <Button
-                        variant="secondary"
-                        size="icon"
-                        onClick={() => setEditingRuleIndex(index)}
-                      >
-                        <EditPenIcon />
-                      </Button>
-                    </ActionGroup>
-                  </Flex>
-                  {editingRuleIndex === index && (
-                    <TaxRulesModal
-                      region={region}
-                      rulesObj={rulesObj}
-                      setRulesObj={setRulesObj}
-                      updateTaxRules={updateTaxRules}
-                      showModal={true}
-                      setShowModal={() => setEditingRuleIndex(null)}
-                      from={'edit'}
-                      ruleIndex={index}
-                    />
+                      {editingRuleIndex === index && (
+                        <TaxRulesModal
+                          region={region}
+                          rulesObj={rulesObj}
+                          setRulesObj={setRulesObj}
+                          updateTaxRules={updateTaxRules}
+                          showModal={true}
+                          setShowModal={() => setEditingRuleIndex(null)}
+                          from={'edit'}
+                          ruleIndex={index}
+                        />
                       )}
                     </CardContent>
                   </Card>
@@ -226,13 +209,13 @@ const styles = {
     pointerEvents: 'auto',
   }),
   shippingRulesCard: scoped({
-    padding: theme.spacing.lg,
+    padding: theme.spacing[3],
     minHeight: '118px',
     borderRadius: theme.radius.none,
     border: `1px solid ${theme.colors.border.default}`,
     display: 'flex',
     flexDirection: 'column',
-    gap: theme.spacing['2xl'],
+    gap: theme.spacing[4],
   }),
   shippingRulesCardSingle: scoped({
     borderRadius: theme.radius.lg,
@@ -250,7 +233,7 @@ const styles = {
     maxWidth: 'fit-content',
     borderRadius: theme.radius.sm,
     display: 'flex',
-    padding: `${theme.spacing.xs} ${theme.spacing.md}`,
+    padding: `${theme.spacing[1]} ${theme.spacing[2]}`,
   }),
   conditionValue: scoped({
     color: theme.colors.text.special3,

@@ -1,10 +1,11 @@
 import ColorPicker from '@/components/color-picker';
+import { theme } from '@/theme';
 
 const ColorPickerPreview = () => {
   return (
     <div>
       <ColorPicker
-        value={'#1a6cbe'}
+        value={theme.colors.background.fillBrand}
         onChange={(value) => console.log(value)}
         label={'Set Color'}
       />

@@ -2,14 +2,14 @@ import { useNavigate } from 'react-router';
 
 import Pagination from '@/components/pagination';
 import Button from '@/components/ui/button';
-import { NEW_ITEM_ID } from '@/conf';
-import { useListParams } from '@/hooks';
 import { Card, CardContent } from '@/components/ui/card';
-import { cardStyles } from '@/theme/card-styles';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import PageHeading from '@/components/ui/page-heading';
+import { NEW_ITEM_ID } from '@/conf';
+import { useListParams } from '@/hooks';
 import { useProductsQuery } from '@/services/product';
+import { cardStyles } from '@/theme/card-styles';
 import type { PaginationData } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -40,15 +40,14 @@ const Products = () => {
         text={__('Products', 'kirki-ecommerce')}
         actions={
           <>
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost">
               {__('Import', 'kirki-ecommerce')}
             </Button>
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost">
               {__('Export', 'kirki-ecommerce')}
             </Button>
             <Button
               variant="primary"
-              size="sm"
               onClick={() => {
                 navigate('/products/' + NEW_ITEM_ID);
               }}
@@ -60,7 +59,7 @@ const Products = () => {
       />
       <Container>
         {loaded ? (
-          <Flex direction="column" gap={16}>
+          <Flex direction="column" gap={4}>
             <Card css={cardStyles.tableCard}>
               <CardContent css={cardStyles.tableContent}>
                 <ProductTable data={data!} isFetching={isFetching} />

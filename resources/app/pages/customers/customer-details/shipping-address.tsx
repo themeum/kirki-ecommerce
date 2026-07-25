@@ -18,15 +18,16 @@ const ShippingAddress = () => {
   return (
     <Card css={[cardStyles.formCard, styles.roundedCard]}>
       <CardHeader>
-        <Text
-          header={__('Shipping Address', 'kirki-ecommerce')}
-          type="primary"
-          leftIcon={<ShippingAddressIcon />}
-        />
+        <Flex gap={2} align="center">
+          <ShippingAddressIcon />
+          <Text weight="semibold">
+            {__('Shipping Address', 'kirki-ecommerce')}
+          </Text>
+        </Flex>
       </CardHeader>
       <Card css={cardStyles.innerCard}>
         <CardContent css={cardStyles.innerContent}>
-          <Flex direction="column" gap={16}>
+          <Flex direction="column" gap={4}>
             <CountryField
               name="shipping_address.country"
               label={__('Country / Region', 'kirki-ecommerce')}
@@ -71,9 +72,9 @@ export default ShippingAddress;
 
 const styles = {
   roundedCard: scoped({
-    padding: theme.spacing['3xl'],
+    padding: theme.spacing[5],
     borderRadius: theme.radius.xl,
-    gap: theme.spacing['3xl'],
+    gap: theme.spacing[5],
   }),
 };
 

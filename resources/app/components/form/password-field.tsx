@@ -1,6 +1,7 @@
 import { type SerializedStyles } from '@emotion/react';
 import { useState, type ReactNode } from 'react';
 import {
+  Controller,
   useFormContext,
   type FieldPath,
   type FieldValues,
@@ -8,13 +9,11 @@ import {
 import { Eye, EyeOff } from 'lucide-react';
 
 import {
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from '@/components/ui/field';
 import Input from '@/components/ui/input';
 import { theme } from '@/theme';
 import { flexCenter, scoped } from '@/theme/mixins';
@@ -45,26 +44,27 @@ const PasswordField = <
 }: PasswordFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
   const [visible, setVisible] = useState(false);
+  const fieldId = String(name);
 
   return (
-    <FormField
+    <Controller
       control={control}
       name={name}
       render={({ field, fieldState }) => (
-        <FormItem css={css}>
-          {label && <FormLabel>{label}</FormLabel>}
+        <Field data-invalid={fieldState.invalid || undefined} css={css}>
+          {label && <FieldLabel htmlFor={fieldId}>{label}</FieldLabel>}
           <div css={styles.wrapper}>
-            <FormControl>
-              <Input
-                {...field}
-                value={field.value ?? ''}
-                type={visible ? 'text' : 'password'}
-                placeholder={placeholder}
-                disabled={disabled}
-                error={Boolean(fieldState.error)}
-                css={styles.input}
-              />
-            </FormControl>
+            <Input
+              {...field}
+              id={fieldId}
+              value={field.value ?? ''}
+              type={visible ? 'text' : 'password'}
+              placeholder={placeholder}
+              disabled={disabled}
+              error={Boolean(fieldState.error)}
+              aria-invalid={fieldState.invalid}
+              css={styles.input}
+            />
             <button
               type="button"
               css={styles.toggle}
@@ -79,9 +79,9 @@ const PasswordField = <
               {visible ? <EyeOff size={16} /> : <Eye size={16} />}
             </button>
           </div>
-          {description && <FormDescription>{description}</FormDescription>}
-          <FormMessage />
-        </FormItem>
+          {description && <FieldDescription>{description}</FieldDescription>}
+          {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+        </Field>
       )}
     />
   );
@@ -103,7 +103,7 @@ const styles = {
     ...flexCenter(),
     position: 'absolute',
     top: '50%',
-    right: theme.spacing.md,
+    right: theme.spacing[2],
     transform: 'translateY(-50%)',
     width: '28px',
     height: '28px',

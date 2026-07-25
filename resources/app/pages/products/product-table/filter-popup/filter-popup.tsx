@@ -1,3 +1,4 @@
+import { css } from '@emotion/react';
 import { useEffect, useState, type ComponentProps } from 'react';
 
 import ActionGroup from '@/components/ui/action-group';
@@ -7,8 +8,8 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Field, FieldLabel } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
-import { FormFieldRow } from '@/components/ui/form';
 import Label from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
@@ -22,6 +23,7 @@ import Text from '@/components/ui/text';
 import { useListParams } from '@/hooks';
 import { CloseIcon, ListFilter } from '@/icons';
 import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import { __, sprintf } from '@/wpi18n';
 
 import BrandFilter from '@/pages/products/product-table/filter-popup/brand-filter';
@@ -139,7 +141,6 @@ const FilterPopup = ({
         <DropdownMenuTrigger asChild>
           <Button
             variant="outline"
-            size="sm"
             style={{
               borderRightColor: hasFilter ? 'none' : theme.colors.border.default,
               borderRadius: hasFilter
@@ -155,7 +156,6 @@ const FilterPopup = ({
         {hasFilter ? (
           <Button
             variant="outline"
-            size="sm"
             style={{
               color: theme.colors.text.emphasis,
               backgroundColor: theme.colors.background.fillSecondary,
@@ -169,42 +169,26 @@ const FilterPopup = ({
         ) : null}
       </Flex>
       <DropdownMenuContent style={{ width: '288px', maxHeight: '522px' }}>
-        <Flex
-          style={{
-            top: '-4px',
-            position: 'sticky',
-            backgroundColor: 'white',
-            padding: '12px 12px 8px 12px',
-            zIndex: '100',
-          }}
-        >
-          <Text header={__('Filter', 'kirki-ecommerce')} />
+        <Flex css={styles.header}>
+          <Text>{__('Filter', 'kirki-ecommerce')}</Text>
           <ActionGroup>
             <Button
               variant="ghost"
               size="icon"
               onClick={handleFilterClose}
-              style={{ color: theme.colors.text.primary }}
+              css={styles.closeButton}
             >
               <CloseIcon />
             </Button>
           </ActionGroup>
         </Flex>
 
-        <Flex
-          direction="column"
-          gap={16}
-          style={{
-            padding: '8px 12px',
-            overflowY: 'auto',
-            minHeight: '400px',
-          }}
-        >
+        <Flex direction="column" gap={4} css={css({ padding: `${theme.spacing[2]} ${theme.spacing[3]}`, overflowY: 'auto', minHeight: '400px' })}>
           <CategoriesFilter
             filterObject={filterObject}
             onChange={(val) => handleOnFilterChange(val, 'category_ids')}
           />
-          <Flex direction="column" gap={8}>
+          <Flex direction="column" gap={2}>
             <Label>{__('Status', 'kirki-ecommerce')}</Label>
             <RadioGroup
               defaultValue="all"
@@ -219,19 +203,19 @@ const FilterPopup = ({
                 { value: 'draft', label: __('Draft', 'kirki-ecommerce') },
                 { value: 'all', label: __('All', 'kirki-ecommerce') },
               ].map((option) => (
-                <FormFieldRow key={option.value}>
+                <Field key={option.value} orientation="horizontal">
                   <RadioGroupItem
                     value={option.value}
                     id={`filter-status-${option.value}`}
                   />
-                  <Label htmlFor={`filter-status-${option.value}`}>
+                  <FieldLabel htmlFor={`filter-status-${option.value}`}>
                     {option.label}
-                  </Label>
-                </FormFieldRow>
+                  </FieldLabel>
+                </Field>
               ))}
             </RadioGroup>
           </Flex>
-          <Flex direction="column" gap={8}>
+          <Flex direction="column" gap={2}>
             <Label>{__('Inventory', 'kirki-ecommerce')}</Label>
             <Select
               value={filterObject.stock_status || undefined}
@@ -260,17 +244,9 @@ const FilterPopup = ({
           />
         </Flex>
 
-        <Flex
-          style={{
-            padding: '8px 12px 12px 12px',
-            borderTop: '1px solid #E4E3E9',
-            bottom: '-4px',
-            position: 'sticky',
-            backgroundColor: 'white',
-          }}
-        >
+        <Flex css={styles.footer}>
           <ActionGroup>
-            <Button variant="primary" size="sm" onClick={handleOnApplyFilter}>
+            <Button variant="primary" onClick={handleOnApplyFilter}>
               {__('Apply Filter', 'kirki-ecommerce')}
             </Button>
           </ActionGroup>
@@ -283,3 +259,23 @@ const FilterPopup = ({
 FilterPopup.displayName = 'FilterPopup';
 
 export default FilterPopup;
+
+const styles = {
+  header: scoped({
+    top: '-4px',
+    position: 'sticky',
+    backgroundColor: theme.colors.background.surface,
+    padding: `${theme.spacing[3]} ${theme.spacing[3]} ${theme.spacing[2]} ${theme.spacing[3]}`,
+    zIndex: 100,
+  }),
+  closeButton: scoped({
+    color: theme.colors.text.primary,
+  }),
+  footer: scoped({
+    padding: `${theme.spacing[2]} ${theme.spacing[3]} ${theme.spacing[3]} ${theme.spacing[3]}`,
+    borderTop: `1px solid ${theme.colors.border.default}`,
+    bottom: '-4px',
+    position: 'sticky',
+    backgroundColor: theme.colors.background.surface,
+  }),
+};

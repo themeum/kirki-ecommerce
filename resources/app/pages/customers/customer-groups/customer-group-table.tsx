@@ -48,7 +48,7 @@ const CustomerGroupTable = () => {
             <TableCell style={{ width: '50%' }}>Wholesale Partners</TableCell>
             <TableCell>12</TableCell>
             <TableCell>
-              <Badge text="Wholesale" type="pending" />
+              <Badge variant="warning">Wholesale</Badge>
             </TableCell>
             <TableCell>2025/04/09</TableCell>
           </TableRow>

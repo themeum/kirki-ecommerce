@@ -1,5 +1,10 @@
 import { useEffect } from 'react';
-import { useForm, useFormContext, useWatch } from 'react-hook-form';
+import {
+  Controller,
+  useForm,
+  useFormContext,
+  useWatch,
+} from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate, useOutletContext } from 'react-router';
 
@@ -11,14 +16,11 @@ import {
   CardContent,
 } from '@/components/ui/card';
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormFieldRow,
-  FormItem,
-  FormMessage,
-} from '@/components/ui/form';
-import Label from '@/components/ui/label';
+  Field,
+  FieldError,
+  FieldLabel,
+} from '@/components/ui/field';
+import { Form } from '@/components/ui/form';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { TaxIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
@@ -99,31 +101,30 @@ const TaxCollectionRadio = () => {
   ];
 
   return (
-    <FormField
+    <Controller
       control={control}
       name="is_tax_inclusive_price"
-      render={({ field }) => (
-        <FormItem>
-          <FormControl>
-            <RadioGroup
-              value={field.value ? 'inclusive' : 'not_inclusive'}
-              onValueChange={(value) => field.onChange(value === 'inclusive')}
-            >
-              {optionsArray.map((option) => (
-                <FormFieldRow key={option.value}>
-                  <RadioGroupItem
-                    value={option.value}
-                    id={`tax-collection-${option.value}`}
-                  />
-                  <Label htmlFor={`tax-collection-${option.value}`}>
-                    {option.title}
-                  </Label>
-                </FormFieldRow>
-              ))}
-            </RadioGroup>
-          </FormControl>
-          <FormMessage />
-        </FormItem>
+      render={({ field, fieldState }) => (
+        <Field data-invalid={fieldState.invalid || undefined}>
+          <RadioGroup
+            value={field.value ? 'inclusive' : 'not_inclusive'}
+            onValueChange={(value) => field.onChange(value === 'inclusive')}
+            aria-invalid={fieldState.invalid}
+          >
+            {optionsArray.map((option) => (
+              <Field key={option.value} orientation="horizontal">
+                <RadioGroupItem
+                  value={option.value}
+                  id={`tax-collection-${option.value}`}
+                />
+                <FieldLabel htmlFor={`tax-collection-${option.value}`}>
+                  {option.title}
+                </FieldLabel>
+              </Field>
+            ))}
+          </RadioGroup>
+          {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+        </Field>
       )}
     />
   );
@@ -220,7 +221,6 @@ const TaxSettings = () => {
             <>
               <Button
                 variant="ghost"
-                size="sm"
                 onClick={handleDiscardData}
                 disabled={isSaving}
               >
@@ -228,7 +228,6 @@ const TaxSettings = () => {
               </Button>
               <Button
                 variant="primary"
-                size="sm"
                 onClick={form.handleSubmit((values) =>
                   handleSaveTaxSettings(values),
                 )}
@@ -245,7 +244,7 @@ const TaxSettings = () => {
       <Container size="sm">
         {loaded ? (
           <Form {...form}>
-            <Flex direction="column" gap={16}>
+            <Flex direction="column" gap={4}>
               <PageNavbar
                 textIcon={<TaxIcon />}
                 text={'Tax'}
@@ -254,16 +253,14 @@ const TaxSettings = () => {
               <Card css={cardStyles.largeCard} >
                 <CardContent css={cardStyles.largeContentPadded}>
 
-                <Text
-                type="primary"
-                header={__('How would you like to collect tax?', 'kirki-ecommerce')}
-                subHeader={__(
+                <Flex direction="column" gap={2}>
+                  <Text weight="semibold" css={styles.taxCollectionHeader}>{__('How would you like to collect tax?', 'kirki-ecommerce')}</Text>
+                  <Text color="secondary">{__(
                 'Configure how tax is displayed and how it appears on your product listings.',
                 'kirki-ecommerce',
-                )}
-                css={styles.taxCollectionHeader}
-                />
-                <Flex direction="column" gap={12}>
+                )}</Text>
+                </Flex>
+                <Flex direction="column" gap={3}>
                 <TaxCollectionRadio />
                 <TaxCollectionOptions />
                 </Flex>
@@ -287,9 +284,9 @@ export default TaxSettings;
 
 const styles = {
   separator: scoped({
-    marginBottom: theme.spacing.lg,
+    marginBottom: theme.spacing[3],
   }),
   taxCollectionHeader: scoped({
-    gap: theme.spacing.base,
+    gap: theme.spacing[2],
   })
 };

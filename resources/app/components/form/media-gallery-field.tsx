@@ -1,6 +1,7 @@
 import { type SerializedStyles } from '@emotion/react';
 import type { ReactNode } from 'react';
 import {
+  Controller,
   useFormContext,
   type FieldPath,
   type FieldValues,
@@ -8,13 +9,11 @@ import {
 
 import MediaGallery from '@/components/media-gallery';
 import {
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from '@/components/ui/field';
 import type { MediaRef } from '@/types';
 
 type MediaItem = Omit<MediaRef, 'id'> & {
@@ -43,22 +42,20 @@ const MediaGalleryField = <
   const { control } = useFormContext<TFieldValues>();
 
   return (
-    <FormField
+    <Controller
       control={control}
       name={name}
       render={({ field, fieldState }) => (
-        <FormItem css={css}>
-          {label && <FormLabel>{label}</FormLabel>}
-          <FormControl>
-            <MediaGallery
-              mediaItems={(field.value as MediaItem[]) ?? []}
-              onUpdate={(items) => field.onChange(items)}
-              error={Boolean(fieldState.error)}
-            />
-          </FormControl>
-          {description && <FormDescription>{description}</FormDescription>}
-          <FormMessage />
-        </FormItem>
+        <Field data-invalid={fieldState.invalid || undefined} css={css}>
+          {label && <FieldLabel>{label}</FieldLabel>}
+          <MediaGallery
+            mediaItems={(field.value as MediaItem[]) ?? []}
+            onUpdate={(items) => field.onChange(items)}
+            error={Boolean(fieldState.error)}
+          />
+          {description && <FieldDescription>{description}</FieldDescription>}
+          {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+        </Field>
       )}
     />
   );

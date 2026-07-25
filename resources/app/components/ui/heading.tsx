@@ -39,23 +39,17 @@ export default Heading;
 const styles = {
   base: scoped({
     margin: 0,
-    fontWeight: 600,
-    fontSize: '18px',
-    lineHeight: '24px',
-    color: theme.colors.text.primary,
+    ...theme.typography.large('semibold'),
   }),
   types: {
     primary: scoped({
-      fontSize: '20px',
-      lineHeight: '28px',
+      ...theme.typography.heading4(),
     }),
     secondary: scoped({
-      fontSize: '18px',
-      lineHeight: '24px',
+      ...theme.typography.large('semibold'),
     }),
     tertiary: scoped({
-      fontSize: '16px',
-      lineHeight: '20px',
+      ...theme.typography.paragraph('semibold'),
     }),
     '': scoped({}),
   },

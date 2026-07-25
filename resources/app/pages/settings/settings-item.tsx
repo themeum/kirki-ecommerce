@@ -26,15 +26,13 @@ export const SettingsItem = (props: SettingsItemProps) => {
 
   return (
     <Card css={styles.card} onClick={handleClick}>
-      <Flex gap={8} css={styles.content}>
+      <Flex gap={2} css={styles.content}>
         <div css={styles.identifier} data-settings-identifier />
         <span css={styles.iconWrap}>{icon}</span>
-        <Text
-          header={<span data-settings-heading>{header}</span>}
-          subHeader={subHeader}
-          type="secondary"
-          style={{ gap: 0 }}
-        />
+        <Flex direction="column" gap={2}>
+          <Text weight="medium">{<span data-settings-heading>{header}</span>}</Text>
+          <Text variant="small" color="secondary">{subHeader}</Text>
+        </Flex>
       </Flex>
       <Flex>
         <span css={styles.buttonWrap} data-settings-button>
@@ -54,7 +52,7 @@ export const SettingsItem = (props: SettingsItemProps) => {
 
 const styles = {
   card: scoped({
-    padding: `${theme.spacing.md} ${theme.spacing.lg}`,
+    padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
     cursor: 'pointer',
     flexDirection: 'row',
     alignItems: 'center',
@@ -77,7 +75,7 @@ const styles = {
     transition: 'all 0.3s ease',
   }),
   iconWrap: scoped({
-    marginTop: theme.spacing.xs,
+    marginTop: theme.spacing[1],
   }),
   buttonWrap: scoped({
     opacity: 0,

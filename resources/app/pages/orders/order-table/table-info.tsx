@@ -14,24 +14,24 @@ import { flexCenter, scoped } from '@/theme/mixins';
 const TableInfo = () => {
   return (
     <Flex>
-      <Flex gap={32} style={{ alignItems: 'center' }}>
-        <Flex gap={4}>
+      <Flex gap={8} align="center">
+        <Flex gap={1}>
           <span>Sales</span>
-          <span style={{ fontWeight: '500' }}>$11,200</span>
+          <span css={styles.mediumText}>$11,200</span>
           <span css={styles.svgClass}>
             <InfoIcon />
           </span>
         </Flex>
-        <Flex gap={4}>
+        <Flex gap={1}>
           <span>Orders</span>
-          <span style={{ fontWeight: '500' }}>12</span>
+          <span css={styles.mediumText}>12</span>
           <span css={styles.svgClass}>
             <InfoIcon />
           </span>
         </Flex>
-        <Flex gap={4}>
+        <Flex gap={1}>
           <span>Avg. order value</span>
-          <span style={{ fontWeight: '500' }}>$5,600</span>
+          <span css={styles.mediumText}>$5,600</span>
           <span css={styles.svgClass}>
             <InfoIcon />
           </span>
@@ -44,7 +44,7 @@ const TableInfo = () => {
           </SelectTrigger>
           <SelectContent />
         </Select>
-        <Button variant="secondary" size="sm">
+        <Button variant="secondary">
           Go to Analytics
         </Button>
       </ActionGroup>
@@ -57,6 +57,9 @@ export default TableInfo;
 const styles = {
   svgClass: scoped(flexCenter()),
   selectTrigger: scoped({
-    padding: `${theme.spacing.md} ${theme.spacing['2xl']}`,
+    padding: `${theme.spacing[2]} ${theme.spacing[4]}`,
+  }),
+  mediumText: scoped({
+    ...theme.typography.paragraph('medium'),
   }),
 };

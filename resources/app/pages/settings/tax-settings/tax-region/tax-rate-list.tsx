@@ -72,9 +72,9 @@ export const TaxRateList = ({
       {!applySingleTax && !taxRates.length ? (
         <Card css={cardStyles.innerDarkCard}>
           <CardContent css={[cardStyles.innerDarkContent, styles.emptyContent]}>
-            <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
+            <Flex direction="column" gap={2} align="center">
               <PaymentIcon />
-              <span style={{ color: '#878593' }}>
+              <span css={styles.mutedText}>
                 {__('Added tax rates will appear here', 'kirki-ecommerce')}
               </span>
             </Flex>
@@ -83,11 +83,8 @@ export const TaxRateList = ({
       ) : (
         <Card css={cardStyles.innerDarkCard}>
           <CardContent css={cardStyles.innerDarkContent}>
-            <Text
-              header={__('Tax rates', 'kirki-ecommerce')}
-              css={styles.taxRatesHeader}
-            />
-            <Flex gap={2} direction={'column'}>
+            <Text css={styles.taxRatesHeader}>{__('Tax rates', 'kirki-ecommerce')}</Text>
+            <Flex gap={1} direction={'column'}>
               {taxRates?.map((item, index) => (
                 <Card
                   key={index}
@@ -96,18 +93,22 @@ export const TaxRateList = ({
                   onMouseLeave={() => setHoveredIndex(null)}
                 >
                   <CardContent>
-                    <Text header={item?.state} leftIcon={<LocationIcon />} />
+                    <Flex gap={2} align="center">
+                      <LocationIcon />
+                      <Text>{item?.state}</Text>
+                    </Flex>
                     <div css={styles.taxCardContent}>
                       <Text
-                        header={sprintf(__('%s %', 'kirki-ecommerce'), item?.rate)}
                         css={css(
                           styles.rateDisplay,
                           hoveredIndex === index && styles.rateDisplayHidden,
                         )}
-                      />
+                      >
+                        {sprintf(__('%s %', 'kirki-ecommerce'), item?.rate)}
+                      </Text>
 
                       <Flex
-                        gap={8}
+                        gap={2}
                         css={css(
                           styles.editGroup,
                           hoveredIndex === index && styles.editGroupActive,
@@ -145,7 +146,10 @@ export const TaxRateList = ({
 TaxRateList.displayName = 'TaxRateList';
 
 const styles = {
-  emptyContent: scoped({ padding: '36px 0' }),
+  emptyContent: scoped({ padding: `${theme.spacing[9]} 0` }),
+  mutedText: scoped({
+    color: theme.colors.text.subdued,
+  }),
   taxCard: scoped({
     display: 'flex',
     alignItems: 'center',
@@ -153,7 +157,7 @@ const styles = {
     borderRadius: theme.radius.md,
     maxHeight: '44px',
     height: '44px',
-    padding: theme.spacing.lg,
+    padding: theme.spacing[3],
   }),
   editGroup: css({
     display: 'none',
@@ -176,6 +180,6 @@ const styles = {
     alignItems: 'center',
   }),
   taxRatesHeader: scoped({
-    marginBottom: theme.spacing.md,
+    marginBottom: theme.spacing[2],
   })
 };

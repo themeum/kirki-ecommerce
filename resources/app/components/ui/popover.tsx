@@ -1,4 +1,4 @@
-import type { SerializedStyles, Theme } from '@emotion/react';
+import type { SerializedStyles } from '@emotion/react';
 import {
   forwardRef,
   type ComponentPropsWithoutRef,
@@ -8,7 +8,7 @@ import * as PopoverPrimitive from '@radix-ui/react-popover';
 
 import { getPortalContainer } from '@/libs/portal-container';
 import { theme } from '@/theme';
-import { fontGeneralSettings, scoped } from '@/theme/mixins';
+import { scoped } from '@/theme/mixins';
 import { getOverlayMotionStyles } from '@/theme/overlay-motion';
 
 const Popover = PopoverPrimitive.Root;
@@ -52,19 +52,17 @@ const styles = {
     width: 'max-content',
     minWidth: '224px',
     maxWidth: '320px',
-    padding: theme.spacing.lg,
+    padding: theme.spacing[3],
     border: `1px solid ${theme.colors.border.default}`,
     borderRadius: theme.radius.md,
     backgroundColor: theme.colors.background.fill,
-    boxShadow: '0px 4px 6px -1px #0000001a',
+    boxShadow: theme.shadow.md,
     boxSizing: 'border-box',
+    ...theme.typography.small(),
     color: theme.colors.text.primary,
-    ...fontGeneralSettings(theme as Theme),
-    fontSize: '14px',
-    lineHeight: '20px',
     display: 'flex',
     flexDirection: 'column',
-    rowGap: theme.spacing.xs,
+    rowGap: theme.spacing[1],
     ...getOverlayMotionStyles(
       'var(--radix-popover-content-transform-origin)',
     ),
@@ -73,16 +71,13 @@ const styles = {
     },
     strong: {
       display: 'block',
-      fontWeight: 600,
-      fontSize: '14px',
-      lineHeight: '20px',
+      ...theme.typography.small('semibold'),
       color: theme.colors.text.primary,
     },
     p: {
       margin: 0,
+      ...theme.typography.small(),
       color: theme.colors.text.secondary,
-      fontSize: '14px',
-      lineHeight: '20px',
     },
   }),
 };

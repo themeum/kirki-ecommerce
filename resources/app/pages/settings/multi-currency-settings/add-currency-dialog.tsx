@@ -1,3 +1,4 @@
+import { css } from '@emotion/react';
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -121,7 +122,7 @@ const AddCurrencyPopup = () => {
 
   return (
     <>
-      <Button variant="secondary" size="sm" onClick={() => setOpenPopup(true)}>
+      <Button variant="secondary" onClick={() => setOpenPopup(true)}>
         <PlusIcon />
         {__('Add Currency', 'kirki-ecommerce')}
       </Button>
@@ -143,7 +144,7 @@ const AddCurrencyPopup = () => {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(handleSubmit)}>
               <DialogBody>
-                <Flex direction="column" gap={16}>
+                <Flex direction="column" gap={4}>
                   <div>
                     <Label htmlFor="add-currency-search">
                       {__('Search currency', 'kirki-ecommerce')}
@@ -152,7 +153,7 @@ const AddCurrencyPopup = () => {
                       <span
                         style={{
                           position: 'absolute',
-                          left: theme.spacing.lg,
+                          left: theme.spacing[3],
                           top: '50%',
                           transform: 'translateY(-50%)',
                           pointerEvents: 'none',
@@ -174,23 +175,16 @@ const AddCurrencyPopup = () => {
                     </div>
                   </div>
 
-                  <Flex
-                    direction="column"
-                    gap={12}
-                    style={{
-                      height: '200px',
-                      overflowX: 'scroll',
-                    }}
-                  >
+                  <Flex direction="column" gap={3} css={css({ height: '200px', overflowX: 'scroll' })}>
                     {filteredCurrency?.length > 0 &&
                       filteredCurrency.map((currency, index) => (
                         <Flex
                           key={index}
-                          gap={12}
+                          gap={3}
                           onClick={() => handleSelectCurrencies(currency)}
-                          style={{ cursor: 'pointer' }}
+                          css={css({ cursor: 'pointer' })}
                         >
-                          <Flex gap={8} style={{ alignItems: 'center' }}>
+                          <Flex gap={2} align="center">
                             <Checkbox
                               id={`add-currency-checkbox-${index}`}
                               checked={formSelected?.some(
@@ -206,24 +200,11 @@ const AddCurrencyPopup = () => {
                               {currency.code}
                             </Label>
                           </Flex>
-                          <Flex
-                            style={{
-                              justifyContent: 'space-between',
-                              width: '100%',
-                            }}
-                          >
-                            <Text
-                              type="xsm"
-                              header={currency.name}
-                              style={{
+                          <Flex justify="space-between" css={css({ width: '100%' })}>
+                            <Text variant="small" style={{
                                 color: theme.colors.text.subdued,
-                              }}
-                            />
-                            <Text
-                              css={styles.symbolText}
-                              type="primary"
-                              header={currency.symbol}
-                            />
+                              }}>{currency.name}</Text>
+                            <Text weight="semibold" css={styles.symbolText}>{currency.symbol}</Text>
                           </Flex>
                         </Flex>
                       ))}
@@ -268,9 +249,9 @@ export default AddCurrencyPopup;
 
 const styles = {
   searchInput: scoped({
-    paddingLeft: theme.spacing['6xl'],
+    paddingLeft: theme.spacing[8],
   }),
   symbolText: scoped({
-    paddingRight: theme.spacing.lg,
+    paddingRight: theme.spacing[3],
   }),
 };

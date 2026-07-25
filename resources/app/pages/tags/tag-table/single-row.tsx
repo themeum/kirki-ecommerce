@@ -57,12 +57,11 @@ const SingleRow = ({
         <TableCell alignment="right" style={{ width: '1%' }}>
           <div onClick={handleStopPropagation}>
             <ActionGroup>
-              <Button size="sm" variant="secondary" onClick={handleOpenEdit}>
+              <Button variant="secondary" onClick={handleOpenEdit}>
                 <EditPenIcon />
                 {__('Edit', 'kirki-ecommerce')}
               </Button>
               <Button
-                size="sm"
                 variant="secondary"
                 aria-label={__('Delete', 'kirki-ecommerce')}
                 onClick={handleDelete}

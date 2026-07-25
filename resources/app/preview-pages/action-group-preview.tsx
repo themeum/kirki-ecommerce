@@ -17,7 +17,7 @@ import { __ } from '@/wpi18n';
 const ActionGroupPreview = () => {
   return (
     <Flex>
-      <Label text="This is a random text" />
+      <Label>This is a random text</Label>
       <ActionGroup>
         <Select disabled>
           <SelectTrigger css={styles.selectTrigger}>
@@ -25,13 +25,12 @@ const ActionGroupPreview = () => {
           </SelectTrigger>
           <SelectContent />
         </Select>
-        <Button variant="outline" size="sm">
+        <Button variant="outline">
           <ListFilter />
           Filter
         </Button>
         <Button
           variant="outline"
-          size="sm"
           aria-label={__('Sort', 'kirki-ecommerce')}
         >
           <ArrowDownUp />
@@ -48,6 +47,6 @@ export default ActionGroupPreview;
 
 const styles = {
   selectTrigger: scoped({
-    padding: `${theme.spacing.md} ${theme.spacing['2xl']}`,
+    padding: `${theme.spacing[2]} ${theme.spacing[4]}`,
   }),
 };

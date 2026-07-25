@@ -1,22 +1,19 @@
 import { type SerializedStyles } from '@emotion/react';
 import type { ReactNode } from 'react';
 import {
+  Controller,
   useFormContext,
   type FieldPath,
   type FieldValues,
 } from 'react-hook-form';
 
 import {
-  FormControl,
-  FormDescription,
-  FormField,
-  FormFieldRow,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from '@/components/ui/field';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import Label from '@/components/ui/label';
 
 type RadioGroupFieldOption = {
   label: string;
@@ -49,31 +46,32 @@ const RadioGroupField = <
   const { control } = useFormContext<TFieldValues>();
 
   return (
-    <FormField
+    <Controller
       control={control}
       name={name}
-      render={({ field }) => (
-        <FormItem css={css}>
-          {label && <FormLabel>{label}</FormLabel>}
-          <FormControl>
-            <RadioGroup
-              value={field.value ?? ''}
-              onValueChange={field.onChange}
-              disabled={disabled}
-            >
-              {options.map((option) => (
-                <FormFieldRow key={option.value}>
-                  <RadioGroupItem value={option.value} id={`${name}-${option.value}`} />
-                  <Label htmlFor={`${name}-${option.value}`}>
-                    {option.label}
-                  </Label>
-                </FormFieldRow>
-              ))}
-            </RadioGroup>
-          </FormControl>
-          {description && <FormDescription>{description}</FormDescription>}
-          <FormMessage />
-        </FormItem>
+      render={({ field, fieldState }) => (
+        <Field data-invalid={fieldState.invalid || undefined} css={css}>
+          {label && <FieldLabel>{label}</FieldLabel>}
+          <RadioGroup
+            value={field.value ?? ''}
+            onValueChange={field.onChange}
+            disabled={disabled}
+            aria-invalid={fieldState.invalid}
+          >
+            {options.map((option) => {
+              const optionId = `${String(name)}-${option.value}`;
+
+              return (
+                <Field key={option.value} orientation="horizontal">
+                  <RadioGroupItem value={option.value} id={optionId} />
+                  <FieldLabel htmlFor={optionId}>{option.label}</FieldLabel>
+                </Field>
+              );
+            })}
+          </RadioGroup>
+          {description && <FieldDescription>{description}</FieldDescription>}
+          {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+        </Field>
       )}
     />
   );

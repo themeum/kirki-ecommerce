@@ -43,8 +43,8 @@ type ExchangeRatePopupProps = {
 };
 
 const editCurrencyRatePopupLabelCss = css({
-  padding: theme.spacing.lg,
-  gap: theme.spacing.md,
+  padding: theme.spacing[3],
+  gap: theme.spacing[2],
   background: theme.colors.background.surfaceAlt,
   borderRadius: theme.radius.md,
   color: theme.colors.text.secondary,
@@ -121,7 +121,7 @@ const ExchangeRatePopup = ({
         <DialogCloseButton />
         <DialogHeader>
           <DialogTitle>
-            <Flex gap={8} style={{ alignItems: 'center' }}>
+            <Flex gap={2} align="center">
               <ArrowLeftIcon />
               {__('Set Exchange Rates', 'kirki-ecommerce')}
             </Flex>
@@ -130,55 +130,35 @@ const ExchangeRatePopup = ({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSaveCurrencyData)}>
             <DialogBody>
-              <Flex direction="column" gap={16}>
-                <Label
-                  css={editCurrencyRatePopupLabelCss}
-                  leftIcon={<InfoIcon />}
-                >
+              <Flex direction="column" gap={4}>
+                <Label css={editCurrencyRatePopupLabelCss}>
+                  <InfoIcon />
                   {__('Enter rates per 1 USD', 'kirki-ecommerce')}
                 </Label>
-                <Flex
-                  direction="column"
-                  gap={16}
-                  style={{
-                    maxHeight: '200px',
-                    overflowX: 'scroll',
-                  }}
-                >
+                <Flex direction="column" gap={4} css={css({ maxHeight: '200px', overflowX: 'scroll' })}>
                   {selectedCurrencyList?.length > 0 &&
                     selectedCurrencyList?.map((currency, index) => (
                       <Flex
                         key={index}
-                        style={{ justifyContent: 'space-between' }}
-                      >
-                        <Flex gap={12}>
-                          <Text
-                            type="primary"
-                            header={sprintf(
+                        justify="space-between">
+                        <Flex gap={3}>
+                          <Text weight="semibold">{sprintf(
                               __('%s', 'kirki-ecommerce'),
                               currency?.symbol ?? '',
-                            )}
-                          />
-                          <Text
-                            type="secondary"
-                            header={sprintf(
+                            )}</Text>
+                          <Text weight="medium">{sprintf(
                               __('%s', 'kirki-ecommerce'),
                               currency?.code ?? '',
-                            )}
-                          />
-                          <Text
-                            type="xsm"
-                            style={{ color: theme.colors.text.subdued }}
-                            header={sprintf(
+                            )}</Text>
+                          <Text variant="small" color="subdued">{sprintf(
                               __('%s', 'kirki-ecommerce'),
                               currency?.name ?? '',
-                            )}
-                          />
+                            )}</Text>
                         </Flex>
                         <div
                           style={{
                             width: 'auto',
-                            margin: theme.spacing.xxs,
+                            margin: theme.spacing[1],
                           }}
                         >
                           <TextField

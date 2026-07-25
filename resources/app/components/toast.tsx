@@ -1,4 +1,4 @@
-import { keyframes } from '@emotion/react';
+import { keyframes, css } from '@emotion/react';
 import type { ReactNode } from 'react';
 
 import Flex from '@/components/ui/flex';
@@ -35,30 +35,33 @@ const Toast = ({
   onClose,
 }: ToastProps) => {
   const VARIANT_UI: Record<ToastVariant, ToastUi> = {
-    default: { icon: <InfoIcon />, bg: '#F4F4F5' },
+    default: {
+      icon: <InfoIcon />,
+      bg: theme.colors.background.surfaceTertiary,
+    },
     success: {
       icon: <CheckedIcon />,
-      bg: '#E3FFED',
-      iconColor: '#1C7330',
-      textColor: '#1C7330',
+      bg: theme.colors.background.fillSuccessSecondary,
+      iconColor: theme.colors.text.success,
+      textColor: theme.colors.text.success,
     },
     warning: {
       icon: <AlertIcon />,
-      bg: '#FFF4E5',
-      iconColor: '#E89100',
-      textColor: '#854A0E',
+      bg: theme.colors.background.fillWarningSecondary,
+      iconColor: theme.colors.text.warning,
+      textColor: theme.colors.text.warning,
     },
     delete: {
       icon: <CloseIcon style={{ width: '24px', height: '24px' }} />,
-      bg: '#FFE5E4',
-      iconColor: '#D40000',
-      textColor: '#D40000',
+      bg: theme.colors.background.fillCriticalSecondary,
+      iconColor: theme.colors.text.critical,
+      textColor: theme.colors.text.critical,
     },
     error: {
       icon: <CloseIcon style={{ width: '24px', height: '24px' }} />,
-      bg: '#FFE5E4',
-      iconColor: '#D40000',
-      textColor: '#D40000',
+      bg: theme.colors.background.fillCriticalSecondary,
+      iconColor: theme.colors.text.critical,
+      textColor: theme.colors.text.critical,
     },
   };
 
@@ -66,14 +69,8 @@ const Toast = ({
 
   return (
     <Flex direction={'column'}>
-      <Flex
-        gap={20}
-        css={styles.element}
-        style={{
-          background: ui.bg,
-        }}
-      >
-        <Flex gap={8}>
+      <Flex gap={5} css={[styles.element, css({ background: ui.bg })]} >
+        <Flex gap={2}>
           <span
             css={styles.icon}
             style={{
@@ -82,19 +79,14 @@ const Toast = ({
           >
             {ui.icon}
           </span>
-          <Text
-            type="secondary"
-            header={title}
-            style={{
+          <Text weight="medium" style={{
               color: ui.textColor,
-            }}
-          />
+            }}>{title}</Text>
         </Flex>
-        <Flex style={{ alignItems: 'center' }}>
+        <Flex align="center">
           {undoAction && (
             <Button
               variant="ghost"
-              size="sm"
               css={styles.undoButton}
               onClick={() => {
                 onUndo?.();
@@ -105,7 +97,6 @@ const Toast = ({
           )}
           <Button
             variant="ghost"
-            size="sm"
             aria-label={__('Close', 'kirki-ecommerce')}
             css={styles.closeButton}
             onClick={onClose}
@@ -159,7 +150,7 @@ const styles = {
     transform: 'translateX(-50%)',
     display: 'flex',
     flexDirection: 'column',
-    gap: '8px',
+    gap: theme.spacing[2],
     zIndex: 9999,
   }),
   element: scoped({
@@ -168,26 +159,26 @@ const styles = {
     height: '68px',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: '12px 16px',
-    borderRadius: '16px 16px 4px 4px',
-    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+    padding: `${theme.spacing[3]} ${theme.spacing[4]}`,
+    borderRadius: `${theme.radius.xl} ${theme.radius.xl} ${theme.radius.sm} ${theme.radius.sm}`,
+    boxShadow: theme.shadow.md,
     animation: `${toastSlideIn} 0.2s ease-out`,
   }),
   icon: scoped({
     height: '30px',
     width: '30px',
-    borderRadius: '50%',
+    borderRadius: theme.radius.full,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    color: '#F3F3F7',
+    color: theme.colors.background.surfaceTertiary,
   }),
   timer: scoped({
     height: '3px',
     width: '100%',
-    background: 'rgba(0, 0, 0, 0.1)',
+    background: theme.colors.background.fillTertiary,
     overflow: 'hidden',
-    borderRadius: '2px',
+    borderRadius: theme.radius.sm,
   }),
   timerBar: scoped({
     height: '100%',
@@ -198,10 +189,10 @@ const styles = {
     animationFillMode: 'forwards',
   }),
   undoButton: scoped({
-    padding: theme.spacing.sm,
+    padding: theme.spacing[2],
   }),
   closeButton: scoped({
     pointerEvents: 'auto',
-    padding: theme.spacing.xxs,
+    padding: theme.spacing[1],
   }),
 };

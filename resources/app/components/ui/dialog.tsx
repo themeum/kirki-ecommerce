@@ -1,4 +1,4 @@
-import { css, keyframes, type SerializedStyles, type Theme } from '@emotion/react';
+import { css, keyframes, type SerializedStyles } from '@emotion/react';
 import {
   forwardRef,
   type ComponentPropsWithoutRef,
@@ -11,7 +11,7 @@ import { X } from 'lucide-react';
 import Button from '@/components/ui/button';
 import { getPortalContainer } from '@/libs/portal-container';
 import { theme } from '@/theme';
-import { fontGeneralSettings, scoped } from '@/theme/mixins';
+import { scoped } from '@/theme/mixins';
 
 const Dialog = DialogPrimitive.Root;
 
@@ -226,7 +226,9 @@ const styles = {
     position: 'fixed',
     inset: 0,
     zIndex: 1000,
-    background: '#1c1b1dcc',
+    background: 'color-mix(in oklab, #000 10%, transparent)',
+    backdropFilter: 'blur(4px)',
+    WebkitBackdropFilter: 'blur(4px)',
     '&[data-state="open"]': {
       animation: `${dialogOverlayIn} 150ms ease`,
     },
@@ -242,17 +244,16 @@ const styles = {
     display: 'flex',
     flexDirection: 'column',
     width: '512px',
-    maxWidth: `calc(100vw - ${theme.spacing['6xl']})`,
+    maxWidth: `calc(100vw - ${theme.spacing[8]})`,
     maxHeight: '85%',
     transform: 'translate(-50%, -50%)',
     border: `1px solid ${theme.colors.border.default}`,
     borderRadius: theme.radius.lg,
     backgroundColor: theme.colors.background.fill,
-    boxShadow: '0px 10px 15px -3px #0000001a',
+    boxShadow: theme.shadow.lg,
     boxSizing: 'border-box',
     overflow: 'hidden',
     color: theme.colors.text.primary,
-    ...fontGeneralSettings(theme as Theme),
     '&:focus, &:focus-visible': {
       outline: 'none',
     },
@@ -265,41 +266,38 @@ const styles = {
   }),
   closeButton: scoped({
     position: 'absolute',
-    top: theme.spacing.lg,
-    right: theme.spacing.lg,
+    top: theme.spacing[3],
+    right: theme.spacing[3],
   }),
   header: scoped({
     display: 'flex',
     flexDirection: 'column',
-    rowGap: theme.spacing.sm,
-    padding: `${theme.spacing['2xl']} ${theme.spacing['4xl']}`,
-    paddingRight: theme.spacing['10xl'],
+    rowGap: theme.spacing[2],
+    padding: `${theme.spacing[4]} ${theme.spacing[6]}`,
+    paddingRight: theme.spacing[12],
   }),
   footer: scoped({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'flex-end',
-    columnGap: theme.spacing.md,
-    padding: `${theme.spacing['2xl']} ${theme.spacing['4xl']}`,
+    columnGap: theme.spacing[2],
+    padding: `${theme.spacing[4]} ${theme.spacing[6]}`,
   }),
   title: scoped({
     margin: 0,
-    fontWeight: 600,
-    fontSize: '18px',
-    lineHeight: '28px',
+    ...theme.typography.large('semibold'),
     color: theme.colors.text.primary,
   }),
   description: scoped({
     margin: 0,
-    fontSize: '14px',
-    lineHeight: '20px',
+    ...theme.typography.small(),
     color: theme.colors.text.secondary,
   }),
   body: scoped({
     display: 'flex',
     flexDirection: 'column',
-    rowGap: theme.spacing.md,
-    padding: `${theme.spacing['2xl']} ${theme.spacing['4xl']}`,
+    rowGap: theme.spacing[2],
+    padding: `${theme.spacing[4]} ${theme.spacing[6]}`,
     overflowY: 'auto',
   }),
 };

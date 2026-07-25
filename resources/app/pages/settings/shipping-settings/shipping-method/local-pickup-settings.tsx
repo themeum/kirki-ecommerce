@@ -1,8 +1,8 @@
 import { useState } from 'react';
 
 import Checkbox from '@/components/ui/checkbox';
+import { Field, FieldLabel } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
-import { FormFieldRow } from '@/components/ui/form';
 import Grid from '@/components/ui/grid';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
@@ -30,8 +30,8 @@ const LocalPickupSettings = ({
   );
 
   return (
-    <Flex direction="column" gap={16}>
-      <Flex direction="column" gap={8}>
+    <Flex direction="column" gap={4}>
+      <Flex direction="column" gap={2}>
         <Label htmlFor="local-pickup-address">
           {__('Address', 'kirki-ecommerce')}
         </Label>
@@ -42,7 +42,7 @@ const LocalPickupSettings = ({
           onChange={(e) => handleOnChange(e.target.value, 'address')}
         />
       </Flex>
-      <Flex direction="column" gap={8}>
+      <Flex direction="column" gap={2}>
         <Label htmlFor="local-pickup-description">
           {__('Pickup Instructions', 'kirki-ecommerce')}
         </Label>
@@ -54,7 +54,7 @@ const LocalPickupSettings = ({
           onChange={(e) => handleOnChange(e.target.value, 'description')}
         />
       </Flex>
-      <FormFieldRow>
+      <Field orientation="horizontal">
         <Checkbox
           id="local-pickup-has-fee"
           checked={hasFee}
@@ -63,12 +63,12 @@ const LocalPickupSettings = ({
             setHasFee(!hasFee);
           }}
         />
-        <Label htmlFor="local-pickup-has-fee">
+        <FieldLabel htmlFor="local-pickup-has-fee">
           {__('Has a pickup fee', 'kirki-ecommerce')}
-        </Label>
-      </FormFieldRow>
+        </FieldLabel>
+      </Field>
       {hasFee && (
-        <Flex direction="column" gap={8}>
+        <Flex direction="column" gap={2}>
           <Label htmlFor="local-pickup-fee">{__('Fee', 'kirki-ecommerce')}</Label>
           <Input
             id="local-pickup-fee"
@@ -79,7 +79,7 @@ const LocalPickupSettings = ({
           />
         </Flex>
       )}
-      <FormFieldRow>
+      <Field orientation="horizontal">
         <Checkbox
           id="local-pickup-has-pick-time"
           checked={hasPickTime}
@@ -88,13 +88,13 @@ const LocalPickupSettings = ({
             setHasPickTime(!hasPickTime);
           }}
         />
-        <Label htmlFor="local-pickup-has-pick-time">
+        <FieldLabel htmlFor="local-pickup-has-pick-time">
           {__('Pickup time available', 'kirki-ecommerce')}
-        </Label>
-      </FormFieldRow>
+        </FieldLabel>
+      </Field>
       {hasPickTime && (
         <Grid>
-          <Flex direction="column" gap={8}>
+          <Flex direction="column" gap={2}>
             <Label htmlFor="local-pickup-time-start">
               {__('Start time', 'kirki-ecommerce')}
             </Label>
@@ -107,7 +107,7 @@ const LocalPickupSettings = ({
               }
             />
           </Flex>
-          <Flex direction="column" gap={8}>
+          <Flex direction="column" gap={2}>
             <Label htmlFor="local-pickup-time-end">
               {__('End time', 'kirki-ecommerce')}
             </Label>
@@ -132,7 +132,7 @@ export default LocalPickupSettings;
 
 const styles = {
   textarea: scoped({
-    padding: `${theme.spacing.md} ${theme.spacing.lg}`,
+    padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
     minHeight: '108px',
   }),
 };

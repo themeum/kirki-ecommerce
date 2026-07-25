@@ -26,6 +26,8 @@ import {
   apiConfigurationDefaultValues,
   type ApiConfigurationFormValues,
 } from '@/schemas/forms/api-configuration-form';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 type ApiConfigData = {
@@ -136,20 +138,16 @@ const ApiConfigurationPopup = ({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleConfiguration)}>
             <DialogBody>
-              <Flex direction="column" gap={16}>
+              <Flex direction="column" gap={4}>
                 <PasswordField
                   name="api_key"
                   label={__('API Key', 'kirki-ecommerce')}
                   placeholder={'******'}
                 />
-                <Text
-                  type={'secondary'}
-                  style={{ fontWeight: 400 }}
-                  header={__(
+                <Text weight="medium" css={styles.helperText}>{__(
                     'Your API key is encrypted and stored securely. Get your API key from ExchangeRate API',
                     'kirki-ecommerce',
-                  )}
-                />
+                  )}</Text>
                 <SelectField
                   name="update_frequency"
                   label={__('Update Frequency', 'kirki-ecommerce')}
@@ -179,12 +177,12 @@ const ApiConfigurationPopup = ({
               >
                 {__('Remove', 'kirki-ecommerce')}
               </Button>
-              <ActionGroup gap={12}>
+              <ActionGroup gap={3}>
                 <DialogClose asChild>
                   <Button
                     type="button"
                     variant="ghost"
-                    style={{ boxShadow: '0 1px 1px 0 rgba(86, 65, 243, 0.3)' }}
+                    css={styles.cancelButton}
                   >
                     {__('Cancel', 'kirki-ecommerce')}
                   </Button>
@@ -205,3 +203,12 @@ const ApiConfigurationPopup = ({
 ApiConfigurationPopup.displayName = 'ApiConfigurationPopup';
 
 export default ApiConfigurationPopup;
+
+const styles = {
+  cancelButton: scoped({
+    boxShadow: theme.shadow.sm,
+  }),
+  helperText: scoped({
+    ...theme.typography.paragraph(),
+  }),
+};

@@ -5,7 +5,7 @@ import Tooltip from '@/components/ui/tooltip';
 
 const ButtonPreview = () => {
   return (
-    <Flex gap={8} style={{ flexWrap: 'wrap', alignItems: 'center' }}>
+    <Flex gap={2} wrap="wrap" align="center">
       <Tooltip tip="This is tooltip" position="bottom">
         <Button
           variant="primary"

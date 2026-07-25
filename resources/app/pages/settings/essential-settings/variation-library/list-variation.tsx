@@ -48,7 +48,7 @@ const ListVariation = () => {
         style={{ height: '32px' }}
       />
       <Container size="sm">
-        <Flex direction="column" gap={16}>
+        <Flex direction="column" gap={4}>
           <PageNavbar
             textIcon={<BoxIcon />}
             text={sprintf(__('%s', 'kirki-ecommerce'), selectedAttribute?.name ?? '')}
@@ -67,9 +67,9 @@ const ListVariation = () => {
           {!attributeValueList?.length ? (
             <Card css={[cardStyles.largeCard, styles.roundedCard]}>
               <CardContent css={[cardStyles.largeContentPadded, styles.emptyContent]}>
-                <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
+                <Flex direction="column" gap={2} align="center">
                   <BoxIcon />
-                  <span style={{ color: '#878593' }}>
+                  <span css={styles.mutedText}>
                     {__('No value added yet', 'kirki-ecommerce')}
                   </span>
                 </Flex>
@@ -106,13 +106,16 @@ export default ListVariation;
 const styles = {
   addValueButton: scoped({
     color: theme.colors.text.emphasis,
-    padding: theme.spacing.none,
+    padding: theme.spacing[0],
   }),
   roundedCard: scoped({
     borderRadius: theme.radius.lg,
   }),
   emptyContent: scoped({
-    padding: `${theme.spacing['7xl']} 0`,
+    padding: `${theme.spacing[9]} 0`,
+  }),
+  mutedText: scoped({
+    color: theme.colors.text.subdued,
   }),
 };
 

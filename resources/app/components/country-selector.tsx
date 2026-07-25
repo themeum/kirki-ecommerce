@@ -1,6 +1,10 @@
 import Combobox from '@/components/ui/combobox';
-import Flex from '@/components/ui/flex';
-import Label from '@/components/ui/label';
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from '@/components/ui/field';
 import { useCountriesQuery } from '@/services/country';
 import type { LabelFieldProps } from '@/types';
 import { theme } from '@/theme';
@@ -29,10 +33,10 @@ const CountrySelector = ({
   }));
 
   return (
-    <Flex direction="column" gap={8}>
-      <Label error={Boolean(error)} helpText={error || helpText}>
+    <Field data-invalid={error ? true : undefined}>
+      <FieldLabel>
         {label || __('Country / Region', 'kirki-ecommerce')}
-      </Label>
+      </FieldLabel>
       <Combobox
         options={options}
         value={value}
@@ -42,7 +46,9 @@ const CountrySelector = ({
         listCss={styles.wrapper}
         searchInputCss={styles.searchInput}
       />
-    </Flex>
+      {helpText && !error && <FieldDescription>{helpText}</FieldDescription>}
+      {typeof error === 'string' && <FieldError>{error}</FieldError>}
+    </Field>
   );
 };
 
@@ -59,6 +65,6 @@ const styles = {
     borderBottom: `1px solid ${theme.colors.border.muted}`,
   }),
   searchInput: scoped({
-    padding: theme.spacing.lg,
+    padding: theme.spacing[3],
   }),
 };

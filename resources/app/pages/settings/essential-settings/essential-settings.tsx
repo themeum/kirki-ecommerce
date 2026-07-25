@@ -19,7 +19,7 @@ const EssentialsSettings = () => {
         style={{ height: '32px' }}
       />
       <Container size="sm">
-        <Flex direction="column" gap={16}>
+        <Flex direction="column" gap={4}>
           <PageNavbar
             textIcon={<SnowflakeIcon />}
             text={__('Essentials', 'kirki-ecommerce')}

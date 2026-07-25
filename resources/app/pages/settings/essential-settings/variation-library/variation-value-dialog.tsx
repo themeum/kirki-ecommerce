@@ -123,7 +123,7 @@ const VariationValuePopup = ({
         </DialogHeader>
         <Form {...form}>
           <DialogBody>
-            <Flex direction="column" gap={16}>
+            <Flex direction="column" gap={4}>
               <TextField
                 name="value"
                 label={__('Title', 'kirki-ecommerce')}
@@ -143,12 +143,11 @@ const VariationValuePopup = ({
             </Flex>
           </DialogBody>
           <DialogFooter>
-            <Button variant="outline" size="sm" onClick={onClose}>
+            <Button variant="outline" onClick={onClose}>
               {__('Cancel', 'kirki-ecommerce')}
             </Button>
             <Button
               variant="primary"
-              size="sm"
               loading={isSubmitting}
               disabled={btnState === 'disabled'}
               onClick={form.handleSubmit(handleSubmit)}

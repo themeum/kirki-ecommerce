@@ -1,3 +1,4 @@
+import { css } from '@emotion/react';
 import {
   useEffect,
   useState,
@@ -5,7 +6,7 @@ import {
   type ReactElement,
   type SetStateAction,
 } from 'react';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import Button from '@/components/ui/button';
@@ -15,13 +16,8 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  formMessageStyle,
-} from '@/components/ui/form';
+import { Field, fieldErrorStyle } from '@/components/ui/field';
+import { Form } from '@/components/ui/form';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
 import {
@@ -54,6 +50,8 @@ import { __ } from '@/wpi18n';
 import { BoxGenerator } from '@/pages/settings/shipping-settings/shipping-box/box-generator';
 import ShippingBoxSelect from '@/pages/products/edit-product/shipping/shipping-box';
 import ShippingProfile from '@/pages/products/edit-product/shipping/shipping-profile';
+
+import { theme } from '@/theme';
 
 type ShippingProps = {
   errors: FormErrors;
@@ -161,42 +159,42 @@ const Shipping = ({ errors, setErrors, formSyncKey = 0 }: ShippingProps) => {
           <CardTitle>{__('Shipping', 'kirki-ecommerce')}</CardTitle>
         </CardHeader>
         <CardContent>
-          <Flex direction="column" gap={8}>
+          <Flex direction="column" gap={2}>
             <Label>{__('Weight', 'kirki-ecommerce')}</Label>
-            <Flex gap={8}>
+            <Flex gap={2}>
               <div style={{ flex: 1 }}>
-                <FormField
+                <Controller
                   control={form.control}
                   name="weight"
                   render={({ field, fieldState }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          value={field.value ?? ''}
-                          onChange={(event) => {
-                            field.onChange(event.target.value);
-                            handleOnVariantInfoChange(
-                              {
-                                value: event.target.value,
-                                unit: form.getValues('weight_unit') || '',
-                              },
-                              'weight',
-                            );
-                          }}
-                          error={Boolean(fieldState.error) || Boolean(weightError)}
-                        />
-                      </FormControl>
-                    </FormItem>
+                    <Field data-invalid={fieldState.invalid || undefined}>
+                      <Input
+                        id="weight"
+                        type="number"
+                        value={field.value ?? ''}
+                        onChange={(event) => {
+                          field.onChange(event.target.value);
+                          handleOnVariantInfoChange(
+                            {
+                              value: event.target.value,
+                              unit: form.getValues('weight_unit') || '',
+                            },
+                            'weight',
+                          );
+                        }}
+                        error={Boolean(fieldState.error) || Boolean(weightError)}
+                        aria-invalid={fieldState.invalid}
+                      />
+                    </Field>
                   )}
                 />
               </div>
               <div style={{ width: '96px' }}>
-                <FormField
+                <Controller
                   control={form.control}
                   name="weight_unit"
                   render={({ field, fieldState }) => (
-                    <FormItem>
+                    <Field data-invalid={fieldState.invalid || undefined}>
                       <Select
                         value={field.value || ''}
                         onValueChange={(value) => {
@@ -210,13 +208,15 @@ const Shipping = ({ errors, setErrors, formSyncKey = 0 }: ShippingProps) => {
                           );
                         }}
                       >
-                        <FormControl>
-                          <SelectTrigger
-                            error={Boolean(fieldState.error) || Boolean(weightError)}
-                          >
-                            <SelectValue />
-                          </SelectTrigger>
-                        </FormControl>
+                        <SelectTrigger
+                          id="weight_unit"
+                          error={
+                            Boolean(fieldState.error) || Boolean(weightError)
+                          }
+                          aria-invalid={fieldState.invalid}
+                        >
+                          <SelectValue />
+                        </SelectTrigger>
                         <SelectContent>
                           {weightUnitOptions.map((option) => (
                             <SelectItem key={option.value} value={option.value}>
@@ -225,13 +225,13 @@ const Shipping = ({ errors, setErrors, formSyncKey = 0 }: ShippingProps) => {
                           ))}
                         </SelectContent>
                       </Select>
-                    </FormItem>
+                    </Field>
                   )}
                 />
               </div>
             </Flex>
             {weightError && (
-              <p css={formMessageStyle}>{String(weightError)}</p>
+              <p css={fieldErrorStyle}>{String(weightError)}</p>
             )}
           </Flex>
           <div>
@@ -240,39 +240,18 @@ const Shipping = ({ errors, setErrors, formSyncKey = 0 }: ShippingProps) => {
               style={{
                 position: 'relative',
                 overflow: 'visible',
-                marginTop: '16px',
-                paddingTop: '20px',
+                marginTop: theme.spacing[4],
+                paddingTop: theme.spacing[5],
               }}
             >
-              <Flex
-                style={{
-                  top: '-18px',
-                  left: '8px',
-                  right: '8px',
-                  position: 'absolute',
-                }}
-              >
-                <span
-                  style={{
-                    backgroundColor: '#ffffff',
-                    paddingLeft: '8px',
-                  }}
-                >
-                  <Text
-                    type="secondary"
-                    header={__('Shipping Box', 'kirki-ecommerce')}
-                  />
+              <Flex css={css({ top: '-18px', left: '8px', right: '8px', position: 'absolute' })}>
+                <span css={styles.labelBackground}>
+                  <Text weight="medium">{__('Shipping Box', 'kirki-ecommerce')}</Text>
                 </span>
                 <ActionGroup>
-                  <span
-                    style={{
-                      backgroundColor: '#ffffff',
-                      paddingRight: '8px',
-                    }}
-                  >
+                  <span css={styles.actionBackground}>
                     <Button
                       variant="secondary"
-                      size="sm"
                       onClick={() => {
                         setShowShippingBox((prev) => !prev);
                       }}
@@ -282,7 +261,7 @@ const Shipping = ({ errors, setErrors, formSyncKey = 0 }: ShippingProps) => {
                   </span>
                 </ActionGroup>
               </Flex>
-              <Flex gap={8} direction="column">
+              <Flex gap={2} direction="column">
                 <ShippingBoxSelect
                   value={shippingBoxId}
                   errors={{
@@ -297,12 +276,7 @@ const Shipping = ({ errors, setErrors, formSyncKey = 0 }: ShippingProps) => {
             </Card>
             {showShippingBox && (
               <Card
-                css={cardStyles.darkCard}
-                style={{
-                  borderRadius: '0px 0px 6px 6px',
-                  marginTop: '-8px',
-                  height: '230px',
-                }}
+                css={[cardStyles.darkCard, styles.shippingBoxPreview]}
               >
                 <CardContent css={styles.darkCardContent}>
                   <BoxGeneratorView
@@ -336,6 +310,19 @@ export default Shipping;
 
 const styles = {
   darkCardContent: scoped({
-    padding: '4px',
-  })
+    padding: theme.spacing[1],
+  }),
+  shippingBoxPreview: scoped({
+    borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.md} ${theme.radius.md}`,
+    marginTop: `-${theme.spacing[2]}`,
+    height: '230px',
+  }),
+  labelBackground: scoped({
+    backgroundColor: theme.colors.background.surface,
+    paddingLeft: theme.spacing[2],
+  }),
+  actionBackground: scoped({
+    backgroundColor: theme.colors.background.surface,
+    paddingRight: theme.spacing[2],
+  }),
 };

@@ -1,19 +1,18 @@
 import { type SerializedStyles } from '@emotion/react';
 import type { ComponentPropsWithoutRef, ReactNode } from 'react';
 import {
+  Controller,
   useFormContext,
   type FieldPath,
   type FieldValues,
 } from 'react-hook-form';
 
 import {
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from '@/components/ui/field';
 import Input from '@/components/ui/input';
 
 type TextFieldProps<
@@ -42,27 +41,28 @@ const TextField = <
   css,
 }: TextFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
+  const fieldId = String(name);
 
   return (
-    <FormField
+    <Controller
       control={control}
       name={name}
       render={({ field, fieldState }) => (
-        <FormItem css={css}>
-          {label && <FormLabel>{label}</FormLabel>}
-          <FormControl>
-            <Input
-              {...field}
-              value={field.value ?? ''}
-              type={type}
-              placeholder={placeholder}
-              disabled={disabled}
-              error={Boolean(fieldState.error)}
-            />
-          </FormControl>
-          {description && <FormDescription>{description}</FormDescription>}
-          <FormMessage />
-        </FormItem>
+        <Field data-invalid={fieldState.invalid || undefined} css={css}>
+          {label && <FieldLabel htmlFor={fieldId}>{label}</FieldLabel>}
+          <Input
+            {...field}
+            id={fieldId}
+            value={field.value ?? ''}
+            type={type}
+            placeholder={placeholder}
+            disabled={disabled}
+            error={Boolean(fieldState.error)}
+            aria-invalid={fieldState.invalid}
+          />
+          {description && <FieldDescription>{description}</FieldDescription>}
+          {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+        </Field>
       )}
     />
   );

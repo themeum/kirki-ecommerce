@@ -119,14 +119,12 @@ const CheckoutSettings = () => {
             <>
               <Button
                 variant="ghost"
-                size="sm"
                 onClick={handleDiscardData}
               >
                 {__('Cancel', 'kirki-ecommerce')}
               </Button>
               <Button
                 variant="primary"
-                size="sm"
                 onClick={form.handleSubmit(handleSaveData)}
                 loading={isPending}
               >
@@ -141,7 +139,7 @@ const CheckoutSettings = () => {
       <Container size="sm">
         {loaded ? (
           <Form {...form}>
-            <Flex direction="column" gap={16}>
+            <Flex direction="column" gap={4}>
               <PageNavbar
                 textIcon={<CartIcon />}
                 text={__('Checkout', 'kirki-ecommerce')}
@@ -150,15 +148,14 @@ const CheckoutSettings = () => {
               <Card css={cardStyles.largeCard} >
                 <CardContent css={cardStyles.largeContentPadded}>
 
-                <Flex style={{ alignItems: 'center' }}>
-                <Text
-                header={__('Allow Guest Checkout', 'kirki-ecommerce')}
-                subHeader={__(
+                <Flex align="center">
+                <Flex direction="column" gap={2}>
+                  <Text weight="medium">{__('Allow Guest Checkout', 'kirki-ecommerce')}</Text>
+                  <Text variant="small" color="secondary">{__(
                 'Let customers buy without logging in or creating an account.',
                 'kirki-ecommerce',
-                )}
-                type="secondary"
-                />
+                )}</Text>
+                </Flex>
                 <ActionGroup>
                 <SwitchField name="is_allowed_guest_checkout" />
                 </ActionGroup>

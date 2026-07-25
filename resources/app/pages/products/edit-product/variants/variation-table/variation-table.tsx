@@ -30,6 +30,9 @@ import { __ } from '@/wpi18n';
 
 import SingleGroup from '@/pages/products/edit-product/variants/variation-table/single-group';
 
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
+
 const VariationTable = () => {
   const { product: productData, updateVariants } = useProductForm();
   const attributes = productData?.attributes || [];
@@ -92,9 +95,9 @@ const VariationTable = () => {
   }
   return (
     <>
-      <Separator style={{ margin: 'auto -16px' }} />
+      <Separator style={{ margin: `auto -${theme.spacing[4]}` }} />
       <Flex>
-        <Flex gap={12}>
+        <Flex gap={3}>
           <Select
             value={String(showBy)}
             onValueChange={(value) => setShowBy(Number(value))}
@@ -112,7 +115,6 @@ const VariationTable = () => {
           </Select>
           <Button
             variant="outline"
-            size="sm"
             onClick={() => setExpandVariation((prev) => !prev)}
           >
             <ChevronUpDownIcon />
@@ -121,7 +123,6 @@ const VariationTable = () => {
         <ActionGroup>
           <Button
             variant="secondary"
-            size="sm"
             onClick={handleBulkEditVariants}
           >
             <EditIcon />
@@ -154,18 +155,15 @@ const VariationTable = () => {
                 <>
                   <TableHead>
                     <Flex
-                      gap={18}
-                      style={{
-                        alignItems: 'center',
-                      }}
-                    >
+                      gap={5}
+                      align="center">
                       {selectedIndex.length}{' '}
                       {selectedIndex.length !== variants.length
                         ? `${selectedIndex.length === 1 ? 'item' : 'items'} selected`
                         : `of ${variants.length} ${selectedIndex.length === 1 ? 'item' : 'items'} selected`}
                       <Button
                         variant="ghost"
-                        style={{ fontWeight: '400' }}
+                        css={styles.normalWeight}
                         onClick={() =>
                           handleSelectAll(
                             selectedIndex.length !== 0 &&
@@ -259,4 +257,10 @@ const VariationTable = () => {
 VariationTable.displayName = 'VariationTable';
 
 export default VariationTable;
+
+const styles = {
+  normalWeight: scoped({
+    ...theme.typography.paragraph(),
+  }),
+};
 

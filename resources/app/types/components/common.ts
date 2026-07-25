@@ -1,9 +1,35 @@
 import type { CSSProperties, ReactNode } from 'react';
 
+import type { SpacingKey } from '@/theme';
+
 type StyleProps = {
   className?: string;
   style?: CSSProperties;
 };
+
+type GapValue = SpacingKey | (string & {});
+type FlexAlign =
+  | 'flex-start'
+  | 'flex-end'
+  | 'center'
+  | 'baseline'
+  | 'stretch'
+  | 'start'
+  | 'end';
+type FlexJustify =
+  | 'flex-start'
+  | 'flex-end'
+  | 'center'
+  | 'space-between'
+  | 'space-around'
+  | 'space-evenly'
+  | 'start'
+  | 'end'
+  | 'stretch';
+type FlexWrap = 'nowrap' | 'wrap' | 'wrap-reverse';
+type FlexGrow = number | string;
+type FlexShrink = number | string;
+type FlexBasis = number | string;
 
 type LabelFieldProps = {
   label?: string;
@@ -43,31 +69,12 @@ type ButtonState = 'loading' | 'disabled' | 'active' | 'hover' | '';
 type InputState = 'muted' | 'disabled' | 'active' | '';
 type SelectState = 'disabled' | 'active' | '';
 
-type BadgeType =
-  | 'published'
-  | 'secondary'
-  | 'trashed'
-  | 'draft'
-  | 'pending'
-  | 'processing'
-  | 'onHold'
-  | 'refunded'
-  | 'requested'
-  | 'default';
-
 type AlertType = 'success' | 'fail' | 'pending';
-type TextType =
-  | 'primary'
-  | 'secondary'
-  | 'disabled'
-  | 'xsm'
-  | 'tertiary'
-  | 'inner';
 type HeadingType = 'primary' | 'secondary' | 'tertiary' | '';
 type LabelType = 'error' | '';
 type TableType = 'default' | 'variation' | 'wide';
 type TableAlignment = 'right' | 'center';
-type ContainerSize = 'sm' | 'md' | 'lg' | 'fullWidth';
+type ContainerSize = 'sm' | 'md' | 'lg' | 'xl' | 'fullWidth';
 type ThumbnailSize = 'fullWidth' | 'small' | 'xsm';
 type ThumbnailType = 'circle';
 type FlexDirection = 'column' | 'row' | '';
@@ -93,29 +100,35 @@ type PaginationData = {
 };
 
 export type {
-  StyleProps,
-  LabelFieldProps,
-  SelectOption,
-  ButtonSize,
-  ButtonType,
-  ButtonState,
-  InputState,
-  SelectState,
-  BadgeType,
   AlertType,
-  TextType,
-  HeadingType,
-  LabelType,
-  TableType,
-  TableAlignment,
+  ButtonSize,
+  ButtonState,
+  ButtonType,
+  ConfirmationVariant,
   ContainerSize,
+  DropdownItemState,
+  DropdownPosition,
+  DropdownSize,
+  FlexAlign,
+  FlexBasis,
+  FlexDirection,
+  FlexGrow,
+  FlexJustify,
+  FlexShrink,
+  FlexWrap,
+  GapValue,
+  HeadingType,
+  InputState,
+  LabelFieldProps,
+  LabelType,
+  PaginationData,
+  SelectOption,
+  SelectState,
+  StyleProps,
+  TableAlignment,
+  TableType,
   ThumbnailSize,
   ThumbnailType,
-  FlexDirection,
   TooltipPosition,
-  DropdownSize,
-  DropdownPosition,
-  DropdownItemState,
-  ConfirmationVariant,
-  PaginationData,
 };
+

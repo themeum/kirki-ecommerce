@@ -61,16 +61,16 @@ const OrderTable = () => {
               />
             </TableCell>
             <TableCell>
-              <Flex direction="column" gap={4}>
-                <Flex gap={4} style={{ alignItems: 'center' }}>
-                  <Text type="xsm" subHeader="# 029433" />
-                  <Badge type="draft" text="Manual Order" />
+              <Flex direction="column" gap={1}>
+                <Flex gap={1} align="center">
+                  <Text variant="small" color="subdued"># 029433</Text>
+                  <Badge variant="secondary">Manual Order</Badge>
                 </Flex>
-                <Text type="xsm" header="by Melanie Martinez" />
+                <Text variant="small">by Melanie Martinez</Text>
               </Flex>
             </TableCell>
             <TableCell>
-              <Flex gap={8}>
+              <Flex gap={2}>
                 <span>33</span>
                 <span css={styles.svgClass}>
                   <InfoIcon />
@@ -78,7 +78,7 @@ const OrderTable = () => {
               </Flex>
             </TableCell>
             <TableCell>
-              <Flex gap={4}>
+              <Flex gap={1}>
                 <span>BDT 4,000</span>
                 <span css={styles.svgClass}>
                   <FileSpreadSheetIcon />
@@ -86,10 +86,10 @@ const OrderTable = () => {
               </Flex>
             </TableCell>
             <TableCell>
-              <Badge type="pending" text="Pending" />
+              <Badge variant="warning">Pending</Badge>
             </TableCell>
             <TableCell>
-              <Flex gap={12}>
+              <Flex gap={3}>
                 <span css={styles.svgClass}>
                   <StripeIcon />
                 </span>

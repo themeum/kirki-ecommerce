@@ -53,7 +53,6 @@ const Customers = () => {
         actions={
           <Button
             variant="primary"
-            size="sm"
             onClick={handleAddNewCustomer}
           >
             {__('Add Customer', 'kirki-ecommerce')}
@@ -63,30 +62,28 @@ const Customers = () => {
 
       <Container>
         {loaded ? (
-          <Flex direction="column" gap={8}>
+          <Flex direction="column" gap={2}>
             <Card css={cardStyles.formCard}>
               <CardContent>
-                <Flex gap={12}>
+                <Flex gap={3}>
                   <span css={styles.svgClass}>
                     <CustomerInfoIcon />
                   </span>
-                  <Text
-                    type="secondary"
-                    header={__('Create Groups with Customers', 'kirki-ecommerce')}
-                    subHeader={__(
+                  <Flex direction="column" gap={2}>
+                    <Text weight="medium">{__('Create Groups with Customers', 'kirki-ecommerce')}</Text>
+                    <Text variant="small" color="secondary">{__(
                       'Organize customers for better targeting and management',
                       'kirki-ecommerce',
-                    )}
-                  />
+                    )}</Text>
+                  </Flex>
                   <ActionGroup>
                     <Button
                       variant="ghost"
-                      size="sm"
                       onClick={handleGroupManage}
                     >
                       {__('Manage Group', 'kirki-ecommerce')}
                     </Button>
-                    <Button variant="secondary" size="sm">
+                    <Button variant="secondary">
                       {__('Create Group', 'kirki-ecommerce')}
                     </Button>
                   </ActionGroup>

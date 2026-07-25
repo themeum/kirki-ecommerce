@@ -23,19 +23,20 @@ const TaxServices = () => {
     <div>
       <Card css={cardStyles.largeCard}>
         <CardContent css={cardStyles.largeContentPadded}>
-          <Flex direction="column" gap={6}>
-            <Flex style={{ alignItems: 'center' }}>
-              <Text
-                type="primary"
-                header={__('Tax Services', 'kirki-ecommerce')}
-                subHeader={__(
-                  'Connect your preferred sales tax service to Kirki store',
-                  'kirki-ecommerce',
-                )}
-                style={{ gap: '12px' }}
-              />
+          <Flex direction="column" gap={2}>
+            <Flex align="center">
+              <Flex direction="column" gap={2}>
+                <Text weight="semibold">
+                  {__('Tax Services', 'kirki-ecommerce')}
+                </Text>
+                <Text color="secondary">
+                  {__(
+                    'Connect your preferred sales tax service to Kirki store',
+                    'kirki-ecommerce',
+                  )}
+                </Text>
+              </Flex>
             </Flex>
-            <Text type="primary" />
           </Flex>
 
           <Flex direction="column">
@@ -48,24 +49,18 @@ const TaxServices = () => {
                 onMouseLeave={() => setHoveredIndex(null)}
               >
                 <CardContent css={cardStyles.innerContent}>
-                  <Flex style={{ alignItems: 'center', minHeight: '36px' }} gap={8}>
-                    <Text
-                      header="Stripe Tax"
-                      type="xsm"
-                      leftIcon={<BoxClosedIcon />}
-                      style={{ fontWeight: '500' }}
-                    />
+                  <Flex gap={2} align="center" css={css({ minHeight: '36px' })}>
+                    <Flex gap={2} align="center">
+                      <BoxClosedIcon />
+                      <Text variant="small" css={styles.mediumHeader}>Stripe Tax</Text>
+                    </Flex>
                     {index === 1 ? (
-                      <Badge text="Active" type="published" />
+                      <Badge variant="success">Active</Badge>
                     ) : (
-                      <Text
-                        subHeader={__(
+                      <Text variant="small" color="subdued" css={styles.mutedText}>{__(
                           'Calculate and collect tax globally in your Kirki store',
                           'kirki-ecommerce',
-                        )}
-                        type="xsm"
-                        style={{ color: '#878593' }}
-                      />
+                        )}</Text>
                     )}
                     <ActionGroup
                       css={css(
@@ -73,7 +68,7 @@ const TaxServices = () => {
                         hoveredIndex === index && styles.hoverVisibleActive,
                       )}
                     >
-                      <Button variant="secondary" size="sm">
+                      <Button variant="secondary">
                         <PlusIcon />
                         Setup
                       </Button>
@@ -112,5 +107,11 @@ const styles = {
   }),
   hoverVisibleActive: css({
     visibility: 'visible',
-  })
+  }),
+  mutedText: scoped({
+    color: theme.colors.text.subdued,
+  }),
+  mediumHeader: scoped({
+    ...theme.typography.paragraph('medium'),
+  }),
 };

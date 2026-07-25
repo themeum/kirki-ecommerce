@@ -1,3 +1,4 @@
+import { css } from '@emotion/react';
 import { type ComponentProps, type ReactNode, useState } from 'react';
 import { useWatch } from 'react-hook-form';
 
@@ -164,13 +165,8 @@ export const AvailableCurrencyList = () => {
     <>
       <Card css={cardStyles.innerCard}>
         <CardContent css={styles.innerCardContent}>
-          <Flex
-            style={{
-              justifyContent: 'space-between',
-              paddingBottom: theme.spacing.lg,
-            }}
-          >
-            <Text header={__('Available Currencies', 'kirki-ecommerce')} type="primary" />
+          <Flex justify="space-between" css={css({ paddingBottom: theme.spacing[3] })}>
+            <Text weight="semibold">{__('Available Currencies', 'kirki-ecommerce')}</Text>
             <AddCurrencyPopup />
           </Flex>
           <GroupOptionCard
@@ -182,17 +178,9 @@ export const AvailableCurrencyList = () => {
             actionsArray={[]}
             handleAction={(action, item) => handleAction(action, item as CurrencyListItem)}
           />
-          <Flex
-            gap={8}
-            style={{
-              paddingTop: theme.spacing.md,
-            }}
-          >
+          <Flex gap={2} css={css({ paddingTop: theme.spacing[2] })}>
             <InfoIcon />
-            <Text
-              type="xsm"
-              subHeader={
-                showApiProviderStatus
+            <Text variant="small" color="subdued">{showApiProviderStatus
                   ? sprintf(
                       __(
                         'API connection is active. Last sync: %s. Next update %s.',
@@ -201,9 +189,7 @@ export const AvailableCurrencyList = () => {
                       dateFormatter(dataObj?.last_sync_at as string, 'relative'),
                       dateFormatter(dataObj?.next_sync_at as string, 'relative'),
                     )
-                  : __('API connection is inactive', 'kirki-ecommerce')
-              }
-            />
+                  : __('API connection is inactive', 'kirki-ecommerce')}</Text>
           </Flex>
         </CardContent>
       </Card>
@@ -220,6 +206,6 @@ export const AvailableCurrencyList = () => {
 
 const styles = {
   innerCardContent: scoped({
-    padding: theme.spacing['3xl'],
+    padding: theme.spacing[5],
   })
 };

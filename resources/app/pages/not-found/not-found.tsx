@@ -33,16 +33,14 @@ const NotFound = () => {
               404
             </span>
 
-            <Flex direction="column" gap={8} css={styles.copy}>
-              <Text
-                type="primary"
-                css={styles.copyText}
-                header={__('Page not found', 'kirki-ecommerce')}
-                subHeader={__(
+            <Flex direction="column" gap={2} css={styles.copy}>
+              <Flex direction="column" gap={2}>
+                <Text weight="semibold" css={styles.copyText}>{__('Page not found', 'kirki-ecommerce')}</Text>
+                <Text color="secondary">{__(
                   'Sorry, the page you are looking for could not be found. It may have been moved or never existed.',
                   'kirki-ecommerce',
-                )}
-              />
+                )}</Text>
+              </Flex>
             </Flex>
 
             {showPath && (
@@ -54,7 +52,7 @@ const NotFound = () => {
               </div>
             )}
 
-            <Flex gap={12} css={styles.actions}>
+            <Flex gap={3} css={styles.actions}>
               <Button variant="primary" onClick={handleGoToProducts}>
                 <BoxIcon color={theme.colors.text.light} />
                 {__('Go to Products', 'kirki-ecommerce')}
@@ -87,7 +85,7 @@ const styles = {
     alignItems: 'center',
     minHeight: 'calc(100vh - 32px - 41px)',
     marginTop: 0,
-    padding: `${theme.spacing['4xl']} ${theme.spacing['6xl']}`,
+    padding: `${theme.spacing[6]} ${theme.spacing[8]}`,
     backgroundColor: theme.colors.background.surfaceTertiary,
     boxSizing: 'border-box',
     overflow: 'hidden',
@@ -114,7 +112,7 @@ const styles = {
       opacity: 0.5,
     },
     '@media (max-width: 768px)': {
-      padding: theme.spacing['4xl'],
+      padding: theme.spacing[6],
     },
   }),
   inner: scoped({
@@ -122,13 +120,13 @@ const styles = {
     zIndex: 1,
     display: 'flex',
     alignItems: 'center',
-    gap: theme.spacing['8xl'],
+    gap: theme.spacing[10],
     width: '100%',
     maxWidth: '960px',
     '@media (max-width: 768px)': {
       flexDirection: 'column',
       alignItems: 'stretch',
-      gap: theme.spacing['6xl'],
+      gap: theme.spacing[8],
     },
   }),
   copyCol: scoped({
@@ -136,7 +134,7 @@ const styles = {
     flex: '1 1 0',
     flexDirection: 'column',
     alignItems: 'flex-start',
-    gap: theme.spacing['4xl'],
+    gap: theme.spacing[6],
     minWidth: 0,
     '@media (max-width: 768px)': {
       alignItems: 'center',
@@ -144,16 +142,10 @@ const styles = {
     },
   }),
   code: scoped({
-    fontSize: 'clamp(72px, 10vw, 112px)',
-    fontWeight: theme.typography.fontWeight.bold,
-    lineHeight: 1,
-    letterSpacing: '-0.04em',
+    ...theme.typography.heading1(),
     color: theme.colors.text.subdued,
     opacity: 0.28,
     userSelect: 'none',
-    '@media (max-width: 768px)': {
-      fontSize: 'clamp(64px, 22vw, 96px)',
-    },
   }),
   copy: scoped({
     width: '100%',
@@ -169,13 +161,10 @@ const styles = {
     alignItems: 'flex-start',
     textAlign: 'left',
     '& > div span': {
-      fontSize: '24px',
-      lineHeight: '30px',
-      letterSpacing: '-0.02em',
+      ...theme.typography.heading3(),
     },
     '& > span': {
-      fontSize: '15px',
-      lineHeight: '24px',
+      ...theme.typography.paragraph(),
     },
     '@media (max-width: 768px)': {
       alignItems: 'center',
@@ -186,10 +175,10 @@ const styles = {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'flex-start',
-    gap: theme.spacing.md,
+    gap: theme.spacing[2],
     width: '100%',
     maxWidth: '420px',
-    padding: `${theme.spacing.lg} ${theme.spacing['2xl']}`,
+    padding: `${theme.spacing[3]} ${theme.spacing[4]}`,
     backgroundColor: theme.colors.background.surfaceAlt,
     border: `1px solid ${theme.colors.border.tertiary}`,
     borderRadius: theme.radius.lg,
@@ -197,9 +186,7 @@ const styles = {
     textAlign: 'left',
   }),
   pathLabel: scoped({
-    fontSize: '11px',
-    fontWeight: theme.typography.fontWeight.medium,
-    lineHeight: '14px',
+    ...theme.typography.small('medium'),
     letterSpacing: '0.04em',
     textTransform: 'uppercase',
     color: theme.colors.text.subdued,
@@ -207,11 +194,10 @@ const styles = {
   pathCode: scoped({
     display: 'block',
     width: '100%',
-    padding: `${theme.spacing.sm} ${theme.spacing.lg}`,
+    padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
     fontFamily:
       'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
-    fontSize: theme.typography.fontSize.sm,
-    lineHeight: '20px',
+    ...theme.typography.small(),
     color: theme.colors.text.primary,
     backgroundColor: theme.colors.background.fill,
     border: `1px solid ${theme.colors.border.secondary}`,
@@ -223,7 +209,7 @@ const styles = {
     flexWrap: 'wrap',
     justifyContent: 'flex-start',
     width: '100%',
-    paddingTop: theme.spacing.xs,
+    paddingTop: theme.spacing[1],
     '@media (max-width: 768px)': {
       justifyContent: 'center',
     },

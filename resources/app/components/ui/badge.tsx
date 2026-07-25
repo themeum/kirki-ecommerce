@@ -1,109 +1,183 @@
-import { type SerializedStyles } from '@emotion/react';
-import { forwardRef, type CSSProperties, type ReactNode } from 'react';
+import { type SerializedStyles, type Theme } from '@emotion/react';
+import { Slot } from '@radix-ui/react-slot';
+import {
+  forwardRef,
+  type ComponentPropsWithoutRef,
+} from 'react';
 
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
-import type { BadgeType } from '@/types';
+import { scoped, uiFocusRing } from '@/theme/mixins';
 
-type BadgeProps = {
-  type?: BadgeType;
-  state?: 'disabled';
-  text?: ReactNode;
-  style?: CSSProperties;
-  leftIcon?: ReactNode;
+type BadgeVariant =
+  | 'default'
+  | 'secondary'
+  | 'destructive'
+  | 'outline'
+  | 'ghost'
+  | 'link'
+  | 'success'
+  | 'warning'
+  | 'caution'
+  | 'info'
+  | 'requested';
+
+type BadgeProps = Omit<
+  ComponentPropsWithoutRef<'span'>,
+  'className' | 'css'
+> & {
+  variant?: BadgeVariant;
+  asChild?: boolean;
   css?: SerializedStyles;
 };
 
 const Badge = forwardRef<HTMLSpanElement, BadgeProps>((props, ref) => {
   const {
     css: cssProp,
-    type = 'default',
-    state,
-    text,
-    style,
-    leftIcon,
+    variant = 'default',
+    asChild = false,
+    ...rest
   } = props;
 
+  const Comp = asChild ? Slot : 'span';
+  const badgeCss = [
+    styles.base,
+    styles.variants[variant],
+    cssProp,
+  ];
+
   return (
-    <span
+    <Comp
       ref={ref}
-      css={[
-        styles.base,
-        styles.types[type],
-        state === 'disabled' && styles.disabled,
-        cssProp,
-      ]}
-      style={style}
-    >
-      {leftIcon}
-      {text}
-    </span>
+      data-slot="badge"
+      data-variant={variant}
+      css={badgeCss}
+      {...rest}
+    />
   );
 });
 
 Badge.displayName = 'Badge';
 
-export default Badge;
+const badgeVariantStyles = {
+  default: scoped({
+    backgroundColor: theme.colors.background.surfaceTertiary,
+    color: theme.colors.text.secondary,
+    'a&:hover': {
+      backgroundColor: theme.colors.background.fillHover,
+    },
+  }),
+  secondary: scoped({
+    backgroundColor: theme.colors.background.fillSecondary,
+    color: theme.colors.text.secondary,
+    'a&:hover': {
+      backgroundColor: theme.colors.background.fillSecondaryHover,
+    },
+  }),
+  destructive: scoped({
+    backgroundColor: theme.colors.background.fillCriticalSecondary,
+    color: theme.colors.text.critical,
+    'a&:hover': {
+      opacity: 0.9,
+    },
+  }),
+  outline: scoped({
+    backgroundColor: 'transparent',
+    border: `1px solid ${theme.colors.border.default}`,
+    color: theme.colors.text.primary,
+    'a&:hover': {
+      backgroundColor: theme.colors.background.surfaceSecondary,
+    },
+  }),
+  ghost: scoped({
+    backgroundColor: 'transparent',
+    color: theme.colors.text.primary,
+    'a&:hover': {
+      backgroundColor: theme.colors.background.surfaceSecondary,
+    },
+  }),
+  link: scoped({
+    backgroundColor: 'transparent',
+    color: theme.colors.text.brand,
+    textUnderlineOffset: '4px',
+    'a&:hover': {
+      textDecoration: 'underline',
+    },
+  }),
+  success: scoped({
+    backgroundColor: theme.colors.background.fillSuccessSecondary,
+    color: theme.colors.text.success,
+    'a&:hover': {
+      opacity: 0.9,
+    },
+  }),
+  warning: scoped({
+    backgroundColor: theme.colors.background.fillWarningSecondary,
+    color: theme.colors.text.warning,
+    'a&:hover': {
+      opacity: 0.9,
+    },
+  }),
+  caution: scoped({
+    backgroundColor: theme.colors.background.fillCautionSecondary,
+    color: theme.colors.text.caution,
+    'a&:hover': {
+      opacity: 0.9,
+    },
+  }),
+  info: scoped({
+    backgroundColor: theme.colors.background.fillSpecialSecondary,
+    color: theme.colors.text.special2,
+    'a&:hover': {
+      opacity: 0.9,
+    },
+  }),
+  requested: scoped({
+    backgroundColor: theme.colors.background.fillSpecial2Secondary,
+    color: theme.colors.text.special3,
+    'a&:hover': {
+      opacity: 0.9,
+    },
+  }),
+} as const;
 
 const styles = {
   base: scoped({
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: theme.spacing.md,
-    fontFamily: 'Inter',
-    fontSize: '11px',
-    fontWeight: 500,
-    lineHeight: '14px',
-    borderRadius: theme.radius.sm,
-    padding: `${theme.spacing.xs} ${theme.spacing.md}`,
+    gap: theme.spacing[1],
     width: 'max-content',
+    flexShrink: 0,
+    overflow: 'hidden',
+    whiteSpace: 'nowrap',
     boxSizing: 'border-box',
+    border: '1px solid transparent',
+    borderRadius: theme.radius.md,
+    padding: `${theme.spacing[1]} ${theme.spacing[2]}`,
+    ...theme.typography.micro('medium'),
+    maxHeight: '24px',
+    textDecoration: 'none',
+    transition: 'color 150ms ease, box-shadow 150ms ease, background-color 150ms ease',
+    '&:focus-visible': {
+      ...uiFocusRing(theme as Theme),
+    },
+    '& svg': {
+      flexShrink: 0,
+      width: '12px',
+      height: '12px',
+      pointerEvents: 'none',
+    },
+    '& [data-icon]': {
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      flexShrink: 0,
+    },
   }),
-  types: {
-    secondary: scoped({
-      backgroundColor: theme.colors.background.fillSpecial2Secondary,
-      color: theme.colors.text.secondary,
-    }),
-    published: scoped({
-      color: theme.colors.text.success,
-      backgroundColor: theme.colors.background.fillSuccessSecondary,
-    }),
-    trashed: scoped({
-      color: theme.colors.text.critical,
-      backgroundColor: theme.colors.background.fillCriticalSecondary,
-    }),
-    draft: scoped({
-      color: theme.colors.background.badgeDraft,
-      backgroundColor: theme.colors.background.neutralSurface,
-    }),
-    pending: scoped({
-      color: theme.colors.text.warning,
-      backgroundColor: theme.colors.background.fillWarningSecondary,
-    }),
-    processing: scoped({
-      color: theme.colors.text.special2,
-      backgroundColor: theme.colors.background.fillSpecialSecondary,
-    }),
-    onHold: scoped({
-      color: theme.colors.text.caution,
-      backgroundColor: theme.colors.background.fillCautionSecondary,
-    }),
-    refunded: scoped({
-      color: theme.colors.text.secondary,
-      backgroundColor: theme.colors.background.fillSecondary,
-    }),
-    requested: scoped({
-      color: theme.colors.text.special3,
-      backgroundColor: theme.colors.background.fillSpecial2Secondary,
-    }),
-    default: scoped({
-      color: theme.colors.text.secondary,
-      backgroundColor: theme.colors.background.surfaceTertiary,
-    }),
-  },
-  disabled: scoped({
-    opacity: 0.5,
-    pointerEvents: 'none',
-  }),
+  variants: badgeVariantStyles,
 };
+
+export default Badge;
+export { badgeVariantStyles };
+export type { BadgeProps, BadgeVariant };
+

@@ -17,7 +17,7 @@ const NewTag = () => {
 
   return (
     <>
-      <Button variant="primary" size="sm" onClick={() => setOpen(true)}>
+      <Button variant="primary" onClick={() => setOpen(true)}>
         {__('New Tag', 'kirki-ecommerce')}
       </Button>
       <TagAddEditDialog

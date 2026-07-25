@@ -32,6 +32,8 @@ import { __ } from '@/wpi18n';
 
 import AddOrEditAttribute from '@/pages/products/edit-product/variants/attribute-list/add-or-edit-attribute';
 
+import { theme } from '@/theme';
+
 type SaveResult = {
   success?: boolean;
 };
@@ -85,7 +87,7 @@ const SortableCard = ({
       >
         <CardContent css={styles.innerContent}>
         {editingId !== item.id ? (
-          <Flex gap={12}>
+          <Flex gap={3}>
             <span
               {...(!isEditing ? attributes : {})}
               {...(!isEditing ? listeners : {})}
@@ -97,19 +99,12 @@ const SortableCard = ({
             >
               <DragIcon />
             </span>
-            <Flex direction="column" gap={8}>
-              <Text type="secondary" header={item?.name} />
-              <Flex
-                gap={8}
-                style={{
-                  maxWidth: '480px',
-                  flexWrap: 'wrap',
-                  rowGap: '12px',
-                }}
-              >
+            <Flex direction="column" gap={2}>
+              <Text weight="medium">{item?.name}</Text>
+              <Flex gap={2} wrap="wrap" rowGap={3} css={css({ maxWidth: '480px' })}>
                 {(item?.values || []).map((variant, index) => (
                   <Chip
-                    gap={6}
+                    gap={2}
                     key={index}
                     text={variant?.value}
                     color={variant?.color ?? undefined}
@@ -124,14 +119,12 @@ const SortableCard = ({
               <Button
                 variant="secondary"
                 onClick={() => handleAttributeEdit(item)}
-                size="sm"
               >
                 <EditIcon />
               </Button>
               <Button
                 variant="secondary"
                 onClick={() => handleAttributeRemove(item.id)}
-                size="sm"
               >
                 <TrashIcon />
               </Button>
@@ -189,13 +182,13 @@ const AttributeList = ({ onSave = () => {} }: AttributeListProps) => {
     <>
       <>
         {attributeValues?.length > 0 && (
-          <Flex direction="column" gap={8} style={{ position: 'relative' }}>
+          <Flex direction="column" gap={2} css={css({ position: 'relative' })}>
             <DndContext
               collisionDetection={closestCenter}
               onDragEnd={handleDragEnd}
               modifiers={[restrictToVerticalAxis, restrictToParentElement]}
             >
-              <Flex direction="column" gap={8}>
+              <Flex direction="column" gap={2}>
                 <SortableContext
                   items={attributeValues?.map((item) => item?.id)}
                   strategy={verticalListSortingStrategy}
@@ -236,7 +229,7 @@ export default AttributeList;
 
 const styles = {
   innerContent: scoped({
-    padding: '12px 16px',
+    padding: `${theme.spacing[3]} ${theme.spacing[4]}`,
   }),
   svgClass: scoped(flexCenter()),
   dragHandler: scoped({

@@ -173,19 +173,16 @@ const styles = {
     borderCollapse: 'collapse',
     borderSpacing: 0,
     userSelect: 'none',
-    fontFamily: '"Inter"',
-    fontSize: '12px',
-    fontWeight: 400,
-    lineHeight: '18px',
+    ...theme.typography.tiny(),
     color: theme.colors.text.primary,
-    boxShadow: '0px 0.5px 1px 0px #0000001a inset',
+    boxShadow: theme.shadow.sm,
     '& thead': {
       backgroundColor: theme.colors.background.surfaceAlt,
       color: theme.colors.text.secondary,
       border: `1px solid ${theme.colors.border.tertiary}`,
     },
     '& th, & td': {
-      padding: theme.spacing.lg,
+      padding: theme.spacing[3],
     },
     '& tbody': {
       backgroundColor: theme.colors.background.fill,
@@ -194,7 +191,7 @@ const styles = {
       borderBottom: `1px solid ${theme.colors.border.tertiary}`,
     },
     '& tbody tr:hover, & tbody tr[data-active="true"]': {
-      backgroundColor: 'hsla(240, 20%, 98%, 0.5)',
+      backgroundColor: theme.colors.background.surfaceAlt,
       '& [data-action-group="true"]': {
         visibility: 'visible',
       },
@@ -204,12 +201,12 @@ const styles = {
     default: scoped({}),
     variation: scoped({
       '& th, & td': {
-        padding: `${theme.spacing.md} ${theme.spacing.lg}`,
+        padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
       },
     }),
     wide: scoped({
       '& th, & td': {
-        padding: `${theme.spacing['2xl']} ${theme.spacing.lg}`,
+        padding: `${theme.spacing[4]} ${theme.spacing[3]}`,
       },
     }),
   },
@@ -253,7 +250,7 @@ const styles = {
         border: `1px solid ${theme.colors.border.secondary}`,
         borderTopColor: 'transparent',
         borderLeftColor: 'transparent',
-        padding: theme.spacing.xs,
+        padding: theme.spacing[1],
         minWidth: '110px',
         overflow: 'visible',
         '&[data-sticky-cell="true"]': {
@@ -265,8 +262,8 @@ const styles = {
         '&:hover': {
           backgroundColor: theme.colors.background.surfaceAlt,
         },
-        '&:first-child': {
-          paddingLeft: theme.spacing.lg,
+        '&:first-of-type': {
+          paddingLeft: theme.spacing[3],
         },
         '& [data-grabber="true"]': {
           position: 'absolute',
@@ -275,10 +272,10 @@ const styles = {
           width: '8px',
           height: '14px',
           backgroundColor: theme.colors.background.fillBrand,
-          border: '0.5px solid #ffffff',
-          borderRadius: '9px',
+          border: `0.5px solid ${theme.colors.background.surface}`,
+          borderRadius: theme.radius.lg,
           cursor: 'crosshair',
-          boxShadow: '0px 4px 6px -1px #0000001a',
+          boxShadow: theme.shadow.md,
           zIndex: 10,
           visibility: 'hidden',
         },
@@ -337,7 +334,6 @@ const styles = {
   },
   head: scoped({
     textAlign: 'left',
-    fontWeight: 400,
     whiteSpace: 'nowrap',
   }),
   cell: scoped({
@@ -347,7 +343,7 @@ const styles = {
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     '& [data-action-group="true"]': {
-      gap: theme.spacing.md,
+      gap: theme.spacing[2],
       display: 'inline-flex',
       visibility: 'hidden',
     },
@@ -358,7 +354,7 @@ const styles = {
   headAlignments: {
     right: scoped({
       marginLeft: 'auto',
-      marginRight: theme.spacing.none,
+      marginRight: theme.spacing[0],
       textAlign: 'right',
     }),
     center: scoped({
@@ -370,11 +366,11 @@ const styles = {
   cellAlignments: {
     right: scoped({
       marginLeft: 'auto',
-      marginRight: theme.spacing.none,
+      marginRight: theme.spacing[0],
       textAlign: 'right',
       '& label': {
         marginLeft: 'auto',
-        marginRight: theme.spacing.none,
+        marginRight: theme.spacing[0],
         textAlign: 'right',
       },
     }),

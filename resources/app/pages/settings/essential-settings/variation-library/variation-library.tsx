@@ -86,7 +86,7 @@ const VariationList = () => {
         {!attributeListArr.length ? (
           <Card css={cardStyles.innerDarkCard}>
             <CardContent css={[cardStyles.innerDarkContent, styles.emptyState]}>
-              <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
+              <Flex direction="column" gap={2} align="center">
                 <BoxIcon />
                 <span css={styles.emptyStateText}>
                   {__('Added variation library will appear here', 'kirki-ecommerce')}
@@ -135,7 +135,7 @@ const styles = {
     },
   }),
   emptyState: scoped({
-    padding: `${theme.spacing['7xl']} ${theme.spacing.none}`,
+    padding: `${theme.spacing[9]} ${theme.spacing[0]}`,
   }),
   emptyStateText: scoped({
     color: theme.colors.text.subdued,

@@ -48,9 +48,9 @@ const SingleRow = ({
           />
         </TableCell>
         <TableCell>
-          <Flex gap={8} style={{ alignItems: 'center' }}>
+          <Flex gap={2} align="center">
             <Thumbnail size="small" src={banner?.url} />
-            <Text type="xsm" header={item?.title || '--'} />
+            <Text variant="small">{item?.title || '--'}</Text>
           </Flex>
         </TableCell>
         <TableCell>{item?.count || 0}</TableCell>
@@ -58,7 +58,6 @@ const SingleRow = ({
         <TableCell alignment="right">
           <ActionGroup>
             <Button
-              size="sm"
               variant="secondary"
               onClick={() => {
                 handleItemClick(item.id);
@@ -68,7 +67,6 @@ const SingleRow = ({
               {__('Edit', 'kirki-ecommerce')}
             </Button>
             <Button
-              size="sm"
               variant="secondary"
               aria-label={__('Delete', 'kirki-ecommerce')}
               onClick={() => {

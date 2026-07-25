@@ -1,5 +1,5 @@
-import type { ReactNode } from 'react';
 import { Info, Trash2 } from 'lucide-react';
+import type { ReactNode } from 'react';
 
 import Button from '@/components/ui/button';
 import {
@@ -47,19 +47,19 @@ const ConfirmationDialog = (props: ConfirmationDialogProps) => {
       confirmText: __('Leave', 'kirki-ecommerce'),
       confirmVariant: 'primary',
       icon: <Info size={20} aria-hidden="true" />,
-      iconBg: '#EBE8FE',
+      iconBg: theme.colors.background.fillSpecial2Secondary,
     },
     warning: {
       confirmText: __('Proceed', 'kirki-ecommerce'),
       confirmVariant: 'secondary',
       icon: <Info size={20} aria-hidden="true" />,
-      iconBg: '#EBE8FE',
+      iconBg: theme.colors.background.fillSpecial2Secondary,
     },
     delete: {
       confirmText: __('Delete', 'kirki-ecommerce'),
       confirmVariant: 'destructive',
       icon: <Trash2 size={20} aria-hidden="true" />,
-      iconBg: '#FFE5E4',
+      iconBg: theme.colors.background.fillCriticalSecondary,
     },
   };
 
@@ -131,21 +131,22 @@ const styles = {
   header: scoped({
     alignItems: 'center',
     textAlign: 'center',
-    paddingTop: theme.spacing['4xl'],
+    paddingTop: theme.spacing[6],
   }),
   icon: scoped({
     ...flexCenter(),
     height: '40px',
     width: '40px',
-    borderRadius: '50%',
-    marginBottom: theme.spacing.md,
+    borderRadius: theme.radius.full,
+    marginBottom: theme.spacing[2],
   }),
   title: scoped({
-    fontSize: '20px',
-    lineHeight: '28px',
+    ...theme.typography.heading4(),
     textAlign: 'center',
   }),
   description: scoped({
+    ...theme.typography.small(),
+    color: theme.colors.text.secondary,
     textAlign: 'center',
   }),
   footer: scoped({

@@ -1,17 +1,15 @@
 import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
+  Field,
+  FieldError,
+  FieldLabel,
+} from '@/components/ui/field';
+import { Form } from '@/components/ui/form';
 import { ColorPaletteIcon, ListIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
@@ -19,7 +17,9 @@ import ActionGroup from '@/components/ui/action-group';
 import Combobox from '@/components/ui/combobox';
 import Flex from '@/components/ui/flex';
 import { useProductForm } from '@/contexts/product-form-context';
+import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
+import { scoped } from '@/theme/mixins';
 import {
   ProductAttributeFormSchema,
   type ProductAttributeFormValues,
@@ -220,23 +220,15 @@ const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
     <Form {...form}>
       <Card css={cardStyles.innerCard}>
         <CardContent css={cardStyles.innerContent}>
-          <Flex direction="column" gap={16}>
+          <Flex direction="column" gap={4}>
             {!data && (
-              <Flex direction="column" gap={8}>
+              <Flex direction="column" gap={2}>
                 <div>{__('Show in Product page as', 'kirki-ecommerce')}</div>
-                <Flex
-                  style={{
-                    border: '1px solid #eeedf3',
-                    borderRadius: '8px',
-                    width: 'max-content',
-                  }}
-                >
+                <Flex css={styles.typeSelector}>
                   <Button
                     variant="outline"
                     size="lg"
-                    style={{
-                      borderColor: type === 'list' ? '#5641f3' : 'transparent',
-                    }}
+                    css={type === 'list' ? styles.typeSelected : undefined}
                     onClick={() => handleOnTypeChange('list')}
                   >
                     <ListIcon />
@@ -245,10 +237,7 @@ const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
                   <Button
                     variant="outline"
                     size="lg"
-                    style={{
-                      borderColor:
-                        type === 'color' ? '#5641f3' : 'transparent',
-                    }}
+                    css={type === 'color' ? styles.typeSelected : undefined}
                     onClick={() => handleOnTypeChange('color')}
                   >
                     <ColorPaletteIcon />
@@ -257,61 +246,61 @@ const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
                 </Flex>
               </Flex>
             )}
-            <FormField
+            <Controller
               control={form.control}
               name="name"
               render={({ fieldState }) => (
-                <FormItem>
-                  <FormLabel>
+                <Field data-invalid={fieldState.invalid || undefined}>
+                  <FieldLabel>
                     {__('Variation Name', 'kirki-ecommerce')}
-                  </FormLabel>
-                  <FormControl>
-                    <Combobox
-                      error={Boolean(
-                        fieldState.error ||
-                          form.formState.errors.id ||
-                          form.formState.errors.name,
-                      )}
-                      value={
-                        formData?.id != null ? String(formData.id) : undefined
-                      }
-                      options={[
-                        ...(formData?.id != null && formData?.name
-                          ? [
-                              {
-                                label: formData.name,
-                                value: String(formData.id),
-                              },
-                            ]
-                          : []),
-                        ...attributeSuggestionArray
-                          .filter(
-                            (item) => String(item.value) !== String(formData?.id),
-                          )
-                          .map((item) => ({
-                            label: item.title,
-                            value: String(item.value),
-                          })),
-                      ]}
-                      placeholder={__(
-                        'e.g. Size or Material',
-                        'kirki-ecommerce',
-                      )}
-                      searchPlaceholder={__(
-                        'e.g. Size or Material',
-                        'kirki-ecommerce',
-                      )}
-                      creatable
-                      addItemLabel={__('Add Attribute', 'kirki-ecommerce')}
-                      onChange={(nextValue) =>
-                        handleAttributeSelect(String(nextValue))
-                      }
-                      onAddItem={(query) => handleNewAttributeAdd(query)}
-                      disabled={!!formData?.id}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+                  </FieldLabel>
+                  <Combobox
+                    error={Boolean(
+                      fieldState.error ||
+                        form.formState.errors.id ||
+                        form.formState.errors.name,
+                    )}
+                    value={
+                      formData?.id != null ? String(formData.id) : undefined
+                    }
+                    options={[
+                      ...(formData?.id != null && formData?.name
+                        ? [
+                            {
+                              label: formData.name,
+                              value: String(formData.id),
+                            },
+                          ]
+                        : []),
+                      ...attributeSuggestionArray
+                        .filter(
+                          (item) => String(item.value) !== String(formData?.id),
+                        )
+                        .map((item) => ({
+                          label: item.title,
+                          value: String(item.value),
+                        })),
+                    ]}
+                    placeholder={__(
+                      'e.g. Size or Material',
+                      'kirki-ecommerce',
+                    )}
+                    searchPlaceholder={__(
+                      'e.g. Size or Material',
+                      'kirki-ecommerce',
+                    )}
+                    creatable
+                    addItemLabel={__('Add Attribute', 'kirki-ecommerce')}
+                    onChange={(nextValue) =>
+                      handleAttributeSelect(String(nextValue))
+                    }
+                    onAddItem={(query) => handleNewAttributeAdd(query)}
+                    disabled={!!formData?.id}
+                  />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
               )}
             />
             <AddOrEditVariation />
@@ -344,6 +333,17 @@ const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
 AddOrEditAttribute.displayName = 'AddOrEditAttribute';
 
 export default AddOrEditAttribute;
+
+const styles = {
+  typeSelector: scoped({
+    borderRadius: theme.radius.lg,
+    border: `1px solid ${theme.colors.background.surfaceSubdued}`,
+    width: 'max-content',
+  }),
+  typeSelected: scoped({
+    borderColor: theme.colors.background.fillBrand,
+  }),
+};
 
 export type {
   ProductAttributeFormValues as AttributeFormState,

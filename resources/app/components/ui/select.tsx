@@ -8,7 +8,7 @@ import * as SelectPrimitive from '@radix-ui/react-select';
 import { CheckIcon, ChevronDownIcon } from '@radix-ui/react-icons';
 
 import { theme } from '@/theme';
-import { fontGeneralSettings, flexCenter, itemCenter, scoped, uiFocusRing } from '@/theme/mixins';
+import { flexCenter, itemCenter, scoped, uiFocusRing } from '@/theme/mixins';
 import { getPortalContainer } from '@/libs/portal-container';
 
 const Select = SelectPrimitive.Root;
@@ -189,14 +189,14 @@ const styles = {
     minWidth: '90px',
     height: '36px',
     border: `1px solid ${theme.colors.border.default}`,
-    padding: `${theme.spacing.md} ${theme.spacing.lg}`,
+    padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
     borderRadius: theme.radius.lg,
     backgroundColor: theme.colors.background.fill,
     boxSizing: 'border-box',
     justifyContent: 'space-between',
     ...itemCenter(),
-    gap: theme.spacing.md,
-    ...fontGeneralSettings(theme as Theme),
+    gap: theme.spacing[2],
+    ...theme.typography.small(),
     cursor: 'pointer',
     '&:focus-visible, &[data-state="open"]': {
       borderColor: theme.colors.border.default,
@@ -215,8 +215,7 @@ const styles = {
     secondary: scoped({
       backgroundColor: theme.colors.background.fillSecondary,
       border: 'none',
-      fontSize: '12px',
-      lineHeight: '18px',
+      ...theme.typography.small(),
       borderRadius: theme.radius.md,
     }),
     invisible: scoped({
@@ -240,7 +239,7 @@ const styles = {
   }),
   value: scoped({
     ...itemCenter(),
-    columnGap: theme.spacing.md,
+    columnGap: theme.spacing[2],
     maxWidth: '85%',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
@@ -251,15 +250,14 @@ const styles = {
     flexShrink: 0,
   }),
   content: scoped({
-    padding: theme.spacing.xs,
+    padding: theme.spacing[1],
     border: `1px solid ${theme.colors.border.default}`,
     borderRadius: theme.radius.md,
-    boxShadow: '0px 4px 6px -1px #0000001a',
+    boxShadow: theme.shadow.md,
     backgroundColor: theme.colors.background.fill,
     minHeight: '33px',
     zIndex: 100000,
     overflowX: 'hidden',
-    ...fontGeneralSettings(theme as Theme),
     '&:focus, &:focus-visible': {
       outline: 'none',
     },
@@ -276,22 +274,21 @@ const styles = {
     height: 'var(--radix-select-trigger-height)',
   }),
   label: scoped({
-    padding: `${theme.spacing.sm} ${theme.spacing.md}`,
-    ...fontGeneralSettings(theme as Theme),
-    fontWeight: 500,
+    padding: `${theme.spacing[2]} ${theme.spacing[2]}`,
+    ...theme.typography.small('medium'),
     color: theme.colors.text.secondary,
   }),
   item: scoped({
-    padding: `${theme.spacing.sm} ${theme.spacing.md}`,
-    paddingLeft: `calc(${theme.spacing.md} + 16px + ${theme.spacing.md})`,
+    padding: `${theme.spacing[2]} ${theme.spacing[2]}`,
+    paddingLeft: `calc(${theme.spacing[2]} + ${theme.spacing[4]} + ${theme.spacing[2]})`,
     ...itemCenter(),
     justifyContent: 'flex-start',
-    columnGap: theme.spacing.md,
+    columnGap: theme.spacing[2],
     borderRadius: theme.radius.sm,
     cursor: 'pointer',
     position: 'relative',
     outline: 'none',
-    ...fontGeneralSettings(theme as Theme),
+    ...theme.typography.small(),
     '&:hover, &[data-highlighted]': {
       backgroundColor: theme.colors.background.optionHover,
     },
@@ -302,13 +299,13 @@ const styles = {
   }),
   itemIndicator: scoped({
     position: 'absolute',
-    left: theme.spacing.md,
+    left: theme.spacing[2],
     minWidth: '16px',
     ...itemCenter(),
   }),
   separator: scoped({
     height: '1px',
     backgroundColor: theme.colors.border.default,
-    margin: `${theme.spacing.xs} 0`,
+    margin: `${theme.spacing[1]} 0`,
   }),
 };

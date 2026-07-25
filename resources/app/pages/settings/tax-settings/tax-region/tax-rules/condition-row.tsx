@@ -106,18 +106,17 @@ const ConditionRow = (props: ConditionRowProps) => {
       onMouseLeave={() => setIsHovered(false)}
     >
       {index > 0 ? (
-        <Text header={__('AND IF', 'kirki-ecommerce')} />
+        <Text>{__('AND IF', 'kirki-ecommerce')}</Text>
       ) : (
-        <Text header={__(' IF', 'kirki-ecommerce')} />
+        <Text>{__(' IF', 'kirki-ecommerce')}</Text>
       )}
       <Grid
         css={styles.conditionGrid}
-        style={{
-          gridTemplateColumns:
-            row.condition === 'destination_region' || index > 0
-              ? 'minmax(0, 2fr) 0.5fr minmax(0, 2fr) auto'
-              : 'minmax(0, 2fr) 0.5fr minmax(0, 2fr)',
-        }}
+        template={
+          row.condition === 'destination_region' || index > 0
+            ? 'minmax(0, 2fr) 0.5fr minmax(0, 2fr) auto'
+            : 'minmax(0, 2fr) 0.5fr minmax(0, 2fr)'
+        }
       >
         <Select
           value={String(displayedCondition || row.condition)}
@@ -211,15 +210,15 @@ export default ConditionRow;
 
 const styles = {
   conditionGrid: scoped({
-    marginTop: theme.spacing.md,
+    marginTop: theme.spacing[2],
   }),
   conditionActions: css({
     opacity: 0,
     visibility: 'hidden',
     transition: 'opacity 0.2s ease',
     display: 'none',
-    gap: theme.spacing.md,
-    padding: theme.spacing.md,
+    gap: theme.spacing[2],
+    padding: theme.spacing[2],
   }),
   conditionActionsActive: css({
     opacity: 1,

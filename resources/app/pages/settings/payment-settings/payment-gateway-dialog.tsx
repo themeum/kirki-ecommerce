@@ -61,27 +61,25 @@ const PaymentGatewayPopup = ({
           </DialogTitle>
         </DialogHeader>
         <DialogBody>
-          <Flex direction="column" gap={16}>
+          <Flex direction="column" gap={4}>
             {(availableGatewayList as AvailablePaymentGateway[])?.map(
               (item, index) => (
                 <Card key={index} css={cardStyles.innerCard}>
                   <CardContent css={cardStyles.innerContent}>
-                    <Flex style={{ alignItems: 'center' }}>
-                      <Text
-                        header={item?.name}
-                        type="secondary"
-                        leftIcon={<StripeIcon />}
-                      />
+                    <Flex align="center">
+                      <Flex gap={2} align="center">
+                        <StripeIcon />
+                        <Text weight="medium">{item?.name}</Text>
+                      </Flex>
                       <ActionGroup>
                         {item?.is_installed === true ? (
-                          <Button variant="ghost" size="sm">
+                          <Button variant="ghost">
                             <CheckedIcon />
                             {__('Added', 'kirki-ecommerce')}
                           </Button>
                         ) : (
                           <Button
                             variant="secondary"
-                            size="sm"
                             onClick={() => handleInstallPaymentGateway(item)}
                           >
                             {__('Add', 'kirki-ecommerce')}

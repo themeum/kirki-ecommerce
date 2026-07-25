@@ -1,6 +1,7 @@
 import { type SerializedStyles } from '@emotion/react';
 import type { ReactNode } from 'react';
 import {
+  Controller,
   useFormContext,
   type FieldPath,
   type FieldValues,
@@ -8,12 +9,10 @@ import {
 
 import CountrySelector from '@/components/country-selector';
 import {
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormMessage,
-} from '@/components/ui/form';
+  Field,
+  FieldDescription,
+  FieldError,
+} from '@/components/ui/field';
 import { __ } from '@/wpi18n';
 
 type CountryFieldProps<
@@ -38,22 +37,20 @@ const CountryField = <
   const { control } = useFormContext<TFieldValues>();
 
   return (
-    <FormField
+    <Controller
       control={control}
       name={name}
       render={({ field, fieldState }) => (
-        <FormItem css={css}>
-          <FormControl>
-            <CountrySelector
-              label={label}
-              value={field.value ?? ''}
-              onChange={field.onChange}
-              error={Boolean(fieldState.error)}
-            />
-          </FormControl>
-          {description && <FormDescription>{description}</FormDescription>}
-          <FormMessage />
-        </FormItem>
+        <Field data-invalid={fieldState.invalid || undefined} css={css}>
+          <CountrySelector
+            label={label}
+            value={field.value ?? ''}
+            onChange={field.onChange}
+            error={Boolean(fieldState.error)}
+          />
+          {description && <FieldDescription>{description}</FieldDescription>}
+          {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+        </Field>
       )}
     />
   );

@@ -117,13 +117,12 @@ export const TaxProfilePopup = ({
           </DialogBody>
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="outline" size="sm" disabled={isSubmitting}>
+              <Button variant="outline" disabled={isSubmitting}>
                 {__('Cancel', 'kirki-ecommerce')}
               </Button>
             </DialogClose>
             <Button
               variant="primary"
-              size="sm"
               onClick={form.handleSubmit(handleSubmit)}
               loading={isSubmitting}
               disabled={!isSubmitting && nameValue === ''}

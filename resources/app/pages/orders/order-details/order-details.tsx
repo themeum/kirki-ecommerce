@@ -1,3 +1,4 @@
+import { css } from '@emotion/react';
 import Button from '@/components/ui/button';
 import Input from '@/components/ui/input';
 import {
@@ -12,8 +13,8 @@ import Alert from '@/components/ui/alert';
 import Badge from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Container from '@/components/ui/container';
+import { Field, FieldLabel } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
-import Label from '@/components/ui/label';
 import PageHeading from '@/components/ui/page-heading';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
@@ -38,13 +39,13 @@ const OrderDetails = () => {
         type="primary"
         actions={
           <>
-            <Button variant="ghost" size="sm" aria-label="More options">
+            <Button variant="ghost" aria-label="More options">
               <ShowMoreIcon />
             </Button>
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost">
               Cancel Order
             </Button>
-            <Button variant="primary" size="sm">
+            <Button variant="primary">
               Update
             </Button>
           </>
@@ -52,11 +53,11 @@ const OrderDetails = () => {
         hasBack
         sticky
       >
-        <Badge text="Pending" type="pending" />
+        <Badge variant="warning">Pending</Badge>
       </PageHeading>
       <Container>
-        <Flex gap={16}>
-          <Flex direction="column" gap={16} style={{ width: '70%' }}>
+        <Flex gap={4}>
+          <Flex direction="column" gap={4} css={css({ width: '70%' })}>
             <Card css={cardStyles.formCard}>
               <CardHeader>
                 <CardTitle>Items(4)</CardTitle>
@@ -84,7 +85,7 @@ const OrderDetails = () => {
             </Card>
           </Flex>
 
-          <Flex direction="column" gap={16} style={{ width: '30%' }}>
+          <Flex direction="column" gap={4} css={css({ width: '30%' })}>
             <Alert
               hasHighlight
               icon={<FlagIcon />}
@@ -93,8 +94,8 @@ const OrderDetails = () => {
 
             <Card css={cardStyles.formCard}>
               <CardContent>
-                <Flex direction="column" gap={8}>
-                  <Label text="Order Status" />
+                <Field>
+                  <FieldLabel>Order Status</FieldLabel>
                   <Select defaultValue="pending">
                     <SelectTrigger>
                       <SelectValue />
@@ -110,9 +111,9 @@ const OrderDetails = () => {
                       ))}
                     </SelectContent>
                   </Select>
-                </Flex>
-                <Flex direction="column" gap={8}>
-                  <Label text="Payment Status" />
+                </Field>
+                <Field>
+                  <FieldLabel>Payment Status</FieldLabel>
                   <Select defaultValue="unpaid">
                     <SelectTrigger>
                       <SelectValue />
@@ -128,7 +129,7 @@ const OrderDetails = () => {
                       ))}
                     </SelectContent>
                   </Select>
-                </Flex>
+                </Field>
               </CardContent>
             </Card>
 
@@ -136,20 +137,22 @@ const OrderDetails = () => {
 
             <Card css={cardStyles.formCard}>
               <CardContent>
-                <Flex direction="column" gap={8}>
-                  <Label text="Flag" />
+                <Field>
+                  <FieldLabel>Flag</FieldLabel>
                   <Input placeholder="i.e Backorder, Urgent" defaultValue="skjl" />
-                </Flex>
+                </Field>
               </CardContent>
             </Card>
 
             <Card css={cardStyles.formCard}>
               <CardContent>
-                <Label text="Notes" />
-                <Button variant="secondary" style={{ width: '100%' }}>
-                  <PlusIcon />
-                  Add note
-                </Button>
+                <Field>
+                  <FieldLabel>Notes</FieldLabel>
+                  <Button variant="secondary" style={{ width: '100%' }}>
+                    <PlusIcon />
+                    Add note
+                  </Button>
+                </Field>
               </CardContent>
             </Card>
           </Flex>
@@ -163,6 +166,6 @@ export default OrderDetails;
 
 const styles = {
   zeroPadding: scoped({
-    padding: theme.spacing.none,
+    padding: theme.spacing[0],
   })
 };

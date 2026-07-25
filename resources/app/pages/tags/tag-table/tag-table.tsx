@@ -164,6 +164,6 @@ export default TagTable;
 
 const styles = {
   headCell: scoped({
-    padding: `${theme.spacing['3xl']} ${theme.spacing.lg}`,
+    padding: `${theme.spacing[5]} ${theme.spacing[3]}`,
   }),
 };

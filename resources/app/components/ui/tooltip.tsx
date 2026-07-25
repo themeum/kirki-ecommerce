@@ -1,4 +1,4 @@
-import { type SerializedStyles, type Theme } from '@emotion/react';
+import { type SerializedStyles } from '@emotion/react';
 import {
   forwardRef,
   type ComponentPropsWithoutRef,
@@ -9,7 +9,7 @@ import * as TooltipPrimitive from '@radix-ui/react-tooltip';
 
 import { getPortalContainer } from '@/libs/portal-container';
 import { theme } from '@/theme';
-import { fontGeneralSettings, scoped } from '@/theme/mixins';
+import { scoped } from '@/theme/mixins';
 import type { TooltipPosition } from '@/types';
 
 const TooltipProvider = TooltipPrimitive.Provider;
@@ -100,14 +100,14 @@ const styles = {
   }),
   content: scoped({
     zIndex: 1000,
-    padding: `${theme.spacing.sm} ${theme.spacing.lg}`,
+    padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
     border: `1px solid ${theme.colors.border.default}`,
     borderRadius: theme.radius.md,
     backgroundColor: theme.colors.background.fill,
     height: 'max-content',
     width: 'max-content',
-    ...fontGeneralSettings(theme as Theme),
-    boxShadow: '0px 4px 6px -1px #0000001a',
+    ...theme.typography.small(),
+    boxShadow: theme.shadow.md,
   }),
   dark: scoped({
     backgroundColor: theme.colors.background.inverse,

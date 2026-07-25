@@ -49,8 +49,8 @@ const Pagination = (props: PaginationProps) => {
 
   return (
     <div css={[styles.wrapper, cssProp]}>
-      <Flex gap={8} style={{ alignItems: 'center' }}>
-        <Text header={__('Page', 'kirki-ecommerce')} type="xsm" />
+      <Flex gap={2} align="center">
+        <Text variant="small">{__('Page', 'kirki-ecommerce')}</Text>
         <Select
           value={String(_current_page)}
           onValueChange={(value) => onChange(Number(value))}
@@ -66,12 +66,11 @@ const Pagination = (props: PaginationProps) => {
             ))}
           </SelectContent>
         </Select>
-        <Text header={`of ${last_page}`} type="xsm" />
+        <Text variant="small">{`of ${last_page}`}</Text>
       </Flex>
       <ActionGroup>
         <Button
           variant="ghost"
-          size="sm"
           aria-label={__('Previous page', 'kirki-ecommerce')}
           disabled={_current_page === 1}
           onClick={() => onChange(_current_page - 1)}
@@ -82,7 +81,6 @@ const Pagination = (props: PaginationProps) => {
           <Button
             key={index}
             variant={_current_page === page.value ? 'primary' : 'link'}
-            size="sm"
             onClick={() => onChange(page.value)}
             style={{
               width: '32px',
@@ -94,7 +92,6 @@ const Pagination = (props: PaginationProps) => {
         ))}
         <Button
           variant="ghost"
-          size="sm"
           aria-label={__('Next page', 'kirki-ecommerce')}
           style={{ transform: 'rotate(180deg)' }}
           disabled={_current_page === last_page}
@@ -113,6 +110,6 @@ const styles = {
   wrapper: scoped({
     ...itemCenter(),
     justifyContent: 'space-between',
-    padding: `${theme.spacing.base} ${theme.spacing.none} ${theme.spacing.xl} ${theme.spacing.none}`,
+    padding: `${theme.spacing[2]} ${theme.spacing[0]} ${theme.spacing[3]} ${theme.spacing[0]}`,
   }),
 };

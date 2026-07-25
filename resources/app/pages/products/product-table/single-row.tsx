@@ -5,7 +5,10 @@ import Checkbox from '@/components/ui/checkbox';
 import Flex from '@/components/ui/flex';
 import { TableCell, TableRow } from '@/components/ui/table';
 import Thumbnail from '@/components/ui/thumbnail';
-import type { BadgeType, MarkListHandlers, ProductListItem } from '@/types';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
+import type { MarkListHandlers, ProductListItem } from '@/types';
+import { getBadgeVariantForStatus } from '@/utils/badge-status';
 
 type SingleRowProps = MarkListHandlers & {
   item: ProductListItem;
@@ -23,7 +26,7 @@ const SingleRow = ({
   };
 
   return (
-    <TableRow key={item.id}>
+    <TableRow>
       <TableCell onlyCheckbox>
         <Checkbox
           value={isSelected(item.id)}
@@ -31,15 +34,15 @@ const SingleRow = ({
         />
       </TableCell>
       <TableCell>
-        <Flex gap={12} style={{ alignItems: 'center' }}>
+        <Flex gap={3} align="center">
           <Thumbnail src={item?.image ?? undefined} size="small" />
           <span
-            style={{ cursor: 'pointer' }}
+            css={styles.clickable}
             onClick={() => {
               handleItemClick(item.id);
             }}
           >
-            <span style={{ color: '#878593' }}>{item?.title} </span>
+            <span css={styles.mutedText}>{item?.title} </span>
           </span>
         </Flex>
       </TableCell>
@@ -47,7 +50,9 @@ const SingleRow = ({
       <TableCell>{item?.inventory}</TableCell>
       <TableCell>{item?.price}</TableCell>
       <TableCell>
-        <Badge text={item?.status} type={item?.status as BadgeType} />
+        <Badge variant={getBadgeVariantForStatus(item?.status ?? '')}>
+          {item?.status}
+        </Badge>
       </TableCell>
       <TableCell>{item?.created_at}</TableCell>
     </TableRow>
@@ -57,3 +62,12 @@ const SingleRow = ({
 SingleRow.displayName = 'SingleRow';
 
 export default SingleRow;
+
+const styles = {
+  clickable: scoped({
+    cursor: 'pointer',
+  }),
+  mutedText: scoped({
+    color: theme.colors.text.subdued,
+  }),
+};

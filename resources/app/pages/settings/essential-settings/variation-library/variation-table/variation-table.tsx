@@ -33,6 +33,8 @@ import { getSearchedValue, setUnsavedDataStatus } from '@/pages/settings/utils';
 import SingleRow from '@/pages/settings/essential-settings/variation-library/variation-table/single-row';
 import VariantTableAction from '@/pages/settings/essential-settings/variation-library/variation-table/variant-table-action';
 
+import { theme } from '@/theme';
+
 type AttributeWithMeta = Attribute & { updated_at?: string };
 
 type SettingsOutletContext = {
@@ -126,12 +128,8 @@ const VariationTable = ({
       {!filteredList?.length ? (
         <Card css={cardStyles.innerDarkCard}>
           <CardContent css={[cardStyles.innerDarkContent, styles.emptyStateContent]}>
-            <Flex style={{ alignItems: 'center', justifyContent: 'center' }}>
-              <Text
-                type="primary"
-                style={{ color: '#878593' }}
-                header={__('No data found', 'kirki-ecommerce')}
-              />
+            <Flex align="center" justify="center">
+              <Text weight="semibold" css={styles.mutedText}>{__('No data found', 'kirki-ecommerce')}</Text>
             </Flex>
           </CardContent>
         </Card>
@@ -174,9 +172,12 @@ VariationTable.displayName = 'VariationTable';
 
 const styles = {
   emptyStateContent: scoped({
-    padding: '36px 0',
-    borderRadius: '0px',
-  })
+    padding: `${theme.spacing[9]} 0`,
+    borderRadius: theme.radius.none,
+  }),
+  mutedText: scoped({
+    color: theme.colors.text.subdued,
+  }),
 };
 
 export default VariationTable;
