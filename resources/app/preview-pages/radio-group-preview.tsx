@@ -1,6 +1,8 @@
+import {
+  Field,
+  FieldLabel,
+} from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
-import { FormFieldRow } from '@/components/ui/form';
-import Label from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 const RadioGroupPreview = () => {
@@ -20,15 +22,15 @@ const RadioGroupPreview = () => {
     >
       <Flex direction="column" gap={2}>
         {options.map((option) => (
-          <FormFieldRow key={option.value}>
+          <Field orientation="horizontal" key={option.value}>
             <RadioGroupItem
               value={option.value}
               id={`radio-preview-${option.value}`}
             />
-            <Label htmlFor={`radio-preview-${option.value}`}>
+            <FieldLabel htmlFor={`radio-preview-${option.value}`}>
               {option.label}
-            </Label>
-          </FormFieldRow>
+            </FieldLabel>
+          </Field>
         ))}
       </Flex>
     </RadioGroup>

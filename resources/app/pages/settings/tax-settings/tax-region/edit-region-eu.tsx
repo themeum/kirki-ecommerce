@@ -1,5 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useForm, useFormContext, useWatch } from 'react-hook-form';
+import {
+  Controller,
+  useForm,
+  useFormContext,
+  useWatch,
+} from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate, useOutletContext } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
@@ -11,14 +16,11 @@ import {
   CardContent,
 } from '@/components/ui/card';
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormFieldRow,
-  FormItem,
-  FormMessage,
-} from '@/components/ui/form';
-import Label from '@/components/ui/label';
+  Field,
+  FieldError,
+  FieldLabel,
+} from '@/components/ui/field';
+import { Form } from '@/components/ui/form';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
@@ -79,27 +81,26 @@ const VatCollectionProcessRadios = () => {
       <Card css={[cardStyles.innerCard, styles.vatProcessCard]} >
         <CardContent css={cardStyles.innerContent}>
 
-        <FormField
-        control={control}
-        name="type"
-        render={({ field }) => (
-        <FormItem>
-        <FormControl>
-        <RadioGroup
-        value={field.value}
-        onValueChange={(value) => handleProcessChange(value)}
-        >
-        <FormFieldRow>
-        <RadioGroupItem value="oss" id="vat-process-oss" />
-        <Label htmlFor="vat-process-oss">
-        {__('One Stop Shop (OSS)', 'kirki-ecommerce')}
-        </Label>
-        </FormFieldRow>
-        </RadioGroup>
-        </FormControl>
-        <FormMessage />
-        </FormItem>
-        )}
+        <Controller
+          control={control}
+          name="type"
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid || undefined}>
+              <RadioGroup
+                value={field.value}
+                onValueChange={(value) => handleProcessChange(value)}
+                aria-invalid={fieldState.invalid}
+              >
+                <Field orientation="horizontal">
+                  <RadioGroupItem value="oss" id="vat-process-oss" />
+                  <FieldLabel htmlFor="vat-process-oss">
+                    {__('One Stop Shop (OSS)', 'kirki-ecommerce')}
+                  </FieldLabel>
+                </Field>
+              </RadioGroup>
+              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+            </Field>
+          )}
         />
 
         <VatProcessDescription processValue="oss" />
@@ -109,30 +110,29 @@ const VatCollectionProcessRadios = () => {
       <Card css={[cardStyles.innerCard, styles.vatProcessCard]} >
         <CardContent css={cardStyles.innerContent}>
 
-        <FormField
-        control={control}
-        name="type"
-        render={({ field }) => (
-        <FormItem>
-        <FormControl>
-        <RadioGroup
-        value={field.value}
-        onValueChange={(value) => handleProcessChange(value)}
-        >
-        <FormFieldRow>
-        <RadioGroupItem
-        value="micro_business"
-        id="vat-process-micro-business"
-        />
-        <Label htmlFor="vat-process-micro-business">
-        {__('Micro Business', 'kirki-ecommerce')}
-        </Label>
-        </FormFieldRow>
-        </RadioGroup>
-        </FormControl>
-        <FormMessage />
-        </FormItem>
-        )}
+        <Controller
+          control={control}
+          name="type"
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid || undefined}>
+              <RadioGroup
+                value={field.value}
+                onValueChange={(value) => handleProcessChange(value)}
+                aria-invalid={fieldState.invalid}
+              >
+                <Field orientation="horizontal">
+                  <RadioGroupItem
+                    value="micro_business"
+                    id="vat-process-micro-business"
+                  />
+                  <FieldLabel htmlFor="vat-process-micro-business">
+                    {__('Micro Business', 'kirki-ecommerce')}
+                  </FieldLabel>
+                </Field>
+              </RadioGroup>
+              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+            </Field>
+          )}
         />
 
         <VatProcessDescription processValue="micro_business" />

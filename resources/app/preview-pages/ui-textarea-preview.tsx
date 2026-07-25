@@ -1,22 +1,30 @@
 import { css } from '@emotion/react';
-import Flex from '@/components/ui/flex';
 
-import Label from '@/components/ui/label';
+import {
+  Field,
+  FieldError,
+  FieldLabel,
+} from '@/components/ui/field';
+import Flex from '@/components/ui/flex';
 import Textarea from '@/components/ui/textarea';
 
 const UiTextareaPreview = () => {
   return (
     <Flex direction="column" gap={3} css={css({ maxWidth: 320 })}>
-      <div>
-        <Label htmlFor="ui-textarea-default">Default</Label>
+      <Field>
+        <FieldLabel htmlFor="ui-textarea-default">Default</FieldLabel>
         <Textarea id="ui-textarea-default" placeholder="Write something..." />
-      </div>
-      <div>
-        <Label htmlFor="ui-textarea-error" error>
-          With error
-        </Label>
-        <Textarea id="ui-textarea-error" placeholder="Invalid value" error />
-      </div>
+      </Field>
+      <Field data-invalid>
+        <FieldLabel htmlFor="ui-textarea-error">With error</FieldLabel>
+        <Textarea
+          id="ui-textarea-error"
+          placeholder="Invalid value"
+          error
+          aria-invalid
+        />
+        <FieldError>Invalid value</FieldError>
+      </Field>
     </Flex>
   );
 };

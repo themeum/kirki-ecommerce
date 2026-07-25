@@ -5,7 +5,7 @@ import { useFormContext } from 'react-hook-form';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Combobox from '@/components/ui/combobox';
-import Label from '@/components/ui/label';
+import { Field, FieldLabel } from '@/components/ui/field';
 import { MinusIcon } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
@@ -99,10 +99,8 @@ const Brand = () => {
   return (
     <>
       {productBrand?.id ? (
-        <Flex direction="column" gap={2}>
-          <Label helpText={__('Brand', 'kirki-ecommerce')}>
-            {__('Brand', 'kirki-ecommerce')}
-          </Label>
+        <Field>
+          <FieldLabel>{__('Brand', 'kirki-ecommerce')}</FieldLabel>
           <Card css={cardStyles.innerCard}>
             <CardContent css={cardStyles.innerContent}>
               <Flex gap={2} align="center">
@@ -119,12 +117,10 @@ const Brand = () => {
               </Flex>
             </CardContent>
           </Card>
-        </Flex>
+        </Field>
       ) : (
-        <Flex direction="column" gap={2}>
-          <Label helpText={__('Brand', 'kirki-ecommerce')}>
-            {__('Brand', 'kirki-ecommerce')}
-          </Label>
+        <Field>
+          <FieldLabel>{__('Brand', 'kirki-ecommerce')}</FieldLabel>
           <Combobox
             options={comboboxOptions}
             placeholder={__('Search or Add Brand', 'kirki-ecommerce')}
@@ -134,7 +130,7 @@ const Brand = () => {
             onChange={(nextValue) => handleAddBrand(String(nextValue))}
             onAddItem={handleAddNewBrand}
           />
-        </Flex>
+        </Field>
       )}
       {openBrandCreatePopup && (
         <BrandAddEditPopover

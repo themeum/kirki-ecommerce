@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useForm, useWatch } from 'react-hook-form';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import TextField from '@/components/form/text-field';
@@ -17,13 +17,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from '@/components/ui/form';
+import { Field, FieldError } from '@/components/ui/field';
+import { Form } from '@/components/ui/form';
 import {
   Select,
   SelectContent,
@@ -206,32 +201,39 @@ const ShippingBoxPopup = ({
                 placeholder={__('12', 'kirki-ecommerce')}
                 type="number"
                 />
-                <FormField
-                control={form.control}
-                name="unit"
-                render={({ field, fieldState }) => (
-                <FormItem style={{ width: '70px' }}>
-                <Select
-                value={field.value}
-                onValueChange={(value) => handleUnitChange(value)}
-                >
-                <FormControl>
-                <SelectTrigger error={Boolean(fieldState.error)}>
-                <SelectValue />
-                </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                <SelectItem value="cm">
-                {__('cm', 'kirki-ecommerce')}
-                </SelectItem>
-                <SelectItem value="in">
-                {__('in', 'kirki-ecommerce')}
-                </SelectItem>
-                </SelectContent>
-                </Select>
-                <FormMessage />
-                </FormItem>
-                )}
+                <Controller
+                  control={form.control}
+                  name="unit"
+                  render={({ field, fieldState }) => (
+                    <Field
+                      data-invalid={fieldState.invalid || undefined}
+                      style={{ width: '70px' }}
+                    >
+                      <Select
+                        value={field.value}
+                        onValueChange={(value) => handleUnitChange(value)}
+                      >
+                        <SelectTrigger
+                          id="unit"
+                          error={Boolean(fieldState.error)}
+                          aria-invalid={fieldState.invalid}
+                        >
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="cm">
+                            {__('cm', 'kirki-ecommerce')}
+                          </SelectItem>
+                          <SelectItem value="in">
+                            {__('in', 'kirki-ecommerce')}
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                      {fieldState.invalid && (
+                        <FieldError errors={[fieldState.error]} />
+                      )}
+                    </Field>
+                  )}
                 />
                 </Flex>
                 </CardContent>

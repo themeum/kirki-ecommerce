@@ -1,7 +1,7 @@
 import { css } from '@emotion/react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 
 import ColorPickerField from '@/components/form/color-picker-field';
 import TextField from '@/components/form/text-field';
@@ -13,13 +13,8 @@ import {
 } from '@/components/ui/card';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from '@/components/ui/form';
+import { Field, FieldError } from '@/components/ui/field';
+import { Form } from '@/components/ui/form';
 import PageHeading from '@/components/ui/page-heading';
 import ProgressBar from '@/components/ui/progressbar';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -184,57 +179,57 @@ const EditTemplate = () => {
                   label={__('Height', 'kirki-ecommerce')}
                   type="number"
                   />
-                  <FormField
-                  control={form.control}
-                  name="height"
-                  render={({ field }) => (
-                  <FormItem>
-                  <FormControl>
-                  <ProgressBar
-                  value={Number(field.value) || 0}
-                  onChange={(value) => field.onChange(value)}
-                  label={'Height'}
-                  rightText={`${heightValue}px`}
+                  <Controller
+                    control={form.control}
+                    name="height"
+                    render={({ field, fieldState }) => (
+                      <Field data-invalid={fieldState.invalid || undefined}>
+                        <ProgressBar
+                          value={Number(field.value) || 0}
+                          onChange={(value) => field.onChange(value)}
+                          label={'Height'}
+                          rightText={`${heightValue}px`}
+                        />
+                        {fieldState.invalid && (
+                          <FieldError errors={[fieldState.error]} />
+                        )}
+                      </Field>
+                    )}
                   />
-                  </FormControl>
-                  <FormMessage />
-                  </FormItem>
-                  )}
-                  />
-                  <FormField
-                  control={form.control}
-                  name="position"
-                  render={({ field }) => (
-                  <FormItem>
-                  <FormControl>
-                  <Tabs
-                  value={String(
-                  POSITION_MAP[field.value || ''] ?? 0,
-                  )}
-                  onValueChange={(value) => {
-                  field.onChange(
-                  INDEX_TO_POSITION[Number(value)] || 'start',
-                  );
-                  }}
-                  >
-                  <TabsList>
-                  <TabsTrigger value="0">
-                  <AlignLeftIcon />
-                  </TabsTrigger>
-                  <TabsTrigger value="1">
-                  <AlignCenterIcon />
-                  </TabsTrigger>
-                  <TabsTrigger value="2">
-                  <AlignLeftIcon
-                  style={{ transform: 'scaleX(-1)' }}
-                  />
-                  </TabsTrigger>
-                  </TabsList>
-                  </Tabs>
-                  </FormControl>
-                  <FormMessage />
-                  </FormItem>
-                  )}
+                  <Controller
+                    control={form.control}
+                    name="position"
+                    render={({ field, fieldState }) => (
+                      <Field data-invalid={fieldState.invalid || undefined}>
+                        <Tabs
+                          value={String(
+                            POSITION_MAP[field.value || ''] ?? 0,
+                          )}
+                          onValueChange={(value) => {
+                            field.onChange(
+                              INDEX_TO_POSITION[Number(value)] || 'start',
+                            );
+                          }}
+                        >
+                          <TabsList>
+                            <TabsTrigger value="0">
+                              <AlignLeftIcon />
+                            </TabsTrigger>
+                            <TabsTrigger value="1">
+                              <AlignCenterIcon />
+                            </TabsTrigger>
+                            <TabsTrigger value="2">
+                              <AlignLeftIcon
+                                style={{ transform: 'scaleX(-1)' }}
+                              />
+                            </TabsTrigger>
+                          </TabsList>
+                        </Tabs>
+                        {fieldState.invalid && (
+                          <FieldError errors={[fieldState.error]} />
+                        )}
+                      </Field>
+                    )}
                   />
                   </CardContent>
                 </Card>

@@ -1,20 +1,19 @@
 import { type SerializedStyles } from '@emotion/react';
 import type { ReactNode } from 'react';
 import {
+  Controller,
   useFormContext,
   type FieldPath,
   type FieldValues,
 } from 'react-hook-form';
 
-import {
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
 import ColorPicker from '@/components/color-picker';
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from '@/components/ui/field';
 
 type ColorPickerFieldProps<
   TFieldValues extends FieldValues = FieldValues,
@@ -40,23 +39,21 @@ const ColorPickerField = <
   const { control } = useFormContext<TFieldValues>();
 
   return (
-    <FormField
+    <Controller
       control={control}
       name={name}
       render={({ field, fieldState }) => (
-        <FormItem css={css}>
-          {label && <FormLabel>{label}</FormLabel>}
-          <FormControl>
-            <ColorPicker
-              value={field.value ?? ''}
-              onChange={field.onChange}
-              placeholder={placeholder}
-              error={Boolean(fieldState.error)}
-            />
-          </FormControl>
-          {description && <FormDescription>{description}</FormDescription>}
-          <FormMessage />
-        </FormItem>
+        <Field data-invalid={fieldState.invalid || undefined} css={css}>
+          {label && <FieldLabel>{label}</FieldLabel>}
+          <ColorPicker
+            value={field.value ?? ''}
+            onChange={field.onChange}
+            placeholder={placeholder}
+            error={Boolean(fieldState.error)}
+          />
+          {description && <FieldDescription>{description}</FieldDescription>}
+          {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+        </Field>
       )}
     />
   );

@@ -1,26 +1,34 @@
 import { css } from '@emotion/react';
-import Flex from '@/components/ui/flex';
 
+import {
+  Field,
+  FieldError,
+  FieldLabel,
+} from '@/components/ui/field';
+import Flex from '@/components/ui/flex';
 import Input from '@/components/ui/input';
-import Label from '@/components/ui/label';
 
 const UiInputPreview = () => {
   return (
     <Flex direction="column" gap={3} css={css({ maxWidth: 320 })}>
-      <div>
-        <Label htmlFor="ui-input-default">Default</Label>
+      <Field>
+        <FieldLabel htmlFor="ui-input-default">Default</FieldLabel>
         <Input id="ui-input-default" placeholder="Enter text" />
-      </div>
-      <div>
-        <Label htmlFor="ui-input-error" error>
-          With error
-        </Label>
-        <Input id="ui-input-error" placeholder="Invalid value" error />
-      </div>
-      <div>
-        <Label htmlFor="ui-input-disabled">Disabled</Label>
+      </Field>
+      <Field data-invalid>
+        <FieldLabel htmlFor="ui-input-error">With error</FieldLabel>
+        <Input
+          id="ui-input-error"
+          placeholder="Invalid value"
+          error
+          aria-invalid
+        />
+        <FieldError>Invalid value</FieldError>
+      </Field>
+      <Field>
+        <FieldLabel htmlFor="ui-input-disabled">Disabled</FieldLabel>
         <Input id="ui-input-disabled" placeholder="Disabled" disabled />
-      </div>
+      </Field>
     </Flex>
   );
 };

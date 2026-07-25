@@ -23,8 +23,13 @@ import MediaSelector from '@/components/media-selector';
 import Button from '@/components/ui/button';
 import { MoveIcon, PlusIcon, TrashIcon } from '@/icons';
 import Checkbox from '@/components/ui/checkbox';
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
-import Label from '@/components/ui/label';
 import { theme } from '@/theme';
 import { flexCenter, scoped } from '@/theme/mixins';
 import type { MediaRef } from '@/types';
@@ -277,12 +282,13 @@ const MediaGallery = ({
       ) : (
         <>
           {label && (
-            <Label
-              text={label}
-              type={error ? 'error' : ''}
-              helpText={error ? error : helpText}
-              style={{ minHeight: '23px' }}
-            />
+            <Field data-invalid={error ? true : undefined}>
+              <FieldLabel style={{ minHeight: '23px' }}>{label}</FieldLabel>
+              {helpText && !error && (
+                <FieldDescription>{helpText}</FieldDescription>
+              )}
+              {typeof error === 'string' && <FieldError>{error}</FieldError>}
+            </Field>
           )}
         </>
       )}

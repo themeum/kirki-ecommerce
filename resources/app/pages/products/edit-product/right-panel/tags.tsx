@@ -1,13 +1,11 @@
 import { useEffect, useState } from 'react';
-import { useFormContext } from 'react-hook-form';
+import { Controller, useFormContext } from 'react-hook-form';
 
 import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
+  Field,
+  FieldError,
+  FieldLabel,
+} from '@/components/ui/field';
 import { getErrorsObject, type ErrorResponse } from '@/libs/api';
 import TagManager from '@/components/tag-manager/tag-manager';
 import { makeSuggestionList } from '@/pages/utils';
@@ -81,33 +79,31 @@ const Tags = () => {
   };
 
   return (
-    <FormField
+    <Controller
       control={control}
       name="tags"
       render={({ fieldState }) => (
-        <FormItem>
-          <FormLabel>{__('Tags', 'kirki-ecommerce')}</FormLabel>
-          <FormControl>
-            <TagManager
-              selectedTags={selectedTags || []}
-              suggestions={suggestionArray || []}
-              error={Boolean(fieldState.error)}
-              onTagAdd={(tag) => {
-                handleAddTag(tag);
-              }}
-              onTagRemove={(tag) => {
-                handleTagRemove(tag);
-              }}
-              onNewTagAdd={(tagTitle) => {
-                handleAddNewTag(tagTitle);
-              }}
-              onSearchChange={(searchText) => {
-                handleSearchChange(searchText);
-              }}
-            />
-          </FormControl>
-          <FormMessage />
-        </FormItem>
+        <Field data-invalid={fieldState.invalid || undefined}>
+          <FieldLabel>{__('Tags', 'kirki-ecommerce')}</FieldLabel>
+          <TagManager
+            selectedTags={selectedTags || []}
+            suggestions={suggestionArray || []}
+            error={Boolean(fieldState.error)}
+            onTagAdd={(tag) => {
+              handleAddTag(tag);
+            }}
+            onTagRemove={(tag) => {
+              handleTagRemove(tag);
+            }}
+            onNewTagAdd={(tagTitle) => {
+              handleAddNewTag(tagTitle);
+            }}
+            onSearchChange={(searchText) => {
+              handleSearchChange(searchText);
+            }}
+          />
+          {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+        </Field>
       )}
     />
   );

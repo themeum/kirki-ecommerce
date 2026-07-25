@@ -6,7 +6,7 @@ import {
   type ReactElement,
   type SetStateAction,
 } from 'react';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import {
@@ -17,13 +17,12 @@ import {
 } from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from '@/components/ui/field';
+import { Form } from '@/components/ui/form';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
 import {
@@ -143,80 +142,88 @@ const Price = ({ errors, setErrors, formSyncKey = 0 }: PriceProps) => {
         </CardHeader>
         <CardContent>
           <Grid columns={2}>
-            <FormField
+            <Controller
               control={form.control}
               name="price"
               render={({ field, fieldState }) => (
-                <FormItem>
-                  <FormLabel>{__('Regular price', 'kirki-ecommerce')}</FormLabel>
-                  <FormControl>
-                    <div style={{ position: 'relative' }}>
-                      <span
-                        css={styles.inputLeftSymbol}
-                        style={{
-                          position: 'absolute',
-                          left: '12px',
-                          top: '50%',
-                          transform: 'translateY(-50%)',
-                          pointerEvents: 'none',
-                        }}
-                      >
-                        {currencySymbol}
-                      </span>
-                      <Input
-                        style={{ textIndent: '12px' }}
-                        value={field.value ?? ''}
-                        placeholder={__('29.00', 'kirki-ecommerce')}
-                        type="number"
-                        onChange={(event) => {
-                          const value = event.target.value;
-                          field.onChange(value);
-                          syncVariantField('price', value);
-                        }}
-                        error={Boolean(fieldState.error)}
-                      />
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+                <Field data-invalid={fieldState.invalid || undefined}>
+                  <FieldLabel htmlFor="price">
+                    {__('Regular price', 'kirki-ecommerce')}
+                  </FieldLabel>
+                  <div style={{ position: 'relative' }}>
+                    <span
+                      css={styles.inputLeftSymbol}
+                      style={{
+                        position: 'absolute',
+                        left: '12px',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        pointerEvents: 'none',
+                      }}
+                    >
+                      {currencySymbol}
+                    </span>
+                    <Input
+                      id="price"
+                      style={{ textIndent: '12px' }}
+                      value={field.value ?? ''}
+                      placeholder={__('29.00', 'kirki-ecommerce')}
+                      type="number"
+                      onChange={(event) => {
+                        const value = event.target.value;
+                        field.onChange(value);
+                        syncVariantField('price', value);
+                      }}
+                      error={Boolean(fieldState.error)}
+                      aria-invalid={fieldState.invalid}
+                    />
+                  </div>
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
               )}
             />
-            <FormField
+            <Controller
               control={form.control}
               name="sale_price"
               render={({ field, fieldState }) => (
-                <FormItem>
-                  <FormLabel>{__('Sale price', 'kirki-ecommerce')}</FormLabel>
-                  <FormControl>
-                    <div style={{ position: 'relative' }}>
-                      <span
-                        css={styles.inputLeftSymbol}
-                        style={{
-                          position: 'absolute',
-                          left: '12px',
-                          top: '50%',
-                          transform: 'translateY(-50%)',
-                          pointerEvents: 'none',
-                        }}
-                      >
-                        {currencySymbol}
-                      </span>
-                      <Input
-                        value={field.value ?? ''}
-                        style={{ textIndent: '12px' }}
-                        placeholder={__('19.99', 'kirki-ecommerce')}
-                        type="number"
-                        onChange={(event) => {
-                          const value = event.target.value;
-                          field.onChange(value);
-                          syncVariantField('sale_price', value);
-                        }}
-                        error={Boolean(fieldState.error)}
-                      />
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+                <Field data-invalid={fieldState.invalid || undefined}>
+                  <FieldLabel htmlFor="sale_price">
+                    {__('Sale price', 'kirki-ecommerce')}
+                  </FieldLabel>
+                  <div style={{ position: 'relative' }}>
+                    <span
+                      css={styles.inputLeftSymbol}
+                      style={{
+                        position: 'absolute',
+                        left: '12px',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        pointerEvents: 'none',
+                      }}
+                    >
+                      {currencySymbol}
+                    </span>
+                    <Input
+                      id="sale_price"
+                      value={field.value ?? ''}
+                      style={{ textIndent: '12px' }}
+                      placeholder={__('19.99', 'kirki-ecommerce')}
+                      type="number"
+                      onChange={(event) => {
+                        const value = event.target.value;
+                        field.onChange(value);
+                        syncVariantField('sale_price', value);
+                      }}
+                      error={Boolean(fieldState.error)}
+                      aria-invalid={fieldState.invalid}
+                    />
+                  </div>
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
               )}
             />
           </Grid>
@@ -225,12 +232,15 @@ const Price = ({ errors, setErrors, formSyncKey = 0 }: PriceProps) => {
             <Card css={cardStyles.innerDarkCard}>
               <CardContent css={styles.innerDarkRowContent}>
                 <Flex align="center" justify="space-between">
-                <FormField
+                <Controller
                   control={form.control}
                   name="show_unit_price"
-                  render={({ field }) => (
-                    <FormItem style={{ flex: '1' }}>
-                      <Flex gap={2} align="center" grow={1}>
+                  render={({ field, fieldState }) => (
+                    <Field
+                      data-invalid={fieldState.invalid || undefined}
+                      style={{ flex: '1' }}
+                    >
+                      <Field orientation="horizontal">
                         <Checkbox
                           id="show-unit-price"
                           checked={Boolean(field.value)}
@@ -240,14 +250,14 @@ const Price = ({ errors, setErrors, formSyncKey = 0 }: PriceProps) => {
                             syncVariantField('show_unit_price', value);
                           }}
                         />
-                        <Label
-                          htmlFor="show-unit-price"
-                          helpText={__('Show unit price', 'kirki-ecommerce')}
-                        >
+                        <FieldLabel htmlFor="show-unit-price">
                           {__('Show unit price', 'kirki-ecommerce')}
-                        </Label>
-                      </Flex>
-                    </FormItem>
+                        </FieldLabel>
+                      </Field>
+                      <FieldDescription>
+                        {__('Show unit price', 'kirki-ecommerce')}
+                      </FieldDescription>
+                    </Field>
                   )}
                 />
                 <div>
@@ -270,12 +280,12 @@ const Price = ({ errors, setErrors, formSyncKey = 0 }: PriceProps) => {
             <Card css={cardStyles.innerDarkCard}>
               <CardContent css={styles.innerDarkRowContent}>
                 <Grid align="center">
-                <FormField
+                <Controller
                   control={form.control}
                   name="charge_taxes"
-                  render={({ field }) => (
-                    <FormItem>
-                      <Flex gap={2} align="center">
+                  render={({ field, fieldState }) => (
+                    <Field data-invalid={fieldState.invalid || undefined}>
+                      <Field orientation="horizontal">
                         <Checkbox
                           id="charge-taxes"
                           checked={Boolean(field.value)}
@@ -285,25 +295,26 @@ const Price = ({ errors, setErrors, formSyncKey = 0 }: PriceProps) => {
                             syncVariantField('charge_taxes', value);
                           }}
                         />
-                        <Label
-                          htmlFor="charge-taxes"
-                          helpText={__(
-                            'Charge tax on this product',
-                            'kirki-ecommerce',
-                          )}
-                        >
+                        <FieldLabel htmlFor="charge-taxes">
                           {__('Charge tax on this product', 'kirki-ecommerce')}
-                        </Label>
-                      </Flex>
-                    </FormItem>
+                        </FieldLabel>
+                      </Field>
+                      <FieldDescription>
+                        {__(
+                          'Charge tax on this product',
+                          'kirki-ecommerce',
+                        )}
+                      </FieldDescription>
+                    </Field>
                   )}
                 />
 
-                <FormField
+                <Controller
                   control={form.control}
                   name="tax_profile_id"
                   render={({ field, fieldState }) => (
-                    <FormItem
+                    <Field
+                      data-invalid={fieldState.invalid || undefined}
                       style={{
                         visibility: chargeTaxes ? 'visible' : 'hidden',
                       }}
@@ -323,13 +334,15 @@ const Price = ({ errors, setErrors, formSyncKey = 0 }: PriceProps) => {
                           syncVariantField('tax_profile_id', value);
                         }}
                       >
-                        <FormControl>
-                          <SelectTrigger error={Boolean(fieldState.error)}>
-                            <SelectValue
-                              placeholder={__('Add Tax Profile', 'kirki-ecommerce')}
-                            />
-                          </SelectTrigger>
-                        </FormControl>
+                        <SelectTrigger
+                          id="tax_profile_id"
+                          error={Boolean(fieldState.error)}
+                          aria-invalid={fieldState.invalid}
+                        >
+                          <SelectValue
+                            placeholder={__('Add Tax Profile', 'kirki-ecommerce')}
+                          />
+                        </SelectTrigger>
                         <SelectContent>
                           <SelectItem value={ADD_TAX_PROFILE_VALUE}>
                             <Flex gap={2} align="center">
@@ -348,7 +361,10 @@ const Price = ({ errors, setErrors, formSyncKey = 0 }: PriceProps) => {
                           ))}
                         </SelectContent>
                       </Select>
-                    </FormItem>
+                      {fieldState.invalid && (
+                        <FieldError errors={[fieldState.error]} />
+                      )}
+                    </Field>
                   )}
                 />
                 </Grid>
@@ -359,44 +375,48 @@ const Price = ({ errors, setErrors, formSyncKey = 0 }: PriceProps) => {
           <Separator />
 
           <Grid columns={3}>
-            <FormField
+            <Controller
               control={form.control}
               name="cost_of_goods"
               render={({ field, fieldState }) => (
-                <FormItem>
-                  <FormLabel>{__('Cost of goods', 'kirki-ecommerce')}</FormLabel>
-                  <FormControl>
-                    <div style={{ position: 'relative' }}>
-                      {field.value && (
-                        <span
-                          css={styles.inputLeftSymbol}
-                          style={{
-                            position: 'absolute',
-                            left: '12px',
-                            top: '50%',
-                            transform: 'translateY(-50%)',
-                            pointerEvents: 'none',
-                          }}
-                        >
-                          {currencySymbol}
-                        </span>
-                      )}
-                      <Input
-                        value={field.value ?? ''}
-                        style={{ textIndent: field.value ? '12px' : undefined }}
-                        placeholder={__('--', 'kirki-ecommerce')}
-                        type="number"
-                        onChange={(event) => {
-                          const value = event.target.value;
-                          field.onChange(value);
-                          syncVariantField('cost_of_goods', value);
+                <Field data-invalid={fieldState.invalid || undefined}>
+                  <FieldLabel htmlFor="cost_of_goods">
+                    {__('Cost of goods', 'kirki-ecommerce')}
+                  </FieldLabel>
+                  <div style={{ position: 'relative' }}>
+                    {field.value && (
+                      <span
+                        css={styles.inputLeftSymbol}
+                        style={{
+                          position: 'absolute',
+                          left: '12px',
+                          top: '50%',
+                          transform: 'translateY(-50%)',
+                          pointerEvents: 'none',
                         }}
-                        error={Boolean(fieldState.error)}
-                      />
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+                      >
+                        {currencySymbol}
+                      </span>
+                    )}
+                    <Input
+                      id="cost_of_goods"
+                      value={field.value ?? ''}
+                      style={{ textIndent: field.value ? '12px' : undefined }}
+                      placeholder={__('--', 'kirki-ecommerce')}
+                      type="number"
+                      onChange={(event) => {
+                        const value = event.target.value;
+                        field.onChange(value);
+                        syncVariantField('cost_of_goods', value);
+                      }}
+                      error={Boolean(fieldState.error)}
+                      aria-invalid={fieldState.invalid}
+                    />
+                  </div>
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
               )}
             />
             <Flex direction="column" gap={2}>

@@ -1,6 +1,7 @@
 import { type SerializedStyles, type Theme } from '@emotion/react';
 import {
   forwardRef,
+  useId,
   type ComponentPropsWithoutRef,
   type CSSProperties,
   type ElementRef,
@@ -10,7 +11,7 @@ import {
 import * as CheckboxPrimitive from '@radix-ui/react-checkbox';
 import { Check, Minus } from 'lucide-react';
 
-import Label from '@/components/ui/label';
+import { Field, FieldLabel } from '@/components/ui/field';
 import { theme } from '@/theme';
 import { flexCenter, scoped, uiFocusRing } from '@/theme/mixins';
 
@@ -23,7 +24,6 @@ type CheckboxProps = Omit<
   isPartialChecked?: boolean;
   leftIcon?: ReactNode;
   label?: string;
-  helpText?: string;
   labelStyle?: CSSProperties;
   css?: SerializedStyles;
 };
@@ -41,12 +41,15 @@ const Checkbox = forwardRef<
     isPartialChecked = false,
     leftIcon,
     label,
-    helpText,
     style,
     labelStyle,
     onClick,
+    id,
     ...rest
   } = props;
+
+  const generatedId = useId();
+  const checkboxId = id ?? generatedId;
 
   const resolvedChecked = isPartialChecked
     ? 'indeterminate'
@@ -58,7 +61,7 @@ const Checkbox = forwardRef<
     onChange?.(nextValue);
   };
 
-  const handleWrapperClick = (event: MouseEvent<HTMLLabelElement>) => {
+  const handleWrapperClick = (event: MouseEvent<HTMLDivElement>) => {
     event.stopPropagation();
   };
 
@@ -70,11 +73,12 @@ const Checkbox = forwardRef<
   const control = (
     <CheckboxPrimitive.Root
       ref={ref}
+      id={label || leftIcon ? checkboxId : id}
       css={[styles.checkbox, cssProp]}
       checked={resolvedChecked}
       onCheckedChange={handleCheckedChange}
       onClick={handleRootClick}
-      style={label ? undefined : style}
+      style={label || leftIcon ? undefined : style}
       {...rest}
     >
       <CheckboxPrimitive.Indicator css={styles.indicator}>
@@ -92,15 +96,19 @@ const Checkbox = forwardRef<
   }
 
   return (
-    <label css={styles.wrapper} style={style} onClick={handleWrapperClick}>
+    <Field
+      orientation="horizontal"
+      style={style}
+      onClick={handleWrapperClick}
+    >
       {control}
       {leftIcon && <span>{leftIcon}</span>}
       {label && (
-        <Label style={labelStyle} helpText={helpText}>
+        <FieldLabel htmlFor={checkboxId} style={labelStyle}>
           {label}
-        </Label>
+        </FieldLabel>
       )}
-    </label>
+    </Field>
   );
 });
 
@@ -109,12 +117,6 @@ Checkbox.displayName = 'Checkbox';
 export default Checkbox;
 
 const styles = {
-  wrapper: scoped({
-    display: 'inline-flex',
-    alignItems: 'center',
-    columnGap: theme.spacing[2],
-    cursor: 'pointer',
-  }),
   checkbox: scoped({
     ...flexCenter(),
     width: '16px',

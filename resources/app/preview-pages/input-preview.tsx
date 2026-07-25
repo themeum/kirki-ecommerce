@@ -1,6 +1,10 @@
-import Flex from '@/components/ui/flex';
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from '@/components/ui/field';
 import Input from '@/components/ui/input';
-import Label from '@/components/ui/label';
 import Textarea from '@/components/ui/textarea';
 
 const InputPreview = () => {
@@ -10,36 +14,37 @@ const InputPreview = () => {
 
   return (
     <>
-      <Flex direction="column" gap={2}>
-        <Label helpText="this field is for username">Username</Label>
+      <Field>
+        <FieldLabel>Username</FieldLabel>
         <Input
           placeholder="Placeholder"
           type="text"
           onChange={(event) => handleValueChange(event.target.value)}
           onBlur={(event) => handleValueChange(event.target.value)}
         />
-      </Flex>
-      <Flex direction="column" gap={2}>
-        <Label>Description</Label>
+        <FieldDescription>this field is for username</FieldDescription>
+      </Field>
+      <Field>
+        <FieldLabel>Description</FieldLabel>
         <Textarea
           placeholder="Write a description"
           onChange={(event) => handleValueChange(event.target.value)}
           onBlur={(event) => handleValueChange(event.target.value)}
           rows={5}
         />
-      </Flex>
-      <Flex direction="column" gap={2}>
-        <Label error helpText="choos a file">
-          Photo
-        </Label>
+      </Field>
+      <Field data-invalid>
+        <FieldLabel>Photo</FieldLabel>
         <Input
           type="file"
           accept=".jpeg"
           multiple
           error
+          aria-invalid
           onChange={(event) => handleValueChange(event.target.value)}
         />
-      </Flex>
+        <FieldError>choos a file</FieldError>
+      </Field>
     </>
   );
 };

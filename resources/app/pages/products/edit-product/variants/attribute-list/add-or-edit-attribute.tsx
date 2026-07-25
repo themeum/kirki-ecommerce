@@ -1,17 +1,15 @@
 import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
+  Field,
+  FieldError,
+  FieldLabel,
+} from '@/components/ui/field';
+import { Form } from '@/components/ui/form';
 import { ColorPaletteIcon, ListIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
@@ -230,7 +228,7 @@ const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
                   <Button
                     variant="outline"
                     size="lg"
-                    css={type === 'list' && styles.typeSelected}
+                    css={type === 'list' ? styles.typeSelected : undefined}
                     onClick={() => handleOnTypeChange('list')}
                   >
                     <ListIcon />
@@ -239,7 +237,7 @@ const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
                   <Button
                     variant="outline"
                     size="lg"
-                    css={type === 'color' && styles.typeSelected}
+                    css={type === 'color' ? styles.typeSelected : undefined}
                     onClick={() => handleOnTypeChange('color')}
                   >
                     <ColorPaletteIcon />
@@ -248,61 +246,61 @@ const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
                 </Flex>
               </Flex>
             )}
-            <FormField
+            <Controller
               control={form.control}
               name="name"
               render={({ fieldState }) => (
-                <FormItem>
-                  <FormLabel>
+                <Field data-invalid={fieldState.invalid || undefined}>
+                  <FieldLabel>
                     {__('Variation Name', 'kirki-ecommerce')}
-                  </FormLabel>
-                  <FormControl>
-                    <Combobox
-                      error={Boolean(
-                        fieldState.error ||
-                          form.formState.errors.id ||
-                          form.formState.errors.name,
-                      )}
-                      value={
-                        formData?.id != null ? String(formData.id) : undefined
-                      }
-                      options={[
-                        ...(formData?.id != null && formData?.name
-                          ? [
-                              {
-                                label: formData.name,
-                                value: String(formData.id),
-                              },
-                            ]
-                          : []),
-                        ...attributeSuggestionArray
-                          .filter(
-                            (item) => String(item.value) !== String(formData?.id),
-                          )
-                          .map((item) => ({
-                            label: item.title,
-                            value: String(item.value),
-                          })),
-                      ]}
-                      placeholder={__(
-                        'e.g. Size or Material',
-                        'kirki-ecommerce',
-                      )}
-                      searchPlaceholder={__(
-                        'e.g. Size or Material',
-                        'kirki-ecommerce',
-                      )}
-                      creatable
-                      addItemLabel={__('Add Attribute', 'kirki-ecommerce')}
-                      onChange={(nextValue) =>
-                        handleAttributeSelect(String(nextValue))
-                      }
-                      onAddItem={(query) => handleNewAttributeAdd(query)}
-                      disabled={!!formData?.id}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+                  </FieldLabel>
+                  <Combobox
+                    error={Boolean(
+                      fieldState.error ||
+                        form.formState.errors.id ||
+                        form.formState.errors.name,
+                    )}
+                    value={
+                      formData?.id != null ? String(formData.id) : undefined
+                    }
+                    options={[
+                      ...(formData?.id != null && formData?.name
+                        ? [
+                            {
+                              label: formData.name,
+                              value: String(formData.id),
+                            },
+                          ]
+                        : []),
+                      ...attributeSuggestionArray
+                        .filter(
+                          (item) => String(item.value) !== String(formData?.id),
+                        )
+                        .map((item) => ({
+                          label: item.title,
+                          value: String(item.value),
+                        })),
+                    ]}
+                    placeholder={__(
+                      'e.g. Size or Material',
+                      'kirki-ecommerce',
+                    )}
+                    searchPlaceholder={__(
+                      'e.g. Size or Material',
+                      'kirki-ecommerce',
+                    )}
+                    creatable
+                    addItemLabel={__('Add Attribute', 'kirki-ecommerce')}
+                    onChange={(nextValue) =>
+                      handleAttributeSelect(String(nextValue))
+                    }
+                    onAddItem={(query) => handleNewAttributeAdd(query)}
+                    disabled={!!formData?.id}
+                  />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
               )}
             />
             <AddOrEditVariation />

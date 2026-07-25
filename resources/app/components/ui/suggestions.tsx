@@ -10,8 +10,13 @@ import { css, type SerializedStyles, type Theme } from '@emotion/react';
 import { Minus, PlusCircle } from 'lucide-react';
 
 import Chip from '@/components/ui/chip';
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from '@/components/ui/field';
 import Input from '@/components/ui/input';
-import Label from '@/components/ui/label';
 import {
   Popover,
   PopoverAnchor,
@@ -147,12 +152,8 @@ const Suggestions = (props: SuggestionsProps) => {
   };
 
   return (
-    <div css={[styles.root, cssProp]}>
-      {label && (
-        <Label error={Boolean(error)} helpText={error ? error : helpText}>
-          {label}
-        </Label>
-      )}
+    <Field data-invalid={error ? true : undefined} css={css([styles.root, cssProp])}>
+      {label && <FieldLabel>{label}</FieldLabel>}
       <Popover open={isOpen} onOpenChange={setIsOpen}>
         <PopoverAnchor asChild>
           <div
@@ -276,7 +277,9 @@ const Suggestions = (props: SuggestionsProps) => {
           </PopoverContent>
         )}
       </Popover>
-    </div>
+      {helpText && !error && <FieldDescription>{helpText}</FieldDescription>}
+      {typeof error === 'string' && <FieldError>{error}</FieldError>}
+    </Field>
   );
 };
 

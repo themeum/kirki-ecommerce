@@ -35,7 +35,6 @@ const PageHeading = forwardRef<HTMLDivElement, PageHeadingProps>(
   (props, ref) => {
     const {
       css: cssProp,
-      type = '',
       text = __('Button', 'kirki-ecommerce'),
       hasBack = false,
       size,

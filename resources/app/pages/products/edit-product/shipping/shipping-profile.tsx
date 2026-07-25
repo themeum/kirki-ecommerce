@@ -2,7 +2,7 @@ import { type ReactElement, useEffect, useState } from 'react';
 
 import { Card, CardContent } from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
-import Label from '@/components/ui/label';
+import { Field, FieldLabel } from '@/components/ui/field';
 import {
   Select,
   SelectContent,
@@ -78,7 +78,7 @@ const ShippingProfile = ({
     <Card css={cardStyles.innerDarkCard}>
       <CardContent css={styles.innerDarkRowContent}>
         <Grid align="center">
-        <Flex gap={2} align="center">
+        <Field orientation="horizontal">
           <Checkbox
             id="assign-shipping-profile"
             checked={show}
@@ -86,13 +86,10 @@ const ShippingProfile = ({
               handleOnViewProfileOptions(checked === true, 'shipping_profile_id')
             }
           />
-          <Label
-            htmlFor="assign-shipping-profile"
-            helpText={__('Assign shipping profile', 'kirki-ecommerce')}
-          >
+          <FieldLabel htmlFor="assign-shipping-profile">
             {__('Assign shipping profile', 'kirki-ecommerce')}
-          </Label>
-        </Flex>
+          </FieldLabel>
+        </Field>
         <Select
           value={
             shippingProfileId !== undefined && shippingProfileId !== null

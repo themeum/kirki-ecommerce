@@ -1,19 +1,18 @@
 import { type SerializedStyles } from '@emotion/react';
 import type { ReactNode } from 'react';
 import {
+  Controller,
   useFormContext,
   type FieldPath,
   type FieldValues,
 } from 'react-hook-form';
 
 import {
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from '@/components/ui/field';
 import Textarea from '@/components/ui/textarea';
 
 type TextareaFieldProps<
@@ -42,27 +41,28 @@ const TextareaField = <
   css,
 }: TextareaFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
+  const fieldId = String(name);
 
   return (
-    <FormField
+    <Controller
       control={control}
       name={name}
       render={({ field, fieldState }) => (
-        <FormItem css={css}>
-          {label && <FormLabel>{label}</FormLabel>}
-          <FormControl>
-            <Textarea
-              {...field}
-              value={field.value ?? ''}
-              placeholder={placeholder}
-              rows={rows}
-              disabled={disabled}
-              error={Boolean(fieldState.error)}
-            />
-          </FormControl>
-          {description && <FormDescription>{description}</FormDescription>}
-          <FormMessage />
-        </FormItem>
+        <Field data-invalid={fieldState.invalid || undefined} css={css}>
+          {label && <FieldLabel htmlFor={fieldId}>{label}</FieldLabel>}
+          <Textarea
+            {...field}
+            id={fieldId}
+            value={field.value ?? ''}
+            placeholder={placeholder}
+            rows={rows}
+            disabled={disabled}
+            error={Boolean(fieldState.error)}
+            aria-invalid={fieldState.invalid}
+          />
+          {description && <FieldDescription>{description}</FieldDescription>}
+          {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+        </Field>
       )}
     />
   );

@@ -17,7 +17,7 @@ import { __ } from '@/wpi18n';
 const ActionGroupPreview = () => {
   return (
     <Flex>
-      <Label text="This is a random text" />
+      <Label>This is a random text</Label>
       <ActionGroup>
         <Select disabled>
           <SelectTrigger css={styles.selectTrigger}>

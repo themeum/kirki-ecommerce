@@ -2,8 +2,7 @@ import { type SerializedStyles } from '@emotion/react';
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 
 import Button from '@/components/ui/button';
-import Flex from '@/components/ui/flex';
-import Label from '@/components/ui/label';
+import { Field, FieldLabel } from '@/components/ui/field';
 import type { MediaRef } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -101,8 +100,8 @@ const MediaSelector = ({
   };
 
   return (
-    <Flex direction="column" gap={2}>
-      {label && <Label text={label} />}
+    <Field>
+      {label && <FieldLabel>{label}</FieldLabel>}
       <div
         onClick={openMediaFrame}
         css={cssProp}
@@ -123,7 +122,7 @@ const MediaSelector = ({
           </Button>
         )}
       </div>
-    </Flex>
+    </Field>
   );
 };
 

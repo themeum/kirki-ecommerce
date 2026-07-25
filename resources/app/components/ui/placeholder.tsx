@@ -1,8 +1,12 @@
 import type { SerializedStyles } from '@emotion/react';
 import { forwardRef, type CSSProperties, type ReactNode } from 'react';
 
-import Flex from '@/components/ui/flex';
-import Label from '@/components/ui/label';
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from '@/components/ui/field';
 import { ThumbnailPlaceholder } from '@/icons';
 import { theme } from '@/theme';
 import { flexCenter, scoped } from '@/theme/mixins';
@@ -33,16 +37,11 @@ const Placeholder = forwardRef<HTMLDivElement, PlaceholderProps>(
       error,
     } = props;
 
-    const help = typeof error === 'string' ? error : helpText;
     const isInteractive = typeof onClick === 'function';
 
     return (
-      <Flex direction="column" gap={2}>
-        {label && (
-          <Label error={Boolean(error)} helpText={help}>
-            {label}
-          </Label>
-        )}
+      <Field data-invalid={error ? true : undefined}>
+        {label && <FieldLabel>{label}</FieldLabel>}
         <div
           ref={ref}
           role={isInteractive ? 'button' : undefined}
@@ -67,7 +66,9 @@ const Placeholder = forwardRef<HTMLDivElement, PlaceholderProps>(
         >
           {size === 'small' ? <ThumbnailPlaceholder /> : children}
         </div>
-      </Flex>
+        {helpText && !error && <FieldDescription>{helpText}</FieldDescription>}
+        {typeof error === 'string' && <FieldError>{error}</FieldError>}
+      </Field>
     );
   },
 );

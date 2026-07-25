@@ -12,8 +12,13 @@ import {
 import ActionGroup from '@/components/ui/action-group';
 import Badge from '@/components/ui/badge';
 import Checkbox from '@/components/ui/checkbox';
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
-import Label from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { theme } from '@/theme';
 import {
@@ -105,12 +110,8 @@ const GroupSelect = (props: GroupSelectProps) => {
   };
 
   return (
-    <Flex direction="column" gap={2}>
-      {label && (
-        <Label error={Boolean(error)} helpText={error ? error : helpText}>
-          {label}
-        </Label>
-      )}
+    <Field data-invalid={error ? true : undefined}>
+      {label && <FieldLabel>{label}</FieldLabel>}
       <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
         <DropdownMenuTrigger asChild>
           <button
@@ -134,11 +135,12 @@ const GroupSelect = (props: GroupSelectProps) => {
           {optionsArray.map((option, index) =>
             option?.heading ? (
               <DropdownMenuLabel key={index}>
-                <Label
-                  text={String(option.heading)}
-                  infoText={option?.infoText}
-                  css={styles.headingLabel}
-                />
+                <FieldLabel css={styles.headingLabel}>
+                  {String(option.heading)}
+                </FieldLabel>
+                {option?.infoText && (
+                  <FieldDescription>{option.infoText}</FieldDescription>
+                )}
               </DropdownMenuLabel>
             ) : (
               <DropdownMenuItem
@@ -201,7 +203,9 @@ const GroupSelect = (props: GroupSelectProps) => {
           )}
         </DropdownMenuContent>
       </DropdownMenu>
-    </Flex>
+      {helpText && !error && <FieldDescription>{helpText}</FieldDescription>}
+      {typeof error === 'string' && <FieldError>{error}</FieldError>}
+    </Field>
   );
 };
 

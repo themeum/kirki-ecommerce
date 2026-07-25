@@ -131,10 +131,8 @@ const ExchangeRatePopup = ({
           <form onSubmit={form.handleSubmit(handleSaveCurrencyData)}>
             <DialogBody>
               <Flex direction="column" gap={4}>
-                <Label
-                  css={editCurrencyRatePopupLabelCss}
-                  leftIcon={<InfoIcon />}
-                >
+                <Label css={editCurrencyRatePopupLabelCss}>
+                  <InfoIcon />
                   {__('Enter rates per 1 USD', 'kirki-ecommerce')}
                 </Label>
                 <Flex direction="column" gap={4} css={css({ maxHeight: '200px', overflowX: 'scroll' })}>

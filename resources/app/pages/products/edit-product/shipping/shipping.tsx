@@ -6,7 +6,7 @@ import {
   type ReactElement,
   type SetStateAction,
 } from 'react';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import Button from '@/components/ui/button';
@@ -16,13 +16,8 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  formMessageStyle,
-} from '@/components/ui/form';
+import { Field, fieldErrorStyle } from '@/components/ui/field';
+import { Form } from '@/components/ui/form';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
 import {
@@ -168,38 +163,38 @@ const Shipping = ({ errors, setErrors, formSyncKey = 0 }: ShippingProps) => {
             <Label>{__('Weight', 'kirki-ecommerce')}</Label>
             <Flex gap={2}>
               <div style={{ flex: 1 }}>
-                <FormField
+                <Controller
                   control={form.control}
                   name="weight"
                   render={({ field, fieldState }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          value={field.value ?? ''}
-                          onChange={(event) => {
-                            field.onChange(event.target.value);
-                            handleOnVariantInfoChange(
-                              {
-                                value: event.target.value,
-                                unit: form.getValues('weight_unit') || '',
-                              },
-                              'weight',
-                            );
-                          }}
-                          error={Boolean(fieldState.error) || Boolean(weightError)}
-                        />
-                      </FormControl>
-                    </FormItem>
+                    <Field data-invalid={fieldState.invalid || undefined}>
+                      <Input
+                        id="weight"
+                        type="number"
+                        value={field.value ?? ''}
+                        onChange={(event) => {
+                          field.onChange(event.target.value);
+                          handleOnVariantInfoChange(
+                            {
+                              value: event.target.value,
+                              unit: form.getValues('weight_unit') || '',
+                            },
+                            'weight',
+                          );
+                        }}
+                        error={Boolean(fieldState.error) || Boolean(weightError)}
+                        aria-invalid={fieldState.invalid}
+                      />
+                    </Field>
                   )}
                 />
               </div>
               <div style={{ width: '96px' }}>
-                <FormField
+                <Controller
                   control={form.control}
                   name="weight_unit"
                   render={({ field, fieldState }) => (
-                    <FormItem>
+                    <Field data-invalid={fieldState.invalid || undefined}>
                       <Select
                         value={field.value || ''}
                         onValueChange={(value) => {
@@ -213,13 +208,15 @@ const Shipping = ({ errors, setErrors, formSyncKey = 0 }: ShippingProps) => {
                           );
                         }}
                       >
-                        <FormControl>
-                          <SelectTrigger
-                            error={Boolean(fieldState.error) || Boolean(weightError)}
-                          >
-                            <SelectValue />
-                          </SelectTrigger>
-                        </FormControl>
+                        <SelectTrigger
+                          id="weight_unit"
+                          error={
+                            Boolean(fieldState.error) || Boolean(weightError)
+                          }
+                          aria-invalid={fieldState.invalid}
+                        >
+                          <SelectValue />
+                        </SelectTrigger>
                         <SelectContent>
                           {weightUnitOptions.map((option) => (
                             <SelectItem key={option.value} value={option.value}>
@@ -228,13 +225,13 @@ const Shipping = ({ errors, setErrors, formSyncKey = 0 }: ShippingProps) => {
                           ))}
                         </SelectContent>
                       </Select>
-                    </FormItem>
+                    </Field>
                   )}
                 />
               </div>
             </Flex>
             {weightError && (
-              <p css={formMessageStyle}>{String(weightError)}</p>
+              <p css={fieldErrorStyle}>{String(weightError)}</p>
             )}
           </Flex>
           <div>

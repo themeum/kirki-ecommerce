@@ -87,10 +87,8 @@ const EditCurrencyPopup = ({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)}>
             <DialogBody>
-              <Label
-                css={styles.ratePopupLabel}
-                leftIcon={<InfoIcon />}
-              >
+              <Label css={styles.ratePopupLabel}>
+                <InfoIcon />
                 {__('Enter rates per 1 USD', 'kirki-ecommerce')}
               </Label>
               <Flex direction="column" gap={3} css={css({ maxHeight: '200px', overflowX: 'scroll' })}>

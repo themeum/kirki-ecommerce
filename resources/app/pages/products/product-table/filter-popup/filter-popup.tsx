@@ -8,8 +8,8 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Field, FieldLabel } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
-import { FormFieldRow } from '@/components/ui/form';
 import Label from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
@@ -203,15 +203,15 @@ const FilterPopup = ({
                 { value: 'draft', label: __('Draft', 'kirki-ecommerce') },
                 { value: 'all', label: __('All', 'kirki-ecommerce') },
               ].map((option) => (
-                <FormFieldRow key={option.value}>
+                <Field key={option.value} orientation="horizontal">
                   <RadioGroupItem
                     value={option.value}
                     id={`filter-status-${option.value}`}
                   />
-                  <Label htmlFor={`filter-status-${option.value}`}>
+                  <FieldLabel htmlFor={`filter-status-${option.value}`}>
                     {option.label}
-                  </Label>
-                </FormFieldRow>
+                  </FieldLabel>
+                </Field>
               ))}
             </RadioGroup>
           </Flex>

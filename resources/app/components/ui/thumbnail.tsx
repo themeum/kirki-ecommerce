@@ -11,7 +11,12 @@ import { Replace, Trash2 } from 'lucide-react';
 import MediaSelector from '@/components/media-selector';
 import Button from '@/components/ui/button';
 import Flex from '@/components/ui/flex';
-import Label from '@/components/ui/label';
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from '@/components/ui/field';
 import { ThumbnailPlaceholder } from '@/icons';
 import { theme } from '@/theme';
 import { flexCenter, scoped } from '@/theme/mixins';
@@ -51,19 +56,17 @@ const Thumbnail = forwardRef<HTMLDivElement, ThumbnailProps>((props, ref) => {
   } = props;
 
   const [imgSrc, setImgSrc] = useState(src);
-  const help = typeof error === 'string' ? error : helpText;
 
   useEffect(() => {
     setImgSrc(src);
   }, [src]);
 
   return (
-    <Flex direction="column" gap={2} css={css({ maxWidth: '100%' })}>
-      {label && (
-        <Label error={Boolean(error)} helpText={help}>
-          {label}
-        </Label>
-      )}
+    <Field
+      data-invalid={error ? true : undefined}
+      css={css({ maxWidth: '100%' })}
+    >
+      {label && <FieldLabel>{label}</FieldLabel>}
       <div
         ref={ref}
         css={[
@@ -101,7 +104,9 @@ const Thumbnail = forwardRef<HTMLDivElement, ThumbnailProps>((props, ref) => {
           <ThumbnailPlaceholder />
         )}
       </div>
-    </Flex>
+      {helpText && !error && <FieldDescription>{helpText}</FieldDescription>}
+      {typeof error === 'string' && <FieldError>{error}</FieldError>}
+    </Field>
   );
 });
 

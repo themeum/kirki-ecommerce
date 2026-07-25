@@ -1,20 +1,19 @@
 import { type SerializedStyles } from '@emotion/react';
 import type { ComponentProps, ReactNode } from 'react';
 import {
+  Controller,
   useFormContext,
   type FieldPath,
   type FieldValues,
 } from 'react-hook-form';
 
-import {
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
 import TagManager from '@/components/tag-manager/tag-manager';
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from '@/components/ui/field';
 
 type TagManagerProps = ComponentProps<typeof TagManager>;
 
@@ -52,7 +51,7 @@ const TagManagerField = <
   const { control } = useFormContext<TFieldValues>();
 
   return (
-    <FormField
+    <Controller
       control={control}
       name={name}
       render={({ field, fieldState }) => {
@@ -63,56 +62,54 @@ const TagManagerField = <
             : rawValue;
 
         return (
-          <FormItem css={css}>
-            {label && <FormLabel>{label}</FormLabel>}
-            <FormControl>
-              <TagManager
-                {...tagManagerProps}
-                selectedTags={selectedTags}
-                onTagAdd={(tag) => {
-                  if (valueAs === 'strings') {
-                    field.onChange([
-                      String(tag.value),
-                      ...rawValue.filter(
-                        (item: string) => item !== String(tag.value),
-                      ),
-                    ]);
-                    return;
-                  }
-                  field.onChange([...selectedTags, tag]);
-                }}
-                onNewTagAdd={(tagTitle) => {
-                  if (valueAs === 'strings') {
-                    field.onChange([tagTitle, ...rawValue]);
-                    return;
-                  }
+          <Field data-invalid={fieldState.invalid || undefined} css={css}>
+            {label && <FieldLabel>{label}</FieldLabel>}
+            <TagManager
+              {...tagManagerProps}
+              selectedTags={selectedTags}
+              onTagAdd={(tag) => {
+                if (valueAs === 'strings') {
                   field.onChange([
-                    { title: tagTitle, value: tagTitle },
-                    ...selectedTags,
+                    String(tag.value),
+                    ...rawValue.filter(
+                      (item: string) => item !== String(tag.value),
+                    ),
                   ]);
-                }}
-                onTagRemove={(tag) => {
-                  if (valueAs === 'strings') {
-                    field.onChange(
-                      rawValue.filter(
-                        (item: string) => item !== String(tag.value),
-                      ),
-                    );
-                    return;
-                  }
+                  return;
+                }
+                field.onChange([...selectedTags, tag]);
+              }}
+              onNewTagAdd={(tagTitle) => {
+                if (valueAs === 'strings') {
+                  field.onChange([tagTitle, ...rawValue]);
+                  return;
+                }
+                field.onChange([
+                  { title: tagTitle, value: tagTitle },
+                  ...selectedTags,
+                ]);
+              }}
+              onTagRemove={(tag) => {
+                if (valueAs === 'strings') {
                   field.onChange(
-                    selectedTags.filter(
-                      (item: { value?: string | number }) =>
-                        item.value !== tag.value,
+                    rawValue.filter(
+                      (item: string) => item !== String(tag.value),
                     ),
                   );
-                }}
-                error={Boolean(fieldState.error)}
-              />
-            </FormControl>
-            {description && <FormDescription>{description}</FormDescription>}
-            <FormMessage />
-          </FormItem>
+                  return;
+                }
+                field.onChange(
+                  selectedTags.filter(
+                    (item: { value?: string | number }) =>
+                      item.value !== tag.value,
+                  ),
+                );
+              }}
+              error={Boolean(fieldState.error)}
+            />
+            {description && <FieldDescription>{description}</FieldDescription>}
+            {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+          </Field>
         );
       }}
     />

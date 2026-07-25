@@ -1,8 +1,12 @@
 import type { KeyboardEvent } from 'react';
 import { useState, useEffect } from 'react';
 
-import Flex from '@/components/ui/flex';
-import Label from '@/components/ui/label';
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from '@/components/ui/field';
 import { theme } from '@/theme';
 import { itemCenter, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
@@ -63,12 +67,8 @@ const ColorPicker = ({
   };
 
   return (
-    <Flex direction="column" gap={2}>
-      {label && (
-        <Label error={Boolean(error)} helpText={error ? error : helpText}>
-          {label}
-        </Label>
-      )}
+    <Field data-invalid={error ? true : undefined}>
+      {label && <FieldLabel>{label}</FieldLabel>}
       <div css={styles.wrapper}>
         <div css={styles.inner}>
           <div
@@ -91,7 +91,9 @@ const ColorPicker = ({
           />
         </div>
       </div>
-    </Flex>
+      {helpText && !error && <FieldDescription>{helpText}</FieldDescription>}
+      {typeof error === 'string' && <FieldError>{error}</FieldError>}
+    </Field>
   );
 };
 

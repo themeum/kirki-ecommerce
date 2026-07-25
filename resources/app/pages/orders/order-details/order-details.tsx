@@ -13,8 +13,8 @@ import Alert from '@/components/ui/alert';
 import Badge from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Container from '@/components/ui/container';
+import { Field, FieldLabel } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
-import Label from '@/components/ui/label';
 import PageHeading from '@/components/ui/page-heading';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
@@ -94,8 +94,8 @@ const OrderDetails = () => {
 
             <Card css={cardStyles.formCard}>
               <CardContent>
-                <Flex direction="column" gap={2}>
-                  <Label text="Order Status" />
+                <Field>
+                  <FieldLabel>Order Status</FieldLabel>
                   <Select defaultValue="pending">
                     <SelectTrigger>
                       <SelectValue />
@@ -111,9 +111,9 @@ const OrderDetails = () => {
                       ))}
                     </SelectContent>
                   </Select>
-                </Flex>
-                <Flex direction="column" gap={2}>
-                  <Label text="Payment Status" />
+                </Field>
+                <Field>
+                  <FieldLabel>Payment Status</FieldLabel>
                   <Select defaultValue="unpaid">
                     <SelectTrigger>
                       <SelectValue />
@@ -129,7 +129,7 @@ const OrderDetails = () => {
                       ))}
                     </SelectContent>
                   </Select>
-                </Flex>
+                </Field>
               </CardContent>
             </Card>
 
@@ -137,20 +137,22 @@ const OrderDetails = () => {
 
             <Card css={cardStyles.formCard}>
               <CardContent>
-                <Flex direction="column" gap={2}>
-                  <Label text="Flag" />
+                <Field>
+                  <FieldLabel>Flag</FieldLabel>
                   <Input placeholder="i.e Backorder, Urgent" defaultValue="skjl" />
-                </Flex>
+                </Field>
               </CardContent>
             </Card>
 
             <Card css={cardStyles.formCard}>
               <CardContent>
-                <Label text="Notes" />
-                <Button variant="secondary" style={{ width: '100%' }}>
-                  <PlusIcon />
-                  Add note
-                </Button>
+                <Field>
+                  <FieldLabel>Notes</FieldLabel>
+                  <Button variant="secondary" style={{ width: '100%' }}>
+                    <PlusIcon />
+                    Add note
+                  </Button>
+                </Field>
               </CardContent>
             </Card>
           </Flex>
