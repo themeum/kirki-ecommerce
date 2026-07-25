@@ -48,13 +48,15 @@ const SingleRow = ({
         />
       </TableCell>
       <TableCell>
-        <Flex gap={2} align="center">
+        <Flex gap={3} align="center">
           <Thumbnail src={photo?.url} size="small" type="circle" />
-          <Flex direction="column" gap={2}>
-            <div>
+          <Flex direction="column" gap={1}>
+            <Text variant="tiny" weight="medium">
               {item?.first_name} {item?.last_name}
-            </div>
-            <Text variant="small" color="emphasis">{item?.email}</Text>
+            </Text>
+            <Text variant="tiny" color="secondary">
+              {item?.email}
+            </Text>
           </Flex>
         </Flex>
       </TableCell>

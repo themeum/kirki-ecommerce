@@ -46,7 +46,7 @@ const SingleRow = ({
           </span>
         </Flex>
       </TableCell>
-      <TableCell>{item?.sku || 1236127}</TableCell>
+      <TableCell>{item?.sku || '-'}</TableCell>
       <TableCell>{item?.inventory}</TableCell>
       <TableCell>{item?.price}</TableCell>
       <TableCell>
