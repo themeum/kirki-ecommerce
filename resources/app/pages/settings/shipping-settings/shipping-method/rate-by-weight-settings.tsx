@@ -78,8 +78,8 @@ const RateByWeightSettings = ({
   };
 
   return (
-    <Flex direction="column" gap={16}>
-      <Flex direction="column" gap={8}>
+    <Flex direction="column" gap={4}>
+      <Flex direction="column" gap={2}>
         <Label htmlFor="rate-by-weight-description">
           {__('Pickup Instructions', 'kirki-ecommerce')}
         </Label>
@@ -165,7 +165,7 @@ const RateByWeightSettings = ({
         </Label>
       </FormFieldRow>
       {hasFreeShipping && (
-        <Flex direction="column" gap={8}>
+        <Flex direction="column" gap={2}>
           <Label htmlFor="rate-by-weight-amount">
             {__('Amount', 'kirki-ecommerce')}
           </Label>

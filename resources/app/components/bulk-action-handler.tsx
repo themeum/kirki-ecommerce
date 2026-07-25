@@ -51,8 +51,8 @@ const BulkActionHandler = (props: BulkActionHandlerProps) => {
       css={[styles.wrapper, cssProp]}
       style={style}
     >
-      <Flex gap={20}>
-        <Flex gap={10} style={{ alignItems: 'center' }}>
+      <Flex gap={5}>
+        <Flex gap={3} align="center">
           <Text variant="small" color="subdued">{`${itemCount} ${
               itemCount > 1 ? 'items' : 'item'
             } selected`}</Text>
@@ -65,7 +65,7 @@ const BulkActionHandler = (props: BulkActionHandlerProps) => {
           )}
         </Flex>
         {optionsArray && (
-          <Flex gap={8} style={{ alignItems: 'center' }}>
+          <Flex gap={2} align="center">
             <Select onValueChange={handleActionChange}>
               <SelectTrigger style={{ minWidth: '100px' }}>
                 <SelectValue placeholder={__('Select', 'kirki-ecommerce')} />

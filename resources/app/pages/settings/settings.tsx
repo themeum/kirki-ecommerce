@@ -22,9 +22,9 @@ const Settings = () => {
     title: string,
     settingsList: SettingsNavItem[],
   ) => (
-    <Flex direction="column" gap={8}>
+    <Flex direction="column" gap={2}>
       <Text variant="small" color="subdued">{title}</Text>
-      <Flex direction="column" gap={2} css={styles.settingsCardWrapper}>
+      <Flex direction="column" gap={1} css={styles.settingsCardWrapper}>
         {settingsList.map((item, index) => (
           <SettingsItem key={index} {...item} />
         ))}
@@ -44,7 +44,7 @@ const Settings = () => {
       <Container size="sm">
         <Card css={[cardStyles.shadowCard, cardStyles.pageCard]}>
           <CardContent css={styles.pageContent}>
-            <Flex direction="column" gap={24}>
+            <Flex direction="column" gap={6}>
               <Searchbox
                 onChange={() => {
                   // @todo: will be implemented later

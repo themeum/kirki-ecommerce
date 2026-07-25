@@ -139,7 +139,7 @@ const AddCitiesPopup = (props: AddCitiesPopupProps) => {
         </DialogHeader>
         <Form {...form}>
           <DialogBody>
-            <Flex direction="column" gap={8}>
+            <Flex direction="column" gap={2}>
               <Label htmlFor="add-cities-search">
                 {__('Cities', 'kirki-ecommerce')}
               </Label>
@@ -161,7 +161,7 @@ const AddCitiesPopup = (props: AddCitiesPopupProps) => {
                   }}
                 >
                 <Flex>
-                  <Flex gap={8} style={{ alignItems: 'center' }}>
+                  <Flex gap={2} align="center">
                     <Checkbox
                       id="add-cities-select-all"
                       checked={
@@ -179,7 +179,7 @@ const AddCitiesPopup = (props: AddCitiesPopupProps) => {
                   filteredCities.map((city, index) => {
                     return (
                       <div key={index} css={styles.checkboxItemIndented}>
-                        <Flex gap={8} style={{ alignItems: 'center' }}>
+                        <Flex gap={2} align="center">
                           <Checkbox
                             id={`add-cities-city-${city.id}`}
                             checked={formSelectedCities.some(
@@ -199,9 +199,8 @@ const AddCitiesPopup = (props: AddCitiesPopupProps) => {
                     <CardContent>
                       <Flex
                         direction="column"
-                        gap={8}
-                        style={{ alignItems: 'center' }}
-                      >
+                        gap={2}
+                        align="center">
                         <Text weight="medium">{__('No cities available')}</Text>
                       </Flex>
                     </CardContent>

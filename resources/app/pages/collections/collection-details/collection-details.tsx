@@ -142,10 +142,10 @@ const CollectionDetails = () => {
       />
 
       <Container size="md">
-        <Flex direction="column" gap={16}>
+        <Flex direction="column" gap={4}>
           <Card css={cardStyles.formCard}>
             <CardContent>
-              <Flex direction="column" gap={16}>
+              <Flex direction="column" gap={4}>
                 <Grid>
                   <TextField
                     name="title"
@@ -182,9 +182,8 @@ const CollectionDetails = () => {
             <CardContent>
               <Flex
                 direction="column"
-                gap={12}
-                style={{ alignItems: 'center', justifyContent: 'center' }}
-              >
+                gap={3}
+                align="center" justify="center">
                 <ProductIcon />
                 <Button variant="secondary">
                   <PlusIcon />
@@ -196,14 +195,14 @@ const CollectionDetails = () => {
 
           <Card css={cardStyles.formCard}>
             <CardContent>
-              <Flex direction="column" gap={16}>
+              <Flex direction="column" gap={4}>
                 <CardHeader>
                   <CardTitle>{__('SEO Settings', 'kirki-ecommerce')}</CardTitle>
                 </CardHeader>
                 <Card css={cardStyles.innerCard}>
                   <CardContent>
-                    <Flex gap={16} style={{ justifyContent: 'space-between' }}>
-                      <Flex direction="column" gap={6}>
+                    <Flex gap={4} justify="space-between">
+                      <Flex direction="column" gap={2}>
                         <Text variant="small" css={styles.seoUrl}>{window.kirki_ecommerce.site_url +
                             ' › collections › ' +
                             (watchedSlug || '')}</Text>

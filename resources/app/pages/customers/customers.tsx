@@ -62,14 +62,14 @@ const Customers = () => {
 
       <Container>
         {loaded ? (
-          <Flex direction="column" gap={8}>
+          <Flex direction="column" gap={2}>
             <Card css={cardStyles.formCard}>
               <CardContent>
-                <Flex gap={12}>
+                <Flex gap={3}>
                   <span css={styles.svgClass}>
                     <CustomerInfoIcon />
                   </span>
-                  <Flex direction="column" gap={8}>
+                  <Flex direction="column" gap={2}>
                     <Text weight="medium">{__('Create Groups with Customers', 'kirki-ecommerce')}</Text>
                     <Text variant="small" color="secondary">{__(
                       'Organize customers for better targeting and management',

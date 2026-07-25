@@ -1,3 +1,4 @@
+import { css } from '@emotion/react';
 import Flex from '@/components/ui/flex';
 
 import Input from '@/components/ui/input';
@@ -5,7 +6,7 @@ import Label from '@/components/ui/label';
 
 const UiInputPreview = () => {
   return (
-    <Flex direction="column" gap={12} style={{ maxWidth: 320 }}>
+    <Flex direction="column" gap={3} css={css({ maxWidth: 320 })}>
       <div>
         <Label htmlFor="ui-input-default">Default</Label>
         <Input id="ui-input-default" placeholder="Enter text" />

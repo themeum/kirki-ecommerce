@@ -263,7 +263,7 @@ const ShippingDeliveryMethod = () => {
         }
       />
       <Container size="sm">
-        <Flex direction="column" gap={16}>
+        <Flex direction="column" gap={4}>
           <PageNavbar
             text={methodSettingsMap[methodType].title ?? ''}
             handleBack={handleBackButton}
@@ -271,7 +271,7 @@ const ShippingDeliveryMethod = () => {
           <Card css={[cardStyles.largeCard, cardStyles.formCard]} >
             <CardContent css={cardStyles.largeContentPadded}>
 
-            <Flex direction="column" gap={8}>
+            <Flex direction="column" gap={2}>
             <Label htmlFor="shipping-method-name">
             {__('Method Name', 'kirki-ecommerce')}
             </Label>
@@ -282,7 +282,7 @@ const ShippingDeliveryMethod = () => {
             onChange={(e) => handleOnChange(e.target.value, 'name')}
             />
             </Flex>
-            <Flex direction="column" gap={8}>
+            <Flex direction="column" gap={2}>
             <Label>{__('Method Type', 'kirki-ecommerce')}</Label>
             <Select
             value={methodType}

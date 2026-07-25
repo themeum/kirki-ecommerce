@@ -75,7 +75,7 @@ const VatCollectionProcessRadios = () => {
   };
 
   return (
-    <Flex direction={'column'} gap={8}>
+    <Flex direction={'column'} gap={2}>
       <Card css={[cardStyles.innerCard, styles.vatProcessCard]} >
         <CardContent css={cardStyles.innerContent}>
 
@@ -345,7 +345,7 @@ const EditRegionEU = () => {
       <Container size="sm">
         {loaded ? (
           <Form {...form}>
-            <Flex direction="column" gap={16}>
+            <Flex direction="column" gap={4}>
               <PageNavbar
                 text={__('EU', 'kirki-ecommerce')}
                 textIcon={'🇪🇺'}

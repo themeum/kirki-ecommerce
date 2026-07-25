@@ -67,8 +67,8 @@ const CheckoutConf = () => {
                 options={options}
               />
 
-              <Flex style={{ alignItems: 'center' }}>
-                <Flex direction="column" gap={8}>
+              <Flex align="center">
+                <Flex direction="column" gap={2}>
                   <Text weight="medium">{__('Apply Coupon Code', 'kirki-ecommerce')}</Text>
                   <Text variant="small" color="secondary">{__(
                     'Coupons can be applied from the cart and checkout pages.',

@@ -196,7 +196,7 @@ const EmailSettings = () => {
       <Container size="sm">
         {loaded ? (
           <Form {...form}>
-            <Flex direction="column" gap={16}>
+            <Flex direction="column" gap={4}>
               <PageNavbar
                 textIcon={<AtSignIcon />}
                 text={__('Email', 'kirki-ecommerce')}
@@ -206,17 +206,12 @@ const EmailSettings = () => {
                 <CardContent>
 
                 <Flex
-                style={{
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                }}
-                >
+                  justify="space-between" align="center">
                 <Flex
-                direction="column"
-                style={{ alignItems: 'flex-start' }}
-                gap={6}
-                >
-                <Flex gap={8} style={{ alignItems: 'center' }}>
+                  direction="column"
+                  gap={2}
+                  align="flex-start">
+                <Flex gap={2} align="center">
                   <BrushIcon />
                   <Text weight="semibold">{__('Default Template', 'kirki-ecommerce')}</Text>
                 </Flex>

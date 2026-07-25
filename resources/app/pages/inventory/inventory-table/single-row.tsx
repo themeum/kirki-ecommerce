@@ -36,9 +36,9 @@ const SingleRow = ({
         />
       </TableCell>
       <TableCell css={styles.productCell}>
-        <Flex gap={12} style={{ alignItems: 'center' }}>
+        <Flex gap={3} align="center">
           <Thumbnail src={item?.product?.image?.url} size="small" />
-          <Flex direction="column" gap={4} css={styles.mutedText}>
+          <Flex direction="column" gap={1} css={styles.mutedText}>
             <span>{item?.product?.name} </span>
             <span>{item?.name}</span>
           </Flex>

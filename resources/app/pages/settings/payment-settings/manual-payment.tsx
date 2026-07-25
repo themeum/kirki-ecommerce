@@ -99,7 +99,7 @@ const ManualPayment = (props: ManualPaymentProps) => {
         {manualPaymentList?.length === 0 ? (
         <Card css={cardStyles.innerDarkCard}>
           <CardContent css={[cardStyles.innerDarkContent, styles.emptyStateContent]}>
-            <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
+            <Flex direction="column" gap={2} align="center">
               <CashIcon />
               <span style={{ color: theme.colors.text.subdued }}>
                 {__('No payment added yet', 'kirki-ecommerce')}
@@ -108,7 +108,7 @@ const ManualPayment = (props: ManualPaymentProps) => {
           </CardContent>
         </Card>
         ) : (
-        <Flex direction="column" gap={16}>
+        <Flex direction="column" gap={4}>
         {manualPaymentList?.map((item, index) => (
         <Card css={cardStyles.innerCard}
                 
@@ -116,8 +116,8 @@ const ManualPayment = (props: ManualPaymentProps) => {
         >
           <CardContent css={[cardStyles.innerContent, styles.gatewayItemContent]}>
 
-          <Flex style={{ alignItems: 'center' }}>
-          <Flex gap={8} style={{ alignItems: 'center' }}>
+          <Flex align="center">
+          <Flex gap={2} align="center">
             {item?.icon ? (
               <img
                 height={20}

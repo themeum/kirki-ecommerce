@@ -138,7 +138,7 @@ const ApiConfigurationPopup = ({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleConfiguration)}>
             <DialogBody>
-              <Flex direction="column" gap={16}>
+              <Flex direction="column" gap={4}>
                 <PasswordField
                   name="api_key"
                   label={__('API Key', 'kirki-ecommerce')}
@@ -177,7 +177,7 @@ const ApiConfigurationPopup = ({
               >
                 {__('Remove', 'kirki-ecommerce')}
               </Button>
-              <ActionGroup gap={12}>
+              <ActionGroup gap={3}>
                 <DialogClose asChild>
                   <Button
                     type="button"

@@ -84,7 +84,7 @@ const SingleRow = ({
           />
         </TableCell>
         <TableCell>
-          <Flex gap={12} style={{ alignItems: 'center' }}>
+          <Flex gap={3} align="center">
             {selectedItem?.type === 'color' && (
               <div
                 style={{

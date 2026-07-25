@@ -8,7 +8,7 @@ type ActionGroupProps = ComponentPropsWithoutRef<typeof Flex>;
 
 const ActionGroup = forwardRef<HTMLDivElement, ActionGroupProps>(
   (props, ref) => {
-    const { css: cssProp, gap = 8, children, ...rest } = props;
+    const { css: cssProp, gap = 2, children, ...rest } = props;
 
     return (
       <Flex

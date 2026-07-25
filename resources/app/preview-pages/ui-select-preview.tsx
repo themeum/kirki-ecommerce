@@ -1,3 +1,4 @@
+import { css } from '@emotion/react';
 import Flex from '@/components/ui/flex';
 
 import Label from '@/components/ui/label';
@@ -11,7 +12,7 @@ import {
 
 const UiSelectPreview = () => {
   return (
-    <Flex direction="column" gap={12} style={{ maxWidth: 240 }}>
+    <Flex direction="column" gap={3} css={css({ maxWidth: 240 })}>
       <div>
         <Label>Default</Label>
         <Select defaultValue="apple">

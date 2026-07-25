@@ -276,7 +276,7 @@ const ShippingSettings = () => {
       <Container size="sm">
         {loaded ? (
           <Form {...form}>
-            <Flex direction="column" gap={16}>
+            <Flex direction="column" gap={4}>
               <PageNavbar
                 handleBack={handleBackButton}
                 textIcon={<TruckIcon />}
@@ -299,9 +299,8 @@ const ShippingSettings = () => {
                       <CardContent css={[cardStyles.innerDarkContent, styles.emptyState]}>
                         <Flex
                           direction="column"
-                          gap={8}
-                          style={{ alignItems: 'center' }}
-                        >
+                          gap={2}
+                          align="center">
                           <LocationIcon />
                           <span css={styles.emptyStateText}>
                             {__(
@@ -313,7 +312,7 @@ const ShippingSettings = () => {
                       </CardContent>
                     </Card>
                   ) : (
-                  <Flex direction="column" gap={12}>
+                  <Flex direction="column" gap={3}>
                     {shippingZonesObj?.map((item) => (
                       <OptionAccordion
                         key={item?.id}
@@ -331,9 +330,8 @@ const ShippingSettings = () => {
                         state={item?.is_enabled}
                       >
                         <Flex
-                          gap={8}
-                          style={{ flexWrap: 'wrap', rowGap: theme.spacing[2] }}
-                        >
+                          gap={2}
+                          wrap="wrap" rowGap={2}>
                           {(
                             getSelectedRegionTags(
                               item?.regions,

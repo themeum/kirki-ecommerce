@@ -18,7 +18,7 @@ const RadioGroupPreview = () => {
         console.log(selectedValue);
       }}
     >
-      <Flex direction="column" gap={8}>
+      <Flex direction="column" gap={2}>
         {options.map((option) => (
           <FormFieldRow key={option.value}>
             <RadioGroupItem

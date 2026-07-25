@@ -141,7 +141,7 @@ const AddSchemaPopup = ({
         </DialogHeader>
         <Form {...form}>
           <DialogBody>
-            <Flex direction="column" gap={16}>
+            <Flex direction="column" gap={4}>
               <TextField
                 name="name"
                 label={__('Schema preset name', 'kirki-ecommerce')}

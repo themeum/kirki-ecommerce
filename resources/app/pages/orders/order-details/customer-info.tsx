@@ -31,39 +31,39 @@ const CustomerInfo = () => {
         </ActionGroup>
       </CardHeader>
       <CardContent>
-        <Flex gap={8}>
+        <Flex gap={2}>
           <span css={styles.svgClass}>
             <Thumbnail
               type="circle"
               src="https://kirki-ecommerce.test/wp-content/uploads/2025/10/Avatar.png"
             />
           </span>
-          <Flex direction="column" gap={8}>
+          <Flex direction="column" gap={2}>
             <Text weight="medium">Oliver Thorne</Text>
             <Text variant="small" color="secondary">oliverthorne@gmail.com</Text>
           </Flex>
         </Flex>
 
-        <Flex gap={8} style={{ alignItems: 'flex-start' }}>
+        <Flex gap={2} align="flex-start">
           <EmailIcon style={{ opacity: '0.5' }} />
-          <Flex direction="column" gap={8}>
+          <Flex direction="column" gap={2}>
             <Text>pabloesco.@gmail.com</Text>
             <Badge type="draft" text="Awaiting Verification" />
           </Flex>
         </Flex>
 
-        <Flex gap={8} style={{ alignItems: 'center' }}>
+        <Flex gap={2} align="center">
           <span css={styles.svgClass}>
             <PhoneIcon />
           </span>
           <Text>+1 555-123-4567</Text>
         </Flex>
 
-        <Flex gap={8} style={{ alignItems: 'flex-start' }}>
+        <Flex gap={2} align="flex-start">
           <span style={{ flexShrink: 0 }}>
             <LocationIcon />
           </span>
-          <Flex direction="column" gap={8}>
+          <Flex direction="column" gap={2}>
             <Text variant="small" color="subdued">Billing Address</Text>
             56683 Schmidt Way, 4825 Welch Crossing
             <br />
@@ -71,11 +71,11 @@ const CustomerInfo = () => {
           </Flex>
         </Flex>
 
-        <Flex gap={8} style={{ alignItems: 'flex-start' }}>
+        <Flex gap={2} align="flex-start">
           <span style={{ flexShrink: 0 }}>
             <TruckIcon style={{ opacity: '0.5' }} />
           </span>
-          <Flex direction="column" gap={8}>
+          <Flex direction="column" gap={2}>
             <Text variant="small" color="subdued">Shipping Address</Text>
             56683 Schmidt Way, 4825 Welch Crossing
             <br />

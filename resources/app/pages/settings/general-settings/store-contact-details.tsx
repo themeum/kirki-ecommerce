@@ -34,7 +34,7 @@ const StoreContactDetails = ({
       <CardContent css={cardStyles.largeContent}>
         <Card css={cardStyles.innerCard}>
           <CardContent css={cardStyles.innerCardContent}>
-            <Flex direction="column" gap={16}>
+            <Flex direction="column" gap={4}>
               <TextField
                 name="store_name"
                 label={__('Store Name', 'kirki-ecommerce')}

@@ -40,13 +40,13 @@ const BillingAddress = () => {
   return (
     <Card css={[cardStyles.formCard, styles.roundedCard]}>
       <CardHeader>
-        <Flex gap={8} style={{ alignItems: 'center' }}>
+        <Flex gap={2} align="center">
           <PaymentIcon />
           <Text weight="semibold" css={styles.header}>{__('Billing Address', 'kirki-ecommerce')}</Text>
         </Flex>
       </CardHeader>
       <CardContent>
-        <Flex direction="column" gap={8}>
+        <Flex direction="column" gap={2}>
           <Card css={cardStyles.innerDarkCard}>
             <CardContent css={cardStyles.innerDarkContent}>
               <FormField
@@ -77,7 +77,7 @@ const BillingAddress = () => {
           </Card>
           <Card css={cardStyles.innerCard}>
             <CardContent css={cardStyles.innerContent}>
-              <Flex direction="column" gap={16}>
+              <Flex direction="column" gap={4}>
                 <SelectField
                   name="billing_address.country"
                   label={__('Country / Region', 'kirki-ecommerce')}

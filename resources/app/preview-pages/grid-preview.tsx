@@ -20,7 +20,7 @@ const options: SelectOption[] = [
 const GridPreview = () => {
   return (
     <Grid columns={3}>
-      <Flex direction="column" gap={8}>
+      <Flex direction="column" gap={2}>
         <Label>Input</Label>
         <Input
           placeholder="placeholder text"
@@ -33,7 +33,7 @@ const GridPreview = () => {
           onChange={(event) => console.log(event.target.value)}
         />
       </div>
-      <Flex direction="column" gap={8}>
+      <Flex direction="column" gap={2}>
         <Label>Select dropdown 2</Label>
         <Select onValueChange={(value) => console.log(value)}>
           <SelectTrigger>

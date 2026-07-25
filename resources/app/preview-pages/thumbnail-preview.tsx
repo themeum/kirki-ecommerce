@@ -32,7 +32,7 @@ const ThumbnailPreview = () => {
   ];
 
   return (
-    <Flex gap={16} style={{ alignItems: 'center' }}>
+    <Flex gap={4} align="center">
       <Thumbnail />
       <Thumbnail src="" />
       <Thumbnail type="circle" />

@@ -252,9 +252,9 @@ const MediaGallery = ({
   };
 
   return (
-    <Flex direction="column" gap={8}>
+    <Flex direction="column" gap={2}>
       {selectedImages?.length > 0 ? (
-        <Flex style={{ alignItems: 'center', justifyContent: 'space-between' }}>
+        <Flex align="center" justify="space-between">
           <Checkbox
             value={selectedImages?.length === mediaItems?.length}
             label={`${selectedImages?.length} ${

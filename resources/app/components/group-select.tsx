@@ -105,7 +105,7 @@ const GroupSelect = (props: GroupSelectProps) => {
   };
 
   return (
-    <Flex direction="column" gap={8}>
+    <Flex direction="column" gap={2}>
       {label && (
         <Label error={Boolean(error)} helpText={error ? error : helpText}>
           {label}
@@ -148,7 +148,7 @@ const GroupSelect = (props: GroupSelectProps) => {
                   handleOptionClick(option.value, String(option.group ?? ''))
                 }
               >
-                <Flex style={{ alignItems: 'center' }} gap={8}>
+                <Flex gap={2} align="center">
                   {option.icon}
                   {checkboxField ? (
                     <Checkbox

@@ -128,7 +128,7 @@ const VariationTable = ({
       {!filteredList?.length ? (
         <Card css={cardStyles.innerDarkCard}>
           <CardContent css={[cardStyles.innerDarkContent, styles.emptyStateContent]}>
-            <Flex style={{ alignItems: 'center', justifyContent: 'center' }}>
+            <Flex align="center" justify="center">
               <Text weight="semibold" css={styles.mutedText}>{__('No data found', 'kirki-ecommerce')}</Text>
             </Flex>
           </CardContent>

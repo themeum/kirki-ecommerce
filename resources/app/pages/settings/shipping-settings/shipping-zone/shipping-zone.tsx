@@ -258,7 +258,7 @@ const ShippingZonePage = () => {
       />
       <Container size="sm">
         {loaded ? (
-          <Flex direction="column" gap={16}>
+          <Flex direction="column" gap={4}>
             <PageNavbar
               text={__('Set Zone Details', 'kirki-ecommerce')}
               handleBack={handleBackButton}
@@ -266,7 +266,7 @@ const ShippingZonePage = () => {
             <Card css={[cardStyles.largeCard, cardStyles.formCard]} >
               <CardContent css={cardStyles.largeContentPadded}>
 
-              <Flex direction="column" gap={8}>
+              <Flex direction="column" gap={2}>
               <Label
               htmlFor="shipping-zone-title"
               error={Boolean(errors?.title)}

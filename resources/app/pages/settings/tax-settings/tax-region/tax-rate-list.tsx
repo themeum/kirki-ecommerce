@@ -72,7 +72,7 @@ export const TaxRateList = ({
       {!applySingleTax && !taxRates.length ? (
         <Card css={cardStyles.innerDarkCard}>
           <CardContent css={[cardStyles.innerDarkContent, styles.emptyContent]}>
-            <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
+            <Flex direction="column" gap={2} align="center">
               <PaymentIcon />
               <span css={styles.mutedText}>
                 {__('Added tax rates will appear here', 'kirki-ecommerce')}
@@ -84,7 +84,7 @@ export const TaxRateList = ({
         <Card css={cardStyles.innerDarkCard}>
           <CardContent css={cardStyles.innerDarkContent}>
             <Text css={styles.taxRatesHeader}>{__('Tax rates', 'kirki-ecommerce')}</Text>
-            <Flex gap={2} direction={'column'}>
+            <Flex gap={1} direction={'column'}>
               {taxRates?.map((item, index) => (
                 <Card
                   key={index}
@@ -93,7 +93,7 @@ export const TaxRateList = ({
                   onMouseLeave={() => setHoveredIndex(null)}
                 >
                   <CardContent>
-                    <Flex gap={8} style={{ alignItems: 'center' }}>
+                    <Flex gap={2} align="center">
                       <LocationIcon />
                       <Text>{item?.state}</Text>
                     </Flex>
@@ -108,7 +108,7 @@ export const TaxRateList = ({
                       </Text>
 
                       <Flex
-                        gap={8}
+                        gap={2}
                         css={css(
                           styles.editGroup,
                           hoveredIndex === index && styles.editGroupActive,

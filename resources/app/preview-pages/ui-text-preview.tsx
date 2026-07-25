@@ -3,8 +3,8 @@ import Text from '@/components/ui/text';
 
 const UiTextPreview = () => {
   return (
-    <Flex direction="column" gap={24}>
-      <Flex direction="column" gap={8}>
+    <Flex direction="column" gap={6}>
+      <Flex direction="column" gap={2}>
         <Text variant="heading1">Heading 1</Text>
         <Text variant="heading2">Heading 2</Text>
         <Text variant="heading3">Heading 3</Text>
@@ -17,7 +17,7 @@ const UiTextPreview = () => {
         <Text variant="tiny">Tiny text</Text>
       </Flex>
 
-      <Flex direction="column" gap={8}>
+      <Flex direction="column" gap={2}>
         <Text color="primary">Primary</Text>
         <Text color="secondary">Secondary</Text>
         <Text color="subdued">Subdued</Text>
@@ -27,7 +27,7 @@ const UiTextPreview = () => {
         <Text color="disabled">Disabled</Text>
       </Flex>
 
-      <Flex direction="column" gap={8}>
+      <Flex direction="column" gap={2}>
         <Text weight="normal">Paragraph normal</Text>
         <Text weight="medium">Paragraph medium</Text>
         <Text weight="semibold">Paragraph semibold</Text>

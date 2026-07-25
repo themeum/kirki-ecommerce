@@ -63,7 +63,7 @@ const ColorPicker = ({
   };
 
   return (
-    <Flex direction="column" gap={8}>
+    <Flex direction="column" gap={2}>
       {label && (
         <Label error={Boolean(error)} helpText={error ? error : helpText}>
           {label}

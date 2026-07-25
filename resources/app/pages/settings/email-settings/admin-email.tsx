@@ -61,9 +61,9 @@ const AdminEmail = (props: AdminEmailProps) => {
       <Card css={styles.roundedCard}>
         <CardContent>
 
-          <Flex direction="column" gap={16}>
-            <Flex direction="column" style={{ alignItems: 'flex-start' }} gap={6}>
-              <Flex gap={8} style={{ alignItems: 'center' }}>
+          <Flex direction="column" gap={4}>
+            <Flex direction="column" gap={2} align="flex-start">
+              <Flex gap={2} align="center">
                 <SettingsIcon />
                 <Text weight="semibold">
                   {__('Admin Emails', 'kirki-ecommerce')}

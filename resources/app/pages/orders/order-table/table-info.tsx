@@ -14,22 +14,22 @@ import { flexCenter, scoped } from '@/theme/mixins';
 const TableInfo = () => {
   return (
     <Flex>
-      <Flex gap={32} style={{ alignItems: 'center' }}>
-        <Flex gap={4}>
+      <Flex gap={8} align="center">
+        <Flex gap={1}>
           <span>Sales</span>
           <span css={styles.mediumText}>$11,200</span>
           <span css={styles.svgClass}>
             <InfoIcon />
           </span>
         </Flex>
-        <Flex gap={4}>
+        <Flex gap={1}>
           <span>Orders</span>
           <span css={styles.mediumText}>12</span>
           <span css={styles.svgClass}>
             <InfoIcon />
           </span>
         </Flex>
-        <Flex gap={4}>
+        <Flex gap={1}>
           <span>Avg. order value</span>
           <span css={styles.mediumText}>$5,600</span>
           <span css={styles.svgClass}>

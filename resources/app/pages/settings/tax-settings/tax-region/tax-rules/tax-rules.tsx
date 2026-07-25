@@ -73,7 +73,7 @@ const TaxRules = (props: TaxRulesProps) => {
             onAdd={() => setAddRuleModal(true)}
           />
           {(addRuleModal || rulesObj.length > 0) && (
-            <Flex direction={'column'} gap={16}>
+            <Flex direction={'column'} gap={4}>
               {addRuleModal && (
                 <TaxRulesModal
                   showModal={addRuleModal}
@@ -99,20 +99,20 @@ const TaxRules = (props: TaxRulesProps) => {
                     onMouseLeave={() => setHoveredRuleIndex(null)}
                   >
                     <CardContent>
-                      <Flex style={{ justifyContent: 'space-between' }}>
-                        <Flex direction={'column'} gap={16}>
+                      <Flex justify="space-between">
+                        <Flex direction={'column'} gap={4}>
                           <Card css={[cardStyles.darkCard, styles.rulesNumberBadge]}>
                             <CardContent>
-                              <Flex gap={8} style={{ alignItems: 'center' }}>
+                              <Flex gap={2} align="center">
                                 <LighteningIcon />
                                 <Text variant="small">{sprintf(__('Rule %s', 'kirki-ecommerce'), index + 1)}</Text>
                               </Flex>
                             </CardContent>
                           </Card>
-                          <Flex direction={'column'} gap={8}>
-                            <Flex direction={'column'} gap={8}>
+                          <Flex direction={'column'} gap={2}>
+                            <Flex direction={'column'} gap={2}>
                               {item?.conditions.map((condition, conditionIndex) => (
-                                <Flex gap={8} key={conditionIndex}>
+                                <Flex gap={2} key={conditionIndex}>
                                   <Text>{conditionIndex === 0
                                     ? sprintf(
                                       __('IF %1$s %2$s', 'kirki-ecommerce'),
@@ -138,7 +138,7 @@ const TaxRules = (props: TaxRulesProps) => {
                                 </Flex>
                               ))}
                             </Flex>
-                            <Flex gap={8}>
+                            <Flex gap={2}>
                               <Text>{item?.action?.type === 'set_tax_rate'
                                 ? `Then ${item?.action?.type}:`
                                 : `Then ${item?.action?.type}`}</Text>

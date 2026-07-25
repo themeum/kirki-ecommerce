@@ -286,11 +286,11 @@ const EditProductInner = () => {
       <Container>
         <div style={{ display: 'flex', gap: 16, width: '100%' }}>
           <div style={{ width: '70%' }}>
-            <Flex direction="column" gap={16}>
+            <Flex direction="column" gap={4}>
               <Form {...basicsForm}>
                 <Card css={cardStyles.formCard}>
                   <CardContent>
-                    <Flex gap={12}>
+                    <Flex gap={3}>
                       <div style={{ width: '70%' }}>
                         <TextField
                           name="title"

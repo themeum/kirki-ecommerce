@@ -9,7 +9,7 @@ const PlaceholderPreview = () => {
   };
 
   return (
-    <Flex direction="column" gap={16}>
+    <Flex direction="column" gap={4}>
       <MediaSelector label="Small Placeholder" style={{ width: 'max-content' }}>
         <Placeholder size="small" />
       </MediaSelector>

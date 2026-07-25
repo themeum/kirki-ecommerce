@@ -162,7 +162,7 @@ const TaxRegions = (props: TaxRegionsProps) => {
           {!taxRegions.length ? (
             <Card css={cardStyles.innerDarkCard}>
               <CardContent css={[cardStyles.innerDarkContent, styles.emptyStateContent]}>
-                <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
+                <Flex direction="column" gap={2} align="center">
                   <LocationIcon />
                   <span css={styles.mutedText}>
                     {__('Added tax zones will appear here', 'kirki-ecommerce')}
@@ -171,15 +171,15 @@ const TaxRegions = (props: TaxRegionsProps) => {
               </CardContent>
             </Card>
           ) : (
-            <Flex direction="column" gap={12}>
+            <Flex direction="column" gap={3}>
               {taxRegions.map((item, index) => (
                 <Card css={[cardStyles.innerCard, styles.regionCard]} key={index} >
                   <CardContent css={cardStyles.innerContent}>
 
-                    <Flex style={{ alignItems: 'flex-start' }} gap={8}>
+                    <Flex gap={2} align="flex-start">
                       <span>{item?.flag}</span>
-                      <Flex direction="column" gap={12}>
-                        <Flex gap={8} style={{ alignItems: 'center' }}>
+                      <Flex direction="column" gap={3}>
+                        <Flex gap={2} align="center">
                           <Text
                             weight="medium"
                             color={!item?.is_enabled ? 'disabled' : 'primary'}

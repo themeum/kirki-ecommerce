@@ -1,3 +1,4 @@
+import { css } from '@emotion/react';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -176,17 +177,17 @@ const CustomerDetails = () => {
         sticky
       />
       <Container>
-        <Flex gap={16}>
-          <Flex direction="column" gap={16} style={{ width: '70%' }}>
+        <Flex gap={4}>
+          <Flex direction="column" gap={4} css={css({ width: '70%' })}>
             <CustomerOverview />
             <ShippingAddress />
             <BillingAddress />
           </Flex>
 
-          <Flex direction="column" gap={16} style={{ width: '30%' }}>
+          <Flex direction="column" gap={4} css={css({ width: '30%' })}>
             <Card css={cardStyles.formCard}>
               <CardContent>
-                <Flex direction="column" gap={16}>
+                <Flex direction="column" gap={4}>
                   <Label>{__('Notes', 'kirki-ecommerce')}</Label>
                   <Button variant="secondary" style={{ width: '100%' }}>
                     <PlusIcon />

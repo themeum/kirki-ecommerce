@@ -53,7 +53,7 @@ const OrderId = () => {
         <CardContent css={cardStyles.largeContent}>
           <Card css={cardStyles.innerCard}>
             <CardContent css={cardStyles.innerCardContent}>
-              <Flex direction="column" gap={16}>
+              <Flex direction="column" gap={4}>
                 <Grid>
                   <TextField
                     name="order_id_prefix"
@@ -72,7 +72,7 @@ const OrderId = () => {
 
                 <Card css={[cardStyles.innerDarkCard, styles.previewCard]}>
                   <CardContent css={styles.previewCardContent}>
-                    <Flex direction="column" gap={8}>
+                    <Flex direction="column" gap={2}>
                       <Label htmlFor="order-id-preview">
                         {__('Next order IDs will look like:', 'kirki-ecommerce')}
                       </Label>
@@ -88,8 +88,8 @@ const OrderId = () => {
 
                 <Card css={[cardStyles.largeCard, styles.resetCard]}>
                   <CardContent css={cardStyles.largeContentPadded}>
-                    <Flex direction="column" gap={10}>
-                      <Flex style={{ alignItems: 'center' }}>
+                    <Flex direction="column" gap={3}>
+                      <Flex align="center">
                         <Text weight="medium">{__('Reset Order ID', 'kirki-ecommerce')}</Text>
                         <ActionGroup>
                           <Button

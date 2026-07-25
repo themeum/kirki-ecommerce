@@ -184,7 +184,7 @@ const Categories = () => {
           {categories.length > 0 && (
             <div css={styles.list}>
               <div css={styles.row}>
-                <Flex gap={8} style={{ alignItems: 'center' }}>
+                <Flex gap={2} align="center">
                   <Checkbox
                     id="categories-all-products"
                     checked={

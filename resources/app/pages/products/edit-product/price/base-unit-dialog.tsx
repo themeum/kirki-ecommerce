@@ -141,13 +141,13 @@ const BaseUnitPopup = ({
       </PopoverTrigger>
       <PopoverContent align="start" style={{ width: '280px' }}>
         <Form {...form}>
-          <Flex direction="column" gap={16}>
-            <Flex direction="column" gap={12}>
-              <Flex direction="column" gap={8}>
+          <Flex direction="column" gap={4}>
+            <Flex direction="column" gap={3}>
+              <Flex direction="column" gap={2}>
                 <FormLabel>
                   {__('Total unit in product', 'kirki-ecommerce')}
                 </FormLabel>
-                <Flex gap={8}>
+                <Flex gap={2}>
                   <div style={{ flex: 1 }}>
                     <FormField
                       control={form.control}
@@ -216,9 +216,9 @@ const BaseUnitPopup = ({
                   </div>
                 </Flex>
               </Flex>
-              <Flex direction="column" gap={8}>
+              <Flex direction="column" gap={2}>
                 <FormLabel>{__('Base unit', 'kirki-ecommerce')}</FormLabel>
-                <Flex gap={8}>
+                <Flex gap={2}>
                   <div style={{ flex: 1 }}>
                     <FormField
                       control={form.control}
@@ -282,7 +282,7 @@ const BaseUnitPopup = ({
                 </Flex>
               </Flex>
             </Flex>
-            <Flex gap={8}>
+            <Flex gap={2}>
               <Button
                 variant="ghost"
                 style={{ flex: 1 }}

@@ -243,7 +243,7 @@ const TaxSettings = () => {
       <Container size="sm">
         {loaded ? (
           <Form {...form}>
-            <Flex direction="column" gap={16}>
+            <Flex direction="column" gap={4}>
               <PageNavbar
                 textIcon={<TaxIcon />}
                 text={'Tax'}
@@ -252,14 +252,14 @@ const TaxSettings = () => {
               <Card css={cardStyles.largeCard} >
                 <CardContent css={cardStyles.largeContentPadded}>
 
-                <Flex direction="column" gap={8}>
+                <Flex direction="column" gap={2}>
                   <Text weight="semibold" css={styles.taxCollectionHeader}>{__('How would you like to collect tax?', 'kirki-ecommerce')}</Text>
                   <Text color="secondary">{__(
                 'Configure how tax is displayed and how it appears on your product listings.',
                 'kirki-ecommerce',
                 )}</Text>
                 </Flex>
-                <Flex direction="column" gap={12}>
+                <Flex direction="column" gap={3}>
                 <TaxCollectionRadio />
                 <TaxCollectionOptions />
                 </Flex>

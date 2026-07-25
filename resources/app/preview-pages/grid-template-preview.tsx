@@ -35,17 +35,17 @@ const GridTemplatePreview = () => {
       </CardHeader>
       <CardContent>
         <Grid columns={2}>
-          <Flex direction="column" gap={8}>
+          <Flex direction="column" gap={2}>
             <Label>Regular price</Label>
             <Input placeholder="29.00" />
           </Flex>
-          <Flex direction="column" gap={8}>
+          <Flex direction="column" gap={2}>
             <Label>Sale price</Label>
             <Input placeholder="19.99" />
           </Flex>
         </Grid>
         <Grid columns={1}>
-          <Flex direction="column" gap={8}>
+          <Flex direction="column" gap={2}>
             <Checkbox label="Charge tax on this product" value={true} />
             <Select onValueChange={(value) => console.log(value)}>
               <SelectTrigger>
@@ -63,7 +63,7 @@ const GridTemplatePreview = () => {
         </Grid>
         <Separator />
         <Grid columns={3}>
-          <Flex direction="column" gap={8}>
+          <Flex direction="column" gap={2}>
             <Label>Cost of goods</Label>
             <Input
               placeholder="15.00"
@@ -79,11 +79,11 @@ const GridTemplatePreview = () => {
               onBlur={(event) => console.log(event.target.value, 'blur')}
             />
           </Flex>
-          <Flex direction="column" gap={8}>
+          <Flex direction="column" gap={2}>
             <Label>Profit</Label>
             <Input placeholder="4.99" type="number" max={10} />
           </Flex>
-          <Flex direction="column" gap={8}>
+          <Flex direction="column" gap={2}>
             <Label>Margin(%)</Label>
             <Input placeholder="24.96" type="number" />
           </Flex>
@@ -91,7 +91,7 @@ const GridTemplatePreview = () => {
 
         <Card css={cardStyles.innerCard}>
           <CardContent css={cardStyles.innerContent}>
-            <Flex direction="column" gap={8}>
+            <Flex direction="column" gap={2}>
               <Text weight="medium">Limit Orders to One Item</Text>
               <Text variant="small" color="secondary">Let customers purchase only one item in a single order. Particularly use full for items that are limited in quantity i.e. handmade items</Text>
             </Flex>

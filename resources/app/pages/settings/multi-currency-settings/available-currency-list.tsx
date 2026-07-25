@@ -1,3 +1,4 @@
+import { css } from '@emotion/react';
 import { type ComponentProps, type ReactNode, useState } from 'react';
 import { useWatch } from 'react-hook-form';
 
@@ -164,12 +165,7 @@ export const AvailableCurrencyList = () => {
     <>
       <Card css={cardStyles.innerCard}>
         <CardContent css={styles.innerCardContent}>
-          <Flex
-            style={{
-              justifyContent: 'space-between',
-              paddingBottom: theme.spacing[3],
-            }}
-          >
+          <Flex justify="space-between" css={css({ paddingBottom: theme.spacing[3] })}>
             <Text weight="semibold">{__('Available Currencies', 'kirki-ecommerce')}</Text>
             <AddCurrencyPopup />
           </Flex>
@@ -182,12 +178,7 @@ export const AvailableCurrencyList = () => {
             actionsArray={[]}
             handleAction={(action, item) => handleAction(action, item as CurrencyListItem)}
           />
-          <Flex
-            gap={8}
-            style={{
-              paddingTop: theme.spacing[2],
-            }}
-          >
+          <Flex gap={2} css={css({ paddingTop: theme.spacing[2] })}>
             <InfoIcon />
             <Text variant="small" color="subdued">{showApiProviderStatus
                   ? sprintf(

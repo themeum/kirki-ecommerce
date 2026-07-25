@@ -38,7 +38,7 @@ const BrandFilter = ({
   };
 
   return (
-    <Flex direction="column" gap={8}>
+    <Flex direction="column" gap={2}>
       <Label>{__('Brand', 'kirki-ecommerce')}</Label>
       <Combobox
         options={brandOptions}

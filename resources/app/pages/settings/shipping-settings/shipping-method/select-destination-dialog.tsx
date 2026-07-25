@@ -240,7 +240,7 @@ export const SelectDestinationPopup = ({
               options={countryOptions}
             />
 
-            <Flex direction="column" gap={8}>
+            <Flex direction="column" gap={2}>
               <Label htmlFor="select-destination-search">
                 {__('Regions', 'kirki-ecommerce')}
               </Label>
@@ -262,7 +262,7 @@ export const SelectDestinationPopup = ({
             >
               {filteredStates?.map((state, index) => (
                 <div key={index} css={styles.checkboxItem}>
-                  <Flex gap={8} style={{ alignItems: 'center' }}>
+                  <Flex gap={2} align="center">
                     <Checkbox
                       id={`select-destination-state-${index}`}
                       checked={selectedStates.includes(state.id)}

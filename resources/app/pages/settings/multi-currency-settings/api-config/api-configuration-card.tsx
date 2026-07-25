@@ -57,15 +57,11 @@ const ApiConfigurationCard = ({
   return (
     <Card>
       <CardContent>
-        <Flex direction={'column'} gap={20}>
+        <Flex direction={'column'} gap={5}>
           <Flex
-            style={{
-              justifyContent: 'space-between',
-              alignItems: 'flex-start',
-            }}
-          >
-            <Flex direction={'column'} gap={8}>
-              <Flex gap={8} style={{ alignItems: 'center' }}>
+            justify="space-between" align="flex-start">
+            <Flex direction={'column'} gap={2}>
+              <Flex gap={2} align="center">
                 <FlagIcon />
                 <Text weight="semibold">{selectedAPI}</Text>
                 <Badge
@@ -88,7 +84,7 @@ const ApiConfigurationCard = ({
             </Button>
           </Flex>
           {usage && usage !== null && (
-            <Flex direction={'column'} gap={6}>
+            <Flex direction={'column'} gap={2}>
               <ProgressBar
                 value={Number(usage?.used)}
                 showProgressIndicator={false}
@@ -109,11 +105,11 @@ const ApiConfigurationCard = ({
           )}
           <Card css={styles.innerDarkCard}>
             <CardContent css={styles.innerDarkContent}>
-              <Flex gap={4}>
+              <Flex gap={1}>
                 <Text style={{ color: theme.primitives.colors.gray12 }}>{__('Fallback Behavior: ', 'kirki-ecommerce')}</Text>
                 <Text>{formatValue(apiConfigObj?.fallback_behaviour)}</Text>
               </Flex>
-              <Flex gap={4}>
+              <Flex gap={1}>
                 <Text style={{ color: theme.primitives.colors.gray12 }}>{__('Update Frequency: ', 'kirki-ecommerce')}</Text>
                 <Text>{formatValue(apiConfigObj?.update_frequency)}</Text>
               </Flex>

@@ -387,7 +387,14 @@ const theme = {
 } as const;
 
 type AppTheme = typeof theme;
+type SpacingKey = keyof typeof theme.spacing;
 
 export { CSS_VAR_PREFIX, getCssVarName, PRIMITIVE_CSS_VAR_KEYS, theme };
-export type { AppTheme, PrimitiveColorKey, TypographyStyle, TypographyWeight };
+export type {
+  AppTheme,
+  PrimitiveColorKey,
+  SpacingKey,
+  TypographyStyle,
+  TypographyWeight,
+};
 

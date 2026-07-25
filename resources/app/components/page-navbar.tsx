@@ -31,7 +31,7 @@ const PageNavbar = (props: PageNavbarProps) => {
 
   return (
     <div style={style}>
-      <Flex style={{ alignItems: 'center', justifyContent: 'center' }}>
+      <Flex align="center" justify="center">
         <Button
           variant="ghost"
           aria-label={__('Back', 'kirki-ecommerce')}
@@ -42,7 +42,7 @@ const PageNavbar = (props: PageNavbarProps) => {
         </Button>
         <div css={styles.connector} />
         <Card css={cardStyles.navbarCard}>
-          <Flex gap={8} style={{ alignItems: 'center' }}>
+          <Flex gap={2} align="center">
             {textIcon}
             <Text weight="semibold">{text}</Text>
           </Flex>

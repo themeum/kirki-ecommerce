@@ -33,7 +33,7 @@ const SingleRow = ({
         />
       </TableCell>
       <TableCell>
-        <Flex gap={12} style={{ alignItems: 'center' }}>
+        <Flex gap={3} align="center">
           <Thumbnail src={item?.image ?? undefined} size="small" />
           <span
             css={styles.clickable}

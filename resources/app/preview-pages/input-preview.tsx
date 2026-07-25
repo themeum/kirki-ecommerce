@@ -10,7 +10,7 @@ const InputPreview = () => {
 
   return (
     <>
-      <Flex direction="column" gap={8}>
+      <Flex direction="column" gap={2}>
         <Label helpText="this field is for username">Username</Label>
         <Input
           placeholder="Placeholder"
@@ -19,7 +19,7 @@ const InputPreview = () => {
           onBlur={(event) => handleValueChange(event.target.value)}
         />
       </Flex>
-      <Flex direction="column" gap={8}>
+      <Flex direction="column" gap={2}>
         <Label>Description</Label>
         <Textarea
           placeholder="Write a description"
@@ -28,7 +28,7 @@ const InputPreview = () => {
           rows={5}
         />
       </Flex>
-      <Flex direction="column" gap={8}>
+      <Flex direction="column" gap={2}>
         <Label error helpText="choos a file">
           Photo
         </Label>

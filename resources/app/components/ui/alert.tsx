@@ -33,7 +33,7 @@ const Alert = forwardRef<HTMLDivElement, AlertProps>((props, ref) => {
       {...rest}
     >
       {hasHighlight && <div css={styles.highlight} aria-hidden="true" />}
-      <Flex gap={8} style={{ alignItems: 'flex-start' }}>
+      <Flex gap={2} align="flex-start">
         {icon && (
           <span css={styles.icon} aria-hidden="true">
             {icon}

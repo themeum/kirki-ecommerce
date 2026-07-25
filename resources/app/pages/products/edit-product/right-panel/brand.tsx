@@ -1,3 +1,4 @@
+import { css } from '@emotion/react';
 import { useEffect, useMemo, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 
@@ -98,16 +99,16 @@ const Brand = () => {
   return (
     <>
       {productBrand?.id ? (
-        <Flex direction="column" gap={8}>
+        <Flex direction="column" gap={2}>
           <Label helpText={__('Brand', 'kirki-ecommerce')}>
             {__('Brand', 'kirki-ecommerce')}
           </Label>
           <Card css={cardStyles.innerCard}>
             <CardContent css={cardStyles.innerContent}>
-              <Flex gap={8} style={{ alignItems: 'center' }}>
+              <Flex gap={2} align="center">
                 <Thumbnail src={brandLogo?.url} />
                 <Text variant="small">{productBrand?.name}</Text>
-                <ActionGroup style={{ cursor: 'pointer' }}>
+                <ActionGroup css={css({ cursor: 'pointer' })}>
                   <Button
                     variant="ghost"
                     onClick={handleRemoveBrand}
@@ -120,7 +121,7 @@ const Brand = () => {
           </Card>
         </Flex>
       ) : (
-        <Flex direction="column" gap={8}>
+        <Flex direction="column" gap={2}>
           <Label helpText={__('Brand', 'kirki-ecommerce')}>
             {__('Brand', 'kirki-ecommerce')}
           </Label>

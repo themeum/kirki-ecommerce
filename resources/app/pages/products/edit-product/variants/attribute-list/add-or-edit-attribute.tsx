@@ -222,9 +222,9 @@ const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
     <Form {...form}>
       <Card css={cardStyles.innerCard}>
         <CardContent css={cardStyles.innerContent}>
-          <Flex direction="column" gap={16}>
+          <Flex direction="column" gap={4}>
             {!data && (
-              <Flex direction="column" gap={8}>
+              <Flex direction="column" gap={2}>
                 <div>{__('Show in Product page as', 'kirki-ecommerce')}</div>
                 <Flex css={styles.typeSelector}>
                   <Button

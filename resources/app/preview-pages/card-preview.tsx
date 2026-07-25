@@ -12,7 +12,7 @@ import { cardStyles } from '@/theme/card-styles';
 
 const CardPreview = () => {
   return (
-    <Flex direction="column" gap={16}>
+    <Flex direction="column" gap={4}>
       <Card>
         <CardHeader>
           <CardTitle>Card Title</CardTitle>

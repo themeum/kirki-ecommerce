@@ -77,8 +77,8 @@ const ShippingProfile = ({
   return (
     <Card css={cardStyles.innerDarkCard}>
       <CardContent css={styles.innerDarkRowContent}>
-        <Grid style={{ alignItems: 'center' }}>
-        <Flex gap={8} style={{ alignItems: 'center' }}>
+        <Grid align="center">
+        <Flex gap={2} align="center">
           <Checkbox
             id="assign-shipping-profile"
             checked={show}
@@ -114,7 +114,7 @@ const ShippingProfile = ({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value={ADD_SHIPPING_PROFILE_VALUE}>
-              <Flex gap={8} style={{ alignItems: 'center' }}>
+              <Flex gap={2} align="center">
                 <PlusCircleIcon />
                 {__('Add Shipping Profile', 'kirki-ecommerce')}
               </Flex>

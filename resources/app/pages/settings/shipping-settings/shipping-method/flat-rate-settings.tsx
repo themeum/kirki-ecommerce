@@ -20,8 +20,8 @@ const FlatRateSettings = ({
   dataObj,
 }: FlatRateSettingsProps) => {
   return (
-    <Flex direction="column" gap={16}>
-      <Flex direction="column" gap={8}>
+    <Flex direction="column" gap={4}>
+      <Flex direction="column" gap={2}>
         <Label htmlFor="flat-rate-amount">{__('Rate', 'kirki-ecommerce')}</Label>
         <Input
           id="flat-rate-amount"
@@ -43,7 +43,7 @@ const FlatRateSettings = ({
         </Label>
       </FormFieldRow>
 
-      <Flex direction="column" gap={8}>
+      <Flex direction="column" gap={2}>
         <Label htmlFor="flat-rate-description">
           {__('Description', 'kirki-ecommerce')}
         </Label>

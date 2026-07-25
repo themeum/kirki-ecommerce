@@ -33,8 +33,8 @@ const NotFound = () => {
               404
             </span>
 
-            <Flex direction="column" gap={8} css={styles.copy}>
-              <Flex direction="column" gap={8}>
+            <Flex direction="column" gap={2} css={styles.copy}>
+              <Flex direction="column" gap={2}>
                 <Text weight="semibold" css={styles.copyText}>{__('Page not found', 'kirki-ecommerce')}</Text>
                 <Text color="secondary">{__(
                   'Sorry, the page you are looking for could not be found. It may have been moved or never existed.',
@@ -52,7 +52,7 @@ const NotFound = () => {
               </div>
             )}
 
-            <Flex gap={12} css={styles.actions}>
+            <Flex gap={3} css={styles.actions}>
               <Button variant="primary" onClick={handleGoToProducts}>
                 <BoxIcon color={theme.colors.text.light} />
                 {__('Go to Products', 'kirki-ecommerce')}

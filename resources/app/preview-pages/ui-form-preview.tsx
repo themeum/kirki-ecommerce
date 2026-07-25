@@ -1,3 +1,4 @@
+import { css } from '@emotion/react';
 import { useForm } from 'react-hook-form';
 
 import Flex from '@/components/ui/flex';
@@ -32,7 +33,7 @@ const UiFormPreview = () => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)}>
-        <Flex direction="column" gap={12} style={{ maxWidth: 320 }}>
+        <Flex direction="column" gap={3} css={css({ maxWidth: 320 })}>
           <FormField
             control={form.control}
             name="username"

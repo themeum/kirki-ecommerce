@@ -286,7 +286,7 @@ const SingleRow = (props: SingleRowProps) => {
         css={styles.stickyCell}
         data-sticky-cell="true"
       >
-        <Flex gap={12} style={{ alignItems: 'center' }}>
+        <Flex gap={3} align="center">
           <ThumbnailSelector
             src={media?.url}
             onChange={(img) =>

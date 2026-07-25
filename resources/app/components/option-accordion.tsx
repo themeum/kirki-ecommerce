@@ -51,14 +51,14 @@ const OptionAccordion = (props: OptionAccordionProps) => {
         <AccordionItem>
           <AccordionTrigger
             css={styles.trigger}
-            gap={16}
+            gap={4}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
           >
-            <Flex gap={8} style={{ alignItems: 'center' }}>
+            <Flex gap={2} align="center">
               {leftIcon}
-              <Flex direction="column" gap={6}>
-                <Flex gap={8} style={{ alignItems: 'center' }}>
+              <Flex direction="column" gap={2}>
+                <Flex gap={2} align="center">
                   <Text weight="medium" color={headerColor}>
                     {header}
                   </Text>

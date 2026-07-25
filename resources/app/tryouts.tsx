@@ -1,3 +1,4 @@
+import { css } from '@emotion/react';
 import RichText from '@/components/rich-text';
 import Button from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -80,7 +81,7 @@ const Tryouts = () => {
         hasBack
       />
       <Container>
-        <Flex direction="column" gap={16}>
+        <Flex direction="column" gap={4}>
           <Text weight="semibold">UI Components</Text>
 
           <Card css={cardStyles.formCard}>
@@ -322,7 +323,7 @@ const Tryouts = () => {
               <CardTitle>Tab</CardTitle>
             </CardHeader>
             <CardContent>
-              <Flex direction="column" gap={16}>
+              <Flex direction="column" gap={4}>
                 <TabPreview />
               </Flex>
             </CardContent>
@@ -332,7 +333,7 @@ const Tryouts = () => {
               <CardTitle>Heading</CardTitle>
             </CardHeader>
             <CardContent>
-              <Flex direction="column" gap={16}>
+              <Flex direction="column" gap={4}>
                 <HeadingPreview />
               </Flex>
             </CardContent>
@@ -358,12 +359,12 @@ const Tryouts = () => {
               <CardTitle>Flex</CardTitle>
             </CardHeader>
             <CardContent>
-              <Flex gap={40}>
+              <Flex gap={10}>
                 <div>Flex Item 1</div>
                 <div>Flex Item 2</div>
                 <div>Flex Item 3</div>
               </Flex>
-              <Flex direction="column" gap={12} style={{ marginTop: 16 }}>
+              <Flex direction="column" gap={3} css={css({ marginTop: 16 })}>
                 <div>Flex Item 1</div>
                 <div>Flex Item 2</div>
                 <div>Flex Item 3</div>

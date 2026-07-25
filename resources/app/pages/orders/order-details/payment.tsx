@@ -9,27 +9,27 @@ import { scoped } from '@/theme/mixins';
 
 const Payment = () => {
   return (
-    <Flex direction="column" gap={16}>
-      <Flex style={{ justifyContent: 'space-between' }}>
+    <Flex direction="column" gap={4}>
+      <Flex justify="space-between">
         <Text weight="semibold">Payment</Text>
         <Badge type="pending" text="UNPAID" />
       </Flex>
       <Card css={[cardStyles.innerCard, styles.dashedCard]}>
         <CardContent css={cardStyles.innerContent}>
-          <Flex direction="column" gap={4}>
-          <Flex style={{ justifyContent: 'space-between' }}>
+          <Flex direction="column" gap={1}>
+          <Flex justify="space-between">
             <span>Items</span>
             <span>$900</span>
           </Flex>
-          <Flex style={{ justifyContent: 'space-between' }}>
+          <Flex justify="space-between">
             <span>Shipping </span>
             <span>$100</span>
           </Flex>
-          <Flex style={{ justifyContent: 'space-between' }}>
+          <Flex justify="space-between">
             <span>Tax</span>
             <span>$10</span>
           </Flex>
-          <Flex style={{ justifyContent: 'space-between' }}>
+          <Flex justify="space-between">
             <span>Total</span>
             <span>$1200</span>
           </Flex>

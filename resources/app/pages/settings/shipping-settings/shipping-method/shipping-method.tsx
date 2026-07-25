@@ -150,7 +150,7 @@ export const ShippingMethod = ({
             {!shippingMethodList?.length ? (
               <Card css={cardStyles.innerDarkCard}>
                 <CardContent css={[cardStyles.innerDarkContent, styles.emptyState]}>
-                  <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
+                  <Flex direction="column" gap={2} align="center">
                     <BoxOpenIcon />
                     <span css={styles.emptyStateText}>
                       {__(

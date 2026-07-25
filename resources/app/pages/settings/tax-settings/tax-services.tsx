@@ -23,9 +23,9 @@ const TaxServices = () => {
     <div>
       <Card css={cardStyles.largeCard}>
         <CardContent css={cardStyles.largeContentPadded}>
-          <Flex direction="column" gap={6}>
-            <Flex style={{ alignItems: 'center' }}>
-              <Flex direction="column" gap={8}>
+          <Flex direction="column" gap={2}>
+            <Flex align="center">
+              <Flex direction="column" gap={2}>
                 <Text weight="semibold">
                   {__('Tax Services', 'kirki-ecommerce')}
                 </Text>
@@ -49,8 +49,8 @@ const TaxServices = () => {
                 onMouseLeave={() => setHoveredIndex(null)}
               >
                 <CardContent css={cardStyles.innerContent}>
-                  <Flex style={{ alignItems: 'center', minHeight: '36px' }} gap={8}>
-                    <Flex gap={8} style={{ alignItems: 'center' }}>
+                  <Flex gap={2} align="center" css={css({ minHeight: '36px' })}>
+                    <Flex gap={2} align="center">
                       <BoxClosedIcon />
                       <Text variant="small" css={styles.mediumHeader}>Stripe Tax</Text>
                     </Flex>

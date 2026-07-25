@@ -101,7 +101,7 @@ const MediaSelector = ({
   };
 
   return (
-    <Flex direction="column" gap={8}>
+    <Flex direction="column" gap={2}>
       {label && <Label text={label} />}
       <div
         onClick={openMediaFrame}

@@ -36,10 +36,10 @@ const ItemsTable = () => {
         {[0, 1, 2, 3].map((item, index) => (
           <TableRow key={index}>
             <TableCell>
-              <Flex gap={12}>
-                <Flex gap={12} style={{ alignItems: 'center' }}>
+              <Flex gap={3}>
+                <Flex gap={3} align="center">
                   <Thumbnail src={itemImg[item].url} />
-                  <Flex direction="column" gap={8}>
+                  <Flex direction="column" gap={2}>
                     <Text>Hockey Shoes</Text>
                     <Text color="secondary">Beige white</Text>
                   </Flex>

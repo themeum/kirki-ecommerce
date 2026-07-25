@@ -1,3 +1,4 @@
+import { css } from '@emotion/react';
 import {
   useEffect,
   useState,
@@ -220,21 +221,16 @@ const Price = ({ errors, setErrors, formSyncKey = 0 }: PriceProps) => {
             />
           </Grid>
 
-          <Flex direction="column" gap={8}>
+          <Flex direction="column" gap={2}>
             <Card css={cardStyles.innerDarkCard}>
               <CardContent css={styles.innerDarkRowContent}>
-                <Flex
-                  style={{
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                  }}
-                >
+                <Flex align="center" justify="space-between">
                 <FormField
                   control={form.control}
                   name="show_unit_price"
                   render={({ field }) => (
                     <FormItem style={{ flex: '1' }}>
-                      <Flex gap={8} style={{ alignItems: 'center', flex: '1' }}>
+                      <Flex gap={2} align="center" grow={1}>
                         <Checkbox
                           id="show-unit-price"
                           checked={Boolean(field.value)}
@@ -255,15 +251,7 @@ const Price = ({ errors, setErrors, formSyncKey = 0 }: PriceProps) => {
                   )}
                 />
                 <div>
-                  <Flex
-                    gap={8}
-                    style={{
-                      flex: '2',
-                      alignItems: 'center',
-                      justifyContent: 'flex-end',
-                      visibility: showUnitPrice ? 'visible' : 'hidden',
-                    }}
-                  >
+                  <Flex gap={2} align="center" justify="flex-end" css={css({ flex: '2', visibility: showUnitPrice ? 'visible' : 'hidden' })}>
                     <Text color="secondary">{__('Base price per unit', 'kirki-ecommerce')}</Text>
                     <BaseUnitPopup
                       errors={errors}
@@ -281,13 +269,13 @@ const Price = ({ errors, setErrors, formSyncKey = 0 }: PriceProps) => {
 
             <Card css={cardStyles.innerDarkCard}>
               <CardContent css={styles.innerDarkRowContent}>
-                <Grid style={{ alignItems: 'center' }}>
+                <Grid align="center">
                 <FormField
                   control={form.control}
                   name="charge_taxes"
                   render={({ field }) => (
                     <FormItem>
-                      <Flex gap={8} style={{ alignItems: 'center' }}>
+                      <Flex gap={2} align="center">
                         <Checkbox
                           id="charge-taxes"
                           checked={Boolean(field.value)}
@@ -344,7 +332,7 @@ const Price = ({ errors, setErrors, formSyncKey = 0 }: PriceProps) => {
                         </FormControl>
                         <SelectContent>
                           <SelectItem value={ADD_TAX_PROFILE_VALUE}>
-                            <Flex gap={8} style={{ alignItems: 'center' }}>
+                            <Flex gap={2} align="center">
                               <PlusCircleIcon />
                               {__('Add Tax Profile', 'kirki-ecommerce')}
                             </Flex>
@@ -411,7 +399,7 @@ const Price = ({ errors, setErrors, formSyncKey = 0 }: PriceProps) => {
                 </FormItem>
               )}
             />
-            <Flex direction="column" gap={8}>
+            <Flex direction="column" gap={2}>
               <Label>{__('Profit', 'kirki-ecommerce')}</Label>
               <div style={{ position: 'relative' }}>
                 <span
@@ -434,7 +422,7 @@ const Price = ({ errors, setErrors, formSyncKey = 0 }: PriceProps) => {
                 />
               </div>
             </Flex>
-            <Flex direction="column" gap={8}>
+            <Flex direction="column" gap={2}>
               <Label>{__('Margin(%)', 'kirki-ecommerce')}</Label>
               <Input
                 value={calculateProfit('margin', productData?.variants[0])}

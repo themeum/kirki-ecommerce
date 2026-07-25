@@ -83,7 +83,7 @@ const RightPanel = () => {
   return (
     <div style={{ width: '30%' }}>
       <Form {...form}>
-        <Flex direction="column" gap={16}>
+        <Flex direction="column" gap={4}>
           <Card css={cardStyles.formCard}>
             <CardContent>
               <SelectField

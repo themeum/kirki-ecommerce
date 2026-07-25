@@ -115,7 +115,7 @@ const PaymentGatewayEditPopup = ({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleUpdateData)}>
             <DialogBody>
-              <Flex direction="column" gap={16}>
+              <Flex direction="column" gap={4}>
                 <DynamicGatewayFields fields={editedItem?.fields} />
               </Flex>
             </DialogBody>

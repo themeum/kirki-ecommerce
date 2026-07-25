@@ -29,7 +29,7 @@ const CountrySelector = ({
   }));
 
   return (
-    <Flex direction="column" gap={8}>
+    <Flex direction="column" gap={2}>
       <Label error={Boolean(error)} helpText={error || helpText}>
         {label || __('Country / Region', 'kirki-ecommerce')}
       </Label>

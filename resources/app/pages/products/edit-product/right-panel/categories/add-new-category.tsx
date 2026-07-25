@@ -87,7 +87,7 @@ const AddNewCategory = () => {
         <Card css={cardStyles.innerCard}>
           <CardContent css={styles.formCard}>
           <Form {...form}>
-            <Flex direction="column" gap={16}>
+            <Flex direction="column" gap={4}>
               <TextField
                 name="name"
                 placeholder={__('Category name', 'kirki-ecommerce')}

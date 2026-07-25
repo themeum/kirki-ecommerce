@@ -98,7 +98,7 @@ const PageHeading = forwardRef<HTMLDivElement, PageHeadingProps>(
             <Text variant='heading5'>{text}</Text>
 
             {children}
-            <Flex css={styles.actions} gap={8}>
+            <Flex css={styles.actions} gap={2}>
               {actions}
             </Flex>
           </div>

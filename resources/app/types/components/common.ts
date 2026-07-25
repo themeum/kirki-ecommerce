@@ -1,9 +1,35 @@
 import type { CSSProperties, ReactNode } from 'react';
 
+import type { SpacingKey } from '@/theme';
+
 type StyleProps = {
   className?: string;
   style?: CSSProperties;
 };
+
+type GapValue = SpacingKey | (string & {});
+type FlexAlign =
+  | 'flex-start'
+  | 'flex-end'
+  | 'center'
+  | 'baseline'
+  | 'stretch'
+  | 'start'
+  | 'end';
+type FlexJustify =
+  | 'flex-start'
+  | 'flex-end'
+  | 'center'
+  | 'space-between'
+  | 'space-around'
+  | 'space-evenly'
+  | 'start'
+  | 'end'
+  | 'stretch';
+type FlexWrap = 'nowrap' | 'wrap' | 'wrap-reverse';
+type FlexGrow = number | string;
+type FlexShrink = number | string;
+type FlexBasis = number | string;
 
 type LabelFieldProps = {
   label?: string;
@@ -86,7 +112,36 @@ type PaginationData = {
 };
 
 export type {
-  AlertType, BadgeType, ButtonSize, ButtonState, ButtonType, ConfirmationVariant, ContainerSize, DropdownItemState, DropdownPosition, DropdownSize, FlexDirection, HeadingType, InputState, LabelFieldProps, LabelType, PaginationData, SelectOption, SelectState, StyleProps, TableAlignment, TableType, ThumbnailSize,
-  ThumbnailType, TooltipPosition
+  AlertType,
+  BadgeType,
+  ButtonSize,
+  ButtonState,
+  ButtonType,
+  ConfirmationVariant,
+  ContainerSize,
+  DropdownItemState,
+  DropdownPosition,
+  DropdownSize,
+  FlexAlign,
+  FlexBasis,
+  FlexDirection,
+  FlexGrow,
+  FlexJustify,
+  FlexShrink,
+  FlexWrap,
+  GapValue,
+  HeadingType,
+  InputState,
+  LabelFieldProps,
+  LabelType,
+  PaginationData,
+  SelectOption,
+  SelectState,
+  StyleProps,
+  TableAlignment,
+  TableType,
+  ThumbnailSize,
+  ThumbnailType,
+  TooltipPosition,
 };
 

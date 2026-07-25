@@ -59,7 +59,7 @@ const Products = () => {
       />
       <Container>
         {loaded ? (
-          <Flex direction="column" gap={16}>
+          <Flex direction="column" gap={4}>
             <Card css={cardStyles.tableCard}>
               <CardContent css={cardStyles.tableContent}>
                 <ProductTable data={data!} isFetching={isFetching} />

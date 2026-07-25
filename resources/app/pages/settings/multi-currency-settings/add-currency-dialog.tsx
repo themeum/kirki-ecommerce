@@ -1,3 +1,4 @@
+import { css } from '@emotion/react';
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -143,7 +144,7 @@ const AddCurrencyPopup = () => {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(handleSubmit)}>
               <DialogBody>
-                <Flex direction="column" gap={16}>
+                <Flex direction="column" gap={4}>
                   <div>
                     <Label htmlFor="add-currency-search">
                       {__('Search currency', 'kirki-ecommerce')}
@@ -174,23 +175,16 @@ const AddCurrencyPopup = () => {
                     </div>
                   </div>
 
-                  <Flex
-                    direction="column"
-                    gap={12}
-                    style={{
-                      height: '200px',
-                      overflowX: 'scroll',
-                    }}
-                  >
+                  <Flex direction="column" gap={3} css={css({ height: '200px', overflowX: 'scroll' })}>
                     {filteredCurrency?.length > 0 &&
                       filteredCurrency.map((currency, index) => (
                         <Flex
                           key={index}
-                          gap={12}
+                          gap={3}
                           onClick={() => handleSelectCurrencies(currency)}
-                          style={{ cursor: 'pointer' }}
+                          css={css({ cursor: 'pointer' })}
                         >
-                          <Flex gap={8} style={{ alignItems: 'center' }}>
+                          <Flex gap={2} align="center">
                             <Checkbox
                               id={`add-currency-checkbox-${index}`}
                               checked={formSelected?.some(
@@ -206,12 +200,7 @@ const AddCurrencyPopup = () => {
                               {currency.code}
                             </Label>
                           </Flex>
-                          <Flex
-                            style={{
-                              justifyContent: 'space-between',
-                              width: '100%',
-                            }}
-                          >
+                          <Flex justify="space-between" css={css({ width: '100%' })}>
                             <Text variant="small" style={{
                                 color: theme.colors.text.subdued,
                               }}>{currency.name}</Text>

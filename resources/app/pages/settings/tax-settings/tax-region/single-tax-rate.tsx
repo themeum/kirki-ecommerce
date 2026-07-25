@@ -44,7 +44,7 @@ export const SingleTaxRate = ({
             <Text css={css(styles.rateDisplay, isHovered && styles.rateDisplayHidden)}>{centralTaxValue}</Text>
 
             <Flex
-              gap={8}
+              gap={2}
               css={css(styles.editGroup, isHovered && styles.editGroupActive)}
             >
               <Input

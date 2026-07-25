@@ -19,7 +19,7 @@ const ShippingSolution = () => {
       <Card css={cardStyles.largeCard} >
         <CardContent css={cardStyles.largeContentPadded}>
 
-        <Flex direction="column" gap={8}>
+        <Flex direction="column" gap={2}>
           <Text weight="semibold">{__('Shipping Solution', 'kirki-ecommerce')}</Text>
           <Text color="secondary">Used to create shipping rates for different product groups, like heavy items needing higher fees.</Text>
         </Flex>

@@ -9,6 +9,7 @@ import {
 import Flex from '@/components/ui/flex';
 import { theme } from '@/theme';
 import { flexCenter, scoped } from '@/theme/mixins';
+import type { GapValue } from '@/types';
 import { __ } from '@/wpi18n';
 
 type ChipProps = Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'css'> & {
@@ -16,7 +17,7 @@ type ChipProps = Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'css'> & {
   subText?: ReactNode;
   img?: ReactNode;
   color?: string;
-  gap?: number;
+  gap?: GapValue;
   closeIcon?: ReactNode;
   onRemove?: () => void;
   css?: SerializedStyles;
@@ -29,7 +30,7 @@ const Chip = forwardRef<HTMLDivElement, ChipProps>((props, ref) => {
     subText,
     img,
     color,
-    gap = 8,
+    gap = 2,
     closeIcon,
     style,
     onRemove = () => {},
@@ -43,7 +44,7 @@ const Chip = forwardRef<HTMLDivElement, ChipProps>((props, ref) => {
 
   return (
     <div ref={ref} style={chipStyle} css={[styles.root, cssProp]} {...rest}>
-      <Flex gap={gap} style={{ alignItems: 'center' }}>
+      <Flex gap={gap} align="center">
         {img}
         {color && <div css={styles.swatch} aria-hidden="true" />}
         {text}

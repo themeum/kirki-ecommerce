@@ -26,7 +26,7 @@ export const DynamicGatewayFields = ({
         const isSecret = field.name.includes('secret');
 
         return (
-          <Flex key={field.name} gap={8} style={{ alignItems: 'center' }}>
+          <Flex key={field.name} gap={2} align="center">
             {isSecret ? (
               <PasswordField
                 name={field.name}

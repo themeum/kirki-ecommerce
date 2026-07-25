@@ -49,7 +49,7 @@ const CollectionFilter = ({
   };
 
   return (
-    <Flex direction="column" gap={8}>
+    <Flex direction="column" gap={2}>
       <Label>{__('Collection', 'kirki-ecommerce')}</Label>
       <Combobox
         options={options}

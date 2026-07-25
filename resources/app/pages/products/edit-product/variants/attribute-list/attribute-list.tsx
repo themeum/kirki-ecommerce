@@ -87,7 +87,7 @@ const SortableCard = ({
       >
         <CardContent css={styles.innerContent}>
         {editingId !== item.id ? (
-          <Flex gap={12}>
+          <Flex gap={3}>
             <span
               {...(!isEditing ? attributes : {})}
               {...(!isEditing ? listeners : {})}
@@ -99,19 +99,12 @@ const SortableCard = ({
             >
               <DragIcon />
             </span>
-            <Flex direction="column" gap={8}>
+            <Flex direction="column" gap={2}>
               <Text weight="medium">{item?.name}</Text>
-              <Flex
-                gap={8}
-                style={{
-                  maxWidth: '480px',
-                  flexWrap: 'wrap',
-                  rowGap: theme.spacing[3],
-                }}
-              >
+              <Flex gap={2} wrap="wrap" rowGap={3} css={css({ maxWidth: '480px' })}>
                 {(item?.values || []).map((variant, index) => (
                   <Chip
-                    gap={6}
+                    gap={2}
                     key={index}
                     text={variant?.value}
                     color={variant?.color ?? undefined}
@@ -189,13 +182,13 @@ const AttributeList = ({ onSave = () => {} }: AttributeListProps) => {
     <>
       <>
         {attributeValues?.length > 0 && (
-          <Flex direction="column" gap={8} style={{ position: 'relative' }}>
+          <Flex direction="column" gap={2} css={css({ position: 'relative' })}>
             <DndContext
               collisionDetection={closestCenter}
               onDragEnd={handleDragEnd}
               modifiers={[restrictToVerticalAxis, restrictToParentElement]}
             >
-              <Flex direction="column" gap={8}>
+              <Flex direction="column" gap={2}>
                 <SortableContext
                   items={attributeValues?.map((item) => item?.id)}
                   strategy={verticalListSortingStrategy}

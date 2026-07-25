@@ -8,7 +8,7 @@ import { __ } from '@/wpi18n';
 
 const OptionAccordionPreview = () => {
   const rightActions = (
-    <ActionGroup gap={8} style={{ alignItems: 'center' }}>
+    <ActionGroup gap={2}>
       <ToggleButton value={true} />
       <Button
         variant="ghost"

@@ -69,7 +69,7 @@ const AdditionalInfo = () => {
 
   return (
     <>
-      <Flex direction="column" gap={8}>
+      <Flex direction="column" gap={2}>
         <Text weight="semibold">{__('Additional Info', 'kirki-ecommerce')}</Text>
         <Text color="secondary">{__(
           'Share information like return policy or care instructions with your customers.',
@@ -98,11 +98,8 @@ const AdditionalInfo = () => {
                   >
                     <CardContent>
                       <Flex
-                        style={{
-                          alignItems: 'flex-start',
-                        }}
-                      >
-                        <Flex direction="column" gap={8}>
+                        align="flex-start">
+                        <Flex direction="column" gap={2}>
                           <Text weight="semibold">{item?.title}</Text>
                           <Text color="secondary">{item?.description as string | undefined}</Text>
                         </Flex>

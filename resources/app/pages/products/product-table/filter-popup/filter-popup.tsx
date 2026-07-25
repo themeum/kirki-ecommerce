@@ -1,3 +1,4 @@
+import { css } from '@emotion/react';
 import { useEffect, useState, type ComponentProps } from 'react';
 
 import ActionGroup from '@/components/ui/action-group';
@@ -182,20 +183,12 @@ const FilterPopup = ({
           </ActionGroup>
         </Flex>
 
-        <Flex
-          direction="column"
-          gap={16}
-          style={{
-            padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
-            overflowY: 'auto',
-            minHeight: '400px',
-          }}
-        >
+        <Flex direction="column" gap={4} css={css({ padding: `${theme.spacing[2]} ${theme.spacing[3]}`, overflowY: 'auto', minHeight: '400px' })}>
           <CategoriesFilter
             filterObject={filterObject}
             onChange={(val) => handleOnFilterChange(val, 'category_ids')}
           />
-          <Flex direction="column" gap={8}>
+          <Flex direction="column" gap={2}>
             <Label>{__('Status', 'kirki-ecommerce')}</Label>
             <RadioGroup
               defaultValue="all"
@@ -222,7 +215,7 @@ const FilterPopup = ({
               ))}
             </RadioGroup>
           </Flex>
-          <Flex direction="column" gap={8}>
+          <Flex direction="column" gap={2}>
             <Label>{__('Inventory', 'kirki-ecommerce')}</Label>
             <Select
               value={filterObject.stock_status || undefined}

@@ -1,3 +1,4 @@
+import { css } from '@emotion/react';
 import Button from '@/components/ui/button';
 import Input from '@/components/ui/input';
 import {
@@ -55,8 +56,8 @@ const OrderDetails = () => {
         <Badge text="Pending" type="pending" />
       </PageHeading>
       <Container>
-        <Flex gap={16}>
-          <Flex direction="column" gap={16} style={{ width: '70%' }}>
+        <Flex gap={4}>
+          <Flex direction="column" gap={4} css={css({ width: '70%' })}>
             <Card css={cardStyles.formCard}>
               <CardHeader>
                 <CardTitle>Items(4)</CardTitle>
@@ -84,7 +85,7 @@ const OrderDetails = () => {
             </Card>
           </Flex>
 
-          <Flex direction="column" gap={16} style={{ width: '30%' }}>
+          <Flex direction="column" gap={4} css={css({ width: '30%' })}>
             <Alert
               hasHighlight
               icon={<FlagIcon />}
@@ -93,7 +94,7 @@ const OrderDetails = () => {
 
             <Card css={cardStyles.formCard}>
               <CardContent>
-                <Flex direction="column" gap={8}>
+                <Flex direction="column" gap={2}>
                   <Label text="Order Status" />
                   <Select defaultValue="pending">
                     <SelectTrigger>
@@ -111,7 +112,7 @@ const OrderDetails = () => {
                     </SelectContent>
                   </Select>
                 </Flex>
-                <Flex direction="column" gap={8}>
+                <Flex direction="column" gap={2}>
                   <Label text="Payment Status" />
                   <Select defaultValue="unpaid">
                     <SelectTrigger>
@@ -136,7 +137,7 @@ const OrderDetails = () => {
 
             <Card css={cardStyles.formCard}>
               <CardContent>
-                <Flex direction="column" gap={8}>
+                <Flex direction="column" gap={2}>
                   <Label text="Flag" />
                   <Input placeholder="i.e Backorder, Urgent" defaultValue="skjl" />
                 </Flex>

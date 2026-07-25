@@ -28,8 +28,8 @@ const HeaderActionsCard = (props: HeaderActionsCardProps) => {
   } = props;
   return (
     <>
-      <Flex direction="column" gap={4}>
-        <Flex style={{ alignItems: 'center' }}>
+      <Flex direction="column" gap={1}>
+        <Flex align="center">
           <Text weight="semibold">{header}</Text>
           {!hideButton && (
             <ActionGroup>

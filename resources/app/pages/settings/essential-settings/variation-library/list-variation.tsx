@@ -48,7 +48,7 @@ const ListVariation = () => {
         style={{ height: '32px' }}
       />
       <Container size="sm">
-        <Flex direction="column" gap={16}>
+        <Flex direction="column" gap={4}>
           <PageNavbar
             textIcon={<BoxIcon />}
             text={sprintf(__('%s', 'kirki-ecommerce'), selectedAttribute?.name ?? '')}
@@ -67,7 +67,7 @@ const ListVariation = () => {
           {!attributeValueList?.length ? (
             <Card css={[cardStyles.largeCard, styles.roundedCard]}>
               <CardContent css={[cardStyles.largeContentPadded, styles.emptyContent]}>
-                <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
+                <Flex direction="column" gap={2} align="center">
                   <BoxIcon />
                   <span css={styles.mutedText}>
                     {__('No value added yet', 'kirki-ecommerce')}

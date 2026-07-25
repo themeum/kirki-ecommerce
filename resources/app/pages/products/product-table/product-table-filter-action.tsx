@@ -118,7 +118,7 @@ const ProductTableFilterAction = () => {
   };
 
   return (
-    <Flex gap={12} css={filterActionBarCss}>
+    <Flex gap={3} css={filterActionBarCss}>
       {activeFilterKeys.map((key) => (
         <Capsule
           key={key}

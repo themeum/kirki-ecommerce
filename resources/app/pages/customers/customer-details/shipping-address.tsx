@@ -18,7 +18,7 @@ const ShippingAddress = () => {
   return (
     <Card css={[cardStyles.formCard, styles.roundedCard]}>
       <CardHeader>
-        <Flex gap={8} style={{ alignItems: 'center' }}>
+        <Flex gap={2} align="center">
           <ShippingAddressIcon />
           <Text weight="semibold">
             {__('Shipping Address', 'kirki-ecommerce')}
@@ -27,7 +27,7 @@ const ShippingAddress = () => {
       </CardHeader>
       <Card css={cardStyles.innerCard}>
         <CardContent css={cardStyles.innerContent}>
-          <Flex direction="column" gap={16}>
+          <Flex direction="column" gap={4}>
             <CountryField
               name="shipping_address.country"
               label={__('Country / Region', 'kirki-ecommerce')}

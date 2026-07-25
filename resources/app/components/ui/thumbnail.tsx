@@ -1,4 +1,4 @@
-import { type SerializedStyles } from '@emotion/react';
+import { type SerializedStyles, css } from '@emotion/react';
 import {
   forwardRef,
   useEffect,
@@ -58,7 +58,7 @@ const Thumbnail = forwardRef<HTMLDivElement, ThumbnailProps>((props, ref) => {
   }, [src]);
 
   return (
-    <Flex direction="column" gap={8} style={{ maxWidth: '100%' }}>
+    <Flex direction="column" gap={2} css={css({ maxWidth: '100%' })}>
       {label && (
         <Label error={Boolean(error)} helpText={help}>
           {label}
@@ -80,7 +80,7 @@ const Thumbnail = forwardRef<HTMLDivElement, ThumbnailProps>((props, ref) => {
             <img src={imgSrc} alt={alt || 'thumbnail'} style={{ objectFit }} />
             {size === 'fullWidth' && (
               <div css={[styles.overlay, styles.overlayFullWidth]}>
-                <Flex gap={8} css={styles.actions}>
+                <Flex gap={2} css={styles.actions}>
                   <MediaSelector onSelect={(img) => onChange(img)}>
                     <Button variant="ghost" aria-label="Replace image">
                       <Replace size={16} aria-hidden="true" />

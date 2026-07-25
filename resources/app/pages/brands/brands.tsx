@@ -35,7 +35,7 @@ const Brands = () => {
       <PageHeading text={__('Brands', 'kirki-ecommerce')} actions={<NewBrand />} />
       <Container>
         {loaded ? (
-          <Flex direction="column" gap={16}>
+          <Flex direction="column" gap={4}>
             <Card css={cardStyles.tableCard}>
               <CardContent css={cardStyles.tableContent}>
                 <BrandTable data={data!} isFetching={isFetching} />

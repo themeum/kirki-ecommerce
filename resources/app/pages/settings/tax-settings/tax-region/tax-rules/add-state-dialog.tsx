@@ -118,7 +118,7 @@ export const AddStatePopup = (props: AddStatePopupProps) => {
         </DialogHeader>
         <Form {...form}>
           <DialogBody>
-            <Flex direction="column" gap={8}>
+            <Flex direction="column" gap={2}>
               <Label htmlFor="add-state-search">
                 {__('Regions', 'kirki-ecommerce')}
               </Label>
@@ -139,7 +139,7 @@ export const AddStatePopup = (props: AddStatePopupProps) => {
                 }}
               >
                 <Flex>
-                  <Flex gap={8} style={{ alignItems: 'center' }}>
+                  <Flex gap={2} align="center">
                     <Checkbox
                       id="add-state-select-all"
                       checked={selectAll}
@@ -154,7 +154,7 @@ export const AddStatePopup = (props: AddStatePopupProps) => {
                 {filteredCountries?.map((country, index) => {
                   return (
                     <div key={index} css={styles.checkboxItemIndented}>
-                      <Flex gap={8} style={{ alignItems: 'center' }}>
+                      <Flex gap={2} align="center">
                         <Checkbox
                           id={`add-state-country-${index}`}
                           checked={formSelected?.includes(

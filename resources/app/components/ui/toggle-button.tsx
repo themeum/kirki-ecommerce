@@ -68,7 +68,7 @@ const ToggleButton = forwardRef<HTMLButtonElement, ToggleButtonProps>(
         onClick={handleToggle}
         onKeyDown={handleKeyDown}
       >
-        <Flex gap={8}>
+        <Flex gap={2}>
           {isSelected ? <SwitchCheckedIcon /> : <SwitchUncheckedIcon />}
           {label && <Label>{label}</Label>}
         </Flex>

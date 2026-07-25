@@ -138,7 +138,7 @@ const Inventory = ({ errors, setErrors, formSyncKey = 0 }: InventoryProps) => {
                     type="number"
                     disabled
                   />
-                  <Flex direction="column" gap={8}>
+                  <Flex direction="column" gap={2}>
                     <Label helpText={__('Minimum stock threshold', 'kirki-ecommerce')}>
                       {__('Minimum stock threshold', 'kirki-ecommerce')}
                     </Label>
@@ -164,8 +164,8 @@ const Inventory = ({ errors, setErrors, formSyncKey = 0 }: InventoryProps) => {
             />
           )}
 
-          <Flex gap={8} direction="column">
-            <Flex style={{ justifyContent: 'space-between' }}>
+          <Flex gap={2} direction="column">
+            <Flex justify="space-between">
               <Label helpText={skuError || __('SKU (Stock Keeping Unit)', 'kirki-ecommerce')}>
                 {__('SKU', 'kirki-ecommerce')}
               </Label>
@@ -179,11 +179,11 @@ const Inventory = ({ errors, setErrors, formSyncKey = 0 }: InventoryProps) => {
               description={__('SKU (Stock Keeping Unit)', 'kirki-ecommerce')}
             />
           </Flex>
-          <Flex gap={8}>
+          <Flex gap={2}>
             {trackInventory && (
               <Card css={[cardStyles.innerDarkCard, styles.innerDarkNarrowCard]}>
                 <CardContent css={cardStyles.innerDarkContent}>
-                  <Flex gap={8} style={{ alignItems: 'center' }}>
+                  <Flex gap={2} align="center">
                     <Checkbox id="sell-when-out-of-stock" defaultChecked />
                     <Label htmlFor="sell-when-out-of-stock">
                       {__('Sell when out of stock', 'kirki-ecommerce')}
@@ -195,13 +195,13 @@ const Inventory = ({ errors, setErrors, formSyncKey = 0 }: InventoryProps) => {
 
             <Card css={cardStyles.innerDarkCard}>
               <CardContent css={styles.innerDarkRowContent}>
-              <Flex gap={30} style={{ justifyContent: 'space-between' }}>
+              <Flex gap={8} justify="space-between">
                 <FormField
                   control={form.control}
                   name="has_limit_per_order"
                   render={({ field }) => (
                     <FormItem>
-                      <Flex gap={8} style={{ alignItems: 'center' }}>
+                      <Flex gap={2} align="center">
                         <Checkbox
                           id="has-limit-per-order"
                           checked={Boolean(field.value)}

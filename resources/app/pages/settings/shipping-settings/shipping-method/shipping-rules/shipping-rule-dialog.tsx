@@ -383,7 +383,7 @@ const ShippingRuleModal = ({
           {from !== 'edit' && (
             <DialogHeader>
               <DialogTitle>
-                <Flex gap={8} style={{ alignItems: 'center' }}>
+                <Flex gap={2} align="center">
                   <LighteningIcon />
                   {__('New Shipping Rules', 'kirki-ecommerce')}
                 </Flex>
@@ -392,8 +392,8 @@ const ShippingRuleModal = ({
           )}
           <Form {...form}>
             <DialogBody>
-              <Flex direction={'column'} gap={16}>
-                <Flex direction={'column'} gap={8}>
+              <Flex direction={'column'} gap={4}>
+                <Flex direction={'column'} gap={2}>
                   <Text>IF</Text>
                   <Grid columns={3}>
                     <SelectField
@@ -438,7 +438,7 @@ const ShippingRuleModal = ({
                     )}
                   </Grid>
                 </Flex>
-                <Flex direction={'column'} gap={8}>
+                <Flex direction={'column'} gap={2}>
                   <Text>{__('THEN', 'kirki-ecommerce')}</Text>
                   <Grid columns={2}>
                     <SelectField

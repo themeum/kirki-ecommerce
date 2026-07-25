@@ -176,7 +176,7 @@ const GeneralSettings = () => {
       <Container size="sm">
         {loaded ? (
           <Form {...form}>
-            <Flex direction="column" gap={16}>
+            <Flex direction="column" gap={4}>
               <PageNavbar
                 textIcon={<HomeIcon />}
                 text={__('General', 'kirki-ecommerce')}

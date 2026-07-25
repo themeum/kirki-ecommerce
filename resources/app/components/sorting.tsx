@@ -55,7 +55,7 @@ const Sorting = ({ data }: SortingProps) => {
 
   return (
     <Flex
-      gap={4}
+      gap={1}
       css={[
         styles.base,
         sortable && styles.sortable,

@@ -17,8 +17,8 @@ const SellerTaxID = () => {
     <div>
       <Card css={cardStyles.largeCard}>
         <CardContent css={cardStyles.largeContentPadded}>
-          <Flex direction="column" gap={6}>
-            <Flex style={{ alignItems: 'center' }}>
+          <Flex direction="column" gap={2}>
+            <Flex align="center">
               <Text weight="semibold" style={{ gap: theme.spacing[3] }}>{__('Seller Tax ID', 'kirki-ecommerce')}</Text>
               <ActionGroup>
                 <Button variant="secondary">

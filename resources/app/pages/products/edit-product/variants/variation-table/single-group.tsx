@@ -249,7 +249,7 @@ const SingleGroup = ({
           />
         </TableCell>
         <TableCell style={{ width: '242px' }}>
-          <Flex gap={12} style={{ alignItems: 'center' }}>
+          <Flex gap={3} align="center">
             {hasVariation ? (
               <MediaStack
                 size="small"
@@ -262,7 +262,7 @@ const SingleGroup = ({
                 size="small"
               />
             )}
-            <Flex direction={'column'} gap={4}>
+            <Flex direction={'column'} gap={1}>
               <div>{thisAttribute?.value ?? ''}</div>
               {thisVariants[0]?.attribute_values.length > 1 && (
                 <div>
@@ -349,7 +349,7 @@ const SingleGroup = ({
             <TableRow key={index}>
               <TableCell></TableCell>
               <TableCell>
-                <Flex gap={12} style={{ alignItems: 'center' }}>
+                <Flex gap={3} align="center">
                   <Checkbox
                     checked={selectedCheckedIndex.includes(index)}
                     onCheckedChange={(checked) =>

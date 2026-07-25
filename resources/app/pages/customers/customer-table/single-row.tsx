@@ -48,9 +48,9 @@ const SingleRow = ({
         />
       </TableCell>
       <TableCell>
-        <Flex gap={8} style={{ alignItems: 'center' }}>
+        <Flex gap={2} align="center">
           <Thumbnail src={photo?.url} size="small" type="circle" />
-          <Flex direction="column" gap={6}>
+          <Flex direction="column" gap={2}>
             <div>
               {item?.first_name} {item?.last_name}
             </div>

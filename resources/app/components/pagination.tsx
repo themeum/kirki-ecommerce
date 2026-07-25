@@ -49,7 +49,7 @@ const Pagination = (props: PaginationProps) => {
 
   return (
     <div css={[styles.wrapper, cssProp]}>
-      <Flex gap={8} style={{ alignItems: 'center' }}>
+      <Flex gap={2} align="center">
         <Text variant="small">{__('Page', 'kirki-ecommerce')}</Text>
         <Select
           value={String(_current_page)}

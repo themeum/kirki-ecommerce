@@ -1,4 +1,4 @@
-import { keyframes } from '@emotion/react';
+import { keyframes, css } from '@emotion/react';
 import type { ReactNode } from 'react';
 
 import Flex from '@/components/ui/flex';
@@ -69,14 +69,8 @@ const Toast = ({
 
   return (
     <Flex direction={'column'}>
-      <Flex
-        gap={20}
-        css={styles.element}
-        style={{
-          background: ui.bg,
-        }}
-      >
-        <Flex gap={8}>
+      <Flex gap={5} css={[styles.element, css({ background: ui.bg })]} >
+        <Flex gap={2}>
           <span
             css={styles.icon}
             style={{
@@ -89,7 +83,7 @@ const Toast = ({
               color: ui.textColor,
             }}>{title}</Text>
         </Flex>
-        <Flex style={{ alignItems: 'center' }}>
+        <Flex align="center">
           {undoAction && (
             <Button
               variant="ghost"

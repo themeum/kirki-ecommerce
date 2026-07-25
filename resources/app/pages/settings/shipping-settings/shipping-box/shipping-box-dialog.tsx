@@ -187,7 +187,7 @@ const ShippingBoxPopup = ({
                 <CardContent css={cardStyles.innerContent}>
 
                 <Text weight="medium" css={styles.dimensionsLabel}>{__('Dimensions', 'kirki-ecommerce')}</Text>
-                <Flex gap={16} style={{ alignItems: 'flex-end' }}>
+                <Flex gap={4} align="flex-end">
                 <TextField
                 name="length"
                 label={__('Length', 'kirki-ecommerce')}

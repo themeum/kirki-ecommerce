@@ -123,7 +123,7 @@ const VariationValuePopup = ({
         </DialogHeader>
         <Form {...form}>
           <DialogBody>
-            <Flex direction="column" gap={16}>
+            <Flex direction="column" gap={4}>
               <TextField
                 name="value"
                 label={__('Title', 'kirki-ecommerce')}

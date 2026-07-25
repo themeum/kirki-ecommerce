@@ -35,7 +35,7 @@ const ShippingCareer = (_props: ShippingCareerProps) => {
         {!hasShippingCareers ? (
           <Card css={cardStyles.innerDarkCard}>
             <CardContent css={[cardStyles.innerDarkContent, styles.emptyStateContent]}>
-              <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
+              <Flex direction="column" gap={2} align="center">
                 <BoxOpenIcon />
                 <span css={styles.mutedText}>
                   {__(

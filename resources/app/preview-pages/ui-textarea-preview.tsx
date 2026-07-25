@@ -1,3 +1,4 @@
+import { css } from '@emotion/react';
 import Flex from '@/components/ui/flex';
 
 import Label from '@/components/ui/label';
@@ -5,7 +6,7 @@ import Textarea from '@/components/ui/textarea';
 
 const UiTextareaPreview = () => {
   return (
-    <Flex direction="column" gap={12} style={{ maxWidth: 320 }}>
+    <Flex direction="column" gap={3} css={css({ maxWidth: 320 })}>
       <div>
         <Label htmlFor="ui-textarea-default">Default</Label>
         <Textarea id="ui-textarea-default" placeholder="Write something..." />

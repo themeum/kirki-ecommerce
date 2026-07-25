@@ -80,7 +80,7 @@ const AddOrEditInfo = (props: AddOrEditInfoProps) => {
     <Card css={cardStyles.innerCard}>
       <CardContent css={cardStyles.innerContent}>
         <Form {...form}>
-          <Flex direction="column" gap={16}>
+          <Flex direction="column" gap={4}>
             <TextField
               name="title"
               label={__('Title', 'kirki-ecommerce')}

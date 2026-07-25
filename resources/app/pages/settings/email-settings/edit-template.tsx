@@ -1,3 +1,4 @@
+import { css } from '@emotion/react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
@@ -158,12 +159,12 @@ const EditTemplate = () => {
       <Container size="fullWidth" css={styles.container}>
         {loaded ? (
           <Form {...form}>
-            <Flex gap={48} style={{ width: '100%' }}>
-              <Flex direction="column" gap={20} style={{ width: '44%' }}>
+            <Flex gap={12} css={css({ width: '100%' })}>
+              <Flex direction="column" gap={5} css={css({ width: '44%' })}>
                 <Card css={[cardStyles.largeCard, styles.roundedCard]}>
                   <CardContent css={cardStyles.largeContentPadded}>
 
-                  <Flex direction="column" gap={8}>
+                  <Flex direction="column" gap={2}>
                     <Text weight="semibold">Logo</Text>
                     <Text color="secondary">
                       Update the logo & style your way
@@ -240,7 +241,7 @@ const EditTemplate = () => {
                 <Card css={[cardStyles.largeCard, styles.roundedCard]}>
                   <CardContent css={cardStyles.largeContentPadded}>
 
-                  <Flex direction="column" gap={8}>
+                  <Flex direction="column" gap={2}>
                     <Text weight="semibold">Colors</Text>
                     <Text color="secondary">
                       Style how the emails will look
@@ -265,15 +266,11 @@ const EditTemplate = () => {
                 </Card>
               </Flex>
 
-              <Flex style={{ width: '56%' }} direction="column" gap={16}>
+              <Flex direction="column" gap={4} css={css({ width: '56%' })}>
                 <Flex
-                  style={{
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                  }}
-                >
+                  align="center" justify="space-between">
                   <Text weight="semibold">Template Preview</Text>
-                  <Flex gap={8} style={{ alignItems: 'center' }}>
+                  <Flex gap={2} align="center">
                     <SendIcon />
                     <Text css={styles.sendTextMail}>Send Text Mail</Text>
                   </Flex>

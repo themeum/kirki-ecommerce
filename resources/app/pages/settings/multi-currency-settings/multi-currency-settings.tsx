@@ -158,7 +158,7 @@ const MultiCurrencySettings = () => {
       <Container size="sm">
         {loaded ? (
           <Form {...form}>
-            <Flex direction="column" gap={16}>
+            <Flex direction="column" gap={4}>
               <PageNavbar
                 textIcon={<CurrencyIcon />}
                 text={__('Currency', 'kirki-ecommerce')}
@@ -168,7 +168,7 @@ const MultiCurrencySettings = () => {
               <Card css={cardStyles.largeCard} >
                 <CardContent css={cardStyles.largeContentPadded}>
 
-                <Flex direction="column" gap={8}>
+                <Flex direction="column" gap={2}>
                   <Text weight="semibold">{__('Currency Management', 'kirki-ecommerce')}</Text>
                   <Text color="secondary">{__(
                 'Manage product pricing across multiple currencies with manual or automatic conversion rates.',
@@ -182,7 +182,7 @@ const MultiCurrencySettings = () => {
               <Card css={cardStyles.largeCard} >
                 <CardContent css={cardStyles.largeContentPadded}>
 
-                <Flex direction="column" gap={8}>
+                <Flex direction="column" gap={2}>
                   <Text weight="semibold">{__('Currency Preferences', 'kirki-ecommerce')}</Text>
                   <Text color="secondary">{__(
                 'Set your preferences for how currency is displayed.',

@@ -262,7 +262,7 @@ const TaxRegionPopup = (props: TaxRegionPopupProps) => {
         </DialogHeader>
         <Form {...form}>
           <DialogBody>
-            <Flex direction="column" gap={8}>
+            <Flex direction="column" gap={2}>
               <Label htmlFor="tax-region-search">
                 {__('Select countries', 'kirki-ecommerce')}
               </Label>
@@ -295,7 +295,7 @@ const TaxRegionPopup = (props: TaxRegionPopupProps) => {
                       []) as CountryStateOption[];
                     return (
                       <div key={index} css={styles.checkboxItem}>
-                        <Flex gap={8} style={{ alignItems: 'center' }}>
+                        <Flex gap={2} align="center">
                           <Checkbox
                             id={`tax-region-country-${country.code}`}
                             checked={
@@ -318,7 +318,7 @@ const TaxRegionPopup = (props: TaxRegionPopupProps) => {
                             {countryStates.map((state, stateIndex) => {
                               return (
                                 <div key={stateIndex} css={styles.checkboxItem}>
-                                  <Flex gap={8} style={{ alignItems: 'center' }}>
+                                  <Flex gap={2} align="center">
                                     <Checkbox
                                       id={`tax-region-state-${country.code}-${state?.id}`}
                                       checked={formRegions

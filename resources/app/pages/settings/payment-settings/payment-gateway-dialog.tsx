@@ -61,13 +61,13 @@ const PaymentGatewayPopup = ({
           </DialogTitle>
         </DialogHeader>
         <DialogBody>
-          <Flex direction="column" gap={16}>
+          <Flex direction="column" gap={4}>
             {(availableGatewayList as AvailablePaymentGateway[])?.map(
               (item, index) => (
                 <Card key={index} css={cardStyles.innerCard}>
                   <CardContent css={cardStyles.innerContent}>
-                    <Flex style={{ alignItems: 'center' }}>
-                      <Flex gap={8} style={{ alignItems: 'center' }}>
+                    <Flex align="center">
+                      <Flex gap={2} align="center">
                         <StripeIcon />
                         <Text weight="medium">{item?.name}</Text>
                       </Flex>

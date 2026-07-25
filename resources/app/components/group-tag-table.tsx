@@ -136,17 +136,13 @@ const GroupTagTable = (props: GroupTagTableProps) => {
           ]}
         >
           <CardContent css={cardStyles.innerContent}>
-          <Flex gap={8} direction="column">
+          <Flex gap={2} direction="column">
             {(Object.keys(groupedValueData) || []).map((groupName, index) => (
               <div key={index} css={styles.hoverParent}>
                 <Flex
                   key={index}
-                  style={{
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                  }}
-                >
-                  <Flex gap={8} style={{ alignItems: 'center' }}>
+                  align="center" justify="space-between">
+                  <Flex gap={2} align="center">
                     {groupDetails[groupName]?.icon}
                     <Text
                       variant="small"
@@ -157,12 +153,8 @@ const GroupTagTable = (props: GroupTagTableProps) => {
                     </Text>
                   </Flex>
                   <Flex
-                    gap={8}
-                    style={{
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                    }}
-                  >
+                    gap={2}
+                    align="center" justify="space-between">
                     {isEditable && (
                       <Button
                         variant="link"

@@ -97,7 +97,7 @@ const VariationTable = () => {
     <>
       <Separator style={{ margin: `auto -${theme.spacing[4]}` }} />
       <Flex>
-        <Flex gap={12}>
+        <Flex gap={3}>
           <Select
             value={String(showBy)}
             onValueChange={(value) => setShowBy(Number(value))}
@@ -155,11 +155,8 @@ const VariationTable = () => {
                 <>
                   <TableHead>
                     <Flex
-                      gap={18}
-                      style={{
-                        alignItems: 'center',
-                      }}
-                    >
+                      gap={5}
+                      align="center">
                       {selectedIndex.length}{' '}
                       {selectedIndex.length !== variants.length
                         ? `${selectedIndex.length === 1 ? 'item' : 'items'} selected`

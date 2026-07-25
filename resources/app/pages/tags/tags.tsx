@@ -35,7 +35,7 @@ const Tags = () => {
       <PageHeading text={__('Tags', 'kirki-ecommerce')} actions={<NewTag />} />
       <Container>
         {loaded ? (
-          <Flex direction="column" gap={16}>
+          <Flex direction="column" gap={4}>
             <Card css={cardStyles.tableCard}>
               <CardContent css={cardStyles.tableContent}>
                 <TagTable data={data!} isFetching={isFetching} />

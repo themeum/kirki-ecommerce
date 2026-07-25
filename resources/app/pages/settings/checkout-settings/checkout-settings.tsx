@@ -139,7 +139,7 @@ const CheckoutSettings = () => {
       <Container size="sm">
         {loaded ? (
           <Form {...form}>
-            <Flex direction="column" gap={16}>
+            <Flex direction="column" gap={4}>
               <PageNavbar
                 textIcon={<CartIcon />}
                 text={__('Checkout', 'kirki-ecommerce')}
@@ -148,8 +148,8 @@ const CheckoutSettings = () => {
               <Card css={cardStyles.largeCard} >
                 <CardContent css={cardStyles.largeContentPadded}>
 
-                <Flex style={{ alignItems: 'center' }}>
-                <Flex direction="column" gap={8}>
+                <Flex align="center">
+                <Flex direction="column" gap={2}>
                   <Text weight="medium">{__('Allow Guest Checkout', 'kirki-ecommerce')}</Text>
                   <Text variant="small" color="secondary">{__(
                 'Let customers buy without logging in or creating an account.',

@@ -26,10 +26,10 @@ export const SettingsItem = (props: SettingsItemProps) => {
 
   return (
     <Card css={styles.card} onClick={handleClick}>
-      <Flex gap={8} css={styles.content}>
+      <Flex gap={2} css={styles.content}>
         <div css={styles.identifier} data-settings-identifier />
         <span css={styles.iconWrap}>{icon}</span>
-        <Flex direction="column" gap={8}>
+        <Flex direction="column" gap={2}>
           <Text weight="medium">{<span data-settings-heading>{header}</span>}</Text>
           <Text variant="small" color="secondary">{subHeader}</Text>
         </Flex>

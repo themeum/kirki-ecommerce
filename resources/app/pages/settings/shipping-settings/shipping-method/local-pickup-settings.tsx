@@ -30,8 +30,8 @@ const LocalPickupSettings = ({
   );
 
   return (
-    <Flex direction="column" gap={16}>
-      <Flex direction="column" gap={8}>
+    <Flex direction="column" gap={4}>
+      <Flex direction="column" gap={2}>
         <Label htmlFor="local-pickup-address">
           {__('Address', 'kirki-ecommerce')}
         </Label>
@@ -42,7 +42,7 @@ const LocalPickupSettings = ({
           onChange={(e) => handleOnChange(e.target.value, 'address')}
         />
       </Flex>
-      <Flex direction="column" gap={8}>
+      <Flex direction="column" gap={2}>
         <Label htmlFor="local-pickup-description">
           {__('Pickup Instructions', 'kirki-ecommerce')}
         </Label>
@@ -68,7 +68,7 @@ const LocalPickupSettings = ({
         </Label>
       </FormFieldRow>
       {hasFee && (
-        <Flex direction="column" gap={8}>
+        <Flex direction="column" gap={2}>
           <Label htmlFor="local-pickup-fee">{__('Fee', 'kirki-ecommerce')}</Label>
           <Input
             id="local-pickup-fee"
@@ -94,7 +94,7 @@ const LocalPickupSettings = ({
       </FormFieldRow>
       {hasPickTime && (
         <Grid>
-          <Flex direction="column" gap={8}>
+          <Flex direction="column" gap={2}>
             <Label htmlFor="local-pickup-time-start">
               {__('Start time', 'kirki-ecommerce')}
             </Label>
@@ -107,7 +107,7 @@ const LocalPickupSettings = ({
               }
             />
           </Flex>
-          <Flex direction="column" gap={8}>
+          <Flex direction="column" gap={2}>
             <Label htmlFor="local-pickup-time-end">
               {__('End time', 'kirki-ecommerce')}
             </Label>

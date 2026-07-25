@@ -24,14 +24,14 @@ const CustomerOverview = () => {
   return (
     <Card css={[cardStyles.formCard, styles.roundedCard]}>
       <CardHeader>
-        <Flex gap={8} style={{ alignItems: 'center' }}>
+        <Flex gap={2} align="center">
           <FileTextIcon />
           <Text weight="semibold">{__('Basic Info', 'kirki-ecommerce')}</Text>
         </Flex>
       </CardHeader>
       <Card css={cardStyles.innerCard}>
         <CardContent css={cardStyles.innerContent}>
-          <Flex direction="column" gap={16}>
+          <Flex direction="column" gap={4}>
             <TextField
               name="first_name"
               label={__('First Name', 'kirki-ecommerce')}

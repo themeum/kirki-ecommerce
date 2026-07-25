@@ -93,16 +93,9 @@ const EditCurrencyPopup = ({
               >
                 {__('Enter rates per 1 USD', 'kirki-ecommerce')}
               </Label>
-              <Flex
-                direction="column"
-                gap={12}
-                style={{
-                  maxHeight: '200px',
-                  overflowX: 'scroll',
-                }}
-              >
-                <Flex style={{ justifyContent: 'space-between' }}>
-                  <Flex gap={12}>
+              <Flex direction="column" gap={3} css={css({ maxHeight: '200px', overflowX: 'scroll' })}>
+                <Flex justify="space-between">
+                  <Flex gap={3}>
                     <Text weight="semibold">{sprintf(
                         __('%s', 'kirki-ecommerce'),
                         editCurrency?.icon ?? '',

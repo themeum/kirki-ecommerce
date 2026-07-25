@@ -258,7 +258,7 @@ export const ShippingRegionPopup = ({
               />
             )}
 
-            <Flex direction="column" gap={8}>
+            <Flex direction="column" gap={2}>
               <Label htmlFor="shipping-region-search">
                 {__('Select countries', 'kirki-ecommerce')}
               </Label>
@@ -292,7 +292,7 @@ export const ShippingRegionPopup = ({
                     return (
                       <div key={index}>
                         <div css={styles.checkboxItem}>
-                          <Flex gap={8} style={{ alignItems: 'center' }}>
+                          <Flex gap={2} align="center">
                             <Checkbox
                               id={`shipping-region-country-${country.code}`}
                               checked={
@@ -317,7 +317,7 @@ export const ShippingRegionPopup = ({
                           <div css={styles.nestedStates}>
                             {(country?.states ?? []).map((state, stateIndex) => (
                               <div key={stateIndex} css={styles.checkboxItem}>
-                                <Flex gap={8} style={{ alignItems: 'center' }}>
+                                <Flex gap={2} align="center">
                                   <Checkbox
                                     id={`shipping-region-state-${country.code}-${state.id}`}
                                     checked={formRegions

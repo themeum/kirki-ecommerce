@@ -112,12 +112,11 @@ const ConditionRow = (props: ConditionRowProps) => {
       )}
       <Grid
         css={styles.conditionGrid}
-        style={{
-          gridTemplateColumns:
-            row.condition === 'destination_region' || index > 0
-              ? 'minmax(0, 2fr) 0.5fr minmax(0, 2fr) auto'
-              : 'minmax(0, 2fr) 0.5fr minmax(0, 2fr)',
-        }}
+        template={
+          row.condition === 'destination_region' || index > 0
+            ? 'minmax(0, 2fr) 0.5fr minmax(0, 2fr) auto'
+            : 'minmax(0, 2fr) 0.5fr minmax(0, 2fr)'
+        }
       >
         <Select
           value={String(displayedCondition || row.condition)}

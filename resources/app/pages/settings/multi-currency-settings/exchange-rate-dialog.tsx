@@ -121,7 +121,7 @@ const ExchangeRatePopup = ({
         <DialogCloseButton />
         <DialogHeader>
           <DialogTitle>
-            <Flex gap={8} style={{ alignItems: 'center' }}>
+            <Flex gap={2} align="center">
               <ArrowLeftIcon />
               {__('Set Exchange Rates', 'kirki-ecommerce')}
             </Flex>
@@ -130,28 +130,20 @@ const ExchangeRatePopup = ({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSaveCurrencyData)}>
             <DialogBody>
-              <Flex direction="column" gap={16}>
+              <Flex direction="column" gap={4}>
                 <Label
                   css={editCurrencyRatePopupLabelCss}
                   leftIcon={<InfoIcon />}
                 >
                   {__('Enter rates per 1 USD', 'kirki-ecommerce')}
                 </Label>
-                <Flex
-                  direction="column"
-                  gap={16}
-                  style={{
-                    maxHeight: '200px',
-                    overflowX: 'scroll',
-                  }}
-                >
+                <Flex direction="column" gap={4} css={css({ maxHeight: '200px', overflowX: 'scroll' })}>
                   {selectedCurrencyList?.length > 0 &&
                     selectedCurrencyList?.map((currency, index) => (
                       <Flex
                         key={index}
-                        style={{ justifyContent: 'space-between' }}
-                      >
-                        <Flex gap={12}>
+                        justify="space-between">
+                        <Flex gap={3}>
                           <Text weight="semibold">{sprintf(
                               __('%s', 'kirki-ecommerce'),
                               currency?.symbol ?? '',

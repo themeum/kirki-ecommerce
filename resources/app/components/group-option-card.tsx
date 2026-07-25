@@ -135,21 +135,9 @@ const GroupOptionCard = (props: GroupOptionCardProps) => {
           }}
         >
           <CardContent css={cardStyles.innerContent}>
-          <Flex
-            style={{
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              width: '100%',
-            }}
-          >
-            <Flex
-              style={{
-                alignItems: 'center',
-                minHeight: '36px',
-              }}
-              gap={8}
-            >
-              <Flex gap={8} style={{ alignItems: 'center' }}>
+          <Flex align="center" justify="space-between" css={css({ width: '100%' })}>
+            <Flex gap={2} align="center" css={css({ minHeight: '36px' })}>
+              <Flex gap={2} align="center">
                 {item?.icon}
                 <Text variant="small" css={styles.mediumHeader}>{item?.name ?? ''}</Text>
               </Flex>
@@ -182,11 +170,11 @@ const GroupOptionCard = (props: GroupOptionCardProps) => {
             {(item?.rightIcon || item?.rightText) && (
               <Flex
                 css={css(
-                  groupOptionCardRightTextCss,
-                  activeIndex === index && groupOptionCardRightTextActiveCss,
+                groupOptionCardRightTextCss,
+                activeIndex === index && groupOptionCardRightTextActiveCss,
                 )}
-                gap={12}
-              >
+                gap={3}
+                >
                 {item.rightIcon && item.rightIcon}
                 {item.rightText && (
                   <Text variant="small" color="secondary">{item?.rightText}</Text>

@@ -27,7 +27,7 @@ const SingleItem = ({
 
   return (
     <div css={styles.row}>
-      <Flex gap={8} style={{ alignItems: 'center' }}>
+      <Flex gap={2} align="center">
         <Checkbox
           id={`category-${category.id}`}
           checked={isChecked}

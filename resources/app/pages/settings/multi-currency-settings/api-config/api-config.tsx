@@ -74,7 +74,7 @@ const ApiConfig = () => {
   }, [selectedAPI, apiProvider, apiConfig]);
 
   const rightActions = () => (
-    <ActionGroup gap={8} style={{ alignItems: 'center' }}>
+    <ActionGroup gap={2}>
       <SwitchField name="is_automatic_update_enabled" />
     </ActionGroup>
   );
@@ -97,7 +97,7 @@ const ApiConfig = () => {
         leftIcon={<ReplaceIcon />}
         rightActions={rightActions()}
       >
-        <Flex direction="column" gap={8}>
+        <Flex direction="column" gap={2}>
           <Label htmlFor="api-provider-select">
             {__('Select API Provider', 'kirki-ecommerce')}
           </Label>
@@ -127,13 +127,9 @@ const ApiConfig = () => {
               <CardContent css={cardStyles.innerContent}>
 
               <Flex
-              style={{
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              }}
-              >
-              <Flex direction={'column'} gap={8}>
-              <Flex gap={8} style={{ alignItems: 'center' }}>
+                justify="space-between" align="center">
+              <Flex direction={'column'} gap={2}>
+              <Flex gap={2} align="center">
                 <FlagIcon />
                 <Text>{selectedAPI}</Text>
               </Flex>

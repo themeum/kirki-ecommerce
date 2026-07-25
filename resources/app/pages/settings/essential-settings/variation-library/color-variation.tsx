@@ -48,7 +48,7 @@ const ColorVariation = () => {
         style={{ height: '32px' }}
       />
       <Container size="sm">
-        <Flex direction="column" gap={16}>
+        <Flex direction="column" gap={4}>
           <PageNavbar
             textIcon={<ColorPaletteIcon />}
             text={__('Color', 'kirki-ecommerce')}
@@ -67,7 +67,7 @@ const ColorVariation = () => {
           {!colorList?.length ? (
             <Card css={[cardStyles.largeCard, styles.roundedCard]}>
               <CardContent css={[cardStyles.largeContentPadded, styles.emptyContent]}>
-                <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
+                <Flex direction="column" gap={2} align="center">
                   <ColorPaletteIcon />
                   <span css={styles.mutedText}>
                     {__('No color added yet', 'kirki-ecommerce')}

@@ -86,7 +86,7 @@ const VariationList = () => {
         {!attributeListArr.length ? (
           <Card css={cardStyles.innerDarkCard}>
             <CardContent css={[cardStyles.innerDarkContent, styles.emptyState]}>
-              <Flex direction="column" gap={8} style={{ alignItems: 'center' }}>
+              <Flex direction="column" gap={2} align="center">
                 <BoxIcon />
                 <span css={styles.emptyStateText}>
                   {__('Added variation library will appear here', 'kirki-ecommerce')}

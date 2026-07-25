@@ -132,7 +132,7 @@ export const VatCollection = (props: VatCollectionProps) => {
             hideButton={disableAddVatButton}
             onAdd={() => setShowVatCollectionPopup(true)}
           />
-          <Flex direction="column" gap={8}>
+          <Flex direction="column" gap={2}>
             {vatCollectionList?.map((item, index) => (
               <Card
                 key={index}
@@ -141,7 +141,7 @@ export const VatCollection = (props: VatCollectionProps) => {
                 onMouseLeave={() => setHoveredIndex(null)}
               >
                 <CardContent css={cardStyles.innerContent}>
-                  <Flex gap={8} style={{ alignItems: 'center' }}>
+                  <Flex gap={2} align="center">
                     {getFlagForState(item?.state)}
                     <Text>{item?.state}</Text>
                   </Flex>
@@ -154,7 +154,7 @@ export const VatCollection = (props: VatCollectionProps) => {
                     {`${item?.rate}%`}
                   </Text>
                   <Flex
-                    gap={8}
+                    gap={2}
                     css={css(
                       styles.vatActions,
                       hoveredIndex === index && styles.vatActionsActive,

@@ -116,7 +116,7 @@ export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
             onAdd={() => setAddRuleModal(true)}
           />
           {(addRuleModal || rulesObj.length > 0) && (
-            <Flex direction={'column'} gap={16}>
+            <Flex direction={'column'} gap={4}>
               {addRuleModal && (
                 <ShippingRuleModal
                   methodId={methodId}
@@ -141,11 +141,11 @@ export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
                     onMouseLeave={() => setHoveredRuleIndex(null)}
                   >
                     <CardContent>
-                      <Flex style={{ justifyContent: 'space-between' }}>
-                        <Flex direction={'column'} gap={16}>
+                      <Flex justify="space-between">
+                        <Flex direction={'column'} gap={4}>
                           <Card css={[cardStyles.darkCard, styles.rulesNumberBadge]}>
                             <CardContent>
-                              <Flex gap={8} style={{ alignItems: 'center' }}>
+                              <Flex gap={2} align="center">
                                 <LighteningIcon />
                                 <Text variant="small">
                                   {sprintf(
@@ -156,8 +156,8 @@ export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
                               </Flex>
                             </CardContent>
                           </Card>
-                          <Flex direction={'column'} gap={8}>
-                            <Flex gap={8}>
+                          <Flex direction={'column'} gap={2}>
+                            <Flex gap={2}>
                               <Text>
                                 {sprintf(
                                   __('IF %1$s %2$s', 'kirki-ecommerce'),
@@ -180,7 +180,7 @@ export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
                                 )}
                               </Text>
                             </Flex>
-                            <Flex gap={8}>
+                            <Flex gap={2}>
                               <Text>
                                 {sprintf(__('Then %s:', 'kirki-ecommerce'))}
                               </Text>

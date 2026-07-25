@@ -1,3 +1,4 @@
+import { css } from '@emotion/react';
 import {
   useEffect,
   useState,
@@ -163,9 +164,9 @@ const Shipping = ({ errors, setErrors, formSyncKey = 0 }: ShippingProps) => {
           <CardTitle>{__('Shipping', 'kirki-ecommerce')}</CardTitle>
         </CardHeader>
         <CardContent>
-          <Flex direction="column" gap={8}>
+          <Flex direction="column" gap={2}>
             <Label>{__('Weight', 'kirki-ecommerce')}</Label>
-            <Flex gap={8}>
+            <Flex gap={2}>
               <div style={{ flex: 1 }}>
                 <FormField
                   control={form.control}
@@ -246,14 +247,7 @@ const Shipping = ({ errors, setErrors, formSyncKey = 0 }: ShippingProps) => {
                 paddingTop: theme.spacing[5],
               }}
             >
-              <Flex
-                style={{
-                  top: '-18px',
-                  left: '8px',
-                  right: '8px',
-                  position: 'absolute',
-                }}
-              >
+              <Flex css={css({ top: '-18px', left: '8px', right: '8px', position: 'absolute' })}>
                 <span css={styles.labelBackground}>
                   <Text weight="medium">{__('Shipping Box', 'kirki-ecommerce')}</Text>
                 </span>
@@ -270,7 +264,7 @@ const Shipping = ({ errors, setErrors, formSyncKey = 0 }: ShippingProps) => {
                   </span>
                 </ActionGroup>
               </Flex>
-              <Flex gap={8} direction="column">
+              <Flex gap={2} direction="column">
                 <ShippingBoxSelect
                   value={shippingBoxId}
                   errors={{
