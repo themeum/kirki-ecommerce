@@ -7,6 +7,7 @@ import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { CSSObject } from '@emotion/react';
 
 type SettingsItemProps = {
   link: string;
@@ -114,7 +115,7 @@ const highlightedIcon = {
   color: theme.colors.background.fillBrand,
 };
 
-const showHighlightedAffordances = {
+const showHighlightedAffordances: CSSObject = {
   opacity: 1,
   visibility: 'visible',
 };
