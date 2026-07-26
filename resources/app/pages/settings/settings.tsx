@@ -1,12 +1,13 @@
-import { Card, CardContent } from '@/components/ui/card';
+import { useMemo, useState } from 'react';
+import { useLocation } from 'react-router';
+
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import PageHeading from '@/components/ui/page-heading';
 import Searchbox from '@/components/ui/searchbox';
+import Text from '@/components/ui/text';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
-import { cardStyles } from '@/theme/card-styles';
-import Text from '@/components/ui/text';
 import { __ } from '@/wpi18n';
 
 import { SettingsItem } from '@/pages/settings/settings-item';
@@ -17,20 +18,66 @@ import {
   type SettingsNavItem,
 } from '@/pages/settings/utils';
 
+type SettingsSection = {
+  title: string;
+  items: SettingsNavItem[];
+};
+
+const settingsSections: SettingsSection[] = [
+  {
+    title: __('STORE MANAGEMENT', 'kirki-ecommerce'),
+    items: storeManagementSettings,
+  },
+  {
+    title: __('BUSINESS OPERATION', 'kirki-ecommerce'),
+    items: businessOperationSettings,
+  },
+  {
+    title: __('ADVANCED CONFIGURATION', 'kirki-ecommerce'),
+    items: advancedSettings,
+  },
+];
+
+const filterSettingsItems = (
+  items: SettingsNavItem[],
+  query: string,
+): SettingsNavItem[] => {
+  if (!query) {
+    return items;
+  }
+
+  const search = query.toLowerCase().trim();
+
+  return items.filter((item) => {
+    const header = item.header.toLowerCase();
+    const subHeader = item.subHeader.toLowerCase();
+    return header.includes(search) || subHeader.includes(search);
+  });
+};
+
+const isSettingsRouteActive = (pathname: string, link: string) => {
+  if (!link) {
+    return false;
+  }
+  return pathname === link || pathname.startsWith(`${link}/`);
+};
+
 const Settings = () => {
-  const renderSettingsSection = (
-    title: string,
-    settingsList: SettingsNavItem[],
-  ) => (
-    <Flex direction="column" gap={2}>
-      <Text variant="small" color="subdued">{title}</Text>
-      <Flex direction="column" gap={1} css={styles.settingsCardWrapper}>
-        {settingsList.map((item, index) => (
-          <SettingsItem key={index} {...item} />
-        ))}
-      </Flex>
-    </Flex>
-  );
+  const location = useLocation();
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredSections = useMemo(() => {
+    return settingsSections
+      .map((section) => ({
+        ...section,
+        items: filterSettingsItems(section.items, searchQuery),
+      }))
+      .filter((section) => section.items.length > 0);
+  }, [searchQuery]);
+
+  const handleSearchChange = (value: string | number) => {
+    setSearchQuery(String(value));
+  };
 
   return (
     <>
@@ -42,72 +89,58 @@ const Settings = () => {
         style={{ height: '32px' }}
       />
       <Container size="sm">
-        <Card css={[cardStyles.shadowCard, cardStyles.pageCard]}>
-          <CardContent css={styles.pageContent}>
-            <Flex direction="column" gap={6}>
-              <Searchbox
-                onChange={() => {
-                  // @todo: will be implemented later
-                }}
-              />
-              {renderSettingsSection('STORE MANAGEMENT', storeManagementSettings)}
-              {renderSettingsSection(
-                'BUSINESS OPERATION',
-                businessOperationSettings,
-              )}
-              {renderSettingsSection('ADVANCED CONFIGURATION', advancedSettings)}
-            </Flex>
-          </CardContent>
-        </Card>
+        <div css={styles.panel}>
+          <Flex direction="column" gap={6}>
+            <Searchbox value={searchQuery} onChange={handleSearchChange} />
+            {filteredSections.length === 0 ? (
+              <Text color="subdued">
+                {__('No settings found', 'kirki-ecommerce')}
+              </Text>
+            ) : (
+              filteredSections.map((section) => (
+                <Flex key={section.title} direction="column" gap={2}>
+                  <Text variant="small" color="subdued">
+                    {section.title}
+                  </Text>
+                  <Flex direction="column" css={styles.itemList}>
+                    {section.items.map((item, index) => (
+                      <SettingsItem
+                        key={item.header}
+                        {...item}
+                        isFirst={index === 0}
+                        isLast={index === section.items.length - 1}
+                        isActive={isSettingsRouteActive(
+                          location.pathname,
+                          item.link,
+                        )}
+                      />
+                    ))}
+                  </Flex>
+                </Flex>
+              ))
+            )}
+          </Flex>
+        </div>
       </Container>
     </>
   );
 };
 
+Settings.displayName = 'Settings';
+
 export default Settings;
 
 const styles = {
-  pageContent: scoped({
-    padding: `${theme.spacing[4]} ${theme.spacing[3]}`,
+  panel: scoped({
+    width: '100%',
+    padding: theme.spacing[4],
+    borderRadius: theme.radius.xl,
+    backgroundColor: theme.colors.background.surfaceSecondary,
+    boxShadow:
+      '0px -1px 1px 0.5px hsla(0, 0%, 0%, 0.1) inset, 0px 0.5px 1px 0px hsla(0, 0%, 0%, 0.1) inset',
+    boxSizing: 'border-box',
   }),
-  settingsCardWrapper: scoped({
-    alignItems: 'center',
-    '> div': {
-      borderRadius: theme.radius.none,
-      height: '56px',
-      transition: 'all 0.3s ease',
-      padding: `${theme.spacing[3]} ${theme.spacing[2]}`,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      '&:first-of-type': {
-        borderTopLeftRadius: theme.radius.xl,
-        borderTopRightRadius: theme.radius.xl,
-      },
-      '&:last-of-type': {
-        borderBottomLeftRadius: theme.radius.xl,
-        borderBottomRightRadius: theme.radius.xl,
-      },
-      '&:hover': {
-        backgroundColor: theme.colors.background.fillSecondary,
-        '[data-settings-identifier]': {
-          opacity: 1,
-          visibility: 'visible',
-        },
-        '[data-settings-button]': {
-          opacity: 1,
-          visibility: 'visible',
-        },
-        '[data-settings-heading]': {
-          color: theme.colors.background.fillBrand,
-        },
-        'svg path': {
-          stroke: theme.colors.background.fillBrand,
-        },
-      },
-    },
-    '&:hover > div': {
-      borderRadius: theme.radius.xl,
-    },
-  })
+  itemList: scoped({
+    gap: '2px',
+  }),
 };

@@ -1,4 +1,5 @@
-import { type SerializedStyles, css } from '@emotion/react';
+import { css, type SerializedStyles } from '@emotion/react';
+import { Replace, Trash2 } from 'lucide-react';
 import {
   forwardRef,
   useEffect,
@@ -6,17 +7,16 @@ import {
   type ComponentProps,
   type CSSProperties,
 } from 'react';
-import { Replace, Trash2 } from 'lucide-react';
 
 import MediaSelector from '@/components/media-selector';
 import Button from '@/components/ui/button';
-import Flex from '@/components/ui/flex';
 import {
   Field,
   FieldDescription,
   FieldError,
   FieldLabel,
 } from '@/components/ui/field';
+import Flex from '@/components/ui/flex';
 import { ThumbnailPlaceholder } from '@/icons';
 import { theme } from '@/theme';
 import { flexCenter, scoped } from '@/theme/mixins';
@@ -51,7 +51,7 @@ const Thumbnail = forwardRef<HTMLDivElement, ThumbnailProps>((props, ref) => {
     objectFit = 'cover',
     label,
     error,
-    onChange = () => {},
+    onChange = () => { },
     helpText,
   } = props;
 
@@ -61,49 +61,59 @@ const Thumbnail = forwardRef<HTMLDivElement, ThumbnailProps>((props, ref) => {
     setImgSrc(src);
   }, [src]);
 
+  const isFieldMode = Boolean(label || helpText || typeof error === 'string');
+
+  const media = (
+    <div
+      ref={ref}
+      css={[
+        styles.base,
+        size && styles.sizes[size],
+        type && styles.types[type],
+        error && styles.error,
+        cssProp,
+      ]}
+      style={style}
+    >
+      {imgSrc ? (
+        <>
+          <img src={imgSrc} alt={alt || 'thumbnail'} style={{ objectFit }} />
+          {size === 'fullWidth' && (
+            <div css={[styles.overlay, styles.overlayFullWidth]}>
+              <Flex gap={2} css={styles.actions}>
+                <MediaSelector onSelect={(img) => onChange(img)}>
+                  <Button variant="ghost" aria-label="Replace image">
+                    <Replace size={16} aria-hidden="true" />
+                  </Button>
+                </MediaSelector>
+                <Button
+                  variant="ghost"
+                  aria-label="Remove image"
+                  onClick={() => onChange('')}
+                >
+                  <Trash2 size={16} aria-hidden="true" />
+                </Button>
+              </Flex>
+            </div>
+          )}
+        </>
+      ) : (
+        <ThumbnailPlaceholder />
+      )}
+    </div>
+  );
+
+  if (!isFieldMode) {
+    return media;
+  }
+
   return (
     <Field
       data-invalid={error ? true : undefined}
       css={css({ maxWidth: '100%' })}
     >
       {label && <FieldLabel>{label}</FieldLabel>}
-      <div
-        ref={ref}
-        css={[
-          styles.base,
-          size && styles.sizes[size],
-          type && styles.types[type],
-          error && styles.error,
-          cssProp,
-        ]}
-        style={style}
-      >
-        {imgSrc ? (
-          <>
-            <img src={imgSrc} alt={alt || 'thumbnail'} style={{ objectFit }} />
-            {size === 'fullWidth' && (
-              <div css={[styles.overlay, styles.overlayFullWidth]}>
-                <Flex gap={2} css={styles.actions}>
-                  <MediaSelector onSelect={(img) => onChange(img)}>
-                    <Button variant="ghost" aria-label="Replace image">
-                      <Replace size={16} aria-hidden="true" />
-                    </Button>
-                  </MediaSelector>
-                  <Button
-                    variant="ghost"
-                    aria-label="Remove image"
-                    onClick={() => onChange('')}
-                  >
-                    <Trash2 size={16} aria-hidden="true" />
-                  </Button>
-                </Flex>
-              </div>
-            )}
-          </>
-        ) : (
-          <ThumbnailPlaceholder />
-        )}
-      </div>
+      {media}
       {helpText && !error && <FieldDescription>{helpText}</FieldDescription>}
       {typeof error === 'string' && <FieldError>{error}</FieldError>}
     </Field>
@@ -124,6 +134,7 @@ const styles = {
     display: 'inline-flex',
     overflow: 'hidden',
     position: 'relative',
+    flexShrink: 0,
     img: {
       height: '100%',
       width: '100%',
