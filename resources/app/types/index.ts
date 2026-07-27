@@ -15,10 +15,14 @@ export type {
 
 export type {
   SortOrder,
-  ListFilter,
   ListState,
   ListQueryParams,
+  ListParams,
+  ListFilterConfig,
+  ProductListFilter,
 } from '@/types/store/list-state';
+
+export { productListFilterConfig } from '@/types/store/list-state';
 
 export type { SetKeyValuePayload } from '@/types/store/common-actions';
 

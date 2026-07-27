@@ -7,7 +7,7 @@ import {
 
 import { apiClient } from '@/libs/api';
 import { endpoints } from '@/libs/endpoints';
-import { queryKeys, type QueryParams } from '@/libs/query-keys';
+import { queryKeys } from '@/libs/query-keys';
 import { CollectionSchema } from '@/schemas/catalog/collection';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
 import {
@@ -17,10 +17,10 @@ import {
   toastMutationSuccess,
   unwrapResponse,
 } from '@/services/helpers';
-import type { BulkActionParams, CollectionFormData } from '@/types';
+import type { ListQueryParams, BulkActionParams, CollectionFormData } from '@/types';
 import { __ } from '@/wpi18n';
 
-const getCollections = (params: QueryParams = {}) => {
+const getCollections = (params: ListQueryParams = {}) => {
   return apiClient
     .get(endpoints.COLLECTIONS, { params })
     .then((response) =>
@@ -67,7 +67,7 @@ const bulkDeleteCollections = ({
     .then((response) => unwrapResponse(response));
 };
 
-const useCollectionsQuery = (params: QueryParams = {}) => {
+const useCollectionsQuery = (params: ListQueryParams = {}) => {
   return useQuery({
     queryKey: queryKeys.Collections(params),
     queryFn: () => getCollections(params),

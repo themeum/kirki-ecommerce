@@ -11,7 +11,8 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useBulkDeleteProductsMutation } from '@/services/product';
-import type { PaginatedData, ProductListItem } from '@/types';
+import type { PaginatedData, ProductListFilter, ProductListItem } from '@/types';
+import { productListFilterConfig } from '@/types';
 import { __ } from '@/wpi18n';
 
 import FilterPopup from '@/pages/products/product-table/filter-popup/filter-popup';
@@ -38,7 +39,7 @@ const ProductTable = ({ data }: ProductTableProps) => {
     { title: __('Date', 'kirki-ecommerce') },
   ];
 
-  const { params } = useListParams({
+  const { params } = useListParams<ProductListFilter>({
     defaults: {
       search: '',
       sort_by: 'title',
@@ -46,6 +47,7 @@ const ProductTable = ({ data }: ProductTableProps) => {
       page: 1,
       limit: 10,
     },
+    filter: productListFilterConfig,
   });
 
   const { results, total, per_page } = data;

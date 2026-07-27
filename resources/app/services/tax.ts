@@ -7,17 +7,17 @@ import {
 
 import { apiClient } from '@/libs/api';
 import { endpoints } from '@/libs/endpoints';
-import { queryKeys, type QueryParams } from '@/libs/query-keys';
+import { queryKeys } from '@/libs/query-keys';
 import {
   toastMutationError,
   toastMutationSuccess,
   unwrapData,
   unwrapResponse,
 } from '@/services/helpers';
-import type { PaginatedData, TaxProfile } from '@/types';
+import type { ListQueryParams, PaginatedData, TaxProfile } from '@/types';
 import { __ } from '@/wpi18n';
 
-const getTaxProfiles = async (params: QueryParams = {}) => {
+const getTaxProfiles = async (params: ListQueryParams = {}) => {
   const data = await apiClient
     .get(endpoints.TAX_PROFILES, { params })
     .then((response) => unwrapData<PaginatedData<TaxProfile>>(response));
@@ -48,7 +48,7 @@ const deleteTaxProfile = (id: string | number) => {
     .then((response) => unwrapResponse(response));
 };
 
-const useTaxProfilesQuery = (params: QueryParams = {}) => {
+const useTaxProfilesQuery = (params: ListQueryParams = {}) => {
   return useQuery({
     queryKey: queryKeys.TaxProfiles(params),
     queryFn: () => getTaxProfiles(params),

@@ -7,7 +7,7 @@ import {
 
 import { apiClient } from '@/libs/api';
 import { endpoints } from '@/libs/endpoints';
-import { queryKeys, type QueryParams } from '@/libs/query-keys';
+import { queryKeys } from '@/libs/query-keys';
 import {
   CustomerListItemSchema,
   CustomerSchema,
@@ -20,10 +20,10 @@ import {
   toastMutationSuccess,
   unwrapResponse,
 } from '@/services/helpers';
-import type { BulkActionParams, CustomerFormData } from '@/types';
+import type { ListQueryParams, BulkActionParams, CustomerFormData } from '@/types';
 import { __ } from '@/wpi18n';
 
-const getCustomers = (params: QueryParams = {}) => {
+const getCustomers = (params: ListQueryParams = {}) => {
   return apiClient
     .get(endpoints.CUSTOMERS, { params })
     .then((response) =>
@@ -70,7 +70,7 @@ const bulkDeleteCustomers = ({
     .then((response) => unwrapResponse(response));
 };
 
-const useCustomersQuery = (params: QueryParams = {}) => {
+const useCustomersQuery = (params: ListQueryParams = {}) => {
   return useQuery({
     queryKey: queryKeys.Customers(params),
     queryFn: () => getCustomers(params),

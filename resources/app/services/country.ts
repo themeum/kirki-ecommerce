@@ -2,12 +2,13 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query';
 
 import { apiClient } from '@/libs/api';
 import { endpoints } from '@/libs/endpoints';
-import { queryKeys, type QueryParams } from '@/libs/query-keys';
+import { queryKeys } from '@/libs/query-keys';
 import { CountrySchema } from '@/schemas/reference/country';
 import { ResourceCollectionSchema } from '@/schemas/shared/api';
 import { parseData } from '@/services/helpers';
+import type { ListQueryParams } from '@/types';
 
-const getCountries = (params: QueryParams = {}) => {
+const getCountries = (params: ListQueryParams = {}) => {
   return apiClient
     .get(endpoints.COUNTRIES, { params })
     .then((response) =>
@@ -15,7 +16,7 @@ const getCountries = (params: QueryParams = {}) => {
     );
 };
 
-const useCountriesQuery = (params: QueryParams = {}) => {
+const useCountriesQuery = (params: ListQueryParams = {}) => {
   return useQuery({
     queryKey: queryKeys.Countries(params),
     queryFn: () => getCountries(params),

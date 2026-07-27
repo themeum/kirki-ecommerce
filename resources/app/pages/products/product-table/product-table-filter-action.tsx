@@ -9,7 +9,8 @@ import { useBrandsQuery } from '@/services/brand';
 import { useCategoriesQuery } from '@/services/category';
 import { useCollectionsQuery } from '@/services/collection';
 import { theme } from '@/theme';
-import type { SuggestionOption } from '@/types';
+import type { ProductListFilter, SuggestionOption } from '@/types';
+import { productListFilterConfig } from '@/types';
 import { __ } from '@/wpi18n';
 
 type FilterValue = string | number | Array<string | number>;
@@ -24,15 +25,9 @@ const stockStatusOptions: SuggestionOption[] = [
   { value: 'out_of_stock', title: __('Out of stock', 'kirki-ecommerce') },
 ];
 
-const PRODUCT_FILTER_KEYS = [
-  'category_ids',
-  'brand_ids',
-  'collection_ids',
-  'status',
-  'stock_status',
-] as const;
+const PRODUCT_FILTER_KEYS = productListFilterConfig.keys;
 
-type ProductFilterKey = (typeof PRODUCT_FILTER_KEYS)[number];
+type ProductFilterKey = keyof ProductListFilter;
 
 const filterActionBarCss = css({
   flexWrap: 'wrap',
@@ -42,7 +37,7 @@ const filterActionBarCss = css({
 });
 
 const ProductTableFilterAction = () => {
-  const { params, setParam, setParams } = useListParams({
+  const { params, setParam, setParams } = useListParams<ProductListFilter>({
     defaults: {
       search: '',
       sort_by: 'title',
@@ -50,6 +45,7 @@ const ProductTableFilterAction = () => {
       page: 1,
       limit: 10,
     },
+    filter: productListFilterConfig,
   });
 
   const { data: brandsData } = useBrandsQuery({ limit: -1 });

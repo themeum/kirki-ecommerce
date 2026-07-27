@@ -10,14 +10,15 @@ import { NEW_ITEM_ID } from '@/conf';
 import { useListParams } from '@/hooks';
 import { useProductsQuery } from '@/services/product';
 import { cardStyles } from '@/theme/card-styles';
-import type { PaginationData } from '@/types';
+import type { PaginationData, ProductListFilter } from '@/types';
+import { productListFilterConfig } from '@/types';
 import { __ } from '@/wpi18n';
 
 import ProductTable from '@/pages/products/product-table/product-table';
 
 const Products = () => {
   const navigate = useNavigate();
-  const { params, setParam } = useListParams({
+  const { params, setParam } = useListParams<ProductListFilter>({
     defaults: {
       search: '',
       sort_by: 'title',
@@ -25,6 +26,7 @@ const Products = () => {
       page: 1,
       limit: 10,
     },
+    filter: productListFilterConfig,
   });
   const { data, isLoading, isFetching } = useProductsQuery(params);
 

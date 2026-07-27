@@ -7,7 +7,7 @@ import {
 
 import { apiClient } from '@/libs/api';
 import { endpoints } from '@/libs/endpoints';
-import { queryKeys, type QueryParams } from '@/libs/query-keys';
+import { queryKeys } from '@/libs/query-keys';
 import { VariantSchema } from '@/schemas/catalog/variant';
 import { ResourceCollectionSchema } from '@/schemas/shared/api';
 import {
@@ -16,11 +16,12 @@ import {
   toastMutationError,
   toastMutationSuccess,
 } from '@/services/helpers';
+import type { ListQueryParams } from '@/types';
 import { __ } from '@/wpi18n';
 
 const getBulkVariants = (
   ids: Array<string | number>,
-  params: QueryParams = {},
+  params: ListQueryParams = {},
 ) => {
   return apiClient
     .get(endpoints.VARIANTS_BULK_BY_IDS(ids), { params })
@@ -39,7 +40,7 @@ const updateBulkVariants = (data: Record<string, unknown>) => {
 
 const useBulkVariantsQuery = (
   ids: Array<string | number>,
-  params: QueryParams = {},
+  params: ListQueryParams = {},
   enabled = true,
 ) => {
   return useQuery({

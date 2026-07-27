@@ -7,7 +7,7 @@ import {
 
 import { apiClient } from '@/libs/api';
 import { endpoints } from '@/libs/endpoints';
-import { queryKeys, type QueryParams } from '@/libs/query-keys';
+import { queryKeys } from '@/libs/query-keys';
 import { TagSchema } from '@/schemas/catalog/tag';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
 import {
@@ -17,10 +17,10 @@ import {
   toastMutationSuccess,
   unwrapResponse,
 } from '@/services/helpers';
-import type { BulkActionParams, TagFormData } from '@/types';
+import type { ListQueryParams, BulkActionParams, TagFormData } from '@/types';
 import { __ } from '@/wpi18n';
 
-const getTags = (params: QueryParams = {}) => {
+const getTags = (params: ListQueryParams = {}) => {
   return apiClient
     .get(endpoints.TAGS, { params })
     .then((response) => parseData(PaginatedDataSchema(TagSchema), response));
@@ -53,7 +53,7 @@ const bulkDeleteTags = ({
     .then((response) => unwrapResponse(response));
 };
 
-const useTagsQuery = (params: QueryParams = {}) => {
+const useTagsQuery = (params: ListQueryParams = {}) => {
   return useQuery({
     queryKey: queryKeys.Tags(params),
     queryFn: () => getTags(params),

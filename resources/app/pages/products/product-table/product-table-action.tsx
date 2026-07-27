@@ -12,12 +12,14 @@ import Searchbox from '@/components/ui/searchbox';
 import { useListParams } from '@/hooks';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import type { ProductListFilter } from '@/types';
+import { productListFilterConfig } from '@/types';
 import { __ } from '@/wpi18n';
 
 import FilterPopup from '@/pages/products/product-table/filter-popup/filter-popup';
 
 const ProductTableAction = () => {
-  const { params, setParam } = useListParams({
+  const { params, setParam } = useListParams<ProductListFilter>({
     defaults: {
       search: '',
       sort_by: 'title',
@@ -25,6 +27,7 @@ const ProductTableAction = () => {
       page: 1,
       limit: 10,
     },
+    filter: productListFilterConfig,
   });
 
   const handleSearchChange = (value: string) => {

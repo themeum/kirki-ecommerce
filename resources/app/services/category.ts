@@ -7,7 +7,7 @@ import {
 
 import { apiClient } from '@/libs/api';
 import { endpoints } from '@/libs/endpoints';
-import { queryKeys, type QueryParams } from '@/libs/query-keys';
+import { queryKeys } from '@/libs/query-keys';
 import { CategorySchema } from '@/schemas/catalog/category';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
 import {
@@ -17,10 +17,10 @@ import {
   toastMutationSuccess,
   unwrapResponse,
 } from '@/services/helpers';
-import type { BulkActionParams, CategoryFormData } from '@/types';
+import type { ListQueryParams, BulkActionParams, CategoryFormData } from '@/types';
 import { __ } from '@/wpi18n';
 
-const getCategories = (params: QueryParams = {}) => {
+const getCategories = (params: ListQueryParams = {}) => {
   return apiClient
     .get(endpoints.CATEGORIES, { params })
     .then((response) =>
@@ -61,7 +61,7 @@ const bulkDeleteCategories = ({
     .then((response) => unwrapResponse(response));
 };
 
-const useCategoriesQuery = (params: QueryParams = {}) => {
+const useCategoriesQuery = (params: ListQueryParams = {}) => {
   return useQuery({
     queryKey: queryKeys.Categories(params),
     queryFn: () => getCategories(params),

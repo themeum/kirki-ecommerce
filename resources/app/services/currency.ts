@@ -7,24 +7,24 @@ import {
 
 import { apiClient } from '@/libs/api';
 import { endpoints } from '@/libs/endpoints';
-import { queryKeys, type QueryParams } from '@/libs/query-keys';
+import { queryKeys } from '@/libs/query-keys';
 import {
   toastMutationError,
   toastMutationSuccess,
   unwrapData,
   unwrapResponse,
 } from '@/services/helpers';
-import type { Currency, CurrencyFormData, PaginatedData } from '@/types';
+import type { ListQueryParams, Currency, CurrencyFormData, PaginatedData } from '@/types';
 import { __ } from '@/wpi18n';
 
-const getAvailableCurrencies = async (params: QueryParams = {}) => {
+const getAvailableCurrencies = async (params: ListQueryParams = {}) => {
   const data = await apiClient
     .get(endpoints.CURRENCIES, { params })
     .then((response) => unwrapData<PaginatedData<Currency>>(response));
   return data.results;
 };
 
-const getAllCurrencies = (params: QueryParams = {}) => {
+const getAllCurrencies = (params: ListQueryParams = {}) => {
   return apiClient
     .get(endpoints.CURRENCIES_LIST, { params })
     .then((response) => unwrapData<Currency[]>(response));
@@ -54,7 +54,7 @@ const deleteCurrency = (id: number) => {
     .then((response) => unwrapResponse(response));
 };
 
-const useAvailableCurrenciesQuery = (params: QueryParams = {}) => {
+const useAvailableCurrenciesQuery = (params: ListQueryParams = {}) => {
   return useQuery({
     queryKey: queryKeys.Currencies(params),
     queryFn: () => getAvailableCurrencies(params),
@@ -62,7 +62,7 @@ const useAvailableCurrenciesQuery = (params: QueryParams = {}) => {
   });
 };
 
-const useAllCurrenciesQuery = (params: QueryParams = {}) => {
+const useAllCurrenciesQuery = (params: ListQueryParams = {}) => {
   return useQuery({
     queryKey: queryKeys.CurrenciesList(params),
     queryFn: () => getAllCurrencies(params),
