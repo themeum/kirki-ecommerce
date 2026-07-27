@@ -172,9 +172,53 @@ class Route
     }
 
     /**
+     * Get the HTTP method for this route.
+     *
+     * @return string
+     * @since 1.0.0
+     */
+    public function get_method()
+    {
+        return $this->method;
+    }
+
+    /**
+     * Get the endpoint path for this route.
+     *
+     * @return string
+     * @since 1.0.0
+     */
+    public function get_endpoint()
+    {
+        return $this->endpoint;
+    }
+
+    /**
+     * Get the controller action for this route.
+     *
+     * @return array|Closure
+     * @since 1.0.0
+     */
+    public function get_action()
+    {
+        return $this->action;
+    }
+
+    /**
+     * Get middleware classes attached to this route.
+     *
+     * @return array
+     * @since 1.0.0
+     */
+    public function get_middlewares()
+    {
+        return $this->middlewares;
+    }
+
+    /**
      * Get the endpoint in proper format that register_rest_route() expects.
      *
-     * @return void
+     * @return string
      */
     protected function get_formatted_endpoint()
     {
