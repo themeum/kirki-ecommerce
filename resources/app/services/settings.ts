@@ -2,17 +2,17 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { apiClient } from '@/libs/api';
 import { endpoints } from '@/libs/endpoints';
-import { queryKeys, type QueryParams } from '@/libs/query-keys';
+import { queryKeys } from '@/libs/query-keys';
 import {
   toastMutationError,
   toastMutationSuccess,
   unwrapData,
   unwrapResponse,
 } from '@/services/helpers';
-import type { SettingsSectionData, SettingsSectionKey } from '@/types';
+import type { ListQueryParams, SettingsSectionData, SettingsSectionKey } from '@/types';
 import { __ } from '@/wpi18n';
 
-const getSettings = (key: SettingsSectionKey | string, params: QueryParams = {}) => {
+const getSettings = (key: SettingsSectionKey | string, params: ListQueryParams = {}) => {
   return apiClient
     .get(endpoints.SETTINGS_BY_KEY(key), { params })
     .then((response) => unwrapData<SettingsSectionData>(response));
@@ -38,7 +38,7 @@ const updateSettings = ({
 
 const useSettingsQuery = (
   key: SettingsSectionKey | string,
-  params: QueryParams = {},
+  params: ListQueryParams = {},
   enabled = true,
 ) => {
   return useQuery({

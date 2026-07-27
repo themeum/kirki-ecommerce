@@ -7,7 +7,7 @@ import {
 
 import { apiClient } from '@/libs/api';
 import { endpoints } from '@/libs/endpoints';
-import { queryKeys, type QueryParams } from '@/libs/query-keys';
+import { queryKeys } from '@/libs/query-keys';
 import { BrandSchema } from '@/schemas/catalog/brand';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
 import {
@@ -17,10 +17,10 @@ import {
   toastMutationSuccess,
   unwrapResponse,
 } from '@/services/helpers';
-import type { BrandFormData, BulkActionParams } from '@/types';
+import type { ListQueryParams, BrandFormData, BulkActionParams } from '@/types';
 import { __ } from '@/wpi18n';
 
-const getBrands = (params: QueryParams = {}) => {
+const getBrands = (params: ListQueryParams = {}) => {
   return apiClient
     .get(endpoints.BRANDS, { params })
     .then((response) => parseData(PaginatedDataSchema(BrandSchema), response));
@@ -53,7 +53,7 @@ const bulkDeleteBrands = ({
     .then((response) => unwrapResponse(response));
 };
 
-const useBrandsQuery = (params: QueryParams = {}) => {
+const useBrandsQuery = (params: ListQueryParams = {}) => {
   return useQuery({
     queryKey: queryKeys.Brands(params),
     queryFn: () => getBrands(params),

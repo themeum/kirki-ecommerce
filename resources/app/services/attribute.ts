@@ -7,7 +7,7 @@ import {
 
 import { apiClient } from '@/libs/api';
 import { endpoints } from '@/libs/endpoints';
-import { queryKeys, type QueryParams } from '@/libs/query-keys';
+import { queryKeys } from '@/libs/query-keys';
 import {
   AttributeSchema,
   AttributeValueSchema,
@@ -27,10 +27,11 @@ import type {
   AttributeFormData,
   AttributeValueFormData,
   BulkActionParams,
+  ListQueryParams,
 } from '@/types';
 import { __ } from '@/wpi18n';
 
-const getAttributes = async (params: QueryParams = {}) => {
+const getAttributes = async (params: ListQueryParams = {}) => {
   const data = await apiClient
     .get(endpoints.ATTRIBUTES, { params })
     .then((response) =>
@@ -45,7 +46,7 @@ const getAttribute = (id: number) => {
     .then((response) => parseData(AttributeSchema, response));
 };
 
-const getAttributeValues = (id: number, params: QueryParams = {}) => {
+const getAttributeValues = (id: number, params: ListQueryParams = {}) => {
   return apiClient
     .get(endpoints.ATTRIBUTE_VALUES(id), { params })
     .then((response) =>
@@ -110,7 +111,7 @@ const bulkDeleteAttributeValues = ({
     .then((response) => unwrapResponse(response));
 };
 
-const useAttributesQuery = (params: QueryParams = {}) => {
+const useAttributesQuery = (params: ListQueryParams = {}) => {
   return useQuery({
     queryKey: queryKeys.Attributes(params),
     queryFn: () => getAttributes(params),
@@ -128,7 +129,7 @@ const useAttributeQuery = (id: number, enabled = true) => {
 
 const useAttributeValuesQuery = (
   id: number,
-  params: QueryParams = {},
+  params: ListQueryParams = {},
   enabled = true,
 ) => {
   return useQuery({

@@ -2,12 +2,13 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query';
 
 import { apiClient } from '@/libs/api';
 import { endpoints } from '@/libs/endpoints';
-import { queryKeys, type QueryParams } from '@/libs/query-keys';
+import { queryKeys } from '@/libs/query-keys';
 import { PageItemSchema } from '@/schemas/catalog/page';
 import { ResourceCollectionSchema } from '@/schemas/shared/api';
 import { parseData } from '@/services/helpers';
+import type { ListQueryParams } from '@/types';
 
-const getPages = (params: QueryParams = {}) => {
+const getPages = (params: ListQueryParams = {}) => {
   return apiClient
     .get(endpoints.PAGES, { params })
     .then((response) =>
@@ -15,7 +16,7 @@ const getPages = (params: QueryParams = {}) => {
     );
 };
 
-const usePagesQuery = (params: QueryParams = {}) => {
+const usePagesQuery = (params: ListQueryParams = {}) => {
   return useQuery({
     queryKey: queryKeys.Pages(params),
     queryFn: () => getPages(params),

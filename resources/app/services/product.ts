@@ -7,7 +7,7 @@ import {
 
 import { apiClient } from '@/libs/api';
 import { endpoints } from '@/libs/endpoints';
-import { queryKeys, type QueryParams } from '@/libs/query-keys';
+import { queryKeys } from '@/libs/query-keys';
 import { ProductListItemSchema, ProductSchema } from '@/schemas/catalog/product';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
 import {
@@ -17,10 +17,10 @@ import {
   toastMutationSuccess,
   unwrapResponse,
 } from '@/services/helpers';
-import type { BulkActionParams, ProductFormData } from '@/types';
+import type { BulkActionParams, ListParams, ProductFormData, ProductListFilter } from '@/types';
 import { __ } from '@/wpi18n';
 
-const getProducts = (params: QueryParams = {}) => {
+const getProducts = (params: ListParams<ProductListFilter> = {}) => {
   return apiClient
     .get(endpoints.PRODUCTS, { params })
     .then((response) =>
@@ -67,7 +67,7 @@ const bulkDeleteProducts = ({
     .then((response) => unwrapResponse(response));
 };
 
-const useProductsQuery = (params: QueryParams = {}) => {
+const useProductsQuery = (params: ListParams<ProductListFilter> = {}) => {
   return useQuery({
     queryKey: queryKeys.Products(params),
     queryFn: () => getProducts(params),

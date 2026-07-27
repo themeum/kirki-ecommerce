@@ -7,17 +7,17 @@ import {
 
 import { apiClient } from '@/libs/api';
 import { endpoints } from '@/libs/endpoints';
-import { queryKeys, type QueryParams } from '@/libs/query-keys';
+import { queryKeys } from '@/libs/query-keys';
 import {
   toastMutationError,
   toastMutationSuccess,
   unwrapData,
   unwrapResponse,
 } from '@/services/helpers';
-import type { PaginatedData, ShippingBox, ShippingProfile } from '@/types';
+import type { ListQueryParams, PaginatedData, ShippingBox, ShippingProfile } from '@/types';
 import { __ } from '@/wpi18n';
 
-const getShippingProfiles = async (params: QueryParams = {}) => {
+const getShippingProfiles = async (params: ListQueryParams = {}) => {
   const data = await apiClient
     .get(endpoints.SHIPPING_PROFILES, { params })
     .then((response) => unwrapData<PaginatedData<ShippingProfile>>(response));
@@ -48,7 +48,7 @@ const deleteShippingProfile = (id: string | number) => {
     .then((response) => unwrapResponse(response));
 };
 
-const getShippingBoxes = async (params: QueryParams = {}) => {
+const getShippingBoxes = async (params: ListQueryParams = {}) => {
   const data = await apiClient
     .get(endpoints.SHIPPING_BOXES, { params })
     .then((response) => unwrapData<PaginatedData<ShippingBox>>(response));
@@ -85,7 +85,7 @@ const deleteShippingBox = (id: string | number) => {
     .then((response) => unwrapResponse(response));
 };
 
-const useShippingProfilesQuery = (params: QueryParams = {}) => {
+const useShippingProfilesQuery = (params: ListQueryParams = {}) => {
   return useQuery({
     queryKey: queryKeys.ShippingProfiles(params),
     queryFn: () => getShippingProfiles(params),
@@ -93,7 +93,7 @@ const useShippingProfilesQuery = (params: QueryParams = {}) => {
   });
 };
 
-const useShippingBoxesQuery = (params: QueryParams = {}) => {
+const useShippingBoxesQuery = (params: ListQueryParams = {}) => {
   return useQuery({
     queryKey: queryKeys.ShippingBoxes(params),
     queryFn: () => getShippingBoxes(params),

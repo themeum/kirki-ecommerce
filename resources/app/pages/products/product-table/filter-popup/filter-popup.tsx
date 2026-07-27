@@ -24,6 +24,8 @@ import { useListParams } from '@/hooks';
 import { CloseIcon, ListFilter } from '@/icons';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import type { ProductListFilter } from '@/types';
+import { productListFilterConfig } from '@/types';
 import { __, sprintf } from '@/wpi18n';
 
 import BrandFilter from '@/pages/products/product-table/filter-popup/brand-filter';
@@ -49,7 +51,7 @@ const FilterPopup = ({
   buttonProps,
   data: _data,
 }: FilterPopupProps) => {
-  const { params, setParams } = useListParams({
+  const { params, setParams } = useListParams<ProductListFilter>({
     defaults: {
       search: '',
       sort_by: 'title',
@@ -57,6 +59,7 @@ const FilterPopup = ({
       page: 1,
       limit: 10,
     },
+    filter: productListFilterConfig,
   });
   const [openPopup, setOpenPopup] = useState(false);
   const [filterObject, setFilterObject] = useState<LocalFilterState>({

@@ -1,73 +1,37 @@
 import { useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router';
 
-import type { ListFilter, ListQueryParams, SortOrder } from '@/types';
+import type {
+  ListFilterConfig,
+  ListParams,
+  ListQueryParams,
+  SortOrder,
+} from '@/types';
+import { serializeFilterValue } from '@/types/list-state';
 
-type ListParamsDefaults = {
-  search?: string;
-  sort_by?: string;
-  sort_order?: SortOrder;
-  page?: number;
-  limit?: string | number;
-  filter?: ListFilter;
-};
+type ListParamsDefaults = ListQueryParams;
 
-type UseListParamsOptions = {
+type ListParamsUpdate<
+  TFilter extends Record<string, unknown> = {},
+> = Partial<ListQueryParams & TFilter>;
+
+type UseListParamsOptions<
+  TFilter extends Record<string, unknown> = {},
+> = {
   defaults?: ListParamsDefaults;
+  filter?: ListFilterConfig<TFilter>;
 };
 
-type SetParamKey =
+type SetParamKey<TFilter extends Record<string, unknown>> =
   | keyof ListQueryParams
   | 'filter'
-  | keyof ListFilter;
+  | (keyof TFilter & string);
 
-const FILTER_KEYS: Array<keyof ListFilter> = [
-  'category_ids',
-  'brand_ids',
-  'collection_ids',
-  'tag_ids',
-  'status',
-  'stock_status',
-];
-
-const parseNumberArray = (value: string | null): number[] | undefined => {
-  if (!value) {
-    return undefined;
-  }
-  const items = value
-    .split(',')
-    .map((item) => Number(item.trim()))
-    .filter((item) => !Number.isNaN(item));
-  if (!items.length) {
-    return undefined;
-  }
-  return items;
-};
-
-const parseStatus = (value: string | null): string | string[] | undefined => {
-  if (!value) {
-    return undefined;
-  }
-  if (value.includes(',')) {
-    return value.split(',').map((item) => item.trim()).filter(Boolean);
-  }
-  return value;
-};
-
-const serializeFilterValue = (value: unknown): string | null => {
-  if (value === null || value === undefined || value === '') {
-    return null;
-  }
-  if (Array.isArray(value)) {
-    if (!value.length) {
-      return null;
-    }
-    return value.join(',');
-  }
-  return String(value);
-};
-
-const useListParams = (options: UseListParamsOptions = {}) => {
+const useListParams = <
+  TFilter extends Record<string, unknown> = {},
+>(
+  options: UseListParamsOptions<TFilter> = {},
+) => {
   const {
     defaults = {
       search: '',
@@ -76,40 +40,30 @@ const useListParams = (options: UseListParamsOptions = {}) => {
       page: 1,
       limit: 10,
     },
+    filter: filterConfig,
   } = options;
+
+  const filterKeys = filterConfig?.keys ?? [];
 
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const params = useMemo((): ListQueryParams & ListFilter => {
+  const params = useMemo((): ListParams<TFilter> => {
     const pageValue = searchParams.get('page');
     const limitValue = searchParams.get('limit');
     const sortOrder = searchParams.get('sort_order') as SortOrder | null;
 
-    const filter: ListFilter = {};
-    const categoryIds = parseNumberArray(searchParams.get('category_ids'));
-    const brandIds = parseNumberArray(searchParams.get('brand_ids'));
-    const collectionIds = parseNumberArray(searchParams.get('collection_ids'));
-    const tagIds = parseNumberArray(searchParams.get('tag_ids'));
-    const status = parseStatus(searchParams.get('status'));
-    const stockStatus = searchParams.get('stock_status');
+    const parsedFilter: Partial<TFilter> = {};
 
-    if (categoryIds) {
-      filter.category_ids = categoryIds;
-    }
-    if (brandIds) {
-      filter.brand_ids = brandIds;
-    }
-    if (collectionIds) {
-      filter.collection_ids = collectionIds;
-    }
-    if (tagIds) {
-      filter.tag_ids = tagIds;
-    }
-    if (status) {
-      filter.status = status;
-    }
-    if (stockStatus) {
-      filter.stock_status = stockStatus;
+    if (filterConfig) {
+      filterConfig.keys.forEach((key) => {
+        const raw = searchParams.get(key);
+        const parser = filterConfig.parsers[key];
+        const parsed = parser ? parser.parse(raw) : raw || undefined;
+
+        if (parsed !== undefined) {
+          (parsedFilter as Record<string, unknown>)[key] = parsed;
+        }
+      });
     }
 
     return {
@@ -120,22 +74,35 @@ const useListParams = (options: UseListParamsOptions = {}) => {
       limit: limitValue
         ? Number(limitValue) || limitValue
         : (defaults.limit ?? 10),
-      ...filter,
-    };
-  }, [searchParams, defaults]);
+      ...parsedFilter,
+    } as ListParams<TFilter>;
+  }, [searchParams, defaults, filterConfig]);
+
+  const serializeValue = useCallback(
+    (key: string, value: unknown): string | null => {
+      const parser = filterConfig?.parsers[key as keyof TFilter];
+
+      if (parser?.serialize) {
+        return parser.serialize(value as TFilter[keyof TFilter]);
+      }
+
+      return serializeFilterValue(value);
+    },
+    [filterConfig],
+  );
 
   const setParams = useCallback(
-    (updates: Partial<ListQueryParams & ListFilter>, replace = false) => {
+    (updates: ListParamsUpdate<TFilter>, replace = false) => {
       setSearchParams(
         (prev) => {
           const next = new URLSearchParams(prev);
 
           const shouldResetPage = Object.keys(updates).some((key) =>
-            ['search', 'sort_by', 'sort_order', ...FILTER_KEYS].includes(key),
+            ['search', 'sort_by', 'sort_order', ...filterKeys].includes(key),
           );
 
           Object.entries(updates).forEach(([key, value]) => {
-            const serialized = serializeFilterValue(value);
+            const serialized = serializeValue(key, value);
             if (serialized === null) {
               next.delete(key);
               return;
@@ -148,7 +115,7 @@ const useListParams = (options: UseListParamsOptions = {}) => {
           }
 
           Object.entries(defaults).forEach(([key, defaultValue]) => {
-            if (FILTER_KEYS.includes(key as keyof ListFilter)) {
+            if (filterKeys.includes(key as keyof TFilter & string)) {
               return;
             }
             const current = next.get(key);
@@ -170,16 +137,16 @@ const useListParams = (options: UseListParamsOptions = {}) => {
         { replace },
       );
     },
-    [defaults, setSearchParams],
+    [defaults, filterKeys, serializeValue, setSearchParams],
   );
 
   const setParam = useCallback(
-    (key: SetParamKey, value: unknown, replace = false) => {
+    (key: SetParamKey<TFilter>, value: unknown, replace = false) => {
       if (key === 'filter' && value && typeof value === 'object') {
-        setParams(value as ListFilter, replace);
+        setParams(value as Partial<TFilter>, replace);
         return;
       }
-      setParams({ [key]: value } as Partial<ListQueryParams & ListFilter>, replace);
+      setParams({ [key]: value } as ListParamsUpdate<TFilter>, replace);
     },
     [setParams],
   );
@@ -198,4 +165,4 @@ const useListParams = (options: UseListParamsOptions = {}) => {
 };
 
 export default useListParams;
-export type { ListParamsDefaults, UseListParamsOptions };
+export type { ListParamsDefaults, ListParamsUpdate, UseListParamsOptions };

@@ -7,7 +7,7 @@ import {
 
 import { apiClient } from '@/libs/api';
 import { endpoints } from '@/libs/endpoints';
-import { queryKeys, type QueryParams } from '@/libs/query-keys';
+import { queryKeys } from '@/libs/query-keys';
 import { SchemaProfileSchema } from '@/schemas/catalog/schema-profile';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
 import {
@@ -17,10 +17,10 @@ import {
   toastMutationSuccess,
   unwrapResponse,
 } from '@/services/helpers';
-import type { SchemaFormData } from '@/types';
+import type { ListQueryParams, SchemaFormData } from '@/types';
 import { __ } from '@/wpi18n';
 
-const getSchemas = async (params: QueryParams = {}) => {
+const getSchemas = async (params: ListQueryParams = {}) => {
   const data = await apiClient
     .get(endpoints.PRODUCT_SCHEMAS, { params })
     .then((response) =>
@@ -53,7 +53,7 @@ const deleteSchema = (id: number) => {
     .then((response) => unwrapResponse(response));
 };
 
-const useSchemasQuery = (params: QueryParams = {}) => {
+const useSchemasQuery = (params: ListQueryParams = {}) => {
   return useQuery({
     queryKey: queryKeys.Schemas(params),
     queryFn: () => getSchemas(params),
