@@ -8,14 +8,14 @@ use DateTimeInterface;
 use DateTimeZone;
 use Exception;
 use InvalidArgumentException;
-use Kirki\Ecommerce\Contracts\Somoy as SomoyContract;
+use Kirki\Ecommerce\Contracts\SomoyInterface;
 use Kirki\Ecommerce\Exceptions\InvalidDateFormatException;
 
 
 /**
  * A mutable date and time value object.
  *
- * The default implementation of {@see \Kirki\Ecommerce\Contracts\Somoy}. Code
+ * The default implementation of {@see \Kirki\Ecommerce\Contracts\SomoyInterface}. Code
  * that consumes dates should type against that contract rather than this
  * class, so the implementation can be swapped later.
  *
@@ -33,7 +33,7 @@ use Kirki\Ecommerce\Exceptions\InvalidDateFormatException;
  *
  * @since 1.0.0
  */
-class Somoy extends DateTime implements SomoyContract
+class Somoy extends DateTime implements SomoyInterface
 {
     /**
      * The date only format.

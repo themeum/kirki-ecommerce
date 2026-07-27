@@ -4,21 +4,21 @@ namespace Kirki\Ecommerce\Managers;
 
 use BadMethodCallException;
 use InvalidArgumentException;
-use Kirki\Ecommerce\Contracts\Somoy as SomoyContract;
+use Kirki\Ecommerce\Contracts\SomoyInterface;
 use Kirki\Ecommerce\Somoy;
 
 /**
- * @see \Kirki\Ecommerce\Contracts\Somoy
+ * @see \Kirki\Ecommerce\Contracts\SomoyInterface
  *
- * @method \Kirki\Ecommerce\Contracts\Somoy now(\DateTimeZone|string|null $timezone = null)
- * @method \Kirki\Ecommerce\Contracts\Somoy today(\DateTimeZone|string|null $timezone = null)
- * @method \Kirki\Ecommerce\Contracts\Somoy yesterday(\DateTimeZone|string|null $timezone = null)
- * @method \Kirki\Ecommerce\Contracts\Somoy tomorrow(\DateTimeZone|string|null $timezone = null)
- * @method \Kirki\Ecommerce\Contracts\Somoy parse(\DateTimeInterface|string|int|float|null $time = null, \DateTimeZone|string|null $timezone = null)
- * @method \Kirki\Ecommerce\Contracts\Somoy instance(\DateTimeInterface $date)
- * @method \Kirki\Ecommerce\Contracts\Somoy create_from_timestamp(int|float|string $timestamp, \DateTimeZone|string|null $timezone = null)
- * @method \Kirki\Ecommerce\Contracts\Somoy create_from_format(string $format, string $time, \DateTimeZone|string|null $timezone = null)
- * @method \Kirki\Ecommerce\Contracts\Somoy create(?int $year = null, ?int $month = null, ?int $day = null, ?int $hour = null, ?int $minute = null, ?int $second = null, \DateTimeZone|string|null $timezone = null)
+ * @method \Kirki\Ecommerce\Contracts\SomoyInterface now(\DateTimeZone|string|null $timezone = null)
+ * @method \Kirki\Ecommerce\Contracts\SomoyInterface today(\DateTimeZone|string|null $timezone = null)
+ * @method \Kirki\Ecommerce\Contracts\SomoyInterface yesterday(\DateTimeZone|string|null $timezone = null)
+ * @method \Kirki\Ecommerce\Contracts\SomoyInterface tomorrow(\DateTimeZone|string|null $timezone = null)
+ * @method \Kirki\Ecommerce\Contracts\SomoyInterface parse(\DateTimeInterface|string|int|float|null $time = null, \DateTimeZone|string|null $timezone = null)
+ * @method \Kirki\Ecommerce\Contracts\SomoyInterface instance(\DateTimeInterface $date)
+ * @method \Kirki\Ecommerce\Contracts\SomoyInterface create_from_timestamp(int|float|string $timestamp, \DateTimeZone|string|null $timezone = null)
+ * @method \Kirki\Ecommerce\Contracts\SomoyInterface create_from_format(string $format, string $time, \DateTimeZone|string|null $timezone = null)
+ * @method \Kirki\Ecommerce\Contracts\SomoyInterface create(?int $year = null, ?int $month = null, ?int $day = null, ?int $hour = null, ?int $minute = null, ?int $second = null, \DateTimeZone|string|null $timezone = null)
  * @method bool is_valid_date(mixed $value)
  */
 class DateManager
@@ -41,11 +41,11 @@ class DateManager
      */
     public function __construct($date_class = Somoy::class)
     {
-        if (!is_a($date_class, SomoyContract::class, true)) {
+        if (!is_a($date_class, SomoyInterface::class, true)) {
             throw new InvalidArgumentException(sprintf(
                 '%s must implement %s.',
                 is_string($date_class) ? $date_class : gettype($date_class),
-                SomoyContract::class
+                SomoyInterface::class
             ));
         }
 

@@ -10,7 +10,7 @@ use Kirki\Ecommerce\Contracts\Support\Arrayable;
 use Kirki\Ecommerce\Collections\Collection;
 use Kirki\Ecommerce\Database\Connection\Connection;
 use Kirki\Ecommerce\Supports\Arr;
-use Kirki\Ecommerce\Contracts\Somoy as SomoyContract;
+use Kirki\Ecommerce\Contracts\SomoyInterface;
 use Kirki\Ecommerce\Supports\Facades\Date;
 use Exception;
 use InvalidArgumentException;
@@ -369,7 +369,7 @@ trait HasAttributes
      * Convert a value to a date.
      *
      * @param mixed $value The value to convert
-     * @return SomoyContract The date value
+     * @return SomoyInterface The date value
      */
     protected function as_date($value)
     {
@@ -380,11 +380,11 @@ trait HasAttributes
      * Convert a value to a date time.
      *
      * @param mixed $value The value to convert
-     * @return SomoyContract The date time value
+     * @return SomoyInterface The date time value
      */
     protected function as_date_time($value)
     {
-        if ($value instanceof SomoyContract) {
+        if ($value instanceof SomoyInterface) {
             return Date::instance($value);
         }
 
@@ -570,7 +570,7 @@ trait HasAttributes
      * Convert a value to a date time.
      *
      * @param mixed $value The value to convert
-     * @return SomoyContract The date time value
+     * @return SomoyInterface The date time value
      */
     public function from_date_time($value)
     {

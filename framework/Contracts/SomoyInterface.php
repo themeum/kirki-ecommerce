@@ -34,7 +34,7 @@ use JsonSerializable;
  *
  * @since 1.0.0
  */
-interface Somoy extends DateTimeInterface, JsonSerializable
+interface SomoyInterface extends DateTimeInterface, JsonSerializable
 {
     /**
      * Get an instance for the current date and time.
