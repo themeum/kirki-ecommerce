@@ -6,8 +6,6 @@ use Kirki\Ecommerce\Container;
 use Kirki\Ecommerce\Contracts\Request as RequestContract;
 use Kirki\Ecommerce\Console\CommandManager;
 use Kirki\Ecommerce\Console\Commands\FreshCommand;
-use Kirki\Ecommerce\Console\Commands\GenerateDocsCommand;
-use Kirki\Ecommerce\Console\Commands\MakeApiDocCommand;
 use Kirki\Ecommerce\Console\Commands\MakeClassCommand;
 use Kirki\Ecommerce\Console\Commands\MakeControllerCommand;
 use Kirki\Ecommerce\Console\Commands\MakeMigrationCommand;
@@ -212,8 +210,6 @@ class Application extends Container
             'migrate:fresh' => FreshCommand::class,
             'make:provider' => MakeProviderCommand::class,
             'make:class' => MakeClassCommand::class,
-            'make:api-doc' => MakeApiDocCommand::class,
-            'docs:generate' => GenerateDocsCommand::class,
         ];
 
         foreach ($commands as $command => $class) {

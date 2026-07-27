@@ -1,0 +1,91 @@
+info:
+  name: Edit (Tag)
+  type: http
+  seq: 3
+  tags:
+    - tags
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/tags/1"
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Test1",
+        "slug": "test1",
+        "description": ""
+      }
+  auth: inherit
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/tags/1"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "name": "Test1",
+            "slug": "test1",
+            "description": ""
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": true,
+            "data": {
+              "id": 24,
+              "name": "Test1",
+              "slug": "test1",
+              "description": "",
+              "created_at": "2025-10-27 10:56:59",
+              "updated_at": "2025-10-23 09:37:08"
+            },
+            "message": "Tag updated successfully."
+          }
+  - name: 404 Response
+    description: Failure
+    request:
+      url: "{{baseUrl}}/tags/1"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "name": "Test1",
+            "slug": "test1",
+            "description": ""
+          }
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "errors": {},
+            "message": "Tag could not be updated."
+          }
+
+docs: |-
+  ## Edit Tag
+  Updates an existing resource with the provided data.

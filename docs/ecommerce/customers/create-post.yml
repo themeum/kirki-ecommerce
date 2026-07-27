@@ -1,0 +1,282 @@
+info:
+  name: Create (POST)
+  type: http
+  seq: 4
+  tags:
+    - customers
+
+http:
+  method: POST
+  url: "{{baseUrl}}/customers"
+  body:
+    type: json
+    data: |-
+      {
+        "first_name": "Md",
+        "last_name": "Ashraful",
+        "photo": 7,
+        "email": "johndoe13@example.com",
+        "phone": "+1 555-123-4567",
+        "accepts_marketing": true,
+        "notes": "VIP customer, prefers phone communication.",
+        "language": "en",
+        "tags": [
+          "vip",
+          "newsletter"
+        ],
+        "shipping_address": {
+          "first_name": "Jane",
+          "last_name": "Doe",
+          "email": "jane.shipping@example.com",
+          "phone": "+1 555-000-2000",
+          "address_line1": "78 Sunset Blvd",
+          "address_line2": "",
+          "city": "Los Angeles",
+          "state": "CA",
+          "postal_code": "90001",
+          "country": "US"
+        },
+        "is_billing_same_as_shipping": false,
+        "billing_address": {
+          "first_name": "John",
+          "last_name": "Doe",
+          "email": "john.billing@example.com",
+          "phone": "+1 555-000-1000",
+          "address_line1": "123 Market Street",
+          "address_line2": "Suite 500",
+          "city": "San Francisco",
+          "state": "CA",
+          "postal_code": "94103",
+          "country": "US"
+        }
+      }
+  auth: inherit
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/customers"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "first_name": "Md",
+            "last_name": "Ashraful",
+            "photo": 7,
+            "email": "johndoe13@example.com",
+            "phone": "+1 555-123-4567",
+            "accepts_marketing": true,
+            "notes": "VIP customer, prefers phone communication.",
+            "language": "en",
+            "tags": [
+              "vip",
+              "newsletter"
+            ],
+            "shipping_address": {
+              "first_name": "Jane",
+              "last_name": "Doe",
+              "email": "jane.shipping@example.com",
+              "phone": "+1 555-000-2000",
+              "address_line1": "78 Sunset Blvd",
+              "address_line2": "",
+              "city": "Los Angeles",
+              "state": "CA",
+              "postal_code": "90001",
+              "country": "US"
+            },
+            "is_billing_same_as_shipping": false,
+            "billing_address": {
+              "first_name": "John",
+              "last_name": "Doe",
+              "email": "john.billing@example.com",
+              "phone": "+1 555-000-1000",
+              "address_line1": "123 Market Street",
+              "address_line2": "Suite 500",
+              "city": "San Francisco",
+              "state": "CA",
+              "postal_code": "94103",
+              "country": "US"
+            }
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": true,
+            "data": {
+              "id": 4,
+              "user_id": 13,
+              "first_name": "Md",
+              "last_name": "Ashraful",
+              "email": "johndoe13@example.com",
+              "phone": "+1 555-123-4567",
+              "photo": {
+                "id": "7",
+                "filename": "project-launch-bg.webp",
+                "url": "http://droip.local/wp-content/uploads/2025/10/project-launch-bg.webp",
+                "sizes": {
+                  "medium": {
+                    "height": 225,
+                    "width": 300,
+                    "url": "http://droip.local/wp-content/uploads/2025/10/project-launch-bg-300x225.webp",
+                    "orientation": "landscape"
+                  },
+                  "large": {
+                    "height": 768,
+                    "width": 1024,
+                    "url": "http://droip.local/wp-content/uploads/2025/10/project-launch-bg-1024x768.webp",
+                    "orientation": "landscape"
+                  },
+                  "thumbnail": {
+                    "height": 150,
+                    "width": 150,
+                    "url": "http://droip.local/wp-content/uploads/2025/10/project-launch-bg-150x150.webp",
+                    "orientation": "portrait"
+                  },
+                  "medium_large": {
+                    "height": 576,
+                    "width": 768,
+                    "url": "http://droip.local/wp-content/uploads/2025/10/project-launch-bg-768x576.webp",
+                    "orientation": "landscape"
+                  },
+                  "1536x1536": {
+                    "height": 1152,
+                    "width": 1536,
+                    "url": "http://droip.local/wp-content/uploads/2025/10/project-launch-bg-1536x1152.webp",
+                    "orientation": "landscape"
+                  }
+                },
+                "height": 1300,
+                "width": 1733,
+                "filesize": 133260,
+                "mime": "image/webp",
+                "type": "image",
+                "thumb": null,
+                "author": "1",
+                "author_name": "admin",
+                "date": "2025-10-28T05:18:56+00:00"
+              },
+              "shipping_address": {
+                "id": 7,
+                "customer_id": 4,
+                "first_name": "Jane",
+                "last_name": "Doe",
+                "address_line1": "78 Sunset Blvd",
+                "address_line2": "",
+                "city": "Los Angeles",
+                "state": "CA",
+                "country": "US",
+                "postal_code": "90001",
+                "phone": "+1 555-000-2000",
+                "type": "shipping",
+                "created_at": "2025-11-14 06:49:40",
+                "updated_at": "2025-11-14 06:49:40"
+              },
+              "is_billing_same_as_shipping": false,
+              "billing_address": {
+                "id": 8,
+                "customer_id": 4,
+                "first_name": "John",
+                "last_name": "Doe",
+                "address_line1": "123 Market Street",
+                "address_line2": "Suite 500",
+                "city": "San Francisco",
+                "state": "CA",
+                "country": "US",
+                "postal_code": "94103",
+                "phone": "+1 555-000-1000",
+                "type": "billing",
+                "created_at": "2025-11-14 06:49:40",
+                "updated_at": "2025-11-14 06:49:40"
+              },
+              "tags": [
+                "vip",
+                "newsletter"
+              ],
+              "created_at": "2025-11-14 06:49:40",
+              "updated_at": "2025-11-14 06:49:40"
+            },
+            "message": "Customer created successfully."
+          }
+  - name: 404 Response
+    description: Failure
+    request:
+      url: "{{baseUrl}}/customers"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "first_name": "Md",
+            "last_name": "Ashraful",
+            "photo": 7,
+            "email": "johndoe13@example.com",
+            "phone": "+1 555-123-4567",
+            "accepts_marketing": true,
+            "notes": "VIP customer, prefers phone communication.",
+            "language": "en",
+            "tags": [
+              "vip",
+              "newsletter"
+            ],
+            "shipping_address": {
+              "first_name": "Jane",
+              "last_name": "Doe",
+              "email": "jane.shipping@example.com",
+              "phone": "+1 555-000-2000",
+              "address_line1": "78 Sunset Blvd",
+              "address_line2": "",
+              "city": "Los Angeles",
+              "state": "CA",
+              "postal_code": "90001",
+              "country": "US"
+            },
+            "is_billing_same_as_shipping": false,
+            "billing_address": {
+              "first_name": "John",
+              "last_name": "Doe",
+              "email": "john.billing@example.com",
+              "phone": "+1 555-000-1000",
+              "address_line1": "123 Market Street",
+              "address_line2": "Suite 500",
+              "city": "San Francisco",
+              "state": "CA",
+              "postal_code": "94103",
+              "country": "US"
+            }
+          }
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "errors": {},
+            "message": "Customer not found."
+          }
+
+docs: |-
+  # Create Customer
+
+  ## 1. Detailed description of the API function
+  This API is designed to create customer.
+
+  Upon successful creation, the API returns a response with a `success` boolean indicating the success of the operation and a `message` which may contain information about the result.

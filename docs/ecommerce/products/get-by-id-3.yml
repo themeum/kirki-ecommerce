@@ -1,0 +1,594 @@
+info:
+  name: Get By Id (Product)
+  type: http
+  seq: 2
+  tags:
+    - products
+
+http:
+  method: GET
+  url: "{{baseUrl}}/products/1"
+  auth: inherit
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/products/1"
+      method: GET
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": true,
+            "data": {
+              "id": 21,
+              "title": "Classic Cotton T-Shirt",
+              "slug": "classic-cotton-t-shirt",
+              "status": "published",
+              "ribbon": "Best Seller",
+              "currency": {
+                "id": 1,
+                "code": "usd",
+                "name": "USD",
+                "symbol": null
+              },
+              "brand": {
+                "id": 1,
+                "name": "Brand A",
+                "logo": null
+              },
+              "description": "Soft 100% cotton t-shirt with comfortable fit.",
+              "additional_info": [
+                {
+                  "foo": "bar"
+                }
+              ],
+              "allow_back_order": false,
+              "has_limit_per_order": true,
+              "max_per_order": 5,
+              "seo_title": "Classic Cotton T-Shirt - Comfortable and Stylish",
+              "seo_description": "Shop our premium cotton t-shirts. Perfect fit, breathable fabric, and stylish design.",
+              "seo_keywords": [
+                "tshirt",
+                "cotton",
+                "classic",
+                "men",
+                "fashion"
+              ],
+              "schema_id": null,
+              "llm_instructions": "Generate engaging short product description for AI campaigns.",
+              "has_variants": true,
+              "categories": [
+                {
+                  "id": 3,
+                  "name": "Home & Garden",
+                  "parent_id": 0,
+                  "level": 1
+                },
+                {
+                  "id": 4,
+                  "name": "Toys",
+                  "parent_id": 0,
+                  "level": 1
+                }
+              ],
+              "tags": [
+                {
+                  "id": 1,
+                  "name": "Tech"
+                }
+              ],
+              "collections": [],
+              "attributes": [
+                {
+                  "id": 1,
+                  "name": "Color",
+                  "values": [
+                    {
+                      "id": 1,
+                      "value": "Red",
+                      "color": "#f2f2f2"
+                    },
+                    {
+                      "id": 2,
+                      "value": "White",
+                      "color": "#ffffff"
+                    },
+                    {
+                      "id": 3,
+                      "value": "Black",
+                      "color": "#000000"
+                    }
+                  ]
+                },
+                {
+                  "id": 2,
+                  "name": "Color",
+                  "values": [
+                    {
+                      "id": 4,
+                      "value": "Red",
+                      "color": "#f2f2f2"
+                    },
+                    {
+                      "id": 5,
+                      "value": "White",
+                      "color": "#ffffff"
+                    },
+                    {
+                      "id": 6,
+                      "value": "Black",
+                      "color": "#000000"
+                    }
+                  ]
+                }
+              ],
+              "variants": [
+                {
+                  "id": 88,
+                  "media": null,
+                  "sku": "T-SHIRT-1-4",
+                  "barcode": "1234567890",
+                  "price": 19.99,
+                  "show_unit_price": false,
+                  "unit": null,
+                  "unit_price": 0,
+                  "total_units": null,
+                  "sale_price": 15.99,
+                  "cost_of_goods": 10,
+                  "weight": 0.25,
+                  "weight_unit": "kg",
+                  "length": 30,
+                  "width": 25,
+                  "height": 2,
+                  "dimension_unit": "cm",
+                  "charge_taxes": true,
+                  "allow_back_order": false,
+                  "track_inventory": true,
+                  "available_quantity": 100,
+                  "in_stock": true,
+                  "committed_quantity": true,
+                  "tax_profile_id": null,
+                  "shipping_profile_id": null,
+                  "shipping_box_id": null,
+                  "is_visible": true,
+                  "is_physical_product": true,
+                  "is_default": true,
+                  "attribute_values": [
+                    1,
+                    4
+                  ],
+                  "created_by": "14",
+                  "updated_by": "14",
+                  "created_at": "2025-12-05 05:31:33",
+                  "updated_at": "2025-12-05 05:31:33"
+                },
+                {
+                  "id": 89,
+                  "media": null,
+                  "sku": "T-SHIRT-1-5",
+                  "barcode": "1234567891",
+                  "price": 19.99,
+                  "show_unit_price": false,
+                  "unit": null,
+                  "unit_price": 0,
+                  "total_units": null,
+                  "sale_price": 15.99,
+                  "cost_of_goods": 10,
+                  "weight": 0.25,
+                  "weight_unit": "kg",
+                  "length": 30,
+                  "width": 25,
+                  "height": 2,
+                  "dimension_unit": "cm",
+                  "charge_taxes": true,
+                  "allow_back_order": false,
+                  "track_inventory": true,
+                  "available_quantity": 95,
+                  "in_stock": true,
+                  "committed_quantity": true,
+                  "tax_profile_id": null,
+                  "shipping_profile_id": null,
+                  "shipping_box_id": null,
+                  "is_visible": true,
+                  "is_physical_product": true,
+                  "is_default": false,
+                  "attribute_values": [
+                    1,
+                    5
+                  ],
+                  "created_by": "14",
+                  "updated_by": "14",
+                  "created_at": "2025-12-05 05:31:33",
+                  "updated_at": "2025-12-05 05:31:33"
+                },
+                {
+                  "id": 90,
+                  "media": null,
+                  "sku": "T-SHIRT-1-6",
+                  "barcode": "1234567892",
+                  "price": 19.99,
+                  "show_unit_price": false,
+                  "unit": null,
+                  "unit_price": 0,
+                  "total_units": null,
+                  "sale_price": 15.99,
+                  "cost_of_goods": 10,
+                  "weight": 0.25,
+                  "weight_unit": "kg",
+                  "length": 30,
+                  "width": 25,
+                  "height": 2,
+                  "dimension_unit": "cm",
+                  "charge_taxes": true,
+                  "allow_back_order": false,
+                  "track_inventory": true,
+                  "available_quantity": 80,
+                  "in_stock": true,
+                  "committed_quantity": true,
+                  "tax_profile_id": null,
+                  "shipping_profile_id": null,
+                  "shipping_box_id": null,
+                  "is_visible": true,
+                  "is_physical_product": true,
+                  "is_default": false,
+                  "attribute_values": [
+                    1,
+                    6
+                  ],
+                  "created_by": "14",
+                  "updated_by": "14",
+                  "created_at": "2025-12-05 05:31:33",
+                  "updated_at": "2025-12-05 05:31:33"
+                },
+                {
+                  "id": 91,
+                  "media": null,
+                  "sku": "T-SHIRT-2-4",
+                  "barcode": "1234567893",
+                  "price": 19.99,
+                  "show_unit_price": false,
+                  "unit": null,
+                  "unit_price": 0,
+                  "total_units": null,
+                  "sale_price": 15.99,
+                  "cost_of_goods": 10,
+                  "weight": 0.25,
+                  "weight_unit": "kg",
+                  "length": 30,
+                  "width": 25,
+                  "height": 2,
+                  "dimension_unit": "cm",
+                  "charge_taxes": true,
+                  "allow_back_order": false,
+                  "track_inventory": true,
+                  "available_quantity": 120,
+                  "in_stock": true,
+                  "committed_quantity": true,
+                  "tax_profile_id": null,
+                  "shipping_profile_id": null,
+                  "shipping_box_id": null,
+                  "is_visible": true,
+                  "is_physical_product": true,
+                  "is_default": false,
+                  "attribute_values": [
+                    2,
+                    4
+                  ],
+                  "created_by": "14",
+                  "updated_by": "14",
+                  "created_at": "2025-12-05 05:31:33",
+                  "updated_at": "2025-12-05 05:31:33"
+                },
+                {
+                  "id": 92,
+                  "media": null,
+                  "sku": "T-SHIRT-2-5",
+                  "barcode": "1234567894",
+                  "price": 19.99,
+                  "show_unit_price": false,
+                  "unit": null,
+                  "unit_price": 0,
+                  "total_units": null,
+                  "sale_price": 15.99,
+                  "cost_of_goods": 10,
+                  "weight": 0.25,
+                  "weight_unit": "kg",
+                  "length": 30,
+                  "width": 25,
+                  "height": 2,
+                  "dimension_unit": "cm",
+                  "charge_taxes": true,
+                  "allow_back_order": false,
+                  "track_inventory": true,
+                  "available_quantity": 110,
+                  "in_stock": true,
+                  "committed_quantity": true,
+                  "tax_profile_id": null,
+                  "shipping_profile_id": null,
+                  "shipping_box_id": null,
+                  "is_visible": true,
+                  "is_physical_product": true,
+                  "is_default": false,
+                  "attribute_values": [
+                    2,
+                    5
+                  ],
+                  "created_by": "14",
+                  "updated_by": "14",
+                  "created_at": "2025-12-05 05:31:33",
+                  "updated_at": "2025-12-05 05:31:33"
+                },
+                {
+                  "id": 93,
+                  "media": null,
+                  "sku": "T-SHIRT-2-6",
+                  "barcode": "1234567895",
+                  "price": 19.99,
+                  "show_unit_price": false,
+                  "unit": null,
+                  "unit_price": 0,
+                  "total_units": null,
+                  "sale_price": 15.99,
+                  "cost_of_goods": 10,
+                  "weight": 0.25,
+                  "weight_unit": "kg",
+                  "length": 30,
+                  "width": 25,
+                  "height": 2,
+                  "dimension_unit": "cm",
+                  "charge_taxes": true,
+                  "allow_back_order": false,
+                  "track_inventory": true,
+                  "available_quantity": 90,
+                  "in_stock": true,
+                  "committed_quantity": true,
+                  "tax_profile_id": null,
+                  "shipping_profile_id": null,
+                  "shipping_box_id": null,
+                  "is_visible": true,
+                  "is_physical_product": true,
+                  "is_default": false,
+                  "attribute_values": [
+                    2,
+                    6
+                  ],
+                  "created_by": "14",
+                  "updated_by": "14",
+                  "created_at": "2025-12-05 05:31:33",
+                  "updated_at": "2025-12-05 05:31:33"
+                },
+                {
+                  "id": 94,
+                  "media": null,
+                  "sku": "T-SHIRT-3-4",
+                  "barcode": "1234567896",
+                  "price": 19.99,
+                  "show_unit_price": false,
+                  "unit": null,
+                  "unit_price": 0,
+                  "total_units": null,
+                  "sale_price": 15.99,
+                  "cost_of_goods": 10,
+                  "weight": 0.25,
+                  "weight_unit": "kg",
+                  "length": 30,
+                  "width": 25,
+                  "height": 2,
+                  "dimension_unit": "cm",
+                  "charge_taxes": true,
+                  "allow_back_order": false,
+                  "track_inventory": true,
+                  "available_quantity": 75,
+                  "in_stock": true,
+                  "committed_quantity": true,
+                  "tax_profile_id": null,
+                  "shipping_profile_id": null,
+                  "shipping_box_id": null,
+                  "is_visible": true,
+                  "is_physical_product": true,
+                  "is_default": false,
+                  "attribute_values": [
+                    3,
+                    4
+                  ],
+                  "created_by": "14",
+                  "updated_by": "14",
+                  "created_at": "2025-12-05 05:31:33",
+                  "updated_at": "2025-12-05 05:31:33"
+                },
+                {
+                  "id": 95,
+                  "media": null,
+                  "sku": "T-SHIRT-3-5",
+                  "barcode": "1234567897",
+                  "price": 19.99,
+                  "show_unit_price": false,
+                  "unit": null,
+                  "unit_price": 0,
+                  "total_units": null,
+                  "sale_price": 15.99,
+                  "cost_of_goods": 10,
+                  "weight": 0.25,
+                  "weight_unit": "kg",
+                  "length": 30,
+                  "width": 25,
+                  "height": 2,
+                  "dimension_unit": "cm",
+                  "charge_taxes": true,
+                  "allow_back_order": false,
+                  "track_inventory": true,
+                  "available_quantity": 85,
+                  "in_stock": true,
+                  "committed_quantity": true,
+                  "tax_profile_id": null,
+                  "shipping_profile_id": null,
+                  "shipping_box_id": null,
+                  "is_visible": true,
+                  "is_physical_product": true,
+                  "is_default": false,
+                  "attribute_values": [
+                    3,
+                    5
+                  ],
+                  "created_by": "14",
+                  "updated_by": "14",
+                  "created_at": "2025-12-05 05:31:33",
+                  "updated_at": "2025-12-05 05:31:33"
+                },
+                {
+                  "id": 96,
+                  "media": null,
+                  "sku": "T-SHIRT-3-6",
+                  "barcode": "1234567898",
+                  "price": 19.99,
+                  "show_unit_price": false,
+                  "unit": null,
+                  "unit_price": 0,
+                  "total_units": null,
+                  "sale_price": 15.99,
+                  "cost_of_goods": 10,
+                  "weight": 0.25,
+                  "weight_unit": "kg",
+                  "length": 30,
+                  "width": 25,
+                  "height": 2,
+                  "dimension_unit": "cm",
+                  "charge_taxes": true,
+                  "allow_back_order": false,
+                  "track_inventory": true,
+                  "available_quantity": 65,
+                  "in_stock": true,
+                  "committed_quantity": true,
+                  "tax_profile_id": null,
+                  "shipping_profile_id": null,
+                  "shipping_box_id": null,
+                  "is_visible": true,
+                  "is_physical_product": true,
+                  "is_default": false,
+                  "attribute_values": [
+                    3,
+                    6
+                  ],
+                  "created_by": "14",
+                  "updated_by": "14",
+                  "created_at": "2025-12-05 05:31:33",
+                  "updated_at": "2025-12-05 05:31:33"
+                }
+              ],
+              "media": [
+                {
+                  "id": "7",
+                  "filename": "project-launch-bg.webp",
+                  "url": "http://droip.local/wp-content/uploads/2025/10/project-launch-bg.webp",
+                  "sizes": {
+                    "medium": {
+                      "height": 225,
+                      "width": 300,
+                      "url": "http://droip.local/wp-content/uploads/2025/10/project-launch-bg-300x225.webp",
+                      "orientation": "landscape"
+                    },
+                    "large": {
+                      "height": 768,
+                      "width": 1024,
+                      "url": "http://droip.local/wp-content/uploads/2025/10/project-launch-bg-1024x768.webp",
+                      "orientation": "landscape"
+                    },
+                    "thumbnail": {
+                      "height": 150,
+                      "width": 150,
+                      "url": "http://droip.local/wp-content/uploads/2025/10/project-launch-bg-150x150.webp",
+                      "orientation": "portrait"
+                    },
+                    "medium_large": {
+                      "height": 576,
+                      "width": 768,
+                      "url": "http://droip.local/wp-content/uploads/2025/10/project-launch-bg-768x576.webp",
+                      "orientation": "landscape"
+                    },
+                    "1536x1536": {
+                      "height": 1152,
+                      "width": 1536,
+                      "url": "http://droip.local/wp-content/uploads/2025/10/project-launch-bg-1536x1152.webp",
+                      "orientation": "landscape"
+                    }
+                  },
+                  "height": 1300,
+                  "width": 1733,
+                  "filesize": 133260,
+                  "mime": "image/webp",
+                  "type": "image",
+                  "thumb": null,
+                  "author": "1",
+                  "author_name": "admin",
+                  "date": "2025-10-28T05:18:56+00:00"
+                },
+                {
+                  "id": "10",
+                  "filename": "pixelated-icon.jpg",
+                  "url": "http://droip.local/wp-content/uploads/2025/11/pixelated-icon.jpg",
+                  "sizes": {
+                    "medium": {
+                      "height": 300,
+                      "width": 244,
+                      "url": "http://droip.local/wp-content/uploads/2025/11/pixelated-icon-244x300.jpg",
+                      "orientation": "portrait"
+                    },
+                    "thumbnail": {
+                      "height": 150,
+                      "width": 150,
+                      "url": "http://droip.local/wp-content/uploads/2025/11/pixelated-icon-150x150.jpg",
+                      "orientation": "portrait"
+                    }
+                  },
+                  "height": 512,
+                  "width": 416,
+                  "filesize": 191809,
+                  "mime": "image/jpeg",
+                  "type": "image",
+                  "thumb": null,
+                  "author": "1",
+                  "author_name": "admin",
+                  "date": "2025-11-25T10:46:04+00:00"
+                }
+              ],
+              "created_at": "2025-12-05 05:25:28",
+              "updated_at": "2025-12-05 05:31:33"
+            },
+            "message": "Product retrieved successfully."
+          }
+  - name: 404 Response
+    description: Failure
+    request:
+      url: "{{baseUrl}}/products/1"
+      method: GET
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "errors": {},
+            "message": "Attribute not found."
+          }
+
+docs: |-
+  # Get Tag By ID
+  Returns the details of a specific resource identified by its ID.

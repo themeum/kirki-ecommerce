@@ -1,0 +1,86 @@
+info:
+  name: Install
+  type: http
+  seq: 5
+  tags:
+    - payment-gateways
+
+http:
+  method: POST
+  url: "{{baseUrl}}/payment-gateways/install"
+  body:
+    type: json
+    data: |-
+      {
+        "id": "stripe"
+      }
+  auth: inherit
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/payment-gateways/install"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "id": "stripe"
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": true,
+            "data": {
+              "id": "ec615e96-78bc-40b5-b944-dc69ae570d31",
+              "name": "Paddle",
+              "icon": "paddle",
+              "is_enabled": null,
+              "is_manual": null,
+              "instructions": null,
+              "config": null
+            },
+            "message": "Payment method installed successfully."
+          }
+  - name: 404 Response
+    description: Failure
+    request:
+      url: "{{baseUrl}}/payment-gateways/install"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "id": "stripe"
+          }
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "errors": {},
+            "message": "Payment method already installed."
+          }
+
+docs: |-
+  ## Install a Payment Method by ID
+  Install a paymemt method by id

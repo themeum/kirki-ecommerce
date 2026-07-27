@@ -1,0 +1,587 @@
+info:
+  name: Email
+  type: http
+  seq: 7
+  tags:
+    - settings
+
+http:
+  method: GET
+  url: "{{baseUrl}}/settings/email"
+  auth: inherit
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/settings/email"
+      method: GET
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": true,
+            "data": {
+              "default_template": {
+                "logo": null,
+                "height": "30px",
+                "position": "center",
+                "colors": {
+                  "background": "#000000",
+                  "text": "#ffffff",
+                  "link": "#f2f2f2",
+                  "label": "#111111",
+                  "button": "#ffffff",
+                  "button_bg": "#000000"
+                }
+              },
+              "customer_emails": {
+                "order_notifications": {
+                  "new_order_email": {
+                    "is_enabled": true,
+                    "name": "New Order",
+                    "subject": "New Order",
+                    "heading": "New Order",
+                    "message": "<p>Hi there! </p><br /><p>New order on the site {site_name:}</p><br /><p>{order_table}</p>",
+                    "shortcodes": [
+                      {
+                        "label": "Order Table",
+                        "value": "{order_table}"
+                      },
+                      {
+                        "label": "Order ID",
+                        "value": "{order_id}"
+                      },
+                      {
+                        "label": "Order Date",
+                        "value": "{order_date}"
+                      },
+                      {
+                        "label": "Billing Address",
+                        "value": "{billing_address}"
+                      },
+                      {
+                        "label": "Shipping Address",
+                        "value": "{shipping_address}"
+                      },
+                      {
+                        "label": "Site Name",
+                        "value": "{site_name}"
+                      }
+                    ]
+                  },
+                  "cancelled_order_email": {
+                    "is_enabled": true,
+                    "name": "Cancelled Order",
+                    "subject": "Cancelled Order",
+                    "heading": "Cancelled Order",
+                    "message": "<p>Hi there! </p><br /><p>Cancelled order on the site {site_name:}</p><br /><p>{order_table}</p>",
+                    "shortcodes": [
+                      {
+                        "label": "Order Table",
+                        "value": "{order_table}"
+                      },
+                      {
+                        "label": "Order ID",
+                        "value": "{order_id}"
+                      },
+                      {
+                        "label": "Order Date",
+                        "value": "{order_date}"
+                      },
+                      {
+                        "label": "Billing Address",
+                        "value": "{billing_address}"
+                      },
+                      {
+                        "label": "Shipping Address",
+                        "value": "{shipping_address}"
+                      },
+                      {
+                        "label": "Site Name",
+                        "value": "{site_name}"
+                      }
+                    ]
+                  },
+                  "failed_order_email": {
+                    "is_enabled": true,
+                    "name": "Failed Order",
+                    "subject": "Failed Order",
+                    "heading": "Failed Order",
+                    "message": "<p>Hi there! </p><br /><p>Failed order on the site {site_name:}</p><br /><p>{order_table}</p>",
+                    "shortcodes": [
+                      {
+                        "label": "Order Table",
+                        "value": "{order_table}"
+                      },
+                      {
+                        "label": "Order ID",
+                        "value": "{order_id}"
+                      },
+                      {
+                        "label": "Order Date",
+                        "value": "{order_date}"
+                      },
+                      {
+                        "label": "Billing Address",
+                        "value": "{billing_address}"
+                      },
+                      {
+                        "label": "Shipping Address",
+                        "value": "{shipping_address}"
+                      },
+                      {
+                        "label": "Site Name",
+                        "value": "{site_name}"
+                      }
+                    ]
+                  },
+                  "order_on_hold_email": {
+                    "is_enabled": true,
+                    "name": "Order On Hold",
+                    "subject": "Order On Hold",
+                    "heading": "Order On Hold",
+                    "message": "<p>Hi there! </p><br /><p>Order on hold on the site {site_name:}</p><br /><p>{order_table}</p>",
+                    "shortcodes": [
+                      {
+                        "label": "Order Table",
+                        "value": "{order_table}"
+                      },
+                      {
+                        "label": "Order ID",
+                        "value": "{order_id}"
+                      },
+                      {
+                        "label": "Order Date",
+                        "value": "{order_date}"
+                      },
+                      {
+                        "label": "Billing Address",
+                        "value": "{billing_address}"
+                      },
+                      {
+                        "label": "Shipping Address",
+                        "value": "{shipping_address}"
+                      },
+                      {
+                        "label": "Site Name",
+                        "value": "{site_name}"
+                      }
+                    ]
+                  },
+                  "processing_order_email": {
+                    "is_enabled": true,
+                    "name": "Processing Order",
+                    "subject": "Processing Order",
+                    "heading": "Processing Order",
+                    "message": "<p>Hi there! </p><br /><p>Processing order on the site {site_name:}</p><br /><p>{order_table}</p>",
+                    "shortcodes": [
+                      {
+                        "label": "Order Table",
+                        "value": "{order_table}"
+                      },
+                      {
+                        "label": "Order ID",
+                        "value": "{order_id}"
+                      },
+                      {
+                        "label": "Order Date",
+                        "value": "{order_date}"
+                      },
+                      {
+                        "label": "Billing Address",
+                        "value": "{billing_address}"
+                      },
+                      {
+                        "label": "Shipping Address",
+                        "value": "{shipping_address}"
+                      },
+                      {
+                        "label": "Site Name",
+                        "value": "{site_name}"
+                      }
+                    ]
+                  },
+                  "completed_order_email": {
+                    "is_enabled": true,
+                    "name": "Completed Order",
+                    "subject": "Completed Order",
+                    "heading": "Completed Order",
+                    "message": "<p>Hi there! </p><br /><p>Completed order on the site {site_name:}</p><br /><p>{order_table}</p>",
+                    "shortcodes": [
+                      {
+                        "label": "Order Table",
+                        "value": "{order_table}"
+                      },
+                      {
+                        "label": "Order ID",
+                        "value": "{order_id}"
+                      },
+                      {
+                        "label": "Order Date",
+                        "value": "{order_date}"
+                      },
+                      {
+                        "label": "Billing Address",
+                        "value": "{billing_address}"
+                      },
+                      {
+                        "label": "Shipping Address",
+                        "value": "{shipping_address}"
+                      },
+                      {
+                        "label": "Site Name",
+                        "value": "{site_name}"
+                      }
+                    ]
+                  },
+                  "order_note_email": {
+                    "is_enabled": true,
+                    "name": "Order Note",
+                    "subject": "Order Note",
+                    "heading": "Order Note",
+                    "message": "<p>Hi there! </p><br /><p>Order note on the site {site_name:}</p><br /><p>{order_table}</p>",
+                    "shortcodes": [
+                      {
+                        "label": "Order Table",
+                        "value": "{order_table}"
+                      },
+                      {
+                        "label": "Order ID",
+                        "value": "{order_id}"
+                      },
+                      {
+                        "label": "Order Date",
+                        "value": "{order_date}"
+                      },
+                      {
+                        "label": "Billing Address",
+                        "value": "{billing_address}"
+                      },
+                      {
+                        "label": "Shipping Address",
+                        "value": "{shipping_address}"
+                      },
+                      {
+                        "label": "Site Name",
+                        "value": "{site_name}"
+                      }
+                    ]
+                  }
+                },
+                "user_notifications": {
+                  "new_customer_registered_email": {
+                    "is_enabled": false,
+                    "name": "New Customer Registered",
+                    "subject": "New Customer Registered",
+                    "heading": "New Customer Registered",
+                    "message": "<p>Hi there! </p><br /><p>New customer registered on the site {site_name:}</p><br /><p>{customer_table}</p>",
+                    "shortcodes": [
+                      {
+                        "label": "Customer Table",
+                        "value": "{customer_table}"
+                      },
+                      {
+                        "label": "Customer ID",
+                        "value": "{customer_id}"
+                      },
+                      {
+                        "label": "Customer Date",
+                        "value": "{customer_date}"
+                      },
+                      {
+                        "label": "Site Name",
+                        "value": "{site_name}"
+                      }
+                    ]
+                  },
+                  "reset_password_email": {
+                    "is_enabled": true,
+                    "name": "Reset Password",
+                    "subject": "Reset Password",
+                    "heading": "Reset Password",
+                    "message": "<p>Hi there! </p><br /><p>Reset password on the site {site_name:}</p><br /><p>{customer_table}</p>",
+                    "shortcodes": [
+                      {
+                        "label": "Customer Table",
+                        "value": "{customer_table}"
+                      },
+                      {
+                        "label": "Customer ID",
+                        "value": "{customer_id}"
+                      },
+                      {
+                        "label": "Customer Date",
+                        "value": "{customer_date}"
+                      },
+                      {
+                        "label": "Site Name",
+                        "value": "{site_name}"
+                      }
+                    ]
+                  }
+                }
+              },
+              "admin_emails": {
+                "order_notifications": {
+                  "new_order_email": {
+                    "is_enabled": false,
+                    "name": "New Order",
+                    "subject": "New Order",
+                    "heading": "New Order",
+                    "message": "<p>Hi there! </p><br /><p>New order on the site {site_name:}</p><br /><p>{order_table}</p>",
+                    "shortcodes": [
+                      {
+                        "label": "Order Table",
+                        "value": "{order_table}"
+                      },
+                      {
+                        "label": "Order ID",
+                        "value": "{order_id}"
+                      },
+                      {
+                        "label": "Order Date",
+                        "value": "{order_date}"
+                      },
+                      {
+                        "label": "Billing Address",
+                        "value": "{billing_address}"
+                      },
+                      {
+                        "label": "Shipping Address",
+                        "value": "{shipping_address}"
+                      },
+                      {
+                        "label": "Site Name",
+                        "value": "{site_name}"
+                      }
+                    ]
+                  },
+                  "cancelled_order_email": {
+                    "is_enabled": true,
+                    "name": "Cancelled Order",
+                    "subject": "Cancelled Order",
+                    "heading": "Cancelled Order",
+                    "message": "<p>Hi there! </p><br /><p>Cancelled order on the site {site_name:}</p><br /><p>{order_table}</p>",
+                    "shortcodes": [
+                      {
+                        "label": "Order Table",
+                        "value": "{order_table}"
+                      },
+                      {
+                        "label": "Order ID",
+                        "value": "{order_id}"
+                      },
+                      {
+                        "label": "Order Date",
+                        "value": "{order_date}"
+                      },
+                      {
+                        "label": "Billing Address",
+                        "value": "{billing_address}"
+                      },
+                      {
+                        "label": "Shipping Address",
+                        "value": "{shipping_address}"
+                      },
+                      {
+                        "label": "Site Name",
+                        "value": "{site_name}"
+                      }
+                    ]
+                  },
+                  "failed_order_email": {
+                    "is_enabled": true,
+                    "name": "Failed Order",
+                    "subject": "Failed Order",
+                    "heading": "Failed Order",
+                    "message": "<p>Hi there! </p><br /><p>Failed order on the site {site_name:}</p><br /><p>{order_table}</p>",
+                    "shortcodes": [
+                      {
+                        "label": "Order Table",
+                        "value": "{order_table}"
+                      },
+                      {
+                        "label": "Order ID",
+                        "value": "{order_id}"
+                      },
+                      {
+                        "label": "Order Date",
+                        "value": "{order_date}"
+                      },
+                      {
+                        "label": "Billing Address",
+                        "value": "{billing_address}"
+                      },
+                      {
+                        "label": "Shipping Address",
+                        "value": "{shipping_address}"
+                      },
+                      {
+                        "label": "Site Name",
+                        "value": "{site_name}"
+                      }
+                    ]
+                  },
+                  "customer_requested_refund_email": {
+                    "is_enabled": true,
+                    "name": "Customer Requested Refund",
+                    "subject": "Customer Requested Refund",
+                    "heading": "Customer Requested Refund",
+                    "message": "<p>Hi there! </p><br /><p>Customer requested refund on the site {site_name:}</p><br /><p>{order_table}</p>",
+                    "shortcodes": [
+                      {
+                        "label": "Order Table",
+                        "value": "{order_table}"
+                      },
+                      {
+                        "label": "Order ID",
+                        "value": "{order_id}"
+                      },
+                      {
+                        "label": "Order Date",
+                        "value": "{order_date}"
+                      },
+                      {
+                        "label": "Billing Address",
+                        "value": "{billing_address}"
+                      },
+                      {
+                        "label": "Shipping Address",
+                        "value": "{shipping_address}"
+                      },
+                      {
+                        "label": "Site Name",
+                        "value": "{site_name}"
+                      }
+                    ]
+                  }
+                },
+                "inventory_notifications": {
+                  "low_stock_email": {
+                    "is_enabled": false,
+                    "name": "Low Stock",
+                    "subject": "Low Stock",
+                    "heading": "Low Stock",
+                    "message": "<p>Hi there! </p><br /><p>Low stock on the site {site_name:}</p><br /><p>{order_table}</p>",
+                    "shortcodes": [
+                      {
+                        "label": "Order Table",
+                        "value": "{order_table}"
+                      },
+                      {
+                        "label": "Order ID",
+                        "value": "{order_id}"
+                      },
+                      {
+                        "label": "Order Date",
+                        "value": "{order_date}"
+                      },
+                      {
+                        "label": "Billing Address",
+                        "value": "{billing_address}"
+                      },
+                      {
+                        "label": "Shipping Address",
+                        "value": "{shipping_address}"
+                      },
+                      {
+                        "label": "Site Name",
+                        "value": "{site_name}"
+                      }
+                    ]
+                  },
+                  "out_of_stock_email": {
+                    "is_enabled": true,
+                    "name": "Out of Stock",
+                    "subject": "Out of Stock",
+                    "heading": "Out of Stock",
+                    "message": "<p>Hi there! </p><br /><p>Out of stock on the site {site_name:}</p><br /><p>{order_table}</p>",
+                    "shortcodes": [
+                      {
+                        "label": "Order Table",
+                        "value": "{order_table}"
+                      },
+                      {
+                        "label": "Order ID",
+                        "value": "{order_id}"
+                      },
+                      {
+                        "label": "Order Date",
+                        "value": "{order_date}"
+                      },
+                      {
+                        "label": "Billing Address",
+                        "value": "{billing_address}"
+                      },
+                      {
+                        "label": "Shipping Address",
+                        "value": "{shipping_address}"
+                      },
+                      {
+                        "label": "Site Name",
+                        "value": "{site_name}"
+                      }
+                    ]
+                  }
+                },
+                "user_notifications": {
+                  "new_customer_registered_email": {
+                    "is_enabled": false,
+                    "name": "New Customer Registered",
+                    "subject": "New Customer Registered",
+                    "heading": "New Customer Registered",
+                    "message": "<p>Hi there! </p><br /><p>New customer registered on the site {site_name:}</p><br /><p>{customer_table}</p>",
+                    "shortcodes": [
+                      {
+                        "label": "Customer Table",
+                        "value": "{customer_table}"
+                      },
+                      {
+                        "label": "Customer ID",
+                        "value": "{customer_id}"
+                      },
+                      {
+                        "label": "Customer Date",
+                        "value": "{customer_date}"
+                      },
+                      {
+                        "label": "Site Name",
+                        "value": "{site_name}"
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            "message": "Settings retrieved successfully."
+          }
+  - name: 404 Response
+    description: Failure
+    request:
+      url: "{{baseUrl}}/settings/email"
+      method: GET
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: "{}"
+
+docs: |-
+  # Get Email Settings
+  Returns the settings by key

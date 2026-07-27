@@ -1,0 +1,7 @@
+info:
+  name: Product Schemas
+  type: folder
+  seq: 18
+
+request:
+  auth: inherit

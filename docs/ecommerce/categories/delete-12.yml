@@ -1,0 +1,61 @@
+info:
+  name: Delete (Category)
+  type: http
+  seq: 5
+  tags:
+    - categories
+
+http:
+  method: DELETE
+  url: "{{baseUrl}}/categories/2"
+  auth: inherit
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/categories/2"
+      method: DELETE
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": true,
+            "data": true,
+            "message": "Category deleted successfully."
+          }
+  - name: 404 Response
+    description: Failure
+    request:
+      url: "{{baseUrl}}/categories/2"
+      method: DELETE
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "errors": {},
+            "message": "Category could not be deleted."
+          }
+
+docs: |-
+  ## Delete a Category
+
+  Deletes an existing resource identified by its ID.

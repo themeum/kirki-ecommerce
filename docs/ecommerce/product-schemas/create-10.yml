@@ -1,0 +1,114 @@
+info:
+  name: Create (Product Schema)
+  type: http
+  seq: 4
+  tags:
+    - product-schemas
+
+http:
+  method: POST
+  url: "{{baseUrl}}/product-schemas"
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Schema 1",
+        "is_default": false,
+        "schema": {
+          "name": "Something",
+          "description": "Something more"
+        }
+      }
+  auth: inherit
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/product-schemas"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "name": "Schema 1",
+            "is_default": false,
+            "schema": {
+              "name": "Something",
+              "description": "Something more"
+            }
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": true,
+            "data": {
+              "id": 1,
+              "name": "Heavy Weight",
+              "created_at": {
+                "date": "2025-11-26 10:52:00.147628",
+                "timezone_type": 3,
+                "timezone": "UTC"
+              },
+              "updated_at": {
+                "date": "2025-11-26 10:52:00.147628",
+                "timezone_type": 3,
+                "timezone": "UTC"
+              }
+            },
+            "message": "Shipping profile created successfully."
+          }
+  - name: 404 Response
+    description: Failure
+    request:
+      url: "{{baseUrl}}/product-schemas"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "name": "Schema 1",
+            "is_default": false,
+            "schema": {
+              "name": "Something",
+              "description": "Something more"
+            }
+          }
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "errors": {
+              "name": [
+                "The name field is required."
+              ]
+            },
+            "message": "Validation failed!"
+          }
+
+docs: |-
+  # Create Product Schema
+
+  ## 1. Detailed description of the API function
+  This API is designed to create Currencies.
+
+  Upon successful creation, the API returns a response with a `success` boolean indicating the success of the operation and a `message` which may contain information about the result.

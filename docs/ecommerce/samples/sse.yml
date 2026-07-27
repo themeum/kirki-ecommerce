@@ -1,0 +1,50 @@
+info:
+  name: SSE
+  type: http
+  seq: 1
+  tags:
+    - samples
+
+http:
+  method: POST
+  url: "{{baseUrl}}/sse"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/sse"
+      method: POST
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "timeCut": 29
+          }
+  - name: 404 Response
+    description: Failure
+    request:
+      url: "{{baseUrl}}/sse"
+      method: POST
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: "{}"

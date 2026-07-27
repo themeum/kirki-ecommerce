@@ -1,0 +1,97 @@
+info:
+  name: List (Payment Method)
+  type: http
+  seq: 4
+  tags:
+    - payment-methods
+
+http:
+  method: GET
+  url: "{{baseUrl}}/payment-methods"
+  auth: inherit
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/payment-methods"
+      method: GET
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": true,
+            "data": [
+              {
+                "id": "fdsf",
+                "name": "Cash on Delivery",
+                "icon": "cash",
+                "is_enabled": true,
+                "is_manual": true,
+                "instructions": "Cash on Delivery",
+                "config": null
+              },
+              {
+                "id": "fdsfds",
+                "name": "Cash on Delivery",
+                "icon": "cash",
+                "is_enabled": true,
+                "is_manual": false,
+                "instructions": "Cash on Delivery",
+                "config": []
+              },
+              {
+                "id": "8ad75f16-92b1-4ef5-bea4-902c8fb66656",
+                "name": "Bkash2",
+                "icon": "cash",
+                "is_enabled": true,
+                "is_manual": false,
+                "instructions": "Bkash2",
+                "config": []
+              },
+              {
+                "id": "3edc661d-227b-4ad8-ac22-4dc6b86a018d",
+                "name": "Paddle",
+                "icon": "paddle",
+                "is_enabled": null,
+                "is_manual": null,
+                "instructions": null,
+                "config": null
+              }
+            ],
+            "message": "Payment methods retrieved successfully."
+          }
+  - name: 404 Response
+    description: Failure
+    request:
+      url: "{{baseUrl}}/payment-methods"
+      method: GET
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "errors": {},
+            "message": "Order direction must be either \"asc\" or \"desc\"."
+          }
+
+docs: |-
+  ## Payment Method List
+  Returns a paginated collection of resources. Supports optional search, filter, sort, and order parameters to refine the results.

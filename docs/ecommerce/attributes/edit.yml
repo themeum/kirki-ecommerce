@@ -1,0 +1,92 @@
+info:
+  name: Edit
+  type: http
+  seq: 4
+  tags:
+    - attributes
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/attributes/6"
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Material",
+        "slug": "list"
+      }
+  auth: inherit
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/attributes/6"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "name": "Material",
+            "slug": "list"
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": true,
+            "data": {
+              "id": 1,
+              "name": "Color",
+              "slug": "color",
+              "type": "color",
+              "created_at": "2025-10-30 05:47:14",
+              "updated_at": "2025-10-30 05:54:47"
+            },
+            "message": "Attribute updated successfully."
+          }
+  - name: 404 Response
+    description: Failure
+    request:
+      url: "{{baseUrl}}/attributes/6"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "name": "Material",
+            "slug": "list"
+          }
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "errors": {
+              "name": [
+                "The name field is required."
+              ]
+            },
+            "message": "Validation failed!"
+          }
+
+docs: |-
+  ## Edit Attribute
+  Updates an existing resource with the provided data.

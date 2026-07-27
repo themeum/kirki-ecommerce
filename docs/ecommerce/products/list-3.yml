@@ -1,0 +1,176 @@
+info:
+  name: List (Product)
+  type: http
+  seq: 7
+  tags:
+    - products
+
+http:
+  method: GET
+  url: "{{baseUrl}}/products"
+  params:
+    - name: search
+      value: ""
+      type: query
+    - name: sort_by
+      value: id
+      type: query
+    - name: sort_order
+      value: asc
+      type: query
+    - name: page
+      value: "1"
+      type: query
+    - name: limit
+      value: "-1"
+      type: query
+    - name: category_ids
+      value: 1,2
+      type: query
+    - name: brand_id
+      value: "5"
+      type: query
+    - name: collection_id
+      value: "2"
+      type: query
+    - name: status
+      value: published
+      type: query
+    - name: inventory_type
+      value: in_stock
+      type: query
+  auth: inherit
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/products"
+      method: GET
+      params:
+        - name: search
+          value: ""
+          type: query
+        - name: sort_by
+          value: id
+          type: query
+        - name: sort_order
+          value: asc
+          type: query
+        - name: page
+          value: "1"
+          type: query
+        - name: limit
+          value: "-1"
+          type: query
+        - name: category_ids
+          value: 1,2
+          type: query
+        - name: brand_id
+          value: "5"
+          type: query
+        - name: collection_id
+          value: "2"
+          type: query
+        - name: status
+          value: published
+          type: query
+        - name: inventory_type
+          value: in_stock
+          type: query
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": true,
+            "data": {
+              "results": [
+                {
+                  "id": 5,
+                  "title": "Classic Cotton T-Shirt",
+                  "slug": "classic-cotton-t-shirt",
+                  "image": "http://droip.local/wp-content/uploads/2025/10/project-launch-bg.webp",
+                  "sku": null,
+                  "inventory": 230,
+                  "price": 20,
+                  "status": "published",
+                  "created_at": "2025-11-25 11:02:30",
+                  "updated_at": "2025-11-25 11:02:30"
+                }
+              ],
+              "total": 1,
+              "count": 1,
+              "per_page": "10",
+              "current_page": "1",
+              "last_page": 1,
+              "from": 1,
+              "to": 1,
+              "has_more_pages": false
+            },
+            "message": "Product retrieved successfully."
+          }
+  - name: 404 Response
+    description: Failure
+    request:
+      url: "{{baseUrl}}/products"
+      method: GET
+      params:
+        - name: search
+          value: ""
+          type: query
+        - name: sort_by
+          value: id
+          type: query
+        - name: sort_order
+          value: asc
+          type: query
+        - name: page
+          value: "1"
+          type: query
+        - name: limit
+          value: "-1"
+          type: query
+        - name: category_ids
+          value: 1,2
+          type: query
+        - name: brand_id
+          value: "5"
+          type: query
+        - name: collection_id
+          value: "2"
+          type: query
+        - name: status
+          value: published
+          type: query
+        - name: inventory_type
+          value: in_stock
+          type: query
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "errors": {},
+            "message": "Order direction must be either \"asc\" or \"desc\"."
+          }
+
+docs: |-
+  ## Product List
+  Returns a paginated collection of resources. Supports optional search, filter, sort, and order parameters to refine the results.

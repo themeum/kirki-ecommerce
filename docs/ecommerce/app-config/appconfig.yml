@@ -1,0 +1,75 @@
+info:
+  name: App Config
+  type: http
+  seq: 1
+  tags:
+    - app-config
+
+http:
+  method: GET
+  url: "{{baseUrl}}/app-config"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/app-config"
+      method: GET
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "data": {
+              "name": "eCommerce",
+              "version": "1.0.0",
+              "current_user": {
+                "id": 14,
+                "email": "ashraful.coder@gmail.com",
+                "first_name": "ashraful",
+                "last_name": "",
+                "display_name": "ashraful",
+                "avatar": "https://secure.gravatar.com/avatar/be29ee78bb2aa2f63a1d9c41fbbd849dc0fd8611169f8f2a5aa5803ff1c65788?s=96&d=mm&r=g",
+                "active_role": "administrator"
+              },
+              "base_currency": {
+                "id": 2,
+                "code": "eur",
+                "name": "EURO",
+                "symbol": "€",
+                "exchange_rate": 1,
+                "is_base": false,
+                "is_active": true,
+                "created_at": "2026-01-30T12:21:56.000000Z",
+                "updated_at": "2026-02-17T07:18:50.000000Z"
+              }
+            },
+            "message": "Migration completed successfully.",
+            "success": true
+          }
+  - name: 404 Response
+    description: Failure
+    request:
+      url: "{{baseUrl}}/app-config"
+      method: GET
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: "{}"
