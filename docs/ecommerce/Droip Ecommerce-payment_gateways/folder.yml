@@ -1,7 +1,0 @@
-info:
-  name: Droip Ecommerce/payment_gateways
-  type: folder
-  seq: 16
-
-request:
-  auth: inherit

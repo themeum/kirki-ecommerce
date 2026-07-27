@@ -1,0 +1,71 @@
+info:
+  name: Get By Id (Shipping Box)
+  type: http
+  seq: 2
+  tags:
+    - shipping-boxes
+
+http:
+  method: GET
+  url: "{{baseUrl}}/shipping-boxes/1"
+  auth: inherit
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/shipping-boxes/1"
+      method: GET
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": true,
+            "data": {
+              "id": 1,
+              "name": "Large Box",
+              "description": "Suitable for oversized products",
+              "width": 12.5,
+              "height": 8.3,
+              "length": 20.75,
+              "unit": "cm",
+              "is_default": true,
+              "created_at": "2025-11-26 09:54:49",
+              "updated_at": "2025-11-26 09:54:49"
+            },
+            "message": "Shipping box retrieved successfully."
+          }
+  - name: 404 Response
+    description: Failure
+    request:
+      url: "{{baseUrl}}/shipping-boxes/1"
+      method: GET
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "errors": {},
+            "message": "Shipping box not found."
+          }
+
+docs: |-
+  # Get Shipping Box By ID
+  Returns the details of a specific resource identified by its ID.

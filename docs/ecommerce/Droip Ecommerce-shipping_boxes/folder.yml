@@ -1,7 +1,0 @@
-info:
-  name: Droip Ecommerce/shipping_boxes
-  type: folder
-  seq: 21
-
-request:
-  auth: inherit

@@ -1,0 +1,152 @@
+info:
+  name: Edit (Brand)
+  type: http
+  seq: 3
+  tags:
+    - brands
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/brands/47"
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Test Brand",
+        "slug": "test-brand",
+        "description": "fdsf",
+        "website_url": "https://google.com",
+        "logo": 7,
+        "is_active": 1
+      }
+  auth: inherit
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/brands/47"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "name": "Test Brand",
+            "slug": "test-brand",
+            "description": "fdsf",
+            "website_url": "https://google.com",
+            "logo": 7,
+            "is_active": 1
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": true,
+            "data": {
+              "id": 47,
+              "name": "Test Brand",
+              "slug": "test-brand-5",
+              "description": "fdsf",
+              "logo": {
+                "id": "7",
+                "filename": "project-launch-bg.webp",
+                "url": "http://droip.local/wp-content/uploads/2025/10/project-launch-bg.webp",
+                "sizes": {
+                  "medium": {
+                    "height": 225,
+                    "width": 300,
+                    "url": "http://droip.local/wp-content/uploads/2025/10/project-launch-bg-300x225.webp",
+                    "orientation": "landscape"
+                  },
+                  "large": {
+                    "height": 768,
+                    "width": 1024,
+                    "url": "http://droip.local/wp-content/uploads/2025/10/project-launch-bg-1024x768.webp",
+                    "orientation": "landscape"
+                  },
+                  "thumbnail": {
+                    "height": 150,
+                    "width": 150,
+                    "url": "http://droip.local/wp-content/uploads/2025/10/project-launch-bg-150x150.webp",
+                    "orientation": "portrait"
+                  },
+                  "medium_large": {
+                    "height": 576,
+                    "width": 768,
+                    "url": "http://droip.local/wp-content/uploads/2025/10/project-launch-bg-768x576.webp",
+                    "orientation": "landscape"
+                  },
+                  "1536x1536": {
+                    "height": 1152,
+                    "width": 1536,
+                    "url": "http://droip.local/wp-content/uploads/2025/10/project-launch-bg-1536x1152.webp",
+                    "orientation": "landscape"
+                  }
+                },
+                "height": 1300,
+                "width": 1733,
+                "filesize": 133260,
+                "mime": "image/webp",
+                "type": "image",
+                "thumb": null,
+                "author": "1",
+                "author_name": "admin",
+                "date": "2025-10-28T05:18:56+00:00"
+              },
+              "website_url": "https://google.com",
+              "is_active": true,
+              "created_at": "2025-10-29 11:53:52",
+              "updated_at": "2025-10-30 04:30:21"
+            },
+            "message": "Brand updated successfully."
+          }
+  - name: 404 Response
+    description: Failure
+    request:
+      url: "{{baseUrl}}/brands/47"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "name": "Test Brand",
+            "slug": "test-brand",
+            "description": "fdsf",
+            "website_url": "https://google.com",
+            "logo": 7,
+            "is_active": 1
+          }
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "errors": {
+              "name": [
+                "The name field is required."
+              ]
+            },
+            "message": "Validation failed!"
+          }
+
+docs: |-
+  ## Edit Brand
+  Updates an existing resource with the provided data.

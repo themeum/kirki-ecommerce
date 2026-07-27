@@ -1,0 +1,79 @@
+info:
+  name: Product
+  type: http
+  seq: 9
+  tags:
+    - settings
+
+http:
+  method: GET
+  url: "{{baseUrl}}/settings/product"
+  body:
+    type: form-urlencoded
+  auth: inherit
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/settings/product"
+      method: GET
+      body:
+        type: form-urlencoded
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": true,
+            "data": {
+              "shop_page": null,
+              "weight_unit": "kg",
+              "dimension_unit": "m",
+              "display_layout": null,
+              "is_enabled_reviews": true,
+              "is_enabled_star_ratings": true,
+              "is_unit_price_visible": true,
+              "barcode_generation": {
+                "data_origin": "SKU",
+                "format": "Code 128 (recommended for SKU/internal use)",
+                "width": 2.5,
+                "height": 1.5,
+                "country_of_origin": "Bangladesh",
+                "is_human_readable_text_visible": false,
+                "is_product_name_visible": false,
+                "is_country_of_origin_visible": false
+              }
+            },
+            "message": "Settings retrieved successfully."
+          }
+  - name: 404 Response
+    description: Failure
+    request:
+      url: "{{baseUrl}}/settings/product"
+      method: GET
+      body:
+        type: form-urlencoded
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: "{}"
+
+docs: |-
+  # Get Product Settings
+  Returns the settings by key

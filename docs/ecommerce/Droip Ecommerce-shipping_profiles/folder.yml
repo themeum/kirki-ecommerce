@@ -1,7 +1,0 @@
-info:
-  name: Droip Ecommerce/shipping_profiles
-  type: folder
-  seq: 22
-
-request:
-  auth: inherit

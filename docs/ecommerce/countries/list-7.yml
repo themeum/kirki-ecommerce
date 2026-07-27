@@ -1,0 +1,5313 @@
+info:
+  name: List (Country)
+  type: http
+  seq: 2
+  tags:
+    - countries
+
+http:
+  method: GET
+  url: "{{baseUrl}}/countries"
+  params:
+    - name: group
+      value: eu
+      type: query
+  auth: inherit
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/countries"
+      method: GET
+      params:
+        - name: group
+          value: eu
+          type: query
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "data": [
+              {
+                "name": "Austria",
+                "code": "AT",
+                "group": "eu",
+                "phone_code": "43",
+                "currency": "EUR",
+                "currency_name": "Euro",
+                "currency_symbol": "€",
+                "flag": "🇦🇹",
+                "states": [
+                  {
+                    "id": "2062",
+                    "name": "Burgenland"
+                  },
+                  {
+                    "id": "2057",
+                    "name": "Carinthia"
+                  },
+                  {
+                    "id": "2065",
+                    "name": "Lower Austria"
+                  },
+                  {
+                    "id": "2061",
+                    "name": "Salzburg"
+                  },
+                  {
+                    "id": "2059",
+                    "name": "Styria"
+                  },
+                  {
+                    "id": "2064",
+                    "name": "Tyrol"
+                  },
+                  {
+                    "id": "2058",
+                    "name": "Upper Austria"
+                  },
+                  {
+                    "id": "2060",
+                    "name": "Vienna"
+                  },
+                  {
+                    "id": "2063",
+                    "name": "Vorarlberg"
+                  }
+                ]
+              },
+              {
+                "name": "Belgium",
+                "code": "BE",
+                "group": "eu",
+                "phone_code": "32",
+                "currency": "EUR",
+                "currency_name": "Euro",
+                "currency_symbol": "€",
+                "flag": "🇧🇪",
+                "states": [
+                  {
+                    "id": "1381",
+                    "name": "Antwerp"
+                  },
+                  {
+                    "id": "1376",
+                    "name": "Brussels-Capital Region"
+                  },
+                  {
+                    "id": "1377",
+                    "name": "East Flanders"
+                  },
+                  {
+                    "id": "1373",
+                    "name": "Flanders"
+                  },
+                  {
+                    "id": "1374",
+                    "name": "Flemish Brabant"
+                  },
+                  {
+                    "id": "1375",
+                    "name": "Hainaut"
+                  },
+                  {
+                    "id": "1384",
+                    "name": "Liège"
+                  },
+                  {
+                    "id": "1372",
+                    "name": "Limburg"
+                  },
+                  {
+                    "id": "1379",
+                    "name": "Luxembourg"
+                  },
+                  {
+                    "id": "1378",
+                    "name": "Namur"
+                  },
+                  {
+                    "id": "1380",
+                    "name": "Wallonia"
+                  },
+                  {
+                    "id": "1382",
+                    "name": "Walloon Brabant"
+                  },
+                  {
+                    "id": "1383",
+                    "name": "West Flanders"
+                  }
+                ]
+              },
+              {
+                "name": "Bulgaria",
+                "code": "BG",
+                "group": "eu",
+                "phone_code": "359",
+                "currency": "BGN",
+                "currency_name": "Bulgarian lev",
+                "currency_symbol": "Лв.",
+                "flag": "🇧🇬",
+                "states": [
+                  {
+                    "id": "4699",
+                    "name": "Blagoevgrad Province"
+                  },
+                  {
+                    "id": "4715",
+                    "name": "Burgas Province"
+                  },
+                  {
+                    "id": "4718",
+                    "name": "Dobrich Province"
+                  },
+                  {
+                    "id": "4693",
+                    "name": "Gabrovo Province"
+                  },
+                  {
+                    "id": "4704",
+                    "name": "Haskovo Province"
+                  },
+                  {
+                    "id": "4702",
+                    "name": "Kardzhali Province"
+                  },
+                  {
+                    "id": "4703",
+                    "name": "Kyustendil Province"
+                  },
+                  {
+                    "id": "4710",
+                    "name": "Lovech Province"
+                  },
+                  {
+                    "id": "4696",
+                    "name": "Montana Province"
+                  },
+                  {
+                    "id": "4712",
+                    "name": "Pazardzhik Province"
+                  },
+                  {
+                    "id": "4695",
+                    "name": "Pernik Province"
+                  },
+                  {
+                    "id": "4706",
+                    "name": "Pleven Province"
+                  },
+                  {
+                    "id": "4701",
+                    "name": "Plovdiv Province"
+                  },
+                  {
+                    "id": "4698",
+                    "name": "Razgrad Province"
+                  },
+                  {
+                    "id": "4713",
+                    "name": "Ruse Province"
+                  },
+                  {
+                    "id": "4882",
+                    "name": "Shumen"
+                  },
+                  {
+                    "id": "4708",
+                    "name": "Silistra Province"
+                  },
+                  {
+                    "id": "4700",
+                    "name": "Sliven Province"
+                  },
+                  {
+                    "id": "4694",
+                    "name": "Smolyan Province"
+                  },
+                  {
+                    "id": "4705",
+                    "name": "Sofia City Province"
+                  },
+                  {
+                    "id": "4719",
+                    "name": "Sofia Province"
+                  },
+                  {
+                    "id": "4707",
+                    "name": "Stara Zagora Province"
+                  },
+                  {
+                    "id": "4714",
+                    "name": "Targovishte Province"
+                  },
+                  {
+                    "id": "4717",
+                    "name": "Varna Province"
+                  },
+                  {
+                    "id": "4709",
+                    "name": "Veliko Tarnovo Province"
+                  },
+                  {
+                    "id": "4697",
+                    "name": "Vidin Province"
+                  },
+                  {
+                    "id": "4711",
+                    "name": "Vratsa Province"
+                  },
+                  {
+                    "id": "4716",
+                    "name": "Yambol Province"
+                  }
+                ]
+              },
+              {
+                "name": "Croatia",
+                "code": "HR",
+                "group": "eu",
+                "phone_code": "385",
+                "currency": "HRK",
+                "currency_name": "Croatian kuna",
+                "currency_symbol": "kn",
+                "flag": "🇭🇷",
+                "states": [
+                  {
+                    "id": "734",
+                    "name": "Bjelovar-Bilogora"
+                  },
+                  {
+                    "id": "737",
+                    "name": "Brod-Posavina"
+                  },
+                  {
+                    "id": "728",
+                    "name": "Dubrovnik-Neretva"
+                  },
+                  {
+                    "id": "743",
+                    "name": "Istria"
+                  },
+                  {
+                    "id": "5069",
+                    "name": "Karlovac"
+                  },
+                  {
+                    "id": "742",
+                    "name": "Koprivnica-Križevci"
+                  },
+                  {
+                    "id": "729",
+                    "name": "Krapina-Zagorje"
+                  },
+                  {
+                    "id": "731",
+                    "name": "Lika-Senj"
+                  },
+                  {
+                    "id": "726",
+                    "name": "Međimurje"
+                  },
+                  {
+                    "id": "740",
+                    "name": "Osijek-Baranja"
+                  },
+                  {
+                    "id": "724",
+                    "name": "Požega-Slavonia"
+                  },
+                  {
+                    "id": "735",
+                    "name": "Primorje-Gorski Kotar"
+                  },
+                  {
+                    "id": "730",
+                    "name": "Šibenik-Knin"
+                  },
+                  {
+                    "id": "733",
+                    "name": "Sisak-Moslavina"
+                  },
+                  {
+                    "id": "725",
+                    "name": "Split-Dalmatia"
+                  },
+                  {
+                    "id": "739",
+                    "name": "Varaždin"
+                  },
+                  {
+                    "id": "732",
+                    "name": "Virovitica-Podravina"
+                  },
+                  {
+                    "id": "741",
+                    "name": "Vukovar-Syrmia"
+                  },
+                  {
+                    "id": "727",
+                    "name": "Zadar"
+                  },
+                  {
+                    "id": "736",
+                    "name": "Zagreb"
+                  },
+                  {
+                    "id": "738",
+                    "name": "Zagreb"
+                  }
+                ]
+              },
+              {
+                "name": "Cyprus",
+                "code": "CY",
+                "group": "eu",
+                "phone_code": "357",
+                "currency": "EUR",
+                "currency_name": "Euro",
+                "currency_symbol": "€",
+                "flag": "🇨🇾",
+                "states": [
+                  {
+                    "id": "749",
+                    "name": "Famagusta District (Mağusa)"
+                  },
+                  {
+                    "id": "744",
+                    "name": "Kyrenia District (Keryneia)"
+                  },
+                  {
+                    "id": "747",
+                    "name": "Larnaca District (Larnaka)"
+                  },
+                  {
+                    "id": "748",
+                    "name": "Limassol District (Leymasun)"
+                  },
+                  {
+                    "id": "745",
+                    "name": "Nicosia District (Lefkoşa)"
+                  },
+                  {
+                    "id": "746",
+                    "name": "Paphos District (Pafos)"
+                  }
+                ]
+              },
+              {
+                "name": "Czech Republic",
+                "code": "CZ",
+                "group": "eu",
+                "phone_code": "420",
+                "currency": "CZK",
+                "currency_name": "Czech koruna",
+                "currency_symbol": "Kč",
+                "flag": "🇨🇿",
+                "states": [
+                  {
+                    "id": "4627",
+                    "name": "Benešov"
+                  },
+                  {
+                    "id": "4620",
+                    "name": "Beroun"
+                  },
+                  {
+                    "id": "4615",
+                    "name": "Blansko"
+                  },
+                  {
+                    "id": "4542",
+                    "name": "Břeclav"
+                  },
+                  {
+                    "id": "4568",
+                    "name": "Brno-město"
+                  },
+                  {
+                    "id": "4545",
+                    "name": "Brno-venkov"
+                  },
+                  {
+                    "id": "4644",
+                    "name": "Bruntál"
+                  },
+                  {
+                    "id": "4633",
+                    "name": "Česká Lípa"
+                  },
+                  {
+                    "id": "4556",
+                    "name": "České Budějovice"
+                  },
+                  {
+                    "id": "4543",
+                    "name": "Český Krumlov"
+                  },
+                  {
+                    "id": "4573",
+                    "name": "Cheb"
+                  },
+                  {
+                    "id": "4553",
+                    "name": "Chomutov"
+                  },
+                  {
+                    "id": "4634",
+                    "name": "Chrudim"
+                  },
+                  {
+                    "id": "4609",
+                    "name": "Děčín"
+                  },
+                  {
+                    "id": "4641",
+                    "name": "Domažlice"
+                  },
+                  {
+                    "id": "4559",
+                    "name": "Frýdek-Místek"
+                  },
+                  {
+                    "id": "4611",
+                    "name": "Havlíčkův Brod"
+                  },
+                  {
+                    "id": "4561",
+                    "name": "Hodonín"
+                  },
+                  {
+                    "id": "4580",
+                    "name": "Hradec Králové"
+                  },
+                  {
+                    "id": "4612",
+                    "name": "Jablonec nad Nisou"
+                  },
+                  {
+                    "id": "4625",
+                    "name": "Jeseník"
+                  },
+                  {
+                    "id": "4640",
+                    "name": "Jičín"
+                  },
+                  {
+                    "id": "4613",
+                    "name": "Jihlava"
+                  },
+                  {
+                    "id": "4639",
+                    "name": "Jihočeský kraj"
+                  },
+                  {
+                    "id": "4602",
+                    "name": "Jihomoravský kraj"
+                  },
+                  {
+                    "id": "4624",
+                    "name": "Jindřichův Hradec"
+                  },
+                  {
+                    "id": "4581",
+                    "name": "Karlovarský kraj"
+                  },
+                  {
+                    "id": "4604",
+                    "name": "Karlovy Vary"
+                  },
+                  {
+                    "id": "4586",
+                    "name": "Karviná"
+                  },
+                  {
+                    "id": "4631",
+                    "name": "Kladno"
+                  },
+                  {
+                    "id": "4591",
+                    "name": "Klatovy"
+                  },
+                  {
+                    "id": "4618",
+                    "name": "Kolín"
+                  },
+                  {
+                    "id": "4575",
+                    "name": "Kraj Vysočina"
+                  },
+                  {
+                    "id": "4614",
+                    "name": "Královéhradecký kraj"
+                  },
+                  {
+                    "id": "4593",
+                    "name": "Kroměříž"
+                  },
+                  {
+                    "id": "4923",
+                    "name": "Kutná Hora"
+                  },
+                  {
+                    "id": "4590",
+                    "name": "Liberec"
+                  },
+                  {
+                    "id": "4601",
+                    "name": "Liberecký kraj"
+                  },
+                  {
+                    "id": "4605",
+                    "name": "Litoměřice"
+                  },
+                  {
+                    "id": "4617",
+                    "name": "Louny"
+                  },
+                  {
+                    "id": "4638",
+                    "name": "Mělník"
+                  },
+                  {
+                    "id": "4643",
+                    "name": "Mladá Boleslav"
+                  },
+                  {
+                    "id": "4600",
+                    "name": "Moravskoslezský kraj"
+                  },
+                  {
+                    "id": "4629",
+                    "name": "Most"
+                  },
+                  {
+                    "id": "4550",
+                    "name": "Náchod"
+                  },
+                  {
+                    "id": "4548",
+                    "name": "Nový Jičín"
+                  },
+                  {
+                    "id": "4582",
+                    "name": "Nymburk"
+                  },
+                  {
+                    "id": "4574",
+                    "name": "Olomouc"
+                  },
+                  {
+                    "id": "4589",
+                    "name": "Olomoucký kraj"
+                  },
+                  {
+                    "id": "4623",
+                    "name": "Opava"
+                  },
+                  {
+                    "id": "4584",
+                    "name": "Ostrava-město"
+                  },
+                  {
+                    "id": "4547",
+                    "name": "Pardubice"
+                  },
+                  {
+                    "id": "4588",
+                    "name": "Pardubický kraj"
+                  },
+                  {
+                    "id": "4645",
+                    "name": "Pelhřimov"
+                  },
+                  {
+                    "id": "4560",
+                    "name": "Písek"
+                  },
+                  {
+                    "id": "4608",
+                    "name": "Plzeň-jih"
+                  },
+                  {
+                    "id": "4544",
+                    "name": "Plzeň-město"
+                  },
+                  {
+                    "id": "4564",
+                    "name": "Plzeň-sever"
+                  },
+                  {
+                    "id": "4607",
+                    "name": "Plzeňský kraj"
+                  },
+                  {
+                    "id": "4578",
+                    "name": "Prachatice"
+                  },
+                  {
+                    "id": "4606",
+                    "name": "Praha-východ"
+                  },
+                  {
+                    "id": "4619",
+                    "name": "Praha-západ"
+                  },
+                  {
+                    "id": "4598",
+                    "name": "Praha, Hlavní město"
+                  },
+                  {
+                    "id": "4626",
+                    "name": "Přerov"
+                  },
+                  {
+                    "id": "4546",
+                    "name": "Příbram"
+                  },
+                  {
+                    "id": "4551",
+                    "name": "Prostějov"
+                  },
+                  {
+                    "id": "4558",
+                    "name": "Rakovník"
+                  },
+                  {
+                    "id": "4583",
+                    "name": "Rokycany"
+                  },
+                  {
+                    "id": "4636",
+                    "name": "Rychnov nad Kněžnou"
+                  },
+                  {
+                    "id": "4596",
+                    "name": "Semily"
+                  },
+                  {
+                    "id": "4595",
+                    "name": "Sokolov"
+                  },
+                  {
+                    "id": "4628",
+                    "name": "Strakonice"
+                  },
+                  {
+                    "id": "4554",
+                    "name": "Středočeský kraj"
+                  },
+                  {
+                    "id": "4642",
+                    "name": "Šumperk"
+                  },
+                  {
+                    "id": "4571",
+                    "name": "Svitavy"
+                  },
+                  {
+                    "id": "4565",
+                    "name": "Tábor"
+                  },
+                  {
+                    "id": "4646",
+                    "name": "Tachov"
+                  },
+                  {
+                    "id": "4621",
+                    "name": "Teplice"
+                  },
+                  {
+                    "id": "4597",
+                    "name": "Třebíč"
+                  },
+                  {
+                    "id": "4579",
+                    "name": "Trutnov"
+                  },
+                  {
+                    "id": "4592",
+                    "name": "Uherské Hradiště"
+                  },
+                  {
+                    "id": "4576",
+                    "name": "Ústecký kraj"
+                  },
+                  {
+                    "id": "4599",
+                    "name": "Ústí nad Labem"
+                  },
+                  {
+                    "id": "4647",
+                    "name": "Ústí nad Orlicí"
+                  },
+                  {
+                    "id": "4572",
+                    "name": "Vsetín"
+                  },
+                  {
+                    "id": "4622",
+                    "name": "Vyškov"
+                  },
+                  {
+                    "id": "4648",
+                    "name": "Žďár nad Sázavou"
+                  },
+                  {
+                    "id": "4563",
+                    "name": "Zlín"
+                  },
+                  {
+                    "id": "4552",
+                    "name": "Zlínský kraj"
+                  },
+                  {
+                    "id": "4630",
+                    "name": "Znojmo"
+                  }
+                ]
+              },
+              {
+                "name": "Denmark",
+                "code": "DK",
+                "group": "eu",
+                "phone_code": "45",
+                "currency": "DKK",
+                "currency_name": "Danish krone",
+                "currency_symbol": "Kr.",
+                "flag": "🇩🇰",
+                "states": [
+                  {
+                    "id": "1530",
+                    "name": "Capital Region of Denmark"
+                  },
+                  {
+                    "id": "1531",
+                    "name": "Central Denmark Region"
+                  },
+                  {
+                    "id": "1532",
+                    "name": "North Denmark Region"
+                  },
+                  {
+                    "id": "1529",
+                    "name": "Region of Southern Denmark"
+                  },
+                  {
+                    "id": "1528",
+                    "name": "Region Zealand"
+                  }
+                ]
+              },
+              {
+                "name": "Estonia",
+                "code": "EE",
+                "group": "eu",
+                "phone_code": "372",
+                "currency": "EUR",
+                "currency_name": "Euro",
+                "currency_symbol": "€",
+                "flag": "🇪🇪",
+                "states": [
+                  {
+                    "id": "3567",
+                    "name": "Harju County"
+                  },
+                  {
+                    "id": "3555",
+                    "name": "Hiiu County"
+                  },
+                  {
+                    "id": "3569",
+                    "name": "Ida-Viru County"
+                  },
+                  {
+                    "id": "3566",
+                    "name": "Järva County"
+                  },
+                  {
+                    "id": "3565",
+                    "name": "Jõgeva County"
+                  },
+                  {
+                    "id": "3568",
+                    "name": "Lääne County"
+                  },
+                  {
+                    "id": "3564",
+                    "name": "Lääne-Viru County"
+                  },
+                  {
+                    "id": "3562",
+                    "name": "Pärnu County"
+                  },
+                  {
+                    "id": "3563",
+                    "name": "Põlva County"
+                  },
+                  {
+                    "id": "3559",
+                    "name": "Rapla County"
+                  },
+                  {
+                    "id": "3561",
+                    "name": "Saare County"
+                  },
+                  {
+                    "id": "3557",
+                    "name": "Tartu County"
+                  },
+                  {
+                    "id": "3558",
+                    "name": "Valga County"
+                  },
+                  {
+                    "id": "3556",
+                    "name": "Viljandi County"
+                  },
+                  {
+                    "id": "3560",
+                    "name": "Võru County"
+                  }
+                ]
+              },
+              {
+                "name": "Finland",
+                "code": "FI",
+                "group": "eu",
+                "phone_code": "358",
+                "currency": "EUR",
+                "currency_name": "Euro",
+                "currency_symbol": "€",
+                "flag": "🇫🇮",
+                "states": [
+                  {
+                    "id": "1509",
+                    "name": "Åland Islands"
+                  },
+                  {
+                    "id": "1511",
+                    "name": "Central Finland"
+                  },
+                  {
+                    "id": "1494",
+                    "name": "Central Ostrobothnia"
+                  },
+                  {
+                    "id": "1507",
+                    "name": "Finland Proper"
+                  },
+                  {
+                    "id": "1496",
+                    "name": "Kainuu"
+                  },
+                  {
+                    "id": "1512",
+                    "name": "Kymenlaakso"
+                  },
+                  {
+                    "id": "1500",
+                    "name": "Lapland"
+                  },
+                  {
+                    "id": "1504",
+                    "name": "North Karelia"
+                  },
+                  {
+                    "id": "1505",
+                    "name": "Northern Ostrobothnia"
+                  },
+                  {
+                    "id": "1503",
+                    "name": "Northern Savonia"
+                  },
+                  {
+                    "id": "1508",
+                    "name": "Ostrobothnia"
+                  },
+                  {
+                    "id": "1502",
+                    "name": "Päijänne Tavastia"
+                  },
+                  {
+                    "id": "1506",
+                    "name": "Pirkanmaa"
+                  },
+                  {
+                    "id": "1501",
+                    "name": "Satakunta"
+                  },
+                  {
+                    "id": "1497",
+                    "name": "South Karelia"
+                  },
+                  {
+                    "id": "1498",
+                    "name": "Southern Ostrobothnia"
+                  },
+                  {
+                    "id": "1495",
+                    "name": "Southern Savonia"
+                  },
+                  {
+                    "id": "1493",
+                    "name": "Tavastia Proper"
+                  },
+                  {
+                    "id": "1510",
+                    "name": "Uusimaa"
+                  }
+                ]
+              },
+              {
+                "name": "France",
+                "code": "FR",
+                "group": "eu",
+                "phone_code": "33",
+                "currency": "EUR",
+                "currency_name": "Euro",
+                "currency_symbol": "€",
+                "flag": "🇫🇷",
+                "states": [
+                  {
+                    "id": "4967",
+                    "name": "Ain"
+                  },
+                  {
+                    "id": "4968",
+                    "name": "Aisne"
+                  },
+                  {
+                    "id": "4969",
+                    "name": "Allier"
+                  },
+                  {
+                    "id": "4970",
+                    "name": "Alpes-de-Haute-Provence"
+                  },
+                  {
+                    "id": "4972",
+                    "name": "Alpes-Maritimes"
+                  },
+                  {
+                    "id": "4811",
+                    "name": "Alsace"
+                  },
+                  {
+                    "id": "4973",
+                    "name": "Ardèche"
+                  },
+                  {
+                    "id": "4974",
+                    "name": "Ardennes"
+                  },
+                  {
+                    "id": "4975",
+                    "name": "Ariège"
+                  },
+                  {
+                    "id": "4976",
+                    "name": "Aube"
+                  },
+                  {
+                    "id": "4977",
+                    "name": "Aude"
+                  },
+                  {
+                    "id": "4798",
+                    "name": "Auvergne-Rhône-Alpes"
+                  },
+                  {
+                    "id": "4978",
+                    "name": "Aveyron"
+                  },
+                  {
+                    "id": "5035",
+                    "name": "Bas-Rhin"
+                  },
+                  {
+                    "id": "4979",
+                    "name": "Bouches-du-Rhône"
+                  },
+                  {
+                    "id": "4825",
+                    "name": "Bourgogne-Franche-Comté"
+                  },
+                  {
+                    "id": "4807",
+                    "name": "Bretagne"
+                  },
+                  {
+                    "id": "4981",
+                    "name": "Calvados"
+                  },
+                  {
+                    "id": "4982",
+                    "name": "Cantal"
+                  },
+                  {
+                    "id": "4818",
+                    "name": "Centre-Val de Loire"
+                  },
+                  {
+                    "id": "4983",
+                    "name": "Charente"
+                  },
+                  {
+                    "id": "4984",
+                    "name": "Charente-Maritime"
+                  },
+                  {
+                    "id": "4985",
+                    "name": "Cher"
+                  },
+                  {
+                    "id": "5064",
+                    "name": "Clipperton"
+                  },
+                  {
+                    "id": "4986",
+                    "name": "Corrèze"
+                  },
+                  {
+                    "id": "4806",
+                    "name": "Corse"
+                  },
+                  {
+                    "id": "4996",
+                    "name": "Corse-du-Sud"
+                  },
+                  {
+                    "id": "4987",
+                    "name": "Côte-d'Or"
+                  },
+                  {
+                    "id": "4988",
+                    "name": "Côtes-d'Armor"
+                  },
+                  {
+                    "id": "4989",
+                    "name": "Creuse"
+                  },
+                  {
+                    "id": "5047",
+                    "name": "Deux-Sèvres"
+                  },
+                  {
+                    "id": "4990",
+                    "name": "Dordogne"
+                  },
+                  {
+                    "id": "4991",
+                    "name": "Doubs"
+                  },
+                  {
+                    "id": "4992",
+                    "name": "Drôme"
+                  },
+                  {
+                    "id": "5059",
+                    "name": "Essonne"
+                  },
+                  {
+                    "id": "4993",
+                    "name": "Eure"
+                  },
+                  {
+                    "id": "4994",
+                    "name": "Eure-et-Loir"
+                  },
+                  {
+                    "id": "4995",
+                    "name": "Finistère"
+                  },
+                  {
+                    "id": "4822",
+                    "name": "French Guiana"
+                  },
+                  {
+                    "id": "4824",
+                    "name": "French Polynesia"
+                  },
+                  {
+                    "id": "5065",
+                    "name": "French Southern and Antarctic Lands"
+                  },
+                  {
+                    "id": "4998",
+                    "name": "Gard"
+                  },
+                  {
+                    "id": "5000",
+                    "name": "Gers"
+                  },
+                  {
+                    "id": "5001",
+                    "name": "Gironde"
+                  },
+                  {
+                    "id": "4820",
+                    "name": "Grand-Est"
+                  },
+                  {
+                    "id": "4829",
+                    "name": "Guadeloupe"
+                  },
+                  {
+                    "id": "5036",
+                    "name": "Haut-Rhin"
+                  },
+                  {
+                    "id": "4997",
+                    "name": "Haute-Corse"
+                  },
+                  {
+                    "id": "4999",
+                    "name": "Haute-Garonne"
+                  },
+                  {
+                    "id": "5011",
+                    "name": "Haute-Loire"
+                  },
+                  {
+                    "id": "5020",
+                    "name": "Haute-Marne"
+                  },
+                  {
+                    "id": "5039",
+                    "name": "Haute-Saône"
+                  },
+                  {
+                    "id": "5043",
+                    "name": "Haute-Savoie"
+                  },
+                  {
+                    "id": "5055",
+                    "name": "Haute-Vienne"
+                  },
+                  {
+                    "id": "4971",
+                    "name": "Hautes-Alpes"
+                  },
+                  {
+                    "id": "5033",
+                    "name": "Hautes-Pyrénées"
+                  },
+                  {
+                    "id": "4828",
+                    "name": "Hauts-de-France"
+                  },
+                  {
+                    "id": "5060",
+                    "name": "Hauts-de-Seine"
+                  },
+                  {
+                    "id": "5002",
+                    "name": "Hérault"
+                  },
+                  {
+                    "id": "4796",
+                    "name": "Île-de-France"
+                  },
+                  {
+                    "id": "5003",
+                    "name": "Ille-et-Vilaine"
+                  },
+                  {
+                    "id": "5004",
+                    "name": "Indre"
+                  },
+                  {
+                    "id": "5005",
+                    "name": "Indre-et-Loire"
+                  },
+                  {
+                    "id": "5006",
+                    "name": "Isère"
+                  },
+                  {
+                    "id": "5007",
+                    "name": "Jura"
+                  },
+                  {
+                    "id": "4823",
+                    "name": "La Réunion"
+                  },
+                  {
+                    "id": "5008",
+                    "name": "Landes"
+                  },
+                  {
+                    "id": "5009",
+                    "name": "Loir-et-Cher"
+                  },
+                  {
+                    "id": "5010",
+                    "name": "Loire"
+                  },
+                  {
+                    "id": "5012",
+                    "name": "Loire-Atlantique"
+                  },
+                  {
+                    "id": "5013",
+                    "name": "Loiret"
+                  },
+                  {
+                    "id": "5014",
+                    "name": "Lot"
+                  },
+                  {
+                    "id": "5015",
+                    "name": "Lot-et-Garonne"
+                  },
+                  {
+                    "id": "5016",
+                    "name": "Lozère"
+                  },
+                  {
+                    "id": "5017",
+                    "name": "Maine-et-Loire"
+                  },
+                  {
+                    "id": "5018",
+                    "name": "Manche"
+                  },
+                  {
+                    "id": "5019",
+                    "name": "Marne"
+                  },
+                  {
+                    "id": "4827",
+                    "name": "Martinique"
+                  },
+                  {
+                    "id": "5021",
+                    "name": "Mayenne"
+                  },
+                  {
+                    "id": "4797",
+                    "name": "Mayotte"
+                  },
+                  {
+                    "id": "5038",
+                    "name": "Métropole de Lyon"
+                  },
+                  {
+                    "id": "5022",
+                    "name": "Meurthe-et-Moselle"
+                  },
+                  {
+                    "id": "5023",
+                    "name": "Meuse"
+                  },
+                  {
+                    "id": "5024",
+                    "name": "Morbihan"
+                  },
+                  {
+                    "id": "5025",
+                    "name": "Moselle"
+                  },
+                  {
+                    "id": "5026",
+                    "name": "Nièvre"
+                  },
+                  {
+                    "id": "5027",
+                    "name": "Nord"
+                  },
+                  {
+                    "id": "4804",
+                    "name": "Normandie"
+                  },
+                  {
+                    "id": "4795",
+                    "name": "Nouvelle-Aquitaine"
+                  },
+                  {
+                    "id": "4799",
+                    "name": "Occitanie"
+                  },
+                  {
+                    "id": "5028",
+                    "name": "Oise"
+                  },
+                  {
+                    "id": "5029",
+                    "name": "Orne"
+                  },
+                  {
+                    "id": "4816",
+                    "name": "Paris"
+                  },
+                  {
+                    "id": "5030",
+                    "name": "Pas-de-Calais"
+                  },
+                  {
+                    "id": "4802",
+                    "name": "Pays-de-la-Loire"
+                  },
+                  {
+                    "id": "4812",
+                    "name": "Provence-Alpes-Côte-d’Azur"
+                  },
+                  {
+                    "id": "5031",
+                    "name": "Puy-de-Dôme"
+                  },
+                  {
+                    "id": "5032",
+                    "name": "Pyrénées-Atlantiques"
+                  },
+                  {
+                    "id": "5034",
+                    "name": "Pyrénées-Orientales"
+                  },
+                  {
+                    "id": "5037",
+                    "name": "Rhône"
+                  },
+                  {
+                    "id": "4821",
+                    "name": "Saint Pierre and Miquelon"
+                  },
+                  {
+                    "id": "4794",
+                    "name": "Saint-Barthélemy"
+                  },
+                  {
+                    "id": "4809",
+                    "name": "Saint-Martin"
+                  },
+                  {
+                    "id": "5040",
+                    "name": "Saône-et-Loire"
+                  },
+                  {
+                    "id": "5041",
+                    "name": "Sarthe"
+                  },
+                  {
+                    "id": "5042",
+                    "name": "Savoie"
+                  },
+                  {
+                    "id": "5045",
+                    "name": "Seine-et-Marne"
+                  },
+                  {
+                    "id": "5044",
+                    "name": "Seine-Maritime"
+                  },
+                  {
+                    "id": "5061",
+                    "name": "Seine-Saint-Denis"
+                  },
+                  {
+                    "id": "5048",
+                    "name": "Somme"
+                  },
+                  {
+                    "id": "5049",
+                    "name": "Tarn"
+                  },
+                  {
+                    "id": "5050",
+                    "name": "Tarn-et-Garonne"
+                  },
+                  {
+                    "id": "5058",
+                    "name": "Territoire de Belfort"
+                  },
+                  {
+                    "id": "5063",
+                    "name": "Val-d'Oise"
+                  },
+                  {
+                    "id": "5062",
+                    "name": "Val-de-Marne"
+                  },
+                  {
+                    "id": "5051",
+                    "name": "Var"
+                  },
+                  {
+                    "id": "5052",
+                    "name": "Vaucluse"
+                  },
+                  {
+                    "id": "5053",
+                    "name": "Vendée"
+                  },
+                  {
+                    "id": "5054",
+                    "name": "Vienne"
+                  },
+                  {
+                    "id": "5056",
+                    "name": "Vosges"
+                  },
+                  {
+                    "id": "4810",
+                    "name": "Wallis and Futuna"
+                  },
+                  {
+                    "id": "5057",
+                    "name": "Yonne"
+                  },
+                  {
+                    "id": "5046",
+                    "name": "Yvelines"
+                  }
+                ]
+              },
+              {
+                "name": "Germany",
+                "code": "DE",
+                "group": "eu",
+                "phone_code": "49",
+                "currency": "EUR",
+                "currency_name": "Euro",
+                "currency_symbol": "€",
+                "flag": "🇩🇪",
+                "states": [
+                  {
+                    "id": "3006",
+                    "name": "Baden-Württemberg"
+                  },
+                  {
+                    "id": "3009",
+                    "name": "Bavaria"
+                  },
+                  {
+                    "id": "3010",
+                    "name": "Berlin"
+                  },
+                  {
+                    "id": "3013",
+                    "name": "Brandenburg"
+                  },
+                  {
+                    "id": "3014",
+                    "name": "Bremen"
+                  },
+                  {
+                    "id": "3016",
+                    "name": "Hamburg"
+                  },
+                  {
+                    "id": "3018",
+                    "name": "Hesse"
+                  },
+                  {
+                    "id": "3008",
+                    "name": "Lower Saxony"
+                  },
+                  {
+                    "id": "3007",
+                    "name": "Mecklenburg-Vorpommern"
+                  },
+                  {
+                    "id": "3017",
+                    "name": "North Rhine-Westphalia"
+                  },
+                  {
+                    "id": "3019",
+                    "name": "Rhineland-Palatinate"
+                  },
+                  {
+                    "id": "3020",
+                    "name": "Saarland"
+                  },
+                  {
+                    "id": "3021",
+                    "name": "Saxony"
+                  },
+                  {
+                    "id": "3011",
+                    "name": "Saxony-Anhalt"
+                  },
+                  {
+                    "id": "3005",
+                    "name": "Schleswig-Holstein"
+                  },
+                  {
+                    "id": "3015",
+                    "name": "Thuringia"
+                  }
+                ]
+              },
+              {
+                "name": "Greece",
+                "code": "GR",
+                "group": "eu",
+                "phone_code": "30",
+                "currency": "EUR",
+                "currency_name": "Euro",
+                "currency_symbol": "€",
+                "flag": "🇬🇷",
+                "states": [
+                  {
+                    "id": "2116",
+                    "name": "Achaea Regional Unit"
+                  },
+                  {
+                    "id": "2123",
+                    "name": "Aetolia-Acarnania Regional Unit"
+                  },
+                  {
+                    "id": "2098",
+                    "name": "Arcadia Prefecture"
+                  },
+                  {
+                    "id": "2105",
+                    "name": "Argolis Regional Unit"
+                  },
+                  {
+                    "id": "2122",
+                    "name": "Attica Region"
+                  },
+                  {
+                    "id": "2126",
+                    "name": "Boeotia Regional Unit"
+                  },
+                  {
+                    "id": "2128",
+                    "name": "Central Greece Region"
+                  },
+                  {
+                    "id": "2125",
+                    "name": "Central Macedonia"
+                  },
+                  {
+                    "id": "2115",
+                    "name": "Chania Regional Unit"
+                  },
+                  {
+                    "id": "2124",
+                    "name": "Corfu Prefecture"
+                  },
+                  {
+                    "id": "2129",
+                    "name": "Corinthia Regional Unit"
+                  },
+                  {
+                    "id": "2109",
+                    "name": "Crete Region"
+                  },
+                  {
+                    "id": "2130",
+                    "name": "Drama Regional Unit"
+                  },
+                  {
+                    "id": "2120",
+                    "name": "East Attica Regional Unit"
+                  },
+                  {
+                    "id": "2117",
+                    "name": "East Macedonia and Thrace"
+                  },
+                  {
+                    "id": "2110",
+                    "name": "Epirus Region"
+                  },
+                  {
+                    "id": "2101",
+                    "name": "Euboea"
+                  },
+                  {
+                    "id": "2102",
+                    "name": "Grevena Prefecture"
+                  },
+                  {
+                    "id": "2099",
+                    "name": "Imathia Regional Unit"
+                  },
+                  {
+                    "id": "2113",
+                    "name": "Ioannina Regional Unit"
+                  },
+                  {
+                    "id": "2131",
+                    "name": "Ionian Islands Region"
+                  },
+                  {
+                    "id": "2095",
+                    "name": "Karditsa Regional Unit"
+                  },
+                  {
+                    "id": "2100",
+                    "name": "Kastoria Regional Unit"
+                  },
+                  {
+                    "id": "2127",
+                    "name": "Kefalonia Prefecture"
+                  },
+                  {
+                    "id": "2111",
+                    "name": "Kilkis Regional Unit"
+                  },
+                  {
+                    "id": "2112",
+                    "name": "Kozani Prefecture"
+                  },
+                  {
+                    "id": "2106",
+                    "name": "Laconia"
+                  },
+                  {
+                    "id": "2132",
+                    "name": "Larissa Prefecture"
+                  },
+                  {
+                    "id": "2104",
+                    "name": "Lefkada Regional Unit"
+                  },
+                  {
+                    "id": "2107",
+                    "name": "Pella Regional Unit"
+                  },
+                  {
+                    "id": "2119",
+                    "name": "Peloponnese Region"
+                  },
+                  {
+                    "id": "2114",
+                    "name": "Phthiotis Prefecture"
+                  },
+                  {
+                    "id": "2103",
+                    "name": "Preveza Prefecture"
+                  },
+                  {
+                    "id": "2121",
+                    "name": "Serres Prefecture"
+                  },
+                  {
+                    "id": "2118",
+                    "name": "South Aegean"
+                  },
+                  {
+                    "id": "2097",
+                    "name": "Thessaloniki Regional Unit"
+                  },
+                  {
+                    "id": "2096",
+                    "name": "West Greece Region"
+                  },
+                  {
+                    "id": "2108",
+                    "name": "West Macedonia Region"
+                  }
+                ]
+              },
+              {
+                "name": "Hungary",
+                "code": "HU",
+                "group": "eu",
+                "phone_code": "36",
+                "currency": "HUF",
+                "currency_name": "Hungarian forint",
+                "currency_symbol": "Ft",
+                "flag": "🇭🇺",
+                "states": [
+                  {
+                    "id": "1048",
+                    "name": "Bács-Kiskun"
+                  },
+                  {
+                    "id": "1055",
+                    "name": "Baranya"
+                  },
+                  {
+                    "id": "1060",
+                    "name": "Békés"
+                  },
+                  {
+                    "id": "1036",
+                    "name": "Békéscsaba"
+                  },
+                  {
+                    "id": "1058",
+                    "name": "Borsod-Abaúj-Zemplén"
+                  },
+                  {
+                    "id": "1064",
+                    "name": "Budapest"
+                  },
+                  {
+                    "id": "1031",
+                    "name": "Csongrád County"
+                  },
+                  {
+                    "id": "1032",
+                    "name": "Debrecen"
+                  },
+                  {
+                    "id": "1049",
+                    "name": "Dunaújváros"
+                  },
+                  {
+                    "id": "1037",
+                    "name": "Eger"
+                  },
+                  {
+                    "id": "1028",
+                    "name": "Érd"
+                  },
+                  {
+                    "id": "1044",
+                    "name": "Fejér County"
+                  },
+                  {
+                    "id": "1041",
+                    "name": "Győr"
+                  },
+                  {
+                    "id": "1042",
+                    "name": "Győr-Moson-Sopron County"
+                  },
+                  {
+                    "id": "1063",
+                    "name": "Hajdú-Bihar County"
+                  },
+                  {
+                    "id": "1040",
+                    "name": "Heves County"
+                  },
+                  {
+                    "id": "1027",
+                    "name": "Hódmezővásárhely"
+                  },
+                  {
+                    "id": "1043",
+                    "name": "Jász-Nagykun-Szolnok County"
+                  },
+                  {
+                    "id": "1067",
+                    "name": "Kaposvár"
+                  },
+                  {
+                    "id": "1056",
+                    "name": "Kecskemét"
+                  },
+                  {
+                    "id": "5085",
+                    "name": "Komárom-Esztergom"
+                  },
+                  {
+                    "id": "1065",
+                    "name": "Miskolc"
+                  },
+                  {
+                    "id": "1030",
+                    "name": "Nagykanizsa"
+                  },
+                  {
+                    "id": "1051",
+                    "name": "Nógrád County"
+                  },
+                  {
+                    "id": "1034",
+                    "name": "Nyíregyháza"
+                  },
+                  {
+                    "id": "1053",
+                    "name": "Pécs"
+                  },
+                  {
+                    "id": "1059",
+                    "name": "Pest County"
+                  },
+                  {
+                    "id": "1068",
+                    "name": "Salgótarján"
+                  },
+                  {
+                    "id": "1035",
+                    "name": "Somogy County"
+                  },
+                  {
+                    "id": "1057",
+                    "name": "Sopron"
+                  },
+                  {
+                    "id": "1045",
+                    "name": "Szabolcs-Szatmár-Bereg County"
+                  },
+                  {
+                    "id": "1029",
+                    "name": "Szeged"
+                  },
+                  {
+                    "id": "1033",
+                    "name": "Székesfehérvár"
+                  },
+                  {
+                    "id": "1061",
+                    "name": "Szekszárd"
+                  },
+                  {
+                    "id": "1047",
+                    "name": "Szolnok"
+                  },
+                  {
+                    "id": "1052",
+                    "name": "Szombathely"
+                  },
+                  {
+                    "id": "1066",
+                    "name": "Tatabánya"
+                  },
+                  {
+                    "id": "1038",
+                    "name": "Tolna County"
+                  },
+                  {
+                    "id": "1039",
+                    "name": "Vas County"
+                  },
+                  {
+                    "id": "1062",
+                    "name": "Veszprém"
+                  },
+                  {
+                    "id": "1054",
+                    "name": "Veszprém County"
+                  },
+                  {
+                    "id": "1046",
+                    "name": "Zala County"
+                  },
+                  {
+                    "id": "1050",
+                    "name": "Zalaegerszeg"
+                  }
+                ]
+              },
+              {
+                "name": "Ireland",
+                "code": "IE",
+                "group": "eu",
+                "phone_code": "353",
+                "currency": "EUR",
+                "currency_name": "Euro",
+                "currency_symbol": "€",
+                "flag": "🇮🇪",
+                "states": [
+                  {
+                    "id": "1095",
+                    "name": "Carlow"
+                  },
+                  {
+                    "id": "1088",
+                    "name": "Cavan"
+                  },
+                  {
+                    "id": "1091",
+                    "name": "Clare"
+                  },
+                  {
+                    "id": "1087",
+                    "name": "Connacht"
+                  },
+                  {
+                    "id": "1074",
+                    "name": "Cork"
+                  },
+                  {
+                    "id": "1071",
+                    "name": "Donegal"
+                  },
+                  {
+                    "id": "1072",
+                    "name": "Dublin"
+                  },
+                  {
+                    "id": "1079",
+                    "name": "Galway"
+                  },
+                  {
+                    "id": "1077",
+                    "name": "Kerry"
+                  },
+                  {
+                    "id": "1082",
+                    "name": "Kildare"
+                  },
+                  {
+                    "id": "1090",
+                    "name": "Kilkenny"
+                  },
+                  {
+                    "id": "1096",
+                    "name": "Laois"
+                  },
+                  {
+                    "id": "1073",
+                    "name": "Leinster"
+                  },
+                  {
+                    "id": "1094",
+                    "name": "Limerick"
+                  },
+                  {
+                    "id": "1076",
+                    "name": "Longford"
+                  },
+                  {
+                    "id": "1083",
+                    "name": "Louth"
+                  },
+                  {
+                    "id": "1084",
+                    "name": "Mayo"
+                  },
+                  {
+                    "id": "1092",
+                    "name": "Meath"
+                  },
+                  {
+                    "id": "1075",
+                    "name": "Monaghan"
+                  },
+                  {
+                    "id": "1080",
+                    "name": "Munster"
+                  },
+                  {
+                    "id": "1078",
+                    "name": "Offaly"
+                  },
+                  {
+                    "id": "1081",
+                    "name": "Roscommon"
+                  },
+                  {
+                    "id": "1070",
+                    "name": "Sligo"
+                  },
+                  {
+                    "id": "1069",
+                    "name": "Tipperary"
+                  },
+                  {
+                    "id": "1086",
+                    "name": "Ulster"
+                  },
+                  {
+                    "id": "1089",
+                    "name": "Waterford"
+                  },
+                  {
+                    "id": "1097",
+                    "name": "Westmeath"
+                  },
+                  {
+                    "id": "1093",
+                    "name": "Wexford"
+                  },
+                  {
+                    "id": "1085",
+                    "name": "Wicklow"
+                  }
+                ]
+              },
+              {
+                "name": "Italy",
+                "code": "IT",
+                "group": "eu",
+                "phone_code": "39",
+                "currency": "EUR",
+                "currency_name": "Euro",
+                "currency_symbol": "€",
+                "flag": "🇮🇹",
+                "states": [
+                  {
+                    "id": "1679",
+                    "name": "Abruzzo"
+                  },
+                  {
+                    "id": "1727",
+                    "name": "Agrigento"
+                  },
+                  {
+                    "id": "1783",
+                    "name": "Alessandria"
+                  },
+                  {
+                    "id": "1672",
+                    "name": "Ancona"
+                  },
+                  {
+                    "id": "1716",
+                    "name": "Aosta Valley"
+                  },
+                  {
+                    "id": "1688",
+                    "name": "Apulia"
+                  },
+                  {
+                    "id": "1681",
+                    "name": "Ascoli Piceno"
+                  },
+                  {
+                    "id": "1780",
+                    "name": "Asti"
+                  },
+                  {
+                    "id": "1692",
+                    "name": "Avellino"
+                  },
+                  {
+                    "id": "1772",
+                    "name": "Bari"
+                  },
+                  {
+                    "id": "1686",
+                    "name": "Barletta-Andria-Trani"
+                  },
+                  {
+                    "id": "1706",
+                    "name": "Basilicata"
+                  },
+                  {
+                    "id": "1689",
+                    "name": "Belluno"
+                  },
+                  {
+                    "id": "1701",
+                    "name": "Benevento"
+                  },
+                  {
+                    "id": "1704",
+                    "name": "Bergamo"
+                  },
+                  {
+                    "id": "1778",
+                    "name": "Biella"
+                  },
+                  {
+                    "id": "1684",
+                    "name": "Bologna"
+                  },
+                  {
+                    "id": "1717",
+                    "name": "Brescia"
+                  },
+                  {
+                    "id": "1714",
+                    "name": "Brindisi"
+                  },
+                  {
+                    "id": "1682",
+                    "name": "Cagliari"
+                  },
+                  {
+                    "id": "1703",
+                    "name": "Calabria"
+                  },
+                  {
+                    "id": "1718",
+                    "name": "Caltanissetta"
+                  },
+                  {
+                    "id": "1669",
+                    "name": "Campania"
+                  },
+                  {
+                    "id": "1721",
+                    "name": "Campobasso"
+                  },
+                  {
+                    "id": "1731",
+                    "name": "Caserta"
+                  },
+                  {
+                    "id": "1766",
+                    "name": "Catania"
+                  },
+                  {
+                    "id": "1728",
+                    "name": "Catanzaro"
+                  },
+                  {
+                    "id": "1739",
+                    "name": "Chieti"
+                  },
+                  {
+                    "id": "1740",
+                    "name": "Como"
+                  },
+                  {
+                    "id": "1742",
+                    "name": "Cosenza"
+                  },
+                  {
+                    "id": "1751",
+                    "name": "Cremona"
+                  },
+                  {
+                    "id": "1754",
+                    "name": "Crotone"
+                  },
+                  {
+                    "id": "1775",
+                    "name": "Cuneo"
+                  },
+                  {
+                    "id": "1773",
+                    "name": "Emilia-Romagna"
+                  },
+                  {
+                    "id": "1723",
+                    "name": "Enna"
+                  },
+                  {
+                    "id": "1744",
+                    "name": "Fermo"
+                  },
+                  {
+                    "id": "1746",
+                    "name": "Ferrara"
+                  },
+                  {
+                    "id": "1680",
+                    "name": "Florence"
+                  },
+                  {
+                    "id": "1771",
+                    "name": "Foggia"
+                  },
+                  {
+                    "id": "1779",
+                    "name": "Forlì-Cesena"
+                  },
+                  {
+                    "id": "1756",
+                    "name": "Friuli–Venezia Giulia"
+                  },
+                  {
+                    "id": "1776",
+                    "name": "Frosinone"
+                  },
+                  {
+                    "id": "1699",
+                    "name": "Genoa"
+                  },
+                  {
+                    "id": "1777",
+                    "name": "Gorizia"
+                  },
+                  {
+                    "id": "1787",
+                    "name": "Grosseto"
+                  },
+                  {
+                    "id": "1788",
+                    "name": "Imperia"
+                  },
+                  {
+                    "id": "1789",
+                    "name": "Isernia"
+                  },
+                  {
+                    "id": "1781",
+                    "name": "L'Aquila"
+                  },
+                  {
+                    "id": "1791",
+                    "name": "La Spezia"
+                  },
+                  {
+                    "id": "1674",
+                    "name": "Latina"
+                  },
+                  {
+                    "id": "1678",
+                    "name": "Lazio"
+                  },
+                  {
+                    "id": "1675",
+                    "name": "Lecce"
+                  },
+                  {
+                    "id": "1677",
+                    "name": "Lecco"
+                  },
+                  {
+                    "id": "1768",
+                    "name": "Liguria"
+                  },
+                  {
+                    "id": "1745",
+                    "name": "Livorno"
+                  },
+                  {
+                    "id": "1747",
+                    "name": "Lodi"
+                  },
+                  {
+                    "id": "1705",
+                    "name": "Lombardy"
+                  },
+                  {
+                    "id": "1749",
+                    "name": "Lucca"
+                  },
+                  {
+                    "id": "1750",
+                    "name": "Macerata"
+                  },
+                  {
+                    "id": "1758",
+                    "name": "Mantua"
+                  },
+                  {
+                    "id": "1670",
+                    "name": "Marche"
+                  },
+                  {
+                    "id": "1759",
+                    "name": "Massa and Carrara"
+                  },
+                  {
+                    "id": "1760",
+                    "name": "Matera"
+                  },
+                  {
+                    "id": "1761",
+                    "name": "Medio Campidano"
+                  },
+                  {
+                    "id": "1770",
+                    "name": "Messina"
+                  },
+                  {
+                    "id": "1698",
+                    "name": "Milan"
+                  },
+                  {
+                    "id": "1757",
+                    "name": "Modena"
+                  },
+                  {
+                    "id": "1695",
+                    "name": "Molise"
+                  },
+                  {
+                    "id": "1769",
+                    "name": "Monza and Brianza"
+                  },
+                  {
+                    "id": "1724",
+                    "name": "Naples"
+                  },
+                  {
+                    "id": "1774",
+                    "name": "Novara"
+                  },
+                  {
+                    "id": "1790",
+                    "name": "Nuoro"
+                  },
+                  {
+                    "id": "1786",
+                    "name": "Oristano"
+                  },
+                  {
+                    "id": "1665",
+                    "name": "Padua"
+                  },
+                  {
+                    "id": "1668",
+                    "name": "Palermo"
+                  },
+                  {
+                    "id": "1666",
+                    "name": "Parma"
+                  },
+                  {
+                    "id": "1676",
+                    "name": "Pavia"
+                  },
+                  {
+                    "id": "1691",
+                    "name": "Perugia"
+                  },
+                  {
+                    "id": "1693",
+                    "name": "Pesaro and Urbino"
+                  },
+                  {
+                    "id": "1694",
+                    "name": "Pescara"
+                  },
+                  {
+                    "id": "1696",
+                    "name": "Piacenza"
+                  },
+                  {
+                    "id": "1702",
+                    "name": "Piedmont"
+                  },
+                  {
+                    "id": "1685",
+                    "name": "Pisa"
+                  },
+                  {
+                    "id": "1687",
+                    "name": "Pistoia"
+                  },
+                  {
+                    "id": "1690",
+                    "name": "Pordenone"
+                  },
+                  {
+                    "id": "1697",
+                    "name": "Potenza"
+                  },
+                  {
+                    "id": "1700",
+                    "name": "Prato"
+                  },
+                  {
+                    "id": "1729",
+                    "name": "Ragusa"
+                  },
+                  {
+                    "id": "1707",
+                    "name": "Ravenna"
+                  },
+                  {
+                    "id": "1671",
+                    "name": "Reggio Calabria"
+                  },
+                  {
+                    "id": "1708",
+                    "name": "Reggio Emilia"
+                  },
+                  {
+                    "id": "1712",
+                    "name": "Rieti"
+                  },
+                  {
+                    "id": "1713",
+                    "name": "Rimini"
+                  },
+                  {
+                    "id": "1711",
+                    "name": "Rome"
+                  },
+                  {
+                    "id": "1719",
+                    "name": "Rovigo"
+                  },
+                  {
+                    "id": "1720",
+                    "name": "Salerno"
+                  },
+                  {
+                    "id": "1715",
+                    "name": "Sardinia"
+                  },
+                  {
+                    "id": "1722",
+                    "name": "Sassari"
+                  },
+                  {
+                    "id": "1732",
+                    "name": "Savona"
+                  },
+                  {
+                    "id": "1709",
+                    "name": "Sicily"
+                  },
+                  {
+                    "id": "1734",
+                    "name": "Siena"
+                  },
+                  {
+                    "id": "1667",
+                    "name": "Siracusa"
+                  },
+                  {
+                    "id": "1741",
+                    "name": "Sondrio"
+                  },
+                  {
+                    "id": "1730",
+                    "name": "South Sardinia"
+                  },
+                  {
+                    "id": "1767",
+                    "name": "South Tyrol"
+                  },
+                  {
+                    "id": "1743",
+                    "name": "Taranto"
+                  },
+                  {
+                    "id": "1752",
+                    "name": "Teramo"
+                  },
+                  {
+                    "id": "1755",
+                    "name": "Terni"
+                  },
+                  {
+                    "id": "1733",
+                    "name": "Trapani"
+                  },
+                  {
+                    "id": "1748",
+                    "name": "Trentino"
+                  },
+                  {
+                    "id": "1725",
+                    "name": "Trentino-South Tyrol"
+                  },
+                  {
+                    "id": "1762",
+                    "name": "Treviso"
+                  },
+                  {
+                    "id": "1763",
+                    "name": "Trieste"
+                  },
+                  {
+                    "id": "1710",
+                    "name": "Turin"
+                  },
+                  {
+                    "id": "1664",
+                    "name": "Tuscany"
+                  },
+                  {
+                    "id": "1764",
+                    "name": "Udine"
+                  },
+                  {
+                    "id": "1683",
+                    "name": "Umbria"
+                  },
+                  {
+                    "id": "1765",
+                    "name": "Varese"
+                  },
+                  {
+                    "id": "1753",
+                    "name": "Veneto"
+                  },
+                  {
+                    "id": "1673",
+                    "name": "Venice"
+                  },
+                  {
+                    "id": "1726",
+                    "name": "Verbano-Cusio-Ossola"
+                  },
+                  {
+                    "id": "1785",
+                    "name": "Vercelli"
+                  },
+                  {
+                    "id": "1736",
+                    "name": "Verona"
+                  },
+                  {
+                    "id": "1737",
+                    "name": "Vibo Valentia"
+                  },
+                  {
+                    "id": "1738",
+                    "name": "Vicenza"
+                  },
+                  {
+                    "id": "1735",
+                    "name": "Viterbo"
+                  }
+                ]
+              },
+              {
+                "name": "Latvia",
+                "code": "LV",
+                "group": "eu",
+                "phone_code": "371",
+                "currency": "EUR",
+                "currency_name": "Euro",
+                "currency_symbol": "€",
+                "flag": "🇱🇻",
+                "states": [
+                  {
+                    "id": "4445",
+                    "name": "Aglona Municipality"
+                  },
+                  {
+                    "id": "4472",
+                    "name": "Aizkraukle Municipality"
+                  },
+                  {
+                    "id": "4496",
+                    "name": "Aizpute Municipality"
+                  },
+                  {
+                    "id": "4499",
+                    "name": "Aknīste Municipality"
+                  },
+                  {
+                    "id": "4484",
+                    "name": "Aloja Municipality"
+                  },
+                  {
+                    "id": "4485",
+                    "name": "Alsunga Municipality"
+                  },
+                  {
+                    "id": "4487",
+                    "name": "Alūksne Municipality"
+                  },
+                  {
+                    "id": "4497",
+                    "name": "Amata Municipality"
+                  },
+                  {
+                    "id": "4457",
+                    "name": "Ape Municipality"
+                  },
+                  {
+                    "id": "4481",
+                    "name": "Auce Municipality"
+                  },
+                  {
+                    "id": "4427",
+                    "name": "Babīte Municipality"
+                  },
+                  {
+                    "id": "4482",
+                    "name": "Baldone Municipality"
+                  },
+                  {
+                    "id": "4498",
+                    "name": "Baltinava Municipality"
+                  },
+                  {
+                    "id": "4505",
+                    "name": "Balvi Municipality"
+                  },
+                  {
+                    "id": "4465",
+                    "name": "Bauska Municipality"
+                  },
+                  {
+                    "id": "4471",
+                    "name": "Beverīna Municipality"
+                  },
+                  {
+                    "id": "4468",
+                    "name": "Brocēni Municipality"
+                  },
+                  {
+                    "id": "4411",
+                    "name": "Burtnieki Municipality"
+                  },
+                  {
+                    "id": "4454",
+                    "name": "Carnikava Municipality"
+                  },
+                  {
+                    "id": "4469",
+                    "name": "Cēsis Municipality"
+                  },
+                  {
+                    "id": "4414",
+                    "name": "Cesvaine Municipality"
+                  },
+                  {
+                    "id": "4410",
+                    "name": "Cibla Municipality"
+                  },
+                  {
+                    "id": "4504",
+                    "name": "Dagda Municipality"
+                  },
+                  {
+                    "id": "4463",
+                    "name": "Daugavpils"
+                  },
+                  {
+                    "id": "4492",
+                    "name": "Daugavpils Municipality"
+                  },
+                  {
+                    "id": "4437",
+                    "name": "Dobele Municipality"
+                  },
+                  {
+                    "id": "4428",
+                    "name": "Dundaga Municipality"
+                  },
+                  {
+                    "id": "4458",
+                    "name": "Durbe Municipality"
+                  },
+                  {
+                    "id": "4448",
+                    "name": "Engure Municipality"
+                  },
+                  {
+                    "id": "4444",
+                    "name": "Ērgļi Municipality"
+                  },
+                  {
+                    "id": "4510",
+                    "name": "Garkalne Municipality"
+                  },
+                  {
+                    "id": "4470",
+                    "name": "Grobiņa Municipality"
+                  },
+                  {
+                    "id": "4400",
+                    "name": "Gulbene Municipality"
+                  },
+                  {
+                    "id": "4441",
+                    "name": "Iecava Municipality"
+                  },
+                  {
+                    "id": "4511",
+                    "name": "Ikšķile Municipality"
+                  },
+                  {
+                    "id": "4399",
+                    "name": "Ilūkste Municipality"
+                  },
+                  {
+                    "id": "4449",
+                    "name": "Inčukalns Municipality"
+                  },
+                  {
+                    "id": "4475",
+                    "name": "Jaunjelgava Municipality"
+                  },
+                  {
+                    "id": "4407",
+                    "name": "Jaunpiebalga Municipality"
+                  },
+                  {
+                    "id": "4489",
+                    "name": "Jaunpils Municipality"
+                  },
+                  {
+                    "id": "4464",
+                    "name": "Jēkabpils"
+                  },
+                  {
+                    "id": "4438",
+                    "name": "Jēkabpils Municipality"
+                  },
+                  {
+                    "id": "4500",
+                    "name": "Jelgava"
+                  },
+                  {
+                    "id": "4424",
+                    "name": "Jelgava Municipality"
+                  },
+                  {
+                    "id": "4446",
+                    "name": "Jūrmala"
+                  },
+                  {
+                    "id": "4420",
+                    "name": "Kandava Municipality"
+                  },
+                  {
+                    "id": "4453",
+                    "name": "Kārsava Municipality"
+                  },
+                  {
+                    "id": "4412",
+                    "name": "Ķegums Municipality"
+                  },
+                  {
+                    "id": "4435",
+                    "name": "Ķekava Municipality"
+                  },
+                  {
+                    "id": "4495",
+                    "name": "Kocēni Municipality"
+                  },
+                  {
+                    "id": "4452",
+                    "name": "Koknese Municipality"
+                  },
+                  {
+                    "id": "4474",
+                    "name": "Krāslava Municipality"
+                  },
+                  {
+                    "id": "4422",
+                    "name": "Krimulda Municipality"
+                  },
+                  {
+                    "id": "4413",
+                    "name": "Krustpils Municipality"
+                  },
+                  {
+                    "id": "4490",
+                    "name": "Kuldīga Municipality"
+                  },
+                  {
+                    "id": "4512",
+                    "name": "Lielvārde Municipality"
+                  },
+                  {
+                    "id": "4460",
+                    "name": "Liepāja"
+                  },
+                  {
+                    "id": "4488",
+                    "name": "Līgatne Municipality"
+                  },
+                  {
+                    "id": "4418",
+                    "name": "Limbaži Municipality"
+                  },
+                  {
+                    "id": "4401",
+                    "name": "Līvāni Municipality"
+                  },
+                  {
+                    "id": "4419",
+                    "name": "Lubāna Municipality"
+                  },
+                  {
+                    "id": "4501",
+                    "name": "Ludza Municipality"
+                  },
+                  {
+                    "id": "4433",
+                    "name": "Madona Municipality"
+                  },
+                  {
+                    "id": "4461",
+                    "name": "Mālpils Municipality"
+                  },
+                  {
+                    "id": "4450",
+                    "name": "Mārupe Municipality"
+                  },
+                  {
+                    "id": "4513",
+                    "name": "Mazsalaca Municipality"
+                  },
+                  {
+                    "id": "4451",
+                    "name": "Mērsrags Municipality"
+                  },
+                  {
+                    "id": "4398",
+                    "name": "Naukšēni Municipality"
+                  },
+                  {
+                    "id": "4432",
+                    "name": "Nereta Municipality"
+                  },
+                  {
+                    "id": "4436",
+                    "name": "Nīca Municipality"
+                  },
+                  {
+                    "id": "4416",
+                    "name": "Ogre Municipality"
+                  },
+                  {
+                    "id": "4417",
+                    "name": "Olaine Municipality"
+                  },
+                  {
+                    "id": "4442",
+                    "name": "Ozolnieki Municipality"
+                  },
+                  {
+                    "id": "4507",
+                    "name": "Pārgauja Municipality"
+                  },
+                  {
+                    "id": "4467",
+                    "name": "Pāvilosta Municipality"
+                  },
+                  {
+                    "id": "4405",
+                    "name": "Pļaviņas Municipality"
+                  },
+                  {
+                    "id": "4483",
+                    "name": "Preiļi Municipality"
+                  },
+                  {
+                    "id": "4429",
+                    "name": "Priekule Municipality"
+                  },
+                  {
+                    "id": "4506",
+                    "name": "Priekuļi Municipality"
+                  },
+                  {
+                    "id": "4479",
+                    "name": "Rauna Municipality"
+                  },
+                  {
+                    "id": "4509",
+                    "name": "Rēzekne"
+                  },
+                  {
+                    "id": "4455",
+                    "name": "Rēzekne Municipality"
+                  },
+                  {
+                    "id": "4502",
+                    "name": "Riebiņi Municipality"
+                  },
+                  {
+                    "id": "4491",
+                    "name": "Riga"
+                  },
+                  {
+                    "id": "4440",
+                    "name": "Roja Municipality"
+                  },
+                  {
+                    "id": "4493",
+                    "name": "Ropaži Municipality"
+                  },
+                  {
+                    "id": "4503",
+                    "name": "Rucava Municipality"
+                  },
+                  {
+                    "id": "4423",
+                    "name": "Rugāji Municipality"
+                  },
+                  {
+                    "id": "4426",
+                    "name": "Rūjiena Municipality"
+                  },
+                  {
+                    "id": "4404",
+                    "name": "Rundāle Municipality"
+                  },
+                  {
+                    "id": "4434",
+                    "name": "Sala Municipality"
+                  },
+                  {
+                    "id": "4396",
+                    "name": "Salacgrīva Municipality"
+                  },
+                  {
+                    "id": "4402",
+                    "name": "Salaspils Municipality"
+                  },
+                  {
+                    "id": "4439",
+                    "name": "Saldus Municipality"
+                  },
+                  {
+                    "id": "4443",
+                    "name": "Saulkrasti Municipality"
+                  },
+                  {
+                    "id": "4408",
+                    "name": "Sēja Municipality"
+                  },
+                  {
+                    "id": "4476",
+                    "name": "Sigulda Municipality"
+                  },
+                  {
+                    "id": "4415",
+                    "name": "Skrīveri Municipality"
+                  },
+                  {
+                    "id": "4447",
+                    "name": "Skrunda Municipality"
+                  },
+                  {
+                    "id": "4462",
+                    "name": "Smiltene Municipality"
+                  },
+                  {
+                    "id": "4478",
+                    "name": "Stopiņi Municipality"
+                  },
+                  {
+                    "id": "4494",
+                    "name": "Strenči Municipality"
+                  },
+                  {
+                    "id": "4459",
+                    "name": "Talsi Municipality"
+                  },
+                  {
+                    "id": "4480",
+                    "name": "Tērvete Municipality"
+                  },
+                  {
+                    "id": "4409",
+                    "name": "Tukums Municipality"
+                  },
+                  {
+                    "id": "4508",
+                    "name": "Vaiņode Municipality"
+                  },
+                  {
+                    "id": "4425",
+                    "name": "Valka Municipality"
+                  },
+                  {
+                    "id": "4473",
+                    "name": "Valmiera"
+                  },
+                  {
+                    "id": "4431",
+                    "name": "Varakļāni Municipality"
+                  },
+                  {
+                    "id": "4406",
+                    "name": "Vārkava Municipality"
+                  },
+                  {
+                    "id": "4466",
+                    "name": "Vecpiebalga Municipality"
+                  },
+                  {
+                    "id": "4397",
+                    "name": "Vecumnieki Municipality"
+                  },
+                  {
+                    "id": "4421",
+                    "name": "Ventspils"
+                  },
+                  {
+                    "id": "4403",
+                    "name": "Ventspils Municipality"
+                  },
+                  {
+                    "id": "4456",
+                    "name": "Viesīte Municipality"
+                  },
+                  {
+                    "id": "4477",
+                    "name": "Viļaka Municipality"
+                  },
+                  {
+                    "id": "4486",
+                    "name": "Viļāni Municipality"
+                  },
+                  {
+                    "id": "4430",
+                    "name": "Zilupe Municipality"
+                  }
+                ]
+              },
+              {
+                "name": "Lithuania",
+                "code": "LT",
+                "group": "eu",
+                "phone_code": "370",
+                "currency": "EUR",
+                "currency_name": "Euro",
+                "currency_symbol": "€",
+                "flag": "🇱🇹",
+                "states": [
+                  {
+                    "id": "1561",
+                    "name": "Akmenė District Municipality"
+                  },
+                  {
+                    "id": "1605",
+                    "name": "Alytus City Municipality"
+                  },
+                  {
+                    "id": "1574",
+                    "name": "Alytus County"
+                  },
+                  {
+                    "id": "1599",
+                    "name": "Alytus District Municipality"
+                  },
+                  {
+                    "id": "1603",
+                    "name": "Birštonas Municipality"
+                  },
+                  {
+                    "id": "1566",
+                    "name": "Biržai District Municipality"
+                  },
+                  {
+                    "id": "1579",
+                    "name": "Druskininkai municipality"
+                  },
+                  {
+                    "id": "1559",
+                    "name": "Elektrėnai municipality"
+                  },
+                  {
+                    "id": "1562",
+                    "name": "Ignalina District Municipality"
+                  },
+                  {
+                    "id": "1567",
+                    "name": "Jonava District Municipality"
+                  },
+                  {
+                    "id": "1581",
+                    "name": "Joniškis District Municipality"
+                  },
+                  {
+                    "id": "1555",
+                    "name": "Jurbarkas District Municipality"
+                  },
+                  {
+                    "id": "1583",
+                    "name": "Kaišiadorys District Municipality"
+                  },
+                  {
+                    "id": "1591",
+                    "name": "Kalvarija municipality"
+                  },
+                  {
+                    "id": "1580",
+                    "name": "Kaunas City Municipality"
+                  },
+                  {
+                    "id": "1556",
+                    "name": "Kaunas County"
+                  },
+                  {
+                    "id": "1565",
+                    "name": "Kaunas District Municipality"
+                  },
+                  {
+                    "id": "1575",
+                    "name": "Kazlų Rūda municipality"
+                  },
+                  {
+                    "id": "1584",
+                    "name": "Kėdainiai District Municipality"
+                  },
+                  {
+                    "id": "1618",
+                    "name": "Kelmė District Municipality"
+                  },
+                  {
+                    "id": "1597",
+                    "name": "Klaipeda City Municipality"
+                  },
+                  {
+                    "id": "1600",
+                    "name": "Klaipėda County"
+                  },
+                  {
+                    "id": "1604",
+                    "name": "Klaipėda District Municipality"
+                  },
+                  {
+                    "id": "1571",
+                    "name": "Kretinga District Municipality"
+                  },
+                  {
+                    "id": "1585",
+                    "name": "Kupiškis District Municipality"
+                  },
+                  {
+                    "id": "1611",
+                    "name": "Lazdijai District Municipality"
+                  },
+                  {
+                    "id": "1570",
+                    "name": "Marijampolė County"
+                  },
+                  {
+                    "id": "1610",
+                    "name": "Marijampolė Municipality"
+                  },
+                  {
+                    "id": "1557",
+                    "name": "Mažeikiai District Municipality"
+                  },
+                  {
+                    "id": "1582",
+                    "name": "Molėtai District Municipality"
+                  },
+                  {
+                    "id": "1563",
+                    "name": "Neringa Municipality"
+                  },
+                  {
+                    "id": "1612",
+                    "name": "Pagėgiai municipality"
+                  },
+                  {
+                    "id": "1595",
+                    "name": "Pakruojis District Municipality"
+                  },
+                  {
+                    "id": "1588",
+                    "name": "Palanga City Municipality"
+                  },
+                  {
+                    "id": "1589",
+                    "name": "Panevėžys City Municipality"
+                  },
+                  {
+                    "id": "1558",
+                    "name": "Panevėžys County"
+                  },
+                  {
+                    "id": "1614",
+                    "name": "Panevėžys District Municipality"
+                  },
+                  {
+                    "id": "1616",
+                    "name": "Pasvalys District Municipality"
+                  },
+                  {
+                    "id": "1553",
+                    "name": "Plungė District Municipality"
+                  },
+                  {
+                    "id": "1578",
+                    "name": "Prienai District Municipality"
+                  },
+                  {
+                    "id": "1568",
+                    "name": "Radviliškis District Municipality"
+                  },
+                  {
+                    "id": "1587",
+                    "name": "Raseiniai District Municipality"
+                  },
+                  {
+                    "id": "1590",
+                    "name": "Rietavas municipality"
+                  },
+                  {
+                    "id": "1615",
+                    "name": "Rokiškis District Municipality"
+                  },
+                  {
+                    "id": "1576",
+                    "name": "Šakiai District Municipality"
+                  },
+                  {
+                    "id": "1577",
+                    "name": "Šalčininkai District Municipality"
+                  },
+                  {
+                    "id": "1609",
+                    "name": "Šiauliai City Municipality"
+                  },
+                  {
+                    "id": "1586",
+                    "name": "Šiauliai County"
+                  },
+                  {
+                    "id": "1554",
+                    "name": "Šiauliai District Municipality"
+                  },
+                  {
+                    "id": "1613",
+                    "name": "Šilalė District Municipality"
+                  },
+                  {
+                    "id": "1607",
+                    "name": "Šilutė District Municipality"
+                  },
+                  {
+                    "id": "1594",
+                    "name": "Širvintos District Municipality"
+                  },
+                  {
+                    "id": "1617",
+                    "name": "Skuodas District Municipality"
+                  },
+                  {
+                    "id": "1560",
+                    "name": "Švenčionys District Municipality"
+                  },
+                  {
+                    "id": "1573",
+                    "name": "Tauragė County"
+                  },
+                  {
+                    "id": "1572",
+                    "name": "Tauragė District Municipality"
+                  },
+                  {
+                    "id": "1569",
+                    "name": "Telšiai County"
+                  },
+                  {
+                    "id": "1608",
+                    "name": "Telšiai District Municipality"
+                  },
+                  {
+                    "id": "1593",
+                    "name": "Trakai District Municipality"
+                  },
+                  {
+                    "id": "1596",
+                    "name": "Ukmergė District Municipality"
+                  },
+                  {
+                    "id": "1621",
+                    "name": "Utena County"
+                  },
+                  {
+                    "id": "1598",
+                    "name": "Utena District Municipality"
+                  },
+                  {
+                    "id": "1602",
+                    "name": "Varėna District Municipality"
+                  },
+                  {
+                    "id": "1620",
+                    "name": "Vilkaviškis District Municipality"
+                  },
+                  {
+                    "id": "1606",
+                    "name": "Vilnius City Municipality"
+                  },
+                  {
+                    "id": "1601",
+                    "name": "Vilnius County"
+                  },
+                  {
+                    "id": "1592",
+                    "name": "Vilnius District Municipality"
+                  },
+                  {
+                    "id": "1564",
+                    "name": "Visaginas Municipality"
+                  },
+                  {
+                    "id": "1619",
+                    "name": "Zarasai District Municipality"
+                  }
+                ]
+              },
+              {
+                "name": "Luxembourg",
+                "code": "LU",
+                "group": "eu",
+                "phone_code": "352",
+                "currency": "EUR",
+                "currency_name": "Euro",
+                "currency_symbol": "€",
+                "flag": "🇱🇺",
+                "states": [
+                  {
+                    "id": "1518",
+                    "name": "Canton of Capellen"
+                  },
+                  {
+                    "id": "1521",
+                    "name": "Canton of Clervaux"
+                  },
+                  {
+                    "id": "1513",
+                    "name": "Canton of Diekirch"
+                  },
+                  {
+                    "id": "1515",
+                    "name": "Canton of Echternach"
+                  },
+                  {
+                    "id": "1517",
+                    "name": "Canton of Esch-sur-Alzette"
+                  },
+                  {
+                    "id": "1525",
+                    "name": "Canton of Grevenmacher"
+                  },
+                  {
+                    "id": "1527",
+                    "name": "Canton of Luxembourg"
+                  },
+                  {
+                    "id": "1522",
+                    "name": "Canton of Mersch"
+                  },
+                  {
+                    "id": "1516",
+                    "name": "Canton of Redange"
+                  },
+                  {
+                    "id": "1519",
+                    "name": "Canton of Remich"
+                  },
+                  {
+                    "id": "1523",
+                    "name": "Canton of Vianden"
+                  },
+                  {
+                    "id": "1526",
+                    "name": "Canton of Wiltz"
+                  },
+                  {
+                    "id": "1524",
+                    "name": "Diekirch District"
+                  },
+                  {
+                    "id": "1520",
+                    "name": "Grevenmacher District"
+                  },
+                  {
+                    "id": "1514",
+                    "name": "Luxembourg District"
+                  }
+                ]
+              },
+              {
+                "name": "Malta",
+                "code": "MT",
+                "group": "eu",
+                "phone_code": "356",
+                "currency": "EUR",
+                "currency_name": "Euro",
+                "currency_symbol": "€",
+                "flag": "🇲🇹",
+                "states": [
+                  {
+                    "id": "110",
+                    "name": "Attard"
+                  },
+                  {
+                    "id": "108",
+                    "name": "Balzan"
+                  },
+                  {
+                    "id": "107",
+                    "name": "Birgu"
+                  },
+                  {
+                    "id": "97",
+                    "name": "Birkirkara"
+                  },
+                  {
+                    "id": "88",
+                    "name": "Birżebbuġa"
+                  },
+                  {
+                    "id": "138",
+                    "name": "Cospicua"
+                  },
+                  {
+                    "id": "117",
+                    "name": "Dingli"
+                  },
+                  {
+                    "id": "129",
+                    "name": "Fgura"
+                  },
+                  {
+                    "id": "84",
+                    "name": "Floriana"
+                  },
+                  {
+                    "id": "134",
+                    "name": "Fontana"
+                  },
+                  {
+                    "id": "130",
+                    "name": "Għajnsielem"
+                  },
+                  {
+                    "id": "92",
+                    "name": "Għarb"
+                  },
+                  {
+                    "id": "120",
+                    "name": "Għargħur"
+                  },
+                  {
+                    "id": "106",
+                    "name": "Għasri"
+                  },
+                  {
+                    "id": "124",
+                    "name": "Għaxaq"
+                  },
+                  {
+                    "id": "118",
+                    "name": "Gudja"
+                  },
+                  {
+                    "id": "113",
+                    "name": "Gżira"
+                  },
+                  {
+                    "id": "105",
+                    "name": "Ħamrun"
+                  },
+                  {
+                    "id": "93",
+                    "name": "Iklin"
+                  },
+                  {
+                    "id": "99",
+                    "name": "Kalkara"
+                  },
+                  {
+                    "id": "91",
+                    "name": "Kerċem"
+                  },
+                  {
+                    "id": "82",
+                    "name": "Kirkop"
+                  },
+                  {
+                    "id": "126",
+                    "name": "Lija"
+                  },
+                  {
+                    "id": "77",
+                    "name": "Luqa"
+                  },
+                  {
+                    "id": "128",
+                    "name": "Marsa"
+                  },
+                  {
+                    "id": "137",
+                    "name": "Marsaskala"
+                  },
+                  {
+                    "id": "78",
+                    "name": "Marsaxlokk"
+                  },
+                  {
+                    "id": "89",
+                    "name": "Mdina"
+                  },
+                  {
+                    "id": "102",
+                    "name": "Mellieħa"
+                  },
+                  {
+                    "id": "109",
+                    "name": "Mġarr"
+                  },
+                  {
+                    "id": "140",
+                    "name": "Mosta"
+                  },
+                  {
+                    "id": "74",
+                    "name": "Mqabba"
+                  },
+                  {
+                    "id": "96",
+                    "name": "Msida"
+                  },
+                  {
+                    "id": "131",
+                    "name": "Mtarfa"
+                  },
+                  {
+                    "id": "132",
+                    "name": "Munxar"
+                  },
+                  {
+                    "id": "133",
+                    "name": "Nadur"
+                  },
+                  {
+                    "id": "112",
+                    "name": "Naxxar"
+                  },
+                  {
+                    "id": "115",
+                    "name": "Paola"
+                  },
+                  {
+                    "id": "125",
+                    "name": "Pembroke"
+                  },
+                  {
+                    "id": "127",
+                    "name": "Pietà"
+                  },
+                  {
+                    "id": "79",
+                    "name": "Qala"
+                  },
+                  {
+                    "id": "119",
+                    "name": "Qormi"
+                  },
+                  {
+                    "id": "111",
+                    "name": "Qrendi"
+                  },
+                  {
+                    "id": "83",
+                    "name": "Rabat"
+                  },
+                  {
+                    "id": "87",
+                    "name": "Saint Lawrence"
+                  },
+                  {
+                    "id": "75",
+                    "name": "San Ġwann"
+                  },
+                  {
+                    "id": "116",
+                    "name": "Sannat"
+                  },
+                  {
+                    "id": "94",
+                    "name": "Santa Luċija"
+                  },
+                  {
+                    "id": "90",
+                    "name": "Santa Venera"
+                  },
+                  {
+                    "id": "136",
+                    "name": "Senglea"
+                  },
+                  {
+                    "id": "98",
+                    "name": "Siġġiewi"
+                  },
+                  {
+                    "id": "104",
+                    "name": "Sliema"
+                  },
+                  {
+                    "id": "100",
+                    "name": "St. Julian's"
+                  },
+                  {
+                    "id": "139",
+                    "name": "St. Paul's Bay"
+                  },
+                  {
+                    "id": "86",
+                    "name": "Swieqi"
+                  },
+                  {
+                    "id": "122",
+                    "name": "Ta' Xbiex"
+                  },
+                  {
+                    "id": "103",
+                    "name": "Tarxien"
+                  },
+                  {
+                    "id": "95",
+                    "name": "Valletta"
+                  },
+                  {
+                    "id": "101",
+                    "name": "Victoria"
+                  },
+                  {
+                    "id": "114",
+                    "name": "Xagħra"
+                  },
+                  {
+                    "id": "121",
+                    "name": "Xewkija"
+                  },
+                  {
+                    "id": "81",
+                    "name": "Xgħajra"
+                  },
+                  {
+                    "id": "123",
+                    "name": "Żabbar"
+                  },
+                  {
+                    "id": "85",
+                    "name": "Żebbuġ Gozo"
+                  },
+                  {
+                    "id": "80",
+                    "name": "Żebbuġ Malta"
+                  },
+                  {
+                    "id": "135",
+                    "name": "Żejtun"
+                  },
+                  {
+                    "id": "76",
+                    "name": "Żurrieq"
+                  }
+                ]
+              },
+              {
+                "name": "Netherlands",
+                "code": "NL",
+                "group": "eu",
+                "phone_code": "31",
+                "currency": "EUR",
+                "currency_name": "Euro",
+                "currency_symbol": "€",
+                "flag": "🇳🇱",
+                "states": [
+                  {
+                    "id": "2613",
+                    "name": "Drenthe"
+                  },
+                  {
+                    "id": "2619",
+                    "name": "Flevoland"
+                  },
+                  {
+                    "id": "2622",
+                    "name": "Friesland"
+                  },
+                  {
+                    "id": "2611",
+                    "name": "Gelderland"
+                  },
+                  {
+                    "id": "2617",
+                    "name": "Groningen"
+                  },
+                  {
+                    "id": "2615",
+                    "name": "Limburg"
+                  },
+                  {
+                    "id": "2623",
+                    "name": "North Brabant"
+                  },
+                  {
+                    "id": "2612",
+                    "name": "North Holland"
+                  },
+                  {
+                    "id": "2618",
+                    "name": "Overijssel"
+                  },
+                  {
+                    "id": "2614",
+                    "name": "South Holland"
+                  },
+                  {
+                    "id": "2610",
+                    "name": "Utrecht"
+                  },
+                  {
+                    "id": "2620",
+                    "name": "Zeeland"
+                  }
+                ]
+              },
+              {
+                "name": "Poland",
+                "code": "PL",
+                "group": "eu",
+                "phone_code": "48",
+                "currency": "PLN",
+                "currency_name": "Polish złoty",
+                "currency_symbol": "zł",
+                "flag": "🇵🇱",
+                "states": [
+                  {
+                    "id": "1634",
+                    "name": "Wielkopolskie"
+                  },
+                  {
+                    "id": "1625",
+                    "name": "Kujawsko-pomorskie"
+                  },
+                  {
+                    "id": "1635",
+                    "name": "Małopolskie"
+                  },
+                  {
+                    "id": "1629",
+                    "name": "Dolnośląskie"
+                  },
+                  {
+                    "id": "1638",
+                    "name": "Lubelskie"
+                  },
+                  {
+                    "id": "1631",
+                    "name": "Lubuskie"
+                  },
+                  {
+                    "id": "1636",
+                    "name": "Łódzkie"
+                  },
+                  {
+                    "id": "1637",
+                    "name": "Mazowieckie"
+                  },
+                  {
+                    "id": "1622",
+                    "name": "Opolskie"
+                  },
+                  {
+                    "id": "1626",
+                    "name": "Podkarpackie"
+                  },
+                  {
+                    "id": "1632",
+                    "name": "Podlaskie"
+                  },
+                  {
+                    "id": "1624",
+                    "name": "Pomorskie"
+                  },
+                  {
+                    "id": "1623",
+                    "name": "Śląskie"
+                  },
+                  {
+                    "id": "1630",
+                    "name": "Świętokrzyskie"
+                  },
+                  {
+                    "id": "1628",
+                    "name": "Warmińsko-mazurskie"
+                  },
+                  {
+                    "id": "1633",
+                    "name": "Zachodniopomorskie"
+                  }
+                ]
+              },
+              {
+                "name": "Portugal",
+                "code": "PT",
+                "group": "eu",
+                "phone_code": "351",
+                "currency": "EUR",
+                "currency_name": "Euro",
+                "currency_symbol": "€",
+                "flag": "🇵🇹",
+                "states": [
+                  {
+                    "id": "2233",
+                    "name": "Açores"
+                  },
+                  {
+                    "id": "2235",
+                    "name": "Aveiro"
+                  },
+                  {
+                    "id": "2230",
+                    "name": "Beja"
+                  },
+                  {
+                    "id": "2244",
+                    "name": "Braga"
+                  },
+                  {
+                    "id": "2229",
+                    "name": "Bragança"
+                  },
+                  {
+                    "id": "2241",
+                    "name": "Castelo Branco"
+                  },
+                  {
+                    "id": "2246",
+                    "name": "Coimbra"
+                  },
+                  {
+                    "id": "2236",
+                    "name": "Évora"
+                  },
+                  {
+                    "id": "2239",
+                    "name": "Faro"
+                  },
+                  {
+                    "id": "4859",
+                    "name": "Guarda"
+                  },
+                  {
+                    "id": "2240",
+                    "name": "Leiria"
+                  },
+                  {
+                    "id": "2228",
+                    "name": "Lisbon"
+                  },
+                  {
+                    "id": "2231",
+                    "name": "Madeira"
+                  },
+                  {
+                    "id": "2232",
+                    "name": "Portalegre"
+                  },
+                  {
+                    "id": "2243",
+                    "name": "Porto"
+                  },
+                  {
+                    "id": "2238",
+                    "name": "Santarém"
+                  },
+                  {
+                    "id": "2242",
+                    "name": "Setúbal"
+                  },
+                  {
+                    "id": "2245",
+                    "name": "Viana do Castelo"
+                  },
+                  {
+                    "id": "2234",
+                    "name": "Vila Real"
+                  },
+                  {
+                    "id": "2237",
+                    "name": "Viseu"
+                  }
+                ]
+              },
+              {
+                "name": "Romania",
+                "code": "RO",
+                "group": "eu",
+                "phone_code": "40",
+                "currency": "RON",
+                "currency_name": "Romanian leu",
+                "currency_symbol": "lei",
+                "flag": "🇷🇴",
+                "states": [
+                  {
+                    "id": "4724",
+                    "name": "Alba"
+                  },
+                  {
+                    "id": "4739",
+                    "name": "Arad County"
+                  },
+                  {
+                    "id": "4722",
+                    "name": "Arges"
+                  },
+                  {
+                    "id": "4744",
+                    "name": "Bacău County"
+                  },
+                  {
+                    "id": "4723",
+                    "name": "Bihor County"
+                  },
+                  {
+                    "id": "4733",
+                    "name": "Bistrița-Năsăud County"
+                  },
+                  {
+                    "id": "4740",
+                    "name": "Botoșani County"
+                  },
+                  {
+                    "id": "4736",
+                    "name": "Braila"
+                  },
+                  {
+                    "id": "4759",
+                    "name": "Brașov County"
+                  },
+                  {
+                    "id": "4730",
+                    "name": "Bucharest"
+                  },
+                  {
+                    "id": "4756",
+                    "name": "Buzău County"
+                  },
+                  {
+                    "id": "4732",
+                    "name": "Călărași County"
+                  },
+                  {
+                    "id": "4753",
+                    "name": "Caraș-Severin County"
+                  },
+                  {
+                    "id": "4734",
+                    "name": "Cluj County"
+                  },
+                  {
+                    "id": "4737",
+                    "name": "Constanța County"
+                  },
+                  {
+                    "id": "4754",
+                    "name": "Covasna County"
+                  },
+                  {
+                    "id": "4745",
+                    "name": "Dâmbovița County"
+                  },
+                  {
+                    "id": "4742",
+                    "name": "Dolj County"
+                  },
+                  {
+                    "id": "4747",
+                    "name": "Galați County"
+                  },
+                  {
+                    "id": "4726",
+                    "name": "Giurgiu County"
+                  },
+                  {
+                    "id": "4750",
+                    "name": "Gorj County"
+                  },
+                  {
+                    "id": "4749",
+                    "name": "Harghita County"
+                  },
+                  {
+                    "id": "4721",
+                    "name": "Hunedoara County"
+                  },
+                  {
+                    "id": "4743",
+                    "name": "Ialomița County"
+                  },
+                  {
+                    "id": "4735",
+                    "name": "Iași County"
+                  },
+                  {
+                    "id": "4725",
+                    "name": "Ilfov County"
+                  },
+                  {
+                    "id": "4760",
+                    "name": "Maramureș County"
+                  },
+                  {
+                    "id": "4751",
+                    "name": "Mehedinți County"
+                  },
+                  {
+                    "id": "4915",
+                    "name": "Mureș County"
+                  },
+                  {
+                    "id": "4731",
+                    "name": "Neamț County"
+                  },
+                  {
+                    "id": "4738",
+                    "name": "Olt County"
+                  },
+                  {
+                    "id": "4729",
+                    "name": "Prahova County"
+                  },
+                  {
+                    "id": "4741",
+                    "name": "Sălaj County"
+                  },
+                  {
+                    "id": "4746",
+                    "name": "Satu Mare County"
+                  },
+                  {
+                    "id": "4755",
+                    "name": "Sibiu County"
+                  },
+                  {
+                    "id": "4720",
+                    "name": "Suceava County"
+                  },
+                  {
+                    "id": "4728",
+                    "name": "Teleorman County"
+                  },
+                  {
+                    "id": "4748",
+                    "name": "Timiș County"
+                  },
+                  {
+                    "id": "4727",
+                    "name": "Tulcea County"
+                  },
+                  {
+                    "id": "4757",
+                    "name": "Vâlcea County"
+                  },
+                  {
+                    "id": "4752",
+                    "name": "Vaslui County"
+                  },
+                  {
+                    "id": "4758",
+                    "name": "Vrancea County"
+                  }
+                ]
+              },
+              {
+                "name": "Slovakia",
+                "code": "SK",
+                "group": "eu",
+                "phone_code": "421",
+                "currency": "EUR",
+                "currency_name": "Euro",
+                "currency_symbol": "€",
+                "flag": "🇸🇰",
+                "states": [
+                  {
+                    "id": "4352",
+                    "name": "Banská Bystrica Region"
+                  },
+                  {
+                    "id": "4356",
+                    "name": "Bratislava Region"
+                  },
+                  {
+                    "id": "4353",
+                    "name": "Košice Region"
+                  },
+                  {
+                    "id": "4357",
+                    "name": "Nitra Region"
+                  },
+                  {
+                    "id": "4354",
+                    "name": "Prešov Region"
+                  },
+                  {
+                    "id": "4358",
+                    "name": "Trenčín Region"
+                  },
+                  {
+                    "id": "4355",
+                    "name": "Trnava Region"
+                  },
+                  {
+                    "id": "4359",
+                    "name": "Žilina Region"
+                  }
+                ]
+              },
+              {
+                "name": "Slovenia",
+                "code": "SI",
+                "group": "eu",
+                "phone_code": "386",
+                "currency": "EUR",
+                "currency_name": "Euro",
+                "currency_symbol": "€",
+                "flag": "🇸🇮",
+                "states": [
+                  {
+                    "id": "4183",
+                    "name": "Ajdovščina Municipality"
+                  },
+                  {
+                    "id": "4326",
+                    "name": "Ankaran Municipality"
+                  },
+                  {
+                    "id": "4301",
+                    "name": "Beltinci Municipality"
+                  },
+                  {
+                    "id": "4166",
+                    "name": "Benedikt Municipality"
+                  },
+                  {
+                    "id": "4179",
+                    "name": "Bistrica ob Sotli Municipality"
+                  },
+                  {
+                    "id": "4202",
+                    "name": "Bled Municipality"
+                  },
+                  {
+                    "id": "4278",
+                    "name": "Bloke Municipality"
+                  },
+                  {
+                    "id": "4282",
+                    "name": "Bohinj Municipality"
+                  },
+                  {
+                    "id": "4200",
+                    "name": "Borovnica Municipality"
+                  },
+                  {
+                    "id": "4181",
+                    "name": "Bovec Municipality"
+                  },
+                  {
+                    "id": "4141",
+                    "name": "Braslovče Municipality"
+                  },
+                  {
+                    "id": "4240",
+                    "name": "Brda Municipality"
+                  },
+                  {
+                    "id": "4215",
+                    "name": "Brežice Municipality"
+                  },
+                  {
+                    "id": "4165",
+                    "name": "Brezovica Municipality"
+                  },
+                  {
+                    "id": "4147",
+                    "name": "Cankova Municipality"
+                  },
+                  {
+                    "id": "4310",
+                    "name": "Cerklje na Gorenjskem Municipality"
+                  },
+                  {
+                    "id": "4162",
+                    "name": "Cerknica Municipality"
+                  },
+                  {
+                    "id": "4178",
+                    "name": "Cerkno Municipality"
+                  },
+                  {
+                    "id": "4176",
+                    "name": "Cerkvenjak Municipality"
+                  },
+                  {
+                    "id": "4191",
+                    "name": "City Municipality of Celje"
+                  },
+                  {
+                    "id": "4236",
+                    "name": "City Municipality of Novo Mesto"
+                  },
+                  {
+                    "id": "4151",
+                    "name": "Črenšovci Municipality"
+                  },
+                  {
+                    "id": "4232",
+                    "name": "Črna na Koroškem Municipality"
+                  },
+                  {
+                    "id": "4291",
+                    "name": "Črnomelj Municipality"
+                  },
+                  {
+                    "id": "4304",
+                    "name": "Destrnik Municipality"
+                  },
+                  {
+                    "id": "4167",
+                    "name": "Divača Municipality"
+                  },
+                  {
+                    "id": "4295",
+                    "name": "Dobje Municipality"
+                  },
+                  {
+                    "id": "4216",
+                    "name": "Dobrepolje Municipality"
+                  },
+                  {
+                    "id": "4252",
+                    "name": "Dobrna Municipality"
+                  },
+                  {
+                    "id": "4308",
+                    "name": "Dobrova–Polhov Gradec Municipality"
+                  },
+                  {
+                    "id": "4189",
+                    "name": "Dobrovnik Municipality"
+                  },
+                  {
+                    "id": "4173",
+                    "name": "Dol pri Ljubljani Municipality"
+                  },
+                  {
+                    "id": "4281",
+                    "name": "Dolenjske Toplice Municipality"
+                  },
+                  {
+                    "id": "4159",
+                    "name": "Domžale Municipality"
+                  },
+                  {
+                    "id": "4290",
+                    "name": "Dornava Municipality"
+                  },
+                  {
+                    "id": "4345",
+                    "name": "Dravograd Municipality"
+                  },
+                  {
+                    "id": "4213",
+                    "name": "Duplek Municipality"
+                  },
+                  {
+                    "id": "4293",
+                    "name": "Gorenja Vas–Poljane Municipality"
+                  },
+                  {
+                    "id": "4210",
+                    "name": "Gorišnica Municipality"
+                  },
+                  {
+                    "id": "4284",
+                    "name": "Gorje Municipality"
+                  },
+                  {
+                    "id": "4343",
+                    "name": "Gornja Radgona Municipality"
+                  },
+                  {
+                    "id": "4339",
+                    "name": "Gornji Grad Municipality"
+                  },
+                  {
+                    "id": "4271",
+                    "name": "Gornji Petrovci Municipality"
+                  },
+                  {
+                    "id": "4217",
+                    "name": "Grad Municipality"
+                  },
+                  {
+                    "id": "4336",
+                    "name": "Grosuplje Municipality"
+                  },
+                  {
+                    "id": "4145",
+                    "name": "Hajdina Municipality"
+                  },
+                  {
+                    "id": "4175",
+                    "name": "Hoče–Slivnica Municipality"
+                  },
+                  {
+                    "id": "4327",
+                    "name": "Hodoš Municipality"
+                  },
+                  {
+                    "id": "4193",
+                    "name": "Horjul Municipality"
+                  },
+                  {
+                    "id": "4341",
+                    "name": "Hrastnik Municipality"
+                  },
+                  {
+                    "id": "4321",
+                    "name": "Hrpelje–Kozina Municipality"
+                  },
+                  {
+                    "id": "4152",
+                    "name": "Idrija Municipality"
+                  },
+                  {
+                    "id": "4286",
+                    "name": "Ig Municipality"
+                  },
+                  {
+                    "id": "4305",
+                    "name": "Ivančna Gorica Municipality"
+                  },
+                  {
+                    "id": "4322",
+                    "name": "Izola Municipality"
+                  },
+                  {
+                    "id": "4337",
+                    "name": "Jesenice Municipality"
+                  },
+                  {
+                    "id": "4203",
+                    "name": "Jezersko Municipality"
+                  },
+                  {
+                    "id": "4266",
+                    "name": "Juršinci Municipality"
+                  },
+                  {
+                    "id": "4180",
+                    "name": "Kamnik Municipality"
+                  },
+                  {
+                    "id": "4227",
+                    "name": "Kanal ob Soči Municipality"
+                  },
+                  {
+                    "id": "4150",
+                    "name": "Kidričevo Municipality"
+                  },
+                  {
+                    "id": "4243",
+                    "name": "Kobarid Municipality"
+                  },
+                  {
+                    "id": "4325",
+                    "name": "Kobilje Municipality"
+                  },
+                  {
+                    "id": "4335",
+                    "name": "Kočevje Municipality"
+                  },
+                  {
+                    "id": "4315",
+                    "name": "Komen Municipality"
+                  },
+                  {
+                    "id": "4283",
+                    "name": "Komenda Municipality"
+                  },
+                  {
+                    "id": "4319",
+                    "name": "Koper City Municipality"
+                  },
+                  {
+                    "id": "4254",
+                    "name": "Kostanjevica na Krki Municipality"
+                  },
+                  {
+                    "id": "4331",
+                    "name": "Kostel Municipality"
+                  },
+                  {
+                    "id": "4186",
+                    "name": "Kozje Municipality"
+                  },
+                  {
+                    "id": "4287",
+                    "name": "Kranj City Municipality"
+                  },
+                  {
+                    "id": "4340",
+                    "name": "Kranjska Gora Municipality"
+                  },
+                  {
+                    "id": "4238",
+                    "name": "Križevci Municipality"
+                  },
+                  {
+                    "id": "4197",
+                    "name": "Kungota"
+                  },
+                  {
+                    "id": "4211",
+                    "name": "Kuzma Municipality"
+                  },
+                  {
+                    "id": "4338",
+                    "name": "Laško Municipality"
+                  },
+                  {
+                    "id": "4142",
+                    "name": "Lenart Municipality"
+                  },
+                  {
+                    "id": "4225",
+                    "name": "Lendava Municipality"
+                  },
+                  {
+                    "id": "4347",
+                    "name": "Litija Municipality"
+                  },
+                  {
+                    "id": "4270",
+                    "name": "Ljubljana City Municipality"
+                  },
+                  {
+                    "id": "4294",
+                    "name": "Ljubno Municipality"
+                  },
+                  {
+                    "id": "4351",
+                    "name": "Ljutomer Municipality"
+                  },
+                  {
+                    "id": "4306",
+                    "name": "Log–Dragomer Municipality"
+                  },
+                  {
+                    "id": "4350",
+                    "name": "Logatec Municipality"
+                  },
+                  {
+                    "id": "4174",
+                    "name": "Loška Dolina Municipality"
+                  },
+                  {
+                    "id": "4158",
+                    "name": "Loški Potok Municipality"
+                  },
+                  {
+                    "id": "4156",
+                    "name": "Lovrenc na Pohorju Municipality"
+                  },
+                  {
+                    "id": "4219",
+                    "name": "Luče Municipality"
+                  },
+                  {
+                    "id": "4302",
+                    "name": "Lukovica Municipality"
+                  },
+                  {
+                    "id": "4157",
+                    "name": "Majšperk Municipality"
+                  },
+                  {
+                    "id": "4224",
+                    "name": "Makole Municipality"
+                  },
+                  {
+                    "id": "4242",
+                    "name": "Maribor City Municipality"
+                  },
+                  {
+                    "id": "4244",
+                    "name": "Markovci Municipality"
+                  },
+                  {
+                    "id": "4349",
+                    "name": "Medvode Municipality"
+                  },
+                  {
+                    "id": "4348",
+                    "name": "Mengeš Municipality"
+                  },
+                  {
+                    "id": "4323",
+                    "name": "Metlika Municipality"
+                  },
+                  {
+                    "id": "4265",
+                    "name": "Mežica Municipality"
+                  },
+                  {
+                    "id": "4223",
+                    "name": "Miklavž na Dravskem Polju Municipality"
+                  },
+                  {
+                    "id": "4220",
+                    "name": "Miren–Kostanjevica Municipality"
+                  },
+                  {
+                    "id": "4298",
+                    "name": "Mirna Municipality"
+                  },
+                  {
+                    "id": "4237",
+                    "name": "Mirna Peč Municipality"
+                  },
+                  {
+                    "id": "4212",
+                    "name": "Mislinja Municipality"
+                  },
+                  {
+                    "id": "4297",
+                    "name": "Mokronog–Trebelno Municipality"
+                  },
+                  {
+                    "id": "4168",
+                    "name": "Moravče Municipality"
+                  },
+                  {
+                    "id": "4218",
+                    "name": "Moravske Toplice Municipality"
+                  },
+                  {
+                    "id": "4190",
+                    "name": "Mozirje Municipality"
+                  },
+                  {
+                    "id": "4318",
+                    "name": "Municipality of Apače"
+                  },
+                  {
+                    "id": "4309",
+                    "name": "Municipality of Cirkulane"
+                  },
+                  {
+                    "id": "4344",
+                    "name": "Municipality of Ilirska Bistrica"
+                  },
+                  {
+                    "id": "4314",
+                    "name": "Municipality of Krško"
+                  },
+                  {
+                    "id": "4187",
+                    "name": "Municipality of Škofljica"
+                  },
+                  {
+                    "id": "4313",
+                    "name": "Murska Sobota City Municipality"
+                  },
+                  {
+                    "id": "4208",
+                    "name": "Muta Municipality"
+                  },
+                  {
+                    "id": "4177",
+                    "name": "Naklo Municipality"
+                  },
+                  {
+                    "id": "4329",
+                    "name": "Nazarje Municipality"
+                  },
+                  {
+                    "id": "4205",
+                    "name": "Nova Gorica City Municipality"
+                  },
+                  {
+                    "id": "4320",
+                    "name": "Odranci Municipality"
+                  },
+                  {
+                    "id": "4143",
+                    "name": "Oplotnica"
+                  },
+                  {
+                    "id": "4221",
+                    "name": "Ormož Municipality"
+                  },
+                  {
+                    "id": "4199",
+                    "name": "Osilnica Municipality"
+                  },
+                  {
+                    "id": "4172",
+                    "name": "Pesnica Municipality"
+                  },
+                  {
+                    "id": "4201",
+                    "name": "Piran Municipality"
+                  },
+                  {
+                    "id": "4184",
+                    "name": "Pivka Municipality"
+                  },
+                  {
+                    "id": "4146",
+                    "name": "Podčetrtek Municipality"
+                  },
+                  {
+                    "id": "4161",
+                    "name": "Podlehnik Municipality"
+                  },
+                  {
+                    "id": "4234",
+                    "name": "Podvelka Municipality"
+                  },
+                  {
+                    "id": "4239",
+                    "name": "Poljčane Municipality"
+                  },
+                  {
+                    "id": "4272",
+                    "name": "Polzela Municipality"
+                  },
+                  {
+                    "id": "4330",
+                    "name": "Postojna Municipality"
+                  },
+                  {
+                    "id": "4188",
+                    "name": "Prebold Municipality"
+                  },
+                  {
+                    "id": "4303",
+                    "name": "Preddvor Municipality"
+                  },
+                  {
+                    "id": "4274",
+                    "name": "Prevalje Municipality"
+                  },
+                  {
+                    "id": "4228",
+                    "name": "Ptuj City Municipality"
+                  },
+                  {
+                    "id": "4288",
+                    "name": "Puconci Municipality"
+                  },
+                  {
+                    "id": "4204",
+                    "name": "Rače–Fram Municipality"
+                  },
+                  {
+                    "id": "4195",
+                    "name": "Radeče Municipality"
+                  },
+                  {
+                    "id": "4292",
+                    "name": "Radenci Municipality"
+                  },
+                  {
+                    "id": "4275",
+                    "name": "Radlje ob Dravi Municipality"
+                  },
+                  {
+                    "id": "4231",
+                    "name": "Radovljica Municipality"
+                  },
+                  {
+                    "id": "4155",
+                    "name": "Ravne na Koroškem Municipality"
+                  },
+                  {
+                    "id": "4206",
+                    "name": "Razkrižje Municipality"
+                  },
+                  {
+                    "id": "4160",
+                    "name": "Rečica ob Savinji Municipality"
+                  },
+                  {
+                    "id": "4253",
+                    "name": "Renče–Vogrsko Municipality"
+                  },
+                  {
+                    "id": "4235",
+                    "name": "Ribnica Municipality"
+                  },
+                  {
+                    "id": "4207",
+                    "name": "Ribnica na Pohorju Municipality"
+                  },
+                  {
+                    "id": "4233",
+                    "name": "Rogaška Slatina Municipality"
+                  },
+                  {
+                    "id": "4264",
+                    "name": "Rogašovci Municipality"
+                  },
+                  {
+                    "id": "4209",
+                    "name": "Rogatec Municipality"
+                  },
+                  {
+                    "id": "4280",
+                    "name": "Ruše Municipality"
+                  },
+                  {
+                    "id": "4222",
+                    "name": "Šalovci Municipality"
+                  },
+                  {
+                    "id": "4230",
+                    "name": "Selnica ob Dravi Municipality"
+                  },
+                  {
+                    "id": "4346",
+                    "name": "Semič Municipality"
+                  },
+                  {
+                    "id": "4317",
+                    "name": "Šempeter–Vrtojba Municipality"
+                  },
+                  {
+                    "id": "4299",
+                    "name": "Šenčur Municipality"
+                  },
+                  {
+                    "id": "4324",
+                    "name": "Šentilj Municipality"
+                  },
+                  {
+                    "id": "4241",
+                    "name": "Šentjernej Municipality"
+                  },
+                  {
+                    "id": "4171",
+                    "name": "Šentjur Municipality"
+                  },
+                  {
+                    "id": "4311",
+                    "name": "Šentrupert Municipality"
+                  },
+                  {
+                    "id": "4268",
+                    "name": "Sevnica Municipality"
+                  },
+                  {
+                    "id": "4149",
+                    "name": "Sežana Municipality"
+                  },
+                  {
+                    "id": "4170",
+                    "name": "Škocjan Municipality"
+                  },
+                  {
+                    "id": "4316",
+                    "name": "Škofja Loka Municipality"
+                  },
+                  {
+                    "id": "4169",
+                    "name": "Slovenj Gradec City Municipality"
+                  },
+                  {
+                    "id": "4332",
+                    "name": "Slovenska Bistrica Municipality"
+                  },
+                  {
+                    "id": "4198",
+                    "name": "Slovenske Konjice Municipality"
+                  },
+                  {
+                    "id": "4285",
+                    "name": "Šmarje pri Jelšah Municipality"
+                  },
+                  {
+                    "id": "4289",
+                    "name": "Šmarješke Toplice Municipality"
+                  },
+                  {
+                    "id": "4296",
+                    "name": "Šmartno ob Paki Municipality"
+                  },
+                  {
+                    "id": "4279",
+                    "name": "Šmartno pri Litiji Municipality"
+                  },
+                  {
+                    "id": "4277",
+                    "name": "Sodražica Municipality"
+                  },
+                  {
+                    "id": "4261",
+                    "name": "Solčava Municipality"
+                  },
+                  {
+                    "id": "4248",
+                    "name": "Šoštanj Municipality"
+                  },
+                  {
+                    "id": "4263",
+                    "name": "Središče ob Dravi"
+                  },
+                  {
+                    "id": "4259",
+                    "name": "Starše Municipality"
+                  },
+                  {
+                    "id": "4185",
+                    "name": "Štore Municipality"
+                  },
+                  {
+                    "id": "4333",
+                    "name": "Straža Municipality"
+                  },
+                  {
+                    "id": "4164",
+                    "name": "Sveta Ana Municipality"
+                  },
+                  {
+                    "id": "4260",
+                    "name": "Sveta Trojica v Slovenskih Goricah Municipality"
+                  },
+                  {
+                    "id": "4229",
+                    "name": "Sveti Andraž v Slovenskih Goricah Municipality"
+                  },
+                  {
+                    "id": "4255",
+                    "name": "Sveti Jurij ob Ščavnici Municipality"
+                  },
+                  {
+                    "id": "4328",
+                    "name": "Sveti Jurij v Slovenskih Goricah Municipality"
+                  },
+                  {
+                    "id": "4273",
+                    "name": "Sveti Tomaž Municipality"
+                  },
+                  {
+                    "id": "4194",
+                    "name": "Tabor Municipality"
+                  },
+                  {
+                    "id": "4312",
+                    "name": "Tišina Municipality"
+                  },
+                  {
+                    "id": "4247",
+                    "name": "Tolmin Municipality"
+                  },
+                  {
+                    "id": "4246",
+                    "name": "Trbovlje Municipality"
+                  },
+                  {
+                    "id": "4214",
+                    "name": "Trebnje Municipality"
+                  },
+                  {
+                    "id": "4153",
+                    "name": "Trnovska Vas Municipality"
+                  },
+                  {
+                    "id": "4250",
+                    "name": "Tržič Municipality"
+                  },
+                  {
+                    "id": "4334",
+                    "name": "Trzin Municipality"
+                  },
+                  {
+                    "id": "4251",
+                    "name": "Turnišče Municipality"
+                  },
+                  {
+                    "id": "4267",
+                    "name": "Velika Polana Municipality"
+                  },
+                  {
+                    "id": "4144",
+                    "name": "Velike Lašče Municipality"
+                  },
+                  {
+                    "id": "4257",
+                    "name": "Veržej Municipality"
+                  },
+                  {
+                    "id": "4300",
+                    "name": "Videm Municipality"
+                  },
+                  {
+                    "id": "4196",
+                    "name": "Vipava Municipality"
+                  },
+                  {
+                    "id": "4148",
+                    "name": "Vitanje Municipality"
+                  },
+                  {
+                    "id": "4154",
+                    "name": "Vodice Municipality"
+                  },
+                  {
+                    "id": "4245",
+                    "name": "Vojnik Municipality"
+                  },
+                  {
+                    "id": "4163",
+                    "name": "Vransko Municipality"
+                  },
+                  {
+                    "id": "4262",
+                    "name": "Vrhnika Municipality"
+                  },
+                  {
+                    "id": "4226",
+                    "name": "Vuzenica Municipality"
+                  },
+                  {
+                    "id": "4269",
+                    "name": "Zagorje ob Savi Municipality"
+                  },
+                  {
+                    "id": "4258",
+                    "name": "Žalec Municipality"
+                  },
+                  {
+                    "id": "4182",
+                    "name": "Zavrč Municipality"
+                  },
+                  {
+                    "id": "4256",
+                    "name": "Železniki Municipality"
+                  },
+                  {
+                    "id": "4249",
+                    "name": "Žetale Municipality"
+                  },
+                  {
+                    "id": "4192",
+                    "name": "Žiri Municipality"
+                  },
+                  {
+                    "id": "4276",
+                    "name": "Žirovnica Municipality"
+                  },
+                  {
+                    "id": "4342",
+                    "name": "Zreče Municipality"
+                  },
+                  {
+                    "id": "4307",
+                    "name": "Žužemberk Municipality"
+                  }
+                ]
+              },
+              {
+                "name": "Spain",
+                "code": "ES",
+                "group": "eu",
+                "phone_code": "34",
+                "currency": "EUR",
+                "currency_name": "Euro",
+                "currency_symbol": "€",
+                "flag": "🇪🇸",
+                "states": [
+                  {
+                    "id": "5089",
+                    "name": "A Coruña"
+                  },
+                  {
+                    "id": "5109",
+                    "name": "Albacete"
+                  },
+                  {
+                    "id": "5108",
+                    "name": "Alicante"
+                  },
+                  {
+                    "id": "5095",
+                    "name": "Almeria"
+                  },
+                  {
+                    "id": "5093",
+                    "name": "Araba"
+                  },
+                  {
+                    "id": "1160",
+                    "name": "Asturias"
+                  },
+                  {
+                    "id": "1189",
+                    "name": "Ávila"
+                  },
+                  {
+                    "id": "5092",
+                    "name": "Badajoz"
+                  },
+                  {
+                    "id": "1174",
+                    "name": "Balearic Islands"
+                  },
+                  {
+                    "id": "5102",
+                    "name": "Barcelona"
+                  },
+                  {
+                    "id": "5094",
+                    "name": "Bizkaia"
+                  },
+                  {
+                    "id": "1146",
+                    "name": "Burgos"
+                  },
+                  {
+                    "id": "1190",
+                    "name": "Caceres"
+                  },
+                  {
+                    "id": "5096",
+                    "name": "Cádiz"
+                  },
+                  {
+                    "id": "1170",
+                    "name": "Cantabria"
+                  },
+                  {
+                    "id": "5110",
+                    "name": "Castellón"
+                  },
+                  {
+                    "id": "5105",
+                    "name": "Ciudad Real"
+                  },
+                  {
+                    "id": "5097",
+                    "name": "Córdoba"
+                  },
+                  {
+                    "id": "5106",
+                    "name": "Cuenca"
+                  },
+                  {
+                    "id": "1191",
+                    "name": "Gipuzkoa"
+                  },
+                  {
+                    "id": "5103",
+                    "name": "Girona"
+                  },
+                  {
+                    "id": "5098",
+                    "name": "Granada"
+                  },
+                  {
+                    "id": "5107",
+                    "name": "Guadalajara"
+                  },
+                  {
+                    "id": "5099",
+                    "name": "Huelva"
+                  },
+                  {
+                    "id": "1177",
+                    "name": "Huesca"
+                  },
+                  {
+                    "id": "5100",
+                    "name": "Jaén"
+                  },
+                  {
+                    "id": "1171",
+                    "name": "La Rioja"
+                  },
+                  {
+                    "id": "1185",
+                    "name": "Las Palmas"
+                  },
+                  {
+                    "id": "1200",
+                    "name": "Léon"
+                  },
+                  {
+                    "id": "5104",
+                    "name": "Lleida"
+                  },
+                  {
+                    "id": "5090",
+                    "name": "Lugo"
+                  },
+                  {
+                    "id": "1158",
+                    "name": "Madrid"
+                  },
+                  {
+                    "id": "5101",
+                    "name": "Málaga"
+                  },
+                  {
+                    "id": "1176",
+                    "name": "Murcia"
+                  },
+                  {
+                    "id": "1204",
+                    "name": "Navarra"
+                  },
+                  {
+                    "id": "5091",
+                    "name": "Ourense"
+                  },
+                  {
+                    "id": "1157",
+                    "name": "Palencia"
+                  },
+                  {
+                    "id": "1167",
+                    "name": "Pontevedra"
+                  },
+                  {
+                    "id": "1147",
+                    "name": "Salamanca"
+                  },
+                  {
+                    "id": "5112",
+                    "name": "Santa Cruz de Tenerife"
+                  },
+                  {
+                    "id": "1192",
+                    "name": "Segovia"
+                  },
+                  {
+                    "id": "1193",
+                    "name": "Sevilla"
+                  },
+                  {
+                    "id": "1208",
+                    "name": "Soria"
+                  },
+                  {
+                    "id": "1203",
+                    "name": "Tarragona"
+                  },
+                  {
+                    "id": "5111",
+                    "name": "Teruel"
+                  },
+                  {
+                    "id": "1205",
+                    "name": "Toledo"
+                  },
+                  {
+                    "id": "1175",
+                    "name": "Valencia"
+                  },
+                  {
+                    "id": "1183",
+                    "name": "Valladolid"
+                  },
+                  {
+                    "id": "1161",
+                    "name": "Zamora"
+                  },
+                  {
+                    "id": "5113",
+                    "name": "Zaragoza"
+                  }
+                ]
+              },
+              {
+                "name": "Sweden",
+                "code": "SE",
+                "group": "eu",
+                "phone_code": "46",
+                "currency": "SEK",
+                "currency_name": "Swedish krona",
+                "currency_symbol": "kr",
+                "flag": "🇸🇪",
+                "states": [
+                  {
+                    "id": "1537",
+                    "name": "Blekinge"
+                  },
+                  {
+                    "id": "1534",
+                    "name": "Dalarna County"
+                  },
+                  {
+                    "id": "1533",
+                    "name": "Gävleborg County"
+                  },
+                  {
+                    "id": "1546",
+                    "name": "Gotland County"
+                  },
+                  {
+                    "id": "1548",
+                    "name": "Halland County"
+                  },
+                  {
+                    "id": "1550",
+                    "name": "Jönköping County"
+                  },
+                  {
+                    "id": "1544",
+                    "name": "Kalmar County"
+                  },
+                  {
+                    "id": "1542",
+                    "name": "Kronoberg County"
+                  },
+                  {
+                    "id": "1538",
+                    "name": "Norrbotten County"
+                  },
+                  {
+                    "id": "1539",
+                    "name": "Örebro County"
+                  },
+                  {
+                    "id": "1536",
+                    "name": "Östergötland County"
+                  },
+                  {
+                    "id": "1541",
+                    "name": "Skåne County"
+                  },
+                  {
+                    "id": "1540",
+                    "name": "Södermanland County"
+                  },
+                  {
+                    "id": "1551",
+                    "name": "Stockholm County"
+                  },
+                  {
+                    "id": "1545",
+                    "name": "Uppsala County"
+                  },
+                  {
+                    "id": "1535",
+                    "name": "Värmland County"
+                  },
+                  {
+                    "id": "1543",
+                    "name": "Västerbotten County"
+                  },
+                  {
+                    "id": "1552",
+                    "name": "Västernorrland County"
+                  },
+                  {
+                    "id": "1549",
+                    "name": "Västmanland County"
+                  },
+                  {
+                    "id": "1547",
+                    "name": "Västra Götaland County"
+                  }
+                ]
+              }
+            ],
+            "message": "Countries retrieved successfully.",
+            "success": true
+          }
+  - name: 404 Response
+    description: Failure
+    request:
+      url: "{{baseUrl}}/countries"
+      method: GET
+      params:
+        - name: group
+          value: eu
+          type: query
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "errors": {},
+            "message": "Order direction must be either \"asc\" or \"desc\"."
+          }
+
+docs: |-
+  ## Country List
+  Returns a paginated collection of resources. Supports optional search, filter, sort, and order parameters to refine the results.

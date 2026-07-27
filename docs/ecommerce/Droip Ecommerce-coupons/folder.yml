@@ -1,7 +1,0 @@
-info:
-  name: Droip Ecommerce/coupons
-  type: folder
-  seq: 9
-
-request:
-  auth: inherit

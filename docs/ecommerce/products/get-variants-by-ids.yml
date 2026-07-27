@@ -1,0 +1,253 @@
+info:
+  name: Get Variants By Ids
+  type: http
+  seq: 5
+  tags:
+    - products
+
+http:
+  method: GET
+  url: "{{baseUrl}}/variants/bulk/54,55"
+  body:
+    type: json
+    data: |-
+      {
+        "variants": [
+          {
+            "id": 0,
+            "attributes_values": [],
+            "media": 0,
+            "sku": "",
+            "barcode": "",
+            "price": 0,
+            "show_unit_price": 0,
+            "base_unit": "",
+            "base_unit_amount": 0,
+            "total_unit": "",
+            "total_unit_amount": 0,
+            "sale_price": 0,
+            "cost_of_goods": 0,
+            "weight": 0,
+            "weight_unit": "",
+            "length": 0,
+            "width": 0,
+            "height": 0,
+            "dimension_unit": "",
+            "charge_taxes": false,
+            "allow_back_order": false,
+            "track_inventory": false,
+            "available_quantity": 0,
+            "in_stock": false,
+            "committed_quantity": 0,
+            "tax_profile_id": "",
+            "shipping_profile_id": "",
+            "shipping_box_id": "",
+            "is_visible": false,
+            "is_physical_product": false,
+            "is_default": false
+          }
+        ]
+      }
+  auth: inherit
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/variants/bulk/54,55"
+      method: GET
+      body:
+        type: json
+        data: |-
+          {
+            "variants": [
+              {
+                "id": 0,
+                "attributes_values": [],
+                "media": 0,
+                "sku": "",
+                "barcode": "",
+                "price": 0,
+                "show_unit_price": 0,
+                "base_unit": "",
+                "base_unit_amount": 0,
+                "total_unit": "",
+                "total_unit_amount": 0,
+                "sale_price": 0,
+                "cost_of_goods": 0,
+                "weight": 0,
+                "weight_unit": "",
+                "length": 0,
+                "width": 0,
+                "height": 0,
+                "dimension_unit": "",
+                "charge_taxes": false,
+                "allow_back_order": false,
+                "track_inventory": false,
+                "available_quantity": 0,
+                "in_stock": false,
+                "committed_quantity": 0,
+                "tax_profile_id": "",
+                "shipping_profile_id": "",
+                "shipping_box_id": "",
+                "is_visible": false,
+                "is_physical_product": false,
+                "is_default": false
+              }
+            ]
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "data": [
+              {
+                "id": 54,
+                "media": null,
+                "sku": "SKU-Ppp3",
+                "barcode": null,
+                "price": "13.29",
+                "show_unit_price": false,
+                "base_unit": null,
+                "base_unit_amount": null,
+                "total_unit": null,
+                "total_unit_amount": null,
+                "sale_price": "1050.00",
+                "cost_of_goods": null,
+                "weight": null,
+                "weight_unit": null,
+                "charge_taxes": false,
+                "allow_back_order": false,
+                "track_inventory": true,
+                "available_quantity": 23,
+                "in_stock": true,
+                "committed_quantity": 40,
+                "has_limit_per_order": false,
+                "max_per_order": null,
+                "tax_profile_id": 44,
+                "shipping_profile_id": 43,
+                "shipping_box_id": null,
+                "is_visible": true,
+                "is_physical_product": true,
+                "is_default": false,
+                "attribute_values": [],
+                "created_by": "14",
+                "updated_by": "14",
+                "created_at": "2026-01-15 09:34:20",
+                "updated_at": "2026-01-22 09:48:40"
+              },
+              {
+                "id": 55,
+                "media": null,
+                "sku": "SKU-P4-V103",
+                "barcode": null,
+                "price": "58.72",
+                "show_unit_price": false,
+                "base_unit": null,
+                "base_unit_amount": null,
+                "total_unit": null,
+                "total_unit_amount": null,
+                "sale_price": null,
+                "cost_of_goods": null,
+                "weight": null,
+                "weight_unit": null,
+                "charge_taxes": false,
+                "allow_back_order": false,
+                "track_inventory": true,
+                "available_quantity": -8,
+                "in_stock": true,
+                "committed_quantity": 40,
+                "has_limit_per_order": false,
+                "max_per_order": null,
+                "tax_profile_id": 44,
+                "shipping_profile_id": 45,
+                "shipping_box_id": null,
+                "is_visible": true,
+                "is_physical_product": true,
+                "is_default": false,
+                "attribute_values": [
+                  103
+                ],
+                "created_by": "14",
+                "updated_by": "14",
+                "created_at": "2026-01-15 09:34:20",
+                "updated_at": "2026-01-15 09:34:20"
+              }
+            ],
+            "message": "Inventory retrieved successfully.",
+            "success": true
+          }
+  - name: 404 Response
+    description: Failure
+    request:
+      url: "{{baseUrl}}/variants/bulk/54,55"
+      method: GET
+      body:
+        type: json
+        data: |-
+          {
+            "variants": [
+              {
+                "id": 0,
+                "attributes_values": [],
+                "media": 0,
+                "sku": "",
+                "barcode": "",
+                "price": 0,
+                "show_unit_price": 0,
+                "base_unit": "",
+                "base_unit_amount": 0,
+                "total_unit": "",
+                "total_unit_amount": 0,
+                "sale_price": 0,
+                "cost_of_goods": 0,
+                "weight": 0,
+                "weight_unit": "",
+                "length": 0,
+                "width": 0,
+                "height": 0,
+                "dimension_unit": "",
+                "charge_taxes": false,
+                "allow_back_order": false,
+                "track_inventory": false,
+                "available_quantity": 0,
+                "in_stock": false,
+                "committed_quantity": 0,
+                "tax_profile_id": "",
+                "shipping_profile_id": "",
+                "shipping_box_id": "",
+                "is_visible": false,
+                "is_physical_product": false,
+                "is_default": false
+              }
+            ]
+          }
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "errors": {},
+            "message": "Variant not found."
+          }
+
+docs: |-
+  ## Get Variants By IDs
+  Get all the variants by their comma separeated id string

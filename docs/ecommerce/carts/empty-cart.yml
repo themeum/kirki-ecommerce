@@ -1,0 +1,134 @@
+info:
+  name: Empty Cart
+  type: http
+  seq: 3
+  tags:
+    - carts
+
+http:
+  method: DELETE
+  url: "{{baseUrl}}/cart"
+  body:
+    type: json
+    data: "{}"
+  auth: inherit
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/cart"
+      method: DELETE
+      body:
+        type: json
+        data: "{}"
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": true,
+            "data": {
+              "id": 16,
+              "customer_id": 2,
+              "cart_token": "ab8d7161-a66e-4110-a521-876e0e820894",
+              "currency": {
+                "code": "USD",
+                "base_code": "USD",
+                "exchange_rate": 1
+              },
+              "pricing": {
+                "subtotal": 0,
+                "tax_rate": null,
+                "tax_total": 0,
+                "discount_details": null,
+                "discount_total": 0,
+                "shipping_subtotal": 0,
+                "shipping_tax": 0,
+                "shipping_total": 0,
+                "total": 0
+              },
+              "items_count": null,
+              "items": [],
+              "shipping_address": {
+                "first_name": "Jane",
+                "last_name": "Rose",
+                "address_line1": "78 Sunset Blvd",
+                "address_line2": "",
+                "city": "Los Angeles",
+                "state": "CA",
+                "country": "US",
+                "postal_code": "90001",
+                "phone": "+1 555-000-2000",
+                "created_at": "2025-12-18 17:13:10",
+                "updated_at": "2025-12-18 11:13:24"
+              },
+              "billing_address": {
+                "first_name": "Mark Twin",
+                "last_name": "Doe",
+                "address_line1": "123 Market Street",
+                "address_line2": "Suite 500",
+                "city": "San Francisco",
+                "state": "CA",
+                "country": "US",
+                "postal_code": "94103",
+                "phone": "+1 555-000-1000",
+                "created_at": "2025-12-18 17:13:10",
+                "updated_at": "2025-12-18 11:13:24"
+              },
+              "available_shipping_methods": [],
+              "shipping_method": null,
+              "customer_notes": null,
+              "ip_address": null,
+              "user_agent": null,
+              "expires_at": null,
+              "created_at": {
+                "date": "2025-12-22 07:22:08.586503",
+                "timezone_type": 3,
+                "timezone": "UTC"
+              },
+              "updated_at": {
+                "date": "2025-12-22 07:22:08.586503",
+                "timezone_type": 3,
+                "timezone": "UTC"
+              }
+            },
+            "message": "Cart emptied successfully."
+          }
+  - name: 404 Response
+    description: Failure
+    request:
+      url: "{{baseUrl}}/cart"
+      method: DELETE
+      body:
+        type: json
+        data: "{}"
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "errors": {},
+            "message": ""
+          }
+
+docs: |-
+  ## Empty Cart
+
+  Empty the cart by removing all the items.

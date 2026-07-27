@@ -1,7 +1,0 @@
-info:
-  name: Droip Ecommerce/Onboarding
-  type: folder
-  seq: 13
-
-request:
-  auth: inherit

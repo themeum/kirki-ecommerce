@@ -1,7 +1,7 @@
 opencollection: 1.0.0
 
 info:
-  name: Ecommerce
+  name: Kirki Ecommerce
 config:
   proxy:
     inherit: true

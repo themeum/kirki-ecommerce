@@ -1,7 +1,0 @@
-info:
-  name: Droip Ecommerce/orders
-  type: folder
-  seq: 14
-
-request:
-  auth: inherit

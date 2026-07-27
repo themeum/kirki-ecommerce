@@ -1,0 +1,92 @@
+info:
+  name: Edit (Attribute Value)
+  type: http
+  seq: 3
+  tags:
+    - attribute-values
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/attributes/1/values/23"
+  body:
+    type: json
+    data: |-
+      {
+        "attribute_id": 1,
+        "value": "Navy Blue",
+        "color": "#0000022"
+      }
+  auth: inherit
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/attributes/1/values/23"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "attribute_id": 1,
+            "value": "Navy Blue",
+            "color": "#0000022"
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": true,
+            "data": {
+              "id": 23,
+              "value": "Navy Blue",
+              "color": "#0000022"
+            },
+            "message": "Attribute value updated successfully."
+          }
+  - name: 404 Response
+    description: Failure
+    request:
+      url: "{{baseUrl}}/attributes/1/values/23"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "attribute_id": 1,
+            "value": "Navy Blue",
+            "color": "#0000022"
+          }
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "errors": {
+              "name": [
+                "The name field is required."
+              ]
+            },
+            "message": "Validation failed!"
+          }
+
+docs: |-
+  ## Edit Attribute
+  Updates an existing resource with the provided data.
