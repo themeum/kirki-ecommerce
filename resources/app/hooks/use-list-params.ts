@@ -7,7 +7,7 @@ import type {
   ListQueryParams,
   SortOrder,
 } from '@/types';
-import { serializeFilterValue } from '@/types/store/list-state';
+import { serializeFilterValue } from '@/types/list-state';
 
 type ListParamsDefaults = ListQueryParams;
 
