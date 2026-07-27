@@ -1,9 +1,9 @@
-import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { defineConfig } from 'vite';
 
-import babelPluginScopedAutoLabel from './build/babel-plugin-scoped-auto-label.js';
+import babelPluginScopedAutoLabel from './scripts/babel-plugin-scoped-auto-label.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
