@@ -8,7 +8,7 @@ use Kirki\Ecommerce\App\Constants\Order\RefundStatus;
 use Kirki\Ecommerce\App\DTO\Refund\UpdateRefundPayloadDTO;
 use Kirki\Ecommerce\App\Services\OrderService;
 use Kirki\Ecommerce\Exceptions\NotFoundException;
-use Kirki\Ecommerce\Supports\Carbon;
+use Kirki\Ecommerce\Supports\Facades\Date;
 use Kirki\Ecommerce\Supports\Facades\DB;
 use Throwable;
 
@@ -34,7 +34,7 @@ class UpdateRefundAction
 
         try {
             if ($dto->status === RefundStatus::COMPLETED && $refund->status !== RefundStatus::COMPLETED) {
-                $refund->created_at = Carbon::now();
+                $refund->created_at = Date::now();
             }
 
             // @todo should we update it this way or should we use repository?

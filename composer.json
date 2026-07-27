@@ -24,9 +24,7 @@
     }
   ],
   "require": {
-    "brick/money": "0.7",
-    "nesbot/carbon": "^2.0",
-    "carbonphp/carbon-doctrine-types": "^2.0"
+    "brick/money": "0.7"
   },
   "config": {
     "platform": {
