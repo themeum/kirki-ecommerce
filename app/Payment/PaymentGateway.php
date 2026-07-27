@@ -7,7 +7,7 @@ use Kirki\Ecommerce\App\Models\Refund;
 use Kirki\Ecommerce\App\Services\OrderService;
 use Kirki\Ecommerce\Route;
 use Kirki\Ecommerce\Exceptions\ValidationException;
-use Kirki\Ecommerce\Supports\Facades\Money;
+use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\Supports\Facades\Option;
 use Exception;
 

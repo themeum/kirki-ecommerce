@@ -6,7 +6,7 @@ use Kirki\Ecommerce\App\Actions\Cart\RecalculateCartAction;
 use Kirki\Ecommerce\App\Services\ShippingService;
 use Kirki\Ecommerce\Resource;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationContextDTO;
-use Kirki\Ecommerce\Supports\Facades\Money;
+use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\Supports\MediaAttachment;
 
 use function Kirki\Ecommerce\app;

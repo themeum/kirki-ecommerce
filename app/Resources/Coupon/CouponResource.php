@@ -4,7 +4,7 @@ namespace Kirki\Ecommerce\App\Resources\Coupon;
 
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountValueType;
 use Kirki\Ecommerce\Resource;
-use Kirki\Ecommerce\Supports\Facades\Money;
+use Kirki\Ecommerce\App\Facades\Money;
 
 class CouponResource extends Resource
 {

@@ -6,7 +6,7 @@ use Brick\Math\RoundingMode;
 use Kirki\Ecommerce\App\DTO\Tax\ProductTaxContextDTO;
 use Kirki\Ecommerce\App\DTO\Tax\TaxItemResultDTO;
 use Kirki\Ecommerce\App\DTO\Tax\TaxResultDTO;
-use Kirki\Ecommerce\Supports\Facades\Money;
+use Kirki\Ecommerce\App\Facades\Money;
 
 class DefaultTaxStrategy extends AbstractTaxStrategy
 {

@@ -3,7 +3,7 @@
 namespace Kirki\Ecommerce;
 
 use Kirki\Ecommerce\Supports\Facades\Date;
-use Kirki\Ecommerce\Supports\Facades\Money;
+use Kirki\Ecommerce\App\Facades\Money;
 
 use function Kirki\Ecommerce\is_valid_json;
 

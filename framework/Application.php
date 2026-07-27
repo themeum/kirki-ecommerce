@@ -19,7 +19,6 @@ use Kirki\Ecommerce\Database\Connection\DatabaseManager;
 use Kirki\Ecommerce\Database\Schema\SchemaManager;
 use Kirki\Ecommerce\Managers\EventManager;
 use Kirki\Ecommerce\Managers\LogManager;
-use Kirki\Ecommerce\Managers\MoneyManager;
 use Kirki\Ecommerce\Managers\OptionManager;
 use Kirki\Ecommerce\Managers\PolicyManager;
 use Kirki\Ecommerce\ServiceProvider;
@@ -234,7 +233,6 @@ class Application extends Container
                 'event' => EventManager::class,
                 'log' => LogManager::class,
                 'date' => DateManager::class,
-                'money' => MoneyManager::class,
                 'client-request' => ClientRequest::class,
                 'command' => CommandManager::class,
                 RequestContract::class => Request::class,

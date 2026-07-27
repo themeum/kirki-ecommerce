@@ -4,7 +4,7 @@ namespace Kirki\Ecommerce\App\Resources;
 
 use Kirki\Ecommerce\App\Constants\OptionKeys;
 use Kirki\Ecommerce\Resource;
-use Kirki\Ecommerce\Supports\Facades\Money;
+use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\Supports\MediaAttachment;
 
 class SettingResource extends Resource

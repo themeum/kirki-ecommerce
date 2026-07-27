@@ -1,6 +1,6 @@
 <?php
 
-namespace Kirki\Ecommerce\Supports\Facades;
+namespace Kirki\Ecommerce\App\Facades;
 
 use Kirki\Ecommerce\Facade;
 
@@ -20,7 +20,7 @@ use Kirki\Ecommerce\Facade;
  * @method static string format_from_decimal(mixed $amount, mixed $currency = null, int $roundingMode = \Brick\Math\RoundingMode::HALF_UP, \Brick\Money\Context $context = null)
  * @method static \Brick\Money\Money convert_to_currency(\Brick\Money\Money $money, string $currency, $exchange_rate = null)
  * 
- * @see \Kirki\Ecommerce\Core\Managers\MoneyManager
+ * @see \Kirki\Ecommerce\App\Managers\MoneyManager
  */
 class Money extends Facade
 {

@@ -18,7 +18,7 @@ use Kirki\Ecommerce\App\DTO\Order\CreateOrderItemDTO;
 use Kirki\Ecommerce\App\Actions\Cart\RecalculateCartAction;
 use Kirki\Ecommerce\Supports\Arr;
 use Kirki\Ecommerce\Supports\Currency;
-use Kirki\Ecommerce\Supports\Facades\Money;
+use Kirki\Ecommerce\App\Facades\Money;
 use Exception;
 use Kirki\Ecommerce\Supports\Facades\DB;
 use Throwable;

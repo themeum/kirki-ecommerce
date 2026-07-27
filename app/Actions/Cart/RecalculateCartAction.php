@@ -14,7 +14,7 @@ use Kirki\Ecommerce\App\Tax\TaxStrategyFactory;
 use Kirki\Ecommerce\App\Constants\OptionKeys;
 use Kirki\Ecommerce\Supports\Arr;
 use Kirki\Ecommerce\Supports\Facades\Settings;
-use Kirki\Ecommerce\Supports\Facades\Money;
+use Kirki\Ecommerce\App\Facades\Money;
 use Throwable;
 
 use function Kirki\Ecommerce\collection;
