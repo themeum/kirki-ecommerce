@@ -38,7 +38,9 @@
     "yoast/phpunit-polyfills": "^2.0",
     "php-stubs/wordpress-stubs": "^6.9",
     "php-stubs/wp-cli-stubs": "^2.12",
-    "fakerphp/faker": "^1.24"
+    "fakerphp/faker": "^1.24",
+    "zircote/swagger-php": "^4.8",
+    "doctrine/annotations": "^1.14"
   },
   "scripts": {
     "test": "vendor/bin/phpunit --testdox",
@@ -47,6 +49,7 @@
     "test:docker:install": "bash kirki-test install",
     "test:docker:unit": "bash kirki-test unit",
     "test:docker:integration": "bash kirki-test integration",
-    "test:docker": "bash kirki-test all"
+    "test:docker": "bash kirki-test all",
+    "docs:generate": "php bin/generate-openapi.php"
   }
 }
