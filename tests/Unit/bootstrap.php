@@ -1,5 +1,7 @@
 <?php
 
+error_reporting(E_ALL & ~E_DEPRECATED);
+
 $plugin_dir = dirname(__DIR__, 2);
 $autoload = $plugin_dir . '/vendor/autoload.php';
 

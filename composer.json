@@ -9,6 +9,7 @@
       "Kirki\\Ecommerce\\Database\\Seeders\\": "database/seeders/"
     },
     "files": [
+      "bootstrap/abspath.php",
       "libraries/framework/helpers.php",
       "libraries/framework/Polyfill/Polyfill.php",
       "app/helpers.php"
@@ -69,9 +70,9 @@
     "post-update-cmd": [
       "@php -r \"if (in_array('--dev', $_SERVER['argv']) || !in_array('--no-dev', $_SERVER['argv'])) { echo shell_exec('composer scope'); }\""
     ],
-    "test": "vendor/bin/phpunit --testdox",
-    "test:unit": "vendor/bin/phpunit --testsuite Unit --testdox",
-    "test:integration": "vendor/bin/phpunit --testsuite Integration --testdox",
+    "test": "bash bin/phpunit --testdox",
+    "test:unit": "bash bin/phpunit --testsuite Unit --testdox",
+    "test:integration": "bash bin/phpunit --testsuite Integration --testdox",
     "test:docker:install": "bash kirki-test install",
     "test:docker:unit": "bash kirki-test unit",
     "test:docker:integration": "bash kirki-test integration",
