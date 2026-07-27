@@ -2,7 +2,7 @@
 
 namespace Kirki\Ecommerce\App\DTO\Cart;
 
-use Kirki\Ecommerce\DTO;
+use Kirki\Ecommerce\Framework\DTO;
 
 class UpdateCartDTO extends DTO
 {

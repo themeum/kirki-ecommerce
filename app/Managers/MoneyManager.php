@@ -6,13 +6,13 @@ use BadMethodCallException;
 use Brick\Math\RoundingMode;
 use Brick\Money\Money;
 use Kirki\Ecommerce\App\Constants\OptionKeys;
-use Kirki\Ecommerce\Supports\Currency;
-use Kirki\Ecommerce\Supports\Str;
+use Kirki\Ecommerce\App\Supports\Currency;
+use Kirki\Ecommerce\Framework\Supports\Str;
 use InvalidArgumentException;
 use NumberFormatter;
 
-use function Kirki\Ecommerce\base_currency;
-use function Kirki\Ecommerce\settings;
+use function Kirki\Ecommerce\App\base_currency;
+use function Kirki\Ecommerce\App\settings;
 
 /**
  * @method static \Brick\Money\Money min(\Brick\Money\Money $money, \Brick\Money\Money ...$monies)

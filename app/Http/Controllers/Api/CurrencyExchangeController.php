@@ -3,9 +3,9 @@
 namespace Kirki\Ecommerce\App\Http\Controllers\Api;
 
 use Kirki\Ecommerce\App\Facades\CurrencyExchange;
-use Kirki\Ecommerce\Http\Request;
+use Kirki\Ecommerce\Framework\Http\Request;
 
-use function Kirki\Ecommerce\response;
+use function Kirki\Ecommerce\Framework\response;
 
 use Kirki\Ecommerce\App\Resources\CurrencyExchange\CurrencyProviderResource;
 

@@ -2,10 +2,10 @@
 
 namespace Kirki\Ecommerce\Tests\Unit\Supports;
 
-use Kirki\Ecommerce\Supports\EuropeanCountryChecker;
+use Kirki\Ecommerce\App\Supports\EuropeanCountryChecker;
 use Kirki\Ecommerce\Tests\Unit\TestCase;
 
-use function Kirki\Ecommerce\json_decoded_data;
+use function Kirki\Ecommerce\Framework\json_decoded_data;
 
 class EuropeanCountryCheckerTest extends TestCase
 {

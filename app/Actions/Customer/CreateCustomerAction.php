@@ -8,7 +8,7 @@ use Kirki\Ecommerce\App\Services\CustomerService;
 use Kirki\Ecommerce\App\Constants\AddressType;
 use Kirki\Ecommerce\App\DTO\Address\CreateAddressDTO;
 use Kirki\Ecommerce\App\DTO\Customer\CreateCustomerDTO;
-use Kirki\Ecommerce\Supports\Facades\DB;
+use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Exception;
 use Throwable;
 

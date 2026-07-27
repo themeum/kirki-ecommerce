@@ -2,10 +2,10 @@
 
 namespace Kirki\Ecommerce\App\DTO\Order;
 
-use Kirki\Ecommerce\DTO;
-use Kirki\Ecommerce\Collections\Collection;
+use Kirki\Ecommerce\Framework\DTO;
+use Kirki\Ecommerce\Framework\Collections\Collection;
 
-use function Kirki\Ecommerce\collection;
+use function Kirki\Ecommerce\Framework\collection;
 
 class UpdateOrderDTO extends DTO
 {

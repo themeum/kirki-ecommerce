@@ -2,7 +2,7 @@
 
 namespace Kirki\Ecommerce\App\DTO\Country;
 
-use Kirki\Ecommerce\DTO;
+use Kirki\Ecommerce\Framework\DTO;
 
 class CountryFilterDTO extends DTO
 {

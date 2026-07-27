@@ -2,10 +2,10 @@
 
 namespace Kirki\Ecommerce\App\Providers;
 
-use Kirki\Ecommerce\ServiceProvider;
+use Kirki\Ecommerce\Framework\ServiceProvider;
 use Kirki\Ecommerce\App\Decisions\DecisionEngine;
 
-use function Kirki\Ecommerce\config;
+use function Kirki\Ecommerce\Framework\config;
 
 class DecisionServiceProvider extends ServiceProvider
 {

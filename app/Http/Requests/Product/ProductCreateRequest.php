@@ -6,8 +6,8 @@ use Kirki\Ecommerce\App\Constants\DimensionUnit;
 use Kirki\Ecommerce\App\Constants\Product\ProductStatus;
 use Kirki\Ecommerce\App\Constants\Unit;
 use Kirki\Ecommerce\App\Constants\WeightUnit;
-use Kirki\Ecommerce\Sanitizer;
-use Kirki\Ecommerce\Http\Request;
+use Kirki\Ecommerce\Framework\Sanitizer;
+use Kirki\Ecommerce\Framework\Http\Request;
 
 class ProductCreateRequest extends Request
 {

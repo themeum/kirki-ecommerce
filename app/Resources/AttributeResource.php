@@ -3,7 +3,7 @@
 namespace Kirki\Ecommerce\App\Resources;
 
 use Dom\Attr;
-use Kirki\Ecommerce\Resource;
+use Kirki\Ecommerce\Framework\Resource;
 
 class AttributeResource extends Resource
 {

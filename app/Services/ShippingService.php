@@ -6,7 +6,7 @@ use Kirki\Ecommerce\App\Decisions\Contexts\DecisionContext;
 use Kirki\Ecommerce\App\Constants\ShippingMethodTypes;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationContextDTO;
 
-use function Kirki\Ecommerce\decision_engine;
+use function Kirki\Ecommerce\App\decision_engine;
 
 class ShippingService
 {

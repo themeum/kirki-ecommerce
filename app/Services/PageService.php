@@ -3,8 +3,8 @@
 namespace Kirki\Ecommerce\App\Services;
 
 use Kirki\Ecommerce\App\Repositories\PageRepository;
-use Kirki\Ecommerce\Collections\Collection;
-use Kirki\Ecommerce\Database\Query\Paginator;
+use Kirki\Ecommerce\Framework\Collections\Collection;
+use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 use Kirki\Ecommerce\App\DTO\ListFilterDTO;
 
 class PageService

@@ -6,11 +6,11 @@ use Kirki\Ecommerce\App\Constants\OptionKeys;
 use Kirki\Ecommerce\App\Currency\CurrencyExchangeFactory;
 use Kirki\Ecommerce\App\Currency\CurrencyExchangeManager;
 use Kirki\Ecommerce\App\Services\CurrencyService;
-use Kirki\Ecommerce\ServiceProvider;
+use Kirki\Ecommerce\Framework\ServiceProvider;
 
-use Kirki\Ecommerce\Supports\Arr;
-use Kirki\Ecommerce\Supports\Facades\Settings;
-use function Kirki\Ecommerce\config;
+use Kirki\Ecommerce\Framework\Supports\Arr;
+use Kirki\Ecommerce\App\Supports\Facades\Settings;
+use function Kirki\Ecommerce\Framework\config;
 
 class CurrencyServiceProvider extends ServiceProvider
 {

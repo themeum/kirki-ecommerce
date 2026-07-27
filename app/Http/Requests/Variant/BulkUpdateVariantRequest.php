@@ -3,8 +3,8 @@
 namespace Kirki\Ecommerce\App\Http\Requests\Variant;
 
 use Kirki\Ecommerce\App\Constants\WeightUnit;
-use Kirki\Ecommerce\Sanitizer;
-use Kirki\Ecommerce\Http\Request;
+use Kirki\Ecommerce\Framework\Sanitizer;
+use Kirki\Ecommerce\Framework\Http\Request;
 
 class BulkUpdateVariantRequest extends Request
 {

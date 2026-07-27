@@ -2,7 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Resources\Order;
 
-use Kirki\Ecommerce\Resource;
+use Kirki\Ecommerce\Framework\Resource;
 use Kirki\Ecommerce\App\Facades\Money;
 
 class OrderListResource extends Resource

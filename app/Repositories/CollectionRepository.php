@@ -4,9 +4,9 @@ namespace Kirki\Ecommerce\App\Repositories;
 
 use Kirki\Ecommerce\App\Models\Collection;
 use Kirki\Ecommerce\App\Constants\Pagination;
-use Kirki\Ecommerce\Collections\Collection as DataCollection;
-use Kirki\Ecommerce\Database\Query\Paginator;
-use Kirki\Ecommerce\Database\Query\QueryBuilder;
+use Kirki\Ecommerce\Framework\Collections\Collection as DataCollection;
+use Kirki\Ecommerce\Framework\Database\Query\Paginator;
+use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
 
 class CollectionRepository
 {

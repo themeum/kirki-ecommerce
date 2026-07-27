@@ -5,14 +5,14 @@ namespace Kirki\Ecommerce\App\Services;
 use Kirki\Ecommerce\App\DTO\Product\ProductListFilterDTO;
 use Kirki\Ecommerce\App\Models\Product;
 use Kirki\Ecommerce\App\Repositories\ProductRepository;
-use Kirki\Ecommerce\Database\Query\Paginator;
-use Kirki\Ecommerce\Collections\Collection;
+use Kirki\Ecommerce\Framework\Database\Query\Paginator;
+use Kirki\Ecommerce\Framework\Collections\Collection;
 use Kirki\Ecommerce\App\DTO\Product\UpdateProductDTO;
 use Kirki\Ecommerce\App\DTO\Product\CreateProductDTO;
-use Kirki\Ecommerce\Exceptions\NotFoundException;
-use Kirki\Ecommerce\Http\Response;
+use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
+use Kirki\Ecommerce\Framework\Http\Response;
 
-use function Kirki\Ecommerce\user;
+use function Kirki\Ecommerce\Framework\user;
 
 class ProductService
 {

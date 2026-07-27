@@ -2,8 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Concerns;
 
-use Kirki\Ecommerce\Database\Query\QueryBuilder;
-use Kirki\Ecommerce\Supports\Str;
+use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
+use Kirki\Ecommerce\Framework\Supports\Str;
 
 trait HasSlug
 {

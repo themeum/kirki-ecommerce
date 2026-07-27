@@ -11,7 +11,7 @@ use Kirki\Ecommerce\App\Http\Requests\Cart\CartUpdateRequest;
 use Kirki\Ecommerce\App\Http\Requests\Cart\UpdateCartItemRequest;
 use Kirki\Ecommerce\App\Resources\Cart\CartResource;
 use Kirki\Ecommerce\App\Services\CartService;
-use Kirki\Ecommerce\Contracts\Request;
+use Kirki\Ecommerce\Framework\Contracts\Request;
 use Kirki\Ecommerce\App\DTO\Cart\AddToCartDTO;
 use Kirki\Ecommerce\App\Actions\Cart\ApplyCouponAction;
 use Kirki\Ecommerce\App\Actions\Cart\RemoveCouponAction;
@@ -20,8 +20,8 @@ use Kirki\Ecommerce\App\DTO\Cart\RemoveCartItemDTO;
 use Kirki\Ecommerce\App\DTO\Cart\UpdateCartDTO;
 use Kirki\Ecommerce\App\DTO\Cart\UpdateCartItemDTO;
 
-use function Kirki\Ecommerce\customer;
-use function Kirki\Ecommerce\response;
+use function Kirki\Ecommerce\App\customer;
+use function Kirki\Ecommerce\Framework\response;
 
 class CartController
 {

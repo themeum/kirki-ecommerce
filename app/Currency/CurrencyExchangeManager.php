@@ -9,8 +9,8 @@ use Kirki\Ecommerce\App\Currency\DTO\ExchangeRateDTO;
 use Kirki\Ecommerce\App\DTO\Currency\UpdateCurrencyDTO;
 use Kirki\Ecommerce\App\DTO\ListFilterDTO;
 use Kirki\Ecommerce\App\Services\CurrencyService;
-use Kirki\Ecommerce\Supports\Facades\Date;
-use Kirki\Ecommerce\Supports\Facades\Settings;
+use Kirki\Ecommerce\Framework\Supports\Facades\Date;
+use Kirki\Ecommerce\App\Supports\Facades\Settings;
 
 class CurrencyExchangeManager
 {

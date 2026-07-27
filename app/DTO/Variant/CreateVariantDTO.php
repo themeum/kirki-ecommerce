@@ -2,7 +2,7 @@
 
 namespace Kirki\Ecommerce\App\DTO\Variant;
 
-use Kirki\Ecommerce\DTO;
+use Kirki\Ecommerce\Framework\DTO;
 
 class CreateVariantDTO extends DTO
 {

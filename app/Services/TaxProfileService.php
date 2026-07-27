@@ -4,13 +4,13 @@ namespace Kirki\Ecommerce\App\Services;
 
 use Kirki\Ecommerce\App\Models\TaxProfile;
 use Kirki\Ecommerce\App\Repositories\TaxProfileRepository;
-use Kirki\Ecommerce\Database\Query\Paginator;
-use Kirki\Ecommerce\Collections\Collection;
+use Kirki\Ecommerce\Framework\Database\Query\Paginator;
+use Kirki\Ecommerce\Framework\Collections\Collection;
 use Kirki\Ecommerce\App\DTO\ListFilterDTO;
 use Kirki\Ecommerce\App\DTO\TaxProfile\CreateTaxProfileDTO;
 use Kirki\Ecommerce\App\DTO\TaxProfile\UpdateTaxProfileDTO;
-use Kirki\Ecommerce\Exceptions\NotFoundException;
-use Kirki\Ecommerce\Http\Response;
+use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
+use Kirki\Ecommerce\Framework\Http\Response;
 
 class TaxProfileService
 {

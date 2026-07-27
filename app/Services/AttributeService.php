@@ -4,16 +4,16 @@ namespace Kirki\Ecommerce\App\Services;
 
 use Kirki\Ecommerce\App\Models\Attribute;
 use Kirki\Ecommerce\App\Repositories\AttributeRepository;
-use Kirki\Ecommerce\Database\Query\Paginator;
-use Kirki\Ecommerce\Collections\Collection;
+use Kirki\Ecommerce\Framework\Database\Query\Paginator;
+use Kirki\Ecommerce\Framework\Collections\Collection;
 use Kirki\Ecommerce\App\DTO\Attribute\AttributeListFilterDTO;
 use Kirki\Ecommerce\App\DTO\Attribute\CreateAttributeDTO;
 use Kirki\Ecommerce\App\DTO\Attribute\UpdateAttributeDTO;
-use Kirki\Ecommerce\Exceptions\NotFoundException;
-use Kirki\Ecommerce\Http\Response;
+use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
+use Kirki\Ecommerce\Framework\Http\Response;
 
 use Exception;
-use function Kirki\Ecommerce\user;
+use function Kirki\Ecommerce\Framework\user;
 
 class AttributeService
 {

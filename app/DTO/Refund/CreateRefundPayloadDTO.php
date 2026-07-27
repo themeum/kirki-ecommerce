@@ -2,7 +2,7 @@
 
 namespace Kirki\Ecommerce\App\DTO\Refund;
 
-use Kirki\Ecommerce\DTO;
+use Kirki\Ecommerce\Framework\DTO;
 
 class CreateRefundPayloadDTO extends DTO
 {

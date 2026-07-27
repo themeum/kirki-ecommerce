@@ -2,9 +2,9 @@
 
 namespace Kirki\Ecommerce\App\Resources\Order;
 
-use Kirki\Ecommerce\Resource;
+use Kirki\Ecommerce\Framework\Resource;
 use Kirki\Ecommerce\App\Facades\Money;
-use Kirki\Ecommerce\Supports\MediaAttachment;
+use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
 
 class OrderResource extends Resource
 {

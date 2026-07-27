@@ -2,7 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Facades;
 
-use Kirki\Ecommerce\Facade;
+use Kirki\Ecommerce\Framework\Facade;
 use Kirki\Ecommerce\App\Managers\OrderManager;
 
 /**

@@ -7,7 +7,7 @@ use Kirki\Ecommerce\App\Http\Requests\Product\ProductListRequest;
 use Kirki\Ecommerce\App\Resources\Product\ProductListResource;
 use Kirki\Ecommerce\App\Services\ProductService;
 
-use function Kirki\Ecommerce\response;
+use function Kirki\Ecommerce\Framework\response;
 
 class ProductController
 {

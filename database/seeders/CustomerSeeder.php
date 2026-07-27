@@ -4,8 +4,8 @@ namespace Kirki\Ecommerce\Database\Seeders;
 
 use Kirki\Ecommerce\App\Models\Customer;
 use Kirki\Ecommerce\App\Constants\AddressType;
-use Kirki\Ecommerce\Database\Seeder;
-use Kirki\Ecommerce\Supports\Facades\Log;
+use Kirki\Ecommerce\Framework\Database\Seeder;
+use Kirki\Ecommerce\Framework\Supports\Facades\Log;
 
 class CustomerSeeder extends Seeder
 {

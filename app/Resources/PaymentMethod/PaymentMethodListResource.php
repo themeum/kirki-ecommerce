@@ -2,7 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Resources\PaymentMethod;
 
-use Kirki\Ecommerce\Resource;
+use Kirki\Ecommerce\Framework\Resource;
 
 class PaymentMethodListResource extends Resource
 {

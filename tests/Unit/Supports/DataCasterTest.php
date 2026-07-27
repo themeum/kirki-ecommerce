@@ -3,7 +3,7 @@
 namespace Kirki\Ecommerce\Tests\Unit\Supports;
 
 use Exception;
-use Kirki\Ecommerce\Supports\DataCaster;
+use Kirki\Ecommerce\Framework\Supports\DataCaster;
 use Kirki\Ecommerce\Tests\Unit\TestCase;
 
 class DataCasterTest extends TestCase

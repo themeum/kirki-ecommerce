@@ -11,8 +11,8 @@ use Kirki\Ecommerce\App\Constants\SellingLocationType;
 use Kirki\Ecommerce\App\Constants\ShippingMethodTypes;
 use Kirki\Ecommerce\App\Constants\ThousandSeparator;
 use Kirki\Ecommerce\App\Constants\UpdateFrequency;
-use Kirki\Ecommerce\Sanitizer;
-use Kirki\Ecommerce\Http\Request;
+use Kirki\Ecommerce\Framework\Sanitizer;
+use Kirki\Ecommerce\Framework\Http\Request;
 
 class SettingsUpdateRequest extends Request
 {

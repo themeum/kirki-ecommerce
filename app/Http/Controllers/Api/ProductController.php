@@ -15,15 +15,15 @@ use Kirki\Ecommerce\App\Resources\Product\ProductResource;
 use Kirki\Ecommerce\App\Services\ProductService;
 use Kirki\Ecommerce\App\Constants\BulkActions;
 use Kirki\Ecommerce\App\Constants\Pagination;
-use Kirki\Ecommerce\Contracts\Request;
+use Kirki\Ecommerce\Framework\Contracts\Request;
 use Kirki\Ecommerce\App\DTO\Product\CreateProductDTO;
 use Kirki\Ecommerce\App\DTO\Variant\CreateVariantDTO;
 use Kirki\Ecommerce\App\DTO\Product\UpdateProductDTO;
 use Kirki\Ecommerce\App\DTO\Variant\UpdateVariantDTO;
-use Kirki\Ecommerce\Http\Response;
-use Kirki\Ecommerce\Database\Query\Paginator;
+use Kirki\Ecommerce\Framework\Http\Response;
+use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 
-use function Kirki\Ecommerce\response;
+use function Kirki\Ecommerce\Framework\response;
 
 class ProductController
 {

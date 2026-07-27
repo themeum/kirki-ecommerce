@@ -3,9 +3,9 @@
 namespace Kirki\Ecommerce\App\Payment;
 
 use Kirki\Ecommerce\App\Payment\Gateways\PayPal;
-use Kirki\Ecommerce\Wordpress\Constants\HookNames;
+use Kirki\Ecommerce\Framework\Wordpress\Constants\HookNames;
 
-use function Kirki\Ecommerce\collection;
+use function Kirki\Ecommerce\Framework\collection;
 
 defined('ABSPATH') || exit;
 

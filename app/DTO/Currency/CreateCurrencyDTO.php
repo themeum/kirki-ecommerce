@@ -2,7 +2,7 @@
 
 namespace Kirki\Ecommerce\App\DTO\Currency;
 
-use Kirki\Ecommerce\DTO;
+use Kirki\Ecommerce\Framework\DTO;
 
 class CreateCurrencyDTO extends DTO
 {

@@ -2,7 +2,7 @@
 
 namespace Kirki\Ecommerce\Payments;
 
-use Kirki\Ecommerce\Concerns\HasConstants;
+use Kirki\Ecommerce\Framework\Concerns\HasConstants;
 
 class WebhookEventType
 {

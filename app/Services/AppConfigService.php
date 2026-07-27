@@ -2,8 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Services;
 
-use function Kirki\Ecommerce\base_currency;
-use function Kirki\Ecommerce\user;
+use function Kirki\Ecommerce\App\base_currency;
+use function Kirki\Ecommerce\Framework\user;
 
 class AppConfigService
 {

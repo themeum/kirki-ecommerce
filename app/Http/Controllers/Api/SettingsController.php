@@ -5,10 +5,10 @@ namespace Kirki\Ecommerce\App\Http\Controllers\Api;
 use Kirki\Ecommerce\App\Resources\SettingResource;
 use Kirki\Ecommerce\App\Http\Requests\Settings\SettingsUpdateRequest;
 use Kirki\Ecommerce\App\Constants\OptionKeys;
-use Kirki\Ecommerce\Contracts\Request;
+use Kirki\Ecommerce\Framework\Contracts\Request;
 
-use Kirki\Ecommerce\Supports\Facades\Settings;
-use function Kirki\Ecommerce\response;
+use Kirki\Ecommerce\App\Supports\Facades\Settings;
+use function Kirki\Ecommerce\Framework\response;
 
 class SettingsController
 {

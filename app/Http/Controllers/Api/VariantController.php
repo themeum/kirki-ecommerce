@@ -9,10 +9,10 @@ use Kirki\Ecommerce\App\Resources\Variant\InventoryResource;
 use Kirki\Ecommerce\App\Resources\Variant\VariantResource;
 use Kirki\Ecommerce\App\Services\VariantService;
 use Kirki\Ecommerce\App\Constants\Pagination;
-use Kirki\Ecommerce\Contracts\Request;
-use Kirki\Ecommerce\Database\Query\Paginator;
+use Kirki\Ecommerce\Framework\Contracts\Request;
+use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 
-use function Kirki\Ecommerce\response;
+use function Kirki\Ecommerce\Framework\response;
 
 class VariantController
 {

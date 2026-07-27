@@ -2,7 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Resources\Currency;
 
-use Kirki\Ecommerce\Resource;
+use Kirki\Ecommerce\Framework\Resource;
 
 class CurrencyResource extends Resource
 {

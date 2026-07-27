@@ -3,11 +3,11 @@
 namespace Kirki\Ecommerce\App\Payment;
 
 use Kirki\Ecommerce\App\Payment\Facades\Payment;
-use Kirki\Ecommerce\Exceptions\NotFoundException;
-use Kirki\Ecommerce\Http\Request;
+use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
+use Kirki\Ecommerce\Framework\Http\Request;
 
-use Kirki\Ecommerce\Http\Response;
-use function Kirki\Ecommerce\response;
+use Kirki\Ecommerce\Framework\Http\Response;
+use function Kirki\Ecommerce\Framework\response;
 
 class WebhookController
 {

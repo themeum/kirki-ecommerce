@@ -12,9 +12,9 @@
         </testsuite>
     </testsuites>
     <coverage processUncoveredFiles="true">
-        <include>
+         <include>
             <directory suffix=".php">./app</directory>
-            <directory suffix=".php">./framework</directory>
+            <directory suffix=".php">./libraries/framework</directory>
         </include>
     </coverage>
 </phpunit>

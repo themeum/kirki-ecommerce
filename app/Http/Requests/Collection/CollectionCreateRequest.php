@@ -3,8 +3,8 @@
 namespace Kirki\Ecommerce\App\Http\Requests\Collection;
 
 use Kirki\Ecommerce\App\Models\Collection;
-use Kirki\Ecommerce\Sanitizer;
-use Kirki\Ecommerce\Http\Request;
+use Kirki\Ecommerce\Framework\Sanitizer;
+use Kirki\Ecommerce\Framework\Http\Request;
 
 class CollectionCreateRequest extends Request
 {
