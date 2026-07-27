@@ -8,12 +8,16 @@ use DateTimeInterface;
 use DateTimeZone;
 use Exception;
 use InvalidArgumentException;
-use JsonSerializable;
+use Kirki\Ecommerce\Contracts\Somoy as SomoyContract;
 use Kirki\Ecommerce\Exceptions\InvalidDateFormatException;
 
 
 /**
  * A mutable date and time value object.
+ *
+ * The default implementation of {@see \Kirki\Ecommerce\Contracts\Somoy}. Code
+ * that consumes dates should type against that contract rather than this
+ * class, so the implementation can be swapped later.
  *
  * Extends the native DateTime so instances keep satisfying the
  * `instanceof DateTimeInterface` checks the query layer relies on, while
@@ -29,7 +33,7 @@ use Kirki\Ecommerce\Exceptions\InvalidDateFormatException;
  *
  * @since 1.0.0
  */
-class Somoy extends DateTime implements JsonSerializable
+class Somoy extends DateTime implements SomoyContract
 {
     /**
      * The date only format.
