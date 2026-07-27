@@ -1,0 +1,108 @@
+info:
+  name: tax
+  type: http
+  seq: 4
+  tags:
+    - Droip Ecommerce/settings
+
+http:
+  method: GET
+  url: "{{baseUrl}}/settings/tax"
+  auth:
+    type: basic
+    username: "{{username}}"
+    password: "{{password}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/settings/tax"
+      method: GET
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "data": {
+              "is_tax_inclusive_price": true,
+              "is_shipping_tax_enabled": true,
+              "is_enabled_taxed_price": false,
+              "tax_regions": [
+                {
+                  "code": "EU",
+                  "name": "European Union",
+                  "type": "oss",
+                  "product_tax": [
+                    {
+                      "state": "AT",
+                      "rate": 20
+                    },
+                    {
+                      "state": "BE",
+                      "rate": 21
+                    }
+                  ],
+                  "shipping_tax": [
+                    {
+                      "state": "AT",
+                      "rate": 20
+                    },
+                    {
+                      "state": "BE",
+                      "rate": 21
+                    }
+                  ],
+                  "rules": [
+                    {
+                      "relation": "AND",
+                      "conditions": [
+                        {
+                          "type": "tax_profile",
+                          "operator": "=",
+                          "value": "laptop"
+                        }
+                      ],
+                      "action": {
+                        "type": "set_tax_rate",
+                        "value": 3.5
+                      }
+                    }
+                  ]
+                }
+              ],
+              "tax_services": [],
+              "tax_ids": []
+            },
+            "message": "Settings retrieved successfully.",
+            "success": true
+          }
+  - name: 404 Response
+    description: Failure
+    request:
+      url: "{{baseUrl}}/settings/tax"
+      method: GET
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: "{}"
+
+docs: |-
+  # Get Tax Settings
+  Returns the settings by key

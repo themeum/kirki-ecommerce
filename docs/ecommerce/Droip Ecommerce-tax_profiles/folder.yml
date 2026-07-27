@@ -1,0 +1,7 @@
+info:
+  name: Droip Ecommerce/tax_profiles
+  type: folder
+  seq: 24
+
+request:
+  auth: inherit

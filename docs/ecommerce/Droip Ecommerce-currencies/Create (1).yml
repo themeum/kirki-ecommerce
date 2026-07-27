@@ -1,0 +1,180 @@
+info:
+  name: Create (1)
+  type: http
+  seq: 4
+  tags:
+    - Droip Ecommerce/currencies
+
+http:
+  method: POST
+  url: "{{baseUrl}}/currencies"
+  body:
+    type: json
+    data: |-
+      {
+        "items": [
+          {
+            "name": "USD",
+            "code": "USD",
+            "symbol": "$",
+            "exchange_rate": 1,
+            "is_base": true,
+            "is_active": true
+          },
+          {
+            "name": "BDT",
+            "code": "bdt",
+            "symbol": "$",
+            "exchange_rate": 121,
+            "is_base": true,
+            "is_active": true
+          }
+        ]
+      }
+  auth:
+    type: basic
+    username: "{{username}}"
+    password: "{{password}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/currencies"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "items": [
+              {
+                "name": "USD",
+                "code": "USD",
+                "symbol": "$",
+                "exchange_rate": 1,
+                "is_base": true,
+                "is_active": true
+              },
+              {
+                "name": "BDT",
+                "code": "bdt",
+                "symbol": "$",
+                "exchange_rate": 121,
+                "is_base": true,
+                "is_active": true
+              }
+            ]
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": true,
+            "data": [
+              {
+                "id": 5,
+                "name": "BTC",
+                "code": "btc",
+                "symbol": "B",
+                "exchange_rate": 1,
+                "is_base": true,
+                "is_active": true,
+                "created_at": {
+                  "date": "2025-12-23 11:58:16.592417",
+                  "timezone_type": 3,
+                  "timezone": "UTC"
+                },
+                "updated_at": {
+                  "date": "2025-12-23 11:58:16.592417",
+                  "timezone_type": 3,
+                  "timezone": "UTC"
+                }
+              },
+              {
+                "id": 6,
+                "name": "EUR",
+                "code": "eur",
+                "symbol": "$",
+                "exchange_rate": 1,
+                "is_base": true,
+                "is_active": true,
+                "created_at": {
+                  "date": "2025-12-23 11:58:16.592890",
+                  "timezone_type": 3,
+                  "timezone": "UTC"
+                },
+                "updated_at": {
+                  "date": "2025-12-23 11:58:16.592890",
+                  "timezone_type": 3,
+                  "timezone": "UTC"
+                }
+              }
+            ],
+            "message": "Currencies created successfully."
+          }
+  - name: 404 Response
+    description: Failure
+    request:
+      url: "{{baseUrl}}/currencies"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "items": [
+              {
+                "name": "USD",
+                "code": "USD",
+                "symbol": "$",
+                "exchange_rate": 1,
+                "is_base": true,
+                "is_active": true
+              },
+              {
+                "name": "BDT",
+                "code": "bdt",
+                "symbol": "$",
+                "exchange_rate": 121,
+                "is_base": true,
+                "is_active": true
+              }
+            ]
+          }
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "errors": {
+              "code": [
+                "The value for code must be unique."
+              ]
+            },
+            "message": "Validation failed!"
+          }
+
+docs: |-
+  # Create Currency
+
+  ## 1. Detailed description of the API function
+  This API is designed to create Currencies.
+
+  Upon successful creation, the API returns a response with a `success` boolean indicating the success of the operation and a `message` which may contain information about the result.

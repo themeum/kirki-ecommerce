@@ -1,0 +1,7 @@
+info:
+  name: Droip Ecommerce/customers
+  type: folder
+  seq: 12
+
+request:
+  auth: inherit

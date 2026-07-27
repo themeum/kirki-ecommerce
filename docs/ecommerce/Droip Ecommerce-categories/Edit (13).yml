@@ -1,0 +1,102 @@
+info:
+  name: Edit (13)
+  type: http
+  seq: 4
+  tags:
+    - Droip Ecommerce/categories
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/categories/3"
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Test Category",
+        "slug": "test-category",
+        "is_active": 0
+      }
+  auth:
+    type: basic
+    username: "{{username}}"
+    password: "{{password}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/categories/3"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "name": "Test Category",
+            "slug": "test-category",
+            "is_active": 0
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": true,
+            "data": {
+              "id": 3,
+              "name": "Test Brand",
+              "slug": "test-brand",
+              "description": "fdsf",
+              "logo": "2",
+              "website_url": "https://google.com",
+              "is_active": true,
+              "created_at": "2025-10-24 06:34:58",
+              "updated_at": "2025-10-24 06:34:58"
+            },
+            "message": "Brand updated successfully."
+          }
+  - name: 404 Response
+    description: Failure
+    request:
+      url: "{{baseUrl}}/categories/3"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "name": "Test Category",
+            "slug": "test-category",
+            "is_active": 0
+          }
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "errors": {
+              "name": [
+                "The name field is required."
+              ]
+            },
+            "message": "Validation failed!"
+          }
+
+docs: |-
+  ## Edit Category
+  Updates an existing resource with the provided data.

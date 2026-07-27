@@ -1,0 +1,512 @@
+info:
+  name: Bulk Edit Variants
+  type: http
+  seq: 3
+  tags:
+    - Droip Ecommerce/products
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/variants/bulk"
+  body:
+    type: json
+    data: |-
+      {
+        "variants": [
+          {
+            "id": 216,
+            "attributes_values": [
+              1,
+              4
+            ],
+            "media": 7,
+            "sku": "T-SHIRT-RED-S",
+            "barcode": "1234567890",
+            "price": 119.99,
+            "show_unit_price": 0,
+            "base_unit": "kg",
+            "base_unit_amount": 1,
+            "total_unit": "kg",
+            "total_unit_amount": 5,
+            "sale_price": 15.99,
+            "cost_of_goods": 10,
+            "weight": 0.25,
+            "weight_unit": "kg",
+            "length": 30,
+            "width": 25,
+            "height": 2,
+            "dimension_unit": "cm",
+            "charge_taxes": true,
+            "allow_back_order": false,
+            "track_inventory": true,
+            "available_quantity": 100,
+            "in_stock": true,
+            "committed_quantity": 5,
+            "tax_profile_id": null,
+            "shipping_profile_id": null,
+            "shipping_box_id": null,
+            "is_visible": true,
+            "is_physical_product": true,
+            "is_default": true
+          },
+          {
+            "id": 217,
+            "attributes_values": [
+              66,
+              69
+            ],
+            "media": 10,
+            "sku": "T-SHIRT-BLUE-M",
+            "barcode": "1234567891",
+            "price": 19.99,
+            "show_unit_price": 0,
+            "base_unit": "kg",
+            "base_unit_amount": 1,
+            "total_unit": "kg",
+            "total_unit_amount": 5,
+            "sale_price": 14.99,
+            "cost_of_goods": 10,
+            "weight": 0.27,
+            "weight_unit": "kg",
+            "length": 31,
+            "width": 26,
+            "height": 2.5,
+            "dimension_unit": "cm",
+            "charge_taxes": true,
+            "allow_back_order": false,
+            "track_inventory": true,
+            "available_quantity": 80,
+            "in_stock": true,
+            "committed_quantity": 3,
+            "tax_profile_id": null,
+            "shipping_profile_id": null,
+            "shipping_box_id": null,
+            "is_visible": true,
+            "is_physical_product": true,
+            "is_default": false
+          },
+          {
+            "id": 218,
+            "attributes_values": [
+              66,
+              69
+            ],
+            "media": 7,
+            "sku": "T-SHIRT-BLACK-L",
+            "barcode": "1234567892",
+            "price": 21.99,
+            "show_unit_price": 0,
+            "base_unit": "kg",
+            "base_unit_amount": 1,
+            "total_unit": "kg",
+            "total_unit_amount": 5,
+            "sale_price": null,
+            "cost_of_goods": 11,
+            "weight": 0.28,
+            "weight_unit": "kg",
+            "length": 31,
+            "width": 27,
+            "height": 3,
+            "dimension_unit": "cm",
+            "charge_taxes": true,
+            "allow_back_order": false,
+            "track_inventory": true,
+            "available_quantity": 50,
+            "in_stock": true,
+            "committed_quantity": 2,
+            "tax_profile_id": null,
+            "shipping_profile_id": null,
+            "shipping_box_id": null,
+            "is_visible": true,
+            "is_physical_product": true,
+            "is_default": false
+          }
+        ]
+      }
+  auth:
+    type: basic
+    username: "{{username}}"
+    password: "{{password}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/variants/bulk"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "variants": [
+              {
+                "id": 216,
+                "attributes_values": [
+                  1,
+                  4
+                ],
+                "media": 7,
+                "sku": "T-SHIRT-RED-S",
+                "barcode": "1234567890",
+                "price": 119.99,
+                "show_unit_price": 0,
+                "base_unit": "kg",
+                "base_unit_amount": 1,
+                "total_unit": "kg",
+                "total_unit_amount": 5,
+                "sale_price": 15.99,
+                "cost_of_goods": 10,
+                "weight": 0.25,
+                "weight_unit": "kg",
+                "length": 30,
+                "width": 25,
+                "height": 2,
+                "dimension_unit": "cm",
+                "charge_taxes": true,
+                "allow_back_order": false,
+                "track_inventory": true,
+                "available_quantity": 100,
+                "in_stock": true,
+                "committed_quantity": 5,
+                "tax_profile_id": null,
+                "shipping_profile_id": null,
+                "shipping_box_id": null,
+                "is_visible": true,
+                "is_physical_product": true,
+                "is_default": true
+              },
+              {
+                "id": 217,
+                "attributes_values": [
+                  66,
+                  69
+                ],
+                "media": 10,
+                "sku": "T-SHIRT-BLUE-M",
+                "barcode": "1234567891",
+                "price": 19.99,
+                "show_unit_price": 0,
+                "base_unit": "kg",
+                "base_unit_amount": 1,
+                "total_unit": "kg",
+                "total_unit_amount": 5,
+                "sale_price": 14.99,
+                "cost_of_goods": 10,
+                "weight": 0.27,
+                "weight_unit": "kg",
+                "length": 31,
+                "width": 26,
+                "height": 2.5,
+                "dimension_unit": "cm",
+                "charge_taxes": true,
+                "allow_back_order": false,
+                "track_inventory": true,
+                "available_quantity": 80,
+                "in_stock": true,
+                "committed_quantity": 3,
+                "tax_profile_id": null,
+                "shipping_profile_id": null,
+                "shipping_box_id": null,
+                "is_visible": true,
+                "is_physical_product": true,
+                "is_default": false
+              },
+              {
+                "id": 218,
+                "attributes_values": [
+                  66,
+                  69
+                ],
+                "media": 7,
+                "sku": "T-SHIRT-BLACK-L",
+                "barcode": "1234567892",
+                "price": 21.99,
+                "show_unit_price": 0,
+                "base_unit": "kg",
+                "base_unit_amount": 1,
+                "total_unit": "kg",
+                "total_unit_amount": 5,
+                "sale_price": null,
+                "cost_of_goods": 11,
+                "weight": 0.28,
+                "weight_unit": "kg",
+                "length": 31,
+                "width": 27,
+                "height": 3,
+                "dimension_unit": "cm",
+                "charge_taxes": true,
+                "allow_back_order": false,
+                "track_inventory": true,
+                "available_quantity": 50,
+                "in_stock": true,
+                "committed_quantity": 2,
+                "tax_profile_id": null,
+                "shipping_profile_id": null,
+                "shipping_box_id": null,
+                "is_visible": true,
+                "is_physical_product": true,
+                "is_default": false
+              }
+            ]
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": true,
+            "data": [
+              {
+                "id": 216,
+                "product_id": "27",
+                "media": 7,
+                "attribute_values": [],
+                "sku": "T-SHIRT-RED-S",
+                "barcode": "1234567890",
+                "price": 11999,
+                "show_unit_price": false,
+                "base_unit": "kg",
+                "base_unit_amount": 1,
+                "total_unit": "kg",
+                "total_unit_amount": 5,
+                "sale_price": 1599,
+                "cost_of_goods": 1000,
+                "weight": 0.25,
+                "weight_unit": "kg",
+                "length": 30,
+                "width": 25,
+                "height": 2,
+                "dimension_unit": "cm",
+                "charge_taxes": true,
+                "allow_back_order": false,
+                "track_inventory": true,
+                "available_quantity": 100,
+                "in_stock": true,
+                "committed_quantity": 5,
+                "tax_profile_id": 0,
+                "shipping_profile_id": 0,
+                "shipping_box_id": 0,
+                "is_visible": true,
+                "is_physical_product": "1",
+                "is_default": "1"
+              },
+              {
+                "id": 217,
+                "product_id": "27",
+                "media": 10,
+                "attribute_values": [],
+                "sku": "T-SHIRT-BLUE-M",
+                "barcode": "1234567891",
+                "price": 1999,
+                "show_unit_price": false,
+                "base_unit": "kg",
+                "base_unit_amount": 1,
+                "total_unit": "kg",
+                "total_unit_amount": 5,
+                "sale_price": 1499,
+                "cost_of_goods": 1000,
+                "weight": 0.27,
+                "weight_unit": "kg",
+                "length": 31,
+                "width": 26,
+                "height": 2.5,
+                "dimension_unit": "cm",
+                "charge_taxes": true,
+                "allow_back_order": false,
+                "track_inventory": true,
+                "available_quantity": 80,
+                "in_stock": true,
+                "committed_quantity": 3,
+                "tax_profile_id": 0,
+                "shipping_profile_id": 0,
+                "shipping_box_id": 0,
+                "is_visible": true,
+                "is_physical_product": "1",
+                "is_default": "0"
+              },
+              {
+                "id": 218,
+                "product_id": "27",
+                "media": 7,
+                "attribute_values": [],
+                "sku": "T-SHIRT-BLACK-L",
+                "barcode": "1234567892",
+                "price": 2199,
+                "show_unit_price": false,
+                "base_unit": "kg",
+                "base_unit_amount": 1,
+                "total_unit": "kg",
+                "total_unit_amount": 5,
+                "sale_price": 0,
+                "cost_of_goods": 1100,
+                "weight": 0.28,
+                "weight_unit": "kg",
+                "length": 31,
+                "width": 27,
+                "height": 3,
+                "dimension_unit": "cm",
+                "charge_taxes": true,
+                "allow_back_order": false,
+                "track_inventory": true,
+                "available_quantity": 50,
+                "in_stock": true,
+                "committed_quantity": 2,
+                "tax_profile_id": 0,
+                "shipping_profile_id": 0,
+                "shipping_box_id": 0,
+                "is_visible": true,
+                "is_physical_product": "1",
+                "is_default": "0"
+              }
+            ],
+            "message": "Variants updated successfully."
+          }
+  - name: 404 Response
+    description: Failure
+    request:
+      url: "{{baseUrl}}/variants/bulk"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "variants": [
+              {
+                "id": 216,
+                "attributes_values": [
+                  1,
+                  4
+                ],
+                "media": 7,
+                "sku": "T-SHIRT-RED-S",
+                "barcode": "1234567890",
+                "price": 119.99,
+                "show_unit_price": 0,
+                "base_unit": "kg",
+                "base_unit_amount": 1,
+                "total_unit": "kg",
+                "total_unit_amount": 5,
+                "sale_price": 15.99,
+                "cost_of_goods": 10,
+                "weight": 0.25,
+                "weight_unit": "kg",
+                "length": 30,
+                "width": 25,
+                "height": 2,
+                "dimension_unit": "cm",
+                "charge_taxes": true,
+                "allow_back_order": false,
+                "track_inventory": true,
+                "available_quantity": 100,
+                "in_stock": true,
+                "committed_quantity": 5,
+                "tax_profile_id": null,
+                "shipping_profile_id": null,
+                "shipping_box_id": null,
+                "is_visible": true,
+                "is_physical_product": true,
+                "is_default": true
+              },
+              {
+                "id": 217,
+                "attributes_values": [
+                  66,
+                  69
+                ],
+                "media": 10,
+                "sku": "T-SHIRT-BLUE-M",
+                "barcode": "1234567891",
+                "price": 19.99,
+                "show_unit_price": 0,
+                "base_unit": "kg",
+                "base_unit_amount": 1,
+                "total_unit": "kg",
+                "total_unit_amount": 5,
+                "sale_price": 14.99,
+                "cost_of_goods": 10,
+                "weight": 0.27,
+                "weight_unit": "kg",
+                "length": 31,
+                "width": 26,
+                "height": 2.5,
+                "dimension_unit": "cm",
+                "charge_taxes": true,
+                "allow_back_order": false,
+                "track_inventory": true,
+                "available_quantity": 80,
+                "in_stock": true,
+                "committed_quantity": 3,
+                "tax_profile_id": null,
+                "shipping_profile_id": null,
+                "shipping_box_id": null,
+                "is_visible": true,
+                "is_physical_product": true,
+                "is_default": false
+              },
+              {
+                "id": 218,
+                "attributes_values": [
+                  66,
+                  69
+                ],
+                "media": 7,
+                "sku": "T-SHIRT-BLACK-L",
+                "barcode": "1234567892",
+                "price": 21.99,
+                "show_unit_price": 0,
+                "base_unit": "kg",
+                "base_unit_amount": 1,
+                "total_unit": "kg",
+                "total_unit_amount": 5,
+                "sale_price": null,
+                "cost_of_goods": 11,
+                "weight": 0.28,
+                "weight_unit": "kg",
+                "length": 31,
+                "width": 27,
+                "height": 3,
+                "dimension_unit": "cm",
+                "charge_taxes": true,
+                "allow_back_order": false,
+                "track_inventory": true,
+                "available_quantity": 50,
+                "in_stock": true,
+                "committed_quantity": 2,
+                "tax_profile_id": null,
+                "shipping_profile_id": null,
+                "shipping_box_id": null,
+                "is_visible": true,
+                "is_physical_product": true,
+                "is_default": false
+              }
+            ]
+          }
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "errors": {},
+            "message": "Variant not found."
+          }
+
+docs: |-
+  ## Bulk Edit Variants
+  Updates an existing resource with the provided data.

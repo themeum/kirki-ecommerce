@@ -1,0 +1,7 @@
+info:
+  name: Droip Ecommerce/settings
+  type: folder
+  seq: 20
+
+request:
+  auth: inherit

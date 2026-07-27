@@ -1,0 +1,88 @@
+info:
+  name: Get by id
+  type: http
+  seq: 1
+  tags:
+    - Droip Ecommerce/attributes
+
+http:
+  method: GET
+  url: "{{baseUrl}}/attributes/1"
+  auth:
+    type: basic
+    username: "{{username}}"
+    password: "{{password}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/attributes/1"
+      method: GET
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": true,
+            "data": {
+              "id": 26,
+              "name": "Color",
+              "slug": "color-3",
+              "type": "color",
+              "values": [
+                {
+                  "id": 65,
+                  "value": "Black",
+                  "color": "#000000"
+                },
+                {
+                  "id": 63,
+                  "value": "Red",
+                  "color": "#f2f2f2"
+                },
+                {
+                  "id": 64,
+                  "value": "White",
+                  "color": "#ffffff"
+                }
+              ],
+              "created_at": "2025-10-31 04:29:09",
+              "updated_at": "2025-10-31 04:29:09"
+            },
+            "message": "Attribute retrieved successfully."
+          }
+  - name: 404 Response
+    description: Failure
+    request:
+      url: "{{baseUrl}}/attributes/1"
+      method: GET
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "errors": {},
+            "message": "Attribute not found."
+          }
+
+docs: |-
+  # Get Tag By ID
+  Returns the details of a specific resource identified by its ID.

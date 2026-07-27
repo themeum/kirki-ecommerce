@@ -1,0 +1,238 @@
+info:
+  name: Create (5)
+  type: http
+  seq: 6
+  tags:
+    - Droip Ecommerce/orders
+
+http:
+  method: POST
+  url: "{{baseUrl}}/orders"
+  body:
+    type: json
+    data: |-
+      {
+        "items": [
+          {
+            "variant_id": 1,
+            "quantity": 4
+          }
+        ],
+        "currency_code": "USD",
+        "payment_method": "stripe",
+        "coupon_code": "WINTER20",
+        "shipping_method": "fsdfdsfsdfsdf343432jh4",
+        "shipping_first_name": "Sunny",
+        "shipping_last_name": "Doe",
+        "shipping_address_line1": "Nikunja 2, Khilket",
+        "shipping_address_line2": "",
+        "shipping_city": "Dhaka",
+        "shipping_state": "5665",
+        "shipping_postcode": "5665",
+        "shipping_country": "BD",
+        "shipping_phone": "+1 555-000-2000",
+        "shipping_email": "jane.shipping@example.com",
+        "shipping_company": null,
+        "billing_first_name": "Jane",
+        "billing_last_name": "Doe",
+        "billing_address_line1": "78 Sunset Blvd",
+        "billing_address_line2": "",
+        "billing_city": "Los Angeles",
+        "billing_state": "CA",
+        "billing_postcode": "90001",
+        "billing_country": "US",
+        "billing_phone": "+1 555-000-2000",
+        "billing_email": "jane.shipping@example.com",
+        "billing_company": null,
+        "customer_email": "jane.shipping@example.com",
+        "customer_phone": "+1 555-000-2000",
+        "customer_notes": null
+      }
+  auth:
+    type: basic
+    username: "{{username}}"
+    password: "{{password}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/orders"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "items": [
+              {
+                "variant_id": 1,
+                "quantity": 4
+              }
+            ],
+            "currency_code": "USD",
+            "payment_method": "stripe",
+            "coupon_code": "WINTER20",
+            "shipping_method": "fsdfdsfsdfsdf343432jh4",
+            "shipping_first_name": "Sunny",
+            "shipping_last_name": "Doe",
+            "shipping_address_line1": "Nikunja 2, Khilket",
+            "shipping_address_line2": "",
+            "shipping_city": "Dhaka",
+            "shipping_state": "5665",
+            "shipping_postcode": "5665",
+            "shipping_country": "BD",
+            "shipping_phone": "+1 555-000-2000",
+            "shipping_email": "jane.shipping@example.com",
+            "shipping_company": null,
+            "billing_first_name": "Jane",
+            "billing_last_name": "Doe",
+            "billing_address_line1": "78 Sunset Blvd",
+            "billing_address_line2": "",
+            "billing_city": "Los Angeles",
+            "billing_state": "CA",
+            "billing_postcode": "90001",
+            "billing_country": "US",
+            "billing_phone": "+1 555-000-2000",
+            "billing_email": "jane.shipping@example.com",
+            "billing_company": null,
+            "customer_email": "jane.shipping@example.com",
+            "customer_phone": "+1 555-000-2000",
+            "customer_notes": null
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "data": {
+              "id": "47",
+              "uuid": "54b41b8a-1e95-416b-a4a1-bf0a167df35f",
+              "order_number": "ORD-6960DD78497A9",
+              "customer_id": "2",
+              "status": "pending",
+              "currency_code": "BDT",
+              "totals": {
+                "subtotal": "5308.68",
+                "shipping": "5312.00",
+                "discount": "12.79",
+                "total": "9559.11"
+              },
+              "items_count": 4,
+              "items": [
+                {
+                  "id": "43",
+                  "product_name": "Classic Cotton T-Shirt",
+                  "variant_name": "Red, Red",
+                  "quantity": "4",
+                  "price": "1327.17",
+                  "total": "4247.11",
+                  "sku": "T-SHIRT-1-4",
+                  "image": null
+                }
+              ],
+              "shipping_address": {
+                "first_name": "Sunny",
+                "last_name": "Doe",
+                "line1": "Nikunja 2, Khilket",
+                "line2": "",
+                "city": "Dhaka",
+                "state": "5665",
+                "country": "BD",
+                "postal_code": "5665",
+                "phone": "+1 555-000-2000",
+                "email": "jane.shipping@example.com"
+              },
+              "billing_address": {
+                "first_name": "Jane",
+                "last_name": "Doe",
+                "line1": "78 Sunset Blvd",
+                "line2": "",
+                "city": "Los Angeles",
+                "state": "CA",
+                "country": "US",
+                "postal_code": "90001",
+                "phone": "+1 555-000-2000",
+                "email": "jane.shipping@example.com"
+              },
+              "payment_method": "stripe",
+              "payment_status": "pending",
+              "shipping_method": "fsdfdsfsdfsdf343432jh4",
+              "created_at": "2026-01-09 10:50:32"
+            },
+            "message": "Order created successfully."
+          }
+  - name: 404 Response
+    description: Failure
+    request:
+      url: "{{baseUrl}}/orders"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "items": [
+              {
+                "variant_id": 1,
+                "quantity": 4
+              }
+            ],
+            "currency_code": "USD",
+            "payment_method": "stripe",
+            "coupon_code": "WINTER20",
+            "shipping_method": "fsdfdsfsdfsdf343432jh4",
+            "shipping_first_name": "Sunny",
+            "shipping_last_name": "Doe",
+            "shipping_address_line1": "Nikunja 2, Khilket",
+            "shipping_address_line2": "",
+            "shipping_city": "Dhaka",
+            "shipping_state": "5665",
+            "shipping_postcode": "5665",
+            "shipping_country": "BD",
+            "shipping_phone": "+1 555-000-2000",
+            "shipping_email": "jane.shipping@example.com",
+            "shipping_company": null,
+            "billing_first_name": "Jane",
+            "billing_last_name": "Doe",
+            "billing_address_line1": "78 Sunset Blvd",
+            "billing_address_line2": "",
+            "billing_city": "Los Angeles",
+            "billing_state": "CA",
+            "billing_postcode": "90001",
+            "billing_country": "US",
+            "billing_phone": "+1 555-000-2000",
+            "billing_email": "jane.shipping@example.com",
+            "billing_company": null,
+            "customer_email": "jane.shipping@example.com",
+            "customer_phone": "+1 555-000-2000",
+            "customer_notes": null
+          }
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "message": "deserunt tempor voluptate",
+            "success": "true"
+          }
+
+docs: |-
+  # Create Order
+
+  ## 1. Detailed description of the API function
+  This API is designed to create orders.

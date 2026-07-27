@@ -1,0 +1,158 @@
+info:
+  name: Delete Refund
+  type: http
+  seq: 5
+  tags:
+    - Droip Ecommerce/orders
+
+http:
+  method: DELETE
+  url: "{{baseUrl}}/orders/2/refunds/4"
+  body:
+    type: json
+    data: "{}"
+  auth:
+    type: basic
+    username: "{{username}}"
+    password: "{{password}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/orders/2/refunds/4"
+      method: DELETE
+      body:
+        type: json
+        data: "{}"
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "data": {
+              "id": 2,
+              "uuid": "fe4d1707-d647-45a4-b55b-ff295a97cae4",
+              "order_number": "ORD-698036A581404",
+              "customer_id": "1",
+              "status": "partially-refunded",
+              "currency_code": "USD",
+              "totals": {
+                "subtotal": "3570.68",
+                "shipping": "14.00",
+                "discount": "100.00",
+                "tax": "714.14",
+                "total": "4298.82"
+              },
+              "items_count": 4,
+              "items": [
+                {
+                  "id": "2",
+                  "product_name": "Ansley Farrell",
+                  "variant_name": "Red, Small",
+                  "quantity": 4,
+                  "price": "917.67",
+                  "total": "4284.82",
+                  "tax_rate": 20,
+                  "tax_total": "714.14",
+                  "tax_breakdown": [
+                    {
+                      "name": "Tax",
+                      "rate": 20,
+                      "amount": 71414
+                    }
+                  ],
+                  "sku": "34f9ef88-46bd-38e3-ac7f-e9cd26ba12d9",
+                  "image": null
+                }
+              ],
+              "shipping_address": {
+                "first_name": "Sunny",
+                "last_name": "Doe",
+                "line1": "Nikunja 2, Khilket",
+                "line2": "",
+                "city": "Dhaka",
+                "state": "5665",
+                "country": "BD",
+                "postal_code": "5665",
+                "phone": "+1 555-000-2000",
+                "email": "jane.shipping@example.com"
+              },
+              "billing_address": {
+                "first_name": "Jane",
+                "last_name": "Doe",
+                "line1": "78 Sunset Blvd",
+                "line2": "",
+                "city": "Los Angeles",
+                "state": "CA",
+                "country": "US",
+                "postal_code": "90001",
+                "phone": "+1 555-000-2000",
+                "email": "jane.shipping@example.com"
+              },
+              "payment_method": "stripe",
+              "payment_status": "partially_refunded",
+              "shipping_method": "fsdfdsfsdfsdf343432jh4",
+              "refunds": [
+                {
+                  "id": "3",
+                  "amount": "12.00",
+                  "reason": "Nothing...",
+                  "transaction_id": null,
+                  "status": "pending",
+                  "processed_at": "2026-02-02T05:36:34.000000Z",
+                  "processed_by": null
+                },
+                {
+                  "id": "6",
+                  "amount": "16.00",
+                  "reason": "Nothing. Just for fun",
+                  "transaction_id": null,
+                  "status": "completed",
+                  "processed_at": "2026-02-02T08:00:14.000000Z",
+                  "processed_by": null
+                }
+              ],
+              "created_at": "2026-02-02 05:31:17"
+            },
+            "message": "Refund deleted successfully.",
+            "success": true
+          }
+  - name: 404 Response
+    description: Failure
+    request:
+      url: "{{baseUrl}}/orders/2/refunds/4"
+      method: DELETE
+      body:
+        type: json
+        data: "{}"
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "message": "Refund not found.",
+            "success": false
+          }
+
+docs: |-
+  # Delete Refund
+
+  ## 1. Detailed description of the API function
+  This API is designed to delete refund request.

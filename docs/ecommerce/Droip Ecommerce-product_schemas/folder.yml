@@ -1,0 +1,7 @@
+info:
+  name: Droip Ecommerce/product_schemas
+  type: folder
+  seq: 18
+
+request:
+  auth: inherit

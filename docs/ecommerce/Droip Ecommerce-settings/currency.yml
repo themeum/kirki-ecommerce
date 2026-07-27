@@ -1,0 +1,80 @@
+info:
+  name: currency
+  type: http
+  seq: 6
+  tags:
+    - Droip Ecommerce/settings
+
+http:
+  method: GET
+  url: "{{baseUrl}}/settings/currency"
+  auth:
+    type: basic
+    username: "{{username}}"
+    password: "{{password}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/settings/currency"
+      method: GET
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "data": {
+              "currency_format": "short",
+              "currency_position": "before",
+              "thousand_separator": ",",
+              "decimal_separator": ".",
+              "is_automatic_update_enabled": true,
+              "api_provider": "currency_api",
+              "api_config": {
+                "api_key": "cur_live_P7mIylMgTU0eV6CmBFEAXrln5wVb5HoxIHmZicxl",
+                "update_frequency": "hourly",
+                "fallback_behaviour": null,
+                "is_cache_enabled": true
+              },
+              "last_sync_at": "2026-02-26 11:28:22",
+              "next_sync_at": "2026-02-26 12:28:23",
+              "usage": {
+                "total": 300,
+                "used": 15,
+                "remaining": 285,
+                "reset_at": "2026-03-01T00:00:00.000000Z"
+              }
+            },
+            "message": "Settings retrieved successfully.",
+            "success": true
+          }
+  - name: 404 Response
+    description: Failure
+    request:
+      url: "{{baseUrl}}/settings/currency"
+      method: GET
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: "{}"
+
+docs: |-
+  # Get Checkout Settings
+  Returns the settings by key

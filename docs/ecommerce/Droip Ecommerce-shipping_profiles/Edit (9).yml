@@ -1,0 +1,91 @@
+info:
+  name: Edit (9)
+  type: http
+  seq: 3
+  tags:
+    - Droip Ecommerce/shipping_profiles
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/shipping-profiles/1"
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Heavy Weight"
+      }
+  auth:
+    type: basic
+    username: "{{username}}"
+    password: "{{password}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/shipping-profiles/1"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "name": "Heavy Weight"
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": true,
+            "data": {
+              "id": 1,
+              "name": "Heavy Weight",
+              "created_at": "2025-11-26 10:52:00",
+              "updated_at": "2025-11-26 10:55:21"
+            },
+            "message": "Shipping profile updated successfully."
+          }
+  - name: 404 Response
+    description: Failure
+    request:
+      url: "{{baseUrl}}/shipping-profiles/1"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "name": "Heavy Weight"
+          }
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "errors": {
+              "name": [
+                "The name field is required."
+              ]
+            },
+            "message": "Validation failed!"
+          }
+
+docs: |-
+  ## Edit Shipping Profile
+  Updates an existing resource with the provided data.

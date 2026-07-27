@@ -1,0 +1,95 @@
+info:
+  name: Bulk actions (6)
+  type: http
+  seq: 1
+  tags:
+    - Droip Ecommerce/shipping_boxes
+
+http:
+  method: POST
+  url: "{{baseUrl}}/shipping-boxes/bulk"
+  body:
+    type: json
+    data: |-
+      {
+        "action": "delete",
+        "ids": [
+          6,
+          7
+        ]
+      }
+  auth:
+    type: basic
+    username: "{{username}}"
+    password: "{{password}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/shipping-boxes/bulk"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "action": "delete",
+            "ids": [
+              6,
+              7
+            ]
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": true,
+            "data": true,
+            "message": "Shipping boxes deleted successfully."
+          }
+  - name: 404 Response
+    description: Failure
+    request:
+      url: "{{baseUrl}}/shipping-boxes/bulk"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "action": "delete",
+            "ids": [
+              6,
+              7
+            ]
+          }
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "errors": {},
+            "message": "Shipping boxes could not be deleted."
+          }
+
+docs: |-
+  ## Bulk Actions
+
+  Performs a specified action (e.g., delete) on multiple resources identified by their IDs.

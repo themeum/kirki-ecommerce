@@ -1,0 +1,71 @@
+info:
+  name: Get by id (16)
+  type: http
+  seq: 6
+  tags:
+    - Droip Ecommerce/tags
+
+http:
+  method: GET
+  url: "{{baseUrl}}/tags/25"
+  auth:
+    type: basic
+    username: "{{username}}"
+    password: "{{password}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/tags/25"
+      method: GET
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": true,
+            "data": {
+              "id": 25,
+              "name": "summary",
+              "slug": "summary",
+              "description": "",
+              "created_at": "2025-10-23 09:46:29",
+              "updated_at": "2025-10-23 09:46:29"
+            },
+            "message": ""
+          }
+  - name: 404 Response
+    description: Failure
+    request:
+      url: "{{baseUrl}}/tags/25"
+      method: GET
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "errors": {},
+            "message": "Tag not found."
+          }
+
+docs: |-
+  # Get Tag By ID
+  Returns the details of a specific resource identified by its ID.

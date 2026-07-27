@@ -1,0 +1,7 @@
+info:
+  name: Droip Ecommerce/Currency Exchange
+  type: folder
+  seq: 11
+
+request:
+  auth: inherit

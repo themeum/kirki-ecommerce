@@ -1,0 +1,73 @@
+info:
+  name: checkout
+  type: http
+  seq: 5
+  tags:
+    - Droip Ecommerce/settings
+
+http:
+  method: GET
+  url: "{{baseUrl}}/settings/checkout"
+  auth:
+    type: basic
+    username: "{{username}}"
+    password: "{{password}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/settings/checkout"
+      method: GET
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": true,
+            "data": {
+              "is_allowed_guest_checkout": true,
+              "checkout_configuration": {
+                "address_line_validation": "required",
+                "phone_number_validation": "required",
+                "company_name_validation": "optional",
+                "company_id_validation": "optional",
+                "vat_identification_number_validation": "optional",
+                "has_apply_coupon_code": true
+              },
+              "is_terms_and_conditions_visible": true,
+              "terms_and_conditions_content": "[site_name] © 2022 All Rights Reserved.\nPrivacy & Policy - Terms & Conditions",
+              "is_privacy_policy_visible": true,
+              "privacy_policy_content": "[site_name] © 2022 All Rights Reserved.\nPrivacy & Policy - Terms & Conditions"
+            },
+            "message": "Settings retrieved successfully."
+          }
+  - name: 404 Response
+    description: Failure
+    request:
+      url: "{{baseUrl}}/settings/checkout"
+      method: GET
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: "{}"
+
+docs: |-
+  # Get Checkout Settings
+  Returns the settings by key

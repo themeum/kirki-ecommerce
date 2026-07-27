@@ -1,0 +1,97 @@
+info:
+  name: Create (2)
+  type: http
+  seq: 4
+  tags:
+    - Droip Ecommerce/attribute values
+
+http:
+  method: POST
+  url: "{{baseUrl}}/attributes/1/values"
+  body:
+    type: json
+    data: |-
+      {
+        "attribute_id": 1,
+        "value": "Navy Blue",
+        "color": "#000000"
+      }
+  auth:
+    type: basic
+    username: "{{username}}"
+    password: "{{password}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/attributes/1/values"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "attribute_id": 1,
+            "value": "Navy Blue",
+            "color": "#000000"
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": true,
+            "data": {
+              "id": 23,
+              "value": "Navy Blue",
+              "color": "#000000"
+            },
+            "message": "Attribute value created successfully."
+          }
+  - name: 404 Response
+    description: Failure
+    request:
+      url: "{{baseUrl}}/attributes/1/values"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "attribute_id": 1,
+            "value": "Navy Blue",
+            "color": "#000000"
+          }
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "errors": {
+              "name": [
+                "The name field is required."
+              ]
+            },
+            "message": "Validation failed!"
+          }
+
+docs: |-
+  # Create Attribute Value
+
+  Upon successful creation, the API returns a response with a `success` boolean indicating the success of the operation and a `message` which may contain information about the result.

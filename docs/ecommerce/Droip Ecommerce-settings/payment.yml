@@ -1,0 +1,83 @@
+info:
+  name: payment
+  type: http
+  seq: 3
+  tags:
+    - Droip Ecommerce/settings
+
+http:
+  method: GET
+  url: "{{baseUrl}}/settings/payment"
+  body:
+    type: form-urlencoded
+  auth:
+    type: basic
+    username: "{{username}}"
+    password: "{{password}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/settings/payment"
+      method: GET
+      body:
+        type: form-urlencoded
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": true,
+            "data": {
+              "payment_gateways": [
+                {
+                  "is_enabled": true,
+                  "is_manual": true,
+                  "name": "Cash on Delivery",
+                  "icon": "cash",
+                  "instructions": "Cash on Delivery"
+                },
+                {
+                  "is_enabled": true,
+                  "is_manual": false,
+                  "name": "Cash on Delivery",
+                  "icon": "cash",
+                  "instructions": "Cash on Delivery",
+                  "config": []
+                }
+              ]
+            },
+            "message": "Settings retrieved successfully."
+          }
+  - name: 404 Response
+    description: Failure
+    request:
+      url: "{{baseUrl}}/settings/payment"
+      method: GET
+      body:
+        type: form-urlencoded
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: "{}"
+
+docs: |-
+  # Get Payment Settings
+  Returns the settings by key

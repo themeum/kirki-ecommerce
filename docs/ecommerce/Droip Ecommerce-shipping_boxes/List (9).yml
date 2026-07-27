@@ -1,0 +1,171 @@
+info:
+  name: List (9)
+  type: http
+  seq: 4
+  tags:
+    - Droip Ecommerce/shipping_boxes
+
+http:
+  method: GET
+  url: "{{baseUrl}}/shipping-boxes"
+  params:
+    - name: search
+      value: ""
+      type: query
+    - name: sort_by
+      value: id
+      type: query
+    - name: sort_order
+      value: asc
+      type: query
+    - name: page
+      value: "1"
+      type: query
+    - name: limit
+      value: "10"
+      type: query
+  auth:
+    type: basic
+    username: "{{username}}"
+    password: "{{password}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/shipping-boxes"
+      method: GET
+      params:
+        - name: search
+          value: ""
+          type: query
+        - name: sort_by
+          value: id
+          type: query
+        - name: sort_order
+          value: asc
+          type: query
+        - name: page
+          value: "1"
+          type: query
+        - name: limit
+          value: "10"
+          type: query
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": true,
+            "data": {
+              "results": [
+                {
+                  "id": 1,
+                  "name": "Large Box",
+                  "description": "Suitable for oversized products",
+                  "width": 12.5,
+                  "height": 8.3,
+                  "length": 20.75,
+                  "unit": "cm",
+                  "is_default": true,
+                  "created_at": "2025-11-26 09:54:49",
+                  "updated_at": "2025-11-26 09:54:49"
+                },
+                {
+                  "id": 2,
+                  "name": "Large Box",
+                  "description": "Suitable for oversized products",
+                  "width": 12.5,
+                  "height": 8.3,
+                  "length": 20.75,
+                  "unit": "cm",
+                  "is_default": true,
+                  "created_at": "2025-11-26 09:55:07",
+                  "updated_at": "2025-11-26 09:55:07"
+                },
+                {
+                  "id": 3,
+                  "name": "Small Box",
+                  "description": "Suitable for small products",
+                  "width": 12.5,
+                  "height": 8.3,
+                  "length": 20.75,
+                  "unit": "cm",
+                  "is_default": true,
+                  "created_at": "2025-11-26 09:55:16",
+                  "updated_at": "2025-11-26 09:55:16"
+                },
+                {
+                  "id": 4,
+                  "name": "Large Box",
+                  "description": "Suitable for oversized products",
+                  "width": 12.5,
+                  "height": 8.3,
+                  "length": 20.75,
+                  "unit": "cm",
+                  "is_default": true,
+                  "created_at": "2025-11-26 09:55:40",
+                  "updated_at": "2025-11-26 09:55:40"
+                }
+              ],
+              "total": 4,
+              "count": 4,
+              "per_page": "10",
+              "current_page": "1",
+              "last_page": 1,
+              "from": 1,
+              "to": 4,
+              "has_more_pages": false
+            },
+            "message": "Shipping boxes retrieved successfully."
+          }
+  - name: 404 Response
+    description: Failure
+    request:
+      url: "{{baseUrl}}/shipping-boxes"
+      method: GET
+      params:
+        - name: search
+          value: ""
+          type: query
+        - name: sort_by
+          value: id
+          type: query
+        - name: sort_order
+          value: asc
+          type: query
+        - name: page
+          value: "1"
+          type: query
+        - name: limit
+          value: "10"
+          type: query
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "errors": {},
+            "message": "Order direction must be either \"asc\" or \"desc\"."
+          }
+
+docs: |-
+  ## Shipping Box List
+  Returns a paginated collection of resources. Supports optional search, filter, sort, and order parameters to refine the results.

@@ -1,0 +1,232 @@
+info:
+  name: List
+  type: http
+  seq: 3
+  tags:
+    - Droip Ecommerce/attributes
+
+http:
+  method: GET
+  url: "{{baseUrl}}/attributes"
+  params:
+    - name: search
+      value: ""
+      type: query
+    - name: type
+      value: ""
+      type: query
+    - name: sort_by
+      value: id
+      type: query
+    - name: sort_order
+      value: asc
+      type: query
+    - name: page
+      value: "1"
+      type: query
+    - name: limit
+      value: "10"
+      type: query
+  auth:
+    type: basic
+    username: "{{username}}"
+    password: "{{password}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/attributes"
+      method: GET
+      params:
+        - name: search
+          value: ""
+          type: query
+        - name: type
+          value: ""
+          type: query
+        - name: sort_by
+          value: id
+          type: query
+        - name: sort_order
+          value: asc
+          type: query
+        - name: page
+          value: "1"
+          type: query
+        - name: limit
+          value: "10"
+          type: query
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": true,
+            "data": {
+              "results": [
+                {
+                  "id": 26,
+                  "name": "Color",
+                  "slug": "color-3",
+                  "type": "color",
+                  "values": [
+                    {
+                      "id": 63,
+                      "value": "Red",
+                      "color": "#f2f2f2"
+                    },
+                    {
+                      "id": 64,
+                      "value": "White",
+                      "color": "#ffffff"
+                    },
+                    {
+                      "id": 65,
+                      "value": "Black",
+                      "color": "#000000"
+                    }
+                  ],
+                  "created_at": "2025-10-31 04:29:09",
+                  "updated_at": "2025-10-31 04:29:09"
+                },
+                {
+                  "id": 27,
+                  "name": "Color",
+                  "slug": "color-4",
+                  "type": "color",
+                  "values": [
+                    {
+                      "id": 66,
+                      "value": "Red",
+                      "color": "#f2f2f2"
+                    },
+                    {
+                      "id": 67,
+                      "value": "White",
+                      "color": "#ffffff"
+                    },
+                    {
+                      "id": 68,
+                      "value": "Black",
+                      "color": "#000000"
+                    }
+                  ],
+                  "created_at": "2025-10-31 04:46:22",
+                  "updated_at": "2025-10-31 04:46:22"
+                },
+                {
+                  "id": 28,
+                  "name": "Color",
+                  "slug": "color",
+                  "type": "color",
+                  "values": [
+                    {
+                      "id": 69,
+                      "value": "Red",
+                      "color": "#f2f2f2"
+                    },
+                    {
+                      "id": 70,
+                      "value": "White",
+                      "color": "#ffffff"
+                    },
+                    {
+                      "id": 71,
+                      "value": "Black",
+                      "color": "#000000"
+                    }
+                  ],
+                  "created_at": "2025-10-31 04:48:28",
+                  "updated_at": "2025-10-31 04:48:28"
+                },
+                {
+                  "id": 29,
+                  "name": "Color",
+                  "slug": "color-2",
+                  "type": "color",
+                  "values": [
+                    {
+                      "id": 72,
+                      "value": "Red",
+                      "color": "#f2f2f2"
+                    },
+                    {
+                      "id": 73,
+                      "value": "White",
+                      "color": "#ffffff"
+                    },
+                    {
+                      "id": 74,
+                      "value": "Black",
+                      "color": "#000000"
+                    }
+                  ],
+                  "created_at": "2025-10-31 04:48:31",
+                  "updated_at": "2025-10-31 04:48:31"
+                }
+              ],
+              "total": 4,
+              "count": 4,
+              "per_page": 10,
+              "current_page": 1,
+              "last_page": 1,
+              "from": 1,
+              "to": 4,
+              "has_more_pages": false
+            },
+            "message": "Attribute retrieved successfully."
+          }
+  - name: 404 Response
+    description: Failure
+    request:
+      url: "{{baseUrl}}/attributes"
+      method: GET
+      params:
+        - name: search
+          value: ""
+          type: query
+        - name: type
+          value: ""
+          type: query
+        - name: sort_by
+          value: id
+          type: query
+        - name: sort_order
+          value: asc
+          type: query
+        - name: page
+          value: "1"
+          type: query
+        - name: limit
+          value: "10"
+          type: query
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "errors": {},
+            "message": "Order direction must be either \"asc\" or \"desc\"."
+          }
+
+docs: |-
+  ## Tag List
+  Returns a paginated collection of resources. Supports optional search, filter, sort, and order parameters to refine the results.

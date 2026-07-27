@@ -1,0 +1,71 @@
+info:
+  name: Update user info
+  type: http
+  seq: 4
+  tags:
+    - Samples
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/users/:username"
+  params:
+    - name: username
+      value: echo api
+      type: path
+  body:
+    type: json
+    data: |-
+      {
+        "id": 0,
+        "username": "",
+        "firstName": "Tom",
+        "lastName": "",
+        "email": "",
+        "password": "",
+        "phone": "",
+        "userStatus": 0
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: User not found
+    request:
+      url: "{{baseUrl}}/users/:username"
+      method: PUT
+      params:
+        - name: username
+          value: echo api
+          type: path
+      body:
+        type: json
+        data: |-
+          {
+            "id": 0,
+            "username": "",
+            "firstName": "Tom",
+            "lastName": "",
+            "email": "",
+            "password": "",
+            "phone": "",
+            "userStatus": 0
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "error": 1,
+            "msg": "User not found"
+          }

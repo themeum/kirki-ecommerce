@@ -1,0 +1,27 @@
+opencollection: 1.0.0
+
+info:
+  name: Ecommerce
+config:
+  proxy:
+    inherit: true
+    config:
+      protocol: http
+      hostname: ""
+      port: ""
+      auth:
+        username: ""
+        password: ""
+      bypassProxy: ""
+
+request:
+  auth:
+    type: basic
+    username: "{{auth_username}}"
+    password: "{{auth_password}}"
+bundled: false
+extensions:
+  bruno:
+    ignore:
+      - node_modules
+      - .git

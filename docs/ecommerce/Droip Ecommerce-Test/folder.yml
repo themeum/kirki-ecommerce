@@ -1,0 +1,7 @@
+info:
+  name: Droip Ecommerce/Test
+  type: folder
+  seq: 25
+
+request:
+  auth: inherit

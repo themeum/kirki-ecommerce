@@ -1,0 +1,7 @@
+info:
+  name: Droip Ecommerce/payment_methods
+  type: folder
+  seq: 17
+
+request:
+  auth: inherit

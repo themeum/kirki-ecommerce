@@ -1,7 +1,6 @@
 <?php
 
 use Kirki\Ecommerce\App\Menu\Analytics;
-use Kirki\Ecommerce\App\Menu\ApiDocs;
 use Kirki\Ecommerce\App\Menu\Brands;
 use Kirki\Ecommerce\App\Menu\Categories;
 use Kirki\Ecommerce\App\Menu\Collections;
@@ -39,5 +38,4 @@ return [
     Coupons::class,
     Settings::class,
     Tools::class,
-    ApiDocs::class,
 ];
