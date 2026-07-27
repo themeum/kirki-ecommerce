@@ -149,7 +149,7 @@ class CurrencyApiProvider implements CurrencyProvider
             'total' => $month['total'] ?? null,
             'used' => $month['used'] ?? null,
             'remaining' => $month['remaining'] ?? null,
-            'reset_at' => Date::now()->addMonth()->firstOfMonth(),
+            'reset_at' => Date::now()->add_month()->first_of_month(),
         ]);
     }
 }

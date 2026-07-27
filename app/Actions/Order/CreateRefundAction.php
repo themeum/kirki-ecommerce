@@ -12,7 +12,7 @@ use Kirki\Ecommerce\App\Services\InventoryService;
 use Kirki\Ecommerce\App\Services\OrderService;
 use Kirki\Ecommerce\Exceptions\ValidationException;
 use Kirki\Ecommerce\Http\Response;
-use Kirki\Ecommerce\Supports\Carbon;
+use Kirki\Ecommerce\Supports\Facades\Date;
 use Kirki\Ecommerce\Supports\Facades\DB;
 use Throwable;
 
@@ -49,7 +49,7 @@ class CreateRefundAction
                 'amount' => $dto->amount,
                 'reason' => $dto->reason,
                 'refund_type' => $dto->amount === $refundable_amount ? RefundType::FULL : RefundType::PARTIAL,
-                'created_at' => Carbon::now(),
+                'created_at' => Date::now(),
                 'created_by' => $dto->created_by,
             ]);
 

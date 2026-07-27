@@ -122,7 +122,7 @@ class QueueRepository
      */
     public function reset_stuck_jobs(int $timeout, int $max_retries = 3)
     {
-        $cutoff = Date::now()->subSeconds($timeout);
+        $cutoff = Date::now()->sub_seconds($timeout);
 
         return SchedulerQueue::where('status', JobStatus::PROCESSING)
             ->where('updated_at', '<=', $cutoff->to_sql_datetime_string())
@@ -172,7 +172,7 @@ class QueueRepository
      */
     public function cleanup($status, $days)
     {
-        $cutoff = Date::now()->subDays($days);
+        $cutoff = Date::now()->sub_days($days);
 
         return SchedulerQueue::where('status', $status)
             ->where('scheduled_at', '<=', $cutoff->to_sql_datetime_string())

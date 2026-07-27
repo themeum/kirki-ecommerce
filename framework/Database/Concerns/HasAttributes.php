@@ -5,13 +5,12 @@ namespace Kirki\Ecommerce\Database\Concerns;
 use Brick\Math\BigDecimal;
 use Brick\Math\Exception\MathException;
 use Brick\Math\RoundingMode;
-use Carbon\CarbonInterface;
 use DateTimeInterface;
 use Kirki\Ecommerce\Contracts\Support\Arrayable;
 use Kirki\Ecommerce\Collections\Collection;
 use Kirki\Ecommerce\Database\Connection\Connection;
 use Kirki\Ecommerce\Supports\Arr;
-use Kirki\Ecommerce\Supports\Carbon;
+use Kirki\Ecommerce\Somoy;
 use Kirki\Ecommerce\Supports\Facades\Date;
 use Exception;
 use InvalidArgumentException;
@@ -370,22 +369,22 @@ trait HasAttributes
      * Convert a value to a date.
      *
      * @param mixed $value The value to convert
-     * @return Carbon The date value
+     * @return Somoy The date value
      */
     protected function as_date($value)
     {
-        return $this->as_date_time($value)->startOfDay();
+        return $this->as_date_time($value)->start_of_day();
     }
 
     /**
      * Convert a value to a date time.
      *
      * @param mixed $value The value to convert
-     * @return Carbon The date time value
+     * @return Somoy The date time value
      */
     protected function as_date_time($value)
     {
-        if ($value instanceof CarbonInterface) {
+        if ($value instanceof Somoy) {
             return Date::instance($value);
         }
 
@@ -401,7 +400,7 @@ trait HasAttributes
         }
 
         if ($this->is_standard_date_format($value)) {
-            return Date::instance(Date::create_from_format('Y-m-d', $value))->startOfDay();
+            return Date::instance(Date::create_from_format('Y-m-d', $value))->start_of_day();
         }
 
         $format = $this->get_date_format();
@@ -447,7 +446,7 @@ trait HasAttributes
      */
     protected function as_timestamp($value)
     {
-        return $this->as_date_time($value)->getTimestamp();
+        return $this->as_date_time($value)->get_timestamp();
     }
 
     /**
@@ -571,7 +570,7 @@ trait HasAttributes
      * Convert a value to a date time.
      *
      * @param mixed $value The value to convert
-     * @return Carbon The date time value
+     * @return Somoy The date time value
      */
     public function from_date_time($value)
     {
@@ -740,7 +739,7 @@ trait HasAttributes
      */
     protected function serialize_date(DateTimeInterface $date)
     {
-        return Carbon::instance($date)->toJSON();
+        return Somoy::instance($date)->to_json();
     }
 
     /**
