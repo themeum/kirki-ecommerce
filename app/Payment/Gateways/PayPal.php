@@ -11,7 +11,7 @@ use Kirki\Ecommerce\App\Models\Refund;
 use Kirki\Ecommerce\App\Payment\PaymentGateway;
 use Kirki\Ecommerce\Sanitizer;
 use Kirki\Ecommerce\Supports\Facades\Http;
-use Kirki\Ecommerce\Supports\Facades\Money;
+use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\Validation\Validator;
 use Exception;
 

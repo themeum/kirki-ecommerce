@@ -14,7 +14,7 @@ use Kirki\Ecommerce\App\DTO\Calculation\CalculationContextDTO;
 use Kirki\Ecommerce\App\DTO\Discount\DiscountCalculationResultDTO;
 use Kirki\Ecommerce\Exceptions\ValidationException;
 use Kirki\Ecommerce\Supports\Facades\Date;
-use Kirki\Ecommerce\Supports\Facades\Money;
+use Kirki\Ecommerce\App\Facades\Money;
 
 use function Kirki\Ecommerce\collection;
 

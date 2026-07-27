@@ -3,7 +3,7 @@
 namespace Kirki\Ecommerce\App\Resources\Product;
 
 use Kirki\Ecommerce\Resource;
-use Kirki\Ecommerce\Supports\Facades\Money;
+use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\Supports\MediaAttachment;
 
 class ProductListResource extends Resource

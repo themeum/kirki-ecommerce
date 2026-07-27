@@ -11,7 +11,6 @@ use Kirki\Ecommerce\Discovery\ListenerDiscovery;
 use Kirki\Ecommerce\Discovery\PolicyDiscovery;
 use Kirki\Ecommerce\Managers\EventManager;
 use Kirki\Ecommerce\Managers\LogManager;
-use Kirki\Ecommerce\Managers\MoneyManager;
 use Kirki\Ecommerce\Managers\PolicyManager;
 use Kirki\Ecommerce\ServiceProvider;
 use Kirki\Ecommerce\Managers\DateManager;
@@ -70,7 +69,6 @@ class CoreServiceProvider extends ServiceProvider
         $this->app->singleton(EventManager::class);
         $this->app->singleton(PolicyManager::class);
         $this->app->singleton(DateManager::class);
-        $this->app->singleton(MoneyManager::class);
         $this->app->singleton(CommandManager::class);
     }
 

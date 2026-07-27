@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Providers;
 
+use Kirki\Ecommerce\App\Managers\MoneyManager;
 use Kirki\Ecommerce\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -13,7 +14,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        // Register your services here
+        $this->app->singleton(MoneyManager::class);
     }
 
     /**

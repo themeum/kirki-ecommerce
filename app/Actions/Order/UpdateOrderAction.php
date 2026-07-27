@@ -19,7 +19,7 @@ use Kirki\Ecommerce\App\DTO\Order\UpdateOrderPayloadDTO;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationResultDTO;
 use Kirki\Ecommerce\Supports\Arr;
 use Kirki\Ecommerce\Supports\Currency;
-use Kirki\Ecommerce\Supports\Facades\Money;
+use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\Supports\Facades\DB;
 use Exception;
 use Throwable;

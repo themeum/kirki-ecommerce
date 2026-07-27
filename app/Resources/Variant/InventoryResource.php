@@ -3,7 +3,7 @@
 namespace Kirki\Ecommerce\App\Resources\Variant;
 
 use Kirki\Ecommerce\Resource;
-use Kirki\Ecommerce\Supports\Facades\Money;
+use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\Supports\MediaAttachment;
 
 class InventoryResource extends Resource

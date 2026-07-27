@@ -4,7 +4,7 @@ namespace Kirki\Ecommerce\App\Decisions\Actions;
 
 use Kirki\Ecommerce\App\Constants\Decision\Actions;
 use Kirki\Ecommerce\App\Decisions\Contexts\DecisionContext;
-use Kirki\Ecommerce\Supports\Facades\Money;
+use Kirki\Ecommerce\App\Facades\Money;
 
 class SetShippingCostAction implements Action
 {

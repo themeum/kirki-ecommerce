@@ -1,6 +1,6 @@
 <?php
 
-namespace Kirki\Ecommerce\Managers;
+namespace Kirki\Ecommerce\App\Managers;
 
 use BadMethodCallException;
 use Brick\Math\RoundingMode;

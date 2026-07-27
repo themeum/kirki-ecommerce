@@ -4,7 +4,7 @@ namespace Kirki\Ecommerce\App\Resources\Variant;
 
 use Kirki\Ecommerce\Resource;
 use Kirki\Ecommerce\Supports\MediaAttachment;
-use Kirki\Ecommerce\Supports\Facades\Money;
+use Kirki\Ecommerce\App\Facades\Money;
 use function Kirki\Ecommerce\collection;
 
 class VariantResource extends Resource
