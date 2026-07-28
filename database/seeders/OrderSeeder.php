@@ -4,8 +4,8 @@ namespace Kirki\Ecommerce\Database\Seeders;
 
 use Kirki\Ecommerce\App\DTO\Order\CreateOrderPayloadDTO;
 use Kirki\Ecommerce\App\Facades\Order;
-use Kirki\Ecommerce\Database\Seeder;
-use Kirki\Ecommerce\Supports\Facades\Log;
+use Kirki\Ecommerce\Framework\Database\Seeder;
+use Kirki\Ecommerce\Framework\Supports\Facades\Log;
 
 class OrderSeeder extends Seeder
 {

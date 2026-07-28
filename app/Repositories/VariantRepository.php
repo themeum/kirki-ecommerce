@@ -6,11 +6,11 @@ use Kirki\Ecommerce\App\Constants\InventoryType;
 use Kirki\Ecommerce\App\Constants\Product\ProductStatus;
 use Kirki\Ecommerce\App\Models\Variant;
 use Kirki\Ecommerce\App\Constants\Pagination;
-use Kirki\Ecommerce\Collections\Collection;
-use Kirki\Ecommerce\Database\Query\Paginator;
-use Kirki\Ecommerce\Database\Query\QueryBuilder;
-use Kirki\Ecommerce\Exceptions\NotFoundException;
-use Kirki\Ecommerce\Supports\Facades\DB;
+use Kirki\Ecommerce\Framework\Collections\Collection;
+use Kirki\Ecommerce\Framework\Database\Query\Paginator;
+use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
+use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
+use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Exception;
 
 class VariantRepository

@@ -2,8 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Http\Requests\ProductSchema;
 
-use Kirki\Ecommerce\Http\Request;
-use Kirki\Ecommerce\Sanitizer;
+use Kirki\Ecommerce\Framework\Http\Request;
+use Kirki\Ecommerce\Framework\Sanitizer;
 
 class ProductSchemaCreateRequest extends Request
 {

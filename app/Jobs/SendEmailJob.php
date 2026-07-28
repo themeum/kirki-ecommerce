@@ -2,7 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Jobs;
 
-use Kirki\Ecommerce\Scheduler\Concerns\Queueable;
+use Kirki\Ecommerce\App\Scheduler\Concerns\Queueable;
 use Exception;
 
 class SendEmailJob

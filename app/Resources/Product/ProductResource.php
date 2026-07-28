@@ -3,8 +3,8 @@
 namespace Kirki\Ecommerce\App\Resources\Product;
 
 use Kirki\Ecommerce\App\Resources\Variant\VariantResource;
-use Kirki\Ecommerce\Resource;
-use Kirki\Ecommerce\Supports\MediaAttachment;
+use Kirki\Ecommerce\Framework\Resource;
+use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
 
 class ProductResource extends Resource
 {

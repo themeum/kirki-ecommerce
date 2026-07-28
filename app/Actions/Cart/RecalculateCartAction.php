@@ -12,12 +12,12 @@ use Kirki\Ecommerce\App\DTO\Discount\DiscountCalculationResultDTO;
 use Kirki\Ecommerce\App\DTO\Tax\ProductTaxContextDTO;
 use Kirki\Ecommerce\App\Tax\TaxStrategyFactory;
 use Kirki\Ecommerce\App\Constants\OptionKeys;
-use Kirki\Ecommerce\Supports\Arr;
-use Kirki\Ecommerce\Supports\Facades\Settings;
+use Kirki\Ecommerce\Framework\Supports\Arr;
+use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\App\Facades\Money;
 use Throwable;
 
-use function Kirki\Ecommerce\collection;
+use function Kirki\Ecommerce\Framework\collection;
 
 class RecalculateCartAction
 {

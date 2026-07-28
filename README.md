@@ -21,12 +21,14 @@ cp .env.example .env
 chmod +x wpcli kirki-test docker/scripts/*.sh
 source docker/scripts/dev-env.sh   # re-run in new terminals
 
-composer install
+composer install   # installs deps and scopes themeum/framework into libraries/framework/
 cd payments/kirki-stripe && composer install && cd ../..
 
 docker compose up -d --build
 docker compose logs -f wordpress-init   # first run only — wait for WP install
 ```
+
+Do **not** activate the plugin until `composer install` finishes — scoping must populate `libraries/framework/` (`Kirki\Ecommerce\Framework\`) first.
 
 | Service    | URL (defaults)              | Login                          |
 | ---------- | --------------------------- | ------------------------------ |
@@ -41,12 +43,19 @@ Edit `.env` for custom ports or credentials. Common variables: `NGINX_HTTP_PORT`
 ### Project layout
 
 ```
-app/           # Controllers, models, domain logic
-framework/     # ORM, HTTP, routing, WordPress integration
-database/      # Migrations and seeders
-docker/        # Compose stack, nginx, PHP, scripts
-payments/      # Payment gateway subprojects
-tests/         # PHPUnit (Unit + Integration)
+app/                  # Controllers, models, domain logic
+libraries/framework/  # Scoped themeum/framework (generated — gitignored)
+database/             # Migrations and seeders
+docker/               # Compose stack, nginx, PHP, scripts
+payments/             # Payment gateway subprojects
+tests/                # PHPUnit (Unit + Integration)
+scoper.config.php     # PHP-Scoper config (prefix: Kirki\Ecommerce)
+```
+
+After updating `themeum/framework`, re-run scoping:
+
+```bash
+composer scope
 ```
 
 ---

@@ -2,7 +2,7 @@
 
 namespace Kirki\Ecommerce\Database\Seeders;
 
-use Kirki\Ecommerce\Database\Seeder;
+use Kirki\Ecommerce\Framework\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {

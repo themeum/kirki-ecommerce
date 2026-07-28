@@ -4,13 +4,13 @@ namespace Kirki\Ecommerce\App\Services;
 
 use Kirki\Ecommerce\App\Models\AttributeValue;
 use Kirki\Ecommerce\App\Repositories\AttributeValueRepository;
-use Kirki\Ecommerce\Collections\Collection;
-use Kirki\Ecommerce\Database\Query\Paginator;
+use Kirki\Ecommerce\Framework\Collections\Collection;
+use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 use Kirki\Ecommerce\App\DTO\AttributeValue\CreateAttributeValueDTO;
 use Kirki\Ecommerce\App\DTO\AttributeValue\UpdateAttributeValueDTO;
 use Kirki\Ecommerce\App\DTO\ListFilterDTO;
-use Kirki\Ecommerce\Exceptions\NotFoundException;
-use Kirki\Ecommerce\Http\Response;
+use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
+use Kirki\Ecommerce\Framework\Http\Response;
 
 class AttributeValueService
 {

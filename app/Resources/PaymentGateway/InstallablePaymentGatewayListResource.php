@@ -3,7 +3,7 @@
 namespace Kirki\Ecommerce\App\Resources\PaymentGateway;
 
 use Kirki\Ecommerce\App\Payment\Facades\Payment;
-use Kirki\Ecommerce\Resource;
+use Kirki\Ecommerce\Framework\Resource;
 
 class InstallablePaymentGatewayListResource extends Resource
 {

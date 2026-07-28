@@ -3,7 +3,7 @@
 namespace Kirki\Ecommerce\App\Facades;
 
 use Kirki\Ecommerce\App\Currency\CurrencyExchangeManager;
-use Kirki\Ecommerce\Facade;
+use Kirki\Ecommerce\Framework\Facade;
 
 /**
  * @method static void set_base_currency(string $base_currency)

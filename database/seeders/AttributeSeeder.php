@@ -3,8 +3,8 @@
 namespace Kirki\Ecommerce\Database\Seeders;
 
 use Kirki\Ecommerce\App\Models\Attribute;
-use Kirki\Ecommerce\Database\Seeder;
-use Kirki\Ecommerce\Supports\Facades\Log;
+use Kirki\Ecommerce\Framework\Database\Seeder;
+use Kirki\Ecommerce\Framework\Supports\Facades\Log;
 
 class AttributeSeeder extends Seeder
 {

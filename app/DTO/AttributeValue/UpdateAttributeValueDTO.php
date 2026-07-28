@@ -2,7 +2,7 @@
 
 namespace Kirki\Ecommerce\App\DTO\AttributeValue;
 
-use Kirki\Ecommerce\DTO;
+use Kirki\Ecommerce\Framework\DTO;
 
 class UpdateAttributeValueDTO extends DTO
 {

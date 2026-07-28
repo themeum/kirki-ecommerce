@@ -8,8 +8,8 @@ use Kirki\Ecommerce\App\Resources\Order\OrderListResource;
 use Kirki\Ecommerce\App\Resources\Order\OrderResource;
 use Kirki\Ecommerce\App\Services\OrderService;
 use Kirki\Ecommerce\App\Constants\Pagination;
-use Kirki\Ecommerce\Contracts\Request;
-use Kirki\Ecommerce\Database\Query\Paginator;
+use Kirki\Ecommerce\Framework\Contracts\Request;
+use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 use Kirki\Ecommerce\App\DTO\Order\OrderListFilterDTO;
 use Kirki\Ecommerce\App\DTO\Order\CreateOrderPayloadDTO;
 use Kirki\Ecommerce\App\DTO\Order\UpdateOrderPayloadDTO;
@@ -24,12 +24,12 @@ use Kirki\Ecommerce\App\DTO\Refund\CreateRefundPayloadDTO;
 use Kirki\Ecommerce\App\DTO\Refund\UpdateRefundPayloadDTO;
 use Kirki\Ecommerce\App\Http\Requests\Order\RefundCreateRequest;
 use Kirki\Ecommerce\App\Http\Requests\Order\RefundUpdateRequest;
-use Kirki\Ecommerce\Http\Response;
+use Kirki\Ecommerce\Framework\Http\Response;
 
-use function Kirki\Ecommerce\base_currency;
-use function Kirki\Ecommerce\customer;
-use function Kirki\Ecommerce\response;
-use function Kirki\Ecommerce\user;
+use function Kirki\Ecommerce\App\base_currency;
+use function Kirki\Ecommerce\App\customer;
+use function Kirki\Ecommerce\Framework\response;
+use function Kirki\Ecommerce\Framework\user;
 
 class OrderController
 {
@@ -111,7 +111,7 @@ class OrderController
 
     public function bulk_actions(BulkActionRequest $request)
     {
-        $data = $request->clean();
+        $data = $request->all();
 
         $action = $data['action'];
         $ids = $data['ids'] ?? [];

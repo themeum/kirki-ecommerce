@@ -4,9 +4,9 @@ namespace Kirki\Ecommerce\Tests\Unit\Supports;
 
 use ArrayAccess;
 use InvalidArgumentException;
-use Kirki\Ecommerce\Collections\Collection;
-use Kirki\Ecommerce\Contracts\Support\Arrayable;
-use Kirki\Ecommerce\Supports\Arr;
+use Kirki\Ecommerce\Framework\Collections\Collection;
+use Kirki\Ecommerce\Framework\Contracts\Support\Arrayable;
+use Kirki\Ecommerce\Framework\Supports\Arr;
 use Kirki\Ecommerce\Tests\Unit\TestCase;
 
 class ArrTest extends TestCase
@@ -65,28 +65,28 @@ class ArrTest extends TestCase
 
     public function test_instance_methods_manage_items(): void
     {
-        $array = Arr::make(['one']);
+        $array = new Collection(['one']);
 
         $array->push('two');
         $array->push('three');
 
-        $this->assertTrue($array->has(0));
-        $this->assertSame('one', $array->get(0));
+        $this->assertTrue($array->offsetExists(0));
+        $this->assertSame('one', $array->offsetGet(0));
         $this->assertSame('three', $array->pop());
-        $this->assertSame('two', $array->top());
-        $this->assertSame('one', $array->front());
+        $this->assertSame('two', $array->last());
+        $this->assertSame('one', $array->first());
     }
 
     public function test_filter_and_map_return_new_instances(): void
     {
-        $original = Arr::make([1, 2, 3, 4]);
+        $original = new Collection([1, 2, 3, 4]);
 
         $filtered = $original->filter(fn($value) => $value % 2 === 0);
         $mapped = $original->map(fn($value) => $value * 2);
 
-        $this->assertSame([2, 4], $filtered->to_array());
-        $this->assertSame([2, 4, 6, 8], $mapped->to_array());
-        $this->assertSame([1, 2, 3, 4], $original->to_array());
+        $this->assertSame([2, 4], $filtered->values()->all());
+        $this->assertSame([2, 4, 6, 8], $mapped->all());
+        $this->assertSame([1, 2, 3, 4], $original->all());
     }
 
     public function test_exists_supports_arrays_and_array_access(): void

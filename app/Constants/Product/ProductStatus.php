@@ -2,7 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Constants\Product;
 
-use Kirki\Ecommerce\Concerns\HasConstants;
+use Kirki\Ecommerce\Framework\Concerns\HasConstants;
 
 class ProductStatus
 {

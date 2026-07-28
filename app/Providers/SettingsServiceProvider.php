@@ -13,7 +13,7 @@ use Kirki\Ecommerce\App\Settings\ProductSettings;
 use Kirki\Ecommerce\App\Settings\SettingsFactory;
 use Kirki\Ecommerce\App\Settings\ShippingSettings;
 use Kirki\Ecommerce\App\Settings\TaxSettings;
-use Kirki\Ecommerce\ServiceProvider;
+use Kirki\Ecommerce\Framework\ServiceProvider;
 
 class SettingsServiceProvider extends ServiceProvider
 {

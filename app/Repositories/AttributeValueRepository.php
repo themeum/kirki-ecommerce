@@ -3,8 +3,8 @@
 namespace Kirki\Ecommerce\App\Repositories;
 
 use Kirki\Ecommerce\App\Models\AttributeValue;
-use Kirki\Ecommerce\Collections\Collection;
-use Kirki\Ecommerce\Database\Query\QueryBuilder;
+use Kirki\Ecommerce\Framework\Collections\Collection;
+use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
 
 class AttributeValueRepository
 {

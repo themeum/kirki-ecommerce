@@ -2,9 +2,9 @@
 
 namespace Kirki\Ecommerce\App\Repositories;
 
-use Kirki\Ecommerce\Collections\Collection;
+use Kirki\Ecommerce\Framework\Collections\Collection;
 
-use function Kirki\Ecommerce\collection;
+use function Kirki\Ecommerce\Framework\collection;
 
 class PageRepository
 {

@@ -3,17 +3,17 @@
 namespace Kirki\Ecommerce\App\Services;
 
 use Kirki\Ecommerce\App\Constants\OptionKeys;
-use Kirki\Ecommerce\Collections\Collection;
+use Kirki\Ecommerce\Framework\Collections\Collection;
 use Kirki\Ecommerce\App\DTO\PaymentMethod\CreatePaymentMethodDTO;
 use Kirki\Ecommerce\App\DTO\PaymentMethod\UpdatePaymentMethodDTO;
-use Kirki\Ecommerce\Exceptions\NotFoundException;
-use Kirki\Ecommerce\Http\Response;
+use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
+use Kirki\Ecommerce\Framework\Http\Response;
 use Kirki\Ecommerce\App\Payment\PaymentGateway;
-use Kirki\Ecommerce\Supports\Arr;
-use Kirki\Ecommerce\Supports\Facades\Settings;
-use Kirki\Ecommerce\Supports\Str;
+use Kirki\Ecommerce\Framework\Supports\Arr;
+use Kirki\Ecommerce\App\Supports\Facades\Settings;
+use Kirki\Ecommerce\Framework\Supports\Str;
 
-use function Kirki\Ecommerce\collection;
+use function Kirki\Ecommerce\Framework\collection;
 
 class ManualPaymentMethodService
 {

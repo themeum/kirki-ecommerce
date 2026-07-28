@@ -3,8 +3,8 @@
 namespace Kirki\Ecommerce\App\Models;
 
 use Kirki\Ecommerce\App\Concerns\HasSlug;
-use Kirki\Ecommerce\Database\Query\Model;
-use Kirki\Ecommerce\Database\Query\QueryBuilder;
+use Kirki\Ecommerce\Framework\Database\Query\Model;
+use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
 
 class Brand extends Model
 {

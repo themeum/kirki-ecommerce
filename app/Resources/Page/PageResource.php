@@ -2,7 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Resources\Page;
 
-use Kirki\Ecommerce\Resource;
+use Kirki\Ecommerce\Framework\Resource;
 
 class PageResource extends Resource
 {

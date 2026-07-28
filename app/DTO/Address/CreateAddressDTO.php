@@ -3,7 +3,7 @@
 namespace Kirki\Ecommerce\App\DTO\Address;
 
 use Kirki\Ecommerce\App\Constants\AddressType;
-use Kirki\Ecommerce\DTO;
+use Kirki\Ecommerce\Framework\DTO;
 
 class CreateAddressDTO extends DTO
 {
