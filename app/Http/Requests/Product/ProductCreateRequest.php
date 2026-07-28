@@ -6,11 +6,35 @@ use Kirki\Ecommerce\App\Constants\DimensionUnit;
 use Kirki\Ecommerce\App\Constants\Product\ProductStatus;
 use Kirki\Ecommerce\App\Constants\Unit;
 use Kirki\Ecommerce\App\Constants\WeightUnit;
+use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
 
 class ProductCreateRequest extends Request
 {
+    protected function prepare_for_validation()
+    {
+        $variants = $this->only('variants');
+
+        if (!is_array($variants)) {
+            return;
+        }
+
+        foreach ($variants as $index => $variant) {
+            if (!is_array($variant)) {
+                continue;
+            }
+
+            foreach (['price', 'sale_price', 'cost_of_goods'] as $field) {
+                if (array_key_exists($field, $variant) && !empty($variant[$field])) {
+                    $variants[$index][$field] = Money::to_minor($variant[$field]);
+                }
+            }
+        }
+
+        $this->merge(['variants' => $variants]);
+    }
+
     public function rules()
     {
         return [
@@ -107,11 +131,11 @@ class ProductCreateRequest extends Request
             'currency_id' => Sanitizer::INT,
             'brand_id' => Sanitizer::INT,
             'description' => Sanitizer::TEXT,
-            'additional_info' => Sanitizer::ARRAY ,
+            'additional_info' => Sanitizer::ARRAY,
             'allow_back_order' => Sanitizer::BOOL,
             'seo_title' => Sanitizer::TEXT,
             'seo_description' => Sanitizer::TEXT,
-            'seo_keywords' => Sanitizer::ARRAY ,
+            'seo_keywords' => Sanitizer::ARRAY,
             'seo_keywords.*' => Sanitizer::TEXT,
             'og_title' => Sanitizer::TEXT,
             'og_description' => Sanitizer::TEXT,
@@ -121,32 +145,32 @@ class ProductCreateRequest extends Request
             'has_variants' => Sanitizer::BOOL,
 
             // relations
-            'media' => Sanitizer::ARRAY ,
+            'media' => Sanitizer::ARRAY,
             'media.*' => Sanitizer::INT,
-            'categories' => Sanitizer::ARRAY ,
+            'categories' => Sanitizer::ARRAY,
             'categories.*' => Sanitizer::INT,
-            'tags' => Sanitizer::ARRAY ,
+            'tags' => Sanitizer::ARRAY,
             'tags.*' => Sanitizer::INT,
-            'collections' => Sanitizer::ARRAY ,
+            'collections' => Sanitizer::ARRAY,
             'collections.*' => Sanitizer::INT,
-            'attributes' => Sanitizer::ARRAY ,
+            'attributes' => Sanitizer::ARRAY,
             'attributes.*.id' => Sanitizer::INT,
-            'attributes.*.values' => Sanitizer::ARRAY ,
+            'attributes.*.values' => Sanitizer::ARRAY,
             'attributes.*.values.*' => Sanitizer::INT,
 
             // variants
-            'variants' => Sanitizer::ARRAY ,
+            'variants' => Sanitizer::ARRAY,
             'variants.*.media' => Sanitizer::INT,
             'variants.*.sku' => Sanitizer::TEXT,
             'variants.*.barcode' => Sanitizer::TEXT,
-            'variants.*.price' => Sanitizer::MONEY,
+            'variants.*.price' => Sanitizer::INT,
             'variants.*.show_unit_price' => Sanitizer::BOOL,
             'variants.*.base_unit' => Sanitizer::TEXT,
             'variants.*.base_unit_amount' => Sanitizer::INT,
             'variants.*.total_unit' => Sanitizer::TEXT,
             'variants.*.total_unit_amount' => Sanitizer::INT,
-            'variants.*.sale_price' => Sanitizer::MONEY,
-            'variants.*.cost_of_goods' => Sanitizer::MONEY,
+            'variants.*.sale_price' => Sanitizer::INT,
+            'variants.*.cost_of_goods' => Sanitizer::INT,
             'variants.*.weight' => Sanitizer::FLOAT,
             'variants.*.weight_unit' => Sanitizer::TEXT,
             'variants.*.charge_taxes' => Sanitizer::BOOL,
@@ -165,7 +189,7 @@ class ProductCreateRequest extends Request
             'variants.*.is_default' => Sanitizer::BOOL,
 
             // variant attributes
-            'variants.*.attribute_values' => Sanitizer::ARRAY ,
+            'variants.*.attribute_values' => Sanitizer::ARRAY,
             'variants.*.attribute_values.*' => Sanitizer::INT,
         ];
     }

@@ -2,8 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Payment;
 
+use Kirki\Ecommerce\App\Constants\HookNames;
 use Kirki\Ecommerce\App\Payment\Gateways\PayPal;
-use Kirki\Ecommerce\Framework\Wordpress\Constants\HookNames;
 
 use function Kirki\Ecommerce\Framework\collection;
 

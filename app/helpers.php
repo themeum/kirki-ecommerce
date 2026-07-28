@@ -67,3 +67,36 @@ if (!function_exists('Kirki\Ecommerce\App\base_currency')) {
         return app()->make(CurrencyService::class)->get_base_currency();
     }
 }
+
+if (!function_exists('Kirki\Ecommerce\resource_path')) {
+    /**
+     * Get the path to the resources directory.
+     *
+     * @param string $path
+     * @return string
+     */
+    function resource_path($path = '')
+    {
+        return app()->resource_path($path);
+    }
+}
+
+if (!function_exists('Kirki\Ecommerce\json_decoded_data')) {
+    /**
+     * Get the decoded JSON data from a file.
+     * 
+     * @param string $file_path
+     * @param bool $associative
+     * @return mixed
+     */
+    function json_decoded_data(string $file_path, bool $associative = true)
+    {
+        if (!file_exists($file_path)) {
+            return null;
+        }
+
+        $content = file_get_contents($file_path);
+
+        return json_decode($content, $associative);
+    }
+}

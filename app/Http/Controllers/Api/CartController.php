@@ -65,7 +65,7 @@ class CartController
 
     public function update_item(UpdateCartItemRequest $request, UpdateCartItemAction $action)
     {
-        $data = $request->clean();
+        $data = $request->all();
 
         $dto = new UpdateCartItemDTO();
 

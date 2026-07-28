@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Supports;
 
+use Kirki\Ecommerce\Framework\Supports\Arr;
+
 class Assets
 {
     const ADMIN_PAGE = 'ecommerce';

@@ -62,7 +62,7 @@ class CurrencyController
 
     public function create(CurrencyCreateRequest $request)
     {
-        $items = $request->clean()['items'] ?? [];
+        $items = $request->input('items') ?? [];
         $currencies = CreateCurrencyDTO::from_list($items);
         $currencies = $this->service->insert($currencies);
 
@@ -84,7 +84,7 @@ class CurrencyController
 
     public function update(CurrencyUpdateRequest $request)
     {
-        $items = $request->clean()['items'] ?? [];
+        $items = $request->input('items') ?? [];
         $currencies = [];
         $total_count = count($items);
         $error_count = 0;

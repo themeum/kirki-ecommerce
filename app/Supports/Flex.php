@@ -8,6 +8,7 @@ use Kirki\Ecommerce\Framework\Contracts\Support\Arrayable;
 use Kirki\Ecommerce\Framework\Contracts\Support\Jsonable;
 use IteratorAggregate;
 use JsonSerializable;
+use Kirki\Ecommerce\Framework\Supports\Arr;
 use Traversable;
 
 /**
