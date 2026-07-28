@@ -23,7 +23,7 @@ class SettingsUpdateRequest extends Request
             return;
         }
 
-        $data = $this->only('data');
+        $data = $this->input('data');
 
         if (!is_array($data) || !isset($data['shipping_zones']) || !is_array($data['shipping_zones'])) {
             return;

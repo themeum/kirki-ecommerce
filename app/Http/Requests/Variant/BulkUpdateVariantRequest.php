@@ -11,7 +11,7 @@ class BulkUpdateVariantRequest extends Request
 {
     protected function prepare_for_validation()
     {
-        $variants = $this->only('variants');
+        $variants = $this->input('variants');
 
         if (!is_array($variants)) {
             return;

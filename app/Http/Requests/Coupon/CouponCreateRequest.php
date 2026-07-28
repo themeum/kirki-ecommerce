@@ -18,7 +18,7 @@ class CouponCreateRequest extends Request
 {
     protected function prepare_for_validation()
     {
-        $discount_amount = $this->only('discount_amount');
+        $discount_amount = $this->input('discount_amount');
 
         if ($this->get('discount_value_type') === DiscountValueType::FIXED && !empty($discount_amount)) {
             $this->merge(['discount_amount' => Money::to_minor($discount_amount)]);

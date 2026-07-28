@@ -17,7 +17,7 @@ class CouponUpdateRequest extends Request
 {
     protected function prepare_for_validation()
     {
-        $discount_amount = $this->only('discount_amount');
+        $discount_amount = $this->input('discount_amount');
 
         if ($this->discount_value_type !== DiscountValueType::PERCENTAGE && !empty($discount_amount)) {
             $this->merge(['discount_amount' => Money::to_minor($discount_amount)]);

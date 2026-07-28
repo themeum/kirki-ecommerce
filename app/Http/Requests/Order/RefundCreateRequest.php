@@ -10,7 +10,7 @@ class RefundCreateRequest extends Request
 {
     protected function prepare_for_validation()
     {
-        $amount = $this->only('amount');
+        $amount = $this->input('amount');
 
         if (!empty($amount)) {
             $this->merge(['amount' => Money::to_minor($amount)]);

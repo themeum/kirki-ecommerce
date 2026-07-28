@@ -2,7 +2,6 @@
 
 namespace Kirki\Ecommerce\App\Http\Requests\Product;
 
-use Kirki\Ecommerce\App\Constants\DimensionUnit;
 use Kirki\Ecommerce\App\Constants\Product\ProductStatus;
 use Kirki\Ecommerce\App\Constants\Unit;
 use Kirki\Ecommerce\App\Constants\WeightUnit;
@@ -14,7 +13,7 @@ class ProductUpdateRequest extends Request
 {
     protected function prepare_for_validation()
     {
-        $variants = $this->only('variants');
+        $variants = $this->input('variants');
 
         if (!is_array($variants)) {
             return;
