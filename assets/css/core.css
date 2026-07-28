@@ -1,0 +1,18 @@
+.kirki-ecom-page-wrapper {
+    width: 1080px;
+    margin: 0 auto;
+}
+
+.kirki-ecom-products {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.kirki-ecom-product-card {
+    padding: 10px;
+    border: 1px solid #ccc;
+    margin-bottom: 10px;
+    width: fit-content;
+    border-radius: 4px;
+}
