@@ -260,12 +260,12 @@ class SettingsSeeder extends Seeder
                         "instructions" => "Cash on Delivery"
                     ],
                     [
-                        "id" => "fdsfds",
+                        "id" => "stripe",
                         "is_enabled" => true,
                         "is_manual" => false,
-                        "name" => "Cash on Delivery",
+                        "name" => "Stripe",
                         "icon" => "cash",
-                        "instructions" => "Cash on Delivery",
+                        "instructions" => "Stripe Patment Gateway",
                         "config" => []
                     ]
                 ]

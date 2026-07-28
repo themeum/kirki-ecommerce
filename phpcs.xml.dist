@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<ruleset name="kirki-ecommerce">
+    <arg name="basepath" value="."/>
+    <arg name="extensions" value="php"/>
+    <arg name="parallel" value="80"/>
+    <arg name="cache" value=".phpcs-cache"/>
+    <arg name="colors"/>
+
+    <!-- snake_case convention -->
+    <rule ref="PSR12">
+        <exclude name="PSR1.Methods.CamelCapsMethodName"/>
+    </rule>
+
+    <!-- Short array syntax: array() -> [] -->
+    <rule ref="Generic.Arrays.DisallowLongArraySyntax"/>
+</ruleset>
