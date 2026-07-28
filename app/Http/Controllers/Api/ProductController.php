@@ -60,7 +60,7 @@ class ProductController
 
     public function create(ProductCreateRequest $request, CreateProductAction $action)
     {
-        $data = $request->clean();
+        $data = $request->all();
 
         $variants = array_map(function ($variant) {
             return CreateVariantDTO::from_array($variant);
@@ -86,7 +86,7 @@ class ProductController
 
     public function update(ProductUpdateRequest $request, UpdateProductAction $action)
     {
-        $data = $request->clean();
+        $data = $request->all();
 
         $variants = array_map(function ($variant) {
             return UpdateVariantDTO::from_array($variant);
@@ -112,7 +112,7 @@ class ProductController
 
     public function bulk_actions(BulkActionRequest $request)
     {
-        $data = $request->clean();
+        $data = $request->all();
 
         $action = $data['action'];
         $ids = $data['ids'] ?? [];

@@ -9,12 +9,22 @@ use Kirki\Ecommerce\App\Constants\Coupon\DiscountTarget;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountValueType;
 use Kirki\Ecommerce\App\Constants\Coupon\EligibleItemType;
 use Kirki\Ecommerce\App\Constants\Coupon\SpendConditionType;
+use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Models\Coupon;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
 
 class CouponCreateRequest extends Request
 {
+    protected function prepare_for_validation()
+    {
+        $discount_amount = $this->input('discount_amount');
+
+        if ($this->get('discount_value_type') === DiscountValueType::FIXED && !empty($discount_amount)) {
+            $this->merge(['discount_amount' => Money::to_minor($discount_amount)]);
+        }
+    }
+
     public function rules()
     {
         return [
@@ -64,7 +74,7 @@ class CouponCreateRequest extends Request
             'discount_type' => Sanitizer::TEXT,
             'discount_target' => Sanitizer::TEXT,
             'discount_value_type' => Sanitizer::TEXT,
-            'discount_amount' => $this->get('discount_value_type') === DiscountValueType::FIXED ? Sanitizer::MONEY : Sanitizer::FLOAT,
+            'discount_amount' => $this->get('discount_value_type') === DiscountValueType::FIXED ? Sanitizer::INT : Sanitizer::FLOAT,
             'eligible_item_type' => Sanitizer::TEXT,
             'spend_condition_type' => Sanitizer::TEXT,
             'spend_condition_value' => Sanitizer::INT,
@@ -75,7 +85,7 @@ class CouponCreateRequest extends Request
             'has_end_date' => Sanitizer::BOOL,
             'end_date' => Sanitizer::TEXT,
             'end_time' => Sanitizer::TEXT,
-            'target_countries' => Sanitizer::ARRAY ,
+            'target_countries' => Sanitizer::ARRAY,
             'first_time_buyer_only' => Sanitizer::BOOL,
             'customer_eligibility' => Sanitizer::TEXT,
             'exclude_customers' => Sanitizer::BOOL,
@@ -84,13 +94,13 @@ class CouponCreateRequest extends Request
             'has_customer_limit' => Sanitizer::BOOL,
             'customer_limit' => Sanitizer::INT,
             'is_active' => Sanitizer::BOOL,
-            'category_ids' => Sanitizer::ARRAY ,
+            'category_ids' => Sanitizer::ARRAY,
             'category_ids.*' => Sanitizer::INT,
-            'product_ids' => Sanitizer::ARRAY ,
+            'product_ids' => Sanitizer::ARRAY,
             'product_ids.*' => Sanitizer::INT,
-            'customer_ids' => Sanitizer::ARRAY ,
+            'customer_ids' => Sanitizer::ARRAY,
             'customer_ids.*' => Sanitizer::INT,
-            'reward_product_ids' => Sanitizer::ARRAY ,
+            'reward_product_ids' => Sanitizer::ARRAY,
             'reward_product_ids.*' => Sanitizer::INT,
         ];
     }

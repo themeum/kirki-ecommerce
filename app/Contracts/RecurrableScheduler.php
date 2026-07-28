@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Contracts;
 
+use Kirki\Ecommerce\Framework\Contracts\Action;
 
 interface RecurrableScheduler extends Action
 {

@@ -3,11 +3,35 @@
 namespace Kirki\Ecommerce\App\Http\Requests\Variant;
 
 use Kirki\Ecommerce\App\Constants\WeightUnit;
+use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
 
 class BulkUpdateVariantRequest extends Request
 {
+    protected function prepare_for_validation()
+    {
+        $variants = $this->input('variants');
+
+        if (!is_array($variants)) {
+            return;
+        }
+
+        foreach ($variants as $index => $variant) {
+            if (!is_array($variant)) {
+                continue;
+            }
+
+            foreach (['price', 'sale_price', 'cost_of_goods'] as $field) {
+                if (array_key_exists($field, $variant) && !empty($variant[$field])) {
+                    $variants[$index][$field] = Money::to_minor($variant[$field]);
+                }
+            }
+        }
+
+        $this->merge(['variants' => $variants]);
+    }
+
     public function rules()
     {
         return [
@@ -50,19 +74,19 @@ class BulkUpdateVariantRequest extends Request
     public function filters()
     {
         return [
-            'variants' => Sanitizer::ARRAY ,
+            'variants' => Sanitizer::ARRAY,
             'variants.*.id' => Sanitizer::INT,
             'variants.*.media' => Sanitizer::INT,
             'variants.*.sku' => Sanitizer::TEXT,
             'variants.*.barcode' => Sanitizer::TEXT,
-            'variants.*.price' => Sanitizer::MONEY,
+            'variants.*.price' => Sanitizer::INT,
             'variants.*.show_unit_price' => Sanitizer::BOOL,
             'variants.*.base_unit' => Sanitizer::TEXT,
             'variants.*.base_unit_amount' => Sanitizer::INT,
             'variants.*.total_unit' => Sanitizer::TEXT,
             'variants.*.total_unit_amount' => Sanitizer::INT,
-            'variants.*.sale_price' => Sanitizer::MONEY,
-            'variants.*.cost_of_goods' => Sanitizer::MONEY,
+            'variants.*.sale_price' => Sanitizer::INT,
+            'variants.*.cost_of_goods' => Sanitizer::INT,
             'variants.*.weight' => Sanitizer::FLOAT,
             'variants.*.weight_unit' => Sanitizer::TEXT,
             'variants.*.charge_taxes' => Sanitizer::BOOL,
@@ -81,7 +105,7 @@ class BulkUpdateVariantRequest extends Request
             'variants.*.is_default' => Sanitizer::BOOL,
 
             // variant attributes
-            'variants.*.attribute_values' => Sanitizer::ARRAY ,
+            'variants.*.attribute_values' => Sanitizer::ARRAY,
             'variants.*.attribute_values.*' => Sanitizer::INT,
         ];
     }

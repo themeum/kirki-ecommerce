@@ -22,7 +22,7 @@ class CurrencyServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->singleton(CurrencyExchangeFactory::class, function ($app) {
-            $providers = Arr::make(config('currency.providers', []))->map(fn($provider) => new $provider())->to_array();
+            $providers = Arr::map(config('currency.providers', []), fn($provider) => new $provider());
             $factory = new CurrencyExchangeFactory($providers);
 
             return $factory;

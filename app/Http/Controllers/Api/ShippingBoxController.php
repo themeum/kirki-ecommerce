@@ -95,7 +95,7 @@ class ShippingBoxController
 
     public function bulk_actions(BulkActionRequest $request)
     {
-        $validated = $request->clean();
+        $validated = $request->all();
 
         $action = $validated['action'];
         $ids = $validated['ids'] ?? [];

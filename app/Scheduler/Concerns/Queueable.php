@@ -30,6 +30,13 @@ trait Queueable
     protected $delay = null;
 
     /**
+     * The number of times the job should be retried on failure.
+     *
+     * @var int
+     */
+    protected $retry = Config::MAX_RETRIES;
+
+    /**
      * The number of jobs to process in a single batch.
      *
      * @var int

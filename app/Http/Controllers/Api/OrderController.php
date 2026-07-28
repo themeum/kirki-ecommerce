@@ -111,7 +111,7 @@ class OrderController
 
     public function bulk_actions(BulkActionRequest $request)
     {
-        $data = $request->clean();
+        $data = $request->all();
 
         $action = $data['action'];
         $ids = $data['ids'] ?? [];
