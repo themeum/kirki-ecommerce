@@ -19,11 +19,8 @@ class AppConfigController
 
     public function get(Request $request)
     {
-        // migrator()->run()
-
         return response()->json([
             'data' => $this->service->get_app_config(),
-            'message' => __('Migration completed successfully.', 'kirki-ecommerce'),
         ]);
     }
 }

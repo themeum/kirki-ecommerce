@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Resources\Coupon;
 
+use Kirki\Ecommerce\App\Constants\Coupon\CouponMethod;
+use Kirki\Ecommerce\App\Constants\Coupon\DiscountType;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountValueType;
 use Kirki\Ecommerce\Resource;
 
@@ -16,13 +18,13 @@ class CouponListResource extends Resource
     {
         return [
             'id' => $this->id,
-            'method' => $this->method,
+            'method' => $this->method ?? CouponMethod::CODE,
             'title' => $this->title,
             'code' => $this->code,
-            'discount_type' => $this->discount_type,
+            'discount_type' => $this->discount_type ?? DiscountType::AMOUNT_OFF,
             'discount_target' => $this->discount_target,
             'discount_value_type' => $this->discount_value_type,
-            'discount_amount' => $this->discount_value_type === DiscountValueType::FIXED ? $this->discount_amount_fixed : $this->discount_amount_percent,
+            'discount_amount' => $this->discount_value_type === DiscountValueType::FIXED ? $this->discount_amount_fixed : $this->discount_amount_percentage,
             'eligible_item_type' => $this->eligible_item_type,
             'spend_condition_type' => $this->spend_condition_type,
             'spend_condition_value' => $this->spend_condition_value,
@@ -35,8 +37,9 @@ class CouponListResource extends Resource
             'end_time' => $this->end_time,
             'has_usage_limit' => $this->has_usage_limit,
             'usage_limit' => $this->usage_limit,
-            'usage_count' => !empty($this->usage) ? $this->usage->count() : 0,
+            'current_usage_count' => $this->current_usage_count,
             'is_active' => $this->is_active,
+            'status' => $this->get_status(),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

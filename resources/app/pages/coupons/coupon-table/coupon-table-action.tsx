@@ -19,12 +19,12 @@ import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
-import FilterPopup from '@/pages/products/product-table/filter-popup/filter-popup';
-import { ProductListFilter } from '@/types/filters/product';
+import FilterPopup from '@/pages/coupons/coupon-table/filter-popup/filter-popup';
+import { CouponListFilter } from '@/types/filters/coupon';
 
-const ProductTableAction = memo(() => {
-  const params = useListParamsValue<ProductListFilter>();
-  const { setParam } = useListParamsActions<ProductListFilter>();
+const CouponTableAction = memo(() => {
+  const params = useListParamsValue<CouponListFilter>();
+  const { setParam } = useListParamsActions<CouponListFilter>();
 
   const handleSearchChange = (value: string) => {
     setParam('search', value);
@@ -63,9 +63,9 @@ const ProductTableAction = memo(() => {
   );
 });
 
-ProductTableAction.displayName = 'ProductTableAction';
+CouponTableAction.displayName = 'CouponTableAction';
 
-export default ProductTableAction;
+export default CouponTableAction;
 
 const styles = {
   wrapper: scoped({

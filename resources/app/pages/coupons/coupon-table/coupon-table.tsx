@@ -7,39 +7,38 @@ import DataTable, {
 } from '@/components/data-table';
 import Badge from '@/components/ui/badge';
 import Flex from '@/components/ui/flex';
-import Thumbnail from '@/components/ui/thumbnail';
 import { endpoints } from '@/libs/endpoints';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
-import type { PaginatedData, ProductListItem } from '@/types';
+import type { PaginatedData } from '@/types';
 import { getBadgeVariantForStatus } from '@/utils/badge-status';
 import { __ } from '@/wpi18n';
 
-import FilterPopup from '@/pages/products/product-table/filter-popup/filter-popup';
-import ProductTableAction from '@/pages/products/product-table/product-table-action';
-import ProductTableFilterAction from '@/pages/products/product-table/product-table-filter-action';
-import { useBulkDeleteProductsMutation } from '@/services/product';
-import { productListOptions } from '@/types/filters/product';
+import CouponTableAction from '@/pages/coupons/coupon-table/coupon-table-action';
+import CouponTableFilterAction from '@/pages/coupons/coupon-table/coupon-table-filter-action';
+import FilterPopup from '@/pages/coupons/coupon-table/filter-popup/filter-popup';
+import { CouponListItem } from '@/schemas/catalog/coupon';
+import { useBulkDeleteCouponsMutation } from '@/services/coupon';
+import { couponListOptions } from '@/types/filters/coupon';
 
-type ProductTableProps = {
-  data?: PaginatedData<ProductListItem>;
+type CouponTableProps = {
+  data?: PaginatedData<CouponListItem>;
   isLoading?: boolean;
   onPageChange: (page: number) => void;
 };
 
-const ProductTitleCell = ({ item }: { item: ProductListItem }) => {
+const CouponTitleCell = ({ item }: { item: CouponListItem }) => {
   const navigate = useNavigate();
 
   return (
     <Flex gap={3} align="center">
-      <Thumbnail src={item?.image ?? undefined} size="small" />
       <span
         css={styles.clickable}
         onClick={() => {
-          navigate(endpoints.PRODUCT(item.id));
+          navigate(endpoints.COUPON(item.id));
         }}
       >
-        <span css={styles.mutedText}>{item?.title} </span>
+        <span css={styles.mutedText}>{item.title} </span>
       </span>
     </Flex>
   );
@@ -49,22 +48,10 @@ const ProductTitleCell = ({ item }: { item: ProductListItem }) => {
  * Module scope on purpose: a stable `columns` reference is what lets the
  * memoized table header sit out a search.
  */
-const productColumns: DataTableColumn<ProductListItem>[] = [
+const couponColumns: DataTableColumn<CouponListItem>[] = [
   {
-    title: __('Product', 'kirki-ecommerce'),
-    renderItem: (item) => <ProductTitleCell item={item} />,
-  },
-  {
-    title: __('SKU', 'kirki-ecommerce'),
-    renderItem: (item) => item?.sku || '-',
-  },
-  {
-    title: __('Inventory', 'kirki-ecommerce'),
-    renderItem: (item) => item?.inventory,
-  },
-  {
-    title: __('Price', 'kirki-ecommerce'),
-    renderItem: (item) => item?.price,
+    title: __('Title', 'kirki-ecommerce'),
+    renderItem: (item) => <CouponTitleCell item={item} />,
   },
   {
     title: __('Status', 'kirki-ecommerce'),
@@ -75,23 +62,32 @@ const productColumns: DataTableColumn<ProductListItem>[] = [
     ),
   },
   {
-    title: __('Date', 'kirki-ecommerce'),
+    title: __('Method', 'kirki-ecommerce'),
+    renderItem: (item) => item.method,
+  },
+  {
+    title: __('Type', 'kirki-ecommerce'),
+    renderItem: (item) => item.discount_type,
+  },
+  {
+    title: __('used', 'kirki-ecommerce'),
+    renderItem: (item) => item.current_usage_count,
+  },
+  {
+    title: __('Created at', 'kirki-ecommerce'),
     renderItem: (item) => item?.created_at,
   },
 ];
 
-const productBulkActions = [
+const couponBulkActions = [
   { value: 'delete', title: __('Trash', 'kirki-ecommerce') },
 ];
 
-const ProductTable = ({ data, isLoading, onPageChange }: ProductTableProps) => {
-  const bulkDeleteMutation = useBulkDeleteProductsMutation();
+const CouponTable = ({ data, isLoading, onPageChange }: CouponTableProps) => {
+  const bulkDeleteMutation = useBulkDeleteCouponsMutation();
 
   const handleBulkApply = useCallback(
-    async (
-      action: string,
-      { selectedItems, isSelectAll }: DataTableBulkApplyPayload,
-    ) => {
+    async (action: string, { selectedItems, isSelectAll }: DataTableBulkApplyPayload) => {
       if (action !== 'delete') {
         return;
       }
@@ -113,31 +109,31 @@ const ProductTable = ({ data, isLoading, onPageChange }: ProductTableProps) => {
 
   return (
     <DataTable
-      listOptions={productListOptions}
+      listOptions={couponListOptions}
       data={data}
       isLoading={isLoading}
-      columns={productColumns}
-      bulkActionOptions={productBulkActions}
+      columns={couponColumns}
+      bulkActionOptions={couponBulkActions}
       onBulkApply={handleBulkApply}
       onPageChange={onPageChange}
     >
       <DataTable.Action>
-        <ProductTableAction />
+        <CouponTableAction />
       </DataTable.Action>
       <DataTable.FilterAction>
         <FilterPopup />
       </DataTable.FilterAction>
       <DataTable.FilterBar>
-        <ProductTableFilterAction />
+        <CouponTableFilterAction />
       </DataTable.FilterBar>
       <DataTable.Pagination />
     </DataTable>
   );
 };
 
-ProductTable.displayName = 'ProductTable';
+CouponTable.displayName = 'CouponTable';
 
-export default ProductTable;
+export default CouponTable;
 
 const styles = {
   clickable: scoped({

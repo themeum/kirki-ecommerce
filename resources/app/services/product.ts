@@ -17,7 +17,8 @@ import {
   toastMutationSuccess,
   unwrapResponse,
 } from '@/services/helpers';
-import type { BulkActionParams, ListParams, ProductFormData, ProductListFilter } from '@/types';
+import type { BulkActionParams, ListParams, ProductFormData } from '@/types';
+import { ProductListFilter } from '@/types/filters/product';
 import { __ } from '@/wpi18n';
 
 const getProducts = (params: ListParams<ProductListFilter> = {}) => {

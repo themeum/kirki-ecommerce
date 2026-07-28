@@ -1,17 +1,21 @@
 import { css } from '@emotion/react';
+import { memo } from 'react';
 
 import Button from '@/components/ui/button';
-import { useListParams } from '@/hooks';
 import Capsule from '@/components/ui/capsule';
 import Flex from '@/components/ui/flex';
+import {
+  useListParamsActions,
+  useListParamsValue,
+} from '@/contexts/list-params-context';
 import { makeSuggestionList } from '@/pages/utils';
 import { useBrandsQuery } from '@/services/brand';
 import { useCategoriesQuery } from '@/services/category';
 import { useCollectionsQuery } from '@/services/collection';
 import { theme } from '@/theme';
-import type { ProductListFilter, SuggestionOption } from '@/types';
-import { productListFilterConfig } from '@/types';
+import type { SuggestionOption } from '@/types';
 import { __ } from '@/wpi18n';
+import { ProductListFilter, productListFilterConfig } from '@/types/filters/product';
 
 type FilterValue = string | number | Array<string | number>;
 
@@ -36,17 +40,9 @@ const filterActionBarCss = css({
   padding: theme.spacing[3],
 });
 
-const ProductTableFilterAction = () => {
-  const { params, setParam, setParams } = useListParams<ProductListFilter>({
-    defaults: {
-      search: '',
-      sort_by: 'title',
-      sort_order: 'asc',
-      page: 1,
-      limit: 10,
-    },
-    filter: productListFilterConfig,
-  });
+const ProductTableFilterAction = memo(() => {
+  const params = useListParamsValue<ProductListFilter>();
+  const { setParam, setParams } = useListParamsActions<ProductListFilter>();
 
   const { data: brandsData } = useBrandsQuery({ limit: -1 });
   const { data: categoriesData } = useCategoriesQuery({ limit: -1 });
@@ -56,7 +52,7 @@ const ProductTableFilterAction = () => {
   const categoryOptions = makeSuggestionList(categoriesData?.results || [], []);
   const collectionOptions = makeSuggestionList(collectionsData?.results || [], []);
 
-  const filterOptionsMap: Record<ProductFilterKey, SuggestionOption[]> = {
+  const filterOptionsMap: Partial<Record<ProductFilterKey, SuggestionOption[]>> = {
     category_ids: categoryOptions,
     status: statusOptions,
     stock_status: stockStatusOptions,
@@ -88,7 +84,7 @@ const ProductTableFilterAction = () => {
     if (key === 'stock_status') {
       return params.stock_status ?? '';
     }
-    return '';
+    return (params[key] ?? '') as FilterValue;
   };
 
   const handleFilterChange = (val: FilterValue, key: ProductFilterKey) => {
@@ -104,14 +100,16 @@ const ProductTableFilterAction = () => {
   };
 
   const handleClearAll = () => {
-    setParams({
-      category_ids: undefined,
-      brand_ids: undefined,
-      collection_ids: undefined,
-      status: undefined,
-      stock_status: undefined,
-    });
+    setParams(
+      Object.fromEntries(
+        PRODUCT_FILTER_KEYS.map((key) => [key, undefined]),
+      ) as Partial<ProductListFilter>,
+    );
   };
+
+  if (!activeFilterKeys.length) {
+    return null;
+  }
 
   return (
     <Flex gap={3} css={filterActionBarCss}>
@@ -131,7 +129,7 @@ const ProductTableFilterAction = () => {
       </Button>
     </Flex>
   );
-};
+});
 
 ProductTableFilterAction.displayName = 'ProductTableFilterAction';
 

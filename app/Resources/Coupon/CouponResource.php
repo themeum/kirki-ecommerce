@@ -2,6 +2,9 @@
 
 namespace Kirki\Ecommerce\App\Resources\Coupon;
 
+use Kirki\Ecommerce\App\Constants\Coupon\CouponMethod;
+use Kirki\Ecommerce\App\Constants\Coupon\CustomerEligibility;
+use Kirki\Ecommerce\App\Constants\Coupon\DiscountType;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountValueType;
 use Kirki\Ecommerce\Resource;
 use Kirki\Ecommerce\App\Facades\Money;
@@ -17,10 +20,10 @@ class CouponResource extends Resource
     {
         return [
             'id' => $this->id,
-            'method' => $this->method,
+            'method' => $this->method ?? CouponMethod::CODE,
             'title' => $this->title,
             'code' => $this->code,
-            'discount_type' => $this->discount_type,
+            'discount_type' => $this->discount_type ?? DiscountType::AMOUNT_OFF,
             'discount_target' => $this->discount_target,
             'discount_value_type' => $this->discount_value_type,
             'discount_amount' => $this->discount_value_type === DiscountValueType::FIXED ? $this->prepare_amount($this->discount_amount_fixed) : $this->discount_amount_percentage,
@@ -31,12 +34,12 @@ class CouponResource extends Resource
             'reward_value' => $this->reward_value,
             'start_date' => $this->start_date,
             'start_time' => $this->start_time,
-            'has_end_date' => $this->has_end_date,
+            'has_end_date' => filter_var($this->has_end_date, FILTER_VALIDATE_BOOLEAN),
             'end_date' => $this->end_date,
             'end_time' => $this->end_time,
             'target_countries' => $this->target_countries,
-            'first_time_buyer_only' => $this->first_time_buyer_only,
-            'customer_eligibility' => $this->customer_eligibility,
+            'first_time_buyer_only' => filter_var($this->first_time_buyer_only, FILTER_VALIDATE_BOOLEAN),
+            'customer_eligibility' => $this->customer_eligibility ?? CustomerEligibility::ALL,
             'exclude_customers' => $this->exclude_customers,
             'has_usage_limit' => $this->has_usage_limit,
             'usage_limit' => $this->usage_limit,
@@ -44,6 +47,7 @@ class CouponResource extends Resource
             'customer_limit' => $this->customer_limit,
             'current_usage_count' => $this->current_usage_count,
             'is_active' => $this->is_active,
+            'status' => $this->get_status(),
             'categories' => !empty($this->categories) ? $this->categories->pluck('id')->all() : [],
             'products' => !empty($this->products) ? $this->products->pluck('id')->all() : [],
             'customers' => !empty($this->customers) ? $this->customers->pluck('id')->all() : [],

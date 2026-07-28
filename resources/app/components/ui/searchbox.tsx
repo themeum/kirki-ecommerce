@@ -40,6 +40,7 @@ type SearchboxProps = {
   state?: InputState;
   error?: string | boolean;
   readOnly?: boolean;
+  delay?: number;
 };
 
 /**
@@ -85,6 +86,7 @@ const Searchbox = forwardRef<HTMLInputElement, SearchboxProps>((props, ref) => {
     state,
     error,
     readOnly,
+    delay = 300,
   } = props;
 
   const fallbackRef = useRef<HTMLInputElement>(null);
@@ -96,7 +98,7 @@ const Searchbox = forwardRef<HTMLInputElement, SearchboxProps>((props, ref) => {
     setSearchValue(value ?? '');
   }, [value]);
 
-  const debouncedOnChange = useRef(debounce(onChange, 300)).current;
+  const debouncedOnChange = useRef(debounce(onChange, delay)).current;
 
   const handleSearchChange = (nextValue: string) => {
     setSearchValue(nextValue);
