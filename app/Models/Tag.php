@@ -14,8 +14,7 @@ class Tag extends Model
     protected $primary_key = 'id';
 
     protected $casts = [
-        'id' => 'integer',
-        'count' => 'integer'
+        'count' => 'integer',
     ];
 
     protected $fillable = [
