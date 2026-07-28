@@ -83,4 +83,19 @@ class SiteController
     {
         return TemplateHelper::get_template('checkout');
     }
+
+    /**
+     * Account page
+     *
+     * @since 1.0.0
+     *
+     * @param array $params  Route parameters.
+     * @param array $template Template name.
+     *
+     * @return string Template path.
+     */
+    public function account_page($params, $template)
+    {
+        return TemplateHelper::get_template('account');
+    }
 }

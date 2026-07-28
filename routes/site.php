@@ -25,6 +25,7 @@ $route->set_default_hook(SiteRoute::HOOK_TEMPLATE_INCLUDE);
 $shop_page_id = Settings::get('product')->get('shop_page', 34);
 $cart_page_id = Settings::get('product')->get('cart_page', 32);
 $checkout_page_id = Settings::get('product')->get('checkout_page', 2);
+$account_page_id = Settings::get('product')->get('account_page', 52);
 
 $shop_page = get_post($shop_page_id);
 $shop_page_slug = !empty($shop_page) ? $shop_page->post_name : 'shop';
@@ -42,4 +43,9 @@ $route->get($cart_page_id, [SiteController::class, 'cart_page'])
 
 $route->get($checkout_page_id, [SiteController::class, 'checkout_page'])
     ->name('checkout')
+    ->match_using(SiteRoute::MATCH_PAGE);
+
+$route->get($account_page_id, [SiteController::class, 'account_page'])
+    ->middleware(fn() => is_user_logged_in() ? true : wp_redirect(home_url()))
+    ->name('account')
     ->match_using(SiteRoute::MATCH_PAGE);
