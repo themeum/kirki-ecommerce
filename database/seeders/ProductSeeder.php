@@ -3,16 +3,16 @@
 namespace Kirki\Ecommerce\Database\Seeders;
 
 use Kirki\Ecommerce\App\Actions\Product\CreateProductAction;
-use Kirki\Ecommerce\Collections\Collection;
-use Kirki\Ecommerce\Database\Seeder;
+use Kirki\Ecommerce\Framework\Collections\Collection;
+use Kirki\Ecommerce\Framework\Database\Seeder;
 use Kirki\Ecommerce\App\DTO\Product\CreateProductDTO;
 use Kirki\Ecommerce\App\DTO\Variant\CreateVariantDTO;
-use Kirki\Ecommerce\Supports\Facades\Log;
-use Kirki\Ecommerce\Supports\Str;
+use Kirki\Ecommerce\Framework\Supports\Facades\Log;
+use Kirki\Ecommerce\Framework\Supports\Str;
 
-use function Kirki\Ecommerce\app;
-use function Kirki\Ecommerce\collection;
-use function Kirki\Ecommerce\faker;
+use function Kirki\Ecommerce\Framework\app;
+use function Kirki\Ecommerce\Framework\collection;
+use function Kirki\Ecommerce\Framework\faker;
 
 class ProductSeeder extends Seeder
 {
@@ -259,7 +259,7 @@ class ProductSeeder extends Seeder
     /**
      * Build variant DTO list for a product.
      *
-     * @param \Kirki\Ecommerce\Collections\Collection $combinations Variant combinations.
+     * @param \Kirki\Ecommerce\Framework\Collections\Collection $combinations Variant combinations.
      * @param \Faker\Generator $faker Faker instance.
      * @param array $product Product catalog entry.
      *

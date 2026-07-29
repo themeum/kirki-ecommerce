@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+export XDEBUG_MODE=off
+
+exec php -d xdebug.mode=off -d error_reporting=22527 \
+	"$ROOT/vendor/bin/phpunit" "$@"

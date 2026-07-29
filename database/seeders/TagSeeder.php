@@ -3,9 +3,9 @@
 namespace Kirki\Ecommerce\Database\Seeders;
 
 use Kirki\Ecommerce\App\Models\Tag;
-use Kirki\Ecommerce\Database\Seeder;
-use Kirki\Ecommerce\Supports\Facades\Date;
-use Kirki\Ecommerce\Supports\Facades\Log;
+use Kirki\Ecommerce\Framework\Database\Seeder;
+use Kirki\Ecommerce\Framework\Supports\Facades\Date;
+use Kirki\Ecommerce\Framework\Supports\Facades\Log;
 
 class TagSeeder extends Seeder
 {

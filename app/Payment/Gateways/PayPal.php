@@ -9,10 +9,10 @@ use Kirki\Ecommerce\App\Facades\Order as OrderManager;
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Models\Refund;
 use Kirki\Ecommerce\App\Payment\PaymentGateway;
-use Kirki\Ecommerce\Sanitizer;
-use Kirki\Ecommerce\Supports\Facades\Http;
+use Kirki\Ecommerce\Framework\Sanitizer;
+use Kirki\Ecommerce\Framework\Supports\Facades\Http;
 use Kirki\Ecommerce\App\Facades\Money;
-use Kirki\Ecommerce\Validation\Validator;
+use Kirki\Ecommerce\Framework\Validation\Validator;
 use Exception;
 
 defined('ABSPATH') || exit;

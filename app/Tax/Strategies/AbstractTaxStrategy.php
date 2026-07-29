@@ -6,7 +6,7 @@ use Kirki\Ecommerce\App\Decisions\Contexts\DecisionContext;
 use Kirki\Ecommerce\App\DTO\Tax\ProductTaxContextDTO;
 use Kirki\Ecommerce\App\DTO\Tax\TaxResultDTO;
 
-use function Kirki\Ecommerce\decision_engine;
+use function Kirki\Ecommerce\App\decision_engine;
 
 abstract class AbstractTaxStrategy
 {

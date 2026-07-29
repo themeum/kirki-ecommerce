@@ -2,8 +2,8 @@
 
 namespace Kirki\Ecommerce\App;
 
-use Kirki\Ecommerce\Scheduler\Scheduler;
-use function Kirki\Ecommerce\migrator;
+use Kirki\Ecommerce\App\Scheduler\Scheduler;
+use function Kirki\Ecommerce\Framework\migrator;
 
 final class KirkiEcommerce
 {

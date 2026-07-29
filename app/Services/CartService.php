@@ -9,9 +9,9 @@ use Kirki\Ecommerce\App\DTO\Cart\RemoveCartItemDTO;
 use Kirki\Ecommerce\App\DTO\Cart\UpdateCartDTO;
 use Exception;
 
-use function Kirki\Ecommerce\base_currency;
-use function Kirki\Ecommerce\customer;
-use function Kirki\Ecommerce\uuid;
+use function Kirki\Ecommerce\App\base_currency;
+use function Kirki\Ecommerce\App\customer;
+use function Kirki\Ecommerce\Framework\uuid;
 
 class CartService
 {

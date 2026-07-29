@@ -3,7 +3,7 @@
 namespace Kirki\Ecommerce\Tests\Unit\Supports;
 
 use BadMethodCallException;
-use Kirki\Ecommerce\Supports\Str;
+use Kirki\Ecommerce\Framework\Supports\Str;
 use Kirki\Ecommerce\Tests\Unit\TestCase;
 
 class StrTest extends TestCase

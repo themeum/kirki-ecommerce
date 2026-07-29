@@ -2,7 +2,7 @@
 
 namespace Kirki\Ecommerce\App\DTO\TaxProfile;
 
-use Kirki\Ecommerce\DTO;
+use Kirki\Ecommerce\Framework\DTO;
 
 class UpdateTaxProfileDTO extends DTO
 {

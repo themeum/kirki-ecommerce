@@ -2,10 +2,10 @@
 
 namespace Kirki\Ecommerce\App\Resources\Variant;
 
-use Kirki\Ecommerce\Resource;
-use Kirki\Ecommerce\Supports\MediaAttachment;
+use Kirki\Ecommerce\Framework\Resource;
+use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
 use Kirki\Ecommerce\App\Facades\Money;
-use function Kirki\Ecommerce\collection;
+use function Kirki\Ecommerce\Framework\collection;
 
 class VariantResource extends Resource
 {

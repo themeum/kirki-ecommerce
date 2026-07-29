@@ -3,7 +3,7 @@
 namespace Kirki\Ecommerce\Tests\Unit;
 
 use Exception;
-use Kirki\Ecommerce\Container;
+use Kirki\Ecommerce\Framework\Container;
 use LogicException;
 
 class ContainerTest extends TestCase

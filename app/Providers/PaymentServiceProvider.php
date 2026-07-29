@@ -2,7 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Providers;
 
-use Kirki\Ecommerce\ServiceProvider;
+use Kirki\Ecommerce\Framework\ServiceProvider;
 use Kirki\Ecommerce\App\Payment\PaymentManager;
 
 class PaymentServiceProvider extends ServiceProvider

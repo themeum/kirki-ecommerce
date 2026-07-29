@@ -5,7 +5,7 @@ namespace Kirki\Ecommerce\App\Settings;
 defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Constants\OptionKeys;
-use Kirki\Ecommerce\AppSettings;
+use Kirki\Ecommerce\App\AppSettings;
 
 class GeneralSettings extends AppSettings
 {

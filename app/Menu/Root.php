@@ -2,9 +2,9 @@
 
 namespace Kirki\Ecommerce\App\Menu;
 
-use Kirki\Ecommerce\Wordpress\Constants\MenuTypes;
-use Kirki\Ecommerce\Supports\Assets;
-use Kirki\Ecommerce\Wordpress\Menu;
+use Kirki\Ecommerce\Framework\Wordpress\Constants\MenuTypes;
+use Kirki\Ecommerce\App\Supports\Assets;
+use Kirki\Ecommerce\Framework\Wordpress\Menu;
 
 class Root extends Menu
 {

@@ -4,9 +4,9 @@ namespace Kirki\Ecommerce\App\Http\Controllers\Api;
 
 use Kirki\Ecommerce\App\Resources\Page\PageResource;
 use Kirki\Ecommerce\App\Services\PageService;
-use Kirki\Ecommerce\Contracts\Request;
+use Kirki\Ecommerce\Framework\Contracts\Request;
 
-use function Kirki\Ecommerce\response;
+use function Kirki\Ecommerce\Framework\response;
 
 class PageController
 {

@@ -3,8 +3,8 @@
 namespace Kirki\Ecommerce\App\Http\Requests\Order;
 
 use Kirki\Ecommerce\App\Constants\Order\RefundStatus;
-use Kirki\Ecommerce\Http\Request;
-use Kirki\Ecommerce\Sanitizer;
+use Kirki\Ecommerce\Framework\Http\Request;
+use Kirki\Ecommerce\Framework\Sanitizer;
 
 class RefundUpdateRequest extends Request
 {

@@ -6,12 +6,12 @@ use Kirki\Ecommerce\App\Facades\CurrencyExchange;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Payment\Facades\Payment;
-use Kirki\Ecommerce\Http\Request;
+use Kirki\Ecommerce\Framework\Http\Request;
 
-use Kirki\Ecommerce\Supports\AddonPlugin;
-use Kirki\Ecommerce\Supports\Facades\Date;
-use function Kirki\Ecommerce\app;
-use function Kirki\Ecommerce\response;
+use Kirki\Ecommerce\App\Supports\AddonPlugin;
+use Kirki\Ecommerce\Framework\Supports\Facades\Date;
+use function Kirki\Ecommerce\Framework\app;
+use function Kirki\Ecommerce\Framework\response;
 
 // This controller is used for testing purpose only.
 // Hit {{base_url}}/test for accessing this.

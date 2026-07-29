@@ -3,7 +3,7 @@
 namespace Kirki\Ecommerce\Tests\Unit\Collections;
 
 use InvalidArgumentException;
-use Kirki\Ecommerce\Collections\Collection;
+use Kirki\Ecommerce\Framework\Collections\Collection;
 use Kirki\Ecommerce\Tests\Unit\TestCase;
 
 class CollectionTest extends TestCase
