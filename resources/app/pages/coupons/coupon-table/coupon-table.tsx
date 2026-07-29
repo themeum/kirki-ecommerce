@@ -14,12 +14,14 @@ import type { PaginatedData } from '@/types';
 import { getBadgeVariantForStatus } from '@/utils/badge-status';
 import { __ } from '@/wpi18n';
 
+import { DATE_FORMATS } from '@/libs/date';
 import CouponTableFilter from '@/pages/coupons/coupon-table/coupon-table-filter';
 import CouponTableFilterBar from '@/pages/coupons/coupon-table/coupon-table-filter-bar';
 import FilterPopup from '@/pages/coupons/coupon-table/filter-popup/filter-popup';
 import { CouponListItem } from '@/schemas/catalog/coupon';
 import { useBulkDeleteCouponsMutation } from '@/services/coupon';
 import { couponListOptions } from '@/types/filters/coupon';
+import { format } from 'date-fns';
 
 type CouponTableProps = {
   data?: PaginatedData<CouponListItem>;
@@ -70,12 +72,12 @@ const couponColumns: DataTableColumn<CouponListItem>[] = [
     renderItem: (item) => item.discount_type,
   },
   {
-    title: __('used', 'kirki-ecommerce'),
+    title: __('Used', 'kirki-ecommerce'),
     renderItem: (item) => item.current_usage_count,
   },
   {
     title: __('Created at', 'kirki-ecommerce'),
-    renderItem: (item) => item?.created_at,
+    renderItem: (item) => item.created_at ? format(new Date(item.created_at), DATE_FORMATS.YEAR_MONTH_DAY) : '-',
   },
 ];
 

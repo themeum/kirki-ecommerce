@@ -13,8 +13,8 @@ http:
     data: |-
       {
         "method": "code",
-        "title": "20% Off Winter Sale",
-        "code": "WINTER20",
+        "title": "10% Off Winter Sale",
+        "code": "WINTER10",
         "discount_type": "amount-off",
         "discount_target": "order",
         "discount_value_type": "percentage",
@@ -24,11 +24,9 @@ http:
         "spend_condition_value": 10,
         "reward_quantity": null,
         "reward_value": null,
-        "start_date": "2025-11-24",
-        "start_time": "00:00",
-        "has_end_date": true,
-        "end_date": "2025-12-31",
-        "end_time": "23:59",
+        "start_datetime": "2026-07-24T00:00:00+06:00",
+        "has_end_datetime": true,
+        "end_datetime": "2026-12-31T23:59:00+06:00",
         "target_countries": [
           "EU",
           "BD",
@@ -42,15 +40,9 @@ http:
         "has_customer_limit": false,
         "customer_limit": null,
         "is_active": true,
-        "category_ids": [
-          1
-        ],
-        "product_ids": [
-          2
-        ],
-        "customer_ids": [
-          1
-        ],
+        "category_ids": null,
+        "product_ids": null,
+        "customer_ids": null,
         "reward_product_ids": null
       }
   auth: inherit
@@ -83,11 +75,9 @@ examples:
             "spend_condition_value": 10,
             "reward_quantity": null,
             "reward_value": null,
-            "start_date": "2025-11-24",
-            "start_time": "00:00",
-            "has_end_date": true,
-            "end_date": "2025-12-31",
-            "end_time": "23:59",
+            "start_datetime": "2026-07-24T00:00:00+06:00",
+            "has_end_datetime": true,
+            "end_datetime": "2026-12-31T23:59:00+06:00",
             "target_countries": [
               "EU",
               "BD",
@@ -181,11 +171,9 @@ examples:
             "spend_condition_value": 10,
             "reward_quantity": null,
             "reward_value": null,
-            "start_date": "2025-11-24",
-            "start_time": "00:00",
-            "has_end_date": true,
-            "end_date": "2025-12-31",
-            "end_time": "23:59",
+            "start_datetime": "2026-07-24T00:00:00+06:00",
+            "has_end_datetime": true,
+            "end_datetime": "2026-12-31T23:59:00+06:00",
             "target_countries": [
               "EU",
               "BD",
@@ -249,11 +237,9 @@ examples:
             "spend_condition_value": 10,
             "reward_quantity": null,
             "reward_value": null,
-            "start_date": "2026-07-24",
-            "start_time": "00:00",
-            "has_end_date": true,
-            "end_date": "2026-12-31",
-            "end_time": "23:59",
+            "start_datetime": "2026-07-24T00:00:00+06:00",
+            "has_end_datetime": true,
+            "end_datetime": "2026-12-31T23:59:00+06:00",
             "target_countries": null,
             "first_time_buyer_only": false,
             "customer_eligibility": "all",
@@ -295,11 +281,9 @@ examples:
             "spend_condition_value": 10,
             "reward_quantity": null,
             "reward_value": null,
-            "start_date": "2025-11-24",
-            "start_time": "00:00",
-            "has_end_date": true,
-            "end_date": "2025-12-31",
-            "end_time": "23:59",
+            "start_datetime": "2026-07-24T00:00:00+06:00",
+            "has_end_datetime": true,
+            "end_datetime": "2026-12-31T23:59:00+06:00",
             "target_countries": [
               "EU",
               "BD",

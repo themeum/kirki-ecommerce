@@ -28,11 +28,9 @@ class CreateCouponsTable implements Migration
             $table->integer('reward_quantity')->nullable();
             $table->integer('reward_value')->nullable();
 
-            $table->date('start_date');
-            $table->time('start_time')->nullable();
-            $table->boolean('has_end_date')->default(0);
-            $table->date('end_date')->nullable();
-            $table->time('end_time')->nullable();
+            $table->datetime('start_datetime')->nullable();
+            $table->boolean('has_end_datetime')->default(0);
+            $table->datetime('end_datetime')->nullable();
 
             $table->text('target_countries')->nullable()->comment('Array of country codes as JSON');
             $table->boolean('first_time_buyer_only')->default(0);
@@ -53,7 +51,7 @@ class CreateCouponsTable implements Migration
             $table->foreign('created_by')->on('users')->references('ID')->null_on_delete();
             $table->foreign('updated_by')->on('users')->references('ID')->null_on_delete();
 
-            $table->index(['is_active', 'start_date', 'end_date'], 'idx_active_coupons');
+            $table->index(['is_active', 'start_datetime', 'has_end_datetime', 'end_datetime'], 'idx_active_coupons');
         });
     }
 

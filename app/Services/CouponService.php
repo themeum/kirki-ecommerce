@@ -2,13 +2,13 @@
 
 namespace Kirki\Ecommerce\App\Services;
 
+use Kirki\Ecommerce\App\DTO\Coupon\CouponFilterDTO;
 use Kirki\Ecommerce\App\Models\Coupon;
 use Kirki\Ecommerce\App\Repositories\CouponRepository;
 use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 use Kirki\Ecommerce\Framework\Collections\Collection;
 use Kirki\Ecommerce\App\DTO\Coupon\CreateCouponDTO;
 use Kirki\Ecommerce\App\DTO\Coupon\UpdateCouponDTO;
-use Kirki\Ecommerce\App\DTO\ListFilterDTO;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
 
@@ -26,10 +26,10 @@ class CouponService
     /**
      * Return paginated coupons
      *
-     * @param ListFilterDTO $filters
+     * @param CouponFilterDTO $filters
      * @return Paginator
      */
-    public function paginated(ListFilterDTO $filters)
+    public function paginated(CouponFilterDTO $filters)
     {
         return $this->repository->paginate($filters->to_array());
     }
@@ -37,10 +37,10 @@ class CouponService
     /**
      * Return all coupons
      *
-     * @param ListFilterDTO $filters
+     * @param CouponFilterDTO $filters
      * @return Collection
      */
-    public function all(ListFilterDTO $filters)
+    public function all(CouponFilterDTO $filters)
     {
         return $this->repository->all($filters->to_array());
     }
@@ -166,10 +166,10 @@ class CouponService
     /**
      * Delete all coupons.
      *
-     * @param ListFilterDTO $filters
+     * @param CouponFilterDTO $filters
      * @return bool True if successfully, false otherwise.
      */
-    public function delete_all(ListFilterDTO $filters)
+    public function delete_all(CouponFilterDTO $filters)
     {
         return $this->repository->delete_all($filters->to_array());
     }

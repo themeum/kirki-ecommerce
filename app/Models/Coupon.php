@@ -15,7 +15,7 @@ class Coupon extends Model
 
     protected $casts = [
         'id' => 'integer',
-        'has_end_date' => 'boolean',
+        'has_end_datetime' => 'boolean',
         'first_time_buyer_only' => 'boolean',
         'exclude_customers' => 'boolean',
         'has_usage_limit' => 'boolean',
@@ -29,8 +29,8 @@ class Coupon extends Model
         'spend_condition_value' => 'integer',
         'reward_quantity' => 'integer',
         'reward_value' => 'integer',
-        'start_date' => 'date',
-        'end_date' => 'date',
+        'start_datetime' => 'datetime',
+        'end_datetime' => 'datetime',
         'target_countries' => 'json',
         'created_by' => 'integer',
         'updated_by' => 'integer',
@@ -52,11 +52,9 @@ class Coupon extends Model
         'spend_condition_value',
         'reward_quantity',
         'reward_value',
-        'start_date',
-        'start_time',
-        'has_end_date',
-        'end_date',
-        'end_time',
+        'start_datetime',
+        'has_end_datetime',
+        'end_datetime',
         'target_countries',
         'first_time_buyer_only',
         'customer_eligibility',
@@ -80,36 +78,49 @@ class Coupon extends Model
 
         $now = Date::now();
 
-        if ($this->start_date) {
-            $start = $this->start_date->copy();
-
-            if (!empty($this->start_time)) {
-                $start = $start->set_time_from_time_string($this->start_time);
-            }
-
-            if ($now->lt($start)) {
-                return CouponStatus::SCHEDULED;
-            }
+        if ($this->start_datetime && $now->lt($this->start_datetime)) {
+            return CouponStatus::SCHEDULED;
         }
 
-        if ($this->has_end_date && !empty($this->end_date)) {
-            $end = $this->end_date->copy();
-
-            $end = !empty($this->end_time)
-                ? $end->set_time_from_time_string($this->end_time)
-                : $end->end_of_day();
-
-            if ($now->gt($end)) {
-                return CouponStatus::EXPIRED;
-            }
+        if ($this->has_end_datetime && $this->end_datetime && $now->gt($this->end_datetime)) {
+            return CouponStatus::EXPIRED;
         }
 
         return CouponStatus::ACTIVE;
     }
 
+    /**
+     * @param array|null $value
+     */
     public function set_target_countries_attribute($value)
     {
-        return !empty($value) && is_array($value) ? Arr::json_encode($value) : null;
+        $this->attributes['target_countries'] = !empty($value) && is_array($value) ? Arr::json_encode($value) : null;
+    }
+
+    public function set_start_datetime_attribute(?string $value)
+    {
+        $this->attributes['start_datetime'] = $this->to_utc($value);
+    }
+
+    public function set_end_datetime_attribute(?string $value)
+    {
+        $this->attributes['end_datetime'] = $this->to_utc($value);
+    }
+
+    /**
+     * Parse a datetime value and normalize it to GMT.
+     *
+     * @param string|null $value ATOM string (with offset) or a plain GMT datetime string.
+     *
+     * @return \Kirki\Ecommerce\Framework\Contracts\SomoyInterface|null
+     */
+    protected function to_utc($value)
+    {
+        if (empty($value)) {
+            return null;
+        }
+
+        return Date::parse($value)->set_timezone('UTC');
     }
 
     public function categories()
@@ -142,64 +153,29 @@ class Coupon extends Model
             return $query;
         }
 
-        $now = Date::now();
-        $date = $now->to_date_string();
-        $time = $now->to_time_string();
+        $now = Date::now()->to_date_time_string();
 
         switch ($status) {
             case CouponStatus::ACTIVE:
-                // When the coupon is active and is not expired or scheduled
                 return $query->where('is_active', 1)
-                    ->where(function (QueryBuilder $query) use ($date, $time) {
-                        $query->where_null('start_date')
-                            ->or_where('start_date', '<', $date)
-                            ->or_where(function (QueryBuilder $query) use ($date, $time) {
-                                $query->where('start_date', $date)
-                                    ->where(function (QueryBuilder $query) use ($time) {
-                                        $query->where_null('start_time')
-                                            ->or_where('start_time', '<=', $time);
-                                    });
-                            });
+                    ->where(function (QueryBuilder $query) use ($now) {
+                        $query->where_null('start_datetime')
+                            ->or_where('start_datetime', '<=', $now);
                     })
-                    ->where(function (QueryBuilder $query) use ($date, $time) {
-                        $query->where('has_end_date', 0)
-                            ->or_where_null('end_date')
-                            ->or_where('end_date', '>', $date)
-                            ->or_where(function (QueryBuilder $query) use ($date, $time) {
-                                $query->where('end_date', $date)
-                                    ->where(function (QueryBuilder $query) use ($time) {
-                                        $query->where_null('end_time')
-                                            ->or_where('end_time', '>=', $time);
-                                    });
-                            });
+                    ->where(function (QueryBuilder $query) use ($now) {
+                        $query->where('has_end_datetime', 0)
+                            ->or_where_null('end_datetime')
+                            ->or_where('end_datetime', '>=', $now);
                     });
             case CouponStatus::EXPIRED:
-                // When the coupon is active and is expired
                 return $query->where('is_active', 1)
-                    ->where('has_end_date', 1)
-                    ->where(function (QueryBuilder $query) use ($date, $time) {
-                        $query->where('end_date', '<', $date)
-                            ->or_where(function (QueryBuilder $query) use ($date, $time) {
-                                $query->where('end_date', $date)
-                                    ->where('end_time', '<', $time);
-                            });
-                    });
+                    ->where('has_end_datetime', 1)
+                    ->where('end_datetime', '<', $now);
             case CouponStatus::SCHEDULED:
-                // When the coupon is active and is scheduled
                 return $query->where('is_active', 1)
-                    ->where(function (QueryBuilder $query) use ($date, $time) {
-                        $query->where('start_date', '>', $date)
-                            ->or_where(function (QueryBuilder $query) use ($date, $time) {
-                                $query->where('start_date', $date)
-                                    ->where('start_time', '>', $time);
-                            });
-                    });
+                    ->where('start_datetime', '>', $now);
             case CouponStatus::INACTIVE:
                 return $query->where('is_active', 0);
-            case 'all':
-                return $query;
-            default:
-                return $query->where_raw('1 = 0');
         }
     }
 }

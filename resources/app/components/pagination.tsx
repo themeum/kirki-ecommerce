@@ -28,7 +28,6 @@ const Pagination = (props: PaginationProps) => {
   const {
     current_page,
     last_page,
-    from,
     total,
   } = data;
 
@@ -39,18 +38,16 @@ const Pagination = (props: PaginationProps) => {
 
   const _current_page = current_page * 1;
 
-  if (_current_page == last_page && last_page == from) {
-    return null;
-  }
-
   if (total == 0) {
     return null;
   }
 
   return (
     <div css={[styles.wrapper, cssProp]}>
-      <Flex gap={2} align="center">
-        <Text variant="small">{__('Page', 'kirki-ecommerce')}</Text>
+      <Flex gap={2} align="center" shrink={0}>
+        <Text variant="small" css={styles.nowrap}>
+          {__('Page', 'kirki-ecommerce')}
+        </Text>
         <Select
           value={String(_current_page)}
           onValueChange={(value) => onChange(Number(value))}
@@ -66,7 +63,9 @@ const Pagination = (props: PaginationProps) => {
             ))}
           </SelectContent>
         </Select>
-        <Text variant="small">{`of ${last_page}`}</Text>
+        <Text variant="small" css={styles.nowrap}>
+          {`of ${last_page}`}
+        </Text>
       </Flex>
       <ActionGroup>
         <Button
@@ -111,5 +110,8 @@ const styles = {
     ...itemCenter(),
     justifyContent: 'space-between',
     padding: `${theme.spacing[2]} ${theme.spacing[0]} ${theme.spacing[3]} ${theme.spacing[0]}`,
+  }),
+  nowrap: scoped({
+    whiteSpace: 'nowrap',
   }),
 };

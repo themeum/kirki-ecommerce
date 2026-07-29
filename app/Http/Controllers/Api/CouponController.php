@@ -12,10 +12,10 @@ use Kirki\Ecommerce\App\Resources\Coupon\CouponResource;
 use Kirki\Ecommerce\App\Services\CouponService;
 use Kirki\Ecommerce\App\Constants\BulkActions;
 use Kirki\Ecommerce\App\Constants\Pagination;
+use Kirki\Ecommerce\App\DTO\Coupon\CouponFilterDTO;
 use Kirki\Ecommerce\Framework\Contracts\Request;
 use Kirki\Ecommerce\App\DTO\Coupon\CreateCouponDTO;
 use Kirki\Ecommerce\App\DTO\Coupon\UpdateCouponDTO;
-use Kirki\Ecommerce\App\DTO\ListFilterDTO;
 use Kirki\Ecommerce\Framework\Http\Response;
 use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 
@@ -32,8 +32,8 @@ class CouponController
 
     public function get(Request $request)
     {
-        $params = ListFilterDTO::from_array($request->all());
-        $params->sort_by = $request->get_whitelisted('sort_by', 'id', ['id', 'title', 'code', 'start_date', 'end_date', 'usage_limit', 'is_active', 'created_by', 'updated_by', 'created_at', 'updated_at']);
+        $params = CouponFilterDTO::from_array($request->all());
+        $params->sort_by = $request->get_whitelisted('sort_by', 'id', ['id', 'title', 'code', 'start_datetime', 'end_datetime', 'usage_limit', 'is_active', 'created_by', 'updated_by', 'created_at', 'updated_at']);
 
         if ((int) $params->limit === Pagination::ALL) {
             $data = $this->service->all($params);
@@ -107,7 +107,7 @@ class CouponController
                     'message' => __('Coupons deleted successfully.', 'kirki-ecommerce'),
                 ]);
             case BulkActions::DELETE_ALL:
-                $params = ListFilterDTO::from_array($request->all());
+                $params = CouponFilterDTO::from_array($request->all());
                 $result = $this->service->delete_all($params);
                 return response()->json([
                     'data' => $result,
