@@ -110,3 +110,16 @@
 .category-level-5 {
     padding-left: 80px!important;
 }
+.kirki-ecom-product-image{
+    position: relative;
+}
+.kirki-ecom-product-ribbon{
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    padding: 5px;
+    background-color: red;
+    color: white;
+    border-radius: 4px;
+    font-size: 10px;
+}

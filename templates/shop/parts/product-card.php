@@ -51,7 +51,10 @@ if ($media) {
 ?>
 <div class="kirki-ecom-product-card">
     <div><?php echo esc_html($category_name->name); ?></div>
-    <div>
+    <div class="kirki-ecom-product-image">
+        <?php if (!empty($product->ribbon)) : ?>
+            <div class="kirki-ecom-product-ribbon"><?php echo esc_html($product->ribbon); ?></div>
+        <?php endif; ?>
         <?php if ($image_url) : ?>
             <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($product->title); ?>">
         <?php endif; ?>
