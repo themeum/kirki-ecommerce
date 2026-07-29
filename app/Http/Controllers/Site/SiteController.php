@@ -13,17 +13,13 @@ namespace Kirki\Ecommerce\App\Http\Controllers\Site;
 
 use Kirki\Ecommerce\App\DTO\Product\ProductListFilterDTO;
 use Kirki\Ecommerce\App\Helpers\TemplateHelper;
-use Kirki\Ecommerce\App\Models\Attribute;
 use Kirki\Ecommerce\App\Models\Brand;
 use Kirki\Ecommerce\App\Models\Category;
-use Kirki\Ecommerce\App\Models\Product;
-use Kirki\Ecommerce\App\Models\Variant;
-use Kirki\Ecommerce\App\Repositories\ProductRepository;
 use Kirki\Ecommerce\App\Services\ProductService;
-use Kirki\Ecommerce\Sanitizer;
-use Kirki\Ecommerce\Wordpress\SiteRoute;
+use Kirki\Ecommerce\App\Wordpress\SiteRoute;
+use Kirki\Ecommerce\Framework\Sanitizer;
 
-use function Kirki\Ecommerce\app;
+use function Kirki\Ecommerce\Framework\app;
 
 /**
  * Class SiteController

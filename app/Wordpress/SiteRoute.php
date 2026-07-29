@@ -1,6 +1,6 @@
 <?php
 
-namespace Kirki\Ecommerce\Wordpress;
+namespace Kirki\Ecommerce\App\Wordpress;
 
 /**
  * SiteRoute

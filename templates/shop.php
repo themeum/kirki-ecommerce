@@ -12,7 +12,7 @@
 defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Helpers\TemplateHelper;
-use Kirki\Ecommerce\Wordpress\SiteRoute;
+use Kirki\Ecommerce\App\Wordpress\SiteRoute;
 
 $shop_page_url = SiteRoute::url('shop');
 $data = SiteRoute::route_data('data', null);

@@ -14,8 +14,8 @@
 defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Http\Controllers\Site\SiteController;
-use Kirki\Ecommerce\Supports\Facades\Settings;
-use Kirki\Ecommerce\Wordpress\SiteRoute;
+use Kirki\Ecommerce\App\Supports\Facades\Settings;
+use Kirki\Ecommerce\App\Wordpress\SiteRoute;
 
 $route = new SiteRoute('kirki_ecommerce');
 $route->set_routing_method(SiteRoute::ROUTING_PARSE_REQUEST);
