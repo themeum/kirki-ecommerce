@@ -14,8 +14,8 @@ import type { PaginatedData } from '@/types';
 import { getBadgeVariantForStatus } from '@/utils/badge-status';
 import { __ } from '@/wpi18n';
 
-import CouponTableAction from '@/pages/coupons/coupon-table/coupon-table-action';
-import CouponTableFilterAction from '@/pages/coupons/coupon-table/coupon-table-filter-action';
+import CouponTableFilter from '@/pages/coupons/coupon-table/coupon-table-filter';
+import CouponTableFilterBar from '@/pages/coupons/coupon-table/coupon-table-filter-bar';
 import FilterPopup from '@/pages/coupons/coupon-table/filter-popup/filter-popup';
 import { CouponListItem } from '@/schemas/catalog/coupon';
 import { useBulkDeleteCouponsMutation } from '@/services/coupon';
@@ -117,14 +117,14 @@ const CouponTable = ({ data, isLoading, onPageChange }: CouponTableProps) => {
       onBulkApply={handleBulkApply}
       onPageChange={onPageChange}
     >
-      <DataTable.Action>
-        <CouponTableAction />
-      </DataTable.Action>
-      <DataTable.FilterAction>
+      <DataTable.Filter>
+        <CouponTableFilter />
+      </DataTable.Filter>
+      <DataTable.SelectionFilter>
         <FilterPopup />
-      </DataTable.FilterAction>
+      </DataTable.SelectionFilter>
       <DataTable.FilterBar>
-        <CouponTableFilterAction />
+        <CouponTableFilterBar />
       </DataTable.FilterBar>
       <DataTable.Pagination />
     </DataTable>

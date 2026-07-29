@@ -22,7 +22,7 @@ import { __ } from '@/wpi18n';
 import FilterPopup from '@/pages/coupons/coupon-table/filter-popup/filter-popup';
 import { CouponListFilter } from '@/types/filters/coupon';
 
-const CouponTableAction = memo(() => {
+const CouponTableFilter = memo(() => {
   const params = useListParamsValue<CouponListFilter>();
   const { setParam } = useListParamsActions<CouponListFilter>();
 
@@ -63,9 +63,9 @@ const CouponTableAction = memo(() => {
   );
 });
 
-CouponTableAction.displayName = 'CouponTableAction';
+CouponTableFilter.displayName = 'CouponTableFilter';
 
-export default CouponTableAction;
+export default CouponTableFilter;
 
 const styles = {
   wrapper: scoped({

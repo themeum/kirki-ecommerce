@@ -10,9 +10,9 @@ import {
   useDataTableSelection,
 } from '@/components/data-table/data-table-selection-context';
 import {
-  DataTableAction,
-  DataTableFilterAction,
+  DataTableFilter,
   DataTableFilterBar,
+  DataTableSelectionFilter,
   findSlot,
 } from '@/components/data-table/data-table-slots';
 import DataTableToolbar from '@/components/data-table/data-table-toolbar';
@@ -73,8 +73,8 @@ const DataTableLayout = <T extends DataTableItem>({
   const { isAllSelected, isPartiallySelected, onToggleAll } =
     useDataTableSelection();
 
-  const action = findSlot(children, DataTableAction);
-  const filterAction = findSlot(children, DataTableFilterAction);
+  const action = findSlot(children, DataTableFilter);
+  const filterAction = findSlot(children, DataTableSelectionFilter);
   const filterBar = findSlot(children, DataTableFilterBar);
   const pagination = findSlot(children, DataTablePagination);
 

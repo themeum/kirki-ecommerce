@@ -14,8 +14,8 @@ import { useCategoriesQuery } from '@/services/category';
 import { useCollectionsQuery } from '@/services/collection';
 import { theme } from '@/theme';
 import type { SuggestionOption } from '@/types';
-import { __ } from '@/wpi18n';
 import { ProductListFilter, productListFilterConfig } from '@/types/filters/product';
+import { __ } from '@/wpi18n';
 
 type FilterValue = string | number | Array<string | number>;
 
@@ -40,7 +40,7 @@ const filterActionBarCss = css({
   padding: theme.spacing[3],
 });
 
-const ProductTableFilterAction = memo(() => {
+const ProductTableFilterBar = memo(() => {
   const params = useListParamsValue<ProductListFilter>();
   const { setParam, setParams } = useListParamsActions<ProductListFilter>();
 
@@ -131,6 +131,6 @@ const ProductTableFilterAction = memo(() => {
   );
 });
 
-ProductTableFilterAction.displayName = 'ProductTableFilterAction';
+ProductTableFilterBar.displayName = 'ProductTableFilterBar';
 
-export default ProductTableFilterAction;
+export default ProductTableFilterBar;

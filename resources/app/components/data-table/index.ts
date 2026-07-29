@@ -1,14 +1,14 @@
 import DataTable from '@/components/data-table/data-table';
 import DataTablePagination from '@/components/data-table/data-table-pagination';
 import {
-  DataTableAction,
-  DataTableFilterAction,
+  DataTableFilter,
+  DataTableSelectionFilter,
   DataTableFilterBar,
 } from '@/components/data-table/data-table-slots';
 
 const DataTableNamespace = Object.assign(DataTable, {
-  Action: DataTableAction,
-  FilterAction: DataTableFilterAction,
+  Filter: DataTableFilter,
+  SelectionFilter: DataTableSelectionFilter,
   FilterBar: DataTableFilterBar,
   Pagination: DataTablePagination,
 });
@@ -21,8 +21,8 @@ export type {
   DataTableItem
 } from '@/components/data-table/types';
 export {
-  DataTableAction,
-  DataTableFilterAction,
+  DataTableFilter,
+  DataTableSelectionFilter,
   DataTableFilterBar,
   DataTablePagination
 };
