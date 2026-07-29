@@ -2,7 +2,7 @@
 
 namespace Kirki\Ecommerce\Tests\Unit\Database\Query;
 
-use Kirki\Ecommerce\Database\Query\QueryBuilder;
+use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
 use Kirki\Ecommerce\Tests\Unit\TestCase;
 
 class QueryBuilderTest extends TestCase

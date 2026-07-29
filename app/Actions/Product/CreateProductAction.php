@@ -7,7 +7,7 @@ use Kirki\Ecommerce\App\Services\ProductService;
 use Kirki\Ecommerce\App\Services\VariantService;
 use Kirki\Ecommerce\App\DTO\Product\CreateProductDTO;
 use Kirki\Ecommerce\App\DTO\Variant\CreateVariantDTO;
-use Kirki\Ecommerce\Supports\Facades\DB;
+use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Exception;
 use Throwable;
 

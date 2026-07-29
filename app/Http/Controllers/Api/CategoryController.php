@@ -8,15 +8,15 @@ use Kirki\Ecommerce\App\Http\Requests\Category\CategoryUpdateRequest;
 use Kirki\Ecommerce\App\Resources\CategoryResource;
 use Kirki\Ecommerce\App\Constants\BulkActions;
 use Kirki\Ecommerce\App\Constants\Pagination;
-use Kirki\Ecommerce\Contracts\Request;
+use Kirki\Ecommerce\Framework\Contracts\Request;
 use Kirki\Ecommerce\App\DTO\Category\CreateCategoryDTO;
 use Kirki\Ecommerce\App\DTO\Category\UpdateCategoryDTO;
 use Kirki\Ecommerce\App\DTO\ListFilterDTO;
-use Kirki\Ecommerce\Http\Response;
+use Kirki\Ecommerce\Framework\Http\Response;
 use Kirki\Ecommerce\App\Services\CategoryService;
-use Kirki\Ecommerce\Database\Query\Paginator;
+use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 
-use function Kirki\Ecommerce\response;
+use function Kirki\Ecommerce\Framework\response;
 
 class CategoryController
 {

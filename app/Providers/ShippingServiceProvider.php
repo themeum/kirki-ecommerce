@@ -3,9 +3,9 @@
 namespace Kirki\Ecommerce\App\Providers;
 
 use Kirki\Ecommerce\App\Constants\OptionKeys;
-use Kirki\Ecommerce\ServiceProvider;
+use Kirki\Ecommerce\Framework\ServiceProvider;
 use Kirki\Ecommerce\App\Services\ShippingService;
-use Kirki\Ecommerce\Supports\Facades\Settings;
+use Kirki\Ecommerce\App\Supports\Facades\Settings;
 
 class ShippingServiceProvider extends ServiceProvider
 {

@@ -1,6 +1,6 @@
 <?php
 
-use Kirki\Ecommerce\Application;
+use Kirki\Ecommerce\Framework\Application;
 
 if (!defined('ABSPATH')) {
     exit;

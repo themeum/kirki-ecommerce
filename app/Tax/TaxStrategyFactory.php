@@ -3,11 +3,11 @@
 namespace Kirki\Ecommerce\App\Tax;
 
 use Kirki\Ecommerce\App\Constants\OptionKeys;
-use Kirki\Ecommerce\Supports\EuropeanCountryChecker;
-use Kirki\Ecommerce\Supports\Facades\Settings;
+use Kirki\Ecommerce\App\Supports\EuropeanCountryChecker;
+use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Exception;
 
-use function Kirki\Ecommerce\config;
+use function Kirki\Ecommerce\Framework\config;
 
 class TaxStrategyFactory
 {

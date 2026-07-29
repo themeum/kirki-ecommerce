@@ -3,8 +3,8 @@
 namespace Kirki\Ecommerce\App\Repositories;
 
 use Kirki\Ecommerce\App\Models\Address;
-use Kirki\Ecommerce\Database\Query\Paginator;
-use Kirki\Ecommerce\Database\Query\QueryBuilder;
+use Kirki\Ecommerce\Framework\Database\Query\Paginator;
+use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
 
 class AddressRepository
 {

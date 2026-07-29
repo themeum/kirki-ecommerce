@@ -5,10 +5,10 @@ namespace Kirki\Ecommerce\App\Currency\Providers;
 use Kirki\Ecommerce\App\Currency\Contracts\CurrencyProvider;
 use Kirki\Ecommerce\App\Currency\DTO\APIUsageDTO;
 use Kirki\Ecommerce\App\Currency\DTO\ExchangeRateDTO;
-use Kirki\Ecommerce\Http\Response;
-use Kirki\Ecommerce\Supports\Facades\Http;
+use Kirki\Ecommerce\Framework\Http\Response;
+use Kirki\Ecommerce\Framework\Supports\Facades\Http;
 use Exception;
-use function Kirki\Ecommerce\resource_url;
+use function Kirki\Ecommerce\Framework\resource_url;
 
 class ExchangeRatesApiProvider implements CurrencyProvider
 {

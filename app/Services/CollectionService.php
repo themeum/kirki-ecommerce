@@ -6,14 +6,14 @@ use Kirki\Ecommerce\App\Models\Collection;
 use Kirki\Ecommerce\App\DTO\Collection\CreateCollectionDTO;
 use Kirki\Ecommerce\App\DTO\Collection\UpdateCollectionDTO;
 use Kirki\Ecommerce\App\DTO\ListFilterDTO;
-use Kirki\Ecommerce\Exceptions\NotFoundException;
-use Kirki\Ecommerce\Http\Response;
+use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
+use Kirki\Ecommerce\Framework\Http\Response;
 use Kirki\Ecommerce\App\Repositories\CollectionRepository;
-use Kirki\Ecommerce\Database\Query\Paginator;
-use Kirki\Ecommerce\Collections\Collection as DataCollection;
+use Kirki\Ecommerce\Framework\Database\Query\Paginator;
+use Kirki\Ecommerce\Framework\Collections\Collection as DataCollection;
 
 use Exception;
-use function Kirki\Ecommerce\user;
+use function Kirki\Ecommerce\Framework\user;
 
 class CollectionService
 {

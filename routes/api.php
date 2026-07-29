@@ -29,12 +29,12 @@ use Kirki\Ecommerce\App\Http\Controllers\Api\PageController;
 use Kirki\Ecommerce\App\Http\Controllers\Site\ProductController as SiteProductController;
 use Kirki\Ecommerce\App\Models\Post;
 use Kirki\Ecommerce\App\Payment\WebhookController;
-use Kirki\Ecommerce\Http\Request;
-use Kirki\Ecommerce\Route;
-use Kirki\Ecommerce\Middlewares\AuthMiddleware;
-use Kirki\Ecommerce\Supports\Facades\DB;
+use Kirki\Ecommerce\Framework\Http\Request;
+use Kirki\Ecommerce\Framework\Route;
+use Kirki\Ecommerce\Framework\Middlewares\AuthMiddleware;
+use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 
-use function Kirki\Ecommerce\response;
+use function Kirki\Ecommerce\Framework\response;
 
 Route::set_namespace('kirki/ecommerce/v1');
 

@@ -4,20 +4,20 @@ namespace Kirki\Ecommerce\App\Services;
 
 use Kirki\Ecommerce\App\Payment\Facades\Payment;
 use Kirki\Ecommerce\App\Constants\OptionKeys;
-use Kirki\Ecommerce\Collections\Collection;
-use Kirki\Ecommerce\Exceptions\NotFoundException;
-use Kirki\Ecommerce\Http\Response;
+use Kirki\Ecommerce\Framework\Collections\Collection;
+use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
+use Kirki\Ecommerce\Framework\Http\Response;
 use Kirki\Ecommerce\App\Payment\PaymentGateway;
-use Kirki\Ecommerce\Route;
-use Kirki\Ecommerce\Supports\AddonPlugin;
-use Kirki\Ecommerce\Supports\Facades\Settings;
+use Kirki\Ecommerce\Framework\Route;
+use Kirki\Ecommerce\App\Supports\AddonPlugin;
+use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Exception;
 
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use ZipArchive;
-use function Kirki\Ecommerce\base_path;
-use function Kirki\Ecommerce\collection;
+use function Kirki\Ecommerce\Framework\base_path;
+use function Kirki\Ecommerce\Framework\collection;
 
 class PaymentGatewayService
 {

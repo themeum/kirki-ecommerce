@@ -4,8 +4,8 @@ namespace Kirki\Ecommerce\App\Services;
 
 use Kirki\Ecommerce\App\Repositories\CountryRepository;
 use Kirki\Ecommerce\App\DTO\Country\CountryFilterDTO;
-use Kirki\Ecommerce\Exceptions\NotFoundException;
-use Kirki\Ecommerce\Http\Response;
+use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
+use Kirki\Ecommerce\Framework\Http\Response;
 
 class CountryService
 {

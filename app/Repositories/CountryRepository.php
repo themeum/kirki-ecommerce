@@ -2,9 +2,9 @@
 
 namespace Kirki\Ecommerce\App\Repositories;
 
-use function Kirki\Ecommerce\collection;
-use function Kirki\Ecommerce\json_decoded_data;
-use function Kirki\Ecommerce\resource_path;
+use function Kirki\Ecommerce\Framework\collection;
+use function Kirki\Ecommerce\Framework\json_decoded_data;
+use function Kirki\Ecommerce\Framework\resource_path;
 
 class CountryRepository
 {

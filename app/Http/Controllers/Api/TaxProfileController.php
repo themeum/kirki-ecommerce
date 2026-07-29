@@ -9,14 +9,14 @@ use Kirki\Ecommerce\App\Resources\TaxProfileResource;
 use Kirki\Ecommerce\App\Services\TaxProfileService;
 use Kirki\Ecommerce\App\Constants\BulkActions;
 use Kirki\Ecommerce\App\Constants\Pagination;
-use Kirki\Ecommerce\Contracts\Request;
+use Kirki\Ecommerce\Framework\Contracts\Request;
 use Kirki\Ecommerce\App\DTO\ListFilterDTO;
 use Kirki\Ecommerce\App\DTO\TaxProfile\CreateTaxProfileDTO;
 use Kirki\Ecommerce\App\DTO\TaxProfile\UpdateTaxProfileDTO;
-use Kirki\Ecommerce\Http\Response;
-use Kirki\Ecommerce\Database\Query\Paginator;
+use Kirki\Ecommerce\Framework\Http\Response;
+use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 
-use function Kirki\Ecommerce\response;
+use function Kirki\Ecommerce\Framework\response;
 
 class TaxProfileController
 {
@@ -95,7 +95,7 @@ class TaxProfileController
 
     public function bulk_actions(BulkActionRequest $request)
     {
-        $validated = $request->clean();
+        $validated = $request->all();
 
         $action = $validated['action'];
         $ids = $validated['ids'] ?? [];

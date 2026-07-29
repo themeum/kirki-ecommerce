@@ -2,8 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Http\Requests;
 
-use Kirki\Ecommerce\Sanitizer;
-use Kirki\Ecommerce\Http\Request;
+use Kirki\Ecommerce\Framework\Sanitizer;
+use Kirki\Ecommerce\Framework\Http\Request;
 
 class TagRequest extends Request
 {

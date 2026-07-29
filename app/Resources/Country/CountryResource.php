@@ -2,7 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Resources\Country;
 
-use Kirki\Ecommerce\Resource;
+use Kirki\Ecommerce\Framework\Resource;
 
 class CountryResource extends Resource
 {
