@@ -77,7 +77,7 @@ class CouponRepository
         if ($data['discount_value_type'] === DiscountValueType::FIXED) {
             $data['discount_amount_fixed'] = $data['discount_amount'];
         } else {
-            $data['discount_amount_percent'] = $data['discount_amount'];
+            $data['discount_amount_percentage'] = $data['discount_amount'];
         }
 
         return Coupon::create($data);
