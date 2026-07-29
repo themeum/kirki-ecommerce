@@ -25,7 +25,6 @@ if (!isset($data['product']) || !is_object($data['product'])) {
  * @var Product $product.
  */
 $product = $data['product'];
-$d = ProductResource::make($product);
 
 $variants = $product->variants()->get();
 $regular_price = $variants->first()->price;
@@ -33,11 +32,11 @@ $sale_price = $variants->first()->sale_price;
 
 $manager = new MoneyManager();
 $formatted_regular_price = $manager->format($manager->from_minor($regular_price));
-$formatted_sale_price = $manager->format($manager->from_minor($sale_price));
 
 $display_price = '';
 
 if ($sale_price > 0) {
+    $formatted_sale_price = $manager->format($manager->from_minor($sale_price));
     $display_price = '<ins>' . $formatted_sale_price . '</ins><del>' . $formatted_regular_price . '</del>';
 } else {
     $display_price = $formatted_regular_price;

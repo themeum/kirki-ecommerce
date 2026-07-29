@@ -5,7 +5,7 @@ namespace Kirki\Ecommerce\App\Models;
 use Kirki\Ecommerce\App\Concerns\HasSlug;
 use Kirki\Ecommerce\Framework\Database\Query\Model;
 use Kirki\Ecommerce\Framework\Supports\Arr;
-use Kirki\Ecommerce\Supports\Facades\Settings;
+use Kirki\Ecommerce\App\Supports\Facades\Settings;
 
 class Product extends Model
 {
