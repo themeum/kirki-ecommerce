@@ -1,0 +1,300 @@
+// Component - Form
+// .kirki-field          Field wrapper (label + control + help/error)
+// .kirki-input          Text input
+// .kirki-textarea       Textarea
+// .kirki-select         Select
+// .kirki-checkbox       Checkbox
+// .kirki-radio          Radio
+// .kirki-quantity       Quantity stepper
+
+@use "../tokens" as *;
+@use "../mixins" as *;
+
+// ── Field wrapper ────────────────────────────────────────────────────────────
+
+.kirki-field {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+  width: 100%;
+
+  &-label {
+    @include typography(base, medium, $text-primary);
+
+    &-required::after {
+      content: " *";
+      color: $background-fill-critical;
+    }
+  }
+
+  &-help {
+    @include typography(sm, normal, $text-secondary);
+  }
+  &-error {
+    @include typography(sm, normal, $background-fill-critical);
+  }
+
+  // Error state
+  &-error-state {
+    .kirki-input,
+    .kirki-select,
+    .kirki-textarea {
+      border-color: $border-critical;
+      box-shadow: 0 0 0 1px $border-critical;
+
+      &:focus {
+        border-color: $border-critical;
+        box-shadow: 0px 0px 4px 0px #d40000ad;
+        box-shadow: 0px 0px 0px 1px #d40000;
+      }
+    }
+  }
+}
+
+// ── Shared input base ─────────────────────────────────────────────────────────
+
+%kirki-control {
+  display: block;
+  width: 100%;
+  padding: $spacing-2 $spacing-6;
+  font-family: $font-family;
+  font-size: $font-size-base;
+  font-weight: $font-weight-normal;
+  line-height: $line-height-lg;
+  color: $text-primary;
+  background-color: $background-fill;
+  border: 1px solid $border-default;
+  border-radius: $radius-md;
+  appearance: none;
+  @include transition((border-color, box-shadow));
+
+  &::placeholder {
+    color: $text-secondary;
+  }
+
+  &:hover:not(:disabled):not(:focus) {
+    border-color: $border-hover;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: $border-default;
+    box-shadow: 0px 1.5px 2px 0px $border-ring;
+    box-shadow: 0px 0px 0px 1.5px $border-ring;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    background-color: $background-surface-alt;
+    color: $text-disabled;
+    border-color: $border-default;
+  }
+}
+
+// ── Text input ───────────────────────────────────────────────────────────────
+
+.kirki-input {
+  @extend %kirki-control;
+
+  &-sm {
+    padding: $spacing-2 $spacing-4;
+    font-size: $font-size-sm;
+    border-radius: $radius-sm;
+  }
+
+  &-lg {
+    padding: $spacing-3 $spacing-4;
+    font-size: $font-size-md;
+    border-radius: $radius-lg;
+  }
+
+  // Icon slot wrapper
+  &-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+
+    .kirki-input-icon {
+      position: absolute;
+      color: $icon-secondary;
+      pointer-events: none;
+      @include flex-center;
+
+      &-left {
+        left: $spacing-3;
+        ~ .kirki-input {
+          padding-left: $spacing-8;
+        }
+      }
+      &-right {
+        right: $spacing-3;
+        ~ .kirki-input {
+          padding-right: $spacing-8;
+        }
+      }
+    }
+  }
+}
+
+// ── Textarea ─────────────────────────────────────────────────────────────────
+
+.kirki-textarea {
+  @extend %kirki-control;
+  resize: vertical;
+  min-height: 6rem;
+}
+
+// ── Select ───────────────────────────────────────────────────────────────────
+
+.kirki-select {
+  @extend %kirki-control;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2371717a' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right $spacing-3 center;
+  padding-right: $spacing-8;
+  cursor: pointer;
+}
+
+// ── Checkbox ─────────────────────────────────────────────────────────────────
+
+.kirki-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-2;
+  cursor: pointer;
+  user-select: none;
+
+  &-input {
+    appearance: none;
+    outline: none;
+    width: 1rem;
+    height: 1rem;
+    border: 1.5px solid $border-default;
+    border-radius: $radius-sm;
+    background-color: $background-fill;
+    flex-shrink: 0;
+    @include transition((background-color, border-color));
+    cursor: pointer;
+
+    &:checked {
+      background-color: $background-fill-brand;
+      border-color: $background-fill-brand;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='8' viewBox='0 0 10 8'%3E%3Cpath fill='none' stroke='%23fff' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' d='M1 4l3 3 5-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+
+    &:focus-visible {
+      @include focus-ring;
+    }
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+  }
+
+  &-label {
+    @include typography(base, normal, $text-primary);
+  }
+}
+
+// ── Radio ────────────────────────────────────────────────────────────────────
+
+.kirki-radio {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-2;
+  cursor: pointer;
+  user-select: none;
+
+  &-input {
+    appearance: none;
+    outline: none;
+    width: 1rem;
+    height: 1rem;
+    border: 1.5px solid $border-default;
+    border-radius: $radius-full;
+    background-color: $background-fill;
+    flex-shrink: 0;
+    @include transition((background-color, border-color));
+    cursor: pointer;
+
+    &:checked {
+      border-color: $background-fill-brand;
+      border-width: 2px;
+      background-image: radial-gradient(circle, $background-fill-brand 40%, transparent 40%);
+    }
+
+    &:focus-visible {
+      @include focus-ring;
+    }
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+  }
+
+  &-label {
+    @include typography(base, normal, $text-primary);
+  }
+}
+
+// ── Quantity stepper ─────────────────────────────────────────────────────────
+
+.kirki-quantity {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid $border-default;
+  border-radius: $radius-md;
+  overflow: hidden;
+  background-color: $background-fill;
+
+  &-btn {
+    @include flex-center;
+    width: 2rem;
+    height: 2.25rem;
+    background: none;
+    border: none;
+    outline: none;
+    color: $icon-primary;
+    cursor: pointer;
+    font-size: $font-size-md;
+    flex-shrink: 0;
+    @include transition((background-color));
+
+    &:hover:not(:disabled) {
+      background-color: $background-fill-hover;
+    }
+    &:disabled {
+      cursor: not-allowed;
+      color: $icon-disabled;
+    }
+  }
+
+  &-input {
+    width: 3rem;
+    height: 2.25rem;
+    border: none;
+    border-left: 1px solid $border-default;
+    border-right: 1px solid $border-default;
+    text-align: center;
+    font-family: $font-family;
+    font-size: $font-size-base;
+    font-weight: $font-weight-medium;
+    color: $text-primary;
+    background-color: transparent;
+
+    &:focus {
+      outline: none;
+    }
+
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+      appearance: none;
+      margin: 0;
+    }
+    &[type="number"] {
+      appearance: textfield;
+    }
+  }
+}

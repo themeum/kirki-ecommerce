@@ -1,0 +1,68 @@
+// Utilities - Typography
+
+@use '../tokens' as *;
+@use '../mixins' as *;
+
+// Font size + line height pairs
+.kirki-text-xs   { @include text(xs); }
+.kirki-text-sm   { @include text(sm); }
+.kirki-text-base { @include text(base); }
+.kirki-text-md   { @include text(md); }
+.kirki-text-lg   { @include text(lg); }
+.kirki-text-xl   { @include text(xl); }
+.kirki-text-2xl  { @include text(2xl); }
+.kirki-text-3xl  { @include text(3xl); }
+.kirki-text-4xl  { @include text(4xl); }
+
+// Font weights
+.kirki-font-normal   { font-weight: $font-weight-normal; }
+.kirki-font-medium   { font-weight: $font-weight-medium; }
+.kirki-font-semibold { font-weight: $font-weight-semibold; }
+.kirki-font-bold     { font-weight: $font-weight-bold; }
+
+// Text alignment
+.kirki-text-left    { text-align: left; }
+.kirki-text-center  { text-align: center; }
+.kirki-text-right   { text-align: right; }
+.kirki-text-justify { text-align: justify; }
+
+// Text decoration
+.kirki-underline    { text-decoration: underline; }
+.kirki-line-through { text-decoration: line-through; }
+.kirki-no-underline { text-decoration: none; }
+
+// Text transform
+.kirki-uppercase  { text-transform: uppercase; }
+.kirki-lowercase  { text-transform: lowercase; }
+.kirki-capitalize { text-transform: capitalize; }
+.kirki-normal-case{ text-transform: none; }
+
+// Text overflow
+.kirki-truncate   { @include text-truncate; }
+.kirki-clamp-1    { @include text-clamp(1); }
+.kirki-clamp-2    { @include text-clamp(2); }
+.kirki-clamp-3    { @include text-clamp(3); }
+
+// Whitespace
+.kirki-whitespace-nowrap  { white-space: nowrap; }
+.kirki-whitespace-normal  { white-space: normal; }
+.kirki-whitespace-pre     { white-space: pre; }
+.kirki-whitespace-pre-wrap{ white-space: pre-wrap; }
+
+// Word break
+.kirki-break-words { overflow-wrap: break-word; }
+.kirki-break-all   { word-break: break-all; }
+
+// Semantic text color utilities
+.kirki-text-default  { color: $text-primary; }
+.kirki-text-sub      { color: $text-secondary; }
+.kirki-text-muted    { color: $text-secondary; }
+.kirki-text-disabled { color: $text-disabled; }
+.kirki-text-inverse  { color: $text-light; }
+.kirki-text-brand    { color: $background-fill-brand; }
+.kirki-text-success  { color: $text-success; }
+.kirki-text-error    { color: $background-fill-critical; }
+.kirki-text-warning  { color: $background-fill-warning; }
+
+// Visibility
+.kirki-sr-only { @include visually-hidden; }

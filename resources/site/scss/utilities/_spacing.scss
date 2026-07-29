@@ -1,0 +1,34 @@
+// Utilities - Spacing
+// .kirki-m-4, .kirki-pt-2, .kirki-mx-auto …
+
+@use '../tokens' as *;
+
+@each $key, $value in $spacing-scale {
+  .kirki-m-#{$key}  { margin:         $value; }
+  .kirki-mt-#{$key} { margin-top:     $value; }
+  .kirki-mr-#{$key} { margin-right:   $value; }
+  .kirki-mb-#{$key} { margin-bottom:  $value; }
+  .kirki-ml-#{$key} { margin-left:    $value; }
+  .kirki-mx-#{$key} { margin-inline:  $value; }
+  .kirki-my-#{$key} { margin-top: $value; margin-bottom: $value; }
+
+  .kirki-p-#{$key}  { padding:        $value; }
+  .kirki-pt-#{$key} { padding-top:    $value; }
+  .kirki-pr-#{$key} { padding-right:  $value; }
+  .kirki-pb-#{$key} { padding-bottom: $value; }
+  .kirki-pl-#{$key} { padding-left:   $value; }
+  .kirki-px-#{$key} { padding-inline: $value; }
+  .kirki-py-#{$key} { padding-top: $value; padding-bottom: $value; }
+
+  .kirki-gap-#{$key}   { gap:        $value; }
+  .kirki-gap-x-#{$key} { column-gap: $value; }
+  .kirki-gap-y-#{$key} { row-gap:    $value; }
+}
+
+// Auto margins
+.kirki-m-auto  { margin:        auto; }
+.kirki-mx-auto { margin-inline: auto; }
+.kirki-mt-auto { margin-top:    auto; }
+.kirki-mb-auto { margin-bottom: auto; }
+.kirki-ml-auto { margin-left:   auto; }
+.kirki-mr-auto { margin-right:  auto; }

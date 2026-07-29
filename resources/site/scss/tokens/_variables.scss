@@ -1,0 +1,8 @@
+// Design Tokens - CSS Variable Prefix
+//
+// Both the SCSS class prefix and CSS custom property prefix use 'kirki'.
+// Classes:      .kirki-btn, .kirki-badge, .kirki-input …
+// CSS vars:     --kirki-color-brand, --kirki-spacing-4 …
+
+$prefix: 'kirki';
+$css-var-prefix: '--#{$prefix}';

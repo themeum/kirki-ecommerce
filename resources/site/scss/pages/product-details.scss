@@ -1,0 +1,253 @@
+// Page - Product Details
+// Styles for single product page layout
+
+@use '../tokens' as *;
+@use '../mixins' as *;
+
+.kirki-product-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: $spacing-12 $spacing-10;
+}
+
+.kirki-product-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-20;
+  margin-bottom: $spacing-20;
+
+  @include breakpoint-down(md) {
+    grid-template-columns: 1fr;
+    gap: $spacing-12;
+  }
+}
+
+// ── Product Gallery ───────────────────────────────────────────────────────────
+
+.kirki-product-gallery {
+  position: relative;
+}
+
+.kirki-product-main-image {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background-color: $background-surface-alt;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  margin-bottom: $spacing-5;
+  position: relative;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.kirki-product-nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: $radius-full;
+  background-color: white;
+  border: 1px solid $border-default;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: $shadow-sm;
+  @include transition((background-color, color, border-color));
+
+  &:hover {
+    background-color: $background-fill-brand;
+    color: $text-light;
+    border-color: $background-fill-brand;
+  }
+}
+
+.kirki-product-nav-prev {
+  left: $spacing-5;
+}
+
+.kirki-product-nav-next {
+  right: $spacing-5;
+}
+
+.kirki-product-thumbnails {
+  display: flex;
+  gap: $spacing-3;
+  overflow-x: auto;
+  padding-bottom: $spacing-2;
+}
+
+.kirki-product-thumbnail {
+  width: 5rem;
+  height: 5rem;
+  border-radius: $radius-md;
+  overflow: hidden;
+  cursor: pointer;
+  border: 2px solid transparent;
+  flex-shrink: 0;
+  @include transition((border-color));
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  &:hover,
+  &.active {
+    border-color: $background-fill-brand;
+  }
+}
+
+// ── Product Info ───────────────────────────────────────────────────────────────
+
+.kirki-product-info {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-10;
+}
+
+.kirki-product-title {
+  @include typography(2xl, bold, $text-primary);
+  margin: 0;
+}
+
+.kirki-product-price {
+  display: flex;
+  align-items: center;
+  gap: $spacing-4;
+}
+
+.kirki-product-price-current {
+  @include typography(xl, bold, $text-primary);
+}
+
+.kirki-product-price-original {
+  @include typography(lg, normal, $text-secondary);
+  text-decoration: line-through;
+}
+
+.kirki-product-discount {
+  background-color: $background-fill-critical-secondary;
+  color: $background-fill-critical;
+  padding: $spacing-1 $spacing-3;
+  border-radius: $radius-sm;
+  @include typography(sm, semibold, $background-fill-critical);
+}
+
+.kirki-product-description {
+  @include typography(base, normal, $text-secondary);
+  line-height: 1.6;
+}
+
+// ── Product Variants ───────────────────────────────────────────────────────────
+
+.kirki-product-variant-group {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-3;
+}
+
+.kirki-product-variant-label {
+  @include typography(sm, semibold, $text-primary);
+}
+
+.kirki-product-variant-options {
+  display: flex;
+  gap: $spacing-3;
+  flex-wrap: wrap;
+}
+
+.kirki-product-variant-option {
+  padding: $spacing-3 $spacing-5;
+  border: 1px solid $border-default;
+  border-radius: $radius-md;
+  cursor: pointer;
+  @include typography(sm, normal, $text-primary);
+  @include transition((border-color, background-color, color));
+
+  &:hover {
+    border-color: $border-hover;
+  }
+
+  &.selected {
+    border-color: $background-fill-brand;
+    background-color: $background-fill-secondary;
+    color: $background-fill-brand;
+  }
+}
+
+.kirki-product-variant-color {
+  width: 2rem;
+  height: 2rem;
+  border-radius: $radius-full;
+  border: 2px solid $border-default;
+  cursor: pointer;
+  @include transition((transform, border-color, box-shadow));
+
+  &:hover {
+    transform: scale(1.1);
+  }
+
+  &.selected {
+    border-color: $background-fill-brand;
+    box-shadow: 0 0 0 2px $background-fill-secondary;
+  }
+}
+
+// ── Product Tabs ───────────────────────────────────────────────────────────────
+
+.kirki-product-tabs {
+  border-top: 1px solid $border-default;
+  padding-top: $spacing-12;
+}
+
+.kirki-product-tab-header {
+  display: flex;
+  gap: $spacing-12;
+  border-bottom: 1px solid $border-default;
+  margin-bottom: $spacing-10;
+}
+
+.kirki-product-tab-btn {
+  padding: $spacing-4 0;
+  background: none;
+  border: none;
+  @include typography(base, medium, $text-secondary);
+  cursor: pointer;
+  position: relative;
+  @include transition((color));
+
+  &:hover {
+    color: $text-primary;
+  }
+
+  &.active {
+    color: $background-fill-brand;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background-color: $background-fill-brand;
+    }
+  }
+}
+
+.kirki-product-tab-content {
+  display: none;
+  @include typography(base, normal, $text-secondary);
+  line-height: 1.7;
+
+  &.active {
+    display: block;
+  }
+}

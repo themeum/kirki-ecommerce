@@ -70,5 +70,7 @@ class EnqueueSiteScripts extends BaseHook
     public function handle(...$args)
     {
         wp_enqueue_style('kirki-ecommerce-site-core', KIRKI_ECOMMERCE_ASSETS_URL . '/css/core.css');
+        wp_enqueue_style('kirki-ecommerce-site-bundle', KIRKI_ECOMMERCE_ASSETS_URL . '/css/kirki-ecommerce-site.bundle.css');
+        wp_enqueue_script('kirki-ecommerce-site-bundle', KIRKI_ECOMMERCE_ASSETS_URL . '/js/kirki-ecommerce-site.bundle.js', [], false, true);
     }
 }

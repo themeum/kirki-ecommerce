@@ -1,0 +1,53 @@
+/**
+ * API Client
+ * Thin fetch wrapper that reads WordPress nonce + base URL from window.kirkiSite.
+ */
+
+function getConfig() {
+  if (!window.kirkiSite) {
+    throw new Error('[kirki] window.kirkiSite is not defined. Did you forget wp_localize_script?');
+  }
+  return window.kirkiSite;
+}
+
+type RequestOptions = {
+  method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+  body?: unknown;
+  params?: Record<string, string | number>;
+};
+
+export async function apiRequest<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
+  const { apiUrl, nonce } = getConfig();
+  const { method = 'GET', body, params } = options;
+
+  let url = `${apiUrl}${endpoint}`;
+
+  if (params) {
+    const qs = new URLSearchParams(
+      Object.fromEntries(Object.entries(params).map(([k, v]) => [k, String(v)]))
+    );
+    url += `?${qs.toString()}`;
+  }
+
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+    'X-WP-Nonce': nonce,
+  };
+
+  const res = await fetch(url, {
+    method,
+    headers,
+    credentials: 'same-origin',
+    body: body !== undefined ? JSON.stringify(body) : undefined,
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ message: res.statusText }));
+    throw new Error(err?.message ?? `Request failed: ${res.status}`);
+  }
+
+  // 204 No Content
+  if (res.status === 204) return undefined as T;
+
+  return res.json() as Promise<T>;
+}

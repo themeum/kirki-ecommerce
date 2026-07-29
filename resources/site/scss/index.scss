@@ -1,0 +1,36 @@
+// Kirki Ecommerce – Site Design System
+// Entry point for the site bundle
+
+@use 'tokens'     as *;
+@use 'mixins'     as *;
+@use 'components';
+@use 'utilities';
+@use 'pages';
+
+// =============================================================================
+// BASE RESET
+// =============================================================================
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  font-family: $font-family;
+  line-height: 1.5;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: inherit;
+  line-height: inherit;
+  background-color: $background-fill;
+  color: $text-primary;
+}
+
+[x-cloak] { display: none !important; }

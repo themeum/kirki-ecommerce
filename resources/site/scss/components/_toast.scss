@@ -1,0 +1,168 @@
+// Component - Toast
+// Base: .kirki-toast
+// Variants: .kirki-toast-success  .kirki-toast-error  .kirki-toast-warning  .kirki-toast-info
+// Elements:  .kirki-toast-container  .kirki-toast-icon  .kirki-toast-content  .kirki-toast-close
+
+@use '../tokens' as *;
+@use '../mixins' as *;
+
+// ── Toast Container ────────────────────────────────────────────────────────────
+
+.kirki-toast-container {
+  position: fixed;
+  top: $spacing-4;
+  right: $spacing-4;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-3;
+  pointer-events: none;
+
+  // Position variants
+  &-top-left {
+    top: $spacing-4;
+    left: $spacing-4;
+    right: auto;
+  }
+
+  &-bottom-right {
+    top: auto;
+    bottom: $spacing-4;
+    right: $spacing-4;
+  }
+
+  &-bottom-left {
+    top: auto;
+    bottom: $spacing-4;
+    left: $spacing-4;
+    right: auto;
+  }
+}
+
+// ── Toast ───────────────────────────────────────────────────────────────────────
+
+.kirki-toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-3;
+  min-width: 300px;
+  max-width: 400px;
+  padding: $spacing-4;
+  background-color: $background-fill;
+  border: 1px solid $border-default;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-lg;
+  @include transition((transform, opacity), 200ms);
+
+  &[x-cloak] { display: none; }
+
+  // Enter/leave transitions for Alpine
+  &[x-transition\:enter] {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+
+  &[x-transition\:enter-end] {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  &[x-transition\:leave] {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  &[x-transition\:leave-end] {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+
+  // ── Variants ────────────────────────────────────────────────────────────────
+
+  &-success {
+    border-color: $background-fill-success;
+    background-color: $background-fill-success-secondary;
+
+    .kirki-toast-icon {
+      color: $background-fill-success;
+    }
+  }
+
+  &-error {
+    border-color: $background-fill-critical;
+    background-color: $background-fill-critical-secondary;
+
+    .kirki-toast-icon {
+      color: $background-fill-critical;
+    }
+  }
+
+  &-warning {
+    border-color: $background-fill-warning;
+    background-color: $background-fill-warning-secondary;
+
+    .kirki-toast-icon {
+      color: $background-fill-warning;
+    }
+  }
+
+  &-info {
+    border-color: $background-fill-brand;
+    background-color: $background-fill-secondary;
+
+    .kirki-toast-icon {
+      color: $background-fill-brand;
+    }
+  }
+}
+
+// ── Toast Icon ─────────────────────────────────────────────────────────────────
+
+.kirki-toast-icon {
+  @include flex-center;
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-top: 2px;
+}
+
+// ── Toast Content ─────────────────────────────────────────────────────────────
+
+.kirki-toast-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.kirki-toast-title {
+  @include typography(base, semibold, $text-primary);
+  margin: 0 0 $spacing-1;
+}
+
+.kirki-toast-message {
+  @include typography(sm, normal, $text-secondary);
+  margin: 0;
+  line-height: $line-height-sm;
+}
+
+// ── Toast Close ────────────────────────────────────────────────────────────────
+
+.kirki-toast-close {
+  @include button-reset;
+  @include flex-center;
+  flex-shrink: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: $radius-sm;
+  color: $icon-secondary;
+  @include transition((background-color, color));
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    color: $text-primary;
+  }
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+}

@@ -1,0 +1,105 @@
+// Mixins - General Utilities
+
+@use '../tokens' as *;
+
+// Transition shorthand
+@use 'sass:list';
+
+@mixin transition($props: (color, background-color, border-color, box-shadow), $dur: 150ms, $ease: ease) {
+  $result: ();
+  @each $p in $props {
+    $result: list.append($result, #{$p} #{$dur} #{$ease}, comma);
+  }
+  transition: $result;
+}
+
+// Focus ring (brand)
+@mixin focus-ring($color: $background-fill-brand) {
+  outline: 2px solid $color;
+  outline-offset: 2px;
+}
+
+// Visually hide but keep accessible
+@mixin visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+// Truncate text with ellipsis
+@mixin text-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// Multi-line clamp
+@mixin text-clamp($lines: 2) {
+  display: -webkit-box;
+  -webkit-line-clamp: $lines;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+// Reset button defaults
+@mixin button-reset {
+  appearance: none;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  outline: none;
+
+  &:focus { outline: none; }
+}
+
+// Scrollbar styling
+@mixin scrollbar($width: 6px, $thumb: $border-hover, $track: transparent) {
+  scrollbar-width: thin;
+  scrollbar-color: $thumb $track;
+
+  &::-webkit-scrollbar        { width: $width; }
+  &::-webkit-scrollbar-track  { background: $track; }
+  &::-webkit-scrollbar-thumb  {
+    background: $thumb;
+    border-radius: $radius-full;
+    &:hover { filter: brightness(0.85); }
+  }
+}
+
+// Absolute fill
+@mixin absolute-fill {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+// Absolute center
+@mixin absolute-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+// Skeleton loading shimmer
+@mixin skeleton {
+  background: linear-gradient(90deg, $background-surface-alt 25%, $background-fill 50%, $background-surface-alt 75%);
+  background-size: 200% 100%;
+  animation: kirki-skeleton 1.4s ease infinite;
+}
+
+@keyframes kirki-skeleton {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}

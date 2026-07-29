@@ -98,4 +98,19 @@ class SiteController
     {
         return TemplateHelper::get_template('account');
     }
+
+    /**
+     * Design system page
+     *
+     * @since 1.0.0
+     *
+     * @param array $params  Route parameters.
+     * @param array $template Template name.
+     *
+     * @return string Template path.
+     */
+    public function design_system_page($params, $template)
+    {
+        return TemplateHelper::get_template('design-system');
+    }
 }

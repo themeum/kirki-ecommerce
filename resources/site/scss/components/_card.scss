@@ -1,0 +1,61 @@
+// Component - Card
+// Base: .kirki-card
+// Modifiers: .kirki-card-shadow  .kirki-card-hoverable
+// Elements:  .kirki-card-image   .kirki-card-body    .kirki-card-title
+//            .kirki-card-meta    .kirki-card-price   .kirki-card-footer
+
+@use '../tokens' as *;
+@use '../mixins' as *;
+
+.kirki-card {
+  background-color: $background-fill;
+  border: 1px solid $border-default;
+  border-radius: $radius-lg;
+  overflow: hidden;
+
+  &-shadow {
+    box-shadow: $shadow-default;
+    border-color: transparent;
+  }
+
+  &-hoverable {
+    @include transition((box-shadow, transform));
+    cursor: pointer;
+
+    &:hover {
+      box-shadow: $shadow-md;
+      transform: translateY(-1px);
+    }
+  }
+
+  &-image {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    display: block;
+    background-color: $background-surface-alt;
+  }
+
+  &-body  { padding: $spacing-4; }
+
+  &-title {
+    @include typography(md, semibold, $text-primary);
+    margin: 0 0 $spacing-1;
+  }
+
+  &-meta {
+    @include typography(sm, normal, $text-secondary);
+    margin: 0 0 $spacing-2;
+  }
+
+  &-price {
+    @include typography(md, semibold, $text-primary);
+  }
+
+  &-footer {
+    padding: $spacing-3 $spacing-4;
+    border-top: 1px solid $border-default;
+    @include flex(row, center, flex-start);
+    gap: $spacing-2;
+  }
+}
