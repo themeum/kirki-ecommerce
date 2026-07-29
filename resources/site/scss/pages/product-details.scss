@@ -1,8 +1,8 @@
 // Page - Product Details
 // Styles for single product page layout
 
-@use '../tokens' as *;
-@use '../mixins' as *;
+@use "../tokens" as *;
+@use "../mixins" as *;
 
 .kirki-product-page {
   max-width: 1200px;
@@ -112,9 +112,25 @@
   gap: $spacing-10;
 }
 
+.kirki-product-title-and-price {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: $spacing-6;
+  padding-bottom: $spacing-10;
+  border-bottom: 1px solid $border-default;
+}
+
+.kirki-product-ribbon {
+  @include typography(xs, medium, $text-light);
+  background-color: $background-fill-critical;
+  padding: $spacing-2 $spacing-4;
+  border-radius: $radius-sm;
+}
+
 .kirki-product-title {
-  @include typography(2xl, bold, $text-primary);
-  margin: 0;
+  @include typography(3xl, semibold, $text-primary);
+  margin: 0px;
 }
 
 .kirki-product-price {
@@ -124,25 +140,25 @@
 }
 
 .kirki-product-price-current {
-  @include typography(xl, bold, $text-primary);
+  @include typography(2xl, semibold, $text-primary);
 }
 
 .kirki-product-price-original {
-  @include typography(lg, normal, $text-secondary);
+  @include typography(xl, normal, $text-subdued);
   text-decoration: line-through;
 }
 
 .kirki-product-discount {
-  background-color: $background-fill-critical-secondary;
-  color: $background-fill-critical;
-  padding: $spacing-1 $spacing-3;
+  @include typography(xs, medium, $text-light);
+  background-color: $background-fill-success;
+  padding: $spacing-2 $spacing-4;
   border-radius: $radius-sm;
-  @include typography(sm, semibold, $background-fill-critical);
+  text-transform: uppercase;
 }
 
-.kirki-product-description {
+.kirki-product-short-description {
   @include typography(base, normal, $text-secondary);
-  line-height: 1.6;
+  margin: 0px;
 }
 
 // ── Product Variants ───────────────────────────────────────────────────────────
@@ -150,25 +166,34 @@
 .kirki-product-variant-group {
   display: flex;
   flex-direction: column;
-  gap: $spacing-3;
+  gap: $spacing-4;
+  align-items: start;
 }
 
 .kirki-product-variant-label {
-  @include typography(sm, semibold, $text-primary);
+  @include typography(base, semibold, $text-primary);
+
+  span {
+    color: $text-secondary;
+    font-weight: 400;
+  }
 }
 
 .kirki-product-variant-options {
   display: flex;
-  gap: $spacing-3;
+  gap: $spacing-4;
   flex-wrap: wrap;
 }
 
 .kirki-product-variant-option {
+  width: 44px;
+  height: 44px;
   padding: $spacing-3 $spacing-5;
   border: 1px solid $border-default;
   border-radius: $radius-md;
   cursor: pointer;
-  @include typography(sm, normal, $text-primary);
+  @include flex-center();
+  @include typography(base, semibold, $text-primary);
   @include transition((border-color, background-color, color));
 
   &:hover {
@@ -183,20 +208,15 @@
 }
 
 .kirki-product-variant-color {
-  width: 2rem;
-  height: 2rem;
+  width: 28px;
+  height: 28px;
   border-radius: $radius-full;
-  border: 2px solid $border-default;
   cursor: pointer;
   @include transition((transform, border-color, box-shadow));
 
-  &:hover {
-    transform: scale(1.1);
-  }
-
   &.selected {
-    border-color: $background-fill-brand;
-    box-shadow: 0 0 0 2px $background-fill-secondary;
+    outline: 1px solid $border-ring;
+    outline-offset: 2px;
   }
 }
 
@@ -231,7 +251,7 @@
     color: $background-fill-brand;
 
     &::after {
-      content: '';
+      content: "";
       position: absolute;
       bottom: -1px;
       left: 0;

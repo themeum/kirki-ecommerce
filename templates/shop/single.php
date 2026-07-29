@@ -12,6 +12,7 @@
 defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Helpers\TemplateHelper;
+use Kirki\Ecommerce\Supports\Icon;
 use Kirki\Ecommerce\Wordpress\SiteRoute;
 
 $slug = SiteRoute::route_param('slug');
@@ -67,15 +68,19 @@ TemplateHelper::get_header();
                 { id: 12, product_id: 1, price: 159.99, compare_price: 209.99, stock: 6, attributes: [{ name: 'color', value: 'Blue' }, { name: 'size', value: 'XL' }], available: true }
             ]
         })">
-            <h1 class="kirki-product-title">Premium Wireless Headphones</h1>
-            
-            <div class="kirki-product-price">
-                <span class="kirki-product-price-current" x-text="'$' + (selectedVariant?.price || 149.99).toFixed(2)"></span>
-                <span class="kirki-product-price-original" x-show="selectedVariant?.compare_price" x-text="'$' + (selectedVariant?.compare_price || 199.99).toFixed(2)"></span>
-                <span class="kirki-product-discount" x-show="selectedVariant?.compare_price" x-text="'-' + Math.round((1 - selectedVariant.price / selectedVariant.compare_price) * 100) + '%'"></span>
+            <div class="kirki-product-title-and-price">
+                <span class="kirki-product-ribbon">New</span>
+
+                <h1 class="kirki-product-title">Premium Wireless Headphones</h1>
+                
+                <div class="kirki-product-price">
+                    <span class="kirki-product-price-current" x-text="'$' + (selectedVariant?.price || 149.99).toFixed(2)"></span>
+                    <span class="kirki-product-price-original" x-show="selectedVariant?.compare_price" x-text="'$' + (selectedVariant?.compare_price || 199.99).toFixed(2)"></span>
+                    <span class="kirki-product-discount" x-show="selectedVariant?.compare_price" x-text="'Save ' + Math.round((1 - selectedVariant.price / selectedVariant.compare_price) * 100) + '%'"></span>
+                </div>
             </div>
 
-            <p class="kirki-product-description">
+            <p class="kirki-product-short-description">
                 Experience crystal-clear audio with our premium wireless headphones. Featuring active noise cancellation, 30-hour battery life, and ultra-comfortable ear cushions for all-day listening.
             </p>
 
@@ -117,14 +122,19 @@ TemplateHelper::get_header();
             <div class="kirki-product-variant-group">
                 <span class="kirki-product-variant-label">Quantity</span>
                 <div x-data="quantitySelector({ min: 1, max: selectedVariant?.stock || 10, initial: 1 })" class="kirki-quantity">
-                    <button class="kirki-quantity-btn" type="button" aria-label="Decrease" @click="decrement">−</button>
+                    <button class="kirki-quantity-btn" type="button" aria-label="Decrease" @click="decrement">
+                        <?php Icon::render('minus'); ?>
+                    </button>
                     <input class="kirki-quantity-input" type="number" :value="quantity" @input="setValue($el.value)" min="1" :max="selectedVariant?.stock || 10" aria-label="Quantity">
-                    <button class="kirki-quantity-btn" type="button" aria-label="Increase" @click="increment">+</button>
+                    <button class="kirki-quantity-btn" type="button" aria-label="Increase" @click="increment">
+                        <?php Icon::render('plus'); ?>
+                    </button>
                 </div>
             </div>
 
             <!-- Add to Cart Button -->
             <button class="kirki-btn kirki-btn-primary kirki-btn-block kirki-btn-lg" x-data="addToCart({ variantId: selectedVariantId, qty: 1 })" @click="add" :disabled="!selectedVariant?.available || loading" :class="{ 'kirki-btn-loading': loading }">
+                <?php Icon::render('cart'); ?>
                 <span x-show="!loading" x-text="selectedVariant?.available ? 'Add to Cart' : 'Out of Stock'"></span>
             </button>
         </div>

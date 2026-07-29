@@ -10,6 +10,8 @@
 defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Helpers\TemplateHelper;
+use Kirki\Ecommerce\Supports\Icon;
+
 ?>
 <?php TemplateHelper::get_header(); ?>
 
@@ -235,6 +237,88 @@ use Kirki\Ecommerce\App\Helpers\TemplateHelper;
         <button class="kirki-quantity-btn" type="button" aria-label="Decrease" @click="decrement">&minus;</button>
         <input class="kirki-quantity-input" type="number" :value="quantity" @input="setValue($el.value)" min="1" max="99" aria-label="Quantity">
         <button class="kirki-quantity-btn" type="button" aria-label="Increase" @click="increment">+</button>
+    </div>
+</section>
+
+<!-- PRODUCT CARDS -->
+<section>
+    <p class="kds-section-title">Spacing Scale</p>
+
+    <div class="kds-card-grid">
+
+        <div class="kirki-product-card">
+            <a href="#" class="kirki-product-card-image">
+                <span class="kirki-product-card-ribbon">New</span>
+                <img src="https://images.unsplash.com/photo-1591047139829-d91aecb6caea" alt="product image" />
+            </a>
+            <div class="kirki-product-card-body">
+                <span class="kirki-product-card-category">
+                    Accessories
+                </span>
+                <a href="#" class="kirki-product-card-title">
+                    Needle-Felted Succulent in Ceramic Pot
+                </a>
+            </div>
+            <div class="kirki-product-card-footer">
+                <div class="kirki-product-card-price-wrapper">
+                    <span class="kirki-product-card-price">$35.00</span>
+                    <span class="kirki-product-card-price-discount">$35.00</span>
+                </div>
+                <button class="kirki-btn kirki-btn-primary kirki-btn-sm kirki-product-card-add-to-cart">
+                    <?php Icon::render('cart'); ?>
+                    Add
+                </button> 
+            </div>
+        </div>
+
+        <div class="kirki-product-card">
+            <a href="#" class="kirki-product-card-image">
+                <img src="https://images.unsplash.com/photo-1619603364904-c0498317e145" alt="product image" />
+            </a>
+            <div class="kirki-product-card-body">
+                <span class="kirki-product-card-category">
+                    Accessories
+                </span>
+                <a href="#" class="kirki-product-card-title">
+                    Needle-Felted Succulent in Ceramic Pot
+                </a>
+            </div>
+            <div class="kirki-product-card-footer">
+                <div class="kirki-product-card-price-wrapper">
+                    <span class="kirki-product-card-price">$35.00</span>
+                    <span class="kirki-product-card-price-discount">$35.00</span>
+                </div>
+                <button class="kirki-btn kirki-btn-primary kirki-btn-sm kirki-product-card-add-to-cart">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.4" d="M1.366 1.366H2.7l1.773 8.28A1.334 1.334 0 0 0 5.806 10.7h6.52a1.33 1.33 0 0 0 1.3-1.046l1.1-4.953H3.413M6 14a.667.667 0 1 1-1.334 0A.667.667 0 0 1 6 14m7.333 0a.667.667 0 1 1-1.334 0 .667.667 0 0 1 1.334 0"/></svg>
+                    Add
+                </button> 
+            </div>
+        </div>
+
+        <div class="kirki-product-card">
+            <a href="#" class="kirki-product-card-image">
+                <img src="https://images.unsplash.com/photo-1434389677669-e08b4cac3105" alt="product image" />
+            </a>
+            <div class="kirki-product-card-body">
+                <span class="kirki-product-card-category">
+                    Accessories
+                </span>
+                <a href="#" class="kirki-product-card-title">
+                    Needle-Felted Succulent in Ceramic Pot
+                </a>
+            </div>
+            <div class="kirki-product-card-footer">
+                <div class="kirki-product-card-price-wrapper">
+                    <span class="kirki-product-card-price">$35.00</span>
+                    <span class="kirki-product-card-price-discount">$35.00</span>
+                </div>
+                <button class="kirki-btn kirki-btn-primary kirki-btn-sm kirki-product-card-add-to-cart">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.4" d="M1.366 1.366H2.7l1.773 8.28A1.334 1.334 0 0 0 5.806 10.7h6.52a1.33 1.33 0 0 0 1.3-1.046l1.1-4.953H3.413M6 14a.667.667 0 1 1-1.334 0A.667.667 0 0 1 6 14m7.333 0a.667.667 0 1 1-1.334 0 .667.667 0 0 1 1.334 0"/></svg>
+                    Add
+                </button> 
+            </div>
+        </div>
+
     </div>
 </section>
 
