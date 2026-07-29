@@ -8,10 +8,8 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Field, FieldLabel } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
 import Label from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
   Select,
   SelectContent,
@@ -27,20 +25,9 @@ import {
 import { CloseIcon, ListFilter } from '@/icons';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { CouponListFilter, discountTypeOptions, methodOptions, statusOptions } from '@/types/filters/coupon';
 import { __, sprintf } from '@/wpi18n';
 
-import BrandFilter from '@/pages/products/product-table/filter-popup/brand-filter';
-import CategoriesFilter from '@/pages/products/product-table/filter-popup/categories-filter';
-import CollectionFilter from '@/pages/products/product-table/filter-popup/collection-filter';
-import { ProductListFilter } from '@/types/filters/product';
-
-type LocalFilterState = {
-  category_ids: number[];
-  status: string;
-  stock_status: string;
-  collection_ids: number | undefined;
-  brand_ids: number | undefined;
-};
 
 type FilterPopupProps = {
   onChange?: () => void;
@@ -53,23 +40,19 @@ const FilterPopup = memo(({
   buttonProps,
   data: _data,
 }: FilterPopupProps) => {
-  const params = useListParamsValue<ProductListFilter>();
-  const { setParams } = useListParamsActions<ProductListFilter>();
+  const params = useListParamsValue<CouponListFilter>();
+  const { setParams } = useListParamsActions<CouponListFilter>();
   const [openPopup, setOpenPopup] = useState(false);
-  const [filterObject, setFilterObject] = useState<LocalFilterState>({
-    category_ids: [],
+  const [filterObject, setFilterObject] = useState<CouponListFilter>({
     status: 'all',
-    stock_status: '',
-    collection_ids: undefined,
-    brand_ids: undefined,
+    discount_type: 'all',
+    method: 'all',
   });
 
   const hasFilter = [
-    params.category_ids?.length,
     params.status,
-    params.stock_status,
-    params.collection_ids?.length,
-    params.brand_ids?.length,
+    params.discount_type,
+    params.method,
   ].filter(Boolean).length;
 
   useEffect(() => {
@@ -77,17 +60,15 @@ const FilterPopup = memo(({
       return;
     }
     setFilterObject({
-      category_ids: params.category_ids || [],
       status: (params.status as string) || 'all',
-      stock_status: params.stock_status || '',
-      collection_ids: params.collection_ids?.[0],
-      brand_ids: params.brand_ids?.[0],
+      discount_type: (params.discount_type as string) || 'all',
+      method: (params.method as string) || 'all',
     });
   }, [openPopup]);
 
   const handleOnFilterChange = (
-    val: string | number | Array<string | number>,
-    filterName: keyof LocalFilterState,
+    val: string,
+    filterName: keyof CouponListFilter,
   ) => {
     setFilterObject((prev) => ({
       ...prev,
@@ -97,29 +78,27 @@ const FilterPopup = memo(({
 
   const handleOnApplyFilter = () => {
     setParams({
-      category_ids: filterObject.category_ids.length
-        ? filterObject.category_ids
-        : undefined,
       status:
         filterObject.status && filterObject.status !== 'all'
           ? filterObject.status
           : undefined,
-      stock_status: filterObject.stock_status || undefined,
-      collection_ids: filterObject.collection_ids
-        ? [filterObject.collection_ids]
-        : undefined,
-      brand_ids: filterObject.brand_ids ? [filterObject.brand_ids] : undefined,
+      discount_type:
+        filterObject.discount_type && filterObject.discount_type !== 'all'
+          ? filterObject.discount_type
+          : undefined,
+      method:
+        filterObject.method && filterObject.method !== 'all'
+          ? filterObject.method
+          : undefined,
     });
     handleFilterClose();
   };
 
   const handleFilterClose = () => {
     setFilterObject({
-      category_ids: [],
       status: 'all',
-      stock_status: '',
-      collection_ids: undefined,
-      brand_ids: undefined,
+      discount_type: 'all',
+      method: 'all',
     });
     setOpenPopup(false);
   };
@@ -180,65 +159,71 @@ const FilterPopup = memo(({
           </ActionGroup>
         </Flex>
 
-        <Flex direction="column" gap={4} css={css({ padding: `${theme.spacing[2]} ${theme.spacing[3]}`, overflowY: 'auto', minHeight: '400px' })}>
-          <CategoriesFilter
-            filterObject={filterObject}
-            onChange={(val) => handleOnFilterChange(val, 'category_ids')}
-          />
+        <Flex direction="column" gap={4} css={css({ padding: `${theme.spacing[2]} ${theme.spacing[3]}`, overflowY: 'auto', minHeight: '264px' })}>
+
           <Flex direction="column" gap={2}>
             <Label>{__('Status', 'kirki-ecommerce')}</Label>
-            <RadioGroup
-              defaultValue="all"
-              value={filterObject.status || 'all'}
-              onValueChange={(val) => handleOnFilterChange(val, 'status')}
-            >
-              {[
-                {
-                  value: 'published',
-                  label: __('Published', 'kirki-ecommerce'),
-                },
-                { value: 'draft', label: __('Draft', 'kirki-ecommerce') },
-                { value: 'all', label: __('All', 'kirki-ecommerce') },
-              ].map((option) => (
-                <Field key={option.value} orientation="horizontal">
-                  <RadioGroupItem
-                    value={option.value}
-                    id={`filter-status-${option.value}`}
-                  />
-                  <FieldLabel htmlFor={`filter-status-${option.value}`}>
-                    {option.label}
-                  </FieldLabel>
-                </Field>
-              ))}
-            </RadioGroup>
-          </Flex>
-          <Flex direction="column" gap={2}>
-            <Label>{__('Inventory', 'kirki-ecommerce')}</Label>
             <Select
-              value={filterObject.stock_status || undefined}
-              onValueChange={(val) => handleOnFilterChange(val, 'stock_status')}
+              value={filterObject.status || undefined}
+              onValueChange={(val) => handleOnFilterChange(val, 'status')}
             >
               <SelectTrigger>
                 <SelectValue placeholder={__('Select', 'kirki-ecommerce')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="in_stock">
-                  {__('In stock', 'kirki-ecommerce')}
-                </SelectItem>
-                <SelectItem value="out_of_stock">
-                  {__('Out of stock', 'kirki-ecommerce')}
-                </SelectItem>
+                {
+                  statusOptions.map((option) => (
+                    <SelectItem key={option.value} value={String(option.value)}>
+                      {option.title}
+                    </SelectItem>
+                  ))
+                }
               </SelectContent>
             </Select>
           </Flex>
-          <CollectionFilter
-            filterObject={filterObject}
-            onChange={(val) => handleOnFilterChange(val, 'collection_ids')}
-          />
-          <BrandFilter
-            filterObject={filterObject}
-            onChange={(val) => handleOnFilterChange(val, 'brand_ids')}
-          />
+
+          <Flex direction="column" gap={2}>
+            <Label>{__('Method', 'kirki-ecommerce')}</Label>
+            <Select
+              value={filterObject.method || undefined}
+              onValueChange={(val) => handleOnFilterChange(val, 'method')}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder={__('Select', 'kirki-ecommerce')} />
+              </SelectTrigger>
+              <SelectContent>
+                {
+                  methodOptions.map((option) => (
+                    <SelectItem key={option.value} value={String(option.value)}>
+                      {option.title}
+                    </SelectItem>
+                  ))
+                }
+              </SelectContent>
+            </Select>
+          </Flex>
+
+          <Flex direction="column" gap={2}>
+            <Label>{__('Type', 'kirki-ecommerce')}</Label>
+            <Select
+              value={filterObject.discount_type || undefined}
+              onValueChange={(val) => handleOnFilterChange(val, 'discount_type')}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder={__('Select', 'kirki-ecommerce')} />
+              </SelectTrigger>
+              <SelectContent>
+                {
+                  discountTypeOptions.map((option) => (
+                    <SelectItem key={option.value} value={String(option.value)}>
+                      {option.title}
+                    </SelectItem>
+                  ))
+                }
+              </SelectContent>
+            </Select>
+          </Flex>
+
         </Flex>
 
         <Flex css={styles.footer}>

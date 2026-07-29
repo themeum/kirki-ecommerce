@@ -1,10 +1,10 @@
+import { type SerializedStyles } from '@emotion/react';
 import {
   forwardRef,
   type HTMLAttributes,
   type TdHTMLAttributes,
   type ThHTMLAttributes,
 } from 'react';
-import { type SerializedStyles } from '@emotion/react';
 
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
@@ -165,7 +165,7 @@ const TableCell = forwardRef<HTMLTableCellElement, TableCellProps>(
 
 TableCell.displayName = 'TableCell';
 
-export { Table, TableHeader, TableBody, TableRow, TableHead, TableCell };
+export { Table, TableBody, TableCell, TableHead, TableHeader, TableRow };
 
 const styles = {
   base: scoped({
