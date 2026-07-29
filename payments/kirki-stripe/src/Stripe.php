@@ -45,21 +45,15 @@ class Stripe extends PaymentGateway
 
         $this->set_admin_fields([
             [
-                'name' => 'publishable_key',
-                'label' => __('Publishable Key', 'kirki-ecommerce'),
-                'type' => 'text',
-                'required' => true,
-            ],
-            [
                 'name' => 'secret_key',
                 'label' => __('Secret Key', 'kirki-ecommerce'),
-                'type' => 'password',
+                'type' => 'text',
                 'required' => true,
             ],
             [
                 'name' => 'webhook_secret',
                 'label' => __('Webhook Secret', 'kirki-ecommerce'),
-                'type' => 'password',
+                'type' => 'text',
                 'required' => true,
             ],
         ]);
@@ -276,7 +270,6 @@ class Stripe extends PaymentGateway
     protected function sanitize_settings(array $settings)
     {
         $data = Sanitizer::make($settings, [
-            'publishable_key' => Sanitizer::TEXT,
             'secret_key' => Sanitizer::TEXT,
             'webhook_secret' => Sanitizer::TEXT,
         ])->get_sanitized_data();

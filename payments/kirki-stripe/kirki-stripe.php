@@ -1,7 +1,5 @@
 <?php
 
-use Kirki\Ecommerce\Payments\Stripe;
-
 /**
  * Plugin Name:       Kirki Stripe
  * Plugin URI:        https://kirki.com/
@@ -14,14 +12,16 @@ use Kirki\Ecommerce\Payments\Stripe;
  * Text Domain:       kirki-stripe
  */
 
+use Kirki\Ecommerce\App\Constants\HookNames;
+use Kirki\Ecommerce\Payments\Stripe;
+
 if (!defined('ABSPATH')) {
     exit;
 }
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-
-add_filter('kirki_ecommerce_all_payment_gateways', function ($gateways) {
+add_filter(HookNames::ECOMMERCE_ALL_PAYMENT_GATEWAYS, function ($gateways) {
     $gateways[] = new Stripe();
 
     return $gateways;

@@ -55,7 +55,7 @@ class PaymentManager
      */
     public function get_all_online_gateways()
     {
-        return collection($this->gateways_registry)->reject(fn($gateway) => $gateway->is_manual())->all();
+        return array_values(collection($this->gateways_registry)->reject(fn($gateway) => $gateway->is_manual())->all());
     }
 
     /**
