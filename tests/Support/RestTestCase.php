@@ -5,7 +5,7 @@ namespace Kirki\Ecommerce\Tests\Support;
 use Kirki\Ecommerce\App\Services\ShippingService;
 use WP_UnitTestCase;
 
-use function Kirki\Ecommerce\migrator;
+use function Kirki\Ecommerce\Framework\migrator;
 
 abstract class RestTestCase extends WP_UnitTestCase
 {

@@ -5,7 +5,7 @@ namespace Kirki\Ecommerce\App\Actions\Coupon;
 use Kirki\Ecommerce\App\Models\Coupon;
 use Kirki\Ecommerce\App\Services\CouponService;
 use Kirki\Ecommerce\App\DTO\Coupon\CreateCouponDTO;
-use Kirki\Ecommerce\Supports\Facades\DB;
+use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Exception;
 use Throwable;
 

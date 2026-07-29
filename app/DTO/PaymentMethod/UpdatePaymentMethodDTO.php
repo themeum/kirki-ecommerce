@@ -2,7 +2,7 @@
 
 namespace Kirki\Ecommerce\App\DTO\PaymentMethod;
 
-use Kirki\Ecommerce\DTO;
+use Kirki\Ecommerce\Framework\DTO;
 
 class UpdatePaymentMethodDTO extends DTO
 {

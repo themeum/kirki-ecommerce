@@ -36,6 +36,7 @@ build/
 tmp/
 temp/
 .vite/
+libraries/
 
 # Vite build output (resources/app npm run build)
 assets/css/kirki-ecommerce.bundle.css

@@ -3,12 +3,10 @@
 namespace Kirki\Ecommerce\App\Models;
 
 use Kirki\Ecommerce\App\Constants\Coupon\CouponStatus;
-use Kirki\Ecommerce\Database\Query\Model;
-use Kirki\Ecommerce\Database\Query\QueryBuilder;
-use Kirki\Ecommerce\Supports\Arr;
-use Kirki\Ecommerce\Supports\Facades\Date;
-
-use function Kirki\Ecommerce\dd;
+use Kirki\Ecommerce\Framework\Database\Query\Model;
+use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
+use Kirki\Ecommerce\Framework\Supports\Arr;
+use Kirki\Ecommerce\Framework\Supports\Facades\Date;
 
 class Coupon extends Model
 {

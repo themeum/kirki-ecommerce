@@ -2,7 +2,7 @@
 
 namespace Kirki\Ecommerce\App\DTO;
 
-use Kirki\Ecommerce\DTO;
+use Kirki\Ecommerce\Framework\DTO;
 
 class ListFilterDTO extends DTO
 {

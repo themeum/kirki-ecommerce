@@ -2,7 +2,7 @@
 
 namespace Kirki\Ecommerce\Tests\Unit\Scheduler;
 
-use Kirki\Ecommerce\Scheduler\Concerns\Queueable;
+use Kirki\Ecommerce\App\Scheduler\Concerns\Queueable;
 use Kirki\Ecommerce\Tests\Unit\TestCase;
 
 class QueueableTest extends TestCase

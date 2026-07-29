@@ -6,8 +6,8 @@ use Kirki\Ecommerce\App\Http\Requests\Settings\OnboardingRequest;
 use Kirki\Ecommerce\App\Constants\OptionKeys;
 
 use Kirki\Ecommerce\App\Services\CurrencyService;
-use Kirki\Ecommerce\Supports\Facades\Settings;
-use function Kirki\Ecommerce\response;
+use Kirki\Ecommerce\App\Supports\Facades\Settings;
+use function Kirki\Ecommerce\Framework\response;
 
 class OnboardingController
 {

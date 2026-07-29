@@ -3,13 +3,16 @@
   "type": "project",
   "autoload": {
     "psr-4": {
-      "Kirki\\Ecommerce\\": "framework/",
+      "Kirki\\Ecommerce\\Framework\\": "libraries/framework/",
       "Kirki\\Ecommerce\\App\\": "app/",
       "Kirki\\Ecommerce\\Database\\Migrations\\": "database/migrations/",
       "Kirki\\Ecommerce\\Database\\Seeders\\": "database/seeders/"
     },
     "files": [
-      "framework/helpers.php"
+      "bootstrap/abspath.php",
+      "libraries/framework/helpers.php",
+      "libraries/framework/Polyfill/Polyfill.php",
+      "app/helpers.php"
     ]
   },
   "autoload-dev": {
@@ -23,12 +26,22 @@
       "email": "support@themeum.com"
     }
   ],
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "git@github.com:themeum/framework.git"
+    }
+  ],
   "require": {
-    "brick/money": "0.7"
+    "brick/money": "0.7",
+    "themeum/framework": "^2.0.0"
   },
   "config": {
     "platform": {
       "php": "7.4.33"
+    },
+    "preferred-install": {
+      "themeum/framework": "source"
     }
   },
   "require-dev": {
@@ -36,12 +49,30 @@
     "yoast/phpunit-polyfills": "^2.0",
     "php-stubs/wordpress-stubs": "^6.9",
     "php-stubs/wp-cli-stubs": "^2.12",
-    "fakerphp/faker": "^1.24"
+    "fakerphp/faker": "^1.24",
+    "humbug/php-scoper": "^0.17"
   },
+  "minimum-stability": "dev",
+  "prefer-stable": true,
   "scripts": {
-    "test": "vendor/bin/phpunit --testdox",
-    "test:unit": "vendor/bin/phpunit --testsuite Unit --testdox",
-    "test:integration": "vendor/bin/phpunit --testsuite Integration --testdox",
+    "scope": [
+      "@putenv XDEBUG_MODE=off",
+      "@php -d auto_prepend_file=scoper.bootstrap.php -d pcre.jit=0 vendor/humbug/php-scoper/bin/php-scoper add-prefix --config=scoper.config.php --output-dir=./libraries/framework --force",
+      "@remove-framework-from-vendor"
+    ],
+    "remove-framework-from-vendor": [
+      "rm -rf vendor/themeum/",
+      "@composer dump-autoload"
+    ],
+    "post-install-cmd": [
+      "@php -r \"if (in_array('--dev', $_SERVER['argv']) || !in_array('--no-dev', $_SERVER['argv'])) { echo shell_exec('composer scope'); }\""
+    ],
+    "post-update-cmd": [
+      "@php -r \"if (in_array('--dev', $_SERVER['argv']) || !in_array('--no-dev', $_SERVER['argv'])) { echo shell_exec('composer scope'); }\""
+    ],
+    "test": "bash bin/phpunit --testdox",
+    "test:unit": "bash bin/phpunit --testsuite Unit --testdox",
+    "test:integration": "bash bin/phpunit --testsuite Integration --testdox",
     "test:docker:install": "bash kirki-test install",
     "test:docker:unit": "bash kirki-test unit",
     "test:docker:integration": "bash kirki-test integration",

@@ -2,7 +2,7 @@
 
 namespace Kirki\Ecommerce\App\DTO\Tag;
 
-use Kirki\Ecommerce\DTO;
+use Kirki\Ecommerce\Framework\DTO;
 
 class UpdateTagDTO extends DTO
 {

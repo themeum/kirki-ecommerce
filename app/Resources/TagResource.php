@@ -2,8 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Resources;
 
-use Kirki\Ecommerce\Resource;
-use Kirki\Ecommerce\Supports\MediaAttachment;
+use Kirki\Ecommerce\Framework\Resource;
+use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
 
 class TagResource extends Resource
 {

@@ -247,7 +247,7 @@ class OrderManager
      *
      * @param int $id
      * @return Order
-     * @throws \Kirki\Ecommerce\Exceptions\NotFoundException
+     * @throws \Kirki\Ecommerce\Framework\Exceptions\NotFoundException
      */
     public function find_or_fail(int $id)
     {
@@ -292,7 +292,7 @@ class OrderManager
      *
      * @param int $id
      * @return bool
-     * @throws \Kirki\Ecommerce\Exceptions\NotFoundException
+     * @throws \Kirki\Ecommerce\Framework\Exceptions\NotFoundException
      */
     public function delete_or_fail(int $id)
     {

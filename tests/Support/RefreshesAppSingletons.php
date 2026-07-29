@@ -2,7 +2,7 @@
 
 namespace Kirki\Ecommerce\Tests\Support;
 
-use Kirki\Ecommerce\Application;
+use Kirki\Ecommerce\Framework\Application;
 use ReflectionClass;
 
 trait RefreshesAppSingletons

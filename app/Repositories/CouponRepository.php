@@ -5,11 +5,9 @@ namespace Kirki\Ecommerce\App\Repositories;
 use Kirki\Ecommerce\App\Models\Coupon;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountValueType;
 use Kirki\Ecommerce\App\Constants\Pagination;
-use Kirki\Ecommerce\Collections\Collection;
-use Kirki\Ecommerce\Database\Query\Paginator;
-use Kirki\Ecommerce\Database\Query\QueryBuilder;
-
-use function Kirki\Ecommerce\dd;
+use Kirki\Ecommerce\Framework\Collections\Collection;
+use Kirki\Ecommerce\Framework\Database\Query\Paginator;
+use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
 
 class CouponRepository
 {
@@ -79,7 +77,7 @@ class CouponRepository
         if ($data['discount_value_type'] === DiscountValueType::FIXED) {
             $data['discount_amount_fixed'] = $data['discount_amount'];
         } else {
-            $data['discount_amount_percent'] = $data['discount_amount'];
+            $data['discount_amount_percentage'] = $data['discount_amount'];
         }
 
         return Coupon::create($data);

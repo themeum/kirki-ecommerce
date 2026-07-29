@@ -2,7 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Resources;
 
-use Kirki\Ecommerce\Resource;
+use Kirki\Ecommerce\Framework\Resource;
 
 class ProductSchemaResource extends Resource
 {

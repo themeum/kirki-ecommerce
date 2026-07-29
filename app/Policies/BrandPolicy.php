@@ -3,7 +3,7 @@
 namespace Kirki\Ecommerce\App\Policies;
 
 use Kirki\Ecommerce\App\Models\Brand;
-use Kirki\Ecommerce\Wordpress\User;
+use Kirki\Ecommerce\Framework\Wordpress\User;
 
 class BrandPolicy
 {

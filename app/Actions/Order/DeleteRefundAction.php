@@ -3,7 +3,7 @@
 namespace Kirki\Ecommerce\App\Actions\Order;
 
 use Kirki\Ecommerce\App\Services\OrderService;
-use Kirki\Ecommerce\Exceptions\NotFoundException;
+use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 
 class DeleteRefundAction
 {

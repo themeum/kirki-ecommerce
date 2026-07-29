@@ -2,7 +2,7 @@
 
 namespace Kirki\Ecommerce\Tests\Unit\Scheduler;
 
-use Kirki\Ecommerce\Scheduler\DeferredDispatcher;
+use Kirki\Ecommerce\App\Scheduler\DeferredDispatcher;
 use Kirki\Ecommerce\Tests\Unit\TestCase;
 
 class DeferredDispatcherTest extends TestCase
@@ -59,7 +59,7 @@ class DeferredDispatcherTest extends TestCase
 
 class DeferredDispatcherTestJob
 {
-    use \Kirki\Ecommerce\Scheduler\Concerns\Queueable {
+    use \Kirki\Ecommerce\App\Scheduler\Concerns\Queueable {
         trigger_async_worker as protected queueable_trigger_async_worker;
         store as protected queueable_store;
     }

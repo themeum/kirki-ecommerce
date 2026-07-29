@@ -6,9 +6,9 @@ use Kirki\Ecommerce\App\Resources\PaymentGateway\InstallablePaymentGatewayListRe
 use Kirki\Ecommerce\App\Resources\PaymentGateway\PaymentGatewayListResource;
 use Kirki\Ecommerce\App\Resources\PaymentGateway\PaymentGatewayResource;
 use Kirki\Ecommerce\App\Services\PaymentGatewayService;
-use Kirki\Ecommerce\Contracts\Request;
+use Kirki\Ecommerce\Framework\Contracts\Request;
 
-use function Kirki\Ecommerce\response;
+use function Kirki\Ecommerce\Framework\response;
 
 class PaymentGatewayController
 {

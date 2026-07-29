@@ -2,7 +2,7 @@
 
 namespace Kirki\Ecommerce\App\DTO\Collection;
 
-use Kirki\Ecommerce\DTO;
+use Kirki\Ecommerce\Framework\DTO;
 
 class CreateCollectionDTO extends DTO
 {

@@ -5,10 +5,10 @@ namespace Kirki\Ecommerce\App\Settings;
 defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Constants\OptionKeys;
-use Kirki\Ecommerce\AppSettings;
+use Kirki\Ecommerce\App\AppSettings;
 use Exception;
 
-use function Kirki\Ecommerce\app;
+use function Kirki\Ecommerce\Framework\app;
 
 class SettingsFactory
 {

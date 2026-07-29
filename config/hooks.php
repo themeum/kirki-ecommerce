@@ -1,10 +1,10 @@
 <?php
 
-use Kirki\Ecommerce\Wordpress\Hooks\Actions\EnqueueAdminScripts;
-use Kirki\Ecommerce\Wordpress\Hooks\Actions\RegisterAdminMenu;
-use Kirki\Ecommerce\Wordpress\Hooks\Actions\RegisterRestApi;
-use Kirki\Ecommerce\Wordpress\Hooks\Actions\RemoveDuplicateSubmenu;
-use Kirki\Ecommerce\Wordpress\Hooks\Actions\SMTPConfig;
+use Kirki\Ecommerce\App\Wordpress\Hooks\Actions\EnqueueAdminScripts;
+use Kirki\Ecommerce\App\Wordpress\Hooks\Actions\RemoveDuplicateSubmenu;
+use Kirki\Ecommerce\App\Wordpress\Hooks\Actions\SMTPConfig;
+use Kirki\Ecommerce\Framework\Wordpress\Hooks\Actions\RegisterAdminMenu;
+use Kirki\Ecommerce\Framework\Wordpress\Hooks\Actions\RegisterRestApi;
 
 return [
     'actions' => [

@@ -2,7 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Events;
 
-use Kirki\Ecommerce\Concerns\Dispatchable;
+use Kirki\Ecommerce\Framework\Concerns\Dispatchable;
 
 class OrderShipped
 {

@@ -15,15 +15,15 @@ use Kirki\Ecommerce\App\Resources\Product\ProductResource;
 use Kirki\Ecommerce\App\Services\ProductService;
 use Kirki\Ecommerce\App\Constants\BulkActions;
 use Kirki\Ecommerce\App\Constants\Pagination;
-use Kirki\Ecommerce\Contracts\Request;
+use Kirki\Ecommerce\Framework\Contracts\Request;
 use Kirki\Ecommerce\App\DTO\Product\CreateProductDTO;
 use Kirki\Ecommerce\App\DTO\Variant\CreateVariantDTO;
 use Kirki\Ecommerce\App\DTO\Product\UpdateProductDTO;
 use Kirki\Ecommerce\App\DTO\Variant\UpdateVariantDTO;
-use Kirki\Ecommerce\Http\Response;
-use Kirki\Ecommerce\Database\Query\Paginator;
+use Kirki\Ecommerce\Framework\Http\Response;
+use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 
-use function Kirki\Ecommerce\response;
+use function Kirki\Ecommerce\Framework\response;
 
 class ProductController
 {
@@ -60,7 +60,7 @@ class ProductController
 
     public function create(ProductCreateRequest $request, CreateProductAction $action)
     {
-        $data = $request->clean();
+        $data = $request->all();
 
         $variants = array_map(function ($variant) {
             return CreateVariantDTO::from_array($variant);
@@ -86,7 +86,7 @@ class ProductController
 
     public function update(ProductUpdateRequest $request, UpdateProductAction $action)
     {
-        $data = $request->clean();
+        $data = $request->all();
 
         $variants = array_map(function ($variant) {
             return UpdateVariantDTO::from_array($variant);
@@ -112,7 +112,7 @@ class ProductController
 
     public function bulk_actions(BulkActionRequest $request)
     {
-        $data = $request->clean();
+        $data = $request->all();
 
         $action = $data['action'];
         $ids = $data['ids'] ?? [];
