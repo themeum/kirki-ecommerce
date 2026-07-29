@@ -1,35 +1,28 @@
 <?php
 
 /**
- * Shop Page Template.
+ * Product Card Template.
  *
  * @package Kirki\Ecommerce\Templates
  * @author Themeum <support@themeum.com>
  * @link https://themeum.com
  * @since 1.0.0
+ *
+ * @var array $data comes from shop.php file.
  */
 
 defined('ABSPATH') || exit;
+if (!isset($data['product']) || !is_object($data['product'])) {
+    return;
+}
 
-use Kirki\Ecommerce\App\Helpers\TemplateHelper;
-use Kirki\Ecommerce\Wordpress\SiteRoute;
-
-$page = SiteRoute::route_param('page', 1);
-$products = SiteRoute::route_data('products', []);
+$product = $data['product'];
+$variants = $product->variants()->get();
+$price = $variants->first()->price;
 ?>
 
-<?php TemplateHelper::get_header(); ?>
-
-<div class="kirki-ecom-page-wrapper">
-    <h1><?php echo esc_html__('Shop', 'kirki-ecommerce'); ?></h1>
-
-    <div class="kirki-ecom-products">
-        <?php
-        foreach ($products as $product) {
-            TemplateHelper::load_template('shop/parts/product-card', ['product' => $product], false);
-        }
-        ?>
-    </div>
+<div class="kirki-ecom-product-card">
+    <h3><a href="<?php echo esc_url($product->get_url()) ?>"><?php echo esc_html($product->title); ?></a></h3>
+    <div><?php esc_html_e('Price:', 'kirki-ecommerce'); ?> <?php echo esc_html($price); ?></div>
+    <button type="button"><?php echo esc_html__('Add to Cart', 'kirki-ecommerce'); ?></button>
 </div>
-
-<?php TemplateHelper::get_footer(); ?>
