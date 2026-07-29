@@ -3,10 +3,10 @@
 namespace Kirki\Ecommerce\Tests\Unit\Scheduler;
 
 use Exception;
-use Kirki\Ecommerce\Container;
-use Kirki\Ecommerce\Scheduler\DTO\JobDTO;
-use Kirki\Ecommerce\Scheduler\Repositories\QueueRepository;
-use Kirki\Ecommerce\Scheduler\Runner;
+use Kirki\Ecommerce\Framework\Container;
+use Kirki\Ecommerce\App\Scheduler\DTO\JobDTO;
+use Kirki\Ecommerce\App\Scheduler\Repositories\QueueRepository;
+use Kirki\Ecommerce\App\Scheduler\Runner;
 use Kirki\Ecommerce\Tests\Unit\TestCase;
 use PHPUnit\Framework\MockObject\MockObject;
 

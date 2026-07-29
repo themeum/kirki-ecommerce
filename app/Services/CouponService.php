@@ -4,15 +4,15 @@ namespace Kirki\Ecommerce\App\Services;
 
 use Kirki\Ecommerce\App\Models\Coupon;
 use Kirki\Ecommerce\App\Repositories\CouponRepository;
-use Kirki\Ecommerce\Database\Query\Paginator;
-use Kirki\Ecommerce\Collections\Collection;
+use Kirki\Ecommerce\Framework\Database\Query\Paginator;
+use Kirki\Ecommerce\Framework\Collections\Collection;
 use Kirki\Ecommerce\App\DTO\Coupon\CreateCouponDTO;
 use Kirki\Ecommerce\App\DTO\Coupon\UpdateCouponDTO;
 use Kirki\Ecommerce\App\DTO\ListFilterDTO;
-use Kirki\Ecommerce\Exceptions\NotFoundException;
-use Kirki\Ecommerce\Http\Response;
+use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
+use Kirki\Ecommerce\Framework\Http\Response;
 
-use function Kirki\Ecommerce\user;
+use function Kirki\Ecommerce\Framework\user;
 
 class CouponService
 {

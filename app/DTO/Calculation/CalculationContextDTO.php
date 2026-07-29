@@ -4,10 +4,10 @@ namespace Kirki\Ecommerce\App\DTO\Calculation;
 
 use Kirki\Ecommerce\App\Models\Cart;
 use Kirki\Ecommerce\App\Constants\Order\OrderStatus;
-use Kirki\Ecommerce\Collections\Collection;
-use Kirki\Ecommerce\DTO;
+use Kirki\Ecommerce\Framework\Collections\Collection;
+use Kirki\Ecommerce\Framework\DTO;
 
-use function Kirki\Ecommerce\collection;
+use function Kirki\Ecommerce\Framework\collection;
 
 class CalculationContextDTO extends DTO
 {

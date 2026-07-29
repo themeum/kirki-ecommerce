@@ -4,7 +4,7 @@ namespace Kirki\Ecommerce\App\Payment;
 
 use Kirki\Ecommerce\App\Constants\OptionKeys;
 
-use function Kirki\Ecommerce\settings;
+use function Kirki\Ecommerce\App\settings;
 
 defined('ABSPATH') || exit;
 

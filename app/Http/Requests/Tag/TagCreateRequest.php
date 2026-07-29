@@ -3,8 +3,8 @@
 namespace Kirki\Ecommerce\App\Http\Requests\Tag;
 
 use Kirki\Ecommerce\App\Models\Tag;
-use Kirki\Ecommerce\Sanitizer;
-use Kirki\Ecommerce\Http\Request;
+use Kirki\Ecommerce\Framework\Sanitizer;
+use Kirki\Ecommerce\Framework\Http\Request;
 
 class TagCreateRequest extends Request
 {

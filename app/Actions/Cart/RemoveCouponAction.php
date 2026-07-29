@@ -4,8 +4,8 @@ namespace Kirki\Ecommerce\App\Actions\Cart;
 
 use Kirki\Ecommerce\App\Models\Cart;
 use Kirki\Ecommerce\App\Services\CartService;
-use Kirki\Ecommerce\Exceptions\ValidationException;
-use Kirki\Ecommerce\Http\Response;
+use Kirki\Ecommerce\Framework\Exceptions\ValidationException;
+use Kirki\Ecommerce\Framework\Http\Response;
 
 class RemoveCouponAction
 {

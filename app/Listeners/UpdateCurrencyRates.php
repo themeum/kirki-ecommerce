@@ -5,8 +5,8 @@ namespace Kirki\Ecommerce\App\Listeners;
 use Kirki\Ecommerce\App\Constants\OptionKeys;
 use Kirki\Ecommerce\App\Events\SettingsChanged;
 use Kirki\Ecommerce\App\Facades\CurrencyExchange;
-use Kirki\Ecommerce\Listener;
-use Kirki\Ecommerce\Supports\Facades\Settings;
+use Kirki\Ecommerce\Framework\Listener;
+use Kirki\Ecommerce\App\Supports\Facades\Settings;
 
 class UpdateCurrencyRates extends Listener
 {

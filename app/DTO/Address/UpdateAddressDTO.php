@@ -2,7 +2,7 @@
 
 namespace Kirki\Ecommerce\App\DTO\Address;
 
-use Kirki\Ecommerce\DTO;
+use Kirki\Ecommerce\Framework\DTO;
 
 class UpdateAddressDTO extends DTO
 {

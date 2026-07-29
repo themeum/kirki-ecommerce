@@ -2,10 +2,10 @@
 
 namespace Kirki\Ecommerce\App\Resources\Customer;
 
-use Kirki\Ecommerce\Resource;
-use Kirki\Ecommerce\Supports\Facades\Date;
+use Kirki\Ecommerce\Framework\Resource;
+use Kirki\Ecommerce\Framework\Supports\Facades\Date;
 use Kirki\Ecommerce\App\Facades\Money;
-use Kirki\Ecommerce\Supports\MediaAttachment;
+use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
 
 class CustomerListResource extends Resource
 {

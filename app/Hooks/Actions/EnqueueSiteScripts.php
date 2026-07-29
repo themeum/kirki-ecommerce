@@ -11,9 +11,9 @@
 
 namespace Kirki\Ecommerce\App\Hooks\Actions;
 
-use Kirki\Ecommerce\Wordpress\BaseHook;
-use Kirki\Ecommerce\Wordpress\Constants\HookNames;
-use Kirki\Ecommerce\Wordpress\Constants\HookTypes;
+use Kirki\Ecommerce\Framework\Wordpress\BaseHook;
+use Kirki\Ecommerce\Framework\Wordpress\Constants\HookNames;
+use Kirki\Ecommerce\Framework\Wordpress\Constants\HookTypes;
 
 /**
  * Class EnqueueSiteScripts

@@ -4,12 +4,12 @@ namespace Kirki\Ecommerce\App\Resources\Cart;
 
 use Kirki\Ecommerce\App\Actions\Cart\RecalculateCartAction;
 use Kirki\Ecommerce\App\Services\ShippingService;
-use Kirki\Ecommerce\Resource;
+use Kirki\Ecommerce\Framework\Resource;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationContextDTO;
 use Kirki\Ecommerce\App\Facades\Money;
-use Kirki\Ecommerce\Supports\MediaAttachment;
+use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
 
-use function Kirki\Ecommerce\app;
+use function Kirki\Ecommerce\Framework\app;
 
 class CartResource extends Resource
 {

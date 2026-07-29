@@ -2,7 +2,7 @@
 
 namespace Kirki\Ecommerce\App\DTO\Category;
 
-use Kirki\Ecommerce\DTO;
+use Kirki\Ecommerce\Framework\DTO;
 
 class CreateCategoryDTO extends DTO
 {

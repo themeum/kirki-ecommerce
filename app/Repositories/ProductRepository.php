@@ -5,10 +5,11 @@ namespace Kirki\Ecommerce\App\Repositories;
 use Kirki\Ecommerce\App\Constants\InventoryType;
 use Kirki\Ecommerce\App\Models\Product;
 use Kirki\Ecommerce\App\Constants\Pagination;
-use Kirki\Ecommerce\Collections\Collection;
-use Kirki\Ecommerce\Database\Query\Paginator;
-use Kirki\Ecommerce\Database\Query\QueryBuilder;
-use Kirki\Ecommerce\Supports\Facades\DB;
+use Kirki\Ecommerce\App\Managers\MoneyManager;
+use Kirki\Ecommerce\Framework\Collections\Collection;
+use Kirki\Ecommerce\Framework\Database\Query\Paginator;
+use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
+use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 
 class ProductRepository
 {
@@ -182,6 +183,28 @@ class ProductRepository
             return $query->where('brand_id', $filters['brand_id']);
         });
 
+        $query->when($filters['brand_ids'] ?? false, function ($query) use ($filters) {
+            return $query->where_in('brand_id', $filters['brand_ids']);
+        });
+
+        $query->when($filters['attribute_value_ids'] ?? null, function (QueryBuilder $query, $attribute_value_ids) {
+            $query->where_relation('attribute_values', fn($q) => $q->where_in('id', $attribute_value_ids));
+        });
+
+        $query->when($filters['min_price'] ?? null, function (QueryBuilder $query, $min_price) {
+            $money = MoneyManager::to_minor($min_price);
+            $query->where_relation('variants', function ($q) use ($money) {
+                $q->where(fn ($q)=> $q->where('price', '>=', $money)->or_where('sale_price', '>=', $money));
+            });
+        });
+
+        $query->when($filters['max_price'] ?? null, function (QueryBuilder $query, $max_price) {
+            $money = MoneyManager::to_minor($max_price);
+            $query->where_relation('variants', function ($q) use ($money) {
+                $q->where(fn ($q) => $q->where('price', '<=', $money)->or_where('sale_price', '<=', $money));
+            });
+        });
+
         $query->when($filters['category_ids'] ?? false, function ($query) use ($filters) {
             return $query->where_relation('categories', fn($q) => $q->where_in('category_id', $filters['category_ids']));
         });
@@ -194,10 +217,19 @@ class ProductRepository
             return $query->where('status', $filters['status']);
         });
 
-
         $query->when(!empty($filters['sort_by']) && !empty($filters['sort_order']), function (QueryBuilder $query) use ($filters) {
             return $query->order_by($filters['sort_by'], $filters['sort_order']);
-        }, function (QueryBuilder $query) {
+        }, function (QueryBuilder $query) use ($filters) {
+            $sort_by = $filters['sort_by'] ?? null;
+
+            if ($sort_by === 'low_to_high') {
+                return $query->where_relation('variants', fn($q) => $q->order_by('price', 'asc'));
+            }
+
+            if ($sort_by === 'high_to_low') {
+                return $query->where_relation('variants', fn($q) => $q->order_by('price', 'desc'));
+            }
+
             return $query->order_by('id', 'desc');
         });
 

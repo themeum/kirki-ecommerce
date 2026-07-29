@@ -2,6 +2,9 @@
 
 namespace Kirki\Ecommerce\App\Helpers;
 
+use Kirki\Ecommerce\App\Models\Attribute;
+use Kirki\Ecommerce\App\Models\Category;
+
 /**
  * Class TemplateHelper
  *
@@ -206,5 +209,211 @@ class TemplateHelper
                 '1.0.0'
             );
         }
+    }
+
+    /**
+     * Render category filter.
+     *
+     * @since 1.0.0
+     *
+     * @param string $title The title of the category filter.
+     * @param string $css_class The CSS class of the category filter.
+     * @param int $max_level The maximum level of the category filter.
+     *
+     * @return void
+     */
+    public static function render_category_filter($title = 'Categories', $css_class = '', $max_level = 0)
+    {
+        $selected_category_ids = array_map(
+            'intval',
+            (array)($_GET['category_ids'] ?? [])
+        );
+
+        // Load categories
+        $categories = Category::where('is_active', 1)
+            // ->orderBy('level')
+            // ->orderBy('ordering')
+            // ->orderBy('name')
+            ->get();
+
+        if ($categories->count() <= 0) {
+            return;
+        }
+
+        // Build tree
+        $tree = [];
+
+        foreach ($categories as $category) {
+            $parent = $category->parent_id ?: 0;
+            $tree[$parent][] = $category;
+        }
+
+        ?>
+        <div class="<?php echo esc_attr($css_class); ?>">
+
+            <?php if ($title) : ?>
+                <h3><?php echo esc_html($title); ?></h3>
+            <?php endif; ?>
+
+            <?php self::render_category_nodes(
+                $tree,
+                0,
+                1,
+                $max_level,
+                $selected_category_ids
+            ); ?>
+
+        </div>
+        <?php
+    }
+
+    /**
+     * Render category nodes.
+     *
+     * @since 1.0.0
+     *
+     * @param array $tree The category tree.
+     * @param int $parent_id The parent ID.
+     * @param int $level The level.
+     * @param int $max_level The maximum level.
+     * @param array $selected The selected categories.
+     *
+     * @return void
+     */
+    protected static function render_category_nodes(
+        array $tree,
+        int $parent_id,
+        int $level,
+        int $max_level,
+        array $selected
+    ) {
+        if (!isset($tree[$parent_id])) {
+            return;
+        }
+
+        if ($max_level > 0 && $level > $max_level) {
+            return;
+        }
+
+        echo '<ul class="category-level category-level-' . $level . '">';
+
+        foreach ($tree[$parent_id] as $category) {
+            $hasChildren = isset($tree[$category->id]);
+
+            ?>
+            <li class="category-item level-<?php echo $level; ?>">
+
+                <div class="category-row">
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            name="category_ids[]"
+                            value="<?php echo esc_attr($category->id); ?>"
+                            <?php checked(in_array($category->id, $selected, true)); ?>
+                        >
+
+                        <span><?php echo esc_html($category->name); ?></span>
+
+                    </label>
+
+                    <?php if ($hasChildren) : ?>
+                        <span class="category-toggle"></span>
+                    <?php endif; ?>
+
+                </div>
+
+                <?php
+                if ($hasChildren) {
+                    self::render_category_nodes(
+                        $tree,
+                        $category->id,
+                        $level + 1,
+                        $max_level,
+                        $selected
+                    );
+                }
+                ?>
+
+            </li>
+            <?php
+        }
+
+        echo '</ul>';
+    }
+
+    /**
+     * Render attribute filters.
+     *
+     * @since 1.0.0
+     *
+     * @param string $title The title of the attribute filters.
+     * @param string $css_class The CSS class of the attribute filters.
+     *
+     * @return void
+     */
+    public static function render_attribute_filters($title = 'Filter by', $css_class = '')
+    {
+        $selected_values = array_map(
+            'intval',
+            (array) ($_GET['attribute_value_ids'] ?? [])
+        );
+
+        $attributes = Attribute::all();
+
+        if ($attributes->count() <= 0) {
+            return;
+        }
+
+        ?>
+        <div class="attribute-filters <?php echo esc_attr($css_class); ?>">
+
+            <?php if ($title) : ?>
+                <h4 class="filter-title"><?php echo esc_html($title); ?></h4>
+            <?php endif; ?>
+
+            <?php foreach ($attributes as $attribute) : ?>
+                <?php
+                $values = $attribute->values()
+                    // ->orderBy('value')
+                    ->get();
+
+                if ($values->count() <= 0) {
+                    continue;
+                }
+                ?>
+
+                <div class="attribute-filter attribute-<?php echo esc_attr($attribute->slug); ?>">
+
+                    <div class="attribute-title">
+                       <h3><?php echo esc_html($attribute->name); ?></h3>
+                    </div>
+
+                    <ul class="kirki-ecom-sidebar-list">
+                        <?php foreach ($values as $value) : ?>
+                            <li>
+                                <label>
+                                    <input
+                                        type="checkbox"
+                                        name="attribute_value_ids[]"
+                                        value="<?php echo esc_attr($value->id); ?>"
+                                        <?php checked(in_array($value->id, $selected_values, true)); ?>
+                                    >
+
+                                    <?php if ($attribute->type === 'color') : ?>
+                                        <span class="color-swatch"
+                                              style="background:<?php echo esc_attr($value->color); ?>"></span>
+
+                                    <?php endif; ?>
+
+                                    <span><?php echo esc_html($value->value); ?></span>
+                                </label>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+            <?php endforeach; ?>
+        </div>
+        <?php
     }
 }

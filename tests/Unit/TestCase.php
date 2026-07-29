@@ -2,18 +2,17 @@
 
 namespace Kirki\Ecommerce\Tests\Unit;
 
-use Kirki\Ecommerce\Application;
+use Kirki\Ecommerce\Framework\Application;
 use Kirki\Ecommerce\App\Services\CurrencyService;
-use Kirki\Ecommerce\Container;
-use Kirki\Ecommerce\Database\Connection\Connection;
-use Kirki\Ecommerce\Facade;
-use Kirki\Ecommerce\Route;
-use Kirki\Ecommerce\Database\Query\QueryBuilder;
-use Kirki\Ecommerce\Database\Query\QueryCompiler;
-use Kirki\Ecommerce\Database\Schema\Structure;
-use Kirki\Ecommerce\Managers\DateManager;
-use Kirki\Ecommerce\Supports\EuropeanCountryChecker;
-use Kirki\Ecommerce\Supports\Str;
+use Kirki\Ecommerce\Framework\Container;
+use Kirki\Ecommerce\Framework\Database\Connection\Connection;
+use Kirki\Ecommerce\Framework\Facade;
+use Kirki\Ecommerce\Framework\Route;
+use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
+use Kirki\Ecommerce\Framework\Database\Query\QueryCompiler;
+use Kirki\Ecommerce\Framework\Database\Schema\Structure;
+use Kirki\Ecommerce\App\Supports\EuropeanCountryChecker;
+use Kirki\Ecommerce\Framework\Supports\Str;
 use Kirki\Ecommerce\Tests\Support\Database\TestWpdb;
 use PHPUnit\Framework\TestCase as BaseTestCase;
 
@@ -34,18 +33,6 @@ abstract class TestCase extends BaseTestCase
     protected static function plugin_path(): string
     {
         return dirname(__DIR__, 2);
-    }
-
-    protected function bind_date_manager(): void
-    {
-        $container = new Container();
-        $container->instance('app', $container);
-        $container->singleton(DateManager::class, function () {
-            return new DateManager();
-        });
-        $container->alias('date', DateManager::class);
-
-        $this->set_container_instance($container);
     }
 
     protected function bootstrap_application(): Application

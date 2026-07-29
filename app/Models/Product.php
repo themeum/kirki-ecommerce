@@ -3,9 +3,8 @@
 namespace Kirki\Ecommerce\App\Models;
 
 use Kirki\Ecommerce\App\Concerns\HasSlug;
-use Kirki\Ecommerce\Database\Query\Model;
-use Kirki\Ecommerce\Supports\Arr;
-use Kirki\Ecommerce\Supports\Facades\Settings;
+use Kirki\Ecommerce\Framework\Database\Query\Model;
+use Kirki\Ecommerce\Framework\Supports\Arr;
 
 class Product extends Model
 {
@@ -50,22 +49,6 @@ class Product extends Model
         'created_by',
         'updated_by',
     ];
-
-    /**
-     * Get the product URL.
-     *
-     * @since 1.0.0
-     *
-     * @return string The product URL.
-     */
-    public function get_url()
-    {
-        // TODO: Remove default values when settings is functional to generate pages.
-        $shop_page_id = Settings::get('product')->get('shop_page', 34);
-        $shop_page = get_post($shop_page_id);
-        $shop_page_slug = !empty($shop_page) ? $shop_page->post_name : 'shop';
-        return home_url($shop_page_slug . '/' . $this->slug);
-    }
 
     public function set_additional_info_attribute($value)
     {

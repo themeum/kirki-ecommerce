@@ -12,17 +12,59 @@
  */
 
 defined('ABSPATH') || exit;
+
+use Kirki\Ecommerce\App\Managers\MoneyManager;
+use Kirki\Ecommerce\App\Models\Product;
+use Kirki\Ecommerce\App\Supports\Url;
+
 if (!isset($data['product']) || !is_object($data['product'])) {
     return;
 }
 
+/**
+ * @var Product $product.
+ */
 $product = $data['product'];
-$variants = $product->variants()->get();
-$price = $variants->first()->price;
-?>
 
+$variants = $product->variants()->get();
+$regular_price = $variants->first()->price;
+$sale_price = $variants->first()->sale_price;
+
+$manager = new MoneyManager();
+$formatted_regular_price = $manager->format($manager->from_minor($regular_price));
+
+$display_price = '';
+
+if ($sale_price > 0) {
+    $formatted_sale_price = $manager->format($manager->from_minor($sale_price));
+    $display_price = '<ins>' . $formatted_sale_price . '</ins><del>' . $formatted_regular_price . '</del>';
+} else {
+    $display_price = $formatted_regular_price;
+}
+
+$category_name = $product->categories()->first();
+$media = $product->media()->first();
+$image_url = null;
+if ($media) {
+    $image_url = wp_get_attachment_image_url($media->ID, 'thumbnail');
+}
+?>
 <div class="kirki-ecom-product-card">
-    <h3><a href="<?php echo esc_url($product->get_url()) ?>"><?php echo esc_html($product->title); ?></a></h3>
-    <div><?php esc_html_e('Price:', 'kirki-ecommerce'); ?> <?php echo esc_html($price); ?></div>
+    <div><?php echo esc_html($category_name->name); ?></div>
+    <div class="kirki-ecom-product-image">
+        <?php if (!empty($product->ribbon)) : ?>
+            <div class="kirki-ecom-product-ribbon"><?php echo esc_html($product->ribbon); ?></div>
+        <?php endif; ?>
+        <?php if ($image_url) : ?>
+            <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($product->title); ?>">
+        <?php endif; ?>
+    </div>
+    <h3><a href="<?php echo esc_url(Url::get_product_url($product->slug)) ?>"><?php echo esc_html($product->title); ?></a></h3>
+
+    <div>
+        <?php esc_html_e('Price:', 'kirki-ecommerce'); ?> 
+        <?php echo wp_kses($display_price, array('del' => array(), 'ins' => array())); ?>
+    </div>
+    
     <button type="button"><?php echo esc_html__('Add to Cart', 'kirki-ecommerce'); ?></button>
 </div>

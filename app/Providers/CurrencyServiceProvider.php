@@ -6,11 +6,11 @@ use Kirki\Ecommerce\App\Constants\OptionKeys;
 use Kirki\Ecommerce\App\Currency\CurrencyExchangeFactory;
 use Kirki\Ecommerce\App\Currency\CurrencyExchangeManager;
 use Kirki\Ecommerce\App\Services\CurrencyService;
-use Kirki\Ecommerce\ServiceProvider;
+use Kirki\Ecommerce\Framework\ServiceProvider;
 
-use Kirki\Ecommerce\Supports\Arr;
-use Kirki\Ecommerce\Supports\Facades\Settings;
-use function Kirki\Ecommerce\config;
+use Kirki\Ecommerce\Framework\Supports\Arr;
+use Kirki\Ecommerce\App\Supports\Facades\Settings;
+use function Kirki\Ecommerce\Framework\config;
 
 class CurrencyServiceProvider extends ServiceProvider
 {
@@ -22,7 +22,7 @@ class CurrencyServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->singleton(CurrencyExchangeFactory::class, function ($app) {
-            $providers = Arr::make(config('currency.providers', []))->map(fn($provider) => new $provider())->to_array();
+            $providers = Arr::map(config('currency.providers', []), fn($provider) => new $provider());
             $factory = new CurrencyExchangeFactory($providers);
 
             return $factory;

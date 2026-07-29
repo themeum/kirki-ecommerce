@@ -2,7 +2,7 @@
 
 namespace Kirki\Ecommerce\App\DTO\ShippingBox;
 
-use Kirki\Ecommerce\DTO;
+use Kirki\Ecommerce\Framework\DTO;
 
 class UpdateShippingBoxDTO extends DTO
 {

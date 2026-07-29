@@ -3,6 +3,11 @@
     margin: 0 auto;
 }
 
+.kirki-ecom-container {
+    display: flex;
+    gap: 30px;
+}
+
 .kirki-ecom-products {
     display: flex;
     flex-wrap: wrap;
@@ -15,4 +20,106 @@
     margin-bottom: 10px;
     width: fit-content;
     border-radius: 4px;
+}
+
+.kirki-ecom-sidebar-list {
+    font-size: 14px;
+    margin: 0;
+    padding: 0;
+}
+
+.kirki-ecom-sidebar-list li{
+    list-style-type: none;
+}
+
+.kirki-ecom-sidebar-list label {
+    cursor: pointer;
+    display: inline-flex;
+    gap: 5px;
+    font-size: 14px;
+    font-weight: normal;
+}
+
+.kirki-ecom-shop-page-meta {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 40px;
+}
+
+.kirki-ecom-pagination {
+    display: flex;
+    margin-top: 40px;
+    margin-bottom: 20px;
+    justify-content: center;
+    width: 100%;
+}
+
+.kirki-ecom-pagination-page {
+    display: flex;
+    gap: 5px;
+}
+
+.kirki-ecom-page-link {
+    padding: 5px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    text-decoration: none;
+}
+
+.kirki-ecom-page-link .active {
+    background: #9155FF;
+    color: white;
+}
+
+.kirki-shop-sidebar-categories h3{
+    margin-top: 0;
+}
+.kirki-shop-sidebar-categories .category-level {
+    margin: 0;
+    padding: 0;
+}
+
+.category-item {
+    list-style-type: none;
+}
+
+.category-item label {
+    cursor: pointer;
+    display: inline-flex;
+    gap: 5px;
+    font-size: 14px;
+    font-weight: normal;
+}
+
+.category-level-1 {
+    padding-left: 0;
+}
+
+.category-level-2 {
+    padding-left: 20px!important;
+}
+
+.category-level-3 {
+    padding-left: 40px!important;
+}
+
+.category-level-4 {
+    padding-left: 60px!important;
+}
+
+.category-level-5 {
+    padding-left: 80px!important;
+}
+.kirki-ecom-product-image{
+    position: relative;
+}
+.kirki-ecom-product-ribbon{
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    padding: 5px;
+    background-color: red;
+    color: white;
+    border-radius: 4px;
+    font-size: 10px;
 }

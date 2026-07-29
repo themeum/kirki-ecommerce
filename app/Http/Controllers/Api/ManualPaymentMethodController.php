@@ -7,12 +7,12 @@ use Kirki\Ecommerce\App\Http\Requests\PaymentMethod\PaymentMethodUpdateRequest;
 use Kirki\Ecommerce\App\Resources\PaymentMethod\PaymentMethodListResource;
 use Kirki\Ecommerce\App\Resources\PaymentMethod\PaymentMethodResource;
 use Kirki\Ecommerce\App\Services\ManualPaymentMethodService;
-use Kirki\Ecommerce\Contracts\Request;
-use Kirki\Ecommerce\Http\Response;
+use Kirki\Ecommerce\Framework\Contracts\Request;
+use Kirki\Ecommerce\Framework\Http\Response;
 use Kirki\Ecommerce\App\DTO\PaymentMethod\CreatePaymentMethodDTO;
 use Kirki\Ecommerce\App\DTO\PaymentMethod\UpdatePaymentMethodDTO;
 
-use function Kirki\Ecommerce\response;
+use function Kirki\Ecommerce\Framework\response;
 
 class ManualPaymentMethodController
 {
