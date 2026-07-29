@@ -3,7 +3,7 @@ import { createContext, useContext } from 'react';
 import type {
   DataTableColumn,
   DataTableItem,
-} from '@/components/data-table/data-table-types';
+} from '@/components/data-table/types';
 import type { PaginatedData } from '@/types';
 
 /*
@@ -35,3 +35,4 @@ const useDataTableContext = <T extends DataTableItem>() => {
 
 export { DataTableContext, useDataTableContext };
 export type { DataTableContextValue };
+

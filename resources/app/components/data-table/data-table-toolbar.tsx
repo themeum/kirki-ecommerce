@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react';
 
-import { useDataTableSelection } from '@/components/data-table/data-table-selection-context';
-import type { DataTableBulkApplyPayload } from '@/components/data-table/data-table-types';
 import BulkActionHandler from '@/components/bulk-action-handler';
+import { useDataTableSelection } from '@/components/data-table/data-table-selection-context';
+import type { DataTableBulkApplyPayload } from '@/components/data-table/types';
 import type { SelectOption } from '@/types';
 
 type DataTableToolbarProps = {

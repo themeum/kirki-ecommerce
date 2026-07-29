@@ -8,7 +8,7 @@ import {
   type ReactNode,
 } from 'react';
 
-import type { DataTableItem } from '@/components/data-table/data-table-types';
+import type { DataTableItem } from '@/components/data-table/types';
 import { useListParamsValue } from '@/contexts/list-params-context';
 import { useMarkList } from '@/hooks';
 import type { PaginatedData } from '@/types';
@@ -139,3 +139,4 @@ const useDataTableSelection = () => {
 
 export { DataTableSelectionProvider, useDataTableSelection };
 export type { DataTableSelectionContextValue };
+

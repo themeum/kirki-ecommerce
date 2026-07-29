@@ -3,7 +3,7 @@ import { memo } from 'react';
 import type {
   DataTableColumn,
   DataTableItem,
-} from '@/components/data-table/data-table-types';
+} from '@/components/data-table/types';
 import Checkbox from '@/components/ui/checkbox';
 import { TableHead, TableRow } from '@/components/ui/table';
 

@@ -5,6 +5,7 @@ import Button from '@/components/ui/button';
 import Container from '@/components/ui/container';
 import PageHeading from '@/components/ui/page-heading';
 
+import Page from '@/components/ui/page';
 import { NEW_ITEM_ID } from '@/conf';
 import { useListParams } from '@/hooks';
 import { endpoints } from '@/libs/endpoints';
@@ -27,7 +28,7 @@ const Coupons = () => {
   );
 
   return (
-    <>
+    <Page>
       <PageHeading
         text={__('Coupons', 'kirki-ecommerce')}
         actions={
@@ -48,7 +49,7 @@ const Coupons = () => {
           onPageChange={handlePaginationChange}
         />
       </Container>
-    </>
+    </Page>
   );
 };
 

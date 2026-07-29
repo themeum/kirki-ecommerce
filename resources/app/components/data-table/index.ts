@@ -14,15 +14,16 @@ const DataTableNamespace = Object.assign(DataTable, {
 });
 
 export default DataTableNamespace;
-export {
-  DataTableAction,
-  DataTableFilterAction,
-  DataTableFilterBar,
-  DataTablePagination,
-};
 export { useDataTableSelection } from '@/components/data-table/data-table-selection-context';
 export type {
   DataTableBulkApplyPayload,
   DataTableColumn,
-  DataTableItem,
-} from '@/components/data-table/data-table-types';
+  DataTableItem
+} from '@/components/data-table/types';
+export {
+  DataTableAction,
+  DataTableFilterAction,
+  DataTableFilterBar,
+  DataTablePagination
+};
+

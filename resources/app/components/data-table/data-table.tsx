@@ -1,8 +1,8 @@
 import { useMemo, type ReactNode } from 'react';
 
-import { DataTableContext } from '@/components/data-table/data-table-context';
-import type { DataTableContextValue } from '@/components/data-table/data-table-context';
 import DataTableBody from '@/components/data-table/data-table-body';
+import type { DataTableContextValue } from '@/components/data-table/data-table-context';
+import { DataTableContext } from '@/components/data-table/data-table-context';
 import DataTableHeader from '@/components/data-table/data-table-header';
 import DataTablePagination from '@/components/data-table/data-table-pagination';
 import {
@@ -21,7 +21,7 @@ import {
   type DataTableBulkApplyPayload,
   type DataTableColumn,
   type DataTableItem,
-} from '@/components/data-table/data-table-types';
+} from '@/components/data-table/types';
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import {
