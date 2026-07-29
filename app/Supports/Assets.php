@@ -8,6 +8,36 @@ class Assets
 {
     const ADMIN_PAGE = 'ecommerce';
 
+    /**
+     * Get assets URL.
+     *
+     * @since 1.0.0
+     *
+     * @param string $path Path to append to the assets URL.
+     *
+     * @return string
+     */
+    public static function get_url($path = '')
+    {
+        $path = trim($path, '/');
+        return KIRKI_ECOMMERCE_ASSETS_URL . ($path ? '/' . $path : '');
+    }
+
+    /**
+     * Get assets path.
+     *
+     * @since 1.0.0
+     *
+     * @param string $path Path to append to the assets path.
+     *
+     * @return string
+     */
+    public static function get_path($path = '')
+    {
+        $path = trim($path, '/');
+        return KIRKI_ECOMMERCE_ASSETS_PATH . ($path ? '/' . $path : '');
+    }
+
     public static function is_admin_page()
     {
         if (!is_admin()) {
