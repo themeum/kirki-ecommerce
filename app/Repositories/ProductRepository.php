@@ -194,14 +194,14 @@ class ProductRepository
         $query->when($filters['min_price'] ?? null, function (QueryBuilder $query, $min_price) {
             $money = MoneyManager::to_minor($min_price);
             $query->where_relation('variants', function ($q) use ($money) {
-                $q->where(fn ($q)=> $q->where('price', '>=', $money)->orWhere('sale_price', '>=', $money));
+                $q->where(fn ($q)=> $q->where('price', '>=', $money)->or_where('sale_price', '>=', $money));
             });
         });
 
         $query->when($filters['max_price'] ?? null, function (QueryBuilder $query, $max_price) {
             $money = MoneyManager::to_minor($max_price);
             $query->where_relation('variants', function ($q) use ($money) {
-                $q->where(fn ($q) => $q->where('price', '<=', $money)->orWhere('sale_price', '<=', $money));
+                $q->where(fn ($q) => $q->where('price', '<=', $money)->or_where('sale_price', '<=', $money));
             });
         });
 
@@ -217,10 +217,19 @@ class ProductRepository
             return $query->where('status', $filters['status']);
         });
 
-
         $query->when(!empty($filters['sort_by']) && !empty($filters['sort_order']), function (QueryBuilder $query) use ($filters) {
             return $query->order_by($filters['sort_by'], $filters['sort_order']);
         }, function (QueryBuilder $query) {
+            $sort_by = $filters['sort_by'] ?? null;
+
+            if ($sort_by === 'low_to_high') {
+                return $query->where_relation('variants', fn($q) => $q->order_by('price', 'asc'));
+            }
+
+            if ($sort_by === 'high_to_low') {
+                return $query->where_relation('variants', fn($q) => $q->order_by('price', 'desc'));
+            }
+
             return $query->order_by('id', 'desc');
         });
 

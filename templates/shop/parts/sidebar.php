@@ -55,7 +55,7 @@ $selected_brand_ids = $data['filters']->brand_ids ?? [];
         params.delete('attribute_value_ids[]');
 
         // Reset page to 1 when filters change
-        params.delete('page');
+        params.delete('current_page');
 
         // Collect all checked category checkboxes
         sidebar.querySelectorAll('input[name="category_ids[]"]:checked').forEach(function(cb) {

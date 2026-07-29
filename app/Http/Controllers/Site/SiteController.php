@@ -58,6 +58,7 @@ class SiteController
 
         $sanitized_params->limit = 1;
         $sanitized_params->page = intval($sanitized_input['current_page'] ?? 1);
+        $sanitized_params->sort_order = null;
 
         $productService = app(ProductService::class);
         $products = $productService->paginated($sanitized_params);
