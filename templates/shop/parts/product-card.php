@@ -15,7 +15,7 @@ defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Managers\MoneyManager;
 use Kirki\Ecommerce\App\Models\Product;
-use Kirki\Ecommerce\App\Resources\Product\ProductResource;
+use Kirki\Ecommerce\App\Supports\Url;
 
 if (!isset($data['product']) || !is_object($data['product'])) {
     return;
@@ -56,7 +56,7 @@ if ($media) {
             <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($product->title); ?>">
         <?php endif; ?>
     </div>
-    <h3><a href="<?php echo esc_url($product->get_url()) ?>"><?php echo esc_html($product->title); ?></a></h3>
+    <h3><a href="<?php echo esc_url(Url::get_product_url($product->slug)) ?>"><?php echo esc_html($product->title); ?></a></h3>
 
     <div>
         <?php esc_html_e('Price:', 'kirki-ecommerce'); ?> 
