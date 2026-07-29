@@ -56,7 +56,7 @@ class SiteController
         $sanitized_input = $sanitizer->get_sanitized_data();
         $sanitized_params = ProductListFilterDTO::from_array($sanitized_input);
 
-        $sanitized_params->limit = 1;
+        // $sanitized_params->limit = 1;
         $sanitized_params->page = intval($sanitized_input['current_page'] ?? 1);
         $sanitized_params->sort_order = null;
 

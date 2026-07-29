@@ -219,7 +219,7 @@ class ProductRepository
 
         $query->when(!empty($filters['sort_by']) && !empty($filters['sort_order']), function (QueryBuilder $query) use ($filters) {
             return $query->order_by($filters['sort_by'], $filters['sort_order']);
-        }, function (QueryBuilder $query) {
+        }, function (QueryBuilder $query) use ($filters) {
             $sort_by = $filters['sort_by'] ?? null;
 
             if ($sort_by === 'low_to_high') {
