@@ -37,7 +37,6 @@ class SiteAuthMiddleware implements Middleware
     public function handle(Request $request, callable $next)
     {
         if (is_user_logged_in()) {
-            $request->from_auth_middleware = 'from_auth_middleware';
             return $next($request);
         }
         wp_redirect(home_url());
