@@ -15,6 +15,7 @@ class OptionKeys
     const CHECKOUT_SETTINGS = 'checkout';
     const CURRENCY_SETTINGS = 'currency';
     const EMAIL_SETTINGS = 'email';
+    const ADVANCE_SETTINGS = 'advance';
 
     const MIGRATIONS = 'kirki_ecommerce_migrations'; // @todo: will be handled later
     const ERASE_DATA_UPON_UNINSTALL = 'kirki_ecommerce_erase_upon_uninstall';

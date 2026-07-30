@@ -5,7 +5,7 @@ namespace Kirki\Ecommerce\App\Supports\Facades;
 use Kirki\Ecommerce\Framework\Facade;
 
 /**
- * @method static \Kirki\Ecommerce\App\AppSettings get(string $key)
+ * @method static mixed get(string $key, $default = null)
  *
  * @see \Kirki\Ecommerce\App\Settings\SettingsFactory
  */

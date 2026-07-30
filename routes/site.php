@@ -17,17 +17,19 @@ use Kirki\Ecommerce\App\Http\Controllers\Site\SiteController;
 use Kirki\Ecommerce\App\Http\Middlewares\SiteAuthMiddleware;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\Framework\Route;
+use Kirki\Ecommerce\Framework\Supports\Arr;
 
 Route::set_site_namespace('kirki_ecommerce');
 Route::set_routing_method(Route::ROUTING_PARSE_REQUEST);
 
 Route::site(function () {
     // TODO: Remove these default values once page generation via settings is implemented.
-    $shop_page_id = Settings::get('product')->get('shop_page', 34);
-    $cart_page_id = Settings::get('product')->get('cart_page', 32);
-    $checkout_page_id = Settings::get('product')->get('checkout_page', 2);
-    $account_page_id = Settings::get('product')->get('account_page', 52);
-    $design_system_page_id = Settings::get('product')->get('design_system', 16);
+    $options = get_option('kirki_ecommerce_advance', []);
+    $shop_page_id = Arr::get($options, 'pages.shop_page', 0);
+    $cart_page_id = Arr::get($options, 'pages.cart_page', 0);
+    $checkout_page_id = Arr::get($options, 'pages.checkout_page', 0);
+    $account_page_id = Arr::get($options, 'pages.account_page', 0);
+    $design_system_page_id = Arr::get($options, 'pages.design_system_page', 0);
 
     $shop_page = get_post($shop_page_id);
     $shop_page_slug = !empty($shop_page) ? $shop_page->post_name : 'shop';
