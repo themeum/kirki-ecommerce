@@ -5,30 +5,13 @@ import type { DataTableContextValue } from '@/components/data-table/data-table-c
 import { DataTableContext } from '@/components/data-table/data-table-context';
 import DataTableHeader from '@/components/data-table/data-table-header';
 import DataTablePagination from '@/components/data-table/data-table-pagination';
-import {
-  DataTableSelectionProvider,
-  useDataTableSelection,
-} from '@/components/data-table/data-table-selection-context';
-import {
-  DataTableFilter,
-  DataTableFilterBar,
-  DataTableSelectionFilter,
-  findSlot,
-} from '@/components/data-table/data-table-slots';
+import { DataTableSelectionProvider, useDataTableSelection } from '@/components/data-table/data-table-selection-context';
+import { DataTableFilter, DataTableFilterBar, DataTableSelectionFilter, findSlot } from '@/components/data-table/data-table-slots';
 import DataTableToolbar from '@/components/data-table/data-table-toolbar';
-import {
-  EMPTY_PAGE,
-  type DataTableBulkApplyPayload,
-  type DataTableColumn,
-  type DataTableItem,
-} from '@/components/data-table/types';
+import { EMPTY_PAGE, type DataTableBulkApplyPayload, type DataTableColumn, type DataTableItem } from '@/components/data-table/types';
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
-import {
-  Table,
-  TableBody,
-  TableHeader,
-} from '@/components/ui/table';
+import { Table, TableBody, TableHeader } from '@/components/ui/table';
 import { ListParamsProvider } from '@/contexts/list-params-context';
 import type { UseListParamsOptions } from '@/hooks/use-list-params';
 import { cardStyles } from '@/theme/card-styles';
@@ -91,8 +74,8 @@ const DataTableLayout = <T extends DataTableItem>({
   return (
     <DataTableContext.Provider value={contextValue}>
       <Flex direction="column" gap={4}>
-        <Card css={cardStyles.tableCard}>
-          <CardContent css={cardStyles.tableContent}>
+        <Card cssOverride={cardStyles.tableCard}>
+          <CardContent cssOverride={cardStyles.tableContent}>
             <DataTableToolbar
               action={action}
               filterAction={filterAction}

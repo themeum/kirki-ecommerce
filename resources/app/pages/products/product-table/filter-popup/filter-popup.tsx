@@ -1,32 +1,18 @@
-import { css } from '@emotion/react';
 import { memo, useEffect, useState, type ComponentProps } from 'react';
 
 import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Field, FieldLabel } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
 import Label from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Text from '@/components/ui/text';
-import {
-  useListParamsActions,
-  useListParamsValue,
-} from '@/contexts/list-params-context';
+import { useListParamsActions, useListParamsValue } from '@/contexts/list-params-context';
 import { CloseIcon, ListFilter } from '@/icons';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { defineStyles } from '@/theme/mixins';
 import { __, sprintf } from '@/wpi18n';
 
 import BrandFilter from '@/pages/products/product-table/filter-popup/brand-filter';
@@ -166,21 +152,21 @@ const FilterPopup = memo(({
         ) : null}
       </Flex>
       <DropdownMenuContent style={{ width: '288px', maxHeight: '522px' }}>
-        <Flex css={styles.header}>
+        <Flex cssOverride={styles.header}>
           <Text>{__('Filter', 'kirki-ecommerce')}</Text>
           <ActionGroup>
             <Button
               variant="ghost"
               size="icon"
               onClick={handleFilterClose}
-              css={styles.closeButton}
+              cssOverride={styles.closeButton}
             >
               <CloseIcon />
             </Button>
           </ActionGroup>
         </Flex>
 
-        <Flex direction="column" gap={4} css={css({ padding: `${theme.spacing[2]} ${theme.spacing[3]}`, overflowY: 'auto', minHeight: '400px' })}>
+        <Flex direction="column" gap={4} cssOverride={{ padding: `${theme.spacing[2]} ${theme.spacing[3]}`, overflowY: 'auto', minHeight: '400px' }}>
           <CategoriesFilter
             filterObject={filterObject}
             onChange={(val) => handleOnFilterChange(val, 'category_ids')}
@@ -241,7 +227,7 @@ const FilterPopup = memo(({
           />
         </Flex>
 
-        <Flex css={styles.footer}>
+        <Flex cssOverride={styles.footer}>
           <ActionGroup>
             <Button variant="primary" onClick={handleOnApplyFilter}>
               {__('Apply Filter', 'kirki-ecommerce')}
@@ -257,22 +243,22 @@ FilterPopup.displayName = 'FilterPopup';
 
 export default FilterPopup;
 
-const styles = {
-  header: scoped({
+const styles = defineStyles({
+  header: {
     top: '-4px',
     position: 'sticky',
     backgroundColor: theme.colors.background.surface,
     padding: `${theme.spacing[3]} ${theme.spacing[3]} ${theme.spacing[2]} ${theme.spacing[3]}`,
     zIndex: 100,
-  }),
-  closeButton: scoped({
+  },
+  closeButton: {
     color: theme.colors.text.primary,
-  }),
-  footer: scoped({
+  },
+  footer: {
     padding: `${theme.spacing[2]} ${theme.spacing[3]} ${theme.spacing[3]} ${theme.spacing[3]}`,
     borderTop: `1px solid ${theme.colors.border.default}`,
     bottom: '-4px',
     position: 'sticky',
     backgroundColor: theme.colors.background.surface,
-  }),
-};
+  },
+});

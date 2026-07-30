@@ -7,15 +7,7 @@ import { toast } from 'sonner';
 import SelectField from '@/components/form/select-field';
 import TextField from '@/components/form/text-field';
 import Button from '@/components/ui/button';
-import {
-  Dialog,
-  DialogBody,
-  DialogCloseButton,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogBody, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Field, FieldError } from '@/components/ui/field';
 import { Form } from '@/components/ui/form';
 import Input from '@/components/ui/input';
@@ -31,21 +23,11 @@ import { useCategoriesQuery } from '@/services/category';
 import { getErrorMessage } from '@/services/helpers';
 import { useSettingsQuery, updateSettings } from '@/services/settings';
 import { useShippingProfilesQuery } from '@/services/shipping';
-import {
-  ShippingRuleFormSchema,
-  shippingRuleDefaultValues,
-  type ShippingRuleFormValues,
-} from '@/schemas/forms/shipping-rule-form';
+import { ShippingRuleFormSchema, shippingRuleDefaultValues, type ShippingRuleFormValues } from '@/schemas/forms/shipping-rule-form';
 import type { SettingsSectionData } from '@/types';
 import { __ } from '@/wpi18n';
 
-import {
-  conditionOptions,
-  actionOptionsArray,
-  type ShippingRegion,
-  type ShippingRule,
-  type ShippingZone,
-} from '@/pages/settings/shipping-settings/utils';
+import { conditionOptions, actionOptionsArray, type ShippingRegion, type ShippingRule, type ShippingZone } from '@/pages/settings/shipping-settings/utils';
 import { SelectDestinationPopup } from '@/pages/settings/shipping-settings/shipping-method/select-destination-dialog';
 import { resolveDestinationRegion } from '@/pages/settings/shipping-settings/shipping-method/shipping-rules/helper';
 

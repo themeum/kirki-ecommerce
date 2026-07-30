@@ -2,7 +2,7 @@ import { type SerializedStyles } from '@emotion/react';
 import type { ReactNode } from 'react';
 
 import { theme } from '@/theme';
-import { itemCenter, scoped } from '@/theme/mixins';
+import { itemCenter, scopedMerge, defineStyles } from '@/theme/mixins';
 
 type SelectedTagsProps = {
   children?: ReactNode;
@@ -15,7 +15,7 @@ const SelectedTags = (props: SelectedTagsProps) => {
 
   return (
     <div
-      css={[styles.root, hasBorderRadius && styles.hasBorderRadius, cssProp]}
+      css={scopedMerge(styles.root, hasBorderRadius && styles.hasBorderRadius, cssProp)}
     >
       {children}
     </div>
@@ -26,8 +26,8 @@ SelectedTags.displayName = 'SelectedTags';
 
 export default SelectedTags;
 
-const styles = {
-  root: scoped({
+const styles = defineStyles({
+  root: {
     minHeight: '52.2px',
     backgroundColor: theme.colors.background.fill,
     border: `1px solid ${theme.colors.border.default}`,
@@ -38,8 +38,8 @@ const styles = {
     justifyContent: 'flex-start',
     gap: theme.spacing[2],
     flexWrap: 'wrap',
-  }),
-  hasBorderRadius: scoped({
+  },
+  hasBorderRadius: {
     borderRadius: theme.radius.lg,
-  }),
-};
+  },
+});

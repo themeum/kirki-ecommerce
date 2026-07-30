@@ -1,12 +1,6 @@
-import {
-  useEffect,
-  useState,
-  type ComponentType,
-  type Dispatch,
-  type SetStateAction,
-} from 'react';
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useEffect, useState, type ComponentType, type Dispatch, type SetStateAction } from 'react';
+import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router';
 
 import RichTextField from '@/components/form/rich-text-field';
@@ -14,34 +8,21 @@ import TextField from '@/components/form/text-field';
 import MediaGallery from '@/components/media-gallery';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import Container from '@/components/ui/container';
+import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
+import PageHeading from '@/components/ui/page-heading';
+import { Separator } from '@/components/ui/separator';
 import { NEW_ITEM_ID } from '@/conf';
-import { cardStyles } from '@/theme/card-styles';
-import { useAppConfig } from '@/contexts/app-config-context';
-import {
-  ProductFormProvider,
-  useProductForm,
-} from '@/contexts/product-form-context';
+import { ProductFormProvider, useProductForm } from '@/contexts/product-form-context';
 import type { ErrorResponse } from '@/libs/api';
 import { getErrorsObject } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import Container from '@/components/ui/container';
-import Flex from '@/components/ui/flex';
-import PageHeading from '@/components/ui/page-heading';
-import { Separator } from '@/components/ui/separator';
-import {
-  mapProductBasicsFromProduct,
-  ProductBasicsFormSchema,
-  productBasicsDefaultValues,
-  type ProductBasicsFormValues,
-} from '@/schemas/forms/product-basics-form';
-import {
-  useCreateProductMutation,
-  useProductQuery,
-  useUpdateProductMutation,
-} from '@/services/product';
+import { mapProductBasicsFromProduct, productBasicsDefaultValues, ProductBasicsFormSchema, type ProductBasicsFormValues } from '@/schemas/forms/product-basics-form';
+import { useCreateProductMutation, useProductQuery, useUpdateProductMutation } from '@/services/product';
 import { useSettingsQuery } from '@/services/settings';
 import { useShippingBoxesQuery } from '@/services/shipping';
+import { cardStyles } from '@/theme/card-styles';
 import type {
   FormErrors,
   MediaRef,
@@ -59,6 +40,7 @@ import SEOSettings from '@/pages/products/edit-product/seo-settings/seo-settings
 import Shipping from '@/pages/products/edit-product/shipping/shipping';
 import Variants from '@/pages/products/edit-product/variants/variants';
 
+import { useAppConfig } from '@/contexts/app-config-context';
 import { theme } from '@/theme';
 
 type MediaItem = Omit<MediaRef, 'id'> & {
@@ -289,7 +271,7 @@ const EditProductInner = () => {
           <div style={{ width: '70%' }}>
             <Flex direction="column" gap={4}>
               <Form {...basicsForm}>
-                <Card css={cardStyles.formCard}>
+                <Card cssOverride={cardStyles.formCard}>
                   <CardContent>
                     <Flex gap={3}>
                       <div style={{ width: '70%' }}>
@@ -341,24 +323,24 @@ const EditProductInner = () => {
               </Form>
               {(isNew ||
                 productData?.variants[0].attribute_values.length === 0) && (
-                <>
-                  <Price
-                    errors={errors}
-                    setErrors={setErrors}
-                    formSyncKey={formSyncKey}
-                  />
-                  <Inventory
-                    errors={errors}
-                    setErrors={setErrors}
-                    formSyncKey={formSyncKey}
-                  />
-                  <Shipping
-                    errors={errors}
-                    setErrors={setErrors}
-                    formSyncKey={formSyncKey}
-                  />
-                </>
-              )}
+                  <>
+                    <Price
+                      errors={errors}
+                      setErrors={setErrors}
+                      formSyncKey={formSyncKey}
+                    />
+                    <Inventory
+                      errors={errors}
+                      setErrors={setErrors}
+                      formSyncKey={formSyncKey}
+                    />
+                    <Shipping
+                      errors={errors}
+                      setErrors={setErrors}
+                      formSyncKey={formSyncKey}
+                    />
+                  </>
+                )}
               <VariantsView
                 errors={errors}
                 setErrors={setErrors}

@@ -2,7 +2,7 @@ import Flex from '@/components/ui/flex';
 import Searchbox from '@/components/ui/searchbox';
 import { useListParams } from '@/hooks';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { defineStyles } from '@/theme/mixins';
 
 const CategoryTableAction = () => {
   const { params, setParam } = useListParams({
@@ -20,7 +20,7 @@ const CategoryTableAction = () => {
   };
 
   return (
-    <Flex css={styles.wrapper}>
+    <Flex cssOverride={styles.wrapper}>
       <div style={{ width: '160px' }}>
         <Searchbox
           onChange={(value) => handleSearchChange(value as string)}
@@ -35,8 +35,8 @@ CategoryTableAction.displayName = 'CategoryTableAction';
 
 export default CategoryTableAction;
 
-const styles = {
-  wrapper: scoped({
+const styles = defineStyles({
+  wrapper: {
     padding: `${theme.spacing[4]} ${theme.spacing[3]}`,
-  }),
-};
+  },
+});

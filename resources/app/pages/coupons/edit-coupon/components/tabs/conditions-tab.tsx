@@ -12,7 +12,6 @@ import { InfoIcon } from '@/icons';
 import type { CouponFormValues } from '@/schemas/forms/coupon-form';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 const combinationOptions = [
@@ -43,7 +42,7 @@ const UsageLimitRow = ({
         align="center"
         justify="space-between"
         gap={3}
-        css={[styles.row, formState.errors[inputName] && styles.rowInvalid]}
+        cssOverride={{ ...styles.row, ...(formState.errors[inputName] ? styles.rowInvalid : {}) }}
       >
         <Flex align="center" gap={2}>
           <CheckboxField
@@ -58,7 +57,7 @@ const UsageLimitRow = ({
         <TextField
           name={inputName}
           disabled={!isEnabled}
-          css={styles.rowInput}
+          cssOverride={styles.rowInput}
         />
       </Flex>
     </Flex>
@@ -67,7 +66,7 @@ const UsageLimitRow = ({
 
 const ConditionsTab = () => (
   <Flex direction="column" gap={4}>
-    <Card css={cardStyles.formCard}>
+    <Card cssOverride={cardStyles.formCard}>
       <CardHeader>
         <CardTitle>{__('Usage Limit', 'kirki-ecommerce')}</CardTitle>
         <Text variant="small" color="secondary">
@@ -101,7 +100,7 @@ const ConditionsTab = () => (
       </CardContent>
     </Card>
 
-    <Card css={cardStyles.formCard}>
+    <Card cssOverride={cardStyles.formCard}>
       <CardHeader>
         <CardTitle>{__('Combinations', 'kirki-ecommerce')}</CardTitle>
         <Text variant="small" color="secondary">
@@ -134,21 +133,21 @@ ConditionsTab.displayName = 'ConditionsTab';
 export default ConditionsTab;
 
 const styles = {
-  row: scoped({
+  row: {
     padding: theme.spacing[3],
     borderRadius: theme.radius.md,
     backgroundColor: theme.colors.background.surfaceSecondary,
     border: '1px solid transparent',
-  }),
-  rowInvalid: scoped({
+  },
+  rowInvalid: {
     borderColor: theme.colors.border.critical,
-  }),
-  rowInput: scoped({
+  },
+  rowInput: {
     width: '72px',
     flexShrink: 0,
-  }),
-  required: scoped({
+  },
+  required: {
     marginLeft: theme.spacing[1],
     color: theme.colors.text.critical,
-  }),
+  },
 };

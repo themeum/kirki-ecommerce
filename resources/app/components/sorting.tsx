@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { ArrowDownUpFilled } from '@/icons';
 import Flex from '@/components/ui/flex';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { mergeCss, defineStyles } from '@/theme/mixins';
 import type { SortOrder } from '@/types';
 
 type SortableConfig = {
@@ -56,11 +56,9 @@ const Sorting = ({ data }: SortingProps) => {
   return (
     <Flex
       gap={1}
-      css={[
-        styles.base,
+      cssOverride={mergeCss(styles.base,
         sortable && styles.sortable,
-        sortable && isActive() && styles.active,
-      ]}
+        sortable && isActive() && styles.active,)}
       onClick={handleSorting}
     >
       {title}
@@ -79,14 +77,14 @@ Sorting.displayName = 'Sorting';
 export default Sorting;
 export type { SortableConfig, SortingData };
 
-const styles = {
-  base: scoped({
+const styles = defineStyles({
+  base: {
     alignItems: 'center',
-  }),
-  sortable: scoped({
+  },
+  sortable: {
     cursor: 'pointer',
-  }),
-  active: scoped({
+  },
+  active: {
     color: theme.colors.background.fillBrand,
-  }),
-};
+  },
+});

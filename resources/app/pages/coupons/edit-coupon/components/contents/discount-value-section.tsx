@@ -9,7 +9,7 @@ import { __ } from "@/wpi18n";
 
 const DiscountValueSection = () => {
   return (
-    <Card css={cardStyles.formCard}>
+    <Card cssOverride={cardStyles.formCard}>
       <CardHeader>
         <CardTitle>{__('Discount Value', 'kirki-ecommerce')}</CardTitle>
         <Text variant="small" color="secondary">

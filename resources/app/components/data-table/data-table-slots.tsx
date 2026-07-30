@@ -1,9 +1,4 @@
-import {
-  Children,
-  isValidElement,
-  type ReactElement,
-  type ReactNode,
-} from 'react';
+import { Children, isValidElement, type ReactElement, type ReactNode } from 'react';
 
 type DataTableSlotProps = {
   children: ReactNode;

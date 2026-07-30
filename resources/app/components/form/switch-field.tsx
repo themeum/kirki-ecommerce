@@ -1,18 +1,8 @@
-import { type SerializedStyles } from '@emotion/react';
+import type { CSSObject } from '@emotion/react';
 import type { ReactNode } from 'react';
-import {
-  Controller,
-  useFormContext,
-  type FieldPath,
-  type FieldValues,
-} from 'react-hook-form';
+import { Controller, useFormContext, type FieldPath, type FieldValues } from 'react-hook-form';
 
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldLabel,
-} from '@/components/ui/field';
+import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import Switch from '@/components/ui/switch';
 
 type SwitchFieldProps<
@@ -23,7 +13,7 @@ type SwitchFieldProps<
   label?: ReactNode;
   description?: ReactNode;
   disabled?: boolean;
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const SwitchField = <
@@ -34,7 +24,7 @@ const SwitchField = <
   label,
   description,
   disabled,
-  css,
+  cssOverride,
 }: SwitchFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
   const fieldId = String(name);
@@ -44,7 +34,7 @@ const SwitchField = <
       control={control}
       name={name}
       render={({ field, fieldState }) => (
-        <Field data-invalid={fieldState.invalid || undefined} css={css}>
+        <Field data-invalid={fieldState.invalid || undefined} cssOverride={cssOverride}>
           <Field orientation="horizontal">
             <Switch
               id={fieldId}

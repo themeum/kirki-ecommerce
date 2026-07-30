@@ -2,8 +2,8 @@ import DataTable from '@/components/data-table/data-table';
 import DataTablePagination from '@/components/data-table/data-table-pagination';
 import {
   DataTableFilter,
-  DataTableSelectionFilter,
   DataTableFilterBar,
+  DataTableSelectionFilter,
 } from '@/components/data-table/data-table-slots';
 
 const DataTableNamespace = Object.assign(DataTable, {
@@ -21,9 +21,7 @@ export type {
   DataTableItem
 } from '@/components/data-table/types';
 export {
-  DataTableFilter,
-  DataTableSelectionFilter,
-  DataTableFilterBar,
-  DataTablePagination
+  DataTableFilter, DataTableFilterBar,
+  DataTablePagination, DataTableSelectionFilter
 };
 

@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { scoped, defineStyles } from '@/theme/mixins';
 import type { Category } from '@/types';
 
 import SingleItem from '@/pages/products/edit-product/right-panel/categories/single-item';
@@ -43,7 +43,7 @@ const List = ({
             selectedCategories={selectedCategories}
             onSelectCategory={(v) => handleParentCategorySelect(v, category)}
           />
-          <div css={styles.nested}>
+          <div css={scoped(styles.nested)}>
             <List
               categories={categories}
               parent_id={category.id}
@@ -61,8 +61,8 @@ List.displayName = 'List';
 
 export default List;
 
-const styles = {
-  nested: scoped({
+const styles = defineStyles({
+  nested: {
     paddingLeft: theme.spacing[4],
-  }),
-};
+  },
+});

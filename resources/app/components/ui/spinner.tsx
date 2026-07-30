@@ -1,21 +1,18 @@
-import { keyframes, type SerializedStyles } from '@emotion/react';
+import { keyframes, type CSSObject } from '@emotion/react';
 import { Loader2 } from 'lucide-react';
-import {
-  forwardRef,
-  type ComponentPropsWithoutRef,
-} from 'react';
+import { forwardRef, type ComponentPropsWithoutRef } from 'react';
 
-import { scoped } from '@/theme/mixins';
+import { scopedMerge, defineStyles } from '@/theme/mixins';
 
 type SpinnerProps = Omit<
   ComponentPropsWithoutRef<'span'>,
   'className' | 'css'
 > & {
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const Spinner = forwardRef<HTMLSpanElement, SpinnerProps>((props, ref) => {
-  const { css: cssProp, ...rest } = props;
+  const { cssOverride, ...rest } = props;
 
   return (
     <span
@@ -23,7 +20,7 @@ const Spinner = forwardRef<HTMLSpanElement, SpinnerProps>((props, ref) => {
       data-slot="spinner"
       role="status"
       aria-label="Loading"
-      css={[styles.root, cssProp]}
+      css={scopedMerge(styles.root, cssOverride)}
       {...rest}
     >
       <Loader2 aria-hidden="true" />
@@ -45,8 +42,8 @@ const spinnerSpin = keyframes({
   },
 });
 
-const styles = {
-  root: scoped({
+const styles = defineStyles({
+  root: {
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -59,5 +56,5 @@ const styles = {
       height: '12px',
       animation: `${spinnerSpin} 0.8s linear infinite`,
     },
-  }),
-};
+  },
+});

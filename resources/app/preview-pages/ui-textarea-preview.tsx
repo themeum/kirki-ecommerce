@@ -1,16 +1,11 @@
-import { css } from '@emotion/react';
 
-import {
-  Field,
-  FieldError,
-  FieldLabel,
-} from '@/components/ui/field';
+import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
 import Textarea from '@/components/ui/textarea';
 
 const UiTextareaPreview = () => {
   return (
-    <Flex direction="column" gap={3} css={css({ maxWidth: 320 })}>
+    <Flex direction="column" gap={3} cssOverride={{ maxWidth: 320 }}>
       <Field>
         <FieldLabel htmlFor="ui-textarea-default">Default</FieldLabel>
         <Textarea id="ui-textarea-default" placeholder="Write something..." />

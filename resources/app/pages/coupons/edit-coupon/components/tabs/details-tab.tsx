@@ -16,12 +16,11 @@ import type { CouponFormValues } from '@/schemas/forms/coupon-form';
 import { useGenerateNewCodeQuery, useValidateQuery } from '@/services/coupon';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { scoped } from '@/theme/mixins';
+import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 import DiscountTypeSelector from '@/pages/coupons/edit-coupon/components/contents/discount-type-selector';
 import DiscountValueSection from '@/pages/coupons/edit-coupon/components/contents/discount-value-section';
-import { css } from '@emotion/react';
 import { InfinityIcon } from 'lucide-react';
 
 
@@ -66,7 +65,7 @@ const DetailsTab = () => {
 
   return (
     <Flex direction="column" gap={4}>
-      <Card css={cardStyles.formCard}>
+      <Card cssOverride={cardStyles.formCard}>
         <CardHeader>
           <CardTitle>{__('Coupon Details', 'kirki-ecommerce')}</CardTitle>
           <Text variant="small" color="secondary">
@@ -78,7 +77,7 @@ const DetailsTab = () => {
             {/* TODO: Add method field later */}
             {/* <RadioGroupField
               name='method'
-              css={styles.methodField}
+              cssOverride={styles.methodField}
               label={__('Method', 'kirki-ecommerce')}
               options={[
                 {
@@ -99,7 +98,7 @@ const DetailsTab = () => {
                 placeholder={__('e.g. Winter Fire', 'kirki-ecommerce')}
               />
               {method === 'code' && (
-                <Flex direction="column" rowGap={1} css={css({ margin: theme.spacing[1] })}>
+                <Flex direction="column" rowGap={1} cssOverride={{ margin: theme.spacing[1] }}>
                   <Flex justify="space-between" align="center">
                     <FieldLabel htmlFor="coupon-code">
                       {__('Coupon Code', 'kirki-ecommerce')}
@@ -130,9 +129,9 @@ const DetailsTab = () => {
                             }}
                             error={Boolean(fieldState.error)}
                             aria-invalid={fieldState.invalid}
-                            css={styles.codeInput}
+                            cssOverride={styles.codeInput}
                           />
-                          {isValidatingCode || isGeneratingCode && <Spinner css={styles.codeSpinner} />}
+                          {isValidatingCode || isGeneratingCode && <Spinner cssOverride={styles.codeSpinner} />}
                         </div>
                         {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                       </Field>
@@ -165,7 +164,7 @@ const DetailsTab = () => {
 
       {isAmountOff && <DiscountValueSection />}
 
-      <Card css={cardStyles.formCard}>
+      <Card cssOverride={cardStyles.formCard}>
         <CardHeader>
           <CardTitle>{__('Validity Period', 'kirki-ecommerce')}</CardTitle>
           <Text variant="small" color="secondary">
@@ -209,9 +208,9 @@ const DetailsTab = () => {
                 />
               </Grid>
             ) : (
-              <Flex align="center" gap={2} css={styles.infoBox}>
+              <Flex align="center" gap={2} cssOverride={styles.infoBox}>
                 <InfinityIcon size={16} stroke={theme.colors.icon.primary} />
-                <FieldDescription css={styles.infoText}>
+                <FieldDescription cssOverride={styles.infoText}>
                   {__(
                     'This coupon has no expiration date. To specify an end time, simply set an end date.',
                     'kirki-ecommerce',
@@ -230,30 +229,30 @@ DetailsTab.displayName = 'DetailsTab';
 
 export default DetailsTab;
 
-const styles = {
-  methodField: scoped({
+const styles = defineStyles({
+  methodField: {
     gap: theme.spacing[2],
-  }),
-  infoBox: scoped({
+  },
+  infoBox: {
     padding: theme.spacing[3],
     borderRadius: theme.radius.md,
     backgroundColor: theme.colors.background.surfaceSecondary,
-  }),
-  infoText: scoped({
+  },
+  infoText: {
     margin: 0,
-  }),
+  },
   codeLabel: { display: 'flex', justifyContent: 'space-between', width: '100%' },
-  codeInputWrapper: scoped({
+  codeInputWrapper: {
     position: 'relative',
     width: '100%',
-  }),
-  codeInput: scoped({
+  },
+  codeInput: {
     paddingRight: theme.spacing[8],
-  }),
-  codeSpinner: scoped({
+  },
+  codeSpinner: {
     position: 'absolute',
     top: '50%',
     right: theme.spacing[3],
     transform: 'translateY(-50%)',
-  }),
-};
+  },
+});

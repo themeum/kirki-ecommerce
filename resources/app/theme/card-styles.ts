@@ -1,77 +1,77 @@
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { defineStyles } from '@/theme/mixins';
 
-const cardStyles = {
-  formCard: scoped({
+const cardStyles = defineStyles({
+  formCard: {
     rowGap: theme.spacing[4],
-  }),
-  tableCard: scoped({
+  },
+  tableCard: {
     overflow: 'hidden',
     border: `1px solid ${theme.colors.border.alt}`,
     gap: 0,
     padding: theme.spacing[0],
-  }),
-  tableCardRounded: scoped({
+  },
+  tableCardRounded: {
     overflow: 'hidden',
     border: `1px solid ${theme.colors.border.alt}`,
     gap: 0,
     borderRadius: theme.radius.md,
     padding: theme.spacing[0],
-  }),
-  tableContent: scoped({
+  },
+  tableContent: {
     padding: theme.spacing[0],
-  }),
-  largeCard: scoped({
+  },
+  largeCard: {
     gap: theme.spacing[5],
     padding: theme.spacing[0],
-  }),
-  largeContent: scoped({
+  },
+  largeContent: {
     paddingInline: theme.spacing[5],
-  }),
-  largeContentPadded: scoped({
+  },
+  largeContentPadded: {
     padding: theme.spacing[5],
-  }),
-  sectionHeader: scoped({
+  },
+  sectionHeader: {
     gap: theme.spacing[2],
     paddingInline: theme.spacing[5],
-  }),
-  innerCard: scoped({
+  },
+  innerCard: {
     borderRadius: theme.radius.lg,
     boxShadow: 'none',
     padding: theme.spacing[0],
-  }),
-  innerContent: scoped({
+  },
+  innerContent: {
     padding: theme.spacing[3],
-  }),
-  innerCardContent: scoped({
+  },
+  innerCardContent: {
     padding: theme.spacing[4],
-  }),
-  innerDarkCard: scoped({
+  },
+  innerDarkCard: {
     borderRadius: theme.radius.lg,
     backgroundColor: theme.colors.background.surfaceSecondary,
     border: 'none',
     padding: theme.spacing[0],
-  }),
-  innerDarkContent: scoped({
+  },
+  innerDarkContent: {
     padding: theme.spacing[3],
-  }),
-  darkCard: scoped({
+  },
+  darkCard: {
     backgroundColor: theme.colors.background.surfaceSecondary,
     padding: theme.spacing[0],
-  }),
-  lightCard: scoped({
+  },
+  lightCard: {
     borderRadius: theme.radius.md,
     padding: theme.spacing[0],
-  }),
-  shadowCard: scoped({
+  },
+  shadowCard: {
     boxShadow: theme.shadow.sm,
     border: 'none',
-  }),
-  tartiaryCard: scoped({
+  },
+  tartiaryCard: {
     backgroundColor: theme.colors.background.surfaceSecondary,
     padding: theme.spacing[0],
-  }),
-  navbarCard: scoped({
+  },
+  navbarCard: {
     padding: `${theme.spacing[0]} ${theme.spacing[3]}`,
     borderRadius: theme.radius.sm,
     minHeight: '36px',
@@ -80,12 +80,12 @@ const cardStyles = {
     alignItems: 'center',
     gap: 0,
     flexDirection: 'row',
-  }),
-  pageCard: scoped({
+  },
+  pageCard: {
     backgroundColor: theme.colors.background.surfaceSecondary,
     gap: 0,
     padding: theme.spacing[0],
-  }),
-};
+  },
+});
 
 export { cardStyles };

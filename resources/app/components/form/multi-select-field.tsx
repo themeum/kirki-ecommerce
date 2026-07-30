@@ -1,19 +1,9 @@
-import { type SerializedStyles } from '@emotion/react';
+import type { CSSObject } from '@emotion/react';
 import type { ReactNode } from 'react';
-import {
-  Controller,
-  useFormContext,
-  type FieldPath,
-  type FieldValues,
-} from 'react-hook-form';
+import { Controller, useFormContext, type FieldPath, type FieldValues } from 'react-hook-form';
 
 import Combobox, { type ComboboxOption } from '@/components/ui/combobox';
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldLabel,
-} from '@/components/ui/field';
+import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 
 type MultiSelectFieldProps<
   TFieldValues extends FieldValues = FieldValues,
@@ -27,7 +17,7 @@ type MultiSelectFieldProps<
   emptyText?: string;
   options: ComboboxOption[];
   disabled?: boolean;
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
   multiple?: boolean;
 };
 
@@ -43,7 +33,7 @@ const MultiSelectField = <
   emptyText,
   options,
   disabled,
-  css,
+  cssOverride,
   multiple = true,
 }: MultiSelectFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
@@ -53,7 +43,7 @@ const MultiSelectField = <
       control={control}
       name={name}
       render={({ field, fieldState }) => (
-        <Field data-invalid={fieldState.invalid || undefined} css={css}>
+        <Field data-invalid={fieldState.invalid || undefined} cssOverride={cssOverride}>
           {label && <FieldLabel>{label}</FieldLabel>}
           <Combobox
             options={options}

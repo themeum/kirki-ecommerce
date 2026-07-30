@@ -1,12 +1,5 @@
 import Button from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import { cardStyles } from '@/theme/card-styles';
 
@@ -29,32 +22,32 @@ const CardPreview = () => {
         </CardFooter>
       </Card>
 
-      <Card css={cardStyles.formCard}>
+      <Card cssOverride={cardStyles.formCard}>
         <CardContent>Form card variant</CardContent>
       </Card>
 
-      <Card css={cardStyles.innerCard}>
-        <CardContent css={cardStyles.innerContent}>Inner card variant</CardContent>
+      <Card cssOverride={cardStyles.innerCard}>
+        <CardContent cssOverride={cardStyles.innerContent}>Inner card variant</CardContent>
       </Card>
 
-      <Card css={cardStyles.darkCard}>
+      <Card cssOverride={cardStyles.darkCard}>
         <CardContent>Dark card variant</CardContent>
       </Card>
 
-      <Card css={cardStyles.lightCard}>
+      <Card cssOverride={cardStyles.lightCard}>
         <CardContent>Light card variant</CardContent>
       </Card>
 
-      <Card css={cardStyles.tableCard}>
-        <CardContent css={cardStyles.tableContent}>Table card variant</CardContent>
+      <Card cssOverride={cardStyles.tableCard}>
+        <CardContent cssOverride={cardStyles.tableContent}>Table card variant</CardContent>
       </Card>
 
-      <Card css={cardStyles.shadowCard}>
+      <Card cssOverride={cardStyles.shadowCard}>
         <CardContent>Shadow card variant</CardContent>
       </Card>
 
-      <Card css={cardStyles.largeCard}>
-        <CardContent css={cardStyles.largeContentPadded}>Large card variant</CardContent>
+      <Card cssOverride={cardStyles.largeCard}>
+        <CardContent cssOverride={cardStyles.largeContentPadded}>Large card variant</CardContent>
       </Card>
     </Flex>
   );

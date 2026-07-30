@@ -3,17 +3,11 @@ import { type SerializedStyles } from '@emotion/react';
 import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
 import Flex from '@/components/ui/flex';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Text from '@/components/ui/text';
 import { ArrowLeftIcon } from '@/icons';
 import { theme } from '@/theme';
-import { itemCenter, scoped } from '@/theme/mixins';
+import { defineStyles, itemCenter, scopedMerge } from '@/theme/mixins';
 import type { PaginationData } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -43,11 +37,9 @@ const Pagination = (props: PaginationProps) => {
   }
 
   return (
-    <div css={[styles.wrapper, cssProp]}>
-      <Flex gap={2} align="center" shrink={0}>
-        <Text variant="small" css={styles.nowrap}>
-          {__('Page', 'kirki-ecommerce')}
-        </Text>
+    <div css={scopedMerge(styles.wrapper, cssProp)}>
+      <Flex gap={2} align="center">
+        <Text variant="small">{__('Page', 'kirki-ecommerce')}</Text>
         <Select
           value={String(_current_page)}
           onValueChange={(value) => onChange(Number(value))}
@@ -63,7 +55,7 @@ const Pagination = (props: PaginationProps) => {
             ))}
           </SelectContent>
         </Select>
-        <Text variant="small" css={styles.nowrap}>
+        <Text variant="small" cssOverride={styles.nowrap}>
           {`of ${last_page}`}
         </Text>
       </Flex>
@@ -105,13 +97,13 @@ const Pagination = (props: PaginationProps) => {
 
 export default Pagination;
 
-const styles = {
-  wrapper: scoped({
+const styles = defineStyles({
+  wrapper: {
     ...itemCenter(),
     justifyContent: 'space-between',
     padding: `${theme.spacing[2]} ${theme.spacing[0]} ${theme.spacing[3]} ${theme.spacing[0]}`,
-  }),
-  nowrap: scoped({
+  },
+  nowrap: {
     whiteSpace: 'nowrap',
-  }),
-};
+  },
+});

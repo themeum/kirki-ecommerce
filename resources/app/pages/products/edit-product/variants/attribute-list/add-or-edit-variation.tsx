@@ -1,11 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 
-import {
-  Field,
-  FieldError,
-  FieldLabel,
-} from '@/components/ui/field';
+import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { getErrorsObject, type ErrorResponse } from '@/libs/api';
 import TagManager from '@/components/tag-manager/tag-manager';
 import { getSearchedValue } from '@/pages/settings/utils';
@@ -13,10 +9,7 @@ import type {
   ProductAttributeFormValues,
   ProductAttributeValueFormValues,
 } from '@/schemas/forms/product-attribute-form';
-import {
-  useAttributesQuery,
-  useCreateAttributeValueMutation,
-} from '@/services/attribute';
+import { useAttributesQuery, useCreateAttributeValueMutation } from '@/services/attribute';
 import type {
   Attribute,
   AttributeValue,

@@ -1,18 +1,8 @@
-import { type SerializedStyles } from '@emotion/react';
+import type { CSSObject } from '@emotion/react';
 import type { ComponentPropsWithoutRef, ReactNode } from 'react';
-import {
-  Controller,
-  useFormContext,
-  type FieldPath,
-  type FieldValues,
-} from 'react-hook-form';
+import { Controller, useFormContext, type FieldPath, type FieldValues } from 'react-hook-form';
 
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldLabel,
-} from '@/components/ui/field';
+import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import Input from '@/components/ui/input';
 
 type TextFieldProps<
@@ -25,7 +15,7 @@ type TextFieldProps<
   placeholder?: string;
   type?: ComponentPropsWithoutRef<typeof Input>['type'];
   disabled?: boolean;
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const TextField = <
@@ -38,7 +28,7 @@ const TextField = <
   placeholder,
   type = 'text',
   disabled,
-  css,
+  cssOverride,
 }: TextFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
   const fieldId = String(name);
@@ -48,7 +38,10 @@ const TextField = <
       control={control}
       name={name}
       render={({ field, fieldState }) => (
-        <Field data-invalid={fieldState.invalid || undefined} css={css}>
+        <Field
+          data-invalid={fieldState.invalid || undefined}
+          cssOverride={cssOverride}
+        >
           {label && <FieldLabel htmlFor={fieldId}>{label}</FieldLabel>}
           <Input
             {...field}

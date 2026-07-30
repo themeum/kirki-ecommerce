@@ -1,14 +1,9 @@
-import type { SerializedStyles } from '@emotion/react';
+import type { CSSObject } from '@emotion/react';
 import * as SeparatorPrimitive from '@radix-ui/react-separator';
-import {
-  forwardRef,
-  type ComponentPropsWithoutRef,
-  type CSSProperties,
-  type ElementRef,
-} from 'react';
+import { forwardRef, type ComponentPropsWithoutRef, type CSSProperties, type ElementRef } from 'react';
 
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { scopedMerge, defineStyles } from '@/theme/mixins';
 
 type SeparatorProps = Omit<
   ComponentPropsWithoutRef<typeof SeparatorPrimitive.Root>,
@@ -18,7 +13,7 @@ type SeparatorProps = Omit<
   marginBottom?: string | number;
   color?: string;
   height?: string | number;
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const toCssLength = (value: string | number) => {
@@ -30,7 +25,7 @@ const Separator = forwardRef<
   SeparatorProps
 >((props, ref) => {
   const {
-    css: cssProp,
+    cssOverride,
     orientation = 'horizontal',
     decorative = true,
     marginTop,
@@ -41,7 +36,7 @@ const Separator = forwardRef<
     ...rest
   } = props;
 
-  const separatorStyle = {
+  const separatorStyle = defineStyles({
     ...(marginTop !== undefined
       ? { '--separator-margin-top': toCssLength(marginTop) }
       : {}),
@@ -53,7 +48,7 @@ const Separator = forwardRef<
       ? { '--separator-size': toCssLength(height) }
       : {}),
     ...style,
-  } as CSSProperties;
+  })as CSSProperties;
 
   return (
     <SeparatorPrimitive.Root
@@ -61,11 +56,11 @@ const Separator = forwardRef<
       decorative={decorative}
       orientation={orientation}
       style={separatorStyle}
-      css={[
+      css={scopedMerge(
         styles.root,
         orientation === 'horizontal' ? styles.horizontal : styles.vertical,
-        cssProp,
-      ]}
+        cssOverride,
+      )}
       {...rest}
     />
   );
@@ -75,20 +70,20 @@ Separator.displayName = 'Separator';
 
 export { Separator };
 
-const styles = {
-  root: scoped({
+const styles = defineStyles({
+  root: {
     flexShrink: 0,
     backgroundColor: `var(--separator-color, ${theme.colors.border.default})`,
     border: 'none',
     marginTop: 'var(--separator-margin-top, 0)',
     marginBottom: 'var(--separator-margin-bottom, 0)',
-  }),
-  horizontal: scoped({
+  },
+  horizontal: {
     height: 'var(--separator-size, 1px)',
     width: '100%',
-  }),
-  vertical: scoped({
+  },
+  vertical: {
     height: '100%',
     width: 'var(--separator-size, 1px)',
-  }),
-};
+  },
+});

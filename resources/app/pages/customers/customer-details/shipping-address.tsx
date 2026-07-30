@@ -1,22 +1,18 @@
 import CountryField from '@/components/form/country-field';
 import TextField from '@/components/form/text-field';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { ShippingAddressIcon } from '@/icons';
 import Flex from '@/components/ui/flex';
 import Grid from '@/components/ui/grid';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { scoped } from '@/theme/mixins';
+import { mergeCss, defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 const ShippingAddress = () => {
   return (
-    <Card css={[cardStyles.formCard, styles.roundedCard]}>
+    <Card cssOverride={mergeCss(cardStyles.formCard, styles.roundedCard)}>
       <CardHeader>
         <Flex gap={2} align="center">
           <ShippingAddressIcon />
@@ -25,8 +21,8 @@ const ShippingAddress = () => {
           </Text>
         </Flex>
       </CardHeader>
-      <Card css={cardStyles.innerCard}>
-        <CardContent css={cardStyles.innerContent}>
+      <Card cssOverride={cardStyles.innerCard}>
+        <CardContent cssOverride={cardStyles.innerContent}>
           <Flex direction="column" gap={4}>
             <CountryField
               name="shipping_address.country"
@@ -70,11 +66,11 @@ ShippingAddress.displayName = 'ShippingAddress';
 
 export default ShippingAddress;
 
-const styles = {
-  roundedCard: scoped({
+const styles = defineStyles({
+  roundedCard: {
     padding: theme.spacing[5],
     borderRadius: theme.radius.xl,
     gap: theme.spacing[5],
-  }),
-};
+  },
+});
 

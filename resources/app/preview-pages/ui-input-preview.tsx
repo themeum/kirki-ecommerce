@@ -1,16 +1,11 @@
-import { css } from '@emotion/react';
 
-import {
-  Field,
-  FieldError,
-  FieldLabel,
-} from '@/components/ui/field';
+import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
 import Input from '@/components/ui/input';
 
 const UiInputPreview = () => {
   return (
-    <Flex direction="column" gap={3} css={css({ maxWidth: 320 })}>
+    <Flex direction="column" gap={3} cssOverride={{ maxWidth: 320 }}>
       <Field>
         <FieldLabel htmlFor="ui-input-default">Default</FieldLabel>
         <Input id="ui-input-default" placeholder="Enter text" />

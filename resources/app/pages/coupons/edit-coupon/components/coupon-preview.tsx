@@ -12,7 +12,7 @@ import { DATE_FORMATS, END_OF_DAY_TIME, START_OF_DAY_TIME } from '@/libs/date';
 import type { CouponFormValues } from '@/schemas/forms/coupon-form';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { scoped } from '@/theme/mixins';
+import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 import { mergeDateTime } from '../config/coupon-datetime';
@@ -46,7 +46,7 @@ const PreviewSection = ({ title, lines }: PreviewSectionProps) => (
         ))}
       </Flex>
     ) : (
-      <Text variant='tiny' weight='normal' css={styles.emptySection}>{__('Not set yet', 'kirki-ecommerce')}</Text>
+      <Text variant='tiny' weight='normal' cssOverride={styles.emptySection}>{__('Not set yet', 'kirki-ecommerce')}</Text>
     )}
   </Flex>
 );
@@ -120,7 +120,7 @@ const CouponPreview = () => {
 
   return (
     <Flex direction="column">
-      <Card css={scoped({ borderStyle: 'dashed', borderColor: theme.colors.border.default }, cardStyles.formCard)}>
+      <Card cssOverride={{ ...{ borderStyle: 'dashed', borderColor: theme.colors.border.default }, ...cardStyles.formCard }}>
         <CardContent>
           <Flex direction="column" gap={2}>
             <Flex justify="space-between" align="center" gap={2}>
@@ -168,7 +168,7 @@ const CouponPreview = () => {
         </CardContent>
       </Card>
 
-      <Card css={scoped({ borderStyle: 'dashed', borderColor: theme.colors.border.default }, cardStyles.formCard)}>
+      <Card cssOverride={{ ...{ borderStyle: 'dashed', borderColor: theme.colors.border.default }, ...cardStyles.formCard }}>
         <CardContent>
           <Flex direction="column" gap={4}>
             <PreviewSection title={__('Type', 'kirki-ecommerce')} lines={typeLines} />
@@ -187,8 +187,8 @@ CouponPreview.displayName = 'CouponPreview';
 
 export default CouponPreview;
 
-const styles = {
-  emptySection: scoped({
+const styles = defineStyles({
+  emptySection: {
     minHeight: theme.spacing[8],
-  }),
-};
+  },
+});

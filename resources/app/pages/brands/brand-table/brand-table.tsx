@@ -2,16 +2,10 @@ import BulkActionHandler from '@/components/bulk-action-handler';
 import Sorting from '@/components/sorting';
 import { useListParams, useMarkList } from '@/hooks';
 import Checkbox from '@/components/ui/checkbox';
-import {
-  Table,
-  TableBody,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useBulkDeleteBrandsMutation } from '@/services/brand';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { defineStyles } from '@/theme/mixins';
 import type { Brand, PaginatedData, TaxonomyTableHeader } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -129,7 +123,7 @@ const BrandTable = ({ data }: BrandTableProps) => {
       <Table type="variation">
         <TableHeader>
           <TableRow>
-            <TableHead onlyCheckbox css={styles.headCell}>
+            <TableHead onlyCheckbox cssOverride={styles.headCell}>
               <Checkbox
                 value={isSelected('*')}
                 onChange={handleAllCheckboxClick}
@@ -137,7 +131,7 @@ const BrandTable = ({ data }: BrandTableProps) => {
               />
             </TableHead>
             {tableHeaders.map((header, index) => (
-              <TableHead key={index} css={styles.headCell}>
+              <TableHead key={index} cssOverride={styles.headCell}>
                 <Sorting data={header} />
               </TableHead>
             ))}
@@ -163,8 +157,8 @@ BrandTable.displayName = 'BrandTable';
 
 export default BrandTable;
 
-const styles = {
-  headCell: scoped({
+const styles = defineStyles({
+  headCell: {
     padding: `${theme.spacing[5]} ${theme.spacing[3]}`,
-  }),
-};
+  },
+});

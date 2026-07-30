@@ -13,11 +13,7 @@ import { useUnsavedStatus } from '@/libs/unsaved-store';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import PageHeading from '@/components/ui/page-heading';
-import {
-  GeneralSettingsFormSchema,
-  generalSettingsDefaultValues,
-  type GeneralSettingsFormValues,
-} from '@/schemas/forms/general-settings-form';
+import { GeneralSettingsFormSchema, generalSettingsDefaultValues, type GeneralSettingsFormValues } from '@/schemas/forms/general-settings-form';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import type { MediaRef, SettingsSectionData } from '@/types';
 import { __ } from '@/wpi18n';

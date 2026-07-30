@@ -4,19 +4,11 @@ import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
 import Flex from '@/components/ui/flex';
 import Searchbox from '@/components/ui/searchbox';
-import {
-  Select,
-  SelectContent,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
-  useListParamsActions,
-  useListParamsValue,
-} from '@/contexts/list-params-context';
+import { Select, SelectContent, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useListParamsActions, useListParamsValue } from '@/contexts/list-params-context';
 import { ArrowDownUp } from '@/icons';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 import FilterPopup from '@/pages/coupons/coupon-table/filter-popup/filter-popup';
@@ -35,7 +27,7 @@ const CouponTableFilter = memo(() => {
   };
 
   return (
-    <Flex css={styles.wrapper}>
+    <Flex cssOverride={styles.wrapper}>
       <div style={{ width: '160px' }}>
         <Searchbox
           onChange={(value) => handleSearchChange(value as string)}
@@ -45,7 +37,7 @@ const CouponTableFilter = memo(() => {
       </div>
       <ActionGroup>
         <Select disabled>
-          <SelectTrigger css={styles.selectTrigger}>
+          <SelectTrigger cssOverride={styles.selectTrigger}>
             <SelectValue placeholder={__('Date: This Month', 'kirki-ecommerce')} />
           </SelectTrigger>
           <SelectContent />
@@ -67,11 +59,11 @@ CouponTableFilter.displayName = 'CouponTableFilter';
 
 export default CouponTableFilter;
 
-const styles = {
-  wrapper: scoped({
+const styles = defineStyles({
+  wrapper: {
     padding: `${theme.spacing[4]} ${theme.spacing[3]}`,
-  }),
-  selectTrigger: scoped({
+  },
+  selectTrigger: {
     padding: `${theme.spacing[2]} ${theme.spacing[4]}`,
-  }),
-};
+  },
+});

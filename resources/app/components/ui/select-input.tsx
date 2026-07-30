@@ -1,28 +1,12 @@
-import {
-  useEffect,
-  useState,
-  type ChangeEvent,
-  type CSSProperties,
-} from 'react';
-import { css, type SerializedStyles } from '@emotion/react';
+import { mergeCss, defineStyles } from '@/theme/mixins';
+import { useEffect, useState, type ChangeEvent, type CSSProperties } from 'react';
+import { css, type CSSObject } from '@emotion/react';
 
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldLabel,
-} from '@/components/ui/field';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
 import Input from '@/components/ui/input';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
 import type { SelectOption } from '@/types';
 
 type SelectInputValue = {
@@ -32,7 +16,7 @@ type SelectInputValue = {
 
 type SelectInputProps = {
   style?: CSSProperties;
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
   optionsArray?: SelectOption[];
   value?: SelectInputValue;
   defaultValue?: SelectInputValue;
@@ -49,7 +33,7 @@ type SelectInputProps = {
 
 const SelectInput = ({
   style = {},
-  css: cssProp,
+  cssOverride,
   optionsArray = [],
   value,
   defaultValue,
@@ -140,12 +124,10 @@ const SelectInput = ({
     <Field data-invalid={error ? true : undefined}>
       {label && <FieldLabel>{label}</FieldLabel>}
       <Flex
-        css={css([
-          styles.wrapper,
+        cssOverride={mergeCss(styles.wrapper,
           invisible && styles.wrapperInvisible,
           error && styles.wrapperError,
-          cssProp,
-        ])}
+          cssOverride,)}
         style={style}
       >
         <div style={{ flex: '1' }}>
@@ -157,7 +139,7 @@ const SelectInput = ({
             step={step}
             max={max}
             min={min}
-            css={styles.input}
+            cssOverride={styles.input}
             aria-invalid={Boolean(error) || undefined}
           />
         </div>
@@ -165,7 +147,7 @@ const SelectInput = ({
           <Select value={selectValue} onValueChange={handleSelectChange}>
             <SelectTrigger
               error={Boolean(error)}
-              css={invisible ? styles.selectTrigger : styles.selectTriggerDivider}
+              cssOverride={invisible ? styles.selectTrigger : styles.selectTriggerDivider}
             >
               <SelectValue />
             </SelectTrigger>
@@ -189,24 +171,24 @@ SelectInput.displayName = 'SelectInput';
 
 export default SelectInput;
 
-const styles = {
-  wrapper: scoped({
+const styles = defineStyles({
+  wrapper: {
     width: '100%',
     alignItems: 'center',
     borderRadius: theme.radius.lg,
     border: `1px solid ${theme.colors.border.default}`,
     overflow: 'hidden',
-  }),
-  wrapperInvisible: scoped({
+  },
+  wrapperInvisible: {
     borderColor: 'transparent',
     boxShadow: 'none',
     height: '100%',
     outline: 'none',
-  }),
-  wrapperError: scoped({
+  },
+  wrapperError: {
     border: `1px solid ${theme.colors.border.critical}`,
     boxShadow: `0px 0px 0px 1px ${theme.colors.background.fillCritical}`,
-  }),
+  },
   input: css({
     border: 'none',
     borderRadius: theme.radius.none,
@@ -229,4 +211,4 @@ const styles = {
       borderLeft: `1px solid ${theme.colors.border.default}`,
     },
   ]),
-};
+});

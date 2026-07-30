@@ -1,4 +1,3 @@
-import { css } from '@emotion/react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CheckSquare, Tag } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -25,7 +24,7 @@ import {
   useUpdateCouponMutation,
 } from '@/services/coupon';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { defineStyles } from '@/theme/mixins';
 import type { CouponFormData } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -229,7 +228,7 @@ const EditCoupon = () => {
                 value={String(activeTab)}
                 onValueChange={(value) => setActiveTab(Number(value))}
               >
-                <TabsList css={styles.tabsList}>
+                <TabsList cssOverride={styles.tabsList}>
                   {
                     tabOptions.map((option, index) => {
                       const hasError = option.hasTabError(errors);
@@ -241,7 +240,7 @@ const EditCoupon = () => {
                       return (
                         <TabsTrigger
                           value={String(option.index)}
-                          css={css([styles.tab, hasError && activeTab !== option.index && styles.tabError])}
+                          cssOverride={{ ...styles.tab, ...(hasError && activeTab !== option.index ? styles.tabError : {}) }}
                           key={index}
                         >
                           {option.icon}
@@ -275,28 +274,28 @@ EditCoupon.displayName = 'EditCoupon';
 
 export default EditCoupon;
 
-const styles = {
-  tabsList: scoped({
+const styles = defineStyles({
+  tabsList: {
     backgroundColor: theme.colors.background.surface,
-  }),
-  tab: scoped({
+  },
+  tab: {
     gap: theme.spacing[2],
     '&[data-state="active"]': {
       backgroundColor: theme.colors.background.fillSecondary,
       boxShadow: 'none',
     },
-  }),
-  tabError: scoped({
+  },
+  tabError: {
     border: '1px solid',
     borderColor: theme.colors.border.critical,
-  }),
-  tabErrorMark: scoped({
+  },
+  tabErrorMark: {
     color: theme.colors.text.critical,
-  }),
-  sidebar: scoped({
+  },
+  sidebar: {
     flexBasis: '30%',
     position: 'sticky',
     top: '96px',
     alignSelf: 'flex-start',
-  }),
-};
+  },
+});

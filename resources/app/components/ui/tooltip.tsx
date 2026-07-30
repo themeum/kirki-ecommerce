@@ -1,15 +1,10 @@
-import { type SerializedStyles } from '@emotion/react';
-import {
-  forwardRef,
-  type ComponentPropsWithoutRef,
-  type ElementRef,
-  type ReactNode,
-} from 'react';
+import { type CSSObject } from '@emotion/react';
+import { forwardRef, type ComponentPropsWithoutRef, type ElementRef, type ReactNode } from 'react';
 import * as TooltipPrimitive from '@radix-ui/react-tooltip';
 
 import { getPortalContainer } from '@/libs/portal-container';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { scopedMerge, scoped, defineStyles } from '@/theme/mixins';
 import type { TooltipPosition } from '@/types';
 
 const TooltipProvider = TooltipPrimitive.Provider;
@@ -21,7 +16,7 @@ type TooltipProps = {
   position?: TooltipPosition;
   offset?: number;
   style?: ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>['style'];
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
   delayDuration?: number;
 };
 
@@ -32,20 +27,20 @@ const Tooltip = ({
   position = 'bottom',
   offset = 2,
   style,
-  css: cssProp,
+  cssOverride,
   delayDuration = 200,
 }: TooltipProps) => {
   return (
     <TooltipProvider delayDuration={delayDuration}>
       <TooltipPrimitive.Root>
         <TooltipPrimitive.Trigger asChild>
-          <span css={styles.trigger}>{children}</span>
+          <span css={scoped(styles.trigger)}>{children}</span>
         </TooltipPrimitive.Trigger>
         <TooltipPrimitive.Portal container={getPortalContainer()}>
           <TooltipPrimitive.Content
             side={position}
             sideOffset={offset}
-            css={[styles.content, type === 'dark' && styles.dark, cssProp]}
+            css={scopedMerge(styles.content, type === 'dark' && styles.dark, cssOverride)}
             style={style}
           >
             {tip}
@@ -67,21 +62,21 @@ type TooltipContentProps = Omit<
   'className' | 'css'
 > & {
   dark?: boolean;
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const TooltipContent = forwardRef<
   ElementRef<typeof TooltipPrimitive.Content>,
   TooltipContentProps
 >((props, ref) => {
-  const { css: cssProp, sideOffset = 4, dark, ...rest } = props;
+  const { cssOverride, sideOffset = 4, dark, ...rest } = props;
 
   return (
     <TooltipPrimitive.Portal container={getPortalContainer()}>
       <TooltipPrimitive.Content
         ref={ref}
         sideOffset={sideOffset}
-        css={[styles.content, dark && styles.dark, cssProp]}
+        css={scopedMerge(styles.content, dark && styles.dark, cssOverride)}
         {...rest}
       />
     </TooltipPrimitive.Portal>
@@ -93,12 +88,12 @@ TooltipContent.displayName = 'TooltipContent';
 export default Tooltip;
 export { TooltipProvider, TooltipRoot, TooltipTrigger, TooltipContent };
 
-const styles = {
-  trigger: scoped({
+const styles = defineStyles({
+  trigger: {
     display: 'inline-flex',
     alignItems: 'center',
-  }),
-  content: scoped({
+  },
+  content: {
     zIndex: 1000,
     padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
     border: `1px solid ${theme.colors.border.default}`,
@@ -108,10 +103,10 @@ const styles = {
     width: 'max-content',
     ...theme.typography.small(),
     boxShadow: theme.shadow.md,
-  }),
-  dark: scoped({
+  },
+  dark: {
     backgroundColor: theme.colors.background.inverse,
     boxShadow: 'none',
     color: theme.colors.text.light,
-  }),
-};
+  },
+});

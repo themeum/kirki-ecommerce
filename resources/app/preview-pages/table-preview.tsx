@@ -1,15 +1,8 @@
 import type { CSSProperties } from 'react';
 
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { defineStyles } from '@/theme/mixins';
 
 type TableHeaderItem = {
   title: string;
@@ -93,7 +86,7 @@ const TablePreview = () => {
       <TableBody>
         {tableData.map((data, index) => (
           <TableRow key={index}>
-            <TableCell css={styles.highlightedCell}>{data.invoice}</TableCell>
+            <TableCell cssOverride={styles.highlightedCell}>{data.invoice}</TableCell>
             <TableCell>{data.paymentStatus}</TableCell>
             <TableCell>{data.paymentMethod}</TableCell>
             <TableCell>{data.totalAmount}</TableCell>
@@ -108,8 +101,8 @@ TablePreview.displayName = 'TablePreview';
 
 export default TablePreview;
 
-const styles = {
-  highlightedCell: scoped({
+const styles = defineStyles({
+  highlightedCell: {
     ...theme.typography.paragraph('medium'),
-  }),
-};
+  },
+});

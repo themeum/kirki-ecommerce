@@ -4,10 +4,7 @@ import { memo } from 'react';
 import Button from '@/components/ui/button';
 import Capsule from '@/components/ui/capsule';
 import Flex from '@/components/ui/flex';
-import {
-  useListParamsActions,
-  useListParamsValue,
-} from '@/contexts/list-params-context';
+import { useListParamsActions, useListParamsValue } from '@/contexts/list-params-context';
 import { theme } from '@/theme';
 import type { SuggestionOption } from '@/types';
 import { CouponListFilter, couponListFilterConfig, methodOptions, statusOptions, discountTypeOptions } from '@/types/filters/coupon';
@@ -68,7 +65,7 @@ const CouponTableFilterBar = memo(() => {
   }
 
   return (
-    <Flex gap={3} css={filterActionBarCss}>
+    <Flex gap={3} cssOverride={filterActionBarCss}>
       {activeFilterKeys.map((key) => (
         <Capsule
           key={key}

@@ -1,13 +1,7 @@
 import { useState } from 'react';
 
 import { useBulkEditForm } from '@/contexts/bulk-edit-form-context';
-import {
-  Table,
-  TableBody,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 import { allTableHeaders } from '@/pages/bulk-edit/utils';
 import SingleRow from '@/pages/bulk-edit/bulk-edit-table/single-row';

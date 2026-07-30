@@ -1,17 +1,10 @@
-import { css, type SerializedStyles } from '@emotion/react';
-import {
-  ComponentRef,
-  forwardRef,
-  useMemo,
-  type ComponentPropsWithoutRef,
-  type HTMLAttributes,
-  type ReactNode
-} from 'react';
+import { type CSSObject } from '@emotion/react';
+import { ComponentRef, forwardRef, useMemo, type ComponentPropsWithoutRef, type HTMLAttributes, type ReactNode } from 'react';
 
 import Label from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { defineStyles, mergeCss, scoped, scopedMerge } from '@/theme/mixins';
 
 type FieldOrientation = 'vertical' | 'horizontal' | 'responsive';
 
@@ -19,17 +12,17 @@ type FieldSetProps = Omit<
   ComponentPropsWithoutRef<'fieldset'>,
   'className' | 'css'
 > & {
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const FieldSet = forwardRef<HTMLFieldSetElement, FieldSetProps>((props, ref) => {
-  const { css: cssProp, ...rest } = props;
+  const { cssOverride, ...rest } = props;
 
   return (
     <fieldset
       ref={ref}
       data-slot="field-set"
-      css={[styles.fieldSet, cssProp]}
+      css={scopedMerge(styles.fieldSet, cssOverride)}
       {...rest}
     />
   );
@@ -42,24 +35,24 @@ type FieldLegendProps = Omit<
   'className' | 'css'
 > & {
   variant?: 'legend' | 'label';
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const FieldLegend = forwardRef<HTMLLegendElement, FieldLegendProps>(
   (props, ref) => {
-    const { css: cssProp, variant = 'legend', ...rest } = props;
+    const { cssOverride, variant = 'legend', ...rest } = props;
 
     return (
       <legend
         ref={ref}
         data-slot="field-legend"
         data-variant={variant}
-        css={[
+        css={scopedMerge(
           styles.fieldLegend,
           variant === 'legend' && styles.fieldLegendVariant,
           variant === 'label' && styles.fieldLegendLabel,
-          cssProp,
-        ]}
+          cssOverride,
+        )}
         {...rest}
       />
     );
@@ -72,17 +65,17 @@ type FieldGroupProps = Omit<
   HTMLAttributes<HTMLDivElement>,
   'className' | 'css'
 > & {
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const FieldGroup = forwardRef<HTMLDivElement, FieldGroupProps>((props, ref) => {
-  const { css: cssProp, ...rest } = props;
+  const { cssOverride, ...rest } = props;
 
   return (
     <div
       ref={ref}
       data-slot="field-group"
-      css={[styles.fieldGroup, cssProp]}
+      css={scopedMerge(styles.fieldGroup, cssOverride)}
       {...rest}
     />
   );
@@ -92,11 +85,11 @@ FieldGroup.displayName = 'FieldGroup';
 
 type FieldProps = Omit<HTMLAttributes<HTMLDivElement>, 'className' | 'css'> & {
   orientation?: FieldOrientation;
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const Field = forwardRef<HTMLDivElement, FieldProps>((props, ref) => {
-  const { css: cssProp, orientation = 'vertical', ...rest } = props;
+  const { cssOverride, orientation = 'vertical', ...rest } = props;
 
   return (
     <div
@@ -104,9 +97,11 @@ const Field = forwardRef<HTMLDivElement, FieldProps>((props, ref) => {
       role="group"
       data-slot="field"
       data-orientation={orientation}
-      css={css(styles.field,
+      css={scopedMerge(
+        styles.field,
         styles.orientations[orientation],
-        cssProp,)}
+        cssOverride,
+      )}
       {...rest}
     />
   );
@@ -118,18 +113,18 @@ type FieldContentProps = Omit<
   HTMLAttributes<HTMLDivElement>,
   'className' | 'css'
 > & {
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const FieldContent = forwardRef<HTMLDivElement, FieldContentProps>(
   (props, ref) => {
-    const { css: cssProp, ...rest } = props;
+    const { cssOverride, ...rest } = props;
 
     return (
       <div
         ref={ref}
         data-slot="field-content"
-        css={[styles.fieldContent, cssProp]}
+        css={scopedMerge(styles.fieldContent, cssOverride)}
         {...rest}
       />
     );
@@ -145,18 +140,18 @@ type FieldLabelProps = Omit<
 
 const FieldLabel = forwardRef<ComponentRef<typeof Label>, FieldLabelProps>(
   (props, ref) => {
-    const { css: cssProp, ...rest } = props;
+    const { cssOverride, ...rest } = props;
 
     return (
       <Label
         ref={ref}
         data-slot="field-label"
-        css={css([styles.fieldLabel, cssProp])}
+        cssOverride={mergeCss(styles.fieldLabel, cssOverride)}
         {...rest}
       />
     );
   },
-);
+)
 
 FieldLabel.displayName = 'FieldLabel';
 
@@ -164,17 +159,17 @@ type FieldTitleProps = Omit<
   HTMLAttributes<HTMLDivElement>,
   'className' | 'css'
 > & {
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const FieldTitle = forwardRef<HTMLDivElement, FieldTitleProps>((props, ref) => {
-  const { css: cssProp, ...rest } = props;
+  const { cssOverride, ...rest } = props;
 
   return (
     <div
       ref={ref}
       data-slot="field-label"
-      css={[styles.fieldTitle, cssProp]}
+      css={scopedMerge(styles.fieldTitle, cssOverride)}
       {...rest}
     />
   );
@@ -186,18 +181,18 @@ type FieldDescriptionProps = Omit<
   HTMLAttributes<HTMLParagraphElement>,
   'className' | 'css'
 > & {
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const FieldDescription = forwardRef<HTMLParagraphElement, FieldDescriptionProps>(
   (props, ref) => {
-    const { css: cssProp, ...rest } = props;
+    const { cssOverride, ...rest } = props;
 
     return (
       <p
         ref={ref}
         data-slot="field-description"
-        css={[styles.fieldDescription, cssProp]}
+        css={scopedMerge(styles.fieldDescription, cssOverride)}
         {...rest}
       />
     );
@@ -211,26 +206,26 @@ type FieldSeparatorProps = Omit<
   'className' | 'css' | 'children'
 > & {
   children?: ReactNode;
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const FieldSeparator = forwardRef<HTMLDivElement, FieldSeparatorProps>(
   (props, ref) => {
-    const { css: cssProp, children, ...rest } = props;
+    const { cssOverride, children, ...rest } = props;
 
     return (
       <div
         ref={ref}
         data-slot="field-separator"
         data-content={children ? 'true' : undefined}
-        css={[styles.fieldSeparator, cssProp]}
+        css={scopedMerge(styles.fieldSeparator, cssOverride)}
         {...rest}
       >
-        <Separator css={styles.fieldSeparatorLine} />
+        <Separator cssOverride={styles.fieldSeparatorLine} />
         {children && (
           <span
             data-slot="field-separator-content"
-            css={styles.fieldSeparatorContent}
+            css={scoped(styles.fieldSeparatorContent)}
           >
             {children}
           </span>
@@ -248,11 +243,11 @@ type FieldErrorProps = Omit<
 > & {
   children?: ReactNode;
   errors?: Array<{ message?: string } | undefined>;
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const FieldError = forwardRef<HTMLDivElement, FieldErrorProps>((props, ref) => {
-  const { css: cssProp, children, errors, ...rest } = props;
+  const { cssOverride, children, errors, ...rest } = props;
 
   const content = useMemo(() => {
     if (children) {
@@ -272,7 +267,7 @@ const FieldError = forwardRef<HTMLDivElement, FieldErrorProps>((props, ref) => {
     }
 
     return (
-      <ul css={styles.fieldErrorList}>
+      <ul css={scoped(styles.fieldErrorList)}>
         {uniqueErrors.map((error, index) => {
           if (!error?.message) {
             return null;
@@ -293,7 +288,7 @@ const FieldError = forwardRef<HTMLDivElement, FieldErrorProps>((props, ref) => {
       ref={ref}
       role="alert"
       data-slot="field-error"
-      css={[styles.fieldError, cssProp]}
+      css={scopedMerge(styles.fieldError, cssOverride)}
       {...rest}
     >
       {content}
@@ -316,8 +311,8 @@ export {
   FieldTitle
 };
 
-const styles = {
-  fieldSet: scoped({
+const styles = defineStyles({
+  fieldSet: {
     display: 'flex',
     flexDirection: 'column',
     gap: theme.spacing[6],
@@ -329,19 +324,19 @@ const styles = {
     {
       gap: theme.spacing[3],
     },
-  }),
-  fieldLegend: scoped({
+  },
+  fieldLegend: {
     marginBottom: theme.spacing[3],
     padding: 0,
     fontWeight: theme.typography.fontWeight.medium,
-  }),
-  fieldLegendVariant: scoped({
+  },
+  fieldLegendVariant: {
     ...theme.typography.paragraph('medium'),
-  }),
-  fieldLegendLabel: scoped({
+  },
+  fieldLegendLabel: {
     ...theme.typography.small('medium'),
-  }),
-  fieldGroup: scoped({
+  },
+  fieldGroup: {
     display: 'flex',
     width: '100%',
     flexDirection: 'column',
@@ -352,8 +347,8 @@ const styles = {
     '& > [data-slot="field-group"]': {
       gap: theme.spacing[4],
     },
-  }),
-  field: scoped({
+  },
+  field: {
     display: 'flex',
     width: '100%',
     gap: theme.spacing[2],
@@ -363,15 +358,15 @@ const styles = {
     '&[data-invalid="true"] [data-slot="field-label"]': {
       color: theme.colors.text.critical,
     },
-  }),
+  },
   orientations: {
-    vertical: scoped({
+    vertical: {
       flexDirection: 'column',
       '& > *': {
         width: '100%',
       },
-    }),
-    horizontal: scoped({
+    },
+    horizontal: {
       flexDirection: 'row',
       alignItems: 'center',
       width: 'max-content',
@@ -386,8 +381,8 @@ const styles = {
       {
         marginTop: '1px',
       },
-    }),
-    responsive: scoped({
+    },
+    responsive: {
       flexDirection: 'column',
       '& > *': {
         width: '100%',
@@ -409,16 +404,16 @@ const styles = {
           marginTop: '1px',
         },
       },
-    }),
+    },
   } as const,
-  fieldContent: scoped({
+  fieldContent: {
     display: 'flex',
     flex: '1 1 0%',
     flexDirection: 'column',
     gap: theme.spacing[2],
     lineHeight: 1.375,
-  }),
-  fieldLabel: scoped({
+  },
+  fieldLabel: {
     display: 'flex',
     width: 'fit-content',
     gap: theme.spacing[1],
@@ -438,8 +433,8 @@ const styles = {
       borderColor: theme.colors.background.fillBrand,
       backgroundColor: theme.colors.background.fillSecondary,
     },
-  }),
-  fieldTitle: scoped({
+  },
+  fieldTitle: {
     display: 'flex',
     width: 'fit-content',
     alignItems: 'center',
@@ -449,8 +444,8 @@ const styles = {
     '.group[data-disabled="true"] &': {
       opacity: 0.5,
     },
-  }),
-  fieldDescription: scoped({
+  },
+  fieldDescription: {
     ...theme.typography.small(),
     fontWeight: theme.typography.fontWeight.normal,
     color: theme.colors.text.secondary,
@@ -465,20 +460,20 @@ const styles = {
     '& > a:hover': {
       color: theme.colors.text.brand,
     },
-  }),
-  fieldSeparator: scoped({
+  },
+  fieldSeparator: {
     position: 'relative',
     height: '20px',
     marginTop: `calc(${theme.spacing[2]} * -1)`,
     marginBottom: `calc(${theme.spacing[2]} * -1)`,
     ...theme.typography.small(),
-  }),
-  fieldSeparatorLine: scoped({
+  },
+  fieldSeparatorLine: {
     position: 'absolute',
     inset: '0',
     margin: 'auto',
-  }),
-  fieldSeparatorContent: scoped({
+  },
+  fieldSeparatorContent: {
     position: 'relative',
     display: 'block',
     width: 'fit-content',
@@ -488,13 +483,13 @@ const styles = {
     paddingRight: theme.spacing[2],
     backgroundColor: theme.colors.background.fill,
     color: theme.colors.text.secondary,
-  }),
-  fieldError: scoped({
+  },
+  fieldError: {
     ...theme.typography.small(),
     fontWeight: theme.typography.fontWeight.normal,
     color: theme.colors.text.critical,
-  }),
-  fieldErrorList: scoped({
+  },
+  fieldErrorList: {
     margin: 0,
     marginLeft: theme.spacing[4],
     padding: 0,
@@ -502,7 +497,7 @@ const styles = {
     listStyleType: 'disc',
     flexDirection: 'column',
     gap: theme.spacing[1],
-  }),
-};
+  },
+});
 
-export const fieldErrorStyle = styles.fieldError;
+export const fieldErrorStyle = scoped(styles.fieldError);

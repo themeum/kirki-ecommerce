@@ -6,7 +6,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import Text from '@/components/ui/text';
 import type { CouponFormValues } from '@/schemas/forms/coupon-form';
 import { theme } from '@/theme';
-import { scoped, uiFocusRing } from '@/theme/mixins';
+import { defineStyles, uiFocusRing } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 const options = [
@@ -41,7 +41,7 @@ const DiscountTypeSelector = () => {
         <RadioGroup
           value={field.value}
           onValueChange={field.onChange}
-          css={styles.root}
+          cssOverride={styles.root}
           disabled
         >
           {options.map((option) => {
@@ -53,18 +53,18 @@ const DiscountTypeSelector = () => {
             }
 
             return (
-              <FieldLabel key={option.value} htmlFor={optionId} css={styles.card}>
+              <FieldLabel key={option.value} htmlFor={optionId} cssOverride={styles.card}>
                 <RadioGroupItem
                   value={option.value}
                   id={optionId}
-                  css={styles.hiddenRadio}
+                  cssOverride={styles.hiddenRadio}
                 />
                 {isSelected && (
                   <span css={styles.checkBadge} aria-hidden="true">
                     <Check size={10} strokeWidth={3} />
                   </span>
                 )}
-                <Field orientation="vertical" css={styles.cardField}>
+                <Field orientation="vertical" cssOverride={styles.cardField}>
                   <span css={styles.iconBadge}>{option.icon}</span>
                   <Text variant='small' weight="medium">{option.label}</Text>
                 </Field>
@@ -81,33 +81,33 @@ DiscountTypeSelector.displayName = 'DiscountTypeSelector';
 
 export default DiscountTypeSelector;
 
-const styles = {
-  root: scoped({
+const styles = defineStyles({
+  root: {
     display: 'grid',
     gridTemplateColumns: 'repeat(3, 1fr)',
     gap: theme.spacing[3],
-  }),
-  card: scoped({
+  },
+  card: {
     position: 'relative',
     cursor: 'pointer',
     '&:focus-within': {
       ...uiFocusRing(theme),
     },
-  }),
-  cardField: scoped({
+  },
+  cardField: {
     alignItems: 'center',
     gap: theme.spacing[3],
     textAlign: 'center',
-    padding: `${theme.spacing[6]}`,
-  }),
-  iconBadge: scoped({
+    padding: `${theme.spacing[6]} !important`,
+  },
+  iconBadge: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: theme.radius.full,
     color: theme.colors.icon.primary
-  }),
-  hiddenRadio: scoped({
+  },
+  hiddenRadio: {
     position: 'absolute',
     top: 0,
     left: 0,
@@ -119,8 +119,8 @@ const styles = {
     clip: 'rect(0, 0, 0, 0)',
     whiteSpace: 'nowrap',
     border: 'none',
-  }),
-  checkBadge: scoped({
+  },
+  checkBadge: {
     position: 'absolute',
     top: theme.spacing[3],
     right: theme.spacing[3],
@@ -132,5 +132,5 @@ const styles = {
     borderRadius: theme.radius.full,
     backgroundColor: theme.colors.background.fillBrand,
     color: theme.colors.text.light,
-  }),
-};
+  },
+});

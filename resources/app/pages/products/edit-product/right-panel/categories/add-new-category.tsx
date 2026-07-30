@@ -12,16 +12,10 @@ import { Form } from '@/components/ui/form';
 import { PlusIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import {
-  ProductAddCategoryFormSchema,
-  type ProductAddCategoryFormValues,
-} from '@/schemas/forms/product-add-category-form';
-import {
-  useCategoriesQuery,
-  useCreateCategoryMutation,
-} from '@/services/category';
+import { ProductAddCategoryFormSchema, type ProductAddCategoryFormValues } from '@/schemas/forms/product-add-category-form';
+import { useCategoriesQuery, useCreateCategoryMutation } from '@/services/category';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { scoped, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import type { CategoryFormData } from '@/types';
 import { __ } from '@/wpi18n';
@@ -83,9 +77,9 @@ const AddNewCategory = () => {
 
   if (show) {
     return (
-      <div css={styles.formWrap}>
-        <Card css={cardStyles.innerCard}>
-          <CardContent css={styles.formCard}>
+      <div css={scoped(styles.formWrap)}>
+        <Card cssOverride={cardStyles.innerCard}>
+          <CardContent cssOverride={styles.formCard}>
           <Form {...form}>
             <Flex direction="column" gap={4}>
               <TextField
@@ -122,7 +116,7 @@ const AddNewCategory = () => {
   return (
     <Button
       variant="link"
-      css={styles.createButton}
+      cssOverride={styles.createButton}
       onClick={() => setShow(true)}
     >
       <PlusIcon />
@@ -135,15 +129,15 @@ AddNewCategory.displayName = 'AddNewCategory';
 
 export default AddNewCategory;
 
-const styles = {
-  formWrap: scoped({
+const styles = defineStyles({
+  formWrap: {
     width: '100%',
-  }),
-  formCard: scoped({
+  },
+  formCard: {
     padding: theme.spacing[4],
     boxSizing: 'border-box',
-  }),
-  createButton: scoped({
+  },
+  createButton: {
     backgroundColor: 'transparent',
     color: theme.colors.background.fillBrand,
     padding: 0,
@@ -154,5 +148,5 @@ const styles = {
       backgroundColor: 'transparent',
       color: theme.colors.background.fillBrandHover,
     },
-  })
-};
+  }
+});
