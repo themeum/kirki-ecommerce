@@ -1,4 +1,6 @@
-import type { ListParams, ListQueryParams, ProductListFilter } from '@/types';
+import type { ListParams, ListQueryParams } from '@/types';
+import { CouponListFilter } from '@/types/filters/coupon';
+import { ProductListFilter } from '@/types/filters/product';
 
 export const queryKeys = {
   Products: (params?: ListParams<ProductListFilter>) =>
@@ -48,4 +50,6 @@ export const queryKeys = {
   InstallablePaymentGateways: () => ['InstallablePaymentGateways'] as const,
   PaymentGateway: (id: string | number) => ['PaymentGateway', id] as const,
   PaymentMethods: () => ['PaymentMethods'] as const,
+  Coupons: (params?: ListParams<CouponListFilter>) => ['Coupons', params] as const,
+  Coupon: (id: string | number) => ['Coupon', id] as const,
 };

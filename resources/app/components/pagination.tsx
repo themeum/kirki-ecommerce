@@ -1,5 +1,8 @@
 import { type SerializedStyles } from '@emotion/react';
 
+import ActionGroup from '@/components/ui/action-group';
+import Button from '@/components/ui/button';
+import Flex from '@/components/ui/flex';
 import {
   Select,
   SelectContent,
@@ -7,11 +10,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import Button from '@/components/ui/button';
-import { ArrowLeftIcon } from '@/icons';
-import ActionGroup from '@/components/ui/action-group';
-import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
+import { ArrowLeftIcon } from '@/icons';
 import { theme } from '@/theme';
 import { itemCenter, scoped } from '@/theme/mixins';
 import type { PaginationData } from '@/types';
