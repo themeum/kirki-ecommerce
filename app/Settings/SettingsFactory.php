@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Settings;
 
+use function Kirki\Ecommerce\Framework\value;
+
 defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Constants\OptionKeys;
@@ -20,13 +22,36 @@ class SettingsFactory
     protected static $cache = [];
 
     /**
+     * Get all settings instances
+     *
+     * @param string $key
+     * @param mixed $default
+     * @return mixed
+     */
+    public function get(string $key, $default = null)
+    {
+        if(strpos($key, '.')) {
+            $key_parts = explode('.', $key, 2);
+            $setting_instance = $this->get_settings_instance($key_parts[0]);
+
+            if (empty($key_parts[1])) {
+                throw new Exception(__('Invalid settings key!', 'kirki-ecommerce'));
+            }
+
+            return $setting_instance->get($key_parts[1]) ?? value($default);
+        }
+
+        return $this->get_settings_instance($key);
+    }
+
+    /**
      * Get the settings instance for the given key.
      *
      * @param string $key
      * @return AppSettings
      * @throws Exception
      */
-    public function get(string $key): AppSettings
+    public function get_settings_instance(string $key): AppSettings
     {
         if (isset(static::$cache[$key])) {
             return static::$cache[$key];
@@ -58,7 +83,10 @@ class SettingsFactory
                 static::$cache[$key] = app()->make(EmailSettings::class);
                 break;
             default:
-                throw new Exception("Invalid settings key: {$key}");
+                throw new Exception(
+                    /* translators: %s: key */
+                    sprintf(__('Invalid settings key: %s', 'kirki-ecommerce'), $key)
+                );
         }
 
         return static::$cache[$key];
