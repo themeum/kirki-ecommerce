@@ -15,7 +15,9 @@ use Kirki\Ecommerce\App\DTO\Product\ProductListFilterDTO;
 use Kirki\Ecommerce\App\Helpers\TemplateHelper;
 use Kirki\Ecommerce\App\Models\Brand;
 use Kirki\Ecommerce\App\Models\Category;
+use Kirki\Ecommerce\App\Models\Product;
 use Kirki\Ecommerce\App\Services\ProductService;
+use Kirki\Ecommerce\App\Resources\Product\ProductResource;
 use Kirki\Ecommerce\App\Wordpress\SiteRoute;
 use Kirki\Ecommerce\Framework\Sanitizer;
 
@@ -86,6 +88,21 @@ class SiteController
      */
     public function shop_single_page($params, $template)
     {
+        $slug = $params['slug'] ?? '';
+        $product = Product::with([
+            'brand',
+            'currency',
+            'categories',
+            'tags',
+            'collections',
+            'attributes',
+            'attribute_values',
+            'variants.attribute_values',
+            'variants.product',
+            'media'
+        ])->where('slug', $slug)->first();
+        $resource = ProductResource::make($product);
+        SiteRoute::set_route_data('product', $resource);
         return TemplateHelper::get_template('shop.single');
     }
 
