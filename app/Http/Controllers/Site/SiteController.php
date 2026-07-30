@@ -20,7 +20,6 @@ use Kirki\Ecommerce\App\Services\ProductService;
 use Kirki\Ecommerce\App\Resources\Product\ProductResource;
 use Kirki\Ecommerce\Framework\Http\Request;
 
-use function Kirki\Ecommerce\Framework\app;
 use function Kirki\Ecommerce\Framework\view;
 
 /**
@@ -58,7 +57,7 @@ class SiteController
             'filters' => $sanitized_params,
         ];
 
-        return view('site.shop', $data);
+        return view('site.shop', $data)->layout(false);
     }
 
     /**
@@ -86,7 +85,7 @@ class SiteController
             'media'
         ])->where('slug', $slug)->first();
         $resource = ProductResource::make($product);
-        return view('site.shop.single', $resource);
+        return view('site.shop.single', $resource)->layout(false);
     }
 
     /**
@@ -100,7 +99,7 @@ class SiteController
      */
     public function cart_page(Request $request)
     {
-        return view('site.cart');
+        return view('site.cart')->layout(false);
     }
 
     /**
@@ -114,7 +113,7 @@ class SiteController
      */
     public function checkout_page(Request $request)
     {
-        return view('site.checkout');
+        return view('site.checkout')->layout(false);
     }
 
     /**
@@ -128,6 +127,6 @@ class SiteController
      */
     public function account_page(Request $request)
     {
-        return view('site.account');
+        return view('site.account')->layout(false);
     }
 }

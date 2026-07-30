@@ -30,11 +30,6 @@ class AddWpHeadMeta extends BaseHook
         return HookTypes::ACTION;
     }
 
-    public function get_priority(): int
-    {
-        return 10;
-    }
-
     public function handle(...$args)
     {
         if (! Route::is('shop.single')) {
