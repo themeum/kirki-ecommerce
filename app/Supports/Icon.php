@@ -16,7 +16,7 @@ class Icon
      *
      * @return string
      */
-    private static function getIconsPath(): string
+    private static function get_icons_path(): string
     {
         return KIRKI_ECOMMERCE_PLUGIN_PATH . 'assets/icons/';
     }
@@ -46,11 +46,11 @@ class Icon
         $iconKey = $name . md5(serialize($options));
 
         // Return cached version if available
-        if (isset(self::$cache[$iconKey])) {
-            return self::$cache[$iconKey];
+        if (isset(static::$cache[$iconKey])) {
+            return static::$cache[$iconKey];
         }
 
-        $filePath = self::getIconsPath() . $name . '.svg';
+        $filePath = static::get_icons_path() . $name . '.svg';
 
         if (!file_exists($filePath)) {
             return '';
@@ -64,14 +64,14 @@ class Icon
 
         // Return raw SVG if requested
         if ($options['raw']) {
-            self::$cache[$iconKey] = $svg;
+            static::$cache[$iconKey] = $svg;
             return $svg;
         }
 
         // Modify SVG attributes
-        $svg = self::modifySvgAttributes($svg, $options);
+        $svg = static::modify_svg_attributes($svg, $options);
 
-        self::$cache[$iconKey] = $svg;
+        static::$cache[$iconKey] = $svg;
 
         return $svg;
     }
@@ -85,7 +85,7 @@ class Icon
      */
     public static function render(string $name, array $options = []): void
     {
-        echo self::get($name, $options);
+        echo static::get($name, $options);
     }
 
     /**
@@ -95,19 +95,19 @@ class Icon
      * @param array<string, mixed> $options Icon options
      * @return string Modified SVG markup
      */
-    private static function modifySvgAttributes(string $svg, array $options): string
+    private static function modify_svg_attributes(string $svg, array $options): string
     {
         // Add CSS class
         if (!empty($options['class'])) {
-            $svg = self::addSvgClass($svg, $options['class']);
+            $svg = static::add_svg_class($svg, $options['class']);
         }
 
         // Set width and height
-        $svg = self::setSvgSize($svg, $options['size']);
+            $svg = static::set_svg_size($svg, $options['size']);
 
         // Set color if provided
         if ($options['color'] !== null) {
-            $svg = self::setSvgColor($svg, $options['color']);
+            $svg = static::set_svg_color($svg, $options['color']);
         }
 
         return $svg;
@@ -120,7 +120,7 @@ class Icon
      * @param string $class CSS class(es) to add
      * @return string Modified SVG markup
      */
-    private static function addSvgClass(string $svg, string $class): string
+    private static function add_svg_class(string $svg, string $class): string
     {
         // Check if class attribute exists
         if (preg_match('/<svg[^>]*class=["\']([^"\']*)["\']/', $svg, $matches)) {
@@ -143,7 +143,7 @@ class Icon
      * @param int $size Size in pixels (sets both width and height)
      * @return string Modified SVG markup
      */
-    private static function setSvgSize(string $svg, int $size): string
+    private static function set_svg_size(string $svg, int $size): string
     {
         // Remove existing width/height
         $svg = preg_replace('/\s*width=["\'][^"\']*["\']/', '', $svg);
@@ -162,7 +162,7 @@ class Icon
      * @param string $color Color value
      * @return string Modified SVG markup
      */
-    private static function setSvgColor(string $svg, string $color): string
+    private static function set_svg_color(string $svg, string $color): string
     {
         // Set fill attribute on SVG element
         if (preg_match('/<svg[^>]*>/', $svg, $matches)) {
@@ -189,7 +189,7 @@ class Icon
      */
     public static function exists(string $name): bool
     {
-        return file_exists(self::getIconsPath() . $name . '.svg');
+        return file_exists(static::get_icons_path() . $name . '.svg');
     }
 
     /**
@@ -197,9 +197,9 @@ class Icon
      *
      * @return void
      */
-    public static function clearCache(): void
+    public static function clear_cache(): void
     {
-        self::$cache = [];
+        static::$cache = [];
     }
 
     /**
@@ -209,7 +209,7 @@ class Icon
      */
     public static function list(): array
     {
-        $iconsPath = self::getIconsPath();
+        $iconsPath = static::get_icons_path();
         $icons = [];
 
         if (is_dir($iconsPath)) {
