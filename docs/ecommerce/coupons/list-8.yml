@@ -7,26 +7,28 @@ info:
 
 http:
   method: GET
-  url: "{{baseUrl}}/coupons"
+  url: "{{baseUrl}}/coupons?search=&status=active&method=&discount_type=&page=1&limit=10"
   params:
     - name: search
       value: ""
       type: query
     - name: status
-      value: ""
+      value: active
       type: query
     - name: method
       value: ""
       type: query
-    - name: type
+    - name: discount_type
       value: ""
       type: query
     - name: sort_by
       value: id
       type: query
+      disabled: true
     - name: sort_order
       value: asc
       type: query
+      disabled: true
     - name: page
       value: "1"
       type: query
@@ -34,6 +36,7 @@ http:
       value: "10"
       type: query
   auth: inherit
+
 settings:
   encodeUrl: true
   timeout: 0

@@ -11,13 +11,13 @@
 
 defined('ABSPATH') || exit;
 
-use Kirki\Ecommerce\App\Helpers\TemplateHelper;
+use Kirki\Ecommerce\App\Supports\Template;
 ?>
 
-<?php TemplateHelper::get_header(); ?>
+<?php Template::get_header(); ?>
 
 <div class="kirki-ecom-page-wrapper">
     <h1>Checkout page</h1>
 </div>
 
-<?php TemplateHelper::get_footer(); ?>
+<?php Template::get_footer(); ?>

@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 
 import Button from '@/components/ui/button';
 import Combobox from '@/components/ui/combobox';
+import Text from '@/components/ui/text';
 import { theme } from '@/theme';
 import { flexCenter, scoped } from '@/theme/mixins';
 import type { SelectOption } from '@/types';
@@ -56,6 +57,14 @@ const Capsule = ({
     ? (Array.isArray(value) ? value : []).map(toStringValue)
     : toStringValue(Array.isArray(value) ? value[0] : value);
 
+  /* No options to match against, so there is no label to resolve — print the
+   * raw value instead of the combobox placeholder. */
+  const isTextOnly = optionsArray === undefined;
+
+  const displayValue = Array.isArray(value)
+    ? value.map(toStringValue).filter(Boolean).join(', ')
+    : toStringValue(value);
+
   const handleChange = (nextValue: string | string[]) => {
     if (Array.isArray(nextValue)) {
       onValueChange(nextValue.map(resolveOriginalValue));
@@ -66,12 +75,18 @@ const Capsule = ({
 
   return (
     <div css={[styles.root, cssProp]} key={uniqueKey}>
-      <Combobox
-        options={options}
-        value={comboboxValue}
-        onChange={handleChange}
-        multiple={multiple}
-      />
+      {isTextOnly ? (
+        <Text variant="small" title={displayValue} css={styles.textValue}>
+          {displayValue}
+        </Text>
+      ) : (
+        <Combobox
+          options={options}
+          value={comboboxValue}
+          onChange={handleChange}
+          multiple={multiple}
+        />
+      )}
       <div css={styles.separator} aria-hidden="true" />
       <Button
         variant="ghost"
@@ -111,5 +126,13 @@ const styles = {
     height: '100%',
     width: '1px',
     backgroundColor: theme.colors.border.default,
+  }),
+  textValue: scoped({
+    flex: 1,
+    minWidth: 0,
+    padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
   }),
 };

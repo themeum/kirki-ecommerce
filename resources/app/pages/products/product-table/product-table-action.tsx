@@ -1,34 +1,30 @@
+import { memo } from 'react';
+
+import ActionGroup from '@/components/ui/action-group';
+import Button from '@/components/ui/button';
+import Flex from '@/components/ui/flex';
+import Searchbox from '@/components/ui/searchbox';
 import {
   Select,
   SelectContent,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import Button from '@/components/ui/button';
+import {
+  useListParamsActions,
+  useListParamsValue,
+} from '@/contexts/list-params-context';
 import { ArrowDownUp } from '@/icons';
-import ActionGroup from '@/components/ui/action-group';
-import Flex from '@/components/ui/flex';
-import Searchbox from '@/components/ui/searchbox';
-import { useListParams } from '@/hooks';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
-import type { ProductListFilter } from '@/types';
-import { productListFilterConfig } from '@/types';
 import { __ } from '@/wpi18n';
 
 import FilterPopup from '@/pages/products/product-table/filter-popup/filter-popup';
+import { ProductListFilter } from '@/types/filters/product';
 
-const ProductTableAction = () => {
-  const { params, setParam } = useListParams<ProductListFilter>({
-    defaults: {
-      search: '',
-      sort_by: 'title',
-      sort_order: 'asc',
-      page: 1,
-      limit: 10,
-    },
-    filter: productListFilterConfig,
-  });
+const ProductTableAction = memo(() => {
+  const params = useListParamsValue<ProductListFilter>();
+  const { setParam } = useListParamsActions<ProductListFilter>();
 
   const handleSearchChange = (value: string) => {
     setParam('search', value);
@@ -44,6 +40,7 @@ const ProductTableAction = () => {
         <Searchbox
           onChange={(value) => handleSearchChange(value as string)}
           value={params.search || ''}
+          delay={500}
         />
       </div>
       <ActionGroup>
@@ -64,7 +61,7 @@ const ProductTableAction = () => {
       </ActionGroup>
     </Flex>
   );
-};
+});
 
 ProductTableAction.displayName = 'ProductTableAction';
 

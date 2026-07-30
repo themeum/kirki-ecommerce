@@ -12,10 +12,8 @@ export type {
 } from '@/types/api/result';
 
 export type {
-  ListFilterConfig, ListParams, ListQueryParams, ListState, ProductListFilter, SortOrder
+  ListFilterConfig, ListParams, ListQueryParams, ListState, SortOrder
 } from '@/types/list-state';
-
-export { productListFilterConfig } from '@/types/list-state';
 
 export type { SetKeyValuePayload } from '@/types/common-actions';
 

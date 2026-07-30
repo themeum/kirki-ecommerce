@@ -6,10 +6,10 @@ use Kirki\Ecommerce\App\Constants\InventoryType;
 use Kirki\Ecommerce\App\Models\Product;
 use Kirki\Ecommerce\App\Constants\Pagination;
 use Kirki\Ecommerce\App\Managers\MoneyManager;
+use Kirki\Ecommerce\App\Models\Variant;
 use Kirki\Ecommerce\Framework\Collections\Collection;
 use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
-use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 
 class ProductRepository
 {
@@ -136,6 +136,8 @@ class ProductRepository
     {
         $query = Product::with(['categories', 'tags', 'collections', 'attributes', 'attribute_values', 'variants', 'media']);
 
+        $query->select_raw('*, id as pid');
+
         $query->when($filters['search'] ?? null, function (QueryBuilder $query, $search) {
             return $query->where_any(['title', 'description'], 'like', '%' . $search . '%');
         });
@@ -223,11 +225,11 @@ class ProductRepository
             $sort_by = $filters['sort_by'] ?? null;
 
             if ($sort_by === 'low_to_high') {
-                return $query->where_relation('variants', fn($q) => $q->order_by('price', 'asc'));
+                return $query->order_by(Variant::where_raw('pid = product_id')->order_by('price', 'asc')->limit(1)->select('price'), 'asc');
             }
 
             if ($sort_by === 'high_to_low') {
-                return $query->where_relation('variants', fn($q) => $q->order_by('price', 'desc'));
+                return $query->order_by(Variant::where_raw('pid = product_id')->order_by('price', 'desc')->limit(1)->select('price'), 'desc');
             }
 
             return $query->order_by('id', 'desc');

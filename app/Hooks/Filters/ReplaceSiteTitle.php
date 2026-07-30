@@ -11,9 +11,11 @@
 
 namespace Kirki\Ecommerce\App\Hooks\Filters;
 
-use Kirki\Ecommerce\App\Wordpress\SiteRoute;
+use Kirki\Ecommerce\Framework\Route;
 use Kirki\Ecommerce\Framework\Wordpress\BaseHook;
 use Kirki\Ecommerce\Framework\Wordpress\Constants\HookTypes;
+
+use function Kirki\Ecommerce\Framework\view_data;
 
 class ReplaceSiteTitle extends BaseHook
 {
@@ -31,7 +33,11 @@ class ReplaceSiteTitle extends BaseHook
 
     public function handle(...$args)
     {
-        $product = SiteRoute::route_data('product', []);
+        if (! Route::is('shop.single')) {
+            return;
+        }
+
+        $product = view_data();
 
         if (!count($product)) {
             return $args[0];

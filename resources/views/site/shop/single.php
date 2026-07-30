@@ -12,10 +12,11 @@
 defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Facades\Money;
-use Kirki\Ecommerce\App\Helpers\TemplateHelper;
-use Kirki\Ecommerce\App\Wordpress\SiteRoute;
+use Kirki\Ecommerce\App\Supports\Template;
 
-$product = SiteRoute::route_data('product', []);
+use function Kirki\Ecommerce\Framework\view_data;
+
+$product = view_data();
 
 $media = $product['media'] ?? [];
 $product_image = array_shift($media) ?? [];
@@ -31,7 +32,9 @@ $sale_price = isset($variant['sale_price']) ? Money::format_from_decimal($varian
 $quantity = (int) $variant['available_quantity'] ?? 0;
 $additional_info = $product['additional_info'] ?? [];
 
-TemplateHelper::get_header();
+?>
+
+<?php Template::get_header();
 ?>
 
 <div class="kirki-ecom-page-wrapper">
@@ -119,4 +122,5 @@ TemplateHelper::get_header();
 
     </div>
 </div>
-<?php TemplateHelper::get_footer(); ?>
+<?php Template::get_footer();
+?>
