@@ -12,6 +12,7 @@
 namespace Kirki\Ecommerce\App\Http\Controllers\Site;
 
 use Kirki\Ecommerce\App\DTO\Product\ProductListFilterDTO;
+use Kirki\Ecommerce\App\Http\Requests\Site\ShopPageFilterRequest;
 use Kirki\Ecommerce\App\Models\Brand;
 use Kirki\Ecommerce\App\Models\Category;
 use Kirki\Ecommerce\App\Services\ProductService;
@@ -33,34 +34,21 @@ class SiteController
      *
      * @since 1.0.0
      *
-     * @param Request $request  Route parameters.
+     * @param Request $request  request.
+     * @param ProductService $product_service service.
      *
      * @return string Template path.
      */
-    public function shop_page(Request $request)
+    public function shop_page(ShopPageFilterRequest $request, ProductService $product_service)
     {
-
-        $rules = [
-            'search' => Sanitizer::TEXT,
-            'category_ids' => Sanitizer::ARRAY,
-            'brand_ids' => Sanitizer::ARRAY,
-            'attribute_value_ids' => Sanitizer::ARRAY,
-            'min_price' => Sanitizer::INT,
-            'max_price' => Sanitizer::INT,
-            'sort_by' => Sanitizer::TEXT,
-            'current_page' => Sanitizer::INT,
-        ];
-
-        $sanitizer = Sanitizer::make($_GET, $rules);
-        $sanitized_input = $sanitizer->get_sanitized_data();
+        $sanitized_input = $request->sanitized();
         $sanitized_params = ProductListFilterDTO::from_array($sanitized_input);
 
         // $sanitized_params->limit = 1;
         $sanitized_params->page = intval($sanitized_input['current_page'] ?? 1);
         $sanitized_params->sort_order = null;
 
-        $productService = app(ProductService::class);
-        $products = $productService->paginated($sanitized_params);
+        $products = $product_service->paginated($sanitized_params);
 
         $data = [
             'products' => $products,
@@ -77,7 +65,7 @@ class SiteController
      *
      * @since 1.0.0
      *
-     * @param Request $request  Route parameters.
+     * @param Request $request  request.
      *
      * @return string Template path.
      */
@@ -91,7 +79,7 @@ class SiteController
      *
      * @since 1.0.0
      *
-     * @param Request $request  Route parameters.
+     * @param Request $request  request.
      *
      * @return string Template path.
      */
@@ -105,7 +93,7 @@ class SiteController
      *
      * @since 1.0.0
      *
-     * @param Request $request  Route parameters.
+     * @param Request $request  request.
      *
      * @return string Template path.
      */
@@ -119,7 +107,7 @@ class SiteController
      *
      * @since 1.0.0
      *
-     * @param Request $request  Route parameters.
+     * @param Request $request  request.
      *
      * @return string Template path.
      */
