@@ -23,7 +23,7 @@ class TestController
         // CurrencyExchange::sync();
         $today = Date::today();
 
-        return Payment::get_gateway('stripe')->pay(Order::find(1));
+        return (new Stripe())->pay(Order::find(1));
 
         // return response()->json([
         //     // 'message' => 'Hello World',

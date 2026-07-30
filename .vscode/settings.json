@@ -31,14 +31,12 @@
   "editor.codeActionsOnSave": {
     "source.organizeImports": "always",
     "source.fixAll": "always",
-    "source.fixAll.eslint": "always",
-    "source.fixAll.phpsab": "always" // will remove later
+    "source.fixAll.eslint": "always"
   },
   "[php]": {
     "editor.tabSize": 4,
     "editor.defaultFormatter": "bmewburn.vscode-intelephense-client",
-    "editor.formatOnPaste": false,
-    "editor.formatOnSave": true, // will remove later
+    "editor.formatOnPaste": false
   },
   "intelephense.environment.phpVersion": "7.4.33",
   "intelephense.stubs": [
@@ -119,7 +117,5 @@
     "editor.defaultFormatter": "vscode.html-language-features"
   },
   "typescript.preferences.importModuleSpecifier": "non-relative",
-  "javascript.preferences.importModuleSpecifier": "non-relative",
-  "phpsab.standard": "phpcs.xml.dist", // will remove later
-  "phpsab.snifferMode": "onSave" // will remove later
+  "javascript.preferences.importModuleSpecifier": "non-relative"
 }

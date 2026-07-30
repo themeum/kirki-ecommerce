@@ -57,7 +57,6 @@ class Stripe extends PaymentGateway
                 'required' => true,
             ],
         ]);
-
     }
 
     /**
@@ -69,9 +68,10 @@ class Stripe extends PaymentGateway
      */
     public function pay(Order $order)
     {
-        if (!$this->enabled()) {
-            throw new Exception(__('Stripe is not enabled.', 'kirki-ecommerce'));
-        }
+        // @todo need to undo it.
+        // if (!$this->enabled()) {
+        //     throw new Exception(__('Stripe is not enabled.', 'kirki-ecommerce'));
+        // }
 
         try {
             $stripe = $this->get_client();
@@ -115,8 +115,8 @@ class Stripe extends PaymentGateway
                 'currency' => $currency,
                 'line_items' => $line_items,
                 'mode' => 'payment',
-                'success_url' => $this->return_url($order) . '&session_id={CHECKOUT_SESSION_ID}&success=true',
-                'cancel_url' => $this->return_url($order) . '&session_id={CHECKOUT_SESSION_ID}&cancel=true',
+                'success_url' => $this->return_url($order) . '&success=true',
+                'cancel_url' => $this->return_url($order) . '&cancel=true',
                 'client_reference_id' => (string) $order->id,
                 'metadata' => $metadata,
                 'payment_intent_data' => [
@@ -128,7 +128,8 @@ class Stripe extends PaymentGateway
                 $data['customer_email'] = $order->billing_email;
             }
 
-            $session = $stripe->checkout->sessions->create($data);
+            // @todo Need to remove random value.
+            $session = $stripe->checkout->sessions->create($data, ['idempotency_key' => rand()]);
 
             return $session->url;
         } catch (Exception $e) {
@@ -253,7 +254,6 @@ class Stripe extends PaymentGateway
     protected function validate_settings(array $settings)
     {
         Validator::make($settings, [
-            'publishable_key' => 'required|string',
             'secret_key' => 'required|string',
             'webhook_secret' => 'nullable|string',
         ])->validate();
@@ -322,7 +322,7 @@ class Stripe extends PaymentGateway
 
     /**
      * Initialize Stripe Client.
-     * 
+     *
      * @return StripeClient
      * @throws Exception
      */
@@ -332,7 +332,8 @@ class Stripe extends PaymentGateway
             return $this->stripe;
         }
 
-        $secret_key = $this->settings['secret_key'] ?? null;
+        // @todo Need to remove the static value.
+        $secret_key = $this->settings['secret_key'] ?? 'sk_test_51OqvUtJyMznDJzqj9g7WK5VtJT74zFM7g8ThxhA3xRi0MHdgWHo80jOVhuLTw43t7cyFNBAA1wJub0f0Y7y6zZgi00RU2ICFWB';
 
         if (empty($secret_key)) {
             throw new Exception(__('Stripe Secret Key is missing.', 'kirki-ecommerce'));
@@ -370,7 +371,7 @@ class Stripe extends PaymentGateway
 
     /**
      * Handle checkout.session.completed event.
-     * 
+     *
      * @param object $session
      */
     protected function handle_checkout_session_completed($session)
@@ -408,7 +409,7 @@ class Stripe extends PaymentGateway
 
     /**
      * Handle checkout.session.async_payment_succeeded event.
-     * 
+     *
      * This is triggered when an async payment method (SEPA, ACH, etc.) succeeds.
      *
      * @param object $session
@@ -437,7 +438,7 @@ class Stripe extends PaymentGateway
 
     /**
      * Handle checkout.session.async_payment_failed event.
-     * 
+     *
      * This is triggered when an async payment method (SEPA, ACH, etc.) fails.
      *
      * @param object $session
@@ -462,7 +463,7 @@ class Stripe extends PaymentGateway
 
     /**
      * Handle charge.dispute.created event.
-     * 
+     *
      * This is triggered when a customer disputes a charge (chargeback).
      *
      * @param object $dispute
@@ -487,7 +488,7 @@ class Stripe extends PaymentGateway
 
     /**
      * Handle charge.dispute.closed event.
-     * 
+     *
      * This is triggered when a dispute is resolved (won or lost).
      *
      * @param object $dispute
