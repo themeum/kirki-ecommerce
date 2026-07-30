@@ -1,34 +1,82 @@
 // Utilities - Spacing
 // .kecom-m-4, .kecom-pt-2, .kecom-mx-auto …
 
-@use '../tokens' as *;
+@use "../tokens" as *;
 
 @each $key, $value in $spacing-scale {
-  .kecom-m-#{$key}  { margin:         $value; }
-  .kecom-mt-#{$key} { margin-top:     $value; }
-  .kecom-mr-#{$key} { margin-right:   $value; }
-  .kecom-mb-#{$key} { margin-bottom:  $value; }
-  .kecom-ml-#{$key} { margin-left:    $value; }
-  .kecom-mx-#{$key} { margin-inline:  $value; }
-  .kecom-my-#{$key} { margin-top: $value; margin-bottom: $value; }
+  .kecom-m-#{$key} {
+    margin: $value;
+  }
+  .kecom-mt-#{$key} {
+    margin-top: $value;
+  }
+  .kecom-mr-#{$key} {
+    margin-right: $value;
+  }
+  .kecom-mb-#{$key} {
+    margin-bottom: $value;
+  }
+  .kecom-ml-#{$key} {
+    margin-left: $value;
+  }
+  .kecom-mx-#{$key} {
+    margin-inline: $value;
+  }
+  .kecom-my-#{$key} {
+    margin-top: $value;
+    margin-bottom: $value;
+  }
 
-  .kecom-p-#{$key}  { padding:        $value; }
-  .kecom-pt-#{$key} { padding-top:    $value; }
-  .kecom-pr-#{$key} { padding-right:  $value; }
-  .kecom-pb-#{$key} { padding-bottom: $value; }
-  .kecom-pl-#{$key} { padding-left:   $value; }
-  .kecom-px-#{$key} { padding-inline: $value; }
-  .kecom-py-#{$key} { padding-top: $value; padding-bottom: $value; }
+  .kecom-p-#{$key} {
+    padding: $value;
+  }
+  .kecom-pt-#{$key} {
+    padding-top: $value;
+  }
+  .kecom-pr-#{$key} {
+    padding-right: $value;
+  }
+  .kecom-pb-#{$key} {
+    padding-bottom: $value;
+  }
+  .kecom-pl-#{$key} {
+    padding-left: $value;
+  }
+  .kecom-px-#{$key} {
+    padding-inline: $value;
+  }
+  .kecom-py-#{$key} {
+    padding-top: $value;
+    padding-bottom: $value;
+  }
 
-  .kecom-gap-#{$key}   { gap:        $value; }
-  .kecom-gap-x-#{$key} { column-gap: $value; }
-  .kecom-gap-y-#{$key} { row-gap:    $value; }
+  .kecom-gap-#{$key} {
+    gap: $value;
+  }
+  .kecom-gap-x-#{$key} {
+    column-gap: $value;
+  }
+  .kecom-gap-y-#{$key} {
+    row-gap: $value;
+  }
 }
 
 // Auto margins
-.kecom-m-auto  { margin:        auto; }
-.kecom-mx-auto { margin-inline: auto; }
-.kecom-mt-auto { margin-top:    auto; }
-.kecom-mb-auto { margin-bottom: auto; }
-.kecom-ml-auto { margin-left:   auto; }
-.kecom-mr-auto { margin-right:  auto; }
+.kecom-m-auto {
+  margin: auto;
+}
+.kecom-mx-auto {
+  margin-inline: auto;
+}
+.kecom-mt-auto {
+  margin-top: auto;
+}
+.kecom-mb-auto {
+  margin-bottom: auto;
+}
+.kecom-ml-auto {
+  margin-left: auto;
+}
+.kecom-mr-auto {
+  margin-right: auto;
+}

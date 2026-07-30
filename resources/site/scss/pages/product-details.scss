@@ -5,16 +5,15 @@
 @use "../mixins" as *;
 
 .kecom-product-page {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: $spacing-12 $spacing-10;
+  padding-block: $spacing-12;
 }
 
 .kecom-product-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: $spacing-20;
-  margin-bottom: $spacing-20;
+  grid-template-columns: minmax(0, 1fr) 520px;
+  gap: $spacing-22;
+  margin-bottom: $spacing-22;
+  width: 100%;
 
   @include breakpoint-down(md) {
     grid-template-columns: 1fr;
@@ -26,15 +25,18 @@
 
 .kecom-product-gallery {
   position: relative;
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .kecom-product-main-image {
   width: 100%;
   aspect-ratio: 1 / 1;
   background-color: $background-surface-alt;
-  border-radius: $radius-lg;
+  border-radius: $radius-xl;
   overflow: hidden;
-  margin-bottom: $spacing-5;
+  margin-bottom: $spacing-8;
   position: relative;
 
   img {
@@ -48,11 +50,12 @@
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 36px;
+  height: 36px;
   border-radius: $radius-full;
-  background-color: white;
-  border: 1px solid $border-default;
+  background-color: $background-surface;
+  border: none;
+  outline: none;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -68,29 +71,37 @@
 }
 
 .kecom-product-nav-prev {
-  left: $spacing-5;
+  left: $spacing-8;
 }
 
 .kecom-product-nav-next {
-  right: $spacing-5;
+  right: $spacing-8;
 }
 
 .kecom-product-thumbnails {
   display: flex;
-  gap: $spacing-3;
+  gap: $spacing-6;
   overflow-x: auto;
-  padding-bottom: $spacing-2;
+  padding: $spacing-1;
+  width: 100%;
+  min-width: 0;
 }
 
 .kecom-product-thumbnail {
-  width: 5rem;
-  height: 5rem;
+  width: 129px;
+  height: 129px;
   border-radius: $radius-md;
   overflow: hidden;
   cursor: pointer;
-  border: 2px solid transparent;
+  border: none;
+  outline: 1px solid $border-default;
   flex-shrink: 0;
   @include transition((border-color));
+
+  @include breakpoint-down(md) {
+    width: 60px;
+    height: 60px;
+  }
 
   img {
     width: 100%;
@@ -100,7 +111,7 @@
 
   &:hover,
   &.active {
-    border-color: $background-fill-brand;
+    outline: 2px solid $background-fill-brand;
   }
 }
 
@@ -110,6 +121,10 @@
   display: flex;
   flex-direction: column;
   gap: $spacing-10;
+
+  @include breakpoint-down(md) {
+    gap: $spacing-9;
+  }
 }
 
 .kecom-product-title-and-price {
@@ -201,9 +216,9 @@
   }
 
   &.selected {
+    background-color: $background-fill-brand;
     border-color: $background-fill-brand;
-    background-color: $background-fill-secondary;
-    color: $background-fill-brand;
+    color: $text-light;
   }
 }
 
@@ -211,20 +226,23 @@
   width: 28px;
   height: 28px;
   border-radius: $radius-full;
+  border: 1px solid $border-default;
   cursor: pointer;
   @include transition((transform, border-color, box-shadow));
 
   &.selected {
     outline: 1px solid $border-ring;
-    outline-offset: 2px;
+    border-color: $background-surface;
   }
 }
 
 // ── Product Tabs ───────────────────────────────────────────────────────────────
+.kecom-product-information {
+  background-color: $background-surface-alt;
+}
 
 .kecom-product-tabs {
-  border-top: 1px solid $border-default;
-  padding-top: $spacing-12;
+  padding-block: $spacing-20;
 }
 
 .kecom-product-tab-header {
@@ -238,7 +256,8 @@
   padding: $spacing-4 0;
   background: none;
   border: none;
-  @include typography(base, medium, $text-secondary);
+  outline: none;
+  @include typography(md, medium, $text-secondary);
   cursor: pointer;
   position: relative;
   @include transition((color));
@@ -248,7 +267,7 @@
   }
 
   &.active {
-    color: $background-fill-brand;
+    color: $text-primary;
 
     &::after {
       content: "";
@@ -257,15 +276,14 @@
       left: 0;
       right: 0;
       height: 2px;
-      background-color: $background-fill-brand;
+      background-color: $border-inverse;
     }
   }
 }
 
 .kecom-product-tab-content {
   display: none;
-  @include typography(base, normal, $text-secondary);
-  line-height: 1.7;
+  @include typography(base, normal, $text-primary);
 
   &.active {
     display: block;
