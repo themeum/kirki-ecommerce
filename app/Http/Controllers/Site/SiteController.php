@@ -15,11 +15,11 @@ use Kirki\Ecommerce\App\DTO\Product\ProductListFilterDTO;
 use Kirki\Ecommerce\App\Http\Requests\Site\ShopPageFilterRequest;
 use Kirki\Ecommerce\App\Models\Brand;
 use Kirki\Ecommerce\App\Models\Category;
+use Kirki\Ecommerce\App\Models\Product;
 use Kirki\Ecommerce\App\Services\ProductService;
+use Kirki\Ecommerce\App\Resources\Product\ProductResource;
 use Kirki\Ecommerce\Framework\Http\Request;
-use Kirki\Ecommerce\Framework\Sanitizer;
 
-use function Kirki\Ecommerce\Framework\app;
 use function Kirki\Ecommerce\Framework\view;
 
 /**
@@ -57,7 +57,7 @@ class SiteController
             'filters' => $sanitized_params,
         ];
 
-        return view('site.shop', $data);
+        return view('site.shop', $data)->layout(false);
     }
 
     /**
@@ -71,7 +71,21 @@ class SiteController
      */
     public function shop_single_page(Request $request)
     {
-        return view('site.shop.single');
+        $slug = $request->slug ?? '';
+        $product = Product::with([
+            'brand',
+            'currency',
+            'categories',
+            'tags',
+            'collections',
+            'attributes',
+            'attribute_values',
+            'variants.attribute_values',
+            'variants.product',
+            'media'
+        ])->where('slug', $slug)->first();
+        $resource = ProductResource::make($product);
+        return view('site.shop.single', $resource)->layout(false);
     }
 
     /**
@@ -85,7 +99,7 @@ class SiteController
      */
     public function cart_page(Request $request)
     {
-        return view('site.cart');
+        return view('site.cart')->layout(false);
     }
 
     /**
@@ -99,7 +113,7 @@ class SiteController
      */
     public function checkout_page(Request $request)
     {
-        return view('site.checkout');
+        return view('site.checkout')->layout(false);
     }
 
     /**
@@ -113,6 +127,6 @@ class SiteController
      */
     public function account_page(Request $request)
     {
-        return view('site.account');
+        return view('site.account')->layout(false);
     }
 }
