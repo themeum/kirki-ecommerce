@@ -11,6 +11,7 @@
 
 namespace Kirki\Ecommerce\App\Hooks\Actions;
 
+use Kirki\Ecommerce\App\Supports\Assets;
 use Kirki\Ecommerce\Framework\Wordpress\BaseHook;
 use Kirki\Ecommerce\Framework\Wordpress\Constants\HookNames;
 use Kirki\Ecommerce\Framework\Wordpress\Constants\HookTypes;
@@ -69,8 +70,8 @@ class EnqueueSiteScripts extends BaseHook
      */
     public function handle(...$args)
     {
-        wp_enqueue_style('kirki-ecommerce-site-core', KIRKI_ECOMMERCE_ASSETS_URL . '/css/core.css');
         wp_enqueue_style('kirki-ecommerce-site-bundle', KIRKI_ECOMMERCE_ASSETS_URL . '/css/kirki-ecommerce-site.bundle.css');
         wp_enqueue_script('kirki-ecommerce-site-bundle', KIRKI_ECOMMERCE_ASSETS_URL . '/js/kirki-ecommerce-site.bundle.js', [], false, true);
+        wp_enqueue_style('kirki-ecommerce-site-core', Assets::get_url('css/core.css'));
     }
 }
