@@ -6,6 +6,7 @@ use Kirki\Ecommerce\App\Facades\CurrencyExchange;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Payment\Facades\Payment;
+use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\Framework\Http\Request;
 
 use Kirki\Ecommerce\App\Supports\AddonPlugin;
@@ -28,7 +29,8 @@ class TestController
             'money' => Money::from_minor(100, 'INR')->getAmounts(),
             'base_url' => app()->base_url('test'),
             'somoy' => $today->copy()->add_day(),
-            'somoy2' => $today
+            'somoy2' => $today,
+            'settings' => Settings::get('email.customer_emails.order_notifications.new_order_email.name')
             // 'usage' => CurrencyExchange::get_active_provider()->get_usage()->all(),
             // 'is_installed' => AddonPlugin::install('https://kirki.com/addons/paypal-gateway')
             // 'refund' => Payment::get_gateway('paypal')->refund(Order::find(7), 1)
