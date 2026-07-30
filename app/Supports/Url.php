@@ -11,7 +11,7 @@
 
 namespace Kirki\Ecommerce\App\Supports;
 
-use Kirki\Ecommerce\App\Wordpress\SiteRoute;
+use Kirki\Ecommerce\Framework\Route;
 
 /**
  * Class Url
@@ -31,7 +31,7 @@ class Url
      */
     public static function get_product_url(string $slug)
     {
-        return SiteRoute::url('shop.single', ['slug' => $slug]);
+        return Route::site_url('shop.single', ['slug' => $slug]);
     }
 
     /**
@@ -43,7 +43,7 @@ class Url
      */
     public static function get_shop_url()
     {
-        return SiteRoute::url('shop');
+        return Route::site_url('shop');
     }
 
     /**
@@ -55,7 +55,7 @@ class Url
      */
     public static function get_cart_url()
     {
-        return SiteRoute::url('cart');
+        return Route::site_url('cart');
     }
 
     /**
@@ -67,7 +67,7 @@ class Url
      */
     public static function get_checkout_url()
     {
-        return SiteRoute::url('checkout');
+        return Route::site_url('checkout');
     }
 
     /**
@@ -79,6 +79,6 @@ class Url
      */
     public static function get_account_url()
     {
-        return SiteRoute::url('account');
+        return Route::site_url('account');
     }
 }

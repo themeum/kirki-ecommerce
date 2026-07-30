@@ -12,10 +12,13 @@
 defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Helpers\TemplateHelper;
-use Kirki\Ecommerce\App\Wordpress\SiteRoute;
+use Kirki\Ecommerce\App\Supports\Url;
 
-$shop_page_url = SiteRoute::url('shop');
-$data = SiteRoute::route_data('data', null);
+use function Kirki\Ecommerce\Framework\include_view;
+use function Kirki\Ecommerce\Framework\view_data;
+
+$shop_page_url = Url::get_shop_url();
+$data = (object) view_data();
 $products = $data->products->items()->all();
 $current_sort_by = $data->filters->sort_by ?? '';
 $current_page = $data->products->get_current_page();
@@ -35,8 +38,8 @@ $sidebar_data = [
     <h1><?php echo esc_html__('Shop', 'kirki-ecommerce'); ?></h1>
     
     <?php
-    TemplateHelper::load_template(
-        'shop.parts.meta',
+    include_view(
+        'site.shop.parts.meta',
         [
             'data' => $data,
             'shop_page_url' => $shop_page_url,
@@ -47,11 +50,11 @@ $sidebar_data = [
     ?>
 
     <div class="kirki-ecom-container">
-        <?php // TemplateHelper::load_template('shop/parts/sidebar', $sidebar_data); ?>
+        <?php // include_view('site.shop.parts.sidebar', $sidebar_data); ?>
         <div class="kirki-ecom-products">
             <?php
             foreach ($products as $product) {
-                TemplateHelper::load_template('shop/parts/product-card', ['product' => $product], false);
+                include_view('site.shop.parts.product-card', ['product' => $product]);
             }
             ?>
         </div>

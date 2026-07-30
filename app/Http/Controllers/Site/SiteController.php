@@ -12,14 +12,14 @@
 namespace Kirki\Ecommerce\App\Http\Controllers\Site;
 
 use Kirki\Ecommerce\App\DTO\Product\ProductListFilterDTO;
-use Kirki\Ecommerce\App\Helpers\TemplateHelper;
 use Kirki\Ecommerce\App\Models\Brand;
 use Kirki\Ecommerce\App\Models\Category;
 use Kirki\Ecommerce\App\Services\ProductService;
-use Kirki\Ecommerce\App\Wordpress\SiteRoute;
+use Kirki\Ecommerce\Framework\Http\Request;
 use Kirki\Ecommerce\Framework\Sanitizer;
 
 use function Kirki\Ecommerce\Framework\app;
+use function Kirki\Ecommerce\Framework\view;
 
 /**
  * Class SiteController
@@ -33,12 +33,11 @@ class SiteController
      *
      * @since 1.0.0
      *
-     * @param array $params  Route parameters.
-     * @param array $template Template name.
+     * @param Request $request  Route parameters.
      *
      * @return string Template path.
      */
-    public function shop_page($params, $template)
+    public function shop_page(Request $request)
     {
 
         $rules = [
@@ -63,15 +62,14 @@ class SiteController
         $productService = app(ProductService::class);
         $products = $productService->paginated($sanitized_params);
 
-        $data = (object) [
+        $data = [
             'products' => $products,
             'categories' => Category::all(),
             'brands' => Brand::all(),
             'filters' => $sanitized_params,
         ];
 
-        SiteRoute::set_route_data('data', $data);
-        return TemplateHelper::get_template('shop');
+        return view('site.shop', $data);
     }
 
     /**
@@ -79,14 +77,13 @@ class SiteController
      *
      * @since 1.0.0
      *
-     * @param array $params  Route parameters.
-     * @param array $template Template name.
+     * @param Request $request  Route parameters.
      *
      * @return string Template path.
      */
-    public function shop_single_page($params, $template)
+    public function shop_single_page(Request $request)
     {
-        return TemplateHelper::get_template('shop.single');
+        return view('site.shop.single');
     }
 
     /**
@@ -94,14 +91,13 @@ class SiteController
      *
      * @since 1.0.0
      *
-     * @param array $params  Route parameters.
-     * @param array $template Template name.
+     * @param Request $request  Route parameters.
      *
      * @return string Template path.
      */
-    public function cart_page($params, $template)
+    public function cart_page(Request $request)
     {
-        return TemplateHelper::get_template('cart');
+        return view('site.cart');
     }
 
     /**
@@ -109,14 +105,13 @@ class SiteController
      *
      * @since 1.0.0
      *
-     * @param array $params  Route parameters.
-     * @param array $template Template name.
+     * @param Request $request  Route parameters.
      *
      * @return string Template path.
      */
-    public function checkout_page($params, $template)
+    public function checkout_page(Request $request)
     {
-        return TemplateHelper::get_template('checkout');
+        return view('site.checkout');
     }
 
     /**
@@ -124,13 +119,12 @@ class SiteController
      *
      * @since 1.0.0
      *
-     * @param array $params  Route parameters.
-     * @param array $template Template name.
+     * @param Request $request  Route parameters.
      *
      * @return string Template path.
      */
-    public function account_page($params, $template)
+    public function account_page(Request $request)
     {
-        return TemplateHelper::get_template('account');
+        return view('site.account');
     }
 }
