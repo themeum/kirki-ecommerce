@@ -453,6 +453,9 @@ const styles = defineStyles({
     gap: theme.spacing[4],
   },
   innerDarkRowContent: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
     padding: `${theme.spacing[1]} ${theme.spacing[2]} ${theme.spacing[1]} ${theme.spacing[3]}`,
     height: '44px',
     boxSizing: 'border-box',
