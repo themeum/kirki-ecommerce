@@ -30,13 +30,13 @@ export default defineConfig({
         site: path.resolve(__dirname, 'ts/index.ts'),
       },
       output: {
-        entryFileNames: 'js/kirki-ecommerce-site.bundle.js',
+        entryFileNames: 'js/site.js',
         assetFileNames: (assetInfo) => {
           // assetInfo.names is the non-deprecated API (Rollup 3+)
           const names = assetInfo.names ?? [];
           const isCss = names.some((n) => n.endsWith('.css'));
           if (isCss) {
-            return 'css/kirki-ecommerce-site.bundle.css';
+            return 'css/site.css';
           }
           return 'assets/[name]-[hash][extname]';
         },
