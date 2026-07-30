@@ -1,4 +1,4 @@
-import type { SerializedStyles } from '@emotion/react';
+import type { CSSObject } from '@emotion/react';
 import { Minus } from 'lucide-react';
 import { useMemo } from 'react';
 
@@ -6,7 +6,7 @@ import Button from '@/components/ui/button';
 import Combobox from '@/components/ui/combobox';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
-import { flexCenter, scoped } from '@/theme/mixins';
+import { flexCenter, scopedMerge, scoped } from '@/theme/mixins';
 import type { SelectOption } from '@/types';
 
 type CapsuleValue = string | number;
@@ -19,7 +19,7 @@ type CapsuleProps = {
   onValueChange?: (value: CapsuleValueOrArray) => void;
   uniqueKey?: string | number;
   multiple?: boolean;
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const toStringValue = (value?: CapsuleValue) => {
@@ -33,7 +33,7 @@ const Capsule = ({
   onValueChange = () => [],
   uniqueKey,
   multiple,
-  css: cssProp,
+  cssOverride,
 }: CapsuleProps) => {
   const options = useMemo(
     () =>
@@ -74,9 +74,9 @@ const Capsule = ({
   };
 
   return (
-    <div css={[styles.root, cssProp]} key={uniqueKey}>
+    <div css={scopedMerge(styles.root, cssOverride)} key={uniqueKey}>
       {isTextOnly ? (
-        <Text variant="small" title={displayValue} css={styles.textValue}>
+        <Text variant="small" title={displayValue} cssOverride={styles.textValue}>
           {displayValue}
         </Text>
       ) : (
@@ -87,7 +87,7 @@ const Capsule = ({
           multiple={multiple}
         />
       )}
-      <div css={styles.separator} aria-hidden="true" />
+      <div css={scoped(styles.separator)} aria-hidden="true" />
       <Button
         variant="ghost"
         aria-label="Clear"
@@ -104,7 +104,7 @@ Capsule.displayName = 'Capsule';
 export default Capsule;
 
 const styles = {
-  root: scoped({
+  root: ({
     minWidth: '126px',
     borderRadius: theme.radius.md,
     height: '32px',
@@ -121,18 +121,18 @@ const styles = {
         boxShadow: 'none',
       },
     },
-  }),
-  separator: scoped({
+  } satisfies CSSObject),
+  separator: ({
     height: '100%',
     width: '1px',
     backgroundColor: theme.colors.border.default,
-  }),
-  textValue: scoped({
+  } satisfies CSSObject),
+  textValue: ({
     flex: 1,
     minWidth: 0,
     padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
-  }),
+  } satisfies CSSObject),
 };

@@ -1,24 +1,19 @@
+import type { CSSObject } from '@emotion/react';
 import RichTextField from '@/components/form/rich-text-field';
 import SwitchField from '@/components/form/switch-field';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import ActionGroup from '@/components/ui/action-group';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { mergeCss } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
 const LegalInfo = () => {
   return (
     <>
-      <Card css={cardStyles.largeCard}>
-        <CardHeader css={cardStyles.sectionHeader}>
+      <Card cssOverride={cardStyles.largeCard}>
+        <CardHeader cssOverride={cardStyles.sectionHeader}>
           <CardTitle>{__('Legal Information', 'kirki-ecommerce')}</CardTitle>
           <CardDescription>
             {__(
@@ -27,8 +22,8 @@ const LegalInfo = () => {
             )}
           </CardDescription>
         </CardHeader>
-        <CardContent css={cardStyles.largeContent}>
-          <Card css={[cardStyles.formCard, styles.formCardBorder]}>
+        <CardContent cssOverride={cardStyles.largeContent}>
+          <Card cssOverride={mergeCss(cardStyles.formCard, styles.formCardBorder)}>
             <CardContent>
               <ActionGroup
                 style={{ width: '100%', justifyContent: 'space-between' }}
@@ -45,7 +40,7 @@ const LegalInfo = () => {
               />
             </CardContent>
           </Card>
-          <Card css={[cardStyles.formCard, styles.formCardBorder]}>
+          <Card cssOverride={mergeCss(cardStyles.formCard, styles.formCardBorder)}>
             <CardContent>
               <ActionGroup
                 style={{ width: '100%', justifyContent: 'space-between' }}
@@ -73,8 +68,8 @@ LegalInfo.displayName = 'LegalInfo';
 export default LegalInfo;
 
 const styles = {
-  formCardBorder: scoped({
+  formCardBorder: ({
     border: `1px solid ${theme.colors.border.default}`,
     borderRadius: theme.radius.lg,
-  })
+  } satisfies CSSObject)
 };

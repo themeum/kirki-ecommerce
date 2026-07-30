@@ -1,15 +1,10 @@
+import type { CSSObject } from '@emotion/react';
 import { useFormContext, useWatch } from 'react-hook-form';
 
 import SelectField from '@/components/form/select-field';
 import TextField from '@/components/form/text-field';
 import Button from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
 import { ReplaceIcon } from '@/icons';
@@ -19,7 +14,7 @@ import Grid from '@/components/ui/grid';
 import Text from '@/components/ui/text';
 import type { GeneralSettingsFormValues } from '@/schemas/forms/general-settings-form';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { mergeCss } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
@@ -54,8 +49,8 @@ const InvoiceId = () => {
 
   return (
     <div>
-      <Card css={cardStyles.largeCard}>
-        <CardHeader css={cardStyles.sectionHeader}>
+      <Card cssOverride={cardStyles.largeCard}>
+        <CardHeader cssOverride={cardStyles.sectionHeader}>
           <CardTitle>{__('Invoice ID', 'kirki-ecommerce')}</CardTitle>
           <CardDescription>
             {__(
@@ -64,10 +59,10 @@ const InvoiceId = () => {
             )}
           </CardDescription>
         </CardHeader>
-        <CardContent css={cardStyles.largeContent}>
+        <CardContent cssOverride={cardStyles.largeContent}>
           <Flex direction="column" gap={2}>
-            <Card css={cardStyles.innerCard}>
-              <CardContent css={cardStyles.innerCardContent}>
+            <Card cssOverride={cardStyles.innerCard}>
+              <CardContent cssOverride={cardStyles.innerCardContent}>
                 <Flex direction="column" gap={4}>
                   <Grid columns={3}>
                     <TextField
@@ -95,8 +90,8 @@ const InvoiceId = () => {
                     />
                   </Grid>
 
-                  <Card css={[cardStyles.innerDarkCard, styles.previewCard]}>
-                    <CardContent css={styles.previewCardContent}>
+                  <Card cssOverride={mergeCss(cardStyles.innerDarkCard, styles.previewCard)}>
+                    <CardContent cssOverride={styles.previewCardContent}>
                       <Flex direction="column" gap={2}>
                         <Label htmlFor="invoice-id-preview">
                           {__(
@@ -108,7 +103,7 @@ const InvoiceId = () => {
                           id="invoice-id-preview"
                           value={__(invoiceID, 'kirki-ecommerce')}
                           readOnly
-                          css={styles.previewInput}
+                          cssOverride={styles.previewInput}
                         />
                       </Flex>
                     </CardContent>
@@ -125,8 +120,8 @@ const InvoiceId = () => {
                 </Flex>
               </CardContent>
             </Card>
-            <Card css={[cardStyles.largeCard, styles.resetCard]}>
-              <CardContent css={cardStyles.largeContentPadded}>
+            <Card cssOverride={mergeCss(cardStyles.largeCard, styles.resetCard)}>
+              <CardContent cssOverride={cardStyles.largeContentPadded}>
                 <Flex direction="column" gap={3}>
                   <Flex align="center">
                     <Text weight="medium">{__('Reset Invoice ID', 'kirki-ecommerce')}</Text>
@@ -159,17 +154,17 @@ InvoiceId.displayName = 'InvoiceId';
 export default InvoiceId;
 
 const styles = {
-  previewCard: scoped({}),
-  previewCardContent: scoped({
+  previewCard: ({} satisfies CSSObject),
+  previewCardContent: ({
     padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
-  }),
-  previewInput: scoped({
+  } satisfies CSSObject),
+  previewInput: ({
     padding: theme.spacing[2],
     textAlign: 'center',
     color: theme.colors.text.special3,
-  }),
-  resetCard: scoped({
+  } satisfies CSSObject),
+  resetCard: ({
     borderRadius: theme.radius.lg,
     border: `1px solid ${theme.colors.border.default}`,
-  })
+  } satisfies CSSObject)
 };

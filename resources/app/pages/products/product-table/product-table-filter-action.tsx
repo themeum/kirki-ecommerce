@@ -4,10 +4,7 @@ import { memo } from 'react';
 import Button from '@/components/ui/button';
 import Capsule from '@/components/ui/capsule';
 import Flex from '@/components/ui/flex';
-import {
-  useListParamsActions,
-  useListParamsValue,
-} from '@/contexts/list-params-context';
+import { useListParamsActions, useListParamsValue } from '@/contexts/list-params-context';
 import { makeSuggestionList } from '@/pages/utils';
 import { useBrandsQuery } from '@/services/brand';
 import { useCategoriesQuery } from '@/services/category';
@@ -112,7 +109,7 @@ const ProductTableFilterAction = memo(() => {
   }
 
   return (
-    <Flex gap={3} css={filterActionBarCss}>
+    <Flex gap={3} cssOverride={filterActionBarCss}>
       {activeFilterKeys.map((key) => (
         <Capsule
           key={key}

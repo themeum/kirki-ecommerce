@@ -1,18 +1,16 @@
+import type { CSSObject } from '@emotion/react';
 import { useMemo } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 
 import GroupOptionCard from '@/components/group-option-card';
 import OptionAccordion from '@/components/option-accordion';
-import {
-  Card,
-  CardContent,
-} from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { CartIcon, InventoryBoxIcon, SettingsIcon, UserIcon } from '@/icons';
 import type { EmailSettingsFormValues } from '@/schemas/forms/email-settings-form';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+;
 import { __ } from '@/wpi18n';
 
 import { mapEmailGroup } from '@/pages/settings/email-settings/utils';
@@ -58,7 +56,7 @@ const AdminEmail = (props: AdminEmailProps) => {
 
   return (
     <>
-      <Card css={styles.roundedCard}>
+      <Card cssOverride={styles.roundedCard}>
         <CardContent>
 
           <Flex direction="column" gap={4}>
@@ -134,7 +132,7 @@ AdminEmail.displayName = 'AdminEmail';
 export default AdminEmail;
 
 const styles = {
-  roundedCard: scoped({
+  roundedCard: ({
     borderRadius: theme.radius.xl,
-  }),
+  } satisfies CSSObject),
 };

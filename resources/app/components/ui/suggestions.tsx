@@ -1,30 +1,14 @@
-import {
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type KeyboardEvent,
-  type ReactNode,
-} from 'react';
-import { css, type SerializedStyles, type Theme } from '@emotion/react';
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
+import { type CSSObject, type Theme } from '@emotion/react';
 import { Minus, PlusCircle } from 'lucide-react';
 
 import Chip from '@/components/ui/chip';
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldLabel,
-} from '@/components/ui/field';
+import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import Input from '@/components/ui/input';
-import {
-  Popover,
-  PopoverAnchor,
-  PopoverContent,
-} from '@/components/ui/popover';
+import { Popover, PopoverAnchor, PopoverContent } from '@/components/ui/popover';
 import { Separator } from '@/components/ui/separator';
 import { theme } from '@/theme';
-import { itemCenter, scoped, uiFocusRing } from '@/theme/mixins';
+import { itemCenter, uiFocusRing, scopedMerge, mergeCss, scoped } from '@/theme/mixins';
 import type { LabelFieldProps, SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -48,7 +32,7 @@ type SuggestionsProps = LabelFieldProps & {
   searchKey?: string | number;
   readOnly?: boolean;
   showRemoveIcon?: boolean;
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 /**
@@ -79,7 +63,7 @@ const Suggestions = (props: SuggestionsProps) => {
     searchKey,
     readOnly = false,
     showRemoveIcon = true,
-    css: cssProp,
+    cssOverride,
   } = props;
 
   const [isOpen, setIsOpen] = useState(false);
@@ -152,31 +136,29 @@ const Suggestions = (props: SuggestionsProps) => {
   };
 
   return (
-    <Field data-invalid={error ? true : undefined} css={css([styles.root, cssProp])}>
+    <Field data-invalid={error ? true : undefined} cssOverride={mergeCss(styles.root, cssOverride)}>
       {label && <FieldLabel>{label}</FieldLabel>}
       <Popover open={isOpen} onOpenChange={setIsOpen}>
         <PopoverAnchor asChild>
           <div
             ref={fieldRef}
             data-error={error ? 'true' : undefined}
-            css={styles.field}
+            css={scoped(styles.field)}
           >
             <Input
               key={searchKey}
               value={inputValue}
               placeholder={placeholder}
               readOnly={readOnly}
-              css={css([
-                styles.input,
-                hasSelectedItems && styles.inputWithChips,
-              ])}
+              cssOverride={mergeCss(styles.input,
+                hasSelectedItems && styles.inputWithChips,)}
               onChange={(event) => handleSearchChange(event.target.value)}
               onBlur={onBlur}
               onClick={handleInputClick}
               onKeyDown={handleInputKeyDown}
             />
             {hasSelectedItems && (
-              <div css={styles.chips}>
+              <div css={scoped(styles.chips)}>
                 {selectedItems.map((item, index) => (
                   <Chip
                     key={`${item.value}-${index}`}
@@ -201,7 +183,7 @@ const Suggestions = (props: SuggestionsProps) => {
             align="start"
             sideOffset={4}
             role="listbox"
-            css={styles.content}
+            cssOverride={styles.content}
             onOpenAutoFocus={(event) => event.preventDefault()}
             onCloseAutoFocus={(event) => event.preventDefault()}
             onInteractOutside={(event) => {
@@ -216,7 +198,7 @@ const Suggestions = (props: SuggestionsProps) => {
                   role="option"
                   tabIndex={canAddItem ? 0 : -1}
                   aria-disabled={!canAddItem}
-                  css={[styles.item, !canAddItem && styles.itemDisabled]}
+                  css={scopedMerge(styles.item, !canAddItem && styles.itemDisabled)}
                   onClick={() => {
                     if (!canAddItem) {
                       return;
@@ -233,7 +215,7 @@ const Suggestions = (props: SuggestionsProps) => {
                     }
                   }}
                 >
-                  <span css={styles.itemIcon}>
+                  <span css={scoped(styles.itemIcon)}>
                     <PlusCircle size={16} aria-hidden="true" />
                   </span>
                   <span>{addItemLabel}</span>
@@ -242,7 +224,7 @@ const Suggestions = (props: SuggestionsProps) => {
                   <Separator
                     marginTop={theme.spacing[2]}
                     marginBottom={theme.spacing[2]}
-                    css={styles.separator}
+                    cssOverride={styles.separator}
                   />
                 )}
               </>
@@ -251,7 +233,7 @@ const Suggestions = (props: SuggestionsProps) => {
               <div
                 role="option"
                 tabIndex={0}
-                css={styles.item}
+                css={scoped(styles.item)}
                 key={`${option.value}-${index}`}
                 onClick={() => handleSelect(option)}
                 onKeyDown={(event) => {
@@ -262,16 +244,16 @@ const Suggestions = (props: SuggestionsProps) => {
                 }}
               >
                 {option.leftIcon && (
-                  <div css={styles.itemIcon}>{option.leftIcon}</div>
+                  <div css={scoped(styles.itemIcon)}>{option.leftIcon}</div>
                 )}
                 {option.color && (
                   <div
-                    css={styles.swatch}
+                    css={scoped(styles.swatch)}
                     style={{ background: option.color }}
                     aria-hidden="true"
                   />
                 )}
-                <div css={styles.itemText}>{option.title}</div>
+                <div css={scoped(styles.itemText)}>{option.title}</div>
               </div>
             ))}
           </PopoverContent>
@@ -289,13 +271,13 @@ export default Suggestions;
 export type { SuggestionOption, SuggestionsProps };
 
 const styles = {
-  root: scoped({
+  root: ({
     width: '100%',
     display: 'flex',
     flexDirection: 'column',
     gap: theme.spacing[2],
-  }),
-  field: scoped({
+  } satisfies CSSObject),
+  field: ({
     width: '100%',
     border: `1px solid ${theme.colors.border.default}`,
     borderRadius: theme.radius.lg,
@@ -313,8 +295,8 @@ const styles = {
         ...uiFocusRing(theme as Theme, theme.colors.border.critical),
       },
     },
-  }),
-  input: scoped({
+  } satisfies CSSObject),
+  input: ({
     width: '100%',
     border: 'none',
     borderRadius: theme.radius.none,
@@ -327,11 +309,11 @@ const styles = {
       boxShadow: 'none',
       borderColor: 'transparent',
     },
-  }),
-  inputWithChips: scoped({
+  } satisfies CSSObject),
+  inputWithChips: ({
     borderBottom: `1px solid ${theme.colors.border.default}`,
-  }),
-  content: scoped({
+  } satisfies CSSObject),
+  content: ({
     width: 'var(--radix-popover-trigger-width)',
     minWidth: 'var(--radix-popover-trigger-width)',
     maxWidth: 'var(--radix-popover-trigger-width)',
@@ -353,13 +335,13 @@ const styles = {
       backgroundColor: theme.colors.background.fillBrand,
       borderRadius: theme.radius.sm,
     },
-  }),
-  separator: scoped({
+  } satisfies CSSObject),
+  separator: ({
     width: `calc(100% + ${theme.spacing[1]} + ${theme.spacing[1]})`,
     marginLeft: `-${theme.spacing[1]}`,
     marginRight: `-${theme.spacing[1]}`,
-  }),
-  item: scoped({
+  } satisfies CSSObject),
+  item: ({
     padding: `${theme.spacing[2]} ${theme.spacing[2]}`,
     ...itemCenter(),
     justifyContent: 'flex-start',
@@ -369,38 +351,38 @@ const styles = {
     '&:hover': {
       backgroundColor: theme.colors.background.surfaceSecondary,
     },
-  }),
-  itemDisabled: scoped({
+  } satisfies CSSObject),
+  itemDisabled: ({
     opacity: 0.5,
     cursor: 'not-allowed',
     pointerEvents: 'none',
     '&:hover': {
       backgroundColor: 'transparent',
     },
-  }),
-  itemIcon: scoped({
+  } satisfies CSSObject),
+  itemIcon: ({
     minWidth: '16px',
     ...itemCenter(),
-  }),
-  itemText: scoped({
+  } satisfies CSSObject),
+  itemText: ({
     ...itemCenter(),
     columnGap: theme.spacing[2],
     maxWidth: '85%',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
-  }),
-  chips: scoped({
+  } satisfies CSSObject),
+  chips: ({
     minHeight: '52.2px',
     padding: theme.spacing[3],
     ...itemCenter(),
     justifyContent: 'flex-start',
     gap: theme.spacing[2],
     flexWrap: 'wrap',
-  }),
-  swatch: scoped({
+  } satisfies CSSObject),
+  swatch: ({
     height: '16px',
     width: '16px',
     borderRadius: theme.radius.full,
     flexShrink: 0,
-  }),
+  } satisfies CSSObject),
 };

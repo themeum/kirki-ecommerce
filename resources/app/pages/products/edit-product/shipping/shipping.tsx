@@ -1,32 +1,15 @@
-import { css } from '@emotion/react';
-import {
-  useEffect,
-  useState,
-  type Dispatch,
-  type ReactElement,
-  type SetStateAction,
-} from 'react';
+import type { CSSObject } from '@emotion/react';
+import { useEffect, useState, type Dispatch, type ReactElement, type SetStateAction } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import Button from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Field, fieldErrorStyle } from '@/components/ui/field';
 import { Form } from '@/components/ui/form';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { EyeClosedIcon, EyeIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
@@ -34,14 +17,9 @@ import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { useProductForm } from '@/contexts/product-form-context';
-import {
-  mapProductShippingFromProduct,
-  ProductShippingFormSchema,
-  productShippingDefaultValues,
-  type ProductShippingFormValues,
-} from '@/schemas/forms/product-shipping-form';
+import { mapProductShippingFromProduct, ProductShippingFormSchema, productShippingDefaultValues, type ProductShippingFormValues } from '@/schemas/forms/product-shipping-form';
 import { useShippingBoxesQuery } from '@/services/shipping';
-import { scoped } from '@/theme/mixins';
+import { scoped, mergeCss } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import type { FormErrors, ShippingBox } from '@/types';
 
@@ -154,7 +132,7 @@ const Shipping = ({ errors, setErrors, formSyncKey = 0 }: ShippingProps) => {
 
   return (
     <Form {...form}>
-      <Card css={cardStyles.formCard}>
+      <Card cssOverride={cardStyles.formCard}>
         <CardHeader>
           <CardTitle>{__('Shipping', 'kirki-ecommerce')}</CardTitle>
         </CardHeader>
@@ -236,7 +214,7 @@ const Shipping = ({ errors, setErrors, formSyncKey = 0 }: ShippingProps) => {
           </Flex>
           <div>
             <Card
-              css={cardStyles.innerCard}
+              cssOverride={cardStyles.innerCard}
               style={{
                 position: 'relative',
                 overflow: 'visible',
@@ -244,12 +222,12 @@ const Shipping = ({ errors, setErrors, formSyncKey = 0 }: ShippingProps) => {
                 paddingTop: theme.spacing[5],
               }}
             >
-              <Flex css={css({ top: '-18px', left: '8px', right: '8px', position: 'absolute' })}>
-                <span css={styles.labelBackground}>
+              <Flex cssOverride={{ top: '-18px', left: '8px', right: '8px', position: 'absolute' }}>
+                <span css={scoped(styles.labelBackground)}>
                   <Text weight="medium">{__('Shipping Box', 'kirki-ecommerce')}</Text>
                 </span>
                 <ActionGroup>
-                  <span css={styles.actionBackground}>
+                  <span css={scoped(styles.actionBackground)}>
                     <Button
                       variant="secondary"
                       onClick={() => {
@@ -276,9 +254,9 @@ const Shipping = ({ errors, setErrors, formSyncKey = 0 }: ShippingProps) => {
             </Card>
             {showShippingBox && (
               <Card
-                css={[cardStyles.darkCard, styles.shippingBoxPreview]}
+                cssOverride={mergeCss(cardStyles.darkCard, styles.shippingBoxPreview)}
               >
-                <CardContent css={styles.darkCardContent}>
+                <CardContent cssOverride={styles.darkCardContent}>
                   <BoxGeneratorView
                     length={boxGeneratorData?.length || 0}
                     height={boxGeneratorData?.height || 0}
@@ -309,20 +287,20 @@ Shipping.displayName = 'Shipping';
 export default Shipping;
 
 const styles = {
-  darkCardContent: scoped({
+  darkCardContent: ({
     padding: theme.spacing[1],
-  }),
-  shippingBoxPreview: scoped({
+  } satisfies CSSObject),
+  shippingBoxPreview: ({
     borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.md} ${theme.radius.md}`,
     marginTop: `-${theme.spacing[2]}`,
     height: '230px',
-  }),
-  labelBackground: scoped({
+  } satisfies CSSObject),
+  labelBackground: ({
     backgroundColor: theme.colors.background.surface,
     paddingLeft: theme.spacing[2],
-  }),
-  actionBackground: scoped({
+  } satisfies CSSObject),
+  actionBackground: ({
     backgroundColor: theme.colors.background.surface,
     paddingRight: theme.spacing[2],
-  }),
+  } satisfies CSSObject),
 };

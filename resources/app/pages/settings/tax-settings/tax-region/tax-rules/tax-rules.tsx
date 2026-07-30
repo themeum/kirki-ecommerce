@@ -1,20 +1,17 @@
-import { css } from '@emotion/react';
+import { css, type CSSObject } from '@emotion/react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 import HeaderActionsCard from '@/components/header-actions-card';
 import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-} from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { EditPenIcon, LighteningIcon, TrashIcon } from '@/icons';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { scoped } from '@/theme/mixins';
+import { mergeCss } from '@/theme/mixins';
 import { __, sprintf } from '@/wpi18n';
 
 import { getDestinationDisplayValue } from '@/pages/settings/tax-settings/tax-region/tax-rules/helper';
@@ -61,8 +58,8 @@ const TaxRules = (props: TaxRulesProps) => {
 
   return (
     <div>
-      <Card css={cardStyles.largeCard}>
-        <CardContent css={cardStyles.largeContentPadded}>
+      <Card cssOverride={cardStyles.largeCard}>
+        <CardContent cssOverride={cardStyles.largeContentPadded}>
           <HeaderActionsCard
             header={__('Tax Rules', 'kirki-ecommerce')}
             subHeader={__(
@@ -89,19 +86,17 @@ const TaxRules = (props: TaxRulesProps) => {
                 {rulesObj?.map((item, index) => (
                   <Card
                     key={index}
-                    css={css(
-                      styles.shippingRulesCard,
+                    cssOverride={mergeCss(styles.shippingRulesCard,
                       rulesObj.length > 1
                         ? styles.shippingRulesCardBorderRadius
-                        : styles.shippingRulesCardSingle,
-                    )}
+                        : styles.shippingRulesCardSingle,)}
                     onMouseEnter={() => setHoveredRuleIndex(index)}
                     onMouseLeave={() => setHoveredRuleIndex(null)}
                   >
                     <CardContent>
                       <Flex justify="space-between">
                         <Flex direction={'column'} gap={4}>
-                          <Card css={[cardStyles.darkCard, styles.rulesNumberBadge]}>
+                          <Card cssOverride={mergeCss(cardStyles.darkCard, styles.rulesNumberBadge)}>
                             <CardContent>
                               <Flex gap={2} align="center">
                                 <LighteningIcon />
@@ -124,7 +119,7 @@ const TaxRules = (props: TaxRulesProps) => {
                                       condition?.type,
                                       condition?.operator,
                                     )}</Text>
-                                  <Text css={styles.conditionValue}>{condition?.type === 'destination_region'
+                                  <Text cssOverride={styles.conditionValue}>{condition?.type === 'destination_region'
                                     ? __(
                                       getDestinationDisplayValue(
                                         condition?.value,
@@ -143,16 +138,14 @@ const TaxRules = (props: TaxRulesProps) => {
                                 ? `Then ${item?.action?.type}:`
                                 : `Then ${item?.action?.type}`}</Text>
                               {item?.action?.type === 'set_tax_rate' && (
-                                <Text css={styles.conditionValue}>{`${item?.action?.value}`}</Text>
+                                <Text cssOverride={styles.conditionValue}>{`${item?.action?.value}`}</Text>
                               )}
                             </Flex>
                           </Flex>
                         </Flex>
                         <ActionGroup
-                          css={css(
-                            styles.cardActions,
-                            hoveredRuleIndex === index && styles.cardActionsActive,
-                          )}
+                          cssOverride={mergeCss(styles.cardActions,
+                            hoveredRuleIndex === index && styles.cardActionsActive,)}
                         >
                           <Button
                             variant="secondary"
@@ -208,7 +201,7 @@ const styles = {
     display: 'flex',
     pointerEvents: 'auto',
   }),
-  shippingRulesCard: scoped({
+  shippingRulesCard: ({
     padding: theme.spacing[3],
     minHeight: '118px',
     borderRadius: theme.radius.none,
@@ -216,26 +209,26 @@ const styles = {
     display: 'flex',
     flexDirection: 'column',
     gap: theme.spacing[4],
-  }),
-  shippingRulesCardSingle: scoped({
+  } satisfies CSSObject),
+  shippingRulesCardSingle: ({
     borderRadius: theme.radius.lg,
-  }),
-  shippingRulesCardBorderRadius: scoped({
+  } satisfies CSSObject),
+  shippingRulesCardBorderRadius: ({
     '&:first-of-type': {
       borderRadius: `${theme.radius.lg} ${theme.radius.lg} ${theme.radius.none} ${theme.radius.none}`,
     },
     '&:last-of-type': {
       borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.lg} ${theme.radius.lg}`,
     },
-  }),
-  rulesNumberBadge: scoped({
+  } satisfies CSSObject),
+  rulesNumberBadge: ({
     maxHeight: '26px',
     maxWidth: 'fit-content',
     borderRadius: theme.radius.sm,
     display: 'flex',
     padding: `${theme.spacing[1]} ${theme.spacing[2]}`,
-  }),
-  conditionValue: scoped({
+  } satisfies CSSObject),
+  conditionValue: ({
     color: theme.colors.text.special3,
-  })
+  } satisfies CSSObject)
 };

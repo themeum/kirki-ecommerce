@@ -1,38 +1,15 @@
-import { css } from '@emotion/react';
-import {
-  useEffect,
-  useState,
-  type Dispatch,
-  type ReactElement,
-  type SetStateAction,
-} from 'react';
+import type { CSSObject } from '@emotion/react';
+import { useEffect, useState, type Dispatch, type ReactElement, type SetStateAction } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldLabel,
-} from '@/components/ui/field';
+import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import { Form } from '@/components/ui/form';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectSeparator,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectSeparator, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { PlusCircleIcon } from '@/icons';
 import { useProductForm } from '@/contexts/product-form-context';
 import type { ErrorResponse } from '@/libs/api';
@@ -41,12 +18,7 @@ import Flex from '@/components/ui/flex';
 import Grid from '@/components/ui/grid';
 import { Separator } from '@/components/ui/separator';
 import Text from '@/components/ui/text';
-import {
-  mapProductPriceFromProduct,
-  ProductPriceFormSchema,
-  productPriceDefaultValues,
-  type ProductPriceFormValues,
-} from '@/schemas/forms/product-price-form';
+import { mapProductPriceFromProduct, ProductPriceFormSchema, productPriceDefaultValues, type ProductPriceFormValues } from '@/schemas/forms/product-price-form';
 import { useTaxProfilesQuery } from '@/services/tax';
 import { theme } from '@/theme';
 import { flexCenter, scoped } from '@/theme/mixins';
@@ -136,7 +108,7 @@ const Price = ({ errors, setErrors, formSyncKey = 0 }: PriceProps) => {
 
   return (
     <Form {...form}>
-      <Card css={cardStyles.formCard}>
+      <Card cssOverride={cardStyles.formCard}>
         <CardHeader>
           <CardTitle>{__('Price', 'kirki-ecommerce')}</CardTitle>
         </CardHeader>
@@ -152,7 +124,7 @@ const Price = ({ errors, setErrors, formSyncKey = 0 }: PriceProps) => {
                   </FieldLabel>
                   <div style={{ position: 'relative' }}>
                     <span
-                      css={styles.inputLeftSymbol}
+                      css={scoped(styles.inputLeftSymbol)}
                       style={{
                         position: 'absolute',
                         left: '12px',
@@ -194,7 +166,7 @@ const Price = ({ errors, setErrors, formSyncKey = 0 }: PriceProps) => {
                   </FieldLabel>
                   <div style={{ position: 'relative' }}>
                     <span
-                      css={styles.inputLeftSymbol}
+                      css={scoped(styles.inputLeftSymbol)}
                       style={{
                         position: 'absolute',
                         left: '12px',
@@ -229,8 +201,8 @@ const Price = ({ errors, setErrors, formSyncKey = 0 }: PriceProps) => {
           </Grid>
 
           <Flex direction="column" gap={2}>
-            <Card css={cardStyles.innerDarkCard}>
-              <CardContent css={styles.innerDarkRowContent}>
+            <Card cssOverride={cardStyles.innerDarkCard}>
+              <CardContent cssOverride={styles.innerDarkRowContent}>
                 <Flex align="center" justify="space-between">
                 <Controller
                   control={form.control}
@@ -261,7 +233,7 @@ const Price = ({ errors, setErrors, formSyncKey = 0 }: PriceProps) => {
                   )}
                 />
                 <div>
-                  <Flex gap={2} align="center" justify="flex-end" css={css({ flex: '2', visibility: showUnitPrice ? 'visible' : 'hidden' })}>
+                  <Flex gap={2} align="center" justify="flex-end" cssOverride={{ flex: '2', visibility: showUnitPrice ? 'visible' : 'hidden' }}>
                     <Text color="secondary">{__('Base price per unit', 'kirki-ecommerce')}</Text>
                     <BaseUnitPopup
                       errors={errors}
@@ -277,8 +249,8 @@ const Price = ({ errors, setErrors, formSyncKey = 0 }: PriceProps) => {
               </CardContent>
             </Card>
 
-            <Card css={cardStyles.innerDarkCard}>
-              <CardContent css={styles.innerDarkRowContent}>
+            <Card cssOverride={cardStyles.innerDarkCard}>
+              <CardContent cssOverride={styles.innerDarkRowContent}>
                 <Grid align="center">
                 <Controller
                   control={form.control}
@@ -386,7 +358,7 @@ const Price = ({ errors, setErrors, formSyncKey = 0 }: PriceProps) => {
                   <div style={{ position: 'relative' }}>
                     {field.value && (
                       <span
-                        css={styles.inputLeftSymbol}
+                        css={scoped(styles.inputLeftSymbol)}
                         style={{
                           position: 'absolute',
                           left: '12px',
@@ -423,7 +395,7 @@ const Price = ({ errors, setErrors, formSyncKey = 0 }: PriceProps) => {
               <Label>{__('Profit', 'kirki-ecommerce')}</Label>
               <div style={{ position: 'relative' }}>
                 <span
-                  css={styles.inputLeftSymbol}
+                  css={scoped(styles.inputLeftSymbol)}
                   style={{
                     position: 'absolute',
                     left: '12px',
@@ -467,13 +439,13 @@ Price.displayName = 'Price';
 export default Price;
 
 const styles = {
-  innerDarkRowContent: scoped({
+  innerDarkRowContent: ({
     padding: `${theme.spacing[1]} ${theme.spacing[2]} ${theme.spacing[1]} ${theme.spacing[3]}`,
     height: '44px',
     boxSizing: 'border-box',
-  }),
-  inputLeftSymbol: scoped({
+  } satisfies CSSObject),
+  inputLeftSymbol: ({
     ...flexCenter(),
     color: theme.colors.text.secondary,
-  })
+  } satisfies CSSObject)
 };

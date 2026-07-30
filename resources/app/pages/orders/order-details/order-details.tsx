@@ -1,13 +1,7 @@
-import { css } from '@emotion/react';
+import type { CSSObject } from '@emotion/react';
 import Button from '@/components/ui/button';
 import Input from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { FlagIcon, PlusIcon, ShowMoreIcon } from '@/icons';
 import Alert from '@/components/ui/alert';
 import Badge from '@/components/ui/badge';
@@ -17,7 +11,7 @@ import { Field, FieldLabel } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
 import PageHeading from '@/components/ui/page-heading';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+;
 import { cardStyles } from '@/theme/card-styles';
 import type { SelectOption } from '@/types';
 
@@ -57,27 +51,27 @@ const OrderDetails = () => {
       </PageHeading>
       <Container>
         <Flex gap={4}>
-          <Flex direction="column" gap={4} css={css({ width: '70%' })}>
-            <Card css={cardStyles.formCard}>
+          <Flex direction="column" gap={4} cssOverride={{ width: '70%' }}>
+            <Card cssOverride={cardStyles.formCard}>
               <CardHeader>
                 <CardTitle>Items(4)</CardTitle>
               </CardHeader>
               <CardContent>
-                <Card css={cardStyles.innerCard}>
-                  <CardContent css={styles.zeroPadding}>
+                <Card cssOverride={cardStyles.innerCard}>
+                  <CardContent cssOverride={styles.zeroPadding}>
                     <ItemsTable />
                   </CardContent>
                 </Card>
               </CardContent>
             </Card>
 
-            <Card css={cardStyles.formCard}>
+            <Card cssOverride={cardStyles.formCard}>
               <CardContent>
                 <Payment />
               </CardContent>
             </Card>
 
-            <Card css={cardStyles.formCard}>
+            <Card cssOverride={cardStyles.formCard}>
               <CardHeader>
                 <CardTitle>Timeline</CardTitle>
               </CardHeader>
@@ -85,14 +79,14 @@ const OrderDetails = () => {
             </Card>
           </Flex>
 
-          <Flex direction="column" gap={4} css={css({ width: '30%' })}>
+          <Flex direction="column" gap={4} cssOverride={{ width: '30%' }}>
             <Alert
               hasHighlight
               icon={<FlagIcon />}
               text="Manually created by the Admin."
             />
 
-            <Card css={cardStyles.formCard}>
+            <Card cssOverride={cardStyles.formCard}>
               <CardContent>
                 <Field>
                   <FieldLabel>Order Status</FieldLabel>
@@ -135,7 +129,7 @@ const OrderDetails = () => {
 
             <CustomerInfo />
 
-            <Card css={cardStyles.formCard}>
+            <Card cssOverride={cardStyles.formCard}>
               <CardContent>
                 <Field>
                   <FieldLabel>Flag</FieldLabel>
@@ -144,7 +138,7 @@ const OrderDetails = () => {
               </CardContent>
             </Card>
 
-            <Card css={cardStyles.formCard}>
+            <Card cssOverride={cardStyles.formCard}>
               <CardContent>
                 <Field>
                   <FieldLabel>Notes</FieldLabel>
@@ -165,7 +159,7 @@ const OrderDetails = () => {
 export default OrderDetails;
 
 const styles = {
-  zeroPadding: scoped({
+  zeroPadding: ({
     padding: theme.spacing[0],
-  })
+  } satisfies CSSObject)
 };

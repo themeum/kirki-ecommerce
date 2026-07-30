@@ -1,3 +1,4 @@
+import type { CSSObject } from '@emotion/react';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 
@@ -5,24 +6,12 @@ import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
 import Input from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ChevronUpDownIcon, EditIcon } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
 import { Separator } from '@/components/ui/separator';
-import {
-  Table,
-  TableBody,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useProductForm } from '@/contexts/product-form-context';
 import { cardStyles } from '@/theme/card-styles';
 import type { SelectOption } from '@/types';
@@ -31,7 +20,7 @@ import { __ } from '@/wpi18n';
 import SingleGroup from '@/pages/products/edit-product/variants/variation-table/single-group';
 
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { mergeCss } from '@/theme/mixins';
 
 const VariationTable = () => {
   const { product: productData, updateVariants } = useProductForm();
@@ -133,8 +122,8 @@ const VariationTable = () => {
         </ActionGroup>
       </Flex>
 
-      <Card css={[cardStyles.innerCard, cardStyles.tableCard]}>
-        <CardContent css={cardStyles.tableContent}>
+      <Card cssOverride={mergeCss(cardStyles.innerCard, cardStyles.tableCard)}>
+        <CardContent cssOverride={cardStyles.tableContent}>
         <Table type="variation">
           <TableHeader>
             <TableRow style={{ height: '53px' }}>
@@ -163,7 +152,7 @@ const VariationTable = () => {
                         : `of ${variants.length} ${selectedIndex.length === 1 ? 'item' : 'items'} selected`}
                       <Button
                         variant="ghost"
-                        css={styles.normalWeight}
+                        cssOverride={styles.normalWeight}
                         onClick={() =>
                           handleSelectAll(
                             selectedIndex.length !== 0 &&
@@ -259,8 +248,8 @@ VariationTable.displayName = 'VariationTable';
 export default VariationTable;
 
 const styles = {
-  normalWeight: scoped({
+  normalWeight: ({
     ...theme.typography.paragraph(),
-  }),
+  } satisfies CSSObject),
 };
 

@@ -1,19 +1,13 @@
-import { type SerializedStyles } from '@emotion/react';
+import { type SerializedStyles, type CSSObject } from '@emotion/react';
 import { useState, type CSSProperties, type ReactNode } from 'react';
 
 import Button from '@/components/ui/button';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { scopedMerge } from '@/theme/mixins';
 import type { SelectOption } from '@/types';
 import { __, sprintf } from '@/wpi18n';
 
@@ -48,7 +42,7 @@ const BulkActionHandler = (props: BulkActionHandlerProps) => {
 
   return (
     <div
-      css={[styles.wrapper, cssProp]}
+      css={scopedMerge(styles.wrapper, cssProp)}
       style={style}
     >
       <Flex gap={5}>
@@ -96,8 +90,8 @@ const BulkActionHandler = (props: BulkActionHandlerProps) => {
 export default BulkActionHandler;
 
 const styles = {
-  wrapper: scoped({
+  wrapper: ({
     backgroundColor: theme.colors.background.fill,
     padding: `${theme.spacing[4]} ${theme.spacing[3]}`,
-  }),
+  } satisfies CSSObject),
 };

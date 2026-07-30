@@ -1,19 +1,9 @@
-import { type SerializedStyles } from '@emotion/react';
+import type { CSSObject } from '@emotion/react';
 import type { ReactNode } from 'react';
-import {
-  Controller,
-  useFormContext,
-  type FieldPath,
-  type FieldValues,
-} from 'react-hook-form';
+import { Controller, useFormContext, type FieldPath, type FieldValues } from 'react-hook-form';
 
 import ColorPicker from '@/components/color-picker';
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldLabel,
-} from '@/components/ui/field';
+import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 
 type ColorPickerFieldProps<
   TFieldValues extends FieldValues = FieldValues,
@@ -23,7 +13,7 @@ type ColorPickerFieldProps<
   label?: ReactNode;
   description?: ReactNode;
   placeholder?: string;
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const ColorPickerField = <
@@ -34,7 +24,7 @@ const ColorPickerField = <
   label,
   description,
   placeholder,
-  css,
+  cssOverride,
 }: ColorPickerFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
 
@@ -43,7 +33,7 @@ const ColorPickerField = <
       control={control}
       name={name}
       render={({ field, fieldState }) => (
-        <Field data-invalid={fieldState.invalid || undefined} css={css}>
+        <Field data-invalid={fieldState.invalid || undefined} cssOverride={cssOverride}>
           {label && <FieldLabel>{label}</FieldLabel>}
           <ColorPicker
             value={field.value ?? ''}

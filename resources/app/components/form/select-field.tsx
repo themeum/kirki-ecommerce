@@ -1,25 +1,9 @@
-import { type SerializedStyles } from '@emotion/react';
+import type { CSSObject } from '@emotion/react';
 import type { ReactNode } from 'react';
-import {
-  Controller,
-  useFormContext,
-  type FieldPath,
-  type FieldValues,
-} from 'react-hook-form';
+import { Controller, useFormContext, type FieldPath, type FieldValues } from 'react-hook-form';
 
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldLabel,
-} from '@/components/ui/field';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 type SelectFieldOption = {
   label: string;
@@ -36,7 +20,7 @@ type SelectFieldProps<
   placeholder?: string;
   options: SelectFieldOption[];
   disabled?: boolean;
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const SelectField = <
@@ -49,7 +33,7 @@ const SelectField = <
   placeholder,
   options,
   disabled,
-  css,
+  cssOverride,
 }: SelectFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
   const fieldId = String(name);
@@ -59,7 +43,7 @@ const SelectField = <
       control={control}
       name={name}
       render={({ field, fieldState }) => (
-        <Field data-invalid={fieldState.invalid || undefined} css={css}>
+        <Field data-invalid={fieldState.invalid || undefined} cssOverride={cssOverride}>
           {label && <FieldLabel htmlFor={fieldId}>{label}</FieldLabel>}
           <Select
             value={

@@ -1,20 +1,11 @@
-import { keyframes, type SerializedStyles } from '@emotion/react';
-import {
-  createContext,
-  forwardRef,
-  useContext,
-  useId,
-  type ComponentPropsWithoutRef,
-  type CSSProperties,
-  type ElementRef,
-  type ReactNode,
-} from 'react';
+import { keyframes, type CSSObject } from '@emotion/react';
+import { createContext, forwardRef, useContext, useId, type ComponentPropsWithoutRef, type CSSProperties, type ElementRef, type ReactNode } from 'react';
 import * as AccordionPrimitive from '@radix-ui/react-accordion';
 import { ChevronDown } from 'lucide-react';
 
 import { Separator } from '@/components/ui/separator';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { scopedMerge, scoped } from '@/theme/mixins';
 
 type AccordionContextValue = {
   hideSeparator?: boolean;
@@ -27,7 +18,7 @@ const AccordionContext = createContext<AccordionContextValue>({});
 type AccordionProps = {
   children?: ReactNode;
   style?: CSSProperties;
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
   hideSeparator?: boolean;
   rightActions?: ReactNode;
   hasBottomSpace?: boolean;
@@ -40,7 +31,7 @@ type AccordionProps = {
 const Accordion = ({
   children,
   style = {},
-  css: cssProp,
+  cssOverride,
   hideSeparator = false,
   rightActions = null,
   hasBottomSpace = true,
@@ -57,7 +48,7 @@ const Accordion = ({
         <AccordionPrimitive.Root
           type="single"
           collapsible
-          css={[styles.base, cssProp]}
+          css={scopedMerge(styles.base, cssOverride)}
           style={style}
           defaultValue={
             typeof defaultValue === 'string' ? defaultValue : undefined
@@ -70,7 +61,7 @@ const Accordion = ({
       ) : (
         <AccordionPrimitive.Root
           type="multiple"
-          css={[styles.base, cssProp]}
+          css={scopedMerge(styles.base, cssOverride)}
           style={style}
           defaultValue={
             Array.isArray(defaultValue)
@@ -105,20 +96,20 @@ type AccordionItemProps = Omit<
 > & {
   children?: ReactNode;
   value?: string;
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const AccordionItem = forwardRef<
   ElementRef<typeof AccordionPrimitive.Item>,
   AccordionItemProps
 >((props, ref) => {
-  const { children, css: cssProp, value, ...rest } = props;
+  const { children, cssOverride, value, ...rest } = props;
   const { hideSeparator } = useContext(AccordionContext);
   const generatedId = useId();
   const itemValue = value ?? generatedId;
 
   return (
-    <AccordionPrimitive.Item ref={ref} value={itemValue} css={cssProp} {...rest}>
+    <AccordionPrimitive.Item ref={ref} value={itemValue} css={cssOverride} {...rest}>
       {children}
       {!hideSeparator && <Separator />}
     </AccordionPrimitive.Item>
@@ -131,7 +122,7 @@ type AccordionTriggerProps = Omit<
   ComponentPropsWithoutRef<typeof AccordionPrimitive.Trigger>,
   'className' | 'css'
 > & {
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
   gap?: number;
 };
 
@@ -139,26 +130,26 @@ const AccordionTrigger = forwardRef<
   ElementRef<typeof AccordionPrimitive.Trigger>,
   AccordionTriggerProps
 >((props, ref) => {
-  const { children, css: cssProp, gap = 8, style, ...rest } = props;
+  const { children, cssOverride, gap = 8, style, ...rest } = props;
   const { rightActions } = useContext(AccordionContext);
 
   return (
     <AccordionPrimitive.Header
-      css={[styles.header, cssProp]}
+      css={scopedMerge(styles.header, cssOverride)}
       style={{ ...style, columnGap: `${gap}px` }}
     >
       <AccordionPrimitive.Trigger
         ref={ref}
-        css={styles.trigger}
+        css={scoped(styles.trigger)}
         {...rest}
       >
-        <div css={styles.title}>{children}</div>
-        <span css={styles.chevron} data-accordion-chevron="">
+        <div css={scoped(styles.title)}>{children}</div>
+        <span css={scoped(styles.chevron)} data-accordion-chevron="">
           <ChevronDown size={16} aria-hidden="true" />
         </span>
       </AccordionPrimitive.Trigger>
       {rightActions ? (
-        <div css={styles.rightActions}>{rightActions}</div>
+        <div css={scoped(styles.rightActions)}>{rightActions}</div>
       ) : null}
     </AccordionPrimitive.Header>
   );
@@ -170,23 +161,23 @@ type AccordionContentProps = Omit<
   ComponentPropsWithoutRef<typeof AccordionPrimitive.Content>,
   'className' | 'css'
 > & {
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const AccordionContent = forwardRef<
   ElementRef<typeof AccordionPrimitive.Content>,
   AccordionContentProps
 >((props, ref) => {
-  const { children, css: cssProp, ...rest } = props;
+  const { children, cssOverride, ...rest } = props;
   const { hasBottomSpace } = useContext(AccordionContext);
 
   return (
     <AccordionPrimitive.Content
       ref={ref}
-      css={[styles.content, hasBottomSpace && styles.contentSpaced, cssProp]}
+      css={scopedMerge(styles.content, hasBottomSpace && styles.contentSpaced, cssOverride)}
       {...rest}
     >
-      <div css={styles.contentInner} data-accordion-content-inner="">
+      <div css={scoped(styles.contentInner)} data-accordion-content-inner="">
       {children}
     </div>
     </AccordionPrimitive.Content>
@@ -214,12 +205,12 @@ const slideUp = keyframes({
 });
 
 const styles = {
-  base: scoped({
+  base: ({
     width: '397px',
     boxSizing: 'border-box',
     color: theme.colors.text.primary,
-  }),
-  header: scoped({
+  } satisfies CSSObject),
+  header: ({
     margin: 0,
     display: 'flex',
     alignItems: 'center',
@@ -230,8 +221,8 @@ const styles = {
       {
         visibility: 'visible',
       },
-  }),
-  trigger: scoped({
+  } satisfies CSSObject),
+  trigger: ({
     all: 'unset',
     boxSizing: 'border-box',
     flex: 1,
@@ -251,25 +242,25 @@ const styles = {
     '&[data-state="open"] [data-accordion-chevron] svg': {
       transform: 'rotate(180deg)',
     },
-  }),
-  title: scoped({
+  } satisfies CSSObject),
+  title: ({
     flex: 1,
     minWidth: 0,
-  }),
-  rightActions: scoped({
+  } satisfies CSSObject),
+  rightActions: ({
     display: 'flex',
     alignItems: 'center',
     flexShrink: 0,
-  }),
-  chevron: scoped({
+  } satisfies CSSObject),
+  chevron: ({
     display: 'inline-flex',
     visibility: 'hidden',
     transition: 'transform 200ms ease',
     svg: {
       transition: 'transform 200ms ease',
     },
-  }),
-  content: scoped({
+  } satisfies CSSObject),
+  content: ({
     overflow: 'hidden',
     '&[data-state="closed"]': {
       animation: `${slideUp} 300ms ease`,
@@ -277,11 +268,11 @@ const styles = {
     '&[data-state="open"]': {
       animation: `${slideDown} 300ms ease`,
     },
-  }),
-  contentSpaced: scoped({
+  } satisfies CSSObject),
+  contentSpaced: ({
     '& [data-accordion-content-inner]': {
       paddingBottom: theme.spacing[4],
     },
-  }),
-  contentInner: scoped({}),
+  } satisfies CSSObject),
+  contentInner: ({} satisfies CSSObject),
 };

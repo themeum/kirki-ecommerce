@@ -1,28 +1,24 @@
-import { type SerializedStyles, type Theme } from '@emotion/react';
+import { type CSSObject, type Theme } from '@emotion/react';
 import * as SwitchPrimitive from '@radix-ui/react-switch';
-import {
-  forwardRef,
-  type ComponentPropsWithoutRef,
-  type ElementRef,
-} from 'react';
+import { forwardRef, type ComponentPropsWithoutRef, type ElementRef } from 'react';
 
 import { theme } from '@/theme';
-import { scoped, uiFocusRing } from '@/theme/mixins';
+import { uiFocusRing, scopedMerge, scoped } from '@/theme/mixins';
 
 type SwitchProps = Omit<
   ComponentPropsWithoutRef<typeof SwitchPrimitive.Root>,
   'className' | 'css'
 > & {
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const Switch = forwardRef<ElementRef<typeof SwitchPrimitive.Root>, SwitchProps>(
   (props, ref) => {
-    const { css: cssProp, ...rest } = props;
+    const { cssOverride, ...rest } = props;
 
     return (
-      <SwitchPrimitive.Root ref={ref} css={[styles.root, cssProp]} {...rest}>
-        <SwitchPrimitive.Thumb css={styles.thumb} />
+      <SwitchPrimitive.Root ref={ref} css={scopedMerge(styles.root, cssOverride)} {...rest}>
+        <SwitchPrimitive.Thumb css={scoped(styles.thumb)} />
       </SwitchPrimitive.Root>
     );
   },
@@ -33,7 +29,7 @@ Switch.displayName = 'Switch';
 export default Switch;
 
 const styles = {
-  root: scoped({
+  root: ({
     position: 'relative',
     display: 'inline-flex',
     alignItems: 'center',
@@ -61,8 +57,8 @@ const styles = {
       opacity: 0.5,
       pointerEvents: 'none',
     },
-  }),
-  thumb: scoped({
+  } satisfies CSSObject),
+  thumb: ({
     display: 'block',
     width: '16px',
     height: '16px',
@@ -71,5 +67,5 @@ const styles = {
     transform: 'translateX(2px)',
     transition: 'transform 0.15s ease',
     willChange: 'transform',
-  }),
+  } satisfies CSSObject),
 };

@@ -1,3 +1,4 @@
+import type { CSSObject } from '@emotion/react';
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router';
 
@@ -34,12 +35,12 @@ const ProductTitleCell = ({ item }: { item: ProductListItem }) => {
     <Flex gap={3} align="center">
       <Thumbnail src={item?.image ?? undefined} size="small" />
       <span
-        css={styles.clickable}
+        css={scoped(styles.clickable)}
         onClick={() => {
           navigate(endpoints.PRODUCT(item.id));
         }}
       >
-        <span css={styles.mutedText}>{item?.title} </span>
+        <span css={scoped(styles.mutedText)}>{item?.title} </span>
       </span>
     </Flex>
   );
@@ -140,10 +141,10 @@ ProductTable.displayName = 'ProductTable';
 export default ProductTable;
 
 const styles = {
-  clickable: scoped({
+  clickable: ({
     cursor: 'pointer',
-  }),
-  mutedText: scoped({
+  } satisfies CSSObject),
+  mutedText: ({
     color: theme.colors.text.subdued,
-  }),
+  } satisfies CSSObject),
 };

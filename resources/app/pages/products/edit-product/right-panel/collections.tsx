@@ -1,19 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 
-import {
-  Field,
-  FieldError,
-  FieldLabel,
-} from '@/components/ui/field';
+import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { getErrorsObject, type ErrorResponse } from '@/libs/api';
 import TagManager from '@/components/tag-manager/tag-manager';
 import { makeSuggestionList } from '@/pages/utils';
 import type { ProductRightPanelFormValues } from '@/schemas/forms/product-right-panel-form';
-import {
-  useCreateCollectionMutation,
-  useCollectionsQuery,
-} from '@/services/collection';
+import { useCreateCollectionMutation, useCollectionsQuery } from '@/services/collection';
 import type { SuggestionOption } from '@/types';
 import { __ } from '@/wpi18n';
 

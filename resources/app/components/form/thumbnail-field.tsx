@@ -1,19 +1,9 @@
-import { type SerializedStyles } from '@emotion/react';
+import type { CSSObject } from '@emotion/react';
 import type { ComponentProps, ReactNode } from 'react';
-import {
-  Controller,
-  useFormContext,
-  type FieldPath,
-  type FieldValues,
-} from 'react-hook-form';
+import { Controller, useFormContext, type FieldPath, type FieldValues } from 'react-hook-form';
 
 import ThumbnailSelector from '@/components/thumbnail-selector';
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldLabel,
-} from '@/components/ui/field';
+import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import type { MediaRef } from '@/types';
 
 type MediaItem = Omit<MediaRef, 'id'> & {
@@ -27,7 +17,7 @@ type ThumbnailFieldProps<
   name: TName;
   label?: ReactNode;
   description?: ReactNode;
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
   placeholder?: string;
   btnText?: string;
   size?: ComponentProps<typeof ThumbnailSelector>['size'];
@@ -44,7 +34,7 @@ const ThumbnailField = <
   name,
   label,
   description,
-  css,
+  cssOverride,
   placeholder,
   btnText,
   size,
@@ -72,7 +62,7 @@ const ThumbnailField = <
               : undefined);
 
         return (
-          <Field data-invalid={fieldState.invalid || undefined} css={css}>
+          <Field data-invalid={fieldState.invalid || undefined} cssOverride={cssOverride}>
             {label && <FieldLabel>{label}</FieldLabel>}
             <ThumbnailSelector
               src={resolvedPreview || undefined}

@@ -1,3 +1,4 @@
+import type { CSSObject } from '@emotion/react';
 import { useEffect, useMemo, useState, type Dispatch, type SetStateAction } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -5,27 +6,14 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import SelectField from '@/components/form/select-field';
 import Button from '@/components/ui/button';
 import Checkbox from '@/components/ui/checkbox';
-import {
-  Dialog,
-  DialogBody,
-  DialogClose,
-  DialogCloseButton,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogBody, DialogClose, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
 import Flex from '@/components/ui/flex';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
-import {
-  SelectDestinationFormSchema,
-  selectDestinationDefaultValues,
-  type SelectDestinationFormValues,
-} from '@/schemas/forms/select-destination-form';
+import { SelectDestinationFormSchema, selectDestinationDefaultValues, type SelectDestinationFormValues } from '@/schemas/forms/select-destination-form';
 import { useCountriesQuery } from '@/services/country';
 import { __ } from '@/wpi18n';
 
@@ -261,7 +249,7 @@ export const SelectDestinationPopup = ({
               }}
             >
               {filteredStates?.map((state, index) => (
-                <div key={index} css={styles.checkboxItem}>
+                <div key={index} css={scoped(styles.checkboxItem)}>
                   <Flex gap={2} align="center">
                     <Checkbox
                       id={`select-destination-state-${index}`}
@@ -298,12 +286,12 @@ export const SelectDestinationPopup = ({
 SelectDestinationPopup.displayName = 'SelectDestinationPopup';
 
 const styles = {
-  checkboxItem: scoped({
+  checkboxItem: ({
     width: 'auto',
     padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
     '&:hover': {
       background: theme.colors.background.surfaceSecondary,
       borderRadius: theme.radius.sm,
     },
-  }),
+  } satisfies CSSObject),
 };

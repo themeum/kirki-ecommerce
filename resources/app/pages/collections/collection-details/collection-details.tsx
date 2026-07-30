@@ -1,3 +1,4 @@
+import type { CSSObject } from '@emotion/react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -20,18 +21,11 @@ import { NEW_ITEM_ID } from '@/conf';
 import { PlusIcon, ProductIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import {
-  CollectionFormSchema,
-  type CollectionFormValues,
-} from '@/schemas/forms/collection-form';
-import {
-  useCollectionQuery,
-  useCreateCollectionMutation,
-  useUpdateCollectionMutation,
-} from '@/services/collection';
+import { CollectionFormSchema, type CollectionFormValues } from '@/schemas/forms/collection-form';
+import { useCollectionQuery, useCreateCollectionMutation, useUpdateCollectionMutation } from '@/services/collection';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { scoped } from '@/theme/mixins';
+import { mergeCss } from '@/theme/mixins';
 import type { CollectionFormData } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -143,7 +137,7 @@ const CollectionDetails = () => {
 
       <Container size="md">
         <Flex direction="column" gap={4}>
-          <Card css={cardStyles.formCard}>
+          <Card cssOverride={cardStyles.formCard}>
             <CardContent>
               <Flex direction="column" gap={4}>
                 <Grid>
@@ -178,7 +172,7 @@ const CollectionDetails = () => {
             </CardContent>
           </Card>
 
-          <Card css={[cardStyles.formCard, styles.productPlaceholderCard]}>
+          <Card cssOverride={mergeCss(cardStyles.formCard, styles.productPlaceholderCard)}>
             <CardContent>
               <Flex
                 direction="column"
@@ -193,21 +187,21 @@ const CollectionDetails = () => {
             </CardContent>
           </Card>
 
-          <Card css={cardStyles.formCard}>
+          <Card cssOverride={cardStyles.formCard}>
             <CardContent>
               <Flex direction="column" gap={4}>
                 <CardHeader>
                   <CardTitle>{__('SEO Settings', 'kirki-ecommerce')}</CardTitle>
                 </CardHeader>
-                <Card css={cardStyles.innerCard}>
+                <Card cssOverride={cardStyles.innerCard}>
                   <CardContent>
                     <Flex gap={4} justify="space-between">
                       <Flex direction="column" gap={2}>
-                        <Text variant="small" css={styles.seoUrl}>{window.kirki_ecommerce.site_url +
+                        <Text variant="small" cssOverride={styles.seoUrl}>{window.kirki_ecommerce.site_url +
                             ' › collections › ' +
                             (watchedSlug || '')}</Text>
-                        <Text weight="semibold" css={styles.seoTitle}>{watchedSeoTitle || watchedTitle || ''}</Text>
-                        <Text variant="small" css={styles.seoDescription}>{watchedSeoDescription || watchedDescription || ''}</Text>
+                        <Text weight="semibold" cssOverride={styles.seoTitle}>{watchedSeoTitle || watchedTitle || ''}</Text>
+                        <Text variant="small" cssOverride={styles.seoDescription}>{watchedSeoDescription || watchedDescription || ''}</Text>
                       </Flex>
                       <Thumbnail
                         src={imageUrl ?? undefined}
@@ -220,7 +214,7 @@ const CollectionDetails = () => {
                     </Flex>
                   </CardContent>
                 </Card>
-                <Separator css={styles.seoSeparator} />
+                <Separator cssOverride={styles.seoSeparator} />
                 <TextField
                   name="seo_title"
                   label={__('Title', 'kirki-ecommerce')}
@@ -246,21 +240,21 @@ CollectionDetails.displayName = 'CollectionDetails';
 export default CollectionDetails;
 
 const styles = {
-  productPlaceholderCard: scoped({
+  productPlaceholderCard: ({
     padding: theme.spacing[11],
-  }),
-  seoUrl: scoped({
+  } satisfies CSSObject),
+  seoUrl: ({
     color: theme.colors.icon.primary,
-  }),
-  seoTitle: scoped({
+  } satisfies CSSObject),
+  seoTitle: ({
     color: theme.colors.text.emphasis,
-  }),
-  seoDescription: scoped({
+  } satisfies CSSObject),
+  seoDescription: ({
     color: theme.colors.text.secondary,
-  }),
-  seoSeparator: scoped({
+  } satisfies CSSObject),
+  seoSeparator: ({
     margin: `auto -${theme.spacing[4]}`,
     backgroundColor: theme.colors.background.surfaceSubdued,
-  }),
+  } satisfies CSSObject),
 };
 

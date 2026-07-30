@@ -1,29 +1,22 @@
-import { css } from '@emotion/react';
+import type { CSSObject } from '@emotion/react';
 import { type ComponentProps, type ReactNode, useState } from 'react';
 import { useWatch } from 'react-hook-form';
 
 import GroupOptionCard from '@/components/group-option-card';
-import {
-  Card,
-  CardContent,
-} from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { InfoIcon, IncreaseIcon } from '@/icons';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { dispatchToastMessage, dateFormatter } from '@/pages/utils';
 import type { MultiCurrencySettingsFormValues } from '@/schemas/forms/multi-currency-settings-form';
-import {
-  useAvailableCurrenciesQuery,
-  useUpdateCurrencyMutation,
-  useDeleteCurrencyMutation,
-} from '@/services/currency';
+import { useAvailableCurrenciesQuery, useUpdateCurrencyMutation, useDeleteCurrencyMutation } from '@/services/currency';
 import type {
   Currency,
   CurrencyFormData,
   SelectOption,
 } from '@/types';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+;
 import { cardStyles } from '@/theme/card-styles';
 import { __, sprintf } from '@/wpi18n';
 
@@ -163,9 +156,9 @@ export const AvailableCurrencyList = () => {
 
   return (
     <>
-      <Card css={cardStyles.innerCard}>
-        <CardContent css={styles.innerCardContent}>
-          <Flex justify="space-between" css={css({ paddingBottom: theme.spacing[3] })}>
+      <Card cssOverride={cardStyles.innerCard}>
+        <CardContent cssOverride={styles.innerCardContent}>
+          <Flex justify="space-between" cssOverride={{ paddingBottom: theme.spacing[3] }}>
             <Text weight="semibold">{__('Available Currencies', 'kirki-ecommerce')}</Text>
             <AddCurrencyPopup />
           </Flex>
@@ -178,7 +171,7 @@ export const AvailableCurrencyList = () => {
             actionsArray={[]}
             handleAction={(action, item) => handleAction(action, item as CurrencyListItem)}
           />
-          <Flex gap={2} css={css({ paddingTop: theme.spacing[2] })}>
+          <Flex gap={2} cssOverride={{ paddingTop: theme.spacing[2] }}>
             <InfoIcon />
             <Text variant="small" color="subdued">{showApiProviderStatus
                   ? sprintf(
@@ -205,7 +198,7 @@ export const AvailableCurrencyList = () => {
 };
 
 const styles = {
-  innerCardContent: scoped({
+  innerCardContent: ({
     padding: theme.spacing[5],
-  })
+  } satisfies CSSObject)
 };

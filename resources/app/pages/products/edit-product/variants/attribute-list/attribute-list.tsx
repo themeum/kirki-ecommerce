@@ -1,20 +1,8 @@
-import {
-  closestCenter,
-  DndContext,
-  type DragEndEvent,
-} from '@dnd-kit/core';
-import {
-  restrictToParentElement,
-  restrictToVerticalAxis,
-} from '@dnd-kit/modifiers';
-import {
-  arrayMove,
-  SortableContext,
-  useSortable,
-  verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
+import { closestCenter, DndContext, type DragEndEvent } from '@dnd-kit/core';
+import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
+import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { css } from '@emotion/react';
+import { css, type CSSObject } from '@emotion/react';
 import { useEffect, useState } from 'react';
 
 import Button from '@/components/ui/button';
@@ -25,7 +13,7 @@ import Flex from '@/components/ui/flex';
 import Chip from '@/components/ui/chip';
 import Text from '@/components/ui/text';
 import { useProductForm } from '@/contexts/product-form-context';
-import { flexCenter, scoped } from '@/theme/mixins';
+import { flexCenter, scoped, mergeCss, scopedMerge } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import type { Attribute } from '@/types';
 import { __ } from '@/wpi18n';
@@ -80,19 +68,19 @@ const SortableCard = ({
   return (
     <div ref={setNodeRef} style={style}>
       <Card
-        css={cardStyles.innerCard}
+        cssOverride={cardStyles.innerCard}
         key={item.id}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        <CardContent css={styles.innerContent}>
+        <CardContent cssOverride={styles.innerContent}>
         {editingId !== item.id ? (
           <Flex gap={3}>
             <span
               {...(!isEditing ? attributes : {})}
               {...(!isEditing ? listeners : {})}
               role="button"
-              css={[styles.svgClass, styles.dragHandler]}
+              css={scopedMerge(styles.svgClass, styles.dragHandler)}
               style={{
                 opacity: isEditing ? 0.5 : 1,
               }}
@@ -101,7 +89,7 @@ const SortableCard = ({
             </span>
             <Flex direction="column" gap={2}>
               <Text weight="medium">{item?.name}</Text>
-              <Flex gap={2} wrap="wrap" rowGap={3} css={css({ maxWidth: '480px' })}>
+              <Flex gap={2} wrap="wrap" rowGap={3} cssOverride={{ maxWidth: '480px' }}>
                 {(item?.values || []).map((variant, index) => (
                   <Chip
                     gap={2}
@@ -114,7 +102,7 @@ const SortableCard = ({
             </Flex>
 
             <ActionGroup
-              css={css(hoverVisibleCss, isHovered && hoverVisibleActiveCss)}
+              cssOverride={mergeCss(hoverVisibleCss, isHovered && hoverVisibleActiveCss)}
             >
               <Button
                 variant="secondary"
@@ -182,7 +170,7 @@ const AttributeList = ({ onSave = () => {} }: AttributeListProps) => {
     <>
       <>
         {attributeValues?.length > 0 && (
-          <Flex direction="column" gap={2} css={css({ position: 'relative' })}>
+          <Flex direction="column" gap={2} cssOverride={{ position: 'relative' }}>
             <DndContext
               collisionDetection={closestCenter}
               onDragEnd={handleDragEnd}
@@ -228,14 +216,14 @@ AttributeList.displayName = 'AttributeList';
 export default AttributeList;
 
 const styles = {
-  innerContent: scoped({
+  innerContent: ({
     padding: `${theme.spacing[3]} ${theme.spacing[4]}`,
-  }),
+  } satisfies CSSObject),
   svgClass: scoped(flexCenter()),
-  dragHandler: scoped({
+  dragHandler: ({
     cursor: 'grab',
     '&:active': {
       cursor: 'grabbing',
     },
-  })
+  } satisfies CSSObject)
 };

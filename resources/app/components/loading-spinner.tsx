@@ -1,4 +1,4 @@
-import { keyframes } from '@emotion/react';
+import { keyframes, type CSSObject } from '@emotion/react';
 
 import { theme } from '@/theme';
 import { flexCenter, scoped } from '@/theme/mixins';
@@ -7,11 +7,11 @@ import { __ } from '@/wpi18n';
 const LoadingSpinner = () => {
   return (
     <div
-      css={styles.root}
+      css={scoped(styles.root)}
       role="status"
       aria-label={__('Loading page', 'kirki-ecommerce')}
     >
-      <span css={styles.spinner} />
+      <span css={scoped(styles.spinner)} />
     </div>
   );
 };
@@ -27,17 +27,17 @@ const spinnerSpin = keyframes({
 });
 
 const styles = {
-  root: scoped({
+  root: ({
     ...flexCenter(),
     minHeight: '200px',
     width: '100%',
-  }),
-  spinner: scoped({
+  } satisfies CSSObject),
+  spinner: ({
     width: '32px',
     height: '32px',
     border: `3px solid ${theme.colors.border.secondary}`,
     borderTopColor: theme.colors.background.fillBrand,
     borderRadius: theme.radius.full,
     animation: `${spinnerSpin} 0.8s linear infinite`,
-  }),
+  } satisfies CSSObject),
 };

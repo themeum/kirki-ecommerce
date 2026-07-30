@@ -1,3 +1,4 @@
+import type { CSSObject } from '@emotion/react';
 import { useMemo, useState } from 'react';
 import { useLocation } from 'react-router';
 
@@ -11,12 +12,7 @@ import { scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 import { SettingsItem } from '@/pages/settings/settings-item';
-import {
-  advancedSettings,
-  businessOperationSettings,
-  storeManagementSettings,
-  type SettingsNavItem,
-} from '@/pages/settings/utils';
+import { advancedSettings, businessOperationSettings, storeManagementSettings, type SettingsNavItem } from '@/pages/settings/utils';
 
 type SettingsSection = {
   title: string;
@@ -89,7 +85,7 @@ const Settings = () => {
         style={{ height: '32px' }}
       />
       <Container size="sm">
-        <div css={styles.panel}>
+        <div css={scoped(styles.panel)}>
           <Flex direction="column" gap={6}>
             <Searchbox value={searchQuery} onChange={handleSearchChange} />
             {filteredSections.length === 0 ? (
@@ -102,7 +98,7 @@ const Settings = () => {
                   <Text variant="small" color="subdued">
                     {section.title}
                   </Text>
-                  <Flex direction="column" css={styles.itemList}>
+                  <Flex direction="column" cssOverride={styles.itemList}>
                     {section.items.map((item, index) => (
                       <SettingsItem
                         key={item.header}
@@ -131,7 +127,7 @@ Settings.displayName = 'Settings';
 export default Settings;
 
 const styles = {
-  panel: scoped({
+  panel: ({
     width: '100%',
     padding: theme.spacing[4],
     borderRadius: theme.radius.xl,
@@ -139,8 +135,8 @@ const styles = {
     boxShadow:
       '0px -1px 1px 0.5px hsla(0, 0%, 0%, 0.1) inset, 0px 0.5px 1px 0px hsla(0, 0%, 0%, 0.1) inset',
     boxSizing: 'border-box',
-  }),
-  itemList: scoped({
+  } satisfies CSSObject),
+  itemList: ({
     gap: '2px',
-  }),
+  } satisfies CSSObject),
 };

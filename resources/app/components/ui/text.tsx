@@ -1,13 +1,8 @@
-import { css, type SerializedStyles } from '@emotion/react';
-import {
-  forwardRef,
-  type ComponentPropsWithoutRef,
-  type ReactNode,
-  type Ref,
-} from 'react';
+import type { CSSObject } from '@emotion/react';
+import { forwardRef, type ComponentPropsWithoutRef, type ReactNode, type Ref } from 'react';
 
 import { theme, type TypographyWeight } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { scopedMerge } from '@/theme/mixins';
 
 type TextVariant =
   | 'heading1'
@@ -28,12 +23,12 @@ type TextProps = Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'css'> & {
   variant?: TextVariant;
   color?: TextColor;
   weight?: TypographyWeight;
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const Text = forwardRef<HTMLElement, TextProps>((props, ref) => {
   const {
-    css: cssProp,
+    cssOverride,
     children,
     variant = 'paragraph',
     color = 'primary',
@@ -41,11 +36,11 @@ const Text = forwardRef<HTMLElement, TextProps>((props, ref) => {
     ...rest
   } = props;
 
-  const textCss = css(
+  const textCss = scopedMerge(
     styles.base,
     styles.variants[variant](weight),
     styles.colors[color],
-    cssProp,
+    cssOverride,
   );
 
   if (variant === 'heading1') {
@@ -108,74 +103,74 @@ Text.displayName = 'Text';
 export default Text;
 export type { TextColor, TextProps, TextVariant };
 
+const variantStyle = (
+  styles: CSSObject,
+): CSSObject => styles;
+
 const styles = {
-  base: scoped({
+  base: {
     margin: 0,
-  }),
+  } satisfies CSSObject,
   variants: {
     heading1: (weight?: TypographyWeight) =>
-      scoped({
-        ...(weight
+      variantStyle(
+        weight
           ? theme.typography.heading1(weight)
-          : theme.typography.heading1()),
-      }),
+          : theme.typography.heading1(),
+      ),
     heading2: (weight?: TypographyWeight) =>
-      scoped({
-        ...(weight
+      variantStyle(
+        weight
           ? theme.typography.heading2(weight)
-          : theme.typography.heading2()),
-      }),
+          : theme.typography.heading2(),
+      ),
     heading3: (weight?: TypographyWeight) =>
-      scoped({
-        ...(weight
+      variantStyle(
+        weight
           ? theme.typography.heading3(weight)
-          : theme.typography.heading3()),
-      }),
+          : theme.typography.heading3(),
+      ),
     heading4: (weight?: TypographyWeight) =>
-      scoped({
-        ...(weight
+      variantStyle(
+        weight
           ? theme.typography.heading4(weight)
-          : theme.typography.heading4()),
-      }),
+          : theme.typography.heading4(),
+      ),
     heading5: (weight?: TypographyWeight) =>
-      scoped({
-        ...(weight
+      variantStyle(
+        weight
           ? theme.typography.heading5(weight)
-          : theme.typography.heading5()),
-      }),
+          : theme.typography.heading5(),
+      ),
     heading6: (weight?: TypographyWeight) =>
-      scoped({
-        ...(weight
+      variantStyle(
+        weight
           ? theme.typography.heading6(weight)
-          : theme.typography.heading6()),
-      }),
+          : theme.typography.heading6(),
+      ),
     paragraph: (weight?: TypographyWeight) =>
-      scoped({
-        ...(weight
+      variantStyle(
+        weight
           ? theme.typography.paragraph(weight)
-          : theme.typography.paragraph()),
-      }),
+          : theme.typography.paragraph(),
+      ),
     small: (weight?: TypographyWeight) =>
-      scoped({
-        ...(weight
-          ? theme.typography.small(weight)
-          : theme.typography.small()),
-      }),
+      variantStyle(
+        weight ? theme.typography.small(weight) : theme.typography.small(),
+      ),
     tiny: (weight?: TypographyWeight) =>
-      scoped({
-        ...(weight ? theme.typography.tiny(weight) : theme.typography.tiny()),
-      }),
+      variantStyle(
+        weight ? theme.typography.tiny(weight) : theme.typography.tiny(),
+      ),
     lead: (weight?: TypographyWeight) =>
-      scoped({
-        ...(weight ? theme.typography.lead(weight) : theme.typography.lead()),
-      }),
+      variantStyle(
+        weight ? theme.typography.lead(weight) : theme.typography.lead(),
+      ),
   },
   colors: Object.fromEntries(
     (Object.keys(theme.colors.text) as TextColor[]).map((key) => [
       key,
-      scoped({
-        color: theme.colors.text[key],
-      }),
+      { color: theme.colors.text[key] } satisfies CSSObject,
     ]),
-  ) as Record<TextColor, SerializedStyles>,
+  ) as Record<TextColor, CSSObject>,
 };

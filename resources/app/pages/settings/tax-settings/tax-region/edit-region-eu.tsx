@@ -1,25 +1,14 @@
+import type { CSSObject } from '@emotion/react';
 import { useEffect, useMemo, useState } from 'react';
-import {
-  Controller,
-  useForm,
-  useFormContext,
-  useWatch,
-} from 'react-hook-form';
+import { Controller, useForm, useFormContext, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate, useOutletContext } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
 
 import PageNavbar from '@/components/page-navbar';
 import Button from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-} from '@/components/ui/card';
-import {
-  Field,
-  FieldError,
-  FieldLabel,
-} from '@/components/ui/field';
+import { Card, CardContent } from '@/components/ui/card';
+import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Form } from '@/components/ui/form';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import type { ErrorResponse } from '@/libs/api';
@@ -30,20 +19,12 @@ import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import PageHeading from '@/components/ui/page-heading';
 import Text from '@/components/ui/text';
-import {
-  TaxRegionEuFormSchema,
-  taxRegionEuDefaultValues,
-  type TaxRegionEuFormValues,
-} from '@/schemas/forms/tax-region-eu-form';
+import { TaxRegionEuFormSchema, taxRegionEuDefaultValues, type TaxRegionEuFormValues } from '@/schemas/forms/tax-region-eu-form';
 import { toastMutationError } from '@/services/helpers';
-import {
-  updateSettings,
-  useSettingsQuery,
-  useUpdateSettingsMutation,
-} from '@/services/settings';
+import { updateSettings, useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import type { SettingsSectionData } from '@/types';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { mergeCss } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
@@ -78,8 +59,8 @@ const VatCollectionProcessRadios = () => {
 
   return (
     <Flex direction={'column'} gap={2}>
-      <Card css={[cardStyles.innerCard, styles.vatProcessCard]} >
-        <CardContent css={cardStyles.innerContent}>
+      <Card cssOverride={mergeCss(cardStyles.innerCard, styles.vatProcessCard)} >
+        <CardContent cssOverride={cardStyles.innerContent}>
 
         <Controller
           control={control}
@@ -107,8 +88,8 @@ const VatCollectionProcessRadios = () => {
         </CardContent>
       </Card>
 
-      <Card css={[cardStyles.innerCard, styles.vatProcessCard]} >
-        <CardContent css={cardStyles.innerContent}>
+      <Card cssOverride={mergeCss(cardStyles.innerCard, styles.vatProcessCard)} >
+        <CardContent cssOverride={cardStyles.innerContent}>
 
         <Controller
           control={control}
@@ -154,8 +135,8 @@ const VatProcessDescription = ({
   }
 
   return (
-    <Card css={cardStyles.innerDarkCard} >
-      <CardContent css={cardStyles.innerDarkContent}>
+    <Card cssOverride={cardStyles.innerDarkCard} >
+      <CardContent cssOverride={cardStyles.innerDarkContent}>
 
       <Text color="secondary">{processValue === 'oss'
       ? __(
@@ -352,8 +333,8 @@ const EditRegionEU = () => {
                 handleBack={handleBackButton}
               />
 
-              <Card css={cardStyles.largeCard} >
-                <CardContent css={cardStyles.largeContentPadded}>
+              <Card cssOverride={cardStyles.largeCard} >
+                <CardContent cssOverride={cardStyles.largeContentPadded}>
 
                 <Text weight="semibold">{__('How would you like to collect VAT?', 'kirki-ecommerce')}</Text>
                 <VatCollectionProcessRadios />
@@ -389,9 +370,9 @@ EditRegionEU.displayName = 'EditRegionEU';
 export default EditRegionEU;
 
 const styles = {
-  vatProcessCard: scoped({
+  vatProcessCard: ({
     display: 'flex',
     flexDirection: 'column',
     gap: theme.spacing[2],
-  })
+  } satisfies CSSObject)
 };

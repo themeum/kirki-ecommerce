@@ -1,18 +1,16 @@
+import type { CSSObject } from '@emotion/react';
 import { useState, useEffect, type ReactNode } from 'react';
 
 import HeaderActionsCard from '@/components/header-actions-card';
 import GroupOptionCard from '@/components/group-option-card';
-import {
-  Card,
-  CardContent,
-} from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { BoxOpenIcon } from '@/icons';
 import Flex from '@/components/ui/flex';
 import { dispatchToastMessage } from '@/pages/utils';
 import { useSchemasQuery, useDeleteSchemaMutation } from '@/services/schema';
 import type { SchemaProfile } from '@/types';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { scoped, mergeCss } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
@@ -69,8 +67,8 @@ const SchemaProfileComponent = () => {
   };
 
   return (
-    <Card css={cardStyles.largeCard}>
-      <CardContent css={cardStyles.largeContentPadded}>
+    <Card cssOverride={cardStyles.largeCard}>
+      <CardContent cssOverride={cardStyles.largeContentPadded}>
         <HeaderActionsCard
           header={__('Schema Profile', 'kirki-ecommerce')}
           subHeader={__(
@@ -81,18 +79,18 @@ const SchemaProfileComponent = () => {
           onAdd={() => setShowPopup(true)}
         />
         {!schemaProfileList?.length ? (
-          <Card css={cardStyles.innerDarkCard}>
-            <CardContent css={[cardStyles.innerDarkContent, styles.emptyState]}>
+          <Card cssOverride={cardStyles.innerDarkCard}>
+            <CardContent cssOverride={mergeCss(cardStyles.innerDarkContent, styles.emptyState)}>
               <Flex direction="column" gap={2} align="center">
                 <BoxOpenIcon />
-                <span css={styles.emptyStateText}>
+                <span css={scoped(styles.emptyStateText)}>
                   {__('Added schema profiles will appear here', 'kirki-ecommerce')}
                 </span>
               </Flex>
             </CardContent>
           </Card>
         ) : (
-          <Flex direction="column" data-box-wrapper css={styles.boxWrapper}>
+          <Flex direction="column" data-box-wrapper cssOverride={styles.boxWrapper}>
             <GroupOptionCard
               dataArr={schemaProfileList}
               handleDeleteItem={(item) => handleDeleteSchema(item as SchemaListItem)}
@@ -118,7 +116,7 @@ SchemaProfileComponent.displayName = 'SchemaProfileComponent';
 export default SchemaProfileComponent;
 
 const styles = {
-  boxWrapper: scoped({
+  boxWrapper: ({
     '[data-box-card]': {
       borderTop: 'none',
       borderRadius: theme.radius.none,
@@ -130,11 +128,11 @@ const styles = {
     '[data-box-card]:last-of-type': {
       borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.md} ${theme.radius.md}`,
     },
-  }),
-  emptyState: scoped({
+  } satisfies CSSObject),
+  emptyState: ({
     padding: `${theme.spacing[9]} ${theme.spacing[0]}`,
-  }),
-  emptyStateText: scoped({
+  } satisfies CSSObject),
+  emptyStateText: ({
     color: theme.colors.text.subdued,
-  })
+  } satisfies CSSObject)
 };

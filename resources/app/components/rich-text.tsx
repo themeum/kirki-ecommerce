@@ -1,14 +1,9 @@
-import { type SerializedStyles } from '@emotion/react';
+import { type SerializedStyles, type CSSObject } from '@emotion/react';
 import { useEffect, useRef } from 'react';
 
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldLabel,
-} from '@/components/ui/field';
+import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { scopedMerge } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 type RichTextProps = {
@@ -85,8 +80,8 @@ const RichText = ({
   }, [id]);
 
   return (
-    <div css={[styles.root, cssProp]}>
-      <Field data-invalid={error ? true : undefined} css={styles.controller}>
+    <div css={scopedMerge(styles.root, cssProp)}>
+      <Field data-invalid={error ? true : undefined} cssOverride={styles.controller}>
         {label && <FieldLabel htmlFor={id}>{label}</FieldLabel>}
         <textarea
           id={id}
@@ -107,7 +102,7 @@ RichText.displayName = 'RichText';
 export default RichText;
 
 const styles = {
-  root: scoped({
+  root: ({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'flex-start',
@@ -125,8 +120,8 @@ const styles = {
     '.mce-top-part::before': {
       boxShadow: 'none',
     },
-  }),
-  controller: scoped({
+  } satisfies CSSObject),
+  controller: ({
     width: '100%',
     display: 'flex',
     flexDirection: 'column',
@@ -134,5 +129,5 @@ const styles = {
     alignItems: 'flex-start',
     rowGap: theme.spacing[2],
     position: 'relative',
-  }),
+  } satisfies CSSObject),
 };

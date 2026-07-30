@@ -13,11 +13,7 @@ import { useUnsavedStatus } from '@/libs/unsaved-store';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import PageHeading from '@/components/ui/page-heading';
-import {
-  ProductsSettingsFormSchema,
-  productsSettingsDefaultValues,
-  type ProductsSettingsFormValues,
-} from '@/schemas/forms/products-settings-form';
+import { ProductsSettingsFormSchema, productsSettingsDefaultValues, type ProductsSettingsFormValues } from '@/schemas/forms/products-settings-form';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import type { SettingsSectionData } from '@/types';
 import { __ } from '@/wpi18n';

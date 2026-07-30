@@ -4,18 +4,9 @@ import { useFormContext, useWatch } from 'react-hook-form';
 import SwitchField from '@/components/form/switch-field';
 import OptionAccordion from '@/components/option-accordion';
 import Button from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-} from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import Label from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ReplaceIcon, FlagIcon, WrenchIcon } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
@@ -123,8 +114,8 @@ const ApiConfig = () => {
               dataObj={(formValues || {}) as SettingsSectionData}
             />
           ) : (
-            <Card css={cardStyles.innerCard} >
-              <CardContent css={cardStyles.innerContent}>
+            <Card cssOverride={cardStyles.innerCard} >
+              <CardContent cssOverride={cardStyles.innerContent}>
 
               <Flex
                 justify="space-between" align="center">

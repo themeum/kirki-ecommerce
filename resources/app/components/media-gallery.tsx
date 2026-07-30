@@ -1,37 +1,18 @@
-import { type SerializedStyles } from '@emotion/react';
+import { type CSSObject } from '@emotion/react';
 import { useState } from 'react';
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-} from '@dnd-kit/core';
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
 import { restrictToParentElement } from '@dnd-kit/modifiers';
-import {
-  arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  useSortable,
-  rectSortingStrategy,
-} from '@dnd-kit/sortable';
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, rectSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
 import MediaSelector from '@/components/media-selector';
 import Button from '@/components/ui/button';
 import { MoveIcon, PlusIcon, TrashIcon } from '@/icons';
 import Checkbox from '@/components/ui/checkbox';
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldLabel,
-} from '@/components/ui/field';
+import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
 import { theme } from '@/theme';
-import { flexCenter, scoped } from '@/theme/mixins';
+import { flexCenter, scoped, scopedMerge } from '@/theme/mixins';
 import type { MediaRef } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -50,7 +31,7 @@ type SortableItemProps = {
   index: number;
   url: string;
   alt?: string;
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
   onSelectImage?: (value: boolean) => void;
   onDeleteImage?: () => void;
   selectedImages?: number[];
@@ -63,7 +44,7 @@ const SortableItem = ({
   index,
   url,
   alt = '',
-  css: cssProp,
+  cssOverride,
   onSelectImage = () => {},
   onDeleteImage = () => {},
   selectedImages = [],
@@ -117,11 +98,11 @@ const SortableItem = ({
     <div
       ref={setNodeRef}
       style={style}
-      css={[styles.galleryItem, isLarge && styles.galleryItemLarge, cssProp]}
+      css={scopedMerge(styles.galleryItem, isLarge && styles.galleryItemLarge, cssOverride)}
       {...attributes}
     >
       <div
-        css={[styles.itemOverlay, isActive && styles.itemActive]}
+        css={scopedMerge(styles.itemOverlay, isActive && styles.itemActive)}
         data-gallery-overlay
         {...listeners}
       >
@@ -135,7 +116,7 @@ const SortableItem = ({
                 ? `scale(${normalizedScaleX}, ${normalizedScaleY})`
                 : '',
             }}
-            css={styles.dragHandlerButton}
+            cssOverride={styles.dragHandlerButton}
           >
             <MoveIcon {...(isLarge ? { width: '20', height: '20' } : {})} />
           </Button>
@@ -143,7 +124,7 @@ const SortableItem = ({
       </div>
       {!isDragging && (
         <div
-          css={[styles.itemActions, isActive && styles.itemActive]}
+          css={scopedMerge(styles.itemActions, isActive && styles.itemActive)}
           data-gallery-actions
         >
           <Checkbox
@@ -273,7 +254,7 @@ const MediaGallery = ({
           />
           <Button
             variant="link"
-            css={styles.deleteButton}
+            cssOverride={styles.deleteButton}
             onClick={handleDeleteSelectedImages}
           >
             {__('Delete', 'kirki-ecommerce')}
@@ -302,7 +283,7 @@ const MediaGallery = ({
           items={mediaItems.map((img, index) => `${img.id}-${index}`)}
           strategy={rectSortingStrategy}
         >
-          <div css={styles.mediaGallery}>
+          <div css={scoped(styles.mediaGallery)}>
             {visibleItems.map((img, index) => {
               const isLarge = index === 0;
 
@@ -326,18 +307,18 @@ const MediaGallery = ({
 
             {!expanded && remainingCount > 0 && (
               <div
-                css={[styles.galleryItem, styles.remainingOverlay]}
+                css={scopedMerge(styles.galleryItem, styles.remainingOverlay)}
                 onClick={() => setExpanded(true)}
               >
                 {fourthItem.url && (
                   <img src={fourthItem.url} alt={fourthItem.alt || ''} />
                 )}
-                <div css={styles.remainingOverlayText}>+{remainingCount}</div>
+                <div css={scoped(styles.remainingOverlayText)}>+{remainingCount}</div>
               </div>
             )}
 
             <MediaSelector onSelect={handleOnAddNewImages} multiple={true}>
-              <div css={[styles.galleryItem, styles.addItem]}>
+              <div css={scopedMerge(styles.galleryItem, styles.addItem)}>
                 <PlusIcon height={24} width={24} />
               </div>
             </MediaSelector>
@@ -351,12 +332,12 @@ const MediaGallery = ({
 export default MediaGallery;
 
 const styles = {
-  mediaGallery: scoped({
+  mediaGallery: ({
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fill, minmax(138px, 1fr))',
     gap: theme.spacing[3],
-  }),
-  galleryItem: scoped({
+  } satisfies CSSObject),
+  galleryItem: ({
     aspectRatio: '1 / 1',
     overflow: 'hidden',
     position: 'relative',
@@ -374,12 +355,12 @@ const styles = {
     '&:hover [data-gallery-overlay], &:hover [data-gallery-actions]': {
       opacity: 1,
     },
-  }),
-  galleryItemLarge: scoped({
+  } satisfies CSSObject),
+  galleryItemLarge: ({
     gridColumn: 'span 2',
     gridRow: 'span 2',
-  }),
-  itemOverlay: scoped({
+  } satisfies CSSObject),
+  itemOverlay: ({
     position: 'absolute',
     inset: 0,
     background: theme.colors.background.badgeDraft,
@@ -387,11 +368,11 @@ const styles = {
     transition: 'opacity 0.2s ease',
     zIndex: 2,
     ...flexCenter(),
-  }),
-  itemActive: scoped({
+  } satisfies CSSObject),
+  itemActive: ({
     opacity: 1,
-  }),
-  itemActions: scoped({
+  } satisfies CSSObject),
+  itemActions: ({
     position: 'absolute',
     top: '8px',
     left: '6px',
@@ -402,13 +383,13 @@ const styles = {
     justifyContent: 'space-between',
     opacity: 0,
     transition: 'opacity 0.2s ease',
-  }),
-  remainingOverlay: scoped({
+  } satisfies CSSObject),
+  remainingOverlay: ({
     img: {
       transform: 'scale(1.05)',
     },
-  }),
-  remainingOverlayText: scoped({
+  } satisfies CSSObject),
+  remainingOverlayText: ({
     position: 'absolute',
     inset: 0,
     ...theme.typography.large('normal'),
@@ -416,8 +397,8 @@ const styles = {
     background: theme.colors.background.badgeDraft,
     borderRadius: 'inherit',
     ...flexCenter(),
-  }),
-  addItem: scoped({
+  } satisfies CSSObject),
+  addItem: ({
     border: `2px dashed ${theme.colors.border.gallery}`,
     color: theme.colors.background.fillBrand,
     cursor: 'pointer',
@@ -426,15 +407,15 @@ const styles = {
     '&:hover': {
       background: theme.colors.background.galleryHover,
     },
-  }),
-  dragHandlerButton: scoped({
+  } satisfies CSSObject),
+  dragHandlerButton: ({
     borderRadius: theme.radius.full,
     cursor: 'grab',
     '&:active': {
       cursor: 'grabbing',
     },
-  }),
-  deleteButton: scoped({
+  } satisfies CSSObject),
+  deleteButton: ({
     color: theme.colors.text.critical,
-  }),
+  } satisfies CSSObject),
 };

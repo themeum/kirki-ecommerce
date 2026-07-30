@@ -1,29 +1,24 @@
-import {
-  forwardRef,
-  type ComponentPropsWithoutRef,
-  type ElementRef,
-  type HTMLAttributes,
-} from 'react';
-import { type SerializedStyles } from '@emotion/react';
+import { forwardRef, type ComponentPropsWithoutRef, type ElementRef, type HTMLAttributes } from 'react';
+import { type CSSObject } from '@emotion/react';
 import { Command as CommandPrimitive } from 'cmdk';
 import { Search } from 'lucide-react';
 
 import { theme } from '@/theme';
-import { itemCenter, scoped } from '@/theme/mixins';
+import { itemCenter, scopedMerge, scoped } from '@/theme/mixins';
 
 type CommandProps = Omit<
   ComponentPropsWithoutRef<typeof CommandPrimitive>,
   'className' | 'css'
 > & {
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const Command = forwardRef<ElementRef<typeof CommandPrimitive>, CommandProps>(
   (props, ref) => {
-    const { css: cssProp, ...rest } = props;
+    const { cssOverride, ...rest } = props;
 
     return (
-      <CommandPrimitive ref={ref} css={[styles.root, cssProp]} {...rest} />
+      <CommandPrimitive ref={ref} css={scopedMerge(styles.root, cssOverride)} {...rest} />
     );
   },
 );
@@ -34,19 +29,19 @@ type CommandInputProps = Omit<
   ComponentPropsWithoutRef<typeof CommandPrimitive.Input>,
   'className' | 'css'
 > & {
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const CommandInput = forwardRef<
   ElementRef<typeof CommandPrimitive.Input>,
   CommandInputProps
 >((props, ref) => {
-  const { css: cssProp, ...rest } = props;
+  const { cssOverride, ...rest } = props;
 
   return (
-    <div css={styles.inputWrapper}>
-      <Search size={16} css={styles.searchIcon} />
-      <CommandPrimitive.Input ref={ref} css={[styles.input, cssProp]} {...rest} />
+    <div css={scoped(styles.inputWrapper)}>
+      <Search size={16} css={scoped(styles.searchIcon)} />
+      <CommandPrimitive.Input ref={ref} css={scopedMerge(styles.input, cssOverride)} {...rest} />
     </div>
   );
 });
@@ -57,16 +52,16 @@ type CommandListProps = Omit<
   ComponentPropsWithoutRef<typeof CommandPrimitive.List>,
   'className' | 'css'
 > & {
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const CommandList = forwardRef<
   ElementRef<typeof CommandPrimitive.List>,
   CommandListProps
 >((props, ref) => {
-  const { css: cssProp, ...rest } = props;
+  const { cssOverride, ...rest } = props;
 
-  return <CommandPrimitive.List ref={ref} css={[styles.list, cssProp]} {...rest} />;
+  return <CommandPrimitive.List ref={ref} css={scopedMerge(styles.list, cssOverride)} {...rest} />;
 });
 
 CommandList.displayName = 'CommandList';
@@ -75,16 +70,16 @@ type CommandEmptyProps = Omit<
   ComponentPropsWithoutRef<typeof CommandPrimitive.Empty>,
   'className' | 'css'
 > & {
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const CommandEmpty = forwardRef<
   ElementRef<typeof CommandPrimitive.Empty>,
   CommandEmptyProps
 >((props, ref) => {
-  const { css: cssProp, ...rest } = props;
+  const { cssOverride, ...rest } = props;
 
-  return <CommandPrimitive.Empty ref={ref} css={[styles.empty, cssProp]} {...rest} />;
+  return <CommandPrimitive.Empty ref={ref} css={scopedMerge(styles.empty, cssOverride)} {...rest} />;
 });
 
 CommandEmpty.displayName = 'CommandEmpty';
@@ -93,16 +88,16 @@ type CommandGroupProps = Omit<
   ComponentPropsWithoutRef<typeof CommandPrimitive.Group>,
   'className' | 'css'
 > & {
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const CommandGroup = forwardRef<
   ElementRef<typeof CommandPrimitive.Group>,
   CommandGroupProps
 >((props, ref) => {
-  const { css: cssProp, ...rest } = props;
+  const { cssOverride, ...rest } = props;
 
-  return <CommandPrimitive.Group ref={ref} css={[styles.group, cssProp]} {...rest} />;
+  return <CommandPrimitive.Group ref={ref} css={scopedMerge(styles.group, cssOverride)} {...rest} />;
 });
 
 CommandGroup.displayName = 'CommandGroup';
@@ -111,16 +106,16 @@ type CommandItemProps = Omit<
   ComponentPropsWithoutRef<typeof CommandPrimitive.Item>,
   'className' | 'css'
 > & {
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const CommandItem = forwardRef<
   ElementRef<typeof CommandPrimitive.Item>,
   CommandItemProps
 >((props, ref) => {
-  const { css: cssProp, ...rest } = props;
+  const { cssOverride, ...rest } = props;
 
-  return <CommandPrimitive.Item ref={ref} css={[styles.item, cssProp]} {...rest} />;
+  return <CommandPrimitive.Item ref={ref} css={scopedMerge(styles.item, cssOverride)} {...rest} />;
 });
 
 CommandItem.displayName = 'CommandItem';
@@ -129,19 +124,19 @@ type CommandSeparatorProps = Omit<
   ComponentPropsWithoutRef<typeof CommandPrimitive.Separator>,
   'className' | 'css'
 > & {
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const CommandSeparator = forwardRef<
   ElementRef<typeof CommandPrimitive.Separator>,
   CommandSeparatorProps
 >((props, ref) => {
-  const { css: cssProp, ...rest } = props;
+  const { cssOverride, ...rest } = props;
 
   return (
     <CommandPrimitive.Separator
       ref={ref}
-      css={[styles.separator, cssProp]}
+      css={scopedMerge(styles.separator, cssOverride)}
       {...rest}
     />
   );
@@ -153,13 +148,13 @@ type CommandShortcutProps = Omit<
   HTMLAttributes<HTMLSpanElement>,
   'className' | 'css'
 > & {
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const CommandShortcut = (props: CommandShortcutProps) => {
-  const { css: cssProp, ...rest } = props;
+  const { cssOverride, ...rest } = props;
 
-  return <span css={[styles.shortcut, cssProp]} {...rest} />;
+  return <span css={scopedMerge(styles.shortcut, cssOverride)} {...rest} />;
 };
 
 CommandShortcut.displayName = 'CommandShortcut';
@@ -176,15 +171,15 @@ export {
 };
 
 const styles = {
-  root: scoped({
+  root: ({
     display: 'flex',
     flexDirection: 'column',
     width: '100%',
     overflow: 'hidden',
     backgroundColor: theme.colors.background.fill,
     borderRadius: theme.radius.md,
-  }),
-  inputWrapper: scoped({
+  } satisfies CSSObject),
+  inputWrapper: ({
     ...itemCenter(),
     justifyContent: 'flex-start',
     gap: theme.spacing[2],
@@ -192,12 +187,12 @@ const styles = {
     padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
     borderBottom: `1px solid ${theme.colors.border.default}`,
     boxSizing: 'border-box',
-  }),
-  searchIcon: scoped({
+  } satisfies CSSObject),
+  searchIcon: ({
     flexShrink: 0,
     color: theme.colors.text.secondary,
-  }),
-  input: scoped({
+  } satisfies CSSObject),
+  input: ({
     flex: 1,
     width: '100%',
     minHeight: '28px',
@@ -213,20 +208,20 @@ const styles = {
       color: theme.colors.text.secondary,
       opacity: 0.8,
     },
-  }),
-  list: scoped({
+  } satisfies CSSObject),
+  list: ({
     maxHeight: '240px',
     overflowY: 'auto',
     overflowX: 'hidden',
     padding: theme.spacing[1],
-  }),
-  empty: scoped({
+  } satisfies CSSObject),
+  empty: ({
     padding: `${theme.spacing[4]} ${theme.spacing[2]}`,
     textAlign: 'center',
     ...theme.typography.small(),
     color: theme.colors.text.secondary,
-  }),
-  group: scoped({
+  } satisfies CSSObject),
+  group: ({
     overflow: 'hidden',
     padding: `${theme.spacing[1]} 0`,
     '& [cmdk-group-heading]': {
@@ -234,8 +229,8 @@ const styles = {
       ...theme.typography.small('medium'),
       color: theme.colors.text.secondary,
     },
-  }),
-  item: scoped({
+  } satisfies CSSObject),
+  item: ({
     ...itemCenter(),
     justifyContent: 'flex-start',
     gap: theme.spacing[2],
@@ -255,15 +250,15 @@ const styles = {
       opacity: 0.5,
       pointerEvents: 'none',
     },
-  }),
-  separator: scoped({
+  } satisfies CSSObject),
+  separator: ({
     height: '1px',
     margin: `${theme.spacing[1]} 0`,
     backgroundColor: theme.colors.border.default,
-  }),
-  shortcut: scoped({
+  } satisfies CSSObject),
+  shortcut: ({
     marginLeft: 'auto',
     ...theme.typography.small(),
     color: theme.colors.text.secondary,
-  }),
+  } satisfies CSSObject),
 };

@@ -1,3 +1,4 @@
+import type { CSSObject } from '@emotion/react';
 import { useState, type Dispatch, type SetStateAction } from 'react';
 
 import Button from '@/components/ui/button';
@@ -8,7 +9,7 @@ import Searchbox from '@/components/ui/searchbox';
 import type { AttributeValue, SortOrder } from '@/types';
 
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+;
 
 import { getSortedList } from '@/pages/settings/utils';
 
@@ -40,7 +41,7 @@ const VariantTableAction = ({
   };
 
   return (
-    <Flex css={styles.wrapper}>
+    <Flex cssOverride={styles.wrapper}>
       <div style={{ width: '160px' }}>
         <Searchbox
           onChange={(value) => setSearchValue(value as string)}
@@ -61,7 +62,7 @@ VariantTableAction.displayName = 'VariantTableAction';
 export default VariantTableAction;
 
 const styles = {
-  wrapper: scoped({
+  wrapper: ({
     padding: `${theme.spacing[4]} ${theme.spacing[5]}`,
-  }),
+  } satisfies CSSObject),
 };

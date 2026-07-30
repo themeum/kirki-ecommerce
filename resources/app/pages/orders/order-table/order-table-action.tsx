@@ -1,17 +1,12 @@
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import type { CSSObject } from '@emotion/react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Button from '@/components/ui/button';
 import { ArrowDownUp, ListFilter } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
 import Searchbox from '@/components/ui/searchbox';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+;
 import type { SelectOption } from '@/types';
 
 const OrderTableAction = () => {
@@ -22,7 +17,7 @@ const OrderTableAction = () => {
   ];
 
   return (
-    <Flex css={styles.wrapper}>
+    <Flex cssOverride={styles.wrapper}>
       <Select defaultValue="new">
         <SelectTrigger variant="secondary">
           <SelectValue />
@@ -37,7 +32,7 @@ const OrderTableAction = () => {
       </Select>
       <ActionGroup>
         <Select disabled>
-          <SelectTrigger css={styles.selectTrigger}>
+          <SelectTrigger cssOverride={styles.selectTrigger}>
             <SelectValue placeholder="Date: This Month" />
           </SelectTrigger>
           <SelectContent />
@@ -63,10 +58,10 @@ const OrderTableAction = () => {
 export default OrderTableAction;
 
 const styles = {
-  wrapper: scoped({
+  wrapper: ({
     padding: `${theme.spacing[4]} ${theme.spacing[3]}`,
-  }),
-  selectTrigger: scoped({
+  } satisfies CSSObject),
+  selectTrigger: ({
     padding: `${theme.spacing[2]} ${theme.spacing[4]}`,
-  }),
+  } satisfies CSSObject),
 };

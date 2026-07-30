@@ -1,3 +1,4 @@
+import type { CSSObject } from '@emotion/react';
 import { Outlet, useLocation } from 'react-router';
 
 import { pageEnterKeyframes } from '@/theme/shell-styles';
@@ -28,7 +29,7 @@ const AnimatedPage = ({ context }: AnimatedPageProps) => {
   const { pathname } = useLocation();
 
   return (
-    <div key={pathname} css={styles.pageEnter}>
+    <div key={pathname} css={scoped(styles.pageEnter)}>
       <Outlet context={context} />
     </div>
   );
@@ -39,7 +40,7 @@ AnimatedPage.displayName = 'AnimatedPage';
 export default AnimatedPage;
 
 const styles = {
-  pageEnter: scoped({
+  pageEnter: ({
     animation: `${pageEnterKeyframes} 0.45s ease-out both`,
-  }),
+  } satisfies CSSObject),
 };

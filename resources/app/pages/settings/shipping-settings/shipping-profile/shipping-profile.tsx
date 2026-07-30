@@ -1,22 +1,17 @@
+import type { CSSObject } from '@emotion/react';
 import { useEffect, useState, type ReactNode } from 'react';
 
 import GroupOptionCard from '@/components/group-option-card';
 import HeaderActionsCard from '@/components/header-actions-card';
-import {
-  Card,
-  CardContent,
-} from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import { BoxClosedIcon, BoxOpenIcon } from '@/icons';
 import { queryClient } from '@/libs/query-client';
 import { dispatchToastMessage } from '@/pages/utils';
-import {
-  deleteShippingProfile,
-  useShippingProfilesQuery,
-} from '@/services/shipping';
+import { deleteShippingProfile, useShippingProfilesQuery } from '@/services/shipping';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { scoped } from '@/theme/mixins';
+import { scoped, mergeCss } from '@/theme/mixins';
 import type { ShippingProfile as ShippingProfileType } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -71,8 +66,8 @@ const ShippingProfile = () => {
 
   return (
     <>
-      <Card css={cardStyles.largeCard}>
-        <CardContent css={cardStyles.largeContentPadded}>
+      <Card cssOverride={cardStyles.largeCard}>
+        <CardContent cssOverride={cardStyles.largeContentPadded}>
           <HeaderActionsCard
             header={__('Shipping Profiles', 'kirki-ecommerce')}
             subHeader={__(
@@ -84,11 +79,11 @@ const ShippingProfile = () => {
           />
 
           {!shippingProfileList?.length ? (
-            <Card css={cardStyles.innerDarkCard}>
-              <CardContent css={[cardStyles.innerDarkContent, styles.emptyState]}>
+            <Card cssOverride={cardStyles.innerDarkCard}>
+              <CardContent cssOverride={mergeCss(cardStyles.innerDarkContent, styles.emptyState)}>
                 <Flex direction="column" gap={2} align="center">
                   <BoxOpenIcon />
-                  <span css={styles.emptyStateText}>
+                  <span css={scoped(styles.emptyStateText)}>
                     {__(
                       'Added shipping profiles will appear here',
                       'kirki-ecommerce',
@@ -98,7 +93,7 @@ const ShippingProfile = () => {
               </CardContent>
             </Card>
           ) : (
-            <Flex direction="column" data-box-wrapper css={styles.boxWrapper}>
+            <Flex direction="column" data-box-wrapper cssOverride={styles.boxWrapper}>
               <GroupOptionCard
                 dataArr={shippingProfileList}
                 handleDeleteItem={(item) =>
@@ -132,7 +127,7 @@ ShippingProfile.displayName = 'ShippingProfile';
 export default ShippingProfile;
 
 const styles = {
-  boxWrapper: scoped({
+  boxWrapper: ({
     '[data-box-card]': {
       borderTop: 'none',
       borderRadius: theme.radius.none,
@@ -144,11 +139,11 @@ const styles = {
     '[data-box-card]:last-of-type': {
       borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.md} ${theme.radius.md}`,
     },
-  }),
-  emptyState: scoped({
+  } satisfies CSSObject),
+  emptyState: ({
     padding: `${theme.spacing[9]} ${theme.spacing[0]}`,
-  }),
-  emptyStateText: scoped({
+  } satisfies CSSObject),
+  emptyStateText: ({
     color: theme.colors.text.subdued,
-  })
+  } satisfies CSSObject)
 };

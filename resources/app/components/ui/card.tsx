@@ -1,20 +1,19 @@
-import type { SerializedStyles } from '@emotion/react';
-import {
-  forwardRef,
-  type ComponentPropsWithoutRef,
-} from 'react';
+import type { CSSObject } from '@emotion/react';
+import { forwardRef, type ComponentPropsWithoutRef } from 'react';
 
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { scopedMerge } from '@/theme/mixins';
 
 type CardProps = Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'css'> & {
-  css?: SerializedStyles | SerializedStyles[];
+  cssOverride?: CSSObject;
 };
 
 const Card = forwardRef<HTMLDivElement, CardProps>((props, ref) => {
-  const { css: cssProp, ...rest } = props;
+  const { cssOverride, ...rest } = props;
 
-  return <div ref={ref} css={[styles.card, cssProp]} {...rest} />;
+  return (
+    <div ref={ref} css={scopedMerge(styles.card, cssOverride)} {...rest} />
+  );
 });
 
 Card.displayName = 'Card';
@@ -23,32 +22,42 @@ type CardSectionProps = Omit<
   ComponentPropsWithoutRef<'div'>,
   'className' | 'css'
 > & {
-  css?: SerializedStyles | SerializedStyles[];
+  cssOverride?: CSSObject;
 };
 
 const CardHeader = forwardRef<HTMLDivElement, CardSectionProps>(
   (props, ref) => {
-    const { css: cssProp, ...rest } = props;
+    const { cssOverride, ...rest } = props;
 
-    return <div ref={ref} css={[styles.header, cssProp]} {...rest} />;
+    return (
+      <div ref={ref} css={scopedMerge(styles.header, cssOverride)} {...rest} />
+    );
   },
 );
 
 CardHeader.displayName = 'CardHeader';
 
 const CardTitle = forwardRef<HTMLDivElement, CardSectionProps>((props, ref) => {
-  const { css: cssProp, ...rest } = props;
+  const { cssOverride, ...rest } = props;
 
-  return <div ref={ref} css={[styles.title, cssProp]} {...rest} />;
+  return (
+    <div ref={ref} css={scopedMerge(styles.title, cssOverride)} {...rest} />
+  );
 });
 
 CardTitle.displayName = 'CardTitle';
 
 const CardDescription = forwardRef<HTMLDivElement, CardSectionProps>(
   (props, ref) => {
-    const { css: cssProp, ...rest } = props;
+    const { cssOverride, ...rest } = props;
 
-    return <div ref={ref} css={[styles.description, cssProp]} {...rest} />;
+    return (
+      <div
+        ref={ref}
+        css={scopedMerge(styles.description, cssOverride)}
+        {...rest}
+      />
+    );
   },
 );
 
@@ -56,9 +65,15 @@ CardDescription.displayName = 'CardDescription';
 
 const CardContent = forwardRef<HTMLDivElement, CardSectionProps>(
   (props, ref) => {
-    const { css: cssProp, ...rest } = props;
+    const { cssOverride, ...rest } = props;
 
-    return <div ref={ref} css={[styles.content, cssProp]} {...rest} />;
+    return (
+      <div
+        ref={ref}
+        css={scopedMerge(styles.content, cssOverride)}
+        {...rest}
+      />
+    );
   },
 );
 
@@ -66,9 +81,11 @@ CardContent.displayName = 'CardContent';
 
 const CardFooter = forwardRef<HTMLDivElement, CardSectionProps>(
   (props, ref) => {
-    const { css: cssProp, ...rest } = props;
+    const { cssOverride, ...rest } = props;
 
-    return <div ref={ref} css={[styles.footer, cssProp]} {...rest} />;
+    return (
+      <div ref={ref} css={scopedMerge(styles.footer, cssOverride)} {...rest} />
+    );
   },
 );
 
@@ -85,7 +102,7 @@ export {
 export type { CardProps };
 
 const styles = {
-  card: scoped({
+  card: {
     display: 'flex',
     flexDirection: 'column',
     gap: theme.spacing[4],
@@ -96,30 +113,30 @@ const styles = {
     backgroundColor: theme.colors.background.fill,
     color: theme.colors.text.primary,
     boxSizing: 'border-box',
-  }),
-  header: scoped({
+  } satisfies CSSObject,
+  header: {
     display: 'flex',
     flexDirection: 'column',
     gap: theme.spacing[2],
     paddingInline: theme.spacing[4],
-  }),
-  title: scoped({
+  } satisfies CSSObject,
+  title: {
     margin: 0,
     ...theme.typography.paragraph('semibold'),
     color: theme.colors.text.primary,
-  }),
-  description: scoped({
+  } satisfies CSSObject,
+  description: {
     margin: 0,
     ...theme.typography.small(),
     color: theme.colors.text.secondary,
-  }),
-  content: scoped({
+  } satisfies CSSObject,
+  content: {
     paddingInline: theme.spacing[4],
-  }),
-  footer: scoped({
+  } satisfies CSSObject,
+  footer: {
     display: 'flex',
     alignItems: 'center',
     gap: theme.spacing[2],
     paddingInline: theme.spacing[4],
-  }),
+  } satisfies CSSObject,
 };

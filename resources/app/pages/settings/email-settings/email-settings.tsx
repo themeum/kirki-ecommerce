@@ -1,3 +1,4 @@
+import type { CSSObject } from '@emotion/react';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -5,10 +6,7 @@ import { useNavigate, useOutletContext } from 'react-router';
 
 import PageNavbar from '@/components/page-navbar';
 import Button from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-} from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import { AtSignIcon, BrushIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
@@ -18,25 +16,17 @@ import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import PageHeading from '@/components/ui/page-heading';
 import Text from '@/components/ui/text';
-import {
-  EmailSettingsFormSchema,
-  emailSettingsDefaultValues,
-  type EmailSettingsFormValues,
-} from '@/schemas/forms/email-settings-form';
+import { EmailSettingsFormSchema, emailSettingsDefaultValues, type EmailSettingsFormValues } from '@/schemas/forms/email-settings-form';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import type { SettingsSectionData } from '@/types';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+;
 import { __ } from '@/wpi18n';
 
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
 import AdminEmail from '@/pages/settings/email-settings/admin-email';
 import CustomerEmail from '@/pages/settings/email-settings/customer-email';
-import {
-  EMAIL_CONFIG,
-  findEmailKeyByName,
-  buildTogglePayload,
-} from '@/pages/settings/email-settings/utils';
+import { EMAIL_CONFIG, findEmailKeyByName, buildTogglePayload } from '@/pages/settings/email-settings/utils';
 
 type SettingsOutletContext = {
   confirmAction: (params: { action?: () => void }) => void;
@@ -202,7 +192,7 @@ const EmailSettings = () => {
                 text={__('Email', 'kirki-ecommerce')}
                 handleBack={handleBackButton}
               />
-              <Card css={styles.roundedCard}>
+              <Card cssOverride={styles.roundedCard}>
                 <CardContent>
 
                 <Flex
@@ -254,7 +244,7 @@ EmailSettings.displayName = 'EmailSettings';
 export default EmailSettings;
 
 const styles = {
-  roundedCard: scoped({
+  roundedCard: ({
     borderRadius: theme.radius.lg,
-  }),
+  } satisfies CSSObject),
 };

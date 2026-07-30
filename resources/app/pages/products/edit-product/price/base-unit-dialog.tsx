@@ -3,44 +3,20 @@ import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import Button from '@/components/ui/button';
-import {
-  Field,
-  FieldError,
-  FieldLabel,
-} from '@/components/ui/field';
+import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Form } from '@/components/ui/form';
 import Input from '@/components/ui/input';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Select, SelectContent, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ChevronDownIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import Flex from '@/components/ui/flex';
-import {
-  BaseUnitFormSchema,
-  mapBaseUnitFromVariant,
-  toUnitPriceValue,
-  type BaseUnitFormValues,
-} from '@/schemas/forms/base-unit-form';
+import { BaseUnitFormSchema, mapBaseUnitFromVariant, toUnitPriceValue, type BaseUnitFormValues } from '@/schemas/forms/base-unit-form';
 import type { FormErrors, ProductVariant, UnitPriceValue } from '@/types';
 import { __ } from '@/wpi18n';
 
-import {
-  getSpecifiedUnitList,
-  normalizedUnit,
-  unitList,
-} from '@/pages/products/edit-product/price/utils';
+import { getSpecifiedUnitList, normalizedUnit, unitList } from '@/pages/products/edit-product/price/utils';
 
 type BaseUnitPopupProps = {
   errors: FormErrors;

@@ -1,10 +1,6 @@
 import DataTable from '@/components/data-table/data-table';
 import DataTablePagination from '@/components/data-table/data-table-pagination';
-import {
-  DataTableAction,
-  DataTableFilterAction,
-  DataTableFilterBar,
-} from '@/components/data-table/data-table-slots';
+import { DataTableAction, DataTableFilterAction, DataTableFilterBar } from '@/components/data-table/data-table-slots';
 
 const DataTableNamespace = Object.assign(DataTable, {
   Action: DataTableAction,

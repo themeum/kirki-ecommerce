@@ -1,19 +1,16 @@
-import { css } from '@emotion/react';
+import { css, type CSSObject } from '@emotion/react';
 import { useState, type Dispatch, type ReactNode, type SetStateAction } from 'react';
 import { toast } from 'sonner';
 
 import HeaderActionsCard from '@/components/header-actions-card';
 import Button from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-} from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { TrashIcon } from '@/icons';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { scoped } from '@/theme/mixins';
+import { mergeCss } from '@/theme/mixins';
 import type { SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -120,8 +117,8 @@ export const VatCollection = (props: VatCollectionProps) => {
 
   return (
     <div>
-      <Card css={cardStyles.largeCard}>
-        <CardContent css={cardStyles.largeContentPadded}>
+      <Card cssOverride={cardStyles.largeCard}>
+        <CardContent cssOverride={cardStyles.largeContentPadded}>
           <HeaderActionsCard
             header={__('VAT Collection', 'kirki-ecommerce')}
             subHeader={__(
@@ -136,29 +133,25 @@ export const VatCollection = (props: VatCollectionProps) => {
             {vatCollectionList?.map((item, index) => (
               <Card
                 key={index}
-                css={[cardStyles.innerCard, styles.vatRow]}
+                cssOverride={mergeCss(cardStyles.innerCard, styles.vatRow)}
                 onMouseEnter={() => setHoveredIndex(index)}
                 onMouseLeave={() => setHoveredIndex(null)}
               >
-                <CardContent css={cardStyles.innerContent}>
+                <CardContent cssOverride={cardStyles.innerContent}>
                   <Flex gap={2} align="center">
                     {getFlagForState(item?.state)}
                     <Text>{item?.state}</Text>
                   </Flex>
                   <Text
-                    css={css(
-                      styles.vatText,
-                      hoveredIndex === index && styles.vatTextHidden,
-                    )}
+                    cssOverride={mergeCss(styles.vatText,
+                      hoveredIndex === index && styles.vatTextHidden,)}
                   >
                     {`${item?.rate}%`}
                   </Text>
                   <Flex
                     gap={2}
-                    css={css(
-                      styles.vatActions,
-                      hoveredIndex === index && styles.vatActionsActive,
-                    )}
+                    cssOverride={mergeCss(styles.vatActions,
+                      hoveredIndex === index && styles.vatActionsActive,)}
                   >
                     <Button
                       variant="secondary"
@@ -198,14 +191,14 @@ export const VatCollection = (props: VatCollectionProps) => {
 VatCollection.displayName = 'VatCollection';
 
 const styles = {
-  vatRow: scoped({
+  vatRow: ({
     height: '56px',
     maxHeight: '56px',
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: theme.spacing[3],
-  }),
+  } satisfies CSSObject),
   vatActions: css({
     opacity: 0,
     visibility: 'hidden',
@@ -219,11 +212,11 @@ const styles = {
     visibility: 'visible',
     pointerEvents: 'auto',
   }),
-  vatText: scoped({
+  vatText: ({
     opacity: 1,
     display: 'block',
     transition: 'opacity 0.2s ease',
-  }),
+  } satisfies CSSObject),
   vatTextHidden: css({
     opacity: 0,
     display: 'none',

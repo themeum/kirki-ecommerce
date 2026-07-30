@@ -1,12 +1,7 @@
+import type { CSSObject } from '@emotion/react';
 import Button from '@/components/ui/button';
 import Input from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowDownUp, ListFilter } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
 import { Card, CardContent } from '@/components/ui/card';
@@ -15,7 +10,7 @@ import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import PageHeading from '@/components/ui/page-heading';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+;
 import type { SelectOption } from '@/types';
 
 import CustomerGroupTable from '@/pages/customers/customer-groups/customer-group-table';
@@ -42,9 +37,9 @@ const CustomerGroups = () => {
       />
 
       <Container>
-        <Card css={cardStyles.tableCard}>
-          <CardContent css={cardStyles.tableContent}>
-            <Flex css={styles.wrapper}>
+        <Card cssOverride={cardStyles.tableCard}>
+          <CardContent cssOverride={cardStyles.tableContent}>
+            <Flex cssOverride={styles.wrapper}>
               <Select defaultValue="all">
                 <SelectTrigger variant="secondary">
                   <SelectValue />
@@ -59,7 +54,7 @@ const CustomerGroups = () => {
               </Select>
               <ActionGroup>
                 <Select disabled>
-                  <SelectTrigger css={styles.selectTrigger}>
+                  <SelectTrigger cssOverride={styles.selectTrigger}>
                     <SelectValue placeholder="Date: This Month" />
                   </SelectTrigger>
                   <SelectContent />
@@ -85,11 +80,11 @@ const CustomerGroups = () => {
 export default CustomerGroups;
 
 const styles = {
-  wrapper: scoped({
+  wrapper: ({
     padding: `${theme.spacing[4]} ${theme.spacing[3]}`,
-  }),
-  selectTrigger: scoped({
+  } satisfies CSSObject),
+  selectTrigger: ({
     padding: `${theme.spacing[2]} ${theme.spacing[4]}`,
-  }),
+  } satisfies CSSObject),
 };
 

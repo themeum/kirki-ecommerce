@@ -1,7 +1,8 @@
+import type { CSSObject } from '@emotion/react';
 import type { CSSProperties } from 'react';
 
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { scoped, scopedMerge } from '@/theme/mixins';
 
 type BoxGeneratorProps = {
   length: number;
@@ -38,11 +39,11 @@ export const BoxGenerator = ({
 
   return (
     <div
-      css={styles.container}
+      css={scoped(styles.container)}
       style={{ perspective: Math.max(600, lengthF * 3) }}
     >
       <div
-        css={styles.box}
+        css={scoped(styles.box)}
         style={
           {
             '--w': `${widthF}px`,
@@ -52,78 +53,78 @@ export const BoxGenerator = ({
           } as CSSProperties
         }
       >
-        <div css={[styles.face, styles.front]} />
-        <div css={[styles.face, styles.back]} />
-        <div css={[styles.face, styles.left]} />
-        <div css={[styles.face, styles.right]} />
-        <div css={[styles.face, styles.top]} />
-        <div css={[styles.face, styles.bottom]} />
+        <div css={scopedMerge(styles.face, styles.front)} />
+        <div css={scopedMerge(styles.face, styles.back)} />
+        <div css={scopedMerge(styles.face, styles.left)} />
+        <div css={scopedMerge(styles.face, styles.right)} />
+        <div css={scopedMerge(styles.face, styles.top)} />
+        <div css={scopedMerge(styles.face, styles.bottom)} />
       </div>
     </div>
   );
 };
 
 const styles = {
-  container: scoped({
+  container: ({
     height: '100%',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
-  }),
-  box: scoped({
+  } satisfies CSSObject),
+  box: ({
     position: 'relative',
     transformStyle: 'preserve-3d',
     margin: 'auto',
     width: 'var(--w)',
     height: 'var(--h)',
-  }),
-  face: scoped({
+  } satisfies CSSObject),
+  face: ({
     position: 'absolute',
     top: '50%',
     left: '50%',
     transformStyle: 'preserve-3d',
     boxSizing: 'border-box',
-  }),
-  front: scoped({
+  } satisfies CSSObject),
+  front: ({
     width: 'var(--w)',
     height: 'var(--h)',
     transform: 'translate(-50%, -50%) translateZ(calc(var(--l) / 2))',
     background: theme.colors.shipping.boxDark,
-  }),
-  back: scoped({
+  } satisfies CSSObject),
+  back: ({
     width: 'var(--w)',
     height: 'var(--h)',
     transform:
       'translate(-50%, -50%) rotateY(180deg) translateZ(calc(var(--l) / 2))',
     background: theme.colors.shipping.boxDark,
-  }),
-  right: scoped({
+  } satisfies CSSObject),
+  right: ({
     width: 'var(--l)',
     height: 'var(--h)',
     transform:
       'translate(-50%, -50%) rotateY(90deg) translateZ(calc(var(--w) / 2))',
     background: theme.colors.shipping.boxMid,
-  }),
-  left: scoped({
+  } satisfies CSSObject),
+  left: ({
     width: 'var(--l)',
     height: 'var(--h)',
     transform:
       'translate(-50%, -50%) rotateY(-90deg) translateZ(calc(var(--w) / 2))',
     background: theme.colors.shipping.boxMid,
-  }),
-  top: scoped({
+  } satisfies CSSObject),
+  top: ({
     width: 'var(--w)',
     height: 'var(--l)',
     transform:
       'translate(-50%, -50%) rotateX(90deg) translateZ(calc(var(--h) / 2))',
     background: theme.colors.shipping.boxLight,
-  }),
-  bottom: scoped({
+  } satisfies CSSObject),
+  bottom: ({
     width: 'var(--w)',
     height: 'var(--l)',
     transform:
       'translate(-50%, -50%) rotateX(-90deg) translateZ(calc(var(--h) / 2))',
     background: theme.colors.shipping.boxLight,
-  }),
+  } satisfies CSSObject),
 };

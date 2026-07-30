@@ -1,25 +1,14 @@
+import type { CSSObject } from '@emotion/react';
 import { useEffect } from 'react';
-import {
-  Controller,
-  useForm,
-  useFormContext,
-  useWatch,
-} from 'react-hook-form';
+import { Controller, useForm, useFormContext, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate, useOutletContext } from 'react-router';
 
 import CheckboxField from '@/components/form/checkbox-field';
 import PageNavbar from '@/components/page-navbar';
 import Button from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-} from '@/components/ui/card';
-import {
-  Field,
-  FieldError,
-  FieldLabel,
-} from '@/components/ui/field';
+import { Card, CardContent } from '@/components/ui/card';
+import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Form } from '@/components/ui/form';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { TaxIcon } from '@/icons';
@@ -32,13 +21,9 @@ import PageHeading from '@/components/ui/page-heading';
 import { Separator } from '@/components/ui/separator';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+;
 import { cardStyles } from '@/theme/card-styles';
-import {
-  TaxSettingsFormSchema,
-  taxSettingsDefaultValues,
-  type TaxSettingsFormValues,
-} from '@/schemas/forms/tax-settings-form';
+import { TaxSettingsFormSchema, taxSettingsDefaultValues, type TaxSettingsFormValues } from '@/schemas/forms/tax-settings-form';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import type { SettingsSectionData } from '@/types';
 import { __ } from '@/wpi18n';
@@ -59,7 +44,7 @@ const TaxCollectionOptions = () => {
 
   return (
     <div>
-      <Separator css={styles.separator} />
+      <Separator cssOverride={styles.separator} />
       {isTaxInclusivePrice ? (
         <CheckboxField
           name="is_shipping_tax_enabled"
@@ -250,11 +235,11 @@ const TaxSettings = () => {
                 text={'Tax'}
                 handleBack={handleBackButton}
               />
-              <Card css={cardStyles.largeCard} >
-                <CardContent css={cardStyles.largeContentPadded}>
+              <Card cssOverride={cardStyles.largeCard} >
+                <CardContent cssOverride={cardStyles.largeContentPadded}>
 
                 <Flex direction="column" gap={2}>
-                  <Text weight="semibold" css={styles.taxCollectionHeader}>{__('How would you like to collect tax?', 'kirki-ecommerce')}</Text>
+                  <Text weight="semibold" cssOverride={styles.taxCollectionHeader}>{__('How would you like to collect tax?', 'kirki-ecommerce')}</Text>
                   <Text color="secondary">{__(
                 'Configure how tax is displayed and how it appears on your product listings.',
                 'kirki-ecommerce',
@@ -283,10 +268,10 @@ TaxSettings.displayName = 'TaxSettings';
 export default TaxSettings;
 
 const styles = {
-  separator: scoped({
+  separator: ({
     marginBottom: theme.spacing[3],
-  }),
-  taxCollectionHeader: scoped({
+  } satisfies CSSObject),
+  taxCollectionHeader: ({
     gap: theme.spacing[2],
-  })
+  } satisfies CSSObject)
 };

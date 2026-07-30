@@ -1,9 +1,10 @@
+import type { CSSObject } from '@emotion/react';
 import type { ReactNode } from 'react';
 
 import { ArrowDownUpFilled } from '@/icons';
 import Flex from '@/components/ui/flex';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { mergeCss } from '@/theme/mixins';
 import type { SortOrder } from '@/types';
 
 type SortableConfig = {
@@ -56,11 +57,9 @@ const Sorting = ({ data }: SortingProps) => {
   return (
     <Flex
       gap={1}
-      css={[
-        styles.base,
+      cssOverride={mergeCss(styles.base,
         sortable && styles.sortable,
-        sortable && isActive() && styles.active,
-      ]}
+        sortable && isActive() && styles.active,)}
       onClick={handleSorting}
     >
       {title}
@@ -80,13 +79,13 @@ export default Sorting;
 export type { SortableConfig, SortingData };
 
 const styles = {
-  base: scoped({
+  base: ({
     alignItems: 'center',
-  }),
-  sortable: scoped({
+  } satisfies CSSObject),
+  sortable: ({
     cursor: 'pointer',
-  }),
-  active: scoped({
+  } satisfies CSSObject),
+  active: ({
     color: theme.colors.background.fillBrand,
-  }),
+  } satisfies CSSObject),
 };

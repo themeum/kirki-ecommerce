@@ -1,3 +1,4 @@
+import type { CSSObject } from '@emotion/react';
 import React from 'react';
 
 import { theme } from '@/theme';
@@ -43,7 +44,7 @@ const List = ({
             selectedCategories={selectedCategories}
             onSelectCategory={(v) => handleParentCategorySelect(v, category)}
           />
-          <div css={styles.nested}>
+          <div css={scoped(styles.nested)}>
             <List
               categories={categories}
               parent_id={category.id}
@@ -62,7 +63,7 @@ List.displayName = 'List';
 export default List;
 
 const styles = {
-  nested: scoped({
+  nested: ({
     paddingLeft: theme.spacing[4],
-  }),
+  } satisfies CSSObject),
 };

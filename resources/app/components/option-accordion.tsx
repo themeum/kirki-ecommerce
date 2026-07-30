@@ -1,18 +1,14 @@
+import type { CSSObject } from '@emotion/react';
 import { useState, type ReactNode } from 'react';
 
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from '@/components/ui/accordion';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import Badge from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { scoped } from '@/theme/mixins';
+import { scoped, mergeCss } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 type OptionAccordionProps = {
@@ -41,16 +37,16 @@ const OptionAccordion = (props: OptionAccordionProps) => {
   const headerColor = !state ? 'disabled' : isEmphasis ? 'emphasis' : 'primary';
 
   return (
-    <div css={styles.wrapper}>
+    <div css={scoped(styles.wrapper)}>
       <Accordion
-        css={styles.accordion}
+        cssOverride={styles.accordion}
         hideSeparator={true}
         hasBottomSpace={false}
         rightActions={rightActions}
       >
         <AccordionItem>
           <AccordionTrigger
-            css={styles.trigger}
+            cssOverride={styles.trigger}
             gap={4}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
@@ -75,7 +71,7 @@ const OptionAccordion = (props: OptionAccordionProps) => {
             </Flex>
           </AccordionTrigger>
           <AccordionContent>
-            <Card css={[cardStyles.darkCard, styles.contentCard]}>
+            <Card cssOverride={mergeCss(cardStyles.darkCard, styles.contentCard)}>
               <CardContent>{children}</CardContent>
             </Card>
           </AccordionContent>
@@ -88,19 +84,19 @@ const OptionAccordion = (props: OptionAccordionProps) => {
 export default OptionAccordion;
 
 const styles = {
-  wrapper: scoped({
+  wrapper: ({
     borderRadius: theme.radius.xl,
     border: `1px solid ${theme.colors.icon.inverse}`,
-  }),
-  accordion: scoped({
+  } satisfies CSSObject),
+  accordion: ({
     width: '100%',
-  }),
-  trigger: scoped({
+  } satisfies CSSObject),
+  trigger: ({
     padding: `${theme.spacing[3]} ${theme.spacing[4]}`,
-  }),
-  contentCard: scoped({
+  } satisfies CSSObject),
+  contentCard: ({
     borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.lg} ${theme.radius.lg}`,
     display: 'flex',
     flexDirection: 'column',
-  }),
+  } satisfies CSSObject),
 };

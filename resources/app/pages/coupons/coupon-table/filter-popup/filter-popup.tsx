@@ -1,30 +1,17 @@
-import { css } from '@emotion/react';
+import type { CSSObject } from '@emotion/react';
 import { memo, useEffect, useState, type ComponentProps } from 'react';
 
 import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import Flex from '@/components/ui/flex';
 import Label from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Text from '@/components/ui/text';
-import {
-  useListParamsActions,
-  useListParamsValue,
-} from '@/contexts/list-params-context';
+import { useListParamsActions, useListParamsValue } from '@/contexts/list-params-context';
 import { CloseIcon, ListFilter } from '@/icons';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+;
 import { CouponListFilter, discountTypeOptions, methodOptions, statusOptions } from '@/types/filters/coupon';
 import { __, sprintf } from '@/wpi18n';
 
@@ -145,21 +132,21 @@ const FilterPopup = memo(({
         ) : null}
       </Flex>
       <DropdownMenuContent style={{ width: '288px', maxHeight: '522px' }}>
-        <Flex css={styles.header}>
+        <Flex cssOverride={styles.header}>
           <Text>{__('Filter', 'kirki-ecommerce')}</Text>
           <ActionGroup>
             <Button
               variant="ghost"
               size="icon"
               onClick={handleFilterClose}
-              css={styles.closeButton}
+              cssOverride={styles.closeButton}
             >
               <CloseIcon />
             </Button>
           </ActionGroup>
         </Flex>
 
-        <Flex direction="column" gap={4} css={css({ padding: `${theme.spacing[2]} ${theme.spacing[3]}`, overflowY: 'auto', minHeight: '264px' })}>
+        <Flex direction="column" gap={4} cssOverride={{ padding: `${theme.spacing[2]} ${theme.spacing[3]}`, overflowY: 'auto', minHeight: '264px' }}>
 
           <Flex direction="column" gap={2}>
             <Label>{__('Status', 'kirki-ecommerce')}</Label>
@@ -226,7 +213,7 @@ const FilterPopup = memo(({
 
         </Flex>
 
-        <Flex css={styles.footer}>
+        <Flex cssOverride={styles.footer}>
           <ActionGroup>
             <Button variant="primary" onClick={handleOnApplyFilter}>
               {__('Apply Filter', 'kirki-ecommerce')}
@@ -243,21 +230,21 @@ FilterPopup.displayName = 'FilterPopup';
 export default FilterPopup;
 
 const styles = {
-  header: scoped({
+  header: ({
     top: '-4px',
     position: 'sticky',
     backgroundColor: theme.colors.background.surface,
     padding: `${theme.spacing[3]} ${theme.spacing[3]} ${theme.spacing[2]} ${theme.spacing[3]}`,
     zIndex: 100,
-  }),
-  closeButton: scoped({
+  } satisfies CSSObject),
+  closeButton: ({
     color: theme.colors.text.primary,
-  }),
-  footer: scoped({
+  } satisfies CSSObject),
+  footer: ({
     padding: `${theme.spacing[2]} ${theme.spacing[3]} ${theme.spacing[3]} ${theme.spacing[3]}`,
     borderTop: `1px solid ${theme.colors.border.default}`,
     bottom: '-4px',
     position: 'sticky',
     backgroundColor: theme.colors.background.surface,
-  }),
+  } satisfies CSSObject),
 };

@@ -1,20 +1,14 @@
+import type { CSSObject } from '@emotion/react';
 import { type ReactElement, useEffect, useState } from 'react';
 
 import { Card, CardContent } from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
 import { Field, FieldLabel } from '@/components/ui/field';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectSeparator,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectSeparator, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { PlusCircleIcon } from '@/icons';
 import Flex from '@/components/ui/flex';
 import Grid from '@/components/ui/grid';
-import { scoped } from '@/theme/mixins';
+;
 import { cardStyles } from '@/theme/card-styles';
 import { useProductForm } from '@/contexts/product-form-context';
 import { useShippingProfilesQuery } from '@/services/shipping';
@@ -75,8 +69,8 @@ const ShippingProfile = ({
   }) => ReactElement;
 
   return (
-    <Card css={cardStyles.innerDarkCard}>
-      <CardContent css={styles.innerDarkRowContent}>
+    <Card cssOverride={cardStyles.innerDarkCard}>
+      <CardContent cssOverride={styles.innerDarkRowContent}>
         <Grid align="center">
         <Field orientation="horizontal">
           <Checkbox
@@ -140,9 +134,9 @@ ShippingProfile.displayName = 'ShippingProfile';
 export default ShippingProfile;
 
 const styles = {
-  innerDarkRowContent: scoped({
+  innerDarkRowContent: ({
     padding: `${theme.spacing[1]} ${theme.spacing[2]} ${theme.spacing[1]} ${theme.spacing[3]}`,
     height: '44px',
     boxSizing: 'border-box',
-  })
+  } satisfies CSSObject)
 };

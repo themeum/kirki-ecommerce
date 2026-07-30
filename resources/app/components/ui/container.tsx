@@ -1,28 +1,28 @@
-import type { SerializedStyles } from '@emotion/react';
+import type { CSSObject } from '@emotion/react';
 import { forwardRef, type ComponentPropsWithoutRef } from 'react';
 
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { scopedMerge } from '@/theme/mixins';
 import type { ContainerSize } from '@/types';
 
 type ContainerProps = Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'css'> & {
   size?: ContainerSize;
   scrollable?: boolean;
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const Container = forwardRef<HTMLDivElement, ContainerProps>((props, ref) => {
-  const { css: cssProp, size, scrollable, children, ...rest } = props;
+  const { cssOverride, size, scrollable, children, ...rest } = props;
 
   return (
     <div
       ref={ref}
-      css={[
+      css={scopedMerge(
         styles.root,
         size && styles.sizes[size],
         scrollable && styles.scrollable,
-        cssProp,
-      ]}
+        cssOverride,
+      )}
       {...rest}
     >
       {children}
@@ -35,29 +35,29 @@ Container.displayName = 'Container';
 export default Container;
 
 const styles = {
-  root: scoped({
+  root: ({
     maxWidth: '1024px',
     margin: `${theme.spacing[0]} auto`,
     padding: `${theme.spacing[0]} ${theme.spacing[2]}`,
-  }),
+  } satisfies CSSObject),
   sizes: {
-    sm: scoped({
+    sm: ({
       maxWidth: '600px',
-    }),
-    md: scoped({
+    } satisfies CSSObject),
+    md: ({
       maxWidth: '752px',
-    }),
-    lg: scoped({
+    } satisfies CSSObject),
+    lg: ({
       maxWidth: '900px',
-    }),
-    xl: scoped({
+    } satisfies CSSObject),
+    xl: ({
       maxWidth: '1024px',
-    }),
-    fullWidth: scoped({
+    } satisfies CSSObject),
+    fullWidth: ({
       maxWidth: '100%',
-    }),
+    } satisfies CSSObject),
   },
-  scrollable: scoped({
+  scrollable: ({
     overflow: 'scroll',
     scrollbarWidth: 'thin',
     scrollbarColor: `${theme.colors.background.fillBrand} ${theme.colors.background.surfaceTertiary}`,
@@ -77,5 +77,5 @@ const styles = {
       width: '40px !important',
       maxWidth: '40px !important',
     },
-  }),
+  } satisfies CSSObject),
 };

@@ -1,3 +1,4 @@
+import type { CSSObject } from '@emotion/react';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 
@@ -11,7 +12,7 @@ import PageHeading from '@/components/ui/page-heading';
 import { useAttributeQuery } from '@/services/attribute';
 import type { Attribute, AttributeValue, TaxonomyTableHeader } from '@/types';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { scoped, mergeCss } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import { __, sprintf } from '@/wpi18n';
 
@@ -56,7 +57,7 @@ const ListVariation = () => {
               <div>
                 <Button
                   variant="link"
-                  css={styles.addValueButton}
+                  cssOverride={styles.addValueButton}
                   onClick={() => setAddVariantPopup(true)}
                 >
                   {__('Add value', 'kirki-ecommerce')}
@@ -65,19 +66,19 @@ const ListVariation = () => {
             }
           />
           {!attributeValueList?.length ? (
-            <Card css={[cardStyles.largeCard, styles.roundedCard]}>
-              <CardContent css={[cardStyles.largeContentPadded, styles.emptyContent]}>
+            <Card cssOverride={mergeCss(cardStyles.largeCard, styles.roundedCard)}>
+              <CardContent cssOverride={mergeCss(cardStyles.largeContentPadded, styles.emptyContent)}>
                 <Flex direction="column" gap={2} align="center">
                   <BoxIcon />
-                  <span css={styles.mutedText}>
+                  <span css={scoped(styles.mutedText)}>
                     {__('No value added yet', 'kirki-ecommerce')}
                   </span>
                 </Flex>
               </CardContent>
             </Card>
           ) : (
-            <Card css={cardStyles.tableCard}>
-              <CardContent css={cardStyles.tableContent}>
+            <Card cssOverride={cardStyles.tableCard}>
+              <CardContent cssOverride={cardStyles.tableContent}>
                 <VariationTable
                   tableHeaders={tableHeaders}
                   results={attributeValueList}
@@ -104,18 +105,18 @@ ListVariation.displayName = 'ListVariation';
 export default ListVariation;
 
 const styles = {
-  addValueButton: scoped({
+  addValueButton: ({
     color: theme.colors.text.emphasis,
     padding: theme.spacing[0],
-  }),
-  roundedCard: scoped({
+  } satisfies CSSObject),
+  roundedCard: ({
     borderRadius: theme.radius.lg,
-  }),
-  emptyContent: scoped({
+  } satisfies CSSObject),
+  emptyContent: ({
     padding: `${theme.spacing[9]} 0`,
-  }),
-  mutedText: scoped({
+  } satisfies CSSObject),
+  mutedText: ({
     color: theme.colors.text.subdued,
-  }),
+  } satisfies CSSObject),
 };
 

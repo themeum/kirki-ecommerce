@@ -5,27 +5,13 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import ColorPickerField from '@/components/form/color-picker-field';
 import TextField from '@/components/form/text-field';
 import Button from '@/components/ui/button';
-import {
-  Dialog,
-  DialogBody,
-  DialogCloseButton,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogBody, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import Flex from '@/components/ui/flex';
-import {
-  VariationValueFormSchema,
-  type VariationValueFormValues,
-} from '@/schemas/forms/variation-value-form';
-import {
-  useCreateAttributeValueMutation,
-  useUpdateAttributeValueMutation,
-} from '@/services/attribute';
+import { VariationValueFormSchema, type VariationValueFormValues } from '@/schemas/forms/variation-value-form';
+import { useCreateAttributeValueMutation, useUpdateAttributeValueMutation } from '@/services/attribute';
 import type {
   Attribute,
   AttributeValue,

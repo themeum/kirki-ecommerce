@@ -1,21 +1,21 @@
-import { css } from '@emotion/react';
+import type { CSSObject } from '@emotion/react';
 import { forwardRef, type ComponentPropsWithoutRef } from 'react';
 
 import Flex from '@/components/ui/flex';
-import { scoped } from '@/theme/mixins';
+import { mergeCss } from '@/theme/mixins';
 
 type ActionGroupProps = ComponentPropsWithoutRef<typeof Flex>;
 
 const ActionGroup = forwardRef<HTMLDivElement, ActionGroupProps>(
   (props, ref) => {
-    const { css: cssProp, gap = 2, children, ...rest } = props;
+    const { cssOverride, gap = 2, children, ...rest } = props;
 
     return (
       <Flex
         ref={ref}
         gap={gap}
         data-action-group="true"
-        css={css(styles.root, cssProp)}
+        cssOverride={mergeCss(styles.root, cssOverride)}
         {...rest}
       >
         {children}
@@ -29,8 +29,8 @@ ActionGroup.displayName = 'ActionGroup';
 export default ActionGroup;
 
 const styles = {
-  root: scoped({
+  root: {
     marginLeft: 'auto',
     alignItems: 'center',
-  }),
+  } satisfies CSSObject,
 };

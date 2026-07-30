@@ -1,16 +1,9 @@
+import type { CSSObject } from '@emotion/react';
 import { Info, Trash2 } from 'lucide-react';
 import type { ReactNode } from 'react';
 
 import Button from '@/components/ui/button';
-import {
-  Dialog,
-  DialogCloseButton,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogCloseButton, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { theme } from '@/theme';
 import { flexCenter, scoped } from '@/theme/mixins';
 import type { ConfirmationVariant } from '@/types';
@@ -84,31 +77,31 @@ const ConfirmationDialog = (props: ConfirmationDialogProps) => {
         }
       }}
     >
-      <DialogContent css={styles.content}>
+      <DialogContent cssOverride={styles.content}>
         <DialogCloseButton />
-        <DialogHeader css={styles.header}>
+        <DialogHeader cssOverride={styles.header}>
           <span
-            css={styles.icon}
+            css={scoped(styles.icon)}
             style={{ background: ui.iconBg }}
             aria-hidden="true"
           >
             {ui.icon}
           </span>
-          <DialogTitle css={styles.title}>
+          <DialogTitle cssOverride={styles.title}>
             {finalTitle || __('Confirm', 'kirki-ecommerce')}
           </DialogTitle>
           {!!finalSubtitle && (
-            <DialogDescription css={styles.description}>
+            <DialogDescription cssOverride={styles.description}>
               {finalSubtitle}
             </DialogDescription>
           )}
         </DialogHeader>
-        <DialogFooter css={styles.footer}>
-          <Button css={styles.action} variant="outline" onClick={onCancel}>
+        <DialogFooter cssOverride={styles.footer}>
+          <Button cssOverride={styles.action} variant="outline" onClick={onCancel}>
             {__('Cancel', 'kirki-ecommerce')}
           </Button>
           <Button
-            css={styles.action}
+            cssOverride={styles.action}
             variant={ui.confirmVariant}
             onClick={onConfirm}
           >
@@ -125,36 +118,36 @@ ConfirmationDialog.displayName = 'ConfirmationDialog';
 export default ConfirmationDialog;
 
 const styles = {
-  content: scoped({
+  content: ({
     width: '400px',
-  }),
-  header: scoped({
+  } satisfies CSSObject),
+  header: ({
     alignItems: 'center',
     textAlign: 'center',
     paddingTop: theme.spacing[6],
-  }),
-  icon: scoped({
+  } satisfies CSSObject),
+  icon: ({
     ...flexCenter(),
     height: '40px',
     width: '40px',
     borderRadius: theme.radius.full,
     marginBottom: theme.spacing[2],
-  }),
-  title: scoped({
+  } satisfies CSSObject),
+  title: ({
     ...theme.typography.heading4(),
     textAlign: 'center',
-  }),
-  description: scoped({
+  } satisfies CSSObject),
+  description: ({
     ...theme.typography.small(),
     color: theme.colors.text.secondary,
     textAlign: 'center',
-  }),
-  footer: scoped({
+  } satisfies CSSObject),
+  footer: ({
     justifyContent: 'space-between',
     width: '100%',
     boxSizing: 'border-box',
-  }),
-  action: scoped({
+  } satisfies CSSObject),
+  action: ({
     flex: 1,
-  }),
+  } satisfies CSSObject),
 };

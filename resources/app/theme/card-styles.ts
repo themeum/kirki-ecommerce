@@ -1,77 +1,78 @@
+import type { CSSObject } from '@emotion/react';
+
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
 
 const cardStyles = {
-  formCard: scoped({
+  formCard: {
     rowGap: theme.spacing[4],
-  }),
-  tableCard: scoped({
+  } satisfies CSSObject,
+  tableCard: {
     overflow: 'hidden',
     border: `1px solid ${theme.colors.border.alt}`,
     gap: 0,
     padding: theme.spacing[0],
-  }),
-  tableCardRounded: scoped({
+  } satisfies CSSObject,
+  tableCardRounded: {
     overflow: 'hidden',
     border: `1px solid ${theme.colors.border.alt}`,
     gap: 0,
     borderRadius: theme.radius.md,
     padding: theme.spacing[0],
-  }),
-  tableContent: scoped({
+  } satisfies CSSObject,
+  tableContent: {
     padding: theme.spacing[0],
-  }),
-  largeCard: scoped({
+  } satisfies CSSObject,
+  largeCard: {
     gap: theme.spacing[5],
     padding: theme.spacing[0],
-  }),
-  largeContent: scoped({
+  } satisfies CSSObject,
+  largeContent: {
     paddingInline: theme.spacing[5],
-  }),
-  largeContentPadded: scoped({
+  } satisfies CSSObject,
+  largeContentPadded: {
     padding: theme.spacing[5],
-  }),
-  sectionHeader: scoped({
+  } satisfies CSSObject,
+  sectionHeader: {
     gap: theme.spacing[2],
     paddingInline: theme.spacing[5],
-  }),
-  innerCard: scoped({
+  } satisfies CSSObject,
+  innerCard: {
     borderRadius: theme.radius.lg,
     boxShadow: 'none',
     padding: theme.spacing[0],
-  }),
-  innerContent: scoped({
+  } satisfies CSSObject,
+  innerContent: {
     padding: theme.spacing[3],
-  }),
-  innerCardContent: scoped({
+  } satisfies CSSObject,
+  innerCardContent: {
     padding: theme.spacing[4],
-  }),
-  innerDarkCard: scoped({
+  } satisfies CSSObject,
+  innerDarkCard: {
     borderRadius: theme.radius.lg,
     backgroundColor: theme.colors.background.surfaceSecondary,
     border: 'none',
     padding: theme.spacing[0],
-  }),
-  innerDarkContent: scoped({
+  } satisfies CSSObject,
+  innerDarkContent: {
     padding: theme.spacing[3],
-  }),
-  darkCard: scoped({
+  } satisfies CSSObject,
+  darkCard: {
     backgroundColor: theme.colors.background.surfaceSecondary,
     padding: theme.spacing[0],
-  }),
-  lightCard: scoped({
+  } satisfies CSSObject,
+  lightCard: {
     borderRadius: theme.radius.md,
     padding: theme.spacing[0],
-  }),
-  shadowCard: scoped({
+  } satisfies CSSObject,
+  shadowCard: {
     boxShadow: theme.shadow.sm,
     border: 'none',
-  }),
-  tartiaryCard: scoped({
+  } satisfies CSSObject,
+  tartiaryCard: {
     backgroundColor: theme.colors.background.surfaceSecondary,
     padding: theme.spacing[0],
-  }),
-  navbarCard: scoped({
+  } satisfies CSSObject,
+  navbarCard: {
     padding: `${theme.spacing[0]} ${theme.spacing[3]}`,
     borderRadius: theme.radius.sm,
     minHeight: '36px',
@@ -80,12 +81,12 @@ const cardStyles = {
     alignItems: 'center',
     gap: 0,
     flexDirection: 'row',
-  }),
-  pageCard: scoped({
+  } satisfies CSSObject,
+  pageCard: {
     backgroundColor: theme.colors.background.surfaceSecondary,
     gap: 0,
     padding: theme.spacing[0],
-  }),
+  } satisfies CSSObject,
 };
 
 export { cardStyles };

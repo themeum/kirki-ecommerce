@@ -2,10 +2,7 @@ import { useEffect, useState } from 'react';
 
 import AnimatedPage from '@/components/animated-page/animated-page';
 import ConfirmationDialog from '@/components/modal/confirmation-dialog';
-import {
-  setUnsavedDataStatus,
-  useUnsavedStatus,
-} from '@/libs/unsaved-store';
+import { setUnsavedDataStatus, useUnsavedStatus } from '@/libs/unsaved-store';
 import type { ConfirmationVariant } from '@/types';
 
 type ConfirmActionOtherProps = {

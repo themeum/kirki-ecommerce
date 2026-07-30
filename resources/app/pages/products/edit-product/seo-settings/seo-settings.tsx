@@ -2,20 +2,11 @@ import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useProductForm } from '@/contexts/product-form-context';
-import {
-  ProductSeoFormSchema,
-  productSeoDefaultValues,
-  type ProductSeoFormValues,
-} from '@/schemas/forms/product-seo-form';
+import { ProductSeoFormSchema, productSeoDefaultValues, type ProductSeoFormValues } from '@/schemas/forms/product-seo-form';
 import type { Product } from '@/types';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
@@ -81,7 +72,7 @@ const SEOSettings = () => {
   }, [form, updateProduct]);
 
   return (
-    <Card css={cardStyles.formCard}>
+    <Card cssOverride={cardStyles.formCard}>
       <CardHeader>
         <CardTitle>{__('AI & Web Presence', 'kirki-ecommerce')}</CardTitle>
       </CardHeader>

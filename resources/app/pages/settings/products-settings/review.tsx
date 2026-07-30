@@ -1,23 +1,18 @@
+import type { CSSObject } from '@emotion/react';
 import SwitchField from '@/components/form/switch-field';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+;
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
 export const Review = () => {
   return (
-    <Card css={cardStyles.largeCard}>
-      <CardHeader css={cardStyles.sectionHeader}>
+    <Card cssOverride={cardStyles.largeCard}>
+      <CardHeader cssOverride={cardStyles.sectionHeader}>
         <CardTitle>{__('Reviews', 'kirki-ecommerce')}</CardTitle>
         <CardDescription>
           {__(
@@ -26,9 +21,9 @@ export const Review = () => {
           )}
         </CardDescription>
       </CardHeader>
-      <CardContent css={cardStyles.largeContent}>
+      <CardContent cssOverride={cardStyles.largeContent}>
         <Flex gap={3} direction="column">
-          <Card css={styles.optionCard}>
+          <Card cssOverride={styles.optionCard}>
             <CardContent>
               <Flex>
                 <Flex direction="column" gap={2}>
@@ -44,7 +39,7 @@ export const Review = () => {
               </Flex>
             </CardContent>
           </Card>
-          <Card css={styles.optionCard}>
+          <Card cssOverride={styles.optionCard}>
             <CardContent>
               <Flex>
                 <Flex direction="column" gap={2}>
@@ -69,8 +64,8 @@ export const Review = () => {
 Review.displayName = 'Review';
 
 const styles = {
-  optionCard: scoped({
+  optionCard: ({
     borderRadius: theme.radius.lg,
     border: `1px solid ${theme.colors.border.default}`,
-  })
+  } satisfies CSSObject)
 };

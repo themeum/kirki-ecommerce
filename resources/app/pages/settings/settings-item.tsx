@@ -6,7 +6,7 @@ import Button from '@/components/ui/button';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { scoped, scopedMerge } from '@/theme/mixins';
 import { CSSObject } from '@emotion/react';
 
 type SettingsItemProps = {
@@ -54,14 +54,12 @@ const SettingsItem = (props: SettingsItemProps) => {
 
   return (
     <div
-      css={[
-        styles.row,
+      css={scopedMerge(styles.row,
         isOnly && styles.rowOnly,
         !isOnly && isFirst && styles.rowFirst,
         !isOnly && isLast && styles.rowLast,
         !isOnly && !isFirst && !isLast && styles.rowMiddle,
-        isDisabled && styles.rowDisabled,
-      ]}
+        isDisabled && styles.rowDisabled,)}
       data-active={isActive ? 'true' : undefined}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
@@ -70,13 +68,13 @@ const SettingsItem = (props: SettingsItemProps) => {
       aria-disabled={isDisabled || undefined}
       aria-current={isActive ? 'page' : undefined}
     >
-      <div css={styles.identifier} data-settings-identifier aria-hidden="true" />
-      <Flex gap={3} css={styles.content}>
-        <span css={styles.iconWrap} data-settings-icon>
+      <div css={scoped(styles.identifier)} data-settings-identifier aria-hidden="true" />
+      <Flex gap={3} cssOverride={styles.content}>
+        <span css={scoped(styles.iconWrap)} data-settings-icon>
           {icon}
         </span>
-        <Flex direction="column" gap={1} css={styles.textWrap}>
-          <Text weight="medium" css={styles.heading}>
+        <Flex direction="column" gap={1} cssOverride={styles.textWrap}>
+          <Text weight="medium" cssOverride={styles.heading}>
             <span data-settings-heading>{header}</span>
           </Text>
           <Text variant="small" color="secondary">
@@ -87,7 +85,7 @@ const SettingsItem = (props: SettingsItemProps) => {
       <Button
         variant="ghost"
         size="icon"
-        css={styles.actionButton}
+        cssOverride={styles.actionButton}
         data-settings-chevron
         tabIndex={-1}
         aria-hidden="true"
@@ -105,6 +103,7 @@ export { SettingsItem };
 
 const highlightedRow = {
   backgroundColor: theme.colors.background.fillSecondary,
+  borderRadius: theme.radius.xl,
 };
 
 const highlightedHeading = {
@@ -121,7 +120,7 @@ const showHighlightedAffordances: CSSObject = {
 };
 
 const styles = {
-  row: scoped({
+  row: ({
     position: 'relative',
     display: 'flex',
     flexDirection: 'row',
@@ -142,29 +141,29 @@ const styles = {
       showHighlightedAffordances,
     '&:hover [data-settings-chevron], &:focus-visible [data-settings-chevron], &[data-active="true"] [data-settings-chevron]':
       showHighlightedAffordances,
-  }),
-  rowOnly: scoped({
+  } satisfies CSSObject),
+  rowOnly: ({
     borderRadius: theme.radius.xl,
-  }),
-  rowFirst: scoped({
+  } satisfies CSSObject),
+  rowFirst: ({
     borderTopLeftRadius: theme.radius.xl,
     borderTopRightRadius: theme.radius.xl,
     borderBottomLeftRadius: theme.radius.sm,
     borderBottomRightRadius: theme.radius.sm,
-  }),
-  rowLast: scoped({
+  } satisfies CSSObject),
+  rowLast: ({
     borderTopLeftRadius: theme.radius.sm,
     borderTopRightRadius: theme.radius.sm,
     borderBottomLeftRadius: theme.radius.xl,
     borderBottomRightRadius: theme.radius.xl,
-  }),
-  rowMiddle: scoped({
+  } satisfies CSSObject),
+  rowMiddle: ({
     borderRadius: theme.radius.sm,
-  }),
-  rowDisabled: scoped({
+  } satisfies CSSObject),
+  rowDisabled: ({
     cursor: 'default',
-  }),
-  identifier: scoped({
+  } satisfies CSSObject),
+  identifier: ({
     position: 'absolute',
     top: '8px',
     bottom: '8px',
@@ -175,13 +174,13 @@ const styles = {
     opacity: 0,
     visibility: 'hidden',
     transition: 'opacity 0.2s ease, visibility 0.2s ease',
-  }),
-  content: scoped({
+  } satisfies CSSObject),
+  content: ({
     alignItems: 'flex-start',
     flex: 1,
     minWidth: 0,
-  }),
-  iconWrap: scoped({
+  } satisfies CSSObject),
+  iconWrap: ({
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -189,14 +188,14 @@ const styles = {
     marginTop: theme.spacing[1],
     color: theme.colors.icon.primary,
     transition: 'color 0.2s ease',
-  }),
-  textWrap: scoped({
+  } satisfies CSSObject),
+  textWrap: ({
     minWidth: 0,
-  }),
-  heading: scoped({
+  } satisfies CSSObject),
+  heading: ({
     transition: 'color 0.2s ease',
-  }),
-  actionButton: scoped({
+  } satisfies CSSObject),
+  actionButton: ({
     flexShrink: 0,
     opacity: 0,
     visibility: 'hidden',
@@ -207,5 +206,5 @@ const styles = {
       backgroundColor: theme.colors.background.fillSecondaryHover,
       color: theme.colors.background.fillBrand,
     },
-  }),
+  } satisfies CSSObject),
 };

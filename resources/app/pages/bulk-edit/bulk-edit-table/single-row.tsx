@@ -1,3 +1,4 @@
+import type { CSSObject } from '@emotion/react';
 import type {
   ChangeEvent,
   ComponentType,
@@ -10,13 +11,7 @@ import { useEffect, useState } from 'react';
 
 import ThumbnailSelector from '@/components/thumbnail-selector';
 import Input from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useBulkEditForm } from '@/contexts/bulk-edit-form-context';
 import { useBulkEditList } from '@/hooks';
 import Checkbox from '@/components/ui/checkbox';
@@ -283,7 +278,7 @@ const SingleRow = (props: SingleRowProps) => {
       style={{ cursor: isDragging ? 'crosshair' : 'default' }}
     >
       <TableCell
-        css={styles.stickyCell}
+        cssOverride={styles.stickyCell}
         data-sticky-cell="true"
       >
         <Flex gap={3} align="center">
@@ -298,7 +293,7 @@ const SingleRow = (props: SingleRowProps) => {
             size="small"
           />
           <span>
-            <span css={styles.mutedText}>
+            <span css={scoped(styles.mutedText)}>
               {`${currentVariation?.name} - `}
               {varTitle.join(' - ')}
             </span>
@@ -726,11 +721,11 @@ SingleRow.displayName = 'SingleRow';
 export default SingleRow;
 
 const styles = {
-  stickyCell: scoped({
+  stickyCell: ({
     minWidth: '260px',
     paddingRight: theme.spacing[3],
-  }),
-  mutedText: scoped({
+  } satisfies CSSObject),
+  mutedText: ({
     color: theme.colors.text.subdued,
-  }),
+  } satisfies CSSObject),
 };

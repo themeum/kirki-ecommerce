@@ -1,3 +1,4 @@
+import type { CSSObject } from '@emotion/react';
 import { useMemo, type Dispatch, type SetStateAction } from 'react';
 import { useNavigate } from 'react-router';
 
@@ -5,23 +6,15 @@ import Flex from '@/components/ui/flex';
 import { BoxOpenIcon } from '@/icons';
 import HeaderActionsCard from '@/components/header-actions-card';
 import GroupOptionCard from '@/components/group-option-card';
-import {
-  Card,
-  CardContent,
-} from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { dispatchToastMessage } from '@/pages/utils';
 import type { SettingsSectionData } from '@/types';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { scoped, mergeCss } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
-import {
-  saveShippingZones,
-  shippingMethodIconMap,
-  type ShippingMethodData,
-  type ShippingZone,
-} from '@/pages/settings/shipping-settings/utils';
+import { saveShippingZones, shippingMethodIconMap, type ShippingMethodData, type ShippingZone } from '@/pages/settings/shipping-settings/utils';
 
 type ShippingMethodProps = {
   from?: string;
@@ -120,7 +113,7 @@ export const ShippingMethod = ({
   return (
     <div>
       {from === 'edit_zone' ? (
-        <div css={styles.zoneMethodsWrap}>
+        <div css={scoped(styles.zoneMethodsWrap)}>
           <GroupOptionCard
             dataArr={shippingMethodList}
             handleDeleteItem={(item) =>
@@ -135,8 +128,8 @@ export const ShippingMethod = ({
           />
         </div>
       ) : (
-        <Card css={cardStyles.largeCard}>
-          <CardContent css={cardStyles.largeContentPadded}>
+        <Card cssOverride={cardStyles.largeCard}>
+          <CardContent cssOverride={cardStyles.largeContentPadded}>
             <HeaderActionsCard
               header={__('Shipping Methods', 'kirki-ecommerce')}
               subHeader={__(
@@ -148,11 +141,11 @@ export const ShippingMethod = ({
             />
 
             {!shippingMethodList?.length ? (
-              <Card css={cardStyles.innerDarkCard}>
-                <CardContent css={[cardStyles.innerDarkContent, styles.emptyState]}>
+              <Card cssOverride={cardStyles.innerDarkCard}>
+                <CardContent cssOverride={mergeCss(cardStyles.innerDarkContent, styles.emptyState)}>
                   <Flex direction="column" gap={2} align="center">
                     <BoxOpenIcon />
-                    <span css={styles.emptyStateText}>
+                    <span css={scoped(styles.emptyStateText)}>
                       {__(
                         'Added shipping profiles will appear here',
                         'kirki-ecommerce',
@@ -180,13 +173,13 @@ export const ShippingMethod = ({
 };
 
 const styles = {
-  zoneMethodsWrap: scoped({
+  zoneMethodsWrap: ({
     marginTop: theme.spacing[3],
-  }),
-  emptyState: scoped({
+  } satisfies CSSObject),
+  emptyState: ({
     padding: `${theme.spacing[9]} ${theme.spacing[0]}`,
-  }),
-  emptyStateText: scoped({
+  } satisfies CSSObject),
+  emptyStateText: ({
     color: theme.colors.text.subdued,
-  })
+  } satisfies CSSObject)
 };

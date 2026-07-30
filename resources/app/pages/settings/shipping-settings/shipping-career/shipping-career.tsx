@@ -1,14 +1,12 @@
+import type { CSSObject } from '@emotion/react';
 import Flex from '@/components/ui/flex';
 import { BoxOpenIcon } from '@/icons';
 import HeaderActionsCard from '@/components/header-actions-card';
 import GroupOptionCard from '@/components/group-option-card';
-import {
-  Card,
-  CardContent,
-} from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { __ } from '@/wpi18n';
 
-import { scoped } from '@/theme/mixins';
+import { scoped, mergeCss } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 
 import { theme } from '@/theme';
@@ -19,8 +17,8 @@ const ShippingCareer = (_props: ShippingCareerProps) => {
   const hasShippingCareers = false;
   return (
     <div>
-      <Card css={cardStyles.largeCard} >
-        <CardContent css={cardStyles.largeContentPadded}>
+      <Card cssOverride={cardStyles.largeCard} >
+        <CardContent cssOverride={cardStyles.largeContentPadded}>
 
         <HeaderActionsCard
         header={__('Shipping Careers', 'kirki-ecommerce')}
@@ -33,11 +31,11 @@ const ShippingCareer = (_props: ShippingCareerProps) => {
         />
 
         {!hasShippingCareers ? (
-          <Card css={cardStyles.innerDarkCard}>
-            <CardContent css={[cardStyles.innerDarkContent, styles.emptyStateContent]}>
+          <Card cssOverride={cardStyles.innerDarkCard}>
+            <CardContent cssOverride={mergeCss(cardStyles.innerDarkContent, styles.emptyStateContent)}>
               <Flex direction="column" gap={2} align="center">
                 <BoxOpenIcon />
-                <span css={styles.mutedText}>
+                <span css={scoped(styles.mutedText)}>
                   {__(
                     'Added shipping profiles will appear here',
                     'kirki-ecommerce',
@@ -58,10 +56,10 @@ const ShippingCareer = (_props: ShippingCareerProps) => {
 ShippingCareer.displayName = 'ShippingCareer';
 
 const styles = {
-  emptyStateContent: scoped({ padding: `${theme.spacing[9]} 0` }),
-  mutedText: scoped({
+  emptyStateContent: ({ padding: `${theme.spacing[9]} 0` } satisfies CSSObject),
+  mutedText: ({
     color: theme.colors.text.subdued,
-  }),
+  } satisfies CSSObject),
 };
 
 export default ShippingCareer;

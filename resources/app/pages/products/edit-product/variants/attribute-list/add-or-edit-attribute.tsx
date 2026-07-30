@@ -1,14 +1,11 @@
+import type { CSSObject } from '@emotion/react';
 import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import {
-  Field,
-  FieldError,
-  FieldLabel,
-} from '@/components/ui/field';
+import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Form } from '@/components/ui/form';
 import { ColorPaletteIcon, ListIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
@@ -19,16 +16,9 @@ import Flex from '@/components/ui/flex';
 import { useProductForm } from '@/contexts/product-form-context';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { scoped } from '@/theme/mixins';
-import {
-  ProductAttributeFormSchema,
-  type ProductAttributeFormValues,
-  type ProductAttributeValueFormValues,
-} from '@/schemas/forms/product-attribute-form';
-import {
-  useAttributesQuery,
-  useCreateAttributeMutation,
-} from '@/services/attribute';
+;
+import { ProductAttributeFormSchema, type ProductAttributeFormValues, type ProductAttributeValueFormValues } from '@/schemas/forms/product-attribute-form';
+import { useAttributesQuery, useCreateAttributeMutation } from '@/services/attribute';
 import type {
   Attribute,
   AttributeFormData,
@@ -218,17 +208,17 @@ const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
 
   return (
     <Form {...form}>
-      <Card css={cardStyles.innerCard}>
-        <CardContent css={cardStyles.innerContent}>
+      <Card cssOverride={cardStyles.innerCard}>
+        <CardContent cssOverride={cardStyles.innerContent}>
           <Flex direction="column" gap={4}>
             {!data && (
               <Flex direction="column" gap={2}>
                 <div>{__('Show in Product page as', 'kirki-ecommerce')}</div>
-                <Flex css={styles.typeSelector}>
+                <Flex cssOverride={styles.typeSelector}>
                   <Button
                     variant="outline"
                     size="lg"
-                    css={type === 'list' ? styles.typeSelected : undefined}
+                    cssOverride={type === 'list' ? styles.typeSelected : undefined}
                     onClick={() => handleOnTypeChange('list')}
                   >
                     <ListIcon />
@@ -237,7 +227,7 @@ const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
                   <Button
                     variant="outline"
                     size="lg"
-                    css={type === 'color' ? styles.typeSelected : undefined}
+                    cssOverride={type === 'color' ? styles.typeSelected : undefined}
                     onClick={() => handleOnTypeChange('color')}
                   >
                     <ColorPaletteIcon />
@@ -335,14 +325,14 @@ AddOrEditAttribute.displayName = 'AddOrEditAttribute';
 export default AddOrEditAttribute;
 
 const styles = {
-  typeSelector: scoped({
+  typeSelector: ({
     borderRadius: theme.radius.lg,
     border: `1px solid ${theme.colors.background.surfaceSubdued}`,
     width: 'max-content',
-  }),
-  typeSelected: scoped({
+  } satisfies CSSObject),
+  typeSelected: ({
     borderColor: theme.colors.background.fillBrand,
-  }),
+  } satisfies CSSObject),
 };
 
 export type {

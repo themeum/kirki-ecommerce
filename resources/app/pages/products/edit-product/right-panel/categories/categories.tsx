@@ -1,3 +1,4 @@
+import type { CSSObject } from '@emotion/react';
 import { useFormContext } from 'react-hook-form';
 
 import { Card } from '@/components/ui/card';
@@ -172,18 +173,18 @@ const Categories = () => {
   };
 
   return (
-    <Card css={styles.card}>
-      <div css={styles.header}>
+    <Card cssOverride={styles.card}>
+      <div css={scoped(styles.header)}>
         <Label>{__('Categories', 'kirki-ecommerce')}</Label>
       </div>
       {!loaded && (
-        <div css={styles.loading}>{__('Loading...', 'kirki-ecommerce')}</div>
+        <div css={scoped(styles.loading)}>{__('Loading...', 'kirki-ecommerce')}</div>
       )}
       {loaded && (
         <>
           {categories.length > 0 && (
-            <div css={styles.list}>
-              <div css={styles.row}>
+            <div css={scoped(styles.list)}>
+              <div css={scoped(styles.row)}>
                 <Flex gap={2} align="center">
                   <Checkbox
                     id="categories-all-products"
@@ -208,7 +209,7 @@ const Categories = () => {
               />
             </div>
           )}
-          <div css={styles.footer}>
+          <div css={scoped(styles.footer)}>
             <AddNewCategory />
           </div>
         </>
@@ -222,15 +223,15 @@ Categories.displayName = 'Categories';
 export default Categories;
 
 const styles = {
-  card: scoped({
+  card: ({
     padding: theme.spacing[0],
     rowGap: theme.spacing[0],
     overflow: 'hidden',
-  }),
-  header: scoped({
+  } satisfies CSSObject),
+  header: ({
     padding: theme.spacing[4],
-  }),
-  list: scoped({
+  } satisfies CSSObject),
+  list: ({
     width: '100%',
     maxHeight: '300px',
     overflowY: 'auto',
@@ -247,19 +248,19 @@ const styles = {
       backgroundColor: theme.colors.background.fillBrand,
       borderRadius: theme.radius.sm,
     },
-  }),
-  row: scoped({
+  } satisfies CSSObject),
+  row: ({
     width: '100%',
     boxSizing: 'border-box',
     padding: `${theme.spacing[2]} ${theme.spacing[4]}`,
     ...itemCenter(),
-  }),
-  footer: scoped({
+  } satisfies CSSObject),
+  footer: ({
     width: '100%',
     padding: `${theme.spacing[2]} ${theme.spacing[4]} ${theme.spacing[4]}`,
     boxSizing: 'border-box',
-  }),
-  loading: scoped({
+  } satisfies CSSObject),
+  loading: ({
     padding: `0 ${theme.spacing[4]} ${theme.spacing[4]}`,
-  }),
+  } satisfies CSSObject),
 };

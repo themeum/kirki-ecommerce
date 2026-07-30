@@ -1,14 +1,10 @@
-import type { SerializedStyles } from '@emotion/react';
-import {
-  forwardRef,
-  type ComponentPropsWithoutRef,
-  type ElementRef,
-} from 'react';
+import type { CSSObject } from '@emotion/react';
+import { forwardRef, type ComponentPropsWithoutRef, type ElementRef } from 'react';
 import * as PopoverPrimitive from '@radix-ui/react-popover';
 
 import { getPortalContainer } from '@/libs/portal-container';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { scopedMerge } from '@/theme/mixins';
 import { getOverlayMotionStyles } from '@/theme/overlay-motion';
 
 const Popover = PopoverPrimitive.Root;
@@ -21,14 +17,14 @@ type PopoverContentProps = Omit<
   ComponentPropsWithoutRef<typeof PopoverPrimitive.Content>,
   'className'
 > & {
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const PopoverContent = forwardRef<
   ElementRef<typeof PopoverPrimitive.Content>,
   PopoverContentProps
 >((props, ref) => {
-  const { css: cssProp, align = 'center', sideOffset = 4, ...rest } = props;
+  const { cssOverride, align = 'center', sideOffset = 4, ...rest } = props;
 
   return (
     <PopoverPrimitive.Portal container={getPortalContainer()}>
@@ -36,7 +32,7 @@ const PopoverContent = forwardRef<
         ref={ref}
         align={align}
         sideOffset={sideOffset}
-        css={[styles.content, cssProp]}
+        css={scopedMerge(styles.content, cssOverride)}
         {...rest}
       />
     </PopoverPrimitive.Portal>
@@ -48,7 +44,7 @@ PopoverContent.displayName = 'PopoverContent';
 export { Popover, PopoverTrigger, PopoverContent, PopoverAnchor };
 
 const styles = {
-  content: scoped({
+  content: ({
     width: 'max-content',
     minWidth: '224px',
     maxWidth: '320px',
@@ -79,5 +75,5 @@ const styles = {
       ...theme.typography.small(),
       color: theme.colors.text.secondary,
     },
-  }),
+  } satisfies CSSObject),
 };

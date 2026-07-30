@@ -1,17 +1,14 @@
+import type { CSSObject } from '@emotion/react';
 import CheckboxField from '@/components/form/checkbox-field';
 import SelectField from '@/components/form/select-field';
 import TextField from '@/components/form/text-field';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { FileTextIcon } from '@/icons';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { scoped } from '@/theme/mixins';
+import { mergeCss } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 const languageOptions = [
@@ -22,15 +19,15 @@ const languageOptions = [
 
 const CustomerOverview = () => {
   return (
-    <Card css={[cardStyles.formCard, styles.roundedCard]}>
+    <Card cssOverride={mergeCss(cardStyles.formCard, styles.roundedCard)}>
       <CardHeader>
         <Flex gap={2} align="center">
           <FileTextIcon />
           <Text weight="semibold">{__('Basic Info', 'kirki-ecommerce')}</Text>
         </Flex>
       </CardHeader>
-      <Card css={cardStyles.innerCard}>
-        <CardContent css={cardStyles.innerContent}>
+      <Card cssOverride={cardStyles.innerCard}>
+        <CardContent cssOverride={cardStyles.innerContent}>
           <Flex direction="column" gap={4}>
             <TextField
               name="first_name"
@@ -79,10 +76,10 @@ CustomerOverview.displayName = 'CustomerOverview';
 export default CustomerOverview;
 
 const styles = {
-  roundedCard: scoped({
+  roundedCard: ({
     padding: theme.spacing[5],
     borderRadius: theme.radius.xl,
     gap: theme.spacing[5],
-  }),
+  } satisfies CSSObject),
 };
 

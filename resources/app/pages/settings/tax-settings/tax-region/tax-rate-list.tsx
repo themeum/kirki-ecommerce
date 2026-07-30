@@ -1,18 +1,15 @@
-import { css } from '@emotion/react';
+import { css, type CSSObject } from '@emotion/react';
 import { useState, type Dispatch, type SetStateAction } from 'react';
 import { toast } from 'sonner';
 
-import {
-  Card,
-  CardContent,
-} from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import Button from '@/components/ui/button';
 import Input from '@/components/ui/input';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { PaymentIcon, LocationIcon, TrashIcon } from '@/icons';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { scoped, mergeCss } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import { __, sprintf } from '@/wpi18n';
 
@@ -70,25 +67,25 @@ export const TaxRateList = ({
   return (
     <div>
       {!applySingleTax && !taxRates.length ? (
-        <Card css={cardStyles.innerDarkCard}>
-          <CardContent css={[cardStyles.innerDarkContent, styles.emptyContent]}>
+        <Card cssOverride={cardStyles.innerDarkCard}>
+          <CardContent cssOverride={mergeCss(cardStyles.innerDarkContent, styles.emptyContent)}>
             <Flex direction="column" gap={2} align="center">
               <PaymentIcon />
-              <span css={styles.mutedText}>
+              <span css={scoped(styles.mutedText)}>
                 {__('Added tax rates will appear here', 'kirki-ecommerce')}
               </span>
             </Flex>
           </CardContent>
         </Card>
       ) : (
-        <Card css={cardStyles.innerDarkCard}>
-          <CardContent css={cardStyles.innerDarkContent}>
-            <Text css={styles.taxRatesHeader}>{__('Tax rates', 'kirki-ecommerce')}</Text>
+        <Card cssOverride={cardStyles.innerDarkCard}>
+          <CardContent cssOverride={cardStyles.innerDarkContent}>
+            <Text cssOverride={styles.taxRatesHeader}>{__('Tax rates', 'kirki-ecommerce')}</Text>
             <Flex gap={1} direction={'column'}>
               {taxRates?.map((item, index) => (
                 <Card
                   key={index}
-                  css={styles.taxCard}
+                  cssOverride={styles.taxCard}
                   onMouseEnter={() => setHoveredIndex(index)}
                   onMouseLeave={() => setHoveredIndex(null)}
                 >
@@ -97,22 +94,18 @@ export const TaxRateList = ({
                       <LocationIcon />
                       <Text>{item?.state}</Text>
                     </Flex>
-                    <div css={styles.taxCardContent}>
+                    <div css={scoped(styles.taxCardContent)}>
                       <Text
-                        css={css(
-                          styles.rateDisplay,
-                          hoveredIndex === index && styles.rateDisplayHidden,
-                        )}
+                        cssOverride={mergeCss(styles.rateDisplay,
+                          hoveredIndex === index && styles.rateDisplayHidden,)}
                       >
                         {sprintf(__('%s %', 'kirki-ecommerce'), item?.rate)}
                       </Text>
 
                       <Flex
                         gap={2}
-                        css={css(
-                          styles.editGroup,
-                          hoveredIndex === index && styles.editGroupActive,
-                        )}
+                        cssOverride={mergeCss(styles.editGroup,
+                          hoveredIndex === index && styles.editGroupActive,)}
                       >
                         <Input
                           value={item?.rate ?? ''}
@@ -146,11 +139,11 @@ export const TaxRateList = ({
 TaxRateList.displayName = 'TaxRateList';
 
 const styles = {
-  emptyContent: scoped({ padding: `${theme.spacing[9]} 0` }),
-  mutedText: scoped({
+  emptyContent: ({ padding: `${theme.spacing[9]} 0` } satisfies CSSObject),
+  mutedText: ({
     color: theme.colors.text.subdued,
-  }),
-  taxCard: scoped({
+  } satisfies CSSObject),
+  taxCard: ({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -158,7 +151,7 @@ const styles = {
     maxHeight: '44px',
     height: '44px',
     padding: theme.spacing[3],
-  }),
+  } satisfies CSSObject),
   editGroup: css({
     display: 'none',
     pointerEvents: 'none',
@@ -168,18 +161,18 @@ const styles = {
     display: 'flex',
     pointerEvents: 'auto',
   }),
-  rateDisplay: scoped({
+  rateDisplay: ({
     transition: 'opacity 0.2s',
     display: 'flex',
-  }),
+  } satisfies CSSObject),
   rateDisplayHidden: css({
     display: 'none',
   }),
-  taxCardContent: scoped({
+  taxCardContent: ({
     display: 'flex',
     alignItems: 'center',
-  }),
-  taxRatesHeader: scoped({
+  } satisfies CSSObject),
+  taxRatesHeader: ({
     marginBottom: theme.spacing[2],
-  })
+  } satisfies CSSObject)
 };

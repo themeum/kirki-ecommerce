@@ -1,3 +1,4 @@
+import type { CSSObject } from '@emotion/react';
 import ActionGroup from '@/components/ui/action-group';
 import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
@@ -5,21 +6,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import Thumbnail from '@/components/ui/thumbnail';
-import {
-  EditIcon,
-  EmailIcon,
-  LocationIcon,
-  PhoneIcon,
-  TrashIcon,
-  TruckIcon,
-} from '@/icons';
+import { EditIcon, EmailIcon, LocationIcon, PhoneIcon, TrashIcon, TruckIcon } from '@/icons';
 import { cardStyles } from '@/theme/card-styles';
 import { flexCenter, scoped } from '@/theme/mixins';
 
 const CustomerInfo = () => {
   return (
-    <Card css={cardStyles.formCard}>
-      <CardHeader css={styles.headerRow}>
+    <Card cssOverride={cardStyles.formCard}>
+      <CardHeader cssOverride={styles.headerRow}>
         <CardTitle>Customer</CardTitle>
         <ActionGroup>
           <Button variant="secondary" size="icon" aria-label="Delete">
@@ -32,7 +26,7 @@ const CustomerInfo = () => {
       </CardHeader>
       <CardContent>
         <Flex gap={2}>
-          <span css={styles.svgClass}>
+          <span css={scoped(styles.svgClass)}>
             <Thumbnail
               type="circle"
               src="https://kirki-ecommerce.test/wp-content/uploads/2025/10/Avatar.png"
@@ -53,7 +47,7 @@ const CustomerInfo = () => {
         </Flex>
 
         <Flex gap={2} align="center">
-          <span css={styles.svgClass}>
+          <span css={scoped(styles.svgClass)}>
             <PhoneIcon />
           </span>
           <Text>+1 555-123-4567</Text>
@@ -90,10 +84,10 @@ const CustomerInfo = () => {
 export default CustomerInfo;
 
 const styles = {
-  headerRow: scoped({
+  headerRow: ({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-  }),
+  } satisfies CSSObject),
   svgClass: scoped(flexCenter())
 };

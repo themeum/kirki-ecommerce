@@ -1,3 +1,4 @@
+import type { CSSObject } from '@emotion/react';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -6,28 +7,15 @@ import CheckboxField from '@/components/form/checkbox-field';
 import PasswordField from '@/components/form/password-field';
 import SelectField from '@/components/form/select-field';
 import Button from '@/components/ui/button';
-import {
-  Dialog,
-  DialogBody,
-  DialogClose,
-  DialogCloseButton,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogBody, DialogClose, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
 import { ConfigureKeyIcon } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
-import {
-  ApiConfigurationFormSchema,
-  apiConfigurationDefaultValues,
-  type ApiConfigurationFormValues,
-} from '@/schemas/forms/api-configuration-form';
+import { ApiConfigurationFormSchema, apiConfigurationDefaultValues, type ApiConfigurationFormValues } from '@/schemas/forms/api-configuration-form';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+;
 import { __ } from '@/wpi18n';
 
 type ApiConfigData = {
@@ -144,7 +132,7 @@ const ApiConfigurationPopup = ({
                   label={__('API Key', 'kirki-ecommerce')}
                   placeholder={'******'}
                 />
-                <Text weight="medium" css={styles.helperText}>{__(
+                <Text weight="medium" cssOverride={styles.helperText}>{__(
                     'Your API key is encrypted and stored securely. Get your API key from ExchangeRate API',
                     'kirki-ecommerce',
                   )}</Text>
@@ -182,7 +170,7 @@ const ApiConfigurationPopup = ({
                   <Button
                     type="button"
                     variant="ghost"
-                    css={styles.cancelButton}
+                    cssOverride={styles.cancelButton}
                   >
                     {__('Cancel', 'kirki-ecommerce')}
                   </Button>
@@ -205,10 +193,10 @@ ApiConfigurationPopup.displayName = 'ApiConfigurationPopup';
 export default ApiConfigurationPopup;
 
 const styles = {
-  cancelButton: scoped({
+  cancelButton: ({
     boxShadow: theme.shadow.sm,
-  }),
-  helperText: scoped({
+  } satisfies CSSObject),
+  helperText: ({
     ...theme.typography.paragraph(),
-  }),
+  } satisfies CSSObject),
 };

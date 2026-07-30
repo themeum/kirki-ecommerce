@@ -1,20 +1,14 @@
-import { css } from '@emotion/react';
+import { css, type CSSObject } from '@emotion/react';
 import { useState, type Dispatch, type SetStateAction } from 'react';
 
 import Button from '@/components/ui/button';
 import Input from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { PlusIcon, TrashIcon } from '@/icons';
 import Grid from '@/components/ui/grid';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { mergeCss } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 import { taxRuleConditionOptions } from '@/pages/settings/tax-settings/utils';
@@ -111,7 +105,7 @@ const ConditionRow = (props: ConditionRowProps) => {
         <Text>{__(' IF', 'kirki-ecommerce')}</Text>
       )}
       <Grid
-        css={styles.conditionGrid}
+        cssOverride={styles.conditionGrid}
         template={
           row.condition === 'destination_region' || index > 0
             ? 'minmax(0, 2fr) 0.5fr minmax(0, 2fr) auto'
@@ -167,10 +161,8 @@ const ConditionRow = (props: ConditionRowProps) => {
             size="icon"
             variant="outline"
             onClick={handleAddConditionRow}
-            css={css(
-              styles.conditionActions,
-              isHovered && styles.conditionActionsActive,
-            )}
+            cssOverride={mergeCss(styles.conditionActions,
+              isHovered && styles.conditionActionsActive,)}
           >
             <PlusIcon />
           </Button>
@@ -180,10 +172,8 @@ const ConditionRow = (props: ConditionRowProps) => {
             size="icon"
             variant="secondary"
             onClick={() => handleDeleteConditionRow(row.id)}
-            css={css(
-              styles.conditionActions,
-              isHovered && styles.conditionActionsActive,
-            )}
+            cssOverride={mergeCss(styles.conditionActions,
+              isHovered && styles.conditionActionsActive,)}
           >
             <TrashIcon />
           </Button>
@@ -209,9 +199,9 @@ ConditionRow.displayName = 'ConditionRow';
 export default ConditionRow;
 
 const styles = {
-  conditionGrid: scoped({
+  conditionGrid: ({
     marginTop: theme.spacing[2],
-  }),
+  } satisfies CSSObject),
   conditionActions: css({
     opacity: 0,
     visibility: 'hidden',

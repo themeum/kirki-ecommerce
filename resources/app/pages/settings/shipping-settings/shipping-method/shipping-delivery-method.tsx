@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, type ReactNode } from 'react';
+import { mergeCss } from '@/theme/mixins';
 import { useSearchParams, useNavigate, useOutletContext } from 'react-router';
 import { toast } from 'sonner';
 
@@ -8,19 +9,10 @@ import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import PageNavbar from '@/components/page-navbar';
 import Button from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-} from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { queryClient } from '@/libs/query-client';
 import { queryKeys } from '@/libs/query-keys';
 import { useUnsavedStatus } from '@/libs/unsaved-store';
@@ -268,8 +260,8 @@ const ShippingDeliveryMethod = () => {
             text={methodSettingsMap[methodType].title ?? ''}
             handleBack={handleBackButton}
           />
-          <Card css={[cardStyles.largeCard, cardStyles.formCard]} >
-            <CardContent css={cardStyles.largeContentPadded}>
+          <Card cssOverride={mergeCss(cardStyles.largeCard, cardStyles.formCard)} >
+            <CardContent cssOverride={cardStyles.largeContentPadded}>
 
             <Flex direction="column" gap={2}>
             <Label htmlFor="shipping-method-name">

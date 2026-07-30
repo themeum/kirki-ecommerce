@@ -1,4 +1,4 @@
-import { keyframes, css } from '@emotion/react';
+import { keyframes, css, type CSSObject } from '@emotion/react';
 import type { ReactNode } from 'react';
 
 import Flex from '@/components/ui/flex';
@@ -6,7 +6,7 @@ import Text from '@/components/ui/text';
 import Button from '@/components/ui/button';
 import { InfoIcon, AlertIcon, CloseIcon, CheckedIcon } from '@/icons';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { scoped, mergeCss } from '@/theme/mixins';
 import type { ToastVariant } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -69,10 +69,10 @@ const Toast = ({
 
   return (
     <Flex direction={'column'}>
-      <Flex gap={5} css={[styles.element, css({ background: ui.bg })]} >
+      <Flex gap={5} cssOverride={mergeCss(styles.element, css({ background: ui.bg }))} >
         <Flex gap={2}>
           <span
-            css={styles.icon}
+            css={scoped(styles.icon)}
             style={{
               background: ui.iconColor,
             }}
@@ -87,7 +87,7 @@ const Toast = ({
           {undoAction && (
             <Button
               variant="ghost"
-              css={styles.undoButton}
+              cssOverride={styles.undoButton}
               onClick={() => {
                 onUndo?.();
               }}
@@ -98,7 +98,7 @@ const Toast = ({
           <Button
             variant="ghost"
             aria-label={__('Close', 'kirki-ecommerce')}
-            css={styles.closeButton}
+            cssOverride={styles.closeButton}
             onClick={onClose}
           >
             <CloseIcon />
@@ -106,9 +106,9 @@ const Toast = ({
         </Flex>
       </Flex>
       {variant === 'delete' && (
-        <div css={styles.timer}>
+        <div css={scoped(styles.timer)}>
           <div
-            css={styles.timerBar}
+            css={scoped(styles.timerBar)}
             style={{
               animationDuration: `${duration}ms`,
               background: ui.iconColor,
@@ -143,7 +143,7 @@ const toastSlideIn = keyframes({
 });
 
 const styles = {
-  container: scoped({
+  container: ({
     position: 'fixed',
     bottom: '30px',
     right: '-8%',
@@ -152,8 +152,8 @@ const styles = {
     flexDirection: 'column',
     gap: theme.spacing[2],
     zIndex: 9999,
-  }),
-  element: scoped({
+  } satisfies CSSObject),
+  element: ({
     minWidth: '330px',
     maxWidth: 'auto',
     height: '68px',
@@ -163,8 +163,8 @@ const styles = {
     borderRadius: `${theme.radius.xl} ${theme.radius.xl} ${theme.radius.sm} ${theme.radius.sm}`,
     boxShadow: theme.shadow.md,
     animation: `${toastSlideIn} 0.2s ease-out`,
-  }),
-  icon: scoped({
+  } satisfies CSSObject),
+  icon: ({
     height: '30px',
     width: '30px',
     borderRadius: theme.radius.full,
@@ -172,27 +172,27 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     color: theme.colors.background.surfaceTertiary,
-  }),
-  timer: scoped({
+  } satisfies CSSObject),
+  timer: ({
     height: '3px',
     width: '100%',
     background: theme.colors.background.fillTertiary,
     overflow: 'hidden',
     borderRadius: theme.radius.sm,
-  }),
-  timerBar: scoped({
+  } satisfies CSSObject),
+  timerBar: ({
     height: '100%',
     width: '100%',
     transformOrigin: 'left',
     animationName: shrink,
     animationTimingFunction: 'linear',
     animationFillMode: 'forwards',
-  }),
-  undoButton: scoped({
+  } satisfies CSSObject),
+  undoButton: ({
     padding: theme.spacing[2],
-  }),
-  closeButton: scoped({
+  } satisfies CSSObject),
+  closeButton: ({
     pointerEvents: 'auto',
     padding: theme.spacing[1],
-  }),
+  } satisfies CSSObject),
 };

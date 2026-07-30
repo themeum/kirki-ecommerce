@@ -1,37 +1,21 @@
-import { css } from '@emotion/react';
+import { type CSSObject } from '@emotion/react';
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import Button from '@/components/ui/button';
 import Checkbox from '@/components/ui/checkbox';
-import {
-  Dialog,
-  DialogBody,
-  DialogClose,
-  DialogCloseButton,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogBody, DialogClose, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
 import { PlusIcon, SearchIcon } from '@/icons';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
-import {
-  AddCurrencyPopupFormSchema,
-  type AddCurrencyPopupFormValues,
-} from '@/schemas/forms/add-currency-popup-form';
-import {
-  useAllCurrenciesQuery,
-  useAvailableCurrenciesQuery,
-} from '@/services/currency';
+import { AddCurrencyPopupFormSchema, type AddCurrencyPopupFormValues } from '@/schemas/forms/add-currency-popup-form';
+import { useAllCurrenciesQuery, useAvailableCurrenciesQuery } from '@/services/currency';
 import type { Currency } from '@/types';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 import { getSearchedValue } from '@/pages/settings/utils';
@@ -170,19 +154,19 @@ const AddCurrencyPopup = () => {
                           'kirki-ecommerce',
                         )}
                         onChange={(e) => handleSearchCurrency(e)}
-                        css={styles.searchInput}
+                        cssOverride={styles.searchInput}
                       />
                     </div>
                   </div>
 
-                  <Flex direction="column" gap={3} css={css({ height: '200px', overflowX: 'scroll' })}>
+                  <Flex direction="column" gap={3} cssOverride={{ height: '200px', overflowX: 'scroll' }}>
                     {filteredCurrency?.length > 0 &&
                       filteredCurrency.map((currency, index) => (
                         <Flex
                           key={index}
                           gap={3}
                           onClick={() => handleSelectCurrencies(currency)}
-                          css={css({ cursor: 'pointer' })}
+                          cssOverride={{ cursor: 'pointer' }}
                         >
                           <Flex gap={2} align="center">
                             <Checkbox
@@ -200,11 +184,11 @@ const AddCurrencyPopup = () => {
                               {currency.code}
                             </Label>
                           </Flex>
-                          <Flex justify="space-between" css={css({ width: '100%' })}>
+                          <Flex justify="space-between" cssOverride={{ width: '100%' }}>
                             <Text variant="small" style={{
                                 color: theme.colors.text.subdued,
                               }}>{currency.name}</Text>
-                            <Text weight="semibold" css={styles.symbolText}>{currency.symbol}</Text>
+                            <Text weight="semibold" cssOverride={styles.symbolText}>{currency.symbol}</Text>
                           </Flex>
                         </Flex>
                       ))}
@@ -248,10 +232,10 @@ AddCurrencyPopup.displayName = 'AddCurrencyPopup';
 export default AddCurrencyPopup;
 
 const styles = {
-  searchInput: scoped({
+  searchInput: ({
     paddingLeft: theme.spacing[8],
-  }),
-  symbolText: scoped({
+  } satisfies CSSObject),
+  symbolText: ({
     paddingRight: theme.spacing[3],
-  }),
+  } satisfies CSSObject),
 };

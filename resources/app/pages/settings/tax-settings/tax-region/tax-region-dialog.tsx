@@ -1,25 +1,12 @@
-import {
-  useState,
-  useMemo,
-  useEffect,
-  type Dispatch,
-  type SetStateAction,
-} from 'react';
+import type { CSSObject } from '@emotion/react';
+import { useState, useMemo, useEffect, type Dispatch, type SetStateAction } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import Button from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
-import {
-  Dialog,
-  DialogBody,
-  DialogCloseButton,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogBody, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
@@ -27,10 +14,7 @@ import Flex from '@/components/ui/flex';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { scoped } from '@/theme/mixins';
-import {
-  TaxRegionPopupFormSchema,
-  type TaxRegionPopupFormValues,
-} from '@/schemas/forms/tax-region-popup-form';
+import { TaxRegionPopupFormSchema, type TaxRegionPopupFormValues } from '@/schemas/forms/tax-region-popup-form';
 import { useCountriesQuery } from '@/services/country';
 import type { FormErrors } from '@/types';
 import { __, sprintf } from '@/wpi18n';
@@ -274,7 +258,7 @@ const TaxRegionPopup = (props: TaxRegionPopupProps) => {
               />
             </Flex>
 
-            <Card css={cardStyles.lightCard}>
+            <Card cssOverride={cardStyles.lightCard}>
               <div
                 style={{
                   height: '350px',
@@ -294,7 +278,7 @@ const TaxRegionPopup = (props: TaxRegionPopupProps) => {
                     const countryStates = (country.states ||
                       []) as CountryStateOption[];
                     return (
-                      <div key={index} css={styles.checkboxItem}>
+                      <div key={index} css={scoped(styles.checkboxItem)}>
                         <Flex gap={2} align="center">
                           <Checkbox
                             id={`tax-region-country-${country.code}`}
@@ -314,10 +298,10 @@ const TaxRegionPopup = (props: TaxRegionPopupProps) => {
                         </Flex>
                         {formCountries?.includes(country.code) &&
                         countryStates.length > 0 ? (
-                          <div css={styles.nestedStates}>
+                          <div css={scoped(styles.nestedStates)}>
                             {countryStates.map((state, stateIndex) => {
                               return (
-                                <div key={stateIndex} css={styles.checkboxItem}>
+                                <div key={stateIndex} css={scoped(styles.checkboxItem)}>
                                   <Flex gap={2} align="center">
                                     <Checkbox
                                       id={`tax-region-state-${country.code}-${state?.id}`}
@@ -376,15 +360,15 @@ TaxRegionPopup.displayName = 'TaxRegionPopup';
 export default TaxRegionPopup;
 
 const styles = {
-  checkboxItem: scoped({
+  checkboxItem: ({
     width: 'auto',
     padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
     '&:hover': {
       background: theme.colors.background.surfaceSecondary,
       borderRadius: theme.radius.sm,
     },
-  }),
-  nestedStates: scoped({
+  } satisfies CSSObject),
+  nestedStates: ({
     padding: theme.spacing[3],
-  }),
+  } satisfies CSSObject),
 };

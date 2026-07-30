@@ -1,18 +1,9 @@
-import { css, type SerializedStyles, type Theme } from '@emotion/react';
-import {
-  forwardRef,
-  type ComponentPropsWithoutRef,
-  type MouseEvent,
-} from 'react';
+import { type CSSObject, type Theme } from '@emotion/react';
+import { forwardRef, type ComponentPropsWithoutRef, type MouseEvent } from 'react';
 
 import Button from '@/components/ui/button';
 import { theme } from '@/theme';
-import {
-  flexCenter,
-  itemCenter,
-  scoped,
-  uiFocusRing,
-} from '@/theme/mixins';
+import { flexCenter, itemCenter, uiFocusRing, scopedMerge, mergeCss } from '@/theme/mixins';
 
 type InputGroupAlign =
   | 'inline-start'
@@ -28,7 +19,7 @@ type InputGroupProps = Omit<
 > & {
   error?: boolean;
   disabled?: boolean;
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 type InputGroupAddonProps = Omit<
@@ -36,28 +27,28 @@ type InputGroupAddonProps = Omit<
   'className' | 'css'
 > & {
   align?: InputGroupAlign;
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 type InputGroupInputProps = Omit<
   ComponentPropsWithoutRef<'input'>,
   'className' | 'css'
 > & {
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 type InputGroupTextareaProps = Omit<
   ComponentPropsWithoutRef<'textarea'>,
   'className' | 'css'
 > & {
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 type InputGroupTextProps = Omit<
   ComponentPropsWithoutRef<'span'>,
   'className' | 'css'
 > & {
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 type InputGroupButtonProps = Omit<
@@ -77,7 +68,7 @@ type InputGroupButtonProps = Omit<
  */
 const InputGroup = forwardRef<HTMLDivElement, InputGroupProps>((props, ref) => {
   const {
-    css: cssProp,
+    cssOverride,
     error,
     disabled,
     children,
@@ -91,7 +82,7 @@ const InputGroup = forwardRef<HTMLDivElement, InputGroupProps>((props, ref) => {
       data-slot="input-group"
       data-error={error ? 'true' : undefined}
       data-disabled={disabled ? 'true' : undefined}
-      css={[styles.group, cssProp]}
+      css={scopedMerge(styles.group, cssOverride)}
       {...rest}
     >
       {children}
@@ -112,7 +103,7 @@ InputGroup.displayName = 'InputGroup';
 const InputGroupAddon = forwardRef<HTMLDivElement, InputGroupAddonProps>(
   (props, ref) => {
     const {
-      css: cssProp,
+      cssOverride,
       align = 'inline-start',
       children,
       onClick,
@@ -143,7 +134,7 @@ const InputGroupAddon = forwardRef<HTMLDivElement, InputGroupAddonProps>(
         role="group"
         data-slot="input-group-addon"
         data-align={align}
-        css={[styles.addon, styles.addonAlign[align], cssProp]}
+        css={scopedMerge(styles.addon, styles.addonAlign[align], cssOverride)}
         onClick={handleClick}
         {...rest}
       >
@@ -165,14 +156,14 @@ InputGroupAddon.displayName = 'InputGroupAddon';
  */
 const InputGroupInput = forwardRef<HTMLInputElement, InputGroupInputProps>(
   (props, ref) => {
-    const { css: cssProp, type = 'text', value, ...rest } = props;
+    const { cssOverride, type = 'text', value, ...rest } = props;
 
     return (
       <input
         ref={ref}
         type={type}
         data-slot="input-group-control"
-        css={[styles.control, styles.input, cssProp]}
+        css={scopedMerge(styles.control, styles.input, cssOverride)}
         {...rest}
         {...('value' in props ? { value: value ?? '' } : {})}
       />
@@ -194,14 +185,14 @@ const InputGroupTextarea = forwardRef<
   HTMLTextAreaElement,
   InputGroupTextareaProps
 >((props, ref) => {
-  const { css: cssProp, rows = 5, value, ...rest } = props;
+  const { cssOverride, rows = 5, value, ...rest } = props;
 
   return (
     <textarea
       ref={ref}
       rows={rows}
       data-slot="input-group-control"
-      css={[styles.control, styles.textarea, cssProp]}
+      css={scopedMerge(styles.control, styles.textarea, cssOverride)}
       {...rest}
       {...('value' in props ? { value: value ?? '' } : {})}
     />
@@ -220,9 +211,9 @@ InputGroupTextarea.displayName = 'InputGroupTextarea';
  */
 const InputGroupText = forwardRef<HTMLSpanElement, InputGroupTextProps>(
   (props, ref) => {
-    const { css: cssProp, ...rest } = props;
+    const { cssOverride, ...rest } = props;
 
-    return <span ref={ref} css={[styles.text, cssProp]} {...rest} />;
+    return <span ref={ref} css={scopedMerge(styles.text, cssOverride)} {...rest} />;
   },
 );
 
@@ -239,7 +230,7 @@ InputGroupText.displayName = 'InputGroupText';
 const InputGroupButton = forwardRef<HTMLButtonElement, InputGroupButtonProps>(
   (props, ref) => {
     const {
-      css: cssProp,
+      cssOverride,
       variant = 'ghost',
       size = 'xs',
       type = 'button',
@@ -251,7 +242,7 @@ const InputGroupButton = forwardRef<HTMLButtonElement, InputGroupButtonProps>(
         ref={ref}
         type={type}
         variant={variant}
-        css={css(styles.button, styles.buttonSizes[size], cssProp)}
+        cssOverride={mergeCss(styles.button, styles.buttonSizes[size], cssOverride)}
         {...rest}
       />
     );
@@ -281,7 +272,7 @@ export type {
 };
 
 const styles = {
-  group: scoped({
+  group: ({
     position: 'relative',
     display: 'flex',
     width: '100%',
@@ -317,8 +308,8 @@ const styles = {
       alignItems: 'stretch',
       height: 'auto',
     },
-  }),
-  addon: scoped({
+  } satisfies CSSObject),
+  addon: ({
     ...itemCenter(),
     justifyContent: 'center',
     gap: theme.spacing[2],
@@ -330,37 +321,37 @@ const styles = {
     '& svg': {
       flexShrink: 0,
     },
-  }),
+  } satisfies CSSObject),
   addonAlign: {
-    'inline-start': scoped({
+    'inline-start': ({
       order: -1,
       paddingLeft: theme.spacing[3],
       pointerEvents: 'none',
       '& > button': {
         pointerEvents: 'auto',
       },
-    }),
-    'inline-end': scoped({
+    } satisfies CSSObject),
+    'inline-end': ({
       order: 1,
       paddingRight: theme.spacing[3],
       '& > button': {
         pointerEvents: 'auto',
       },
-    }),
-    'block-start': scoped({
+    } satisfies CSSObject),
+    'block-start': ({
       order: -1,
       width: '100%',
       justifyContent: 'flex-start',
       padding: `${theme.spacing[3]} ${theme.spacing[3]} 0`,
-    }),
-    'block-end': scoped({
+    } satisfies CSSObject),
+    'block-end': ({
       order: 1,
       width: '100%',
       justifyContent: 'flex-start',
       padding: `0 ${theme.spacing[3]} ${theme.spacing[3]}`,
-    }),
+    } satisfies CSSObject),
   },
-  control: scoped({
+  control: ({
     flex: 1,
     width: '100%',
     minWidth: 0,
@@ -389,8 +380,8 @@ const styles = {
         opacity: 0.5,
       },
     },
-  }),
-  input: scoped({
+  } satisfies CSSObject),
+  input: ({
     minHeight: '36px',
     padding: `${theme.spacing[1]} ${theme.spacing[3]}`,
     '&[type="number"]': {
@@ -409,14 +400,14 @@ const styles = {
           WebkitAppearance: 'none',
         },
     },
-  }),
-  textarea: scoped({
+  } satisfies CSSObject),
+  textarea: ({
     minHeight: '36px',
     padding: `${theme.spacing[1]} ${theme.spacing[3]}`,
     resize: 'none',
     height: 'auto',
-  }),
-  text: scoped({
+  } satisfies CSSObject),
+  text: ({
     ...itemCenter(),
     gap: theme.spacing[2],
     ...theme.typography.small(),
@@ -425,36 +416,36 @@ const styles = {
     '& svg': {
       pointerEvents: 'none',
     },
-  }),
-  button: scoped({
+  } satisfies CSSObject),
+  button: ({
     boxShadow: 'none',
-  }),
+  } satisfies CSSObject),
   buttonSizes: {
-    xs: scoped({
+    xs: ({
       ...theme.typography.small(),
       height: '24px',
       gap: theme.spacing[1],
       borderRadius: theme.radius.md,
       padding: `0 ${theme.spacing[2]}`,
-    }),
-    sm: scoped({
+    } satisfies CSSObject),
+    sm: ({
       height: '32px',
       gap: theme.spacing[2],
       borderRadius: theme.radius.md,
       padding: `0 ${theme.spacing[2]}`,
-    }),
-    'icon-xs': scoped({
+    } satisfies CSSObject),
+    'icon-xs': ({
       ...flexCenter(),
       width: '24px',
       height: '24px',
       padding: 0,
       borderRadius: theme.radius.md,
-    }),
-    'icon-sm': scoped({
+    } satisfies CSSObject),
+    'icon-sm': ({
       ...flexCenter(),
       width: '32px',
       height: '32px',
       padding: 0,
-    }),
+    } satisfies CSSObject),
   },
 };

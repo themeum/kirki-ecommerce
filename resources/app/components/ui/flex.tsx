@@ -1,9 +1,8 @@
-import type { SerializedStyles } from '@emotion/react';
-import { css } from '@emotion/react';
+import type { CSSObject } from '@emotion/react';
 import { forwardRef, type ComponentPropsWithoutRef } from 'react';
 
 import { resolveGap } from '@/components/ui/layout-utils';
-import { scoped } from '@/theme/mixins';
+import { scopedMerge } from '@/theme/mixins';
 import type {
   FlexAlign,
   FlexBasis,
@@ -14,10 +13,6 @@ import type {
   FlexWrap,
   GapValue,
 } from '@/types';
-
-type FlexCssProp =
-  | SerializedStyles
-  | Array<SerializedStyles | false | null | undefined>;
 
 type FlexProps = Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'css'> & {
   direction?: FlexDirection;
@@ -30,12 +25,12 @@ type FlexProps = Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'css'> & {
   gap?: GapValue;
   rowGap?: GapValue;
   columnGap?: GapValue;
-  css?: FlexCssProp;
+  cssOverride?: CSSObject;
 };
 
 const Flex = forwardRef<HTMLDivElement, FlexProps>((props, ref) => {
   const {
-    css: cssProp,
+    cssOverride,
     direction,
     align,
     justify,
@@ -50,24 +45,28 @@ const Flex = forwardRef<HTMLDivElement, FlexProps>((props, ref) => {
     ...rest
   } = props;
 
+  const layout: CSSObject = {
+    ...(align !== undefined ? { alignItems: align } : {}),
+    ...(justify !== undefined ? { justifyContent: justify } : {}),
+    ...(wrap !== undefined ? { flexWrap: wrap } : {}),
+    ...(grow !== undefined ? { flexGrow: grow } : {}),
+    ...(shrink !== undefined ? { flexShrink: shrink } : {}),
+    ...(basis !== undefined ? { flexBasis: basis } : {}),
+    ...(gap !== undefined ? { gap: resolveGap(gap) } : {}),
+    ...(rowGap !== undefined ? { rowGap: resolveGap(rowGap) } : {}),
+    ...(columnGap !== undefined ? { columnGap: resolveGap(columnGap) } : {}),
+  };
+
   return (
     <div
       ref={ref}
-      css={[
+      css={scopedMerge(
         styles.root,
         direction === 'column' && styles.column,
         direction === 'row' && styles.row,
-        align !== undefined && css({ alignItems: align }),
-        justify !== undefined && css({ justifyContent: justify }),
-        wrap !== undefined && css({ flexWrap: wrap }),
-        grow !== undefined && css({ flexGrow: grow }),
-        shrink !== undefined && css({ flexShrink: shrink }),
-        basis !== undefined && css({ flexBasis: basis }),
-        gap !== undefined && css({ gap: resolveGap(gap) }),
-        rowGap !== undefined && css({ rowGap: resolveGap(rowGap) }),
-        columnGap !== undefined && css({ columnGap: resolveGap(columnGap) }),
-        cssProp,
-      ]}
+        layout,
+        cssOverride,
+      )}
       {...rest}
     >
       {children}
@@ -80,13 +79,13 @@ Flex.displayName = 'Flex';
 export default Flex;
 
 const styles = {
-  root: scoped({
+  root: {
     display: 'flex',
-  }),
-  column: scoped({
+  } satisfies CSSObject,
+  column: {
     flexDirection: 'column',
-  }),
-  row: scoped({
+  } satisfies CSSObject,
+  row: {
     flexDirection: 'row',
-  }),
+  } satisfies CSSObject,
 };

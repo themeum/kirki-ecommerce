@@ -4,23 +4,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 import TextField from '@/components/form/text-field';
 import Button from '@/components/ui/button';
-import {
-  Dialog,
-  DialogBody,
-  DialogCloseButton,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogBody, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import Flex from '@/components/ui/flex';
-import {
-  AddVariationFormSchema,
-  type AddVariationFormValues,
-} from '@/schemas/forms/add-variation-form';
+import { AddVariationFormSchema, type AddVariationFormValues } from '@/schemas/forms/add-variation-form';
 import { useCreateAttributeMutation } from '@/services/attribute';
 import type { AttributeFormData, ButtonState } from '@/types';
 import { __ } from '@/wpi18n';

@@ -1,4 +1,4 @@
-import { css } from '@emotion/react';
+import { css, type CSSObject } from '@emotion/react';
 import { useState, type ReactNode } from 'react';
 
 import DropdownButton from '@/components/dropdown-button';
@@ -10,7 +10,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { mergeCss } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import ToggleButton from '@/components/ui/toggle-button';
 import type { SelectOption } from '@/types';
@@ -69,22 +69,22 @@ const groupOptionCardRightTextActiveCss = css({
   display: 'none',
 });
 
-const groupOptionCardIconCss = scoped({
+const groupOptionCardIconCss = ({
   padding: theme.spacing[1],
-});
+} satisfies CSSObject);
 
-const groupOptionCardIconDisabledCss = scoped({
+const groupOptionCardIconDisabledCss = ({
   cursor: 'not-allowed',
   opacity: 0.5,
   pointerEvents: 'none',
-});
+} satisfies CSSObject);
 
-const optionCardCss = scoped({
+const optionCardCss = ({
   borderRadius: theme.radius.none,
   borderTopColor: 'transparent',
-});
+} satisfies CSSObject);
 
-const optionCardBorderRadiusCss = scoped({
+const optionCardBorderRadiusCss = ({
   '&:first-of-type': {
     borderTopColor: theme.colors.border.secondary,
     borderRadius: `${theme.radius.lg} ${theme.radius.lg} ${theme.radius.none} ${theme.radius.none}`,
@@ -92,11 +92,11 @@ const optionCardBorderRadiusCss = scoped({
   '&:last-of-type': {
     borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.lg} ${theme.radius.lg}`,
   },
-});
+} satisfies CSSObject);
 
-const optionCardBorderRadiusSingleCss = scoped({
+const optionCardBorderRadiusSingleCss = ({
   borderRadius: theme.radius.lg,
-});
+} satisfies CSSObject);
 
 const GroupOptionCard = (props: GroupOptionCardProps) => {
   const {
@@ -121,25 +121,23 @@ const GroupOptionCard = (props: GroupOptionCardProps) => {
         <Card
           key={index}
           data-box-card
-          css={css(
-            cardStyles.innerCard,
+          cssOverride={mergeCss(cardStyles.innerCard,
             optionCardCss,
             dataLength > 1
               ? optionCardBorderRadiusCss
-              : optionCardBorderRadiusSingleCss,
-          )}
+              : optionCardBorderRadiusSingleCss,)}
           style={{
             maxHeight: '44px',
             display: 'flex',
             alignItems: 'center',
           }}
         >
-          <CardContent css={cardStyles.innerContent}>
-          <Flex align="center" justify="space-between" css={css({ width: '100%' })}>
-            <Flex gap={2} align="center" css={css({ minHeight: '36px' })}>
+          <CardContent cssOverride={cardStyles.innerContent}>
+          <Flex align="center" justify="space-between" cssOverride={{ width: '100%' }}>
+            <Flex gap={2} align="center" cssOverride={{ minHeight: '36px' }}>
               <Flex gap={2} align="center">
                 {item?.icon}
-                <Text variant="small" css={styles.mediumHeader}>{item?.name ?? ''}</Text>
+                <Text variant="small" cssOverride={styles.mediumHeader}>{item?.name ?? ''}</Text>
               </Flex>
               {item?.subText && (
                 <Text variant="small" color="subdued">{item?.subText ?? ''}</Text>
@@ -171,10 +169,8 @@ const GroupOptionCard = (props: GroupOptionCardProps) => {
             </Flex>
             {(item?.rightIcon || item?.rightText) && (
               <Flex
-                css={css(
-                groupOptionCardRightTextCss,
-                activeIndex === index && groupOptionCardRightTextActiveCss,
-                )}
+                cssOverride={mergeCss(groupOptionCardRightTextCss,
+                activeIndex === index && groupOptionCardRightTextActiveCss,)}
                 gap={3}
                 >
                 {item.rightIcon && item.rightIcon}
@@ -184,10 +180,8 @@ const GroupOptionCard = (props: GroupOptionCardProps) => {
               </Flex>
             )}
             <ActionGroup
-              css={css(
-                cardActionsCss,
-                activeIndex === index && cardActionsActiveCss,
-              )}
+              cssOverride={mergeCss(cardActionsCss,
+                activeIndex === index && cardActionsActiveCss,)}
             >
               {handleToggleItem && !item?.is_toggle_disabled && (
                 <ToggleButton
@@ -200,9 +194,9 @@ const GroupOptionCard = (props: GroupOptionCardProps) => {
                   variant="secondary"
                   size="icon"
                   aria-label={__('Delete', 'kirki-ecommerce')}
-                  css={
+                  cssOverride={
                     item?.is_delete_disabled
-                      ? css(groupOptionCardIconCss, groupOptionCardIconDisabledCss)
+                      ? mergeCss(groupOptionCardIconCss, groupOptionCardIconDisabledCss)
                       : groupOptionCardIconCss
                   }
                   onClick={
@@ -220,7 +214,7 @@ const GroupOptionCard = (props: GroupOptionCardProps) => {
                   size="icon"
                   aria-label={__('Edit', 'kirki-ecommerce')}
                   onClick={() => handleEditItem(item)}
-                  css={groupOptionCardIconCss}
+                  cssOverride={groupOptionCardIconCss}
                 >
                   <EditPenIcon />
                 </Button>
@@ -231,7 +225,7 @@ const GroupOptionCard = (props: GroupOptionCardProps) => {
                     type: 'secondary',
                     style: { transform: 'rotate(90deg)' },
                     icon: <ShowMoreIcon />,
-                    css: groupOptionCardIconCss,
+                    cssOverride: groupOptionCardIconCss,
                   }}
                   dropdownStyle={{ minWidth: '170px' }}
                   size="small"
@@ -261,8 +255,8 @@ const GroupOptionCard = (props: GroupOptionCardProps) => {
 export default GroupOptionCard;
 
 const styles = {
-  mediumHeader: scoped({
+  mediumHeader: ({
     ...theme.typography.paragraph('medium'),
-  }),
+  } satisfies CSSObject),
 };
 

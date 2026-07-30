@@ -1,3 +1,4 @@
+import type { CSSObject } from '@emotion/react';
 import { useEffect, useState, type Dispatch, type SetStateAction } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -5,15 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import Button from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
-import {
-  Dialog,
-  DialogBody,
-  DialogCloseButton,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogBody, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
@@ -21,10 +14,7 @@ import Flex from '@/components/ui/flex';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { scoped } from '@/theme/mixins';
-import {
-  AddStatePopupFormSchema,
-  type AddStatePopupFormValues,
-} from '@/schemas/forms/add-state-popup-form';
+import { AddStatePopupFormSchema, type AddStatePopupFormValues } from '@/schemas/forms/add-state-popup-form';
 import { __, sprintf } from '@/wpi18n';
 
 import { getSearchedValue } from '@/pages/settings/utils';
@@ -130,7 +120,7 @@ export const AddStatePopup = (props: AddStatePopupProps) => {
               />
             </Flex>
 
-            <Card css={cardStyles.lightCard}>
+            <Card cssOverride={cardStyles.lightCard}>
               <div
                 style={{
                   height: '350px',
@@ -153,7 +143,7 @@ export const AddStatePopup = (props: AddStatePopupProps) => {
 
                 {filteredCountries?.map((country, index) => {
                   return (
-                    <div key={index} css={styles.checkboxItemIndented}>
+                    <div key={index} css={scoped(styles.checkboxItemIndented)}>
                       <Flex gap={2} align="center">
                         <Checkbox
                           id={`add-state-country-${index}`}
@@ -201,12 +191,12 @@ export const AddStatePopup = (props: AddStatePopupProps) => {
 AddStatePopup.displayName = 'AddStatePopup';
 
 const styles = {
-  checkboxItemIndented: scoped({
+  checkboxItemIndented: ({
     width: 'auto',
     padding: `${theme.spacing[2]} ${theme.spacing[5]}`,
     '&:hover': {
       background: theme.colors.background.surfaceSecondary,
       borderRadius: theme.radius.sm,
     },
-  }),
+  } satisfies CSSObject),
 };

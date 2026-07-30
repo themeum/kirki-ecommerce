@@ -1,20 +1,18 @@
+import type { CSSObject } from '@emotion/react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState, type ReactNode } from 'react';
 import { toast } from 'sonner';
 
 import GroupOptionCard from '@/components/group-option-card';
 import HeaderActionsCard from '@/components/header-actions-card';
-import {
-  Card,
-  CardContent,
-} from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import { BoxClosedIcon, BoxOpenIcon } from '@/icons';
 import { toastMutationError } from '@/services/helpers';
 import { deleteTaxProfile, useTaxProfilesQuery } from '@/services/tax';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { scoped } from '@/theme/mixins';
+import { scoped, mergeCss } from '@/theme/mixins';
 import type { TaxProfile as TaxProfileType } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -76,8 +74,8 @@ const TaxProfile = () => {
 
   return (
     <div>
-      <Card css={cardStyles.largeCard}>
-        <CardContent css={cardStyles.largeContentPadded}>
+      <Card cssOverride={cardStyles.largeCard}>
+        <CardContent cssOverride={cardStyles.largeContentPadded}>
           <HeaderActionsCard
             header={__('Tax Profiles', 'kirki-ecommerce')}
             subHeader={__(
@@ -89,11 +87,11 @@ const TaxProfile = () => {
           />
 
           {!taxProfileList?.length ? (
-            <Card css={cardStyles.innerDarkCard}>
-              <CardContent css={[cardStyles.innerDarkContent, styles.emptyState]}>
+            <Card cssOverride={cardStyles.innerDarkCard}>
+              <CardContent cssOverride={mergeCss(cardStyles.innerDarkContent, styles.emptyState)}>
                 <Flex direction="column" gap={2} align="center">
                   <BoxOpenIcon />
-                  <span css={styles.emptyStateText}>
+                  <span css={scoped(styles.emptyStateText)}>
                     {__(
                       'Added shipping profiles will appear here',
                       'kirki-ecommerce',
@@ -103,7 +101,7 @@ const TaxProfile = () => {
               </CardContent>
             </Card>
           ) : (
-            <Flex direction="column" data-box-wrapper css={styles.boxWrapper}>
+            <Flex direction="column" data-box-wrapper cssOverride={styles.boxWrapper}>
               <GroupOptionCard
                 dataArr={taxProfileList}
                 handleDeleteItem={(item) =>
@@ -140,7 +138,7 @@ TaxProfile.displayName = 'TaxProfile';
 export default TaxProfile;
 
 const styles = {
-  boxWrapper: scoped({
+  boxWrapper: ({
     '[data-box-card]': {
       borderTop: 'none',
       borderRadius: theme.radius.none,
@@ -152,11 +150,11 @@ const styles = {
     '[data-box-card]:last-of-type': {
       borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.md} ${theme.radius.md}`,
     },
-  }),
-  emptyState: scoped({
+  } satisfies CSSObject),
+  emptyState: ({
     padding: `${theme.spacing[9]} ${theme.spacing[0]}`,
-  }),
-  emptyStateText: scoped({
+  } satisfies CSSObject),
+  emptyStateText: ({
     color: theme.colors.text.subdued,
-  })
+  } satisfies CSSObject)
 };

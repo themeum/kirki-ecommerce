@@ -1,18 +1,9 @@
-import type { SerializedStyles } from '@emotion/react';
-import { css } from '@emotion/react';
+import type { CSSObject } from '@emotion/react';
 import { forwardRef, type ComponentPropsWithoutRef } from 'react';
 
-import {
-  buildGridAreas,
-  buildGridTemplate,
-  resolveGap,
-} from '@/components/ui/layout-utils';
-import { scoped } from '@/theme/mixins';
+import { buildGridAreas, buildGridTemplate, resolveGap } from '@/components/ui/layout-utils';
+import { scopedMerge } from '@/theme/mixins';
 import type { FlexAlign, FlexJustify, GapValue } from '@/types';
-
-type GridCssProp =
-  | SerializedStyles
-  | Array<SerializedStyles | false | null | undefined>;
 
 type GridProps = Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'css'> & {
   columns?: number;
@@ -23,12 +14,12 @@ type GridProps = Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'css'> & {
   gap?: GapValue;
   rowGap?: GapValue;
   columnGap?: GapValue;
-  css?: GridCssProp;
+  cssOverride?: CSSObject;
 };
 
 const Grid = forwardRef<HTMLDivElement, GridProps>((props, ref) => {
   const {
-    css: cssProp,
+    cssOverride,
     columns = 2,
     template,
     areas,
@@ -43,21 +34,22 @@ const Grid = forwardRef<HTMLDivElement, GridProps>((props, ref) => {
 
   const gridTemplateColumns = buildGridTemplate(columns, template);
 
+  const layout: CSSObject = {
+    ...(gridTemplateColumns !== undefined ? { gridTemplateColumns } : {}),
+    ...(areas !== undefined
+      ? { gridTemplateAreas: buildGridAreas(areas) }
+      : {}),
+    ...(align !== undefined ? { alignItems: align } : {}),
+    ...(justify !== undefined ? { justifyContent: justify } : {}),
+    ...(gap !== undefined ? { gap: resolveGap(gap) } : {}),
+    ...(rowGap !== undefined ? { rowGap: resolveGap(rowGap) } : {}),
+    ...(columnGap !== undefined ? { columnGap: resolveGap(columnGap) } : {}),
+  };
+
   return (
     <div
       ref={ref}
-      css={[
-        styles.root,
-        gridTemplateColumns !== undefined &&
-          css({ gridTemplateColumns }),
-        areas !== undefined && css({ gridTemplateAreas: buildGridAreas(areas) }),
-        align !== undefined && css({ alignItems: align }),
-        justify !== undefined && css({ justifyContent: justify }),
-        gap !== undefined && css({ gap: resolveGap(gap) }),
-        rowGap !== undefined && css({ rowGap: resolveGap(rowGap) }),
-        columnGap !== undefined && css({ columnGap: resolveGap(columnGap) }),
-        cssProp,
-      ]}
+      css={scopedMerge(styles.root, layout, cssOverride)}
       {...rest}
     >
       {children}
@@ -70,7 +62,7 @@ Grid.displayName = 'Grid';
 export default Grid;
 
 const styles = {
-  root: scoped({
+  root: {
     display: 'grid',
-  }),
+  } satisfies CSSObject,
 };

@@ -1,3 +1,4 @@
+import type { CSSObject } from '@emotion/react';
 import { useEffect, useState, type ReactNode } from 'react';
 
 import GroupSelect from '@/components/group-select';
@@ -9,7 +10,7 @@ import Chip from '@/components/ui/chip';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { scoped } from '@/theme/mixins';
+import { scoped, mergeCss } from '@/theme/mixins';
 import type { SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -35,29 +36,29 @@ type GroupTagTableProps = {
 };
 
 const styles = {
-  shell: scoped({
+  shell: ({
     overflow: 'hidden',
-  }),
-  hoverParent: scoped({
+  } satisfies CSSObject),
+  hoverParent: ({
     '&:hover [data-hover-reveal]': {
       visibility: 'visible',
     },
-  }),
-  hoverReveal: scoped({
+  } satisfies CSSObject),
+  hoverReveal: ({
     visibility: 'hidden',
-  }),
-  cardAllRounded: scoped({
+  } satisfies CSSObject),
+  cardAllRounded: ({
     borderRadius: theme.radius.lg,
-  }),
-  cardBottomRounded: scoped({
+  } satisfies CSSObject),
+  cardBottomRounded: ({
     borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.lg} ${theme.radius.lg}`,
-  }),
-  cardBorder: scoped({
+  } satisfies CSSObject),
+  cardBorder: ({
     borderColor: theme.colors.border.alt,
-  }),
-  mutedText: scoped({
+  } satisfies CSSObject),
+  mutedText: ({
     color: theme.colors.text.subdued,
-  }),
+  } satisfies CSSObject),
 };
 
 const GroupTagTable = (props: GroupTagTableProps) => {
@@ -116,7 +117,7 @@ const GroupTagTable = (props: GroupTagTableProps) => {
   };
 
   return (
-    <div css={styles.shell}>
+    <div css={scoped(styles.shell)}>
       {hasSelect && (
         <GroupSelect
           placeholder={placeholder}
@@ -129,16 +130,14 @@ const GroupTagTable = (props: GroupTagTableProps) => {
       )}
       {Object.keys(groupedValueData).length ? (
         <Card
-          css={[
-            cardStyles.innerCard,
+          cssOverride={mergeCss(cardStyles.innerCard,
             hasSelect ? styles.cardBottomRounded : styles.cardAllRounded,
-            styles.cardBorder,
-          ]}
+            styles.cardBorder,)}
         >
-          <CardContent css={cardStyles.innerContent}>
+          <CardContent cssOverride={cardStyles.innerContent}>
           <Flex gap={2} direction="column">
             {(Object.keys(groupedValueData) || []).map((groupName, index) => (
-              <div key={index} css={styles.hoverParent}>
+              <div key={index} css={scoped(styles.hoverParent)}>
                 <Flex
                   key={index}
                   align="center" justify="space-between">
@@ -147,7 +146,7 @@ const GroupTagTable = (props: GroupTagTableProps) => {
                     <Text
                       variant="small"
                       color="subdued"
-                      css={styles.mutedText}
+                      cssOverride={styles.mutedText}
                     >
                       {groupDetails[groupName]?.title}
                     </Text>
@@ -159,7 +158,7 @@ const GroupTagTable = (props: GroupTagTableProps) => {
                       <Button
                         variant="link"
                         data-hover-reveal="true"
-                        css={styles.hoverReveal}
+                        cssOverride={styles.hoverReveal}
                         onClick={() => handleClearSingleGroup(groupName)}
                       >
                         {__('Clear all', 'kirki-ecommerce')}

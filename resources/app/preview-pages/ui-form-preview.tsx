@@ -1,14 +1,7 @@
-import { css } from '@emotion/react';
 import { Controller, useForm } from 'react-hook-form';
 
 import Button from '@/components/ui/button';
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from '@/components/ui/field';
+import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import Input from '@/components/ui/input';
@@ -31,7 +24,7 @@ const UiFormPreview = () => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)}>
-        <Flex direction="column" gap={3} css={css({ maxWidth: 320 })}>
+        <Flex direction="column" gap={3} cssOverride={{ maxWidth: 320 }}>
           <FieldGroup>
             <Controller
               control={form.control}
