@@ -11,14 +11,15 @@
 
 defined('ABSPATH') || exit;
 
-use Kirki\Ecommerce\App\Helpers\TemplateHelper;
-use Kirki\Ecommerce\App\Wordpress\SiteRoute;
+use Kirki\Ecommerce\App\Supports\Template;
+use Kirki\Ecommerce\Framework\Route;
 
-$slug = SiteRoute::route_param('slug');
-TemplateHelper::get_header();
+$slug = Route::route_param('slug');
 ?>
+
+<?php Template::get_header(); ?>
 
 <div class="kirki-ecom-page-wrapper">
     <h1>Single Page <?php echo $slug; ?></h1>
 </div>
-<?php TemplateHelper::get_footer(); ?>
+<?php Template::get_footer(); ?>

@@ -11,7 +11,7 @@
  * @var array $data comes from shop.php file.
  */
 
-use Kirki\Ecommerce\App\Helpers\TemplateHelper;
+use Kirki\Ecommerce\App\Supports\Template;
 
 defined('ABSPATH') || exit;
 
@@ -22,7 +22,7 @@ $selected_category_ids = $data['filters']->category_ids ?? [];
 $selected_brand_ids = $data['filters']->brand_ids ?? [];
 ?>
 <div class="kirki-ecom-shop-sidebar">
-    <?php TemplateHelper::render_category_filter(__('Categories', 'kirki-ecommerce'), 'kirki-shop-sidebar-categories', 2); ?>
+    <?php Template::render_category_filter(__('Categories', 'kirki-ecommerce'), 'kirki-shop-sidebar-categories', 2); ?>
 
     <h3><?php esc_html_e('Brands', 'kirki-ecommerce'); ?></h3>
     <div>
@@ -36,7 +36,7 @@ $selected_brand_ids = $data['filters']->brand_ids ?? [];
         <?php endforeach; ?>
     </div>
 
-    <?php TemplateHelper::render_attribute_filters(''); ?>
+    <?php Template::render_attribute_filters(''); ?>
 </div>
 
 <script>

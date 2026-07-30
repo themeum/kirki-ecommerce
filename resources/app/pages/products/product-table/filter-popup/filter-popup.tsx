@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import { useEffect, useState, type ComponentProps } from 'react';
+import { memo, useEffect, useState, type ComponentProps } from 'react';
 
 import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
@@ -20,17 +20,19 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import Text from '@/components/ui/text';
-import { useListParams } from '@/hooks';
+import {
+  useListParamsActions,
+  useListParamsValue,
+} from '@/contexts/list-params-context';
 import { CloseIcon, ListFilter } from '@/icons';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
-import type { ProductListFilter } from '@/types';
-import { productListFilterConfig } from '@/types';
 import { __, sprintf } from '@/wpi18n';
 
 import BrandFilter from '@/pages/products/product-table/filter-popup/brand-filter';
 import CategoriesFilter from '@/pages/products/product-table/filter-popup/categories-filter';
 import CollectionFilter from '@/pages/products/product-table/filter-popup/collection-filter';
+import { ProductListFilter } from '@/types/filters/product';
 
 type LocalFilterState = {
   category_ids: number[];
@@ -46,21 +48,13 @@ type FilterPopupProps = {
   data?: unknown;
 };
 
-const FilterPopup = ({
-  onChange: _onChange = () => {},
+const FilterPopup = memo(({
+  onChange: _onChange = () => { },
   buttonProps,
   data: _data,
 }: FilterPopupProps) => {
-  const { params, setParams } = useListParams<ProductListFilter>({
-    defaults: {
-      search: '',
-      sort_by: 'title',
-      sort_order: 'asc',
-      page: 1,
-      limit: 10,
-    },
-    filter: productListFilterConfig,
-  });
+  const params = useListParamsValue<ProductListFilter>();
+  const { setParams } = useListParamsActions<ProductListFilter>();
   const [openPopup, setOpenPopup] = useState(false);
   const [filterObject, setFilterObject] = useState<LocalFilterState>({
     category_ids: [],
@@ -257,7 +251,7 @@ const FilterPopup = ({
       </DropdownMenuContent>
     </DropdownMenu>
   );
-};
+});
 
 FilterPopup.displayName = 'FilterPopup';
 

@@ -47,6 +47,10 @@ export const endpoints = {
   PRODUCT_SCHEMAS: '/product-schemas',
   PRODUCT_SCHEMA: (id: string | number) => `/product-schemas/${id}`,
 
+  COUPONS: '/coupons',
+  COUPON: (id: string | number) => `/coupons/${id}`,
+  COUPONS_BULK: '/coupons/bulk',
+
   PAGES: '/pages',
 
   SETTINGS: '/settings',
