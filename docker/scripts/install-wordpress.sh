@@ -40,7 +40,11 @@ fi
 wp rewrite structure '/%postname%/' --path="${WP_PATH}" --allow-root 2>/dev/null || true
 wp rewrite flush --path="${WP_PATH}" --allow-root
 
-chown -R www-data:www-data "${WP_PATH}/wp-admin" "${WP_PATH}/wp-includes" "${WP_PATH}/wp-content" 2>/dev/null || true
-find "${WP_PATH}" -maxdepth 1 -name '*.php' ! -name 'wp-config.php' -exec chown www-data:www-data {} + 2>/dev/null || true
+# Use the numeric uid/gid of www-data from the php-fpm container (33:33 on
+# php:7.4-fpm/Debian). This image is Alpine-based, where www-data is 82:82,
+# so chowning by name here would give files the wrong owner for the process
+# that actually serves uploads.
+chown -R 33:33 "${WP_PATH}/wp-admin" "${WP_PATH}/wp-includes" "${WP_PATH}/wp-content" 2>/dev/null || true
+find "${WP_PATH}" -maxdepth 1 -name '*.php' ! -name 'wp-config.php' -exec chown 33:33 {} + 2>/dev/null || true
 
 echo "WordPress setup complete."
