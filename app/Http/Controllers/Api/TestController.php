@@ -30,7 +30,7 @@ class TestController
             'base_url' => app()->base_url('test'),
             'somoy' => $today->copy()->add_day(),
             'somoy2' => $today,
-            'settings' => Settings::get('email.customer_emails.order_notifications.new_order_email.name')
+            'settings' => Settings::get('foo.dd', 'bar')
             // 'usage' => CurrencyExchange::get_active_provider()->get_usage()->all(),
             // 'is_installed' => AddonPlugin::install('https://kirki.com/addons/paypal-gateway')
             // 'refund' => Payment::get_gateway('paypal')->refund(Order::find(7), 1)

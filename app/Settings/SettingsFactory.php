@@ -30,12 +30,16 @@ class SettingsFactory
      */
     public function get(string $key, $default = null)
     {
-        if(strpos($key, '.')) {
+        if (strpos($key, '.')) {
             $key_parts = explode('.', $key, 2);
             $setting_instance = $this->get_settings_instance($key_parts[0]);
 
             if (empty($key_parts[1])) {
                 throw new Exception(__('Invalid settings key!', 'kirki-ecommerce'));
+            }
+
+            if (empty($setting_instance)) {
+                return value($default);
             }
 
             return $setting_instance->get($key_parts[1]) ?? value($default);
@@ -48,10 +52,10 @@ class SettingsFactory
      * Get the settings instance for the given key.
      *
      * @param string $key
-     * @return AppSettings
+     * @return AppSettings|null
      * @throws Exception
      */
-    public function get_settings_instance(string $key): AppSettings
+    public function get_settings_instance(string $key)
     {
         if (isset(static::$cache[$key])) {
             return static::$cache[$key];
@@ -82,11 +86,11 @@ class SettingsFactory
             case OptionKeys::EMAIL_SETTINGS:
                 static::$cache[$key] = app()->make(EmailSettings::class);
                 break;
+            case OptionKeys::ADVANCE_SETTINGS:
+                static::$cache[$key] = app()->make(AdvanceSettings::class);
+                break;
             default:
-                throw new Exception(
-                    /* translators: %s: key */
-                    sprintf(__('Invalid settings key: %s', 'kirki-ecommerce'), $key)
-                );
+                return null;
         }
 
         return static::$cache[$key];
