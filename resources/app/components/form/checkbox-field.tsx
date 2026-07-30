@@ -1,19 +1,9 @@
-import { type SerializedStyles } from '@emotion/react';
+import type { CSSObject } from '@emotion/react';
 import type { ReactNode } from 'react';
-import {
-  Controller,
-  useFormContext,
-  type FieldPath,
-  type FieldValues,
-} from 'react-hook-form';
+import { Controller, useFormContext, type FieldPath, type FieldValues } from 'react-hook-form';
 
 import Checkbox from '@/components/ui/checkbox';
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldLabel,
-} from '@/components/ui/field';
+import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 
 type CheckboxFieldProps<
   TFieldValues extends FieldValues = FieldValues,
@@ -23,7 +13,7 @@ type CheckboxFieldProps<
   label?: ReactNode;
   description?: ReactNode;
   disabled?: boolean;
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const CheckboxField = <
@@ -34,7 +24,7 @@ const CheckboxField = <
   label,
   description,
   disabled,
-  css,
+  cssOverride,
 }: CheckboxFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
   const fieldId = String(name);
@@ -44,7 +34,7 @@ const CheckboxField = <
       control={control}
       name={name}
       render={({ field, fieldState }) => (
-        <Field data-invalid={fieldState.invalid || undefined} css={css}>
+        <Field data-invalid={fieldState.invalid || undefined} cssOverride={cssOverride}>
           <Field orientation="horizontal">
             <Checkbox
               id={fieldId}

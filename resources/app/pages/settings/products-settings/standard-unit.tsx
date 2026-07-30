@@ -1,17 +1,11 @@
 import SelectField from '@/components/form/select-field';
 import SwitchField from '@/components/form/switch-field';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
@@ -30,8 +24,8 @@ export const StandardUnit = () => {
 
   return (
     <div>
-      <Card css={cardStyles.largeCard}>
-        <CardHeader css={cardStyles.sectionHeader}>
+      <Card cssOverride={cardStyles.largeCard}>
+        <CardHeader cssOverride={cardStyles.sectionHeader}>
           <CardTitle>{__('Standards', 'kirki-ecommerce')}</CardTitle>
           <CardDescription>
             {__(
@@ -40,9 +34,9 @@ export const StandardUnit = () => {
             )}
           </CardDescription>
         </CardHeader>
-        <CardContent css={cardStyles.largeContent}>
+        <CardContent cssOverride={cardStyles.largeContent}>
           <Flex direction="column" gap={2}>
-            <Card css={styles.optionCard}>
+            <Card cssOverride={styles.optionCard}>
               <CardContent>
                 <Flex direction="column" gap={4}>
                   <SelectField
@@ -58,7 +52,7 @@ export const StandardUnit = () => {
                 </Flex>
               </CardContent>
             </Card>
-            <Card css={styles.optionCard}>
+            <Card cssOverride={styles.optionCard}>
               <CardContent>
                 <Flex>
                   <Flex direction="column" gap={2}>
@@ -83,9 +77,9 @@ export const StandardUnit = () => {
 
 StandardUnit.displayName = 'StandardUnit';
 
-const styles = {
-  optionCard: scoped({
+const styles = defineStyles({
+  optionCard: {
     borderRadius: theme.radius.lg,
     border: `1px solid ${theme.colors.border.default}`,
-  })
-};
+  }
+});

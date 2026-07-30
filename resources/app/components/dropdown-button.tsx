@@ -1,19 +1,8 @@
-import {
-  useState,
-  useEffect,
-  type ComponentProps,
-  type CSSProperties,
-  type ReactNode,
-} from 'react';
-import type { SerializedStyles } from '@emotion/react';
+import type { CSSObject } from '@emotion/react';
+import { useState, useEffect, type ComponentProps, type CSSProperties, type ReactNode } from 'react';
 
 import Button from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import Checkbox from '@/components/ui/checkbox';
 import { theme } from '@/theme';
 import type { ButtonSize, ButtonState, ButtonType, DropdownSize, SelectOption } from '@/types';
@@ -31,7 +20,7 @@ type DropdownTriggerButtonProps = {
   icon?: ReactNode;
   leftIcon?: ReactNode;
   rightIcon?: ReactNode;
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
   style?: CSSProperties;
   onClick?: () => void;
 };
@@ -142,7 +131,7 @@ const DropdownButton = ({
     icon,
     leftIcon,
     rightIcon,
-    css: buttonCss,
+    cssOverride: buttonCss,
     style: buttonStyle = {},
   } = buttonProps ?? {};
 
@@ -154,7 +143,7 @@ const DropdownButton = ({
           size={mapButtonSize(buttonSize)}
           loading={state === 'loading'}
           disabled={state === 'disabled'}
-          css={buttonCss}
+          cssOverride={buttonCss}
           style={
             buttonSize === 'fullWidth'
               ? { width: '100%', ...buttonStyle }

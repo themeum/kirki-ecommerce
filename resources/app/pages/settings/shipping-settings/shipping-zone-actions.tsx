@@ -4,7 +4,7 @@ import DropdownButton from '@/components/dropdown-button';
 import { ShowMoreIcon, EditIcon, TrashIcon } from '@/icons';
 import { useOutletContext, useNavigate } from 'react-router';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
@@ -56,7 +56,7 @@ const ShippingZoneActions = ({
       <ToggleButton value={item?.is_enabled} onChange={() => onToggle(item)} />
       <DropdownButton
         buttonProps={{
-          css: styles.menuButton,
+          cssOverride: styles.menuButton,
           icon: <ShowMoreIcon />,
         }}
         options={[
@@ -83,9 +83,9 @@ ShippingZoneActions.displayName = 'ShippingZoneActions';
 
 export default ShippingZoneActions;
 
-const styles = {
-  menuButton: scoped({
+const styles = defineStyles({
+  menuButton: {
     transform: 'rotate(90deg)',
     padding: theme.spacing[2],
-  }),
-};
+  },
+});

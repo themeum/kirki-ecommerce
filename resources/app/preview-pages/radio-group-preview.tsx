@@ -1,7 +1,4 @@
-import {
-  Field,
-  FieldLabel,
-} from '@/components/ui/field';
+import { Field, FieldLabel } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 

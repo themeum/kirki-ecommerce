@@ -5,26 +5,14 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 import TextField from '@/components/form/text-field';
 import Button from '@/components/ui/button';
-import {
-  Dialog,
-  DialogBody,
-  DialogClose,
-  DialogCloseButton,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogBody, DialogClose, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
 import Label from '@/components/ui/label';
 import { InfoIcon } from '@/icons';
 import Flex from '@/components/ui/flex';
 import { theme } from '@/theme';
 import Text from '@/components/ui/text';
-import {
-  EditCurrencyFormSchema,
-  type EditCurrencyFormValues,
-} from '@/schemas/forms/edit-currency-form';
+import { EditCurrencyFormSchema, type EditCurrencyFormValues } from '@/schemas/forms/edit-currency-form';
 import type { Currency } from '@/types';
 import { __, sprintf } from '@/wpi18n';
 
@@ -87,11 +75,11 @@ const EditCurrencyPopup = ({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)}>
             <DialogBody>
-              <Label css={styles.ratePopupLabel}>
+              <Label cssOverride={styles.ratePopupLabel}>
                 <InfoIcon />
                 {__('Enter rates per 1 USD', 'kirki-ecommerce')}
               </Label>
-              <Flex direction="column" gap={3} css={css({ maxHeight: '200px', overflowX: 'scroll' })}>
+              <Flex direction="column" gap={3} cssOverride={{ maxHeight: '200px', overflowX: 'scroll' }}>
                 <Flex justify="space-between">
                   <Flex gap={3}>
                     <Text weight="semibold">{sprintf(

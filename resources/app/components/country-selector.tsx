@@ -1,14 +1,9 @@
 import Combobox from '@/components/ui/combobox';
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldLabel,
-} from '@/components/ui/field';
+import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import { useCountriesQuery } from '@/services/country';
 import type { LabelFieldProps } from '@/types';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 type CountrySelectorProps = LabelFieldProps & {
@@ -56,15 +51,15 @@ CountrySelector.displayName = 'CountrySelector';
 
 export default CountrySelector;
 
-const styles = {
-  wrapper: scoped({
+const styles = defineStyles({
+  wrapper: {
     height: '220px',
     overflowY: 'scroll',
     overflowX: 'hidden',
     borderTop: `1px solid ${theme.colors.border.muted}`,
     borderBottom: `1px solid ${theme.colors.border.muted}`,
-  }),
-  searchInput: scoped({
+  },
+  searchInput: {
     padding: theme.spacing[3],
-  }),
-};
+  },
+});

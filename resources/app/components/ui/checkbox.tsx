@@ -1,19 +1,11 @@
-import { type SerializedStyles, type Theme } from '@emotion/react';
-import {
-  forwardRef,
-  useId,
-  type ComponentPropsWithoutRef,
-  type CSSProperties,
-  type ElementRef,
-  type MouseEvent,
-  type ReactNode,
-} from 'react';
+import { type CSSObject, type Theme } from '@emotion/react';
+import { forwardRef, useId, type ComponentPropsWithoutRef, type CSSProperties, type ElementRef, type MouseEvent, type ReactNode } from 'react';
 import * as CheckboxPrimitive from '@radix-ui/react-checkbox';
 import { Check, Minus } from 'lucide-react';
 
 import { Field, FieldLabel } from '@/components/ui/field';
 import { theme } from '@/theme';
-import { flexCenter, scoped, uiFocusRing } from '@/theme/mixins';
+import { flexCenter, uiFocusRing, scopedMerge, scoped, defineStyles } from '@/theme/mixins';
 
 type CheckboxProps = Omit<
   ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>,
@@ -25,7 +17,7 @@ type CheckboxProps = Omit<
   leftIcon?: ReactNode;
   label?: string;
   labelStyle?: CSSProperties;
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const Checkbox = forwardRef<
@@ -33,7 +25,7 @@ const Checkbox = forwardRef<
   CheckboxProps
 >((props, ref) => {
   const {
-    css: cssProp,
+    cssOverride,
     checked,
     value,
     onCheckedChange,
@@ -74,14 +66,14 @@ const Checkbox = forwardRef<
     <CheckboxPrimitive.Root
       ref={ref}
       id={label || leftIcon ? checkboxId : id}
-      css={[styles.checkbox, cssProp]}
+      css={scopedMerge(styles.checkbox, cssOverride)}
       checked={resolvedChecked}
       onCheckedChange={handleCheckedChange}
       onClick={handleRootClick}
       style={label || leftIcon ? undefined : style}
       {...rest}
     >
-      <CheckboxPrimitive.Indicator css={styles.indicator}>
+      <CheckboxPrimitive.Indicator css={scoped(styles.indicator)}>
         {isPartialChecked ? (
           <Minus size={12} strokeWidth={3} />
         ) : (
@@ -116,8 +108,8 @@ Checkbox.displayName = 'Checkbox';
 
 export default Checkbox;
 
-const styles = {
-  checkbox: scoped({
+const styles = defineStyles({
+  checkbox: {
     ...flexCenter(),
     width: '16px',
     height: '16px',
@@ -141,10 +133,10 @@ const styles = {
       opacity: 0.5,
       pointerEvents: 'none',
     },
-  }),
-  indicator: scoped({
+  },
+  indicator: {
     ...flexCenter(),
     display: 'flex',
     color: theme.colors.background.surfaceTertiary,
-  }),
-};
+  },
+});

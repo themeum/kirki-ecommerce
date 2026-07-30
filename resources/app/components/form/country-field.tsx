@@ -1,18 +1,9 @@
-import { type SerializedStyles } from '@emotion/react';
+import type { CSSObject } from '@emotion/react';
 import type { ReactNode } from 'react';
-import {
-  Controller,
-  useFormContext,
-  type FieldPath,
-  type FieldValues,
-} from 'react-hook-form';
+import { Controller, useFormContext, type FieldPath, type FieldValues } from 'react-hook-form';
 
 import CountrySelector from '@/components/country-selector';
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-} from '@/components/ui/field';
+import { Field, FieldDescription, FieldError } from '@/components/ui/field';
 import { __ } from '@/wpi18n';
 
 type CountryFieldProps<
@@ -22,7 +13,7 @@ type CountryFieldProps<
   name: TName;
   label?: string;
   description?: ReactNode;
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const CountryField = <
@@ -32,7 +23,7 @@ const CountryField = <
   name,
   label = __('Country / Region', 'kirki-ecommerce'),
   description,
-  css,
+  cssOverride,
 }: CountryFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
 
@@ -41,7 +32,7 @@ const CountryField = <
       control={control}
       name={name}
       render={({ field, fieldState }) => (
-        <Field data-invalid={fieldState.invalid || undefined} css={css}>
+        <Field data-invalid={fieldState.invalid || undefined} cssOverride={cssOverride}>
           <CountrySelector
             label={label}
             value={field.value ?? ''}

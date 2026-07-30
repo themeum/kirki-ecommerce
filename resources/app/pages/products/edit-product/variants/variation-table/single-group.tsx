@@ -5,18 +5,11 @@ import ThumbnailSelector from '@/components/thumbnail-selector';
 import Button from '@/components/ui/button';
 import Checkbox from '@/components/ui/checkbox';
 import Input from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ChevronDownIcon } from '@/icons';
 import Flex from '@/components/ui/flex';
 import { TableCell, TableRow } from '@/components/ui/table';
 import { useProductForm } from '@/contexts/product-form-context';
-import { scoped } from '@/theme/mixins';
 import type {
   AttributeValue,
   MediaChangePayload,
@@ -25,11 +18,8 @@ import type {
 } from '@/types';
 import { __ } from '@/wpi18n';
 
-import {
-  generateVariantIndexById,
-  generateVariantIndexes,
-  getAttributeByValueId,
-} from '@/pages/products/utils';
+import { generateVariantIndexById, generateVariantIndexes, getAttributeByValueId } from '@/pages/products/utils';
+import { defineStyles } from '@/theme/mixins';
 
 type CombinedData = {
   price?: number | string | null;
@@ -38,16 +28,16 @@ type CombinedData = {
   media?: ({ url?: string; [key: string]: unknown } | null | undefined)[];
 };
 
-const styles = {
-  hoverParent: scoped({
+const styles = defineStyles({
+  hoverParent: {
     '&:hover [data-hover-reveal]': {
       visibility: 'visible',
     },
-  }),
-  hoverReveal: scoped({
+  },
+  hoverReveal: {
     visibility: 'hidden',
-  }),
-};
+  },
+});
 
 type SingleGroupProps = {
   parentId: number;
@@ -234,7 +224,7 @@ const SingleGroup = ({
 
   return (
     <>
-      <TableRow css={styles.hoverParent}>
+      <TableRow cssOverride={styles.hoverParent}>
         <TableCell onlyCheckbox>
           <Checkbox
             checked={
@@ -280,7 +270,7 @@ const SingleGroup = ({
                   ? 'true'
                   : undefined
               }
-              css={styles.hoverReveal}
+              cssOverride={styles.hoverReveal}
               onClick={() => setShow(!show)}
               style={{
                 transform: show ? 'rotate(180deg)' : '',

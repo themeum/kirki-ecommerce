@@ -5,27 +5,16 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
-import {
-  Dialog,
-  DialogBody,
-  DialogCloseButton,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogBody, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { scoped, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
-import {
-  AddCitiesPopupFormSchema,
-  type AddCitiesPopupFormValues,
-} from '@/schemas/forms/add-cities-popup-form';
+import { AddCitiesPopupFormSchema, type AddCitiesPopupFormValues } from '@/schemas/forms/add-cities-popup-form';
 import { __ } from '@/wpi18n';
 
 import { getSearchedValue } from '@/pages/settings/utils';
@@ -151,8 +140,8 @@ const AddCitiesPopup = (props: AddCitiesPopupProps) => {
               />
             </Flex>
 
-            <Card css={cardStyles.tableCardRounded}>
-              <CardContent css={cardStyles.tableContent}>
+            <Card cssOverride={cardStyles.tableCardRounded}>
+              <CardContent cssOverride={cardStyles.tableContent}>
                 <div
                   style={{
                     height: '350px',
@@ -178,7 +167,7 @@ const AddCitiesPopup = (props: AddCitiesPopupProps) => {
                 {filteredCities?.length > 0 ? (
                   filteredCities.map((city, index) => {
                     return (
-                      <div key={index} css={styles.checkboxItemIndented}>
+                      <div key={index} css={scoped(styles.checkboxItemIndented)}>
                         <Flex gap={2} align="center">
                           <Checkbox
                             id={`add-cities-city-${city.id}`}
@@ -195,7 +184,7 @@ const AddCitiesPopup = (props: AddCitiesPopupProps) => {
                     );
                   })
                 ) : (
-                  <Card css={styles.emptyCitiesCard}>
+                  <Card cssOverride={styles.emptyCitiesCard}>
                     <CardContent>
                       <Flex
                         direction="column"
@@ -238,16 +227,16 @@ AddCitiesPopup.displayName = 'AddCitiesPopup';
 
 export default AddCitiesPopup;
 
-const styles = {
-  checkboxItemIndented: scoped({
+const styles = defineStyles({
+  checkboxItemIndented: {
     width: 'auto',
     padding: `${theme.spacing[2]} ${theme.spacing[5]}`,
     '&:hover': {
       background: theme.colors.background.surfaceSecondary,
       borderRadius: theme.radius.sm,
     },
-  }),
-  emptyCitiesCard: scoped({
+  },
+  emptyCitiesCard: {
     padding: `${theme.spacing[9]} 0`,
-  }),
-};
+  },
+});

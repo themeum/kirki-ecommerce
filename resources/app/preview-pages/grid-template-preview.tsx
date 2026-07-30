@@ -1,18 +1,7 @@
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
 import Flex from '@/components/ui/flex';
 import Grid from '@/components/ui/grid';
@@ -28,7 +17,7 @@ const optionsArray: SelectOption[] = [
 
 const GridTemplatePreview = () => {
   return (
-    <Card css={cardStyles.formCard}>
+    <Card cssOverride={cardStyles.formCard}>
       <CardHeader>
         <CardTitle>Price</CardTitle>
         <Text color="secondary">This is subheading</Text>
@@ -89,8 +78,8 @@ const GridTemplatePreview = () => {
           </Flex>
         </Grid>
 
-        <Card css={cardStyles.innerCard}>
-          <CardContent css={cardStyles.innerContent}>
+        <Card cssOverride={cardStyles.innerCard}>
+          <CardContent cssOverride={cardStyles.innerContent}>
             <Flex direction="column" gap={2}>
               <Text weight="medium">Limit Orders to One Item</Text>
               <Text variant="small" color="secondary">Let customers purchase only one item in a single order. Particularly use full for items that are limited in quantity i.e. handmade items</Text>

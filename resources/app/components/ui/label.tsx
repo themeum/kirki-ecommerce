@@ -1,30 +1,26 @@
-import { type SerializedStyles } from '@emotion/react';
+import { type CSSObject } from '@emotion/react';
 import * as LabelPrimitive from '@radix-ui/react-label';
-import {
-  forwardRef,
-  type ComponentPropsWithoutRef,
-  type ElementRef,
-} from 'react';
+import { forwardRef, type ComponentPropsWithoutRef, type ElementRef } from 'react';
 
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { scopedMerge, defineStyles } from '@/theme/mixins';
 
 type LabelProps = Omit<
   ComponentPropsWithoutRef<typeof LabelPrimitive.Root>,
   'className' | 'css'
 > & {
-  css?: SerializedStyles | SerializedStyles[];
+  cssOverride?: CSSObject;
 };
 
 const Label = forwardRef<ElementRef<typeof LabelPrimitive.Root>, LabelProps>(
   (props, ref) => {
-    const { css: cssProp, ...rest } = props;
+    const { cssOverride, ...rest } = props;
 
     return (
       <LabelPrimitive.Root
         ref={ref}
         data-slot="label"
-        css={[styles.root, cssProp]}
+        css={scopedMerge(styles.root, cssOverride)}
         {...rest}
       />
     );
@@ -35,8 +31,8 @@ Label.displayName = 'Label';
 
 export default Label;
 
-const styles = {
-  root: scoped({
+const styles = defineStyles({
+  root: {
     display: 'flex',
     alignItems: 'center',
     gap: theme.spacing[1],
@@ -56,5 +52,5 @@ const styles = {
       cursor: 'not-allowed',
       opacity: 0.5,
     },
-  }),
-};
+  },
+});

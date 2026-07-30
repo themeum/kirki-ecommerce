@@ -1,11 +1,6 @@
 import Input from '@/components/ui/input';
 import Flex from '@/components/ui/flex';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableRow,
-} from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import Text from '@/components/ui/text';
 import Thumbnail from '@/components/ui/thumbnail';
 import type { MediaRef } from '@/types';

@@ -39,8 +39,8 @@ const Categories = () => {
       <Container>
         {loaded ? (
           <Flex direction="column" gap={4}>
-            <Card css={cardStyles.tableCard}>
-              <CardContent css={cardStyles.tableContent}>
+            <Card cssOverride={cardStyles.tableCard}>
+              <CardContent cssOverride={cardStyles.tableContent}>
                 <CategoryTable data={data!} isFetching={isFetching} />
               </CardContent>
             </Card>

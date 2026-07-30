@@ -1,17 +1,12 @@
 import Button from '@/components/ui/button';
-import {
-  Select,
-  SelectContent,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Select, SelectContent, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowDownUp, ListFilter } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
 import Label from '@/components/ui/label';
 import Searchbox from '@/components/ui/searchbox';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 const ActionGroupPreview = () => {
@@ -20,7 +15,7 @@ const ActionGroupPreview = () => {
       <Label>This is a random text</Label>
       <ActionGroup>
         <Select disabled>
-          <SelectTrigger css={styles.selectTrigger}>
+          <SelectTrigger cssOverride={styles.selectTrigger}>
             <SelectValue placeholder="Date: This Month" />
           </SelectTrigger>
           <SelectContent />
@@ -45,8 +40,8 @@ ActionGroupPreview.displayName = 'ActionGroupPreview';
 
 export default ActionGroupPreview;
 
-const styles = {
-  selectTrigger: scoped({
+const styles = defineStyles({
+  selectTrigger: {
     padding: `${theme.spacing[2]} ${theme.spacing[4]}`,
-  }),
-};
+  },
+});

@@ -52,8 +52,8 @@ const Collections = () => {
       <Container>
         {loaded ? (
           <Flex direction="column" gap={4}>
-            <Card css={cardStyles.tableCard}>
-              <CardContent css={cardStyles.tableContent}>
+            <Card cssOverride={cardStyles.tableCard}>
+              <CardContent cssOverride={cardStyles.tableContent}>
                 <CollectionTable data={data!} isFetching={isFetching} />
               </CardContent>
             </Card>

@@ -1,16 +1,5 @@
 import type { ReactNode } from 'react';
-import {
-  CircleDollarSign,
-  CreditCard,
-  Home,
-  KeyRound,
-  Mail,
-  Package,
-  Percent,
-  Settings2,
-  Snowflake,
-  Truck,
-} from 'lucide-react';
+import { CircleDollarSign, CreditCard, Home, KeyRound, Mail, Package, Percent, Settings2, Snowflake, Truck } from 'lucide-react';
 
 import { setUnsavedDataStatus as setStatus } from '@/libs/unsaved-store';
 import type { SelectOption } from '@/types';

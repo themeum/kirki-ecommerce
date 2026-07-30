@@ -2,11 +2,7 @@ import { toast } from 'sonner';
 import type { z } from 'zod';
 
 import type { ApiClientResponse, ErrorResponse } from '@/libs/api';
-import {
-  ApiValidationError,
-  formatValidationIssues,
-  isApiValidationError,
-} from '@/schemas/shared/errors';
+import { ApiValidationError, formatValidationIssues, isApiValidationError } from '@/schemas/shared/errors';
 import { __ } from '@/wpi18n';
 
 const unwrapData = <T>(response: unknown): T => {

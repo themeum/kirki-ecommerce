@@ -1,4 +1,3 @@
-import { css } from '@emotion/react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
@@ -7,10 +6,7 @@ import ColorPickerField from '@/components/form/color-picker-field';
 import TextField from '@/components/form/text-field';
 import ThumbnailField from '@/components/form/thumbnail-field';
 import Button from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-} from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import { Field, FieldError } from '@/components/ui/field';
@@ -19,26 +15,17 @@ import PageHeading from '@/components/ui/page-heading';
 import ProgressBar from '@/components/ui/progressbar';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Text from '@/components/ui/text';
-import {
-  AlignCenterIcon,
-  AlignLeftIcon,
-  BrushIcon,
-  SendIcon,
-} from '@/icons';
+import { AlignCenterIcon, AlignLeftIcon, BrushIcon, SendIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import {
-  EmailTemplateFormSchema,
-  emailTemplateDefaultValues,
-  type EmailTemplateFormValues,
-} from '@/schemas/forms/email-template-form';
+import { EmailTemplateFormSchema, emailTemplateDefaultValues, type EmailTemplateFormValues } from '@/schemas/forms/email-template-form';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import type {
   EmailTemplate as SettingsEmailTemplate,
   SettingsSectionData,
 } from '@/types';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { mergeCss, defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 import { cardStyles } from '@/theme/card-styles';
@@ -132,7 +119,7 @@ const EditTemplate = () => {
       <PageHeading
         text={__('Edit Template', 'kirki-ecommerce')}
         hasBack
-        css={styles.pageHeading}
+        cssOverride={styles.pageHeading}
         leftIcon={<BrushIcon />}
         size="fullWidth"
         sticky
@@ -151,13 +138,13 @@ const EditTemplate = () => {
           </>
         }
       />
-      <Container size="fullWidth" css={styles.container}>
+      <Container size="fullWidth" cssOverride={styles.container}>
         {loaded ? (
           <Form {...form}>
-            <Flex gap={12} css={css({ width: '100%' })}>
-              <Flex direction="column" gap={5} css={css({ width: '44%' })}>
-                <Card css={[cardStyles.largeCard, styles.roundedCard]}>
-                  <CardContent css={cardStyles.largeContentPadded}>
+            <Flex gap={12} cssOverride={{ width: '100%' }}>
+              <Flex direction="column" gap={5} cssOverride={{ width: '44%' }}>
+                <Card cssOverride={mergeCss(cardStyles.largeCard, styles.roundedCard)}>
+                  <CardContent cssOverride={cardStyles.largeContentPadded}>
 
                   <Flex direction="column" gap={2}>
                     <Text weight="semibold">Logo</Text>
@@ -233,8 +220,8 @@ const EditTemplate = () => {
                   />
                   </CardContent>
                 </Card>
-                <Card css={[cardStyles.largeCard, styles.roundedCard]}>
-                  <CardContent css={cardStyles.largeContentPadded}>
+                <Card cssOverride={mergeCss(cardStyles.largeCard, styles.roundedCard)}>
+                  <CardContent cssOverride={cardStyles.largeContentPadded}>
 
                   <Flex direction="column" gap={2}>
                     <Text weight="semibold">Colors</Text>
@@ -261,16 +248,16 @@ const EditTemplate = () => {
                 </Card>
               </Flex>
 
-              <Flex direction="column" gap={4} css={css({ width: '56%' })}>
+              <Flex direction="column" gap={4} cssOverride={{ width: '56%' }}>
                 <Flex
                   align="center" justify="space-between">
                   <Text weight="semibold">Template Preview</Text>
                   <Flex gap={2} align="center">
                     <SendIcon />
-                    <Text css={styles.sendTextMail}>Send Text Mail</Text>
+                    <Text cssOverride={styles.sendTextMail}>Send Text Mail</Text>
                   </Flex>
                 </Flex>
-                <Card css={styles.squareCard}>
+                <Card cssOverride={styles.squareCard}>
                   <CardContent>
                   </CardContent>
                 </Card>
@@ -289,23 +276,23 @@ EditTemplate.displayName = 'EditTemplate';
 
 export default EditTemplate;
 
-const styles = {
-  pageHeading: scoped({
+const styles = defineStyles({
+  pageHeading: {
     ...theme.typography.paragraph(),
     padding: `${theme.spacing[0]} ${theme.spacing[8]}`,
     height: '32px',
-  }),
-  container: scoped({
+  },
+  container: {
     width: '100%',
     padding: `${theme.spacing[3]} 103px`,
-  }),
-  roundedCard: scoped({
+  },
+  roundedCard: {
     borderRadius: theme.radius.lg,
-  }),
-  squareCard: scoped({
+  },
+  squareCard: {
     borderRadius: theme.radius.none,
-  }),
-  sendTextMail: scoped({
+  },
+  sendTextMail: {
     ...theme.typography.small(),
-  }),
-};
+  },
+});

@@ -1,4 +1,3 @@
-import { css } from '@emotion/react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 
@@ -8,13 +7,7 @@ import { useInventoryForm } from '@/contexts/inventory-form-context';
 import { useMarkList } from '@/hooks';
 import Checkbox from '@/components/ui/checkbox';
 import Flex from '@/components/ui/flex';
-import {
-  Table,
-  TableBody,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import type { InventoryVariant } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -50,7 +43,7 @@ const InventoryTable = () => {
   return (
     <>
       {selectedItems.length > 0 ? (
-        <Flex gap={2} align="center" css={css({ height: '68px' })}>
+        <Flex gap={2} align="center" cssOverride={{ height: '68px' }}>
           <BulkActionHandler
             itemCount={itemCount}
             onSelectAll={() => handleAllCheckboxClick(true)}

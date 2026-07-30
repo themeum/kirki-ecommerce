@@ -1,14 +1,9 @@
 import type { KeyboardEvent } from 'react';
 import { useState, useEffect } from 'react';
 
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldLabel,
-} from '@/components/ui/field';
+import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import { theme } from '@/theme';
-import { itemCenter, scoped } from '@/theme/mixins';
+import { itemCenter, scoped, defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 type ColorPickerProps = {
@@ -69,13 +64,13 @@ const ColorPicker = ({
   return (
     <Field data-invalid={error ? true : undefined}>
       {label && <FieldLabel>{label}</FieldLabel>}
-      <div css={styles.wrapper}>
-        <div css={styles.inner}>
+      <div css={scoped(styles.wrapper)}>
+        <div css={scoped(styles.inner)}>
           <div
             role="button"
             tabIndex={0}
             aria-label={__('Toggle color picker', 'kirki-ecommerce')}
-            css={styles.swatch}
+            css={scoped(styles.swatch)}
             style={{ backgroundColor: inputValue || placeholder }}
             onClick={handleSwatchToggle}
             onKeyDown={handleSwatchKeyDown}
@@ -85,7 +80,7 @@ const ColorPicker = ({
             value={inputValue}
             onChange={(e) => handleChange(e.target.value)}
             onKeyDown={handleKeyDown}
-            css={styles.input}
+            css={scoped(styles.input)}
             placeholder={placeholder}
             aria-invalid={Boolean(error) || undefined}
           />
@@ -101,21 +96,21 @@ ColorPicker.displayName = 'ColorPicker';
 
 export default ColorPicker;
 
-const styles = {
-  wrapper: scoped({
+const styles = defineStyles({
+  wrapper: {
     border: `1px solid ${theme.colors.border.alt}`,
     borderRadius: theme.radius.md,
     padding: `${theme.spacing[1]} ${theme.spacing[2]}`,
     '&:focus-within': {
       boxShadow: `0px 0px 0px 1.5px ${theme.colors.border.ring}`,
     },
-  }),
-  inner: scoped({
+  },
+  inner: {
     ...itemCenter(),
     gap: theme.spacing[2],
     width: '100%',
-  }),
-  swatch: scoped({
+  },
+  swatch: {
     backgroundColor: 'transparent',
     height: '16px',
     width: '16px',
@@ -123,8 +118,8 @@ const styles = {
     borderRadius: theme.radius.full,
     flexShrink: 0,
     cursor: 'pointer',
-  }),
-  input: scoped({
+  },
+  input: {
     border: 'none !important',
     outline: 'none !important',
     flex: '1 !important',
@@ -134,5 +129,5 @@ const styles = {
       outline: 'none !important',
       boxShadow: 'none !important',
     },
-  }),
-};
+  },
+});

@@ -1,22 +1,11 @@
-import { css } from '@emotion/react';
 
-import {
-  Field,
-  FieldError,
-  FieldLabel,
-} from '@/components/ui/field';
+import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const UiSelectPreview = () => {
   return (
-    <Flex direction="column" gap={3} css={css({ maxWidth: 240 })}>
+    <Flex direction="column" gap={3} cssOverride={{ maxWidth: 240 }}>
       <Field>
         <FieldLabel>Default</FieldLabel>
         <Select defaultValue="apple">

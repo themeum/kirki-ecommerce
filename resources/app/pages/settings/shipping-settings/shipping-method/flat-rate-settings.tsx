@@ -5,7 +5,7 @@ import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
 import Textarea from '@/components/ui/textarea';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 import type { ShippingMethodData } from '@/pages/settings/shipping-settings/utils';
@@ -52,7 +52,7 @@ const FlatRateSettings = ({
           value={(dataObj?.description as string) || ''}
           placeholder={__('e.g., 3–5 business days', 'kirki-ecommerce')}
           onChange={(e) => handleOnChange(e.target.value, 'description')}
-          css={styles.textarea}
+          cssOverride={styles.textarea}
         />
       </Flex>
     </Flex>
@@ -63,9 +63,9 @@ FlatRateSettings.displayName = 'FlatRateSettings';
 
 export default FlatRateSettings;
 
-const styles = {
-  textarea: scoped({
+const styles = defineStyles({
+  textarea: {
     padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
     minHeight: '108px',
-  }),
-};
+  },
+});

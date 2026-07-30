@@ -1,7 +1,4 @@
-import {
-  Card,
-  CardContent,
-} from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import Button from '@/components/ui/button';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
@@ -15,8 +12,8 @@ import { theme } from '@/theme';
 const SellerTaxID = () => {
   return (
     <div>
-      <Card css={cardStyles.largeCard}>
-        <CardContent css={cardStyles.largeContentPadded}>
+      <Card cssOverride={cardStyles.largeCard}>
+        <CardContent cssOverride={cardStyles.largeContentPadded}>
           <Flex direction="column" gap={2}>
             <Flex align="center">
               <Text weight="semibold" style={{ gap: theme.spacing[3] }}>{__('Seller Tax ID', 'kirki-ecommerce')}</Text>

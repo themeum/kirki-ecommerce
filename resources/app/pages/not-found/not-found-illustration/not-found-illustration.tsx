@@ -1,10 +1,10 @@
 import { theme, getCssVarName } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { scoped, defineStyles } from '@/theme/mixins';
 
 const NotFoundIllustration = () => {
   return (
     <svg
-      css={styles.svg}
+      css={scoped(styles.svg)}
       viewBox="0 0 440 360"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -270,13 +270,13 @@ NotFoundIllustration.displayName = 'NotFoundIllustration';
 
 export default NotFoundIllustration;
 
-const styles = {
-  svg: scoped({
+const styles = defineStyles({
+  svg: {
     width: '100%',
     maxWidth: '440px',
     height: 'auto',
     '@media (max-width: 768px)': {
       maxWidth: '320px',
     },
-  }),
-};
+  },
+});
