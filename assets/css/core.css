@@ -71,11 +71,11 @@
   color: white;
 }
 
-.kirki-shop-sidebar-categories h3 {
+.kirki-ecom-shop-sidebar-categories h3 {
   margin-top: 0;
 }
 
-.kirki-shop-sidebar-categories .category-level {
+.kirki-ecom-shop-sidebar-categories .category-level {
   margin: 0;
   padding: 0;
 }
@@ -112,11 +112,11 @@
   padding-left: 80px !important;
 }
 
-.kirki-ecom-product-title {
+.kecom-product-title {
   margin: 0;
 }
 
-.kirki-ecom-product-wrapper {
+.kecom-product-wrapper {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -125,7 +125,7 @@
   gap: 50px;
 }
 
-.kirki-ecom-product-info {
+.kecom-product-info {
   height: stretch;
   padding: 16px;
   outline: 1px solid #000;
@@ -137,26 +137,26 @@
   flex: 1;
 }
 
-.kirki-ecom-product-image {
+.kecom-product-image {
   display: flex;
   flex-direction: column;
   max-width: 900px;
   gap: 10px;
 }
 
-.kirki-ecom-product-image-main {
+.kecom-product-image-main {
   width: 900px;
   height: 500px;
   background-color: #ccc;
 }
 
-.kirki-ecom-product-image-main img {
+.kecom-product-image-main img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.kirki-ecom-product-image-thumbnail {
+.kecom-product-image-thumbnail {
   flex: 0 0 auto;
   width: 250px;
   height: 150px;
@@ -164,13 +164,13 @@
   border: 1px solid #000;
 }
 
-.kirki-ecom-product-image-thumbnail img {
+.kecom-product-image-thumbnail img {
   width: 100%;
   height: 100%;
   object-fit: contain;
 }
 
-.kirki-ecom-product-image-slider {
+.kecom-product-image-slider {
   display: flex;
   flex-wrap: nowrap;
   overflow-x: auto;
@@ -179,31 +179,31 @@
   -webkit-overflow-scrolling: touch;
 }
 
-.kirki-ecom-product-image img {
+.kecom-product-image img {
   width: 100%;
   height: 100%;
   object-fit: contain;
 }
 
-.kirki-ecom-product-price {
+.kecom-product-price {
   font-size: 1.5rem;
   margin: 0;
 }
 
-.kirki-ecom-product-price del {
+.kecom-product-price del {
   opacity: 0.5;
   margin-left: 10px;
 }
 
-.kirki-ecom-product-price span {
+.kecom-product-price span {
   font-weight: 600;
 }
 
-.kirki-ecom-product-ribbon-item {
+.kecom-product-ribbon-item {
   color: white;
 }
 
-.kirki-ecom-product-ribbon {
+.kecom-product-ribbon {
   background-color: #000;
   padding: 5px 15px;
   width: fit-content;
@@ -214,7 +214,7 @@ hr {
   background-color: #000;
 }
 
-.kirki-ecom-add-to-cart {
+.kecom-add-to-cart {
   width: 100%;
   background-color: #000;
   color: white;
@@ -228,7 +228,7 @@ hr {
 
 }
 
-.kirki-ecom-product-additional-info-wrapper {
+.kecom-product-additional-info-wrapper {
   border: 1px solid #000;
   border-radius: 10px;
   padding: 16px;

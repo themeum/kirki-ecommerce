@@ -1,6 +1,8 @@
 <?php
 
+use Kirki\Ecommerce\App\Hooks\Actions\AddWpHeadMeta;
 use Kirki\Ecommerce\App\Hooks\Actions\EnqueueSiteScripts;
+use Kirki\Ecommerce\App\Hooks\Filters\ReplaceSiteTitle;
 use Kirki\Ecommerce\App\Wordpress\Hooks\Actions\EnqueueAdminScripts;
 use Kirki\Ecommerce\App\Wordpress\Hooks\Actions\RemoveDuplicateSubmenu;
 use Kirki\Ecommerce\App\Wordpress\Hooks\Actions\SMTPConfig;
@@ -14,7 +16,10 @@ return [
         EnqueueSiteScripts::class,
         RemoveDuplicateSubmenu::class,
         RegisterRestApi::class,
+        AddWpHeadMeta::class,
         SMTPConfig::class,
     ],
-    'filters' => [],
+    'filters' => [
+        ReplaceSiteTitle::class,
+    ],
 ];
