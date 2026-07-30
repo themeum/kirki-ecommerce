@@ -241,6 +241,7 @@ const EditProductInner = () => {
   return (
     <>
       <PageHeading
+        onBack={() => navigate('/products')}
         text={
           isNew
             ? __('New Product', 'kirki-ecommerce')

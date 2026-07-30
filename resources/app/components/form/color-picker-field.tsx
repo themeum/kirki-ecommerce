@@ -12,6 +12,7 @@ type ColorPickerFieldProps<
   name: TName;
   label?: ReactNode;
   description?: ReactNode;
+  infoText?: ReactNode;
   placeholder?: string;
   cssOverride?: CSSObject;
 };
@@ -23,6 +24,7 @@ const ColorPickerField = <
   name,
   label,
   description,
+  infoText,
   placeholder,
   cssOverride,
 }: ColorPickerFieldProps<TFieldValues, TName>) => {
@@ -34,7 +36,7 @@ const ColorPickerField = <
       name={name}
       render={({ field, fieldState }) => (
         <Field data-invalid={fieldState.invalid || undefined} cssOverride={cssOverride}>
-          {label && <FieldLabel>{label}</FieldLabel>}
+          {label && <FieldLabel infoText={infoText}>{label}</FieldLabel>}
           <ColorPicker
             value={field.value ?? ''}
             onChange={field.onChange}

@@ -12,6 +12,7 @@ type TextareaFieldProps<
   name: TName;
   label?: ReactNode;
   description?: ReactNode;
+  infoText?: ReactNode;
   placeholder?: string;
   rows?: number;
   disabled?: boolean;
@@ -25,6 +26,7 @@ const TextareaField = <
   name,
   label,
   description,
+  infoText,
   placeholder,
   rows = 5,
   disabled,
@@ -39,7 +41,11 @@ const TextareaField = <
       name={name}
       render={({ field, fieldState }) => (
         <Field data-invalid={fieldState.invalid || undefined} cssOverride={cssOverride}>
-          {label && <FieldLabel htmlFor={fieldId}>{label}</FieldLabel>}
+          {label && (
+            <FieldLabel htmlFor={fieldId} infoText={infoText}>
+              {label}
+            </FieldLabel>
+          )}
           <Textarea
             {...field}
             id={fieldId}

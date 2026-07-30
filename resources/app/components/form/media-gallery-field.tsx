@@ -17,6 +17,7 @@ type MediaGalleryFieldProps<
   name: TName;
   label?: ReactNode;
   description?: ReactNode;
+  infoText?: ReactNode;
   cssOverride?: CSSObject;
 };
 
@@ -27,6 +28,7 @@ const MediaGalleryField = <
   name,
   label,
   description,
+  infoText,
   cssOverride,
 }: MediaGalleryFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
@@ -37,7 +39,7 @@ const MediaGalleryField = <
       name={name}
       render={({ field, fieldState }) => (
         <Field data-invalid={fieldState.invalid || undefined} cssOverride={cssOverride}>
-          {label && <FieldLabel>{label}</FieldLabel>}
+          {label && <FieldLabel infoText={infoText}>{label}</FieldLabel>}
           <MediaGallery
             mediaItems={(field.value as MediaItem[]) ?? []}
             onUpdate={(items) => field.onChange(items)}

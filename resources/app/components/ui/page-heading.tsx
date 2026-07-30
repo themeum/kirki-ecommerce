@@ -24,6 +24,7 @@ type PageHeadingProps = {
   noMargin?: boolean;
   buttonProps?: Partial<ComponentProps<typeof Button>>;
   cssOverride?: CSSObject;
+  onBack?: (event: React.MouseEvent<HTMLButtonElement>) => void;
 };
 
 const PageHeading = forwardRef<HTMLDivElement, PageHeadingProps>(
@@ -40,12 +41,13 @@ const PageHeading = forwardRef<HTMLDivElement, PageHeadingProps>(
       leftIcon,
       noMargin,
       buttonProps = {},
+      onBack,
     } = props;
 
     const {
       cssOverride: buttonCssOverride,
       children: buttonChildren,
-      onClick: buttonOnClick,
+      onClick,
       ...restButtonProps
     } = buttonProps;
 
@@ -65,8 +67,8 @@ const PageHeading = forwardRef<HTMLDivElement, PageHeadingProps>(
                 size="icon"
                 cssOverride={buttonCssOverride}
                 onClick={(event) => {
-                  if (buttonOnClick) {
-                    buttonOnClick(event);
+                  if (onBack) {
+                    onBack(event);
                     return;
                   }
                   window.history.back();
