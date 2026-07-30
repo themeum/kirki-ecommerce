@@ -40,6 +40,15 @@ class Template
     protected static string $block_footer = '';
 
     /**
+     * Store localized data for JavaScript.
+     *
+     * @since 1.0.0
+     *
+     * @var array
+     */
+    protected static array $localized_data = [];
+
+    /**
      * Check if the current theme is a block theme.
      *
      * @since 1.0.0
@@ -243,6 +252,45 @@ class Template
         }
 
         echo '</ul>';
+    }
+
+    /**
+     * Set localized data for JavaScript.
+     *
+     * @since 1.0.0
+     *
+     * @param string $key The data key.
+     * @param mixed $value The data value.
+     *
+     * @return void
+     */
+    public static function set_localized_data(string $key, $value): void
+    {
+        self::$localized_data[$key] = $value;
+    }
+
+    /**
+     * Get all localized data for JavaScript.
+     *
+     * @since 1.0.0
+     *
+     * @return array The localized data.
+     */
+    public static function get_localized_data(): array
+    {
+        return self::$localized_data;
+    }
+
+    /**
+     * Clear localized data.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
+    public static function clear_localized_data(): void
+    {
+        self::$localized_data = [];
     }
 
     /**

@@ -54,6 +54,21 @@ export function imageSlider(config: ImageSliderConfig) {
       this.currentIndex = index;
     },
 
+    init() {
+      this.currentIndex = 0;
+      
+      // Listen for variant changes to update image
+      window.addEventListener('variant-changed', ((e: Event) => {
+        const customEvent = e as CustomEvent;
+        if (customEvent.detail.variant?.image) {
+          const variantImageIndex = this.images.findIndex(img => img.url === customEvent.detail.variant.image);
+          if (variantImageIndex >= 0) {
+            this.goTo(variantImageIndex);
+          }
+        }
+      }) as EventListener);
+    },
+
     handleKeydown(event: KeyboardEvent) {
       if (event.key === 'ArrowRight') this.next();
       if (event.key === 'ArrowLeft') this.prev();
