@@ -1,13 +1,13 @@
 // Kirki Ecommerce – Site Design System
 // Entry point for the site bundle
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@use "tokens" as *;
+@use "mixins" as *;
+@use "components";
+@use "utilities";
+@use "pages";
 
-@use 'tokens'     as *;
-@use 'mixins'     as *;
-@use 'components';
-@use 'utilities';
-@use 'pages';
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
 
 // =============================================================================
 // BASE RESET
@@ -35,4 +35,6 @@ body {
   color: $text-primary;
 }
 
-[x-cloak] { display: none !important; }
+[x-cloak] {
+  display: none !important;
+}

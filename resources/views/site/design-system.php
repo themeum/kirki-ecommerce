@@ -9,12 +9,9 @@
 
 defined('ABSPATH') || exit;
 
-use Kirki\Ecommerce\App\Helpers\TemplateHelper;
 use Kirki\Ecommerce\App\Supports\Icon;
 
 ?>
-<?php TemplateHelper::get_header(); ?>
-
 <style>
 .kds { max-width:960px; margin:2.5rem auto; padding:0 1.5rem 4rem; font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; color:#18181b; }
 .kds h1 { font-size:1.75rem; font-weight:700; margin:0 0 .25rem; }
@@ -683,5 +680,3 @@ function showToast(variant, position = 'top-right') {
     overflow-x: auto;
 }
 </style>
-
-<?php TemplateHelper::get_footer(); ?>

@@ -123,13 +123,12 @@ class SiteController
      *
      * @since 1.0.0
      *
-     * @param array $params  Route parameters.
-     * @param array $template Template name.
+     * @param Request $request  request.
      *
      * @return string Template path.
      */
-    public function design_system_page($params, $template)
+    public function design_system_page(Request $request)
     {
-        return TemplateHelper::get_template('design-system');
+        return view('site.design-system');
     }
 }

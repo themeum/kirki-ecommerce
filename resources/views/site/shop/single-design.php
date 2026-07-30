@@ -11,12 +11,7 @@
 
 defined('ABSPATH') || exit;
 
-use Kirki\Ecommerce\App\Helpers\TemplateHelper;
 use Kirki\Ecommerce\App\Supports\Icon;
-use Kirki\Ecommerce\App\Wordpress\SiteRoute;
-
-$slug = SiteRoute::route_param('slug');
-TemplateHelper::get_header();
 ?>
 
 <div class="kecom-product-page">
@@ -198,5 +193,3 @@ TemplateHelper::get_header();
         </div>
     </div>
 </div>
-
-<?php TemplateHelper::get_footer(); ?>
