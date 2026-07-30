@@ -4,13 +4,13 @@
 @use '../tokens' as *;
 @use '../mixins' as *;
 
-.kirki-cart-page {
+.kecom-cart-page {
   max-width: 1200px;
   margin: 0 auto;
   padding: $spacing-12 $spacing-10;
 }
 
-.kirki-cart-grid {
+.kecom-cart-grid {
   display: grid;
   grid-template-columns: 1fr 380px;
   gap: $spacing-12;

@@ -1,15 +1,15 @@
 // Component - Modal
-// Base: .kirki-modal
-// Modifiers: .kirki-modal-sm  .kirki-modal-lg  .kirki-modal-fullscreen
-// Elements:  .kirki-modal-backdrop  .kirki-modal-content  .kirki-modal-header
-//            .kirki-modal-body      .kirki-modal-footer
+// Base: .kecom-modal
+// Modifiers: .kecom-modal-sm  .kecom-modal-lg  .kecom-modal-fullscreen
+// Elements:  .kecom-modal-backdrop  .kecom-modal-content  .kecom-modal-header
+//            .kecom-modal-body      .kecom-modal-footer
 
 @use '../tokens' as *;
 @use '../mixins' as *;
 
 // ── Backdrop ─────────────────────────────────────────────────────────────────
 
-.kirki-modal-backdrop {
+.kecom-modal-backdrop {
   position: fixed;
   inset: 0;
   z-index: 1000;
@@ -22,7 +22,7 @@
 
 // ── Modal Container ───────────────────────────────────────────────────────────
 
-.kirki-modal {
+.kecom-modal {
   position: fixed;
   inset: 0;
   z-index: 1001;
@@ -35,7 +35,7 @@
 
 // ── Modal Content ─────────────────────────────────────────────────────────────
 
-.kirki-modal-content {
+.kecom-modal-content {
   position: relative;
   width: 100%;
   max-width: 500px;
@@ -59,7 +59,7 @@
 
 // ── Modal Header ─────────────────────────────────────────────────────────────
 
-.kirki-modal-header {
+.kecom-modal-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -93,7 +93,7 @@
 
 // ── Modal Body ───────────────────────────────────────────────────────────────
 
-.kirki-modal-body {
+.kecom-modal-body {
   flex: 1;
   padding: $spacing-5;
   overflow-y: auto;
@@ -104,7 +104,7 @@
 
 // ── Modal Footer ─────────────────────────────────────────────────────────────
 
-.kirki-modal-footer {
+.kecom-modal-footer {
   display: flex;
   align-items: center;
   justify-content: flex-end;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Kirki\Ecommerce\Supports;
+namespace Kirki\Ecommerce\App\Supports;
 
 class Icon
 {
@@ -19,16 +19,6 @@ class Icon
     private static function getIconsPath(): string
     {
         return KIRKI_ECOMMERCE_PLUGIN_PATH . 'assets/icons/';
-    }
-
-    /**
-     * Get the URL to the icons directory.
-     *
-     * @return string
-     */
-    private static function getIconsUrl(): string
-    {
-        return KIRKI_ECOMMERCE_PLUGIN_URL . 'assets/icons/';
     }
 
     /**

@@ -1,13 +1,13 @@
 // Component - Card
-// Base: .kirki-card
-// Modifiers: .kirki-card-shadow  .kirki-card-hoverable
-// Elements:  .kirki-card-image   .kirki-card-body    .kirki-card-title
-//            .kirki-card-meta    .kirki-card-price   .kirki-card-footer
+// Base: .kecom-card
+// Modifiers: .kecom-card-shadow  .kecom-card-hoverable
+// Elements:  .kecom-card-image   .kecom-card-body    .kecom-card-title
+//            .kecom-card-meta    .kecom-card-price   .kecom-card-footer
 
 @use '../tokens' as *;
 @use '../mixins' as *;
 
-.kirki-card {
+.kecom-card {
   background-color: $background-fill;
   border: 1px solid $border-default;
   border-radius: $radius-lg;

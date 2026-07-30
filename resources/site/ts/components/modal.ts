@@ -6,17 +6,17 @@
  *   <div x-data="modal({ open: false })">
  *     <button @click="open">Open Modal</button>
  *     
- *     <div class="kirki-modal-backdrop" x-show="isOpen" @click="close"></div>
- *     <div class="kirki-modal" x-show="isOpen">
- *       <div class="kirki-modal-content">
- *         <div class="kirki-modal-header">
- *           <h3 class="kirki-modal-header-title">Title</h3>
- *           <button class="kirki-modal-header-close" @click="close">&times;</button>
+ *     <div class="kecom-modal-backdrop" x-show="isOpen" @click="close"></div>
+ *     <div class="kecom-modal" x-show="isOpen">
+ *       <div class="kecom-modal-content">
+ *         <div class="kecom-modal-header">
+ *           <h3 class="kecom-modal-header-title">Title</h3>
+ *           <button class="kecom-modal-header-close" @click="close">&times;</button>
  *         </div>
- *         <div class="kirki-modal-body">Content</div>
- *         <div class="kirki-modal-footer">
- *           <button class="kirki-btn kirki-btn-secondary" @click="close">Cancel</button>
- *           <button class="kirki-btn kirki-btn-primary">Save</button>
+ *         <div class="kecom-modal-body">Content</div>
+ *         <div class="kecom-modal-footer">
+ *           <button class="kecom-btn kecom-btn-secondary" @click="close">Cancel</button>
+ *           <button class="kecom-btn kecom-btn-primary">Save</button>
  *         </div>
  *       </div>
  *     </div>

@@ -1,6 +1,6 @@
 // Shared TypeScript interfaces for the site bundle
 
-export interface KirkiSiteConfig {
+export interface KecomSiteConfig {
   apiUrl: string;   // e.g. /wp-json/kirki/ecommerce/v1
   nonce: string;    // WordPress REST nonce
   currency: string; // e.g. "USD"
@@ -10,7 +10,7 @@ export interface KirkiSiteConfig {
 // Extend window for WordPress-injected config
 declare global {
   interface Window {
-    kirkiSite: KirkiSiteConfig;
+    kecomSite: KecomSiteConfig;
     Alpine: any;
   }
 }

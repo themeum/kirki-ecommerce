@@ -96,10 +96,10 @@
 @mixin skeleton {
   background: linear-gradient(90deg, $background-surface-alt 25%, $background-fill 50%, $background-surface-alt 75%);
   background-size: 200% 100%;
-  animation: kirki-skeleton 1.4s ease infinite;
+  animation: kecom-skeleton 1.4s ease infinite;
 }
 
-@keyframes kirki-skeleton {
+@keyframes kecom-skeleton {
   0%   { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }

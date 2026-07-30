@@ -4,7 +4,7 @@
  *
  * PHP usage:
  *   <button x-data="addToCart({ variantId: <?= $variant->id ?>, qty: 1 })"
- *           @click="add" :disabled="loading" :class="{ 'kirki-btn-loading': loading }">
+ *           @click="add" :disabled="loading" :class="{ 'kecom-btn-loading': loading }">
  *     Add to Cart
  *   </button>
  */

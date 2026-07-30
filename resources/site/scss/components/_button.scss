@@ -1,16 +1,16 @@
 // Component - Button
-// Base: .kirki-btn
-// Variants: .kirki-btn-primary  .kirki-btn-secondary  .kirki-btn-destructive
-//           .kirki-btn-outline   .kirki-btn-ghost      .kirki-btn-link
-//           .kirki-btn-primary-soft  .kirki-btn-destructive-soft
-// Sizes:    .kirki-btn-sm       .kirki-btn-lg
-// Extras:   .kirki-btn-block    .kirki-btn-loading
-// Icon-only: .kirki-btn-icon    .kirki-btn-icon-sm    .kirki-btn-icon-lg
+// Base: .kecom-btn
+// Variants: .kecom-btn-primary  .kecom-btn-secondary  .kecom-btn-destructive
+//           .kecom-btn-outline   .kecom-btn-ghost      .kecom-btn-link
+//           .kecom-btn-primary-soft  .kecom-btn-destructive-soft
+// Sizes:    .kecom-btn-sm       .kecom-btn-lg
+// Extras:   .kecom-btn-block    .kecom-btn-loading
+// Icon-only: .kecom-btn-icon    .kecom-btn-icon-sm    .kecom-btn-icon-lg
 
 @use "../tokens" as *;
 @use "../mixins" as *;
 
-.kirki-btn {
+.kecom-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -176,18 +176,18 @@
       border: 2px solid currentcolor;
       border-right-color: transparent;
       border-radius: $radius-full;
-      animation: kirki-spin 0.65s linear infinite;
+      animation: kecom-spin 0.65s linear infinite;
     }
 
-    &.kirki-btn-primary::after,
-    &.kirki-btn-destructive::after {
+    &.kecom-btn-primary::after,
+    &.kecom-btn-destructive::after {
       border-color: $text-light;
       border-right-color: transparent;
     }
   }
 }
 
-@keyframes kirki-spin {
+@keyframes kecom-spin {
   to {
     transform: translate(-50%, -50%) rotate(360deg);
   }

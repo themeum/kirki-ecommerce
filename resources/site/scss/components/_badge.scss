@@ -1,14 +1,14 @@
 // Component - Badge
-// Base: .kirki-badge
-// Variants: .kirki-badge-default  .kirki-badge-primary
-//           .kirki-badge-success  .kirki-badge-success-light
-//           .kirki-badge-error    .kirki-badge-error-light
-//           .kirki-badge-warning  .kirki-badge-outline
-// Sizes:    .kirki-badge-sm       .kirki-badge-lg
+// Base: .kecom-badge
+// Variants: .kecom-badge-default  .kecom-badge-primary
+//           .kecom-badge-success  .kecom-badge-success-light
+//           .kecom-badge-error    .kecom-badge-error-light
+//           .kecom-badge-warning  .kecom-badge-outline
+// Sizes:    .kecom-badge-sm       .kecom-badge-lg
 
 @use '../tokens' as *;
 
-.kirki-badge {
+.kecom-badge {
   display: inline-flex;
   align-items: center;
   gap: $spacing-1;

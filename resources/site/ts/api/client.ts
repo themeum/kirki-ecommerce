@@ -1,13 +1,13 @@
 /**
  * API Client
- * Thin fetch wrapper that reads WordPress nonce + base URL from window.kirkiSite.
+ * Thin fetch wrapper that reads WordPress nonce + base URL from window.kecomSite.
  */
 
 function getConfig() {
-  if (!window.kirkiSite) {
-    throw new Error('[kirki] window.kirkiSite is not defined. Did you forget wp_localize_script?');
+  if (!window.kecomSite) {
+    throw new Error('[kecom] window.kecomSite is not defined. Did you forget wp_localize_script?');
   }
-  return window.kirkiSite;
+  return window.kecomSite;
 }
 
 type RequestOptions = {

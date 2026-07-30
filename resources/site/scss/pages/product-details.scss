@@ -4,13 +4,13 @@
 @use "../tokens" as *;
 @use "../mixins" as *;
 
-.kirki-product-page {
+.kecom-product-page {
   max-width: 1200px;
   margin: 0 auto;
   padding: $spacing-12 $spacing-10;
 }
 
-.kirki-product-grid {
+.kecom-product-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: $spacing-20;
@@ -24,11 +24,11 @@
 
 // ── Product Gallery ───────────────────────────────────────────────────────────
 
-.kirki-product-gallery {
+.kecom-product-gallery {
   position: relative;
 }
 
-.kirki-product-main-image {
+.kecom-product-main-image {
   width: 100%;
   aspect-ratio: 1 / 1;
   background-color: $background-surface-alt;
@@ -44,7 +44,7 @@
   }
 }
 
-.kirki-product-nav-btn {
+.kecom-product-nav-btn {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
@@ -67,22 +67,22 @@
   }
 }
 
-.kirki-product-nav-prev {
+.kecom-product-nav-prev {
   left: $spacing-5;
 }
 
-.kirki-product-nav-next {
+.kecom-product-nav-next {
   right: $spacing-5;
 }
 
-.kirki-product-thumbnails {
+.kecom-product-thumbnails {
   display: flex;
   gap: $spacing-3;
   overflow-x: auto;
   padding-bottom: $spacing-2;
 }
 
-.kirki-product-thumbnail {
+.kecom-product-thumbnail {
   width: 5rem;
   height: 5rem;
   border-radius: $radius-md;
@@ -106,13 +106,13 @@
 
 // ── Product Info ───────────────────────────────────────────────────────────────
 
-.kirki-product-info {
+.kecom-product-info {
   display: flex;
   flex-direction: column;
   gap: $spacing-10;
 }
 
-.kirki-product-title-and-price {
+.kecom-product-title-and-price {
   display: flex;
   flex-direction: column;
   align-items: start;
@@ -121,34 +121,34 @@
   border-bottom: 1px solid $border-default;
 }
 
-.kirki-product-ribbon {
+.kecom-product-ribbon {
   @include typography(xs, medium, $text-light);
   background-color: $background-fill-critical;
   padding: $spacing-2 $spacing-4;
   border-radius: $radius-sm;
 }
 
-.kirki-product-title {
+.kecom-product-title {
   @include typography(3xl, semibold, $text-primary);
   margin: 0px;
 }
 
-.kirki-product-price {
+.kecom-product-price {
   display: flex;
   align-items: center;
   gap: $spacing-4;
 }
 
-.kirki-product-price-current {
+.kecom-product-price-current {
   @include typography(2xl, semibold, $text-primary);
 }
 
-.kirki-product-price-original {
+.kecom-product-price-original {
   @include typography(xl, normal, $text-subdued);
   text-decoration: line-through;
 }
 
-.kirki-product-discount {
+.kecom-product-discount {
   @include typography(xs, medium, $text-light);
   background-color: $background-fill-success;
   padding: $spacing-2 $spacing-4;
@@ -156,21 +156,21 @@
   text-transform: uppercase;
 }
 
-.kirki-product-short-description {
+.kecom-product-short-description {
   @include typography(base, normal, $text-secondary);
   margin: 0px;
 }
 
 // ── Product Variants ───────────────────────────────────────────────────────────
 
-.kirki-product-variant-group {
+.kecom-product-variant-group {
   display: flex;
   flex-direction: column;
   gap: $spacing-4;
   align-items: start;
 }
 
-.kirki-product-variant-label {
+.kecom-product-variant-label {
   @include typography(base, semibold, $text-primary);
 
   span {
@@ -179,13 +179,13 @@
   }
 }
 
-.kirki-product-variant-options {
+.kecom-product-variant-options {
   display: flex;
   gap: $spacing-4;
   flex-wrap: wrap;
 }
 
-.kirki-product-variant-option {
+.kecom-product-variant-option {
   width: 44px;
   height: 44px;
   padding: $spacing-3 $spacing-5;
@@ -207,7 +207,7 @@
   }
 }
 
-.kirki-product-variant-color {
+.kecom-product-variant-color {
   width: 28px;
   height: 28px;
   border-radius: $radius-full;
@@ -222,19 +222,19 @@
 
 // ── Product Tabs ───────────────────────────────────────────────────────────────
 
-.kirki-product-tabs {
+.kecom-product-tabs {
   border-top: 1px solid $border-default;
   padding-top: $spacing-12;
 }
 
-.kirki-product-tab-header {
+.kecom-product-tab-header {
   display: flex;
   gap: $spacing-12;
   border-bottom: 1px solid $border-default;
   margin-bottom: $spacing-10;
 }
 
-.kirki-product-tab-btn {
+.kecom-product-tab-btn {
   padding: $spacing-4 0;
   background: none;
   border: none;
@@ -262,7 +262,7 @@
   }
 }
 
-.kirki-product-tab-content {
+.kecom-product-tab-content {
   display: none;
   @include typography(base, normal, $text-secondary);
   line-height: 1.7;

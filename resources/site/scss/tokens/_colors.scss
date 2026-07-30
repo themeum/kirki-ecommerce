@@ -1,6 +1,6 @@
 // Design Tokens - Colors
 // Sourced from app/theme/index.ts primitiveColors
-// CSS vars use --kirki-* prefix; SCSS vars are the authored interface.
+// CSS vars use --kecom-* prefix; SCSS vars are the authored interface.
 
 @use "./variables" as *;
 
@@ -86,7 +86,7 @@ $_shipping-box-dark: #9663b6;
 
 // =============================================================================
 // SEMANTIC COLOR TOKENS
-// SCSS vars reference --kirki-* custom props with raw fallbacks.
+// SCSS vars reference --kecom-* custom props with raw fallbacks.
 // Structure matches app/theme/index.ts
 // =============================================================================
 

@@ -172,7 +172,7 @@ export function form(config: FormConfig = {}) {
       return {
         name,
         'x-model': `values.${name}`,
-        ':class': `{ 'kirki-input-error': errors.${name} }`,
+        ':class': `{ 'kecom-input-error': errors.${name} }`,
         ':aria-invalid': `!!errors.${name}`,
         '@blur': mode === 'onBlur' || mode === 'onChange' ? `handleBlur('${name}')` : null,
         '@input': mode === 'onChange' ? `handleInput('${name}', $event.target.value)` : null,

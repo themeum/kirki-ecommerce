@@ -10,7 +10,7 @@
 defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Helpers\TemplateHelper;
-use Kirki\Ecommerce\Supports\Icon;
+use Kirki\Ecommerce\App\Supports\Icon;
 
 ?>
 <?php TemplateHelper::get_header(); ?>
@@ -43,27 +43,27 @@ use Kirki\Ecommerce\Supports\Icon;
     <p class="kds-section-title">Colors</p>
     <p class="kds-label">Brand</p>
     <div class="kds-swatch-grid">
-        <div class="kds-swatch"><div class="kds-swatch-color" style="background:var(--kirki-color-brand,hsl(214 100% 54%))"></div><div class="kds-swatch-label">Brand</div></div>
-        <div class="kds-swatch"><div class="kds-swatch-color" style="background:var(--kirki-color-brand-hover,hsl(214 83% 50%))"></div><div class="kds-swatch-label">Brand Hover</div></div>
-        <div class="kds-swatch"><div class="kds-swatch-color" style="background:var(--kirki-color-brand-light,hsl(214 100% 95%))"></div><div class="kds-swatch-label">Brand Light</div></div>
+        <div class="kds-swatch"><div class="kds-swatch-color" style="background:var(--kecom-color-brand,hsl(214 100% 54%))"></div><div class="kds-swatch-label">Brand</div></div>
+        <div class="kds-swatch"><div class="kds-swatch-color" style="background:var(--kecom-color-brand-hover,hsl(214 83% 50%))"></div><div class="kds-swatch-label">Brand Hover</div></div>
+        <div class="kds-swatch"><div class="kds-swatch-color" style="background:var(--kecom-color-brand-light,hsl(214 100% 95%))"></div><div class="kds-swatch-label">Brand Light</div></div>
     </div>
     <p class="kds-label">Semantic</p>
     <div class="kds-swatch-grid">
-        <div class="kds-swatch"><div class="kds-swatch-color" style="background:var(--kirki-color-success,hsl(145 36% 44%))"></div><div class="kds-swatch-label">Success</div></div>
-        <div class="kds-swatch"><div class="kds-swatch-color" style="background:var(--kirki-color-success-bg,hsl(141 100% 95%))"></div><div class="kds-swatch-label">Success BG</div></div>
-        <div class="kds-swatch"><div class="kds-swatch-color" style="background:var(--kirki-color-error,hsl(0 100% 42%))"></div><div class="kds-swatch-label">Error</div></div>
-        <div class="kds-swatch"><div class="kds-swatch-color" style="background:var(--kirki-color-error-bg,hsl(2 100% 95%))"></div><div class="kds-swatch-label">Error BG</div></div>
-        <div class="kds-swatch"><div class="kds-swatch-color" style="background:var(--kirki-color-warning,hsl(42 100% 18%))"></div><div class="kds-swatch-label">Warning</div></div>
-        <div class="kds-swatch"><div class="kds-swatch-color" style="background:var(--kirki-color-warning-bg,hsl(38 100% 92%))"></div><div class="kds-swatch-label">Warning BG</div></div>
+        <div class="kds-swatch"><div class="kds-swatch-color" style="background:var(--kecom-color-success,hsl(145 36% 44%))"></div><div class="kds-swatch-label">Success</div></div>
+        <div class="kds-swatch"><div class="kds-swatch-color" style="background:var(--kecom-color-success-bg,hsl(141 100% 95%))"></div><div class="kds-swatch-label">Success BG</div></div>
+        <div class="kds-swatch"><div class="kds-swatch-color" style="background:var(--kecom-color-error,hsl(0 100% 42%))"></div><div class="kds-swatch-label">Error</div></div>
+        <div class="kds-swatch"><div class="kds-swatch-color" style="background:var(--kecom-color-error-bg,hsl(2 100% 95%))"></div><div class="kds-swatch-label">Error BG</div></div>
+        <div class="kds-swatch"><div class="kds-swatch-color" style="background:var(--kecom-color-warning,hsl(42 100% 18%))"></div><div class="kds-swatch-label">Warning</div></div>
+        <div class="kds-swatch"><div class="kds-swatch-color" style="background:var(--kecom-color-warning-bg,hsl(38 100% 92%))"></div><div class="kds-swatch-label">Warning BG</div></div>
     </div>
     <p class="kds-label">Neutrals</p>
     <div class="kds-swatch-grid">
-        <div class="kds-swatch"><div class="kds-swatch-color" style="background:var(--kirki-color-bg,#fff)"></div><div class="kds-swatch-label">BG</div></div>
-        <div class="kds-swatch"><div class="kds-swatch-color" style="background:var(--kirki-color-bg-alt,hsl(248 23% 96%))"></div><div class="kds-swatch-label">BG Alt</div></div>
-        <div class="kds-swatch"><div class="kds-swatch-color" style="background:var(--kirki-color-bg-hover,hsl(248 20% 94%))"></div><div class="kds-swatch-label">BG Hover</div></div>
-        <div class="kds-swatch"><div class="kds-swatch-color" style="background:var(--kirki-color-border,hsl(252 14% 90%));border:none"></div><div class="kds-swatch-label">Border</div></div>
-        <div class="kds-swatch"><div class="kds-swatch-color" style="background:var(--kirki-color-text,hsl(255 4% 20%))"></div><div class="kds-swatch-label">Text</div></div>
-        <div class="kds-swatch"><div class="kds-swatch-color" style="background:var(--kirki-color-text-muted,hsl(249 10% 72%))"></div><div class="kds-swatch-label">Text Muted</div></div>
+        <div class="kds-swatch"><div class="kds-swatch-color" style="background:var(--kecom-color-bg,#fff)"></div><div class="kds-swatch-label">BG</div></div>
+        <div class="kds-swatch"><div class="kds-swatch-color" style="background:var(--kecom-color-bg-alt,hsl(248 23% 96%))"></div><div class="kds-swatch-label">BG Alt</div></div>
+        <div class="kds-swatch"><div class="kds-swatch-color" style="background:var(--kecom-color-bg-hover,hsl(248 20% 94%))"></div><div class="kds-swatch-label">BG Hover</div></div>
+        <div class="kds-swatch"><div class="kds-swatch-color" style="background:var(--kecom-color-border,hsl(252 14% 90%));border:none"></div><div class="kds-swatch-label">Border</div></div>
+        <div class="kds-swatch"><div class="kds-swatch-color" style="background:var(--kecom-color-text,hsl(255 4% 20%))"></div><div class="kds-swatch-label">Text</div></div>
+        <div class="kds-swatch"><div class="kds-swatch-color" style="background:var(--kecom-color-text-muted,hsl(249 10% 72%))"></div><div class="kds-swatch-label">Text Muted</div></div>
     </div>
 </section>
 
@@ -83,12 +83,12 @@ use Kirki\Ecommerce\Supports\Icon;
     </div>
     <p class="kds-label" style="margin-top:1.5rem;">Utility classes</p>
     <div style="display:flex;flex-direction:column;gap:.5rem;">
-        <div class="kirki-text-4xl kirki-font-bold">kirki-text-4xl + kirki-font-bold</div>
-        <div class="kirki-text-2xl kirki-font-semibold">kirki-text-2xl + kirki-font-semibold</div>
-        <div class="kirki-text-md kirki-font-medium">kirki-text-md + kirki-font-medium</div>
-        <div class="kirki-text-base">kirki-text-base (default)</div>
-        <div class="kirki-text-sm kirki-text-muted">kirki-text-sm + kirki-text-muted</div>
-        <div class="kirki-truncate" style="max-width:280px;">kirki-truncate: The quick brown fox jumps over the lazy dog and keeps going.</div>
+        <div class="kecom-text-4xl kecom-font-bold">kecom-text-4xl + kecom-font-bold</div>
+        <div class="kecom-text-2xl kecom-font-semibold">kecom-text-2xl + kecom-font-semibold</div>
+        <div class="kecom-text-md kecom-font-medium">kecom-text-md + kecom-font-medium</div>
+        <div class="kecom-text-base">kecom-text-base (default)</div>
+        <div class="kecom-text-sm kecom-text-muted">kecom-text-sm + kecom-text-muted</div>
+        <div class="kecom-truncate" style="max-width:280px;">kecom-truncate: The quick brown fox jumps over the lazy dog and keeps going.</div>
     </div>
 </section>
 
@@ -98,50 +98,50 @@ use Kirki\Ecommerce\Supports\Icon;
 
     <p class="kds-label">Variants</p>
     <div class="kds-row">
-        <button class="kirki-btn kirki-btn-primary">Primary</button>
-        <button class="kirki-btn kirki-btn-secondary">Secondary</button>
-        <button class="kirki-btn kirki-btn-destructive">Destructive</button>
-        <button class="kirki-btn kirki-btn-outline">Outline</button>
-        <button class="kirki-btn kirki-btn-ghost">Ghost</button>
-        <button class="kirki-btn kirki-btn-link">Link</button>
+        <button class="kecom-btn kecom-btn-primary">Primary</button>
+        <button class="kecom-btn kecom-btn-secondary">Secondary</button>
+        <button class="kecom-btn kecom-btn-destructive">Destructive</button>
+        <button class="kecom-btn kecom-btn-outline">Outline</button>
+        <button class="kecom-btn kecom-btn-ghost">Ghost</button>
+        <button class="kecom-btn kecom-btn-link">Link</button>
     </div>
 
     <p class="kds-label">Soft Variants</p>
     <div class="kds-row">
-        <button class="kirki-btn kirki-btn-primary-soft">Primary Soft</button>
-        <button class="kirki-btn kirki-btn-destructive-soft">Destructive Soft</button>
+        <button class="kecom-btn kecom-btn-primary-soft">Primary Soft</button>
+        <button class="kecom-btn kecom-btn-destructive-soft">Destructive Soft</button>
     </div>
 
     <p class="kds-label">Sizes (32px / 36px / 40px)</p>
     <div class="kds-row">
-        <button class="kirki-btn kirki-btn-primary kirki-btn-sm">Small</button>
-        <button class="kirki-btn kirki-btn-primary">Default</button>
-        <button class="kirki-btn kirki-btn-primary kirki-btn-lg">Large</button>
+        <button class="kecom-btn kecom-btn-primary kecom-btn-sm">Small</button>
+        <button class="kecom-btn kecom-btn-primary">Default</button>
+        <button class="kecom-btn kecom-btn-primary kecom-btn-lg">Large</button>
     </div>
 
     <p class="kds-label">Icon-only</p>
     <div class="kds-row">
-        <button class="kirki-btn kirki-btn-primary kirki-btn-icon-sm" aria-label="Search">
+        <button class="kecom-btn kecom-btn-primary kecom-btn-icon-sm" aria-label="Search">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="m6 8 1.333 1.333L10 6.667m-7.433-.92a2.667 2.667 0 0 1 3.186-3.18 2.667 2.667 0 0 1 4.494 0 2.667 2.667 0 0 1 3.186 3.186 2.666 2.666 0 0 1 0 4.494 2.667 2.667 0 0 1-3.18 3.186 2.667 2.667 0 0 1-4.5 0 2.667 2.667 0 0 1-3.186-3.18 2.667 2.667 0 0 1 0-4.506"/></svg>
         </button>
-        <button class="kirki-btn kirki-btn-primary kirki-btn-icon" aria-label="Settings">
+        <button class="kecom-btn kecom-btn-primary kecom-btn-icon" aria-label="Settings">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="m6 8 1.333 1.333L10 6.667m-7.433-.92a2.667 2.667 0 0 1 3.186-3.18 2.667 2.667 0 0 1 4.494 0 2.667 2.667 0 0 1 3.186 3.186 2.666 2.666 0 0 1 0 4.494 2.667 2.667 0 0 1-3.18 3.186 2.667 2.667 0 0 1-4.5 0 2.667 2.667 0 0 1-3.186-3.18 2.667 2.667 0 0 1 0-4.506"/></svg>
         </button>
-        <button class="kirki-btn kirki-btn-primary kirki-btn-icon-lg" aria-label="Menu">
+        <button class="kecom-btn kecom-btn-primary kecom-btn-icon-lg" aria-label="Menu">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="m6 8 1.333 1.333L10 6.667m-7.433-.92a2.667 2.667 0 0 1 3.186-3.18 2.667 2.667 0 0 1 4.494 0 2.667 2.667 0 0 1 3.186 3.186 2.666 2.666 0 0 1 0 4.494 2.667 2.667 0 0 1-3.18 3.186 2.667 2.667 0 0 1-4.5 0 2.667 2.667 0 0 1-3.186-3.18 2.667 2.667 0 0 1 0-4.506"/></svg>
         </button>
     </div>
 
     <p class="kds-label">Disabled states</p>
     <div class="kds-row">
-        <button class="kirki-btn kirki-btn-primary" disabled>Primary</button>
-        <button class="kirki-btn kirki-btn-secondary" disabled>Secondary</button>
-        <button class="kirki-btn kirki-btn-destructive" disabled>Destructive</button>
-        <button class="kirki-btn kirki-btn-outline" disabled>Outline</button>
+        <button class="kecom-btn kecom-btn-primary" disabled>Primary</button>
+        <button class="kecom-btn kecom-btn-secondary" disabled>Secondary</button>
+        <button class="kecom-btn kecom-btn-destructive" disabled>Destructive</button>
+        <button class="kecom-btn kecom-btn-outline" disabled>Outline</button>
     </div>
 
     <p class="kds-label">Full width</p>
-    <button class="kirki-btn kirki-btn-primary kirki-btn-block" style="max-width:360px;">Full Width Button</button>
+    <button class="kecom-btn kecom-btn-primary kecom-btn-block" style="max-width:360px;">Full Width Button</button>
 </section>
 
 <!-- BADGES -->
@@ -150,30 +150,30 @@ use Kirki\Ecommerce\Supports\Icon;
 
     <p class="kds-label">Variants</p>
     <div class="kds-row">
-        <span class="kirki-badge kirki-badge-default">Default</span>
-        <span class="kirki-badge kirki-badge-primary">Primary</span>
-        <span class="kirki-badge kirki-badge-success">Success</span>
-        <span class="kirki-badge kirki-badge-success-light">Success Light</span>
-        <span class="kirki-badge kirki-badge-error">Error</span>
-        <span class="kirki-badge kirki-badge-error-light">Error Light</span>
-        <span class="kirki-badge kirki-badge-warning">Warning</span>
-        <span class="kirki-badge kirki-badge-outline">Outline</span>
+        <span class="kecom-badge kecom-badge-default">Default</span>
+        <span class="kecom-badge kecom-badge-primary">Primary</span>
+        <span class="kecom-badge kecom-badge-success">Success</span>
+        <span class="kecom-badge kecom-badge-success-light">Success Light</span>
+        <span class="kecom-badge kecom-badge-error">Error</span>
+        <span class="kecom-badge kecom-badge-error-light">Error Light</span>
+        <span class="kecom-badge kecom-badge-warning">Warning</span>
+        <span class="kecom-badge kecom-badge-outline">Outline</span>
     </div>
 
     <p class="kds-label">Ecommerce contexts</p>
     <div class="kds-row">
-        <span class="kirki-badge kirki-badge-success-light">In Stock</span>
-        <span class="kirki-badge kirki-badge-warning">Low Stock</span>
-        <span class="kirki-badge kirki-badge-error-light">Out of Stock</span>
-        <span class="kirki-badge kirki-badge-primary">Sale</span>
-        <span class="kirki-badge kirki-badge-default">New</span>
+        <span class="kecom-badge kecom-badge-success-light">In Stock</span>
+        <span class="kecom-badge kecom-badge-warning">Low Stock</span>
+        <span class="kecom-badge kecom-badge-error-light">Out of Stock</span>
+        <span class="kecom-badge kecom-badge-primary">Sale</span>
+        <span class="kecom-badge kecom-badge-default">New</span>
     </div>
 
     <p class="kds-label">Sizes</p>
     <div class="kds-row">
-        <span class="kirki-badge kirki-badge-primary kirki-badge-sm">Small</span>
-        <span class="kirki-badge kirki-badge-primary">Medium</span>
-        <span class="kirki-badge kirki-badge-primary kirki-badge-lg">Large</span>
+        <span class="kecom-badge kecom-badge-primary kecom-badge-sm">Small</span>
+        <span class="kecom-badge kecom-badge-primary">Medium</span>
+        <span class="kecom-badge kecom-badge-primary kecom-badge-lg">Large</span>
     </div>
 </section>
 
@@ -182,61 +182,61 @@ use Kirki\Ecommerce\Supports\Icon;
     <p class="kds-section-title">Form Inputs</p>
 
     <div class="kds-grid-2">
-        <div class="kirki-field">
-            <label class="kirki-field-label kirki-field-label-required">Email address</label>
-            <input class="kirki-input" type="email" placeholder="you@example.com">
-            <span class="kirki-field-help">We will never share your email.</span>
+        <div class="kecom-field">
+            <label class="kecom-field-label kecom-field-label-required">Email address</label>
+            <input class="kecom-input" type="email" placeholder="you@example.com">
+            <span class="kecom-field-help">We will never share your email.</span>
         </div>
-        <div class="kirki-field">
-            <label class="kirki-field-label">Search</label>
-            <input class="kirki-input" type="text" placeholder="Search products&hellip;">
+        <div class="kecom-field">
+            <label class="kecom-field-label">Search</label>
+            <input class="kecom-input" type="text" placeholder="Search products&hellip;">
         </div>
-        <div class="kirki-field">
-            <label class="kirki-field-label">Input &ndash; small</label>
-            <input class="kirki-input kirki-input-sm" type="text" placeholder="Small input">
+        <div class="kecom-field">
+            <label class="kecom-field-label">Input &ndash; small</label>
+            <input class="kecom-input kecom-input-sm" type="text" placeholder="Small input">
         </div>
-        <div class="kirki-field">
-            <label class="kirki-field-label">Input &ndash; large</label>
-            <input class="kirki-input kirki-input-lg" type="text" placeholder="Large input">
+        <div class="kecom-field">
+            <label class="kecom-field-label">Input &ndash; large</label>
+            <input class="kecom-input kecom-input-lg" type="text" placeholder="Large input">
         </div>
-        <div class="kirki-field kirki-field-error-state">
-            <label class="kirki-field-label kirki-field-label-required">Promo code</label>
-            <input class="kirki-input" type="text" value="BADCODE">
-            <span class="kirki-field-error">That code is not valid.</span>
+        <div class="kecom-field kecom-field-error-state">
+            <label class="kecom-field-label kecom-field-label-required">Promo code</label>
+            <input class="kecom-input" type="text" value="BADCODE">
+            <span class="kecom-field-error">That code is not valid.</span>
         </div>
-        <div class="kirki-field">
-            <label class="kirki-field-label">Sort by</label>
-            <select class="kirki-select">
+        <div class="kecom-field">
+            <label class="kecom-field-label">Sort by</label>
+            <select class="kecom-select">
                 <option>Newest first</option>
                 <option>Price: low to high</option>
                 <option>Price: high to low</option>
                 <option>Best rated</option>
             </select>
         </div>
-        <div class="kirki-field kds-span-2">
-            <label class="kirki-field-label">Order notes</label>
-            <textarea class="kirki-textarea" placeholder="Any special instructions&hellip;" rows="3"></textarea>
-            <span class="kirki-field-help">Optional. We will pass this to the fulfilment team.</span>
+        <div class="kecom-field kds-span-2">
+            <label class="kecom-field-label">Order notes</label>
+            <textarea class="kecom-textarea" placeholder="Any special instructions&hellip;" rows="3"></textarea>
+            <span class="kecom-field-help">Optional. We will pass this to the fulfilment team.</span>
         </div>
     </div>
 
     <p class="kds-label">Checkbox &amp; Radio</p>
     <div class="kds-row" style="flex-direction:column;align-items:flex-start;gap:.625rem;">
-        <label class="kirki-checkbox"><input class="kirki-checkbox-input" type="checkbox" checked><span class="kirki-checkbox-label">I agree to the terms and conditions</span></label>
-        <label class="kirki-checkbox"><input class="kirki-checkbox-input" type="checkbox"><span class="kirki-checkbox-label">Subscribe to newsletter</span></label>
-        <label class="kirki-checkbox"><input class="kirki-checkbox-input" type="checkbox" disabled><span class="kirki-checkbox-label">Disabled checkbox</span></label>
+        <label class="kecom-checkbox"><input class="kecom-checkbox-input" type="checkbox" checked><span class="kecom-checkbox-label">I agree to the terms and conditions</span></label>
+        <label class="kecom-checkbox"><input class="kecom-checkbox-input" type="checkbox"><span class="kecom-checkbox-label">Subscribe to newsletter</span></label>
+        <label class="kecom-checkbox"><input class="kecom-checkbox-input" type="checkbox" disabled><span class="kecom-checkbox-label">Disabled checkbox</span></label>
     </div>
     <div class="kds-row" style="flex-direction:column;align-items:flex-start;gap:.625rem;margin-top:.75rem;">
-        <label class="kirki-radio"><input class="kirki-radio-input" type="radio" name="ds-shipping" checked><span class="kirki-radio-label">Standard shipping (3&ndash;5 days)</span></label>
-        <label class="kirki-radio"><input class="kirki-radio-input" type="radio" name="ds-shipping"><span class="kirki-radio-label">Express shipping (1&ndash;2 days)</span></label>
-        <label class="kirki-radio"><input class="kirki-radio-input" type="radio" name="ds-shipping" disabled><span class="kirki-radio-label">Overnight (unavailable)</span></label>
+        <label class="kecom-radio"><input class="kecom-radio-input" type="radio" name="ds-shipping" checked><span class="kecom-radio-label">Standard shipping (3&ndash;5 days)</span></label>
+        <label class="kecom-radio"><input class="kecom-radio-input" type="radio" name="ds-shipping"><span class="kecom-radio-label">Express shipping (1&ndash;2 days)</span></label>
+        <label class="kecom-radio"><input class="kecom-radio-input" type="radio" name="ds-shipping" disabled><span class="kecom-radio-label">Overnight (unavailable)</span></label>
     </div>
 
     <p class="kds-label">Quantity Stepper</p>
-    <div x-data="quantitySelector({ min: 1, max: 99, initial: 1 })" class="kirki-quantity">
-        <button class="kirki-quantity-btn" type="button" aria-label="Decrease" @click="decrement">&minus;</button>
-        <input class="kirki-quantity-input" type="number" :value="quantity" @input="setValue($el.value)" min="1" max="99" aria-label="Quantity">
-        <button class="kirki-quantity-btn" type="button" aria-label="Increase" @click="increment">+</button>
+    <div x-data="quantitySelector({ min: 1, max: 99, initial: 1 })" class="kecom-quantity">
+        <button class="kecom-quantity-btn" type="button" aria-label="Decrease" @click="decrement">&minus;</button>
+        <input class="kecom-quantity-input" type="number" :value="quantity" @input="setValue($el.value)" min="1" max="99" aria-label="Quantity">
+        <button class="kecom-quantity-btn" type="button" aria-label="Increase" @click="increment">+</button>
     </div>
 </section>
 
@@ -246,73 +246,73 @@ use Kirki\Ecommerce\Supports\Icon;
 
     <div class="kds-card-grid">
 
-        <div class="kirki-product-card">
-            <a href="#" class="kirki-product-card-image">
-                <span class="kirki-product-card-ribbon">New</span>
+        <div class="kecom-product-card">
+            <a href="#" class="kecom-product-card-image">
+                <span class="kecom-product-card-ribbon">New</span>
                 <img src="https://images.unsplash.com/photo-1591047139829-d91aecb6caea" alt="product image" />
             </a>
-            <div class="kirki-product-card-body">
-                <span class="kirki-product-card-category">
+            <div class="kecom-product-card-body">
+                <span class="kecom-product-card-category">
                     Accessories
                 </span>
-                <a href="#" class="kirki-product-card-title">
+                <a href="#" class="kecom-product-card-title">
                     Needle-Felted Succulent in Ceramic Pot
                 </a>
             </div>
-            <div class="kirki-product-card-footer">
-                <div class="kirki-product-card-price-wrapper">
-                    <span class="kirki-product-card-price">$35.00</span>
-                    <span class="kirki-product-card-price-discount">$35.00</span>
+            <div class="kecom-product-card-footer">
+                <div class="kecom-product-card-price-wrapper">
+                    <span class="kecom-product-card-price">$35.00</span>
+                    <span class="kecom-product-card-price-discount">$35.00</span>
                 </div>
-                <button class="kirki-btn kirki-btn-primary kirki-btn-sm kirki-product-card-add-to-cart">
+                <button class="kecom-btn kecom-btn-primary kecom-btn-sm kecom-product-card-add-to-cart">
                     <?php Icon::render('cart'); ?>
                     Add
                 </button> 
             </div>
         </div>
 
-        <div class="kirki-product-card">
-            <a href="#" class="kirki-product-card-image">
+        <div class="kecom-product-card">
+            <a href="#" class="kecom-product-card-image">
                 <img src="https://images.unsplash.com/photo-1619603364904-c0498317e145" alt="product image" />
             </a>
-            <div class="kirki-product-card-body">
-                <span class="kirki-product-card-category">
+            <div class="kecom-product-card-body">
+                <span class="kecom-product-card-category">
                     Accessories
                 </span>
-                <a href="#" class="kirki-product-card-title">
+                <a href="#" class="kecom-product-card-title">
                     Needle-Felted Succulent in Ceramic Pot
                 </a>
             </div>
-            <div class="kirki-product-card-footer">
-                <div class="kirki-product-card-price-wrapper">
-                    <span class="kirki-product-card-price">$35.00</span>
-                    <span class="kirki-product-card-price-discount">$35.00</span>
+            <div class="kecom-product-card-footer">
+                <div class="kecom-product-card-price-wrapper">
+                    <span class="kecom-product-card-price">$35.00</span>
+                    <span class="kecom-product-card-price-discount">$35.00</span>
                 </div>
-                <button class="kirki-btn kirki-btn-primary kirki-btn-sm kirki-product-card-add-to-cart">
+                <button class="kecom-btn kecom-btn-primary kecom-btn-sm kecom-product-card-add-to-cart">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.4" d="M1.366 1.366H2.7l1.773 8.28A1.334 1.334 0 0 0 5.806 10.7h6.52a1.33 1.33 0 0 0 1.3-1.046l1.1-4.953H3.413M6 14a.667.667 0 1 1-1.334 0A.667.667 0 0 1 6 14m7.333 0a.667.667 0 1 1-1.334 0 .667.667 0 0 1 1.334 0"/></svg>
                     Add
                 </button> 
             </div>
         </div>
 
-        <div class="kirki-product-card">
-            <a href="#" class="kirki-product-card-image">
+        <div class="kecom-product-card">
+            <a href="#" class="kecom-product-card-image">
                 <img src="https://images.unsplash.com/photo-1434389677669-e08b4cac3105" alt="product image" />
             </a>
-            <div class="kirki-product-card-body">
-                <span class="kirki-product-card-category">
+            <div class="kecom-product-card-body">
+                <span class="kecom-product-card-category">
                     Accessories
                 </span>
-                <a href="#" class="kirki-product-card-title">
+                <a href="#" class="kecom-product-card-title">
                     Needle-Felted Succulent in Ceramic Pot
                 </a>
             </div>
-            <div class="kirki-product-card-footer">
-                <div class="kirki-product-card-price-wrapper">
-                    <span class="kirki-product-card-price">$35.00</span>
-                    <span class="kirki-product-card-price-discount">$35.00</span>
+            <div class="kecom-product-card-footer">
+                <div class="kecom-product-card-price-wrapper">
+                    <span class="kecom-product-card-price">$35.00</span>
+                    <span class="kecom-product-card-price-discount">$35.00</span>
                 </div>
-                <button class="kirki-btn kirki-btn-primary kirki-btn-sm kirki-product-card-add-to-cart">
+                <button class="kecom-btn kecom-btn-primary kecom-btn-sm kecom-product-card-add-to-cart">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.4" d="M1.366 1.366H2.7l1.773 8.28A1.334 1.334 0 0 0 5.806 10.7h6.52a1.33 1.33 0 0 0 1.3-1.046l1.1-4.953H3.413M6 14a.667.667 0 1 1-1.334 0A.667.667 0 0 1 6 14m7.333 0a.667.667 0 1 1-1.334 0 .667.667 0 0 1 1.334 0"/></svg>
                     Add
                 </button> 
@@ -327,68 +327,68 @@ use Kirki\Ecommerce\Supports\Icon;
     <p class="kds-section-title">Cards</p>
     <div class="kds-card-grid">
 
-        <div class="kirki-card">
-            <div class="kirki-card-image" style="height:160px;background:#e8edf5;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:.75rem;">Image</div>
-            <div class="kirki-card-body">
-                <span class="kirki-badge kirki-badge-default" style="margin-bottom:.5rem;">Default</span>
-                <h3 class="kirki-card-title">Plain Card</h3>
-                <p class="kirki-card-meta">No shadow, no hover</p>
-                <div class="kirki-card-price">$19.99</div>
+        <div class="kecom-card">
+            <div class="kecom-card-image" style="height:160px;background:#e8edf5;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:.75rem;">Image</div>
+            <div class="kecom-card-body">
+                <span class="kecom-badge kecom-badge-default" style="margin-bottom:.5rem;">Default</span>
+                <h3 class="kecom-card-title">Plain Card</h3>
+                <p class="kecom-card-meta">No shadow, no hover</p>
+                <div class="kecom-card-price">$19.99</div>
             </div>
-            <div class="kirki-card-footer">
-                <button class="kirki-btn kirki-btn-outline kirki-btn-sm kirki-btn-block">View</button>
-            </div>
-        </div>
-
-        <div class="kirki-card kirki-card-hoverable">
-            <div class="kirki-card-image" style="height:160px;background:#f0fdf4;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:.75rem;">Image</div>
-            <div class="kirki-card-body">
-                <span class="kirki-badge kirki-badge-success-light" style="margin-bottom:.5rem;">In Stock</span>
-                <h3 class="kirki-card-title">Classic T-Shirt</h3>
-                <p class="kirki-card-meta">Comfortable everyday tee</p>
-                <div class="kirki-card-price">$29.99</div>
-            </div>
-            <div class="kirki-card-footer">
-                <button class="kirki-btn kirki-btn-primary kirki-btn-sm kirki-btn-block">Add to Cart</button>
+            <div class="kecom-card-footer">
+                <button class="kecom-btn kecom-btn-outline kecom-btn-sm kecom-btn-block">View</button>
             </div>
         </div>
 
-        <div class="kirki-card kirki-card-hoverable">
-            <div class="kirki-card-image" style="height:160px;background:#fefce8;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:.75rem;">Image</div>
-            <div class="kirki-card-body">
-                <span class="kirki-badge kirki-badge-warning" style="margin-bottom:.5rem;">Low Stock</span>
-                <h3 class="kirki-card-title">Running Shoes</h3>
-                <p class="kirki-card-meta">Lightweight performance</p>
-                <div class="kirki-card-price">$89.00</div>
+        <div class="kecom-card kecom-card-hoverable">
+            <div class="kecom-card-image" style="height:160px;background:#f0fdf4;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:.75rem;">Image</div>
+            <div class="kecom-card-body">
+                <span class="kecom-badge kecom-badge-success-light" style="margin-bottom:.5rem;">In Stock</span>
+                <h3 class="kecom-card-title">Classic T-Shirt</h3>
+                <p class="kecom-card-meta">Comfortable everyday tee</p>
+                <div class="kecom-card-price">$29.99</div>
             </div>
-            <div class="kirki-card-footer">
-                <button class="kirki-btn kirki-btn-primary kirki-btn-sm kirki-btn-block">Add to Cart</button>
-            </div>
-        </div>
-
-        <div class="kirki-card kirki-card-hoverable">
-            <div class="kirki-card-image" style="height:160px;background:#fdf4ff;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:.75rem;">Image</div>
-            <div class="kirki-card-body">
-                <span class="kirki-badge kirki-badge-error-light" style="margin-bottom:.5rem;">Out of Stock</span>
-                <h3 class="kirki-card-title">Leather Wallet</h3>
-                <p class="kirki-card-meta">Full-grain leather</p>
-                <div class="kirki-card-price">$49.99</div>
-            </div>
-            <div class="kirki-card-footer">
-                <button class="kirki-btn kirki-btn-outline kirki-btn-sm kirki-btn-block" disabled>Out of Stock</button>
+            <div class="kecom-card-footer">
+                <button class="kecom-btn kecom-btn-primary kecom-btn-sm kecom-btn-block">Add to Cart</button>
             </div>
         </div>
 
-        <div class="kirki-card kirki-card-shadow">
-            <div class="kirki-card-image" style="height:160px;background:#e8edf5;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:.75rem;">Image</div>
-            <div class="kirki-card-body">
-                <span class="kirki-badge kirki-badge-primary" style="margin-bottom:.5rem;">Sale</span>
-                <h3 class="kirki-card-title">Shadow Card</h3>
-                <p class="kirki-card-meta">Elevated with box-shadow</p>
-                <div class="kirki-card-price"><s style="color:#a1a1aa;font-weight:400;">$60.00</s> $39.99</div>
+        <div class="kecom-card kecom-card-hoverable">
+            <div class="kecom-card-image" style="height:160px;background:#fefce8;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:.75rem;">Image</div>
+            <div class="kecom-card-body">
+                <span class="kecom-badge kecom-badge-warning" style="margin-bottom:.5rem;">Low Stock</span>
+                <h3 class="kecom-card-title">Running Shoes</h3>
+                <p class="kecom-card-meta">Lightweight performance</p>
+                <div class="kecom-card-price">$89.00</div>
             </div>
-            <div class="kirki-card-footer">
-                <button class="kirki-btn kirki-btn-primary kirki-btn-sm kirki-btn-block">Add to Cart</button>
+            <div class="kecom-card-footer">
+                <button class="kecom-btn kecom-btn-primary kecom-btn-sm kecom-btn-block">Add to Cart</button>
+            </div>
+        </div>
+
+        <div class="kecom-card kecom-card-hoverable">
+            <div class="kecom-card-image" style="height:160px;background:#fdf4ff;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:.75rem;">Image</div>
+            <div class="kecom-card-body">
+                <span class="kecom-badge kecom-badge-error-light" style="margin-bottom:.5rem;">Out of Stock</span>
+                <h3 class="kecom-card-title">Leather Wallet</h3>
+                <p class="kecom-card-meta">Full-grain leather</p>
+                <div class="kecom-card-price">$49.99</div>
+            </div>
+            <div class="kecom-card-footer">
+                <button class="kecom-btn kecom-btn-outline kecom-btn-sm kecom-btn-block" disabled>Out of Stock</button>
+            </div>
+        </div>
+
+        <div class="kecom-card kecom-card-shadow">
+            <div class="kecom-card-image" style="height:160px;background:#e8edf5;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:.75rem;">Image</div>
+            <div class="kecom-card-body">
+                <span class="kecom-badge kecom-badge-primary" style="margin-bottom:.5rem;">Sale</span>
+                <h3 class="kecom-card-title">Shadow Card</h3>
+                <p class="kecom-card-meta">Elevated with box-shadow</p>
+                <div class="kecom-card-price"><s style="color:#a1a1aa;font-weight:400;">$60.00</s> $39.99</div>
+            </div>
+            <div class="kecom-card-footer">
+                <button class="kecom-btn kecom-btn-primary kecom-btn-sm kecom-btn-block">Add to Cart</button>
             </div>
         </div>
 
@@ -450,13 +450,13 @@ use Kirki\Ecommerce\Supports\Icon;
     
     <p class="kds-label">Trigger</p>
     <div class="kds-row">
-        <button class="kirki-btn kirki-btn-primary" onclick="document.getElementById('demo-modal').style.display='flex'">Open Modal</button>
+        <button class="kecom-btn kecom-btn-primary" onclick="document.getElementById('demo-modal').style.display='flex'">Open Modal</button>
     </div>
 
     <p class="kds-label">Size Variants</p>
     <div class="kds-row">
-        <button class="kirki-btn kirki-btn-secondary kirki-btn-sm" onclick="document.getElementById('demo-modal-sm').style.display='flex'">Small</button>
-        <button class="kirki-btn kirki-btn-secondary kirki-btn-sm" onclick="document.getElementById('demo-modal-lg').style.display='flex'">Large</button>
+        <button class="kecom-btn kecom-btn-secondary kecom-btn-sm" onclick="document.getElementById('demo-modal-sm').style.display='flex'">Small</button>
+        <button class="kecom-btn kecom-btn-secondary kecom-btn-sm" onclick="document.getElementById('demo-modal-lg').style.display='flex'">Large</button>
     </div>
 </section>
 
@@ -466,25 +466,25 @@ use Kirki\Ecommerce\Supports\Icon;
     
     <p class="kds-label">Variants</p>
     <div class="kds-row">
-        <button class="kirki-btn kirki-btn-success-light" onclick="showToast('success')">Success</button>
-        <button class="kirki-btn kirki-btn-error-light" onclick="showToast('error')">Error</button>
-        <button class="kirki-btn kirki-btn-outline" onclick="showToast('warning')">Warning</button>
-        <button class="kirki-btn kirki-btn-secondary" onclick="showToast('info')">Info</button>
+        <button class="kecom-btn kecom-btn-success-light" onclick="showToast('success')">Success</button>
+        <button class="kecom-btn kecom-btn-error-light" onclick="showToast('error')">Error</button>
+        <button class="kecom-btn kecom-btn-outline" onclick="showToast('warning')">Warning</button>
+        <button class="kecom-btn kecom-btn-secondary" onclick="showToast('info')">Info</button>
     </div>
 
     <p class="kds-label">Position Variants</p>
     <div class="kds-row">
-        <button class="kirki-btn kirki-btn-outline kirki-btn-sm" onclick="showToast('success', 'top-left')">Top Left</button>
-        <button class="kirki-btn kirki-btn-outline kirki-btn-sm" onclick="showToast('success', 'top-right')">Top Right</button>
-        <button class="kirki-btn kirki-btn-outline kirki-btn-sm" onclick="showToast('success', 'bottom-left')">Bottom Left</button>
-        <button class="kirki-btn kirki-btn-outline kirki-btn-sm" onclick="showToast('success', 'bottom-right')">Bottom Right</button>
+        <button class="kecom-btn kecom-btn-outline kecom-btn-sm" onclick="showToast('success', 'top-left')">Top Left</button>
+        <button class="kecom-btn kecom-btn-outline kecom-btn-sm" onclick="showToast('success', 'top-right')">Top Right</button>
+        <button class="kecom-btn kecom-btn-outline kecom-btn-sm" onclick="showToast('success', 'bottom-left')">Bottom Left</button>
+        <button class="kecom-btn kecom-btn-outline kecom-btn-sm" onclick="showToast('success', 'bottom-right')">Bottom Right</button>
     </div>
 </section>
 
 
 <!-- Form Validation Example -->
-<section class="kirki-section">
-    <h2 class="kirki-section-title">Form Validation</h2>
+<section class="kecom-section">
+    <h2 class="kecom-section-title">Form Validation</h2>
     
     <form x-data="form({ 
         defaultValues: { 
@@ -503,8 +503,8 @@ use Kirki\Ecommerce\Supports\Icon;
         () => {
             showToast('error', 'Please fix the errors');
         }
-    )" class="kirki-form">
-        <div class="kirki-form-field">
+    )" class="kecom-form">
+        <div class="kecom-form-field">
             <label for="name">Full Name *</label>
             <input 
                 id="name" 
@@ -515,10 +515,10 @@ use Kirki\Ecommerce\Supports\Icon;
                 })"
                 placeholder="Enter your full name"
             >
-            <span class="kirki-form-error" x-show="errors.name" x-text="errors.name"></span>
+            <span class="kecom-form-error" x-show="errors.name" x-text="errors.name"></span>
         </div>
 
-        <div class="kirki-form-field">
+        <div class="kecom-form-field">
             <label for="email">Email Address *</label>
             <input 
                 id="email" 
@@ -529,10 +529,10 @@ use Kirki\Ecommerce\Supports\Icon;
                 })"
                 placeholder="Enter your email"
             >
-            <span class="kirki-form-error" x-show="errors.email" x-text="errors.email"></span>
+            <span class="kecom-form-error" x-show="errors.email" x-text="errors.email"></span>
         </div>
 
-        <div class="kirki-form-field">
+        <div class="kecom-form-field">
             <label for="password">Password *</label>
             <input 
                 id="password" 
@@ -543,10 +543,10 @@ use Kirki\Ecommerce\Supports\Icon;
                 })"
                 placeholder="Create a password"
             >
-            <span class="kirki-form-error" x-show="errors.password" x-text="errors.password"></span>
+            <span class="kecom-form-error" x-show="errors.password" x-text="errors.password"></span>
         </div>
 
-        <div class="kirki-form-field">
+        <div class="kecom-form-field">
             <label for="confirmPassword">Confirm Password *</label>
             <input 
                 id="confirmPassword" 
@@ -557,20 +557,20 @@ use Kirki\Ecommerce\Supports\Icon;
                 })"
                 placeholder="Confirm your password"
             >
-            <span class="kirki-form-error" x-show="errors.confirmPassword" x-text="errors.confirmPassword"></span>
+            <span class="kecom-form-error" x-show="errors.confirmPassword" x-text="errors.confirmPassword"></span>
         </div>
 
-        <div class="kirki-form-field">
-            <button type="submit" class="kirki-btn kirki-btn-primary" :disabled="isSubmitting">
+        <div class="kecom-form-field">
+            <button type="submit" class="kecom-btn kecom-btn-primary" :disabled="isSubmitting">
                 <span x-show="!isSubmitting">Submit Form</span>
                 <span x-show="isSubmitting">Submitting...</span>
             </button>
-            <button type="button" class="kirki-btn kirki-btn-secondary" @click="reset()" :disabled="isSubmitting">
+            <button type="button" class="kecom-btn kecom-btn-secondary" @click="reset()" :disabled="isSubmitting">
                 Reset
             </button>
         </div>
 
-        <div class="kirki-form-debug" x-show="Object.keys(errors).length > 0 || isSubmitting">
+        <div class="kecom-form-debug" x-show="Object.keys(errors).length > 0 || isSubmitting">
             <strong>Form State:</strong>
             <pre x-text="JSON.stringify(getFormState(), null, 2)"></pre>
         </div>
@@ -580,69 +580,69 @@ use Kirki\Ecommerce\Supports\Icon;
 </div><!-- /.kds -->
 
 <!-- MODAL DEMO -->
-<div id="demo-modal" class="kirki-modal-backdrop" style="display:none;" onclick="this.style.display='none'">
-    <div class="kirki-modal" onclick="event.stopPropagation()">
-        <div class="kirki-modal-content">
-            <div class="kirki-modal-header">
-                <h3 class="kirki-modal-header-title">Modal Title</h3>
-                <button class="kirki-modal-header-close" onclick="document.getElementById('demo-modal').style.display='none'">&times;</button>
+<div id="demo-modal" class="kecom-modal-backdrop" style="display:none;" onclick="this.style.display='none'">
+    <div class="kecom-modal" onclick="event.stopPropagation()">
+        <div class="kecom-modal-content">
+            <div class="kecom-modal-header">
+                <h3 class="kecom-modal-header-title">Modal Title</h3>
+                <button class="kecom-modal-header-close" onclick="document.getElementById('demo-modal').style.display='none'">&times;</button>
             </div>
-            <div class="kirki-modal-body">
+            <div class="kecom-modal-body">
                 <p>This is a standard modal dialog. It can contain any content including forms, images, or text.</p>
                 <p style="margin-top:1rem;color:#71717a;">Modals are great for focused interactions that require user attention.</p>
             </div>
-            <div class="kirki-modal-footer">
-                <button class="kirki-btn kirki-btn-secondary" onclick="document.getElementById('demo-modal').style.display='none'">Cancel</button>
-                <button class="kirki-btn kirki-btn-primary" onclick="document.getElementById('demo-modal').style.display='none'">Confirm</button>
+            <div class="kecom-modal-footer">
+                <button class="kecom-btn kecom-btn-secondary" onclick="document.getElementById('demo-modal').style.display='none'">Cancel</button>
+                <button class="kecom-btn kecom-btn-primary" onclick="document.getElementById('demo-modal').style.display='none'">Confirm</button>
             </div>
         </div>
     </div>
 </div>
 
-<div id="demo-modal-sm" class="kirki-modal-backdrop" style="display:none;" onclick="this.style.display='none'">
-    <div class="kirki-modal" onclick="event.stopPropagation()">
-        <div class="kirki-modal-content kirki-modal-content-sm">
-            <div class="kirki-modal-header">
-                <h3 class="kirki-modal-header-title">Small Modal</h3>
-                <button class="kirki-modal-header-close" onclick="document.getElementById('demo-modal-sm').style.display='none'">&times;</button>
+<div id="demo-modal-sm" class="kecom-modal-backdrop" style="display:none;" onclick="this.style.display='none'">
+    <div class="kecom-modal" onclick="event.stopPropagation()">
+        <div class="kecom-modal-content kecom-modal-content-sm">
+            <div class="kecom-modal-header">
+                <h3 class="kecom-modal-header-title">Small Modal</h3>
+                <button class="kecom-modal-header-close" onclick="document.getElementById('demo-modal-sm').style.display='none'">&times;</button>
             </div>
-            <div class="kirki-modal-body">
+            <div class="kecom-modal-body">
                 <p>This is a small modal variant for compact content.</p>
             </div>
-            <div class="kirki-modal-footer">
-                <button class="kirki-btn kirki-btn-primary" onclick="document.getElementById('demo-modal-sm').style.display='none'">OK</button>
+            <div class="kecom-modal-footer">
+                <button class="kecom-btn kecom-btn-primary" onclick="document.getElementById('demo-modal-sm').style.display='none'">OK</button>
             </div>
         </div>
     </div>
 </div>
 
-<div id="demo-modal-lg" class="kirki-modal-backdrop" style="display:none;" onclick="this.style.display='none'">
-    <div class="kirki-modal" onclick="event.stopPropagation()">
-        <div class="kirki-modal-content kirki-modal-content-lg">
-            <div class="kirki-modal-header">
-                <h3 class="kirki-modal-header-title">Large Modal</h3>
-                <button class="kirki-modal-header-close" onclick="document.getElementById('demo-modal-lg').style.display='none'">&times;</button>
+<div id="demo-modal-lg" class="kecom-modal-backdrop" style="display:none;" onclick="this.style.display='none'">
+    <div class="kecom-modal" onclick="event.stopPropagation()">
+        <div class="kecom-modal-content kecom-modal-content-lg">
+            <div class="kecom-modal-header">
+                <h3 class="kecom-modal-header-title">Large Modal</h3>
+                <button class="kecom-modal-header-close" onclick="document.getElementById('demo-modal-lg').style.display='none'">&times;</button>
             </div>
-            <div class="kirki-modal-body">
+            <div class="kecom-modal-body">
                 <p>This is a large modal variant for more complex content.</p>
                 <p style="margin-top:1rem;">Large modals are useful for detailed forms, multi-step processes, or content that requires more space.</p>
                 <p style="margin-top:1rem;">The content area scrolls independently while the header and footer remain fixed.</p>
             </div>
-            <div class="kirki-modal-footer">
-                <button class="kirki-btn kirki-btn-secondary" onclick="document.getElementById('demo-modal-lg').style.display='none'">Cancel</button>
-                <button class="kirki-btn kirki-btn-primary" onclick="document.getElementById('demo-modal-lg').style.display='none'">Save Changes</button>
+            <div class="kecom-modal-footer">
+                <button class="kecom-btn kecom-btn-secondary" onclick="document.getElementById('demo-modal-lg').style.display='none'">Cancel</button>
+                <button class="kecom-btn kecom-btn-primary" onclick="document.getElementById('demo-modal-lg').style.display='none'">Save Changes</button>
             </div>
         </div>
     </div>
 </div>
 
 <!-- TOAST DEMO CONTAINER -->
-<div id="toast-container" class="kirki-toast-container"></div>
+<div id="toast-container" class="kecom-toast-container"></div>
 
 <script>
 function showToast(variant, position = 'top-right') {
     const container = document.getElementById('toast-container');
-    container.className = 'kirki-toast-container kirki-toast-container-' + position;
+    container.className = 'kecom-toast-container kecom-toast-container-' + position;
     
     const icons = {
         success: '✓',
@@ -666,14 +666,14 @@ function showToast(variant, position = 'top-right') {
     };
     
     const toast = document.createElement('div');
-    toast.className = 'kirki-toast kirki-toast-' + variant;
+    toast.className = 'kecom-toast kecom-toast-' + variant;
     toast.innerHTML = `
-        <div class="kirki-toast-icon">${icons[variant]}</div>
-        <div class="kirki-toast-content">
-            <div class="kirki-toast-title">${titles[variant]}</div>
-            <div class="kirki-toast-message">${messages[variant]}</div>
+        <div class="kecom-toast-icon">${icons[variant]}</div>
+        <div class="kecom-toast-content">
+            <div class="kecom-toast-title">${titles[variant]}</div>
+            <div class="kecom-toast-message">${messages[variant]}</div>
         </div>
-        <button class="kirki-toast-close" onclick="this.parentElement.remove()">&times;</button>
+        <button class="kecom-toast-close" onclick="this.parentElement.remove()">&times;</button>
     `;
     
     container.appendChild(toast);
@@ -689,69 +689,69 @@ function showToast(variant, position = 'top-right') {
 
 
 <style>
-.kirki-section {
+.kecom-section {
     padding: 2rem 0;
-    border-bottom: 1px solid var(--kirki-color-border, #e2e8f0);
+    border-bottom: 1px solid var(--kecom-color-border, #e2e8f0);
 }
 
-.kirki-section-title {
+.kecom-section-title {
     font-size: 1.5rem;
     font-weight: 700;
     margin-bottom: 1.5rem;
-    color: var(--kirki-color-text, #18181b);
+    color: var(--kecom-color-text, #18181b);
 }
 
-.kirki-form {
+.kecom-form {
     max-width: 500px;
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
 }
 
-.kirki-form-field {
+.kecom-form-field {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
 }
 
-.kirki-form-field label {
+.kecom-form-field label {
     font-weight: 600;
     font-size: 0.875rem;
-    color: var(--kirki-color-text, #18181b);
+    color: var(--kecom-color-text, #18181b);
 }
 
-.kirki-form-field input {
+.kecom-form-field input {
     padding: 0.75rem 1rem;
-    border: 1px solid var(--kirki-color-border, #e2e8f0);
-    border-radius: var(--kirki-radius-md, 6px);
+    border: 1px solid var(--kecom-color-border, #e2e8f0);
+    border-radius: var(--kecom-radius-md, 6px);
     font-size: 1rem;
     transition: border-color 0.2s;
 }
 
-.kirki-form-field input:focus {
+.kecom-form-field input:focus {
     outline: none;
-    border-color: var(--kirki-color-brand, #3b82f6);
-    box-shadow: 0 0 0 3px var(--kirki-color-brand-light, #eff6ff);
+    border-color: var(--kecom-color-brand, #3b82f6);
+    box-shadow: 0 0 0 3px var(--kecom-color-brand-light, #eff6ff);
 }
 
-.kirki-form-field input.kirki-input-error {
-    border-color: var(--kirki-color-error, #ef4444);
+.kecom-form-field input.kecom-input-error {
+    border-color: var(--kecom-color-error, #ef4444);
 }
 
-.kirki-form-error {
+.kecom-form-error {
     font-size: 0.875rem;
-    color: var(--kirki-color-error, #ef4444);
+    color: var(--kecom-color-error, #ef4444);
     min-height: 1.25rem;
 }
 
-.kirki-form-debug {
-    background: var(--kirki-color-bg-alt, #f8fafc);
+.kecom-form-debug {
+    background: var(--kecom-color-bg-alt, #f8fafc);
     padding: 1rem;
-    border-radius: var(--kirki-radius-md, 6px);
+    border-radius: var(--kecom-radius-md, 6px);
     font-size: 0.875rem;
 }
 
-.kirki-form-debug pre {
+.kecom-form-debug pre {
     margin: 0.5rem 0 0 0;
     overflow-x: auto;
 }

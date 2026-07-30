@@ -1,7 +1,7 @@
 @use "../tokens" as *;
 @use "../mixins" as *;
 
-.kirki-product-card {
+.kecom-product-card {
   display: flex;
   flex-direction: column;
 
@@ -78,11 +78,11 @@
   }
 
   &:hover {
-    .kirki-product-card-title {
+    .kecom-product-card-title {
       text-decoration: underline;
     }
 
-    .kirki-product-card-add-to-cart {
+    .kecom-product-card-add-to-cart {
       opacity: 1;
     }
   }

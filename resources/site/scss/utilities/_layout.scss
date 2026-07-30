@@ -5,83 +5,83 @@
 @use '../mixins' as *;
 
 // Display
-.kirki-block        { display: block; }
-.kirki-inline-block { display: inline-block; }
-.kirki-inline       { display: inline; }
-.kirki-flex         { display: flex; }
-.kirki-inline-flex  { display: inline-flex; }
-.kirki-grid         { display: grid; }
-.kirki-hidden       { display: none; }
+.kecom-block        { display: block; }
+.kecom-inline-block { display: inline-block; }
+.kecom-inline       { display: inline; }
+.kecom-flex         { display: flex; }
+.kecom-inline-flex  { display: inline-flex; }
+.kecom-grid         { display: grid; }
+.kecom-hidden       { display: none; }
 
 // Flex direction
-.kirki-flex-row     { flex-direction: row; }
-.kirki-flex-col     { flex-direction: column; }
-.kirki-flex-row-rev { flex-direction: row-reverse; }
-.kirki-flex-col-rev { flex-direction: column-reverse; }
+.kecom-flex-row     { flex-direction: row; }
+.kecom-flex-col     { flex-direction: column; }
+.kecom-flex-row-rev { flex-direction: row-reverse; }
+.kecom-flex-col-rev { flex-direction: column-reverse; }
 
 // Flex wrap
-.kirki-flex-wrap    { flex-wrap: wrap; }
-.kirki-flex-nowrap  { flex-wrap: nowrap; }
+.kecom-flex-wrap    { flex-wrap: wrap; }
+.kecom-flex-nowrap  { flex-wrap: nowrap; }
 
 // Flex shorthand
-.kirki-flex-1       { flex: 1 1 0%; }
-.kirki-flex-auto    { flex: 1 1 auto; }
-.kirki-flex-none    { flex: none; }
-.kirki-flex-shrink-0{ flex-shrink: 0; }
-.kirki-flex-grow-1  { flex-grow: 1; }
+.kecom-flex-1       { flex: 1 1 0%; }
+.kecom-flex-auto    { flex: 1 1 auto; }
+.kecom-flex-none    { flex: none; }
+.kecom-flex-shrink-0{ flex-shrink: 0; }
+.kecom-flex-grow-1  { flex-grow: 1; }
 
 // Justify content
-.kirki-justify-start   { justify-content: flex-start; }
-.kirki-justify-end     { justify-content: flex-end; }
-.kirki-justify-center  { justify-content: center; }
-.kirki-justify-between { justify-content: space-between; }
-.kirki-justify-around  { justify-content: space-around; }
-.kirki-justify-evenly  { justify-content: space-evenly; }
+.kecom-justify-start   { justify-content: flex-start; }
+.kecom-justify-end     { justify-content: flex-end; }
+.kecom-justify-center  { justify-content: center; }
+.kecom-justify-between { justify-content: space-between; }
+.kecom-justify-around  { justify-content: space-around; }
+.kecom-justify-evenly  { justify-content: space-evenly; }
 
 // Align items
-.kirki-items-start    { align-items: flex-start; }
-.kirki-items-end      { align-items: flex-end; }
-.kirki-items-center   { align-items: center; }
-.kirki-items-baseline { align-items: baseline; }
-.kirki-items-stretch  { align-items: stretch; }
+.kecom-items-start    { align-items: flex-start; }
+.kecom-items-end      { align-items: flex-end; }
+.kecom-items-center   { align-items: center; }
+.kecom-items-baseline { align-items: baseline; }
+.kecom-items-stretch  { align-items: stretch; }
 
 // Align self
-.kirki-self-start   { align-self: flex-start; }
-.kirki-self-end     { align-self: flex-end; }
-.kirki-self-center  { align-self: center; }
-.kirki-self-stretch { align-self: stretch; }
-.kirki-self-auto    { align-self: auto; }
+.kecom-self-start   { align-self: flex-start; }
+.kecom-self-end     { align-self: flex-end; }
+.kecom-self-center  { align-self: center; }
+.kecom-self-stretch { align-self: stretch; }
+.kecom-self-auto    { align-self: auto; }
 
 // Grid columns
 @each $n in (1, 2, 3, 4, 5, 6, 12) {
-  .kirki-grid-cols-#{$n} {
+  .kecom-grid-cols-#{$n} {
     grid-template-columns: repeat(#{$n}, minmax(0, 1fr));
   }
 }
 
 @each $n in (1, 2, 3, 4, 5, 6) {
-  .kirki-col-span-#{$n} { grid-column: span #{$n} / span #{$n}; }
+  .kecom-col-span-#{$n} { grid-column: span #{$n} / span #{$n}; }
 }
-.kirki-col-span-full { grid-column: 1 / -1; }
+.kecom-col-span-full { grid-column: 1 / -1; }
 
 // Position
-.kirki-static   { position: static; }
-.kirki-relative { position: relative; }
-.kirki-absolute { position: absolute; }
-.kirki-fixed    { position: fixed; }
-.kirki-sticky   { position: sticky; }
+.kecom-static   { position: static; }
+.kecom-relative { position: relative; }
+.kecom-absolute { position: absolute; }
+.kecom-fixed    { position: fixed; }
+.kecom-sticky   { position: sticky; }
 
 // Overflow
-.kirki-overflow-auto    { overflow: auto; }
-.kirki-overflow-hidden  { overflow: hidden; }
-.kirki-overflow-visible { overflow: visible; }
-.kirki-overflow-scroll  { overflow: scroll; }
-.kirki-overflow-x-auto  { overflow-x: auto; }
-.kirki-overflow-y-auto  { overflow-y: auto; }
+.kecom-overflow-auto    { overflow: auto; }
+.kecom-overflow-hidden  { overflow: hidden; }
+.kecom-overflow-visible { overflow: visible; }
+.kecom-overflow-scroll  { overflow: scroll; }
+.kecom-overflow-x-auto  { overflow-x: auto; }
+.kecom-overflow-y-auto  { overflow-y: auto; }
 
 // Width / Height helpers
-.kirki-w-full  { width: 100%; }
-.kirki-w-auto  { width: auto; }
-.kirki-h-full  { height: 100%; }
-.kirki-h-auto  { height: auto; }
-.kirki-min-w-0 { min-width: 0; }
+.kecom-w-full  { width: 100%; }
+.kecom-w-auto  { width: auto; }
+.kecom-h-full  { height: 100%; }
+.kecom-h-auto  { height: auto; }
+.kecom-min-w-0 { min-width: 0; }

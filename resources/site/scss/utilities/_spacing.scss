@@ -1,34 +1,34 @@
 // Utilities - Spacing
-// .kirki-m-4, .kirki-pt-2, .kirki-mx-auto …
+// .kecom-m-4, .kecom-pt-2, .kecom-mx-auto …
 
 @use '../tokens' as *;
 
 @each $key, $value in $spacing-scale {
-  .kirki-m-#{$key}  { margin:         $value; }
-  .kirki-mt-#{$key} { margin-top:     $value; }
-  .kirki-mr-#{$key} { margin-right:   $value; }
-  .kirki-mb-#{$key} { margin-bottom:  $value; }
-  .kirki-ml-#{$key} { margin-left:    $value; }
-  .kirki-mx-#{$key} { margin-inline:  $value; }
-  .kirki-my-#{$key} { margin-top: $value; margin-bottom: $value; }
+  .kecom-m-#{$key}  { margin:         $value; }
+  .kecom-mt-#{$key} { margin-top:     $value; }
+  .kecom-mr-#{$key} { margin-right:   $value; }
+  .kecom-mb-#{$key} { margin-bottom:  $value; }
+  .kecom-ml-#{$key} { margin-left:    $value; }
+  .kecom-mx-#{$key} { margin-inline:  $value; }
+  .kecom-my-#{$key} { margin-top: $value; margin-bottom: $value; }
 
-  .kirki-p-#{$key}  { padding:        $value; }
-  .kirki-pt-#{$key} { padding-top:    $value; }
-  .kirki-pr-#{$key} { padding-right:  $value; }
-  .kirki-pb-#{$key} { padding-bottom: $value; }
-  .kirki-pl-#{$key} { padding-left:   $value; }
-  .kirki-px-#{$key} { padding-inline: $value; }
-  .kirki-py-#{$key} { padding-top: $value; padding-bottom: $value; }
+  .kecom-p-#{$key}  { padding:        $value; }
+  .kecom-pt-#{$key} { padding-top:    $value; }
+  .kecom-pr-#{$key} { padding-right:  $value; }
+  .kecom-pb-#{$key} { padding-bottom: $value; }
+  .kecom-pl-#{$key} { padding-left:   $value; }
+  .kecom-px-#{$key} { padding-inline: $value; }
+  .kecom-py-#{$key} { padding-top: $value; padding-bottom: $value; }
 
-  .kirki-gap-#{$key}   { gap:        $value; }
-  .kirki-gap-x-#{$key} { column-gap: $value; }
-  .kirki-gap-y-#{$key} { row-gap:    $value; }
+  .kecom-gap-#{$key}   { gap:        $value; }
+  .kecom-gap-x-#{$key} { column-gap: $value; }
+  .kecom-gap-y-#{$key} { row-gap:    $value; }
 }
 
 // Auto margins
-.kirki-m-auto  { margin:        auto; }
-.kirki-mx-auto { margin-inline: auto; }
-.kirki-mt-auto { margin-top:    auto; }
-.kirki-mb-auto { margin-bottom: auto; }
-.kirki-ml-auto { margin-left:   auto; }
-.kirki-mr-auto { margin-right:  auto; }
+.kecom-m-auto  { margin:        auto; }
+.kecom-mx-auto { margin-inline: auto; }
+.kecom-mt-auto { margin-top:    auto; }
+.kecom-mb-auto { margin-bottom: auto; }
+.kecom-ml-auto { margin-left:   auto; }
+.kecom-mr-auto { margin-right:  auto; }

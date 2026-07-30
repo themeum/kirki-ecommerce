@@ -5,7 +5,7 @@
 
 import type { WishlistItem } from '../types';
 
-const STORAGE_KEY = 'kirki_wishlist';
+const STORAGE_KEY = 'kecom_wishlist';
 
 function read(): WishlistItem[] {
   try {

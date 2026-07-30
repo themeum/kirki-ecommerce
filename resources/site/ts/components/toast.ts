@@ -3,21 +3,21 @@
  * Toast notification system with auto-dismiss and multiple variants.
  *
  * PHP usage:
- *   <div x-data="toastStore" class="kirki-toast-container">
+ *   <div x-data="toastStore" class="kecom-toast-container">
  *     <template x-for="toast in toasts" :key="toast.id">
  *       <div x-data="toastItem(toast)" 
- *            class="kirki-toast kirki-toast-success"
+ *            class="kecom-toast kecom-toast-success"
  *            x-show="visible"
  *            x-transition:enter
  *            x-transition:enter-end
  *            x-transition:leave
  *            x-transition:leave-end>
- *         <div class="kirki-toast-icon">✓</div>
- *         <div class="kirki-toast-content">
- *           <div class="kirki-toast-title" x-text="toast.title"></div>
- *           <div class="kirki-toast-message" x-text="toast.message"></div>
+ *         <div class="kecom-toast-icon">✓</div>
+ *         <div class="kecom-toast-content">
+ *           <div class="kecom-toast-title" x-text="toast.title"></div>
+ *           <div class="kecom-toast-message" x-text="toast.message"></div>
  *         </div>
- *         <button class="kirki-toast-close" @click="dismiss">&times;</button>
+ *         <button class="kecom-toast-close" @click="dismiss">&times;</button>
  *       </div>
  *     </template>
  *   </div>
