@@ -11,7 +11,7 @@
 
 defined('ABSPATH') || exit;
 
-use Kirki\Ecommerce\App\Helpers\TemplateHelper;
+use Kirki\Ecommerce\App\Supports\Template;
 use Kirki\Ecommerce\App\Supports\Url;
 
 use function Kirki\Ecommerce\Framework\include_view;
@@ -32,7 +32,7 @@ $sidebar_data = [
 ];
 ?>
 
-<?php TemplateHelper::get_header(); ?>
+<?php Template::get_header(); ?>
 
 <div class="kirki-ecom-page-wrapper">
     <h1><?php echo esc_html__('Shop', 'kirki-ecommerce'); ?></h1>
@@ -94,4 +94,4 @@ $sidebar_data = [
     <?php endif; ?>
 </div>
 
-<?php TemplateHelper::get_footer(); ?>
+<?php Template::get_footer(); ?>
