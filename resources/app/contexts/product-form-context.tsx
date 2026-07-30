@@ -44,6 +44,7 @@ const defaultVariant: ProductVariant = {
   available_quantity: 0,
   in_stock: true,
   committed_quantity: 0,
+  min_stock_threshold: null,
   has_limit_per_order: true,
   max_per_order: 1,
   is_visible: true,
