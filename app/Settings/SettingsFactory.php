@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Settings;
 
+use function Kirki\Ecommerce\Framework\value;
+
 defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Constants\OptionKeys;
@@ -22,22 +24,21 @@ class SettingsFactory
     /**
      * Get all settings instances
      *
+     * @param string $key
+     * @param mixed $default
      * @return mixed
      */
-    public function get(string $key)
+    public function get(string $key, $default = null)
     {
         if(strpos($key, '.')) {
-            $key_parts = explode('.', $key);
-            $settings_key = array_shift($key_parts);
-            $setting_instance = $this->get_settings_instance($settings_key);
+            $key_parts = explode('.', $key, 2);
+            $setting_instance = $this->get_settings_instance($key_parts[0]);
 
-            $inner_key = implode('.', $key_parts);
-
-            if (empty($inner_key)) {
+            if (empty($key_parts[1])) {
                 throw new Exception(__('Invalid settings key!', 'kirki-ecommerce'));
             }
 
-            return $setting_instance->get($inner_key);
+            return $setting_instance->get($key_parts[1]) ?? value($default);
         }
 
         return $this->get_settings_instance($key);
