@@ -1,11 +1,10 @@
-import type { CSSObject } from '@emotion/react';
 import SwitchField from '@/components/form/switch-field';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
-;
+import { defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
@@ -63,9 +62,9 @@ export const Review = () => {
 
 Review.displayName = 'Review';
 
-const styles = {
-  optionCard: ({
+const styles = defineStyles({
+  optionCard: {
     borderRadius: theme.radius.lg,
     border: `1px solid ${theme.colors.border.default}`,
-  } satisfies CSSObject)
-};
+  }
+});

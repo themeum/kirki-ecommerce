@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import { useState, useEffect, type ReactNode } from 'react';
 
 import HeaderActionsCard from '@/components/header-actions-card';
@@ -10,7 +9,7 @@ import { dispatchToastMessage } from '@/pages/utils';
 import { useSchemasQuery, useDeleteSchemaMutation } from '@/services/schema';
 import type { SchemaProfile } from '@/types';
 import { theme } from '@/theme';
-import { scoped, mergeCss } from '@/theme/mixins';
+import { scoped, mergeCss, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
@@ -115,8 +114,8 @@ SchemaProfileComponent.displayName = 'SchemaProfileComponent';
 
 export default SchemaProfileComponent;
 
-const styles = {
-  boxWrapper: ({
+const styles = defineStyles({
+  boxWrapper: {
     '[data-box-card]': {
       borderTop: 'none',
       borderRadius: theme.radius.none,
@@ -128,11 +127,11 @@ const styles = {
     '[data-box-card]:last-of-type': {
       borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.md} ${theme.radius.md}`,
     },
-  } satisfies CSSObject),
-  emptyState: ({
+  },
+  emptyState: {
     padding: `${theme.spacing[9]} ${theme.spacing[0]}`,
-  } satisfies CSSObject),
-  emptyStateText: ({
+  },
+  emptyStateText: {
     color: theme.colors.text.subdued,
-  } satisfies CSSObject)
-};
+  }
+});

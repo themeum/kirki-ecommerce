@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import { Select, SelectContent, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Button from '@/components/ui/button';
 import { ArrowDownUp } from '@/icons';
@@ -7,7 +6,7 @@ import Flex from '@/components/ui/flex';
 import Searchbox from '@/components/ui/searchbox';
 import { useListParams } from '@/hooks';
 import { theme } from '@/theme';
-;
+import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 type CollectionTableActionProps = {
@@ -60,11 +59,11 @@ CollectionTableAction.displayName = 'CollectionTableAction';
 
 export default CollectionTableAction;
 
-const styles = {
-  wrapper: ({
+const styles = defineStyles({
+  wrapper: {
     padding: `${theme.spacing[4]} ${theme.spacing[3]}`,
-  } satisfies CSSObject),
-  selectTrigger: ({
+  },
+  selectTrigger: {
     padding: `${theme.spacing[2]} ${theme.spacing[4]}`,
-  } satisfies CSSObject),
-};
+  },
+});

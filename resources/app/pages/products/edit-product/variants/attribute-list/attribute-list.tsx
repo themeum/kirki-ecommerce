@@ -2,7 +2,7 @@ import { closestCenter, DndContext, type DragEndEvent } from '@dnd-kit/core';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { css, type CSSObject } from '@emotion/react';
+import { css } from '@emotion/react';
 import { useEffect, useState } from 'react';
 
 import Button from '@/components/ui/button';
@@ -13,7 +13,7 @@ import Flex from '@/components/ui/flex';
 import Chip from '@/components/ui/chip';
 import Text from '@/components/ui/text';
 import { useProductForm } from '@/contexts/product-form-context';
-import { flexCenter, scoped, mergeCss, scopedMerge } from '@/theme/mixins';
+import { flexCenter, scoped, mergeCss, scopedMerge, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import type { Attribute } from '@/types';
 import { __ } from '@/wpi18n';
@@ -60,10 +60,10 @@ const SortableCard = ({
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: item.id, disabled: isEditing });
 
-  const style = {
+  const style = defineStyles({
     transform: CSS.Transform.toString(transform),
     transition,
-  };
+  });
 
   return (
     <div ref={setNodeRef} style={style}>
@@ -215,15 +215,15 @@ AttributeList.displayName = 'AttributeList';
 
 export default AttributeList;
 
-const styles = {
-  innerContent: ({
+const styles = defineStyles({
+  innerContent: {
     padding: `${theme.spacing[3]} ${theme.spacing[4]}`,
-  } satisfies CSSObject),
+  },
   svgClass: scoped(flexCenter()),
-  dragHandler: ({
+  dragHandler: {
     cursor: 'grab',
     '&:active': {
       cursor: 'grabbing',
     },
-  } satisfies CSSObject)
-};
+  }
+});

@@ -1,10 +1,10 @@
-import type { CSSObject } from '@emotion/react';
 import ActionGroup from '@/components/ui/action-group';
 import ToggleButton from '@/components/ui/toggle-button';
 import DropdownButton from '@/components/dropdown-button';
 import { ShowMoreIcon, EditIcon, TrashIcon } from '@/icons';
 import { useOutletContext, useNavigate } from 'react-router';
 import { theme } from '@/theme';
+import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
@@ -83,9 +83,9 @@ ShippingZoneActions.displayName = 'ShippingZoneActions';
 
 export default ShippingZoneActions;
 
-const styles = {
+const styles = defineStyles({
   menuButton: {
     transform: 'rotate(90deg)',
     padding: theme.spacing[2],
-  } satisfies CSSObject,
-};
+  },
+});

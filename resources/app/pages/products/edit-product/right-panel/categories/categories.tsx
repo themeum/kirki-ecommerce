@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import { useFormContext } from 'react-hook-form';
 
 import { Card } from '@/components/ui/card';
@@ -8,7 +7,7 @@ import Label from '@/components/ui/label';
 import type { ProductRightPanelFormValues } from '@/schemas/forms/product-right-panel-form';
 import { useCategoriesQuery } from '@/services/category';
 import { theme } from '@/theme';
-import { itemCenter, scoped } from '@/theme/mixins';
+import { itemCenter, scoped, defineStyles } from '@/theme/mixins';
 import type { Category, ProductCategoryRef } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -222,16 +221,16 @@ Categories.displayName = 'Categories';
 
 export default Categories;
 
-const styles = {
-  card: ({
+const styles = defineStyles({
+  card: {
     padding: theme.spacing[0],
     rowGap: theme.spacing[0],
     overflow: 'hidden',
-  } satisfies CSSObject),
-  header: ({
+  },
+  header: {
     padding: theme.spacing[4],
-  } satisfies CSSObject),
-  list: ({
+  },
+  list: {
     width: '100%',
     maxHeight: '300px',
     overflowY: 'auto',
@@ -248,19 +247,19 @@ const styles = {
       backgroundColor: theme.colors.background.fillBrand,
       borderRadius: theme.radius.sm,
     },
-  } satisfies CSSObject),
-  row: ({
+  },
+  row: {
     width: '100%',
     boxSizing: 'border-box',
     padding: `${theme.spacing[2]} ${theme.spacing[4]}`,
     ...itemCenter(),
-  } satisfies CSSObject),
-  footer: ({
+  },
+  footer: {
     width: '100%',
     padding: `${theme.spacing[2]} ${theme.spacing[4]} ${theme.spacing[4]}`,
     boxSizing: 'border-box',
-  } satisfies CSSObject),
-  loading: ({
+  },
+  loading: {
     padding: `0 ${theme.spacing[4]} ${theme.spacing[4]}`,
-  } satisfies CSSObject),
-};
+  },
+});

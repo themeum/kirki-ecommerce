@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import ActionGroup from '@/components/ui/action-group';
 import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
@@ -8,7 +7,7 @@ import Text from '@/components/ui/text';
 import Thumbnail from '@/components/ui/thumbnail';
 import { EditIcon, EmailIcon, LocationIcon, PhoneIcon, TrashIcon, TruckIcon } from '@/icons';
 import { cardStyles } from '@/theme/card-styles';
-import { flexCenter, scoped } from '@/theme/mixins';
+import { flexCenter, scoped, defineStyles } from '@/theme/mixins';
 
 const CustomerInfo = () => {
   return (
@@ -83,11 +82,11 @@ const CustomerInfo = () => {
 
 export default CustomerInfo;
 
-const styles = {
-  headerRow: ({
+const styles = defineStyles({
+  headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-  } satisfies CSSObject),
+  },
   svgClass: scoped(flexCenter())
-};
+});

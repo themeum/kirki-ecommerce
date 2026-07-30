@@ -6,7 +6,19 @@ type CssOverrideProp = {
   cssOverride?: CSSObject;
 };
 
+type StyleTree = CSSObject | { readonly [key: string]: StyleTree };
+
 type MergeCssInput = CSSObject | false | null | undefined | '';
+
+/**
+ * Type-check a style map (or single CSSObject) once, instead of
+ * repeating `satisfies CSSObject` on every leaf.
+ *
+ * @param styles Style tree to validate.
+ *
+ * @returns The same styles, with literal key types preserved.
+ */
+const defineStyles = <T extends StyleTree>(styles: T): T => styles;
 
 const isSerializedStyles = (value: unknown): boolean => {
   if (typeof value !== 'object' || value === null) {
@@ -146,6 +158,7 @@ const uiFocusRing = (theme: Theme, ringColor?: string): CSSObject => {
 
 export {
   APP_ROOT_SELECTOR,
+  defineStyles,
   flexCenter,
   itemCenter,
   mergeCss,
@@ -154,4 +167,4 @@ export {
   uiFocusRing,
 };
 
-export type { CssOverrideProp };
+export type { CssOverrideProp, StyleTree };

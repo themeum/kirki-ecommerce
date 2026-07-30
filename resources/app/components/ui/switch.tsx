@@ -3,7 +3,7 @@ import * as SwitchPrimitive from '@radix-ui/react-switch';
 import { forwardRef, type ComponentPropsWithoutRef, type ElementRef } from 'react';
 
 import { theme } from '@/theme';
-import { uiFocusRing, scopedMerge, scoped } from '@/theme/mixins';
+import { uiFocusRing, scopedMerge, scoped, defineStyles } from '@/theme/mixins';
 
 type SwitchProps = Omit<
   ComponentPropsWithoutRef<typeof SwitchPrimitive.Root>,
@@ -28,8 +28,8 @@ Switch.displayName = 'Switch';
 
 export default Switch;
 
-const styles = {
-  root: ({
+const styles = defineStyles({
+  root: {
     position: 'relative',
     display: 'inline-flex',
     alignItems: 'center',
@@ -57,8 +57,8 @@ const styles = {
       opacity: 0.5,
       pointerEvents: 'none',
     },
-  } satisfies CSSObject),
-  thumb: ({
+  },
+  thumb: {
     display: 'block',
     width: '16px',
     height: '16px',
@@ -67,5 +67,5 @@ const styles = {
     transform: 'translateX(2px)',
     transition: 'transform 0.15s ease',
     willChange: 'transform',
-  } satisfies CSSObject),
-};
+  },
+});

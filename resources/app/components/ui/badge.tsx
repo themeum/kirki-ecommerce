@@ -3,7 +3,7 @@ import { Slot } from '@radix-ui/react-slot';
 import { forwardRef, type ComponentPropsWithoutRef } from 'react';
 
 import { theme } from '@/theme';
-import { scopedMerge, uiFocusRing } from '@/theme/mixins';
+import { scopedMerge, uiFocusRing, defineStyles } from '@/theme/mixins';
 
 type BadgeVariant =
   | 'default'
@@ -49,90 +49,90 @@ const Badge = forwardRef<HTMLSpanElement, BadgeProps>((props, ref) => {
 
 Badge.displayName = 'Badge';
 
-const badgeVariantStyles = {
-  default: ({
+const badgeVariantStyles = defineStyles({
+  default: {
     backgroundColor: theme.colors.background.surfaceTertiary,
     color: theme.colors.text.secondary,
     'a&:hover': {
       backgroundColor: theme.colors.background.fillHover,
     },
-  } satisfies CSSObject),
-  secondary: ({
+  },
+  secondary: {
     backgroundColor: theme.colors.background.fillSecondary,
     color: theme.colors.text.secondary,
     'a&:hover': {
       backgroundColor: theme.colors.background.fillSecondaryHover,
     },
-  } satisfies CSSObject),
-  destructive: ({
+  },
+  destructive: {
     backgroundColor: theme.colors.background.fillCriticalSecondary,
     color: theme.colors.text.critical,
     'a&:hover': {
       opacity: 0.9,
     },
-  } satisfies CSSObject),
-  outline: ({
+  },
+  outline: {
     backgroundColor: 'transparent',
     border: `1px solid ${theme.colors.border.default}`,
     color: theme.colors.text.primary,
     'a&:hover': {
       backgroundColor: theme.colors.background.surfaceSecondary,
     },
-  } satisfies CSSObject),
-  ghost: ({
+  },
+  ghost: {
     backgroundColor: 'transparent',
     color: theme.colors.text.primary,
     'a&:hover': {
       backgroundColor: theme.colors.background.surfaceSecondary,
     },
-  } satisfies CSSObject),
-  link: ({
+  },
+  link: {
     backgroundColor: 'transparent',
     color: theme.colors.text.brand,
     textUnderlineOffset: '4px',
     'a&:hover': {
       textDecoration: 'underline',
     },
-  } satisfies CSSObject),
-  success: ({
+  },
+  success: {
     backgroundColor: theme.colors.background.fillSuccessSecondary,
     color: theme.colors.text.success,
     'a&:hover': {
       opacity: 0.9,
     },
-  } satisfies CSSObject),
-  warning: ({
+  },
+  warning: {
     backgroundColor: theme.colors.background.fillWarningSecondary,
     color: theme.colors.text.warning,
     'a&:hover': {
       opacity: 0.9,
     },
-  } satisfies CSSObject),
-  caution: ({
+  },
+  caution: {
     backgroundColor: theme.colors.background.fillCautionSecondary,
     color: theme.colors.text.caution,
     'a&:hover': {
       opacity: 0.9,
     },
-  } satisfies CSSObject),
-  info: ({
+  },
+  info: {
     backgroundColor: theme.colors.background.fillSpecialSecondary,
     color: theme.colors.text.special2,
     'a&:hover': {
       opacity: 0.9,
     },
-  } satisfies CSSObject),
-  requested: ({
+  },
+  requested: {
     backgroundColor: theme.colors.background.fillSpecial2Secondary,
     color: theme.colors.text.special3,
     'a&:hover': {
       opacity: 0.9,
     },
-  } satisfies CSSObject),
-} as const;
+  },
+});
 
-const styles = {
-  base: ({
+const styles = defineStyles({
+  base: {
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -164,9 +164,9 @@ const styles = {
       justifyContent: 'center',
       flexShrink: 0,
     },
-  } satisfies CSSObject),
+  },
   variants: badgeVariantStyles,
-};
+});
 
 export default Badge;
 export { badgeVariantStyles };

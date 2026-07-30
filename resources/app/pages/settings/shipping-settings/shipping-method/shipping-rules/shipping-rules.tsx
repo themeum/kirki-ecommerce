@@ -1,4 +1,4 @@
-import { css, type CSSObject } from '@emotion/react';
+import { css } from '@emotion/react';
 import { useEffect, useState, type Dispatch, type SetStateAction } from 'react';
 import { useSearchParams } from 'react-router';
 
@@ -13,7 +13,7 @@ import { dispatchToastMessage } from '@/pages/utils';
 import { useSettingsQuery } from '@/services/settings';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { mergeCss } from '@/theme/mixins';
+import { mergeCss, defineStyles } from '@/theme/mixins';
 import type { SettingsSectionData } from '@/types';
 import { __, sprintf } from '@/wpi18n';
 
@@ -233,7 +233,7 @@ export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
   );
 };
 
-const styles = {
+const styles = defineStyles({
   cardActions: css({
     display: 'none',
     pointerEvents: 'none',
@@ -243,7 +243,7 @@ const styles = {
     display: 'flex',
     pointerEvents: 'auto',
   }),
-  shippingRulesCard: ({
+  shippingRulesCard: {
     padding: theme.spacing[3],
     minHeight: '118px',
     borderRadius: theme.radius.none,
@@ -251,26 +251,26 @@ const styles = {
     display: 'flex',
     flexDirection: 'column',
     gap: theme.spacing[4],
-  } satisfies CSSObject),
-  shippingRulesCardSingle: ({
+  },
+  shippingRulesCardSingle: {
     borderRadius: theme.radius.lg,
-  } satisfies CSSObject),
-  shippingRulesCardBorderRadius: ({
+  },
+  shippingRulesCardBorderRadius: {
     '&:first-of-type': {
       borderRadius: `${theme.radius.lg} ${theme.radius.lg} ${theme.radius.none} ${theme.radius.none}`,
     },
     '&:last-of-type': {
       borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.lg} ${theme.radius.lg}`,
     },
-  } satisfies CSSObject),
-  rulesNumberBadge: ({
+  },
+  rulesNumberBadge: {
     maxHeight: '26px',
     maxWidth: 'fit-content',
     borderRadius: theme.radius.sm,
     display: 'flex',
     padding: `${theme.spacing[1]} ${theme.spacing[2]}`,
-  } satisfies CSSObject),
-  accentText: ({
+  },
+  accentText: {
     color: theme.colors.text.special3,
-  } satisfies CSSObject),
-};
+  },
+});

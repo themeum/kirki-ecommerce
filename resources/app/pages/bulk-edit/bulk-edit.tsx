@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router';
 
@@ -17,7 +16,7 @@ import BulkEditTable from '@/pages/bulk-edit/bulk-edit-table/bulk-edit-table';
 import { allTableHeaders } from '@/pages/bulk-edit/utils';
 
 import { theme } from '@/theme';
-;
+import { defineStyles } from '@/theme/mixins';
 
 const BulkEditPage = () => {
   const [searchParams] = useSearchParams();
@@ -119,11 +118,11 @@ BulkEdit.displayName = 'BulkEdit';
 
 export default BulkEdit;
 
-const styles = {
-  heading: ({
+const styles = defineStyles({
+  heading: {
     padding: `${theme.spacing[4]} ${theme.spacing[3]}`,
     backgroundColor: theme.colors.background.surface,
     borderBottom: `1px solid ${theme.colors.background.surfaceTertiary}`,
     columnGap: theme.spacing[2],
-  } satisfies CSSObject),
-};
+  },
+});

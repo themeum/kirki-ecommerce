@@ -6,7 +6,7 @@ import Button from '@/components/ui/button';
 import Combobox from '@/components/ui/combobox';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
-import { flexCenter, scopedMerge, scoped } from '@/theme/mixins';
+import { flexCenter, scopedMerge, scoped, defineStyles } from '@/theme/mixins';
 import type { SelectOption } from '@/types';
 
 type CapsuleValue = string | number;
@@ -103,8 +103,8 @@ Capsule.displayName = 'Capsule';
 
 export default Capsule;
 
-const styles = {
-  root: ({
+const styles = defineStyles({
+  root: {
     minWidth: '126px',
     borderRadius: theme.radius.md,
     height: '32px',
@@ -121,18 +121,18 @@ const styles = {
         boxShadow: 'none',
       },
     },
-  } satisfies CSSObject),
-  separator: ({
+  },
+  separator: {
     height: '100%',
     width: '1px',
     backgroundColor: theme.colors.border.default,
-  } satisfies CSSObject),
-  textValue: ({
+  },
+  textValue: {
     flex: 1,
     minWidth: 0,
     padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
-  } satisfies CSSObject),
-};
+  },
+});

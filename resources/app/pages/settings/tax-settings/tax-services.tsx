@@ -1,4 +1,4 @@
-import { css, type CSSObject } from '@emotion/react';
+import { css } from '@emotion/react';
 import { useState } from 'react';
 
 import { Card, CardContent } from '@/components/ui/card';
@@ -8,7 +8,7 @@ import Text from '@/components/ui/text';
 import ActionGroup from '@/components/ui/action-group';
 import Badge from '@/components/ui/badge';
 import { theme } from '@/theme';
-import { mergeCss } from '@/theme/mixins';
+import { mergeCss, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 import { BoxClosedIcon, PlusIcon } from '@/icons';
@@ -83,12 +83,12 @@ TaxServices.displayName = 'TaxServices';
 
 export default TaxServices;
 
-const styles = {
-  boxCard: ({
+const styles = defineStyles({
+  boxCard: {
     borderTop: 'none',
     borderRadius: theme.radius.none,
-  } satisfies CSSObject),
-  boxCardBorderRadius: ({
+  },
+  boxCardBorderRadius: {
     '&:first-of-type': {
       borderTop: `1px solid ${theme.colors.border.secondary}`,
       borderRadius: `${theme.radius.md} ${theme.radius.md} ${theme.radius.none} ${theme.radius.none}`,
@@ -96,17 +96,17 @@ const styles = {
     '&:last-of-type': {
       borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.md} ${theme.radius.md}`,
     },
-  } satisfies CSSObject),
+  },
   hoverVisible: css({
     visibility: 'hidden',
   }),
   hoverVisibleActive: css({
     visibility: 'visible',
   }),
-  mutedText: ({
+  mutedText: {
     color: theme.colors.text.subdued,
-  } satisfies CSSObject),
-  mediumHeader: ({
+  },
+  mediumHeader: {
     ...theme.typography.paragraph('medium'),
-  } satisfies CSSObject),
-};
+  },
+});

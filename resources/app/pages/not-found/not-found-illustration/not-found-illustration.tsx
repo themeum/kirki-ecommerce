@@ -1,6 +1,5 @@
-import type { CSSObject } from '@emotion/react';
 import { theme, getCssVarName } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { scoped, defineStyles } from '@/theme/mixins';
 
 const NotFoundIllustration = () => {
   return (
@@ -271,13 +270,13 @@ NotFoundIllustration.displayName = 'NotFoundIllustration';
 
 export default NotFoundIllustration;
 
-const styles = {
-  svg: ({
+const styles = defineStyles({
+  svg: {
     width: '100%',
     maxWidth: '440px',
     height: 'auto',
     '@media (max-width: 768px)': {
       maxWidth: '320px',
     },
-  } satisfies CSSObject),
-};
+  },
+});

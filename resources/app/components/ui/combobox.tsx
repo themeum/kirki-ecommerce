@@ -6,7 +6,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Separator } from '@/components/ui/separator';
 import { theme } from '@/theme';
-import { flexCenter, itemCenter, uiFocusRing, scopedMerge, scoped } from '@/theme/mixins';
+import { flexCenter, itemCenter, uiFocusRing, scopedMerge, scoped, defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 type ComboboxOption = {
@@ -223,8 +223,8 @@ Combobox.displayName = 'Combobox';
 export default Combobox;
 export type { ComboboxOption, ComboboxProps };
 
-const styles = {
-  trigger: ({
+const styles = defineStyles({
+  trigger: {
     width: '100%',
     minHeight: '36px',
     border: `1px solid ${theme.colors.border.default}`,
@@ -248,16 +248,16 @@ const styles = {
       borderColor: 'transparent',
       pointerEvents: 'none',
     },
-  } satisfies CSSObject),
-  triggerError: ({
+  },
+  triggerError: {
     border: `1px solid ${theme.colors.border.critical}`,
     boxShadow: 'none',
     '&:focus-visible, &[data-state="open"]': {
       borderColor: theme.colors.border.critical,
       ...uiFocusRing(theme as Theme, theme.colors.border.critical),
     },
-  } satisfies CSSObject),
-  value: ({
+  },
+  value: {
     flex: 1,
     minWidth: 0,
     overflow: 'hidden',
@@ -265,24 +265,24 @@ const styles = {
     whiteSpace: 'nowrap',
     ...theme.typography.small(),
     color: theme.colors.text.primary,
-  } satisfies CSSObject),
-  placeholder: ({
+  },
+  placeholder: {
     color: theme.colors.text.secondary,
     opacity: 0.8,
-  } satisfies CSSObject),
-  chevron: ({
+  },
+  chevron: {
     flexShrink: 0,
     color: theme.colors.text.secondary,
     opacity: 0.5,
-  } satisfies CSSObject),
-  tags: ({
+  },
+  tags: {
     ...itemCenter(),
     justifyContent: 'flex-start',
     flexWrap: 'wrap',
     gap: theme.spacing[1],
     whiteSpace: 'normal',
-  } satisfies CSSObject),
-  tag: ({
+  },
+  tag: {
     ...itemCenter(),
     justifyContent: 'flex-start',
     gap: theme.spacing[1],
@@ -291,8 +291,8 @@ const styles = {
     borderRadius: theme.radius.md,
     backgroundColor: theme.colors.background.surfaceAlt,
     ...theme.typography.small(),
-  } satisfies CSSObject),
-  tagRemove: ({
+  },
+  tagRemove: {
     ...itemCenter(),
     justifyContent: 'center',
     padding: 0,
@@ -304,26 +304,26 @@ const styles = {
     '&:hover': {
       color: theme.colors.text.primary,
     },
-  } satisfies CSSObject),
-  content: ({
+  },
+  content: {
     width: 'var(--radix-popover-trigger-width)',
     minWidth: 'var(--radix-popover-trigger-width)',
     maxWidth: 'var(--radix-popover-trigger-width)',
     padding: 0,
     overflow: 'hidden',
-  } satisfies CSSObject),
-  itemCheck: ({
+  },
+  itemCheck: {
     ...flexCenter(),
     width: '16px',
     height: '16px',
     flexShrink: 0,
     color: theme.colors.text.primary,
-  } satisfies CSSObject),
-  itemCheckEmpty: ({
+  },
+  itemCheckEmpty: {
     opacity: 0,
-  } satisfies CSSObject),
-  addIcon: ({
+  },
+  addIcon: {
     ...itemCenter(),
     flexShrink: 0,
-  } satisfies CSSObject),
-};
+  },
+});

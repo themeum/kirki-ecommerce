@@ -8,7 +8,7 @@ import Input from '@/components/ui/input';
 import { Popover, PopoverAnchor, PopoverContent } from '@/components/ui/popover';
 import { Separator } from '@/components/ui/separator';
 import { theme } from '@/theme';
-import { itemCenter, uiFocusRing, scopedMerge, mergeCss, scoped } from '@/theme/mixins';
+import { itemCenter, uiFocusRing, scopedMerge, mergeCss, scoped, defineStyles } from '@/theme/mixins';
 import type { LabelFieldProps, SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -270,14 +270,14 @@ Suggestions.displayName = 'Suggestions';
 export default Suggestions;
 export type { SuggestionOption, SuggestionsProps };
 
-const styles = {
-  root: ({
+const styles = defineStyles({
+  root: {
     width: '100%',
     display: 'flex',
     flexDirection: 'column',
     gap: theme.spacing[2],
-  } satisfies CSSObject),
-  field: ({
+  },
+  field: {
     width: '100%',
     border: `1px solid ${theme.colors.border.default}`,
     borderRadius: theme.radius.lg,
@@ -295,8 +295,8 @@ const styles = {
         ...uiFocusRing(theme as Theme, theme.colors.border.critical),
       },
     },
-  } satisfies CSSObject),
-  input: ({
+  },
+  input: {
     width: '100%',
     border: 'none',
     borderRadius: theme.radius.none,
@@ -309,11 +309,11 @@ const styles = {
       boxShadow: 'none',
       borderColor: 'transparent',
     },
-  } satisfies CSSObject),
-  inputWithChips: ({
+  },
+  inputWithChips: {
     borderBottom: `1px solid ${theme.colors.border.default}`,
-  } satisfies CSSObject),
-  content: ({
+  },
+  content: {
     width: 'var(--radix-popover-trigger-width)',
     minWidth: 'var(--radix-popover-trigger-width)',
     maxWidth: 'var(--radix-popover-trigger-width)',
@@ -335,13 +335,13 @@ const styles = {
       backgroundColor: theme.colors.background.fillBrand,
       borderRadius: theme.radius.sm,
     },
-  } satisfies CSSObject),
-  separator: ({
+  },
+  separator: {
     width: `calc(100% + ${theme.spacing[1]} + ${theme.spacing[1]})`,
     marginLeft: `-${theme.spacing[1]}`,
     marginRight: `-${theme.spacing[1]}`,
-  } satisfies CSSObject),
-  item: ({
+  },
+  item: {
     padding: `${theme.spacing[2]} ${theme.spacing[2]}`,
     ...itemCenter(),
     justifyContent: 'flex-start',
@@ -351,38 +351,38 @@ const styles = {
     '&:hover': {
       backgroundColor: theme.colors.background.surfaceSecondary,
     },
-  } satisfies CSSObject),
-  itemDisabled: ({
+  },
+  itemDisabled: {
     opacity: 0.5,
     cursor: 'not-allowed',
     pointerEvents: 'none',
     '&:hover': {
       backgroundColor: 'transparent',
     },
-  } satisfies CSSObject),
-  itemIcon: ({
+  },
+  itemIcon: {
     minWidth: '16px',
     ...itemCenter(),
-  } satisfies CSSObject),
-  itemText: ({
+  },
+  itemText: {
     ...itemCenter(),
     columnGap: theme.spacing[2],
     maxWidth: '85%',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
-  } satisfies CSSObject),
-  chips: ({
+  },
+  chips: {
     minHeight: '52.2px',
     padding: theme.spacing[3],
     ...itemCenter(),
     justifyContent: 'flex-start',
     gap: theme.spacing[2],
     flexWrap: 'wrap',
-  } satisfies CSSObject),
-  swatch: ({
+  },
+  swatch: {
     height: '16px',
     width: '16px',
     borderRadius: theme.radius.full,
     flexShrink: 0,
-  } satisfies CSSObject),
-};
+  },
+});

@@ -1,4 +1,4 @@
-import { css, type CSSObject } from '@emotion/react';
+import { css } from '@emotion/react';
 import { useState, type Dispatch, type ReactNode, type SetStateAction } from 'react';
 import { toast } from 'sonner';
 
@@ -10,7 +10,7 @@ import Text from '@/components/ui/text';
 import { TrashIcon } from '@/icons';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { mergeCss } from '@/theme/mixins';
+import { mergeCss, defineStyles } from '@/theme/mixins';
 import type { SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -190,15 +190,15 @@ export const VatCollection = (props: VatCollectionProps) => {
 
 VatCollection.displayName = 'VatCollection';
 
-const styles = {
-  vatRow: ({
+const styles = defineStyles({
+  vatRow: {
     height: '56px',
     maxHeight: '56px',
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: theme.spacing[3],
-  } satisfies CSSObject),
+  },
   vatActions: css({
     opacity: 0,
     visibility: 'hidden',
@@ -212,13 +212,13 @@ const styles = {
     visibility: 'visible',
     pointerEvents: 'auto',
   }),
-  vatText: ({
+  vatText: {
     opacity: 1,
     display: 'block',
     transition: 'opacity 0.2s ease',
-  } satisfies CSSObject),
+  },
   vatTextHidden: css({
     opacity: 0,
     display: 'none',
   })
-};
+});

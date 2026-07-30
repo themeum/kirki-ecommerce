@@ -1,11 +1,10 @@
-import type { CSSObject } from '@emotion/react';
 import { Info, Trash2 } from 'lucide-react';
 import type { ReactNode } from 'react';
 
 import Button from '@/components/ui/button';
 import { Dialog, DialogCloseButton, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { theme } from '@/theme';
-import { flexCenter, scoped } from '@/theme/mixins';
+import { flexCenter, scoped, defineStyles } from '@/theme/mixins';
 import type { ConfirmationVariant } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -117,37 +116,37 @@ ConfirmationDialog.displayName = 'ConfirmationDialog';
 
 export default ConfirmationDialog;
 
-const styles = {
-  content: ({
+const styles = defineStyles({
+  content: {
     width: '400px',
-  } satisfies CSSObject),
-  header: ({
+  },
+  header: {
     alignItems: 'center',
     textAlign: 'center',
     paddingTop: theme.spacing[6],
-  } satisfies CSSObject),
-  icon: ({
+  },
+  icon: {
     ...flexCenter(),
     height: '40px',
     width: '40px',
     borderRadius: theme.radius.full,
     marginBottom: theme.spacing[2],
-  } satisfies CSSObject),
-  title: ({
+  },
+  title: {
     ...theme.typography.heading4(),
     textAlign: 'center',
-  } satisfies CSSObject),
-  description: ({
+  },
+  description: {
     ...theme.typography.small(),
     color: theme.colors.text.secondary,
     textAlign: 'center',
-  } satisfies CSSObject),
-  footer: ({
+  },
+  footer: {
     justifyContent: 'space-between',
     width: '100%',
     boxSizing: 'border-box',
-  } satisfies CSSObject),
-  action: ({
+  },
+  action: {
     flex: 1,
-  } satisfies CSSObject),
-};
+  },
+});

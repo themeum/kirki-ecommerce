@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import { useState } from 'react';
 
 import DropdownButton from '@/components/dropdown-button';
@@ -14,7 +13,7 @@ import { dispatchToastMessage } from '@/pages/utils';
 import { useDeletePaymentMethodMutation, useUpdatePaymentMethodMutation } from '@/services/payment';
 import type { PaymentMethod } from '@/types';
 import { theme } from '@/theme';
-import { mergeCss } from '@/theme/mixins';
+import { mergeCss, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import { __, sprintf } from '@/wpi18n';
 
@@ -181,13 +180,13 @@ const ManualPayment = (props: ManualPaymentProps) => {
 
 ManualPayment.displayName = 'ManualPayment';
 
-const styles = {
-  gatewayItemContent: ({
+const styles = defineStyles({
+  gatewayItemContent: {
     padding: `${theme.spacing[3]} ${theme.spacing[4]}`,
-  } satisfies CSSObject),
-  emptyStateContent: ({
+  },
+  emptyStateContent: {
     padding: `${theme.spacing[9]} ${theme.spacing[0]}`,
-  } satisfies CSSObject)
-};
+  }
+});
 
 export default ManualPayment;

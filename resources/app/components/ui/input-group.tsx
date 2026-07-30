@@ -3,7 +3,7 @@ import { forwardRef, type ComponentPropsWithoutRef, type MouseEvent } from 'reac
 
 import Button from '@/components/ui/button';
 import { theme } from '@/theme';
-import { flexCenter, itemCenter, uiFocusRing, scopedMerge, mergeCss } from '@/theme/mixins';
+import { flexCenter, itemCenter, uiFocusRing, scopedMerge, mergeCss, defineStyles } from '@/theme/mixins';
 
 type InputGroupAlign =
   | 'inline-start'
@@ -271,8 +271,8 @@ export type {
   InputGroupButtonProps,
 };
 
-const styles = {
-  group: ({
+const styles = defineStyles({
+  group: {
     position: 'relative',
     display: 'flex',
     width: '100%',
@@ -308,8 +308,8 @@ const styles = {
       alignItems: 'stretch',
       height: 'auto',
     },
-  } satisfies CSSObject),
-  addon: ({
+  },
+  addon: {
     ...itemCenter(),
     justifyContent: 'center',
     gap: theme.spacing[2],
@@ -321,37 +321,37 @@ const styles = {
     '& svg': {
       flexShrink: 0,
     },
-  } satisfies CSSObject),
+  },
   addonAlign: {
-    'inline-start': ({
+    'inline-start': {
       order: -1,
       paddingLeft: theme.spacing[3],
       pointerEvents: 'none',
       '& > button': {
         pointerEvents: 'auto',
       },
-    } satisfies CSSObject),
-    'inline-end': ({
+    },
+    'inline-end': {
       order: 1,
       paddingRight: theme.spacing[3],
       '& > button': {
         pointerEvents: 'auto',
       },
-    } satisfies CSSObject),
-    'block-start': ({
+    },
+    'block-start': {
       order: -1,
       width: '100%',
       justifyContent: 'flex-start',
       padding: `${theme.spacing[3]} ${theme.spacing[3]} 0`,
-    } satisfies CSSObject),
-    'block-end': ({
+    },
+    'block-end': {
       order: 1,
       width: '100%',
       justifyContent: 'flex-start',
       padding: `0 ${theme.spacing[3]} ${theme.spacing[3]}`,
-    } satisfies CSSObject),
+    },
   },
-  control: ({
+  control: {
     flex: 1,
     width: '100%',
     minWidth: 0,
@@ -380,8 +380,8 @@ const styles = {
         opacity: 0.5,
       },
     },
-  } satisfies CSSObject),
-  input: ({
+  },
+  input: {
     minHeight: '36px',
     padding: `${theme.spacing[1]} ${theme.spacing[3]}`,
     '&[type="number"]': {
@@ -400,14 +400,14 @@ const styles = {
           WebkitAppearance: 'none',
         },
     },
-  } satisfies CSSObject),
-  textarea: ({
+  },
+  textarea: {
     minHeight: '36px',
     padding: `${theme.spacing[1]} ${theme.spacing[3]}`,
     resize: 'none',
     height: 'auto',
-  } satisfies CSSObject),
-  text: ({
+  },
+  text: {
     ...itemCenter(),
     gap: theme.spacing[2],
     ...theme.typography.small(),
@@ -416,36 +416,36 @@ const styles = {
     '& svg': {
       pointerEvents: 'none',
     },
-  } satisfies CSSObject),
-  button: ({
+  },
+  button: {
     boxShadow: 'none',
-  } satisfies CSSObject),
+  },
   buttonSizes: {
-    xs: ({
+    xs: {
       ...theme.typography.small(),
       height: '24px',
       gap: theme.spacing[1],
       borderRadius: theme.radius.md,
       padding: `0 ${theme.spacing[2]}`,
-    } satisfies CSSObject),
-    sm: ({
+    },
+    sm: {
       height: '32px',
       gap: theme.spacing[2],
       borderRadius: theme.radius.md,
       padding: `0 ${theme.spacing[2]}`,
-    } satisfies CSSObject),
-    'icon-xs': ({
+    },
+    'icon-xs': {
       ...flexCenter(),
       width: '24px',
       height: '24px',
       padding: 0,
       borderRadius: theme.radius.md,
-    } satisfies CSSObject),
-    'icon-sm': ({
+    },
+    'icon-sm': {
       ...flexCenter(),
       width: '32px',
       height: '32px',
       padding: 0,
-    } satisfies CSSObject),
+    },
   },
-};
+});

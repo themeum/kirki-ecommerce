@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import { memo, useEffect, useState, type ComponentProps } from 'react';
 
 import ActionGroup from '@/components/ui/action-group';
@@ -13,7 +12,7 @@ import Text from '@/components/ui/text';
 import { useListParamsActions, useListParamsValue } from '@/contexts/list-params-context';
 import { CloseIcon, ListFilter } from '@/icons';
 import { theme } from '@/theme';
-;
+import { defineStyles } from '@/theme/mixins';
 import { __, sprintf } from '@/wpi18n';
 
 import BrandFilter from '@/pages/products/product-table/filter-popup/brand-filter';
@@ -244,22 +243,22 @@ FilterPopup.displayName = 'FilterPopup';
 
 export default FilterPopup;
 
-const styles = {
-  header: ({
+const styles = defineStyles({
+  header: {
     top: '-4px',
     position: 'sticky',
     backgroundColor: theme.colors.background.surface,
     padding: `${theme.spacing[3]} ${theme.spacing[3]} ${theme.spacing[2]} ${theme.spacing[3]}`,
     zIndex: 100,
-  } satisfies CSSObject),
-  closeButton: ({
+  },
+  closeButton: {
     color: theme.colors.text.primary,
-  } satisfies CSSObject),
-  footer: ({
+  },
+  footer: {
     padding: `${theme.spacing[2]} ${theme.spacing[3]} ${theme.spacing[3]} ${theme.spacing[3]}`,
     borderTop: `1px solid ${theme.colors.border.default}`,
     bottom: '-4px',
     position: 'sticky',
     backgroundColor: theme.colors.background.surface,
-  } satisfies CSSObject),
-};
+  },
+});

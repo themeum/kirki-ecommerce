@@ -5,7 +5,7 @@ import { Check, Minus } from 'lucide-react';
 
 import { Field, FieldLabel } from '@/components/ui/field';
 import { theme } from '@/theme';
-import { flexCenter, uiFocusRing, scopedMerge, scoped } from '@/theme/mixins';
+import { flexCenter, uiFocusRing, scopedMerge, scoped, defineStyles } from '@/theme/mixins';
 
 type CheckboxProps = Omit<
   ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>,
@@ -108,8 +108,8 @@ Checkbox.displayName = 'Checkbox';
 
 export default Checkbox;
 
-const styles = {
-  checkbox: ({
+const styles = defineStyles({
+  checkbox: {
     ...flexCenter(),
     width: '16px',
     height: '16px',
@@ -133,10 +133,10 @@ const styles = {
       opacity: 0.5,
       pointerEvents: 'none',
     },
-  } satisfies CSSObject),
-  indicator: ({
+  },
+  indicator: {
     ...flexCenter(),
     display: 'flex',
     color: theme.colors.background.surfaceTertiary,
-  } satisfies CSSObject),
-};
+  },
+});

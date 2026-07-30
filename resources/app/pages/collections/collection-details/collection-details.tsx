@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -25,7 +24,7 @@ import { CollectionFormSchema, type CollectionFormValues } from '@/schemas/forms
 import { useCollectionQuery, useCreateCollectionMutation, useUpdateCollectionMutation } from '@/services/collection';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { mergeCss } from '@/theme/mixins';
+import { mergeCss, defineStyles } from '@/theme/mixins';
 import type { CollectionFormData } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -239,22 +238,22 @@ CollectionDetails.displayName = 'CollectionDetails';
 
 export default CollectionDetails;
 
-const styles = {
-  productPlaceholderCard: ({
+const styles = defineStyles({
+  productPlaceholderCard: {
     padding: theme.spacing[11],
-  } satisfies CSSObject),
-  seoUrl: ({
+  },
+  seoUrl: {
     color: theme.colors.icon.primary,
-  } satisfies CSSObject),
-  seoTitle: ({
+  },
+  seoTitle: {
     color: theme.colors.text.emphasis,
-  } satisfies CSSObject),
-  seoDescription: ({
+  },
+  seoDescription: {
     color: theme.colors.text.secondary,
-  } satisfies CSSObject),
-  seoSeparator: ({
+  },
+  seoSeparator: {
     margin: `auto -${theme.spacing[4]}`,
     backgroundColor: theme.colors.background.surfaceSubdued,
-  } satisfies CSSObject),
-};
+  },
+});
 

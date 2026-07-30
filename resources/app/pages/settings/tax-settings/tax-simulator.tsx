@@ -1,11 +1,10 @@
-import type { CSSObject } from '@emotion/react';
 import { Card, CardContent } from '@/components/ui/card';
 import Button from '@/components/ui/button';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { SimulatorIcon } from '@/icons';
 import { cardStyles } from '@/theme/card-styles';
-import { mergeCss } from '@/theme/mixins';
+import { mergeCss, defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 const TaxSimulator = () => {
@@ -41,9 +40,9 @@ TaxSimulator.displayName = 'TaxSimulator';
 
 export default TaxSimulator;
 
-const styles = {
-  previewCard: ({
+const styles = defineStyles({
+  previewCard: {
     width: '45%',
-  } satisfies CSSObject),
-};
+  },
+});
 

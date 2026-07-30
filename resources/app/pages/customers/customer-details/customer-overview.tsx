@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import CheckboxField from '@/components/form/checkbox-field';
 import SelectField from '@/components/form/select-field';
 import TextField from '@/components/form/text-field';
@@ -8,7 +7,7 @@ import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { mergeCss } from '@/theme/mixins';
+import { mergeCss, defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 const languageOptions = [
@@ -75,11 +74,11 @@ CustomerOverview.displayName = 'CustomerOverview';
 
 export default CustomerOverview;
 
-const styles = {
-  roundedCard: ({
+const styles = defineStyles({
+  roundedCard: {
     padding: theme.spacing[5],
     borderRadius: theme.radius.xl,
     gap: theme.spacing[5],
-  } satisfies CSSObject),
-};
+  },
+});
 

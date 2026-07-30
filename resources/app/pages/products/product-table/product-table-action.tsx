@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import { memo } from 'react';
 
 import ActionGroup from '@/components/ui/action-group';
@@ -9,7 +8,7 @@ import { Select, SelectContent, SelectTrigger, SelectValue } from '@/components/
 import { useListParamsActions, useListParamsValue } from '@/contexts/list-params-context';
 import { ArrowDownUp } from '@/icons';
 import { theme } from '@/theme';
-;
+import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 import FilterPopup from '@/pages/products/product-table/filter-popup/filter-popup';
@@ -60,11 +59,11 @@ ProductTableAction.displayName = 'ProductTableAction';
 
 export default ProductTableAction;
 
-const styles = {
-  wrapper: ({
+const styles = defineStyles({
+  wrapper: {
     padding: `${theme.spacing[4]} ${theme.spacing[3]}`,
-  } satisfies CSSObject),
-  selectTrigger: ({
+  },
+  selectTrigger: {
     padding: `${theme.spacing[2]} ${theme.spacing[4]}`,
-  } satisfies CSSObject),
-};
+  },
+});

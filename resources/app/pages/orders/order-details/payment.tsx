@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import Button from '@/components/ui/button';
 import ActionGroup from '@/components/ui/action-group';
 import Badge from '@/components/ui/badge';
@@ -6,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { cardStyles } from '@/theme/card-styles';
-import { mergeCss } from '@/theme/mixins';
+import { mergeCss, defineStyles } from '@/theme/mixins';
 
 const Payment = () => {
   return (
@@ -47,8 +46,8 @@ const Payment = () => {
 
 export default Payment;
 
-const styles = {
-  dashedCard: ({
+const styles = defineStyles({
+  dashedCard: {
     borderStyle: 'dashed',
-  } satisfies CSSObject),
-};
+  },
+});

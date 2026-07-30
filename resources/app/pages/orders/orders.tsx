@@ -1,11 +1,10 @@
-import type { CSSObject } from '@emotion/react';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Container from '@/components/ui/container';
 import PageHeading from '@/components/ui/page-heading';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { mergeCss } from '@/theme/mixins';
+import { mergeCss, defineStyles } from '@/theme/mixins';
 
 import OrderTable from '@/pages/orders/order-table/order-table';
 import OrderTableAction from '@/pages/orders/order-table/order-table-action';
@@ -49,8 +48,8 @@ const Orders = () => {
 
 export default Orders;
 
-const styles = {
-  tableInfoCard: ({
+const styles = defineStyles({
+  tableInfoCard: {
     marginBottom: theme.spacing[2],
-  } satisfies CSSObject),
-};
+  },
+});

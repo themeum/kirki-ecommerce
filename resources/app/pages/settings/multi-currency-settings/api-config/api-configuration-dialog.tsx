@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -15,7 +14,7 @@ import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { ApiConfigurationFormSchema, apiConfigurationDefaultValues, type ApiConfigurationFormValues } from '@/schemas/forms/api-configuration-form';
 import { theme } from '@/theme';
-;
+import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 type ApiConfigData = {
@@ -192,11 +191,11 @@ ApiConfigurationPopup.displayName = 'ApiConfigurationPopup';
 
 export default ApiConfigurationPopup;
 
-const styles = {
-  cancelButton: ({
+const styles = defineStyles({
+  cancelButton: {
     boxShadow: theme.shadow.sm,
-  } satisfies CSSObject),
-  helperText: ({
+  },
+  helperText: {
     ...theme.typography.paragraph(),
-  } satisfies CSSObject),
-};
+  },
+});

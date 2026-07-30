@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import { useEffect, useState, type Dispatch, type SetStateAction } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -13,7 +12,7 @@ import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
 import Flex from '@/components/ui/flex';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { scoped, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import { ShippingRegionFormSchema, shippingRegionDefaultValues, type ShippingRegionFormValues } from '@/schemas/forms/shipping-region-form';
 import type { FormErrors } from '@/types';
@@ -362,16 +361,16 @@ export const ShippingRegionPopup = ({
 
 ShippingRegionPopup.displayName = 'ShippingRegionPopup';
 
-const styles = {
-  checkboxItem: ({
+const styles = defineStyles({
+  checkboxItem: {
     width: 'auto',
     padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
     '&:hover': {
       background: theme.colors.background.surfaceSecondary,
       borderRadius: theme.radius.sm,
     },
-  } satisfies CSSObject),
-  nestedStates: ({
+  },
+  nestedStates: {
     padding: `${theme.spacing[0]} ${theme.spacing[3]}`,
-  } satisfies CSSObject)
-};
+  }
+});

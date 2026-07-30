@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useMemo, useState } from 'react';
@@ -23,7 +22,7 @@ import { toastMutationError } from '@/services/helpers';
 import { updateSettings, useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { mergeCss } from '@/theme/mixins';
+import { mergeCss, defineStyles } from '@/theme/mixins';
 import type { SettingsSectionData } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -334,8 +333,8 @@ GeneralEditRegion.displayName = 'GeneralEditRegion';
 
 export default GeneralEditRegion;
 
-const styles = {
-  citiesCard: ({
+const styles = defineStyles({
+  citiesCard: {
     gap: theme.spacing[4],
-  } satisfies CSSObject)
-};
+  }
+});

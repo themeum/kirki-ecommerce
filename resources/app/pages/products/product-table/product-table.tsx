@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router';
 
@@ -11,7 +10,7 @@ import Flex from '@/components/ui/flex';
 import Thumbnail from '@/components/ui/thumbnail';
 import { endpoints } from '@/libs/endpoints';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { scoped, defineStyles } from '@/theme/mixins';
 import type { PaginatedData, ProductListItem } from '@/types';
 import { getBadgeVariantForStatus } from '@/utils/badge-status';
 import { __ } from '@/wpi18n';
@@ -140,11 +139,11 @@ ProductTable.displayName = 'ProductTable';
 
 export default ProductTable;
 
-const styles = {
-  clickable: ({
+const styles = defineStyles({
+  clickable: {
     cursor: 'pointer',
-  } satisfies CSSObject),
-  mutedText: ({
+  },
+  mutedText: {
     color: theme.colors.text.subdued,
-  } satisfies CSSObject),
-};
+  },
+});

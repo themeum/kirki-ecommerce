@@ -2,7 +2,7 @@ import { keyframes, type CSSObject } from '@emotion/react';
 import { Loader2 } from 'lucide-react';
 import { forwardRef, type ComponentPropsWithoutRef } from 'react';
 
-import { scopedMerge } from '@/theme/mixins';
+import { scopedMerge, defineStyles } from '@/theme/mixins';
 
 type SpinnerProps = Omit<
   ComponentPropsWithoutRef<'span'>,
@@ -42,8 +42,8 @@ const spinnerSpin = keyframes({
   },
 });
 
-const styles = {
-  root: ({
+const styles = defineStyles({
+  root: {
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -56,5 +56,5 @@ const styles = {
       height: '12px',
       animation: `${spinnerSpin} 0.8s linear infinite`,
     },
-  } satisfies CSSObject),
-};
+  },
+});

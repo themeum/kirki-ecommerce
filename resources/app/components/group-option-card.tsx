@@ -1,4 +1,4 @@
-import { css, type CSSObject } from '@emotion/react';
+import { css } from '@emotion/react';
 import { useState, type ReactNode } from 'react';
 
 import DropdownButton from '@/components/dropdown-button';
@@ -10,7 +10,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
-import { mergeCss } from '@/theme/mixins';
+import { mergeCss, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import ToggleButton from '@/components/ui/toggle-button';
 import type { SelectOption } from '@/types';
@@ -69,22 +69,22 @@ const groupOptionCardRightTextActiveCss = css({
   display: 'none',
 });
 
-const groupOptionCardIconCss = ({
+const groupOptionCardIconCss = defineStyles({
   padding: theme.spacing[1],
-} satisfies CSSObject);
+});
 
-const groupOptionCardIconDisabledCss = ({
+const groupOptionCardIconDisabledCss = defineStyles({
   cursor: 'not-allowed',
   opacity: 0.5,
   pointerEvents: 'none',
-} satisfies CSSObject);
+});
 
-const optionCardCss = ({
+const optionCardCss = defineStyles({
   borderRadius: theme.radius.none,
   borderTopColor: 'transparent',
-} satisfies CSSObject);
+});
 
-const optionCardBorderRadiusCss = ({
+const optionCardBorderRadiusCss = defineStyles({
   '&:first-of-type': {
     borderTopColor: theme.colors.border.secondary,
     borderRadius: `${theme.radius.lg} ${theme.radius.lg} ${theme.radius.none} ${theme.radius.none}`,
@@ -92,11 +92,11 @@ const optionCardBorderRadiusCss = ({
   '&:last-of-type': {
     borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.lg} ${theme.radius.lg}`,
   },
-} satisfies CSSObject);
+});
 
-const optionCardBorderRadiusSingleCss = ({
+const optionCardBorderRadiusSingleCss = defineStyles({
   borderRadius: theme.radius.lg,
-} satisfies CSSObject);
+});
 
 const GroupOptionCard = (props: GroupOptionCardProps) => {
   const {
@@ -254,9 +254,9 @@ const GroupOptionCard = (props: GroupOptionCardProps) => {
 
 export default GroupOptionCard;
 
-const styles = {
-  mediumHeader: ({
+const styles = defineStyles({
+  mediumHeader: {
     ...theme.typography.paragraph('medium'),
-  } satisfies CSSObject),
-};
+  },
+});
 

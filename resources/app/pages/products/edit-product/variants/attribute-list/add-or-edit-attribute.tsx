@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -15,8 +14,8 @@ import Combobox from '@/components/ui/combobox';
 import Flex from '@/components/ui/flex';
 import { useProductForm } from '@/contexts/product-form-context';
 import { theme } from '@/theme';
+import { defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
-;
 import { ProductAttributeFormSchema, type ProductAttributeFormValues, type ProductAttributeValueFormValues } from '@/schemas/forms/product-attribute-form';
 import { useAttributesQuery, useCreateAttributeMutation } from '@/services/attribute';
 import type {
@@ -324,16 +323,16 @@ AddOrEditAttribute.displayName = 'AddOrEditAttribute';
 
 export default AddOrEditAttribute;
 
-const styles = {
-  typeSelector: ({
+const styles = defineStyles({
+  typeSelector: {
     borderRadius: theme.radius.lg,
     border: `1px solid ${theme.colors.background.surfaceSubdued}`,
     width: 'max-content',
-  } satisfies CSSObject),
-  typeSelected: ({
+  },
+  typeSelected: {
     borderColor: theme.colors.background.fillBrand,
-  } satisfies CSSObject),
-};
+  },
+});
 
 export type {
   ProductAttributeFormValues as AttributeFormState,

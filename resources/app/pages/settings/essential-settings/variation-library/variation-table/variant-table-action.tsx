@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import { useState, type Dispatch, type SetStateAction } from 'react';
 
 import Button from '@/components/ui/button';
@@ -9,7 +8,7 @@ import Searchbox from '@/components/ui/searchbox';
 import type { AttributeValue, SortOrder } from '@/types';
 
 import { theme } from '@/theme';
-;
+import { defineStyles } from '@/theme/mixins';
 
 import { getSortedList } from '@/pages/settings/utils';
 
@@ -61,8 +60,8 @@ VariantTableAction.displayName = 'VariantTableAction';
 
 export default VariantTableAction;
 
-const styles = {
-  wrapper: ({
+const styles = defineStyles({
+  wrapper: {
     padding: `${theme.spacing[4]} ${theme.spacing[5]}`,
-  } satisfies CSSObject),
-};
+  },
+});

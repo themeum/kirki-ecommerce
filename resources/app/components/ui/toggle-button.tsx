@@ -5,7 +5,7 @@ import Flex from '@/components/ui/flex';
 import Label from '@/components/ui/label';
 import { SwitchCheckedIcon, SwitchUncheckedIcon } from '@/icons';
 import { theme } from '@/theme';
-import { scopedMerge } from '@/theme/mixins';
+import { scopedMerge, defineStyles } from '@/theme/mixins';
 
 type ToggleButtonProps = {
   value?: boolean;
@@ -75,8 +75,8 @@ ToggleButton.displayName = 'ToggleButton';
 
 export default ToggleButton;
 
-const styles = {
-  root: ({
+const styles = defineStyles({
+  root: {
     all: 'unset',
     cursor: 'pointer',
     display: 'inline-flex',
@@ -85,10 +85,10 @@ const styles = {
       outline: `2px solid ${theme.colors.background.fillBrand}`,
       outlineOffset: '2px',
     },
-  } satisfies CSSObject),
-  disabled: ({
+  },
+  disabled: {
     cursor: 'not-allowed !important',
     opacity: 0.3,
     pointerEvents: 'none',
-  } satisfies CSSObject),
-};
+  },
+});

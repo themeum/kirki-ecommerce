@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import Button from '@/components/ui/button';
 import { Select, SelectContent, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowDownUp, ListFilter } from '@/icons';
@@ -7,7 +6,7 @@ import Flex from '@/components/ui/flex';
 import Label from '@/components/ui/label';
 import Searchbox from '@/components/ui/searchbox';
 import { theme } from '@/theme';
-;
+import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 const ActionGroupPreview = () => {
@@ -41,8 +40,8 @@ ActionGroupPreview.displayName = 'ActionGroupPreview';
 
 export default ActionGroupPreview;
 
-const styles = {
-  selectTrigger: ({
+const styles = defineStyles({
+  selectTrigger: {
     padding: `${theme.spacing[2]} ${theme.spacing[4]}`,
-  } satisfies CSSObject),
-};
+  },
+});

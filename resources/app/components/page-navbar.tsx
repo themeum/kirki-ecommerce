@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import type { CSSProperties, ReactNode } from 'react';
 
 import Button from '@/components/ui/button';
@@ -8,7 +7,7 @@ import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { scoped } from '@/theme/mixins';
+import { scoped, defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 type PageNavbarProps = {
@@ -58,8 +57,8 @@ PageNavbar.displayName = 'PageNavbar';
 
 export default PageNavbar;
 
-const styles = {
-  backButton: ({
+const styles = defineStyles({
+  backButton: {
     height: '36px',
     width: '36px',
     background: theme.colors.background.surface,
@@ -70,11 +69,11 @@ const styles = {
         strokeWidth: 1.5,
       },
     },
-  } satisfies CSSObject),
-  connector: ({
+  },
+  connector: {
     height: '19px',
     width: '8.5px',
     background: theme.colors.background.surface,
     clipPath: "path('M0,0 Q4.25,6 8.5,0 L8.5,19 Q4.25,13 0,19 Z')",
-  } satisfies CSSObject),
-};
+  },
+});

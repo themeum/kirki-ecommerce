@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import { useEffect, useState, type Dispatch, type ReactElement, type SetStateAction } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -21,7 +20,7 @@ import Text from '@/components/ui/text';
 import { mapProductPriceFromProduct, ProductPriceFormSchema, productPriceDefaultValues, type ProductPriceFormValues } from '@/schemas/forms/product-price-form';
 import { useTaxProfilesQuery } from '@/services/tax';
 import { theme } from '@/theme';
-import { flexCenter, scoped } from '@/theme/mixins';
+import { flexCenter, scoped, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import type { FormErrors, UnitPriceValue } from '@/types';
 import { __ } from '@/wpi18n';
@@ -438,14 +437,14 @@ Price.displayName = 'Price';
 
 export default Price;
 
-const styles = {
-  innerDarkRowContent: ({
+const styles = defineStyles({
+  innerDarkRowContent: {
     padding: `${theme.spacing[1]} ${theme.spacing[2]} ${theme.spacing[1]} ${theme.spacing[3]}`,
     height: '44px',
     boxSizing: 'border-box',
-  } satisfies CSSObject),
-  inputLeftSymbol: ({
+  },
+  inputLeftSymbol: {
     ...flexCenter(),
     color: theme.colors.text.secondary,
-  } satisfies CSSObject)
-};
+  }
+});

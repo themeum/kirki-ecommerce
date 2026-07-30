@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import { useState, useMemo, type Dispatch, type SetStateAction } from 'react';
 import { useOutletContext } from 'react-router';
 
@@ -18,7 +17,7 @@ import type {
 } from '@/types';
 import { __ } from '@/wpi18n';
 
-import { mergeCss } from '@/theme/mixins';
+import { mergeCss, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 
 import { getSearchedValue, setUnsavedDataStatus } from '@/pages/settings/utils';
@@ -162,14 +161,14 @@ const VariationTable = ({
 
 VariationTable.displayName = 'VariationTable';
 
-const styles = {
-  emptyStateContent: ({
+const styles = defineStyles({
+  emptyStateContent: {
     padding: `${theme.spacing[9]} 0`,
     borderRadius: theme.radius.none,
-  } satisfies CSSObject),
-  mutedText: ({
+  },
+  mutedText: {
     color: theme.colors.text.subdued,
-  } satisfies CSSObject),
-};
+  },
+});
 
 export default VariationTable;

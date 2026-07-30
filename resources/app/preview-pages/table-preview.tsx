@@ -1,9 +1,8 @@
-import type { CSSObject } from '@emotion/react';
 import type { CSSProperties } from 'react';
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { theme } from '@/theme';
-;
+import { defineStyles } from '@/theme/mixins';
 
 type TableHeaderItem = {
   title: string;
@@ -102,8 +101,8 @@ TablePreview.displayName = 'TablePreview';
 
 export default TablePreview;
 
-const styles = {
-  highlightedCell: ({
+const styles = defineStyles({
+  highlightedCell: {
     ...theme.typography.paragraph('medium'),
-  } satisfies CSSObject),
-};
+  },
+});

@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Button from '@/components/ui/button';
 import { ArrowDownUp, ListFilter } from '@/icons';
@@ -6,7 +5,7 @@ import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
 import Searchbox from '@/components/ui/searchbox';
 import { theme } from '@/theme';
-;
+import { defineStyles } from '@/theme/mixins';
 import type { SelectOption } from '@/types';
 
 const OrderTableAction = () => {
@@ -57,11 +56,11 @@ const OrderTableAction = () => {
 
 export default OrderTableAction;
 
-const styles = {
-  wrapper: ({
+const styles = defineStyles({
+  wrapper: {
     padding: `${theme.spacing[4]} ${theme.spacing[3]}`,
-  } satisfies CSSObject),
-  selectTrigger: ({
+  },
+  selectTrigger: {
     padding: `${theme.spacing[2]} ${theme.spacing[4]}`,
-  } satisfies CSSObject),
-};
+  },
+});

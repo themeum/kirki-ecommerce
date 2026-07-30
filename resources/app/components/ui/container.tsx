@@ -2,7 +2,7 @@ import type { CSSObject } from '@emotion/react';
 import { forwardRef, type ComponentPropsWithoutRef } from 'react';
 
 import { theme } from '@/theme';
-import { scopedMerge } from '@/theme/mixins';
+import { scopedMerge, defineStyles } from '@/theme/mixins';
 import type { ContainerSize } from '@/types';
 
 type ContainerProps = Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'css'> & {
@@ -34,30 +34,30 @@ Container.displayName = 'Container';
 
 export default Container;
 
-const styles = {
-  root: ({
+const styles = defineStyles({
+  root: {
     maxWidth: '1024px',
     margin: `${theme.spacing[0]} auto`,
     padding: `${theme.spacing[0]} ${theme.spacing[2]}`,
-  } satisfies CSSObject),
-  sizes: {
-    sm: ({
-      maxWidth: '600px',
-    } satisfies CSSObject),
-    md: ({
-      maxWidth: '752px',
-    } satisfies CSSObject),
-    lg: ({
-      maxWidth: '900px',
-    } satisfies CSSObject),
-    xl: ({
-      maxWidth: '1024px',
-    } satisfies CSSObject),
-    fullWidth: ({
-      maxWidth: '100%',
-    } satisfies CSSObject),
   },
-  scrollable: ({
+  sizes: {
+    sm: {
+      maxWidth: '600px',
+    },
+    md: {
+      maxWidth: '752px',
+    },
+    lg: {
+      maxWidth: '900px',
+    },
+    xl: {
+      maxWidth: '1024px',
+    },
+    fullWidth: {
+      maxWidth: '100%',
+    },
+  },
+  scrollable: {
     overflow: 'scroll',
     scrollbarWidth: 'thin',
     scrollbarColor: `${theme.colors.background.fillBrand} ${theme.colors.background.surfaceTertiary}`,
@@ -77,5 +77,5 @@ const styles = {
       width: '40px !important',
       maxWidth: '40px !important',
     },
-  } satisfies CSSObject),
-};
+  },
+});

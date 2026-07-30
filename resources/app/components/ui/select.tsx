@@ -4,7 +4,7 @@ import * as SelectPrimitive from '@radix-ui/react-select';
 import { CheckIcon, ChevronDownIcon } from '@radix-ui/react-icons';
 
 import { theme } from '@/theme';
-import { flexCenter, itemCenter, uiFocusRing, scopedMerge, scoped } from '@/theme/mixins';
+import { flexCenter, itemCenter, uiFocusRing, scopedMerge, scoped, defineStyles } from '@/theme/mixins';
 import { getPortalContainer } from '@/libs/portal-container';
 
 const Select = SelectPrimitive.Root;
@@ -174,8 +174,8 @@ export {
   SelectSeparator,
 };
 
-const styles = {
-  trigger: ({
+const styles = defineStyles({
+  trigger: {
     width: '100%',
     minWidth: '90px',
     height: '36px',
@@ -200,16 +200,16 @@ const styles = {
       borderColor: 'transparent',
       pointerEvents: 'none',
     },
-  } satisfies CSSObject),
+  },
   variants: {
-    default: ({} satisfies CSSObject),
-    secondary: ({
+    default: {},
+    secondary: {
       backgroundColor: theme.colors.background.fillSecondary,
       border: 'none',
       ...theme.typography.small(),
       borderRadius: theme.radius.md,
-    } satisfies CSSObject),
-    invisible: ({
+    },
+    invisible: {
       backgroundColor: 'transparent',
       borderColor: 'transparent',
       boxShadow: 'none',
@@ -218,29 +218,29 @@ const styles = {
         borderColor: 'transparent',
         boxShadow: 'none',
       },
-    } satisfies CSSObject),
+    },
   },
-  error: ({
+  error: {
     border: `1px solid ${theme.colors.border.critical}`,
     boxShadow: 'none',
     '&:focus-visible, &[data-state="open"]': {
       borderColor: theme.colors.border.critical,
       ...uiFocusRing(theme as Theme, theme.colors.border.critical),
     },
-  } satisfies CSSObject),
-  value: ({
+  },
+  value: {
     ...itemCenter(),
     columnGap: theme.spacing[2],
     maxWidth: '85%',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
-  } satisfies CSSObject),
-  chevron: ({
+  },
+  chevron: {
     ...flexCenter(),
     flexShrink: 0,
-  } satisfies CSSObject),
-  content: ({
+  },
+  content: {
     padding: theme.spacing[1],
     border: `1px solid ${theme.colors.border.default}`,
     borderRadius: theme.radius.md,
@@ -252,24 +252,24 @@ const styles = {
     '&:focus, &:focus-visible': {
       outline: 'none',
     },
-  } satisfies CSSObject),
-  contentPopper: ({
+  },
+  contentPopper: {
     maxHeight: 'var(--radix-select-content-available-height)',
-  } satisfies CSSObject),
-  viewport: ({
+  },
+  viewport: {
     width: '100%',
-  } satisfies CSSObject),
-  viewportPopper: ({
+  },
+  viewportPopper: {
     width: '100%',
     minWidth: 'var(--radix-select-trigger-width)',
     height: 'var(--radix-select-trigger-height)',
-  } satisfies CSSObject),
-  label: ({
+  },
+  label: {
     padding: `${theme.spacing[2]} ${theme.spacing[2]}`,
     ...theme.typography.small('medium'),
     color: theme.colors.text.secondary,
-  } satisfies CSSObject),
-  item: ({
+  },
+  item: {
     padding: `${theme.spacing[2]} ${theme.spacing[2]}`,
     paddingLeft: `calc(${theme.spacing[2]} + ${theme.spacing[4]} + ${theme.spacing[2]})`,
     ...itemCenter(),
@@ -287,16 +287,16 @@ const styles = {
       opacity: 0.5,
       pointerEvents: 'none',
     },
-  } satisfies CSSObject),
-  itemIndicator: ({
+  },
+  itemIndicator: {
     position: 'absolute',
     left: theme.spacing[2],
     minWidth: '16px',
     ...itemCenter(),
-  } satisfies CSSObject),
-  separator: ({
+  },
+  separator: {
     height: '1px',
     backgroundColor: theme.colors.border.default,
     margin: `${theme.spacing[1]} 0`,
-  } satisfies CSSObject),
-};
+  },
+});

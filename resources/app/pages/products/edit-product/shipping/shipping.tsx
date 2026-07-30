@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import { useEffect, useState, type Dispatch, type ReactElement, type SetStateAction } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -19,7 +18,7 @@ import Text from '@/components/ui/text';
 import { useProductForm } from '@/contexts/product-form-context';
 import { mapProductShippingFromProduct, ProductShippingFormSchema, productShippingDefaultValues, type ProductShippingFormValues } from '@/schemas/forms/product-shipping-form';
 import { useShippingBoxesQuery } from '@/services/shipping';
-import { scoped, mergeCss } from '@/theme/mixins';
+import { scoped, mergeCss, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import type { FormErrors, ShippingBox } from '@/types';
 
@@ -286,21 +285,21 @@ Shipping.displayName = 'Shipping';
 
 export default Shipping;
 
-const styles = {
-  darkCardContent: ({
+const styles = defineStyles({
+  darkCardContent: {
     padding: theme.spacing[1],
-  } satisfies CSSObject),
-  shippingBoxPreview: ({
+  },
+  shippingBoxPreview: {
     borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.md} ${theme.radius.md}`,
     marginTop: `-${theme.spacing[2]}`,
     height: '230px',
-  } satisfies CSSObject),
-  labelBackground: ({
+  },
+  labelBackground: {
     backgroundColor: theme.colors.background.surface,
     paddingLeft: theme.spacing[2],
-  } satisfies CSSObject),
-  actionBackground: ({
+  },
+  actionBackground: {
     backgroundColor: theme.colors.background.surface,
     paddingRight: theme.spacing[2],
-  } satisfies CSSObject),
-};
+  },
+});

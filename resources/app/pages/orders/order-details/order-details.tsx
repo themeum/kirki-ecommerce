@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import Button from '@/components/ui/button';
 import Input from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -11,7 +10,7 @@ import { Field, FieldLabel } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
 import PageHeading from '@/components/ui/page-heading';
 import { theme } from '@/theme';
-;
+import { defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import type { SelectOption } from '@/types';
 
@@ -158,8 +157,8 @@ const OrderDetails = () => {
 
 export default OrderDetails;
 
-const styles = {
-  zeroPadding: ({
+const styles = defineStyles({
+  zeroPadding: {
     padding: theme.spacing[0],
-  } satisfies CSSObject)
-};
+  }
+});

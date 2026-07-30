@@ -3,7 +3,7 @@ import { forwardRef, type ComponentPropsWithoutRef, type ReactNode } from 'react
 
 import Flex from '@/components/ui/flex';
 import { theme } from '@/theme';
-import { scopedMerge, scoped } from '@/theme/mixins';
+import { scopedMerge, scoped, defineStyles } from '@/theme/mixins';
 import type { AlertType } from '@/types';
 
 type AlertProps = Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'css'> & {
@@ -49,27 +49,27 @@ Alert.displayName = 'Alert';
 
 export default Alert;
 
-const styles = {
-  root: ({
+const styles = defineStyles({
+  root: {
     width: '100%',
     padding: `${theme.spacing[3]} ${theme.spacing[3]} ${theme.spacing[3]} ${theme.spacing[5]}`,
     borderRadius: `${theme.radius.sm} ${theme.radius.xl} ${theme.radius.xl} ${theme.radius.sm}`,
     backgroundColor: theme.colors.background.fillSecondary,
     position: 'relative',
     overflow: 'hidden',
-  } satisfies CSSObject),
-  highlight: ({
+  },
+  highlight: {
     backgroundColor: theme.colors.background.fillBrand,
     height: '100%',
     width: '4px',
     position: 'absolute',
     left: 0,
     top: 0,
-  } satisfies CSSObject),
-  text: ({
+  },
+  text: {
     maxWidth: '85%',
-  } satisfies CSSObject),
-  icon: ({
+  },
+  icon: {
     flexShrink: 0,
-  } satisfies CSSObject),
-};
+  },
+});

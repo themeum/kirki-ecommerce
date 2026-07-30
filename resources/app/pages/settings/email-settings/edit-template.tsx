@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
@@ -26,7 +25,7 @@ import type {
   SettingsSectionData,
 } from '@/types';
 import { theme } from '@/theme';
-import { mergeCss } from '@/theme/mixins';
+import { mergeCss, defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 import { cardStyles } from '@/theme/card-styles';
@@ -277,23 +276,23 @@ EditTemplate.displayName = 'EditTemplate';
 
 export default EditTemplate;
 
-const styles = {
-  pageHeading: ({
+const styles = defineStyles({
+  pageHeading: {
     ...theme.typography.paragraph(),
     padding: `${theme.spacing[0]} ${theme.spacing[8]}`,
     height: '32px',
-  } satisfies CSSObject),
-  container: ({
+  },
+  container: {
     width: '100%',
     padding: `${theme.spacing[3]} 103px`,
-  } satisfies CSSObject),
-  roundedCard: ({
+  },
+  roundedCard: {
     borderRadius: theme.radius.lg,
-  } satisfies CSSObject),
-  squareCard: ({
+  },
+  squareCard: {
     borderRadius: theme.radius.none,
-  } satisfies CSSObject),
-  sendTextMail: ({
+  },
+  sendTextMail: {
     ...theme.typography.small(),
-  } satisfies CSSObject),
-};
+  },
+});

@@ -1,4 +1,4 @@
-import { css, type CSSObject } from '@emotion/react';
+import { css } from '@emotion/react';
 import { useState, type Dispatch, type SetStateAction } from 'react';
 import { toast } from 'sonner';
 
@@ -9,7 +9,7 @@ import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { PaymentIcon, LocationIcon, TrashIcon } from '@/icons';
 import { theme } from '@/theme';
-import { scoped, mergeCss } from '@/theme/mixins';
+import { scoped, mergeCss, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import { __, sprintf } from '@/wpi18n';
 
@@ -138,12 +138,12 @@ export const TaxRateList = ({
 
 TaxRateList.displayName = 'TaxRateList';
 
-const styles = {
-  emptyContent: ({ padding: `${theme.spacing[9]} 0` } satisfies CSSObject),
-  mutedText: ({
+const styles = defineStyles({
+  emptyContent: { padding: `${theme.spacing[9]} 0` },
+  mutedText: {
     color: theme.colors.text.subdued,
-  } satisfies CSSObject),
-  taxCard: ({
+  },
+  taxCard: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -151,7 +151,7 @@ const styles = {
     maxHeight: '44px',
     height: '44px',
     padding: theme.spacing[3],
-  } satisfies CSSObject),
+  },
   editGroup: css({
     display: 'none',
     pointerEvents: 'none',
@@ -161,18 +161,18 @@ const styles = {
     display: 'flex',
     pointerEvents: 'auto',
   }),
-  rateDisplay: ({
+  rateDisplay: {
     transition: 'opacity 0.2s',
     display: 'flex',
-  } satisfies CSSObject),
+  },
   rateDisplayHidden: css({
     display: 'none',
   }),
-  taxCardContent: ({
+  taxCardContent: {
     display: 'flex',
     alignItems: 'center',
-  } satisfies CSSObject),
-  taxRatesHeader: ({
+  },
+  taxRatesHeader: {
     marginBottom: theme.spacing[2],
-  } satisfies CSSObject)
-};
+  }
+});

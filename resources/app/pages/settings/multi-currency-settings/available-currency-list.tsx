@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import { type ComponentProps, type ReactNode, useState } from 'react';
 import { useWatch } from 'react-hook-form';
 
@@ -16,7 +15,7 @@ import type {
   SelectOption,
 } from '@/types';
 import { theme } from '@/theme';
-;
+import { defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import { __, sprintf } from '@/wpi18n';
 
@@ -197,8 +196,8 @@ export const AvailableCurrencyList = () => {
   );
 };
 
-const styles = {
-  innerCardContent: ({
+const styles = defineStyles({
+  innerCardContent: {
     padding: theme.spacing[5],
-  } satisfies CSSObject)
-};
+  }
+});

@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import BulkActionHandler from '@/components/bulk-action-handler';
 import Sorting from '@/components/sorting';
 import { useListParams, useMarkList } from '@/hooks';
@@ -6,7 +5,7 @@ import Checkbox from '@/components/ui/checkbox';
 import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useBulkDeleteBrandsMutation } from '@/services/brand';
 import { theme } from '@/theme';
-;
+import { defineStyles } from '@/theme/mixins';
 import type { Brand, PaginatedData, TaxonomyTableHeader } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -158,8 +157,8 @@ BrandTable.displayName = 'BrandTable';
 
 export default BrandTable;
 
-const styles = {
-  headCell: ({
+const styles = defineStyles({
+  headCell: {
     padding: `${theme.spacing[5]} ${theme.spacing[3]}`,
-  } satisfies CSSObject),
-};
+  },
+});

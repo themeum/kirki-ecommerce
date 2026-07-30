@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import { useEffect, useState, type ReactNode } from 'react';
 
 import GroupSelect from '@/components/group-select';
@@ -10,7 +9,7 @@ import Chip from '@/components/ui/chip';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { scoped, mergeCss } from '@/theme/mixins';
+import { scoped, mergeCss, defineStyles } from '@/theme/mixins';
 import type { SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -35,31 +34,31 @@ type GroupTagTableProps = {
   isEditable?: boolean;
 };
 
-const styles = {
-  shell: ({
+const styles = defineStyles({
+  shell: {
     overflow: 'hidden',
-  } satisfies CSSObject),
-  hoverParent: ({
+  },
+  hoverParent: {
     '&:hover [data-hover-reveal]': {
       visibility: 'visible',
     },
-  } satisfies CSSObject),
-  hoverReveal: ({
+  },
+  hoverReveal: {
     visibility: 'hidden',
-  } satisfies CSSObject),
-  cardAllRounded: ({
+  },
+  cardAllRounded: {
     borderRadius: theme.radius.lg,
-  } satisfies CSSObject),
-  cardBottomRounded: ({
+  },
+  cardBottomRounded: {
     borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.lg} ${theme.radius.lg}`,
-  } satisfies CSSObject),
-  cardBorder: ({
+  },
+  cardBorder: {
     borderColor: theme.colors.border.alt,
-  } satisfies CSSObject),
-  mutedText: ({
+  },
+  mutedText: {
     color: theme.colors.text.subdued,
-  } satisfies CSSObject),
-};
+  },
+});
 
 const GroupTagTable = (props: GroupTagTableProps) => {
   const {

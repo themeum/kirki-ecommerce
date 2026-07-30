@@ -8,7 +8,7 @@ import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui
 import Flex from '@/components/ui/flex';
 import { ThumbnailPlaceholder } from '@/icons';
 import { theme } from '@/theme';
-import { flexCenter, scopedMerge } from '@/theme/mixins';
+import { flexCenter, scopedMerge, defineStyles } from '@/theme/mixins';
 import type { ThumbnailSize, ThumbnailType } from '@/types';
 
 type MediaSelectorOnSelect = NonNullable<
@@ -113,8 +113,8 @@ Thumbnail.displayName = 'Thumbnail';
 
 export default Thumbnail;
 
-const styles = {
-  base: ({
+const styles = defineStyles({
+  base: {
     height: '40px',
     width: '40px',
     borderRadius: theme.radius.md,
@@ -129,8 +129,8 @@ const styles = {
       width: '100%',
       display: 'block',
     },
-  } satisfies CSSObject),
-  overlay: ({
+  },
+  overlay: {
     position: 'absolute',
     inset: 0,
     background: theme.colors.background.badgeDraft,
@@ -139,33 +139,33 @@ const styles = {
     justifyContent: 'center',
     opacity: 0,
     transition: 'opacity 0.25s ease',
-  } satisfies CSSObject),
-  overlayFullWidth: ({
+  },
+  overlayFullWidth: {
     padding: theme.spacing[5],
     '&:hover': {
       opacity: 1,
     },
-  } satisfies CSSObject),
-  actions: ({
+  },
+  actions: {
     paddingBottom: theme.spacing[1],
     alignItems: 'center',
     justifyContent: 'center',
-  } satisfies CSSObject),
-  error: ({
+  },
+  error: {
     border: `1px solid ${theme.colors.border.critical}`,
     boxShadow: `0px 0px 0px 1px ${theme.colors.background.fillCritical}`,
-  } satisfies CSSObject),
+  },
   sizes: {
-    small: ({
+    small: {
       width: '32px',
       height: '32px',
       borderRadius: theme.radius.sm,
-    } satisfies CSSObject),
-    xsm: ({
+    },
+    xsm: {
       width: '16px',
       height: '16px',
-    } satisfies CSSObject),
-    fullWidth: ({
+    },
+    fullWidth: {
       padding: theme.spacing[5],
       width: '100%',
       height: 'auto',
@@ -177,12 +177,12 @@ const styles = {
         maxHeight: '202px',
         width: 'auto',
       },
-    } satisfies CSSObject),
+    },
   },
   types: {
-    circle: ({
+    circle: {
       borderRadius: theme.radius.full,
       border: 'none',
-    } satisfies CSSObject),
+    },
   },
-};
+});

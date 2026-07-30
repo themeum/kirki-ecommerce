@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import { useFormContext, useWatch } from 'react-hook-form';
 
 import TextField from '@/components/form/text-field';
@@ -13,7 +12,7 @@ import Grid from '@/components/ui/grid';
 import Text from '@/components/ui/text';
 import type { GeneralSettingsFormValues } from '@/schemas/forms/general-settings-form';
 import { theme } from '@/theme';
-import { mergeCss } from '@/theme/mixins';
+import { mergeCss, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
@@ -116,18 +115,18 @@ OrderId.displayName = 'OrderId';
 
 export default OrderId;
 
-const styles = {
-  previewCard: ({} satisfies CSSObject),
-  previewCardContent: ({
+const styles = defineStyles({
+  previewCard: {},
+  previewCardContent: {
     padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
-  } satisfies CSSObject),
-  previewInput: ({
+  },
+  previewInput: {
     padding: theme.spacing[2],
     textAlign: 'center',
     color: theme.colors.text.special3,
-  } satisfies CSSObject),
-  resetCard: ({
+  },
+  resetCard: {
     borderRadius: theme.radius.lg,
     border: `1px solid ${theme.colors.border.default}`,
-  } satisfies CSSObject)
-};
+  }
+});

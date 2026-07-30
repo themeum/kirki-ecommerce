@@ -2,7 +2,7 @@ import type { CSSObject } from '@emotion/react';
 import { forwardRef, type ComponentPropsWithoutRef } from 'react';
 
 import { buildGridAreas, buildGridTemplate, resolveGap } from '@/components/ui/layout-utils';
-import { scopedMerge } from '@/theme/mixins';
+import { scopedMerge, defineStyles } from '@/theme/mixins';
 import type { FlexAlign, FlexJustify, GapValue } from '@/types';
 
 type GridProps = Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'css'> & {
@@ -61,8 +61,8 @@ Grid.displayName = 'Grid';
 
 export default Grid;
 
-const styles = {
+const styles = defineStyles({
   root: {
     display: 'grid',
-  } satisfies CSSObject,
-};
+  },
+});

@@ -5,7 +5,7 @@ import { Check, ChevronRight, Circle } from 'lucide-react';
 
 import { getPortalContainer } from '@/libs/portal-container';
 import { theme } from '@/theme';
-import { scopedMerge, scoped } from '@/theme/mixins';
+import { scopedMerge, scoped, defineStyles } from '@/theme/mixins';
 import { getOverlayMotionStyles } from '@/theme/overlay-motion';
 
 const DropdownMenu = DropdownMenuPrimitive.Root;
@@ -276,8 +276,8 @@ export {
   DropdownMenuRadioGroup,
 };
 
-const styles = {
-  content: ({
+const styles = defineStyles({
+  content: {
     minWidth: '128px',
     padding: `${theme.spacing[1]} 0`,
     border: `1px solid ${theme.colors.border.default}`,
@@ -295,16 +295,16 @@ const styles = {
     '&:focus, &:focus-visible': {
       outline: 'none',
     },
-  } satisfies CSSObject),
-  contentWidth: ({
+  },
+  contentWidth: {
     width: '256px',
-  } satisfies CSSObject),
-  subContent: ({
+  },
+  subContent: {
     width: 'max-content',
     minWidth: '160px',
     maxWidth: '256px',
-  } satisfies CSSObject),
-  item: ({
+  },
+  item: {
     position: 'relative',
     display: 'flex',
     alignItems: 'center',
@@ -330,14 +330,14 @@ const styles = {
     '&[data-state="open"]': {
       backgroundColor: theme.colors.background.optionHover,
     },
-  } satisfies CSSObject),
-  itemInset: ({
+  },
+  itemInset: {
     paddingLeft: theme.spacing[8],
-  } satisfies CSSObject),
-  checkboxOrRadioItem: ({
+  },
+  checkboxOrRadioItem: {
     paddingLeft: `calc(${theme.spacing[2]} + ${theme.spacing[4]} + ${theme.spacing[2]})`,
-  } satisfies CSSObject),
-  itemIndicator: ({
+  },
+  itemIndicator: {
     position: 'absolute',
     left: theme.spacing[2],
     display: 'flex',
@@ -347,29 +347,29 @@ const styles = {
     width: '16px',
     height: '16px',
     color: theme.colors.icon.primary,
-  } satisfies CSSObject),
-  chevron: ({
+  },
+  chevron: {
     marginLeft: 'auto',
     flexShrink: 0,
     color: theme.colors.icon.secondary,
-  } satisfies CSSObject),
-  label: ({
+  },
+  label: {
     padding: `${theme.spacing[2]} ${theme.spacing[2]}`,
     margin: `0 ${theme.spacing[1]}`,
     ...theme.typography.small('semibold'),
     color: theme.colors.text.primary,
     pointerEvents: 'none',
-  } satisfies CSSObject),
-  separator: ({
+  },
+  separator: {
     height: '1px',
     backgroundColor: theme.colors.border.default,
     margin: `${theme.spacing[1]} 0`,
     border: 'none',
-  } satisfies CSSObject),
-  shortcut: ({
+  },
+  shortcut: {
     marginLeft: 'auto',
     paddingLeft: theme.spacing[4],
     ...theme.typography.small(),
     color: theme.colors.text.muted,
-  } satisfies CSSObject),
-};
+  },
+});

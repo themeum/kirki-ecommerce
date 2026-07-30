@@ -1,4 +1,4 @@
-import { type SerializedStyles, type CSSObject } from '@emotion/react';
+import { type SerializedStyles } from '@emotion/react';
 
 import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import Text from '@/components/ui/text';
 import { ArrowLeftIcon } from '@/icons';
 import { theme } from '@/theme';
-import { itemCenter, scopedMerge } from '@/theme/mixins';
+import { itemCenter, scopedMerge, defineStyles } from '@/theme/mixins';
 import type { PaginationData } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -100,10 +100,10 @@ const Pagination = (props: PaginationProps) => {
 
 export default Pagination;
 
-const styles = {
-  wrapper: ({
+const styles = defineStyles({
+  wrapper: {
     ...itemCenter(),
     justifyContent: 'space-between',
     padding: `${theme.spacing[2]} ${theme.spacing[0]} ${theme.spacing[3]} ${theme.spacing[0]}`,
-  } satisfies CSSObject),
-};
+  },
+});

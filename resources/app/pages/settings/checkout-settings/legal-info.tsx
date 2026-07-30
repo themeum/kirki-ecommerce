@@ -1,11 +1,10 @@
-import type { CSSObject } from '@emotion/react';
 import RichTextField from '@/components/form/rich-text-field';
 import SwitchField from '@/components/form/switch-field';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import ActionGroup from '@/components/ui/action-group';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
-import { mergeCss } from '@/theme/mixins';
+import { mergeCss, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
@@ -67,9 +66,9 @@ LegalInfo.displayName = 'LegalInfo';
 
 export default LegalInfo;
 
-const styles = {
-  formCardBorder: ({
+const styles = defineStyles({
+  formCardBorder: {
     border: `1px solid ${theme.colors.border.default}`,
     borderRadius: theme.radius.lg,
-  } satisfies CSSObject)
-};
+  }
+});

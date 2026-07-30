@@ -1,7 +1,7 @@
-import { keyframes, type CSSObject } from '@emotion/react';
+import { keyframes } from '@emotion/react';
 
 import { theme } from '@/theme';
-import { flexCenter, scoped } from '@/theme/mixins';
+import { flexCenter, scoped, defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 const LoadingSpinner = () => {
@@ -26,18 +26,18 @@ const spinnerSpin = keyframes({
   },
 });
 
-const styles = {
-  root: ({
+const styles = defineStyles({
+  root: {
     ...flexCenter(),
     minHeight: '200px',
     width: '100%',
-  } satisfies CSSObject),
-  spinner: ({
+  },
+  spinner: {
     width: '32px',
     height: '32px',
     border: `3px solid ${theme.colors.border.secondary}`,
     borderTopColor: theme.colors.background.fillBrand,
     borderRadius: theme.radius.full,
     animation: `${spinnerSpin} 0.8s linear infinite`,
-  } satisfies CSSObject),
-};
+  },
+});

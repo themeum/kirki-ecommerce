@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import { type ReactElement, useState } from 'react';
 import { useNavigate } from 'react-router';
 
@@ -10,7 +9,7 @@ import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { useShippingBoxesQuery } from '@/services/shipping';
 import { theme } from '@/theme';
-;
+import { defineStyles } from '@/theme/mixins';
 import type { FormErrors } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -104,16 +103,16 @@ ShippingBoxSelect.displayName = 'ShippingBox';
 
 export default ShippingBoxSelect;
 
-const styles = {
-  header: ({
+const styles = defineStyles({
+  header: {
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
-  } satisfies CSSObject),
-  footer: ({
+  },
+  footer: {
     padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
-  } satisfies CSSObject),
-  manageButton: ({
+  },
+  manageButton: {
     color: theme.colors.background.fillBrand,
-  } satisfies CSSObject),
-};
+  },
+});

@@ -4,7 +4,7 @@ import { Loader2 } from 'lucide-react';
 import { forwardRef, type ComponentPropsWithoutRef } from 'react';
 
 import { theme } from '@/theme';
-import { flexCenter, mergeCss, scoped, scopedMerge, uiFocusRing } from '@/theme/mixins';
+import { flexCenter, mergeCss, scoped, scopedMerge, uiFocusRing, defineStyles } from '@/theme/mixins';
 
 type ButtonVariant =
   | 'primary'
@@ -113,7 +113,7 @@ const buttonSpin = keyframes({
   },
 });
 
-const styles = {
+const styles = defineStyles({
   base: {
     ...flexCenter(),
     ...theme.typography.small('medium'),
@@ -144,7 +144,7 @@ const styles = {
       textDecoration: 'none',
       ...uiFocusRing(theme as Theme),
     },
-  } satisfies CSSObject,
+  },
   variants: {
     primary: {
       backgroundColor: theme.colors.background.fillBrand,
@@ -153,7 +153,7 @@ const styles = {
         backgroundColor: theme.colors.background.fillBrandHover,
         color: theme.colors.text.light,
       },
-    } satisfies CSSObject,
+    },
     secondary: {
       backgroundColor: theme.colors.background.fillSecondary,
       color: theme.colors.text.primary,
@@ -161,7 +161,7 @@ const styles = {
         backgroundColor: theme.colors.background.fillSecondaryHover,
         color: theme.colors.text.primary,
       },
-    } satisfies CSSObject,
+    },
     destructive: {
       backgroundColor: theme.colors.background.fillCritical,
       color: theme.colors.text.light,
@@ -169,7 +169,7 @@ const styles = {
         backgroundColor: theme.colors.border.critical,
         color: theme.colors.text.light,
       },
-    } satisfies CSSObject,
+    },
     outline: {
       backgroundColor: theme.colors.background.fill,
       border: `1px solid ${theme.colors.border.default}`,
@@ -178,7 +178,7 @@ const styles = {
         backgroundColor: theme.colors.background.fillHover,
         color: theme.colors.text.primary,
       },
-    } satisfies CSSObject,
+    },
     ghost: {
       backgroundColor: theme.colors.background.fill,
       color: theme.colors.text.primary,
@@ -186,11 +186,11 @@ const styles = {
         backgroundColor: theme.colors.background.fillSpecial3Tertiary,
         color: theme.colors.text.primary,
       },
-    } satisfies CSSObject,
+    },
     link: {
       backgroundColor: theme.colors.background.fill,
       color: theme.colors.text.primary,
-    } satisfies CSSObject,
+    },
   },
   sizes: {
     xs: {
@@ -202,7 +202,7 @@ const styles = {
         width: '12px',
         height: '12px',
       },
-    } satisfies CSSObject,
+    },
     sm: {
       ...theme.typography.small(),
       height: '28px',
@@ -212,7 +212,7 @@ const styles = {
         width: '14px',
         height: '14px',
       },
-    } satisfies CSSObject,
+    },
     default: {
       height: '32px',
       padding: `0 ${theme.spacing[3]}`,
@@ -221,7 +221,7 @@ const styles = {
         width: '16px',
         height: '16px',
       },
-    } satisfies CSSObject,
+    },
     lg: {
       height: '36px',
       padding: `0 ${theme.spacing[4]}`,
@@ -230,7 +230,7 @@ const styles = {
         width: '16px',
         height: '16px',
       },
-    } satisfies CSSObject,
+    },
     'icon-xs': {
       height: '24px',
       width: '24px',
@@ -240,7 +240,7 @@ const styles = {
         width: '12px',
         height: '12px',
       },
-    } satisfies CSSObject,
+    },
     'icon-sm': {
       height: '28px',
       width: '28px',
@@ -250,7 +250,7 @@ const styles = {
         width: '14px',
         height: '14px',
       },
-    } satisfies CSSObject,
+    },
     icon: {
       height: '32px',
       width: '32px',
@@ -260,7 +260,7 @@ const styles = {
         width: '16px',
         height: '16px',
       },
-    } satisfies CSSObject,
+    },
     'icon-lg': {
       height: '36px',
       width: '36px',
@@ -270,20 +270,20 @@ const styles = {
         width: '16px',
         height: '16px',
       },
-    } satisfies CSSObject,
+    },
   },
   linkSize: {
     height: 'auto',
     width: 'auto',
     padding: 0,
-  } satisfies CSSObject,
+  },
   disabled: {
     opacity: 0.5,
     pointerEvents: 'none',
-  } satisfies CSSObject,
+  },
   loading: {
     pointerEvents: 'none',
-  } satisfies CSSObject,
+  },
   content: {
     ...flexCenter(),
     columnGap: theme.spacing[2],
@@ -291,10 +291,10 @@ const styles = {
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
-  } satisfies CSSObject,
+  },
   contentHidden: {
     visibility: 'hidden',
-  } satisfies CSSObject,
+  },
   loader: {
     ...flexCenter(),
     position: 'absolute',
@@ -302,5 +302,5 @@ const styles = {
     svg: {
       animation: `${buttonSpin} 0.8s linear infinite`,
     },
-  } satisfies CSSObject,
-};
+  },
+});

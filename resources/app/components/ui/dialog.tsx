@@ -6,7 +6,7 @@ import { X } from 'lucide-react';
 import Button from '@/components/ui/button';
 import { getPortalContainer } from '@/libs/portal-container';
 import { theme } from '@/theme';
-import { mergeCss, scopedMerge } from '@/theme/mixins';
+import { mergeCss, scopedMerge, defineStyles } from '@/theme/mixins';
 
 const Dialog = DialogPrimitive.Root;
 
@@ -216,8 +216,8 @@ const dialogContentOut = keyframes({
   },
 });
 
-const styles = {
-  overlay: ({
+const styles = defineStyles({
+  overlay: {
     position: 'fixed',
     inset: 0,
     zIndex: 1000,
@@ -230,8 +230,8 @@ const styles = {
     '&[data-state="closed"]': {
       animation: `${dialogOverlayOut} 150ms ease`,
     },
-  } satisfies CSSObject),
-  content: ({
+  },
+  content: {
     position: 'fixed',
     left: '50%',
     top: '50%',
@@ -258,41 +258,41 @@ const styles = {
     '&[data-state="closed"]': {
       animation: `${dialogContentOut} 200ms ease`,
     },
-  } satisfies CSSObject),
-  closeButton: ({
+  },
+  closeButton: {
     position: 'absolute',
     top: theme.spacing[3],
     right: theme.spacing[3],
-  } satisfies CSSObject),
-  header: ({
+  },
+  header: {
     display: 'flex',
     flexDirection: 'column',
     rowGap: theme.spacing[2],
     padding: `${theme.spacing[4]} ${theme.spacing[6]}`,
     paddingRight: theme.spacing[12],
-  } satisfies CSSObject),
-  footer: ({
+  },
+  footer: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'flex-end',
     columnGap: theme.spacing[2],
     padding: `${theme.spacing[4]} ${theme.spacing[6]}`,
-  } satisfies CSSObject),
-  title: ({
+  },
+  title: {
     margin: 0,
     ...theme.typography.large('semibold'),
     color: theme.colors.text.primary,
-  } satisfies CSSObject),
-  description: ({
+  },
+  description: {
     margin: 0,
     ...theme.typography.small(),
     color: theme.colors.text.secondary,
-  } satisfies CSSObject),
-  body: ({
+  },
+  body: {
     display: 'flex',
     flexDirection: 'column',
     rowGap: theme.spacing[2],
     padding: `${theme.spacing[4]} ${theme.spacing[6]}`,
     overflowY: 'auto',
-  } satisfies CSSObject),
-};
+  },
+});

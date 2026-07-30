@@ -1,10 +1,9 @@
-import type { CSSObject } from '@emotion/react';
 import type { KeyboardEvent } from 'react';
 import { useState, useEffect } from 'react';
 
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import { theme } from '@/theme';
-import { itemCenter, scoped } from '@/theme/mixins';
+import { itemCenter, scoped, defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 type ColorPickerProps = {
@@ -97,21 +96,21 @@ ColorPicker.displayName = 'ColorPicker';
 
 export default ColorPicker;
 
-const styles = {
-  wrapper: ({
+const styles = defineStyles({
+  wrapper: {
     border: `1px solid ${theme.colors.border.alt}`,
     borderRadius: theme.radius.md,
     padding: `${theme.spacing[1]} ${theme.spacing[2]}`,
     '&:focus-within': {
       boxShadow: `0px 0px 0px 1.5px ${theme.colors.border.ring}`,
     },
-  } satisfies CSSObject),
-  inner: ({
+  },
+  inner: {
     ...itemCenter(),
     gap: theme.spacing[2],
     width: '100%',
-  } satisfies CSSObject),
-  swatch: ({
+  },
+  swatch: {
     backgroundColor: 'transparent',
     height: '16px',
     width: '16px',
@@ -119,8 +118,8 @@ const styles = {
     borderRadius: theme.radius.full,
     flexShrink: 0,
     cursor: 'pointer',
-  } satisfies CSSObject),
-  input: ({
+  },
+  input: {
     border: 'none !important',
     outline: 'none !important',
     flex: '1 !important',
@@ -130,5 +129,5 @@ const styles = {
       outline: 'none !important',
       boxShadow: 'none !important',
     },
-  } satisfies CSSObject),
-};
+  },
+});

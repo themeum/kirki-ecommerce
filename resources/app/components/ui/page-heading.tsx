@@ -7,7 +7,7 @@ import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
-import { flexCenter, itemCenter, scopedMerge, scoped } from '@/theme/mixins';
+import { flexCenter, itemCenter, scopedMerge, scoped, defineStyles } from '@/theme/mixins';
 import type { ContainerSize, HeadingType } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -98,15 +98,15 @@ PageHeading.displayName = 'PageHeading';
 
 export default PageHeading;
 
-const styles = {
-  wrapper: ({
+const styles = defineStyles({
+  wrapper: {
     marginBottom: theme.spacing[8],
     marginTop: theme.spacing[8],
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-  } satisfies CSSObject),
-  wrapperSticky: ({
+  },
+  wrapperSticky: {
     top: '32px',
     left: 0,
     padding: `${theme.spacing[4]} ${theme.spacing[0]}`,
@@ -115,24 +115,24 @@ const styles = {
     borderBottom: `1px solid ${theme.colors.border.default}`,
     backgroundColor: theme.colors.background.surfaceTertiary,
     zIndex: 100,
-  } satisfies CSSObject),
-  wrapperNoMargin: ({
+  },
+  wrapperNoMargin: {
     marginTop: theme.spacing[0],
     marginBottom: theme.spacing[0],
-  } satisfies CSSObject),
-  heading: ({
+  },
+  heading: {
     width: '100%',
     ...itemCenter(),
     columnGap: theme.spacing[3],
     paddingLeft: theme.spacing[2],
-  } satisfies CSSObject),
-  headingHasBack: ({
+  },
+  headingHasBack: {
     paddingLeft: theme.spacing[0],
-  } satisfies CSSObject),
-  icon: ({
+  },
+  icon: {
     ...flexCenter(),
-  } satisfies CSSObject),
-  actions: ({
+  },
+  actions: {
     marginLeft: 'auto',
-  } satisfies CSSObject),
-};
+  },
+});

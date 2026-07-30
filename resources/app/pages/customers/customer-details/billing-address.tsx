@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import { Controller, useFormContext } from 'react-hook-form';
 
 import SelectField from '@/components/form/select-field';
@@ -13,7 +12,7 @@ import Text from '@/components/ui/text';
 import type { CustomerFormValues } from '@/schemas/forms/customer-form';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { mergeCss } from '@/theme/mixins';
+import { mergeCss, defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 const regionOptions = [
@@ -125,14 +124,14 @@ BillingAddress.displayName = 'BillingAddress';
 
 export default BillingAddress;
 
-const styles = {
-  roundedCard: ({
+const styles = defineStyles({
+  roundedCard: {
     padding: theme.spacing[5],
     borderRadius: theme.radius.xl,
     gap: theme.spacing[5],
-  } satisfies CSSObject),
-  header: ({
+  },
+  header: {
     paddingBottom: theme.spacing[1],
-  } satisfies CSSObject),
-};
+  },
+});
 

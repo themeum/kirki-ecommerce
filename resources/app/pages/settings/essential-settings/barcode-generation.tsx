@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import CountrySelector from '@/components/country-selector';
 import Button from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,7 +11,7 @@ import Grid from '@/components/ui/grid';
 import Text from '@/components/ui/text';
 import type { FormErrors, SettingsSectionData } from '@/types';
 import { theme } from '@/theme';
-;
+import { defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
@@ -161,12 +160,12 @@ const BarcodeGeneration = (_props: BarcodeGenerationProps) => {
 
 export default BarcodeGeneration;
 
-const styles = {
-  previewContent: ({
+const styles = defineStyles({
+  previewContent: {
     height: '158px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     border: `1px solid ${theme.colors.border.default}`,
-  } satisfies CSSObject)
-};
+  }
+});

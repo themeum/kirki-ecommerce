@@ -1,4 +1,3 @@
-import { type CSSObject } from '@emotion/react';
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -16,6 +15,7 @@ import { AddCurrencyPopupFormSchema, type AddCurrencyPopupFormValues } from '@/s
 import { useAllCurrenciesQuery, useAvailableCurrenciesQuery } from '@/services/currency';
 import type { Currency } from '@/types';
 import { theme } from '@/theme';
+import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 import { getSearchedValue } from '@/pages/settings/utils';
@@ -231,11 +231,11 @@ AddCurrencyPopup.displayName = 'AddCurrencyPopup';
 
 export default AddCurrencyPopup;
 
-const styles = {
-  searchInput: ({
+const styles = defineStyles({
+  searchInput: {
     paddingLeft: theme.spacing[8],
-  } satisfies CSSObject),
-  symbolText: ({
+  },
+  symbolText: {
     paddingRight: theme.spacing[3],
-  } satisfies CSSObject),
-};
+  },
+});

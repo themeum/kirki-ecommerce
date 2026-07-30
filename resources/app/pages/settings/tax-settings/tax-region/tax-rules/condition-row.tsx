@@ -1,4 +1,4 @@
-import { css, type CSSObject } from '@emotion/react';
+import { css } from '@emotion/react';
 import { useState, type Dispatch, type SetStateAction } from 'react';
 
 import Button from '@/components/ui/button';
@@ -8,7 +8,7 @@ import { PlusIcon, TrashIcon } from '@/icons';
 import Grid from '@/components/ui/grid';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
-import { mergeCss } from '@/theme/mixins';
+import { mergeCss, defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 import { taxRuleConditionOptions } from '@/pages/settings/tax-settings/utils';
@@ -198,10 +198,10 @@ ConditionRow.displayName = 'ConditionRow';
 
 export default ConditionRow;
 
-const styles = {
-  conditionGrid: ({
+const styles = defineStyles({
+  conditionGrid: {
     marginTop: theme.spacing[2],
-  } satisfies CSSObject),
+  },
   conditionActions: css({
     opacity: 0,
     visibility: 'hidden',
@@ -215,4 +215,4 @@ const styles = {
     visibility: 'visible',
     display: 'flex',
   }),
-};
+});

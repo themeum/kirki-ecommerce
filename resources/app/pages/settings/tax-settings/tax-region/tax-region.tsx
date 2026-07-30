@@ -1,4 +1,4 @@
-import { css, type CSSObject } from '@emotion/react';
+import { css } from '@emotion/react';
 import { useState } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 import { useNavigate, useOutletContext } from 'react-router';
@@ -15,7 +15,7 @@ import { EditIcon, LocationIcon, ShowMoreIcon, TrashIcon } from '@/icons';
 import type { TaxSettingsFormValues } from '@/schemas/forms/tax-settings-form';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { scoped, mergeCss } from '@/theme/mixins';
+import { scoped, mergeCss, defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 import TaxRegionPopup from '@/pages/settings/tax-settings/tax-region/tax-region-dialog';
@@ -263,12 +263,12 @@ TaxRegions.displayName = 'TaxRegions';
 
 export default TaxRegions;
 
-const styles = {
-  emptyStateContent: ({ padding: `${theme.spacing[9]} 0` } satisfies CSSObject),
-  mutedText: ({
+const styles = defineStyles({
+  emptyStateContent: { padding: `${theme.spacing[9]} 0` },
+  mutedText: {
     color: theme.colors.text.subdued,
-  } satisfies CSSObject),
-  regionCard: ({
+  },
+  regionCard: {
     padding: `${theme.spacing[3]} ${theme.spacing[4]}`,
-  } satisfies CSSObject),
-};
+  },
+});

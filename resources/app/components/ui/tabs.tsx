@@ -3,7 +3,7 @@ import { forwardRef, type ComponentPropsWithoutRef, type ElementRef } from 'reac
 import * as TabsPrimitive from '@radix-ui/react-tabs';
 
 import { theme } from '@/theme';
-import { flexCenter, uiFocusRing, scopedMerge } from '@/theme/mixins';
+import { flexCenter, uiFocusRing, scopedMerge, defineStyles } from '@/theme/mixins';
 
 const Tabs = TabsPrimitive.Root;
 
@@ -62,8 +62,8 @@ TabsContent.displayName = 'TabsContent';
 
 export { Tabs, TabsList, TabsTrigger, TabsContent };
 
-const styles = {
-  list: ({
+const styles = defineStyles({
+  list: {
     display: 'flex',
     alignItems: 'center',
     backgroundColor: theme.colors.background.surfaceSecondary,
@@ -72,8 +72,8 @@ const styles = {
     minHeight: '36px',
     boxSizing: 'border-box',
     color: theme.colors.text.secondary,
-  } satisfies CSSObject),
-  trigger: ({
+  },
+  trigger: {
     flex: 1,
     height: '100%',
     minHeight: '28px',
@@ -98,11 +98,11 @@ const styles = {
       opacity: 0.5,
       pointerEvents: 'none',
     },
-  } satisfies CSSObject),
-  content: ({
+  },
+  content: {
     marginTop: theme.spacing[4],
     '&:focus, &:focus-visible': {
       outline: 'none',
     },
-  } satisfies CSSObject),
-};
+  },
+});

@@ -2,7 +2,7 @@ import { type CSSObject } from '@emotion/react';
 import { forwardRef, type CSSProperties } from 'react';
 
 import { theme } from '@/theme';
-import { scopedMerge } from '@/theme/mixins';
+import { scopedMerge, defineStyles } from '@/theme/mixins';
 import type { HeadingType } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -40,21 +40,21 @@ Heading.displayName = 'Heading';
 
 export default Heading;
 
-const styles = {
-  base: ({
+const styles = defineStyles({
+  base: {
     margin: 0,
     ...theme.typography.large('semibold'),
-  } satisfies CSSObject),
-  types: {
-    primary: ({
-      ...theme.typography.heading4(),
-    } satisfies CSSObject),
-    secondary: ({
-      ...theme.typography.large('semibold'),
-    } satisfies CSSObject),
-    tertiary: ({
-      ...theme.typography.paragraph('semibold'),
-    } satisfies CSSObject),
-    '': ({} satisfies CSSObject),
   },
-};
+  types: {
+    primary: {
+      ...theme.typography.heading4(),
+    },
+    secondary: {
+      ...theme.typography.large('semibold'),
+    },
+    tertiary: {
+      ...theme.typography.paragraph('semibold'),
+    },
+    '': {},
+  },
+});

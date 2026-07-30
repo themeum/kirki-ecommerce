@@ -1,5 +1,4 @@
-import { scoped } from '@/theme/mixins';
-import type { CSSObject } from '@emotion/react';
+import { scoped, defineStyles } from '@/theme/mixins';
 import { forwardRef, useEffect, useRef, useState, type CSSProperties, type MouseEvent, type ReactNode } from 'react';
 
 import Flex from '@/components/ui/flex';
@@ -127,8 +126,8 @@ ProgressBar.displayName = 'ProgressBar';
 
 export default ProgressBar;
 
-const styles = {
-  track: ({
+const styles = defineStyles({
+  track: {
     position: 'relative',
     height: '6px',
     width: '100%',
@@ -136,8 +135,8 @@ const styles = {
     borderRadius: theme.radius.full,
     cursor: 'pointer',
     userSelect: 'none',
-  } satisfies CSSObject),
-  fill: ({
+  },
+  fill: {
     height: '100%',
     width: 'var(--progressbar-fill-width)',
     backgroundColor: 'var(--progressbar-fill-color, ' +
@@ -146,8 +145,8 @@ const styles = {
     borderRadius: 'inherit',
     transition: 'width 0.2s ease',
     zIndex: 1,
-  } satisfies CSSObject),
-  thumb: ({
+  },
+  thumb: {
     position: 'absolute',
     top: '50%',
     left: 'var(--progressbar-thumb-left)',
@@ -164,8 +163,8 @@ const styles = {
       cursor: 'grabbing',
       transform: 'translate(-50%, -50%) scale(0.95)',
     },
-  } satisfies CSSObject),
-  rightText: ({
+  },
+  rightText: {
     color: theme.colors.text.muted,
-  } satisfies CSSObject),
-};
+  },
+});

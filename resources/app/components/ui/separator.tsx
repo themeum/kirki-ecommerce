@@ -3,7 +3,7 @@ import * as SeparatorPrimitive from '@radix-ui/react-separator';
 import { forwardRef, type ComponentPropsWithoutRef, type CSSProperties, type ElementRef } from 'react';
 
 import { theme } from '@/theme';
-import { scopedMerge } from '@/theme/mixins';
+import { scopedMerge, defineStyles } from '@/theme/mixins';
 
 type SeparatorProps = Omit<
   ComponentPropsWithoutRef<typeof SeparatorPrimitive.Root>,
@@ -36,7 +36,7 @@ const Separator = forwardRef<
     ...rest
   } = props;
 
-  const separatorStyle = {
+  const separatorStyle = defineStyles({
     ...(marginTop !== undefined
       ? { '--separator-margin-top': toCssLength(marginTop) }
       : {}),
@@ -48,7 +48,7 @@ const Separator = forwardRef<
       ? { '--separator-size': toCssLength(height) }
       : {}),
     ...style,
-  } as CSSProperties;
+  })as CSSProperties;
 
   return (
     <SeparatorPrimitive.Root
@@ -70,20 +70,20 @@ Separator.displayName = 'Separator';
 
 export { Separator };
 
-const styles = {
+const styles = defineStyles({
   root: {
     flexShrink: 0,
     backgroundColor: `var(--separator-color, ${theme.colors.border.default})`,
     border: 'none',
     marginTop: 'var(--separator-margin-top, 0)',
     marginBottom: 'var(--separator-margin-bottom, 0)',
-  } satisfies CSSObject,
+  },
   horizontal: {
     height: 'var(--separator-size, 1px)',
     width: '100%',
-  } satisfies CSSObject,
+  },
   vertical: {
     height: '100%',
     width: 'var(--separator-size, 1px)',
-  } satisfies CSSObject,
-};
+  },
+});

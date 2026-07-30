@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import { useState, type ReactNode } from 'react';
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -8,7 +7,7 @@ import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { scoped, mergeCss } from '@/theme/mixins';
+import { scoped, mergeCss, defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 type OptionAccordionProps = {
@@ -83,20 +82,20 @@ const OptionAccordion = (props: OptionAccordionProps) => {
 
 export default OptionAccordion;
 
-const styles = {
-  wrapper: ({
+const styles = defineStyles({
+  wrapper: {
     borderRadius: theme.radius.xl,
     border: `1px solid ${theme.colors.icon.inverse}`,
-  } satisfies CSSObject),
-  accordion: ({
+  },
+  accordion: {
     width: '100%',
-  } satisfies CSSObject),
-  trigger: ({
+  },
+  trigger: {
     padding: `${theme.spacing[3]} ${theme.spacing[4]}`,
-  } satisfies CSSObject),
-  contentCard: ({
+  },
+  contentCard: {
     borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.lg} ${theme.radius.lg}`,
     display: 'flex',
     flexDirection: 'column',
-  } satisfies CSSObject),
-};
+  },
+});

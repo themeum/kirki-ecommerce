@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import { useEffect } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -20,7 +19,7 @@ import { useSettingsQuery } from '@/services/settings';
 import { useCreateShippingBoxMutation, useUpdateShippingBoxMutation } from '@/services/shipping';
 import type { ShippingBox } from '@/types';
 import { theme } from '@/theme';
-import { mergeCss } from '@/theme/mixins';
+import { mergeCss, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
@@ -257,26 +256,26 @@ ShippingBoxPopup.displayName = 'ShippingBoxPopup';
 
 export default ShippingBoxPopup;
 
-const styles = {
-  dimensionsCard: ({
+const styles = defineStyles({
+  dimensionsCard: {
     position: 'relative',
     overflow: 'visible',
     paddingTop: theme.spacing[5],
-  } satisfies CSSObject),
-  dimensionsLabel: ({
+  },
+  dimensionsLabel: {
     top: '-12px',
     left: '240px',
     position: 'absolute',
     padding: `${theme.spacing[0]} ${theme.spacing[2]}`,
     backgroundColor: theme.colors.text.light,
-  } satisfies CSSObject),
-  previewCard: ({
+  },
+  previewCard: {
     borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.md} ${theme.radius.md}`,
     marginTop: `-${theme.spacing[2]}`,
     padding: theme.spacing[1],
     height: '230px',
-  } satisfies CSSObject),
-  footerSeparator: ({
+  },
+  footerSeparator: {
     margin: theme.spacing[0],
-  } satisfies CSSObject)
-};
+  }
+});

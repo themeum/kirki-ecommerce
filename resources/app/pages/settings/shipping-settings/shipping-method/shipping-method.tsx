@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import { useMemo, type Dispatch, type SetStateAction } from 'react';
 import { useNavigate } from 'react-router';
 
@@ -10,7 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { dispatchToastMessage } from '@/pages/utils';
 import type { SettingsSectionData } from '@/types';
 import { theme } from '@/theme';
-import { scoped, mergeCss } from '@/theme/mixins';
+import { scoped, mergeCss, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
@@ -172,14 +171,14 @@ export const ShippingMethod = ({
   );
 };
 
-const styles = {
-  zoneMethodsWrap: ({
+const styles = defineStyles({
+  zoneMethodsWrap: {
     marginTop: theme.spacing[3],
-  } satisfies CSSObject),
-  emptyState: ({
+  },
+  emptyState: {
     padding: `${theme.spacing[9]} ${theme.spacing[0]}`,
-  } satisfies CSSObject),
-  emptyStateText: ({
+  },
+  emptyStateText: {
     color: theme.colors.text.subdued,
-  } satisfies CSSObject)
-};
+  }
+});

@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -20,7 +19,7 @@ import { EmailSettingsFormSchema, emailSettingsDefaultValues, type EmailSettings
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import type { SettingsSectionData } from '@/types';
 import { theme } from '@/theme';
-;
+import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
@@ -243,8 +242,8 @@ EmailSettings.displayName = 'EmailSettings';
 
 export default EmailSettings;
 
-const styles = {
-  roundedCard: ({
+const styles = defineStyles({
+  roundedCard: {
     borderRadius: theme.radius.lg,
-  } satisfies CSSObject),
-};
+  },
+});

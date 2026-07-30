@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import { useState, useEffect } from 'react';
 
 import Button from '@/components/ui/button';
@@ -12,7 +11,7 @@ import Flex from '@/components/ui/flex';
 import Grid from '@/components/ui/grid';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
-import { scoped, mergeCss } from '@/theme/mixins';
+import { scoped, mergeCss, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 import { PlusIcon, TrashIcon } from '@/icons';
@@ -184,16 +183,16 @@ RateByWeightSettings.displayName = 'RateByWeightSettings';
 
 export default RateByWeightSettings;
 
-const styles = {
-  textarea: ({
+const styles = defineStyles({
+  textarea: {
     padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
     minHeight: '108px',
-  } satisfies CSSObject),
-  rangesCard: ({
+  },
+  rangesCard: {
     border: `1px solid ${theme.colors.border.default}`,
     borderRadius: theme.radius.md,
-  } satisfies CSSObject),
-  rateRow: ({
+  },
+  rateRow: {
     display: 'flex',
     alignItems: 'center',
     gap: theme.spacing[4],
@@ -202,8 +201,8 @@ const styles = {
       visibility: 'visible',
       display: 'block',
     },
-  } satisfies CSSObject),
-  deleteButton: ({
+  },
+  deleteButton: {
     padding: theme.spacing[1],
     opacity: 0,
     display: 'none',
@@ -212,5 +211,5 @@ const styles = {
     cursor: 'pointer',
     background: theme.colors.background.fillSecondary,
     borderRadius: theme.radius.lg,
-  } satisfies CSSObject)
-};
+  }
+});

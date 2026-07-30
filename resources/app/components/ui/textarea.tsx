@@ -2,7 +2,7 @@ import { type CSSObject, type Theme } from '@emotion/react';
 import { forwardRef, type ComponentPropsWithoutRef } from 'react';
 
 import { theme } from '@/theme';
-import { uiFocusRing, scopedMerge } from '@/theme/mixins';
+import { uiFocusRing, scopedMerge, defineStyles } from '@/theme/mixins';
 
 type TextareaProps = Omit<
   ComponentPropsWithoutRef<'textarea'>,
@@ -33,8 +33,8 @@ Textarea.displayName = 'Textarea';
 
 export default Textarea;
 
-const styles = {
-  base: ({
+const styles = defineStyles({
+  base: {
     margin: 0,
     minHeight: '36px',
     width: '100%',
@@ -74,5 +74,5 @@ const styles = {
         opacity: 0.5,
       },
     },
-  } satisfies CSSObject),
-};
+  },
+});

@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import Flex from '@/components/ui/flex';
 import { BoxOpenIcon } from '@/icons';
 import HeaderActionsCard from '@/components/header-actions-card';
@@ -6,7 +5,7 @@ import GroupOptionCard from '@/components/group-option-card';
 import { Card, CardContent } from '@/components/ui/card';
 import { __ } from '@/wpi18n';
 
-import { scoped, mergeCss } from '@/theme/mixins';
+import { scoped, mergeCss, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 
 import { theme } from '@/theme';
@@ -55,11 +54,11 @@ const ShippingCareer = (_props: ShippingCareerProps) => {
 
 ShippingCareer.displayName = 'ShippingCareer';
 
-const styles = {
-  emptyStateContent: ({ padding: `${theme.spacing[9]} 0` } satisfies CSSObject),
-  mutedText: ({
+const styles = defineStyles({
+  emptyStateContent: { padding: `${theme.spacing[9]} 0` },
+  mutedText: {
     color: theme.colors.text.subdued,
-  } satisfies CSSObject),
-};
+  },
+});
 
 export default ShippingCareer;

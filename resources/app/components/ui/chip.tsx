@@ -3,7 +3,7 @@ import { forwardRef, type ComponentPropsWithoutRef, type CSSProperties, type Rea
 
 import Flex from '@/components/ui/flex';
 import { theme } from '@/theme';
-import { flexCenter, scopedMerge, scoped } from '@/theme/mixins';
+import { flexCenter, scopedMerge, scoped, defineStyles } from '@/theme/mixins';
 import type { GapValue } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -32,10 +32,10 @@ const Chip = forwardRef<HTMLDivElement, ChipProps>((props, ref) => {
     ...rest
   } = props;
 
-  const chipStyle = {
+  const chipStyle = defineStyles({
     ...(color !== undefined ? { '--chip-swatch-color': color } : {}),
     ...style,
-  } as CSSProperties;
+  })as CSSProperties;
 
   return (
     <div ref={ref} style={chipStyle} css={scopedMerge(styles.root, cssOverride)} {...rest}>
@@ -64,8 +64,8 @@ Chip.displayName = 'Chip';
 export default Chip;
 export type { ChipProps };
 
-const styles = {
-  root: ({
+const styles = defineStyles({
+  root: {
     ...flexCenter(),
     backgroundColor: theme.colors.background.surfaceSecondary,
     padding: `${theme.spacing[1]} ${theme.spacing[2]}`,
@@ -73,17 +73,17 @@ const styles = {
     width: 'max-content',
     gap: theme.spacing[2],
     ...theme.typography.small('medium'),
-  } satisfies CSSObject),
-  subtext: ({
+  },
+  subtext: {
     color: theme.colors.text.subdued,
-  } satisfies CSSObject),
-  swatch: ({
+  },
+  swatch: {
     borderRadius: theme.radius.full,
     height: '16px',
     width: '16px',
     backgroundColor: 'var(--chip-swatch-color)',
-  } satisfies CSSObject),
-  close: ({
+  },
+  close: {
     ...flexCenter(),
     cursor: 'pointer',
     padding: 0,
@@ -91,5 +91,5 @@ const styles = {
     border: 'none',
     background: 'transparent',
     appearance: 'none',
-  } satisfies CSSObject),
-};
+  },
+});

@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import { useMemo, useState } from 'react';
 import { useLocation } from 'react-router';
 
@@ -8,7 +7,7 @@ import PageHeading from '@/components/ui/page-heading';
 import Searchbox from '@/components/ui/searchbox';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { scoped, defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 import { SettingsItem } from '@/pages/settings/settings-item';
@@ -126,8 +125,8 @@ Settings.displayName = 'Settings';
 
 export default Settings;
 
-const styles = {
-  panel: ({
+const styles = defineStyles({
+  panel: {
     width: '100%',
     padding: theme.spacing[4],
     borderRadius: theme.radius.xl,
@@ -135,8 +134,8 @@ const styles = {
     boxShadow:
       '0px -1px 1px 0.5px hsla(0, 0%, 0%, 0.1) inset, 0px 0.5px 1px 0px hsla(0, 0%, 0%, 0.1) inset',
     boxSizing: 'border-box',
-  } satisfies CSSObject),
-  itemList: ({
+  },
+  itemList: {
     gap: '2px',
-  } satisfies CSSObject),
-};
+  },
+});

@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import { useLocation, useNavigate } from 'react-router';
 
 import Button from '@/components/ui/button';
@@ -8,7 +7,7 @@ import Text from '@/components/ui/text';
 import { ArrowLeftIcon, BoxIcon } from '@/icons';
 import NotFoundIllustration from '@/pages/not-found/not-found-illustration/not-found-illustration';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { scoped, defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 const NotFound = () => {
@@ -78,8 +77,8 @@ NotFound.displayName = 'NotFound';
 
 export default NotFound;
 
-const styles = {
-  root: ({
+const styles = defineStyles({
+  root: {
     position: 'relative',
     display: 'flex',
     justifyContent: 'center',
@@ -115,8 +114,8 @@ const styles = {
     '@media (max-width: 768px)': {
       padding: theme.spacing[6],
     },
-  } satisfies CSSObject),
-  inner: ({
+  },
+  inner: {
     position: 'relative',
     zIndex: 1,
     display: 'flex',
@@ -129,8 +128,8 @@ const styles = {
       alignItems: 'stretch',
       gap: theme.spacing[8],
     },
-  } satisfies CSSObject),
-  copyCol: ({
+  },
+  copyCol: {
     display: 'flex',
     flex: '1 1 0',
     flexDirection: 'column',
@@ -141,14 +140,14 @@ const styles = {
       alignItems: 'center',
       textAlign: 'center',
     },
-  } satisfies CSSObject),
-  code: ({
+  },
+  code: {
     ...theme.typography.heading1(),
     color: theme.colors.text.subdued,
     opacity: 0.28,
     userSelect: 'none',
-  } satisfies CSSObject),
-  copy: ({
+  },
+  copy: {
     width: '100%',
     maxWidth: '420px',
     alignItems: 'flex-start',
@@ -157,8 +156,8 @@ const styles = {
       alignItems: 'center',
       textAlign: 'center',
     },
-  } satisfies CSSObject),
-  copyText: ({
+  },
+  copyText: {
     alignItems: 'flex-start',
     textAlign: 'left',
     '& > div span': {
@@ -171,8 +170,8 @@ const styles = {
       alignItems: 'center',
       textAlign: 'center',
     },
-  } satisfies CSSObject),
-  path: ({
+  },
+  path: {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'flex-start',
@@ -185,14 +184,14 @@ const styles = {
     borderRadius: theme.radius.lg,
     boxSizing: 'border-box',
     textAlign: 'left',
-  } satisfies CSSObject),
-  pathLabel: ({
+  },
+  pathLabel: {
     ...theme.typography.small('medium'),
     letterSpacing: '0.04em',
     textTransform: 'uppercase',
     color: theme.colors.text.subdued,
-  } satisfies CSSObject),
-  pathCode: ({
+  },
+  pathCode: {
     display: 'block',
     width: '100%',
     padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
@@ -205,8 +204,8 @@ const styles = {
     borderRadius: theme.radius.md,
     wordBreak: 'break-all',
     boxSizing: 'border-box',
-  } satisfies CSSObject),
-  actions: ({
+  },
+  actions: {
     flexWrap: 'wrap',
     justifyContent: 'flex-start',
     width: '100%',
@@ -214,8 +213,8 @@ const styles = {
     '@media (max-width: 768px)': {
       justifyContent: 'center',
     },
-  } satisfies CSSObject),
-  illustrationCol: ({
+  },
+  illustrationCol: {
     display: 'flex',
     flex: '1 1 0',
     justifyContent: 'center',
@@ -224,5 +223,5 @@ const styles = {
     '@media (max-width: 768px)': {
       order: 2,
     },
-  } satisfies CSSObject),
-};
+  },
+});

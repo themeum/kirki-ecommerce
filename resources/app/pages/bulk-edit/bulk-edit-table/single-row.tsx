@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import type {
   ChangeEvent,
   ComponentType,
@@ -19,7 +18,7 @@ import Flex from '@/components/ui/flex';
 import { TableCell, TableRow } from '@/components/ui/table';
 import { useAttributesQuery } from '@/services/attribute';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { scoped, defineStyles } from '@/theme/mixins';
 import type { MediaRef, ProductVariant, UnitPriceValue } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -720,12 +719,12 @@ SingleRow.displayName = 'SingleRow';
 
 export default SingleRow;
 
-const styles = {
-  stickyCell: ({
+const styles = defineStyles({
+  stickyCell: {
     minWidth: '260px',
     paddingRight: theme.spacing[3],
-  } satisfies CSSObject),
-  mutedText: ({
+  },
+  mutedText: {
     color: theme.colors.text.subdued,
-  } satisfies CSSObject),
-};
+  },
+});

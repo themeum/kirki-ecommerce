@@ -3,7 +3,7 @@ import * as LabelPrimitive from '@radix-ui/react-label';
 import { forwardRef, type ComponentPropsWithoutRef, type ElementRef } from 'react';
 
 import { theme } from '@/theme';
-import { scopedMerge } from '@/theme/mixins';
+import { scopedMerge, defineStyles } from '@/theme/mixins';
 
 type LabelProps = Omit<
   ComponentPropsWithoutRef<typeof LabelPrimitive.Root>,
@@ -31,7 +31,7 @@ Label.displayName = 'Label';
 
 export default Label;
 
-const styles = {
+const styles = defineStyles({
   root: {
     display: 'flex',
     alignItems: 'center',
@@ -52,5 +52,5 @@ const styles = {
       cursor: 'not-allowed',
       opacity: 0.5,
     },
-  } satisfies CSSObject,
-};
+  },
+});

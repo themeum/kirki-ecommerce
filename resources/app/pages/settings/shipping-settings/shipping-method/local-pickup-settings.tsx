@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import { useState } from 'react';
 
 import Checkbox from '@/components/ui/checkbox';
@@ -9,6 +8,7 @@ import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
 import Textarea from '@/components/ui/textarea';
 import { theme } from '@/theme';
+import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 import type { ShippingMethodData } from '@/pages/settings/shipping-settings/utils';
@@ -130,9 +130,9 @@ LocalPickupSettings.displayName = 'LocalPickupSettings';
 
 export default LocalPickupSettings;
 
-const styles = {
-  textarea: ({
+const styles = defineStyles({
+  textarea: {
     padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
     minHeight: '108px',
-  } satisfies CSSObject),
-};
+  },
+});

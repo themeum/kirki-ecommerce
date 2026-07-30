@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 import { ChevronsUpDown } from 'lucide-react';
 
@@ -11,7 +10,7 @@ import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui
 import Flex from '@/components/ui/flex';
 import { Separator } from '@/components/ui/separator';
 import { theme } from '@/theme';
-import { itemCenter, uiFocusRing, scoped, scopedMerge } from '@/theme/mixins';
+import { itemCenter, uiFocusRing, scoped, scopedMerge, defineStyles } from '@/theme/mixins';
 import type { LabelFieldProps, SelectOption, SelectState } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -198,8 +197,8 @@ GroupSelect.displayName = 'GroupSelect';
 
 export default GroupSelect;
 
-const styles = {
-  trigger: ({
+const styles = defineStyles({
+  trigger: {
     width: '100%',
     minHeight: '36px',
     border: `1px solid ${theme.colors.border.default}`,
@@ -217,16 +216,16 @@ const styles = {
       borderColor: theme.colors.border.default,
       ...uiFocusRing(theme),
     },
-  } satisfies CSSObject),
-  triggerError: ({
+  },
+  triggerError: {
     border: `1px solid ${theme.colors.border.critical}`,
     boxShadow: 'none',
     '&:focus-visible, &[data-state="open"]': {
       borderColor: theme.colors.border.critical,
       ...uiFocusRing(theme, theme.colors.border.critical),
     },
-  } satisfies CSSObject),
-  placeholder: ({
+  },
+  placeholder: {
     flex: 1,
     minWidth: 0,
     overflow: 'hidden',
@@ -234,27 +233,27 @@ const styles = {
     whiteSpace: 'nowrap',
     color: theme.colors.text.secondary,
     opacity: 0.8,
-  } satisfies CSSObject),
-  chevron: ({
+  },
+  chevron: {
     flexShrink: 0,
     color: theme.colors.text.secondary,
     opacity: 0.5,
-  } satisfies CSSObject),
-  contentWithFooter: ({
+  },
+  contentWithFooter: {
     paddingBottom: theme.spacing[0],
-  } satisfies CSSObject),
-  contentWithoutFooter: ({
+  },
+  contentWithoutFooter: {
     paddingBottom: theme.spacing[1],
-  } satisfies CSSObject),
-  footer: ({
+  },
+  footer: {
     padding: `${theme.spacing[2]} ${theme.spacing[4]} ${theme.spacing[2]} ${theme.spacing[3]}`,
     borderTop: `1px solid ${theme.colors.border.default}`,
     bottom: 0,
     position: 'sticky',
     backgroundColor: theme.colors.background.surface,
-  } satisfies CSSObject),
-  headingLabel: ({
+  },
+  headingLabel: {
     ...theme.typography.small('medium'),
     color: theme.colors.text.subdued,
-  } satisfies CSSObject),
-};
+  },
+});

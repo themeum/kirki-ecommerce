@@ -1,4 +1,4 @@
-import { css, type CSSObject } from '@emotion/react';
+import { css } from '@emotion/react';
 import { useState } from 'react';
 
 import { Card, CardContent } from '@/components/ui/card';
@@ -6,7 +6,7 @@ import Input from '@/components/ui/input';
 import Text from '@/components/ui/text';
 import Flex from '@/components/ui/flex';
 import { theme } from '@/theme';
-import { scoped, mergeCss } from '@/theme/mixins';
+import { scoped, mergeCss, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
@@ -63,8 +63,8 @@ export const SingleTaxRate = ({
 
 SingleTaxRate.displayName = 'SingleTaxRate';
 
-const styles = {
-  taxCard: ({
+const styles = defineStyles({
+  taxCard: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -72,7 +72,7 @@ const styles = {
     maxHeight: '44px',
     height: '44px',
     padding: theme.spacing[3],
-  } satisfies CSSObject),
+  },
   editGroup: css({
     display: 'none',
     pointerEvents: 'none',
@@ -82,15 +82,15 @@ const styles = {
     display: 'flex',
     pointerEvents: 'auto',
   }),
-  rateDisplay: ({
+  rateDisplay: {
     transition: 'opacity 0.2s',
     display: 'flex',
-  } satisfies CSSObject),
+  },
   rateDisplayHidden: css({
     display: 'none',
   }),
-  taxCardContent: ({
+  taxCardContent: {
     display: 'flex',
     alignItems: 'center',
-  } satisfies CSSObject)
-};
+  }
+});

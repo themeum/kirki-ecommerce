@@ -1,4 +1,4 @@
-import { css, type CSSObject } from '@emotion/react';
+import { css } from '@emotion/react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -11,7 +11,7 @@ import Text from '@/components/ui/text';
 import { EditPenIcon, LighteningIcon, TrashIcon } from '@/icons';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { mergeCss } from '@/theme/mixins';
+import { mergeCss, defineStyles } from '@/theme/mixins';
 import { __, sprintf } from '@/wpi18n';
 
 import { getDestinationDisplayValue } from '@/pages/settings/tax-settings/tax-region/tax-rules/helper';
@@ -191,7 +191,7 @@ TaxRules.displayName = 'TaxRules';
 
 export default TaxRules;
 
-const styles = {
+const styles = defineStyles({
   cardActions: css({
     display: 'none',
     pointerEvents: 'none',
@@ -201,7 +201,7 @@ const styles = {
     display: 'flex',
     pointerEvents: 'auto',
   }),
-  shippingRulesCard: ({
+  shippingRulesCard: {
     padding: theme.spacing[3],
     minHeight: '118px',
     borderRadius: theme.radius.none,
@@ -209,26 +209,26 @@ const styles = {
     display: 'flex',
     flexDirection: 'column',
     gap: theme.spacing[4],
-  } satisfies CSSObject),
-  shippingRulesCardSingle: ({
+  },
+  shippingRulesCardSingle: {
     borderRadius: theme.radius.lg,
-  } satisfies CSSObject),
-  shippingRulesCardBorderRadius: ({
+  },
+  shippingRulesCardBorderRadius: {
     '&:first-of-type': {
       borderRadius: `${theme.radius.lg} ${theme.radius.lg} ${theme.radius.none} ${theme.radius.none}`,
     },
     '&:last-of-type': {
       borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.lg} ${theme.radius.lg}`,
     },
-  } satisfies CSSObject),
-  rulesNumberBadge: ({
+  },
+  rulesNumberBadge: {
     maxHeight: '26px',
     maxWidth: 'fit-content',
     borderRadius: theme.radius.sm,
     display: 'flex',
     padding: `${theme.spacing[1]} ${theme.spacing[2]}`,
-  } satisfies CSSObject),
-  conditionValue: ({
+  },
+  conditionValue: {
     color: theme.colors.text.special3,
-  } satisfies CSSObject)
-};
+  }
+});

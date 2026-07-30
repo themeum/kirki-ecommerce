@@ -4,7 +4,7 @@ import * as PopoverPrimitive from '@radix-ui/react-popover';
 
 import { getPortalContainer } from '@/libs/portal-container';
 import { theme } from '@/theme';
-import { scopedMerge } from '@/theme/mixins';
+import { scopedMerge, defineStyles } from '@/theme/mixins';
 import { getOverlayMotionStyles } from '@/theme/overlay-motion';
 
 const Popover = PopoverPrimitive.Root;
@@ -43,8 +43,8 @@ PopoverContent.displayName = 'PopoverContent';
 
 export { Popover, PopoverTrigger, PopoverContent, PopoverAnchor };
 
-const styles = {
-  content: ({
+const styles = defineStyles({
+  content: {
     width: 'max-content',
     minWidth: '224px',
     maxWidth: '320px',
@@ -75,5 +75,5 @@ const styles = {
       ...theme.typography.small(),
       color: theme.colors.text.secondary,
     },
-  } satisfies CSSObject),
-};
+  },
+});

@@ -1,9 +1,8 @@
-import type { CSSObject } from '@emotion/react';
 import Checkbox from '@/components/ui/checkbox';
 import Flex from '@/components/ui/flex';
 import Label from '@/components/ui/label';
 import { theme } from '@/theme';
-import { itemCenter, scoped } from '@/theme/mixins';
+import { itemCenter, scoped, defineStyles } from '@/theme/mixins';
 import type { Category } from '@/types';
 
 type ProductCategorySelection = {
@@ -44,11 +43,11 @@ SingleItem.displayName = 'SingleItem';
 
 export default SingleItem;
 
-const styles = {
-  row: ({
+const styles = defineStyles({
+  row: {
     width: '100%',
     boxSizing: 'border-box',
     padding: `${theme.spacing[2]} ${theme.spacing[4]}`,
     ...itemCenter(),
-  } satisfies CSSObject),
-};
+  },
+});

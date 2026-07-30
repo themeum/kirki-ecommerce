@@ -1,9 +1,8 @@
-import type { CSSObject } from '@emotion/react';
 import { forwardRef, type ComponentPropsWithoutRef } from 'react';
 
 import Container from '@/components/ui/container';
 import { theme } from '@/theme';
-import { mergeCss } from '@/theme/mixins';
+import { mergeCss, defineStyles } from '@/theme/mixins';
 
 type FullPageContainerProps = ComponentPropsWithoutRef<typeof Container>;
 
@@ -28,10 +27,10 @@ FullPageContainer.displayName = 'FullPageContainer';
 
 export default FullPageContainer;
 
-const styles = {
-  root: ({
+const styles = defineStyles({
+  root: {
     minHeight: '100vh',
     maxWidth: '100%',
     backgroundColor: theme.colors.background.fill,
-  } satisfies CSSObject),
-};
+  },
+});

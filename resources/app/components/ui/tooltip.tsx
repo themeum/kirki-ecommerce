@@ -4,7 +4,7 @@ import * as TooltipPrimitive from '@radix-ui/react-tooltip';
 
 import { getPortalContainer } from '@/libs/portal-container';
 import { theme } from '@/theme';
-import { scopedMerge, scoped } from '@/theme/mixins';
+import { scopedMerge, scoped, defineStyles } from '@/theme/mixins';
 import type { TooltipPosition } from '@/types';
 
 const TooltipProvider = TooltipPrimitive.Provider;
@@ -88,12 +88,12 @@ TooltipContent.displayName = 'TooltipContent';
 export default Tooltip;
 export { TooltipProvider, TooltipRoot, TooltipTrigger, TooltipContent };
 
-const styles = {
-  trigger: ({
+const styles = defineStyles({
+  trigger: {
     display: 'inline-flex',
     alignItems: 'center',
-  } satisfies CSSObject),
-  content: ({
+  },
+  content: {
     zIndex: 1000,
     padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
     border: `1px solid ${theme.colors.border.default}`,
@@ -103,10 +103,10 @@ const styles = {
     width: 'max-content',
     ...theme.typography.small(),
     boxShadow: theme.shadow.md,
-  } satisfies CSSObject),
-  dark: ({
+  },
+  dark: {
     backgroundColor: theme.colors.background.inverse,
     boxShadow: 'none',
     color: theme.colors.text.light,
-  } satisfies CSSObject),
-};
+  },
+});

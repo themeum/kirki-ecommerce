@@ -4,7 +4,7 @@ import { forwardRef, type CSSProperties, type ReactNode } from 'react';
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import { ThumbnailPlaceholder } from '@/icons';
 import { theme } from '@/theme';
-import { flexCenter, scopedMerge } from '@/theme/mixins';
+import { flexCenter, scopedMerge, defineStyles } from '@/theme/mixins';
 
 type PlaceholderProps = {
   children?: ReactNode;
@@ -67,8 +67,8 @@ Placeholder.displayName = 'Placeholder';
 
 export default Placeholder;
 
-const styles = {
-  root: ({
+const styles = defineStyles({
+  root: {
     height: '137px',
     width: '100%',
     borderRadius: theme.radius.md,
@@ -78,24 +78,24 @@ const styles = {
     gap: theme.spacing[3],
     ...theme.typography.paragraph('medium'),
     color: theme.colors.text.secondary,
-  } satisfies CSSObject),
+  },
   types: {
-    primary: ({
+    primary: {
       backgroundColor: theme.colors.background.placeholderSurface,
-    } satisfies CSSObject),
-    secondary: ({
+    },
+    secondary: {
       backgroundColor: theme.colors.background.fillSpecial2Secondary,
       border: 'none',
-    } satisfies CSSObject),
+    },
   },
   sizes: {
-    large: ({
+    large: {
       height: '295px',
-    } satisfies CSSObject),
-    small: ({
+    },
+    small: {
       height: '32px',
       width: '32px',
       borderColor: theme.colors.border.default,
-    } satisfies CSSObject),
+    },
   },
-};
+});

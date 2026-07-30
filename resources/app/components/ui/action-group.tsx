@@ -1,8 +1,7 @@
-import type { CSSObject } from '@emotion/react';
 import { forwardRef, type ComponentPropsWithoutRef } from 'react';
 
 import Flex from '@/components/ui/flex';
-import { mergeCss } from '@/theme/mixins';
+import { mergeCss, defineStyles } from '@/theme/mixins';
 
 type ActionGroupProps = ComponentPropsWithoutRef<typeof Flex>;
 
@@ -28,9 +27,9 @@ ActionGroup.displayName = 'ActionGroup';
 
 export default ActionGroup;
 
-const styles = {
+const styles = defineStyles({
   root: {
     marginLeft: 'auto',
     alignItems: 'center',
-  } satisfies CSSObject,
-};
+  },
+});

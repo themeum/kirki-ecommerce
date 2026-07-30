@@ -6,7 +6,7 @@ import Button from '@/components/ui/button';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
-import { scoped, scopedMerge } from '@/theme/mixins';
+import { scoped, scopedMerge, defineStyles } from '@/theme/mixins';
 import { CSSObject } from '@emotion/react';
 
 type SettingsItemProps = {
@@ -101,26 +101,26 @@ SettingsItem.displayName = 'SettingsItem';
 
 export { SettingsItem };
 
-const highlightedRow = {
+const highlightedRow = defineStyles({
   backgroundColor: theme.colors.background.fillSecondary,
   borderRadius: theme.radius.xl,
-};
+});
 
-const highlightedHeading = {
+const highlightedHeading = defineStyles({
   color: theme.colors.background.fillBrand,
-};
+});
 
-const highlightedIcon = {
+const highlightedIcon = defineStyles({
   color: theme.colors.background.fillBrand,
-};
+});
 
 const showHighlightedAffordances: CSSObject = {
   opacity: 1,
   visibility: 'visible',
 };
 
-const styles = {
-  row: ({
+const styles = defineStyles({
+  row: {
     position: 'relative',
     display: 'flex',
     flexDirection: 'row',
@@ -141,29 +141,29 @@ const styles = {
       showHighlightedAffordances,
     '&:hover [data-settings-chevron], &:focus-visible [data-settings-chevron], &[data-active="true"] [data-settings-chevron]':
       showHighlightedAffordances,
-  } satisfies CSSObject),
-  rowOnly: ({
+  },
+  rowOnly: {
     borderRadius: theme.radius.xl,
-  } satisfies CSSObject),
-  rowFirst: ({
+  },
+  rowFirst: {
     borderTopLeftRadius: theme.radius.xl,
     borderTopRightRadius: theme.radius.xl,
     borderBottomLeftRadius: theme.radius.sm,
     borderBottomRightRadius: theme.radius.sm,
-  } satisfies CSSObject),
-  rowLast: ({
+  },
+  rowLast: {
     borderTopLeftRadius: theme.radius.sm,
     borderTopRightRadius: theme.radius.sm,
     borderBottomLeftRadius: theme.radius.xl,
     borderBottomRightRadius: theme.radius.xl,
-  } satisfies CSSObject),
-  rowMiddle: ({
+  },
+  rowMiddle: {
     borderRadius: theme.radius.sm,
-  } satisfies CSSObject),
-  rowDisabled: ({
+  },
+  rowDisabled: {
     cursor: 'default',
-  } satisfies CSSObject),
-  identifier: ({
+  },
+  identifier: {
     position: 'absolute',
     top: '8px',
     bottom: '8px',
@@ -174,13 +174,13 @@ const styles = {
     opacity: 0,
     visibility: 'hidden',
     transition: 'opacity 0.2s ease, visibility 0.2s ease',
-  } satisfies CSSObject),
-  content: ({
+  },
+  content: {
     alignItems: 'flex-start',
     flex: 1,
     minWidth: 0,
-  } satisfies CSSObject),
-  iconWrap: ({
+  },
+  iconWrap: {
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -188,14 +188,14 @@ const styles = {
     marginTop: theme.spacing[1],
     color: theme.colors.icon.primary,
     transition: 'color 0.2s ease',
-  } satisfies CSSObject),
-  textWrap: ({
+  },
+  textWrap: {
     minWidth: 0,
-  } satisfies CSSObject),
-  heading: ({
+  },
+  heading: {
     transition: 'color 0.2s ease',
-  } satisfies CSSObject),
-  actionButton: ({
+  },
+  actionButton: {
     flexShrink: 0,
     opacity: 0,
     visibility: 'hidden',
@@ -206,5 +206,5 @@ const styles = {
       backgroundColor: theme.colors.background.fillSecondaryHover,
       color: theme.colors.background.fillBrand,
     },
-  } satisfies CSSObject),
-};
+  },
+});

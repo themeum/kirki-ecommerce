@@ -1,11 +1,10 @@
-import type { CSSObject } from '@emotion/react';
 import { Select, SelectContent, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Button from '@/components/ui/button';
 import { InfoIcon } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
 import { theme } from '@/theme';
-import { flexCenter, scoped } from '@/theme/mixins';
+import { flexCenter, scoped, defineStyles } from '@/theme/mixins';
 
 const TableInfo = () => {
   return (
@@ -50,12 +49,12 @@ const TableInfo = () => {
 
 export default TableInfo;
 
-const styles = {
+const styles = defineStyles({
   svgClass: scoped(flexCenter()),
-  selectTrigger: ({
+  selectTrigger: {
     padding: `${theme.spacing[2]} ${theme.spacing[4]}`,
-  } satisfies CSSObject),
-  mediumText: ({
+  },
+  mediumText: {
     ...theme.typography.paragraph('medium'),
-  } satisfies CSSObject),
-};
+  },
+});

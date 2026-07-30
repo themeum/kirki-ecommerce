@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router';
 
@@ -10,7 +9,7 @@ import Badge from '@/components/ui/badge';
 import Flex from '@/components/ui/flex';
 import { endpoints } from '@/libs/endpoints';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { scoped, defineStyles } from '@/theme/mixins';
 import type { PaginatedData } from '@/types';
 import { getBadgeVariantForStatus } from '@/utils/badge-status';
 import { __ } from '@/wpi18n';
@@ -136,11 +135,11 @@ CouponTable.displayName = 'CouponTable';
 
 export default CouponTable;
 
-const styles = {
-  clickable: ({
+const styles = defineStyles({
+  clickable: {
     cursor: 'pointer',
-  } satisfies CSSObject),
-  mutedText: ({
+  },
+  mutedText: {
     color: theme.colors.text.subdued,
-  } satisfies CSSObject),
-};
+  },
+});

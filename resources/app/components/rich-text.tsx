@@ -1,9 +1,9 @@
-import { type SerializedStyles, type CSSObject } from '@emotion/react';
+import { type SerializedStyles } from '@emotion/react';
 import { useEffect, useRef } from 'react';
 
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import { theme } from '@/theme';
-import { scopedMerge } from '@/theme/mixins';
+import { scopedMerge, defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 type RichTextProps = {
@@ -101,8 +101,8 @@ RichText.displayName = 'RichText';
 
 export default RichText;
 
-const styles = {
-  root: ({
+const styles = defineStyles({
+  root: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'flex-start',
@@ -120,8 +120,8 @@ const styles = {
     '.mce-top-part::before': {
       boxShadow: 'none',
     },
-  } satisfies CSSObject),
-  controller: ({
+  },
+  controller: {
     width: '100%',
     display: 'flex',
     flexDirection: 'column',
@@ -129,5 +129,5 @@ const styles = {
     alignItems: 'flex-start',
     rowGap: theme.spacing[2],
     position: 'relative',
-  } satisfies CSSObject),
-};
+  },
+});

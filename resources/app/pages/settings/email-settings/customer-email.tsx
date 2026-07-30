@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import { useMemo } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 
@@ -10,7 +9,7 @@ import Text from '@/components/ui/text';
 import { CartIcon, PersonIcon, UserIcon } from '@/icons';
 import type { EmailSettingsFormValues } from '@/schemas/forms/email-settings-form';
 import { theme } from '@/theme';
-;
+import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 import { mapEmailGroup } from '@/pages/settings/email-settings/utils';
@@ -109,8 +108,8 @@ CustomerEmail.displayName = 'CustomerEmail';
 
 export default CustomerEmail;
 
-const styles = {
-  roundedCard: ({
+const styles = defineStyles({
+  roundedCard: {
     borderRadius: theme.radius.xl,
-  } satisfies CSSObject),
-};
+  },
+});

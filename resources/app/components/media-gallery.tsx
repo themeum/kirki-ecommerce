@@ -12,7 +12,7 @@ import Checkbox from '@/components/ui/checkbox';
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
 import { theme } from '@/theme';
-import { flexCenter, scoped, scopedMerge } from '@/theme/mixins';
+import { flexCenter, scoped, scopedMerge, defineStyles } from '@/theme/mixins';
 import type { MediaRef } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -60,10 +60,10 @@ const SortableItem = ({
     isDragging,
   } = useSortable({ id, disabled: disableDrag });
 
-  const style = {
+  const style = defineStyles({
     transform: CSS.Transform.toString(transform),
     transition,
-  };
+  });
 
   const scaleX = transform?.scaleX;
   const scaleY = transform?.scaleY;
@@ -331,13 +331,13 @@ const MediaGallery = ({
 
 export default MediaGallery;
 
-const styles = {
-  mediaGallery: ({
+const styles = defineStyles({
+  mediaGallery: {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fill, minmax(138px, 1fr))',
     gap: theme.spacing[3],
-  } satisfies CSSObject),
-  galleryItem: ({
+  },
+  galleryItem: {
     aspectRatio: '1 / 1',
     overflow: 'hidden',
     position: 'relative',
@@ -355,12 +355,12 @@ const styles = {
     '&:hover [data-gallery-overlay], &:hover [data-gallery-actions]': {
       opacity: 1,
     },
-  } satisfies CSSObject),
-  galleryItemLarge: ({
+  },
+  galleryItemLarge: {
     gridColumn: 'span 2',
     gridRow: 'span 2',
-  } satisfies CSSObject),
-  itemOverlay: ({
+  },
+  itemOverlay: {
     position: 'absolute',
     inset: 0,
     background: theme.colors.background.badgeDraft,
@@ -368,11 +368,11 @@ const styles = {
     transition: 'opacity 0.2s ease',
     zIndex: 2,
     ...flexCenter(),
-  } satisfies CSSObject),
-  itemActive: ({
+  },
+  itemActive: {
     opacity: 1,
-  } satisfies CSSObject),
-  itemActions: ({
+  },
+  itemActions: {
     position: 'absolute',
     top: '8px',
     left: '6px',
@@ -383,13 +383,13 @@ const styles = {
     justifyContent: 'space-between',
     opacity: 0,
     transition: 'opacity 0.2s ease',
-  } satisfies CSSObject),
-  remainingOverlay: ({
+  },
+  remainingOverlay: {
     img: {
       transform: 'scale(1.05)',
     },
-  } satisfies CSSObject),
-  remainingOverlayText: ({
+  },
+  remainingOverlayText: {
     position: 'absolute',
     inset: 0,
     ...theme.typography.large('normal'),
@@ -397,8 +397,8 @@ const styles = {
     background: theme.colors.background.badgeDraft,
     borderRadius: 'inherit',
     ...flexCenter(),
-  } satisfies CSSObject),
-  addItem: ({
+  },
+  addItem: {
     border: `2px dashed ${theme.colors.border.gallery}`,
     color: theme.colors.background.fillBrand,
     cursor: 'pointer',
@@ -407,15 +407,15 @@ const styles = {
     '&:hover': {
       background: theme.colors.background.galleryHover,
     },
-  } satisfies CSSObject),
-  dragHandlerButton: ({
+  },
+  dragHandlerButton: {
     borderRadius: theme.radius.full,
     cursor: 'grab',
     '&:active': {
       cursor: 'grabbing',
     },
-  } satisfies CSSObject),
-  deleteButton: ({
+  },
+  deleteButton: {
     color: theme.colors.text.critical,
-  } satisfies CSSObject),
-};
+  },
+});

@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import { useState, useEffect, type ReactNode } from 'react';
 import { useNavigate } from 'react-router';
 
@@ -11,7 +10,7 @@ import { dispatchToastMessage } from '@/pages/utils';
 import { useAttributesQuery, useDeleteAttributeMutation } from '@/services/attribute';
 import type { Attribute } from '@/types';
 import { theme } from '@/theme';
-import { scoped, mergeCss } from '@/theme/mixins';
+import { scoped, mergeCss, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
@@ -118,8 +117,8 @@ VariationList.displayName = 'VariationList';
 
 export default VariationList;
 
-const styles = {
-  boxWrapper: ({
+const styles = defineStyles({
+  boxWrapper: {
     '[data-box-card]': {
       borderTop: 'none',
       borderRadius: theme.radius.none,
@@ -131,11 +130,11 @@ const styles = {
     '[data-box-card]:last-of-type': {
       borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.md} ${theme.radius.md}`,
     },
-  } satisfies CSSObject),
-  emptyState: ({
+  },
+  emptyState: {
     padding: `${theme.spacing[9]} ${theme.spacing[0]}`,
-  } satisfies CSSObject),
-  emptyStateText: ({
+  },
+  emptyStateText: {
     color: theme.colors.text.subdued,
-  } satisfies CSSObject)
-};
+  }
+});

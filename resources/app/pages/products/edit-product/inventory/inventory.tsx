@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import { useEffect, type Dispatch, type SetStateAction } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -20,7 +19,7 @@ import Grid from '@/components/ui/grid';
 import { useProductForm } from '@/contexts/product-form-context';
 import { mapProductInventoryFromProduct, ProductInventoryFormSchema, productInventoryDefaultValues, type ProductInventoryFormValues } from '@/schemas/forms/product-inventory-form';
 import type { FormErrors } from '@/types';
-import { mergeCss } from '@/theme/mixins';
+import { mergeCss, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
@@ -234,11 +233,11 @@ Inventory.displayName = 'Inventory';
 
 export default Inventory;
 
-const styles = {
-  innerDarkNarrowCard: ({
+const styles = defineStyles({
+  innerDarkNarrowCard: {
     width: '30%',
-  } satisfies CSSObject),
-  innerDarkRowContent: ({
+  },
+  innerDarkRowContent: {
     padding: `${theme.spacing[1]} ${theme.spacing[2]} ${theme.spacing[1]} ${theme.spacing[3]}`,
-  } satisfies CSSObject)
-};
+  }
+});

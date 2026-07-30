@@ -4,7 +4,7 @@ import { forwardRef, useMemo, type ComponentPropsWithoutRef, type ElementRef, ty
 import Label from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { theme } from '@/theme';
-import { mergeCss, scoped, scopedMerge } from '@/theme/mixins';
+import { mergeCss, scoped, scopedMerge, defineStyles } from '@/theme/mixins';
 
 type FieldOrientation = 'vertical' | 'horizontal' | 'responsive';
 
@@ -311,7 +311,7 @@ export {
   FieldTitle
 };
 
-const styles = {
+const styles = defineStyles({
   fieldSet: {
     display: 'flex',
     flexDirection: 'column',
@@ -324,18 +324,18 @@ const styles = {
     {
       gap: theme.spacing[3],
     },
-  } satisfies CSSObject,
+  },
   fieldLegend: {
     marginBottom: theme.spacing[3],
     padding: 0,
     fontWeight: theme.typography.fontWeight.medium,
-  } satisfies CSSObject,
+  },
   fieldLegendVariant: {
     ...theme.typography.paragraph('medium'),
-  } satisfies CSSObject,
+  },
   fieldLegendLabel: {
     ...theme.typography.small('medium'),
-  } satisfies CSSObject,
+  },
   fieldGroup: {
     display: 'flex',
     width: '100%',
@@ -347,7 +347,7 @@ const styles = {
     '& > [data-slot="field-group"]': {
       gap: theme.spacing[4],
     },
-  } satisfies CSSObject,
+  },
   field: {
     display: 'flex',
     width: '100%',
@@ -358,14 +358,14 @@ const styles = {
     '&[data-invalid="true"] [data-slot="field-label"]': {
       color: theme.colors.text.critical,
     },
-  } satisfies CSSObject,
+  },
   orientations: {
     vertical: {
       flexDirection: 'column',
       '& > *': {
         width: '100%',
       },
-    } satisfies CSSObject,
+    },
     horizontal: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -381,7 +381,7 @@ const styles = {
       {
         marginTop: '1px',
       },
-    } satisfies CSSObject,
+    },
     responsive: {
       flexDirection: 'column',
       '& > *': {
@@ -404,7 +404,7 @@ const styles = {
           marginTop: '1px',
         },
       },
-    } satisfies CSSObject,
+    },
   } as const,
   fieldContent: {
     display: 'flex',
@@ -412,7 +412,7 @@ const styles = {
     flexDirection: 'column',
     gap: theme.spacing[2],
     lineHeight: 1.375,
-  } satisfies CSSObject,
+  },
   fieldLabel: {
     display: 'flex',
     width: 'fit-content',
@@ -433,7 +433,7 @@ const styles = {
       borderColor: theme.colors.background.fillBrand,
       backgroundColor: theme.colors.background.fillSecondary,
     },
-  } satisfies CSSObject,
+  },
   fieldTitle: {
     display: 'flex',
     width: 'fit-content',
@@ -444,7 +444,7 @@ const styles = {
     '.group[data-disabled="true"] &': {
       opacity: 0.5,
     },
-  } satisfies CSSObject,
+  },
   fieldDescription: {
     ...theme.typography.small(),
     fontWeight: theme.typography.fontWeight.normal,
@@ -460,19 +460,19 @@ const styles = {
     '& > a:hover': {
       color: theme.colors.text.brand,
     },
-  } satisfies CSSObject,
+  },
   fieldSeparator: {
     position: 'relative',
     height: '20px',
     marginTop: `calc(${theme.spacing[2]} * -1)`,
     marginBottom: `calc(${theme.spacing[2]} * -1)`,
     ...theme.typography.small(),
-  } satisfies CSSObject,
+  },
   fieldSeparatorLine: {
     position: 'absolute',
     inset: '0',
     margin: 'auto',
-  } satisfies CSSObject,
+  },
   fieldSeparatorContent: {
     position: 'relative',
     display: 'block',
@@ -483,12 +483,12 @@ const styles = {
     paddingRight: theme.spacing[2],
     backgroundColor: theme.colors.background.fill,
     color: theme.colors.text.secondary,
-  } satisfies CSSObject,
+  },
   fieldError: {
     ...theme.typography.small(),
     fontWeight: theme.typography.fontWeight.normal,
     color: theme.colors.text.critical,
-  } satisfies CSSObject,
+  },
   fieldErrorList: {
     margin: 0,
     marginLeft: theme.spacing[4],
@@ -497,7 +497,7 @@ const styles = {
     listStyleType: 'disc',
     flexDirection: 'column',
     gap: theme.spacing[1],
-  } satisfies CSSObject,
-};
+  },
+});
 
 export const fieldErrorStyle = scoped(styles.fieldError);

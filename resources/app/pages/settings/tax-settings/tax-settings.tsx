@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import { useEffect } from 'react';
 import { Controller, useForm, useFormContext, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -21,7 +20,7 @@ import PageHeading from '@/components/ui/page-heading';
 import { Separator } from '@/components/ui/separator';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
-;
+import { defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import { TaxSettingsFormSchema, taxSettingsDefaultValues, type TaxSettingsFormValues } from '@/schemas/forms/tax-settings-form';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
@@ -267,11 +266,11 @@ TaxSettings.displayName = 'TaxSettings';
 
 export default TaxSettings;
 
-const styles = {
-  separator: ({
+const styles = defineStyles({
+  separator: {
     marginBottom: theme.spacing[3],
-  } satisfies CSSObject),
-  taxCollectionHeader: ({
+  },
+  taxCollectionHeader: {
     gap: theme.spacing[2],
-  } satisfies CSSObject)
-};
+  }
+});

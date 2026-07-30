@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import { type Dispatch, type SetStateAction } from 'react';
 
 import Button from '@/components/ui/button';
@@ -10,7 +9,7 @@ import ProgressBar from '@/components/ui/progressbar';
 import Text from '@/components/ui/text';
 import type { SettingsSectionData } from '@/types';
 import { theme } from '@/theme';
-;
+import { defineStyles } from '@/theme/mixins';
 import { __, sprintf } from '@/wpi18n';
 
 import { dateFormatter } from '@/pages/utils';
@@ -124,17 +123,17 @@ ApiConfigurationCard.displayName = 'ApiConfigurationCard';
 
 export default ApiConfigurationCard;
 
-const styles = {
-  innerDarkCard: ({
+const styles = defineStyles({
+  innerDarkCard: {
     borderRadius: theme.radius.sm,
     backgroundColor: theme.colors.background.surfaceSecondary,
     border: 'none',
     padding: theme.spacing[0],
-  } satisfies CSSObject),
-  innerDarkContent: ({
+  },
+  innerDarkContent: {
     display: 'flex',
     flexDirection: 'column',
     gap: theme.spacing[1],
     padding: theme.spacing[2],
-  } satisfies CSSObject),
-};
+  },
+});

@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import { useState, useEffect, useRef } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -24,7 +23,7 @@ import { useCountriesQuery } from '@/services/country';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import type { FormErrors, SelectOption, SettingsSectionData } from '@/types';
 import { theme } from '@/theme';
-import { scoped, mergeCss } from '@/theme/mixins';
+import { scoped, mergeCss, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import { __, sprintf } from '@/wpi18n';
 
@@ -384,11 +383,11 @@ ShippingSettings.displayName = 'ShippingSettings';
 
 export default ShippingSettings;
 
-const styles = {
-  emptyState: ({
+const styles = defineStyles({
+  emptyState: {
     padding: `${theme.spacing[9]} ${theme.spacing[0]}`,
-  } satisfies CSSObject),
-  emptyStateText: ({
+  },
+  emptyStateText: {
     color: theme.colors.text.subdued,
-  } satisfies CSSObject)
-};
+  }
+});

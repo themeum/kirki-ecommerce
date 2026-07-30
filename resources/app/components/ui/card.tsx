@@ -2,7 +2,7 @@ import type { CSSObject } from '@emotion/react';
 import { forwardRef, type ComponentPropsWithoutRef } from 'react';
 
 import { theme } from '@/theme';
-import { scopedMerge } from '@/theme/mixins';
+import { scopedMerge, defineStyles } from '@/theme/mixins';
 
 type CardProps = Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'css'> & {
   cssOverride?: CSSObject;
@@ -101,7 +101,7 @@ export {
 };
 export type { CardProps };
 
-const styles = {
+const styles = defineStyles({
   card: {
     display: 'flex',
     flexDirection: 'column',
@@ -113,30 +113,30 @@ const styles = {
     backgroundColor: theme.colors.background.fill,
     color: theme.colors.text.primary,
     boxSizing: 'border-box',
-  } satisfies CSSObject,
+  },
   header: {
     display: 'flex',
     flexDirection: 'column',
     gap: theme.spacing[2],
     paddingInline: theme.spacing[4],
-  } satisfies CSSObject,
+  },
   title: {
     margin: 0,
     ...theme.typography.paragraph('semibold'),
     color: theme.colors.text.primary,
-  } satisfies CSSObject,
+  },
   description: {
     margin: 0,
     ...theme.typography.small(),
     color: theme.colors.text.secondary,
-  } satisfies CSSObject,
+  },
   content: {
     paddingInline: theme.spacing[4],
-  } satisfies CSSObject,
+  },
   footer: {
     display: 'flex',
     alignItems: 'center',
     gap: theme.spacing[2],
     paddingInline: theme.spacing[4],
-  } satisfies CSSObject,
-};
+  },
+});

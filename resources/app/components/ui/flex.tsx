@@ -2,7 +2,7 @@ import type { CSSObject } from '@emotion/react';
 import { forwardRef, type ComponentPropsWithoutRef } from 'react';
 
 import { resolveGap } from '@/components/ui/layout-utils';
-import { scopedMerge } from '@/theme/mixins';
+import { scopedMerge, defineStyles } from '@/theme/mixins';
 import type {
   FlexAlign,
   FlexBasis,
@@ -78,14 +78,14 @@ Flex.displayName = 'Flex';
 
 export default Flex;
 
-const styles = {
+const styles = defineStyles({
   root: {
     display: 'flex',
-  } satisfies CSSObject,
+  },
   column: {
     flexDirection: 'column',
-  } satisfies CSSObject,
+  },
   row: {
     flexDirection: 'row',
-  } satisfies CSSObject,
-};
+  },
+});

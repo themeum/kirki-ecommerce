@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import { useState } from 'react';
 
 import DropdownButton from '@/components/dropdown-button';
@@ -14,7 +13,7 @@ import { dispatchToastMessage } from '@/pages/utils';
 import { getPaymentGateway, useSetEnabledPaymentGatewayMutation } from '@/services/payment';
 import type { PaymentGateway } from '@/types';
 import { theme } from '@/theme';
-import { scoped, mergeCss } from '@/theme/mixins';
+import { scoped, mergeCss, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import { __, sprintf } from '@/wpi18n';
 
@@ -177,14 +176,14 @@ const PaymentGatewayComponent = (props: PaymentGatewayProps) => {
 
 PaymentGatewayComponent.displayName = 'PaymentGatewayComponent';
 
-const styles = {
-  emptyStateContent: ({ padding: `${theme.spacing[9]} 0` } satisfies CSSObject),
-  gatewayItemContent: ({
+const styles = defineStyles({
+  emptyStateContent: { padding: `${theme.spacing[9]} 0` },
+  gatewayItemContent: {
     padding: `${theme.spacing[3]} ${theme.spacing[4]}`,
-  } satisfies CSSObject),
-  mutedText: ({
+  },
+  mutedText: {
     color: theme.colors.text.subdued,
-  } satisfies CSSObject),
-};
+  },
+});
 
 export default PaymentGatewayComponent;

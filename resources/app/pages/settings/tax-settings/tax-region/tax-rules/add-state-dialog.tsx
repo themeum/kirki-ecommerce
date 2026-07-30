@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import { useEffect, useState, type Dispatch, type SetStateAction } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -13,7 +12,7 @@ import Label from '@/components/ui/label';
 import Flex from '@/components/ui/flex';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { scoped } from '@/theme/mixins';
+import { scoped, defineStyles } from '@/theme/mixins';
 import { AddStatePopupFormSchema, type AddStatePopupFormValues } from '@/schemas/forms/add-state-popup-form';
 import { __, sprintf } from '@/wpi18n';
 
@@ -190,13 +189,13 @@ export const AddStatePopup = (props: AddStatePopupProps) => {
 
 AddStatePopup.displayName = 'AddStatePopup';
 
-const styles = {
-  checkboxItemIndented: ({
+const styles = defineStyles({
+  checkboxItemIndented: {
     width: 'auto',
     padding: `${theme.spacing[2]} ${theme.spacing[5]}`,
     '&:hover': {
       background: theme.colors.background.surfaceSecondary,
       borderRadius: theme.radius.sm,
     },
-  } satisfies CSSObject),
-};
+  },
+});

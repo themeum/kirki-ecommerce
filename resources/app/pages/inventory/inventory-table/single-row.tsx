@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import Input from '@/components/ui/input';
 import { useInventoryForm } from '@/contexts/inventory-form-context';
 import Checkbox from '@/components/ui/checkbox';
@@ -6,7 +5,7 @@ import Flex from '@/components/ui/flex';
 import { TableCell, TableRow } from '@/components/ui/table';
 import Thumbnail from '@/components/ui/thumbnail';
 import { theme } from '@/theme';
-;
+import { defineStyles } from '@/theme/mixins';
 import type { InventoryVariant, MarkListHandlers } from '@/types';
 
 import { calculateProfit } from '@/pages/utils';
@@ -112,22 +111,22 @@ SingleRow.displayName = 'SingleRow';
 
 export default SingleRow;
 
-const styles = {
-  productCell: ({
+const styles = defineStyles({
+  productCell: {
     minWidth: '208px',
     padding: `7px ${theme.spacing[3]}`,
-  } satisfies CSSObject),
-  inputCell: ({
+  },
+  inputCell: {
     padding: theme.spacing[0],
-  } satisfies CSSObject),
-  profitCell: ({
+  },
+  profitCell: {
     padding: theme.spacing[0],
     pointerEvents: 'none',
-  } satisfies CSSObject),
-  mutedText: ({
+  },
+  mutedText: {
     color: theme.colors.text.subdued,
-  } satisfies CSSObject),
-  tableInput: ({
+  },
+  tableInput: {
     ...theme.typography.small(),
-  } satisfies CSSObject),
-};
+  },
+});

@@ -6,7 +6,7 @@ import { Eye, EyeOff } from 'lucide-react';
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import Input from '@/components/ui/input';
 import { theme } from '@/theme';
-import { flexCenter, scoped } from '@/theme/mixins';
+import { flexCenter, scoped, defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 type PasswordFieldProps<
@@ -81,14 +81,14 @@ PasswordField.displayName = 'PasswordField';
 
 export default PasswordField;
 
-const styles = {
+const styles = defineStyles({
   wrapper: {
     position: 'relative',
     width: '100%',
-  } satisfies CSSObject,
+  },
   input: {
     paddingRight: '40px',
-  } satisfies CSSObject,
+  },
   toggle: {
     ...flexCenter(),
     position: 'absolute',
@@ -107,5 +107,5 @@ const styles = {
       color: theme.colors.text.primary,
       outline: 'none',
     },
-  } satisfies CSSObject,
-};
+  },
+});

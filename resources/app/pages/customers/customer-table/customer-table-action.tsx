@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import { Select, SelectContent, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Button from '@/components/ui/button';
 import { ArrowDownUp, ListFilter } from '@/icons';
@@ -7,7 +6,7 @@ import Flex from '@/components/ui/flex';
 import Searchbox from '@/components/ui/searchbox';
 import { useListParams } from '@/hooks';
 import { theme } from '@/theme';
-;
+import { defineStyles } from '@/theme/mixins';
 
 const CustomerTableAction = () => {
   const { params, setParam } = useListParams({
@@ -63,11 +62,11 @@ CustomerTableAction.displayName = 'CustomerTableAction';
 
 export default CustomerTableAction;
 
-const styles = {
-  wrapper: ({
+const styles = defineStyles({
+  wrapper: {
     padding: `${theme.spacing[4]} ${theme.spacing[3]}`,
-  } satisfies CSSObject),
-  selectTrigger: ({
+  },
+  selectTrigger: {
     padding: `${theme.spacing[2]} ${theme.spacing[4]}`,
-  } satisfies CSSObject),
-};
+  },
+});

@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import { useState, useMemo, useEffect, type Dispatch, type SetStateAction } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -13,7 +12,7 @@ import Label from '@/components/ui/label';
 import Flex from '@/components/ui/flex';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { scoped } from '@/theme/mixins';
+import { scoped, defineStyles } from '@/theme/mixins';
 import { TaxRegionPopupFormSchema, type TaxRegionPopupFormValues } from '@/schemas/forms/tax-region-popup-form';
 import { useCountriesQuery } from '@/services/country';
 import type { FormErrors } from '@/types';
@@ -359,16 +358,16 @@ TaxRegionPopup.displayName = 'TaxRegionPopup';
 
 export default TaxRegionPopup;
 
-const styles = {
-  checkboxItem: ({
+const styles = defineStyles({
+  checkboxItem: {
     width: 'auto',
     padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
     '&:hover': {
       background: theme.colors.background.surfaceSecondary,
       borderRadius: theme.radius.sm,
     },
-  } satisfies CSSObject),
-  nestedStates: ({
+  },
+  nestedStates: {
     padding: theme.spacing[3],
-  } satisfies CSSObject),
-};
+  },
+});

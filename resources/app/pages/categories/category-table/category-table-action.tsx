@@ -1,9 +1,8 @@
-import type { CSSObject } from '@emotion/react';
 import Flex from '@/components/ui/flex';
 import Searchbox from '@/components/ui/searchbox';
 import { useListParams } from '@/hooks';
 import { theme } from '@/theme';
-;
+import { defineStyles } from '@/theme/mixins';
 
 const CategoryTableAction = () => {
   const { params, setParam } = useListParams({
@@ -36,8 +35,8 @@ CategoryTableAction.displayName = 'CategoryTableAction';
 
 export default CategoryTableAction;
 
-const styles = {
-  wrapper: ({
+const styles = defineStyles({
+  wrapper: {
     padding: `${theme.spacing[4]} ${theme.spacing[3]}`,
-  } satisfies CSSObject),
-};
+  },
+});

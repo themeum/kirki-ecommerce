@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import { useEffect, useMemo, useState, type Dispatch, type SetStateAction } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -13,7 +12,7 @@ import Label from '@/components/ui/label';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { scoped, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import { AddCitiesPopupFormSchema, type AddCitiesPopupFormValues } from '@/schemas/forms/add-cities-popup-form';
 import { __ } from '@/wpi18n';
@@ -228,16 +227,16 @@ AddCitiesPopup.displayName = 'AddCitiesPopup';
 
 export default AddCitiesPopup;
 
-const styles = {
-  checkboxItemIndented: ({
+const styles = defineStyles({
+  checkboxItemIndented: {
     width: 'auto',
     padding: `${theme.spacing[2]} ${theme.spacing[5]}`,
     '&:hover': {
       background: theme.colors.background.surfaceSecondary,
       borderRadius: theme.radius.sm,
     },
-  } satisfies CSSObject),
-  emptyCitiesCard: ({
+  },
+  emptyCitiesCard: {
     padding: `${theme.spacing[9]} 0`,
-  } satisfies CSSObject),
-};
+  },
+});

@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 
@@ -12,7 +11,7 @@ import PageHeading from '@/components/ui/page-heading';
 import { useAttributeQuery } from '@/services/attribute';
 import type { Attribute, AttributeValue, TaxonomyTableHeader } from '@/types';
 import { theme } from '@/theme';
-import { scoped, mergeCss } from '@/theme/mixins';
+import { scoped, mergeCss, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import { __, sprintf } from '@/wpi18n';
 
@@ -104,19 +103,19 @@ ListVariation.displayName = 'ListVariation';
 
 export default ListVariation;
 
-const styles = {
-  addValueButton: ({
+const styles = defineStyles({
+  addValueButton: {
     color: theme.colors.text.emphasis,
     padding: theme.spacing[0],
-  } satisfies CSSObject),
-  roundedCard: ({
+  },
+  roundedCard: {
     borderRadius: theme.radius.lg,
-  } satisfies CSSObject),
-  emptyContent: ({
+  },
+  emptyContent: {
     padding: `${theme.spacing[9]} 0`,
-  } satisfies CSSObject),
-  mutedText: ({
+  },
+  mutedText: {
     color: theme.colors.text.subdued,
-  } satisfies CSSObject),
-};
+  },
+});
 

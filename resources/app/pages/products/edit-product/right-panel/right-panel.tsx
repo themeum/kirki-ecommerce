@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
@@ -10,7 +9,7 @@ import { Form } from '@/components/ui/form';
 import { useProductForm } from '@/contexts/product-form-context';
 import { ProductRightPanelFormSchema, productRightPanelDefaultValues, type ProductRightPanelFormValues } from '@/schemas/forms/product-right-panel-form';
 import { theme } from '@/theme';
-;
+import { defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import type { Product } from '@/types';
 import { __ } from '@/wpi18n';
@@ -108,10 +107,10 @@ RightPanel.displayName = 'RightPanel';
 
 export default RightPanel;
 
-const styles = {
-  fields: ({
+const styles = defineStyles({
+  fields: {
     display: 'flex',
     flexDirection: 'column',
     gap: theme.spacing[4],
-  } satisfies CSSObject)
-};
+  }
+});

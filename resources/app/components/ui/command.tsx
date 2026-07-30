@@ -4,7 +4,7 @@ import { Command as CommandPrimitive } from 'cmdk';
 import { Search } from 'lucide-react';
 
 import { theme } from '@/theme';
-import { itemCenter, scopedMerge, scoped } from '@/theme/mixins';
+import { itemCenter, scopedMerge, scoped, defineStyles } from '@/theme/mixins';
 
 type CommandProps = Omit<
   ComponentPropsWithoutRef<typeof CommandPrimitive>,
@@ -170,16 +170,16 @@ export {
   CommandShortcut,
 };
 
-const styles = {
-  root: ({
+const styles = defineStyles({
+  root: {
     display: 'flex',
     flexDirection: 'column',
     width: '100%',
     overflow: 'hidden',
     backgroundColor: theme.colors.background.fill,
     borderRadius: theme.radius.md,
-  } satisfies CSSObject),
-  inputWrapper: ({
+  },
+  inputWrapper: {
     ...itemCenter(),
     justifyContent: 'flex-start',
     gap: theme.spacing[2],
@@ -187,12 +187,12 @@ const styles = {
     padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
     borderBottom: `1px solid ${theme.colors.border.default}`,
     boxSizing: 'border-box',
-  } satisfies CSSObject),
-  searchIcon: ({
+  },
+  searchIcon: {
     flexShrink: 0,
     color: theme.colors.text.secondary,
-  } satisfies CSSObject),
-  input: ({
+  },
+  input: {
     flex: 1,
     width: '100%',
     minHeight: '28px',
@@ -208,20 +208,20 @@ const styles = {
       color: theme.colors.text.secondary,
       opacity: 0.8,
     },
-  } satisfies CSSObject),
-  list: ({
+  },
+  list: {
     maxHeight: '240px',
     overflowY: 'auto',
     overflowX: 'hidden',
     padding: theme.spacing[1],
-  } satisfies CSSObject),
-  empty: ({
+  },
+  empty: {
     padding: `${theme.spacing[4]} ${theme.spacing[2]}`,
     textAlign: 'center',
     ...theme.typography.small(),
     color: theme.colors.text.secondary,
-  } satisfies CSSObject),
-  group: ({
+  },
+  group: {
     overflow: 'hidden',
     padding: `${theme.spacing[1]} 0`,
     '& [cmdk-group-heading]': {
@@ -229,8 +229,8 @@ const styles = {
       ...theme.typography.small('medium'),
       color: theme.colors.text.secondary,
     },
-  } satisfies CSSObject),
-  item: ({
+  },
+  item: {
     ...itemCenter(),
     justifyContent: 'flex-start',
     gap: theme.spacing[2],
@@ -250,15 +250,15 @@ const styles = {
       opacity: 0.5,
       pointerEvents: 'none',
     },
-  } satisfies CSSObject),
-  separator: ({
+  },
+  separator: {
     height: '1px',
     margin: `${theme.spacing[1]} 0`,
     backgroundColor: theme.colors.border.default,
-  } satisfies CSSObject),
-  shortcut: ({
+  },
+  shortcut: {
     marginLeft: 'auto',
     ...theme.typography.small(),
     color: theme.colors.text.secondary,
-  } satisfies CSSObject),
-};
+  },
+});

@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import { useEffect, useMemo, useState, type Dispatch, type SetStateAction } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -12,7 +11,7 @@ import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
 import Flex from '@/components/ui/flex';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { scoped, defineStyles } from '@/theme/mixins';
 import { SelectDestinationFormSchema, selectDestinationDefaultValues, type SelectDestinationFormValues } from '@/schemas/forms/select-destination-form';
 import { useCountriesQuery } from '@/services/country';
 import { __ } from '@/wpi18n';
@@ -285,13 +284,13 @@ export const SelectDestinationPopup = ({
 
 SelectDestinationPopup.displayName = 'SelectDestinationPopup';
 
-const styles = {
-  checkboxItem: ({
+const styles = defineStyles({
+  checkboxItem: {
     width: 'auto',
     padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
     '&:hover': {
       background: theme.colors.background.surfaceSecondary,
       borderRadius: theme.radius.sm,
     },
-  } satisfies CSSObject),
-};
+  },
+});

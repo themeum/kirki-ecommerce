@@ -1,8 +1,7 @@
-import type { CSSObject } from '@emotion/react';
 import { Outlet, useLocation } from 'react-router';
 
 import { pageEnterKeyframes } from '@/theme/shell-styles';
-import { scoped } from '@/theme/mixins';
+import { scoped, defineStyles } from '@/theme/mixins';
 import type { ConfirmationVariant } from '@/types';
 
 type ConfirmActionOtherProps = {
@@ -39,8 +38,8 @@ AnimatedPage.displayName = 'AnimatedPage';
 
 export default AnimatedPage;
 
-const styles = {
-  pageEnter: ({
+const styles = defineStyles({
+  pageEnter: {
     animation: `${pageEnterKeyframes} 0.45s ease-out both`,
-  } satisfies CSSObject),
-};
+  },
+});

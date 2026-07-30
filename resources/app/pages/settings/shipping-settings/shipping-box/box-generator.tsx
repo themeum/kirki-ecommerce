@@ -1,8 +1,7 @@
-import type { CSSObject } from '@emotion/react';
 import type { CSSProperties } from 'react';
 
 import { theme } from '@/theme';
-import { scoped, scopedMerge } from '@/theme/mixins';
+import { scoped, scopedMerge, defineStyles } from '@/theme/mixins';
 
 type BoxGeneratorProps = {
   length: number;
@@ -64,67 +63,67 @@ export const BoxGenerator = ({
   );
 };
 
-const styles = {
-  container: ({
+const styles = defineStyles({
+  container: {
     height: '100%',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
-  } satisfies CSSObject),
-  box: ({
+  },
+  box: {
     position: 'relative',
     transformStyle: 'preserve-3d',
     margin: 'auto',
     width: 'var(--w)',
     height: 'var(--h)',
-  } satisfies CSSObject),
-  face: ({
+  },
+  face: {
     position: 'absolute',
     top: '50%',
     left: '50%',
     transformStyle: 'preserve-3d',
     boxSizing: 'border-box',
-  } satisfies CSSObject),
-  front: ({
+  },
+  front: {
     width: 'var(--w)',
     height: 'var(--h)',
     transform: 'translate(-50%, -50%) translateZ(calc(var(--l) / 2))',
     background: theme.colors.shipping.boxDark,
-  } satisfies CSSObject),
-  back: ({
+  },
+  back: {
     width: 'var(--w)',
     height: 'var(--h)',
     transform:
       'translate(-50%, -50%) rotateY(180deg) translateZ(calc(var(--l) / 2))',
     background: theme.colors.shipping.boxDark,
-  } satisfies CSSObject),
-  right: ({
+  },
+  right: {
     width: 'var(--l)',
     height: 'var(--h)',
     transform:
       'translate(-50%, -50%) rotateY(90deg) translateZ(calc(var(--w) / 2))',
     background: theme.colors.shipping.boxMid,
-  } satisfies CSSObject),
-  left: ({
+  },
+  left: {
     width: 'var(--l)',
     height: 'var(--h)',
     transform:
       'translate(-50%, -50%) rotateY(-90deg) translateZ(calc(var(--w) / 2))',
     background: theme.colors.shipping.boxMid,
-  } satisfies CSSObject),
-  top: ({
+  },
+  top: {
     width: 'var(--w)',
     height: 'var(--l)',
     transform:
       'translate(-50%, -50%) rotateX(90deg) translateZ(calc(var(--h) / 2))',
     background: theme.colors.shipping.boxLight,
-  } satisfies CSSObject),
-  bottom: ({
+  },
+  bottom: {
     width: 'var(--w)',
     height: 'var(--l)',
     transform:
       'translate(-50%, -50%) rotateX(-90deg) translateZ(calc(var(--h) / 2))',
     background: theme.colors.shipping.boxLight,
-  } satisfies CSSObject),
-};
+  },
+});

@@ -1,4 +1,4 @@
-import { mergeCss } from '@/theme/mixins';
+import { mergeCss, defineStyles } from '@/theme/mixins';
 import { useEffect, useState, type ChangeEvent, type CSSProperties } from 'react';
 import { css, type CSSObject } from '@emotion/react';
 
@@ -171,24 +171,24 @@ SelectInput.displayName = 'SelectInput';
 
 export default SelectInput;
 
-const styles = {
-  wrapper: ({
+const styles = defineStyles({
+  wrapper: {
     width: '100%',
     alignItems: 'center',
     borderRadius: theme.radius.lg,
     border: `1px solid ${theme.colors.border.default}`,
     overflow: 'hidden',
-  } satisfies CSSObject),
-  wrapperInvisible: ({
+  },
+  wrapperInvisible: {
     borderColor: 'transparent',
     boxShadow: 'none',
     height: '100%',
     outline: 'none',
-  } satisfies CSSObject),
-  wrapperError: ({
+  },
+  wrapperError: {
     border: `1px solid ${theme.colors.border.critical}`,
     boxShadow: `0px 0px 0px 1px ${theme.colors.background.fillCritical}`,
-  } satisfies CSSObject),
+  },
   input: css({
     border: 'none',
     borderRadius: theme.radius.none,
@@ -211,4 +211,4 @@ const styles = {
       borderLeft: `1px solid ${theme.colors.border.default}`,
     },
   ]),
-};
+});

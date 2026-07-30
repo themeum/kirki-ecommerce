@@ -2,7 +2,7 @@ import { type CSSObject, type Theme } from '@emotion/react';
 import { forwardRef, type ComponentPropsWithoutRef } from 'react';
 
 import { theme } from '@/theme';
-import { scopedMerge, uiFocusRing } from '@/theme/mixins';
+import { scopedMerge, uiFocusRing, defineStyles } from '@/theme/mixins';
 
 type InputProps = Omit<
   ComponentPropsWithoutRef<'input'>,
@@ -39,7 +39,7 @@ Input.displayName = 'Input';
 
 export default Input;
 
-const styles = {
+const styles = defineStyles({
   base: {
     margin: 0,
     minHeight: '36px',
@@ -93,7 +93,7 @@ const styles = {
           WebkitAppearance: 'none',
         },
     },
-  } satisfies CSSObject,
+  },
   invisible: {
     backgroundColor: 'transparent',
     outline: 'none',
@@ -104,5 +104,5 @@ const styles = {
       boxShadow: 'none',
       borderColor: 'transparent',
     },
-  } satisfies CSSObject,
-};
+  },
+});

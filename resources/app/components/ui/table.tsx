@@ -2,7 +2,7 @@ import { type CSSObject } from '@emotion/react';
 import { forwardRef, type HTMLAttributes, type TdHTMLAttributes, type ThHTMLAttributes } from 'react';
 
 import { theme } from '@/theme';
-import { scopedMerge } from '@/theme/mixins';
+import { scopedMerge, defineStyles } from '@/theme/mixins';
 import type { TableAlignment, TableType } from '@/types';
 
 type TableEditMode = 'multiCell' | 'singleCell';
@@ -145,8 +145,8 @@ TableCell.displayName = 'TableCell';
 
 export { Table, TableBody, TableCell, TableHead, TableHeader, TableRow };
 
-const styles = {
-  base: ({
+const styles = defineStyles({
+  base: {
     width: '100%',
     borderCollapse: 'collapse',
     borderSpacing: 0,
@@ -174,31 +174,31 @@ const styles = {
         visibility: 'visible',
       },
     },
-  } satisfies CSSObject),
+  },
   types: {
-    default: ({} satisfies CSSObject),
-    variation: ({
+    default: {},
+    variation: {
       '& th, & td': {
         padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
       },
-    } satisfies CSSObject),
-    wide: ({
+    },
+    wide: {
       '& th, & td': {
         padding: `${theme.spacing[4]} ${theme.spacing[3]}`,
       },
-    } satisfies CSSObject),
+    },
   },
-  scrollable: ({
+  scrollable: {
     width: 'max-content',
-  } satisfies CSSObject),
-  fixed: ({
+  },
+  fixed: {
     tableLayout: 'fixed',
     '& [data-only-checkbox="true"]': {
       width: '40px',
     },
-  } satisfies CSSObject),
+  },
   editModes: {
-    multiCell: ({
+    multiCell: {
       userSelect: 'none',
       borderCollapse: 'separate',
       borderSpacing: '0 0',
@@ -300,21 +300,21 @@ const styles = {
           backgroundColor: theme.colors.background.fill,
         },
       },
-    } satisfies CSSObject),
-    singleCell: ({
+    },
+    singleCell: {
       '& tbody tr:hover': {
         backgroundColor: 'transparent',
       },
       '& tbody td:hover': {
         backgroundColor: theme.colors.background.surfaceSecondary,
       },
-    } satisfies CSSObject),
+    },
   },
-  head: ({
+  head: {
     textAlign: 'left',
     whiteSpace: 'nowrap',
-  } satisfies CSSObject),
-  cell: ({
+  },
+  cell: {
     textAlign: 'left',
     color: theme.colors.text.primary,
     whiteSpace: 'nowrap',
@@ -325,24 +325,24 @@ const styles = {
       display: 'inline-flex',
       visibility: 'hidden',
     },
-  } satisfies CSSObject),
-  onlyCheckbox: ({
+  },
+  onlyCheckbox: {
     width: '1%',
-  } satisfies CSSObject),
+  },
   headAlignments: {
-    right: ({
+    right: {
       marginLeft: 'auto',
       marginRight: theme.spacing[0],
       textAlign: 'right',
-    } satisfies CSSObject),
-    center: ({
+    },
+    center: {
       marginLeft: 'auto',
       marginRight: 'auto',
       textAlign: 'center',
-    } satisfies CSSObject),
+    },
   },
   cellAlignments: {
-    right: ({
+    right: {
       marginLeft: 'auto',
       marginRight: theme.spacing[0],
       textAlign: 'right',
@@ -351,8 +351,8 @@ const styles = {
         marginRight: theme.spacing[0],
         textAlign: 'right',
       },
-    } satisfies CSSObject),
-    center: ({
+    },
+    center: {
       marginLeft: 'auto',
       marginRight: 'auto',
       textAlign: 'center',
@@ -361,6 +361,6 @@ const styles = {
         marginRight: 'auto',
         textAlign: 'center',
       },
-    } satisfies CSSObject),
+    },
   },
-};
+});

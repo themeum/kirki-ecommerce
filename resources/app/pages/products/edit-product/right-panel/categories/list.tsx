@@ -1,8 +1,7 @@
-import type { CSSObject } from '@emotion/react';
 import React from 'react';
 
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { scoped, defineStyles } from '@/theme/mixins';
 import type { Category } from '@/types';
 
 import SingleItem from '@/pages/products/edit-product/right-panel/categories/single-item';
@@ -62,8 +61,8 @@ List.displayName = 'List';
 
 export default List;
 
-const styles = {
-  nested: ({
+const styles = defineStyles({
+  nested: {
     paddingLeft: theme.spacing[4],
-  } satisfies CSSObject),
-};
+  },
+});

@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import { useEffect, useMemo, useState } from 'react';
 import { Controller, useForm, useFormContext, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -24,7 +23,7 @@ import { toastMutationError } from '@/services/helpers';
 import { updateSettings, useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import type { SettingsSectionData } from '@/types';
 import { theme } from '@/theme';
-import { mergeCss } from '@/theme/mixins';
+import { mergeCss, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
@@ -369,10 +368,10 @@ EditRegionEU.displayName = 'EditRegionEU';
 
 export default EditRegionEU;
 
-const styles = {
-  vatProcessCard: ({
+const styles = defineStyles({
+  vatProcessCard: {
     display: 'flex',
     flexDirection: 'column',
     gap: theme.spacing[2],
-  } satisfies CSSObject)
-};
+  }
+});

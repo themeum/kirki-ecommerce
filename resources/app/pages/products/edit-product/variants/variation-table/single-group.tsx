@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import React, { useEffect, useState } from 'react';
 
 import MediaStack from '@/components/media-stack';
@@ -20,6 +19,7 @@ import type {
 import { __ } from '@/wpi18n';
 
 import { generateVariantIndexById, generateVariantIndexes, getAttributeByValueId } from '@/pages/products/utils';
+import { defineStyles } from '@/theme/mixins';
 
 type CombinedData = {
   price?: number | string | null;
@@ -28,16 +28,16 @@ type CombinedData = {
   media?: ({ url?: string; [key: string]: unknown } | null | undefined)[];
 };
 
-const styles = {
-  hoverParent: ({
+const styles = defineStyles({
+  hoverParent: {
     '&:hover [data-hover-reveal]': {
       visibility: 'visible',
     },
-  } satisfies CSSObject),
-  hoverReveal: ({
+  },
+  hoverReveal: {
     visibility: 'hidden',
-  } satisfies CSSObject),
-};
+  },
+});
 
 type SingleGroupProps = {
   parentId: number;

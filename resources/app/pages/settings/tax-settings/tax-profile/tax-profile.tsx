@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState, type ReactNode } from 'react';
 import { toast } from 'sonner';
@@ -12,7 +11,7 @@ import { toastMutationError } from '@/services/helpers';
 import { deleteTaxProfile, useTaxProfilesQuery } from '@/services/tax';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { scoped, mergeCss } from '@/theme/mixins';
+import { scoped, mergeCss, defineStyles } from '@/theme/mixins';
 import type { TaxProfile as TaxProfileType } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -137,8 +136,8 @@ TaxProfile.displayName = 'TaxProfile';
 
 export default TaxProfile;
 
-const styles = {
-  boxWrapper: ({
+const styles = defineStyles({
+  boxWrapper: {
     '[data-box-card]': {
       borderTop: 'none',
       borderRadius: theme.radius.none,
@@ -150,11 +149,11 @@ const styles = {
     '[data-box-card]:last-of-type': {
       borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.md} ${theme.radius.md}`,
     },
-  } satisfies CSSObject),
-  emptyState: ({
+  },
+  emptyState: {
     padding: `${theme.spacing[9]} ${theme.spacing[0]}`,
-  } satisfies CSSObject),
-  emptyStateText: ({
+  },
+  emptyStateText: {
     color: theme.colors.text.subdued,
-  } satisfies CSSObject)
-};
+  }
+});

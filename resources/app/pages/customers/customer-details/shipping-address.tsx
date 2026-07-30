@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import CountryField from '@/components/form/country-field';
 import TextField from '@/components/form/text-field';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -8,7 +7,7 @@ import Grid from '@/components/ui/grid';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { mergeCss } from '@/theme/mixins';
+import { mergeCss, defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 const ShippingAddress = () => {
@@ -67,11 +66,11 @@ ShippingAddress.displayName = 'ShippingAddress';
 
 export default ShippingAddress;
 
-const styles = {
-  roundedCard: ({
+const styles = defineStyles({
+  roundedCard: {
     padding: theme.spacing[5],
     borderRadius: theme.radius.xl,
     gap: theme.spacing[5],
-  } satisfies CSSObject),
-};
+  },
+});
 

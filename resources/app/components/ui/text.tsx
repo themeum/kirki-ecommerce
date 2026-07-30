@@ -170,7 +170,7 @@ const styles = {
   colors: Object.fromEntries(
     (Object.keys(theme.colors.text) as TextColor[]).map((key) => [
       key,
-      { color: theme.colors.text[key] } satisfies CSSObject,
+      { color: theme.colors.text[key] },
     ]),
   ) as Record<TextColor, CSSObject>,
 };

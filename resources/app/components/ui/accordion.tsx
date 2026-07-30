@@ -1,11 +1,11 @@
 import { keyframes, type CSSObject } from '@emotion/react';
-import { createContext, forwardRef, useContext, useId, type ComponentPropsWithoutRef, type CSSProperties, type ElementRef, type ReactNode } from 'react';
 import * as AccordionPrimitive from '@radix-ui/react-accordion';
 import { ChevronDown } from 'lucide-react';
+import { createContext, forwardRef, useContext, useId, type ComponentPropsWithoutRef, type CSSProperties, type ElementRef, type ReactNode } from 'react';
 
 import { Separator } from '@/components/ui/separator';
 import { theme } from '@/theme';
-import { scopedMerge, scoped } from '@/theme/mixins';
+import { defineStyles, scoped, scopedMerge } from '@/theme/mixins';
 
 type AccordionContextValue = {
   hideSeparator?: boolean;
@@ -178,8 +178,8 @@ const AccordionContent = forwardRef<
       {...rest}
     >
       <div css={scoped(styles.contentInner)} data-accordion-content-inner="">
-      {children}
-    </div>
+        {children}
+      </div>
     </AccordionPrimitive.Content>
   );
 });
@@ -187,11 +187,9 @@ const AccordionContent = forwardRef<
 AccordionContent.displayName = 'AccordionContent';
 
 export {
-  Accordion,
-  AccordionItem,
-  AccordionTrigger,
-  AccordionContent,
-  AccordionContext,
+  Accordion, AccordionContent,
+  AccordionContext, AccordionItem,
+  AccordionTrigger
 };
 
 const slideDown = keyframes({
@@ -204,13 +202,13 @@ const slideUp = keyframes({
   to: { height: 0 },
 });
 
-const styles = {
-  base: ({
+const styles = defineStyles({
+  base: {
     width: '397px',
     boxSizing: 'border-box',
     color: theme.colors.text.primary,
-  } satisfies CSSObject),
-  header: ({
+  },
+  header: {
     margin: 0,
     display: 'flex',
     alignItems: 'center',
@@ -218,11 +216,11 @@ const styles = {
     boxSizing: 'border-box',
     padding: `${theme.spacing[4]} ${theme.spacing[0]}`,
     '&:hover [data-accordion-chevron], &:focus-within [data-accordion-chevron]':
-      {
-        visibility: 'visible',
-      },
-  } satisfies CSSObject),
-  trigger: ({
+    {
+      visibility: 'visible',
+    },
+  },
+  trigger: {
     all: 'unset',
     boxSizing: 'border-box',
     flex: 1,
@@ -242,25 +240,25 @@ const styles = {
     '&[data-state="open"] [data-accordion-chevron] svg': {
       transform: 'rotate(180deg)',
     },
-  } satisfies CSSObject),
-  title: ({
+  },
+  title: {
     flex: 1,
     minWidth: 0,
-  } satisfies CSSObject),
-  rightActions: ({
+  },
+  rightActions: {
     display: 'flex',
     alignItems: 'center',
     flexShrink: 0,
-  } satisfies CSSObject),
-  chevron: ({
+  },
+  chevron: {
     display: 'inline-flex',
     visibility: 'hidden',
     transition: 'transform 200ms ease',
     svg: {
       transition: 'transform 200ms ease',
     },
-  } satisfies CSSObject),
-  content: ({
+  },
+  content: {
     overflow: 'hidden',
     '&[data-state="closed"]': {
       animation: `${slideUp} 300ms ease`,
@@ -268,11 +266,11 @@ const styles = {
     '&[data-state="open"]': {
       animation: `${slideDown} 300ms ease`,
     },
-  } satisfies CSSObject),
-  contentSpaced: ({
+  },
+  contentSpaced: {
     '& [data-accordion-content-inner]': {
       paddingBottom: theme.spacing[4],
     },
-  } satisfies CSSObject),
-  contentInner: ({} satisfies CSSObject),
-};
+  },
+  contentInner: {},
+});

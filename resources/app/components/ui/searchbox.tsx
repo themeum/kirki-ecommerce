@@ -5,7 +5,7 @@ import { forwardRef, useEffect, useRef, useState, type CSSProperties, type Keybo
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
 import { theme } from '@/theme';
-import { mergeCss } from '@/theme/mixins';
+import { mergeCss, defineStyles } from '@/theme/mixins';
 import type { InputState } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -135,15 +135,15 @@ Searchbox.displayName = 'Searchbox';
 
 export default Searchbox;
 
-const styles = {
-  root: ({
+const styles = defineStyles({
+  root: {
     width: '100%',
-  } satisfies CSSObject),
-  group: ({
+  },
+  group: {
     minHeight: theme.spacing[8],
     height: theme.spacing[8],
     '& [data-slot="input-group-control"]': {
       minHeight: theme.spacing[8],
     },
-  } satisfies CSSObject),
-};
+  },
+});

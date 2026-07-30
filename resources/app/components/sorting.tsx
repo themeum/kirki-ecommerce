@@ -1,10 +1,9 @@
-import type { CSSObject } from '@emotion/react';
 import type { ReactNode } from 'react';
 
 import { ArrowDownUpFilled } from '@/icons';
 import Flex from '@/components/ui/flex';
 import { theme } from '@/theme';
-import { mergeCss } from '@/theme/mixins';
+import { mergeCss, defineStyles } from '@/theme/mixins';
 import type { SortOrder } from '@/types';
 
 type SortableConfig = {
@@ -78,14 +77,14 @@ Sorting.displayName = 'Sorting';
 export default Sorting;
 export type { SortableConfig, SortingData };
 
-const styles = {
-  base: ({
+const styles = defineStyles({
+  base: {
     alignItems: 'center',
-  } satisfies CSSObject),
-  sortable: ({
+  },
+  sortable: {
     cursor: 'pointer',
-  } satisfies CSSObject),
-  active: ({
+  },
+  active: {
     color: theme.colors.background.fillBrand,
-  } satisfies CSSObject),
-};
+  },
+});

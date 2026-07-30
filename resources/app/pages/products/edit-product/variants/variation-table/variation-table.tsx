@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 
@@ -20,7 +19,7 @@ import { __ } from '@/wpi18n';
 import SingleGroup from '@/pages/products/edit-product/variants/variation-table/single-group';
 
 import { theme } from '@/theme';
-import { mergeCss } from '@/theme/mixins';
+import { mergeCss, defineStyles } from '@/theme/mixins';
 
 const VariationTable = () => {
   const { product: productData, updateVariants } = useProductForm();
@@ -247,9 +246,9 @@ VariationTable.displayName = 'VariationTable';
 
 export default VariationTable;
 
-const styles = {
-  normalWeight: ({
+const styles = defineStyles({
+  normalWeight: {
     ...theme.typography.paragraph(),
-  } satisfies CSSObject),
-};
+  },
+});
 

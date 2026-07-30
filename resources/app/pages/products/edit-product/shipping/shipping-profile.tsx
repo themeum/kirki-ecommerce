@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import { type ReactElement, useEffect, useState } from 'react';
 
 import { Card, CardContent } from '@/components/ui/card';
@@ -8,7 +7,6 @@ import { Select, SelectContent, SelectItem, SelectSeparator, SelectTrigger, Sele
 import { PlusCircleIcon } from '@/icons';
 import Flex from '@/components/ui/flex';
 import Grid from '@/components/ui/grid';
-;
 import { cardStyles } from '@/theme/card-styles';
 import { useProductForm } from '@/contexts/product-form-context';
 import { useShippingProfilesQuery } from '@/services/shipping';
@@ -18,6 +16,7 @@ import { __ } from '@/wpi18n';
 import { CreateProfilePopup } from '@/pages/settings/shipping-settings/shipping-profile/create-profile-dialog';
 
 import { theme } from '@/theme';
+import { defineStyles } from '@/theme/mixins';
 
 type ShippingProfileProps = {
   errors?: FormErrors;
@@ -133,10 +132,10 @@ ShippingProfile.displayName = 'ShippingProfile';
 
 export default ShippingProfile;
 
-const styles = {
-  innerDarkRowContent: ({
+const styles = defineStyles({
+  innerDarkRowContent: {
     padding: `${theme.spacing[1]} ${theme.spacing[2]} ${theme.spacing[1]} ${theme.spacing[3]}`,
     height: '44px',
     boxSizing: 'border-box',
-  } satisfies CSSObject)
-};
+  }
+});

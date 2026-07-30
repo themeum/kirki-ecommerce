@@ -4,7 +4,7 @@ import { Circle } from 'lucide-react';
 import { forwardRef, type ComponentPropsWithoutRef, type ElementRef } from 'react';
 
 import { theme } from '@/theme';
-import { flexCenter, uiFocusRing, scopedMerge, scoped } from '@/theme/mixins';
+import { flexCenter, uiFocusRing, scopedMerge, scoped, defineStyles } from '@/theme/mixins';
 
 type RadioGroupProps = Omit<
   ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Root>,
@@ -56,13 +56,13 @@ RadioGroupItem.displayName = 'RadioGroupItem';
 
 export { RadioGroup, RadioGroupItem };
 
-const styles = {
-  root: ({
+const styles = defineStyles({
+  root: {
     display: 'flex',
     flexDirection: 'column',
     gap: theme.spacing[2],
-  } satisfies CSSObject),
-  item: ({
+  },
+  item: {
     ...flexCenter(),
     width: '16px',
     height: '16px',
@@ -85,10 +85,10 @@ const styles = {
       opacity: 0.5,
       pointerEvents: 'none',
     },
-  } satisfies CSSObject),
-  indicator: ({
+  },
+  indicator: {
     ...flexCenter(),
     display: 'flex',
     color: theme.colors.background.fillBrand,
-  } satisfies CSSObject),
-};
+  },
+});
