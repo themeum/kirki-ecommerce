@@ -1,0 +1,21 @@
+// Page - Cart
+// Styles for shopping cart page
+
+@use '../tokens' as *;
+@use '../mixins' as *;
+
+.kecom-cart-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: $spacing-12 $spacing-10;
+}
+
+.kecom-cart-grid {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: $spacing-12;
+
+  @include breakpoint-down(lg) {
+    grid-template-columns: 1fr;
+  }
+}

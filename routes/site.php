@@ -29,6 +29,7 @@ Route::site(function () {
     $cart_page_id = Arr::get($options, 'pages.cart_page', 0);
     $checkout_page_id = Arr::get($options, 'pages.checkout_page', 0);
     $account_page_id = Arr::get($options, 'pages.account_page', 0);
+    $design_system_page_id = Arr::get($options, 'pages.design_system_page', 0);
 
     $shop_page = get_post($shop_page_id);
     $shop_page_slug = !empty($shop_page) ? $shop_page->post_name : 'shop';
@@ -51,5 +52,10 @@ Route::site(function () {
     Route::get($account_page_id, [SiteController::class, 'account_page'])
         ->middleware(SiteAuthMiddleware::class)
         ->name('account')
+        ->match_page();
+
+    Route::get($design_system_page_id, [SiteController::class, 'design_system_page'])
+        ->middleware(SiteAuthMiddleware::class)
+        ->name('design_system')
         ->match_page();
 });

@@ -1,0 +1,156 @@
+// Utilities - Typography
+
+@use "../tokens" as *;
+@use "../mixins" as *;
+
+// Font size + line height pairs
+.kecom-text-xs {
+  @include text(xs);
+}
+.kecom-text-sm {
+  @include text(sm);
+}
+.kecom-text-base {
+  @include text(base);
+}
+.kecom-text-md {
+  @include text(md);
+}
+.kecom-text-lg {
+  @include text(lg);
+}
+.kecom-text-xl {
+  @include text(xl);
+}
+.kecom-text-2xl {
+  @include text(2xl);
+}
+.kecom-text-3xl {
+  @include text(3xl);
+}
+.kecom-text-4xl {
+  @include text(4xl);
+}
+
+// Font weights
+.kecom-font-normal {
+  font-weight: $font-weight-normal;
+}
+.kecom-font-medium {
+  font-weight: $font-weight-medium;
+}
+.kecom-font-semibold {
+  font-weight: $font-weight-semibold;
+}
+.kecom-font-bold {
+  font-weight: $font-weight-bold;
+}
+
+// Text alignment
+.kecom-text-left {
+  text-align: left;
+}
+.kecom-text-center {
+  text-align: center;
+}
+.kecom-text-right {
+  text-align: right;
+}
+.kecom-text-justify {
+  text-align: justify;
+}
+
+// Text decoration
+.kecom-underline {
+  text-decoration: underline;
+}
+.kecom-line-through {
+  text-decoration: line-through;
+}
+.kecom-no-underline {
+  text-decoration: none;
+}
+
+// Text transform
+.kecom-uppercase {
+  text-transform: uppercase;
+}
+.kecom-lowercase {
+  text-transform: lowercase;
+}
+.kecom-capitalize {
+  text-transform: capitalize;
+}
+.kecom-normal-case {
+  text-transform: none;
+}
+
+// Text overflow
+.kecom-truncate {
+  @include text-truncate;
+}
+.kecom-clamp-1 {
+  @include text-clamp(1);
+}
+.kecom-clamp-2 {
+  @include text-clamp(2);
+}
+.kecom-clamp-3 {
+  @include text-clamp(3);
+}
+
+// Whitespace
+.kecom-whitespace-nowrap {
+  white-space: nowrap;
+}
+.kecom-whitespace-normal {
+  white-space: normal;
+}
+.kecom-whitespace-pre {
+  white-space: pre;
+}
+.kecom-whitespace-pre-wrap {
+  white-space: pre-wrap;
+}
+
+// Word break
+.kecom-break-words {
+  overflow-wrap: break-word;
+}
+.kecom-break-all {
+  word-break: break-all;
+}
+
+// Semantic text color utilities
+.kecom-text-default {
+  color: $text-primary;
+}
+.kecom-text-sub {
+  color: $text-secondary;
+}
+.kecom-text-muted {
+  color: $text-secondary;
+}
+.kecom-text-disabled {
+  color: $text-disabled;
+}
+.kecom-text-inverse {
+  color: $text-light;
+}
+.kecom-text-brand {
+  color: $background-fill-brand;
+}
+.kecom-text-success {
+  color: $text-success;
+}
+.kecom-text-error {
+  color: $background-fill-critical;
+}
+.kecom-text-warning {
+  color: $background-fill-warning;
+}
+
+// Visibility
+.kecom-sr-only {
+  @include visually-hidden;
+}

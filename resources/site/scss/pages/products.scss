@@ -1,0 +1,21 @@
+// Page - Products
+// Styles for products listing/shop page
+
+@use '../tokens' as *;
+@use '../mixins' as *;
+
+.kecom-products-page {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: $spacing-12 $spacing-10;
+}
+
+.kecom-products-grid {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: $spacing-12;
+
+  @include breakpoint-down(lg) {
+    grid-template-columns: 1fr;
+  }
+}

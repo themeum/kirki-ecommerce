@@ -1,0 +1,21 @@
+// Page - Checkout
+// Styles for checkout page
+
+@use '../tokens' as *;
+@use '../mixins' as *;
+
+.kecom-checkout-page {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: $spacing-12 $spacing-10;
+}
+
+.kecom-checkout-grid {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: $spacing-12;
+
+  @include breakpoint-down(lg) {
+    grid-template-columns: 1fr;
+  }
+}

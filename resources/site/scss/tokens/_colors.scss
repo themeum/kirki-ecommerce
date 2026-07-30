@@ -1,0 +1,183 @@
+// Design Tokens - Colors
+// Sourced from app/theme/index.ts primitiveColors
+// CSS vars use --kecom-* prefix; SCSS vars are the authored interface.
+
+@use "./variables" as *;
+
+// =============================================================================
+// PRIMITIVE COLOR VALUES (raw, never used directly in components)
+// =============================================================================
+
+// Brand colors
+$_brand-1: hsl(214 100% 54%);
+$_brand-2: hsl(214 83% 50%);
+$_brand-3: hsl(214 100% 85%);
+$_brand-4: hsl(214 100% 89%);
+$_brand-5: hsl(214 100% 95%);
+
+// Blue colors
+$_blue-1: hsl(187 100% 93%);
+$_blue-2: hsl(205 100% 40%);
+$_blue-3: hsl(220 100% 50%);
+
+// Gray colors
+$_gray-1: hsl(0 0% 100%);
+$_gray-2: hsl(255 30% 98%);
+$_gray-3: hsl(255 30% 98%);
+$_gray-4: hsl(250 26% 97%);
+$_gray-5: hsl(248 23% 96%);
+$_gray-6: hsl(248 20% 94%);
+$_gray-7: hsl(248 16% 93%);
+$_gray-8: hsl(252 14% 90%);
+$_gray-9: hsl(246 12% 84%);
+$_gray-10: hsl(250 13% 81%);
+$_gray-11: hsl(249 10% 72%);
+$_gray-12: hsl(249 6% 55%);
+$_gray-13: hsl(250 6% 39%);
+$_gray-14: hsl(252 6% 30%);
+$_gray-15: hsl(255 4% 20%);
+$_gray-16: hsl(270 4% 11%);
+
+// Green colors
+$_green-1: hsl(141 100% 95%);
+$_green-3: hsl(145 36% 44%);
+$_green-4: hsl(145 47% 37%);
+$_green-5: hsl(134 61% 41%);
+$_green-6: hsl(134 61% 28%);
+
+// Red colors
+$_red-1: hsl(2 100% 95%);
+$_red-2: hsl(0 70% 71%);
+$_red-3: hsl(0 100% 42%);
+
+// Orange colors
+$_orange-1: hsl(38 100% 92%);
+$_orange-2: hsl(42 100% 18%);
+
+// Pink colors
+$_pink-1: hsl(311 100% 65%);
+$_pink-2: hsl(311 100% 53%);
+
+// Violet colors
+$_violet-1: hsl(248 92% 95%);
+$_violet-2: hsl(266 100% 64%);
+$_violet-3: hsl(248 79% 96%);
+
+// Yellow colors
+$_yellow-1: hsl(61 100% 89%);
+$_yellow-2: hsl(54 100% 15%);
+
+// Special purpose colors
+$_neutral-surface: #e9e9e9;
+$_badge-draft: #09090b99;
+$_button-tertiary: #f5f5f5;
+$_option-hover: #f4f4f5;
+$_text-muted: #71717a;
+$_text-dark: #333333;
+$_settings-hover: #dedaf4;
+$_placeholder-surface: #f7f7f7;
+$_border-alt: #e6e6e6;
+$_gallery-border: #e4e4e7;
+$_border-muted: #d2d4d8;
+$_gallery-hover: #f7f4ff;
+$_shipping-box-light: #ceaaff;
+$_shipping-box-mid: #bf84e9;
+$_shipping-box-dark: #9663b6;
+
+// =============================================================================
+// SEMANTIC COLOR TOKENS
+// SCSS vars reference --kecom-* custom props with raw fallbacks.
+// Structure matches app/theme/index.ts
+// =============================================================================
+
+// Background
+$background-fill: var(#{$css-var-prefix}-background-fill, #{$_gray-1});
+$background-fill-brand: var(#{$css-var-prefix}-background-fill-brand, #{$_brand-1});
+$background-fill-brand-hover: var(#{$css-var-prefix}-background-fill-brand-hover, #{$_brand-2});
+$background-fill-caution: var(#{$css-var-prefix}-background-fill-caution, #{$_yellow-2});
+$background-fill-caution-secondary: var(#{$css-var-prefix}-background-fill-caution-secondary, #{$_yellow-1});
+$background-fill-critical: var(#{$css-var-prefix}-background-fill-critical, #{$_red-3});
+$background-fill-critical-hover: var(#{$css-var-prefix}-background-fill-critical, #{$_red-2});
+$background-fill-critical-secondary: var(#{$css-var-prefix}-background-fill-critical-secondary, #{$_red-1});
+$background-fill-disabled: var(#{$css-var-prefix}-background-fill-disabled, #{$_gray-12});
+$background-fill-hover: var(#{$css-var-prefix}-background-fill-hover, #{$_gray-6});
+$background-fill-secondary: var(#{$css-var-prefix}-background-fill-secondary, #{$_brand-5});
+$background-fill-secondary-hover: var(#{$css-var-prefix}-background-fill-secondary-hover, #{$_brand-4});
+$background-fill-special: var(#{$css-var-prefix}-background-fill-special, #{$_blue-2});
+$background-fill-special2: var(#{$css-var-prefix}-background-fill-special2, #{$_violet-2});
+$background-fill-special2-secondary: var(#{$css-var-prefix}-background-fill-special2-secondary, #{$_violet-1});
+$background-fill-special3-tertiary: var(#{$css-var-prefix}-background-fill-special3-tertiary, #{$_violet-3});
+$background-fill-special-secondary: var(#{$css-var-prefix}-background-fill-special-secondary, #{$_blue-1});
+$background-fill-success: var(#{$css-var-prefix}-background-fill-success, #{$_green-6});
+$background-fill-success-secondary: var(#{$css-var-prefix}-background-fill-success-secondary, #{$_green-1});
+$background-fill-tertiary: var(#{$css-var-prefix}-background-fill-tertiary, #{$_gray-9});
+$background-fill-tertiary-hover: var(#{$css-var-prefix}-background-fill-tertiary-hover, #{$_gray-11});
+$background-fill-warning: var(#{$css-var-prefix}-background-fill-warning, #{$_orange-2});
+$background-fill-warning-secondary: var(#{$css-var-prefix}-background-fill-warning-secondary, #{$_orange-1});
+$background-inverse: var(#{$css-var-prefix}-background-inverse, #{$_gray-16});
+$background-surface: var(#{$css-var-prefix}-background-surface, #{$_gray-1});
+$background-surface-alt: var(#{$css-var-prefix}-background-surface-alt, #{$_gray-2});
+$background-surface-disabled: var(#{$css-var-prefix}-background-surface-disabled, #{$_gray-9});
+$background-surface-secondary: var(#{$css-var-prefix}-background-surface-secondary, #{$_gray-4});
+$background-surface-subdued: var(#{$css-var-prefix}-background-surface-subdued, #{$_gray-7});
+$background-surface-tertiary: var(#{$css-var-prefix}-background-surface-tertiary, #{$_gray-5});
+$background-button-tertiary: var(#{$css-var-prefix}-background-button-tertiary, #{$_button-tertiary});
+$background-settings-hover: var(#{$css-var-prefix}-background-settings-hover, #{$_settings-hover});
+$background-placeholder-surface: var(#{$css-var-prefix}-background-placeholder-surface, #{$_placeholder-surface});
+$background-gallery-hover: var(#{$css-var-prefix}-background-gallery-hover, #{$_gallery-hover});
+$background-option-hover: var(#{$css-var-prefix}-background-option-hover, #{$_option-hover});
+$background-neutral-surface: var(#{$css-var-prefix}-background-neutral-surface, #{$_neutral-surface});
+$background-badge-draft: var(#{$css-var-prefix}-background-badge-draft, #{$_badge-draft});
+
+// Border
+$border-default: var(#{$css-var-prefix}-border-default, #{$_gray-8});
+$border-critical: var(#{$css-var-prefix}-border-critical, #{$_red-2});
+$border-disabled: var(#{$css-var-prefix}-border-disabled, #{$_gray-10});
+$border-hover: var(#{$css-var-prefix}-border-hover, #{$_gray-12});
+$border-inverse: var(#{$css-var-prefix}-border-inverse, #{$_gray-16});
+$border-ring: var(#{$css-var-prefix}-border-ring, #{$_gray-14});
+$border-secondary: var(#{$css-var-prefix}-border-secondary, #{$_gray-6});
+$border-tertiary: var(#{$css-var-prefix}-border-tertiary, #{$_gray-5});
+$border-alt: var(#{$css-var-prefix}-border-alt, #{$_border-alt});
+$border-gallery: var(#{$css-var-prefix}-border-gallery, #{$_gallery-border});
+$border-muted: var(#{$css-var-prefix}-border-muted, #{$_border-muted});
+
+// Icon
+$icon-brand: var(#{$css-var-prefix}-icon-brand, #{$_green-4});
+$icon-caution: var(#{$css-var-prefix}-icon-caution, #{$_yellow-2});
+$icon-critical: var(#{$css-var-prefix}-icon-critical, #{$_red-3});
+$icon-disabled: var(#{$css-var-prefix}-icon-disabled, #{$_gray-11});
+$icon-emphasis: var(#{$css-var-prefix}-icon-emphasis, #{$_blue-3});
+$icon-inverse: var(#{$css-var-prefix}-icon-inverse, #{$_gray-5});
+$icon-primary: var(#{$css-var-prefix}-icon-primary, #{$_gray-14});
+$icon-primary-active: var(#{$css-var-prefix}-icon-primary-active, #{$_gray-16});
+$icon-primary-hover: var(#{$css-var-prefix}-icon-primary-hover, #{$_gray-15});
+$icon-secondary: var(#{$css-var-prefix}-icon-secondary, #{$_gray-12});
+$icon-secondary-active: var(#{$css-var-prefix}-icon-secondary-active, #{$_gray-14});
+$icon-secondary-hover: var(#{$css-var-prefix}-icon-secondary-hover, #{$_gray-13});
+$icon-special: var(#{$css-var-prefix}-icon-special, #{$_pink-2});
+$icon-success: var(#{$css-var-prefix}-icon-success, #{$_green-5});
+$icon-warning: var(#{$css-var-prefix}-icon-warning, #{$_orange-2});
+
+// Text
+$text-brand: var(#{$css-var-prefix}-text-brand, #{$_green-4});
+$text-caution: var(#{$css-var-prefix}-text-caution, #{$_yellow-2});
+$text-critical: var(#{$css-var-prefix}-text-critical, #{$_red-3});
+$text-disabled: var(#{$css-var-prefix}-text-disabled, #{$_gray-11});
+$text-emphasis: var(#{$css-var-prefix}-text-emphasis, #{$_blue-3});
+$text-light: var(#{$css-var-prefix}-text-light, #{$_gray-1});
+$text-primary: var(#{$css-var-prefix}-text-primary, #{$_gray-15});
+$text-secondary: var(#{$css-var-prefix}-text-secondary, #{$_gray-13});
+$text-special: var(#{$css-var-prefix}-text-special, #{$_pink-2});
+$text-special2: var(#{$css-var-prefix}-text-special2, #{$_blue-2});
+$text-special3: var(#{$css-var-prefix}-text-special3, #{$_violet-2});
+$text-subdued: var(#{$css-var-prefix}-text-subdued, #{$_gray-12});
+$text-success: var(#{$css-var-prefix}-text-success, #{$_green-6});
+$text-warning: var(#{$css-var-prefix}-text-warning, #{$_orange-2});
+$text-muted: var(#{$css-var-prefix}-text-muted, #{$_text-muted});
+$text-dark: var(#{$css-var-prefix}-text-dark, #{$_text-dark});
+
+// Shipping
+$shipping-box-light: var(#{$css-var-prefix}-shipping-box-light, #{$_shipping-box-light});
+$shipping-box-mid: var(#{$css-var-prefix}-shipping-box-mid, #{$_shipping-box-mid});
+$shipping-box-dark: var(#{$css-var-prefix}-shipping-box-dark, #{$_shipping-box-dark});

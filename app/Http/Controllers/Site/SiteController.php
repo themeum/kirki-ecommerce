@@ -129,4 +129,20 @@ class SiteController
     {
         return view('site.account')->layout(false);
     }
+
+    /**
+     * Design system page
+     * 
+     * @TODO:: Will be removed later
+     *
+     * @since 1.0.0
+     *
+     * @param Request $request  request.
+     *
+     * @return string Template path.
+     */
+    public function design_system_page(Request $request)
+    {
+        return view('site.design-system');
+    }
 }
