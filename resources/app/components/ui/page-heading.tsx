@@ -7,7 +7,7 @@ import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
-import { flexCenter, itemCenter, scopedMerge, scoped, defineStyles } from '@/theme/mixins';
+import { defineStyles, flexCenter, itemCenter, scoped, scopedMerge } from '@/theme/mixins';
 import type { ContainerSize, HeadingType } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -52,16 +52,17 @@ const PageHeading = forwardRef<HTMLDivElement, PageHeadingProps>(
     return (
       <div
         ref={ref}
-        css={scopedMerge(styles.wrapper,           sticky && styles.wrapperSticky,           noMargin && styles.wrapperNoMargin)}
+        css={scopedMerge(styles.wrapper, sticky && styles.wrapperSticky, noMargin && styles.wrapperNoMargin)}
       >
         <Container size={size} style={{ width: '100%' }}>
           <div
-            css={scopedMerge(styles.heading,               hasBack && styles.headingHasBack,               cssOverride)}
+            css={scopedMerge(styles.heading, hasBack && styles.headingHasBack, cssOverride)}
             style={style}
           >
             {hasBack && (
               <Button
-                variant="link"
+                variant="ghost"
+                size="icon"
                 cssOverride={buttonCssOverride}
                 onClick={(event) => {
                   if (buttonOnClick) {

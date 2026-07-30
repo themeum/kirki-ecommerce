@@ -1,52 +1,42 @@
-import { mergeCss } from '@/theme/mixins';
-import { css } from '@emotion/react';
+import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
 import { useState } from 'react';
 
+import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { EditIcon, PlusIcon, TrashIcon } from '@/icons';
-import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { useProductForm } from '@/contexts/product-form-context';
-import { theme } from '@/theme';
+import { EditIcon, PlusIcon, TrashIcon } from '@/icons';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
 import AddOrEditInfo from '@/pages/products/edit-product/additional-info/add-or-edit-info';
+import { theme } from '@/theme';
 
-const hoverVisibleCss = css({
-  visibility: 'hidden',
-});
+// const optionCardCss = css({
+//   borderRadius: theme.radius.none,
+//   borderTopColor: 'transparent',
+// });
 
-const hoverVisibleActiveCss = css({
-  visibility: 'visible',
-});
+// const optionCardBorderRadiusCss = css({
+//   '&:first-of-type': {
+//     borderTopColor: theme.colors.border.secondary,
+//     borderRadius: `${theme.radius.lg} ${theme.radius.lg} ${theme.radius.none} ${theme.radius.none}`,
+//   },
+//   '&:last-of-type': {
+//     borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.lg} ${theme.radius.lg}`,
+//   },
+// });
 
-const optionCardCss = css({
-  borderRadius: theme.radius.none,
-  borderTopColor: 'transparent',
-});
-
-const optionCardBorderRadiusCss = css({
-  '&:first-of-type': {
-    borderTopColor: theme.colors.border.secondary,
-    borderRadius: `${theme.radius.lg} ${theme.radius.lg} ${theme.radius.none} ${theme.radius.none}`,
-  },
-  '&:last-of-type': {
-    borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.lg} ${theme.radius.lg}`,
-  },
-});
-
-const optionCardBorderRadiusSingleCss = css({
-  borderRadius: theme.radius.lg,
-});
+// const optionCardBorderRadiusSingleCss = css({
+//   borderRadius: theme.radius.lg,
+// });
 
 const AdditionalInfo = () => {
   const { product: productData, updateProduct } = useProductForm();
   const [showInfoForm, setShowInfoForm] = useState(false);
   const [editedIndex, setEditedIndex] = useState<number | null>(null);
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   const onClose = () => {
     setEditedIndex(null);
@@ -69,7 +59,7 @@ const AdditionalInfo = () => {
   };
 
   return (
-    <>
+    <Flex direction="column" gap={4}>
       <Flex direction="column" gap={2}>
         <Text weight="semibold">{__('Additional Info', 'kirki-ecommerce')}</Text>
         <Text color="secondary">{__(
@@ -80,31 +70,25 @@ const AdditionalInfo = () => {
       {showInfoForm ? (
         <AddOrEditInfo index={editedIndex} onClose={onClose} />
       ) : (
-        <>
+        <Flex direction="column" gap={4}>
           {productData?.additional_info &&
             productData?.additional_info?.length > 0 && (
-              <div>
+              <div css={scoped(styles.wrapper)}>
                 {productData?.additional_info.map((item, index) => (
                   <Card
-                    cssOverride={mergeCss(cardStyles.innerCard,
-                      optionCardCss,
-                      (productData?.additional_info ?? []).length > 1
-                        ? optionCardBorderRadiusCss
-                        : optionCardBorderRadiusSingleCss,)}
-                    onMouseEnter={() => setHoveredIndex(index)}
-                    onMouseLeave={() => setHoveredIndex(null)}
+                    cssOverride={cardStyles.innerCard}
                     key={index}
                   >
-                    <CardContent>
+                    <CardContent cssOverride={mergeCss(cardStyles.innerCardContent, styles.cardContent)}>
                       <Flex
                         align="flex-start">
                         <Flex direction="column" gap={2}>
-                          <Text weight="semibold">{item?.title}</Text>
-                          <Text color="secondary">{item?.description as string | undefined}</Text>
+                          <Text variant='small' weight="medium">{item?.title}</Text>
+                          <Text variant='small' color="secondary">{item?.description as string | undefined}</Text>
                         </Flex>
                         <ActionGroup
-                          cssOverride={mergeCss(hoverVisibleCss,
-                            hoveredIndex === index && hoverVisibleActiveCss,)}
+                          cssOverride={styles.actionGroup}
+                          data-additional-info-action-group="true"
                         >
                           <Button
                             variant="secondary"
@@ -132,9 +116,9 @@ const AdditionalInfo = () => {
             <PlusIcon />
             {__('Add an Info Section', 'kirki-ecommerce')}
           </Button>
-        </>
+        </Flex>
       )}
-    </>
+    </Flex>
   );
 };
 
@@ -142,3 +126,24 @@ AdditionalInfo.displayName = 'AdditionalInfo';
 
 export default AdditionalInfo;
 
+const styles = defineStyles({
+  wrapper: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: theme.spacing[2],
+  },
+  cardContent: {
+    '&:hover': {
+      '[data-additional-info-action-group]': {
+        visibility: 'visible',
+      },
+    }
+  },
+  actionGroup: {
+    visibility: 'hidden',
+    transition: 'visibility 0.2s ease-in-out',
+    '&[data-additional-info-action-group="true"]:hover': {
+      visibility: 'visible',
+    },
+  },
+});

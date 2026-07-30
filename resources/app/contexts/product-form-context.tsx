@@ -62,6 +62,7 @@ const createInitialProduct = (): Product => ({
   currency: null,
   brand: null,
   description: '',
+  short_description: '',
   additional_info: [],
   allow_back_order: false,
   has_limit_per_order: true,

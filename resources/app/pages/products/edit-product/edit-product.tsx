@@ -1,28 +1,29 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState, type ComponentType, type Dispatch, type SetStateAction } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate, useParams } from 'react-router';
 
 import RichTextField from '@/components/form/rich-text-field';
 import TextField from '@/components/form/text-field';
+import TextareaField from '@/components/form/textarea-field';
 import MediaGallery from '@/components/media-gallery';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import Container from '@/components/ui/container';
+import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
+import PageHeading from '@/components/ui/page-heading';
+import { Separator } from '@/components/ui/separator';
 import { NEW_ITEM_ID } from '@/conf';
-import { cardStyles } from '@/theme/card-styles';
 import { ProductFormProvider, useProductForm } from '@/contexts/product-form-context';
 import type { ErrorResponse } from '@/libs/api';
 import { getErrorsObject } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import Container from '@/components/ui/container';
-import Flex from '@/components/ui/flex';
-import PageHeading from '@/components/ui/page-heading';
-import { Separator } from '@/components/ui/separator';
-import { mapProductBasicsFromProduct, ProductBasicsFormSchema, productBasicsDefaultValues, type ProductBasicsFormValues } from '@/schemas/forms/product-basics-form';
+import { mapProductBasicsFromProduct, productBasicsDefaultValues, ProductBasicsFormSchema, type ProductBasicsFormValues } from '@/schemas/forms/product-basics-form';
 import { useCreateProductMutation, useProductQuery, useUpdateProductMutation } from '@/services/product';
 import { useDefaultSettingsQuery, useSettingsQuery } from '@/services/settings';
 import { useShippingBoxesQuery } from '@/services/shipping';
+import { cardStyles } from '@/theme/card-styles';
 import type {
   FormErrors,
   MediaRef,
@@ -40,7 +41,7 @@ import SEOSettings from '@/pages/products/edit-product/seo-settings/seo-settings
 import Shipping from '@/pages/products/edit-product/shipping/shipping';
 import Variants from '@/pages/products/edit-product/variants/variants';
 
-import { theme } from '@/theme';
+import Grid from '@/components/ui/grid';
 
 type MediaItem = Omit<MediaRef, 'id'> & {
   id?: string | number;
@@ -188,6 +189,7 @@ const EditProductInner = () => {
       status: productData.status,
       ribbon: productData.ribbon,
       description: productData.description,
+      short_description: productData.short_description,
       additional_info: productData.additional_info,
       allow_back_order: productData.allow_back_order,
       seo_title: productData.seo_title,
@@ -272,8 +274,8 @@ const EditProductInner = () => {
               <Form {...basicsForm}>
                 <Card cssOverride={cardStyles.formCard}>
                   <CardContent>
-                    <Flex gap={3}>
-                      <div style={{ width: '70%' }}>
+                    <Flex direction="column" gap={4}>
+                      <Grid gap={3} template={'2fr 1fr'}>
                         <TextField
                           name="title"
                           label={__('Title', 'kirki-ecommerce')}
@@ -282,8 +284,7 @@ const EditProductInner = () => {
                             'kirki-ecommerce',
                           )}
                         />
-                      </div>
-                      <div style={{ width: '30%' }}>
+
                         <TextField
                           name="ribbon"
                           label={__('Ribbon', 'kirki-ecommerce')}
@@ -291,55 +292,63 @@ const EditProductInner = () => {
                             'e.g. Fresh Arrival',
                             'kirki-ecommerce',
                           )}
-                          description={__('Ribbon', 'kirki-ecommerce')}
                         />
-                      </div>
-                    </Flex>
-                    <TextField
-                      name="slug"
-                      label={__('Slug', 'kirki-ecommerce')}
-                      placeholder={__('yellow-t-shirt', 'kirki-ecommerce')}
-                    />
+                      </Grid>
+                      <TextField
+                        name="slug"
+                        label={__('Slug', 'kirki-ecommerce')}
+                        placeholder={__('yellow-t-shirt', 'kirki-ecommerce')}
+                      />
 
-                    <MediaGallery
-                      label={__('Images and videos', 'kirki-ecommerce')}
-                      mediaItems={mediaItems}
-                      onUpdate={(v) => setMediaItems(v)}
-                      error={errors?.media as string | boolean | undefined}
-                    />
-                    <RichTextField
-                      name="description"
-                      label={__('Description', 'kirki-ecommerce')}
-                      placeholder={__(
-                        'Write product description here...',
-                        'kirki-ecommerce',
-                      )}
-                    />
-                    <Separator marginTop={theme.spacing[2]} />
-                    <AdditionalInfo />
+                      <MediaGallery
+                        label={__('Images and videos', 'kirki-ecommerce')}
+                        mediaItems={mediaItems}
+                        onUpdate={(v) => setMediaItems(v)}
+                        error={errors?.media as string | boolean | undefined}
+                      />
+                      <TextareaField
+                        name="short_description"
+                        label={__('Short description', 'kirki-ecommerce')}
+                        rows={3}
+                        placeholder={__(
+                          'Brief product summary...',
+                          'kirki-ecommerce',
+                        )}
+                      />
+                      <RichTextField
+                        name="description"
+                        label={__('Description', 'kirki-ecommerce')}
+                        placeholder={__(
+                          'Write product description here...',
+                          'kirki-ecommerce',
+                        )}
+                      />
+                      <Separator marginTop={0} marginBottom={0} />
+                      <AdditionalInfo />
+                    </Flex>
                   </CardContent>
                 </Card>
               </Form>
               {(isNew ||
                 productData?.variants[0].attribute_values.length === 0) && (
-                <>
-                  <Price
-                    errors={errors}
-                    setErrors={setErrors}
-                    formSyncKey={formSyncKey}
-                  />
-                  <Inventory
-                    errors={errors}
-                    setErrors={setErrors}
-                    formSyncKey={formSyncKey}
-                  />
-                  <Shipping
-                    errors={errors}
-                    setErrors={setErrors}
-                    formSyncKey={formSyncKey}
-                  />
-                </>
-              )}
+                  <>
+                    <Price
+                      errors={errors}
+                      setErrors={setErrors}
+                      formSyncKey={formSyncKey}
+                    />
+                    <Inventory
+                      errors={errors}
+                      setErrors={setErrors}
+                      formSyncKey={formSyncKey}
+                    />
+                    <Shipping
+                      errors={errors}
+                      setErrors={setErrors}
+                      formSyncKey={formSyncKey}
+                    />
+                  </>
+                )}
               <VariantsView
                 errors={errors}
                 setErrors={setErrors}

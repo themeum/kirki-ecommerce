@@ -2,7 +2,7 @@ import { type CSSObject, type Theme } from '@emotion/react';
 import { forwardRef, type ComponentPropsWithoutRef } from 'react';
 
 import { theme } from '@/theme';
-import { scopedMerge, uiFocusRing, defineStyles } from '@/theme/mixins';
+import { defineStyles, scopedMerge, uiFocusRing } from '@/theme/mixins';
 
 type InputProps = Omit<
   ComponentPropsWithoutRef<'input'>,
@@ -49,7 +49,8 @@ const styles = defineStyles({
     borderRadius: theme.radius.lg,
     padding: `${theme.spacing[1]} ${theme.spacing[3]}`,
     boxSizing: 'border-box',
-    ...theme.typography.paragraph(),
+    color: theme.colors.text.primary,
+    ...theme.typography.small(),
     cursor: 'text',
     '&::placeholder': {
       color: theme.colors.text.secondary,
@@ -88,10 +89,10 @@ const styles = defineStyles({
       WebkitAppearance: 'none',
       appearance: 'none',
       '&::-webkit-search-cancel-button, &::-webkit-search-decoration, &::-webkit-search-results-button, &::-webkit-search-results-decoration':
-        {
-          display: 'none',
-          WebkitAppearance: 'none',
-        },
+      {
+        display: 'none',
+        WebkitAppearance: 'none',
+      },
     },
   },
   invisible: {
