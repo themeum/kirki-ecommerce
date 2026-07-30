@@ -1,12 +1,33 @@
 <?php
 
+/**
+ * Shop Page Request Handler.
+ *
+ * @package Kirki\Ecommerce\App\Http\Controllers\Site
+ * @author Themeum <support@themeum.com>
+ * @link https://themeum.com
+ * @since 1.0.0
+ */
+
 namespace Kirki\Ecommerce\App\Http\Requests\Site;
 
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
 
+/**
+ * Class ShopPageFilterRequest
+ *
+ * @since 1.0.0
+ */
 class ShopPageFilterRequest extends Request
 {
+    /**
+     * Validate the request.
+     *
+     * @since 1.0.0
+     *
+     * @return array
+     */
     public function rules()
     {
         return [
@@ -21,6 +42,13 @@ class ShopPageFilterRequest extends Request
         ];
     }
 
+    /**
+     * Filters
+     *
+     * @since 1.0.0
+     *
+     * @return array
+     */
     public function filters()
     {
         //TODO: Will be added later.

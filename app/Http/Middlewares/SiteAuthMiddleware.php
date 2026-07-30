@@ -1,10 +1,12 @@
 <?php
 
 /**
- * Handle site authentication
+* Handle site authentication
  *
- * @package    Kirki\Ecommerce\App\Http\Middlewares
- * @since      1.0.0
+ * @package Kirki\Ecommerce\App\Http\Middlewares
+ * @author Themeum <support@themeum.com>
+ * @link https://themeum.com
+ * @since 1.0.0
  */
 
 namespace Kirki\Ecommerce\App\Http\Middlewares;

@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * Template related helpers
+ *
+ * @package Kirki\Ecommerce\App\Supports
+ * @author Themeum <support@themeum.com>
+ * @link https://themeum.com
+ * @since 1.0.0
+ */
+
 namespace Kirki\Ecommerce\App\Supports;
 
 use Kirki\Ecommerce\App\Models\Attribute;
