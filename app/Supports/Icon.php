@@ -14,6 +14,7 @@ class Icon
     /**
      * Get the absolute path to the icons directory.
      *
+     * @since 1.0.0
      * @return string
      */
     private static function get_icons_path(): string
@@ -24,6 +25,7 @@ class Icon
     /**
      * Load an SVG icon from the icons directory.
      *
+     * @since 1.0.0
      * @param string $name Icon name without .svg extension
      * @param array<string, mixed> $options {
      *     @type string $class CSS classes to add to the SVG
@@ -79,6 +81,7 @@ class Icon
     /**
      * Render an SVG icon directly to output.
      *
+     * @since 1.0.0
      * @param string $name Icon name without .svg extension
      * @param array<string, mixed> $options Icon options (same as get())
      * @return void
@@ -91,6 +94,7 @@ class Icon
     /**
      * Modify SVG attributes based on options.
      *
+     * @since 1.0.0
      * @param string $svg SVG markup
      * @param array<string, mixed> $options Icon options
      * @return string Modified SVG markup
@@ -116,6 +120,7 @@ class Icon
     /**
      * Add CSS class to SVG element.
      *
+     * @since 1.0.0
      * @param string $svg SVG markup
      * @param string $class CSS class(es) to add
      * @return string Modified SVG markup
@@ -139,6 +144,7 @@ class Icon
     /**
      * Set width and height attributes on SVG.
      *
+     * @since 1.0.0
      * @param string $svg SVG markup
      * @param int $size Size in pixels (sets both width and height)
      * @return string Modified SVG markup
@@ -158,6 +164,7 @@ class Icon
     /**
      * Set fill color on SVG.
      *
+     * @since 1.0.0
      * @param string $svg SVG markup
      * @param string $color Color value
      * @return string Modified SVG markup
@@ -184,6 +191,7 @@ class Icon
     /**
      * Check if an icon exists.
      *
+     * @since 1.0.0
      * @param string $name Icon name without .svg extension
      * @return bool
      */
@@ -195,6 +203,7 @@ class Icon
     /**
      * Clear the icon cache.
      *
+     * @since 1.0.0
      * @return void
      */
     public static function clear_cache(): void
@@ -205,6 +214,7 @@ class Icon
     /**
      * Get a list of all available icons.
      *
+     * @since 1.0.0
      * @return array<string> Array of icon names (without .svg extension)
      */
     public static function list(): array
