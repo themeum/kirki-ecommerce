@@ -19,7 +19,6 @@ use function Kirki\Ecommerce\Framework\view_data;
 
 class ReplaceSiteTitle extends BaseHook
 {
-
     public function get_name(): string
     {
         //@TODO: need to add this to Hooks constants.
@@ -33,22 +32,25 @@ class ReplaceSiteTitle extends BaseHook
 
     public function handle(...$args)
     {
+        $title = $args[0];
+
         if (! Route::is('shop.single')) {
-            return;
+            return $title;
         }
 
         $product = view_data();
-
         if (!count($product)) {
-            return $args[0];
+            return $title;
         }
 
-        $seo_title = $product['seo_title'] ?? '';
-
-        if (!empty($seo_title)) {
-            return $seo_title;
+        if (!empty($product['seo_title'])) {
+            $title = $product['seo_title'];
+        } else {
+            if (!empty($product['title'])) {
+                $title = $product['title'] . ' - ' . get_bloginfo('name');
+            }
         }
 
-        return $args[0];
+        return $title;
     }
 }
