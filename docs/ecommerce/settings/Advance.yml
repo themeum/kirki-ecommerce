@@ -19,7 +19,8 @@ http:
               "shop_page": 34,
               "cart_page": 32,
               "checkout_page":2,
-              "account_page": 52
+              "account_page": 52,
+              "design_system_page": 16
             }
         }
       }
