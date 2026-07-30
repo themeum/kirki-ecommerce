@@ -17,6 +17,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import { NEW_ITEM_ID } from '@/conf';
 import { cardStyles } from '@/theme/card-styles';
+import { useAppConfig } from '@/contexts/app-config-context';
 import {
   ProductFormProvider,
   useProductForm,
@@ -39,7 +40,7 @@ import {
   useProductQuery,
   useUpdateProductMutation,
 } from '@/services/product';
-import { useDefaultSettingsQuery, useSettingsQuery } from '@/services/settings';
+import { useSettingsQuery } from '@/services/settings';
 import { useShippingBoxesQuery } from '@/services/shipping';
 import type {
   FormErrors,
@@ -97,7 +98,7 @@ const EditProductInner = () => {
   });
 
   const { data: productResponse } = useProductQuery(id as string, !isNew);
-  const { data: defaultSettings } = useDefaultSettingsQuery();
+  const { settings: defaultSettings } = useAppConfig();
   const { data: productSettings } = useSettingsQuery('product', {}, isNew);
   const { data: shippingBoxes } = useShippingBoxesQuery({ limit: -1 });
 

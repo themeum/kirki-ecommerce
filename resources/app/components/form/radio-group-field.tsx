@@ -1,4 +1,4 @@
-import { type SerializedStyles } from '@emotion/react';
+import { css, type SerializedStyles } from '@emotion/react';
 import type { ReactNode } from 'react';
 import {
   Controller,
@@ -14,6 +14,7 @@ import {
   FieldLabel,
 } from '@/components/ui/field';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { scoped } from '@/theme/mixins';
 
 type RadioGroupFieldOption = {
   label: string;
@@ -30,6 +31,7 @@ type RadioGroupFieldProps<
   options: RadioGroupFieldOption[];
   disabled?: boolean;
   css?: SerializedStyles;
+  groupCss?: SerializedStyles;
 };
 
 const RadioGroupField = <
@@ -41,7 +43,8 @@ const RadioGroupField = <
   description,
   options,
   disabled,
-  css,
+  css: fieldCss,
+  groupCss
 }: RadioGroupFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
 
@@ -50,13 +53,14 @@ const RadioGroupField = <
       control={control}
       name={name}
       render={({ field, fieldState }) => (
-        <Field data-invalid={fieldState.invalid || undefined} css={css}>
+        <Field data-invalid={fieldState.invalid || undefined} css={fieldCss}>
           {label && <FieldLabel>{label}</FieldLabel>}
           <RadioGroup
             value={field.value ?? ''}
             onValueChange={field.onChange}
             disabled={disabled}
             aria-invalid={fieldState.invalid}
+            css={css(styles.groupField, groupCss)}
           >
             {options.map((option) => {
               const optionId = `${String(name)}-${option.value}`;
@@ -80,3 +84,10 @@ const RadioGroupField = <
 RadioGroupField.displayName = 'RadioGroupField';
 
 export default RadioGroupField;
+
+const styles = {
+  groupField: scoped({
+    display: 'flex',
+    flexDirection: 'row',
+  })
+}

@@ -1,11 +1,11 @@
 import { css, type SerializedStyles } from '@emotion/react';
 import {
+  ComponentRef,
   forwardRef,
   useMemo,
   type ComponentPropsWithoutRef,
-  type ElementRef,
   type HTMLAttributes,
-  type ReactNode,
+  type ReactNode
 } from 'react';
 
 import Label from '@/components/ui/label';
@@ -104,11 +104,9 @@ const Field = forwardRef<HTMLDivElement, FieldProps>((props, ref) => {
       role="group"
       data-slot="field"
       data-orientation={orientation}
-      css={[
-        styles.field,
+      css={css(styles.field,
         styles.orientations[orientation],
-        cssProp,
-      ]}
+        cssProp,)}
       {...rest}
     />
   );
@@ -145,7 +143,7 @@ type FieldLabelProps = Omit<
   'className'
 >;
 
-const FieldLabel = forwardRef<ElementRef<typeof Label>, FieldLabelProps>(
+const FieldLabel = forwardRef<ComponentRef<typeof Label>, FieldLabelProps>(
   (props, ref) => {
     const { css: cssProp, ...rest } = props;
 
@@ -315,7 +313,7 @@ export {
   FieldLegend,
   FieldSeparator,
   FieldSet,
-  FieldTitle,
+  FieldTitle
 };
 
 const styles = {
@@ -328,9 +326,9 @@ const styles = {
     border: 'none',
     minWidth: 0,
     '&:has(> [data-slot="checkbox-group"]), &:has(> [data-slot="radio-group"])':
-      {
-        gap: theme.spacing[3],
-      },
+    {
+      gap: theme.spacing[3],
+    },
   }),
   fieldLegend: scoped({
     marginBottom: theme.spacing[3],
@@ -385,9 +383,9 @@ const styles = {
         alignItems: 'flex-start',
       },
       '&:has(> [data-slot="field-content"]) > [role="checkbox"], &:has(> [data-slot="field-content"]) > [role="radio"]':
-        {
-          marginTop: '1px',
-        },
+      {
+        marginTop: '1px',
+      },
     }),
     responsive: scoped({
       flexDirection: 'column',
@@ -407,9 +405,9 @@ const styles = {
           alignItems: 'flex-start',
         },
         '&:has(> [data-slot="field-content"]) > [role="checkbox"], &:has(> [data-slot="field-content"]) > [role="radio"]':
-          {
-            marginTop: '1px',
-          },
+        {
+          marginTop: '1px',
+        },
       },
     }),
   } as const,

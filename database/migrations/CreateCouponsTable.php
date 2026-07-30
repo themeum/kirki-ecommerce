@@ -44,6 +44,7 @@ class CreateCouponsTable implements Migration
 
             $table->integer('current_usage_count')->default(0);
             $table->boolean('is_active')->default(1);
+            $table->text('combinations')->nullable()->comment('Array of combinations as JSON');
             $table->unsigned_big_integer('created_by')->nullable();
             $table->unsigned_big_integer('updated_by')->nullable();
             $table->timestamps();

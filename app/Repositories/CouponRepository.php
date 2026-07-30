@@ -164,4 +164,15 @@ class CouponRepository
                 return $query->apply_status_filter($filters['status']);
             });
     }
+
+    /**
+     * Check if a coupon code exists.
+     *
+     * @param string $code
+     * @return bool
+     */
+    public function is_exists(string $code)
+    {
+        return Coupon::query()->where('code', $code)->exists();
+    }
 }

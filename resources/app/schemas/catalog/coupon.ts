@@ -11,6 +11,28 @@ export const CouponStatusSchema = z.enum([
 
 export type CouponStatus = z.infer<typeof CouponStatusSchema>;
 
+export const CouponDiscountTypeSchema = z.enum([
+  'amount-off',
+  'free-shipping',
+  'buy-x-get-y',
+]);
+
+export type CouponDiscountType = z.infer<typeof CouponDiscountTypeSchema>;
+
+export const CouponMethodSchema = z.enum(['code', 'automatic']);
+
+export type CouponMethod = z.infer<typeof CouponMethodSchema>;
+
+export const CouponDiscountTargetSchema = z.enum(['order', 'products']);
+
+export type CouponDiscountTarget = z.infer<typeof CouponDiscountTargetSchema>;
+
+export const CouponDiscountValueTypeSchema = z.enum(['fixed', 'percentage']);
+
+export type CouponDiscountValueType = z.infer<
+  typeof CouponDiscountValueTypeSchema
+>;
+
 export const CouponCollectionRefSchema = z.object({
   id: z.number(),
   title: z.string(),
@@ -20,12 +42,12 @@ export type CouponCollectionRef = z.infer<typeof CouponCollectionRefSchema>;
 
 export const CouponSchema = z.object({
   id: z.number(),
-  method: z.enum(['code', 'automatic']),
+  method: CouponMethodSchema,
   title: z.string(),
   code: z.string().nullish(),
-  discount_type: z.enum(['amount-off', 'free-shipping', 'buy-x-get-y']),
-  discount_target: z.enum(['order', 'products']).nullish(),
-  discount_value_type: z.enum(['fixed', 'percentage']).nullish(),
+  discount_type: CouponDiscountTypeSchema,
+  discount_target: CouponDiscountTargetSchema.nullish(),
+  discount_value_type: CouponDiscountValueTypeSchema.nullish(),
   discount_amount: MoneyAmountSchema.nullish(),
   eligible_item_type: z.enum(['specific-products', 'specific-categories', 'all-products']).nullish(),
   spend_condition_type: z.enum(['min-cart-amount', 'min-items']).nullish(),
@@ -42,6 +64,7 @@ export const CouponSchema = z.object({
   has_usage_limit: z.boolean().default(false),
   usage_limit: z.number().nullish(),
   has_customer_limit: z.boolean().default(false),
+  customer_limit: z.number().nullish(),
   current_usage_count: z.number().default(0),
   is_active: z.boolean().default(true),
   status: CouponStatusSchema,

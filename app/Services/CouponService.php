@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Services;
 
+use Kirki\Ecommerce\App\Constants\DateTimeFormats;
 use Kirki\Ecommerce\App\DTO\Coupon\CouponFilterDTO;
 use Kirki\Ecommerce\App\Models\Coupon;
 use Kirki\Ecommerce\App\Repositories\CouponRepository;
@@ -11,6 +12,7 @@ use Kirki\Ecommerce\App\DTO\Coupon\CreateCouponDTO;
 use Kirki\Ecommerce\App\DTO\Coupon\UpdateCouponDTO;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
+use Kirki\Ecommerce\Framework\Supports\Facades\Date;
 
 use function Kirki\Ecommerce\Framework\user;
 
@@ -172,5 +174,50 @@ class CouponService
     public function delete_all(CouponFilterDTO $filters)
     {
         return $this->repository->delete_all($filters->to_array());
+    }
+
+    public function generate_new_code()
+    {
+        $now = Date::now();
+
+        $year = $now->format(DateTimeFormats::YEAR_SHORT);
+        $month = $now->format(DateTimeFormats::MONTH_SHORT);
+
+        $chars = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+
+        $i = 8;
+
+        $code = '';
+
+        for ($i; $i > 0; $i--) {
+            if ($i === 3) {
+                $code .= $year;
+            }
+
+            if ($i === 6) {
+                $code .= $month;
+            }
+
+            $code .= $chars[array_rand($chars)];
+        }
+
+        $is_valid = $this->validate_code($code);
+
+        if (!$is_valid) {
+            return $this->generate_new_code();
+        }
+
+        return $code;
+    }
+
+    /**
+     * Check if a coupon code is not already in use then it is valid code.
+     *
+     * @param string $code
+     * @return bool when code is not exists then return true otherwise return false
+     */
+    public function validate_code(string $code)
+    {
+        return !$this->repository->is_exists($code);
     }
 }

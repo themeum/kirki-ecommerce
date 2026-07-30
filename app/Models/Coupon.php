@@ -32,6 +32,7 @@ class Coupon extends Model
         'start_datetime' => 'datetime',
         'end_datetime' => 'datetime',
         'target_countries' => 'json',
+        'combinations' => 'json',
         'created_by' => 'integer',
         'updated_by' => 'integer',
         'created_at' => 'datetime',
@@ -65,6 +66,7 @@ class Coupon extends Model
         'customer_limit',
         'current_usage_count',
         'is_active',
+        'combinations',
         'created_by',
         'updated_by',
     ];
@@ -95,6 +97,14 @@ class Coupon extends Model
     public function set_target_countries_attribute($value)
     {
         $this->attributes['target_countries'] = !empty($value) && is_array($value) ? Arr::json_encode($value) : null;
+    }
+
+    /**
+     * @param array|null $value
+     */
+    public function set_combinations_attribute($value)
+    {
+        $this->attributes['combinations'] = !empty($value) && is_array($value) ? Arr::json_encode($value) : null;
     }
 
     public function set_start_datetime_attribute(?string $value)

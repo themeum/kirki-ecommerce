@@ -89,4 +89,7 @@ class CreateCouponDTO extends DTO
 
     /** @var array */
     public $reward_product_ids = [];
+
+    /** @var array */
+    public $combinations = [];
 }

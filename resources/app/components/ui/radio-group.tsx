@@ -2,9 +2,9 @@ import { type SerializedStyles, type Theme } from '@emotion/react';
 import * as RadioGroupPrimitive from '@radix-ui/react-radio-group';
 import { Circle } from 'lucide-react';
 import {
+  ComponentRef,
   forwardRef,
   type ComponentPropsWithoutRef,
-  type ElementRef,
 } from 'react';
 
 import { theme } from '@/theme';
@@ -18,7 +18,7 @@ type RadioGroupProps = Omit<
 };
 
 const RadioGroup = forwardRef<
-  ElementRef<typeof RadioGroupPrimitive.Root>,
+  ComponentRef<typeof RadioGroupPrimitive.Root>,
   RadioGroupProps
 >((props, ref) => {
   const { css: cssProp, ...rest } = props;
@@ -42,7 +42,7 @@ type RadioGroupItemProps = Omit<
 };
 
 const RadioGroupItem = forwardRef<
-  ElementRef<typeof RadioGroupPrimitive.Item>,
+  ComponentRef<typeof RadioGroupPrimitive.Item>,
   RadioGroupItemProps
 >((props, ref) => {
   const { css: cssProp, ...rest } = props;
@@ -50,7 +50,7 @@ const RadioGroupItem = forwardRef<
   return (
     <RadioGroupPrimitive.Item ref={ref} css={[styles.item, cssProp]} {...rest}>
       <RadioGroupPrimitive.Indicator css={styles.indicator}>
-        <Circle size={8} fill="currentColor" strokeWidth={0} />
+        <Circle size={10} fill="currentColor" strokeWidth={0} />
       </RadioGroupPrimitive.Indicator>
     </RadioGroupPrimitive.Item>
   );
@@ -94,5 +94,7 @@ const styles = {
     ...flexCenter(),
     display: 'flex',
     color: theme.colors.background.fillBrand,
+    padding: 0,
+    margin: 0,
   }),
 };

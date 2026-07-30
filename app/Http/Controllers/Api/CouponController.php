@@ -120,4 +120,24 @@ class CouponController
                 ], Response::BAD_REQUEST);
         }
     }
+
+    public function generate_new_code(Request $request)
+    {
+        $code = $this->service->generate_new_code();
+
+        return response()->json([
+            'data' => $code,
+            'message' => __('Coupon code generated successfully.', 'kirki-ecommerce'),
+        ]);
+    }
+
+    public function validate_code(Request $request)
+    {
+        $is_valid = $this->service->validate_code($request->get_string('code'));
+
+        return response()->json([
+            'data' => $is_valid,
+            'message' => $is_valid ? __('Code is valid.', 'kirki-ecommerce') : __('Code already used.', 'kirki-ecommerce'),
+        ]);
+    }
 }
