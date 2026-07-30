@@ -32,11 +32,12 @@ $sidebar_data = [
 ];
 ?>
 
-<?php Template::get_header(); ?>
+<?php Template::get_header();
+?>
 
 <div class="kirki-ecom-page-wrapper">
     <h1><?php echo esc_html__('Shop', 'kirki-ecommerce'); ?></h1>
-    
+
     <?php
     include_view(
         'site.shop.parts.meta',
@@ -50,7 +51,8 @@ $sidebar_data = [
     ?>
 
     <div class="kirki-ecom-container">
-        <?php // include_view('site.shop.parts.sidebar', $sidebar_data); ?>
+        <?php // include_view('site.shop.parts.sidebar', $sidebar_data); 
+        ?>
         <div class="kirki-ecom-products">
             <?php
             foreach ($products as $product) {
@@ -61,37 +63,38 @@ $sidebar_data = [
     </div>
     <?php
     if ($last_page > 1) :
-                /**
-                 * Build a pagination URL preserving all current query params.
-                 *
-                 * @param int    $page     Target page number.
-                 * @param string $base_url Base shop URL.
-                 * @return string
-                 */
-                $pagination_url = function ($page) use ($shop_page_url) {
-                    $params = $_GET;
-                    $params['current_page'] = $page;
-                    return $shop_page_url . '?' . http_build_query($params);
-                };
-        ?>
-            <div class="kirki-ecom-pagination">
-                    <?php if (!$data->products->on_first_page()) : ?>
-                    <a href="<?php echo esc_url($pagination_url($current_page - 1)); ?>" class="kirki-ecom-page-link">&laquo;</a>
-                    <?php endif; ?>
+        /**
+         * Build a pagination URL preserving all current query params.
+         *
+         * @param int    $page     Target page number.
+         * @param string $base_url Base shop URL.
+         * @return string
+         */
+        $pagination_url = function ($page) use ($shop_page_url) {
+            $params = $_GET;
+            $params['current_page'] = $page;
+            return $shop_page_url . '?' . http_build_query($params);
+        };
+    ?>
+        <div class="kirki-ecom-pagination">
+            <?php if (!$data->products->on_first_page()) : ?>
+                <a href="<?php echo esc_url($pagination_url($current_page - 1)); ?>" class="kirki-ecom-page-link">&laquo;</a>
+            <?php endif; ?>
 
-                   <?php for ($i = 1; $i <= $last_page; $i++) : ?>
-                        <?php if ($i === $current_page) : ?>
-                        <span class="kirki-ecom-page-link active"><?php echo esc_html($i); ?></span>
-                        <?php else : ?>
-                        <a href="<?php echo esc_url($pagination_url($i)); ?>" class="kirki-ecom-page-link"><?php echo esc_html($i); ?></a>
-                        <?php endif; ?>
-                   <?php endfor; ?>
+            <?php for ($i = 1; $i <= $last_page; $i++) : ?>
+                <?php if ($i === $current_page) : ?>
+                    <span class="kirki-ecom-page-link active"><?php echo esc_html($i); ?></span>
+                <?php else : ?>
+                    <a href="<?php echo esc_url($pagination_url($i)); ?>" class="kirki-ecom-page-link"><?php echo esc_html($i); ?></a>
+                <?php endif; ?>
+            <?php endfor; ?>
 
-                   <?php if ($data->products->has_more_page()) : ?>
-                    <a href="<?php echo esc_url($pagination_url($current_page + 1)); ?>" class="kirki-ecom-page-link">&raquo;</a>
-                   <?php endif; ?>
-                </div>
+            <?php if ($data->products->has_more_page()) : ?>
+                <a href="<?php echo esc_url($pagination_url($current_page + 1)); ?>" class="kirki-ecom-page-link">&raquo;</a>
+            <?php endif; ?>
+        </div>
     <?php endif; ?>
 </div>
 
-<?php Template::get_footer(); ?>
+<?php Template::get_footer();
+?>

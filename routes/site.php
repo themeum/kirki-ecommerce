@@ -23,7 +23,7 @@ Route::set_routing_method(Route::ROUTING_PARSE_REQUEST);
 
 Route::site(function () {
     // TODO: Remove these default values once page generation via settings is implemented.
-    $shop_page_id = Settings::get('product')->get('shop_page', 34);
+    $shop_page_id = Settings::get('product')->get('shop_page', 18);
     $cart_page_id = Settings::get('product')->get('cart_page', 32);
     $checkout_page_id = Settings::get('product')->get('checkout_page', 2);
     $account_page_id = Settings::get('product')->get('account_page', 52);
