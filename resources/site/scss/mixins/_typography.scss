@@ -1,26 +1,53 @@
 // Mixins - Typography
 
-@use 'sass:map';
-@use 'sass:list';
-@use '../tokens' as *;
+@use "sass:map";
+@use "sass:list";
+@use "../tokens" as *;
 
 // Font size + line height pair from the token scale
 @mixin text($size: base) {
   $sizes: (
-    xs:   ($font-size-xs,   $line-height-xs),
-    sm:   ($font-size-sm,   $line-height-sm),
-    base: ($font-size-base, $line-height-base),
-    md:   ($font-size-md,   $line-height-md),
-    lg:   ($font-size-lg,   $line-height-lg),
-    xl:   ($font-size-xl,   $line-height-xl),
-    2xl:  ($font-size-2xl,  $line-height-2xl),
-    3xl:  ($font-size-3xl,  $line-height-3xl),
-    4xl:  ($font-size-4xl,  $line-height-3xl),
+    xs: (
+      $font-size-xs,
+      $line-height-xs,
+    ),
+    sm: (
+      $font-size-sm,
+      $line-height-sm,
+    ),
+    base: (
+      $font-size-base,
+      $line-height-base,
+    ),
+    md: (
+      $font-size-md,
+      $line-height-md,
+    ),
+    lg: (
+      $font-size-lg,
+      $line-height-lg,
+    ),
+    xl: (
+      $font-size-xl,
+      $line-height-xl,
+    ),
+    2xl: (
+      $font-size-2xl,
+      $line-height-2xl,
+    ),
+    3xl: (
+      $font-size-3xl,
+      $line-height-3xl,
+    ),
+    4xl: (
+      $font-size-4xl,
+      $line-height-3xl,
+    ),
   );
 
   @if map.has-key($sizes, $size) {
     $pair: map.get($sizes, $size);
-    font-size:   list.nth($pair, 1);
+    font-size: list.nth($pair, 1);
     line-height: list.nth($pair, 2);
   } @else {
     @warn "Unknown text size: #{$size}";
@@ -33,10 +60,11 @@
   font-family: $font-family;
 
   $weights: (
-    normal:   $font-weight-normal,
-    medium:   $font-weight-medium,
+    normal: $font-weight-normal,
+    medium: $font-weight-medium,
     semibold: $font-weight-semibold,
-    bold:     $font-weight-bold,
+    bold: $font-weight-bold,
+    extrabold: $font-weight-extrabold,
   );
 
   @if map.has-key($weights, $weight) {
