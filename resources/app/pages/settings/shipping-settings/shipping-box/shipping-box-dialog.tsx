@@ -3,27 +3,47 @@ import { Controller, useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import TextField from '@/components/form/text-field';
+import ShippingBoxPreview from '@/components/shipping-box-preview/shipping-box-preview';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Dialog, DialogBody, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogBody,
+  DialogCloseButton,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Field, FieldError } from '@/components/ui/field';
 import { Form } from '@/components/ui/form';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import Flex from '@/components/ui/flex';
 import { Separator } from '@/components/ui/separator';
 import Text from '@/components/ui/text';
-import { ShippingBoxFormSchema, shippingBoxDefaultValues, type ShippingBoxFormValues } from '@/schemas/forms/shipping-box-form';
+import {
+  ShippingBoxFormSchema,
+  shippingBoxDefaultValues,
+  type ShippingBoxFormValues,
+} from '@/schemas/forms/shipping-box-form';
 import { useSettingsQuery } from '@/services/settings';
-import { useCreateShippingBoxMutation, useUpdateShippingBoxMutation } from '@/services/shipping';
+import {
+  useCreateShippingBoxMutation,
+  useUpdateShippingBoxMutation,
+} from '@/services/shipping';
 import type { ShippingBox } from '@/types';
 import { theme } from '@/theme';
-import { mergeCss, defineStyles } from '@/theme/mixins';
+import { mergeCss, defineStyles, scoped } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
-
-import { BoxGenerator } from '@/pages/settings/shipping-settings/shipping-box/box-generator';
 
 type ShippingBoxPopupProps = {
   selectedItem?: ShippingBox | null;
@@ -83,9 +103,9 @@ const ShippingBoxPopup = ({
       width: (selectedItem?.width as number | string) ?? 80,
       height: (selectedItem?.height as number | string) ?? 80,
       unit:
-        ((selectedItem?.unit as 'cm' | 'in') ??
-          (productSettingsData?.dimension_unit as 'cm' | 'in') ??
-          'in'),
+        (selectedItem?.unit as 'cm' | 'in') ??
+        (productSettingsData?.dimension_unit as 'cm' | 'in') ??
+        'in',
       name: selectedItem?.name ?? '',
       is_default: (selectedItem?.is_default as boolean) || false,
     });
@@ -137,7 +157,7 @@ const ShippingBoxPopup = ({
         }
       }}
     >
-      <DialogContent style={{ width: '632px' }}>
+      <DialogContent cssOverride={styles.dialogContent}>
         <DialogCloseButton />
         <DialogHeader>
           <DialogTitle>
@@ -147,82 +167,100 @@ const ShippingBoxPopup = ({
           </DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <DialogBody style={{ gap: '25px' }}>
+          <DialogBody cssOverride={styles.dialogBody}>
             <TextField
               name="name"
               label={__('Title', 'kirki-ecommerce')}
               placeholder={__('Regular box', 'kirki-ecommerce')}
             />
             <div>
-              <Card cssOverride={mergeCss(cardStyles.innerCard, styles.dimensionsCard)} >
+              <Card
+                cssOverride={mergeCss(
+                  cardStyles.innerCard,
+                  styles.dimensionsCard,
+                )}
+              >
                 <CardContent cssOverride={cardStyles.innerContent}>
-
-                <Text weight="medium" cssOverride={styles.dimensionsLabel}>{__('Dimensions', 'kirki-ecommerce')}</Text>
-                <Flex gap={4} align="flex-end">
-                <TextField
-                name="length"
-                label={__('Length', 'kirki-ecommerce')}
-                placeholder={__('12', 'kirki-ecommerce')}
-                type="number"
-                />
-                <TextField
-                name="width"
-                label={__('Width', 'kirki-ecommerce')}
-                placeholder={__('12', 'kirki-ecommerce')}
-                type="number"
-                />
-                <TextField
-                name="height"
-                label={__('Height', 'kirki-ecommerce')}
-                placeholder={__('12', 'kirki-ecommerce')}
-                type="number"
-                />
-                <Controller
-                  control={form.control}
-                  name="unit"
-                  render={({ field, fieldState }) => (
-                    <Field
-                      data-invalid={fieldState.invalid || undefined}
-                      style={{ width: '70px' }}
-                    >
-                      <Select
-                        value={field.value}
-                        onValueChange={(value) => handleUnitChange(value)}
-                      >
-                        <SelectTrigger
-                          id="unit"
-                          error={Boolean(fieldState.error)}
-                          aria-invalid={fieldState.invalid}
+                  <span css={scoped(styles.dimensionsLabel)}>
+                    <Text weight="medium">
+                      {__('Dimensions', 'kirki-ecommerce')}
+                    </Text>
+                  </span>
+                  <Flex
+                    gap={2}
+                    align="flex-end"
+                    cssOverride={styles.dimensionsRow}
+                  >
+                    <TextField
+                      name="length"
+                      label={__('Length', 'kirki-ecommerce')}
+                      placeholder={__('12', 'kirki-ecommerce')}
+                      type="number"
+                      cssOverride={styles.dimensionField}
+                    />
+                    <TextField
+                      name="width"
+                      label={__('Width', 'kirki-ecommerce')}
+                      placeholder={__('12', 'kirki-ecommerce')}
+                      type="number"
+                      cssOverride={styles.dimensionField}
+                    />
+                    <TextField
+                      name="height"
+                      label={__('Height', 'kirki-ecommerce')}
+                      placeholder={__('12', 'kirki-ecommerce')}
+                      type="number"
+                      cssOverride={styles.dimensionField}
+                    />
+                    <Controller
+                      control={form.control}
+                      name="unit"
+                      render={({ field, fieldState }) => (
+                        <Field
+                          data-invalid={fieldState.invalid || undefined}
+                          cssOverride={styles.unitField}
                         >
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="cm">
-                            {__('cm', 'kirki-ecommerce')}
-                          </SelectItem>
-                          <SelectItem value="in">
-                            {__('in', 'kirki-ecommerce')}
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                      {fieldState.invalid && (
-                        <FieldError errors={[fieldState.error]} />
+                          <Select
+                            value={field.value}
+                            onValueChange={(value) => {
+                              handleUnitChange(value);
+                            }}
+                          >
+                            <SelectTrigger
+                              id="unit"
+                              error={Boolean(fieldState.error)}
+                              aria-invalid={fieldState.invalid}
+                            >
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="cm">
+                                {__('cm', 'kirki-ecommerce')}
+                              </SelectItem>
+                              <SelectItem value="in">
+                                {__('in', 'kirki-ecommerce')}
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                          {fieldState.invalid && (
+                            <FieldError errors={[fieldState.error]} />
+                          )}
+                        </Field>
                       )}
-                    </Field>
-                  )}
-                />
-                </Flex>
+                    />
+                  </Flex>
                 </CardContent>
               </Card>
-              <Card cssOverride={mergeCss(cardStyles.darkCard, styles.previewCard)} >
-                <CardContent>
-
-                <BoxGenerator
-                length={Number(length) || 0}
-                width={Number(width) ?? 0}
-                height={Number(height) ?? 0}
-                unit={unit ?? 'in'}
-                />
+              <Card
+                cssOverride={mergeCss(cardStyles.darkCard, styles.previewCard)}
+              >
+                <CardContent cssOverride={styles.previewContent}>
+                  <ShippingBoxPreview
+                    length={Number(length) || 0}
+                    width={Number(width) || 0}
+                    height={Number(height) || 0}
+                    unit={unit ?? 'in'}
+                  />
                 </CardContent>
               </Card>
             </div>
@@ -257,6 +295,12 @@ ShippingBoxPopup.displayName = 'ShippingBoxPopup';
 export default ShippingBoxPopup;
 
 const styles = defineStyles({
+  dialogContent: {
+    width: '632px',
+  },
+  dialogBody: {
+    gap: theme.spacing[6],
+  },
   dimensionsCard: {
     position: 'relative',
     overflow: 'visible',
@@ -264,18 +308,36 @@ const styles = defineStyles({
   },
   dimensionsLabel: {
     top: '-12px',
-    left: '240px',
+    left: '50%',
+    transform: 'translateX(-50%)',
     position: 'absolute',
     padding: `${theme.spacing[0]} ${theme.spacing[2]}`,
-    backgroundColor: theme.colors.text.light,
+    backgroundColor: theme.colors.background.surface,
+  },
+  dimensionsRow: {
+    width: '100%',
+    minWidth: 0,
+  },
+  dimensionField: {
+    flex: '1 1 0',
+    minWidth: 0,
+    width: 0,
+  },
+  unitField: {
+    flex: '0 0 auto',
+    minWidth: 0,
+    width: 'auto',
   },
   previewCard: {
     borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.md} ${theme.radius.md}`,
     marginTop: `-${theme.spacing[2]}`,
-    padding: theme.spacing[1],
     height: '230px',
+  },
+  previewContent: {
+    padding: theme.spacing[1],
+    height: '100%',
   },
   footerSeparator: {
     margin: theme.spacing[0],
-  }
+  },
 });

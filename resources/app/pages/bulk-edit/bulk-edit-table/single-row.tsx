@@ -8,6 +8,7 @@ import type {
 } from 'react';
 import { useEffect, useState } from 'react';
 
+import ShippingBoxField from '@/components/form/shipping-box-field';
 import ThumbnailSelector from '@/components/thumbnail-selector';
 import Input from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -23,7 +24,6 @@ import type { MediaRef, ProductVariant, UnitPriceValue } from '@/types';
 import { __ } from '@/wpi18n';
 
 import BaseUnitPopup from '@/pages/products/edit-product/price/base-unit-dialog';
-import ShippingBox from '@/pages/products/edit-product/shipping/shipping-box';
 import { calculateProfit } from '@/pages/utils';
 import type { BulkEditSelectionData } from '@/pages/bulk-edit/bulk-edit-table/bulk-edit-table';
 
@@ -41,15 +41,7 @@ type BaseUnitPopupProps = {
   setErrors?: unknown;
 };
 
-type ShippingBoxProps = {
-  value?: number | null;
-  errors?: unknown;
-  onChange?: (value: unknown, fieldName: string) => void;
-  invisible?: boolean;
-};
-
 const BaseUnitPopupComponent = BaseUnitPopup as ComponentType<BaseUnitPopupProps>;
-const ShippingBoxComponent = ShippingBox as ComponentType<ShippingBoxProps>;
 
 type SingleRowProps = {
   index: number;
@@ -449,12 +441,12 @@ const SingleRow = (props: SingleRowProps) => {
           {...getActiveState('shipping_box_id')}
           style={{ minWidth: '300px' }}
         >
-          <ShippingBoxComponent
+          <ShippingBoxField
+            compact
             value={currentVariation?.shipping_box_id}
-            onChange={(value, fieldName) =>
-              handleOnChange(value, fieldName)
-            }
-            invisible
+            onChange={(value, fieldName) => {
+              handleOnChange(value, fieldName);
+            }}
           />
           <span
             data-grabber={isMaxIndex(index) ? 'true' : undefined}
