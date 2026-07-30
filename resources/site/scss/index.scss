@@ -1,6 +1,8 @@
 // Kirki Ecommerce – Site Design System
 // Entry point for the site bundle
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
 @use 'tokens'     as *;
 @use 'mixins'     as *;
 @use 'components';
