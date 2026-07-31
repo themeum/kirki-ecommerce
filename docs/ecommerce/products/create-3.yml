@@ -18,6 +18,7 @@ http:
         "ribbon": "Best Seller",
         "currency_id": 1,
         "brand_id": 1,
+        "short_description": "Just short one",
         "description": "Soft 100% cotton t-shirt with comfortable fit.",
         "additional_info": [
           {
@@ -25,9 +26,6 @@ http:
             "description": "bar"
           }
         ],
-        "allow_back_order": false,
-        "has_limit_per_order": true,
-        "max_per_order": 5,
         "seo_title": "Classic Cotton T-Shirt - Comfortable and Stylish",
         "seo_description": "Shop our premium cotton t-shirts. Perfect fit, breathable fabric, and stylish design.",
         "seo_keywords": [
@@ -51,6 +49,9 @@ http:
           4
         ],
         "tags": [
+          1
+        ],
+        "collections": [
           1
         ],
         "attributes": [
@@ -88,7 +89,7 @@ http:
             "total_unit_amount": null,
             "sale_price": 15.99,
             "cost_of_goods": 10,
-            "weight": 0.25,
+            "weight": 10.25,
             "weight_unit": "kg",
             "charge_taxes": true,
             "allow_back_order": false,
@@ -118,7 +119,7 @@ http:
             "total_unit_amount": null,
             "sale_price": 15.99,
             "cost_of_goods": 10,
-            "weight": 0.25,
+            "weight": 10.25,
             "weight_unit": "kg",
             "length": 30,
             "width": 25,
@@ -152,7 +153,7 @@ http:
             "total_unit_amount": null,
             "sale_price": 15.99,
             "cost_of_goods": 10,
-            "weight": 0.25,
+            "weight": 10.25,
             "weight_unit": "kg",
             "length": 30,
             "width": 25,
@@ -186,7 +187,7 @@ http:
             "total_unit_amount": null,
             "sale_price": 15.99,
             "cost_of_goods": 10,
-            "weight": 0.25,
+            "weight": 10.25,
             "weight_unit": "kg",
             "length": 30,
             "width": 25,
@@ -220,7 +221,7 @@ http:
             "total_unit_amount": null,
             "sale_price": 15.99,
             "cost_of_goods": 10,
-            "weight": 0.25,
+            "weight": 10.25,
             "weight_unit": "kg",
             "length": 30,
             "width": 25,
@@ -254,7 +255,7 @@ http:
             "total_unit_amount": null,
             "sale_price": 15.99,
             "cost_of_goods": 10,
-            "weight": 0.25,
+            "weight": 10.25,
             "weight_unit": "kg",
             "length": 30,
             "width": 25,
@@ -288,7 +289,7 @@ http:
             "total_unit_amount": null,
             "sale_price": 15.99,
             "cost_of_goods": 10,
-            "weight": 0.25,
+            "weight": 10.25,
             "weight_unit": "kg",
             "length": 30,
             "width": 25,
@@ -322,7 +323,7 @@ http:
             "total_unit_amount": null,
             "sale_price": 15.99,
             "cost_of_goods": 10,
-            "weight": 0.25,
+            "weight": 10.25,
             "weight_unit": "kg",
             "length": 30,
             "width": 25,
@@ -356,7 +357,7 @@ http:
             "total_unit_amount": null,
             "sale_price": 15.99,
             "cost_of_goods": 10,
-            "weight": 0.25,
+            "weight": 10.25,
             "weight_unit": "kg",
             "length": 30,
             "width": 25,
@@ -377,6 +378,7 @@ http:
         ]
       }
   auth: inherit
+
 settings:
   encodeUrl: true
   timeout: 0

@@ -25,9 +25,6 @@ http:
             "description": "bar"
           }
         ],
-        "allow_back_order": false,
-        "has_limit_per_order": true,
-        "max_per_order": 5,
         "seo_title": "Classic Cotton T-Shirt - Comfortable and Stylish",
         "seo_description": "Shop our premium cotton t-shirts. Perfect fit, breathable fabric, and stylish design.",
         "seo_keywords": [
@@ -377,6 +374,7 @@ http:
         ]
       }
   auth: inherit
+
 settings:
   encodeUrl: true
   timeout: 0
