@@ -7,11 +7,11 @@ import {
 } from 'react-hook-form';
 
 import ShippingBoxPreview from '@/components/shipping-box-preview/shipping-box-preview';
+import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import ActionGroup from '@/components/ui/action-group';
-import Flex from '@/components/ui/flex';
 import { Field, FieldError } from '@/components/ui/field';
+import Flex from '@/components/ui/flex';
 import {
   Select,
   SelectContent,
@@ -23,8 +23,8 @@ import {
 import Text from '@/components/ui/text';
 import { EyeClosedIcon, EyeIcon, PlusIcon } from '@/icons';
 import { useShippingBoxesQuery } from '@/services/shipping';
-import { cardStyles } from '@/theme/card-styles';
 import { theme } from '@/theme';
+import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
@@ -355,6 +355,7 @@ const styles = defineStyles({
   labelBackground: {
     backgroundColor: theme.colors.background.surface,
     paddingLeft: theme.spacing[2],
+    marginTop: theme.spacing[1],
   },
   actionBackground: {
     backgroundColor: theme.colors.background.surface,

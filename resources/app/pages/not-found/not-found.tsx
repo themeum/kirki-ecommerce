@@ -7,7 +7,7 @@ import Text from '@/components/ui/text';
 import { ArrowLeftIcon, BoxIcon } from '@/icons';
 import NotFoundIllustration from '@/pages/not-found/not-found-illustration/not-found-illustration';
 import { theme } from '@/theme';
-import { scoped, defineStyles } from '@/theme/mixins';
+import { defineStyles, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 const NotFound = () => {
