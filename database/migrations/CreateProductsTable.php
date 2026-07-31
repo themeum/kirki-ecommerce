@@ -21,6 +21,7 @@ class CreateProductsTable implements Migration
             $table->unsigned_big_integer('currency_id');
             $table->unsigned_big_integer('brand_id')->nullable();
 
+            $table->text('short_description')->nullable();
             $table->long_text('description')->nullable();
             $table->text('additional_info')->nullable()->comment('JSON string of product attributes');
 

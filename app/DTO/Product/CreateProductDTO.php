@@ -25,6 +25,9 @@ class CreateProductDTO extends DTO
     public $brand_id;
 
     /** @var string|null */
+    public $short_description;
+
+    /** @var string|null */
     public $description;
 
     /** @var string|null */

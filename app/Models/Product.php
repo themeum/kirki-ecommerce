@@ -34,6 +34,7 @@ class Product extends Model
         'ribbon',
         'currency_id',
         'brand_id',
+        'short_description',
         'description',
         'additional_info',
         'allow_back_order',

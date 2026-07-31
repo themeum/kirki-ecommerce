@@ -44,6 +44,7 @@ class ProductCreateRequest extends Request
             'ribbon' => 'string|nullable|max:100',
             'currency_id' => 'integer|nullable',
             'brand_id' => 'integer|nullable',
+            'short_description' => 'string|nullable',
             'description' => 'string|nullable',
             'additional_info' => 'array|nullable', // JSON string, can be validated later
             'allow_back_order' => 'boolean|nullable',
@@ -129,6 +130,7 @@ class ProductCreateRequest extends Request
             'ribbon' => Sanitizer::TEXT,
             'currency_id' => Sanitizer::INT,
             'brand_id' => Sanitizer::INT,
+            'short_description' => Sanitizer::TEXT,
             'description' => Sanitizer::TEXT,
             'additional_info' => Sanitizer::ARRAY,
             'allow_back_order' => Sanitizer::BOOL,
