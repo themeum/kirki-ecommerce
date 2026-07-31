@@ -10,6 +10,7 @@
  */
 
 import { cartApi } from '../api/cart';
+import { translate } from '../utils/i18n';
 
 export interface AddToCartConfig {
   variantId: number;
@@ -25,11 +26,11 @@ export function addToCart(config: AddToCartConfig) {
     qty: config.qty ?? 1,
     cartUrl: config.cartUrl || '/cart',
     watchVariantId: config.watchVariantId,
-    buttonText: config.buttonText || 'Add to Cart',
+    buttonText: config.buttonText || translate('Add to Cart'),
     loading: false,
     success: false,
     error: null as string | null,
-    viewCartText: 'View Cart',
+    viewCartText: translate('View Cart'),
 
     init(this: any) {
       this.checkIfInCart();
@@ -50,7 +51,7 @@ export function addToCart(config: AddToCartConfig) {
         this.buttonText = this.viewCartText;
       } else {
         this.success = false;
-        this.buttonText = config.buttonText || 'Add to Cart';
+        this.buttonText = config.buttonText || translate('Add to Cart');
       }
     },
 
@@ -71,7 +72,7 @@ export function addToCart(config: AddToCartConfig) {
         }
       } catch (e: unknown) {
         this.error = e instanceof Error ? e.message : 'Could not add to cart';
-        this.buttonText = config.buttonText || 'Add to Cart';
+        this.buttonText = config.buttonText || translate('Add to Cart');
       } finally {
         this.loading = false;
       }

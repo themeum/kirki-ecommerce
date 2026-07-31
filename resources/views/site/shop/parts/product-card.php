@@ -81,7 +81,7 @@ $product_url = Url::get_product_url($product->slug);
                 <span class="kecom-product-card-price-discount"><?php echo esc_html($formatted_regular_price); ?></span>
             <?php endif; ?>
         </div>
-        <div x-data="addToCart({ variantId: <?php echo esc_attr((int) $variant->id); ?>, cartUrl: '<?php echo esc_url(Url::get_cart_url()); ?>', buttonText: 'Add' })">
+        <div x-data="addToCart({ variantId: <?php echo esc_attr((int) $variant->id); ?>, cartUrl: '<?php echo esc_url(Url::get_cart_url()); ?>', buttonText: '<?php echo esc_html__('Add', 'kirki-ecommerce'); ?>' })">
             <template x-if="!success">
                 <button
                     type="button"

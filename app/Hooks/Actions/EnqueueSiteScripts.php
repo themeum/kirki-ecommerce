@@ -73,9 +73,12 @@ class EnqueueSiteScripts extends BaseHook
         $site_js_handler = 'kirki-ecommerce-site-scripts';
         $site_css_handler = 'kirki-ecommerce-site-styles';
 
-        wp_enqueue_script($site_js_handler, Assets::get_url('js/site.js'), [], false, true);
+        wp_enqueue_script($site_js_handler, Assets::get_url('js/site.js'), ['wp-i18n'], false, true);
         wp_enqueue_style($site_css_handler, Assets::get_url('css/site.css'));
 
         wp_add_inline_script($site_js_handler, Assets::get_kirki_ecommerce_configs(), 'before');
+        
+        // Set script translation data for wp-i18n
+        wp_set_script_translations($site_js_handler, 'kirki-ecommerce', KIRKI_ECOMMERCE_PLUGIN_PATH . '/languages');
     }
 }
