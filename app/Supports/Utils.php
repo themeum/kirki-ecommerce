@@ -11,6 +11,7 @@
 
 namespace Kirki\Ecommerce\App\Supports;
 
+use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\Framework\Supports\Arr;
 
 /**
@@ -36,5 +37,72 @@ class Utils
         $nonce_value = sanitize_text_field(Arr::get($data, 'ajax_nonce'));
 
         return wp_verify_nonce($nonce_value, 'kirki_ecommerce_nonce') !== false;
+    }
+
+    /**
+     * Get shop page id.
+     *
+     * @since 1.0.0
+     *
+     * @return int The shop page id.
+     */
+    public static function get_shop_page_id()
+    {
+        return Settings::get('advance.pages.shop_page', 0);
+    }
+
+    /**
+     * Get cart page id.
+     *
+     * @since 1.0.0
+     *
+     * @return int The cart page id.
+     */
+    public static function get_cart_page_id()
+    {
+        return Settings::get('advance.pages.cart_page', 0);
+    }
+
+    /**
+     * Get checkout page id.
+     *
+     * @since 1.0.0
+     *
+     * @return int The checkout page id.
+     */
+    public static function get_checkout_page_id()
+    {
+        return Settings::get('advance.pages.checkout_page', 0);
+    }
+
+    /**
+     * Get account page id.
+     *
+     * @since 1.0.0
+     *
+     * @return int The account page id.
+     */
+    /**
+     * Get account page id.
+     *
+     * @since 1.0.0
+     *
+     * @return int The account page id.
+     */
+    public static function get_account_page_id()
+    {
+        return Settings::get('advance.pages.account_page', 0);
+    }
+
+    /**
+     * Get design system page id.
+     *
+     * @since 1.0.0
+     *
+     * @return int The design system page id.
+     */
+    public static function get_design_system_page_id()
+    {
+        return Settings::get('advance.pages.design_system_page', 0);
     }
 }

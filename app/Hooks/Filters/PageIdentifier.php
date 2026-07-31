@@ -11,7 +11,7 @@
 
 namespace Kirki\Ecommerce\App\Hooks\Filters;
 
-use Kirki\Ecommerce\Framework\Supports\Arr;
+use Kirki\Ecommerce\App\Supports\Utils;
 use Kirki\Ecommerce\Framework\Wordpress\BaseHook;
 use Kirki\Ecommerce\Framework\Wordpress\Constants\HookTypes;
 
@@ -42,13 +42,11 @@ class PageIdentifier extends BaseHook
 
         $post = $args[1];
 
-        //TODO: Will be replaced with Settings::get();
-        $options = get_option('kirki_ecommerce_advance', []);
-        $shop_page_id = Arr::get($options, 'pages.shop_page', 0);
-        $cart_page_id = Arr::get($options, 'pages.cart_page', 0);
-        $checkout_page_id = Arr::get($options, 'pages.checkout_page', 0);
-        $account_page_id = Arr::get($options, 'pages.account_page', 0);
-        $design_system_page_id = Arr::get($options, 'pages.design_system_page', 0);
+        $shop_page_id = Utils::get_shop_page_id();
+        $cart_page_id = Utils::get_cart_page_id();
+        $checkout_page_id = Utils::get_checkout_page_id();
+        $account_page_id = Utils::get_account_page_id();
+        $design_system_page_id = Utils::get_design_system_page_id();
 
         if ($shop_page_id === $post->ID) {
             $post_states['kirki_ecommerce_shop'] = __('Shop Page', 'kirki-ecommerce');
