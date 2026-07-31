@@ -9,7 +9,7 @@ import { ArrowLeftIcon } from '@/icons';
 import { theme } from '@/theme';
 import { defineStyles, itemCenter, scopedMerge } from '@/theme/mixins';
 import type { PaginationData } from '@/types';
-import { __ } from '@/wpi18n';
+import { __, sprintf } from '@/wpi18n';
 
 type PaginationProps = {
   data: PaginationData;
@@ -56,7 +56,10 @@ const Pagination = (props: PaginationProps) => {
           </SelectContent>
         </Select>
         <Text variant="small" cssOverride={styles.nowrap}>
-          {`of ${last_page}`}
+          {
+            /* translators: %s: last page */
+            sprintf(__(`of %s`, 'kirki-ecommerce'), last_page)
+          }
         </Text>
       </Flex>
       <ActionGroup>
@@ -74,8 +77,8 @@ const Pagination = (props: PaginationProps) => {
             variant={_current_page === page.value ? 'primary' : 'link'}
             onClick={() => onChange(page.value)}
             style={{
-              width: '32px',
-              height: '32px',
+              width: theme.spacing[8],
+              height: theme.spacing[8],
             }}
           >
             {page.title}

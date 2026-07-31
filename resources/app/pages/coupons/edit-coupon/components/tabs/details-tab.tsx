@@ -40,8 +40,6 @@ const DetailsTab = () => {
     Boolean(codeToValidate),
   );
 
-  console.log('error', formState.errors);
-  console.log('values', watch());
   useEffect(() => {
     if (!codeToValidate || !validation) {
       return;
@@ -107,7 +105,6 @@ const DetailsTab = () => {
                       type="button"
                       variant="link"
                       size="xs"
-                      // loading={isGeneratingCode}
                       disabled={isGeneratingCode}
                       onClick={handleGenerateCode}
                     >

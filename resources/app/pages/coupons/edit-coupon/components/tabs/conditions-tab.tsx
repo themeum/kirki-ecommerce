@@ -48,7 +48,6 @@ const UsageLimitRow = ({
           <CheckboxField
             name={checkboxName}
             label={label}
-          // disabled
           />
           <Tooltip tip={tooltip}>
             <InfoIcon />

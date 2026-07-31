@@ -2,6 +2,7 @@ import { createContext, useContext, useMemo, type ReactNode } from 'react';
 
 import { useDefaultSettingsQuery } from '@/services/settings';
 import type { SettingsSectionData } from '@/types';
+import { __ } from '@/wpi18n';
 
 type AppConfigContextValue = {
   settings?: SettingsSectionData;
@@ -35,7 +36,7 @@ const useAppConfig = (): AppConfigContextValue => {
   const context = useContext(AppConfigContext);
 
   if (!context) {
-    throw new Error('useAppConfig must be used within AppConfigProvider');
+    throw new Error(__('useAppConfig must be used within AppConfigProvider', 'kirki-ecommerce'));
   }
 
   return context;
