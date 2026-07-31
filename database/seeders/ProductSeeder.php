@@ -75,7 +75,14 @@ class ProductSeeder extends Seeder
         $slug = Str::slug($title);
         $brand_name = SeedCatalog::get_brand_name($product['brand_id']);
         $category_label = SeedCatalog::get_category_label($product['category_type']);
-        $has_limit_per_order = $faker->boolean();
+        $category_type_to_collections = [
+            'electronics' => [1],
+            'fashion' => [2],
+            'kitchen' => [3],
+            'home' => [4],
+            'furniture' => [4],
+            'beauty' => [5],
+        ];
 
         $product_payload = [
             'title' => $title,
@@ -86,8 +93,6 @@ class ProductSeeder extends Seeder
             'brand_id' => $product['brand_id'],
             'description' => $this->make_description($product, $brand_name, $category_label),
             'additional_info' => $this->make_additional_info($product, $category_label),
-            'has_limit_per_order' => $has_limit_per_order,
-            'max_per_order' => $has_limit_per_order ? $faker->numberBetween(1, 10) : null,
             'seo_title' => $title . ' | Kirki Ecommerce',
             'seo_description' => 'Shop ' . $title . ' from ' . $brand_name . '. Free returns on ' . $category_label . '.',
             'seo_keywords' => collection($product['tags'])->map(function ($tag_id) {
@@ -104,6 +109,7 @@ class ProductSeeder extends Seeder
             'media' => $faker->randomElements([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 3),
             'categories' => $product['categories'],
             'tags' => $product['tags'],
+            'collections' => $category_type_to_collections[$product['category_type']] ?? [],
             'attributes' => [
                 [
                     'id' => 1,
@@ -114,7 +120,6 @@ class ProductSeeder extends Seeder
                     'values' => [4, 5, 6],
                 ],
             ],
-            'created_by' => 1,
         ];
 
         return CreateProductDTO::from_array($product_payload);
@@ -211,10 +216,10 @@ class ProductSeeder extends Seeder
             'barcode' => $faker->ean13(),
             'price' => $product['price'],
             'show_unit_price' => false,
-            'base_unit' => 1,
-            'base_unit_amount' => $product['price'],
-            'total_unit' => 1,
-            'total_unit_amount' => $product['price'],
+            'base_unit' => null,
+            'base_unit_amount' => null,
+            'total_unit' => null,
+            'total_unit_amount' => null,
             'sale_price' => $sale_price,
             'cost_of_goods' => (int) round($product['price'] * 0.6),
             'weight' => $this->get_weight_for_category($product['category_type']),

@@ -65,45 +65,10 @@ examples:
             },
             "message": "Payment method created successfully."
           }
-  - name: 404 Response
-    description: Failure
-    request:
-      url: "{{baseUrl}}/payment-methods"
-      method: POST
-      body:
-        type: json
-        data: |-
-          {
-            "is_enabled": true,
-            "is_manual": false,
-            "name": "Bkash2",
-            "icon": "cash",
-            "instructions": "Bkash2",
-            "config": {}
-          }
-    response:
-      status: 404
-      statusText: Not Found
-      headers:
-        - name: Content-Type
-          value: application/json
-      body:
-        type: json
-        data: |-
-          {
-            "success": false,
-            "errors": {
-              "code": [
-                "The value for code must be unique."
-              ]
-            },
-            "message": "Validation failed!"
-          }
-
 docs: |-
-  # Create Currency
+  # Create Payment Method
 
   ## 1. Detailed description of the API function
-  This API is designed to create Currencies.
+  This API is designed to create payment methods.
 
   Upon successful creation, the API returns a response with a `success` boolean indicating the success of the operation and a `message` which may contain information about the result.
