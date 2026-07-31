@@ -18,6 +18,7 @@ type RadioGroupFieldProps<
   name: TName;
   label?: ReactNode;
   description?: ReactNode;
+  infoText?: ReactNode;
   options: RadioGroupFieldOption[];
   disabled?: boolean;
   cssOverride?: CSSObject;
@@ -30,6 +31,7 @@ const RadioGroupField = <
   name,
   label,
   description,
+  infoText,
   options,
   disabled,
   cssOverride,
@@ -42,7 +44,7 @@ const RadioGroupField = <
       name={name}
       render={({ field, fieldState }) => (
         <Field data-invalid={fieldState.invalid || undefined} cssOverride={cssOverride}>
-          {label && <FieldLabel>{label}</FieldLabel>}
+          {label && <FieldLabel infoText={infoText}>{label}</FieldLabel>}
           <RadioGroup
             value={field.value ?? ''}
             onValueChange={field.onChange}

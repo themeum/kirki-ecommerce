@@ -150,10 +150,7 @@ examples:
                   "cost_of_goods": 10,
                   "weight": 0.25,
                   "weight_unit": "kg",
-                  "length": 30,
-                  "width": 25,
-                  "height": 2,
-                  "dimension_unit": "cm",
+
                   "charge_taxes": true,
                   "allow_back_order": false,
                   "track_inventory": true,
@@ -189,10 +186,7 @@ examples:
                   "cost_of_goods": 10,
                   "weight": 0.25,
                   "weight_unit": "kg",
-                  "length": 30,
-                  "width": 25,
-                  "height": 2,
-                  "dimension_unit": "cm",
+
                   "charge_taxes": true,
                   "allow_back_order": false,
                   "track_inventory": true,
@@ -228,10 +222,7 @@ examples:
                   "cost_of_goods": 10,
                   "weight": 0.25,
                   "weight_unit": "kg",
-                  "length": 30,
-                  "width": 25,
-                  "height": 2,
-                  "dimension_unit": "cm",
+
                   "charge_taxes": true,
                   "allow_back_order": false,
                   "track_inventory": true,
@@ -267,10 +258,7 @@ examples:
                   "cost_of_goods": 10,
                   "weight": 0.25,
                   "weight_unit": "kg",
-                  "length": 30,
-                  "width": 25,
-                  "height": 2,
-                  "dimension_unit": "cm",
+
                   "charge_taxes": true,
                   "allow_back_order": false,
                   "track_inventory": true,
@@ -306,10 +294,7 @@ examples:
                   "cost_of_goods": 10,
                   "weight": 0.25,
                   "weight_unit": "kg",
-                  "length": 30,
-                  "width": 25,
-                  "height": 2,
-                  "dimension_unit": "cm",
+
                   "charge_taxes": true,
                   "allow_back_order": false,
                   "track_inventory": true,
@@ -345,10 +330,7 @@ examples:
                   "cost_of_goods": 10,
                   "weight": 0.25,
                   "weight_unit": "kg",
-                  "length": 30,
-                  "width": 25,
-                  "height": 2,
-                  "dimension_unit": "cm",
+
                   "charge_taxes": true,
                   "allow_back_order": false,
                   "track_inventory": true,
@@ -384,10 +366,7 @@ examples:
                   "cost_of_goods": 10,
                   "weight": 0.25,
                   "weight_unit": "kg",
-                  "length": 30,
-                  "width": 25,
-                  "height": 2,
-                  "dimension_unit": "cm",
+
                   "charge_taxes": true,
                   "allow_back_order": false,
                   "track_inventory": true,
@@ -423,10 +402,7 @@ examples:
                   "cost_of_goods": 10,
                   "weight": 0.25,
                   "weight_unit": "kg",
-                  "length": 30,
-                  "width": 25,
-                  "height": 2,
-                  "dimension_unit": "cm",
+
                   "charge_taxes": true,
                   "allow_back_order": false,
                   "track_inventory": true,
@@ -462,10 +438,7 @@ examples:
                   "cost_of_goods": 10,
                   "weight": 0.25,
                   "weight_unit": "kg",
-                  "length": 30,
-                  "width": 25,
-                  "height": 2,
-                  "dimension_unit": "cm",
+
                   "charge_taxes": true,
                   "allow_back_order": false,
                   "track_inventory": true,
@@ -495,38 +468,32 @@ examples:
                   "url": "http://droip.local/wp-content/uploads/2025/10/project-launch-bg.webp",
                   "sizes": {
                     "medium": {
-                      "height": 225,
-                      "width": 300,
+
                       "url": "http://droip.local/wp-content/uploads/2025/10/project-launch-bg-300x225.webp",
                       "orientation": "landscape"
                     },
                     "large": {
-                      "height": 768,
-                      "width": 1024,
+
                       "url": "http://droip.local/wp-content/uploads/2025/10/project-launch-bg-1024x768.webp",
                       "orientation": "landscape"
                     },
                     "thumbnail": {
-                      "height": 150,
-                      "width": 150,
+
                       "url": "http://droip.local/wp-content/uploads/2025/10/project-launch-bg-150x150.webp",
                       "orientation": "portrait"
                     },
                     "medium_large": {
-                      "height": 576,
-                      "width": 768,
+
                       "url": "http://droip.local/wp-content/uploads/2025/10/project-launch-bg-768x576.webp",
                       "orientation": "landscape"
                     },
                     "1536x1536": {
-                      "height": 1152,
-                      "width": 1536,
+
                       "url": "http://droip.local/wp-content/uploads/2025/10/project-launch-bg-1536x1152.webp",
                       "orientation": "landscape"
                     }
                   },
-                  "height": 1300,
-                  "width": 1733,
+
                   "filesize": 133260,
                   "mime": "image/webp",
                   "type": "image",
@@ -541,20 +508,17 @@ examples:
                   "url": "http://droip.local/wp-content/uploads/2025/11/pixelated-icon.jpg",
                   "sizes": {
                     "medium": {
-                      "height": 300,
-                      "width": 244,
+
                       "url": "http://droip.local/wp-content/uploads/2025/11/pixelated-icon-244x300.jpg",
                       "orientation": "portrait"
                     },
                     "thumbnail": {
-                      "height": 150,
-                      "width": 150,
+
                       "url": "http://droip.local/wp-content/uploads/2025/11/pixelated-icon-150x150.jpg",
                       "orientation": "portrait"
                     }
                   },
-                  "height": 512,
-                  "width": 416,
+
                   "filesize": 191809,
                   "mime": "image/jpeg",
                   "type": "image",

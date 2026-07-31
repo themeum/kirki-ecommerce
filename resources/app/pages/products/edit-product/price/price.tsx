@@ -1,33 +1,33 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState, type Dispatch, type ReactElement, type SetStateAction } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
-import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
+import { Field, FieldError, FieldLabel } from '@/components/ui/field';
+import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
+import Grid from '@/components/ui/grid';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectSeparator, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { PlusCircleIcon } from '@/icons';
-import { useProductForm } from '@/contexts/product-form-context';
-import type { ErrorResponse } from '@/libs/api';
-import { applyServerErrors } from '@/libs/form-errors';
-import Flex from '@/components/ui/flex';
-import Grid from '@/components/ui/grid';
 import { Separator } from '@/components/ui/separator';
 import Text from '@/components/ui/text';
-import { mapProductPriceFromProduct, ProductPriceFormSchema, productPriceDefaultValues, type ProductPriceFormValues } from '@/schemas/forms/product-price-form';
+import { useProductForm } from '@/contexts/product-form-context';
+import { PlusCircleIcon } from '@/icons';
+import type { ErrorResponse } from '@/libs/api';
+import { applyServerErrors } from '@/libs/form-errors';
+import { mapProductPriceFromProduct, productPriceDefaultValues, ProductPriceFormSchema, type ProductPriceFormValues } from '@/schemas/forms/product-price-form';
 import { useTaxProfilesQuery } from '@/services/tax';
 import { theme } from '@/theme';
-import { flexCenter, scoped, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
+import { defineStyles, flexCenter, scoped } from '@/theme/mixins';
 import type { FormErrors, UnitPriceValue } from '@/types';
 import { __ } from '@/wpi18n';
 
+import BaseUnitPopup from '@/pages/products/edit-product/price/base-unit-dialog';
 import { TaxProfilePopup } from '@/pages/settings/tax-settings/tax-profile/tax-profile-dialog';
 import { calculateProfit } from '@/pages/utils';
-import BaseUnitPopup from '@/pages/products/edit-product/price/base-unit-dialog';
 
 type PriceProps = {
   errors: FormErrors;
@@ -111,7 +111,7 @@ const Price = ({ errors, setErrors, formSyncKey = 0 }: PriceProps) => {
         <CardHeader>
           <CardTitle>{__('Price', 'kirki-ecommerce')}</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent cssOverride={styles.cardContent}>
           <Grid columns={2}>
             <Controller
               control={form.control}
@@ -202,16 +202,15 @@ const Price = ({ errors, setErrors, formSyncKey = 0 }: PriceProps) => {
           <Flex direction="column" gap={2}>
             <Card cssOverride={cardStyles.innerDarkCard}>
               <CardContent cssOverride={styles.innerDarkRowContent}>
-                <Flex align="center" justify="space-between">
-                <Controller
-                  control={form.control}
-                  name="show_unit_price"
-                  render={({ field, fieldState }) => (
-                    <Field
-                      data-invalid={fieldState.invalid || undefined}
-                      style={{ flex: '1' }}
-                    >
-                      <Field orientation="horizontal">
+                <Flex align="center" justify="space-between" gap={2}>
+                  <Controller
+                    control={form.control}
+                    name="show_unit_price"
+                    render={({ field, fieldState }) => (
+                      <Field
+                        data-invalid={fieldState.invalid || undefined}
+                        orientation="horizontal"
+                      >
                         <Checkbox
                           id="show-unit-price"
                           checked={Boolean(field.value)}
@@ -221,42 +220,48 @@ const Price = ({ errors, setErrors, formSyncKey = 0 }: PriceProps) => {
                             syncVariantField('show_unit_price', value);
                           }}
                         />
-                        <FieldLabel htmlFor="show-unit-price">
+                        <FieldLabel
+                          htmlFor="show-unit-price"
+                          infoText={__(
+                            'Display the price per unit on the product page.',
+                            'kirki-ecommerce',
+                          )}
+                        >
                           {__('Show unit price', 'kirki-ecommerce')}
                         </FieldLabel>
                       </Field>
-                      <FieldDescription>
-                        {__('Show unit price', 'kirki-ecommerce')}
-                      </FieldDescription>
-                    </Field>
+                    )}
+                  />
+                  {showUnitPrice && (
+                    <Flex gap={2} align="center" justify="flex-end">
+                      <Text color="secondary" variant='small'>
+                        {__('Base price per unit', 'kirki-ecommerce')}
+                      </Text>
+                      <BaseUnitPopup
+                        errors={errors}
+                        setErrors={setErrors}
+                        data={productData?.variants[0]}
+                        onChange={(value: UnitPriceValue) =>
+                          syncVariantField('base_price_per_unit', value)
+                        }
+                      />
+                    </Flex>
                   )}
-                />
-                <div>
-                  <Flex gap={2} align="center" justify="flex-end" cssOverride={{ flex: '2', visibility: showUnitPrice ? 'visible' : 'hidden' }}>
-                    <Text color="secondary">{__('Base price per unit', 'kirki-ecommerce')}</Text>
-                    <BaseUnitPopup
-                      errors={errors}
-                      setErrors={setErrors}
-                      data={productData?.variants[0]}
-                      onChange={(value: UnitPriceValue) =>
-                        syncVariantField('base_price_per_unit', value)
-                      }
-                    />
-                  </Flex>
-                </div>
                 </Flex>
               </CardContent>
             </Card>
 
             <Card cssOverride={cardStyles.innerDarkCard}>
               <CardContent cssOverride={styles.innerDarkRowContent}>
-                <Grid align="center">
-                <Controller
-                  control={form.control}
-                  name="charge_taxes"
-                  render={({ field, fieldState }) => (
-                    <Field data-invalid={fieldState.invalid || undefined}>
-                      <Field orientation="horizontal">
+                <Flex align="center" justify="space-between" gap={2}>
+                  <Controller
+                    control={form.control}
+                    name="charge_taxes"
+                    render={({ field, fieldState }) => (
+                      <Field
+                        data-invalid={fieldState.invalid || undefined}
+                        orientation="horizontal"
+                      >
                         <Checkbox
                           id="charge-taxes"
                           checked={Boolean(field.value)}
@@ -266,79 +271,81 @@ const Price = ({ errors, setErrors, formSyncKey = 0 }: PriceProps) => {
                             syncVariantField('charge_taxes', value);
                           }}
                         />
-                        <FieldLabel htmlFor="charge-taxes">
+                        <FieldLabel
+                          htmlFor="charge-taxes"
+                          infoText={__(
+                            'Apply tax to this product using a tax profile.',
+                            'kirki-ecommerce',
+                          )}
+                        >
                           {__('Charge tax on this product', 'kirki-ecommerce')}
                         </FieldLabel>
                       </Field>
-                      <FieldDescription>
-                        {__(
-                          'Charge tax on this product',
-                          'kirki-ecommerce',
-                        )}
-                      </FieldDescription>
-                    </Field>
-                  )}
-                />
+                    )}
+                  />
 
-                <Controller
-                  control={form.control}
-                  name="tax_profile_id"
-                  render={({ field, fieldState }) => (
-                    <Field
-                      data-invalid={fieldState.invalid || undefined}
-                      style={{
-                        visibility: chargeTaxes ? 'visible' : 'hidden',
-                      }}
-                    >
-                      <Select
-                        value={
-                          field.value === null || field.value === undefined
-                            ? ''
-                            : String(field.value)
-                        }
-                        onValueChange={(value) => {
-                          if (value === ADD_TAX_PROFILE_VALUE) {
-                            setOpenTaxProfilePopup(true);
-                            return;
-                          }
-                          field.onChange(value);
-                          syncVariantField('tax_profile_id', value);
-                        }}
-                      >
-                        <SelectTrigger
-                          id="tax_profile_id"
-                          error={Boolean(fieldState.error)}
-                          aria-invalid={fieldState.invalid}
+                  {chargeTaxes && (
+                    <Controller
+                      control={form.control}
+                      name="tax_profile_id"
+                      render={({ field, fieldState }) => (
+                        <Field
+                          data-invalid={fieldState.invalid || undefined}
+                          cssOverride={styles.taxProfileField}
                         >
-                          <SelectValue
-                            placeholder={__('Add Tax Profile', 'kirki-ecommerce')}
-                          />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value={ADD_TAX_PROFILE_VALUE}>
-                            <Flex gap={2} align="center">
-                              <PlusCircleIcon />
-                              {__('Add Tax Profile', 'kirki-ecommerce')}
-                            </Flex>
-                          </SelectItem>
-                          {taxProfileList.length > 0 && <SelectSeparator />}
-                          {taxProfileList.map((option) => (
-                            <SelectItem
-                              key={option.value}
-                              value={String(option.value)}
+                          <Select
+                            value={
+                              field.value === null || field.value === undefined
+                                ? ''
+                                : String(field.value)
+                            }
+                            onValueChange={(value) => {
+                              if (value === ADD_TAX_PROFILE_VALUE) {
+                                setOpenTaxProfilePopup(true);
+                                return;
+                              }
+                              field.onChange(value);
+                              syncVariantField('tax_profile_id', value);
+                            }}
+                          >
+                            <SelectTrigger
+                              id="tax_profile_id"
+                              error={Boolean(fieldState.error)}
+                              aria-invalid={fieldState.invalid}
                             >
-                              {option.title}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      {fieldState.invalid && (
-                        <FieldError errors={[fieldState.error]} />
+                              <SelectValue
+                                placeholder={__(
+                                  'Add Tax Profile',
+                                  'kirki-ecommerce',
+                                )}
+                              />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value={ADD_TAX_PROFILE_VALUE}>
+                                <Flex gap={2} align="center">
+                                  <PlusCircleIcon />
+                                  {__('Add Tax Profile', 'kirki-ecommerce')}
+                                </Flex>
+                              </SelectItem>
+                              {taxProfileList.length > 0 && <SelectSeparator />}
+                              {taxProfileList.map((option) => (
+                                <SelectItem
+                                  key={option.value}
+                                  value={String(option.value)}
+                                >
+                                  {option.title}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          {fieldState.invalid && (
+                            <FieldError errors={[fieldState.error]} />
+                          )}
+                        </Field>
                       )}
-                    </Field>
+                    />
                   )}
-                />
-                </Grid>
+                </Flex>
               </CardContent>
             </Card>
           </Flex>
@@ -354,7 +361,7 @@ const Price = ({ errors, setErrors, formSyncKey = 0 }: PriceProps) => {
                   <FieldLabel htmlFor="cost_of_goods">
                     {__('Cost of goods', 'kirki-ecommerce')}
                   </FieldLabel>
-                  <div style={{ position: 'relative' }}>
+                  <div css={scoped({ position: 'relative' })}>
                     {field.value && (
                       <span
                         css={scoped(styles.inputLeftSymbol)}
@@ -373,7 +380,7 @@ const Price = ({ errors, setErrors, formSyncKey = 0 }: PriceProps) => {
                       id="cost_of_goods"
                       value={field.value ?? ''}
                       style={{ textIndent: field.value ? '12px' : undefined }}
-                      placeholder={__('--', 'kirki-ecommerce')}
+                      placeholder={__('0.00', 'kirki-ecommerce')}
                       type="number"
                       onChange={(event) => {
                         const value = event.target.value;
@@ -407,9 +414,10 @@ const Price = ({ errors, setErrors, formSyncKey = 0 }: PriceProps) => {
                 </span>
                 <Input
                   value={calculateProfit('profit', productData?.variants[0])}
-                  style={{ textIndent: '12px' }}
+                  cssOverride={{ textIndent: '12px' }}
                   type="number"
                   disabled
+                  placeholder='0.00'
                 />
               </div>
             </Flex>
@@ -419,6 +427,7 @@ const Price = ({ errors, setErrors, formSyncKey = 0 }: PriceProps) => {
                 value={calculateProfit('margin', productData?.variants[0])}
                 type="number"
                 disabled
+                placeholder="0%"
               />
             </Flex>
           </Grid>
@@ -438,13 +447,25 @@ Price.displayName = 'Price';
 export default Price;
 
 const styles = defineStyles({
+  cardContent: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: theme.spacing[4],
+  },
   innerDarkRowContent: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
     padding: `${theme.spacing[1]} ${theme.spacing[2]} ${theme.spacing[1]} ${theme.spacing[3]}`,
     height: '44px',
     boxSizing: 'border-box',
   },
+  taxProfileField: {
+    width: 'auto',
+    minWidth: '160px',
+  },
   inputLeftSymbol: {
     ...flexCenter(),
     color: theme.colors.text.secondary,
-  }
+  },
 });

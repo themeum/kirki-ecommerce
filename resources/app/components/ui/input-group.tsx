@@ -276,6 +276,7 @@ const styles = defineStyles({
     position: 'relative',
     display: 'flex',
     width: '100%',
+    minWidth: 0,
     minHeight: '36px',
     alignItems: 'center',
     borderRadius: theme.radius.lg,
@@ -333,7 +334,9 @@ const styles = defineStyles({
     },
     'inline-end': {
       order: 1,
-      paddingRight: theme.spacing[3],
+      paddingRight: theme.spacing[1],
+      borderLeft: `1px solid ${theme.colors.border.default}`,
+      alignSelf: 'stretch',
       '& > button': {
         pointerEvents: 'auto',
       },

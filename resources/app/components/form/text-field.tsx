@@ -12,6 +12,7 @@ type TextFieldProps<
   name: TName;
   label?: ReactNode;
   description?: ReactNode;
+  infoText?: ReactNode;
   placeholder?: string;
   type?: ComponentPropsWithoutRef<typeof Input>['type'];
   disabled?: boolean;
@@ -25,6 +26,7 @@ const TextField = <
   name,
   label,
   description,
+  infoText,
   placeholder,
   type = 'text',
   disabled,
@@ -42,7 +44,11 @@ const TextField = <
           data-invalid={fieldState.invalid || undefined}
           cssOverride={cssOverride}
         >
-          {label && <FieldLabel htmlFor={fieldId}>{label}</FieldLabel>}
+          {label && (
+            <FieldLabel htmlFor={fieldId} infoText={infoText}>
+              {label}
+            </FieldLabel>
+          )}
           <Input
             {...field}
             id={fieldId}

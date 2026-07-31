@@ -10,6 +10,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             SettingsSeeder::class,
+            CollectionSeeder::class,
             ShippingBoxesSeeder::class,
             ShippingProfilesSeeder::class,
             TaxProfilesSeeder::class,
@@ -22,7 +23,9 @@ class DatabaseSeeder extends Seeder
             ProductSchemaSeeder::class,
             CouponSeeder::class,
             CustomerSeeder::class,
+            CartSeeder::class,
             OrderSeeder::class,
+            RefundSeeder::class,
         ]);
     }
 }

@@ -5,6 +5,7 @@ import { useNavigate, useParams } from 'react-router';
 
 import RichTextField from '@/components/form/rich-text-field';
 import TextField from '@/components/form/text-field';
+import TextareaField from '@/components/form/textarea-field';
 import MediaGallery from '@/components/media-gallery';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -40,8 +41,8 @@ import SEOSettings from '@/pages/products/edit-product/seo-settings/seo-settings
 import Shipping from '@/pages/products/edit-product/shipping/shipping';
 import Variants from '@/pages/products/edit-product/variants/variants';
 
+import Grid from '@/components/ui/grid';
 import { useAppConfig } from '@/contexts/app-config-context';
-import { theme } from '@/theme';
 
 type MediaItem = Omit<MediaRef, 'id'> & {
   id?: string | number;
@@ -178,17 +179,13 @@ const EditProductInner = () => {
       ...item,
       media: Number(item.media?.id) || null,
     }));
-    const og_image =
-      typeof productData.og_image === 'object' && productData.og_image !== null
-        ? Number(productData.og_image.id)
-        : productData.og_image;
-
     const formattedData: ProductFormData = {
       title: productData.title,
       slug: productData.slug,
       status: productData.status,
       ribbon: productData.ribbon,
       description: productData.description,
+      short_description: productData.short_description,
       additional_info: productData.additional_info,
       allow_back_order: productData.allow_back_order,
       seo_title: productData.seo_title,
@@ -196,7 +193,7 @@ const EditProductInner = () => {
       seo_keywords: productData.seo_keywords,
       og_title: productData.og_title,
       og_description: productData.og_description,
-      og_image,
+      og_image: null,
       schema_id: productData.schema_id,
       llm_instructions: productData.llm_instructions,
       has_variants: productData.has_variants,
@@ -240,6 +237,7 @@ const EditProductInner = () => {
   return (
     <>
       <PageHeading
+        onBack={() => navigate('/products')}
         text={
           isNew
             ? __('New Product', 'kirki-ecommerce')
@@ -273,8 +271,8 @@ const EditProductInner = () => {
               <Form {...basicsForm}>
                 <Card cssOverride={cardStyles.formCard}>
                   <CardContent>
-                    <Flex gap={3}>
-                      <div style={{ width: '70%' }}>
+                    <Flex direction="column" gap={4}>
+                      <Grid gap={3} template={'2fr 1fr'}>
                         <TextField
                           name="title"
                           label={__('Title', 'kirki-ecommerce')}
@@ -283,8 +281,7 @@ const EditProductInner = () => {
                             'kirki-ecommerce',
                           )}
                         />
-                      </div>
-                      <div style={{ width: '30%' }}>
+
                         <TextField
                           name="ribbon"
                           label={__('Ribbon', 'kirki-ecommerce')}
@@ -292,32 +289,43 @@ const EditProductInner = () => {
                             'e.g. Fresh Arrival',
                             'kirki-ecommerce',
                           )}
-                          description={__('Ribbon', 'kirki-ecommerce')}
                         />
-                      </div>
-                    </Flex>
-                    <TextField
-                      name="slug"
-                      label={__('Slug', 'kirki-ecommerce')}
-                      placeholder={__('yellow-t-shirt', 'kirki-ecommerce')}
-                    />
+                      </Grid>
+                      <TextField
+                        name="slug"
+                        label={__('Slug', 'kirki-ecommerce')}
+                        placeholder={__('yellow-t-shirt', 'kirki-ecommerce')}
+                      />
 
-                    <MediaGallery
-                      label={__('Images and videos', 'kirki-ecommerce')}
-                      mediaItems={mediaItems}
-                      onUpdate={(v) => setMediaItems(v)}
-                      error={errors?.media as string | boolean | undefined}
-                    />
-                    <RichTextField
-                      name="description"
-                      label={__('Description', 'kirki-ecommerce')}
-                      placeholder={__(
-                        'Write product description here...',
-                        'kirki-ecommerce',
-                      )}
-                    />
-                    <Separator marginTop={theme.spacing[2]} />
-                    <AdditionalInfo />
+                      <MediaGallery
+                        label={__('Images and videos', 'kirki-ecommerce')}
+                        mediaItems={mediaItems}
+                        onUpdate={(v) => {
+                          setMediaItems(v);
+                          updateProduct({ key: 'media', value: v });
+                        }}
+                        error={errors?.media as string | boolean | undefined}
+                      />
+                      <TextareaField
+                        name="short_description"
+                        label={__('Short description', 'kirki-ecommerce')}
+                        rows={3}
+                        placeholder={__(
+                          'Brief product summary...',
+                          'kirki-ecommerce',
+                        )}
+                      />
+                      <RichTextField
+                        name="description"
+                        label={__('Description', 'kirki-ecommerce')}
+                        placeholder={__(
+                          'Write product description here...',
+                          'kirki-ecommerce',
+                        )}
+                      />
+                      <Separator marginTop={0} marginBottom={0} />
+                      <AdditionalInfo />
+                    </Flex>
                   </CardContent>
                 </Card>
               </Form>

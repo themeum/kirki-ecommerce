@@ -111,6 +111,7 @@ examples:
         type: json
         data: |-
           {
+            "success": true,
             "data": {
               "id": "47",
               "uuid": "54b41b8a-1e95-416b-a4a1-bf0a167df35f",

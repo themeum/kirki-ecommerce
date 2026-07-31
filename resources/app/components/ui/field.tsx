@@ -3,8 +3,10 @@ import { ComponentRef, forwardRef, useMemo, type ComponentPropsWithoutRef, type 
 
 import Label from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
+import Tooltip from '@/components/ui/tooltip';
 import { theme } from '@/theme';
-import { defineStyles, mergeCss, scoped, scopedMerge } from '@/theme/mixins';
+import { defineStyles, flexCenter, mergeCss, scoped, scopedMerge } from '@/theme/mixins';
+import { InfoCircledIcon } from '@radix-ui/react-icons';
 
 type FieldOrientation = 'vertical' | 'horizontal' | 'responsive';
 
@@ -136,11 +138,13 @@ FieldContent.displayName = 'FieldContent';
 type FieldLabelProps = Omit<
   ComponentPropsWithoutRef<typeof Label>,
   'className'
->;
+> & {
+  infoText?: ReactNode;
+};
 
 const FieldLabel = forwardRef<ComponentRef<typeof Label>, FieldLabelProps>(
   (props, ref) => {
-    const { cssOverride, ...rest } = props;
+    const { cssOverride, infoText, children, ...rest } = props;
 
     return (
       <Label
@@ -148,10 +152,34 @@ const FieldLabel = forwardRef<ComponentRef<typeof Label>, FieldLabelProps>(
         data-slot="field-label"
         cssOverride={mergeCss(styles.fieldLabel, cssOverride)}
         {...rest}
-      />
+      >
+        {children}
+        {infoText ? (
+          <Tooltip tip={infoText} position='top'>
+            <span
+              css={scoped(styles.infoIconTrigger)}
+              tabIndex={0}
+              role="img"
+              aria-label={typeof infoText === 'string' ? infoText : undefined}
+              onClick={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+              }}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault();
+                  event.stopPropagation();
+                }
+              }}
+            >
+              <InfoCircledIcon width={16} height={16} />
+            </span>
+          </Tooltip>
+        ) : null}
+      </Label>
     );
   },
-)
+);
 
 FieldLabel.displayName = 'FieldLabel';
 
@@ -416,6 +444,7 @@ const styles = defineStyles({
   fieldLabel: {
     display: 'flex',
     width: 'fit-content',
+    alignItems: 'center',
     gap: theme.spacing[1],
     '.group[data-disabled="true"] &': {
       opacity: 0.5,
@@ -433,6 +462,12 @@ const styles = defineStyles({
       borderColor: theme.colors.background.fillBrand,
       backgroundColor: theme.colors.background.fillSecondary,
     },
+  },
+  infoIconTrigger: {
+    ...flexCenter(),
+    flexShrink: 0,
+    color: theme.colors.text.secondary,
+    lineHeight: 0,
   },
   fieldTitle: {
     display: 'flex',
