@@ -1,28 +1,11 @@
-import {
-  keepPreviousData,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from '@tanstack/react-query';
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { apiClient } from '@/libs/api';
 import { endpoints } from '@/libs/endpoints';
 import { queryKeys } from '@/libs/query-keys';
-import {
-  AttributeSchema,
-  AttributeValueSchema,
-} from '@/schemas/catalog/attribute';
-import {
-  PaginatedDataSchema,
-  ResourceCollectionSchema,
-} from '@/schemas/shared/api';
-import {
-  parseData,
-  parseResponse,
-  toastMutationError,
-  toastMutationSuccess,
-  unwrapResponse,
-} from '@/services/helpers';
+import { AttributeSchema, AttributeValueSchema } from '@/schemas/catalog/attribute';
+import { PaginatedDataSchema, ResourceCollectionSchema } from '@/schemas/shared/api';
+import { parseData, parseResponse, toastMutationError, toastMutationSuccess, unwrapResponse } from '@/services/helpers';
 import type {
   AttributeFormData,
   AttributeValueFormData,

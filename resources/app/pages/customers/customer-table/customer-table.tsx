@@ -2,13 +2,7 @@ import BulkActionHandler from '@/components/bulk-action-handler';
 import Sorting from '@/components/sorting';
 import { useListParams, useMarkList } from '@/hooks';
 import Checkbox from '@/components/ui/checkbox';
-import {
-  Table,
-  TableBody,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useBulkDeleteCustomersMutation } from '@/services/customer';
 import type {
   CustomerListItem,

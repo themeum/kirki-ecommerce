@@ -1,11 +1,4 @@
-import {
-  createContext,
-  useContext,
-  useMemo,
-  useReducer,
-  type Dispatch,
-  type ReactNode,
-} from 'react';
+import { createContext, useContext, useMemo, useReducer, type Dispatch, type ReactNode } from 'react';
 
 import { createVariantCombinations } from '@/pages/products/utils';
 import type {

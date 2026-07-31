@@ -1,19 +1,9 @@
-import {
-  keepPreviousData,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from '@tanstack/react-query';
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { apiClient } from '@/libs/api';
 import { endpoints } from '@/libs/endpoints';
 import { queryKeys } from '@/libs/query-keys';
-import {
-  toastMutationError,
-  toastMutationSuccess,
-  unwrapData,
-  unwrapResponse,
-} from '@/services/helpers';
+import { toastMutationError, toastMutationSuccess, unwrapData, unwrapResponse } from '@/services/helpers';
 import type { ListQueryParams, PaginatedData, ShippingBox, ShippingProfile } from '@/types';
 import { __ } from '@/wpi18n';
 

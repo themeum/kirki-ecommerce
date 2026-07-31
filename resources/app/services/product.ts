@@ -1,22 +1,11 @@
-import {
-  keepPreviousData,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from '@tanstack/react-query';
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { apiClient } from '@/libs/api';
 import { endpoints } from '@/libs/endpoints';
 import { queryKeys } from '@/libs/query-keys';
 import { ProductListItemSchema, ProductSchema } from '@/schemas/catalog/product';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
-import {
-  parseData,
-  parseResponse,
-  toastMutationError,
-  toastMutationSuccess,
-  unwrapResponse,
-} from '@/services/helpers';
+import { parseData, parseResponse, toastMutationError, toastMutationSuccess, unwrapResponse } from '@/services/helpers';
 import type { BulkActionParams, ListParams, ProductFormData } from '@/types';
 import { ProductListFilter } from '@/types/filters/product';
 import { __ } from '@/wpi18n';

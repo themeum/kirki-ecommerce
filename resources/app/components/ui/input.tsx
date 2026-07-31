@@ -1,8 +1,8 @@
-import { type SerializedStyles, type Theme } from '@emotion/react';
+import { type CSSObject, type Theme } from '@emotion/react';
 import { forwardRef, type ComponentPropsWithoutRef } from 'react';
 
 import { theme } from '@/theme';
-import { scoped, uiFocusRing } from '@/theme/mixins';
+import { scopedMerge, uiFocusRing, defineStyles } from '@/theme/mixins';
 
 type InputProps = Omit<
   ComponentPropsWithoutRef<'input'>,
@@ -10,12 +10,12 @@ type InputProps = Omit<
 > & {
   error?: boolean;
   invisible?: boolean;
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const Input = forwardRef<HTMLInputElement, InputProps>((props, ref) => {
   const {
-    css: cssProp,
+    cssOverride,
     error,
     invisible,
     type = 'text',
@@ -28,11 +28,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>((props, ref) => {
       ref={ref}
       type={type}
       data-error={error ? 'true' : undefined}
-      css={[
-        styles.base,
-        invisible && styles.invisible,
-        cssProp,
-      ]}
+      css={scopedMerge(styles.base, invisible && styles.invisible, cssOverride)}
       {...rest}
       {...('value' in props ? { value: value ?? '' } : {})}
     />
@@ -43,8 +39,8 @@ Input.displayName = 'Input';
 
 export default Input;
 
-const styles = {
-  base: scoped({
+const styles = defineStyles({
+  base: {
     margin: 0,
     minHeight: '36px',
     width: '100%',
@@ -97,8 +93,8 @@ const styles = {
           WebkitAppearance: 'none',
         },
     },
-  }),
-  invisible: scoped({
+  },
+  invisible: {
     backgroundColor: 'transparent',
     outline: 'none',
     borderColor: 'transparent',
@@ -108,5 +104,5 @@ const styles = {
       boxShadow: 'none',
       borderColor: 'transparent',
     },
-  }),
-};
+  },
+});

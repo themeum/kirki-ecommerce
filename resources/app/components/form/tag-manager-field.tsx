@@ -1,19 +1,9 @@
-import { type SerializedStyles } from '@emotion/react';
+import type { CSSObject } from '@emotion/react';
 import type { ComponentProps, ReactNode } from 'react';
-import {
-  Controller,
-  useFormContext,
-  type FieldPath,
-  type FieldValues,
-} from 'react-hook-form';
+import { Controller, useFormContext, type FieldPath, type FieldValues } from 'react-hook-form';
 
 import TagManager from '@/components/tag-manager/tag-manager';
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldLabel,
-} from '@/components/ui/field';
+import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 
 type TagManagerProps = ComponentProps<typeof TagManager>;
 
@@ -24,7 +14,7 @@ type TagManagerFieldProps<
   name: TName;
   label?: ReactNode;
   description?: ReactNode;
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
   valueAs?: 'options' | 'strings';
 } & Omit<
   TagManagerProps,
@@ -44,7 +34,7 @@ const TagManagerField = <
   name,
   label,
   description,
-  css,
+  cssOverride,
   valueAs = 'options',
   ...tagManagerProps
 }: TagManagerFieldProps<TFieldValues, TName>) => {
@@ -62,7 +52,7 @@ const TagManagerField = <
             : rawValue;
 
         return (
-          <Field data-invalid={fieldState.invalid || undefined} css={css}>
+          <Field data-invalid={fieldState.invalid || undefined} cssOverride={cssOverride}>
             {label && <FieldLabel>{label}</FieldLabel>}
             <TagManager
               {...tagManagerProps}

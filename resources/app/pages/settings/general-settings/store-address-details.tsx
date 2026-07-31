@@ -1,12 +1,6 @@
 import CountryField from '@/components/form/country-field';
 import TextField from '@/components/form/text-field';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
@@ -14,8 +8,8 @@ import { __ } from '@/wpi18n';
 const StoreAddressDetails = () => {
   return (
     <div>
-      <Card css={cardStyles.largeCard}>
-        <CardHeader css={cardStyles.sectionHeader}>
+      <Card cssOverride={cardStyles.largeCard}>
+        <CardHeader cssOverride={cardStyles.sectionHeader}>
           <CardTitle>{__('Store address', 'kirki-ecommerce')}</CardTitle>
           <CardDescription>
             {__(
@@ -24,9 +18,9 @@ const StoreAddressDetails = () => {
             )}
           </CardDescription>
         </CardHeader>
-        <CardContent css={cardStyles.largeContent}>
-          <Card css={cardStyles.innerCard}>
-            <CardContent css={cardStyles.innerCardContent}>
+        <CardContent cssOverride={cardStyles.largeContent}>
+          <Card cssOverride={cardStyles.innerCard}>
+            <CardContent cssOverride={cardStyles.innerCardContent}>
               <Flex direction="column" gap={4}>
                 <TextField
                   name="store_address.address_line_1"

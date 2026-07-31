@@ -2,13 +2,7 @@ import { useFormContext, useWatch } from 'react-hook-form';
 
 import TextField from '@/components/form/text-field';
 import Button from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
 import { ReplaceIcon } from '@/icons';
@@ -18,7 +12,7 @@ import Grid from '@/components/ui/grid';
 import Text from '@/components/ui/text';
 import type { GeneralSettingsFormValues } from '@/schemas/forms/general-settings-form';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { mergeCss, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
@@ -40,8 +34,8 @@ const OrderId = () => {
 
   return (
     <div>
-      <Card css={cardStyles.largeCard}>
-        <CardHeader css={cardStyles.sectionHeader}>
+      <Card cssOverride={cardStyles.largeCard}>
+        <CardHeader cssOverride={cardStyles.sectionHeader}>
           <CardTitle>{__('Order ID', 'kirki-ecommerce')}</CardTitle>
           <CardDescription>
             {__(
@@ -50,9 +44,9 @@ const OrderId = () => {
             )}
           </CardDescription>
         </CardHeader>
-        <CardContent css={cardStyles.largeContent}>
-          <Card css={cardStyles.innerCard}>
-            <CardContent css={cardStyles.innerCardContent}>
+        <CardContent cssOverride={cardStyles.largeContent}>
+          <Card cssOverride={cardStyles.innerCard}>
+            <CardContent cssOverride={cardStyles.innerCardContent}>
               <Flex direction="column" gap={4}>
                 <Grid>
                   <TextField
@@ -70,8 +64,8 @@ const OrderId = () => {
                   />
                 </Grid>
 
-                <Card css={[cardStyles.innerDarkCard, styles.previewCard]}>
-                  <CardContent css={styles.previewCardContent}>
+                <Card cssOverride={mergeCss(cardStyles.innerDarkCard, styles.previewCard)}>
+                  <CardContent cssOverride={styles.previewCardContent}>
                     <Flex direction="column" gap={2}>
                       <Label htmlFor="order-id-preview">
                         {__('Next order IDs will look like:', 'kirki-ecommerce')}
@@ -80,14 +74,14 @@ const OrderId = () => {
                         id="order-id-preview"
                         value={orderID}
                         readOnly
-                        css={styles.previewInput}
+                        cssOverride={styles.previewInput}
                       />
                     </Flex>
                   </CardContent>
                 </Card>
 
-                <Card css={[cardStyles.largeCard, styles.resetCard]}>
-                  <CardContent css={cardStyles.largeContentPadded}>
+                <Card cssOverride={mergeCss(cardStyles.largeCard, styles.resetCard)}>
+                  <CardContent cssOverride={cardStyles.largeContentPadded}>
                     <Flex direction="column" gap={3}>
                       <Flex align="center">
                         <Text weight="medium">{__('Reset Order ID', 'kirki-ecommerce')}</Text>
@@ -121,18 +115,18 @@ OrderId.displayName = 'OrderId';
 
 export default OrderId;
 
-const styles = {
-  previewCard: scoped({}),
-  previewCardContent: scoped({
+const styles = defineStyles({
+  previewCard: {},
+  previewCardContent: {
     padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
-  }),
-  previewInput: scoped({
+  },
+  previewInput: {
     padding: theme.spacing[2],
     textAlign: 'center',
     color: theme.colors.text.special3,
-  }),
-  resetCard: scoped({
+  },
+  resetCard: {
     borderRadius: theme.radius.lg,
     border: `1px solid ${theme.colors.border.default}`,
-  })
-};
+  }
+});

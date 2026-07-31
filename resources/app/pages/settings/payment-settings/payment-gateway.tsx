@@ -2,10 +2,7 @@ import { useState } from 'react';
 
 import DropdownButton from '@/components/dropdown-button';
 import HeaderActionsCard from '@/components/header-actions-card';
-import {
-  Card,
-  CardContent,
-} from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { MapIcon, StripeIcon, ShowMoreIcon } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
 import Badge from '@/components/ui/badge';
@@ -13,13 +10,10 @@ import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import ToggleButton from '@/components/ui/toggle-button';
 import { dispatchToastMessage } from '@/pages/utils';
-import {
-  getPaymentGateway,
-  useSetEnabledPaymentGatewayMutation,
-} from '@/services/payment';
+import { getPaymentGateway, useSetEnabledPaymentGatewayMutation } from '@/services/payment';
 import type { PaymentGateway } from '@/types';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { scoped, mergeCss, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import { __, sprintf } from '@/wpi18n';
 
@@ -83,8 +77,8 @@ const PaymentGatewayComponent = (props: PaymentGatewayProps) => {
 
   return (
     <>
-      <Card css={cardStyles.largeCard} >
-        <CardContent css={cardStyles.largeContentPadded}>
+      <Card cssOverride={cardStyles.largeCard} >
+        <CardContent cssOverride={cardStyles.largeContentPadded}>
 
         <HeaderActionsCard
         header={__('Payment gateways', 'kirki-ecommerce')}
@@ -96,11 +90,11 @@ const PaymentGatewayComponent = (props: PaymentGatewayProps) => {
         onAdd={() => setIsEditPopupOpen(true)}
         />
         {paymentGatewayList?.length === 0 ? (
-        <Card css={cardStyles.innerDarkCard}>
-          <CardContent css={[cardStyles.innerDarkContent, styles.emptyStateContent]}>
+        <Card cssOverride={cardStyles.innerDarkCard}>
+          <CardContent cssOverride={mergeCss(cardStyles.innerDarkContent, styles.emptyStateContent)}>
             <Flex direction="column" gap={2} align="center">
               <MapIcon />
-              <span css={styles.mutedText}>
+              <span css={scoped(styles.mutedText)}>
                 {__('No payment added yet', 'kirki-ecommerce')}
               </span>
             </Flex>
@@ -109,11 +103,11 @@ const PaymentGatewayComponent = (props: PaymentGatewayProps) => {
         ) : (
         <Flex direction="column" gap={4}>
         {paymentGatewayList?.map((item, index) => (
-        <Card css={cardStyles.innerCard}
+        <Card cssOverride={cardStyles.innerCard}
                 
         key={index}
         >
-          <CardContent css={[cardStyles.innerContent, styles.gatewayItemContent]}>
+          <CardContent cssOverride={mergeCss(cardStyles.innerContent, styles.gatewayItemContent)}>
 
           <Flex align="center">
           <Flex gap={2} align="center">
@@ -182,14 +176,14 @@ const PaymentGatewayComponent = (props: PaymentGatewayProps) => {
 
 PaymentGatewayComponent.displayName = 'PaymentGatewayComponent';
 
-const styles = {
-  emptyStateContent: scoped({ padding: `${theme.spacing[9]} 0` }),
-  gatewayItemContent: scoped({
+const styles = defineStyles({
+  emptyStateContent: { padding: `${theme.spacing[9]} 0` },
+  gatewayItemContent: {
     padding: `${theme.spacing[3]} ${theme.spacing[4]}`,
-  }),
-  mutedText: scoped({
+  },
+  mutedText: {
     color: theme.colors.text.subdued,
-  }),
-};
+  },
+});
 
 export default PaymentGatewayComponent;

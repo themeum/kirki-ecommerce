@@ -8,10 +8,7 @@ import CheckboxField from '@/components/form/checkbox-field';
 import HeaderActionsCard from '@/components/header-actions-card';
 import PageNavbar from '@/components/page-navbar';
 import Button from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-} from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
@@ -20,20 +17,12 @@ import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { queryKeys } from '@/libs/query-keys';
 import { useUnsavedStatus } from '@/libs/unsaved-store';
-import {
-  TaxRegionGeneralFormSchema,
-  taxRegionGeneralDefaultValues,
-  type TaxRegionGeneralFormValues,
-} from '@/schemas/forms/tax-region-general-form';
+import { TaxRegionGeneralFormSchema, taxRegionGeneralDefaultValues, type TaxRegionGeneralFormValues } from '@/schemas/forms/tax-region-general-form';
 import { toastMutationError } from '@/services/helpers';
-import {
-  updateSettings,
-  useSettingsQuery,
-  useUpdateSettingsMutation,
-} from '@/services/settings';
+import { updateSettings, useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { scoped } from '@/theme/mixins';
+import { mergeCss, defineStyles } from '@/theme/mixins';
 import type { SettingsSectionData } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -269,8 +258,8 @@ const GeneralEditRegion = () => {
                   handleBack={handleBackButton}
                 />
 
-                <Card css={[cardStyles.largeCard, styles.citiesCard]} >
-                  <CardContent css={cardStyles.largeContentPadded}>
+                <Card cssOverride={mergeCss(cardStyles.largeCard, styles.citiesCard)} >
+                  <CardContent cssOverride={cardStyles.largeContentPadded}>
 
                     <HeaderActionsCard
                       header={__('Cities', 'kirki-ecommerce')}
@@ -344,8 +333,8 @@ GeneralEditRegion.displayName = 'GeneralEditRegion';
 
 export default GeneralEditRegion;
 
-const styles = {
-  citiesCard: scoped({
+const styles = defineStyles({
+  citiesCard: {
     gap: theme.spacing[4],
-  })
-};
+  }
+});

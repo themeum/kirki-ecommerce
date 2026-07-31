@@ -55,7 +55,7 @@ const TagManager = (props: TagManagerProps) => {
 
   return (
     <Suggestions
-      css={cssProp}
+      cssOverride={cssProp}
       label={label}
       helpText={helpText}
       error={error}

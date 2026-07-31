@@ -6,27 +6,15 @@ import TextField from '@/components/form/text-field';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
-import {
-  Dialog,
-  DialogBody,
-  DialogCloseButton,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogBody, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
 import Flex from '@/components/ui/flex';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { scoped, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
-import {
-  ShippingRegionFormSchema,
-  shippingRegionDefaultValues,
-  type ShippingRegionFormValues,
-} from '@/schemas/forms/shipping-region-form';
+import { ShippingRegionFormSchema, shippingRegionDefaultValues, type ShippingRegionFormValues } from '@/schemas/forms/shipping-region-form';
 import type { FormErrors } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -271,8 +259,8 @@ export const ShippingRegionPopup = ({
               />
             </Flex>
 
-            <Card css={cardStyles.tableCardRounded}>
-              <CardContent css={cardStyles.tableContent}>
+            <Card cssOverride={cardStyles.tableCardRounded}>
+              <CardContent cssOverride={cardStyles.tableContent}>
                 <div
                   style={{
                     height: '432px',
@@ -291,7 +279,7 @@ export const ShippingRegionPopup = ({
                     );
                     return (
                       <div key={index}>
-                        <div css={styles.checkboxItem}>
+                        <div css={scoped(styles.checkboxItem)}>
                           <Flex gap={2} align="center">
                             <Checkbox
                               id={`shipping-region-country-${country.code}`}
@@ -314,9 +302,9 @@ export const ShippingRegionPopup = ({
                         </div>
                         {formCountries.includes(country.code) &&
                         (country?.states?.length ?? 0) > 0 ? (
-                          <div css={styles.nestedStates}>
+                          <div css={scoped(styles.nestedStates)}>
                             {(country?.states ?? []).map((state, stateIndex) => (
-                              <div key={stateIndex} css={styles.checkboxItem}>
+                              <div key={stateIndex} css={scoped(styles.checkboxItem)}>
                                 <Flex gap={2} align="center">
                                   <Checkbox
                                     id={`shipping-region-state-${country.code}-${state.id}`}
@@ -373,16 +361,16 @@ export const ShippingRegionPopup = ({
 
 ShippingRegionPopup.displayName = 'ShippingRegionPopup';
 
-const styles = {
-  checkboxItem: scoped({
+const styles = defineStyles({
+  checkboxItem: {
     width: 'auto',
     padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
     '&:hover': {
       background: theme.colors.background.surfaceSecondary,
       borderRadius: theme.radius.sm,
     },
-  }),
-  nestedStates: scoped({
+  },
+  nestedStates: {
     padding: `${theme.spacing[0]} ${theme.spacing[3]}`,
-  })
-};
+  }
+});

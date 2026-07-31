@@ -4,7 +4,7 @@ import Container from '@/components/ui/container';
 import PageHeading from '@/components/ui/page-heading';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { scoped } from '@/theme/mixins';
+import { mergeCss, defineStyles } from '@/theme/mixins';
 
 import OrderTable from '@/pages/orders/order-table/order-table';
 import OrderTableAction from '@/pages/orders/order-table/order-table-action';
@@ -30,13 +30,13 @@ const Orders = () => {
         }
       />
       <Container>
-        <Card css={[cardStyles.formCard, styles.tableInfoCard]}>
+        <Card cssOverride={mergeCss(cardStyles.formCard, styles.tableInfoCard)}>
           <CardContent>
             <TableInfo />
           </CardContent>
         </Card>
-        <Card css={cardStyles.tableCard}>
-          <CardContent css={cardStyles.tableContent}>
+        <Card cssOverride={cardStyles.tableCard}>
+          <CardContent cssOverride={cardStyles.tableContent}>
             <OrderTableAction />
             <OrderTable />
           </CardContent>
@@ -48,8 +48,8 @@ const Orders = () => {
 
 export default Orders;
 
-const styles = {
-  tableInfoCard: scoped({
+const styles = defineStyles({
+  tableInfoCard: {
     marginBottom: theme.spacing[2],
-  }),
-};
+  },
+});

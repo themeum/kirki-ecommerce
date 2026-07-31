@@ -1,18 +1,13 @@
-import { type SerializedStyles } from '@emotion/react';
+import { type CSSObject } from '@emotion/react';
 import { ArrowLeft } from 'lucide-react';
-import {
-  forwardRef,
-  type ComponentProps,
-  type CSSProperties,
-  type ReactNode,
-} from 'react';
+import { forwardRef, type ComponentProps, type CSSProperties, type ReactNode } from 'react';
 
 import Button from '@/components/ui/button';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
-import { flexCenter, itemCenter, scoped } from '@/theme/mixins';
+import { flexCenter, itemCenter, scopedMerge, scoped, defineStyles } from '@/theme/mixins';
 import type { ContainerSize, HeadingType } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -28,13 +23,13 @@ type PageHeadingProps = {
   leftIcon?: ReactNode;
   noMargin?: boolean;
   buttonProps?: Partial<ComponentProps<typeof Button>>;
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const PageHeading = forwardRef<HTMLDivElement, PageHeadingProps>(
   (props, ref) => {
     const {
-      css: cssProp,
+      cssOverride,
       text = __('Button', 'kirki-ecommerce'),
       hasBack = false,
       size,
@@ -48,7 +43,7 @@ const PageHeading = forwardRef<HTMLDivElement, PageHeadingProps>(
     } = props;
 
     const {
-      css: buttonCss,
+      cssOverride: buttonCssOverride,
       children: buttonChildren,
       onClick: buttonOnClick,
       ...restButtonProps
@@ -57,25 +52,17 @@ const PageHeading = forwardRef<HTMLDivElement, PageHeadingProps>(
     return (
       <div
         ref={ref}
-        css={[
-          styles.wrapper,
-          sticky && styles.wrapperSticky,
-          noMargin && styles.wrapperNoMargin,
-        ]}
+        css={scopedMerge(styles.wrapper,           sticky && styles.wrapperSticky,           noMargin && styles.wrapperNoMargin)}
       >
         <Container size={size} style={{ width: '100%' }}>
           <div
-            css={[
-              styles.heading,
-              hasBack && styles.headingHasBack,
-              cssProp,
-            ]}
+            css={scopedMerge(styles.heading,               hasBack && styles.headingHasBack,               cssOverride)}
             style={style}
           >
             {hasBack && (
               <Button
                 variant="link"
-                css={buttonCss}
+                cssOverride={buttonCssOverride}
                 onClick={(event) => {
                   if (buttonOnClick) {
                     buttonOnClick(event);
@@ -90,14 +77,14 @@ const PageHeading = forwardRef<HTMLDivElement, PageHeadingProps>(
               </Button>
             )}
             {leftIcon && (
-              <span css={styles.icon} aria-hidden="true">
+              <span css={scoped(styles.icon)} aria-hidden="true">
                 {leftIcon}
               </span>
             )}
             <Text variant='heading5'>{text}</Text>
 
             {children}
-            <Flex css={styles.actions} gap={2}>
+            <Flex cssOverride={styles.actions} gap={2}>
               {actions}
             </Flex>
           </div>
@@ -111,15 +98,15 @@ PageHeading.displayName = 'PageHeading';
 
 export default PageHeading;
 
-const styles = {
-  wrapper: scoped({
+const styles = defineStyles({
+  wrapper: {
     marginBottom: theme.spacing[8],
     marginTop: theme.spacing[8],
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-  }),
-  wrapperSticky: scoped({
+  },
+  wrapperSticky: {
     top: '32px',
     left: 0,
     padding: `${theme.spacing[4]} ${theme.spacing[0]}`,
@@ -128,24 +115,24 @@ const styles = {
     borderBottom: `1px solid ${theme.colors.border.default}`,
     backgroundColor: theme.colors.background.surfaceTertiary,
     zIndex: 100,
-  }),
-  wrapperNoMargin: scoped({
+  },
+  wrapperNoMargin: {
     marginTop: theme.spacing[0],
     marginBottom: theme.spacing[0],
-  }),
-  heading: scoped({
+  },
+  heading: {
     width: '100%',
     ...itemCenter(),
     columnGap: theme.spacing[3],
     paddingLeft: theme.spacing[2],
-  }),
-  headingHasBack: scoped({
+  },
+  headingHasBack: {
     paddingLeft: theme.spacing[0],
-  }),
-  icon: scoped({
+  },
+  icon: {
     ...flexCenter(),
-  }),
-  actions: scoped({
+  },
+  actions: {
     marginLeft: 'auto',
-  }),
-};
+  },
+});

@@ -7,7 +7,7 @@ import Text from '@/components/ui/text';
 import { ArrowLeftIcon, BoxIcon } from '@/icons';
 import NotFoundIllustration from '@/pages/not-found/not-found-illustration/not-found-illustration';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { scoped, defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 const NotFound = () => {
@@ -25,17 +25,17 @@ const NotFound = () => {
   };
 
   return (
-    <div data-not-found="true" css={styles.root}>
+    <div data-not-found="true" css={scoped(styles.root)}>
       <Container size="fullWidth">
-        <div css={styles.inner}>
-          <div css={styles.copyCol}>
-            <span css={styles.code} aria-hidden="true">
+        <div css={scoped(styles.inner)}>
+          <div css={scoped(styles.copyCol)}>
+            <span css={scoped(styles.code)} aria-hidden="true">
               404
             </span>
 
-            <Flex direction="column" gap={2} css={styles.copy}>
+            <Flex direction="column" gap={2} cssOverride={styles.copy}>
               <Flex direction="column" gap={2}>
-                <Text weight="semibold" css={styles.copyText}>{__('Page not found', 'kirki-ecommerce')}</Text>
+                <Text weight="semibold" cssOverride={styles.copyText}>{__('Page not found', 'kirki-ecommerce')}</Text>
                 <Text color="secondary">{__(
                   'Sorry, the page you are looking for could not be found. It may have been moved or never existed.',
                   'kirki-ecommerce',
@@ -44,15 +44,15 @@ const NotFound = () => {
             </Flex>
 
             {showPath && (
-              <div css={styles.path}>
-                <span css={styles.pathLabel}>
+              <div css={scoped(styles.path)}>
+                <span css={scoped(styles.pathLabel)}>
                   {__('Requested path', 'kirki-ecommerce')}
                 </span>
-                <code css={styles.pathCode}>{pathname}</code>
+                <code css={scoped(styles.pathCode)}>{pathname}</code>
               </div>
             )}
 
-            <Flex gap={3} css={styles.actions}>
+            <Flex gap={3} cssOverride={styles.actions}>
               <Button variant="primary" onClick={handleGoToProducts}>
                 <BoxIcon color={theme.colors.text.light} />
                 {__('Go to Products', 'kirki-ecommerce')}
@@ -64,7 +64,7 @@ const NotFound = () => {
             </Flex>
           </div>
 
-          <div css={styles.illustrationCol} aria-hidden="true">
+          <div css={scoped(styles.illustrationCol)} aria-hidden="true">
             <NotFoundIllustration />
           </div>
         </div>
@@ -77,8 +77,8 @@ NotFound.displayName = 'NotFound';
 
 export default NotFound;
 
-const styles = {
-  root: scoped({
+const styles = defineStyles({
+  root: {
     position: 'relative',
     display: 'flex',
     justifyContent: 'center',
@@ -114,8 +114,8 @@ const styles = {
     '@media (max-width: 768px)': {
       padding: theme.spacing[6],
     },
-  }),
-  inner: scoped({
+  },
+  inner: {
     position: 'relative',
     zIndex: 1,
     display: 'flex',
@@ -128,8 +128,8 @@ const styles = {
       alignItems: 'stretch',
       gap: theme.spacing[8],
     },
-  }),
-  copyCol: scoped({
+  },
+  copyCol: {
     display: 'flex',
     flex: '1 1 0',
     flexDirection: 'column',
@@ -140,14 +140,14 @@ const styles = {
       alignItems: 'center',
       textAlign: 'center',
     },
-  }),
-  code: scoped({
+  },
+  code: {
     ...theme.typography.heading1(),
     color: theme.colors.text.subdued,
     opacity: 0.28,
     userSelect: 'none',
-  }),
-  copy: scoped({
+  },
+  copy: {
     width: '100%',
     maxWidth: '420px',
     alignItems: 'flex-start',
@@ -156,8 +156,8 @@ const styles = {
       alignItems: 'center',
       textAlign: 'center',
     },
-  }),
-  copyText: scoped({
+  },
+  copyText: {
     alignItems: 'flex-start',
     textAlign: 'left',
     '& > div span': {
@@ -170,8 +170,8 @@ const styles = {
       alignItems: 'center',
       textAlign: 'center',
     },
-  }),
-  path: scoped({
+  },
+  path: {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'flex-start',
@@ -184,14 +184,14 @@ const styles = {
     borderRadius: theme.radius.lg,
     boxSizing: 'border-box',
     textAlign: 'left',
-  }),
-  pathLabel: scoped({
+  },
+  pathLabel: {
     ...theme.typography.small('medium'),
     letterSpacing: '0.04em',
     textTransform: 'uppercase',
     color: theme.colors.text.subdued,
-  }),
-  pathCode: scoped({
+  },
+  pathCode: {
     display: 'block',
     width: '100%',
     padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
@@ -204,8 +204,8 @@ const styles = {
     borderRadius: theme.radius.md,
     wordBreak: 'break-all',
     boxSizing: 'border-box',
-  }),
-  actions: scoped({
+  },
+  actions: {
     flexWrap: 'wrap',
     justifyContent: 'flex-start',
     width: '100%',
@@ -213,8 +213,8 @@ const styles = {
     '@media (max-width: 768px)': {
       justifyContent: 'center',
     },
-  }),
-  illustrationCol: scoped({
+  },
+  illustrationCol: {
     display: 'flex',
     flex: '1 1 0',
     justifyContent: 'center',
@@ -223,5 +223,5 @@ const styles = {
     '@media (max-width: 768px)': {
       order: 2,
     },
-  }),
-};
+  },
+});

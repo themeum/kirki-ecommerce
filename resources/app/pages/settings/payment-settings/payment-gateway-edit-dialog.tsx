@@ -3,25 +3,12 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import Button from '@/components/ui/button';
-import {
-  Dialog,
-  DialogBody,
-  DialogClose,
-  DialogCloseButton,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogBody, DialogClose, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import Flex from '@/components/ui/flex';
-import {
-  PaymentGatewayEditFormSchema,
-  paymentGatewayEditDefaultValues,
-  type PaymentGatewayEditFormValues,
-} from '@/schemas/forms/payment-gateway-form';
+import { PaymentGatewayEditFormSchema, paymentGatewayEditDefaultValues, type PaymentGatewayEditFormValues } from '@/schemas/forms/payment-gateway-form';
 import { useUpdatePaymentGatewayMutation } from '@/services/payment';
 import type { PaymentGateway } from '@/types';
 import { __ } from '@/wpi18n';

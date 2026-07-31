@@ -1,18 +1,8 @@
-import { type SerializedStyles } from '@emotion/react';
+import type { CSSObject } from '@emotion/react';
 import type { ReactNode } from 'react';
-import {
-  Controller,
-  useFormContext,
-  type FieldPath,
-  type FieldValues,
-} from 'react-hook-form';
+import { Controller, useFormContext, type FieldPath, type FieldValues } from 'react-hook-form';
 
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldLabel,
-} from '@/components/ui/field';
+import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 type RadioGroupFieldOption = {
@@ -29,7 +19,7 @@ type RadioGroupFieldProps<
   description?: ReactNode;
   options: RadioGroupFieldOption[];
   disabled?: boolean;
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const RadioGroupField = <
@@ -41,7 +31,7 @@ const RadioGroupField = <
   description,
   options,
   disabled,
-  css,
+  cssOverride,
 }: RadioGroupFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
 
@@ -50,7 +40,7 @@ const RadioGroupField = <
       control={control}
       name={name}
       render={({ field, fieldState }) => (
-        <Field data-invalid={fieldState.invalid || undefined} css={css}>
+        <Field data-invalid={fieldState.invalid || undefined} cssOverride={cssOverride}>
           {label && <FieldLabel>{label}</FieldLabel>}
           <RadioGroup
             value={field.value ?? ''}

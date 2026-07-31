@@ -6,29 +6,13 @@ import RichTextField from '@/components/form/rich-text-field';
 import TextField from '@/components/form/text-field';
 import ThumbnailField from '@/components/form/thumbnail-field';
 import Button from '@/components/ui/button';
-import {
-  Dialog,
-  DialogBody,
-  DialogClose,
-  DialogCloseButton,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogBody, DialogClose, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import Flex from '@/components/ui/flex';
-import {
-  ManualPaymentFormSchema,
-  manualPaymentDefaultValues,
-  type ManualPaymentFormValues,
-} from '@/schemas/forms/manual-payment-form';
-import {
-  useCreatePaymentMethodMutation,
-  useUpdatePaymentMethodMutation,
-} from '@/services/payment';
+import { ManualPaymentFormSchema, manualPaymentDefaultValues, type ManualPaymentFormValues } from '@/schemas/forms/manual-payment-form';
+import { useCreatePaymentMethodMutation, useUpdatePaymentMethodMutation } from '@/services/payment';
 import type { PaymentMethod } from '@/types';
 import { __ } from '@/wpi18n';
 

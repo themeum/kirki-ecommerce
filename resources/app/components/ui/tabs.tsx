@@ -1,13 +1,9 @@
-import { type SerializedStyles, type Theme } from '@emotion/react';
-import {
-  forwardRef,
-  type ComponentPropsWithoutRef,
-  type ElementRef,
-} from 'react';
+import { type CSSObject, type Theme } from '@emotion/react';
+import { forwardRef, type ComponentPropsWithoutRef, type ElementRef } from 'react';
 import * as TabsPrimitive from '@radix-ui/react-tabs';
 
 import { theme } from '@/theme';
-import { flexCenter, scoped, uiFocusRing } from '@/theme/mixins';
+import { flexCenter, uiFocusRing, scopedMerge, defineStyles } from '@/theme/mixins';
 
 const Tabs = TabsPrimitive.Root;
 
@@ -15,14 +11,14 @@ type TabsListProps = Omit<
   ComponentPropsWithoutRef<typeof TabsPrimitive.List>,
   'className' | 'css'
 > & {
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const TabsList = forwardRef<ElementRef<typeof TabsPrimitive.List>, TabsListProps>(
   (props, ref) => {
-    const { css: cssProp, ...rest } = props;
+    const { cssOverride, ...rest } = props;
 
-    return <TabsPrimitive.List ref={ref} css={[styles.list, cssProp]} {...rest} />;
+    return <TabsPrimitive.List ref={ref} css={scopedMerge(styles.list, cssOverride)} {...rest} />;
   },
 );
 
@@ -32,16 +28,16 @@ type TabsTriggerProps = Omit<
   ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger>,
   'className' | 'css'
 > & {
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const TabsTrigger = forwardRef<
   ElementRef<typeof TabsPrimitive.Trigger>,
   TabsTriggerProps
 >((props, ref) => {
-  const { css: cssProp, ...rest } = props;
+  const { cssOverride, ...rest } = props;
 
-  return <TabsPrimitive.Trigger ref={ref} css={[styles.trigger, cssProp]} {...rest} />;
+  return <TabsPrimitive.Trigger ref={ref} css={scopedMerge(styles.trigger, cssOverride)} {...rest} />;
 });
 
 TabsTrigger.displayName = 'TabsTrigger';
@@ -50,24 +46,24 @@ type TabsContentProps = Omit<
   ComponentPropsWithoutRef<typeof TabsPrimitive.Content>,
   'className' | 'css'
 > & {
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const TabsContent = forwardRef<
   ElementRef<typeof TabsPrimitive.Content>,
   TabsContentProps
 >((props, ref) => {
-  const { css: cssProp, ...rest } = props;
+  const { cssOverride, ...rest } = props;
 
-  return <TabsPrimitive.Content ref={ref} css={[styles.content, cssProp]} {...rest} />;
+  return <TabsPrimitive.Content ref={ref} css={scopedMerge(styles.content, cssOverride)} {...rest} />;
 });
 
 TabsContent.displayName = 'TabsContent';
 
 export { Tabs, TabsList, TabsTrigger, TabsContent };
 
-const styles = {
-  list: scoped({
+const styles = defineStyles({
+  list: {
     display: 'flex',
     alignItems: 'center',
     backgroundColor: theme.colors.background.surfaceSecondary,
@@ -76,8 +72,8 @@ const styles = {
     minHeight: '36px',
     boxSizing: 'border-box',
     color: theme.colors.text.secondary,
-  }),
-  trigger: scoped({
+  },
+  trigger: {
     flex: 1,
     height: '100%',
     minHeight: '28px',
@@ -102,11 +98,11 @@ const styles = {
       opacity: 0.5,
       pointerEvents: 'none',
     },
-  }),
-  content: scoped({
+  },
+  content: {
     marginTop: theme.spacing[4],
     '&:focus, &:focus-visible': {
       outline: 'none',
     },
-  }),
-};
+  },
+});

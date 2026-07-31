@@ -1,18 +1,8 @@
-import { type SerializedStyles } from '@emotion/react';
+import type { CSSObject } from '@emotion/react';
 import type { ReactNode } from 'react';
-import {
-  Controller,
-  useFormContext,
-  type FieldPath,
-  type FieldValues,
-} from 'react-hook-form';
+import { Controller, useFormContext, type FieldPath, type FieldValues } from 'react-hook-form';
 
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldLabel,
-} from '@/components/ui/field';
+import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import Textarea from '@/components/ui/textarea';
 
 type TextareaFieldProps<
@@ -25,7 +15,7 @@ type TextareaFieldProps<
   placeholder?: string;
   rows?: number;
   disabled?: boolean;
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const TextareaField = <
@@ -38,7 +28,7 @@ const TextareaField = <
   placeholder,
   rows = 5,
   disabled,
-  css,
+  cssOverride,
 }: TextareaFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
   const fieldId = String(name);
@@ -48,7 +38,7 @@ const TextareaField = <
       control={control}
       name={name}
       render={({ field, fieldState }) => (
-        <Field data-invalid={fieldState.invalid || undefined} css={css}>
+        <Field data-invalid={fieldState.invalid || undefined} cssOverride={cssOverride}>
           {label && <FieldLabel htmlFor={fieldId}>{label}</FieldLabel>}
           <Textarea
             {...field}

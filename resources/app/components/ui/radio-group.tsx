@@ -1,32 +1,28 @@
-import { type SerializedStyles, type Theme } from '@emotion/react';
+import { type CSSObject, type Theme } from '@emotion/react';
 import * as RadioGroupPrimitive from '@radix-ui/react-radio-group';
 import { Circle } from 'lucide-react';
-import {
-  forwardRef,
-  type ComponentPropsWithoutRef,
-  type ElementRef,
-} from 'react';
+import { forwardRef, type ComponentPropsWithoutRef, type ElementRef } from 'react';
 
 import { theme } from '@/theme';
-import { flexCenter, scoped, uiFocusRing } from '@/theme/mixins';
+import { flexCenter, uiFocusRing, scopedMerge, scoped, defineStyles } from '@/theme/mixins';
 
 type RadioGroupProps = Omit<
   ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Root>,
   'className' | 'css'
 > & {
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const RadioGroup = forwardRef<
   ElementRef<typeof RadioGroupPrimitive.Root>,
   RadioGroupProps
 >((props, ref) => {
-  const { css: cssProp, ...rest } = props;
+  const { cssOverride, ...rest } = props;
 
   return (
     <RadioGroupPrimitive.Root
       ref={ref}
-      css={[styles.root, cssProp]}
+      css={scopedMerge(styles.root, cssOverride)}
       {...rest}
     />
   );
@@ -38,18 +34,18 @@ type RadioGroupItemProps = Omit<
   ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Item>,
   'className' | 'css'
 > & {
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const RadioGroupItem = forwardRef<
   ElementRef<typeof RadioGroupPrimitive.Item>,
   RadioGroupItemProps
 >((props, ref) => {
-  const { css: cssProp, ...rest } = props;
+  const { cssOverride, ...rest } = props;
 
   return (
-    <RadioGroupPrimitive.Item ref={ref} css={[styles.item, cssProp]} {...rest}>
-      <RadioGroupPrimitive.Indicator css={styles.indicator}>
+    <RadioGroupPrimitive.Item ref={ref} css={scopedMerge(styles.item, cssOverride)} {...rest}>
+      <RadioGroupPrimitive.Indicator css={scoped(styles.indicator)}>
         <Circle size={8} fill="currentColor" strokeWidth={0} />
       </RadioGroupPrimitive.Indicator>
     </RadioGroupPrimitive.Item>
@@ -60,13 +56,13 @@ RadioGroupItem.displayName = 'RadioGroupItem';
 
 export { RadioGroup, RadioGroupItem };
 
-const styles = {
-  root: scoped({
+const styles = defineStyles({
+  root: {
     display: 'flex',
     flexDirection: 'column',
     gap: theme.spacing[2],
-  }),
-  item: scoped({
+  },
+  item: {
     ...flexCenter(),
     width: '16px',
     height: '16px',
@@ -89,10 +85,10 @@ const styles = {
       opacity: 0.5,
       pointerEvents: 'none',
     },
-  }),
-  indicator: scoped({
+  },
+  indicator: {
     ...flexCenter(),
     display: 'flex',
     color: theme.colors.background.fillBrand,
-  }),
-};
+  },
+});

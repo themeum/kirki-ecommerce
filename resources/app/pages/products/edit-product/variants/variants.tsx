@@ -1,10 +1,4 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
@@ -21,7 +15,7 @@ type VariantsProps = {
 
 const Variants = ({ onSave = () => {} }: VariantsProps) => {
   return (
-    <Card css={cardStyles.formCard}>
+    <Card cssOverride={cardStyles.formCard}>
       <CardHeader>
         <CardTitle>{__('Product Variations', 'kirki-ecommerce')}</CardTitle>
         <CardDescription>

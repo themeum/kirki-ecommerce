@@ -8,29 +8,13 @@ import TextField from '@/components/form/text-field';
 import ThumbnailField from '@/components/form/thumbnail-field';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import {
-  Dialog,
-  DialogBody,
-  DialogClose,
-  DialogCloseButton,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogBody, DialogClose, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
 import { applyServerErrors } from '@/libs/form-errors';
 import type { ErrorResponse } from '@/libs/api';
 import Flex from '@/components/ui/flex';
-import {
-  CategoryFormSchema,
-  type CategoryFormValues,
-} from '@/schemas/forms/category-form';
-import {
-  useCategoriesQuery,
-  useCreateCategoryMutation,
-  useUpdateCategoryMutation,
-} from '@/services/category';
+import { CategoryFormSchema, type CategoryFormValues } from '@/schemas/forms/category-form';
+import { useCategoriesQuery, useCreateCategoryMutation, useUpdateCategoryMutation } from '@/services/category';
 import type { Category, CategoryFormData } from '@/types';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
@@ -140,7 +124,7 @@ const CategoryAddEditPopover = ({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)}>
             <DialogBody>
-              <Card css={cardStyles.lightCard}>
+              <Card cssOverride={cardStyles.lightCard}>
                 <CardContent>
                   <Flex direction="column" gap={4}>
                     <TextField
