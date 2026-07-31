@@ -14,7 +14,6 @@ defined('ABSPATH') || exit;
 use Kirki\Ecommerce\App\Supports\Icon;
 use Kirki\Ecommerce\App\Supports\Template;
 use Kirki\Ecommerce\App\Supports\Url;
-use Kirki\Ecommerce\App\Services\CartService;
 
 use function Kirki\Ecommerce\Framework\include_view;
 use function Kirki\Ecommerce\Framework\view_data;
