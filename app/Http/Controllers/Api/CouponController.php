@@ -140,4 +140,32 @@ class CouponController
             'message' => $is_valid ? __('Code is valid.', 'kirki-ecommerce') : __('Code already used.', 'kirki-ecommerce'),
         ]);
     }
+
+    public function action(Request $request)
+    {
+        switch ($request->get_string('action')) {
+            case 'duplicate':
+                $coupon = $this->service->duplicate($request->get_int('id'));
+                $message = __('Coupon duplicated successfully.', 'kirki-ecommerce');
+                break;
+            case 'activate':
+                $coupon = $this->service->change_activation_state($request->get_int('id'), true);
+                $message = __('Coupon activated successfully.', 'kirki-ecommerce');
+                break;
+            case 'deactivate':
+                $coupon = $this->service->change_activation_state($request->get_int('id'), false);
+                $message = __('Coupon deactivated successfully.', 'kirki-ecommerce');
+                break;
+            default:
+                return response()->json([
+                    'errors' => [],
+                    'message' => __('No action performed.', 'kirki-ecommerce'),
+                ], Response::BAD_REQUEST);
+        }
+
+        return response()->json([
+            'data' => CouponResource::make($coupon),
+            'message' => $message,
+        ]);
+    }
 }

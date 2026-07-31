@@ -57,7 +57,7 @@ const useCreateCouponMutation = () => {
         response.message ||
         __('Coupon created successfully.', 'kirki-ecommerce'),
       );
-      void queryClient.invalidateQueries({ queryKey: ['Coupons'] });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.Coupons() });
     },
     onError(error) {
       toastMutationError(error);
@@ -74,7 +74,7 @@ const useUpdateCouponMutation = () => {
         response.message ||
         __('Coupon updated successfully.', 'kirki-ecommerce'),
       );
-      void queryClient.invalidateQueries({ queryKey: ['Coupons'] });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.Coupons() });
       void queryClient.invalidateQueries({
         queryKey: queryKeys.Coupon(variables.id),
       });
@@ -84,6 +84,59 @@ const useUpdateCouponMutation = () => {
     },
   });
 };
+
+const couponAction = ({ id, action }: { id: number; action: 'activate' | 'deactivate' | 'duplicate' }) => {
+  return apiClient
+    .patch(endpoints.COUPON_ACTION(id), { action })
+    .then((response) => {
+      return parseResponse(CouponSchema, response);
+    });
+}
+
+const useCouponActionMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: couponAction,
+    onSuccess(response, variables) {
+      toastMutationSuccess(
+        response.message ||
+        __('Coupon updated successfully.', 'kirki-ecommerce'),
+      );
+      void queryClient.invalidateQueries({ queryKey: queryKeys.Coupons() });
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.Coupon(variables.id),
+      });
+    },
+    onError(error) {
+      toastMutationError(error);
+    },
+  });
+}
+
+const deleteCoupon = (id: number) => {
+  return apiClient
+    .delete(endpoints.COUPON(id))
+    .then((response) => unwrapResponse(response));
+}
+
+const useDeleteCouponMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: deleteCoupon,
+    onSuccess(response, id) {
+      toastMutationSuccess(
+        response.message ||
+        __('Coupon deleted successfully.', 'kirki-ecommerce'),
+      );
+
+      void queryClient.invalidateQueries({ queryKey: queryKeys.Coupon(id) });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.Coupons() });
+    },
+    onError(error) {
+      toastMutationError(error);
+    },
+  });
+}
 
 const bulkDeleteCoupons = ({
   action = 'delete',
@@ -141,10 +194,9 @@ const useGenerateNewCodeQuery = () =>
   });
 
 export {
-  useBulkDeleteCouponsMutation,
-  useCouponQuery,
+  useBulkDeleteCouponsMutation, useCouponActionMutation, useCouponQuery,
   useCouponsQuery,
-  useCreateCouponMutation, useGenerateNewCodeQuery, useUpdateCouponMutation,
+  useCreateCouponMutation, useDeleteCouponMutation, useGenerateNewCodeQuery, useUpdateCouponMutation,
   useValidateQuery
 };
 

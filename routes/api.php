@@ -128,6 +128,7 @@ Route::group(['middleware' => AuthMiddleware::class], function () {
     Route::post('/coupons/bulk', [CouponController::class, 'bulk_actions']);
     Route::get('/coupons/generate-new-code', [CouponController::class, 'generate_new_code']);
     Route::get('/coupons/validate', [CouponController::class, 'validate_code']);
+    Route::patch('/coupons/{id}/action', [CouponController::class, 'action'])->where('id', '[\d]+');
 
     // Products
     Route::get('/products', [ProductController::class, 'get']);

@@ -11,12 +11,12 @@ export const getCouponBadgeInfo = (status: CouponStatus): { variant: BadgeVarian
       };
     case 'expired':
       return {
-        variant: 'destructive',
+        variant: 'caution',
         text: __('Expired', 'kirki-ecommerce'),
       };
     case 'inactive':
       return {
-        variant: 'caution',
+        variant: 'destructive',
         text: __('Inactive', 'kirki-ecommerce'),
       };
     case 'scheduled':

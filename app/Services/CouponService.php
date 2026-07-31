@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Services;
 
+use Exception;
 use Kirki\Ecommerce\App\Constants\DateTimeFormats;
 use Kirki\Ecommerce\App\DTO\Coupon\CouponFilterDTO;
 use Kirki\Ecommerce\App\Models\Coupon;
@@ -219,5 +220,46 @@ class CouponService
     public function validate_code(string $code)
     {
         return !$this->repository->is_exists($code);
+    }
+
+    /**
+     * Duplicate a coupon by its ID.
+     * 
+     * @param int $id
+     * @return Coupon
+     */
+    public function duplicate(int $id)
+    {
+        $coupon = $this->repository->find($id);
+
+        $data = CreateCouponDTO::from_array($coupon->to_array());
+        $data->title = $data->title . ' - Copy';
+        $data->code = $this->generate_new_code();
+
+        return $this->create($data);
+    }
+
+    /**
+     * Update coupon activation state
+     * @param int $id
+     * @param bool $is_active
+     * @return Coupon
+     */
+    public function change_activation_state(int $id, bool $is_active)
+    {
+        $coupon = $this->repository->find($id);
+
+        if ($is_active && $coupon->is_active) {
+            throw new Exception(__('The coupon is already activated', 'kirki-ecommerce'));
+        }
+
+        if (!$is_active && !$coupon->is_active) {
+            throw new Exception(__('The coupon is already deactivated', 'kirki-ecommerce'));
+        }
+
+        $coupon->is_active = $is_active ? 1 : 0;
+        $coupon->save();
+
+        return $coupon;
     }
 }
