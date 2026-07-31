@@ -14,6 +14,8 @@ defined('ABSPATH') || exit;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Supports\Template;
 use Kirki\Ecommerce\App\Supports\Icon;
+use Kirki\Ecommerce\App\Supports\Url;
+use Kirki\Ecommerce\App\Services\CartService;
 
 use function Kirki\Ecommerce\Framework\view_data;
 
@@ -87,9 +89,13 @@ foreach ($variants as $v) {
     ];
 }
 
+// Get all variant IDs in cart for dynamic checking
+$cart_variant_ids = CartService::get_cart_variant_ids();
+
 // Set localized data for JavaScript
 Template::set_localized_data('productImages', $images);
 Template::set_localized_data('productVariants', $variants_data);
+Template::set_localized_data('cartVariantIds', $cart_variant_ids);
 
 ?>
 
@@ -100,7 +106,7 @@ Template::set_localized_data('productVariants', $variants_data);
     <div class="kecom-container">
         <div class="kecom-product-grid">
             <!-- Left: Product Images -->
-            <div class="kecom-product-gallery" x-data="imageSlider({ images: kecomSiteData.productImages || [] })">
+            <div class="kecom-product-gallery" x-data="imageSlider({ images: kecomSite.productImages || [] })">
                 <div class="kecom-product-main-image">
                     <img :src="currentImage.url" alt="<?php echo esc_attr($product['title']); ?>">
                     <?php if (count($images) > 1): ?>
@@ -124,7 +130,7 @@ Template::set_localized_data('productVariants', $variants_data);
             </div>
 
             <!-- Right: Product Info -->
-            <div class="kecom-product-info" x-data="variantSelector({ variants: kecomSiteData.productVariants || [] })" x-init="init()">
+            <div class="kecom-product-info" x-data="variantSelector({ variants: kecomSite.productVariants || [] })" x-init="init()">
                 <div class="kecom-product-title-and-price">
                     <?php if (! empty($ribbon)): ?>
                         <span class="kecom-product-ribbon"><?php echo esc_html($ribbon); ?></span>
@@ -180,11 +186,11 @@ Template::set_localized_data('productVariants', $variants_data);
                 <!-- Quantity -->
                 <div class="kecom-product-variant-group">
                     <span class="kecom-product-variant-label">Quantity</span>
-                    <div x-data="quantitySelector({ min: 1, max: selectedVariant?.stock || <?php echo esc_js($quantity); ?>, initial: 1 })" class="kecom-quantity">
+                    <div x-data="quantitySelector({ min: 1, max: selectedVariant?.stock || <?php echo esc_js($quantity); ?>, initial: 1 })" class="kecom-quantity" id="product-quantity">
                         <button class="kecom-quantity-btn" type="button" aria-label="Decrease" @click="decrement">
                             <?php Icon::render('minus'); ?>
                         </button>
-                        <input class="kecom-quantity-input" type="number" :value="quantity" @input="setValue($el.value)" min="1" :max="selectedVariant?.stock || <?php echo esc_js($quantity); ?>" aria-label="Quantity">
+                        <input class="kecom-quantity-input" type="number" :value="quantity" @input="setValue($el.value)" min="1" :max="selectedVariant?.stock || <?php echo esc_js($quantity); ?>" aria-label="Quantity" id="quantity-input">
                         <button class="kecom-quantity-btn" type="button" aria-label="Increase" @click="increment">
                             <?php Icon::render('plus'); ?>
                         </button>
@@ -192,10 +198,20 @@ Template::set_localized_data('productVariants', $variants_data);
                 </div>
 
                 <!-- Add to Cart Button -->
-                <button class="kecom-btn kecom-btn-primary kecom-btn-block kecom-btn-lg" x-data="addToCart({ variantId: selectedVariantId, qty: 1 })" @click="add" :disabled="!selectedVariant?.available || loading" :class="{ 'kecom-btn-loading': loading }">
-                    <?php Icon::render('cart'); ?>
-                    <span x-show="!loading" x-text="selectedVariant?.available ? 'Add to Cart' : 'Out of Stock'"></span>
-                </button>
+                <div x-data="addToCart({ variantId: selectedVariantId, cartUrl: '<?php echo esc_url(Url::get_cart_url()); ?>', watchVariantId: () => selectedVariantId })">
+                    <template x-if="!success">
+                        <button class="kecom-btn kecom-btn-primary kecom-btn-block kecom-btn-lg" @click="add(document.getElementById('quantity-input')?.value || 1)" :disabled="!selectedVariant?.available || loading" :class="{ 'kecom-btn-loading': loading }">
+                            <?php Icon::render('cart'); ?>
+                            <span x-text="selectedVariant?.available ? buttonText : 'Out of Stock'"></span>
+                        </button>
+                    </template>
+                    <template x-if="success">
+                        <a :href="cartUrl" class="kecom-btn kecom-btn-primary kecom-btn-block kecom-btn-lg">
+                            <?php Icon::render('cart'); ?>
+                            <span x-text="buttonText"></span>
+                        </a>
+                    </template>
+                </div>
             </div>
         </div>
     </div>

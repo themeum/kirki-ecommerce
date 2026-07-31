@@ -50,7 +50,7 @@ $category = $product->categories()->first();
 $media = $product->media()->first();
 $image_url = null;
 if ($media) {
-    $image_url = wp_get_attachment_image_url($media->ID, 'thumbnail');
+    $image_url = wp_get_attachment_image_url($media->ID, 'large');
 }
 
 $product_url = Url::get_product_url($product->slug);
@@ -81,16 +81,25 @@ $product_url = Url::get_product_url($product->slug);
                 <span class="kecom-product-card-price-discount"><?php echo esc_html($formatted_regular_price); ?></span>
             <?php endif; ?>
         </div>
-        <button
-            type="button"
-            class="kecom-btn kecom-btn-primary kecom-btn-sm kecom-product-card-add-to-cart"
-            x-data="addToCart({ variantId: <?php echo esc_attr((int) $variant->id); ?>, qty: 1 })"
-            @click="add"
-            :disabled="loading"
-            :class="{ 'kecom-btn-loading': loading }"
-        >
-            <?php Icon::render('cart'); ?>
-            <span x-show="!loading"><?php echo esc_html__('Add', 'kirki-ecommerce'); ?></span>
-        </button>
+        <div x-data="addToCart({ variantId: <?php echo esc_attr((int) $variant->id); ?>, cartUrl: '<?php echo esc_url(Url::get_cart_url()); ?>' })">
+            <template x-if="!success">
+                <button
+                    type="button"
+                    class="kecom-btn kecom-btn-primary kecom-btn-sm kecom-product-card-add-to-cart"
+                    @click="add(1)"
+                    :disabled="loading"
+                    :class="{ 'kecom-btn-loading': loading }"
+                >
+                    <?php Icon::render('cart'); ?>
+                    <span x-text="buttonText"></span>
+                </button>
+            </template>
+            <template x-if="success">
+                <a :href="cartUrl" class="kecom-btn kecom-btn-primary kecom-btn-sm kecom-product-card-add-to-cart">
+                    <?php Icon::render('cart'); ?>
+                    <span x-text="buttonText"></span>
+                </a>
+            </template>
+        </div>
     </div>
 </div>

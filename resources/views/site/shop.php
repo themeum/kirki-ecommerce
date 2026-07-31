@@ -14,6 +14,7 @@ defined('ABSPATH') || exit;
 use Kirki\Ecommerce\App\Supports\Icon;
 use Kirki\Ecommerce\App\Supports\Template;
 use Kirki\Ecommerce\App\Supports\Url;
+use Kirki\Ecommerce\App\Services\CartService;
 
 use function Kirki\Ecommerce\Framework\include_view;
 use function Kirki\Ecommerce\Framework\view_data;
@@ -31,6 +32,13 @@ $sidebar_data = [
     'brands' => $data->brands ?? [],
     'filters' => $data->filters,
 ];
+
+// Get all variant IDs in cart for product cards
+$cart_variant_ids = CartService::get_cart_variant_ids();
+
+// Clear any existing localized data and set cart variant IDs
+Template::clear_localized_data();
+Template::set_localized_data('cartVariantIds', $cart_variant_ids);
 ?>
 
 <?php Template::get_header();

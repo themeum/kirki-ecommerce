@@ -11,6 +11,7 @@ use Exception;
 
 use function Kirki\Ecommerce\App\base_currency;
 use function Kirki\Ecommerce\App\customer;
+use function Kirki\Ecommerce\Framework\app;
 use function Kirki\Ecommerce\Framework\uuid;
 
 class CartService
@@ -184,5 +185,71 @@ class CartService
     public function find($cart_id)
     {
         return $this->repository->find($cart_id);
+    }
+
+    /**
+     * Check if a variant is in the cart.
+     *
+     * @since 1.0.0
+     *
+     * @param int $variant_id
+     * @param int|null $customer_id
+     * @param string|null $token
+     *
+     * @return bool
+     */
+    public function is_variant_in_cart(int $variant_id, $customer_id = null, $token = null): bool
+    {
+        try {
+            $cart = $this->get_cart($customer_id, $token);
+            
+            if ($cart && $cart->items) {
+                foreach ($cart->items as $item) {
+                    if ($item->variant_id === $variant_id) {
+                        return true;
+                    }
+                }
+            }
+        } catch (Exception $e) {
+            return false;
+        }
+        
+        return false;
+    }
+
+    /**
+     * Get all variant IDs in the cart.
+     *
+     * @since 1.0.0
+     *
+     * @param int|null $customer_id
+     * @param string|null $token
+     *
+     * @return array
+     */
+    public static function get_cart_variant_ids($customer_id = null, $token = null): array
+    {
+        try {
+            // If customer_id and token are not provided, get them from context
+            if ($customer_id === null && $token === null) {
+                $customer = customer();
+                $customer_id = $customer ? $customer->get_customer_id() : null;
+                $token = $_SERVER['HTTP_X_CART_TOKEN'] ?? null;
+            }
+            
+            $service = app()->make(self::class);
+            $cart = $service->get_cart($customer_id, $token);
+            
+            if ($cart && $cart->items) {
+                $items = is_array($cart->items) ? $cart->items : $cart->items->all();
+                return array_map(function($item) {
+                    return $item->variant_id;
+                }, $items);
+            }
+        } catch (Exception $e) {
+            return [];
+        }
+        
+        return [];
     }
 }

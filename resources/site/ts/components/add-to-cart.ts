@@ -4,36 +4,72 @@
  *
  * PHP usage:
  *   <button x-data="addToCart({ variantId: <?= $variant->id ?>, qty: 1 })"
- *           @click="add" :disabled="loading" :class="{ 'kecom-btn-loading': loading }">
- *     Add to Cart
+ *           @click="add" :disabled="loading" :class="{ 'kecom-btn-loading': loading }"
+ *           x-text="buttonText">
  *   </button>
  */
+
+import { cartApi } from '../api/cart';
 
 export interface AddToCartConfig {
   variantId: number;
   qty?: number;
+  cartUrl?: string;
+  watchVariantId?: () => number;
 }
 
 export function addToCart(config: AddToCartConfig) {
   return {
     variantId: config.variantId,
     qty: config.qty ?? 1,
+    cartUrl: config.cartUrl || '/cart',
+    watchVariantId: config.watchVariantId,
     loading: false,
     success: false,
     error: null as string | null,
+    buttonText: 'Add to Cart',
 
-    async add() {
-      this.loading = true;
-      this.success = false;
-      this.error = null;
-      try {
-        // Delegate to the global cartStore
-        await (this.$store as any).cartStore.addItem(this.variantId, this.qty);
+    init(this: any) {
+      this.checkIfInCart();
+      
+      // Watch for variant ID changes (for product detail page)
+      if (this.watchVariantId) {
+        this.$watch(() => this.watchVariantId(), () => {
+          this.variantId = this.watchVariantId();
+          this.checkIfInCart();
+        });
+      }
+    },
+
+    checkIfInCart() {
+      const cartVariantIds = (window as any).kecomSite?.cartVariantIds || [];
+      if (cartVariantIds.includes(this.variantId)) {
         this.success = true;
-        // Reset success state after 2 s
-        setTimeout(() => { this.success = false; }, 2000);
+        this.buttonText = 'View Cart';
+      } else {
+        this.success = false;
+        this.buttonText = 'Add to Cart';
+      }
+    },
+
+    async add(qty?: number) {
+      this.loading = true;
+      this.error = null;
+      const quantity = Number(qty ?? this.qty);
+      try {
+        await cartApi.addItem(this.variantId, quantity);
+        this.success = true;
+        this.buttonText = 'View Cart';
+        
+        // Update cartVariantIds in window.kecomSite after successful add
+        const cartVariantIds = (window as any).kecomSite?.cartVariantIds || [];
+        if (!cartVariantIds.includes(this.variantId)) {
+          cartVariantIds.push(this.variantId);
+          (window as any).kecomSite.cartVariantIds = cartVariantIds;
+        }
       } catch (e: unknown) {
         this.error = e instanceof Error ? e.message : 'Could not add to cart';
+        this.buttonText = 'Add to Cart';
       } finally {
         this.loading = false;
       }
