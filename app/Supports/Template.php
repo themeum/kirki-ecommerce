@@ -13,6 +13,7 @@ namespace Kirki\Ecommerce\App\Supports;
 
 use Kirki\Ecommerce\App\Models\Attribute;
 use Kirki\Ecommerce\App\Models\Category;
+use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 
 /**
  * Class Template
@@ -318,5 +319,118 @@ class Template
             <?php endforeach; ?>
         </div>
         <?php
+    }
+
+    /**
+     * Render pagination.
+     *
+     * @since 1.0.0
+     *
+     * @param Paginator $paginator The paginator.
+     * @param array $options Options for rendering pagination.
+     *
+     * @return void
+     */
+    public static function render_pagination(Paginator $paginator, array $options = [])
+    {
+        $last_page = $paginator->get_last_page();
+
+        if ($last_page <= 1) {
+            return;
+        }
+
+        $current_page = $paginator->get_current_page();
+        $base_url     = $options['base_url'] ?? strtok($_SERVER['REQUEST_URI'], '?');
+        $page_param   = $options['page_param'] ?? 'current_page';
+        $class        = $options['class'] ?? 'kecom-pagination';
+        $page_window = $options['page_window'] ?? 5;
+
+        $url = static function (int $page) use ($base_url, $page_param) {
+            $params = $_GET;
+            $params[$page_param] = $page;
+
+            return $base_url . '?' . http_build_query($params);
+        };
+
+        echo '<div class="' . esc_attr($class) . '">';
+
+        // Previous
+        if (!$paginator->on_first_page()) {
+            ?>
+        <a href="<?php echo esc_url($url($current_page - 1)); ?>" class="kecom-page-link">
+            <?php Icon::render('chevron-left'); ?>
+        </a>
+            <?php
+        }
+
+        // Pages
+        if ($last_page <= $page_window) {
+            for ($page = 1; $page <= $last_page; $page++) {
+                self::render_page_link($page, $current_page, $url);
+            }
+        } else {
+            $pages = [1];
+
+            $start = max(2, $current_page - 1);
+            $end   = min($last_page - 1, $current_page + 1);
+
+            if ($start > 2) {
+                $pages[] = '...';
+            }
+
+            for ($i = $start; $i <= $end; $i++) {
+                $pages[] = $i;
+            }
+
+            if ($end < $last_page - 1) {
+                $pages[] = '...';
+            }
+
+            $pages[] = $last_page;
+
+            foreach ($pages as $page) {
+                if ($page === '...') {
+                    echo '<span class="kecom-page-link dots">&hellip;</span>';
+                    continue;
+                }
+
+                self::render_page_link($page, $current_page, $url);
+            }
+        }
+
+        // Next
+        if ($paginator->has_more_page()) {
+            ?>
+        <a href="<?php echo esc_url($url($current_page + 1)); ?>" class="kecom-page-link">
+            <?php Icon::render('chevron-right'); ?>
+        </a>
+            <?php
+        }
+
+        echo '</div>';
+    }
+
+    /**
+     * Render page link.
+     *
+     * @since 1.0.0
+     *
+     * @param int $page The page number.
+     * @param int $current_page The current page number.
+     * @param callable $url The URL callback.
+     *
+     * @return void
+     */
+    protected static function render_page_link(int $page, int $current_page, callable $url): void
+    {
+        if ($page === $current_page) {
+            ?>
+        <span class="kecom-page-link active"><?php echo esc_html($page); ?></span>
+            <?php
+        } else {
+            ?>
+        <a href="<?php echo esc_url($url($page)); ?>" class="kecom-page-link"> <?php echo esc_html($page); ?></a>
+            <?php
+        }
     }
 }
