@@ -84,9 +84,6 @@ const useCreateProductMutation = () => {
       );
       void queryClient.invalidateQueries({ queryKey: ['Products'] });
     },
-    onError(error) {
-      toastMutationError(error);
-    },
   });
 };
 
@@ -104,9 +101,6 @@ const useUpdateProductMutation = () => {
         queryKey: queryKeys.Product(variables.id),
       });
       void queryClient.invalidateQueries({ queryKey: ['Inventory'] });
-    },
-    onError(error) {
-      toastMutationError(error);
     },
   });
 };

@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect } from 'react';
-import { useForm, useWatch } from 'react-hook-form';
+import { useForm, useWatch, type FieldPath } from 'react-hook-form';
 import { useNavigate } from 'react-router';
+import { toast } from 'sonner';
 
 import MediaGalleryField from '@/components/form/media-gallery-field';
 import RichTextField from '@/components/form/rich-text-field';
@@ -23,6 +23,7 @@ import {
   ProductFormSchema,
   type ProductFormValues,
 } from '@/schemas/forms/product-form';
+import { getErrorMessage } from '@/services/helpers';
 import { cardStyles } from '@/theme/card-styles';
 import type { ProductFormData } from '@/types';
 import { __ } from '@/wpi18n';
@@ -46,6 +47,10 @@ type SaveResult = {
   success?: boolean;
 };
 
+type HandleSaveOptions = {
+  focusOnError?: boolean;
+};
+
 const ProductForm = ({
   mode,
   initialValues,
@@ -60,12 +65,6 @@ const ProductForm = ({
     defaultValues: initialValues ?? getProductFormDefaultValues(),
   });
 
-  useEffect(() => {
-    if (initialValues) {
-      form.reset(initialValues);
-    }
-  }, [initialValues]);
-
   const hasVariants = useWatch({ control: form.control, name: 'has_variants' });
   const attributeValues = useWatch({
     control: form.control,
@@ -77,7 +76,9 @@ const ProductForm = ({
     !attributeValues ||
     (Array.isArray(attributeValues) && attributeValues.length === 0);
 
-  const handleSave = async (): Promise<SaveResult> => {
+  const handleSave = async ({
+    focusOnError = true,
+  }: HandleSaveOptions = {}): Promise<SaveResult> => {
     let success = false;
 
     await form.handleSubmit(async (values) => {
@@ -90,7 +91,25 @@ const ProductForm = ({
         }
         success = true;
       } catch (error) {
-        applyServerErrors(form, error as ErrorResponse);
+        const unmatchedMessages: string[] = [];
+        const { matchedFields } = applyServerErrors(
+          form,
+          error as ErrorResponse,
+          {
+            onUnmatched: (leftovers) => {
+              unmatchedMessages.push(...Object.values(leftovers));
+            },
+          },
+        );
+
+        toast.error(
+          [getErrorMessage(error), ...unmatchedMessages].join(' '),
+        );
+
+        if (focusOnError && matchedFields[0]) {
+          form.setFocus(matchedFields[0] as FieldPath<ProductFormValues>);
+        }
+
         success = false;
       }
     })();
@@ -120,7 +139,7 @@ const ProductForm = ({
             </Button>
             <Button
               variant="primary"
-              onClick={handleSave}
+              onClick={() => handleSave()}
               loading={isSubmitting}
             >
               {isCreate
@@ -193,7 +212,9 @@ const ProductForm = ({
                   <Shipping />
                 </>
               )}
-              <Variants onSave={handleSave} />
+              <Variants
+                onSave={() => handleSave({ focusOnError: false })}
+              />
               <SEOSettings />
             </Flex>
           </div>

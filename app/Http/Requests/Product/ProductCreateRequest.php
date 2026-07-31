@@ -13,11 +13,7 @@ class ProductCreateRequest extends Request
 {
     protected function prepare_for_validation()
     {
-        $variants = $this->input('variants');
-
-        if (!is_array($variants)) {
-            return;
-        }
+        $variants = $this->input('variants') ?? [];
 
         foreach ($variants as $index => $variant) {
             if (!is_array($variant)) {
@@ -31,7 +27,9 @@ class ProductCreateRequest extends Request
             }
         }
 
-        $this->merge(['variants' => $variants]);
+        if (!empty($variants)) {
+            $this->merge(['variants' => $variants]);
+        }
     }
 
     public function rules()
@@ -47,6 +45,8 @@ class ProductCreateRequest extends Request
             'short_description' => 'string|nullable',
             'description' => 'string|nullable',
             'additional_info' => 'array|nullable', // JSON string, can be validated later
+            'additional_info.*.title' => 'required|string',
+            'additional_info.*.description' => 'required|string',
             'seo_title' => 'string|nullable|max:500',
             'seo_description' => 'string|nullable',
             'seo_keywords' => 'array|nullable',
@@ -100,14 +100,14 @@ class ProductCreateRequest extends Request
             'variants.*.cost_of_goods' => 'number|min:0|nullable',
 
             'variants.*.weight' => 'numeric|nullable',
-            'variants.*.weight_unit' => 'string|nullable|max:10|in:' . implode(',', WeightUnit::get_constant_values()),
+            'variants.*.weight_unit' => 'nullable|string|max:10|in:' . implode(',', WeightUnit::get_constant_values()),
 
             'variants.*.charge_taxes' => 'boolean|nullable',
             'variants.*.allow_back_order' => 'boolean|nullable',
             'variants.*.track_inventory' => 'boolean|nullable',
-            'variants.*.available_quantity' => 'nullable|integer',
+            'variants.*.available_quantity' => 'integer|min:0|nullable',
             'variants.*.in_stock' => 'boolean|nullable',
-            'variants.*.committed_quantity' => 'nullable|integer',
+            'variants.*.committed_quantity' => 'integer|min:0|nullable',
             'variants.*.has_limit_per_order' => 'boolean|nullable',
             'variants.*.max_per_order' => 'integer|nullable',
             'variants.*.tax_profile_id' => 'integer|nullable',

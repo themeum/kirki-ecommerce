@@ -46,6 +46,7 @@ const EditProduct = () => {
 
   return (
     <ProductForm
+      key={product.id}
       mode="edit"
       initialValues={mapProductToFormValues(product)}
       onSubmit={handleSubmit}

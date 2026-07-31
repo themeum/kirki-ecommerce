@@ -92,6 +92,7 @@ const MoneyField = <
                 ref={field.ref}
                 error={Boolean(fieldState.error)}
                 aria-invalid={fieldState.invalid}
+                onFocus={event => event.target.select()}
               />
             </div>
             {description && <FieldDescription>{description}</FieldDescription>}

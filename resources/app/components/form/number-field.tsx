@@ -74,6 +74,7 @@ const NumberField = <
             ref={field.ref}
             error={Boolean(fieldState.error)}
             aria-invalid={fieldState.invalid}
+            onFocus={event => event.target.select()}
           />
           {description && <FieldDescription>{description}</FieldDescription>}
           {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
