@@ -15,6 +15,7 @@ class CreateAttributeValuesTable implements Migration
             $table->unsigned_big_integer('attribute_id');
             $table->string('value', 255);
             $table->string('color', 10)->nullable()->comment('Hex color code');
+            $table->unsigned_big_integer('media')->nullable();
             $table->timestamps();
 
             $table->unique(['attribute_id', 'value'], 'unique_attribute_value');
