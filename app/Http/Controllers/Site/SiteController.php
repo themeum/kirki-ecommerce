@@ -16,10 +16,13 @@ use Kirki\Ecommerce\App\Http\Requests\Site\ShopPageFilterRequest;
 use Kirki\Ecommerce\App\Models\Brand;
 use Kirki\Ecommerce\App\Models\Category;
 use Kirki\Ecommerce\App\Models\Product;
+use Kirki\Ecommerce\App\Resources\Cart\CartResource;
 use Kirki\Ecommerce\App\Services\ProductService;
 use Kirki\Ecommerce\App\Resources\Product\ProductResource;
+use Kirki\Ecommerce\App\Services\CartService;
 use Kirki\Ecommerce\Framework\Http\Request;
 
+use function Kirki\Ecommerce\App\customer;
 use function Kirki\Ecommerce\Framework\view;
 
 /**
@@ -97,9 +100,14 @@ class SiteController
      *
      * @return string Template path.
      */
-    public function cart_page(Request $request)
+    public function cart_page(Request $request, CartService $cart_service)
     {
-        return view('site.cart')->layout(false);
+        $customer = customer(4, 11);
+        $token = $request->get_header('x-cart-token');
+        $cart = $cart_service->get_cart($customer->get_customer_id() ?? null, $token);
+        $cart_resource = CartResource::make($cart);
+
+        return view('site.cart', ['cart' => $cart_resource])->layout(false);
     }
 
     /**

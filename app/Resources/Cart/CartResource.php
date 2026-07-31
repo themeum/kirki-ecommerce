@@ -101,6 +101,14 @@ class CartResource extends Resource
                         'price' => $this->prepare_amount($item->variant->price),
                         'sale_price' => $this->prepare_amount($item->variant->sale_price),
                         'media' => !empty($item->variant->media) ? MediaAttachment::make($item->variant->media) : MediaAttachment::make($item->product->media->first() ?? null) ?? null,
+                        'categories' => $item->product->categories->map(function ($category) {
+                            return [
+                                'id' => $category->id,
+                                'name' => $category->name,
+                                'parent_id' => $category->parent_id,
+                                'level' => $category->level,
+                            ];
+                        })->to_array(),
                     ],
                     'subtotal' => $this->prepare_amount($calculated_item->subtotal),
                     'tax_rate' => $calculated_item->tax_rate,
