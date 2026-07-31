@@ -106,9 +106,9 @@ examples:
           {
             "success": false,
             "errors": {},
-            "message": "Brand not found."
+            "message": "Order not found."
           }
 
 docs: |-
-  # Get Brand By ID
+  # Get Order By ID
   Returns the details of a specific resource identified by its ID.
