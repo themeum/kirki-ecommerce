@@ -12,6 +12,7 @@ type CheckboxFieldProps<
   name: TName;
   label?: ReactNode;
   description?: ReactNode;
+  infoText?: ReactNode;
   disabled?: boolean;
   cssOverride?: CSSObject;
 };
@@ -23,6 +24,7 @@ const CheckboxField = <
   name,
   label,
   description,
+  infoText,
   disabled,
   cssOverride,
 }: CheckboxFieldProps<TFieldValues, TName>) => {
@@ -45,7 +47,11 @@ const CheckboxField = <
               disabled={disabled}
               aria-invalid={fieldState.invalid}
             />
-            {label && <FieldLabel htmlFor={fieldId}>{label}</FieldLabel>}
+            {label && (
+              <FieldLabel htmlFor={fieldId} infoText={infoText}>
+                {label}
+              </FieldLabel>
+            )}
           </Field>
           {description && <FieldDescription>{description}</FieldDescription>}
           {fieldState.invalid && <FieldError errors={[fieldState.error]} />}

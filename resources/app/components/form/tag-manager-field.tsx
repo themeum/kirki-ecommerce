@@ -14,6 +14,7 @@ type TagManagerFieldProps<
   name: TName;
   label?: ReactNode;
   description?: ReactNode;
+  infoText?: ReactNode;
   cssOverride?: CSSObject;
   valueAs?: 'options' | 'strings';
 } & Omit<
@@ -34,6 +35,7 @@ const TagManagerField = <
   name,
   label,
   description,
+  infoText,
   cssOverride,
   valueAs = 'options',
   ...tagManagerProps
@@ -53,7 +55,7 @@ const TagManagerField = <
 
         return (
           <Field data-invalid={fieldState.invalid || undefined} cssOverride={cssOverride}>
-            {label && <FieldLabel>{label}</FieldLabel>}
+            {label && <FieldLabel infoText={infoText}>{label}</FieldLabel>}
             <TagManager
               {...tagManagerProps}
               selectedTags={selectedTags}

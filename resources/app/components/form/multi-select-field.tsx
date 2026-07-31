@@ -12,6 +12,7 @@ type MultiSelectFieldProps<
   name: TName;
   label?: ReactNode;
   description?: ReactNode;
+  infoText?: ReactNode;
   placeholder?: string;
   searchPlaceholder?: string;
   emptyText?: string;
@@ -28,6 +29,7 @@ const MultiSelectField = <
   name,
   label,
   description,
+  infoText,
   placeholder,
   searchPlaceholder,
   emptyText,
@@ -44,7 +46,7 @@ const MultiSelectField = <
       name={name}
       render={({ field, fieldState }) => (
         <Field data-invalid={fieldState.invalid || undefined} cssOverride={cssOverride}>
-          {label && <FieldLabel>{label}</FieldLabel>}
+          {label && <FieldLabel infoText={infoText}>{label}</FieldLabel>}
           <Combobox
             options={options}
             value={field.value ?? (multiple ? [] : '')}

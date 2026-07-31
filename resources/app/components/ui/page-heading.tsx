@@ -7,7 +7,7 @@ import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
-import { flexCenter, itemCenter, scopedMerge, scoped, defineStyles } from '@/theme/mixins';
+import { defineStyles, flexCenter, itemCenter, scoped, scopedMerge } from '@/theme/mixins';
 import type { ContainerSize, HeadingType } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -24,6 +24,7 @@ type PageHeadingProps = {
   noMargin?: boolean;
   buttonProps?: Partial<ComponentProps<typeof Button>>;
   cssOverride?: CSSObject;
+  onBack?: (event: React.MouseEvent<HTMLButtonElement>) => void;
 };
 
 const PageHeading = forwardRef<HTMLDivElement, PageHeadingProps>(
@@ -40,32 +41,34 @@ const PageHeading = forwardRef<HTMLDivElement, PageHeadingProps>(
       leftIcon,
       noMargin,
       buttonProps = {},
+      onBack,
     } = props;
 
     const {
       cssOverride: buttonCssOverride,
       children: buttonChildren,
-      onClick: buttonOnClick,
+      onClick,
       ...restButtonProps
     } = buttonProps;
 
     return (
       <div
         ref={ref}
-        css={scopedMerge(styles.wrapper,           sticky && styles.wrapperSticky,           noMargin && styles.wrapperNoMargin)}
+        css={scopedMerge(styles.wrapper, sticky && styles.wrapperSticky, noMargin && styles.wrapperNoMargin)}
       >
         <Container size={size} style={{ width: '100%' }}>
           <div
-            css={scopedMerge(styles.heading,               hasBack && styles.headingHasBack,               cssOverride)}
+            css={scopedMerge(styles.heading, hasBack && styles.headingHasBack, cssOverride)}
             style={style}
           >
             {hasBack && (
               <Button
-                variant="link"
+                variant="ghost"
+                size="icon"
                 cssOverride={buttonCssOverride}
                 onClick={(event) => {
-                  if (buttonOnClick) {
-                    buttonOnClick(event);
+                  if (onBack) {
+                    onBack(event);
                     return;
                   }
                   window.history.back();

@@ -86,6 +86,7 @@ export const ProductSchema = z.object({
   currency: ProductCurrencySchema.nullable(),
   brand: ProductBrandSchema.nullable(),
   description: z.string().nullable(),
+  short_description: z.string().nullable().optional(),
   additional_info: z.array(AdditionalInfoItemSchema).nullable(),
   allow_back_order: z.boolean(),
   has_limit_per_order: z.boolean().optional(),
