@@ -73,4 +73,7 @@ export const endpoints = {
   PAYMENT_GATEWAYS_INSTALL: '/payment-gateways/install',
   PAYMENT_METHODS: '/payment-methods',
   PAYMENT_METHOD: (id: string | number) => `/payment-methods/${id}`,
+
+  ORDER: (id: string | number) => `/orders/${id}`,
+  ORDERS: '/orders',
 } as const;

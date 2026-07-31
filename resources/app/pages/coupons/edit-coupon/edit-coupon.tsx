@@ -32,6 +32,7 @@ import { getCouponBadgeInfo } from '@/pages/coupons/edit-coupon/config/coupon-ba
 import { isDefined } from '@/utils/object';
 import CouponPreview from './components/coupon-preview';
 // import ConditionsTab from './components/tabs/conditions-tab';
+import Badge from '@/components/ui/badge';
 import DetailsTab from './components/tabs/details-tab';
 import { splitIsoDateTime } from './config/coupon-datetime';
 
@@ -157,10 +158,6 @@ const EditCoupon = () => {
               ? __('New Coupon', 'kirki-ecommerce')
               : __('Edit Coupon', 'kirki-ecommerce')
           }
-          badge={isDefined(couponBadgeInfo) && {
-            variant: couponBadgeInfo.variant,
-            children: couponBadgeInfo.text,
-          }}
           type="primary"
           sticky
           actions={
@@ -180,7 +177,13 @@ const EditCoupon = () => {
             </>
           }
           hasBack
-        />
+        >
+          {
+            !isNew && isDefined(couponBadgeInfo) && (
+              <Badge variant={couponBadgeInfo.variant} >{couponBadgeInfo.text}</Badge>
+            )
+          }
+        </PageHeading>
 
         <Container>
           <Flex gap={4}>
