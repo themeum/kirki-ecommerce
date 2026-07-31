@@ -5,10 +5,7 @@ import { useSearchParams } from 'react-router';
 import HeaderActionsCard from '@/components/header-actions-card';
 import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-} from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { EditPenIcon, LighteningIcon, TrashIcon } from '@/icons';
@@ -16,7 +13,7 @@ import { dispatchToastMessage } from '@/pages/utils';
 import { useSettingsQuery } from '@/services/settings';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { scoped } from '@/theme/mixins';
+import { mergeCss, defineStyles } from '@/theme/mixins';
 import type { SettingsSectionData } from '@/types';
 import { __, sprintf } from '@/wpi18n';
 
@@ -104,8 +101,8 @@ export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
   };
   return (
     <div>
-      <Card css={cardStyles.largeCard}>
-        <CardContent css={cardStyles.largeContentPadded}>
+      <Card cssOverride={cardStyles.largeCard}>
+        <CardContent cssOverride={cardStyles.largeContentPadded}>
           <HeaderActionsCard
             header={__('Shipping Rules', 'kirki-ecommerce')}
             subHeader={__(
@@ -131,19 +128,17 @@ export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
               {rulesObj?.map((item, index) => (
                 <div key={index}>
                   <Card
-                    css={css(
-                      styles.shippingRulesCard,
+                    cssOverride={mergeCss(styles.shippingRulesCard,
                       rulesObj.length > 1
                         ? styles.shippingRulesCardBorderRadius
-                        : styles.shippingRulesCardSingle,
-                    )}
+                        : styles.shippingRulesCardSingle,)}
                     onMouseEnter={() => setHoveredRuleIndex(index)}
                     onMouseLeave={() => setHoveredRuleIndex(null)}
                   >
                     <CardContent>
                       <Flex justify="space-between">
                         <Flex direction={'column'} gap={4}>
-                          <Card css={[cardStyles.darkCard, styles.rulesNumberBadge]}>
+                          <Card cssOverride={mergeCss(cardStyles.darkCard, styles.rulesNumberBadge)}>
                             <CardContent>
                               <Flex gap={2} align="center">
                                 <LighteningIcon />
@@ -165,7 +160,7 @@ export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
                                   item?.conditions[0]?.operator,
                                 )}
                               </Text>
-                              <Text css={styles.accentText}>
+                              <Text cssOverride={styles.accentText}>
                                 {sprintf(
                                   __('%s', 'kirki-ecommerce'),
                                   item?.conditions[0]?.type === 'destination_region'
@@ -186,7 +181,7 @@ export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
                               </Text>
                               {(item?.action?.type === 'set_shipping_cost' ||
                                 item?.action?.type === 'add_shipping_cost') && (
-                                  <Text css={styles.accentText}>
+                                  <Text cssOverride={styles.accentText}>
                                     {sprintf(
                                       __('%d', 'kirki-ecommerce'),
                                       item?.action?.value as string | number,
@@ -197,10 +192,8 @@ export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
                           </Flex>
                         </Flex>
                         <ActionGroup
-                          css={css(
-                            styles.cardActions,
-                            hoveredRuleIndex === index && styles.cardActionsActive,
-                          )}
+                          cssOverride={mergeCss(styles.cardActions,
+                            hoveredRuleIndex === index && styles.cardActionsActive,)}
                         >
                           <Button
                             variant="secondary"
@@ -240,7 +233,7 @@ export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
   );
 };
 
-const styles = {
+const styles = defineStyles({
   cardActions: css({
     display: 'none',
     pointerEvents: 'none',
@@ -250,7 +243,7 @@ const styles = {
     display: 'flex',
     pointerEvents: 'auto',
   }),
-  shippingRulesCard: scoped({
+  shippingRulesCard: {
     padding: theme.spacing[3],
     minHeight: '118px',
     borderRadius: theme.radius.none,
@@ -258,26 +251,26 @@ const styles = {
     display: 'flex',
     flexDirection: 'column',
     gap: theme.spacing[4],
-  }),
-  shippingRulesCardSingle: scoped({
+  },
+  shippingRulesCardSingle: {
     borderRadius: theme.radius.lg,
-  }),
-  shippingRulesCardBorderRadius: scoped({
+  },
+  shippingRulesCardBorderRadius: {
     '&:first-of-type': {
       borderRadius: `${theme.radius.lg} ${theme.radius.lg} ${theme.radius.none} ${theme.radius.none}`,
     },
     '&:last-of-type': {
       borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.lg} ${theme.radius.lg}`,
     },
-  }),
-  rulesNumberBadge: scoped({
+  },
+  rulesNumberBadge: {
     maxHeight: '26px',
     maxWidth: 'fit-content',
     borderRadius: theme.radius.sm,
     display: 'flex',
     padding: `${theme.spacing[1]} ${theme.spacing[2]}`,
-  }),
-  accentText: scoped({
+  },
+  accentText: {
     color: theme.colors.text.special3,
-  }),
-};
+  },
+});

@@ -1,14 +1,9 @@
-import type { SerializedStyles } from '@emotion/react';
-import {
-  forwardRef,
-  type ComponentPropsWithoutRef,
-  type CSSProperties,
-  type ReactNode,
-} from 'react';
+import type { CSSObject } from '@emotion/react';
+import { forwardRef, type ComponentPropsWithoutRef, type CSSProperties, type ReactNode } from 'react';
 
 import Flex from '@/components/ui/flex';
 import { theme } from '@/theme';
-import { flexCenter, scoped } from '@/theme/mixins';
+import { flexCenter, scopedMerge, scoped, defineStyles } from '@/theme/mixins';
 import type { GapValue } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -20,12 +15,12 @@ type ChipProps = Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'css'> & {
   gap?: GapValue;
   closeIcon?: ReactNode;
   onRemove?: () => void;
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const Chip = forwardRef<HTMLDivElement, ChipProps>((props, ref) => {
   const {
-    css: cssProp,
+    cssOverride,
     text,
     subText,
     img,
@@ -37,22 +32,22 @@ const Chip = forwardRef<HTMLDivElement, ChipProps>((props, ref) => {
     ...rest
   } = props;
 
-  const chipStyle = {
+  const chipStyle = defineStyles({
     ...(color !== undefined ? { '--chip-swatch-color': color } : {}),
     ...style,
-  } as CSSProperties;
+  })as CSSProperties;
 
   return (
-    <div ref={ref} style={chipStyle} css={[styles.root, cssProp]} {...rest}>
+    <div ref={ref} style={chipStyle} css={scopedMerge(styles.root, cssOverride)} {...rest}>
       <Flex gap={gap} align="center">
         {img}
-        {color && <div css={styles.swatch} aria-hidden="true" />}
+        {color && <div css={scoped(styles.swatch)} aria-hidden="true" />}
         {text}
-        {subText && <span css={styles.subtext}>{subText}</span>}
+        {subText && <span css={scoped(styles.subtext)}>{subText}</span>}
         {closeIcon && (
           <button
             type="button"
-            css={styles.close}
+            css={scoped(styles.close)}
             onClick={onRemove}
             aria-label={__('Remove', 'kirki-ecommerce')}
           >
@@ -69,8 +64,8 @@ Chip.displayName = 'Chip';
 export default Chip;
 export type { ChipProps };
 
-const styles = {
-  root: scoped({
+const styles = defineStyles({
+  root: {
     ...flexCenter(),
     backgroundColor: theme.colors.background.surfaceSecondary,
     padding: `${theme.spacing[1]} ${theme.spacing[2]}`,
@@ -78,17 +73,17 @@ const styles = {
     width: 'max-content',
     gap: theme.spacing[2],
     ...theme.typography.small('medium'),
-  }),
-  subtext: scoped({
+  },
+  subtext: {
     color: theme.colors.text.subdued,
-  }),
-  swatch: scoped({
+  },
+  swatch: {
     borderRadius: theme.radius.full,
     height: '16px',
     width: '16px',
     backgroundColor: 'var(--chip-swatch-color)',
-  }),
-  close: scoped({
+  },
+  close: {
     ...flexCenter(),
     cursor: 'pointer',
     padding: 0,
@@ -96,5 +91,5 @@ const styles = {
     border: 'none',
     background: 'transparent',
     appearance: 'none',
-  }),
-};
+  },
+});

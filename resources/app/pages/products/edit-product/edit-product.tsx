@@ -1,10 +1,4 @@
-import {
-  useEffect,
-  useState,
-  type ComponentType,
-  type Dispatch,
-  type SetStateAction,
-} from 'react';
+import { useEffect, useState, type ComponentType, type Dispatch, type SetStateAction } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate, useParams } from 'react-router';
@@ -17,10 +11,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import { NEW_ITEM_ID } from '@/conf';
 import { cardStyles } from '@/theme/card-styles';
-import {
-  ProductFormProvider,
-  useProductForm,
-} from '@/contexts/product-form-context';
+import { ProductFormProvider, useProductForm } from '@/contexts/product-form-context';
 import type { ErrorResponse } from '@/libs/api';
 import { getErrorsObject } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
@@ -28,17 +19,8 @@ import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import PageHeading from '@/components/ui/page-heading';
 import { Separator } from '@/components/ui/separator';
-import {
-  mapProductBasicsFromProduct,
-  ProductBasicsFormSchema,
-  productBasicsDefaultValues,
-  type ProductBasicsFormValues,
-} from '@/schemas/forms/product-basics-form';
-import {
-  useCreateProductMutation,
-  useProductQuery,
-  useUpdateProductMutation,
-} from '@/services/product';
+import { mapProductBasicsFromProduct, ProductBasicsFormSchema, productBasicsDefaultValues, type ProductBasicsFormValues } from '@/schemas/forms/product-basics-form';
+import { useCreateProductMutation, useProductQuery, useUpdateProductMutation } from '@/services/product';
 import { useDefaultSettingsQuery, useSettingsQuery } from '@/services/settings';
 import { useShippingBoxesQuery } from '@/services/shipping';
 import type {
@@ -288,7 +270,7 @@ const EditProductInner = () => {
           <div style={{ width: '70%' }}>
             <Flex direction="column" gap={4}>
               <Form {...basicsForm}>
-                <Card css={cardStyles.formCard}>
+                <Card cssOverride={cardStyles.formCard}>
                   <CardContent>
                     <Flex gap={3}>
                       <div style={{ width: '70%' }}>

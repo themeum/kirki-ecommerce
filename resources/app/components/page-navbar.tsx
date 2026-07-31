@@ -7,7 +7,7 @@ import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { scoped } from '@/theme/mixins';
+import { scoped, defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 type PageNavbarProps = {
@@ -36,12 +36,12 @@ const PageNavbar = (props: PageNavbarProps) => {
           variant="ghost"
           aria-label={__('Back', 'kirki-ecommerce')}
           onClick={handleBack ?? (() => window.history.back())}
-          css={styles.backButton}
+          cssOverride={styles.backButton}
         >
           {buttonIcon}
         </Button>
-        <div css={styles.connector} />
-        <Card css={cardStyles.navbarCard}>
+        <div css={scoped(styles.connector)} />
+        <Card cssOverride={cardStyles.navbarCard}>
           <Flex gap={2} align="center">
             {textIcon}
             <Text weight="semibold">{text}</Text>
@@ -57,8 +57,8 @@ PageNavbar.displayName = 'PageNavbar';
 
 export default PageNavbar;
 
-const styles = {
-  backButton: scoped({
+const styles = defineStyles({
+  backButton: {
     height: '36px',
     width: '36px',
     background: theme.colors.background.surface,
@@ -69,11 +69,11 @@ const styles = {
         strokeWidth: 1.5,
       },
     },
-  }),
-  connector: scoped({
+  },
+  connector: {
     height: '19px',
     width: '8.5px',
     background: theme.colors.background.surface,
     clipPath: "path('M0,0 Q4.25,6 8.5,0 L8.5,19 Q4.25,13 0,19 Z')",
-  }),
-};
+  },
+});

@@ -2,21 +2,14 @@ import { type ReactElement, useState } from 'react';
 import { useNavigate } from 'react-router';
 
 import Button from '@/components/ui/button';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectSeparator,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectSeparator, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { PlusIcon } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { useShippingBoxesQuery } from '@/services/shipping';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { defineStyles } from '@/theme/mixins';
 import type { FormErrors } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -67,11 +60,11 @@ const ShippingBoxSelect = ({
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          <Flex css={styles.header}>
+          <Flex cssOverride={styles.header}>
             <Text color="secondary">{__('Available shipping boxes', 'kirki-ecommerce')}</Text>
             <Button
               variant="ghost"
-              css={styles.manageButton}
+              cssOverride={styles.manageButton}
               onClick={() => navigate('/settings/shipping')}
             >
               {__('Manage', 'kirki-ecommerce')}
@@ -84,7 +77,7 @@ const ShippingBoxSelect = ({
             </SelectItem>
           ))}
           <SelectSeparator />
-          <ActionGroup css={styles.footer}>
+          <ActionGroup cssOverride={styles.footer}>
             <Button
               variant="secondary"
               onClick={() => setOpenShippingBoxPopup(true)}
@@ -110,16 +103,16 @@ ShippingBoxSelect.displayName = 'ShippingBox';
 
 export default ShippingBoxSelect;
 
-const styles = {
-  header: scoped({
+const styles = defineStyles({
+  header: {
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
-  }),
-  footer: scoped({
+  },
+  footer: {
     padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
-  }),
-  manageButton: scoped({
+  },
+  manageButton: {
     color: theme.colors.background.fillBrand,
-  }),
-};
+  },
+});

@@ -1,22 +1,16 @@
-import type { SerializedStyles } from '@emotion/react';
-import {
-  forwardRef,
-  useEffect,
-  useState,
-  type CSSProperties,
-  type KeyboardEvent,
-} from 'react';
+import type { CSSObject } from '@emotion/react';
+import { forwardRef, useEffect, useState, type CSSProperties, type KeyboardEvent } from 'react';
 
 import Flex from '@/components/ui/flex';
 import Label from '@/components/ui/label';
 import { SwitchCheckedIcon, SwitchUncheckedIcon } from '@/icons';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { scopedMerge, defineStyles } from '@/theme/mixins';
 
 type ToggleButtonProps = {
   value?: boolean;
   style?: CSSProperties;
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
   onChange?: (value: boolean) => void;
   label?: string;
   disabled?: boolean;
@@ -25,7 +19,7 @@ type ToggleButtonProps = {
 const ToggleButton = forwardRef<HTMLButtonElement, ToggleButtonProps>(
   (props, ref) => {
     const {
-      css: cssProp,
+      cssOverride,
       value,
       style,
       onChange,
@@ -64,7 +58,7 @@ const ToggleButton = forwardRef<HTMLButtonElement, ToggleButtonProps>(
         aria-label={label}
         disabled={disabled}
         style={style}
-        css={[styles.root, disabled && styles.disabled, cssProp]}
+        css={scopedMerge(styles.root, disabled && styles.disabled, cssOverride)}
         onClick={handleToggle}
         onKeyDown={handleKeyDown}
       >
@@ -81,8 +75,8 @@ ToggleButton.displayName = 'ToggleButton';
 
 export default ToggleButton;
 
-const styles = {
-  root: scoped({
+const styles = defineStyles({
+  root: {
     all: 'unset',
     cursor: 'pointer',
     display: 'inline-flex',
@@ -91,10 +85,10 @@ const styles = {
       outline: `2px solid ${theme.colors.background.fillBrand}`,
       outlineOffset: '2px',
     },
-  }),
-  disabled: scoped({
+  },
+  disabled: {
     cursor: 'not-allowed !important',
     opacity: 0.3,
     pointerEvents: 'none',
-  }),
-};
+  },
+});

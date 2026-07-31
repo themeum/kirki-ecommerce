@@ -5,15 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import GroupTagTable from '@/components/group-tag-table';
 import TextField from '@/components/form/text-field';
 import Button from '@/components/ui/button';
-import {
-  Dialog,
-  DialogBody,
-  DialogCloseButton,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogBody, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Field, FieldError } from '@/components/ui/field';
 import { Form } from '@/components/ui/form';
 import type { ErrorResponse } from '@/libs/api';
@@ -21,22 +13,12 @@ import { applyServerErrors } from '@/libs/form-errors';
 import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
-import {
-  SchemaProfileFormSchema,
-  type SchemaProfileFormValues,
-} from '@/schemas/forms/schema-profile-form';
-import {
-  useCreateSchemaMutation,
-  useUpdateSchemaMutation,
-} from '@/services/schema';
+import { SchemaProfileFormSchema, type SchemaProfileFormValues } from '@/schemas/forms/schema-profile-form';
+import { useCreateSchemaMutation, useUpdateSchemaMutation } from '@/services/schema';
 import type { SchemaFormData, SchemaProfile, SelectOption } from '@/types';
 import { __, sprintf } from '@/wpi18n';
 
-import {
-  groupDetails,
-  optionsList,
-  requiredFields,
-} from '@/pages/products/edit-product/seo-settings/utils';
+import { groupDetails, optionsList, requiredFields } from '@/pages/products/edit-product/seo-settings/utils';
 
 type AddSchemaPopupProps = {
   isOpen: boolean;

@@ -70,17 +70,12 @@ class EnqueueSiteScripts extends BaseHook
      */
     public function handle(...$args)
     {
-        wp_enqueue_script('kirki-ecommerce-site-scripts', Assets::get_url('js/site.js'), [], false, true);
-        wp_enqueue_style('kirki-ecommerce-site-styles', Assets::get_url('css/site.css'));
+        $site_js_handler = 'kirki-ecommerce-site-scripts';
+        $site_css_handler = 'kirki-ecommerce-site-styles';
 
-        // Localize product data if available from Template helper
-        if (method_exists('Kirki\Ecommerce\App\Supports\Template', 'get_localized_data')) {
-            $localized_data = \Kirki\Ecommerce\App\Supports\Template::get_localized_data();
-            if (!empty($localized_data)) {
-                wp_localize_script('kirki-ecommerce-site-scripts', 'kecomSiteData', $localized_data);
-            }
-        }
+        wp_enqueue_script($site_js_handler, Assets::get_url('js/site.js'), [], false, true);
+        wp_enqueue_style($site_css_handler, Assets::get_url('css/site.css'));
 
-        // wp_enqueue_style('kirki-ecommerce-site-core', Assets::get_url('css/core.css'));
+        wp_add_inline_script($site_js_handler, Assets::get_kirki_ecommerce_configs(), 'before');
     }
 }

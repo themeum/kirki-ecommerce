@@ -5,21 +5,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import ColorPickerField from '@/components/form/color-picker-field';
 import TextField from '@/components/form/text-field';
 import Button from '@/components/ui/button';
-import {
-  Dialog,
-  DialogBody,
-  DialogCloseButton,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogBody, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
 import Flex from '@/components/ui/flex';
-import {
-  ProductVariationPopoverFormSchema,
-  type ProductVariationPopoverFormValues,
-} from '@/schemas/forms/product-variation-popover-form';
+import { ProductVariationPopoverFormSchema, type ProductVariationPopoverFormValues } from '@/schemas/forms/product-variation-popover-form';
 import type { ButtonState } from '@/types';
 import { __ } from '@/wpi18n';
 

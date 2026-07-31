@@ -84,44 +84,8 @@ Template::set_localized_data('cartVariantIds', $cart_variant_ids);
             }
             ?>
         </div>
-    
-        <?php
-        if ($last_page > 1) :
-            /**
-             * Build a pagination URL preserving all current query params.
-             *
-             * @param int    $page     Target page number.
-             * @param string $base_url Base shop URL.
-             * @return string
-             */
-            $pagination_url = function ($page) use ($shop_page_url) {
-                $params = $_GET;
-                $params['current_page'] = $page;
-                return $shop_page_url . '?' . http_build_query($params);
-            };
-            ?>
-            <div class="kecom-pagination">
-                <?php if (!$data->products->on_first_page()) : ?>
-                    <a href="<?php echo esc_url($pagination_url($current_page - 1)); ?>" class="kecom-page-link">
-                        <?php Icon::render('chevron-left'); ?>
-                    </a>
-                <?php endif; ?>
 
-                <?php for ($i = 1; $i <= $last_page; $i++) : ?>
-                    <?php if ($i === $current_page) : ?>
-                        <span class="kecom-page-link active"><?php echo esc_html($i); ?></span>
-                    <?php else : ?>
-                        <a href="<?php echo esc_url($pagination_url($i)); ?>" class="kecom-page-link"><?php echo esc_html($i); ?></a>
-                    <?php endif; ?>
-                <?php endfor; ?>
-
-                <?php if ($data->products->has_more_page()) : ?>
-                    <a href="<?php echo esc_url($pagination_url($current_page + 1)); ?>" class="kecom-page-link">
-                        <?php Icon::render('chevron-right'); ?>
-                    </a>
-                <?php endif; ?>
-            </div>
-        <?php endif; ?>
+        <?php Template::render_pagination($data->products);?>
     </div>
 </div>
 

@@ -1,10 +1,6 @@
 import { z } from 'zod';
 
-import {
-  email,
-  optionalNullableString,
-  requiredString,
-} from '@/schemas/forms/shared/validators';
+import { email, optionalNullableString, requiredString } from '@/schemas/forms/shared/validators';
 import { __ } from '@/wpi18n';
 
 const AddressSchema = z.object({

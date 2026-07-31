@@ -1,17 +1,11 @@
 import SelectField from '@/components/form/select-field';
 import SwitchField from '@/components/form/switch-field';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { mergeCss, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
@@ -23,8 +17,8 @@ const CheckoutConf = () => {
 
   return (
     <>
-      <Card css={cardStyles.largeCard}>
-        <CardHeader css={cardStyles.sectionHeader}>
+      <Card cssOverride={cardStyles.largeCard}>
+        <CardHeader cssOverride={cardStyles.sectionHeader}>
           <CardTitle>{__('Checkout Configuration', 'kirki-ecommerce')}</CardTitle>
           <CardDescription>
             {__(
@@ -33,8 +27,8 @@ const CheckoutConf = () => {
             )}
           </CardDescription>
         </CardHeader>
-        <CardContent css={cardStyles.largeContent}>
-          <Card css={[cardStyles.formCard, styles.formCardBorder]}>
+        <CardContent cssOverride={cardStyles.largeContent}>
+          <Card cssOverride={mergeCss(cardStyles.formCard, styles.formCardBorder)}>
             <CardContent>
               <SelectField
                 name="checkout_configuration.address_line_validation"
@@ -91,9 +85,9 @@ CheckoutConf.displayName = 'CheckoutConf';
 
 export default CheckoutConf;
 
-const styles = {
-  formCardBorder: scoped({
+const styles = defineStyles({
+  formCardBorder: {
     border: `1px solid ${theme.colors.border.default}`,
     borderRadius: theme.radius.lg,
-  })
-};
+  }
+});

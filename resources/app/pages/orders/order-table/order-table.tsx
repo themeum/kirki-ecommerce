@@ -4,14 +4,7 @@ import { FileSpreadSheetIcon, InfoIcon, StripeIcon } from '@/icons';
 import Badge from '@/components/ui/badge';
 import Checkbox from '@/components/ui/checkbox';
 import Flex from '@/components/ui/flex';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import Text from '@/components/ui/text';
 import { flexCenter, scoped } from '@/theme/mixins';
 import type { TaxonomyTableHeader } from '@/types';

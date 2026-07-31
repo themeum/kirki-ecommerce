@@ -1,29 +1,17 @@
 import CountrySelector from '@/components/country-selector';
 import Button from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
 import Grid from '@/components/ui/grid';
 import Text from '@/components/ui/text';
 import type { FormErrors, SettingsSectionData } from '@/types';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
@@ -36,8 +24,8 @@ type BarcodeGenerationProps = {
 const BarcodeGeneration = (_props: BarcodeGenerationProps) => {
   return (
     <div>
-      <Card css={cardStyles.largeCard}>
-        <CardHeader css={cardStyles.sectionHeader}>
+      <Card cssOverride={cardStyles.largeCard}>
+        <CardHeader cssOverride={cardStyles.sectionHeader}>
           <CardTitle>{__('Barcode Generation', 'kirki-ecommerce')}</CardTitle>
           <CardDescription>
             {__(
@@ -46,9 +34,9 @@ const BarcodeGeneration = (_props: BarcodeGenerationProps) => {
             )}
           </CardDescription>
         </CardHeader>
-        <CardContent css={cardStyles.largeContent}>
-          <Card css={cardStyles.innerCard}>
-            <CardContent css={cardStyles.innerContent}>
+        <CardContent cssOverride={cardStyles.largeContent}>
+          <Card cssOverride={cardStyles.innerCard}>
+            <CardContent cssOverride={cardStyles.innerContent}>
               <Flex direction="column" gap={4}>
                 <Flex direction="column" gap={2}>
                   <Label htmlFor="barcode-data-origin">
@@ -136,15 +124,15 @@ const BarcodeGeneration = (_props: BarcodeGenerationProps) => {
               </Flex>
             </CardContent>
           </Card>
-          <Card css={cardStyles.innerDarkCard}>
-            <CardContent css={styles.previewContent}>
+          <Card cssOverride={cardStyles.innerDarkCard}>
+            <CardContent cssOverride={styles.previewContent}>
               <span>
                 <img src="https://kirki-ecommerce.test/wp-content/uploads/2025/10/Screenshot-2025-07-24-at-2.29.50-PM-1.png" />
               </span>
             </CardContent>
           </Card>
-          <Card css={cardStyles.innerCard}>
-            <CardContent css={cardStyles.innerContent}>
+          <Card cssOverride={cardStyles.innerCard}>
+            <CardContent cssOverride={cardStyles.innerContent}>
               <Flex>
                 <Flex direction="column" gap={2}>
                   <Text weight="medium">{__(
@@ -172,12 +160,12 @@ const BarcodeGeneration = (_props: BarcodeGenerationProps) => {
 
 export default BarcodeGeneration;
 
-const styles = {
-  previewContent: scoped({
+const styles = defineStyles({
+  previewContent: {
     height: '158px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     border: `1px solid ${theme.colors.border.default}`,
-  })
-};
+  }
+});

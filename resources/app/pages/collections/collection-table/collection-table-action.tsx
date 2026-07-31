@@ -1,9 +1,4 @@
-import {
-  Select,
-  SelectContent,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Select, SelectContent, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Button from '@/components/ui/button';
 import { ArrowDownUp } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
@@ -11,7 +6,7 @@ import Flex from '@/components/ui/flex';
 import Searchbox from '@/components/ui/searchbox';
 import { useListParams } from '@/hooks';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 type CollectionTableActionProps = {
@@ -34,7 +29,7 @@ const CollectionTableAction = ({ onSortChange }: CollectionTableActionProps) => 
   };
 
   return (
-    <Flex css={styles.wrapper}>
+    <Flex cssOverride={styles.wrapper}>
       <div style={{ width: '180px' }}>
         <Searchbox
           value={params.search || ''}
@@ -43,7 +38,7 @@ const CollectionTableAction = ({ onSortChange }: CollectionTableActionProps) => 
       </div>
       <ActionGroup>
         <Select disabled>
-          <SelectTrigger css={styles.selectTrigger}>
+          <SelectTrigger cssOverride={styles.selectTrigger}>
             <SelectValue placeholder={__('Date: This Month', 'kirki-ecommerce')} />
           </SelectTrigger>
           <SelectContent />
@@ -64,11 +59,11 @@ CollectionTableAction.displayName = 'CollectionTableAction';
 
 export default CollectionTableAction;
 
-const styles = {
-  wrapper: scoped({
+const styles = defineStyles({
+  wrapper: {
     padding: `${theme.spacing[4]} ${theme.spacing[3]}`,
-  }),
-  selectTrigger: scoped({
+  },
+  selectTrigger: {
     padding: `${theme.spacing[2]} ${theme.spacing[4]}`,
-  }),
-};
+  },
+});

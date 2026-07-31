@@ -1,13 +1,6 @@
 import Badge from '@/components/ui/badge';
 import Checkbox from '@/components/ui/checkbox';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 type GroupTableHeader = {
   title: string;

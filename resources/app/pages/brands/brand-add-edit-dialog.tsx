@@ -1,33 +1,21 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 
-import TextareaField from '@/components/form/textarea-field';
 import TextField from '@/components/form/text-field';
+import TextareaField from '@/components/form/textarea-field';
 import ThumbnailField from '@/components/form/thumbnail-field';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import {
-  Dialog,
-  DialogBody,
-  DialogClose,
-  DialogCloseButton,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogBody, DialogClose, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import Flex from '@/components/ui/flex';
-import {
-  BrandFormSchema,
-  type BrandFormValues,
-} from '@/schemas/forms/brand-form';
+import { BrandFormSchema, type BrandFormValues } from '@/schemas/forms/brand-form';
 import { useCreateBrandMutation, useUpdateBrandMutation } from '@/services/brand';
-import type { Brand, BrandFormData } from '@/types';
 import { cardStyles } from '@/theme/card-styles';
+import type { Brand, BrandFormData } from '@/types';
 import { __ } from '@/wpi18n';
 
 type BrandAddEditPopoverProps = {
@@ -53,7 +41,7 @@ const getLogoId = (brand: Brand | BrandFormData) => {
 
 const BrandAddEditPopover = ({
   brand,
-  onClose = () => {},
+  onClose = () => { },
 }: BrandAddEditPopoverProps) => {
   const createMutation = useCreateBrandMutation();
   const updateMutation = useUpdateBrandMutation();
@@ -115,13 +103,13 @@ const BrandAddEditPopover = ({
           <form onSubmit={form.handleSubmit(handleSubmit)}>
             <DialogBody>
               <Flex direction="column" gap={4}>
-                <Card css={cardStyles.lightCard}>
+                <Card cssOverride={cardStyles.lightCard}>
                   <CardContent>
                     <Flex direction="column" gap={4}>
                       <TextField
                         name="name"
                         label={__('Name', 'kirki-ecommerce')}
-                        placeholder={__('e.g., fundraising', 'kirki-ecommerce')}
+                        placeholder={__('e.g., apple', 'kirki-ecommerce')}
                       />
                       <TextField
                         name="slug"

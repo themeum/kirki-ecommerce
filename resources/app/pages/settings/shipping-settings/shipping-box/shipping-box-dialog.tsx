@@ -4,46 +4,22 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 import TextField from '@/components/form/text-field';
 import Button from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-} from '@/components/ui/card';
-import {
-  Dialog,
-  DialogBody,
-  DialogCloseButton,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Card, CardContent } from '@/components/ui/card';
+import { Dialog, DialogBody, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Field, FieldError } from '@/components/ui/field';
 import { Form } from '@/components/ui/form';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import Flex from '@/components/ui/flex';
 import { Separator } from '@/components/ui/separator';
 import Text from '@/components/ui/text';
-import {
-  ShippingBoxFormSchema,
-  shippingBoxDefaultValues,
-  type ShippingBoxFormValues,
-} from '@/schemas/forms/shipping-box-form';
+import { ShippingBoxFormSchema, shippingBoxDefaultValues, type ShippingBoxFormValues } from '@/schemas/forms/shipping-box-form';
 import { useSettingsQuery } from '@/services/settings';
-import {
-  useCreateShippingBoxMutation,
-  useUpdateShippingBoxMutation,
-} from '@/services/shipping';
+import { useCreateShippingBoxMutation, useUpdateShippingBoxMutation } from '@/services/shipping';
 import type { ShippingBox } from '@/types';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { mergeCss, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
@@ -178,10 +154,10 @@ const ShippingBoxPopup = ({
               placeholder={__('Regular box', 'kirki-ecommerce')}
             />
             <div>
-              <Card css={[cardStyles.innerCard, styles.dimensionsCard]} >
-                <CardContent css={cardStyles.innerContent}>
+              <Card cssOverride={mergeCss(cardStyles.innerCard, styles.dimensionsCard)} >
+                <CardContent cssOverride={cardStyles.innerContent}>
 
-                <Text weight="medium" css={styles.dimensionsLabel}>{__('Dimensions', 'kirki-ecommerce')}</Text>
+                <Text weight="medium" cssOverride={styles.dimensionsLabel}>{__('Dimensions', 'kirki-ecommerce')}</Text>
                 <Flex gap={4} align="flex-end">
                 <TextField
                 name="length"
@@ -238,7 +214,7 @@ const ShippingBoxPopup = ({
                 </Flex>
                 </CardContent>
               </Card>
-              <Card css={[cardStyles.darkCard, styles.previewCard]} >
+              <Card cssOverride={mergeCss(cardStyles.darkCard, styles.previewCard)} >
                 <CardContent>
 
                 <BoxGenerator
@@ -251,7 +227,7 @@ const ShippingBoxPopup = ({
               </Card>
             </div>
           </DialogBody>
-          <Separator css={styles.footerSeparator} />
+          <Separator cssOverride={styles.footerSeparator} />
           <DialogFooter>
             <Button
               variant="outline"
@@ -280,26 +256,26 @@ ShippingBoxPopup.displayName = 'ShippingBoxPopup';
 
 export default ShippingBoxPopup;
 
-const styles = {
-  dimensionsCard: scoped({
+const styles = defineStyles({
+  dimensionsCard: {
     position: 'relative',
     overflow: 'visible',
     paddingTop: theme.spacing[5],
-  }),
-  dimensionsLabel: scoped({
+  },
+  dimensionsLabel: {
     top: '-12px',
     left: '240px',
     position: 'absolute',
     padding: `${theme.spacing[0]} ${theme.spacing[2]}`,
     backgroundColor: theme.colors.text.light,
-  }),
-  previewCard: scoped({
+  },
+  previewCard: {
     borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.md} ${theme.radius.md}`,
     marginTop: `-${theme.spacing[2]}`,
     padding: theme.spacing[1],
     height: '230px',
-  }),
-  footerSeparator: scoped({
+  },
+  footerSeparator: {
     margin: theme.spacing[0],
-  })
-};
+  }
+});

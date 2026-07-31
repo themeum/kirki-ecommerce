@@ -1,16 +1,11 @@
-import type { SerializedStyles } from '@emotion/react';
-import {
-  forwardRef,
-  type ComponentPropsWithoutRef,
-  type ElementRef,
-  type HTMLAttributes,
-} from 'react';
+import type { CSSObject } from '@emotion/react';
+import { forwardRef, type ComponentPropsWithoutRef, type ElementRef, type HTMLAttributes } from 'react';
 import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
 import { Check, ChevronRight, Circle } from 'lucide-react';
 
 import { getPortalContainer } from '@/libs/portal-container';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { scopedMerge, scoped, defineStyles } from '@/theme/mixins';
 import { getOverlayMotionStyles } from '@/theme/overlay-motion';
 
 const DropdownMenu = DropdownMenuPrimitive.Root;
@@ -30,23 +25,23 @@ type DropdownMenuSubTriggerProps = Omit<
   'className'
 > & {
   inset?: boolean;
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const DropdownMenuSubTrigger = forwardRef<
   ElementRef<typeof DropdownMenuPrimitive.SubTrigger>,
   DropdownMenuSubTriggerProps
 >((props, ref) => {
-  const { css: cssProp, inset, children, ...rest } = props;
+  const { cssOverride, inset, children, ...rest } = props;
 
   return (
     <DropdownMenuPrimitive.SubTrigger
       ref={ref}
-      css={[styles.item, inset && styles.itemInset, cssProp]}
+      css={scopedMerge(styles.item, inset && styles.itemInset, cssOverride)}
       {...rest}
     >
       {children}
-      <ChevronRight css={styles.chevron} size={16} aria-hidden="true" />
+      <ChevronRight css={scoped(styles.chevron)} size={16} aria-hidden="true" />
     </DropdownMenuPrimitive.SubTrigger>
   );
 });
@@ -57,20 +52,20 @@ type DropdownMenuSubContentProps = Omit<
   ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.SubContent>,
   'className'
 > & {
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const DropdownMenuSubContent = forwardRef<
   ElementRef<typeof DropdownMenuPrimitive.SubContent>,
   DropdownMenuSubContentProps
 >((props, ref) => {
-  const { css: cssProp, ...rest } = props;
+  const { cssOverride, ...rest } = props;
 
   return (
     <DropdownMenuPrimitive.Portal container={getPortalContainer()}>
       <DropdownMenuPrimitive.SubContent
         ref={ref}
-        css={[styles.content, styles.subContent, cssProp]}
+        css={scopedMerge(styles.content, styles.subContent, cssOverride)}
         {...rest}
       />
     </DropdownMenuPrimitive.Portal>
@@ -83,21 +78,21 @@ type DropdownMenuContentProps = Omit<
   ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Content>,
   'className'
 > & {
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const DropdownMenuContent = forwardRef<
   ElementRef<typeof DropdownMenuPrimitive.Content>,
   DropdownMenuContentProps
 >((props, ref) => {
-  const { css: cssProp, sideOffset = 4, ...rest } = props;
+  const { cssOverride, sideOffset = 4, ...rest } = props;
 
   return (
     <DropdownMenuPrimitive.Portal container={getPortalContainer()}>
       <DropdownMenuPrimitive.Content
         ref={ref}
         sideOffset={sideOffset}
-        css={[styles.content, styles.contentWidth, cssProp]}
+        css={scopedMerge(styles.content, styles.contentWidth, cssOverride)}
         {...rest}
       />
     </DropdownMenuPrimitive.Portal>
@@ -111,19 +106,19 @@ type DropdownMenuItemProps = Omit<
   'className'
 > & {
   inset?: boolean;
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const DropdownMenuItem = forwardRef<
   ElementRef<typeof DropdownMenuPrimitive.Item>,
   DropdownMenuItemProps
 >((props, ref) => {
-  const { css: cssProp, inset, ...rest } = props;
+  const { cssOverride, inset, ...rest } = props;
 
   return (
     <DropdownMenuPrimitive.Item
       ref={ref}
-      css={[styles.item, inset && styles.itemInset, cssProp]}
+      css={scopedMerge(styles.item, inset && styles.itemInset, cssOverride)}
       {...rest}
     />
   );
@@ -135,23 +130,23 @@ type DropdownMenuCheckboxItemProps = Omit<
   ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.CheckboxItem>,
   'className'
 > & {
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const DropdownMenuCheckboxItem = forwardRef<
   ElementRef<typeof DropdownMenuPrimitive.CheckboxItem>,
   DropdownMenuCheckboxItemProps
 >((props, ref) => {
-  const { css: cssProp, children, checked, ...rest } = props;
+  const { cssOverride, children, checked, ...rest } = props;
 
   return (
     <DropdownMenuPrimitive.CheckboxItem
       ref={ref}
-      css={[styles.item, styles.checkboxOrRadioItem, cssProp]}
+      css={scopedMerge(styles.item, styles.checkboxOrRadioItem, cssOverride)}
       checked={checked}
       {...rest}
     >
-      <span css={styles.itemIndicator}>
+      <span css={scoped(styles.itemIndicator)}>
         <DropdownMenuPrimitive.ItemIndicator>
           <Check size={16} aria-hidden="true" />
         </DropdownMenuPrimitive.ItemIndicator>
@@ -167,22 +162,22 @@ type DropdownMenuRadioItemProps = Omit<
   ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.RadioItem>,
   'className'
 > & {
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const DropdownMenuRadioItem = forwardRef<
   ElementRef<typeof DropdownMenuPrimitive.RadioItem>,
   DropdownMenuRadioItemProps
 >((props, ref) => {
-  const { css: cssProp, children, ...rest } = props;
+  const { cssOverride, children, ...rest } = props;
 
   return (
     <DropdownMenuPrimitive.RadioItem
       ref={ref}
-      css={[styles.item, styles.checkboxOrRadioItem, cssProp]}
+      css={scopedMerge(styles.item, styles.checkboxOrRadioItem, cssOverride)}
       {...rest}
     >
-      <span css={styles.itemIndicator}>
+      <span css={scoped(styles.itemIndicator)}>
         <DropdownMenuPrimitive.ItemIndicator>
           <Circle
             size={8}
@@ -204,19 +199,19 @@ type DropdownMenuLabelProps = Omit<
   'className'
 > & {
   inset?: boolean;
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const DropdownMenuLabel = forwardRef<
   ElementRef<typeof DropdownMenuPrimitive.Label>,
   DropdownMenuLabelProps
 >((props, ref) => {
-  const { css: cssProp, inset, ...rest } = props;
+  const { cssOverride, inset, ...rest } = props;
 
   return (
     <DropdownMenuPrimitive.Label
       ref={ref}
-      css={[styles.label, inset && styles.itemInset, cssProp]}
+      css={scopedMerge(styles.label, inset && styles.itemInset, cssOverride)}
       {...rest}
     />
   );
@@ -228,19 +223,19 @@ type DropdownMenuSeparatorProps = Omit<
   ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Separator>,
   'className'
 > & {
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const DropdownMenuSeparator = forwardRef<
   ElementRef<typeof DropdownMenuPrimitive.Separator>,
   DropdownMenuSeparatorProps
 >((props, ref) => {
-  const { css: cssProp, ...rest } = props;
+  const { cssOverride, ...rest } = props;
 
   return (
     <DropdownMenuPrimitive.Separator
       ref={ref}
-      css={[styles.separator, cssProp]}
+      css={scopedMerge(styles.separator, cssOverride)}
       {...rest}
     />
   );
@@ -252,13 +247,13 @@ type DropdownMenuShortcutProps = Omit<
   HTMLAttributes<HTMLSpanElement>,
   'className'
 > & {
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const DropdownMenuShortcut = (props: DropdownMenuShortcutProps) => {
-  const { css: cssProp, ...rest } = props;
+  const { cssOverride, ...rest } = props;
 
-  return <span css={[styles.shortcut, cssProp]} {...rest} />;
+  return <span css={scopedMerge(styles.shortcut, cssOverride)} {...rest} />;
 };
 
 DropdownMenuShortcut.displayName = 'DropdownMenuShortcut';
@@ -281,8 +276,8 @@ export {
   DropdownMenuRadioGroup,
 };
 
-const styles = {
-  content: scoped({
+const styles = defineStyles({
+  content: {
     minWidth: '128px',
     padding: `${theme.spacing[1]} 0`,
     border: `1px solid ${theme.colors.border.default}`,
@@ -300,16 +295,16 @@ const styles = {
     '&:focus, &:focus-visible': {
       outline: 'none',
     },
-  }),
-  contentWidth: scoped({
+  },
+  contentWidth: {
     width: '256px',
-  }),
-  subContent: scoped({
+  },
+  subContent: {
     width: 'max-content',
     minWidth: '160px',
     maxWidth: '256px',
-  }),
-  item: scoped({
+  },
+  item: {
     position: 'relative',
     display: 'flex',
     alignItems: 'center',
@@ -335,14 +330,14 @@ const styles = {
     '&[data-state="open"]': {
       backgroundColor: theme.colors.background.optionHover,
     },
-  }),
-  itemInset: scoped({
+  },
+  itemInset: {
     paddingLeft: theme.spacing[8],
-  }),
-  checkboxOrRadioItem: scoped({
+  },
+  checkboxOrRadioItem: {
     paddingLeft: `calc(${theme.spacing[2]} + ${theme.spacing[4]} + ${theme.spacing[2]})`,
-  }),
-  itemIndicator: scoped({
+  },
+  itemIndicator: {
     position: 'absolute',
     left: theme.spacing[2],
     display: 'flex',
@@ -352,29 +347,29 @@ const styles = {
     width: '16px',
     height: '16px',
     color: theme.colors.icon.primary,
-  }),
-  chevron: scoped({
+  },
+  chevron: {
     marginLeft: 'auto',
     flexShrink: 0,
     color: theme.colors.icon.secondary,
-  }),
-  label: scoped({
+  },
+  label: {
     padding: `${theme.spacing[2]} ${theme.spacing[2]}`,
     margin: `0 ${theme.spacing[1]}`,
     ...theme.typography.small('semibold'),
     color: theme.colors.text.primary,
     pointerEvents: 'none',
-  }),
-  separator: scoped({
+  },
+  separator: {
     height: '1px',
     backgroundColor: theme.colors.border.default,
     margin: `${theme.spacing[1]} 0`,
     border: 'none',
-  }),
-  shortcut: scoped({
+  },
+  shortcut: {
     marginLeft: 'auto',
     paddingLeft: theme.spacing[4],
     ...theme.typography.small(),
     color: theme.colors.text.muted,
-  }),
-};
+  },
+});

@@ -2,20 +2,11 @@ import { useState, useMemo, type Dispatch, type SetStateAction } from 'react';
 import { useOutletContext } from 'react-router';
 
 import BulkActionHandler from '@/components/bulk-action-handler';
-import {
-  Card,
-  CardContent,
-} from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
 import { useMarkList } from '@/hooks';
 import Flex from '@/components/ui/flex';
-import {
-  Table,
-  TableBody,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import Text from '@/components/ui/text';
 import { useBulkDeleteAttributeValuesMutation } from '@/services/attribute';
 import type {
@@ -26,7 +17,7 @@ import type {
 } from '@/types';
 import { __ } from '@/wpi18n';
 
-import { scoped } from '@/theme/mixins';
+import { mergeCss, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 
 import { getSearchedValue, setUnsavedDataStatus } from '@/pages/settings/utils';
@@ -126,10 +117,10 @@ const VariationTable = ({
         />
       )}
       {!filteredList?.length ? (
-        <Card css={cardStyles.innerDarkCard}>
-          <CardContent css={[cardStyles.innerDarkContent, styles.emptyStateContent]}>
+        <Card cssOverride={cardStyles.innerDarkCard}>
+          <CardContent cssOverride={mergeCss(cardStyles.innerDarkContent, styles.emptyStateContent)}>
             <Flex align="center" justify="center">
-              <Text weight="semibold" css={styles.mutedText}>{__('No data found', 'kirki-ecommerce')}</Text>
+              <Text weight="semibold" cssOverride={styles.mutedText}>{__('No data found', 'kirki-ecommerce')}</Text>
             </Flex>
           </CardContent>
         </Card>
@@ -170,14 +161,14 @@ const VariationTable = ({
 
 VariationTable.displayName = 'VariationTable';
 
-const styles = {
-  emptyStateContent: scoped({
+const styles = defineStyles({
+  emptyStateContent: {
     padding: `${theme.spacing[9]} 0`,
     borderRadius: theme.radius.none,
-  }),
-  mutedText: scoped({
+  },
+  mutedText: {
     color: theme.colors.text.subdued,
-  }),
-};
+  },
+});
 
 export default VariationTable;

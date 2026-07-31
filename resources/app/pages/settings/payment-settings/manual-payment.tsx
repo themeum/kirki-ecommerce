@@ -2,10 +2,7 @@ import { useState } from 'react';
 
 import DropdownButton from '@/components/dropdown-button';
 import HeaderActionsCard from '@/components/header-actions-card';
-import {
-  Card,
-  CardContent,
-} from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { BankIconLarge, ShowMoreIcon, CashIcon } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
 import Badge from '@/components/ui/badge';
@@ -13,13 +10,10 @@ import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import ToggleButton from '@/components/ui/toggle-button';
 import { dispatchToastMessage } from '@/pages/utils';
-import {
-  useDeletePaymentMethodMutation,
-  useUpdatePaymentMethodMutation,
-} from '@/services/payment';
+import { useDeletePaymentMethodMutation, useUpdatePaymentMethodMutation } from '@/services/payment';
 import type { PaymentMethod } from '@/types';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { mergeCss, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import { __, sprintf } from '@/wpi18n';
 
@@ -83,8 +77,8 @@ const ManualPayment = (props: ManualPaymentProps) => {
 
   return (
     <>
-      <Card css={cardStyles.largeCard} >
-        <CardContent css={cardStyles.largeContentPadded}>
+      <Card cssOverride={cardStyles.largeCard} >
+        <CardContent cssOverride={cardStyles.largeContentPadded}>
 
         <HeaderActionsCard
         header={__('Manual payment methods', 'kirki-ecommerce')}
@@ -97,8 +91,8 @@ const ManualPayment = (props: ManualPaymentProps) => {
         />
 
         {manualPaymentList?.length === 0 ? (
-        <Card css={cardStyles.innerDarkCard}>
-          <CardContent css={[cardStyles.innerDarkContent, styles.emptyStateContent]}>
+        <Card cssOverride={cardStyles.innerDarkCard}>
+          <CardContent cssOverride={mergeCss(cardStyles.innerDarkContent, styles.emptyStateContent)}>
             <Flex direction="column" gap={2} align="center">
               <CashIcon />
               <span style={{ color: theme.colors.text.subdued }}>
@@ -110,11 +104,11 @@ const ManualPayment = (props: ManualPaymentProps) => {
         ) : (
         <Flex direction="column" gap={4}>
         {manualPaymentList?.map((item, index) => (
-        <Card css={cardStyles.innerCard}
+        <Card cssOverride={cardStyles.innerCard}
                 
         key={index}
         >
-          <CardContent css={[cardStyles.innerContent, styles.gatewayItemContent]}>
+          <CardContent cssOverride={mergeCss(cardStyles.innerContent, styles.gatewayItemContent)}>
 
           <Flex align="center">
           <Flex gap={2} align="center">
@@ -186,13 +180,13 @@ const ManualPayment = (props: ManualPaymentProps) => {
 
 ManualPayment.displayName = 'ManualPayment';
 
-const styles = {
-  gatewayItemContent: scoped({
+const styles = defineStyles({
+  gatewayItemContent: {
     padding: `${theme.spacing[3]} ${theme.spacing[4]}`,
-  }),
-  emptyStateContent: scoped({
+  },
+  emptyStateContent: {
     padding: `${theme.spacing[9]} ${theme.spacing[0]}`,
-  })
-};
+  }
+});
 
 export default ManualPayment;

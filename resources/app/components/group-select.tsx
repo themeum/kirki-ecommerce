@@ -2,30 +2,15 @@ import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 import { ChevronsUpDown } from 'lucide-react';
 
 import Button from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import ActionGroup from '@/components/ui/action-group';
 import Badge from '@/components/ui/badge';
 import Checkbox from '@/components/ui/checkbox';
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldLabel,
-} from '@/components/ui/field';
+import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
 import { Separator } from '@/components/ui/separator';
 import { theme } from '@/theme';
-import {
-  itemCenter,
-  scoped,
-  uiFocusRing,
-} from '@/theme/mixins';
+import { itemCenter, uiFocusRing, scoped, scopedMerge, defineStyles } from '@/theme/mixins';
 import type { LabelFieldProps, SelectOption, SelectState } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -117,14 +102,14 @@ const GroupSelect = (props: GroupSelectProps) => {
           <button
             type="button"
             data-error={error ? 'true' : undefined}
-            css={[styles.trigger, error && styles.triggerError]}
+            css={scopedMerge(styles.trigger, error && styles.triggerError)}
           >
-            <span css={styles.placeholder}>{placeholder}</span>
-            <ChevronsUpDown size={16} css={styles.chevron} aria-hidden="true" />
+            <span css={scoped(styles.placeholder)}>{placeholder}</span>
+            <ChevronsUpDown size={16} css={scoped(styles.chevron)} aria-hidden="true" />
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent
-          css={dropdownFooter ? styles.contentWithFooter : styles.contentWithoutFooter}
+          cssOverride={dropdownFooter ? styles.contentWithFooter : styles.contentWithoutFooter}
         >
           {dropdownHeader && (
             <DropdownMenuItem>
@@ -135,7 +120,7 @@ const GroupSelect = (props: GroupSelectProps) => {
           {optionsArray.map((option, index) =>
             option?.heading ? (
               <DropdownMenuLabel key={index}>
-                <FieldLabel css={styles.headingLabel}>
+                <FieldLabel cssOverride={styles.headingLabel}>
                   {String(option.heading)}
                 </FieldLabel>
                 {option?.infoText && (
@@ -183,7 +168,7 @@ const GroupSelect = (props: GroupSelectProps) => {
             ),
           )}
           {dropdownFooter && (
-            <Flex css={styles.footer}>
+            <Flex cssOverride={styles.footer}>
               <ActionGroup>
                 <Button
                   variant="secondary"
@@ -212,8 +197,8 @@ GroupSelect.displayName = 'GroupSelect';
 
 export default GroupSelect;
 
-const styles = {
-  trigger: scoped({
+const styles = defineStyles({
+  trigger: {
     width: '100%',
     minHeight: '36px',
     border: `1px solid ${theme.colors.border.default}`,
@@ -231,16 +216,16 @@ const styles = {
       borderColor: theme.colors.border.default,
       ...uiFocusRing(theme),
     },
-  }),
-  triggerError: scoped({
+  },
+  triggerError: {
     border: `1px solid ${theme.colors.border.critical}`,
     boxShadow: 'none',
     '&:focus-visible, &[data-state="open"]': {
       borderColor: theme.colors.border.critical,
       ...uiFocusRing(theme, theme.colors.border.critical),
     },
-  }),
-  placeholder: scoped({
+  },
+  placeholder: {
     flex: 1,
     minWidth: 0,
     overflow: 'hidden',
@@ -248,27 +233,27 @@ const styles = {
     whiteSpace: 'nowrap',
     color: theme.colors.text.secondary,
     opacity: 0.8,
-  }),
-  chevron: scoped({
+  },
+  chevron: {
     flexShrink: 0,
     color: theme.colors.text.secondary,
     opacity: 0.5,
-  }),
-  contentWithFooter: scoped({
+  },
+  contentWithFooter: {
     paddingBottom: theme.spacing[0],
-  }),
-  contentWithoutFooter: scoped({
+  },
+  contentWithoutFooter: {
     paddingBottom: theme.spacing[1],
-  }),
-  footer: scoped({
+  },
+  footer: {
     padding: `${theme.spacing[2]} ${theme.spacing[4]} ${theme.spacing[2]} ${theme.spacing[3]}`,
     borderTop: `1px solid ${theme.colors.border.default}`,
     bottom: 0,
     position: 'sticky',
     backgroundColor: theme.colors.background.surface,
-  }),
-  headingLabel: scoped({
+  },
+  headingLabel: {
     ...theme.typography.small('medium'),
     color: theme.colors.text.subdued,
-  }),
-};
+  },
+});
