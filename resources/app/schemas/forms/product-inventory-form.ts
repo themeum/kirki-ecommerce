@@ -34,9 +34,9 @@ export const mapProductInventoryFromProduct = (
         ? 'true'
         : String(variant.in_stock),
     sku: variant?.sku ?? '',
-    allow_back_order: product.allow_back_order ?? false,
-    has_limit_per_order: product.has_limit_per_order ?? false,
-    max_per_order: product.max_per_order ?? 1,
+    allow_back_order: variant?.allow_back_order ?? false,
+    has_limit_per_order: variant?.has_limit_per_order ?? false,
+    max_per_order: variant?.max_per_order ?? 1,
   };
 };
 

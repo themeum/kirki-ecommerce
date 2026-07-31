@@ -23,7 +23,7 @@ import { scoped, defineStyles } from '@/theme/mixins';
 import type { MediaRef, ProductVariant, UnitPriceValue } from '@/types';
 import { __ } from '@/wpi18n';
 
-import BaseUnitPopup from '@/pages/products/edit-product/price/base-unit-dialog';
+import BaseUnitPopup from '@/pages/products/product-form/sections/price/base-unit-dialog';
 import { calculateProfit } from '@/pages/utils';
 import type { BulkEditSelectionData } from '@/pages/bulk-edit/bulk-edit-table/bulk-edit-table';
 
