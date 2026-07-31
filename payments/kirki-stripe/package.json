@@ -1,0 +1,11 @@
+{
+  "name": "kirki-stripe-deploy",
+  "private": true,
+  "scripts": {
+    "deploy": "gulp"
+  },
+  "devDependencies": {
+    "del": "^6.1.1",
+    "gulp": "^4.0.2"
+  }
+}

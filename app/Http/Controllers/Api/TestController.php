@@ -24,7 +24,7 @@ class TestController
         // CurrencyExchange::sync();
         $today = Date::today();
 
-        return (new Stripe())->pay(Order::find(1));
+        return (new Stripe())->pay(Order::find(3));
 
         // return response()->json([
         //     // 'message' => 'Hello World',

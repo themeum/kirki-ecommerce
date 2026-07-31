@@ -356,4 +356,16 @@ class OrderManager
     {
         return $order->refunds->filter(fn($refund) => (int) $refund->id === (int) $id)->values()->first();
     }
+
+    /**
+     * Set payment metadata for an order.
+     *
+     * @param int $id
+     * @param array $payment_metadata
+     * @return bool
+     */
+    public function set_payment_metadata(int $id, array $payment_metadata)
+    {
+        return $this->order_service->partial_update_order($id, [ 'payment_metadata' => $payment_metadata]);
+    }
 }

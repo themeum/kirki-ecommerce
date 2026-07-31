@@ -68,15 +68,15 @@ class Stripe extends PaymentGateway
      */
     public function pay(Order $order)
     {
-        // @todo need to undo it.
-        // if (!$this->enabled()) {
-        //     throw new Exception(__('Stripe is not enabled.', 'kirki-ecommerce'));
-        // }
+        if (!$this->enabled()) {
+            throw new Exception(__('Stripe is not enabled.', 'kirki-ecommerce'));
+        }
 
         try {
             $stripe = $this->get_client();
 
             $line_items = [];
+            $shipping_charge = [];
             $currency = strtoupper($order->currency_code);
 
             foreach ($order->items as $item) {
@@ -106,6 +106,19 @@ class Stripe extends PaymentGateway
                 ];
             }
 
+            if (!empty($order->shipping_total)) {
+                $shipping_charge[] = [
+                    'shipping_rate_data' => [
+                        'display_name' => 'Shipping Charge',
+                        'type'         => 'fixed_amount',
+                        'fixed_amount' => [
+                            'amount'   => $order->shipping_total,
+                            'currency' => $currency,
+                        ],
+                    ],
+                ];
+            }
+
             $metadata = [
                 'order_id' => $order->id,
                 'order_number' => $order->order_number
@@ -122,14 +135,14 @@ class Stripe extends PaymentGateway
                 'payment_intent_data' => [
                     'metadata' => $metadata,
                 ],
+                'shipping_options' => $shipping_charge
             ];
 
             if ($order->billing_email) {
                 $data['customer_email'] = $order->billing_email;
             }
 
-            // @todo Need to remove random value.
-            $session = $stripe->checkout->sessions->create($data, ['idempotency_key' => rand()]);
+            $session = $stripe->checkout->sessions->create($data, ['idempotency_key' => 'checkout_' . $order->id]);
 
             return $session->url;
         } catch (Exception $e) {
@@ -311,9 +324,9 @@ class Stripe extends PaymentGateway
                 $this->handle_dispute_closed($dispute);
                 break;
 
-            case WebhookEventType::CHARGE_SUCCEEDED:
+            case WebhookEventType::CHARGE_UPDATED:
                 $charge = $event->data->object;
-                $this->handle_charge_succeeded($charge);
+                $this->handle_charge_updated($charge);
                 break;
             default:
                 break;
@@ -332,8 +345,7 @@ class Stripe extends PaymentGateway
             return $this->stripe;
         }
 
-        // @todo Need to remove the static value.
-        $secret_key = $this->settings['secret_key'] ?? 'sk_test_51OqvUtJyMznDJzqj9g7WK5VtJT74zFM7g8ThxhA3xRi0MHdgWHo80jOVhuLTw43t7cyFNBAA1wJub0f0Y7y6zZgi00RU2ICFWB';
+        $secret_key = $this->settings['secret_key'] ?? '';
 
         if (empty($secret_key)) {
             throw new Exception(__('Stripe Secret Key is missing.', 'kirki-ecommerce'));
@@ -395,6 +407,7 @@ class Stripe extends PaymentGateway
         if ($session->payment_status === 'paid') {
             OrderManager::mark_payment_as_paid($order_id);
             OrderManager::mark_as_processing($order_id);
+            OrderManager::set_payment_metadata($order_id, $session->toArray());
         } elseif ($session->payment_status === 'unpaid') {
             OrderManager::mark_payment_as_pending($order_id);
             OrderManager::mark_as_on_hold($order_id);
@@ -434,6 +447,7 @@ class Stripe extends PaymentGateway
 
         OrderManager::mark_payment_as_paid($order_id);
         OrderManager::mark_as_processing($order_id);
+        OrderManager::set_payment_metadata($order_id, $session->toArray());
     }
 
     /**
@@ -459,6 +473,7 @@ class Stripe extends PaymentGateway
 
         OrderManager::mark_payment_as_failed($order_id);
         OrderManager::mark_as_cancelled($order_id);
+        OrderManager::set_payment_metadata($order_id, $session->toArray());
     }
 
     /**
@@ -559,7 +574,7 @@ class Stripe extends PaymentGateway
      *
      * @param object $charge
      */
-    protected function handle_charge_succeeded($charge)
+    protected function handle_charge_updated($charge)
     {
         $charge = $this->get_client()->charges->retrieve($charge->id, [
             'expand' => ['balance_transaction']

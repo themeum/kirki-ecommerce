@@ -433,19 +433,19 @@ class PaymentGateway
     {
         $parts = [];
 
+        if ($order_item->price > 0) {
+            $parts[] = sprintf(
+                /* translators: %s: price */
+                __('Price: %s', 'kirki-ecommerce'),
+                Money::format(Money::from_minor($order_item->price, $currency))
+            );
+        }
+
         if ($order_item->quantity > 0) {
             $parts[] = sprintf(
                 /* translators: %d: quantity */
                 __('Quantity: %d', 'kirki-ecommerce'),
                 $order_item->quantity
-            );
-        }
-
-        if (($order_item->subtotal ?? 0) > 0) {
-            $parts[] = sprintf(
-                /* translators: %s: subtotal amount */
-                __('Subtotal: %s', 'kirki-ecommerce'),
-                Money::format(Money::from_minor($order_item->subtotal, $currency))
             );
         }
 
@@ -462,6 +462,14 @@ class PaymentGateway
                 /* translators: %s: tax amount */
                 __('Tax: %s', 'kirki-ecommerce'),
                 Money::format(Money::from_minor($order_item->tax_total, $currency))
+            );
+        }
+
+        if (($order_item->subtotal ?? 0) > 0) {
+            $parts[] = sprintf(
+                /* translators: %s: subtotal amount */
+                __('Subtotal: %s', 'kirki-ecommerce'),
+                Money::format(Money::from_minor($order_item->subtotal, $currency))
             );
         }
 
