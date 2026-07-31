@@ -1,15 +1,17 @@
+import { Ban, Copy, Trash2 } from 'lucide-react';
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router';
 
 import DataTable, {
   type DataTableBulkApplyPayload,
   type DataTableColumn,
+  type DataTableRowActionsResolver,
 } from '@/components/data-table';
 import Badge from '@/components/ui/badge';
 import Flex from '@/components/ui/flex';
 import { endpoints } from '@/libs/endpoints';
 import { theme } from '@/theme';
-import { scoped, defineStyles } from '@/theme/mixins';
+import { defineStyles, scoped } from '@/theme/mixins';
 import type { PaginatedData } from '@/types';
 import { getBadgeVariantForStatus } from '@/utils/badge-status';
 import { __ } from '@/wpi18n';
@@ -86,6 +88,7 @@ const couponBulkActions = [
 ];
 
 const CouponTable = ({ data, isLoading, onPageChange }: CouponTableProps) => {
+  const navigate = useNavigate();
   const bulkDeleteMutation = useBulkDeleteCouponsMutation();
 
   const handleBulkApply = useCallback(
@@ -109,12 +112,40 @@ const CouponTable = ({ data, isLoading, onPageChange }: CouponTableProps) => {
     [bulkDeleteMutation],
   );
 
+  const rowActions = useCallback<DataTableRowActionsResolver<CouponListItem>>(
+    (item) => ({
+      edit: { onClick: () => navigate(endpoints.COUPON(item.id)) },
+      actions: [
+        {
+          label: __('Duplicate', 'kirki-ecommerce'),
+          icon: <Copy size={16} />,
+          onClick: () => { },
+        },
+        {
+          label: __('Deactivate', 'kirki-ecommerce'),
+          icon: <Ban size={16} />,
+          onClick: () => { },
+        },
+        { label: '', type: 'separator' },
+        {
+          label: __('Delete', 'kirki-ecommerce'),
+          icon: <Trash2 size={16} />,
+          onClick: () => {
+            void bulkDeleteMutation.mutateAsync({ action: 'delete', ids: [item.id as number] });
+          },
+        },
+      ],
+    }),
+    [navigate, bulkDeleteMutation],
+  );
+
   return (
     <DataTable
       listOptions={couponListOptions}
       data={data}
       isLoading={isLoading}
       columns={couponColumns}
+      rowActions={rowActions}
       bulkActionOptions={couponBulkActions}
       onBulkApply={handleBulkApply}
       onPageChange={onPageChange}

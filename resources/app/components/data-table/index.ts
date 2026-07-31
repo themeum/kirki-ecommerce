@@ -18,7 +18,11 @@ export { useDataTableSelection } from '@/components/data-table/data-table-select
 export type {
   DataTableBulkApplyPayload,
   DataTableColumn,
-  DataTableItem
+  DataTableItem,
+  DataTableRowAction,
+  DataTableRowActionsConfig,
+  DataTableRowActionsResolver,
+  DataTableRowEditAction
 } from '@/components/data-table/types';
 export {
   DataTableFilter, DataTableFilterBar,

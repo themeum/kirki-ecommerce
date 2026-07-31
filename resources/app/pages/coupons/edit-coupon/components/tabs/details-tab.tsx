@@ -24,7 +24,7 @@ import ValidityPeriodSection from '@/pages/coupons/edit-coupon/components/conten
 
 
 const DetailsTab = () => {
-  const { control, setValue, setError, clearErrors, formState, watch } = useFormContext<CouponFormInput>();
+  const { control, setValue, setError, clearErrors } = useFormContext<CouponFormInput>();
   const method = useWatch({ control, name: 'method' });
   const discountType = useWatch({ control, name: 'discount_type' });
   const isAmountOff = discountType === 'amount-off';

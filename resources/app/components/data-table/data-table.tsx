@@ -5,10 +5,11 @@ import type { DataTableContextValue } from '@/components/data-table/data-table-c
 import { DataTableContext } from '@/components/data-table/data-table-context';
 import DataTableHeader from '@/components/data-table/data-table-header';
 import DataTablePagination from '@/components/data-table/data-table-pagination';
+import DataTableRowActions from '@/components/data-table/data-table-row-actions';
 import { DataTableSelectionProvider, useDataTableSelection } from '@/components/data-table/data-table-selection-context';
 import { DataTableFilter, DataTableFilterBar, DataTableSelectionFilter, findSlot } from '@/components/data-table/data-table-slots';
 import DataTableToolbar from '@/components/data-table/data-table-toolbar';
-import { EMPTY_PAGE, type DataTableBulkApplyPayload, type DataTableColumn, type DataTableItem } from '@/components/data-table/types';
+import { EMPTY_PAGE, type DataTableBulkApplyPayload, type DataTableColumn, type DataTableItem, type DataTableRowActionsResolver } from '@/components/data-table/types';
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import { Table, TableBody, TableHeader } from '@/components/ui/table';
@@ -24,6 +25,7 @@ type DataTableProps<
   listOptions: UseListParamsOptions<TFilter>;
   data?: PaginatedData<T>;
   columns: DataTableColumn<T>[];
+  rowActions?: DataTableRowActionsResolver<T>;
   bulkActionOptions?: SelectOption[];
   onBulkApply?: (
     action: string,
@@ -45,6 +47,7 @@ type DataTableLayoutProps<T extends DataTableItem> = Omit<
 const DataTableLayout = <T extends DataTableItem>({
   data,
   columns,
+  rowActions,
   bulkActionOptions,
   onBulkApply,
   onPageChange,
@@ -61,14 +64,32 @@ const DataTableLayout = <T extends DataTableItem>({
   const filterBar = findSlot(children, DataTableFilterBar);
   const pagination = findSlot(children, DataTablePagination);
 
+  const resolvedColumns = useMemo<DataTableColumn<T>[]>(() => {
+    if (!rowActions) {
+      return columns;
+    }
+
+    return [
+      ...columns,
+      {
+        title: '',
+        alignment: 'right',
+        renderItem: (item: T) => {
+          const config = rowActions(item);
+          return config ? <DataTableRowActions edit={config.edit} actions={config.actions} /> : null;
+        },
+      },
+    ];
+  }, [columns, rowActions]);
+
   const contextValue = useMemo<DataTableContextValue<DataTableItem>>(
     () => ({
       data: data as unknown as PaginatedData<DataTableItem>,
       isLoading,
-      columns: columns as unknown as DataTableColumn<DataTableItem>[],
+      columns: resolvedColumns as unknown as DataTableColumn<DataTableItem>[],
       onPageChange,
     }),
-    [data, isLoading, columns, onPageChange],
+    [data, isLoading, resolvedColumns, onPageChange],
   );
 
   return (
@@ -89,7 +110,7 @@ const DataTableLayout = <T extends DataTableItem>({
             <Table fixed={fixed}>
               <TableHeader>
                 <DataTableHeader
-                  columns={columns as unknown as DataTableColumn<DataTableItem>[]}
+                  columns={resolvedColumns as unknown as DataTableColumn<DataTableItem>[]}
                   isAllSelected={isAllSelected}
                   isPartiallySelected={isPartiallySelected}
                   onToggleAll={onToggleAll}
@@ -107,12 +128,7 @@ const DataTableLayout = <T extends DataTableItem>({
   );
 };
 
-/*
- * DataTable owns the list-params provider for its own subtree, so the toolbar,
- * filter popup and filter bar all share one URL subscription. Slot children are
- * created by the consumer but rendered here, and React resolves context by
- * render position — so they read this provider, not the page's.
- */
+
 const DataTable = <
   T extends DataTableItem,
   TFilter extends Record<string, unknown> = {},
