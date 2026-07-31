@@ -4,6 +4,7 @@ use Kirki\Ecommerce\App\Hooks\Actions\AddWpHeadMeta;
 use Kirki\Ecommerce\App\Hooks\Actions\EnqueueSiteScripts;
 use Kirki\Ecommerce\App\Hooks\Filters\PageIdentifier;
 use Kirki\Ecommerce\App\Hooks\Filters\ReplaceSiteTitle;
+use Kirki\Ecommerce\App\Hooks\Filters\ShopPageInlineScript;
 use Kirki\Ecommerce\App\Wordpress\Hooks\Actions\EnqueueAdminScripts;
 use Kirki\Ecommerce\App\Wordpress\Hooks\Actions\RemoveDuplicateSubmenu;
 use Kirki\Ecommerce\App\Wordpress\Hooks\Actions\SMTPConfig;
@@ -23,5 +24,6 @@ return [
     'filters' => [
         ReplaceSiteTitle::class,
         PageIdentifier::class,
+        ShopPageInlineScript::class,
     ],
 ];
