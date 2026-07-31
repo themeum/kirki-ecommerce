@@ -33,9 +33,6 @@ class CreateProductDTO extends DTO
     /** @var string|null */
     public $additional_info = [];
 
-    /** @var bool|null */
-    public $allow_back_order = false;
-
     /** @var string|null */
     public $seo_title;
 

@@ -47,7 +47,6 @@ class ProductCreateRequest extends Request
             'short_description' => 'string|nullable',
             'description' => 'string|nullable',
             'additional_info' => 'array|nullable', // JSON string, can be validated later
-            'allow_back_order' => 'boolean|nullable',
             'seo_title' => 'string|nullable|max:500',
             'seo_description' => 'string|nullable',
             'seo_keywords' => 'array|nullable',
@@ -100,7 +99,7 @@ class ProductCreateRequest extends Request
             'variants.*.sale_price' => 'number|min:0|nullable',
             'variants.*.cost_of_goods' => 'number|min:0|nullable',
 
-            'variants.*.weight' => 'number|min:0|nullable',
+            'variants.*.weight' => 'numeric|nullable',
             'variants.*.weight_unit' => 'string|nullable|max:10|in:' . implode(',', WeightUnit::get_constant_values()),
 
             'variants.*.charge_taxes' => 'boolean|nullable',
@@ -133,7 +132,6 @@ class ProductCreateRequest extends Request
             'short_description' => Sanitizer::TEXT,
             'description' => Sanitizer::TEXT,
             'additional_info' => Sanitizer::ARRAY,
-            'allow_back_order' => Sanitizer::BOOL,
             'seo_title' => Sanitizer::TEXT,
             'seo_description' => Sanitizer::TEXT,
             'seo_keywords' => Sanitizer::ARRAY,

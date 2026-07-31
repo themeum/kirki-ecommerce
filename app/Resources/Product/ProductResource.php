@@ -38,7 +38,6 @@ class ProductResource extends Resource
             'short_description' => $this->short_description,
             'description' => $this->description,
             'additional_info' => $this->additional_info,
-            'allow_back_order' => (bool) $this->allow_back_order,
             'seo_title' => $this->seo_title,
             'seo_description' => $this->seo_description,
             'seo_keywords' => $this->seo_keywords,
