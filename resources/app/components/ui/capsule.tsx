@@ -1,11 +1,12 @@
-import type { SerializedStyles } from '@emotion/react';
+import type { CSSObject } from '@emotion/react';
 import { Minus } from 'lucide-react';
 import { useMemo } from 'react';
 
 import Button from '@/components/ui/button';
 import Combobox from '@/components/ui/combobox';
+import Text from '@/components/ui/text';
 import { theme } from '@/theme';
-import { flexCenter, scoped } from '@/theme/mixins';
+import { flexCenter, scopedMerge, scoped, defineStyles } from '@/theme/mixins';
 import type { SelectOption } from '@/types';
 
 type CapsuleValue = string | number;
@@ -18,7 +19,7 @@ type CapsuleProps = {
   onValueChange?: (value: CapsuleValueOrArray) => void;
   uniqueKey?: string | number;
   multiple?: boolean;
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const toStringValue = (value?: CapsuleValue) => {
@@ -32,7 +33,7 @@ const Capsule = ({
   onValueChange = () => [],
   uniqueKey,
   multiple,
-  css: cssProp,
+  cssOverride,
 }: CapsuleProps) => {
   const options = useMemo(
     () =>
@@ -56,6 +57,14 @@ const Capsule = ({
     ? (Array.isArray(value) ? value : []).map(toStringValue)
     : toStringValue(Array.isArray(value) ? value[0] : value);
 
+  /* No options to match against, so there is no label to resolve — print the
+   * raw value instead of the combobox placeholder. */
+  const isTextOnly = optionsArray === undefined;
+
+  const displayValue = Array.isArray(value)
+    ? value.map(toStringValue).filter(Boolean).join(', ')
+    : toStringValue(value);
+
   const handleChange = (nextValue: string | string[]) => {
     if (Array.isArray(nextValue)) {
       onValueChange(nextValue.map(resolveOriginalValue));
@@ -65,14 +74,20 @@ const Capsule = ({
   };
 
   return (
-    <div css={[styles.root, cssProp]} key={uniqueKey}>
-      <Combobox
-        options={options}
-        value={comboboxValue}
-        onChange={handleChange}
-        multiple={multiple}
-      />
-      <div css={styles.separator} aria-hidden="true" />
+    <div css={scopedMerge(styles.root, cssOverride)} key={uniqueKey}>
+      {isTextOnly ? (
+        <Text variant="small" title={displayValue} cssOverride={styles.textValue}>
+          {displayValue}
+        </Text>
+      ) : (
+        <Combobox
+          options={options}
+          value={comboboxValue}
+          onChange={handleChange}
+          multiple={multiple}
+        />
+      )}
+      <div css={scoped(styles.separator)} aria-hidden="true" />
       <Button
         variant="ghost"
         aria-label="Clear"
@@ -88,8 +103,8 @@ Capsule.displayName = 'Capsule';
 
 export default Capsule;
 
-const styles = {
-  root: scoped({
+const styles = defineStyles({
+  root: {
     minWidth: '126px',
     borderRadius: theme.radius.md,
     height: '32px',
@@ -106,10 +121,18 @@ const styles = {
         boxShadow: 'none',
       },
     },
-  }),
-  separator: scoped({
+  },
+  separator: {
     height: '100%',
     width: '1px',
     backgroundColor: theme.colors.border.default,
-  }),
-};
+  },
+  textValue: {
+    flex: 1,
+    minWidth: 0,
+    padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  },
+});

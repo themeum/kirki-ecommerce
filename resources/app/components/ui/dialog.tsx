@@ -1,17 +1,12 @@
-import { css, keyframes, type SerializedStyles } from '@emotion/react';
-import {
-  forwardRef,
-  type ComponentPropsWithoutRef,
-  type ElementRef,
-  type HTMLAttributes,
-} from 'react';
+import { keyframes, type CSSObject } from '@emotion/react';
+import { forwardRef, type ComponentPropsWithoutRef, type ElementRef, type HTMLAttributes } from 'react';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { X } from 'lucide-react';
 
 import Button from '@/components/ui/button';
 import { getPortalContainer } from '@/libs/portal-container';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { mergeCss, scopedMerge, defineStyles } from '@/theme/mixins';
 
 const Dialog = DialogPrimitive.Root;
 
@@ -33,17 +28,17 @@ type DialogOverlayProps = Omit<
   ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay>,
   'className'
 > & {
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const DialogOverlay = forwardRef<
   ElementRef<typeof DialogPrimitive.Overlay>,
   DialogOverlayProps
 >((props, ref) => {
-  const { css: cssProp, ...rest } = props;
+  const { cssOverride, ...rest } = props;
 
   return (
-    <DialogPrimitive.Overlay ref={ref} css={[styles.overlay, cssProp]} {...rest} />
+    <DialogPrimitive.Overlay ref={ref} css={scopedMerge(styles.overlay, cssOverride)} {...rest} />
   );
 });
 
@@ -53,21 +48,21 @@ type DialogContentProps = Omit<
   ComponentPropsWithoutRef<typeof DialogPrimitive.Content>,
   'className'
 > & {
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const DialogContent = forwardRef<
   ElementRef<typeof DialogPrimitive.Content>,
   DialogContentProps
 >((props, ref) => {
-  const { css: cssProp, children, ...rest } = props;
+  const { cssOverride, children, ...rest } = props;
 
   return (
     <DialogPortal>
       <DialogOverlay />
       <DialogPrimitive.Content
         ref={ref}
-        css={[styles.content, cssProp]}
+        css={scopedMerge(styles.content, cssOverride)}
         {...rest}
       >
         {children}
@@ -82,7 +77,7 @@ const DialogCloseButton = forwardRef<
   HTMLButtonElement,
   ComponentPropsWithoutRef<typeof Button>
 >((props, ref) => {
-  const { css: cssProp, ...rest } = props;
+  const { cssOverride, ...rest } = props;
 
   return (
     <DialogPrimitive.Close asChild>
@@ -91,7 +86,7 @@ const DialogCloseButton = forwardRef<
         variant="ghost"
         size="icon"
         aria-label="Close"
-        css={css([styles.closeButton, cssProp])}
+        cssOverride={mergeCss(styles.closeButton, cssOverride)}
         {...rest}
       >
         <X size={16} aria-hidden="true" />
@@ -103,29 +98,29 @@ const DialogCloseButton = forwardRef<
 DialogCloseButton.displayName = 'DialogCloseButton';
 
 type DialogSectionProps = Omit<HTMLAttributes<HTMLDivElement>, 'className'> & {
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const DialogHeader = (props: DialogSectionProps) => {
-  const { css: cssProp, ...rest } = props;
+  const { cssOverride, ...rest } = props;
 
-  return <div css={[styles.header, cssProp]} {...rest} />;
+  return <div css={scopedMerge(styles.header, cssOverride)} {...rest} />;
 };
 
 DialogHeader.displayName = 'DialogHeader';
 
 const DialogFooter = (props: DialogSectionProps) => {
-  const { css: cssProp, ...rest } = props;
+  const { cssOverride, ...rest } = props;
 
-  return <div css={[styles.footer, cssProp]} {...rest} />;
+  return <div css={scopedMerge(styles.footer, cssOverride)} {...rest} />;
 };
 
 DialogFooter.displayName = 'DialogFooter';
 
 const DialogBody = (props: DialogSectionProps) => {
-  const { css: cssProp, ...rest } = props;
+  const { cssOverride, ...rest } = props;
 
-  return <div css={[styles.body, cssProp]} {...rest} />;
+  return <div css={scopedMerge(styles.body, cssOverride)} {...rest} />;
 };
 
 DialogBody.displayName = 'DialogBody';
@@ -134,17 +129,17 @@ type DialogTitleProps = Omit<
   ComponentPropsWithoutRef<typeof DialogPrimitive.Title>,
   'className'
 > & {
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const DialogTitle = forwardRef<
   ElementRef<typeof DialogPrimitive.Title>,
   DialogTitleProps
 >((props, ref) => {
-  const { css: cssProp, ...rest } = props;
+  const { cssOverride, ...rest } = props;
 
   return (
-    <DialogPrimitive.Title ref={ref} css={[styles.title, cssProp]} {...rest} />
+    <DialogPrimitive.Title ref={ref} css={scopedMerge(styles.title, cssOverride)} {...rest} />
   );
 });
 
@@ -154,19 +149,19 @@ type DialogDescriptionProps = Omit<
   ComponentPropsWithoutRef<typeof DialogPrimitive.Description>,
   'className'
 > & {
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const DialogDescription = forwardRef<
   ElementRef<typeof DialogPrimitive.Description>,
   DialogDescriptionProps
 >((props, ref) => {
-  const { css: cssProp, ...rest } = props;
+  const { cssOverride, ...rest } = props;
 
   return (
     <DialogPrimitive.Description
       ref={ref}
-      css={[styles.description, cssProp]}
+      css={scopedMerge(styles.description, cssOverride)}
       {...rest}
     />
   );
@@ -221,8 +216,8 @@ const dialogContentOut = keyframes({
   },
 });
 
-const styles = {
-  overlay: scoped({
+const styles = defineStyles({
+  overlay: {
     position: 'fixed',
     inset: 0,
     zIndex: 1000,
@@ -235,8 +230,8 @@ const styles = {
     '&[data-state="closed"]': {
       animation: `${dialogOverlayOut} 150ms ease`,
     },
-  }),
-  content: scoped({
+  },
+  content: {
     position: 'fixed',
     left: '50%',
     top: '50%',
@@ -263,41 +258,41 @@ const styles = {
     '&[data-state="closed"]': {
       animation: `${dialogContentOut} 200ms ease`,
     },
-  }),
-  closeButton: scoped({
+  },
+  closeButton: {
     position: 'absolute',
     top: theme.spacing[3],
     right: theme.spacing[3],
-  }),
-  header: scoped({
+  },
+  header: {
     display: 'flex',
     flexDirection: 'column',
     rowGap: theme.spacing[2],
     padding: `${theme.spacing[4]} ${theme.spacing[6]}`,
     paddingRight: theme.spacing[12],
-  }),
-  footer: scoped({
+  },
+  footer: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'flex-end',
     columnGap: theme.spacing[2],
     padding: `${theme.spacing[4]} ${theme.spacing[6]}`,
-  }),
-  title: scoped({
+  },
+  title: {
     margin: 0,
     ...theme.typography.large('semibold'),
     color: theme.colors.text.primary,
-  }),
-  description: scoped({
+  },
+  description: {
     margin: 0,
     ...theme.typography.small(),
     color: theme.colors.text.secondary,
-  }),
-  body: scoped({
+  },
+  body: {
     display: 'flex',
     flexDirection: 'column',
     rowGap: theme.spacing[2],
     padding: `${theme.spacing[4]} ${theme.spacing[6]}`,
     overflowY: 'auto',
-  }),
-};
+  },
+});

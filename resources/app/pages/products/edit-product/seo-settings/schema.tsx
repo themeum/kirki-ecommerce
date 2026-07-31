@@ -8,11 +8,7 @@ import { cardStyles } from '@/theme/card-styles';
 import type { SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
 
-import {
-  groupDetails,
-  optionsList,
-  requiredFields,
-} from '@/pages/products/edit-product/seo-settings/utils';
+import { groupDetails, optionsList, requiredFields } from '@/pages/products/edit-product/seo-settings/utils';
 
 type GroupedValues = Record<string, Array<string | number>>;
 
@@ -53,8 +49,8 @@ const Schema = () => {
         hasSelect
         isEditable
       />
-      <Card css={cardStyles.innerCard}>
-        <CardContent css={cardStyles.innerContent}>askjdasjdajosidaosij</CardContent>
+      <Card cssOverride={cardStyles.innerCard}>
+        <CardContent cssOverride={cardStyles.innerContent}>askjdasjdajosidaosij</CardContent>
       </Card>
     </Flex>
   );

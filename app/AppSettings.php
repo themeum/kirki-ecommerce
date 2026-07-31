@@ -68,7 +68,7 @@ abstract class AppSettings
      */
     public function refresh()
     {
-        $default_settings = json_decoded_data(resource_path('data/settings/' . $this->get_option_key() . '.json')) ?? null;
+        $default_settings = json_decoded_data(resource_path('data/settings/' . $this->get_option_key() . '.json')) ?? [];
         $current_settings = Option::get($this->get_option_key());
 
         if (is_null($current_settings)) {

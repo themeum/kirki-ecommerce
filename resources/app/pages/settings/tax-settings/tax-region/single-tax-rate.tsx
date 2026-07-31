@@ -1,15 +1,12 @@
 import { css } from '@emotion/react';
 import { useState } from 'react';
 
-import {
-  Card,
-  CardContent,
-} from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import Input from '@/components/ui/input';
 import Text from '@/components/ui/text';
 import Flex from '@/components/ui/flex';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { scoped, mergeCss, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
@@ -34,18 +31,18 @@ export const SingleTaxRate = ({
   return (
     <div>
       <Card
-        css={[cardStyles.innerDarkCard, styles.taxCard]}
+        cssOverride={mergeCss(cardStyles.innerDarkCard, styles.taxCard)}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        <CardContent css={cardStyles.innerDarkContent}>
+        <CardContent cssOverride={cardStyles.innerDarkContent}>
           <Text weight="medium">{__('Tax rates', 'kirki-ecommerce')}</Text>
-          <div css={styles.taxCardContent}>
-            <Text css={css(styles.rateDisplay, isHovered && styles.rateDisplayHidden)}>{centralTaxValue}</Text>
+          <div css={scoped(styles.taxCardContent)}>
+            <Text cssOverride={mergeCss(styles.rateDisplay, isHovered && styles.rateDisplayHidden)}>{centralTaxValue}</Text>
 
             <Flex
               gap={2}
-              css={css(styles.editGroup, isHovered && styles.editGroupActive)}
+              cssOverride={mergeCss(styles.editGroup, isHovered && styles.editGroupActive)}
             >
               <Input
                 value={centralTaxValue}
@@ -66,8 +63,8 @@ export const SingleTaxRate = ({
 
 SingleTaxRate.displayName = 'SingleTaxRate';
 
-const styles = {
-  taxCard: scoped({
+const styles = defineStyles({
+  taxCard: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -75,7 +72,7 @@ const styles = {
     maxHeight: '44px',
     height: '44px',
     padding: theme.spacing[3],
-  }),
+  },
   editGroup: css({
     display: 'none',
     pointerEvents: 'none',
@@ -85,15 +82,15 @@ const styles = {
     display: 'flex',
     pointerEvents: 'auto',
   }),
-  rateDisplay: scoped({
+  rateDisplay: {
     transition: 'opacity 0.2s',
     display: 'flex',
-  }),
+  },
   rateDisplayHidden: css({
     display: 'none',
   }),
-  taxCardContent: scoped({
+  taxCardContent: {
     display: 'flex',
     alignItems: 'center',
-  })
-};
+  }
+});

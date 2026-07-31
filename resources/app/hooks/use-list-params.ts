@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 import { useSearchParams } from 'react-router';
 
 import type {
@@ -47,6 +47,16 @@ const useListParams = <
 
   const [searchParams, setSearchParams] = useSearchParams();
 
+  /*
+   * react-router rebuilds `setSearchParams` on every URL change (its useCallback
+   * closes over `searchParams`, and it feeds that stale copy to the functional
+   * updater too). Reading it through a ref keeps the setters below stable, so
+   * write-only consumers can subscribe to them without re-rendering on
+   * navigation. Requires a stable `options` reference to be worth anything.
+   */
+  const setSearchParamsRef = useRef(setSearchParams);
+  setSearchParamsRef.current = setSearchParams;
+
   const params = useMemo((): ListParams<TFilter> => {
     const pageValue = searchParams.get('page');
     const limitValue = searchParams.get('limit');
@@ -93,12 +103,14 @@ const useListParams = <
 
   const setParams = useCallback(
     (updates: ListParamsUpdate<TFilter>, replace = false) => {
-      setSearchParams(
+      setSearchParamsRef.current(
         (prev) => {
           const next = new URLSearchParams(prev);
 
           const shouldResetPage = Object.keys(updates).some((key) =>
-            ['search', 'sort_by', 'sort_order', ...filterKeys].includes(key),
+            ['search', 'sort_by', 'sort_order', 'limit', ...filterKeys].includes(
+              key,
+            ),
           );
 
           Object.entries(updates).forEach(([key, value]) => {
@@ -137,7 +149,7 @@ const useListParams = <
         { replace },
       );
     },
-    [defaults, filterKeys, serializeValue, setSearchParams],
+    [defaults, filterKeys, serializeValue],
   );
 
   const setParam = useCallback(
@@ -152,8 +164,8 @@ const useListParams = <
   );
 
   const resetParams = useCallback(() => {
-    setSearchParams({}, { replace: true });
-  }, [setSearchParams]);
+    setSearchParamsRef.current({}, { replace: true });
+  }, []);
 
   return {
     params,

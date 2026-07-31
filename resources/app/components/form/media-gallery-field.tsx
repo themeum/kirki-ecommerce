@@ -1,19 +1,9 @@
-import { type SerializedStyles } from '@emotion/react';
+import type { CSSObject } from '@emotion/react';
 import type { ReactNode } from 'react';
-import {
-  Controller,
-  useFormContext,
-  type FieldPath,
-  type FieldValues,
-} from 'react-hook-form';
+import { Controller, useFormContext, type FieldPath, type FieldValues } from 'react-hook-form';
 
 import MediaGallery from '@/components/media-gallery';
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldLabel,
-} from '@/components/ui/field';
+import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import type { MediaRef } from '@/types';
 
 type MediaItem = Omit<MediaRef, 'id'> & {
@@ -27,7 +17,7 @@ type MediaGalleryFieldProps<
   name: TName;
   label?: ReactNode;
   description?: ReactNode;
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const MediaGalleryField = <
@@ -37,7 +27,7 @@ const MediaGalleryField = <
   name,
   label,
   description,
-  css,
+  cssOverride,
 }: MediaGalleryFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
 
@@ -46,7 +36,7 @@ const MediaGalleryField = <
       control={control}
       name={name}
       render={({ field, fieldState }) => (
-        <Field data-invalid={fieldState.invalid || undefined} css={css}>
+        <Field data-invalid={fieldState.invalid || undefined} cssOverride={cssOverride}>
           {label && <FieldLabel>{label}</FieldLabel>}
           <MediaGallery
             mediaItems={(field.value as MediaItem[]) ?? []}

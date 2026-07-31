@@ -63,7 +63,7 @@ const Customers = () => {
       <Container>
         {loaded ? (
           <Flex direction="column" gap={2}>
-            <Card css={cardStyles.formCard}>
+            <Card cssOverride={cardStyles.formCard}>
               <CardContent>
                 <Flex gap={3}>
                   <span css={styles.svgClass}>
@@ -90,8 +90,8 @@ const Customers = () => {
                 </Flex>
               </CardContent>
             </Card>
-            <Card css={cardStyles.tableCard}>
-              <CardContent css={cardStyles.tableContent}>
+            <Card cssOverride={cardStyles.tableCard}>
+              <CardContent cssOverride={cardStyles.tableContent}>
                 <CustomerTable data={data!} isFetching={isFetching} />
               </CardContent>
             </Card>

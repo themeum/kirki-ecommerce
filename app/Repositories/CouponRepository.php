@@ -141,9 +141,17 @@ class CouponRepository
                 return $query->where_any(['title', 'code'], 'like', '%' . $search . '%');
             })
             ->when(!empty($filters['method']), function (QueryBuilder $query) use ($filters) {
+                if ($filters['method'] === 'all') {
+                    return $query;
+                }
+
                 return $query->where('method', $filters['method']);
             })
             ->when(!empty($filters['discount_type']), function (QueryBuilder $query) use ($filters) {
+                if ($filters['discount_type'] === 'all') {
+                    return $query;
+                }
+
                 return $query->where('discount_type', $filters['discount_type']);
             })
             ->when(isset($filters['is_active']), function (QueryBuilder $query) use ($filters) {
@@ -159,6 +167,9 @@ class CouponRepository
                 return $query->order_by($filters['sort_by'], $filters['sort_order']);
             }, function (QueryBuilder $query) {
                 return $query->order_by('id', 'desc');
+            })
+            ->when(!empty($filters['status']), function (QueryBuilder $query) use ($filters) {
+                return $query->apply_status_filter($filters['status']);
             });
     }
 }

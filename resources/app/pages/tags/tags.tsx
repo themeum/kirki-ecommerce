@@ -36,8 +36,8 @@ const Tags = () => {
       <Container>
         {loaded ? (
           <Flex direction="column" gap={4}>
-            <Card css={cardStyles.tableCard}>
-              <CardContent css={cardStyles.tableContent}>
+            <Card cssOverride={cardStyles.tableCard}>
+              <CardContent cssOverride={cardStyles.tableContent}>
                 <TagTable data={data!} isFetching={isFetching} />
               </CardContent>
             </Card>

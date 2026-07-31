@@ -3,13 +3,7 @@ import { useFormContext, useWatch } from 'react-hook-form';
 
 import MultiSelectField from '@/components/form/multi-select-field';
 import SelectField from '@/components/form/select-field';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import type { GeneralSettingsFormValues } from '@/schemas/forms/general-settings-form';
 import { useCountriesQuery } from '@/services/country';
@@ -63,8 +57,8 @@ const SellingLocation = () => {
 
   return (
     <div>
-      <Card css={cardStyles.largeCard}>
-        <CardHeader css={cardStyles.sectionHeader}>
+      <Card cssOverride={cardStyles.largeCard}>
+        <CardHeader cssOverride={cardStyles.sectionHeader}>
           <CardTitle>{__('Selling Locations', 'kirki-ecommerce')}</CardTitle>
           <CardDescription>
             {__(
@@ -73,9 +67,9 @@ const SellingLocation = () => {
             )}
           </CardDescription>
         </CardHeader>
-        <CardContent css={cardStyles.largeContent}>
-          <Card css={cardStyles.innerCard}>
-            <CardContent css={cardStyles.innerCardContent}>
+        <CardContent cssOverride={cardStyles.largeContent}>
+          <Card cssOverride={cardStyles.innerCard}>
+            <CardContent cssOverride={cardStyles.innerCardContent}>
               <Flex direction="column" gap={4}>
                 <SelectField
                   name="selling_location_type"

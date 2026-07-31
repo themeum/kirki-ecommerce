@@ -1,28 +1,11 @@
-import { css, type SerializedStyles } from '@emotion/react';
+import type { CSSObject } from '@emotion/react';
 import { Search } from 'lucide-react';
-import {
-  forwardRef,
-  useEffect,
-  useRef,
-  useState,
-  type CSSProperties,
-  type KeyboardEvent,
-  type RefObject,
-} from 'react';
+import { forwardRef, useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type RefObject } from 'react';
 
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldLabel,
-} from '@/components/ui/field';
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from '@/components/ui/input-group';
+import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
+import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { mergeCss, defineStyles } from '@/theme/mixins';
 import type { InputState } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -33,13 +16,14 @@ type SearchboxProps = {
   onEnter?: (value: string | number) => void;
   onBlur?: (value: string | number) => void;
   style?: CSSProperties;
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
   label?: string;
   helpText?: string;
   placeholder?: string;
   state?: InputState;
   error?: string | boolean;
   readOnly?: boolean;
+  delay?: number;
 };
 
 /**
@@ -78,13 +62,14 @@ const Searchbox = forwardRef<HTMLInputElement, SearchboxProps>((props, ref) => {
     onEnter = () => { },
     onBlur = () => { },
     style = {},
-    css: cssProp,
+    cssOverride,
     label,
     helpText,
     placeholder = __('Search', 'kirki-ecommerce'),
     state,
     error,
     readOnly,
+    delay = 300,
   } = props;
 
   const fallbackRef = useRef<HTMLInputElement>(null);
@@ -96,7 +81,7 @@ const Searchbox = forwardRef<HTMLInputElement, SearchboxProps>((props, ref) => {
     setSearchValue(value ?? '');
   }, [value]);
 
-  const debouncedOnChange = useRef(debounce(onChange, 300)).current;
+  const debouncedOnChange = useRef(debounce(onChange, delay)).current;
 
   const handleSearchChange = (nextValue: string) => {
     setSearchValue(nextValue);
@@ -114,14 +99,14 @@ const Searchbox = forwardRef<HTMLInputElement, SearchboxProps>((props, ref) => {
   return (
     <Field
       data-invalid={error ? true : undefined}
-      css={styles.root}
+      cssOverride={styles.root}
       style={style}
     >
       {label && <FieldLabel>{label}</FieldLabel>}
       <InputGroup
         error={Boolean(error)}
         disabled={isDisabled}
-        css={css(styles.group, cssProp)}
+        cssOverride={mergeCss(styles.group, cssOverride)}
       >
         <InputGroupInput
           type={searchValue ? 'text' : 'search'}
@@ -150,15 +135,15 @@ Searchbox.displayName = 'Searchbox';
 
 export default Searchbox;
 
-const styles = {
-  root: scoped({
+const styles = defineStyles({
+  root: {
     width: '100%',
-  }),
-  group: scoped({
+  },
+  group: {
     minHeight: theme.spacing[8],
     height: theme.spacing[8],
     '& [data-slot="input-group-control"]': {
       minHeight: theme.spacing[8],
     },
-  }),
-};
+  },
+});

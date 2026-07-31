@@ -1,8 +1,8 @@
-import { type SerializedStyles } from '@emotion/react';
+import { type CSSObject } from '@emotion/react';
 import { forwardRef, type CSSProperties } from 'react';
 
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { scopedMerge, defineStyles } from '@/theme/mixins';
 import type { HeadingType } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -10,12 +10,12 @@ type HeadingProps = {
   type?: HeadingType;
   text?: string;
   style?: CSSProperties;
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const Heading = forwardRef<HTMLHeadingElement, HeadingProps>((props, ref) => {
   const {
-    css: cssProp,
+    cssOverride,
     type = '',
     text = __('Heading', 'kirki-ecommerce'),
     style = {},
@@ -24,7 +24,11 @@ const Heading = forwardRef<HTMLHeadingElement, HeadingProps>((props, ref) => {
   return (
     <h2
       ref={ref}
-      css={[styles.base, type && styles.types[type], cssProp]}
+      css={scopedMerge(
+        styles.base,
+        type ? styles.types[type] : undefined,
+        cssOverride,
+      )}
       style={style}
     >
       {text}
@@ -36,21 +40,21 @@ Heading.displayName = 'Heading';
 
 export default Heading;
 
-const styles = {
-  base: scoped({
+const styles = defineStyles({
+  base: {
     margin: 0,
     ...theme.typography.large('semibold'),
-  }),
-  types: {
-    primary: scoped({
-      ...theme.typography.heading4(),
-    }),
-    secondary: scoped({
-      ...theme.typography.large('semibold'),
-    }),
-    tertiary: scoped({
-      ...theme.typography.paragraph('semibold'),
-    }),
-    '': scoped({}),
   },
-};
+  types: {
+    primary: {
+      ...theme.typography.heading4(),
+    },
+    secondary: {
+      ...theme.typography.large('semibold'),
+    },
+    tertiary: {
+      ...theme.typography.paragraph('semibold'),
+    },
+    '': {},
+  },
+});

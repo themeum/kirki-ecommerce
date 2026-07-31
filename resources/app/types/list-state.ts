@@ -38,14 +38,6 @@ type ListFilterConfig<TFilter extends Record<string, unknown>> = {
   };
 };
 
-type ProductListFilter = {
-  category_ids?: number[];
-  brand_ids?: number[];
-  collection_ids?: number[];
-  status?: string | string[];
-  stock_status?: string;
-};
-
 const parseNumberArray = (value: string | null): number[] | undefined => {
   if (!value) {
     return undefined;
@@ -69,13 +61,20 @@ const parseStatus = (value: string | null): string | string[] | undefined => {
   }
   return value;
 };
-
 const parseString = (value: string | null): string | undefined => {
   if (!value) {
     return undefined;
   }
   return value;
 };
+
+const parseBoolean = (value: unknown): 0 | 1 => {
+  if (!value) {
+    return 0;
+  }
+
+  return Boolean(value) ? 1 : 0;
+}
 
 const serializeFilterValue = (value: unknown): string | null => {
   if (value === null || value === undefined || value === '') {
@@ -90,22 +89,7 @@ const serializeFilterValue = (value: unknown): string | null => {
   return String(value);
 };
 
-const productListFilterConfig: ListFilterConfig<ProductListFilter> = {
-  keys: [
-    'category_ids',
-    'brand_ids',
-    'collection_ids',
-    'status',
-    'stock_status',
-  ],
-  parsers: {
-    category_ids: { parse: parseNumberArray },
-    brand_ids: { parse: parseNumberArray },
-    collection_ids: { parse: parseNumberArray },
-    status: { parse: parseStatus },
-    stock_status: { parse: parseString },
-  },
-};
+
 
 export type {
   ListFilterConfig,
@@ -113,8 +97,8 @@ export type {
   ListParams,
   ListQueryParams,
   ListState,
-  ProductListFilter,
-  SortOrder,
+  SortOrder
 };
 
-export { productListFilterConfig, serializeFilterValue };
+export { parseBoolean, parseNumberArray, parseStatus, parseString, serializeFilterValue };
+

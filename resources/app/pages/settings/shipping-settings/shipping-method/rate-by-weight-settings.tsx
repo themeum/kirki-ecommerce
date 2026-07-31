@@ -1,10 +1,7 @@
 import { useState, useEffect } from 'react';
 
 import Button from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-} from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
 import { Field, FieldLabel } from '@/components/ui/field';
 import Input from '@/components/ui/input';
@@ -14,7 +11,7 @@ import Flex from '@/components/ui/flex';
 import Grid from '@/components/ui/grid';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { scoped, mergeCss, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 import { PlusIcon, TrashIcon } from '@/icons';
@@ -87,11 +84,11 @@ const RateByWeightSettings = ({
           id="rate-by-weight-description"
           value={(dataObj?.description as string) || ''}
           placeholder={__('e.g., 3-5 business days', 'kirki-ecommerce')}
-          css={styles.textarea}
+          cssOverride={styles.textarea}
           onChange={(e) => handleOnChange(e.target.value, 'description')}
         />
       </Flex>
-      <Card css={[cardStyles.formCard, styles.rangesCard]} >
+      <Card cssOverride={mergeCss(cardStyles.formCard, styles.rangesCard)} >
         <CardContent>
 
         <Grid columns={3}>
@@ -113,7 +110,7 @@ const RateByWeightSettings = ({
         placeholder={__('e.g. 12', 'kirki-ecommerce')}
         onChange={(e) => updateRange(index, 'to', e.target.value)}
         />
-        <div css={styles.rateRow} data-hover-parent>
+        <div css={scoped(styles.rateRow)} data-hover-parent>
         <Input
         value={range.amount || ''}
         type="number"
@@ -124,7 +121,7 @@ const RateByWeightSettings = ({
         {index !== 0 && (
         <Button
         variant="secondary"
-        css={styles.deleteButton}
+        cssOverride={styles.deleteButton}
         data-hover-reveal
         onClick={() => removeRange(index)}
         >
@@ -186,16 +183,16 @@ RateByWeightSettings.displayName = 'RateByWeightSettings';
 
 export default RateByWeightSettings;
 
-const styles = {
-  textarea: scoped({
+const styles = defineStyles({
+  textarea: {
     padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
     minHeight: '108px',
-  }),
-  rangesCard: scoped({
+  },
+  rangesCard: {
     border: `1px solid ${theme.colors.border.default}`,
     borderRadius: theme.radius.md,
-  }),
-  rateRow: scoped({
+  },
+  rateRow: {
     display: 'flex',
     alignItems: 'center',
     gap: theme.spacing[4],
@@ -204,8 +201,8 @@ const styles = {
       visibility: 'visible',
       display: 'block',
     },
-  }),
-  deleteButton: scoped({
+  },
+  deleteButton: {
     padding: theme.spacing[1],
     opacity: 0,
     display: 'none',
@@ -214,5 +211,5 @@ const styles = {
     cursor: 'pointer',
     background: theme.colors.background.fillSecondary,
     borderRadius: theme.radius.lg,
-  })
-};
+  }
+});

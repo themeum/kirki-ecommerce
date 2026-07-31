@@ -88,6 +88,9 @@ class SettingsUpdateRequest extends Request
             case OptionKeys::EMAIL_SETTINGS:
                 $rules = $this->get_email_settings_rules();
                 break;
+            case OptionKeys::ADVANCE_SETTINGS:
+                $rules = []; // @todo: implement later
+                break;
             default:
                 break;
         }
@@ -118,6 +121,8 @@ class SettingsUpdateRequest extends Request
                 return $this->get_currency_settings_filters();
             case OptionKeys::EMAIL_SETTINGS:
                 return $this->get_email_settings_filters();
+            case OptionKeys::ADVANCE_SETTINGS:
+                return []; //@todo: implement later
             default:
                 return [];
         }

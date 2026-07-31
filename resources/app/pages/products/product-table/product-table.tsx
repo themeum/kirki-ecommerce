@@ -1,156 +1,149 @@
-import { useEffect } from 'react';
+import { useCallback } from 'react';
+import { useNavigate } from 'react-router';
 
-import BulkActionHandler from '@/components/bulk-action-handler';
-import { useListParams, useMarkList } from '@/hooks';
-import Checkbox from '@/components/ui/checkbox';
-import {
-  Table,
-  TableBody,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { useBulkDeleteProductsMutation } from '@/services/product';
-import type { PaginatedData, ProductListFilter, ProductListItem } from '@/types';
-import { productListFilterConfig } from '@/types';
+import DataTable, {
+  type DataTableBulkApplyPayload,
+  type DataTableColumn,
+} from '@/components/data-table';
+import Badge from '@/components/ui/badge';
+import Flex from '@/components/ui/flex';
+import Thumbnail from '@/components/ui/thumbnail';
+import { endpoints } from '@/libs/endpoints';
+import { theme } from '@/theme';
+import { scoped, defineStyles } from '@/theme/mixins';
+import type { PaginatedData, ProductListItem } from '@/types';
+import { getBadgeVariantForStatus } from '@/utils/badge-status';
 import { __ } from '@/wpi18n';
 
 import FilterPopup from '@/pages/products/product-table/filter-popup/filter-popup';
 import ProductTableAction from '@/pages/products/product-table/product-table-action';
 import ProductTableFilterAction from '@/pages/products/product-table/product-table-filter-action';
-import SingleRow from '@/pages/products/product-table/single-row';
-
-type TableHeader = {
-  title: string;
-};
+import { useBulkDeleteProductsMutation } from '@/services/product';
+import { productListOptions } from '@/types/filters/product';
 
 type ProductTableProps = {
-  data: PaginatedData<ProductListItem>;
-  isFetching?: boolean;
+  data?: PaginatedData<ProductListItem>;
+  isLoading?: boolean;
+  onPageChange: (page: number) => void;
 };
 
-const ProductTable = ({ data }: ProductTableProps) => {
-  const tableHeaders: TableHeader[] = [
-    { title: __('Product', 'kirki-ecommerce') },
-    { title: __('SKU', 'kirki-ecommerce') },
-    { title: __('Inventory', 'kirki-ecommerce') },
-    { title: __('Price', 'kirki-ecommerce') },
-    { title: __('Status', 'kirki-ecommerce') },
-    { title: __('Date', 'kirki-ecommerce') },
-  ];
-
-  const { params } = useListParams<ProductListFilter>({
-    defaults: {
-      search: '',
-      sort_by: 'title',
-      sort_order: 'asc',
-      page: 1,
-      limit: 10,
-    },
-    filter: productListFilterConfig,
-  });
-
-  const { results, total, per_page } = data;
-
-  const bulkDeleteMutation = useBulkDeleteProductsMutation();
-
-  const {
-    handleSelectAll,
-    handleAllCheckboxClick,
-    handleSingleCheckboxClick,
-    handleClearSelection,
-    isSelected,
-    isPartiallySelected,
-    selectedItems,
-    itemCount,
-  } = useMarkList({ data });
-
-  const hasActiveFilters = Boolean(
-    params.category_ids?.length ||
-      params.brand_ids?.length ||
-      params.collection_ids?.length ||
-      params.status ||
-      params.stock_status,
-  );
-
-  useEffect(() => {
-    handleClearSelection();
-  }, [
-    params.category_ids,
-    params.brand_ids,
-    params.collection_ids,
-    params.status,
-    params.stock_status,
-  ]);
-
-  const handleApplyAction = async (action: string) => {
-    if (action !== 'delete') {
-      return;
-    }
-
-    if (selectedItems.includes('*')) {
-      await bulkDeleteMutation.mutateAsync({
-        action: 'delete-all',
-        ids: null,
-      });
-    } else {
-      await bulkDeleteMutation.mutateAsync({
-        action: 'delete',
-        ids: selectedItems as number[],
-      });
-    }
-    handleClearSelection();
-  };
+const ProductTitleCell = ({ item }: { item: ProductListItem }) => {
+  const navigate = useNavigate();
 
   return (
-    <>
-      {selectedItems.length > 0 ? (
-        <BulkActionHandler
-          optionsArray={[{ value: 'trash', title: __('Trash', 'kirki-ecommerce') }]}
-          itemCount={itemCount}
-          onSelectAll={
-            itemCount === total ? handleClearSelection : handleSelectAll
-          }
-          onApply={(action) => handleApplyAction(action as string)}
-          filterAction={<FilterPopup />}
-          total={total}
-          per_page={per_page}
-        />
-      ) : (
-        <ProductTableAction />
-      )}
-      {hasActiveFilters ? <ProductTableFilterAction /> : null}
+    <Flex gap={3} align="center">
+      <Thumbnail src={item?.image ?? undefined} size="small" />
+      <span
+        css={scoped(styles.clickable)}
+        onClick={() => {
+          navigate(endpoints.PRODUCT(item.id));
+        }}
+      >
+        <span css={scoped(styles.mutedText)}>{item?.title} </span>
+      </span>
+    </Flex>
+  );
+};
 
-      <Table fixed>
-        <TableHeader>
-          <TableRow>
-            <TableHead onlyCheckbox>
-              <Checkbox
-                value={isSelected('*')}
-                onChange={handleAllCheckboxClick}
-                isPartialChecked={isPartiallySelected('*')}
-              />
-            </TableHead>
-            {tableHeaders.map((header, index) => (
-              <TableHead key={index}>{header.title}</TableHead>
-            ))}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {results.map((item) => (
-            <SingleRow
-              key={item?.id}
-              item={item}
-              isSelected={isSelected}
-              handleSingleCheckboxClick={handleSingleCheckboxClick}
-            />
-          ))}
-        </TableBody>
-      </Table>
-    </>
+/*
+ * Module scope on purpose: a stable `columns` reference is what lets the
+ * memoized table header sit out a search.
+ */
+const productColumns: DataTableColumn<ProductListItem>[] = [
+  {
+    title: __('Product', 'kirki-ecommerce'),
+    renderItem: (item) => <ProductTitleCell item={item} />,
+  },
+  {
+    title: __('SKU', 'kirki-ecommerce'),
+    renderItem: (item) => item?.sku || '-',
+  },
+  {
+    title: __('Inventory', 'kirki-ecommerce'),
+    renderItem: (item) => item?.inventory,
+  },
+  {
+    title: __('Price', 'kirki-ecommerce'),
+    renderItem: (item) => item?.price,
+  },
+  {
+    title: __('Status', 'kirki-ecommerce'),
+    renderItem: (item) => (
+      <Badge variant={getBadgeVariantForStatus(item?.status ?? '')}>
+        {item?.status}
+      </Badge>
+    ),
+  },
+  {
+    title: __('Date', 'kirki-ecommerce'),
+    renderItem: (item) => item?.created_at,
+  },
+];
+
+const productBulkActions = [
+  { value: 'delete', title: __('Trash', 'kirki-ecommerce') },
+];
+
+const ProductTable = ({ data, isLoading, onPageChange }: ProductTableProps) => {
+  const bulkDeleteMutation = useBulkDeleteProductsMutation();
+
+  const handleBulkApply = useCallback(
+    async (
+      action: string,
+      { selectedItems, isSelectAll }: DataTableBulkApplyPayload,
+    ) => {
+      if (action !== 'delete') {
+        return;
+      }
+
+      if (isSelectAll) {
+        await bulkDeleteMutation.mutateAsync({
+          action: 'delete-all',
+          ids: null,
+        });
+      } else {
+        await bulkDeleteMutation.mutateAsync({
+          action: 'delete',
+          ids: selectedItems as number[],
+        });
+      }
+    },
+    [bulkDeleteMutation],
+  );
+
+  return (
+    <DataTable
+      listOptions={productListOptions}
+      data={data}
+      isLoading={isLoading}
+      columns={productColumns}
+      bulkActionOptions={productBulkActions}
+      onBulkApply={handleBulkApply}
+      onPageChange={onPageChange}
+    >
+      <DataTable.Action>
+        <ProductTableAction />
+      </DataTable.Action>
+      <DataTable.FilterAction>
+        <FilterPopup />
+      </DataTable.FilterAction>
+      <DataTable.FilterBar>
+        <ProductTableFilterAction />
+      </DataTable.FilterBar>
+      <DataTable.Pagination />
+    </DataTable>
   );
 };
 
 ProductTable.displayName = 'ProductTable';
 
 export default ProductTable;
+
+const styles = defineStyles({
+  clickable: {
+    cursor: 'pointer',
+  },
+  mutedText: {
+    color: theme.colors.text.subdued,
+  },
+});

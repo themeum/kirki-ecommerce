@@ -2,16 +2,9 @@ import { useEffect, useState, type ReactNode } from 'react';
 
 import GroupOptionCard from '@/components/group-option-card';
 import HeaderActionsCard from '@/components/header-actions-card';
-import {
-  Card,
-  CardContent,
-} from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { dispatchToastMessage } from '@/pages/utils';
-import {
-  useShippingBoxesQuery,
-  useUpdateShippingBoxMutation,
-  useDeleteShippingBoxMutation,
-} from '@/services/shipping';
+import { useShippingBoxesQuery, useUpdateShippingBoxMutation, useDeleteShippingBoxMutation } from '@/services/shipping';
 import type { ShippingBox as ShippingBoxType } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -124,8 +117,8 @@ const ShippingBox = () => {
 
   return (
     <>
-      <Card css={cardStyles.largeCard} >
-        <CardContent css={cardStyles.largeContentPadded}>
+      <Card cssOverride={cardStyles.largeCard} >
+        <CardContent cssOverride={cardStyles.largeContentPadded}>
 
         <HeaderActionsCard
         header={__('Shipping Box', 'kirki-ecommerce')}

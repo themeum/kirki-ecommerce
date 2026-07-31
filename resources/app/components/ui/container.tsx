@@ -1,28 +1,28 @@
-import type { SerializedStyles } from '@emotion/react';
+import type { CSSObject } from '@emotion/react';
 import { forwardRef, type ComponentPropsWithoutRef } from 'react';
 
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { scopedMerge, defineStyles } from '@/theme/mixins';
 import type { ContainerSize } from '@/types';
 
 type ContainerProps = Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'css'> & {
   size?: ContainerSize;
   scrollable?: boolean;
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const Container = forwardRef<HTMLDivElement, ContainerProps>((props, ref) => {
-  const { css: cssProp, size, scrollable, children, ...rest } = props;
+  const { cssOverride, size, scrollable, children, ...rest } = props;
 
   return (
     <div
       ref={ref}
-      css={[
+      css={scopedMerge(
         styles.root,
         size && styles.sizes[size],
         scrollable && styles.scrollable,
-        cssProp,
-      ]}
+        cssOverride,
+      )}
       {...rest}
     >
       {children}
@@ -34,30 +34,30 @@ Container.displayName = 'Container';
 
 export default Container;
 
-const styles = {
-  root: scoped({
+const styles = defineStyles({
+  root: {
     maxWidth: '1024px',
     margin: `${theme.spacing[0]} auto`,
     padding: `${theme.spacing[0]} ${theme.spacing[2]}`,
-  }),
-  sizes: {
-    sm: scoped({
-      maxWidth: '600px',
-    }),
-    md: scoped({
-      maxWidth: '752px',
-    }),
-    lg: scoped({
-      maxWidth: '900px',
-    }),
-    xl: scoped({
-      maxWidth: '1024px',
-    }),
-    fullWidth: scoped({
-      maxWidth: '100%',
-    }),
   },
-  scrollable: scoped({
+  sizes: {
+    sm: {
+      maxWidth: '600px',
+    },
+    md: {
+      maxWidth: '752px',
+    },
+    lg: {
+      maxWidth: '900px',
+    },
+    xl: {
+      maxWidth: '1024px',
+    },
+    fullWidth: {
+      maxWidth: '100%',
+    },
+  },
+  scrollable: {
     overflow: 'scroll',
     scrollbarWidth: 'thin',
     scrollbarColor: `${theme.colors.background.fillBrand} ${theme.colors.background.surfaceTertiary}`,
@@ -77,5 +77,5 @@ const styles = {
       width: '40px !important',
       maxWidth: '40px !important',
     },
-  }),
-};
+  },
+});

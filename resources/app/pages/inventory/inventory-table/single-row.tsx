@@ -5,7 +5,7 @@ import Flex from '@/components/ui/flex';
 import { TableCell, TableRow } from '@/components/ui/table';
 import Thumbnail from '@/components/ui/thumbnail';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { defineStyles } from '@/theme/mixins';
 import type { InventoryVariant, MarkListHandlers } from '@/types';
 
 import { calculateProfit } from '@/pages/utils';
@@ -35,44 +35,44 @@ const SingleRow = ({
           onChange={(value) => handleSingleCheckboxClick(value, item.id)}
         />
       </TableCell>
-      <TableCell css={styles.productCell}>
+      <TableCell cssOverride={styles.productCell}>
         <Flex gap={3} align="center">
           <Thumbnail src={item?.product?.image?.url} size="small" />
-          <Flex direction="column" gap={1} css={styles.mutedText}>
+          <Flex direction="column" gap={1} cssOverride={styles.mutedText}>
             <span>{item?.product?.name} </span>
             <span>{item?.name}</span>
           </Flex>
         </Flex>
       </TableCell>
       {selectedFields.includes('sku') && (
-        <TableCell css={styles.inputCell}>
+        <TableCell cssOverride={styles.inputCell}>
           <Input
             value={item?.sku ?? undefined}
             placeholder="--"
             invisible
-            css={styles.tableInput}
+            cssOverride={styles.tableInput}
             onChange={(event) => handleOnChange(event.target.value, 'sku')}
           />
         </TableCell>
       )}
       {selectedFields.includes('price') && (
-        <TableCell css={styles.inputCell}>
+        <TableCell cssOverride={styles.inputCell}>
           <Input
             value={item?.price ?? undefined}
             placeholder="--"
             invisible
-            css={styles.tableInput}
+            cssOverride={styles.tableInput}
             onChange={(event) => handleOnChange(event.target.value, 'price')}
           />
         </TableCell>
       )}
       {selectedFields.includes('sale_price') && (
-        <TableCell css={styles.inputCell}>
+        <TableCell cssOverride={styles.inputCell}>
           <Input
             value={item?.sale_price ?? undefined}
             placeholder="--"
             invisible
-            css={styles.tableInput}
+            cssOverride={styles.tableInput}
             onChange={(event) =>
               handleOnChange(event.target.value, 'sale_price')
             }
@@ -80,12 +80,12 @@ const SingleRow = ({
         </TableCell>
       )}
       {selectedFields.includes('cost_of_goods') && (
-        <TableCell css={styles.inputCell}>
+        <TableCell cssOverride={styles.inputCell}>
           <Input
             value={item?.cost_of_goods ?? undefined}
             placeholder="--"
             invisible
-            css={styles.tableInput}
+            cssOverride={styles.tableInput}
             onChange={(event) =>
               handleOnChange(event.target.value, 'cost_of_goods')
             }
@@ -93,13 +93,13 @@ const SingleRow = ({
         </TableCell>
       )}
       {selectedFields.includes('profit') && (
-        <TableCell disabled css={styles.profitCell}>
+        <TableCell disabled cssOverride={styles.profitCell}>
           <Input
             value={calculateProfit('profit', item)}
             placeholder="--"
             readOnly
             invisible
-            css={styles.tableInput}
+            cssOverride={styles.tableInput}
           />
         </TableCell>
       )}
@@ -111,22 +111,22 @@ SingleRow.displayName = 'SingleRow';
 
 export default SingleRow;
 
-const styles = {
-  productCell: scoped({
+const styles = defineStyles({
+  productCell: {
     minWidth: '208px',
     padding: `7px ${theme.spacing[3]}`,
-  }),
-  inputCell: scoped({
+  },
+  inputCell: {
     padding: theme.spacing[0],
-  }),
-  profitCell: scoped({
+  },
+  profitCell: {
     padding: theme.spacing[0],
     pointerEvents: 'none',
-  }),
-  mutedText: scoped({
+  },
+  mutedText: {
     color: theme.colors.text.subdued,
-  }),
-  tableInput: scoped({
+  },
+  tableInput: {
     ...theme.typography.small(),
-  }),
-};
+  },
+});

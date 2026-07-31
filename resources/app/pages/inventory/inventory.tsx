@@ -85,8 +85,8 @@ const InventoryPage = () => {
       <Container>
         {loaded && !isLoading ? (
           <Flex direction="column" gap={4}>
-            <Card css={cardStyles.tableCard}>
-              <CardContent css={cardStyles.tableContent}>
+            <Card cssOverride={cardStyles.tableCard}>
+              <CardContent cssOverride={cardStyles.tableContent}>
                 <InventoryTable />
               </CardContent>
             </Card>

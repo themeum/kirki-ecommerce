@@ -1,3 +1,4 @@
+import { mergeCss } from '@/theme/mixins';
 import { css } from '@emotion/react';
 import { useState } from 'react';
 
@@ -85,13 +86,11 @@ const AdditionalInfo = () => {
               <div>
                 {productData?.additional_info.map((item, index) => (
                   <Card
-                    css={css(
-                      cardStyles.innerCard,
+                    cssOverride={mergeCss(cardStyles.innerCard,
                       optionCardCss,
                       (productData?.additional_info ?? []).length > 1
                         ? optionCardBorderRadiusCss
-                        : optionCardBorderRadiusSingleCss,
-                    )}
+                        : optionCardBorderRadiusSingleCss,)}
                     onMouseEnter={() => setHoveredIndex(index)}
                     onMouseLeave={() => setHoveredIndex(null)}
                     key={index}
@@ -104,10 +103,8 @@ const AdditionalInfo = () => {
                           <Text color="secondary">{item?.description as string | undefined}</Text>
                         </Flex>
                         <ActionGroup
-                          css={css(
-                            hoverVisibleCss,
-                            hoveredIndex === index && hoverVisibleActiveCss,
-                          )}
+                          cssOverride={mergeCss(hoverVisibleCss,
+                            hoveredIndex === index && hoverVisibleActiveCss,)}
                         >
                           <Button
                             variant="secondary"

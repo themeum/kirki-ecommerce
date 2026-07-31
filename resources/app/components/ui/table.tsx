@@ -1,13 +1,8 @@
-import {
-  forwardRef,
-  type HTMLAttributes,
-  type TdHTMLAttributes,
-  type ThHTMLAttributes,
-} from 'react';
-import { type SerializedStyles } from '@emotion/react';
+import { type CSSObject } from '@emotion/react';
+import { forwardRef, type HTMLAttributes, type TdHTMLAttributes, type ThHTMLAttributes } from 'react';
 
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { scopedMerge, defineStyles } from '@/theme/mixins';
 import type { TableAlignment, TableType } from '@/types';
 
 type TableEditMode = 'multiCell' | 'singleCell';
@@ -17,7 +12,7 @@ type TableProps = Omit<HTMLAttributes<HTMLTableElement>, 'css'> & {
   scrollable?: boolean;
   editMode?: TableEditMode;
   fixed?: boolean;
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const Table = forwardRef<HTMLTableElement, TableProps>((props, ref) => {
@@ -26,21 +21,14 @@ const Table = forwardRef<HTMLTableElement, TableProps>((props, ref) => {
     scrollable,
     editMode,
     fixed,
-    css: cssProp,
+    cssOverride,
     ...rest
   } = props;
 
   return (
     <table
       ref={ref}
-      css={[
-        styles.base,
-        styles.types[type],
-        scrollable && styles.scrollable,
-        fixed && styles.fixed,
-        editMode && styles.editModes[editMode],
-        cssProp,
-      ]}
+      css={scopedMerge(styles.base,         styles.types[type],         scrollable && styles.scrollable,         fixed && styles.fixed,         editMode && styles.editModes[editMode],         cssOverride)}
       {...rest}
     />
   );
@@ -52,28 +40,28 @@ type TableHeaderProps = Omit<
   HTMLAttributes<HTMLTableSectionElement>,
   'css'
 > & {
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const TableHeader = forwardRef<HTMLTableSectionElement, TableHeaderProps>(
   (props, ref) => {
-    const { css: cssProp, ...rest } = props;
+    const { cssOverride, ...rest } = props;
 
-    return <thead ref={ref} css={cssProp} {...rest} />;
+    return <thead ref={ref} css={cssOverride} {...rest} />;
   },
 );
 
 TableHeader.displayName = 'TableHeader';
 
 type TableBodyProps = Omit<HTMLAttributes<HTMLTableSectionElement>, 'css'> & {
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const TableBody = forwardRef<HTMLTableSectionElement, TableBodyProps>(
   (props, ref) => {
-    const { css: cssProp, ...rest } = props;
+    const { cssOverride, ...rest } = props;
 
-    return <tbody ref={ref} css={cssProp} {...rest} />;
+    return <tbody ref={ref} css={cssOverride} {...rest} />;
   },
 );
 
@@ -81,18 +69,18 @@ TableBody.displayName = 'TableBody';
 
 type TableRowProps = Omit<HTMLAttributes<HTMLTableRowElement>, 'css'> & {
   active?: boolean;
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const TableRow = forwardRef<HTMLTableRowElement, TableRowProps>(
   (props, ref) => {
-    const { active, css: cssProp, ...rest } = props;
+    const { active, cssOverride, ...rest } = props;
 
     return (
       <tr
         ref={ref}
         data-active={active ? 'true' : undefined}
-        css={cssProp}
+        css={cssOverride}
         {...rest}
       />
     );
@@ -107,23 +95,18 @@ type TableHeadProps = Omit<
 > & {
   onlyCheckbox?: boolean;
   alignment?: TableAlignment;
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const TableHead = forwardRef<HTMLTableCellElement, TableHeadProps>(
   (props, ref) => {
-    const { onlyCheckbox, alignment, css: cssProp, ...rest } = props;
+    const { onlyCheckbox, alignment, cssOverride, ...rest } = props;
 
     return (
       <th
         ref={ref}
         data-only-checkbox={onlyCheckbox ? 'true' : undefined}
-        css={[
-          styles.head,
-          onlyCheckbox && styles.onlyCheckbox,
-          alignment && styles.headAlignments[alignment],
-          cssProp,
-        ]}
+        css={scopedMerge(styles.head,           onlyCheckbox && styles.onlyCheckbox,           alignment && styles.headAlignments[alignment],           cssOverride)}
         {...rest}
       />
     );
@@ -139,24 +122,19 @@ type TableCellProps = Omit<
   onlyCheckbox?: boolean;
   alignment?: TableAlignment;
   disabled?: boolean;
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const TableCell = forwardRef<HTMLTableCellElement, TableCellProps>(
   (props, ref) => {
-    const { onlyCheckbox, alignment, disabled, css: cssProp, ...rest } = props;
+    const { onlyCheckbox, alignment, disabled, cssOverride, ...rest } = props;
 
     return (
       <td
         ref={ref}
         data-only-checkbox={onlyCheckbox ? 'true' : undefined}
         data-disabled={disabled ? 'true' : undefined}
-        css={[
-          styles.cell,
-          onlyCheckbox && styles.onlyCheckbox,
-          alignment && styles.cellAlignments[alignment],
-          cssProp,
-        ]}
+        css={scopedMerge(styles.cell,           onlyCheckbox && styles.onlyCheckbox,           alignment && styles.cellAlignments[alignment],           cssOverride)}
         {...rest}
       />
     );
@@ -165,10 +143,10 @@ const TableCell = forwardRef<HTMLTableCellElement, TableCellProps>(
 
 TableCell.displayName = 'TableCell';
 
-export { Table, TableHeader, TableBody, TableRow, TableHead, TableCell };
+export { Table, TableBody, TableCell, TableHead, TableHeader, TableRow };
 
-const styles = {
-  base: scoped({
+const styles = defineStyles({
+  base: {
     width: '100%',
     borderCollapse: 'collapse',
     borderSpacing: 0,
@@ -196,31 +174,31 @@ const styles = {
         visibility: 'visible',
       },
     },
-  }),
+  },
   types: {
-    default: scoped({}),
-    variation: scoped({
+    default: {},
+    variation: {
       '& th, & td': {
         padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
       },
-    }),
-    wide: scoped({
+    },
+    wide: {
       '& th, & td': {
         padding: `${theme.spacing[4]} ${theme.spacing[3]}`,
       },
-    }),
+    },
   },
-  scrollable: scoped({
+  scrollable: {
     width: 'max-content',
-  }),
-  fixed: scoped({
+  },
+  fixed: {
     tableLayout: 'fixed',
     '& [data-only-checkbox="true"]': {
       width: '40px',
     },
-  }),
+  },
   editModes: {
-    multiCell: scoped({
+    multiCell: {
       userSelect: 'none',
       borderCollapse: 'separate',
       borderSpacing: '0 0',
@@ -322,21 +300,21 @@ const styles = {
           backgroundColor: theme.colors.background.fill,
         },
       },
-    }),
-    singleCell: scoped({
+    },
+    singleCell: {
       '& tbody tr:hover': {
         backgroundColor: 'transparent',
       },
       '& tbody td:hover': {
         backgroundColor: theme.colors.background.surfaceSecondary,
       },
-    }),
+    },
   },
-  head: scoped({
+  head: {
     textAlign: 'left',
     whiteSpace: 'nowrap',
-  }),
-  cell: scoped({
+  },
+  cell: {
     textAlign: 'left',
     color: theme.colors.text.primary,
     whiteSpace: 'nowrap',
@@ -347,24 +325,24 @@ const styles = {
       display: 'inline-flex',
       visibility: 'hidden',
     },
-  }),
-  onlyCheckbox: scoped({
+  },
+  onlyCheckbox: {
     width: '1%',
-  }),
+  },
   headAlignments: {
-    right: scoped({
+    right: {
       marginLeft: 'auto',
       marginRight: theme.spacing[0],
       textAlign: 'right',
-    }),
-    center: scoped({
+    },
+    center: {
       marginLeft: 'auto',
       marginRight: 'auto',
       textAlign: 'center',
-    }),
+    },
   },
   cellAlignments: {
-    right: scoped({
+    right: {
       marginLeft: 'auto',
       marginRight: theme.spacing[0],
       textAlign: 'right',
@@ -373,8 +351,8 @@ const styles = {
         marginRight: theme.spacing[0],
         textAlign: 'right',
       },
-    }),
-    center: scoped({
+    },
+    center: {
       marginLeft: 'auto',
       marginRight: 'auto',
       textAlign: 'center',
@@ -383,6 +361,6 @@ const styles = {
         marginRight: 'auto',
         textAlign: 'center',
       },
-    }),
+    },
   },
-};
+});

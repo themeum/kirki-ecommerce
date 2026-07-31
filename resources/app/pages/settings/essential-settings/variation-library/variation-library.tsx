@@ -3,17 +3,14 @@ import { useNavigate } from 'react-router';
 
 import HeaderActionsCard from '@/components/header-actions-card';
 import GroupOptionCard from '@/components/group-option-card';
-import {
-  Card,
-  CardContent,
-} from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { BoxIcon, ColorPaletteIcon } from '@/icons';
 import Flex from '@/components/ui/flex';
 import { dispatchToastMessage } from '@/pages/utils';
 import { useAttributesQuery, useDeleteAttributeMutation } from '@/services/attribute';
 import type { Attribute } from '@/types';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { scoped, mergeCss, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
@@ -68,8 +65,8 @@ const VariationList = () => {
   };
 
   return (
-    <Card css={cardStyles.largeCard}>
-      <CardContent css={cardStyles.largeContentPadded}>
+    <Card cssOverride={cardStyles.largeCard}>
+      <CardContent cssOverride={cardStyles.largeContentPadded}>
         <HeaderActionsCard
           header={__('Variation Library', 'kirki-ecommerce')}
           subHeader={__(
@@ -84,18 +81,18 @@ const VariationList = () => {
           }}
         />
         {!attributeListArr.length ? (
-          <Card css={cardStyles.innerDarkCard}>
-            <CardContent css={[cardStyles.innerDarkContent, styles.emptyState]}>
+          <Card cssOverride={cardStyles.innerDarkCard}>
+            <CardContent cssOverride={mergeCss(cardStyles.innerDarkContent, styles.emptyState)}>
               <Flex direction="column" gap={2} align="center">
                 <BoxIcon />
-                <span css={styles.emptyStateText}>
+                <span css={scoped(styles.emptyStateText)}>
                   {__('Added variation library will appear here', 'kirki-ecommerce')}
                 </span>
               </Flex>
             </CardContent>
           </Card>
         ) : (
-          <Flex direction="column" data-box-wrapper css={styles.boxWrapper}>
+          <Flex direction="column" data-box-wrapper cssOverride={styles.boxWrapper}>
             <GroupOptionCard
               dataArr={attributeListArr}
               handleDeleteItem={(item) => handleDeleteVariation(item as AttributeListItem)}
@@ -120,8 +117,8 @@ VariationList.displayName = 'VariationList';
 
 export default VariationList;
 
-const styles = {
-  boxWrapper: scoped({
+const styles = defineStyles({
+  boxWrapper: {
     '[data-box-card]': {
       borderTop: 'none',
       borderRadius: theme.radius.none,
@@ -133,11 +130,11 @@ const styles = {
     '[data-box-card]:last-of-type': {
       borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.md} ${theme.radius.md}`,
     },
-  }),
-  emptyState: scoped({
+  },
+  emptyState: {
     padding: `${theme.spacing[9]} ${theme.spacing[0]}`,
-  }),
-  emptyStateText: scoped({
+  },
+  emptyStateText: {
     color: theme.colors.text.subdued,
-  })
-};
+  }
+});

@@ -1,8 +1,5 @@
 import SelectField from '@/components/form/select-field';
-import {
-  Card,
-  CardContent,
-} from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
@@ -15,8 +12,8 @@ const CurrencyFormatSettings = () => {
   ];
 
   return (
-    <Card css={cardStyles.innerCard}>
-      <CardContent css={cardStyles.innerContent}>
+    <Card cssOverride={cardStyles.innerCard}>
+      <CardContent cssOverride={cardStyles.innerContent}>
         <Flex direction="column" gap={4}>
           <SelectField
             name="currency_format"

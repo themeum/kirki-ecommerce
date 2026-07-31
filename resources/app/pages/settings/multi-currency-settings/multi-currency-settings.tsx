@@ -5,10 +5,7 @@ import { useNavigate, useOutletContext } from 'react-router';
 
 import PageNavbar from '@/components/page-navbar';
 import Button from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-} from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import { CurrencyIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
@@ -18,11 +15,7 @@ import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import PageHeading from '@/components/ui/page-heading';
 import Text from '@/components/ui/text';
-import {
-  MultiCurrencySettingsFormSchema,
-  multiCurrencySettingsDefaultValues,
-  type MultiCurrencySettingsFormValues,
-} from '@/schemas/forms/multi-currency-settings-form';
+import { MultiCurrencySettingsFormSchema, multiCurrencySettingsDefaultValues, type MultiCurrencySettingsFormValues } from '@/schemas/forms/multi-currency-settings-form';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import type { ConfirmationVariant, SettingsSectionData } from '@/types';
 import { cardStyles } from '@/theme/card-styles';
@@ -165,8 +158,8 @@ const MultiCurrencySettings = () => {
                 handleBack={handleBackButton}
               />
 
-              <Card css={cardStyles.largeCard} >
-                <CardContent css={cardStyles.largeContentPadded}>
+              <Card cssOverride={cardStyles.largeCard} >
+                <CardContent cssOverride={cardStyles.largeContentPadded}>
 
                 <Flex direction="column" gap={2}>
                   <Text weight="semibold">{__('Currency Management', 'kirki-ecommerce')}</Text>
@@ -179,8 +172,8 @@ const MultiCurrencySettings = () => {
                 <ApiConfig />
                 </CardContent>
               </Card>
-              <Card css={cardStyles.largeCard} >
-                <CardContent css={cardStyles.largeContentPadded}>
+              <Card cssOverride={cardStyles.largeCard} >
+                <CardContent cssOverride={cardStyles.largeContentPadded}>
 
                 <Flex direction="column" gap={2}>
                   <Text weight="semibold">{__('Currency Preferences', 'kirki-ecommerce')}</Text>

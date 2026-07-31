@@ -1,7 +1,7 @@
 import { Outlet, useLocation } from 'react-router';
 
 import { pageEnterKeyframes } from '@/theme/shell-styles';
-import { scoped } from '@/theme/mixins';
+import { scoped, defineStyles } from '@/theme/mixins';
 import type { ConfirmationVariant } from '@/types';
 
 type ConfirmActionOtherProps = {
@@ -28,7 +28,7 @@ const AnimatedPage = ({ context }: AnimatedPageProps) => {
   const { pathname } = useLocation();
 
   return (
-    <div key={pathname} css={styles.pageEnter}>
+    <div key={pathname} css={scoped(styles.pageEnter)}>
       <Outlet context={context} />
     </div>
   );
@@ -38,8 +38,8 @@ AnimatedPage.displayName = 'AnimatedPage';
 
 export default AnimatedPage;
 
-const styles = {
-  pageEnter: scoped({
+const styles = defineStyles({
+  pageEnter: {
     animation: `${pageEnterKeyframes} 0.45s ease-out both`,
-  }),
-};
+  },
+});

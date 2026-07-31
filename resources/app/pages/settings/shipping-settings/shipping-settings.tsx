@@ -8,10 +8,7 @@ import PageNavbar from '@/components/page-navbar';
 import OptionAccordion from '@/components/option-accordion';
 import HeaderActionsCard from '@/components/header-actions-card';
 import Button from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-} from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import { getErrorsObject, type ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
@@ -21,28 +18,16 @@ import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import PageHeading from '@/components/ui/page-heading';
 import { normalizeErrors } from '@/pages/utils';
-import {
-  ShippingSettingsFormSchema,
-  shippingSettingsDefaultValues,
-  type ShippingSettingsFormValues,
-} from '@/schemas/forms/shipping-settings-form';
+import { ShippingSettingsFormSchema, shippingSettingsDefaultValues, type ShippingSettingsFormValues } from '@/schemas/forms/shipping-settings-form';
 import { useCountriesQuery } from '@/services/country';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import type { FormErrors, SelectOption, SettingsSectionData } from '@/types';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { scoped, mergeCss, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import { __, sprintf } from '@/wpi18n';
 
-import {
-  getSearchedCountries,
-  getSelectedRegionTags,
-  shippingMethodIconMap,
-  type CountryWithStates,
-  type ShippingMethodData,
-  type ShippingRegion,
-  type ShippingZone,
-} from '@/pages/settings/shipping-settings/utils';
+import { getSearchedCountries, getSelectedRegionTags, shippingMethodIconMap, type CountryWithStates, type ShippingMethodData, type ShippingRegion, type ShippingZone } from '@/pages/settings/shipping-settings/utils';
 import { ShippingMethod } from '@/pages/settings/shipping-settings/shipping-method/shipping-method';
 import { ShippingRegionPopup } from '@/pages/settings/shipping-settings/shipping-zone/shipping-region-dialog';
 import ShippingZoneActions from '@/pages/settings/shipping-settings/shipping-zone-actions';
@@ -282,8 +267,8 @@ const ShippingSettings = () => {
                 textIcon={<TruckIcon />}
                 text={__('Shipping', 'kirki-ecommerce')}
               />
-              <Card css={cardStyles.largeCard}>
-                <CardContent css={cardStyles.largeContentPadded}>
+              <Card cssOverride={cardStyles.largeCard}>
+                <CardContent cssOverride={cardStyles.largeContentPadded}>
                   <HeaderActionsCard
                     header={__('Shipping Zones', 'kirki-ecommerce')}
                     subHeader={__(
@@ -295,14 +280,14 @@ const ShippingSettings = () => {
                   />
 
                   {!shippingZonesObj.length ? (
-                    <Card css={cardStyles.innerDarkCard}>
-                      <CardContent css={[cardStyles.innerDarkContent, styles.emptyState]}>
+                    <Card cssOverride={cardStyles.innerDarkCard}>
+                      <CardContent cssOverride={mergeCss(cardStyles.innerDarkContent, styles.emptyState)}>
                         <Flex
                           direction="column"
                           gap={2}
                           align="center">
                           <LocationIcon />
-                          <span css={styles.emptyStateText}>
+                          <span css={scoped(styles.emptyStateText)}>
                             {__(
                               'Added shipping zones will appear here',
                               'kirki-ecommerce',
@@ -398,11 +383,11 @@ ShippingSettings.displayName = 'ShippingSettings';
 
 export default ShippingSettings;
 
-const styles = {
-  emptyState: scoped({
+const styles = defineStyles({
+  emptyState: {
     padding: `${theme.spacing[9]} ${theme.spacing[0]}`,
-  }),
-  emptyStateText: scoped({
+  },
+  emptyStateText: {
     color: theme.colors.text.subdued,
-  })
-};
+  }
+});

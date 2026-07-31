@@ -51,3 +51,8 @@ assets/js/pages/
 
 # Vscode settings
 .vscode/launch.json
+
+openspec
+.cursor/commands/opsx-*.md
+.cursor/skills/openspec-*
+.cursor/debug-*.log

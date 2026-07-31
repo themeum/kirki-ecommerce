@@ -1,13 +1,10 @@
-import { keyframes, type SerializedStyles, type Theme } from '@emotion/react';
+import { keyframes, type CSSObject, type Theme } from '@emotion/react';
 import { Slot } from '@radix-ui/react-slot';
 import { Loader2 } from 'lucide-react';
-import {
-  forwardRef,
-  type ComponentPropsWithoutRef,
-} from 'react';
+import { forwardRef, type ComponentPropsWithoutRef } from 'react';
 
 import { theme } from '@/theme';
-import { flexCenter, scoped, uiFocusRing } from '@/theme/mixins';
+import { flexCenter, mergeCss, scoped, scopedMerge, uiFocusRing, defineStyles } from '@/theme/mixins';
 
 type ButtonVariant =
   | 'primary'
@@ -35,12 +32,12 @@ type ButtonProps = Omit<
   size?: ButtonSize;
   asChild?: boolean;
   loading?: boolean;
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
   const {
-    css: cssProp,
+    cssOverride,
     variant = 'primary',
     size = 'default',
     asChild = false,
@@ -52,15 +49,15 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
   } = props;
 
   const isDisabled = Boolean(disabled || loading);
-  const buttonCss = [
+  const buttonCss = scopedMerge(
     styles.base,
     styles.variants[variant],
     variant !== 'link' && styles.sizes[size],
     variant === 'link' && styles.linkSize,
     isDisabled && styles.disabled,
     loading && styles.loading,
-    cssProp,
-  ];
+    cssOverride,
+  );
 
   if (asChild && !loading) {
     return (
@@ -87,12 +84,12 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
       {loading ? (
         <>
           <span
-            css={[styles.content, styles.contentHidden]}
+            css={scoped(mergeCss(styles.content, styles.contentHidden))}
             aria-hidden="true"
           >
             {children}
           </span>
-          <span css={styles.loader}>
+          <span css={scoped(styles.loader)}>
             <Loader2 aria-hidden="true" />
           </span>
         </>
@@ -116,8 +113,8 @@ const buttonSpin = keyframes({
   },
 });
 
-const styles = {
-  base: scoped({
+const styles = defineStyles({
+  base: {
     ...flexCenter(),
     ...theme.typography.small('medium'),
     position: 'relative',
@@ -147,33 +144,33 @@ const styles = {
       textDecoration: 'none',
       ...uiFocusRing(theme as Theme),
     },
-  }),
+  },
   variants: {
-    primary: scoped({
+    primary: {
       backgroundColor: theme.colors.background.fillBrand,
       color: theme.colors.text.light,
       '&:hover': {
         backgroundColor: theme.colors.background.fillBrandHover,
         color: theme.colors.text.light,
       },
-    }),
-    secondary: scoped({
+    },
+    secondary: {
       backgroundColor: theme.colors.background.fillSecondary,
       color: theme.colors.text.primary,
       '&:hover': {
         backgroundColor: theme.colors.background.fillSecondaryHover,
         color: theme.colors.text.primary,
       },
-    }),
-    destructive: scoped({
+    },
+    destructive: {
       backgroundColor: theme.colors.background.fillCritical,
       color: theme.colors.text.light,
       '&:hover': {
         backgroundColor: theme.colors.border.critical,
         color: theme.colors.text.light,
       },
-    }),
-    outline: scoped({
+    },
+    outline: {
       backgroundColor: theme.colors.background.fill,
       border: `1px solid ${theme.colors.border.default}`,
       color: theme.colors.text.primary,
@@ -181,22 +178,22 @@ const styles = {
         backgroundColor: theme.colors.background.fillHover,
         color: theme.colors.text.primary,
       },
-    }),
-    ghost: scoped({
+    },
+    ghost: {
       backgroundColor: theme.colors.background.fill,
       color: theme.colors.text.primary,
       '&:hover': {
         backgroundColor: theme.colors.background.fillSpecial3Tertiary,
         color: theme.colors.text.primary,
       },
-    }),
-    link: scoped({
+    },
+    link: {
       backgroundColor: theme.colors.background.fill,
       color: theme.colors.text.primary,
-    }),
+    },
   },
   sizes: {
-    xs: scoped({
+    xs: {
       ...theme.typography.small(),
       height: '24px',
       padding: `0 ${theme.spacing[2]}`,
@@ -205,8 +202,8 @@ const styles = {
         width: '12px',
         height: '12px',
       },
-    }),
-    sm: scoped({
+    },
+    sm: {
       ...theme.typography.small(),
       height: '28px',
       padding: '0 10px',
@@ -215,8 +212,8 @@ const styles = {
         width: '14px',
         height: '14px',
       },
-    }),
-    default: scoped({
+    },
+    default: {
       height: '32px',
       padding: `0 ${theme.spacing[3]}`,
       borderRadius: theme.radius.md,
@@ -224,8 +221,8 @@ const styles = {
         width: '16px',
         height: '16px',
       },
-    }),
-    lg: scoped({
+    },
+    lg: {
       height: '36px',
       padding: `0 ${theme.spacing[4]}`,
       borderRadius: theme.radius.lg,
@@ -233,8 +230,8 @@ const styles = {
         width: '16px',
         height: '16px',
       },
-    }),
-    'icon-xs': scoped({
+    },
+    'icon-xs': {
       height: '24px',
       width: '24px',
       padding: 0,
@@ -243,8 +240,8 @@ const styles = {
         width: '12px',
         height: '12px',
       },
-    }),
-    'icon-sm': scoped({
+    },
+    'icon-sm': {
       height: '28px',
       width: '28px',
       padding: 0,
@@ -253,8 +250,8 @@ const styles = {
         width: '14px',
         height: '14px',
       },
-    }),
-    icon: scoped({
+    },
+    icon: {
       height: '32px',
       width: '32px',
       padding: 0,
@@ -263,8 +260,8 @@ const styles = {
         width: '16px',
         height: '16px',
       },
-    }),
-    'icon-lg': scoped({
+    },
+    'icon-lg': {
       height: '36px',
       width: '36px',
       padding: 0,
@@ -273,37 +270,37 @@ const styles = {
         width: '16px',
         height: '16px',
       },
-    }),
+    },
   },
-  linkSize: scoped({
+  linkSize: {
     height: 'auto',
     width: 'auto',
     padding: 0,
-  }),
-  disabled: scoped({
+  },
+  disabled: {
     opacity: 0.5,
     pointerEvents: 'none',
-  }),
-  loading: scoped({
+  },
+  loading: {
     pointerEvents: 'none',
-  }),
-  content: scoped({
+  },
+  content: {
     ...flexCenter(),
     columnGap: theme.spacing[2],
     textDecoration: 'none',
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
-  }),
-  contentHidden: scoped({
+  },
+  contentHidden: {
     visibility: 'hidden',
-  }),
-  loader: scoped({
+  },
+  loader: {
     ...flexCenter(),
     position: 'absolute',
     inset: 0,
     svg: {
       animation: `${buttonSpin} 0.8s linear infinite`,
     },
-  }),
-};
+  },
+});

@@ -11,10 +11,7 @@ import { useProductForm } from '@/contexts/product-form-context';
 import { cardStyles } from '@/theme/card-styles';
 import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
-import {
-  ProductAdditionalInfoFormSchema,
-  type ProductAdditionalInfoFormValues,
-} from '@/schemas/forms/product-additional-info-form';
+import { ProductAdditionalInfoFormSchema, type ProductAdditionalInfoFormValues } from '@/schemas/forms/product-additional-info-form';
 import type { AdditionalInfoItem } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -77,8 +74,8 @@ const AddOrEditInfo = (props: AddOrEditInfoProps) => {
   const isSaveDisabled = !titleValue || !descriptionValue;
 
   return (
-    <Card css={cardStyles.innerCard}>
-      <CardContent css={cardStyles.innerContent}>
+    <Card cssOverride={cardStyles.innerCard}>
+      <CardContent cssOverride={cardStyles.innerContent}>
         <Form {...form}>
           <Flex direction="column" gap={4}>
             <TextField

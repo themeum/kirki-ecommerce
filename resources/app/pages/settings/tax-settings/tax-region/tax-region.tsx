@@ -7,10 +7,7 @@ import DropdownButton from '@/components/dropdown-button';
 import HeaderActionsCard from '@/components/header-actions-card';
 import ActionGroup from '@/components/ui/action-group';
 import Badge from '@/components/ui/badge';
-import {
-  Card,
-  CardContent,
-} from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import ToggleButton from '@/components/ui/toggle-button';
@@ -18,7 +15,7 @@ import { EditIcon, LocationIcon, ShowMoreIcon, TrashIcon } from '@/icons';
 import type { TaxSettingsFormValues } from '@/schemas/forms/tax-settings-form';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { scoped } from '@/theme/mixins';
+import { scoped, mergeCss, defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 import TaxRegionPopup from '@/pages/settings/tax-settings/tax-region/tax-region-dialog';
@@ -146,8 +143,8 @@ const TaxRegions = (props: TaxRegionsProps) => {
 
   return (
     <>
-      <Card css={cardStyles.largeCard} >
-        <CardContent css={cardStyles.largeContentPadded}>
+      <Card cssOverride={cardStyles.largeCard} >
+        <CardContent cssOverride={cardStyles.largeContentPadded}>
 
           <HeaderActionsCard
             header={__('Tax Regions', 'kirki-ecommerce')}
@@ -160,11 +157,11 @@ const TaxRegions = (props: TaxRegionsProps) => {
           />
 
           {!taxRegions.length ? (
-            <Card css={cardStyles.innerDarkCard}>
-              <CardContent css={[cardStyles.innerDarkContent, styles.emptyStateContent]}>
+            <Card cssOverride={cardStyles.innerDarkCard}>
+              <CardContent cssOverride={mergeCss(cardStyles.innerDarkContent, styles.emptyStateContent)}>
                 <Flex direction="column" gap={2} align="center">
                   <LocationIcon />
-                  <span css={styles.mutedText}>
+                  <span css={scoped(styles.mutedText)}>
                     {__('Added tax zones will appear here', 'kirki-ecommerce')}
                   </span>
                 </Flex>
@@ -173,8 +170,8 @@ const TaxRegions = (props: TaxRegionsProps) => {
           ) : (
             <Flex direction="column" gap={3}>
               {taxRegions.map((item, index) => (
-                <Card css={[cardStyles.innerCard, styles.regionCard]} key={index} >
-                  <CardContent css={cardStyles.innerContent}>
+                <Card cssOverride={mergeCss(cardStyles.innerCard, styles.regionCard)} key={index} >
+                  <CardContent cssOverride={cardStyles.innerContent}>
 
                     <Flex gap={2} align="flex-start">
                       <span>{item?.flag}</span>
@@ -197,10 +194,8 @@ const TaxRegions = (props: TaxRegionsProps) => {
                         </Text>
                       </Flex>
                       <ActionGroup
-                        css={css(
-                          hoverVisibleCss,
-                          activeIndex === index && activeCardCss,
-                        )}
+                        cssOverride={mergeCss(hoverVisibleCss,
+                          activeIndex === index && activeCardCss,)}
                       >
                         <ToggleButton
                           value={item?.is_enabled}
@@ -268,12 +263,12 @@ TaxRegions.displayName = 'TaxRegions';
 
 export default TaxRegions;
 
-const styles = {
-  emptyStateContent: scoped({ padding: `${theme.spacing[9]} 0` }),
-  mutedText: scoped({
+const styles = defineStyles({
+  emptyStateContent: { padding: `${theme.spacing[9]} 0` },
+  mutedText: {
     color: theme.colors.text.subdued,
-  }),
-  regionCard: scoped({
+  },
+  regionCard: {
     padding: `${theme.spacing[3]} ${theme.spacing[4]}`,
-  }),
-};
+  },
+});

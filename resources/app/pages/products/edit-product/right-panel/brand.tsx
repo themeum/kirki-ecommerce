@@ -1,4 +1,3 @@
-import { css } from '@emotion/react';
 import { useEffect, useMemo, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 
@@ -101,12 +100,12 @@ const Brand = () => {
       {productBrand?.id ? (
         <Field>
           <FieldLabel>{__('Brand', 'kirki-ecommerce')}</FieldLabel>
-          <Card css={cardStyles.innerCard}>
-            <CardContent css={cardStyles.innerContent}>
+          <Card cssOverride={cardStyles.innerCard}>
+            <CardContent cssOverride={cardStyles.innerContent}>
               <Flex gap={2} align="center">
                 <Thumbnail src={brandLogo?.url} />
                 <Text variant="small">{productBrand?.name}</Text>
-                <ActionGroup css={css({ cursor: 'pointer' })}>
+                <ActionGroup cssOverride={{ cursor: 'pointer' }}>
                   <Button
                     variant="ghost"
                     onClick={handleRemoveBrand}

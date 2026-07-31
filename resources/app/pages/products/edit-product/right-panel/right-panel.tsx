@@ -7,13 +7,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import { useProductForm } from '@/contexts/product-form-context';
-import {
-  ProductRightPanelFormSchema,
-  productRightPanelDefaultValues,
-  type ProductRightPanelFormValues,
-} from '@/schemas/forms/product-right-panel-form';
+import { ProductRightPanelFormSchema, productRightPanelDefaultValues, type ProductRightPanelFormValues } from '@/schemas/forms/product-right-panel-form';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import type { Product } from '@/types';
 import { __ } from '@/wpi18n';
@@ -84,7 +80,7 @@ const RightPanel = () => {
     <div style={{ width: '30%' }}>
       <Form {...form}>
         <Flex direction="column" gap={4}>
-          <Card css={cardStyles.formCard}>
+          <Card cssOverride={cardStyles.formCard}>
             <CardContent>
               <SelectField
                 name="status"
@@ -94,8 +90,8 @@ const RightPanel = () => {
             </CardContent>
           </Card>
           <Categories />
-          <Card css={cardStyles.formCard}>
-            <CardContent css={styles.fields}>
+          <Card cssOverride={cardStyles.formCard}>
+            <CardContent cssOverride={styles.fields}>
               <Tags />
               <Collections />
               <Brand />
@@ -111,10 +107,10 @@ RightPanel.displayName = 'RightPanel';
 
 export default RightPanel;
 
-const styles = {
-  fields: scoped({
+const styles = defineStyles({
+  fields: {
     display: 'flex',
     flexDirection: 'column',
     gap: theme.spacing[4],
-  })
-};
+  }
+});

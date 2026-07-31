@@ -1,4 +1,3 @@
-import { css } from '@emotion/react';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -17,15 +16,8 @@ import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import PageHeading from '@/components/ui/page-heading';
 import { cardStyles } from '@/theme/card-styles';
-import {
-  CustomerFormSchema,
-  type CustomerFormValues,
-} from '@/schemas/forms/customer-form';
-import {
-  useCreateCustomerMutation,
-  useCustomerQuery,
-  useUpdateCustomerMutation,
-} from '@/services/customer';
+import { CustomerFormSchema, type CustomerFormValues } from '@/schemas/forms/customer-form';
+import { useCreateCustomerMutation, useCustomerQuery, useUpdateCustomerMutation } from '@/services/customer';
 import type { CustomerFormData } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -178,14 +170,14 @@ const CustomerDetails = () => {
       />
       <Container>
         <Flex gap={4}>
-          <Flex direction="column" gap={4} css={css({ width: '70%' })}>
+          <Flex direction="column" gap={4} cssOverride={{ width: '70%' }}>
             <CustomerOverview />
             <ShippingAddress />
             <BillingAddress />
           </Flex>
 
-          <Flex direction="column" gap={4} css={css({ width: '30%' })}>
-            <Card css={cardStyles.formCard}>
+          <Flex direction="column" gap={4} cssOverride={{ width: '30%' }}>
+            <Card cssOverride={cardStyles.formCard}>
               <CardContent>
                 <Flex direction="column" gap={4}>
                   <Label>{__('Notes', 'kirki-ecommerce')}</Label>
@@ -197,7 +189,7 @@ const CustomerDetails = () => {
               </CardContent>
             </Card>
 
-            <Card css={cardStyles.formCard}>
+            <Card cssOverride={cardStyles.formCard}>
               <CardContent>
                 <TagManagerField
                   name="tags"

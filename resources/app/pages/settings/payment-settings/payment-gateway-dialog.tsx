@@ -2,23 +2,13 @@ import { type Dispatch, type SetStateAction } from 'react';
 
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import {
-  Dialog,
-  DialogBody,
-  DialogCloseButton,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogBody, DialogCloseButton, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { CheckedIcon, StripeIcon } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { cardStyles } from '@/theme/card-styles';
-import {
-  useInstallablePaymentGatewaysQuery,
-  useInstallPaymentGatewayMutation,
-} from '@/services/payment';
+import { useInstallablePaymentGatewaysQuery, useInstallPaymentGatewayMutation } from '@/services/payment';
 import type { PaymentGateway } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -64,8 +54,8 @@ const PaymentGatewayPopup = ({
           <Flex direction="column" gap={4}>
             {(availableGatewayList as AvailablePaymentGateway[])?.map(
               (item, index) => (
-                <Card key={index} css={cardStyles.innerCard}>
-                  <CardContent css={cardStyles.innerContent}>
+                <Card key={index} cssOverride={cardStyles.innerCard}>
+                  <CardContent cssOverride={cardStyles.innerContent}>
                     <Flex align="center">
                       <Flex gap={2} align="center">
                         <StripeIcon />

@@ -6,6 +6,7 @@ use Kirki\Ecommerce\App\Facades\CurrencyExchange;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Payment\Facades\Payment;
+use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\Framework\Http\Request;
 use Kirki\Ecommerce\App\Supports\AddonPlugin;
 use Kirki\Ecommerce\Framework\Supports\Facades\Date;
