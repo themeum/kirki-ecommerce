@@ -71,7 +71,7 @@ export function addToCart(config: AddToCartConfig) {
         }
       } catch (e: unknown) {
         this.error = e instanceof Error ? e.message : 'Could not add to cart';
-        this.buttonText = 'Add to Cart';
+        this.buttonText = config.buttonText || 'Add to Cart';
       } finally {
         this.loading = false;
       }
