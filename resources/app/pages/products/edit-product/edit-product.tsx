@@ -21,7 +21,7 @@ import { getErrorsObject } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { mapProductBasicsFromProduct, productBasicsDefaultValues, ProductBasicsFormSchema, type ProductBasicsFormValues } from '@/schemas/forms/product-basics-form';
 import { useCreateProductMutation, useProductQuery, useUpdateProductMutation } from '@/services/product';
-import { useDefaultSettingsQuery, useSettingsQuery } from '@/services/settings';
+import { useSettingsQuery } from '@/services/settings';
 import { useShippingBoxesQuery } from '@/services/shipping';
 import { cardStyles } from '@/theme/card-styles';
 import type {
@@ -42,6 +42,7 @@ import Shipping from '@/pages/products/edit-product/shipping/shipping';
 import Variants from '@/pages/products/edit-product/variants/variants';
 
 import Grid from '@/components/ui/grid';
+import { useAppConfig } from '@/contexts/app-config-context';
 
 type MediaItem = Omit<MediaRef, 'id'> & {
   id?: string | number;
@@ -80,7 +81,7 @@ const EditProductInner = () => {
   });
 
   const { data: productResponse } = useProductQuery(id as string, !isNew);
-  const { data: defaultSettings } = useDefaultSettingsQuery();
+  const { settings: defaultSettings } = useAppConfig();
   const { data: productSettings } = useSettingsQuery('product', {}, isNew);
   const { data: shippingBoxes } = useShippingBoxesQuery({ limit: -1 });
 

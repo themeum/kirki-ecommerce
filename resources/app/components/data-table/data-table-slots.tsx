@@ -4,13 +4,13 @@ type DataTableSlotProps = {
   children: ReactNode;
 };
 
-const DataTableAction = ({ children }: DataTableSlotProps) => children;
+const DataTableFilter = ({ children }: DataTableSlotProps) => children;
 
-DataTableAction.displayName = 'DataTableAction';
+DataTableFilter.displayName = 'DataTableFilter';
 
-const DataTableFilterAction = ({ children }: DataTableSlotProps) => children;
+const DataTableSelectionFilter = ({ children }: DataTableSlotProps) => children;
 
-DataTableFilterAction.displayName = 'DataTableFilterAction';
+DataTableSelectionFilter.displayName = 'DataTableSelectionFilter';
 
 /*
  * A pass-through slot: whether there is anything to show is the filter bar's
@@ -33,8 +33,8 @@ const findSlot = (children: ReactNode, type: unknown) => {
 };
 
 export {
-  DataTableAction,
-  DataTableFilterAction,
+  DataTableFilter,
+  DataTableSelectionFilter,
   DataTableFilterBar,
   findSlot,
 };

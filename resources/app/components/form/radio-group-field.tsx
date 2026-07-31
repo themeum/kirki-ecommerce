@@ -1,9 +1,10 @@
-import type { CSSObject } from '@emotion/react';
+import { type CSSObject } from '@emotion/react';
 import type { ReactNode } from 'react';
 import { Controller, useFormContext, type FieldPath, type FieldValues } from 'react-hook-form';
 
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { scoped } from '@/theme/mixins';
 
 type RadioGroupFieldOption = {
   label: string;
@@ -49,6 +50,7 @@ const RadioGroupField = <
             onValueChange={field.onChange}
             disabled={disabled}
             aria-invalid={fieldState.invalid}
+            cssOverride={styles.groupField}
           >
             {options.map((option) => {
               const optionId = `${String(name)}-${option.value}`;
@@ -72,3 +74,10 @@ const RadioGroupField = <
 RadioGroupField.displayName = 'RadioGroupField';
 
 export default RadioGroupField;
+
+const styles = {
+  groupField: scoped({
+    display: 'flex',
+    flexDirection: 'row',
+  })
+}
