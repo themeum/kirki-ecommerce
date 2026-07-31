@@ -9,7 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { DATE_FORMATS, END_OF_DAY_TIME, START_OF_DAY_TIME } from '@/libs/date';
-import type { CouponFormValues } from '@/schemas/forms/coupon-form';
+import type { CouponFormInput } from '@/schemas/forms/coupon-form';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
@@ -17,7 +17,7 @@ import { __ } from '@/wpi18n';
 
 import { mergeDateTime } from '../config/coupon-datetime';
 
-const formatDisplayDate = (date?: string, time?: string): string | null => {
+const formatDisplayDate = (date?: string | null, time?: string | null): string | null => {
   const merged = mergeDateTime(date ?? '', time ?? '');
 
   if (!merged) {
@@ -54,7 +54,7 @@ const PreviewSection = ({ title, lines }: PreviewSectionProps) => (
 PreviewSection.displayName = 'PreviewSection';
 
 const CouponPreview = () => {
-  const { control } = useFormContext<CouponFormValues>();
+  const { control } = useFormContext<CouponFormInput>();
   const values = useWatch({ control });
 
   const isAmountOff = values.discount_type === 'amount-off';
@@ -95,7 +95,7 @@ const CouponPreview = () => {
   ];
 
   const activeFrom = formatDisplayDate(
-    values.start_date,
+    values?.start_date,
     values.start_time ?? START_OF_DAY_TIME,
   );
   const detailsLines = [
@@ -138,7 +138,7 @@ const CouponPreview = () => {
             <Flex direction="column">
               {values.method === 'code' && (
                 <Flex align="center" gap={1}>
-                  <Text variant="heading4" weight='semibold' color={values.code ? "emphasis" : "caution"}>
+                  <Text variant="heading4" weight='semibold' color={values.code ? "emphasis" : "disabled"}>
                     {values.code || __('No code set', 'kirki-ecommerce')}
                   </Text>
                   {
@@ -158,11 +158,16 @@ const CouponPreview = () => {
                 </Flex>
               )}
 
-              <Text variant="small" color="secondary">
-                {validUntil
-                  ? `${__('Valid until', 'kirki-ecommerce')} ${validUntil}`
-                  : __('No expiration date', 'kirki-ecommerce')}
-              </Text>
+              <Flex align="center" gap={1}>
+                <Text variant="small" color="primary">
+                  {validUntil
+                    ? __('Valid until', 'kirki-ecommerce')
+                    : __('No expiration date', 'kirki-ecommerce')}
+                </Text>
+                <Text variant="small" color="primary" weight='semibold'>
+                  {validUntil}
+                </Text>
+              </Flex>
             </Flex>
           </Flex>
         </CardContent>

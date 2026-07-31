@@ -4,7 +4,7 @@ import { Controller, useFormContext } from 'react-hook-form';
 import { Field, FieldLabel } from '@/components/ui/field';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import Text from '@/components/ui/text';
-import type { CouponFormValues } from '@/schemas/forms/coupon-form';
+import type { CouponFormInput } from '@/schemas/forms/coupon-form';
 import { theme } from '@/theme';
 import { defineStyles, uiFocusRing } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
@@ -31,7 +31,7 @@ const options = [
 ] as const;
 
 const DiscountTypeSelector = () => {
-  const { control } = useFormContext<CouponFormValues>();
+  const { control } = useFormContext<CouponFormInput>();
 
   return (
     <Controller

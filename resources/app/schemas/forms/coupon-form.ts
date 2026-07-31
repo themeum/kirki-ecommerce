@@ -1,103 +1,90 @@
 import { z } from 'zod';
 
+import { END_OF_DAY_TIME, START_OF_DAY_TIME } from '@/libs/date';
+import { isEmptyValue, prepareFormSchema, required, requiredWhen } from '@/libs/zod';
+import { mergeDateTime } from '@/pages/coupons/edit-coupon/config/coupon-datetime';
 import {
   CouponDiscountTargetSchema,
   CouponDiscountTypeSchema,
   CouponDiscountValueTypeSchema,
   CouponMethodSchema,
 } from '@/schemas/catalog/coupon';
+import { MoneyAmountSchema } from '@/schemas/shared/api';
 import { __ } from '@/wpi18n';
 
-export const CouponFormSchema = z
-  .object({
-    method: CouponMethodSchema.default('code'),
-    title: z.string(),
-    code: z.string().optional(),
-    discount_type: CouponDiscountTypeSchema.default('amount-off'),
-    discount_target: CouponDiscountTargetSchema.default('order'),
-    discount_value_type: CouponDiscountValueTypeSchema.optional().nullable(),
-    discount_amount: z.string().optional(),
-    start_date: z.string().optional(),
-    start_time: z.string().optional(),
-    has_end_datetime: z.boolean().default(false),
-    end_date: z.string().optional(),
-    end_time: z.string().optional(),
-    has_usage_limit: z.boolean().default(false),
-    usage_limit: z.string().optional(),
-    has_customer_limit: z.boolean().default(false),
-    customer_limit: z.string().optional(),
-  })
-  .superRefine((values, ctx) => {
-    if (values.method === 'code' && !values.code?.trim()) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ['code'],
-        message: __('Coupon code is required', 'kirki-ecommerce'),
-      });
-    }
+const CouponFormShape = z.object({
+  method: CouponMethodSchema.default('code'),
+  title: required(z.string().max(255), __('Title is required', 'kirki-ecommerce')),
+  code: requiredWhen(
+    z.string().nullish(),
+    (values) => values.method === 'code' && !values.code,
+    __('Coupon code is required', 'kirki-ecommerce'),
+  ),
+  discount_type: CouponDiscountTypeSchema.default('amount-off'),
+  discount_target: CouponDiscountTargetSchema.nullish().default('order'),
+  discount_value_type: requiredWhen(
+    CouponDiscountValueTypeSchema.nullish().nullable(),
+    (values) => values.discount_type === 'amount-off' && isEmptyValue(values.discount_value_type),
+    __('Discount type is required', 'kirki-ecommerce'),
+  ),
+  discount_amount: requiredWhen(
+    MoneyAmountSchema.nullish(),
+    (values) => values.discount_type === 'amount-off' && isEmptyValue(values.discount_amount),
+    __('Enter a valid discount amount', 'kirki-ecommerce'),
+  ),
+  start_date: required(z.string(), __('Start date is required', 'kirki-ecommerce')),
+  start_time: z.string().nullish(),
+  has_end_datetime: z.boolean().default(false),
+  end_date: requiredWhen(
+    z.string().nullish(),
+    (values) => Boolean(values.has_end_datetime) && isEmptyValue(values.end_date),
+    __('End date is required', 'kirki-ecommerce'),
+  ),
+  end_time: z.string().nullish(),
+  has_usage_limit: z.boolean().default(false),
+  usage_limit: requiredWhen(
+    z.number().nullish(),
+    (values) => Boolean(values.has_usage_limit) && isEmptyValue(values.usage_limit),
+    __('Usage limit required', 'kirki-ecommerce'),
+  ),
+  has_customer_limit: z.boolean().default(false),
+  customer_limit: requiredWhen(
+    z.number().nullish(),
+    (values) => Boolean(values.has_customer_limit) && isEmptyValue(values.customer_limit),
+    __('Customer usage limit required', 'kirki-ecommerce'),
+  ),
+});
 
-    if (values.discount_type === 'amount-off') {
-      if (!values.discount_value_type) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ['discount_value_type'],
-          message: __('Discount type is required', 'kirki-ecommerce'),
-        });
-      }
+const CouponFormSchema = prepareFormSchema(CouponFormShape).transform((values) => {
+  const isAmountOff = values.discount_type === 'amount-off';
 
-      const amount = Number(values.discount_amount);
+  return {
+    method: values.method,
+    title: values.title,
+    code: values.method === 'code' ? values.code?.trim() || null : null,
+    discount_type: values.discount_type,
+    discount_target: isAmountOff ? values.discount_target ?? null : null,
+    discount_value_type: isAmountOff ? values.discount_value_type ?? null : null,
+    discount_amount:
+      isAmountOff && values.discount_amount ? values.discount_amount : null,
+    start_datetime: mergeDateTime(
+      values.start_date ?? '',
+      values.start_time ?? START_OF_DAY_TIME,
+    ),
+    has_end_datetime: values.has_end_datetime,
+    end_datetime: values.has_end_datetime
+      ? mergeDateTime(values.end_date ?? '', values.end_time ?? END_OF_DAY_TIME)
+      : null,
+    has_usage_limit: values.has_usage_limit,
+    usage_limit: values.has_usage_limit ? values.usage_limit : null,
+    has_customer_limit: values.has_customer_limit,
+    customer_limit: values.has_customer_limit ? values.customer_limit : null,
+  };
+});
 
-      if (!values.discount_amount?.trim() || Number.isNaN(amount) || amount <= 0) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ['discount_amount'],
-          message: __('Enter a valid discount value', 'kirki-ecommerce'),
-        });
-      }
-    }
+type CouponFormPayload = z.output<typeof CouponFormSchema>;
 
-    if (values.has_end_datetime) {
-      if (!values.end_date) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ['end_date'],
-          message: __('End date is required', 'kirki-ecommerce'),
-        });
-      }
+type CouponFormInput = z.input<typeof CouponFormSchema>;
 
-      if (!values.end_time) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ['end_time'],
-          message: __('End time is required', 'kirki-ecommerce'),
-        });
-      }
-    }
+export { CouponFormSchema, type CouponFormInput, type CouponFormPayload };
 
-    if (values.has_usage_limit) {
-      const usageLimit = Number(values.usage_limit);
-
-      if (!values.usage_limit?.trim() || Number.isNaN(usageLimit) || usageLimit <= 0) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ['usage_limit'],
-          message: __('Enter a valid usage limit', 'kirki-ecommerce'),
-        });
-      }
-    }
-
-    if (values.has_customer_limit) {
-      const customerLimit = Number(values.customer_limit);
-
-      if (!values.customer_limit?.trim() || Number.isNaN(customerLimit) || customerLimit <= 0) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ['customer_limit'],
-          message: __('Enter a valid customer usage limit', 'kirki-ecommerce'),
-        });
-      }
-    }
-  });
-
-export type CouponFormValues = z.input<typeof CouponFormSchema>;
-export type CouponFormOutput = z.output<typeof CouponFormSchema>;

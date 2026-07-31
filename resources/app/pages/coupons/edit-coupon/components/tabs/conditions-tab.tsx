@@ -9,7 +9,7 @@ import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import Tooltip from '@/components/ui/tooltip';
 import { InfoIcon } from '@/icons';
-import type { CouponFormValues } from '@/schemas/forms/coupon-form';
+import type { CouponFormInput } from '@/schemas/forms/coupon-form';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
@@ -33,7 +33,7 @@ const UsageLimitRow = ({
   label,
   tooltip,
 }: UsageLimitRowProps) => {
-  const { control, formState } = useFormContext<CouponFormValues>();
+  const { control, formState } = useFormContext<CouponFormInput>();
   const isEnabled = useWatch({ control, name: checkboxName });
 
   return (

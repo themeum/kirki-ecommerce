@@ -1,7 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { CheckSquare, Tag } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { FieldErrors, useForm } from 'react-hook-form';
+import { useEffect, useMemo, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router';
 
 import Button from '@/components/ui/button';
@@ -9,14 +8,13 @@ import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import PageHeading from '@/components/ui/page-heading';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { NEW_ITEM_ID } from '@/conf';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import {
   CouponFormSchema,
-  type CouponFormOutput,
-  type CouponFormValues,
+  type CouponFormInput,
+  type CouponFormPayload,
 } from '@/schemas/forms/coupon-form';
 import {
   useCouponQuery,
@@ -24,172 +22,131 @@ import {
   useUpdateCouponMutation,
 } from '@/services/coupon';
 import { theme } from '@/theme';
-import { defineStyles } from '@/theme/mixins';
-import type { CouponFormData } from '@/types';
+import { defineStyles, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 import Page from '@/components/ui/page';
-import Text from '@/components/ui/text';
-import { END_OF_DAY_TIME, START_OF_DAY_TIME } from '@/libs/date';
-import { getDefaults } from '@/libs/zod';
+import { endpoints } from '@/libs/endpoints';
+import { getDefaults, pickFormValues } from '@/libs/zod';
+import { getCouponBadgeInfo } from '@/pages/coupons/edit-coupon/config/coupon-badge';
+import { isDefined } from '@/utils/object';
 import CouponPreview from './components/coupon-preview';
-import ConditionsTab from './components/tabs/conditions-tab';
+// import ConditionsTab from './components/tabs/conditions-tab';
 import DetailsTab from './components/tabs/details-tab';
-import { mergeDateTime, splitIsoDateTime } from './config/coupon-datetime';
+import { splitIsoDateTime } from './config/coupon-datetime';
 
-const DETAILS_TAB_FIELDS: (keyof CouponFormValues)[] = [
-  'method',
-  'title',
-  'code',
-  'discount_type',
-  'discount_target',
-  'discount_value_type',
-  'discount_amount',
-  'start_date',
-  'start_time',
-  'has_end_datetime',
-  'end_date',
-  'end_time',
-];
+// const DETAILS_TAB_FIELDS: (keyof CouponFormValues)[] = [
+//   'method',
+//   'title',
+//   'code',
+//   'discount_type',
+//   'discount_target',
+//   'discount_value_type',
+//   'discount_amount',
+//   'start_date',
+//   'start_time',
+//   'has_end_datetime',
+//   'end_date',
+//   'end_time',
+// ];
 
-const CONDITIONS_TAB_FIELDS: (keyof CouponFormValues)[] = [
-  'has_usage_limit',
-  'usage_limit',
-  'has_customer_limit',
-  'customer_limit',
-];
+// const CONDITIONS_TAB_FIELDS: (keyof CouponFormValues)[] = [
+//   'has_usage_limit',
+//   'usage_limit',
+//   'has_customer_limit',
+//   'customer_limit',
+// ];
 
-const tabOptions = [
-  {
-    index: 0,
-    title: __('Details', 'kirki-ecommerce'),
-    icon: <Tag size={16} />,
-    fields: DETAILS_TAB_FIELDS,
-    hasTabError: (errors: FieldErrors<CouponFormValues>) =>
-      DETAILS_TAB_FIELDS.some((field) => Boolean(errors[field])),
-    hidden: false,
-  },
-  {
-    index: 1,
-    title: __('Targeting', 'kirki-ecommerce'),
-    icon: <CheckSquare size={16} />,
-    fields: [],
-    hasTabError: () => false,
-    hidden: true,
-  },
-  {
-    index: 2,
-    title: __('Conditions', 'kirki-ecommerce'),
-    icon: <CheckSquare size={16} />,
-    fields: CONDITIONS_TAB_FIELDS,
-    hasTabError: (errors: FieldErrors<CouponFormValues>) =>
-      CONDITIONS_TAB_FIELDS.some((field) => Boolean(errors[field]))
-    ,
-    hidden: true,
-  }
-] as const;
+// TODO: Add tabs later
+// const tabOptions = [
+//   {
+//     index: 'detail',
+//     title: __('Details', 'kirki-ecommerce'),
+//     icon: <Tag size={16} />,
+//     fields: DETAILS_TAB_FIELDS,
+//     hasTabError: (errors: FieldErrors<CouponFormValues>) =>
+//       DETAILS_TAB_FIELDS.some((field) => Boolean(errors[field])),
+//   },
+//   {
+//     index: 'targeting',
+//     title: __('Targeting', 'kirki-ecommerce'),
+//     icon: <CheckSquare size={16} />,
+//     fields: [],
+//     hasTabError: () => false,
+//   },
+//   {
+//     index: 'conditions',
+//     title: __('Conditions', 'kirki-ecommerce'),
+//     icon: <CheckSquare size={16} />,
+//     fields: CONDITIONS_TAB_FIELDS,
+//     hasTabError: (errors: FieldErrors<CouponFormValues>) =>
+//       CONDITIONS_TAB_FIELDS.some((field) => Boolean(errors[field]))
+//     ,
+//   }
+// ] as const;
 
 
 const EditCoupon = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const isNew = id === NEW_ITEM_ID;
-  const [activeTab, setActiveTab] = useState(0);
-  const [couponId, setCouponId] = useState<number | undefined>();
+  const activeTab = 'detail';
+  // const [activeTab, setActiveTab] = useState(0);
+  const [couponId, setCouponId] = useState<number>();
 
-  const { data: couponResponse } = useCouponQuery(id ?? '');
+  const { data: couponInfo } = useCouponQuery(id ?? '');
   const createMutation = useCreateCouponMutation();
   const updateMutation = useUpdateCouponMutation();
   const isSubmitting = createMutation.isPending || updateMutation.isPending;
 
-  const form = useForm<CouponFormValues, unknown, CouponFormOutput>({
+  const form = useForm<CouponFormInput, unknown, CouponFormPayload>({
     resolver: zodResolver(CouponFormSchema),
-    defaultValues: getDefaults(CouponFormSchema._def.schema),
+    defaultValues: getDefaults(CouponFormSchema),
   });
 
-  const { errors } = form.formState;
+  // TODO: uncomment later
+  // const { errors } = form.formState;
 
   useEffect(() => {
-    if (!couponResponse) {
+    if (!couponInfo) {
       return;
     }
 
-    const start = splitIsoDateTime(couponResponse.start_datetime);
-    const end = splitIsoDateTime(couponResponse.end_datetime);
+    setCouponId(couponInfo.id);
 
-    setCouponId(couponResponse.id);
-    form.reset({
-      method: couponResponse.method,
-      title: couponResponse.title ?? '',
-      code: couponResponse.code ?? '',
-      discount_type: couponResponse.discount_type,
-      discount_target: couponResponse.discount_target ?? 'order',
-      discount_value_type: couponResponse.discount_value_type ?? null,
-      discount_amount:
-        couponResponse.discount_amount != null
-          ? String(couponResponse.discount_amount)
-          : '',
-      start_date: start.date,
-      start_time: start.time,
-      has_end_datetime: couponResponse.has_end_datetime,
-      end_date: end.date,
-      end_time: end.time,
-      has_usage_limit: couponResponse.has_usage_limit,
-      usage_limit:
-        couponResponse.usage_limit != null
-          ? String(couponResponse.usage_limit)
-          : '',
-      has_customer_limit: couponResponse.has_customer_limit,
-      customer_limit:
-        couponResponse.customer_limit != null
-          ? String(couponResponse.customer_limit)
-          : '',
-    });
-  }, [couponResponse, form]);
+    const start = splitIsoDateTime(couponInfo.start_datetime);
+    const end = splitIsoDateTime(couponInfo.end_datetime);
 
-  const handleSubmit = async (values: CouponFormOutput) => {
-    const isAmountOff = values.discount_type === 'amount-off';
+    form.reset(
+      pickFormValues(CouponFormSchema, couponInfo, {
+        start_date: start.date,
+        start_time: start.time,
+        end_date: end.date,
+        end_time: end.time,
+      }),
+    );
+  }, [couponInfo, form]);
 
-    const payload: CouponFormData = {
-      method: values.method,
-      title: values.title,
-      code: values.method === 'code' ? values.code?.trim() || null : null,
-      discount_type: values.discount_type,
-      discount_target: isAmountOff ? values.discount_target ?? null : null,
-      discount_value_type: isAmountOff
-        ? values.discount_value_type ?? null
-        : null,
-      discount_amount:
-        isAmountOff && values.discount_amount
-          ? Number(values.discount_amount)
-          : null,
-      start_datetime: mergeDateTime(
-        values.start_date ?? '',
-        values.start_time ?? START_OF_DAY_TIME,
-      ),
-      has_end_datetime: values.has_end_datetime,
-      end_datetime: values.has_end_datetime
-        ? mergeDateTime(values.end_date ?? '', values.end_time ?? END_OF_DAY_TIME)
-        : null,
-      has_usage_limit: values.has_usage_limit,
-      usage_limit: values.has_usage_limit ? Number(values.usage_limit) : null,
-      has_customer_limit: values.has_customer_limit,
-      customer_limit: values.has_customer_limit
-        ? Number(values.customer_limit)
-        : null,
-    };
-
+  const handleSubmit = async (payload: CouponFormPayload) => {
     try {
       if (couponId) {
         await updateMutation.mutateAsync({ id: couponId, data: payload });
       } else {
         const response = await createMutation.mutateAsync(payload);
-        navigate('/coupons/' + response.data.id);
+        navigate(endpoints.COUPON(response.data.id));
       }
     } catch (error) {
       applyServerErrors(form, error as ErrorResponse);
     }
   };
+
+  const couponBadgeInfo = useMemo(() => {
+    if (isNew || !isDefined(couponInfo?.status)) {
+      return null;
+    }
+
+    return getCouponBadgeInfo(couponInfo.status);
+  }, [isNew, couponInfo?.status]);
 
   return (
     <Page>
@@ -200,11 +157,15 @@ const EditCoupon = () => {
               ? __('New Coupon', 'kirki-ecommerce')
               : __('Edit Coupon', 'kirki-ecommerce')
           }
+          badge={isDefined(couponBadgeInfo) && {
+            variant: couponBadgeInfo.variant,
+            children: couponBadgeInfo.text,
+          }}
           type="primary"
           sticky
           actions={
             <>
-              <Button variant="ghost" onClick={() => navigate('/coupons')}>
+              <Button variant="ghost" onClick={() => navigate(endpoints.COUPONS)}>
                 {__('Cancel', 'kirki-ecommerce')}
               </Button>
               <Button
@@ -224,7 +185,8 @@ const EditCoupon = () => {
         <Container>
           <Flex gap={4}>
             <Flex direction="column" gap={4} basis="70%" grow={1}>
-              <Tabs
+              {/* TODO: Tab will implement later */}
+              {/* <Tabs
                 value={String(activeTab)}
                 onValueChange={(value) => setActiveTab(Number(value))}
               >
@@ -232,11 +194,6 @@ const EditCoupon = () => {
                   {
                     tabOptions.map((option, index) => {
                       const hasError = option.hasTabError(errors);
-
-                      if (option?.hidden) {
-                        return null;
-                      }
-
                       return (
                         <TabsTrigger
                           value={String(option.index)}
@@ -250,17 +207,16 @@ const EditCoupon = () => {
                     })
                   }
                 </TabsList>
-              </Tabs>
+              </Tabs> */}
 
-              {activeTab === 0 && <DetailsTab />}
-              {activeTab === 1 && (
-                // TODO: Targeting will implement later
+              {activeTab === 'detail' && <DetailsTab />}
+              {/* {activeTab === 'targeting' && (
                 <></>
               )}
-              {activeTab === 2 && <ConditionsTab />}
+              {activeTab === 'conditions' && <ConditionsTab />} */}
             </Flex>
 
-            <div css={styles.sidebar}>
+            <div css={scoped(styles.sidebar)}>
               <CouponPreview />
             </div>
           </Flex>

@@ -6,7 +6,7 @@ import { queryKeys } from '@/libs/query-keys';
 import { CouponListItemSchema, CouponSchema } from '@/schemas/catalog/coupon';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
 import { parseData, parseResponse, toastMutationError, toastMutationSuccess, unwrapResponse } from '@/services/helpers';
-import { BulkActionParams, CouponFormData, ListParams } from '@/types';
+import { BulkActionParams, CouponFormPayload, ListParams } from '@/types';
 import { CouponListFilter } from '@/types/filters/coupon';
 import { __ } from '@/wpi18n';
 
@@ -36,13 +36,13 @@ const useCouponQuery = (id: string | number, enabled = true) => {
   });
 };
 
-const createCoupon = (data: CouponFormData) => {
+const createCoupon = (data: CouponFormPayload) => {
   return apiClient
     .post(endpoints.COUPONS, data)
     .then((response) => parseResponse(CouponSchema, response));
 };
 
-const updateCoupon = ({ id, data }: { id: number; data: CouponFormData }) => {
+const updateCoupon = ({ id, data }: { id: number; data: CouponFormPayload }) => {
   return apiClient
     .put(endpoints.COUPON(id), data)
     .then((response) => parseResponse(CouponSchema, response));

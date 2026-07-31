@@ -1,18 +1,17 @@
 import { useEffect, useRef } from 'react';
 import { Controller, useFormContext, useWatch } from 'react-hook-form';
 
-import CheckboxField from '@/components/form/checkbox-field';
 import TextField from '@/components/form/text-field';
 import Button from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
+import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
 import Grid from '@/components/ui/grid';
 import Input from '@/components/ui/input';
 import Spinner from '@/components/ui/spinner';
 import Text from '@/components/ui/text';
 import { useDebounce } from '@/hooks';
-import type { CouponFormValues } from '@/schemas/forms/coupon-form';
+import type { CouponFormInput } from '@/schemas/forms/coupon-form';
 import { useGenerateNewCodeQuery, useValidateQuery } from '@/services/coupon';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
@@ -21,14 +20,13 @@ import { __ } from '@/wpi18n';
 
 import DiscountTypeSelector from '@/pages/coupons/edit-coupon/components/contents/discount-type-selector';
 import DiscountValueSection from '@/pages/coupons/edit-coupon/components/contents/discount-value-section';
-import { InfinityIcon } from 'lucide-react';
+import ValidityPeriodSection from '@/pages/coupons/edit-coupon/components/contents/validity-period-section';
 
 
 const DetailsTab = () => {
-  const { control, setValue, setError, clearErrors } = useFormContext<CouponFormValues>();
+  const { control, setValue, setError, clearErrors, formState, watch } = useFormContext<CouponFormInput>();
   const method = useWatch({ control, name: 'method' });
   const discountType = useWatch({ control, name: 'discount_type' });
-  const hasEndDatetime = useWatch({ control, name: 'has_end_datetime' });
   const isAmountOff = discountType === 'amount-off';
 
   const isManualCodeEditRef = useRef(false);
@@ -42,6 +40,8 @@ const DetailsTab = () => {
     Boolean(codeToValidate),
   );
 
+  console.log('error', formState.errors);
+  console.log('values', watch());
   useEffect(() => {
     if (!codeToValidate || !validation) {
       return;
@@ -130,6 +130,7 @@ const DetailsTab = () => {
                             error={Boolean(fieldState.error)}
                             aria-invalid={fieldState.invalid}
                             cssOverride={styles.codeInput}
+                            placeholder={__('e.g. ABC123', 'kirki-ecommerce')}
                           />
                           {isValidatingCode || isGeneratingCode && <Spinner cssOverride={styles.codeSpinner} />}
                         </div>
@@ -164,63 +165,7 @@ const DetailsTab = () => {
 
       {isAmountOff && <DiscountValueSection />}
 
-      <Card cssOverride={cardStyles.formCard}>
-        <CardHeader>
-          <CardTitle>{__('Validity Period', 'kirki-ecommerce')}</CardTitle>
-          <Text variant="small" color="secondary">
-            {__(
-              'Define the duration for which your coupon will be valid.',
-              'kirki-ecommerce',
-            )}
-          </Text>
-        </CardHeader>
-        <CardContent>
-          <Flex direction="column" gap={4}>
-            <Grid>
-              <TextField
-                name="start_date"
-                type="date"
-                label={__('Start date', 'kirki-ecommerce')}
-              />
-              <TextField
-                name="start_time"
-                type="time"
-                label={__('Start time', 'kirki-ecommerce')}
-              />
-            </Grid>
-
-            <CheckboxField
-              name="has_end_datetime"
-              label={__('Set end date', 'kirki-ecommerce')}
-            />
-
-            {hasEndDatetime ? (
-              <Grid>
-                <TextField
-                  name="end_date"
-                  type="date"
-                  label={__('End date', 'kirki-ecommerce')}
-                />
-                <TextField
-                  name="end_time"
-                  type="time"
-                  label={__('End time', 'kirki-ecommerce')}
-                />
-              </Grid>
-            ) : (
-              <Flex align="center" gap={2} cssOverride={styles.infoBox}>
-                <InfinityIcon size={16} stroke={theme.colors.icon.primary} />
-                <FieldDescription cssOverride={styles.infoText}>
-                  {__(
-                    'This coupon has no expiration date. To specify an end time, simply set an end date.',
-                    'kirki-ecommerce',
-                  )}
-                </FieldDescription>
-              </Flex>
-            )}
-          </Flex>
-        </CardContent>
-      </Card>
+      <ValidityPeriodSection />
     </Flex>
   );
 };
@@ -232,14 +177,6 @@ export default DetailsTab;
 const styles = defineStyles({
   methodField: {
     gap: theme.spacing[2],
-  },
-  infoBox: {
-    padding: theme.spacing[3],
-    borderRadius: theme.radius.md,
-    backgroundColor: theme.colors.background.surfaceSecondary,
-  },
-  infoText: {
-    margin: 0,
   },
   codeLabel: { display: 'flex', justifyContent: 'space-between', width: '100%' },
   codeInputWrapper: {
