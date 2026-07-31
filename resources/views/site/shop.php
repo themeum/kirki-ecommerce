@@ -32,13 +32,6 @@ $sidebar_data = [
     'brands' => $data->brands ?? [],
     'filters' => $data->filters,
 ];
-
-// Get all variant IDs in cart for product cards
-$cart_variant_ids = CartService::get_cart_variant_ids();
-
-// Clear any existing localized data and set cart variant IDs
-Template::clear_localized_data();
-Template::set_localized_data('cartVariantIds', $cart_variant_ids);
 ?>
 
 <?php Template::get_header();

@@ -1,16 +1,14 @@
 // Shared TypeScript interfaces for the site bundle
 
-export interface KecomSiteConfig {
-  apiUrl: string;   // e.g. /wp-json/kirki/ecommerce/v1
-  nonce: string;    // WordPress REST nonce
-  currency: string; // e.g. "USD"
-  currencySymbol: string;
+export interface kirkiEcommerceConfig {
+  rest_url_base: string;   // e.g. /wp-json/kirki/ecommerce/v1
+  rest_nonce: string;    // WordPress REST nonce
 }
 
 // Extend window for WordPress-injected config
 declare global {
   interface Window {
-    kecomSite: KecomSiteConfig;
+    kirki_ecommerce: kirkiEcommerceConfig;
     Alpine: any;
   }
 }

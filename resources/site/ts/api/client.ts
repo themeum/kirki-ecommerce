@@ -1,13 +1,13 @@
 /**
  * API Client
- * Thin fetch wrapper that reads WordPress nonce + base URL from window.kecomSite.
+ * Thin fetch wrapper that reads WordPress nonce + base URL from window.kirki_ecommerce.
  */
 
 function getConfig() {
-  if (!window.kecomSite) {
-    throw new Error('[kecom] window.kecomSite is not defined. Did you forget wp_localize_script?');
+  if (!window.kirki_ecommerce) {
+    throw new Error('[kecom] window.kirki_ecommerce is not defined. Did you forget wp_localize_script?');
   }
-  return window.kecomSite;
+  return window.kirki_ecommerce;
 }
 
 type RequestOptions = {
@@ -17,10 +17,10 @@ type RequestOptions = {
 };
 
 export async function apiRequest<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
-  const { apiUrl, nonce } = getConfig();
+  const { rest_url_base, rest_nonce } = getConfig();
   const { method = 'GET', body, params } = options;
 
-  let url = `${apiUrl}${endpoint}`;
+  let url = `${rest_url_base}${endpoint}`;
 
   if (params) {
     const qs = new URLSearchParams(
@@ -31,7 +31,7 @@ export async function apiRequest<T>(endpoint: string, options: RequestOptions = 
 
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
-    'X-WP-Nonce': nonce,
+    'X-WP-Nonce': rest_nonce,
   };
 
   const res = await fetch(url, {

@@ -42,7 +42,7 @@ export function addToCart(config: AddToCartConfig) {
     },
 
     checkIfInCart() {
-      const cartVariantIds = (window as any).kecomSite?.cartVariantIds || [];
+      const cartVariantIds = (window as any).kirki_ecommerce?.cart_variant_ids || [];
       if (cartVariantIds.includes(this.variantId)) {
         this.success = true;
         this.buttonText = 'View Cart';
@@ -61,11 +61,11 @@ export function addToCart(config: AddToCartConfig) {
         this.success = true;
         this.buttonText = 'View Cart';
         
-        // Update cartVariantIds in window.kecomSite after successful add
-        const cartVariantIds = (window as any).kecomSite?.cartVariantIds || [];
+        // Update cart_variant_ids in window.kirki_ecommerce after successful add
+        const cartVariantIds = (window as any).kirki_ecommerce?.cart_variant_ids || [];
         if (!cartVariantIds.includes(this.variantId)) {
           cartVariantIds.push(this.variantId);
-          (window as any).kecomSite.cartVariantIds = cartVariantIds;
+          (window as any).kirki_ecommerce.cart_variant_ids = cartVariantIds;
         }
       } catch (e: unknown) {
         this.error = e instanceof Error ? e.message : 'Could not add to cart';

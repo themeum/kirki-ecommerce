@@ -15,7 +15,6 @@ use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Supports\Template;
 use Kirki\Ecommerce\App\Supports\Icon;
 use Kirki\Ecommerce\App\Supports\Url;
-use Kirki\Ecommerce\App\Services\CartService;
 
 use function Kirki\Ecommerce\Framework\view_data;
 
@@ -44,59 +43,6 @@ foreach ($media as $media_item) {
     $images[] = ['id' => $media_item['id'] ?? 0, 'url' => $media_item['url']];
 }
 
-// Prepare variants for Alpine.js
-$variants_data = [];
-
-// Build a lookup map for attribute values: [attribute_value_id] => ['name' => attribute_name, 'value' => attribute_value]
-$attribute_value_map = [];
-foreach ($attributes as $attribute) {
-    $attr_name = $attribute['name'] ?? '';
-    foreach ($attribute['values'] ?? [] as $value) {
-        $attr_value_id = $value['id'] ?? 0;
-        $attribute_value_map[$attr_value_id] = [
-            'name' => $attr_name,
-            'value' => $value['value'] ?? '',
-            'color' => $value['color'] ?? null
-        ];
-    }
-}
-
-foreach ($variants as $v) {
-    $variant_attrs = [];
-    
-    // Map attribute value IDs to actual attribute name/value pairs
-    if (!empty($v['attribute_values'])) {
-        foreach ($v['attribute_values'] as $attr_value_id) {
-            if (isset($attribute_value_map[$attr_value_id])) {
-                $variant_attrs[] = [
-                    'name' => $attribute_value_map[$attr_value_id]['name'],
-                    'value' => $attribute_value_map[$attr_value_id]['value'],
-                    'color' => $attribute_value_map[$attr_value_id]['color']
-                ];
-            }
-        }
-    }
-    
-    $variants_data[] = [
-        'id' => $v['id'] ?? 0,
-        'product_id' => $product['id'] ?? 0,
-        'price' => is_object($v['price']) && method_exists($v['price'], 'toFloat') ? (float) $v['price']->toFloat() : (float) ($v['price'] ?? 0),
-        'compare_price' => isset($v['sale_price']) ? (is_object($v['sale_price']) && method_exists($v['sale_price'], 'toFloat') ? (float) $v['sale_price']->toFloat() : (float) $v['sale_price']) : null,
-        'stock' => (int) ($v['available_quantity'] ?? 0),
-        'attributes' => $variant_attrs,
-        'available' => ($v['available_quantity'] ?? 0) > 0,
-        'image' => isset($v['media']['url']) ? $v['media']['url'] : null
-    ];
-}
-
-// Get all variant IDs in cart for dynamic checking
-$cart_variant_ids = CartService::get_cart_variant_ids();
-
-// Set localized data for JavaScript
-Template::set_localized_data('productImages', $images);
-Template::set_localized_data('productVariants', $variants_data);
-Template::set_localized_data('cartVariantIds', $cart_variant_ids);
-
 ?>
 
 <?php Template::get_header();
@@ -106,7 +52,7 @@ Template::set_localized_data('cartVariantIds', $cart_variant_ids);
     <div class="kecom-container">
         <div class="kecom-product-grid">
             <!-- Left: Product Images -->
-            <div class="kecom-product-gallery" x-data="imageSlider({ images: kecomSite.productImages || [] })">
+            <div class="kecom-product-gallery" x-data="imageSlider({ images: kirki_ecommerce.product_images || [] })">
                 <div class="kecom-product-main-image">
                     <img :src="currentImage.url" alt="<?php echo esc_attr($product['title']); ?>">
                     <?php if (count($images) > 1): ?>
@@ -130,7 +76,7 @@ Template::set_localized_data('cartVariantIds', $cart_variant_ids);
             </div>
 
             <!-- Right: Product Info -->
-            <div class="kecom-product-info" x-data="variantSelector({ variants: kecomSite.productVariants || [] })" x-init="init()">
+            <div class="kecom-product-info" x-data="variantSelector({ variants: kirki_ecommerce.product_variants || [] })" x-init="init()">
                 <div class="kecom-product-title-and-price">
                     <?php if (! empty($ribbon)): ?>
                         <span class="kecom-product-ribbon"><?php echo esc_html($ribbon); ?></span>
