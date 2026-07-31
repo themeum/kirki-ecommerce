@@ -16,6 +16,7 @@ export interface AddToCartConfig {
   qty?: number;
   cartUrl?: string;
   watchVariantId?: () => number;
+  buttonText?: string;
 }
 
 export function addToCart(config: AddToCartConfig) {
@@ -24,10 +25,11 @@ export function addToCart(config: AddToCartConfig) {
     qty: config.qty ?? 1,
     cartUrl: config.cartUrl || '/cart',
     watchVariantId: config.watchVariantId,
+    buttonText: config.buttonText || 'Add to Cart',
     loading: false,
     success: false,
     error: null as string | null,
-    buttonText: 'Add to Cart',
+    viewCartText: 'View Cart',
 
     init(this: any) {
       this.checkIfInCart();
@@ -45,10 +47,10 @@ export function addToCart(config: AddToCartConfig) {
       const cartVariantIds = (window as any).kirki_ecommerce?.cart_variant_ids || [];
       if (cartVariantIds.includes(this.variantId)) {
         this.success = true;
-        this.buttonText = 'View Cart';
+        this.buttonText = this.viewCartText;
       } else {
         this.success = false;
-        this.buttonText = 'Add to Cart';
+        this.buttonText = config.buttonText || 'Add to Cart';
       }
     },
 
