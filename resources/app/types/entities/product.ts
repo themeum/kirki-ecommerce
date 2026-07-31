@@ -52,12 +52,6 @@ type ProductFormData = {
   variants?: ProductVariantPayload[];
 };
 
-type UpdateProductPayload = {
-  key: string;
-  value: unknown;
-  variants?: boolean;
-};
-
 type UpdateVariantsPayload = {
   key: string;
   value: unknown;
@@ -65,7 +59,7 @@ type UpdateVariantsPayload = {
 };
 
 export type {
-  ProductAttributePayload, ProductFormData, ProductVariantPayload, UnitPriceValue, UpdateProductPayload,
+  ProductAttributePayload, ProductFormData, ProductVariantPayload, UnitPriceValue,
   UpdateVariantsPayload
 };
 

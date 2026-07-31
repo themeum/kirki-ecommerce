@@ -340,8 +340,3 @@ const styles = defineStyles({
   },
 });
 
-export type {
-  ProductAttributeFormValues as AttributeFormState,
-  ProductAttributeValueFormValues as AttributeFormValue
-};
-
