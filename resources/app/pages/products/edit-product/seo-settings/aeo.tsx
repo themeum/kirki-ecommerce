@@ -5,9 +5,9 @@ const AEO = () => {
   return (
     <TextareaField
       name="llm_instructions"
-      label={__('LLM Instruction', 'kirki-ecommerce')}
+      label={__('LLM Instructions', 'kirki-ecommerce')}
       placeholder={__('llm instructions', 'kirki-ecommerce')}
-      rows={5}
+      rows={12}
     />
   );
 };

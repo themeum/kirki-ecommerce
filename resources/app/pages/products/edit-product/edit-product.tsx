@@ -178,11 +178,6 @@ const EditProductInner = () => {
       ...item,
       media: Number(item.media?.id) || null,
     }));
-    const og_image =
-      typeof productData.og_image === 'object' && productData.og_image !== null
-        ? Number(productData.og_image.id)
-        : productData.og_image;
-
     const formattedData: ProductFormData = {
       title: productData.title,
       slug: productData.slug,
@@ -197,7 +192,7 @@ const EditProductInner = () => {
       seo_keywords: productData.seo_keywords,
       og_title: productData.og_title,
       og_description: productData.og_description,
-      og_image,
+      og_image: null,
       schema_id: productData.schema_id,
       llm_instructions: productData.llm_instructions,
       has_variants: productData.has_variants,
@@ -304,7 +299,10 @@ const EditProductInner = () => {
                       <MediaGallery
                         label={__('Images and videos', 'kirki-ecommerce')}
                         mediaItems={mediaItems}
-                        onUpdate={(v) => setMediaItems(v)}
+                        onUpdate={(v) => {
+                          setMediaItems(v);
+                          updateProduct({ key: 'media', value: v });
+                        }}
                         error={errors?.media as string | boolean | undefined}
                       />
                       <TextareaField

@@ -164,7 +164,8 @@ export {
   mergeCss,
   scoped,
   scopedMerge,
-  uiFocusRing,
+  uiFocusRing
 };
 
 export type { CssOverrideProp, StyleTree };
+
