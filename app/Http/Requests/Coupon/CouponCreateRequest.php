@@ -41,7 +41,7 @@ class CouponCreateRequest extends Request
             'spend_condition_value' => 'integer|nullable',
             'reward_quantity' => 'integer|nullable',
             'reward_value' => 'integer|nullable',
-            'start_datetime' => 'date|format:' . Somoy::ATOM . '|nullable',
+            'start_datetime' => 'date|format:' . Somoy::ATOM,
             'has_end_datetime' => 'boolean|nullable',
             'end_datetime' => 'required_if:has_end_datetime,true|date|format:' . Somoy::ATOM . '|nullable',
             'target_countries' => 'array|nullable',

@@ -12,6 +12,7 @@ use Kirki\Ecommerce\App\Constants\Coupon\SpendConditionType;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
+use Kirki\Ecommerce\Framework\Supports\Somoy;
 
 class CouponUpdateRequest extends Request
 {
@@ -42,9 +43,9 @@ class CouponUpdateRequest extends Request
             'spend_condition_value' => 'integer|nullable',
             'reward_quantity' => 'integer|nullable',
             'reward_value' => 'integer|nullable',
-            'start_datetime' => 'date|nullable',
+            'start_datetime' => 'date|format:' . Somoy::ATOM,
             'has_end_datetime' => 'boolean|nullable',
-            'end_datetime' => 'required_if:has_end_datetime,1|date|nullable',
+            'end_datetime' => 'required_if:has_end_datetime,true|date|format:' . Somoy::ATOM . '|nullable',
             'target_countries' => 'array|nullable',
             'first_time_buyer_only' => 'boolean|nullable',
             'customer_eligibility' => 'string|in:' . implode(',', CustomerEligibility::get_constant_values()) . '|nullable',
