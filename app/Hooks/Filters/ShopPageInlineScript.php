@@ -16,6 +16,7 @@ use Kirki\Ecommerce\Framework\Route;
 use Kirki\Ecommerce\Framework\Wordpress\BaseHook;
 use Kirki\Ecommerce\Framework\Wordpress\Constants\HookTypes;
 
+use function Kirki\Ecommerce\Framework\app;
 use function Kirki\Ecommerce\Framework\view_data;
 
 /**
@@ -40,7 +41,7 @@ class ShopPageInlineScript extends BaseHook
         $config = $args[0];
 
         // Get all variant IDs in cart for dynamic checking
-        $cart_variant_ids = CartService::get_cart_variant_ids();
+        $cart_variant_ids = app()->make(CartService::class)->get_cart_variant_ids();
         $config['cart_variant_ids'] =  $cart_variant_ids;
 
         if (!Route::is('shop.single')) {
@@ -55,9 +56,6 @@ class ShopPageInlineScript extends BaseHook
         $variants = $product['variants'] ?? [];
 
         $images = [];
-        if (!empty($product_image) && isset($product_image['url'])) {
-            $images[] = ['id' => $product_image['id'] ?? 0, 'url' => $product_image['url']];
-        }
         foreach ($media as $media_item) {
             $images[] = ['id' => $media_item['id'] ?? 0, 'url' => $media_item['url']];
         }

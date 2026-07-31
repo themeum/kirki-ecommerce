@@ -197,29 +197,25 @@ class CartService
      *
      * @return array
      */
-    public static function get_cart_variant_ids($customer_id = null, $token = null): array
+    public function get_cart_variant_ids($customer_id = null, $token = null): array
     {
         try {
-            // If customer_id and token are not provided, get them from context
-            if ($customer_id === null && $token === null) {
+            // If customer_id and is not provided, get from context
+            if ($customer_id === null) {
                 $customer = customer();
                 $customer_id = $customer ? $customer->get_customer_id() : null;
-                $token = $_SERVER['HTTP_X_CART_TOKEN'] ?? null;
             }
-            
-            $service = app()->make(self::class);
-            $cart = $service->get_cart($customer_id, $token);
-            
+
+            $cart = $this->get_cart($customer_id, $token);
+
             if ($cart && $cart->items) {
                 $items = is_array($cart->items) ? $cart->items : $cart->items->all();
-                return array_map(function($item) {
-                    return $item->variant_id;
-                }, $items);
+                return array_map(fn($item) => $item->variant_id, $items);
             }
         } catch (Exception $e) {
             return [];
         }
-        
+
         return [];
     }
 }
