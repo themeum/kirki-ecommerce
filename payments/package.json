@@ -1,8 +1,8 @@
 {
-  "name": "kirki-stripe-deploy",
+  "name": "kirki-payment-plugins",
   "private": true,
   "scripts": {
-    "deploy": "gulp"
+    "payment-plugins": "gulp"
   },
   "devDependencies": {
     "del": "^6.1.1",
