@@ -1,4 +1,5 @@
-import type { ReactNode } from 'react';
+import type { CSSObject } from '@emotion/react';
+import type { CSSProperties, ReactNode } from 'react';
 
 import type { PaginatedData, TableAlignment } from '@/types';
 
@@ -17,6 +18,31 @@ type DataTableBulkApplyPayload = {
   isSelectAll: boolean;
 };
 
+type DataTableRowEditAction = {
+  label?: string;
+  onClick: () => void;
+  cssOverride?: CSSObject;
+};
+
+type DataTableRowAction = {
+  label: string;
+  icon?: ReactNode;
+  onClick?: () => void;
+  destructive?: boolean;
+  cssOverride?: CSSProperties;
+  type?: 'separator';
+};
+
+type DataTableRowActionsConfig = {
+  edit?: DataTableRowEditAction;
+  actions?: (DataTableRowAction)[];
+  actionCssOverride?: CSSObject;
+};
+
+type DataTableRowActionsResolver<T> = (
+  item: T,
+) => DataTableRowActionsConfig | null | undefined;
+
 const EMPTY_PAGE: PaginatedData<never> = {
   results: [],
   total: 0,
@@ -26,4 +52,12 @@ const EMPTY_PAGE: PaginatedData<never> = {
 };
 
 export { EMPTY_PAGE };
-export type { DataTableBulkApplyPayload, DataTableColumn, DataTableItem };
+export type {
+  DataTableBulkApplyPayload,
+  DataTableColumn,
+  DataTableItem,
+  DataTableRowAction,
+  DataTableRowActionsConfig,
+  DataTableRowActionsResolver,
+  DataTableRowEditAction,
+};

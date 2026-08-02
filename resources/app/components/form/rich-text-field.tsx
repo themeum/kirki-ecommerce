@@ -12,6 +12,7 @@ type RichTextFieldProps<
   name: TName;
   label?: ReactNode;
   description?: ReactNode;
+  infoText?: ReactNode;
   placeholder?: string;
   id?: string;
   cssOverride?: CSSObject;
@@ -24,6 +25,7 @@ const RichTextField = <
   name,
   label,
   description,
+  infoText,
   placeholder,
   id,
   cssOverride,
@@ -36,7 +38,7 @@ const RichTextField = <
       name={name}
       render={({ field, fieldState }) => (
         <Field data-invalid={fieldState.invalid || undefined} cssOverride={cssOverride}>
-          {label && <FieldLabel>{label}</FieldLabel>}
+          {label && <FieldLabel infoText={infoText}>{label}</FieldLabel>}
           <RichText
             id={id ?? String(name)}
             value={field.value ?? ''}

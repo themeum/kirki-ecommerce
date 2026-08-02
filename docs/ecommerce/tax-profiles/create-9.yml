@@ -58,42 +58,13 @@ examples:
                 "timezone": "UTC"
               }
             },
-            "message": "Shipping profile created successfully."
-          }
-  - name: 404 Response
-    description: Failure
-    request:
-      url: "{{baseUrl}}/tax-profiles"
-      method: POST
-      body:
-        type: json
-        data: |-
-          {
-            "name": "Heavy Weight"
-          }
-    response:
-      status: 404
-      statusText: Not Found
-      headers:
-        - name: Content-Type
-          value: application/json
-      body:
-        type: json
-        data: |-
-          {
-            "success": false,
-            "errors": {
-              "name": [
-                "The name field is required."
-              ]
-            },
-            "message": "Validation failed!"
+            "message": "Tax profile created successfully."
           }
 
 docs: |-
   # Create Tax Profile
 
   ## 1. Detailed description of the API function
-  This API is designed to create Currencies.
+  This API is designed to create tax profiles.
 
   Upon successful creation, the API returns a response with a `success` boolean indicating the success of the operation and a `message` which may contain information about the result.

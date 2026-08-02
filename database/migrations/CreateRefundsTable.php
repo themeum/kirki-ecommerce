@@ -13,7 +13,7 @@ class CreateRefundsTable implements Migration
         Schema::create('kirki_ecommerce_refunds', function (Structure $table) {
             $table->id();
             $table->unsigned_big_integer('order_id');
-            $table->enum('status', ['pending', 'completed', 'failed'])->default('pending');
+            $table->enum('status', ['pending', 'completed', 'failed', 'cancelled'])->default('pending');
 
             $table->integer('amount')->comment('Refund amount in cents');
             $table->text('reason')->nullable();

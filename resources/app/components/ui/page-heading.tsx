@@ -2,18 +2,20 @@ import { type CSSObject } from '@emotion/react';
 import { ArrowLeft } from 'lucide-react';
 import { forwardRef, type ComponentProps, type CSSProperties, type ReactNode } from 'react';
 
+import Badge, { BadgeProps } from '@/components/ui/badge';
 import Button from '@/components/ui/button';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
-import { flexCenter, itemCenter, scopedMerge, scoped, defineStyles } from '@/theme/mixins';
+import { defineStyles, flexCenter, itemCenter, scoped, scopedMerge } from '@/theme/mixins';
 import type { ContainerSize, HeadingType } from '@/types';
 import { __ } from '@/wpi18n';
 
 type PageHeadingProps = {
   type?: HeadingType;
   text?: string;
+  badge?: BadgeProps | false;
   hasBack?: boolean;
   size?: ContainerSize;
   sticky?: boolean;
@@ -24,6 +26,7 @@ type PageHeadingProps = {
   noMargin?: boolean;
   buttonProps?: Partial<ComponentProps<typeof Button>>;
   cssOverride?: CSSObject;
+  onBack?: (event: React.MouseEvent<HTMLButtonElement>) => void;
 };
 
 const PageHeading = forwardRef<HTMLDivElement, PageHeadingProps>(
@@ -31,6 +34,7 @@ const PageHeading = forwardRef<HTMLDivElement, PageHeadingProps>(
     const {
       cssOverride,
       text = __('Button', 'kirki-ecommerce'),
+      badge = false,
       hasBack = false,
       size,
       sticky,
@@ -40,32 +44,34 @@ const PageHeading = forwardRef<HTMLDivElement, PageHeadingProps>(
       leftIcon,
       noMargin,
       buttonProps = {},
+      onBack,
     } = props;
 
     const {
       cssOverride: buttonCssOverride,
       children: buttonChildren,
-      onClick: buttonOnClick,
+      onClick,
       ...restButtonProps
     } = buttonProps;
 
     return (
       <div
         ref={ref}
-        css={scopedMerge(styles.wrapper,           sticky && styles.wrapperSticky,           noMargin && styles.wrapperNoMargin)}
+        css={scopedMerge(styles.wrapper, sticky && styles.wrapperSticky, noMargin && styles.wrapperNoMargin)}
       >
         <Container size={size} style={{ width: '100%' }}>
           <div
-            css={scopedMerge(styles.heading,               hasBack && styles.headingHasBack,               cssOverride)}
+            css={scopedMerge(styles.heading, hasBack && styles.headingHasBack, cssOverride)}
             style={style}
           >
             {hasBack && (
               <Button
                 variant="link"
-                cssOverride={buttonCssOverride}
+                size="icon"
+                cssOverride={{ ...buttonCssOverride, padding: theme.spacing[2], borderRadius: theme.radius.lg }}
                 onClick={(event) => {
-                  if (buttonOnClick) {
-                    buttonOnClick(event);
+                  if (onBack) {
+                    onBack(event);
                     return;
                   }
                   window.history.back();
@@ -82,6 +88,7 @@ const PageHeading = forwardRef<HTMLDivElement, PageHeadingProps>(
               </span>
             )}
             <Text variant='heading5'>{text}</Text>
+            {badge && <Badge {...badge} />}
 
             {children}
             <Flex cssOverride={styles.actions} gap={2}>

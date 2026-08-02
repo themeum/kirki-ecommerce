@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useProductForm } from '@/contexts/product-form-context';
@@ -17,18 +18,13 @@ import SearchEngines from '@/pages/products/edit-product/seo-settings/search-eng
 import SocialShare from '@/pages/products/edit-product/seo-settings/social-share';
 
 const mapProductToSeoValues = (product: Product): ProductSeoFormValues => {
-  const ogImage =
-    product.og_image && typeof product.og_image === 'object'
-      ? product.og_image
-      : null;
-
   return {
     seo_title: product.seo_title ?? '',
     seo_description: product.seo_description ?? '',
     llm_instructions: product.llm_instructions ?? '',
     og_title: product.og_title ?? '',
     og_description: product.og_description ?? '',
-    og_image: ogImage,
+    og_image: null,
     schema_id: product.schema_id ?? null,
   };
 };
@@ -50,10 +46,13 @@ const SEOSettings = () => {
 
     isSyncingRef.current = true;
     form.reset(mapProductToSeoValues(product));
+    if (product.og_image !== null) {
+      updateProduct({ key: 'og_image', value: null });
+    }
     queueMicrotask(() => {
       isSyncingRef.current = false;
     });
-  }, [loaded, product.id, form]);
+  }, [loaded, product.id, form, updateProduct]);
 
   useEffect(() => {
     const subscription = form.watch((values, info) => {
@@ -77,30 +76,32 @@ const SEOSettings = () => {
         <CardTitle>{__('AI & Web Presence', 'kirki-ecommerce')}</CardTitle>
       </CardHeader>
       <CardContent>
-        <Tabs
-          value={String(activeTab)}
-          onValueChange={(value) => setActiveTab(Number(value))}
-        >
-          <TabsList>
-            <TabsTrigger value="0">
-              {__('Search Engines', 'kirki-ecommerce')}
-            </TabsTrigger>
-            <TabsTrigger value="1">{__('AEO', 'kirki-ecommerce')}</TabsTrigger>
-            <TabsTrigger value="2">
-              {__('Social Share', 'kirki-ecommerce')}
-            </TabsTrigger>
-            <TabsTrigger value="3">
-              {__('Schema', 'kirki-ecommerce')}
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
+        <Flex direction="column" gap={4}>
+          <Tabs
+            value={String(activeTab)}
+            onValueChange={(value) => setActiveTab(Number(value))}
+          >
+            <TabsList>
+              <TabsTrigger value="0">
+                {__('Search Engines', 'kirki-ecommerce')}
+              </TabsTrigger>
+              <TabsTrigger value="1">{__('AEO', 'kirki-ecommerce')}</TabsTrigger>
+              <TabsTrigger value="2">
+                {__('Social Share', 'kirki-ecommerce')}
+              </TabsTrigger>
+              <TabsTrigger value="3">
+                {__('Schema', 'kirki-ecommerce')}
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
 
-        <Form {...form}>
-          {activeTab === 0 && <SearchEngines />}
-          {activeTab === 1 && <AEO />}
-          {activeTab === 2 && <SocialShare />}
-          {activeTab === 3 && <Schema />}
-        </Form>
+          <Form {...form}>
+            {activeTab === 0 && <SearchEngines />}
+            {activeTab === 1 && <AEO />}
+            {activeTab === 2 && <SocialShare />}
+            {activeTab === 3 && <Schema />}
+          </Form>
+        </Flex>
       </CardContent>
     </Card>
   );

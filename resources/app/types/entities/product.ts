@@ -40,6 +40,7 @@ type ProductFormData = {
   currency_id?: number | null;
   brand_id?: number | null;
   description?: string | null;
+  short_description?: string | null;
   additional_info?: AdditionalInfoItem[] | null;
   allow_back_order?: boolean | null;
   seo_title?: string | null;

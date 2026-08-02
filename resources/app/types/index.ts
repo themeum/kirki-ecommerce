@@ -23,6 +23,7 @@ export type {
 export type { Brand, BrandFormData } from '@/types/entities/brand';
 export type { Category, CategoryFormData } from '@/types/entities/category';
 export type { Collection, CollectionFormData } from '@/types/entities/collection';
+export type { Coupon, CouponFormPayload } from '@/types/entities/coupon';
 export type { Country } from '@/types/entities/country';
 export type { Currency, CurrencyFormData } from '@/types/entities/currency';
 export type {

@@ -39,6 +39,7 @@ const SelectTrigger = forwardRef<
   return (
     <SelectPrimitive.Trigger
       ref={ref}
+      data-slot="select-trigger"
       data-error={error ? 'true' : undefined}
       css={scopedMerge(styles.trigger,         styles.variants[variant],         error && styles.error,         cssOverride)}
       {...rest}

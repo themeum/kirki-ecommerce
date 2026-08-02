@@ -1,16 +1,13 @@
 import type { ReactNode } from 'react';
 
-import { useAttributesQuery } from '@/services/attribute';
-import { useDefaultSettingsQuery } from '@/services/settings';
+import { AppConfigProvider } from '@/contexts/app-config-context';
 
 type InitProps = {
   children: ReactNode;
 };
 
 const Init = ({ children }: InitProps) => {
-  useDefaultSettingsQuery();
-  useAttributesQuery({ limit: -1 });
-  return children;
+  return <AppConfigProvider>{children}</AppConfigProvider>;
 };
 
 Init.displayName = 'Init';

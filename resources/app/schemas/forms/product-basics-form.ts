@@ -8,6 +8,7 @@ export const ProductBasicsFormSchema = z.object({
   title: requiredString(__('Title is required', 'kirki-ecommerce')),
   ribbon: optionalNullableString(),
   slug: optionalNullableString(),
+  short_description: optionalNullableString(),
   description: optionalNullableString(),
 });
 
@@ -19,6 +20,7 @@ export const mapProductBasicsFromProduct = (
   title: product.title ?? '',
   ribbon: product.ribbon ?? '',
   slug: product.slug ?? '',
+  short_description: product.short_description ?? '',
   description: product.description ?? '',
 });
 
@@ -26,5 +28,6 @@ export const productBasicsDefaultValues: ProductBasicsFormValues = {
   title: '',
   ribbon: '',
   slug: '',
+  short_description: '',
   description: '',
 };

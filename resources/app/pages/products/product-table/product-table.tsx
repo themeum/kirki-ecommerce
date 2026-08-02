@@ -16,8 +16,8 @@ import { getBadgeVariantForStatus } from '@/utils/badge-status';
 import { __ } from '@/wpi18n';
 
 import FilterPopup from '@/pages/products/product-table/filter-popup/filter-popup';
-import ProductTableAction from '@/pages/products/product-table/product-table-action';
-import ProductTableFilterAction from '@/pages/products/product-table/product-table-filter-action';
+import ProductTableFilter from '@/pages/products/product-table/product-table-filter';
+import ProductTableFilterBar from '@/pages/products/product-table/product-table-filter-bar';
 import { useBulkDeleteProductsMutation } from '@/services/product';
 import { productListOptions } from '@/types/filters/product';
 
@@ -121,14 +121,14 @@ const ProductTable = ({ data, isLoading, onPageChange }: ProductTableProps) => {
       onBulkApply={handleBulkApply}
       onPageChange={onPageChange}
     >
-      <DataTable.Action>
-        <ProductTableAction />
-      </DataTable.Action>
-      <DataTable.FilterAction>
+      <DataTable.Filter>
+        <ProductTableFilter />
+      </DataTable.Filter>
+      <DataTable.SelectionFilter>
         <FilterPopup />
-      </DataTable.FilterAction>
+      </DataTable.SelectionFilter>
       <DataTable.FilterBar>
-        <ProductTableFilterAction />
+        <ProductTableFilterBar />
       </DataTable.FilterBar>
       <DataTable.Pagination />
     </DataTable>

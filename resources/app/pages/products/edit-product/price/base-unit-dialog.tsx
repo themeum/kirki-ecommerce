@@ -1,9 +1,10 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState, type Dispatch, type SetStateAction } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 
 import Button from '@/components/ui/button';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
+import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import Input from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -11,7 +12,6 @@ import { Select, SelectContent, SelectItem, SelectLabel, SelectTrigger, SelectVa
 import { ChevronDownIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import Flex from '@/components/ui/flex';
 import { BaseUnitFormSchema, mapBaseUnitFromVariant, toUnitPriceValue, type BaseUnitFormValues } from '@/schemas/forms/base-unit-form';
 import type { FormErrors, ProductVariant, UnitPriceValue } from '@/types';
 import { __ } from '@/wpi18n';
@@ -87,9 +87,8 @@ const BaseUnitPopup = ({
   };
 
   const btnText = basePricePerBaseUnitAmount()
-    ? `${basePricePerBaseUnitAmount().toFixed(2)} / ${
-        unitData.base_unit_amount
-      }${unitData.base_unit}`
+    ? `${basePricePerBaseUnitAmount().toFixed(2)} / ${unitData.base_unit_amount
+    }${unitData.base_unit}`
     : __('Add', 'kirki-ecommerce');
 
   const baseUnitOptions = getSpecifiedUnitList(form.getValues('total_unit'));
@@ -106,7 +105,7 @@ const BaseUnitPopup = ({
       <PopoverTrigger asChild>
         <Button
           variant="outline"
-          style={{ width: '240px', justifyContent: 'space-between' }}
+          cssOverride={{ width: 240, height: 36, justifyContent: 'space-between' }}
           {...buttonProps}
         >
           {btnText}

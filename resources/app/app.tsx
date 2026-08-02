@@ -1,6 +1,6 @@
-import { useEffect } from 'react';
 import { ThemeProvider } from '@emotion/react';
 import { QueryClientProvider } from '@tanstack/react-query';
+import { useEffect } from 'react';
 import { RouterProvider } from 'react-router';
 import { Toaster } from 'sonner';
 
@@ -20,7 +20,13 @@ const App = () => {
       <GlobalStyles />
       <QueryClientProvider client={queryClient}>
         <Init>
-          <Toaster richColors closeButton position="bottom-right" />
+          <Toaster
+            richColors
+            position="bottom-right"
+            toastOptions={{
+              style: { padding: theme.spacing[2] },
+            }}
+          />
           <RouterProvider router={router} />
         </Init>
       </QueryClientProvider>

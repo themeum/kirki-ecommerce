@@ -35,11 +35,11 @@ class DiscountService
 
         $now = Date::now();
 
-        if ($coupon->start_date && $coupon->start_date->gt($now)) {
+        if ($coupon->start_datetime && $coupon->start_datetime->gt($now)) {
             throw new ValidationException(__('Coupon has not started yet.', 'kirki-ecommerce'));
         }
 
-        if ($coupon->has_end_date && $coupon->end_date && $coupon->end_date->lt($now)) {
+        if ($coupon->has_end_datetime && $coupon->end_datetime && $coupon->end_datetime->lt($now)) {
             throw new ValidationException(__('Coupon has expired.', 'kirki-ecommerce'));
         }
 

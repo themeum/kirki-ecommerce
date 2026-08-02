@@ -19,7 +19,7 @@ class AttributeResource extends Resource
             'name' => $this->name,
             'slug' => $this->slug,
             'type' => $this->type,
-            'values' => AttributeValueResource::collection($this->values),
+            'values' => AttributeValueResource::collection($this->values ?? []),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

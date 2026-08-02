@@ -1,23 +1,25 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 
+import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
+import { ButtonGroup } from '@/components/ui/button-group';
 import { Card, CardContent } from '@/components/ui/card';
+import Combobox from '@/components/ui/combobox';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
+import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
+import Text from '@/components/ui/text';
+import { useProductForm } from '@/contexts/product-form-context';
 import { ColorPaletteIcon, ListIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import ActionGroup from '@/components/ui/action-group';
-import Combobox from '@/components/ui/combobox';
-import Flex from '@/components/ui/flex';
-import { useProductForm } from '@/contexts/product-form-context';
-import { theme } from '@/theme';
-import { defineStyles } from '@/theme/mixins';
-import { cardStyles } from '@/theme/card-styles';
 import { ProductAttributeFormSchema, type ProductAttributeFormValues, type ProductAttributeValueFormValues } from '@/schemas/forms/product-attribute-form';
 import { useAttributesQuery, useCreateAttributeMutation } from '@/services/attribute';
+import { theme } from '@/theme';
+import { cardStyles } from '@/theme/card-styles';
+import { defineStyles } from '@/theme/mixins';
 import type {
   Attribute,
   AttributeFormData,
@@ -42,7 +44,7 @@ type AddOrEditAttributeProps = {
 };
 
 const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
-  const { onClose = () => {}, data, onSave = () => {} } = props;
+  const { onClose = () => { }, data, onSave = () => { } } = props;
 
   const { product: productData, updateProduct, updateProductAttributes } =
     useProductForm();
@@ -120,10 +122,10 @@ const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
       attributeList = productAttributes.map((item) =>
         item.id === data?.id
           ? ({
-              id: values.id,
-              name: values.name,
-              values: formattedValues,
-            } as Attribute)
+            id: values.id,
+            name: values.name,
+            values: formattedValues,
+          } as Attribute)
           : item,
       );
     } else {
@@ -212,8 +214,8 @@ const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
           <Flex direction="column" gap={4}>
             {!data && (
               <Flex direction="column" gap={2}>
-                <div>{__('Show in Product page as', 'kirki-ecommerce')}</div>
-                <Flex cssOverride={styles.typeSelector}>
+                <Text variant="small" weight="medium">{__('Show in Product page as', 'kirki-ecommerce')}</Text>
+                <ButtonGroup>
                   <Button
                     variant="outline"
                     size="lg"
@@ -232,7 +234,7 @@ const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
                     <ColorPaletteIcon />
                     {__('Color', 'kirki-ecommerce')}
                   </Button>
-                </Flex>
+                </ButtonGroup>
               </Flex>
             )}
             <Controller
@@ -246,8 +248,8 @@ const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
                   <Combobox
                     error={Boolean(
                       fieldState.error ||
-                        form.formState.errors.id ||
-                        form.formState.errors.name,
+                      form.formState.errors.id ||
+                      form.formState.errors.name,
                     )}
                     value={
                       formData?.id != null ? String(formData.id) : undefined
@@ -255,11 +257,11 @@ const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
                     options={[
                       ...(formData?.id != null && formData?.name
                         ? [
-                            {
-                              label: formData.name,
-                              value: String(formData.id),
-                            },
-                          ]
+                          {
+                            label: formData.name,
+                            value: String(formData.id),
+                          },
+                        ]
                         : []),
                       ...attributeSuggestionArray
                         .filter(
@@ -324,17 +326,15 @@ AddOrEditAttribute.displayName = 'AddOrEditAttribute';
 export default AddOrEditAttribute;
 
 const styles = defineStyles({
-  typeSelector: {
-    borderRadius: theme.radius.lg,
-    border: `1px solid ${theme.colors.background.surfaceSubdued}`,
-    width: 'max-content',
-  },
   typeSelected: {
+    position: 'relative',
+    zIndex: 2,
     borderColor: theme.colors.background.fillBrand,
   },
 });
 
 export type {
   ProductAttributeFormValues as AttributeFormState,
-  ProductAttributeValueFormValues as AttributeFormValue,
+  ProductAttributeValueFormValues as AttributeFormValue
 };
+

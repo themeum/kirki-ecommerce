@@ -14,7 +14,7 @@ import { __ } from '@/wpi18n';
 import FilterPopup from '@/pages/products/product-table/filter-popup/filter-popup';
 import { ProductListFilter } from '@/types/filters/product';
 
-const ProductTableAction = memo(() => {
+const ProductTableFilter = memo(() => {
   const params = useListParamsValue<ProductListFilter>();
   const { setParam } = useListParamsActions<ProductListFilter>();
 
@@ -55,9 +55,9 @@ const ProductTableAction = memo(() => {
   );
 });
 
-ProductTableAction.displayName = 'ProductTableAction';
+ProductTableFilter.displayName = 'ProductTableFilter';
 
-export default ProductTableAction;
+export default ProductTableFilter;
 
 const styles = defineStyles({
   wrapper: {
