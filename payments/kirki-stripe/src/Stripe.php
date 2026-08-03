@@ -346,7 +346,7 @@ class Stripe extends PaymentGateway
             return $this->stripe;
         }
 
-        $secret_key = $this->settings['secret_key'] ?? '';
+        $secret_key = $this->settings['secret_key'] ?? null;
 
         if (empty($secret_key)) {
             throw new Exception(__('Stripe Secret Key is missing.', 'kirki-ecommerce'));
