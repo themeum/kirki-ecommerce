@@ -11,6 +11,8 @@ const ECOMMERCE_DIR = path.join(KIRKI_ROOT, 'kirki-ecommerce');
 // Do not delete the main kirki-ecommerce dir.
 const PROTECTED_DIRS = ['kirki-ecommerce'];
 
+const EXCLUDED_DIRS = ['vendor'];
+
 function listDirs(dir) {
     return fs
         .readdirSync(dir, { withFileTypes: true })
@@ -30,7 +32,23 @@ function copy(done) {
     const gateways = listDirs(PAYMENTS_DIR).filter((name) => name.startsWith('kirki-'));
 
     gateways.forEach((name) => {
-      fs.cpSync(path.join(PAYMENTS_DIR, name), path.join(KIRKI_ROOT, name), {recursive: true});
+      fs.cpSync(path.join(PAYMENTS_DIR, name), path.join(KIRKI_ROOT, name), {
+        recursive: true,
+        filter: (src) => !EXCLUDED_DIRS.includes(path.basename(src)),
+      });
+    });
+
+    done();
+}
+
+function composerInstall(done) {
+    const gateways = listDirs(PAYMENTS_DIR).filter((name) => name.startsWith('kirki-'));
+
+    gateways.forEach((name) => {
+      execSync('composer install', {
+          cwd: path.join(KIRKI_ROOT, name),
+          stdio: 'inherit',
+      });
     });
 
     done();
@@ -44,4 +62,4 @@ function dockerRebuild(done) {
     done();
 }
 
-exports.default = series(clean, copy, dockerRebuild);
+exports.default = series(clean, copy, composerInstall, dockerRebuild);
