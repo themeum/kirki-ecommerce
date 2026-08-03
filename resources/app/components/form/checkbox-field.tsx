@@ -15,6 +15,7 @@ type CheckboxFieldProps<
   infoText?: ReactNode;
   disabled?: boolean;
   cssOverride?: CSSObject;
+  onCheckedChange?: (checked: boolean) => void;
 };
 
 const CheckboxField = <
@@ -27,6 +28,7 @@ const CheckboxField = <
   infoText,
   disabled,
   cssOverride,
+  onCheckedChange,
 }: CheckboxFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
   const fieldId = String(name);
@@ -43,6 +45,7 @@ const CheckboxField = <
               checked={Boolean(field.value)}
               onCheckedChange={(checked) => {
                 field.onChange(checked === true);
+                onCheckedChange?.(checked === true);
               }}
               disabled={disabled}
               aria-invalid={fieldState.invalid}

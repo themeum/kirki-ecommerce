@@ -30,6 +30,9 @@ import { cardStyles } from '@/theme/card-styles';
 import type { ProductFormData } from '@/types';
 import { __ } from '@/wpi18n';
 
+import UnsavedToast from '@/pages/products/product-form/unsaved-toast';
+import { useUnsavedNavigationGuard } from '@/pages/products/product-form/use-unsaved-navigation-guard';
+
 import AdditionalInfo from '@/pages/products/product-form/sections/additional-info/additional-info';
 import Inventory from '@/pages/products/product-form/sections/inventory/inventory';
 import Price from '@/pages/products/product-form/sections/price/price';
@@ -85,43 +88,51 @@ const ProductForm = ({
     return () => setUnsavedDataStatus(false);
   }, [isDirty]);
 
+  const { isBlocked, discardChanges, markSaving, shakeSignal } =
+    useUnsavedNavigationGuard(isDirty);
+
   const handleSave = async ({
     focusOnError = true,
   }: HandleSaveOptions = {}): Promise<SaveResult> => {
     let success = false;
 
-    await form.handleSubmit(async (values) => {
-      const payload = buildProductPayload(values);
+    markSaving(true);
+    try {
+      await form.handleSubmit(async (values) => {
+        const payload = buildProductPayload(values);
 
-      try {
-        const result = await onSubmit(payload);
-        if (result) {
-          form.reset(result);
-        }
-        success = true;
-      } catch (error) {
-        const unmatchedMessages: string[] = [];
-        const { matchedFields } = applyServerErrors(
-          form,
-          error as ErrorResponse,
-          {
-            onUnmatched: (leftovers) => {
-              unmatchedMessages.push(...Object.values(leftovers));
+        try {
+          const result = await onSubmit(payload);
+          if (result) {
+            form.reset(result);
+          }
+          success = true;
+        } catch (error) {
+          const unmatchedMessages: string[] = [];
+          const { matchedFields } = applyServerErrors(
+            form,
+            error as ErrorResponse,
+            {
+              onUnmatched: (leftovers) => {
+                unmatchedMessages.push(...Object.values(leftovers));
+              },
             },
-          },
-        );
+          );
 
-        toast.error(
-          [getErrorMessage(error), ...unmatchedMessages].join(' '),
-        );
+          toast.error(
+            [getErrorMessage(error), ...unmatchedMessages].join(' '),
+          );
 
-        if (focusOnError && matchedFields[0]) {
-          form.setFocus(matchedFields[0] as FieldPath<ProductFormValues>);
+          if (focusOnError && matchedFields[0]) {
+            form.setFocus(matchedFields[0] as FieldPath<ProductFormValues>);
+          }
+
+          success = false;
         }
-
-        success = false;
-      }
-    })();
+      })();
+    } finally {
+      markSaving(false);
+    }
 
     return { success };
   };
@@ -141,7 +152,7 @@ const ProductForm = ({
           <>
             <Button
               variant="ghost"
-              onClick={() => window.history.back()}
+              onClick={() => navigate('/products')}
               disabled={isSubmitting}
             >
               {__('Cancel', 'kirki-ecommerce')}
@@ -228,6 +239,13 @@ const ProductForm = ({
           <RightPanel />
         </div>
       </Container>
+      <UnsavedToast
+        visible={isBlocked && isDirty}
+        onDiscardChanges={discardChanges}
+        onSave={() => handleSave()}
+        isSubmitting={isSubmitting}
+        shakeSignal={shakeSignal}
+      />
     </Form>
   );
 };

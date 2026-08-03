@@ -9,7 +9,6 @@ import { Form } from '@/components/ui/form';
 import Input from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ChevronDownIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { BaseUnitFormSchema, mapBaseUnitFromVariant, toUnitPriceValue, type BaseUnitFormValues } from '@/schemas/forms/base-unit-form';
@@ -17,6 +16,9 @@ import type { FormErrors, ProductVariant, UnitPriceValue } from '@/types';
 import { __ } from '@/wpi18n';
 
 import { getSpecifiedUnitList, normalizedUnit, unitList } from '@/pages/products/product-form/sections/price/utils';
+import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
+import { ChevronDown } from 'lucide-react';
 
 type BaseUnitPopupProps = {
   errors?: FormErrors;
@@ -109,10 +111,10 @@ const BaseUnitPopup = ({
           {...buttonProps}
         >
           {btnText}
-          <ChevronDownIcon />
+          <ChevronDown width={16} height={16} css={scoped({ color: theme.colors.icon.secondary })} />
         </Button>
       </PopoverTrigger>
-      <PopoverContent align="start" style={{ width: '280px' }}>
+      <PopoverContent align="start" cssOverride={{ width: '280px' }}>
         <Form {...form}>
           <Flex direction="column" gap={4}>
             <Flex direction="column" gap={3}>
