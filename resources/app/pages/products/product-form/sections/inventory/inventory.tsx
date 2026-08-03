@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { Controller, useFormContext, useWatch } from 'react-hook-form';
 
 import CheckboxField from '@/components/form/checkbox-field';
@@ -34,11 +33,11 @@ const Inventory = () => {
     useWatch({ control, name: 'variants.0.has_limit_per_order' }),
   );
 
-  useEffect(() => {
-    if (!trackInventory) {
+  const handleTrackInventoryChange = (checked: boolean) => {
+    if (!checked) {
       setValue('variants.0.available_quantity', 0, { shouldDirty: true });
     }
-  }, [trackInventory, setValue]);
+  };
 
   const handleGenerateSku = () => {
     setValue('variants.0.sku', generateSku(), {
@@ -56,6 +55,7 @@ const Inventory = () => {
         <CheckboxField
           name="variants.0.track_inventory"
           label={__('Track quantity', 'kirki-ecommerce')}
+          onCheckedChange={handleTrackInventoryChange}
         />
 
         {trackInventory ? (

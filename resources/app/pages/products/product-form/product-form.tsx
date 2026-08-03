@@ -30,6 +30,9 @@ import { cardStyles } from '@/theme/card-styles';
 import type { ProductFormData } from '@/types';
 import { __ } from '@/wpi18n';
 
+import UnsavedToast from '@/pages/products/product-form/unsaved-toast';
+import { useUnsavedNavigationGuard } from '@/pages/products/product-form/use-unsaved-navigation-guard';
+
 import AdditionalInfo from '@/pages/products/product-form/sections/additional-info/additional-info';
 import Inventory from '@/pages/products/product-form/sections/inventory/inventory';
 import Price from '@/pages/products/product-form/sections/price/price';
@@ -84,6 +87,8 @@ const ProductForm = ({
     setUnsavedDataStatus(isDirty);
     return () => setUnsavedDataStatus(false);
   }, [isDirty]);
+
+  const { isBlocked, dismissToast } = useUnsavedNavigationGuard(isDirty);
 
   const handleSave = async ({
     focusOnError = true,
@@ -141,7 +146,7 @@ const ProductForm = ({
           <>
             <Button
               variant="ghost"
-              onClick={() => window.history.back()}
+              onClick={() => navigate('/products')}
               disabled={isSubmitting}
             >
               {__('Cancel', 'kirki-ecommerce')}
@@ -228,6 +233,12 @@ const ProductForm = ({
           <RightPanel />
         </div>
       </Container>
+      <UnsavedToast
+        visible={isBlocked && isDirty}
+        onCancel={dismissToast}
+        onSave={() => handleSave()}
+        isSubmitting={isSubmitting}
+      />
     </Form>
   );
 };
