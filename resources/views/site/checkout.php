@@ -41,7 +41,7 @@ $countries = json_decode($countries_json, true);
                             save_info: false
                         },
                         mode: 'onBlur'
-                    })" @validate-billing-form.window="validateForm()">
+                    })" @validate-billing-form.window="await validateForm(); $dispatch('billing-form-validated', { isValid })">
                         <div class="kecom-field">
                             <label class="kecom-field-label" for="country">Country/region</label>
                             <select class="kecom-select" id="country" name="country" x-bind="register('country', { required: '<?php esc_html_e('Country is required', 'kirki-ecommerce'); ?>' })">
