@@ -112,6 +112,10 @@ export function variantSelector(config: VariantSelectorConfig) {
       
       if (matchingVariant) {
         this.selectedVariantId = matchingVariant.id;
+        // Dispatch event for image slider to update
+        window.dispatchEvent(new CustomEvent('variant-changed', {
+          detail: { variant: matchingVariant }
+        }));
       }
     },
 

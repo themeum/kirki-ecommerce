@@ -1,14 +1,10 @@
-import {
-  forwardRef,
-  type ComponentPropsWithoutRef,
-  type ElementRef,
-} from 'react';
-import { type SerializedStyles, type Theme } from '@emotion/react';
+import { forwardRef, type ComponentPropsWithoutRef, type ElementRef } from 'react';
+import { type CSSObject, type Theme } from '@emotion/react';
 import * as SelectPrimitive from '@radix-ui/react-select';
 import { CheckIcon, ChevronDownIcon } from '@radix-ui/react-icons';
 
 import { theme } from '@/theme';
-import { flexCenter, itemCenter, scoped, uiFocusRing } from '@/theme/mixins';
+import { flexCenter, itemCenter, uiFocusRing, scopedMerge, scoped, defineStyles } from '@/theme/mixins';
 import { getPortalContainer } from '@/libs/portal-container';
 
 const Select = SelectPrimitive.Root;
@@ -25,7 +21,7 @@ type SelectTriggerProps = Omit<
 > & {
   variant?: SelectTriggerVariant;
   error?: boolean;
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const SelectTrigger = forwardRef<
@@ -33,7 +29,7 @@ const SelectTrigger = forwardRef<
   SelectTriggerProps
 >((props, ref) => {
   const {
-    css: cssProp,
+    cssOverride,
     variant = 'default',
     error,
     children,
@@ -44,17 +40,12 @@ const SelectTrigger = forwardRef<
     <SelectPrimitive.Trigger
       ref={ref}
       data-error={error ? 'true' : undefined}
-      css={[
-        styles.trigger,
-        styles.variants[variant],
-        error && styles.error,
-        cssProp,
-      ]}
+      css={scopedMerge(styles.trigger,         styles.variants[variant],         error && styles.error,         cssOverride)}
       {...rest}
     >
-      <span css={styles.value}>{children}</span>
+      <span css={scoped(styles.value)}>{children}</span>
       <SelectPrimitive.Icon asChild>
-        <span css={styles.chevron}>
+        <span css={scoped(styles.chevron)}>
           <ChevronDownIcon width={16} height={16} />
         </span>
       </SelectPrimitive.Icon>
@@ -68,7 +59,7 @@ type SelectContentProps = Omit<
   ComponentPropsWithoutRef<typeof SelectPrimitive.Content>,
   'className' | 'css'
 > & {
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const SelectContent = forwardRef<
@@ -76,7 +67,7 @@ const SelectContent = forwardRef<
   SelectContentProps
 >((props, ref) => {
   const {
-    css: cssProp,
+    cssOverride,
     children,
     position = 'item-aligned',
     ...rest
@@ -88,11 +79,11 @@ const SelectContent = forwardRef<
       <SelectPrimitive.Content
         ref={ref}
         position={position}
-        css={[styles.content, isPopper && styles.contentPopper, cssProp]}
+        css={scopedMerge(styles.content, isPopper && styles.contentPopper, cssOverride)}
         {...rest}
       >
         <SelectPrimitive.Viewport
-          css={[styles.viewport, isPopper && styles.viewportPopper]}
+          css={scopedMerge(styles.viewport, isPopper && styles.viewportPopper)}
         >
           {children}
         </SelectPrimitive.Viewport>
@@ -107,16 +98,16 @@ type SelectLabelProps = Omit<
   ComponentPropsWithoutRef<typeof SelectPrimitive.Label>,
   'className' | 'css'
 > & {
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const SelectLabel = forwardRef<
   ElementRef<typeof SelectPrimitive.Label>,
   SelectLabelProps
 >((props, ref) => {
-  const { css: cssProp, ...rest } = props;
+  const { cssOverride, ...rest } = props;
 
-  return <SelectPrimitive.Label ref={ref} css={[styles.label, cssProp]} {...rest} />;
+  return <SelectPrimitive.Label ref={ref} css={scopedMerge(styles.label, cssOverride)} {...rest} />;
 });
 
 SelectLabel.displayName = 'SelectLabel';
@@ -125,18 +116,18 @@ type SelectItemProps = Omit<
   ComponentPropsWithoutRef<typeof SelectPrimitive.Item>,
   'className' | 'css'
 > & {
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const SelectItem = forwardRef<
   ElementRef<typeof SelectPrimitive.Item>,
   SelectItemProps
 >((props, ref) => {
-  const { css: cssProp, children, ...rest } = props;
+  const { cssOverride, children, ...rest } = props;
 
   return (
-    <SelectPrimitive.Item ref={ref} css={[styles.item, cssProp]} {...rest}>
-      <span css={styles.itemIndicator}>
+    <SelectPrimitive.Item ref={ref} css={scopedMerge(styles.item, cssOverride)} {...rest}>
+      <span css={scoped(styles.itemIndicator)}>
         <SelectPrimitive.ItemIndicator>
           <CheckIcon width={16} height={16} />
         </SelectPrimitive.ItemIndicator>
@@ -152,19 +143,19 @@ type SelectSeparatorProps = Omit<
   ComponentPropsWithoutRef<typeof SelectPrimitive.Separator>,
   'className' | 'css'
 > & {
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const SelectSeparator = forwardRef<
   ElementRef<typeof SelectPrimitive.Separator>,
   SelectSeparatorProps
 >((props, ref) => {
-  const { css: cssProp, ...rest } = props;
+  const { cssOverride, ...rest } = props;
 
   return (
     <SelectPrimitive.Separator
       ref={ref}
-      css={[styles.separator, cssProp]}
+      css={scopedMerge(styles.separator, cssOverride)}
       {...rest}
     />
   );
@@ -183,8 +174,8 @@ export {
   SelectSeparator,
 };
 
-const styles = {
-  trigger: scoped({
+const styles = defineStyles({
+  trigger: {
     width: '100%',
     minWidth: '90px',
     height: '36px',
@@ -209,16 +200,16 @@ const styles = {
       borderColor: 'transparent',
       pointerEvents: 'none',
     },
-  }),
+  },
   variants: {
-    default: scoped({}),
-    secondary: scoped({
+    default: {},
+    secondary: {
       backgroundColor: theme.colors.background.fillSecondary,
       border: 'none',
       ...theme.typography.small(),
       borderRadius: theme.radius.md,
-    }),
-    invisible: scoped({
+    },
+    invisible: {
       backgroundColor: 'transparent',
       borderColor: 'transparent',
       boxShadow: 'none',
@@ -227,29 +218,29 @@ const styles = {
         borderColor: 'transparent',
         boxShadow: 'none',
       },
-    }),
+    },
   },
-  error: scoped({
+  error: {
     border: `1px solid ${theme.colors.border.critical}`,
     boxShadow: 'none',
     '&:focus-visible, &[data-state="open"]': {
       borderColor: theme.colors.border.critical,
       ...uiFocusRing(theme as Theme, theme.colors.border.critical),
     },
-  }),
-  value: scoped({
+  },
+  value: {
     ...itemCenter(),
     columnGap: theme.spacing[2],
     maxWidth: '85%',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
-  }),
-  chevron: scoped({
+  },
+  chevron: {
     ...flexCenter(),
     flexShrink: 0,
-  }),
-  content: scoped({
+  },
+  content: {
     padding: theme.spacing[1],
     border: `1px solid ${theme.colors.border.default}`,
     borderRadius: theme.radius.md,
@@ -261,24 +252,24 @@ const styles = {
     '&:focus, &:focus-visible': {
       outline: 'none',
     },
-  }),
-  contentPopper: scoped({
+  },
+  contentPopper: {
     maxHeight: 'var(--radix-select-content-available-height)',
-  }),
-  viewport: scoped({
+  },
+  viewport: {
     width: '100%',
-  }),
-  viewportPopper: scoped({
+  },
+  viewportPopper: {
     width: '100%',
     minWidth: 'var(--radix-select-trigger-width)',
     height: 'var(--radix-select-trigger-height)',
-  }),
-  label: scoped({
+  },
+  label: {
     padding: `${theme.spacing[2]} ${theme.spacing[2]}`,
     ...theme.typography.small('medium'),
     color: theme.colors.text.secondary,
-  }),
-  item: scoped({
+  },
+  item: {
     padding: `${theme.spacing[2]} ${theme.spacing[2]}`,
     paddingLeft: `calc(${theme.spacing[2]} + ${theme.spacing[4]} + ${theme.spacing[2]})`,
     ...itemCenter(),
@@ -296,16 +287,16 @@ const styles = {
       opacity: 0.5,
       pointerEvents: 'none',
     },
-  }),
-  itemIndicator: scoped({
+  },
+  itemIndicator: {
     position: 'absolute',
     left: theme.spacing[2],
     minWidth: '16px',
     ...itemCenter(),
-  }),
-  separator: scoped({
+  },
+  separator: {
     height: '1px',
     backgroundColor: theme.colors.border.default,
     margin: `${theme.spacing[1]} 0`,
-  }),
-};
+  },
+});

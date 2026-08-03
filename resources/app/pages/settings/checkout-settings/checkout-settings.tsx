@@ -6,10 +6,7 @@ import { useNavigate, useOutletContext } from 'react-router';
 import SwitchField from '@/components/form/switch-field';
 import PageNavbar from '@/components/page-navbar';
 import Button from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-} from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import { CartIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
@@ -20,11 +17,7 @@ import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import PageHeading from '@/components/ui/page-heading';
 import Text from '@/components/ui/text';
-import {
-  CheckoutSettingsFormSchema,
-  checkoutSettingsDefaultValues,
-  type CheckoutSettingsFormValues,
-} from '@/schemas/forms/checkout-settings-form';
+import { CheckoutSettingsFormSchema, checkoutSettingsDefaultValues, type CheckoutSettingsFormValues } from '@/schemas/forms/checkout-settings-form';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import type { SettingsSectionData } from '@/types';
 import { __ } from '@/wpi18n';
@@ -145,8 +138,8 @@ const CheckoutSettings = () => {
                 text={__('Checkout', 'kirki-ecommerce')}
                 handleBack={handleBackButton}
               />
-              <Card css={cardStyles.largeCard} >
-                <CardContent css={cardStyles.largeContentPadded}>
+              <Card cssOverride={cardStyles.largeCard} >
+                <CardContent cssOverride={cardStyles.largeContentPadded}>
 
                 <Flex align="center">
                 <Flex direction="column" gap={2}>

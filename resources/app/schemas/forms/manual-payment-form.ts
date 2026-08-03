@@ -1,9 +1,6 @@
 import { z } from 'zod';
 
-import {
-  optionalNullableString,
-  requiredString,
-} from '@/schemas/forms/shared/validators';
+import { optionalNullableString, requiredString } from '@/schemas/forms/shared/validators';
 import { __ } from '@/wpi18n';
 
 export const ManualPaymentFormSchema = z.object({

@@ -5,15 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 import TextField from '@/components/form/text-field';
 import Button from '@/components/ui/button';
-import {
-  Dialog,
-  DialogBody,
-  DialogCloseButton,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogBody, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
 import Label from '@/components/ui/label';
 import { ArrowLeftIcon, InfoIcon } from '@/icons';
@@ -22,14 +14,8 @@ import { applyServerErrors } from '@/libs/form-errors';
 import Flex from '@/components/ui/flex';
 import { theme } from '@/theme';
 import Text from '@/components/ui/text';
-import {
-  ExchangeRateFormSchema,
-  type ExchangeRateFormValues,
-} from '@/schemas/forms/exchange-rate-form';
-import {
-  useAvailableCurrenciesQuery,
-  useCreateCurrencyMutation,
-} from '@/services/currency';
+import { ExchangeRateFormSchema, type ExchangeRateFormValues } from '@/schemas/forms/exchange-rate-form';
+import { useAvailableCurrenciesQuery, useCreateCurrencyMutation } from '@/services/currency';
 import type { Currency, CurrencyFormData } from '@/types';
 import { __, sprintf } from '@/wpi18n';
 
@@ -131,11 +117,11 @@ const ExchangeRatePopup = ({
           <form onSubmit={form.handleSubmit(handleSaveCurrencyData)}>
             <DialogBody>
               <Flex direction="column" gap={4}>
-                <Label css={editCurrencyRatePopupLabelCss}>
+                <Label cssOverride={editCurrencyRatePopupLabelCss}>
                   <InfoIcon />
                   {__('Enter rates per 1 USD', 'kirki-ecommerce')}
                 </Label>
-                <Flex direction="column" gap={4} css={css({ maxHeight: '200px', overflowX: 'scroll' })}>
+                <Flex direction="column" gap={4} cssOverride={{ maxHeight: '200px', overflowX: 'scroll' }}>
                   {selectedCurrencyList?.length > 0 &&
                     selectedCurrencyList?.map((currency, index) => (
                       <Flex

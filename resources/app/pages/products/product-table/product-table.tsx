@@ -10,7 +10,7 @@ import Flex from '@/components/ui/flex';
 import Thumbnail from '@/components/ui/thumbnail';
 import { endpoints } from '@/libs/endpoints';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { scoped, defineStyles } from '@/theme/mixins';
 import type { PaginatedData, ProductListItem } from '@/types';
 import { getBadgeVariantForStatus } from '@/utils/badge-status';
 import { __ } from '@/wpi18n';
@@ -34,12 +34,12 @@ const ProductTitleCell = ({ item }: { item: ProductListItem }) => {
     <Flex gap={3} align="center">
       <Thumbnail src={item?.image ?? undefined} size="small" />
       <span
-        css={styles.clickable}
+        css={scoped(styles.clickable)}
         onClick={() => {
           navigate(endpoints.PRODUCT(item.id));
         }}
       >
-        <span css={styles.mutedText}>{item?.title} </span>
+        <span css={scoped(styles.mutedText)}>{item?.title} </span>
       </span>
     </Flex>
   );
@@ -139,11 +139,11 @@ ProductTable.displayName = 'ProductTable';
 
 export default ProductTable;
 
-const styles = {
-  clickable: scoped({
+const styles = defineStyles({
+  clickable: {
     cursor: 'pointer',
-  }),
-  mutedText: scoped({
+  },
+  mutedText: {
     color: theme.colors.text.subdued,
-  }),
-};
+  },
+});

@@ -1,28 +1,12 @@
 import { useState, type ReactNode } from 'react';
-import { type SerializedStyles, type Theme } from '@emotion/react';
+import { type CSSObject, type Theme } from '@emotion/react';
 import { Check, ChevronsUpDown, PlusCircle, X } from 'lucide-react';
 
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from '@/components/ui/command';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Separator } from '@/components/ui/separator';
 import { theme } from '@/theme';
-import {
-  flexCenter,
-  itemCenter,
-  scoped,
-  uiFocusRing,
-} from '@/theme/mixins';
+import { flexCenter, itemCenter, uiFocusRing, scopedMerge, scoped, defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 type ComboboxOption = {
@@ -43,9 +27,9 @@ type ComboboxProps = {
   creatable?: boolean;
   addItemLabel?: string;
   onAddItem?: (query: string) => void;
-  css?: SerializedStyles;
-  listCss?: SerializedStyles;
-  searchInputCss?: SerializedStyles;
+  cssOverride?: CSSObject;
+  listCss?: CSSObject;
+  searchInputCss?: CSSObject;
 };
 
 /**
@@ -69,7 +53,7 @@ const Combobox = ({
   creatable = false,
   addItemLabel = __('Add item', 'kirki-ecommerce'),
   onAddItem = () => {},
-  css: cssProp,
+  cssOverride,
   listCss,
   searchInputCss,
 }: ComboboxProps) => {
@@ -129,17 +113,17 @@ const Combobox = ({
   const triggerLabel = (): ReactNode => {
     if (multiple) {
       if (selectedOptions.length === 0) {
-        return <span css={styles.placeholder}>{placeholder}</span>;
+        return <span css={scoped(styles.placeholder)}>{placeholder}</span>;
       }
 
       return (
-        <span css={styles.tags}>
+        <span css={scoped(styles.tags)}>
           {selectedOptions.map((option) => (
-            <span key={option.value} css={styles.tag}>
+            <span key={option.value} css={scoped(styles.tag)}>
               {option.label}
               <button
                 type="button"
-                css={styles.tagRemove}
+                css={scoped(styles.tagRemove)}
                 onClick={(event) => {
                   event.stopPropagation();
                   handleRemove(option.value);
@@ -158,7 +142,7 @@ const Combobox = ({
       return selectedOptions[0].label;
     }
 
-    return <span css={styles.placeholder}>{placeholder}</span>;
+    return <span css={scoped(styles.placeholder)}>{placeholder}</span>;
   };
 
   return (
@@ -178,27 +162,27 @@ const Combobox = ({
           aria-expanded={open}
           disabled={disabled}
           data-error={error ? 'true' : undefined}
-          css={[styles.trigger, error && styles.triggerError, cssProp]}
+          css={scopedMerge(styles.trigger, error && styles.triggerError, cssOverride)}
         >
-          <span css={styles.value}>{triggerLabel()}</span>
-          <ChevronsUpDown size={16} css={styles.chevron} />
+          <span css={scoped(styles.value)}>{triggerLabel()}</span>
+          <ChevronsUpDown size={16} css={scoped(styles.chevron)} />
         </button>
       </PopoverTrigger>
-      <PopoverContent align="start" css={styles.content}>
+      <PopoverContent align="start" cssOverride={styles.content}>
         <Command>
           <CommandInput
             placeholder={searchPlaceholder}
-            css={searchInputCss}
+            cssOverride={searchInputCss}
             value={search}
             onValueChange={setSearch}
           />
-          <CommandList css={listCss}>
+          <CommandList cssOverride={listCss}>
             {!showCreatable && <CommandEmpty>{emptyText}</CommandEmpty>}
             {showCreatable && (
               <>
                 <CommandGroup>
                   <CommandItem value={trimmedSearch} onSelect={handleAddItem}>
-                    <span css={styles.addIcon}>
+                    <span css={scoped(styles.addIcon)}>
                       <PlusCircle size={16} aria-hidden="true" />
                     </span>
                     {addItemLabel}
@@ -218,10 +202,7 @@ const Combobox = ({
                     onSelect={() => handleSelect(option.value)}
                   >
                     <span
-                      css={[
-                        styles.itemCheck,
-                        !isSelected && styles.itemCheckEmpty,
-                      ]}
+                      css={scopedMerge(styles.itemCheck,                         !isSelected && styles.itemCheckEmpty)}
                     >
                       {isSelected && <Check size={14} />}
                     </span>
@@ -242,8 +223,8 @@ Combobox.displayName = 'Combobox';
 export default Combobox;
 export type { ComboboxOption, ComboboxProps };
 
-const styles = {
-  trigger: scoped({
+const styles = defineStyles({
+  trigger: {
     width: '100%',
     minHeight: '36px',
     border: `1px solid ${theme.colors.border.default}`,
@@ -267,16 +248,16 @@ const styles = {
       borderColor: 'transparent',
       pointerEvents: 'none',
     },
-  }),
-  triggerError: scoped({
+  },
+  triggerError: {
     border: `1px solid ${theme.colors.border.critical}`,
     boxShadow: 'none',
     '&:focus-visible, &[data-state="open"]': {
       borderColor: theme.colors.border.critical,
       ...uiFocusRing(theme as Theme, theme.colors.border.critical),
     },
-  }),
-  value: scoped({
+  },
+  value: {
     flex: 1,
     minWidth: 0,
     overflow: 'hidden',
@@ -284,24 +265,24 @@ const styles = {
     whiteSpace: 'nowrap',
     ...theme.typography.small(),
     color: theme.colors.text.primary,
-  }),
-  placeholder: scoped({
+  },
+  placeholder: {
     color: theme.colors.text.secondary,
     opacity: 0.8,
-  }),
-  chevron: scoped({
+  },
+  chevron: {
     flexShrink: 0,
     color: theme.colors.text.secondary,
     opacity: 0.5,
-  }),
-  tags: scoped({
+  },
+  tags: {
     ...itemCenter(),
     justifyContent: 'flex-start',
     flexWrap: 'wrap',
     gap: theme.spacing[1],
     whiteSpace: 'normal',
-  }),
-  tag: scoped({
+  },
+  tag: {
     ...itemCenter(),
     justifyContent: 'flex-start',
     gap: theme.spacing[1],
@@ -310,8 +291,8 @@ const styles = {
     borderRadius: theme.radius.md,
     backgroundColor: theme.colors.background.surfaceAlt,
     ...theme.typography.small(),
-  }),
-  tagRemove: scoped({
+  },
+  tagRemove: {
     ...itemCenter(),
     justifyContent: 'center',
     padding: 0,
@@ -323,26 +304,26 @@ const styles = {
     '&:hover': {
       color: theme.colors.text.primary,
     },
-  }),
-  content: scoped({
+  },
+  content: {
     width: 'var(--radix-popover-trigger-width)',
     minWidth: 'var(--radix-popover-trigger-width)',
     maxWidth: 'var(--radix-popover-trigger-width)',
     padding: 0,
     overflow: 'hidden',
-  }),
-  itemCheck: scoped({
+  },
+  itemCheck: {
     ...flexCenter(),
     width: '16px',
     height: '16px',
     flexShrink: 0,
     color: theme.colors.text.primary,
-  }),
-  itemCheckEmpty: scoped({
+  },
+  itemCheckEmpty: {
     opacity: 0,
-  }),
-  addIcon: scoped({
+  },
+  addIcon: {
     ...itemCenter(),
     flexShrink: 0,
-  }),
-};
+  },
+});

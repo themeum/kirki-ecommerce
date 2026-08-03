@@ -6,18 +6,9 @@ import CheckboxField from '@/components/form/checkbox-field';
 import SelectField from '@/components/form/select-field';
 import TextField from '@/components/form/text-field';
 import Button from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
-import {
-  Field,
-  FieldDescription,
-  FieldLabel,
-} from '@/components/ui/field';
+import { Field, FieldDescription, FieldLabel } from '@/components/ui/field';
 import { Form } from '@/components/ui/form';
 import Input from '@/components/ui/input';
 import { WandIcon } from '@/icons';
@@ -26,14 +17,9 @@ import { applyServerErrors } from '@/libs/form-errors';
 import Flex from '@/components/ui/flex';
 import Grid from '@/components/ui/grid';
 import { useProductForm } from '@/contexts/product-form-context';
-import {
-  mapProductInventoryFromProduct,
-  ProductInventoryFormSchema,
-  productInventoryDefaultValues,
-  type ProductInventoryFormValues,
-} from '@/schemas/forms/product-inventory-form';
+import { mapProductInventoryFromProduct, ProductInventoryFormSchema, productInventoryDefaultValues, type ProductInventoryFormValues } from '@/schemas/forms/product-inventory-form';
 import type { FormErrors } from '@/types';
-import { scoped } from '@/theme/mixins';
+import { mergeCss, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
@@ -113,7 +99,7 @@ const Inventory = ({ errors, setErrors, formSyncKey = 0 }: InventoryProps) => {
 
   return (
     <Form {...form}>
-      <Card css={cardStyles.formCard}>
+      <Card cssOverride={cardStyles.formCard}>
         <CardHeader>
           <CardTitle>{__('Inventory', 'kirki-ecommerce')}</CardTitle>
         </CardHeader>
@@ -124,8 +110,8 @@ const Inventory = ({ errors, setErrors, formSyncKey = 0 }: InventoryProps) => {
           />
 
           {trackInventory ? (
-            <Card css={cardStyles.innerCard}>
-              <CardContent css={cardStyles.innerContent}>
+            <Card cssOverride={cardStyles.innerCard}>
+              <CardContent cssOverride={cardStyles.innerContent}>
                 <Grid columns={3}>
                   <TextField
                     name="available_quantity"
@@ -181,8 +167,8 @@ const Inventory = ({ errors, setErrors, formSyncKey = 0 }: InventoryProps) => {
           </Flex>
           <Flex gap={2}>
             {trackInventory && (
-              <Card css={[cardStyles.innerDarkCard, styles.innerDarkNarrowCard]}>
-                <CardContent css={cardStyles.innerDarkContent}>
+              <Card cssOverride={mergeCss(cardStyles.innerDarkCard, styles.innerDarkNarrowCard)}>
+                <CardContent cssOverride={cardStyles.innerDarkContent}>
                   <Field orientation="horizontal">
                     <Checkbox id="sell-when-out-of-stock" defaultChecked />
                     <FieldLabel htmlFor="sell-when-out-of-stock">
@@ -193,8 +179,8 @@ const Inventory = ({ errors, setErrors, formSyncKey = 0 }: InventoryProps) => {
               </Card>
             )}
 
-            <Card css={cardStyles.innerDarkCard}>
-              <CardContent css={styles.innerDarkRowContent}>
+            <Card cssOverride={cardStyles.innerDarkCard}>
+              <CardContent cssOverride={styles.innerDarkRowContent}>
               <Flex gap={8} justify="space-between">
                 <Controller
                   control={form.control}
@@ -247,11 +233,11 @@ Inventory.displayName = 'Inventory';
 
 export default Inventory;
 
-const styles = {
-  innerDarkNarrowCard: scoped({
+const styles = defineStyles({
+  innerDarkNarrowCard: {
     width: '30%',
-  }),
-  innerDarkRowContent: scoped({
+  },
+  innerDarkRowContent: {
     padding: `${theme.spacing[1]} ${theme.spacing[2]} ${theme.spacing[1]} ${theme.spacing[3]}`,
-  })
-};
+  }
+});

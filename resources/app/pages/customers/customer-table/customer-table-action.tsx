@@ -1,9 +1,4 @@
-import {
-  Select,
-  SelectContent,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Select, SelectContent, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Button from '@/components/ui/button';
 import { ArrowDownUp, ListFilter } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
@@ -11,7 +6,7 @@ import Flex from '@/components/ui/flex';
 import Searchbox from '@/components/ui/searchbox';
 import { useListParams } from '@/hooks';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { defineStyles } from '@/theme/mixins';
 
 const CustomerTableAction = () => {
   const { params, setParam } = useListParams({
@@ -33,7 +28,7 @@ const CustomerTableAction = () => {
   };
 
   return (
-    <Flex css={styles.wrapper}>
+    <Flex cssOverride={styles.wrapper}>
       <div style={{ width: '180px' }}>
         <Searchbox
           value={params.search || ''}
@@ -42,7 +37,7 @@ const CustomerTableAction = () => {
       </div>
       <ActionGroup>
         <Select disabled>
-          <SelectTrigger css={styles.selectTrigger}>
+          <SelectTrigger cssOverride={styles.selectTrigger}>
             <SelectValue placeholder="Date: This Month" />
           </SelectTrigger>
           <SelectContent />
@@ -67,11 +62,11 @@ CustomerTableAction.displayName = 'CustomerTableAction';
 
 export default CustomerTableAction;
 
-const styles = {
-  wrapper: scoped({
+const styles = defineStyles({
+  wrapper: {
     padding: `${theme.spacing[4]} ${theme.spacing[3]}`,
-  }),
-  selectTrigger: scoped({
+  },
+  selectTrigger: {
     padding: `${theme.spacing[2]} ${theme.spacing[4]}`,
-  }),
-};
+  },
+});

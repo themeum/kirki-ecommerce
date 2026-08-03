@@ -1,9 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
-import {
-  useParams,
-  useOutletContext,
-  useNavigate,
-} from 'react-router';
+import { mergeCss } from '@/theme/mixins';
+import { useParams, useOutletContext, useNavigate } from 'react-router';
 
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
@@ -11,15 +8,8 @@ import PageHeading from '@/components/ui/page-heading';
 import TagManager from '@/components/tag-manager/tag-manager';
 import PageNavbar from '@/components/page-navbar';
 import Button from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-} from '@/components/ui/card';
-import {
-  Field,
-  FieldError,
-  FieldLabel,
-} from '@/components/ui/field';
+import { Card, CardContent } from '@/components/ui/card';
+import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import Input from '@/components/ui/input';
 import { getErrorsObject } from '@/libs/api';
 import { useUnsavedStatus } from '@/libs/unsaved-store';
@@ -32,19 +22,8 @@ import { __ } from '@/wpi18n';
 
 import { ShippingRegionPopup } from '@/pages/settings/shipping-settings/shipping-zone/shipping-region-dialog';
 import { ShippingMethod } from '@/pages/settings/shipping-settings/shipping-method/shipping-method';
-import {
-  getSearchedCountries,
-  getSelectedRegionTags,
-  type CountryWithStates,
-  type RegionTag,
-  type ShippingMethodData,
-  type ShippingRegion,
-  type ShippingZone,
-} from '@/pages/settings/shipping-settings/utils';
-import {
-  checkUnsavedDataStatus,
-  setUnsavedDataStatus,
-} from '@/pages/settings/utils';
+import { getSearchedCountries, getSelectedRegionTags, type CountryWithStates, type RegionTag, type ShippingMethodData, type ShippingRegion, type ShippingZone } from '@/pages/settings/shipping-settings/utils';
+import { checkUnsavedDataStatus, setUnsavedDataStatus } from '@/pages/settings/utils';
 
 type SettingsOutletContext = {
   confirmAction: (opts: {
@@ -267,8 +246,8 @@ const ShippingZonePage = () => {
               text={__('Set Zone Details', 'kirki-ecommerce')}
               handleBack={handleBackButton}
             />
-            <Card css={[cardStyles.largeCard, cardStyles.formCard]} >
-              <CardContent css={cardStyles.largeContentPadded}>
+            <Card cssOverride={mergeCss(cardStyles.largeCard, cardStyles.formCard)} >
+              <CardContent cssOverride={cardStyles.largeContentPadded}>
 
               <Field data-invalid={errors?.title ? true : undefined}>
                 <FieldLabel htmlFor="shipping-zone-title">

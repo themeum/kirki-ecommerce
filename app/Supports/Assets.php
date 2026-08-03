@@ -59,11 +59,15 @@ class Assets
     {
         $config_data = [
             'site_url' => esc_url(site_url()),
+            'ajax_nonce' => esc_attr(wp_create_nonce('kirki_ecommerce_nonce')),
+            'ajax_url' => esc_url(admin_url('admin-ajax.php')),
+            'rest_nonce' => esc_attr(wp_create_nonce('wp_rest')),
             'rest_url_base' => esc_url(rest_url() . 'kirki/ecommerce/v1'),
-            'nonce' => esc_attr(wp_create_nonce('wp_rest')),
             'version' => KIRKI_ECOMMERCE_VERSION,
             'is_dev' => defined('KIRKI_ECOMMERCE_IS_DEV') && KIRKI_ECOMMERCE_IS_DEV,
         ];
+
+        $config_data = apply_filters('kirki_ecommerce_config_data', $config_data);
 
         return sprintf(
             'window.kirki_ecommerce = %s;',

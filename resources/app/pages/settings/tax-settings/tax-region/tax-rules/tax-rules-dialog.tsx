@@ -5,24 +5,13 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import SelectField from '@/components/form/select-field';
 import TextField from '@/components/form/text-field';
 import Button from '@/components/ui/button';
-import {
-  Dialog,
-  DialogBody,
-  DialogCloseButton,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogBody, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
 import { LighteningIcon } from '@/icons';
 import Flex from '@/components/ui/flex';
 import Grid from '@/components/ui/grid';
 import Text from '@/components/ui/text';
-import {
-  TaxRulesFormSchema,
-  type TaxRulesFormValues,
-} from '@/schemas/forms/tax-rules-form';
+import { TaxRulesFormSchema, type TaxRulesFormValues } from '@/schemas/forms/tax-rules-form';
 import { useTaxProfilesQuery } from '@/services/tax';
 import { __ } from '@/wpi18n';
 

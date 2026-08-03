@@ -1,27 +1,27 @@
-import { type SerializedStyles, type Theme } from '@emotion/react';
+import { type CSSObject, type Theme } from '@emotion/react';
 import { forwardRef, type ComponentPropsWithoutRef } from 'react';
 
 import { theme } from '@/theme';
-import { scoped, uiFocusRing } from '@/theme/mixins';
+import { uiFocusRing, scopedMerge, defineStyles } from '@/theme/mixins';
 
 type TextareaProps = Omit<
   ComponentPropsWithoutRef<'textarea'>,
   'className' | 'css'
 > & {
   error?: boolean;
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
   (props, ref) => {
-    const { css: cssProp, error, rows = 5, value, ...rest } = props;
+    const { cssOverride, error, rows = 5, value, ...rest } = props;
 
     return (
       <textarea
         ref={ref}
         rows={rows}
         data-error={error ? 'true' : undefined}
-        css={[styles.base, cssProp]}
+        css={scopedMerge(styles.base, cssOverride)}
         {...rest}
         {...('value' in props ? { value: value ?? '' } : {})}
       />
@@ -33,8 +33,8 @@ Textarea.displayName = 'Textarea';
 
 export default Textarea;
 
-const styles = {
-  base: scoped({
+const styles = defineStyles({
+  base: {
     margin: 0,
     minHeight: '36px',
     width: '100%',
@@ -74,5 +74,5 @@ const styles = {
         opacity: 0.5,
       },
     },
-  }),
-};
+  },
+});

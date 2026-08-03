@@ -1,10 +1,6 @@
 import { z } from 'zod';
 
-import {
-  optionalNullableString,
-  requiredString,
-  slug,
-} from '@/schemas/forms/shared/validators';
+import { optionalNullableString, requiredString, slug } from '@/schemas/forms/shared/validators';
 import { __ } from '@/wpi18n';
 
 export const CollectionFormSchema = z.object({

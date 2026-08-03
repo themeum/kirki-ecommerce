@@ -1,12 +1,9 @@
-import { type SerializedStyles, type Theme } from '@emotion/react';
+import { type CSSObject, type Theme } from '@emotion/react';
 import { Slot } from '@radix-ui/react-slot';
-import {
-  forwardRef,
-  type ComponentPropsWithoutRef,
-} from 'react';
+import { forwardRef, type ComponentPropsWithoutRef } from 'react';
 
 import { theme } from '@/theme';
-import { scoped, uiFocusRing } from '@/theme/mixins';
+import { scopedMerge, uiFocusRing, defineStyles } from '@/theme/mixins';
 
 type BadgeVariant =
   | 'default'
@@ -27,30 +24,24 @@ type BadgeProps = Omit<
 > & {
   variant?: BadgeVariant;
   asChild?: boolean;
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const Badge = forwardRef<HTMLSpanElement, BadgeProps>((props, ref) => {
   const {
-    css: cssProp,
+    cssOverride,
     variant = 'default',
     asChild = false,
     ...rest
   } = props;
 
   const Comp = asChild ? Slot : 'span';
-  const badgeCss = [
-    styles.base,
-    styles.variants[variant],
-    cssProp,
-  ];
-
   return (
     <Comp
       ref={ref}
       data-slot="badge"
       data-variant={variant}
-      css={badgeCss}
+      css={scopedMerge(styles.base, styles.variants[variant], cssOverride)}
       {...rest}
     />
   );
@@ -58,90 +49,90 @@ const Badge = forwardRef<HTMLSpanElement, BadgeProps>((props, ref) => {
 
 Badge.displayName = 'Badge';
 
-const badgeVariantStyles = {
-  default: scoped({
+const badgeVariantStyles = defineStyles({
+  default: {
     backgroundColor: theme.colors.background.surfaceTertiary,
     color: theme.colors.text.secondary,
     'a&:hover': {
       backgroundColor: theme.colors.background.fillHover,
     },
-  }),
-  secondary: scoped({
+  },
+  secondary: {
     backgroundColor: theme.colors.background.fillSecondary,
     color: theme.colors.text.secondary,
     'a&:hover': {
       backgroundColor: theme.colors.background.fillSecondaryHover,
     },
-  }),
-  destructive: scoped({
+  },
+  destructive: {
     backgroundColor: theme.colors.background.fillCriticalSecondary,
     color: theme.colors.text.critical,
     'a&:hover': {
       opacity: 0.9,
     },
-  }),
-  outline: scoped({
+  },
+  outline: {
     backgroundColor: 'transparent',
     border: `1px solid ${theme.colors.border.default}`,
     color: theme.colors.text.primary,
     'a&:hover': {
       backgroundColor: theme.colors.background.surfaceSecondary,
     },
-  }),
-  ghost: scoped({
+  },
+  ghost: {
     backgroundColor: 'transparent',
     color: theme.colors.text.primary,
     'a&:hover': {
       backgroundColor: theme.colors.background.surfaceSecondary,
     },
-  }),
-  link: scoped({
+  },
+  link: {
     backgroundColor: 'transparent',
     color: theme.colors.text.brand,
     textUnderlineOffset: '4px',
     'a&:hover': {
       textDecoration: 'underline',
     },
-  }),
-  success: scoped({
+  },
+  success: {
     backgroundColor: theme.colors.background.fillSuccessSecondary,
     color: theme.colors.text.success,
     'a&:hover': {
       opacity: 0.9,
     },
-  }),
-  warning: scoped({
+  },
+  warning: {
     backgroundColor: theme.colors.background.fillWarningSecondary,
     color: theme.colors.text.warning,
     'a&:hover': {
       opacity: 0.9,
     },
-  }),
-  caution: scoped({
+  },
+  caution: {
     backgroundColor: theme.colors.background.fillCautionSecondary,
     color: theme.colors.text.caution,
     'a&:hover': {
       opacity: 0.9,
     },
-  }),
-  info: scoped({
+  },
+  info: {
     backgroundColor: theme.colors.background.fillSpecialSecondary,
     color: theme.colors.text.special2,
     'a&:hover': {
       opacity: 0.9,
     },
-  }),
-  requested: scoped({
+  },
+  requested: {
     backgroundColor: theme.colors.background.fillSpecial2Secondary,
     color: theme.colors.text.special3,
     'a&:hover': {
       opacity: 0.9,
     },
-  }),
-} as const;
+  },
+});
 
-const styles = {
-  base: scoped({
+const styles = defineStyles({
+  base: {
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -173,9 +164,9 @@ const styles = {
       justifyContent: 'center',
       flexShrink: 0,
     },
-  }),
+  },
   variants: badgeVariantStyles,
-};
+});
 
 export default Badge;
 export { badgeVariantStyles };

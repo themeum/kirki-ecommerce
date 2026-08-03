@@ -11,7 +11,6 @@
 
 defined('ABSPATH') || exit;
 
-use Kirki\Ecommerce\App\Supports\Icon;
 use Kirki\Ecommerce\App\Supports\Template;
 use Kirki\Ecommerce\App\Supports\Url;
 
@@ -70,14 +69,10 @@ $sidebar_data = [
         </div>
 
         <div class="kecom-products-grid">
-            <?php
-            foreach ($products as $product) {
-                include_view('site.shop.parts.product-card', ['product' => $product]);
-            }
-            ?>
+            <?php include_view('site.shop.parts.list', ['products' => $products]);?>
         </div>
 
-        <?php Template::render_pagination($data->products);?>
+        <?php Template::render_pagination($data->products); ?>
     </div>
 </div>
 

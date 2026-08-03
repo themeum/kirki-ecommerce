@@ -4,28 +4,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 import TextField from '@/components/form/text-field';
 import Button from '@/components/ui/button';
-import {
-  Dialog,
-  DialogBody,
-  DialogClose,
-  DialogCloseButton,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogBody, DialogClose, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import {
-  ShippingProfileFormSchema,
-  shippingProfileDefaultValues,
-  type ShippingProfileFormValues,
-} from '@/schemas/forms/shipping-profile-form';
-import {
-  useCreateShippingProfileMutation,
-  useUpdateShippingProfileMutation,
-} from '@/services/shipping';
+import { ShippingProfileFormSchema, shippingProfileDefaultValues, type ShippingProfileFormValues } from '@/schemas/forms/shipping-profile-form';
+import { useCreateShippingProfileMutation, useUpdateShippingProfileMutation } from '@/services/shipping';
 import type { ShippingProfile } from '@/types';
 import { __ } from '@/wpi18n';
 

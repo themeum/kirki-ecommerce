@@ -1,22 +1,12 @@
-import { type SerializedStyles } from '@emotion/react';
+import type { CSSObject } from '@emotion/react';
 import { useState, type ReactNode } from 'react';
-import {
-  Controller,
-  useFormContext,
-  type FieldPath,
-  type FieldValues,
-} from 'react-hook-form';
+import { Controller, useFormContext, type FieldPath, type FieldValues } from 'react-hook-form';
 import { Eye, EyeOff } from 'lucide-react';
 
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldLabel,
-} from '@/components/ui/field';
+import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import Input from '@/components/ui/input';
 import { theme } from '@/theme';
-import { flexCenter, scoped } from '@/theme/mixins';
+import { flexCenter, scoped, defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 type PasswordFieldProps<
@@ -28,7 +18,7 @@ type PasswordFieldProps<
   description?: ReactNode;
   placeholder?: string;
   disabled?: boolean;
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
 };
 
 const PasswordField = <
@@ -40,7 +30,7 @@ const PasswordField = <
   description,
   placeholder,
   disabled,
-  css,
+  cssOverride,
 }: PasswordFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
   const [visible, setVisible] = useState(false);
@@ -51,9 +41,9 @@ const PasswordField = <
       control={control}
       name={name}
       render={({ field, fieldState }) => (
-        <Field data-invalid={fieldState.invalid || undefined} css={css}>
+        <Field data-invalid={fieldState.invalid || undefined} cssOverride={cssOverride}>
           {label && <FieldLabel htmlFor={fieldId}>{label}</FieldLabel>}
-          <div css={styles.wrapper}>
+          <div css={scoped(styles.wrapper)}>
             <Input
               {...field}
               id={fieldId}
@@ -63,11 +53,11 @@ const PasswordField = <
               disabled={disabled}
               error={Boolean(fieldState.error)}
               aria-invalid={fieldState.invalid}
-              css={styles.input}
+              cssOverride={styles.input}
             />
             <button
               type="button"
-              css={styles.toggle}
+              css={scoped(styles.toggle)}
               onClick={() => setVisible((prev) => !prev)}
               aria-label={
                 visible
@@ -91,15 +81,15 @@ PasswordField.displayName = 'PasswordField';
 
 export default PasswordField;
 
-const styles = {
-  wrapper: scoped({
+const styles = defineStyles({
+  wrapper: {
     position: 'relative',
     width: '100%',
-  }),
-  input: scoped({
+  },
+  input: {
     paddingRight: '40px',
-  }),
-  toggle: scoped({
+  },
+  toggle: {
     ...flexCenter(),
     position: 'absolute',
     top: '50%',
@@ -117,5 +107,5 @@ const styles = {
       color: theme.colors.text.primary,
       outline: 'none',
     },
-  }),
-};
+  },
+});

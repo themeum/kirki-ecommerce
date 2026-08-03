@@ -1,17 +1,9 @@
-import {
-  forwardRef,
-  useEffect,
-  useRef,
-  useState,
-  type CSSProperties,
-  type MouseEvent,
-  type ReactNode,
-} from 'react';
+import { scoped, defineStyles } from '@/theme/mixins';
+import { forwardRef, useEffect, useRef, useState, type CSSProperties, type MouseEvent, type ReactNode } from 'react';
 
 import Flex from '@/components/ui/flex';
 import Label from '@/components/ui/label';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
 
 type ProgressBarProps = {
   value?: number;
@@ -95,7 +87,7 @@ const ProgressBar = forwardRef<HTMLDivElement, ProgressBarProps>(
       <Flex ref={ref} direction="column" gap={4} style={style}>
         <Flex justify="space-between" align="center">
           {label && <Label style={labelStyle}>{label}</Label>}
-          {rightText && <span css={styles.rightText}>{rightText}</span>}
+          {rightText && <span css={scoped(styles.rightText)}>{rightText}</span>}
         </Flex>
         <div
           ref={barRef}
@@ -105,11 +97,11 @@ const ProgressBar = forwardRef<HTMLDivElement, ProgressBarProps>(
           aria-valuenow={progress}
           aria-label={label || 'Progress'}
           tabIndex={onChange ? 0 : undefined}
-          css={styles.track}
+          css={scoped(styles.track)}
           onMouseDown={handleMouseDown}
         >
           <div
-            css={styles.fill}
+            css={scoped(styles.fill)}
             style={
               {
                 '--progressbar-fill-width': `${progress}%`,
@@ -119,7 +111,7 @@ const ProgressBar = forwardRef<HTMLDivElement, ProgressBarProps>(
           />
           {showProgressIndicator && (
             <div
-              css={styles.thumb}
+              css={scoped(styles.thumb)}
               style={{ '--progressbar-thumb-left': `${progress}%` } as CSSProperties}
               onMouseDown={handleThumbMouseDown}
             />
@@ -134,8 +126,8 @@ ProgressBar.displayName = 'ProgressBar';
 
 export default ProgressBar;
 
-const styles = {
-  track: scoped({
+const styles = defineStyles({
+  track: {
     position: 'relative',
     height: '6px',
     width: '100%',
@@ -143,8 +135,8 @@ const styles = {
     borderRadius: theme.radius.full,
     cursor: 'pointer',
     userSelect: 'none',
-  }),
-  fill: scoped({
+  },
+  fill: {
     height: '100%',
     width: 'var(--progressbar-fill-width)',
     backgroundColor: 'var(--progressbar-fill-color, ' +
@@ -153,8 +145,8 @@ const styles = {
     borderRadius: 'inherit',
     transition: 'width 0.2s ease',
     zIndex: 1,
-  }),
-  thumb: scoped({
+  },
+  thumb: {
     position: 'absolute',
     top: '50%',
     left: 'var(--progressbar-thumb-left)',
@@ -171,8 +163,8 @@ const styles = {
       cursor: 'grabbing',
       transform: 'translate(-50%, -50%) scale(0.95)',
     },
-  }),
-  rightText: scoped({
+  },
+  rightText: {
     color: theme.colors.text.muted,
-  }),
-};
+  },
+});

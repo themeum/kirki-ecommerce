@@ -1,10 +1,7 @@
 import { type Dispatch, type SetStateAction } from 'react';
 
 import Button from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-} from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { EditIcon, FlagIcon, RadioTickIcon } from '@/icons';
 import Badge from '@/components/ui/badge';
 import Flex from '@/components/ui/flex';
@@ -12,7 +9,7 @@ import ProgressBar from '@/components/ui/progressbar';
 import Text from '@/components/ui/text';
 import type { SettingsSectionData } from '@/types';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
+import { defineStyles } from '@/theme/mixins';
 import { __, sprintf } from '@/wpi18n';
 
 import { dateFormatter } from '@/pages/utils';
@@ -104,8 +101,8 @@ const ApiConfigurationCard = ({
                 )}</Text>
             </Flex>
           )}
-          <Card css={styles.innerDarkCard}>
-            <CardContent css={styles.innerDarkContent}>
+          <Card cssOverride={styles.innerDarkCard}>
+            <CardContent cssOverride={styles.innerDarkContent}>
               <Flex gap={1}>
                 <Text style={{ color: theme.primitives.colors.gray12 }}>{__('Fallback Behavior: ', 'kirki-ecommerce')}</Text>
                 <Text>{formatValue(apiConfigObj?.fallback_behaviour)}</Text>
@@ -126,17 +123,17 @@ ApiConfigurationCard.displayName = 'ApiConfigurationCard';
 
 export default ApiConfigurationCard;
 
-const styles = {
-  innerDarkCard: scoped({
+const styles = defineStyles({
+  innerDarkCard: {
     borderRadius: theme.radius.sm,
     backgroundColor: theme.colors.background.surfaceSecondary,
     border: 'none',
     padding: theme.spacing[0],
-  }),
-  innerDarkContent: scoped({
+  },
+  innerDarkContent: {
     display: 'flex',
     flexDirection: 'column',
     gap: theme.spacing[1],
     padding: theme.spacing[2],
-  }),
-};
+  },
+});

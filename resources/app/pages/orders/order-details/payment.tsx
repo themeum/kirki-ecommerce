@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { cardStyles } from '@/theme/card-styles';
-import { scoped } from '@/theme/mixins';
+import { mergeCss, defineStyles } from '@/theme/mixins';
 
 const Payment = () => {
   return (
@@ -14,8 +14,8 @@ const Payment = () => {
         <Text weight="semibold">Payment</Text>
         <Badge variant="warning">UNPAID</Badge>
       </Flex>
-      <Card css={[cardStyles.innerCard, styles.dashedCard]}>
-        <CardContent css={cardStyles.innerContent}>
+      <Card cssOverride={mergeCss(cardStyles.innerCard, styles.dashedCard)}>
+        <CardContent cssOverride={cardStyles.innerContent}>
           <Flex direction="column" gap={1}>
           <Flex justify="space-between">
             <span>Items</span>
@@ -46,8 +46,8 @@ const Payment = () => {
 
 export default Payment;
 
-const styles = {
-  dashedCard: scoped({
+const styles = defineStyles({
+  dashedCard: {
     borderStyle: 'dashed',
-  }),
-};
+  },
+});

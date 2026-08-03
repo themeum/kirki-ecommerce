@@ -5,23 +5,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import TextareaField from '@/components/form/textarea-field';
 import TextField from '@/components/form/text-field';
 import Button from '@/components/ui/button';
-import {
-  Dialog,
-  DialogBody,
-  DialogClose,
-  DialogCloseButton,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogBody, DialogClose, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
 import { getErrorsObject, type ErrorResponse } from '@/libs/api';
 import Flex from '@/components/ui/flex';
-import {
-  TagFormSchema,
-  type TagFormValues,
-} from '@/schemas/forms/tag-form';
+import { TagFormSchema, type TagFormValues } from '@/schemas/forms/tag-form';
 import { useCreateTagMutation, useUpdateTagMutation } from '@/services/tag';
 import type { Tag, TagFormData } from '@/types';
 import { __ } from '@/wpi18n';
