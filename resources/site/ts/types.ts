@@ -3,12 +3,14 @@
 export interface kirkiEcommerceConfig {
   rest_url_base: string;   // e.g. /wp-json/kirki/ecommerce/v1
   rest_nonce: string;    // WordPress REST nonce
+  cart_variant_ids: number[];
 }
 
 // Extend window for WordPress-injected config
 declare global {
   interface Window {
     kirki_ecommerce: kirkiEcommerceConfig;
+    wp: any;
     Alpine: any;
   }
 }

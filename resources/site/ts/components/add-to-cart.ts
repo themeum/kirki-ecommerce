@@ -9,8 +9,7 @@
  *   </button>
  */
 
-import { cartApi } from '../api/cart';
-import { translate } from '../utils/i18n';
+import { cartApi } from "../api/cart";
 
 export interface AddToCartConfig {
   variantId: number;
@@ -21,37 +20,42 @@ export interface AddToCartConfig {
 }
 
 export function addToCart(config: AddToCartConfig) {
+  const { __ } = window.wp.i18n;
+
   return {
     variantId: config.variantId,
     qty: config.qty ?? 1,
-    cartUrl: config.cartUrl || '/cart',
+    cartUrl: config.cartUrl || "/cart",
     watchVariantId: config.watchVariantId,
-    buttonText: config.buttonText || translate('Add to Cart'),
+    buttonText: config.buttonText || __("Add to Cart", "kirki-ecommerce"),
     loading: false,
     success: false,
     error: null as string | null,
-    viewCartText: translate('View Cart'),
+    viewCartText: __("View Cart", "kirki-ecommerce"),
 
     init(this: any) {
       this.checkIfInCart();
-      
+
       // Watch for variant ID changes (for product detail page)
       if (this.watchVariantId) {
-        this.$watch(() => this.watchVariantId(), () => {
-          this.variantId = this.watchVariantId();
-          this.checkIfInCart();
-        });
+        this.$watch(
+          () => this.watchVariantId(),
+          () => {
+            this.variantId = this.watchVariantId();
+            this.checkIfInCart();
+          },
+        );
       }
     },
 
     checkIfInCart() {
-      const cartVariantIds = (window as any).kirki_ecommerce?.cart_variant_ids || [];
+      const cartVariantIds = window.kirki_ecommerce?.cart_variant_ids || [];
       if (cartVariantIds.includes(this.variantId)) {
         this.success = true;
         this.buttonText = this.viewCartText;
       } else {
         this.success = false;
-        this.buttonText = config.buttonText || translate('Add to Cart');
+        this.buttonText = config.buttonText || __("Add to Cart", "kirki-ecommerce");
       }
     },
 
@@ -62,17 +66,17 @@ export function addToCart(config: AddToCartConfig) {
       try {
         await cartApi.addItem(this.variantId, quantity);
         this.success = true;
-        this.buttonText = 'View Cart';
-        
+        this.buttonText = "View Cart";
+
         // Update cart_variant_ids in window.kirki_ecommerce after successful add
-        const cartVariantIds = (window as any).kirki_ecommerce?.cart_variant_ids || [];
+        const cartVariantIds = window.kirki_ecommerce?.cart_variant_ids || [];
         if (!cartVariantIds.includes(this.variantId)) {
           cartVariantIds.push(this.variantId);
-          (window as any).kirki_ecommerce.cart_variant_ids = cartVariantIds;
+          window.kirki_ecommerce.cart_variant_ids = cartVariantIds;
         }
       } catch (e: unknown) {
-        this.error = e instanceof Error ? e.message : 'Could not add to cart';
-        this.buttonText = config.buttonText || translate('Add to Cart');
+        this.error = e instanceof Error ? e.message : "Could not add to cart";
+        this.buttonText = config.buttonText || __("Add to Cart", "kirki-ecommerce");
       } finally {
         this.loading = false;
       }
