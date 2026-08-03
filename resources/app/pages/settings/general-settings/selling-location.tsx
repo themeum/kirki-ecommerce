@@ -34,7 +34,7 @@ const SellingLocation = () => {
   const { data: countryList } = useCountriesQuery({ limit: -1 });
 
   const countryOptions = (countryList ?? []).map((country) => ({
-    label: country.name,
+    title: country.name,
     value: country.name,
   }));
 
@@ -84,9 +84,9 @@ const SellingLocation = () => {
                 {showCountrySelector && (
                   <MultiSelectField
                     name="selling_countries"
+                    valueAs="strings"
                     label={__('Countries', 'kirki-ecommerce')}
-                    placeholder={__('Add Countries', 'kirki-ecommerce')}
-                    searchPlaceholder={__('e.g United States', 'kirki-ecommerce')}
+                    placeholder={__('e.g United States', 'kirki-ecommerce')}
                     options={countryOptions}
                   />
                 )}

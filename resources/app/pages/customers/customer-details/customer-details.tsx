@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate, useParams } from 'react-router';
 
-import TagManagerField from '@/components/form/tag-manager-field';
+import MultiSelectField from '@/components/form/multi-select-field';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
@@ -191,13 +191,14 @@ const CustomerDetails = () => {
 
             <Card cssOverride={cardStyles.formCard}>
               <CardContent>
-                <TagManagerField
+                <MultiSelectField
                   name="tags"
                   valueAs="strings"
                   label={__('Tags', 'kirki-ecommerce')}
                   placeholder={__('i.e VIP, Wholsale, Local', 'kirki-ecommerce')}
-                  hasAddBtn={false}
-                  suggestions={[]}
+                  createLabel={__('Add Tag', 'kirki-ecommerce')}
+                  creatable
+                  options={[]}
                 />
               </CardContent>
             </Card>
