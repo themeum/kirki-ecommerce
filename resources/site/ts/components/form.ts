@@ -204,7 +204,6 @@ export function form(config: FormConfig = {}) {
       for (const name of fieldNames) {
         await this.validateField(name);
       }
-      (this as any).$dispatch('billing-form-validated', { isValid: this.isValid });
       return this.isValid;
     },
 
