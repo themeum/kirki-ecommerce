@@ -52,4 +52,6 @@ export const queryKeys = {
   PaymentMethods: () => ['PaymentMethods'] as const,
   Coupons: (params?: ListParams<CouponListFilter>) => params ? ['Coupons', params] as const : ['Coupons'] as const,
   Coupon: (id: string | number) => ['Coupon', id] as const,
+  Orders: (params?: ListQueryParams) => params ? ['Orders', params] as const : ['Orders'] as const,
+  Order: (id: string | number) => ['Order', id] as const,
 };

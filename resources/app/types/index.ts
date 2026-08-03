@@ -23,19 +23,15 @@ export type {
 export type { Brand, BrandFormData } from '@/types/entities/brand';
 export type { Category, CategoryFormData } from '@/types/entities/category';
 export type { Collection, CollectionFormData } from '@/types/entities/collection';
-export type { Coupon, CouponFormPayload } from '@/types/entities/coupon';
 export type { Country } from '@/types/entities/country';
+export type { Coupon, CouponFormPayload } from '@/types/entities/coupon';
 export type { Currency, CurrencyFormData } from '@/types/entities/currency';
 export type {
   Customer, CustomerAddress, CustomerFormData, CustomerListItem
 } from '@/types/entities/customer';
 export type { MediaRef, MediaSize } from '@/types/entities/media';
-export type {
-  Order,
-  OrderCustomer,
-  OrderItem,
-  OrderPayment
-} from '@/types/entities/order';
+export { OrderFormSchema, OrderListItemSchema } from '@/types/entities/order';
+export type { OrderFormInput, OrderFormPayload, OrderItem, OrderStatus, PaymentStatus, Refund } from '@/types/entities/order';
 export type { PageItem } from '@/types/entities/page';
 export type {
   AdditionalInfoItem, InventoryVariant, Product,

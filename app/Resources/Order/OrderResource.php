@@ -78,6 +78,7 @@ class OrderResource extends Resource
                 return [
                     'id' => $refund->id,
                     'amount' => $this->prepare_amount($refund->amount),
+                    'refund_type' => $refund->refund_type,
                     'reason' => $refund->reason,
                     'transaction_id' => $refund->transaction_id,
                     'status' => $refund->status,

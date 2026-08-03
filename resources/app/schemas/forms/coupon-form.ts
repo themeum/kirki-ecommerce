@@ -29,8 +29,32 @@ const CouponFormShape = z.object({
   ),
   discount_amount: requiredWhen(
     MoneyAmountSchema.nullish(),
-    (values) => values.discount_type === 'amount-off' && isEmptyValue(values.discount_amount),
-    __('Enter a valid discount amount', 'kirki-ecommerce'),
+    (values) => {
+      if (values.discount_type === 'amount-off' && isEmptyValue(values.discount_amount)) {
+        return true;
+      }
+
+      if (Number(values.discount_amount) < 0) {
+        return true;
+      }
+
+      if (values.discount_value_type === 'percentage' && Number(values.discount_amount) > 100) {
+        return true;
+      }
+
+      return false;
+    },
+    (values) => {
+      if (Number(values.discount_amount) < 0) {
+        return __('Discount amount must be greater than or equal to 0', 'kirki-ecommerce')
+      }
+
+      if (values.discount_value_type === 'percentage' && Number(values.discount_amount) > 100) {
+        return __('Percentage must be less than or equal to 100', 'kirki-ecommerce')
+      }
+
+      return __('Enter a valid discount amount', 'kirki-ecommerce')
+    },
   ),
   start_date: required(z.string(), __('Start date is required', 'kirki-ecommerce')),
   start_time: z.string().nullish(),

@@ -2,7 +2,7 @@ import { type CSSObject } from '@emotion/react';
 import { forwardRef, type HTMLAttributes, type TdHTMLAttributes, type ThHTMLAttributes } from 'react';
 
 import { theme } from '@/theme';
-import { scopedMerge, defineStyles } from '@/theme/mixins';
+import { defineStyles, scopedMerge } from '@/theme/mixins';
 import type { TableAlignment, TableType } from '@/types';
 
 type TableEditMode = 'multiCell' | 'singleCell';
@@ -28,7 +28,7 @@ const Table = forwardRef<HTMLTableElement, TableProps>((props, ref) => {
   return (
     <table
       ref={ref}
-      css={scopedMerge(styles.base,         styles.types[type],         scrollable && styles.scrollable,         fixed && styles.fixed,         editMode && styles.editModes[editMode],         cssOverride)}
+      css={scopedMerge(styles.base, styles.types[type], scrollable && styles.scrollable, fixed && styles.fixed, editMode && styles.editModes[editMode], cssOverride)}
       {...rest}
     />
   );
@@ -106,7 +106,7 @@ const TableHead = forwardRef<HTMLTableCellElement, TableHeadProps>(
       <th
         ref={ref}
         data-only-checkbox={onlyCheckbox ? 'true' : undefined}
-        css={scopedMerge(styles.head,           onlyCheckbox && styles.onlyCheckbox,           alignment && styles.headAlignments[alignment],           cssOverride)}
+        css={scopedMerge(styles.head, onlyCheckbox && styles.onlyCheckbox, alignment && styles.headAlignments[alignment], cssOverride)}
         {...rest}
       />
     );
@@ -134,7 +134,7 @@ const TableCell = forwardRef<HTMLTableCellElement, TableCellProps>(
         ref={ref}
         data-only-checkbox={onlyCheckbox ? 'true' : undefined}
         data-disabled={disabled ? 'true' : undefined}
-        css={scopedMerge(styles.cell,           onlyCheckbox && styles.onlyCheckbox,           alignment && styles.cellAlignments[alignment],           cssOverride)}
+        css={scopedMerge(styles.cell, onlyCheckbox && styles.onlyCheckbox, alignment && styles.cellAlignments[alignment], cssOverride)}
         {...rest}
       />
     );

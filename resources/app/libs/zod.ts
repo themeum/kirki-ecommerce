@@ -64,14 +64,20 @@ function required<Base extends z.ZodTypeAny>(schema: Base, message?: string) {
 
 type RequiredWhenValidate = (values: Record<string, unknown>, ctx: z.RefinementCtx) => boolean;
 
+type RequiredWhenMessage = string | ((values: Record<string, unknown>) => string);
+
 type RequiredWhenRule = {
   isValidationFailed: RequiredWhenValidate;
-  message: string;
+  message: RequiredWhenMessage;
 };
 
 const requiredWhenRules = new WeakMap<z.ZodTypeAny, RequiredWhenRule[]>();
 
-function requiredWhen<Base extends z.ZodTypeAny>(schema: Base, isValidationFailed: RequiredWhenValidate, message?: string) {
+function requiredWhen<Base extends z.ZodTypeAny>(
+  schema: Base,
+  isValidationFailed: RequiredWhenValidate,
+  message?: RequiredWhenMessage,
+) {
   if (!isDefined(message)) {
     message = __('Validation failed.', 'kirki-ecommerce');
   }
@@ -99,7 +105,12 @@ function prepareFormSchema<Schema extends z.AnyZodObject>(
       }
       rules.forEach(({ isValidationFailed, message }) => {
         if (isValidationFailed(values as Record<string, unknown>, ctx)) {
-          ctx.addIssue({ code: z.ZodIssueCode.custom, path: [key], message });
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: [key],
+            message:
+              typeof message === 'function' ? message(values as Record<string, unknown>) : message,
+          });
         }
       });
     });
