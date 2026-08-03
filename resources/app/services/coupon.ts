@@ -5,8 +5,8 @@ import { endpoints } from '@/libs/endpoints';
 import { queryKeys } from '@/libs/query-keys';
 import { CouponListItemSchema, CouponSchema } from '@/schemas/catalog/coupon';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
-import { parseData, toastMutationError, toastMutationSuccess, unwrapResponse } from '@/services/helpers';
-import { BulkActionParams, ListParams } from '@/types';
+import { parseData, parseResponse, toastMutationError, toastMutationSuccess, unwrapResponse } from '@/services/helpers';
+import { BulkActionParams, CouponFormPayload, ListParams } from '@/types';
 import { CouponListFilter } from '@/types/filters/coupon';
 import { __ } from '@/wpi18n';
 
@@ -36,6 +36,108 @@ const useCouponQuery = (id: string | number, enabled = true) => {
   });
 };
 
+const createCoupon = (data: CouponFormPayload) => {
+  return apiClient
+    .post(endpoints.COUPONS, data)
+    .then((response) => parseResponse(CouponSchema, response));
+};
+
+const updateCoupon = ({ id, data }: { id: number; data: CouponFormPayload }) => {
+  return apiClient
+    .put(endpoints.COUPON(id), data)
+    .then((response) => parseResponse(CouponSchema, response));
+};
+
+const useCreateCouponMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: createCoupon,
+    onSuccess(response) {
+      toastMutationSuccess(
+        response.message ||
+        __('Coupon created successfully.', 'kirki-ecommerce'),
+      );
+      void queryClient.invalidateQueries({ queryKey: queryKeys.Coupons() });
+    },
+    onError(error) {
+      toastMutationError(error);
+    },
+  });
+};
+
+const useUpdateCouponMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: updateCoupon,
+    onSuccess(response, variables) {
+      toastMutationSuccess(
+        response.message ||
+        __('Coupon updated successfully.', 'kirki-ecommerce'),
+      );
+      void queryClient.invalidateQueries({ queryKey: queryKeys.Coupons() });
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.Coupon(variables.id),
+      });
+    },
+    onError(error) {
+      toastMutationError(error);
+    },
+  });
+};
+
+const couponAction = ({ id, action }: { id: number; action: 'activate' | 'deactivate' | 'duplicate' }) => {
+  return apiClient
+    .patch(endpoints.COUPON_ACTION(id), { action })
+    .then((response) => {
+      return parseResponse(CouponSchema, response);
+    });
+}
+
+const useCouponActionMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: couponAction,
+    onSuccess(response, variables) {
+      toastMutationSuccess(
+        response.message ||
+        __('Coupon updated successfully.', 'kirki-ecommerce'),
+      );
+      void queryClient.invalidateQueries({ queryKey: queryKeys.Coupons() });
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.Coupon(variables.id),
+      });
+    },
+    onError(error) {
+      toastMutationError(error);
+    },
+  });
+}
+
+const deleteCoupon = (id: number) => {
+  return apiClient
+    .delete(endpoints.COUPON(id))
+    .then((response) => unwrapResponse(response));
+}
+
+const useDeleteCouponMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: deleteCoupon,
+    onSuccess(response, id) {
+      toastMutationSuccess(
+        response.message ||
+        __('Coupon deleted successfully.', 'kirki-ecommerce'),
+      );
+
+      void queryClient.invalidateQueries({ queryKey: queryKeys.Coupon(id) });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.Coupons() });
+    },
+    onError(error) {
+      toastMutationError(error);
+    },
+  });
+}
+
 const bulkDeleteCoupons = ({
   action = 'delete',
   ids = [],
@@ -63,8 +165,38 @@ const useBulkDeleteCouponsMutation = () => {
   });
 };
 
+const validateCode = (code: string) => {
+  return apiClient
+    .get(endpoints.COUPON('validate'), { params: { code } })
+    .then((response) => unwrapResponse<boolean>(response));
+};
+
+const useValidateQuery = (code: string, enabled = true) =>
+  useQuery({
+    queryKey: ['CouponValidate', code],
+    queryFn: () => validateCode(code),
+    enabled: enabled && Boolean(code),
+    placeholderData: keepPreviousData,
+  });
+
+const generateNewCode = () => {
+  return apiClient
+    .get(endpoints.COUPON('generate-new-code'))
+    .then((response) => unwrapResponse<string>(response));
+};
+
+const useGenerateNewCodeQuery = () =>
+  useQuery({
+    queryKey: ['CouponNewCode'],
+    queryFn: () => generateNewCode(),
+    enabled: false,
+    staleTime: 0,
+  });
+
 export {
-  useBulkDeleteCouponsMutation, useCouponQuery,
-  useCouponsQuery
+  useBulkDeleteCouponsMutation, useCouponActionMutation, useCouponQuery,
+  useCouponsQuery,
+  useCreateCouponMutation, useDeleteCouponMutation, useGenerateNewCodeQuery, useUpdateCouponMutation,
+  useValidateQuery
 };
 

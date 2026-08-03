@@ -23,7 +23,7 @@ const filterActionBarCss = css({
   padding: theme.spacing[3],
 });
 
-const CouponTableFilterAction = memo(() => {
+const CouponTableFilterBar = memo(() => {
   const params = useListParamsValue<CouponListFilter>();
   const { setParam, setParams } = useListParamsActions<CouponListFilter>();
 
@@ -83,6 +83,6 @@ const CouponTableFilterAction = memo(() => {
   );
 });
 
-CouponTableFilterAction.displayName = 'CouponTableFilterAction';
+CouponTableFilterBar.displayName = 'CouponTableFilterBar';
 
-export default CouponTableFilterAction;
+export default CouponTableFilterBar;

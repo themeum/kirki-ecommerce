@@ -1,15 +1,16 @@
 import type { CSSObject } from '@emotion/react';
-import { useState, useEffect, type ComponentProps, type CSSProperties, type ReactNode } from 'react';
+import { useEffect, useState, type ComponentProps, type CSSProperties, type ReactNode } from 'react';
 
 import Button from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import Checkbox from '@/components/ui/checkbox';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { theme } from '@/theme';
 import type { ButtonSize, ButtonState, ButtonType, DropdownSize, SelectOption } from '@/types';
 
 type DropdownOption = SelectOption & {
   isDefault?: boolean;
   style?: CSSProperties;
+  type?: 'separator';
 };
 
 type DropdownTriggerButtonProps = {
@@ -160,29 +161,33 @@ const DropdownButton = ({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent style={dropdownStyle}>
-        {options.map((option) => (
-          <DropdownMenuItem
-            onSelect={() => handleOnOptionClick(option)}
-            key={option.value}
-            style={option?.style}
-          >
-            {checkboxField ? (
-              <Checkbox
-                value={
-                  option?.isDefault || selectedValues.includes(option.value)
-                }
-                label={option?.title}
-                labelStyle={labelFontStyle}
-                onChange={() => handleOnOptionClick(option)}
-              />
-            ) : (
-              <>
-                {option.icon}
-                {option.title}
-              </>
-            )}
-          </DropdownMenuItem>
-        ))}
+        {options.map((option) =>
+          option.type === 'separator' ? (
+            <DropdownMenuSeparator key={option.value} />
+          ) : (
+            <DropdownMenuItem
+              onSelect={() => handleOnOptionClick(option)}
+              key={option.value}
+              style={option?.style}
+            >
+              {checkboxField ? (
+                <Checkbox
+                  value={
+                    option?.isDefault || selectedValues.includes(option.value)
+                  }
+                  label={option?.title}
+                  labelStyle={labelFontStyle}
+                  onChange={() => handleOnOptionClick(option)}
+                />
+              ) : (
+                <>
+                  {option.icon}
+                  {option.title}
+                </>
+              )}
+            </DropdownMenuItem>
+          ),
+        )}
         {children}
       </DropdownMenuContent>
     </DropdownMenu>

@@ -1,11 +1,11 @@
 import type { CSSObject } from '@emotion/react';
-import { forwardRef, type ComponentPropsWithoutRef, type ElementRef, type HTMLAttributes } from 'react';
 import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
 import { Check, ChevronRight, Circle } from 'lucide-react';
+import { ComponentRef, forwardRef, type ComponentPropsWithoutRef, type HTMLAttributes } from 'react';
 
 import { getPortalContainer } from '@/libs/portal-container';
 import { theme } from '@/theme';
-import { scopedMerge, scoped, defineStyles } from '@/theme/mixins';
+import { defineStyles, scoped, scopedMerge } from '@/theme/mixins';
 import { getOverlayMotionStyles } from '@/theme/overlay-motion';
 
 const DropdownMenu = DropdownMenuPrimitive.Root;
@@ -29,7 +29,7 @@ type DropdownMenuSubTriggerProps = Omit<
 };
 
 const DropdownMenuSubTrigger = forwardRef<
-  ElementRef<typeof DropdownMenuPrimitive.SubTrigger>,
+  ComponentRef<typeof DropdownMenuPrimitive.SubTrigger>,
   DropdownMenuSubTriggerProps
 >((props, ref) => {
   const { cssOverride, inset, children, ...rest } = props;
@@ -56,7 +56,7 @@ type DropdownMenuSubContentProps = Omit<
 };
 
 const DropdownMenuSubContent = forwardRef<
-  ElementRef<typeof DropdownMenuPrimitive.SubContent>,
+  ComponentRef<typeof DropdownMenuPrimitive.SubContent>,
   DropdownMenuSubContentProps
 >((props, ref) => {
   const { cssOverride, ...rest } = props;
@@ -82,7 +82,7 @@ type DropdownMenuContentProps = Omit<
 };
 
 const DropdownMenuContent = forwardRef<
-  ElementRef<typeof DropdownMenuPrimitive.Content>,
+  ComponentRef<typeof DropdownMenuPrimitive.Content>,
   DropdownMenuContentProps
 >((props, ref) => {
   const { cssOverride, sideOffset = 4, ...rest } = props;
@@ -110,7 +110,7 @@ type DropdownMenuItemProps = Omit<
 };
 
 const DropdownMenuItem = forwardRef<
-  ElementRef<typeof DropdownMenuPrimitive.Item>,
+  ComponentRef<typeof DropdownMenuPrimitive.Item>,
   DropdownMenuItemProps
 >((props, ref) => {
   const { cssOverride, inset, ...rest } = props;
@@ -134,7 +134,7 @@ type DropdownMenuCheckboxItemProps = Omit<
 };
 
 const DropdownMenuCheckboxItem = forwardRef<
-  ElementRef<typeof DropdownMenuPrimitive.CheckboxItem>,
+  ComponentRef<typeof DropdownMenuPrimitive.CheckboxItem>,
   DropdownMenuCheckboxItemProps
 >((props, ref) => {
   const { cssOverride, children, checked, ...rest } = props;
@@ -166,7 +166,7 @@ type DropdownMenuRadioItemProps = Omit<
 };
 
 const DropdownMenuRadioItem = forwardRef<
-  ElementRef<typeof DropdownMenuPrimitive.RadioItem>,
+  ComponentRef<typeof DropdownMenuPrimitive.RadioItem>,
   DropdownMenuRadioItemProps
 >((props, ref) => {
   const { cssOverride, children, ...rest } = props;
@@ -203,7 +203,7 @@ type DropdownMenuLabelProps = Omit<
 };
 
 const DropdownMenuLabel = forwardRef<
-  ElementRef<typeof DropdownMenuPrimitive.Label>,
+  ComponentRef<typeof DropdownMenuPrimitive.Label>,
   DropdownMenuLabelProps
 >((props, ref) => {
   const { cssOverride, inset, ...rest } = props;
@@ -227,7 +227,7 @@ type DropdownMenuSeparatorProps = Omit<
 };
 
 const DropdownMenuSeparator = forwardRef<
-  ElementRef<typeof DropdownMenuPrimitive.Separator>,
+  ComponentRef<typeof DropdownMenuPrimitive.Separator>,
   DropdownMenuSeparatorProps
 >((props, ref) => {
   const { cssOverride, ...rest } = props;
@@ -259,21 +259,10 @@ const DropdownMenuShortcut = (props: DropdownMenuShortcutProps) => {
 DropdownMenuShortcut.displayName = 'DropdownMenuShortcut';
 
 export {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuCheckboxItem,
-  DropdownMenuRadioItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuShortcut,
-  DropdownMenuGroup,
-  DropdownMenuPortal,
-  DropdownMenuSub,
+  DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuPortal, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSeparator,
+  DropdownMenuShortcut, DropdownMenuSub,
   DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuRadioGroup,
+  DropdownMenuSubTrigger, DropdownMenuTrigger
 };
 
 const styles = defineStyles({

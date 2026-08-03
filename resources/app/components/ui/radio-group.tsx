@@ -1,10 +1,10 @@
 import { type CSSObject, type Theme } from '@emotion/react';
 import * as RadioGroupPrimitive from '@radix-ui/react-radio-group';
 import { Circle } from 'lucide-react';
-import { forwardRef, type ComponentPropsWithoutRef, type ElementRef } from 'react';
+import { ComponentRef, forwardRef, type ComponentPropsWithoutRef } from 'react';
 
 import { theme } from '@/theme';
-import { flexCenter, uiFocusRing, scopedMerge, scoped, defineStyles } from '@/theme/mixins';
+import { defineStyles, flexCenter, scoped, scopedMerge, uiFocusRing } from '@/theme/mixins';
 
 type RadioGroupProps = Omit<
   ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Root>,
@@ -14,7 +14,7 @@ type RadioGroupProps = Omit<
 };
 
 const RadioGroup = forwardRef<
-  ElementRef<typeof RadioGroupPrimitive.Root>,
+  ComponentRef<typeof RadioGroupPrimitive.Root>,
   RadioGroupProps
 >((props, ref) => {
   const { cssOverride, ...rest } = props;
@@ -38,7 +38,7 @@ type RadioGroupItemProps = Omit<
 };
 
 const RadioGroupItem = forwardRef<
-  ElementRef<typeof RadioGroupPrimitive.Item>,
+  ComponentRef<typeof RadioGroupPrimitive.Item>,
   RadioGroupItemProps
 >((props, ref) => {
   const { cssOverride, ...rest } = props;

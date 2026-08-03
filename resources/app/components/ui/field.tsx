@@ -1,5 +1,5 @@
 import { type CSSObject } from '@emotion/react';
-import { forwardRef, useMemo, type ComponentPropsWithoutRef, type ElementRef, type HTMLAttributes, type ReactNode } from 'react';
+import { ComponentRef, forwardRef, useMemo, type ComponentPropsWithoutRef, type HTMLAttributes, type ReactNode } from 'react';
 
 import Label from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
@@ -142,7 +142,7 @@ type FieldLabelProps = Omit<
   infoText?: ReactNode;
 };
 
-const FieldLabel = forwardRef<ElementRef<typeof Label>, FieldLabelProps>(
+const FieldLabel = forwardRef<ComponentRef<typeof Label>, FieldLabelProps>(
   (props, ref) => {
     const { cssOverride, infoText, children, ...rest } = props;
 
