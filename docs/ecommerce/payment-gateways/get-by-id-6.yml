@@ -7,8 +7,9 @@ info:
 
 http:
   method: GET
-  url: "{{baseUrl}}/payment-gateways/stripe"
+  url: "{{baseUrl}}/payment-gateways/authorizenet"
   auth: inherit
+
 settings:
   encodeUrl: true
   timeout: 0

@@ -7,7 +7,7 @@ info:
 
 http:
   method: PATCH
-  url: "{{baseUrl}}/payment-gateways/stripe"
+  url: "{{baseUrl}}/payment-gateways/authorizenet"
   body:
     type: json
     data: |-
@@ -15,6 +15,7 @@ http:
         "is_enabled": true
       }
   auth: inherit
+
 settings:
   encodeUrl: true
   timeout: 0

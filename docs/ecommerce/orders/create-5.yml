@@ -14,20 +14,20 @@ http:
       {
         "items": [
           {
-            "variant_id": 1,
-            "quantity": 4
+            "variant_id": 13,
+            "quantity": 2
           }
         ],
         "currency_code": "USD",
         "payment_method": "stripe",
         "coupon_code": "WINTER20",
-        "shipping_method": "fsdfdsfsdfsdf343432jh4",
+        "shipping_method": "method-0001",
         "shipping_first_name": "Sunny",
         "shipping_last_name": "Doe",
         "shipping_address_line1": "Nikunja 2, Khilket",
         "shipping_address_line2": "",
         "shipping_city": "Dhaka",
-        "shipping_state": "5665",
+        "shipping_state": "751",
         "shipping_postcode": "5665",
         "shipping_country": "BD",
         "shipping_phone": "+1 555-000-2000",
@@ -49,6 +49,7 @@ http:
         "customer_notes": null
       }
   auth: inherit
+
 settings:
   encodeUrl: true
   timeout: 0

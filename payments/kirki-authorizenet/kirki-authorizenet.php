@@ -1,20 +1,20 @@
 <?php
 
 /**
- * Plugin Name:       Kirki Stripe
+ * Plugin Name:       Kirki AuthorizeNet
  * Plugin URI:        https://kirki.com/
- * Description:       Stripe payment gateway for Kirki ecommerce.
+ * Description:       AuthorizeNet payment gateway for Kirki ecommerce.
  * Version:           1.0.0
  * Author:            Kirki
  * Author URI:        https://kirki.com/
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain:       kirki-stripe
+ * Text Domain:       kirki-authorizenet
  * Requires Plugins:  kirki-ecommerce
  */
 
 use Kirki\Ecommerce\App\Constants\HookNames;
-use Kirki\Ecommerce\Payments\Stripe;
+use Kirki\Ecommerce\Payments\Authorizenet;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -28,7 +28,7 @@ add_action('plugins_loaded', function () {
     }
 
     add_filter(HookNames::ECOMMERCE_ALL_PAYMENT_GATEWAYS, function ($gateways) {
-        $gateways[] = new Stripe();
+        $gateways[] = new Authorizenet();
 
         return $gateways;
     });

@@ -12,9 +12,10 @@ http:
     type: json
     data: |-
       {
-        "id": "stripe"
+        "id": "authorizenet"
       }
   auth: inherit
+
 settings:
   encodeUrl: true
   timeout: 0

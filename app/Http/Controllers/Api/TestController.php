@@ -24,16 +24,18 @@ class TestController
         // CurrencyExchange::sync();
         $today = Date::today();
 
-        return response()->json([
-            // 'message' => 'Hello World',
-            // 'money' => Money::from_minor(100, 'INR')->getAmounts(),
-            // 'base_url' => app()->base_url('test'),
-            // 'somoy' => $today->copy()->add_day(),
-            // 'somoy2' => $today
-            // 'usage' => CurrencyExchange::get_active_provider()->get_usage()->all(),
-            // 'is_installed' => AddonPlugin::install('https://kirki.com/addons/paypal-gateway')
-            // 'refund' => Payment::get_gateway('paypal')->refund(Order::find(7), 1)
-            'pay' => Payment::get_gateway('stripe')->pay(Order::find(1))
-        ]);
+        Payment::get_gateway('authorizenet')->pay(Order::find(4));
+
+        // return response()->json([
+        //     // 'message' => 'Hello World',
+        //     // 'money' => Money::from_minor(100, 'INR')->getAmounts(),
+        //     // 'base_url' => app()->base_url('test'),
+        //     // 'somoy' => $today->copy()->add_day(),
+        //     // 'somoy2' => $today
+        //     // 'usage' => CurrencyExchange::get_active_provider()->get_usage()->all(),
+        //     // 'is_installed' => AddonPlugin::install('https://kirki.com/addons/paypal-gateway')
+        //     // 'refund' => Payment::get_gateway('paypal')->refund(Order::find(7), 1)
+        //     'pay' => Payment::get_gateway('authorizenet')->pay(Order::find(4))
+        // ]);
     }
 }
