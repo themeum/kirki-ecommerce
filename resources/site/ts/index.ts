@@ -10,13 +10,10 @@ import '../scss/index.scss';
 import Alpine from 'alpinejs';
 
 // Import stores
-// import { createCartStore } from './components/cart';
-import { createWishlistStore } from './components/wishlist';
 import { createToastStore } from './components/toast';
 
 // Import components
 import { addToCart } from './components/add-to-cart';
-import { addToWishlist } from './components/add-to-wishlist';
 import { productFilter } from './components/product-filter';
 import { imageSlider } from './components/image-slider';
 import { variantSelector } from './components/variant-selector';
@@ -32,13 +29,10 @@ import { form } from './components/form';
 // ----------------------------------------------------------------------------
 
 // Register global stores
-Alpine.store('cartStore', createCartStore());
-Alpine.store('wishlistStore', createWishlistStore());
 Alpine.store('toastStore', createToastStore());
 
 // Register components
 Alpine.data('addToCart', addToCart);
-Alpine.data('addToWishlist', addToWishlist);
 Alpine.data('productFilter', productFilter);
 Alpine.data('imageSlider', imageSlider);
 Alpine.data('variantSelector', variantSelector);
