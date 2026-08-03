@@ -98,7 +98,7 @@ const Price = () => {
                   )}
                 />
                 {showUnitPrice && (
-                  <Flex gap={2} align="center" justify="flex-end">
+                  <Flex gap={2} align="center" justify="flex-end" shrink={0}>
                     <Text color="secondary" variant="small">
                       {__('Base price per unit', 'kirki-ecommerce')}
                     </Text>

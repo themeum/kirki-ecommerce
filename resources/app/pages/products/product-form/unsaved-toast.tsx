@@ -12,16 +12,18 @@ import { __ } from '@/wpi18n';
 
 type UnsavedToastProps = {
   visible: boolean;
-  onCancel: () => void;
+  onDiscardChanges: () => void;
   onSave: () => void;
   isSubmitting?: boolean;
+  shakeSignal?: number;
 };
 
 const UnsavedToast = ({
   visible,
-  onCancel,
+  onDiscardChanges,
   onSave,
   isSubmitting = false,
+  shakeSignal = 0,
 }: UnsavedToastProps) => {
   return createPortal(
     <div
@@ -29,7 +31,7 @@ const UnsavedToast = ({
       role="status"
       aria-hidden={!visible}
     >
-      <Flex align="center" gap={4} cssOverride={styles.content}>
+      <Flex key={shakeSignal} align="center" gap={4} cssOverride={styles.content}>
         <Flex align="center" gap={1}>
           <span css={scoped(styles.icon)} aria-hidden="true">
             <AlertTriangle />
@@ -39,8 +41,8 @@ const UnsavedToast = ({
           </Text>
         </Flex>
         <Flex align="center" gap={2}>
-          <Button variant="ghost" onClick={onCancel} disabled={isSubmitting}>
-            {__('Cancel', 'kirki-ecommerce')}
+          <Button variant="ghost" onClick={onDiscardChanges} disabled={isSubmitting}>
+            {__('Discard changes', 'kirki-ecommerce')}
           </Button>
           <Button variant="primary" onClick={onSave} loading={isSubmitting}>
             {__('Save', 'kirki-ecommerce')}
@@ -57,16 +59,16 @@ UnsavedToast.displayName = 'UnsavedToast';
 export default UnsavedToast;
 
 const shake = keyframes({
-  '0%, 100%': { transform: 'translateX(-50%) translateY(0)' },
-  '20%': { transform: 'translateX(calc(-50% - 10px)) translateY(0)' },
-  '40%': { transform: 'translateX(calc(-50% + 10px)) translateY(0)' },
-  '60%': { transform: 'translateX(calc(-50% - 6px)) translateY(0)' },
-  '80%': { transform: 'translateX(calc(-50% + 6px)) translateY(0)' },
+  '0%, 100%': { transform: 'translateX(0)' },
+  '20%': { transform: 'translateX(-10px)' },
+  '40%': { transform: 'translateX(10px)' },
+  '60%': { transform: 'translateX(-6px)' },
+  '80%': { transform: 'translateX(6px)' },
 });
 
 const wrapperBase: Parameters<typeof defineStyles>[0] = {
   position: 'fixed',
-  left: '50%',
+  left: '45%',
   bottom: theme.spacing[12],
   zIndex: 9999,
   transition: 'transform 0.2s ease-out, opacity 0.2s ease-out',
@@ -80,7 +82,6 @@ const styles = defineStyles({
     transform: 'translateX(-50%) translateY(0)',
     opacity: 1,
     pointerEvents: 'auto',
-    animation: `${shake} 0.3s ease-in-out 0.2s 1`,
   },
   wrapperHidden: {
     ...wrapperBase,
@@ -96,7 +97,8 @@ const styles = defineStyles({
     boxShadow: `${theme.shadow.lg}, ${theme.shadow.lg}`,
     justifyContent: 'space-between',
     border: `1px solid ${theme.colors.border.default}`,
-    color: '#C78C00' // Intentionally used the hex code instead of the theme color
+    color: '#C78C00', // Intentionally used the hex code instead of the theme color
+    animation: `${shake} 0.3s ease-in-out 0.2s 1`,
   },
   icon: {
     ...flexCenter(),

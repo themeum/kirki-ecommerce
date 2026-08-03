@@ -88,45 +88,51 @@ const ProductForm = ({
     return () => setUnsavedDataStatus(false);
   }, [isDirty]);
 
-  const { isBlocked, dismissToast } = useUnsavedNavigationGuard(isDirty);
+  const { isBlocked, discardChanges, markSaving, shakeSignal } =
+    useUnsavedNavigationGuard(isDirty);
 
   const handleSave = async ({
     focusOnError = true,
   }: HandleSaveOptions = {}): Promise<SaveResult> => {
     let success = false;
 
-    await form.handleSubmit(async (values) => {
-      const payload = buildProductPayload(values);
+    markSaving(true);
+    try {
+      await form.handleSubmit(async (values) => {
+        const payload = buildProductPayload(values);
 
-      try {
-        const result = await onSubmit(payload);
-        if (result) {
-          form.reset(result);
-        }
-        success = true;
-      } catch (error) {
-        const unmatchedMessages: string[] = [];
-        const { matchedFields } = applyServerErrors(
-          form,
-          error as ErrorResponse,
-          {
-            onUnmatched: (leftovers) => {
-              unmatchedMessages.push(...Object.values(leftovers));
+        try {
+          const result = await onSubmit(payload);
+          if (result) {
+            form.reset(result);
+          }
+          success = true;
+        } catch (error) {
+          const unmatchedMessages: string[] = [];
+          const { matchedFields } = applyServerErrors(
+            form,
+            error as ErrorResponse,
+            {
+              onUnmatched: (leftovers) => {
+                unmatchedMessages.push(...Object.values(leftovers));
+              },
             },
-          },
-        );
+          );
 
-        toast.error(
-          [getErrorMessage(error), ...unmatchedMessages].join(' '),
-        );
+          toast.error(
+            [getErrorMessage(error), ...unmatchedMessages].join(' '),
+          );
 
-        if (focusOnError && matchedFields[0]) {
-          form.setFocus(matchedFields[0] as FieldPath<ProductFormValues>);
+          if (focusOnError && matchedFields[0]) {
+            form.setFocus(matchedFields[0] as FieldPath<ProductFormValues>);
+          }
+
+          success = false;
         }
-
-        success = false;
-      }
-    })();
+      })();
+    } finally {
+      markSaving(false);
+    }
 
     return { success };
   };
@@ -235,9 +241,10 @@ const ProductForm = ({
       </Container>
       <UnsavedToast
         visible={isBlocked && isDirty}
-        onCancel={dismissToast}
+        onDiscardChanges={discardChanges}
         onSave={() => handleSave()}
         isSubmitting={isSubmitting}
+        shakeSignal={shakeSignal}
       />
     </Form>
   );

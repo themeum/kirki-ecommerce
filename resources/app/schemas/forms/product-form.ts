@@ -235,6 +235,7 @@ export const buildProductPayload = (
 
   const variants = (values.variants ?? []).map((item) => ({
     ...item,
+    name: item.name ?? '',
     media: Number(item.media?.id) || null,
     sku: item.sku ?? null,
     barcode: item.barcode ?? null,
