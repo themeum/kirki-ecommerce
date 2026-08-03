@@ -20,11 +20,11 @@ use function Kirki\Ecommerce\Framework\app;
 use function Kirki\Ecommerce\Framework\view_data;
 
 /**
- * Class ShopPageInlineScript.
+ * Class PageInlineScript.
  *
  * @since 1.0.0
  */
-class ShopPageInlineScript extends BaseHook
+class PageInlineScript extends BaseHook
 {
     public function get_name(): string
     {

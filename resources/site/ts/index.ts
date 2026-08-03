@@ -10,7 +10,7 @@ import '../scss/index.scss';
 import Alpine from 'alpinejs';
 
 // Import stores
-import { createCartStore } from './components/cart';
+// import { createCartStore } from './components/cart';
 import { createWishlistStore } from './components/wishlist';
 import { createToastStore } from './components/toast';
 
