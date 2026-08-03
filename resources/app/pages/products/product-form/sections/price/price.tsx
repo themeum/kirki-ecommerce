@@ -154,13 +154,6 @@ const Price = () => {
             <div style={{ position: 'relative' }}>
               <span
                 css={scoped(styles.inputLeftSymbol)}
-                style={{
-                  position: 'absolute',
-                  left: '12px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  pointerEvents: 'none',
-                }}
               >
                 {currencySymbol}
               </span>
@@ -222,5 +215,10 @@ const styles = defineStyles({
   inputLeftSymbol: {
     ...flexCenter(),
     color: theme.colors.text.secondary,
+    position: 'absolute',
+    left: theme.spacing[3],
+    top: '50%',
+    transform: 'translateY(-50%)',
+    pointerEvents: 'none',
   },
 });

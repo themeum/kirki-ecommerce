@@ -65,14 +65,12 @@ const MoneyField = <
                 <span
                   css={scoped({
                     color: theme.colors.text.secondary,
-                  })}
-                  style={{
                     position: 'absolute',
-                    left: '12px',
+                    left: theme.spacing[3],
                     top: '50%',
                     transform: 'translateY(-50%)',
                     pointerEvents: 'none',
-                  }}
+                  })}
                 >
                   {currencySymbol}
                 </span>

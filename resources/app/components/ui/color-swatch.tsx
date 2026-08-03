@@ -2,6 +2,7 @@ import type { CSSObject } from '@emotion/react';
 
 import { theme } from '@/theme';
 import { defineStyles, scopedMerge } from '@/theme/mixins';
+import { CSSProperties } from 'react';
 
 type ColorSwatchProps = {
   color?: string | null;
@@ -25,7 +26,7 @@ const ColorSwatch = ({ color, size = 16, cssOverride }: ColorSwatchProps) => {
   return (
     <span
       aria-hidden="true"
-      style={{ backgroundColor: color, width: `${size}px`, height: `${size}px` }}
+      style={`--swatch-color: ${color}; --swatch-size: ${size}px;` as CSSProperties}
       css={scopedMerge(styles.swatch, cssOverride)}
     />
   );
@@ -41,5 +42,7 @@ const styles = defineStyles({
     display: 'inline-block',
     flexShrink: 0,
     borderRadius: theme.radius.full,
+    backgroundColor: 'var(--swatch-color)',
+    width: 'var(--swatch-size)',
   },
 });
