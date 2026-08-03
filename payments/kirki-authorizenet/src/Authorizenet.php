@@ -3,6 +3,7 @@
 namespace Kirki\Ecommerce\Payments;
 
 use Exception;
+use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Payment\PaymentGateway;
 use Kirki\Ecommerce\Framework\Supports\Facades\Http;
@@ -74,61 +75,115 @@ class Authorizenet extends PaymentGateway
             throw new Exception(__('Currency is not supported.', 'kirki-ecommerce'));
         }
 
-        $line_items = array_map(
-            function ($item) {
+        foreach ($order->items as $item) {
+            $unit_price = number_format($item->total, 2, '.', '');
+            $line_items[] = [
+                'itemId'      => $item->id,
+                'name'        => $this->limit_string_length($item->product_name, 31),
+                'description' => $this->limit_string_length($item->product_name, 255),
+                'quantity'    => floatval($item->quantity),
+                'unitPrice'   => floatval($unit_price),
+            ];
+        }
 
-                $unit_price = number_format($item->total, 2, '.', '');
-
-                return array(
-                    'itemId'      => $item['item_id'],
-                    'name'        => $this->limit_string_length($item->product_name, 31),
-                    'description' => $this->limit_string_length($item->product_name, 255),
-                    'quantity'    => floatval($item->quantity),
-                    'unitPrice'   => floatval($unit_price),
-                );
-            },
-            (array) $order->items
-        );
-
-        $billing_address  = $this->getAddress($order, 'billing');
-        $shipping_address = $this->getAddress('shipping_address');
+        $billing_address  = $this->get_address($order, 'billing');
+        $shipping_address = $this->get_address($order, 'shipping_address');
 
         $transaction_request = [
-            'getHostedPaymentPageRequest' => [
-                'merchantAuthentication' => $this->get_authentication(),
-                'refId' => $order->id,
-                'transactionRequest' => [
-                    'transactionType' => 'authCaptureTransaction',
-                    'amount' => $this->format_amount($order->total, $order->currency_code),
-                    'lineItems' => $line_items,
-                ]
-            ]
+            'transactionType' => 'authCaptureTransaction',
+            'amount' => $this->format_amount($order->total, $order->currency_code),
+            'lineItems' => [
+                'lineItem' => $line_items
+            ],
         ];
 
         if (! empty($order->tax_total)) {
-            $transaction_request['tax'] = array(
+            $transaction_request['tax'] = [
                 'amount' => floatval($order->tax_total),
                 'name'   => 'Tax',
-            );
+            ];
         }
 
         if (!empty($order->shipping_total)) {
-            $transaction_request['shipping'] = array(
+            $transaction_request['shipping'] = [
                 'amount' => floatval($order->shipping_total),
                 'name'   => 'Shipping Charge',
-            );
+            ];
         }
 
         $transaction_request['poNumber'] = $order->id;
 
         if (!empty($order->customer_email)) {
-            $transaction_request['customer'] = array(
+            $transaction_request['customer'] = [
                 'type'  => 'individual',
                 'email' => $order->customer_email,
-            );
+            ];
         }
 
+        if (! empty($billing_address)) {
+            $transaction_request['billTo'] = $billing_address;
+        }
+
+        if (! empty($shipping_address)) {
+            $transaction_request['shipTo'] = $shipping_address;
+        }
+
+        $success_url = str_replace(['?', '=', '&'], ['%3F', '%3D', '%26'], $this->return_url($order));
+        $cancel_url  = str_replace(['?', '=', '&'], ['%3F', '%3D', '%26'], $this->return_url($order));
         try {
+            $request_body = [
+                'getHostedPaymentPageRequest' => [
+                    'merchantAuthentication' => $this->get_authentication(),
+                    'refId' => $order->id,
+                    'transactionRequest' => $transaction_request,
+                    'hostedPaymentSettings' => [
+                        'setting' => [
+                            [
+                                'settingName'  => 'hostedPaymentReturnOptions',
+                                'settingValue' => wp_json_encode(
+                                    [
+                                        'showReceipt' => true,
+                                        'url'         => $success_url . '&action=success',
+                                        'cancelUrl'   => $cancel_url . '&action=cancel',
+                                    ]
+                                ),
+                            ],
+                            [
+                                'settingName'  => 'hostedPaymentPaymentOptions',
+                                'settingValue' => wp_json_encode(
+                                    [
+                                        'cardCodeRequired' => false,
+                                        'showCreditCard'   => true,
+                                        'showBankAccount'  => false,
+                                    ]
+                                ),
+                            ],
+                            [
+                                'settingName'  => 'hostedPaymentSecurityOptions',
+                                'settingValue' => '{"captcha": true}',
+                            ],
+                            [
+                                'settingName'  => 'hostedPaymentShippingAddressOptions',
+                                'settingValue' => '{"show": true}',
+                            ],
+                            [
+                                'settingName'  => 'hostedPaymentBillingAddressOptions',
+                                'settingValue' => '{"show": true}',
+                            ],
+                            [
+                                'settingName'  => 'hostedPaymentCustomerOptions',
+                                'settingValue' => '{"showEmail": true}',
+                            ],
+                            [
+                                'settingName'  => 'hostedPaymentOrderOptions',
+                                'settingValue' => '{"show": true}',
+                            ],
+                        ]
+                    ]
+                ]
+            ];
+
+            $accept_payment_page_details = $this->sent_request($request_body);
         } catch (Exception $e) {
             throw new Exception(__('AuthorizeNet Payment Error: ' . $e->getMessage(), 'kirki-ecommerce'));
         }
@@ -150,21 +205,13 @@ class Authorizenet extends PaymentGateway
 
     private function check_currency(string $currency)
     {
-        $merchant_request_payload = array(
-            'getMerchantDetailsRequest' => array(
+        $merchant_request_payload = [
+            'getMerchantDetailsRequest' => [
                 'merchantAuthentication' => $this->get_authentication(),
-            ),
-        );
+            ],
+        ];
 
-        $response = Http::as_json()
-                    ->with_body(wp_json_encode($merchant_request_payload))
-                    ->post($this->get_api_url());
-
-        if ($response->failed()) {
-            throw new Exception(sprintf(__('AuthorizeNet API Error: %s', 'kirki-ecommerce'), $response->body()));
-        }
-
-        $result = $this->strip_uf8_bom($response->__toString());
+        $result = $this->sent_request($merchant_request_payload);
 
         return in_array($currency, $result->currencies);
     }
@@ -208,42 +255,55 @@ class Authorizenet extends PaymentGateway
         return $string;
     }
 
-    private function getAddress(Order $order, string $type): array
+    private function get_address(Order $order, string $type): array
     {
         if (empty($type)) {
             return [];
         }
 
-        $address                  = $type;
-        [$first_name, $last_name] = $this->extractNameParts($address->name);
-        [$address1]               = $this->splitAddress($address, 60);
+        [$address1] = $this->split_address($order, 60, $type);
 
         $return_data = [
-            'firstName' => $this->limit_string_length($first_name, 50),
-            'lastName'  => $this->limit_string_length($last_name, 50),
+            'firstName' => $this->limit_string_length($order->{$type . '_first_name'}, 50),
+            'lastName'  => $this->limit_string_length($order->{$type . '_last_name'}, 50),
             'address'   => $address1,
-            'city'      => $this->limit_string_length($address->city, 40),
-            'state'     => $this->limit_string_length($address->region, 40),
-            'zip'       => $this->limit_string_length($address->postal_code, 20),
-            'country'   => $address->country->alpha_2 ?? '',
+            'city'      => $this->limit_string_length($order->{$type . '_city'}, 40),
+            'state'     => $this->limit_string_length($order->{$type . '_state'}, 40),
+            'zip'       => $this->limit_string_length($order->{$type . '_postal_code'}, 20),
+            'country'   => $order->{$type . '_country'} ?? '',
         ];
 
         if ('billing_address' === $type) {
-            $return_data['phoneNumber'] = $this->limit_string_length($address->phone_number, 25) ?? '';
+            $return_data['phoneNumber'] = $this->limit_string_length($order->{$type . '_phone'}, 25) ?? '';
         }
 
         return $return_data;
     }
 
-    public static function splitAddress($data, $maxLength)
+    public static function split_address($data, $maxLength, $type)
     {
-        if (empty($data->address1)) {
-            return array();
+        if (empty($data->{$type . '_address_line1'})) {
+            return [];
         }
 
-        $address_1 = mb_strimwidth($data->address1, 0, $maxLength);
-        $address_2 = ( strlen($data->address1) > $maxLength ) ? mb_strimwidth($data->address1, $maxLength, $maxLength) : $data->address2;
+        $address_1 = mb_strimwidth($data->{$type . '_address_line1'}, 0, $maxLength);
+        $address_2 = (strlen($data->{$type . '_address_line1'}) > $maxLength)
+            ? mb_strimwidth($data->{$type . '_address_line1'}, $maxLength, $maxLength)
+            : $data->{$type . '_address_line2'};
 
-        return array( $address_1, $address_2 );
+        return [$address_1, $address_2];
+    }
+
+    private function sent_request($payload)
+    {
+        $response = Http::as_json()
+            ->with_body(wp_json_encode($payload))
+            ->post($this->get_api_url());
+
+        if ($response->failed()) {
+            throw new Exception(sprintf(__('AuthorizeNet API Error: %s', 'kirki-ecommerce'), $response->body()));
+        }
+
+        return $this->strip_uf8_bom($response->__toString());
     }
 }

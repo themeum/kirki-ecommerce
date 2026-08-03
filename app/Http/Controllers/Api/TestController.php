@@ -24,7 +24,7 @@ class TestController
         // CurrencyExchange::sync();
         $today = Date::today();
 
-        Payment::get_gateway('authorizenet')->pay(Order::find(4));
+        Payment::get_gateway('authorizenet')->pay(Order::find(2));
 
         // return response()->json([
         //     // 'message' => 'Hello World',
