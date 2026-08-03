@@ -12,12 +12,13 @@ interface ToastEntry {
 
 export interface ToastApi {
   (message: string, options?: ToastOptions): string;
-  success: (message: string, duration?: number) => string;
-  error: (message: string, duration?: number) => string;
-  warning: (message: string, duration?: number) => string;
-  info: (message: string, duration?: number) => string;
+  success: (message: string, duration?: number, options?: ToastOptions) => string;
+  error: (message: string, duration?: number, options?: ToastOptions) => string;
+  warning: (message: string, duration?: number, options?: ToastOptions) => string;
+  info: (message: string, duration?: number, options?: ToastOptions) => string;
   dismiss: (id?: string) => void;
   clear: () => void;
+  configure: (options: ToastConfig) => void;
 }
 
 const DEFAULT_CONFIG: ToastConfig = {
@@ -176,6 +177,10 @@ export class ToastManager {
     const id = String(++this.idCounter);
     const type = options.type || 'info';
     const duration = options.duration ?? this.config.duration ?? 5000;
+    const position = options.position || this.config.position || 'bottom-right';
+    
+    // Update container position for this toast
+    this.updateContainerPosition(position);
     
     const item = this.buildCard(id, message, type);
     
@@ -204,6 +209,32 @@ export class ToastManager {
     return id;
   }
 
+  private updateContainerPosition(position: string): void {
+    if (!this.container) return;
+    
+    if (position.includes('top')) {
+      this.container.style.top = '16px';
+      this.container.style.bottom = 'auto';
+    } else {
+      this.container.style.bottom = '16px';
+      this.container.style.top = 'auto';
+    }
+    
+    if (position.includes('left')) {
+      this.container.style.left = '16px';
+      this.container.style.right = 'auto';
+      this.container.style.transform = 'none';
+    } else if (position.includes('right')) {
+      this.container.style.right = '16px';
+      this.container.style.left = 'auto';
+      this.container.style.transform = 'none';
+    } else {
+      this.container.style.left = '50%';
+      this.container.style.right = 'auto';
+      this.container.style.transform = 'translateX(-50%)';
+    }
+  }
+
   public success(message: string, duration?: number): string {
     return this.show(message, { type: 'success', duration });
   }
@@ -228,12 +259,13 @@ export class ToastManager {
 export function createToastApi(manager: ToastManager): ToastApi {
   const api = ((message: string, options?: ToastOptions) => manager.show(message, options)) as ToastApi;
   
-  api.success = (message, duration) => manager.success(message, duration);
-  api.error = (message, duration) => manager.error(message, duration);
-  api.warning = (message, duration) => manager.warning(message, duration);
-  api.info = (message, duration) => manager.info(message, duration);
+  api.success = (message, duration, options) => manager.show(message, { ...options, type: 'success', duration });
+  api.error = (message, duration, options) => manager.show(message, { ...options, type: 'error', duration });
+  api.warning = (message, duration, options) => manager.show(message, { ...options, type: 'warning', duration });
+  api.info = (message, duration, options) => manager.show(message, { ...options, type: 'info', duration });
   api.dismiss = (id) => manager.dismiss(id);
   api.clear = () => manager.clear();
+  api.configure = (options) => manager.configure(options);
   
   return api;
 }
@@ -243,3 +275,8 @@ const manager = new ToastManager();
 export const toastManager = manager;
 
 export const toast = createToastApi(manager);
+
+// Expose to window for demo purposes
+if (typeof window !== 'undefined') {
+  (window as any).kecomToast = toast;
+}

@@ -421,11 +421,11 @@ use Kirki\Ecommerce\App\Supports\Icon;
     })" @submit.prevent="handleSubmit(
         (data) => { 
             console.log('Form submitted:', data); 
-            showToast('success', 'Form submitted successfully!');
+            if (window.kecomToast) window.kecomToast.success('Form submitted successfully!');
             reset();
         },
         () => {
-            showToast('error', 'Please fix the errors');
+            if (window.kecomToast) window.kecomToast.error('Please fix the errors');
         }
     )" class="kecom-form">
         <div class="kecom-form-field">
@@ -561,27 +561,8 @@ use Kirki\Ecommerce\App\Supports\Icon;
 </div>
 
 <!-- TOAST DEMO CONTAINER -->
-<div id="toast-container" class="kecom-toast-container"></div>
-
 <script>
-function showToast(variant, position = 'top-right') {
-    const container = document.getElementById('toast-container');
-    container.className = 'kecom-toast-container kecom-toast-container-' + position;
-    
-    const icons = {
-        success: '✓',
-        error: '✕',
-        warning: '⚠',
-        info: 'ℹ'
-    };
-    
-    const titles = {
-        success: 'Success',
-        error: 'Error',
-        warning: 'Warning',
-        info: 'Information'
-    };
-    
+function showToast(type, position = 'bottom-right') {
     const messages = {
         success: 'Your action was completed successfully.',
         error: 'Something went wrong. Please try again.',
@@ -589,25 +570,18 @@ function showToast(variant, position = 'top-right') {
         info: 'Here is some helpful information.'
     };
     
-    const toast = document.createElement('div');
-    toast.className = 'kecom-toast kecom-toast-' + variant;
-    toast.innerHTML = `
-        <div class="kecom-toast-icon">${icons[variant]}</div>
-        <div class="kecom-toast-content">
-            <div class="kecom-toast-title">${titles[variant]}</div>
-            <div class="kecom-toast-message">${messages[variant]}</div>
-        </div>
-        <button class="kecom-toast-close" onclick="this.parentElement.remove()">&times;</button>
-    `;
-    
-    container.appendChild(toast);
-    
-    // Auto dismiss after 5 seconds
-    setTimeout(() => {
-        toast.style.opacity = '0';
-        toast.style.transform = 'translateX(20px)';
-        setTimeout(() => toast.remove(), 200);
-    }, 5000);
+    // Show toast with position as option
+    if (window.kecomToast) {
+        if (type === 'success') {
+            window.kecomToast.success(messages[type], undefined, { position });
+        } else if (type === 'error') {
+            window.kecomToast.error(messages[type], undefined, { position });
+        } else if (type === 'warning') {
+            window.kecomToast.warning(messages[type], undefined, { position });
+        } else {
+            window.kecomToast.info(messages[type], undefined, { position });
+        }
+    }
 }
 </script>
 
