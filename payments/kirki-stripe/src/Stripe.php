@@ -124,6 +124,7 @@ class Stripe extends PaymentGateway
                 'order_number' => $order->order_number
             ];
 
+            // @todo Need to change success & cancel URL.
             $data = [
                 'currency' => $currency,
                 'line_items' => $line_items,
