@@ -105,7 +105,7 @@ const VariationTable = () => {
   }
   return (
     <>
-      <Separator style={{ margin: `auto -${theme.spacing[4]}` }} />
+      <Separator cssOverride={styles.fullBleed} />
       <Flex>
         <Flex gap={3}>
           <Select
@@ -272,6 +272,10 @@ export default VariationTable;
 const styles = defineStyles({
   normalWeight: {
     ...theme.typography.paragraph(),
+  },
+  fullBleed: {
+    marginInline: `calc(-1 * ${theme.spacing[4]})`,
+    width: `calc(100% + ${theme.spacing[8]})`,
   },
 });
 

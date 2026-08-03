@@ -24,19 +24,10 @@ import { createVariantCombinations } from '@/pages/products/utils';
 
 import { theme } from '@/theme';
 
-type SaveResult = {
-  success?: boolean;
-};
-
-type AttributeListProps = {
-  onSave?: () => Promise<SaveResult | false | void> | SaveResult | false | void;
-};
-
 type SortableCardProps = {
   item: Attribute;
   editingId: number | string | null;
   onClose: () => void;
-  onSave: AttributeListProps['onSave'];
   handleAttributeEdit: (attribute: Attribute) => void;
   handleAttributeRemove: (id: number) => void;
 };
@@ -53,7 +44,6 @@ const SortableCard = ({
   item,
   editingId,
   onClose,
-  onSave,
   handleAttributeEdit,
   handleAttributeRemove,
 }: SortableCardProps) => {
@@ -121,7 +111,7 @@ const SortableCard = ({
             </ActionGroup>
           </Flex>
         ) : (
-          <AddOrEditAttribute data={item} onClose={onClose} onSave={onSave} />
+          <AddOrEditAttribute data={item} onClose={onClose} />
         )}
         </CardContent>
       </Card>
@@ -131,7 +121,7 @@ const SortableCard = ({
 
 SortableCard.displayName = 'SortableCard';
 
-const AttributeList = ({ onSave = () => {} }: AttributeListProps) => {
+const AttributeList = () => {
   const { control, setValue, getValues } = useFormContext<ProductFormValues>();
   const formAttributes = useWatch({ control, name: 'attributes' }) ?? [];
   const [attributeValues, setAttributeValues] = useState<Attribute[]>([]);
@@ -184,7 +174,7 @@ const AttributeList = ({ onSave = () => {} }: AttributeListProps) => {
 
   return (
     <>
-      <>
+      <Flex direction="column" gap={4}>
         {attributeValues?.length > 0 && (
           <Flex direction="column" gap={2} cssOverride={{ position: 'relative' }}>
             <DndContext
@@ -205,7 +195,6 @@ const AttributeList = ({ onSave = () => {} }: AttributeListProps) => {
                       handleAttributeEdit={handleAttributeEdit}
                       handleAttributeRemove={handleAttributeRemove}
                       onClose={onClose}
-                      onSave={onSave}
                     />
                   ))}
                 </SortableContext>
@@ -219,9 +208,9 @@ const AttributeList = ({ onSave = () => {} }: AttributeListProps) => {
             {__('Add', 'kirki-ecommerce')}
           </Button>
         )}
-      </>
+      </Flex>
       {editingId === 'new' && (
-        <AddOrEditAttribute onClose={onClose} onSave={onSave} />
+        <AddOrEditAttribute onClose={onClose} />
       )}
     </>
   );

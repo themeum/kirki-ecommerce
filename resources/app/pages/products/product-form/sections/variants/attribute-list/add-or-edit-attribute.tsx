@@ -27,12 +27,8 @@ import type {
 } from '@/types';
 import { __ } from '@/wpi18n';
 
-import AddOrEditVariation from '@/pages/products/product-form/sections/variants/attribute-list/add-or-edit-variation';
+import AttributeValuesField from '@/components/form/attribute-values-field';
 import { createVariantCombinations } from '@/pages/products/utils';
-
-type SaveResult = {
-  success?: boolean;
-};
 
 type AttributeSuggestion = SelectOption & {
   type?: string;
@@ -41,11 +37,10 @@ type AttributeSuggestion = SelectOption & {
 type AddOrEditAttributeProps = {
   onClose?: () => void;
   data?: Attribute;
-  onSave?: () => Promise<SaveResult | false | void> | SaveResult | false | void;
 };
 
 const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
-  const { onClose = () => { }, data, onSave = () => { } } = props;
+  const { onClose = () => { }, data } = props;
 
   const { getValues, setValue } = useFormContext<ProductFormValues>();
   const productAttributes = (getValues('attributes') ?? []) as Attribute[];
@@ -109,7 +104,12 @@ const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
     setAttributeSuggestionArray(allAttributes);
   };
 
-  const handleSaveAttribute = async () => {
+  const handleApply = async () => {
+    const isValid = await form.trigger();
+    if (!isValid) {
+      return;
+    }
+
     const values = form.getValues();
     const formattedValues = (values.values || []).map((item) => ({
       id: item?.value as number,
@@ -148,11 +148,7 @@ const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
     setValue('variants', nextVariants as never, { shouldDirty: true });
     setValue('has_variants', true, { shouldDirty: true });
 
-    const result = (await onSave()) as SaveResult | undefined;
-
-    if (result?.success) {
-      handleOnClose();
-    }
+    handleOnClose();
   };
 
   const handleAttributeSelect = (attributeValue: string) => {
@@ -217,11 +213,11 @@ const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
   return (
     <Form {...form}>
       <Card cssOverride={cardStyles.innerCard}>
-        <CardContent cssOverride={cardStyles.innerContent}>
+        <CardContent cssOverride={cardStyles.innerCardContent}>
           <Flex direction="column" gap={4}>
             {!data && (
               <Flex direction="column" gap={2}>
-                <Text variant="small" weight="medium">{__('Show in Product page as', 'kirki-ecommerce')}</Text>
+                <Text variant="small" weight="medium">{__('Show in Product Page as', 'kirki-ecommerce')}</Text>
                 <ButtonGroup>
                   <Button
                     variant="outline"
@@ -301,7 +297,15 @@ const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
                 </Field>
               )}
             />
-            <AddOrEditVariation />
+            <AttributeValuesField
+              name="values"
+              label={__('Variation Values', 'kirki-ecommerce')}
+              attributeId={formData?.id}
+              type={type}
+              disabled={!formData?.id}
+              placeholder={__('Add', 'kirki-ecommerce')}
+              addItemLabel={__('Add Variation', 'kirki-ecommerce')}
+            />
 
             <ActionGroup>
               <Button variant="secondary" onClick={handleOnClose}>
@@ -316,7 +320,7 @@ const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
                     formData.values.length > 0
                   )
                 }
-                onClick={handleSaveAttribute}
+                onClick={handleApply}
               >
                 {__('Apply', 'kirki-ecommerce')}
               </Button>

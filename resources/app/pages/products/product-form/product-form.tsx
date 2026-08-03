@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useEffect } from 'react';
 import { useForm, useWatch, type FieldPath } from 'react-hook-form';
 import { useNavigate } from 'react-router';
 import { toast } from 'sonner';
@@ -17,6 +18,7 @@ import PageHeading from '@/components/ui/page-heading';
 import { Separator } from '@/components/ui/separator';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
+import { setUnsavedDataStatus } from '@/libs/unsaved-store';
 import {
   buildProductPayload,
   getProductFormDefaultValues,
@@ -75,6 +77,13 @@ const ProductForm = ({
     !hasVariants ||
     !attributeValues ||
     (Array.isArray(attributeValues) && attributeValues.length === 0);
+
+  const { isDirty } = form.formState;
+
+  useEffect(() => {
+    setUnsavedDataStatus(isDirty);
+    return () => setUnsavedDataStatus(false);
+  }, [isDirty]);
 
   const handleSave = async ({
     focusOnError = true,
@@ -212,9 +221,7 @@ const ProductForm = ({
                   <Shipping />
                 </>
               )}
-              <Variants
-                onSave={() => handleSave({ focusOnError: false })}
-              />
+              <Variants />
               <SEOSettings />
             </Flex>
           </div>

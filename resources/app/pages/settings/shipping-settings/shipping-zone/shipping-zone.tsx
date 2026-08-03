@@ -1,14 +1,16 @@
 import { useState, useMemo, useEffect } from 'react';
+import { Minus } from 'lucide-react';
 import { mergeCss } from '@/theme/mixins';
 import { useParams, useOutletContext, useNavigate } from 'react-router';
 
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import PageHeading from '@/components/ui/page-heading';
-import TagManager from '@/components/tag-manager/tag-manager';
 import PageNavbar from '@/components/page-navbar';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import Chip from '@/components/ui/chip';
+import ChipField, { chipFieldControlCss } from '@/components/ui/chip-field';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import Input from '@/components/ui/input';
 import { getErrorsObject } from '@/libs/api';
@@ -16,7 +18,7 @@ import { useUnsavedStatus } from '@/libs/unsaved-store';
 import { dispatchToastMessage, normalizeErrors } from '@/pages/utils';
 import { useCountriesQuery } from '@/services/country';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
-import type { FormErrors, SelectOption, SettingsSectionData } from '@/types';
+import type { FormErrors, SettingsSectionData } from '@/types';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
@@ -99,6 +101,11 @@ const ShippingZonePage = () => {
     const derivedCountries = currentZone.regions.map((r) => r.country);
     setSelectedCountries(derivedCountries);
   }, [zoneId, shippingZonesObj]);
+
+  const regionTags = useMemo(
+    () => getSelectedRegionTags(selectedRegion, countryList),
+    [selectedRegion, countryList],
+  );
 
   const handleRemoveRegionTag = (removedTag: RegionTag) => {
     if (selectedCountries.length <= 1 || selectedRegion.length <= 1) {
@@ -265,26 +272,42 @@ const ShippingZonePage = () => {
                   <FieldError>{errors.title}</FieldError>
                 )}
               </Field>
-              <TagManager
-              label={__('Regions', 'kirki-ecommerce')}
-              placeholder={__(
-              'Click to add destinations..',
-              'kirki-ecommerce',
-              )}
-              readOnly
-              hasAddBtn={false}
-              onClick={() => setOpenPopup(true)}
-              selectedTags={
-              getSelectedRegionTags(
-              selectedRegion,
-              countryList as CountryWithStates[] | null,
-              ) as unknown as SelectOption[]
-              }
-              onTagRemove={(tag) =>
-              handleRemoveRegionTag(tag as unknown as RegionTag)
-              }
-              error={(errors?.regions as string) || ''}
-              />
+              {/* Not a MultiSelect: regions are picked in their own dialog,
+                  so this is the chip frame with a read-only trigger. */}
+              <Field data-invalid={errors?.regions ? true : undefined}>
+                <FieldLabel>{__('Regions', 'kirki-ecommerce')}</FieldLabel>
+                <ChipField
+                  error={Boolean(errors?.regions)}
+                  control={
+                    <Input
+                      readOnly
+                      placeholder={__(
+                        'Click to add destinations..',
+                        'kirki-ecommerce',
+                      )}
+                      cssOverride={chipFieldControlCss}
+                      onClick={() => setOpenPopup(true)}
+                    />
+                  }
+                  chips={
+                    regionTags.length > 0
+                      ? regionTags.map((tag) => (
+                        <Chip
+                          key={tag.id}
+                          text={tag.title}
+                          img={tag.tagIcon}
+                          subText={tag.subText}
+                          closeIcon={<Minus size={14} aria-hidden="true" />}
+                          onRemove={() => handleRemoveRegionTag(tag)}
+                        />
+                      ))
+                      : undefined
+                  }
+                />
+                {typeof errors?.regions === 'string' && (
+                  <FieldError>{errors.regions}</FieldError>
+                )}
+              </Field>
 
               {openPopup && (
               <ShippingRegionPopup
