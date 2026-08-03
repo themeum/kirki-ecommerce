@@ -162,10 +162,6 @@ export function form(config: FormConfig = {}) {
     mode,
     fieldRules: {} as Record<string, ValidationRules>,
 
-    init() {
-      this.validateForm();
-    },
-
     register(name: string, rules?: ValidationRules) {
       this.values[name] ??= '';
       this.fieldRules[name] = rules || {};
@@ -208,6 +204,7 @@ export function form(config: FormConfig = {}) {
       for (const name of fieldNames) {
         await this.validateField(name);
       }
+      (this as any).$dispatch('billing-form-validated', { isValid: this.isValid });
       return this.isValid;
     },
 
