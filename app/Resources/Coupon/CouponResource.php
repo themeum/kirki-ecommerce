@@ -56,6 +56,6 @@ class CouponResource extends Resource
 
     protected function prepare_amount($amount)
     {
-        return Money::from_minor($amount)->getAmount();
+        return Money::from_minor($amount)->getAmount()->toFloat();
     }
 }

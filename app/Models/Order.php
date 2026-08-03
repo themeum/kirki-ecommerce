@@ -80,6 +80,7 @@ class Order extends Model
 
     protected $casts = [
         'id' => 'integer',
+        'customer_id' => 'integer',
         'is_manual' => 'boolean',
         'exchange_rate' => 'float',
         'items_count' => 'integer',

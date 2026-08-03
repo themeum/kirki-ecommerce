@@ -35,6 +35,8 @@ class Variant extends Model
         'shipping_profile_id' => 'integer',
         'shipping_box_id' => 'integer',
         'is_visible' => 'boolean',
+        'is_physical_product' => 'boolean',
+        'is_default' => 'boolean',
         'created_by' => 'integer',
         'updated_by' => 'integer',
     ];

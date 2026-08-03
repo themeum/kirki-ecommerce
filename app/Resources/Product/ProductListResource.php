@@ -30,7 +30,7 @@ class ProductListResource extends Resource
             'image' => MediaAttachment::make($this->media->first()->ID ?? null)['url'] ?? null,
             'sku' => $this->sku,
             'inventory' => $inventory,
-            'price' => Money::from_minor($min_price)->getAmount(),
+            'price' => Money::from_minor($min_price)->getAmount()->toFloat(),
             'status' => $this->status,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

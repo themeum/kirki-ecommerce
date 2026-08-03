@@ -119,6 +119,6 @@ class CartResource extends Resource
 
     protected function prepare_amount($amount)
     {
-        return Money::convert_to_currency(Money::from_minor($amount, $this->base_currency_code), $this->currency_code)->getAmount();
+        return Money::convert_to_currency(Money::from_minor($amount, $this->base_currency_code), $this->currency_code)->getAmount()->toFloat();
     }
 }

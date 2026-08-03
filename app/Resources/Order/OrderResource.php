@@ -92,6 +92,6 @@ class OrderResource extends Resource
 
     protected function prepare_amount($amount)
     {
-        return Money::from_minor($amount, $this->currency_code)->getAmount();
+        return Money::from_minor($amount, $this->currency_code)->getAmount()->toFloat();
     }
 }
