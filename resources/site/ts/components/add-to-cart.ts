@@ -10,6 +10,7 @@
  */
 
 import { cartApi } from "../api/cart";
+import { toastManager } from "../services/toast/runtime";
 
 export interface AddToCartConfig {
   variantId: number;
@@ -68,6 +69,9 @@ export function addToCart(config: AddToCartConfig) {
         this.success = true;
         this.buttonText = "View Cart";
 
+        // Show success toast
+        toastManager.success(__("Item added to cart", "kirki-ecommerce"));
+
         // Update cart_variant_ids in window.kirki_ecommerce after successful add
         const cartVariantIds = window.kirki_ecommerce?.cart_variant_ids || [];
         if (!cartVariantIds.includes(this.variantId)) {
@@ -77,6 +81,9 @@ export function addToCart(config: AddToCartConfig) {
       } catch (e: unknown) {
         this.error = e instanceof Error ? e.message : "Could not add to cart";
         this.buttonText = config.buttonText || __("Add to Cart", "kirki-ecommerce");
+
+        // Show error toast
+        toastManager.error(this.error);
       } finally {
         this.loading = false;
       }

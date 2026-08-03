@@ -49,3 +49,65 @@ export interface ApiError {
   message: string;
   code?: string;
 }
+
+// ── Toast types ───────────────────────────────────────────────────────────────
+
+export type ToastType = 'success' | 'error' | 'warning' | 'info' | 'default';
+
+export type ToastPosition =
+  | 'top-left'
+  | 'top-center'
+  | 'top-right'
+  | 'bottom-left'
+  | 'bottom-center'
+  | 'bottom-right';
+
+export type ToastExpandMode = 'hover' | 'always' | 'never';
+
+export type ToastTheme = 'light' | 'dark' | 'auto';
+
+export interface ToastOffset {
+  x?: number;
+  y?: number;
+  mobile?: {
+    x?: number;
+    y?: number;
+  };
+  lg?: {
+    x?: number;
+    y?: number;
+  };
+}
+
+export interface ToastOptions {
+  type?: ToastType;
+  title?: string;
+  description?: string;
+  icon?: string | null;
+  duration?: number;
+  closeButton?: boolean;
+  dir?: 'ltr' | 'rtl' | 'auto';
+  richColors?: boolean;
+  position?: ToastPosition;
+  theme?: ToastTheme;
+}
+
+export interface ToastConfig {
+  position?: ToastPosition;
+  duration?: number;
+  closeButton?: boolean;
+  maxVisible?: number;
+  dir?: 'ltr' | 'rtl' | 'auto';
+  offset?: ToastOffset;
+  expandMode?: ToastExpandMode;
+  richColors?: boolean;
+  theme?: ToastTheme;
+}
+
+export interface ToastItem {
+  id: string;
+  title: string;
+  description?: string;
+  type: ToastType;
+  duration: number;
+}
