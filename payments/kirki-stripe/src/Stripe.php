@@ -47,13 +47,13 @@ class Stripe extends PaymentGateway
             [
                 'name' => 'secret_key',
                 'label' => __('Secret Key', 'kirki-ecommerce'),
-                'type' => 'text',
+                'type' => 'password',
                 'required' => true,
             ],
             [
                 'name' => 'webhook_secret',
                 'label' => __('Webhook Secret', 'kirki-ecommerce'),
-                'type' => 'text',
+                'type' => 'password',
                 'required' => true,
             ],
         ]);
