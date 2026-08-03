@@ -44,6 +44,9 @@ const formControlSelectors = (suffix = ''): string => {
  */
 const getNormalizeStyles = (theme: Theme): CSSObject => {
   return {
+    '#wpcontent': {
+      paddingLeft: 0,
+    },
     '#wpbody-content .notice': {
       display: 'none !important',
     },

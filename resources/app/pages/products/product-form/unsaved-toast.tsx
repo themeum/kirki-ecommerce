@@ -1,3 +1,4 @@
+import { keyframes } from '@emotion/react';
 import { AlertTriangle } from 'lucide-react';
 import { createPortal } from 'react-dom';
 
@@ -55,6 +56,14 @@ UnsavedToast.displayName = 'UnsavedToast';
 
 export default UnsavedToast;
 
+const shake = keyframes({
+  '0%, 100%': { transform: 'translateX(-50%) translateY(0)' },
+  '20%': { transform: 'translateX(calc(-50% - 10px)) translateY(0)' },
+  '40%': { transform: 'translateX(calc(-50% + 10px)) translateY(0)' },
+  '60%': { transform: 'translateX(calc(-50% - 6px)) translateY(0)' },
+  '80%': { transform: 'translateX(calc(-50% + 6px)) translateY(0)' },
+});
+
 const wrapperBase: Parameters<typeof defineStyles>[0] = {
   position: 'fixed',
   left: '50%',
@@ -71,6 +80,7 @@ const styles = defineStyles({
     transform: 'translateX(-50%) translateY(0)',
     opacity: 1,
     pointerEvents: 'auto',
+    animation: `${shake} 0.3s ease-in-out 0.2s 1`,
   },
   wrapperHidden: {
     ...wrapperBase,
