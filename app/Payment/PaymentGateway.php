@@ -425,8 +425,7 @@ class PaymentGateway
             return site_url();
         }
 
-        return 'https://6480-119-148-4-217.ngrok-free.app';
-        //return home_url();
+        return home_url();
     }
 
     protected function get_item_description($order_item, $currency = null)

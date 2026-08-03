@@ -47,13 +47,13 @@ class Stripe extends PaymentGateway
             [
                 'name' => 'secret_key',
                 'label' => __('Secret Key', 'kirki-ecommerce'),
-                'type' => 'text',
+                'type' => 'password',
                 'required' => true,
             ],
             [
                 'name' => 'webhook_secret',
                 'label' => __('Webhook Secret', 'kirki-ecommerce'),
-                'type' => 'text',
+                'type' => 'password',
                 'required' => true,
             ],
         ]);
@@ -124,6 +124,7 @@ class Stripe extends PaymentGateway
                 'order_number' => $order->order_number
             ];
 
+            // @todo Need to change success & cancel URL.
             $data = [
                 'currency' => $currency,
                 'line_items' => $line_items,
@@ -345,7 +346,7 @@ class Stripe extends PaymentGateway
             return $this->stripe;
         }
 
-        $secret_key = $this->settings['secret_key'] ?? '';
+        $secret_key = $this->settings['secret_key'] ?? null;
 
         if (empty($secret_key)) {
             throw new Exception(__('Stripe Secret Key is missing.', 'kirki-ecommerce'));
