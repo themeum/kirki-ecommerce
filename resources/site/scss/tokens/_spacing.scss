@@ -14,12 +14,13 @@ $spacing-9:  20px;
 $spacing-10: 24px;
 $spacing-11:  28px;
 $spacing-12:  32px;
-$spacing-14: 36px;
-$spacing-16:  40px;
-$spacing-18:  44px;
-$spacing-20:  48px;
-$spacing-21:  56px;
-$spacing-22:  64px;
+$spacing-13: 36px;
+$spacing-14:  40px;
+$spacing-15:  44px;
+$spacing-16:  48px;
+$spacing-17:  56px;
+$spacing-18:  64px;
+$spacing-19:  80px;
 
 // Map used by utility generators
 $spacing-scale: (
@@ -36,8 +37,11 @@ $spacing-scale: (
   10: $spacing-10,
   11: $spacing-11,
   12: $spacing-12,
+  13: $spacing-13,
   14: $spacing-14,
+  15: $spacing-15,
   16: $spacing-16,
+  17: $spacing-17,
   18: $spacing-18,
-  20: $spacing-20,
+  19: $spacing-19,
 );
