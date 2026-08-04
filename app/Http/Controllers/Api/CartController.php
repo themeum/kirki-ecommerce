@@ -19,7 +19,6 @@ use Kirki\Ecommerce\App\DTO\Cart\EmptyCartDTO;
 use Kirki\Ecommerce\App\DTO\Cart\RemoveCartItemDTO;
 use Kirki\Ecommerce\App\DTO\Cart\UpdateCartDTO;
 use Kirki\Ecommerce\App\DTO\Cart\UpdateCartItemDTO;
-use Kirki\Ecommerce\App\Resources\Cart\CartUpdateItemResource;
 
 use function Kirki\Ecommerce\App\customer;
 use function Kirki\Ecommerce\Framework\response;
