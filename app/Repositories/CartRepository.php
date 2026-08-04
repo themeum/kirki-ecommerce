@@ -24,7 +24,7 @@ class CartRepository
     public function find_by_customer($customer_id)
     {
         return Cart::where('customer_id', $customer_id)->with([
-            'items' => ['product' => ['media', 'categories'], 'variant' => ['media']]
+            'items' => ['product' => ['media', 'categories'], 'variant' => ['media', 'attribute_values', 'available_quantity']]
         ])->first();
     }
 

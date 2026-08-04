@@ -19,14 +19,13 @@ use Kirki\Ecommerce\App\Resources\Cart\CartResource;
 use Kirki\Ecommerce\App\Services\ProductService;
 use Kirki\Ecommerce\App\Resources\Product\ProductResource;
 use Kirki\Ecommerce\App\Services\CartService;
-use Kirki\Ecommerce\App\Services\CustomerService;
 use Kirki\Ecommerce\App\Services\PaymentGatewayService;
 use Kirki\Ecommerce\App\Supports\Utils;
 use Kirki\Ecommerce\Framework\Http\Request;
 
-use function Kirki\Ecommerce\App\customer;
 use function Kirki\Ecommerce\Framework\include_view;
 use function Kirki\Ecommerce\Framework\response;
+use function Kirki\Ecommerce\App\customer;
 use function Kirki\Ecommerce\Framework\view;
 
 /**
@@ -130,9 +129,13 @@ class SiteController
      *
      * @return string Template path.
      */
-    public function cart_page(Request $request)
+    public function cart_page(Request $request, CartService $cart_service)
     {
-        return view('site.cart')->layout(false);
+        $customer = customer();
+        $cart = $cart_service->get_cart($customer->get_customer_id() ?? null, null);
+        $cart_resource = CartResource::make($cart);
+
+        return view('site.cart', ['cart' => $cart_resource])->layout(false);
     }
 
     /**

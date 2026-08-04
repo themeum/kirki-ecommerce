@@ -2,8 +2,8 @@
  * Cart API — wraps /kirki/ecommerce/v1/cart/*
  */
 
+import type { Cart, CartUpdateItem } from '../types';
 import { apiRequest } from './client';
-import type { Cart } from '../types';
 
 export const cartApi = {
   get: () =>
@@ -16,13 +16,13 @@ export const cartApi = {
     }),
 
   updateItem: (itemId: number, quantity: number) =>
-    apiRequest<Cart>(`/cart/items/${itemId}`, {
+    apiRequest<{ data: CartUpdateItem, message: string, success: boolean }>(`/cart/items/${itemId}`, {
       method: 'PUT',
       body: { quantity },
     }),
 
   removeItem: (itemId: number) =>
-    apiRequest<Cart>(`/cart/items/${itemId}`, { method: 'DELETE' }),
+    apiRequest<{ data: CartUpdateItem, message: string, success: boolean }>(`/cart/items/${itemId}`, { method: 'DELETE' }),
 
   empty: () =>
     apiRequest<void>('/cart', { method: 'DELETE' }),
