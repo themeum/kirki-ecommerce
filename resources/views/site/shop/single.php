@@ -12,6 +12,7 @@
 defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Facades\Money;
+use Kirki\Ecommerce\App\Supports\Assets;
 use Kirki\Ecommerce\App\Supports\Template;
 use Kirki\Ecommerce\App\Supports\Icon;
 use Kirki\Ecommerce\App\Supports\Url;
@@ -54,7 +55,12 @@ foreach ($media as $media_item) {
             <!-- Left: Product Images -->
             <div class="kecom-product-gallery" x-data="imageSlider({ images: kirki_ecommerce.product_images || [] })">
                 <div class="kecom-product-main-image">
-                    <img :src="currentImage.url" alt="<?php echo esc_attr($product['title']); ?>">
+                    <template x-if="currentImage.url">
+                        <img :src="currentImage.url" alt="<?php echo esc_attr($product['title']); ?>">
+                    </template>
+                    <template x-if="!currentImage.url">
+                        <img src="<?php echo esc_url(Assets::get_url('images/product-fallback.png')); ?>" alt="<?php echo esc_attr($product['title']); ?>">
+                    </template>
                     <?php if (count($images) > 1): ?>
                         <button class="kecom-product-nav-btn kecom-product-nav-prev" @click="prev" aria-label="Previous image">
                             <?php Icon::render('arrow-left', array('size' => 20)); ?>
@@ -93,7 +99,7 @@ foreach ($media as $media_item) {
 
                 <?php if (! empty($product['description'])): ?>
                     <p class="kecom-product-short-description">
-                        <?php echo esc_html($product['description']); ?>
+                        <?php echo esc_html($product['short_description']); ?>
                     </p>
                 <?php endif; ?>
 
@@ -176,8 +182,7 @@ foreach ($media as $media_item) {
                 </div>
                 
                 <div class="kecom-product-tab-content" :class="{ 'active': activeTab === 'description' }">
-                    <h3>Product Description</h3>
-                    <p><?php echo esc_html($product['description'] ?? ''); ?></p>
+                    <?php echo wp_kses_post($product['description'] ?? ''); ?>
                 </div>
 
                 <?php foreach ($additional_info as $index => $info): ?>

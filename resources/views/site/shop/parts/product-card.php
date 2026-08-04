@@ -15,6 +15,7 @@ defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Managers\MoneyManager;
 use Kirki\Ecommerce\App\Models\Product;
+use Kirki\Ecommerce\App\Supports\Assets;
 use Kirki\Ecommerce\App\Supports\Icon;
 use Kirki\Ecommerce\App\Supports\Url;
 
@@ -51,6 +52,8 @@ $media = $product->media()->first();
 $image_url = null;
 if ($media) {
     $image_url = wp_get_attachment_image_url($media->ID, 'large');
+} else {
+    $image_url = Assets::get_url('images/product-fallback.png');
 }
 
 $product_url = Url::get_product_url($product->slug);

@@ -428,63 +428,67 @@ use Kirki\Ecommerce\App\Supports\Icon;
             if (window.kecomToast) window.kecomToast.error('Please fix the errors');
         }
     )" class="kecom-form">
-        <div class="kecom-form-field">
-            <label for="name">Full Name *</label>
-            <input 
-                id="name" 
-                type="text" 
-                x-bind="register('name', { 
+        <div class="kecom-field">
+            <label class="kecom-field-label" for="name">Full Name *</label>
+            <input
+                class="kecom-input"
+                id="name"
+                type="text"
+                x-bind="register('name', {
                     required: 'Name is required',
                     minLength: { value: 2, message: 'Name must be at least 2 characters' }
                 })"
                 placeholder="Enter your full name"
             >
-            <span class="kecom-form-error" x-show="errors.name" x-text="errors.name"></span>
+            <span class="kecom-field-error" x-show="errors.name" x-text="errors.name"></span>
         </div>
 
-        <div class="kecom-form-field">
-            <label for="email">Email Address *</label>
-            <input 
-                id="email" 
-                type="email" 
-                x-bind="register('email', { 
+        <div class="kecom-field">
+            <label class="kecom-field-label" for="email">Email Address *</label>
+            <input
+                class="kecom-input"
+                id="email"
+                type="email"
+                x-bind="register('email', {
                     required: 'Email is required',
                     email: true
                 })"
                 placeholder="Enter your email"
             >
-            <span class="kecom-form-error" x-show="errors.email" x-text="errors.email"></span>
+            <span class="kecom-field-error" x-show="errors.email" x-text="errors.email"></span>
         </div>
 
-        <div class="kecom-form-field">
-            <label for="password">Password *</label>
-            <input 
-                id="password" 
-                type="password" 
-                x-bind="register('password', { 
+        <div class="kecom-field">
+            <label class="kecom-field-label" for="password">Password *</label>
+            <input
+                class="kecom-input"
+                id="password"
+                type="password"
+                x-bind="register('password', {
                     required: 'Password is required',
                     minLength: { value: 8, message: 'Password must be at least 8 characters' }
                 })"
                 placeholder="Create a password"
             >
-            <span class="kecom-form-error" x-show="errors.password" x-text="errors.password"></span>
+            <span class="kecom-field-error" x-show="errors.password" x-text="errors.password"></span>
         </div>
 
-        <div class="kecom-form-field">
-            <label for="confirmPassword">Confirm Password *</label>
-            <input 
-                id="confirmPassword" 
-                type="password" 
-                x-bind="register('confirmPassword', { 
+        <div class="kecom-field">
+            <label class="kecom-field-label" for="confirmPassword">Confirm Password *</label>
+            <input
+                class="kecom-input"
+                id="confirmPassword"
+                type="password"
+                x-bind="register('confirmPassword', {
                     required: 'Please confirm your password',
                     validate: (value) => value === values.password || 'Passwords do not match'
                 })"
                 placeholder="Confirm your password"
             >
-            <span class="kecom-form-error" x-show="errors.confirmPassword" x-text="errors.confirmPassword"></span>
+            <span class="kecom-field-error" x-show="errors.confirmPassword" x-text="errors.confirmPassword"></span>
         </div>
 
-        <div class="kecom-form-field">
+        <div class="kecom-field">
             <button type="submit" class="kecom-btn kecom-btn-primary" :disabled="isSubmitting">
                 <span x-show="!isSubmitting">Submit Form</span>
                 <span x-show="isSubmitting">Submitting...</span>
@@ -604,42 +608,6 @@ function showToast(type, position = 'bottom-right') {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
-}
-
-.kecom-form-field {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.kecom-form-field label {
-    font-weight: 600;
-    font-size: 0.875rem;
-    color: var(--kecom-color-text, #18181b);
-}
-
-.kecom-form-field input {
-    padding: 0.75rem 1rem;
-    border: 1px solid var(--kecom-color-border, #e2e8f0);
-    border-radius: var(--kecom-radius-md, 6px);
-    font-size: 1rem;
-    transition: border-color 0.2s;
-}
-
-.kecom-form-field input:focus {
-    outline: none;
-    border-color: var(--kecom-color-brand, #3b82f6);
-    box-shadow: 0 0 0 3px var(--kecom-color-brand-light, #eff6ff);
-}
-
-.kecom-form-field input.kecom-input-error {
-    border-color: var(--kecom-color-error, #ef4444);
-}
-
-.kecom-form-error {
-    font-size: 0.875rem;
-    color: var(--kecom-color-error, #ef4444);
-    min-height: 1.25rem;
 }
 
 .kecom-form-debug {
