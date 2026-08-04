@@ -17,9 +17,13 @@ import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import PageHeading from '@/components/ui/page-heading';
 import Text from '@/components/ui/text';
-import { CheckoutSettingsFormSchema, checkoutSettingsDefaultValues, type CheckoutSettingsFormValues } from '@/schemas/forms/checkout-settings-form';
+import { getDefaults, pickFormValues } from '@/libs/zod';
+import {
+  CheckoutSettingsFormSchema,
+  type CheckoutSettingsFormInput,
+  type CheckoutSettingsFormPayload,
+} from '@/schemas/forms/checkout-settings-form';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
-import type { SettingsSectionData } from '@/types';
 import { __ } from '@/wpi18n';
 
 import { cardStyles } from '@/theme/card-styles';
@@ -38,13 +42,13 @@ const CheckoutSettings = () => {
 
   const hasUnsavedData = useUnsavedStatus();
   const { data: checkoutSettingsData, isLoading } = useSettingsQuery('checkout');
-  const { mutateAsync: saveSettings, isPending } = useUpdateSettingsMutation();
+  const { mutateAsync: saveSettings, isPending } = useUpdateSettingsMutation<'checkout'>();
 
   const loaded = !isLoading && Boolean(checkoutSettingsData);
 
-  const form = useForm<CheckoutSettingsFormValues>({
+  const form = useForm<CheckoutSettingsFormInput, unknown, CheckoutSettingsFormPayload>({
     resolver: zodResolver(CheckoutSettingsFormSchema),
-    defaultValues: checkoutSettingsDefaultValues,
+    defaultValues: getDefaults(CheckoutSettingsFormSchema),
   });
 
   useEffect(() => {
@@ -52,34 +56,20 @@ const CheckoutSettings = () => {
       return;
     }
 
-    const checkoutConfig =
-      checkoutSettingsData.checkout_configuration || {};
-
-    form.reset({
-      ...checkoutSettingsDefaultValues,
-      ...checkoutSettingsData,
-      terms_and_conditions_content:
-        checkoutSettingsData.terms_and_conditions_content ?? '',
-      privacy_policy_content:
-        checkoutSettingsData.privacy_policy_content ?? '',
-      checkout_configuration: {
-        ...checkoutSettingsDefaultValues.checkout_configuration,
-        ...checkoutConfig,
-      },
-    });
+    form.reset(pickFormValues(CheckoutSettingsFormSchema, checkoutSettingsData));
   }, [checkoutSettingsData, form]);
 
   useEffect(() => {
     setUnsavedDataStatus(form.formState.isDirty);
   }, [form.formState.isDirty]);
 
-  const handleSaveData = async (values: CheckoutSettingsFormValues) => {
+  const handleSaveData = async (payload: CheckoutSettingsFormPayload) => {
     try {
       await saveSettings({
         key: 'checkout',
-        data: values as SettingsSectionData,
+        data: payload,
       });
-      form.reset(values);
+      form.reset(form.getValues());
     } catch (error) {
       applyServerErrors(form, error as ErrorResponse);
     }

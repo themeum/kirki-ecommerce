@@ -195,11 +195,6 @@ type SettingsSectionData = {
   base_currency?: ProductCurrency | null;
 };
 
-type SettingsSection = {
-  loaded: boolean;
-  data: SettingsSectionData | null;
-};
-
 type ShippingProfile = {
   id: number;
   name: string;
@@ -227,66 +222,18 @@ type TaxProfile = {
   updated_at?: string;
 };
 
-type NestedListState<T> = {
-  loaded: boolean;
-  data: T[] | null;
-  toggler: boolean | number;
-};
-
-type ShippingSettingsSection = SettingsSection & {
-  activeZoneId: number | null;
-  selectedCountryList: string[] | null;
-  shippingProfile: NestedListState<ShippingProfile>;
-  shippingBox: NestedListState<ShippingBox>;
-};
-
-type TaxSettingsSection = SettingsSection & {
-  taxProfile: NestedListState<TaxProfile>;
-};
-
-type SettingsState = {
-  general: SettingsSection;
-  product: SettingsSection;
-  orders: SettingsSection;
-  checkout: SettingsSection;
-  shipping: ShippingSettingsSection;
-  tax: TaxSettingsSection;
-  payment: SettingsSection;
-  email: SettingsSection;
-  currency: SettingsSection;
-  default: SettingsSection;
-};
-
-type SetSettingsPayload = {
-  key: SettingsSectionKey;
-  value: SettingsSectionData | null;
-};
-
 export type {
   SettingsSectionKey,
-  StoreAddressSettings,
-  BarcodeGenerationSettings,
   ShippingRegion,
   ShippingRuleCondition,
   ShippingRuleAction,
   ShippingRule,
-  ShippingMethodRange,
   ShippingMethod,
   ShippingZone,
-  PaymentGatewayConfig,
   SettingsSectionData,
-  SettingsSection,
   ShippingProfile,
   ShippingBox,
   TaxProfile,
-  NestedListState,
-  ShippingSettingsSection,
-  TaxSettingsSection,
-  SettingsState,
-  SetSettingsPayload,
   PaymentGateway,
   PaymentMethod,
-  EmailTemplate,
-  CheckoutConfiguration,
-  CurrencyApiConfig,
 };

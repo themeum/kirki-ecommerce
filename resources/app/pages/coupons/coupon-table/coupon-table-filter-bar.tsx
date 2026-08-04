@@ -1,13 +1,13 @@
-import { css } from '@emotion/react';
 import { memo } from 'react';
 
 import Button from '@/components/ui/button';
 import Capsule from '@/components/ui/capsule';
 import Flex from '@/components/ui/flex';
-import { useListParamsActions, useListParamsValue } from '@/contexts/list-params-context';
+import { useListParams } from '@/hooks';
 import { theme } from '@/theme';
+import { defineStyles } from '@/theme/mixins';
 import type { SuggestionOption } from '@/types';
-import { CouponListFilter, couponListFilterConfig, methodOptions, statusOptions, discountTypeOptions } from '@/types/filters/coupon';
+import { CouponListFilter, couponListFilterConfig, couponListOptions, discountTypeOptions, methodOptions, statusOptions } from '@/types/filters/coupon';
 import { __ } from '@/wpi18n';
 
 type FilterValue = string | number | Array<string | number>;
@@ -16,7 +16,7 @@ const COUPON_FILTER_KEYS = couponListFilterConfig.keys;
 
 type CouponFilterKey = keyof CouponListFilter;
 
-const filterActionBarCss = css({
+const filterActionBarCss = defineStyles({
   flexWrap: 'wrap',
   borderTop: `1px solid ${theme.colors.border.tertiary}`,
   backgroundColor: theme.colors.background.surface,
@@ -24,8 +24,7 @@ const filterActionBarCss = css({
 });
 
 const CouponTableFilterBar = memo(() => {
-  const params = useListParamsValue<CouponListFilter>();
-  const { setParam, setParams } = useListParamsActions<CouponListFilter>();
+  const { params, setParam, setParams } = useListParams<CouponListFilter>(couponListOptions);
 
   const filterOptionsMap: Partial<Record<CouponFilterKey, SuggestionOption[]>> = {
     status: statusOptions,

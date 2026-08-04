@@ -29,10 +29,11 @@ import { applyServerErrors } from '@/libs/form-errors';
 import Flex from '@/components/ui/flex';
 import { Separator } from '@/components/ui/separator';
 import Text from '@/components/ui/text';
+import { getDefaults } from '@/libs/zod';
 import {
   ShippingBoxFormSchema,
-  shippingBoxDefaultValues,
-  type ShippingBoxFormValues,
+  type ShippingBoxFormInput,
+  type ShippingBoxFormPayload,
 } from '@/schemas/forms/shipping-box-form';
 import { useSettingsQuery } from '@/services/settings';
 import {
@@ -83,9 +84,9 @@ const ShippingBoxPopup = ({
     useUpdateShippingBoxMutation();
   const isSubmitting = isCreating || isUpdating;
 
-  const form = useForm<ShippingBoxFormValues>({
+  const form = useForm<ShippingBoxFormInput, unknown, ShippingBoxFormPayload>({
     resolver: zodResolver(ShippingBoxFormSchema),
-    defaultValues: shippingBoxDefaultValues,
+    defaultValues: getDefaults(ShippingBoxFormSchema),
   });
 
   const length = useWatch({ control: form.control, name: 'length' });
@@ -123,23 +124,20 @@ const ShippingBoxPopup = ({
   };
 
   const handleOnclosePopup = () => {
-    form.reset(shippingBoxDefaultValues);
+    form.reset(getDefaults(ShippingBoxFormSchema));
     onClose();
   };
 
-  const handleCreateOrUpdateBox = async (values: ShippingBoxFormValues) => {
+  const handleCreateOrUpdateBox = async (payload: ShippingBoxFormPayload) => {
     try {
       if (selectedItem) {
         const response = await updateBox({
           id: selectedItem?.id as number,
-          data: values as Record<string, unknown>,
+          data: payload,
         });
         onSave((response?.data as { id?: number })?.id);
       } else {
-        const response = await createBox({
-          ...values,
-          is_default: false,
-        } as Record<string, unknown>);
+        const response = await createBox(payload);
         onSave((response?.data as { id?: number })?.id);
       }
       handleOnclosePopup();

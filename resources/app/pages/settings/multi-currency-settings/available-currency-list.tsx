@@ -7,7 +7,7 @@ import { InfoIcon, IncreaseIcon } from '@/icons';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { dispatchToastMessage, dateFormatter } from '@/pages/utils';
-import type { MultiCurrencySettingsFormValues } from '@/schemas/forms/multi-currency-settings-form';
+import type { MultiCurrencySettingsFormInput } from '@/schemas/forms/multi-currency-settings-form';
 import { useAvailableCurrenciesQuery, useUpdateCurrencyMutation, useDeleteCurrencyMutation } from '@/services/currency';
 import type {
   Currency,
@@ -54,7 +54,7 @@ const getActionArray = (item: Currency): SelectOption[] => {
 
 export const AvailableCurrencyList = () => {
   const [editCurrency, setEditCurrency] = useState<(Currency & { icon?: string }) | null>(null);
-  const dataObj = useWatch<MultiCurrencySettingsFormValues>();
+  const dataObj = useWatch<MultiCurrencySettingsFormInput>();
 
   const { data: rawCurrencies = [], refetch } = useAvailableCurrenciesQuery();
   const { mutate: updateCurrencyMutate } = useUpdateCurrencyMutation();

@@ -22,7 +22,7 @@ export type MediaRef = {
   thumb?: string | null;
   author?: string;
   author_name?: string;
-  date?: string;
+  date?: string | number | Date;
   alt?: string;
   poster?: MediaRef | null;
 };
@@ -41,7 +41,7 @@ export const MediaRefSchema: z.ZodType<MediaRef> = z.lazy(() =>
     thumb: z.string().nullish(),
     author: z.string().optional(),
     author_name: z.string().optional(),
-    date: z.string().optional(),
+    date: z.union([z.string(), z.number(), z.date()]).optional(),
     alt: z.string().optional(),
     poster: MediaRefSchema.nullish(),
   }),

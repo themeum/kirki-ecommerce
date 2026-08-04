@@ -1,12 +1,12 @@
 import { useState } from 'react';
 
 import Button from '@/components/ui/button';
-import type { TagFormData } from '@/types';
+import type { TagFormInput } from '@/schemas/forms/tag-form';
 import { __ } from '@/wpi18n';
 
 import TagAddEditDialog from '@/pages/tags/tag-add-edit-dialog';
 
-const initialState: TagFormData = {
+const initialState: TagFormInput = {
   name: '',
   slug: '',
   description: '',

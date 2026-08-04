@@ -7,6 +7,7 @@ import NotFound from '@/pages/not-found/not-found';
 import Tryouts from '@/tryouts';
 
 const Products = lazy(() => import('@/pages/products/products'));
+const CreateProduct = lazy(() => import('@/pages/products/create-product/create-product'));
 const EditProduct = lazy(() => import('@/pages/products/edit-product/edit-product'));
 const BulkEdit = lazy(() => import('@/pages/bulk-edit/bulk-edit'));
 const Inventory = lazy(() => import('@/pages/inventory/inventory'));
@@ -53,6 +54,7 @@ export const router = createHashRouter([
     children: [
       { path: '/', element: <Tryouts /> },
       { path: '/products', element: withSuspense(Products) },
+      { path: '/products/create', element: withSuspense(CreateProduct) },
       { path: '/products/:id', element: withSuspense(EditProduct) },
       { path: '/variants/bulk', element: withSuspense(BulkEdit) },
       { path: '/inventory', element: withSuspense(Inventory) },

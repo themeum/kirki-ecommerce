@@ -2,12 +2,12 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router';
 
 import DropdownButton from '@/components/dropdown-button';
-import Button from '@/components/ui/button';
-import { BulkEditFormProvider, useBulkEditForm } from '@/contexts/bulk-edit-form-context';
-import { LayoutIcon } from '@/icons';
 import Badge from '@/components/ui/badge';
+import Button from '@/components/ui/button';
 import FullPageContainer from '@/components/ui/full-page-container';
 import PageHeading from '@/components/ui/page-heading';
+import { BulkEditFormProvider, useBulkEditForm } from '@/contexts/bulk-edit-form-context';
+import { LayoutIcon } from '@/icons';
 import { useBulkVariantsQuery, useUpdateBulkVariantsMutation } from '@/services/bulk-edit';
 import type { MediaRef } from '@/types';
 import { __ } from '@/wpi18n';
@@ -17,6 +17,7 @@ import { allTableHeaders } from '@/pages/bulk-edit/utils';
 
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
+import { ChevronLeft } from 'lucide-react';
 
 const BulkEditPage = () => {
   const [searchParams] = useSearchParams();
@@ -56,8 +57,9 @@ const BulkEditPage = () => {
         noMargin
         buttonProps={{
           variant: 'outline',
-          size: 'sm',
+          size: 'icon',
         }}
+        backIcon={<ChevronLeft size={16} aria-hidden="true" />}
         actions={
           <>
             <DropdownButton

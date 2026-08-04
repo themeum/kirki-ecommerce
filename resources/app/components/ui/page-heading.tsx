@@ -15,6 +15,7 @@ type PageHeadingProps = {
   type?: HeadingType;
   text?: string;
   hasBack?: boolean;
+  backIcon?: ReactNode;
   size?: ContainerSize;
   sticky?: boolean;
   children?: ReactNode;
@@ -33,6 +34,7 @@ const PageHeading = forwardRef<HTMLDivElement, PageHeadingProps>(
       cssOverride,
       text = __('Button', 'kirki-ecommerce'),
       hasBack = false,
+      backIcon = null,
       size,
       sticky,
       children,
@@ -50,6 +52,8 @@ const PageHeading = forwardRef<HTMLDivElement, PageHeadingProps>(
       onClick,
       ...restButtonProps
     } = buttonProps;
+
+    const BackIcon = backIcon || <ArrowLeft size={16} aria-hidden="true" />;
 
     return (
       <div
@@ -75,7 +79,7 @@ const PageHeading = forwardRef<HTMLDivElement, PageHeadingProps>(
                 }}
                 {...restButtonProps}
               >
-                <ArrowLeft size={16} aria-hidden="true" />
+                {BackIcon}
                 {buttonChildren}
               </Button>
             )}

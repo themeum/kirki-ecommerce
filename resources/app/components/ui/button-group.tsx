@@ -1,14 +1,14 @@
 import type { CSSObject } from '@emotion/react';
 import { Slot } from '@radix-ui/react-slot';
 import {
+  ComponentRef,
   forwardRef,
-  type ComponentPropsWithoutRef,
-  type ElementRef,
+  type ComponentPropsWithoutRef
 } from 'react';
 
 import { Separator } from '@/components/ui/separator';
 import { theme } from '@/theme';
-import { itemCenter, mergeCss, scopedMerge, defineStyles } from '@/theme/mixins';
+import { defineStyles, itemCenter, mergeCss, scopedMerge } from '@/theme/mixins';
 
 type ButtonGroupOrientation = 'horizontal' | 'vertical';
 
@@ -122,7 +122,7 @@ ButtonGroupText.displayName = 'ButtonGroupText';
  * @since 1.0.0
  */
 const ButtonGroupSeparator = forwardRef<
-  ElementRef<typeof Separator>,
+  ComponentRef<typeof Separator>,
   ButtonGroupSeparatorProps
 >((props, ref) => {
   const {
@@ -147,14 +147,14 @@ ButtonGroupSeparator.displayName = 'ButtonGroupSeparator';
 export {
   ButtonGroup,
   ButtonGroupSeparator,
-  ButtonGroupText,
+  ButtonGroupText
 };
 
 export type {
   ButtonGroupOrientation,
   ButtonGroupProps,
   ButtonGroupSeparatorProps,
-  ButtonGroupTextProps,
+  ButtonGroupTextProps
 };
 
 const styles = defineStyles({
@@ -178,24 +178,24 @@ const styles = defineStyles({
   },
   horizontal: {
     flexDirection: 'row',
-    [mergeChild(':not(:first-child)')]: {
+    [mergeChild(':not(:first-of-type)')]: {
       borderTopLeftRadius: 0,
       borderBottomLeftRadius: 0,
       marginLeft: '-1px',
     },
-    [mergeChild(':not(:last-child)')]: {
+    [mergeChild(':not(:last-of-type)')]: {
       borderTopRightRadius: 0,
       borderBottomRightRadius: 0,
     },
   },
   vertical: {
     flexDirection: 'column',
-    [mergeChild(':not(:first-child)')]: {
+    [mergeChild(':not(:first-of-type)')]: {
       borderTopLeftRadius: 0,
       borderTopRightRadius: 0,
       marginTop: '-1px',
     },
-    [mergeChild(':not(:last-child)')]: {
+    [mergeChild(':not(:last-of-type)')]: {
       borderBottomLeftRadius: 0,
       borderBottomRightRadius: 0,
     },

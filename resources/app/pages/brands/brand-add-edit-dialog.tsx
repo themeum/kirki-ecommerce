@@ -12,31 +12,25 @@ import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import { BrandFormSchema, type BrandFormValues } from '@/schemas/forms/brand-form';
+import { pickFormValues } from '@/libs/zod';
+import {
+  BrandFormSchema,
+  type BrandFormInput,
+  type BrandFormPayload,
+} from '@/schemas/forms/brand-form';
 import { useCreateBrandMutation, useUpdateBrandMutation } from '@/services/brand';
 import { cardStyles } from '@/theme/card-styles';
-import type { Brand, BrandFormData } from '@/types';
+import type { Brand } from '@/types';
 import { __ } from '@/wpi18n';
 
 type BrandAddEditPopoverProps = {
-  brand: Brand | BrandFormData;
+  brand: Brand | BrandFormInput;
   onClose?: () => void;
 };
 
-const getInitialLogoUrl = (brand: Brand | BrandFormData) => {
-  const logo =
-    brand.logo && typeof brand.logo === 'object' ? brand.logo : null;
+const getInitialLogoUrl = (brand: Brand | BrandFormInput) => {
+  const logo = brand.logo && typeof brand.logo === 'object' ? brand.logo : null;
   return logo?.url || null;
-};
-
-const getLogoId = (brand: Brand | BrandFormData) => {
-  if (brand.logo && typeof brand.logo === 'object') {
-    return brand.logo.id ?? null;
-  }
-  if (typeof brand.logo === 'number' || typeof brand.logo === 'string') {
-    return brand.logo;
-  }
-  return null;
 };
 
 const BrandAddEditPopover = ({
@@ -51,14 +45,9 @@ const BrandAddEditPopover = ({
     getInitialLogoUrl(brand),
   );
 
-  const form = useForm<BrandFormValues>({
+  const form = useForm<BrandFormInput, unknown, BrandFormPayload>({
     resolver: zodResolver(BrandFormSchema),
-    defaultValues: {
-      name: brand.name ?? '',
-      slug: brand.slug ?? '',
-      description: brand.description ?? '',
-      logo: getLogoId(brand),
-    },
+    defaultValues: pickFormValues(BrandFormSchema, brand),
   });
 
   const handleOpenChange = (nextOpen: boolean) => {
@@ -67,12 +56,7 @@ const BrandAddEditPopover = ({
     }
   };
 
-  const handleSubmit = async (values: BrandFormValues) => {
-    const payload: BrandFormData = {
-      ...values,
-      logo: values.logo ?? null,
-    };
-
+  const handleSubmit = async (payload: BrandFormPayload) => {
     try {
       if (brandId) {
         await updateMutation.mutateAsync({
@@ -163,4 +147,3 @@ const BrandAddEditPopover = ({
 BrandAddEditPopover.displayName = 'BrandAddEditPopover';
 
 export default BrandAddEditPopover;
-

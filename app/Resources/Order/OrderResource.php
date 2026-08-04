@@ -56,6 +56,8 @@ class OrderResource extends Resource
                 'email' => $this->shipping_email,
             ],
 
+            'is_billing_same_as_shipping' => $this->is_billing_same_as_shipping,
+
             'billing_address' => [
                 'first_name' => $this->billing_first_name,
                 'last_name' => $this->billing_last_name,
@@ -93,6 +95,8 @@ class OrderResource extends Resource
 
     protected function prepare_amount($amount)
     {
-        return Money::from_minor($amount, $this->currency_code)->getAmount();
+        $value = Money::convert_to_currency(Money::from_minor($amount), $this->currency_code)->getMinorAmount();
+        
+        return Money::to_dto($value, $this->currency_code);
     }
 }

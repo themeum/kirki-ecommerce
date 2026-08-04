@@ -17,13 +17,14 @@ import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { queryKeys } from '@/libs/query-keys';
 import { useUnsavedStatus } from '@/libs/unsaved-store';
-import { TaxRegionGeneralFormSchema, taxRegionGeneralDefaultValues, type TaxRegionGeneralFormValues } from '@/schemas/forms/tax-region-general-form';
+import { getDefaults, pickFormValues } from '@/libs/zod';
+import { TaxRegionGeneralFormSchema, type TaxRegionGeneralFormInput } from '@/schemas/forms/tax-region-general-form';
+import { TaxSettingsFormSchema, type TaxSettingsFormPayload } from '@/schemas/forms/tax-settings-form';
 import { toastMutationError } from '@/services/helpers';
 import { updateSettings, useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { mergeCss, defineStyles } from '@/theme/mixins';
-import type { SettingsSectionData } from '@/types';
 import { __ } from '@/wpi18n';
 
 import AddCitiesPopup from '@/pages/settings/tax-settings/tax-region/add-cities-dialog';
@@ -35,10 +36,6 @@ import { setUnsavedDataStatus } from '@/pages/settings/utils';
 
 type SettingsOutletContext = {
   confirmAction: (params: { action?: () => void }) => void;
-};
-
-type TaxSettingsFormData = SettingsSectionData & {
-  tax_regions?: TaxRegion[];
 };
 
 const GeneralEditRegion = () => {
@@ -53,13 +50,13 @@ const GeneralEditRegion = () => {
   const hasUnsavedData = useUnsavedStatus();
   const { data: taxSettingsData, isLoading } = useSettingsQuery('tax');
   const { mutateAsync: saveSettings, isPending: isSaving } =
-    useUpdateSettingsMutation();
+    useUpdateSettingsMutation<'tax'>();
 
   const loaded = !isLoading && Boolean(taxSettingsData);
 
-  const form = useForm<TaxRegionGeneralFormValues>({
+  const form = useForm<TaxRegionGeneralFormInput>({
     resolver: zodResolver(TaxRegionGeneralFormSchema),
-    defaultValues: taxRegionGeneralDefaultValues,
+    defaultValues: getDefaults(TaxRegionGeneralFormSchema),
   });
 
   const { isDirty } = form.formState;
@@ -124,7 +121,7 @@ const GeneralEditRegion = () => {
   };
 
   const buildUpdatedRegions = (
-    values: TaxRegionGeneralFormValues,
+    values: TaxRegionGeneralFormInput,
     updatedTaxRates?: TaxRate[],
   ): TaxRegion[] => {
     return regions.map((country) =>
@@ -150,7 +147,7 @@ const GeneralEditRegion = () => {
   };
 
   const handleSaveData = async (
-    values: TaxRegionGeneralFormValues,
+    values: TaxRegionGeneralFormInput,
     updatedTaxRates?: TaxRate[],
     from = '',
   ) => {
@@ -166,9 +163,12 @@ const GeneralEditRegion = () => {
   };
 
   const saveDataToDB = async (updatedDataObj: TaxRegion[], from = '') => {
-    const payload: TaxSettingsFormData = {
-      ...(taxSettingsData as TaxSettingsFormData),
-      tax_regions: updatedDataObj,
+    const currentTaxSettings = TaxSettingsFormSchema.parse(
+      pickFormValues(TaxSettingsFormSchema, taxSettingsData ?? {}),
+    );
+    const payload: TaxSettingsFormPayload = {
+      ...currentTaxSettings,
+      tax_regions: updatedDataObj as TaxSettingsFormPayload['tax_regions'],
     };
 
     if (from === 'delete') {

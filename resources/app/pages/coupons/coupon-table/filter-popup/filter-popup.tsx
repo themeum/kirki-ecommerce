@@ -7,11 +7,11 @@ import Flex from '@/components/ui/flex';
 import Label from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Text from '@/components/ui/text';
-import { useListParamsActions, useListParamsValue } from '@/contexts/list-params-context';
+import { useListParams } from '@/hooks';
 import { CloseIcon, ListFilter } from '@/icons';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
-import { CouponListFilter, discountTypeOptions, methodOptions, statusOptions } from '@/types/filters/coupon';
+import { CouponListFilter, couponListOptions, discountTypeOptions, methodOptions, statusOptions } from '@/types/filters/coupon';
 import { __, sprintf } from '@/wpi18n';
 
 
@@ -26,8 +26,7 @@ const FilterPopup = memo(({
   buttonProps,
   data: _data,
 }: FilterPopupProps) => {
-  const params = useListParamsValue<CouponListFilter>();
-  const { setParams } = useListParamsActions<CouponListFilter>();
+  const { params, setParams } = useListParams<CouponListFilter>(couponListOptions);
   const [openPopup, setOpenPopup] = useState(false);
   const [filterObject, setFilterObject] = useState<CouponListFilter>({
     status: 'all',

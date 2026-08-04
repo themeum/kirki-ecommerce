@@ -33,7 +33,8 @@ const NumberField = <
   disabled,
   cssOverride,
   min,
-  max
+  max,
+
 }: NumberFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
   const fieldId = String(name);
@@ -104,6 +105,9 @@ const NumberField = <
             }}
             onKeyDown={preventStepKeys}
             onWheel={preventStepScroll}
+            name={field.name}
+            ref={field.ref}
+            onFocus={event => event.target.select()}
           />
           {description && <FieldDescription>{description}</FieldDescription>}
           {fieldState.invalid && <FieldError errors={[fieldState.error]} />}

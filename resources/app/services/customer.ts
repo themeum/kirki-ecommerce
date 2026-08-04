@@ -4,9 +4,10 @@ import { apiClient } from '@/libs/api';
 import { endpoints } from '@/libs/endpoints';
 import { queryKeys } from '@/libs/query-keys';
 import { CustomerListItemSchema, CustomerSchema } from '@/schemas/catalog/customer';
+import type { CustomerFormPayload } from '@/schemas/forms/customer-form';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
-import { parseData, parseResponse, toastMutationError, toastMutationSuccess, unwrapResponse } from '@/services/helpers';
-import type { ListQueryParams, BulkActionParams, CustomerFormData } from '@/types';
+import { parseData, parseMessage, parseResponse, toastMutationError, toastMutationSuccess } from '@/services/helpers';
+import type { ListQueryParams, BulkActionParams } from '@/types';
 import { __ } from '@/wpi18n';
 
 const getCustomers = (params: ListQueryParams = {}) => {
@@ -23,7 +24,7 @@ const getCustomer = (id: number) => {
     .then((response) => parseData(CustomerSchema, response));
 };
 
-const createCustomer = (data: CustomerFormData) => {
+const createCustomer = (data: CustomerFormPayload) => {
   return apiClient
     .post(endpoints.CUSTOMERS, data)
     .then((response) => parseResponse(CustomerSchema, response));
@@ -34,7 +35,7 @@ const updateCustomer = ({
   data,
 }: {
   id: number;
-  data: CustomerFormData;
+  data: CustomerFormPayload;
 }) => {
   return apiClient
     .put(endpoints.CUSTOMER(id), data)
@@ -44,7 +45,7 @@ const updateCustomer = ({
 const deleteCustomer = (id: number) => {
   return apiClient
     .delete(endpoints.CUSTOMER(id))
-    .then((response) => unwrapResponse(response));
+    .then((response) => parseMessage(response));
 };
 
 const bulkDeleteCustomers = ({
@@ -53,7 +54,7 @@ const bulkDeleteCustomers = ({
 }: BulkActionParams = {}) => {
   return apiClient
     .post(endpoints.CUSTOMERS_BULK, { action, ids })
-    .then((response) => unwrapResponse(response));
+    .then((response) => parseMessage(response));
 };
 
 const useCustomersQuery = (params: ListQueryParams = {}, enabled = true) => {

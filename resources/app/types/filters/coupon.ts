@@ -1,4 +1,4 @@
-import { SuggestionOption } from "@/components/ui/suggestions";
+import type { SuggestionOption } from "@/types/pages/common";
 import type { UseListParamsOptions } from "@/hooks/use-list-params";
 import { ListFilterConfig, parseString } from "@/types/list-state";
 import { __ } from "@/wpi18n";
