@@ -37,26 +37,6 @@ class Cart extends Model
         'shipping_details' => 'json',
     ];
 
-    public function set_shipping_address_attribute($value)
-    {
-        return !empty($value) && is_array($value) ? Arr::json_encode($value) : null;
-    }
-
-    public function set_billing_address_attribute($value)
-    {
-        return !empty($value) && is_array($value) ? Arr::json_encode($value) : null;
-    }
-
-    public function set_shipping_details_attribute($value)
-    {
-        return !empty($value) && is_array($value) ? Arr::json_encode($value) : null;
-    }
-
-    public function set_discount_details_attribute($value)
-    {
-        return !empty($value) && is_array($value) ? Arr::json_encode($value) : null;
-    }
-
     public function items()
     {
         return $this->has_many(CartItem::class, 'cart_id');

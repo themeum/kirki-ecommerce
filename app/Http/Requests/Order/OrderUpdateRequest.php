@@ -4,14 +4,28 @@ namespace Kirki\Ecommerce\App\Http\Requests\Order;
 
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
+use function Kirki\Ecommerce\App\customer;
 
 class OrderUpdateRequest extends Request
 {
+    public function authorize()
+    {
+        if(!customer()->is_admin() 
+            && !empty($this->input('customer_id')) 
+            && $this->input('customer_id') !== customer()->get_customer_id()
+            && $this->input('is_manual')
+        ) {
+            return false;
+        }
+
+        return true;
+    }
+
     public function rules()
     {
         return [
             'id' => 'required|integer',
-            'customer_id' => 'required|integer',
+            'customer_id' => 'nullable|integer',
             'items' => 'required|array|min:1',
             'items.*.id' => 'nullable|integer',
             'items.*.variant_id' => 'required|integer',
