@@ -15,10 +15,16 @@ use Kirki\Ecommerce\App\Http\Requests\Site\ShopPageFilterRequest;
 use Kirki\Ecommerce\App\Models\Brand;
 use Kirki\Ecommerce\App\Models\Category;
 use Kirki\Ecommerce\App\Models\Product;
+use Kirki\Ecommerce\App\Resources\Cart\CartResource;
 use Kirki\Ecommerce\App\Services\ProductService;
 use Kirki\Ecommerce\App\Resources\Product\ProductResource;
+use Kirki\Ecommerce\App\Services\CartService;
+use Kirki\Ecommerce\App\Services\CustomerService;
+use Kirki\Ecommerce\App\Services\PaymentGatewayService;
+use Kirki\Ecommerce\App\Supports\Utils;
 use Kirki\Ecommerce\Framework\Http\Request;
 
+use function Kirki\Ecommerce\App\customer;
 use function Kirki\Ecommerce\Framework\include_view;
 use function Kirki\Ecommerce\Framework\response;
 use function Kirki\Ecommerce\Framework\view;
@@ -135,12 +141,28 @@ class SiteController
      * @since 1.0.0
      *
      * @param Request $request  request.
+     * @param PaymentGatewayService $payment_gateway_service  payment gateway service.
      *
      * @return string Template path.
      */
-    public function checkout_page(Request $request)
-    {
-        return view('site.checkout')->layout(false);
+    public function checkout_page(
+        Request $request,
+        PaymentGatewayService $payment_gateway_service,
+        CartService $cart_service
+    ) {
+        $customer = customer();
+        $payment_gateways =  $payment_gateway_service->get();
+        $cart = CartResource::make($cart_service->get_cart($customer->get_id()));
+
+
+        $data = [
+            'customer'         => $customer,
+            'payment_gateways' => $payment_gateways->all(),
+            'countries'        => Utils::get_countries(),
+            'cart'             => $cart,
+        ];
+
+        return view('site.checkout', $data)->layout(false);
     }
 
     /**
