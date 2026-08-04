@@ -24,7 +24,12 @@ class TestController
         // CurrencyExchange::sync();
         $today = Date::today();
 
-        Payment::get_gateway('authorizenet')->pay(Order::find(2));
+        // pay() returns HTML for this gateway (see Authorizenet::pay() docblock),
+        // so it must be echoed directly instead of returned through the JSON
+        // REST response pipeline, or the browser will just show escaped JSON text.
+        header('Content-Type: text/html');
+        echo Payment::get_gateway('authorizenet')->pay(Order::find(2));
+        exit;
 
         // return response()->json([
         //     // 'message' => 'Hello World',

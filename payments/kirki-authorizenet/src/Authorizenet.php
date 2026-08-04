@@ -3,22 +3,21 @@
 namespace Kirki\Ecommerce\Payments;
 
 use Exception;
-use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Payment\PaymentGateway;
+use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Supports\Facades\Http;
+use Kirki\Ecommerce\Framework\Validation\Validator;
 
 defined('ABSPATH') || exit;
-
 class Authorizenet extends PaymentGateway
 {
-    private $merchant_authentication;
-    private $header;
+    private const FORM_URL_SANDBOX = 'https://test.authorize.net/payment/payment';
+    private const FORM_URL_PRODUCTION = 'https://accept.authorize.net/payment/payment';
+    private const RESULT_CODE_ERROR = 'Error';
 
-    const SANDBOX_API_ENDPOINT = 'https://apitest.authorize.net/xml/v1/request.api';
-    const PRODUCTION_API_ENDPOINT = 'https://api.authorize.net/xml/v1/request.api';
-    const FORM_URL_SANDBOX     = 'https://test.authorize.net/payment/payment';
-    const FORM_URL_PRODUCTION  = 'https://accept.authorize.net/payment/payment';
+    private ?AuthorizenetClient $client = null;
+
     public function __construct()
     {
         $this->id = 'authorizenet';
@@ -61,8 +60,12 @@ class Authorizenet extends PaymentGateway
     /**
      * Pay for an order.
      *
+     * Unlike Stripe/PayPal, this does not return a bare redirect URL — AuthorizeNet's
+     * Accept Hosted page requires the token via POST, so this returns a self-submitting
+     * HTML form. Callers must render it directly rather than redirecting to it.
+     *
      * @param Order $order
-     * @return string
+     * @return string HTML markup.
      * @throws Exception
      */
     public function pay(Order $order)
@@ -71,239 +74,121 @@ class Authorizenet extends PaymentGateway
             throw new Exception(__('AuthorizeNet is not enabled.', 'kirki-ecommerce'));
         }
 
-        if (!$this->check_currency($order->currency_code)) {
+        $client = $this->get_client();
+
+        if (!in_array($order->currency_code, $client->supported_currencies(), true)) {
             throw new Exception(__('Currency is not supported.', 'kirki-ecommerce'));
         }
 
-        foreach ($order->items as $item) {
-            $unit_price = number_format($item->total, 2, '.', '');
-            $line_items[] = [
-                'itemId'      => $item->id,
-                'name'        => $this->limit_string_length($item->product_name, 31),
-                'description' => $this->limit_string_length($item->product_name, 255),
-                'quantity'    => floatval($item->quantity),
-                'unitPrice'   => floatval($unit_price),
-            ];
-        }
+        $request_builder = new AuthorizenetRequestBuilder();
 
-        $billing_address  = $this->get_address($order, 'billing');
-        $shipping_address = $this->get_address($order, 'shipping_address');
-
-        $transaction_request = [
-            'transactionType' => 'authCaptureTransaction',
-            'amount' => $this->format_amount($order->total, $order->currency_code),
-            'lineItems' => [
-                'lineItem' => $line_items
-            ],
-        ];
-
-        if (! empty($order->tax_total)) {
-            $transaction_request['tax'] = [
-                'amount' => floatval($order->tax_total),
-                'name'   => 'Tax',
-            ];
-        }
-
-        if (!empty($order->shipping_total)) {
-            $transaction_request['shipping'] = [
-                'amount' => floatval($order->shipping_total),
-                'name'   => 'Shipping Charge',
-            ];
-        }
-
-        $transaction_request['poNumber'] = $order->id;
-
-        if (!empty($order->customer_email)) {
-            $transaction_request['customer'] = [
-                'type'  => 'individual',
-                'email' => $order->customer_email,
-            ];
-        }
-
-        if (! empty($billing_address)) {
-            $transaction_request['billTo'] = $billing_address;
-        }
-
-        if (! empty($shipping_address)) {
-            $transaction_request['shipTo'] = $shipping_address;
-        }
-
-        $success_url = str_replace(['?', '=', '&'], ['%3F', '%3D', '%26'], $this->return_url($order));
-        $cancel_url  = str_replace(['?', '=', '&'], ['%3F', '%3D', '%26'], $this->return_url($order));
         try {
-            $request_body = [
+            $response = $client->send([
                 'getHostedPaymentPageRequest' => [
-                    'merchantAuthentication' => $this->get_authentication(),
+                    'merchantAuthentication' => $client->authentication(),
                     'refId' => $order->id,
-                    'transactionRequest' => $transaction_request,
-                    'hostedPaymentSettings' => [
-                        'setting' => [
-                            [
-                                'settingName'  => 'hostedPaymentReturnOptions',
-                                'settingValue' => wp_json_encode(
-                                    [
-                                        'showReceipt' => true,
-                                        'url'         => $success_url . '&action=success',
-                                        'cancelUrl'   => $cancel_url . '&action=cancel',
-                                    ]
-                                ),
-                            ],
-                            [
-                                'settingName'  => 'hostedPaymentPaymentOptions',
-                                'settingValue' => wp_json_encode(
-                                    [
-                                        'cardCodeRequired' => false,
-                                        'showCreditCard'   => true,
-                                        'showBankAccount'  => false,
-                                    ]
-                                ),
-                            ],
-                            [
-                                'settingName'  => 'hostedPaymentSecurityOptions',
-                                'settingValue' => '{"captcha": true}',
-                            ],
-                            [
-                                'settingName'  => 'hostedPaymentShippingAddressOptions',
-                                'settingValue' => '{"show": true}',
-                            ],
-                            [
-                                'settingName'  => 'hostedPaymentBillingAddressOptions',
-                                'settingValue' => '{"show": true}',
-                            ],
-                            [
-                                'settingName'  => 'hostedPaymentCustomerOptions',
-                                'settingValue' => '{"showEmail": true}',
-                            ],
-                            [
-                                'settingName'  => 'hostedPaymentOrderOptions',
-                                'settingValue' => '{"show": true}',
-                            ],
-                        ]
-                    ]
-                ]
-            ];
-
-            $accept_payment_page_details = $this->sent_request($request_body);
+                    'transactionRequest' => $request_builder->build_transaction_request($order),
+                    'hostedPaymentSettings' => $request_builder->build_hosted_payment_settings($this->return_url($order)),
+                ],
+            ]);
         } catch (Exception $e) {
-            throw new Exception(__('AuthorizeNet Payment Error: ' . $e->getMessage(), 'kirki-ecommerce'));
-        }
-    }
-
-    private function get_authentication()
-    {
-        if ($this->merchant_authentication) {
-            return $this->merchant_authentication;
+            throw new Exception(sprintf(__('AuthorizeNet Payment Error: %s', 'kirki-ecommerce'), $e->getMessage()));
         }
 
-        $this->merchant_authentication = [
-            'name'           => $this->settings['login_id'],
-            'transactionKey' => $this->settings['transaction_key'],
-        ];
+        $result_code = $response->messages->resultCode;
 
-        return $this->merchant_authentication;
-    }
-
-    private function check_currency(string $currency)
-    {
-        $merchant_request_payload = [
-            'getMerchantDetailsRequest' => [
-                'merchantAuthentication' => $this->get_authentication(),
-            ],
-        ];
-
-        $result = $this->sent_request($merchant_request_payload);
-
-        return in_array($currency, $result->currencies);
-    }
-
-    private function get_api_url()
-    {
-        return ($this->settings['sandbox'] ?? false) ? static::SANDBOX_API_ENDPOINT : static::PRODUCTION_API_ENDPOINT;
-    }
-
-    private function strip_uf8_bom($response_body)
-    {
-        // Decoding json and removing bom.
-        $possible_bom  = substr($response_body, 0, 3);
-        $utf_bom       = pack('CCC', 0xef, 0xbb, 0xbf);
-
-        if (0 === strncmp($possible_bom, $utf_bom, 3)) {
-            return json_decode(substr($response_body, 3));
+        if (static::RESULT_CODE_ERROR === $result_code) {
+            throw new Exception(sprintf(__('AuthorizeNet Payment Error: %s', 'kirki-ecommerce'), $response->messages->message));
         }
 
-        return json_decode($response_body);
+        if (empty($response->token)) {
+            throw new Exception(__('AuthorizeNet did not return a payment token.', 'kirki-ecommerce'));
+        }
+
+        $form_url = $client->is_sandbox() ? static::FORM_URL_SANDBOX : static::FORM_URL_PRODUCTION;
+
+        //return $this->render_redirect_form($form_url, $response->token);
+        return Http::as_form()->post($form_url, ['token' => $response->token]);
     }
 
-    private function format_amount($amount, $currency)
+    /**
+     * Build an auto-submitting form that POSTs the payment token to
+     * AuthorizeNet's hosted payment page.
+     *
+     * AuthorizeNet's Accept Hosted flow requires the token to arrive via
+     * POST — a plain redirect URL is not sufficient, unlike Stripe/PayPal.
+     */
+    private function render_redirect_form(string $form_url, string $token): string
     {
-        return number_format(Money::from_minor($amount, $currency)->getAmount()->toFloat(), 2, '.', '');
+        ob_start();
+        ?>
+        <form method="POST" id="authorizenet-form" action="<?php echo esc_url($form_url); ?>">
+            <input type="hidden" name="token" value="<?php echo esc_attr($token); ?>" />
+            <noscript>
+                <button type="submit"><?php esc_html_e('Continue to payment', 'kirki-ecommerce'); ?></button>
+            </noscript>
+        </form>
+        <script>
+            document.getElementById('authorizenet-form').submit();
+        </script>
+        <?php
+        return ob_get_clean();
     }
 
-    private function limit_string_length($string, $length)
+    private function get_client(): AuthorizenetClient
     {
-
-        $suffix = '...';
-
-        if (empty($string) || empty($length)) {
-            return '';
+        if ($this->client) {
+            return $this->client;
         }
 
-        if (mb_strlen($string) > $length) {
-            return mb_substr($string, 0, $length - mb_strlen($suffix)) . $suffix;
+        $login_id = $this->settings['login_id'] ?? '';
+        $transaction_key = $this->settings['transaction_key'] ?? '';
+
+        if (empty($login_id) || empty($transaction_key)) {
+            throw new Exception(__('AuthorizeNet credentials are missing.', 'kirki-ecommerce'));
         }
 
-        return $string;
+        $is_sandbox = (bool) ($this->settings['sandbox'] ?? false);
+        return $this->client = new AuthorizenetClient($login_id, $transaction_key, $is_sandbox);
     }
 
-    private function get_address(Order $order, string $type): array
+    /**
+     * Validate settings.
+     *
+     * @param array $settings
+     * @return bool
+     */
+    protected function validate_settings(array $settings)
     {
-        if (empty($type)) {
-            return [];
-        }
+        parent::validate_settings($settings);
 
-        [$address1] = $this->split_address($order, 60, $type);
+        Validator::make($settings, [
+            'login_id' => 'required|string',
+            'transaction_key' => 'required|string',
+            'signature_key' => 'required|string',
+            'sandbox' => 'boolean',
+        ])->validate();
 
-        $return_data = [
-            'firstName' => $this->limit_string_length($order->{$type . '_first_name'}, 50),
-            'lastName'  => $this->limit_string_length($order->{$type . '_last_name'}, 50),
-            'address'   => $address1,
-            'city'      => $this->limit_string_length($order->{$type . '_city'}, 40),
-            'state'     => $this->limit_string_length($order->{$type . '_state'}, 40),
-            'zip'       => $this->limit_string_length($order->{$type . '_postal_code'}, 20),
-            'country'   => $order->{$type . '_country'} ?? '',
-        ];
-
-        if ('billing_address' === $type) {
-            $return_data['phoneNumber'] = $this->limit_string_length($order->{$type . '_phone'}, 25) ?? '';
-        }
-
-        return $return_data;
+        return true;
     }
 
-    public static function split_address($data, $maxLength, $type)
+    /**
+     * Sanitize settings.
+     *
+     * @param array $settings
+     * @return array
+     */
+    protected function sanitize_settings(array $settings)
     {
-        if (empty($data->{$type . '_address_line1'})) {
-            return [];
-        }
+        $parent_settings = parent::sanitize_settings($settings);
 
-        $address_1 = mb_strimwidth($data->{$type . '_address_line1'}, 0, $maxLength);
-        $address_2 = (strlen($data->{$type . '_address_line1'}) > $maxLength)
-            ? mb_strimwidth($data->{$type . '_address_line1'}, $maxLength, $maxLength)
-            : $data->{$type . '_address_line2'};
+        $data = Sanitizer::make($settings, [
+            'login_id' => Sanitizer::TEXT,
+            'transaction_key' => Sanitizer::TEXT,
+            'signature_key' => Sanitizer::TEXT,
+            'sandbox' => Sanitizer::BOOL,
+        ])->get_sanitized_data();
 
-        return [$address_1, $address_2];
-    }
-
-    private function sent_request($payload)
-    {
-        $response = Http::as_json()
-            ->with_body(wp_json_encode($payload))
-            ->post($this->get_api_url());
-
-        if ($response->failed()) {
-            throw new Exception(sprintf(__('AuthorizeNet API Error: %s', 'kirki-ecommerce'), $response->body()));
-        }
-
-        return $this->strip_uf8_bom($response->__toString());
+        return array_merge($parent_settings, $data);
     }
 }
