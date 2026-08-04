@@ -49,6 +49,7 @@ class CartResource extends Resource
 
             'pricing' => [
                 'subtotal' => $this->prepare_amount($this->subtotal),
+                'subtotal_formatted' => Money::format_from_decimal($this->prepare_amount($this->subtotal)),
                 'tax_total' => $this->prepare_amount($this->tax_total),
                 'discount_details' => $this->discount_details,
                 'discount_total' => $this->prepare_amount($this->discount_total),
@@ -57,13 +58,11 @@ class CartResource extends Resource
                 'shipping_discount' => $this->prepare_amount($this->shipping_discount),
                 'shipping_total' => $this->prepare_amount($this->shipping_total),
                 'total' => $this->prepare_amount($this->total),
+                'total_formatted' =>  Money::format_from_decimal($this->prepare_amount($this->total)),
             ],
-            'sub_total' => Money::format_from_decimal($this->prepare_amount($this->subtotal), $this->currency_code),
-            'total' => Money::format_from_decimal($this->prepare_amount($this->total), $this->currency_code),
 
             'items_count' => $this->items_count,
             'items' => $this->prepare_items($this->items, $result),
-            'formatted_items' => $this->format_items($this->items, $result),
 
             'shipping_address' => $this->shipping_address,
             'billing_address' => $this->billing_address,
@@ -135,6 +134,7 @@ class CartResource extends Resource
                     'tax_breakdown' => $calculated_item->tax_breakdown,
                     'discount_amount' => $this->prepare_amount($calculated_item->discount_amount),
                     'total' => $this->prepare_amount($calculated_item->total),
+                    'total_formatted' => Money::format_from_decimal($this->prepare_amount($calculated_item->total)),
                     'created_at' => $item->created_at,
                     'updated_at' => $item->updated_at,
                 ];

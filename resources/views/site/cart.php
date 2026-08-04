@@ -16,7 +16,6 @@ use Kirki\Ecommerce\App\Supports\Assets;
 use Kirki\Ecommerce\App\Supports\Icon;
 use Kirki\Ecommerce\App\Supports\Template;
 use Kirki\Ecommerce\App\Supports\Url;
-use Kirki\Ecommerce\Framework\Route;
 
 use function Kirki\Ecommerce\Framework\view_data;
 
@@ -26,16 +25,14 @@ $currency = $cart['currency'];
 $items = $cart['items'] ?? [];
 $cart_config = array(
     'items_count' => $cart['items_count'],
-    'sub_total' => Money::format_from_decimal($pricing['subtotal'], $currency['code']),
-    'total' => Money::format_from_decimal($pricing['total'], $currency['code']),
-    'formatted_items' => (object) array_reduce(
-        $items,
-        function ($carry, $item) use ($currency) {
-            $carry[$item['id']] = Money::format_from_decimal($item['total'], $currency['code']);
-            return $carry;
-        },
-        [],
+    'pricing' => (object) array(
+        'subtotal_formatted' => Money::format_from_decimal($pricing['subtotal']),
+        'total_formatted' => Money::format_from_decimal($pricing['total']),
     ),
+    'items' => array_map(fn($item) => (object) array(
+        'id' => $item['id'],
+        'total_formatted' => $item['total_formatted'],
+    ), $items),
 );
 
 ?>
@@ -111,7 +108,7 @@ $cart_config = array(
             <h4 class="kecom-cart-summary-title"><?php _e('Cart Totals', 'kirki-ecommerce'); ?></h4>
             <div class="kecom-cart-summary-item">
                 <span class="kecom-cart-summary-item-title"><?php _e('Subtotal', 'kirki-ecommerce'); ?></span>
-                <span class="kecom-cart-summary-item-value" x-text="cart_value.sub_total"></span>
+                <span class="kecom-cart-summary-item-value" x-text="cart_value.pricing.subtotal_formatted"></span>
             </div>
             <div class="kecom-cart-summary-item">
                 <span class="kecom-cart-summary-item-title"><?php _e('Estimate shipping', 'kirki-ecommerce'); ?></span>
@@ -123,7 +120,7 @@ $cart_config = array(
             </div>
             <div class="kecom-cart-summary-total">
                 <span class="kecom-cart-summary-total-title"><?php _e('Estimate Total', 'kirki-ecommerce'); ?></span>
-                <span class="kecom-cart-summary-total-value" x-text="cart_value.total"></span>
+                <span class="kecom-cart-summary-total-value" x-text="cart_value.pricing.total_formatted"></span>
             </div>
             <a href="<?php echo esc_url(Url::get_checkout_url()); ?>" class="kecom-btn kecom-btn-primary kecom-btn-block kecom-cart-summary-checkout-btn">
                 <?php _e('Proceed to Checkout', 'kirki-ecommerce'); ?>

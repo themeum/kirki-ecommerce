@@ -26,13 +26,19 @@ export interface CartItem {
   price: number;
   name: string;
   image?: string;
+  total_formatted: number;
 }
 
 export interface CartUpdateItem {
   sub_total: number;
   total: number;
   items_count: number;
-  formatted_items: Record<number, string>;
+  pricing: {
+    subtotal_formatted: number;
+    total_formatted: number;
+  },
+  items: CartItem[],
+  formatted_items: Record<number, string> | null;
 }
 
 export interface Cart {
