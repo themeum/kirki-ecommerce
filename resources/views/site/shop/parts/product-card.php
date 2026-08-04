@@ -53,7 +53,7 @@ $image_url = null;
 if ($media) {
     $image_url = wp_get_attachment_image_url($media->ID, 'large');
 } else {
-    $image_url = Assets::get_url('images/product-fallback.png');
+    $image_url = Assets::get_url('images/product-fallback.webp');
 }
 
 $product_url = Url::get_product_url($product->slug);

@@ -10,6 +10,7 @@
  */
 
 import { toastManager } from "../services/toast/runtime";
+import { cartApi } from "../api/cart";
 
 export interface CheckoutConfig {
   cartTotal?: number;
@@ -27,6 +28,7 @@ export function checkout(config: CheckoutConfig = {}) {
     couponCode: '',
     discount: 0,
     billingFormValid: false,
+    cartData: null as any,
 
     loading: false,
     couponLoading: false,
@@ -39,17 +41,23 @@ export function checkout(config: CheckoutConfig = {}) {
       });
     },
 
-    applyCoupon() {
+    async applyCoupon() {
       if (!this.couponCode.trim()) {
         toastManager.error(__('Please enter a coupon code', 'kirki-ecommerce'));
         return;
       }
       this.couponLoading = true;
-      // TODO: Make AJAX call to validate coupon
-      setTimeout(() => {
-        this.couponLoading = false;
+      try {
+        const response = await cartApi.applyCoupon(this.couponCode);
+        this.cartData = response.data;
+        this.discount = parseFloat(response.data.pricing.discount_total) || 0;
         toastManager.success(__('Coupon applied successfully!', 'kirki-ecommerce'));
-      }, 500);
+      } catch (e: unknown) {
+        const error = e instanceof Error ? e.message : __('Failed to apply coupon', 'kirki-ecommerce');
+        toastManager.error(error);
+      } finally {
+        this.couponLoading = false;
+      }
     },
 
     setPaymentMethod(method: string) {

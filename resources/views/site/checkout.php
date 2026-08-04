@@ -366,7 +366,7 @@ $cart = $data->cart ?? null;
                             }
 
                             if (!$image_url) {
-                                $image_url = Assets::get_url('images/product-fallback.png');
+                                $image_url = Assets::get_url('images/product-fallback.webp');
                             }
 
                             // Prices from CartResource.
@@ -378,7 +378,7 @@ $cart = $data->cart ?? null;
 
                             $formatted_total = Money::format_from_decimal($item_total, $currency_code);
                             $has_sale = $sale_price->isGreaterThan(0) && !$sale_price->isEqualTo($price);
-                            $formatted_regular_total = $has_sale ? Money::format_from_decimal($price * $quantity, $currency_code) : '';
+                            $formatted_regular_total = $has_sale ? Money::format_from_decimal($price->multipliedBy($quantity), $currency_code) : '';
                             ?>
                         <div class="kecom-product-item">
                             <div class="kecom-product-image-wrapper">
@@ -422,19 +422,19 @@ $cart = $data->cart ?? null;
                 <div class="kecom-order-summary">
                     <div class="kecom-summary-row">
                         <span><?php esc_html_e('Subtotal', 'kirki-ecommerce'); ?></span>
-                        <span class="kecom-summary-value"><?php echo esc_html($formatted_subtotal); ?></span>
+                        <span class="kecom-summary-value" x-text="cartData ? currency + parseFloat(cartData.pricing.subtotal).toFixed(2) : '<?php echo esc_js($formatted_subtotal); ?>'"><?php echo esc_html($formatted_subtotal); ?></span>
                     </div>
                     <div class="kecom-summary-row">
                         <span><?php esc_html_e('Shipping', 'kirki-ecommerce'); ?></span>
-                        <span class="kecom-summary-value"><?php echo esc_html($formatted_shipping); ?></span>
+                        <span class="kecom-summary-value" x-text="cartData ? currency + parseFloat(cartData.pricing.shipping_total).toFixed(2) : '<?php echo esc_js($formatted_shipping); ?>'"><?php echo esc_html($formatted_shipping); ?></span>
                     </div>
-                    <div class="kecom-summary-row">
+                    <div class="kecom-summary-row" x-show="discount > 0">
                         <span><?php esc_html_e('Discount', 'kirki-ecommerce'); ?></span>
-                        <span class="kecom-summary-value"><?php echo esc_html($formatted_discount); ?></span>
+                        <span class="kecom-summary-value" x-text="'-' + currency + discount.toFixed(2)">-<?php echo esc_html($formatted_discount); ?></span>
                     </div>
                     <div class="kecom-summary-row kecom-total-row">
                         <span><?php esc_html_e('Total', 'kirki-ecommerce'); ?></span>
-                        <span class="kecom-summary-value kecom-total-value"><?php echo esc_html($formatted_total); ?></span>
+                        <span class="kecom-summary-value kecom-total-value" x-text="cartData ? currency + parseFloat(cartData.pricing.total).toFixed(2) : '<?php echo esc_js($formatted_total); ?>'"><?php echo esc_html($formatted_total); ?></span>
                     </div>
                 </div>
 

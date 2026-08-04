@@ -5,7 +5,8 @@
 @use "../mixins" as *;
 
 .kecom-product-page {
-  padding-block: $spacing-12;
+  margin: 0px;
+  padding-block: $spacing-10;
 
   .kecom-product-grid {
     display: grid;
@@ -200,11 +201,13 @@
   }
 
   .kecom-product-variant-option {
-    width: 44px;
+    min-width: 44px;
     height: 44px;
+    background-color: $background-fill;
     padding: $spacing-3 $spacing-5;
     border: 1px solid $border-default;
     border-radius: $radius-md;
+    outline: none;
     cursor: pointer;
     @include flex-center();
     @include typography(base, semibold, $text-primary);
@@ -212,6 +215,10 @@
 
     &:hover {
       border-color: $border-hover;
+    }
+
+    &:focus-visible {
+      @include focus-ring();
     }
 
     &.selected {
@@ -227,7 +234,12 @@
     border-radius: $radius-full;
     border: 1px solid $border-default;
     cursor: pointer;
+    outline: none;
     @include transition((transform, border-color, box-shadow));
+
+    &:focus-visible {
+      @include focus-ring();
+    }
 
     &.selected {
       outline: 1px solid $border-ring;
