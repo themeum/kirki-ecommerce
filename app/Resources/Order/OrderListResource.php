@@ -25,7 +25,8 @@ class OrderListResource extends Resource
 
     protected function prepare_amount($amount)
     {
-        // Assuming amount is in minor units (integer)
-        return Money::from_minor($amount, $this->currency_code)->getAmount()->toFloat();
+        $value = Money::convert_to_currency(Money::from_minor($amount), $this->currency_code)->getMinorAmount();
+        
+        return Money::to_dto($value, $this->currency_code);
     }
 }

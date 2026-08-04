@@ -8,7 +8,7 @@ import { Form } from '@/components/ui/form';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import Flex from '@/components/ui/flex';
-import { PaymentGatewayEditFormSchema, paymentGatewayEditDefaultValues, type PaymentGatewayEditFormValues } from '@/schemas/forms/payment-gateway-form';
+import { PaymentGatewayEditFormSchema, paymentGatewayEditDefaultValues, type PaymentGatewayEditFormInput, type PaymentGatewayEditFormPayload } from '@/schemas/forms/payment-gateway-form';
 import { useUpdatePaymentGatewayMutation } from '@/services/payment';
 import type { PaymentGateway } from '@/types';
 import { __ } from '@/wpi18n';
@@ -42,7 +42,7 @@ const PaymentGatewayEditPopup = ({
   const { mutateAsync: updateGateway, isPending: isSubmitting } =
     useUpdatePaymentGatewayMutation();
 
-  const form = useForm<PaymentGatewayEditFormValues>({
+  const form = useForm<PaymentGatewayEditFormInput, unknown, PaymentGatewayEditFormPayload>({
     resolver: zodResolver(PaymentGatewayEditFormSchema),
     defaultValues: paymentGatewayEditDefaultValues,
   });
@@ -53,7 +53,7 @@ const PaymentGatewayEditPopup = ({
     }
 
     form.reset(
-      (editedItem?.settings as PaymentGatewayEditFormValues) ||
+      (editedItem?.settings as PaymentGatewayEditFormInput) ||
         paymentGatewayEditDefaultValues,
     );
   }, [isOpen, editedItem, form]);
@@ -63,7 +63,7 @@ const PaymentGatewayEditPopup = ({
     onClose();
   };
 
-  const handleUpdateData = async (values: PaymentGatewayEditFormValues) => {
+  const handleUpdateData = async (values: PaymentGatewayEditFormPayload) => {
     try {
       await updateGateway({
         id: editedItem?.id as number,

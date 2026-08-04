@@ -1,11 +1,12 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { z } from 'zod';
 
 import { apiClient } from '@/libs/api';
 import { endpoints } from '@/libs/endpoints';
 import { queryKeys } from '@/libs/query-keys';
 import { CouponListItemSchema, CouponSchema } from '@/schemas/catalog/coupon';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
-import { parseData, parseResponse, toastMutationError, toastMutationSuccess, unwrapResponse } from '@/services/helpers';
+import { parseData, parseMessage, parseResponse, toastMutationError, toastMutationSuccess } from '@/services/helpers';
 import { BulkActionParams, CouponFormPayload, ListParams } from '@/types';
 import { CouponListFilter } from '@/types/filters/coupon';
 import { __ } from '@/wpi18n';
@@ -116,7 +117,7 @@ const useCouponActionMutation = () => {
 const deleteCoupon = (id: number) => {
   return apiClient
     .delete(endpoints.COUPON(id))
-    .then((response) => unwrapResponse(response));
+    .then((response) => parseMessage(response));
 }
 
 const useDeleteCouponMutation = () => {
@@ -144,7 +145,7 @@ const bulkDeleteCoupons = ({
 }: BulkActionParams = {}) => {
   return apiClient
     .post(endpoints.COUPONS_BULK, { action, ids })
-    .then((response) => unwrapResponse(response));
+    .then((response) => parseMessage(response));
 };
 
 
@@ -168,7 +169,7 @@ const useBulkDeleteCouponsMutation = () => {
 const validateCode = (code: string) => {
   return apiClient
     .get(endpoints.COUPON('validate'), { params: { code } })
-    .then((response) => unwrapResponse<boolean>(response));
+    .then((response) => parseResponse(z.boolean(), response));
 };
 
 const useValidateQuery = (code: string, enabled = true) =>
@@ -182,7 +183,7 @@ const useValidateQuery = (code: string, enabled = true) =>
 const generateNewCode = () => {
   return apiClient
     .get(endpoints.COUPON('generate-new-code'))
-    .then((response) => unwrapResponse<string>(response));
+    .then((response) => parseResponse(z.string(), response));
 };
 
 const useGenerateNewCodeQuery = () =>

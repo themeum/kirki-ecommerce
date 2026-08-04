@@ -1,8 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, type ReactNode } from 'react';
 
 import type { DataTableItem } from '@/components/data-table/types';
-import { useListParamsValue } from '@/contexts/list-params-context';
-import { useMarkList } from '@/hooks';
+import { useListParams, useMarkList } from '@/hooks';
 import type { PaginatedData } from '@/types';
 
 type SelectedItem = string | number;
@@ -32,7 +31,7 @@ const DataTableSelectionProvider = ({
   children,
 }: DataTableSelectionProviderProps) => {
   const markList = useMarkList({ data });
-  const params = useListParamsValue();
+  const { params } = useListParams();
 
   /*
    * `useMarkList` rebuilds its handlers on every render because they close over

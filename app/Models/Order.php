@@ -68,6 +68,7 @@ class Order extends Model
         'billing_phone',
         'billing_email',
         'billing_company',
+        'is_billing_same_as_shipping',
         'customer_email',
         'customer_phone',
         'ip_address',
@@ -91,6 +92,7 @@ class Order extends Model
         'payment_metadata' => 'json',
         'tax_total' => 'integer',
         'tax_total_base' => 'integer',
+        'is_billing_same_as_shipping' => 'boolean'
     ];
 
     public function set_discount_details_attribute($value)

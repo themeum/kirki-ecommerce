@@ -5,18 +5,17 @@ import Button from '@/components/ui/button';
 import Flex from '@/components/ui/flex';
 import Searchbox from '@/components/ui/searchbox';
 import { Select, SelectContent, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useListParamsActions, useListParamsValue } from '@/contexts/list-params-context';
 import { ArrowDownUp } from '@/icons';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
+import { useListParams } from '@/hooks';
 import FilterPopup from '@/pages/products/product-table/filter-popup/filter-popup';
-import { ProductListFilter } from '@/types/filters/product';
+import { ProductListFilter, productListOptions } from '@/types/filters/product';
 
 const ProductTableFilter = memo(() => {
-  const params = useListParamsValue<ProductListFilter>();
-  const { setParam } = useListParamsActions<ProductListFilter>();
+  const { params, setParam } = useListParams<ProductListFilter>(productListOptions);
 
   const handleSearchChange = (value: string) => {
     setParam('search', value);

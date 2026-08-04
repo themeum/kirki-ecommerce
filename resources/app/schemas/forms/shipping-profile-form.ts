@@ -1,16 +1,16 @@
 import { z } from 'zod';
 
-import { requiredString } from '@/schemas/forms/shared/validators';
+import { prepareFormSchema, required } from '@/libs/zod';
 import { __ } from '@/wpi18n';
 
-export const ShippingProfileFormSchema = z.object({
-  name: requiredString(__('Title is required', 'kirki-ecommerce')),
+const ShippingProfileFormShape = z.object({
+  name: required(z.string().default(''), __('Title is required', 'kirki-ecommerce')),
 });
 
-export type ShippingProfileFormValues = z.infer<
-  typeof ShippingProfileFormSchema
->;
+export const ShippingProfileFormSchema = prepareFormSchema(ShippingProfileFormShape).transform((values) => ({
+  name: values.name,
+}));
 
-export const shippingProfileDefaultValues: ShippingProfileFormValues = {
-  name: '',
-};
+export type ShippingProfileFormInput = z.input<typeof ShippingProfileFormSchema>;
+
+export type ShippingProfileFormPayload = z.output<typeof ShippingProfileFormSchema>;

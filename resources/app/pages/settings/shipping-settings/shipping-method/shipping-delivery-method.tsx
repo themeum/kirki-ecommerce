@@ -18,7 +18,6 @@ import { queryKeys } from '@/libs/query-keys';
 import { useUnsavedStatus } from '@/libs/unsaved-store';
 import { getErrorMessage } from '@/services/helpers';
 import { useSettingsQuery, updateSettings } from '@/services/settings';
-import type { SettingsSectionData } from '@/types';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
@@ -190,13 +189,11 @@ const ShippingDeliveryMethod = () => {
       return zone;
     });
 
-    const updatedData: SettingsSectionData = {
-      ...(shippingSettingsData || {}),
-      shipping_zones: updatedShippingZones,
-    };
-
     try {
-      await updateSettings({ key: 'shipping', data: updatedData });
+      await updateSettings({
+        key: 'shipping',
+        data: { shipping_zones: updatedShippingZones },
+      });
       void queryClient.invalidateQueries({
         queryKey: queryKeys.Settings('shipping'),
       });

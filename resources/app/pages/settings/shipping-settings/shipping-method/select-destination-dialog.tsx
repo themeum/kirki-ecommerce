@@ -12,7 +12,12 @@ import Label from '@/components/ui/label';
 import Flex from '@/components/ui/flex';
 import { theme } from '@/theme';
 import { scoped, defineStyles } from '@/theme/mixins';
-import { SelectDestinationFormSchema, selectDestinationDefaultValues, type SelectDestinationFormValues } from '@/schemas/forms/select-destination-form';
+import { getDefaults } from '@/libs/zod';
+import {
+  SelectDestinationFormSchema,
+  type SelectDestinationFormInput,
+  type SelectDestinationFormPayload,
+} from '@/schemas/forms/select-destination-form';
 import { useCountriesQuery } from '@/services/country';
 import { __ } from '@/wpi18n';
 
@@ -38,7 +43,7 @@ type SelectDestinationPopupProps = {
   setSelectedConditionValue: Dispatch<SetStateAction<unknown>>;
   setRulesObj: Dispatch<SetStateAction<ShippingRule[]>>;
   ruleIndex: number;
-  onSave?: (values: SelectDestinationFormValues) => void;
+  onSave?: (values: SelectDestinationFormPayload) => void;
 };
 
 export const SelectDestinationPopup = ({
@@ -60,9 +65,9 @@ export const SelectDestinationPopup = ({
     Array<{ id: string | number; name: string }>
   >([]);
 
-  const form = useForm<SelectDestinationFormValues>({
+  const form = useForm<SelectDestinationFormInput, unknown, SelectDestinationFormPayload>({
     resolver: zodResolver(SelectDestinationFormSchema),
-    defaultValues: selectDestinationDefaultValues,
+    defaultValues: getDefaults(SelectDestinationFormSchema),
   });
 
   const formCountry = useWatch({ control: form.control, name: 'country' });
@@ -150,7 +155,7 @@ export const SelectDestinationPopup = ({
     form.setValue('states', next, { shouldDirty: true });
   };
 
-  const updateRegionList = (values: SelectDestinationFormValues) => {
+  const updateRegionList = (values: SelectDestinationFormPayload) => {
     setSelectedCountry(values.country);
     setSelectedRegion((prev) =>
       prev.map((r) =>

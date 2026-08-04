@@ -5,7 +5,7 @@ import MultiSelectField from '@/components/form/multi-select-field';
 import SelectField from '@/components/form/select-field';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
-import type { GeneralSettingsFormValues } from '@/schemas/forms/general-settings-form';
+import type { GeneralSettingsFormInput } from '@/schemas/forms/general-settings-form';
 import { useCountriesQuery } from '@/services/country';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
@@ -26,15 +26,15 @@ const sellingLocationOptions = [
 ];
 
 const SellingLocation = () => {
-  const { setValue, getValues } = useFormContext<GeneralSettingsFormValues>();
-  const sellingLocation = useWatch<GeneralSettingsFormValues>({
+  const { setValue, getValues } = useFormContext<GeneralSettingsFormInput>();
+  const sellingLocation = useWatch<GeneralSettingsFormInput>({
     name: 'selling_location_type',
   });
   const previousSellingLocation = useRef(sellingLocation);
   const { data: countryList } = useCountriesQuery({ limit: -1 });
 
   const countryOptions = (countryList ?? []).map((country) => ({
-    label: country.name,
+    title: country.name,
     value: country.name,
   }));
 
@@ -84,9 +84,9 @@ const SellingLocation = () => {
                 {showCountrySelector && (
                   <MultiSelectField
                     name="selling_countries"
+                    valueAs="strings"
                     label={__('Countries', 'kirki-ecommerce')}
-                    placeholder={__('Add Countries', 'kirki-ecommerce')}
-                    searchPlaceholder={__('e.g United States', 'kirki-ecommerce')}
+                    placeholder={__('e.g United States', 'kirki-ecommerce')}
                     options={countryOptions}
                   />
                 )}

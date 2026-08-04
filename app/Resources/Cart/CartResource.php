@@ -64,6 +64,7 @@ class CartResource extends Resource
 
             'shipping_address' => $this->shipping_address,
             'billing_address' => $this->billing_address,
+            'is_billing_same_as_shipping' => $this->is_billing_same_as_shipping,
 
             'available_shipping_methods' => array_map(function ($method) {
                 $method['cost'] = $this->prepare_amount($method['cost']);

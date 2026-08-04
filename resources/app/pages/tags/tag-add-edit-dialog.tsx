@@ -7,15 +7,21 @@ import TextField from '@/components/form/text-field';
 import Button from '@/components/ui/button';
 import { Dialog, DialogBody, DialogClose, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
-import { getErrorsObject, type ErrorResponse } from '@/libs/api';
+import type { ErrorResponse } from '@/libs/api';
+import { applyServerErrors } from '@/libs/form-errors';
+import { pickFormValues } from '@/libs/zod';
 import Flex from '@/components/ui/flex';
-import { TagFormSchema, type TagFormValues } from '@/schemas/forms/tag-form';
+import {
+  TagFormSchema,
+  type TagFormInput,
+  type TagFormPayload,
+} from '@/schemas/forms/tag-form';
 import { useCreateTagMutation, useUpdateTagMutation } from '@/services/tag';
-import type { Tag, TagFormData } from '@/types';
+import type { Tag } from '@/types';
 import { __ } from '@/wpi18n';
 
 type TagAddEditDialogProps = {
-  tag: Tag | TagFormData;
+  tag: Tag | TagFormInput;
   open: boolean;
   onClose?: () => void;
 };
@@ -30,13 +36,9 @@ const TagAddEditDialog = ({
   const tagId = 'id' in tag ? tag.id : undefined;
   const isSubmitting = createMutation.isPending || updateMutation.isPending;
 
-  const form = useForm<TagFormValues>({
+  const form = useForm<TagFormInput, unknown, TagFormPayload>({
     resolver: zodResolver(TagFormSchema),
-    defaultValues: {
-      name: tag.name ?? '',
-      slug: tag.slug ?? '',
-      description: tag.description ?? '',
-    },
+    defaultValues: pickFormValues(TagFormSchema, tag),
   });
 
   useEffect(() => {
@@ -44,11 +46,7 @@ const TagAddEditDialog = ({
       return;
     }
 
-    form.reset({
-      name: tag.name ?? '',
-      slug: tag.slug ?? '',
-      description: tag.description ?? '',
-    });
+    form.reset(pickFormValues(TagFormSchema, tag));
   }, [open, tag, form]);
 
   const handleOpenChange = (nextOpen: boolean) => {
@@ -57,27 +55,19 @@ const TagAddEditDialog = ({
     }
   };
 
-  const handleSubmit = async (values: TagFormValues) => {
+  const handleSubmit = async (payload: TagFormPayload) => {
     try {
       if (tagId) {
         await updateMutation.mutateAsync({
           id: tagId,
-          data: values,
+          data: payload,
         });
       } else {
-        await createMutation.mutateAsync(values);
+        await createMutation.mutateAsync(payload);
       }
       onClose();
     } catch (error) {
-      const err = error as ErrorResponse;
-      const fieldErrors = getErrorsObject(err.errors);
-      Object.entries(fieldErrors).forEach(([key, message]) => {
-        if (message) {
-          form.setError(key as keyof TagFormValues, {
-            message: String(message),
-          });
-        }
-      });
+      applyServerErrors(form, error as ErrorResponse);
     }
   };
 

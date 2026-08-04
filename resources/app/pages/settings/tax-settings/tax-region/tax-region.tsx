@@ -12,7 +12,7 @@ import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import ToggleButton from '@/components/ui/toggle-button';
 import { EditIcon, LocationIcon, ShowMoreIcon, TrashIcon } from '@/icons';
-import type { TaxSettingsFormValues } from '@/schemas/forms/tax-settings-form';
+import type { TaxSettingsFormInput } from '@/schemas/forms/tax-settings-form';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { scoped, mergeCss, defineStyles } from '@/theme/mixins';
@@ -44,9 +44,9 @@ const TaxRegions = (props: TaxRegionsProps) => {
   const navigate = useNavigate();
   const { confirmAction } = useOutletContext<SettingsOutletContext>();
   const { handleSave } = props;
-  const { setValue, formState } = useFormContext<TaxSettingsFormValues>();
+  const { setValue, formState } = useFormContext<TaxSettingsFormInput>();
   const taxRegions =
-    (useWatch<TaxSettingsFormValues>({ name: 'tax_regions' }) as TaxRegion[]) ||
+    (useWatch<TaxSettingsFormInput>({ name: 'tax_regions' }) as TaxRegion[]) ||
     [];
 
   const [showPopup, setShowPopup] = useState(false);
@@ -90,7 +90,7 @@ const TaxRegions = (props: TaxRegionsProps) => {
     const updatedRegions = (Array.isArray(taxRegions) ? taxRegions : []).filter(
       (region) => region?.code !== item?.code,
     );
-    setValue('tax_regions', updatedRegions as TaxSettingsFormValues['tax_regions'], {
+    setValue('tax_regions', updatedRegions as TaxSettingsFormInput['tax_regions'], {
       shouldDirty: true,
     });
     await handleSave(updatedRegions);
@@ -104,7 +104,7 @@ const TaxRegions = (props: TaxRegionsProps) => {
           : region,
     );
 
-    setValue('tax_regions', updatedRegions as TaxSettingsFormValues['tax_regions'], {
+    setValue('tax_regions', updatedRegions as TaxSettingsFormInput['tax_regions'], {
       shouldDirty: true,
     });
     await handleSave(updatedRegions);
@@ -134,7 +134,7 @@ const TaxRegions = (props: TaxRegionsProps) => {
     const filtered = updatedRegions.filter((r) => !existingCodes.has(r.code));
     const finalRegions = [...taxRegions, ...filtered];
 
-    setValue('tax_regions', finalRegions as TaxSettingsFormValues['tax_regions'], {
+    setValue('tax_regions', finalRegions as TaxSettingsFormInput['tax_regions'], {
       shouldDirty: true,
     });
     await handleSave(finalRegions);

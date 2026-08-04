@@ -1,0 +1,54 @@
+schema: spec-driven
+
+# Project context (optional)
+# This is shown to AI when creating artifacts.
+context: |
+  Tech stack: WordPress plugin (PHP REST backend) + a React 19 SPA admin UI
+  in resources/app/, mounted into wp-admin. Vite, TypeScript, React Router
+  (hash-based routing). Forms: React Hook Form 7 + @hookform/resolvers/zod +
+  Zod 3.25.76 (v3 - do not propose upgrading to v4, several schemas rely on
+  v3-only behavior). Data fetching: TanStack Query v5. Tests: Vitest, scoped
+  to schemas/**/*.test.ts (one payload test per form schema). See
+  openspec/project.md for the full canonical form-schema pattern, the
+  zod v3 hard constraints (prepareFormSchema/.transform() only on the
+  terminal schema, requiredWhen() reading root values, no gratuitous
+  .default() on previously-required fields), and the request/response
+  plumbing conventions (libs/api.ts's dev-only tripwire, services/helpers.ts's
+  parseData/parseResponse/parseMessage). Read it before proposing changes
+  that touch resources/app/schemas/, resources/app/libs/zod.ts, or any
+  useForm/service pairing.
+
+# Per-artifact rules (optional)
+# Add custom rules for specific artifacts.
+rules:
+  design:
+    - When implementation reveals the original plan's premise was wrong,
+      record a "Correction during implementation" note in design.md rather
+      than silently diverging - this repo's design docs are a running log,
+      not just a pre-implementation snapshot.
+  tasks:
+    - Every task group must end with a verification step that runs
+      `npm run typecheck && npm test` (from resources/app/) - do not mark a
+      group done on code review alone.
+    - For any task touching a form schema, include writing or updating its
+      payload test (`<name>.test.ts` next to the schema) as part of the task,
+      not a separate follow-up.
+
+# Per-operation guidance (optional)
+# Add advisory guidance for how apply and archive work should be conducted.
+# This is separate from artifact rules above.
+operations:
+  apply:
+    guidance:
+      - After each task or small group of related tasks, run
+        `npm run typecheck && npm test` in resources/app/ before moving on -
+        this codebase's task-by-task workflow depends on catching breakage
+        immediately, not at the end of a whole change.
+      - If a task's premise turns out to be wrong once you're in the code
+        (e.g. a described bug doesn't exist, or the real fix is different),
+        say so in the task's checkbox annotation and correct course - do not
+        force the original wording to stay technically true.
+  archive:
+    guidance:
+      - Summarize any discovered pre-existing bugs that were fixed or
+        flagged along the way, separately from the change's own scope.

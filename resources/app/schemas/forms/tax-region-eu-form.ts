@@ -1,17 +1,18 @@
 import { z } from 'zod';
 
+import { prepareFormSchema } from '@/libs/zod';
 import { TaxRateSchema } from '@/schemas/forms/tax-settings-form';
 
-export const TaxRegionEuFormSchema = z
-  .object({
-    type: z.string().optional(),
-    product_tax: z.array(TaxRateSchema).optional(),
-  })
-  .passthrough();
+const TaxRegionEuFormShape = z.object({
+  type: z.string().nullish().default('oss'),
+  product_tax: z.array(TaxRateSchema).default([]),
+});
 
-export type TaxRegionEuFormValues = z.infer<typeof TaxRegionEuFormSchema>;
+export const TaxRegionEuFormSchema = prepareFormSchema(TaxRegionEuFormShape).transform((values) => ({
+  type: values.type || 'oss',
+  product_tax: values.product_tax,
+}));
 
-export const taxRegionEuDefaultValues: TaxRegionEuFormValues = {
-  type: 'oss',
-  product_tax: [],
-};
+export type TaxRegionEuFormInput = z.input<typeof TaxRegionEuFormSchema>;
+
+export type TaxRegionEuFormPayload = z.output<typeof TaxRegionEuFormSchema>;

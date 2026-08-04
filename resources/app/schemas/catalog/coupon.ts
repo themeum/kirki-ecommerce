@@ -100,7 +100,7 @@ export const CouponListItemSchema = CouponSchema.pick({
   status: true,
   created_at: true,
   updated_at: true,
-})
+});
 
 export type CouponListItem = z.infer<typeof CouponListItemSchema>;
 

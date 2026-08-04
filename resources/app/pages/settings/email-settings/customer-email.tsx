@@ -7,7 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { CartIcon, PersonIcon, UserIcon } from '@/icons';
-import type { EmailSettingsFormValues } from '@/schemas/forms/email-settings-form';
+import type { EmailSettingsFormInput } from '@/schemas/forms/email-settings-form';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
@@ -28,7 +28,7 @@ type CustomerEmailProps = {
 
 const CustomerEmail = (props: CustomerEmailProps) => {
   const { handleToggleOrder, handleEditOrder } = props;
-  const { control } = useFormContext<EmailSettingsFormValues>();
+  const { control } = useFormContext<EmailSettingsFormInput>();
   const customerEmails = useWatch({ control, name: 'customer_emails' });
 
   const { orderEmails, userEmails } = useMemo(() => {

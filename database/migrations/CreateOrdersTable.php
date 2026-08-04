@@ -70,6 +70,8 @@ class CreateOrdersTable implements Migration
             $table->string('shipping_email', 255)->nullable();
             $table->string('shipping_company')->nullable();
 
+            $table->boolean('is_billing_same_as_shipping')->default(false);
+
             $table->string('billing_first_name', 100)->nullable();
             $table->string('billing_last_name', 100)->nullable();
             $table->string('billing_address_line1', 255)->nullable();
