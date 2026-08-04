@@ -29,9 +29,12 @@ export interface Variant {
 export interface VariantSelectorConfig {
   variants: Variant[];
   selectedVariantId?: number;
+  queryParam?: string;
 }
 
 export function variantSelector(config: VariantSelectorConfig) {
+  const queryParam = config.queryParam || 'variant_id';
+  
   return {
     variants: config.variants,
     selectedVariantId: config.selectedVariantId ?? null,
@@ -112,6 +115,12 @@ export function variantSelector(config: VariantSelectorConfig) {
       
       if (matchingVariant) {
         this.selectedVariantId = matchingVariant.id;
+        
+        // Update URL query param
+        const url = new URL(window.location.href);
+        url.searchParams.set(queryParam, String(matchingVariant.id));
+        window.history.replaceState({}, '', url.toString());
+        
         // Dispatch event for image slider to update
         window.dispatchEvent(new CustomEvent('variant-changed', {
           detail: { variant: matchingVariant }
@@ -121,12 +130,37 @@ export function variantSelector(config: VariantSelectorConfig) {
 
     // Initialize with the first variant's attributes if none selected
     init() {
+      // Check URL query param for variant ID first
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlVariantId = urlParams.get(queryParam);
+      
+      if (urlVariantId) {
+        const variantId = parseInt(urlVariantId, 10);
+        const variant = this.variants.find(v => v.id === variantId);
+        if (variant) {
+          this.selectedVariantId = variantId;
+          variant.attributes.forEach(attr => {
+            this.selectedAttributes[attr.name] = attr.value;
+          });
+          // Dispatch event for image slider to update
+          window.dispatchEvent(new CustomEvent('variant-changed', {
+            detail: { variant }
+          }));
+          return;
+        }
+      }
+      
+      // Fall back to config selectedVariantId
       if (this.selectedVariantId) {
         const variant = this.variants.find(v => v.id === this.selectedVariantId);
         if (variant) {
           variant.attributes.forEach(attr => {
             this.selectedAttributes[attr.name] = attr.value;
           });
+          // Dispatch event for image slider to update
+          window.dispatchEvent(new CustomEvent('variant-changed', {
+            detail: { variant }
+          }));
         }
       } else if (this.variants.length > 0) {
         // Auto-select first available variant
@@ -136,6 +170,10 @@ export function variantSelector(config: VariantSelectorConfig) {
           firstAvailable.attributes.forEach(attr => {
             this.selectedAttributes[attr.name] = attr.value;
           });
+          // Dispatch event for image slider to update
+          window.dispatchEvent(new CustomEvent('variant-changed', {
+            detail: { variant: firstAvailable }
+          }));
         }
       }
     },

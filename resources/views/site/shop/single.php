@@ -35,6 +35,9 @@ $sale_price = isset($variant['sale_price']) ? Money::format_from_decimal($varian
 $quantity = (int) $variant['available_quantity'] ?? 0;
 $additional_info = $product['additional_info'] ?? [];
 
+// Get variant ID from URL query param
+$selected_variant_id = isset($_GET['variant_id']) ? (int) $_GET['variant_id'] : null;
+
 // Prepare images for Alpine.js
 $images = [];
 if (!empty($product_image) && isset($product_image['url'])) {
@@ -82,7 +85,7 @@ foreach ($media as $media_item) {
             </div>
 
             <!-- Right: Product Info -->
-            <div class="kecom-product-info" x-data="variantSelector({ variants: kirki_ecommerce.product_variants || [] })" x-init="init()">
+            <div class="kecom-product-info" x-data="variantSelector({ variants: kirki_ecommerce.product_variants || []<?php if ($selected_variant_id): ?>, selectedVariantId: <?php echo (int) $selected_variant_id; ?><?php endif; ?> })">
                 <div class="kecom-product-title-and-price">
                     <?php if (! empty($ribbon)): ?>
                         <span class="kecom-product-ribbon"><?php echo esc_html($ribbon); ?></span>
@@ -187,8 +190,7 @@ foreach ($media as $media_item) {
 
                 <?php foreach ($additional_info as $index => $info): ?>
                     <div class="kecom-product-tab-content" :class="{ 'active': activeTab === 'info-<?php echo esc_attr($index); ?>' }">
-                        <h3><?php echo esc_html($info['title']); ?></h3>
-                        <p><?php echo esc_html($info['description']); ?></p>
+                        <?php echo esc_html($info['description']); ?>
                     </div>
                 <?php endforeach; ?>
             </div>
