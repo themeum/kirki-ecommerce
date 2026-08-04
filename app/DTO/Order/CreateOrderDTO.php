@@ -93,6 +93,9 @@ class CreateOrderDTO extends DTO
     public $shipping_phone;
     public $shipping_email;
 
+    /** @var bool */
+    public $is_billing_same_as_shipping = false;
+
     // Billing Address Fields
     public $billing_first_name;
     public $billing_last_name;

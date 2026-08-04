@@ -30,6 +30,7 @@ class CreateCartsTable implements Migration
             $table->text('customer_notes')->nullable();
             $table->text('shipping_address')->nullable();
             $table->text('billing_address')->nullable();
+            $table->boolean('is_billing_same_as_shipping')->default(false);
 
             $table->timestamp('expires_at')->nullable()->comment('Cart expiration timestamp for cleanup of abandoned carts');
             $table->timestamps();

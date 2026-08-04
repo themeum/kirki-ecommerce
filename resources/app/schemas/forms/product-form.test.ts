@@ -83,7 +83,7 @@ describe('ProductFormVariantSchema', () => {
       in_stock: true,
       committed_quantity: 2,
       min_stock_threshold: 5,
-      has_limit_per_order: true,
+      has_limit_per_order: false,
       max_per_order: 3,
       tax_profile_id: 7,
       shipping_profile_id: 8,

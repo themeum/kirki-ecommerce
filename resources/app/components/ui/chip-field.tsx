@@ -59,7 +59,6 @@ const chipFieldControlCss: CSSObject = {
   border: 'none',
   borderRadius: theme.radius.none,
   backgroundColor: 'transparent',
-  boxSizing: 'border-box',
   outline: 'none',
   boxShadow: 'none',
   cursor: 'text',
@@ -88,7 +87,6 @@ const styles = defineStyles({
     border: `1px solid ${theme.colors.border.default}`,
     borderRadius: theme.radius.lg,
     backgroundColor: theme.colors.background.fill,
-    boxSizing: 'border-box',
     overflow: 'hidden',
     '&:focus-within': {
       borderColor: theme.colors.border.default,

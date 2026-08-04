@@ -237,7 +237,24 @@ class SettingsUpdateRequest extends Request
             'data.shipping_zones.*.shipping_methods.*.name' => 'required|string',
             'data.shipping_zones.*.shipping_methods.*.type' => 'required|string|in:' . implode(',', ShippingMethodTypes::get_constant_values()),
             'data.shipping_zones.*.shipping_methods.*.amount' => 'required|number',
-            'data.shipping_zones.*.shipping_methods.*.is_taxable' => 'required_if_sibling:type,' . implode(';', [ShippingMethodTypes::FLAT_RATE, ShippingMethodTypes::WEIGHT_BASED]) . '|boolean',
+            // TODO: replace with a reusable required-if-sibling rule once it can safely mix
+            // with type-check rules (e.g. string/array) without failing on null when not required.
+            // Bound to the shipping method itself (not the is_taxable leaf) so the check
+            // still runs even when the client omits is_taxable entirely - a wildcard rule
+            // keyed on a leaf field is only evaluated when that key is present in the payload.
+            'data.shipping_zones.*.shipping_methods.*' => function ($value, $key, $data) {
+                if (!is_array($value) || !in_array($value['type'] ?? null, [ShippingMethodTypes::FLAT_RATE, ShippingMethodTypes::WEIGHT_BASED], true)) {
+                    return true;
+                }
+
+                if (!array_key_exists('is_taxable', $value) || $value['is_taxable'] === null || $value['is_taxable'] === '') {
+                    /* translators: %s: the field name */
+                    return sprintf(__('The %s field is required.', 'growfund'), $key . '.is_taxable');
+                }
+
+                return true;
+            },
+            'data.shipping_zones.*.shipping_methods.*.is_taxable' => 'nullable|boolean',
             'data.shipping_zones.*.shipping_methods.*.description' => 'nullable|string',
 
             // Local pickup specific fields
@@ -508,8 +525,40 @@ class SettingsUpdateRequest extends Request
                 }
             ],
             'data.is_automatic_update_enabled' => 'required|boolean',
-            'data.api_provider' => 'required_if_sibling:is_automatic_update_enabled,true|string',
-            'data.api_config' => 'required_if_sibling:is_automatic_update_enabled,true|array',
+            // TODO: replace with a reusable required-if-sibling rule once it can safely mix
+            // with type-check rules (e.g. string/array) without failing on null when not required.
+            'data.api_provider' => function ($value, $key, $data) {
+                if (($data['data']['is_automatic_update_enabled'] ?? null) !== true) {
+                    return true;
+                }
+
+                if ($value === null || $value === '') {
+                    return sprintf(__('The %s field is required.', 'growfund'), $key);
+                }
+
+                if (!is_string($value)) {
+                    return sprintf(__('The %s field must be a string.', 'growfund'), $key);
+                }
+
+                return true;
+            },
+            // TODO: replace with a reusable required-if-sibling rule once it can safely mix
+            // with type-check rules (e.g. string/array) without failing on null when not required.
+            'data.api_config' => function ($value, $key, $data) {
+                if (($data['data']['is_automatic_update_enabled'] ?? null) !== true) {
+                    return true;
+                }
+
+                if ($value === null || (is_array($value) && empty($value))) {
+                    return sprintf(__('The %s field is required.', 'growfund'), $key);
+                }
+
+                if (!is_array($value)) {
+                    return sprintf(__('The %s field must be an array.', 'growfund'), $key);
+                }
+
+                return true;
+            },
             'data.api_config.api_key' => 'nullable|string',
             'data.api_config.update_frequency' => 'nullable|string|in:' . implode(',', UpdateFrequency::get_constant_values()),
             'data.api_config.fallback_behaviour' => 'nullable|string|in:' . implode(',', CurrencyUpdateFallback::get_constant_values()),

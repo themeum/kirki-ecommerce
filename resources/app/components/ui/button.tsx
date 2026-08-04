@@ -124,7 +124,6 @@ const styles = defineStyles({
     cursor: 'pointer',
     columnGap: theme.spacing[2],
     textDecoration: 'none',
-    boxSizing: 'border-box',
     whiteSpace: 'nowrap',
     border: '1px solid transparent',
     margin: 0,
