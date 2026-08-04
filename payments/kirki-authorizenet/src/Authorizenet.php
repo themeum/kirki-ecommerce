@@ -211,7 +211,7 @@ class Authorizenet extends PaymentGateway
             AuthorizenetConstant::WEBHOOK_VOID_CREATED
         ];
 
-        if (in_array($event->eventType, $allowed_event_types, true)) {
+        if (!in_array($event->eventType, $allowed_event_types, true)) {
             return false;
         }
 

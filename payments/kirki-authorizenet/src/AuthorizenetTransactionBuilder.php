@@ -81,7 +81,7 @@ class AuthorizenetTransactionBuilder
                 'name' => $this->limit_string_length($item->product_name, 31),
                 'description' => $this->limit_string_length($item->product_name, 255),
                 'quantity' => (float) $item->quantity,
-                'unitPrice' => (float) $this->format_amount($item->price, $order->currency_code),
+                'unitPrice' => (float) $this->format_amount($item->subtotal, $order->currency_code),
             ];
         }
 
@@ -104,7 +104,7 @@ class AuthorizenetTransactionBuilder
                 'cancelUrl' => $this->encode_return_url($url . '&action=cancel'),
             ],
             'hostedPaymentPaymentOptions' => [
-                'cardCodeRequired' => false,
+                'cardCodeRequired' => true,
                 'showCreditCard' => true,
                 'showBankAccount' => true,
             ],
@@ -237,7 +237,7 @@ class AuthorizenetTransactionBuilder
             return AuthorizenetConstant::PAID;
         }
 
-        if (AuthorizenetConstant::DECLINED === $transaction_status) {
+        if (in_array($transaction_status, [AuthorizenetConstant::DECLINED,AuthorizenetConstant::VOIDED])) {
             return AuthorizenetConstant::CANCELED;
         }
 
