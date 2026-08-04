@@ -18,7 +18,7 @@ import { useCreateSchemaMutation, useUpdateSchemaMutation } from '@/services/sch
 import type { SchemaFormData, SchemaProfile, SelectOption } from '@/types';
 import { __, sprintf } from '@/wpi18n';
 
-import { groupDetails, optionsList, requiredFields } from '@/pages/products/edit-product/seo-settings/utils';
+import { groupDetails, optionsList, requiredFields } from '@/pages/products/product-form/sections/seo-settings/utils';
 
 type AddSchemaPopupProps = {
   isOpen: boolean;

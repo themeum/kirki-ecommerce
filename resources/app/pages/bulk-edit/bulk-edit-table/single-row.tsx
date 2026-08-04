@@ -8,24 +8,24 @@ import type {
 } from 'react';
 import { useEffect, useState } from 'react';
 
+import ShippingBoxField from '@/components/form/shipping-box-field';
 import ThumbnailSelector from '@/components/thumbnail-selector';
-import Input from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useBulkEditForm } from '@/contexts/bulk-edit-form-context';
-import { useBulkEditList } from '@/hooks';
 import Checkbox from '@/components/ui/checkbox';
 import Flex from '@/components/ui/flex';
+import Input from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { TableCell, TableRow } from '@/components/ui/table';
+import { useBulkEditForm } from '@/contexts/bulk-edit-form-context';
+import { useBulkEditList } from '@/hooks';
 import { useAttributesQuery } from '@/services/attribute';
 import { theme } from '@/theme';
-import { scoped, defineStyles } from '@/theme/mixins';
+import { defineStyles, scoped } from '@/theme/mixins';
 import type { MediaRef, ProductVariant, UnitPriceValue } from '@/types';
 import { __ } from '@/wpi18n';
 
-import BaseUnitPopup from '@/pages/products/edit-product/price/base-unit-dialog';
-import ShippingBox from '@/pages/products/edit-product/shipping/shipping-box';
-import { calculateProfit } from '@/pages/utils';
 import type { BulkEditSelectionData } from '@/pages/bulk-edit/bulk-edit-table/bulk-edit-table';
+import BaseUnitPopup from '@/pages/products/product-form/sections/price/base-unit-dialog';
+import { calculateProfit } from '@/pages/utils';
 
 type BulkEditVariant = ProductVariant & {
   has_limit_per_order?: boolean;
@@ -41,15 +41,7 @@ type BaseUnitPopupProps = {
   setErrors?: unknown;
 };
 
-type ShippingBoxProps = {
-  value?: number | null;
-  errors?: unknown;
-  onChange?: (value: unknown, fieldName: string) => void;
-  invisible?: boolean;
-};
-
 const BaseUnitPopupComponent = BaseUnitPopup as ComponentType<BaseUnitPopupProps>;
-const ShippingBoxComponent = ShippingBox as ComponentType<ShippingBoxProps>;
 
 type SingleRowProps = {
   index: number;
@@ -106,7 +98,7 @@ const SingleRow = (props: SingleRowProps) => {
       } else {
         const sourceValue =
           variants[selectionData.baseIndex as number][
-            selectionData.fieldName as keyof ProductVariant
+          selectionData.fieldName as keyof ProductVariant
           ];
 
         updateVariants({
@@ -291,11 +283,9 @@ const SingleRow = (props: SingleRowProps) => {
             }
             size="small"
           />
-          <span>
-            <span css={scoped(styles.mutedText)}>
-              {`${currentVariation?.name} - `}
-              {varTitle.join(' - ')}
-            </span>
+          <span css={scoped(styles.title)}>
+            {`${currentVariation?.name} - `}
+            {varTitle.join(' - ')}
           </span>
         </Flex>
       </TableCell>
@@ -449,12 +439,12 @@ const SingleRow = (props: SingleRowProps) => {
           {...getActiveState('shipping_box_id')}
           style={{ minWidth: '300px' }}
         >
-          <ShippingBoxComponent
+          <ShippingBoxField
+            compact
             value={currentVariation?.shipping_box_id}
-            onChange={(value, fieldName) =>
-              handleOnChange(value, fieldName)
-            }
-            invisible
+            onChange={(value, fieldName) => {
+              handleOnChange(value, fieldName);
+            }}
           />
           <span
             data-grabber={isMaxIndex(index) ? 'true' : undefined}
@@ -650,7 +640,7 @@ const SingleRow = (props: SingleRowProps) => {
             <Select
               value={
                 currentVariation?.tax_profile_id !== undefined &&
-                currentVariation?.tax_profile_id !== null
+                  currentVariation?.tax_profile_id !== null
                   ? String(currentVariation.tax_profile_id)
                   : undefined
               }
@@ -679,7 +669,7 @@ const SingleRow = (props: SingleRowProps) => {
           <Select
             value={
               currentVariation?.shipping_profile_id !== undefined &&
-              currentVariation?.shipping_profile_id !== null
+                currentVariation?.shipping_profile_id !== null
                 ? String(currentVariation.shipping_profile_id)
                 : undefined
             }
@@ -724,7 +714,8 @@ const styles = defineStyles({
     minWidth: '260px',
     paddingRight: theme.spacing[3],
   },
-  mutedText: {
+  title: {
+    textAlign: 'left',
     color: theme.colors.text.subdued,
   },
 });

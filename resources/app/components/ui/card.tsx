@@ -2,7 +2,7 @@ import type { CSSObject } from '@emotion/react';
 import { forwardRef, type ComponentPropsWithoutRef } from 'react';
 
 import { theme } from '@/theme';
-import { scopedMerge, defineStyles } from '@/theme/mixins';
+import { defineStyles, scopedMerge } from '@/theme/mixins';
 
 type CardProps = Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'css'> & {
   cssOverride?: CSSObject;
@@ -97,7 +97,7 @@ export {
   CardDescription,
   CardFooter,
   CardHeader,
-  CardTitle,
+  CardTitle
 };
 export type { CardProps };
 

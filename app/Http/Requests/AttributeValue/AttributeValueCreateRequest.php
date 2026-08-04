@@ -13,6 +13,7 @@ class AttributeValueCreateRequest extends Request
             'attribute_id' => 'required|integer',
             'value' => 'required|string',
             'color' => 'string|nullable',
+            'media' => 'integer|nullable',
         ];
     }
 
@@ -22,6 +23,7 @@ class AttributeValueCreateRequest extends Request
             'attribute_id' => Sanitizer::INT,
             'value' => Sanitizer::TEXT,
             'color' => Sanitizer::TEXT,
+            'media' => Sanitizer::INT,
         ];
     }
 }

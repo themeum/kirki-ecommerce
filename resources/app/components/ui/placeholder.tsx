@@ -4,7 +4,7 @@ import { forwardRef, type CSSProperties, type ReactNode } from 'react';
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import { ThumbnailPlaceholder } from '@/icons';
 import { theme } from '@/theme';
-import { flexCenter, scopedMerge, defineStyles } from '@/theme/mixins';
+import { defineStyles, flexCenter, scopedMerge } from '@/theme/mixins';
 
 type PlaceholderProps = {
   children?: ReactNode;
@@ -42,7 +42,7 @@ const Placeholder = forwardRef<HTMLDivElement, PlaceholderProps>(
           role={isInteractive ? 'button' : undefined}
           tabIndex={isInteractive ? 0 : undefined}
           style={style}
-          css={scopedMerge(styles.root,             type && styles.types[type],             size && styles.sizes[size],             cssOverride)}
+          css={scopedMerge(styles.root, type && styles.types[type], size && styles.sizes[size], cssOverride)}
           onClick={onClick}
           onKeyDown={(event) => {
             if (!isInteractive || !onClick) {

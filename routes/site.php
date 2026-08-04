@@ -39,10 +39,12 @@ Route::site(function () {
         ->name('shop.single');
 
     Route::get($cart_page_id, [SiteController::class, 'cart_page'])
+        ->middleware(SiteAuthMiddleware::class)
         ->name('cart')
         ->match_page();
 
     Route::get($checkout_page_id, [SiteController::class, 'checkout_page'])
+        ->middleware(SiteAuthMiddleware::class)
         ->name('checkout')
         ->match_page();
 
@@ -51,6 +53,7 @@ Route::site(function () {
         ->name('account')
         ->match_page();
 
+    // TODO: will be removed.
     Route::get($design_system_page_id, [SiteController::class, 'design_system_page'])
         ->middleware(SiteAuthMiddleware::class)
         ->name('design_system')

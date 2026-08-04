@@ -25,9 +25,6 @@ http:
             "description": "bar"
           }
         ],
-        "allow_back_order": false,
-        "has_limit_per_order": true,
-        "max_per_order": 5,
         "seo_title": "Classic Cotton T-Shirt - Comfortable and Stylish",
         "seo_description": "Shop our premium cotton t-shirts. Perfect fit, breathable fabric, and stylish design.",
         "seo_keywords": [
@@ -120,10 +117,7 @@ http:
             "cost_of_goods": 10,
             "weight": 0.25,
             "weight_unit": "kg",
-            "length": 30,
-            "width": 25,
-            "height": 2,
-            "dimension_unit": "cm",
+
             "charge_taxes": true,
             "allow_back_order": false,
             "track_inventory": true,
@@ -154,10 +148,7 @@ http:
             "cost_of_goods": 10,
             "weight": 0.25,
             "weight_unit": "kg",
-            "length": 30,
-            "width": 25,
-            "height": 2,
-            "dimension_unit": "cm",
+
             "charge_taxes": true,
             "allow_back_order": false,
             "track_inventory": true,
@@ -188,10 +179,7 @@ http:
             "cost_of_goods": 10,
             "weight": 0.25,
             "weight_unit": "kg",
-            "length": 30,
-            "width": 25,
-            "height": 2,
-            "dimension_unit": "cm",
+
             "charge_taxes": true,
             "allow_back_order": false,
             "track_inventory": true,
@@ -222,10 +210,7 @@ http:
             "cost_of_goods": 10,
             "weight": 0.25,
             "weight_unit": "kg",
-            "length": 30,
-            "width": 25,
-            "height": 2,
-            "dimension_unit": "cm",
+
             "charge_taxes": true,
             "allow_back_order": false,
             "track_inventory": true,
@@ -256,10 +241,7 @@ http:
             "cost_of_goods": 10,
             "weight": 0.25,
             "weight_unit": "kg",
-            "length": 30,
-            "width": 25,
-            "height": 2,
-            "dimension_unit": "cm",
+
             "charge_taxes": true,
             "allow_back_order": false,
             "track_inventory": true,
@@ -290,10 +272,7 @@ http:
             "cost_of_goods": 10,
             "weight": 0.25,
             "weight_unit": "kg",
-            "length": 30,
-            "width": 25,
-            "height": 2,
-            "dimension_unit": "cm",
+
             "charge_taxes": true,
             "allow_back_order": false,
             "track_inventory": true,
@@ -324,10 +303,7 @@ http:
             "cost_of_goods": 10,
             "weight": 0.25,
             "weight_unit": "kg",
-            "length": 30,
-            "width": 25,
-            "height": 2,
-            "dimension_unit": "cm",
+
             "charge_taxes": true,
             "allow_back_order": false,
             "track_inventory": true,
@@ -358,10 +334,7 @@ http:
             "cost_of_goods": 10,
             "weight": 0.25,
             "weight_unit": "kg",
-            "length": 30,
-            "width": 25,
-            "height": 2,
-            "dimension_unit": "cm",
+
             "charge_taxes": true,
             "allow_back_order": false,
             "track_inventory": true,
@@ -377,6 +350,7 @@ http:
         ]
       }
   auth: inherit
+
 settings:
   encodeUrl: true
   timeout: 0
@@ -501,10 +475,7 @@ examples:
                 "cost_of_goods": 10,
                 "weight": 0.25,
                 "weight_unit": "kg",
-                "length": 30,
-                "width": 25,
-                "height": 2,
-                "dimension_unit": "cm",
+
                 "charge_taxes": true,
                 "allow_back_order": false,
                 "track_inventory": true,
@@ -535,10 +506,7 @@ examples:
                 "cost_of_goods": 10,
                 "weight": 0.25,
                 "weight_unit": "kg",
-                "length": 30,
-                "width": 25,
-                "height": 2,
-                "dimension_unit": "cm",
+
                 "charge_taxes": true,
                 "allow_back_order": false,
                 "track_inventory": true,
@@ -569,10 +537,7 @@ examples:
                 "cost_of_goods": 10,
                 "weight": 0.25,
                 "weight_unit": "kg",
-                "length": 30,
-                "width": 25,
-                "height": 2,
-                "dimension_unit": "cm",
+
                 "charge_taxes": true,
                 "allow_back_order": false,
                 "track_inventory": true,
@@ -603,10 +568,7 @@ examples:
                 "cost_of_goods": 10,
                 "weight": 0.25,
                 "weight_unit": "kg",
-                "length": 30,
-                "width": 25,
-                "height": 2,
-                "dimension_unit": "cm",
+
                 "charge_taxes": true,
                 "allow_back_order": false,
                 "track_inventory": true,
@@ -637,10 +599,7 @@ examples:
                 "cost_of_goods": 10,
                 "weight": 0.25,
                 "weight_unit": "kg",
-                "length": 30,
-                "width": 25,
-                "height": 2,
-                "dimension_unit": "cm",
+
                 "charge_taxes": true,
                 "allow_back_order": false,
                 "track_inventory": true,
@@ -671,10 +630,7 @@ examples:
                 "cost_of_goods": 10,
                 "weight": 0.25,
                 "weight_unit": "kg",
-                "length": 30,
-                "width": 25,
-                "height": 2,
-                "dimension_unit": "cm",
+
                 "charge_taxes": true,
                 "allow_back_order": false,
                 "track_inventory": true,
@@ -705,10 +661,7 @@ examples:
                 "cost_of_goods": 10,
                 "weight": 0.25,
                 "weight_unit": "kg",
-                "length": 30,
-                "width": 25,
-                "height": 2,
-                "dimension_unit": "cm",
+
                 "charge_taxes": true,
                 "allow_back_order": false,
                 "track_inventory": true,
@@ -739,10 +692,7 @@ examples:
                 "cost_of_goods": 10,
                 "weight": 0.25,
                 "weight_unit": "kg",
-                "length": 30,
-                "width": 25,
-                "height": 2,
-                "dimension_unit": "cm",
+
                 "charge_taxes": true,
                 "allow_back_order": false,
                 "track_inventory": true,
@@ -999,14 +949,12 @@ examples:
                     "url": "http://droip.local/wp-content/uploads/2026/02/currencyapi.png",
                     "sizes": {
                       "thumbnail": {
-                        "height": 150,
-                        "width": 150,
+
                         "url": "http://droip.local/wp-content/uploads/2026/02/currencyapi-150x150.png",
                         "orientation": "portrait"
                       }
                     },
-                    "height": 192,
-                    "width": 192,
+
                     "filesize": 5471,
                     "mime": "image/png",
                     "type": "image",
@@ -1059,14 +1007,12 @@ examples:
                     "url": "http://droip.local/wp-content/uploads/2026/02/currencyapi.png",
                     "sizes": {
                       "thumbnail": {
-                        "height": 150,
-                        "width": 150,
+
                         "url": "http://droip.local/wp-content/uploads/2026/02/currencyapi-150x150.png",
                         "orientation": "portrait"
                       }
                     },
-                    "height": 192,
-                    "width": 192,
+
                     "filesize": 5471,
                     "mime": "image/png",
                     "type": "image",
@@ -1119,14 +1065,12 @@ examples:
                     "url": "http://droip.local/wp-content/uploads/2026/02/currencyapi.png",
                     "sizes": {
                       "thumbnail": {
-                        "height": 150,
-                        "width": 150,
+
                         "url": "http://droip.local/wp-content/uploads/2026/02/currencyapi-150x150.png",
                         "orientation": "portrait"
                       }
                     },
-                    "height": 192,
-                    "width": 192,
+
                     "filesize": 5471,
                     "mime": "image/png",
                     "type": "image",
@@ -1295,38 +1239,32 @@ examples:
                   "url": "http://droip.local/wp-content/uploads/2025/10/project-launch-bg.webp",
                   "sizes": {
                     "medium": {
-                      "height": 225,
-                      "width": 300,
+
                       "url": "http://droip.local/wp-content/uploads/2025/10/project-launch-bg-300x225.webp",
                       "orientation": "landscape"
                     },
                     "large": {
-                      "height": 768,
-                      "width": 1024,
+
                       "url": "http://droip.local/wp-content/uploads/2025/10/project-launch-bg-1024x768.webp",
                       "orientation": "landscape"
                     },
                     "thumbnail": {
-                      "height": 150,
-                      "width": 150,
+
                       "url": "http://droip.local/wp-content/uploads/2025/10/project-launch-bg-150x150.webp",
                       "orientation": "portrait"
                     },
                     "medium_large": {
-                      "height": 576,
-                      "width": 768,
+
                       "url": "http://droip.local/wp-content/uploads/2025/10/project-launch-bg-768x576.webp",
                       "orientation": "landscape"
                     },
                     "1536x1536": {
-                      "height": 1152,
-                      "width": 1536,
+
                       "url": "http://droip.local/wp-content/uploads/2025/10/project-launch-bg-1536x1152.webp",
                       "orientation": "landscape"
                     }
                   },
-                  "height": 1300,
-                  "width": 1733,
+
                   "filesize": 133260,
                   "mime": "image/webp",
                   "type": "image",
@@ -1459,10 +1397,7 @@ examples:
                 "cost_of_goods": 10,
                 "weight": 0.25,
                 "weight_unit": "kg",
-                "length": 30,
-                "width": 25,
-                "height": 2,
-                "dimension_unit": "cm",
+
                 "charge_taxes": true,
                 "allow_back_order": false,
                 "track_inventory": true,
@@ -1493,10 +1428,7 @@ examples:
                 "cost_of_goods": 10,
                 "weight": 0.25,
                 "weight_unit": "kg",
-                "length": 30,
-                "width": 25,
-                "height": 2,
-                "dimension_unit": "cm",
+
                 "charge_taxes": true,
                 "allow_back_order": false,
                 "track_inventory": true,
@@ -1527,10 +1459,7 @@ examples:
                 "cost_of_goods": 10,
                 "weight": 0.25,
                 "weight_unit": "kg",
-                "length": 30,
-                "width": 25,
-                "height": 2,
-                "dimension_unit": "cm",
+
                 "charge_taxes": true,
                 "allow_back_order": false,
                 "track_inventory": true,
@@ -1561,10 +1490,7 @@ examples:
                 "cost_of_goods": 10,
                 "weight": 0.25,
                 "weight_unit": "kg",
-                "length": 30,
-                "width": 25,
-                "height": 2,
-                "dimension_unit": "cm",
+
                 "charge_taxes": true,
                 "allow_back_order": false,
                 "track_inventory": true,
@@ -1595,10 +1521,7 @@ examples:
                 "cost_of_goods": 10,
                 "weight": 0.25,
                 "weight_unit": "kg",
-                "length": 30,
-                "width": 25,
-                "height": 2,
-                "dimension_unit": "cm",
+
                 "charge_taxes": true,
                 "allow_back_order": false,
                 "track_inventory": true,
@@ -1629,10 +1552,7 @@ examples:
                 "cost_of_goods": 10,
                 "weight": 0.25,
                 "weight_unit": "kg",
-                "length": 30,
-                "width": 25,
-                "height": 2,
-                "dimension_unit": "cm",
+
                 "charge_taxes": true,
                 "allow_back_order": false,
                 "track_inventory": true,
@@ -1663,10 +1583,7 @@ examples:
                 "cost_of_goods": 10,
                 "weight": 0.25,
                 "weight_unit": "kg",
-                "length": 30,
-                "width": 25,
-                "height": 2,
-                "dimension_unit": "cm",
+
                 "charge_taxes": true,
                 "allow_back_order": false,
                 "track_inventory": true,
@@ -1697,10 +1614,7 @@ examples:
                 "cost_of_goods": 10,
                 "weight": 0.25,
                 "weight_unit": "kg",
-                "length": 30,
-                "width": 25,
-                "height": 2,
-                "dimension_unit": "cm",
+
                 "charge_taxes": true,
                 "allow_back_order": false,
                 "track_inventory": true,

@@ -50,6 +50,6 @@ export const queryKeys = {
   InstallablePaymentGateways: () => ['InstallablePaymentGateways'] as const,
   PaymentGateway: (id: string | number) => ['PaymentGateway', id] as const,
   PaymentMethods: () => ['PaymentMethods'] as const,
-  Coupons: (params?: ListParams<CouponListFilter>) => ['Coupons', params] as const,
+  Coupons: (params?: ListParams<CouponListFilter>) => params ? ['Coupons', params] as const : ['Coupons'] as const,
   Coupon: (id: string | number) => ['Coupon', id] as const,
 };

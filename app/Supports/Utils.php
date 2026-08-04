@@ -52,6 +52,61 @@ class Utils
     }
 
     /**
+     * Get site pages
+     *
+     * @since 1.0.0
+     *
+     * @return array The site pages.
+     */
+    public static function get_site_pages()
+    {
+        $pages = [
+            'advance.pages.shop' => __('Shop', 'kirki-ecommerce'),
+            'advance.pages.cart' => __('Cart', 'kirki-ecommerce'),
+            'advance.pages.checkout' => __('Checkout', 'kirki-ecommerce'),
+            'advance.pages.account' => __('Account', 'kirki-ecommerce'),
+        ];
+
+        $pages = apply_filters('kirki_ecommerce_site_pages', $pages);
+
+        return $pages;
+    }
+
+    /**
+     * Generate site pages
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     *
+     * @throws \Exception if page creation fails.
+     */
+    public static function generate_site_pages()
+    {
+        try {
+            $pages = self::get_site_pages();
+
+            foreach ($pages as $settings_key => $page_title) {
+                $page_id = Settings::get($settings_key);
+
+                if (empty($page_id)) {
+                    $new_page = [
+                        'post_title'   => $page_title,
+                        'post_status'  => 'publish',
+                        'post_type'    => 'page',
+                        'post_content' => '',
+                    ];
+
+                    $page_id = wp_insert_post($new_page);
+                    Settings::update($settings_key, $page_id);
+                }
+            }
+        } catch (\Exception $e) {
+            error_log('Error generating site pages: ' . $e->getMessage());
+        }
+    }
+
+    /**
      * Get cart page id.
      *
      * @since 1.0.0
@@ -104,5 +159,18 @@ class Utils
     public static function get_design_system_page_id()
     {
         return Settings::get('advance.pages.design_system_page', 0);
+    }
+
+    /**
+     * Get countries.
+     *
+     * @since 1.0.0
+     *
+     * @return mixed The country list.
+     */
+    public static function get_countries()
+    {
+        $countries_json = file_get_contents(plugin_dir_path(__FILE__) . '../../resources/data/countries.json');
+        return json_decode($countries_json, true);
     }
 }

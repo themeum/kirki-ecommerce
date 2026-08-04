@@ -4,12 +4,10 @@ import { useNavigate } from 'react-router';
 import Button from '@/components/ui/button';
 import Container from '@/components/ui/container';
 import PageHeading from '@/components/ui/page-heading';
-import { NEW_ITEM_ID } from '@/conf';
 import { useListParams } from '@/hooks';
 import { useProductsQuery } from '@/services/product';
 import { __ } from '@/wpi18n';
 
-import { endpoints } from '@/libs/endpoints';
 import ProductTable from '@/pages/products/product-table/product-table';
 import { ProductListFilter, productListOptions } from '@/types/filters/product';
 
@@ -41,7 +39,7 @@ const Products = () => {
             <Button
               variant="primary"
               onClick={() => {
-                navigate(endpoints.PRODUCT(NEW_ITEM_ID));
+                navigate('/products/create');
               }}
             >
               {__('Add Product', 'kirki-ecommerce')}

@@ -31,4 +31,8 @@ class DateTimeFormats
     const FIRST_DAY_OF_CURRENT_MONTH = 'Y-m-01';
 
     const LAST_DAY_OF_CURRENT_MONTH = 'Y-m-t';
+
+    const YEAR_SHORT = 'y';
+
+    const MONTH_SHORT = 'm';
 }

@@ -13,6 +13,7 @@ class AttributeValue extends Model
     protected $casts = [
         'id' => 'integer',
         'attribute_id' => 'integer',
+        'media' => 'integer',
         'created_by' => 'integer',
         'updated_by' => 'integer',
     ];
@@ -21,6 +22,7 @@ class AttributeValue extends Model
         'attribute_id',
         'value',
         'color',
+        'media'
     ];
 
     public function get_route_key()

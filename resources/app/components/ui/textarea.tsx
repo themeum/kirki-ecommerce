@@ -2,7 +2,7 @@ import { type CSSObject, type Theme } from '@emotion/react';
 import { forwardRef, type ComponentPropsWithoutRef } from 'react';
 
 import { theme } from '@/theme';
-import { uiFocusRing, scopedMerge, defineStyles } from '@/theme/mixins';
+import { defineStyles, scopedMerge, uiFocusRing } from '@/theme/mixins';
 
 type TextareaProps = Omit<
   ComponentPropsWithoutRef<'textarea'>,
@@ -46,7 +46,7 @@ const styles = defineStyles({
     boxSizing: 'border-box',
     resize: 'none',
     height: 'auto',
-    ...theme.typography.paragraph(),
+    ...theme.typography.small(),
     cursor: 'text',
     '&::placeholder': {
       color: theme.colors.text.secondary,

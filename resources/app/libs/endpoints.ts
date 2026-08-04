@@ -49,6 +49,7 @@ export const endpoints = {
 
   COUPONS: '/coupons',
   COUPON: (id: string | number) => `/coupons/${id}`,
+  COUPON_ACTION: (id: string | number) => `/coupons/${id}/action`,
   COUPONS_BULK: '/coupons/bulk',
 
   PAGES: '/pages',

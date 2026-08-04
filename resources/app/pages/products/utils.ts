@@ -93,3 +93,18 @@ export const generateVariantIndexById = (
 ): number[] => {
   return [variants.findIndex((variant) => variant?.id === id)];
 };
+
+const SKU_ALPHANUMERIC = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+
+const randomSkuSegment = (length: number): string => {
+  let segment = '';
+  for (let index = 0; index < length; index += 1) {
+    const randomIndex = Math.floor(Math.random() * SKU_ALPHANUMERIC.length);
+    segment += SKU_ALPHANUMERIC[randomIndex];
+  }
+  return segment;
+};
+
+export const generateSku = (): string => {
+  return `SKU-${randomSkuSegment(3)}-${randomSkuSegment(4)}`;
+};
