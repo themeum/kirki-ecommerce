@@ -99,7 +99,7 @@ class CartResource extends Resource
                         'title' => $item->product->title,
                         'slug' => $item->product->slug,
                         'price' => $this->prepare_amount($item->variant->price),
-                        'sale_price' => $this->prepare_amount($item->variant->sale_price),
+                        'sale_price' => $this->prepare_amount($item->variant->sale_price ?? 0),
                         'media' => !empty($item->variant->media) ? MediaAttachment::make($item->variant->media) : MediaAttachment::make($item->product->media->first() ?? null) ?? null,
                     ],
                     'subtotal' => $this->prepare_amount($calculated_item->subtotal),

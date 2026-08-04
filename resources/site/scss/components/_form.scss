@@ -69,7 +69,7 @@
   @include transition((border-color, box-shadow));
 
   &::placeholder {
-    color: $text-secondary;
+    color: $text-subdued;
   }
 
   &:hover:not(:disabled):not(:focus) {
@@ -148,9 +148,9 @@
 
 .kecom-select {
   @extend %kecom-control;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2371717a' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none'%3E%3Cpath fill='%234a4852' fill-rule='evenodd' d='M4.46 6.594a.48.48 0 0 1 .68 0L8 9.454l2.86-2.86a.48.48 0 0 1 .68.679l-3.2 3.2a.48.48 0 0 1-.68 0l-3.2-3.2a.48.48 0 0 1 0-.68' clip-rule='evenodd'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right $spacing-3 center;
+  background-position: right $spacing-4 center;
   padding-right: $spacing-8;
   cursor: pointer;
 }
@@ -210,6 +210,7 @@
   &-input {
     appearance: none;
     outline: none;
+    margin: 0px;
     width: 1rem;
     height: 1rem;
     border: 1.5px solid $border-default;

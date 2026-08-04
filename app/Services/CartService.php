@@ -11,6 +11,7 @@ use Exception;
 
 use function Kirki\Ecommerce\App\base_currency;
 use function Kirki\Ecommerce\App\customer;
+use function Kirki\Ecommerce\Framework\app;
 use function Kirki\Ecommerce\Framework\uuid;
 
 class CartService
@@ -184,5 +185,37 @@ class CartService
     public function find($cart_id)
     {
         return $this->repository->find($cart_id);
+    }
+
+    /**
+     * Get all variant IDs in the cart.
+     *
+     * @since 1.0.0
+     *
+     * @param int|null $customer_id
+     * @param string|null $token
+     *
+     * @return array
+     */
+    public function get_cart_variant_ids($customer_id = null, $token = null): array
+    {
+        try {
+            // If customer_id and is not provided, get from context
+            if ($customer_id === null) {
+                $customer = customer();
+                $customer_id = $customer ? $customer->get_customer_id() : null;
+            }
+
+            $cart = $this->get_cart($customer_id, $token);
+
+            if ($cart && $cart->items) {
+                $items = is_array($cart->items) ? $cart->items : $cart->items->all();
+                return array_map(fn($item) => $item->variant_id, $items);
+            }
+        } catch (Exception $e) {
+            return [];
+        }
+
+        return [];
     }
 }
