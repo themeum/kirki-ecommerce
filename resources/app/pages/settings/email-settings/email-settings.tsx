@@ -15,9 +15,13 @@ import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import PageHeading from '@/components/ui/page-heading';
 import Text from '@/components/ui/text';
-import { EmailSettingsFormSchema, emailSettingsDefaultValues, type EmailSettingsFormValues } from '@/schemas/forms/email-settings-form';
+import { getDefaults, pickFormValues } from '@/libs/zod';
+import {
+  EmailSettingsFormSchema,
+  type EmailSettingsFormInput,
+  type EmailSettingsFormPayload,
+} from '@/schemas/forms/email-settings-form';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
-import type { SettingsSectionData } from '@/types';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
@@ -61,33 +65,33 @@ const EmailSettings = () => {
   const hasUnsavedData = useUnsavedStatus();
 
   const { data: emailSettingsData, isLoading } = useSettingsQuery('email');
-  const { mutateAsync: saveSettings, isPending } = useUpdateSettingsMutation();
+  const { mutateAsync: saveSettings, isPending } = useUpdateSettingsMutation<'email'>();
 
   const loaded = !isLoading && Boolean(emailSettingsData);
 
-  const form = useForm<EmailSettingsFormValues>({
+  const form = useForm<EmailSettingsFormInput, unknown, EmailSettingsFormPayload>({
     resolver: zodResolver(EmailSettingsFormSchema),
-    defaultValues: emailSettingsDefaultValues,
+    defaultValues: getDefaults(EmailSettingsFormSchema),
   });
 
   useEffect(() => {
     if (!emailSettingsData || !Object.keys(emailSettingsData).length) {
       return;
     }
-    form.reset(emailSettingsData as EmailSettingsFormValues);
+    form.reset(pickFormValues(EmailSettingsFormSchema, emailSettingsData));
   }, [emailSettingsData, form]);
 
   useEffect(() => {
     setUnsavedDataStatus(form.formState.isDirty);
   }, [form.formState.isDirty]);
 
-  const handleSaveData = async (values: EmailSettingsFormValues) => {
+  const handleSaveData = async (payload: EmailSettingsFormPayload) => {
     try {
       await saveSettings({
         key: 'email',
-        data: values as SettingsSectionData,
+        data: payload,
       });
-      form.reset(values);
+      form.reset(form.getValues());
     } catch (error) {
       applyServerErrors(form, error as ErrorResponse);
     }
@@ -119,7 +123,7 @@ const EmailSettings = () => {
     }
 
     const payload = buildTogglePayload({
-      baseData: currentValues as SettingsSectionData,
+      baseData: currentValues,
       rootKey: root,
       groupKey: group,
       selectedKey,
@@ -131,9 +135,7 @@ const EmailSettings = () => {
 
     form.setValue(
       root as 'admin_emails' | 'customer_emails',
-      (payload as EmailSettingsFormValues)[
-        root as 'admin_emails' | 'customer_emails'
-      ],
+      payload[root as 'admin_emails' | 'customer_emails'],
       { shouldDirty: true },
     );
   };

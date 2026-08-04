@@ -14,11 +14,13 @@ import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { queryKeys } from '@/libs/query-keys';
 import { useUnsavedStatus } from '@/libs/unsaved-store';
+import { getDefaults, pickFormValues } from '@/libs/zod';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import PageHeading from '@/components/ui/page-heading';
 import Text from '@/components/ui/text';
-import { TaxRegionEuFormSchema, taxRegionEuDefaultValues, type TaxRegionEuFormValues } from '@/schemas/forms/tax-region-eu-form';
+import { TaxRegionEuFormSchema, type TaxRegionEuFormInput } from '@/schemas/forms/tax-region-eu-form';
+import { TaxSettingsFormSchema, type TaxSettingsFormPayload } from '@/schemas/forms/tax-settings-form';
 import { toastMutationError } from '@/services/helpers';
 import { updateSettings, useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import type { SettingsSectionData } from '@/types';
@@ -42,7 +44,7 @@ type TaxSettingsFormData = Omit<SettingsSectionData, 'tax_regions'> & {
 
 const VatCollectionProcessRadios = () => {
   const { control, setValue, getValues } =
-    useFormContext<TaxRegionEuFormValues>();
+    useFormContext<TaxRegionEuFormInput>();
 
   const handleProcessChange = (value: string | number) => {
     const nextType = String(value);
@@ -127,7 +129,7 @@ const VatProcessDescription = ({
 }: {
   processValue: string;
 }) => {
-  const currentProcess = useWatch<TaxRegionEuFormValues>({ name: 'type' });
+  const currentProcess = useWatch<TaxRegionEuFormInput>({ name: 'type' });
 
   if (currentProcess !== processValue) {
     return null;
@@ -160,13 +162,13 @@ const EditRegionEU = () => {
   const hasUnsavedData = useUnsavedStatus();
   const { data: taxSettingsData, isLoading } = useSettingsQuery('tax');
   const { mutateAsync: saveSettings, isPending: isSaving } =
-    useUpdateSettingsMutation();
+    useUpdateSettingsMutation<'tax'>();
 
   const loaded = !isLoading && Boolean(taxSettingsData);
 
-  const form = useForm<TaxRegionEuFormValues>({
+  const form = useForm<TaxRegionEuFormInput>({
     resolver: zodResolver(TaxRegionEuFormSchema),
-    defaultValues: taxRegionEuDefaultValues,
+    defaultValues: getDefaults(TaxRegionEuFormSchema),
   });
 
   const { isDirty } = form.formState;
@@ -209,7 +211,7 @@ const EditRegionEU = () => {
   }, [isDirty]);
 
   const buildUpdatedRegions = (
-    values: TaxRegionEuFormValues,
+    values: TaxRegionEuFormInput,
     overrides?: Partial<TaxRegion>,
   ): TaxRegion[] => {
     return regions.map((region) =>
@@ -249,9 +251,12 @@ const EditRegionEU = () => {
   ) => {
     const values = form.getValues();
     const taxRegions = updatedDataObj ?? buildUpdatedRegions(values);
-    const payload: TaxSettingsFormData = {
-      ...(taxSettingsData as TaxSettingsFormData),
-      tax_regions: taxRegions,
+    const currentTaxSettings = TaxSettingsFormSchema.parse(
+      pickFormValues(TaxSettingsFormSchema, taxSettingsData ?? {}),
+    );
+    const payload: TaxSettingsFormPayload = {
+      ...currentTaxSettings,
+      tax_regions: taxRegions as TaxSettingsFormPayload['tax_regions'],
     };
 
     if (from === 'delete') {

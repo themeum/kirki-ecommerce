@@ -11,7 +11,11 @@ import { LighteningIcon } from '@/icons';
 import Flex from '@/components/ui/flex';
 import Grid from '@/components/ui/grid';
 import Text from '@/components/ui/text';
-import { TaxRulesFormSchema, type TaxRulesFormValues } from '@/schemas/forms/tax-rules-form';
+import {
+  TaxRulesFormSchema,
+  type TaxRulesFormInput,
+  type TaxRulesFormPayload,
+} from '@/schemas/forms/tax-rules-form';
 import { useTaxProfilesQuery } from '@/services/tax';
 import { __ } from '@/wpi18n';
 
@@ -57,7 +61,7 @@ const TaxRulesModal = (props: TaxRulesModalProps) => {
 
   const { data: taxProfiles } = useTaxProfilesQuery();
 
-  const form = useForm<TaxRulesFormValues>({
+  const form = useForm<TaxRulesFormInput, unknown, TaxRulesFormPayload>({
     resolver: zodResolver(TaxRulesFormSchema),
     defaultValues: {
       conditions: [
@@ -130,27 +134,14 @@ const TaxRulesModal = (props: TaxRulesModalProps) => {
     form.setValue('selectedCountries', next, { shouldDirty: true });
   };
 
-  const buildRule = (values: TaxRulesFormValues): TaxRule => ({
-    relation: 'AND',
-    conditions: values.conditions.map((c) => ({
-      type: c.condition,
-      operator: '=',
-      value: c.value ?? '',
-    })),
-    action: {
-      type: values.action_type,
-      value: values.action_value ?? 0,
-    },
-  });
-
-  const handleSubmit = (values: TaxRulesFormValues) => {
+  const handleSubmit = (rule: TaxRulesFormPayload) => {
     const newRulesObj = Array.isArray(rulesObj) ? rulesObj : [];
     const updatedRules =
       from === 'edit' && typeof ruleIndex === 'number'
-        ? newRulesObj.map((rule, index) =>
-            index === ruleIndex ? buildRule(values) : rule,
+        ? newRulesObj.map((existingRule, index) =>
+            index === ruleIndex ? (rule as TaxRule) : existingRule,
           )
-        : [...newRulesObj, buildRule(values)];
+        : [...newRulesObj, rule as TaxRule];
 
     setRulesObj(updatedRules);
     updateTaxRules(updatedRules);

@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate, useParams } from 'react-router';
 
-import TagManagerField from '@/components/form/tag-manager-field';
+import MultiSelectField from '@/components/form/multi-select-field';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
@@ -12,32 +12,22 @@ import { NEW_ITEM_ID } from '@/conf';
 import { PlusIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
+import { getDefaults, pickFormValues } from '@/libs/zod';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import PageHeading from '@/components/ui/page-heading';
 import { cardStyles } from '@/theme/card-styles';
-import { CustomerFormSchema, type CustomerFormValues } from '@/schemas/forms/customer-form';
+import {
+  CustomerFormSchema,
+  type CustomerFormInput,
+  type CustomerFormPayload,
+} from '@/schemas/forms/customer-form';
 import { useCreateCustomerMutation, useCustomerQuery, useUpdateCustomerMutation } from '@/services/customer';
-import type { CustomerFormData } from '@/types';
 import { __ } from '@/wpi18n';
 
 import BillingAddress from '@/pages/customers/customer-details/billing-address';
 import CustomerOverview from '@/pages/customers/customer-details/customer-overview';
 import ShippingAddress from '@/pages/customers/customer-details/shipping-address';
-
-const emptyValues: CustomerFormValues = {
-  first_name: '',
-  last_name: '',
-  email: '',
-  phone: '',
-  language: 'english',
-  accepts_marketing: false,
-  photo: null,
-  shipping_address: {},
-  billing_address: {},
-  is_billing_same_as_shipping: false,
-  tags: [],
-};
 
 const CustomerDetails = () => {
   const { id } = useParams();
@@ -52,9 +42,9 @@ const CustomerDetails = () => {
   const updateMutation = useUpdateCustomerMutation();
   const isSubmitting = createMutation.isPending || updateMutation.isPending;
 
-  const form = useForm<CustomerFormValues>({
+  const form = useForm<CustomerFormInput, unknown, CustomerFormPayload>({
     resolver: zodResolver(CustomerFormSchema),
-    defaultValues: emptyValues,
+    defaultValues: getDefaults(CustomerFormSchema),
   });
 
   useEffect(() => {
@@ -62,72 +52,19 @@ const CustomerDetails = () => {
       return;
     }
 
-    const loadedCustomer = customerData as CustomerFormData & { id?: number };
-    setCustomerId(loadedCustomer.id);
-    form.reset({
-      first_name: loadedCustomer.first_name ?? '',
-      last_name: loadedCustomer.last_name ?? '',
-      email: loadedCustomer.email ?? '',
-      phone: loadedCustomer.phone ?? '',
-      language: loadedCustomer.language ?? 'english',
-      accepts_marketing: Boolean(loadedCustomer.accepts_marketing),
-      photo:
-        loadedCustomer.photo && typeof loadedCustomer.photo === 'object'
-          ? loadedCustomer.photo.id
-          : (loadedCustomer.photo ?? null),
-      shipping_address: loadedCustomer.shipping_address ?? {},
-      billing_address: loadedCustomer.billing_address ?? {},
-      is_billing_same_as_shipping: Boolean(
-        loadedCustomer.is_billing_same_as_shipping,
-      ),
-      tags: loadedCustomer.tags ?? [],
-    });
+    setCustomerId(customerData.id);
+    form.reset(pickFormValues(CustomerFormSchema, customerData));
   }, [customerData, form]);
 
-  const handleSubmit = async (values: CustomerFormValues) => {
-    const updatedCustomerData: CustomerFormData = {
-      ...values,
-      photo:
-        values.photo == null
-          ? null
-          : typeof values.photo === 'string'
-            ? Number(values.photo)
-            : values.photo,
-      shipping_address: {
-        ...(values.shipping_address ?? {}),
-        first_name: values.first_name,
-        last_name: values.last_name,
-        email: values.email,
-        phone: values.phone ?? undefined,
-        postal_code:
-          values.shipping_address?.postal_code != null
-            ? String(values.shipping_address.postal_code)
-            : undefined,
-      },
-    };
-
-    if (!values.is_billing_same_as_shipping) {
-      updatedCustomerData.billing_address = {
-        ...(values.billing_address ?? {}),
-        first_name: values.first_name,
-        last_name: values.last_name,
-        email: values.email,
-        phone: values.phone ?? undefined,
-        postal_code:
-          values.billing_address?.postal_code != null
-            ? String(values.billing_address.postal_code)
-            : undefined,
-      };
-    }
-
+  const handleSubmit = async (payload: CustomerFormPayload) => {
     try {
       if (customerId) {
         await updateMutation.mutateAsync({
           id: customerId,
-          data: updatedCustomerData,
+          data: payload,
         });
       } else {
-        const result = await createMutation.mutateAsync(updatedCustomerData);
+        const result = await createMutation.mutateAsync(payload);
         navigate('/customers/' + result.data.id);
       }
     } catch (error) {
@@ -191,13 +128,14 @@ const CustomerDetails = () => {
 
             <Card cssOverride={cardStyles.formCard}>
               <CardContent>
-                <TagManagerField
+                <MultiSelectField
                   name="tags"
                   valueAs="strings"
                   label={__('Tags', 'kirki-ecommerce')}
                   placeholder={__('i.e VIP, Wholsale, Local', 'kirki-ecommerce')}
-                  hasAddBtn={false}
-                  suggestions={[]}
+                  createLabel={__('Add Tag', 'kirki-ecommerce')}
+                  creatable
+                  options={[]}
                 />
               </CardContent>
             </Card>

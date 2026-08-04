@@ -1,22 +1,27 @@
 import { z } from 'zod';
 
-import { requiredString } from '@/schemas/forms/shared/validators';
+import { prepareFormSchema, required, requiredWhen } from '@/libs/zod';
 import { __ } from '@/wpi18n';
 
-export const VariationValueFormSchema = z
-  .object({
-    value: requiredString(__('Title is required', 'kirki-ecommerce')),
-    color: z.string().optional().nullable(),
-    type: z.string().optional(),
-  })
-  .superRefine((data, ctx) => {
-    if (data.type === 'color' && !data.color) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: __('Color is required', 'kirki-ecommerce'),
-        path: ['color'],
-      });
-    }
-  });
+const VariationValueFormShape = z.object({
+  value: required(z.string().default(''), __('Title is required', 'kirki-ecommerce')),
+  color: requiredWhen(
+    z.string().nullish(),
+    (values) => values.type === 'color' && !values.color,
+    __('Color is required', 'kirki-ecommerce'),
+  ),
+  type: z.string().nullish(),
+  attribute_id: z.number().optional(),
+  value_id: z.number().optional(),
+});
 
-export type VariationValueFormValues = z.infer<typeof VariationValueFormSchema>;
+export const VariationValueFormSchema = prepareFormSchema(VariationValueFormShape).transform((values) => ({
+  attribute_id: values.attribute_id as number,
+  value: values.value,
+  color: values.type === 'color' ? values.color || null : null,
+  value_id: values.value_id || undefined,
+}));
+
+export type VariationValueFormInput = z.input<typeof VariationValueFormSchema>;
+
+export type VariationValueFormPayload = z.output<typeof VariationValueFormSchema>;

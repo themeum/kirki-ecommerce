@@ -5,7 +5,7 @@ import { MediaRefSchema } from '@/schemas/shared/media';
 
 export const VariantSchema = z.object({
   id: z.number().optional(),
-  name: z.string().optional(),
+  name: z.string(),
   media: MediaRefSchema.nullish(),
   sku: z.string().nullable(),
   barcode: z.string().nullable(),

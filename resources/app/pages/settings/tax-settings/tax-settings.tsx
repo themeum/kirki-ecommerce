@@ -14,6 +14,7 @@ import { TaxIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { useUnsavedStatus } from '@/libs/unsaved-store';
+import { getDefaults, pickFormValues } from '@/libs/zod';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import PageHeading from '@/components/ui/page-heading';
@@ -22,9 +23,12 @@ import Text from '@/components/ui/text';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
-import { TaxSettingsFormSchema, taxSettingsDefaultValues, type TaxSettingsFormValues } from '@/schemas/forms/tax-settings-form';
+import {
+  TaxSettingsFormSchema,
+  type TaxSettingsFormInput,
+  type TaxSettingsFormPayload,
+} from '@/schemas/forms/tax-settings-form';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
-import type { SettingsSectionData } from '@/types';
 import { __ } from '@/wpi18n';
 
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
@@ -37,7 +41,7 @@ type SettingsOutletContext = {
 };
 
 const TaxCollectionOptions = () => {
-  const isTaxInclusivePrice = useWatch<TaxSettingsFormValues>({
+  const isTaxInclusivePrice = useWatch<TaxSettingsFormInput>({
     name: 'is_tax_inclusive_price',
   });
 
@@ -65,7 +69,7 @@ const TaxCollectionOptions = () => {
 };
 
 const TaxCollectionRadio = () => {
-  const { control } = useFormContext<TaxSettingsFormValues>();
+  const { control } = useFormContext<TaxSettingsFormInput>();
 
   const optionsArray = [
     {
@@ -121,13 +125,13 @@ const TaxSettings = () => {
   const hasUnsavedData = useUnsavedStatus();
   const { data: taxSettings, isLoading } = useSettingsQuery('tax');
   const { mutateAsync: saveSettings, isPending: isSaving } =
-    useUpdateSettingsMutation();
+    useUpdateSettingsMutation<'tax'>();
 
   const loaded = !isLoading && Boolean(taxSettings);
 
-  const form = useForm<TaxSettingsFormValues>({
+  const form = useForm<TaxSettingsFormInput, unknown, TaxSettingsFormPayload>({
     resolver: zodResolver(TaxSettingsFormSchema),
-    defaultValues: taxSettingsDefaultValues,
+    defaultValues: getDefaults(TaxSettingsFormSchema),
   });
 
   const { isDirty } = form.formState;
@@ -137,18 +141,15 @@ const TaxSettings = () => {
       return;
     }
 
-    form.reset({
-      ...taxSettingsDefaultValues,
-      ...taxSettings,
-      is_tax_inclusive_price: !!taxSettings.is_tax_inclusive_price,
-      is_enabled_taxed_price: !!taxSettings.is_enabled_taxed_price,
-      is_shipping_tax_enabled: !!taxSettings.is_shipping_tax_enabled,
-      tax_regions: Array.isArray(taxSettings.tax_regions)
-        ? (taxSettings.tax_regions as TaxRegion[])
-        : [],
-      tax_services: [],
-      tax_ids: [],
-    });
+    form.reset(
+      pickFormValues(TaxSettingsFormSchema, taxSettings, {
+        tax_regions: Array.isArray(taxSettings.tax_regions)
+          ? (taxSettings.tax_regions as TaxRegion[])
+          : [],
+        tax_services: [],
+        tax_ids: [],
+      }),
+    );
   }, [taxSettings, form]);
 
   useEffect(() => {
@@ -156,19 +157,17 @@ const TaxSettings = () => {
   }, [isDirty]);
 
   const handleSaveTaxSettings = async (
-    values: TaxSettingsFormValues,
+    payload: TaxSettingsFormPayload,
     updatedRegions?: TaxRegion[],
   ) => {
-    const data = {
-      ...values,
-      tax_regions: (updatedRegions ?? values.tax_regions ?? []) as TaxSettingsFormValues['tax_regions'],
-      tax_services: [],
-      tax_ids: [],
-    } as TaxSettingsFormValues;
+    const data: TaxSettingsFormPayload = {
+      ...payload,
+      tax_regions: (updatedRegions ?? payload.tax_regions) as TaxSettingsFormPayload['tax_regions'],
+    };
 
     try {
-      await saveSettings({ key: 'tax', data: data as SettingsSectionData });
-      form.reset(data);
+      await saveSettings({ key: 'tax', data });
+      form.reset(form.getValues());
     } catch (error) {
       applyServerErrors(form, error as ErrorResponse);
     }
@@ -189,7 +188,7 @@ const TaxSettings = () => {
   };
 
   const handleSaveFromRegions = async (updatedRegions?: TaxRegion[]) => {
-    await handleSaveTaxSettings(form.getValues(), updatedRegions);
+    await handleSaveTaxSettings(TaxSettingsFormSchema.parse(form.getValues()), updatedRegions);
   };
 
   return (

@@ -1,12 +1,12 @@
 import { useState } from 'react';
 
 import Button from '@/components/ui/button';
-import type { BrandFormData } from '@/types';
+import type { BrandFormInput } from '@/schemas/forms/brand-form';
 import { __ } from '@/wpi18n';
 
 import BrandAddEditPopover from '@/pages/brands/brand-add-edit-dialog';
 
-const initialState: BrandFormData = {
+const initialState: BrandFormInput = {
   name: '',
   slug: '',
   description: '',

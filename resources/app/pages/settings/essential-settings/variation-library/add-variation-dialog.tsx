@@ -9,9 +9,13 @@ import { Form } from '@/components/ui/form';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import Flex from '@/components/ui/flex';
-import { AddVariationFormSchema, type AddVariationFormValues } from '@/schemas/forms/add-variation-form';
+import {
+  AddVariationFormSchema,
+  type AddVariationFormInput,
+  type AddVariationFormPayload,
+} from '@/schemas/forms/add-variation-form';
 import { useCreateAttributeMutation } from '@/services/attribute';
-import type { AttributeFormData, ButtonState } from '@/types';
+import type { ButtonState } from '@/types';
 import { __ } from '@/wpi18n';
 
 type AddVariationPopupProps = {
@@ -27,10 +31,11 @@ const AddVariationPopup = ({
 }: AddVariationPopupProps) => {
   const createMutation = useCreateAttributeMutation();
 
-  const form = useForm<AddVariationFormValues>({
+  const form = useForm<AddVariationFormInput, unknown, AddVariationFormPayload>({
     resolver: zodResolver(AddVariationFormSchema),
     defaultValues: {
       name: '',
+      type: variationType,
     },
   });
 
@@ -41,23 +46,18 @@ const AddVariationPopup = ({
       return;
     }
 
-    form.reset({ name: '' });
-  }, [isOpen, form]);
+    form.reset({ name: '', type: variationType });
+  }, [isOpen, variationType, form]);
 
   const handleClosePopup = () => {
-    form.reset({ name: '' });
+    form.reset({ name: '', type: variationType });
     onClose();
   };
 
-  const handleSubmit = async (values: AddVariationFormValues) => {
-    const newAttribute: AttributeFormData = {
-      name: values.name,
-      type: variationType ?? undefined,
-    };
-
+  const handleSubmit = async (payload: AddVariationFormPayload) => {
     try {
-      await createMutation.mutateAsync(newAttribute);
-      form.reset({ name: '' });
+      await createMutation.mutateAsync(payload);
+      form.reset({ name: '', type: variationType });
       onClose();
     } catch (error) {
       applyServerErrors(form, error as ErrorResponse);

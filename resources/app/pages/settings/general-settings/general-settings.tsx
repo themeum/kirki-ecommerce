@@ -10,12 +10,17 @@ import { HomeIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { useUnsavedStatus } from '@/libs/unsaved-store';
+import { getDefaults, pickFormValues } from '@/libs/zod';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import PageHeading from '@/components/ui/page-heading';
-import { GeneralSettingsFormSchema, generalSettingsDefaultValues, type GeneralSettingsFormValues } from '@/schemas/forms/general-settings-form';
+import {
+  GeneralSettingsFormSchema,
+  type GeneralSettingsFormInput,
+  type GeneralSettingsFormPayload,
+} from '@/schemas/forms/general-settings-form';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
-import type { MediaRef, SettingsSectionData } from '@/types';
+import type { SettingsSectionData } from '@/types';
 import { __ } from '@/wpi18n';
 
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
@@ -31,23 +36,10 @@ type SettingsOutletContext = {
 
 const mapSettingsToFormValues = (
   settings: SettingsSectionData,
-): GeneralSettingsFormValues => {
-  const storeLogoValue = settings.store_logo;
-  const storeLogoMedia =
-    storeLogoValue && typeof storeLogoValue === 'object'
-      ? (storeLogoValue as MediaRef)
-      : null;
+): GeneralSettingsFormInput => {
   const storeAddress = settings.store_address;
 
-  return {
-    store_name: settings.store_name ?? '',
-    store_email: settings.store_email ?? '',
-    store_logo:
-      storeLogoMedia?.id ??
-      (typeof storeLogoValue === 'number' || typeof storeLogoValue === 'string'
-        ? storeLogoValue
-        : null),
-    store_phone: settings.store_phone ?? '',
+  return pickFormValues(GeneralSettingsFormSchema, settings, {
     store_address: {
       address_line_1: storeAddress?.address_line_1 ?? '',
       address_line_2: storeAddress?.address_line_2 ?? '',
@@ -57,16 +49,7 @@ const mapSettingsToFormValues = (
       zip_code: storeAddress?.zip_code ?? storeAddress?.postal_code ?? '',
       country: storeAddress?.country ?? '',
     },
-    selling_location_type: settings.selling_location_type ?? 'all-countries',
-    selling_countries: settings.selling_countries ?? [],
-    order_id_prefix: settings.order_id_prefix ?? '',
-    order_id_suffix: settings.order_id_suffix ?? '',
-    invoice_id_prefix: settings.invoice_id_prefix ?? '',
-    invoice_id_sequence: settings.invoice_id_sequence ?? '',
-    invoice_id_suffix: settings.invoice_id_suffix ?? '',
-    invoice_counter_reset_schedule:
-      settings.invoice_counter_reset_schedule ?? 'none',
-  };
+  });
 };
 
 const getStoreLogoUrl = (settings?: SettingsSectionData | null) => {
@@ -85,11 +68,11 @@ const GeneralSettings = () => {
   const hasUnsavedData = useUnsavedStatus();
   const { data: generalSettingsData, isLoading } = useSettingsQuery('general');
   const { mutateAsync: saveSettings, isPending: isSaving } =
-    useUpdateSettingsMutation();
+    useUpdateSettingsMutation<'general'>();
 
-  const form = useForm<GeneralSettingsFormValues>({
+  const form = useForm<GeneralSettingsFormInput, unknown, GeneralSettingsFormPayload>({
     resolver: zodResolver(GeneralSettingsFormSchema),
-    defaultValues: generalSettingsDefaultValues,
+    defaultValues: getDefaults(GeneralSettingsFormSchema),
   });
 
   const { isDirty } = form.formState;
@@ -110,13 +93,13 @@ const GeneralSettings = () => {
     setUnsavedDataStatus(isDirty);
   }, [isDirty]);
 
-  const handleSaveData = async (values: GeneralSettingsFormValues) => {
+  const handleSaveData = async (payload: GeneralSettingsFormPayload) => {
     try {
       await saveSettings({
         key: 'general',
-        data: values as SettingsSectionData,
+        data: payload,
       });
-      form.reset(values);
+      form.reset(form.getValues());
       savedLogoUrlRef.current = storeLogoUrl;
     } catch (error) {
       applyServerErrors(form, error as ErrorResponse);

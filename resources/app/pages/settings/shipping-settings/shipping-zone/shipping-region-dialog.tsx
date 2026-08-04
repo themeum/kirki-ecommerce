@@ -14,7 +14,12 @@ import Flex from '@/components/ui/flex';
 import { theme } from '@/theme';
 import { scoped, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
-import { ShippingRegionFormSchema, shippingRegionDefaultValues, type ShippingRegionFormValues } from '@/schemas/forms/shipping-region-form';
+import { getDefaults } from '@/libs/zod';
+import {
+  ShippingRegionFormSchema,
+  type ShippingRegionFormInput,
+  type ShippingRegionFormPayload,
+} from '@/schemas/forms/shipping-region-form';
 import type { FormErrors } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -36,7 +41,7 @@ type ShippingRegionPopupProps = {
   setShippingZoneTitle?: (value: string) => void;
   from?: string;
   onAdd?: () => void;
-  onSave?: (values: ShippingRegionFormValues) => void;
+  onSave?: (values: ShippingRegionFormPayload) => void;
   errors?: FormErrors;
 };
 
@@ -62,9 +67,9 @@ export const ShippingRegionPopup = ({
     title: shippingZoneTitle || '',
   });
 
-  const form = useForm<ShippingRegionFormValues>({
+  const form = useForm<ShippingRegionFormInput, unknown, ShippingRegionFormPayload>({
     resolver: zodResolver(ShippingRegionFormSchema),
-    defaultValues: shippingRegionDefaultValues,
+    defaultValues: getDefaults(ShippingRegionFormSchema),
   });
 
   const formCountries =
@@ -202,7 +207,7 @@ export const ShippingRegionPopup = ({
     setSearchValue?.(value);
   };
 
-  const handleDone = (values: ShippingRegionFormValues) => {
+  const handleDone = (values: ShippingRegionFormPayload) => {
     syncParent(values.countries, values.regions, values.title);
     if (onSave) {
       onSave(values);

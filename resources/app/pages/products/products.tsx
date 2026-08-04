@@ -1,30 +1,14 @@
-import { useCallback } from 'react';
 import { useNavigate } from 'react-router';
 
 import Button from '@/components/ui/button';
 import Container from '@/components/ui/container';
 import PageHeading from '@/components/ui/page-heading';
-import { NEW_ITEM_ID } from '@/conf';
-import { useListParams } from '@/hooks';
-import { useProductsQuery } from '@/services/product';
 import { __ } from '@/wpi18n';
 
-import { endpoints } from '@/libs/endpoints';
 import ProductTable from '@/pages/products/product-table/product-table';
-import { ProductListFilter, productListOptions } from '@/types/filters/product';
 
 const Products = () => {
   const navigate = useNavigate();
-  const { params, setParam } =
-    useListParams<ProductListFilter>(productListOptions);
-  const { data, isLoading } = useProductsQuery(params);
-
-  const handlePaginationChange = useCallback(
-    (value: number) => {
-      setParam('page', value);
-    },
-    [setParam],
-  );
 
   return (
     <>
@@ -41,7 +25,7 @@ const Products = () => {
             <Button
               variant="primary"
               onClick={() => {
-                navigate(endpoints.PRODUCT(NEW_ITEM_ID));
+                navigate('/products/create');
               }}
             >
               {__('Add Product', 'kirki-ecommerce')}
@@ -50,11 +34,7 @@ const Products = () => {
         }
       />
       <Container>
-        <ProductTable
-          data={data}
-          isLoading={isLoading}
-          onPageChange={handlePaginationChange}
-        />
+        <ProductTable />
       </Container>
     </>
   );
