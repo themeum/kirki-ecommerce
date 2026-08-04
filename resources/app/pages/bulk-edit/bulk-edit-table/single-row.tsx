@@ -1,10 +1,9 @@
 import type {
   ChangeEvent,
-  ComponentType,
   Dispatch,
   KeyboardEvent,
   MouseEvent,
-  SetStateAction,
+  SetStateAction
 } from 'react';
 import { useEffect, useState } from 'react';
 
@@ -24,24 +23,13 @@ import type { MediaRef, ProductVariant, UnitPriceValue } from '@/types';
 import { __ } from '@/wpi18n';
 
 import type { BulkEditSelectionData } from '@/pages/bulk-edit/bulk-edit-table/bulk-edit-table';
-import BaseUnitPopup from '@/pages/products/product-form/sections/price/base-unit-dialog';
+import { default as BaseUnitDialog } from '@/pages/products/product-form/sections/price/base-unit-dialog';
 import { calculateProfit } from '@/pages/utils';
 
 type BulkEditVariant = ProductVariant & {
   has_limit_per_order?: boolean;
   max_per_order?: number;
 };
-
-type BaseUnitPopupProps = {
-  buttonProps?: Record<string, unknown>;
-  index?: number;
-  onChange?: (value: UnitPriceValue) => void;
-  data?: BulkEditVariant;
-  errors?: unknown;
-  setErrors?: unknown;
-};
-
-const BaseUnitPopupComponent = BaseUnitPopup as ComponentType<BaseUnitPopupProps>;
 
 type SingleRowProps = {
   index: number;
@@ -397,9 +385,8 @@ const SingleRow = (props: SingleRowProps) => {
           {...getActiveState('base_price_per_unit')}
         >
           {currentVariation?.show_unit_price ? (
-            <BaseUnitPopupComponent
+            <BaseUnitDialog
               buttonProps={{ type: 'invisible' }}
-              index={index}
               onChange={(value: UnitPriceValue) =>
                 handleOnChange(value, 'base_price_per_unit')
               }

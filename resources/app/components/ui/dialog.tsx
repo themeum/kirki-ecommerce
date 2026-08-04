@@ -220,7 +220,7 @@ const styles = defineStyles({
   overlay: {
     position: 'fixed',
     inset: 0,
-    zIndex: 1000,
+    zIndex: theme.zIndex.dialogOverlay,
     background: 'color-mix(in oklab, #000 10%, transparent)',
     backdropFilter: 'blur(4px)',
     WebkitBackdropFilter: 'blur(4px)',
@@ -235,7 +235,7 @@ const styles = defineStyles({
     position: 'fixed',
     left: '50%',
     top: '50%',
-    zIndex: 1001,
+    zIndex: theme.zIndex.dialogContent,
     display: 'flex',
     flexDirection: 'column',
     width: '512px',
@@ -246,7 +246,6 @@ const styles = defineStyles({
     borderRadius: theme.radius.lg,
     backgroundColor: theme.colors.background.fill,
     boxShadow: theme.shadow.lg,
-    boxSizing: 'border-box',
     overflow: 'hidden',
     color: theme.colors.text.primary,
     '&:focus, &:focus-visible': {
