@@ -8,15 +8,25 @@ use Kirki\Ecommerce\Framework\Supports\Str;
 
 defined('ABSPATH') || exit;
 
+/**
+ * Builds Authorize.Net request payloads and interprets transaction status.
+ *
+ */
 class AuthorizenetTransactionBuilder
 {
     public const PAID = 'paid';
     public const CANCELED = 'canceled';
     public const FAILED = 'failed';
     public const PENDING = 'pending';
-    private const CAPTURED_PENDING_SETTLEMENT = 'capturedPendingSettlement';
-    private const DECLINED = 'declined';
+    protected const CAPTURED_PENDING_SETTLEMENT = 'capturedPendingSettlement';
+    protected const DECLINED = 'declined';
 
+    /**
+     * Build the `transactionRequest` block for a hosted payment page request.
+     *
+     * @param Order $order The order being paid for.
+     * @return array
+     */
     public function build_transaction_request(Order $order): array
     {
         $transaction_request = [
@@ -64,11 +74,24 @@ class AuthorizenetTransactionBuilder
         return $transaction_request;
     }
 
+    /**
+     * Format a minor-unit amount as a plain decimal string for the Authorize.Net API.
+     *
+     * @param int $amount The amount in minor currency units.
+     * @param string $currency The order's currency code.
+     * @return string
+     */
     protected function format_amount($amount, string $currency): string
     {
         return number_format(Money::from_minor($amount, $currency)->getAmount()->toFloat(), 2, '.', '');
     }
 
+    /**
+     * Build the `lineItem` list from the order's line items.
+     *
+     * @param Order $order
+     * @return array
+     */
     protected function build_line_items(Order $order): array
     {
         $line_items = [];
@@ -78,16 +101,23 @@ class AuthorizenetTransactionBuilder
                 'itemId' => (string) $item->id,
                 'name' => $this->limit_string_length($item->product_name, 31),
                 'description' => $this->limit_string_length($item->product_name, 255),
-                'quantity' => (string) $item->quantity,
-                'unitPrice' => $this->format_amount($item->price, $order->currency_code),
+                'quantity' => (float) $item->quantity,
+                'unitPrice' => (float) $this->format_amount($item->price, $order->currency_code),
             ];
         }
 
         return $line_items;
     }
 
+    /**
+     * Build the `hostedPaymentSettings.setting` list for the hosted payment page request.
+     *
+     * @param string $url The base return URL.
+     * @return array
+     */
     public function build_hosted_payment_settings($url): array
     {
+        //@todo Need to update the success and cancel URL.
         $settings = [
             'hostedPaymentReturnOptions' => [
                 'showReceipt' => true,
@@ -115,11 +145,25 @@ class AuthorizenetTransactionBuilder
         ];
     }
 
+    /**
+     * Percent-encode reserved URL characters so the return URL survives being
+     * embedded as a settingValue inside the hosted payment settings JSON.
+     *
+     * @param string $url
+     * @return string
+     */
     protected function encode_return_url(string $url): string
     {
         return str_replace(['?', '=', '&'], ['%3F', '%3D', '%26'], $url);
     }
 
+    /**
+     * Truncate a string to a maximum length, appending "..." if it was cut short.
+     *
+     * @param string|null $string
+     * @param int $length
+     * @return string
+     */
     protected function limit_string_length(?string $string, int $length): string
     {
         if (empty($string) || empty($length)) {
@@ -135,6 +179,13 @@ class AuthorizenetTransactionBuilder
         return Str::take($string, $length - mb_strlen($suffix)) . $suffix;
     }
 
+    /**
+     * Build the `billTo`/`shipTo` address block for an order.
+     *
+     * @param Order $order
+     * @param string $type Either 'billing' or 'shipping'.
+     * @return array Empty if the order has no address of this type.
+     */
     protected function get_address(Order $order, string $type): array
     {
         [$address_line1, $address_line2] = $this->split_address($order, 60, $type);
@@ -160,6 +211,14 @@ class AuthorizenetTransactionBuilder
         return $address;
     }
 
+    /**
+     * Split an order's address into two lines, each capped at `$max_length`.
+     *
+     * @param Order $order
+     * @param int $max_length Maximum characters per line.
+     * @param string $type Either 'billing' or 'shipping'.
+     * @return array{0: string, 1: string}|array{} Two address lines, or empty if the order has no address.
+     */
     protected function split_address(Order $order, int $max_length, string $type): array
     {
         $address_line1 = $order->{$type . '_address_line1'} ?? '';
@@ -178,6 +237,12 @@ class AuthorizenetTransactionBuilder
         return [$address_1, $address_2];
     }
 
+    /**
+     * Map an Authorize.Net transaction response.
+     *
+     * @param object $transaction The `transaction` object from a getTransactionDetailsRequest response.
+     * @return string One of PAID, PENDING, CANCELED, FAILED, or '' if `$transaction` is empty.
+     */
     public function get_transaction_status($transaction): string
     {
         if (empty($transaction)) {

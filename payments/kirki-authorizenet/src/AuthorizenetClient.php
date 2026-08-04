@@ -8,20 +8,26 @@ use Kirki\Ecommerce\Framework\Supports\Facades\Http;
 defined('ABSPATH') || exit;
 
 /**
- * Thin HTTP client for the AuthorizeNet JSON API.
+ * HTTP client for the Authorize.Net API.
  */
 class AuthorizenetClient
 {
-    private const SANDBOX_API_ENDPOINT = 'https://apitest.authorize.net/xml/v1/request.api';
-    private const PRODUCTION_API_ENDPOINT = 'https://api.authorize.net/xml/v1/request.api';
+    protected const SANDBOX_API_ENDPOINT = 'https://apitest.authorize.net/xml/v1/request.api';
+    protected const PRODUCTION_API_ENDPOINT = 'https://api.authorize.net/xml/v1/request.api';
 
-    private string $login_id;
-    private string $transaction_key;
-    private string $signature_key;
-    private bool $sandbox;
-    private array $authentication = [];
-    private array $supported_currencies = [];
+    protected string $login_id;
+    protected string $transaction_key;
+    protected string $signature_key;
+    protected bool $sandbox;
+    protected array $authentication = [];
+    protected array $supported_currencies = [];
 
+    /**
+     * @param string $login_id Authorize.Net API login ID.
+     * @param string $transaction_key Authorize.Net API transaction key.
+     * @param string $signature_key Signature key used to verify webhook notifications.
+     * @param bool $sandbox Whether to use the sandbox API endpoint.
+     */
     public function __construct(string $login_id, string $transaction_key, string $signature_key, bool $sandbox = false)
     {
         $this->login_id = $login_id;
@@ -30,6 +36,10 @@ class AuthorizenetClient
         $this->signature_key = $signature_key;
     }
 
+    /**
+     * Whether the gateway is running against Authorize.Net's sandbox environment.
+     * @return bool
+     */
     public function is_sandbox(): bool
     {
         return $this->sandbox;
@@ -37,12 +47,15 @@ class AuthorizenetClient
 
     /**
      * Merchant authentication block required on every AuthorizeNet request.
+     *
+     * @return array
      */
     public function authentication(): array
     {
         if (!empty($this->authentication)) {
             return $this->authentication;
         }
+
         return $this->authentication = [
             'name' => $this->login_id,
             'transactionKey' => $this->transaction_key,
@@ -51,9 +64,6 @@ class AuthorizenetClient
 
     /**
      * Currencies enabled on the merchant account.
-     *
-     * The AuthorizeNet API has no per-currency variant of this call — it always
-     * returns the full list, so it's fetched once and cached for the request.
      *
      * @return string[]
      */
@@ -75,7 +85,9 @@ class AuthorizenetClient
     /**
      * Send a request to the AuthorizeNet API and decode the JSON response.
      *
-     * @throws Exception
+     * @param array $payload The request payload.
+     * @return object The decoded JSON response.
+     * @throws Exception If the API request fails.
      */
     public function send(array $payload)
     {
@@ -90,15 +102,22 @@ class AuthorizenetClient
         return $this->decode($response->__toString());
     }
 
-    private function endpoint(): string
+    /**
+     * Authorize.Net API endpoint for the current environment.
+     * @return string
+     */
+    protected function endpoint(): string
     {
         return $this->sandbox ? self::SANDBOX_API_ENDPOINT : self::PRODUCTION_API_ENDPOINT;
     }
 
     /**
      * AuthorizeNet sometimes prefixes its JSON responses with a UTF-8 BOM.
+     *
+     * @param string $body The raw response body.
+     * @return object The decoded JSON response.
      */
-    private function decode(string $body)
+    protected function decode(string $body)
     {
         $bom = pack('CCC', 0xef, 0xbb, 0xbf);
 
@@ -109,6 +128,12 @@ class AuthorizenetClient
         return json_decode($body);
     }
 
+    /**
+     * Verify a webhook payload against Authorize.Net's HMAC-SHA512 signature header.
+     *
+     * @param string $raw_payload The raw webhook request body.
+     * @return bool
+     */
     public function is_verified($raw_payload): bool
     {
         // Get the headers and convert them to uppercase.

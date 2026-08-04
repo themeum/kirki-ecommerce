@@ -11,20 +11,22 @@ use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Kirki\Ecommerce\Framework\Validation\Validator;
 
 defined('ABSPATH') || exit;
+
+/**
+ * Authorize.Net payment gateway.
+ */
 class Authorizenet extends PaymentGateway
 {
-    private const FORM_URL_SANDBOX = 'https://test.authorize.net/payment/payment';
-    private const FORM_URL_PRODUCTION = 'https://accept.authorize.net/payment/payment';
-    private const RESULT_CODE_ERROR = 'Error';
-    private const WEBHOOK_CAPTURE_CREATED = 'net.authorize.payment.authcapture.created';
+    protected const FORM_URL_SANDBOX = 'https://test.authorize.net/payment/payment';
+    protected const FORM_URL_PRODUCTION = 'https://accept.authorize.net/payment/payment';
+    protected const RESULT_CODE_ERROR = 'Error';
+    protected const WEBHOOK_CAPTURE_CREATED = 'net.authorize.payment.authcapture.created';
 
-    private ?AuthorizenetClient $client = null;
-    private AuthorizenetTransactionBuilder $transaction_builder;
+    protected ?AuthorizenetClient $client = null;
+    protected AuthorizenetTransactionBuilder $transaction_builder;
 
     public function __construct()
     {
-        $this->transaction_builder = new AuthorizenetTransactionBuilder();
-
         $this->id = 'authorizenet';
         $this->title = __('AuthorizeNet', 'kirki-ecommerce');
         $this->description = __('AuthorizeNet payment gateway', 'kirki-ecommerce');
@@ -32,6 +34,7 @@ class Authorizenet extends PaymentGateway
         $this->settings_key = 'authorizenet';
         $this->is_manual = false;
         $this->has_fields = true;
+        $this->transaction_builder = new AuthorizenetTransactionBuilder();
 
         parent::__construct();
 
@@ -60,14 +63,12 @@ class Authorizenet extends PaymentGateway
                 'type' => 'checkbox',
             ],
         ]);
+
+        $this->client = $this->get_client();
     }
 
     /**
      * Pay for an order.
-     *
-     * Unlike Stripe/PayPal, this does not return a bare redirect URL — AuthorizeNet's
-     * Accept Hosted page requires the token via POST, so this returns a self-submitting
-     * HTML form. Callers must render it directly rather than redirecting to it.
      *
      * @param Order $order
      * @return string HTML markup.
@@ -79,8 +80,6 @@ class Authorizenet extends PaymentGateway
             throw new Exception(__('AuthorizeNet is not enabled.', 'kirki-ecommerce'));
         }
 
-        $this->get_client();
-
         if (!in_array($order->currency_code, $this->client->supported_currencies(), true)) {
             throw new Exception(__('Currency is not supported.', 'kirki-ecommerce'));
         }
@@ -91,7 +90,9 @@ class Authorizenet extends PaymentGateway
                     'merchantAuthentication' => $this->client->authentication(),
                     'refId' => $order->id,
                     'transactionRequest' => $this->transaction_builder->build_transaction_request($order),
-                    'hostedPaymentSettings' => $this->transaction_builder->build_hosted_payment_settings($this->return_url($order)),
+                    'hostedPaymentSettings' => $this->transaction_builder->build_hosted_payment_settings(
+                        $this->return_url($order)
+                    ),
                 ],
             ]);
         } catch (Exception $e) {
@@ -101,7 +102,9 @@ class Authorizenet extends PaymentGateway
         $result_code = $response->messages->resultCode;
 
         if (static::RESULT_CODE_ERROR === $result_code) {
-            throw new Exception(sprintf(__('AuthorizeNet Payment Error: %s', 'kirki-ecommerce'), $response->messages->message));
+            throw new Exception(
+                sprintf(__('AuthorizeNet Payment Error: %s', 'kirki-ecommerce'), $response->messages->message)
+            );
         }
 
         if (empty($response->token)) {
@@ -115,14 +118,11 @@ class Authorizenet extends PaymentGateway
     /**
      * Build an auto-submitting form that POSTs the payment token to
      * AuthorizeNet's hosted payment page.
-     *
-     * AuthorizeNet's Accept Hosted flow requires the token to arrive via
-     * POST — a plain redirect URL is not sufficient, unlike Stripe/PayPal.
      */
-    private function render_redirect_form(string $form_url, string $token): string
+    protected function render_redirect_form(string $form_url, string $token): string
     {
         ob_start();
-?>
+        ?>
         <form method="POST" id="authorizenet-form" action="<?php echo esc_url($form_url); ?>">
             <input type="hidden" name="token" value="<?php echo esc_attr($token); ?>" />
         </form>
@@ -132,11 +132,17 @@ class Authorizenet extends PaymentGateway
                 form.submit();
             })
         </script>
-<?php
+        <?php
         return ob_get_clean();
     }
 
-    private function get_client(): AuthorizenetClient
+    /**
+     * Get the Authorize.Net API client.
+     *
+     * @return AuthorizenetClient
+     * @throws Exception If the gateway credentials are missing.
+     */
+    protected function get_client(): AuthorizenetClient
     {
         if ($this->client) {
             return $this->client;
@@ -151,7 +157,7 @@ class Authorizenet extends PaymentGateway
         }
 
         $is_sandbox = (bool) ($this->settings['sandbox'] ?? false);
-        return $this->client = new AuthorizenetClient($login_id, $transaction_key, $signature_key, $is_sandbox);
+        return new AuthorizenetClient($login_id, $transaction_key, $signature_key, $is_sandbox);
     }
 
     /**
@@ -194,6 +200,12 @@ class Authorizenet extends PaymentGateway
         return array_merge($parent_settings, $data);
     }
 
+    /**
+     * Handle an Authorize.Net webhook notification.
+     *
+     * @return bool True if the notification was processed, false if ignored.
+     * @throws Exception If the payload is missing, invalid, or the API lookup fails.
+     */
     public function webhook()
     {
         $event = $this->verify_and_parse_notification();
@@ -209,6 +221,12 @@ class Authorizenet extends PaymentGateway
         return true;
     }
 
+    /**
+     * Read the raw webhook payload, verify its signature, and decode it.
+     *
+     * @return object The decoded webhook payload.
+     * @throws Exception If the payload is empty or its signature is invalid.
+     */
     protected function verify_and_parse_notification()
     {
         $payload = @file_get_contents('php://input');
@@ -220,8 +238,6 @@ class Authorizenet extends PaymentGateway
             throw new Exception(__('Invalid Payload From AuthorizeNet.', 'kirki-ecommerce'));
         }
 
-        $this->get_client();
-
         if (!$this->client->is_verified($payload)) {
             throw new Exception(__('Webhook Notification Is Not Valid.', 'kirki-ecommerce'));
         }
@@ -229,6 +245,14 @@ class Authorizenet extends PaymentGateway
         return json_decode($payload);
     }
 
+    /**
+     * Fetch full transaction details for a webhook notification from Authorize.Net.
+     *
+     * @param string $order_id The order reference ID (refId).
+     * @param string $transaction_id The Authorize.Net transaction ID.
+     * @return object The transaction details response.
+     * @throws Exception If the API request fails or returns an error.
+     */
     protected function fetch_transaction(string $order_id, string $transaction_id): object
     {
         try {
@@ -246,8 +270,7 @@ class Authorizenet extends PaymentGateway
         }
 
         if (static::RESULT_CODE_ERROR === $response->messages->resultCode) {
-            $text = $response->messages->message[0]->text
-                ?? __('Unknown error', 'kirki-ecommerce');
+            $text = $response->messages->message ?? __('Unknown error', 'kirki-ecommerce');
 
             throw new Exception(
                 sprintf(__('Authorize.Net API error: %s', 'kirki-ecommerce'), $text)
@@ -257,6 +280,14 @@ class Authorizenet extends PaymentGateway
         return $response;
     }
 
+    /**
+     * Update the order based on the transaction status returned by Authorize.Net.
+     *
+     * @param string $order_id The order ID to update.
+     * @param object $response The transaction details response from `fetch_transaction()`.
+     * @return void
+     * @throws Exception If updating the order fails.
+     */
     protected function handle_transaction_response(string $order_id, object $response): void
     {
         $status = $this->transaction_builder->get_transaction_status($response->transaction);
@@ -264,8 +295,6 @@ class Authorizenet extends PaymentGateway
         DB::begin_transaction();
 
         try {
-            OrderManager::set_transaction_id($order_id, $response->transaction->transId);
-
             switch ($status) {
                 case AuthorizenetTransactionBuilder::PAID:
                     OrderManager::set_transaction_id($order_id, $response->transaction->transId);
@@ -283,8 +312,6 @@ class Authorizenet extends PaymentGateway
                     OrderManager::mark_payment_as_failed($order_id);
                     OrderManager::mark_as_cancelled($order_id);
                     OrderManager::set_payment_metadata($order_id, wp_json_encode($response));
-                default:
-                    OrderManager::mark_as_pending($order_id);
             }
 
             DB::commit();
