@@ -12,8 +12,10 @@
 defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Facades\Money;
+use Kirki\Ecommerce\App\Supports\Assets;
 use Kirki\Ecommerce\App\Supports\Icon;
 use Kirki\Ecommerce\App\Supports\Template;
+use Kirki\Ecommerce\App\Supports\Url;
 use Kirki\Ecommerce\Framework\Route;
 
 use function Kirki\Ecommerce\Framework\view_data;
@@ -26,7 +28,7 @@ $cart_config = array(
     'items_count' => $cart['items_count'],
     'sub_total' => Money::format_from_decimal($pricing['subtotal'], $currency['code']),
     'total' => Money::format_from_decimal($pricing['total'], $currency['code']),
-    'items' => (object) array_reduce(
+    'formatted_items' => (object) array_reduce(
         $items,
         function ($carry, $item) use ($currency) {
             $carry[$item['id']] = Money::format_from_decimal($item['total'], $currency['code']);
@@ -48,7 +50,7 @@ $cart_config = array(
                     <span class="kecom-cart-items-header-title-count" x-text="`(${cart_value.items_count})`"></span>
                 </div>
                 <div class="kecom-cart-items-header-actions">
-                    <a href="<?php echo esc_url(Route::site_url('shop')); ?>" class="kecom-cart-items-header-actions-link">Continue Shopping</a>
+                    <a href="<?php echo esc_url(Url::get_shop_url()); ?>" class="kecom-cart-items-header-actions-link">Continue Shopping</a>
                 </div>
             </div>
             <?php if (count($items)): ?>
@@ -63,12 +65,12 @@ $cart_config = array(
                     $unit_price = Money::format_from_decimal($product['sale_price'] ?? $product['price'], $currency['code']);
 
                 ?>
-                    <div class="kecom-cart-item" x-data="<?php printf('quantitySelector({ min:1, max:%d, initial:%d, onChange: (q) => update(%d,q) })', $max_quantity, $quantity, $item['id']); ?>">
+                    <div class="kecom-cart-item" id="<?php echo esc_html($item['id']); ?>" x-data="<?php printf('quantitySelector({ min:1, max:%d, initial:%d, onChange: (q) => update(%d,q) })', $max_quantity, $quantity, $item['id']); ?>">
                         <div class="kecom-cart-item-image">
                             <?php if (!empty($media) && isset($media['url'])): ?>
                                 <img src="<?php echo esc_url($media['url']); ?>" alt="<?php echo esc_attr($product['title']); ?>">
                             <?php else: ?>
-                                <img src="<?php echo esc_url('https://placehold.co/600x600'); ?>" alt="<?php echo esc_attr($product['title']); ?>">
+                                <img src="<?php echo esc_url(Assets::get_url('images/product-fallback.png')); ?>" alt="<?php echo esc_attr($product['title']); ?>">
                             <?php endif; ?>
                         </div>
                         <div class="kecom-cart-item-description">
@@ -85,7 +87,7 @@ $cart_config = array(
 
                                 </div>
                                 <div class="kecom-cart-item-pricing">
-                                    <h6 class="kecom-cart-item-pricing-total" x-text="<?php printf("cart_value.items['%d']", $item['id']); ?>"></h6>
+                                    <h6 class="kecom-cart-item-pricing-total" x-text="<?php printf("cart_value.formatted_items['%d']", $item['id']); ?>"></h6>
                                     <span class="kecom-cart-item-pricing-each"><?php printf(__('%s each', 'kirki-ecommerce'), $unit_price) ?></span>
                                 </div>
                             </div>
@@ -102,7 +104,6 @@ $cart_config = array(
                             </div>
                         </div>
                     </div>
-                    <div class="kecom-divider"></div>
                 <?php endforeach; ?>
             <?php endif; ?>
         </div>
@@ -120,12 +121,11 @@ $cart_config = array(
                 <span class="kecom-cart-summary-item-title"><?php _e('Estimate taxes', 'kirki-ecommerce'); ?></span>
                 <span class="kecom-cart-summary-item-value"><?php echo '-' ?></span>
             </div>
-            <div class="kecom-divider"></div>
             <div class="kecom-cart-summary-total">
                 <span class="kecom-cart-summary-total-title"><?php _e('Estimate Total', 'kirki-ecommerce'); ?></span>
                 <span class="kecom-cart-summary-total-value" x-text="cart_value.total"></span>
             </div>
-            <a href="<?php echo esc_url(Route::site_url('checkout')); ?>" class="kecom-btn kecom-btn-primary kecom-btn-block kecom-cart-summary-checkout-btn">
+            <a href="<?php echo esc_url(Url::get_checkout_url()); ?>" class="kecom-btn kecom-btn-primary kecom-btn-block kecom-cart-summary-checkout-btn">
                 <?php Icon::render('lock'); ?>
                 <?php _e('Proceed to Checkout', 'kirki-ecommerce'); ?>
             </a>

@@ -33,9 +33,13 @@ export function cart(config: CartUpdateItem) {
       const itemId = Number(id);
 
       try {
-        await cartApi.removeItem(itemId);
+        const result = await cartApi.removeItem(itemId);
+        this.cart_value = Object.assign(this.cart_value, result.data);
+        const item = document.getElementById(String(itemId));
+        if (item) {
+          item.remove();
+        }
         toastManager.success(__("Item removed to cart", "kirki-ecommerce"));
-        window.location.reload();
       } catch (e: unknown) {
         this.error = e instanceof Error ? e.message : null;
         toastManager.error(this.error ?? __("Something went wrong", "kirki-ecommerce"));

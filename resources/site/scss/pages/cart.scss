@@ -138,15 +138,13 @@
 
   }
 
-  .kecom-divider {
-    margin-top: $spacing-9;
-    margin-bottom: $spacing-9;
-    width: 100%;
-    border: 1px solid $border-default;
+  .kecom-cart-item:not(:last-child) {
+    border-bottom: 1px solid $border-default;
+    padding-bottom: $spacing-9;
   }
 
-  .kecom-divider:last-child {
-    display: none;
+  .kecom-cart-item:not(:first-child) {
+    margin-top: $spacing-9;
   }
 
   @include breakpoint-down(md) {
@@ -165,6 +163,10 @@
   }
 
   &-item {
+    &:nth-child(4) {
+      margin-bottom: $spacing-6;
+    }
+
     @include flex(row, center, space-between);
     margin-bottom: $spacing-4;
 
@@ -175,11 +177,15 @@
     &-value {
       @include typography(base, medium, $text-primary);
     }
+
+
   }
 
   &-total {
     @include flex(row, center, space-between);
     margin-bottom: $spacing-10;
+    border-top: 1px solid $border-default;
+    padding-top: $spacing-6;
 
     &-title {
       @include typography(md, bold, $text-primary);
@@ -188,13 +194,6 @@
     &-value {
       @include typography(md, bold, $text-primary);
     }
-  }
-
-  .kecom-divider {
-    width: 100%;
-    border: 1px solid $border-default;
-    margin-top: $spacing-6;
-    margin-bottom: $spacing-6;
   }
 
   &-checkout-btn {

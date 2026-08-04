@@ -32,7 +32,7 @@ export interface CartUpdateItem {
   sub_total: number;
   total: number;
   items_count: number;
-  items: Record<number, string>;
+  formatted_items: Record<number, string>;
 }
 
 export interface Cart {
@@ -42,6 +42,7 @@ export interface Cart {
   total: number;
   coupon_code?: string;
   discount?: number;
+  formatted_items: Record<number, string>;
 }
 
 export interface WishlistItem {

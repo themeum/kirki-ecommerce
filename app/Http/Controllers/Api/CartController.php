@@ -80,7 +80,7 @@ class CartController
         $updated_cart = $action->execute($dto);
 
         return response()->json([
-            'data' => CartUpdateItemResource::make($updated_cart),
+            'data' => CartResource::make($updated_cart),
             'message' => __('Cart item updated successfully.', 'kirki-ecommerce'),
         ]);
     }

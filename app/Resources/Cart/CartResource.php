@@ -58,9 +58,12 @@ class CartResource extends Resource
                 'shipping_total' => $this->prepare_amount($this->shipping_total),
                 'total' => $this->prepare_amount($this->total),
             ],
+            'sub_total' => Money::format_from_decimal($this->prepare_amount($this->subtotal), $this->currency_code),
+            'total' => Money::format_from_decimal($this->prepare_amount($this->total), $this->currency_code),
 
             'items_count' => $this->items_count,
             'items' => $this->prepare_items($this->items, $result),
+            'formatted_items' => $this->format_items($this->items, $result),
 
             'shipping_address' => $this->shipping_address,
             'billing_address' => $this->billing_address,
@@ -79,6 +82,18 @@ class CartResource extends Resource
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];
+    }
+
+    protected function format_items($items, $result)
+    {
+        return (object) array_reduce(
+            $this->prepare_items($items, $result),
+            function ($carry, $item) {
+                $carry[$item['id']] = Money::format_from_decimal($item['total'], $this->currency_code);
+                return $carry;
+            },
+            [],
+        );
     }
 
     protected function prepare_items($items, $result)

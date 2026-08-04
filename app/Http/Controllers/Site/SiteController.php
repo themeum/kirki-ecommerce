@@ -130,8 +130,7 @@ class SiteController
     public function cart_page(Request $request, CartService $cart_service)
     {
         $customer = customer();
-        $token = $request->get_header('x-cart-token');
-        $cart = $cart_service->get_cart($customer->get_customer_id() ?? null, $token);
+        $cart = $cart_service->get_cart($customer->get_customer_id() ?? null, null);
         $cart_resource = CartResource::make($cart);
 
         return view('site.cart', ['cart' => $cart_resource])->layout(false);
