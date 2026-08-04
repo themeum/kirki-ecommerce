@@ -206,7 +206,12 @@ class Authorizenet extends PaymentGateway
     {
         $event = $this->verify_and_parse_notification();
 
-        if (AuthorizenetConstant::WEBHOOK_CAPTURE_CREATED !== $event->eventType) {
+        $allowed_event_types = [
+            AuthorizenetConstant::WEBHOOK_CAPTURE_CREATED,
+            AuthorizenetConstant::WEBHOOK_VOID_CREATED
+        ];
+
+        if (in_array($event->eventType, $allowed_event_types, true)) {
             return false;
         }
 
@@ -292,18 +297,18 @@ class Authorizenet extends PaymentGateway
 
         try {
             switch ($status) {
-                case AuthorizenetTransactionBuilder::PAID:
+                case AuthorizenetConstant::PAID:
                     OrderManager::set_transaction_id($order_id, $response->transaction->transId);
                     OrderManager::mark_payment_as_paid($order_id);
                     OrderManager::mark_as_processing($order_id);
                     OrderManager::set_payment_metadata($order_id, wp_json_encode($response));
                     break;
-                case AuthorizenetTransactionBuilder::PENDING:
+                case AuthorizenetConstant::PENDING:
                     OrderManager::mark_payment_as_pending($order_id);
                     OrderManager::mark_as_on_hold($order_id);
                     break;
-                case AuthorizenetTransactionBuilder::CANCELED:
-                case AuthorizenetTransactionBuilder::FAILED:
+                case AuthorizenetConstant::CANCELED:
+                case AuthorizenetConstant::FAILED:
                     OrderManager::set_transaction_id($order_id, $response->transaction->transId);
                     OrderManager::mark_payment_as_failed($order_id);
                     OrderManager::mark_as_cancelled($order_id);
