@@ -77,7 +77,7 @@ foreach ($media as $media_item) {
                         <img :src="currentImage.url" alt="<?php echo esc_attr($product['title']); ?>">
                     </template>
                     <template x-if="!currentImage.url">
-                        <img src="<?php echo esc_url(Assets::get_url('images/product-fallback.png')); ?>" alt="<?php echo esc_attr($product['title']); ?>">
+                        <img src="<?php echo esc_url(Assets::get_url('images/product-fallback.webp')); ?>" alt="<?php echo esc_attr($product['title']); ?>">
                     </template>
                     <?php if (count($images) > 1): ?>
                         <button class="kecom-product-nav-btn kecom-product-nav-prev" @click="prev" aria-label="Previous image">
