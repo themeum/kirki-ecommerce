@@ -9,6 +9,13 @@ defined('ABSPATH') || exit;
 
 class AuthorizenetRequestBuilder
 {
+    private const CAPTURED_PENDING_SETTLEMENT = 'capturedPendingSettlement';
+    private const DECLINED = 'declined';
+    private const PAID = 'paid';
+    private const CANCELED = 'canceled';
+    private const FAILED = 'failed';
+    private const PENDING = 'pending';
+
     public function build_transaction_request(Order $order): array
     {
         $transaction_request = [
@@ -67,11 +74,11 @@ class AuthorizenetRequestBuilder
 
         foreach ($order->items as $item) {
             $line_items[] = [
-                'itemId' => $item->id,
+                'itemId' => (string) $item->id,
                 'name' => $this->limit_string_length($item->product_name, 31),
                 'description' => $this->limit_string_length($item->product_name, 255),
-                'quantity' => (float) $item->quantity,
-                'unitPrice' => (float) $this->format_amount($item->price, $order->currency_code),
+                'quantity' => (string) $item->quantity,
+                'unitPrice' => $this->format_amount($item->price, $order->currency_code),
             ];
         }
 
@@ -183,5 +190,31 @@ class AuthorizenetRequestBuilder
             mb_strimwidth($address_line1, 0, $max_length),
             mb_strimwidth($address_line1, $max_length, $max_length),
         ];
+    }
+
+    public function get_transaction_status($transaction): string
+    {
+        if (empty($transaction)) {
+            return '';
+        }
+
+        $transaction_status        = $transaction->transactionStatus;
+        $transaction_response_code = $transaction->responseCode;
+
+        $transaction_errors = [ 'communicationError', 'generalError', 'settlementError', 'expired' ];
+
+        if (static::CAPTURED_PENDING_SETTLEMENT === $transaction_status && 1 === $transaction_response_code) {
+            return static::PAID;
+        }
+
+        if (static::DECLINED === $transaction_status) {
+            return static::CANCELED;
+        }
+
+        if (in_array($transaction_status, $transaction_errors)) {
+            return static::FAILED;
+        }
+
+        return static::PENDING;
     }
 }

@@ -17,15 +17,17 @@ class AuthorizenetClient
 
     private string $login_id;
     private string $transaction_key;
+    private string $signature_key;
     private bool $sandbox;
     private ?array $authentication = [];
     private ?array $supported_currencies = [];
 
-    public function __construct(string $login_id, string $transaction_key, bool $sandbox = false)
+    public function __construct(string $login_id, string $transaction_key, string $signature_key, bool $sandbox = false)
     {
         $this->login_id = $login_id;
         $this->transaction_key = $transaction_key;
         $this->sandbox = $sandbox;
+        $this->signature_key = $signature_key;
     }
 
     public function is_sandbox(): bool
@@ -105,5 +107,19 @@ class AuthorizenetClient
         }
 
         return json_decode($body);
+    }
+
+    public function is_verified($raw_payload): bool
+    {
+        // Get the headers and convert them to uppercase.
+        $headers = array_change_key_case(getallheaders(), CASE_UPPER);
+
+        if (! isset($headers['X-ANET-SIGNATURE'])) {
+            return false;
+        }
+
+        $calculated_signature = hash_hmac('sha512', $raw_payload, $this->signature_key);
+
+        return hash_equals(strtolower($headers['X-ANET-SIGNATURE']), 'sha512=' . $calculated_signature);
     }
 }
