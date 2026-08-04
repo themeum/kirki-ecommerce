@@ -126,7 +126,6 @@ $cart_config = array(
                 <span class="kecom-cart-summary-total-value" x-text="cart_value.total"></span>
             </div>
             <a href="<?php echo esc_url(Url::get_checkout_url()); ?>" class="kecom-btn kecom-btn-primary kecom-btn-block kecom-cart-summary-checkout-btn">
-                <?php Icon::render('lock'); ?>
                 <?php _e('Proceed to Checkout', 'kirki-ecommerce'); ?>
             </a>
         </div>
