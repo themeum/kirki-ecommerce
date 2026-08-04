@@ -11,10 +11,11 @@
 
 defined('ABSPATH') || exit;
 
+use Kirki\Ecommerce\App\Supports\Assets;
 use Kirki\Ecommerce\App\Supports\Template;
+use Kirki\Ecommerce\App\Supports\Utils;
 
-$countries_json = file_get_contents(plugin_dir_path(__FILE__) . '../../data/countries.json');
-$countries = json_decode($countries_json, true);
+$countries = Utils::get_countries();
 ?>
 
 <?php Template::get_header(); ?>
@@ -159,7 +160,7 @@ $countries = json_decode($countries_json, true);
                                 <span class="kecom-payment-name">PayPal</span>
                             </span>
                             <div class="kecom-payment-logo">
-                                <img src="<?php echo esc_url(KIRKI_ECOMMERCE_ASSETS_URL . '/images/paypal.svg') ?>" alt="PayPal" class="kecom-payment-logo-img">
+                                <img src="<?php echo esc_url(Assets::get_url('images/paypal.svg')); ?>" alt="PayPal" class="kecom-payment-logo-img">
                             </div>
                         </label>
                         <label class="kecom-radio kecom-payment-option">
