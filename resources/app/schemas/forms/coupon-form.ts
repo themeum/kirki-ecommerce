@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { END_OF_DAY_TIME, START_OF_DAY_TIME } from '@/libs/date';
+import { DATE_FORMATS, END_OF_DAY_TIME, START_OF_DAY_TIME } from '@/libs/date';
 import { isEmptyValue, prepareFormSchema, required, requiredWhen } from '@/libs/zod';
 import { mergeDateTime } from '@/pages/coupons/edit-coupon/config/coupon-datetime';
 import {
@@ -10,7 +10,9 @@ import {
   CouponMethodSchema,
 } from '@/schemas/catalog/coupon';
 import { MoneyAmountSchema } from '@/schemas/shared/api';
+import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
+import { format } from 'date-fns';
 
 const CouponFormShape = z.object({
   method: CouponMethodSchema.default('code'),
@@ -81,6 +83,14 @@ const CouponFormShape = z.object({
 
 const CouponFormSchema = prepareFormSchema(CouponFormShape).transform((values) => {
   const isAmountOff = values.discount_type === 'amount-off';
+  const startDatetime = mergeDateTime(
+    values.start_date ?? '',
+    values.start_time ?? START_OF_DAY_TIME,
+  );
+
+  const endDateTime = values.has_end_datetime
+    ? mergeDateTime(values.end_date ?? '', values.end_time ?? END_OF_DAY_TIME)
+    : null;
 
   return {
     method: values.method,
@@ -91,14 +101,9 @@ const CouponFormSchema = prepareFormSchema(CouponFormShape).transform((values) =
     discount_value_type: isAmountOff ? values.discount_value_type ?? null : null,
     discount_amount:
       isAmountOff && values.discount_amount ? values.discount_amount : null,
-    start_datetime: mergeDateTime(
-      values.start_date ?? '',
-      values.start_time ?? START_OF_DAY_TIME,
-    ),
+    start_datetime: isDefined(startDatetime) ? format(startDatetime, DATE_FORMATS.ATOM) : null,
     has_end_datetime: values.has_end_datetime,
-    end_datetime: values.has_end_datetime
-      ? mergeDateTime(values.end_date ?? '', values.end_time ?? END_OF_DAY_TIME)
-      : null,
+    end_datetime: isDefined(endDateTime) ? format(endDateTime, DATE_FORMATS.ATOM) : null,
     has_usage_limit: values.has_usage_limit,
     usage_limit: values.has_usage_limit ? values.usage_limit : null,
     has_customer_limit: values.has_customer_limit,
