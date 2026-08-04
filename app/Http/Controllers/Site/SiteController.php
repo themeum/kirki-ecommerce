@@ -129,7 +129,7 @@ class SiteController
      */
     public function cart_page(Request $request, CartService $cart_service)
     {
-        $customer = customer(4, 11);
+        $customer = customer();
         $token = $request->get_header('x-cart-token');
         $cart = $cart_service->get_cart($customer->get_customer_id() ?? null, $token);
         $cart_resource = CartResource::make($cart);
