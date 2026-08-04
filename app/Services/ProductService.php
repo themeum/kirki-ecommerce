@@ -225,4 +225,32 @@ class ProductService
 
         return $ordered_data;
     }
+
+    /**
+     * Get shop page data.
+     *
+     * @since 1.0.0
+     *
+     * @param array $filters filters.
+     *
+     * @return array{
+     *      products: Paginator,
+     *      filters: array
+     * }
+     */
+    public function shop_page_data(array $filters = [])
+    {
+        $filters_dto = ProductListFilterDTO::from_array($filters);
+
+        // $filters_dto->limit = 1;
+        $filters_dto->page = intval($filters['current_page'] ?? 1);
+        $filters_dto->sort_order = null;
+
+        $products = $this->paginated($filters_dto);
+
+        return [
+            'products' => $products,
+            'filters'  => $filters,
+        ];
+    }
 }
