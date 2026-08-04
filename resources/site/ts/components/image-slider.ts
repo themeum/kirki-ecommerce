@@ -27,7 +27,7 @@ export function imageSlider(config: ImageSliderConfig) {
     currentIndex: config.startIndex ?? 0,
 
     get currentImage(): ImageSlide {
-      return this.images[this.currentIndex] || this.images[0];
+      return this.images[this.currentIndex] || this.images[0] || { id: 0, url: '' };
     },
 
     get hasNext(): boolean {

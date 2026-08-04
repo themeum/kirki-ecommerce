@@ -51,6 +51,8 @@ $media = $product->media()->first();
 $image_url = null;
 if ($media) {
     $image_url = wp_get_attachment_image_url($media->ID, 'large');
+} else {
+    $image_url = KIRKI_ECOMMERCE_ASSETS_URL . '/images/product-fallback.png';
 }
 
 $product_url = Url::get_product_url($product->slug);
