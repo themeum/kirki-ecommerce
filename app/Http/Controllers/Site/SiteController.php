@@ -155,7 +155,7 @@ class SiteController
     ) {
         $customer = customer();
         $payment_gateways =  $payment_gateway_service->get();
-        $cart = CartResource::make($cart_service->get_cart($customer->get_id()));
+        $cart = CartResource::make($cart_service->get_cart($customer->get_customer_id()));
 
 
         $data = [
