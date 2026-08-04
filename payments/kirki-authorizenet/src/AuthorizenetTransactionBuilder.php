@@ -4,17 +4,18 @@ namespace Kirki\Ecommerce\Payments;
 
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Models\Order;
+use Kirki\Ecommerce\Framework\Supports\Str;
 
 defined('ABSPATH') || exit;
 
-class AuthorizenetRequestBuilder
+class AuthorizenetTransactionBuilder
 {
+    public const PAID = 'paid';
+    public const CANCELED = 'canceled';
+    public const FAILED = 'failed';
+    public const PENDING = 'pending';
     private const CAPTURED_PENDING_SETTLEMENT = 'capturedPendingSettlement';
     private const DECLINED = 'declined';
-    private const PAID = 'paid';
-    private const CANCELED = 'canceled';
-    private const FAILED = 'failed';
-    private const PENDING = 'pending';
 
     public function build_transaction_request(Order $order): array
     {
@@ -87,45 +88,30 @@ class AuthorizenetRequestBuilder
 
     public function build_hosted_payment_settings($url): array
     {
-        return [
-            'setting' => [
-                [
-                    'settingName' => 'hostedPaymentReturnOptions',
-                    'settingValue' => wp_json_encode([
-                        'showReceipt' => true,
-                        'url' => $this->encode_return_url($url . '&action=success'),
-                        'cancelUrl' => $this->encode_return_url($url . '&action=cancel'),
-                    ]),
-                ],
-                [
-                    'settingName' => 'hostedPaymentPaymentOptions',
-                    'settingValue' => wp_json_encode([
-                        'cardCodeRequired' => false,
-                        'showCreditCard' => true,
-                        'showBankAccount' => true,
-                    ]),
-                ],
-                [
-                    'settingName' => 'hostedPaymentSecurityOptions',
-                    'settingValue' => wp_json_encode(['captcha' => true]),
-                ],
-                [
-                    'settingName' => 'hostedPaymentShippingAddressOptions',
-                    'settingValue' => wp_json_encode(['show' => true]),
-                ],
-                [
-                    'settingName' => 'hostedPaymentBillingAddressOptions',
-                    'settingValue' => wp_json_encode(['show' => true]),
-                ],
-                [
-                    'settingName' => 'hostedPaymentCustomerOptions',
-                    'settingValue' => wp_json_encode(['showEmail' => true]),
-                ],
-                [
-                    'settingName' => 'hostedPaymentOrderOptions',
-                    'settingValue' => wp_json_encode(['show' => true]),
-                ],
+        $settings = [
+            'hostedPaymentReturnOptions' => [
+                'showReceipt' => true,
+                'url' => $this->encode_return_url($url . '&action=success'),
+                'cancelUrl' => $this->encode_return_url($url . '&action=cancel'),
             ],
+            'hostedPaymentPaymentOptions' => [
+                'cardCodeRequired' => false,
+                'showCreditCard' => true,
+                'showBankAccount' => true,
+            ],
+            'hostedPaymentSecurityOptions' => ['captcha' => true],
+            'hostedPaymentShippingAddressOptions' => ['show' => true],
+            'hostedPaymentBillingAddressOptions' => ['show' => true],
+            'hostedPaymentCustomerOptions' => ['showEmail' => true],
+            'hostedPaymentOrderOptions' => ['show' => true],
+        ];
+
+        return [
+            'setting' => array_map(
+                fn($name, $value) => ['settingName' => $name, 'settingValue' => wp_json_encode($value)],
+                array_keys($settings),
+                $settings
+            ),
         ];
     }
 
@@ -140,27 +126,27 @@ class AuthorizenetRequestBuilder
             return '';
         }
 
-        $suffix = '...';
-
-        if (mb_strlen($string) > $length) {
-            return mb_substr($string, 0, $length - mb_strlen($suffix)) . $suffix;
+        if (mb_strlen($string) <= $length) {
+            return $string;
         }
 
-        return $string;
+        $suffix = '...';
+
+        return Str::take($string, $length - mb_strlen($suffix)) . $suffix;
     }
 
     protected function get_address(Order $order, string $type): array
     {
         [$address_line1, $address_line2] = $this->split_address($order, 60, $type);
 
-        if (empty($address_line1)) {
+        if (empty($address_line1) && empty($address_line2)) {
             return [];
         }
 
         $address = [
             'firstName' => $this->limit_string_length($order->{$type . '_first_name'}, 50),
             'lastName' => $this->limit_string_length($order->{$type . '_last_name'}, 50),
-            'address' => $address_line1,
+            'address' => $address_line1 ?? $address_line2,
             'city' => $this->limit_string_length($order->{$type . '_city'}, 40),
             'state' => $this->limit_string_length($order->{$type . '_state'}, 40),
             'zip' => $this->limit_string_length($order->{$type . '_postal_code'}, 20),
@@ -176,20 +162,20 @@ class AuthorizenetRequestBuilder
 
     protected function split_address(Order $order, int $max_length, string $type): array
     {
+        $address_line1 = $order->{$type . '_address_line1'} ?? '';
+        $address_line2 = $order->{$type . '_address_line2'} ?? '';
+
         $address_line1 = $order->{$type . '_address_line1'} ?? $order->{$type . '_address_line2'} ?? '';
 
-        if (empty($address_line1)) {
-            return ['', ''];
+        if (empty($address_line1) && empty($address_line2)) {
+            return [];
         }
 
-        if (mb_strlen($address_line1) <= $max_length) {
-            return [$address_line1, $order->{$type . '_address_line1'} ?? $order->{$type . '_address_line2'} ?? ''];
-        }
+        $address_1 = mb_strimwidth($address_line1, 0, $max_length);
+        $address_2 = strlen($address_line1) > $max_length
+                    ? mb_strimwidth($address_line1, $max_length, $max_length) : $address_line2;
 
-        return [
-            mb_strimwidth($address_line1, 0, $max_length),
-            mb_strimwidth($address_line1, $max_length, $max_length),
-        ];
+        return [$address_1, $address_2];
     }
 
     public function get_transaction_status($transaction): string
@@ -198,10 +184,10 @@ class AuthorizenetRequestBuilder
             return '';
         }
 
-        $transaction_status        = $transaction->transactionStatus;
+        $transaction_status = $transaction->transactionStatus;
         $transaction_response_code = $transaction->responseCode;
 
-        $transaction_errors = [ 'communicationError', 'generalError', 'settlementError', 'expired' ];
+        $transaction_errors = ['communicationError', 'generalError', 'settlementError', 'expired'];
 
         if (static::CAPTURED_PENDING_SETTLEMENT === $transaction_status && 1 === $transaction_response_code) {
             return static::PAID;
@@ -211,7 +197,7 @@ class AuthorizenetRequestBuilder
             return static::CANCELED;
         }
 
-        if (in_array($transaction_status, $transaction_errors)) {
+        if (in_array($transaction_status, $transaction_errors, true)) {
             return static::FAILED;
         }
 

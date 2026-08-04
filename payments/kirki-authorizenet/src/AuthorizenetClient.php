@@ -19,8 +19,8 @@ class AuthorizenetClient
     private string $transaction_key;
     private string $signature_key;
     private bool $sandbox;
-    private ?array $authentication = [];
-    private ?array $supported_currencies = [];
+    private array $authentication = [];
+    private array $supported_currencies = [];
 
     public function __construct(string $login_id, string $transaction_key, string $signature_key, bool $sandbox = false)
     {
