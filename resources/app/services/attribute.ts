@@ -4,11 +4,11 @@ import { apiClient } from '@/libs/api';
 import { endpoints } from '@/libs/endpoints';
 import { queryKeys } from '@/libs/query-keys';
 import { AttributeSchema, AttributeValueSchema } from '@/schemas/catalog/attribute';
+import type { AddVariationFormPayload } from '@/schemas/forms/add-variation-form';
+import type { VariationValueFormPayload } from '@/schemas/forms/variation-value-form';
 import { PaginatedDataSchema, ResourceCollectionSchema } from '@/schemas/shared/api';
-import { parseData, parseResponse, toastMutationError, toastMutationSuccess, unwrapResponse } from '@/services/helpers';
+import { parseData, parseMessage, parseResponse, toastMutationError, toastMutationSuccess } from '@/services/helpers';
 import type {
-  AttributeFormData,
-  AttributeValueFormData,
   BulkActionParams,
   ListQueryParams,
 } from '@/types';
@@ -37,7 +37,7 @@ const getAttributeValues = (id: number, params: ListQueryParams = {}) => {
     );
 };
 
-const createAttribute = (data: AttributeFormData) => {
+const createAttribute = (data: AddVariationFormPayload) => {
   return apiClient
     .post(endpoints.ATTRIBUTES, data)
     .then((response) => parseResponse(AttributeSchema, response));
@@ -48,7 +48,7 @@ const updateAttribute = ({
   data,
 }: {
   id: number;
-  data: AttributeFormData;
+  data: AddVariationFormPayload;
 }) => {
   return apiClient
     .put(endpoints.ATTRIBUTE(id), data)
@@ -58,30 +58,26 @@ const updateAttribute = ({
 const deleteAttribute = (id: number) => {
   return apiClient
     .delete(endpoints.ATTRIBUTE(id))
-    .then((response) => unwrapResponse(response));
+    .then((response) => parseMessage(response));
 };
 
-const createAttributeValue = (data: AttributeValueFormData) => {
+const createAttributeValue = (data: VariationValueFormPayload) => {
   return apiClient
-    .post(endpoints.ATTRIBUTE_VALUES(data.attribute_id!), data)
+    .post(endpoints.ATTRIBUTE_VALUES(data.attribute_id), data)
     .then((response) => parseResponse(AttributeValueSchema, response));
 };
 
-const updateAttributeValue = (params: AttributeValueFormData) => {
+const updateAttributeValue = (params: VariationValueFormPayload) => {
   const { attribute_id, value_id, value, color } = params;
-  const data = {
-    value,
-    ...(color !== undefined && { color }),
-  };
   return apiClient
-    .put(endpoints.ATTRIBUTE_VALUE(attribute_id!, value_id!), data)
+    .put(endpoints.ATTRIBUTE_VALUE(attribute_id, value_id as number), { value, color })
     .then((response) => parseResponse(AttributeValueSchema, response));
 };
 
-const deleteAttributeValue = (params: AttributeValueFormData) => {
+const deleteAttributeValue = (params: { attribute_id: number; value_id: number }) => {
   return apiClient
-    .delete(endpoints.ATTRIBUTE_VALUE(params.attribute_id!, params.value_id!))
-    .then((response) => unwrapResponse(response));
+    .delete(endpoints.ATTRIBUTE_VALUE(params.attribute_id, params.value_id))
+    .then((response) => parseMessage(response));
 };
 
 const bulkDeleteAttributeValues = ({
@@ -91,7 +87,7 @@ const bulkDeleteAttributeValues = ({
 }: BulkActionParams & { attribute_id: number }) => {
   return apiClient
     .post(endpoints.ATTRIBUTE_VALUES_BULK(attribute_id), { action, ids })
-    .then((response) => unwrapResponse(response));
+    .then((response) => parseMessage(response));
 };
 
 const useAttributesQuery = (params: ListQueryParams = {}) => {

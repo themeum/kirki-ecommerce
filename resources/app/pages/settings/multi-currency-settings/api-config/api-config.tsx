@@ -11,8 +11,8 @@ import { ReplaceIcon, FlagIcon, WrenchIcon } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
-import type { ApiConfigurationFormValues } from '@/schemas/forms/api-configuration-form';
-import type { MultiCurrencySettingsFormValues } from '@/schemas/forms/multi-currency-settings-form';
+import type { ApiConfigurationFormPayload } from '@/schemas/forms/api-configuration-form';
+import type { MultiCurrencySettingsFormInput } from '@/schemas/forms/multi-currency-settings-form';
 import { useCurrencyExchangeProvidersQuery } from '@/services/currency';
 import type { SettingsSectionData } from '@/types';
 import { __ } from '@/wpi18n';
@@ -36,12 +36,12 @@ type ApiConfigData = {
 };
 
 const ApiConfig = () => {
-  const { setValue } = useFormContext<MultiCurrencySettingsFormValues>();
-  const formValues = useWatch<MultiCurrencySettingsFormValues>();
-  const apiProvider = useWatch<MultiCurrencySettingsFormValues>({
+  const { setValue } = useFormContext<MultiCurrencySettingsFormInput>();
+  const formValues = useWatch<MultiCurrencySettingsFormInput>();
+  const apiProvider = useWatch<MultiCurrencySettingsFormInput>({
     name: 'api_provider',
   });
-  const apiConfig = useWatch<MultiCurrencySettingsFormValues>({
+  const apiConfig = useWatch<MultiCurrencySettingsFormInput>({
     name: 'api_config',
   });
 
@@ -72,7 +72,7 @@ const ApiConfig = () => {
 
   const hasAPIConfiguration = apiConfigObj?.api_key;
 
-  const handlePopupSave = (values: ApiConfigurationFormValues) => {
+  const handlePopupSave = (values: ApiConfigurationFormPayload) => {
     setValue('api_provider', selectedAPI, { shouldDirty: true });
     setValue('api_config', values, { shouldDirty: true });
   };

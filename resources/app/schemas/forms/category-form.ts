@@ -1,15 +1,28 @@
 import { z } from 'zod';
 
-import { optionalNullableString, requiredString, slug } from '@/schemas/forms/shared/validators';
+import { mediaId, numberOrNull, prepareFormSchema, required } from '@/libs/zod';
 import { __ } from '@/wpi18n';
 
-export const CategoryFormSchema = z.object({
-  name: requiredString(__('Name is required', 'kirki-ecommerce')),
-  slug: slug(__('Slug is required', 'kirki-ecommerce')),
-  description: optionalNullableString(),
-  parent_id: z.union([z.number(), z.string(), z.null()]).optional().nullable(),
-  image: z.union([z.number(), z.string(), z.null()]).optional().nullable(),
-  is_active: z.boolean().optional(),
+const CategoryFormShape = z.object({
+  name: required(z.string().default(''), __('Name is required', 'kirki-ecommerce')),
+  slug: required(z.string().default(''), __('Slug is required', 'kirki-ecommerce')),
+  description: z.string().nullish().default(''),
+  parent_id: numberOrNull(),
+  image: mediaId(),
+  is_active: z.boolean().nullish(),
 });
 
-export type CategoryFormValues = z.infer<typeof CategoryFormSchema>;
+const CategoryFormSchema = prepareFormSchema(CategoryFormShape).transform((values) => ({
+  name: values.name,
+  slug: values.slug,
+  description: values.description || null,
+  parent_id: values.parent_id,
+  image: values.image,
+  is_active: values.is_active ?? null,
+}));
+
+type CategoryFormInput = z.input<typeof CategoryFormSchema>;
+
+type CategoryFormPayload = z.output<typeof CategoryFormSchema>;
+
+export { CategoryFormSchema, type CategoryFormInput, type CategoryFormPayload };

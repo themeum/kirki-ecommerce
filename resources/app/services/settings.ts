@@ -3,9 +3,35 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/libs/api';
 import { endpoints } from '@/libs/endpoints';
 import { queryKeys } from '@/libs/query-keys';
+import type { CheckoutSettingsFormPayload } from '@/schemas/forms/checkout-settings-form';
+import type { EmailSettingsFormPayload } from '@/schemas/forms/email-settings-form';
+import type { GeneralSettingsFormPayload } from '@/schemas/forms/general-settings-form';
+import type { MultiCurrencySettingsFormPayload } from '@/schemas/forms/multi-currency-settings-form';
+import type { ProductsSettingsFormPayload } from '@/schemas/forms/products-settings-form';
+import type { ShippingSettingsFormPayload } from '@/schemas/forms/shipping-settings-form';
+import type { TaxSettingsFormPayload } from '@/schemas/forms/tax-settings-form';
 import { toastMutationError, toastMutationSuccess, unwrapData, unwrapResponse } from '@/services/helpers';
 import type { ListQueryParams, SettingsSectionData, SettingsSectionKey } from '@/types';
 import { __ } from '@/wpi18n';
+
+/**
+ * Only the 7 sections converted to a canonical form schema get a real
+ * payload type here. `orders`/`payment`/`default` are never sent through
+ * `updateSettings` today, so they fall back to the old catch-all rather
+ * than being modeled speculatively.
+ */
+type SettingsPayloadMap = {
+  general: GeneralSettingsFormPayload;
+  product: ProductsSettingsFormPayload;
+  checkout: CheckoutSettingsFormPayload;
+  email: EmailSettingsFormPayload;
+  shipping: ShippingSettingsFormPayload;
+  tax: TaxSettingsFormPayload;
+  currency: MultiCurrencySettingsFormPayload;
+  orders: SettingsSectionData;
+  payment: SettingsSectionData;
+  default: SettingsSectionData;
+};
 
 const getSettings = (key: SettingsSectionKey | string, params: ListQueryParams = {}) => {
   return apiClient
@@ -19,12 +45,12 @@ const getDefaultSettings = () => {
     .then((response) => unwrapData<SettingsSectionData>(response));
 };
 
-const updateSettings = ({
+const updateSettings = <K extends SettingsSectionKey>({
   key,
   data,
 }: {
-  key: string;
-  data: SettingsSectionData;
+  key: K;
+  data: SettingsPayloadMap[K];
 }) => {
   return apiClient
     .put(endpoints.SETTINGS, { key, data })
@@ -51,10 +77,10 @@ const useDefaultSettingsQuery = (enabled = true) => {
   });
 };
 
-const useUpdateSettingsMutation = () => {
+const useUpdateSettingsMutation = <K extends SettingsSectionKey>() => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: updateSettings,
+    mutationFn: (variables: { key: K; data: SettingsPayloadMap[K] }) => updateSettings(variables),
     onSuccess(response, variables) {
       toastMutationSuccess(
         response.message ||

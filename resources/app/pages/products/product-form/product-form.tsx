@@ -19,15 +19,15 @@ import { Separator } from '@/components/ui/separator';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { setUnsavedDataStatus } from '@/libs/unsaved-store';
+import { getDefaults } from '@/libs/zod';
 import {
-  buildProductPayload,
-  getProductFormDefaultValues,
+  getDefaultVariantValues,
   ProductFormSchema,
-  type ProductFormValues,
+  type ProductFormInput,
+  type ProductFormPayload,
 } from '@/schemas/forms/product-form';
 import { getErrorMessage } from '@/services/helpers';
 import { cardStyles } from '@/theme/card-styles';
-import type { ProductFormData } from '@/types';
 import { __ } from '@/wpi18n';
 
 import UnsavedToast from '@/pages/products/product-form/unsaved-toast';
@@ -43,8 +43,8 @@ import Variants from '@/pages/products/product-form/sections/variants/variants';
 
 type ProductFormProps = {
   mode: 'create' | 'edit';
-  initialValues?: ProductFormValues;
-  onSubmit: (data: ProductFormData) => Promise<ProductFormValues | void>;
+  initialValues?: ProductFormInput;
+  onSubmit: (data: ProductFormPayload) => Promise<ProductFormInput | void>;
   isSubmitting?: boolean;
 };
 
@@ -65,9 +65,13 @@ const ProductForm = ({
   const navigate = useNavigate();
   const isCreate = mode === 'create';
 
-  const form = useForm<ProductFormValues>({
+  const form = useForm<ProductFormInput, unknown, ProductFormPayload>({
     resolver: zodResolver(ProductFormSchema),
-    defaultValues: initialValues ?? getProductFormDefaultValues(),
+    defaultValues:
+      initialValues ?? {
+        ...getDefaults(ProductFormSchema),
+        variants: [getDefaultVariantValues()],
+      },
   });
 
   const hasVariants = useWatch({ control: form.control, name: 'has_variants' });
@@ -98,9 +102,7 @@ const ProductForm = ({
 
     markSaving(true);
     try {
-      await form.handleSubmit(async (values) => {
-        const payload = buildProductPayload(values);
-
+      await form.handleSubmit(async (payload) => {
         try {
           const result = await onSubmit(payload);
           if (result) {
@@ -124,7 +126,7 @@ const ProductForm = ({
           );
 
           if (focusOnError && matchedFields[0]) {
-            form.setFocus(matchedFields[0] as FieldPath<ProductFormValues>);
+            form.setFocus(matchedFields[0] as FieldPath<ProductFormInput>);
           }
 
           success = false;

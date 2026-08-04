@@ -1,43 +1,42 @@
 import { z } from 'zod';
 
-export const CheckoutConfigurationSchema = z
-  .object({
-    address_line_validation: z.string().optional(),
-    phone_number_validation: z.string().optional(),
-    company_name_validation: z.string().optional(),
-    company_id_validation: z.string().optional(),
-    vat_identification_number_validation: z.string().optional(),
-    has_apply_coupon_code: z.boolean().optional(),
-  })
-  .passthrough();
+import { prepareFormSchema } from '@/libs/zod';
 
-export const CheckoutSettingsFormSchema = z
-  .object({
-    is_allowed_guest_checkout: z.boolean().optional(),
-    checkout_configuration: CheckoutConfigurationSchema.optional(),
-    is_terms_and_conditions_visible: z.boolean().optional(),
-    terms_and_conditions_content: z.string().optional().nullable(),
-    is_privacy_policy_visible: z.boolean().optional(),
-    privacy_policy_content: z.string().optional().nullable(),
-  })
-  .passthrough();
+export const CheckoutConfigurationSchema = z.object({
+  address_line_validation: z.string().nullish().default(''),
+  phone_number_validation: z.string().nullish().default(''),
+  company_name_validation: z.string().nullish().default(''),
+  company_id_validation: z.string().nullish().default(''),
+  vat_identification_number_validation: z.string().nullish().default(''),
+  has_apply_coupon_code: z.boolean().default(true),
+});
 
-export type CheckoutSettingsFormValues = z.infer<
-  typeof CheckoutSettingsFormSchema
->;
+const CheckoutSettingsFormShape = z.object({
+  is_allowed_guest_checkout: z.boolean().default(false),
+  checkout_configuration: CheckoutConfigurationSchema.default({}),
+  is_terms_and_conditions_visible: z.boolean().default(false),
+  terms_and_conditions_content: z.string().nullish().default(''),
+  is_privacy_policy_visible: z.boolean().default(false),
+  privacy_policy_content: z.string().nullish().default(''),
+});
 
-export const checkoutSettingsDefaultValues: CheckoutSettingsFormValues = {
-  is_allowed_guest_checkout: false,
+export const CheckoutSettingsFormSchema = prepareFormSchema(CheckoutSettingsFormShape).transform((values) => ({
+  is_allowed_guest_checkout: values.is_allowed_guest_checkout,
   checkout_configuration: {
-    address_line_validation: '',
-    phone_number_validation: '',
-    company_name_validation: '',
-    company_id_validation: '',
-    vat_identification_number_validation: '',
-    has_apply_coupon_code: true,
+    address_line_validation: values.checkout_configuration.address_line_validation || null,
+    phone_number_validation: values.checkout_configuration.phone_number_validation || null,
+    company_name_validation: values.checkout_configuration.company_name_validation || null,
+    company_id_validation: values.checkout_configuration.company_id_validation || null,
+    vat_identification_number_validation:
+      values.checkout_configuration.vat_identification_number_validation || null,
+    has_apply_coupon_code: values.checkout_configuration.has_apply_coupon_code,
   },
-  is_terms_and_conditions_visible: false,
-  terms_and_conditions_content: '',
-  is_privacy_policy_visible: false,
-  privacy_policy_content: '',
-};
+  is_terms_and_conditions_visible: values.is_terms_and_conditions_visible,
+  terms_and_conditions_content: values.terms_and_conditions_content || null,
+  is_privacy_policy_visible: values.is_privacy_policy_visible,
+  privacy_policy_content: values.privacy_policy_content || null,
+}));
+
+export type CheckoutSettingsFormInput = z.input<typeof CheckoutSettingsFormSchema>;
+
+export type CheckoutSettingsFormPayload = z.output<typeof CheckoutSettingsFormSchema>;

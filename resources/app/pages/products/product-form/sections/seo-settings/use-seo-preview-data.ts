@@ -1,6 +1,6 @@
 import { useFormContext, useWatch } from 'react-hook-form';
 
-import type { ProductFormValues } from '@/schemas/forms/product-form';
+import type { ProductFormInput } from '@/schemas/forms/product-form';
 import { useSettingsQuery } from '@/services/settings';
 import type { MediaRef } from '@/types';
 
@@ -47,7 +47,7 @@ const resolveMediaUrl = (media: MediaRef[] | undefined): string | null => {
 };
 
 const useSeoPreviewData = (mode: SeoPreviewMode): SeoPreviewData => {
-  const { control } = useFormContext<ProductFormValues>();
+  const { control } = useFormContext<ProductFormInput>();
   const { data: generalSettings } = useSettingsQuery('general');
 
   const seoTitle = useWatch({ control, name: 'seo_title' });

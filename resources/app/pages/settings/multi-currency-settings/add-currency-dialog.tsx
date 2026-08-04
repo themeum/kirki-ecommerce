@@ -11,7 +11,7 @@ import Label from '@/components/ui/label';
 import { PlusIcon, SearchIcon } from '@/icons';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
-import { AddCurrencyPopupFormSchema, type AddCurrencyPopupFormValues } from '@/schemas/forms/add-currency-popup-form';
+import { AddCurrencyPopupFormSchema, type AddCurrencyPopupFormInput, type AddCurrencyPopupFormPayload } from '@/schemas/forms/add-currency-popup-form';
 import { useAllCurrenciesQuery, useAvailableCurrenciesQuery } from '@/services/currency';
 import type { Currency } from '@/types';
 import { theme } from '@/theme';
@@ -36,7 +36,7 @@ const AddCurrencyPopup = () => {
   });
   const { data: allCurrenciesData = [] } = useAllCurrenciesQuery();
 
-  const form = useForm<AddCurrencyPopupFormValues>({
+  const form = useForm<AddCurrencyPopupFormInput, unknown, AddCurrencyPopupFormPayload>({
     resolver: zodResolver(AddCurrencyPopupFormSchema),
     defaultValues: {
       selectedCurrencies: [],
@@ -98,7 +98,7 @@ const AddCurrencyPopup = () => {
     setOpenPopup(false);
   };
 
-  const handleSubmit = (values: AddCurrencyPopupFormValues) => {
+  const handleSubmit = (values: AddCurrencyPopupFormPayload) => {
     setSelectedCurrencyList(values.selectedCurrencies as Currency[]);
     setOpenPopup(false);
     setOpenExchangePopup(true);

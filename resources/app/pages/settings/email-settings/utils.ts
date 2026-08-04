@@ -1,4 +1,4 @@
-import type { SettingsSectionData } from '@/types';
+import type { EmailSettingsFormInput } from '@/schemas/forms/email-settings-form';
 
 type EmailNotification = {
   name?: string;
@@ -6,7 +6,12 @@ type EmailNotification = {
   [key: string]: unknown;
 };
 
-type EmailGroup = Record<string, EmailNotification>;
+/**
+ * Loose on purpose: callers pass the zod-inferred notification records
+ * (a passthrough object type) which don't structurally match a hand-written
+ * `EmailNotification` despite carrying the same fields at runtime.
+ */
+type EmailGroup = Record<string, Record<string, unknown> | null | undefined>;
 
 type EmailConfigEntry = {
   root: string;
@@ -14,7 +19,7 @@ type EmailConfigEntry = {
 };
 
 type BuildTogglePayloadParams = {
-  baseData: SettingsSectionData;
+  baseData: EmailSettingsFormInput;
   rootKey: string;
   groupKey: string;
   selectedKey: string;
@@ -69,8 +74,7 @@ export const buildTogglePayload = ({
   rootKey,
   groupKey,
   selectedKey,
-}: BuildTogglePayloadParams): SettingsSectionData | null => {
-  console.log({ selectedKey });
+}: BuildTogglePayloadParams): EmailSettingsFormInput | null => {
   const rootData = (
     baseData as Record<string, Record<string, EmailGroup> | undefined>
   )?.[rootKey];

@@ -4,9 +4,10 @@ import { apiClient } from '@/libs/api';
 import { endpoints } from '@/libs/endpoints';
 import { queryKeys } from '@/libs/query-keys';
 import { SchemaProfileSchema } from '@/schemas/catalog/schema-profile';
+import type { SchemaProfileFormPayload } from '@/schemas/forms/schema-profile-form';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
-import { parseData, parseResponse, toastMutationError, toastMutationSuccess, unwrapResponse } from '@/services/helpers';
-import type { ListQueryParams, SchemaFormData } from '@/types';
+import { parseData, parseMessage, parseResponse, toastMutationError, toastMutationSuccess } from '@/services/helpers';
+import type { ListQueryParams } from '@/types';
 import { __ } from '@/wpi18n';
 
 const getSchemas = async (params: ListQueryParams = {}) => {
@@ -18,7 +19,7 @@ const getSchemas = async (params: ListQueryParams = {}) => {
   return data.results;
 };
 
-const createSchema = (data: SchemaFormData) => {
+const createSchema = (data: SchemaProfileFormPayload) => {
   return apiClient
     .post(endpoints.PRODUCT_SCHEMAS, data)
     .then((response) => parseResponse(SchemaProfileSchema, response));
@@ -29,7 +30,7 @@ const updateSchema = ({
   data,
 }: {
   id: number;
-  data: SchemaFormData;
+  data: SchemaProfileFormPayload;
 }) => {
   return apiClient
     .put(endpoints.PRODUCT_SCHEMA(id), data)
@@ -39,7 +40,7 @@ const updateSchema = ({
 const deleteSchema = (id: number) => {
   return apiClient
     .delete(endpoints.PRODUCT_SCHEMA(id))
-    .then((response) => unwrapResponse(response));
+    .then((response) => parseMessage(response));
 };
 
 const useSchemasQuery = (params: ListQueryParams = {}) => {

@@ -1,34 +1,46 @@
 import { z } from 'zod';
 
-const EmailNotificationSchema = z
+import { prepareFormSchema } from '@/libs/zod';
+
+/**
+ * Each notification entry carries at least a name/enabled flag; the exact
+ * extra fields vary per notification type (subject/heading/message/etc.),
+ * so the leaf stays a passthrough rather than enumerating every variant.
+ */
+const EmailNotificationFormShape = z
   .object({
-    name: z.string().optional(),
-    is_enabled: z.boolean().optional(),
+    name: z.string().nullish(),
+    is_enabled: z.boolean().nullish(),
   })
   .passthrough();
 
-const EmailGroupSchema = z.record(EmailNotificationSchema).optional();
+const EmailGroupFormShape = z.record(EmailNotificationFormShape).nullish();
 
-const EmailRootSchema = z
+const EmailRootFormShape = z
   .object({
-    order_notifications: EmailGroupSchema,
-    user_notifications: EmailGroupSchema,
-    inventory_notifications: EmailGroupSchema,
+    order_notifications: EmailGroupFormShape,
+    user_notifications: EmailGroupFormShape,
+    inventory_notifications: EmailGroupFormShape,
   })
-  .passthrough()
-  .optional();
+  .partial();
 
-export const EmailSettingsFormSchema = z
-  .object({
-    admin_emails: EmailRootSchema,
-    customer_emails: EmailRootSchema,
-    default_template: z.any().optional(),
-  })
-  .passthrough();
+const EmailSettingsFormShape = z.object({
+  admin_emails: EmailRootFormShape.default({}),
+  customer_emails: EmailRootFormShape.default({}),
+  /**
+   * Owned by the separate branding editor (`edit-template.tsx`); this page
+   * only toggles notifications, so `default_template` passes through
+   * whatever was last saved rather than being edited here.
+   */
+  default_template: z.record(z.any()).nullish(),
+});
 
-export type EmailSettingsFormValues = z.infer<typeof EmailSettingsFormSchema>;
+export const EmailSettingsFormSchema = prepareFormSchema(EmailSettingsFormShape).transform((values) => ({
+  admin_emails: values.admin_emails,
+  customer_emails: values.customer_emails,
+  default_template: values.default_template ?? null,
+}));
 
-export const emailSettingsDefaultValues: EmailSettingsFormValues = {
-  admin_emails: {},
-  customer_emails: {},
-};
+export type EmailSettingsFormInput = z.input<typeof EmailSettingsFormSchema>;
+
+export type EmailSettingsFormPayload = z.output<typeof EmailSettingsFormSchema>;

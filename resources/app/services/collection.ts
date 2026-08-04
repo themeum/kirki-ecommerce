@@ -4,9 +4,10 @@ import { apiClient } from '@/libs/api';
 import { endpoints } from '@/libs/endpoints';
 import { queryKeys } from '@/libs/query-keys';
 import { CollectionSchema } from '@/schemas/catalog/collection';
+import type { CollectionFormPayload } from '@/schemas/forms/collection-form';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
-import { parseData, parseResponse, toastMutationError, toastMutationSuccess, unwrapResponse } from '@/services/helpers';
-import type { ListQueryParams, BulkActionParams, CollectionFormData } from '@/types';
+import { parseData, parseMessage, parseResponse, toastMutationError, toastMutationSuccess } from '@/services/helpers';
+import type { ListQueryParams, BulkActionParams } from '@/types';
 import { __ } from '@/wpi18n';
 
 const getCollections = (params: ListQueryParams = {}) => {
@@ -23,7 +24,14 @@ const getCollection = (id: number) => {
     .then((response) => parseData(CollectionSchema, response));
 };
 
-const createCollection = (data: CollectionFormData) => {
+/**
+ * The full collection details page sends a complete `CollectionFormPayload`,
+ * but the inline "create collection" affordance in `CollectionsField` only
+ * ever sends `title` — the backend derives the rest server-side.
+ */
+const createCollection = (
+  data: CollectionFormPayload | Pick<CollectionFormPayload, 'title'>,
+) => {
   return apiClient
     .post(endpoints.COLLECTIONS, data)
     .then((response) => parseResponse(CollectionSchema, response));
@@ -34,7 +42,7 @@ const updateCollection = ({
   data,
 }: {
   id: number;
-  data: CollectionFormData;
+  data: CollectionFormPayload;
 }) => {
   return apiClient
     .put(endpoints.COLLECTION(id), data)
@@ -44,7 +52,7 @@ const updateCollection = ({
 const deleteCollection = (id: number) => {
   return apiClient
     .delete(endpoints.COLLECTION(id))
-    .then((response) => unwrapResponse(response));
+    .then((response) => parseMessage(response));
 };
 
 const bulkDeleteCollections = ({
@@ -53,7 +61,7 @@ const bulkDeleteCollections = ({
 }: BulkActionParams = {}) => {
   return apiClient
     .post(endpoints.COLLECTIONS_BULK, { action, ids })
-    .then((response) => unwrapResponse(response));
+    .then((response) => parseMessage(response));
 };
 
 const useCollectionsQuery = (params: ListQueryParams = {}) => {

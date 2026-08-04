@@ -11,7 +11,7 @@ import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import Text from '@/components/ui/text';
-import type { ProductFormValues } from '@/schemas/forms/product-form';
+import type { ProductFormInput } from '@/schemas/forms/product-form';
 import { useTaxProfilesQuery } from '@/services/tax';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
@@ -24,7 +24,7 @@ import { TaxProfilePopup } from '@/pages/settings/tax-settings/tax-profile/tax-p
 import { calculateProfit } from '@/pages/utils';
 
 const Price = () => {
-  const { control, setValue } = useFormContext<ProductFormValues>();
+  const { control, setValue } = useFormContext<ProductFormInput>();
   const [openTaxProfilePopup, setOpenTaxProfilePopup] = useState(false);
   const { data: taxProfiles } = useTaxProfilesQuery({ limit: -1 });
 

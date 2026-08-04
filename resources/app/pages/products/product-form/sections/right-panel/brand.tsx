@@ -10,7 +10,7 @@ import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import Thumbnail from '@/components/ui/thumbnail';
-import type { ProductFormValues } from '@/schemas/forms/product-form';
+import type { ProductFormInput } from '@/schemas/forms/product-form';
 import { useBrandsQuery } from '@/services/brand';
 import { cardStyles } from '@/theme/card-styles';
 import type { Brand as BrandEntity, SelectOption } from '@/types';
@@ -21,7 +21,7 @@ import BrandAddEditPopover from '@/pages/brands/brand-add-edit-dialog';
 type BrandSuggestion = SelectOption & BrandEntity;
 
 const Brand = () => {
-  const { watch, setValue } = useFormContext<ProductFormValues>();
+  const { watch, setValue } = useFormContext<ProductFormInput>();
   const productBrand = watch('brand');
   const { data: brandData } = useBrandsQuery({ limit: -1 });
   const [suggestionArray, setSuggestionArray] = useState<BrandSuggestion[]>(
