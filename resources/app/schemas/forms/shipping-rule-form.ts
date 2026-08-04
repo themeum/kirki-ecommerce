@@ -1,23 +1,35 @@
 import { z } from 'zod';
 
-import { optionalNullableString } from '@/schemas/forms/shared/validators';
+import { prepareFormSchema, required } from '@/libs/zod';
+import { __ } from '@/wpi18n';
 
-export const ShippingRuleFormSchema = z.object({
-  condition: z.string().min(1),
-  operator: z.string().optional().nullable(),
-  condition_value: z.any().optional().nullable(),
-  action: z.string().min(1),
-  action_value: z.union([z.string(), z.number()]).optional().nullable(),
-  selected_country: optionalNullableString(),
+const COST_ACTIONS = ['set_shipping_cost', 'add_shipping_cost'];
+
+const ShippingRuleFormShape = z.object({
+  condition: required(z.string().default(''), __('Condition is required', 'kirki-ecommerce')),
+  operator: z.string().nullish(),
+  condition_value: z.any().nullish(),
+  action: required(z.string().default(''), __('Action is required', 'kirki-ecommerce')),
+  action_value: z.union([z.string(), z.number()]).nullish(),
+  selected_country: z.string().nullish().default(''),
 });
 
-export type ShippingRuleFormValues = z.infer<typeof ShippingRuleFormSchema>;
+/** Reshapes the flat rule form into the nested `{relation, conditions, action}` structure the shipping zone stores. */
+export const ShippingRuleFormSchema = prepareFormSchema(ShippingRuleFormShape).transform((values) => ({
+  relation: 'AND' as const,
+  conditions: [
+    {
+      type: values.condition,
+      operator: values.operator || '=',
+      value: values.condition_value ?? null,
+    },
+  ],
+  action: {
+    type: values.action,
+    value: COST_ACTIONS.includes(values.action) ? (values.action_value ?? null) : null,
+  },
+}));
 
-export const shippingRuleDefaultValues: ShippingRuleFormValues = {
-  condition: 'product_category',
-  operator: 'is',
-  condition_value: null,
-  action: 'set_shipping_cost',
-  action_value: '',
-  selected_country: null,
-};
+export type ShippingRuleFormInput = z.input<typeof ShippingRuleFormSchema>;
+
+export type ShippingRuleFormPayload = z.output<typeof ShippingRuleFormSchema>;

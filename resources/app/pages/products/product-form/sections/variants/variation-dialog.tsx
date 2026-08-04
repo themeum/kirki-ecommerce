@@ -8,14 +8,18 @@ import Button from '@/components/ui/button';
 import { Dialog, DialogBody, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
 import Flex from '@/components/ui/flex';
-import { ProductVariationPopoverFormSchema, type ProductVariationPopoverFormValues } from '@/schemas/forms/product-variation-popover-form';
+import {
+  ProductVariationPopoverFormSchema,
+  type ProductVariationPopoverFormInput,
+  type ProductVariationPopoverFormPayload,
+} from '@/schemas/forms/product-variation-popover-form';
 import type { ButtonState } from '@/types';
 import { __ } from '@/wpi18n';
 
 type VariationPopoverProps = {
   isOpen?: boolean;
   onClose?: () => void;
-  onSave?: (variation: ProductVariationPopoverFormValues) => void;
+  onSave?: (variation: ProductVariationPopoverFormPayload) => void;
 };
 
 const VariationPopover = ({
@@ -23,11 +27,10 @@ const VariationPopover = ({
   onClose = () => {},
   onSave = () => {},
 }: VariationPopoverProps) => {
-  const form = useForm<ProductVariationPopoverFormValues>({
+  const form = useForm<ProductVariationPopoverFormInput, unknown, ProductVariationPopoverFormPayload>({
     resolver: zodResolver(ProductVariationPopoverFormSchema),
     defaultValues: {
       title: '',
-      value: '',
       color: '',
     },
   });
@@ -42,23 +45,14 @@ const VariationPopover = ({
 
     form.reset({
       title: '',
-      value: '',
       color: '',
     });
   }, [isOpen, form]);
 
-  useEffect(() => {
-    form.setValue('value', titleValue ?? '');
-  }, [titleValue, form]);
-
-  const handleNewValueSave = (values: ProductVariationPopoverFormValues) => {
-    onSave({
-      ...values,
-      value: values.title,
-    });
+  const handleNewValueSave = (payload: ProductVariationPopoverFormPayload) => {
+    onSave(payload);
     form.reset({
       title: '',
-      value: '',
       color: '',
     });
     onClose();

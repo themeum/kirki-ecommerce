@@ -9,7 +9,7 @@ import { PaymentIcon } from '@/icons';
 import Flex from '@/components/ui/flex';
 import Grid from '@/components/ui/grid';
 import Text from '@/components/ui/text';
-import type { CustomerFormValues } from '@/schemas/forms/customer-form';
+import type { CustomerFormInput } from '@/schemas/forms/customer-form';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { mergeCss, defineStyles } from '@/theme/mixins';
@@ -23,7 +23,7 @@ const regionOptions = [
 ];
 
 const BillingAddress = () => {
-  const { watch, setValue, control } = useFormContext<CustomerFormValues>();
+  const { watch, setValue, control } = useFormContext<CustomerFormInput>();
   const isSameAsShipping = Boolean(watch('is_billing_same_as_shipping'));
 
   return (

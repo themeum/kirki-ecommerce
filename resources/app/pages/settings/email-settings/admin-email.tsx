@@ -7,7 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { CartIcon, InventoryBoxIcon, SettingsIcon, UserIcon } from '@/icons';
-import type { EmailSettingsFormValues } from '@/schemas/forms/email-settings-form';
+import type { EmailSettingsFormInput } from '@/schemas/forms/email-settings-form';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
@@ -28,7 +28,7 @@ type AdminEmailProps = {
 
 const AdminEmail = (props: AdminEmailProps) => {
   const { handleToggleOrder, handleEditOrder } = props;
-  const { control } = useFormContext<EmailSettingsFormValues>();
+  const { control } = useFormContext<EmailSettingsFormInput>();
   const adminEmails = useWatch({ control, name: 'admin_emails' });
 
   const { orderEmails, inventoryEmails, userEmails } = useMemo(() => {

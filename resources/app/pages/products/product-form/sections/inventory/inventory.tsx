@@ -16,7 +16,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { WandIcon } from '@/icons';
-import type { ProductFormValues } from '@/schemas/forms/product-form';
+import type { ProductFormInput } from '@/schemas/forms/product-form';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
@@ -25,7 +25,7 @@ import { __ } from '@/wpi18n';
 import { generateSku } from '@/pages/products/utils';
 
 const Inventory = () => {
-  const { control, setValue } = useFormContext<ProductFormValues>();
+  const { control, setValue } = useFormContext<ProductFormInput>();
   const trackInventory = Boolean(
     useWatch({ control, name: 'variants.0.track_inventory' }),
   );

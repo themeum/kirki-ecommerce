@@ -1,15 +1,24 @@
 import { z } from 'zod';
 
-export const ShippingSettingsFormSchema = z
-  .object({
-    shipping_zones: z.array(z.record(z.any())).optional(),
-  })
-  .passthrough();
+import { prepareFormSchema } from '@/libs/zod';
 
-export type ShippingSettingsFormValues = z.infer<
-  typeof ShippingSettingsFormSchema
->;
+/**
+ * A shipping zone's regions/shipping_methods/rules are edited by several
+ * sub-dialogs (Group 5) with their own deep, evolving shapes not modeled
+ * anywhere else in the app — kept loose here rather than guessed at, matching
+ * the leniency this migration deliberately preserves for unmodeled nested
+ * structures (see design.md - Decision 6).
+ */
+const ShippingZoneFormShape = z.record(z.any());
 
-export const shippingSettingsDefaultValues: ShippingSettingsFormValues = {
-  shipping_zones: [],
-};
+const ShippingSettingsFormShape = z.object({
+  shipping_zones: z.array(ShippingZoneFormShape).default([]),
+});
+
+export const ShippingSettingsFormSchema = prepareFormSchema(ShippingSettingsFormShape).transform((values) => ({
+  shipping_zones: values.shipping_zones,
+}));
+
+export type ShippingSettingsFormInput = z.input<typeof ShippingSettingsFormSchema>;
+
+export type ShippingSettingsFormPayload = z.output<typeof ShippingSettingsFormSchema>;

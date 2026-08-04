@@ -1,14 +1,20 @@
 import { z } from 'zod';
 
-import { requiredString } from '@/schemas/forms/shared/validators';
+import { prepareFormSchema, required } from '@/libs/zod';
 import { __ } from '@/wpi18n';
 
-export const ProductVariationPopoverFormSchema = z.object({
-  title: requiredString(__('Title is required', 'kirki-ecommerce')),
-  value: z.string().optional(),
-  color: requiredString(__('Color is required', 'kirki-ecommerce')),
+const ProductVariationPopoverFormShape = z.object({
+  title: required(z.string().default(''), __('Title is required', 'kirki-ecommerce')),
+  color: required(z.string().default(''), __('Color is required', 'kirki-ecommerce')),
 });
 
-export type ProductVariationPopoverFormValues = z.infer<
-  typeof ProductVariationPopoverFormSchema
->;
+/** `value` always mirrors `title` — there is no separate input for it. */
+export const ProductVariationPopoverFormSchema = prepareFormSchema(ProductVariationPopoverFormShape).transform((values) => ({
+  title: values.title,
+  value: values.title,
+  color: values.color,
+}));
+
+export type ProductVariationPopoverFormInput = z.input<typeof ProductVariationPopoverFormSchema>;
+
+export type ProductVariationPopoverFormPayload = z.output<typeof ProductVariationPopoverFormSchema>;

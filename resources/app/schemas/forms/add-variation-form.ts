@@ -1,10 +1,18 @@
 import { z } from 'zod';
 
-import { requiredString } from '@/schemas/forms/shared/validators';
+import { prepareFormSchema, required } from '@/libs/zod';
 import { __ } from '@/wpi18n';
 
-export const AddVariationFormSchema = z.object({
-  name: requiredString(__('Title is required', 'kirki-ecommerce')),
+const AddVariationFormShape = z.object({
+  name: required(z.string().default(''), __('Title is required', 'kirki-ecommerce')),
+  type: z.string().nullish(),
 });
 
-export type AddVariationFormValues = z.infer<typeof AddVariationFormSchema>;
+export const AddVariationFormSchema = prepareFormSchema(AddVariationFormShape).transform((values) => ({
+  name: values.name,
+  type: values.type || null,
+}));
+
+export type AddVariationFormInput = z.input<typeof AddVariationFormSchema>;
+
+export type AddVariationFormPayload = z.output<typeof AddVariationFormSchema>;

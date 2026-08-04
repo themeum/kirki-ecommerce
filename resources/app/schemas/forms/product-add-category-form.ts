@@ -1,13 +1,18 @@
 import { z } from 'zod';
 
-import { requiredString } from '@/schemas/forms/shared/validators';
+import { numberOrNull, prepareFormSchema, required } from '@/libs/zod';
 import { __ } from '@/wpi18n';
 
-export const ProductAddCategoryFormSchema = z.object({
-  name: requiredString(__('Name is required', 'kirki-ecommerce')),
-  parent_id: z.union([z.number(), z.string(), z.null()]).optional().nullable(),
+const ProductAddCategoryFormShape = z.object({
+  name: required(z.string().default(''), __('Name is required', 'kirki-ecommerce')),
+  parent_id: numberOrNull(),
 });
 
-export type ProductAddCategoryFormValues = z.infer<
-  typeof ProductAddCategoryFormSchema
->;
+export const ProductAddCategoryFormSchema = prepareFormSchema(ProductAddCategoryFormShape).transform((values) => ({
+  name: values.name,
+  parent_id: values.parent_id,
+}));
+
+export type ProductAddCategoryFormInput = z.input<typeof ProductAddCategoryFormSchema>;
+
+export type ProductAddCategoryFormPayload = z.output<typeof ProductAddCategoryFormSchema>;

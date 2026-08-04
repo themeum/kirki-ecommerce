@@ -4,9 +4,10 @@ import { apiClient } from '@/libs/api';
 import { endpoints } from '@/libs/endpoints';
 import { queryKeys } from '@/libs/query-keys';
 import { TagSchema } from '@/schemas/catalog/tag';
+import type { TagFormPayload } from '@/schemas/forms/tag-form';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
-import { parseData, parseResponse, toastMutationError, toastMutationSuccess, unwrapResponse } from '@/services/helpers';
-import type { ListQueryParams, BulkActionParams, TagFormData } from '@/types';
+import { parseData, parseMessage, parseResponse, toastMutationError, toastMutationSuccess } from '@/services/helpers';
+import type { ListQueryParams, BulkActionParams } from '@/types';
 import { __ } from '@/wpi18n';
 
 const getTags = (params: ListQueryParams = {}) => {
@@ -15,13 +16,18 @@ const getTags = (params: ListQueryParams = {}) => {
     .then((response) => parseData(PaginatedDataSchema(TagSchema), response));
 };
 
-const createTag = (data: TagFormData) => {
+/**
+ * The full add/edit dialog always sends a complete `TagFormPayload`, but the
+ * inline "create tag" affordance in `TagsField` sends only a name — the
+ * backend derives the slug server-side in that case.
+ */
+const createTag = (data: TagFormPayload | Pick<TagFormPayload, 'name'>) => {
   return apiClient
     .post(endpoints.TAGS, data)
     .then((response) => parseResponse(TagSchema, response));
 };
 
-const updateTag = ({ id, data }: { id: number; data: TagFormData }) => {
+const updateTag = ({ id, data }: { id: number; data: TagFormPayload }) => {
   return apiClient
     .put(endpoints.TAG(id), data)
     .then((response) => parseResponse(TagSchema, response));
@@ -30,7 +36,7 @@ const updateTag = ({ id, data }: { id: number; data: TagFormData }) => {
 const deleteTag = (id: number) => {
   return apiClient
     .delete(endpoints.TAG(id))
-    .then((response) => unwrapResponse(response));
+    .then((response) => parseMessage(response));
 };
 
 const bulkDeleteTags = ({
@@ -39,7 +45,7 @@ const bulkDeleteTags = ({
 }: BulkActionParams = {}) => {
   return apiClient
     .post(endpoints.TAGS_BULK, { action, ids })
-    .then((response) => unwrapResponse(response));
+    .then((response) => parseMessage(response));
 };
 
 const useTagsQuery = (params: ListQueryParams = {}) => {

@@ -4,9 +4,10 @@ import { apiClient } from '@/libs/api';
 import { endpoints } from '@/libs/endpoints';
 import { queryKeys } from '@/libs/query-keys';
 import { CategorySchema } from '@/schemas/catalog/category';
+import type { CategoryFormPayload } from '@/schemas/forms/category-form';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
-import { parseData, parseResponse, toastMutationError, toastMutationSuccess, unwrapResponse } from '@/services/helpers';
-import type { ListQueryParams, BulkActionParams, CategoryFormData } from '@/types';
+import { parseData, parseMessage, parseResponse, toastMutationError, toastMutationSuccess } from '@/services/helpers';
+import type { ListQueryParams, BulkActionParams } from '@/types';
 import { __ } from '@/wpi18n';
 
 const getCategories = (params: ListQueryParams = {}) => {
@@ -17,7 +18,14 @@ const getCategories = (params: ListQueryParams = {}) => {
     );
 };
 
-const createCategory = (data: CategoryFormData) => {
+/**
+ * The full add/edit dialog sends a complete `CategoryFormPayload`, but the
+ * inline "create category" affordance inside the product form only ever
+ * sends `name` and `parent_id` — the backend derives the rest server-side.
+ */
+const createCategory = (
+  data: CategoryFormPayload | Pick<CategoryFormPayload, 'name' | 'parent_id'>,
+) => {
   return apiClient
     .post(endpoints.CATEGORIES, data)
     .then((response) => parseResponse(CategorySchema, response));
@@ -28,7 +36,7 @@ const updateCategory = ({
   data,
 }: {
   id: number;
-  data: CategoryFormData;
+  data: CategoryFormPayload;
 }) => {
   return apiClient
     .put(endpoints.CATEGORY(id), data)
@@ -38,7 +46,7 @@ const updateCategory = ({
 const deleteCategory = (id: number) => {
   return apiClient
     .delete(endpoints.CATEGORY(id))
-    .then((response) => unwrapResponse(response));
+    .then((response) => parseMessage(response));
 };
 
 const bulkDeleteCategories = ({
@@ -47,7 +55,7 @@ const bulkDeleteCategories = ({
 }: BulkActionParams = {}) => {
   return apiClient
     .post(endpoints.CATEGORIES_BULK, { action, ids })
-    .then((response) => unwrapResponse(response));
+    .then((response) => parseMessage(response));
 };
 
 const useCategoriesQuery = (params: ListQueryParams = {}) => {

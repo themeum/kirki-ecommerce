@@ -11,7 +11,8 @@ import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import {
   ProductAdditionalInfoFormSchema,
-  type ProductAdditionalInfoFormValues,
+  type ProductAdditionalInfoFormInput,
+  type ProductAdditionalInfoFormPayload,
 } from '@/schemas/forms/product-additional-info-form';
 import { cardStyles } from '@/theme/card-styles';
 import type { AdditionalInfoItem } from '@/types';
@@ -21,7 +22,7 @@ type AddOrEditInfoProps = {
   index: number | null;
   initialValues?: AdditionalInfoItem;
   onClose?: () => void;
-  onSave: (values: ProductAdditionalInfoFormValues) => void;
+  onSave: (values: ProductAdditionalInfoFormPayload) => void;
 };
 
 const AddOrEditInfo = ({
@@ -30,7 +31,7 @@ const AddOrEditInfo = ({
   onClose = () => {},
   onSave,
 }: AddOrEditInfoProps) => {
-  const form = useForm<ProductAdditionalInfoFormValues>({
+  const form = useForm<ProductAdditionalInfoFormInput, unknown, ProductAdditionalInfoFormPayload>({
     resolver: zodResolver(ProductAdditionalInfoFormSchema),
     defaultValues: {
       title: '',
@@ -56,7 +57,7 @@ const AddOrEditInfo = ({
     });
   }, [index, initialValues, form]);
 
-  const handleSaveInfo = (values: ProductAdditionalInfoFormValues) => {
+  const handleSaveInfo = (values: ProductAdditionalInfoFormPayload) => {
     onSave(values);
     form.reset({ title: '', description: '' });
   };

@@ -18,7 +18,7 @@ import { useUnsavedStatus } from '@/libs/unsaved-store';
 import { dispatchToastMessage, normalizeErrors } from '@/pages/utils';
 import { useCountriesQuery } from '@/services/country';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
-import type { FormErrors, SettingsSectionData } from '@/types';
+import type { FormErrors } from '@/types';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
@@ -56,7 +56,7 @@ const ShippingZonePage = () => {
   const [errors, setErrors] = useState<FormErrors>({});
 
   const { data: shippingSettingsData, isLoading } = useSettingsQuery('shipping');
-  const { mutate: saveSettings } = useUpdateSettingsMutation();
+  const { mutate: saveSettings } = useUpdateSettingsMutation<'shipping'>();
 
   const loaded = !isLoading && Boolean(shippingSettingsData);
   const zones = (shippingSettingsData?.shipping_zones as ShippingZone[]) || [];
@@ -184,7 +184,7 @@ const ShippingZonePage = () => {
     saveSettings(
       {
         key: 'shipping',
-        data: { shipping_zones: shippingZonesObj } as SettingsSectionData,
+        data: { shipping_zones: shippingZonesObj },
       },
       {
         onSuccess: () => {

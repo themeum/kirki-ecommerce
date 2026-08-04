@@ -11,8 +11,13 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Select, SelectContent, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import { BaseUnitFormSchema, mapBaseUnitFromVariant, toUnitPriceValue, type BaseUnitFormValues } from '@/schemas/forms/base-unit-form';
-import type { FormErrors, ProductVariant, UnitPriceValue } from '@/types';
+import {
+  BaseUnitFormSchema,
+  mapBaseUnitFromVariant,
+  type BaseUnitFormInput,
+  type BaseUnitFormPayload,
+} from '@/schemas/forms/base-unit-form';
+import type { FormErrors, ProductVariant } from '@/types';
 import { __ } from '@/wpi18n';
 
 import { getSpecifiedUnitList, normalizedUnit, unitList } from '@/pages/products/product-form/sections/price/utils';
@@ -24,7 +29,7 @@ type BaseUnitPopupProps = {
   errors?: FormErrors;
   setErrors?: Dispatch<SetStateAction<FormErrors>>;
   data?: ProductVariant | null;
-  onChange: (value: UnitPriceValue & { price?: number | string | null }) => void;
+  onChange: (value: BaseUnitFormPayload) => void;
   buttonProps?: Record<string, unknown>;
 };
 
@@ -36,7 +41,7 @@ const BaseUnitPopup = ({
 }: BaseUnitPopupProps) => {
   const [openUnitPopup, setOpenUnitPopup] = useState(false);
 
-  const form = useForm<BaseUnitFormValues>({
+  const form = useForm<BaseUnitFormInput, unknown, BaseUnitFormPayload>({
     resolver: zodResolver(BaseUnitFormSchema),
     defaultValues: mapBaseUnitFromVariant(data ?? undefined),
   });
@@ -79,7 +84,7 @@ const BaseUnitPopup = ({
   };
 
   const handleSaveUnitData = () => {
-    onChange(toUnitPriceValue(form.getValues()));
+    onChange(BaseUnitFormSchema.parse(form.getValues()));
     setOpenUnitPopup(false);
   };
 

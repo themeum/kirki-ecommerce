@@ -4,9 +4,10 @@ import { apiClient } from '@/libs/api';
 import { endpoints } from '@/libs/endpoints';
 import { queryKeys } from '@/libs/query-keys';
 import { ProductListItemSchema, ProductSchema } from '@/schemas/catalog/product';
+import type { ProductFormPayload } from '@/schemas/forms/product-form';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
-import { parseData, parseResponse, toastMutationError, toastMutationSuccess, unwrapResponse } from '@/services/helpers';
-import type { BulkActionParams, ListParams, ProductFormData } from '@/types';
+import { parseData, parseMessage, parseResponse, toastMutationError, toastMutationSuccess } from '@/services/helpers';
+import type { BulkActionParams, ListParams } from '@/types';
 import { ProductListFilter } from '@/types/filters/product';
 import { __ } from '@/wpi18n';
 
@@ -24,7 +25,7 @@ const getProduct = (id: string | number) => {
     .then((response) => parseData(ProductSchema, response));
 };
 
-const createProduct = (data: ProductFormData) => {
+const createProduct = (data: ProductFormPayload) => {
   return apiClient
     .post(endpoints.PRODUCTS, data)
     .then((response) => parseResponse(ProductSchema, response));
@@ -35,7 +36,7 @@ const updateProduct = ({
   data,
 }: {
   id: string | number;
-  data: ProductFormData;
+  data: ProductFormPayload;
 }) => {
   return apiClient
     .put(endpoints.PRODUCT(id), data)
@@ -48,7 +49,7 @@ const bulkDeleteProducts = ({
 }: BulkActionParams = {}) => {
   return apiClient
     .post(endpoints.PRODUCTS_BULK, { action, ids })
-    .then((response) => unwrapResponse(response));
+    .then((response) => parseMessage(response));
 };
 
 const useProductsQuery = (params: ListParams<ProductListFilter> = {}) => {

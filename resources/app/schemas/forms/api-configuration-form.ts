@@ -1,19 +1,22 @@
 import { z } from 'zod';
 
-export const ApiConfigurationFormSchema = z.object({
+import { prepareFormSchema, required } from '@/libs/zod';
+import { __ } from '@/wpi18n';
+
+const ApiConfigurationFormShape = z.object({
   api_key: z.string(),
-  update_frequency: z.string().min(1),
-  fallback_behaviour: z.string().min(1),
+  update_frequency: required(z.string(), __('This field is required', 'kirki-ecommerce')),
+  fallback_behaviour: required(z.string(), __('This field is required', 'kirki-ecommerce')),
   is_cache_enabled: z.boolean(),
 });
 
-export type ApiConfigurationFormValues = z.infer<
-  typeof ApiConfigurationFormSchema
->;
+export const ApiConfigurationFormSchema = prepareFormSchema(ApiConfigurationFormShape).transform((values) => ({
+  api_key: values.api_key,
+  update_frequency: values.update_frequency,
+  fallback_behaviour: values.fallback_behaviour,
+  is_cache_enabled: values.is_cache_enabled,
+}));
 
-export const apiConfigurationDefaultValues: ApiConfigurationFormValues = {
-  api_key: '',
-  update_frequency: 'every_1_hour',
-  fallback_behaviour: 'last_known_rate',
-  is_cache_enabled: false,
-};
+export type ApiConfigurationFormInput = z.input<typeof ApiConfigurationFormSchema>;
+
+export type ApiConfigurationFormPayload = z.output<typeof ApiConfigurationFormSchema>;
