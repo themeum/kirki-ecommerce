@@ -104,6 +104,7 @@ const Price = () => {
                     </Text>
                     <BaseUnitPopup
                       data={variant as never}
+                      currencySymbol={currencySymbol}
                       onChange={handleUnitPriceChange}
                     />
                   </Flex>
