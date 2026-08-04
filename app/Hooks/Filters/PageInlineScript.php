@@ -44,6 +44,18 @@ class PageInlineScript extends BaseHook
         $cart_variant_ids = app()->make(CartService::class)->get_cart_variant_ids();
         $config['cart_variant_ids'] =  $cart_variant_ids;
 
+        // Add cart data for checkout page
+        if (Route::is('checkout')) {
+            $data = (object) view_data();
+            $cart = $data->cart ?? null;
+            $config['checkout_cart'] = [
+                'items' => $cart['items'] ?? [],
+                'pricing' => $cart['pricing'] ?? [],
+                'shipping_method' => $cart['shipping_method'] ?? null,
+            ];
+            $config['currency'] = $cart['currency']['code'] ?? 'USD';
+        }
+
         if (!Route::is('shop.single')) {
             return $config;
         }

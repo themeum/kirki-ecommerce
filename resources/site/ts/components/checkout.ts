@@ -11,10 +11,11 @@
 
 import { toastManager } from "../services/toast/runtime";
 import { cartApi } from "../api/cart";
+import { orderApi } from "../api/order";
+import type { OrderRequest } from "../types";
 
 export interface CheckoutConfig {
   cartTotal?: number;
-  currency?: string;
 }
 
 export function checkout(config: CheckoutConfig = {}) {
@@ -22,7 +23,8 @@ export function checkout(config: CheckoutConfig = {}) {
 
   return {
     cartTotal: config.cartTotal ?? 0,
-    currency: config.currency ?? 'USD',
+    currency: window.kirki_ecommerce?.currency ?? 'USD',
+    cartData: window.kirki_ecommerce?.checkout_cart ?? null,
 
     selectedPaymentMethod: 'stripe',
     couponCode: '',
@@ -30,7 +32,6 @@ export function checkout(config: CheckoutConfig = {}) {
     billingFormValid: false,
     shippingFormValid: false,
     billingSameAsShipping: false,
-    cartData: null as any,
 
     loading: false,
     couponLoading: false,
@@ -48,9 +49,33 @@ export function checkout(config: CheckoutConfig = {}) {
       // Watch for billingSameAsShipping changes
       (this as any).$watch('billingSameAsShipping', (value: boolean) => {
         if (value) {
-          (this as any).$dispatch('sync-billing-from-shipping');
+          this.syncBillingFromShipping();
         }
       });
+    },
+
+    syncBillingFromShipping() {
+      const shippingFormEl = document.querySelector('#shipping-form') as any;
+      const billingFormEl = document.querySelector('#billing-form') as any;
+
+      const shippingForm = (window as any).Alpine.$data(shippingFormEl);
+      const billingForm = (window as any).Alpine.$data(billingFormEl);
+
+      if (shippingForm?.values && billingForm?.values) {
+        billingForm.values.country = shippingForm.values.country;
+        billingForm.values.first_name = shippingForm.values.first_name;
+        billingForm.values.last_name = shippingForm.values.last_name;
+        billingForm.values.address_line1 = shippingForm.values.address_line1;
+        billingForm.values.address_line2 = shippingForm.values.address_line2;
+        billingForm.values.city = shippingForm.values.city;
+        billingForm.values.state = shippingForm.values.state;
+        billingForm.values.postal_code = shippingForm.values.postal_code;
+        billingForm.values.phone = shippingForm.values.phone;
+        billingForm.values.email = shippingForm.values.email;
+
+        // Trigger validation to clear any previous errors
+        (this as any).$dispatch('validate-billing-form');
+      }
     },
 
     async applyCoupon() {
@@ -126,11 +151,56 @@ export function checkout(config: CheckoutConfig = {}) {
         // Start loading after validation passes
         this.loading = true;
 
-        // TODO: Collect data and make AJAX call to create order
+        // Collect form data
+        const shippingFormEl = document.querySelector('#shipping-form') as any;
+        const billingFormEl = document.querySelector('#billing-form') as any;
+        const shippingForm = (window as any).Alpine.$data(shippingFormEl);
+        const billingForm = (window as any).Alpine.$data(billingFormEl);
 
+        // Prepare order data
+        const orderData: OrderRequest = {
+          items: this.cartData?.items.map((item: any) => ({
+            variant_id: item.product.variant_id,
+            quantity: item.quantity,
+          })) || [],
+          currency_code: this.currency,
+          payment_method: this.selectedPaymentMethod,
+          coupon_code: this.couponCode || undefined,
+          shipping_method: this.cartData?.shipping_method || undefined,
+          shipping_first_name: shippingForm.values.first_name,
+          shipping_last_name: shippingForm.values.last_name,
+          shipping_address_line1: shippingForm.values.address_line1,
+          shipping_address_line2: shippingForm.values.address_line2 || '',
+          shipping_city: shippingForm.values.city,
+          shipping_state: shippingForm.values.state,
+          shipping_postcode: shippingForm.values.postal_code,
+          shipping_country: shippingForm.values.country,
+          shipping_phone: shippingForm.values.phone,
+          shipping_email: shippingForm.values.email,
+          shipping_company: null,
+          billing_first_name: billingForm.values.first_name,
+          billing_last_name: billingForm.values.last_name,
+          billing_address_line1: billingForm.values.address_line1,
+          billing_address_line2: billingForm.values.address_line2 || '',
+          billing_city: billingForm.values.city,
+          billing_state: billingForm.values.state,
+          billing_postcode: billingForm.values.postal_code,
+          billing_country: billingForm.values.country,
+          billing_phone: billingForm.values.phone,
+          billing_email: billingForm.values.email,
+          billing_company: null,
+          customer_email: billingForm.values.email,
+          customer_phone: billingForm.values.phone,
+          customer_notes: null,
+        };
+
+        // Create order
+        const response = await orderApi.create(orderData);
         toastManager.success(__('Order placed successfully!', 'kirki-ecommerce'));
 
-        // TODO: Redirect to thank you page
+        // Redirect to thank you page
+        const thankYouUrl = window.kirki_ecommerce?.thank_you_url || '/thank-you';
+        window.location.href = `${thankYouUrl}?order_id=${response.data.id}`;
       } catch (e: unknown) {
         this.error = e instanceof Error ? e.message : __('Checkout failed', 'kirki-ecommerce');
         toastManager.error(this.error || __('Checkout failed', 'kirki-ecommerce'));

@@ -67,7 +67,7 @@ $cart = $data->cart ?? null;
                 <!-- Shipping Form -->
                 <div class="kecom-billing-section">
                     <h2 class="kecom-section-title"><?php esc_html_e('Shipping Details', 'kirki-ecommerce'); ?></h2>
-                    <form class="kecom-billing-form kecom-form" x-data="form({
+                    <form id="shipping-form" class="kecom-billing-form kecom-form" x-data="form({
                         defaultValues: {
                             country: '<?php echo esc_js($shipping_country); ?>',
                             first_name: '<?php echo esc_js($shipping_first_name); ?>',
@@ -186,7 +186,7 @@ $cart = $data->cart ?? null;
                 <!-- Billing Form -->
                 <div class="kecom-billing-section">
                     <h2 class="kecom-section-title"><?php esc_html_e('Billing Details', 'kirki-ecommerce'); ?></h2>
-                    <form class="kecom-billing-form kecom-form" x-data="form({
+                    <form id="billing-form" class="kecom-billing-form kecom-form" x-data="form({
                         defaultValues: {
                             country: '<?php echo esc_js($billing_country); ?>',
                             first_name: '<?php echo esc_js($billing_first_name); ?>',
