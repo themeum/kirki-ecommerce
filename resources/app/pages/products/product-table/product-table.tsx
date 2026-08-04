@@ -10,22 +10,17 @@ import Flex from '@/components/ui/flex';
 import Thumbnail from '@/components/ui/thumbnail';
 import { endpoints } from '@/libs/endpoints';
 import { theme } from '@/theme';
-import { scoped, defineStyles } from '@/theme/mixins';
-import type { PaginatedData, ProductListItem } from '@/types';
+import { defineStyles, scoped } from '@/theme/mixins';
+import type { ProductListItem } from '@/types';
 import { getBadgeVariantForStatus } from '@/utils/badge-status';
 import { __ } from '@/wpi18n';
 
+import { useListParams } from '@/hooks';
 import FilterPopup from '@/pages/products/product-table/filter-popup/filter-popup';
 import ProductTableFilter from '@/pages/products/product-table/product-table-filter';
 import ProductTableFilterBar from '@/pages/products/product-table/product-table-filter-bar';
-import { useBulkDeleteProductsMutation } from '@/services/product';
-import { productListOptions } from '@/types/filters/product';
-
-type ProductTableProps = {
-  data?: PaginatedData<ProductListItem>;
-  isLoading?: boolean;
-  onPageChange: (page: number) => void;
-};
+import { useBulkDeleteProductsMutation, useProductsQuery } from '@/services/product';
+import { ProductListFilter, productListOptions } from '@/types/filters/product';
 
 const ProductTitleCell = ({ item }: { item: ProductListItem }) => {
   const navigate = useNavigate();
@@ -84,8 +79,19 @@ const productBulkActions = [
   { value: 'delete', title: __('Trash', 'kirki-ecommerce') },
 ];
 
-const ProductTable = ({ data, isLoading, onPageChange }: ProductTableProps) => {
+const ProductTable = () => {
+  const { params, setParam } =
+    useListParams<ProductListFilter>(productListOptions);
   const bulkDeleteMutation = useBulkDeleteProductsMutation();
+
+  const { data, isLoading } = useProductsQuery(params);
+
+  const handlePaginationChange = useCallback(
+    (value: number) => {
+      setParam('page', value);
+    },
+    [setParam],
+  );
 
   const handleBulkApply = useCallback(
     async (
@@ -113,13 +119,12 @@ const ProductTable = ({ data, isLoading, onPageChange }: ProductTableProps) => {
 
   return (
     <DataTable
-      listOptions={productListOptions}
       data={data}
       isLoading={isLoading}
       columns={productColumns}
       bulkActionOptions={productBulkActions}
       onBulkApply={handleBulkApply}
-      onPageChange={onPageChange}
+      onPageChange={handlePaginationChange}
     >
       <DataTable.Filter>
         <ProductTableFilter />

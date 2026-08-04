@@ -13,16 +13,11 @@ import { EMPTY_PAGE, type DataTableBulkApplyPayload, type DataTableColumn, type 
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import { Table, TableBody, TableHeader } from '@/components/ui/table';
-import { ListParamsProvider } from '@/contexts/list-params-context';
-import type { UseListParamsOptions } from '@/hooks/use-list-params';
 import { cardStyles } from '@/theme/card-styles';
-import type { PaginatedData, SelectOption } from '@/types';
+import type { PaginatedData, SelectOption, SortOrder } from '@/types';
+import { isDefined } from '@/utils/object';
 
-type DataTableProps<
-  T extends DataTableItem,
-  TFilter extends Record<string, unknown> = {},
-> = {
-  listOptions: UseListParamsOptions<TFilter>;
+type DataTableProps<T extends DataTableItem> = {
   data?: PaginatedData<T>;
   columns: DataTableColumn<T>[];
   rowActions?: DataTableRowActionsResolver<T>;
@@ -35,11 +30,14 @@ type DataTableProps<
   fixed?: boolean;
   children?: ReactNode;
   isLoading?: boolean;
+  onSort?: (sortBy: string, sortOrder: SortOrder) => void
+  sortBy?: string
+  sortOrder?: SortOrder
 };
 
 type DataTableLayoutProps<T extends DataTableItem> = Omit<
   DataTableProps<T>,
-  'listOptions' | 'data'
+  'data'
 > & {
   data: PaginatedData<T>;
 };
@@ -54,6 +52,9 @@ const DataTableLayout = <T extends DataTableItem>({
   fixed = true,
   children,
   isLoading = false,
+  onSort,
+  sortBy,
+  sortOrder
 }: DataTableLayoutProps<T>) => {
   const { total, per_page } = data;
   const { isAllSelected, isPartiallySelected, onToggleAll } =
@@ -105,7 +106,11 @@ const DataTableLayout = <T extends DataTableItem>({
               total={total}
               perPage={per_page}
             />
-            {filterBar}
+            {isDefined(filterBar) && (
+              <>
+                {filterBar}
+              </>
+            )}
 
             <Table fixed={fixed}>
               <TableHeader>
@@ -114,6 +119,9 @@ const DataTableLayout = <T extends DataTableItem>({
                   isAllSelected={isAllSelected}
                   isPartiallySelected={isPartiallySelected}
                   onToggleAll={onToggleAll}
+                  onSort={onSort}
+                  sortBy={sortBy}
+                  sortOrder={sortOrder}
                 />
               </TableHeader>
               <TableBody>
@@ -128,25 +136,18 @@ const DataTableLayout = <T extends DataTableItem>({
   );
 };
 
-
-const DataTable = <
-  T extends DataTableItem,
-  TFilter extends Record<string, unknown> = {},
->({
-  listOptions,
+const DataTable = <T extends DataTableItem>({
   data,
   ...rest
-}: DataTableProps<T, TFilter>) => {
+}: DataTableProps<T>) => {
   const tableData = (data ?? EMPTY_PAGE) as PaginatedData<T>;
 
   return (
-    <ListParamsProvider options={listOptions}>
-      <DataTableSelectionProvider
-        data={tableData as unknown as PaginatedData<DataTableItem>}
-      >
-        <DataTableLayout {...rest} data={tableData} />
-      </DataTableSelectionProvider>
-    </ListParamsProvider>
+    <DataTableSelectionProvider
+      data={tableData as unknown as PaginatedData<DataTableItem>}
+    >
+      <DataTableLayout {...rest} data={tableData} />
+    </DataTableSelectionProvider>
   );
 };
 
