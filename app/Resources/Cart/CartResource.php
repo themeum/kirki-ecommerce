@@ -109,6 +109,10 @@ class CartResource extends Resource
                                 'level' => $category->level,
                             ];
                         })->to_array(),
+                        'attributes' => $item->variant->attribute_values->map(function ($value) {
+                            return $value->value;
+                        })->to_array(),
+                        'available_quantity' => $item->variant->available_quantity,
                     ],
                     'subtotal' => $this->prepare_amount($calculated_item->subtotal),
                     'tax_rate' => $calculated_item->tax_rate,

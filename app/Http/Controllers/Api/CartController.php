@@ -19,6 +19,7 @@ use Kirki\Ecommerce\App\DTO\Cart\EmptyCartDTO;
 use Kirki\Ecommerce\App\DTO\Cart\RemoveCartItemDTO;
 use Kirki\Ecommerce\App\DTO\Cart\UpdateCartDTO;
 use Kirki\Ecommerce\App\DTO\Cart\UpdateCartItemDTO;
+use Kirki\Ecommerce\App\Resources\Cart\CartUpdateItemResource;
 
 use function Kirki\Ecommerce\App\customer;
 use function Kirki\Ecommerce\Framework\response;
@@ -79,7 +80,7 @@ class CartController
         $updated_cart = $action->execute($dto);
 
         return response()->json([
-            'data' => CartResource::make($updated_cart),
+            'data' => CartUpdateItemResource::make($updated_cart),
             'message' => __('Cart item updated successfully.', 'kirki-ecommerce'),
         ]);
     }

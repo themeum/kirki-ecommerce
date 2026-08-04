@@ -4,6 +4,7 @@ export interface kirkiEcommerceConfig {
   rest_url_base: string;   // e.g. /wp-json/kirki/ecommerce/v1
   rest_nonce: string;    // WordPress REST nonce
   cart_variant_ids: number[];
+  cart: CartUpdateItem;
 }
 
 // Extend window for WordPress-injected config
@@ -25,6 +26,13 @@ export interface CartItem {
   price: number;
   name: string;
   image?: string;
+}
+
+export interface CartUpdateItem {
+  sub_total: number;
+  total: number;
+  items_count: number;
+  items: Record<number, string>;
 }
 
 export interface Cart {

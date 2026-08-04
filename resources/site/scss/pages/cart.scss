@@ -20,7 +20,7 @@
 }
 
 .kecom-cart-items {
-  padding: $spacing-22 80px;
+  padding: $spacing-18 $spacing-19;
 
   &-header {
     @include flex(row, center, space-between);
@@ -31,38 +31,24 @@
       gap: $spacing-2;
 
       &-heading {
-        font-family: $font-family;
-        font-size: $font-size-xl;
-        font-weight: $font-weight-semibold;
-        line-height: $line-height-lg;
-        letter-spacing: $letter-spacing-tight-xs;
-        color: $text-primary;
+        @include typography(xl, semibold, $text-primary);
+        margin: 0;
       }
 
       &-count {
-        font-family: $font-family;
-        font-size: $font-size-xl;
-        font-weight: $font-weight-semibold;
-        line-height: $line-height-lg;
-        letter-spacing: $letter-spacing-tight-xs;
-        color: $text-subdued;
+        @include typography(xl, semibold, $text-subdued);
       }
     }
 
     &-actions {
       &-link {
-        font-family: $font-family;
-        font-size: $font-size-base;
-        font-weight: $font-weight-medium;
-        line-height: $line-height-base;
-        letter-spacing: $letter-spacing-normal;
-        color: $text-primary;
+        @include typography(base, medium, $text-primary);
       }
     }
   }
 
   .kecom-cart-item {
-    @include flex(row, flex-start, flex-start);
+    @include flex(row, center, flex-start);
     gap: $spacing-6;
 
     &-image {
@@ -80,24 +66,17 @@
     &-details {
       flex-grow: 1;
       @include flex(column, flex-start, flex-start);
-      margin-top: $spacing-6;
     }
 
     &-pricing {
       @include flex(column, flex-end, flex-start);
-      margin-top: $spacing-6;
+      align-self: flex-start;
     }
 
     &-details-title,
     &-pricing-total {
-      font-family: $font-family;
-      font-size: $font-size-md;
-      font-weight: $font-weight-semibold;
-      line-height: $line-height-base;
-      letter-spacing: $letter-spacing-normal;
-      color: $text-primary;
+      @include typography(md, semibold, $text-primary);
       margin: 0;
-      vertical-align: middle;
     }
 
     &-details-title {
@@ -111,12 +90,13 @@
 
     &-details-categories,
     &-pricing-each {
-      font-family: $font-family;
-      font-size: $font-size-sm;
-      font-weight: $font-weight-normal;
-      line-height: $line-height-base;
-      letter-spacing: $letter-spacing-normal;
-      color: $text-secondary;
+      margin-bottom: $spacing-2;
+    }
+
+    &-details-categories,
+    &-details-attributes,
+    &-pricing-each {
+      @include typography(sm, normal, $text-secondary);
       vertical-align: middle;
     }
 
@@ -145,15 +125,10 @@
 
 .kecom-cart-summary {
   background-color: $background-surface-alt;
-  padding: $spacing-22 80px;
+  padding: $spacing-18 $spacing-19;
 
   &-title {
-    font-family: $font-family;
-    font-size: $font-size-xl;
-    font-weight: $font-weight-semibold;
-    line-height: $line-height-lg;
-    letter-spacing: $letter-spacing-tight-xs;
-    color: $text-primary;
+    @include typography(xl, semibold, $text-primary);
     margin-bottom: $spacing-10;
   }
 
@@ -162,21 +137,11 @@
     margin-bottom: $spacing-4;
 
     &-title {
-      font-family: $font-family;
-      font-size: $font-size-base;
-      font-weight: $font-weight-normal;
-      line-height: $line-height-base;
-      letter-spacing: $letter-spacing-normal;
-      color: $text-secondary;
+      @include typography(base, normal, $text-secondary);
     }
 
     &-value {
-      font-family: $font-family;
-      font-size: $font-size-base;
-      font-weight: $font-weight-medium;
-      line-height: $line-height-base;
-      letter-spacing: $letter-spacing-normal;
-      color: $text-primary;
+      @include typography(base, medium, $text-primary);
     }
   }
 
@@ -185,21 +150,11 @@
     margin-bottom: $spacing-10;
 
     &-title {
-      font-family: $font-family;
-      font-size: $font-size-md;
-      line-height: $line-height-base;
-      letter-spacing: $letter-spacing-normal;
-      font-weight: $font-weight-bold;
-      color: $text-primary;
+      @include typography(md, bold, $text-primary);
     }
 
     &-value {
-      font-family: $font-family;
-      font-size: $font-size-md;
-      font-weight: $font-weight-bold;
-      line-height: $line-height-base;
-      letter-spacing: $letter-spacing-normal;
-      color: $text-primary;
+      @include typography(md, bold, $text-primary);
     }
   }
 
