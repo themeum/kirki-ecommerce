@@ -118,19 +118,23 @@ foreach ($media as $media_item) {
                             <div class="kecom-product-variant-options">
                                 <?php foreach ($attr_values as $item): ?>
                                     <?php if ($is_color): ?>
-                                        <div 
+                                        <button 
+                                            type="button"
                                             class="kecom-product-variant-color" 
                                             :class="{ 'selected': isAttributeSelected('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>'), 'opacity-50': !isAttributeAvailable('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>') }"
                                             :style="{ 'background-color': '<?php echo esc_js($item['color'] ?? $item['value']); ?>' }"
                                             @click="isAttributeAvailable('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>') && selectAttribute('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>')"
-                                        ></div>
+                                            aria-label="<?php echo esc_attr($attr_name . ': ' . $item['value']); ?>"
+                                        ></button>
                                     <?php else: ?>
-                                        <div 
+                                        <button 
+                                            type="button"
                                             class="kecom-product-variant-option" 
                                             :class="{ 'selected': isAttributeSelected('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>'), 'opacity-50': !isAttributeAvailable('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>') }"
                                             @click="isAttributeAvailable('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>') && selectAttribute('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>')"
                                             x-text="'<?php echo esc_js($item['value']); ?>'"
-                                        ></div>
+                                            aria-label="<?php echo esc_attr($attr_name . ': ' . $item['value']); ?>"
+                                        ></button>
                                     <?php endif; ?>
                                 <?php endforeach; ?>
                             </div>
