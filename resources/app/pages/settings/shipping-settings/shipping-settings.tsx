@@ -1,23 +1,19 @@
 import { useState, useEffect, useRef } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useNavigate, useOutletContext } from 'react-router';
+import { useNavigate } from 'react-router';
 
 import { LocationIcon, TruckIcon } from '@/icons';
-import PageNavbar from '@/components/page-navbar';
 import OptionAccordion from '@/components/option-accordion';
 import HeaderActionsCard from '@/components/header-actions-card';
-import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import { getErrorsObject, type ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import { useUnsavedStatus } from '@/libs/unsaved-store';
 import { getDefaults, pickFormValues } from '@/libs/zod';
 import Chip from '@/components/ui/chip';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
-import PageHeading from '@/components/ui/page-heading';
 import { normalizeErrors } from '@/pages/utils';
 import {
   ShippingSettingsFormSchema,
@@ -39,17 +35,11 @@ import ShippingZoneActions from '@/pages/settings/shipping-settings/shipping-zon
 import ShippingProfile from '@/pages/settings/shipping-settings/shipping-profile/shipping-profile';
 import ShippingBox from '@/pages/settings/shipping-settings/shipping-box/shipping-box';
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
-
-type SettingsOutletContext = {
-  confirmAction: (opts: {
-    action: () => void;
-    otherProps?: Record<string, unknown>;
-  }) => void;
-};
+import { useSettingsPageActions } from '@/pages/settings/settings-layout/use-settings-page-actions';
+import SettingsPageHeader from '@/pages/settings/settings-page-header';
 
 const ShippingSettings = () => {
   const navigate = useNavigate();
-  const { confirmAction } = useOutletContext<SettingsOutletContext>();
 
   const newZoneIdRef = useRef(crypto.randomUUID());
   const [searchValue, setSearchValue] = useState('');
@@ -59,7 +49,6 @@ const ShippingSettings = () => {
   const [selectedRegion, setSelectedRegion] = useState<ShippingRegion[]>([]);
   const [popupErrors, setPopupErrors] = useState<FormErrors>({});
 
-  const hasUnsavedData = useUnsavedStatus();
   const { data: countryData = [] } = useCountriesQuery({ limit: -1 });
   const countryList = countryData as CountryWithStates[];
 
@@ -209,57 +198,26 @@ const ShippingSettings = () => {
     }
   };
 
-  const handleBackButton = () => {
-    if (isDirty) {
-      confirmAction({ action: () => navigate('/settings') });
-      return;
-    }
-    navigate('/settings');
-  };
-
   const handleDiscardData = () => {
     form.reset();
   };
 
+  useSettingsPageActions({
+    isDirty,
+    isSaving,
+    onSave: form.handleSubmit(handleSaveZones),
+    onDiscard: handleDiscardData,
+  });
+
   return (
     <>
-      <PageHeading
-        text={__('Settings', 'kirki-ecommerce')}
-        size="sm"
-        sticky
-        type="primary"
-        style={{ height: '32px' }}
-        actions={
-          hasUnsavedData ? (
-            <>
-              <Button
-                variant="ghost"
-                onClick={handleDiscardData}
-                disabled={isSaving}
-              >
-                {__('Cancel', 'kirki-ecommerce')}
-              </Button>
-              <Button
-                variant="primary"
-                onClick={form.handleSubmit(handleSaveZones)}
-                loading={isSaving}
-              >
-                {__('Save', 'kirki-ecommerce')}
-              </Button>
-            </>
-          ) : (
-            <></>
-          )
-        }
-      />
       <Container size="sm">
         {loaded ? (
           <Form {...form}>
             <Flex direction="column" gap={4}>
-              <PageNavbar
-                handleBack={handleBackButton}
-                textIcon={<TruckIcon />}
-                text={__('Shipping', 'kirki-ecommerce')}
+              <SettingsPageHeader
+                icon={<TruckIcon />}
+                title={__('Shipping', 'kirki-ecommerce')}
               />
               <Card cssOverride={cardStyles.largeCard}>
                 <CardContent cssOverride={cardStyles.largeContentPadded}>

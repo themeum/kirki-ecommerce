@@ -1,14 +1,11 @@
 import { useState, useEffect, useMemo, type ReactNode } from 'react';
 import { mergeCss } from '@/theme/mixins';
-import { useSearchParams, useNavigate, useOutletContext } from 'react-router';
+import { useSearchParams, useNavigate } from 'react-router';
 import { toast } from 'sonner';
 
 import { TruckIcon, WeightIcon, StoreIcon } from '@/icons';
-import PageHeading from '@/components/ui/page-heading';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
-import PageNavbar from '@/components/page-navbar';
-import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
@@ -26,14 +23,9 @@ import LocalPickupSettings from '@/pages/settings/shipping-settings/shipping-met
 import RateByWeightSettings from '@/pages/settings/shipping-settings/shipping-method/rate-by-weight-settings';
 import { ShippingRules } from '@/pages/settings/shipping-settings/shipping-method/shipping-rules/shipping-rules';
 import { METHOD_SCHEMAS, type ShippingMethodData, type ShippingZone } from '@/pages/settings/shipping-settings/utils';
-import { checkUnsavedDataStatus, setUnsavedDataStatus } from '@/pages/settings/utils';
-
-type SettingsOutletContext = {
-  confirmAction: (opts: {
-    action: () => void;
-    otherProps?: Record<string, unknown>;
-  }) => void;
-};
+import { setUnsavedDataStatus } from '@/pages/settings/utils';
+import { useSettingsPageActions } from '@/pages/settings/settings-layout/use-settings-page-actions';
+import SettingsPageHeader from '@/pages/settings/settings-page-header';
 
 type MethodType = 'flat_rate' | 'local_pickup' | 'weight';
 
@@ -44,7 +36,6 @@ type MethodSettingsEntry = {
 
 const ShippingDeliveryMethod = () => {
   const navigate = useNavigate();
-  const { confirmAction } = useOutletContext<SettingsOutletContext>();
   const [searchParams] = useSearchParams();
 
   const hasUnsavedData = useUnsavedStatus();
@@ -211,51 +202,26 @@ const ShippingDeliveryMethod = () => {
     }
   };
 
-  const handleBackButton = () => {
-    checkUnsavedDataStatus({
-      initialDataObj,
-      updatedDataObj: dataObj,
-      onUnsaved: () =>
-        confirmAction({
-          action: () => navigate(`/settings/shipping/zone/${final_zoneId}`),
-        }),
-      onClean: () => {
-        navigate(`/settings/shipping/zone/${final_zoneId}`);
-      },
-    });
+  const handleDiscardData = () => {
+    const { type: initialType, ...rest } = initialDataObj;
+    setMethodType((initialType as MethodType) ?? methodType);
+    setDataObj(rest);
+    setUnsavedDataStatus(false);
   };
+
+  useSettingsPageActions({
+    isDirty: hasUnsavedData,
+    onSave: handleCreateOrUpdateData,
+    onDiscard: handleDiscardData,
+  });
 
   return (
     <>
-      <PageHeading
-        text={__('Settings', 'kirki-ecommerce')}
-        size="sm"
-        sticky
-        type="primary"
-        style={{ height: '32px' }}
-        actions={
-          hasUnsavedData ? (
-            <>
-              <Button variant="ghost">
-                {__('Cancel', 'kirki-ecommerce')}
-              </Button>
-              <Button
-                variant="primary"
-                onClick={handleCreateOrUpdateData}
-              >
-                {__('Save', 'kirki-ecommerce')}
-              </Button>
-            </>
-          ) : (
-            <></>
-          )
-        }
-      />
       <Container size="sm">
         <Flex direction="column" gap={4}>
-          <PageNavbar
-            text={methodSettingsMap[methodType].title ?? ''}
-            handleBack={handleBackButton}
+          <SettingsPageHeader
+            title={methodSettingsMap[methodType].title ?? ''}
+            onBack={() => navigate(`/settings/shipping/zone/${final_zoneId}`)}
           />
           <Card cssOverride={mergeCss(cardStyles.largeCard, cardStyles.formCard)} >
             <CardContent cssOverride={cardStyles.largeContentPadded}>

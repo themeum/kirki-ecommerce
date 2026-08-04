@@ -1,0 +1,41 @@
+import Container from '@/components/ui/container';
+import { Card, CardContent } from '@/components/ui/card';
+import Flex from '@/components/ui/flex';
+import Text from '@/components/ui/text';
+import { AdvancedSettingsIcon } from '@/icons';
+import { cardStyles } from '@/theme/card-styles';
+import { __ } from '@/wpi18n';
+
+import SettingsPageHeader from '@/pages/settings/settings-page-header';
+
+const AdvancedSettings = () => {
+  return (
+    <Container size="sm">
+      <Flex direction="column" gap={4}>
+        <SettingsPageHeader
+          icon={<AdvancedSettingsIcon />}
+          title={__('Advanced', 'kirki-ecommerce')}
+        />
+        <Card cssOverride={cardStyles.largeCard}>
+          <CardContent cssOverride={cardStyles.largeContentPadded}>
+            <Flex direction="column" gap={2}>
+              <Text weight="semibold">
+                {__('Coming soon', 'kirki-ecommerce')}
+              </Text>
+              <Text color="secondary">
+                {__(
+                  'Advanced configuration options for your store will appear here.',
+                  'kirki-ecommerce',
+                )}
+              </Text>
+            </Flex>
+          </CardContent>
+        </Card>
+      </Flex>
+    </Container>
+  );
+};
+
+AdvancedSettings.displayName = 'AdvancedSettings';
+
+export default AdvancedSettings;

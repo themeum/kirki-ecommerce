@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react';
-import { CircleDollarSign, CreditCard, Home, KeyRound, Mail, Package, Percent, Settings2, Snowflake, Truck } from 'lucide-react';
+import { CircleDollarSign, CreditCard, Home, KeyRound, Mail, Package, Percent, Settings2, ShoppingCart, Snowflake, Truck } from 'lucide-react';
 
-import { setUnsavedDataStatus as setStatus } from '@/libs/unsaved-store';
 import type { SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -27,14 +26,6 @@ type GetSortedListParams<T> = {
   data?: T[];
   key?: string;
   order?: 'asc' | 'desc';
-};
-
-type CheckUnsavedDataStatusParams = {
-  initialDataObj: unknown;
-  updatedDataObj: unknown;
-  keysToCompare?: string[] | null;
-  onUnsaved?: () => void;
-  onClean?: () => void;
 };
 
 export const weightUnitList: SelectOption[] = [
@@ -210,15 +201,20 @@ export const businessOperationSettings: SettingsNavItem[] = [
       'kirki-ecommerce',
     ),
   },
+  {
+    link: '/settings/checkout',
+    icon: <ShoppingCart {...navIconProps} />,
+    header: __('Checkout', 'kirki-ecommerce'),
+    subHeader: __('Guest checkout and legal information', 'kirki-ecommerce'),
+  },
 ];
 
 export const advancedSettings: SettingsNavItem[] = [
   {
-    link: '',
+    link: '/settings/advanced',
     icon: <Settings2 {...navIconProps} />,
     header: __('Advanced', 'kirki-ecommerce'),
     subHeader: __('Advanced settings of your store', 'kirki-ecommerce'),
-    disabled: true,
   },
   {
     link: '/settings/essentials',
@@ -227,68 +223,11 @@ export const advancedSettings: SettingsNavItem[] = [
     subHeader: __('Advanced settings of your store', 'kirki-ecommerce'),
   },
   {
-    link: '',
+    link: '/settings/license',
     icon: <KeyRound {...navIconProps} />,
     header: __('License', 'kirki-ecommerce'),
     subHeader: __('Basic settings of your store', 'kirki-ecommerce'),
-    disabled: true,
   },
 ];
-
-export const checkUnsavedDataStatus = ({
-  initialDataObj,
-  updatedDataObj,
-  keysToCompare = null,
-  onUnsaved = () => {},
-  onClean = () => {},
-}: CheckUnsavedDataStatusParams): boolean => {
-  const isEqual = (
-    a: unknown,
-    b: unknown,
-    keys: string[] | null = null,
-  ): boolean => {
-    if (a === b) {
-      return true;
-    }
-    if (typeof a !== typeof b) {
-      return false;
-    }
-
-    if (a && b && typeof a === 'object') {
-      if (Array.isArray(a) && Array.isArray(b)) {
-        if (a.length !== b.length) {
-          return false;
-        }
-        return a.every((item, index) => isEqual(item, b[index], keys));
-      }
-
-      if (!Array.isArray(a) && !Array.isArray(b)) {
-        const aObj = a as Record<string, unknown>;
-        const bObj = b as Record<string, unknown>;
-        const aKeys = keys || Object.keys(aObj);
-        return aKeys.every((key) => isEqual(aObj[key], bObj[key]));
-      }
-
-      return false;
-    }
-
-    return false;
-  };
-
-  const hasUnsavedChanges = !isEqual(
-    initialDataObj,
-    updatedDataObj,
-    keysToCompare,
-  );
-
-  if (hasUnsavedChanges) {
-    onUnsaved();
-  } else {
-    setStatus(false);
-    onClean();
-  }
-
-  return hasUnsavedChanges;
-};
 
 export { setUnsavedDataStatus } from '@/libs/unsaved-store';

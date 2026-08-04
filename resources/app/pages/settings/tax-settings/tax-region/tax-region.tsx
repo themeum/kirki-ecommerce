@@ -190,7 +190,7 @@ const TaxRegions = (props: TaxRegionsProps) => {
                           )}
                         </Flex>
                         <Text variant="small" color="secondary">
-                          {`${item?.states.length} states`}
+                          {`${item?.states?.length ?? 0} states`}
                         </Text>
                       </Flex>
                       <ActionGroup

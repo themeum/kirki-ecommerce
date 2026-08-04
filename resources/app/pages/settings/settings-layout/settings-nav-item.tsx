@@ -6,13 +6,12 @@ import Button from '@/components/ui/button';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
-import { scoped, scopedMerge, defineStyles } from '@/theme/mixins';
+import { defineStyles, scoped, scopedMerge } from '@/theme/mixins';
 import { CSSObject } from '@emotion/react';
 
-type SettingsItemProps = {
+type SettingsNavItemRowProps = {
   link: string;
   header: string;
-  subHeader: string;
   icon: ReactNode;
   isActive?: boolean;
   disabled?: boolean;
@@ -20,11 +19,10 @@ type SettingsItemProps = {
   isLast?: boolean;
 };
 
-const SettingsItem = (props: SettingsItemProps) => {
+const SettingsNavItemRow = (props: SettingsNavItemRowProps) => {
   const {
     link,
     header,
-    subHeader,
     icon,
     isActive = false,
     disabled = false,
@@ -69,22 +67,17 @@ const SettingsItem = (props: SettingsItemProps) => {
       aria-current={isActive ? 'page' : undefined}
     >
       <div css={scoped(styles.identifier)} data-settings-identifier aria-hidden="true" />
-      <Flex gap={3} cssOverride={styles.content}>
+      <Flex gap={2} align="center" cssOverride={styles.content}>
         <span css={scoped(styles.iconWrap)} data-settings-icon>
           {icon}
         </span>
-        <Flex direction="column" gap={1} cssOverride={styles.textWrap}>
-          <Text weight="medium" cssOverride={styles.heading}>
-            <span data-settings-heading>{header}</span>
-          </Text>
-          <Text variant="small" color="secondary">
-            {subHeader}
-          </Text>
-        </Flex>
+        <Text variant='small' weight="medium" cssOverride={styles.heading}>
+          <span data-settings-heading>{header}</span>
+        </Text>
       </Flex>
       <Button
         variant="ghost"
-        size="icon"
+        size="icon-xs"
         cssOverride={styles.actionButton}
         data-settings-chevron
         tabIndex={-1}
@@ -97,9 +90,9 @@ const SettingsItem = (props: SettingsItemProps) => {
   );
 };
 
-SettingsItem.displayName = 'SettingsItem';
+SettingsNavItemRow.displayName = 'SettingsNavItemRow';
 
-export { SettingsItem };
+export { SettingsNavItemRow };
 
 const highlightedRow = defineStyles({
   backgroundColor: theme.colors.background.fillSecondary,
@@ -127,8 +120,8 @@ const styles = defineStyles({
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: theme.spacing[2],
-    minHeight: '56px',
-    padding: `${theme.spacing[3]} ${theme.spacing[4]}`,
+    height: '40px',
+    padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
     cursor: 'pointer',
     backgroundColor: theme.colors.background.surface,
     transition: 'background-color 0.2s ease, color 0.2s ease',
@@ -165,8 +158,8 @@ const styles = defineStyles({
   },
   identifier: {
     position: 'absolute',
-    top: '8px',
-    bottom: '8px',
+    top: '4px',
+    bottom: '4px',
     left: 0,
     width: '4px',
     borderRadius: theme.radius.xl,
@@ -176,7 +169,6 @@ const styles = defineStyles({
     transition: 'opacity 0.2s ease, visibility 0.2s ease',
   },
   content: {
-    alignItems: 'flex-start',
     flex: 1,
     minWidth: 0,
   },
@@ -185,15 +177,19 @@ const styles = defineStyles({
     alignItems: 'center',
     justifyContent: 'center',
     flexShrink: 0,
-    marginTop: theme.spacing[1],
     color: theme.colors.icon.primary,
     transition: 'color 0.2s ease',
-  },
-  textWrap: {
-    minWidth: 0,
+    '& svg': {
+      width: 16,
+      height: 16,
+      color: theme.colors.icon.primary,
+    }
   },
   heading: {
     transition: 'color 0.2s ease',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
   },
   actionButton: {
     flexShrink: 0,
@@ -202,6 +198,7 @@ const styles = defineStyles({
     transition: 'opacity 0.2s ease, visibility 0.2s ease',
     backgroundColor: theme.colors.background.fillSecondaryHover,
     color: theme.colors.background.fillBrand,
+    borderRadius: theme.radius.lg,
     '&:hover': {
       backgroundColor: theme.colors.background.fillSecondaryHover,
       color: theme.colors.background.fillBrand,

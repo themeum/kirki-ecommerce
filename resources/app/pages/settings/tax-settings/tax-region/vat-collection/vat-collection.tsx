@@ -111,7 +111,7 @@ export const VatCollection = (props: VatCollectionProps) => {
   };
 
   const getFlagForState = (stateName: string | number) => {
-    const country = region?.states.find((region) => region.id === stateName);
+    const country = region?.states?.find((region) => region.id === stateName);
     return country?.flag || '';
   };
 

@@ -1,19 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useNavigate, useOutletContext } from 'react-router';
 
-import PageNavbar from '@/components/page-navbar';
-import Button from '@/components/ui/button';
+import Container from '@/components/ui/container';
+import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import { HomeIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import { useUnsavedStatus } from '@/libs/unsaved-store';
 import { getDefaults, pickFormValues } from '@/libs/zod';
-import Container from '@/components/ui/container';
-import Flex from '@/components/ui/flex';
-import PageHeading from '@/components/ui/page-heading';
 import {
   GeneralSettingsFormSchema,
   type GeneralSettingsFormInput,
@@ -24,15 +19,13 @@ import type { SettingsSectionData } from '@/types';
 import { __ } from '@/wpi18n';
 
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
+import { useSettingsPageActions } from '@/pages/settings/settings-layout/use-settings-page-actions';
+import SettingsPageHeader from '@/pages/settings/settings-page-header';
 import InvoiceId from '@/pages/settings/general-settings/invoice-id';
 import OrderId from '@/pages/settings/general-settings/order-id';
 import SellingLocation from '@/pages/settings/general-settings/selling-location';
 import StoreAddressDetails from '@/pages/settings/general-settings/store-address-details';
 import StoreContactDetails from '@/pages/settings/general-settings/store-contact-details';
-
-type SettingsOutletContext = {
-  confirmAction: (params: { action?: () => void }) => void;
-};
 
 const mapSettingsToFormValues = (
   settings: SettingsSectionData,
@@ -60,12 +53,9 @@ const getStoreLogoUrl = (settings?: SettingsSectionData | null) => {
 };
 
 const GeneralSettings = () => {
-  const navigate = useNavigate();
-  const { confirmAction } = useOutletContext<SettingsOutletContext>();
   const [storeLogoUrl, setStoreLogoUrl] = useState<string | null>(null);
   const savedLogoUrlRef = useRef<string | null>(null);
 
-  const hasUnsavedData = useUnsavedStatus();
   const { data: generalSettingsData, isLoading } = useSettingsQuery('general');
   const { mutateAsync: saveSettings, isPending: isSaving } =
     useUpdateSettingsMutation<'general'>();
@@ -106,77 +96,42 @@ const GeneralSettings = () => {
     }
   };
 
-  const handleBackButton = () => {
-    if (isDirty) {
-      confirmAction({
-        action: () => navigate(`/settings`),
-      });
-      return;
-    }
-    navigate(`/settings`);
-  };
-
   const handleDiscardData = () => {
     form.reset();
     setStoreLogoUrl(savedLogoUrlRef.current);
   };
 
-  return (
-    <>
-      <PageHeading
-        text={__('Settings', 'kirki-ecommerce')}
-        size="sm"
-        sticky
-        type="primary"
-        style={{ height: '32px' }}
-        actions={
-          hasUnsavedData ? (
-            <>
-              <Button
-                variant="ghost"
-                onClick={handleDiscardData}
-                disabled={isSaving}
-              >
-                {__('Cancel', 'kirki-ecommerce')}
-              </Button>
-              <Button
-                variant="primary"
-                onClick={form.handleSubmit(handleSaveData)}
-                loading={isSaving}
-              >
-                {__('Save', 'kirki-ecommerce')}
-              </Button>
-            </>
-          ) : (
-            <></>
-          )
-        }
-      />
-      <Container size="sm">
-        {loaded ? (
-          <Form {...form}>
-            <Flex direction="column" gap={4}>
-              <PageNavbar
-                textIcon={<HomeIcon />}
-                text={__('General', 'kirki-ecommerce')}
-                handleBack={handleBackButton}
-              />
+  useSettingsPageActions({
+    isDirty,
+    isSaving,
+    onSave: form.handleSubmit(handleSaveData),
+    onDiscard: handleDiscardData,
+  });
 
-              <StoreContactDetails
-                storeLogoUrl={storeLogoUrl}
-                onStoreLogoPreviewChange={setStoreLogoUrl}
-              />
-              <StoreAddressDetails />
-              <SellingLocation />
-              <OrderId />
-              <InvoiceId />
-            </Flex>
-          </Form>
-        ) : (
-          <div>{__('Loading ...', 'kirki-ecommerce')}</div>
-        )}
-      </Container>
-    </>
+  return (
+    <Container size="sm">
+      {loaded ? (
+        <Form {...form}>
+          <Flex direction="column" gap={4}>
+            <SettingsPageHeader
+              icon={<HomeIcon />}
+              title={__('General', 'kirki-ecommerce')}
+            />
+
+            <StoreContactDetails
+              storeLogoUrl={storeLogoUrl}
+              onStoreLogoPreviewChange={setStoreLogoUrl}
+            />
+            <StoreAddressDetails />
+            <SellingLocation />
+            <OrderId />
+            <InvoiceId />
+          </Flex>
+        </Form>
+      ) : (
+        <div>{__('Loading ...', 'kirki-ecommerce')}</div>
+      )}
+    </Container>
   );
 };
 

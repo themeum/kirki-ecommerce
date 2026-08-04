@@ -1,16 +1,14 @@
 import { useMemo, useState } from 'react';
 import { useLocation } from 'react-router';
 
-import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
-import PageHeading from '@/components/ui/page-heading';
 import Searchbox from '@/components/ui/searchbox';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
-import { scoped, defineStyles } from '@/theme/mixins';
+import { defineStyles, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
-import { SettingsItem } from '@/pages/settings/settings-item';
+import { SettingsNavItemRow } from '@/pages/settings/settings-layout/settings-nav-item';
 import { advancedSettings, businessOperationSettings, storeManagementSettings, type SettingsNavItem } from '@/pages/settings/utils';
 
 type SettingsSection = {
@@ -57,7 +55,7 @@ const isSettingsRouteActive = (pathname: string, link: string) => {
   return pathname === link || pathname.startsWith(`${link}/`);
 };
 
-const Settings = () => {
+const SettingsSidebar = () => {
   const location = useLocation();
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -75,55 +73,47 @@ const Settings = () => {
   };
 
   return (
-    <>
-      <PageHeading
-        text={__('Settings', 'kirki-ecommerce')}
-        size="sm"
-        sticky
-        type="primary"
-        style={{ height: '32px' }}
-      />
-      <Container size="sm">
-        <div css={scoped(styles.panel)}>
-          <Flex direction="column" gap={6}>
-            <Searchbox value={searchQuery} onChange={handleSearchChange} />
-            {filteredSections.length === 0 ? (
-              <Text color="subdued">
-                {__('No settings found', 'kirki-ecommerce')}
+    <div css={scoped(styles.panel)}>
+      <Flex direction="column" gap={6}>
+        <Searchbox value={searchQuery} onChange={handleSearchChange} />
+        {filteredSections.length === 0 ? (
+          <Text color="subdued">
+            {__('No settings found', 'kirki-ecommerce')}
+          </Text>
+        ) : (
+          filteredSections.map((section) => (
+            <Flex key={section.title} direction="column" gap={2}>
+              <Text variant="tiny" color="secondary">
+                {section.title}
               </Text>
-            ) : (
-              filteredSections.map((section) => (
-                <Flex key={section.title} direction="column" gap={2}>
-                  <Text variant="small" color="subdued">
-                    {section.title}
-                  </Text>
-                  <Flex direction="column" cssOverride={styles.itemList}>
-                    {section.items.map((item, index) => (
-                      <SettingsItem
-                        key={item.header}
-                        {...item}
-                        isFirst={index === 0}
-                        isLast={index === section.items.length - 1}
-                        isActive={isSettingsRouteActive(
-                          location.pathname,
-                          item.link,
-                        )}
-                      />
-                    ))}
-                  </Flex>
-                </Flex>
-              ))
-            )}
-          </Flex>
-        </div>
-      </Container>
-    </>
+              <Flex direction="column" cssOverride={styles.itemList}>
+                {section.items.map((item, index) => (
+                  <SettingsNavItemRow
+                    key={item.header}
+                    link={item.link}
+                    header={item.header}
+                    icon={item.icon}
+                    disabled={item.disabled}
+                    isFirst={index === 0}
+                    isLast={index === section.items.length - 1}
+                    isActive={isSettingsRouteActive(
+                      location.pathname,
+                      item.link,
+                    )}
+                  />
+                ))}
+              </Flex>
+            </Flex>
+          ))
+        )}
+      </Flex>
+    </div>
   );
 };
 
-Settings.displayName = 'Settings';
+SettingsSidebar.displayName = 'SettingsSidebar';
 
-export default Settings;
+export default SettingsSidebar;
 
 const styles = defineStyles({
   panel: {

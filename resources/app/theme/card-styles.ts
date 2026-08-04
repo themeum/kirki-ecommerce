@@ -80,6 +80,11 @@ const cardStyles = defineStyles({
     alignItems: 'center',
     gap: 0,
     flexDirection: 'row',
+    '& svg': {
+      width: 16,
+      height: 16,
+      color: theme.colors.icon.primary,
+    }
   },
   pageCard: {
     backgroundColor: theme.colors.background.surfaceSecondary,

@@ -1,13 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 
-import PageNavbar from '@/components/page-navbar';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { BoxIcon } from '@/icons';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
-import PageHeading from '@/components/ui/page-heading';
 import { useAttributeQuery } from '@/services/attribute';
 import type { Attribute, AttributeValue, TaxonomyTableHeader } from '@/types';
 import { theme } from '@/theme';
@@ -15,6 +13,7 @@ import { scoped, mergeCss, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import { __, sprintf } from '@/wpi18n';
 
+import SettingsPageHeader from '@/pages/settings/settings-page-header';
 import VariationTable from '@/pages/settings/essential-settings/variation-library/variation-table/variation-table';
 import VariationValuePopup from '@/pages/settings/essential-settings/variation-library/variation-value-dialog';
 
@@ -40,18 +39,11 @@ const ListVariation = () => {
 
   return (
     <div>
-      <PageHeading
-        text={__('Settings', 'kirki-ecommerce')}
-        size="sm"
-        sticky
-        type="primary"
-        style={{ height: '32px' }}
-      />
       <Container size="sm">
         <Flex direction="column" gap={4}>
-          <PageNavbar
-            textIcon={<BoxIcon />}
-            text={sprintf(__('%s', 'kirki-ecommerce'), selectedAttribute?.name ?? '')}
+          <SettingsPageHeader
+            icon={<BoxIcon />}
+            title={sprintf(__('%s', 'kirki-ecommerce'), selectedAttribute?.name ?? '')}
             rightAction={
               <div>
                 <Button

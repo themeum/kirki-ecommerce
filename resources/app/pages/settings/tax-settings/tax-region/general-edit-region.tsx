@@ -2,21 +2,17 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useMemo, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
-import { useNavigate, useOutletContext, useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 
 import CheckboxField from '@/components/form/checkbox-field';
 import HeaderActionsCard from '@/components/header-actions-card';
-import PageNavbar from '@/components/page-navbar';
-import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
-import PageHeading from '@/components/ui/page-heading';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { queryKeys } from '@/libs/query-keys';
-import { useUnsavedStatus } from '@/libs/unsaved-store';
 import { getDefaults, pickFormValues } from '@/libs/zod';
 import { TaxRegionGeneralFormSchema, type TaxRegionGeneralFormInput } from '@/schemas/forms/tax-region-general-form';
 import { TaxSettingsFormSchema, type TaxSettingsFormPayload } from '@/schemas/forms/tax-settings-form';
@@ -33,21 +29,17 @@ import { TaxRateList } from '@/pages/settings/tax-settings/tax-region/tax-rate-l
 import TaxRules from '@/pages/settings/tax-settings/tax-region/tax-rules/tax-rules';
 import type { TaxRate, TaxRegion, TaxRegionState, TaxRule } from '@/pages/settings/tax-settings/utils';
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
-
-type SettingsOutletContext = {
-  confirmAction: (params: { action?: () => void }) => void;
-};
+import { useSettingsPageActions } from '@/pages/settings/settings-layout/use-settings-page-actions';
+import SettingsPageHeader from '@/pages/settings/settings-page-header';
 
 const GeneralEditRegion = () => {
   let { code } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { confirmAction } = useOutletContext<SettingsOutletContext>();
   const [regions, setRegions] = useState<TaxRegion[]>([]);
   const [selectedCities, setSelectedCities] = useState<TaxRegionState[]>([]);
   const [showPopup, setShowPopup] = useState(false);
 
-  const hasUnsavedData = useUnsavedStatus();
   const { data: taxSettingsData, isLoading } = useSettingsQuery('tax');
   const { mutateAsync: saveSettings, isPending: isSaving } =
     useUpdateSettingsMutation<'tax'>();
@@ -197,16 +189,6 @@ const GeneralEditRegion = () => {
     form.reset();
   };
 
-  const handleBackButton = () => {
-    if (isDirty) {
-      confirmAction({
-        action: () => navigate('/settings/tax'),
-      });
-      return;
-    }
-    navigate('/settings/tax');
-  };
-
   const handleSaveFromRateList = async (
     updatedTaxRates?: TaxRate[],
     from = '',
@@ -214,48 +196,24 @@ const GeneralEditRegion = () => {
     await handleSaveData(form.getValues(), updatedTaxRates, from);
   };
 
+  useSettingsPageActions({
+    isDirty,
+    isSaving,
+    onSave: form.handleSubmit((values) => handleSaveData(values)),
+    onDiscard: handleDiscardData,
+  });
+
   return (
     <div>
       <>
-        <PageHeading
-          text={__('Settings', 'kirki-ecommerce')}
-          size="sm"
-          sticky
-          type="primary"
-          style={{ height: '32px' }}
-          actions={
-            hasUnsavedData ? (
-              <>
-                <Button
-                  variant="ghost"
-                  onClick={handleDiscardData}
-                  disabled={isSaving}
-                >
-                  {__('Cancel', 'kirki-ecommerce')}
-                </Button>
-                <Button
-                  variant="primary"
-                  onClick={form.handleSubmit((values) =>
-                    handleSaveData(values),
-                  )}
-                  loading={isSaving}
-                >
-                  {__('Save', 'kirki-ecommerce')}
-                </Button>
-              </>
-            ) : (
-              <></>
-            )
-          }
-        />
         <Container size="sm">
           {loaded ? (
             <Form {...form}>
               <Flex direction="column" gap={4}>
-                <PageNavbar
-                  text={selectedCountry?.name}
-                  textIcon={selectedCountry?.flag}
-                  handleBack={handleBackButton}
+                <SettingsPageHeader
+                  title={selectedCountry?.name}
+                  icon={selectedCountry?.flag}
+                  onBack={() => navigate('/settings/tax')}
                 />
 
                 <Card cssOverride={mergeCss(cardStyles.largeCard, styles.citiesCard)} >

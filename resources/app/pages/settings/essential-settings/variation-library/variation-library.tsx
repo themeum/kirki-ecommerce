@@ -58,9 +58,9 @@ const VariationList = () => {
 
   const handleEditVariation = (item: AttributeListItem) => {
     if (item?.type === 'color') {
-      navigate(`/settings/essential/color/${item?.id}`);
+      navigate(`/settings/essentials/color/${item?.id}`);
     } else {
-      navigate(`/settings/essential/list/${item?.id}`);
+      navigate(`/settings/essentials/list/${item?.id}`);
     }
   };
 

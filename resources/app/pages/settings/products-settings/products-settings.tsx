@@ -1,19 +1,14 @@
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useNavigate, useOutletContext } from 'react-router';
 
-import PageNavbar from '@/components/page-navbar';
-import Button from '@/components/ui/button';
+import Container from '@/components/ui/container';
+import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import { ProductSettingsIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import { useUnsavedStatus } from '@/libs/unsaved-store';
 import { getDefaults, pickFormValues } from '@/libs/zod';
-import Container from '@/components/ui/container';
-import Flex from '@/components/ui/flex';
-import PageHeading from '@/components/ui/page-heading';
 import {
   ProductsSettingsFormSchema,
   type ProductsSettingsFormInput,
@@ -23,19 +18,13 @@ import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings
 import { __ } from '@/wpi18n';
 
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
+import { useSettingsPageActions } from '@/pages/settings/settings-layout/use-settings-page-actions';
+import SettingsPageHeader from '@/pages/settings/settings-page-header';
 import { Review } from '@/pages/settings/products-settings/review';
 import { ShopPage } from '@/pages/settings/products-settings/shop-page';
 import { StandardUnit } from '@/pages/settings/products-settings/standard-unit';
 
-type SettingsOutletContext = {
-  confirmAction: (params: { action?: () => void }) => void;
-};
-
 const ProductsSettings = () => {
-  const navigate = useNavigate();
-  const { confirmAction } = useOutletContext<SettingsOutletContext>();
-
-  const hasUnsavedData = useUnsavedStatus();
   const { data: productSettingsData, isLoading } = useSettingsQuery('product');
   const { mutateAsync: saveSettings, isPending } = useUpdateSettingsMutation<'product'>();
 
@@ -77,69 +66,35 @@ const ProductsSettings = () => {
     }
   };
 
-  const handleBackButton = () => {
-    if (form.formState.isDirty) {
-      confirmAction({
-        action: () => navigate('/settings'),
-      });
-      return;
-    }
-    navigate('/settings');
-  };
-
   const handleDiscardData = () => {
     form.reset();
   };
 
+  useSettingsPageActions({
+    isDirty: form.formState.isDirty,
+    isSaving: isPending,
+    onSave: form.handleSubmit(handleSaveData),
+    onDiscard: handleDiscardData,
+  });
+
   return (
-    <>
-      <PageHeading
-        text={__('Settings', 'kirki-ecommerce')}
-        size="sm"
-        sticky
-        type="primary"
-        style={{ height: '32px' }}
-        actions={
-          hasUnsavedData ? (
-            <>
-              <Button
-                variant="ghost"
-                onClick={handleDiscardData}
-              >
-                {__('Cancel', 'kirki-ecommerce')}
-              </Button>
-              <Button
-                variant="primary"
-                onClick={form.handleSubmit(handleSaveData)}
-                loading={isPending}
-              >
-                {__('Save', 'kirki-ecommerce')}
-              </Button>
-            </>
-          ) : (
-            <></>
-          )
-        }
-      />
-      <Container size="sm">
-        {loaded ? (
-          <Form {...form}>
-            <Flex direction="column" gap={4}>
-              <PageNavbar
-                textIcon={<ProductSettingsIcon />}
-                text={__('Products', 'kirki-ecommerce')}
-                handleBack={handleBackButton}
-              />
-              <ShopPage />
-              <StandardUnit />
-              <Review />
-            </Flex>
-          </Form>
-        ) : (
-          <div>{__('Loading ...', 'kirki-ecommerce')}</div>
-        )}
-      </Container>
-    </>
+    <Container size="sm">
+      {loaded ? (
+        <Form {...form}>
+          <Flex direction="column" gap={4}>
+            <SettingsPageHeader
+              icon={<ProductSettingsIcon />}
+              title={__('Products', 'kirki-ecommerce')}
+            />
+            <ShopPage />
+            <StandardUnit />
+            <Review />
+          </Flex>
+        </Form>
+      ) : (
+        <div>{__('Loading ...', 'kirki-ecommerce')}</div>
+      )}
+    </Container>
   );
 };
 

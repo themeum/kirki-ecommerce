@@ -1,17 +1,16 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router';
 
 import ColorPickerField from '@/components/form/color-picker-field';
 import TextField from '@/components/form/text-field';
 import ThumbnailField from '@/components/form/thumbnail-field';
-import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import { Field, FieldError } from '@/components/ui/field';
 import { Form } from '@/components/ui/form';
-import PageHeading from '@/components/ui/page-heading';
 import ProgressBar from '@/components/ui/progressbar';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Text from '@/components/ui/text';
@@ -31,6 +30,10 @@ import { mergeCss, defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 import { cardStyles } from '@/theme/card-styles';
+
+import { setUnsavedDataStatus } from '@/pages/settings/utils';
+import { useSettingsPageActions } from '@/pages/settings/settings-layout/use-settings-page-actions';
+import SettingsPageHeader from '@/pages/settings/settings-page-header';
 
 const POSITION_MAP: Record<string, number> = {
   start: 0,
@@ -54,6 +57,7 @@ const resolveLogoUrl = (logo: unknown): string => {
 };
 
 const EditTemplate = () => {
+  const navigate = useNavigate();
   const { data: emailSettingsData, isLoading } = useSettingsQuery('email');
   const { mutateAsync: saveSettings, isPending } = useUpdateSettingsMutation<'email'>();
 
@@ -68,6 +72,11 @@ const EditTemplate = () => {
   });
 
   const heightValue = form.watch('height') ?? 50;
+  const { isDirty } = form.formState;
+
+  useEffect(() => {
+    setUnsavedDataStatus(isDirty);
+  }, [isDirty]);
 
   useEffect(() => {
     if (!defaultEmail) {
@@ -115,33 +124,24 @@ const EditTemplate = () => {
     form.reset();
   };
 
+  useSettingsPageActions({
+    isDirty,
+    isSaving: isPending,
+    onSave: form.handleSubmit(handleSaveData),
+    onDiscard: handleDiscard,
+  });
+
   return (
     <>
-      <PageHeading
-        text={__('Edit Template', 'kirki-ecommerce')}
-        hasBack
-        cssOverride={styles.pageHeading}
-        leftIcon={<BrushIcon />}
-        size="fullWidth"
-        sticky
-        actions={
-          <>
-            <Button variant="ghost" onClick={handleDiscard}>
-              {__('Discard', 'kirki-ecommerce')}
-            </Button>
-            <Button
-              variant="primary"
-              onClick={form.handleSubmit(handleSaveData)}
-              loading={isPending}
-            >
-              {__('Save', 'kirki-ecommerce')}
-            </Button>
-          </>
-        }
-      />
       <Container size="fullWidth" cssOverride={styles.container}>
         {loaded ? (
           <Form {...form}>
+            <Flex direction="column" gap={4} cssOverride={{ width: '100%' }}>
+              <SettingsPageHeader
+                icon={<BrushIcon />}
+                title={__('Edit Template', 'kirki-ecommerce')}
+                onBack={() => navigate('/settings/email')}
+              />
             <Flex gap={12} cssOverride={{ width: '100%' }}>
               <Flex direction="column" gap={5} cssOverride={{ width: '44%' }}>
                 <Card cssOverride={mergeCss(cardStyles.largeCard, styles.roundedCard)}>
@@ -264,6 +264,7 @@ const EditTemplate = () => {
                 </Card>
               </Flex>
             </Flex>
+            </Flex>
           </Form>
         ) : (
           <div>{__('Loading ...', 'kirki-ecommerce')}</div>
@@ -278,11 +279,6 @@ EditTemplate.displayName = 'EditTemplate';
 export default EditTemplate;
 
 const styles = defineStyles({
-  pageHeading: {
-    ...theme.typography.paragraph(),
-    padding: `${theme.spacing[0]} ${theme.spacing[8]}`,
-    height: '32px',
-  },
   container: {
     width: '100%',
     padding: `${theme.spacing[3]} 103px`,

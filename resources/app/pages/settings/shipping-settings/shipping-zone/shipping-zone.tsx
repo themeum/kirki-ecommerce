@@ -1,13 +1,10 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Minus } from 'lucide-react';
 import { mergeCss } from '@/theme/mixins';
-import { useParams, useOutletContext, useNavigate } from 'react-router';
+import { useParams, useNavigate } from 'react-router';
 
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
-import PageHeading from '@/components/ui/page-heading';
-import PageNavbar from '@/components/page-navbar';
-import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Chip from '@/components/ui/chip';
 import ChipField, { chipFieldControlCss } from '@/components/ui/chip-field';
@@ -25,18 +22,12 @@ import { __ } from '@/wpi18n';
 import { ShippingRegionPopup } from '@/pages/settings/shipping-settings/shipping-zone/shipping-region-dialog';
 import { ShippingMethod } from '@/pages/settings/shipping-settings/shipping-method/shipping-method';
 import { getSearchedCountries, getSelectedRegionTags, type CountryWithStates, type RegionTag, type ShippingMethodData, type ShippingRegion, type ShippingZone } from '@/pages/settings/shipping-settings/utils';
-import { checkUnsavedDataStatus, setUnsavedDataStatus } from '@/pages/settings/utils';
-
-type SettingsOutletContext = {
-  confirmAction: (opts: {
-    action: () => void;
-    otherProps?: Record<string, unknown>;
-  }) => void;
-};
+import { setUnsavedDataStatus } from '@/pages/settings/utils';
+import { useSettingsPageActions } from '@/pages/settings/settings-layout/use-settings-page-actions';
+import SettingsPageHeader from '@/pages/settings/settings-page-header';
 
 const ShippingZonePage = () => {
   const navigate = useNavigate();
-  const { confirmAction } = useOutletContext<SettingsOutletContext>();
 
   const { zone_Id } = useParams();
   const [openPopup, setOpenPopup] = useState(false);
@@ -198,60 +189,29 @@ const ShippingZonePage = () => {
     );
   };
 
-  const handleBackButton = () => {
-    const activeZoneData = shippingZonesObj?.find(
-      (zone) => String(zone?.id) === String(zoneId),
-    );
-
-    checkUnsavedDataStatus({
-      initialDataObj,
-      updatedDataObj: activeZoneData,
-      keysToCompare: ['title', 'regions'],
-      onUnsaved: () =>
-        confirmAction({ action: () => navigate('/settings/shipping') }),
-      onClean: () => {
-        navigate('/settings/shipping');
-      },
-    });
-  };
-
   const handleDiscardData = () => {
     setShippingZonesObj((prev = []) =>
       prev.map((zone) =>
         zone.id === activeZone?.id && initialDataObj ? initialDataObj : zone,
       ),
     );
+    setUnsavedDataStatus(false);
   };
+
+  useSettingsPageActions({
+    isDirty: hasUnsavedData,
+    onSave: updateShippingZone,
+    onDiscard: handleDiscardData,
+  });
 
   return (
     <>
-      <PageHeading
-        text={__('Settings', 'kirki-ecommerce')}
-        size="sm"
-        sticky
-        type="primary"
-        style={{ height: '32px' }}
-        actions={
-          hasUnsavedData ? (
-            <>
-              <Button variant="ghost" onClick={handleDiscardData}>
-                {__('Cancel', 'kirki-ecommerce')}
-              </Button>
-              <Button variant="primary" onClick={updateShippingZone}>
-                {__('Save', 'kirki-ecommerce')}
-              </Button>
-            </>
-          ) : (
-            <></>
-          )
-        }
-      />
       <Container size="sm">
         {loaded ? (
           <Flex direction="column" gap={4}>
-            <PageNavbar
-              text={__('Set Zone Details', 'kirki-ecommerce')}
-              handleBack={handleBackButton}
+            <SettingsPageHeader
+              title={__('Set Zone Details', 'kirki-ecommerce')}
+              onBack={() => navigate('/settings/shipping')}
             />
             <Card cssOverride={mergeCss(cardStyles.largeCard, cardStyles.formCard)} >
               <CardContent cssOverride={cardStyles.largeContentPadded}>
