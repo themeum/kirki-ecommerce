@@ -4,6 +4,8 @@ export interface kirkiEcommerceConfig {
   rest_url_base: string;   // e.g. /wp-json/kirki/ecommerce/v1
   rest_nonce: string;    // WordPress REST nonce
   cart_variant_ids: number[];
+  is_logged_in: boolean;
+  login_url: string;
 }
 
 // Extend window for WordPress-injected config
