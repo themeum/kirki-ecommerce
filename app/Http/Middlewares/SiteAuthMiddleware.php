@@ -41,7 +41,9 @@ class SiteAuthMiddleware implements Middleware
         if (is_user_logged_in()) {
             return $next($request);
         }
-        wp_redirect(home_url());
+
+        $login_url = wp_login_url();
+        wp_redirect($login_url);
         exit;
     }
 }
