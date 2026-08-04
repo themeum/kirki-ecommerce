@@ -122,11 +122,14 @@ Route::group(['middleware' => AuthMiddleware::class], function () {
 
     // Coupons
     Route::get('/coupons', [CouponController::class, 'get']);
-    Route::get('/coupons/{id}', [CouponController::class, 'show']);
+    Route::get('/coupons/{id}', [CouponController::class, 'show'])->where('id', '[\d]+');
     Route::post('/coupons', [CouponController::class, 'create']);
-    Route::put('/coupons/{id}', [CouponController::class, 'update']);
-    Route::delete('/coupons/{id}', [CouponController::class, 'delete']);
+    Route::put('/coupons/{id}', [CouponController::class, 'update'])->where('id', '[\d]+');
+    Route::delete('/coupons/{id}', [CouponController::class, 'delete'])->where('id', '[\d]+');
     Route::post('/coupons/bulk', [CouponController::class, 'bulk_actions']);
+    Route::get('/coupons/generate-new-code', [CouponController::class, 'generate_new_code']);
+    Route::get('/coupons/validate', [CouponController::class, 'validate_code']);
+    Route::patch('/coupons/{id}/action', [CouponController::class, 'action'])->where('id', '[\d]+');
 
     // Products
     Route::get('/products', [ProductController::class, 'get']);

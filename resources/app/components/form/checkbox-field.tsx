@@ -12,8 +12,10 @@ type CheckboxFieldProps<
   name: TName;
   label?: ReactNode;
   description?: ReactNode;
+  infoText?: ReactNode;
   disabled?: boolean;
   cssOverride?: CSSObject;
+  onCheckedChange?: (checked: boolean) => void;
 };
 
 const CheckboxField = <
@@ -23,8 +25,10 @@ const CheckboxField = <
   name,
   label,
   description,
+  infoText,
   disabled,
   cssOverride,
+  onCheckedChange,
 }: CheckboxFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
   const fieldId = String(name);
@@ -41,11 +45,16 @@ const CheckboxField = <
               checked={Boolean(field.value)}
               onCheckedChange={(checked) => {
                 field.onChange(checked === true);
+                onCheckedChange?.(checked === true);
               }}
               disabled={disabled}
               aria-invalid={fieldState.invalid}
             />
-            {label && <FieldLabel htmlFor={fieldId}>{label}</FieldLabel>}
+            {label && (
+              <FieldLabel htmlFor={fieldId} infoText={infoText}>
+                {label}
+              </FieldLabel>
+            )}
           </Field>
           {description && <FieldDescription>{description}</FieldDescription>}
           {fieldState.invalid && <FieldError errors={[fieldState.error]} />}

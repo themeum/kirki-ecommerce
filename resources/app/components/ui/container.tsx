@@ -2,7 +2,7 @@ import type { CSSObject } from '@emotion/react';
 import { forwardRef, type ComponentPropsWithoutRef } from 'react';
 
 import { theme } from '@/theme';
-import { scopedMerge, defineStyles } from '@/theme/mixins';
+import { defineStyles, scopedMerge } from '@/theme/mixins';
 import type { ContainerSize } from '@/types';
 
 type ContainerProps = Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'css'> & {
@@ -38,7 +38,7 @@ const styles = defineStyles({
   root: {
     maxWidth: '1024px',
     margin: `${theme.spacing[0]} auto`,
-    padding: `${theme.spacing[0]} ${theme.spacing[2]}`,
+    padding: theme.spacing[0],
   },
   sizes: {
     sm: {

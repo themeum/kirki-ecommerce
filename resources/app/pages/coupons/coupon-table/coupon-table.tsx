@@ -1,25 +1,29 @@
+import { Ban, Copy, Trash2 } from 'lucide-react';
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router';
 
 import DataTable, {
   type DataTableBulkApplyPayload,
   type DataTableColumn,
+  type DataTableRowActionsResolver,
 } from '@/components/data-table';
 import Badge from '@/components/ui/badge';
 import Flex from '@/components/ui/flex';
 import { endpoints } from '@/libs/endpoints';
 import { theme } from '@/theme';
-import { scoped, defineStyles } from '@/theme/mixins';
+import { defineStyles, scoped } from '@/theme/mixins';
 import type { PaginatedData } from '@/types';
-import { getBadgeVariantForStatus } from '@/utils/badge-status';
 import { __ } from '@/wpi18n';
 
-import CouponTableAction from '@/pages/coupons/coupon-table/coupon-table-action';
-import CouponTableFilterAction from '@/pages/coupons/coupon-table/coupon-table-filter-action';
+import { DATE_FORMATS } from '@/libs/date';
+import CouponTableFilter from '@/pages/coupons/coupon-table/coupon-table-filter';
+import CouponTableFilterBar from '@/pages/coupons/coupon-table/coupon-table-filter-bar';
 import FilterPopup from '@/pages/coupons/coupon-table/filter-popup/filter-popup';
+import { getCouponBadgeInfo } from '@/pages/coupons/edit-coupon/config/coupon-badge';
 import { CouponListItem } from '@/schemas/catalog/coupon';
-import { useBulkDeleteCouponsMutation } from '@/services/coupon';
+import { useBulkDeleteCouponsMutation, useCouponActionMutation, useDeleteCouponMutation } from '@/services/coupon';
 import { couponListOptions } from '@/types/filters/coupon';
+import { format } from 'date-fns';
 
 type CouponTableProps = {
   data?: PaginatedData<CouponListItem>;
@@ -55,11 +59,14 @@ const couponColumns: DataTableColumn<CouponListItem>[] = [
   },
   {
     title: __('Status', 'kirki-ecommerce'),
-    renderItem: (item) => (
-      <Badge variant={getBadgeVariantForStatus(item?.status ?? '')}>
-        {item?.status}
-      </Badge>
-    ),
+    renderItem: (item) => {
+      const badge = getCouponBadgeInfo(item.status);
+      return (
+        <Badge variant={badge.variant}>
+          {badge.text}
+        </Badge>
+      );
+    },
   },
   {
     title: __('Method', 'kirki-ecommerce'),
@@ -70,12 +77,12 @@ const couponColumns: DataTableColumn<CouponListItem>[] = [
     renderItem: (item) => item.discount_type,
   },
   {
-    title: __('used', 'kirki-ecommerce'),
+    title: __('Used', 'kirki-ecommerce'),
     renderItem: (item) => item.current_usage_count,
   },
   {
     title: __('Created at', 'kirki-ecommerce'),
-    renderItem: (item) => item?.created_at,
+    renderItem: (item) => item.created_at ? format(new Date(item.created_at), DATE_FORMATS.YEAR_MONTH_DAY) : '-',
   },
 ];
 
@@ -84,7 +91,10 @@ const couponBulkActions = [
 ];
 
 const CouponTable = ({ data, isLoading, onPageChange }: CouponTableProps) => {
+  const navigate = useNavigate();
   const bulkDeleteMutation = useBulkDeleteCouponsMutation();
+  const deleteMutation = useDeleteCouponMutation();
+  const couponActionMutation = useCouponActionMutation();
 
   const handleBulkApply = useCallback(
     async (action: string, { selectedItems, isSelectAll }: DataTableBulkApplyPayload) => {
@@ -107,24 +117,62 @@ const CouponTable = ({ data, isLoading, onPageChange }: CouponTableProps) => {
     [bulkDeleteMutation],
   );
 
+  const rowActions = useCallback<DataTableRowActionsResolver<CouponListItem>>(
+    (item) => ({
+      edit: { onClick: () => navigate(endpoints.COUPON(item.id)) },
+      actions: [
+        {
+          label: __('Duplicate', 'kirki-ecommerce'),
+          icon: <Copy size={16} />,
+          onClick: () => {
+            void couponActionMutation.mutateAsync({
+              id: item.id,
+              action: 'duplicate',
+            });
+          },
+        },
+        {
+          label: item?.is_active ? __('Deactivate', 'kirki-ecommerce') : __('Activate', 'kirki-ecommerce'),
+          icon: <Ban size={16} />,
+          onClick: () => {
+            void couponActionMutation.mutateAsync({
+              id: item.id,
+              action: item?.is_active ? 'deactivate' : 'activate',
+            });
+          },
+        },
+        { label: '', type: 'separator' },
+        {
+          label: __('Delete', 'kirki-ecommerce'),
+          icon: <Trash2 size={16} />,
+          onClick: () => {
+            void deleteMutation.mutateAsync(item.id);
+          },
+        },
+      ],
+    }),
+    [navigate, deleteMutation, couponActionMutation],
+  );
+
   return (
     <DataTable
       listOptions={couponListOptions}
       data={data}
       isLoading={isLoading}
       columns={couponColumns}
+      rowActions={rowActions}
       bulkActionOptions={couponBulkActions}
       onBulkApply={handleBulkApply}
       onPageChange={onPageChange}
     >
-      <DataTable.Action>
-        <CouponTableAction />
-      </DataTable.Action>
-      <DataTable.FilterAction>
+      <DataTable.Filter>
+        <CouponTableFilter />
+      </DataTable.Filter>
+      <DataTable.SelectionFilter>
         <FilterPopup />
-      </DataTable.FilterAction>
+      </DataTable.SelectionFilter>
       <DataTable.FilterBar>
-        <CouponTableFilterAction />
+        <CouponTableFilterBar />
       </DataTable.FilterBar>
       <DataTable.Pagination />
     </DataTable>

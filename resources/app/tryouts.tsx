@@ -39,7 +39,7 @@ import SeparatorPreview from '@/preview-pages/separator-preview';
 import TabPreview from '@/preview-pages/tab-preview';
 import TablePreview from '@/preview-pages/table-preview';
 import TabsPreview from '@/preview-pages/tabs-preview';
-import TagManagerPreview from '@/preview-pages/tag-manager-preview';
+import MultiSelectPreview from '@/preview-pages/multi-select-preview';
 import ThumbnailPreview from '@/preview-pages/thumbnail-preview';
 import ToggleButtonPreview from '@/preview-pages/toggle-button-preview';
 import UiBadgePreview from '@/preview-pages/ui-badge-preview';
@@ -320,10 +320,10 @@ const Tryouts = () => {
           </Card>
           <Card cssOverride={cardStyles.formCard}>
             <CardHeader>
-              <CardTitle>Tag Manager</CardTitle>
+              <CardTitle>Multi Select</CardTitle>
             </CardHeader>
             <CardContent>
-              <TagManagerPreview />
+              <MultiSelectPreview />
             </CardContent>
           </Card>
           <Card cssOverride={cardStyles.formCard}>

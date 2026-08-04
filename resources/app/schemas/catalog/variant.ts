@@ -5,7 +5,7 @@ import { MediaRefSchema } from '@/schemas/shared/media';
 
 export const VariantSchema = z.object({
   id: z.number().optional(),
-  name: z.string().optional(),
+  name: z.string(),
   media: MediaRefSchema.nullish(),
   sku: z.string().nullable(),
   barcode: z.string().nullable(),
@@ -26,6 +26,7 @@ export const VariantSchema = z.object({
   available_quantity: z.number(),
   in_stock: z.boolean(),
   committed_quantity: z.number(),
+  min_stock_threshold: z.number().nullish(),
   has_limit_per_order: z.boolean(),
   max_per_order: z.number().nullable(),
   tax_profile_id: z.number().nullable(),

@@ -141,27 +141,19 @@ class CouponRepository
                 return $query->where_any(['title', 'code'], 'like', '%' . $search . '%');
             })
             ->when(!empty($filters['method']), function (QueryBuilder $query) use ($filters) {
-                if ($filters['method'] === 'all') {
-                    return $query;
-                }
-
                 return $query->where('method', $filters['method']);
             })
             ->when(!empty($filters['discount_type']), function (QueryBuilder $query) use ($filters) {
-                if ($filters['discount_type'] === 'all') {
-                    return $query;
-                }
-
                 return $query->where('discount_type', $filters['discount_type']);
             })
             ->when(isset($filters['is_active']), function (QueryBuilder $query) use ($filters) {
                 return $query->where('is_active', (int) $filters['is_active']);
             })
             ->when(!empty($filters['start_date']), function (QueryBuilder $query) use ($filters) {
-                return $query->where_date('start_date', '>=', $filters['start_date']);
+                return $query->where_date('start_datetime', '>=', $filters['start_date']);
             })
             ->when(!empty($filters['end_date']), function (QueryBuilder $query) use ($filters) {
-                return $query->where_date('end_date', '<=', $filters['end_date']);
+                return $query->where_date('end_datetime', '<=', $filters['end_date']);
             })
             ->when(!empty($filters['sort_by']) && !empty($filters['sort_order']), function (QueryBuilder $query) use ($filters) {
                 return $query->order_by($filters['sort_by'], $filters['sort_order']);
@@ -171,5 +163,16 @@ class CouponRepository
             ->when(!empty($filters['status']), function (QueryBuilder $query) use ($filters) {
                 return $query->apply_status_filter($filters['status']);
             });
+    }
+
+    /**
+     * Check if a coupon code exists.
+     *
+     * @param string $code
+     * @return bool
+     */
+    public function is_exists(string $code)
+    {
+        return Coupon::query()->where('code', $code)->exists();
     }
 }
