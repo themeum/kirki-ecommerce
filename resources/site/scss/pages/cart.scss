@@ -48,29 +48,52 @@
   }
 
   .kecom-cart-item {
-    @include flex(row, center, flex-start);
+    @include flex(row, flex-start, flex-start);
     gap: $spacing-6;
 
-    &-image {
-      width: 112px;
-      height: 112px;
+    &-description {
+      @include flex(column, flex-start, flex-start);
+      flex-grow: 1;
+    }
 
-      img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        border-radius: $radius-lg;
+    &-info,
+    &-quantity {
+      @include flex(row, flex-start, space-between);
+      width: 100%;
+    }
+
+    &-info {
+      @include breakpoint-down(md) {
+        @include flex(column, stretch, flex-start);
       }
     }
 
+    &-image {
+      img {
+        width: 112px;
+        height: auto;
+        border-radius: $radius-lg;
+
+        @include breakpoint-down(md) {
+          width: 96px;
+          height: auto;
+        }
+      }
+
+    }
+
     &-details {
-      flex-grow: 1;
       @include flex(column, flex-start, flex-start);
     }
 
     &-pricing {
       @include flex(column, flex-end, flex-start);
       align-self: flex-start;
+
+      @include breakpoint-down(md) {
+        @include flex(row-reverse, center, space-between);
+        width: 100%;
+      }
     }
 
     &-details-title,
@@ -105,6 +128,10 @@
       margin-top: $spacing-6;
     }
 
+    .kecom-cart-item-remove {
+      max-height: $spacing-12;
+    }
+
     .kecom-quantity {
       height: $spacing-12;
     }
@@ -121,6 +148,10 @@
   .kecom-divider:last-child {
     display: none;
   }
+
+  @include breakpoint-down(md) {
+    padding: $spacing-16 $spacing-8;
+  }
 }
 
 .kecom-cart-summary {
@@ -129,6 +160,7 @@
 
   &-title {
     @include typography(xl, semibold, $text-primary);
+    margin: 0;
     margin-bottom: $spacing-10;
   }
 
@@ -168,5 +200,9 @@
   &-checkout-btn {
     gap: $spacing-4;
     padding: $spacing-5 0;
+  }
+
+  @include breakpoint-down(md) {
+    padding: $spacing-16 $spacing-8;
   }
 }

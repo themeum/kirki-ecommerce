@@ -21,8 +21,8 @@ export function cart(config: CartUpdateItem) {
         const result = await cartApi.updateItem(itemId, quantity);
         this.cart_value = Object.assign(this.cart_value, result.data);
       } catch (e: unknown) {
-        this.error = e instanceof Error ? e.message : 'Cannot update item';
-        toastManager.error(this.error);
+        this.error = e instanceof Error ? e.message : null;
+        toastManager.error(this.error ?? __("Something went wrong", "kirki-ecommerce"));
       }
 
     },
@@ -33,13 +33,12 @@ export function cart(config: CartUpdateItem) {
       const itemId = Number(id);
 
       try {
-        console.log(itemId);
         await cartApi.removeItem(itemId);
         toastManager.success(__("Item removed to cart", "kirki-ecommerce"));
         window.location.reload();
       } catch (e: unknown) {
-        this.error = e instanceof Error ? e.message : 'Cannot remove item';
-        toastManager.error(this.error);
+        this.error = e instanceof Error ? e.message : null;
+        toastManager.error(this.error ?? __("Something went wrong", "kirki-ecommerce"));
       } finally {
         this.loading = false;
       }
