@@ -11,7 +11,6 @@
 
 namespace Kirki\Ecommerce\App\Http\Controllers\Site;
 
-use Kirki\Ecommerce\App\DTO\Product\ProductListFilterDTO;
 use Kirki\Ecommerce\App\Http\Requests\Site\ShopPageFilterRequest;
 use Kirki\Ecommerce\App\Models\Brand;
 use Kirki\Ecommerce\App\Models\Category;
@@ -20,6 +19,8 @@ use Kirki\Ecommerce\App\Services\ProductService;
 use Kirki\Ecommerce\App\Resources\Product\ProductResource;
 use Kirki\Ecommerce\Framework\Http\Request;
 
+use function Kirki\Ecommerce\Framework\include_view;
+use function Kirki\Ecommerce\Framework\response;
 use function Kirki\Ecommerce\Framework\view;
 
 /**
@@ -30,11 +31,43 @@ use function Kirki\Ecommerce\Framework\view;
 class SiteController
 {
     /**
+     * Get products HTML
+     *
+     * @since 1.0.0
+     *
+     * @param ShopPageFilterRequest $request request.
+     * @param ProductService $product_service service.
+     *
+     * @return Response JSON response.
+     */
+    public function products_html(ShopPageFilterRequest $request, ProductService $product_service)
+    {
+        $sanitized_input = $request->sanitized();
+        $shop_page_data = $product_service->shop_page_data($sanitized_input);
+
+        $products = $shop_page_data['products']->items();
+
+        ob_start();
+        include_view('site.shop.parts.list', ['products' => $products]);
+        $products_html = ob_get_clean();
+
+        $data = [
+            'products_html' => $products_html,
+            'filters' => $shop_page_data['filters'],
+        ];
+
+        return response()->json([
+            'data' => $data,
+            'message' => __('Product retrieved successfully.', 'kirki-ecommerce'),
+        ]);
+    }
+
+    /**
      * Shop page
      *
      * @since 1.0.0
      *
-     * @param Request $request  request.
+     * @param ShopPageFilterRequest $request request.
      * @param ProductService $product_service service.
      *
      * @return string Template path.
@@ -42,19 +75,13 @@ class SiteController
     public function shop_page(ShopPageFilterRequest $request, ProductService $product_service)
     {
         $sanitized_input = $request->sanitized();
-        $sanitized_params = ProductListFilterDTO::from_array($sanitized_input);
-
-        // $sanitized_params->limit = 1;
-        $sanitized_params->page = intval($sanitized_input['current_page'] ?? 1);
-        $sanitized_params->sort_order = null;
-
-        $products = $product_service->paginated($sanitized_params);
+        $shop_page_data = $product_service->shop_page_data($sanitized_input);
 
         $data = [
-            'products' => $products,
+            'filters'    => $shop_page_data['filters'],
+            'products'   => $shop_page_data['products'],
             'categories' => Category::all(),
-            'brands' => Brand::all(),
-            'filters' => $sanitized_params,
+            'brands'     => Brand::all(),
         ];
 
         return view('site.shop', $data)->layout(false);
