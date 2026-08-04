@@ -94,6 +94,8 @@ class OrderResource extends Resource
 
     protected function prepare_amount($amount)
     {
-        return Money::from_minor($amount, $this->currency_code)->getAmount();
+        $value = Money::convert_to_currency(Money::from_minor($amount), $this->currency_code)->getMinorAmount();
+        
+        return Money::to_dto($value, $this->currency_code);
     }
 }

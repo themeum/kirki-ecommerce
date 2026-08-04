@@ -4,6 +4,7 @@ use Kirki\Ecommerce\App\Http\Controllers\Api\AppConfigController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\AttributeController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\AttributeValueController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\BrandController;
+use Kirki\Ecommerce\App\Http\Controllers\Api\OrderCalculationController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\CategoryController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\ManualPaymentMethodController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\OnboardingController;
@@ -192,6 +193,7 @@ Route::group(['middleware' => AuthMiddleware::class], function () {
     Route::post('/cart/coupon', [CartController::class, 'apply_coupon']);
     Route::delete('/cart/coupon', [CartController::class, 'remove_coupon']);
 
+    
     // Orders
     Route::get('/orders', [OrderController::class, 'get']);
     Route::get('/orders/{id}', [OrderController::class, 'show']);
@@ -202,6 +204,7 @@ Route::group(['middleware' => AuthMiddleware::class], function () {
     Route::put('/orders/{id}', [OrderController::class, 'update']);
     Route::delete('/orders/{id}', [OrderController::class, 'delete']);
     Route::post('/orders/bulk', [OrderController::class, 'bulk_actions']);
+    Route::post('/calculate/order', [OrderCalculationController::class, 'get']);
 
     // Pages
     Route::get('/pages', [PageController::class, 'get']);
