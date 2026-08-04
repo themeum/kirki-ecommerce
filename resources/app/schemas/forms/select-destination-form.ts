@@ -1,18 +1,18 @@
 import { z } from 'zod';
 
-import { requiredString } from '@/schemas/forms/shared/validators';
+import { prepareFormSchema, required } from '@/libs/zod';
 import { __ } from '@/wpi18n';
 
-export const SelectDestinationFormSchema = z.object({
-  country: requiredString(__('Country is required', 'kirki-ecommerce')),
-  states: z.array(z.union([z.string(), z.number()])),
+const SelectDestinationFormShape = z.object({
+  country: required(z.string().default(''), __('Country is required', 'kirki-ecommerce')),
+  states: z.array(z.union([z.string(), z.number()])).default([]),
 });
 
-export type SelectDestinationFormValues = z.infer<
-  typeof SelectDestinationFormSchema
->;
+export const SelectDestinationFormSchema = prepareFormSchema(SelectDestinationFormShape).transform((values) => ({
+  country: values.country,
+  states: values.states,
+}));
 
-export const selectDestinationDefaultValues: SelectDestinationFormValues = {
-  country: '',
-  states: [],
-};
+export type SelectDestinationFormInput = z.input<typeof SelectDestinationFormSchema>;
+
+export type SelectDestinationFormPayload = z.output<typeof SelectDestinationFormSchema>;

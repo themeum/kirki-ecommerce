@@ -12,10 +12,13 @@ import { ConfigureKeyIcon } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
-import { ApiConfigurationFormSchema, apiConfigurationDefaultValues, type ApiConfigurationFormValues } from '@/schemas/forms/api-configuration-form';
+import { ApiConfigurationFormSchema, type ApiConfigurationFormInput, type ApiConfigurationFormPayload } from '@/schemas/forms/api-configuration-form';
+import { getDefaults } from '@/libs/zod';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
+
+const apiConfigurationDefaultValues = getDefaults(ApiConfigurationFormSchema);
 
 type ApiConfigData = {
   api_key?: string;
@@ -28,7 +31,7 @@ type ApiConfigData = {
 type ApiConfigurationPopupProps = {
   isOpen: boolean;
   onClose?: () => void;
-  onSave?: (values: ApiConfigurationFormValues) => void;
+  onSave?: (values: ApiConfigurationFormPayload) => void;
   handleOnChange?: (value: unknown, key: string) => void;
   dataObj: ApiConfigData;
   selectedAPI: string;
@@ -42,7 +45,7 @@ const ApiConfigurationPopup = ({
   dataObj,
   selectedAPI,
 }: ApiConfigurationPopupProps) => {
-  const form = useForm<ApiConfigurationFormValues>({
+  const form = useForm<ApiConfigurationFormInput, unknown, ApiConfigurationFormPayload>({
     resolver: zodResolver(ApiConfigurationFormSchema),
     defaultValues: apiConfigurationDefaultValues,
   });
@@ -96,7 +99,7 @@ const ApiConfigurationPopup = ({
     },
   ];
 
-  const handleConfiguration = (values: ApiConfigurationFormValues) => {
+  const handleConfiguration = (values: ApiConfigurationFormPayload) => {
     if (onSave) {
       onSave(values);
     } else if (handleOnChange) {

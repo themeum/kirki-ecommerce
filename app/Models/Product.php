@@ -51,12 +51,12 @@ class Product extends Model
 
     public function set_additional_info_attribute($value)
     {
-        return !empty($value) && is_array($value) ? Arr::json_encode($value) : null;
+        $this->attributes['additional_info'] = !empty($value) && is_array($value) ? Arr::json_encode($value) : null;
     }
 
     public function set_seo_keywords_attribute($value)
     {
-        return !empty($value) && is_array($value) ? Arr::json_encode($value) : null;
+        $this->attributes['seo_keywords'] = !empty($value) && is_array($value) ? Arr::json_encode($value) : null;
     }
 
     public function variants()

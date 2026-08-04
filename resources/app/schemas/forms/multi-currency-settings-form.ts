@@ -1,46 +1,43 @@
 import { z } from 'zod';
 
-export const ApiConfigSchema = z
-  .object({
-    api_key: z.string().optional(),
-    update_frequency: z.string().optional(),
-    fallback_behaviour: z.string().optional(),
-    is_cache_enabled: z.boolean().optional(),
-  })
-  .passthrough();
+import { prepareFormSchema } from '@/libs/zod';
 
-export const MultiCurrencySettingsFormSchema = z
-  .object({
-    is_automatic_update_enabled: z.boolean().optional(),
-    api_provider: z.string().optional().nullable(),
-    api_config: ApiConfigSchema.optional().nullable(),
-    currency_format: z.string().optional().nullable(),
-    currency_position: z.string().optional().nullable(),
-    thousand_separator: z.string().optional().nullable(),
-    decimal_separator: z.string().optional().nullable(),
-    last_sync_at: z.string().optional().nullable(),
-    next_sync_at: z.string().optional().nullable(),
-  })
-  .passthrough();
+export const ApiConfigSchema = z.object({
+  api_key: z.string().nullish().default(''),
+  update_frequency: z.string().nullish().default('every_1_hour'),
+  fallback_behaviour: z.string().nullish().default('last_known_rate'),
+  is_cache_enabled: z.boolean().default(false),
+});
 
-export type MultiCurrencySettingsFormValues = z.infer<
-  typeof MultiCurrencySettingsFormSchema
->;
+const MultiCurrencySettingsFormShape = z.object({
+  is_automatic_update_enabled: z.boolean().default(false),
+  api_provider: z.string().nullish().default(''),
+  api_config: ApiConfigSchema.default({}),
+  currency_format: z.string().nullish().default('short'),
+  currency_position: z.string().nullish().default('before'),
+  thousand_separator: z.string().nullish().default(','),
+  decimal_separator: z.string().nullish().default('.'),
+  last_sync_at: z.string().nullish().default(null),
+  next_sync_at: z.string().nullish().default(null),
+});
 
-export const multiCurrencySettingsDefaultValues: MultiCurrencySettingsFormValues =
-  {
-    is_automatic_update_enabled: false,
-    api_provider: '',
-    api_config: {
-      api_key: '',
-      update_frequency: 'every_1_hour',
-      fallback_behaviour: 'last_known_rate',
-      is_cache_enabled: false,
-    },
-    currency_format: 'short',
-    currency_position: 'before',
-    thousand_separator: ',',
-    decimal_separator: '.',
-    last_sync_at: null,
-    next_sync_at: null,
-  };
+export const MultiCurrencySettingsFormSchema = prepareFormSchema(MultiCurrencySettingsFormShape).transform((values) => ({
+  is_automatic_update_enabled: values.is_automatic_update_enabled,
+  api_provider: values.api_provider || null,
+  api_config: {
+    api_key: values.api_config.api_key || null,
+    update_frequency: values.api_config.update_frequency || null,
+    fallback_behaviour: values.api_config.fallback_behaviour || null,
+    is_cache_enabled: values.api_config.is_cache_enabled,
+  },
+  currency_format: values.currency_format || null,
+  currency_position: values.currency_position || null,
+  thousand_separator: values.thousand_separator || null,
+  decimal_separator: values.decimal_separator || null,
+  last_sync_at: values.last_sync_at,
+  next_sync_at: values.next_sync_at,
+}));
+
+export type MultiCurrencySettingsFormInput = z.input<typeof MultiCurrencySettingsFormSchema>;
+
+export type MultiCurrencySettingsFormPayload = z.output<typeof MultiCurrencySettingsFormSchema>;

@@ -10,12 +10,16 @@ import { ProductSettingsIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { useUnsavedStatus } from '@/libs/unsaved-store';
+import { getDefaults, pickFormValues } from '@/libs/zod';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import PageHeading from '@/components/ui/page-heading';
-import { ProductsSettingsFormSchema, productsSettingsDefaultValues, type ProductsSettingsFormValues } from '@/schemas/forms/products-settings-form';
+import {
+  ProductsSettingsFormSchema,
+  type ProductsSettingsFormInput,
+  type ProductsSettingsFormPayload,
+} from '@/schemas/forms/products-settings-form';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
-import type { SettingsSectionData } from '@/types';
 import { __ } from '@/wpi18n';
 
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
@@ -27,33 +31,19 @@ type SettingsOutletContext = {
   confirmAction: (params: { action?: () => void }) => void;
 };
 
-const toSubmitPayload = (
-  values: ProductsSettingsFormValues,
-): SettingsSectionData => {
-  const shopPage = values.shop_page;
-
-  return {
-    ...values,
-    shop_page:
-      shopPage === null || shopPage === undefined || shopPage === ''
-        ? shopPage
-        : Number(shopPage),
-  } as SettingsSectionData;
-};
-
 const ProductsSettings = () => {
   const navigate = useNavigate();
   const { confirmAction } = useOutletContext<SettingsOutletContext>();
 
   const hasUnsavedData = useUnsavedStatus();
   const { data: productSettingsData, isLoading } = useSettingsQuery('product');
-  const { mutateAsync: saveSettings, isPending } = useUpdateSettingsMutation();
+  const { mutateAsync: saveSettings, isPending } = useUpdateSettingsMutation<'product'>();
 
   const loaded = !isLoading && Boolean(productSettingsData);
 
-  const form = useForm<ProductsSettingsFormValues>({
+  const form = useForm<ProductsSettingsFormInput, unknown, ProductsSettingsFormPayload>({
     resolver: zodResolver(ProductsSettingsFormSchema),
-    defaultValues: productsSettingsDefaultValues,
+    defaultValues: getDefaults(ProductsSettingsFormSchema),
   });
 
   useEffect(() => {
@@ -61,28 +51,27 @@ const ProductsSettings = () => {
       return;
     }
 
-    form.reset({
-      ...productsSettingsDefaultValues,
-      ...productSettingsData,
-      shop_page:
-        productSettingsData.shop_page === null ||
-        productSettingsData.shop_page === undefined
-          ? null
-          : String(productSettingsData.shop_page),
-    });
+    form.reset(
+      pickFormValues(ProductsSettingsFormSchema, productSettingsData, {
+        shop_page:
+          productSettingsData.shop_page === null || productSettingsData.shop_page === undefined
+            ? null
+            : String(productSettingsData.shop_page),
+      }),
+    );
   }, [productSettingsData, form]);
 
   useEffect(() => {
     setUnsavedDataStatus(form.formState.isDirty);
   }, [form.formState.isDirty]);
 
-  const handleSaveData = async (values: ProductsSettingsFormValues) => {
+  const handleSaveData = async (payload: ProductsSettingsFormPayload) => {
     try {
       await saveSettings({
         key: 'product',
-        data: toSubmitPayload(values),
+        data: payload,
       });
-      form.reset(values);
+      form.reset(form.getValues());
     } catch (error) {
       applyServerErrors(form, error as ErrorResponse);
     }

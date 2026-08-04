@@ -14,7 +14,7 @@ import Text from '@/components/ui/text';
 import { theme } from '@/theme';
 import { scoped, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
-import { AddCitiesPopupFormSchema, type AddCitiesPopupFormValues } from '@/schemas/forms/add-cities-popup-form';
+import { AddCitiesPopupFormSchema, type AddCitiesPopupFormInput } from '@/schemas/forms/add-cities-popup-form';
 import { __ } from '@/wpi18n';
 
 import { getSearchedValue } from '@/pages/settings/utils';
@@ -45,7 +45,7 @@ const AddCitiesPopup = (props: AddCitiesPopupProps) => {
 
   const [searchValue, setSearchValue] = useState('');
 
-  const form = useForm<AddCitiesPopupFormValues>({
+  const form = useForm<AddCitiesPopupFormInput>({
     resolver: zodResolver(AddCitiesPopupFormSchema),
     defaultValues: {
       selectedCities,

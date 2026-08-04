@@ -10,18 +10,18 @@ import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
 import Grid from '@/components/ui/grid';
 import Text from '@/components/ui/text';
-import type { GeneralSettingsFormValues } from '@/schemas/forms/general-settings-form';
+import type { GeneralSettingsFormInput } from '@/schemas/forms/general-settings-form';
 import { theme } from '@/theme';
 import { mergeCss, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
 const OrderId = () => {
-  const { setValue } = useFormContext<GeneralSettingsFormValues>();
-  const orderIdPrefix = useWatch<GeneralSettingsFormValues>({
+  const { setValue } = useFormContext<GeneralSettingsFormInput>();
+  const orderIdPrefix = useWatch<GeneralSettingsFormInput>({
     name: 'order_id_prefix',
   });
-  const orderIdSuffix = useWatch<GeneralSettingsFormValues>({
+  const orderIdSuffix = useWatch<GeneralSettingsFormInput>({
     name: 'order_id_suffix',
   });
 

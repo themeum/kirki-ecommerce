@@ -10,15 +10,20 @@ import { Field, FieldError } from '@/components/ui/field';
 import { Form } from '@/components/ui/form';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
+import { pickFormValues } from '@/libs/zod';
 import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
-import { SchemaProfileFormSchema, type SchemaProfileFormValues } from '@/schemas/forms/schema-profile-form';
+import {
+  SchemaProfileFormSchema,
+  type SchemaProfileFormInput,
+  type SchemaProfileFormPayload,
+} from '@/schemas/forms/schema-profile-form';
 import { useCreateSchemaMutation, useUpdateSchemaMutation } from '@/services/schema';
-import type { SchemaFormData, SchemaProfile, SelectOption } from '@/types';
+import type { SchemaProfile, SelectOption } from '@/types';
 import { __, sprintf } from '@/wpi18n';
 
-import { groupDetails, optionsList, requiredFields } from '@/pages/products/edit-product/seo-settings/utils';
+import { groupDetails, optionsList, requiredFields } from '@/pages/products/product-form/sections/seo-settings/utils';
 
 type AddSchemaPopupProps = {
   isOpen: boolean;
@@ -44,13 +49,9 @@ const AddSchemaPopup = ({
   const updateMutation = useUpdateSchemaMutation();
   const isSubmitting = createMutation.isPending || updateMutation.isPending;
 
-  const form = useForm<SchemaProfileFormValues>({
+  const form = useForm<SchemaProfileFormInput, unknown, SchemaProfileFormPayload>({
     resolver: zodResolver(SchemaProfileFormSchema),
-    defaultValues: {
-      name: '',
-      schema: defaultSchemaValues,
-      is_default: false,
-    },
+    defaultValues: pickFormValues(SchemaProfileFormSchema, {}, { schema: defaultSchemaValues }),
   });
 
   const nameValue = form.watch('name');
@@ -62,36 +63,26 @@ const AddSchemaPopup = ({
     }
 
     if (editedItem) {
-      form.reset({
-        name: editedItem?.name ?? '',
-        schema: editedItem?.schema ?? defaultSchemaValues,
-        is_default: editedItem?.is_default || false,
-      });
+      form.reset(
+        pickFormValues(SchemaProfileFormSchema, editedItem, {
+          schema: editedItem.schema ?? defaultSchemaValues,
+        }),
+      );
       return;
     }
 
-    form.reset({
-      name: '',
-      schema: defaultSchemaValues,
-      is_default: false,
-    });
+    form.reset(pickFormValues(SchemaProfileFormSchema, {}, { schema: defaultSchemaValues }));
   }, [isOpen, editedItem, form]);
 
-  const handleSubmit = async (values: SchemaProfileFormValues) => {
-    const data: SchemaFormData = {
-      name: values.name,
-      is_default: values.is_default || false,
-      schema: values.schema,
-    };
-
+  const handleSubmit = async (payload: SchemaProfileFormPayload) => {
     try {
       if (editedItem) {
         await updateMutation.mutateAsync({
           id: editedItem?.id as number,
-          data,
+          data: payload,
         });
       } else {
-        await createMutation.mutateAsync(data);
+        await createMutation.mutateAsync(payload);
       }
       setEditedItem(null);
       onSuccess?.();

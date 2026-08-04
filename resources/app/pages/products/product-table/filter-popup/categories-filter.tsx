@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useMemo } from 'react';
 
-import TagManager from '@/components/tag-manager/tag-manager';
+import { Field, FieldLabel } from '@/components/ui/field';
+import MultiSelect, { type MultiSelectOption } from '@/components/ui/multi-select';
 import { useCategoriesQuery } from '@/services/category';
-import type { SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
 
 type FilterObject = {
@@ -20,85 +20,30 @@ const CategoriesFilter = ({
 }: CategoriesFilterProps) => {
   const { data: categoriesData } = useCategoriesQuery({ limit: -1 });
 
-  const [suggestionArray, setSuggestionArray] = useState<SelectOption[]>([]);
-  const [selectedCategories, setSelectedCategories] = useState<SelectOption[]>([]);
+  const options: MultiSelectOption[] = useMemo(
+    () =>
+      (categoriesData?.results ?? []).map((category) => ({
+        value: category.id,
+        title: category.name,
+      })),
+    [categoriesData],
+  );
 
-  useEffect(() => {
-    if (!categoriesData?.results) {
-      return;
-    }
-    const selectedList = categoriesData.results
-      .filter((category) =>
-        Array.isArray(filterObject?.category_ids)
-          ? filterObject.category_ids.includes(category.id)
-          : false,
-      )
-      .map((item) => ({
-        value: item.id,
-        title: item.name,
-      }));
-    setSelectedCategories(selectedList);
-  }, [categoriesData]);
-
-  useEffect(() => {
-    const suggestionList = categoriesData?.results
-      .filter((category) =>
-        Array.isArray(filterObject?.category_ids)
-          ? !filterObject.category_ids.includes(category.id)
-          : true,
-      )
-      .map((item) => ({
-        value: item.id,
-        title: item.name,
-      }));
-    setSuggestionArray(suggestionList || []);
-  }, [categoriesData, filterObject]);
-
-  const handleAddCategory = (tag: SelectOption) => {
-    const updatedCategoryList = [...selectedCategories, tag];
-    setSelectedCategories(updatedCategoryList);
-
-    const updatedSuggestions = suggestionArray?.filter(
-      (item) => item.value !== tag.value,
-    );
-    setSuggestionArray(updatedSuggestions);
-
-    const updatedIdList = [
-      ...((filterObject?.category_ids as number[]) || []),
-      tag.value as number,
-    ];
-    onChange(updatedIdList);
-  };
-
-  const handleCategoryRemove = (tag: SelectOption) => {
-    const updatedCategoryList = selectedCategories?.filter(
-      (item) => item.value !== tag.value,
-    );
-    setSelectedCategories(updatedCategoryList);
-
-    setSuggestionArray((prev) => [tag, ...prev]);
-
-    const updatedIdList = (filterObject?.category_ids as number[])?.filter(
-      (item) => item !== tag.value,
-    );
-
-    onChange(updatedIdList || []);
-  };
+  const selectedIds = filterObject?.category_ids ?? [];
+  const selected = options.filter((option) =>
+    selectedIds.includes(Number(option.value)),
+  );
 
   return (
-    <TagManager
-      label={__('Categories', 'kirki-ecommerce')}
-      placeholder={__('Select Categories...', 'kirki-ecommerce')}
-      selectedTags={selectedCategories}
-      suggestions={suggestionArray}
-      hasAddBtn={false}
-      onTagAdd={(tag) => {
-        handleAddCategory(tag);
-      }}
-      onTagRemove={(tag) => {
-        handleCategoryRemove(tag);
-      }}
-    />
+    <Field>
+      <FieldLabel>{__('Categories', 'kirki-ecommerce')}</FieldLabel>
+      <MultiSelect
+        options={options}
+        value={selected}
+        onChange={(next) => onChange(next.map((option) => Number(option.value)))}
+        placeholder={__('Select Categories...', 'kirki-ecommerce')}
+      />
+    </Field>
   );
 };
 

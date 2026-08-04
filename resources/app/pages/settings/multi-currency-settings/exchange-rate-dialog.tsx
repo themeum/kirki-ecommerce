@@ -14,7 +14,7 @@ import { applyServerErrors } from '@/libs/form-errors';
 import Flex from '@/components/ui/flex';
 import { theme } from '@/theme';
 import Text from '@/components/ui/text';
-import { ExchangeRateFormSchema, type ExchangeRateFormValues } from '@/schemas/forms/exchange-rate-form';
+import { ExchangeRateFormSchema, type ExchangeRateFormInput, type ExchangeRateFormPayload } from '@/schemas/forms/exchange-rate-form';
 import { useAvailableCurrenciesQuery, useCreateCurrencyMutation } from '@/services/currency';
 import type { Currency, CurrencyFormData } from '@/types';
 import { __, sprintf } from '@/wpi18n';
@@ -50,7 +50,7 @@ const ExchangeRatePopup = ({
   const createMutation = useCreateCurrencyMutation();
   const isSubmitting = createMutation.isPending;
 
-  const form = useForm<ExchangeRateFormValues>({
+  const form = useForm<ExchangeRateFormInput, unknown, ExchangeRateFormPayload>({
     resolver: zodResolver(ExchangeRateFormSchema),
     defaultValues: {
       items: selectedCurrencyList || [],
@@ -67,7 +67,7 @@ const ExchangeRatePopup = ({
     });
   }, [isOpen, selectedCurrencyList, form]);
 
-  const handleSaveCurrencyData = async (values: ExchangeRateFormValues) => {
+  const handleSaveCurrencyData = async (values: ExchangeRateFormPayload) => {
     const payload: CurrencyFormData = {
       items: values.items.map((item, idx) => ({
         ...item,

@@ -3,6 +3,7 @@ import type { z } from 'zod';
 
 import type { ApiClientResponse, ErrorResponse } from '@/libs/api';
 import { ApiValidationError, formatValidationIssues, isApiValidationError } from '@/schemas/shared/errors';
+import { ApiEnvelopeSchema, MessageResponseSchema, type MessageResponse } from '@/schemas/shared/api';
 import { __ } from '@/wpi18n';
 
 const unwrapData = <T>(response: unknown): T => {
@@ -19,11 +20,26 @@ const reportValidationFailure = (issues: z.ZodIssue[]) => {
   return error;
 };
 
+/**
+ * Queries have no `onError` callback in React Query v5, so `parseData`
+ * toasts directly — it's the only chance a query-time mismatch has to reach
+ * the user. Mutations still have `onError`, so `parseResponse`/`parseMessage`
+ * only throw and let the mutation's own `onError` (or, for product forms,
+ * the page-level catch in `product-form.tsx`) report it — toasting here too
+ * would double the message.
+ */
 const parseData = <T extends z.ZodTypeAny>(
   schema: T,
   response: unknown,
 ): z.infer<T> => {
-  const result = schema.safeParse(unwrapData(response));
+  const envelope = ApiEnvelopeSchema.safeParse(response);
+  if (!envelope.success) {
+    const error = reportValidationFailure(envelope.error.issues);
+    toast.error(error.message);
+    throw error;
+  }
+
+  const result = schema.safeParse(envelope.data.data);
   if (!result.success) {
     const error = reportValidationFailure(result.error.issues);
     toast.error(error.message);
@@ -36,12 +52,24 @@ const parseResponse = <T extends z.ZodTypeAny>(
   schema: T,
   response: unknown,
 ): ApiClientResponse<z.infer<T>> => {
-  const envelope = unwrapResponse(response);
-  const result = schema.safeParse(envelope.data);
+  const envelope = ApiEnvelopeSchema.safeParse(response);
+  if (!envelope.success) {
+    throw reportValidationFailure(envelope.error.issues);
+  }
+
+  const result = schema.safeParse(envelope.data.data);
   if (!result.success) {
     throw reportValidationFailure(result.error.issues);
   }
-  return { ...envelope, data: result.data };
+  return { ...(envelope.data as ApiClientResponse<unknown>), data: result.data };
+};
+
+const parseMessage = (response: unknown): MessageResponse => {
+  const result = MessageResponseSchema.safeParse(response);
+  if (!result.success) {
+    throw reportValidationFailure(result.error.issues);
+  }
+  return result.data;
 };
 
 const getErrorMessage = (error: unknown) => {
@@ -73,7 +101,7 @@ const toastMutationSuccess = (message?: string) => {
 
 export {
   getErrorMessage, parseData,
-  parseResponse, toastMutationError,
+  parseMessage, parseResponse, toastMutationError,
   toastMutationSuccess, unwrapData,
   unwrapResponse
 };

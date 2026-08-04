@@ -12,7 +12,7 @@ import { InfoIcon } from '@/icons';
 import Flex from '@/components/ui/flex';
 import { theme } from '@/theme';
 import Text from '@/components/ui/text';
-import { EditCurrencyFormSchema, type EditCurrencyFormValues } from '@/schemas/forms/edit-currency-form';
+import { EditCurrencyFormSchema, type EditCurrencyFormInput, type EditCurrencyFormPayload } from '@/schemas/forms/edit-currency-form';
 import type { Currency } from '@/types';
 import { __, sprintf } from '@/wpi18n';
 
@@ -31,7 +31,7 @@ const EditCurrencyPopup = ({
   setEditCurrency,
   handleUpdateData,
 }: EditCurrencyPopupProps) => {
-  const form = useForm<EditCurrencyFormValues>({
+  const form = useForm<EditCurrencyFormInput, unknown, EditCurrencyFormPayload>({
     resolver: zodResolver(EditCurrencyFormSchema),
     defaultValues: {
       exchange_rate: editCurrency?.exchange_rate ?? '',
@@ -48,7 +48,7 @@ const EditCurrencyPopup = ({
     setEditCurrency(null);
   };
 
-  const handleSubmit = (values: EditCurrencyFormValues) => {
+  const handleSubmit = (values: EditCurrencyFormPayload) => {
     handleUpdateData({
       ...editCurrency,
       exchange_rate: values.exchange_rate,
