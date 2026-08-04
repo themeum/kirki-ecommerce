@@ -83,18 +83,6 @@ class CartResource extends Resource
         ];
     }
 
-    protected function format_items($items, $result)
-    {
-        return (object) array_reduce(
-            $this->prepare_items($items, $result),
-            function ($carry, $item) {
-                $carry[$item['id']] = Money::format_from_decimal($item['total'], $this->currency_code);
-                return $carry;
-            },
-            [],
-        );
-    }
-
     protected function prepare_items($items, $result)
     {
         $cart_items = [];
