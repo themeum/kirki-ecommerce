@@ -24,10 +24,9 @@ class OrderCreateRequest extends Request
     public function prepare_for_validation()
     {
         $customer_id = $this->input('customer_id') ?? null;
+        $is_billing_same_as_shipping = $this->input('is_billing_same_as_shipping') ?? customer(null, $customer_id)->get_customer()->is_billing_same_as_shipping ?? false;
 
-        $this->merge([
-            'customer_id' => $customer_id ?? customer()->get_customer_id() ?? 0,
-
+        $shipping_address = [
             'shipping_first_name' => $this->input('shipping_first_name') ?? customer(null, $customer_id)->get_shipping_address()->first_name,
             'shipping_last_name' => $this->input('shipping_last_name') ?? customer(null, $customer_id)->get_shipping_address()->last_name,
             'shipping_address_line1' => $this->input('shipping_address_line1') ?? customer(null, $customer_id)->get_shipping_address()->address_line1,
@@ -38,18 +37,41 @@ class OrderCreateRequest extends Request
             'shipping_country' => $this->input('shipping_country') ?? customer(null, $customer_id)->get_shipping_address()->country,
             'shipping_phone' => $this->input('shipping_phone') ?? customer(null, $customer_id)->get_shipping_address()->phone,
             'shipping_email' => $this->input('shipping_email') ?? customer(null, $customer_id)->get_shipping_address()->email,
-            
-            'billing_first_name' => $this->input('billing_first_name') ?? customer(null, $customer_id)->get_billing_address()->first_name,
-            'billing_last_name' => $this->input('billing_last_name') ?? customer(null, $customer_id)->get_billing_address()->last_name,
-            'billing_address_line1' => $this->input('billing_address_line1') ?? customer(null, $customer_id)->get_billing_address()->address_line1,
-            'billing_address_line2' => $this->input('billing_address_line2') ?? customer(null, $customer_id)->get_billing_address()->address_line2,
-            'billing_city' => $this->input('billing_city') ?? customer(null, $customer_id)->get_billing_address()->city,
-            'billing_state' => $this->input('billing_state') ?? customer(null, $customer_id)->get_billing_address()->state,
-            'billing_postcode' => $this->input('billing_postcode') ?? customer(null, $customer_id)->get_billing_address()->postal_code,
-            'billing_country' => $this->input('billing_country') ?? customer(null, $customer_id)->get_billing_address()->country,
-            'billing_phone' => $this->input('billing_phone') ?? customer(null, $customer_id)->get_billing_address()->phone,
-            'billing_email' => $this->input('billing_email') ?? customer(null, $customer_id)->get_billing_address()->email,
+        ];
 
+        if($is_billing_same_as_shipping){
+            $billing_address = [
+                'billing_first_name' => $shipping_address['shipping_first_name'],
+                'billing_last_name' => $shipping_address['shipping_last_name'],
+                'billing_address_line1' => $shipping_address['shipping_address_line1'],
+                'billing_address_line2' => $shipping_address['shipping_address_line2'],
+                'billing_city' => $shipping_address['shipping_city'],
+                'billing_state' => $shipping_address['shipping_state'],
+                'billing_postcode' => $shipping_address['shipping_postcode'],
+                'billing_country' => $shipping_address['shipping_country'],
+                'billing_phone' => $shipping_address['shipping_phone'],
+                'billing_email' => $shipping_address['shipping_email'],
+            ];
+        } else{
+            $billing_address = [
+                'billing_first_name' => $this->input('billing_first_name') ?? customer(null, $customer_id)->get_billing_address()->first_name,
+                'billing_last_name' => $this->input('billing_last_name') ?? customer(null, $customer_id)->get_billing_address()->last_name,
+                'billing_address_line1' => $this->input('billing_address_line1') ?? customer(null, $customer_id)->get_billing_address()->address_line1,
+                'billing_address_line2' => $this->input('billing_address_line2') ?? customer(null, $customer_id)->get_billing_address()->address_line2,
+                'billing_city' => $this->input('billing_city') ?? customer(null, $customer_id)->get_billing_address()->city,
+                'billing_state' => $this->input('billing_state') ?? customer(null, $customer_id)->get_billing_address()->state,
+                'billing_postcode' => $this->input('billing_postcode') ?? customer(null, $customer_id)->get_billing_address()->postal_code,
+                'billing_country' => $this->input('billing_country') ?? customer(null, $customer_id)->get_billing_address()->country,
+                'billing_phone' => $this->input('billing_phone') ?? customer(null, $customer_id)->get_billing_address()->phone,
+                'billing_email' => $this->input('billing_email') ?? customer(null, $customer_id)->get_billing_address()->email,
+            ];
+        } 
+
+        $this->merge($shipping_address);
+        $this->merge($billing_address);
+        $this->merge([
+            'customer_id' => $customer_id ?? customer()->get_customer_id() ?? 0,
+            'is_billing_same_as_shipping' => $is_billing_same_as_shipping,
             'is_manual' => $this->input('is_manual') ?? false
         ]);
     }
@@ -78,6 +100,8 @@ class OrderCreateRequest extends Request
             'shipping_phone' => 'nullable|string',
             'shipping_email' => 'nullable|email',
             'shipping_company' => 'nullable|string',
+
+            'is_billing_same_as_shipping' => 'required|boolean',
 
             'billing_first_name' => 'required|string',
             'billing_last_name' => 'required|string',
@@ -123,6 +147,8 @@ class OrderCreateRequest extends Request
             'shipping_phone' => Sanitizer::TEXT,
             'shipping_email' => Sanitizer::EMAIL,
             'shipping_company' => Sanitizer::TEXT,
+
+            'is_billing_same_as_shipping' => Sanitizer::BOOL,
 
             'billing_first_name' => Sanitizer::TEXT,
             'billing_last_name' => Sanitizer::TEXT,

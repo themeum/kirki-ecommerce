@@ -56,6 +56,8 @@ class OrderResource extends Resource
                 'email' => $this->shipping_email,
             ],
 
+            'is_billing_same_as_shipping' => $this->is_billing_same_as_shipping,
+
             'billing_address' => [
                 'first_name' => $this->billing_first_name,
                 'last_name' => $this->billing_last_name,

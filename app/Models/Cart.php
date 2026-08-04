@@ -3,7 +3,6 @@
 namespace Kirki\Ecommerce\App\Models;
 
 use Kirki\Ecommerce\Framework\Database\Query\Model;
-use Kirki\Ecommerce\Framework\Supports\Arr;
 
 class Cart extends Model
 {
@@ -24,6 +23,7 @@ class Cart extends Model
         'expires_at',
         'shipping_address',
         'billing_address',
+        'is_billing_same_as_shipping',
         'shipping_method',
     ];
 
@@ -35,6 +35,7 @@ class Cart extends Model
         'shipping_address' => 'json',
         'billing_address' => 'json',
         'shipping_details' => 'json',
+        'is_billing_same_as_shipping' => 'boolean'
     ];
 
     public function items()
