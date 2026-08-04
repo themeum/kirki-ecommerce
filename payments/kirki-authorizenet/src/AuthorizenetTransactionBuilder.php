@@ -14,13 +14,6 @@ defined('ABSPATH') || exit;
  */
 class AuthorizenetTransactionBuilder
 {
-    public const PAID = 'paid';
-    public const CANCELED = 'canceled';
-    public const FAILED = 'failed';
-    public const PENDING = 'pending';
-    protected const CAPTURED_PENDING_SETTLEMENT = 'capturedPendingSettlement';
-    protected const DECLINED = 'declined';
-
     /**
      * Build the `transactionRequest` block for a hosted payment page request.
      *
@@ -36,20 +29,6 @@ class AuthorizenetTransactionBuilder
                 'lineItem' => $this->build_line_items($order),
             ],
         ];
-
-        if (!empty($order->tax_total)) {
-            $transaction_request['tax'] = [
-                'amount' => $this->format_amount($order->tax_total, $order->currency_code),
-                'name' => 'Tax',
-            ];
-        }
-
-        if (!empty($order->shipping_total)) {
-            $transaction_request['shipping'] = [
-                'amount' => $this->format_amount($order->shipping_total, $order->currency_code),
-                'name' => 'Shipping Charge',
-            ];
-        }
 
         $transaction_request['poNumber'] = (string) $order->id;
 
@@ -254,18 +233,18 @@ class AuthorizenetTransactionBuilder
 
         $transaction_errors = ['communicationError', 'generalError', 'settlementError', 'expired'];
 
-        if (static::CAPTURED_PENDING_SETTLEMENT === $transaction_status && 1 === $transaction_response_code) {
-            return static::PAID;
+        if (AuthorizenetConstant::CAPTURED_PENDING_SETTLEMENT === $transaction_status && 1 === $transaction_response_code) {
+            return AuthorizenetConstant::PAID;
         }
 
-        if (static::DECLINED === $transaction_status) {
-            return static::CANCELED;
+        if (AuthorizenetConstant::DECLINED === $transaction_status) {
+            return AuthorizenetConstant::CANCELED;
         }
 
         if (in_array($transaction_status, $transaction_errors, true)) {
-            return static::FAILED;
+            return AuthorizenetConstant::FAILED;
         }
 
-        return static::PENDING;
+        return AuthorizenetConstant::PENDING;
     }
 }

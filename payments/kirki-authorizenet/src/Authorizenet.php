@@ -1,5 +1,4 @@
 <?php
-
 namespace Kirki\Ecommerce\Payments;
 
 use Exception;
@@ -17,11 +16,6 @@ defined('ABSPATH') || exit;
  */
 class Authorizenet extends PaymentGateway
 {
-    protected const FORM_URL_SANDBOX = 'https://test.authorize.net/payment/payment';
-    protected const FORM_URL_PRODUCTION = 'https://accept.authorize.net/payment/payment';
-    protected const RESULT_CODE_ERROR = 'Error';
-    protected const WEBHOOK_CAPTURE_CREATED = 'net.authorize.payment.authcapture.created';
-
     protected ?AuthorizenetClient $client = null;
     protected AuthorizenetTransactionBuilder $transaction_builder;
 
@@ -101,7 +95,7 @@ class Authorizenet extends PaymentGateway
 
         $result_code = $response->messages->resultCode;
 
-        if (static::RESULT_CODE_ERROR === $result_code) {
+        if (AuthorizenetConstant::RESULT_CODE_ERROR === $result_code) {
             throw new Exception(
                 sprintf(__('AuthorizeNet Payment Error: %s', 'kirki-ecommerce'), $response->messages->message)
             );
@@ -111,7 +105,9 @@ class Authorizenet extends PaymentGateway
             throw new Exception(__('AuthorizeNet did not return a payment token.', 'kirki-ecommerce'));
         }
 
-        $form_url = $this->client->is_sandbox() ? static::FORM_URL_SANDBOX : static::FORM_URL_PRODUCTION;
+        $form_url = $this->client->is_sandbox()
+                    ? AuthorizenetConstant::FORM_URL_SANDBOX
+                    : AuthorizenetConstant::FORM_URL_PRODUCTION;
         return $this->render_redirect_form($form_url, $response->token);
     }
 
@@ -210,7 +206,7 @@ class Authorizenet extends PaymentGateway
     {
         $event = $this->verify_and_parse_notification();
 
-        if (static::WEBHOOK_CAPTURE_CREATED !== $event->eventType) {
+        if (AuthorizenetConstant::WEBHOOK_CAPTURE_CREATED !== $event->eventType) {
             return false;
         }
 
@@ -269,7 +265,7 @@ class Authorizenet extends PaymentGateway
             );
         }
 
-        if (static::RESULT_CODE_ERROR === $response->messages->resultCode) {
+        if (AuthorizenetConstant::RESULT_CODE_ERROR === $response->messages->resultCode) {
             $text = $response->messages->message ?? __('Unknown error', 'kirki-ecommerce');
 
             throw new Exception(
@@ -312,6 +308,7 @@ class Authorizenet extends PaymentGateway
                     OrderManager::mark_payment_as_failed($order_id);
                     OrderManager::mark_as_cancelled($order_id);
                     OrderManager::set_payment_metadata($order_id, wp_json_encode($response));
+                    break;
             }
 
             DB::commit();

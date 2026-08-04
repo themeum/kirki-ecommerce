@@ -12,9 +12,6 @@ defined('ABSPATH') || exit;
  */
 class AuthorizenetClient
 {
-    protected const SANDBOX_API_ENDPOINT = 'https://apitest.authorize.net/xml/v1/request.api';
-    protected const PRODUCTION_API_ENDPOINT = 'https://api.authorize.net/xml/v1/request.api';
-
     protected string $login_id;
     protected string $transaction_key;
     protected string $signature_key;
@@ -108,7 +105,7 @@ class AuthorizenetClient
      */
     protected function endpoint(): string
     {
-        return $this->sandbox ? self::SANDBOX_API_ENDPOINT : self::PRODUCTION_API_ENDPOINT;
+        return $this->sandbox ? AuthorizenetConstant::SANDBOX_API_ENDPOINT : AuthorizenetConstant::PRODUCTION_API_ENDPOINT;
     }
 
     /**
