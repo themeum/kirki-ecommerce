@@ -7,6 +7,15 @@ use Kirki\Ecommerce\Framework\Http\Request;
 
 class CartUpdateRequest extends Request
 {
+    public function prepare_for_validation()
+    {
+        if($this->input('is_billing_same_as_shipping')){
+            $this->merge([
+                'billing_address' => $this->input('shipping_address')
+            ]);
+        }
+    }
+
     public function rules()
     {
         return [
@@ -22,6 +31,8 @@ class CartUpdateRequest extends Request
             'shipping_address.postal_code' => 'string',
             'shipping_address.country' => 'string',
             'shipping_address.company' => 'string|nullable',
+
+            'is_billing_same_as_shipping' => 'required|boolean',
 
             'billing_address' => 'array',
             'billing_address.first_name' => 'string',
@@ -57,6 +68,8 @@ class CartUpdateRequest extends Request
             'shipping_address.postal_code' => Sanitizer::TEXT,
             'shipping_address.country' => Sanitizer::TEXT,
             'shipping_address.company' => Sanitizer::TEXT,
+
+            'is_billing_same_as_shipping' => Sanitizer::BOOL,
 
             'billing_address' => Sanitizer::ARRAY,
             'billing_address.first_name' => Sanitizer::TEXT,
