@@ -17,6 +17,7 @@ use Kirki\Ecommerce\App\Supports\Template;
 use Kirki\Ecommerce\App\Supports\Icon;
 use Kirki\Ecommerce\App\Supports\Url;
 
+use function Kirki\Ecommerce\Framework\include_view;
 use function Kirki\Ecommerce\Framework\view_data;
 
 $product = view_data();
@@ -53,6 +54,20 @@ foreach ($media as $media_item) {
 ?>
 
 <div class="kecom-product-page">
+    <div class="kecom-container">
+        <?php
+        include_view(
+            'site.shop.parts.breadcrumb',
+            [
+                'items' => [
+                    ['label' => __('Home', 'kirki-ecommerce'), 'url' => home_url('/')],
+                    ['label' => __('Shop', 'kirki-ecommerce'), 'url' => Url::get_shop_url()],
+                ],
+                'current' => $product['title'],
+            ]
+        );
+        ?>
+    </div>
     <div class="kecom-container">
         <div class="kecom-product-grid">
             <!-- Left: Product Images -->

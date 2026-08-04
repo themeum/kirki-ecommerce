@@ -2,7 +2,8 @@
 @use "../mixins" as *;
 
 .kecom-breadcrumb {
-  margin: 0px;
+  margin-top: 0px;
+  margin-bottom: $spacing-10;
 
   &-list {
     display: flex;
