@@ -4,14 +4,19 @@ import type {
   DataTableColumn,
   DataTableItem,
 } from '@/components/data-table/types';
+import Sorting from '@/components/sorting';
 import Checkbox from '@/components/ui/checkbox';
 import { TableHead, TableRow } from '@/components/ui/table';
+import type { SortOrder } from '@/types';
 
 type DataTableHeaderProps = {
   columns: DataTableColumn<DataTableItem>[];
   isAllSelected: boolean;
   isPartiallySelected: boolean;
   onToggleAll: () => void;
+  sortBy?: string;
+  sortOrder?: SortOrder;
+  onSort?: (sortBy: string, sortOrder: SortOrder) => void;
 };
 
 /*
@@ -25,6 +30,9 @@ const DataTableHeader = memo(
     isAllSelected,
     isPartiallySelected,
     onToggleAll,
+    sortBy,
+    sortOrder,
+    onSort,
   }: DataTableHeaderProps) => (
     <TableRow>
       <TableHead onlyCheckbox>
@@ -36,7 +44,21 @@ const DataTableHeader = memo(
       </TableHead>
       {columns.map((column, index) => (
         <TableHead key={index} alignment={column.alignment}>
-          {column.title}
+          {column.sortable && onSort ? (
+            <Sorting
+              data={{
+                title: column.title,
+                sortable: {
+                  activeSortBy: sortBy,
+                  sortOrder,
+                  onSort,
+                  ...column.sortable,
+                },
+              }}
+            />
+          ) : (
+            column.title
+          )}
         </TableHead>
       ))}
     </TableRow>

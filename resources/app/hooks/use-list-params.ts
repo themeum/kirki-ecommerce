@@ -35,7 +35,7 @@ const useListParams = <
   const {
     defaults = {
       search: '',
-      sort_by: 'name',
+      sort_by: 'id',
       sort_order: 'asc',
       page: 1,
       limit: 10,
@@ -78,7 +78,7 @@ const useListParams = <
 
     return {
       search: searchParams.get('search') ?? defaults.search ?? '',
-      sort_by: searchParams.get('sort_by') ?? defaults.sort_by ?? 'name',
+      sort_by: searchParams.get('sort_by') ?? defaults.sort_by ?? 'id',
       sort_order: sortOrder ?? defaults.sort_order ?? 'asc',
       page: pageValue ? Number(pageValue) : (defaults.page ?? 1),
       limit: limitValue
