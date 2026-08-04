@@ -64,9 +64,9 @@
   .kecom-products-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    row-gap: $spacing-16;
+    row-gap: $spacing-14;
     column-gap: $spacing-10;
-    margin-bottom: $spacing-16;
+    margin-bottom: $spacing-14;
 
     @include breakpoint-down(lg) {
       grid-template-columns: repeat(2, 1fr);;
@@ -79,7 +79,7 @@
 
   .kecom-pagination {
     @include flex-center();
-    padding-top: $spacing-16;
+    padding-top: $spacing-14;
     padding-bottom: $spacing-8;
     border-top: 1px solid $border-default;
   }
