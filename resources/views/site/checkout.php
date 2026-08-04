@@ -378,7 +378,7 @@ $cart = $data->cart ?? null;
 
                             $formatted_total = Money::format_from_decimal($item_total, $currency_code);
                             $has_sale = $sale_price->isGreaterThan(0) && !$sale_price->isEqualTo($price);
-                            $formatted_regular_total = $has_sale ? Money::format_from_decimal($price * $quantity, $currency_code) : '';
+                            $formatted_regular_total = $has_sale ? Money::format_from_decimal($price->multipliedBy($quantity), $currency_code) : '';
                             ?>
                         <div class="kecom-product-item">
                             <div class="kecom-product-image-wrapper">
