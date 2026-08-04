@@ -129,8 +129,8 @@ class Stripe extends PaymentGateway
                 'currency' => $currency,
                 'line_items' => $line_items,
                 'mode' => 'payment',
-                'success_url' => $this->return_url($order) . '&success=true',
-                'cancel_url' => $this->return_url($order) . '&cancel=true',
+                'success_url' => $this->return_url($order) . '&action=success',
+                'cancel_url' => $this->return_url($order) . '&action=cancel',
                 'client_reference_id' => (string) $order->id,
                 'metadata' => $metadata,
                 'payment_intent_data' => [
@@ -408,7 +408,7 @@ class Stripe extends PaymentGateway
         if ($session->payment_status === 'paid') {
             OrderManager::mark_payment_as_paid($order_id);
             OrderManager::mark_as_processing($order_id);
-            OrderManager::set_payment_metadata($order_id, $session->toArray());
+            OrderManager::set_payment_metadata($order_id, $session->toJson());
         } elseif ($session->payment_status === 'unpaid') {
             OrderManager::mark_payment_as_pending($order_id);
             OrderManager::mark_as_on_hold($order_id);
@@ -448,7 +448,7 @@ class Stripe extends PaymentGateway
 
         OrderManager::mark_payment_as_paid($order_id);
         OrderManager::mark_as_processing($order_id);
-        OrderManager::set_payment_metadata($order_id, $session->toArray());
+        OrderManager::set_payment_metadata($order_id, $session->toJson());
     }
 
     /**
@@ -474,7 +474,7 @@ class Stripe extends PaymentGateway
 
         OrderManager::mark_payment_as_failed($order_id);
         OrderManager::mark_as_cancelled($order_id);
-        OrderManager::set_payment_metadata($order_id, $session->toArray());
+        OrderManager::set_payment_metadata($order_id, $session->toJson());
     }
 
     /**
