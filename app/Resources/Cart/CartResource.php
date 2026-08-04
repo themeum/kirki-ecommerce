@@ -49,6 +49,7 @@ class CartResource extends Resource
 
             'pricing' => [
                 'subtotal' => $this->prepare_amount($this->subtotal),
+                'subtotal_formatted' => Money::format_from_decimal($this->prepare_amount($this->subtotal)),
                 'tax_total' => $this->prepare_amount($this->tax_total),
                 'discount_details' => $this->discount_details,
                 'discount_total' => $this->prepare_amount($this->discount_total),
@@ -57,6 +58,7 @@ class CartResource extends Resource
                 'shipping_discount' => $this->prepare_amount($this->shipping_discount),
                 'shipping_total' => $this->prepare_amount($this->shipping_total),
                 'total' => $this->prepare_amount($this->total),
+                'total_formatted' =>  Money::format_from_decimal($this->prepare_amount($this->total)),
             ],
 
             'items_count' => $this->items_count,
@@ -101,6 +103,18 @@ class CartResource extends Resource
                         'price' => $this->prepare_amount($item->variant->price),
                         'sale_price' => $this->prepare_amount($item->variant->sale_price ?? 0),
                         'media' => !empty($item->variant->media) ? MediaAttachment::make($item->variant->media) : MediaAttachment::make($item->product->media->first() ?? null) ?? null,
+                        'categories' => $item->product->categories->map(function ($category) {
+                            return [
+                                'id' => $category->id,
+                                'name' => $category->name,
+                                'parent_id' => $category->parent_id,
+                                'level' => $category->level,
+                            ];
+                        })->to_array(),
+                        'attributes' => $item->variant->attribute_values->map(function ($value) {
+                            return $value->value;
+                        })->to_array(),
+                        'available_quantity' => $item->variant->available_quantity,
                     ],
                     'subtotal' => $this->prepare_amount($calculated_item->subtotal),
                     'tax_rate' => $calculated_item->tax_rate,
@@ -108,6 +122,7 @@ class CartResource extends Resource
                     'tax_breakdown' => $calculated_item->tax_breakdown,
                     'discount_amount' => $this->prepare_amount($calculated_item->discount_amount),
                     'total' => $this->prepare_amount($calculated_item->total),
+                    'total_formatted' => Money::format_from_decimal($this->prepare_amount($calculated_item->total)),
                     'created_at' => $item->created_at,
                     'updated_at' => $item->updated_at,
                 ];

@@ -6,6 +6,7 @@ export interface kirkiEcommerceConfig {
   cart_variant_ids: number[];
   is_logged_in: boolean;
   login_url: string;
+  cart: CartUpdateItem;
 }
 
 // Extend window for WordPress-injected config
@@ -27,6 +28,19 @@ export interface CartItem {
   price: number;
   name: string;
   image?: string;
+  total_formatted: number;
+}
+
+export interface CartUpdateItem {
+  sub_total: number;
+  total: number;
+  items_count: number;
+  pricing: {
+    subtotal_formatted: number;
+    total_formatted: number;
+  },
+  items: CartItem[],
+  formatted_items: Record<number, string> | null;
 }
 
 export interface CartPricing {
@@ -68,6 +82,11 @@ export interface ApiResponse<T> {
   data: T;
   message: string;
   success: boolean;
+  subtotal: number;
+  total: number;
+  coupon_code?: string;
+  discount?: number;
+  formatted_items: Record<number, string>;
 }
 
 export interface WishlistItem {

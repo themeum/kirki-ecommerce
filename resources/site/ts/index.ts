@@ -11,14 +11,15 @@ import Alpine from "alpinejs";
 
 // Import components
 import { addToCart } from "./components/add-to-cart";
-import { productFilter } from "./components/product-filter";
+import { cart } from "./components/cart";
+import { checkout } from "./components/checkout";
+import { form } from "./components/form";
 import { imageSlider } from "./components/image-slider";
-import { variantSelector } from "./components/variant-selector";
+import { modal } from "./components/modal";
+import { productFilter } from "./components/product-filter";
 import { quantitySelector } from "./components/quantity-selector";
 import { tabs } from "./components/tabs";
-import { checkout } from "./components/checkout";
-import { modal } from "./components/modal";
-import { form } from "./components/form";
+import { variantSelector } from "./components/variant-selector";
 
 // ----------------------------------------------------------------------------
 // Alpine.js Registration
@@ -26,6 +27,7 @@ import { form } from "./components/form";
 
 // Register components
 Alpine.data("addToCart", addToCart);
+Alpine.data("cart", cart);
 Alpine.data("productFilter", productFilter);
 Alpine.data("imageSlider", imageSlider);
 Alpine.data("variantSelector", variantSelector);
@@ -52,4 +54,5 @@ document.addEventListener("alpine:init", () => {
 });
 
 // Export any utilities that templates might need
-export {};
+export { };
+

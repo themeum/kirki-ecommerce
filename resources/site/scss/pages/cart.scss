@@ -4,18 +4,204 @@
 @use '../tokens' as *;
 @use '../mixins' as *;
 
+
 .kecom-cart-page {
-  max-width: 1200px;
+  max-width: 1440px;
   margin: 0 auto;
-  padding: $spacing-12 $spacing-10;
 }
 
 .kecom-cart-grid {
   display: grid;
-  grid-template-columns: 1fr 380px;
-  gap: $spacing-12;
+  grid-template-columns: 1fr 624px;
 
   @include breakpoint-down(lg) {
     grid-template-columns: 1fr;
+  }
+}
+
+.kecom-cart-items {
+  padding: $spacing-18 $spacing-19;
+
+  &-header {
+    @include flex(row, center, space-between);
+    margin-bottom: $spacing-12;
+
+    &-title {
+      display: flex;
+      gap: $spacing-2;
+
+      &-heading {
+        @include typography(xl, semibold, $text-primary);
+        margin: 0;
+      }
+
+      &-count {
+        @include typography(xl, semibold, $text-subdued);
+      }
+    }
+
+    &-actions {
+      &-link {
+        @include typography(base, medium, $text-primary);
+      }
+    }
+  }
+
+  .kecom-cart-item {
+    @include flex(row, flex-start, flex-start);
+    gap: $spacing-6;
+
+    &-description {
+      @include flex(column, flex-start, flex-start);
+      flex-grow: 1;
+    }
+
+    &-info,
+    &-quantity {
+      @include flex(row, flex-start, space-between);
+      width: 100%;
+    }
+
+    &-info {
+      @include breakpoint-down(md) {
+        @include flex(column, stretch, flex-start);
+      }
+    }
+
+    &-image {
+      img {
+        width: 112px;
+        height: auto;
+        border-radius: $radius-lg;
+
+        @include breakpoint-down(md) {
+          width: 96px;
+          height: auto;
+        }
+      }
+
+    }
+
+    &-details {
+      @include flex(column, flex-start, flex-start);
+    }
+
+    &-pricing {
+      @include flex(column, flex-end, flex-start);
+      align-self: flex-start;
+
+      @include breakpoint-down(md) {
+        @include flex(row-reverse, center, space-between);
+        width: 100%;
+      }
+    }
+
+    &-details-title,
+    &-pricing-total {
+      @include typography(md, semibold, $text-primary);
+      margin: 0;
+    }
+
+    &-details-title {
+      margin-bottom: $spacing-2;
+    }
+
+    &-pricing-total {
+      text-align: end;
+      margin-bottom: $spacing-2;
+    }
+
+    &-details-categories,
+    &-pricing-each {
+      margin-bottom: $spacing-2;
+    }
+
+    &-details-categories,
+    &-details-attributes,
+    &-pricing-each {
+      @include typography(sm, normal, $text-secondary);
+      vertical-align: middle;
+    }
+
+    .kecom-cart-item-remove,
+    .kecom-quantity {
+      margin-top: $spacing-6;
+    }
+
+    .kecom-cart-item-remove {
+      max-height: $spacing-12;
+    }
+
+    .kecom-quantity {
+      height: $spacing-12;
+    }
+
+  }
+
+  .kecom-cart-item:not(:last-child) {
+    border-bottom: 1px solid $border-default;
+    padding-bottom: $spacing-9;
+  }
+
+  .kecom-cart-item:not(:first-child) {
+    margin-top: $spacing-9;
+  }
+
+  @include breakpoint-down(md) {
+    padding: $spacing-16 $spacing-8;
+  }
+}
+
+.kecom-cart-summary {
+  background-color: $background-surface-alt;
+  padding: $spacing-18 $spacing-19;
+
+  &-title {
+    @include typography(xl, semibold, $text-primary);
+    margin: 0;
+    margin-bottom: $spacing-10;
+  }
+
+  &-item {
+    &:nth-child(4) {
+      margin-bottom: $spacing-6;
+    }
+
+    @include flex(row, center, space-between);
+    margin-bottom: $spacing-4;
+
+    &-title {
+      @include typography(base, normal, $text-secondary);
+    }
+
+    &-value {
+      @include typography(base, medium, $text-primary);
+    }
+
+
+  }
+
+  &-total {
+    @include flex(row, center, space-between);
+    margin-bottom: $spacing-10;
+    border-top: 1px solid $border-default;
+    padding-top: $spacing-6;
+
+    &-title {
+      @include typography(md, bold, $text-primary);
+    }
+
+    &-value {
+      @include typography(md, bold, $text-primary);
+    }
+  }
+
+  &-checkout-btn {
+    gap: $spacing-4;
+    padding: $spacing-5 0;
+  }
+
+  @include breakpoint-down(md) {
+    padding: $spacing-16 $spacing-8;
   }
 }
