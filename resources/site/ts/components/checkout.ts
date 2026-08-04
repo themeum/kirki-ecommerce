@@ -28,6 +28,8 @@ export function checkout(config: CheckoutConfig = {}) {
     couponCode: '',
     discount: 0,
     billingFormValid: false,
+    shippingFormValid: false,
+    billingSameAsShipping: false,
     cartData: null as any,
 
     loading: false,
@@ -38,6 +40,16 @@ export function checkout(config: CheckoutConfig = {}) {
     init() {
       (this as any).$el.addEventListener('billing-form-validated', (e: any) => {
         this.billingFormValid = e.detail.isValid;
+      });
+      (this as any).$el.addEventListener('shipping-form-validated', (e: any) => {
+        this.shippingFormValid = e.detail.isValid;
+      });
+
+      // Watch for billingSameAsShipping changes
+      (this as any).$watch('billingSameAsShipping', (value: boolean) => {
+        if (value) {
+          (this as any).$dispatch('sync-billing-from-shipping');
+        }
       });
     },
 
@@ -68,12 +80,33 @@ export function checkout(config: CheckoutConfig = {}) {
     async placeOrder() {
       this.error = null;
       this.billingFormValid = false;
+      this.shippingFormValid = false;
 
       try {
+        // Validate shipping form via event dispatch
+        (this as any).$dispatch('validate-shipping-form');
+
+        // Wait for shipping validation response
+        await new Promise<void>((resolve) => {
+          const checkValidation = () => {
+            if (this.shippingFormValid !== false) {
+              resolve();
+            } else {
+              setTimeout(checkValidation, 10);
+            }
+          };
+          setTimeout(checkValidation, 10);
+        });
+
+        if (!this.shippingFormValid) {
+          toastManager.error(__('Please fix the shipping form errors', 'kirki-ecommerce'));
+          return;
+        }
+
         // Validate billing form via event dispatch
         (this as any).$dispatch('validate-billing-form');
 
-        // Wait for validation response
+        // Wait for billing validation response
         await new Promise<void>((resolve) => {
           const checkValidation = () => {
             if (this.billingFormValid !== false) {

@@ -79,13 +79,12 @@ $cart = $data->cart ?? null;
                             postal_code: '<?php echo esc_js($shipping_postal_code); ?>',
                             phone: '<?php echo esc_js($shipping_phone); ?>',
                             email: '<?php echo esc_js($shipping_email); ?>',
-                            save_info: false
                         },
                         mode: 'onBlur'
-                   })" @validate-billing-form.window="await validateForm(); $dispatch('billing-form-validated', { isValid })">
+                   })" @validate-shipping-form.window="await validateForm(); $dispatch('shipping-form-validated', { isValid })">
                         <div class="kecom-field">
-                            <label class="kecom-field-label" for="country"><?php esc_html_e('Country/region', 'kirki-ecommerce'); ?></label>
-                            <select class="kecom-select" id="country" name="country" x-bind="register('country', { required: '<?php esc_html_e('Country is required', 'kirki-ecommerce'); ?>' })">
+                            <label class="kecom-field-label" for="shipping-country"><?php esc_html_e('Country/region', 'kirki-ecommerce'); ?></label>
+                            <select class="kecom-select" id="shipping-country" name="country" x-bind="register('country', { required: '<?php esc_html_e('Country is required', 'kirki-ecommerce'); ?>' })">
                                 <option value=""><?php esc_html_e('Select Country', 'kirki-ecommerce'); ?></option>
                                 <?php foreach ($countries as $country) : ?>
                                     <option value="<?php echo esc_attr($country['code']); ?>">
@@ -97,88 +96,88 @@ $cart = $data->cart ?? null;
                         </div>
                         <div class="kecom-billing-form-row">
                             <div class="kecom-field">
-                                <label class="kecom-field-label" for="first-name"><?php esc_html_e('First Name', 'kirki-ecommerce'); ?></label>
+                                <label class="kecom-field-label" for="shipping-first-name"><?php esc_html_e('First Name', 'kirki-ecommerce'); ?></label>
                                 <input 
                                     class="kecom-input" 
                                     type="text" 
-                                    id="first-name" 
+                                    id="shipping-first-name" 
                                     name="first_name" 
                                     x-bind="register('first_name', { required: '<?php esc_html_e('First name is required', 'kirki-ecommerce'); ?>' })">
                                 <span class="kecom-field-error" x-show="errors.first_name" x-text="errors.first_name"></span>
                             </div>
                             <div class="kecom-field">
-                                <label class="kecom-field-label" for="last-name"><?php esc_html_e('Last Name', 'kirki-ecommerce'); ?></label>
+                                <label class="kecom-field-label" for="shipping-last-name"><?php esc_html_e('Last Name', 'kirki-ecommerce'); ?></label>
                                 <input 
                                     class="kecom-input" 
                                     type="text" 
-                                    id="last-name" 
+                                    id="shipping-last-name" 
                                     name="last_name" 
                                     x-bind="register('last_name', { required: '<?php esc_html_e('Last name is required', 'kirki-ecommerce'); ?>' })">
                                 <span class="kecom-field-error" x-show="errors.last_name" x-text="errors.last_name"></span>
                             </div>
                         </div>
                         <div class="kecom-field">
-                            <label class="kecom-field-label" for="address_line1"><?php esc_html_e('Address', 'kirki-ecommerce'); ?></label>
+                            <label class="kecom-field-label" for="shipping-address-line1"><?php esc_html_e('Address', 'kirki-ecommerce'); ?></label>
                             <input 
                                 class="kecom-input" 
                                 type="text" 
-                                id="address_line1" 
+                                id="shipping-address-line1" 
                                 name="address_line1" 
                                 x-bind="register('address_line1', { required: '<?php esc_html_e('Address is required', 'kirki-ecommerce'); ?>' })">
                             <span class="kecom-field-error" x-show="errors.address_line1" x-text="errors.address_line1"></span>
                         </div>
                         <div class="kecom-field">
-                            <label class="kecom-field-label" for="address_line2">
+                            <label class="kecom-field-label" for="shipping-address-line2">
                                 <?php esc_html_e('Apartment, suit, etc.', 'kirki-ecommerce'); ?> <span class="kecom-text-subdued">(<?php esc_html_e('optional', 'kirki-ecommerce'); ?>)</span>
                             </label>
-                            <input class="kecom-input" type="text" id="address_line2" name="address_line2" x-bind="register('address_line2')">
+                            <input class="kecom-input" type="text" id="shipping-address-line2" name="address_line2" x-bind="register('address_line2')">
                         </div>
                         <div class="kecom-billing-form-row">
                             <div class="kecom-field">
-                                <label class="kecom-field-label" for="city"><?php esc_html_e('City', 'kirki-ecommerce'); ?></label>
+                                <label class="kecom-field-label" for="shipping-city"><?php esc_html_e('City', 'kirki-ecommerce'); ?></label>
                                 <input 
                                     class="kecom-input" 
                                     type="text" 
-                                    id="city" 
+                                    id="shipping-city" 
                                     name="city" 
                                     x-bind="register('city', { required: '<?php esc_html_e('City is required', 'kirki-ecommerce'); ?>' })">
                                 <span class="kecom-field-error" x-show="errors.city" x-text="errors.city"></span>
                             </div>
                             <div class="kecom-field">
-                                <label class="kecom-field-label" for="state"><?php esc_html_e('State', 'kirki-ecommerce'); ?></label>
+                                <label class="kecom-field-label" for="shipping-state"><?php esc_html_e('State', 'kirki-ecommerce'); ?></label>
                                 <input 
                                     class="kecom-input" 
                                     type="text" 
-                                    id="state" 
+                                    id="shipping-state" 
                                     name="state" 
                                     x-bind="register('state', { required: '<?php esc_html_e('State is required', 'kirki-ecommerce'); ?>' })">
                                 <span class="kecom-field-error" x-show="errors.state" x-text="errors.state"></span>
                             </div>
                             <div class="kecom-field">
-                                <label class="kecom-field-label" for="postal_code"><?php esc_html_e('Postal code', 'kirki-ecommerce'); ?></label>
+                                <label class="kecom-field-label" for="shipping-postal-code"><?php esc_html_e('Postal code', 'kirki-ecommerce'); ?></label>
                                 <input 
                                     class="kecom-input" 
                                     type="text" 
-                                    id="postal_code" 
+                                    id="shipping-postal-code" 
                                     name="postal_code" 
                                     x-bind="register('postal_code', { required: '<?php esc_html_e('Postal code is required', 'kirki-ecommerce'); ?>' })">
                                 <span class="kecom-field-error" x-show="errors.postal_code" x-text="errors.postal_code"></span>
                             </div>
                         </div>
                         <div class="kecom-field">
-                            <label class="kecom-field-label" for="phone"><?php esc_html_e('Phone Number', 'kirki-ecommerce'); ?></label>
+                            <label class="kecom-field-label" for="shipping-phone"><?php esc_html_e('Phone Number', 'kirki-ecommerce'); ?></label>
                             <input 
                                 class="kecom-input" 
                                 type="tel" 
-                                id="phone" 
+                                id="shipping-phone" 
                                 name="phone" 
-                                x-bind="register('phone', { pattern: { value: /^[\d\s\-\(\)]+$/, message: '<?php esc_html_e('Invalid phone number format', 'kirki-ecommerce'); ?>' } })">
+                                x-bind="register('phone', { required: '<?php esc_html_e('Phone number is required', 'kirki-ecommerce'); ?>' })">
                             <span class="kecom-field-error" x-show="errors.phone" x-text="errors.phone"></span>
                         </div>
                         <div class="kecom-field">
                             <label class="kecom-checkbox">
-                                <input class="kecom-checkbox-input" type="checkbox" x-bind="register('save_info')">
-                                <span class="kecom-checkbox-label"><?php esc_html_e('Save this information for next time', 'kirki-ecommerce'); ?></span>
+                                <input class="kecom-checkbox-input" type="checkbox" x-model="billingSameAsShipping">
+                                <span class="kecom-checkbox-label"><?php esc_html_e('The billing address is same as shipping address.', 'kirki-ecommerce'); ?></span>
                             </label>
                         </div>
                     </form>
@@ -198,14 +197,13 @@ $cart = $data->cart ?? null;
                             state: '<?php echo esc_js($billing_state); ?>',
                             postal_code: '<?php echo esc_js($billing_postal_code); ?>',
                             phone: '<?php echo esc_js($billing_phone); ?>',
-                            email: '<?php echo esc_js($billing_email); ?>',
-                            save_info: false
+                            email: '<?php echo esc_js($billing_email); ?>'
                         },
                         mode: 'onBlur'
                    })" @validate-billing-form.window="await validateForm(); $dispatch('billing-form-validated', { isValid })">
                         <div class="kecom-field">
-                            <label class="kecom-field-label" for="country"><?php esc_html_e('Country/region', 'kirki-ecommerce'); ?></label>
-                            <select class="kecom-select" id="country" name="country" x-bind="register('country', { required: '<?php esc_html_e('Country is required', 'kirki-ecommerce'); ?>' })">
+                            <label class="kecom-field-label" for="billing-country"><?php esc_html_e('Country/region', 'kirki-ecommerce'); ?></label>
+                            <select class="kecom-select" id="billing-country" name="country" x-bind="register('country', { required: '<?php esc_html_e('Country is required', 'kirki-ecommerce'); ?>' })">
                                 <option value=""><?php esc_html_e('Select Country', 'kirki-ecommerce'); ?></option>
                                 <?php foreach ($countries as $country) : ?>
                                     <option value="<?php echo esc_attr($country['code']); ?>">
@@ -217,89 +215,83 @@ $cart = $data->cart ?? null;
                         </div>
                         <div class="kecom-billing-form-row">
                             <div class="kecom-field">
-                                <label class="kecom-field-label" for="first-name"><?php esc_html_e('First Name', 'kirki-ecommerce'); ?></label>
+                                <label class="kecom-field-label" for="billing-first-name"><?php esc_html_e('First Name', 'kirki-ecommerce'); ?></label>
                                 <input 
                                     class="kecom-input" 
                                     type="text" 
-                                    id="first-name" 
+                                    id="billing-first-name" 
                                     name="first_name" 
                                     x-bind="register('first_name', { required: '<?php esc_html_e('First name is required', 'kirki-ecommerce'); ?>' })">
                                 <span class="kecom-field-error" x-show="errors.first_name" x-text="errors.first_name"></span>
                             </div>
                             <div class="kecom-field">
-                                <label class="kecom-field-label" for="last-name"><?php esc_html_e('Last Name', 'kirki-ecommerce'); ?></label>
+                                <label class="kecom-field-label" for="billing-last-name"><?php esc_html_e('Last Name', 'kirki-ecommerce'); ?></label>
                                 <input 
                                     class="kecom-input" 
                                     type="text" 
-                                    id="last-name" 
+                                    id="billing-last-name" 
                                     name="last_name" 
                                     x-bind="register('last_name', { required: '<?php esc_html_e('Last name is required', 'kirki-ecommerce'); ?>' })">
                                 <span class="kecom-field-error" x-show="errors.last_name" x-text="errors.last_name"></span>
                             </div>
                         </div>
                         <div class="kecom-field">
-                            <label class="kecom-field-label" for="address_line1"><?php esc_html_e('Address', 'kirki-ecommerce'); ?></label>
+                            <label class="kecom-field-label" for="billing-address-line1"><?php esc_html_e('Address', 'kirki-ecommerce'); ?></label>
                             <input 
                                 class="kecom-input" 
                                 type="text" 
-                                id="address_line1" 
+                                id="billing-address-line1" 
                                 name="address_line1" 
                                 x-bind="register('address_line1', { required: '<?php esc_html_e('Address is required', 'kirki-ecommerce'); ?>' })">
                             <span class="kecom-field-error" x-show="errors.address_line1" x-text="errors.address_line1"></span>
                         </div>
                         <div class="kecom-field">
-                            <label class="kecom-field-label" for="apartment">
+                            <label class="kecom-field-label" for="billing-address-line2">
                                 <?php esc_html_e('Apartment, suit, etc.', 'kirki-ecommerce'); ?> <span class="kecom-text-subdued">(<?php esc_html_e('optional', 'kirki-ecommerce'); ?>)</span>
                             </label>
-                            <input class="kecom-input" type="text" id="apartment" name="apartment" x-bind="register('apartment')">
+                            <input class="kecom-input" type="text" id="billing-address-line2" name="address_line2" x-bind="register('address_line2')">
                         </div>
                         <div class="kecom-billing-form-row">
                             <div class="kecom-field">
-                                <label class="kecom-field-label" for="city"><?php esc_html_e('City', 'kirki-ecommerce'); ?></label>
+                                <label class="kecom-field-label" for="billing-city"><?php esc_html_e('City', 'kirki-ecommerce'); ?></label>
                                 <input 
                                     class="kecom-input" 
                                     type="text" 
-                                    id="city" 
+                                    id="billing-city" 
                                     name="city" 
                                     x-bind="register('city', { required: '<?php esc_html_e('City is required', 'kirki-ecommerce'); ?>' })">
                                 <span class="kecom-field-error" x-show="errors.city" x-text="errors.city"></span>
                             </div>
                             <div class="kecom-field">
-                                <label class="kecom-field-label" for="state"><?php esc_html_e('State', 'kirki-ecommerce'); ?></label>
+                                <label class="kecom-field-label" for="billing-state"><?php esc_html_e('State', 'kirki-ecommerce'); ?></label>
                                 <input 
                                     class="kecom-input" 
                                     type="text" 
-                                    id="state" 
+                                    id="billing-state" 
                                     name="state" 
                                     x-bind="register('state', { required: '<?php esc_html_e('State is required', 'kirki-ecommerce'); ?>' })">
                                 <span class="kecom-field-error" x-show="errors.state" x-text="errors.state"></span>
                             </div>
                             <div class="kecom-field">
-                                <label class="kecom-field-label" for="postal_code"><?php esc_html_e('Postal code', 'kirki-ecommerce'); ?></label>
+                                <label class="kecom-field-label" for="billing-postal-code"><?php esc_html_e('Postal code', 'kirki-ecommerce'); ?></label>
                                 <input 
                                     class="kecom-input" 
                                     type="text" 
-                                    id="postal_code" 
+                                    id="billing-postal-code" 
                                     name="postal_code" 
                                     x-bind="register('postal_code', { required: '<?php esc_html_e('Postal code is required', 'kirki-ecommerce'); ?>' })">
                                 <span class="kecom-field-error" x-show="errors.postal_code" x-text="errors.postal_code"></span>
                             </div>
                         </div>
                         <div class="kecom-field">
-                            <label class="kecom-field-label" for="phone"><?php esc_html_e('Phone Number', 'kirki-ecommerce'); ?></label>
+                            <label class="kecom-field-label" for="billing-phone"><?php esc_html_e('Phone Number', 'kirki-ecommerce'); ?></label>
                             <input 
                                 class="kecom-input" 
                                 type="tel" 
-                                id="phone" 
+                                id="billing-phone" 
                                 name="phone" 
-                                x-bind="register('phone', { pattern: { value: /^[\d\s\-\(\)]+$/, message: '<?php esc_html_e('Invalid phone number format', 'kirki-ecommerce'); ?>' } })">
+                                x-bind="register('phone', { required: '<?php esc_html_e('Phone number is required', 'kirki-ecommerce'); ?>' })">
                             <span class="kecom-field-error" x-show="errors.phone" x-text="errors.phone"></span>
-                        </div>
-                        <div class="kecom-field">
-                            <label class="kecom-checkbox">
-                                <input class="kecom-checkbox-input" type="checkbox" x-bind="register('save_info')">
-                                <span class="kecom-checkbox-label"><?php esc_html_e('Save this information for next time', 'kirki-ecommerce'); ?></span>
-                            </label>
                         </div>
                     </form>
                 </div>
@@ -440,11 +432,11 @@ $cart = $data->cart ?? null;
 
                 <!-- Pay Button -->
                 <button type="button" class="kecom-btn kecom-btn-primary kecom-btn-lg kecom-pay-btn" :class="{ 'kecom-btn-loading': loading }" :disabled="loading" @click="placeOrder">
-                            <?php esc_html_e('Place Order', 'kirki-ecommerce'); ?>
+                    <?php esc_html_e('Place Order', 'kirki-ecommerce'); ?>
                 </button>
             </div>
         </div>
     </div>
 </div>
 
-                            <?php Template::get_footer(); ?>
+<?php Template::get_footer(); ?>
