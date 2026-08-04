@@ -422,7 +422,7 @@ $cart = $data->cart ?? null;
                 <div class="kecom-order-summary">
                     <div class="kecom-summary-row">
                         <span><?php esc_html_e('Subtotal', 'kirki-ecommerce'); ?></span>
-                        <span class="kecom-summary-value"><?php echo esc_html($formatted_subtotal); ?></span>
+                        <span class="kecom-summary-value" x-text="cartData ? cartData.pricing.subtotal_formatted : '<?php echo esc_js($formatted_subtotal); ?>'"><?php echo esc_html($formatted_subtotal); ?></span>
                     </div>
                     <div class="kecom-summary-row">
                         <span><?php esc_html_e('Shipping', 'kirki-ecommerce'); ?></span>
@@ -434,7 +434,7 @@ $cart = $data->cart ?? null;
                     </div>
                     <div class="kecom-summary-row kecom-total-row">
                         <span><?php esc_html_e('Total', 'kirki-ecommerce'); ?></span>
-                        <span class="kecom-summary-value kecom-total-value"><?php echo esc_html($formatted_total); ?></span>
+                        <span class="kecom-summary-value kecom-total-value" x-text="cartData ? cartData.pricing.total_formatted : '<?php echo esc_js($formatted_total); ?>'"><?php echo esc_html($formatted_total); ?></span>
                     </div>
                 </div>
 

@@ -20,13 +20,29 @@ declare global {
 
 export interface CartItem {
   id: number;
-  product_id: number;
-  variant_id: number;
+  cart_id: string;
   quantity: number;
-  price: number;
-  name: string;
-  image?: string;
-  total_formatted: number;
+  product: {
+    id: number;
+    variant_id: number;
+    title: string;
+    slug: string;
+    price: string;
+    sale_price: string;
+    media: any;
+    categories: any[];
+    attributes: string[];
+    available_quantity: number;
+  };
+  subtotal: string;
+  tax_rate: number;
+  tax_amount: string;
+  tax_breakdown: any[];
+  discount_amount: string;
+  total: string;
+  total_formatted: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface CartUpdateItem {
@@ -41,6 +57,20 @@ export interface CartUpdateItem {
   formatted_items: Record<number, string> | null;
 }
 
+export interface CartPricing {
+  subtotal: string;
+  subtotal_formatted: string;
+  tax_total: string;
+  discount_details: any;
+  discount_total: string;
+  shipping_subtotal: string;
+  shipping_tax: string;
+  shipping_discount: string;
+  shipping_total: string;
+  total: string;
+  total_formatted: string;
+}
+
 export interface Cart {
   id: number;
   items: CartItem[];
@@ -49,6 +79,22 @@ export interface Cart {
   coupon_code?: string;
   discount?: number;
   formatted_items: Record<number, string>;
+  shipping_address: any;
+  billing_address: any;
+  available_shipping_methods: any[];
+  shipping_method: any;
+  customer_notes: string | null;
+  ip_address: string | null;
+  user_agent: string | null;
+  expires_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ApiResponse<T> {
+  data: T;
+  message: string;
+  success: boolean;
 }
 
 export interface WishlistItem {
