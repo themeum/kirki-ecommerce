@@ -15,7 +15,6 @@ import Flex from '@/components/ui/flex';
 import { Table, TableBody, TableHeader } from '@/components/ui/table';
 import { cardStyles } from '@/theme/card-styles';
 import type { PaginatedData, SelectOption, SortOrder } from '@/types';
-import { isDefined } from '@/utils/object';
 
 type DataTableProps<T extends DataTableItem> = {
   data?: PaginatedData<T>;
@@ -106,12 +105,7 @@ const DataTableLayout = <T extends DataTableItem>({
               total={total}
               perPage={per_page}
             />
-            {isDefined(filterBar) && (
-              <>
-                {filterBar}
-              </>
-            )}
-
+            {filterBar}
             <Table fixed={fixed}>
               <TableHeader>
                 <DataTableHeader
