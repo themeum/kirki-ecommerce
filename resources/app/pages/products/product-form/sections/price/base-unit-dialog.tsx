@@ -42,6 +42,7 @@ type BaseUnitPopupProps = {
 
 type UnitAmountFieldProps = {
   label: string;
+  infoText?: string;
   amountName: 'total_unit_amount' | 'base_unit_amount';
   unitName: 'total_unit' | 'base_unit';
   placeholder: string;
@@ -51,6 +52,7 @@ type UnitAmountFieldProps = {
 
 const UnitAmountField = ({
   label,
+  infoText,
   amountName,
   unitName,
   placeholder,
@@ -73,7 +75,9 @@ const UnitAmountField = ({
 
             return (
               <Field data-invalid={hasError || undefined}>
-                <FieldLabel htmlFor={amountName}>{label}</FieldLabel>
+                <FieldLabel htmlFor={amountName} infoText={infoText}>
+                  {label}
+                </FieldLabel>
                 <InputGroup error={hasError}>
                   <InputGroupInput
                     id={amountName}
@@ -210,7 +214,7 @@ const BaseUnitDialog = ({
           <ChevronDown width={16} height={16} css={scoped({ color: theme.colors.icon.secondary })} />
         </Button>
       </DialogTrigger>
-      <DialogContent cssOverride={{ width: '480px' }}>
+      <DialogContent cssOverride={{ width: '340px' }}>
         <Form {...form}>
           <DialogTitle cssOverride={styles.visuallyHiddenTitle}>
             {__('Base price per unit', 'kirki-ecommerce')}
@@ -219,6 +223,10 @@ const BaseUnitDialog = ({
             <Flex direction="column" gap={4}>
               <UnitAmountField
                 label={__('Total unit in product', 'kirki-ecommerce')}
+                infoText={__(
+                  'The total quantity contained in this product, e.g. 500g or 1kg for a bag of rice, 1l for a bottle of oil.',
+                  'kirki-ecommerce',
+                )}
                 amountName="total_unit_amount"
                 unitName="total_unit"
                 placeholder="5"
@@ -246,6 +254,10 @@ const BaseUnitDialog = ({
               </UnitAmountField>
               <UnitAmountField
                 label={__('Base unit', 'kirki-ecommerce')}
+                infoText={__(
+                  'The unit price is calculated for, e.g. set 100g to show the price per 100g, or 1kg to show the price per kg.',
+                  'kirki-ecommerce',
+                )}
                 amountName="base_unit_amount"
                 unitName="base_unit"
                 placeholder="1"

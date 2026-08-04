@@ -255,7 +255,7 @@ const styles = defineStyles({
     boxShadow: theme.shadow.md,
     backgroundColor: theme.colors.background.fill,
     minHeight: '33px',
-    zIndex: 100000,
+    zIndex: theme.zIndex.dropdown,
     overflowX: 'hidden',
     '&:focus, &:focus-visible': {
       outline: 'none',

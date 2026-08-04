@@ -249,7 +249,7 @@ const styles = defineStyles({
     position: 'sticky',
     backgroundColor: theme.colors.background.surface,
     padding: `${theme.spacing[3]} ${theme.spacing[3]} ${theme.spacing[2]} ${theme.spacing[3]}`,
-    zIndex: 100,
+    zIndex: theme.zIndex.sticky,
   },
   closeButton: {
     color: theme.colors.text.primary,

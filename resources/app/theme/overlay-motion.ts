@@ -1,5 +1,7 @@
 import { keyframes, type CSSObject } from '@emotion/react';
 
+import { theme } from '@/theme';
+
 const overlayInFromTop = keyframes({
   from: {
     opacity: 0,
@@ -64,7 +66,7 @@ const overlayOut = keyframes({
  */
 const getOverlayMotionStyles = (transformOrigin: string): CSSObject => {
   return {
-    zIndex: 100000,
+    zIndex: theme.zIndex.dropdown,
     transformOrigin,
     '&[data-state="open"][data-side="bottom"]': {
       animation: `${overlayInFromTop} 150ms ease`,
