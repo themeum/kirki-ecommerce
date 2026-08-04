@@ -144,7 +144,6 @@ const styles = defineStyles({
   footer: {
     justifyContent: 'space-between',
     width: '100%',
-    boxSizing: 'border-box',
   },
   action: {
     flex: 1,

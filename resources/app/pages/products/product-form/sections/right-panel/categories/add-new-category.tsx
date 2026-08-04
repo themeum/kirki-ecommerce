@@ -128,7 +128,6 @@ const styles = defineStyles({
   },
   formCard: {
     padding: theme.spacing[4],
-    boxSizing: 'border-box',
   },
   createButton: {
     backgroundColor: 'transparent',

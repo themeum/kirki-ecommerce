@@ -48,7 +48,6 @@ const styles = defineStyles({
     border: `1px solid ${theme.colors.border.default}`,
     borderRadius: theme.radius.lg,
     padding: `${theme.spacing[1]} ${theme.spacing[3]}`,
-    boxSizing: 'border-box',
     color: theme.colors.text.primary,
     ...theme.typography.small(),
     cursor: 'text',

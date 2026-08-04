@@ -390,6 +390,19 @@ const theme = {
     md: '0px 4px 6px -1px hsla(0, 0%, 0%, 0.1), 0px 2px 4px -2px hsla(0, 0%, 0%, 0.1)',
     lg: '0px 10px 15px -3px hsla(0, 0%, 0%, 0.1), 0px 4px 6px -4px hsla(0, 0%, 0%, 0.1)',
   },
+  // WordPress's own chrome sits at #adminmenu(back) z-index 9990 and
+  // #wpadminbar z-index 99999. Every layer here that renders position:fixed
+  // (dropdown/tooltip/toast) is calculated to clear the admin bar so wp-admin's
+  // UI can never sit on top of ours; layers scoped to our own page flow
+  // (sticky, dialog) don't need to, since they never visually collide with it.
+  zIndex: {
+    sticky: 100, // in-app sticky headers, e.g. page-heading, filter-popup panels
+    dialogOverlay: 1000,
+    dialogContent: 1001,
+    dropdown: 100000, // select / popover / dropdown-menu content — clears #wpadminbar (99999)
+    tooltip: 100100, // must float above dialogs and dropdowns
+    toast: 100200, // persistent app notifications — always on top
+  },
 } as const;
 
 type AppTheme = typeof theme;
