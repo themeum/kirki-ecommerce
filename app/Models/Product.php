@@ -19,7 +19,6 @@ class Product extends Model
         'brand_id' => 'integer',
         'schema_id' => 'integer',
         'has_variants' => 'boolean',
-        'allow_back_order' => 'boolean',
         'additional_info' => 'json',
         'seo_keywords' => 'json',
         'tax_profile_id' => 'integer',
@@ -34,9 +33,9 @@ class Product extends Model
         'ribbon',
         'currency_id',
         'brand_id',
+        'short_description',
         'description',
         'additional_info',
-        'allow_back_order',
         'seo_title',
         'seo_description',
         'seo_keywords',
@@ -52,12 +51,12 @@ class Product extends Model
 
     public function set_additional_info_attribute($value)
     {
-        return !empty($value) && is_array($value) ? Arr::json_encode($value) : null;
+        $this->attributes['additional_info'] = !empty($value) && is_array($value) ? Arr::json_encode($value) : null;
     }
 
     public function set_seo_keywords_attribute($value)
     {
-        return !empty($value) && is_array($value) ? Arr::json_encode($value) : null;
+        $this->attributes['seo_keywords'] = !empty($value) && is_array($value) ? Arr::json_encode($value) : null;
     }
 
     public function variants()

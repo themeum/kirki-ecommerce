@@ -171,9 +171,9 @@ examples:
           {
             "success": false,
             "errors": {},
-            "message": "Brand not found."
+            "message": "Cart not found."
           }
 
 docs: |-
-  # Update the cart
-  Update the cart with new data like shipping method, address etc
+  # Apply coupon
+  Apply coupon to cart

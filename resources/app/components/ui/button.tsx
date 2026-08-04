@@ -63,6 +63,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
     return (
       <Slot
         ref={ref}
+        data-slot="button"
         css={buttonCss}
         {...rest}
       >
@@ -78,6 +79,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
       disabled={isDisabled}
       aria-busy={loading || undefined}
       data-loading={loading ? 'true' : undefined}
+      data-slot="button"
       css={buttonCss}
       {...rest}
     >

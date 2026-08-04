@@ -1,20 +1,13 @@
-import type { ProductVariant } from '@/schemas/catalog/variant';
 import type { AdditionalInfoItem, ProductStatus } from '@/schemas/catalog/product';
+import type { ProductVariant } from '@/schemas/catalog/variant';
 
 export type {
-  ProductStatus,
-  ProductCurrency,
-  ProductBrand,
-  ProductCategoryRef,
-  ProductTagRef,
-  ProductCollectionRef,
-  AdditionalInfoItem,
-  ProductListItem,
-  Product,
-  ProductAttribute,
+  AdditionalInfoItem, Product,
+  ProductAttribute, ProductBrand,
+  ProductCategoryRef, ProductCollectionRef, ProductCurrency, ProductListItem, ProductStatus, ProductTagRef
 } from '@/schemas/catalog/product';
 
-export type { ProductVariant, InventoryVariant } from '@/schemas/catalog/variant';
+export type { InventoryVariant, ProductVariant } from '@/schemas/catalog/variant';
 
 type UnitPriceValue = {
   total_unit_amount?: number | string | null;
@@ -40,8 +33,8 @@ type ProductFormData = {
   currency_id?: number | null;
   brand_id?: number | null;
   description?: string | null;
+  short_description?: string | null;
   additional_info?: AdditionalInfoItem[] | null;
-  allow_back_order?: boolean | null;
   seo_title?: string | null;
   seo_description?: string | null;
   seo_keywords?: string[] | null;
@@ -59,12 +52,6 @@ type ProductFormData = {
   variants?: ProductVariantPayload[];
 };
 
-type UpdateProductPayload = {
-  key: string;
-  value: unknown;
-  variants?: boolean;
-};
-
 type UpdateVariantsPayload = {
   key: string;
   value: unknown;
@@ -72,10 +59,7 @@ type UpdateVariantsPayload = {
 };
 
 export type {
-  UnitPriceValue,
-  ProductAttributePayload,
-  ProductVariantPayload,
-  ProductFormData,
-  UpdateProductPayload,
-  UpdateVariantsPayload,
+  ProductAttributePayload, ProductFormData, ProductVariantPayload, UnitPriceValue,
+  UpdateVariantsPayload
 };
+

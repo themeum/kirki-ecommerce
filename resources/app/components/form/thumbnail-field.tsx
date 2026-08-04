@@ -18,6 +18,7 @@ type ThumbnailFieldProps<
   label?: ReactNode;
   description?: ReactNode;
   cssOverride?: CSSObject;
+  infoText?: ReactNode;
   placeholder?: string;
   btnText?: string;
   size?: ComponentProps<typeof ThumbnailSelector>['size'];
@@ -35,6 +36,7 @@ const ThumbnailField = <
   label,
   description,
   cssOverride,
+  infoText,
   placeholder,
   btnText,
   size,
@@ -63,7 +65,7 @@ const ThumbnailField = <
 
         return (
           <Field data-invalid={fieldState.invalid || undefined} cssOverride={cssOverride}>
-            {label && <FieldLabel>{label}</FieldLabel>}
+            {label && <FieldLabel infoText={infoText}>{label}</FieldLabel>}
             <ThumbnailSelector
               src={resolvedPreview || undefined}
               placeholder={placeholder}

@@ -86,8 +86,8 @@ export const ProductSchema = z.object({
   currency: ProductCurrencySchema.nullable(),
   brand: ProductBrandSchema.nullable(),
   description: z.string().nullable(),
+  short_description: z.string().nullable().optional(),
   additional_info: z.array(AdditionalInfoItemSchema).nullable(),
-  allow_back_order: z.boolean(),
   has_limit_per_order: z.boolean().optional(),
   max_per_order: z.number().nullish(),
   seo_title: z.string().nullable(),
@@ -111,5 +111,6 @@ export const ProductSchema = z.object({
 
 export type Product = z.infer<typeof ProductSchema>;
 
-export type { ProductVariant, InventoryVariant } from '@/schemas/catalog/variant';
 export type { ProductAttribute } from '@/schemas/catalog/attribute';
+export type { InventoryVariant, ProductVariant } from '@/schemas/catalog/variant';
+

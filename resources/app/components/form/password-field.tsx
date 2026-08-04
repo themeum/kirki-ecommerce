@@ -16,6 +16,7 @@ type PasswordFieldProps<
   name: TName;
   label?: ReactNode;
   description?: ReactNode;
+  infoText?: ReactNode;
   placeholder?: string;
   disabled?: boolean;
   cssOverride?: CSSObject;
@@ -28,6 +29,7 @@ const PasswordField = <
   name,
   label,
   description,
+  infoText,
   placeholder,
   disabled,
   cssOverride,
@@ -42,7 +44,11 @@ const PasswordField = <
       name={name}
       render={({ field, fieldState }) => (
         <Field data-invalid={fieldState.invalid || undefined} cssOverride={cssOverride}>
-          {label && <FieldLabel htmlFor={fieldId}>{label}</FieldLabel>}
+          {label && (
+            <FieldLabel htmlFor={fieldId} infoText={infoText}>
+              {label}
+            </FieldLabel>
+          )}
           <div css={scoped(styles.wrapper)}>
             <Input
               {...field}

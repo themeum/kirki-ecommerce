@@ -7,11 +7,13 @@ import NotFound from '@/pages/not-found/not-found';
 import Tryouts from '@/tryouts';
 
 const Products = lazy(() => import('@/pages/products/products'));
+const CreateProduct = lazy(() => import('@/pages/products/create-product/create-product'));
 const EditProduct = lazy(() => import('@/pages/products/edit-product/edit-product'));
 const BulkEdit = lazy(() => import('@/pages/bulk-edit/bulk-edit'));
 const Inventory = lazy(() => import('@/pages/inventory/inventory'));
 const Orders = lazy(() => import('@/pages/orders/orders'));
 const Coupons = lazy(() => import('@/pages/coupons/coupons'));
+const EditCoupon = lazy(() => import('@/pages/coupons/edit-coupon/edit-coupon'));
 const OrderDetails = lazy(() => import('@/pages/orders/order-details/order-details'));
 const Collections = lazy(() => import('@/pages/collections/collections'));
 const CollectionDetails = lazy(() => import('@/pages/collections/collection-details/collection-details'));
@@ -51,10 +53,12 @@ export const router = createHashRouter([
     children: [
       { path: '/', element: <Tryouts /> },
       { path: '/products', element: withSuspense(Products) },
+      { path: '/products/create', element: withSuspense(CreateProduct) },
       { path: '/products/:id', element: withSuspense(EditProduct) },
       { path: '/variants/bulk', element: withSuspense(BulkEdit) },
       { path: '/inventory', element: withSuspense(Inventory) },
       { path: '/coupons', element: withSuspense(Coupons) },
+      { path: '/coupons/:id', element: withSuspense(EditCoupon) },
       { path: '/orders', element: withSuspense(Orders) },
       { path: '/orders/:id', element: withSuspense(OrderDetails) },
       { path: '/collections', element: withSuspense(Collections) },

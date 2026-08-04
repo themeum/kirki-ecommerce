@@ -13,11 +13,7 @@ class ProductUpdateRequest extends Request
 {
     protected function prepare_for_validation()
     {
-        $variants = $this->input('variants');
-
-        if (!is_array($variants)) {
-            return;
-        }
+        $variants = $this->input('variants') ?? [];
 
         foreach ($variants as $index => $variant) {
             if (!is_array($variant)) {
@@ -31,7 +27,9 @@ class ProductUpdateRequest extends Request
             }
         }
 
-        $this->merge(['variants' => $variants]);
+        if (!empty($variants)) {
+            $this->merge(['variants' => $variants]);
+        }
     }
 
     public function rules()
@@ -47,7 +45,8 @@ class ProductUpdateRequest extends Request
             'brand_id' => 'integer|nullable',
             'description' => 'string|nullable',
             'additional_info' => 'array|nullable', // JSON string, can be validated later
-            'allow_back_order' => 'boolean|nullable',
+            'additional_info.*.title' => 'required|string',
+            'additional_info.*.description' => 'required|string',
             'seo_title' => 'string|nullable|max:500',
             'seo_description' => 'string|nullable',
             'seo_keywords' => 'array|nullable',
@@ -101,7 +100,7 @@ class ProductUpdateRequest extends Request
             'variants.*.sale_price' => 'number|min:0|nullable',
             'variants.*.cost_of_goods' => 'number|min:0|nullable',
 
-            'variants.*.weight' => 'number|min:0|nullable',
+            'variants.*.weight' => 'numeric|nullable',
             'variants.*.weight_unit' => 'string|nullable|max:10|in:' . implode(',', WeightUnit::get_constant_values()),
 
             'variants.*.charge_taxes' => 'boolean|nullable',
@@ -109,7 +108,7 @@ class ProductUpdateRequest extends Request
             'variants.*.track_inventory' => 'boolean|nullable',
             'variants.*.available_quantity' => 'integer|min:0|nullable',
             'variants.*.in_stock' => 'boolean|nullable',
-            'variants.*.committed_quantity' => 'integer|min:0|nullable',
+            'variants.*.committed_quantity' => 'integer|min:0|nullable', // @todo: this should not be sent from client
             'variants.*.has_limit_per_order' => 'boolean|nullable',
             'variants.*.max_per_order' => 'integer|nullable',
             'variants.*.tax_profile_id' => 'integer|nullable',
@@ -134,7 +133,6 @@ class ProductUpdateRequest extends Request
             'brand_id' => Sanitizer::INT,
             'description' => Sanitizer::TEXT,
             'additional_info' => Sanitizer::ARRAY,
-            'allow_back_order' => Sanitizer::BOOL,
             'seo_title' => Sanitizer::TEXT,
             'seo_description' => Sanitizer::TEXT,
             'seo_keywords' => Sanitizer::ARRAY,

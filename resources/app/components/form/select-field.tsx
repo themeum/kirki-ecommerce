@@ -17,6 +17,7 @@ type SelectFieldProps<
   name: TName;
   label?: ReactNode;
   description?: ReactNode;
+  infoText?: ReactNode;
   placeholder?: string;
   options: SelectFieldOption[];
   disabled?: boolean;
@@ -30,6 +31,7 @@ const SelectField = <
   name,
   label,
   description,
+  infoText,
   placeholder,
   options,
   disabled,
@@ -44,7 +46,11 @@ const SelectField = <
       name={name}
       render={({ field, fieldState }) => (
         <Field data-invalid={fieldState.invalid || undefined} cssOverride={cssOverride}>
-          {label && <FieldLabel htmlFor={fieldId}>{label}</FieldLabel>}
+          {label && (
+            <FieldLabel htmlFor={fieldId} infoText={infoText}>
+              {label}
+            </FieldLabel>
+          )}
           <Select
             value={
               field.value === null || field.value === undefined

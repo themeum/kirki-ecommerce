@@ -237,12 +237,8 @@ examples:
         data: |-
           {
             "success": false,
-            "errors": {
-              "name": [
-                "The name field is required."
-              ]
-            },
-            "message": "Validation failed!"
+            "errors": {},
+            "message": "Order not found."
           }
 
 docs: |-

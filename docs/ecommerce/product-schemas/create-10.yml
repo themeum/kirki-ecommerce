@@ -68,47 +68,13 @@ examples:
                 "timezone": "UTC"
               }
             },
-            "message": "Shipping profile created successfully."
-          }
-  - name: 404 Response
-    description: Failure
-    request:
-      url: "{{baseUrl}}/product-schemas"
-      method: POST
-      body:
-        type: json
-        data: |-
-          {
-            "name": "Schema 1",
-            "is_default": false,
-            "schema": {
-              "name": "Something",
-              "description": "Something more"
-            }
-          }
-    response:
-      status: 404
-      statusText: Not Found
-      headers:
-        - name: Content-Type
-          value: application/json
-      body:
-        type: json
-        data: |-
-          {
-            "success": false,
-            "errors": {
-              "name": [
-                "The name field is required."
-              ]
-            },
-            "message": "Validation failed!"
+            "message": "Product schema created successfully."
           }
 
 docs: |-
   # Create Product Schema
 
   ## 1. Detailed description of the API function
-  This API is designed to create Currencies.
+  This API is designed to create product schemas.
 
   Upon successful creation, the API returns a response with a `success` boolean indicating the success of the operation and a `message` which may contain information about the result.
