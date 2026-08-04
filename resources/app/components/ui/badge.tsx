@@ -141,7 +141,6 @@ const styles = defineStyles({
     flexShrink: 0,
     overflow: 'hidden',
     whiteSpace: 'nowrap',
-    boxSizing: 'border-box',
     border: '1px solid transparent',
     borderRadius: theme.radius.md,
     padding: `${theme.spacing[1]} ${theme.spacing[2]}`,

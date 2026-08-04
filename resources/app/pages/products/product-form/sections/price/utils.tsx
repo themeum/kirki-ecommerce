@@ -1,8 +1,9 @@
 import type { ReactNode } from 'react';
 
-import { AreaIcon, SizeIcon, VolumeIcon, WeightIcon } from '@/icons';
+import { AreaIcon, VolumeIcon, WeightIcon } from '@/icons';
 import type { UnitPriceValue } from '@/types';
 import { __ } from '@/wpi18n';
+import { RulerHorizontalIcon } from '@radix-ui/react-icons';
 
 type UnitListItem = {
   heading?: string;
@@ -28,6 +29,7 @@ type UnitGroup = {
 
 type UnitPriceSource = UnitPriceValue & {
   price?: number | string | null;
+  sale_price?: number | string | null;
 };
 
 export const DEFAULT_UNIT = 'kg';
@@ -91,7 +93,7 @@ export const unitGroups: UnitGroup[] = [
   },
   {
     heading: __('Size', 'kirki-ecommerce'),
-    leftIcon: <SizeIcon />,
+    leftIcon: <RulerHorizontalIcon />,
     items: sizeUnitList,
   },
   {
@@ -148,13 +150,14 @@ export const getSpecifiedUnitList = (
 export const calculateBasePricePerUnit = (
   source: UnitPriceSource,
 ): number | null => {
-  const { price, total_unit_amount, total_unit, base_unit_amount, base_unit } =
+  const { price, sale_price, total_unit_amount, total_unit, base_unit_amount, base_unit } =
     source;
 
   const totalFactor = normalizedUnit[total_unit ?? ''];
   const baseFactor = normalizedUnit[base_unit ?? ''];
   const totalAmount = Number(total_unit_amount);
   const baseAmount = Number(base_unit_amount);
+  const amount = sale_price || price;
 
   if (!totalFactor || !baseFactor || !totalAmount || !baseAmount) {
     return null;
@@ -170,5 +173,5 @@ export const calculateBasePricePerUnit = (
     return null;
   }
 
-  return Number(price ?? 0) / numberOfBaseUnits;
+  return Number(amount ?? 0) / numberOfBaseUnits;
 };

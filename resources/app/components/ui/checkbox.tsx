@@ -125,7 +125,6 @@ const styles = defineStyles({
     borderRadius: theme.radius.sm,
     backgroundColor: theme.colors.background.surface,
     color: theme.colors.background.surfaceTertiary,
-    boxSizing: 'border-box',
     '&:focus-visible': {
       ...uiFocusRing(theme as Theme),
     },

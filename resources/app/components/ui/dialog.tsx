@@ -246,7 +246,6 @@ const styles = defineStyles({
     borderRadius: theme.radius.lg,
     backgroundColor: theme.colors.background.fill,
     boxShadow: theme.shadow.lg,
-    boxSizing: 'border-box',
     overflow: 'hidden',
     color: theme.colors.text.primary,
     '&:focus, &:focus-visible': {

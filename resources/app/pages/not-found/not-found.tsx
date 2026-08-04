@@ -87,7 +87,6 @@ const styles = defineStyles({
     marginTop: 0,
     padding: `${theme.spacing[6]} ${theme.spacing[8]}`,
     backgroundColor: theme.colors.background.surfaceTertiary,
-    boxSizing: 'border-box',
     overflow: 'hidden',
     '&::before, &::after': {
       content: '""',
@@ -182,7 +181,6 @@ const styles = defineStyles({
     backgroundColor: theme.colors.background.surfaceAlt,
     border: `1px solid ${theme.colors.border.tertiary}`,
     borderRadius: theme.radius.lg,
-    boxSizing: 'border-box',
     textAlign: 'left',
   },
   pathLabel: {
@@ -203,7 +201,6 @@ const styles = defineStyles({
     border: `1px solid ${theme.colors.border.secondary}`,
     borderRadius: theme.radius.md,
     wordBreak: 'break-all',
-    boxSizing: 'border-box',
   },
   actions: {
     flexWrap: 'wrap',

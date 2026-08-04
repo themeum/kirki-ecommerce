@@ -133,7 +133,6 @@ const styles = defineStyles({
     backgroundColor: theme.colors.background.surfaceSecondary,
     boxShadow:
       '0px -1px 1px 0.5px hsla(0, 0%, 0%, 0.1) inset, 0px 0.5px 1px 0px hsla(0, 0%, 0%, 0.1) inset',
-    boxSizing: 'border-box',
   },
   itemList: {
     gap: '2px',
