@@ -162,10 +162,6 @@ export function form(config: FormConfig = {}) {
     mode,
     fieldRules: {} as Record<string, ValidationRules>,
 
-    init() {
-      this.validateForm();
-    },
-
     register(name: string, rules?: ValidationRules) {
       this.values[name] ??= '';
       this.fieldRules[name] = rules || {};
