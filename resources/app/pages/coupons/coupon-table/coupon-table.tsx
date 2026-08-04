@@ -12,24 +12,18 @@ import Flex from '@/components/ui/flex';
 import { endpoints } from '@/libs/endpoints';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
-import type { PaginatedData } from '@/types';
 import { __ } from '@/wpi18n';
 
+import { useListParams } from '@/hooks';
 import { DATE_FORMATS } from '@/libs/date';
 import CouponTableFilter from '@/pages/coupons/coupon-table/coupon-table-filter';
 import CouponTableFilterBar from '@/pages/coupons/coupon-table/coupon-table-filter-bar';
 import FilterPopup from '@/pages/coupons/coupon-table/filter-popup/filter-popup';
 import { getCouponBadgeInfo } from '@/pages/coupons/edit-coupon/config/coupon-badge';
 import { CouponListItem } from '@/schemas/catalog/coupon';
-import { useBulkDeleteCouponsMutation, useCouponActionMutation, useDeleteCouponMutation } from '@/services/coupon';
-import { couponListOptions } from '@/types/filters/coupon';
+import { useBulkDeleteCouponsMutation, useCouponActionMutation, useCouponsQuery, useDeleteCouponMutation } from '@/services/coupon';
+import { CouponListFilter, couponListOptions } from '@/types/filters/coupon';
 import { format } from 'date-fns';
-
-type CouponTableProps = {
-  data?: PaginatedData<CouponListItem>;
-  isLoading?: boolean;
-  onPageChange: (page: number) => void;
-};
 
 const CouponTitleCell = ({ item }: { item: CouponListItem }) => {
   const navigate = useNavigate();
@@ -90,11 +84,22 @@ const couponBulkActions = [
   { value: 'delete', title: __('Trash', 'kirki-ecommerce') },
 ];
 
-const CouponTable = ({ data, isLoading, onPageChange }: CouponTableProps) => {
+const CouponTable = () => {
   const navigate = useNavigate();
   const bulkDeleteMutation = useBulkDeleteCouponsMutation();
   const deleteMutation = useDeleteCouponMutation();
   const couponActionMutation = useCouponActionMutation();
+
+  const { params, setParam } = useListParams<CouponListFilter>(couponListOptions);
+
+  const { data, isLoading } = useCouponsQuery(params);
+
+  const handlePaginationChange = useCallback(
+    (value: number) => {
+      setParam('page', value);
+    },
+    [setParam],
+  );
 
   const handleBulkApply = useCallback(
     async (action: string, { selectedItems, isSelectAll }: DataTableBulkApplyPayload) => {
@@ -156,14 +161,13 @@ const CouponTable = ({ data, isLoading, onPageChange }: CouponTableProps) => {
 
   return (
     <DataTable
-      listOptions={couponListOptions}
       data={data}
       isLoading={isLoading}
       columns={couponColumns}
       rowActions={rowActions}
       bulkActionOptions={couponBulkActions}
       onBulkApply={handleBulkApply}
-      onPageChange={onPageChange}
+      onPageChange={handlePaginationChange}
     >
       <DataTable.Filter>
         <CouponTableFilter />

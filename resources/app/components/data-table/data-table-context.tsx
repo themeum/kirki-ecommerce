@@ -4,7 +4,7 @@ import type {
   DataTableColumn,
   DataTableItem,
 } from '@/components/data-table/types';
-import type { PaginatedData } from '@/types';
+import type { PaginatedData, SortOrder } from '@/types';
 
 /*
  * Only DataTableBody and DataTablePagination read this, and both are supposed
@@ -16,6 +16,9 @@ type DataTableContextValue<T extends DataTableItem> = {
   isLoading: boolean;
   columns: DataTableColumn<T>[];
   onPageChange: (page: number) => void;
+  sortBy?: string;
+  sortOrder?: SortOrder;
+  onSort?: (sortBy: string, sortOrder: SortOrder) => void;
 };
 
 const DataTableContext =
