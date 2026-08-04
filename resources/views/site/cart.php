@@ -67,7 +67,7 @@ $cart_config = array(
                             <?php if (!empty($media) && isset($media['url'])): ?>
                                 <img src="<?php echo esc_url($media['url']); ?>" alt="<?php echo esc_attr($product['title']); ?>">
                             <?php else: ?>
-                                <img src="<?php echo esc_url(Assets::get_url('images/product-fallback.png')); ?>" alt="<?php echo esc_attr($product['title']); ?>">
+                                <img src="<?php echo esc_url(Assets::get_url('images/product-fallback.webp')); ?>" alt="<?php echo esc_attr($product['title']); ?>">
                             <?php endif; ?>
                         </div>
                         <div class="kecom-cart-item-description">

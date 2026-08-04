@@ -2,15 +2,15 @@
  * Cart API — wraps /kirki/ecommerce/v1/cart/*
  */
 
-import type { Cart, CartUpdateItem } from '../types';
+import type { Cart, CartUpdateItem, ApiResponse } from '../types';
 import { apiRequest } from './client';
 
 export const cartApi = {
   get: () =>
-    apiRequest<Cart>('/cart'),
+    apiRequest<ApiResponse<Cart>>('/cart'),
 
   addItem: (variantId: number, quantity: number) =>
-    apiRequest<Cart>('/cart/items', {
+    apiRequest<ApiResponse<Cart>>('/cart/items', {
       method: 'POST',
       body: { variant_id: variantId, quantity },
     }),
@@ -25,11 +25,11 @@ export const cartApi = {
     apiRequest<{ data: CartUpdateItem, message: string, success: boolean }>(`/cart/items/${itemId}`, { method: 'DELETE' }),
 
   empty: () =>
-    apiRequest<void>('/cart', { method: 'DELETE' }),
+    apiRequest<ApiResponse<void>>('/cart', { method: 'DELETE' }),
 
   applyCoupon: (code: string) =>
-    apiRequest<Cart>('/cart/coupon', { method: 'POST', body: { code } }),
+    apiRequest<ApiResponse<Cart>>('/cart/coupon', { method: 'POST', body: { code } }),
 
   removeCoupon: () =>
-    apiRequest<Cart>('/cart/coupon', { method: 'DELETE' }),
+    apiRequest<ApiResponse<Cart>>('/cart/coupon', { method: 'DELETE' }),
 };

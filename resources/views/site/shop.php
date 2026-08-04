@@ -37,18 +37,17 @@ $sidebar_data = [
 
 <div class="kecom-products-page">
     <div class="kecom-container">
-        <nav class="kecom-breadcrumb" aria-label="<?php echo esc_attr__('Breadcrumb', 'kirki-ecommerce'); ?>">
-            <ol class="kecom-breadcrumb-list">
-                <li class="kecom-breadcrumb-item">
-                    <a class="kecom-breadcrumb-link" href="<?php echo esc_url(home_url('/')); ?>">
-                        <?php echo esc_html__('Home', 'kirki-ecommerce'); ?>
-                    </a>
-                </li>
-                <li class="kecom-breadcrumb-item" aria-current="page">
-                    <?php echo esc_html__('Shop', 'kirki-ecommerce'); ?>
-                </li>
-            </ol>
-        </nav>
+        <?php
+        include_view(
+            'site.shop.parts.breadcrumb',
+            [
+                'items' => [
+                    ['label' => __('Home', 'kirki-ecommerce'), 'url' => home_url('/')],
+                ],
+                'current' => __('Shop', 'kirki-ecommerce'),
+            ]
+        );
+        ?>
 
         <div class="kecom-products-page-header">
             <h1 class="kecom-products-page-title">

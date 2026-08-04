@@ -17,6 +17,7 @@ use Kirki\Ecommerce\App\Supports\Template;
 use Kirki\Ecommerce\App\Supports\Icon;
 use Kirki\Ecommerce\App\Supports\Url;
 
+use function Kirki\Ecommerce\Framework\include_view;
 use function Kirki\Ecommerce\Framework\view_data;
 
 $product = view_data();
@@ -35,6 +36,9 @@ $sale_price = isset($variant['sale_price']) ? Money::format_from_decimal($varian
 $quantity = (int) $variant['available_quantity'] ?? 0;
 $additional_info = $product['additional_info'] ?? [];
 
+// Get variant ID from URL query param
+$selected_variant_id = isset($_GET['variant_id']) ? (int) $_GET['variant_id'] : null;
+
 // Prepare images for Alpine.js
 $images = [];
 if (!empty($product_image) && isset($product_image['url'])) {
@@ -51,6 +55,20 @@ foreach ($media as $media_item) {
 
 <div class="kecom-product-page">
     <div class="kecom-container">
+        <?php
+        include_view(
+            'site.shop.parts.breadcrumb',
+            [
+                'items' => [
+                    ['label' => __('Home', 'kirki-ecommerce'), 'url' => home_url('/')],
+                    ['label' => __('Shop', 'kirki-ecommerce'), 'url' => Url::get_shop_url()],
+                ],
+                'current' => $product['title'],
+            ]
+        );
+        ?>
+    </div>
+    <div class="kecom-container">
         <div class="kecom-product-grid">
             <!-- Left: Product Images -->
             <div class="kecom-product-gallery" x-data="imageSlider({ images: kirki_ecommerce.product_images || [] })">
@@ -59,7 +77,7 @@ foreach ($media as $media_item) {
                         <img :src="currentImage.url" alt="<?php echo esc_attr($product['title']); ?>">
                     </template>
                     <template x-if="!currentImage.url">
-                        <img src="<?php echo esc_url(Assets::get_url('images/product-fallback.png')); ?>" alt="<?php echo esc_attr($product['title']); ?>">
+                        <img src="<?php echo esc_url(Assets::get_url('images/product-fallback.webp')); ?>" alt="<?php echo esc_attr($product['title']); ?>">
                     </template>
                     <?php if (count($images) > 1): ?>
                         <button class="kecom-product-nav-btn kecom-product-nav-prev" @click="prev" aria-label="Previous image">
@@ -82,7 +100,7 @@ foreach ($media as $media_item) {
             </div>
 
             <!-- Right: Product Info -->
-            <div class="kecom-product-info" x-data="variantSelector({ variants: kirki_ecommerce.product_variants || [] })" x-init="init()">
+            <div class="kecom-product-info" x-data="variantSelector({ variants: kirki_ecommerce.product_variants || []<?php if ($selected_variant_id): ?>, selectedVariantId: <?php echo (int) $selected_variant_id; ?><?php endif; ?> })">
                 <div class="kecom-product-title-and-price">
                     <?php if (! empty($ribbon)): ?>
                         <span class="kecom-product-ribbon"><?php echo esc_html($ribbon); ?></span>
@@ -115,19 +133,23 @@ foreach ($media as $media_item) {
                             <div class="kecom-product-variant-options">
                                 <?php foreach ($attr_values as $item): ?>
                                     <?php if ($is_color): ?>
-                                        <div 
+                                        <button 
+                                            type="button"
                                             class="kecom-product-variant-color" 
                                             :class="{ 'selected': isAttributeSelected('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>'), 'opacity-50': !isAttributeAvailable('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>') }"
                                             :style="{ 'background-color': '<?php echo esc_js($item['color'] ?? $item['value']); ?>' }"
                                             @click="isAttributeAvailable('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>') && selectAttribute('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>')"
-                                        ></div>
+                                            aria-label="<?php echo esc_attr($attr_name . ': ' . $item['value']); ?>"
+                                        ></button>
                                     <?php else: ?>
-                                        <div 
+                                        <button 
+                                            type="button"
                                             class="kecom-product-variant-option" 
                                             :class="{ 'selected': isAttributeSelected('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>'), 'opacity-50': !isAttributeAvailable('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>') }"
                                             @click="isAttributeAvailable('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>') && selectAttribute('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>')"
                                             x-text="'<?php echo esc_js($item['value']); ?>'"
-                                        ></div>
+                                            aria-label="<?php echo esc_attr($attr_name . ': ' . $item['value']); ?>"
+                                        ></button>
                                     <?php endif; ?>
                                 <?php endforeach; ?>
                             </div>
@@ -187,8 +209,7 @@ foreach ($media as $media_item) {
 
                 <?php foreach ($additional_info as $index => $info): ?>
                     <div class="kecom-product-tab-content" :class="{ 'active': activeTab === 'info-<?php echo esc_attr($index); ?>' }">
-                        <h3><?php echo esc_html($info['title']); ?></h3>
-                        <p><?php echo esc_html($info['description']); ?></p>
+                        <?php echo esc_html($info['description']); ?>
                     </div>
                 <?php endforeach; ?>
             </div>

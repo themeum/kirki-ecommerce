@@ -65,6 +65,8 @@ class Assets
             'rest_url_base' => esc_url(rest_url() . 'kirki/ecommerce/v1'),
             'version' => KIRKI_ECOMMERCE_VERSION,
             'is_dev' => defined('KIRKI_ECOMMERCE_IS_DEV') && KIRKI_ECOMMERCE_IS_DEV,
+            'is_logged_in' => is_user_logged_in(),
+            'login_url' => esc_url(wp_login_url()),
         ];
 
         $config_data = apply_filters('kirki_ecommerce_config_data', $config_data);
