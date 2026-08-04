@@ -21,8 +21,14 @@ if (!defined('ABSPATH')) {
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-add_filter(HookNames::ECOMMERCE_ALL_PAYMENT_GATEWAYS, function ($gateways) {
-    $gateways[] = new Stripe();
+add_action('plugins_loaded', function () {
+    if (!class_exists(HookNames::class)) {
+        return;
+    }
 
-    return $gateways;
+    add_filter(HookNames::ECOMMERCE_ALL_PAYMENT_GATEWAYS, function ($gateways) {
+        $gateways[] = new Stripe();
+
+        return $gateways;
+    });
 });
