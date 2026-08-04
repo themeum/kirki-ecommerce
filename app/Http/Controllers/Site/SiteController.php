@@ -151,7 +151,7 @@ class SiteController
     ) {
         $customer = customer();
         $payment_gateways =  $payment_gateway_service->get();
-        $cart = $cart_service->get_cart();
+        $cart = $cart_service->get_cart($customer->get_id());
 
 
         $data = [

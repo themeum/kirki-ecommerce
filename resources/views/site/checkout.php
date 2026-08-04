@@ -11,7 +11,10 @@
 
 defined('ABSPATH') || exit;
 
+use Kirki\Ecommerce\App\Managers\MoneyManager;
+use Kirki\Ecommerce\App\Supports\Assets;
 use Kirki\Ecommerce\App\Supports\Template;
+use Kirki\Ecommerce\App\Supports\Url;
 
 use function Kirki\Ecommerce\Framework\view_data;
 
@@ -335,46 +338,79 @@ $cart = $data->cart ?? null;
             <div class="kecom-checkout-right">
                 <!-- Product List -->
                 <div class="kecom-products-section">
+                    <?php
+                        $cart_items = $cart && $cart->items ? (is_array($cart->items) ? $cart->items : $cart->items->all()) : [];
+                        $items_count = count($cart_items);
+                        $money_manager = new MoneyManager();
+                    ?>
                     <div class="kecom-products-section-title">
-                        <h2 class="kecom-section-title"><?php esc_html_e('Order Summary', 'kirki-ecommerce'); ?> <span class="kecom-text-subdued">(4)</span></h2>
-                        <a href="#" class="kecom-products-section-modify"><?php esc_html_e('Modify', 'kirki-ecommerce'); ?></a>
+                        <h2 class="kecom-section-title"><?php esc_html_e('Order Summary', 'kirki-ecommerce'); ?> <span class="kecom-text-subdued">(<?php echo esc_html($items_count); ?>)</span></h2>
+                        <a href="<?php echo esc_url(Url::get_cart_url()); ?>" class="kecom-products-section-modify"><?php esc_html_e('Modify', 'kirki-ecommerce'); ?></a>
                     </div>
                     <div class="kecom-product-list">
+                        <?php foreach ($cart_items as $item) :
+                            $product = $item->product ?? null;
+                            $variant = $item->variant ?? null;
+
+                            if (!$product || !$variant) {
+                                continue;
+                            }
+
+                            // Product image: use product media first, then fallback.
+                            $media = $product->media ? (is_array($product->media) ? ($product->media[0] ?? null) : $product->media->first()) : null;
+                            $image_url = null;
+
+                            if ($media) {
+                                $image_url = wp_get_attachment_image_url($media->ID, 'thumbnail');
+                            }
+
+                            if (!$image_url) {
+                                $image_url = Assets::get_url('images/product-fallback.png');
+                            }
+
+                            // Category.
+                            $category = $product->categories ? (is_array($product->categories) ? ($product->categories[0] ?? null) : $product->categories->first()) : null;
+
+                            // Variant attribute values.
+                            $attribute_values = $variant->attribute_values ? (is_array($variant->attribute_values) ? $variant->attribute_values : $variant->attribute_values->all()) : [];
+
+                            // Prices.
+                            $regular_price = $variant->price ?? 0;
+                            $sale_price = $variant->sale_price ?? 0;
+                            $quantity = $item->quantity ?? 1;
+
+                            $display_price = $sale_price > 0 ? $sale_price : $regular_price;
+                            $line_total = $display_price * $quantity;
+
+                            $formatted_line_total = $money_manager->format($money_manager->from_minor($line_total));
+                            $formatted_regular_total = $sale_price > 0 ? $money_manager->format($money_manager->from_minor($regular_price * $quantity)) : '';
+                            ?>
                         <div class="kecom-product-item">
                             <div class="kecom-product-image-wrapper">
-                                <img src="http://localhost:10033/wp-content/uploads/2026/07/f4cc2a63021f31d8831021cde23b184119c17f40.png" alt="Product 1" class="kecom-product-image">
-                                <span class="kecom-product-qty-badge">1</span>
+                                <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($product->title); ?>" class="kecom-product-image">
+                                <span class="kecom-product-qty-badge"><?php echo esc_html($quantity); ?></span>
                             </div>
                             <div class="kecom-product-info">
-                                <h3 class="kecom-product-name">Product Name 1</h3>
-                                <p class="kecom-product-category">Category</p>
-                                <p class="kecom-product-variant">
-                                    <span>L</span>
-                                    <span>Blue</span>
-                                </p>
+                                <h3 class="kecom-product-name"><?php echo esc_html($product->title); ?></h3>
+                                <?php if ($category) : ?>
+                                    <p class="kecom-product-category"><?php echo esc_html($category->name); ?></p>
+                                <?php endif; ?>
+                                <?php if (!empty($attribute_values)) : ?>
+                                    <p class="kecom-product-variant">
+                                        <?php foreach ($attribute_values as $attr_value) : ?>
+                                            <span><?php echo esc_html($attr_value->value); ?></span>
+                                        <?php endforeach; ?>
+                                    </p>
+                                <?php endif; ?>
                             </div>
                             <div class="kecom-product-price-wrapper">
-                                <span class="kecom-product-price">$49.99</span>
-                                <span class="kecom-product-discount">$59.99</span>
+                                <span class="kecom-product-price"><?php echo esc_html($formatted_line_total); ?></span>
+                                <?php if ($formatted_regular_total) : ?>
+                                    <span class="kecom-product-discount"><?php echo esc_html($formatted_regular_total); ?></span>
+                                <?php endif; ?>
                             </div>
                         </div>
-                        <div class="kecom-product-item">
-                            <div class="kecom-product-image-wrapper">
-                                <img src="http://localhost:10033/wp-content/uploads/2026/07/f4cc2a63021f31d8831021cde23b184119c17f40.png" alt="Product 2" class="kecom-product-image">
-                                <span class="kecom-product-qty-badge">2</span>
-                            </div>
-                            <div class="kecom-product-info">
-                                <h3 class="kecom-product-name">Product Name 2</h3>
-                                <p class="kecom-product-category">Category</p>
-                                <p class="kecom-product-variant">
-                                    <span>M</span>
-                                </p>
-                            </div>
-                            <div class="kecom-product-price-wrapper">
-                                <span class="kecom-product-price">$79.98</span>
-                                <span class="kecom-product-discount">$99.99</span>
-                            </div>
-                        </div>
+                        <?php endforeach; ?>
                     </div>
                 </div>
 
