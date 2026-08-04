@@ -29,13 +29,45 @@ export interface CartItem {
   image?: string;
 }
 
+export interface CartPricing {
+  subtotal: string;
+  tax_total: string;
+  discount_details: any;
+  discount_total: string;
+  shipping_subtotal: string;
+  shipping_tax: string;
+  shipping_discount: string;
+  shipping_total: string;
+  total: string;
+}
+
 export interface Cart {
   id: number;
+  customer_id: number | null;
+  cart_token: string;
+  currency: {
+    code: string;
+    base_code: string;
+  };
+  pricing: CartPricing;
+  items_count: number;
   items: CartItem[];
-  subtotal: number;
-  total: number;
-  coupon_code?: string;
-  discount?: number;
+  shipping_address: any;
+  billing_address: any;
+  available_shipping_methods: any[];
+  shipping_method: any;
+  customer_notes: string | null;
+  ip_address: string | null;
+  user_agent: string | null;
+  expires_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ApiResponse<T> {
+  data: T;
+  message: string;
+  success: boolean;
 }
 
 export interface WishlistItem {

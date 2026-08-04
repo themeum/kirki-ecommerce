@@ -3,33 +3,33 @@
  */
 
 import { apiRequest } from './client';
-import type { Cart } from '../types';
+import type { Cart, ApiResponse } from '../types';
 
 export const cartApi = {
   get: () =>
-    apiRequest<Cart>('/cart'),
+    apiRequest<ApiResponse<Cart>>('/cart'),
 
   addItem: (variantId: number, quantity: number) =>
-    apiRequest<Cart>('/cart/items', {
+    apiRequest<ApiResponse<Cart>>('/cart/items', {
       method: 'POST',
       body: { variant_id: variantId, quantity },
     }),
 
   updateItem: (itemId: number, quantity: number) =>
-    apiRequest<Cart>(`/cart/items/${itemId}`, {
+    apiRequest<ApiResponse<Cart>>(`/cart/items/${itemId}`, {
       method: 'PUT',
       body: { quantity },
     }),
 
   removeItem: (itemId: number) =>
-    apiRequest<Cart>(`/cart/items/${itemId}`, { method: 'DELETE' }),
+    apiRequest<ApiResponse<Cart>>(`/cart/items/${itemId}`, { method: 'DELETE' }),
 
   empty: () =>
-    apiRequest<void>('/cart', { method: 'DELETE' }),
+    apiRequest<ApiResponse<void>>('/cart', { method: 'DELETE' }),
 
   applyCoupon: (code: string) =>
-    apiRequest<Cart>('/cart/coupon', { method: 'POST', body: { code } }),
+    apiRequest<ApiResponse<Cart>>('/cart/coupon', { method: 'POST', body: { code } }),
 
   removeCoupon: () =>
-    apiRequest<Cart>('/cart/coupon', { method: 'DELETE' }),
+    apiRequest<ApiResponse<Cart>>('/cart/coupon', { method: 'DELETE' }),
 };
