@@ -7,20 +7,18 @@ info:
 
 http:
   method: PUT
-  url: "{{baseUrl}}/payment-gateways/authorizenet"
+  url: "{{baseUrl}}/payment-gateways/stripe"
   body:
     type: json
     data: |-
       {
         "data": {
-          "login_id": "3a8V3b5Yz2",
-          "transaction_key": "52Q2m9u4CPZ3Hp4P",
-          "signature_key": "93A6568827835B162331CC78CDB0565F49ADBEBEE47309ED6B859687AAF18ACBBDF3B3AA065717E86365B41FD3ABF9E68F04BA3359471BF27AA312C962E0A10C",
-          "sandbox": true
+          "publishable_key": "pk_test_51Ssd7hCjeaAiRLwdjA364H9sPKLHHfVdbIvg7tdnXZsq8fvLEVzpe8f7rGe0qwx8aAtjceCLvBtzPrC5QK66u14b00rIsKTNg5",
+          "secret_key": "sk_test_51Ssd7hCjeaAiRLwdNGeXgSAj3EGxTEtHwTQeOEAGuRP0JeyGatuQidGAFVDlnwBGZcdf53qrg2p92z4CE5hcL55i00gdIVXemi",
+          "webhook_secret": "whsec_4KGwdSvS3sx7QYYkFmIwvpjxvFvB0FUe"
         }
       }
   auth: inherit
-
 settings:
   encodeUrl: true
   timeout: 0
