@@ -24,6 +24,7 @@ http:
           "postal_code": "5665",
           "country": "BD"
         },
+        "is_billing_same_as_shipping": false,
         "billing_address": {
           "first_name": "Jane",
           "last_name": "Doe",

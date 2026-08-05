@@ -196,8 +196,7 @@ class MoneyManager
      */
     public function convert_to_currency(Money $money, string $currency, $exchange_rate = null)
     {
-        $a = $this->from_minor(0);
-        return $money->convertedTo($currency, $exchange_rate ?? Currency::exchange_rate($currency));
+        return $money->convertedTo($currency, $exchange_rate ?? Currency::exchange_rate($currency), null, RoundingMode::HALF_UP);
     }
 
     /**
