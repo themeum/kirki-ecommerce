@@ -27,7 +27,7 @@ $formatted_total = Money::format_from_decimal($pricing['total'] ?? 0);
     </div>
     <div class="kecom-summary-row">
         <span><?php esc_html_e('Shipping', 'kirki-ecommerce'); ?></span>
-        <span class="kecom-summary-value" x-text="cartData ? currency + parseFloat(cartData.pricing.shipping_total).toFixed(2) : '<?php echo esc_js($formatted_shipping); ?>'"><?php echo esc_html($formatted_shipping); ?></span>
+        <span class="kecom-summary-value" x-text="cartData ? (selectedShippingMethod ? currency + (availableShippingMethods.find(m => m.id === selectedShippingMethod)?.cost || '0.00') : currency + parseFloat(cartData.pricing.shipping_total).toFixed(2)) : '<?php echo esc_js($formatted_shipping); ?>'"><?php echo esc_html($formatted_shipping); ?></span>
     </div>
     <div class="kecom-summary-row" x-show="discount > 0">
         <span><?php esc_html_e('Discount', 'kirki-ecommerce'); ?></span>

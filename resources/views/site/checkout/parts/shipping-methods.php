@@ -39,7 +39,7 @@ extract($data);
             </label>
         </template>
     </div>
-    <div x-show="availableShippingMethods.length === 0" class="kecom-text-subdued">
-        <?php esc_html_e('Please select your shipping address to see available shipping methods.', 'kirki-ecommerce'); ?>
+    <div x-show="availableShippingMethods.length === 0" class="kecom-text-base kecom-text-subdued">
+        <?php esc_html_e('No shipping methods found!', 'kirki-ecommerce'); ?>
     </div>
 </div>
