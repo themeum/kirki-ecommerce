@@ -257,6 +257,38 @@
     }
   }
 
+  .kecom-applied-coupon {
+    @include flex-column();
+    gap: $spacing-4;
+
+    .kecom-applied-coupon-info {
+      @include flex-between();
+      border: 1px solid $icon-brand;
+      border-radius: $radius-lg;
+      padding: $spacing-3 $spacing-3 $spacing-3 $spacing-6;
+
+      .kecom-applied-coupon-code-wrapper {
+        @include flex-center();
+        gap: $spacing-4;
+      }
+
+      .kecom-coupon-code {
+        @include typography(base, medium);
+        text-transform: uppercase;
+      }
+
+      .kecom-coupon-discount {
+        text-transform: uppercase;
+      }
+
+      button {
+        height: 24px;
+        width: 24px;
+        @include flex-center();
+      }
+    }
+  }
+
   // Order Summary
   .kecom-order-summary {
     display: flex;

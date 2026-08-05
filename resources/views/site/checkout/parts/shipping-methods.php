@@ -19,6 +19,11 @@ extract($data);
         }
     });
 
+    // Listen for set-shipping-method event to sync with checkout component
+    window.addEventListener('set-shipping-method', (e) => {
+        selectedShippingMethod = e.detail.methodId;
+    });
+
     // Listen for initial data
     window.dispatchEvent(new CustomEvent('get-shipping-methods'));
 ">

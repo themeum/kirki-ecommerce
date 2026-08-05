@@ -70,6 +70,12 @@ export function checkout(config: CheckoutConfig = {}) {
         this.shippingFormValid = e.detail.isValid;
       });
 
+      // Pre-select the first payment method
+      const firstPaymentRadio = document.querySelector<HTMLInputElement>('input[name="payment_method"]');
+      if (firstPaymentRadio) {
+        this.selectedPaymentMethod = firstPaymentRadio.value;
+      }
+
       // Watch for billingSameAsShipping changes
       (this as any).$watch('billingSameAsShipping', (value: boolean) => {
         if (value) {
@@ -81,7 +87,8 @@ export function checkout(config: CheckoutConfig = {}) {
       if (this.cartData?.available_shipping_methods) {
         this.availableShippingMethods = this.cartData.available_shipping_methods;
         if (this.cartData.shipping_method) {
-          this.selectedShippingMethod = this.cartData.shipping_method;
+          // shipping_method from the cart is an object; extract the id for radio binding
+          this.selectedShippingMethod = this.cartData.shipping_method?.id ?? this.cartData.shipping_method;
         } else if (this.availableShippingMethods.length > 0) {
           // Select first shipping method if none selected
           this.selectedShippingMethod = this.availableShippingMethods[0].id;
@@ -205,7 +212,7 @@ export function checkout(config: CheckoutConfig = {}) {
 
         // Update selected shipping method if it changed
         if (response.data.shipping_method) {
-          this.selectedShippingMethod = response.data.shipping_method;
+          this.selectedShippingMethod = response.data.shipping_method?.id ?? response.data.shipping_method;
         }
 
         // Dispatch event to update shipping methods in the partial
@@ -251,18 +258,37 @@ export function checkout(config: CheckoutConfig = {}) {
     },
 
     async applyCoupon() {
-      if (!this.couponCode.trim()) {
-        toastManager.error(__('Please enter a coupon code', 'kirki-ecommerce'));
-        return;
-      }
       this.couponLoading = true;
+      this.error = null;
+
       try {
         const response = await cartApi.applyCoupon(this.couponCode);
         this.cartData = response.data;
-        this.discount = parseFloat(response.data.pricing.discount_total) || 0;
+        this.discount = parseFloat(response.data.pricing.discount_total || '0');
+        this.couponCode = '';
         toastManager.success(__('Coupon applied successfully!', 'kirki-ecommerce'));
       } catch (e: unknown) {
         const error = e instanceof Error ? e.message : __('Failed to apply coupon', 'kirki-ecommerce');
+        this.error = error;
+        toastManager.error(error);
+      } finally {
+        this.couponLoading = false;
+      }
+    },
+
+    async removeCoupon() {
+      this.couponLoading = true;
+      this.error = null;
+
+      try {
+        const response = await cartApi.removeCoupon();
+        this.cartData = response.data;
+        this.couponCode = '';
+        this.discount = 0;
+        toastManager.success(__('Coupon removed successfully!', 'kirki-ecommerce'));
+      } catch (e: unknown) {
+        const error = e instanceof Error ? e.message : __('Failed to remove coupon', 'kirki-ecommerce');
+        this.error = error;
         toastManager.error(error);
       } finally {
         this.couponLoading = false;

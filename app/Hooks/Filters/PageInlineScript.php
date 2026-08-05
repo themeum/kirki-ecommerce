@@ -48,10 +48,25 @@ class PageInlineScript extends BaseHook
         if (Route::is('checkout')) {
             $data = (object) view_data();
             $cart = $data->cart ?? null;
+            $pricing = $cart['pricing'] ?? [];
+            $discount_details = $pricing['discount_details'] ?? null;
+
             $config['checkout_cart'] = [
                 'items' => $cart['items'] ?? [],
-                'pricing' => $cart['pricing'] ?? [],
+                'pricing' => [
+                    'subtotal_formatted'  => $pricing['subtotal_formatted'] ?? null,
+                    'shipping_total'      => $pricing['shipping_total'] ?? null,
+                    'discount_total'      => $pricing['discount_total'] ?? null,
+                    'total_formatted'     => $pricing['total_formatted'] ?? null,
+                    'discount_details'    => $discount_details ? [
+                        'code'                       => $discount_details['code'] ?? null,
+                        'discount_value_type'        => $discount_details['discount_value_type'] ?? null,
+                        'discount_amount_percentage' => $discount_details['discount_amount_percentage'] ?? null,
+                        'discount_amount_fixed'      => $discount_details['discount_amount_fixed'] ?? null,
+                    ] : null,
+                ],
                 'available_shipping_methods' => $cart['available_shipping_methods'] ?? [],
+                'shipping_method' => $cart['shipping_method'] ?? null,
             ];
             $config['currency'] = $cart['currency']['code'] ?? 'USD';
             $config['countries'] = $data->countries ?? [];
