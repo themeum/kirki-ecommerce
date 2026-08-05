@@ -141,7 +141,7 @@ class PayPal extends PaymentGateway
                     'quantity' => 1,
                     'unit_amount' => [
                         'currency_code' => $currency,
-                        'value' => $this->format_amount($item->total),
+                        'value' => $this->format_amount($item->invoiced_total),
                     ],
                 ];
             }
@@ -150,15 +150,15 @@ class PayPal extends PaymentGateway
                 [
                     'amount' => [
                         'currency_code' => $currency,
-                        'value' => $this->format_amount($order->total),
+                        'value' => $this->format_amount($order->invoiced_total),
                         'breakdown' => [
                             'item_total' => [
                                 'currency_code' => $currency,
-                                'value' => $this->format_amount($order->total - $order->shipping_total),
+                                'value' => $this->format_amount($order->invoiced_total - $order->invoiced_shipping_total),
                             ],
                             'shipping' => [
                                 'currency_code' => $currency,
-                                'value' => $this->format_amount($order->shipping_total),
+                                'value' => $this->format_amount($order->invoiced_shipping_total),
                             ],
                         ],
                     ],

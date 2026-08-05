@@ -80,6 +80,6 @@ class CreateRefundAction
             ->filter(fn($refund) => in_array($refund->status, [RefundStatus::PENDING, RefundStatus::COMPLETED]))
             ->sum(fn($refund) => $refund->amount);
 
-        return $order->total - $total_refund_requested - $order->shipping_total;
+        return $order->invoiced_total - $total_refund_requested - $order->invoiced_shipping_total;
     }
 }

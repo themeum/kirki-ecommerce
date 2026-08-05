@@ -37,37 +37,37 @@ class UpdateOrderDTO extends DTO
     public $exchange_rate;
 
     /** @var int */
-    public $subtotal;
+    public $invoiced_subtotal;
 
     /** @var int */
-    public $subtotal_base;
+    public $base_subtotal;
 
     /** @var int */
-    public $shipping_total;
+    public $invoiced_shipping_total;
 
     /** @var int */
-    public $shipping_total_base;
+    public $base_shipping_total;
 
     /** @var int */
-    public $discount_total;
+    public $invoiced_discount_total;
 
     /** @var int */
-    public $discount_total_base;
+    public $base_discount_total;
 
     /** @var array */
     public $discount_details;
 
     /** @var int */
-    public $tax_total;
+    public $invoiced_tax_total;
 
     /** @var int */
-    public $tax_total_base;
+    public $base_tax_total;
 
     /** @var int */
-    public $total;
+    public $invoiced_total;
 
     /** @var int */
-    public $total_base;
+    public $base_total;
 
     /** @var int */
     public $items_count;

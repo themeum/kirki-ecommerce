@@ -65,7 +65,7 @@ class UpdateRefundAction
             $total_refunded = $order->refunds
                 ->filter(fn($refund) => $refund->status === RefundStatus::COMPLETED)
                 ->sum(fn($refund) => $refund->amount);
-            $total_refundable = $order->total - $order->shipping_total - $order->payment_gateway_fee;
+            $total_refundable = $order->invoiced_total - $order->invoiced_shipping_total - $order->payment_gateway_fee;
             $is_fully_refunded = $total_refunded >= $total_refundable;
 
             if ($is_fully_refunded) {
