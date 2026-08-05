@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { MoneyAmountSchema } from '@/schemas/shared/api';
+import { MoneyAmountSchema, MoneyObjectSchema } from '@/schemas/shared/api';
 import { MediaRefSchema } from '@/schemas/shared/media';
 
 export const VariantSchema = z.object({
@@ -10,12 +10,14 @@ export const VariantSchema = z.object({
   sku: z.string().nullable(),
   barcode: z.string().nullable(),
   price: MoneyAmountSchema.nullable(),
+  price_object: MoneyObjectSchema,
   show_unit_price: z.boolean().nullish(),
   base_unit: z.string().nullish(),
   base_unit_amount: MoneyAmountSchema.nullish(),
   total_unit: z.string().nullish(),
   total_unit_amount: MoneyAmountSchema.nullish(),
   sale_price: MoneyAmountSchema.nullable(),
+  sale_price_object: MoneyObjectSchema.nullable(),
   cost_of_goods: MoneyAmountSchema.nullable(),
   weight: MoneyAmountSchema.nullable(),
   weight_unit: z.string().nullable(),

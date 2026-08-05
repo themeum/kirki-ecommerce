@@ -10,8 +10,9 @@ class OrderUpdateRequest extends Request
 {
     public function authorize()
     {
-        if(!customer()->is_admin() 
-            && !empty($this->input('customer_id')) 
+        if (
+            !customer()->is_admin()
+            && !empty($this->input('customer_id'))
             && $this->input('customer_id') !== customer()->get_customer_id()
             && $this->input('is_manual')
         ) {
@@ -39,7 +40,7 @@ class OrderUpdateRequest extends Request
             'shipping_email' => $this->input('shipping_email'),
         ];
 
-        if($is_billing_same_as_shipping){
+        if ($is_billing_same_as_shipping) {
             $billing_address = [
                 'billing_first_name' => $shipping_address['shipping_first_name'],
                 'billing_last_name' => $shipping_address['shipping_last_name'],
@@ -52,7 +53,7 @@ class OrderUpdateRequest extends Request
                 'billing_phone' => $shipping_address['shipping_phone'],
                 'billing_email' => $shipping_address['shipping_email'],
             ];
-        } else{
+        } else {
             $billing_address = [
                 'billing_first_name' => $this->input('billing_first_name'),
                 'billing_last_name' => $this->input('billing_last_name'),
@@ -65,7 +66,7 @@ class OrderUpdateRequest extends Request
                 'billing_phone' => $this->input('billing_phone'),
                 'billing_email' => $this->input('billing_email'),
             ];
-        } 
+        }
 
         $this->merge($shipping_address);
         $this->merge($billing_address);
@@ -87,10 +88,9 @@ class OrderUpdateRequest extends Request
             'items.*.quantity' => 'required|integer|min:1',
 
             'currency_code' => 'nullable|string',
-            'payment_method' => 'required|string',
             'coupon_code' => 'nullable|string',
 
-            'shipping_method' => 'nullable|string',
+            'shipping_method' => 'required|string',
 
             'shipping_first_name' => 'required|string',
             'shipping_last_name' => 'required|string',
@@ -119,9 +119,7 @@ class OrderUpdateRequest extends Request
             'customer_email' => 'nullable|email',
             'customer_phone' => 'nullable|string',
             'customer_notes' => 'nullable|string',
-            'is_manual' => 'nullable|boolean',
-            'order_status' => 'nullable|string',
-            'payment_status' => 'nullable|string',
+            'is_manual' => 'required|boolean',
         ];
     }
 
@@ -136,7 +134,6 @@ class OrderUpdateRequest extends Request
             'items.*.quantity' => Sanitizer::INT,
 
             'currency_code' => Sanitizer::TEXT,
-            'payment_method' => Sanitizer::TEXT,
             'coupon_code' => Sanitizer::TEXT,
 
             'shipping_method' => Sanitizer::TEXT,
@@ -171,8 +168,6 @@ class OrderUpdateRequest extends Request
             'customer_phone' => Sanitizer::TEXT,
             'customer_notes' => Sanitizer::TEXT,
             'is_manual' => Sanitizer::BOOL,
-            'order_status' => Sanitizer::TEXT,
-            'payment_status' => Sanitizer::TEXT,
         ];
     }
 }

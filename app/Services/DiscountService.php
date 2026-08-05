@@ -123,7 +123,7 @@ class DiscountService
 
         $this->validate_coupon($coupon, $context);
 
-        $result->discount_details = $coupon->to_array();
+        $result->discount_details = $coupon;
 
         switch ($coupon->discount_type) {
             case DiscountType::AMOUNT_OFF:

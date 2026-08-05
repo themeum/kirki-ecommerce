@@ -29,10 +29,9 @@ const CustomerSearchDropdown = ({ onSelect, onOpenAddDialog }: CustomerSearchDro
   const anchorRef = useRef<HTMLDivElement>(null);
 
   const query = search.trim();
-  const hasQuery = query.length > 0;
   const { data, isFetching } = useCustomersQuery(
     { search: query, limit: 10 },
-    hasQuery,
+    open
   );
 
   const customers = useMemo(() => {
@@ -77,40 +76,38 @@ const CustomerSearchDropdown = ({ onSelect, onOpenAddDialog }: CustomerSearchDro
         }}
         cssOverride={{ width: '320px' }}
       >
-        {hasQuery && (
-          <Command shouldFilter={false}>
-            <CommandList>
-              {customers.length === 0 && (
-                <Text variant="small" color="secondary" cssOverride={styles.status}>
-                  {isFetching
-                    ? __('Searching...', 'kirki-ecommerce')
-                    : __('No customers found.', 'kirki-ecommerce')}
-                </Text>
-              )}
-              {customers.length > 0 && (
-                <CommandGroup>
-                  {customers.map((customer) => (
-                    <CommandItem
-                      key={customer.id}
-                      value={String(customer.id)}
-                      onSelect={() => handleSelect(customer.id)}
-                    >
-                      <CustomerProfileCard
-                        name={[customer.first_name, customer.last_name]
-                          .filter(Boolean)
-                          .join(' ')}
-                        email={customer.email}
-                        phone={customer.phone}
-                        photo={customer.photo}
-                      />
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              )}
-            </CommandList>
-          </Command>
-        )}
-        <div css={scopedMerge(styles.footer, hasQuery && styles.footerBordered)}>
+        <Command shouldFilter={false}>
+          <CommandList>
+            {customers.length === 0 && (
+              <Text variant="small" color="secondary" cssOverride={styles.status}>
+                {isFetching
+                  ? __('Searching...', 'kirki-ecommerce')
+                  : __('No customers found.', 'kirki-ecommerce')}
+              </Text>
+            )}
+            {customers.length > 0 && (
+              <CommandGroup>
+                {customers.map((customer) => (
+                  <CommandItem
+                    key={customer.id}
+                    value={String(customer.id)}
+                    onSelect={() => handleSelect(customer.id)}
+                  >
+                    <CustomerProfileCard
+                      name={[customer.first_name, customer.last_name]
+                        .filter(Boolean)
+                        .join(' ')}
+                      email={customer.email}
+                      phone={customer.phone}
+                      photo={customer.photo}
+                    />
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            )}
+          </CommandList>
+        </Command>
+        <div css={scopedMerge(styles.footer, styles.footerBordered)}>
           <Button
             variant="ghost"
             size="sm"

@@ -133,7 +133,8 @@ class ProductRepository
 
     protected function list_query($filters = [])
     {
-        $query = Product::with(['categories', 'tags', 'collections', 'attributes', 'attribute_values', 'variants', 'media']);
+        // TODO: remove 'variants.attribute_values' and 'variants.product' when new API is ready for order creation
+        $query = Product::with(['categories', 'tags', 'collections', 'attributes', 'attribute_values', 'variants.attribute_values', 'variants.product', 'media']);
 
         $query->when($filters['search'] ?? null, function (QueryBuilder $query, $search) {
             return $query->where_any(['title', 'description'], 'like', '%' . $search . '%');

@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import Pagination from '@/components/pagination';
 import Button from '@/components/ui/button';
@@ -27,19 +27,47 @@ import Text from '@/components/ui/text';
 import { BoxIcon, ListFilter } from '@/icons';
 import ProductFilterPopup, { type ProductFilterValue } from '@/pages/orders/order-create/components/product/product-filter-popup';
 import ProductPickerRow from '@/pages/orders/order-create/components/product/product-picker-row';
-import type { OrderLineDisplay } from '@/pages/orders/order-create/types';
+import { getVariantLabel } from '@/pages/orders/order-create/config/variant-label';
+import type {
+  OrderRowDisplay,
+  ProductPickerItem,
+} from '@/pages/orders/order-create/types';
 import { useProductsQuery } from '@/services/product';
-import type { PaginationData } from '@/types';
+import type { PaginationData, ProductListItem } from '@/types';
 import { __, _n, sprintf } from '@/wpi18n';
 
 type SelectProductsDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onAdd: (items: OrderLineDisplay[]) => void;
-  selectedLines: OrderLineDisplay[];
+  onAdd: (items: OrderRowDisplay[]) => void;
+  selectedLines: OrderRowDisplay[];
 };
 
 const PAGE_SIZE = 8;
+
+const buildProductRows = (product: ProductListItem): ProductPickerItem[] =>
+  product.variants.reduce<ProductPickerItem[]>((rows, variant) => {
+    if (!variant.id) {
+      return rows;
+    }
+
+    const label = getVariantLabel(product.attributes, variant);
+
+    rows.push({
+      label: label || variant.sku || __('Default', 'kirki-ecommerce'),
+      inStock: variant.in_stock,
+      row: {
+        variantId: variant.id,
+        productTitle: product.title,
+        variantLabel: label || undefined,
+        thumbnail: variant.media?.url ?? product.image ?? null,
+        regularPrice: variant.price_object,
+        salePrice: variant.sale_price_object,
+      },
+    });
+
+    return rows;
+  }, []);
 
 const SelectProductsDialog = ({
   open,
@@ -58,8 +86,7 @@ const SelectProductsDialog = ({
   const [expandedProductIds, setExpandedProductIds] = useState<Set<number>>(
     new Set(),
   );
-  const [loadedLines, setLoadedLines] = useState<Record<number, OrderLineDisplay[]>>({});
-  const [selection, setSelection] = useState<Map<number, OrderLineDisplay>>(
+  const [selection, setSelection] = useState<Map<number, OrderRowDisplay>>(
     () => new Map(selectedLines.map((line) => [line.variantId, line])),
   );
 
@@ -77,14 +104,24 @@ const SelectProductsDialog = ({
   }, open);
 
   const products = data?.results ?? [];
-  const pageLines = products.flatMap((product) => loadedLines[product.id] ?? []);
-  const selectedOnPageCount = pageLines.filter((line) =>
+  const productRows = useMemo(
+    () =>
+      new Map(products.map((product) => [product.id, buildProductRows(product)])),
+    [products],
+  );
+  const pageRows = useMemo(
+    () => products.flatMap(
+      (product) => productRows.get(product.id)?.map((line) => line.row) ?? [],
+    ),
+    [productRows, products],
+  );
+  const selectedOnPageCount = pageRows.filter((line) =>
     selection.has(line.variantId),
   ).length;
   const allOnPageSelected =
-    pageLines.length > 0 && selectedOnPageCount === pageLines.length;
+    pageRows.length > 0 && selectedOnPageCount === pageRows.length;
   const partialOnPageSelected =
-    selectedOnPageCount > 0 && selectedOnPageCount < pageLines.length;
+    selectedOnPageCount > 0 && selectedOnPageCount < pageRows.length;
 
   const paginationData: PaginationData = {
     current_page: data?.current_page ?? page,
@@ -93,13 +130,6 @@ const SelectProductsDialog = ({
     total: data?.total ?? 0,
     has_more_pages: data?.has_more_pages ?? false,
   };
-
-  const handleLinesLoaded = useCallback(
-    (productId: number, lines: OrderLineDisplay[]) => {
-      setLoadedLines((previous) => ({ ...previous, [productId]: lines }));
-    },
-    [],
-  );
 
   const toggleExpand = (productId: number) => {
     setExpandedProductIds((previous) => {
@@ -115,17 +145,17 @@ const SelectProductsDialog = ({
     });
   };
 
-  const toggleLines = (lines: OrderLineDisplay[], checked: boolean) => {
+  const toggleRows = (rows: OrderRowDisplay[], checked: boolean) => {
     setSelection((previous) => {
       const next = new Map(previous);
 
-      lines.forEach((line) => {
+      rows.forEach((row) => {
         if (checked) {
-          next.set(line.variantId, line);
+          next.set(row.variantId, row);
           return;
         }
 
-        next.delete(line.variantId);
+        next.delete(row.variantId);
       });
 
       return next;
@@ -179,9 +209,9 @@ const SelectProductsDialog = ({
                   <Checkbox
                     checked={allOnPageSelected}
                     isPartialChecked={partialOnPageSelected}
-                    disabled={pageLines.length === 0}
+                    disabled={pageRows.length === 0}
                     onCheckedChange={(checked) =>
-                      toggleLines(pageLines, checked === true)
+                      toggleRows(pageRows, checked === true)
                     }
                   />
                 </TableHead>
@@ -213,11 +243,11 @@ const SelectProductsDialog = ({
                 <ProductPickerRow
                   key={product.id}
                   product={product}
+                  variants={productRows.get(product.id) ?? []}
                   expanded={expandedProductIds.has(product.id)}
                   onToggleExpand={() => toggleExpand(product.id)}
                   selectedVariantIds={new Set(selection.keys())}
-                  onLinesLoaded={handleLinesLoaded}
-                  onToggleLines={toggleLines}
+                  onToggleRows={toggleRows}
                 />
               ))}
             </TableBody>

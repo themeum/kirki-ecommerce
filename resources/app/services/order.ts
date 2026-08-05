@@ -1,16 +1,23 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { apiClient } from '@/libs/api';
 import { endpoints } from '@/libs/endpoints';
 import { queryKeys } from '@/libs/query-keys';
-import { toastMutationError, toastMutationSuccess, unwrapResponse } from '@/services/helpers';
-import type { OrderFormPayload, OrderItem } from '@/types';
+import { OrderCalculationSchema } from '@/schemas/catalog/order';
+import { parseData, toastMutationError, toastMutationSuccess, unwrapResponse } from '@/services/helpers';
+import type { OrderCalculationRequestPayload, OrderFormPayload, OrderItem } from '@/types';
 import { __ } from '@/wpi18n';
 
 const createOrder = (data: OrderFormPayload) => {
   return apiClient
     .post(endpoints.ORDERS, data)
     .then((response) => unwrapResponse<OrderItem>(response));
+};
+
+const calculateOrder = (data: OrderCalculationRequestPayload) => {
+  return apiClient
+    .post(endpoints.CALCULATE_ORDER, data)
+    .then((response) => parseData(OrderCalculationSchema, response));
 };
 
 const useCreateOrderMutation = () => {
@@ -30,4 +37,16 @@ const useCreateOrderMutation = () => {
   });
 };
 
-export { createOrder, useCreateOrderMutation };
+const useOrderCalculationQuery = (
+  payload: OrderCalculationRequestPayload,
+  enabled = true,
+) => {
+  return useQuery({
+    queryKey: queryKeys.OrderCalculation(payload),
+    queryFn: () => calculateOrder(payload),
+    placeholderData: keepPreviousData,
+    enabled,
+  });
+};
+
+export { useCreateOrderMutation, useOrderCalculationQuery };

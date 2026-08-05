@@ -84,11 +84,11 @@ class OrderCreateRequest extends Request
             'items.*.variant_id' => 'required|integer',
             'items.*.quantity' => 'required|integer|min:1',
 
-            'currency_code' => 'required|string',
+            'currency_code' => 'nullable|string',
             'payment_method' => 'required_if:is_manual,0|nullable|string',
             'coupon_code' => 'nullable|string',
 
-            'shipping_method' => 'required|nullable|string',
+            'shipping_method' => 'required|string',
             'shipping_first_name' => 'required|string',
             'shipping_last_name' => 'required|string',
             'shipping_address_line1' => 'required|string',

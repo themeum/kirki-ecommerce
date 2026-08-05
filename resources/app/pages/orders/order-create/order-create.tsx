@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useState } from 'react';
-import { useFieldArray, useForm } from 'react-hook-form';
+import { useMemo, useState } from 'react';
+import { useFieldArray, useForm, useWatch } from 'react-hook-form';
 import { useNavigate } from 'react-router';
 
 import Button from '@/components/ui/button';
@@ -9,6 +9,7 @@ import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import Page from '@/components/ui/page';
 import PageHeading from '@/components/ui/page-heading';
+import { useDebounce } from '@/hooks';
 import type { ErrorResponse } from '@/libs/api';
 import { endpoints } from '@/libs/endpoints';
 import { applyServerErrors } from '@/libs/form-errors';
@@ -16,17 +17,24 @@ import { getDefaults } from '@/libs/zod';
 import CustomerCard from '@/pages/orders/order-create/components/customer-card';
 import NotesCard from '@/pages/orders/order-create/components/notes-card';
 import PaymentSummaryCard from '@/pages/orders/order-create/components/payment-summary-card';
-import ItemsCard from '@/pages/orders/order-create/components/items-card';
+import ProductSelectionCard from '@/pages/orders/order-create/components/product-selection-card';
 import SelectProductsDialog from '@/pages/orders/order-create/components/select-products-dialog';
-import type { OrderLineDisplay, OrderLineRow } from '@/pages/orders/order-create/types';
-import { useCreateOrderMutation } from '@/services/order';
-import { OrderFormSchema, type OrderFormInput, type OrderFormPayload } from '@/types';
+import type { OrderItemRow, OrderRowDisplay } from '@/pages/orders/order-create/types';
+import { useCreateOrderMutation, useOrderCalculationQuery } from '@/services/order';
+import {
+  OrderCalculationRequestSchema,
+  OrderFormSchema,
+  type OrderFormInput,
+  type OrderFormPayload,
+} from '@/types';
 import { __ } from '@/wpi18n';
+
+const CALCULATION_DEBOUNCE_DELAY = 500;
 
 const OrderCreate = () => {
   const navigate = useNavigate();
   const [pickerOpen, setPickerOpen] = useState(false);
-  const [lineDetails, setLineDetails] = useState<Record<number, OrderLineDisplay>>({});
+  const [lineDetails, setLineDetails] = useState<Record<number, OrderRowDisplay>>({});
 
   const createMutation = useCreateOrderMutation();
 
@@ -40,7 +48,18 @@ const OrderCreate = () => {
     name: 'items',
   });
 
-  const rows: OrderLineRow[] = pickedItems.reduce<OrderLineRow[]>((acc, pickedItem, index) => {
+  const watchedValues = useWatch({ control: form.control });
+  const debouncedValues = useDebounce(watchedValues, CALCULATION_DEBOUNCE_DELAY);
+  const calculationPayload = useMemo(
+    () => OrderCalculationRequestSchema.parse(debouncedValues),
+    [debouncedValues],
+  );
+  const { data: calculation, isFetching: isCalculating } = useOrderCalculationQuery(
+    calculationPayload,
+    calculationPayload.items.length > 0,
+  );
+
+  const rows: OrderItemRow[] = pickedItems.reduce<OrderItemRow[]>((acc, pickedItem, index) => {
     const display = lineDetails[pickedItem.variant_id];
 
     if (display) {
@@ -50,7 +69,7 @@ const OrderCreate = () => {
     return acc;
   }, []);
 
-  const handleAddItems = (items: OrderLineDisplay[]) => {
+  const handleAddItems = (items: OrderRowDisplay[]) => {
     const selectedVariantIds = new Set(items.map((item) => item.variantId));
     const existingVariantIds = new Set(pickedItems.map((pickedItem) => pickedItem.variant_id));
 
@@ -65,7 +84,7 @@ const OrderCreate = () => {
     replace([...kept, ...added]);
 
     setLineDetails(
-      items.reduce<Record<number, OrderLineDisplay>>((acc, item) => {
+      items.reduce<Record<number, OrderRowDisplay>>((acc, item) => {
         acc[item.variantId] = item;
         return acc;
       }, {}),
@@ -122,13 +141,17 @@ const OrderCreate = () => {
         <Container>
           <Flex gap={4}>
             <Flex direction="column" gap={4} cssOverride={{ width: '70%' }}>
-              <ItemsCard
+              <ProductSelectionCard
                 rows={rows}
+                calculationItems={calculation?.items}
                 onOpenPicker={() => setPickerOpen(true)}
                 onQuantityChange={handleQuantityChange}
                 onRemoveItem={handleRemoveItem}
               />
-              <PaymentSummaryCard rows={rows} />
+              <PaymentSummaryCard
+                calculation={calculation}
+                isCalculating={isCalculating}
+              />
             </Flex>
 
             <Flex direction="column" gap={4} cssOverride={{ width: '30%' }}>

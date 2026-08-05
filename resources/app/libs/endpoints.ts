@@ -76,4 +76,5 @@ export const endpoints = {
 
   ORDER: (id: string | number) => `/orders/${id}`,
   ORDERS: '/orders',
+  CALCULATE_ORDER: '/calculate/order',
 } as const;

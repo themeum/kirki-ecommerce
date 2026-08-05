@@ -1,7 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 
-import TagManagerField from '@/components/form/tag-manager-field';
 import Button from '@/components/ui/button';
 import {
   Dialog,
@@ -19,9 +18,8 @@ import { applyServerErrors } from '@/libs/form-errors';
 import BillingAddress from '@/pages/customers/customer-details/billing-address';
 import CustomerOverview from '@/pages/customers/customer-details/customer-overview';
 import ShippingAddress from '@/pages/customers/customer-details/shipping-address';
-import { CustomerFormSchema, type CustomerFormValues } from '@/schemas/forms/customer-form';
+import { CustomerFormInput, CustomerFormPayload, CustomerFormSchema } from '@/schemas/forms/customer-form';
 import { useCreateCustomerMutation } from '@/services/customer';
-import type { CustomerFormData } from '@/types';
 import { __ } from '@/wpi18n';
 
 type AddCustomerDialogProps = {
@@ -29,27 +27,6 @@ type AddCustomerDialogProps = {
   onOpenChange: (open: boolean) => void;
   initialSearch?: string;
   onCreated: (customerId: number) => void;
-};
-
-const toCustomerFormData = (values: CustomerFormValues): CustomerFormData => {
-  const contact = {
-    first_name: values.first_name,
-    last_name: values.last_name,
-    email: values.email,
-    phone: values.phone ?? undefined,
-  };
-
-  const data: CustomerFormData = {
-    ...values,
-    photo: typeof values.photo === 'string' ? Number(values.photo) : values.photo,
-    shipping_address: { ...(values.shipping_address ?? {}), ...contact },
-  };
-
-  if (!values.is_billing_same_as_shipping) {
-    data.billing_address = { ...(values.billing_address ?? {}), ...contact };
-  }
-
-  return data;
 };
 
 const AddCustomerDialog = ({
@@ -62,7 +39,7 @@ const AddCustomerDialog = ({
   const trimmedSearch = initialSearch.trim();
   const isEmail = trimmedSearch.includes('@');
 
-  const form = useForm<CustomerFormValues>({
+  const form = useForm<CustomerFormInput, unknown, CustomerFormPayload>({
     resolver: zodResolver(CustomerFormSchema),
     defaultValues: {
       first_name: isEmail ? '' : trimmedSearch,
@@ -79,9 +56,9 @@ const AddCustomerDialog = ({
     },
   });
 
-  const handleSubmit = async (values: CustomerFormValues) => {
+  const handleSubmit = async (values: CustomerFormPayload) => {
     try {
-      const response = await createMutation.mutateAsync(toCustomerFormData(values));
+      const response = await createMutation.mutateAsync(values);
       onCreated(response.data.id);
     } catch (error) {
       applyServerErrors(form, error as ErrorResponse);
@@ -101,14 +78,6 @@ const AddCustomerDialog = ({
               <CustomerOverview />
               <ShippingAddress />
               <BillingAddress />
-              <TagManagerField
-                name="tags"
-                valueAs="strings"
-                label={__('Tags', 'kirki-ecommerce')}
-                placeholder={__('i.e VIP, Wholesale, Local', 'kirki-ecommerce')}
-                hasAddBtn={false}
-                suggestions={[]}
-              />
             </Flex>
           </DialogBody>
           <DialogFooter>

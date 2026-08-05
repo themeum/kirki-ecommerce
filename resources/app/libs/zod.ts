@@ -27,6 +27,52 @@ function unwrapToDefault(schema: z.ZodTypeAny): unknown {
   return undefined;
 }
 
+type ShapeOf<Schema> = Schema extends z.ZodObject<infer Shape>
+  ? Shape
+  : Schema extends z.ZodEffects<infer Inner>
+    ? ShapeOf<Inner>
+    : never;
+
+type NullishShape<Shape extends z.ZodRawShape> = {
+  [Key in keyof Shape]: z.ZodType<
+    z.output<Shape[Key]> | null | undefined,
+    z.ZodTypeDef,
+    z.input<Shape[Key]> | null | undefined
+  >;
+};
+
+/**
+ * Only `refinement` effects are unwrapped. Stripping every `ZodEffects` would
+ * also destroy payload transforms (`mediaId`, `dateString`, ...) and make the
+ * declared `NullishShape` output type a lie.
+ */
+function unwrapToBase(schema: z.ZodTypeAny): z.ZodTypeAny {
+  if (schema instanceof z.ZodEffects && schema._def.effect.type === 'refinement') {
+    return unwrapToBase(schema._def.schema);
+  }
+  if (schema instanceof z.ZodOptional || schema instanceof z.ZodNullable || schema instanceof z.ZodDefault) {
+    return unwrapToBase(schema._def.innerType);
+  }
+  return schema;
+}
+
+/**
+ * Projects a form shape onto one where every field accepts `null`/`undefined` —
+ * for endpoints that receive a half-filled form (e.g. order recalculation).
+ *
+ * The default is re-applied *after* `.nullish()` on purpose: `.default(x).nullish()`
+ * parses `undefined` back to `undefined`, discarding the default.
+ */
+function nullishShape<Schema extends DefaultSchema>(schema: Schema): NullishShape<ShapeOf<Schema>> {
+  const entries = Object.entries(getShape(schema)).map(([key, field]) => {
+    const nullish = unwrapToBase(field).nullish();
+    const defaultValue = unwrapToDefault(field);
+    return [key, isDefined(defaultValue) ? nullish.default(defaultValue) : nullish];
+  });
+
+  return Object.fromEntries(entries) as NullishShape<ShapeOf<Schema>>;
+}
+
 function getDefaults<Schema extends DefaultSchema>(schema: Schema) {
   const entries = Object.entries(getShape(schema)).map(([key, value]) => {
     return [key, unwrapToDefault(value)] as [string, unknown];
@@ -73,7 +119,7 @@ function required<Base extends z.ZodTypeAny>(schema: Base, message?: string) {
   return schema.nullish().refine((value): value is z.output<Base> => !isEmptyValue(value), { message });
 }
 
-type RequiredWhenValidate = (values: Record<string, unknown>, ctx: z.RefinementCtx) => boolean;
+type RequiredWhenValidate = (values: Record<string, unknown>) => boolean;
 
 type RequiredWhenMessage = string | ((values: Record<string, unknown>) => string);
 
@@ -119,7 +165,7 @@ function collectIssuesForShape(
     const rules = requiredWhenRules.get(fieldSchema);
     if (rules) {
       rules.forEach(({ isValidationFailed, message }) => {
-        if (isValidationFailed(rootValues, ctx)) {
+        if (isValidationFailed(rootValues)) {
           ctx.addIssue({ code: z.ZodIssueCode.custom, path: [...path, key], message: typeof message === 'string' ? message : message(rootValues) });
         }
       });
@@ -256,6 +302,7 @@ export {
   getDefaults,
   isEmptyValue,
   mediaId,
+  nullishShape,
   numberOrNull,
   pickFormValues,
   prepareFormSchema,

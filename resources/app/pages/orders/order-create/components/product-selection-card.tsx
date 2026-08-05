@@ -5,24 +5,27 @@ import { Table, TableBody } from '@/components/ui/table';
 import Text from '@/components/ui/text';
 import { PlusIcon, ProductIcon } from '@/icons';
 import LineItemRow from '@/pages/orders/order-create/components/product/line-item-row';
-import type { OrderLineRow } from '@/pages/orders/order-create/types';
+import type { OrderItemRow } from '@/pages/orders/order-create/types';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss } from '@/theme/mixins';
+import type { OrderCalculation } from '@/types';
 import { __ } from '@/wpi18n';
 
-type ItemsCardProps = {
-  rows: OrderLineRow[];
+type ProductSelectionCardProps = {
+  rows: OrderItemRow[];
+  calculationItems?: OrderCalculation['items'];
   onOpenPicker: () => void;
   onQuantityChange: (index: number, quantity: number) => void;
   onRemoveItem: (index: number) => void;
 };
 
-const ItemsCard = ({
+const ProductSelectionCard = ({
   rows,
+  calculationItems,
   onOpenPicker,
   onQuantityChange,
   onRemoveItem,
-}: ItemsCardProps) => {
+}: ProductSelectionCardProps) => {
   if (rows.length === 0) {
     return (
       <Card cssOverride={mergeCss(cardStyles.formCard, styles.emptyCard)}>
@@ -59,6 +62,7 @@ const ItemsCard = ({
                   <LineItemRow
                     key={row.display.variantId}
                     row={row}
+                    calculationItem={calculationItems?.[row.index]}
                     onQuantityChange={onQuantityChange}
                     onRemove={onRemoveItem}
                   />
@@ -72,9 +76,9 @@ const ItemsCard = ({
   );
 };
 
-ItemsCard.displayName = 'ItemsCard';
+ProductSelectionCard.displayName = 'ProductSelectionCard';
 
-export default ItemsCard;
+export default ProductSelectionCard;
 
 const styles = defineStyles({
   emptyCard: {

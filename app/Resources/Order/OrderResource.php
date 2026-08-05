@@ -20,10 +20,15 @@ class OrderResource extends Resource
 
             'totals' => [
                 'subtotal' => $this->prepare_amount($this->subtotal),
+                'subtotal_object' => $this->prepare_amount_object($this->subtotal),
                 'shipping' => $this->prepare_amount($this->shipping_total),
+                'shipping_object' => $this->prepare_amount_object($this->shipping_total),
                 'discount' => $this->prepare_amount($this->discount_total),
+                'discount_object' => $this->prepare_amount_object($this->discount_total),
                 'tax' => $this->prepare_amount($this->tax_total),
+                'tax_object' => $this->prepare_amount_object($this->tax_total),
                 'total' => $this->prepare_amount($this->total),
+                'total_object' => $this->prepare_amount_object($this->total),
             ],
 
             'items_count' => $this->items_count,
@@ -34,9 +39,16 @@ class OrderResource extends Resource
                     'variant_name' => $item->variant_name,
                     'quantity' => $item->quantity,
                     'price' => $this->prepare_amount($item->price),
+                    'price_object' => $this->prepare_amount_object($item->price),
+                    'subtotal' => $this->prepare_amount($item->subtotal),
+                    'subtotal_object' => $this->prepare_amount_object($item->subtotal),
+                    'discount_amount' => $this->prepare_amount($item->discount_amount),
+                    'discount_amount_object' => $this->prepare_amount_object($item->discount_amount),
                     'total' => $this->prepare_amount($item->total),
+                    'total_object' => $this->prepare_amount_object($item->total),
                     'tax_rate' => $item->tax_rate,
                     'tax_total' => $this->prepare_amount($item->tax_total),
+                    'tax_total_object' => $this->prepare_amount_object($item->tax_total),
                     'tax_breakdown' => $item->tax_breakdown,
                     'sku' => $item->sku,
                     'image' => MediaAttachment::make($item->product_image),
@@ -80,6 +92,7 @@ class OrderResource extends Resource
                 return [
                     'id' => $refund->id,
                     'amount' => $this->prepare_amount($refund->amount),
+                    'amount_object' => $this->prepare_amount_object($refund->amount),
                     'refund_type' => $refund->refund_type,
                     'reason' => $refund->reason,
                     'transaction_id' => $refund->transaction_id,
@@ -95,8 +108,13 @@ class OrderResource extends Resource
 
     protected function prepare_amount($amount)
     {
+        return Money::from_minor($amount, $this->currency_code)->getMinorAmount();
+    }
+
+    protected function prepare_amount_object($amount)
+    {
         $value = Money::convert_to_currency(Money::from_minor($amount), $this->currency_code)->getMinorAmount();
-        
+
         return Money::to_dto($value, $this->currency_code);
     }
 }

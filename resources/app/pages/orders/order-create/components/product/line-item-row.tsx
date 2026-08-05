@@ -5,18 +5,22 @@ import { TableCell, TableRow } from '@/components/ui/table';
 import Text from '@/components/ui/text';
 import Thumbnail from '@/components/ui/thumbnail';
 import QuantityStepper from '@/pages/orders/order-create/components/product/quantity-stepper';
-import { formatCurrency } from '@/pages/orders/order-create/config/order-totals';
-import type { OrderLineRow } from '@/pages/orders/order-create/types';
+import type { OrderItemRow } from '@/pages/orders/order-create/types';
+import type { OrderCalculation } from '@/types';
 import { Cross2Icon } from '@radix-ui/react-icons';
 
+const EMPTY_AMOUNT = '—';
+
 type LineItemRowProps = {
-  row: OrderLineRow;
+  row: OrderItemRow;
+  calculationItem?: OrderCalculation['items'][number];
   onQuantityChange: (index: number, quantity: number) => void;
   onRemove: (index: number) => void;
 };
 
-const LineItemRow = ({ row, onQuantityChange, onRemove }: LineItemRowProps) => {
+const LineItemRow = ({ row, calculationItem, onQuantityChange, onRemove }: LineItemRowProps) => {
   const { display, quantity, index } = row;
+  const lineTotal = calculationItem ? calculationItem.total_object.display : EMPTY_AMOUNT;
 
   return (
     <TableRow>
@@ -40,7 +44,7 @@ const LineItemRow = ({ row, onQuantityChange, onRemove }: LineItemRowProps) => {
         />
       </TableCell>
       <TableCell alignment="right" cssOverride={{ width: '160px' }}>
-        <Text variant="small">{formatCurrency(display.unitPrice * quantity)}</Text>
+        <Text variant="small">{lineTotal}</Text>
       </TableCell>
       <TableCell onlyCheckbox>
         <ActionGroup>

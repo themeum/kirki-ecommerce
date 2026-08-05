@@ -26,14 +26,22 @@ class OrderCalculationResource extends Resource
         return [
             'pricing' => [
                 'subtotal' => $this->prepare_amount($result->subtotal),
+                'subtotal_object' => $this->prepare_amount_object($result->subtotal),
                 'tax_total' => $this->prepare_amount($result->tax_total),
+                'tax_total_object' => $this->prepare_amount_object($result->tax_total),
                 'discount_details' => $result->discount_details,
                 'discount_total' => $this->prepare_amount($result->discount_total),
+                'discount_total_object' => $this->prepare_amount_object($result->discount_total),
                 'shipping_subtotal' => $this->prepare_amount($result->shipping_subtotal),
+                'shipping_subtotal_object' => $this->prepare_amount_object($result->shipping_subtotal),
                 'shipping_tax' => $this->prepare_amount($result->shipping_tax),
+                'shipping_tax_object' => $this->prepare_amount_object($result->shipping_tax),
                 'shipping_discount' => $this->prepare_amount($result->shipping_discount),
+                'shipping_discount_object' => $this->prepare_amount_object($result->shipping_discount),
                 'shipping_total' => $this->prepare_amount($result->shipping_total),
+                'shipping_total_object' => $this->prepare_amount_object($result->shipping_total),
                 'total' => $this->prepare_amount($result->total),
+                'total_object' => $this->prepare_amount_object($result->total),
             ],
 
             'items_count' => $result->items_count,
@@ -41,6 +49,7 @@ class OrderCalculationResource extends Resource
 
             'available_shipping_methods' => array_map(function ($method) {
                 $method['cost'] = $this->prepare_amount($method['cost']);
+                $method['cost_object'] = $this->prepare_amount_object($method['cost']);
                 return $method;
             }, $shipping_options),
 
@@ -60,11 +69,15 @@ class OrderCalculationResource extends Resource
                     'id' => $item->id,
                     'quantity' => $item->quantity,
                     'subtotal' => $this->prepare_amount($calculated_item->subtotal),
+                    'subtotal_object' => $this->prepare_amount_object($calculated_item->subtotal),
                     'tax_rate' => $calculated_item->tax_rate,
                     'tax_amount' => $this->prepare_amount($calculated_item->tax_amount),
+                    'tax_amount_object' => $this->prepare_amount_object($calculated_item->tax_amount),
                     'tax_breakdown' => $calculated_item->tax_breakdown,
                     'discount_amount' => $this->prepare_amount($calculated_item->discount_amount),
-                    'total' => $this->prepare_amount($calculated_item->total)
+                    'discount_amount_object' => $this->prepare_amount_object($calculated_item->discount_amount),
+                    'total' => $this->prepare_amount($calculated_item->total),
+                    'total_object' => $this->prepare_amount_object($calculated_item->total),
                 ];
             }
         }
@@ -74,8 +87,13 @@ class OrderCalculationResource extends Resource
 
     protected function prepare_amount($amount)
     {
-        $value = Money::convert_to_currency(Money::from_minor($amount), $this->currency_code)->getMinorAmount();
-        
+        return Money::from_minor($amount, $this->currency_code)->getMinorAmount();
+    }
+
+    protected function prepare_amount_object($amount)
+    {
+        $value = Money::convert_to_currency(Money::from_minor($amount), $this->currency_code ?? 'USD')->getMinorAmount();
+
         return Money::to_dto($value, $this->currency_code);
     }
 }

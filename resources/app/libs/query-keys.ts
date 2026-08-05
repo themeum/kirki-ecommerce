@@ -1,4 +1,4 @@
-import type { ListParams, ListQueryParams } from '@/types';
+import type { ListParams, ListQueryParams, OrderCalculationRequestPayload } from '@/types';
 import { CouponListFilter } from '@/types/filters/coupon';
 import { ProductListFilter } from '@/types/filters/product';
 
@@ -54,4 +54,6 @@ export const queryKeys = {
   Coupon: (id: string | number) => ['Coupon', String(id)] as const,
   Orders: (params?: ListQueryParams) => params ? ['Orders', params] as const : ['Orders'] as const,
   Order: (id: string | number) => ['Order', String(id)] as const,
+  OrderCalculation: (payload?: OrderCalculationRequestPayload) =>
+    ['OrderCalculation', payload] as const,
 };

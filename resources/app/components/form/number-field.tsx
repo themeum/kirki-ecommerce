@@ -19,6 +19,7 @@ type NumberFieldProps<
   cssOverride?: CSSObject;
   min?: number | null;
   max?: number | null;
+  readOnly?: boolean
 };
 
 const NumberField = <
@@ -34,7 +35,7 @@ const NumberField = <
   cssOverride,
   min,
   max,
-
+  readOnly
 }: NumberFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
   const fieldId = String(name);
@@ -82,6 +83,7 @@ const NumberField = <
             type="number"
             placeholder={placeholder}
             disabled={disabled}
+            readOnly={readOnly}
             error={Boolean(fieldState.error)}
             aria-invalid={fieldState.invalid}
             onChange={(event: ChangeEvent<HTMLInputElement>) => {

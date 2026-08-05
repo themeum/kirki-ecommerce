@@ -6,24 +6,27 @@ import { FieldError, FieldLabel } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useShippingProfilesQuery } from '@/services/shipping';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
-import type { OrderFormInput } from '@/types';
+import type { OrderCalculation, OrderFormInput } from '@/types';
 import { __ } from '@/wpi18n';
 
 type ShippingPopoverProps = {
   children: ReactNode;
+  availableShippingMethods: OrderCalculation['available_shipping_methods'];
+  isLoading?: boolean;
 };
 
-const ShippingPopover = ({ children }: ShippingPopoverProps) => {
+const ShippingPopover = ({
+  children,
+  availableShippingMethods,
+  isLoading,
+}: ShippingPopoverProps) => {
   const { getValues, setValue, formState } = useFormContext<OrderFormInput>();
   const error = formState.errors.shipping_method;
 
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState(getValues('shipping_method') ?? '');
-
-  const { data: shippingProfiles = [], isLoading } = useShippingProfilesQuery({}, open);
 
   const handleOpenChange = (next: boolean) => {
     if (next) {
@@ -53,14 +56,18 @@ const ShippingPopover = ({ children }: ShippingPopoverProps) => {
               <FieldLabel htmlFor="shipping_method">
                 {__('Choose your delivery method', 'kirki-ecommerce')}
               </FieldLabel>
-              <Select value={draft} onValueChange={setDraft} disabled={isLoading}>
+              <Select
+                value={draft}
+                onValueChange={setDraft}
+                disabled={isLoading || availableShippingMethods.length === 0}
+              >
                 <SelectTrigger id="shipping_method">
                   <SelectValue placeholder={__('Pick an option', 'kirki-ecommerce')} />
                 </SelectTrigger>
                 <SelectContent>
-                  {shippingProfiles.map((profile) => (
-                    <SelectItem key={profile.id} value={profile.name}>
-                      {profile.name}
+                  {availableShippingMethods.map((method) => (
+                    <SelectItem key={method.id} value={String(method.id)}>
+                      {`${method.name} (${method.cost_object.display})`}
                     </SelectItem>
                   ))}
                 </SelectContent>

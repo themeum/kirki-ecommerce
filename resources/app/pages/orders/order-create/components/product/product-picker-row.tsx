@@ -1,5 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
-
+import PriceText from '@/components/shared/price-text';
 import Button from '@/components/ui/button';
 import Checkbox from '@/components/ui/checkbox';
 import Flex from '@/components/ui/flex';
@@ -7,121 +6,49 @@ import { TableCell, TableRow } from '@/components/ui/table';
 import Text from '@/components/ui/text';
 import Thumbnail from '@/components/ui/thumbnail';
 import { ChevronDownIcon } from '@/icons';
-import { formatCurrency } from '@/pages/orders/order-create/config/order-totals';
-import { getVariantLabel } from '@/pages/orders/order-create/config/variant-label';
-import type { OrderLineDisplay } from '@/pages/orders/order-create/types';
-import { useProductQuery } from '@/services/product';
+import type {
+  OrderRowDisplay,
+  ProductPickerItem,
+} from '@/pages/orders/order-create/types';
 import type { ProductListItem } from '@/types';
 import { __ } from '@/wpi18n';
 
 type ProductPickerRowProps = {
   product: ProductListItem;
+  variants: ProductPickerItem[];
   expanded: boolean;
   onToggleExpand: () => void;
   selectedVariantIds: Set<number>;
-  onLinesLoaded: (productId: number, lines: OrderLineDisplay[]) => void;
-  onToggleLines: (lines: OrderLineDisplay[], checked: boolean) => void;
+  onToggleRows: (lines: OrderRowDisplay[], checked: boolean) => void;
 };
 
 const ProductPickerRow = ({
   product,
+  variants,
   expanded,
   onToggleExpand,
   selectedVariantIds,
-  onLinesLoaded,
-  onToggleLines,
+  onToggleRows,
 }: ProductPickerRowProps) => {
-  const [shouldFetch, setShouldFetch] = useState(false);
-  const [pendingSelectAll, setPendingSelectAll] = useState(false);
-  const { data: detail, isLoading } = useProductQuery(
-    product.id,
-    expanded || shouldFetch,
-  );
-
-  const variantRows = useMemo(() => {
-    if (!detail) {
-      return [];
-    }
-
-    return detail.variants.reduce<
-      { label: string; inStock: boolean; line: OrderLineDisplay }[]
-    >((rows, variant) => {
-      if (!variant.id) {
-        return rows;
-      }
-
-      const label = getVariantLabel(detail.attributes, variant);
-
-      rows.push({
-        label: label || variant.sku || __('Default', 'kirki-ecommerce'),
-        inStock: variant.in_stock,
-        line: {
-          variantId: variant.id,
-          productTitle: product.title,
-          variantLabel: label || undefined,
-          thumbnail: variant.media?.url ?? product.image ?? null,
-          unitPrice: Number(variant.price ?? 0),
-        },
-      });
-
-      return rows;
-    }, []);
-  }, [detail, product.title, product.image]);
-
-  useEffect(() => {
-    if (variantRows.length === 0) {
-      return;
-    }
-
-    onLinesLoaded(
-      product.id,
-      variantRows.map((row) => row.line),
-    );
-  }, [variantRows, product.id, onLinesLoaded]);
-
-  useEffect(() => {
-    if (!pendingSelectAll || variantRows.length === 0) {
-      return;
-    }
-
-    onToggleLines(
-      variantRows.map((row) => row.line),
-      true,
-    );
-    setPendingSelectAll(false);
-  }, [pendingSelectAll, variantRows, onToggleLines]);
-
   const handleToggleAll = (checked: boolean) => {
-    if (variantRows.length > 0) {
-      onToggleLines(
-        variantRows.map((row) => row.line),
-        checked,
-      );
-      return;
-    }
-
-    if (!checked) {
-      setPendingSelectAll(false);
-      return;
-    }
-
-    setShouldFetch(true);
-    setPendingSelectAll(true);
+    onToggleRows(
+      variants.map((variantItem) => variantItem.row),
+      checked,
+    );
   };
 
-  const selectedCount = variantRows.filter((row) =>
-    selectedVariantIds.has(row.line.variantId),
+  const selectedCount = variants.filter((variantItem) =>
+    selectedVariantIds.has(variantItem.row.variantId),
   ).length;
-  const isChecked =
-    variantRows.length > 0 && selectedCount === variantRows.length;
-  const isPartial = selectedCount > 0 && selectedCount < variantRows.length;
+  const isChecked = variants.length > 0 && selectedCount === variants.length;
+  const isPartial = selectedCount > 0 && selectedCount < variants.length;
 
   return (
     <>
       <TableRow>
         <TableCell onlyCheckbox>
           <Checkbox
-            checked={isChecked || pendingSelectAll}
+            checked={isChecked}
             isPartialChecked={isPartial}
             onCheckedChange={(checked) => handleToggleAll(checked === true)}
           />
@@ -154,50 +81,45 @@ const ProductPickerRow = ({
             : __('Out of Stock', 'kirki-ecommerce')}
         </TableCell>
         <TableCell alignment="right">
-          {formatCurrency(Number(product.price ?? 0))}
+          <PriceText
+            salePrice={product.sale_price_object}
+            regularPrice={product.price_object}
+          />
         </TableCell>
       </TableRow>
 
-      {expanded && isLoading && (
-        <TableRow>
-          <TableCell colSpan={4}>
-            <Text variant="small" color="secondary">
-              {__('Loading variants...', 'kirki-ecommerce')}
-            </Text>
-          </TableCell>
-        </TableRow>
-      )}
-
       {expanded &&
-        !isLoading &&
-        variantRows.map((row) => (
-          <TableRow key={row.line.variantId}>
+        variants.map((variant) => (
+          <TableRow key={variant.row.variantId}>
             <TableCell></TableCell>
             <TableCell>
               <Flex gap={6} align="center">
                 <Checkbox
-                  checked={selectedVariantIds.has(row.line.variantId)}
+                  checked={selectedVariantIds.has(variant.row.variantId)}
                   onCheckedChange={(checked) =>
-                    onToggleLines([row.line], checked === true)
+                    onToggleRows([variant.row], checked === true)
                   }
                 />
                 <Flex gap={3} align="center">
                   <Thumbnail
-                    src={row.line.thumbnail ?? undefined}
-                    alt={row.label}
+                    src={variant.row.thumbnail ?? undefined}
+                    alt={variant.label}
                     size="small"
                   />
-                  <Text variant="small">{row.label}</Text>
+                  <Text variant="small">{variant.label}</Text>
                 </Flex>
               </Flex>
             </TableCell>
             <TableCell>
-              {row.inStock
+              {variant.inStock
                 ? __('In Stock', 'kirki-ecommerce')
                 : __('Out of Stock', 'kirki-ecommerce')}
             </TableCell>
             <TableCell alignment="right">
-              {formatCurrency(row.line.unitPrice)}
+              <PriceText
+                salePrice={variant.row.salePrice}
+                regularPrice={variant.row.regularPrice}
+              />
             </TableCell>
           </TableRow>
         ))}

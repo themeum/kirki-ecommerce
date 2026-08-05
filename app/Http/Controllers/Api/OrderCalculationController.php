@@ -53,8 +53,8 @@ class OrderCalculationController
                 'country' => $data['shipping_country']
             ],
             'customer_id' => $data['customer_id'],
-            'coupon' => $data['coupon'],
-            'shipping_method_id' => $data['shipping_method_id'],
+            'coupon' => $data['coupon_code'] ?? null,
+            'shipping_method_id' => $data['shipping_method'] ?? null,
             'customer_order_count' => 0,
         ]);
 
