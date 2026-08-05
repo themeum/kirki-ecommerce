@@ -36,6 +36,33 @@ export interface ShippingMethod {
 export function checkout(config: CheckoutConfig = {}) {
   const { __ } = window.wp.i18n;
 
+  // Debounce helper — cancels previous call if invoked again within `delay` ms
+  function debounce<T extends (...args: any[]) => any>(fn: T, delay: number) {
+    let timer: ReturnType<typeof setTimeout>;
+    return (...args: Parameters<T>) => {
+      clearTimeout(timer);
+      timer = setTimeout(() => fn(...args), delay);
+    };
+  }
+
+  // Wait for a one-shot window event, resolving with its detail
+  function waitForEvent(eventName: string, timeoutMs = 2000): Promise<any> {
+    return new Promise((resolve, reject) => {
+      const timer = setTimeout(() => {
+        window.removeEventListener(eventName, handler);
+        reject(new Error(`Timed out waiting for ${eventName}`));
+      }, timeoutMs);
+
+      const handler = (e: Event) => {
+        clearTimeout(timer);
+        window.removeEventListener(eventName, handler);
+        resolve((e as CustomEvent).detail);
+      };
+
+      window.addEventListener(eventName, handler, { once: true });
+    });
+  }
+
   return {
     cartTotal: config.cartTotal ?? 0,
     currency: window.kirki_ecommerce?.currency ?? 'USD',
@@ -45,6 +72,7 @@ export function checkout(config: CheckoutConfig = {}) {
     selectedPaymentMethod: '',
     selectedShippingMethod: '',
     couponCode: '',
+    appliedCouponCode: '' as string,
     discount: 0,
     billingFormValid: false,
     shippingFormValid: false,
@@ -95,6 +123,15 @@ export function checkout(config: CheckoutConfig = {}) {
         }
       }
 
+      // Initialize discount state from cart data
+      if (this.cartData?.pricing?.discount_total) {
+        this.discount = parseFloat(this.cartData.pricing.discount_total || '0');
+        this.appliedCouponCode = this.cartData.pricing.discount_details?.code ?? '';
+      }
+
+      // Debounced cart update — prevents hammering the API on rapid field changes
+      const debouncedUpdateCart = debounce(() => this.updateCart(), 400);
+
       // Listen for load-states events from forms
       window.addEventListener('load-states', (e: any) => {
         const { countryCode, formType } = e.detail;
@@ -120,9 +157,9 @@ export function checkout(config: CheckoutConfig = {}) {
         this.setShippingMethod(e.detail.methodId);
       });
 
-      // Listen for address change events from forms
-      window.addEventListener('address-changed', async (e: any) => {
-        await this.updateCart();
+      // Listen for address change events from forms — debounced
+      window.addEventListener('address-changed', () => {
+        debouncedUpdateCart();
       });
     },
 
@@ -215,6 +252,10 @@ export function checkout(config: CheckoutConfig = {}) {
           this.selectedShippingMethod = response.data.shipping_method?.id ?? response.data.shipping_method;
         }
 
+        // Keep discount state in sync with the refreshed cart
+        this.discount = parseFloat(response.data.pricing?.discount_total || '0');
+        this.appliedCouponCode = response.data.pricing?.discount_details?.code ?? '';
+
         // Dispatch event to update shipping methods in the partial
         window.dispatchEvent(new CustomEvent('shipping-methods-updated', {
           detail: {
@@ -265,6 +306,7 @@ export function checkout(config: CheckoutConfig = {}) {
         const response = await cartApi.applyCoupon(this.couponCode);
         this.cartData = response.data;
         this.discount = parseFloat(response.data.pricing.discount_total || '0');
+        this.appliedCouponCode = this.couponCode;
         this.couponCode = '';
         toastManager.success(__('Coupon applied successfully!', 'kirki-ecommerce'));
       } catch (e: unknown) {
@@ -284,6 +326,7 @@ export function checkout(config: CheckoutConfig = {}) {
         const response = await cartApi.removeCoupon();
         this.cartData = response.data;
         this.couponCode = '';
+        this.appliedCouponCode = '';
         this.discount = 0;
         toastManager.success(__('Coupon removed successfully!', 'kirki-ecommerce'));
       } catch (e: unknown) {
@@ -302,47 +345,33 @@ export function checkout(config: CheckoutConfig = {}) {
 
     async placeOrder() {
       this.error = null;
-      this.billingFormValid = false;
-      this.shippingFormValid = false;
 
       try {
-        // Validate shipping form via event dispatch
+        // Validate both forms concurrently — dispatch triggers each form's
+        // validateForm() which fires back *-form-validated on the window
         (this as any).$dispatch('validate-shipping-form');
+        (this as any).$dispatch('validate-billing-form');
 
-        // Wait for shipping validation response
-        await new Promise<void>((resolve) => {
-          const checkValidation = () => {
-            if (this.shippingFormValid !== false) {
-              resolve();
-            } else {
-              setTimeout(checkValidation, 10);
-            }
-          };
-          setTimeout(checkValidation, 10);
-        });
+        const [shippingResult, billingResult] = await Promise.all([
+          waitForEvent('shipping-form-validated'),
+          waitForEvent('billing-form-validated'),
+        ]);
+
+        this.shippingFormValid = shippingResult.isValid;
+        this.billingFormValid = billingResult.isValid;
 
         if (!this.shippingFormValid) {
           toastManager.error(__('Please fix the shipping form errors', 'kirki-ecommerce'));
           return;
         }
 
-        // Validate billing form via event dispatch
-        (this as any).$dispatch('validate-billing-form');
-
-        // Wait for billing validation response
-        await new Promise<void>((resolve) => {
-          const checkValidation = () => {
-            if (this.billingFormValid !== false) {
-              resolve();
-            } else {
-              setTimeout(checkValidation, 10);
-            }
-          };
-          setTimeout(checkValidation, 10);
-        });
-
         if (!this.billingFormValid) {
           toastManager.error(__('Please fix the billing form errors', 'kirki-ecommerce'));
+          return;
+        }
+
+        if (!this.cartData?.items?.length) {
+          toastManager.error(__('Your cart is empty', 'kirki-ecommerce'));
           return;
         }
 
@@ -357,13 +386,13 @@ export function checkout(config: CheckoutConfig = {}) {
 
         // Prepare order data
         const orderData: OrderRequest = {
-          items: this.cartData?.items.map((item: any) => ({
+          items: this.cartData.items.map((item: any) => ({
             variant_id: item.product.variant_id,
             quantity: item.quantity,
-          })) || [],
+          })),
           currency_code: this.currency,
           payment_method: this.selectedPaymentMethod,
-          coupon_code: this.couponCode || undefined,
+          coupon_code: this.appliedCouponCode || undefined,
           shipping_method: this.selectedShippingMethod || undefined,
           shipping_first_name: shippingForm.values.first_name,
           shipping_last_name: shippingForm.values.last_name,
