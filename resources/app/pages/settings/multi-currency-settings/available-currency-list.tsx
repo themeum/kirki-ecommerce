@@ -1,10 +1,22 @@
-import { type ComponentProps, type ReactNode, useState } from 'react';
+import { type ReactNode, useState } from 'react';
 import { useWatch } from 'react-hook-form';
 
-import GroupOptionCard from '@/components/group-option-card';
+import DropdownButton from '@/components/dropdown-button';
+import ActionGroup from '@/components/ui/action-group';
+import Badge from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { InfoIcon, IncreaseIcon } from '@/icons';
+import { InfoIcon, IncreaseIcon, ShowMoreIcon } from '@/icons';
 import Flex from '@/components/ui/flex';
+import {
+  StackedItem,
+  StackedItemActions,
+  StackedItemContent,
+  StackedItemMedia,
+  StackedItems,
+  StackedItemTitle,
+  useStackedItem,
+} from '@/components/ui/stacked-items';
+import Switch from '@/components/ui/switch';
 import Text from '@/components/ui/text';
 import { dispatchToastMessage, dateFormatter } from '@/pages/utils';
 import type { MultiCurrencySettingsFormInput } from '@/schemas/forms/multi-currency-settings-form';
@@ -50,6 +62,47 @@ const getActionArray = (item: Currency): SelectOption[] => {
       value: 'set_base',
     },
   ];
+};
+
+type CurrencyRowActionsProps = {
+  item: CurrencyListItem;
+  onToggle: (item: CurrencyListItem) => void;
+  onAction: (
+    action: string | number | Array<string | number>,
+    item: CurrencyListItem,
+  ) => void;
+};
+
+const CurrencyRowActions = (props: CurrencyRowActionsProps) => {
+  const { item, onToggle, onAction } = props;
+  const { setOpen } = useStackedItem();
+
+  return (
+    <ActionGroup>
+      {!item.is_toggle_disabled && (
+        <Switch
+          checked={Boolean(item.is_enabled)}
+          onCheckedChange={() => onToggle(item)}
+        />
+      )}
+      {!item.is_action_disabled && (
+        <DropdownButton
+          buttonProps={{
+            type: 'secondary',
+            style: { transform: 'rotate(90deg)' },
+            icon: <ShowMoreIcon />,
+            cssOverride: styles.actionButton,
+          }}
+          dropdownStyle={{ minWidth: '170px' }}
+          size="small"
+          hasLeftIcon={false}
+          options={item.actionsArray || []}
+          onOptionToggle={(value) => setOpen(value === true)}
+          onOptionSelect={(action) => onAction(action, item)}
+        />
+      )}
+    </ActionGroup>
+  );
 };
 
 export const AvailableCurrencyList = () => {
@@ -160,15 +213,37 @@ export const AvailableCurrencyList = () => {
             <Text weight="semibold">{__('Available Currencies', 'kirki-ecommerce')}</Text>
             <AddCurrencyPopup />
           </Flex>
-          <GroupOptionCard
-            dataArr={
-              currencyList as ComponentProps<typeof GroupOptionCard>['dataArr']
-            }
-            handleToggleItem={(item) => handleToggleCurrencyItem(item as CurrencyListItem)}
-            handleMoreOption={true}
-            actionsArray={[]}
-            handleAction={(action, item) => handleAction(action, item as CurrencyListItem)}
-          />
+          <StackedItems>
+            {currencyList.map((item) => (
+              <StackedItem key={item.id} id={String(item.id)}>
+                {item.icon && <StackedItemMedia>{item.icon}</StackedItemMedia>}
+                <StackedItemContent>
+                  <StackedItemTitle>
+                    <Text variant="small" weight="medium">
+                      {item.name}
+                    </Text>
+                    {item.is_base && (
+                      <Badge variant="secondary">
+                        {__('Base currency', 'kirki-ecommerce')}
+                      </Badge>
+                    )}
+                    {item.is_enabled === false && (
+                      <Badge variant="destructive">
+                        {__('Inactive', 'kirki-ecommerce')}
+                      </Badge>
+                    )}
+                  </StackedItemTitle>
+                </StackedItemContent>
+                <StackedItemActions>
+                  <CurrencyRowActions
+                    item={item}
+                    onToggle={handleToggleCurrencyItem}
+                    onAction={handleAction}
+                  />
+                </StackedItemActions>
+              </StackedItem>
+            ))}
+          </StackedItems>
           <Flex gap={2} cssOverride={{ paddingTop: theme.spacing[2] }}>
             <InfoIcon />
             <Text variant="small" color="subdued">{showApiProviderStatus
@@ -198,5 +273,8 @@ export const AvailableCurrencyList = () => {
 const styles = defineStyles({
   innerCardContent: {
     padding: theme.spacing[5],
-  }
+  },
+  actionButton: {
+    padding: theme.spacing[1],
+  },
 });

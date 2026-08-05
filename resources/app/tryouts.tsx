@@ -21,7 +21,6 @@ import DropdownMenuPreview from '@/preview-pages/dropdown-menu-preview';
 import DrowdownPreview from '@/preview-pages/drowdown-preview';
 import GridPreview from '@/preview-pages/grid-preview';
 import GridTemplatePreview from '@/preview-pages/grid-template-preview';
-import GroupOptionCardPreview from '@/preview-pages/group-option-card-preview';
 import HeadingPreview from '@/preview-pages/heading-preview';
 import IconsPreview from '@/preview-pages/icons-preview';
 import InputPreview from '@/preview-pages/input-preview';
@@ -38,6 +37,7 @@ import RadioGroupPreview from '@/preview-pages/radio-group-preview';
 import SelectInputPreview from '@/preview-pages/select-input-preview';
 import SelectPreview from '@/preview-pages/select-preview';
 import SeparatorPreview from '@/preview-pages/separator-preview';
+import StackedItemsPreview from '@/preview-pages/stacked-items-preview';
 import TabPreview from '@/preview-pages/tab-preview';
 import TablePreview from '@/preview-pages/table-preview';
 import TabsPreview from '@/preview-pages/tabs-preview';
@@ -247,10 +247,10 @@ const Tryouts = () => {
           </Card>
           <Card cssOverride={cardStyles.formCard}>
             <CardHeader>
-              <CardTitle>Group Option Card</CardTitle>
+              <CardTitle>Stacked Items</CardTitle>
             </CardHeader>
             <CardContent>
-              <GroupOptionCardPreview />
+              <StackedItemsPreview />
             </CardContent>
           </Card>
           <Card cssOverride={cardStyles.formCard}>

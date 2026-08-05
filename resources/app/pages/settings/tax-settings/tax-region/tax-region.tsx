@@ -10,7 +10,7 @@ import Badge from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
-import ToggleButton from '@/components/ui/toggle-button';
+import Switch from '@/components/ui/switch';
 import { EditIcon, LocationIcon, ShowMoreIcon, TrashIcon } from '@/icons';
 import type { TaxSettingsFormInput } from '@/schemas/forms/tax-settings-form';
 import { theme } from '@/theme';
@@ -197,9 +197,9 @@ const TaxRegions = (props: TaxRegionsProps) => {
                         cssOverride={mergeCss(hoverVisibleCss,
                           activeIndex === index && activeCardCss,)}
                       >
-                        <ToggleButton
-                          value={item?.is_enabled}
-                          onChange={() => handleToggleRegion(item)}
+                        <Switch
+                          checked={Boolean(item?.is_enabled)}
+                          onCheckedChange={() => handleToggleRegion(item)}
                         />
                         <DropdownButton
                           buttonProps={{

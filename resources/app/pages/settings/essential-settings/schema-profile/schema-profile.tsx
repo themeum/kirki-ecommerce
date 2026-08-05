@@ -1,10 +1,20 @@
 import { useEffect, useState, type ReactNode } from 'react';
 
-import GroupOptionCard from '@/components/group-option-card';
 import HeaderActionsCard from '@/components/header-actions-card';
+import ActionGroup from '@/components/ui/action-group';
+import Badge from '@/components/ui/badge';
+import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
-import { BoxOpenIcon } from '@/icons';
+import {
+  StackedItem,
+  StackedItemActions,
+  StackedItemContent,
+  StackedItems,
+  StackedItemTitle,
+} from '@/components/ui/stacked-items';
+import Text from '@/components/ui/text';
+import { BoxOpenIcon, EditPenIcon, TrashIcon } from '@/icons';
 import { dispatchToastMessage } from '@/pages/utils';
 import { useDeleteSchemaMutation, useSchemasQuery } from '@/services/schema';
 import { theme } from '@/theme';
@@ -89,13 +99,46 @@ const SchemaProfileComponent = () => {
             </CardContent>
           </Card>
         ) : (
-          <Flex direction="column" data-box-wrapper cssOverride={styles.boxWrapper}>
-            <GroupOptionCard
-              dataArr={schemaProfileList}
-              handleDeleteItem={(item) => handleDeleteSchema(item as SchemaListItem)}
-              handleEditItem={(item) => handleEditSchema(item as SchemaListItem)}
-            />
-          </Flex>
+          <StackedItems>
+            {schemaProfileList.map((item) => (
+              <StackedItem key={item.id} id={String(item.id)}>
+                <StackedItemContent>
+                  <StackedItemTitle>
+                    <Text variant="small" weight="medium">
+                      {item.name}
+                    </Text>
+                    {item.is_default && (
+                      <Badge variant="secondary">
+                        {__('Default', 'kirki-ecommerce')}
+                      </Badge>
+                    )}
+                  </StackedItemTitle>
+                </StackedItemContent>
+                <StackedItemActions>
+                  <ActionGroup>
+                    <Button
+                      variant="outline"
+                      size="icon-sm"
+                      aria-label={__('Delete', 'kirki-ecommerce')}
+                      cssOverride={styles.actionButton}
+                      onClick={() => handleDeleteSchema(item)}
+                    >
+                      <TrashIcon />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="icon-sm"
+                      aria-label={__('Edit', 'kirki-ecommerce')}
+                      cssOverride={styles.actionButton}
+                      onClick={() => handleEditSchema(item)}
+                    >
+                      <EditPenIcon />
+                    </Button>
+                  </ActionGroup>
+                </StackedItemActions>
+              </StackedItem>
+            ))}
+          </StackedItems>
         )}
         {showPopup && (
           <AddSchemaPopup
@@ -115,23 +158,13 @@ SchemaProfileComponent.displayName = 'SchemaProfileComponent';
 export default SchemaProfileComponent;
 
 const styles = defineStyles({
-  boxWrapper: {
-    '[data-box-card]': {
-      borderTop: 'none',
-      borderRadius: theme.radius.none,
-    },
-    '[data-box-card]:first-of-type': {
-      borderTop: `1px solid ${theme.colors.border.secondary}`,
-      borderRadius: `${theme.radius.md} ${theme.radius.md} ${theme.radius.none} ${theme.radius.none}`,
-    },
-    '[data-box-card]:last-of-type': {
-      borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.md} ${theme.radius.md}`,
-    },
-  },
   emptyState: {
     padding: `${theme.spacing[9]} ${theme.spacing[0]}`,
   },
   emptyStateText: {
     color: theme.colors.text.subdued,
-  }
+  },
+  actionButton: {
+    padding: theme.spacing[1],
+  },
 });

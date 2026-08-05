@@ -7,7 +7,7 @@ import Badge from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
-import ToggleButton from '@/components/ui/toggle-button';
+import Switch from '@/components/ui/switch';
 import { BankIconLarge, CashIcon, ShowMoreIcon } from '@/icons';
 import { dispatchToastMessage } from '@/pages/utils';
 import { useDeletePaymentMethodMutation, useUpdatePaymentMethodMutation } from '@/services/payment';
@@ -156,9 +156,9 @@ const ManualPayment = (props: ManualPaymentProps) => {
                         </Flex>
 
                         <ActionGroup>
-                          <ToggleButton
-                            value={Boolean(item?.is_enabled)}
-                            onChange={() => handleToggleMethod(item)}
+                          <Switch
+                            checked={Boolean(item?.is_enabled)}
+                            onCheckedChange={() => handleToggleMethod(item)}
                           />
                           <DropdownButton
                             dropdownStyle={{ width: '115px' }}

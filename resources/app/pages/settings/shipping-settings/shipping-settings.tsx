@@ -1,16 +1,15 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Fragment, useEffect, useRef, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
-import { useNavigate } from 'react-router';
+import { useNavigate, useOutletContext } from 'react-router';
 
 import HeaderActionsCard from '@/components/header-actions-card';
 import OptionAccordion from '@/components/option-accordion';
 import { Card, CardContent } from '@/components/ui/card';
-import Chip from '@/components/ui/chip';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
-import { Item, ItemActions, ItemContent, ItemGroup, ItemMedia, ItemSeparator, ItemTitle } from '@/components/ui/item';
+import { ItemGroup, ItemSeparator } from '@/components/ui/item';
 import Text from '@/components/ui/text';
 import { LocationIcon, TruckIcon } from '@/icons';
 import { getErrorsObject, type ErrorResponse } from '@/libs/api';
@@ -31,17 +30,27 @@ import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
 import type { FormErrors } from '@/types';
 import { __ } from '@/wpi18n';
 
+import Badge from '@/components/ui/badge';
 import { useSettingsPageActions } from '@/pages/settings/settings-layout/use-settings-page-actions';
 import SettingsPageHeader from '@/pages/settings/settings-page-header';
 import ShippingBox from '@/pages/settings/shipping-settings/shipping-box/shipping-box';
+import ShippingMethodRow from '@/pages/settings/shipping-settings/shipping-method-row';
 import ShippingProfile from '@/pages/settings/shipping-settings/shipping-profile/shipping-profile';
 import ShippingZoneActions from '@/pages/settings/shipping-settings/shipping-zone-actions';
 import { ShippingRegionPopup } from '@/pages/settings/shipping-settings/shipping-zone/shipping-region-dialog';
 import { getSearchedCountries, getSelectedRegionTags, getShippingMethodRightText, getShippingMethodSubText, getShippingZoneSummary, shippingMethodIconMap, type CountryWithStates, type ShippingMethodData, type ShippingZone } from '@/pages/settings/shipping-settings/utils';
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
 
+type SettingsOutletContext = {
+  confirmAction: (opts: {
+    action: () => void;
+    otherProps?: Record<string, unknown>;
+  }) => void;
+};
+
 const ShippingSettings = () => {
   const navigate = useNavigate();
+  const { confirmAction } = useOutletContext<SettingsOutletContext>();
 
   const newZoneIdRef = useRef(crypto.randomUUID());
   const [searchValue, setSearchValue] = useState('');
@@ -127,6 +136,80 @@ const ShippingSettings = () => {
       rightText: getShippingMethodRightText(method),
       zoneId: zoneId,
     }));
+  };
+
+  const handleToggleMethod = (method: ShippingMethodData) => {
+    setShippingZonesObj(
+      (prev) => {
+        if (!Array.isArray(prev)) {
+          return prev;
+        }
+        return prev.map((zone) => {
+          if (zone.id !== method.zoneId) {
+            return zone;
+          }
+          return {
+            ...zone,
+            shipping_methods: (zone.shipping_methods || []).map((item) =>
+              item.id === method.id
+                ? { ...item, is_enabled: !(item.is_enabled ?? true) }
+                : item,
+            ),
+          };
+        });
+      },
+      { shouldDirty: true },
+    );
+  };
+
+  const handleEditMethod = (method: ShippingMethodData) => {
+    confirmAction({
+      action: () =>
+        navigate(
+          `/settings/shipping/delivery-method?methodId=${method.id}&zoneId=${method.zoneId}`,
+        ),
+    });
+  };
+
+  const handleDeleteMethod = (method: ShippingMethodData) => {
+    confirmAction({
+      action: async () => {
+        const updatedZones = shippingZonesObj.map((zone) => {
+          if (zone.id !== method.zoneId) {
+            return zone;
+          }
+          return {
+            ...zone,
+            shipping_methods: (zone.shipping_methods || []).filter(
+              (item) => item.id !== method.id,
+            ),
+          };
+        });
+        setShippingZonesObj(updatedZones, { shouldDirty: false });
+
+        try {
+          await updateSettings({
+            key: 'shipping',
+            data: { shipping_zones: updatedZones },
+          });
+          form.reset({
+            ...form.getValues(),
+            shipping_zones: updatedZones,
+          });
+        } catch (error) {
+          applyServerErrors(form, error as ErrorResponse);
+        }
+      },
+      otherProps: {
+        variant: 'delete',
+        force: true,
+        title: __('Delete shipping method?', 'kirki-ecommerce'),
+        subtitle: __(
+          'Are you sure you want to delete this shipping method? This action cannot be undone.',
+          'kirki-ecommerce',
+        ),
+      },
+    });
   };
 
   const handleToggleZoneItem = (item: ShippingZone) => {
@@ -263,12 +346,22 @@ const ShippingSettings = () => {
                                     item?.regions,
                                     countryList as CountryWithStates[] | null,
                                   ).map((tag) => (
-                                    <Chip
-                                      key={tag.id}
-                                      text={tag.title}
-                                      img={tag.tagIcon}
-                                      subText={tag.subText}
-                                    />
+                                    <Badge variant="default" key={tag.id}>
+                                      <Flex align="center" gap={1}>
+                                        <span css={scoped({ fontSize: 20 })}>
+                                          {tag.tagIcon}
+                                        </span>
+                                        <Text variant="small" color="primary" weight='medium'>
+                                          {tag.title}
+                                        </Text>
+                                        {tag.subText && (
+                                          <Text variant="small" color="subdued">
+                                            {tag.subText}
+                                          </Text>
+                                        )}
+                                      </Flex>
+                                    </Badge>
+
                                   ))}
                                 </Flex>
                               </CardContent>
@@ -280,26 +373,12 @@ const ShippingSettings = () => {
                                     {zoneMethods.map((method, index) => (
                                       <Fragment key={method.id}>
                                         {index > 0 && <ItemSeparator />}
-                                        <Item size="sm">
-                                          <ItemMedia>{method.icon}</ItemMedia>
-                                          <ItemContent>
-                                            <ItemTitle>
-                                              {method.name}
-                                              {method.subText && (
-                                                <Text variant="small" color="subdued">
-                                                  {method.subText}
-                                                </Text>
-                                              )}
-                                            </ItemTitle>
-                                          </ItemContent>
-                                          {method.rightText && (
-                                            <ItemActions>
-                                              <Text variant="small" color="secondary">
-                                                {method.rightText}
-                                              </Text>
-                                            </ItemActions>
-                                          )}
-                                        </Item>
+                                        <ShippingMethodRow
+                                          method={method}
+                                          onToggle={handleToggleMethod}
+                                          onEdit={handleEditMethod}
+                                          onDelete={handleDeleteMethod}
+                                        />
                                       </Fragment>
                                     ))}
                                   </ItemGroup>

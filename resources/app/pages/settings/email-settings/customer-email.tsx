@@ -1,12 +1,22 @@
 import { useMemo } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 
-import GroupOptionCard from '@/components/group-option-card';
 import OptionAccordion from '@/components/option-accordion';
+import ActionGroup from '@/components/ui/action-group';
+import Badge from '@/components/ui/badge';
+import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
+import {
+  StackedItem,
+  StackedItemActions,
+  StackedItemContent,
+  StackedItems,
+  StackedItemTitle,
+} from '@/components/ui/stacked-items';
+import Switch from '@/components/ui/switch';
 import Text from '@/components/ui/text';
-import { CartIcon, PersonIcon, UserIcon } from '@/icons';
+import { CartIcon, EditPenIcon, PersonIcon, UserIcon } from '@/icons';
 import type { EmailSettingsFormInput } from '@/schemas/forms/email-settings-form';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
@@ -24,6 +34,50 @@ type EmailListItem = {
 type CustomerEmailProps = {
   handleToggleOrder: (item: EmailListItem) => void;
   handleEditOrder: (item: EmailListItem) => void;
+};
+
+type EmailRowProps = {
+  item: EmailListItem;
+  onToggle: (item: EmailListItem) => void;
+  onEdit: (item: EmailListItem) => void;
+};
+
+const EmailRow = (props: EmailRowProps) => {
+  const { item, onToggle, onEdit } = props;
+
+  return (
+    <StackedItem id={item.key}>
+      <StackedItemContent>
+        <StackedItemTitle>
+          <Text variant="small" weight="medium">
+            {item.name ?? ''}
+          </Text>
+          {item.is_enabled === false && (
+            <Badge variant="destructive">
+              {__('Inactive', 'kirki-ecommerce')}
+            </Badge>
+          )}
+        </StackedItemTitle>
+      </StackedItemContent>
+      <StackedItemActions>
+        <ActionGroup>
+          <Switch
+            checked={Boolean(item.is_enabled)}
+            onCheckedChange={() => onToggle(item)}
+          />
+          <Button
+            variant="outline"
+            size="icon-sm"
+            aria-label={__('Edit', 'kirki-ecommerce')}
+            cssOverride={styles.actionButton}
+            onClick={() => onEdit(item)}
+          >
+            <EditPenIcon />
+          </Button>
+        </ActionGroup>
+      </StackedItemActions>
+    </StackedItem>
+  );
 };
 
 const CustomerEmail = (props: CustomerEmailProps) => {
@@ -73,13 +127,18 @@ const CustomerEmail = (props: CustomerEmailProps) => {
               )}
               leftIcon={<CartIcon />}
             >
-              <GroupOptionCard
-                handleToggleItem={(item) =>
-                  handleToggleOrder(item as EmailListItem)
-                }
-                handleEditItem={(item) => handleEditOrder(item as EmailListItem)}
-                dataArr={orderEmails}
-              />
+              {orderEmails.length > 0 && (
+                <StackedItems>
+                  {orderEmails.map((item) => (
+                    <EmailRow
+                      key={item.key}
+                      item={item}
+                      onToggle={handleToggleOrder}
+                      onEdit={handleEditOrder}
+                    />
+                  ))}
+                </StackedItems>
+              )}
             </OptionAccordion>
             <OptionAccordion
               header={__('User', 'kirki-ecommerce')}
@@ -89,13 +148,18 @@ const CustomerEmail = (props: CustomerEmailProps) => {
               )}
               leftIcon={<UserIcon />}
             >
-              <GroupOptionCard
-                dataArr={userEmails}
-                handleToggleItem={(item) =>
-                  handleToggleOrder(item as EmailListItem)
-                }
-                handleEditItem={(item) => handleEditOrder(item as EmailListItem)}
-              />
+              {userEmails.length > 0 && (
+                <StackedItems>
+                  {userEmails.map((item) => (
+                    <EmailRow
+                      key={item.key}
+                      item={item}
+                      onToggle={handleToggleOrder}
+                      onEdit={handleEditOrder}
+                    />
+                  ))}
+                </StackedItems>
+              )}
             </OptionAccordion>
           </Flex>
         </CardContent>
@@ -111,5 +175,8 @@ export default CustomerEmail;
 const styles = defineStyles({
   roundedCard: {
     borderRadius: theme.radius.xl,
+  },
+  actionButton: {
+    padding: theme.spacing[1],
   },
 });

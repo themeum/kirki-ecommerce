@@ -1,10 +1,22 @@
 import { useMemo, type Dispatch, type SetStateAction } from 'react';
 import { useNavigate } from 'react-router';
 
-import GroupOptionCard from '@/components/group-option-card';
 import HeaderActionsCard from '@/components/header-actions-card';
+import ActionGroup from '@/components/ui/action-group';
+import Badge from '@/components/ui/badge';
+import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
+import {
+  StackedItem,
+  StackedItemActions,
+  StackedItemContent,
+  StackedItemMedia,
+  StackedItems,
+  StackedItemTitle,
+} from '@/components/ui/stacked-items';
+import Text from '@/components/ui/text';
+import { EditPenIcon, TrashIcon } from '@/icons';
 import { dispatchToastMessage } from '@/pages/utils';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
@@ -113,15 +125,52 @@ export const ShippingMethod = ({
               </CardContent>
             </Card>
           ) : (
-            <GroupOptionCard
-              dataArr={shippingMethodListWithIcon}
-              handleDeleteItem={(item) =>
-                handleDeleteMethodItem(item as ShippingMethodData)
-              }
-              handleEditItem={(item) =>
-                handleEditDeliveryMethod(item as ShippingMethodData)
-              }
-            />
+            <StackedItems>
+              {shippingMethodListWithIcon.map((item) => (
+                <StackedItem key={item.id} id={String(item.id)}>
+                  {item.icon && <StackedItemMedia>{item.icon}</StackedItemMedia>}
+                  <StackedItemContent>
+                    <StackedItemTitle>
+                      <Text variant="small" weight="medium">
+                        {item.name ?? ''}
+                      </Text>
+                      {item.subText && (
+                        <Text variant="tiny" color="subdued">
+                          {item.subText}
+                        </Text>
+                      )}
+                      {item.is_enabled === false && (
+                        <Badge variant="destructive">
+                          {__('Inactive', 'kirki-ecommerce')}
+                        </Badge>
+                      )}
+                    </StackedItemTitle>
+                  </StackedItemContent>
+                  <StackedItemActions>
+                    <ActionGroup>
+                      <Button
+                        variant="outline"
+                        size="icon-sm"
+                        aria-label={__('Delete', 'kirki-ecommerce')}
+                        cssOverride={styles.actionButton}
+                        onClick={() => handleDeleteMethodItem(item)}
+                      >
+                        <TrashIcon />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="icon-sm"
+                        aria-label={__('Edit', 'kirki-ecommerce')}
+                        cssOverride={styles.actionButton}
+                        onClick={() => handleEditDeliveryMethod(item)}
+                      >
+                        <EditPenIcon />
+                      </Button>
+                    </ActionGroup>
+                  </StackedItemActions>
+                </StackedItem>
+              ))}
+            </StackedItems>
           )}
         </CardContent>
       </Card>
@@ -135,5 +184,8 @@ const styles = defineStyles({
   },
   emptyStateText: {
     color: theme.colors.text.subdued,
-  }
+  },
+  actionButton: {
+    padding: theme.spacing[1],
+  },
 });

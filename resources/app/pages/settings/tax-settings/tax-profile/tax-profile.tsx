@@ -2,11 +2,21 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState, type ReactNode } from 'react';
 import { toast } from 'sonner';
 
-import GroupOptionCard from '@/components/group-option-card';
 import HeaderActionsCard from '@/components/header-actions-card';
+import ActionGroup from '@/components/ui/action-group';
+import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
-import { BoxClosedIcon, BoxOpenIcon } from '@/icons';
+import {
+  StackedItem,
+  StackedItemActions,
+  StackedItemContent,
+  StackedItemMedia,
+  StackedItems,
+  StackedItemTitle,
+} from '@/components/ui/stacked-items';
+import Text from '@/components/ui/text';
+import { BoxClosedIcon, BoxOpenIcon, EditPenIcon, TrashIcon } from '@/icons';
 import { toastMutationError } from '@/services/helpers';
 import { deleteTaxProfile, useTaxProfilesQuery } from '@/services/tax';
 import { theme } from '@/theme';
@@ -100,17 +110,42 @@ const TaxProfile = () => {
               </CardContent>
             </Card>
           ) : (
-            <Flex direction="column" data-box-wrapper cssOverride={styles.boxWrapper}>
-              <GroupOptionCard
-                dataArr={taxProfileList}
-                handleDeleteItem={(item) =>
-                  handleDeleteTaxProfile(item as TaxProfileListItem)
-                }
-                handleEditItem={(item) =>
-                  handleEditTaxProfile(item as TaxProfileListItem)
-                }
-              />
-            </Flex>
+            <StackedItems>
+              {taxProfileList.map((item) => (
+                <StackedItem key={item.id} id={String(item.id)}>
+                  {item.icon && <StackedItemMedia>{item.icon}</StackedItemMedia>}
+                  <StackedItemContent>
+                    <StackedItemTitle>
+                      <Text variant="small" weight="medium">
+                        {item.name}
+                      </Text>
+                    </StackedItemTitle>
+                  </StackedItemContent>
+                  <StackedItemActions>
+                    <ActionGroup>
+                      <Button
+                        variant="outline"
+                        size="icon-sm"
+                        aria-label={__('Delete', 'kirki-ecommerce')}
+                        cssOverride={styles.actionButton}
+                        onClick={() => handleDeleteTaxProfile(item)}
+                      >
+                        <TrashIcon />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="icon-sm"
+                        aria-label={__('Edit', 'kirki-ecommerce')}
+                        cssOverride={styles.actionButton}
+                        onClick={() => handleEditTaxProfile(item)}
+                      >
+                        <EditPenIcon />
+                      </Button>
+                    </ActionGroup>
+                  </StackedItemActions>
+                </StackedItem>
+              ))}
+            </StackedItems>
           )}
         </CardContent>
       </Card>
@@ -137,23 +172,13 @@ TaxProfile.displayName = 'TaxProfile';
 export default TaxProfile;
 
 const styles = defineStyles({
-  boxWrapper: {
-    '[data-box-card]': {
-      borderTop: 'none',
-      borderRadius: theme.radius.none,
-    },
-    '[data-box-card]:first-of-type': {
-      borderTop: `1px solid ${theme.colors.border.secondary}`,
-      borderRadius: `${theme.radius.md} ${theme.radius.md} ${theme.radius.none} ${theme.radius.none}`,
-    },
-    '[data-box-card]:last-of-type': {
-      borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.md} ${theme.radius.md}`,
-    },
-  },
   emptyState: {
     padding: `${theme.spacing[9]} ${theme.spacing[0]}`,
   },
   emptyStateText: {
     color: theme.colors.text.subdued,
-  }
+  },
+  actionButton: {
+    padding: theme.spacing[1],
+  },
 });

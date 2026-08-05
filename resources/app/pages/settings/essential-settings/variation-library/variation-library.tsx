@@ -1,11 +1,21 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router';
 
-import GroupOptionCard from '@/components/group-option-card';
 import HeaderActionsCard from '@/components/header-actions-card';
+import ActionGroup from '@/components/ui/action-group';
+import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
-import { BoxIcon, ColorPaletteIcon } from '@/icons';
+import {
+  StackedItem,
+  StackedItemActions,
+  StackedItemContent,
+  StackedItemMedia,
+  StackedItems,
+  StackedItemTitle,
+} from '@/components/ui/stacked-items';
+import Text from '@/components/ui/text';
+import { BoxIcon, ColorPaletteIcon, EditPenIcon, TrashIcon } from '@/icons';
 import { dispatchToastMessage } from '@/pages/utils';
 import { useAttributesQuery, useDeleteAttributeMutation } from '@/services/attribute';
 import { theme } from '@/theme';
@@ -92,13 +102,42 @@ const VariationList = () => {
             </CardContent>
           </Card>
         ) : (
-          <Flex direction="column" data-box-wrapper cssOverride={styles.boxWrapper}>
-            <GroupOptionCard
-              dataArr={attributeListArr}
-              handleDeleteItem={(item) => handleDeleteVariation(item as AttributeListItem)}
-              handleEditItem={(item) => handleEditVariation(item as AttributeListItem)}
-            />
-          </Flex>
+          <StackedItems>
+            {attributeListArr.map((item) => (
+              <StackedItem key={item.id} id={String(item.id)}>
+                {item.icon && <StackedItemMedia>{item.icon}</StackedItemMedia>}
+                <StackedItemContent>
+                  <StackedItemTitle>
+                    <Text variant="small" weight="medium">
+                      {item.name}
+                    </Text>
+                  </StackedItemTitle>
+                </StackedItemContent>
+                <StackedItemActions>
+                  <ActionGroup>
+                    <Button
+                      variant="outline"
+                      size="icon-sm"
+                      aria-label={__('Delete', 'kirki-ecommerce')}
+                      cssOverride={styles.actionButton}
+                      onClick={() => handleDeleteVariation(item)}
+                    >
+                      <TrashIcon />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="icon-sm"
+                      aria-label={__('Edit', 'kirki-ecommerce')}
+                      cssOverride={styles.actionButton}
+                      onClick={() => handleEditVariation(item)}
+                    >
+                      <EditPenIcon />
+                    </Button>
+                  </ActionGroup>
+                </StackedItemActions>
+              </StackedItem>
+            ))}
+          </StackedItems>
         )}
         <AddVariationPopup
           isOpen={showPopup}
@@ -118,23 +157,13 @@ VariationList.displayName = 'VariationList';
 export default VariationList;
 
 const styles = defineStyles({
-  boxWrapper: {
-    '[data-box-card]': {
-      borderTop: 'none',
-      borderRadius: theme.radius.none,
-    },
-    '[data-box-card]:first-of-type': {
-      borderTop: `1px solid ${theme.colors.border.secondary}`,
-      borderRadius: `${theme.radius.md} ${theme.radius.md} ${theme.radius.none} ${theme.radius.none}`,
-    },
-    '[data-box-card]:last-of-type': {
-      borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.md} ${theme.radius.md}`,
-    },
-  },
   emptyState: {
     padding: `${theme.spacing[9]} ${theme.spacing[0]}`,
   },
   emptyStateText: {
     color: theme.colors.text.subdued,
-  }
+  },
+  actionButton: {
+    padding: theme.spacing[1],
+  },
 });

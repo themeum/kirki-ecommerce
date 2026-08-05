@@ -1,7 +1,7 @@
-import GroupOptionCard from '@/components/group-option-card';
 import HeaderActionsCard from '@/components/header-actions-card';
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
+import { StackedItems } from '@/components/ui/stacked-items';
 import { BoxOpenIcon } from '@/icons';
 import { __ } from '@/wpi18n';
 
@@ -44,7 +44,7 @@ const ShippingCareer = (_props: ShippingCareerProps) => {
               </CardContent>
             </Card>
           ) : (
-            <GroupOptionCard />
+            <StackedItems />
           )}
         </CardContent>
       </Card>
