@@ -10,16 +10,7 @@ class OrderUpdateRequest extends Request
 {
     public function authorize()
     {
-        if (
-            !customer()->is_admin()
-            && !empty($this->input('customer_id'))
-            && $this->input('customer_id') !== customer()->get_customer_id()
-            && $this->input('is_manual')
-        ) {
-            return false;
-        }
-
-        return true;
+        return customer()->is_admin();
     }
 
     public function prepare_for_validation()
@@ -71,9 +62,8 @@ class OrderUpdateRequest extends Request
         $this->merge($shipping_address);
         $this->merge($billing_address);
         $this->merge([
-            'customer_id' => $customer_id ?? customer()->get_customer_id() ?? 0,
+            'customer_id' => $customer_id ?? 0,
             'is_billing_same_as_shipping' => $is_billing_same_as_shipping,
-            'is_manual' => $this->input('is_manual') ?? false
         ]);
     }
 
@@ -119,7 +109,6 @@ class OrderUpdateRequest extends Request
             'customer_email' => 'nullable|email',
             'customer_phone' => 'nullable|string',
             'customer_notes' => 'nullable|string',
-            'is_manual' => 'required|boolean',
         ];
     }
 
@@ -167,7 +156,6 @@ class OrderUpdateRequest extends Request
             'customer_email' => Sanitizer::EMAIL,
             'customer_phone' => Sanitizer::TEXT,
             'customer_notes' => Sanitizer::TEXT,
-            'is_manual' => Sanitizer::BOOL,
         ];
     }
 }
