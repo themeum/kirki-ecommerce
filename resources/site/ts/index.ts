@@ -20,6 +20,7 @@ import { productFilter } from "./components/product-filter";
 import { quantitySelector } from "./components/quantity-selector";
 import { tabs } from "./components/tabs";
 import { variantSelector } from "./components/variant-selector";
+import { shop } from "./components/shop";
 
 // ----------------------------------------------------------------------------
 // Alpine.js Registration
@@ -36,6 +37,7 @@ Alpine.data("tabs", tabs);
 Alpine.data("checkout", checkout);
 Alpine.data("modal", modal);
 Alpine.data("form", form);
+Alpine.data('shop', shop);
 
 // Initialize Alpine
 window.Alpine = Alpine;

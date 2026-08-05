@@ -12,8 +12,8 @@
 defined('ABSPATH') || exit;
 extract($data);
 
-$current_sort_by = in_array($current_sort_by, ['recommended', 'low_to_high', 'high_to_low'], true) ? $current_sort_by : 'recommended';
-$product_filter_config = wp_json_encode(['initialSortBy' => $current_sort_by]);
+$short_by_options = ['recommended', 'low_to_high', 'high_to_low'];
+$current_sort_by = in_array($current_sort_by, $short_by_options, true) ? $current_sort_by : 'recommended';
 ?>
 
 <div class="kecom-products-page-meta">
@@ -39,7 +39,7 @@ $product_filter_config = wp_json_encode(['initialSortBy' => $current_sort_by]);
         ?>
     </div>
     
-    <div class="kecom-products-page-meta-sortby" x-data="<?php echo esc_attr('productFilter(' . $product_filter_config . ')'); ?>">
+    <div class="kecom-products-page-meta-sortby">
         <label for="sort_by"><?php esc_html_e('Sort by:', 'kirki-ecommerce'); ?></label>
         <select name="sort_by" id="sort_by" x-model="sortBy" @change="applySort($event.target.value)">
             <option value="recommended" <?php selected($current_sort_by, 'recommended'); ?>><?php esc_html_e('Recommended', 'kirki-ecommerce'); ?></option>
