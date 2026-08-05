@@ -20,6 +20,7 @@ use Kirki\Ecommerce\App\Services\ProductService;
 use Kirki\Ecommerce\App\Resources\Product\ProductResource;
 use Kirki\Ecommerce\App\Services\CartService;
 use Kirki\Ecommerce\App\Services\PaymentGatewayService;
+use Kirki\Ecommerce\App\Supports\Template;
 use Kirki\Ecommerce\App\Supports\Utils;
 use Kirki\Ecommerce\Framework\Http\Request;
 
@@ -56,8 +57,13 @@ class SiteController
         include_view('site.shop.parts.list', ['products' => $products]);
         $products_html = ob_get_clean();
 
+        ob_start();
+        Template::render_pagination($shop_page_data['products']);
+        $pagination_html = ob_get_clean();
+
         $data = [
             'products_html' => $products_html,
+            'pagination_html' => $pagination_html,
             'filters' => $shop_page_data['filters'],
         ];
 

@@ -32,10 +32,9 @@ $sidebar_data = [
 ];
 ?>
 
-<?php Template::get_header();
-?>
+<?php Template::get_header(); ?>
 
-<div class="kecom-products-page">
+<div class="kecom-products-page" x-data="shop()">
     <div class="kecom-container">
         <?php
         include_view(
@@ -71,9 +70,10 @@ $sidebar_data = [
             <?php include_view('site.shop.parts.list', ['products' => $products]);?>
         </div>
 
-        <?php Template::render_pagination($data->products); ?>
+        <div class="kecom-pagination-container">
+            <?php Template::render_pagination($data->products); ?>
+        </div>
     </div>
 </div>
 
-<?php Template::get_footer();
-?>
+<?php Template::get_footer(); ?>
