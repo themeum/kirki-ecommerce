@@ -3,19 +3,19 @@ import { useParams } from 'react-router';
 
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { ColorPaletteIcon } from '@/icons';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
+import { ColorPaletteIcon } from '@/icons';
 import { useAttributeQuery } from '@/services/attribute';
-import type { Attribute, AttributeValue, TaxonomyTableHeader } from '@/types';
 import { theme } from '@/theme';
-import { scoped, mergeCss, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
+import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
+import type { Attribute, AttributeValue, TaxonomyTableHeader } from '@/types';
 import { __, sprintf } from '@/wpi18n';
 
-import SettingsPageHeader from '@/pages/settings/settings-page-header';
 import VariationTable from '@/pages/settings/essential-settings/variation-library/variation-table/variation-table';
 import VariationValuePopup from '@/pages/settings/essential-settings/variation-library/variation-value-dialog';
+import SettingsPageHeader from '@/pages/settings/settings-page-header';
 
 type AttributeWithMeta = Attribute & { updated_at?: string };
 
@@ -57,7 +57,7 @@ const ColorVariation = () => {
             }
           />
           {!colorList?.length ? (
-            <Card cssOverride={mergeCss(cardStyles.largeCard, styles.roundedCard)}>
+            <Card cssOverride={mergeCss(cardStyles.formCard, styles.roundedCard)}>
               <CardContent cssOverride={mergeCss(cardStyles.largeContentPadded, styles.emptyContent)}>
                 <Flex direction="column" gap={2} align="center">
                   <ColorPaletteIcon />

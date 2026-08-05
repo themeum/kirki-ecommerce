@@ -1,22 +1,21 @@
 import { useMemo, type Dispatch, type SetStateAction } from 'react';
 import { useNavigate } from 'react-router';
 
-import Flex from '@/components/ui/flex';
-import { BoxOpenIcon } from '@/icons';
-import HeaderActionsCard from '@/components/header-actions-card';
 import GroupOptionCard from '@/components/group-option-card';
+import HeaderActionsCard from '@/components/header-actions-card';
 import { Card, CardContent } from '@/components/ui/card';
+import Flex from '@/components/ui/flex';
 import { dispatchToastMessage } from '@/pages/utils';
-import type { SettingsSectionData } from '@/types';
 import { theme } from '@/theme';
-import { scoped, mergeCss, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
+import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
+import type { SettingsSectionData } from '@/types';
 import { __ } from '@/wpi18n';
 
-import { saveShippingZones, shippingMethodIconMap, type ShippingMethodData, type ShippingZone } from '@/pages/settings/shipping-settings/utils';
+import { getShippingMethodRightText, getShippingMethodSubText, saveShippingZones, shippingMethodIconMap, type ShippingMethodData, type ShippingZone } from '@/pages/settings/shipping-settings/utils';
+import { BoxIcon } from 'lucide-react';
 
 type ShippingMethodProps = {
-  from?: string;
   shippingSettingsData: SettingsSectionData | null | undefined;
   shippingMethodList: ShippingMethodData[];
   setShippingZonesObj: Dispatch<SetStateAction<ShippingZone[]>>;
@@ -25,7 +24,6 @@ type ShippingMethodProps = {
 };
 
 export const ShippingMethod = ({
-  from = '',
   shippingSettingsData,
   shippingMethodList,
   setShippingZonesObj,
@@ -38,6 +36,8 @@ export const ShippingMethod = ({
     return (shippingMethodList || []).map((method) => ({
       ...method,
       icon: shippingMethodIconMap[method.type] || null,
+      subText: getShippingMethodSubText(method),
+      rightText: getShippingMethodRightText(method),
     }));
   }, [shippingMethodList]);
 
@@ -70,31 +70,6 @@ export const ShippingMethod = ({
     });
   };
 
-  const handleToggleMethodItem = async (item: ShippingMethodData) => {
-    const updatedZones = shippingZonesObj.map((zone) => {
-      if (!zone.shipping_methods?.some((m) => m.id === item.id)) {
-        return zone;
-      }
-      return {
-        ...zone,
-        shipping_methods: zone.shipping_methods.map((m) =>
-          m.id === item.id ? { ...m, is_enabled: !m.is_enabled } : m,
-        ),
-      };
-    });
-
-    setShippingZonesObj(updatedZones);
-    await saveShippingZones({
-      zones: updatedZones,
-      from: 'edit',
-      shippingSettingsData,
-      toastMessage: __(
-        'Shipping method active status updated',
-        'kirki-ecommerce',
-      ),
-    });
-  };
-
   const handleEditDeliveryMethod = (item: ShippingMethodData) => {
     navigate(
       `/settings/shipping/delivery-method?methodId=${item.id}&zoneId=${item.zoneId}`,
@@ -111,70 +86,50 @@ export const ShippingMethod = ({
 
   return (
     <div>
-      {from === 'edit_zone' ? (
-        <div css={scoped(styles.zoneMethodsWrap)}>
-          <GroupOptionCard
-            dataArr={shippingMethodList}
-            handleDeleteItem={(item) =>
-              handleDeleteMethodItem(item as ShippingMethodData)
-            }
-            handleEditItem={(item) =>
-              handleEditDeliveryMethod(item as ShippingMethodData)
-            }
-            handleToggleItem={(item) =>
-              handleToggleMethodItem(item as ShippingMethodData)
-            }
-          />
-        </div>
-      ) : (
-        <Card cssOverride={cardStyles.largeCard}>
-          <CardContent cssOverride={cardStyles.largeContentPadded}>
-            <HeaderActionsCard
-              header={__('Shipping Methods', 'kirki-ecommerce')}
-              subHeader={__(
-                'Used to create shipping rates for different product groups, like heavy items needing higher fees.',
-                'kirki-ecommerce',
-              )}
-              buttonText={__('Add Method', 'kirki-ecommerce')}
-              onAdd={handleAddMethod}
-            />
-
-            {!shippingMethodList?.length ? (
-              <Card cssOverride={cardStyles.innerDarkCard}>
-                <CardContent cssOverride={mergeCss(cardStyles.innerDarkContent, styles.emptyState)}>
-                  <Flex direction="column" gap={2} align="center">
-                    <BoxOpenIcon />
-                    <span css={scoped(styles.emptyStateText)}>
-                      {__(
-                        'Added shipping profiles will appear here',
-                        'kirki-ecommerce',
-                      )}
-                    </span>
-                  </Flex>
-                </CardContent>
-              </Card>
-            ) : (
-              <GroupOptionCard
-                dataArr={shippingMethodListWithIcon}
-                handleDeleteItem={(item) =>
-                  handleDeleteMethodItem(item as ShippingMethodData)
-                }
-                handleEditItem={(item) =>
-                  handleEditDeliveryMethod(item as ShippingMethodData)
-                }
-              />
+      <Card cssOverride={cardStyles.formCard}>
+        <CardContent >
+          <HeaderActionsCard
+            header={__('Shipping Methods', 'kirki-ecommerce')}
+            subHeader={__(
+              'Used to create shipping rates for different product groups, like heavy items needing higher fees.',
+              'kirki-ecommerce',
             )}
-          </CardContent>
-        </Card>
-      )}
+            buttonText={__('Add Method', 'kirki-ecommerce')}
+            onAdd={handleAddMethod}
+          />
+
+          {!shippingMethodList?.length ? (
+            <Card cssOverride={cardStyles.innerDarkCard}>
+              <CardContent cssOverride={mergeCss(cardStyles.innerDarkContent, styles.emptyState)}>
+                <Flex direction="column" gap={2} align="center">
+                  <BoxIcon size={24} />
+                  <span css={scoped(styles.emptyStateText)}>
+                    {__(
+                      'Added shipping methods will appear here',
+                      'kirki-ecommerce',
+                    )}
+                  </span>
+                </Flex>
+              </CardContent>
+            </Card>
+          ) : (
+            <GroupOptionCard
+              dataArr={shippingMethodListWithIcon}
+              handleDeleteItem={(item) =>
+                handleDeleteMethodItem(item as ShippingMethodData)
+              }
+              handleEditItem={(item) =>
+                handleEditDeliveryMethod(item as ShippingMethodData)
+              }
+            />
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };
 
 const styles = defineStyles({
-  zoneMethodsWrap: {
-    marginTop: theme.spacing[3],
-  },
   emptyState: {
     padding: `${theme.spacing[9]} ${theme.spacing[0]}`,
   },

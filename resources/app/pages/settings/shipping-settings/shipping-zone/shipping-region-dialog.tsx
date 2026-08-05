@@ -1,25 +1,25 @@
-import { useEffect, useState, type Dispatch, type SetStateAction } from 'react';
-import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useEffect, useState } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
 
 import TextField from '@/components/form/text-field';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
 import { Dialog, DialogBody, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
-import Flex from '@/components/ui/flex';
-import { theme } from '@/theme';
-import { scoped, defineStyles } from '@/theme/mixins';
-import { cardStyles } from '@/theme/card-styles';
 import { getDefaults } from '@/libs/zod';
 import {
   ShippingRegionFormSchema,
   type ShippingRegionFormInput,
   type ShippingRegionFormPayload,
 } from '@/schemas/forms/shipping-region-form';
+import { theme } from '@/theme';
+import { cardStyles } from '@/theme/card-styles';
+import { defineStyles, scoped } from '@/theme/mixins';
 import type { FormErrors } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -29,43 +29,31 @@ import type {
 } from '@/pages/settings/shipping-settings/utils';
 
 type ShippingRegionPopupProps = {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   filteredCountries: CountryWithStates[];
-  openPopup: boolean;
-  setOpenPopup: (open: boolean) => void;
-  selectedCountries?: string[];
-  setSelectedCountries?: Dispatch<SetStateAction<string[]>>;
-  setSelectedRegion?: Dispatch<SetStateAction<ShippingRegion[]>>;
-  selectedRegion?: ShippingRegion[];
-  setSearchValue?: ((value: string) => void) | null;
-  shippingZoneTitle?: string;
-  setShippingZoneTitle?: (value: string) => void;
-  from?: string;
-  onAdd?: () => void;
-  onSave?: (values: ShippingRegionFormPayload) => void;
+  onSearchChange?: (value: string) => void;
+  initialCountries?: string[];
+  initialRegions?: ShippingRegion[];
+  initialTitle?: string;
+  from?: 'add' | 'edit' | '';
+  onDone: (values: ShippingRegionFormPayload) => void;
   errors?: FormErrors;
 };
 
 export const ShippingRegionPopup = ({
+  open,
+  onOpenChange,
   filteredCountries,
-  openPopup,
-  setOpenPopup,
-  selectedCountries = [],
-  setSelectedCountries = () => {},
-  setSelectedRegion = () => {},
-  selectedRegion = [],
-  setSearchValue = null,
-  shippingZoneTitle,
-  setShippingZoneTitle,
+  onSearchChange,
+  initialCountries = [],
+  initialRegions = [],
+  initialTitle = '',
   from = '',
-  onAdd = () => {},
-  onSave,
+  onDone,
   errors,
 }: ShippingRegionPopupProps) => {
-  const [initialDataObj] = useState({
-    countries: selectedCountries || [],
-    regions: selectedRegion || [],
-    title: shippingZoneTitle || '',
-  });
+  const [searchValue, setSearchValue] = useState('');
 
   const form = useForm<ShippingRegionFormInput, unknown, ShippingRegionFormPayload>({
     resolver: zodResolver(ShippingRegionFormSchema),
@@ -79,16 +67,18 @@ export const ShippingRegionPopup = ({
   const formTitle = useWatch({ control: form.control, name: 'title' }) || '';
 
   useEffect(() => {
-    if (!openPopup) {
+    if (!open) {
       return;
     }
 
     form.reset({
-      title: shippingZoneTitle || '',
-      countries: selectedCountries || [],
-      regions: selectedRegion || [],
+      title: initialTitle,
+      countries: initialCountries,
+      regions: initialRegions,
     });
-  }, [openPopup, form]);
+    setSearchValue('');
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only re-hydrate when the dialog opens, not on every prop identity change
+  }, [open]);
 
   useEffect(() => {
     if (errors?.title) {
@@ -98,24 +88,6 @@ export const ShippingRegionPopup = ({
       form.setError('regions', { message: String(errors.regions) });
     }
   }, [errors, form]);
-
-  useEffect(() => {
-    if (from === 'add') {
-      setShippingZoneTitle?.(String(formTitle || ''));
-    }
-  }, [formTitle, from, setShippingZoneTitle]);
-
-  const syncParent = (
-    countries: string[],
-    regions: ShippingRegion[],
-    title?: string | null,
-  ) => {
-    setSelectedCountries(countries);
-    setSelectedRegion(regions);
-    if (from === 'add' && title !== undefined) {
-      setShippingZoneTitle?.(title ?? '');
-    }
-  };
 
   const handleSelectCountries = (country: CountryWithStates) => {
     const countries = form.getValues('countries') || [];
@@ -129,18 +101,17 @@ export const ShippingRegionPopup = ({
     const nextRegions = isSelected
       ? regions.filter((r) => r.country !== country.code)
       : [
-          ...regions,
-          {
-            country: country.code,
-            states: (country.states ?? []).map((s) => s.id),
-            hasDeselectedState: false,
-            flag: country?.flag,
-          },
-        ];
+        ...regions,
+        {
+          country: country.code,
+          states: (country.states ?? []).map((s) => s.id),
+          hasDeselectedState: false,
+          flag: country?.flag,
+        },
+      ];
 
     form.setValue('countries', nextCountries, { shouldValidate: true });
     form.setValue('regions', nextRegions, { shouldValidate: true });
-    syncParent(nextCountries, nextRegions, form.getValues('title'));
   };
 
   const handleSelectStates = (
@@ -170,7 +141,6 @@ export const ShippingRegionPopup = ({
       const nextRegions = regions.filter((_, i) => i !== countryIndex);
       form.setValue('countries', nextCountries, { shouldValidate: true });
       form.setValue('regions', nextRegions, { shouldValidate: true });
-      syncParent(nextCountries, nextRegions, form.getValues('title'));
       return;
     }
 
@@ -178,42 +148,28 @@ export const ShippingRegionPopup = ({
     const nextRegions = regions.map((item, index) =>
       index === countryIndex
         ? {
-            ...item,
-            states: updatedStates,
-            hasDeselectedState,
-          }
+          ...item,
+          states: updatedStates,
+          hasDeselectedState,
+        }
         : item,
     );
 
     form.setValue('regions', nextRegions, { shouldValidate: true });
-    syncParent(countries, nextRegions, form.getValues('title'));
   };
 
   const handleCancelButton = () => {
     form.reset({
-      title: initialDataObj.title,
-      countries: [...initialDataObj.countries],
-      regions: [...initialDataObj.regions],
+      title: initialTitle,
+      countries: [...initialCountries],
+      regions: [...initialRegions],
     });
-    setSelectedCountries([...initialDataObj.countries]);
-    setSelectedRegion([...initialDataObj.regions]);
-    if (from === 'add') {
-      setShippingZoneTitle?.(initialDataObj.title);
-    }
-    setOpenPopup(false);
+    onOpenChange(false);
   };
 
   const handleSearchRegion = (value: string) => {
-    setSearchValue?.(value);
-  };
-
-  const handleDone = (values: ShippingRegionFormPayload) => {
-    syncParent(values.countries, values.regions, values.title);
-    if (onSave) {
-      onSave(values);
-      return;
-    }
-    onAdd();
+    setSearchValue(value);
+    onSearchChange?.(value);
   };
 
   const buttonState =
@@ -227,10 +183,10 @@ export const ShippingRegionPopup = ({
 
   return (
     <Dialog
-      open={openPopup}
+      open={open}
       onOpenChange={(next) => {
         if (!next) {
-          setOpenPopup(false);
+          onOpenChange(false);
         }
       }}
     >
@@ -247,7 +203,7 @@ export const ShippingRegionPopup = ({
               <TextField
                 name="title"
                 label={__('Title', 'kirki-ecommerce')}
-                placeholder={__('Zone 2- South Asia', 'kirki-ecommerce')}
+                placeholder={__('Zone 2 - South Asia', 'kirki-ecommerce')}
               />
             )}
 
@@ -259,6 +215,7 @@ export const ShippingRegionPopup = ({
                 id="shipping-region-search"
                 type="search"
                 placeholder={__('Search country or state', 'kirki-ecommerce')}
+                value={searchValue}
                 onChange={(e) => handleSearchRegion(e.target.value)}
                 error={Boolean(searchError)}
               />
@@ -266,80 +223,74 @@ export const ShippingRegionPopup = ({
 
             <Card cssOverride={cardStyles.tableCardRounded}>
               <CardContent cssOverride={cardStyles.tableContent}>
-                <div
-                  style={{
-                    height: '432px',
-                    overflowX: 'hidden',
-                    overflowY: 'scroll',
-                  }}
-                >
-                <Flex>
-                  {__('Name', 'kirki-ecommerce')}
-                </Flex>
+                <div css={scoped(styles.scrollArea)}>
+                  <Flex>
+                    {__('Name', 'kirki-ecommerce')}
+                  </Flex>
 
-                {filteredCountries?.length > 0 &&
-                  filteredCountries.map((country, index) => {
-                    const regionInfo = formRegions.find(
-                      (r) => r.country === country.code,
-                    );
-                    return (
-                      <div key={index}>
-                        <div css={scoped(styles.checkboxItem)}>
-                          <Flex gap={2} align="center">
-                            <Checkbox
-                              id={`shipping-region-country-${country.code}`}
-                              checked={
-                                regionInfo?.hasDeselectedState
-                                  ? 'indeterminate'
-                                  : formCountries.includes(country?.code)
-                              }
-                              onCheckedChange={() =>
-                                handleSelectCountries(country)
-                              }
-                            />
-                            <Label
-                              htmlFor={`shipping-region-country-${country.code}`}
-                            >
-                              {country?.flag}
-                              {country.name}
-                            </Label>
-                          </Flex>
-                        </div>
-                        {formCountries.includes(country.code) &&
-                        (country?.states?.length ?? 0) > 0 ? (
-                          <div css={scoped(styles.nestedStates)}>
-                            {(country?.states ?? []).map((state, stateIndex) => (
-                              <div key={stateIndex} css={scoped(styles.checkboxItem)}>
-                                <Flex gap={2} align="center">
-                                  <Checkbox
-                                    id={`shipping-region-state-${country.code}-${state.id}`}
-                                    checked={formRegions
-                                      ?.find((r) => r.country === country.code)
-                                      ?.states.includes(state.id)}
-                                    onCheckedChange={() =>
-                                      handleSelectStates(
-                                        state.id,
-                                        country.code,
-                                        country.states,
-                                      )
-                                    }
-                                  />
-                                  <Label
-                                    htmlFor={`shipping-region-state-${country.code}-${state.id}`}
-                                  >
-                                    {state.name}
-                                  </Label>
-                                </Flex>
-                              </div>
-                            ))}
+                  {filteredCountries?.length > 0 &&
+                    filteredCountries.map((country, index) => {
+                      const regionInfo = formRegions.find(
+                        (r) => r.country === country.code,
+                      );
+                      return (
+                        <div key={index}>
+                          <div css={scoped(styles.checkboxItem)}>
+                            <Flex gap={2} align="center">
+                              <Checkbox
+                                id={`shipping-region-country-${country.code}`}
+                                checked={
+                                  regionInfo?.hasDeselectedState
+                                    ? 'indeterminate'
+                                    : formCountries.includes(country?.code)
+                                }
+                                onCheckedChange={() =>
+                                  handleSelectCountries(country)
+                                }
+                              />
+                              <Label
+                                htmlFor={`shipping-region-country-${country.code}`}
+                              >
+                                {country?.flag}
+                                {country.name}
+                              </Label>
+                            </Flex>
                           </div>
-                        ) : (
-                          ''
-                        )}
-                      </div>
-                    );
-                  })}
-              </div>
+                          {formCountries.includes(country.code) &&
+                            (country?.states?.length ?? 0) > 0 ? (
+                            <div css={scoped(styles.nestedStates)}>
+                              {(country?.states ?? []).map((state, stateIndex) => (
+                                <div key={stateIndex} css={scoped(styles.checkboxItem)}>
+                                  <Flex gap={2} align="center">
+                                    <Checkbox
+                                      id={`shipping-region-state-${country.code}-${state.id}`}
+                                      checked={formRegions
+                                        ?.find((r) => r.country === country.code)
+                                        ?.states.includes(state.id)}
+                                      onCheckedChange={() =>
+                                        handleSelectStates(
+                                          state.id,
+                                          country.code,
+                                          country.states,
+                                        )
+                                      }
+                                    />
+                                    <Label
+                                      htmlFor={`shipping-region-state-${country.code}-${state.id}`}
+                                    >
+                                      {state.name}
+                                    </Label>
+                                  </Flex>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            ''
+                          )}
+                        </div>
+                      );
+                    })}
+                </div>
               </CardContent>
             </Card>
           </DialogBody>
@@ -352,7 +303,7 @@ export const ShippingRegionPopup = ({
             </Button>
             <Button
               variant="primary"
-              onClick={form.handleSubmit(handleDone)}
+              onClick={form.handleSubmit(onDone)}
               disabled={buttonState}
             >
               {__('Done', 'kirki-ecommerce')}
@@ -367,6 +318,11 @@ export const ShippingRegionPopup = ({
 ShippingRegionPopup.displayName = 'ShippingRegionPopup';
 
 const styles = defineStyles({
+  scrollArea: {
+    height: '432px',
+    overflowX: 'hidden',
+    overflowY: 'scroll',
+  },
   checkboxItem: {
     width: 'auto',
     padding: `${theme.spacing[2]} ${theme.spacing[3]}`,

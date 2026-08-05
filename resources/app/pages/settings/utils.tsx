@@ -1,5 +1,5 @@
-import type { ReactNode } from 'react';
 import { CircleDollarSign, CreditCard, Home, KeyRound, Mail, Package, Percent, Settings2, ShoppingCart, Snowflake, Truck } from 'lucide-react';
+import type { ReactNode } from 'react';
 
 import type { SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
@@ -30,9 +30,9 @@ type GetSortedListParams<T> = {
 
 export const weightUnitList: SelectOption[] = [
   { title: __('Kilogram (kg)', 'kirki-ecommerce'), value: 'kg' },
-  { title: __('Gram', 'kirki-ecommerce'), value: 'g' },
-  { title: __('Pound', 'kirki-ecommerce'), value: 'lb' },
-  { title: __('Ounce', 'kirki-ecommerce'), value: 'oz' },
+  { title: __('Gram (g)', 'kirki-ecommerce'), value: 'g' },
+  { title: __('Pound (lb)', 'kirki-ecommerce'), value: 'lb' },
+  { title: __('Ounce (oz)', 'kirki-ecommerce'), value: 'oz' },
 ];
 
 export const dimensionUnitList: SelectOption[] = [

@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { type ReactNode } from 'react';
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import Badge from '@/components/ui/badge';
@@ -7,7 +7,7 @@ import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { scoped, mergeCss, defineStyles } from '@/theme/mixins';
+import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 type OptionAccordionProps = {
@@ -17,7 +17,7 @@ type OptionAccordionProps = {
   children?: ReactNode;
   rightActions?: ReactNode;
   variant?: 'shipping' | 'inactive' | string;
-  state?: boolean;
+  enabled?: boolean;
 };
 
 const OptionAccordion = (props: OptionAccordionProps) => {
@@ -28,12 +28,8 @@ const OptionAccordion = (props: OptionAccordionProps) => {
     children,
     rightActions = null,
     variant,
-    state = true,
+    enabled = true,
   } = props;
-  const [isHovered, setIsHovered] = useState(false);
-
-  const isEmphasis = Boolean(variant === 'shipping' && state && isHovered);
-  const headerColor = !state ? 'disabled' : isEmphasis ? 'emphasis' : 'primary';
 
   return (
     <div css={scoped(styles.wrapper)}>
@@ -44,20 +40,15 @@ const OptionAccordion = (props: OptionAccordionProps) => {
         rightActions={rightActions}
       >
         <AccordionItem>
-          <AccordionTrigger
-            cssOverride={styles.trigger}
-            gap={4}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-          >
-            <Flex gap={2} align="center">
+          <AccordionTrigger cssOverride={styles.trigger} gap={4}>
+            <Flex gap={3} align="center">
               {leftIcon}
-              <Flex direction="column" gap={2}>
-                <Flex gap={2} align="center">
-                  <Text weight="medium" color={headerColor}>
+              <Flex direction="column" gap={1}>
+                <Flex gap={1} align="center" cssOverride={{ height: 24 }}>
+                  <Text weight="semibold" variant="heading6" color="primary">
                     {header}
                   </Text>
-                  {!state && (
+                  {!enabled && (
                     <Badge variant="destructive">
                       {__('Inactive', 'kirki-ecommerce')}
                     </Badge>
@@ -71,7 +62,14 @@ const OptionAccordion = (props: OptionAccordionProps) => {
           </AccordionTrigger>
           <AccordionContent>
             <Card cssOverride={mergeCss(cardStyles.darkCard, styles.contentCard)}>
-              <CardContent>{children}</CardContent>
+              <CardContent
+                cssOverride={mergeCss(
+                  cardStyles.innerCardContent,
+                  variant === 'shipping' && styles.shippingContent,
+                )}
+              >
+                {children}
+              </CardContent>
             </Card>
           </AccordionContent>
         </AccordionItem>
@@ -91,11 +89,16 @@ const styles = defineStyles({
     width: '100%',
   },
   trigger: {
-    padding: `${theme.spacing[3]} ${theme.spacing[4]}`,
+    padding: `${theme.spacing[3]} ${theme.spacing[1]} ${theme.spacing[3]} ${theme.spacing[4]}`,
   },
   contentCard: {
     borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.lg} ${theme.radius.lg}`,
     display: 'flex',
     flexDirection: 'column',
+  },
+  shippingContent: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: theme.spacing[3],
   },
 });

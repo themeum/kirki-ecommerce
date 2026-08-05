@@ -2,17 +2,17 @@ import { css } from '@emotion/react';
 import { useState, type ReactNode } from 'react';
 
 import DropdownButton from '@/components/dropdown-button';
-import Button from '@/components/ui/button';
-import { EditPenIcon, TrashIcon, ShowMoreIcon } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
 import Badge from '@/components/ui/badge';
+import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
+import Switch from '@/components/ui/switch';
 import Text from '@/components/ui/text';
+import { EditPenIcon, ShowMoreIcon, TrashIcon } from '@/icons';
 import { theme } from '@/theme';
-import { mergeCss, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
-import ToggleButton from '@/components/ui/toggle-button';
+import { defineStyles, mergeCss } from '@/theme/mixins';
 import type { SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -43,11 +43,11 @@ type GroupOptionCardProps = {
   handleMoreOption?: false | boolean;
   actionsArray?: SelectOption[];
   handleAction?:
-    | false
-    | ((
-        action: string | number | Array<string | number>,
-        item: GroupOptionItem,
-      ) => void);
+  | false
+  | ((
+    action: string | number | Array<string | number>,
+    item: GroupOptionItem,
+  ) => void);
 };
 
 const cardActionsCss = css({
@@ -108,10 +108,8 @@ const GroupOptionCard = (props: GroupOptionCardProps) => {
     actionsArray = [],
     handleAction = false,
   } = props;
-  let dataLength = 0;
-  if (dataArr) {
-    dataLength = dataArr?.length;
-  }
+
+  const dataLength = dataArr.length ?? 0;
 
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
@@ -125,126 +123,118 @@ const GroupOptionCard = (props: GroupOptionCardProps) => {
             optionCardCss,
             dataLength > 1
               ? optionCardBorderRadiusCss
-              : optionCardBorderRadiusSingleCss,)}
-          style={{
-            maxHeight: '44px',
-            display: 'flex',
-            alignItems: 'center',
-          }}
+              : optionCardBorderRadiusSingleCss)}
         >
           <CardContent cssOverride={cardStyles.innerContent}>
-          <Flex align="center" justify="space-between" cssOverride={{ width: '100%' }}>
-            <Flex gap={2} align="center" cssOverride={{ minHeight: '36px' }}>
-              <Flex gap={2} align="center">
-                {item?.icon}
-                <Text variant="small" cssOverride={styles.mediumHeader}>{item?.name ?? ''}</Text>
-              </Flex>
-              {item?.subText && (
-                <Text variant="small" color="subdued">{item?.subText ?? ''}</Text>
-              )}
-              {item?.badge1 && (
-                <Badge
-                  variant={item?.selected === true ? 'requested' : 'default'}
-                >
-                  {item.badge1}
-                </Badge>
-              )}
-              {item?.badge2 && (
-                <Badge variant="default">{item.badge2}</Badge>
-              )}
-              {(item?.is_default || item?.is_base) && (
-                <Badge variant="secondary">
-                  {item?.is_default
-                    ? __('Default', 'kirki-ecommerce')
-                    : __('Base currency', 'kirki-ecommerce')}
-                </Badge>
-              )}
-              {item?.is_enabled === false ? (
-                <Badge variant="destructive">
-                  {__('Inactive', 'kirki-ecommerce')}
-                </Badge>
-              ) : (
-                ''
-              )}
-            </Flex>
-            {(item?.rightIcon || item?.rightText) && (
-              <Flex
-                cssOverride={mergeCss(groupOptionCardRightTextCss,
-                activeIndex === index && groupOptionCardRightTextActiveCss,)}
-                gap={3}
-                >
-                {item.rightIcon && item.rightIcon}
-                {item.rightText && (
-                  <Text variant="small" color="secondary">{item?.rightText}</Text>
+            <Flex align="center" justify="space-between" cssOverride={{ width: '100%' }}>
+              <Flex gap={2} align="center" cssOverride={{ minHeight: '36px' }}>
+                <Flex gap={2} align="center">
+                  {item?.icon}
+                  <Text variant="small" cssOverride={styles.mediumHeader}>{item?.name ?? ''}</Text>
+                </Flex>
+                {item?.subText && (
+                  <Text variant="small" color="subdued">{item?.subText ?? ''}</Text>
+                )}
+                {item?.badge1 && (
+                  <Badge
+                    variant={item?.selected === true ? 'requested' : 'default'}
+                  >
+                    {item.badge1}
+                  </Badge>
+                )}
+                {item?.badge2 && (
+                  <Badge variant="default">{item.badge2}</Badge>
+                )}
+                {(item?.is_default || item?.is_base) && (
+                  <Badge variant="secondary">
+                    {item?.is_default
+                      ? __('Default', 'kirki-ecommerce')
+                      : __('Base currency', 'kirki-ecommerce')}
+                  </Badge>
+                )}
+                {item?.is_enabled === false ? (
+                  <Badge variant="destructive">
+                    {__('Inactive', 'kirki-ecommerce')}
+                  </Badge>
+                ) : (
+                  ''
                 )}
               </Flex>
-            )}
-            <ActionGroup
-              cssOverride={mergeCss(cardActionsCss,
-                activeIndex === index && cardActionsActiveCss,)}
-            >
-              {handleToggleItem && !item?.is_toggle_disabled && (
-                <ToggleButton
-                  onChange={() => handleToggleItem(item)}
-                  value={item?.is_enabled as boolean | undefined}
-                />
-              )}
-              {handleDeleteItem && (
-                <Button
-                  variant="secondary"
-                  size="icon"
-                  aria-label={__('Delete', 'kirki-ecommerce')}
-                  cssOverride={
-                    item?.is_delete_disabled
-                      ? mergeCss(groupOptionCardIconCss, groupOptionCardIconDisabledCss)
-                      : groupOptionCardIconCss
-                  }
-                  onClick={
-                    item?.is_delete_disabled
-                      ? undefined
-                      : () => handleDeleteItem(item)
-                  }
+              {(item?.rightIcon || item?.rightText) && (
+                <Flex
+                  cssOverride={mergeCss(groupOptionCardRightTextCss,
+                    activeIndex === index && groupOptionCardRightTextActiveCss,)}
+                  gap={3}
                 >
-                  <TrashIcon />
-                </Button>
+                  {item.rightIcon && item.rightIcon}
+                  {item.rightText && (
+                    <Text variant="small" color="secondary">{item?.rightText}</Text>
+                  )}
+                </Flex>
               )}
-              {handleEditItem && (
-                <Button
-                  variant="secondary"
-                  size="icon"
-                  aria-label={__('Edit', 'kirki-ecommerce')}
-                  onClick={() => handleEditItem(item)}
-                  cssOverride={groupOptionCardIconCss}
-                >
-                  <EditPenIcon />
-                </Button>
-              )}
-              {handleMoreOption && !item?.is_action_disabled && (
-                <DropdownButton
-                  buttonProps={{
-                    type: 'secondary',
-                    style: { transform: 'rotate(90deg)' },
-                    icon: <ShowMoreIcon />,
-                    cssOverride: groupOptionCardIconCss,
-                  }}
-                  dropdownStyle={{ minWidth: '170px' }}
-                  size="small"
-                  hasLeftIcon={false}
-                  options={item?.actionsArray || actionsArray}
-                  onOptionToggle={(value) => {
-                    value === true
-                      ? setActiveIndex(index)
-                      : setActiveIndex(null);
-                  }}
-                  onOptionSelect={(action) => {
-                    if (handleAction) {
-                      handleAction(action, item);
+              <ActionGroup
+                cssOverride={mergeCss(cardActionsCss,
+                  activeIndex === index && cardActionsActiveCss,)}
+              >
+                {handleToggleItem && !item?.is_toggle_disabled && (
+                  <Switch checked={Boolean(item?.is_enabled)} onCheckedChange={() => handleToggleItem(item)} />
+                )}
+                {handleDeleteItem && (
+                  <Button
+                    variant="secondary"
+                    size="icon"
+                    aria-label={__('Delete', 'kirki-ecommerce')}
+                    cssOverride={
+                      item?.is_delete_disabled
+                        ? mergeCss(groupOptionCardIconCss, groupOptionCardIconDisabledCss)
+                        : groupOptionCardIconCss
                     }
-                  }}
-                />
-              )}
-            </ActionGroup>
-          </Flex>
+                    onClick={
+                      item?.is_delete_disabled
+                        ? undefined
+                        : () => handleDeleteItem(item)
+                    }
+                  >
+                    <TrashIcon />
+                  </Button>
+                )}
+                {handleEditItem && (
+                  <Button
+                    variant="secondary"
+                    size="icon"
+                    aria-label={__('Edit', 'kirki-ecommerce')}
+                    onClick={() => handleEditItem(item)}
+                    cssOverride={groupOptionCardIconCss}
+                  >
+                    <EditPenIcon />
+                  </Button>
+                )}
+                {handleMoreOption && !item?.is_action_disabled && (
+                  <DropdownButton
+                    buttonProps={{
+                      type: 'secondary',
+                      style: { transform: 'rotate(90deg)' },
+                      icon: <ShowMoreIcon />,
+                      cssOverride: groupOptionCardIconCss,
+                    }}
+                    dropdownStyle={{ minWidth: '170px' }}
+                    size="small"
+                    hasLeftIcon={false}
+                    options={item?.actionsArray || actionsArray}
+                    onOptionToggle={(value) => {
+                      value === true
+                        ? setActiveIndex(index)
+                        : setActiveIndex(null);
+                    }}
+                    onOptionSelect={(action) => {
+                      if (handleAction) {
+                        handleAction(action, item);
+                      }
+                    }}
+                  />
+                )}
+              </ActionGroup>
+            </Flex>
           </CardContent>
         </Card>
       ))}

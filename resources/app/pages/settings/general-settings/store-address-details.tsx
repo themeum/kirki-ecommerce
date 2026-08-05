@@ -8,7 +8,7 @@ import { __ } from '@/wpi18n';
 const StoreAddressDetails = () => {
   return (
     <div>
-      <Card cssOverride={cardStyles.largeCard}>
+      <Card cssOverride={cardStyles.formCard}>
         <CardHeader cssOverride={cardStyles.sectionHeader}>
           <CardTitle>{__('Store address', 'kirki-ecommerce')}</CardTitle>
           <CardDescription>

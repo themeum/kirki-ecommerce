@@ -83,6 +83,20 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 
 ---
 
+## 1a. Planning Workflow
+
+When entering plan mode in this project, always use the **OpenSpec workflow**
+instead of writing a freeform plan. Reach for the `openspec-*` / `opsx:*`
+skills:
+
+- `opsx:explore` — think through the problem before committing to a change
+- `opsx:propose` — generate a full proposal (spec deltas, design, tasks)
+- `opsx:apply` — implement tasks from an existing change
+- `opsx:sync` — sync delta specs into main specs
+- `opsx:archive` — finalize and archive a completed change
+
+---
+
 ## 2. PHP Coding Standards
 
 Derived from analyzing the actual code in `app/` and `database/` (404 PHP files).

@@ -15,7 +15,7 @@ import { EditIcon, LocationIcon, ShowMoreIcon, TrashIcon } from '@/icons';
 import type { TaxSettingsFormInput } from '@/schemas/forms/tax-settings-form';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { scoped, mergeCss, defineStyles } from '@/theme/mixins';
+import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 import TaxRegionPopup from '@/pages/settings/tax-settings/tax-region/tax-region-dialog';
@@ -143,8 +143,8 @@ const TaxRegions = (props: TaxRegionsProps) => {
 
   return (
     <>
-      <Card cssOverride={cardStyles.largeCard} >
-        <CardContent cssOverride={cardStyles.largeContentPadded}>
+      <Card cssOverride={cardStyles.formCard} >
+        <CardContent >
 
           <HeaderActionsCard
             header={__('Tax Regions', 'kirki-ecommerce')}

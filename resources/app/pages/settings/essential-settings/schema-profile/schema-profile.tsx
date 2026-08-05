@@ -1,16 +1,16 @@
-import { useState, useEffect, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 
-import HeaderActionsCard from '@/components/header-actions-card';
 import GroupOptionCard from '@/components/group-option-card';
+import HeaderActionsCard from '@/components/header-actions-card';
 import { Card, CardContent } from '@/components/ui/card';
-import { BoxOpenIcon } from '@/icons';
 import Flex from '@/components/ui/flex';
+import { BoxOpenIcon } from '@/icons';
 import { dispatchToastMessage } from '@/pages/utils';
-import { useSchemasQuery, useDeleteSchemaMutation } from '@/services/schema';
-import type { SchemaProfile } from '@/types';
+import { useDeleteSchemaMutation, useSchemasQuery } from '@/services/schema';
 import { theme } from '@/theme';
-import { scoped, mergeCss, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
+import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
+import type { SchemaProfile } from '@/types';
 import { __ } from '@/wpi18n';
 
 import AddSchemaPopup from '@/pages/settings/essential-settings/schema-profile/add-schema-dialog';
@@ -66,8 +66,8 @@ const SchemaProfileComponent = () => {
   };
 
   return (
-    <Card cssOverride={cardStyles.largeCard}>
-      <CardContent cssOverride={cardStyles.largeContentPadded}>
+    <Card cssOverride={cardStyles.formCard}>
+      <CardContent >
         <HeaderActionsCard
           header={__('Schema Profile', 'kirki-ecommerce')}
           subHeader={__(

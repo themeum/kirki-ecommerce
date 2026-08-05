@@ -8,8 +8,8 @@ import TextField from '@/components/form/text-field';
 import ThumbnailField from '@/components/form/thumbnail-field';
 import { Card, CardContent } from '@/components/ui/card';
 import Container from '@/components/ui/container';
-import Flex from '@/components/ui/flex';
 import { Field, FieldError } from '@/components/ui/field';
+import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import ProgressBar from '@/components/ui/progressbar';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -26,14 +26,14 @@ import {
 } from '@/schemas/forms/email-template-form';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import { theme } from '@/theme';
-import { mergeCss, defineStyles } from '@/theme/mixins';
+import { defineStyles, mergeCss } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 import { cardStyles } from '@/theme/card-styles';
 
-import { setUnsavedDataStatus } from '@/pages/settings/utils';
 import { useSettingsPageActions } from '@/pages/settings/settings-layout/use-settings-page-actions';
 import SettingsPageHeader from '@/pages/settings/settings-page-header';
+import { setUnsavedDataStatus } from '@/pages/settings/utils';
 
 const POSITION_MAP: Record<string, number> = {
   start: 0,
@@ -142,128 +142,128 @@ const EditTemplate = () => {
                 title={__('Edit Template', 'kirki-ecommerce')}
                 onBack={() => navigate('/settings/email')}
               />
-            <Flex gap={12} cssOverride={{ width: '100%' }}>
-              <Flex direction="column" gap={5} cssOverride={{ width: '44%' }}>
-                <Card cssOverride={mergeCss(cardStyles.largeCard, styles.roundedCard)}>
-                  <CardContent cssOverride={cardStyles.largeContentPadded}>
+              <Flex gap={12} cssOverride={{ width: '100%' }}>
+                <Flex direction="column" gap={5} cssOverride={{ width: '44%' }}>
+                  <Card cssOverride={mergeCss(cardStyles.formCard, styles.roundedCard)}>
+                    <CardContent >
 
-                  <Flex direction="column" gap={2}>
-                    <Text weight="semibold">Logo</Text>
-                    <Text color="secondary">
-                      Update the logo & style your way
-                    </Text>
-                  </Flex>
-                  <ThumbnailField
-                  name="logo"
-                  placeholder={__(
-                  'Drag and drop, or upload images',
-                  'kirki-ecommerce',
-                  )}
-                  description={__('Set store logo', 'kirki-ecommerce')}
-                  getPreviewUrl={(value) => resolveLogoUrl(value)}
-                  />
-                  <TextField
-                  name="height"
-                  label={__('Height', 'kirki-ecommerce')}
-                  type="number"
-                  />
-                  <Controller
-                    control={form.control}
-                    name="height"
-                    render={({ field, fieldState }) => (
-                      <Field data-invalid={fieldState.invalid || undefined}>
-                        <ProgressBar
-                          value={Number(field.value) || 0}
-                          onChange={(value) => field.onChange(value)}
-                          label={'Height'}
-                          rightText={`${heightValue}px`}
-                        />
-                        {fieldState.invalid && (
-                          <FieldError errors={[fieldState.error]} />
+                      <Flex direction="column" gap={2}>
+                        <Text weight="semibold">Logo</Text>
+                        <Text color="secondary">
+                          Update the logo & style your way
+                        </Text>
+                      </Flex>
+                      <ThumbnailField
+                        name="logo"
+                        placeholder={__(
+                          'Drag and drop, or upload images',
+                          'kirki-ecommerce',
                         )}
-                      </Field>
-                    )}
-                  />
-                  <Controller
-                    control={form.control}
-                    name="position"
-                    render={({ field, fieldState }) => (
-                      <Field data-invalid={fieldState.invalid || undefined}>
-                        <Tabs
-                          value={String(
-                            POSITION_MAP[field.value || ''] ?? 0,
-                          )}
-                          onValueChange={(value) => {
-                            field.onChange(
-                              INDEX_TO_POSITION[Number(value)] || 'start',
-                            );
-                          }}
-                        >
-                          <TabsList>
-                            <TabsTrigger value="0">
-                              <AlignLeftIcon />
-                            </TabsTrigger>
-                            <TabsTrigger value="1">
-                              <AlignCenterIcon />
-                            </TabsTrigger>
-                            <TabsTrigger value="2">
-                              <AlignLeftIcon
-                                style={{ transform: 'scaleX(-1)' }}
-                              />
-                            </TabsTrigger>
-                          </TabsList>
-                        </Tabs>
-                        {fieldState.invalid && (
-                          <FieldError errors={[fieldState.error]} />
+                        description={__('Set store logo', 'kirki-ecommerce')}
+                        getPreviewUrl={(value) => resolveLogoUrl(value)}
+                      />
+                      <TextField
+                        name="height"
+                        label={__('Height', 'kirki-ecommerce')}
+                        type="number"
+                      />
+                      <Controller
+                        control={form.control}
+                        name="height"
+                        render={({ field, fieldState }) => (
+                          <Field data-invalid={fieldState.invalid || undefined}>
+                            <ProgressBar
+                              value={Number(field.value) || 0}
+                              onChange={(value) => field.onChange(value)}
+                              label={'Height'}
+                              rightText={`${heightValue}px`}
+                            />
+                            {fieldState.invalid && (
+                              <FieldError errors={[fieldState.error]} />
+                            )}
+                          </Field>
                         )}
-                      </Field>
-                    )}
-                  />
-                  </CardContent>
-                </Card>
-                <Card cssOverride={mergeCss(cardStyles.largeCard, styles.roundedCard)}>
-                  <CardContent cssOverride={cardStyles.largeContentPadded}>
+                      />
+                      <Controller
+                        control={form.control}
+                        name="position"
+                        render={({ field, fieldState }) => (
+                          <Field data-invalid={fieldState.invalid || undefined}>
+                            <Tabs
+                              value={String(
+                                POSITION_MAP[field.value || ''] ?? 0,
+                              )}
+                              onValueChange={(value) => {
+                                field.onChange(
+                                  INDEX_TO_POSITION[Number(value)] || 'start',
+                                );
+                              }}
+                            >
+                              <TabsList>
+                                <TabsTrigger value="0">
+                                  <AlignLeftIcon />
+                                </TabsTrigger>
+                                <TabsTrigger value="1">
+                                  <AlignCenterIcon />
+                                </TabsTrigger>
+                                <TabsTrigger value="2">
+                                  <AlignLeftIcon
+                                    style={{ transform: 'scaleX(-1)' }}
+                                  />
+                                </TabsTrigger>
+                              </TabsList>
+                            </Tabs>
+                            {fieldState.invalid && (
+                              <FieldError errors={[fieldState.error]} />
+                            )}
+                          </Field>
+                        )}
+                      />
+                    </CardContent>
+                  </Card>
+                  <Card cssOverride={mergeCss(cardStyles.formCard, styles.roundedCard)}>
+                    <CardContent >
 
-                  <Flex direction="column" gap={2}>
-                    <Text weight="semibold">Colors</Text>
-                    <Text color="secondary">
-                      Style how the emails will look
-                    </Text>
-                  </Flex>
-                  <ColorPickerField
-                  name="colors.background"
-                  label={'Background'}
-                  />
-                  <ColorPickerField name="colors.text" label={'Text'} />
-                  <ColorPickerField name="colors.link" label={'Link'} />
-                  <ColorPickerField name="colors.label" label={'Label'} />
-                  <ColorPickerField
-                  name="colors.button"
-                  label={'Button Color'}
-                  />
-                  <ColorPickerField
-                  name="colors.button_bg"
-                  label={'Button BG'}
-                  />
-                  </CardContent>
-                </Card>
-              </Flex>
-
-              <Flex direction="column" gap={4} cssOverride={{ width: '56%' }}>
-                <Flex
-                  align="center" justify="space-between">
-                  <Text weight="semibold">Template Preview</Text>
-                  <Flex gap={2} align="center">
-                    <SendIcon />
-                    <Text cssOverride={styles.sendTextMail}>Send Text Mail</Text>
-                  </Flex>
+                      <Flex direction="column" gap={2}>
+                        <Text weight="semibold">Colors</Text>
+                        <Text color="secondary">
+                          Style how the emails will look
+                        </Text>
+                      </Flex>
+                      <ColorPickerField
+                        name="colors.background"
+                        label={'Background'}
+                      />
+                      <ColorPickerField name="colors.text" label={'Text'} />
+                      <ColorPickerField name="colors.link" label={'Link'} />
+                      <ColorPickerField name="colors.label" label={'Label'} />
+                      <ColorPickerField
+                        name="colors.button"
+                        label={'Button Color'}
+                      />
+                      <ColorPickerField
+                        name="colors.button_bg"
+                        label={'Button BG'}
+                      />
+                    </CardContent>
+                  </Card>
                 </Flex>
-                <Card cssOverride={styles.squareCard}>
-                  <CardContent>
-                  </CardContent>
-                </Card>
+
+                <Flex direction="column" gap={4} cssOverride={{ width: '56%' }}>
+                  <Flex
+                    align="center" justify="space-between">
+                    <Text weight="semibold">Template Preview</Text>
+                    <Flex gap={2} align="center">
+                      <SendIcon />
+                      <Text cssOverride={styles.sendTextMail}>Send Text Mail</Text>
+                    </Flex>
+                  </Flex>
+                  <Card cssOverride={styles.squareCard}>
+                    <CardContent>
+                    </CardContent>
+                  </Card>
+                </Flex>
               </Flex>
-            </Flex>
             </Flex>
           </Form>
         ) : (

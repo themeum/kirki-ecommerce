@@ -1,17 +1,17 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 
 import SwitchField from '@/components/form/switch-field';
+import ActionGroup from '@/components/ui/action-group';
 import { Card, CardContent } from '@/components/ui/card';
+import Container from '@/components/ui/container';
+import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
+import Text from '@/components/ui/text';
 import { CartIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import ActionGroup from '@/components/ui/action-group';
-import Container from '@/components/ui/container';
-import Flex from '@/components/ui/flex';
-import Text from '@/components/ui/text';
 import { getDefaults, pickFormValues } from '@/libs/zod';
 import {
   CheckoutSettingsFormSchema,
@@ -23,11 +23,11 @@ import { __ } from '@/wpi18n';
 
 import { cardStyles } from '@/theme/card-styles';
 
-import { setUnsavedDataStatus } from '@/pages/settings/utils';
-import { useSettingsPageActions } from '@/pages/settings/settings-layout/use-settings-page-actions';
-import SettingsPageHeader from '@/pages/settings/settings-page-header';
 import CheckoutConf from '@/pages/settings/checkout-settings/checkout-conf';
 import LegalInfo from '@/pages/settings/checkout-settings/legal-info';
+import { useSettingsPageActions } from '@/pages/settings/settings-layout/use-settings-page-actions';
+import SettingsPageHeader from '@/pages/settings/settings-page-header';
+import { setUnsavedDataStatus } from '@/pages/settings/utils';
 
 const CheckoutSettings = () => {
   const { data: checkoutSettingsData, isLoading } = useSettingsQuery('checkout');
@@ -84,21 +84,21 @@ const CheckoutSettings = () => {
               icon={<CartIcon />}
               title={__('Checkout', 'kirki-ecommerce')}
             />
-            <Card cssOverride={cardStyles.largeCard} >
-              <CardContent cssOverride={cardStyles.largeContentPadded}>
+            <Card cssOverride={cardStyles.formCard} >
+              <CardContent >
 
-              <Flex align="center">
-              <Flex direction="column" gap={2}>
-                <Text weight="medium">{__('Allow Guest Checkout', 'kirki-ecommerce')}</Text>
-                <Text variant="small" color="secondary">{__(
-              'Let customers buy without logging in or creating an account.',
-              'kirki-ecommerce',
-              )}</Text>
-              </Flex>
-              <ActionGroup>
-              <SwitchField name="is_allowed_guest_checkout" />
-              </ActionGroup>
-              </Flex>
+                <Flex align="center">
+                  <Flex direction="column" gap={2}>
+                    <Text weight="medium">{__('Allow Guest Checkout', 'kirki-ecommerce')}</Text>
+                    <Text variant="small" color="secondary">{__(
+                      'Let customers buy without logging in or creating an account.',
+                      'kirki-ecommerce',
+                    )}</Text>
+                  </Flex>
+                  <ActionGroup>
+                    <SwitchField name="is_allowed_guest_checkout" />
+                  </ActionGroup>
+                </Flex>
               </CardContent>
             </Card>
             <CheckoutConf />

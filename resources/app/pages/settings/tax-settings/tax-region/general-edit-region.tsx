@@ -20,17 +20,17 @@ import { toastMutationError } from '@/services/helpers';
 import { updateSettings, useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { mergeCss, defineStyles } from '@/theme/mixins';
+import { defineStyles, mergeCss } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
+import { useSettingsPageActions } from '@/pages/settings/settings-layout/use-settings-page-actions';
+import SettingsPageHeader from '@/pages/settings/settings-page-header';
 import AddCitiesPopup from '@/pages/settings/tax-settings/tax-region/add-cities-dialog';
 import { SingleTaxRate } from '@/pages/settings/tax-settings/tax-region/single-tax-rate';
 import { TaxRateList } from '@/pages/settings/tax-settings/tax-region/tax-rate-list';
 import TaxRules from '@/pages/settings/tax-settings/tax-region/tax-rules/tax-rules';
 import type { TaxRate, TaxRegion, TaxRegionState, TaxRule } from '@/pages/settings/tax-settings/utils';
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
-import { useSettingsPageActions } from '@/pages/settings/settings-layout/use-settings-page-actions';
-import SettingsPageHeader from '@/pages/settings/settings-page-header';
 
 const GeneralEditRegion = () => {
   let { code } = useParams();
@@ -216,8 +216,8 @@ const GeneralEditRegion = () => {
                   onBack={() => navigate('/settings/tax')}
                 />
 
-                <Card cssOverride={mergeCss(cardStyles.largeCard, styles.citiesCard)} >
-                  <CardContent cssOverride={cardStyles.largeContentPadded}>
+                <Card cssOverride={mergeCss(cardStyles.formCard, styles.citiesCard)} >
+                  <CardContent >
 
                     <HeaderActionsCard
                       header={__('Cities', 'kirki-ecommerce')}

@@ -1,8 +1,8 @@
 import SelectField from '@/components/form/select-field';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { usePagesQuery } from '@/services/page';
-import type { PageItem } from '@/types';
 import { cardStyles } from '@/theme/card-styles';
+import type { PageItem } from '@/types';
 import { __ } from '@/wpi18n';
 
 export const ShopPage = () => {
@@ -17,7 +17,7 @@ export const ShopPage = () => {
 
   return (
     <div>
-      <Card cssOverride={cardStyles.largeCard}>
+      <Card cssOverride={cardStyles.formCard}>
         <CardHeader cssOverride={cardStyles.sectionHeader}>
           <CardTitle>{__('Shop page', 'kirki-ecommerce')}</CardTitle>
           <CardDescription>

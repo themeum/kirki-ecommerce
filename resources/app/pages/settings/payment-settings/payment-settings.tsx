@@ -1,8 +1,7 @@
-import { PaymentIcon } from '@/icons';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
-import { usePaymentGatewaysQuery } from '@/services/payment';
-import { usePaymentMethodsQuery } from '@/services/payment';
+import { PaymentIcon } from '@/icons';
+import { usePaymentGatewaysQuery, usePaymentMethodsQuery } from '@/services/payment';
 import { __ } from '@/wpi18n';
 
 import SettingsPageHeader from '@/pages/settings/settings-page-header';

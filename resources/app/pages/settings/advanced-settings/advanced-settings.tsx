@@ -1,5 +1,5 @@
-import Container from '@/components/ui/container';
 import { Card, CardContent } from '@/components/ui/card';
+import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { AdvancedSettingsIcon } from '@/icons';
@@ -16,8 +16,8 @@ const AdvancedSettings = () => {
           icon={<AdvancedSettingsIcon />}
           title={__('Advanced', 'kirki-ecommerce')}
         />
-        <Card cssOverride={cardStyles.largeCard}>
-          <CardContent cssOverride={cardStyles.largeContentPadded}>
+        <Card cssOverride={cardStyles.formCard}>
+          <CardContent >
             <Flex direction="column" gap={2}>
               <Text weight="semibold">
                 {__('Coming soon', 'kirki-ecommerce')}

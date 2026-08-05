@@ -10,7 +10,7 @@ import Text from '@/components/ui/text';
 import { TrashIcon } from '@/icons';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { mergeCss, defineStyles } from '@/theme/mixins';
+import { defineStyles, mergeCss } from '@/theme/mixins';
 import type { SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -117,8 +117,8 @@ export const VatCollection = (props: VatCollectionProps) => {
 
   return (
     <div>
-      <Card cssOverride={cardStyles.largeCard}>
-        <CardContent cssOverride={cardStyles.largeContentPadded}>
+      <Card cssOverride={cardStyles.formCard}>
+        <CardContent >
           <HeaderActionsCard
             header={__('VAT Collection', 'kirki-ecommerce')}
             subHeader={__(

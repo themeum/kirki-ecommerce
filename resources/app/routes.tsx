@@ -82,10 +82,6 @@ export const router = createHashRouter([
           { path: 'shipping', element: withSuspense(ShippingSettings) },
           { path: 'shipping/zone/:zone_Id', element: withSuspense(ShippingZone) },
           { path: 'shipping/delivery-method', element: withSuspense(ShippingDeliveryMethod) },
-          {
-            path: 'shipping/delivery-method/:methodId/:zoneId',
-            element: withSuspense(ShippingDeliveryMethod),
-          },
           { path: 'currency', element: withSuspense(MultiCurrencySettings) },
           { path: 'tax', element: withSuspense(TaxSettings) },
           { path: 'tax/region/eu', element: withSuspense(EditRegionEU) },

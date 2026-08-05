@@ -7,17 +7,42 @@ import Flex from '@/components/ui/flex';
 import { BoxClosedIcon, BoxOpenIcon } from '@/icons';
 import { queryClient } from '@/libs/query-client';
 import { dispatchToastMessage } from '@/pages/utils';
+import { useSettingsQuery } from '@/services/settings';
 import { deleteShippingProfile, useShippingProfilesQuery } from '@/services/shipping';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { scoped, mergeCss, defineStyles } from '@/theme/mixins';
+import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
 import type { ShippingProfile as ShippingProfileType } from '@/types';
-import { __ } from '@/wpi18n';
+import { __, sprintf } from '@/wpi18n';
 
 import { CreateProfilePopup } from '@/pages/settings/shipping-settings/shipping-profile/create-profile-dialog';
+import type { ShippingZone } from '@/pages/settings/shipping-settings/utils';
 
 type ShippingProfileListItem = ShippingProfileType & {
   icon?: ReactNode;
+  badge1?: string;
+  badge2?: string;
+};
+
+const getProfileUsage = (profileName: string, zones: ShippingZone[]) => {
+  const zonesUsingProfile = new Set<string | number>();
+  let ruleCount = 0;
+
+  zones.forEach((zone) => {
+    zone.shipping_methods?.forEach((method) => {
+      method.shipping_rules?.forEach((rule) => {
+        const referencesProfile = rule.conditions?.some(
+          (condition) => condition.type === 'shipping_profile' && condition.value === profileName,
+        );
+        if (referencesProfile) {
+          ruleCount += 1;
+          zonesUsingProfile.add(zone.id);
+        }
+      });
+    });
+  });
+
+  return { ruleCount, zoneCount: zonesUsingProfile.size };
 };
 
 const ShippingProfile = () => {
@@ -30,14 +55,21 @@ const ShippingProfile = () => {
   const { data: shippingProfiles = [] } = useShippingProfilesQuery({
     limit: -1,
   });
+  const { data: shippingSettingsData } = useSettingsQuery('shipping');
 
   useEffect(() => {
-    const updatedData = shippingProfiles.map((item) => ({
-      ...item,
-      icon: <BoxClosedIcon />,
-    }));
+    const zones = (shippingSettingsData?.shipping_zones as ShippingZone[]) || [];
+    const updatedData = shippingProfiles.map((item) => {
+      const { ruleCount, zoneCount } = getProfileUsage(item.name, zones);
+      return {
+        ...item,
+        icon: <BoxClosedIcon />,
+        badge1: ruleCount > 0 ? sprintf(__('%d Rules', 'kirki-ecommerce'), ruleCount) : undefined,
+        badge2: zoneCount > 0 ? sprintf(__('In Use: %d Zones', 'kirki-ecommerce'), zoneCount) : undefined,
+      };
+    });
     setShippingProfileList(updatedData);
-  }, [shippingProfiles]);
+  }, [shippingProfiles, shippingSettingsData]);
 
   const handleEditShippingProfile = (item: ShippingProfileListItem) => {
     setEditProfileIndex(item?.id as number);
@@ -65,8 +97,8 @@ const ShippingProfile = () => {
 
   return (
     <>
-      <Card cssOverride={cardStyles.largeCard}>
-        <CardContent cssOverride={cardStyles.largeContentPadded}>
+      <Card cssOverride={cardStyles.formCard}>
+        <CardContent >
           <HeaderActionsCard
             header={__('Shipping Profiles', 'kirki-ecommerce')}
             subHeader={__(

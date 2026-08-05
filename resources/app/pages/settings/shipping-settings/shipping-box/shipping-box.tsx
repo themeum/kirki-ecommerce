@@ -4,9 +4,9 @@ import GroupOptionCard from '@/components/group-option-card';
 import HeaderActionsCard from '@/components/header-actions-card';
 import { Card, CardContent } from '@/components/ui/card';
 import { dispatchToastMessage } from '@/pages/utils';
-import { useShippingBoxesQuery, useUpdateShippingBoxMutation, useDeleteShippingBoxMutation } from '@/services/shipping';
+import { useDeleteShippingBoxMutation, useShippingBoxesQuery, useUpdateShippingBoxMutation } from '@/services/shipping';
 import type { ShippingBox as ShippingBoxType } from '@/types';
-import { __ } from '@/wpi18n';
+import { __, sprintf } from '@/wpi18n';
 
 import { cardStyles } from '@/theme/card-styles';
 
@@ -54,6 +54,13 @@ const ShippingBox = () => {
   useEffect(() => {
     const updatedList = shippingBoxes.map((box) => ({
       ...box,
+      subText: sprintf(
+        __('%1$s x %2$s x %3$s %4$s', 'kirki-ecommerce'),
+        box.length ?? 0,
+        box.width ?? 0,
+        box.height ?? 0,
+        box.unit ?? '',
+      ),
       is_action_disabled: (box as ShippingBoxListItem).is_default === true,
       actionsArray: getActionArray(box as ShippingBoxListItem),
     }));
@@ -117,29 +124,29 @@ const ShippingBox = () => {
 
   return (
     <>
-      <Card cssOverride={cardStyles.largeCard} >
-        <CardContent cssOverride={cardStyles.largeContentPadded}>
+      <Card cssOverride={cardStyles.formCard} >
+        <CardContent >
 
-        <HeaderActionsCard
-        header={__('Shipping Box', 'kirki-ecommerce')}
-        subHeader={__(
-        'Configure box sizes for accurate shipping cost calculations.',
-        'kirki-ecommerce',
-        )}
-        buttonText={__('Create Box', 'kirki-ecommerce')}
-        onAdd={openCreatePopup}
-        />
-        <GroupOptionCard
-        dataArr={shippingBoxList}
-        handleEditItem={(item) =>
-        openEditPopup(item as ShippingBoxListItem)
-        }
-        handleMoreOption={true}
-        actionsArray={[]}
-        handleAction={(action, item) =>
-        handleAction(String(action), item as ShippingBoxListItem)
-        }
-        />
+          <HeaderActionsCard
+            header={__('Shipping Box', 'kirki-ecommerce')}
+            subHeader={__(
+              'Configure box sizes for accurate shipping cost calculations.',
+              'kirki-ecommerce',
+            )}
+            buttonText={__('Create Box', 'kirki-ecommerce')}
+            onAdd={openCreatePopup}
+          />
+          <GroupOptionCard
+            dataArr={shippingBoxList}
+            handleEditItem={(item) =>
+              openEditPopup(item as ShippingBoxListItem)
+            }
+            handleMoreOption={true}
+            actionsArray={[]}
+            handleAction={(action, item) =>
+              handleAction(String(action), item as ShippingBoxListItem)
+            }
+          />
         </CardContent>
       </Card>
       {openPopup && (

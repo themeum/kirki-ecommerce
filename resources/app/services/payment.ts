@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/libs/api';
 import { endpoints } from '@/libs/endpoints';
 import { queryKeys } from '@/libs/query-keys';
-import { toastMutationError, toastMutationSuccess, unwrapData, unwrapResponse } from '@/services/helpers';
+import { toastMutationError, toastMutationSuccess, unwrapData, unwrapDataList, unwrapResponse } from '@/services/helpers';
 import type { PaymentGateway, PaymentMethod } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -16,7 +16,7 @@ const getInstallablePaymentGateways = () => {
 const getPaymentGateways = () => {
   return apiClient
     .get(endpoints.PAYMENT_GATEWAYS)
-    .then((response) => unwrapData<PaymentGateway[]>(response));
+    .then((response) => unwrapDataList<PaymentGateway>(response));
 };
 
 const getPaymentGateway = (id: string | number) => {
@@ -58,7 +58,7 @@ const setEnabledPaymentGateway = ({
 const getPaymentMethods = () => {
   return apiClient
     .get(endpoints.PAYMENT_METHODS)
-    .then((response) => unwrapData<PaymentMethod[]>(response));
+    .then((response) => unwrapDataList<PaymentMethod>(response));
 };
 
 const createPaymentMethod = (data: Record<string, unknown>) => {

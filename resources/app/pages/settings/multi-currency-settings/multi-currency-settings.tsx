@@ -1,16 +1,16 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 
 import { Card, CardContent } from '@/components/ui/card';
+import Container from '@/components/ui/container';
+import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
+import Text from '@/components/ui/text';
 import { CurrencyIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults, pickFormValues } from '@/libs/zod';
-import Container from '@/components/ui/container';
-import Flex from '@/components/ui/flex';
-import Text from '@/components/ui/text';
 import {
   MultiCurrencySettingsFormSchema,
   type MultiCurrencySettingsFormInput,
@@ -20,12 +20,12 @@ import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
-import { setUnsavedDataStatus } from '@/pages/settings/utils';
-import { useSettingsPageActions } from '@/pages/settings/settings-layout/use-settings-page-actions';
-import SettingsPageHeader from '@/pages/settings/settings-page-header';
 import ApiConfig from '@/pages/settings/multi-currency-settings/api-config/api-config';
 import { AvailableCurrencyList } from '@/pages/settings/multi-currency-settings/available-currency-list';
 import CurrencyFormatSettings from '@/pages/settings/multi-currency-settings/currency-format-settings';
+import { useSettingsPageActions } from '@/pages/settings/settings-layout/use-settings-page-actions';
+import SettingsPageHeader from '@/pages/settings/settings-page-header';
+import { setUnsavedDataStatus } from '@/pages/settings/utils';
 
 const MultiCurrencySettings = () => {
   const { data: currencySettingsData, isLoading } = useSettingsQuery('currency');
@@ -101,31 +101,31 @@ const MultiCurrencySettings = () => {
               title={__('Currency', 'kirki-ecommerce')}
             />
 
-            <Card cssOverride={cardStyles.largeCard} >
-              <CardContent cssOverride={cardStyles.largeContentPadded}>
+            <Card cssOverride={cardStyles.formCard} >
+              <CardContent >
 
-              <Flex direction="column" gap={2}>
-                <Text weight="semibold">{__('Currency Management', 'kirki-ecommerce')}</Text>
-                <Text color="secondary">{__(
-              'Manage product pricing across multiple currencies with manual or automatic conversion rates.',
-              'kirki-ecommerce',
-              )}</Text>
-              </Flex>
-              <AvailableCurrencyList />
-              <ApiConfig />
+                <Flex direction="column" gap={2}>
+                  <Text weight="semibold">{__('Currency Management', 'kirki-ecommerce')}</Text>
+                  <Text color="secondary">{__(
+                    'Manage product pricing across multiple currencies with manual or automatic conversion rates.',
+                    'kirki-ecommerce',
+                  )}</Text>
+                </Flex>
+                <AvailableCurrencyList />
+                <ApiConfig />
               </CardContent>
             </Card>
-            <Card cssOverride={cardStyles.largeCard} >
-              <CardContent cssOverride={cardStyles.largeContentPadded}>
+            <Card cssOverride={cardStyles.formCard} >
+              <CardContent >
 
-              <Flex direction="column" gap={2}>
-                <Text weight="semibold">{__('Currency Preferences', 'kirki-ecommerce')}</Text>
-                <Text color="secondary">{__(
-              'Set your preferences for how currency is displayed.',
-              'kirki-ecommerce',
-              )}</Text>
-              </Flex>
-              <CurrencyFormatSettings />
+                <Flex direction="column" gap={2}>
+                  <Text weight="semibold">{__('Currency Preferences', 'kirki-ecommerce')}</Text>
+                  <Text color="secondary">{__(
+                    'Set your preferences for how currency is displayed.',
+                    'kirki-ecommerce',
+                  )}</Text>
+                </Flex>
+                <CurrencyFormatSettings />
               </CardContent>
             </Card>
           </Flex>

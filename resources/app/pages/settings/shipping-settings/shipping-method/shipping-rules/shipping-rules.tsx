@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import { useEffect, useState, type Dispatch, type SetStateAction } from 'react';
+import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router';
 
 import HeaderActionsCard from '@/components/header-actions-card';
@@ -13,22 +13,41 @@ import { dispatchToastMessage } from '@/pages/utils';
 import { useSettingsQuery } from '@/services/settings';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { mergeCss, defineStyles } from '@/theme/mixins';
+import { defineStyles, mergeCss } from '@/theme/mixins';
 import type { SettingsSectionData } from '@/types';
 import { __, sprintf } from '@/wpi18n';
 
-import ShippingRuleModal from '@/pages/settings/shipping-settings/shipping-method/shipping-rules/shipping-rule-dialog';
-import { saveShippingZones, type ShippingRule, type ShippingZone } from '@/pages/settings/shipping-settings/utils';
+import ShippingRuleFormCard from '@/pages/settings/shipping-settings/shipping-method/shipping-rules/shipping-rule-form-card';
+import { actionOptionsArray, conditionOptions, saveShippingZones, type ShippingRule, type ShippingZone } from '@/pages/settings/shipping-settings/utils';
 
 type ShippingRulesProps = {
   methodId: string | number;
 };
 
+const getConditionLabel = (type?: string): string =>
+  conditionOptions.find((option) => option.value === type)?.title ?? type ?? '';
+
+const getOperatorLabel = (operator?: string): string => {
+  if (operator === '>') {
+    return __('> (Greater than)', 'kirki-ecommerce');
+  }
+  if (operator === '<') {
+    return __('< (Less than)', 'kirki-ecommerce');
+  }
+  if (operator === '=') {
+    return __('= (Equal to)', 'kirki-ecommerce');
+  }
+  return __('is', 'kirki-ecommerce');
+};
+
+const getActionLabel = (type?: string): string =>
+  actionOptionsArray.find((option) => option.value === type)?.title ?? type ?? '';
+
 export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
   const [searchParams] = useSearchParams();
   const zoneId = searchParams.get('zoneId');
 
-  const [addRuleModal, setAddRuleModal] = useState(false);
+  const [showAddCard, setShowAddCard] = useState(false);
   const [editingRuleIndex, setEditingRuleIndex] = useState<number | null>(null);
   const [hoveredRuleIndex, setHoveredRuleIndex] = useState<number | null>(null);
 
@@ -99,10 +118,11 @@ export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
       },
     });
   };
+
   return (
     <div>
-      <Card cssOverride={cardStyles.largeCard}>
-        <CardContent cssOverride={cardStyles.largeContentPadded}>
+      <Card cssOverride={cardStyles.formCard}>
+        <CardContent >
           <HeaderActionsCard
             header={__('Shipping Rules', 'kirki-ecommerce')}
             subHeader={__(
@@ -110,121 +130,111 @@ export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
               'kirki-ecommerce',
             )}
             buttonText={__('Add Rule', 'kirki-ecommerce')}
-            onAdd={() => setAddRuleModal(true)}
+            onAdd={() => setShowAddCard(true)}
           />
-          {(addRuleModal || rulesObj.length > 0) && (
+          {(showAddCard || rulesObj.length > 0) && (
             <Flex direction={'column'} gap={4}>
-              {addRuleModal && (
-                <ShippingRuleModal
+              {showAddCard && (
+                <ShippingRuleFormCard
                   methodId={methodId}
-                  rulesObj={rulesObj}
-                  setRulesObj={setRulesObj as Dispatch<SetStateAction<ShippingRule[] | ShippingRule>>}
-                  showModal={addRuleModal}
-                  setShowModal={setAddRuleModal}
-                  from="add"
+                  mode="add"
+                  onCancel={() => setShowAddCard(false)}
+                  onSaved={() => setShowAddCard(false)}
                 />
               )}
 
-              {rulesObj?.map((item, index) => (
-                <div key={index}>
-                  <Card
-                    cssOverride={mergeCss(styles.shippingRulesCard,
-                      rulesObj.length > 1
-                        ? styles.shippingRulesCardBorderRadius
-                        : styles.shippingRulesCardSingle,)}
-                    onMouseEnter={() => setHoveredRuleIndex(index)}
-                    onMouseLeave={() => setHoveredRuleIndex(null)}
-                  >
-                    <CardContent>
-                      <Flex justify="space-between">
-                        <Flex direction={'column'} gap={4}>
-                          <Card cssOverride={mergeCss(cardStyles.darkCard, styles.rulesNumberBadge)}>
-                            <CardContent>
-                              <Flex gap={2} align="center">
-                                <LighteningIcon />
-                                <Text variant="small">
-                                  {sprintf(
-                                    __('Rule %s', 'kirki-ecommerce'),
-                                    index + 1,
-                                  )}
-                                </Text>
-                              </Flex>
-                            </CardContent>
-                          </Card>
-                          <Flex direction={'column'} gap={2}>
-                            <Flex gap={2}>
-                              <Text>
-                                {sprintf(
-                                  __('IF %1$s %2$s', 'kirki-ecommerce'),
-                                  item?.conditions[0]?.type,
-                                  item?.conditions[0]?.operator,
-                                )}
-                              </Text>
-                              <Text cssOverride={styles.accentText}>
-                                {sprintf(
-                                  __('%s', 'kirki-ecommerce'),
-                                  item?.conditions[0]?.type === 'destination_region'
-                                    ? (
-                                      item?.conditions[0]?.value as {
-                                        country?: string;
-                                      }
-                                    )?.country ?? ''
-                                    : (item?.conditions[0]?.value as
-                                      | string
-                                      | number),
-                                )}
-                              </Text>
-                            </Flex>
-                            <Flex gap={2}>
-                              <Text>
-                                {sprintf(__('Then %s:', 'kirki-ecommerce'))}
-                              </Text>
-                              {(item?.action?.type === 'set_shipping_cost' ||
-                                item?.action?.type === 'add_shipping_cost') && (
-                                  <Text cssOverride={styles.accentText}>
+              {rulesObj?.map((item, index) =>
+                editingRuleIndex === index ? (
+                  <ShippingRuleFormCard
+                    key={index}
+                    methodId={methodId}
+                    mode="edit"
+                    initialRule={item}
+                    ruleIndex={index}
+                    onCancel={() => setEditingRuleIndex(null)}
+                    onSaved={() => setEditingRuleIndex(null)}
+                  />
+                ) : (
+                  <div key={index}>
+                    <Card
+                      cssOverride={mergeCss(styles.shippingRulesCard,
+                        rulesObj.length > 1
+                          ? styles.shippingRulesCardBorderRadius
+                          : styles.shippingRulesCardSingle,)}
+                      onMouseEnter={() => setHoveredRuleIndex(index)}
+                      onMouseLeave={() => setHoveredRuleIndex(null)}
+                    >
+                      <CardContent>
+                        <Flex justify="space-between">
+                          <Flex direction={'column'} gap={4}>
+                            <Card cssOverride={mergeCss(cardStyles.darkCard, styles.rulesNumberBadge)}>
+                              <CardContent>
+                                <Flex gap={2} align="center">
+                                  <LighteningIcon />
+                                  <Text variant="small">
                                     {sprintf(
-                                      __('%d', 'kirki-ecommerce'),
-                                      item?.action?.value as string | number,
+                                      __('Rule %s', 'kirki-ecommerce'),
+                                      index + 1,
                                     )}
                                   </Text>
-                                )}
+                                </Flex>
+                              </CardContent>
+                            </Card>
+                            <Flex direction={'column'} gap={2}>
+                              <Flex gap={2}>
+                                <Text>
+                                  {sprintf(
+                                    __('IF %1$s %2$s', 'kirki-ecommerce'),
+                                    getConditionLabel(item?.conditions[0]?.type),
+                                    getOperatorLabel(item?.conditions[0]?.operator),
+                                  )}
+                                </Text>
+                                <Text cssOverride={styles.accentText}>
+                                  {item?.conditions[0]?.type === 'destination_region'
+                                    ? ((item?.conditions[0]?.value as { country?: string })?.country ?? '')
+                                    : String(item?.conditions[0]?.value ?? '')}
+                                </Text>
+                              </Flex>
+                              <Flex gap={2}>
+                                <Text>
+                                  {sprintf(
+                                    __('Then %s:', 'kirki-ecommerce'),
+                                    getActionLabel(item?.action?.type),
+                                  )}
+                                </Text>
+                                {(item?.action?.type === 'set_shipping_cost' ||
+                                  item?.action?.type === 'add_shipping_cost') && (
+                                    <Text cssOverride={styles.accentText}>
+                                      {String(item?.action?.value ?? '')}
+                                    </Text>
+                                  )}
+                              </Flex>
                             </Flex>
                           </Flex>
-                        </Flex>
-                        <ActionGroup
-                          cssOverride={mergeCss(styles.cardActions,
-                            hoveredRuleIndex === index && styles.cardActionsActive,)}
-                        >
-                          <Button
-                            variant="secondary"
-                            onClick={() => handleDeleteRules(index)}
+                          <ActionGroup
+                            cssOverride={mergeCss(styles.cardActions,
+                              hoveredRuleIndex === index && styles.cardActionsActive,)}
                           >
-                            <TrashIcon />
-                          </Button>
+                            <Button
+                              variant="secondary"
+                              onClick={() => handleDeleteRules(index)}
+                            >
+                              <TrashIcon />
+                            </Button>
 
-                          <Button
-                            variant="secondary"
-                            onClick={() => setEditingRuleIndex(index)}
-                          >
-                            <EditPenIcon />
-                          </Button>
-                        </ActionGroup>
-                      </Flex>
-                      {editingRuleIndex === index && (
-                        <ShippingRuleModal
-                          methodId={methodId}
-                          rulesObj={rulesObj[index]}
-                          setRulesObj={setRulesObj as Dispatch<SetStateAction<ShippingRule[] | ShippingRule>>}
-                          showModal={true}
-                          setShowModal={() => setEditingRuleIndex(null)}
-                          from={'edit'}
-                          ruleIndex={index}
-                        />
-                      )}
-                    </CardContent>
-                  </Card>
-                </div>
-              ))}
+                            <Button
+                              variant="secondary"
+                              onClick={() => setEditingRuleIndex(index)}
+                            >
+                              <EditPenIcon />
+                            </Button>
+                          </ActionGroup>
+                        </Flex>
+                      </CardContent>
+                    </Card>
+                  </div>
+                ),
+              )}
             </Flex>
           )}
         </CardContent>

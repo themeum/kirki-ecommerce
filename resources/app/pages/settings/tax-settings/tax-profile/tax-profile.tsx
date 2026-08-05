@@ -11,7 +11,7 @@ import { toastMutationError } from '@/services/helpers';
 import { deleteTaxProfile, useTaxProfilesQuery } from '@/services/tax';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { scoped, mergeCss, defineStyles } from '@/theme/mixins';
+import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
 import type { TaxProfile as TaxProfileType } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -73,8 +73,8 @@ const TaxProfile = () => {
 
   return (
     <div>
-      <Card cssOverride={cardStyles.largeCard}>
-        <CardContent cssOverride={cardStyles.largeContentPadded}>
+      <Card cssOverride={cardStyles.formCard}>
+        <CardContent >
           <HeaderActionsCard
             header={__('Tax Profiles', 'kirki-ecommerce')}
             subHeader={__(

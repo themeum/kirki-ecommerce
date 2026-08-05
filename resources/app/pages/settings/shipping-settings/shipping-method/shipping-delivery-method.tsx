@@ -1,176 +1,114 @@
-import { useState, useEffect, useMemo, type ReactNode } from 'react';
-import { mergeCss } from '@/theme/mixins';
-import { useSearchParams, useNavigate } from 'react-router';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useEffect, useMemo, type ReactNode } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
+import { useNavigate, useSearchParams } from 'react-router';
 import { toast } from 'sonner';
 
-import { TruckIcon, WeightIcon, StoreIcon } from '@/icons';
+import SelectField from '@/components/form/select-field';
+import TextField from '@/components/form/text-field';
+import { Card, CardContent } from '@/components/ui/card';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
-import { Card, CardContent } from '@/components/ui/card';
-import Input from '@/components/ui/input';
-import Label from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Form } from '@/components/ui/form';
+import type { ErrorResponse } from '@/libs/api';
+import { applyServerErrors } from '@/libs/form-errors';
 import { queryClient } from '@/libs/query-client';
 import { queryKeys } from '@/libs/query-keys';
-import { useUnsavedStatus } from '@/libs/unsaved-store';
-import { getErrorMessage } from '@/services/helpers';
-import { useSettingsQuery, updateSettings } from '@/services/settings';
+import { getDefaults, pickFormValues } from '@/libs/zod';
+import {
+  ShippingMethodFormSchema,
+  type ShippingMethodFormInput,
+  type ShippingMethodFormPayload,
+} from '@/schemas/forms/shipping-method-form';
+import { updateSettings, useSettingsQuery } from '@/services/settings';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
+import { useSettingsPageActions } from '@/pages/settings/settings-layout/use-settings-page-actions';
+import SettingsPageHeader from '@/pages/settings/settings-page-header';
 import FlatRateSettings from '@/pages/settings/shipping-settings/shipping-method/flat-rate-settings';
 import LocalPickupSettings from '@/pages/settings/shipping-settings/shipping-method/local-pickup-settings';
 import RateByWeightSettings from '@/pages/settings/shipping-settings/shipping-method/rate-by-weight-settings';
 import { ShippingRules } from '@/pages/settings/shipping-settings/shipping-method/shipping-rules/shipping-rules';
-import { METHOD_SCHEMAS, type ShippingMethodData, type ShippingZone } from '@/pages/settings/shipping-settings/utils';
+import type { ShippingMethodData, ShippingZone } from '@/pages/settings/shipping-settings/utils';
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
-import { useSettingsPageActions } from '@/pages/settings/settings-layout/use-settings-page-actions';
-import SettingsPageHeader from '@/pages/settings/settings-page-header';
 
-type MethodType = 'flat_rate' | 'local_pickup' | 'weight';
+const methodTypeOptions = [
+  { label: __('Flat Rate', 'kirki-ecommerce'), value: 'flat_rate' },
+  { label: __('Local Pickup', 'kirki-ecommerce'), value: 'local_pickup' },
+  { label: __('Rate by Weight', 'kirki-ecommerce'), value: 'weight' },
+];
 
-type MethodSettingsEntry = {
-  title: string;
-  comp: ReactNode;
+const methodTypeTitles: Record<string, string> = {
+  flat_rate: __('Flat Rate', 'kirki-ecommerce'),
+  local_pickup: __('Local Pickup', 'kirki-ecommerce'),
+  weight: __('Rate by Weight', 'kirki-ecommerce'),
+};
+
+const methodSettingsByType: Record<string, ReactNode> = {
+  flat_rate: <FlatRateSettings />,
+  local_pickup: <LocalPickupSettings />,
+  weight: <RateByWeightSettings />,
 };
 
 const ShippingDeliveryMethod = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const methodIdParam = searchParams.get('methodId');
+  const zoneIdParam = searchParams.get('zoneId');
 
-  const hasUnsavedData = useUnsavedStatus();
+  const methodId = useMemo(() => methodIdParam || crypto.randomUUID(), [methodIdParam]);
+
   const { data: shippingSettingsData } = useSettingsQuery('shipping');
-  const method_Id = searchParams.get('methodId');
-  const zoneIdFromURL = searchParams.get('zoneId');
-
-  const final_zoneId = zoneIdFromURL;
-  const [methodId] = useState(method_Id || crypto.randomUUID());
-
-  const [methodType, setMethodType] = useState<MethodType>('flat_rate');
-  const [dataObj, setDataObj] = useState<Record<string, unknown>>({});
-  const [initialDataObj, setInitialDataObj] = useState<Record<string, unknown>>(
-    {},
-  );
-
-  const shippingZones = (shippingSettingsData?.shipping_zones as
-    | ShippingZone[]
-    | undefined) ?? [];
+  const shippingZones = (shippingSettingsData?.shipping_zones as ShippingZone[] | undefined) ?? [];
 
   const editingMethod = shippingZones
-    .flatMap((zone) => zone?.shipping_methods || [])
-    .find((method) => method?.id === method_Id);
+    .flatMap((zone) => zone.shipping_methods || [])
+    .find((method) => method.id === methodIdParam);
 
-  const methodExist = useMemo(() => {
-    return shippingZones.some((zone) =>
-      zone.shipping_methods?.some((m) => m.id === methodId),
-    );
-  }, [shippingZones, methodId]);
+  const methodExists = shippingZones.some((zone) =>
+    zone.shipping_methods?.some((method) => method.id === methodId),
+  );
+
+  const form = useForm<ShippingMethodFormInput, unknown, ShippingMethodFormPayload>({
+    resolver: zodResolver(ShippingMethodFormSchema),
+    defaultValues: getDefaults(ShippingMethodFormSchema),
+  });
+
+  const { isDirty } = form.formState;
+  const methodType = useWatch({ control: form.control, name: 'type' }) ?? 'flat_rate';
 
   useEffect(() => {
     if (!editingMethod) {
       return;
     }
-    setMethodType(editingMethod.type as MethodType);
-    setDataObj({
-      name: editingMethod.name || '',
-      is_enabled: editingMethod.is_enabled ?? true,
-      ...sanitizeByMethodType(editingMethod.type, editingMethod),
-    });
-    setInitialDataObj({
-      name: editingMethod.name || '',
-      type: editingMethod.type,
-      is_enabled: editingMethod.is_enabled ?? true,
-      ...sanitizeByMethodType(editingMethod.type, editingMethod),
-    });
-  }, [editingMethod]);
-
-  const buildMethodData = (
-    type: string,
-    prev: Record<string, unknown> = {},
-  ): Record<string, unknown> => {
-    return {
-      name: (prev.name as string) || '',
-      is_enabled: (prev.is_enabled as boolean | undefined) ?? true,
-      ...sanitizeByMethodType(type, prev),
-    };
-  };
-
-  const sanitizeByMethodType = (
-    type: string,
-    data: Record<string, unknown> | ShippingMethodData = {},
-  ): Record<string, unknown> => {
-    const schema = METHOD_SCHEMAS[type] || {};
-    const source = data as Record<string, unknown>;
-
-    return Object.keys(schema).reduce<Record<string, unknown>>((acc, key) => {
-      acc[key] = source[key] ?? schema[key];
-      return acc;
-    }, {});
-  };
+    form.reset(pickFormValues(ShippingMethodFormSchema, editingMethod));
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- re-hydrate only when the edited method's identity changes
+  }, [editingMethod?.id]);
 
   useEffect(() => {
-    setDataObj((prev) => buildMethodData(methodType, prev));
-    setInitialDataObj((prev) => buildMethodData(methodType, prev));
-  }, [methodType]);
+    setUnsavedDataStatus(isDirty);
+  }, [isDirty]);
 
-  const handleOnChange = (value: unknown, key: string) => {
-    setUnsavedDataStatus(true);
-    setDataObj((prev) => {
-      return {
-        ...prev,
-        [key]: value,
-      };
-    });
-  };
-
-  const methodSettingsMap: Record<MethodType, MethodSettingsEntry> = {
-    flat_rate: {
-      title: __('Flat Rate', 'kirki-ecommerce'),
-      comp: (
-        <FlatRateSettings handleOnChange={handleOnChange} dataObj={dataObj} />
-      ),
-    },
-    local_pickup: {
-      title: __('Local Pickup', 'kirki-ecommerce'),
-      comp: (
-        <LocalPickupSettings
-          handleOnChange={handleOnChange}
-          dataObj={dataObj}
-        />
-      ),
-    },
-    weight: {
-      title: __('Rate by Weight', 'kirki-ecommerce'),
-      comp: (
-        <RateByWeightSettings
-          handleOnChange={handleOnChange}
-          dataObj={dataObj}
-        />
-      ),
-    },
-  };
-
-  const handleCreateOrUpdateData = async () => {
+  const handleSave = async (payload: ShippingMethodFormPayload) => {
     const shippingMethod: ShippingMethodData = {
+      ...payload,
       id: methodId,
-      type: methodType,
-      name: dataObj.name as string,
-      is_enabled: dataObj.is_enabled as boolean,
-      ...sanitizeByMethodType(methodType, dataObj),
+      is_enabled: editingMethod?.is_enabled ?? true,
       shipping_rules: editingMethod?.shipping_rules ?? [],
     };
 
     const updatedShippingZones = shippingZones.map((zone) => {
-      if (methodExist) {
+      if (methodExists) {
         return {
           ...zone,
-          shipping_methods: zone.shipping_methods.map((m) =>
-            m.id === shippingMethod.id ? shippingMethod : m,
+          shipping_methods: zone.shipping_methods.map((method) =>
+            method.id === shippingMethod.id ? shippingMethod : method,
           ),
         };
       }
 
-      if (!editingMethod && String(zone.id) === String(final_zoneId)) {
+      if (!editingMethod && String(zone.id) === String(zoneIdParam)) {
         return {
           ...zone,
           shipping_methods: [...(zone.shipping_methods || []), shippingMethod],
@@ -188,92 +126,62 @@ const ShippingDeliveryMethod = () => {
       void queryClient.invalidateQueries({
         queryKey: queryKeys.Settings('shipping'),
       });
-      setUnsavedDataStatus(false);
       toast.success(
-        methodExist
+        methodExists
           ? __('Shipping method updated', 'kirki-ecommerce')
           : __('New shipping method created', 'kirki-ecommerce'),
       );
+      form.reset(payload);
       navigate(
-        `/settings/shipping/delivery-method?methodId=${methodId}&zoneId=${final_zoneId}`,
+        `/settings/shipping/delivery-method?methodId=${methodId}&zoneId=${zoneIdParam}`,
       );
     } catch (error) {
-      toast.error(getErrorMessage(error));
+      applyServerErrors(form, error as ErrorResponse);
     }
   };
 
   const handleDiscardData = () => {
-    const { type: initialType, ...rest } = initialDataObj;
-    setMethodType((initialType as MethodType) ?? methodType);
-    setDataObj(rest);
-    setUnsavedDataStatus(false);
+    form.reset();
   };
 
   useSettingsPageActions({
-    isDirty: hasUnsavedData,
-    onSave: handleCreateOrUpdateData,
+    isDirty,
+    onSave: form.handleSubmit(handleSave),
     onDiscard: handleDiscardData,
   });
 
   return (
-    <>
-      <Container size="sm">
+    <Container size="sm">
+      <Form {...form}>
         <Flex direction="column" gap={4}>
           <SettingsPageHeader
-            title={methodSettingsMap[methodType].title ?? ''}
-            onBack={() => navigate(`/settings/shipping/zone/${final_zoneId}`)}
+            title={methodTypeTitles[methodType] ?? ''}
+            onBack={() => navigate(`/settings/shipping/zone/${zoneIdParam}`)}
           />
-          <Card cssOverride={mergeCss(cardStyles.largeCard, cardStyles.formCard)} >
-            <CardContent cssOverride={cardStyles.largeContentPadded}>
-
-            <Flex direction="column" gap={2}>
-            <Label htmlFor="shipping-method-name">
-            {__('Method Name', 'kirki-ecommerce')}
-            </Label>
-            <Input
-            id="shipping-method-name"
-            value={(dataObj?.name as string) || ''}
-            placeholder={__('Standard Delivery', 'kirki-ecommerce')}
-            onChange={(e) => handleOnChange(e.target.value, 'name')}
-            />
-            </Flex>
-            <Flex direction="column" gap={2}>
-            <Label>{__('Method Type', 'kirki-ecommerce')}</Label>
-            <Select
-            value={methodType}
-            onValueChange={(value) => setMethodType(value as MethodType)}
-            >
-            <SelectTrigger>
-            <SelectValue placeholder={__('Flat Rate', 'kirki-ecommerce')} />
-            </SelectTrigger>
-            <SelectContent>
-            <SelectItem value="flat_rate">
-            <TruckIcon />
-            {__('Flat Rate', 'kirki-ecommerce')}
-            </SelectItem>
-            <SelectItem value="local_pickup">
-            <WeightIcon />
-            {__('Local Pickup', 'kirki-ecommerce')}
-            </SelectItem>
-            <SelectItem value="weight">
-            <StoreIcon />
-            {__('Rate by Weight', 'kirki-ecommerce')}
-            </SelectItem>
-            </SelectContent>
-            </Select>
-            </Flex>
-
-            {methodSettingsMap[methodType].comp}
+          <Card cssOverride={cardStyles.formCard}>
+            <CardContent>
+              <Flex direction="column" gap={4}>
+                <TextField
+                  name="name"
+                  label={__('Method Name', 'kirki-ecommerce')}
+                  placeholder={__('Standard Delivery', 'kirki-ecommerce')}
+                />
+                <SelectField
+                  name="type"
+                  label={__('Method Type', 'kirki-ecommerce')}
+                  options={methodTypeOptions}
+                />
+                {methodSettingsByType[methodType]}
+              </Flex>
             </CardContent>
           </Card>
-          {methodExist && <ShippingRules methodId={methodId} />}
+          {methodExists && <ShippingRules methodId={methodId} />}
         </Flex>
-      </Container>
-    </>
+      </Form>
+    </Container>
   );
 };
 
 ShippingDeliveryMethod.displayName = 'ShippingDeliveryMethod';
 
 export default ShippingDeliveryMethod;
-

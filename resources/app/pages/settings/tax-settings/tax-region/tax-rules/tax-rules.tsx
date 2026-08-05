@@ -11,7 +11,7 @@ import Text from '@/components/ui/text';
 import { EditPenIcon, LighteningIcon, TrashIcon } from '@/icons';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { mergeCss, defineStyles } from '@/theme/mixins';
+import { defineStyles, mergeCss } from '@/theme/mixins';
 import { __, sprintf } from '@/wpi18n';
 
 import { getDestinationDisplayValue } from '@/pages/settings/tax-settings/tax-region/tax-rules/helper';
@@ -58,8 +58,8 @@ const TaxRules = (props: TaxRulesProps) => {
 
   return (
     <div>
-      <Card cssOverride={cardStyles.largeCard}>
-        <CardContent cssOverride={cardStyles.largeContentPadded}>
+      <Card cssOverride={cardStyles.formCard}>
+        <CardContent >
           <HeaderActionsCard
             header={__('Tax Rules', 'kirki-ecommerce')}
             subHeader={__(

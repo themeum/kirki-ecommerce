@@ -1,17 +1,17 @@
-import { useState, useEffect, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router';
 
-import HeaderActionsCard from '@/components/header-actions-card';
 import GroupOptionCard from '@/components/group-option-card';
+import HeaderActionsCard from '@/components/header-actions-card';
 import { Card, CardContent } from '@/components/ui/card';
-import { BoxIcon, ColorPaletteIcon } from '@/icons';
 import Flex from '@/components/ui/flex';
+import { BoxIcon, ColorPaletteIcon } from '@/icons';
 import { dispatchToastMessage } from '@/pages/utils';
 import { useAttributesQuery, useDeleteAttributeMutation } from '@/services/attribute';
-import type { Attribute } from '@/types';
 import { theme } from '@/theme';
-import { scoped, mergeCss, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
+import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
+import type { Attribute } from '@/types';
 import { __ } from '@/wpi18n';
 
 import AddVariationPopup from '@/pages/settings/essential-settings/variation-library/add-variation-dialog';
@@ -65,8 +65,8 @@ const VariationList = () => {
   };
 
   return (
-    <Card cssOverride={cardStyles.largeCard}>
-      <CardContent cssOverride={cardStyles.largeContentPadded}>
+    <Card cssOverride={cardStyles.formCard}>
+      <CardContent >
         <HeaderActionsCard
           header={__('Variation Library', 'kirki-ecommerce')}
           subHeader={__(

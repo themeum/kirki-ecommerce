@@ -1,36 +1,36 @@
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useMemo, useState } from 'react';
 import { Controller, useForm, useFormContext, useWatch } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router';
-import { useQueryClient } from '@tanstack/react-query';
 
 import { Card, CardContent } from '@/components/ui/card';
+import Container from '@/components/ui/container';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
+import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import Text from '@/components/ui/text';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { queryKeys } from '@/libs/query-keys';
 import { getDefaults, pickFormValues } from '@/libs/zod';
-import Container from '@/components/ui/container';
-import Flex from '@/components/ui/flex';
-import Text from '@/components/ui/text';
 import { TaxRegionEuFormSchema, type TaxRegionEuFormInput } from '@/schemas/forms/tax-region-eu-form';
 import { TaxSettingsFormSchema, type TaxSettingsFormPayload } from '@/schemas/forms/tax-settings-form';
 import { toastMutationError } from '@/services/helpers';
 import { updateSettings, useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
-import type { SettingsSectionData } from '@/types';
 import { theme } from '@/theme';
-import { mergeCss, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
+import { defineStyles, mergeCss } from '@/theme/mixins';
+import type { SettingsSectionData } from '@/types';
 import { __ } from '@/wpi18n';
 
-import { setUnsavedDataStatus } from '@/pages/settings/utils';
 import { useSettingsPageActions } from '@/pages/settings/settings-layout/use-settings-page-actions';
 import SettingsPageHeader from '@/pages/settings/settings-page-header';
-import type { TaxRate, TaxRegion, TaxRule } from '@/pages/settings/tax-settings/utils';
 import TaxRules from '@/pages/settings/tax-settings/tax-region/tax-rules/tax-rules';
 import { VatCollection } from '@/pages/settings/tax-settings/tax-region/vat-collection/vat-collection';
+import type { TaxRate, TaxRegion, TaxRule } from '@/pages/settings/tax-settings/utils';
+import { setUnsavedDataStatus } from '@/pages/settings/utils';
 
 type TaxSettingsFormData = Omit<SettingsSectionData, 'tax_regions'> & {
   tax_regions?: TaxRegion[];
@@ -57,61 +57,61 @@ const VatCollectionProcessRadios = () => {
       <Card cssOverride={mergeCss(cardStyles.innerCard, styles.vatProcessCard)} >
         <CardContent cssOverride={cardStyles.innerContent}>
 
-        <Controller
-          control={control}
-          name="type"
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid || undefined}>
-              <RadioGroup
-                value={field.value}
-                onValueChange={(value) => handleProcessChange(value)}
-                aria-invalid={fieldState.invalid}
-              >
-                <Field orientation="horizontal">
-                  <RadioGroupItem value="oss" id="vat-process-oss" />
-                  <FieldLabel htmlFor="vat-process-oss">
-                    {__('One Stop Shop (OSS)', 'kirki-ecommerce')}
-                  </FieldLabel>
-                </Field>
-              </RadioGroup>
-              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-            </Field>
-          )}
-        />
+          <Controller
+            control={control}
+            name="type"
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid || undefined}>
+                <RadioGroup
+                  value={field.value}
+                  onValueChange={(value) => handleProcessChange(value)}
+                  aria-invalid={fieldState.invalid}
+                >
+                  <Field orientation="horizontal">
+                    <RadioGroupItem value="oss" id="vat-process-oss" />
+                    <FieldLabel htmlFor="vat-process-oss">
+                      {__('One Stop Shop (OSS)', 'kirki-ecommerce')}
+                    </FieldLabel>
+                  </Field>
+                </RadioGroup>
+                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+              </Field>
+            )}
+          />
 
-        <VatProcessDescription processValue="oss" />
+          <VatProcessDescription processValue="oss" />
         </CardContent>
       </Card>
 
       <Card cssOverride={mergeCss(cardStyles.innerCard, styles.vatProcessCard)} >
         <CardContent cssOverride={cardStyles.innerContent}>
 
-        <Controller
-          control={control}
-          name="type"
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid || undefined}>
-              <RadioGroup
-                value={field.value}
-                onValueChange={(value) => handleProcessChange(value)}
-                aria-invalid={fieldState.invalid}
-              >
-                <Field orientation="horizontal">
-                  <RadioGroupItem
-                    value="micro_business"
-                    id="vat-process-micro-business"
-                  />
-                  <FieldLabel htmlFor="vat-process-micro-business">
-                    {__('Micro Business', 'kirki-ecommerce')}
-                  </FieldLabel>
-                </Field>
-              </RadioGroup>
-              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-            </Field>
-          )}
-        />
+          <Controller
+            control={control}
+            name="type"
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid || undefined}>
+                <RadioGroup
+                  value={field.value}
+                  onValueChange={(value) => handleProcessChange(value)}
+                  aria-invalid={fieldState.invalid}
+                >
+                  <Field orientation="horizontal">
+                    <RadioGroupItem
+                      value="micro_business"
+                      id="vat-process-micro-business"
+                    />
+                    <FieldLabel htmlFor="vat-process-micro-business">
+                      {__('Micro Business', 'kirki-ecommerce')}
+                    </FieldLabel>
+                  </Field>
+                </RadioGroup>
+                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+              </Field>
+            )}
+          />
 
-        <VatProcessDescription processValue="micro_business" />
+          <VatProcessDescription processValue="micro_business" />
         </CardContent>
       </Card>
     </Flex>
@@ -133,15 +133,15 @@ const VatProcessDescription = ({
     <Card cssOverride={cardStyles.innerDarkCard} >
       <CardContent cssOverride={cardStyles.innerDarkContent}>
 
-      <Text color="secondary">{processValue === 'oss'
-      ? __(
-      'Applies to businesses selling across multiple EU countries under OSS.',
-      'kirki-ecommerce',
-      )
-      : __(
-      'Applies to businesses with less than €10,000 EU sales.',
-      'kirki-ecommerce',
-      )}</Text>
+        <Text color="secondary">{processValue === 'oss'
+          ? __(
+            'Applies to businesses selling across multiple EU countries under OSS.',
+            'kirki-ecommerce',
+          )
+          : __(
+            'Applies to businesses with less than €10,000 EU sales.',
+            'kirki-ecommerce',
+          )}</Text>
       </CardContent>
     </Card>
   );
@@ -209,11 +209,11 @@ const EditRegionEU = () => {
     return regions.map((region) =>
       region.code === 'EU'
         ? {
-            ...region,
-            type: values.type,
-            product_tax: values.product_tax,
-            ...overrides,
-          }
+          ...region,
+          type: values.type,
+          product_tax: values.product_tax,
+          ...overrides,
+        }
         : region,
     );
   };
@@ -296,11 +296,11 @@ const EditRegionEU = () => {
                 onBack={() => navigate('/settings/tax')}
               />
 
-              <Card cssOverride={cardStyles.largeCard} >
-                <CardContent cssOverride={cardStyles.largeContentPadded}>
+              <Card cssOverride={cardStyles.formCard} >
+                <CardContent >
 
-                <Text weight="semibold">{__('How would you like to collect VAT?', 'kirki-ecommerce')}</Text>
-                <VatCollectionProcessRadios />
+                  <Text weight="semibold">{__('How would you like to collect VAT?', 'kirki-ecommerce')}</Text>
+                  <VatCollectionProcessRadios />
                 </CardContent>
               </Card>
 

@@ -1,20 +1,23 @@
-import { useState, useEffect, useRef } from 'react';
-import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Fragment, useEffect, useRef, useState } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
 import { useNavigate } from 'react-router';
 
-import { LocationIcon, TruckIcon } from '@/icons';
-import OptionAccordion from '@/components/option-accordion';
 import HeaderActionsCard from '@/components/header-actions-card';
+import OptionAccordion from '@/components/option-accordion';
 import { Card, CardContent } from '@/components/ui/card';
-import { Form } from '@/components/ui/form';
-import { getErrorsObject, type ErrorResponse } from '@/libs/api';
-import { applyServerErrors } from '@/libs/form-errors';
-import { getDefaults, pickFormValues } from '@/libs/zod';
 import Chip from '@/components/ui/chip';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
+import { Form } from '@/components/ui/form';
+import { Item, ItemActions, ItemContent, ItemGroup, ItemMedia, ItemSeparator, ItemTitle } from '@/components/ui/item';
+import Text from '@/components/ui/text';
+import { LocationIcon, TruckIcon } from '@/icons';
+import { getErrorsObject, type ErrorResponse } from '@/libs/api';
+import { applyServerErrors } from '@/libs/form-errors';
+import { getDefaults, pickFormValues } from '@/libs/zod';
 import { normalizeErrors } from '@/pages/utils';
+import type { ShippingRegionFormPayload } from '@/schemas/forms/shipping-region-form';
 import {
   ShippingSettingsFormSchema,
   type ShippingSettingsFormInput,
@@ -22,21 +25,20 @@ import {
 } from '@/schemas/forms/shipping-settings-form';
 import { useCountriesQuery } from '@/services/country';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
-import type { FormErrors, SelectOption } from '@/types';
 import { theme } from '@/theme';
-import { scoped, mergeCss, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
-import { __, sprintf } from '@/wpi18n';
+import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
+import type { FormErrors } from '@/types';
+import { __ } from '@/wpi18n';
 
-import { getSearchedCountries, getSelectedRegionTags, shippingMethodIconMap, type CountryWithStates, type ShippingMethodData, type ShippingRegion, type ShippingZone } from '@/pages/settings/shipping-settings/utils';
-import { ShippingMethod } from '@/pages/settings/shipping-settings/shipping-method/shipping-method';
-import { ShippingRegionPopup } from '@/pages/settings/shipping-settings/shipping-zone/shipping-region-dialog';
-import ShippingZoneActions from '@/pages/settings/shipping-settings/shipping-zone-actions';
-import ShippingProfile from '@/pages/settings/shipping-settings/shipping-profile/shipping-profile';
-import ShippingBox from '@/pages/settings/shipping-settings/shipping-box/shipping-box';
-import { setUnsavedDataStatus } from '@/pages/settings/utils';
 import { useSettingsPageActions } from '@/pages/settings/settings-layout/use-settings-page-actions';
 import SettingsPageHeader from '@/pages/settings/settings-page-header';
+import ShippingBox from '@/pages/settings/shipping-settings/shipping-box/shipping-box';
+import ShippingProfile from '@/pages/settings/shipping-settings/shipping-profile/shipping-profile';
+import ShippingZoneActions from '@/pages/settings/shipping-settings/shipping-zone-actions';
+import { ShippingRegionPopup } from '@/pages/settings/shipping-settings/shipping-zone/shipping-region-dialog';
+import { getSearchedCountries, getSelectedRegionTags, getShippingMethodRightText, getShippingMethodSubText, getShippingZoneSummary, shippingMethodIconMap, type CountryWithStates, type ShippingMethodData, type ShippingZone } from '@/pages/settings/shipping-settings/utils';
+import { setUnsavedDataStatus } from '@/pages/settings/utils';
 
 const ShippingSettings = () => {
   const navigate = useNavigate();
@@ -44,9 +46,6 @@ const ShippingSettings = () => {
   const newZoneIdRef = useRef(crypto.randomUUID());
   const [searchValue, setSearchValue] = useState('');
   const [showCreateZonePopup, setShowCreateZonePopup] = useState(false);
-  const [shippingZoneTitle, setShippingZoneTitle] = useState('');
-  const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
-  const [selectedRegion, setSelectedRegion] = useState<ShippingRegion[]>([]);
   const [popupErrors, setPopupErrors] = useState<FormErrors>({});
 
   const { data: countryData = [] } = useCountriesQuery({ limit: -1 });
@@ -64,11 +63,7 @@ const ShippingSettings = () => {
   });
 
   const { isDirty } = form.formState;
-  const shippingZonesObj =
-    (useWatch({
-      control: form.control,
-      name: 'shipping_zones',
-    }) as ShippingZone[]) || [];
+  const shippingZonesObj = (useWatch({ control: form.control, name: 'shipping_zones' }) as ShippingZone[]) || [];
 
   useEffect(() => {
     if (!shippingSettingsData || !Object.keys(shippingSettingsData).length) {
@@ -128,6 +123,8 @@ const ShippingSettings = () => {
     return (selectedZone.shipping_methods || []).map((method) => ({
       ...method,
       icon: shippingMethodIconMap[method.type] || null,
+      subText: getShippingMethodSubText(method),
+      rightText: getShippingMethodRightText(method),
       zoneId: zoneId,
     }));
   };
@@ -147,21 +144,14 @@ const ShippingSettings = () => {
     );
   };
 
-  const handleCreateZone = async (values?: {
-    title?: string | null;
-    regions?: ShippingRegion[];
-    countries?: string[];
-  }) => {
-    const title = values?.title ?? shippingZoneTitle;
-    const regions = values?.regions ?? selectedRegion;
-
+  const handleCreateZone = async (values: ShippingRegionFormPayload) => {
     const updatedZones: ShippingZone[] = [
       ...shippingZonesObj,
       {
         id: newZoneIdRef.current,
         is_enabled: true,
-        title: title || '',
-        regions,
+        title: values.title || '',
+        regions: values.regions,
         shipping_methods: [],
         shipping_careers: [],
       },
@@ -173,9 +163,6 @@ const ShippingSettings = () => {
         data: { shipping_zones: updatedZones },
       });
       setShowCreateZonePopup(false);
-      setShippingZoneTitle('');
-      setSelectedCountries([]);
-      setSelectedRegion([]);
       navigate(`/settings/shipping/zone/${newZoneIdRef.current}`);
       newZoneIdRef.current = crypto.randomUUID();
     } catch (error) {
@@ -219,8 +206,8 @@ const ShippingSettings = () => {
                 icon={<TruckIcon />}
                 title={__('Shipping', 'kirki-ecommerce')}
               />
-              <Card cssOverride={cardStyles.largeCard}>
-                <CardContent cssOverride={cardStyles.largeContentPadded}>
+              <Card cssOverride={cardStyles.formCard}>
+                <CardContent cssOverride={{ display: 'flex', flexDirection: 'column', gap: theme.spacing[5] }}>
                   <HeaderActionsCard
                     header={__('Shipping Zones', 'kirki-ecommerce')}
                     subHeader={__(
@@ -249,52 +236,80 @@ const ShippingSettings = () => {
                       </CardContent>
                     </Card>
                   ) : (
-                  <Flex direction="column" gap={3}>
-                    {shippingZonesObj?.map((item) => (
-                      <OptionAccordion
-                        key={item?.id}
-                        header={sprintf(__('%s', 'kirki-ecommerce'), item.title)}
-                        subHeader={`${item?.regions?.length} regions, ${item?.['shipping_methods']?.length} shipping methods`}
-                        leftIcon={<LocationIcon height={20} width={20} />}
-                        rightActions={
-                          <ShippingZoneActions
-                            item={item}
-                            onToggle={handleToggleZoneItem}
-                            onDelete={handleDeleteItem}
-                          />
-                        }
-                        variant="shipping"
-                        state={item?.is_enabled}
-                      >
-                        <Flex
-                          gap={2}
-                          wrap="wrap" rowGap={2}>
-                          {(
-                            getSelectedRegionTags(
-                              item?.regions,
-                              countryList as CountryWithStates[] | null,
-                            ) as unknown as SelectOption[]
-                          ).map((tag, index) => (
-                            <Chip
-                              key={`${tag.value}-${index}`}
-                              text={tag.title}
-                              color={tag.color}
-                            />
-                          ))}
-                        </Flex>
-                        {getShippingMethodData(item?.id).length > 0 && (
-                          <ShippingMethod
-                            from={'edit_zone'}
-                            shippingSettingsData={shippingSettingsData}
-                            shippingMethodList={getShippingMethodData(item?.id)}
-                            shippingZonesObj={shippingZonesObj}
-                            setShippingZonesObj={setShippingZonesObj}
-                            zoneId={item?.id}
-                          />
-                        )}
-                      </OptionAccordion>
-                    ))}
-                  </Flex>
+                    <Flex direction="column" gap={3}>
+                      {shippingZonesObj?.map((item) => {
+                        const zoneMethods = getShippingMethodData(item?.id);
+
+                        return (
+                          <OptionAccordion
+                            key={item?.id}
+                            header={item.title}
+                            subHeader={getShippingZoneSummary(item)}
+                            leftIcon={<LocationIcon height={20} width={20} />}
+                            rightActions={
+                              <ShippingZoneActions
+                                item={item}
+                                onToggle={handleToggleZoneItem}
+                                onDelete={handleDeleteItem}
+                              />
+                            }
+                            variant="shipping"
+                            enabled={item?.is_enabled}
+                          >
+                            <Card cssOverride={cardStyles.innerCard}>
+                              <CardContent cssOverride={cardStyles.innerContent}>
+                                <Flex gap={2} wrap="wrap">
+                                  {getSelectedRegionTags(
+                                    item?.regions,
+                                    countryList as CountryWithStates[] | null,
+                                  ).map((tag) => (
+                                    <Chip
+                                      key={tag.id}
+                                      text={tag.title}
+                                      img={tag.tagIcon}
+                                      subText={tag.subText}
+                                    />
+                                  ))}
+                                </Flex>
+                              </CardContent>
+                            </Card>
+                            {zoneMethods.length > 0 && (
+                              <Card cssOverride={cardStyles.innerCard}>
+                                <CardContent cssOverride={cardStyles.tableContent}>
+                                  <ItemGroup>
+                                    {zoneMethods.map((method, index) => (
+                                      <Fragment key={method.id}>
+                                        {index > 0 && <ItemSeparator />}
+                                        <Item size="sm">
+                                          <ItemMedia>{method.icon}</ItemMedia>
+                                          <ItemContent>
+                                            <ItemTitle>
+                                              {method.name}
+                                              {method.subText && (
+                                                <Text variant="small" color="subdued">
+                                                  {method.subText}
+                                                </Text>
+                                              )}
+                                            </ItemTitle>
+                                          </ItemContent>
+                                          {method.rightText && (
+                                            <ItemActions>
+                                              <Text variant="small" color="secondary">
+                                                {method.rightText}
+                                              </Text>
+                                            </ItemActions>
+                                          )}
+                                        </Item>
+                                      </Fragment>
+                                    ))}
+                                  </ItemGroup>
+                                </CardContent>
+                              </Card>
+                            )}
+                          </OptionAccordion>
+                        );
+                      })}
+                    </Flex>
                   )}
                 </CardContent>
               </Card>
@@ -308,22 +323,15 @@ const ShippingSettings = () => {
       </Container>
       {showCreateZonePopup && (
         <ShippingRegionPopup
-          from={'add'}
-          openPopup={showCreateZonePopup}
-          setOpenPopup={setShowCreateZonePopup}
-          setSearchValue={setSearchValue}
+          from="add"
+          open={showCreateZonePopup}
+          onOpenChange={setShowCreateZonePopup}
+          onSearchChange={setSearchValue}
           filteredCountries={getSearchedCountries(
             searchValue,
             countryList as CountryWithStates[] | null,
           )}
-          selectedCountries={selectedCountries}
-          setSelectedCountries={setSelectedCountries}
-          selectedRegion={selectedRegion}
-          setSelectedRegion={setSelectedRegion}
-          onAdd={handleCreateZone}
-          onSave={handleCreateZone}
-          shippingZoneTitle={shippingZoneTitle}
-          setShippingZoneTitle={setShippingZoneTitle}
+          onDone={handleCreateZone}
           errors={popupErrors}
         />
       )}

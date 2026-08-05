@@ -23,7 +23,6 @@ const cardStyles = defineStyles({
   },
   largeCard: {
     gap: theme.spacing[5],
-    padding: theme.spacing[0],
   },
   largeContent: {
     paddingInline: theme.spacing[5],

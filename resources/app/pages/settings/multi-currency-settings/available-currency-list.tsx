@@ -70,7 +70,6 @@ export const AvailableCurrencyList = () => {
     (item) => ({
       ...item,
       ...(item?.is_base && {
-        badge1: __('Base Currency', 'kirki-ecommerce'),
         is_toggle_disabled: true,
         is_action_disabled: true,
       }),

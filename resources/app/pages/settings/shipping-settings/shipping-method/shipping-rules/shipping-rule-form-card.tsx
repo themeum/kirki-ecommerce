@@ -1,13 +1,13 @@
-import { useEffect, useState, type Dispatch, type SetStateAction } from 'react';
-import { Controller, useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useEffect, useState } from 'react';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import { useSearchParams } from 'react-router';
 import { toast } from 'sonner';
 
 import SelectField from '@/components/form/select-field';
 import TextField from '@/components/form/text-field';
 import Button from '@/components/ui/button';
-import { Dialog, DialogBody, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Card, CardContent } from '@/components/ui/card';
 import { Field, FieldError } from '@/components/ui/field';
 import { Form } from '@/components/ui/form';
 import Input from '@/components/ui/input';
@@ -29,20 +29,22 @@ import {
   type ShippingRuleFormInput,
   type ShippingRuleFormPayload,
 } from '@/schemas/forms/shipping-rule-form';
+import { theme } from '@/theme';
+import { cardStyles } from '@/theme/card-styles';
+import { defineStyles, mergeCss } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 import { conditionOptions, actionOptionsArray, type ShippingRegion, type ShippingRule, type ShippingZone } from '@/pages/settings/shipping-settings/utils';
 import { SelectDestinationPopup } from '@/pages/settings/shipping-settings/shipping-method/select-destination-dialog';
 import { resolveDestinationRegion } from '@/pages/settings/shipping-settings/shipping-method/shipping-rules/helper';
 
-type ShippingRuleModalProps = {
-  showModal: boolean;
-  setShowModal: (open: boolean) => void;
-  rulesObj: ShippingRule | ShippingRule[];
-  setRulesObj: Dispatch<SetStateAction<ShippingRule[] | ShippingRule>>;
+type ShippingRuleFormCardProps = {
   methodId: string | number;
-  from?: string;
+  mode?: 'add' | 'edit';
+  initialRule?: ShippingRule;
   ruleIndex?: number;
+  onCancel: () => void;
+  onSaved: () => void;
 };
 
 type ConditionDataMap = Record<
@@ -50,18 +52,40 @@ type ConditionDataMap = Record<
   Array<{ id: number | string; name: string }> | null
 >;
 
-const ShippingRuleModal = ({
-  showModal,
-  setShowModal,
-  rulesObj,
-  setRulesObj,
+const buildDefaultValues = (initialRule?: ShippingRule): ShippingRuleFormInput => {
+  if (!initialRule) {
+    return getDefaults(ShippingRuleFormSchema);
+  }
+
+  const condition = initialRule.conditions?.[0];
+  const action = initialRule.action;
+  const isDestination = condition?.type === 'destination_region';
+
+  return {
+    condition: condition?.type || 'product_category',
+    operator: condition?.operator || 'is',
+    condition_value: isDestination
+      ? {
+        country: (condition.value as { country: string }).country,
+        states: (condition.value as { states?: Array<string | number> }).states || [],
+      }
+      : (condition?.value ?? null),
+    action: action?.type || 'set_shipping_cost',
+    action_value: (action?.value as string | number) ?? '',
+    selected_country: isDestination ? (condition.value as { country: string }).country : null,
+  };
+};
+
+const ShippingRuleFormCard = ({
   methodId,
-  from = '',
+  mode = 'add',
+  initialRule,
   ruleIndex = -1,
-}: ShippingRuleModalProps) => {
+  onCancel,
+  onSaved,
+}: ShippingRuleFormCardProps) => {
   const [searchParams] = useSearchParams();
-  const selectedMethod = searchParams.get('methodId');
-  const selectedZone = searchParams.get('zoneId');
+  const zoneID = searchParams.get('zoneId');
 
   const [openDestinationPopup, setOpenDestinationPopup] = useState(false);
   const [selectedRegion, setSelectedRegion] = useState<ShippingRegion[]>([]);
@@ -79,7 +103,7 @@ const ShippingRuleModal = ({
 
   const form = useForm<ShippingRuleFormInput, unknown, ShippingRuleFormPayload>({
     resolver: zodResolver(ShippingRuleFormSchema),
-    defaultValues: getDefaults(ShippingRuleFormSchema),
+    defaultValues: buildDefaultValues(initialRule),
   });
 
   const selectedCondition = useWatch({
@@ -95,44 +119,6 @@ const ShippingRuleModal = ({
     control: form.control,
     name: 'condition_value',
   });
-
-  const methodID = from === 'edit' ? selectedMethod : methodId;
-  const zoneID = selectedZone;
-
-  useEffect(() => {
-    if (!showModal) {
-      return;
-    }
-
-    if (from === 'edit' && rulesObj) {
-      const rule = rulesObj as ShippingRule;
-      const condition = rule?.conditions?.[0];
-      const action = rule?.action;
-
-      form.reset({
-        condition: condition?.type || 'product_category',
-        operator: condition?.operator || 'is',
-        condition_value:
-          condition?.type === 'destination_region'
-            ? {
-                country: (condition.value as { country: string }).country,
-                states:
-                  (condition.value as { states?: Array<string | number> })
-                    .states || [],
-              }
-            : (condition?.value ?? null),
-        action: action?.type || 'set_shipping_cost',
-        action_value: (action?.value as string | number) ?? '',
-        selected_country:
-          condition?.type === 'destination_region'
-            ? (condition.value as { country: string }).country
-            : null,
-      });
-      return;
-    }
-
-    form.reset(getDefaults(ShippingRuleFormSchema));
-  }, [showModal, from, rulesObj, form]);
 
   useEffect(() => {
     if (selectedCondition !== 'destination_region') {
@@ -156,13 +142,13 @@ const ShippingRuleModal = ({
 
     form.setValue('selected_country', selected_country || null);
 
-    if (selected_country && from !== 'edit') {
+    if (selected_country && mode !== 'edit') {
       form.setValue('condition_value', {
         country: selected_country,
         states: regionForCountry?.states || [],
       });
     }
-  }, [selectedCountry, selectedRegion, selectedCondition, from, form]);
+  }, [selectedCountry, selectedRegion, selectedCondition, mode, form]);
 
   useEffect(() => {
     if (
@@ -208,7 +194,7 @@ const ShippingRuleModal = ({
           shippingSettingsData: shippingSettingsData as {
             shipping_zones?: ShippingZone[];
           },
-          methodID,
+          methodID: methodId,
           setSelectedRegion: setSelectedRegion as (regions: unknown) => void,
           activeZoneId: zoneID,
         });
@@ -221,7 +207,7 @@ const ShippingRuleModal = ({
     selectedCondition,
     shippingProfile,
     shippingSettingsData,
-    methodID,
+    methodId,
     zoneID,
     conditionData,
   ]);
@@ -247,18 +233,9 @@ const ShippingRuleModal = ({
   const getOperatorOptions = () => {
     if (selectedCondition === 'cart_weight') {
       return [
-        {
-          label: __('> (Greater than)', 'kirki-ecommerce'),
-          value: '>',
-        },
-        {
-          label: __('= (Equal to)', 'kirki-ecommerce'),
-          value: '=',
-        },
-        {
-          label: __('< (Less than)', 'kirki-ecommerce'),
-          value: '<',
-        },
+        { label: __('> (Greater than)', 'kirki-ecommerce'), value: '>' },
+        { label: __('= (Equal to)', 'kirki-ecommerce'), value: '=' },
+        { label: __('< (Less than)', 'kirki-ecommerce'), value: '<' },
       ];
     }
     return [{ label: __('is', 'kirki-ecommerce'), value: 'is' }];
@@ -278,9 +255,7 @@ const ShippingRuleModal = ({
     return [...rules, rule];
   };
 
-  const handleAddOrUpdateShippingRule = async (
-    payload: ShippingRuleFormPayload,
-  ) => {
+  const handleSave = async (payload: ShippingRuleFormPayload) => {
     const zones = (shippingSettingsData as { shipping_zones?: ShippingZone[] })
       ?.shipping_zones as ShippingZone[];
     const updatedShippingZones = zones.map((zone) => {
@@ -291,7 +266,7 @@ const ShippingRuleModal = ({
       return {
         ...zone,
         shipping_methods: zone.shipping_methods.map((method) => {
-          if (method.id !== methodID) {
+          if (method.id !== methodId) {
             return method;
           }
 
@@ -312,7 +287,7 @@ const ShippingRuleModal = ({
         queryKey: queryKeys.Settings('shipping'),
       });
       toast.success(__('Shipping rule updated', 'kirki-ecommerce'));
-      setShowModal(false);
+      onSaved();
     } catch (error) {
       const errObj = error as ErrorResponse & { message?: string };
       if (errObj?.errors) {
@@ -335,106 +310,95 @@ const ShippingRuleModal = ({
 
   return (
     <>
-      <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent>
-          <DialogCloseButton />
-          {from !== 'edit' && (
-            <DialogHeader>
-              <DialogTitle>
-                <Flex gap={2} align="center">
-                  <LighteningIcon />
-                  {__('New Shipping Rules', 'kirki-ecommerce')}
-                </Flex>
-              </DialogTitle>
-            </DialogHeader>
-          )}
+      <Card cssOverride={mergeCss(cardStyles.formCard, styles.dashedCard)}>
+        <CardContent>
           <Form {...form}>
-            <DialogBody>
-              <Flex direction={'column'} gap={4}>
-                <Flex direction={'column'} gap={2}>
-                  <Text>IF</Text>
-                  <Grid columns={3}>
+            <Flex direction="column" gap={4}>
+              <Flex gap={2} align="center">
+                <LighteningIcon />
+                <Text weight="medium">
+                  {mode === 'edit'
+                    ? __('Edit Shipping Rule', 'kirki-ecommerce')
+                    : __('New Shipping Rule', 'kirki-ecommerce')}
+                </Text>
+              </Flex>
+              <Flex direction="column" gap={2}>
+                <Text>{__('IF', 'kirki-ecommerce')}</Text>
+                <Grid columns={3}>
+                  <SelectField
+                    name="condition"
+                    options={conditionSelectOptions}
+                    placeholder={__('Product profile', 'kirki-ecommerce')}
+                  />
+                  {selectedCondition === 'cart_weight' ? (
                     <SelectField
-                      name="condition"
-                      options={conditionSelectOptions}
-                      placeholder={__('Product profile', 'kirki-ecommerce')}
+                      name="operator"
+                      options={getOperatorOptions()}
                     />
-                    {selectedCondition === 'cart_weight' ? (
-                      <SelectField
-                        name="operator"
-                        options={getOperatorOptions()}
-                      />
-                    ) : (
-                      <Input value={__('is', 'kirki-ecommerce')} readOnly />
-                    )}
+                  ) : (
+                    <Input value={__('is', 'kirki-ecommerce')} readOnly />
+                  )}
 
-                    {selectedCondition === 'destination_region' ? (
-                      <Controller
-                        control={form.control}
-                        name="selected_country"
-                        render={({ field, fieldState }) => (
-                          <Field data-invalid={fieldState.invalid || undefined}>
-                            <Input
-                              id="selected_country"
-                              value={field.value ?? ''}
-                              onClick={() => setOpenDestinationPopup(true)}
-                              readOnly
-                              error={Boolean(fieldState.error)}
-                              aria-invalid={fieldState.invalid}
-                            />
-                            {fieldState.invalid && (
-                              <FieldError errors={[fieldState.error]} />
-                            )}
-                          </Field>
-                        )}
-                      />
-                    ) : selectedCondition === 'cart_weight' ? (
-                      <TextField name="condition_value" />
-                    ) : (
-                      <SelectField
-                        name="condition_value"
-                        options={getConditionValueOptions()}
-                      />
-                    )}
-                  </Grid>
-                </Flex>
-                <Flex direction={'column'} gap={2}>
-                  <Text>{__('THEN', 'kirki-ecommerce')}</Text>
-                  <Grid columns={2}>
-                    <SelectField
-                      name="action"
-                      options={actionSelectOptions}
+                  {selectedCondition === 'destination_region' ? (
+                    <Controller
+                      control={form.control}
+                      name="selected_country"
+                      render={({ field, fieldState }) => (
+                        <Field data-invalid={fieldState.invalid || undefined}>
+                          <Input
+                            id="selected_country"
+                            value={field.value ?? ''}
+                            onClick={() => setOpenDestinationPopup(true)}
+                            readOnly
+                            error={Boolean(fieldState.error)}
+                            aria-invalid={fieldState.invalid}
+                          />
+                          {fieldState.invalid && (
+                            <FieldError errors={[fieldState.error]} />
+                          )}
+                        </Field>
+                      )}
                     />
-                    {(selectedAction === 'set_shipping_cost' ||
-                      selectedAction === 'add_shipping_cost') && (
+                  ) : selectedCondition === 'cart_weight' ? (
+                    <TextField name="condition_value" />
+                  ) : (
+                    <SelectField
+                      name="condition_value"
+                      options={getConditionValueOptions()}
+                    />
+                  )}
+                </Grid>
+              </Flex>
+              <Flex direction="column" gap={2}>
+                <Text>{__('THEN', 'kirki-ecommerce')}</Text>
+                <Grid columns={2}>
+                  <SelectField
+                    name="action"
+                    options={actionSelectOptions}
+                  />
+                  {(selectedAction === 'set_shipping_cost' ||
+                    selectedAction === 'add_shipping_cost') && (
                       <TextField
                         name="action_value"
                         placeholder="e.g., $100"
                       />
                     )}
-                  </Grid>
-                </Flex>
+                </Grid>
               </Flex>
-            </DialogBody>
-            <DialogFooter>
-              <Button
-                variant="secondary"
-                onClick={() => setShowModal(false)}
-              >
-                {__('Cancel', 'kirki-ecommerce')}
-              </Button>
-              <Button
-                variant="primary"
-                onClick={form.handleSubmit(handleAddOrUpdateShippingRule)}
-              >
-                {from === 'edit'
-                  ? __('Save', 'kirki-ecommerce')
-                  : __('Add Rule', 'kirki-ecommerce')}
-              </Button>
-            </DialogFooter>
+              <Flex justify="end" gap={2}>
+                <Button variant="secondary" onClick={onCancel}>
+                  {__('Cancel', 'kirki-ecommerce')}
+                </Button>
+                <Button variant="primary" onClick={form.handleSubmit(handleSave)}>
+                  {mode === 'edit'
+                    ? __('Save', 'kirki-ecommerce')
+                    : __('Add Rule', 'kirki-ecommerce')}
+                </Button>
+              </Flex>
+            </Flex>
           </Form>
-        </DialogContent>
-      </Dialog>
+        </CardContent>
+      </Card>
       {openDestinationPopup && (
         <SelectDestinationPopup
           openPopup={openDestinationPopup}
@@ -457,8 +421,8 @@ const ShippingRuleModal = ({
                 : value;
             form.setValue('condition_value', next);
           }}
-          setRulesObj={setRulesObj as Dispatch<SetStateAction<ShippingRule[]>>}
-          ruleIndex={ruleIndex}
+          setRulesObj={() => { }}
+          ruleIndex={-1}
           onSave={(values) => {
             form.setValue('selected_country', values.country);
             form.setValue('condition_value', {
@@ -472,6 +436,13 @@ const ShippingRuleModal = ({
   );
 };
 
-ShippingRuleModal.displayName = 'ShippingRuleModal';
+ShippingRuleFormCard.displayName = 'ShippingRuleFormCard';
 
-export default ShippingRuleModal;
+export default ShippingRuleFormCard;
+
+const styles = defineStyles({
+  dashedCard: {
+    borderStyle: 'dashed',
+    borderColor: theme.colors.border.default,
+  },
+});
