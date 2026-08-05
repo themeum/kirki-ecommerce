@@ -11,10 +11,7 @@
 
 defined('ABSPATH') || exit;
 
-use Kirki\Ecommerce\App\Facades\Money;
-use Kirki\Ecommerce\App\Supports\Assets;
 use Kirki\Ecommerce\App\Supports\Template;
-use Kirki\Ecommerce\App\Supports\Url;
 
 use function Kirki\Ecommerce\Framework\include_view;
 use function Kirki\Ecommerce\Framework\view_data;
@@ -22,8 +19,11 @@ use function Kirki\Ecommerce\Framework\view_data;
 $data = (object) view_data();
 $countries = $data->countries ?? [];
 $payment_gateways = $data->payment_gateways ?? [];
-$customer = $data->customer;
+
 $cart = $data->cart ?? null;
+$shipping_address = $cart["shipping_address"];
+$billing_address = $cart["billing_address"];
+$available_shipping_methods = $cart["available_shipping_methods"];
 ?>
 
 <?php Template::get_header(); ?>
@@ -33,8 +33,9 @@ $cart = $data->cart ?? null;
         <div class="kecom-checkout-grid">
             <!-- Left Column -->
             <div class="kecom-checkout-left">
-                <?php include_view('site.checkout.parts.shipping-form', compact('countries', 'customer')); ?>
-                <?php include_view('site.checkout.parts.billing-form', compact('countries', 'customer')); ?>
+                <?php include_view('site.checkout.parts.shipping-form', compact('countries', 'shipping_address')); ?>
+                <?php include_view('site.checkout.parts.billing-form', compact('countries', 'billing_address')); ?>
+                <?php include_view('site.checkout.parts.shipping-methods', compact('available_shipping_methods')); ?>
                 <?php include_view('site.checkout.parts.payment-methods', compact('payment_gateways')); ?>
             </div>
 

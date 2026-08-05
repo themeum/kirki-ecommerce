@@ -66,6 +66,42 @@
     }
   }
 
+  // Shipping Methods
+  .kecom-shipping-methods {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $spacing-6;
+  }
+
+  .kecom-shipping-option {
+    display: flex;
+    align-items: center;
+    gap: $spacing-6;
+    padding: $spacing-8;
+    outline: 1px solid $border-default;
+    border-radius: $radius-xl;
+    cursor: pointer;
+    transition: border-color 0.2s;
+
+    &:hover {
+      border-color: $border-hover;
+    }
+
+    &:has(.kecom-radio-input:checked) {
+      outline-width: 2px;
+      outline-color: $background-fill-brand;
+    }
+  }
+
+  .kecom-shipping-name {
+    @include typography(base, semibold);
+  }
+
+  .kecom-shipping-price {
+    @include typography(base, medium, $text-secondary);
+    margin-inline-start: auto;
+  }
+
   // Payment Methods
   .kecom-payment-methods {
     display: flex;

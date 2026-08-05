@@ -8,21 +8,19 @@
 defined('ABSPATH') || exit;
 extract($data);
 
-$shipping_address = $customer->get_shipping_address();
-
 // Shipping Info.
-$shipping_first_name = $shipping_address->first_name ?? '';
-$shipping_last_name = $shipping_address->last_name ?? '';
-$shipping_address_line1 = $shipping_address->address_line1 ?? '';
-$shipping_address_line2 = $shipping_address->address_line2 ?? '';
+$shipping_first_name = $shipping_address["first_name"] ?? '';
+$shipping_last_name = $shipping_address["last_name"] ?? '';
+$shipping_address_line1 = $shipping_address["address_line1"] ?? '';
+$shipping_address_line2 = $shipping_address["address_line2"] ?? '';
 
-$shipping_city = $shipping_address->city ?? '';
-$shipping_state = $shipping_address->state ?? '';
-$shipping_country = $shipping_address->country ?? '';
-$shipping_postal_code = $shipping_address->postal_code ?? '';
+$shipping_city = $shipping_address["city"] ?? '';
+$shipping_state = $shipping_address["state"] ?? '';
+$shipping_country = $shipping_address["country"] ?? '';
+$shipping_postal_code = $shipping_address["postal_code"] ?? '';
 
-$shipping_phone = $shipping_address->phone ?? '';
-$shipping_email = $shipping_address->email ?? '';
+$shipping_phone = $shipping_address["phone"] ?? '';
+$shipping_email = $shipping_address["email"] ?? '';
 ?>
 
 <!-- Shipping Form -->

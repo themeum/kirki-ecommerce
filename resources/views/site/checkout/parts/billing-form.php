@@ -8,21 +8,19 @@
 defined('ABSPATH') || exit;
 extract($data);
 
-$billing_address = $customer->get_billing_address();
-
 // Billing Info.
-$billing_first_name = $billing_address->first_name ?? '';
-$billing_last_name = $billing_address->last_name ?? '';
-$billing_address_line1 = $billing_address->address_line1 ?? '';
-$billing_address_line2 = $billing_address->address_line2 ?? '';
+$billing_first_name = $billing_address["first_name"] ?? '';
+$billing_last_name = $billing_address["last_name"] ?? '';
+$billing_address_line1 = $billing_address["address_line1"] ?? '';
+$billing_address_line2 = $billing_address["address_line2"] ?? '';
 
-$billing_city = $billing_address->city ?? '';
-$billing_state = $billing_address->state ?? '';
-$billing_country = $billing_address->country ?? '';
-$billing_postal_code = $billing_address->postal_code ?? '';
+$billing_city = $billing_address["city"] ?? '';
+$billing_state = $billing_address["state"] ?? '';
+$billing_country = $billing_address["country"] ?? '';
+$billing_postal_code = $billing_address["postal_code"] ?? '';
 
-$billing_phone = $billing_address->phone ?? '';
-$billing_email = $billing_address->email ?? '';
+$billing_phone = $billing_address["phone"] ?? '';
+$billing_email = $billing_address["email"] ?? '';
 ?>
 
 <!-- Billing Form -->
