@@ -20,7 +20,7 @@ const headers = {
 
 export const cartApi = {
   get: () =>
-    apiRequest<ApiResponse<Cart>>('/cart'),
+    apiRequest<ApiResponse<Cart>>('/cart', { headers: headers }),
 
   addItem: (variantId: number, quantity: number) =>
     apiRequest<ApiResponse<Cart>>('/cart/items', {
@@ -33,13 +33,17 @@ export const cartApi = {
     apiRequest<{ data: CartUpdateItem, message: string, success: boolean }>(`/cart/items/${itemId}`, {
       method: 'PUT',
       body: { quantity },
+      headers: headers,
     }),
 
   removeItem: (itemId: number) =>
-    apiRequest<{ data: CartUpdateItem, message: string, success: boolean }>(`/cart/items/${itemId}`, { method: 'DELETE' }),
+    apiRequest<{ data: CartUpdateItem, message: string, success: boolean }>(`/cart/items/${itemId}`, {
+      method: 'DELETE',
+      headers: headers,
+    }),
 
   empty: () =>
-    apiRequest<ApiResponse<void>>('/cart', { method: 'DELETE' }),
+    apiRequest<ApiResponse<void>>('/cart', { method: 'DELETE', headers: headers }),
 
   applyCoupon: (code: string) =>
     apiRequest<ApiResponse<Cart>>('/cart/coupon', { method: 'POST', body: { code } }),
