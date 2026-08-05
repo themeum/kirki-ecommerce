@@ -5,18 +5,17 @@ import Button from '@/components/ui/button';
 import Flex from '@/components/ui/flex';
 import Searchbox from '@/components/ui/searchbox';
 import { Select, SelectContent, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useListParamsActions, useListParamsValue } from '@/contexts/list-params-context';
 import { ArrowDownUp } from '@/icons';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
+import { useListParams } from '@/hooks';
 import FilterPopup from '@/pages/coupons/coupon-table/filter-popup/filter-popup';
-import { CouponListFilter } from '@/types/filters/coupon';
+import { CouponListFilter, couponListOptions } from '@/types/filters/coupon';
 
 const CouponTableFilter = memo(() => {
-  const params = useListParamsValue<CouponListFilter>();
-  const { setParam } = useListParamsActions<CouponListFilter>();
+  const { params, setParam } = useListParams<CouponListFilter>(couponListOptions);
 
   const handleSearchChange = (value: string) => {
     setParam('search', value);

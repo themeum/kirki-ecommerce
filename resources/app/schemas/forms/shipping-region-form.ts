@@ -1,29 +1,31 @@
 import { z } from 'zod';
 
-import { optionalNullableString } from '@/schemas/forms/shared/validators';
+import { prepareFormSchema } from '@/libs/zod';
 import { __ } from '@/wpi18n';
 
-const ShippingRegionSchema = z.object({
+const ShippingRegionFormShape = z.object({
   country: z.string(),
   states: z.array(z.union([z.string(), z.number()])),
   hasDeselectedState: z.boolean().optional(),
   flag: z.string().optional(),
 });
 
-export const ShippingRegionFormSchema = z.object({
-  title: optionalNullableString(),
+const ShippingRegionFormMainShape = z.object({
+  title: z.string().nullish().default(''),
   countries: z.array(z.string()).min(1, {
     message: __('Select at least one country', 'kirki-ecommerce'),
   }),
-  regions: z.array(ShippingRegionSchema).min(1, {
+  regions: z.array(ShippingRegionFormShape).min(1, {
     message: __('Select at least one region', 'kirki-ecommerce'),
   }),
 });
 
-export type ShippingRegionFormValues = z.infer<typeof ShippingRegionFormSchema>;
+export const ShippingRegionFormSchema = prepareFormSchema(ShippingRegionFormMainShape).transform((values) => ({
+  title: values.title || null,
+  countries: values.countries,
+  regions: values.regions,
+}));
 
-export const shippingRegionDefaultValues: ShippingRegionFormValues = {
-  title: '',
-  countries: [],
-  regions: [],
-};
+export type ShippingRegionFormInput = z.input<typeof ShippingRegionFormSchema>;
+
+export type ShippingRegionFormPayload = z.output<typeof ShippingRegionFormSchema>;

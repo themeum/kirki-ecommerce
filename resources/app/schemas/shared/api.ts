@@ -18,4 +18,26 @@ const ResourceCollectionSchema = <T extends z.ZodTypeAny>(itemSchema: T) =>
 
 const MoneyAmountSchema = z.union([z.number(), z.string()]);
 
-export { PaginatedDataSchema, ResourceCollectionSchema, MoneyAmountSchema };
+/**
+ * Shape every `ApiClientResponse<T>` envelope must satisfy before its `data`
+ * is handed to a resource schema — catches a malformed or non-object
+ * response with a reported `ApiValidationError` instead of a raw
+ * `Cannot read properties of undefined` crash.
+ */
+const ApiEnvelopeSchema = z.object({ data: z.unknown() }).passthrough();
+
+/**
+ * Envelope for delete/bulk-action endpoints that return only a status
+ * message, no resource `data`. Lenient on purpose (design.md - Decision 6)
+ * — every consumer already falls back with `response.message || '...'`.
+ */
+const MessageResponseSchema = z
+  .object({
+    success: z.boolean().optional(),
+    message: z.string().optional(),
+  })
+  .passthrough();
+
+type MessageResponse = z.infer<typeof MessageResponseSchema>;
+
+export { PaginatedDataSchema, ResourceCollectionSchema, MoneyAmountSchema, ApiEnvelopeSchema, MessageResponseSchema, type MessageResponse };

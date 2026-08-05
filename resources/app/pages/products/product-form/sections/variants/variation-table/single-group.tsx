@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ChevronDownIcon } from '@/icons';
 import Flex from '@/components/ui/flex';
 import { TableCell, TableRow } from '@/components/ui/table';
-import type { ProductFormValues } from '@/schemas/forms/product-form';
+import type { ProductFormInput } from '@/schemas/forms/product-form';
 import type {
   AttributeValue,
   MediaChangePayload,
@@ -61,7 +61,7 @@ const SingleGroup = ({
   expandVariation,
   updateVariants,
 }: SingleGroupProps) => {
-  const { control } = useFormContext<ProductFormValues>();
+  const { control } = useFormContext<ProductFormInput>();
   const attributes = useWatch({ control, name: 'attributes' }) ?? [];
   const variants = (useWatch({ control, name: 'variants' }) ?? []) as ProductVariant[];
   const [selectedCheckedIndex, setSelectedCheckedIndex] = useState<number[]>(

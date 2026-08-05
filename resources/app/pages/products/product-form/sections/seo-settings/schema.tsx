@@ -6,14 +6,14 @@ import Flex from '@/components/ui/flex';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import SchemaPreview from '@/pages/products/product-form/sections/seo-settings/schema-preview';
 import { groupDetails } from '@/pages/products/product-form/sections/seo-settings/utils';
-import type { ProductFormValues } from '@/schemas/forms/product-form';
+import type { ProductFormInput } from '@/schemas/forms/product-form';
 import { useSchemasQuery } from '@/services/schema';
 import { __ } from '@/wpi18n';
 
 type GroupedValues = Record<string, Array<string | number>>;
 
 const Schema = () => {
-  const { control, watch } = useFormContext<ProductFormValues>();
+  const { control, watch } = useFormContext<ProductFormInput>();
   const { data: schemas = [], isLoading } = useSchemasQuery({ limit: -1 });
   const schemaId = watch('schema_id');
 

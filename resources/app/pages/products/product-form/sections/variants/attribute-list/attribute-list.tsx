@@ -13,7 +13,7 @@ import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
 import Chip from '@/components/ui/chip';
 import Text from '@/components/ui/text';
-import type { ProductFormValues } from '@/schemas/forms/product-form';
+import type { ProductFormInput } from '@/schemas/forms/product-form';
 import { flexCenter, scoped, mergeCss, scopedMerge, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import type { Attribute } from '@/types';
@@ -122,7 +122,7 @@ const SortableCard = ({
 SortableCard.displayName = 'SortableCard';
 
 const AttributeList = () => {
-  const { control, setValue, getValues } = useFormContext<ProductFormValues>();
+  const { control, setValue, getValues } = useFormContext<ProductFormInput>();
   const formAttributes = useWatch({ control, name: 'attributes' }) ?? [];
   const [attributeValues, setAttributeValues] = useState<Attribute[]>([]);
   const [editingId, setEditingId] = useState<number | string | null>(null);

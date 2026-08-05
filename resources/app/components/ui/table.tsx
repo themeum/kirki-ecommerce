@@ -202,7 +202,6 @@ const styles = defineStyles({
       userSelect: 'none',
       borderCollapse: 'separate',
       borderSpacing: '0 0',
-      boxSizing: 'border-box',
       '& thead': {
         backgroundColor: theme.colors.background.fill,
       },
@@ -223,7 +222,6 @@ const styles = defineStyles({
         backgroundColor: theme.colors.background.fill,
       },
       '& td': {
-        boxSizing: 'border-box',
         position: 'relative',
         border: `1px solid ${theme.colors.border.secondary}`,
         borderTopColor: 'transparent',

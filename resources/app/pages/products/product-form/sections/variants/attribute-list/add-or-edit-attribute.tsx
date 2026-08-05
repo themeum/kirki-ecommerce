@@ -14,15 +14,19 @@ import Text from '@/components/ui/text';
 import { ColorPaletteIcon, ListIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import { ProductAttributeFormSchema, type ProductAttributeFormValues, type ProductAttributeValueFormValues } from '@/schemas/forms/product-attribute-form';
-import type { ProductFormValues } from '@/schemas/forms/product-form';
+import type { AddVariationFormPayload } from '@/schemas/forms/add-variation-form';
+import {
+  ProductAttributeFormSchema,
+  type ProductAttributeFormInput,
+  type ProductAttributeValueInput,
+} from '@/schemas/forms/product-attribute-form';
+import type { ProductFormInput } from '@/schemas/forms/product-form';
 import { useAttributesQuery, useCreateAttributeMutation } from '@/services/attribute';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
 import type {
   Attribute,
-  AttributeFormData,
   SelectOption,
 } from '@/types';
 import { __ } from '@/wpi18n';
@@ -42,14 +46,14 @@ type AddOrEditAttributeProps = {
 const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
   const { onClose = () => { }, data } = props;
 
-  const { getValues, setValue } = useFormContext<ProductFormValues>();
+  const { getValues, setValue } = useFormContext<ProductFormInput>();
   const productAttributes = (getValues('attributes') ?? []) as Attribute[];
   const { data: allAttributesList, isSuccess: loaded } = useAttributesQuery({
     limit: -1,
   });
   const createAttributeMutation = useCreateAttributeMutation();
 
-  const form = useForm<ProductAttributeFormValues>({
+  const form = useForm<ProductAttributeFormInput>({
     resolver: zodResolver(ProductAttributeFormSchema),
     defaultValues: {
       id: data?.id,
@@ -110,33 +114,17 @@ const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
       return;
     }
 
-    const values = form.getValues();
-    const formattedValues = (values.values || []).map((item) => ({
-      id: item?.value as number,
-      value: item?.title as string,
-      color: item?.color ?? undefined,
-    }));
+    const payload = ProductAttributeFormSchema.parse(form.getValues());
 
     let attributeList = productAttributes;
     if (data?.id) {
       attributeList = productAttributes.map((item) =>
         item.id === data?.id
-          ? ({
-            id: values.id,
-            name: values.name,
-            values: formattedValues,
-          } as Attribute)
+          ? (payload as Attribute)
           : item,
       );
     } else {
-      attributeList = [
-        ...attributeList,
-        {
-          id: values.id,
-          name: values.name,
-          values: formattedValues,
-        } as Attribute,
-      ];
+      attributeList = [...attributeList, payload as Attribute];
     }
 
     const currentVariants = getValues('variants') ?? [];
@@ -167,9 +155,9 @@ const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
   };
 
   const handleNewAttributeAdd = async (value: string) => {
-    const newAttribute: AttributeFormData = {
+    const newAttribute: AddVariationFormPayload = {
       name: value,
-      type: type as string,
+      type,
     };
     try {
       const response = await createAttributeMutation.mutateAsync(newAttribute);
@@ -180,7 +168,7 @@ const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
         name,
         slug,
         type: attrType,
-        values: (values as ProductAttributeValueFormValues[]) ?? [],
+        values: (values as ProductAttributeValueInput[]) ?? [],
       });
     } catch (error) {
       applyServerErrors(form, error as ErrorResponse);

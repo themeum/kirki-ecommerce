@@ -15,7 +15,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { PlusCircleIcon } from '@/icons';
-import type { ProductFormValues } from '@/schemas/forms/product-form';
+import type { ProductFormInput } from '@/schemas/forms/product-form';
 import { useShippingProfilesQuery } from '@/services/shipping';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
@@ -28,7 +28,7 @@ import { CreateProfilePopup } from '@/pages/settings/shipping-settings/shipping-
 const ADD_SHIPPING_PROFILE_VALUE = '__add_shipping_profile__';
 
 const ShippingProfile = () => {
-  const { setValue, control } = useFormContext<ProductFormValues>();
+  const { setValue, control } = useFormContext<ProductFormInput>();
   const shippingProfileId = useWatch({
     control,
     name: 'variants.0.shipping_profile_id',
@@ -140,6 +140,5 @@ const styles = defineStyles({
   innerDarkRowContent: {
     padding: `${theme.spacing[1]} ${theme.spacing[2]} ${theme.spacing[1]} ${theme.spacing[3]}`,
     height: '44px',
-    boxSizing: 'border-box',
   },
 });

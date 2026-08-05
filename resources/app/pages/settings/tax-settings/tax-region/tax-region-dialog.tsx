@@ -13,7 +13,7 @@ import Flex from '@/components/ui/flex';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { scoped, defineStyles } from '@/theme/mixins';
-import { TaxRegionPopupFormSchema, type TaxRegionPopupFormValues } from '@/schemas/forms/tax-region-popup-form';
+import { TaxRegionPopupFormSchema, type TaxRegionPopupFormInput } from '@/schemas/forms/tax-region-popup-form';
 import { useCountriesQuery } from '@/services/country';
 import type { FormErrors } from '@/types';
 import { __, sprintf } from '@/wpi18n';
@@ -71,7 +71,7 @@ const TaxRegionPopup = (props: TaxRegionPopupProps) => {
     countryList as CountryWithGroup[] | null | undefined,
   );
 
-  const form = useForm<TaxRegionPopupFormValues>({
+  const form = useForm<TaxRegionPopupFormInput>({
     resolver: zodResolver(TaxRegionPopupFormSchema),
     defaultValues: {
       selectedCountries,

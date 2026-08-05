@@ -1,15 +1,18 @@
 import LoadingSpinner from '@/components/loading-spinner';
+import { getDefaults } from '@/libs/zod';
 import {
-  getProductFormDefaultValues,
+  getDefaultVariantValues,
   mapProductToFormValues,
-  type ProductFormValues,
+  ProductFormSchema,
+  type ProductFormInput,
+  type ProductFormPayload,
 } from '@/schemas/forms/product-form';
 import {
   useCreateProductMutation,
 } from '@/services/product';
 import { useDefaultSettingsQuery, useSettingsQuery } from '@/services/settings';
 import { useShippingBoxesQuery } from '@/services/shipping';
-import type { ProductFormData, SettingsSectionData, ShippingBox } from '@/types';
+import type { SettingsSectionData, ShippingBox } from '@/types';
 import { useNavigate } from 'react-router';
 
 import ProductForm from '@/pages/products/product-form/product-form';
@@ -37,18 +40,18 @@ const CreateProduct = () => {
     return <LoadingSpinner />;
   }
 
-  const defaults = getProductFormDefaultValues();
+  const defaults = getDefaults(ProductFormSchema);
   const settings = productSettings as ProductSettingsData | undefined;
   const defaultBox = (
     (shippingBoxes ?? []) as (ShippingBox & { is_default?: boolean })[]
   ).find((item) => Boolean(item.is_default));
 
-  const seededValues: ProductFormValues = {
+  const seededValues: ProductFormInput = {
     ...defaults,
     currency: defaultSettings?.base_currency ?? null,
     variants: [
       {
-        ...defaults.variants[0],
+        ...getDefaultVariantValues(),
         weight_unit: settings?.weight_unit ?? null,
         show_unit_price: settings?.is_unit_price_visible ?? false,
         dimension_unit: settings?.dimension_unit ?? null,
@@ -57,7 +60,7 @@ const CreateProduct = () => {
     ],
   };
 
-  const handleSubmit = async (data: ProductFormData) => {
+  const handleSubmit = async (data: ProductFormPayload) => {
     const response = await createProductMutation.mutateAsync(data);
     navigate('/products/' + response.data.id);
     return mapProductToFormValues(response.data);

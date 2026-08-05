@@ -1,15 +1,23 @@
 import { z } from 'zod';
 
-import { requiredString } from '@/schemas/forms/shared/validators';
+import { prepareFormSchema, required } from '@/libs/zod';
 import { __ } from '@/wpi18n';
 
-export const VatCollectionFormSchema = z.object({
-  state: requiredString(__('Country is required', 'kirki-ecommerce')),
-  rate: z.union([
-    z.string().min(1, __('VAT rate is required', 'kirki-ecommerce')),
-    z.number(),
-  ]),
-  flag: z.string().optional(),
+const VatCollectionFormShape = z.object({
+  state: required(z.string().default(''), __('Country is required', 'kirki-ecommerce')),
+  rate: required(
+    z.union([z.string(), z.number()]).default(''),
+    __('VAT rate is required', 'kirki-ecommerce'),
+  ),
+  flag: z.string().nullish(),
 });
 
-export type VatCollectionFormValues = z.infer<typeof VatCollectionFormSchema>;
+export const VatCollectionFormSchema = prepareFormSchema(VatCollectionFormShape).transform((values) => ({
+  state: values.state,
+  rate: values.rate,
+  flag: values.flag || undefined,
+}));
+
+export type VatCollectionFormInput = z.input<typeof VatCollectionFormSchema>;
+
+export type VatCollectionFormPayload = z.output<typeof VatCollectionFormSchema>;

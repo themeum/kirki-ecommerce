@@ -8,7 +8,11 @@ import { Dialog, DialogBody, DialogClose, DialogCloseButton, DialogContent, Dial
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Form } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { VatCollectionFormSchema, type VatCollectionFormValues } from '@/schemas/forms/vat-collection-form';
+import {
+  VatCollectionFormSchema,
+  type VatCollectionFormInput,
+  type VatCollectionFormPayload,
+} from '@/schemas/forms/vat-collection-form';
 import type { SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -39,7 +43,7 @@ const VatCollectionPopup = (props: VatCollectionPopupProps) => {
     vatCollectionList,
   } = props;
 
-  const form = useForm<VatCollectionFormValues>({
+  const form = useForm<VatCollectionFormInput, unknown, VatCollectionFormPayload>({
     resolver: zodResolver(VatCollectionFormSchema),
     defaultValues: {
       state: '',
@@ -74,15 +78,8 @@ const VatCollectionPopup = (props: VatCollectionPopupProps) => {
     setEditIndex(null);
   };
 
-  const handleSubmit = (values: VatCollectionFormValues) => {
-    onAdd(
-      {
-        state: values.state,
-        rate: values.rate,
-        flag: values.flag,
-      },
-      editIndex,
-    );
+  const handleSubmit = (payload: VatCollectionFormPayload) => {
+    onAdd(payload, editIndex);
     setOpenPopup(false);
   };
 

@@ -5,8 +5,9 @@ import { getAttributeValueType, type AttributeValueOption } from '@/components/f
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import MultiSelect from '@/components/ui/multi-select';
 import { getErrorsObject, type ErrorResponse } from '@/libs/api';
+import type { VariationValueFormPayload } from '@/schemas/forms/variation-value-form';
 import { useAttributesQuery, useCreateAttributeValueMutation } from '@/services/attribute';
-import type { Attribute, AttributeValueFormData } from '@/types';
+import type { Attribute } from '@/types';
 import { __ } from '@/wpi18n';
 
 import VariationPopover from '@/pages/products/product-form/sections/variants/variation-dialog';
@@ -113,10 +114,11 @@ const AttributeValuesField = <
             return;
           }
 
-          const newValue: AttributeValueFormData = {
+          const newValue: VariationValueFormPayload = {
             attribute_id: attributeId,
             value,
-            color,
+            color: color ?? null,
+            value_id: undefined,
           };
 
           try {
