@@ -14,6 +14,7 @@ type RequestOptions = {
   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
   body?: unknown;
   params?: Record<string, string | number>;
+  headers?: Record<string, string>;
 };
 
 export async function apiRequest<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
@@ -32,6 +33,7 @@ export async function apiRequest<T>(endpoint: string, options: RequestOptions = 
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
     'X-WP-Nonce': rest_nonce,
+    ...(options.headers || {}),
   };
 
   const res = await fetch(url, {
