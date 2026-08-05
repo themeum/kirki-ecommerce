@@ -1,9 +1,9 @@
 import type { CSSObject } from '@emotion/react';
 import * as SeparatorPrimitive from '@radix-ui/react-separator';
-import { forwardRef, type ComponentPropsWithoutRef, type CSSProperties, type ElementRef } from 'react';
+import { ComponentRef, forwardRef, type ComponentPropsWithoutRef, type CSSProperties } from 'react';
 
 import { theme } from '@/theme';
-import { scopedMerge, defineStyles } from '@/theme/mixins';
+import { defineStyles, scopedMerge } from '@/theme/mixins';
 
 type SeparatorProps = Omit<
   ComponentPropsWithoutRef<typeof SeparatorPrimitive.Root>,
@@ -21,7 +21,7 @@ const toCssLength = (value: string | number) => {
 };
 
 const Separator = forwardRef<
-  ElementRef<typeof SeparatorPrimitive.Root>,
+  ComponentRef<typeof SeparatorPrimitive.Root>,
   SeparatorProps
 >((props, ref) => {
   const {
@@ -48,7 +48,7 @@ const Separator = forwardRef<
       ? { '--separator-size': toCssLength(height) }
       : {}),
     ...style,
-  })as CSSProperties;
+  }) as CSSProperties;
 
   return (
     <SeparatorPrimitive.Root

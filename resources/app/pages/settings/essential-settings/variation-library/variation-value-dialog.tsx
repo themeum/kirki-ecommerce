@@ -10,12 +10,15 @@ import { Form } from '@/components/ui/form';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import Flex from '@/components/ui/flex';
-import { VariationValueFormSchema, type VariationValueFormValues } from '@/schemas/forms/variation-value-form';
+import {
+  VariationValueFormSchema,
+  type VariationValueFormInput,
+  type VariationValueFormPayload,
+} from '@/schemas/forms/variation-value-form';
 import { useCreateAttributeValueMutation, useUpdateAttributeValueMutation } from '@/services/attribute';
 import type {
   Attribute,
   AttributeValue,
-  AttributeValueFormData,
   ButtonState,
 } from '@/types';
 import { __ } from '@/wpi18n';
@@ -39,12 +42,14 @@ const VariationValuePopup = ({
   const updateMutation = useUpdateAttributeValueMutation();
   const isSubmitting = createMutation.isPending || updateMutation.isPending;
 
-  const form = useForm<VariationValueFormValues>({
+  const form = useForm<VariationValueFormInput, unknown, VariationValueFormPayload>({
     resolver: zodResolver(VariationValueFormSchema),
     defaultValues: {
       value: '',
       color: '',
       type,
+      attribute_id: selectedItem?.id,
+      value_id: editedItem?.id,
     },
   });
 
@@ -60,17 +65,12 @@ const VariationValuePopup = ({
       value: editedItem?.value || '',
       color: editedItem?.color || '',
       type,
+      attribute_id: selectedItem?.id,
+      value_id: editedItem?.id,
     });
-  }, [isOpen, editedItem, type, form]);
+  }, [isOpen, editedItem, selectedItem, type, form]);
 
-  const handleSubmit = async (values: VariationValueFormValues) => {
-    const payload = {
-      attribute_id: selectedItem?.id as number,
-      value: values.value,
-      color: type === 'color' ? values.color : null,
-      ...(editedItem?.id ? { value_id: editedItem.id } : {}),
-    } as AttributeValueFormData;
-
+  const handleSubmit = async (payload: VariationValueFormPayload) => {
     try {
       if (editedItem?.id) {
         await updateMutation.mutateAsync(payload);

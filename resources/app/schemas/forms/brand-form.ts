@@ -1,13 +1,24 @@
 import { z } from 'zod';
 
-import { optionalNullableString, requiredString, slug } from '@/schemas/forms/shared/validators';
+import { mediaId, prepareFormSchema, required } from '@/libs/zod';
 import { __ } from '@/wpi18n';
 
-export const BrandFormSchema = z.object({
-  name: requiredString(__('Name is required', 'kirki-ecommerce')),
-  slug: slug(__('Slug is required', 'kirki-ecommerce')),
-  description: optionalNullableString(),
-  logo: z.union([z.number(), z.string(), z.null()]).optional().nullable(),
+const BrandFormShape = z.object({
+  name: required(z.string().max(255).default(''), __('Name is required', 'kirki-ecommerce')),
+  slug: required(z.string().default(''), __('Slug is required', 'kirki-ecommerce')),
+  description: z.string().nullish().default(''),
+  logo: mediaId(),
 });
 
-export type BrandFormValues = z.infer<typeof BrandFormSchema>;
+const BrandFormSchema = prepareFormSchema(BrandFormShape).transform((values) => ({
+  name: values.name,
+  slug: values.slug,
+  description: values.description || null,
+  logo: values.logo,
+}));
+
+type BrandFormInput = z.input<typeof BrandFormSchema>;
+
+type BrandFormPayload = z.output<typeof BrandFormSchema>;
+
+export { BrandFormSchema, type BrandFormInput, type BrandFormPayload };

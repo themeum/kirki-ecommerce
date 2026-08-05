@@ -11,13 +11,18 @@ import { CurrencyIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { useUnsavedStatus } from '@/libs/unsaved-store';
+import { getDefaults, pickFormValues } from '@/libs/zod';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import PageHeading from '@/components/ui/page-heading';
 import Text from '@/components/ui/text';
-import { MultiCurrencySettingsFormSchema, multiCurrencySettingsDefaultValues, type MultiCurrencySettingsFormValues } from '@/schemas/forms/multi-currency-settings-form';
+import {
+  MultiCurrencySettingsFormSchema,
+  type MultiCurrencySettingsFormInput,
+  type MultiCurrencySettingsFormPayload,
+} from '@/schemas/forms/multi-currency-settings-form';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
-import type { ConfirmationVariant, SettingsSectionData } from '@/types';
+import type { ConfirmationVariant } from '@/types';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
@@ -44,12 +49,12 @@ const MultiCurrencySettings = () => {
 
   const { data: currencySettingsData, isLoading } = useSettingsQuery('currency');
   const { mutateAsync: saveSettings, isPending: isSaving } =
-    useUpdateSettingsMutation();
+    useUpdateSettingsMutation<'currency'>();
 
   const hasUnsavedData = useUnsavedStatus();
-  const form = useForm<MultiCurrencySettingsFormValues>({
+  const form = useForm<MultiCurrencySettingsFormInput, unknown, MultiCurrencySettingsFormPayload>({
     resolver: zodResolver(MultiCurrencySettingsFormSchema),
-    defaultValues: multiCurrencySettingsDefaultValues,
+    defaultValues: getDefaults(MultiCurrencySettingsFormSchema),
   });
 
   const { isDirty } = form.formState;
@@ -63,41 +68,33 @@ const MultiCurrencySettings = () => {
     const apiConfigData =
       (currencySettingsData.api_config as Record<string, unknown> | null) || {};
 
-    form.reset({
-      ...multiCurrencySettingsDefaultValues,
-      ...currencySettingsData,
-      is_automatic_update_enabled:
-        currencySettingsData.is_automatic_update_enabled || false,
-      api_config: {
-        ...multiCurrencySettingsDefaultValues.api_config,
-        api_key:
-          typeof apiConfigData.api_key === 'string' ? apiConfigData.api_key : '',
-        update_frequency:
-          typeof apiConfigData.update_frequency === 'string'
-            ? apiConfigData.update_frequency
-            : 'every_1_hour',
-        fallback_behaviour:
-          typeof apiConfigData.fallback_behaviour === 'string'
-            ? apiConfigData.fallback_behaviour
-            : 'last_known_rate',
-        is_cache_enabled: Boolean(apiConfigData.is_cache_enabled),
-      },
-    });
+    form.reset(
+      pickFormValues(MultiCurrencySettingsFormSchema, currencySettingsData, {
+        api_config: {
+          api_key:
+            typeof apiConfigData.api_key === 'string' ? apiConfigData.api_key : '',
+          update_frequency:
+            typeof apiConfigData.update_frequency === 'string'
+              ? apiConfigData.update_frequency
+              : 'every_1_hour',
+          fallback_behaviour:
+            typeof apiConfigData.fallback_behaviour === 'string'
+              ? apiConfigData.fallback_behaviour
+              : 'last_known_rate',
+          is_cache_enabled: Boolean(apiConfigData.is_cache_enabled),
+        },
+      }),
+    );
   }, [currencySettingsData, form]);
 
   useEffect(() => {
     setUnsavedDataStatus(isDirty);
   }, [isDirty]);
 
-  const handleSaveData = async (values: MultiCurrencySettingsFormValues) => {
-    const updatedObj = {
-      ...values,
-      is_automatic_update_enabled: values?.is_automatic_update_enabled || false,
-    } as SettingsSectionData;
-
+  const handleSaveData = async (payload: MultiCurrencySettingsFormPayload) => {
     try {
-      await saveSettings({ key: 'currency', data: updatedObj });
-      form.reset(values);
+      await saveSettings({ key: 'currency', data: payload });
+      form.reset(form.getValues());
     } catch (error) {
       applyServerErrors(form, error as ErrorResponse);
     }

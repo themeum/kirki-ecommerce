@@ -1,14 +1,13 @@
 import { z } from 'zod';
 
-import { optionalNullableString } from '@/schemas/forms/shared/validators';
-import { MediaRefSchema } from '@/schemas/shared/media';
+import { mediaId, numberOrNull } from '@/libs/zod';
 
 export const ProductSeoFormSchema = z.object({
-  seo_title: optionalNullableString(),
-  seo_description: optionalNullableString(),
-  llm_instructions: optionalNullableString(),
-  og_title: optionalNullableString(),
-  og_description: optionalNullableString(),
-  og_image: MediaRefSchema.nullable().optional(),
-  schema_id: z.union([z.number(), z.string(), z.null()]).optional().nullable(),
+  seo_title: z.string().nullish().default(''),
+  seo_description: z.string().nullish().default(''),
+  llm_instructions: z.string().nullish().default(''),
+  og_title: z.string().nullish().default(''),
+  og_description: z.string().nullish().default(''),
+  og_image: mediaId(),
+  schema_id: numberOrNull(),
 });

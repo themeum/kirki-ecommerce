@@ -15,6 +15,9 @@ class UpdateCartDTO extends DTO
     /** @var string */
     public $shipping_method;
 
+    /** @var bool */
+    public $is_billing_same_as_shipping = false;
+
     /** @var string|null */
     public $coupon_code;
 

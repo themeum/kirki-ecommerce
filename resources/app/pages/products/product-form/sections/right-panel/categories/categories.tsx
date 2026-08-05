@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
 import Flex from '@/components/ui/flex';
 import Label from '@/components/ui/label';
-import type { ProductFormValues } from '@/schemas/forms/product-form';
+import type { ProductFormInput } from '@/schemas/forms/product-form';
 import { useCategoriesQuery } from '@/services/category';
 import { theme } from '@/theme';
 import { itemCenter, scoped, defineStyles } from '@/theme/mixins';
@@ -15,7 +15,7 @@ import AddNewCategory from '@/pages/products/product-form/sections/right-panel/c
 import List from '@/pages/products/product-form/sections/right-panel/categories/list';
 
 const Categories = () => {
-  const { watch, setValue } = useFormContext<ProductFormValues>();
+  const { watch, setValue } = useFormContext<ProductFormInput>();
   const { data: categoryData, isSuccess: loaded } = useCategoriesQuery({
     limit: -1,
   });
@@ -250,14 +250,12 @@ const styles = defineStyles({
   },
   row: {
     width: '100%',
-    boxSizing: 'border-box',
     padding: `${theme.spacing[2]} ${theme.spacing[4]}`,
     ...itemCenter(),
   },
   footer: {
     width: '100%',
     padding: `${theme.spacing[2]} ${theme.spacing[4]} ${theme.spacing[4]}`,
-    boxSizing: 'border-box',
   },
   loading: {
     padding: `0 ${theme.spacing[4]} ${theme.spacing[4]}`,

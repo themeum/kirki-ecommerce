@@ -12,34 +12,29 @@ import { Dialog, DialogBody, DialogClose, DialogCloseButton, DialogContent, Dial
 import { Form } from '@/components/ui/form';
 import { applyServerErrors } from '@/libs/form-errors';
 import type { ErrorResponse } from '@/libs/api';
+import { pickFormValues } from '@/libs/zod';
 import Flex from '@/components/ui/flex';
-import { CategoryFormSchema, type CategoryFormValues } from '@/schemas/forms/category-form';
+import {
+  CategoryFormSchema,
+  type CategoryFormInput,
+  type CategoryFormPayload,
+} from '@/schemas/forms/category-form';
 import { useCategoriesQuery, useCreateCategoryMutation, useUpdateCategoryMutation } from '@/services/category';
-import type { Category, CategoryFormData } from '@/types';
+import type { Category } from '@/types';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
 type CategoryAddEditPopoverProps = {
-  category: Category | CategoryFormData;
+  category: Category | CategoryFormInput;
   onClose?: () => void;
 };
 
-const getInitialImageUrl = (category: Category | CategoryFormData) => {
+const getInitialImageUrl = (category: Category | CategoryFormInput) => {
   const image =
     category.image && typeof category.image === 'object'
       ? category.image
       : null;
   return image?.url || null;
-};
-
-const getImageId = (category: Category | CategoryFormData) => {
-  if (category.image && typeof category.image === 'object') {
-    return category.image.id ?? null;
-  }
-  if (typeof category.image === 'number' || typeof category.image === 'string') {
-    return category.image;
-  }
-  return null;
 };
 
 const CategoryAddEditPopover = ({
@@ -52,21 +47,15 @@ const CategoryAddEditPopover = ({
   const updateMutation = useUpdateCategoryMutation();
   const categoryId = 'id' in category ? category.id : undefined;
   const isSubmitting = createMutation.isPending || updateMutation.isPending;
+
+  const form = useForm<CategoryFormInput, unknown, CategoryFormPayload>({
+    resolver: zodResolver(CategoryFormSchema),
+    defaultValues: pickFormValues(CategoryFormSchema, category),
+  });
+
   const [imageUrl, setImageUrl] = useState<string | null>(
     getInitialImageUrl(category),
   );
-
-  const form = useForm<CategoryFormValues>({
-    resolver: zodResolver(CategoryFormSchema),
-    defaultValues: {
-      name: category.name ?? '',
-      slug: category.slug ?? '',
-      description: category.description ?? '',
-      parent_id: category.parent_id ?? null,
-      image: getImageId(category),
-      is_active: category.is_active,
-    },
-  });
 
   const parentOptions = [
     {
@@ -85,16 +74,7 @@ const CategoryAddEditPopover = ({
     }
   };
 
-  const handleSubmit = async (values: CategoryFormValues) => {
-    const payload: CategoryFormData = {
-      ...values,
-      parent_id:
-        values.parent_id === '' || values.parent_id == null
-          ? null
-          : Number(values.parent_id),
-      image: values.image ?? null,
-    };
-
+  const handleSubmit = async (payload: CategoryFormPayload) => {
     try {
       if (categoryId) {
         await updateMutation.mutateAsync({
@@ -189,4 +169,3 @@ const CategoryAddEditPopover = ({
 CategoryAddEditPopover.displayName = 'CategoryAddEditPopover';
 
 export default CategoryAddEditPopover;
-

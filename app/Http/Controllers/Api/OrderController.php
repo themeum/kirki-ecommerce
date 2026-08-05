@@ -61,7 +61,6 @@ class OrderController
 
         $dto = CreateOrderPayloadDTO::from_request($request);
         $dto->is_manual = user()->is_admin() && $request->get_bool('is_manual') ? true : false;
-        $dto->customer_id = customer()->get_customer_id() ?? 0;
         $dto->created_by = user()->get_id() ?? null;
         $dto->currency_code = $currency_code;
 

@@ -8,7 +8,11 @@ import { Dialog, DialogBody, DialogClose, DialogCloseButton, DialogContent, Dial
 import { Form } from '@/components/ui/form';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import { TaxProfileFormSchema, type TaxProfileFormValues } from '@/schemas/forms/tax-profile-form';
+import {
+  TaxProfileFormSchema,
+  type TaxProfileFormInput,
+  type TaxProfileFormPayload,
+} from '@/schemas/forms/tax-profile-form';
 import { useCreateTaxProfileMutation, useUpdateTaxProfileMutation } from '@/services/tax';
 import type { TaxProfile } from '@/types';
 import { __ } from '@/wpi18n';
@@ -32,7 +36,7 @@ export const TaxProfilePopup = ({
   const updateMutation = useUpdateTaxProfileMutation();
   const isSubmitting = createMutation.isPending || updateMutation.isPending;
 
-  const form = useForm<TaxProfileFormValues>({
+  const form = useForm<TaxProfileFormInput, unknown, TaxProfileFormPayload>({
     resolver: zodResolver(TaxProfileFormSchema),
     defaultValues: {
       name: '',
@@ -56,19 +60,19 @@ export const TaxProfilePopup = ({
     onClose();
   };
 
-  const handleSubmit = async (values: TaxProfileFormValues) => {
+  const handleSubmit = async (payload: TaxProfileFormPayload) => {
     try {
       if (from === 'edit') {
         const response = await updateMutation.mutateAsync({
           id: taxProfile?.id as number,
-          data: values,
+          data: payload,
         });
         onSave(response.data?.id as number);
         handleOnPopupClose();
         return;
       }
 
-      const response = await createMutation.mutateAsync(values);
+      const response = await createMutation.mutateAsync(payload);
       onSave(response.data?.id as number);
       handleOnPopupClose();
     } catch (error) {

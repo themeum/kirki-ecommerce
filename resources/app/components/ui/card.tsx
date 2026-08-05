@@ -112,7 +112,6 @@ const styles = defineStyles({
     border: `1px solid ${theme.colors.border.secondary}`,
     backgroundColor: theme.colors.background.fill,
     color: theme.colors.text.primary,
-    boxSizing: 'border-box',
   },
   header: {
     display: 'flex',

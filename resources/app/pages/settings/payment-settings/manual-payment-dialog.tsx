@@ -11,7 +11,8 @@ import { Form } from '@/components/ui/form';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import Flex from '@/components/ui/flex';
-import { ManualPaymentFormSchema, manualPaymentDefaultValues, type ManualPaymentFormValues } from '@/schemas/forms/manual-payment-form';
+import { getDefaults } from '@/libs/zod';
+import { ManualPaymentFormSchema, type ManualPaymentFormInput, type ManualPaymentFormPayload } from '@/schemas/forms/manual-payment-form';
 import { useCreatePaymentMethodMutation, useUpdatePaymentMethodMutation } from '@/services/payment';
 import type { PaymentMethod } from '@/types';
 import { __ } from '@/wpi18n';
@@ -43,9 +44,9 @@ const ManualPaymentPopup = (props: ManualPaymentPopupProps) => {
     useUpdatePaymentMethodMutation();
   const isSubmitting = isCreating || isUpdating;
 
-  const form = useForm<ManualPaymentFormValues>({
+  const form = useForm<ManualPaymentFormInput, unknown, ManualPaymentFormPayload>({
     resolver: zodResolver(ManualPaymentFormSchema),
-    defaultValues: manualPaymentDefaultValues,
+    defaultValues: getDefaults(ManualPaymentFormSchema),
   });
 
   useEffect(() => {
@@ -70,31 +71,20 @@ const ManualPaymentPopup = (props: ManualPaymentPopupProps) => {
 
   const handleClose = () => {
     setIconPreview('');
-    form.reset(manualPaymentDefaultValues);
+    form.reset(getDefaults(ManualPaymentFormSchema));
     setOpenPopup(false);
     setEditingMethod(null);
   };
 
-  const handleSaveOrUpdateData = async (values: ManualPaymentFormValues) => {
-    const iconValue =
-      typeof values.icon === 'object' && values.icon !== null
-        ? ((values.icon as { url?: string }).url ?? '')
-        : (values.icon ?? '');
-
-    const payload = {
-      ...values,
-      icon: iconValue,
-      is_manual: true,
-    };
-
+  const handleSaveOrUpdateData = async (payload: ManualPaymentFormPayload) => {
     try {
       if (editingMethod) {
         await updateMethod({
           id: editingMethod.id,
-          data: payload as Record<string, unknown>,
+          data: payload,
         });
       } else {
-        await createMethod(payload as Record<string, unknown>);
+        await createMethod(payload);
       }
       handleClose();
     } catch (error) {

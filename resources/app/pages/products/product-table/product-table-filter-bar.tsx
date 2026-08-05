@@ -1,17 +1,17 @@
-import { css } from '@emotion/react';
 import { memo } from 'react';
 
 import Button from '@/components/ui/button';
 import Capsule from '@/components/ui/capsule';
 import Flex from '@/components/ui/flex';
-import { useListParamsActions, useListParamsValue } from '@/contexts/list-params-context';
+import { useListParams } from '@/hooks';
 import { makeSuggestionList } from '@/pages/utils';
 import { useBrandsQuery } from '@/services/brand';
 import { useCategoriesQuery } from '@/services/category';
 import { useCollectionsQuery } from '@/services/collection';
 import { theme } from '@/theme';
+import { defineStyles } from '@/theme/mixins';
 import type { SuggestionOption } from '@/types';
-import { ProductListFilter, productListFilterConfig } from '@/types/filters/product';
+import { ProductListFilter, productListFilterConfig, productListOptions } from '@/types/filters/product';
 import { __ } from '@/wpi18n';
 
 type FilterValue = string | number | Array<string | number>;
@@ -30,16 +30,15 @@ const PRODUCT_FILTER_KEYS = productListFilterConfig.keys;
 
 type ProductFilterKey = keyof ProductListFilter;
 
-const filterActionBarCss = css({
+const filterActionBarCss = defineStyles({
   flexWrap: 'wrap',
   borderTop: `1px solid ${theme.colors.border.tertiary}`,
   backgroundColor: theme.colors.background.surface,
-  padding: theme.spacing[3],
+  padding: `${theme.spacing[1]} ${theme.spacing[3]}`,
 });
 
 const ProductTableFilterBar = memo(() => {
-  const params = useListParamsValue<ProductListFilter>();
-  const { setParam, setParams } = useListParamsActions<ProductListFilter>();
+  const { params, setParam, setParams } = useListParams<ProductListFilter>(productListOptions);
 
   const { data: brandsData } = useBrandsQuery({ limit: -1 });
   const { data: categoriesData } = useCategoriesQuery({ limit: -1 });

@@ -48,8 +48,12 @@ const resolvePath = (
   return { exists: true, value: current };
 };
 
-const applyServerErrors = <TFieldValues extends FieldValues>(
-  form: UseFormReturn<TFieldValues>,
+const applyServerErrors = <
+  TFieldValues extends FieldValues,
+  TContext = unknown,
+  TTransformedValues = TFieldValues,
+>(
+  form: UseFormReturn<TFieldValues, TContext, TTransformedValues>,
   error: ErrorResponse,
   options: ApplyServerErrorsOptions = {},
 ): ApplyServerErrorsResult => {

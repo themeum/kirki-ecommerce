@@ -70,7 +70,7 @@ const wrapperBase: Parameters<typeof defineStyles>[0] = {
   position: 'fixed',
   left: '45%',
   bottom: theme.spacing[12],
-  zIndex: 9999,
+  zIndex: theme.zIndex.toast,
   transition: 'transform 0.2s ease-out, opacity 0.2s ease-out',
   maxWidth: 762,
   width: '100%',

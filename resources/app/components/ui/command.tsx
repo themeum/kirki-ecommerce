@@ -186,7 +186,6 @@ const styles = defineStyles({
     width: '100%',
     padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
     borderBottom: `1px solid ${theme.colors.border.default}`,
-    boxSizing: 'border-box',
   },
   searchIcon: {
     flexShrink: 0,
@@ -238,7 +237,6 @@ const styles = defineStyles({
     minHeight: '32px',
     padding: `${theme.spacing[1]} ${theme.spacing[2]}`,
     borderRadius: theme.radius.md,
-    boxSizing: 'border-box',
     cursor: 'pointer',
     ...theme.typography.small(),
     color: theme.colors.text.primary,

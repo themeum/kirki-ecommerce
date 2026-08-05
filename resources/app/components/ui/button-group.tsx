@@ -1,9 +1,9 @@
 import type { CSSObject } from '@emotion/react';
 import { Slot } from '@radix-ui/react-slot';
 import {
+  ComponentRef,
   forwardRef,
-  type ComponentPropsWithoutRef,
-  type ElementRef,
+  type ComponentPropsWithoutRef
 } from 'react';
 
 import { Separator } from '@/components/ui/separator';
@@ -122,7 +122,7 @@ ButtonGroupText.displayName = 'ButtonGroupText';
  * @since 1.0.0
  */
 const ButtonGroupSeparator = forwardRef<
-  ElementRef<typeof Separator>,
+  ComponentRef<typeof Separator>,
   ButtonGroupSeparatorProps
 >((props, ref) => {
   const {
@@ -210,7 +210,6 @@ const styles = defineStyles({
     ...theme.typography.small('medium'),
     color: theme.colors.text.secondary,
     whiteSpace: 'nowrap',
-    boxSizing: 'border-box',
     '& svg': {
       flexShrink: 0,
       pointerEvents: 'none',

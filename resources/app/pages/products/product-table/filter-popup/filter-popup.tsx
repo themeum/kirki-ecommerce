@@ -9,16 +9,16 @@ import Label from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Text from '@/components/ui/text';
-import { useListParamsActions, useListParamsValue } from '@/contexts/list-params-context';
 import { CloseIcon, ListFilter } from '@/icons';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
 import { __, sprintf } from '@/wpi18n';
 
+import { useListParams } from '@/hooks';
 import BrandFilter from '@/pages/products/product-table/filter-popup/brand-filter';
 import CategoriesFilter from '@/pages/products/product-table/filter-popup/categories-filter';
 import CollectionFilter from '@/pages/products/product-table/filter-popup/collection-filter';
-import { ProductListFilter } from '@/types/filters/product';
+import { ProductListFilter, productListOptions } from '@/types/filters/product';
 
 type LocalFilterState = {
   category_ids: number[];
@@ -39,8 +39,7 @@ const FilterPopup = memo(({
   buttonProps,
   data: _data,
 }: FilterPopupProps) => {
-  const params = useListParamsValue<ProductListFilter>();
-  const { setParams } = useListParamsActions<ProductListFilter>();
+  const { params, setParams } = useListParams<ProductListFilter>(productListOptions);
   const [openPopup, setOpenPopup] = useState(false);
   const [filterObject, setFilterObject] = useState<LocalFilterState>({
     category_ids: [],
@@ -249,7 +248,7 @@ const styles = defineStyles({
     position: 'sticky',
     backgroundColor: theme.colors.background.surface,
     padding: `${theme.spacing[3]} ${theme.spacing[3]} ${theme.spacing[2]} ${theme.spacing[3]}`,
-    zIndex: 100,
+    zIndex: theme.zIndex.sticky,
   },
   closeButton: {
     color: theme.colors.text.primary,

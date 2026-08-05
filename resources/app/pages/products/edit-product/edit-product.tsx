@@ -3,12 +3,11 @@ import { useParams } from 'react-router';
 import LoadingSpinner from '@/components/loading-spinner';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
-import { mapProductToFormValues } from '@/schemas/forms/product-form';
+import { mapProductToFormValues, type ProductFormPayload } from '@/schemas/forms/product-form';
 import {
   useProductQuery,
   useUpdateProductMutation,
 } from '@/services/product';
-import type { ProductFormData } from '@/types';
 import { __ } from '@/wpi18n';
 
 import ProductForm from '@/pages/products/product-form/product-form';
@@ -36,7 +35,7 @@ const EditProduct = () => {
     );
   }
 
-  const handleSubmit = async (data: ProductFormData) => {
+  const handleSubmit = async (data: ProductFormPayload) => {
     const response = await updateProductMutation.mutateAsync({
       id: Number(id),
       data,

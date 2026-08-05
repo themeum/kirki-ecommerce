@@ -12,12 +12,15 @@ import { Form } from '@/components/ui/form';
 import { PlusIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import { ProductAddCategoryFormSchema, type ProductAddCategoryFormValues } from '@/schemas/forms/product-add-category-form';
+import {
+  ProductAddCategoryFormSchema,
+  type ProductAddCategoryFormInput,
+  type ProductAddCategoryFormPayload,
+} from '@/schemas/forms/product-add-category-form';
 import { useCategoriesQuery, useCreateCategoryMutation } from '@/services/category';
 import { theme } from '@/theme';
 import { scoped, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
-import type { CategoryFormData } from '@/types';
 import { __ } from '@/wpi18n';
 
 const AddNewCategory = () => {
@@ -26,7 +29,7 @@ const AddNewCategory = () => {
   const createCategoryMutation = useCreateCategoryMutation();
   const [show, setShow] = useState(false);
 
-  const form = useForm<ProductAddCategoryFormValues>({
+  const form = useForm<ProductAddCategoryFormInput, unknown, ProductAddCategoryFormPayload>({
     resolver: zodResolver(ProductAddCategoryFormSchema),
     defaultValues: {
       name: '',
@@ -45,17 +48,7 @@ const AddNewCategory = () => {
     });
   }, [show, form]);
 
-  const handleAddOrUpdateCategory = async (
-    values: ProductAddCategoryFormValues,
-  ) => {
-    const payload: CategoryFormData = {
-      name: values.name,
-      parent_id:
-        values.parent_id === '' || values.parent_id == null
-          ? null
-          : Number(values.parent_id),
-    };
-
+  const handleAddOrUpdateCategory = async (payload: ProductAddCategoryFormPayload) => {
     try {
       await createCategoryMutation.mutateAsync(payload);
       setShow(false);
@@ -135,7 +128,6 @@ const styles = defineStyles({
   },
   formCard: {
     padding: theme.spacing[4],
-    boxSizing: 'border-box',
   },
   createButton: {
     backgroundColor: 'transparent',

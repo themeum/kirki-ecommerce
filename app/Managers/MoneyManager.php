@@ -6,6 +6,7 @@ use BadMethodCallException;
 use Brick\Math\RoundingMode;
 use Brick\Money\Money;
 use Kirki\Ecommerce\App\Constants\OptionKeys;
+use Kirki\Ecommerce\App\DTO\MoneyDTO;
 use Kirki\Ecommerce\App\Supports\Currency;
 use Kirki\Ecommerce\Framework\Supports\Str;
 use InvalidArgumentException;
@@ -206,6 +207,24 @@ class MoneyManager
     public function zero($currency = null)
     {
         return Money::zero($currency ?? $this->get_base_currency());
+    }
+
+    /**
+     * Create a zero amount.
+     *
+     * @param int $minor_amount
+     * @param string|null $currency
+     * @return MoneyDTO
+     */
+    public function to_dto($minor_amount, $currency = null)
+    {
+        $money = $this->from_minor($minor_amount, $currency);
+
+        return MoneyDTO::from_array([
+            'raw' => $money->getAmount()->toFloat(),
+            'display' => $this->format($money),
+            'currency' => $currency ?? $this->get_base_currency(),
+        ]);
     }
 
 

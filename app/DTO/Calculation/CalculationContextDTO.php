@@ -13,6 +13,7 @@ class CalculationContextDTO extends DTO
 {
     /** @var int|null */
     public $cart_id;
+
     /** @var Collection<CalculationItemDTO> */
     public $items;
 
