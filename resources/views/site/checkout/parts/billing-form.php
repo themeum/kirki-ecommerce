@@ -102,23 +102,53 @@ $billing_email = $billing_address["email"] ?? '';
                     x-bind="register('city', { required: '<?php esc_html_e('City is required', 'kirki-ecommerce'); ?>' })">
                 <span class="kecom-field-error" x-show="errors.city" x-text="errors.city"></span>
             </div>
-            <div class="kecom-field">
+            <div class="kecom-field" x-data="{ states: [], selectedState: '<?php echo esc_js($billing_state); ?>', initialState: '<?php echo esc_js($billing_state); ?>' }" x-init="
+                // Listen for states loaded event
+                window.addEventListener('states-loaded', (e) => {
+                    if (e.detail.formType === 'billing') {
+                        states = e.detail.states;
+                    }
+                });
+
+                const loadStates = (countryCode) => {
+                    window.dispatchEvent(new CustomEvent('load-states', { detail: { countryCode, formType: 'billing' } }));
+                };
+
+                $watch('values.country', (newCountry) => {
+                    loadStates(newCountry);
+                    // Dispatch address-changed event to update cart
+                    window.dispatchEvent(new CustomEvent('address-changed'));
+                });
+
+                $watch('selectedState', () => {
+                    // Dispatch address-changed event when state changes
+                    window.dispatchEvent(new CustomEvent('address-changed'));
+                });
+
+                // Initial load
+                setTimeout(() => loadStates(values.country), 100);
+            ">
                 <label class="kecom-field-label" for="billing-state"><?php esc_html_e('State', 'kirki-ecommerce'); ?></label>
-                <input 
-                    class="kecom-input" 
-                    type="text" 
-                    id="billing-state" 
-                    name="state" 
+                <select
+                    class="kecom-select"
+                    id="billing-state"
+                    name="state"
+                    x-model="selectedState"
                     x-bind="register('state', { required: '<?php esc_html_e('State is required', 'kirki-ecommerce'); ?>' })">
+                    <option value=""><?php esc_html_e('Select State', 'kirki-ecommerce'); ?></option>
+                    <template x-for="state in states" :key="state.id">
+                        <option :value="state.id" :selected="state.id === selectedState" x-text="state.name"></option>
+                    </template>
+                </select>
                 <span class="kecom-field-error" x-show="errors.state" x-text="errors.state"></span>
             </div>
             <div class="kecom-field">
                 <label class="kecom-field-label" for="billing-postal-code"><?php esc_html_e('Postal code', 'kirki-ecommerce'); ?></label>
-                <input 
-                    class="kecom-input" 
-                    type="text" 
-                    id="billing-postal-code" 
-                    name="postal_code" 
+                <input
+                    class="kecom-input"
+                    type="text"
+                    id="billing-postal-code"
+                    name="postal_code"
                     x-bind="register('postal_code', { required: '<?php esc_html_e('Postal code is required', 'kirki-ecommerce'); ?>' })">
                 <span class="kecom-field-error" x-show="errors.postal_code" x-text="errors.postal_code"></span>
             </div>

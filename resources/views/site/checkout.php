@@ -35,7 +35,7 @@ $available_shipping_methods = $cart["available_shipping_methods"];
             <div class="kecom-checkout-left">
                 <?php include_view('site.checkout.parts.shipping-form', compact('countries', 'shipping_address')); ?>
                 <?php include_view('site.checkout.parts.billing-form', compact('countries', 'billing_address')); ?>
-                <?php include_view('site.checkout.parts.shipping-methods', compact('available_shipping_methods')); ?>
+                <?php include_view('site.checkout.parts.shipping-methods'); ?>
                 <?php include_view('site.checkout.parts.payment-methods', compact('payment_gateways')); ?>
             </div>
 

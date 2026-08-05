@@ -12,8 +12,10 @@ export interface kirkiEcommerceConfig {
     items: any[];
     pricing: any;
     shipping_method: any;
+    available_shipping_methods?: any[];
   };
   currency?: string;
+  countries?: any[];
 }
 
 // Extend window for WordPress-injected config

@@ -51,9 +51,10 @@ class PageInlineScript extends BaseHook
             $config['checkout_cart'] = [
                 'items' => $cart['items'] ?? [],
                 'pricing' => $cart['pricing'] ?? [],
-                'shipping_method' => $cart['shipping_method'] ?? null,
+                'available_shipping_methods' => $cart['available_shipping_methods'] ?? [],
             ];
             $config['currency'] = $cart['currency']['code'] ?? 'USD';
+            $config['countries'] = $data->countries ?? [];
         }
 
         if (!Route::is('shop.single')) {

@@ -18,6 +18,21 @@ export interface CheckoutConfig {
   cartTotal?: number;
 }
 
+export interface Country {
+  code: string;
+  name: string;
+  states: Array<{
+    id: string;
+    name: string;
+  }>;
+}
+
+export interface ShippingMethod {
+  id: string;
+  name: string;
+  cost: string;
+}
+
 export function checkout(config: CheckoutConfig = {}) {
   const { __ } = window.wp.i18n;
 
@@ -25,8 +40,10 @@ export function checkout(config: CheckoutConfig = {}) {
     cartTotal: config.cartTotal ?? 0,
     currency: window.kirki_ecommerce?.currency ?? 'USD',
     cartData: window.kirki_ecommerce?.checkout_cart ?? null,
+    countries: window.kirki_ecommerce?.countries ?? [],
 
-    selectedPaymentMethod: 'stripe',
+    selectedPaymentMethod: '',
+    selectedShippingMethod: '',
     couponCode: '',
     discount: 0,
     billingFormValid: false,
@@ -37,6 +54,13 @@ export function checkout(config: CheckoutConfig = {}) {
     couponLoading: false,
     error: null as string | null,
     success: false,
+
+    // State management for forms
+    shippingStates: [] as Array<{ id: string; name: string }>,
+    billingStates: [] as Array<{ id: string; name: string }>,
+    selectedShippingState: '',
+    selectedBillingState: '',
+    availableShippingMethods: [] as ShippingMethod[],
 
     init() {
       (this as any).$el.addEventListener('billing-form-validated', (e: any) => {
@@ -52,6 +76,154 @@ export function checkout(config: CheckoutConfig = {}) {
           this.syncBillingFromShipping();
         }
       });
+
+      // Initialize available shipping methods from cart data
+      if (this.cartData?.available_shipping_methods) {
+        this.availableShippingMethods = this.cartData.available_shipping_methods;
+        if (this.cartData.shipping_method) {
+          this.selectedShippingMethod = this.cartData.shipping_method;
+        } else if (this.availableShippingMethods.length > 0) {
+          // Select first shipping method if none selected
+          this.selectedShippingMethod = this.availableShippingMethods[0].id;
+        }
+      }
+
+      // Listen for load-states events from forms
+      window.addEventListener('load-states', (e: any) => {
+        const { countryCode, formType } = e.detail;
+        this.loadStatesForCountry(countryCode, formType);
+
+        // Dispatch states-loaded event back to the form
+        const states = formType === 'shipping' ? this.shippingStates : this.billingStates;
+        window.dispatchEvent(new CustomEvent('states-loaded', { detail: { formType, states } }));
+      });
+
+      // Listen for get-shipping-methods event
+      window.addEventListener('get-shipping-methods', () => {
+        window.dispatchEvent(new CustomEvent('shipping-methods-updated', {
+          detail: {
+            shippingMethods: this.availableShippingMethods,
+            selectedMethod: this.selectedShippingMethod,
+          },
+        }));
+      });
+
+      // Listen for set-shipping-method event
+      window.addEventListener('set-shipping-method', (e: any) => {
+        this.setShippingMethod(e.detail.methodId);
+      });
+
+      // Listen for address change events from forms
+      window.addEventListener('address-changed', async (e: any) => {
+        await this.updateCart();
+      });
+    },
+
+    loadStatesForCountry(countryCode: string, formType: 'shipping' | 'billing') {
+      if (!countryCode) {
+        if (formType === 'shipping') {
+          this.shippingStates = [];
+          this.selectedShippingState = '';
+        } else {
+          this.billingStates = [];
+          this.selectedBillingState = '';
+        }
+        return;
+      }
+
+      const country = this.countries.find((c: Country) => c.code === countryCode);
+      const states = country?.states || [];
+
+      if (formType === 'shipping') {
+        this.shippingStates = states;
+        if (states.length === 0) {
+          this.selectedShippingState = '';
+        }
+      } else {
+        this.billingStates = states;
+        if (states.length === 0) {
+          this.selectedBillingState = '';
+        }
+      }
+    },
+
+    async updateShippingInfo(shippingData: any) {
+      try {
+        const response = await cartApi.updateShipping(shippingData);
+        this.cartData = response.data;
+        this.availableShippingMethods = response.data.available_shipping_methods || [];
+
+        // Select the first shipping method if none selected
+        if (this.availableShippingMethods.length > 0 && !this.selectedShippingMethod) {
+          this.selectedShippingMethod = this.availableShippingMethods[0].id;
+        }
+      } catch (e: unknown) {
+        const error = e instanceof Error ? e.message : __('Failed to update shipping info', 'kirki-ecommerce');
+        toastManager.error(error);
+      }
+    },
+
+    async updateCart() {
+      try {
+        const shippingFormEl = document.querySelector('#shipping-form') as any;
+        const billingFormEl = document.querySelector('#billing-form') as any;
+        const shippingForm = (window as any).Alpine.$data(shippingFormEl);
+        const billingForm = (window as any).Alpine.$data(billingFormEl);
+
+        const cartData = {
+          shipping_address: {
+            first_name: shippingForm.values.first_name,
+            last_name: shippingForm.values.last_name,
+            email: shippingForm.values.email,
+            phone: shippingForm.values.phone,
+            address_line1: shippingForm.values.address_line1,
+            address_line2: shippingForm.values.address_line2 || '',
+            city: shippingForm.values.city,
+            state: shippingForm.values.state,
+            postal_code: shippingForm.values.postal_code,
+            country: shippingForm.values.country,
+          },
+          billing_address: {
+            first_name: billingForm.values.first_name,
+            last_name: billingForm.values.last_name,
+            email: billingForm.values.email,
+            phone: billingForm.values.phone,
+            address_line1: billingForm.values.address_line1,
+            address_line2: billingForm.values.address_line2 || '',
+            city: billingForm.values.city,
+            state: billingForm.values.state,
+            postal_code: billingForm.values.postal_code,
+            country: billingForm.values.country,
+          },
+          is_billing_same_as_shipping: this.billingSameAsShipping,
+          shipping_method: this.selectedShippingMethod,
+        };
+
+        const response = await cartApi.update(cartData);
+        this.cartData = response.data;
+        this.availableShippingMethods = response.data.available_shipping_methods || [];
+
+        // Update selected shipping method if it changed
+        if (response.data.shipping_method) {
+          this.selectedShippingMethod = response.data.shipping_method;
+        }
+
+        // Dispatch event to update shipping methods in the partial
+        window.dispatchEvent(new CustomEvent('shipping-methods-updated', {
+          detail: {
+            shippingMethods: this.availableShippingMethods,
+            selectedMethod: this.selectedShippingMethod,
+          },
+        }));
+      } catch (e: unknown) {
+        const error = e instanceof Error ? e.message : __('Failed to update cart', 'kirki-ecommerce');
+        toastManager.error(error);
+      }
+    },
+
+    setShippingMethod(methodId: string) {
+      this.selectedShippingMethod = methodId;
+      (this as any).$dispatch('shipping-method-change', { methodId });
     },
 
     syncBillingFromShipping() {
@@ -166,7 +338,7 @@ export function checkout(config: CheckoutConfig = {}) {
           currency_code: this.currency,
           payment_method: this.selectedPaymentMethod,
           coupon_code: this.couponCode || undefined,
-          shipping_method: this.cartData?.shipping_method || undefined,
+          shipping_method: this.selectedShippingMethod || undefined,
           shipping_first_name: shippingForm.values.first_name,
           shipping_last_name: shippingForm.values.last_name,
           shipping_address_line1: shippingForm.values.address_line1,
@@ -199,8 +371,8 @@ export function checkout(config: CheckoutConfig = {}) {
         toastManager.success(__('Order placed successfully!', 'kirki-ecommerce'));
 
         // Redirect to thank you page
-        const thankYouUrl = window.kirki_ecommerce?.thank_you_url || '/thank-you';
-        window.location.href = `${thankYouUrl}?order_id=${response.data.id}`;
+        // const thankYouUrl = window.kirki_ecommerce?.thank_you_url || '/thank-you';
+        // window.location.href = `${thankYouUrl}?order_id=${response.data.id}`;
       } catch (e: unknown) {
         this.error = e instanceof Error ? e.message : __('Checkout failed', 'kirki-ecommerce');
         toastManager.error(this.error || __('Checkout failed', 'kirki-ecommerce'));
