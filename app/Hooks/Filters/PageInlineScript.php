@@ -54,10 +54,11 @@ class PageInlineScript extends BaseHook
             $config['checkout_cart'] = [
                 'items' => $cart['items'] ?? [],
                 'pricing' => [
-                    'subtotal_formatted'  => $pricing['subtotal_formatted'] ?? null,
-                    'shipping_total'      => $pricing['shipping_total'] ?? null,
-                    'discount_total'      => $pricing['discount_total'] ?? null,
-                    'total_formatted'     => $pricing['total_formatted'] ?? null,
+                    'subtotal_formatted'      => $pricing['subtotal_formatted'] ?? null,
+                    'shipping_total'          => $pricing['shipping_total'] ?? null,
+                    'shipping_total_formatted' => $pricing['shipping_total_formatted'] ?? null,
+                    'discount_total'          => $pricing['discount_total'] ?? null,
+                    'total_formatted'         => $pricing['total_formatted'] ?? null,
                     'discount_details'    => $discount_details ? [
                         'code'                       => $discount_details['code'] ?? null,
                         'discount_value_type'        => $discount_details['discount_value_type'] ?? null,

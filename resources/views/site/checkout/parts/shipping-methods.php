@@ -10,23 +10,7 @@ extract($data);
 ?>
 
 <!-- Shipping Methods -->
-<div class="kecom-shipping-section" x-data="{ availableShippingMethods: [], selectedShippingMethod: '' }" x-init="
-    // Listen for shipping methods updated event
-    window.addEventListener('shipping-methods-updated', (e) => {
-        availableShippingMethods = e.detail.shippingMethods;
-        if (e.detail.selectedMethod) {
-            selectedShippingMethod = e.detail.selectedMethod;
-        }
-    });
-
-    // Listen for set-shipping-method event to sync with checkout component
-    window.addEventListener('set-shipping-method', (e) => {
-        selectedShippingMethod = e.detail.methodId;
-    });
-
-    // Listen for initial data
-    window.dispatchEvent(new CustomEvent('get-shipping-methods'));
-">
+<div class="kecom-shipping-section">
     <h2 class="kecom-section-title"><?php esc_html_e('Shipping Method', 'kirki-ecommerce'); ?></h2>
     <div class="kecom-shipping-methods" x-show="availableShippingMethods.length > 0">
         <template x-for="shipping in availableShippingMethods" :key="shipping.id">
@@ -36,7 +20,7 @@ extract($data);
                         name="shipping_method"
                         :value="shipping.id"
                         x-model="selectedShippingMethod"
-                        @change="window.dispatchEvent(new CustomEvent('set-shipping-method', { detail: { methodId: shipping.id } }))">
+                        @change="setShippingMethod(shipping.id)">
                 <div class="kecom-radio-label">
                     <span class="kecom-shipping-name" x-text="shipping.name"></span>
                 </div>

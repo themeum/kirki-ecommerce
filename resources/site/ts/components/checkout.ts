@@ -142,16 +142,6 @@ export function checkout(config: CheckoutConfig = {}) {
         window.dispatchEvent(new CustomEvent('states-loaded', { detail: { formType, states } }));
       });
 
-      // Listen for get-shipping-methods event
-      window.addEventListener('get-shipping-methods', () => {
-        window.dispatchEvent(new CustomEvent('shipping-methods-updated', {
-          detail: {
-            shippingMethods: this.availableShippingMethods,
-            selectedMethod: this.selectedShippingMethod,
-          },
-        }));
-      });
-
       // Listen for set-shipping-method event
       window.addEventListener('set-shipping-method', (e: any) => {
         this.setShippingMethod(e.detail.methodId);
@@ -188,22 +178,6 @@ export function checkout(config: CheckoutConfig = {}) {
         if (states.length === 0) {
           this.selectedBillingState = '';
         }
-      }
-    },
-
-    async updateShippingInfo(shippingData: any) {
-      try {
-        const response = await cartApi.updateShipping(shippingData);
-        this.cartData = response.data;
-        this.availableShippingMethods = response.data.available_shipping_methods || [];
-
-        // Select the first shipping method if none selected
-        if (this.availableShippingMethods.length > 0 && !this.selectedShippingMethod) {
-          this.selectedShippingMethod = this.availableShippingMethods[0].id;
-        }
-      } catch (e: unknown) {
-        const error = e instanceof Error ? e.message : __('Failed to update shipping info', 'kirki-ecommerce');
-        toastManager.error(error);
       }
     },
 
@@ -255,14 +229,6 @@ export function checkout(config: CheckoutConfig = {}) {
         // Keep discount state in sync with the refreshed cart
         this.discount = parseFloat(response.data.pricing?.discount_total || '0');
         this.appliedCouponCode = response.data.pricing?.discount_details?.code ?? '';
-
-        // Dispatch event to update shipping methods in the partial
-        window.dispatchEvent(new CustomEvent('shipping-methods-updated', {
-          detail: {
-            shippingMethods: this.availableShippingMethods,
-            selectedMethod: this.selectedShippingMethod,
-          },
-        }));
       } catch (e: unknown) {
         const error = e instanceof Error ? e.message : __('Failed to update cart', 'kirki-ecommerce');
         toastManager.error(error);
@@ -272,6 +238,7 @@ export function checkout(config: CheckoutConfig = {}) {
     setShippingMethod(methodId: string) {
       this.selectedShippingMethod = methodId;
       (this as any).$dispatch('shipping-method-change', { methodId });
+      this.updateCart();
     },
 
     syncBillingFromShipping() {
