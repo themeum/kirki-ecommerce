@@ -17,7 +17,7 @@ use Kirki\Ecommerce\Framework\Wordpress\Constants\HookTypes;
 
 use function Kirki\Ecommerce\Framework\app;
 
-class GuestCartToken extends BaseHook
+class GuestCart extends BaseHook
 {
     public function get_name(): string
     {

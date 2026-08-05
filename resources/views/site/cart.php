@@ -134,5 +134,4 @@ $cart_config = array(
         </div>
     </div>
 </div>
-<?php Template::get_footer();
-?>
+<?php Template::get_footer(); ?>
