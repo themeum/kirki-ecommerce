@@ -11,6 +11,7 @@
 
 namespace Kirki\Ecommerce\App\Hooks\Filters;
 
+use Kirki\Ecommerce\App\Constants\Cart;
 use Kirki\Ecommerce\App\Services\CartService;
 use Kirki\Ecommerce\Framework\Route;
 use Kirki\Ecommerce\Framework\Wordpress\BaseHook;
@@ -43,6 +44,8 @@ class PageInlineScript extends BaseHook
         // Get all variant IDs in cart for dynamic checking
         $cart_variant_ids = app()->make(CartService::class)->get_cart_variant_ids();
         $config['cart_variant_ids'] =  $cart_variant_ids;
+        $config['cart_token_cookie_name'] = Cart::COOKIE_TOKEN;
+        $config['cart_token_header_name'] = Cart::HEADER_TOKEN;
 
         if (!Route::is('shop.single')) {
             return $config;

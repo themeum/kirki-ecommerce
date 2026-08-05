@@ -7,7 +7,9 @@ use Kirki\Ecommerce\App\DTO\Cart\AddToCartDTO;
 use Kirki\Ecommerce\App\DTO\Cart\EmptyCartDTO;
 use Kirki\Ecommerce\App\DTO\Cart\RemoveCartItemDTO;
 use Kirki\Ecommerce\App\DTO\Cart\UpdateCartDTO;
+use Kirki\Ecommerce\App\Models\Cart as CartModel;
 use Exception;
+use Kirki\Ecommerce\App\Constants\Cart;
 
 use function Kirki\Ecommerce\App\base_currency;
 use function Kirki\Ecommerce\App\customer;
@@ -188,6 +190,69 @@ class CartService
     }
 
     /**
+     * Get guest cart token.
+     *
+     * @since 1.0.0
+     *
+     * @return string|null
+     */
+    public function get_guest_cart_token(): ?string
+    {
+        return sanitize_text_field($_COOKIE[Cart::COOKIE_TOKEN] ?? null);
+    }
+
+    /**
+     * Get current cart.
+     *
+     * @since 1.0.0
+     *
+     * @return \Kirki\Ecommerce\App\Models\Cart
+     */
+    public function get_current_cart()
+    {
+        $customerId = null;
+        $cartToken = null;
+
+        if (is_user_logged_in()) {
+            $customer = customer();
+            $customerId = $customer->get_customer_id();
+        } else {
+            $cartToken = $this->get_guest_cart_token();
+        }
+
+        return $this->get_cart($customerId, $cartToken);
+    }
+
+    /**
+     * Ensure guest cart cookie.
+     *
+     * @since 1.0.0
+     */
+    public function ensure_guest_cart_cookie(): void
+    {
+        if (is_user_logged_in()) {
+            return;
+        }
+
+        $expires = time() + (DAY_IN_SECONDS * 30);
+        $token = $this->get_guest_cart_token();
+
+        if (!$token) {
+            $cart = $this->get_cart();
+
+            setcookie(Cart::COOKIE_TOKEN, $cart->cart_token, $expires, '/');
+            $_COOKIE[Cart::COOKIE_TOKEN] = $cart->cart_token;
+
+            return;
+        }
+
+        if (!CartModel::where('cart_token', $token)->exists()) {
+            setcookie(Cart::COOKIE_TOKEN, '', time() - DAY_IN_SECONDS, '/');
+            unset($_COOKIE[Cart::COOKIE_TOKEN]);
+        }
+    }
+
+    /**
      * Get all variant IDs in the cart.
      *
      * @since 1.0.0
@@ -200,13 +265,12 @@ class CartService
     public function get_cart_variant_ids($customer_id = null, $token = null): array
     {
         try {
-            // If customer_id and is not provided, get from context
-            if ($customer_id === null) {
-                $customer = customer();
-                $customer_id = $customer ? $customer->get_customer_id() : null;
+            if ($customer_id == null && $token === null) {
+                $cart = $this->get_current_cart();
+            } else {
+                $cart = $this->get_cart($customer_id, $token);
             }
 
-            $cart = $this->get_cart($customer_id, $token);
 
             if ($cart && $cart->items) {
                 $items = is_array($cart->items) ? $cart->items : $cart->items->all();

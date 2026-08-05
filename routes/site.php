@@ -39,7 +39,7 @@ Route::site(function () {
         ->name('shop.single');
 
     Route::get($cart_page_id, [SiteController::class, 'cart_page'])
-        ->middleware(SiteAuthMiddleware::class)
+        // ->middleware(SiteAuthMiddleware::class)
         ->name('cart')
         ->match_page();
 

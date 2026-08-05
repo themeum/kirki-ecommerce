@@ -17,6 +17,7 @@ use Kirki\Ecommerce\App\Supports\Icon;
 use Kirki\Ecommerce\App\Supports\Template;
 use Kirki\Ecommerce\App\Supports\Url;
 
+use function Kirki\Ecommerce\Framework\user;
 use function Kirki\Ecommerce\Framework\view_data;
 
 $cart = view_data('cart');
@@ -50,8 +51,8 @@ $cart_config = array(
                     <a href="<?php echo esc_url(Url::get_shop_url()); ?>" class="kecom-cart-items-header-actions-link">Continue Shopping</a>
                 </div>
             </div>
-            <?php if (count($items)): ?>
-                <?php foreach ($items as $item):
+            <?php if (count($items)) : ?>
+                <?php foreach ($items as $item) :
                     $product = $item['product'] ?? [];
                     $media = $product['media'] ?? [];
                     $categories = $product['categories'] ?? [];
@@ -61,12 +62,12 @@ $cart_config = array(
                     $price = Money::format_from_decimal($item['total'], $currency['code']);
                     $unit_price = Money::format_from_decimal($product['sale_price'] ?? $product['price'], $currency['code']);
 
-                ?>
+                    ?>
                     <div class="kecom-cart-item" id="<?php echo esc_html($item['id']); ?>" x-data="<?php printf('quantitySelector({ min:1, max:%d, initial:%d, onChange: (q) => update(%d,q) })', $max_quantity, $quantity, $item['id']); ?>">
                         <div class="kecom-cart-item-image">
-                            <?php if (!empty($media) && isset($media['url'])): ?>
+                            <?php if (!empty($media) && isset($media['url'])) : ?>
                                 <img src="<?php echo esc_url($media['url']); ?>" alt="<?php echo esc_attr($product['title']); ?>">
-                            <?php else: ?>
+                            <?php else : ?>
                                 <img src="<?php echo esc_url(Assets::get_url('images/product-fallback.webp')); ?>" alt="<?php echo esc_attr($product['title']); ?>">
                             <?php endif; ?>
                         </div>
@@ -74,11 +75,11 @@ $cart_config = array(
                             <div class="kecom-cart-item-info">
                                 <div class="kecom-cart-item-details">
                                     <h6 class="kecom-cart-item-details-title"><?php echo esc_html($product['title']); ?></h6>
-                                    <?php if (!empty($categories)): ?>
+                                    <?php if (!empty($categories)) : ?>
                                         <span class="kecom-cart-item-details-categories"><?php echo esc_html($categories[count($categories) - 1]['name']); ?></span>
                                     <?php endif; ?>
 
-                                    <?php if (!empty($attributes)): ?>
+                                    <?php if (!empty($attributes)) : ?>
                                         <span class="kecom-cart-item-details-attributes"><?php echo esc_html(implode(" • ", $attributes)); ?></span>
                                     <?php endif; ?>
 
@@ -122,7 +123,12 @@ $cart_config = array(
                 <span class="kecom-cart-summary-total-title"><?php _e('Estimate Total', 'kirki-ecommerce'); ?></span>
                 <span class="kecom-cart-summary-total-value" x-text="cart_value.pricing.total_formatted"></span>
             </div>
-            <a href="<?php echo esc_url(Url::get_checkout_url()); ?>" class="kecom-btn kecom-btn-primary kecom-btn-block kecom-cart-summary-checkout-btn">
+            <?php
+            $checkout_url = Url::get_checkout_url();
+            $login_url = Url::get_login_url($checkout_url);
+            $url = user()->is_logged_in() ? $checkout_url : $login_url;
+            ?>
+            <a href="<?php echo esc_url($url); ?>" class="kecom-btn kecom-btn-primary kecom-btn-block kecom-cart-summary-checkout-btn">
                 <?php _e('Proceed to Checkout', 'kirki-ecommerce'); ?>
             </a>
         </div>
