@@ -1,47 +1,65 @@
-import PriceText from '@/components/shared/price-text';
+import type {
+  ProductSelection,
+  ProductVariantSelection,
+} from '@/components/shared/select-products-dialog/types';
 import Button from '@/components/ui/button';
 import Checkbox from '@/components/ui/checkbox';
 import Flex from '@/components/ui/flex';
+import PriceText from '@/components/ui/price-text';
 import { TableCell, TableRow } from '@/components/ui/table';
 import Text from '@/components/ui/text';
 import Thumbnail from '@/components/ui/thumbnail';
 import { ChevronDownIcon } from '@/icons';
-import type {
-  OrderRowDisplay,
-  ProductPickerItem,
-} from '@/pages/orders/order-create/types';
 import type { ProductListItem } from '@/types';
 import { __ } from '@/wpi18n';
 
 type ProductPickerRowProps = {
   product: ProductListItem;
-  variants: ProductPickerItem[];
+  selection: ProductSelection;
   expanded: boolean;
   onToggleExpand: () => void;
+  selectVariants: boolean;
+  isProductSelected: boolean;
   selectedVariantIds: Set<number>;
-  onToggleRows: (lines: OrderRowDisplay[], checked: boolean) => void;
+  onToggleProduct: (checked: boolean) => void;
+  onToggleVariants: (
+    variants: ProductVariantSelection[],
+    checked: boolean,
+  ) => void;
 };
 
 const ProductPickerRow = ({
   product,
-  variants,
+  selection,
   expanded,
   onToggleExpand,
+  selectVariants,
+  isProductSelected,
   selectedVariantIds,
-  onToggleRows,
+  onToggleProduct,
+  onToggleVariants,
 }: ProductPickerRowProps) => {
-  const handleToggleAll = (checked: boolean) => {
-    onToggleRows(
-      variants.map((variantItem) => variantItem.row),
-      checked,
-    );
-  };
-
-  const selectedCount = variants.filter((variantItem) =>
-    selectedVariantIds.has(variantItem.row.variantId),
+  const { variants } = selection;
+  const selectedVariantCount = variants.filter((variant) =>
+    selectedVariantIds.has(variant.variantId),
   ).length;
-  const isChecked = variants.length > 0 && selectedCount === variants.length;
-  const isPartial = selectedCount > 0 && selectedCount < variants.length;
+
+  const isChecked = selectVariants
+    ? variants.length > 0 && selectedVariantCount === variants.length
+    : isProductSelected;
+  const isPartial =
+    selectVariants &&
+    selectedVariantCount > 0 &&
+    selectedVariantCount < variants.length;
+
+  const handleToggleAll = (checked: boolean) => {
+    if (selectVariants) {
+      onToggleVariants(variants, checked);
+      return;
+    }
+
+    onToggleProduct(checked);
+  };
 
   return (
     <>
@@ -90,23 +108,25 @@ const ProductPickerRow = ({
 
       {expanded &&
         variants.map((variant) => (
-          <TableRow key={variant.row.variantId}>
+          <TableRow key={variant.variantId}>
             <TableCell></TableCell>
             <TableCell>
               <Flex gap={6} align="center">
-                <Checkbox
-                  checked={selectedVariantIds.has(variant.row.variantId)}
-                  onCheckedChange={(checked) =>
-                    onToggleRows([variant.row], checked === true)
-                  }
-                />
+                {selectVariants && (
+                  <Checkbox
+                    checked={selectedVariantIds.has(variant.variantId)}
+                    onCheckedChange={(checked) =>
+                      onToggleVariants([variant], checked === true)
+                    }
+                  />
+                )}
                 <Flex gap={3} align="center">
                   <Thumbnail
-                    src={variant.row.thumbnail ?? undefined}
-                    alt={variant.label}
+                    src={variant.thumbnail ?? undefined}
+                    alt={variant.variantLabel}
                     size="small"
                   />
-                  <Text variant="small">{variant.label}</Text>
+                  <Text variant="small">{variant.variantLabel}</Text>
                 </Flex>
               </Flex>
             </TableCell>
@@ -117,8 +137,8 @@ const ProductPickerRow = ({
             </TableCell>
             <TableCell alignment="right">
               <PriceText
-                salePrice={variant.row.salePrice}
-                regularPrice={variant.row.regularPrice}
+                salePrice={variant.salePrice}
+                regularPrice={variant.regularPrice}
               />
             </TableCell>
           </TableRow>

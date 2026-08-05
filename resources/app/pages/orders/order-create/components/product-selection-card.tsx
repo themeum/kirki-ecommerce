@@ -4,15 +4,15 @@ import Flex from '@/components/ui/flex';
 import { Table, TableBody } from '@/components/ui/table';
 import Text from '@/components/ui/text';
 import { PlusIcon, ProductIcon } from '@/icons';
-import LineItemRow from '@/pages/orders/order-create/components/product/line-item-row';
-import type { OrderItemRow } from '@/pages/orders/order-create/types';
+import OrderItemRow from '@/pages/orders/order-create/components/order-item/order-item-row';
+import type { OrderItem } from '@/pages/orders/order-create/types';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss } from '@/theme/mixins';
 import type { OrderCalculation } from '@/types';
 import { __ } from '@/wpi18n';
 
 type ProductSelectionCardProps = {
-  rows: OrderItemRow[];
+  rows: OrderItem[];
   calculationItems?: OrderCalculation['items'];
   onOpenPicker: () => void;
   onQuantityChange: (index: number, quantity: number) => void;
@@ -59,7 +59,7 @@ const ProductSelectionCard = ({
             <Table>
               <TableBody>
                 {rows.map((row) => (
-                  <LineItemRow
+                  <OrderItemRow
                     key={row.display.variantId}
                     row={row}
                     calculationItem={calculationItems?.[row.index]}

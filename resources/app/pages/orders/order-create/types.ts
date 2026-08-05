@@ -1,21 +1,11 @@
-import type { MoneyObject } from '@/schemas/shared/api';
+import type { ProductVariantSelection } from '@/components/shared/select-products-dialog/types';
 
-export type OrderRowDisplay = {
-  variantId: number;
+export type OrderRowDisplay = ProductVariantSelection & {
+  productId: number;
   productTitle: string;
-  variantLabel?: string;
-  thumbnail?: string | null;
-  regularPrice: MoneyObject;
-  salePrice?: MoneyObject | null;
 };
 
-export type ProductPickerItem = {
-  label: string;
-  inStock: boolean;
-  row: OrderRowDisplay;
-};
-
-export type OrderItemRow = {
+export type OrderItem = {
   index: number;
   quantity: number;
   display: OrderRowDisplay;

@@ -3,6 +3,8 @@ import { useMemo, useState } from 'react';
 import { useFieldArray, useForm, useWatch } from 'react-hook-form';
 import { useNavigate } from 'react-router';
 
+import SelectProductsDialog from '@/components/shared/select-products-dialog';
+import type { ProductSelection } from '@/components/shared/select-products-dialog/types';
 import Button from '@/components/ui/button';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
@@ -18,8 +20,7 @@ import CustomerCard from '@/pages/orders/order-create/components/customer-card';
 import NotesCard from '@/pages/orders/order-create/components/notes-card';
 import PaymentSummaryCard from '@/pages/orders/order-create/components/payment-summary-card';
 import ProductSelectionCard from '@/pages/orders/order-create/components/product-selection-card';
-import SelectProductsDialog from '@/pages/orders/order-create/components/select-products-dialog';
-import type { OrderItemRow, OrderRowDisplay } from '@/pages/orders/order-create/types';
+import type { OrderItem, OrderRowDisplay } from '@/pages/orders/order-create/types';
 import { useCreateOrderMutation, useOrderCalculationQuery } from '@/services/order';
 import {
   OrderCalculationRequestSchema,
@@ -27,14 +28,20 @@ import {
   type OrderFormInput,
   type OrderFormPayload,
 } from '@/types';
+import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
 
 const CALCULATION_DEBOUNCE_DELAY = 500;
 
+const flattenSelections = (selections: ProductSelection[]): OrderRowDisplay[] =>
+  selections.flatMap(({ productId, productTitle, variants }) =>
+    variants.map((variant) => ({ ...variant, productId, productTitle })),
+  );
+
 const OrderCreate = () => {
   const navigate = useNavigate();
   const [pickerOpen, setPickerOpen] = useState(false);
-  const [lineDetails, setLineDetails] = useState<Record<number, OrderRowDisplay>>({});
+  const [selections, setSelections] = useState<ProductSelection[]>([]);
 
   const createMutation = useCreateOrderMutation();
 
@@ -43,7 +50,7 @@ const OrderCreate = () => {
     defaultValues: { ...getDefaults(OrderFormSchema), items: [] },
   });
 
-  const { fields: pickedItems, update, remove, replace } = useFieldArray({
+  const { fields: pickedItems, update: updateItems, remove: removeItems, replace: replaceItems } = useFieldArray({
     control: form.control,
     name: 'items',
   });
@@ -59,8 +66,20 @@ const OrderCreate = () => {
     calculationPayload.items.length > 0,
   );
 
-  const rows: OrderItemRow[] = pickedItems.reduce<OrderItemRow[]>((acc, pickedItem, index) => {
-    const display = lineDetails[pickedItem.variant_id];
+  const displayByVariantId = useMemo(
+    () =>
+      flattenSelections(selections).reduce<Record<number, OrderRowDisplay>>(
+        (acc, display) => {
+          acc[display.variantId] = display;
+          return acc;
+        },
+        {},
+      ),
+    [selections],
+  );
+
+  const rows: OrderItem[] = pickedItems.reduce<OrderItem[]>((acc, pickedItem, index) => {
+    const display = displayByVariantId[pickedItem.variant_id];
 
     if (display) {
       acc.push({ index, quantity: pickedItem.quantity, display });
@@ -69,7 +88,8 @@ const OrderCreate = () => {
     return acc;
   }, []);
 
-  const handleAddItems = (items: OrderRowDisplay[]) => {
+  const handleAddItems = (nextSelections: ProductSelection[]) => {
+    const items = flattenSelections(nextSelections);
     const selectedVariantIds = new Set(items.map((item) => item.variantId));
     const existingVariantIds = new Set(pickedItems.map((pickedItem) => pickedItem.variant_id));
 
@@ -81,35 +101,41 @@ const OrderCreate = () => {
       .filter((item) => !existingVariantIds.has(item.variantId))
       .map((item) => ({ variant_id: item.variantId, quantity: 1 }));
 
-    replace([...kept, ...added]);
+    replaceItems([...kept, ...added]);
 
-    setLineDetails(
-      items.reduce<Record<number, OrderRowDisplay>>((acc, item) => {
-        acc[item.variantId] = item;
-        return acc;
-      }, {}),
-    );
+    setSelections(nextSelections);
   };
 
   const handleQuantityChange = (index: number, quantity: number) => {
-    update(index, { variant_id: pickedItems[index].variant_id, quantity });
+    updateItems(index, { variant_id: pickedItems[index].variant_id, quantity });
   };
 
   const handleRemoveItem = (index: number) => {
     const { variant_id: variantId } = pickedItems[index];
 
-    remove(index);
-    setLineDetails((previous) => {
-      const next = { ...previous };
-      delete next[variantId];
-      return next;
-    });
+    removeItems(index);
+    setSelections((previous) =>
+      previous.reduce<ProductSelection[]>((allSelectedProducts, selection) => {
+        const variants = selection.variants.filter(
+          (variant) => variant.variantId !== variantId,
+        );
+
+        if (variants.length > 0) {
+          allSelectedProducts.push({ ...selection, variants });
+        }
+
+        return allSelectedProducts;
+      }, []),
+    );
   };
 
   const handleSubmit = async (payload: OrderFormPayload) => {
     try {
-      await createMutation.mutateAsync(payload);
-      navigate(endpoints.ORDERS);
+      const response = await createMutation.mutateAsync(payload);
+      console.log(response);
+      if (isDefined(response.data) && isDefined(response.data.id)) {
+        navigate(endpoints.ORDER(response.data.id));
+      }
     } catch (error) {
       applyServerErrors(form, error as ErrorResponse);
     }
@@ -166,7 +192,7 @@ const OrderCreate = () => {
             open
             onOpenChange={setPickerOpen}
             onAdd={handleAddItems}
-            selectedLines={rows.map((row) => row.display)}
+            selectedProducts={selections}
           />
         )}
       </Form>

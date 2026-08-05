@@ -4,21 +4,21 @@ import Flex from '@/components/ui/flex';
 import { TableCell, TableRow } from '@/components/ui/table';
 import Text from '@/components/ui/text';
 import Thumbnail from '@/components/ui/thumbnail';
-import QuantityStepper from '@/pages/orders/order-create/components/product/quantity-stepper';
-import type { OrderItemRow } from '@/pages/orders/order-create/types';
+import QuantityStepper from '@/pages/orders/order-create/components/order-item/quantity-stepper';
+import type { OrderItem } from '@/pages/orders/order-create/types';
 import type { OrderCalculation } from '@/types';
 import { Cross2Icon } from '@radix-ui/react-icons';
 
 const EMPTY_AMOUNT = '—';
 
-type LineItemRowProps = {
-  row: OrderItemRow;
+type OrderItemRowProps = {
+  row: OrderItem;
   calculationItem?: OrderCalculation['items'][number];
   onQuantityChange: (index: number, quantity: number) => void;
   onRemove: (index: number) => void;
 };
 
-const LineItemRow = ({ row, calculationItem, onQuantityChange, onRemove }: LineItemRowProps) => {
+const OrderItemRow = ({ row, calculationItem, onQuantityChange, onRemove }: OrderItemRowProps) => {
   const { display, quantity, index } = row;
   const lineTotal = calculationItem ? calculationItem.total_object.display : EMPTY_AMOUNT;
 
@@ -62,6 +62,6 @@ const LineItemRow = ({ row, calculationItem, onQuantityChange, onRemove }: LineI
   );
 };
 
-LineItemRow.displayName = 'LineItemRow';
+OrderItemRow.displayName = 'OrderItemRow';
 
-export default LineItemRow;
+export default OrderItemRow;
