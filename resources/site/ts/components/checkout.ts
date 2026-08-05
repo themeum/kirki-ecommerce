@@ -84,10 +84,6 @@ export function checkout(config: CheckoutConfig = {}) {
     success: false,
 
     // State management for forms
-    shippingStates: [] as Array<{ id: string; name: string }>,
-    billingStates: [] as Array<{ id: string; name: string }>,
-    selectedShippingState: '',
-    selectedBillingState: '',
     availableShippingMethods: [] as ShippingMethod[],
 
     init() {
@@ -123,6 +119,11 @@ export function checkout(config: CheckoutConfig = {}) {
         }
       }
 
+      // Restore billing-same-as-shipping state from the saved cart
+      if (this.cartData?.is_billing_same_as_shipping) {
+        this.billingSameAsShipping = true;
+      }
+
       // Initialize discount state from cart data
       if (this.cartData?.pricing?.discount_total) {
         this.discount = parseFloat(this.cartData.pricing.discount_total || '0');
@@ -132,53 +133,7 @@ export function checkout(config: CheckoutConfig = {}) {
       // Debounced cart update — prevents hammering the API on rapid field changes
       const debouncedUpdateCart = debounce(() => this.updateCart(), 400);
 
-      // Listen for load-states events from forms
-      window.addEventListener('load-states', (e: any) => {
-        const { countryCode, formType } = e.detail;
-        this.loadStatesForCountry(countryCode, formType);
-
-        // Dispatch states-loaded event back to the form
-        const states = formType === 'shipping' ? this.shippingStates : this.billingStates;
-        window.dispatchEvent(new CustomEvent('states-loaded', { detail: { formType, states } }));
-      });
-
-      // Listen for set-shipping-method event
-      window.addEventListener('set-shipping-method', (e: any) => {
-        this.setShippingMethod(e.detail.methodId);
-      });
-
-      // Listen for address change events from forms — debounced
-      window.addEventListener('address-changed', () => {
-        debouncedUpdateCart();
-      });
-    },
-
-    loadStatesForCountry(countryCode: string, formType: 'shipping' | 'billing') {
-      if (!countryCode) {
-        if (formType === 'shipping') {
-          this.shippingStates = [];
-          this.selectedShippingState = '';
-        } else {
-          this.billingStates = [];
-          this.selectedBillingState = '';
-        }
-        return;
-      }
-
-      const country = this.countries.find((c: Country) => c.code === countryCode);
-      const states = country?.states || [];
-
-      if (formType === 'shipping') {
-        this.shippingStates = states;
-        if (states.length === 0) {
-          this.selectedShippingState = '';
-        }
-      } else {
-        this.billingStates = states;
-        if (states.length === 0) {
-          this.selectedBillingState = '';
-        }
-      }
+      window.addEventListener('address-changed', () => debouncedUpdateCart());
     },
 
     async updateCart() {
@@ -317,12 +272,20 @@ export function checkout(config: CheckoutConfig = {}) {
         // Validate both forms concurrently — dispatch triggers each form's
         // validateForm() which fires back *-form-validated on the window
         (this as any).$dispatch('validate-shipping-form');
-        (this as any).$dispatch('validate-billing-form');
 
-        const [shippingResult, billingResult] = await Promise.all([
+        // Only validate billing independently when it differs from shipping
+        if (!this.billingSameAsShipping) {
+          (this as any).$dispatch('validate-billing-form');
+        }
+
+        const validationPromises: Promise<any>[] = [
           waitForEvent('shipping-form-validated'),
-          waitForEvent('billing-form-validated'),
-        ]);
+          this.billingSameAsShipping
+            ? Promise.resolve({ isValid: true })
+            : waitForEvent('billing-form-validated'),
+        ];
+
+        const [shippingResult, billingResult] = await Promise.all(validationPromises);
 
         this.shippingFormValid = shippingResult.isValid;
         this.billingFormValid = billingResult.isValid;
@@ -361,6 +324,7 @@ export function checkout(config: CheckoutConfig = {}) {
           payment_method: this.selectedPaymentMethod,
           coupon_code: this.appliedCouponCode || undefined,
           shipping_method: this.selectedShippingMethod || undefined,
+          is_billing_same_as_shipping: this.billingSameAsShipping,
           shipping_first_name: shippingForm.values.first_name,
           shipping_last_name: shippingForm.values.last_name,
           shipping_address_line1: shippingForm.values.address_line1,

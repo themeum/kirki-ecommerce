@@ -12,6 +12,7 @@ export interface kirkiEcommerceConfig {
     items: any[];
     pricing: any;
     shipping_method: any;
+    is_billing_same_as_shipping?: boolean;
     available_shipping_methods?: any[];
   };
   currency?: string;
@@ -122,6 +123,7 @@ export interface OrderRequest {
   payment_method: string;
   coupon_code?: string;
   shipping_method?: string;
+  is_billing_same_as_shipping?: boolean;
   shipping_first_name: string;
   shipping_last_name: string;
   shipping_address_line1: string;

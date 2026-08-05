@@ -102,16 +102,12 @@ $shipping_email = $shipping_address["email"] ?? '';
                     x-bind="register('city', { required: '<?php esc_html_e('City is required', 'kirki-ecommerce'); ?>' })">
                 <span class="kecom-field-error" x-show="errors.city" x-text="errors.city"></span>
             </div>
-            <div class="kecom-field" x-data="{ states: [], selectedState: '<?php echo esc_js($shipping_state); ?>', initialState: '<?php echo esc_js($shipping_state); ?>' }" x-init="
-                // Listen for states loaded event
-                window.addEventListener('states-loaded', (e) => {
-                    if (e.detail.formType === 'shipping') {
-                        states = e.detail.states;
-                    }
-                });
-
+            <div class="kecom-field" x-data="{ states: [] }" x-init="
                 const loadStates = (countryCode) => {
-                    window.dispatchEvent(new CustomEvent('load-states', { detail: { countryCode, formType: 'shipping' } }));
+                    if (!countryCode) { states = []; return; }
+                    const countries = window.kirki_ecommerce?.countries ?? [];
+                    const country = countries.find(c => c.code === countryCode);
+                    states = country?.states || [];
                 };
 
                 $watch('values.country', (newCountry) => {
@@ -120,24 +116,23 @@ $shipping_email = $shipping_address["email"] ?? '';
                     window.dispatchEvent(new CustomEvent('address-changed'));
                 });
 
-                $watch('selectedState', () => {
+                $watch('values.state', () => {
                     // Dispatch address-changed event when state changes
                     window.dispatchEvent(new CustomEvent('address-changed'));
                 });
 
                 // Initial load
-                setTimeout(() => loadStates(values.country), 100);
+                $nextTick(() => loadStates(values.country));
             ">
                 <label class="kecom-field-label" for="shipping-state"><?php esc_html_e('State', 'kirki-ecommerce'); ?></label>
                 <select
                     class="kecom-select"
                     id="shipping-state"
                     name="state"
-                    x-model="selectedState"
                     x-bind="register('state', { required: '<?php esc_html_e('State is required', 'kirki-ecommerce'); ?>' })">
                     <option value=""><?php esc_html_e('Select State', 'kirki-ecommerce'); ?></option>
                     <template x-for="state in states" :key="state.id">
-                        <option :value="state.id" :selected="state.id === selectedState" x-text="state.name"></option>
+                        <option :value="state.id" x-text="state.name"></option>
                     </template>
                 </select>
                 <span class="kecom-field-error" x-show="errors.state" x-text="errors.state"></span>

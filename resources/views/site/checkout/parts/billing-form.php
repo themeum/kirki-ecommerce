@@ -24,7 +24,7 @@ $billing_email = $billing_address["email"] ?? '';
 ?>
 
 <!-- Billing Form -->
-<div class="kecom-billing-section">
+<div class="kecom-billing-section" x-show="!billingSameAsShipping">
     <h2 class="kecom-section-title"><?php esc_html_e('Billing Details', 'kirki-ecommerce'); ?></h2>
     <form id="billing-form" class="kecom-billing-form kecom-form" x-data="form({
         defaultValues: {
@@ -40,7 +40,7 @@ $billing_email = $billing_address["email"] ?? '';
             email: '<?php echo esc_js($billing_email); ?>'
         },
         mode: 'onBlur'
-   })" @validate-billing-form.window="await validateForm(); $dispatch('billing-form-validated', { isValid })">
+   })" :inert="billingSameAsShipping" @validate-billing-form.window="await validateForm(); $dispatch('billing-form-validated', { isValid })">
         <div class="kecom-field">
             <label class="kecom-field-label" for="billing-country"><?php esc_html_e('Country/region', 'kirki-ecommerce'); ?></label>
             <select class="kecom-select" id="billing-country" name="country" x-bind="register('country', { required: '<?php esc_html_e('Country is required', 'kirki-ecommerce'); ?>' })">
@@ -102,42 +102,30 @@ $billing_email = $billing_address["email"] ?? '';
                     x-bind="register('city', { required: '<?php esc_html_e('City is required', 'kirki-ecommerce'); ?>' })">
                 <span class="kecom-field-error" x-show="errors.city" x-text="errors.city"></span>
             </div>
-            <div class="kecom-field" x-data="{ states: [], selectedState: '<?php echo esc_js($billing_state); ?>', initialState: '<?php echo esc_js($billing_state); ?>' }" x-init="
-                // Listen for states loaded event
-                window.addEventListener('states-loaded', (e) => {
-                    if (e.detail.formType === 'billing') {
-                        states = e.detail.states;
-                    }
-                });
-
+            <div class="kecom-field" x-data="{ states: [] }" x-init="
                 const loadStates = (countryCode) => {
-                    window.dispatchEvent(new CustomEvent('load-states', { detail: { countryCode, formType: 'billing' } }));
+                    if (!countryCode) { states = []; return; }
+                    const countries = window.kirki_ecommerce?.countries ?? [];
+                    const country = countries.find(c => c.code === countryCode);
+                    states = country?.states || [];
                 };
 
                 $watch('values.country', (newCountry) => {
                     loadStates(newCountry);
-                    // Dispatch address-changed event to update cart
-                    window.dispatchEvent(new CustomEvent('address-changed'));
-                });
-
-                $watch('selectedState', () => {
-                    // Dispatch address-changed event when state changes
-                    window.dispatchEvent(new CustomEvent('address-changed'));
                 });
 
                 // Initial load
-                setTimeout(() => loadStates(values.country), 100);
+                $nextTick(() => loadStates(values.country));
             ">
                 <label class="kecom-field-label" for="billing-state"><?php esc_html_e('State', 'kirki-ecommerce'); ?></label>
                 <select
                     class="kecom-select"
                     id="billing-state"
                     name="state"
-                    x-model="selectedState"
                     x-bind="register('state', { required: '<?php esc_html_e('State is required', 'kirki-ecommerce'); ?>' })">
                     <option value=""><?php esc_html_e('Select State', 'kirki-ecommerce'); ?></option>
                     <template x-for="state in states" :key="state.id">
-                        <option :value="state.id" :selected="state.id === selectedState" x-text="state.name"></option>
+                        <option :value="state.id" x-text="state.name"></option>
                     </template>
                 </select>
                 <span class="kecom-field-error" x-show="errors.state" x-text="errors.state"></span>
