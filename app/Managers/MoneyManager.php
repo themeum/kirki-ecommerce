@@ -6,6 +6,7 @@ use BadMethodCallException;
 use Brick\Math\RoundingMode;
 use Brick\Money\Money;
 use Kirki\Ecommerce\App\Constants\OptionKeys;
+use Kirki\Ecommerce\App\DTO\CurrencyDTO;
 use Kirki\Ecommerce\App\DTO\MoneyDTO;
 use Kirki\Ecommerce\App\Supports\Currency;
 use Kirki\Ecommerce\Framework\Supports\Str;
@@ -195,6 +196,7 @@ class MoneyManager
      */
     public function convert_to_currency(Money $money, string $currency, $exchange_rate = null)
     {
+        $a = $this->from_minor(0);
         return $money->convertedTo($currency, $exchange_rate ?? Currency::exchange_rate($currency));
     }
 
@@ -210,6 +212,49 @@ class MoneyManager
     }
 
     /**
+     * Prepare money object for display purpose.
+     *
+     * @param int|float $amount
+     * @param string|null $currency_code
+     * @return Money
+     */
+    public function prepare_money($amount, $currency_code = null, $target_currency = null)
+    {
+        $currency_code = $currency_code ?? $this->get_base_currency();
+
+        if($target_currency !== null) {
+            return $this->convert_to_currency($this->from_minor($amount, $currency_code), $target_currency);
+        }
+
+        return $this->from_minor($amount, $currency_code);
+    }
+
+    /**
+     * Prepare amount from minor unit.
+     *
+     * @param int|float $amount
+     * @param string|null $currency_code
+     * @return float
+     */
+    public function prepare_amount($amount, $currency_code = null, $target_currency = null)
+    {
+        return $this->prepare_money($amount, $currency_code, $target_currency)->getAmount()->toFloat();
+    }
+
+    /**
+     * Prepare amount object.
+     *
+     * @param int|float $amount
+     * @param string|null $currency_code
+     * @param string|null $target_currency
+     * @return MoneyDTO
+     */
+    public function prepare_amount_object($amount, $currency_code = null, $target_currency = null)
+    {
+        return $this->to_dto($this->prepare_money($amount, $currency_code, $target_currency)->getMinorAmount()->toInt(), $target_currency ?? $currency_code);
+    }
+    
+    /**
      * Create a zero amount.
      *
      * @param int $minor_amount
@@ -218,12 +263,16 @@ class MoneyManager
      */
     public function to_dto($minor_amount, $currency = null)
     {
+        $currency = $currency ?? $this->base_currency;
         $money = $this->from_minor($minor_amount, $currency);
 
         return MoneyDTO::from_array([
             'raw' => $money->getAmount()->toFloat(),
             'display' => $this->format($money),
-            'currency' => $currency ?? $this->get_base_currency(),
+            'currency' => CurrencyDTO::from_array([
+                'code' => $currency,
+                'symbol' => static::get_currency_symbol($currency),
+            ]),
         ]);
     }
 

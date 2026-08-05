@@ -12,6 +12,6 @@ class MoneyDTO extends DTO
     /** @var string */
     public $display;
 
-    /** @var string */
+    /** @var CurrencyDTO */
     public $currency;
 }

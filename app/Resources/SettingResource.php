@@ -25,16 +25,19 @@ class SettingResource extends Resource
         if ($this->key === OptionKeys::SHIPPING_SETTINGS) {
             foreach ($data['shipping_zones'] as $key => $zone) {
                 foreach ($zone['shipping_methods'] as $method_key => $method) {
-                    $data['shipping_zones'][$key]['shipping_methods'][$method_key]['amount'] = Money::from_minor($method['amount'])->getAmount()->toFloat();
+                    $data['shipping_zones'][$key]['shipping_methods'][$method_key]['amount'] = Money::prepare_amount($method['amount']);
+                    $data['shipping_zones'][$key]['shipping_methods'][$method_key]['amount_money_object'] = Money::prepare_amount_object($method['amount']);
 
                     if (!empty($method['ranges'])) {
                         foreach ($method['ranges'] as $range_key => $range) {
-                            $data['shipping_zones'][$key]['shipping_methods'][$method_key]['ranges'][$range_key]['amount'] = Money::from_minor($range['amount'])->getAmount()->toFloat();
+                            $data['shipping_zones'][$key]['shipping_methods'][$method_key]['ranges'][$range_key]['amount'] = Money::prepare_amount($range['amount']);
+                            $data['shipping_zones'][$key]['shipping_methods'][$method_key]['ranges'][$range_key]['amount_money_object'] = Money::prepare_amount_object($range['amount']);
                         }
                     }
 
                     if (!empty($method['is_free_shipping_enabled'])) {
-                        $data['shipping_zones'][$key]['shipping_methods'][$method_key]['free_shipping_min_amount'] = Money::from_minor($method['free_shipping_min_amount'])->getAmount()->toFloat();
+                        $data['shipping_zones'][$key]['shipping_methods'][$method_key]['free_shipping_min_amount'] = Money::prepare_amount($method['free_shipping_min_amount']);
+                        $data['shipping_zones'][$key]['shipping_methods'][$method_key]['free_shipping_min_amount_money_object'] = Money::prepare_amount_object($method['free_shipping_min_amount']);
                     }
                 }
             }

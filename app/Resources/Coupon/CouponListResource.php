@@ -6,6 +6,7 @@ use Kirki\Ecommerce\App\Constants\Coupon\CouponMethod;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountType;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountValueType;
 use Kirki\Ecommerce\Framework\Resource;
+use Kirki\Ecommerce\App\Facades\Money;
 
 class CouponListResource extends Resource
 {
@@ -24,7 +25,8 @@ class CouponListResource extends Resource
             'discount_type' => $this->discount_type ?? DiscountType::AMOUNT_OFF,
             'discount_target' => $this->discount_target,
             'discount_value_type' => $this->discount_value_type,
-            'discount_amount' => $this->discount_value_type === DiscountValueType::FIXED ? $this->discount_amount_fixed : $this->discount_amount_percentage,
+            'discount_amount' => $this->discount_value_type === DiscountValueType::FIXED ? Money::prepare_amount($this->discount_amount_fixed) : $this->discount_amount_percentage,
+            'discount_amount_money_object' => $this->discount_value_type === DiscountValueType::FIXED ? Money::prepare_amount_object($this->discount_amount_fixed) : null,
             'eligible_item_type' => $this->eligible_item_type,
             'spend_condition_type' => $this->spend_condition_type,
             'spend_condition_value' => $this->spend_condition_value,
