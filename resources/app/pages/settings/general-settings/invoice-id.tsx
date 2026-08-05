@@ -11,7 +11,7 @@ import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
 import Grid from '@/components/ui/grid';
 import Text from '@/components/ui/text';
-import type { GeneralSettingsFormValues } from '@/schemas/forms/general-settings-form';
+import type { GeneralSettingsFormInput } from '@/schemas/forms/general-settings-form';
 import { theme } from '@/theme';
 import { mergeCss, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
@@ -25,14 +25,14 @@ const invoiceResetScheduleOptions = [
 ];
 
 const InvoiceId = () => {
-  const { setValue } = useFormContext<GeneralSettingsFormValues>();
-  const invoiceIdPrefix = useWatch<GeneralSettingsFormValues>({
+  const { setValue } = useFormContext<GeneralSettingsFormInput>();
+  const invoiceIdPrefix = useWatch<GeneralSettingsFormInput>({
     name: 'invoice_id_prefix',
   });
-  const invoiceIdSequence = useWatch<GeneralSettingsFormValues>({
+  const invoiceIdSequence = useWatch<GeneralSettingsFormInput>({
     name: 'invoice_id_sequence',
   });
-  const invoiceIdSuffix = useWatch<GeneralSettingsFormValues>({
+  const invoiceIdSuffix = useWatch<GeneralSettingsFormInput>({
     name: 'invoice_id_suffix',
   });
 

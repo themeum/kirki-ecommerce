@@ -20,22 +20,17 @@ import { NEW_ITEM_ID } from '@/conf';
 import { PlusIcon, ProductIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import { CollectionFormSchema, type CollectionFormValues } from '@/schemas/forms/collection-form';
+import { getDefaults, pickFormValues } from '@/libs/zod';
+import {
+  CollectionFormSchema,
+  type CollectionFormInput,
+  type CollectionFormPayload,
+} from '@/schemas/forms/collection-form';
 import { useCollectionQuery, useCreateCollectionMutation, useUpdateCollectionMutation } from '@/services/collection';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { mergeCss, defineStyles } from '@/theme/mixins';
-import type { CollectionFormData } from '@/types';
 import { __ } from '@/wpi18n';
-
-const emptyValues: CollectionFormValues = {
-  title: '',
-  slug: '',
-  description: '',
-  banner: null,
-  seo_title: '',
-  seo_description: '',
-};
 
 const CollectionDetails = () => {
   const { id } = useParams();
@@ -49,9 +44,9 @@ const CollectionDetails = () => {
   const updateMutation = useUpdateCollectionMutation();
   const isSubmitting = createMutation.isPending || updateMutation.isPending;
 
-  const form = useForm<CollectionFormValues>({
+  const form = useForm<CollectionFormInput, unknown, CollectionFormPayload>({
     resolver: zodResolver(CollectionFormSchema),
-    defaultValues: emptyValues,
+    defaultValues: getDefaults(CollectionFormSchema),
   });
 
   const watchedTitle = form.watch('title');
@@ -72,24 +67,10 @@ const CollectionDetails = () => {
 
     setCollectionId(collectionResponse.id);
     setImageUrl(banner?.url ?? null);
-    form.reset({
-      title: collectionResponse.title ?? '',
-      slug: collectionResponse.slug ?? '',
-      description: collectionResponse.description ?? '',
-      banner: banner?.id ?? (typeof collectionResponse.banner === 'number'
-        ? collectionResponse.banner
-        : null),
-      seo_title: collectionResponse.seo_title ?? '',
-      seo_description: collectionResponse.seo_description ?? '',
-    });
+    form.reset(pickFormValues(CollectionFormSchema, collectionResponse));
   }, [collectionResponse, form]);
 
-  const handleSubmit = async (values: CollectionFormValues) => {
-    const payload: CollectionFormData = {
-      ...values,
-      banner: values.banner ?? null,
-    };
-
+  const handleSubmit = async (payload: CollectionFormPayload) => {
     try {
       if (collectionId) {
         await updateMutation.mutateAsync({

@@ -13,15 +13,20 @@ import { Form } from '@/components/ui/form';
 import { getErrorsObject, type ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { useUnsavedStatus } from '@/libs/unsaved-store';
+import { getDefaults, pickFormValues } from '@/libs/zod';
 import Chip from '@/components/ui/chip';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import PageHeading from '@/components/ui/page-heading';
 import { normalizeErrors } from '@/pages/utils';
-import { ShippingSettingsFormSchema, shippingSettingsDefaultValues, type ShippingSettingsFormValues } from '@/schemas/forms/shipping-settings-form';
+import {
+  ShippingSettingsFormSchema,
+  type ShippingSettingsFormInput,
+  type ShippingSettingsFormPayload,
+} from '@/schemas/forms/shipping-settings-form';
 import { useCountriesQuery } from '@/services/country';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
-import type { FormErrors, SelectOption, SettingsSectionData } from '@/types';
+import type { FormErrors, SelectOption } from '@/types';
 import { theme } from '@/theme';
 import { scoped, mergeCss, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
@@ -60,13 +65,13 @@ const ShippingSettings = () => {
 
   const { data: shippingSettingsData, isLoading } = useSettingsQuery('shipping');
   const { mutateAsync: updateSettings, isPending: isSaving } =
-    useUpdateSettingsMutation();
+    useUpdateSettingsMutation<'shipping'>();
 
   const loaded = !isLoading && Boolean(shippingSettingsData);
 
-  const form = useForm<ShippingSettingsFormValues>({
+  const form = useForm<ShippingSettingsFormInput, unknown, ShippingSettingsFormPayload>({
     resolver: zodResolver(ShippingSettingsFormSchema),
-    defaultValues: shippingSettingsDefaultValues,
+    defaultValues: getDefaults(ShippingSettingsFormSchema),
   });
 
   const { isDirty } = form.formState;
@@ -81,12 +86,7 @@ const ShippingSettings = () => {
       return;
     }
 
-    const zones = shippingSettingsData?.['shipping_zones'];
-    form.reset({
-      ...shippingSettingsDefaultValues,
-      ...shippingSettingsData,
-      shipping_zones: Array.isArray(zones) ? (zones as ShippingZone[]) : [],
-    });
+    form.reset(pickFormValues(ShippingSettingsFormSchema, shippingSettingsData));
   }, [shippingSettingsData, form]);
 
   useEffect(() => {
@@ -101,7 +101,7 @@ const ShippingSettings = () => {
     const next = typeof updater === 'function' ? updater(current) : updater;
     form.setValue(
       'shipping_zones',
-      next as ShippingSettingsFormValues['shipping_zones'],
+      next as ShippingSettingsFormInput['shipping_zones'],
       {
         shouldDirty: options?.shouldDirty ?? false,
       },
@@ -117,10 +117,7 @@ const ShippingSettings = () => {
     try {
       await updateSettings({
         key: 'shipping',
-        data: {
-          ...shippingSettingsData,
-          shipping_zones: updatedZones,
-        } as SettingsSectionData,
+        data: { shipping_zones: updatedZones },
       });
       form.reset({
         ...form.getValues(),
@@ -200,16 +197,13 @@ const ShippingSettings = () => {
     }
   };
 
-  const handleSaveZones = async (values: ShippingSettingsFormValues) => {
+  const handleSaveZones = async (payload: ShippingSettingsFormPayload) => {
     try {
       await updateSettings({
         key: 'shipping',
-        data: {
-          ...shippingSettingsData,
-          shipping_zones: values.shipping_zones,
-        } as SettingsSectionData,
+        data: payload,
       });
-      form.reset(values);
+      form.reset(form.getValues());
     } catch (error) {
       applyServerErrors(form, error as ErrorResponse);
     }

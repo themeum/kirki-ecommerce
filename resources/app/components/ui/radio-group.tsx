@@ -74,7 +74,6 @@ const styles = defineStyles({
     borderRadius: theme.radius.full,
     backgroundColor: 'transparent',
     color: theme.colors.background.fillBrand,
-    boxSizing: 'border-box',
     '&:focus-visible': {
       ...uiFocusRing(theme as Theme),
     },

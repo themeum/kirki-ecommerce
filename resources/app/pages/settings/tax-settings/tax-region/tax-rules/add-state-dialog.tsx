@@ -13,7 +13,7 @@ import Flex from '@/components/ui/flex';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { scoped, defineStyles } from '@/theme/mixins';
-import { AddStatePopupFormSchema, type AddStatePopupFormValues } from '@/schemas/forms/add-state-popup-form';
+import { AddStatePopupFormSchema, type AddStatePopupFormInput } from '@/schemas/forms/add-state-popup-form';
 import { __, sprintf } from '@/wpi18n';
 
 import { getSearchedValue } from '@/pages/settings/utils';
@@ -44,7 +44,7 @@ export const AddStatePopup = (props: AddStatePopupProps) => {
 
   const [searchValue, setSearchValue] = useState('');
 
-  const form = useForm<AddStatePopupFormValues>({
+  const form = useForm<AddStatePopupFormInput>({
     resolver: zodResolver(AddStatePopupFormSchema),
     defaultValues: {
       selectedCountries,

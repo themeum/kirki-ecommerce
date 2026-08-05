@@ -4,11 +4,9 @@ import axios, {
   type AxiosResponse,
   type InternalAxiosRequestConfig,
 } from 'axios';
-import { format } from 'date-fns';
 
 import { APP_API_PREFIX } from '@/conf';
-import { DATE_FORMATS } from '@/libs/date';
-import { isMediaObject, isVideoObject } from '@/utils/media';
+import { isMediaObject } from '@/utils/media';
 import { getObjectKeys, isDefined, isObject } from '@/utils/object';
 import { __ } from '@/wpi18n';
 
@@ -19,48 +17,57 @@ const apiClient = axios.create({
   baseURL: APP_API_PREFIX,
 });
 
-function processPayload(data: unknown): unknown {
-  if (!isDefined(data)) {
-    return null;
-  }
-
-  if (data === null || ['boolean', 'number', 'string'].includes(typeof data)) {
-    if (typeof data === 'string' && !data) {
-      return null;
+/**
+ * Dev-only tripwire. Every form schema's `.transform()` is now the single
+ * place responsible for shaping its request body — collapsing media objects
+ * via `mediaId()`, stringifying dates via `dateString()`, and emitting
+ * explicit `null` instead of `''`. This walks an outgoing payload and warns
+ * when it still carries one of those raw shapes, which means some schema
+ * forgot to do that work itself.
+ */
+function warnOnUnshapedPayload(data: unknown, path: string[] = []): void {
+  if (data === null || data === undefined || typeof data !== 'object') {
+    if (typeof data === 'string' && data === '') {
+      // eslint-disable-next-line no-console
+      console.warn(
+        `[api] outgoing payload at "${path.length ? path.join('.') : '(root)'}" is an empty string — the form schema's transform should emit null explicitly instead.`,
+      );
     }
-    return data;
-  }
-
-  if (Array.isArray(data)) {
-    return data.map(processPayload);
+    return;
   }
 
   if (data instanceof Date) {
-    return format(data, DATE_FORMATS.ATOM);
+    // eslint-disable-next-line no-console
+    console.warn(
+      `[api] outgoing payload at "${path.length ? path.join('.') : '(root)'}" is a raw Date — the form schema's transform should convert it with dateString().`,
+      data,
+    );
+    return;
   }
 
   if (data instanceof File || data instanceof Blob || data instanceof FormData) {
-    return data;
+    return;
+  }
+
+  if (Array.isArray(data)) {
+    data.forEach((item, index) => warnOnUnshapedPayload(item, [...path, String(index)]));
+    return;
   }
 
   if (isMediaObject(data)) {
-    if (isVideoObject(data)) {
-      return {
-        id: data.id,
-        poster: isDefined(data.poster?.id) ? Number(data.poster.id) : null,
-      };
-    }
-    return Number(data.id);
+    // eslint-disable-next-line no-console
+    console.warn(
+      `[api] outgoing payload at "${path.length ? path.join('.') : '(root)'}" is a raw media object — the form schema's transform should collapse it with mediaId().`,
+      data,
+    );
+    return;
   }
 
   if (isObject(data)) {
-    return getObjectKeys(data).reduce<Record<string, unknown>>((acc, key) => {
-      acc[key as string] = processPayload(data[key]);
-      return acc;
-    }, {});
+    getObjectKeys(data).forEach((key) => {
+      warnOnUnshapedPayload(data[key], [...path, String(key)]);
+    });
   }
-
-  return data;
 }
 
 function prepare(config: InternalAxiosRequestConfig) {
@@ -77,8 +84,8 @@ function prepare(config: InternalAxiosRequestConfig) {
     config.headers['X-WP-Nonce'] = rest_nonce;
   }
 
-  if (config.data) {
-    config.data = processPayload(config.data);
+  if (config.data && import.meta.env.DEV) {
+    warnOnUnshapedPayload(config.data);
   }
 
   if (config.data instanceof FormData) {

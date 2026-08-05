@@ -19,12 +19,16 @@ import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { queryClient } from '@/libs/query-client';
 import { queryKeys } from '@/libs/query-keys';
+import { getDefaults } from '@/libs/zod';
 import { useCategoriesQuery } from '@/services/category';
 import { getErrorMessage } from '@/services/helpers';
 import { useSettingsQuery, updateSettings } from '@/services/settings';
 import { useShippingProfilesQuery } from '@/services/shipping';
-import { ShippingRuleFormSchema, shippingRuleDefaultValues, type ShippingRuleFormValues } from '@/schemas/forms/shipping-rule-form';
-import type { SettingsSectionData } from '@/types';
+import {
+  ShippingRuleFormSchema,
+  type ShippingRuleFormInput,
+  type ShippingRuleFormPayload,
+} from '@/schemas/forms/shipping-rule-form';
 import { __ } from '@/wpi18n';
 
 import { conditionOptions, actionOptionsArray, type ShippingRegion, type ShippingRule, type ShippingZone } from '@/pages/settings/shipping-settings/utils';
@@ -73,9 +77,9 @@ const ShippingRuleModal = ({
     shipping_profile: null,
   });
 
-  const form = useForm<ShippingRuleFormValues>({
+  const form = useForm<ShippingRuleFormInput, unknown, ShippingRuleFormPayload>({
     resolver: zodResolver(ShippingRuleFormSchema),
-    defaultValues: shippingRuleDefaultValues,
+    defaultValues: getDefaults(ShippingRuleFormSchema),
   });
 
   const selectedCondition = useWatch({
@@ -127,7 +131,7 @@ const ShippingRuleModal = ({
       return;
     }
 
-    form.reset(shippingRuleDefaultValues);
+    form.reset(getDefaults(ShippingRuleFormSchema));
   }, [showModal, from, rulesObj, form]);
 
   useEffect(() => {
@@ -260,45 +264,24 @@ const ShippingRuleModal = ({
     return [{ label: __('is', 'kirki-ecommerce'), value: 'is' }];
   };
 
-  const buildRule = (values: ShippingRuleFormValues): ShippingRule => ({
-    relation: 'AND',
-    conditions: [
-      {
-        type: values.condition,
-        operator: values.operator || '=',
-        value: values.condition_value,
-      },
-    ],
-    action: {
-      type: values.action,
-      value: ['set_shipping_cost', 'add_shipping_cost'].includes(values.action)
-        ? values.action_value
-        : null,
-    },
-  });
-
   const updateMethodRules = (
     method: { shipping_rules?: ShippingRule[] },
-    values: ShippingRuleFormValues,
+    rule: ShippingRuleFormPayload,
   ) => {
     const rules = method.shipping_rules || [];
 
     if (ruleIndex !== -1) {
-      return rules.map((rule, idx) =>
-        idx === ruleIndex ? buildRule(values) : rule,
+      return rules.map((existingRule, idx) =>
+        idx === ruleIndex ? rule : existingRule,
       );
     }
-    return [...rules, buildRule(values)];
+    return [...rules, rule];
   };
 
   const handleAddOrUpdateShippingRule = async (
-    values: ShippingRuleFormValues,
+    payload: ShippingRuleFormPayload,
   ) => {
-    if (!values.condition || !values.action) {
-      return;
-    }
-
-    const zones = (shippingSettingsData as SettingsSectionData)
+    const zones = (shippingSettingsData as { shipping_zones?: ShippingZone[] })
       ?.shipping_zones as ShippingZone[];
     const updatedShippingZones = zones.map((zone) => {
       if (String(zone.id) !== String(zoneID)) {
@@ -314,19 +297,17 @@ const ShippingRuleModal = ({
 
           return {
             ...method,
-            shipping_rules: updateMethodRules(method, values),
+            shipping_rules: updateMethodRules(method, payload),
           };
         }),
       };
     });
 
-    const updatedData = {
-      ...(shippingSettingsData as SettingsSectionData),
-      shipping_zones: updatedShippingZones,
-    };
-
     try {
-      await updateSettings({ key: 'shipping', data: updatedData });
+      await updateSettings({
+        key: 'shipping',
+        data: { shipping_zones: updatedShippingZones },
+      });
       void queryClient.invalidateQueries({
         queryKey: queryKeys.Settings('shipping'),
       });

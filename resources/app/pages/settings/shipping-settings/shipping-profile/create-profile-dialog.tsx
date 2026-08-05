@@ -8,7 +8,12 @@ import { Dialog, DialogBody, DialogClose, DialogCloseButton, DialogContent, Dial
 import { Form } from '@/components/ui/form';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import { ShippingProfileFormSchema, shippingProfileDefaultValues, type ShippingProfileFormValues } from '@/schemas/forms/shipping-profile-form';
+import { getDefaults } from '@/libs/zod';
+import {
+  ShippingProfileFormSchema,
+  type ShippingProfileFormInput,
+  type ShippingProfileFormPayload,
+} from '@/schemas/forms/shipping-profile-form';
 import { useCreateShippingProfileMutation, useUpdateShippingProfileMutation } from '@/services/shipping';
 import type { ShippingProfile } from '@/types';
 import { __ } from '@/wpi18n';
@@ -34,9 +39,9 @@ export const CreateProfilePopup = ({
     useUpdateShippingProfileMutation();
   const isSubmitting = isCreating || isUpdating;
 
-  const form = useForm<ShippingProfileFormValues>({
+  const form = useForm<ShippingProfileFormInput, unknown, ShippingProfileFormPayload>({
     resolver: zodResolver(ShippingProfileFormSchema),
-    defaultValues: shippingProfileDefaultValues,
+    defaultValues: getDefaults(ShippingProfileFormSchema),
   });
 
   const profileTitle = useWatch({ control: form.control, name: 'name' });
@@ -54,16 +59,16 @@ export const CreateProfilePopup = ({
       return;
     }
 
-    form.reset(shippingProfileDefaultValues);
+    form.reset(getDefaults(ShippingProfileFormSchema));
   }, [isOpen, editIndex, shippingProfileList, form]);
 
   const handleOnPopupClose = () => {
-    form.reset(shippingProfileDefaultValues);
+    form.reset(getDefaults(ShippingProfileFormSchema));
     onClose();
   };
 
   const handleAddOrUpdateShippingProfile = async (
-    values: ShippingProfileFormValues,
+    payload: ShippingProfileFormPayload,
   ) => {
     try {
       if (editIndex) {
@@ -75,11 +80,11 @@ export const CreateProfilePopup = ({
         }
         const response = await updateProfile({
           id: selectedProfile.id,
-          data: values,
+          data: payload,
         });
         onSave((response.data as { id?: number })?.id as number);
       } else {
-        const response = await createProfile(values);
+        const response = await createProfile(payload);
         onSave((response.data as { id?: number })?.id as number);
       }
       handleOnPopupClose();

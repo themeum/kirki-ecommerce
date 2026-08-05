@@ -1,15 +1,22 @@
 import { z } from 'zod';
 
+import { prepareFormSchema, required } from '@/libs/zod';
 import { __ } from '@/wpi18n';
 
-export const TagFormSchema = z.object({
-  name: z
-    .string()
-    .min(1, __('Name is required', 'kirki-ecommerce')),
-  slug: z
-    .string()
-    .min(1, __('Slug is required', 'kirki-ecommerce')),
-  description: z.string().optional().nullable(),
+const TagFormShape = z.object({
+  name: required(z.string().default(''), __('Name is required', 'kirki-ecommerce')),
+  slug: required(z.string().default(''), __('Slug is required', 'kirki-ecommerce')),
+  description: z.string().nullish().default(''),
 });
 
-export type TagFormValues = z.infer<typeof TagFormSchema>;
+const TagFormSchema = prepareFormSchema(TagFormShape).transform((values) => ({
+  name: values.name,
+  slug: values.slug,
+  description: values.description || null,
+}));
+
+type TagFormInput = z.input<typeof TagFormSchema>;
+
+type TagFormPayload = z.output<typeof TagFormSchema>;
+
+export { TagFormSchema, type TagFormInput, type TagFormPayload };

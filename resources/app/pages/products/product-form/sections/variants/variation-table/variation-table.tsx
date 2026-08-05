@@ -12,7 +12,7 @@ import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
 import { Separator } from '@/components/ui/separator';
 import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import type { ProductFormValues } from '@/schemas/forms/product-form';
+import type { ProductFormInput } from '@/schemas/forms/product-form';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { mergeCss, defineStyles } from '@/theme/mixins';
@@ -22,7 +22,7 @@ import { __ } from '@/wpi18n';
 import SingleGroup from '@/pages/products/product-form/sections/variants/variation-table/single-group';
 
 const VariationTable = () => {
-  const { control, getValues, setValue } = useFormContext<ProductFormValues>();
+  const { control, getValues, setValue } = useFormContext<ProductFormInput>();
   const attributes = useWatch({ control, name: 'attributes' }) ?? [];
   const variants = useWatch({ control, name: 'variants' }) ?? [];
   const [showBy, setShowBy] = useState<number | null>(null);

@@ -7,7 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { EditIcon, PlusIcon, TrashIcon } from '@/icons';
-import type { ProductFormValues } from '@/schemas/forms/product-form';
+import type { ProductFormInput } from '@/schemas/forms/product-form';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
@@ -16,7 +16,7 @@ import { __ } from '@/wpi18n';
 import AddOrEditInfo from '@/pages/products/product-form/sections/additional-info/add-or-edit-info';
 
 const AdditionalInfo = () => {
-  const { control } = useFormContext<ProductFormValues>();
+  const { control } = useFormContext<ProductFormInput>();
   const { fields, append, update, remove } = useFieldArray({
     control,
     name: 'additional_info',

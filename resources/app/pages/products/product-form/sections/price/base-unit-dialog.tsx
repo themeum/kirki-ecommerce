@@ -1,51 +1,155 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect, useState, type Dispatch, type SetStateAction } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { ChevronDown } from 'lucide-react';
+import { Fragment, useEffect, useState, type Dispatch, type ReactNode, type SetStateAction } from 'react';
+import { Controller, useForm, useFormContext } from 'react-hook-form';
 
 import Button from '@/components/ui/button';
+import { Dialog, DialogBody, DialogContent, DialogFooter, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
-import Input from '@/components/ui/input';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Select, SelectContent, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectSeparator, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import { BaseUnitFormSchema, mapBaseUnitFromVariant, toUnitPriceValue, type BaseUnitFormValues } from '@/schemas/forms/base-unit-form';
-import type { FormErrors, ProductVariant, UnitPriceValue } from '@/types';
+import {
+  BaseUnitFormSchema,
+  mapBaseUnitFromVariant,
+  type BaseUnitFormInput,
+  type BaseUnitFormPayload,
+} from '@/schemas/forms/base-unit-form';
+import type { FormErrors, ProductVariant } from '@/types';
 import { __ } from '@/wpi18n';
 
-import { getSpecifiedUnitList, normalizedUnit, unitList } from '@/pages/products/product-form/sections/price/utils';
+import {
+  calculateBasePricePerUnit,
+  DEFAULT_UNIT,
+  getSpecifiedUnitList,
+  getUnitShortText,
+  unitGroups,
+} from '@/pages/products/product-form/sections/price/utils';
 import { theme } from '@/theme';
-import { scoped } from '@/theme/mixins';
-import { ChevronDown } from 'lucide-react';
+import { defineStyles, scoped } from '@/theme/mixins';
 
 type BaseUnitPopupProps = {
   errors?: FormErrors;
   setErrors?: Dispatch<SetStateAction<FormErrors>>;
   data?: ProductVariant | null;
-  onChange: (value: UnitPriceValue & { price?: number | string | null }) => void;
+  currencySymbol?: string;
+  onChange: (value: BaseUnitFormPayload) => void;
   buttonProps?: Record<string, unknown>;
 };
 
-const BaseUnitPopup = ({
+type UnitAmountFieldProps = {
+  label: string;
+  infoText?: string;
+  amountName: 'total_unit_amount' | 'base_unit_amount';
+  unitName: 'total_unit' | 'base_unit';
+  placeholder: string;
+  onUnitChange: (value: string) => void;
+  children: ReactNode;
+};
+
+const UnitAmountField = ({
+  label,
+  infoText,
+  amountName,
+  unitName,
+  placeholder,
+  onUnitChange,
+  children,
+}: UnitAmountFieldProps) => {
+  const { control, clearErrors } = useFormContext<BaseUnitFormInput>();
+
+  return (
+    <Controller
+      control={control}
+      name={amountName}
+      render={({ field: amountField, fieldState: amountState }) => (
+        <Controller
+          control={control}
+          name={unitName}
+          render={({ field: unitField, fieldState: unitState }) => {
+            const hasError =
+              Boolean(amountState.error) || Boolean(unitState.error);
+
+            return (
+              <Field data-invalid={hasError || undefined}>
+                <FieldLabel htmlFor={amountName} infoText={infoText}>
+                  {label}
+                </FieldLabel>
+                <InputGroup error={hasError}>
+                  <InputGroupInput
+                    id={amountName}
+                    type="number"
+                    min={0}
+                    placeholder={placeholder}
+                    value={amountField.value ?? ''}
+                    onChange={(event) => {
+                      amountField.onChange(event.target.value);
+                      clearErrors([amountName, unitName]);
+                    }}
+                    onBlur={amountField.onBlur}
+                    aria-invalid={amountState.invalid}
+                  />
+                  <InputGroupAddon align="inline-end">
+                    <Select
+                      value={unitField.value ?? ''}
+                      onValueChange={onUnitChange}
+                    >
+                      <SelectTrigger
+                        id={unitName}
+                        variant="invisible"
+                        aria-invalid={unitState.invalid}
+                        cssOverride={styles.unitTrigger}
+                      >
+                        <SelectValue>
+                          {getUnitShortText(unitField.value)}
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>{children}</SelectContent>
+                    </Select>
+                  </InputGroupAddon>
+                </InputGroup>
+                {hasError && (
+                  <FieldError errors={[amountState.error, unitState.error]} />
+                )}
+              </Field>
+            );
+          }}
+        />
+      )}
+    />
+  );
+};
+
+UnitAmountField.displayName = 'UnitAmountField';
+
+const getInitialValues = (data?: ProductVariant | null): BaseUnitFormInput => {
+  const values = mapBaseUnitFromVariant(data ?? undefined);
+
+  return {
+    ...values,
+    total_unit: values.total_unit ?? DEFAULT_UNIT,
+    base_unit: values.base_unit ?? DEFAULT_UNIT,
+  };
+};
+
+const BaseUnitDialog = ({
   errors = {},
   onChange,
   buttonProps,
   data,
+  currencySymbol = '$',
 }: BaseUnitPopupProps) => {
   const [openUnitPopup, setOpenUnitPopup] = useState(false);
 
-  const form = useForm<BaseUnitFormValues>({
+  const form = useForm<BaseUnitFormInput, unknown, BaseUnitFormPayload>({
     resolver: zodResolver(BaseUnitFormSchema),
-    defaultValues: mapBaseUnitFromVariant(data ?? undefined),
+    defaultValues: getInitialValues(data),
   });
 
   const unitData = form.watch();
-
-  useEffect(() => {
-    form.reset(mapBaseUnitFromVariant(data ?? undefined));
-  }, [data, form]);
 
   useEffect(() => {
     const hasErrors = Object.values(errors).some(Boolean);
@@ -57,54 +161,50 @@ const BaseUnitPopup = ({
     });
   }, [errors, form]);
 
-  const basePricePerBaseUnitAmount = () => {
-    const {
-      total_unit_amount,
-      total_unit,
-      base_unit_amount,
-      base_unit,
-      price,
-    } = unitData;
-
-    const totalAmountInGrams =
-      (total_unit_amount as number) * normalizedUnit[total_unit as string];
-
-    const baseAmountInGrams =
-      (base_unit_amount as number) * normalizedUnit[base_unit as string];
-
-    const numberOfBaseUnits = totalAmountInGrams / baseAmountInGrams;
-
-    const basePricePerUnit = (price as number) / numberOfBaseUnits;
-    return basePricePerUnit;
+  const handleOpenChange = (next: boolean) => {
+    if (next) {
+      form.reset(getInitialValues(data));
+    }
+    setOpenUnitPopup(next);
   };
 
-  const handleSaveUnitData = () => {
-    onChange(toUnitPriceValue(form.getValues()));
+  const handleSaveUnitData = (payload: BaseUnitFormPayload) => {
+    onChange(payload);
     setOpenUnitPopup(false);
   };
 
-  const handleOnClose = () => {
-    form.reset(mapBaseUnitFromVariant(data ?? undefined));
-    setOpenUnitPopup(false);
+  const handleTotalUnitChange = (value: string) => {
+    form.setValue('total_unit', value);
+
+    const nextBaseUnitOptions = getSpecifiedUnitList(value);
+    if (
+      !nextBaseUnitOptions.some(
+        (item) => item.value === form.getValues('base_unit'),
+      )
+    ) {
+      form.setValue('base_unit', value);
+    }
+
+    form.clearErrors(['total_unit_amount', 'total_unit', 'base_unit']);
   };
 
-  const btnText = basePricePerBaseUnitAmount()
-    ? `${basePricePerBaseUnitAmount().toFixed(2)} / ${unitData.base_unit_amount
-    }${unitData.base_unit}`
-    : __('Add', 'kirki-ecommerce');
+  const handleBaseUnitChange = (value: string) => {
+    form.setValue('base_unit', value);
+    form.clearErrors(['base_unit_amount', 'base_unit']);
+  };
 
-  const baseUnitOptions = getSpecifiedUnitList(form.getValues('total_unit'));
+  const savedBasePricePerUnit = calculateBasePricePerUnit(data ?? {});
+
+  const btnText =
+    savedBasePricePerUnit === null
+      ? __('Add', 'kirki-ecommerce')
+      : `${currencySymbol}${savedBasePricePerUnit.toFixed(2)} / ${data?.base_unit_amount}${getUnitShortText(data?.base_unit)}`;
+
+  const baseUnitOptions = getSpecifiedUnitList(unitData.total_unit);
 
   return (
-    <Popover
-      open={openUnitPopup}
-      onOpenChange={(next) => {
-        if (!next) {
-          setOpenUnitPopup(false);
-        }
-      }}
-    >
-      <PopoverTrigger asChild>
+    <Dialog open={openUnitPopup} onOpenChange={handleOpenChange}>
+      <DialogTrigger asChild>
         <Button
           variant="outline"
           cssOverride={{ width: 240, height: 36, justifyContent: 'space-between' }}
@@ -113,186 +213,105 @@ const BaseUnitPopup = ({
           {btnText}
           <ChevronDown width={16} height={16} css={scoped({ color: theme.colors.icon.secondary })} />
         </Button>
-      </PopoverTrigger>
-      <PopoverContent align="start" cssOverride={{ width: '280px' }}>
+      </DialogTrigger>
+      <DialogContent cssOverride={{ width: '340px' }}>
         <Form {...form}>
-          <Flex direction="column" gap={4}>
-            <Flex direction="column" gap={3}>
-              <Flex direction="column" gap={2}>
-                <FieldLabel>
-                  {__('Total unit in product', 'kirki-ecommerce')}
-                </FieldLabel>
-                <Flex gap={2}>
-                  <div style={{ flex: 1 }}>
-                    <Controller
-                      control={form.control}
-                      name="total_unit_amount"
-                      render={({ field, fieldState }) => (
-                        <Field data-invalid={fieldState.invalid || undefined}>
-                          <Input
-                            id="total_unit_amount"
-                            type="number"
-                            min={0}
-                            value={field.value ?? ''}
-                            onChange={(event) => {
-                              field.onChange(event.target.value);
-                              form.clearErrors([
-                                'total_unit_amount',
-                                'total_unit',
-                              ]);
-                            }}
-                            error={Boolean(fieldState.error)}
-                            aria-invalid={fieldState.invalid}
-                          />
-                          {fieldState.invalid && (
-                            <FieldError errors={[fieldState.error]} />
-                          )}
-                        </Field>
-                      )}
-                    />
-                  </div>
-                  <div style={{ width: '50%' }}>
-                    <Controller
-                      control={form.control}
-                      name="total_unit"
-                      render={({ field, fieldState }) => (
-                        <Field data-invalid={fieldState.invalid || undefined}>
-                          <Select
-                            value={field.value ?? ''}
-                            onValueChange={(value) => {
-                              field.onChange(value);
-                              form.clearErrors(['total_unit_amount', 'total_unit']);
-                            }}
-                          >
-                            <SelectTrigger
-                              id="total_unit"
-                              error={Boolean(fieldState.error)}
-                              aria-invalid={fieldState.invalid}
-                            >
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {unitList.map((item, index) =>
-                                item.heading ? (
-                                  <SelectLabel key={`heading-${index}`}>
-                                    {item.heading}
-                                  </SelectLabel>
-                                ) : (
-                                  <SelectItem
-                                    key={item.value}
-                                    value={item.value as string}
-                                  >
-                                    {item.title}
-                                  </SelectItem>
-                                ),
-                              )}
-                            </SelectContent>
-                          </Select>
-                          {fieldState.invalid && (
-                            <FieldError errors={[fieldState.error]} />
-                          )}
-                        </Field>
-                      )}
-                    />
-                  </div>
-                </Flex>
-              </Flex>
-              <Flex direction="column" gap={2}>
-                <FieldLabel>{__('Base unit', 'kirki-ecommerce')}</FieldLabel>
-                <Flex gap={2}>
-                  <div style={{ flex: 1 }}>
-                    <Controller
-                      control={form.control}
-                      name="base_unit_amount"
-                      render={({ field, fieldState }) => (
-                        <Field data-invalid={fieldState.invalid || undefined}>
-                          <Input
-                            id="base_unit_amount"
-                            type="number"
-                            min={0}
-                            value={field.value ?? ''}
-                            onChange={(event) => {
-                              field.onChange(event.target.value);
-                              form.clearErrors([
-                                'base_unit_amount',
-                                'base_unit',
-                              ]);
-                            }}
-                            error={Boolean(fieldState.error)}
-                            aria-invalid={fieldState.invalid}
-                          />
-                          {fieldState.invalid && (
-                            <FieldError errors={[fieldState.error]} />
-                          )}
-                        </Field>
-                      )}
-                    />
-                  </div>
-                  <div style={{ width: '50%' }}>
-                    <Controller
-                      control={form.control}
-                      name="base_unit"
-                      render={({ field, fieldState }) => (
-                        <Field data-invalid={fieldState.invalid || undefined}>
-                          <Select
-                            value={field.value ?? ''}
-                            onValueChange={(value) => {
-                              field.onChange(value);
-                              form.clearErrors(['base_unit_amount', 'base_unit']);
-                            }}
-                          >
-                            <SelectTrigger
-                              id="base_unit"
-                              error={Boolean(fieldState.error)}
-                              aria-invalid={fieldState.invalid}
-                            >
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {baseUnitOptions.map((item) => (
-                                <SelectItem
-                                  key={item.value}
-                                  value={item.value as string}
-                                >
-                                  {item.title}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          {fieldState.invalid && (
-                            <FieldError errors={[fieldState.error]} />
-                          )}
-                        </Field>
-                      )}
-                    />
-                  </div>
-                </Flex>
-              </Flex>
-            </Flex>
-            <Flex gap={2}>
-              <Button
-                variant="ghost"
-                style={{ flex: 1 }}
-                onClick={handleOnClose}
+          <DialogTitle cssOverride={styles.visuallyHiddenTitle}>
+            {__('Base price per unit', 'kirki-ecommerce')}
+          </DialogTitle>
+          <DialogBody>
+            <Flex direction="column" gap={4}>
+              <UnitAmountField
+                label={__('Total unit in product', 'kirki-ecommerce')}
+                infoText={__(
+                  'The total quantity contained in this product, e.g. 500g or 1kg for a bag of rice, 1l for a bottle of oil.',
+                  'kirki-ecommerce',
+                )}
+                amountName="total_unit_amount"
+                unitName="total_unit"
+                placeholder="5"
+                onUnitChange={handleTotalUnitChange}
               >
-                {__('Cancel', 'kirki-ecommerce')}
-              </Button>
-              <Button
-                variant="primary"
-                style={{ flex: 1 }}
-                disabled={!basePricePerBaseUnitAmount()}
-                onClick={handleSaveUnitData}
+                {unitGroups.map((group, index) => (
+                  <Fragment key={group.heading}>
+                    {index > 0 && <SelectSeparator />}
+                    <SelectGroup>
+                      <SelectLabel icon={group.leftIcon}>
+                        {group.heading}
+                      </SelectLabel>
+                      {group.items.map((item) => (
+                        <SelectItem
+                          key={item.value}
+                          value={item.value as string}
+                          endSlot={item.subText}
+                        >
+                          {item.title}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </Fragment>
+                ))}
+              </UnitAmountField>
+              <UnitAmountField
+                label={__('Base unit', 'kirki-ecommerce')}
+                infoText={__(
+                  'The unit price is calculated for, e.g. set 100g to show the price per 100g, or 1kg to show the price per kg.',
+                  'kirki-ecommerce',
+                )}
+                amountName="base_unit_amount"
+                unitName="base_unit"
+                placeholder="1"
+                onUnitChange={handleBaseUnitChange}
               >
-                {__('Okay', 'kirki-ecommerce')}
-              </Button>
+                {baseUnitOptions.map((item) => (
+                  <SelectItem
+                    key={item.value}
+                    value={item.value as string}
+                    endSlot={item.subText}
+                  >
+                    {item.title}
+                  </SelectItem>
+                ))}
+              </UnitAmountField>
             </Flex>
-          </Flex>
+          </DialogBody>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setOpenUnitPopup(false)}>
+              {__('Cancel', 'kirki-ecommerce')}
+            </Button>
+            <Button
+              variant="primary"
+              disabled={calculateBasePricePerUnit(unitData) === null}
+              onClick={form.handleSubmit(handleSaveUnitData)}
+            >
+              {__('Okay', 'kirki-ecommerce')}
+            </Button>
+          </DialogFooter>
         </Form>
-      </PopoverContent>
-    </Popover>
+      </DialogContent>
+    </Dialog>
   );
 };
 
-BaseUnitPopup.displayName = 'BaseUnitPopup';
+BaseUnitDialog.displayName = 'BaseUnitDialog';
 
-export default BaseUnitPopup;
+export default BaseUnitDialog;
+
+const styles = defineStyles({
+  unitTrigger: {
+    width: 'auto',
+    minWidth: '64px',
+    paddingRight: theme.spacing[2],
+  },
+  visuallyHiddenTitle: {
+    position: 'absolute',
+    width: '1px',
+    height: '1px',
+    padding: 0,
+    margin: '-1px',
+    overflow: 'hidden',
+    clip: 'rect(0, 0, 0, 0)',
+    whiteSpace: 'nowrap',
+    border: 0,
+  },
+});

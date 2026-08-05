@@ -4,9 +4,10 @@ import { apiClient } from '@/libs/api';
 import { endpoints } from '@/libs/endpoints';
 import { queryKeys } from '@/libs/query-keys';
 import { BrandSchema } from '@/schemas/catalog/brand';
+import type { BrandFormPayload } from '@/schemas/forms/brand-form';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
-import { parseData, parseResponse, toastMutationError, toastMutationSuccess, unwrapResponse } from '@/services/helpers';
-import type { ListQueryParams, BrandFormData, BulkActionParams } from '@/types';
+import { parseData, parseMessage, parseResponse, toastMutationError, toastMutationSuccess } from '@/services/helpers';
+import type { ListQueryParams, BulkActionParams } from '@/types';
 import { __ } from '@/wpi18n';
 
 const getBrands = (params: ListQueryParams = {}) => {
@@ -15,13 +16,13 @@ const getBrands = (params: ListQueryParams = {}) => {
     .then((response) => parseData(PaginatedDataSchema(BrandSchema), response));
 };
 
-const createBrand = (data: BrandFormData) => {
+const createBrand = (data: BrandFormPayload) => {
   return apiClient
     .post(endpoints.BRANDS, data)
     .then((response) => parseResponse(BrandSchema, response));
 };
 
-const updateBrand = ({ id, data }: { id: number; data: BrandFormData }) => {
+const updateBrand = ({ id, data }: { id: number; data: BrandFormPayload }) => {
   return apiClient
     .put(endpoints.BRAND(id), data)
     .then((response) => parseResponse(BrandSchema, response));
@@ -30,7 +31,7 @@ const updateBrand = ({ id, data }: { id: number; data: BrandFormData }) => {
 const deleteBrand = (id: number) => {
   return apiClient
     .delete(endpoints.BRAND(id))
-    .then((response) => unwrapResponse(response));
+    .then((response) => parseMessage(response));
 };
 
 const bulkDeleteBrands = ({
@@ -39,7 +40,7 @@ const bulkDeleteBrands = ({
 }: BulkActionParams = {}) => {
   return apiClient
     .post(endpoints.BRANDS_BULK, { action, ids })
-    .then((response) => unwrapResponse(response));
+    .then((response) => parseMessage(response));
 };
 
 const useBrandsQuery = (params: ListQueryParams = {}) => {

@@ -231,7 +231,6 @@ const styles = defineStyles({
     padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
     borderRadius: theme.radius.lg,
     backgroundColor: theme.colors.background.fill,
-    boxSizing: 'border-box',
     justifyContent: 'space-between',
     ...itemCenter(),
     gap: theme.spacing[2],

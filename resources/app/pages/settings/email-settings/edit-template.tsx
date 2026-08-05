@@ -18,12 +18,14 @@ import Text from '@/components/ui/text';
 import { AlignCenterIcon, AlignLeftIcon, BrushIcon, SendIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import { EmailTemplateFormSchema, emailTemplateDefaultValues, type EmailTemplateFormValues } from '@/schemas/forms/email-template-form';
+import { getDefaults, pickFormValues } from '@/libs/zod';
+import { EmailSettingsFormSchema } from '@/schemas/forms/email-settings-form';
+import {
+  EmailTemplateFormSchema,
+  type EmailTemplateFormInput,
+  type EmailTemplateFormPayload,
+} from '@/schemas/forms/email-template-form';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
-import type {
-  EmailTemplate as SettingsEmailTemplate,
-  SettingsSectionData,
-} from '@/types';
 import { theme } from '@/theme';
 import { mergeCss, defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
@@ -38,7 +40,7 @@ const POSITION_MAP: Record<string, number> = {
 
 const INDEX_TO_POSITION = ['start', 'center', 'end'];
 
-const resolveLogoUrl = (logo: EmailTemplateFormValues['logo']) => {
+const resolveLogoUrl = (logo: unknown): string => {
   if (!logo) {
     return '';
   }
@@ -46,23 +48,23 @@ const resolveLogoUrl = (logo: EmailTemplateFormValues['logo']) => {
     return logo;
   }
   if (typeof logo === 'object' && 'url' in logo) {
-    return String(logo.url ?? '');
+    return String((logo as { url?: string }).url ?? '');
   }
   return '';
 };
 
 const EditTemplate = () => {
   const { data: emailSettingsData, isLoading } = useSettingsQuery('email');
-  const { mutateAsync: saveSettings, isPending } = useUpdateSettingsMutation();
+  const { mutateAsync: saveSettings, isPending } = useUpdateSettingsMutation<'email'>();
 
   const loaded = !isLoading && Boolean(emailSettingsData);
   const defaultEmail = emailSettingsData?.default_template as
-    | EmailTemplateFormValues
+    | Record<string, unknown>
     | undefined;
 
-  const form = useForm<EmailTemplateFormValues>({
+  const form = useForm<EmailTemplateFormInput, unknown, EmailTemplateFormPayload>({
     resolver: zodResolver(EmailTemplateFormSchema),
-    defaultValues: emailTemplateDefaultValues,
+    defaultValues: getDefaults(EmailTemplateFormSchema),
   });
 
   const heightValue = form.watch('height') ?? 50;
@@ -72,37 +74,36 @@ const EditTemplate = () => {
       return;
     }
 
-    form.reset({
-      ...emailTemplateDefaultValues,
-      ...defaultEmail,
-      logo: resolveLogoUrl(defaultEmail.logo),
-      height: parseInt(String(defaultEmail.height), 10) || 50,
-      position: defaultEmail.position || 'start',
-      colors: {
-        ...emailTemplateDefaultValues.colors,
-        ...(defaultEmail.colors ?? {}),
-      },
-    });
+    form.reset(
+      pickFormValues(EmailTemplateFormSchema, defaultEmail, {
+        logo: resolveLogoUrl(defaultEmail.logo),
+        height: parseInt(String(defaultEmail.height), 10) || 50,
+      }),
+    );
   }, [defaultEmail, form]);
 
-  const handleSaveData = async (values: EmailTemplateFormValues) => {
+  const handleSaveData = async (payload: EmailTemplateFormPayload) => {
     if (!emailSettingsData) {
       return;
     }
 
-    const payload: SettingsSectionData = {
-      ...emailSettingsData,
-      default_template: {
-        ...(emailSettingsData.default_template as SettingsEmailTemplate),
-        ...values,
-        logo: resolveLogoUrl(values.logo),
-        height: `${values.height ?? 50}px`,
-      } as SettingsEmailTemplate,
-    };
-
     try {
-      await saveSettings({ key: 'email', data: payload });
-      form.reset(values);
+      const currentEmailSettings = EmailSettingsFormSchema.parse(
+        pickFormValues(EmailSettingsFormSchema, emailSettingsData),
+      );
+
+      await saveSettings({
+        key: 'email',
+        data: {
+          admin_emails: currentEmailSettings.admin_emails,
+          customer_emails: currentEmailSettings.customer_emails,
+          default_template: {
+            ...(emailSettingsData.default_template as Record<string, unknown>),
+            ...payload,
+          },
+        },
+      });
+      form.reset(form.getValues());
     } catch (error) {
       applyServerErrors(form, error as ErrorResponse, {
         stripPrefix: 'data.default_template.',
@@ -159,7 +160,7 @@ const EditTemplate = () => {
                   'kirki-ecommerce',
                   )}
                   description={__('Set store logo', 'kirki-ecommerce')}
-                  getPreviewUrl={(value) => resolveLogoUrl(value as EmailTemplateFormValues['logo'])}
+                  getPreviewUrl={(value) => resolveLogoUrl(value)}
                   />
                   <TextField
                   name="height"

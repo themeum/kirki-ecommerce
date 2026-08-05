@@ -282,7 +282,6 @@ const styles = defineStyles({
     borderRadius: theme.radius.lg,
     border: `1px solid ${theme.colors.border.default}`,
     backgroundColor: theme.colors.background.fill,
-    boxSizing: 'border-box',
     transition: 'color, box-shadow',
     overflow: 'hidden',
     '&:focus-within': {
@@ -363,7 +362,6 @@ const styles = defineStyles({
     background: 'transparent',
     outline: 'none',
     boxShadow: 'none',
-    boxSizing: 'border-box',
     ...theme.typography.paragraph(),
     cursor: 'text',
     '&::placeholder': {
