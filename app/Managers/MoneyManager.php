@@ -8,6 +8,7 @@ use Brick\Money\Money;
 use Kirki\Ecommerce\App\Constants\OptionKeys;
 use Kirki\Ecommerce\App\DTO\CurrencyDTO;
 use Kirki\Ecommerce\App\DTO\MoneyDTO;
+use Kirki\Ecommerce\App\Repositories\CurrencyRepository;
 use Kirki\Ecommerce\App\Supports\Currency;
 use Kirki\Ecommerce\Framework\Supports\Str;
 use InvalidArgumentException;
@@ -30,11 +31,33 @@ use function Kirki\Ecommerce\App\settings;
 class MoneyManager
 {
     /**
+     * Name of the cookie used by visitors to request a display currency.
+     *
+     * @var string
+     */
+    const DISPLAY_CURRENCY_COOKIE = 'kirki_ecommerce_currency';
+
+    /**
+     * Name of the header used by API clients to request a display currency.
+     *
+     * @var string
+     */
+    const DISPLAY_CURRENCY_HEADER = 'HTTP_X_CURRENCY';
+
+    /**
      * Base currency for the application.
      *
      * @var string
      */
     protected $base_currency;
+
+    /**
+     * The resolved display currency code for the current request, or null
+     * when nothing valid was requested. False when not yet resolved.
+     *
+     * @var string|null|false
+     */
+    protected $display_currency = false;
 
     public function __construct()
     {
@@ -61,6 +84,65 @@ class MoneyManager
     public function get_base_currency()
     {
         return $this->base_currency;
+    }
+
+    /**
+     * Resolve the display currency requested by the current visitor via the
+     * currency cookie or the X-Currency header, falling back to the base
+     * currency when nothing valid was requested.
+     *
+     * @return string
+     */
+    public function resolve_display_currency()
+    {
+        return $this->resolve_requested_currency() ?? $this->get_base_currency();
+    }
+
+    /**
+     * Resolve the currency code explicitly requested by the current visitor.
+     *
+     * Returns null when no currency was requested, the requested currency
+     * does not exist or is inactive, or it matches the base currency.
+     *
+     * @return string|null
+     */
+    protected function resolve_requested_currency()
+    {
+        if ($this->display_currency !== false) {
+            return $this->display_currency;
+        }
+
+        $this->display_currency = null;
+        $code = $this->get_requested_currency_code();
+
+        if ($code !== null && $code !== $this->get_base_currency()) {
+            $currency = (new CurrencyRepository())->find_by_code($code);
+
+            if ($currency && $currency->is_active) {
+                $this->display_currency = $currency->code;
+            }
+        }
+
+        return $this->display_currency;
+    }
+
+    /**
+     * Read the currency code requested via cookie or header, if any.
+     *
+     * @return string|null
+     */
+    protected function get_requested_currency_code()
+    {
+        // phpcs:ignore Framework.NamingConventions.SnakeCaseVariable.NotSnakeCase
+        $code = $_COOKIE[static::DISPLAY_CURRENCY_COOKIE] ?? $_SERVER[static::DISPLAY_CURRENCY_HEADER] ?? null;
+
+        if (empty($code) || !is_string($code)) {
+            return null;
+        }
+
+        $code = strtoupper(function_exists('sanitize_text_field') ? sanitize_text_field($code) : trim($code));
+
+        return $code !== '' ? $code : null;
     }
 
     /**

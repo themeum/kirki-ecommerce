@@ -23,6 +23,8 @@ class ProductListResource extends Resource
             $min_price = min($min_price, $variant->price);
         }
 
+        $display_currency = Money::resolve_display_currency();
+
         return [
             'id' => $this->id,
             'title' => $this->title,
@@ -30,8 +32,10 @@ class ProductListResource extends Resource
             'image' => MediaAttachment::make($this->media->first()->ID ?? null)['url'] ?? null,
             'sku' => $this->sku,
             'inventory' => $inventory,
-            'price' => Money::prepare_amount($min_price),
-            'price_money_object' => Money::prepare_amount_object($min_price),
+            'base_price' => Money::prepare_amount($min_price),
+            'base_price_money_object' => Money::prepare_amount_object($min_price),
+            'display_price' => Money::prepare_amount($min_price, null, $display_currency),
+            'display_price_money_object' => Money::prepare_amount_object($min_price, null, $display_currency),
             'status' => $this->status,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

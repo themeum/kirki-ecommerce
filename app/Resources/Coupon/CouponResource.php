@@ -18,6 +18,9 @@ class CouponResource extends Resource
      */
     public function to_array()
     {
+        $is_fixed_discount = $this->discount_value_type === DiscountValueType::FIXED;
+        $display_currency = Money::resolve_display_currency();
+
         return [
             'id' => $this->id,
             'method' => $this->method ?? CouponMethod::CODE,
@@ -26,8 +29,10 @@ class CouponResource extends Resource
             'discount_type' => $this->discount_type ?? DiscountType::AMOUNT_OFF,
             'discount_target' => $this->discount_target,
             'discount_value_type' => $this->discount_value_type,
-            'discount_amount' => $this->discount_value_type === DiscountValueType::FIXED ? Money::prepare_amount($this->discount_amount_fixed) : $this->discount_amount_percentage,
-            'discount_amount_money_object' => $this->discount_value_type === DiscountValueType::FIXED ? Money::prepare_amount_object($this->discount_amount_fixed) : null,
+            'base_discount_amount' => $is_fixed_discount ? Money::prepare_amount($this->discount_amount_fixed) : $this->discount_amount_percentage,
+            'base_discount_amount_money_object' => $is_fixed_discount ? Money::prepare_amount_object($this->discount_amount_fixed) : null,
+            'display_discount_amount' => $is_fixed_discount ? Money::prepare_amount($this->discount_amount_fixed, null, $display_currency) : $this->discount_amount_percentage,
+            'display_discount_amount_money_object' => $is_fixed_discount ? Money::prepare_amount_object($this->discount_amount_fixed, null, $display_currency) : null,
             'eligible_item_type' => $this->eligible_item_type,
             'spend_condition_type' => $this->spend_condition_type,
             'spend_condition_value' => $this->spend_condition_value,

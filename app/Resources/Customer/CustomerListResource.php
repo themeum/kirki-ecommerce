@@ -16,6 +16,8 @@ class CustomerListResource extends Resource
      */
     public function to_array()
     {
+        $display_currency = Money::resolve_display_currency();
+
         return [
             'id' => $this->id,
             'user_id' => $this->user_id,
@@ -24,8 +26,10 @@ class CustomerListResource extends Resource
             'email' => $this->email,
             'phone' => $this->phone,
             'photo' => MediaAttachment::make($this->photo),
-            'amount_spent' => Money::prepare_amount($this->orders_sum_total ?? 0),
-            'amount_spent_money_object' => Money::prepare_amount_object($this->orders_sum_total ?? 0),
+            'base_amount_spent' => Money::prepare_amount($this->orders_sum_base_total ?? 0),
+            'base_amount_spent_money_object' => Money::prepare_amount_object($this->orders_sum_base_total ?? 0),
+            'display_amount_spent' => Money::prepare_amount($this->orders_sum_base_total ?? 0, null, $display_currency),
+            'display_amount_spent_money_object' => Money::prepare_amount_object($this->orders_sum_base_total ?? 0, null, $display_currency),
             'location' => !empty($this->billing_address) ? $this->billing_address->state . ', ' . $this->billing_address->country : '',
             'orders_count' => $this->orders_count,
             'last_order_date' => $this->orders_max_created_at,

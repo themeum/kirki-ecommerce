@@ -23,6 +23,7 @@ use Kirki\Ecommerce\Framework\Facade;
  * @method static float prepare_amount(mixed $amount, $currency = null, $target_currency = null)
  * @method static \Kirki\Ecommerce\App\DTO\MoneyDTO prepare_amount_object(mixed $amount, $currency = null, $target_currency = null)
  * @method static \Brick\Money\Money prepare_amount_money(mixed $amount, string $currency = null)
+ * @method static string resolve_display_currency()
  * 
  * @see \Kirki\Ecommerce\App\Managers\MoneyManager
  */
