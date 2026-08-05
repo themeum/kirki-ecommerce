@@ -339,6 +339,7 @@ class PayPal extends PaymentGateway
         if ($order->payment_status !== PaymentStatus::PAID) {
             OrderManager::mark_payment_as_paid($order->id);
             OrderManager::mark_as_processing($order->id);
+            OrderManager::set_payment_metadata($order->id, wp_json_encode($resource));
         }
     }
 
