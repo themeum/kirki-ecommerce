@@ -74,6 +74,29 @@ export function checkout(config: CheckoutConfig = {}) {
       }
     });
   }
+  // Map API field names to human-readable labels for error messages
+  const fieldLabels: Record<string, string> = {
+    first_name: __("First name", "kirki-ecommerce"),
+    last_name: __("Last name", "kirki-ecommerce"),
+    email: __("Email address", "kirki-ecommerce"),
+    phone: __("Phone number", "kirki-ecommerce"),
+    address_line1: __("Address", "kirki-ecommerce"),
+    address_line2: __("Apartment / suite", "kirki-ecommerce"),
+    city: __("City", "kirki-ecommerce"),
+    state: __("State", "kirki-ecommerce"),
+    postal_code: __("Postal code", "kirki-ecommerce"),
+    country: __("Country", "kirki-ecommerce"),
+  };
+
+  // Produce a clean user-facing message from an API validation error message
+  // by replacing the raw "address_type.field_name" token with a readable label.
+  function humanizeFieldError(rawMessage: string, fieldName: string): string {
+    const label = fieldLabels[fieldName] ?? fieldName.replace(/_/g, " ");
+    // Replace patterns like "The shipping_address.email field" or
+    // "The billing_address.first_name field" with the clean label
+    return rawMessage.replace(/shipping_address\.\w+/g, label).replace(/billing_address\.\w+/g, label);
+  }
+
   // Keys follow "shipping_address.field" / "billing_address.field" patterns.
   function handleApiErrors(err: Error & { errors?: Record<string, string[]> }, fallbackMessage: string) {
     if (!err.errors) {
@@ -89,12 +112,14 @@ export function checkout(config: CheckoutConfig = {}) {
     let hasFieldErrors = false;
 
     for (const [key, messages] of Object.entries(err.errors)) {
-      const message = messages[0];
+      const rawMessage = messages[0];
       if (key.startsWith("shipping_address.")) {
-        shippingForm?.setError(key.replace("shipping_address.", ""), message);
+        const field = key.replace("shipping_address.", "");
+        shippingForm?.setError(field, humanizeFieldError(rawMessage, field));
         hasFieldErrors = true;
       } else if (key.startsWith("billing_address.")) {
-        billingForm?.setError(key.replace("billing_address.", ""), message);
+        const field = key.replace("billing_address.", "");
+        billingForm?.setError(field, humanizeFieldError(rawMessage, field));
         hasFieldErrors = true;
       }
     }
