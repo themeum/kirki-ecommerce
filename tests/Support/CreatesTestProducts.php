@@ -41,7 +41,7 @@ trait CreatesTestProducts
             'has_variants' => false,
             'variants' => [
                 [
-                    'price' => 29.99,
+                    'base_price' => 29.99,
                     'sku' => 'SKU-' . wp_generate_password(6, false),
                     'available_quantity' => 100,
                     'in_stock' => true,
@@ -81,7 +81,7 @@ trait CreatesTestProducts
         foreach ($product['variants'] as $variant) {
             $variants[] = array_merge([
                 'id' => $variant['id'],
-                'price' => $variant['price'],
+                'base_price' => $variant['base_price'],
                 'sku' => $variant['sku'] ?? null,
                 'available_quantity' => $variant['available_quantity'] ?? 100,
                 'in_stock' => $variant['in_stock'] ?? true,

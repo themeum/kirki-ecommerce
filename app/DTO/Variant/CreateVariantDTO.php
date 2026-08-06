@@ -22,7 +22,7 @@ class CreateVariantDTO extends DTO
     public $barcode;
 
     /** @var int|null */
-    public $price;
+    public $base_price;
 
     /** @var bool|null */
     public $show_unit_price = false;
@@ -40,10 +40,10 @@ class CreateVariantDTO extends DTO
     public $total_unit_amount;
 
     /** @var float|null */
-    public $sale_price;
+    public $base_sale_price;
 
     /** @var float|null */
-    public $cost_of_goods;
+    public $base_cost_of_goods;
 
     /** @var float|null */
     public $weight;

@@ -16,11 +16,11 @@ class ProductListResource extends Resource
     public function to_array()
     {
         $inventory = 0;
-        $min_price = $this->variants->first()->price;
+        $min_price = $this->variants->first()->base_price;
 
         foreach ($this->variants->all() as $variant) {
             $inventory += $variant->track_inventory ? $variant->available_quantity : 0;
-            $min_price = min($min_price, $variant->price);
+            $min_price = min($min_price, $variant->base_price);
         }
 
         $display_currency = Money::resolve_display_currency();

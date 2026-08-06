@@ -103,8 +103,8 @@ class OrderResource extends Resource
             'refunds' => empty($this->refunds) ? [] : $this->refunds->map(function ($refund) {
                 return [
                     'id' => $refund->id,
-                    'amount' => Money::prepare_amount($refund->amount, $this->currency_code),
-                    'amount_money_object' => Money::prepare_amount_object($refund->amount, $this->currency_code),
+                    'invoiced_amount' => Money::prepare_amount($refund->invoiced_amount, $this->currency_code),
+                    'invoiced_amount_money_object' => Money::prepare_amount_object($refund->invoiced_amount, $this->currency_code),
                     'reason' => $refund->reason,
                     'transaction_id' => $refund->transaction_id,
                     'status' => $refund->status,

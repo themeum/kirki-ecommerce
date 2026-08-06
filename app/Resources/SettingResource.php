@@ -25,19 +25,19 @@ class SettingResource extends Resource
         if ($this->key === OptionKeys::SHIPPING_SETTINGS) {
             foreach ($data['shipping_zones'] as $key => $zone) {
                 foreach ($zone['shipping_methods'] as $method_key => $method) {
-                    $data['shipping_zones'][$key]['shipping_methods'][$method_key]['amount'] = Money::prepare_amount($method['amount']);
-                    $data['shipping_zones'][$key]['shipping_methods'][$method_key]['amount_money_object'] = Money::prepare_amount_object($method['amount']);
+                    $data['shipping_zones'][$key]['shipping_methods'][$method_key]['base_amount'] = Money::prepare_amount($method['base_amount']);
+                    $data['shipping_zones'][$key]['shipping_methods'][$method_key]['base_amount_money_object'] = Money::prepare_amount_object($method['base_amount']);
 
                     if (!empty($method['ranges'])) {
                         foreach ($method['ranges'] as $range_key => $range) {
-                            $data['shipping_zones'][$key]['shipping_methods'][$method_key]['ranges'][$range_key]['amount'] = Money::prepare_amount($range['amount']);
-                            $data['shipping_zones'][$key]['shipping_methods'][$method_key]['ranges'][$range_key]['amount_money_object'] = Money::prepare_amount_object($range['amount']);
+                            $data['shipping_zones'][$key]['shipping_methods'][$method_key]['ranges'][$range_key]['base_amount'] = Money::prepare_amount($range['base_amount']);
+                            $data['shipping_zones'][$key]['shipping_methods'][$method_key]['ranges'][$range_key]['base_amount_money_object'] = Money::prepare_amount_object($range['base_amount']);
                         }
                     }
 
                     if (!empty($method['is_free_shipping_enabled'])) {
-                        $data['shipping_zones'][$key]['shipping_methods'][$method_key]['free_shipping_min_amount'] = Money::prepare_amount($method['free_shipping_min_amount']);
-                        $data['shipping_zones'][$key]['shipping_methods'][$method_key]['free_shipping_min_amount_money_object'] = Money::prepare_amount_object($method['free_shipping_min_amount']);
+                        $data['shipping_zones'][$key]['shipping_methods'][$method_key]['base_free_shipping_min_amount'] = Money::prepare_amount($method['base_free_shipping_min_amount']);
+                        $data['shipping_zones'][$key]['shipping_methods'][$method_key]['base_free_shipping_min_amount_money_object'] = Money::prepare_amount_object($method['base_free_shipping_min_amount']);
                     }
                 }
             }
