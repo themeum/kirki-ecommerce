@@ -138,6 +138,16 @@ $shipping_email = $shipping_address["email"] ?? '';
             <span class="kecom-field-error" x-show="errors.phone" x-text="errors.phone"></span>
         </div>
         <div class="kecom-field">
+            <label class="kecom-field-label" for="shipping-email"><?php esc_html_e('Email Address', 'kirki-ecommerce'); ?></label>
+            <input
+                class="kecom-input"
+                type="email"
+                id="shipping-email"
+                name="email"
+                x-bind="register('email', { required: '<?php esc_html_e('Email address is required', 'kirki-ecommerce'); ?>', email: '<?php esc_html_e('Please enter a valid email address', 'kirki-ecommerce'); ?>' })">
+            <span class="kecom-field-error" x-show="errors.email" x-text="errors.email"></span>
+        </div>
+        <div class="kecom-field">
             <label class="kecom-checkbox">
                 <input class="kecom-checkbox-input" type="checkbox" x-model="billingSameAsShipping">
                 <span class="kecom-checkbox-label"><?php esc_html_e('The billing address is same as shipping address.', 'kirki-ecommerce'); ?></span>

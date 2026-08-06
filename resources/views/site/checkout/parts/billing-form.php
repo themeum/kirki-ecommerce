@@ -137,5 +137,15 @@ $billing_email = $billing_address["email"] ?? '';
                 x-bind="register('phone', { required: '<?php esc_html_e('Phone number is required', 'kirki-ecommerce'); ?>' })">
             <span class="kecom-field-error" x-show="errors.phone" x-text="errors.phone"></span>
         </div>
+        <div class="kecom-field">
+            <label class="kecom-field-label" for="billing-email"><?php esc_html_e('Email Address', 'kirki-ecommerce'); ?></label>
+            <input
+                class="kecom-input"
+                type="email"
+                id="billing-email"
+                name="email"
+                x-bind="register('email', { required: '<?php esc_html_e('Email address is required', 'kirki-ecommerce'); ?>', email: '<?php esc_html_e('Please enter a valid email address', 'kirki-ecommerce'); ?>' })">
+            <span class="kecom-field-error" x-show="errors.email" x-text="errors.email"></span>
+        </div>
     </form>
 </div>

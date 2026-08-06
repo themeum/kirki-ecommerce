@@ -75,6 +75,7 @@ export interface CartPricing {
   tax_total: string;
   discount_details: any;
   discount_total: string;
+  discount_total_formatted: string;
   shipping_subtotal: string;
   shipping_tax: string;
   shipping_discount: string;

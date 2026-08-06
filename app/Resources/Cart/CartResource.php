@@ -53,6 +53,7 @@ class CartResource extends Resource
                 'tax_total' => $this->prepare_amount($this->tax_total),
                 'discount_details' => $this->discount_details,
                 'discount_total' => $this->prepare_amount($this->discount_total),
+                'discount_total_formatted' => Money::format_from_decimal($this->prepare_amount($this->discount_total)),
                 'shipping_subtotal' => $this->prepare_amount($this->shipping_subtotal),
                 'shipping_tax' => $this->prepare_amount($this->shipping_tax),
                 'shipping_discount' => $this->prepare_amount($this->shipping_discount),
