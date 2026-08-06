@@ -162,12 +162,23 @@ class Icon
      */
     private static function set_svg_size(string $svg, int $size): string
     {
-        // Remove existing width/height
-        $svg = preg_replace('/\s*width=["\'][^"\']*["\']/', '', $svg);
-        $svg = preg_replace('/\s*height=["\'][^"\']*["\']/', '', $svg);
-
-        // Add new width/height
-        $svg = preg_replace('/<svg/', '<svg width="' . esc_attr($size) . '" height="' . esc_attr($size) . '"', $svg, 1);
+        // Remove existing width/height only from the opening <svg> tag
+        $svg = preg_replace_callback(
+            '/(<svg\b[^>]*>)/i',
+            function (array $matches) use ($size): string {
+                $tag = preg_replace('/\s*width=["\'][^"\']*["\']/', '', $matches[1]);
+                $tag = preg_replace('/\s*height=["\'][^"\']*["\']/', '', $tag);
+                // Insert width/height right after <svg
+                return preg_replace(
+                    '/<svg\b/i',
+                    '<svg width="' . esc_attr($size) . '" height="' . esc_attr($size) . '"',
+                    $tag,
+                    1
+                );
+            },
+            $svg,
+            1
+        );
 
         return $svg;
     }

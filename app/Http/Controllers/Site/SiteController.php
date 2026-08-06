@@ -159,6 +159,10 @@ class SiteController
         PaymentGatewayService $payment_gateway_service,
         CartService $cart_service
     ) {
+        if ( $request->get('order') === 'success' ) {
+            return view('site.order-success')->layout(false);
+        }
+
         $customer = customer();
         $payment_gateways =  $payment_gateway_service->get();
         $cart = CartResource::make($cart_service->get_cart($customer->get_customer_id()));
