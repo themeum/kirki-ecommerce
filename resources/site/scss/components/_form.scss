@@ -250,13 +250,14 @@
   overflow: hidden;
   background-color: $background-surface-alt;
 
-  &-btn {
+  .kecom-quantity-btn {
     @include flex-center;
     width: 2rem;
     height: 40px;
     background: none;
     border: none;
     outline: none;
+    padding: 0px;
     color: $icon-primary;
     cursor: pointer;
     font-size: $font-size-md;
@@ -264,15 +265,16 @@
     @include transition((background-color));
 
     &:hover:not(:disabled) {
-      background-color: $background-fill-hover;
+      background-color: $background-surface-alt;
     }
+
     &:disabled {
       cursor: not-allowed;
       color: $icon-disabled;
     }
   }
 
-  &-input {
+  .kecom-quantity-input {
     width: 3rem;
     height: 40px;
     border: none;
@@ -281,7 +283,7 @@
     font-size: $font-size-base;
     font-weight: $font-weight-medium;
     color: $text-primary;
-    background-color: transparent;
+    background-color: $background-surface-alt;
 
     &:focus {
       outline: none;

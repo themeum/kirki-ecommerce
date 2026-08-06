@@ -234,6 +234,7 @@
     border-radius: $radius-full;
     border: 1px solid $border-default;
     cursor: pointer;
+    padding: 0px;
     outline: none;
     @include transition((transform, border-color, box-shadow));
 
