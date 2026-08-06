@@ -285,8 +285,8 @@ export function checkout(config: CheckoutConfig = {}) {
         billingForm.values.phone = shippingForm.values.phone;
         billingForm.values.email = shippingForm.values.email;
 
-        // Trigger validation to clear any previous errors
-        (this as any).$dispatch("validate-billing-form");
+        // Clear any stale errors without triggering re-validation
+        billingForm.clearErrors();
       }
     },
 
