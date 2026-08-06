@@ -19,7 +19,7 @@ type RequestOptions = {
 
 export async function apiRequest<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
   const { rest_url_base, rest_nonce } = getConfig();
-  const { method = 'GET', body, params } = options;
+  const { method = 'GET', headers = {}, body, params } = options;
 
   let url = `${rest_url_base}${endpoint}`;
 
@@ -30,15 +30,15 @@ export async function apiRequest<T>(endpoint: string, options: RequestOptions = 
     url += `?${qs.toString()}`;
   }
 
-  const headers: HeadersInit = {
+  const _headers: HeadersInit = {
     'Content-Type': 'application/json',
     'X-WP-Nonce': rest_nonce,
-    ...(options.headers || {}),
+    ...headers,
   };
 
   const res = await fetch(url, {
     method,
-    headers,
+    headers: _headers,
     credentials: 'same-origin',
     body: body !== undefined ? JSON.stringify(body) : undefined,
   });
