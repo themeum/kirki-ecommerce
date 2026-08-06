@@ -10,6 +10,7 @@ import {
   StackedItem,
   StackedItemActions,
   StackedItemContent,
+  StackedItemMedia,
   StackedItems,
   StackedItemTitle,
   useStackedItem,
@@ -26,6 +27,7 @@ import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
 
 import ShippingBoxPopup from '@/pages/settings/shipping-settings/shipping-box/shipping-box-dialog';
+import { Package2 } from 'lucide-react';
 
 type BoxAction = {
   title: string;
@@ -182,8 +184,7 @@ const ShippingBox = () => {
   return (
     <>
       <Card cssOverride={cardStyles.formCard} >
-        <CardContent >
-
+        <CardContent>
           <HeaderActionsCard
             header={__('Shipping Box', 'kirki-ecommerce')}
             subHeader={__(
@@ -194,9 +195,12 @@ const ShippingBox = () => {
             onAdd={openCreatePopup}
           />
           {shippingBoxList.length > 0 && (
-            <StackedItems>
+            <StackedItems cssOverride={{ marginTop: theme.spacing[5] }}>
               {shippingBoxList.map((item) => (
                 <StackedItem key={item.id} id={String(item.id)}>
+                  <StackedItemMedia>
+                    <Package2 size={16} />
+                  </StackedItemMedia>
                   <StackedItemContent>
                     <StackedItemTitle>
                       <Text variant="small" weight="medium">

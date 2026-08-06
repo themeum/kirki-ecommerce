@@ -106,7 +106,7 @@ const useCreateShippingProfileMutation = () => {
     onSuccess(response) {
       toastMutationSuccess(
         response.message ||
-          __('Shipping profile created successfully.', 'kirki-ecommerce'),
+        __('Shipping profile created successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: ['ShippingProfiles'] });
     },
@@ -123,7 +123,7 @@ const useUpdateShippingProfileMutation = () => {
     onSuccess(response) {
       toastMutationSuccess(
         response.message ||
-          __('Shipping profile updated successfully.', 'kirki-ecommerce'),
+        __('Shipping profile updated successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: ['ShippingProfiles'] });
     },
@@ -140,7 +140,7 @@ const useDeleteShippingProfileMutation = () => {
     onSuccess(response) {
       toastMutationSuccess(
         response.message ||
-          __('Shipping profile deleted successfully.', 'kirki-ecommerce'),
+        __('Shipping profile deleted successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: ['ShippingProfiles'] });
     },
@@ -157,7 +157,7 @@ const useCreateShippingBoxMutation = () => {
     onSuccess(response) {
       toastMutationSuccess(
         response.message ||
-          __('Shipping box created successfully.', 'kirki-ecommerce'),
+        __('Shipping box created successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: ['ShippingBoxes'] });
     },
@@ -174,7 +174,7 @@ const useUpdateShippingBoxMutation = () => {
     onSuccess(response, variables) {
       toastMutationSuccess(
         response.message ||
-          __('Shipping box updated successfully.', 'kirki-ecommerce'),
+        __('Shipping box updated successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: ['ShippingBoxes'] });
       void queryClient.invalidateQueries({
@@ -194,7 +194,7 @@ const useDeleteShippingBoxMutation = () => {
     onSuccess(response) {
       toastMutationSuccess(
         response.message ||
-          __('Shipping box deleted successfully.', 'kirki-ecommerce'),
+        __('Shipping box deleted successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: ['ShippingBoxes'] });
     },
@@ -205,22 +205,6 @@ const useDeleteShippingBoxMutation = () => {
 };
 
 export {
-  getShippingProfiles,
-  createShippingProfile,
-  updateShippingProfile,
-  deleteShippingProfile,
-  getShippingBoxes,
-  getShippingBox,
-  createShippingBox,
-  updateShippingBox,
-  deleteShippingBox,
-  useShippingProfilesQuery,
-  useShippingBoxesQuery,
-  useShippingBoxQuery,
-  useCreateShippingProfileMutation,
-  useUpdateShippingProfileMutation,
-  useDeleteShippingProfileMutation,
-  useCreateShippingBoxMutation,
-  useUpdateShippingBoxMutation,
-  useDeleteShippingBoxMutation,
+  createShippingBox, createShippingProfile, deleteShippingBox, deleteShippingProfile, getShippingBox, getShippingBoxes, getShippingProfiles, updateShippingBox, updateShippingProfile, useCreateShippingBoxMutation, useCreateShippingProfileMutation, useDeleteShippingBoxMutation, useDeleteShippingProfileMutation, useShippingBoxesQuery,
+  useShippingBoxQuery, useShippingProfilesQuery, useUpdateShippingBoxMutation, useUpdateShippingProfileMutation
 };

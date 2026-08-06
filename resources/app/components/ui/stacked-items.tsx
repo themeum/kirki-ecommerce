@@ -153,7 +153,7 @@ const styles = defineStyles({
   },
   row: {
     position: 'relative',
-    minHeight: '60px',
+    minHeight: '42px',
     borderRadius: theme.radius.none,
     padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
     '&:not(:last-of-type)': {
