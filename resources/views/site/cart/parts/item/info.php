@@ -6,6 +6,7 @@
  * @package Kirki\Ecommerce\Templates
  */
 
+use Kirki\Ecommerce\App\Supports\Url;
 
 defined('ABSPATH') || exit;
 
@@ -18,7 +19,7 @@ $unit_price = $data['unit_price'] ?? '';
 
 <div class="kecom-cart-item-info">
     <div class="kecom-cart-item-details">
-        <h6 class="kecom-cart-item-details-title"><?php echo esc_html($product['title']); ?></h6>
+        <a href="<?php echo esc_url(Url::get_product_url($product['slug'])); ?>" class="kecom-cart-item-details-title"><?php echo esc_html($product['title']); ?></a>
         <?php if (!empty($categories)): ?>
             <span class="kecom-cart-item-details-categories"><?php echo esc_html($categories[count($categories) - 1]['name']); ?></span>
         <?php endif; ?>
