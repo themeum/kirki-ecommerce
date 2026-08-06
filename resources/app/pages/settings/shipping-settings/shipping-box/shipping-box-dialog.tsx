@@ -273,7 +273,7 @@ const styles = defineStyles({
   },
   dimensionsLabel: {
     top: `-${theme.spacing[3]}`,
-    left: '12%',
+    left: '10%',
     transform: 'translateX(-50%)',
     position: 'absolute',
     padding: `${theme.spacing[0]} ${theme.spacing[2]}`,
