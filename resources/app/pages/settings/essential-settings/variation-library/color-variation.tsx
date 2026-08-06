@@ -1,22 +1,21 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 
-import PageNavbar from '@/components/page-navbar';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { ColorPaletteIcon } from '@/icons';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
-import PageHeading from '@/components/ui/page-heading';
+import { ColorPaletteIcon } from '@/icons';
 import { useAttributeQuery } from '@/services/attribute';
-import type { Attribute, AttributeValue, TaxonomyTableHeader } from '@/types';
 import { theme } from '@/theme';
-import { scoped, mergeCss, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
+import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
+import type { Attribute, AttributeValue, TaxonomyTableHeader } from '@/types';
 import { __, sprintf } from '@/wpi18n';
 
 import VariationTable from '@/pages/settings/essential-settings/variation-library/variation-table/variation-table';
 import VariationValuePopup from '@/pages/settings/essential-settings/variation-library/variation-value-dialog';
+import SettingsPageHeader from '@/pages/settings/settings-page-header';
 
 type AttributeWithMeta = Attribute & { updated_at?: string };
 
@@ -40,18 +39,11 @@ const ColorVariation = () => {
 
   return (
     <div>
-      <PageHeading
-        text={__('Settings', 'kirki-ecommerce')}
-        size="sm"
-        sticky
-        type="primary"
-        style={{ height: '32px' }}
-      />
       <Container size="sm">
         <Flex direction="column" gap={4}>
-          <PageNavbar
-            textIcon={<ColorPaletteIcon />}
-            text={__('Color', 'kirki-ecommerce')}
+          <SettingsPageHeader
+            icon={<ColorPaletteIcon />}
+            title={__('Color', 'kirki-ecommerce')}
             rightAction={
               <div>
                 <Button
@@ -65,7 +57,7 @@ const ColorVariation = () => {
             }
           />
           {!colorList?.length ? (
-            <Card cssOverride={mergeCss(cardStyles.largeCard, styles.roundedCard)}>
+            <Card cssOverride={mergeCss(cardStyles.formCard, styles.roundedCard)}>
               <CardContent cssOverride={mergeCss(cardStyles.largeContentPadded, styles.emptyContent)}>
                 <Flex direction="column" gap={2} align="center">
                   <ColorPaletteIcon />

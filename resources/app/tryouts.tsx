@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import PageHeading from '@/components/ui/page-heading';
+import Switch from '@/components/ui/switch';
 import Text from '@/components/ui/text';
 import { ShowMoreIcon } from '@/icons';
 import { apiClient } from '@/libs/api';
@@ -20,12 +21,12 @@ import DropdownMenuPreview from '@/preview-pages/dropdown-menu-preview';
 import DrowdownPreview from '@/preview-pages/drowdown-preview';
 import GridPreview from '@/preview-pages/grid-preview';
 import GridTemplatePreview from '@/preview-pages/grid-template-preview';
-import GroupOptionCardPreview from '@/preview-pages/group-option-card-preview';
 import HeadingPreview from '@/preview-pages/heading-preview';
 import IconsPreview from '@/preview-pages/icons-preview';
 import InputPreview from '@/preview-pages/input-preview';
 import MediaGalleryPreview from '@/preview-pages/media-gallery-preview';
 import MediaSelectorPreview from '@/preview-pages/media-selector-preview';
+import MultiSelectPreview from '@/preview-pages/multi-select-preview';
 import OptionAccordionPreview from '@/preview-pages/option-accordion-preview';
 import PageHeadingPreview from '@/preview-pages/page-heading-preview';
 import PageNavbarPreview from '@/preview-pages/page-navbar-preview';
@@ -36,12 +37,11 @@ import RadioGroupPreview from '@/preview-pages/radio-group-preview';
 import SelectInputPreview from '@/preview-pages/select-input-preview';
 import SelectPreview from '@/preview-pages/select-preview';
 import SeparatorPreview from '@/preview-pages/separator-preview';
+import StackedItemsPreview from '@/preview-pages/stacked-items-preview';
 import TabPreview from '@/preview-pages/tab-preview';
 import TablePreview from '@/preview-pages/table-preview';
 import TabsPreview from '@/preview-pages/tabs-preview';
-import MultiSelectPreview from '@/preview-pages/multi-select-preview';
 import ThumbnailPreview from '@/preview-pages/thumbnail-preview';
-import ToggleButtonPreview from '@/preview-pages/toggle-button-preview';
 import UiBadgePreview from '@/preview-pages/ui-badge-preview';
 import UiButtonPreview from '@/preview-pages/ui-button-preview';
 import UiCheckboxPreview from '@/preview-pages/ui-checkbox-preview';
@@ -247,10 +247,10 @@ const Tryouts = () => {
           </Card>
           <Card cssOverride={cardStyles.formCard}>
             <CardHeader>
-              <CardTitle>Group Option Card</CardTitle>
+              <CardTitle>Stacked Items</CardTitle>
             </CardHeader>
             <CardContent>
-              <GroupOptionCardPreview />
+              <StackedItemsPreview />
             </CardContent>
           </Card>
           <Card cssOverride={cardStyles.formCard}>
@@ -384,7 +384,7 @@ const Tryouts = () => {
               <CardTitle>Toggle Button</CardTitle>
             </CardHeader>
             <CardContent>
-              <ToggleButtonPreview />
+              <Switch />
             </CardContent>
           </Card>
           <Card cssOverride={cardStyles.formCard}>

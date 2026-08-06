@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "make:package": "bash bin/make-package.sh"
+  },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",
     "@radix-ui/react-checkbox": "^1.3.7",

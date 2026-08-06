@@ -2,8 +2,8 @@ export type StoreAddress = {
   address_line_1?: string | null;
   address_line_2?: string | null;
   city?: string | null;
-  state_province?: string | null;
-  zip_code?: string | null;
+  state?: string | null;
+  postal_code?: string | null;
   country?: string | null;
 };
 
@@ -32,8 +32,8 @@ export const initialData: GeneralSettingsFormData = {
     address_line_1: null,
     address_line_2: null,
     city: null,
-    state_province: null,
-    zip_code: null,
+    state: null,
+    postal_code: null,
     country: null,
   },
   selling_countries: [],

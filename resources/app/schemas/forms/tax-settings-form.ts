@@ -2,14 +2,6 @@ import { z } from 'zod';
 
 import { prepareFormSchema } from '@/libs/zod';
 
-export const TaxRateSchema = z
-  .object({
-    state: z.string(),
-    rate: z.union([z.number(), z.string()]),
-    flag: z.string().optional(),
-  })
-  .passthrough();
-
 /**
  * A tax region's rules/conditions are edited by several sub-dialogs
  * (Group 5) with shapes not modeled anywhere else in the app — kept loose

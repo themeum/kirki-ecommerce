@@ -1,7 +1,9 @@
 import SelectField from '@/components/form/select-field';
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
+import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
+import { mergeCss } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 const CurrencyFormatSettings = () => {
@@ -12,7 +14,7 @@ const CurrencyFormatSettings = () => {
   ];
 
   return (
-    <Card cssOverride={cardStyles.innerCard}>
+    <Card cssOverride={mergeCss(cardStyles.innerCard, { marginTop: theme.spacing[5] })}>
       <CardContent cssOverride={cardStyles.innerContent}>
         <Flex direction="column" gap={4}>
           <SelectField
