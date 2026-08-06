@@ -6,6 +6,7 @@ use Kirki\Ecommerce\Framework\Facade;
 
 /**
  * @method static mixed get(string $key, $default = null)
+ * @method static void update(string $key, $value)
  *
  * @see \Kirki\Ecommerce\App\Settings\SettingsFactory
  */
