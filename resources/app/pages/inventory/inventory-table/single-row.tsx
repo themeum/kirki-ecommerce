@@ -55,39 +55,39 @@ const SingleRow = ({
           />
         </TableCell>
       )}
-      {selectedFields.includes('price') && (
+      {selectedFields.includes('base_price') && (
         <TableCell cssOverride={styles.inputCell}>
           <Input
-            value={item?.price ?? undefined}
+            value={item?.base_price ?? undefined}
             placeholder="--"
             invisible
             cssOverride={styles.tableInput}
-            onChange={(event) => handleOnChange(event.target.value, 'price')}
+            onChange={(event) => handleOnChange(event.target.value, 'base_price')}
           />
         </TableCell>
       )}
-      {selectedFields.includes('sale_price') && (
+      {selectedFields.includes('base_sale_price') && (
         <TableCell cssOverride={styles.inputCell}>
           <Input
-            value={item?.sale_price ?? undefined}
+            value={item?.base_sale_price ?? undefined}
             placeholder="--"
             invisible
             cssOverride={styles.tableInput}
             onChange={(event) =>
-              handleOnChange(event.target.value, 'sale_price')
+              handleOnChange(event.target.value, 'base_sale_price')
             }
           />
         </TableCell>
       )}
-      {selectedFields.includes('cost_of_goods') && (
+      {selectedFields.includes('base_cost_of_goods') && (
         <TableCell cssOverride={styles.inputCell}>
           <Input
-            value={item?.cost_of_goods ?? undefined}
+            value={item?.base_cost_of_goods ?? undefined}
             placeholder="--"
             invisible
             cssOverride={styles.tableInput}
             onChange={(event) =>
-              handleOnChange(event.target.value, 'cost_of_goods')
+              handleOnChange(event.target.value, 'base_cost_of_goods')
             }
           />
         </TableCell>

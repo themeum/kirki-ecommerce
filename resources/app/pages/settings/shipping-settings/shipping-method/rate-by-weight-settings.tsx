@@ -21,7 +21,7 @@ import type { ShippingMethodData } from '@/pages/settings/shipping-settings/util
 type WeightRange = {
   from: number | string;
   to: number | string;
-  amount: number | string;
+  base_amount: number | string;
 };
 
 type RateByWeightSettingsProps = {
@@ -38,24 +38,24 @@ const RateByWeightSettings = ({
   const [ranges, setRanges] = useState<WeightRange[]>(
     initialRanges && initialRanges.length >= 1
       ? initialRanges
-      : [{ from: '', to: '', amount: '' }],
+      : [{ from: '', to: '', base_amount: '' }],
   );
 
   useEffect(() => {
     handleOnChange(
       ranges
-        .filter((r) => r.from !== '' && r.to !== '' && r.amount !== '')
+        .filter((r) => r.from !== '' && r.to !== '' && r.base_amount !== '')
         .map((r) => ({
           from: Number(r.from),
           to: Number(r.to),
-          amount: Number(r.amount),
+          base_amount: Number(r.base_amount),
         })),
       'ranges',
     );
   }, [ranges]);
 
   const addRange = () => {
-    setRanges((prev) => [...prev, { from: '', to: '', amount: '' }]);
+    setRanges((prev) => [...prev, { from: '', to: '', base_amount: '' }]);
   };
 
   const updateRange = (
@@ -112,10 +112,10 @@ const RateByWeightSettings = ({
         />
         <div css={scoped(styles.rateRow)} data-hover-parent>
         <Input
-        value={range.amount || ''}
+        value={range.base_amount || ''}
         type="number"
         placeholder={__('e.g. 120Tk', 'kirki-ecommerce')}
-        onChange={(e) => updateRange(index, 'amount', e.target.value)}
+        onChange={(e) => updateRange(index, 'base_amount', e.target.value)}
         />
 
         {index !== 0 && (
@@ -170,8 +170,8 @@ const RateByWeightSettings = ({
             id="rate-by-weight-amount"
             placeholder={__('$0.00', 'kirki-ecommerce')}
             type="number"
-            value={dataObj?.amount as string | number}
-            onChange={(e) => handleOnChange(e.target.value, 'amount')}
+            value={dataObj?.base_amount as string | number}
+            onChange={(e) => handleOnChange(e.target.value, 'base_amount')}
           />
         </Flex>
       )}

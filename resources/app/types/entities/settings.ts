@@ -62,7 +62,7 @@ type ShippingRule = {
 type ShippingMethodRange = {
   from: number | string;
   to: number | string;
-  amount: number | string;
+  base_amount: number | string;
 };
 
 type ShippingMethod = {
@@ -71,7 +71,7 @@ type ShippingMethod = {
   name?: string;
   is_enabled?: boolean;
   zoneId?: string | number;
-  amount?: number | string;
+  base_amount?: number | string;
   is_taxable?: boolean;
   description?: string | null;
   address?: string | null;
@@ -81,7 +81,7 @@ type ShippingMethod = {
   pickup_time_end?: string | null;
   ranges?: ShippingMethodRange[];
   is_free_shipping_enabled?: boolean;
-  free_shipping_min_amount?: number | string;
+  base_free_shipping_min_amount?: number | string;
   shipping_rules?: ShippingRule[];
   shipping_careers?: unknown[];
 };

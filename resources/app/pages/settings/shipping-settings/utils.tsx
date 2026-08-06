@@ -56,7 +56,7 @@ type ShippingMethodData = {
   zoneId?: string | number;
   icon?: ReactNode;
   shipping_rules?: ShippingRule[];
-  amount?: number | string;
+  base_amount?: number | string;
   is_taxable?: boolean;
   description?: string | null;
   address?: string | null;
@@ -67,10 +67,10 @@ type ShippingMethodData = {
   ranges?: Array<{
     from: number | string;
     to: number | string;
-    amount: number | string;
+    base_amount: number | string;
   }>;
   is_free_shipping_enabled?: boolean;
-  free_shipping_min_amount?: number | string;
+  base_free_shipping_min_amount?: number | string;
 };
 
 type ShippingZone = {
@@ -233,7 +233,7 @@ export const actionOptionsArray: SelectOption[] = [
 
 export const METHOD_SCHEMAS: Record<string, MethodSchema> = {
   flat_rate: {
-    amount: 0,
+    base_amount: 0,
     is_taxable: false,
     description: null,
   },
@@ -241,7 +241,7 @@ export const METHOD_SCHEMAS: Record<string, MethodSchema> = {
   local_pickup: {
     address: null,
     has_fee: false,
-    amount: 0,
+    base_amount: 0,
     is_taxable: false,
     description: null,
     has_pick_time: false,
@@ -251,7 +251,7 @@ export const METHOD_SCHEMAS: Record<string, MethodSchema> = {
 
   weight: {
     ranges: [],
-    amount: 0,
+    base_amount: 0,
     is_taxable: false,
     description: null,
   },

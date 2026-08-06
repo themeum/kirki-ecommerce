@@ -23,7 +23,7 @@ import { generateVariantIndexById, generateVariantIndexes, getAttributeByValueId
 import { defineStyles } from '@/theme/mixins';
 
 type CombinedData = {
-  price?: number | string | null;
+  base_price?: number | string | null;
   in_stock?: boolean | string;
   available_quantity?: number;
   media?: ({ url?: string; [key: string]: unknown } | null | undefined)[];
@@ -80,8 +80,8 @@ const SingleGroup = ({
   }
 
   useEffect(() => {
-    let minPrice = thisVariants[0]?.price;
-    let maxPrice = thisVariants[0]?.price;
+    let minPrice = thisVariants[0]?.base_price;
+    let maxPrice = thisVariants[0]?.base_price;
     let in_stock: boolean | string | undefined = thisVariants[0]?.in_stock;
     let available_quantity = 0;
     let mediaArray: CombinedData['media'] = [
@@ -89,8 +89,8 @@ const SingleGroup = ({
     ];
 
     thisVariants.forEach((item) => {
-      minPrice = Number(Math.min(Number(minPrice), Number(item?.price)));
-      maxPrice = Number(Math.max(Number(maxPrice), Number(item?.price)));
+      minPrice = Number(Math.min(Number(minPrice), Number(item?.base_price)));
+      maxPrice = Number(Math.max(Number(maxPrice), Number(item?.base_price)));
       in_stock = item?.in_stock !== in_stock ? ' ' : in_stock;
       available_quantity += Number(item?.available_quantity);
       mediaArray =
@@ -100,7 +100,7 @@ const SingleGroup = ({
     });
     setCombinedData((prev) => ({
       ...prev,
-      price: minPrice === maxPrice ? minPrice : `${minPrice} - ${maxPrice}`,
+      base_price: minPrice === maxPrice ? minPrice : `${minPrice} - ${maxPrice}`,
       in_stock: in_stock,
       available_quantity: available_quantity,
       media: mediaArray,
@@ -293,13 +293,13 @@ const SingleGroup = ({
           <Input
             placeholder={__('19.99', 'kirki-ecommerce')}
             style={{ textAlign: 'center' }}
-            value={combinedData?.price || ''}
+            value={combinedData?.base_price || ''}
             onChange={(event) =>
               handleOnParentValueChange(
                 !hasVariation
                   ? parseFloat(event.target.value)
                   : event.target.value,
-                'price',
+                'base_price',
               )
             }
             disabled={!!hasVariation}
@@ -382,12 +382,12 @@ const SingleGroup = ({
                 <Input
                   placeholder={__('19.99', 'kirki-ecommerce')}
                   style={{ textAlign: 'center' }}
-                  value={item?.price || ''}
+                  value={item?.base_price || ''}
                   type="number"
                   onChange={(event) =>
                     handleOnChildValueChange(
                       parseFloat(event.target.value),
-                      'price',
+                      'base_price',
                       item,
                     )
                   }

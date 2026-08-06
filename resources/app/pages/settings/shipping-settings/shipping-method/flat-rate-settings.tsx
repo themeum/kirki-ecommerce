@@ -25,10 +25,10 @@ const FlatRateSettings = ({
         <Label htmlFor="flat-rate-amount">{__('Rate', 'kirki-ecommerce')}</Label>
         <Input
           id="flat-rate-amount"
-          value={(dataObj?.amount as string | number) || ''}
+          value={(dataObj?.base_amount as string | number) || ''}
           type="number"
           placeholder={__('$0.00', 'kirki-ecommerce')}
-          onChange={(e) => handleOnChange(e.target.value, 'amount')}
+          onChange={(e) => handleOnChange(e.target.value, 'base_amount')}
         />
       </Flex>
 

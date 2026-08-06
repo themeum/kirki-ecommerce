@@ -74,8 +74,8 @@ const LocalPickupSettings = ({
             id="local-pickup-fee"
             type="number"
             placeholder={__('$0.00', 'kirki-ecommerce')}
-            value={(dataObj?.amount as string | number) || ''}
-            onChange={(e) => handleOnChange(e.target.value, 'amount')}
+            value={(dataObj?.base_amount as string | number) || ''}
+            onChange={(e) => handleOnChange(e.target.value, 'base_amount')}
           />
         </Flex>
       )}

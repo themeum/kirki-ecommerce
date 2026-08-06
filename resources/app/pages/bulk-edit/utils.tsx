@@ -21,18 +21,18 @@ export const allTableHeaders: BulkEditTableHeader[] = [
   },
   {
     title: __('Price', 'kirki-ecommerce'),
-    value: 'price',
+    value: 'base_price',
     icon: <DragIcon />,
     isDefault: true,
   },
   {
     title: __('Sale Price', 'kirki-ecommerce'),
-    value: 'sale_price',
+    value: 'base_sale_price',
     icon: <DragIcon />,
   },
   {
     title: __('Cost of Goods', 'kirki-ecommerce'),
-    value: 'cost_of_goods',
+    value: 'base_cost_of_goods',
     icon: <DragIcon />,
     isDefault: true,
   },
