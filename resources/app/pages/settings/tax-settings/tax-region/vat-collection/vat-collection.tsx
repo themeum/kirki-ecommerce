@@ -7,7 +7,6 @@ import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
-import { TrashIcon } from '@/icons';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss } from '@/theme/mixins';
@@ -16,6 +15,7 @@ import { __ } from '@/wpi18n';
 
 import VatCollectionPopup from '@/pages/settings/tax-settings/tax-region/vat-collection/vat-collection-dialog';
 import type { TaxRate, TaxRegion } from '@/pages/settings/tax-settings/utils';
+import { Trash2 } from 'lucide-react';
 
 type VatStateOption = SelectOption & {
   leftIcon?: ReactNode;
@@ -42,7 +42,6 @@ export const VatCollection = (props: VatCollectionProps) => {
   } = props;
   const [showVatCollectionPopup, setShowVatCollectionPopup] = useState(false);
   const [editIndex, setEditIndex] = useState<number | null>(null);
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   const disableAddVatButton =
     process !== 'oss' && vatCollectionList?.length >= 1;
@@ -129,43 +128,39 @@ export const VatCollection = (props: VatCollectionProps) => {
             hideButton={disableAddVatButton}
             onAdd={() => setShowVatCollectionPopup(true)}
           />
-          <Flex direction="column" gap={2}>
+          <Flex direction="column" gap={2} cssOverride={{ marginTop: theme.spacing[5] }}>
             {vatCollectionList?.map((item, index) => (
               <Card
                 key={index}
-                cssOverride={mergeCss(cardStyles.innerCard, styles.vatRow)}
-                onMouseEnter={() => setHoveredIndex(index)}
-                onMouseLeave={() => setHoveredIndex(null)}
+                cssOverride={mergeCss(cardStyles.innerCard)}
               >
-                <CardContent cssOverride={cardStyles.innerContent}>
-                  <Flex gap={2} align="center">
-                    {getFlagForState(item?.state)}
-                    <Text>{item?.state}</Text>
-                  </Flex>
-                  <Text
-                    cssOverride={mergeCss(styles.vatText,
-                      hoveredIndex === index && styles.vatTextHidden,)}
-                  >
-                    {`${item?.rate}%`}
-                  </Text>
-                  <Flex
-                    gap={2}
-                    cssOverride={mergeCss(styles.vatActions,
-                      hoveredIndex === index && styles.vatActionsActive,)}
-                  >
-                    <Button
-                      variant="secondary"
-                      onClick={() => handleEditVatRate(index)}
-                    >
-                      {__('Edit Rates', 'kirki-ecommerce')}
-                    </Button>
-                    <Button
-                      variant="secondary"
-                      size="icon"
-                      onClick={() => handleDeleteItem(item)}
-                    >
-                      <TrashIcon />
-                    </Button>
+                <CardContent cssOverride={{ ...cardStyles.innerContent, width: '100%' }}>
+                  <Flex justify="space-between">
+                    <Flex gap={2} align="center">
+                      <Flex gap={2} align="center">
+                        {getFlagForState(item?.state ?? '')}
+                        <Text>{item?.state}</Text>
+                      </Flex>
+                      <Text cssOverride={mergeCss(styles.vatText)}>
+                        {`${item?.rate}%`}
+                      </Text>
+                    </Flex>
+                    <Flex gap={2} cssOverride={mergeCss(styles.vatActions)}>
+                      <Button
+                        variant="outline"
+                        size="icon-sm"
+                        onClick={() => handleDeleteItem(item)}
+                      >
+                        <Trash2 />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => handleEditVatRate(index)}
+                        size='sm'
+                      >
+                        {__('Edit Rates', 'kirki-ecommerce')}
+                      </Button>
+                    </Flex>
                   </Flex>
                 </CardContent>
               </Card>

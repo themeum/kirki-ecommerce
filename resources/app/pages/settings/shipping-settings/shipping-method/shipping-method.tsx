@@ -18,17 +18,17 @@ import {
 import Text from '@/components/ui/text';
 import { EditPenIcon, TrashIcon } from '@/icons';
 import { dispatchToastMessage } from '@/pages/utils';
+import type { ShippingSettings } from '@/schemas/catalog/settings';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
-import type { SettingsSectionData } from '@/types';
 import { __ } from '@/wpi18n';
 
 import { getShippingMethodRightText, getShippingMethodSubText, saveShippingZones, shippingMethodIconMap, type ShippingMethodData, type ShippingZone } from '@/pages/settings/shipping-settings/utils';
 import { BoxIcon } from 'lucide-react';
 
 type ShippingMethodProps = {
-  shippingSettingsData: SettingsSectionData | null | undefined;
+  shippingSettingsData: ShippingSettings | null | undefined;
   shippingMethodList: ShippingMethodData[];
   setShippingZonesObj: Dispatch<SetStateAction<ShippingZone[]>>;
   shippingZonesObj: ShippingZone[];
@@ -111,7 +111,7 @@ export const ShippingMethod = ({
           />
 
           {!shippingMethodList?.length ? (
-            <Card cssOverride={cardStyles.innerDarkCard}>
+            <Card cssOverride={{ ...cardStyles.innerDarkCard, marginTop: theme.spacing[5] }}>
               <CardContent cssOverride={mergeCss(cardStyles.innerDarkContent, styles.emptyState)}>
                 <Flex direction="column" gap={2} align="center">
                   <BoxIcon size={24} />
@@ -125,7 +125,7 @@ export const ShippingMethod = ({
               </CardContent>
             </Card>
           ) : (
-            <StackedItems>
+            <StackedItems cssOverride={{ marginTop: theme.spacing[5] }}>
               {shippingMethodListWithIcon.map((item) => (
                 <StackedItem key={item.id} id={String(item.id)}>
                   {item.icon && <StackedItemMedia>{item.icon}</StackedItemMedia>}

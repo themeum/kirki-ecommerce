@@ -14,8 +14,8 @@ import {
   type GeneralSettingsFormInput,
   type GeneralSettingsFormPayload,
 } from '@/schemas/forms/general-settings-form';
+import type { GeneralSettings as GeneralSettingsData } from '@/schemas/catalog/settings';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
-import type { SettingsSectionData } from '@/types';
 import { __ } from '@/wpi18n';
 
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
@@ -28,7 +28,7 @@ import StoreAddressDetails from '@/pages/settings/general-settings/store-address
 import StoreContactDetails from '@/pages/settings/general-settings/store-contact-details';
 
 const mapSettingsToFormValues = (
-  settings: SettingsSectionData,
+  settings: GeneralSettingsData,
 ): GeneralSettingsFormInput => {
   const storeAddress = settings.store_address;
 
@@ -45,7 +45,7 @@ const mapSettingsToFormValues = (
   });
 };
 
-const getStoreLogoUrl = (settings?: SettingsSectionData | null) => {
+const getStoreLogoUrl = (settings?: GeneralSettingsData | null) => {
   if (!settings?.store_logo || typeof settings.store_logo !== 'object') {
     return null;
   }

@@ -90,7 +90,7 @@ const ShippingBoxPopup = ({
   const unit = useWatch({ control: form.control, name: 'unit' });
 
   useEffect(() => {
-    if (!isOpen) {
+    if (!isOpen || !selectedItem) {
       return;
     }
 

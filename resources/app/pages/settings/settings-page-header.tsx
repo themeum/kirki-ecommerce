@@ -21,7 +21,7 @@ const SettingsPageHeader = (props: SettingsPageHeaderProps) => {
   const { icon, title, onBack, rightAction } = props;
 
   return (
-    <Flex align="center" justify="center">
+    <Flex align="center" justify="center" gap={2}>
       {onBack && (
         <>
           <Button
@@ -32,7 +32,6 @@ const SettingsPageHeader = (props: SettingsPageHeaderProps) => {
           >
             <ArrowLeft css={scoped({ minWidth: 16, minHeight: 16 })} />
           </Button>
-          <div css={scoped(styles.connector)} />
         </>
       )}
       <Card cssOverride={cardStyles.navbarCard}>

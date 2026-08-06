@@ -4,9 +4,10 @@ import { toast } from 'sonner';
 import { StoreIcon, TruckIcon, WeightIcon } from '@/icons';
 import { queryClient } from '@/libs/query-client';
 import { queryKeys } from '@/libs/query-keys';
+import type { ShippingSettings } from '@/schemas/catalog/settings';
 import { getErrorMessage } from '@/services/helpers';
 import { updateSettings } from '@/services/settings';
-import type { Country, SettingsSectionData, ToastVariant } from '@/types';
+import type { Country, ToastVariant } from '@/types';
 import { __, _n, sprintf } from '@/wpi18n';
 
 import { getNestedSearchedValue, setUnsavedDataStatus } from '@/pages/settings/utils';
@@ -94,7 +95,7 @@ type RegionTag = {
 type SaveShippingZonesParams = {
   zones: ShippingZone[];
   from?: string;
-  shippingSettingsData: SettingsSectionData | null | undefined;
+  shippingSettingsData: ShippingSettings | null | undefined;
   toastMessage?: string;
   variant?: ToastVariant;
 };

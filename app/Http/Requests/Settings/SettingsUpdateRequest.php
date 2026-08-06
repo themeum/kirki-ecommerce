@@ -14,6 +14,7 @@ use Kirki\Ecommerce\App\Constants\UpdateFrequency;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
+use Kirki\Ecommerce\Framework\Validation\Rule;
 
 class SettingsUpdateRequest extends Request
 {
@@ -249,7 +250,7 @@ class SettingsUpdateRequest extends Request
 
                 if (!array_key_exists('is_taxable', $value) || $value['is_taxable'] === null || $value['is_taxable'] === '') {
                     /* translators: %s: the field name */
-                    return sprintf(__('The %s field is required.', 'growfund'), $key . '.is_taxable');
+                    return sprintf(__('The %s field is required.', 'kirki-ecommerce'), $key . '.is_taxable');
                 }
 
                 return true;

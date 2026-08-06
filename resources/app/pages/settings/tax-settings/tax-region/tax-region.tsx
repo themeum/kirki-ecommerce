@@ -9,8 +9,8 @@ import ActionGroup from '@/components/ui/action-group';
 import Badge from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
-import Text from '@/components/ui/text';
 import Switch from '@/components/ui/switch';
+import Text from '@/components/ui/text';
 import { EditIcon, LocationIcon, ShowMoreIcon, TrashIcon } from '@/icons';
 import type { TaxSettingsFormInput } from '@/schemas/forms/tax-settings-form';
 import { theme } from '@/theme';
@@ -144,8 +144,7 @@ const TaxRegions = (props: TaxRegionsProps) => {
   return (
     <>
       <Card cssOverride={cardStyles.formCard} >
-        <CardContent >
-
+        <CardContent>
           <HeaderActionsCard
             header={__('Tax Regions', 'kirki-ecommerce')}
             subHeader={__(
@@ -156,90 +155,92 @@ const TaxRegions = (props: TaxRegionsProps) => {
             onAdd={() => setShowPopup(true)}
           />
 
-          {!taxRegions.length ? (
-            <Card cssOverride={cardStyles.innerDarkCard}>
-              <CardContent cssOverride={mergeCss(cardStyles.innerDarkContent, styles.emptyStateContent)}>
-                <Flex direction="column" gap={2} align="center">
-                  <LocationIcon />
-                  <span css={scoped(styles.mutedText)}>
-                    {__('Added tax zones will appear here', 'kirki-ecommerce')}
-                  </span>
-                </Flex>
-              </CardContent>
-            </Card>
-          ) : (
-            <Flex direction="column" gap={3}>
-              {taxRegions.map((item, index) => (
-                <Card cssOverride={mergeCss(cardStyles.innerCard, styles.regionCard)} key={index} >
-                  <CardContent cssOverride={cardStyles.innerContent}>
+          <div css={scoped({ marginTop: theme.spacing[5] })}>
+            {!taxRegions.length ? (
+              <Card cssOverride={cardStyles.innerDarkCard}>
+                <CardContent cssOverride={mergeCss(cardStyles.innerDarkContent, styles.emptyStateContent)}>
+                  <Flex direction="column" gap={2} align="center">
+                    <LocationIcon />
+                    <span css={scoped(styles.mutedText)}>
+                      {__('Added tax zones will appear here', 'kirki-ecommerce')}
+                    </span>
+                  </Flex>
+                </CardContent>
+              </Card>
+            ) : (
+              <Flex direction="column" gap={3}>
+                {taxRegions.map((item, index) => (
+                  <Card cssOverride={mergeCss(cardStyles.innerCard, styles.regionCard)} key={index} >
+                    <CardContent cssOverride={cardStyles.innerContent}>
 
-                    <Flex gap={2} align="flex-start">
-                      <span>{item?.flag}</span>
-                      <Flex direction="column" gap={3}>
-                        <Flex gap={2} align="center">
-                          <Text
-                            weight="medium"
-                            color={!item?.is_enabled ? 'disabled' : 'primary'}
-                          >
-                            {item?.name}
+                      <Flex gap={2} align="flex-start">
+                        <span>{item?.flag}</span>
+                        <Flex direction="column" gap={3}>
+                          <Flex gap={2} align="center">
+                            <Text
+                              weight="medium"
+                              color={!item?.is_enabled ? 'disabled' : 'primary'}
+                            >
+                              {item?.name}
+                            </Text>
+                            {!item?.is_enabled && (
+                              <Badge variant="destructive">
+                                {__('Inactive', 'kirki-ecommerce')}
+                              </Badge>
+                            )}
+                          </Flex>
+                          <Text variant="small" color="secondary">
+                            {`${item?.states?.length ?? 0} states`}
                           </Text>
-                          {!item?.is_enabled && (
-                            <Badge variant="destructive">
-                              {__('Inactive', 'kirki-ecommerce')}
-                            </Badge>
-                          )}
                         </Flex>
-                        <Text variant="small" color="secondary">
-                          {`${item?.states?.length ?? 0} states`}
-                        </Text>
-                      </Flex>
-                      <ActionGroup
-                        cssOverride={mergeCss(hoverVisibleCss,
-                          activeIndex === index && activeCardCss,)}
-                      >
-                        <Switch
-                          checked={Boolean(item?.is_enabled)}
-                          onCheckedChange={() => handleToggleRegion(item)}
-                        />
-                        <DropdownButton
-                          buttonProps={{
-                            size: 'small',
-                            style: { transform: 'rotate(90deg)' },
-                            icon: <ShowMoreIcon />,
-                          }}
-                          dropdownStyle={{ width: '115px' }}
-                          options={[
-                            {
-                              title: __('Edit', 'kirki-ecommerce'),
-                              value: 'edit',
-                              icon: <EditIcon />,
-                            },
-                            {
-                              title: __('Delete', 'kirki-ecommerce'),
-                              value: 'delete',
-                              icon: <TrashIcon />,
-                            },
-                          ]}
-                          onOptionToggle={(value) => {
-                            if (value === true) {
-                              setActiveIndex(index);
-                            } else {
-                              setActiveIndex(null);
+                        <ActionGroup
+                          cssOverride={mergeCss(hoverVisibleCss,
+                            activeIndex === index && activeCardCss,)}
+                        >
+                          <Switch
+                            checked={Boolean(item?.is_enabled)}
+                            onCheckedChange={() => handleToggleRegion(item)}
+                          />
+                          <DropdownButton
+                            buttonProps={{
+                              size: 'small',
+                              style: { transform: 'rotate(90deg)' },
+                              icon: <ShowMoreIcon />,
+                            }}
+                            dropdownStyle={{ width: '115px' }}
+                            options={[
+                              {
+                                title: __('Edit', 'kirki-ecommerce'),
+                                value: 'edit',
+                                icon: <EditIcon />,
+                              },
+                              {
+                                title: __('Delete', 'kirki-ecommerce'),
+                                value: 'delete',
+                                icon: <TrashIcon />,
+                              },
+                            ]}
+                            onOptionToggle={(value) => {
+                              if (value === true) {
+                                setActiveIndex(index);
+                              } else {
+                                setActiveIndex(null);
+                              }
+                            }}
+                            onOptionSelect={(action) =>
+                              handleEditAndDelete(String(action), item)
                             }
-                          }}
-                          onOptionSelect={(action) =>
-                            handleEditAndDelete(String(action), item)
-                          }
-                        />
-                      </ActionGroup>
-                    </Flex>
-                  </CardContent>
+                          />
+                        </ActionGroup>
+                      </Flex>
+                    </CardContent>
 
-                </Card>
+                  </Card>
 
-              ))}
-            </Flex>
-          )}
+                ))}
+              </Flex>
+            )}
+          </div>
         </CardContent>
       </Card>
       {showPopup && (

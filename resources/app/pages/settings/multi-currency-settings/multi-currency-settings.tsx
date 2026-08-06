@@ -26,6 +26,7 @@ import CurrencyFormatSettings from '@/pages/settings/multi-currency-settings/cur
 import { useSettingsPageActions } from '@/pages/settings/settings-layout/use-settings-page-actions';
 import SettingsPageHeader from '@/pages/settings/settings-page-header';
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
+import { theme } from '@/theme';
 
 const MultiCurrencySettings = () => {
   const { data: currencySettingsData, isLoading } = useSettingsQuery('currency');
@@ -102,22 +103,22 @@ const MultiCurrencySettings = () => {
             />
 
             <Card cssOverride={cardStyles.formCard} >
-              <CardContent >
-
-                <Flex direction="column" gap={2}>
-                  <Text weight="semibold">{__('Currency Management', 'kirki-ecommerce')}</Text>
-                  <Text color="secondary">{__(
-                    'Manage product pricing across multiple currencies with manual or automatic conversion rates.',
-                    'kirki-ecommerce',
-                  )}</Text>
+              <CardContent>
+                <Flex direction="column" gap={2} cssOverride={{ marginTop: theme.spacing[5] }}>
+                  <Flex direction="column" gap={2}>
+                    <Text weight="semibold">{__('Currency Management', 'kirki-ecommerce')}</Text>
+                    <Text color="secondary">{__(
+                      'Manage product pricing across multiple currencies with manual or automatic conversion rates.',
+                      'kirki-ecommerce',
+                    )}</Text>
+                  </Flex>
+                  <AvailableCurrencyList />
+                  <ApiConfig />
                 </Flex>
-                <AvailableCurrencyList />
-                <ApiConfig />
               </CardContent>
             </Card>
             <Card cssOverride={cardStyles.formCard} >
-              <CardContent >
-
+              <CardContent>
                 <Flex direction="column" gap={2}>
                   <Text weight="semibold">{__('Currency Preferences', 'kirki-ecommerce')}</Text>
                   <Text color="secondary">{__(

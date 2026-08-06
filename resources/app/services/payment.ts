@@ -1,34 +1,38 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { z } from 'zod';
 
 import { apiClient } from '@/libs/api';
 import { endpoints } from '@/libs/endpoints';
 import { queryKeys } from '@/libs/query-keys';
-import { toastMutationError, toastMutationSuccess, unwrapData, unwrapDataList, unwrapResponse } from '@/services/helpers';
-import type { PaymentGateway, PaymentMethod } from '@/types';
+import { PaymentGatewayListSchema, PaymentGatewaySchema, PaymentMethodSchema } from '@/schemas/catalog/payment';
+import type { ManualPaymentFormPayload } from '@/schemas/forms/manual-payment-form';
+import type { PaymentGatewayEditFormPayload } from '@/schemas/forms/payment-gateway-form';
+import { ResourceCollectionSchema } from '@/schemas/shared/api';
+import { parseData, parseMessage, parseResponse, toastMutationError, toastMutationSuccess } from '@/services/helpers';
 import { __ } from '@/wpi18n';
 
 const getInstallablePaymentGateways = () => {
   return apiClient
     .get(endpoints.PAYMENT_GATEWAYS_INSTALLABLE)
-    .then((response) => unwrapData(response));
+    .then((response) => parseData(ResourceCollectionSchema(PaymentGatewaySchema), response));
 };
 
 const getPaymentGateways = () => {
   return apiClient
     .get(endpoints.PAYMENT_GATEWAYS)
-    .then((response) => unwrapDataList<PaymentGateway>(response));
+    .then((response) => parseData(PaymentGatewayListSchema, response));
 };
 
 const getPaymentGateway = (id: string | number) => {
   return apiClient
     .get(endpoints.PAYMENT_GATEWAY(id))
-    .then((response) => unwrapData<PaymentGateway>(response));
+    .then((response) => parseData(PaymentGatewaySchema, response));
 };
 
-const installPaymentGateway = (id: unknown) => {
+const installPaymentGateway = (data: { id: string | number }) => {
   return apiClient
-    .post(endpoints.PAYMENT_GATEWAYS_INSTALL, id)
-    .then((response) => unwrapResponse(response));
+    .post(endpoints.PAYMENT_GATEWAYS_INSTALL, data)
+    .then((response) => parseResponse(PaymentGatewaySchema, response));
 };
 
 const updatePaymentGateway = ({
@@ -36,11 +40,11 @@ const updatePaymentGateway = ({
   data,
 }: {
   id: string | number;
-  data: Record<string, unknown>;
+  data: PaymentGatewayEditFormPayload;
 }) => {
   return apiClient
     .put(endpoints.PAYMENT_GATEWAY(id), data)
-    .then((response) => unwrapResponse(response));
+    .then((response) => parseResponse(PaymentGatewaySchema, response));
 };
 
 const setEnabledPaymentGateway = ({
@@ -48,23 +52,23 @@ const setEnabledPaymentGateway = ({
   data,
 }: {
   id: string | number;
-  data: Record<string, unknown>;
+  data: { is_enabled: boolean };
 }) => {
   return apiClient
     .patch(endpoints.PAYMENT_GATEWAY(id), data)
-    .then((response) => unwrapResponse(response));
+    .then((response) => parseResponse(z.boolean(), response));
 };
 
 const getPaymentMethods = () => {
   return apiClient
     .get(endpoints.PAYMENT_METHODS)
-    .then((response) => unwrapDataList<PaymentMethod>(response));
+    .then((response) => parseData(ResourceCollectionSchema(PaymentMethodSchema), response));
 };
 
-const createPaymentMethod = (data: Record<string, unknown>) => {
+const createPaymentMethod = (data: ManualPaymentFormPayload) => {
   return apiClient
     .post(endpoints.PAYMENT_METHODS, data)
-    .then((response) => unwrapResponse<PaymentMethod>(response));
+    .then((response) => parseResponse(PaymentMethodSchema, response));
 };
 
 const updatePaymentMethod = ({
@@ -72,17 +76,17 @@ const updatePaymentMethod = ({
   data,
 }: {
   id: string | number;
-  data: Record<string, unknown>;
+  data: ManualPaymentFormPayload | Record<string, unknown>;
 }) => {
   return apiClient
     .put(endpoints.PAYMENT_METHOD(id), data)
-    .then((response) => unwrapResponse(response));
+    .then((response) => parseResponse(PaymentMethodSchema, response));
 };
 
 const deletePaymentMethod = (id: string | number) => {
   return apiClient
     .delete(endpoints.PAYMENT_METHOD(id))
-    .then((response) => unwrapResponse(response));
+    .then((response) => parseMessage(response));
 };
 
 const useInstallablePaymentGatewaysQuery = () => {

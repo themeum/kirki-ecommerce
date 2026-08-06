@@ -12,11 +12,12 @@ import Text from '@/components/ui/text';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
-import type { FormErrors, SettingsSectionData } from '@/types';
+import type { ProductSettings } from '@/schemas/catalog/settings';
+import type { FormErrors } from '@/types';
 import { __ } from '@/wpi18n';
 
 type BarcodeGenerationProps = {
-  dataObj?: SettingsSectionData;
+  dataObj?: ProductSettings;
   handleOnChange?: (value: unknown, key: string) => void;
   errors?: FormErrors;
 };

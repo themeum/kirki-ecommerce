@@ -3,21 +3,25 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tansta
 import { apiClient } from '@/libs/api';
 import { endpoints } from '@/libs/endpoints';
 import { queryKeys } from '@/libs/query-keys';
-import { toastMutationError, toastMutationSuccess, unwrapData, unwrapResponse } from '@/services/helpers';
-import type { ListQueryParams, PaginatedData, ShippingBox, ShippingProfile } from '@/types';
+import { ShippingBoxSchema, ShippingProfileSchema } from '@/schemas/catalog/shipping';
+import type { ShippingBoxFormPayload } from '@/schemas/forms/shipping-box-form';
+import type { ShippingProfileFormPayload } from '@/schemas/forms/shipping-profile-form';
+import { PaginatedDataSchema } from '@/schemas/shared/api';
+import { parseData, parseMessage, parseResponse, toastMutationError, toastMutationSuccess } from '@/services/helpers';
+import type { ListQueryParams } from '@/types';
 import { __ } from '@/wpi18n';
 
 const getShippingProfiles = async (params: ListQueryParams = {}) => {
   const data = await apiClient
     .get(endpoints.SHIPPING_PROFILES, { params })
-    .then((response) => unwrapData<PaginatedData<ShippingProfile>>(response));
+    .then((response) => parseData(PaginatedDataSchema(ShippingProfileSchema), response));
   return data.results;
 };
 
-const createShippingProfile = (data: Record<string, unknown>) => {
+const createShippingProfile = (data: ShippingProfileFormPayload) => {
   return apiClient
     .post(endpoints.SHIPPING_PROFILES, data)
-    .then((response) => unwrapResponse<ShippingProfile>(response));
+    .then((response) => parseResponse(ShippingProfileSchema, response));
 };
 
 const updateShippingProfile = ({
@@ -25,36 +29,36 @@ const updateShippingProfile = ({
   data,
 }: {
   id: string | number;
-  data: Record<string, unknown>;
+  data: ShippingProfileFormPayload;
 }) => {
   return apiClient
     .put(endpoints.SHIPPING_PROFILE(id), data)
-    .then((response) => unwrapResponse<ShippingProfile>(response));
+    .then((response) => parseResponse(ShippingProfileSchema, response));
 };
 
 const deleteShippingProfile = (id: string | number) => {
   return apiClient
     .delete(endpoints.SHIPPING_PROFILE(id))
-    .then((response) => unwrapResponse(response));
+    .then((response) => parseMessage(response));
 };
 
 const getShippingBoxes = async (params: ListQueryParams = {}) => {
   const data = await apiClient
     .get(endpoints.SHIPPING_BOXES, { params })
-    .then((response) => unwrapData<PaginatedData<ShippingBox>>(response));
+    .then((response) => parseData(PaginatedDataSchema(ShippingBoxSchema), response));
   return data.results;
 };
 
 const getShippingBox = (id: string | number) => {
   return apiClient
     .get(endpoints.SHIPPING_BOX(id))
-    .then((response) => unwrapData<ShippingBox>(response));
+    .then((response) => parseData(ShippingBoxSchema, response));
 };
 
-const createShippingBox = (data: Record<string, unknown>) => {
+const createShippingBox = (data: ShippingBoxFormPayload) => {
   return apiClient
     .post(endpoints.SHIPPING_BOXES, data)
-    .then((response) => unwrapResponse<ShippingBox>(response));
+    .then((response) => parseResponse(ShippingBoxSchema, response));
 };
 
 const updateShippingBox = ({
@@ -62,17 +66,17 @@ const updateShippingBox = ({
   data,
 }: {
   id: string | number;
-  data: Record<string, unknown>;
+  data: ShippingBoxFormPayload | Record<string, unknown>;
 }) => {
   return apiClient
     .put(endpoints.SHIPPING_BOX(id), data)
-    .then((response) => unwrapResponse<ShippingBox>(response));
+    .then((response) => parseResponse(ShippingBoxSchema, response));
 };
 
 const deleteShippingBox = (id: string | number) => {
   return apiClient
     .delete(endpoints.SHIPPING_BOX(id))
-    .then((response) => unwrapResponse(response));
+    .then((response) => parseMessage(response));
 };
 
 const useShippingProfilesQuery = (params: ListQueryParams = {}) => {

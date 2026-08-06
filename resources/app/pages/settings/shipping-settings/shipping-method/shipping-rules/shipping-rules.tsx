@@ -14,7 +14,6 @@ import { useSettingsQuery } from '@/services/settings';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss } from '@/theme/mixins';
-import type { SettingsSectionData } from '@/types';
 import { __, sprintf } from '@/wpi18n';
 
 import ShippingRuleFormCard from '@/pages/settings/shipping-settings/shipping-method/shipping-rules/shipping-rule-form-card';
@@ -113,7 +112,7 @@ export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
         await saveShippingZones({
           zones: updatedShippingZones,
           from: 'delete',
-          shippingSettingsData: shippingSettingsData as SettingsSectionData,
+          shippingSettingsData,
         });
       },
     });
@@ -133,7 +132,7 @@ export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
             onAdd={() => setShowAddCard(true)}
           />
           {(showAddCard || rulesObj.length > 0) && (
-            <Flex direction={'column'} gap={4}>
+            <Flex direction={'column'} gap={4} cssOverride={{ marginTop: theme.spacing[5] }}>
               {showAddCard && (
                 <ShippingRuleFormCard
                   methodId={methodId}

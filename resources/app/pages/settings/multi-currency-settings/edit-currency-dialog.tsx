@@ -1,36 +1,36 @@
 import { css } from '@emotion/react';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, type Dispatch, type SetStateAction } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 
 import TextField from '@/components/form/text-field';
 import Button from '@/components/ui/button';
 import { Dialog, DialogBody, DialogClose, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import Label from '@/components/ui/label';
-import { InfoIcon } from '@/icons';
-import Flex from '@/components/ui/flex';
-import { theme } from '@/theme';
 import Text from '@/components/ui/text';
+import { InfoIcon } from '@/icons';
 import { EditCurrencyFormSchema, type EditCurrencyFormInput, type EditCurrencyFormPayload } from '@/schemas/forms/edit-currency-form';
+import { theme } from '@/theme';
 import type { Currency } from '@/types';
 import { __, sprintf } from '@/wpi18n';
 
 type EditCurrencyItem = Currency & {
-  icon?: string;
+  icon?: string | null;
 };
 
-type EditCurrencyPopupProps = {
+type EditCurrencyDialogProps = {
   editCurrency: EditCurrencyItem;
   setEditCurrency: Dispatch<SetStateAction<EditCurrencyItem | null>>;
   handleUpdateData: (currency: Currency) => void;
 };
 
-const EditCurrencyPopup = ({
+const EditCurrencyDialog = ({
   editCurrency,
   setEditCurrency,
   handleUpdateData,
-}: EditCurrencyPopupProps) => {
+}: EditCurrencyDialogProps) => {
   const form = useForm<EditCurrencyFormInput, unknown, EditCurrencyFormPayload>({
     resolver: zodResolver(EditCurrencyFormSchema),
     defaultValues: {
@@ -83,17 +83,17 @@ const EditCurrencyPopup = ({
                 <Flex justify="space-between">
                   <Flex gap={3}>
                     <Text weight="semibold">{sprintf(
-                        __('%s', 'kirki-ecommerce'),
-                        editCurrency?.icon ?? '',
-                      )}</Text>
+                      __('%s', 'kirki-ecommerce'),
+                      editCurrency?.icon ?? '',
+                    )}</Text>
                     <Text weight="medium">{sprintf(
-                        __('%s', 'kirki-ecommerce'),
-                        editCurrency?.code ?? '',
-                      )}</Text>
+                      __('%s', 'kirki-ecommerce'),
+                      editCurrency?.code ?? '',
+                    )}</Text>
                     <Text variant="small">{sprintf(
-                        __('%s', 'kirki-ecommerce'),
-                        editCurrency?.name ?? '',
-                      )}</Text>
+                      __('%s', 'kirki-ecommerce'),
+                      editCurrency?.name ?? '',
+                    )}</Text>
                   </Flex>
                   <div
                     style={{ width: 'auto', margin: theme.spacing[1] }}
@@ -123,9 +123,9 @@ const EditCurrencyPopup = ({
   );
 };
 
-EditCurrencyPopup.displayName = 'EditCurrencyPopup';
+EditCurrencyDialog.displayName = 'EditCurrencyDialog';
 
-export default EditCurrencyPopup;
+export default EditCurrencyDialog;
 
 const styles = {
   ratePopupLabel: css({

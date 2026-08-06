@@ -95,58 +95,60 @@ const TaxProfile = () => {
             onAdd={() => setShowPopup(true)}
           />
 
-          {!taxProfileList?.length ? (
-            <Card cssOverride={cardStyles.innerDarkCard}>
-              <CardContent cssOverride={mergeCss(cardStyles.innerDarkContent, styles.emptyState)}>
-                <Flex direction="column" gap={2} align="center">
-                  <BoxOpenIcon />
-                  <span css={scoped(styles.emptyStateText)}>
-                    {__(
-                      'Added shipping profiles will appear here',
-                      'kirki-ecommerce',
-                    )}
-                  </span>
-                </Flex>
-              </CardContent>
-            </Card>
-          ) : (
-            <StackedItems>
-              {taxProfileList.map((item) => (
-                <StackedItem key={item.id} id={String(item.id)}>
-                  {item.icon && <StackedItemMedia>{item.icon}</StackedItemMedia>}
-                  <StackedItemContent>
-                    <StackedItemTitle>
-                      <Text variant="small" weight="medium">
-                        {item.name}
-                      </Text>
-                    </StackedItemTitle>
-                  </StackedItemContent>
-                  <StackedItemActions>
-                    <ActionGroup>
-                      <Button
-                        variant="outline"
-                        size="icon-sm"
-                        aria-label={__('Delete', 'kirki-ecommerce')}
-                        cssOverride={styles.actionButton}
-                        onClick={() => handleDeleteTaxProfile(item)}
-                      >
-                        <TrashIcon />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="icon-sm"
-                        aria-label={__('Edit', 'kirki-ecommerce')}
-                        cssOverride={styles.actionButton}
-                        onClick={() => handleEditTaxProfile(item)}
-                      >
-                        <EditPenIcon />
-                      </Button>
-                    </ActionGroup>
-                  </StackedItemActions>
-                </StackedItem>
-              ))}
-            </StackedItems>
-          )}
+          <div css={scoped({ marginTop: theme.spacing[5] })}>
+            {!taxProfileList?.length ? (
+              <Card cssOverride={cardStyles.innerDarkCard}>
+                <CardContent cssOverride={mergeCss(cardStyles.innerDarkContent, styles.emptyState)}>
+                  <Flex direction="column" gap={2} align="center">
+                    <BoxOpenIcon />
+                    <span css={scoped(styles.emptyStateText)}>
+                      {__(
+                        'Added shipping profiles will appear here',
+                        'kirki-ecommerce',
+                      )}
+                    </span>
+                  </Flex>
+                </CardContent>
+              </Card>
+            ) : (
+              <StackedItems>
+                {taxProfileList.map((item) => (
+                  <StackedItem key={item.id} id={String(item.id)}>
+                    {item.icon && <StackedItemMedia>{item.icon}</StackedItemMedia>}
+                    <StackedItemContent>
+                      <StackedItemTitle>
+                        <Text variant="small" weight="medium">
+                          {item.name}
+                        </Text>
+                      </StackedItemTitle>
+                    </StackedItemContent>
+                    <StackedItemActions>
+                      <ActionGroup>
+                        <Button
+                          variant="outline"
+                          size="icon-sm"
+                          aria-label={__('Delete', 'kirki-ecommerce')}
+                          cssOverride={styles.actionButton}
+                          onClick={() => handleDeleteTaxProfile(item)}
+                        >
+                          <TrashIcon />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="icon-sm"
+                          aria-label={__('Edit', 'kirki-ecommerce')}
+                          cssOverride={styles.actionButton}
+                          onClick={() => handleEditTaxProfile(item)}
+                        >
+                          <EditPenIcon />
+                        </Button>
+                      </ActionGroup>
+                    </StackedItemActions>
+                  </StackedItem>
+                ))}
+              </StackedItems>
+            )}
+          </div>
         </CardContent>
       </Card>
       {showPopup && (

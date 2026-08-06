@@ -20,12 +20,6 @@ import Switch from '@/components/ui/switch';
 import PaymentGatewayPopup from '@/pages/settings/payment-settings/payment-gateway-dialog';
 import PaymentGatewayEditPopup from '@/pages/settings/payment-settings/payment-gateway-edit-dialog';
 
-type PaymentGatewayDetail = PaymentGateway & {
-  settings?: Record<string, unknown>;
-  fields?: Array<{ name: string; label?: string; type?: string }>;
-  is_enabled?: boolean;
-};
-
 type PaymentGatewayProps = {
   paymentGatewayList: PaymentGateway[];
 };
@@ -34,16 +28,19 @@ const PaymentGatewayComponent = (props: PaymentGatewayProps) => {
   const { paymentGatewayList } = props;
 
   const [isEditPopupOpen, setIsEditPopupOpen] = useState(false);
-  const [editedItem, setEditedItem] = useState<PaymentGatewayDetail | null>(null);
+  const [editedItem, setEditedItem] = useState<PaymentGateway | null>(null);
   const [openPopup, setOpenPopup] = useState(false);
 
   const { mutate: setEnabledGateway } = useSetEnabledPaymentGatewayMutation();
 
   const handleToggleMethod = (item: PaymentGateway) => {
+    if (item.id === undefined) {
+      return;
+    }
     const isEnabled = Boolean(item?.is_enabled);
 
     setEnabledGateway(
-      { id: item?.id, data: { is_enabled: !isEnabled } },
+      { id: item.id, data: { is_enabled: !isEnabled } },
       {
         onError: () => {
           dispatchToastMessage('error', {
@@ -67,11 +64,11 @@ const PaymentGatewayComponent = (props: PaymentGatewayProps) => {
       return;
     }
 
-    if (action === 'edit') {
-      const result = await getPaymentGateway(item?.id);
+    if (action === 'edit' && item.id !== undefined) {
+      const result = await getPaymentGateway(item.id);
 
       if (result) {
-        setEditedItem(result as PaymentGatewayDetail);
+        setEditedItem(result);
         setOpenPopup(true);
       }
     }
