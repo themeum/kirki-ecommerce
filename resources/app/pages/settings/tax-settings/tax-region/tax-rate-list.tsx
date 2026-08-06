@@ -2,19 +2,19 @@ import { css } from '@emotion/react';
 import { useState, type Dispatch, type SetStateAction } from 'react';
 import { toast } from 'sonner';
 
-import { Card, CardContent } from '@/components/ui/card';
 import Button from '@/components/ui/button';
-import Input from '@/components/ui/input';
+import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
+import Input from '@/components/ui/input';
 import Text from '@/components/ui/text';
-import { PaymentIcon, LocationIcon, TrashIcon } from '@/icons';
+import { LocationIcon, PaymentIcon, TrashIcon } from '@/icons';
 import { theme } from '@/theme';
-import { scoped, mergeCss, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
+import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
 import { __, sprintf } from '@/wpi18n';
 
-import { setUnsavedDataStatus } from '@/pages/settings/utils';
 import type { TaxRate } from '@/pages/settings/tax-settings/utils';
+import { setUnsavedDataStatus } from '@/pages/settings/utils';
 
 type TaxRateListProps = {
   taxRates: TaxRate[];
@@ -85,46 +85,48 @@ export const TaxRateList = ({
               {taxRates?.map((item, index) => (
                 <Card
                   key={index}
-                  cssOverride={styles.taxCard}
-                  onMouseEnter={() => setHoveredIndex(index)}
-                  onMouseLeave={() => setHoveredIndex(null)}
+                  cssOverride={mergeCss(styles.taxCard, { width: '100%' })}
                 >
-                  <CardContent>
-                    <Flex gap={2} align="center">
-                      <LocationIcon />
-                      <Text>{item?.state}</Text>
-                    </Flex>
-                    <div css={scoped(styles.taxCardContent)}>
-                      <Text
-                        cssOverride={mergeCss(styles.rateDisplay,
-                          hoveredIndex === index && styles.rateDisplayHidden,)}
-                      >
-                        {sprintf(__('%s %', 'kirki-ecommerce'), item?.rate)}
-                      </Text>
-
-                      <Flex
-                        gap={2}
-                        cssOverride={mergeCss(styles.editGroup,
-                          hoveredIndex === index && styles.editGroupActive,)}
-                      >
-                        <Input
-                          value={item?.rate ?? ''}
-                          style={{ width: '72px' }}
-                          onChange={(e) => handleTaxRate(item, e.target.value)}
-                          onBlur={(e) => handleTaxRate(item, e.target.value)}
-                          type="number"
-                          min={0}
-                          max={100}
-                        />
-                        <Button
-                          variant="secondary"
-                          size="icon"
-                          onClick={() => handleDeleteRate(item)}
-                        >
-                          <TrashIcon />
-                        </Button>
+                  <CardContent cssOverride={{ width: '100%' }}>
+                    <Flex justify="space-between" align="center">
+                      <Flex gap={2} align="center">
+                        <LocationIcon />
+                        <Text>{item?.state}</Text>
                       </Flex>
-                    </div>
+                      <Flex cssOverride={scoped(styles.taxCardContent)} align="center">
+                        <Text
+                          variant="small"
+                          weight="medium"
+                          cssOverride={mergeCss(styles.rateDisplay,
+                            hoveredIndex === index && styles.rateDisplayHidden,)}
+                        >
+                          {sprintf(__('%d%', 'kirki-ecommerce'), item?.rate)}
+                        </Text>
+
+                        <Flex
+                          gap={2}
+                          cssOverride={mergeCss(styles.editGroup,
+                            hoveredIndex === index && styles.editGroupActive,)}
+                        >
+                          <Input
+                            value={item?.rate ?? ''}
+                            style={{ width: '72px' }}
+                            onChange={(e) => handleTaxRate(item, e.target.value)}
+                            onBlur={(e) => handleTaxRate(item, e.target.value)}
+                            type="number"
+                            min={0}
+                            max={100}
+                          />
+                          <Button
+                            variant="secondary"
+                            size="icon"
+                            onClick={() => handleDeleteRate(item)}
+                          >
+                            <TrashIcon />
+                          </Button>
+                        </Flex>
+                      </Flex>
+                    </Flex>
                   </CardContent>
                 </Card>
               ))}

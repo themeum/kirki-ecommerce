@@ -20,7 +20,7 @@ import { toastMutationError } from '@/services/helpers';
 import { updateSettings, useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { defineStyles, mergeCss } from '@/theme/mixins';
+import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 import { useSettingsPageActions } from '@/pages/settings/settings-layout/use-settings-page-actions';
@@ -217,8 +217,7 @@ const GeneralEditRegion = () => {
                 />
 
                 <Card cssOverride={mergeCss(cardStyles.formCard, styles.citiesCard)} >
-                  <CardContent >
-
+                  <CardContent>
                     <HeaderActionsCard
                       header={__('Cities', 'kirki-ecommerce')}
                       subHeader={__('Set tax rates for specific cities', 'kirki-ecommerce')}
@@ -233,31 +232,34 @@ const GeneralEditRegion = () => {
                         'kirki-ecommerce',
                       )}
                     />
-                    {applySingleTax ? (
-                      <SingleTaxRate
-                        centralTaxValue={centralTaxValue ?? 0}
-                        setCentralTaxValue={(value) =>
-                          form.setValue('central_product_tax', value, {
-                            shouldDirty: true,
-                          })
-                        }
-                      />
-                    ) : (
-                      <TaxRateList
-                        taxRates={taxRates}
-                        applySingleTax={!!applySingleTax}
-                        setTaxRates={(updater) => {
-                          const next =
-                            typeof updater === 'function'
-                              ? updater(taxRates)
-                              : updater;
-                          form.setValue('product_tax', next, {
-                            shouldDirty: true,
-                          });
-                        }}
-                        handleSaveData={handleSaveFromRateList}
-                      />
-                    )}
+                    <div css={scoped({ marginTop: theme.spacing[5] })}>
+                      {applySingleTax ? (
+                        <SingleTaxRate
+                          centralTaxValue={centralTaxValue ?? 0}
+                          setCentralTaxValue={(value) =>
+                            form.setValue('central_product_tax', value, {
+                              shouldDirty: true,
+                            })
+                          }
+                        />
+                      ) : (
+                        <TaxRateList
+                          taxRates={taxRates}
+                          applySingleTax={!!applySingleTax}
+                          setTaxRates={(updater) => {
+                            const next =
+                              typeof updater === 'function'
+                                ? updater(taxRates)
+                                : updater;
+                            form.setValue('product_tax', next, {
+                              shouldDirty: true,
+                            });
+                          }}
+                          handleSaveData={handleSaveFromRateList}
+                        />
+                      )}
+
+                    </div>
                   </CardContent>
                 </Card>
                 <TaxRules

@@ -90,55 +90,57 @@ const VariationList = () => {
             setShowPopup(true);
           }}
         />
-        {!attributeListArr.length ? (
-          <Card cssOverride={cardStyles.innerDarkCard}>
-            <CardContent cssOverride={mergeCss(cardStyles.innerDarkContent, styles.emptyState)}>
-              <Flex direction="column" gap={2} align="center">
-                <BoxIcon />
-                <span css={scoped(styles.emptyStateText)}>
-                  {__('Added variation library will appear here', 'kirki-ecommerce')}
-                </span>
-              </Flex>
-            </CardContent>
-          </Card>
-        ) : (
-          <StackedItems>
-            {attributeListArr.map((item) => (
-              <StackedItem key={item.id} id={String(item.id)}>
-                {item.icon && <StackedItemMedia>{item.icon}</StackedItemMedia>}
-                <StackedItemContent>
-                  <StackedItemTitle>
-                    <Text variant="small" weight="medium">
-                      {item.name}
-                    </Text>
-                  </StackedItemTitle>
-                </StackedItemContent>
-                <StackedItemActions>
-                  <ActionGroup>
-                    <Button
-                      variant="outline"
-                      size="icon-sm"
-                      aria-label={__('Delete', 'kirki-ecommerce')}
-                      cssOverride={styles.actionButton}
-                      onClick={() => handleDeleteVariation(item)}
-                    >
-                      <TrashIcon />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="icon-sm"
-                      aria-label={__('Edit', 'kirki-ecommerce')}
-                      cssOverride={styles.actionButton}
-                      onClick={() => handleEditVariation(item)}
-                    >
-                      <EditPenIcon />
-                    </Button>
-                  </ActionGroup>
-                </StackedItemActions>
-              </StackedItem>
-            ))}
-          </StackedItems>
-        )}
+        <div css={scoped({ marginTop: theme.spacing[5] })}>
+          {!attributeListArr.length ? (
+            <Card cssOverride={cardStyles.innerDarkCard}>
+              <CardContent cssOverride={mergeCss(cardStyles.innerDarkContent, styles.emptyState)}>
+                <Flex direction="column" gap={2} align="center">
+                  <BoxIcon />
+                  <span css={scoped(styles.emptyStateText)}>
+                    {__('Added variation library will appear here', 'kirki-ecommerce')}
+                  </span>
+                </Flex>
+              </CardContent>
+            </Card>
+          ) : (
+            <StackedItems>
+              {attributeListArr.map((item) => (
+                <StackedItem key={item.id} id={String(item.id)}>
+                  {item.icon && <StackedItemMedia>{item.icon}</StackedItemMedia>}
+                  <StackedItemContent>
+                    <StackedItemTitle>
+                      <Text variant="small" weight="medium">
+                        {item.name}
+                      </Text>
+                    </StackedItemTitle>
+                  </StackedItemContent>
+                  <StackedItemActions>
+                    <ActionGroup>
+                      <Button
+                        variant="outline"
+                        size="icon-sm"
+                        aria-label={__('Delete', 'kirki-ecommerce')}
+                        cssOverride={styles.actionButton}
+                        onClick={() => handleDeleteVariation(item)}
+                      >
+                        <TrashIcon />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="icon-sm"
+                        aria-label={__('Edit', 'kirki-ecommerce')}
+                        cssOverride={styles.actionButton}
+                        onClick={() => handleEditVariation(item)}
+                      >
+                        <EditPenIcon />
+                      </Button>
+                    </ActionGroup>
+                  </StackedItemActions>
+                </StackedItem>
+              ))}
+            </StackedItems>
+          )}
+        </div>
         <AddVariationPopup
           isOpen={showPopup}
           variationType={variationType}

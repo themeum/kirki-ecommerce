@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -16,12 +16,14 @@ import { __, sprintf } from '@/wpi18n';
 import VariationTable from '@/pages/settings/essential-settings/variation-library/variation-table/variation-table';
 import VariationValuePopup from '@/pages/settings/essential-settings/variation-library/variation-value-dialog';
 import SettingsPageHeader from '@/pages/settings/settings-page-header';
+import { Box } from 'lucide-react';
 
 type AttributeWithMeta = Attribute & { updated_at?: string };
 
 const ListVariation = () => {
   const { id } = useParams();
   const { data: selectedItem } = useAttributeQuery(Number(id), Boolean(id));
+  const navigate = useNavigate();
 
   const [attributeValueList, setAttributeValueList] = useState<AttributeValue[]>([]);
   const [addVariantPopup, setAddVariantPopup] = useState(false);
@@ -44,6 +46,7 @@ const ListVariation = () => {
           <SettingsPageHeader
             icon={<BoxIcon />}
             title={sprintf(__('%s', 'kirki-ecommerce'), selectedAttribute?.name ?? '')}
+            onBack={() => { navigate('/settings/essentials'); }}
             rightAction={
               <div>
                 <Button
@@ -60,7 +63,7 @@ const ListVariation = () => {
             <Card cssOverride={mergeCss(cardStyles.formCard, styles.roundedCard)}>
               <CardContent cssOverride={mergeCss(cardStyles.largeContentPadded, styles.emptyContent)}>
                 <Flex direction="column" gap={2} align="center">
-                  <BoxIcon />
+                  <Box />
                   <span css={scoped(styles.mutedText)}>
                     {__('No value added yet', 'kirki-ecommerce')}
                   </span>
