@@ -14,10 +14,10 @@ class Products extends Menu
     protected $capabilities = 'manage_options';
 
     /** @inheritDoc */
-    protected $menu_slug = 'ecommerce#/products';
+    protected $menu_slug = 'kirki-ecommerce#/products';
 
     /** @inheritDoc */
-    protected $parent_slug = 'ecommerce';
+    protected $parent_slug = 'kirki-ecommerce';
 
     public function __construct()
     {

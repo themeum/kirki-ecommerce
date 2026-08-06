@@ -23,6 +23,7 @@ type StackedItemsElementProps = Omit<
   'className' | 'css'
 > & {
   cssOverride?: CSSObject;
+  variant?: 'outline' | 'card';
 };
 
 type StackedItemsContextValue = {
@@ -34,7 +35,7 @@ const StackedItemsContext = createContext<StackedItemsContextValue | null>(null)
 
 const StackedItems = forwardRef<HTMLDivElement, StackedItemsElementProps>(
   (props, ref) => {
-    const { cssOverride, ...rest } = props;
+    const { cssOverride, variant = 'outline', ...rest } = props;
     const [openId, setOpenId] = useState<string | null>(null);
 
     return (
@@ -42,7 +43,7 @@ const StackedItems = forwardRef<HTMLDivElement, StackedItemsElementProps>(
         <ItemGroup
           ref={ref}
           data-slot="stacked-items"
-          cssOverride={mergeCss(styles.container, cssOverride)}
+          cssOverride={mergeCss(styles.container, variant === 'card' && styles.cardContainer, cssOverride)}
           {...rest}
         />
       </StackedItemsContext.Provider>
@@ -74,7 +75,7 @@ type StackedItemProps = StackedItemsElementProps & {
 };
 
 const StackedItem = forwardRef<HTMLDivElement, StackedItemProps>((props, ref) => {
-  const { id, cssOverride, children, ...rest } = props;
+  const { id, cssOverride, children, variant = 'default', ...rest } = props;
   const stackedItems = useContext(StackedItemsContext);
 
   if (!stackedItems) {
@@ -151,9 +152,15 @@ const styles = defineStyles({
     border: `1px solid ${theme.colors.border.alt}`,
     borderRadius: theme.radius.md,
   },
+  cardContainer: {
+    borderColor: theme.colors.border.secondary,
+    '& [data-slot="stacked-item"]': {
+      backgroundColor: theme.colors.background.fill,
+    },
+  },
   row: {
     position: 'relative',
-    minHeight: '42px',
+    minHeight: '44px',
     borderRadius: theme.radius.none,
     padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
     '&:not(:last-of-type)': {

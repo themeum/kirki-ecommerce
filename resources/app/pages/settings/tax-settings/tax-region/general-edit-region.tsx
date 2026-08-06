@@ -225,13 +225,15 @@ const GeneralEditRegion = () => {
                       onAdd={() => setShowPopup(true)}
                       hideButton={!!applySingleTax}
                     />
-                    <CheckboxField
-                      name="is_central_tax_enabled"
-                      label={__(
-                        'Apply single tax rate for entire country',
-                        'kirki-ecommerce',
-                      )}
-                    />
+                    <div css={scoped({ marginTop: theme.spacing[5] })}>
+                      <CheckboxField
+                        name="is_central_tax_enabled"
+                        label={__(
+                          'Apply single tax rate for entire country',
+                          'kirki-ecommerce',
+                        )}
+                      />
+                    </div>
                     <div css={scoped({ marginTop: theme.spacing[5] })}>
                       {applySingleTax ? (
                         <SingleTaxRate

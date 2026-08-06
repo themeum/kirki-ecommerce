@@ -16,13 +16,14 @@ import {
 } from '@/components/ui/stacked-items';
 import Switch from '@/components/ui/switch';
 import Text from '@/components/ui/text';
-import { CartIcon, EditPenIcon, PersonIcon, UserIcon } from '@/icons';
+import { CartIcon, UserIcon } from '@/icons';
 import type { EmailSettingsFormInput } from '@/schemas/forms/email-settings-form';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 import { mapEmailGroup } from '@/pages/settings/email-settings/utils';
+import { Edit3, User2 } from 'lucide-react';
 
 type EmailListItem = {
   key: string;
@@ -72,7 +73,7 @@ const EmailRow = (props: EmailRowProps) => {
             cssOverride={styles.actionButton}
             onClick={() => onEdit(item)}
           >
-            <EditPenIcon />
+            <Edit3 />
           </Button>
         </ActionGroup>
       </StackedItemActions>
@@ -113,7 +114,7 @@ const CustomerEmail = (props: CustomerEmailProps) => {
           <Flex direction="column" gap={4}>
             <Flex direction="column" gap={2} align="flex-start">
               <Flex gap={2} align="center">
-                <PersonIcon />
+                <User2 size={16} />
                 <Text weight="semibold">{__('Customer Emails', 'kirki-ecommerce')}</Text>
               </Flex>
               <Text color="secondary">{__('Manage customer emails here', 'kirki-ecommerce')}</Text>
@@ -128,7 +129,7 @@ const CustomerEmail = (props: CustomerEmailProps) => {
               leftIcon={<CartIcon />}
             >
               {orderEmails.length > 0 && (
-                <StackedItems>
+                <StackedItems variant="card">
                   {orderEmails.map((item) => (
                     <EmailRow
                       key={item.key}
@@ -149,7 +150,7 @@ const CustomerEmail = (props: CustomerEmailProps) => {
               leftIcon={<UserIcon />}
             >
               {userEmails.length > 0 && (
-                <StackedItems>
+                <StackedItems variant="card">
                   {userEmails.map((item) => (
                     <EmailRow
                       key={item.key}

@@ -1,17 +1,17 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router';
 
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import Container from '@/components/ui/container';
+import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
+import Text from '@/components/ui/text';
 import { AtSignIcon, BrushIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import Container from '@/components/ui/container';
-import Flex from '@/components/ui/flex';
-import Text from '@/components/ui/text';
 import { getDefaults, pickFormValues } from '@/libs/zod';
 import {
   EmailSettingsFormSchema,
@@ -23,25 +23,25 @@ import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
-import { setUnsavedDataStatus } from '@/pages/settings/utils';
-import { useSettingsPageActions } from '@/pages/settings/settings-layout/use-settings-page-actions';
-import SettingsPageHeader from '@/pages/settings/settings-page-header';
 import AdminEmail from '@/pages/settings/email-settings/admin-email';
 import CustomerEmail from '@/pages/settings/email-settings/customer-email';
-import { EMAIL_CONFIG, findEmailKeyByName, buildTogglePayload } from '@/pages/settings/email-settings/utils';
+import { buildTogglePayload, EMAIL_CONFIG, findEmailKeyByName } from '@/pages/settings/email-settings/utils';
+import { useSettingsPageActions } from '@/pages/settings/settings-layout/use-settings-page-actions';
+import SettingsPageHeader from '@/pages/settings/settings-page-header';
+import { setUnsavedDataStatus } from '@/pages/settings/utils';
 
 type EmailGroupData = {
   order_notifications?: Record<
     string,
-    { name?: string; is_enabled?: boolean; [key: string]: unknown }
+    { name?: string; is_enabled?: boolean;[key: string]: unknown }
   >;
   user_notifications?: Record<
     string,
-    { name?: string; is_enabled?: boolean; [key: string]: unknown }
+    { name?: string; is_enabled?: boolean;[key: string]: unknown }
   >;
   inventory_notifications?: Record<
     string,
-    { name?: string; is_enabled?: boolean; [key: string]: unknown }
+    { name?: string; is_enabled?: boolean;[key: string]: unknown }
   >;
 };
 
@@ -156,30 +156,31 @@ const EmailSettings = () => {
             <Card cssOverride={styles.roundedCard}>
               <CardContent>
 
-              <Flex
-                justify="space-between" align="center">
-              <Flex
-                direction="column"
-                gap={2}
-                align="flex-start">
-              <Flex gap={2} align="center">
-                <BrushIcon />
-                <Text weight="semibold">{__('Default Template', 'kirki-ecommerce')}</Text>
-              </Flex>
-              <Text color="secondary">{__(
-              'Configure logo, colors, sender email, and more for emails',
-              'kirki-ecommerce',
-              )}</Text>
-              </Flex>
-              <Button
-              variant="secondary"
-              onClick={() => {
-              navigate('/settings/email/edit-template');
-              }}
-              >
-              {__('Edit', 'kirki-ecommerce')}
-              </Button>
-              </Flex>
+                <Flex
+                  justify="space-between" align="center">
+                  <Flex
+                    direction="column"
+                    gap={2}
+                    align="flex-start">
+                    <Flex gap={2} align="center">
+                      <BrushIcon />
+                      <Text weight="semibold">{__('Default Template', 'kirki-ecommerce')}</Text>
+                    </Flex>
+                    <Text color="secondary">{__(
+                      'Configure logo, colors, sender email, and more for emails',
+                      'kirki-ecommerce',
+                    )}</Text>
+                  </Flex>
+                  <Button
+                    variant="secondary"
+                    onClick={() => {
+                      navigate('/settings/email/edit-template');
+                    }}
+                    disabled // @todo: will be implemented in the future
+                  >
+                    {__('Edit', 'kirki-ecommerce')}
+                  </Button>
+                </Flex>
               </CardContent>
             </Card>
             <CustomerEmail

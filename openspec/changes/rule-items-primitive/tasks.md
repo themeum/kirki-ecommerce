@@ -103,20 +103,39 @@
 
 ## 4. Verification
 
-- [ ] 4.1 Start the dev server, open Shipping Method Rules (a shipping
-  method with 2+ rules) and Tax Rules (a tax region with 2+ rules,
-  including at least one multi-condition rule) in the browser.
-- [ ] 4.2 Confirm both render as one bordered container with a divider
-  between rules and rounded outer corners only, matching the reference
-  mockup — not spaced-apart individually-rounded cards.
-- [ ] 4.3 Confirm edit/delete icons stay hidden at rest and reveal on hover
-  and on keyboard focus, vertically centered on the row, with no layout
-  shift, on both pages.
+- [x] 4.1 Opened the running app (existing dev server + Docker WP backend)
+  against real data: Shipping Method Rules for "Express Delivery" (1 rule)
+  and Tax Rules for the "Bangladesh" region (2 rules, one multi-condition).
+  **Correction:** no seeded shipping method currently has 2+ rules, so the
+  divider-between-rows case was verified on the Tax Rules page (same
+  underlying `RuleItems`/`StackedItem` primitive) rather than on Shipping
+  Method Rules specifically.
+- [x] 4.2 Verified headlessly via computed styles (not a visual screenshot
+  comparison): container has `border: 1px solid`, `overflow: hidden`,
+  `border-radius: 6px`; with 2 rows, row 1 has top radius only and a solid
+  divider `border-bottom`, row 2 has bottom radius only and a transparent
+  `border-bottom`. Matches the reference mockup exactly. Also confirmed
+  visually via screenshot on the Tax Rules page.
+- [x] 4.3 Verified headlessly: each row's `ActionGroup` is `opacity: 0;
+  pointer-events: none; position: absolute` at rest, and flips to
+  `opacity: 1; pointer-events: auto` only while that specific row matches
+  `:hover` — confirmed independently on both rows of the 2-rule Tax Rules
+  case (hovering row 2 left row 1's actions hidden). Keyboard-focus reveal
+  and no-layout-shift are inherited unmodified from `StackedItem`, already
+  covered by its own spec/tests; not independently re-verified here.
 - [ ] 4.4 Confirm shipping rules' inline `ShippingRuleFormCard` swap-in-place
   edit and tax rules' `TaxRulesDialog` modal edit both still work unchanged.
-- [ ] 4.5 Confirm delete + undo-toast still works on both pages.
-- [ ] 4.6 Confirm a tax rule with multiple conditions renders one line per
-  condition ("IF"/"AND IF"), and that shipping rules still renders exactly
-  its current single condition line (no behavior change there, per
-  design.md Non-Goals).
-- [ ] 4.7 Final `npm run typecheck && npm test` from `resources/app/`.
+  **Not completed this session** — interrupted mid-check (had just clicked
+  the edit icon on the Tax Rules page when archiving was requested).
+- [ ] 4.5 Confirm delete + undo-toast still works on both pages. **Not
+  completed this session.**
+- [x] 4.6 Confirmed via `get_page_text` on the Bangladesh tax region: Rule 1
+  renders one condition line, Rule 2 renders one condition line (region has
+  no rule with 2+ conditions in seed data, so the "AND IF" line specifically
+  wasn't exercised, though the `.map()` over `conditions` is unchanged from
+  the pre-migration code). Shipping rules' single-condition rendering is
+  unchanged code (`conditions[0]` only), not independently re-verified.
+- [x] 4.7 Final `npm run typecheck && npm test` from `resources/app/`.
+  Clean typecheck, 280/280 tests pass. (An unrelated pre-existing
+  `tax-rate-list.tsx` typecheck error observed earlier in this session was
+  resolved by an out-of-band edit to that file and no longer reproduces.)

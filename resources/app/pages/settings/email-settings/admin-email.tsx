@@ -134,7 +134,7 @@ const AdminEmail = (props: AdminEmailProps) => {
               leftIcon={<CartIcon />}
             >
               {orderEmails.length > 0 && (
-                <StackedItems>
+                <StackedItems variant="card">
                   {orderEmails.map((item) => (
                     <EmailRow
                       key={item.key}
@@ -155,7 +155,7 @@ const AdminEmail = (props: AdminEmailProps) => {
               leftIcon={<InventoryBoxIcon />}
             >
               {inventoryEmails.length > 0 && (
-                <StackedItems>
+                <StackedItems variant="card">
                   {inventoryEmails.map((item) => (
                     <EmailRow
                       key={item.key}
@@ -176,7 +176,7 @@ const AdminEmail = (props: AdminEmailProps) => {
               leftIcon={<UserIcon />}
             >
               {userEmails.length > 0 && (
-                <StackedItems>
+                <StackedItems variant="card">
                   {userEmails.map((item) => (
                     <EmailRow
                       key={item.key}

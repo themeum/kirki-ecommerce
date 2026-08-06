@@ -5,7 +5,7 @@ import { AppConfigSchema } from '@/schemas/catalog/app-config';
 describe('AppConfigSchema', () => {
   it('accepts the documented response (app-config/appconfig.yml)', () => {
     const result = AppConfigSchema.safeParse({
-      name: 'eCommerce',
+      name: 'Kirki eCommerce',
       version: '1.0.0',
       current_user: {
         id: 14,
@@ -32,7 +32,7 @@ describe('AppConfigSchema', () => {
   });
 
   it('accepts an unrecognized extra field', () => {
-    const result = AppConfigSchema.safeParse({ name: 'eCommerce', unexpected: 'value' });
+    const result = AppConfigSchema.safeParse({ name: 'Kirki eCommerce', unexpected: 'value' });
     expect(result.success).toBe(true);
   });
 
