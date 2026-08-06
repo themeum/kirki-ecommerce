@@ -265,3 +265,65 @@ export function form(config: FormConfig = {}) {
     },
   };
 }
+
+/**
+ * Alpine component: stateField
+ * Handles country→state dropdown population for address forms.
+ * Must be used inside a form() scope so it can watch values.country
+ * and read values.state via the parent form's register() binding.
+ *
+ * PHP usage:
+ *   <div x-data="stateField()" >
+ *     <select x-bind="register('state', { required: '...' })">
+ *       <template x-for="state in states" :key="state.id">
+ *         <option :value="state.id" x-text="state.name"></option>
+ *       </template>
+ *     </select>
+ *   </div>
+ */
+export function stateField({ notifyAddressChange = false }: { notifyAddressChange?: boolean } = {}) {
+  return {
+    states: [] as Array<{ id: string; name: string }>,
+
+    init() {
+      const loadStates = (countryCode: string) => {
+        if (!countryCode) {
+          this.states = [];
+          return;
+        }
+        const countries: Array<{ code: string; states: Array<{ id: string; name: string }> }> =
+          window.kirki_ecommerce?.countries ?? [];
+        const country = countries.find((c) => c.code === countryCode);
+        this.states = country?.states || [];
+      };
+
+      // Watch parent form's country value
+      (this as any).$watch('values.country', (newCountry: string) => {
+        loadStates(newCountry);
+        if (notifyAddressChange) {
+          window.dispatchEvent(new CustomEvent('address-changed'));
+        }
+      });
+
+      // Watch parent form's state value
+      if (notifyAddressChange) {
+        (this as any).$watch('values.state', () => {
+          window.dispatchEvent(new CustomEvent('address-changed'));
+        });
+      }
+
+      // Populate states for the current country immediately
+      const currentCountry = (this as any).values?.country ?? '';
+      loadStates(currentCountry);
+
+      // Re-assert the saved state value after x-for stamps the options
+      (this as any).$nextTick(() => (this as any).$nextTick(() => {
+        const select = (this as any).$el.querySelector('select');
+        const savedState = (this as any).values?.state ?? '';
+        if (select && savedState) {
+          select.value = savedState;
+        }
+      }));
+    },
+  };
+}

@@ -13,7 +13,7 @@ import Alpine from "alpinejs";
 import { addToCart } from "./components/add-to-cart";
 import { cart } from "./components/cart";
 import { checkout } from "./components/checkout";
-import { form } from "./components/form";
+import { form, stateField } from "./components/form";
 import { imageSlider } from "./components/image-slider";
 import { modal } from "./components/modal";
 import { productFilter } from "./components/product-filter";
@@ -37,6 +37,7 @@ Alpine.data("tabs", tabs);
 Alpine.data("checkout", checkout);
 Alpine.data("modal", modal);
 Alpine.data("form", form);
+Alpine.data("stateField", stateField);
 Alpine.data('shop', shop);
 
 // Initialize Alpine

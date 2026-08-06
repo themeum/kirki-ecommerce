@@ -102,21 +102,7 @@ $billing_email = $billing_address["email"] ?? '';
                     x-bind="register('city', { required: '<?php esc_html_e('City is required', 'kirki-ecommerce'); ?>' })">
                 <span class="kecom-field-error" x-show="errors.city" x-text="errors.city"></span>
             </div>
-            <div class="kecom-field" x-data="{ states: [] }" x-init="
-                const loadStates = (countryCode) => {
-                    if (!countryCode) { states = []; return; }
-                    const countries = window.kirki_ecommerce?.countries ?? [];
-                    const country = countries.find(c => c.code === countryCode);
-                    states = country?.states || [];
-                };
-
-                $watch('values.country', (newCountry) => {
-                    loadStates(newCountry);
-                });
-
-                // Initial load
-                $nextTick(() => loadStates(values.country));
-            ">
+            <div class="kecom-field" x-data="stateField()">
                 <label class="kecom-field-label" for="billing-state"><?php esc_html_e('State', 'kirki-ecommerce'); ?></label>
                 <select
                     class="kecom-select"
