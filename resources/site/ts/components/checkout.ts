@@ -9,9 +9,9 @@
  *   })">
  */
 
-import { toastManager } from "../services/toast/runtime";
 import { cartApi } from "../api/cart";
 import { orderApi } from "../api/order";
+import { toastManager } from "../services/toast/runtime";
 import type { OrderRequest } from "../types";
 
 export interface CheckoutConfig {
@@ -355,6 +355,7 @@ export function checkout(config: CheckoutConfig = {}) {
         // Create order
         const response = await orderApi.create(orderData);
         toastManager.success(__('Order placed successfully!', 'kirki-ecommerce'));
+        await cartApi.empty();
 
         // Redirect to thank you page
         // const thankYouUrl = window.kirki_ecommerce?.thank_you_url || '/thank-you';
