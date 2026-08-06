@@ -21,6 +21,14 @@
 .kecom-cart-items {
   padding: $spacing-18 $spacing-19;
 
+  &-empty-text {
+    @include flex(column, center, center);
+    @include typography(xl, normal, $text-secondary);
+    gap: $spacing-6;
+    margin: 0;
+    height: 100%;
+  }
+
   &-header {
     @include flex(row, center, space-between);
     margin-bottom: $spacing-12;
@@ -50,7 +58,7 @@
     @include flex(row, flex-start, flex-start);
     gap: $spacing-6;
 
-    &-description {
+    &-container {
       @include flex(column, flex-start, flex-start);
       flex-grow: 1;
     }

@@ -59,7 +59,7 @@ class CartResource extends Resource
                 'shipping_total' => $this->prepare_amount($this->shipping_total),
                 'shipping_total_formatted' => Money::format_from_decimal($this->prepare_amount($this->shipping_total)),
                 'total' => $this->prepare_amount($this->total),
-                'total_formatted' =>  Money::format_from_decimal($this->prepare_amount($this->total)),
+                'total_formatted' => $this->items_count > 0 ?  Money::format_from_decimal($this->prepare_amount($this->total)) : Money::format_from_decimal(0),
             ],
 
             'items_count' => $this->items_count,
