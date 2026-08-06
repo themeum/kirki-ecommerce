@@ -22,13 +22,23 @@ class MollieTransactionBuilder
             $line_items[] = $this->build_line_item($item);
         }
 
+        if (!empty($this->order->shipping_total)) {
+            $line_items[] = [
+                'type' => 'shipping_fee',
+                'description' => __('Shipping Charge', 'kirki-mollie'),
+                'quantity'    => 1,
+                'unitPrice'   => $this->money($this->order->shipping_total),
+                'totalAmount' => $this->money($this->order->shipping_total),
+            ];
+        }
+
         return $line_items;
     }
 
     protected function build_line_item(object $item): array
     {
-        $unit_price = $item->price + ($item->tax_total ?? 0);
-
+        $tax = !empty($item->tax_total) ? $item->tax_total / (int) $item->quantity : 0;
+        $unit_price = $item->price + ($tax ?? 0);
 
         $line_item = [
             'description' => $item->product_name,
@@ -57,13 +67,13 @@ class MollieTransactionBuilder
         ];
     }
 
-    public function get_address($type): array
+    public function get_address($type): object
     {
         if (empty($address)) {
-            return [];
+            return new \stdclass();
         }
 
-        return [
+        return (object)[
             'givenName'        => $this->order->{$type . '_first_name'},
             'familyName'       => $this->order->{$type . '_last_name'},
             'email'            => $this->order->{$type . '_email'},

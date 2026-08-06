@@ -9,7 +9,6 @@ use Kirki\Ecommerce\App\Payment\PaymentGateway;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Kirki\Ecommerce\Framework\Validation\Validator;
-use Mollie\Api\MollieApiClient;
 
 defined('ABSPATH') || exit;
 
@@ -78,8 +77,7 @@ class Mollie extends PaymentGateway
                 'billingAddress' => $this->transaction_builder->get_address('billing'),
                 'shippingAddress' => $this->transaction_builder->get_address('shipping'),
                 'metadata' => ['order_id' => $order->id],
-                'testmode' => $this->mollie->is_test_mode()
-            ], MollieConstant::API_BASE_URL . 'payment');
+            ], MollieConstant::API_BASE_URL . 'payments');
 
             if (empty($response['_links']['checkout'])) {
                 return null;
