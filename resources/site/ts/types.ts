@@ -153,6 +153,7 @@ export interface OrderRequest {
 
 export interface OrderResponse {
   id: number;
+  uuid: string;
   order_number: string;
   status: string;
   total: string;

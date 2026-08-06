@@ -357,8 +357,10 @@ export function checkout(config: CheckoutConfig = {}) {
         toastManager.success(__('Order placed successfully!', 'kirki-ecommerce'));
 
         // Redirect to thank you page
-        // const thankYouUrl = window.kirki_ecommerce?.thank_you_url || '/thank-you';
-        // window.location.href = `${thankYouUrl}?order_id=${response.data.id}`;
+        const url = new URL(window.location.href);
+        url.searchParams.set('order', 'success');
+        url.searchParams.set('uuid', response.data.uuid);
+        window.location.href = url.toString();
       } catch (e: unknown) {
         this.error = e instanceof Error ? e.message : __('Checkout failed', 'kirki-ecommerce');
         toastManager.error(this.error || __('Checkout failed', 'kirki-ecommerce'));
