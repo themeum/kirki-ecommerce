@@ -7,6 +7,8 @@ export interface kirkiEcommerceConfig {
   is_logged_in: boolean;
   login_url: string;
   cart: CartUpdateItem;
+  cart_token_cookie_name: string;
+  cart_token_header_name: string;
 }
 
 // Extend window for WordPress-injected config

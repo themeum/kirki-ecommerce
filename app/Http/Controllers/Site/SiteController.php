@@ -137,8 +137,7 @@ class SiteController
      */
     public function cart_page(Request $request, CartService $cart_service)
     {
-        $customer = customer();
-        $cart = $cart_service->get_cart($customer->get_customer_id() ?? null, null);
+        $cart = $cart_service->get_current_cart();
         $cart_resource = CartResource::make($cart);
 
         return view('site.cart', ['cart' => $cart_resource])->layout(false);
