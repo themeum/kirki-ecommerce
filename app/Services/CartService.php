@@ -7,13 +7,14 @@ use Kirki\Ecommerce\App\DTO\Cart\AddToCartDTO;
 use Kirki\Ecommerce\App\DTO\Cart\EmptyCartDTO;
 use Kirki\Ecommerce\App\DTO\Cart\RemoveCartItemDTO;
 use Kirki\Ecommerce\App\DTO\Cart\UpdateCartDTO;
-use Kirki\Ecommerce\App\Models\Cart as CartModel;
 use Exception;
 use Kirki\Ecommerce\App\Constants\Cart;
+use Kirki\Ecommerce\App\DTO\Customer\CreateCustomerDTO;
 
 use function Kirki\Ecommerce\App\base_currency;
 use function Kirki\Ecommerce\App\customer;
 use function Kirki\Ecommerce\Framework\app;
+use function Kirki\Ecommerce\Framework\user;
 use function Kirki\Ecommerce\Framework\uuid;
 
 class CartService
@@ -224,13 +225,26 @@ class CartService
     }
 
     /**
+     * Delete guest cart cookie.
+     *
+     * @since 1.0.0
+     */
+    public function clear_guest_cart_cookie()
+    {
+        if (!headers_sent() && isset($_COOKIE[Cart::COOKIE_TOKEN])) {
+            setcookie(Cart::COOKIE_TOKEN, '', time() - DAY_IN_SECONDS, '/');
+            unset($_COOKIE[Cart::COOKIE_TOKEN]);
+        }
+    }
+
+    /**
      * Ensure guest cart cookie.
      *
      * @since 1.0.0
      */
     public function ensure_guest_cart_cookie(): void
     {
-        if (is_user_logged_in()) {
+        if (is_user_logged_in() || headers_sent()) {
             return;
         }
 
@@ -246,10 +260,55 @@ class CartService
             return;
         }
 
-        if (!CartModel::where('cart_token', $token)->exists()) {
-            setcookie(Cart::COOKIE_TOKEN, '', time() - DAY_IN_SECONDS, '/');
-            unset($_COOKIE[Cart::COOKIE_TOKEN]);
+        if (!$this->repository->find_by_token($token)) {
+            $this->clear_guest_cart_cookie();
         }
+    }
+
+    /**
+     * Sync guest cart with user cart after login.
+     *
+     * @since 1.0.0
+     *
+     * @param string $user_login user login.
+     * @param \WP_User $user wp user object.
+     *
+     * @return void
+     */
+    public function sync_guest_cart(string $user_login, \WP_User $user): void
+    {
+        $current_user_id = $user->ID;
+        $guest_cart_token = $this->get_guest_cart_token();
+
+        if (!$guest_cart_token) {
+            return;
+        }
+
+        $customer_id = null;
+        $customer = customer($current_user_id)->get_customer();
+
+        /**
+         * If existing user has no customer record
+         * First create the record with WP user id.
+         */
+        if (!$customer) {
+            $customer_service = app(CustomerService::class);
+            $dto = app(CreateCustomerDTO::class);
+            $dto->user_id = $current_user_id;
+            $dto->first_name = $user->first_name;
+            $dto->last_name = $user->last_name;
+            $dto->email = $user->user_email;
+            $dto->created_by = $current_user_id;
+            $dto->updated_by = $current_user_id;
+
+            $customer = $customer_service->create($dto);
+            $customer_id = $customer->id;
+        } else {
+            $customer_id = $customer->id;
+        }
+
+        $this->repository->update_by_token($guest_cart_token, ['customer_id' => $customer_id]);
+        $this->clear_guest_cart_cookie();
     }
 
     /**

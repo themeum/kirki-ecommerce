@@ -3,6 +3,7 @@
 use Kirki\Ecommerce\App\Hooks\Actions\AddWpHeadMeta;
 use Kirki\Ecommerce\App\Hooks\Actions\EnqueueSiteScripts;
 use Kirki\Ecommerce\App\Hooks\Actions\GuestCart;
+use Kirki\Ecommerce\App\Hooks\Actions\SyncGuestCart;
 use Kirki\Ecommerce\App\Hooks\Filters\PageIdentifier;
 use Kirki\Ecommerce\App\Hooks\Filters\ReplaceSiteTitle;
 use Kirki\Ecommerce\App\Hooks\Filters\PageInlineScript;
@@ -22,6 +23,7 @@ return [
         AddWpHeadMeta::class,
         SMTPConfig::class,
         GuestCart::class,
+        SyncGuestCart::class,
     ],
     'filters' => [
         ReplaceSiteTitle::class,

@@ -12,13 +12,17 @@ class Cart
      * Header name for the cart token.
      *
      * @since 1.0.0
+     *
+     * @var string
      */
-    public const HEADER_TOKEN = 'x-cart-token';
+    public const HEADER_TOKEN = 'kecom-cart-token';
 
     /**
      * Cookie name for the cart token.
      *
      * @since 1.0.0
+     *
+     * @var string
      */
-    public const COOKIE_TOKEN = 'ke_cart_token';
+    public const COOKIE_TOKEN = 'kecom_cart_token';
 }
