@@ -364,8 +364,12 @@ export function checkout(config: CheckoutConfig = {}) {
         url.searchParams.set('uuid', response.data.uuid);
         window.location.href = url.toString();
       } catch (e: unknown) {
-        this.error = e instanceof Error ? e.message : __('Checkout failed', 'kirki-ecommerce');
-        toastManager.error(this.error || __('Checkout failed', 'kirki-ecommerce'));
+        const err = e as Error & { errors?: Record<string, string[]> };
+        const firstValidationError = err.errors
+          ? Object.values(err.errors).flat()[0]
+          : null;
+        this.error = firstValidationError ?? err.message ?? __('Checkout failed', 'kirki-ecommerce');
+        toastManager.error(this.error);
       } finally {
         this.loading = false;
       }

@@ -36,6 +36,7 @@ http:
           "postal_code": "90001",
           "country": "US"
         },
+        is_billing_same_as_shipping: false,
         "shipping_method": "f12fdsfsdfsdf343432jh4"
       }
   auth: inherit
