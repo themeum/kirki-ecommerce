@@ -228,6 +228,8 @@ class CartService
      * Clear guest cart cookie.
      *
      * @since 1.0.0
+     *
+     * @return void
      */
     public function clear_guest_cart_cookie()
     {
@@ -238,9 +240,28 @@ class CartService
     }
 
     /**
+     * Set guest cart token in cookie
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
+    public function set_guest_cart_cookie()
+    {
+        if (!headers_sent()) {
+            $expires = time() + (DAY_IN_SECONDS * 30);
+            $cart = $this->get_cart();
+            setcookie(Cart::COOKIE_TOKEN, $cart->cart_token, $expires, '/');
+            $_COOKIE[Cart::COOKIE_TOKEN] = $cart->cart_token;
+        }
+    }
+
+    /**
      * Ensure guest cart cookie.
      *
      * @since 1.0.0
+     *
+     * @return void
      */
     public function ensure_guest_cart_cookie(): void
     {
@@ -248,20 +269,16 @@ class CartService
             return;
         }
 
-        $expires = time() + (DAY_IN_SECONDS * 30);
         $token = $this->get_guest_cart_token();
 
         if (!$token) {
-            $cart = $this->get_cart();
-
-            setcookie(Cart::COOKIE_TOKEN, $cart->cart_token, $expires, '/');
-            $_COOKIE[Cart::COOKIE_TOKEN] = $cart->cart_token;
-
+            $this->set_guest_cart_cookie();
             return;
         }
 
         if (!$this->repository->find_by_token($token)) {
             $this->clear_guest_cart_cookie();
+            $this->set_guest_cart_cookie();
         }
     }
 
