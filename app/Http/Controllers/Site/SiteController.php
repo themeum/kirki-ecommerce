@@ -163,6 +163,10 @@ class SiteController
             return view('site.order-success')->layout(false);
         }
 
+        if ( $request->get('order') === 'failed' ) {
+            return view('site.order-failed')->layout(false);
+        }
+
         $customer = customer();
         $payment_gateways =  $payment_gateway_service->get();
         $cart = CartResource::make($cart_service->get_cart($customer->get_customer_id()));
