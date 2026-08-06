@@ -9,7 +9,6 @@
  * @since 1.0.0
  */
 
-use Kirki\Ecommerce\App\Supports\Icon;
 use Kirki\Ecommerce\App\Supports\Template;
 use Kirki\Ecommerce\App\Supports\Url;
 

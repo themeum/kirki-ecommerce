@@ -9,11 +9,14 @@
  * @since 1.0.0
  */
 
-use Kirki\Ecommerce\App\Supports\Icon;
 use Kirki\Ecommerce\App\Supports\Template;
 use Kirki\Ecommerce\App\Supports\Url;
 
+use function Kirki\Ecommerce\Framework\view_data;
+
 defined('ABSPATH') || exit;
+
+$order = view_data('order') ?: null;
 ?>
 
 <?php Template::get_header(); ?>
@@ -31,58 +34,78 @@ defined('ABSPATH') || exit;
             <h3 class="kecom-order-success-title"><?php _e('Payment Successful', 'kirki-ecommerce'); ?></h3>
             <p class="kecom-order-success-subtitle"><?php _e('Your order has been confirmed and is being processed.', 'kirki-ecommerce'); ?></p>
         </div>
+
+        <?php if ($order): ?>
+
         <div class="kecom-order-success-section">
             <div class="kecom-order-success-section-label"><?php _e('Payment Details', 'kirki-ecommerce'); ?></div>
             <div class="kecom-order-success-rows">
                 <div class="kecom-order-success-row">
                     <div class="kecom-order-success-row-key"><?php _e('Invoice Number', 'kirki-ecommerce'); ?></div>
-                    <div class="kecom-order-success-row-value">S564 F5677 G6412</div>
+                    <div class="kecom-order-success-row-value"><?php echo esc_html($order['order_number']); ?></div>
                 </div>
                 <div class="kecom-order-success-row">
                     <div class="kecom-order-success-row-key"><?php _e('Order Time', 'kirki-ecommerce'); ?></div>
-                    <div class="kecom-order-success-row-value">01:09 AM, 20 June 2025</div>
+                    <div class="kecom-order-success-row-value">
+                        <?php echo esc_html(date_i18n(get_option('date_format') . ' ' . get_option('time_format'), $order['created_at']->get_timestamp())); ?>
+                    </div>
                 </div>
                 <div class="kecom-order-success-row">
                     <div class="kecom-order-success-row-key"><?php _e('Payment Method', 'kirki-ecommerce'); ?></div>
-                    <div class="kecom-order-success-row-value">PayPal</div>
+                    <div class="kecom-order-success-row-value"><?php echo esc_html(ucfirst($order['payment_method'])); ?></div>
                 </div>
                 <div class="kecom-order-success-row">
                     <div class="kecom-order-success-row-key"><?php _e('Payment Status', 'kirki-ecommerce'); ?></div>
-                    <span class="kecom-badge kecom-badge-success-light"><?php _e('Completed', 'kirki-ecommerce'); ?></span>
+                    <span class="kecom-badge kecom-badge-<?php echo esc_attr($order['payment_status'] === 'paid' ? 'success-light' : 'warning'); ?>">
+                        <?php echo esc_html(ucfirst($order['payment_status'])); ?>
+                    </span>
                 </div>
             </div>
         </div>
+
         <div class="kecom-order-success-section">
             <div class="kecom-order-success-section-label"><?php _e('Product Details', 'kirki-ecommerce'); ?></div>
             <div class="kecom-order-success-rows">
+                <?php foreach ($order['items']->all() as $item): ?>
                 <div class="kecom-order-success-row">
-                    <div class="kecom-order-success-row-key">Urban Runner • L • Grey Orange x1</div>
-                    <div class="kecom-order-success-row-value">$12.00</div>
+                    <div class="kecom-order-success-row-key">
+                        <?php echo esc_html($item['product_name']); ?>
+                        <?php if (!empty($item['variant_name'])): ?>• <?php echo esc_html($item['variant_name']); ?><?php endif; ?>
+                        x<?php echo esc_html($item['quantity']); ?>
+                    </div>
+                    <div class="kecom-order-success-row-value"><?php echo esc_html($item['total']->display); ?></div>
                 </div>
-                <div class="kecom-order-success-row">
-                    <div class="kecom-order-success-row-key">Festival Mask x1</div>
-                    <div class="kecom-order-success-row-value">$3.00</div>
-                </div>
-                <div class="kecom-order-success-row">
-                    <div class="kecom-order-success-row-key">Cikrate Wristwatch • M • Green Yellow x2</div>
-                    <div class="kecom-order-success-row-value">$12.00</div>
-                </div>
+                <?php endforeach; ?>
+
+                <?php if ($order['totals']['shipping']->raw > 0): ?>
                 <div class="kecom-order-success-row">
                     <div class="kecom-order-success-row-key"><?php _e('Shipping', 'kirki-ecommerce'); ?></div>
-                    <div class="kecom-order-success-row-value">$12.99</div>
+                    <div class="kecom-order-success-row-value"><?php echo esc_html($order['totals']['shipping']->display); ?></div>
                 </div>
+                <?php endif; ?>
+
+                <?php if ($order['totals']['discount']->raw > 0): ?>
                 <div class="kecom-order-success-row">
                     <div class="kecom-order-success-row-key"><?php _e('Discount', 'kirki-ecommerce'); ?></div>
-                    <div class="kecom-order-success-row-value kecom-order-success-row-value--discount">-$7.00</div>
+                    <div class="kecom-order-success-row-value kecom-order-success-row-value--discount">
+                        -<?php echo esc_html($order['totals']['discount']->display); ?>
+                    </div>
                 </div>
+                <?php endif; ?>
             </div>
         </div>
+
         <div class="kecom-order-success-total">
             <div class="kecom-order-success-total-label"><?php _e('Total Amount', 'kirki-ecommerce'); ?></div>
-            <div class="kecom-order-success-total-value">$19.99</div>
+            <div class="kecom-order-success-total-value"><?php echo esc_html($order['totals']['total']->display); ?></div>
         </div>
+
+        <?php endif; ?>
+
         <div class="kecom-order-success-actions">
-            <a href="<?php echo esc_url(Url::get_shop_url()); ?>" class="kecom-btn kecom-btn-primary kecom-btn-lg kecom-btn-block"><?php _e('Continue Shopping', 'kirki-ecommerce'); ?></a>
+            <a href="<?php echo esc_url(Url::get_shop_url()); ?>" class="kecom-btn kecom-btn-primary kecom-btn-lg kecom-btn-block">
+                <?php _e('Continue Shopping', 'kirki-ecommerce'); ?>
+            </a>
         </div>
     </div>
 </div>

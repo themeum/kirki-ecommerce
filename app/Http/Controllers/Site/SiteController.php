@@ -16,9 +16,11 @@ use Kirki\Ecommerce\App\Models\Brand;
 use Kirki\Ecommerce\App\Models\Category;
 use Kirki\Ecommerce\App\Models\Product;
 use Kirki\Ecommerce\App\Resources\Cart\CartResource;
+use Kirki\Ecommerce\App\Resources\Order\OrderResource;
 use Kirki\Ecommerce\App\Services\ProductService;
 use Kirki\Ecommerce\App\Resources\Product\ProductResource;
 use Kirki\Ecommerce\App\Services\CartService;
+use Kirki\Ecommerce\App\Services\OrderService;
 use Kirki\Ecommerce\App\Services\PaymentGatewayService;
 use Kirki\Ecommerce\App\Supports\Template;
 use Kirki\Ecommerce\App\Supports\Utils;
@@ -157,10 +159,19 @@ class SiteController
     public function checkout_page(
         Request $request,
         PaymentGatewayService $payment_gateway_service,
-        CartService $cart_service
+        CartService $cart_service,
+        OrderService $order_service
     ) {
         if ( $request->get('order') === 'success' ) {
-            return view('site.order-success')->layout(false);
+            $uuid = $request->get('uuid');
+            $order = null;
+
+            if ($uuid) {
+                $order_model = $order_service->find_order_by_uuid($uuid);
+                $order = $order_model ? OrderResource::make($order_model) : null;
+            }
+
+            return view('site.order-success', ['order' => $order])->layout(false);
         }
 
         if ( $request->get('order') === 'failed' ) {
