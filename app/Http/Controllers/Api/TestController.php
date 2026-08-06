@@ -26,9 +26,11 @@ class TestController
         $today = Date::today();
 
         // For Authorizenet testing.
-        header('Content-Type: text/html');
-        echo Payment::get_gateway('authorizenet')->pay(Order::find(2));
-        exit;
+        // header('Content-Type: text/html');
+        // echo Payment::get_gateway('mollie')->pay(Order::find(2));
+        // exit;
+
+        Payment::get_gateway('mollie')->pay(Order::find(2));
 
         // return response()->json([
         //     // 'message' => 'Hello World',
@@ -39,7 +41,7 @@ class TestController
         //     // 'usage' => CurrencyExchange::get_active_provider()->get_usage()->all(),
         //     // 'is_installed' => AddonPlugin::install('https://kirki.com/addons/paypal-gateway')
         //     // 'refund' => Payment::get_gateway('paypal')->refund(Order::find(7), 1)
-        //     'pay' => Payment::get_gateway('authorizenet')->pay(Order::find(2))
+        //     'pay' => Payment::get_gateway('mollie')->pay(Order::find(2))
         // ]);
     }
 }

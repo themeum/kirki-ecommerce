@@ -1,4 +1,5 @@
 <?php
+
 namespace Kirki\Ecommerce\Payments;
 
 use Exception;
@@ -8,6 +9,7 @@ use Kirki\Ecommerce\App\Payment\PaymentGateway;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Kirki\Ecommerce\Framework\Validation\Validator;
+use Mollie\Api\MollieApiClient;
 
 defined('ABSPATH') || exit;
 
@@ -16,6 +18,8 @@ defined('ABSPATH') || exit;
  */
 class Mollie extends PaymentGateway
 {
+    protected $mollie;
+    protected $transaction_builder;
     public function __construct()
     {
         $this->id = 'mollie';
@@ -25,13 +29,14 @@ class Mollie extends PaymentGateway
         $this->settings_key = 'mollie';
         $this->is_manual = false;
         $this->has_fields = true;
+        $this->transaction_builder = new MollieTransactionBuilder();
 
         parent::__construct();
 
         $this->set_admin_fields([
             [
-                'name' => 'secret_key',
-                'label' => __('Secret key', 'kirki-ecommerce'),
+                'name' => 'api_key',
+                'label' => __('Api key', 'kirki-ecommerce'),
                 'type' => 'password',
                 'required' => true,
             ],
@@ -53,7 +58,36 @@ class Mollie extends PaymentGateway
     public function pay(Order $order)
     {
         if (!$this->enabled()) {
-            throw new Exception(__('Mollie is not enabled.', 'kirki-ecommerce'));
+            throw new Exception(__('Mollie is not enabled.', 'kirki-mollie'));
+        }
+
+        $this->mollie = $this->get_client();
+        $this->transaction_builder = new MollieTransactionBuilder($order);
+
+        try {
+            $response = $this->mollie->send([
+                'description' => 'Order #' . $order->id,
+                'amount' => [
+                    'currency' => strtoupper($order->currency_code),
+                    'value' => $this->format_amount($order->total),
+                ],
+                'redirectUrl' => $this->success_url($order),
+                'cancelUrl' => $this->cancel_url($order),
+                'webhookUrl' => $this->webhook_url(),
+                'lines' => $this->transaction_builder->build_line_items(),
+                'billingAddress' => $this->transaction_builder->get_address('billing'),
+                'shippingAddress' => $this->transaction_builder->get_address('shipping'),
+                'metadata' => ['order_id' => $order->id],
+                'testmode' => $this->mollie->is_test_mode()
+            ], MollieConstant::API_BASE_URL . 'payment');
+
+            if (empty($response['_links']['checkout'])) {
+                return null;
+            }
+
+            return $response['_links']['checkout'];
+        } catch (\Throwable $e) {
+            throw new Exception(__('Mollie Payment Error: ' . $e->getMessage(), 'kirki-mollie'));
         }
     }
 
@@ -68,7 +102,7 @@ class Mollie extends PaymentGateway
         parent::validate_settings($settings);
 
         Validator::make($settings, [
-            'secret_key' => 'required|string',
+            'api_key' => 'required|string',
             'sandbox' => 'boolean',
         ])->validate();
 
@@ -86,7 +120,7 @@ class Mollie extends PaymentGateway
         $parent_settings = parent::sanitize_settings($settings);
 
         $data = Sanitizer::make($settings, [
-            'secret_key' => Sanitizer::TEXT,
+            'api_key' => Sanitizer::TEXT,
             'sandbox' => Sanitizer::BOOL,
         ])->get_sanitized_data();
 
@@ -102,5 +136,21 @@ class Mollie extends PaymentGateway
     public function webhook()
     {
         return true;
+    }
+
+    protected function get_client()
+    {
+        if ($this->mollie) {
+            return $this->mollie;
+        }
+
+        $api_key = $this->settings['api_key'] ?? '';
+
+        if (empty($api_key)) {
+            throw new Exception(__('Mollie API Key is missing.', 'kirki-mollie'));
+        }
+
+        $is_test_mode = (bool) ($this->settings['sandbox'] ?? false);
+        return new MollieClient($api_key, $is_test_mode);
     }
 }

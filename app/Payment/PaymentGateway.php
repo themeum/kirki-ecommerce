@@ -12,6 +12,7 @@ use Kirki\Ecommerce\Framework\Supports\Facades\Option;
 use Exception;
 
 use function Kirki\Ecommerce\Framework\app;
+use function Kirki\Ecommerce\Framework\url;
 
 defined('ABSPATH') || exit;
 
@@ -473,5 +474,34 @@ class PaymentGateway
         }
 
         return implode(' | ', $parts);
+    }
+
+    /**
+     * Format amount.
+     *
+     * @param int $amount
+     * @return string
+     */
+    public static function format_amount($amount)
+    {
+        return number_format(Money::from_minor($amount)->getAmount()->toFloat(), 2, '.', '');
+    }
+
+    protected function success_url(Order $order)
+    {
+        $query_params = [
+            'uuid' => $order->get_attribute_value('uuid')
+        ];
+
+        return url(home_url(), $query_params);
+    }
+
+    protected function cancel_url(Order $order)
+    {
+        $query_params = [
+            'uuid' => $order->get_attribute_value('uuid')
+        ];
+
+        return url(home_url(), $query_params);
     }
 }

@@ -7,7 +7,7 @@ info:
 
 http:
   method: PATCH
-  url: "{{baseUrl}}/payment-gateways/authorizenet"
+  url: "{{baseUrl}}/payment-gateways/mollie"
   body:
     type: json
     data: |-

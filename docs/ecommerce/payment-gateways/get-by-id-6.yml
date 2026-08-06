@@ -7,7 +7,7 @@ info:
 
 http:
   method: GET
-  url: "{{baseUrl}}/payment-gateways/authorizenet"
+  url: "{{baseUrl}}/payment-gateways/mollie"
   auth: inherit
 
 settings:

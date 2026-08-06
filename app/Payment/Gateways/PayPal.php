@@ -423,15 +423,4 @@ class PayPal extends PaymentGateway
 
         return array_merge($parent_settings, $data);
     }
-
-    /**
-     * Format amount.
-     *
-     * @param int $amount
-     * @return string
-     */
-    protected function format_amount($amount)
-    {
-        return number_format(Money::from_minor($amount)->getAmount()->toFloat(), 2, '.', '');
-    }
 }
