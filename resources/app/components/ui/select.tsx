@@ -1,4 +1,4 @@
-import { forwardRef, type ComponentPropsWithoutRef, type ElementRef } from 'react';
+import { forwardRef, type ComponentPropsWithoutRef, type ElementRef, type ReactNode } from 'react';
 import { type CSSObject, type Theme } from '@emotion/react';
 import * as SelectPrimitive from '@radix-ui/react-select';
 import { CheckIcon, ChevronDownIcon } from '@radix-ui/react-icons';
@@ -99,6 +99,7 @@ type SelectLabelProps = Omit<
   ComponentPropsWithoutRef<typeof SelectPrimitive.Label>,
   'className' | 'css'
 > & {
+  icon?: ReactNode;
   cssOverride?: CSSObject;
 };
 
@@ -106,9 +107,14 @@ const SelectLabel = forwardRef<
   ElementRef<typeof SelectPrimitive.Label>,
   SelectLabelProps
 >((props, ref) => {
-  const { cssOverride, ...rest } = props;
+  const { cssOverride, icon, children, ...rest } = props;
 
-  return <SelectPrimitive.Label ref={ref} css={scopedMerge(styles.label, cssOverride)} {...rest} />;
+  return (
+    <SelectPrimitive.Label ref={ref} css={scopedMerge(styles.label, cssOverride)} {...rest}>
+      {icon && <span css={scoped(styles.labelIcon)}>{icon}</span>}
+      {children}
+    </SelectPrimitive.Label>
+  );
 });
 
 SelectLabel.displayName = 'SelectLabel';
@@ -117,6 +123,7 @@ type SelectItemProps = Omit<
   ComponentPropsWithoutRef<typeof SelectPrimitive.Item>,
   'className' | 'css'
 > & {
+  endSlot?: ReactNode;
   cssOverride?: CSSObject;
 };
 
@@ -124,7 +131,7 @@ const SelectItem = forwardRef<
   ElementRef<typeof SelectPrimitive.Item>,
   SelectItemProps
 >((props, ref) => {
-  const { cssOverride, children, ...rest } = props;
+  const { cssOverride, endSlot, children, ...rest } = props;
 
   return (
     <SelectPrimitive.Item ref={ref} css={scopedMerge(styles.item, cssOverride)} {...rest}>
@@ -134,6 +141,7 @@ const SelectItem = forwardRef<
         </SelectPrimitive.ItemIndicator>
       </span>
       <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
+      {endSlot && <span css={scoped(styles.itemEndSlot)}>{endSlot}</span>}
     </SelectPrimitive.Item>
   );
 });
@@ -184,7 +192,6 @@ const styles = defineStyles({
     padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
     borderRadius: theme.radius.lg,
     backgroundColor: theme.colors.background.fill,
-    boxSizing: 'border-box',
     justifyContent: 'space-between',
     ...itemCenter(),
     gap: theme.spacing[2],
@@ -242,13 +249,13 @@ const styles = defineStyles({
     flexShrink: 0,
   },
   content: {
-    padding: theme.spacing[1],
+    padding: `${theme.spacing[1]} 0`,
     border: `1px solid ${theme.colors.border.default}`,
     borderRadius: theme.radius.md,
     boxShadow: theme.shadow.md,
     backgroundColor: theme.colors.background.fill,
     minHeight: '33px',
-    zIndex: 100000,
+    zIndex: theme.zIndex.dropdown,
     overflowX: 'hidden',
     '&:focus, &:focus-visible': {
       outline: 'none',
@@ -259,6 +266,7 @@ const styles = defineStyles({
   },
   viewport: {
     width: '100%',
+    padding: `0 ${theme.spacing[1]}`,
   },
   viewportPopper: {
     width: '100%',
@@ -266,9 +274,19 @@ const styles = defineStyles({
     height: 'var(--radix-select-trigger-height)',
   },
   label: {
-    padding: `${theme.spacing[2]} ${theme.spacing[2]}`,
-    ...theme.typography.small('medium'),
+    padding: `${theme.spacing[1]} ${theme.spacing[2]}`,
+    ...itemCenter(),
+    columnGap: theme.spacing[2],
+    ...theme.typography.tiny(),
     color: theme.colors.text.secondary,
+  },
+  labelIcon: {
+    ...flexCenter(),
+    minWidth: '16px',
+    flexShrink: 0,
+    '& svg': {
+      display: 'block',
+    },
   },
   item: {
     padding: `${theme.spacing[2]} ${theme.spacing[2]}`,
@@ -295,9 +313,16 @@ const styles = defineStyles({
     minWidth: '16px',
     ...itemCenter(),
   },
+  itemEndSlot: {
+    marginLeft: 'auto',
+    paddingLeft: theme.spacing[4],
+    ...theme.typography.small('semibold'),
+    color: theme.colors.text.primary,
+  },
   separator: {
     height: '1px',
     backgroundColor: theme.colors.border.default,
-    margin: `${theme.spacing[1]} 0`,
+    margin: `${theme.spacing[1]} calc(-1 * ${theme.spacing[1]})`,
+    pointerEvents: 'none',
   },
 });

@@ -80,7 +80,6 @@ const styles = defineStyles({
     all: 'unset',
     cursor: 'pointer',
     display: 'inline-flex',
-    boxSizing: 'border-box',
     '&:focus-visible': {
       outline: `2px solid ${theme.colors.background.fillBrand}`,
       outlineOffset: '2px',
