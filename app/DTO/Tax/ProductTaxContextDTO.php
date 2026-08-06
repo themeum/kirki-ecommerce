@@ -19,7 +19,7 @@ class ProductTaxContextDTO extends DTO
     /**
      * @var int
      */
-    public $product_price;
+    public $base_product_price;
 
     /**
      * @var array|null

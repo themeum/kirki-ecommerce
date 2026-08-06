@@ -163,7 +163,7 @@ class OrderApiTest extends RestTestCase
 
         $response = $this->request('POST', 'orders/' . $this->order_id . '/refunds', [
             'order_id' => $this->order_id,
-            'amount' => 10,
+            'invoiced_amount' => 10,
             'reason' => 'Customer request',
         ]);
 

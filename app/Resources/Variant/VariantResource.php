@@ -16,23 +16,31 @@ class VariantResource extends Resource
      */
     public function to_array()
     {
+        $display_currency = Money::resolve_display_currency();
+
         return [
             'id' => $this->id,
             'name' => $this->product->title,
             'media' => MediaAttachment::make($this->media ?: ($this->product->media ?? collection())->first()),
             'sku' => $this->sku,
             'barcode' => $this->barcode,
-            'price' => Money::prepare_amount($this->price),
-            'price_money_object' => Money::prepare_amount_object($this->price),
+            'base_price' => Money::prepare_amount($this->base_price),
+            'base_price_money_object' => Money::prepare_amount_object($this->base_price),
+            'display_price' => Money::prepare_amount($this->base_price, null, $display_currency),
+            'display_price_money_object' => Money::prepare_amount_object($this->base_price, null, $display_currency),
             'show_unit_price' => (bool) $this->show_unit_price,
             'base_unit' => $this->base_unit,
             'base_unit_amount' => $this->base_unit_amount,
             'total_unit' => $this->total_unit,
             'total_unit_amount' => $this->total_unit_amount,
-            'sale_price' => !is_null($this->sale_price) ? Money::prepare_amount($this->sale_price) : null,
-            'sale_price_money_object' => !is_null($this->sale_price) ? Money::prepare_amount_object($this->sale_price) : null,
-            'cost_of_goods' => !is_null($this->cost_of_goods) ? Money::prepare_amount($this->cost_of_goods) : null,
-            'cost_of_goods_money_object' => !is_null($this->cost_of_goods) ? Money::prepare_amount_object($this->cost_of_goods) : null,
+            'base_sale_price' => !is_null($this->base_sale_price) ? Money::prepare_amount($this->base_sale_price) : null,
+            'base_sale_price_money_object' => !is_null($this->base_sale_price) ? Money::prepare_amount_object($this->base_sale_price) : null,
+            'display_sale_price' => !is_null($this->base_sale_price) ? Money::prepare_amount($this->base_sale_price, null, $display_currency) : null,
+            'display_sale_price_money_object' => !is_null($this->base_sale_price) ? Money::prepare_amount_object($this->base_sale_price, null, $display_currency) : null,
+            'base_cost_of_goods' => !is_null($this->base_cost_of_goods) ? Money::prepare_amount($this->base_cost_of_goods) : null,
+            'base_cost_of_goods_money_object' => !is_null($this->base_cost_of_goods) ? Money::prepare_amount_object($this->base_cost_of_goods) : null,
+            'display_cost_of_goods' => !is_null($this->base_cost_of_goods) ? Money::prepare_amount($this->base_cost_of_goods, null, $display_currency) : null,
+            'display_cost_of_goods_money_object' => !is_null($this->base_cost_of_goods) ? Money::prepare_amount_object($this->base_cost_of_goods, null, $display_currency) : null,
             'weight' => $this->weight,
             'weight_unit' => $this->weight_unit,
             'charge_taxes' => $this->charge_taxes,

@@ -12,7 +12,7 @@ class EUTaxStrategy extends AbstractTaxStrategy
 {
     public function calculate_product_tax(ProductTaxContextDTO $tax_context): TaxResultDTO
     {
-        return $this->calculate_tax('product_tax', $tax_context->all(), $tax_context->product_price);
+        return $this->calculate_tax('product_tax', $tax_context->all(), $tax_context->base_product_price);
     }
 
     public function calculate_shipping_tax(int $shipping_cost): TaxResultDTO
@@ -45,10 +45,10 @@ class EUTaxStrategy extends AbstractTaxStrategy
                 TaxItemResultDTO::from_array([
                     'name' => 'VAT',
                     'rate' => $rate,
-                    'amount' => $tax_amount
+                    'base_amount' => $tax_amount
                 ])
             ];
-            $result->total = $tax_amount;
+            $result->base_total = $tax_amount;
 
             return $result;
         }
@@ -59,10 +59,10 @@ class EUTaxStrategy extends AbstractTaxStrategy
             TaxItemResultDTO::from_array([
                 'name' => 'VAT',
                 'rate' => $rate,
-                'amount' => $tax_amount
+                'base_amount' => $tax_amount
             ])
         ];
-        $result->total = $tax_amount;
+        $result->base_total = $tax_amount;
 
         return $result;
     }

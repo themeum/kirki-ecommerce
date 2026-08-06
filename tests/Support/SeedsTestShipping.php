@@ -38,7 +38,7 @@ trait SeedsTestShipping
                                 'is_enabled' => true,
                                 'name' => 'Standard Delivery',
                                 'type' => ShippingMethodTypes::FLAT_RATE,
-                                'amount' => 10,
+                                'base_amount' => 10,
                                 'is_taxable' => false,
                                 'description' => null,
                                 'shipping_rules' => [],

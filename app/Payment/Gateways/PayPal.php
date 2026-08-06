@@ -229,7 +229,7 @@ class PayPal extends PaymentGateway
                 ->as_json()
                 ->post($this->get_base_url() . "/v2/payments/captures/{$transaction_id}/refund", [
                     'amount' => [
-                        'value' => $this->format_amount($refund->amount),
+                        'value' => $this->format_amount($refund->invoiced_amount),
                         'currency_code' => $currency,
                     ],
                     'note_to_payer' => $refund->reason,
@@ -378,7 +378,7 @@ class PayPal extends PaymentGateway
         $resolved_status = $paypal_status === 'COMPLETED' ? RefundStatus::COMPLETED : RefundStatus::PENDING;
 
         OrderManager::update_refund(UpdateRefundPayloadDTO::from_array(array_merge($refund->to_array(), [
-            'amount' => $refund->amount,
+            'invoiced_amount' => $refund->invoiced_amount,
             'refund_id' => $resource['id'],
             'status' => $resolved_status,
         ])));

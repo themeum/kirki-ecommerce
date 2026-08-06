@@ -32,12 +32,12 @@ class DecisionContext
 
     public function get_shipping_cost()
     {
-        return $this->get('shipping_cost');
+        return $this->get('base_shipping_cost');
     }
 
     public function set_shipping_cost($value)
     {
-        $this->set('shipping_cost', $value);
+        $this->set('base_shipping_cost', $value);
     }
 
     public function get_product_categories()
