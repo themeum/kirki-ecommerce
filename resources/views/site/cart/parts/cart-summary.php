@@ -22,9 +22,18 @@ $summary_items = [
 
 <div class="kecom-cart-summary">
     <h4 class="kecom-cart-summary-title"><?php _e('Cart Totals', 'kirki-ecommerce'); ?></h4>
-    <?php foreach ($summary_items as $item): ?>
-        <?php include_view('site.cart.parts.cart-summary-item', $item); ?>
-    <?php endforeach; ?>
+    <div class="kecom-cart-summary-item">
+        <span class="kecom-cart-summary-item-title"><?php _e('Subtotal', 'kirki-ecommerce'); ?></span>
+        <span class="kecom-cart-summary-item-value" x-text="cartData.pricing.subtotal_formatted"></span>
+    </div>
+    <div class="kecom-cart-summary-item">
+        <span class="kecom-cart-summary-item-title"><?php _e('Estimate shipping', 'kirki-ecommerce'); ?></span>
+        <span class="kecom-cart-summary-item-value"><?php echo '-' ?></span>
+    </div>
+    <div class="kecom-cart-summary-item">
+        <span class="kecom-cart-summary-item-title"><?php _e('Estimate taxes', 'kirki-ecommerce'); ?></span>
+        <span class="kecom-cart-summary-item-value"><?php echo '-' ?></span>
+    </div>
     <div class="kecom-cart-summary-total">
         <span class="kecom-cart-summary-total-title"><?php _e('Estimate Total', 'kirki-ecommerce'); ?></span>
         <span class="kecom-cart-summary-total-value" x-text="cartData.pricing.total_formatted"></span>
