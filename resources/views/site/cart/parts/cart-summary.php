@@ -10,14 +10,6 @@ defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Supports\Url;
 
-use function Kirki\Ecommerce\Framework\include_view;
-
-
-$summary_items = [
-    ['title' => __('Subtotal', 'kirki-ecommerce'), 'text' => 'cartData.pricing.subtotal_formatted'],
-    ['title' => __('Estimate Shipping', 'kirki-ecommerce'), 'text' => ''],
-    ['title' => __('Estimate Taxes', 'kirki-ecommerce'), 'text' => '']
-];
 ?>
 
 <div class="kecom-cart-summary">
