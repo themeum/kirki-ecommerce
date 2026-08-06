@@ -10,6 +10,17 @@ change, re-derive rather than trusting `.cursor/rules/` at face value.
 
 ---
 
+## 0. Testing / Verification
+
+Do not use the Browser tool (or any dev-server preview) to test or verify
+changes in this project. Skip the browser-based verification workflow
+entirely — rely on typecheck (`npm run typecheck`), lint, and the test suite
+(`npm test` in `resources/app/`) instead. If a change genuinely needs visual
+confirmation, say so and let the user check it themselves rather than
+opening a browser preview.
+
+---
+
 ## 1. Behavioral Guidelines (always apply)
 
 Source: `.cursor/rules/karpathy-guidelines.mdc`

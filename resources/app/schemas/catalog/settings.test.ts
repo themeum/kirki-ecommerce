@@ -42,9 +42,9 @@ describe('GeneralSettingsSchema', () => {
     expect(result.success).toBe(true);
   });
 
-  it('accepts store_address using the form field names instead (state_province/zip_code)', () => {
+  it('accepts store_address using the form field names instead (state/postal_code)', () => {
     const result = GeneralSettingsSchema.safeParse({
-      store_address: { state_province: 'CA', zip_code: '94105' },
+      store_address: { state: 'CA', postal_code: '94105' },
     });
     expect(result.success).toBe(true);
   });

@@ -1,6 +1,6 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
@@ -17,12 +17,11 @@ import {
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import { __ } from '@/wpi18n';
 
-import { setUnsavedDataStatus } from '@/pages/settings/utils';
+import { Review } from '@/pages/settings/products-settings/review';
+import { StandardUnit } from '@/pages/settings/products-settings/standard-unit';
 import { useSettingsPageActions } from '@/pages/settings/settings-layout/use-settings-page-actions';
 import SettingsPageHeader from '@/pages/settings/settings-page-header';
-import { Review } from '@/pages/settings/products-settings/review';
-import { ShopPage } from '@/pages/settings/products-settings/shop-page';
-import { StandardUnit } from '@/pages/settings/products-settings/standard-unit';
+import { setUnsavedDataStatus } from '@/pages/settings/utils';
 
 const ProductsSettings = () => {
   const { data: productSettingsData, isLoading } = useSettingsQuery('product');
@@ -86,7 +85,6 @@ const ProductsSettings = () => {
               icon={<ProductSettingsIcon />}
               title={__('Products', 'kirki-ecommerce')}
             />
-            <ShopPage />
             <StandardUnit />
             <Review />
           </Flex>

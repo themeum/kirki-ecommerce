@@ -7,7 +7,7 @@ import { MediaRefSchema } from '@/schemas/shared/media';
 
 /**
  * `state`/`postal_code` are what `settings/general.yml` documents; the form
- * (`general-settings-form.ts`) reads/writes `state_province`/`zip_code`.
+ * (`general-settings-form.ts`) reads/writes `state`/`postal_code`.
  * Both pairs are accepted since a merchant record saved through either name
  * must still round-trip.
  */
@@ -17,9 +17,7 @@ export const StoreAddressSchema = z
     address_line_2: z.string().nullish(),
     city: z.string().nullish(),
     state: z.string().nullish(),
-    state_province: z.string().nullish(),
     postal_code: z.string().nullish(),
-    zip_code: z.string().nullish(),
     country: z.string().nullish(),
   })
   .passthrough();

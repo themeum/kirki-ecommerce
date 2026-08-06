@@ -1,6 +1,6 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
@@ -9,23 +9,23 @@ import { HomeIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults, pickFormValues } from '@/libs/zod';
+import type { GeneralSettings as GeneralSettingsData } from '@/schemas/catalog/settings';
 import {
   GeneralSettingsFormSchema,
   type GeneralSettingsFormInput,
   type GeneralSettingsFormPayload,
 } from '@/schemas/forms/general-settings-form';
-import type { GeneralSettings as GeneralSettingsData } from '@/schemas/catalog/settings';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import { __ } from '@/wpi18n';
 
-import { setUnsavedDataStatus } from '@/pages/settings/utils';
-import { useSettingsPageActions } from '@/pages/settings/settings-layout/use-settings-page-actions';
-import SettingsPageHeader from '@/pages/settings/settings-page-header';
 import InvoiceId from '@/pages/settings/general-settings/invoice-id';
 import OrderId from '@/pages/settings/general-settings/order-id';
 import SellingLocation from '@/pages/settings/general-settings/selling-location';
 import StoreAddressDetails from '@/pages/settings/general-settings/store-address-details';
 import StoreContactDetails from '@/pages/settings/general-settings/store-contact-details';
+import { useSettingsPageActions } from '@/pages/settings/settings-layout/use-settings-page-actions';
+import SettingsPageHeader from '@/pages/settings/settings-page-header';
+import { setUnsavedDataStatus } from '@/pages/settings/utils';
 
 const mapSettingsToFormValues = (
   settings: GeneralSettingsData,
@@ -37,9 +37,9 @@ const mapSettingsToFormValues = (
       address_line_1: storeAddress?.address_line_1 ?? '',
       address_line_2: storeAddress?.address_line_2 ?? '',
       city: storeAddress?.city ?? '',
-      state_province:
-        storeAddress?.state_province ?? storeAddress?.state ?? '',
-      zip_code: storeAddress?.zip_code ?? storeAddress?.postal_code ?? '',
+      state:
+        storeAddress?.state ?? storeAddress?.state ?? '',
+      postal_code: storeAddress?.postal_code ?? storeAddress?.postal_code ?? '',
       country: storeAddress?.country ?? '',
     },
   });
