@@ -102,12 +102,12 @@ const MultiCurrencySettings = () => {
               title={__('Currency', 'kirki-ecommerce')}
             />
 
-            <Card cssOverride={cardStyles.formCard} >
+            <Card cssOverride={cardStyles.innerCard} >
               <CardContent>
                 <Flex direction="column" gap={2} cssOverride={{ marginTop: theme.spacing[5] }}>
                   <Flex direction="column" gap={2}>
                     <Text weight="semibold">{__('Currency Management', 'kirki-ecommerce')}</Text>
-                    <Text color="secondary">{__(
+                    <Text variant="small" color="secondary">{__(
                       'Manage product pricing across multiple currencies with manual or automatic conversion rates.',
                       'kirki-ecommerce',
                     )}</Text>

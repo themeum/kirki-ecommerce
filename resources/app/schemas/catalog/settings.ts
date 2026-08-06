@@ -179,7 +179,7 @@ export const CurrencySettingsSchema = z
     currency_position: z.string().nullish(),
     thousand_separator: z.string().nullish(),
     decimal_separator: z.string().nullish(),
-    is_automatic_update_enabled: z.boolean().nullish(),
+    is_automatic_update_enabled: z.boolean().nullish().default(false),
     api_provider: z.string().nullish(),
     api_config: z.union([CurrencyApiConfigSchema, z.array(z.unknown())]).nullish(),
     last_sync_at: z.string().nullish(),

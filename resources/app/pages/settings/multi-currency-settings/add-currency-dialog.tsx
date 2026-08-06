@@ -1,16 +1,16 @@
-import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useEffect, useState } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
 
 import Button from '@/components/ui/button';
 import Checkbox from '@/components/ui/checkbox';
 import { Dialog, DialogBody, DialogClose, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
-import { PlusIcon, SearchIcon } from '@/icons';
-import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
+import { PlusIcon, SearchIcon } from '@/icons';
 import type { CurrencyDraft, CurrencyOption } from '@/schemas/catalog/currency';
 import { AddCurrencyPopupFormSchema, type AddCurrencyPopupFormInput, type AddCurrencyPopupFormPayload } from '@/schemas/forms/add-currency-popup-form';
 import { useAllCurrenciesQuery, useAvailableCurrenciesQuery } from '@/services/currency';
@@ -18,8 +18,8 @@ import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
-import { getSearchedValue } from '@/pages/settings/utils';
 import ExchangeRatePopup from '@/pages/settings/multi-currency-settings/exchange-rate-dialog';
+import { getSearchedValue } from '@/pages/settings/utils';
 
 const AddCurrencyPopup = () => {
   const [openPopup, setOpenPopup] = useState(false);
@@ -45,7 +45,10 @@ const AddCurrencyPopup = () => {
     },
   });
 
-  const formSelected = form.watch('selectedCurrencies');
+  const formSelected = useWatch({
+    control: form.control,
+    name: 'selectedCurrencies',
+  });
 
   useEffect(() => {
     if (!openPopup) {
@@ -108,7 +111,7 @@ const AddCurrencyPopup = () => {
 
   return (
     <>
-      <Button variant="secondary" onClick={() => setOpenPopup(true)}>
+      <Button variant="secondary" onClick={() => setOpenPopup(true)} disabled>
         <PlusIcon />
         {__('Add Currency', 'kirki-ecommerce')}
       </Button>
@@ -188,8 +191,8 @@ const AddCurrencyPopup = () => {
                           </Flex>
                           <Flex justify="space-between" cssOverride={{ width: '100%' }}>
                             <Text variant="small" style={{
-                                color: theme.colors.text.subdued,
-                              }}>{currency.name}</Text>
+                              color: theme.colors.text.subdued,
+                            }}>{currency.name}</Text>
                             <Text weight="semibold" cssOverride={styles.symbolText}>{currency.symbol}</Text>
                           </Flex>
                         </Flex>

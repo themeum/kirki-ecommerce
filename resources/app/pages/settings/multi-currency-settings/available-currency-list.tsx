@@ -153,6 +153,8 @@ export const AvailableCurrencyList = () => {
         items: [
           {
             ...selectedCurrency,
+            is_active: selectedCurrency?.is_active ?? true,
+            is_base: selectedCurrency?.is_base ?? false,
             [key]: !selectedCurrency[key],
           },
         ],
@@ -166,6 +168,7 @@ export const AvailableCurrencyList = () => {
       items: currencyList.map((currency) => ({
         ...currency,
         is_base: currency?.id === item?.id,
+        is_active: currency?.is_active ?? true,
       })),
     };
     updateData(payload);
@@ -209,7 +212,12 @@ export const AvailableCurrencyList = () => {
       <Card cssOverride={{ ...cardStyles.innerCard, marginTop: theme.spacing[5] }}>
         <CardContent cssOverride={styles.innerCardContent}>
           <Flex justify="space-between" cssOverride={{ paddingBottom: theme.spacing[3] }}>
-            <Text weight="semibold">{__('Available Currencies', 'kirki-ecommerce')}</Text>
+            <Flex gap={2} align="center">
+              <Text weight="semibold">{__('Available Currencies', 'kirki-ecommerce')}</Text>
+              <Badge>
+                {__('Coming Soon', 'kirki-ecommerce')}
+              </Badge>
+            </Flex>
             <AddCurrencyPopup />
           </Flex>
           <StackedItems>
@@ -262,7 +270,13 @@ export const AvailableCurrencyList = () => {
         <EditCurrencyDialog
           editCurrency={editCurrency}
           setEditCurrency={setEditCurrency}
-          handleUpdateData={(currency) => updateData({ items: [currency] })}
+          handleUpdateData={(currency) => updateData({
+            items: [{
+              ...currency,
+              is_active: currency?.is_active ?? true,
+              is_base: currency?.is_base ?? false,
+            }]
+          })}
         />
       )}
     </>

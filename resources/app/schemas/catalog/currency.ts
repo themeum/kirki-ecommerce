@@ -52,8 +52,8 @@ export const CurrencyDraftSchema = z
     code: z.string(),
     symbol: z.string().nullish(),
     exchange_rate: z.union([z.number(), z.string()]).nullish(),
-    is_base: z.boolean().nullish(),
-    is_active: z.boolean().nullish(),
+    is_base: z.boolean(),
+    is_active: z.boolean(),
   })
   .passthrough();
 

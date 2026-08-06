@@ -86,7 +86,7 @@ const EditCurrencyDialog = ({
                       __('%s', 'kirki-ecommerce'),
                       editCurrency?.icon ?? '',
                     )}</Text>
-                    <Text weight="medium">{sprintf(
+                    <Text variant="small" weight="medium">{sprintf(
                       __('%s', 'kirki-ecommerce'),
                       editCurrency?.code ?? '',
                     )}</Text>

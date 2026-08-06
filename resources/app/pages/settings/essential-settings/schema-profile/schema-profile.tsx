@@ -87,59 +87,61 @@ const SchemaProfileComponent = () => {
           buttonText={__('Add Profile', 'kirki-ecommerce')}
           onAdd={() => setShowPopup(true)}
         />
-        {!schemaProfileList?.length ? (
-          <Card cssOverride={cardStyles.innerDarkCard}>
-            <CardContent cssOverride={mergeCss(cardStyles.innerDarkContent, styles.emptyState)}>
-              <Flex direction="column" gap={2} align="center">
-                <BoxOpenIcon />
-                <span css={scoped(styles.emptyStateText)}>
-                  {__('Added schema profiles will appear here', 'kirki-ecommerce')}
-                </span>
-              </Flex>
-            </CardContent>
-          </Card>
-        ) : (
-          <StackedItems>
-            {schemaProfileList.map((item) => (
-              <StackedItem key={item.id} id={String(item.id)}>
-                <StackedItemContent>
-                  <StackedItemTitle>
-                    <Text variant="small" weight="medium">
-                      {item.name}
-                    </Text>
-                    {item.is_default && (
-                      <Badge variant="secondary">
-                        {__('Default', 'kirki-ecommerce')}
-                      </Badge>
-                    )}
-                  </StackedItemTitle>
-                </StackedItemContent>
-                <StackedItemActions>
-                  <ActionGroup>
-                    <Button
-                      variant="outline"
-                      size="icon-sm"
-                      aria-label={__('Delete', 'kirki-ecommerce')}
-                      cssOverride={styles.actionButton}
-                      onClick={() => handleDeleteSchema(item)}
-                    >
-                      <TrashIcon />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="icon-sm"
-                      aria-label={__('Edit', 'kirki-ecommerce')}
-                      cssOverride={styles.actionButton}
-                      onClick={() => handleEditSchema(item)}
-                    >
-                      <EditPenIcon />
-                    </Button>
-                  </ActionGroup>
-                </StackedItemActions>
-              </StackedItem>
-            ))}
-          </StackedItems>
-        )}
+        <div css={scoped({ marginTop: theme.spacing[5] })}>
+          {!schemaProfileList?.length ? (
+            <Card cssOverride={cardStyles.innerDarkCard}>
+              <CardContent cssOverride={mergeCss(cardStyles.innerDarkContent, styles.emptyState)}>
+                <Flex direction="column" gap={2} align="center">
+                  <BoxOpenIcon />
+                  <span css={scoped(styles.emptyStateText)}>
+                    {__('Added schema profiles will appear here', 'kirki-ecommerce')}
+                  </span>
+                </Flex>
+              </CardContent>
+            </Card>
+          ) : (
+            <StackedItems>
+              {schemaProfileList.map((item) => (
+                <StackedItem key={item.id} id={String(item.id)}>
+                  <StackedItemContent>
+                    <StackedItemTitle>
+                      <Text variant="small" weight="medium">
+                        {item.name}
+                      </Text>
+                      {item.is_default && (
+                        <Badge variant="secondary">
+                          {__('Default', 'kirki-ecommerce')}
+                        </Badge>
+                      )}
+                    </StackedItemTitle>
+                  </StackedItemContent>
+                  <StackedItemActions>
+                    <ActionGroup>
+                      <Button
+                        variant="outline"
+                        size="icon-sm"
+                        aria-label={__('Delete', 'kirki-ecommerce')}
+                        cssOverride={styles.actionButton}
+                        onClick={() => handleDeleteSchema(item)}
+                      >
+                        <TrashIcon />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="icon-sm"
+                        aria-label={__('Edit', 'kirki-ecommerce')}
+                        cssOverride={styles.actionButton}
+                        onClick={() => handleEditSchema(item)}
+                      >
+                        <EditPenIcon />
+                      </Button>
+                    </ActionGroup>
+                  </StackedItemActions>
+                </StackedItem>
+              ))}
+            </StackedItems>
+          )}
+        </div>
         {showPopup && (
           <AddSchemaPopup
             isOpen={showPopup}

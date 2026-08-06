@@ -11,13 +11,14 @@ import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 type OptionAccordionProps = {
-  header?: string;
+  header?: ReactNode;
   subHeader?: string;
   leftIcon?: ReactNode;
   children?: ReactNode;
   rightActions?: ReactNode;
   variant?: 'shipping' | 'inactive' | string;
   enabled?: boolean;
+  disabled?: boolean;
 };
 
 const OptionAccordion = (props: OptionAccordionProps) => {
@@ -29,6 +30,7 @@ const OptionAccordion = (props: OptionAccordionProps) => {
     rightActions = null,
     variant,
     enabled = true,
+    disabled = false,
   } = props;
 
   return (
@@ -40,7 +42,7 @@ const OptionAccordion = (props: OptionAccordionProps) => {
         rightActions={rightActions}
       >
         <AccordionItem>
-          <AccordionTrigger cssOverride={styles.trigger} gap={4}>
+          <AccordionTrigger cssOverride={styles.trigger} gap={4} disabled={disabled}>
             <Flex gap={3} align="center">
               {leftIcon}
               <Flex direction="column" gap={1}>
