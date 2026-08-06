@@ -211,21 +211,21 @@ class CartService
      */
     public function get_current_cart()
     {
-        $customerId = null;
-        $cartToken = null;
+        $customer_id = null;
+        $cart_token = null;
 
         if (is_user_logged_in()) {
             $customer = customer();
-            $customerId = $customer->get_customer_id();
+            $customer_id = $customer->get_customer_id();
         } else {
-            $cartToken = $this->get_guest_cart_token();
+            $cart_token = $this->get_guest_cart_token();
         }
 
-        return $this->get_cart($customerId, $cartToken);
+        return $this->get_cart($customer_id, $cart_token);
     }
 
     /**
-     * Delete guest cart cookie.
+     * Clear guest cart cookie.
      *
      * @since 1.0.0
      */
