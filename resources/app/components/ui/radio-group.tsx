@@ -46,7 +46,7 @@ const RadioGroupItem = forwardRef<
   return (
     <RadioGroupPrimitive.Item ref={ref} css={scopedMerge(styles.item, cssOverride)} {...rest}>
       <RadioGroupPrimitive.Indicator css={scoped(styles.indicator)}>
-        <Circle size={8} fill="currentColor" strokeWidth={0} />
+        <Circle size={12} fill="currentColor" strokeWidth={0} />
       </RadioGroupPrimitive.Indicator>
     </RadioGroupPrimitive.Item>
   );

@@ -25,12 +25,14 @@ class SettingResource extends Resource
         if ($this->key === OptionKeys::SHIPPING_SETTINGS) {
             foreach ($data['shipping_zones'] as $key => $zone) {
                 foreach ($zone['shipping_methods'] as $method_key => $method) {
-                    $data['shipping_zones'][$key]['shipping_methods'][$method_key]['amount'] = Money::from_minor($method['amount'])->getAmount();
-
-                    if (!empty($method['ranges'])) {
-                        foreach ($method['ranges'] as $range_key => $range) {
-                            $data['shipping_zones'][$key]['shipping_methods'][$method_key]['ranges'][$range_key]['amount'] = Money::from_minor($range['amount'])->getAmount();
+                    if ($method['type'] === 'weight') {
+                        if (!empty($method['ranges'])) {
+                            foreach ($method['ranges'] as $range_key => $range) {
+                                $data['shipping_zones'][$key]['shipping_methods'][$method_key]['ranges'][$range_key]['amount'] = Money::from_minor($range['amount'])->getAmount();
+                            }
                         }
+                    } else {
+                        $data['shipping_zones'][$key]['shipping_methods'][$method_key]['amount'] = Money::from_minor($method['amount'])->getAmount();
                     }
 
                     if (!empty($method['is_free_shipping_enabled'])) {

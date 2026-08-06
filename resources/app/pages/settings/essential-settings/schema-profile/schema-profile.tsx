@@ -1,16 +1,26 @@
-import { useState, useEffect, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 
 import HeaderActionsCard from '@/components/header-actions-card';
-import GroupOptionCard from '@/components/group-option-card';
+import ActionGroup from '@/components/ui/action-group';
+import Badge from '@/components/ui/badge';
+import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { BoxOpenIcon } from '@/icons';
 import Flex from '@/components/ui/flex';
+import {
+  StackedItem,
+  StackedItemActions,
+  StackedItemContent,
+  StackedItems,
+  StackedItemTitle,
+} from '@/components/ui/stacked-items';
+import Text from '@/components/ui/text';
+import { BoxOpenIcon, EditPenIcon, TrashIcon } from '@/icons';
 import { dispatchToastMessage } from '@/pages/utils';
-import { useSchemasQuery, useDeleteSchemaMutation } from '@/services/schema';
-import type { SchemaProfile } from '@/types';
+import { useDeleteSchemaMutation, useSchemasQuery } from '@/services/schema';
 import { theme } from '@/theme';
-import { scoped, mergeCss, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
+import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
+import type { SchemaProfile } from '@/types';
 import { __ } from '@/wpi18n';
 
 import AddSchemaPopup from '@/pages/settings/essential-settings/schema-profile/add-schema-dialog';
@@ -66,8 +76,8 @@ const SchemaProfileComponent = () => {
   };
 
   return (
-    <Card cssOverride={cardStyles.largeCard}>
-      <CardContent cssOverride={cardStyles.largeContentPadded}>
+    <Card cssOverride={cardStyles.formCard}>
+      <CardContent >
         <HeaderActionsCard
           header={__('Schema Profile', 'kirki-ecommerce')}
           subHeader={__(
@@ -77,26 +87,61 @@ const SchemaProfileComponent = () => {
           buttonText={__('Add Profile', 'kirki-ecommerce')}
           onAdd={() => setShowPopup(true)}
         />
-        {!schemaProfileList?.length ? (
-          <Card cssOverride={cardStyles.innerDarkCard}>
-            <CardContent cssOverride={mergeCss(cardStyles.innerDarkContent, styles.emptyState)}>
-              <Flex direction="column" gap={2} align="center">
-                <BoxOpenIcon />
-                <span css={scoped(styles.emptyStateText)}>
-                  {__('Added schema profiles will appear here', 'kirki-ecommerce')}
-                </span>
-              </Flex>
-            </CardContent>
-          </Card>
-        ) : (
-          <Flex direction="column" data-box-wrapper cssOverride={styles.boxWrapper}>
-            <GroupOptionCard
-              dataArr={schemaProfileList}
-              handleDeleteItem={(item) => handleDeleteSchema(item as SchemaListItem)}
-              handleEditItem={(item) => handleEditSchema(item as SchemaListItem)}
-            />
-          </Flex>
-        )}
+        <div css={scoped({ marginTop: theme.spacing[5] })}>
+          {!schemaProfileList?.length ? (
+            <Card cssOverride={cardStyles.innerDarkCard}>
+              <CardContent cssOverride={mergeCss(cardStyles.innerDarkContent, styles.emptyState)}>
+                <Flex direction="column" gap={2} align="center">
+                  <BoxOpenIcon />
+                  <span css={scoped(styles.emptyStateText)}>
+                    {__('Added schema profiles will appear here', 'kirki-ecommerce')}
+                  </span>
+                </Flex>
+              </CardContent>
+            </Card>
+          ) : (
+            <StackedItems>
+              {schemaProfileList.map((item) => (
+                <StackedItem key={item.id} id={String(item.id)}>
+                  <StackedItemContent>
+                    <StackedItemTitle>
+                      <Text variant="small" weight="medium">
+                        {item.name}
+                      </Text>
+                      {item.is_default && (
+                        <Badge variant="secondary">
+                          {__('Default', 'kirki-ecommerce')}
+                        </Badge>
+                      )}
+                    </StackedItemTitle>
+                  </StackedItemContent>
+                  <StackedItemActions>
+                    <ActionGroup>
+                      <Button
+                        variant="outline"
+                        size="icon-sm"
+                        aria-label={__('Delete', 'kirki-ecommerce')}
+                        cssOverride={styles.actionButton}
+                        onClick={() => handleDeleteSchema(item)}
+                      >
+                        <TrashIcon />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="icon-sm"
+                        aria-label={__('Edit', 'kirki-ecommerce')}
+                        cssOverride={styles.actionButton}
+                        onClick={() => handleEditSchema(item)}
+                      >
+                        <EditPenIcon />
+                      </Button>
+                    </ActionGroup>
+                  </StackedItemActions>
+                </StackedItem>
+              ))}
+            </StackedItems>
+          )}
+        </div>
         {showPopup && (
           <AddSchemaPopup
             isOpen={showPopup}
@@ -115,23 +160,13 @@ SchemaProfileComponent.displayName = 'SchemaProfileComponent';
 export default SchemaProfileComponent;
 
 const styles = defineStyles({
-  boxWrapper: {
-    '[data-box-card]': {
-      borderTop: 'none',
-      borderRadius: theme.radius.none,
-    },
-    '[data-box-card]:first-of-type': {
-      borderTop: `1px solid ${theme.colors.border.secondary}`,
-      borderRadius: `${theme.radius.md} ${theme.radius.md} ${theme.radius.none} ${theme.radius.none}`,
-    },
-    '[data-box-card]:last-of-type': {
-      borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.md} ${theme.radius.md}`,
-    },
-  },
   emptyState: {
     padding: `${theme.spacing[9]} ${theme.spacing[0]}`,
   },
   emptyStateText: {
     color: theme.colors.text.subdued,
-  }
+  },
+  actionButton: {
+    padding: theme.spacing[1],
+  },
 });

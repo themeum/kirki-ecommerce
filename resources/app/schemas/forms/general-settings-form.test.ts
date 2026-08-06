@@ -12,8 +12,8 @@ describe('GeneralSettingsFormSchema', () => {
       address_line_1: '',
       address_line_2: '',
       city: '',
-      state_province: '',
-      zip_code: '',
+      state: '',
+      postal_code: '',
       country: '',
     },
     selling_location_type: 'all-countries',
@@ -38,8 +38,8 @@ describe('GeneralSettingsFormSchema', () => {
       address_line_1: null,
       address_line_2: null,
       city: 'Springfield',
-      state_province: null,
-      zip_code: null,
+      state: null,
+      postal_code: null,
       country: 'usa',
     });
   });

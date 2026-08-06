@@ -16,20 +16,8 @@ import { __ } from '@/wpi18n';
 import { dispatchToastMessage } from '@/pages/utils';
 import { DynamicGatewayFields } from '@/pages/settings/payment-settings/utils';
 
-type PaymentGatewayField = {
-  name: string;
-  label?: string;
-  type?: string;
-};
-
-type PaymentGatewayDetail = PaymentGateway & {
-  settings?: Record<string, unknown>;
-  fields?: PaymentGatewayField[];
-  is_enabled?: boolean;
-};
-
 type PaymentGatewayEditPopupProps = {
-  editedItem: PaymentGatewayDetail | null;
+  editedItem: PaymentGateway | null;
   isOpen: boolean;
   onClose: () => void;
 };

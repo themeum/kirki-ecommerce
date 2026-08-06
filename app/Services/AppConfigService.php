@@ -10,7 +10,7 @@ class AppConfigService
     public function get_app_config()
     {
         return [
-            'name' => __('eCommerce', 'kirki-ecommerce'),
+            'name' => __('Kirki eCommerce', 'kirki-ecommerce'),
             'version' => KIRKI_ECOMMERCE_VERSION,
             'current_user' => user()->get_data(),
             'base_currency' => base_currency(),

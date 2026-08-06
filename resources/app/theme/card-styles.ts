@@ -23,7 +23,6 @@ const cardStyles = defineStyles({
   },
   largeCard: {
     gap: theme.spacing[5],
-    padding: theme.spacing[0],
   },
   largeContent: {
     paddingInline: theme.spacing[5],
@@ -80,6 +79,11 @@ const cardStyles = defineStyles({
     alignItems: 'center',
     gap: 0,
     flexDirection: 'row',
+    '& svg': {
+      width: 16,
+      height: 16,
+      color: theme.colors.icon.primary,
+    }
   },
   pageCard: {
     backgroundColor: theme.colors.background.surfaceSecondary,

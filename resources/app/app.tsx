@@ -52,7 +52,7 @@ const getLeadingRouteHash = (hash: string): string => {
 const checkActiveSubmenu = (root: HTMLElement): void => {
   const searchParams = new URLSearchParams(window.location.search);
 
-  if (searchParams.has('page') && searchParams.get('page') === 'ecommerce') {
+  if (searchParams.has('page') && searchParams.get('page') === 'kirki-ecommerce') {
     const hash = getLeadingRouteHash(window.location.hash || '#');
 
     const currentUrl = `admin.php?page=ecommerce${hash}`;

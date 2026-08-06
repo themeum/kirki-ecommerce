@@ -55,7 +55,7 @@ class PaymentManager
      */
     public function get_all_online_gateways()
     {
-        return array_values(collection($this->gateways_registry)->reject(fn($gateway) => $gateway->is_manual())->all());
+        return collection($this->gateways_registry)->reject(fn($gateway) => $gateway->is_manual())->values()->all();
     }
 
     /**
@@ -65,7 +65,7 @@ class PaymentManager
      */
     public function get_all_manual_gateways()
     {
-        return collection($this->gateways_registry)->filter(fn($gateway) => $gateway->is_manual())->all();
+        return collection($this->gateways_registry)->filter(fn($gateway) => $gateway->is_manual())->values()->all();
     }
 
     /**
@@ -75,7 +75,7 @@ class PaymentManager
      */
     public function get_available_gateways()
     {
-        return collection($this->gateways_registry)->filter(fn($gateway) => $gateway->enabled())->all();
+        return collection($this->gateways_registry)->filter(fn($gateway) => $gateway->enabled())->values()->all();
     }
 
     /**
@@ -85,7 +85,7 @@ class PaymentManager
      */
     public function get_available_online_gateways()
     {
-        return collection($this->gateways_registry)->filter(fn($gateway) => $gateway->enabled() && !$gateway->is_manual())->all();
+        return collection($this->gateways_registry)->filter(fn($gateway) => $gateway->enabled() && !$gateway->is_manual())->values()->all();
     }
 
     /**
@@ -95,7 +95,7 @@ class PaymentManager
      */
     public function get_available_manual_gateways()
     {
-        return collection($this->gateways_registry)->filter(fn($gateway) => $gateway->enabled() && $gateway->is_manual())->to_array();
+        return collection($this->gateways_registry)->filter(fn($gateway) => $gateway->enabled() && $gateway->is_manual())->values()->to_array();
     }
 
     /**

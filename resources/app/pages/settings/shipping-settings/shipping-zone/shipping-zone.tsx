@@ -1,68 +1,54 @@
-import { useState, useMemo, useEffect } from 'react';
-import { Minus } from 'lucide-react';
-import { mergeCss } from '@/theme/mixins';
-import { useParams, useOutletContext, useNavigate } from 'react-router';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useEffect, useMemo, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { useNavigate, useParams } from 'react-router';
 
+import RegionsField from '@/components/form/regions-field';
+import TextField from '@/components/form/text-field';
+import { Card, CardContent } from '@/components/ui/card';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
-import PageHeading from '@/components/ui/page-heading';
-import PageNavbar from '@/components/page-navbar';
-import Button from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import Chip from '@/components/ui/chip';
-import ChipField, { chipFieldControlCss } from '@/components/ui/chip-field';
-import { Field, FieldError, FieldLabel } from '@/components/ui/field';
-import Input from '@/components/ui/input';
-import { getErrorsObject } from '@/libs/api';
-import { useUnsavedStatus } from '@/libs/unsaved-store';
-import { dispatchToastMessage, normalizeErrors } from '@/pages/utils';
-import { useCountriesQuery } from '@/services/country';
+import { Form } from '@/components/ui/form';
+import type { ErrorResponse } from '@/libs/api';
+import { applyServerErrors } from '@/libs/form-errors';
+import { getDefaults, pickFormValues } from '@/libs/zod';
+import {
+  ShippingZoneFormSchema,
+  type ShippingZoneFormInput,
+  type ShippingZoneFormPayload,
+} from '@/schemas/forms/shipping-zone-form';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
-import type { FormErrors } from '@/types';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
-import { ShippingRegionPopup } from '@/pages/settings/shipping-settings/shipping-zone/shipping-region-dialog';
+import { useSettingsPageActions } from '@/pages/settings/settings-layout/use-settings-page-actions';
+import SettingsPageHeader from '@/pages/settings/settings-page-header';
 import { ShippingMethod } from '@/pages/settings/shipping-settings/shipping-method/shipping-method';
-import { getSearchedCountries, getSelectedRegionTags, type CountryWithStates, type RegionTag, type ShippingMethodData, type ShippingRegion, type ShippingZone } from '@/pages/settings/shipping-settings/utils';
-import { checkUnsavedDataStatus, setUnsavedDataStatus } from '@/pages/settings/utils';
-
-type SettingsOutletContext = {
-  confirmAction: (opts: {
-    action: () => void;
-    otherProps?: Record<string, unknown>;
-  }) => void;
-};
+import type { ShippingMethodData, ShippingZone } from '@/pages/settings/shipping-settings/utils';
+import { setUnsavedDataStatus } from '@/pages/settings/utils';
 
 const ShippingZonePage = () => {
   const navigate = useNavigate();
-  const { confirmAction } = useOutletContext<SettingsOutletContext>();
 
   const { zone_Id } = useParams();
-  const [openPopup, setOpenPopup] = useState(false);
-  const [searchValue, setSearchValue] = useState('');
+  const zoneId = zone_Id;
 
-  const hasUnsavedData = useUnsavedStatus();
-  const { data: countryData = [] } = useCountriesQuery({ limit: -1 });
-  const countryList = countryData as CountryWithStates[];
-
-  const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
-  const [selectedRegion, setSelectedRegion] = useState<ShippingRegion[]>([]);
-  const [shippingZoneTitle, setShippingZoneTitle] = useState('');
   const [shippingZonesObj, setShippingZonesObj] = useState<ShippingZone[]>([]);
-  const [initialDataObj, setInitialDataObj] = useState<ShippingZone | null>(
-    null,
-  );
-  const [errors, setErrors] = useState<FormErrors>({});
 
   const { data: shippingSettingsData, isLoading } = useSettingsQuery('shipping');
-  const { mutate: saveSettings } = useUpdateSettingsMutation<'shipping'>();
+  const { mutateAsync: saveSettings, isPending: isSaving } = useUpdateSettingsMutation<'shipping'>();
 
   const loaded = !isLoading && Boolean(shippingSettingsData);
   const zones = (shippingSettingsData?.shipping_zones as ShippingZone[]) || [];
-  const zoneId = zone_Id;
 
   const activeZone = zones.find((zone) => String(zone.id) === String(zoneId));
+
+  const form = useForm<ShippingZoneFormInput, unknown, ShippingZoneFormPayload>({
+    resolver: zodResolver(ShippingZoneFormSchema),
+    defaultValues: getDefaults(ShippingZoneFormSchema),
+  });
+
+  const { isDirty } = form.formState;
 
   const shippingMethodList = useMemo(() => {
     return shippingZonesObj.reduce<
@@ -81,268 +67,86 @@ const ShippingZonePage = () => {
       return;
     }
     setShippingZonesObj(zones);
-    setInitialDataObj(activeZone ?? null);
   }, [zones]);
 
   useEffect(() => {
-    if (!shippingZonesObj.length) {
+    if (!activeZone) {
       return;
     }
-    const currentZone = shippingZonesObj.find(
-      (zone) => String(zone.id) === String(zoneId),
-    );
-    if (!currentZone) {
-      return;
-    }
+    form.reset(pickFormValues(ShippingZoneFormSchema, activeZone));
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- re-hydrate only when the active zone identity changes, not on every unrelated zones update
+  }, [activeZone?.id]);
 
-    setShippingZoneTitle(currentZone.title);
-    setSelectedRegion(currentZone.regions);
+  useEffect(() => {
+    setUnsavedDataStatus(isDirty);
+  }, [isDirty]);
 
-    const derivedCountries = currentZone.regions.map((r) => r.country);
-    setSelectedCountries(derivedCountries);
-  }, [zoneId, shippingZonesObj]);
-
-  const regionTags = useMemo(
-    () => getSelectedRegionTags(selectedRegion, countryList),
-    [selectedRegion, countryList],
-  );
-
-  const handleRemoveRegionTag = (removedTag: RegionTag) => {
-    if (selectedCountries.length <= 1 || selectedRegion.length <= 1) {
-      dispatchToastMessage('warning', {
-        title: __('Regions cannot be empty', 'kirki-ecommerce'),
-      });
-      return;
-    }
-    setSelectedCountries((prev) =>
-      prev.filter((country) => country !== removedTag?.id),
+  const handleSaveZone = async (payload: ShippingZoneFormPayload) => {
+    const updatedZones = shippingZonesObj.map((zone) =>
+      String(zone.id) === String(zoneId)
+        ? { ...zone, title: payload.title, regions: payload.regions }
+        : zone,
     );
 
-    setSelectedRegion((prev) =>
-      prev.filter((item) => item.country !== removedTag.id),
-    );
-    setShippingZonesObj((prevZones) =>
-      prevZones.map((zone) =>
-        String(zone.id) === String(zoneId)
-          ? {
-              ...zone,
-              regions: zone.regions.filter((r) => r.country !== removedTag.id),
-            }
-          : zone,
-      ),
-    );
-    setUnsavedDataStatus(true);
-  };
-
-  const handleShippingZoneTitle = (title: string) => {
-    setShippingZoneTitle(title);
-    setUnsavedDataStatus(true);
-    setShippingZonesObj((prev) =>
-      prev.map((zone) =>
-        String(zone.id) === String(zoneId) ? { ...zone, title } : zone,
-      ),
-    );
-    setErrors((prev) => {
-      return {
-        ...prev,
-        ['title']: '',
-      };
-    });
-  };
-
-  const handleAddRegion = (values?: {
-    regions?: ShippingRegion[];
-    countries?: string[];
-  }) => {
-    const regions = values?.regions ?? selectedRegion;
-    if (regions?.length < 1) {
-      dispatchToastMessage('warning', {
-        title: __('Regions cannot be empty', 'kirki-ecommerce'),
-      });
-      return;
-    }
-    if (values?.countries) {
-      setSelectedCountries(values.countries);
-    }
-    setSelectedRegion(regions);
-    setErrors({ ...errors, regions: '' });
-    setShippingZonesObj((prevZones) =>
-      prevZones.map((zone) =>
-        String(zone.id) === String(zoneId)
-          ? {
-              ...zone,
-              regions,
-            }
-          : zone,
-      ),
-    );
-    setOpenPopup(false);
-    setUnsavedDataStatus(true);
-  };
-
-  const updateShippingZone = () => {
-    saveSettings(
-      {
+    try {
+      await saveSettings({
         key: 'shipping',
-        data: { shipping_zones: shippingZonesObj },
-      },
-      {
-        onSuccess: () => {
-          setUnsavedDataStatus(false);
-        },
-        onError: (error) => {
-          const errObj = error as { errors?: Record<string, unknown> };
-          setErrors(normalizeErrors(getErrorsObject(errObj.errors as Record<string, string[]>)) as FormErrors);
-        },
-      },
-    );
-  };
-
-  const handleBackButton = () => {
-    const activeZoneData = shippingZonesObj?.find(
-      (zone) => String(zone?.id) === String(zoneId),
-    );
-
-    checkUnsavedDataStatus({
-      initialDataObj,
-      updatedDataObj: activeZoneData,
-      keysToCompare: ['title', 'regions'],
-      onUnsaved: () =>
-        confirmAction({ action: () => navigate('/settings/shipping') }),
-      onClean: () => {
-        navigate('/settings/shipping');
-      },
-    });
+        data: { shipping_zones: updatedZones },
+      });
+      setShippingZonesObj(updatedZones);
+      form.reset(payload);
+    } catch (error) {
+      applyServerErrors(form, error as ErrorResponse);
+    }
   };
 
   const handleDiscardData = () => {
-    setShippingZonesObj((prev = []) =>
-      prev.map((zone) =>
-        zone.id === activeZone?.id && initialDataObj ? initialDataObj : zone,
-      ),
-    );
+    form.reset();
   };
+
+  useSettingsPageActions({
+    isDirty,
+    isSaving,
+    onSave: form.handleSubmit(handleSaveZone),
+    onDiscard: handleDiscardData,
+  });
 
   return (
     <>
-      <PageHeading
-        text={__('Settings', 'kirki-ecommerce')}
-        size="sm"
-        sticky
-        type="primary"
-        style={{ height: '32px' }}
-        actions={
-          hasUnsavedData ? (
-            <>
-              <Button variant="ghost" onClick={handleDiscardData}>
-                {__('Cancel', 'kirki-ecommerce')}
-              </Button>
-              <Button variant="primary" onClick={updateShippingZone}>
-                {__('Save', 'kirki-ecommerce')}
-              </Button>
-            </>
-          ) : (
-            <></>
-          )
-        }
-      />
       <Container size="sm">
         {loaded ? (
-          <Flex direction="column" gap={4}>
-            <PageNavbar
-              text={__('Set Zone Details', 'kirki-ecommerce')}
-              handleBack={handleBackButton}
-            />
-            <Card cssOverride={mergeCss(cardStyles.largeCard, cardStyles.formCard)} >
-              <CardContent cssOverride={cardStyles.largeContentPadded}>
-
-              <Field data-invalid={errors?.title ? true : undefined}>
-                <FieldLabel htmlFor="shipping-zone-title">
-                  {__('Title', 'kirki-ecommerce')}
-                </FieldLabel>
-                <Input
-                  id="shipping-zone-title"
-                  placeholder="Zone 2- South Asia"
-                  value={shippingZoneTitle}
-                  onChange={(e) => handleShippingZoneTitle(e.target.value)}
-                  error={Boolean(errors?.title)}
-                  aria-invalid={Boolean(errors?.title) || undefined}
-                />
-                {typeof errors?.title === 'string' && (
-                  <FieldError>{errors.title}</FieldError>
-                )}
-              </Field>
-              {/* Not a MultiSelect: regions are picked in their own dialog,
-                  so this is the chip frame with a read-only trigger. */}
-              <Field data-invalid={errors?.regions ? true : undefined}>
-                <FieldLabel>{__('Regions', 'kirki-ecommerce')}</FieldLabel>
-                <ChipField
-                  error={Boolean(errors?.regions)}
-                  control={
-                    <Input
-                      readOnly
-                      placeholder={__(
-                        'Click to add destinations..',
-                        'kirki-ecommerce',
-                      )}
-                      cssOverride={chipFieldControlCss}
-                      onClick={() => setOpenPopup(true)}
-                    />
-                  }
-                  chips={
-                    regionTags.length > 0
-                      ? regionTags.map((tag) => (
-                        <Chip
-                          key={tag.id}
-                          text={tag.title}
-                          img={tag.tagIcon}
-                          subText={tag.subText}
-                          closeIcon={<Minus size={14} aria-hidden="true" />}
-                          onRemove={() => handleRemoveRegionTag(tag)}
-                        />
-                      ))
-                      : undefined
-                  }
-                />
-                {typeof errors?.regions === 'string' && (
-                  <FieldError>{errors.regions}</FieldError>
-                )}
-              </Field>
-
-              {openPopup && (
-              <ShippingRegionPopup
-              filteredCountries={getSearchedCountries(
-              searchValue,
-              countryList as CountryWithStates[] | null,
-              )}
-              openPopup={openPopup}
-              setOpenPopup={setOpenPopup}
-              setSearchValue={setSearchValue}
-              selectedCountries={selectedCountries}
-              setSelectedCountries={setSelectedCountries}
-              selectedRegion={selectedRegion}
-              setSelectedRegion={setSelectedRegion}
-              setShippingZoneTitle={setShippingZoneTitle}
-              from="edit"
-              onAdd={handleAddRegion}
-              onSave={handleAddRegion}
+          <Form {...form}>
+            <Flex direction="column" gap={4}>
+              <SettingsPageHeader
+                title={__('Set Zone Details', 'kirki-ecommerce')}
+                onBack={() => navigate('/settings/shipping')}
               />
-              )}
-              </CardContent>
-            </Card>
+              <Card cssOverride={cardStyles.formCard}>
+                <CardContent>
+                  <Flex direction="column" gap={4}>
+                    <TextField
+                      name="title"
+                      label={__('Title', 'kirki-ecommerce')}
+                      placeholder={__('Zone 2- South Asia', 'kirki-ecommerce')}
+                    />
+                    <RegionsField name="regions" label={__('Regions', 'kirki-ecommerce')} />
+                  </Flex>
+                </CardContent>
+              </Card>
 
-            <ShippingMethod
-              shippingSettingsData={shippingSettingsData}
-              shippingMethodList={
-                activeZone
-                  ? shippingMethodList[activeZone.id] || []
-                  : []
-              }
-              shippingZonesObj={shippingZonesObj}
-              setShippingZonesObj={setShippingZonesObj}
-              zoneId={zoneId}
-            />
-          </Flex>
+              <ShippingMethod
+                shippingSettingsData={shippingSettingsData}
+                shippingMethodList={
+                  activeZone
+                    ? shippingMethodList[activeZone.id] || []
+                    : []
+                }
+                shippingZonesObj={shippingZonesObj}
+                setShippingZonesObj={setShippingZonesObj}
+                zoneId={zoneId}
+              />
+            </Flex>
+          </Form>
         ) : (
           <div>{__('Loading ...', 'kirki-ecommerce')}</div>
         )}
@@ -354,4 +158,3 @@ const ShippingZonePage = () => {
 ShippingZonePage.displayName = 'ShippingZone';
 
 export default ShippingZonePage;
-

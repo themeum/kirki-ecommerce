@@ -12,10 +12,6 @@ import { useInstallablePaymentGatewaysQuery, useInstallPaymentGatewayMutation } 
 import type { PaymentGateway } from '@/types';
 import { __ } from '@/wpi18n';
 
-type AvailablePaymentGateway = PaymentGateway & {
-  is_installed?: boolean;
-};
-
 type PaymentGatewayPopupProps = {
   openPopup: boolean;
   setOpenPopup: Dispatch<SetStateAction<boolean>>;
@@ -29,9 +25,11 @@ const PaymentGatewayPopup = ({
     useInstallablePaymentGatewaysQuery();
   const { mutate: installGateway } = useInstallPaymentGatewayMutation();
 
-  const handleInstallPaymentGateway = (item: AvailablePaymentGateway) => {
-    const gatewayID = { id: item?.id };
-    installGateway(gatewayID);
+  const handleInstallPaymentGateway = (item: PaymentGateway) => {
+    if (item.id === undefined) {
+      return;
+    }
+    installGateway({ id: item.id });
   };
 
   return (
@@ -52,7 +50,7 @@ const PaymentGatewayPopup = ({
         </DialogHeader>
         <DialogBody>
           <Flex direction="column" gap={4}>
-            {(availableGatewayList as AvailablePaymentGateway[])?.map(
+            {availableGatewayList.map(
               (item, index) => (
                 <Card key={index} cssOverride={cardStyles.innerCard}>
                   <CardContent cssOverride={cardStyles.innerContent}>
