@@ -62,7 +62,7 @@ $currency_code = $cart['currency']['code'] ?? 'USD';
                 <span class="kecom-product-qty-badge"><?php echo esc_html($quantity); ?></span>
             </div>
             <div class="kecom-product-info">
-                <h3 class="kecom-product-name"><?php echo esc_html($product['title'] ?? ''); ?></h3>
+                <a href="<?php echo esc_url(Url::get_product_url($product['slug'])) ?>" class="kecom-product-name"><?php echo esc_html($product['title'] ?? ''); ?></a>
             </div>
             <div class="kecom-product-price-wrapper">
                 <span class="kecom-product-price"><?php echo esc_html($formatted_total); ?></span>

@@ -211,6 +211,8 @@
 
   .kecom-product-name {
     @include typography(base, medium, $text-primary);
+    text-decoration: none;
+    outline: none;
     margin: 0;
   }
 
