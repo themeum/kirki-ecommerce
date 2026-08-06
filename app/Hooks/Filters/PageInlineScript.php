@@ -51,6 +51,9 @@ class PageInlineScript extends BaseHook
             $pricing = $cart['pricing'] ?? [];
             $discount_details = $pricing['discount_details'] ?? null;
 
+            $discount_total = $pricing['discount_total'] ?? null;
+            $has_discount = $discount_total && !$discount_total->isZero();
+
             $config['checkout_cart'] = [
                 'items' => $cart['items'] ?? [],
                 'is_billing_same_as_shipping' => $cart['is_billing_same_as_shipping'] ?? false,
@@ -58,7 +61,8 @@ class PageInlineScript extends BaseHook
                     'subtotal_formatted'      => $pricing['subtotal_formatted'] ?? null,
                     'shipping_total'          => $pricing['shipping_total'] ?? null,
                     'shipping_total_formatted' => $pricing['shipping_total_formatted'] ?? null,
-                    'discount_total'          => $pricing['discount_total'] ?? null,
+                    'discount_total'          => $discount_total,
+                    'discount_total_formatted' => $has_discount ? $pricing['discount_total_formatted'] : null,
                     'total_formatted'         => $pricing['total_formatted'] ?? null,
                     'discount_details'    => $discount_details ? [
                         'code'                       => $discount_details['code'] ?? null,
