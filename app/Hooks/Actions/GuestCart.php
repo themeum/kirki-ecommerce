@@ -13,6 +13,7 @@ namespace Kirki\Ecommerce\App\Hooks\Actions;
 
 use Kirki\Ecommerce\App\Services\CartService;
 use Kirki\Ecommerce\Framework\Wordpress\BaseHook;
+use Kirki\Ecommerce\Framework\Wordpress\Constants\HookNames;
 use Kirki\Ecommerce\Framework\Wordpress\Constants\HookTypes;
 
 use function Kirki\Ecommerce\Framework\app;
@@ -21,7 +22,7 @@ class GuestCart extends BaseHook
 {
     public function get_name(): string
     {
-        return 'init';
+        return HookNames::INIT;
     }
 
     public function get_type(): string
