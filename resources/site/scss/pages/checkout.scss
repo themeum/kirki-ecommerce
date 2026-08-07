@@ -82,7 +82,7 @@
   .kecom-shipping-option {
     display: flex;
     align-items: center;
-    gap: $spacing-6;
+    gap: $spacing-7;
     padding: $spacing-8;
     outline: 1px solid $border-default;
     border-radius: $radius-xl;
@@ -97,15 +97,24 @@
       outline-width: 2px;
       outline-color: $background-fill-brand;
     }
-  }
 
-  .kecom-shipping-name {
-    @include typography(base, semibold);
-  }
+    .kecom-radio-label {
+      @include flex-column();
+      gap: $spacing-1;
+    }
 
-  .kecom-shipping-price {
-    @include typography(base, medium, $text-secondary);
-    margin-inline-start: auto;
+    .kecom-shipping-name {
+      @include typography(base, semibold);
+    }
+
+    .kecom-shipping-description {
+      @include typography(sm, regular, $text-secondary);
+    }
+
+    .kecom-shipping-price {
+      @include typography(base, medium, $text-secondary);
+      margin-inline-start: auto;
+    }
   }
 
   // Payment Methods
@@ -133,23 +142,27 @@
       outline-width: 2px;
       outline-color: $background-fill-brand;
     }
-  }
 
-  .kecom-payment-name {
-    @include typography(base, semibold);
-  }
+    .kecom-radio-label {
+      @include flex();
+      gap: $spacing-2;
+    }
 
-  .kecom-payment-logo {
-    @include flex-center();
-    margin-inline-start: auto;
-    width: 64px;
-    height: 20px;
-  }
+    .kecom-payment-name {
+      @include typography(base, semibold);
+    }
 
-  .kecom-payment-logo-img {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
+    .kecom-payment-logo {
+      @include flex-center();
+      width: 64px;
+      height: 20px;
+    }
+
+    .kecom-payment-logo-img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
   }
 
   // Product List

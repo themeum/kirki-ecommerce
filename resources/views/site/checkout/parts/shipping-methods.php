@@ -23,6 +23,7 @@ extract($data);
                         @change="setShippingMethod(shipping.id)">
                 <div class="kecom-radio-label">
                     <span class="kecom-shipping-name" x-text="shipping.name"></span>
+                    <span class="kecom-shipping-description" x-text="shipping.description"></span>
                 </div>
                 <div class="kecom-shipping-price" x-text="shipping.cost"></div>
             </label>

@@ -84,6 +84,7 @@ class ShippingService
             $available_options[] = [
                 'id' => $method['id'],
                 'name' => $method['name'],
+                'description' => $method['description'],
                 'type' => $method['type'],
                 'cost' => $decision_context->get_shipping_cost(),
             ];
