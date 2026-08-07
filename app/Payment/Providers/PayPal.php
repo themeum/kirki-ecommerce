@@ -417,10 +417,10 @@ class PayPal extends PaymentProvider
         parent::validate_settings($settings);
 
         Validator::make($settings, [
-            'client_id' => 'required|string',
-            'client_secret' => 'required|string',
-            'webhook_id' => 'required|string',
-            'sandbox' => 'boolean',
+            'client_id' => 'sometimes|string',
+            'client_secret' => 'sometimes|string',
+            'webhook_id' => 'sometimes|string',
+            'sandbox' => 'sometimes|boolean',
         ])->validate();
 
         return true;
