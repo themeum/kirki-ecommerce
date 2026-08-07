@@ -63,7 +63,6 @@ class Stripe extends PaymentGateway
                 'required' => true,
             ],
         ]);
-
     }
 
     /**
@@ -400,10 +399,8 @@ class Stripe extends PaymentGateway
 
         if ($session->payment_status === 'paid') {
             OrderManager::mark_payment_as_paid($order_id);
-            OrderManager::mark_as_processing($order_id);
         } elseif ($session->payment_status === 'unpaid') {
-            OrderManager::mark_payment_as_pending($order_id);
-            OrderManager::mark_as_on_hold($order_id);
+            OrderManager::mark_payment_as_unpaid($order_id);
         }
 
         $payment_intent = $session->payment_intent;
@@ -439,7 +436,6 @@ class Stripe extends PaymentGateway
         }
 
         OrderManager::mark_payment_as_paid($order_id);
-        OrderManager::mark_as_processing($order_id);
     }
 
     /**
@@ -464,7 +460,6 @@ class Stripe extends PaymentGateway
         }
 
         OrderManager::mark_payment_as_failed($order_id);
-        OrderManager::mark_as_cancelled($order_id);
     }
 
     /**
@@ -488,8 +483,8 @@ class Stripe extends PaymentGateway
             return;
         }
 
+        // @todo: need to check it later
         OrderManager::mark_as_on_hold($order->id);
-        OrderManager::mark_payment_as_on_hold($order->id);
     }
 
     /**
@@ -514,12 +509,13 @@ class Stripe extends PaymentGateway
         }
 
         if ($dispute->status === 'won' && $order->payment_status === PaymentStatus::PAID) {
+            // @todo: need to check it later
             OrderManager::mark_as_processing($order->id);
         }
 
         if ($dispute->status === 'lost') {
-            OrderManager::mark_payment_as_refunded($order->id);
-            OrderManager::mark_as_refunded($order->id);
+            // @todo: need to handle for delivered orders
+            OrderManager::mark_payment_as_unpaid($order->id);
         }
     }
 

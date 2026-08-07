@@ -1,15 +1,74 @@
-import { mediaId } from "@/libs/zod";
-import { CustomerAddressSchema } from "@/schemas/catalog/customer";
 import { MoneyAmountSchema, MoneyObjectSchema } from "@/schemas/shared/api";
+import { MediaRefSchema } from "@/schemas/shared/media";
 import z from "zod";
 
-export const OrderStatusSchema = z.enum(['pending', 'processing', 'completed', 'cancelled', 'refunded', 'partially-refunded', 'on-hold']);
+export const OrderStatusSchema = z.enum([
+  'pending',
+  'unpaid_processing',
+  'paid_unfulfilled',
+  'paid_processing',
+  'paid_shipped',
+  'shipped_unpaid',
+  'delivered_unpaid',
+  'completed',
+  'on_hold_paid',
+  'on_hold_unpaid',
+  'paid_cancelled',
+  'unpaid_cancelled',
+  'failed_cancelled',
+  'failed_unfulfilled',
+  'failed_processing',
+  'failed_shipped',
+  'failed_delivered',
+  'failed_on_hold',
+  'refund_requested',
+  'refund_in_progress',
+  'refunded',
+  'refund_declined',
+  'returned_pending_refund',
+  'refunded_partially',
+]);
 
 export type OrderStatus = z.infer<typeof OrderStatusSchema>;
 
-export const PaymentStatusSchema = z.enum(['pending', 'processing', 'on-hold', 'paid', 'failed', 'refunded', 'partially-refunded']);
+export const PaymentStatusSchema = z.enum(['paid', 'unpaid', 'failed', 'refunding', 'refunded']);
 
 export type PaymentStatus = z.infer<typeof PaymentStatusSchema>;
+
+export const FulfillmentStatusSchema = z.enum([
+  'unfulfilled',
+  'processing',
+  'shipped',
+  'delivered',
+  'on-hold',
+  'cancelled',
+  'returned',
+]);
+
+export type FulfillmentStatus = z.infer<typeof FulfillmentStatusSchema>;
+
+export const OrderAddressSchema = z.object({
+  first_name: z.string().nullish(),
+  last_name: z.string().nullish(),
+  line1: z.string().nullish(),
+  line2: z.string().nullish(),
+  city: z.string().nullish(),
+  state: z.string().nullish(),
+  country: z.string().nullish(),
+  postal_code: z.string().nullish(),
+  phone: z.string().nullish(),
+  email: z.string().nullish(),
+});
+
+export type OrderAddress = z.infer<typeof OrderAddressSchema>;
+
+export const OrderTrackingSchema = z.object({
+  carrier: z.string().nullish(),
+  tracking_number: z.string().nullish(),
+  tracking_url: z.string().nullish(),
+});
+
+export type OrderTracking = z.infer<typeof OrderTrackingSchema>;
 
 export const RefundStatusSchema = z.enum(['pending', 'completed', 'cancelled']);
 
@@ -43,6 +102,8 @@ export const OrderItemSchema = z.object({
   order_number: z.string(),
   customer_id: z.number(),
   status: OrderStatusSchema,
+  fulfillment_status: FulfillmentStatusSchema,
+  is_refund_initiated: z.boolean(),
   currency_code: z.string(),
   totals: z.object({
     subtotal: MoneyAmountSchema,
@@ -59,6 +120,8 @@ export const OrderItemSchema = z.object({
   items_count: z.number(),
   items: z.array(z.object({
     id: z.number(),
+    product_id: z.number(),
+    variant_id: z.number(),
     product_name: z.string(),
     variant_name: z.string(),
     quantity: z.number(),
@@ -77,17 +140,22 @@ export const OrderItemSchema = z.object({
       name: z.string(),
       rate: z.number(),
       total: MoneyAmountSchema
-    })),
+    })).nullish(),
     sku: z.string(),
-    image: mediaId(),
+    image: MediaRefSchema.nullish(),
   })),
-  shipping_address: CustomerAddressSchema.nullish(),
-  billing_address: CustomerAddressSchema.nullish(),
-  payment_method: z.string(),
+  shipping_address: OrderAddressSchema,
+  is_billing_same_as_shipping: z.boolean(),
+  billing_address: OrderAddressSchema,
+  payment_method: z.string().nullish(),
   payment_status: PaymentStatusSchema,
   shipping_method: z.string().nullish(),
   customer_notes: z.string().nullish(),
+  admin_notes: z.string().nullish(),
+  flags: z.array(z.string()).nullish(),
+  shipping_tracking: OrderTrackingSchema,
   refunds: z.array(RefundSchema).nullish(),
+  archived_at: z.string().nullish(),
   created_at: z.string()
 });
 
@@ -104,7 +172,7 @@ export const OrderListItemSchema = OrderItemSchema.pick({
   total_object: MoneyObjectSchema,
   status: OrderStatusSchema,
   payment_status: PaymentStatusSchema,
-  payment_method: z.string(),
+  payment_method: z.string().nullish(),
   created_at: z.string()
 }));
 

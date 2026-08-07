@@ -104,11 +104,11 @@ class PayPal extends PaymentGateway
         $response = Http::with_headers([
             'Authorization' => 'Basic ' . base64_encode($client_id . ':' . $client_secret),
         ])->as_form()->post(
-                $this->get_base_url() . '/v1/oauth2/token',
-                [
-                    'grant_type' => 'client_credentials',
-                ]
-            );
+            $this->get_base_url() . '/v1/oauth2/token',
+            [
+                'grant_type' => 'client_credentials',
+            ]
+        );
 
         if ($response->failed()) {
             throw new Exception(sprintf(__('Failed to authenticate with PayPal: %s', 'kirki-ecommerce'), $response->body()));
@@ -199,7 +199,6 @@ class PayPal extends PaymentGateway
             }
 
             throw new Exception(__('PayPal approve link not found.', 'kirki-ecommerce'));
-
         } catch (Exception $e) {
             throw new Exception(sprintf(__('PayPal Payment Error: %s', 'kirki-ecommerce'), $e->getMessage()));
         }
@@ -338,7 +337,6 @@ class PayPal extends PaymentGateway
 
         if ($order->payment_status !== PaymentStatus::PAID) {
             OrderManager::mark_payment_as_paid($order->id);
-            OrderManager::mark_as_processing($order->id);
         }
     }
 

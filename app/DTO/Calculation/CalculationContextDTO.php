@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\App\DTO\Calculation;
 
+use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
 use Kirki\Ecommerce\App\Models\Cart;
 use Kirki\Ecommerce\App\Constants\Order\OrderStatus;
 use Kirki\Ecommerce\Framework\Collections\Collection;
@@ -81,7 +82,8 @@ class CalculationContextDTO extends DTO
         }) ?? collection();
 
         if ($cart->customer_id && $cart->customer) {
-            $dto->customer_order_count = $cart->customer->orders()->where_not_in('order_status', [OrderStatus::CANCELLED, OrderStatus::REFUNDED])->count();
+            // @todo: need to update this with order status which are terminal states
+            $dto->customer_order_count = $cart->customer->orders()->where_not_in('fulfillment_status', [FulfillmentStatus::CANCELLED, FulfillmentStatus::RETURNED])->count();
         }
 
         return $dto;

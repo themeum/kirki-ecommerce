@@ -6,15 +6,18 @@ use Kirki\Ecommerce\App\Actions\Order\CreateOrderAction;
 use Kirki\Ecommerce\App\Actions\Order\CreateRefundAction;
 use Kirki\Ecommerce\App\Actions\Order\UpdateOrderAction;
 use Kirki\Ecommerce\App\Actions\Order\UpdateRefundAction;
+use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
+use Kirki\Ecommerce\App\Constants\Order\OrderAction;
+use Kirki\Ecommerce\App\Constants\Order\OrderStatus;
 use Kirki\Ecommerce\App\DTO\Refund\CreateRefundPayloadDTO;
 use Kirki\Ecommerce\App\DTO\Refund\UpdateRefundPayloadDTO;
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Services\InventoryService;
 use Kirki\Ecommerce\App\Services\OrderService;
-use Kirki\Ecommerce\App\Constants\Order\OrderStatus;
 use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\DTO\Order\CreateOrderPayloadDTO;
 use Kirki\Ecommerce\App\DTO\Order\UpdateOrderPayloadDTO;
+use Kirki\Ecommerce\Framework\Supports\Facades\Date;
 
 /**
  * OrderManager class
@@ -70,121 +73,194 @@ class OrderManager
     }
 
     /**
-     * Mark an order as completed.
+     * Mark an order fulfillment status as unfulfilled.
      *
      * @param int $id
      * @return bool
      */
-    public function mark_as_completed(int $id)
+    public function mark_as_unfulfilled(int $id)
     {
-        $is_completed = $this->order_service->update_order_status($id, OrderStatus::COMPLETED);
-
-        if ($is_completed) {
-            $this->inventory_service->confirm_all_reserved_stock(static::find($id));
-        }
-
-        return $is_completed;
+        return $this->order_service->partial_update_order($id, ['fulfillment_status' => FulfillmentStatus::UNFULFILLED]);
     }
 
     /**
-     * Mark an order as cancelled.
+     * Mark an order fulfillment status as pending.
      *
      * @param int $id
+     * @param string|null $reason
      * @return bool
      */
-    public function mark_as_cancelled(int $id)
+    public function mark_as_cancel(int $id, $reason = null)
     {
-        $is_cancelled = $this->order_service->update_order_status($id, OrderStatus::CANCELLED);
+        $order = $this->order_service->find_order_or_fail($id);
+        $is_cancelled = $this->order_service->apply_order_action($id, $order->order_status, OrderAction::CANCEL_ORDER);
 
         if ($is_cancelled) {
-            $this->inventory_service->release_all_reserved_stock(static::find($id));
+            $order->coupon_usage->delete();
+            $this->inventory_service->release_all_reserved_stock($order);
+            $this->order_service->partial_update_order($id, [
+                'cancellation_reason' => $reason,
+                'cancelled_at' => Date::now(),
+            ]);
         }
 
         return $is_cancelled;
     }
 
     /**
-     * Mark an order as refunded.
-     *
-     * @param int $id
-     * @return bool
-     */
-    public function mark_as_refunded(int $id)
-    {
-        $is_refunded = $this->order_service->update_order_status($id, OrderStatus::REFUNDED);
-
-        if ($is_refunded) {
-            $this->inventory_service->release_all_reserved_stock(static::find($id));
-        }
-
-        return $is_refunded;
-    }
-
-    /**
-     * Mark an order as pending.
-     *
-     * @param int $id
-     * @return bool
-     */
-    public function mark_as_pending(int $id)
-    {
-        return $this->order_service->update_order_status($id, OrderStatus::PENDING);
-    }
-
-    /**
-     * Mark an order as processing.
+     * Mark an order fulfillment status as processing.
      *
      * @param int $id
      * @return bool
      */
     public function mark_as_processing(int $id)
     {
-        return $this->order_service->update_order_status($id, OrderStatus::PROCESSING);
+        $order = $this->order_service->find_order_or_fail($id);
+        $action = $order->fulfillment_status === FulfillmentStatus::ON_HOLD
+            ? OrderAction::RESUME_FULFILLMENT
+            : OrderAction::MARK_AS_PROCESSING;
+
+        return $this->order_service->apply_order_action($id, $order->order_status, $action);
     }
 
     /**
-     * Mark an order as on hold.
+     * Mark an order fulfillment status as on hold.
      *
      * @param int $id
      * @return bool
      */
     public function mark_as_on_hold(int $id)
     {
-        return $this->order_service->update_order_status($id, OrderStatus::ON_HOLD);
+        $order = $this->order_service->find_order_or_fail($id);
+
+        return $this->order_service->apply_order_action($id, $order->order_status, OrderAction::MARK_AS_HOLD);
     }
 
     /**
-     * Update an order's payment status.
+     * Mark an order fulfillment status as shipped.
+     */
+    public function mark_as_shipped(int $id)
+    {
+        $order = $this->order_service->find_order_or_fail($id);
+        $is_shipped = $this->order_service->apply_order_action($id, $order->order_status, OrderAction::MARK_AS_SHIPPED);
+
+        if ($is_shipped) {
+            $this->order_service->partial_update_order($id, ['shipped_at' => Date::now()]);
+        }
+
+        return $is_shipped;
+    }
+
+    /**
+     * Mark an order fulfillment status as delivered.
      *
      * @param int $id
-     * @param string $status
      * @return bool
      */
-    public function update_payment_status(int $id, string $status)
+    public function mark_as_delivered(int $id)
     {
-        return $this->order_service->update_payment_status($id, $status);
+        $order = $this->order_service->find_order_or_fail($id);
+        $is_delivered = $this->order_service->apply_order_action($id, $order->order_status, OrderAction::MARK_AS_DELIVERED);
+
+        if ($is_delivered) {
+            $this->order_service->partial_update_order($id, ['delivered_at' => Date::now()]);
+
+            if ($order->payment_status === PaymentStatus::PAID) {
+                $this->inventory_service->confirm_all_reserved_stock($order);
+            }
+        }
+
+        return $is_delivered;
+    }
+
+    /**
+     * Set the shipping carrier and tracking details of an order.
+     *
+     * @param int $id
+     * @param array $tracking Accepts carrier, tracking_number and tracking_url keys.
+     * @return bool
+     */
+    public function add_tracking(int $id, array $tracking)
+    {
+        return $this->order_service->partial_update_order($id, [
+            'shipping_carrier' => $tracking['carrier'] ?? null,
+            'shipping_tracking_number' => $tracking['tracking_number'] ?? null,
+            'shipping_tracking_url' => $tracking['tracking_url'] ?? null,
+        ]);
+    }
+
+    /**
+     * Mark an order as archived.
+     *
+     * @param int $id
+     * @return bool
+     */
+    public function mark_as_archive(int $id)
+    {
+        return $this->order_service->partial_update_order($id, ['archived_at' => Date::now()]);
     }
 
     /**
      * Mark an order as paid.
      *
      * @param int $id
+     * @param string|null $payment_method
      * @return bool
      */
-    public function mark_payment_as_paid(int $id)
+    public function mark_payment_as_paid(int $id, ?string $payment_method = null)
     {
-        return $this->order_service->update_payment_status($id, PaymentStatus::PAID);
+        $order = $this->order_service->find_order_or_fail($id);
+        $is_paid = $this->order_service->apply_order_action($id, $order->order_status, OrderAction::MARK_AS_PAID);
+
+        if ($is_paid) {
+            $update = ['paid_at' => Date::now()];
+
+            if ($payment_method !== null) {
+                $update['payment_method'] = $payment_method;
+            }
+
+            $this->order_service->partial_update_order($id, $update);
+
+            if ($order->fulfillment_status === FulfillmentStatus::DELIVERED) {
+                $this->inventory_service->confirm_all_reserved_stock($order);
+            }
+        }
+
+        return $is_paid;
     }
 
     /**
-     * Mark an order as refunded.
+     * Mark an order is unpaid.
+     *
+     * @param int $id
+     * @return bool
+     */
+    public function mark_payment_as_unpaid(int $id)
+    {
+        $order = $this->order_service->find_order_or_fail($id);
+        $order_status = OrderStatus::find_by_pair($order->fulfillment_status, PaymentStatus::UNPAID);
+
+        return $this->order_service->partial_update_order($id, [
+            'payment_status' => PaymentStatus::UNPAID,
+            'order_status' => $order_status,
+        ]);
+    }
+
+    /**
+     * Mark an order is failed.
      *
      * @param int $id
      * @return bool
      */
     public function mark_payment_as_failed(int $id)
     {
-        return $this->order_service->update_payment_status($id, PaymentStatus::FAILED);
+        $order = $this->order_service->find_order_or_fail($id);
+        $order_status = OrderStatus::find_by_pair($order->fulfillment_status, PaymentStatus::FAILED);
+
+        return $this->order_service->partial_update_order($id, [
+            'payment_status' => PaymentStatus::FAILED,
+            'order_status' => $order_status,
+        ]);
     }
 
     /**
@@ -193,42 +269,15 @@ class OrderManager
      * @param int $id
      * @return bool
      */
-    public function mark_payment_as_refunded(int $id)
+    public function mark_refund_as_completed(int $id)
     {
-        return $this->order_service->update_payment_status($id, PaymentStatus::REFUNDED);
-    }
+        $is_refunded = $this->order_service->mark_refund_as_completed($id);
 
-    /**
-     * Mark an order as pending.
-     *
-     * @param int $id
-     * @return bool
-     */
-    public function mark_payment_as_pending(int $id)
-    {
-        return $this->order_service->update_payment_status($id, PaymentStatus::PENDING);
-    }
+        if ($is_refunded) {
+            $this->inventory_service->release_all_reserved_stock(static::find($id));
+        }
 
-    /**
-     * Mark an order as processing.
-     *
-     * @param int $id
-     * @return bool
-     */
-    public function mark_payment_as_processing(int $id)
-    {
-        return $this->order_service->update_payment_status($id, PaymentStatus::PROCESSING);
-    }
-
-    /**
-     * Mark an order as on hold.
-     *
-     * @param int $id
-     * @return bool
-     */
-    public function mark_payment_as_on_hold(int $id)
-    {
-        return $this->order_service->update_payment_status($id, PaymentStatus::ON_HOLD);
+        return $is_refunded;
     }
 
     /**
@@ -355,5 +404,44 @@ class OrderManager
     public function get_refund(Order $order, int $id)
     {
         return $order->refunds->filter(fn($refund) => (int) $refund->id === (int) $id)->values()->first();
+    }
+
+    /**
+     * Send the invoice email of an order to the customer.
+     *
+     * @param int $id
+     * @return bool
+     */
+    public function send_invoice_email(int $id)
+    {
+        // @todo: implement once the order email layer exists. The plugin has no mailable,
+        // template or renderer yet, only the EmailSettings option and SendEmailJob.
+        return false;
+    }
+
+    /**
+     * Send the customer a link to pay for an order.
+     *
+     * @param int $id
+     * @return bool
+     */
+    public function send_payment_link(int $id)
+    {
+        // @todo: implement once the order email layer exists. The link itself comes from the
+        // gateway's pay() method, but PaymentGateway::return_url() is still a stub.
+        return false;
+    }
+
+    /**
+     * Resend the order confirmation email to the customer.
+     *
+     * @param int $id
+     * @return bool
+     */
+    public function resend_order_email(int $id)
+    {
+        // @todo: implement once the order email layer exists. SendNotificationEmail::handle()
+        // is currently an empty listener and OrderShipped is never dispatched.
+        return false;
     }
 }

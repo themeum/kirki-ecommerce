@@ -21,9 +21,6 @@ class UpdateOrderDTO extends DTO
     /** @var int */
     public $customer_id;
 
-    /** @var string */
-    public $order_status;
-
     /** @var bool */
     public $is_manual;
 
@@ -73,9 +70,6 @@ class UpdateOrderDTO extends DTO
     public $items_count;
 
     /** @var string */
-    public $payment_status;
-
-    /** @var string */
     public $payment_method;
 
     /** @var string */
@@ -109,7 +103,10 @@ class UpdateOrderDTO extends DTO
     public $billing_email;
 
     /** @var string|null */
-    public $customer_notes;
+    public $admin_notes;
+
+    /** @var string[]|null */
+    public $flags;
 
     /** @var Collection<CreateOrderItemDTO> */
     public $items;

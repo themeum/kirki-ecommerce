@@ -16,6 +16,8 @@ class OrderResource extends Resource
             'order_number' => $this->order_number,
             'customer_id' => $this->customer_id,
             'status' => $this->order_status,
+            'fulfillment_status' => $this->fulfillment_status,
+            'is_refund_initiated' => $this->is_refund_initiated,
             'currency_code' => $this->currency_code,
 
             'totals' => [
@@ -35,6 +37,8 @@ class OrderResource extends Resource
             'items' => $this->items->map(function ($item) {
                 return [
                     'id' => $item->id,
+                    'product_id' => $item->product_id,
+                    'variant_id' => $item->variant_id,
                     'product_name' => $item->product_name,
                     'variant_name' => $item->variant_name,
                     'quantity' => $item->quantity,
@@ -87,6 +91,14 @@ class OrderResource extends Resource
             'payment_status' => $this->payment_status,
             'shipping_method' => $this->shipping_method,
             'customer_notes' => $this->customer_notes,
+            'admin_notes' => $this->admin_notes,
+            'flags' => $this->flags,
+
+            'shipping_tracking' => [
+                'carrier' => $this->shipping_carrier,
+                'tracking_number' => $this->shipping_tracking_number,
+                'tracking_url' => $this->shipping_tracking_url,
+            ],
 
             'refunds' => empty($this->refunds) ? [] : $this->refunds->map(function ($refund) {
                 return [
@@ -102,6 +114,7 @@ class OrderResource extends Resource
                 ];
             }),
 
+            'archived_at' => $this->archived_at,
             'created_at' => $this->created_at,
         ];
     }

@@ -18,6 +18,8 @@ class OrderListResource extends Resource
             'total' => $this->prepare_amount($this->total_base),
             'total_object' => $this->prepare_amount_object($this->total_base),
             'status' => $this->order_status,
+            'fulfillment_status' => $this->fulfillment_status,
+            'is_refund_initiated' => $this->is_refund_initiated,
             'payment_status' => $this->payment_status,
             'payment_method' => $this->payment_method,
             'created_at' => $this->created_at,

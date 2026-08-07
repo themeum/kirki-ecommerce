@@ -26,15 +26,22 @@ import { __ } from '@/wpi18n';
 type CustomerInfoDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onSave?: () => void;
+  isSaving?: boolean;
 };
 
-const CustomerInfoDialog = ({ open, onOpenChange }: CustomerInfoDialogProps) => {
+const CustomerInfoDialog = ({ open, onOpenChange, onSave, isSaving }: CustomerInfoDialogProps) => {
   const form = useFormContext<OrderFormInput>();
   const snapshot = useRef(form.getValues());
   const isBillingSameAsShipping = form.watch('is_billing_same_as_shipping');
 
   const handleCancel = () => {
     form.reset(snapshot.current);
+    onOpenChange(false);
+  };
+
+  const handleSave = () => {
+    onSave?.();
     onOpenChange(false);
   };
 
@@ -178,7 +185,7 @@ const CustomerInfoDialog = ({ open, onOpenChange }: CustomerInfoDialogProps) => 
           <Button variant="ghost" onClick={handleCancel}>
             {__('Cancel', 'kirki-ecommerce')}
           </Button>
-          <Button variant="primary" onClick={() => onOpenChange(false)}>
+          <Button variant="primary" onClick={handleSave} loading={isSaving}>
             {__('Save', 'kirki-ecommerce')}
           </Button>
         </DialogFooter>

@@ -175,8 +175,18 @@ const OrderCreate = () => {
                 onRemoveItem={handleRemoveItem}
               />
               <PaymentSummaryCard
-                calculation={calculation}
+                amounts={{
+                  itemsCount: calculation?.items_count,
+                  subtotal: calculation?.pricing.subtotal_object.display,
+                  discount: calculation?.pricing.discount_total_object.display,
+                  shipping: calculation?.pricing.shipping_total_object.display,
+                  tax: calculation?.pricing.tax_total_object.display,
+                  total: calculation?.pricing.total_object.display,
+                }}
+                availableShippingMethods={calculation?.available_shipping_methods}
                 isCalculating={isCalculating}
+                isDiscountEditable
+                isShippingEditable
               />
             </Flex>
 

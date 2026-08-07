@@ -22,7 +22,7 @@ describe('OrderFormSchema', () => {
     shipping_email: null,
     shipping_company: null,
     is_billing_same_as_shipping: true,
-    customer_notes: null,
+    admin_notes: null,
   };
 
   const separateBilling = {
@@ -73,7 +73,8 @@ describe('OrderFormSchema', () => {
       billing_phone: null,
       billing_email: null,
       billing_company: null,
-      customer_notes: null,
+      admin_notes: null,
+      flags: null,
       is_manual: true,
     });
   });
@@ -153,7 +154,7 @@ describe('OrderFormSchema', () => {
     expect(result.shipping_phone).toBeNull();
     expect(result.shipping_email).toBeNull();
     expect(result.shipping_company).toBeNull();
-    expect(result.customer_notes).toBeNull();
+    expect(result.admin_notes).toBeNull();
   });
 
   it('defaults is_manual to true and is_billing_same_as_shipping to false', () => {
@@ -249,7 +250,7 @@ describe('OrderCalculationRequestSchema', () => {
       billing_first_name: 'Jane',
       billing_postal_code: 'SW1A 2AA',
       shipping_company: 'Acme Ltd',
-      customer_notes: 'Leave at the door',
+      admin_notes: 'Leave at the door',
       is_billing_same_as_shipping: false,
       is_manual: true,
     });
@@ -257,7 +258,7 @@ describe('OrderCalculationRequestSchema', () => {
     expect(Object.keys(result)).not.toContain('billing_first_name');
     expect(Object.keys(result)).not.toContain('billing_postcode');
     expect(Object.keys(result)).not.toContain('shipping_company');
-    expect(Object.keys(result)).not.toContain('customer_notes');
+    expect(Object.keys(result)).not.toContain('admin_notes');
     expect(Object.keys(result)).not.toContain('is_billing_same_as_shipping');
     expect(Object.keys(result)).not.toContain('is_manual');
   });

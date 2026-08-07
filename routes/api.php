@@ -201,6 +201,7 @@ Route::group(['middleware' => AuthMiddleware::class], function () {
     Route::post('/orders/{order_id}/refunds', [OrderController::class, 'create_refund']);
     Route::put('/orders/{order_id}/refunds/{id}', [OrderController::class, 'update_refund']);
     Route::delete('/orders/{order_id}/refunds/{id}', [OrderController::class, 'delete_refund']);
+    Route::patch('/orders/{id}/action', [OrderController::class, 'action'])->where('id', '[\d]+');
     Route::put('/orders/{id}', [OrderController::class, 'update']);
     Route::delete('/orders/{id}', [OrderController::class, 'delete']);
     Route::post('/orders/bulk', [OrderController::class, 'bulk_actions']);

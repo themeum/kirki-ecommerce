@@ -1,60 +1,38 @@
-import Input from '@/components/ui/input';
 import Flex from '@/components/ui/flex';
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import Text from '@/components/ui/text';
 import Thumbnail from '@/components/ui/thumbnail';
-import type { MediaRef } from '@/types';
+import type { OrderItem } from '@/types';
+import { sprintf } from '@/wpi18n';
 
-const ItemsTable = () => {
-  const itemImg: MediaRef[] = [
-    {
-      id: 1,
-      url: 'https://kirki-ecommerce.test/wp-content/uploads/2025/10/thumb-1.png',
-    },
-    {
-      id: 2,
-      url: 'https://kirki-ecommerce.test/wp-content/uploads/2025/10/thumb-2.png',
-    },
-    {
-      id: 3,
-      url: 'https://kirki-ecommerce.test/wp-content/uploads/2025/10/thumb-3.png',
-    },
-    {
-      id: 4,
-      url: 'https://kirki-ecommerce.test/wp-content/uploads/2025/10/thumb.png',
-    },
-  ];
+type ItemsTableProps = {
+  items: OrderItem['items'];
+};
 
+const ItemsTable = ({ items }: ItemsTableProps) => {
   return (
     <Table>
       <TableBody>
-        {[0, 1, 2, 3].map((item, index) => (
-          <TableRow key={index}>
+        {items.map((item) => (
+          <TableRow key={item.id}>
             <TableCell>
-              <Flex gap={3}>
-                <Flex gap={3} align="center">
-                  <Thumbnail src={itemImg[item].url} />
-                  <Flex direction="column" gap={2}>
-                    <Text>Hockey Shoes</Text>
-                    <Text color="secondary">Beige white</Text>
-                  </Flex>
+              <Flex gap={3} align="center">
+                <Thumbnail src={item.image?.url} alt={item.product_name} />
+                <Flex direction="column" gap={2}>
+                  <Text variant="small">{item.product_name}</Text>
+                  {Boolean(item.variant_name) && (
+                    <Text variant="small" color="secondary">{item.variant_name}</Text>
+                  )}
                 </Flex>
               </Flex>
             </TableCell>
             <TableCell alignment="right">
-              <div style={{ maxWidth: '154px' }}>
-                <Input
-                  placeholder="19.99"
-                  style={{ textAlign: 'center' }}
-                  onChange={(event) => {
-                    console.log(event.target.value);
-                  }}
-                  value={19}
-                />
-              </div>
+              <Text color="secondary" variant="small">
+                {sprintf('%s x %s', item.quantity, item.price_object.display)}
+              </Text>
             </TableCell>
             <TableCell alignment="right">
-              <div>$234.00</div>
+              <Text variant='tiny' weight='medium'>{item.total_object.display}</Text>
             </TableCell>
           </TableRow>
         ))}
@@ -62,5 +40,7 @@ const ItemsTable = () => {
     </Table>
   );
 };
+
+ItemsTable.displayName = 'ItemsTable';
 
 export default ItemsTable;

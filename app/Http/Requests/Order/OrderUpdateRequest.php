@@ -108,7 +108,9 @@ class OrderUpdateRequest extends Request
 
             'customer_email' => 'nullable|email',
             'customer_phone' => 'nullable|string',
-            'customer_notes' => 'nullable|string',
+            'admin_notes' => 'nullable|string',
+            'flags' => 'nullable|array',
+            'flags.*' => 'string',
         ];
     }
 
@@ -155,7 +157,9 @@ class OrderUpdateRequest extends Request
 
             'customer_email' => Sanitizer::EMAIL,
             'customer_phone' => Sanitizer::TEXT,
-            'customer_notes' => Sanitizer::TEXT,
+            'admin_notes' => Sanitizer::TEXT,
+            'flags' => Sanitizer::ARRAY,
+            'flags.*' => Sanitizer::TEXT,
         ];
     }
 }

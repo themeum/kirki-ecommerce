@@ -75,6 +75,7 @@ export const endpoints = {
   PAYMENT_METHOD: (id: string | number) => `/payment-methods/${id}`,
 
   ORDER: (id: string | number) => `/orders/${id}`,
+  ORDER_ACTION: (id: string | number) => `/orders/${id}/action`,
   ORDERS: '/orders',
   CALCULATE_ORDER: '/calculate/order',
 } as const;
