@@ -19,7 +19,9 @@ $product = $item['product'] ?? [];
 $media = $product['media'] ?? [];
 $quantity = (int) $item['quantity'] ?? 1;
 $max_quantity = (int) $product['available_quantity'] ?? 1;
-$unit_price = Money::format_from_decimal($product['base_sale_price'] > 0 ? $product['base_sale_price'] : $product['base_price']);
+$unit_price = $product['base_sale_price'] > 0
+                ? $product['base_sale_price_money_object']->display
+                : $product['base_price_money_object']->display;
 
 ?>
 
