@@ -18,7 +18,6 @@ use Kirki\Ecommerce\App\Actions\Cart\RemoveCouponAction;
 use Kirki\Ecommerce\App\Constants\Cart;
 use Kirki\Ecommerce\App\DTO\Cart\EmptyCartDTO;
 use Kirki\Ecommerce\App\DTO\Cart\RemoveCartItemDTO;
-use Kirki\Ecommerce\App\DTO\Cart\UpdateCartDTO;
 use Kirki\Ecommerce\App\DTO\Cart\UpdateCartItemDTO;
 
 use function Kirki\Ecommerce\App\customer;
@@ -130,11 +129,7 @@ class CartController
         $token = $request->get_header(Cart::HEADER_TOKEN);
         $customer_id = $customer ? $customer->get_customer_id() : null;
 
-        $dto = UpdateCartDTO::from_request($request);
-        $dto->customer_id = $customer_id;
-        $dto->token = $token;
-
-        $updated_cart = $action->execute($dto);
+        $updated_cart = $action->execute($token, $customer_id, $request->sanitized());
 
         return response()->json([
             'data' => CartResource::make($updated_cart),
