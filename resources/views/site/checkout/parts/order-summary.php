@@ -11,6 +11,7 @@ extract($data);
 $pricing = $cart['pricing'] ?? [];
 $formatted_subtotal = $pricing['display_subtotal_money_object']->display ?? '';
 $formatted_shipping = $pricing['display_shipping_subtotal_money_object']->display ?? '';
+$formatted_tax = $pricing['display_tax_total_money_object']->display ?? '';
 $formatted_discount = $pricing['display_discount_total_money_object']->display ?? '';
 $formatted_total = $pricing['display_total_money_object']->display ?? '';
 ?>
@@ -26,6 +27,10 @@ $formatted_total = $pricing['display_total_money_object']->display ?? '';
     <div class="kecom-summary-row">
         <span><?php esc_html_e('Shipping', 'kirki-ecommerce'); ?></span>
         <span class="kecom-summary-value" x-text="cartData ? cartData.pricing?.display_shipping_subtotal_money_object?.display : '<?php echo esc_js($formatted_shipping); ?>'"><?php echo esc_html($formatted_shipping); ?></span>
+    </div>
+    <div class="kecom-summary-row">
+        <span><?php esc_html_e('Taxes', 'kirki-ecommerce'); ?></span>
+        <span class="kecom-summary-value" x-text="cartData ? cartData.pricing?.display_tax_total_money_object?.display : '<?php echo esc_js($formatted_tax); ?>'"><?php echo esc_html($formatted_tax); ?></span>
     </div>
     <div class="kecom-summary-row" x-show="discount !== null">
         <span><?php esc_html_e('Discount', 'kirki-ecommerce'); ?></span>
