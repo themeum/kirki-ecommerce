@@ -18,7 +18,7 @@ class CartRepository
     {
         return Cart::where('cart_token', $token)->with([
             'items' => ['product' => ['media', 'categories'], 'variant' => ['media']]
-        ])->first();
+        ])->order_by('id', 'desc')->first();
     }
 
     /**
@@ -47,7 +47,7 @@ class CartRepository
     {
         return Cart::where('customer_id', $customer_id)->with([
             'items' => ['product' => ['media', 'categories'], 'variant' => ['media', 'attribute_values', 'available_quantity']]
-        ])->first();
+        ])->order_by('id', 'desc')->first();
     }
 
     public function create_cart(array $data)
