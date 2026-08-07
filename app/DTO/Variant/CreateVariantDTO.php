@@ -61,7 +61,7 @@ class CreateVariantDTO extends DTO
     public $track_inventory = false;
 
     /** @var int|null */
-    public $available_quantity = null;
+    public $available_quantity = 0;
 
     /** @var bool|null */
     public $in_stock = true;

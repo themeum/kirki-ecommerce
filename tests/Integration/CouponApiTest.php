@@ -222,7 +222,7 @@ class CouponApiTest extends RestTestCase
             'discount_target' => DiscountTarget::ORDER,
             'discount_value_type' => DiscountValueType::PERCENTAGE,
             'discount_amount' => 10,
-            'start_datetime' => '2025-01-01 00:00:00',
+            'start_datetime' => '2025-01-01T00:00:00+00:00',
             'has_end_datetime' => false,
             'customer_eligibility' => CustomerEligibility::ALL,
             'is_active' => true,

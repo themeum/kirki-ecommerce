@@ -53,7 +53,10 @@ class CreateRefundAction
                 'created_by' => $dto->created_by,
             ]);
 
-            if ($provider) {
+            // Only push to the gateway when the order carries a gateway
+            // transaction. Manual/admin-created orders were never charged
+            // through the provider, so the local refund record is all there is.
+            if ($provider && !empty($order->payment_transaction_id)) {
                 $provider->refund($order, $refund);
             }
 
