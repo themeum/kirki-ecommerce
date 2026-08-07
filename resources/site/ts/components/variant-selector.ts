@@ -19,7 +19,7 @@ export interface Variant {
   id: number;
   product_id: number;
   price: number;
-  compare_price?: number;
+  sale_price?: number;
   stock: number;
   image?: string;
   attributes: VariantAttribute[];
@@ -43,7 +43,7 @@ export function variantSelector(config: VariantSelectorConfig) {
     selectedAttributes: {} as Record<string, string>,
 
     get selectedVariant(): Variant | null {
-      return this.variants.find(v => v.id === this.selectedVariantId) ?? null;
+      return this.variants.find(v => v.id === this.selectedVariantId) ?? this.variants[0];
     },
 
     get availableVariants(): Variant[] {

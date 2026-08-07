@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Payment Methods Part
  *
@@ -6,7 +7,8 @@
  */
 
 defined('ABSPATH') || exit;
-extract($data);
+
+$payment_gateways = $data['payment_gateways'] ?? [];
 ?>
 
 <!-- Payment Methods -->
@@ -21,18 +23,18 @@ extract($data);
                         value="<?php echo esc_attr($payment_gateway->id()); ?>"
                         x-model="selectedPaymentMethod"
                         @change="setPaymentMethod('<?php echo esc_attr($payment_gateway->id()); ?>')">
-                <span class="kecom-radio-label">
+                <div class="kecom-radio-label">
+                    <?php if ($payment_gateway->icon()) :?>
+                    <div class="kecom-payment-logo">
+                        <img src="<?php echo esc_url($payment_gateway->icon()); ?>"
+                            alt="<?php echo esc_attr($payment_gateway->title()); ?>"
+                            class="kecom-payment-logo-img">
+                    </div>
+                    <?php endif; ?>
                     <span class="kecom-payment-name">
                         <?php echo esc_html($payment_gateway->title()); ?>
                     </span>
-                </span>
-                <?php if ($payment_gateway->icon()) :?>
-                <div class="kecom-payment-logo">
-                    <img src="<?php echo esc_url($payment_gateway->icon()); ?>"
-                        alt="<?php echo esc_attr($payment_gateway->title()); ?>"
-                        class="kecom-payment-logo-img">
                 </div>
-                <?php endif; ?>
             </label>
         <?php endforeach; ?>
     </div>

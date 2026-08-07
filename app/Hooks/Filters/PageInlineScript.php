@@ -77,12 +77,18 @@ class PageInlineScript extends BaseHook
         $cart_config = array(
             'items_count' => $cart['items_count'],
             'pricing' => (object) array(
-                'subtotal_formatted' => $pricing['base_subtotal_money_object']->display,
-                'total_formatted' => $pricing['base_total_money_object']->display,
+                'display_subtotal_money_object' => (object) array(
+                    'display' => $pricing['display_subtotal_money_object']->display,
+                ),
+                'display_total_money_object' =>  (object) array(
+                    'display' => $pricing['display_total_money_object']->display,
+                ),
             ),
             'items' => array_map(fn($item) => (object) array(
                 'id' => $item['id'],
-                'total_formatted' => $item['base_total_money_object']->display,
+                'display_total_money_object' => (object) array(
+                    'display' => $item['display_total_money_object']->display,
+                ),
             ), $items),
         );
         $config['cart'] = $cart_config;
@@ -107,28 +113,29 @@ class PageInlineScript extends BaseHook
         $pricing = $cart['pricing'] ?? [];
 
         $discount_details = $pricing['discount_details'] ?? null;
-        $discount_total   = $pricing['base_discount_total'] ?? null;
-        $has_discount     = $discount_total && !$discount_total->isZero();
 
         $config['checkout_cart'] = [
-            'items'                      => $cart['items'] ?? [],
+            'items'                       => $cart['items'] ?? [],
             'is_billing_same_as_shipping' => $cart['is_billing_same_as_shipping'] ?? false,
-            'pricing'                    => [
-                'subtotal_formatted'       => $pricing['base_subtotal_money_object']->display ?? null,
-                'shipping_total'           => $pricing['shipping_total'] ?? null,
-                'shipping_total_formatted' => $pricing['base_shipping_total_money_object']->display ?? null,
-                'discount_total'           => $discount_total,
-                'discount_total_formatted' => $has_discount ? $pricing['discount_total_money_object']->display : null,
-                'total_formatted'          => $pricing['base_total_money_object']->display ?? null,
-                'discount_details'         => $discount_details ? [
+            'pricing'                     => [
+                'discount_details'                   => $discount_details ? [
                     'code'                       => $discount_details['code'] ?? null,
+                    'title'                      => $discount_details['title'] ?? null,
                     'discount_value_type'        => $discount_details['discount_value_type'] ?? null,
                     'discount_amount_percentage' => $discount_details['discount_amount_percentage'] ?? null,
-                    'discount_amount_fixed'      => $discount_details['discount_amount_fixed'] ?? null,
+                    'base_discount_amount_fixed' => $discount_details['base_discount_amount_fixed'] ?? null,
                 ] : null,
+                'display_subtotal_money_object'      => $pricing['display_subtotal_money_object'] ?? null,
+                'display_tax_total_money_object'     => $pricing['display_tax_total_money_object'] ?? null,
+                'display_discount_total_money_object' => $pricing['display_discount_total_money_object'] ?? null,
+                'display_shipping_subtotal_money_object' => $pricing['display_shipping_subtotal_money_object'] ?? null,
+                'display_shipping_tax_money_object'  => $pricing['display_shipping_tax_money_object'] ?? null,
+                'display_shipping_discount_money_object' => $pricing['display_shipping_discount_money_object'] ?? null,
+                'display_shipping_total_money_object' => $pricing['display_shipping_total_money_object'] ?? null,
+                'display_total_money_object'         => $pricing['display_total_money_object'] ?? null,
             ],
-            'available_shipping_methods' => $cart['available_shipping_methods'] ?? [],
-            'shipping_method'            => $cart['shipping_method'] ?? null,
+            'available_shipping_methods'  => $cart['available_shipping_methods'] ?? [],
+            'shipping_method'             => $cart['shipping_method'] ?? null,
         ];
 
         $config['currency']  = $cart['currency']['code'] ?? 'USD';
@@ -187,17 +194,12 @@ class PageInlineScript extends BaseHook
             $variants_data[] = [
                 'id'             => $v['id'] ?? 0,
                 'product_id'     => $product['id'] ?? 0,
-                'price'          => is_object($v['base_price']) && method_exists($v['base_price'], 'toFloat')
-                    ? (float) $v['base_price']->toFloat()
-                    : (float) ($v['base_price'] ?? 0),
-                'compare_price'  => isset($v['base_sale_price'])
-                    ? (is_object($v['base_sale_price']) && method_exists($v['base_sale_price'], 'toFloat')
-                        ? (float) $v['base_sale_price']->toFloat()
-                        : (float) $v['base_sale_price'])
-                    : null,
+                'price'          => $v['display_price_money_object']->display,
+                'sale_price'     => $v['display_sale_price'] ? $v['display_sale_price_money_object']->display : null,
+                'discount_percentage' => ! empty($v['display_price']) && ! empty($v['display_sale_price']) ? round((1 - ($v['display_sale_price'] / $v['display_price'])) * 100): null,
                 'stock'          => (int) ($v['available_quantity'] ?? 0),
                 'attributes'     => $variant_attrs,
-                'available'      => ($v['available_quantity'] ?? 0) > 0,
+                'available'      => $v['in_stock'] ? true : ($v['available_quantity'] ?? 0) > 0,
                 'image'          => $v['media']['url'] ?? null,
             ];
         }

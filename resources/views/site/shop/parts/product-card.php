@@ -39,6 +39,13 @@ $regular_price = $variant->base_price;
 $sale_price = $variant->base_sale_price;
 $in_sale = $sale_price > 0 && $sale_price < $regular_price;
 
+
+$out_of_stock =
+    ($variant->track_inventory && $variant->available_quantity <= 0) ||
+    (! $variant->track_inventory && ! $variant->in_stock);
+
+$ribbon_text = $out_of_stock ? __('Out of Stock', 'kirki-ecommerce') : $product->ribbon;
+
 $manager = new MoneyManager();
 $formatted_regular_price = $manager->format($manager->from_minor($regular_price));
 
@@ -61,8 +68,8 @@ $product_url = Url::get_product_url($product->slug);
 ?>
 <div class="kecom-product-card">
     <a href="<?php echo esc_url($product_url); ?>" class="kecom-product-card-image">
-        <?php if (!empty($product->ribbon)) : ?>
-            <span class="kecom-product-card-ribbon"><?php echo esc_html($product->ribbon); ?></span>
+        <?php if (!empty($ribbon_text)) : ?>
+            <span class="kecom-product-card-ribbon"><?php echo esc_html($ribbon_text); ?></span>
         <?php endif; ?>
         <?php if ($image_url) : ?>
             <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($product->title); ?>">
@@ -85,6 +92,11 @@ $product_url = Url::get_product_url($product->slug);
                 <span class="kecom-product-card-price-discount"><?php echo esc_html($formatted_regular_price); ?></span>
             <?php endif; ?>
         </div>
+        <?php if ($variant->has_variants || $out_of_stock) { ?>
+            <a href="<?php echo esc_url($product_url); ?>" class="kecom-btn kecom-btn-primary kecom-btn-sm kecom-product-card-add-to-cart">
+                <span><?php esc_html_e('Details', 'kirki-ecommerce'); ?></span>
+            </a>
+        <?php } else { ?>
         <div x-data="addToCart({ variantId: <?php echo esc_attr((int) $variant->id); ?>, cartUrl: '<?php echo esc_url(Url::get_cart_url()); ?>', buttonText: '<?php echo esc_html__('Add', 'kirki-ecommerce'); ?>' })">
             <template x-if="!success">
                 <button
@@ -105,5 +117,6 @@ $product_url = Url::get_product_url($product->slug);
                 </a>
             </template>
         </div>
+        <?php } ?>
     </div>
 </div>
