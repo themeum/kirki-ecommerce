@@ -35,8 +35,8 @@ if (!$variant) {
     return;
 }
 
-$regular_price = $variant->price;
-$sale_price = $variant->sale_price;
+$regular_price = $variant->base_price;
+$sale_price = $variant->base_sale_price;
 
 $manager = new MoneyManager();
 $formatted_regular_price = $manager->format($manager->from_minor($regular_price));
