@@ -10,6 +10,7 @@ import Text from '@/components/ui/text';
 import Thumbnail from '@/components/ui/thumbnail';
 import { useDeleteCustomerMutation } from '@/services/customer';
 import type { CustomerListItem, MarkListHandlers } from '@/types';
+import { displayMoney } from '@/utils/money';
 import { __ } from '@/wpi18n';
 
 type SingleRowProps = MarkListHandlers & {
@@ -61,7 +62,7 @@ const SingleRow = ({
         </Flex>
       </TableCell>
       <TableCell>{item?.orders_count || '--'}</TableCell>
-      <TableCell>{item?.amount_spent || '--'}</TableCell>
+      <TableCell>{displayMoney('base_amount_spent', item)}</TableCell>
       <TableCell>{item?.location || '--'}</TableCell>
       <TableCell>{item?.last_order_date || '--'}</TableCell>
       <TableCell>{item?.created_at || '--'}</TableCell>

@@ -1,25 +1,25 @@
 import { css } from '@emotion/react';
 import { useState } from 'react';
 
-import { Card, CardContent } from '@/components/ui/card';
-import Button from '@/components/ui/button';
-import Flex from '@/components/ui/flex';
-import Text from '@/components/ui/text';
 import ActionGroup from '@/components/ui/action-group';
 import Badge from '@/components/ui/badge';
-import { theme } from '@/theme';
-import { mergeCss, defineStyles } from '@/theme/mixins';
-import { cardStyles } from '@/theme/card-styles';
-import { __ } from '@/wpi18n';
+import Button from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import Flex from '@/components/ui/flex';
+import Text from '@/components/ui/text';
 import { BoxClosedIcon, PlusIcon } from '@/icons';
+import { theme } from '@/theme';
+import { cardStyles } from '@/theme/card-styles';
+import { defineStyles, mergeCss } from '@/theme/mixins';
+import { __ } from '@/wpi18n';
 
 const TaxServices = () => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   return (
     <div>
-      <Card cssOverride={cardStyles.largeCard}>
-        <CardContent cssOverride={cardStyles.largeContentPadded}>
+      <Card cssOverride={cardStyles.formCard}>
+        <CardContent >
           <Flex direction="column" gap={2}>
             <Flex align="center">
               <Flex direction="column" gap={2}>
@@ -55,9 +55,9 @@ const TaxServices = () => {
                       <Badge variant="success">Active</Badge>
                     ) : (
                       <Text variant="small" color="subdued" cssOverride={styles.mutedText}>{__(
-                          'Calculate and collect tax globally in your Kirki store',
-                          'kirki-ecommerce',
-                        )}</Text>
+                        'Calculate and collect tax globally in your Kirki store',
+                        'kirki-ecommerce',
+                      )}</Text>
                     )}
                     <ActionGroup
                       cssOverride={mergeCss(styles.hoverVisible,

@@ -28,8 +28,8 @@ type UnitGroup = {
 };
 
 type UnitPriceSource = UnitPriceValue & {
-  price?: number | string | null;
-  sale_price?: number | string | null;
+  base_price?: number | string | null;
+  base_sale_price?: number | string | null;
 };
 
 export const DEFAULT_UNIT = 'kg';
@@ -150,14 +150,14 @@ export const getSpecifiedUnitList = (
 export const calculateBasePricePerUnit = (
   source: UnitPriceSource,
 ): number | null => {
-  const { price, sale_price, total_unit_amount, total_unit, base_unit_amount, base_unit } =
+  const { base_price, base_sale_price, total_unit_amount, total_unit, base_unit_amount, base_unit } =
     source;
 
   const totalFactor = normalizedUnit[total_unit ?? ''];
   const baseFactor = normalizedUnit[base_unit ?? ''];
   const totalAmount = Number(total_unit_amount);
   const baseAmount = Number(base_unit_amount);
-  const amount = sale_price || price;
+  const amount = base_sale_price || base_price;
 
   if (!totalFactor || !baseFactor || !totalAmount || !baseAmount) {
     return null;

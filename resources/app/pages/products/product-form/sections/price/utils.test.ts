@@ -26,7 +26,7 @@ describe('calculateBasePricePerUnit', () => {
   it('divides the price by the number of base units', () => {
     expect(
       calculateBasePricePerUnit({
-        price: 10,
+        base_price: 10,
         total_unit_amount: 5,
         total_unit: 'kg',
         base_unit_amount: 1,
@@ -38,7 +38,7 @@ describe('calculateBasePricePerUnit', () => {
   it('converts between units of the same group', () => {
     expect(
       calculateBasePricePerUnit({
-        price: 20,
+        base_price: 20,
         total_unit_amount: 2,
         total_unit: 'kg',
         base_unit_amount: 100,
@@ -50,7 +50,7 @@ describe('calculateBasePricePerUnit', () => {
   it('accepts amounts coming from inputs as strings', () => {
     expect(
       calculateBasePricePerUnit({
-        price: '10',
+        base_price: '10',
         total_unit_amount: '5',
         total_unit: 'l',
         base_unit_amount: '1',
@@ -62,7 +62,7 @@ describe('calculateBasePricePerUnit', () => {
   it('supports units that are alone in their group', () => {
     expect(
       calculateBasePricePerUnit({
-        price: 30,
+        base_price: 30,
         total_unit_amount: 3,
         total_unit: 'sqft',
         base_unit_amount: 1,
@@ -74,7 +74,7 @@ describe('calculateBasePricePerUnit', () => {
   it('returns zero when the variant has no price yet', () => {
     expect(
       calculateBasePricePerUnit({
-        price: null,
+        base_price: null,
         total_unit_amount: 5,
         total_unit: 'kg',
         base_unit_amount: 1,
@@ -86,7 +86,7 @@ describe('calculateBasePricePerUnit', () => {
   it('returns null when the unit setup is incomplete', () => {
     expect(
       calculateBasePricePerUnit({
-        price: 10,
+        base_price: 10,
         total_unit_amount: null,
         total_unit: 'kg',
         base_unit_amount: 1,
@@ -96,7 +96,7 @@ describe('calculateBasePricePerUnit', () => {
 
     expect(
       calculateBasePricePerUnit({
-        price: 10,
+        base_price: 10,
         total_unit_amount: 5,
         total_unit: 'kg',
         base_unit_amount: 1,
@@ -108,7 +108,7 @@ describe('calculateBasePricePerUnit', () => {
   it('returns null when the units belong to different groups', () => {
     expect(
       calculateBasePricePerUnit({
-        price: 10,
+        base_price: 10,
         total_unit_amount: 5,
         total_unit: 'kg',
         base_unit_amount: 1,

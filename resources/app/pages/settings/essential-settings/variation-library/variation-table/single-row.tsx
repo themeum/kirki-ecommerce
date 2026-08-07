@@ -1,24 +1,26 @@
 import { useState } from 'react';
 import { useOutletContext } from 'react-router';
 
+import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
 import Checkbox from '@/components/ui/checkbox';
-import { EditPenIcon, TrashIcon } from '@/icons';
-import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
 import { TableCell, TableRow } from '@/components/ui/table';
+import { EditPenIcon, TrashIcon } from '@/icons';
 import { useDeleteAttributeValueMutation } from '@/services/attribute';
+import { theme } from '@/theme';
 import type {
   Attribute,
   AttributeValue,
   ConfirmationVariant,
   MarkListHandlers,
 } from '@/types';
-import { theme } from '@/theme';
 import { __ } from '@/wpi18n';
 
-import { setUnsavedDataStatus } from '@/pages/settings/utils';
+import { DATE_FORMATS } from '@/libs/date';
 import VariationValuePopup from '@/pages/settings/essential-settings/variation-library/variation-value-dialog';
+import { setUnsavedDataStatus } from '@/pages/settings/utils';
+import { format } from 'date-fns';
 
 type AttributeWithMeta = Attribute & { updated_at?: string };
 
@@ -102,19 +104,19 @@ const SingleRow = ({
         </TableCell>
 
         {selectedItem?.type === 'color' && <TableCell>{item?.color}</TableCell>}
-        <TableCell>{selectedItem?.updated_at}</TableCell>
+        <TableCell>{selectedItem?.updated_at ? format(selectedItem.updated_at, DATE_FORMATS.HUMAN_READABLE) : '--'}</TableCell>
         <TableCell alignment="right" style={{ width: '1%' }}>
           <ActionGroup>
             <Button
-              variant="secondary"
-              size="icon"
+              variant="outline"
+              size="icon-sm"
               onClick={handleAttributeValueRemove}
             >
               <TrashIcon />
             </Button>
             <Button
-              variant="secondary"
-              size="icon"
+              variant="outline"
+              size="icon-sm"
               onClick={() => setEditedItem(item)}
             >
               <EditPenIcon />

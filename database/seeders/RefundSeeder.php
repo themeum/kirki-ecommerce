@@ -19,7 +19,7 @@ class RefundSeeder extends Seeder
         Refund::create([
             'order_id' => 1,
             'status' => 'completed',
-            'amount' => 2500,
+            'invoiced_amount' => 2500,
             'reason' => 'Customer requested partial refund for returned item.',
             'refund_type' => 'partial',
             'refund_id' => 're_sample_123456789',

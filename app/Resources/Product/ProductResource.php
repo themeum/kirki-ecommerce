@@ -46,7 +46,7 @@ class ProductResource extends Resource
             'og_image' => MediaAttachment::make($this->og_image),
             'schema_id' => $this->schema_id,
             'llm_instructions' => $this->llm_instructions,
-            'has_variants' => (bool) $this->has_variants,
+            'has_variants' => $this->has_variants,
 
             'categories' => $this->categories->map(function ($item) {
                 return [

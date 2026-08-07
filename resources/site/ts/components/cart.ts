@@ -1,25 +1,24 @@
-import { CartUpdateItem } from "@/ts/types";
 import { cartApi } from "../api/cart";
 import { toastManager } from "../services/toast/runtime";
 
 
 
-export function cart(config: CartUpdateItem) {
+export function cart() {
   const { __ } = window.wp.i18n;
 
   return {
     loading: false,
     success: false,
     error: null as string | null,
-    cart_value: config,
+    cartData: window.kirki_ecommerce.cart,
 
     init() {
-      if (this.cart_value.items.length > 0) {
+      if (this.cartData.items.length > 0) {
         const cart_items = {} as Record<string, string>;
-        this.cart_value.items.forEach((item: any) => {
+        this.cartData.items.forEach((item: any) => {
           cart_items[item.id] = item.total_formatted;
         });
-        this.cart_value.formatted_items = cart_items;
+        this.cartData.formatted_items = cart_items;
       }
     },
 
@@ -29,13 +28,13 @@ export function cart(config: CartUpdateItem) {
 
       try {
         const result = await cartApi.updateItem(itemId, quantity);
-        this.cart_value = Object.assign(this.cart_value, result.data);
-        if (this.cart_value.items.length > 0) {
+        this.cartData = Object.assign(this.cartData, result.data);
+        if (this.cartData.items.length > 0) {
           const cart_items = {} as Record<string, string>;
-          this.cart_value.items.forEach((item: any) => {
+          this.cartData.items.forEach((item: any) => {
             cart_items[item.id] = item.total_formatted;
           });
-          this.cart_value.formatted_items = cart_items;
+          this.cartData.formatted_items = cart_items;
         }
       } catch (e: unknown) {
         this.error = e instanceof Error ? e.message : null;
@@ -51,10 +50,20 @@ export function cart(config: CartUpdateItem) {
 
       try {
         const result = await cartApi.removeItem(itemId);
-        this.cart_value = Object.assign(this.cart_value, result.data);
+        this.cartData = Object.assign(this.cartData, result.data);
         const item = document.getElementById(String(itemId));
         if (item) {
           item.remove();
+        }
+
+        if (this.cartData.items_count === 0) {
+          const cartItems = document.querySelector('.kecom-cart-items');
+          if (cartItems) {
+            const empty_cart = document.createElement('h4');
+            empty_cart.className = 'kecom-cart-items-empty-text';
+            empty_cart.textContent = __('No items currently in cart.', 'kirki-ecommerce');
+            cartItems.appendChild(empty_cart);
+          }
         }
         toastManager.success(__("Item removed to cart", "kirki-ecommerce"));
       } catch (e: unknown) {

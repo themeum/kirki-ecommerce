@@ -6,7 +6,7 @@ use Kirki\Ecommerce\Framework\Supports\Arr;
 
 class Assets
 {
-    const ADMIN_PAGE = 'ecommerce';
+    const ADMIN_PAGE = 'kirki-ecommerce';
 
     /**
      * Get assets URL.

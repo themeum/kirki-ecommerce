@@ -1,28 +1,29 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 
-import PageNavbar from '@/components/page-navbar';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { BoxIcon } from '@/icons';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
-import PageHeading from '@/components/ui/page-heading';
+import { BoxIcon } from '@/icons';
 import { useAttributeQuery } from '@/services/attribute';
-import type { Attribute, AttributeValue, TaxonomyTableHeader } from '@/types';
 import { theme } from '@/theme';
-import { scoped, mergeCss, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
+import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
+import type { Attribute, AttributeValue, TaxonomyTableHeader } from '@/types';
 import { __, sprintf } from '@/wpi18n';
 
 import VariationTable from '@/pages/settings/essential-settings/variation-library/variation-table/variation-table';
 import VariationValuePopup from '@/pages/settings/essential-settings/variation-library/variation-value-dialog';
+import SettingsPageHeader from '@/pages/settings/settings-page-header';
+import { Box } from 'lucide-react';
 
 type AttributeWithMeta = Attribute & { updated_at?: string };
 
 const ListVariation = () => {
   const { id } = useParams();
   const { data: selectedItem } = useAttributeQuery(Number(id), Boolean(id));
+  const navigate = useNavigate();
 
   const [attributeValueList, setAttributeValueList] = useState<AttributeValue[]>([]);
   const [addVariantPopup, setAddVariantPopup] = useState(false);
@@ -40,18 +41,12 @@ const ListVariation = () => {
 
   return (
     <div>
-      <PageHeading
-        text={__('Settings', 'kirki-ecommerce')}
-        size="sm"
-        sticky
-        type="primary"
-        style={{ height: '32px' }}
-      />
       <Container size="sm">
         <Flex direction="column" gap={4}>
-          <PageNavbar
-            textIcon={<BoxIcon />}
-            text={sprintf(__('%s', 'kirki-ecommerce'), selectedAttribute?.name ?? '')}
+          <SettingsPageHeader
+            icon={<BoxIcon />}
+            title={sprintf(__('%s', 'kirki-ecommerce'), selectedAttribute?.name ?? '')}
+            onBack={() => { navigate('/settings/essentials'); }}
             rightAction={
               <div>
                 <Button
@@ -65,10 +60,10 @@ const ListVariation = () => {
             }
           />
           {!attributeValueList?.length ? (
-            <Card cssOverride={mergeCss(cardStyles.largeCard, styles.roundedCard)}>
+            <Card cssOverride={mergeCss(cardStyles.formCard, styles.roundedCard)}>
               <CardContent cssOverride={mergeCss(cardStyles.largeContentPadded, styles.emptyContent)}>
                 <Flex direction="column" gap={2} align="center">
-                  <BoxIcon />
+                  <Box />
                   <span css={scoped(styles.mutedText)}>
                     {__('No value added yet', 'kirki-ecommerce')}
                   </span>

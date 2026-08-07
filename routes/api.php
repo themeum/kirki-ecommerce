@@ -133,6 +133,7 @@ Route::group(['middleware' => AuthMiddleware::class], function () {
     Route::patch('/coupons/{id}/action', [CouponController::class, 'action'])->where('id', '[\d]+');
 
     // Products
+    Route::get('/product-variants', [ProductController::class, 'get_products_with_variants']);
     Route::get('/products', [ProductController::class, 'get']);
     Route::get('/products/{id}', [ProductController::class, 'show']);
     Route::post('/products', [ProductController::class, 'create']);

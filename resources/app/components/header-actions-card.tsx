@@ -1,9 +1,9 @@
 import DropdownButton from '@/components/dropdown-button';
-import Button from '@/components/ui/button';
-import { PlusIcon } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
+import Button from '@/components/ui/button';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
+import { PlusIcon } from '@/icons';
 import { __ } from '@/wpi18n';
 
 type HeaderActionsCardProps = {
@@ -24,13 +24,13 @@ const HeaderActionsCard = (props: HeaderActionsCardProps) => {
     onAdd,
     hideButton = false,
     dropDownButton = false,
-    handleOptionSelect = () => {},
+    handleOptionSelect = () => { },
   } = props;
   return (
     <>
-      <Flex direction="column" gap={1}>
+      <Flex direction="column" gap={2}>
         <Flex align="center">
-          <Text weight="semibold">{header}</Text>
+          <Text variant="heading6" weight="semibold" color="primary">{header}</Text>
           {!hideButton && (
             <ActionGroup>
               {dropDownButton ? (
@@ -64,7 +64,7 @@ const HeaderActionsCard = (props: HeaderActionsCardProps) => {
             </ActionGroup>
           )}
         </Flex>
-        <Text color="secondary">{subHeader}</Text>
+        <Text variant="small" color="secondary">{subHeader}</Text>
       </Flex>
     </>
   );

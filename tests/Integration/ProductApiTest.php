@@ -86,7 +86,7 @@ class ProductApiTest extends RestTestCase
             'id' => $this->product_id,
             'title' => 'Updated Product',
             'variants' => $this->variants_for_update($product, [
-                'price' => 39.99,
+                'base_price' => 39.99,
             ]),
         ]));
 

@@ -22,7 +22,8 @@ const MultiCurrencySettingsFormShape = z.object({
 });
 
 export const MultiCurrencySettingsFormSchema = prepareFormSchema(MultiCurrencySettingsFormShape).transform((values) => ({
-  is_automatic_update_enabled: values.is_automatic_update_enabled,
+  // is_automatic_update_enabled: values.is_automatic_update_enabled ?? false, // @todo: will be handled later.
+  is_automatic_update_enabled: false,
   api_provider: values.api_provider || null,
   api_config: {
     api_key: values.api_config.api_key || null,
