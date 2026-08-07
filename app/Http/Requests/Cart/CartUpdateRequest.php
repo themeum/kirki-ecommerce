@@ -18,7 +18,39 @@ class CartUpdateRequest extends Request
 
     public function rules()
     {
-        return [];
+        return [
+            'shipping_address' => 'array|nullable',
+            'shipping_address.first_name' => 'string|nullable',
+            'shipping_address.last_name' => 'string|nullable',
+            'shipping_address.email' => 'email|nullable',
+            'shipping_address.phone' => 'string|nullable',
+            'shipping_address.address_line1' => 'string|nullable',
+            'shipping_address.address_line2' => 'string|nullable',
+            'shipping_address.city' => 'string|nullable',
+            'shipping_address.state' => 'string|nullable',
+            'shipping_address.postal_code' => 'string|nullable',
+            'shipping_address.country' => 'string|nullable',
+            'shipping_address.company' => 'string|nullable',
+
+            'is_billing_same_as_shipping' => 'boolean|nullable',
+
+            'billing_address' => 'array|nullable',
+            'billing_address.first_name' => 'string|nullable',
+            'billing_address.last_name' => 'string|nullable',
+            'billing_address.email' => 'email|nullable',
+            'billing_address.phone' => 'string|nullable',
+            'billing_address.address_line1' => 'string|nullable',
+            'billing_address.address_line2' => 'string|nullable',
+            'billing_address.city' => 'string|nullable',
+            'billing_address.state' => 'string|nullable',
+            'billing_address.postal_code' => 'string|nullable',
+            'billing_address.country' => 'string|nullable',
+            'billing_address.company' => 'string|nullable',
+
+            'shipping_method' => 'string|nullable',
+            'coupon_code' => 'string|nullable',
+            'customer_notes' => 'string|nullable',
+        ];
     }
 
     public function filters()
