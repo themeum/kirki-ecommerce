@@ -188,14 +188,9 @@ class PageInlineScript extends BaseHook
             $variants_data[] = [
                 'id'             => $v['id'] ?? 0,
                 'product_id'     => $product['id'] ?? 0,
-                'price'          => is_object($v['base_price']) && method_exists($v['base_price'], 'toFloat')
-                    ? (float) $v['base_price']->toFloat()
-                    : (float) ($v['base_price'] ?? 0),
-                'compare_price'  => isset($v['base_sale_price'])
-                    ? (is_object($v['base_sale_price']) && method_exists($v['base_sale_price'], 'toFloat')
-                        ? (float) $v['base_sale_price']->toFloat()
-                        : (float) $v['base_sale_price'])
-                    : null,
+                'price'          => $v['display_price_money_object']->display,
+                'sale_price'     => $v['display_sale_price'] ? $v['display_sale_price_money_object']->display : null,
+                'discount_percentage' => ! empty($v['display_price']) && ! empty($v['display_sale_price']) ? round((1 - ($v['display_sale_price'] / $v['display_price'])) * 100): null,
                 'stock'          => (int) ($v['available_quantity'] ?? 0),
                 'attributes'     => $variant_attrs,
                 'available'      => ($v['available_quantity'] ?? 0) > 0,
