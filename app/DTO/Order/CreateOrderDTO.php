@@ -78,8 +78,14 @@ class CreateOrderDTO extends DTO
     /** @var string */
     public $payment_provider;
 
+    /** @var array|null */
+    public $payment_metadata;
+
     /** @var string */
     public $shipping_method;
+
+    /** @var array|null */
+    public $shipping_metadata;
 
     // Shipping Address Fields
     public $shipping_first_name;

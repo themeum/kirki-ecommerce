@@ -17,6 +17,7 @@ use Kirki\Ecommerce\App\Services\OrderService;
 use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\DTO\Order\CreateOrderPayloadDTO;
 use Kirki\Ecommerce\App\DTO\Order\UpdateOrderPayloadDTO;
+use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\Framework\Supports\Facades\Date;
 
 /**
@@ -204,10 +205,10 @@ class OrderManager
      * Mark an order as paid.
      *
      * @param int $id
-     * @param string|null $payment_method
+     * @param string|null $payment_provider
      * @return bool
      */
-    public function mark_payment_as_paid(int $id, ?string $payment_method = null)
+    public function mark_payment_as_paid(int $id, ?string $payment_provider = null)
     {
         $order = $this->order_service->find_order_or_fail($id);
         $is_paid = $this->order_service->apply_order_action($id, $order->order_status, OrderAction::MARK_AS_PAID);
@@ -215,8 +216,8 @@ class OrderManager
         if ($is_paid) {
             $update = ['paid_at' => Date::now()];
 
-            if ($payment_method !== null) {
-                $update['payment_method'] = $payment_method;
+            if ($payment_provider !== null) {
+                $update['payment_provider'] = $payment_provider;
             }
 
             $this->order_service->partial_update_order($id, $update);
@@ -361,15 +362,46 @@ class OrderManager
     }
 
     /**
-     * Set payment provider fee for an order.
+     * Set payment provider fee for an order, in both the order's invoiced
+     * (transaction) currency and the store's base currency.
      *
      * @param int $id
-     * @param int $fee
+     * @param int $fee Fee in the order's invoiced currency, minor units.
      * @return bool
      */
     public function set_payment_provider_fee(int $id, int $fee)
     {
-        return $this->order_service->partial_update_order($id, ['invoiced_payment_provider_fee' => $fee]);
+        $order = $this->order_service->find_order($id);
+
+        if (!$order) {
+            return false;
+        }
+
+        return $this->order_service->partial_update_order($id, [
+            'invoiced_payment_provider_fee' => $fee,
+            'base_payment_provider_fee' => $this->convert_fee_to_base_currency($fee, $order),
+        ]);
+    }
+
+    /**
+     * Convert an invoiced-currency fee to the store's base currency, using
+     * the order's own frozen exchange rate rather than a live rate.
+     *
+     * @param int $fee
+     * @param Order $order
+     * @return int
+     */
+    protected function convert_fee_to_base_currency(int $fee, Order $order)
+    {
+        if ($order->currency_code === $order->base_currency_code) {
+            return $fee;
+        }
+
+        return Money::convert_to_currency(
+            Money::from_minor($fee, $order->currency_code),
+            $order->base_currency_code,
+            1 / $order->exchange_rate
+        )->getMinorAmount()->toInt();
     }
 
     /**

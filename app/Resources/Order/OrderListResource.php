@@ -24,6 +24,11 @@ class OrderListResource extends Resource
             'is_refund_initiated' => $this->is_refund_initiated,
             'payment_status' => $this->payment_status,
             'payment_provider' => $this->payment_provider,
+            'payment_provider_name' => $this->payment_metadata['payment_provider']['name'] ?? null,
+            'payment_provider_icon' => $this->payment_metadata['payment_provider']['icon'] ?? null,
+            'payment_provider_is_offline' => $this->payment_metadata['payment_provider']['is_offline'] ?? null,
+            'shipping_method' => $this->shipping_method,
+            'shipping_method_name' => $this->shipping_metadata['shipping_method']['name'] ?? null,
             'created_at' => $this->created_at,
         ];
     }

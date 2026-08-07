@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Payment;
 
+use Kirki\Ecommerce\App\Constants\Payment\PaymentActionType;
+use Kirki\Ecommerce\App\DTO\Payment\PaymentActionDTO;
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Models\Refund;
 use Kirki\Ecommerce\App\Services\OrderService;
@@ -10,6 +12,7 @@ use Kirki\Ecommerce\Framework\Exceptions\ValidationException;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\Framework\Supports\Facades\Option;
 use Exception;
+use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
 
 use function Kirki\Ecommerce\Framework\app;
 
@@ -164,10 +167,14 @@ class PaymentProvider
     {
         $provider = new static();
 
+        $icon = !empty($data['icon']) && is_int($data['icon']) ? $data['icon'] : null;
+        $attachment = MediaAttachment::make($icon);
+        $icon_url = $attachment['url'] ?? null;
+
         $provider->id = $data['id'] ?? '';
         $provider->title = $data['name'] ?? '';
         $provider->description = $data['instructions'] ?? '';
-        $provider->icon = $data['icon'] ?? '';
+        $provider->icon = $icon_url;
         $provider->is_enabled = $data['is_enabled'] ?? false;
         $provider->is_offline = true;
         $provider->settings_key = $data['settings_key'] ?? $data['id'];
@@ -356,14 +363,21 @@ class PaymentProvider
      *
      * Process the payment. Override this in your provider.
      *
+     * The returned "type" tells the frontend how to consume "value":
+     * - PaymentActionType::REDIRECT: "value" is a URL to redirect the customer to.
+     * - PaymentActionType::HTML: "value" is markup to render inline (e.g. an auto-submitting form).
+     *
      * @param Order $order Order.
-     * @return string Return/Redirect URL.
+     * @return PaymentActionDTO
      *
      * @throws Exception
      */
     public function pay(Order $order)
     {
-        return $this->return_url($order);
+        return PaymentActionDTO::from_array([
+            'type' => PaymentActionType::REDIRECT,
+            'value' => $this->return_url($order),
+        ]);
     }
 
     /**

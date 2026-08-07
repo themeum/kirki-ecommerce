@@ -259,9 +259,9 @@ class Stripe extends PaymentProvider
     protected function validate_settings(array $settings)
     {
         Validator::make($settings, [
-            'publishable_key' => 'required|string',
-            'secret_key' => 'required|string',
-            'webhook_secret' => 'nullable|string',
+            'publishable_key' => 'sometimes|string',
+            'secret_key' => 'sometimes|string',
+            'webhook_secret' => 'sometimes|string',
         ])->validate();
 
         return true;

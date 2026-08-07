@@ -144,7 +144,7 @@ export interface OrderItem {
 export interface OrderRequest {
   items: OrderItem[];
   currency_code: string;
-  payment_method: string;
+  payment_provider: string;
   coupon_code?: string;
   shipping_method?: string;
   is_billing_same_as_shipping?: boolean;

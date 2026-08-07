@@ -33,6 +33,9 @@ class CalculationContextDTO extends DTO
     /** @var int */
     public $customer_order_count = 0;
 
+    /** @var bool */
+    public $should_calculate_tax = true;
+
     public function get_subtotal()
     {
         $subtotal = 0;

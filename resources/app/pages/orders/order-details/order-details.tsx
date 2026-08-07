@@ -150,7 +150,7 @@ const OrderDetails = () => {
 
   const handleMarkAsPaid = (paymentMethod: string) => {
     actionMutation.mutate(
-      { id: order.id, action: ORDER_ACTIONS.MARK_AS_PAID, payment_method: paymentMethod },
+      { id: order.id, action: ORDER_ACTIONS.MARK_AS_PAID, payment_provider: paymentMethod },
       { onSuccess: () => setIsMarkAsPaidDialogOpen(false) },
     );
   };

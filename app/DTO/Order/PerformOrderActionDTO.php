@@ -49,7 +49,7 @@ class PerformOrderActionDTO extends DTO
     /**
      * @var string|null
      */
-    public $payment_method;
+    public $payment_provider;
 
     /**
      * @var int|null

@@ -12,7 +12,6 @@ use Kirki\Ecommerce\App\DTO\Discount\DiscountCalculationResultDTO;
 use Kirki\Ecommerce\App\DTO\Tax\ProductTaxContextDTO;
 use Kirki\Ecommerce\App\Tax\TaxStrategyFactory;
 use Kirki\Ecommerce\App\Constants\OptionKeys;
-use Kirki\Ecommerce\Framework\Supports\Arr;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\App\Facades\Money;
 use Throwable;
@@ -54,7 +53,7 @@ class RecalculateCartAction
         // Get Tax Settings & Strategy
         $tax_settings = Settings::get(OptionKeys::TAX_SETTINGS);
         $is_inclusive_tax = $tax_settings->get('is_tax_inclusive_price') ?? false;
-        $tax_strategy = $this->get_tax_strategy($context->shipping_address);
+        $tax_strategy = $context->should_calculate_tax ? $this->get_tax_strategy($context->shipping_address) : null;
 
         // Iterate Items and Calculate Item Totals
         foreach ($context->items as $item) {
