@@ -2,14 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 
 import MediaStack from '@/components/media-stack';
-import ThumbnailSelector from '@/components/thumbnail-selector';
 import Button from '@/components/ui/button';
 import Checkbox from '@/components/ui/checkbox';
+import Flex from '@/components/ui/flex';
 import Input from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ChevronDownIcon } from '@/icons';
-import Flex from '@/components/ui/flex';
 import { TableCell, TableRow } from '@/components/ui/table';
+import { ChevronDownIcon } from '@/icons';
 import type { ProductFormInput } from '@/schemas/forms/product-form';
 import type {
   AttributeValue,
@@ -21,6 +20,8 @@ import { __ } from '@/wpi18n';
 
 import { generateVariantIndexById, generateVariantIndexes, getAttributeByValueId } from '@/pages/products/utils';
 import { defineStyles } from '@/theme/mixins';
+
+import VariantThumbnailSelector from './variant-thumbnail-selector';
 
 type CombinedData = {
   base_price?: number | string | null;
@@ -61,9 +62,11 @@ const SingleGroup = ({
   expandVariation,
   updateVariants,
 }: SingleGroupProps) => {
-  const { control } = useFormContext<ProductFormInput>();
+  const { control, setValue } = useFormContext<ProductFormInput>();
   const attributes = useWatch({ control, name: 'attributes' }) ?? [];
   const variants = (useWatch({ control, name: 'variants' }) ?? []) as ProductVariant[];
+  const productGallery = (useWatch({ control, name: 'media' }) ?? []) as MediaRef[];
+  const galleryIds = productGallery.map((item) => Number(item.id)).filter(Boolean);
   const [selectedCheckedIndex, setSelectedCheckedIndex] = useState<number[]>(
     [],
   );
@@ -74,10 +77,6 @@ const SingleGroup = ({
   });
 
   const [show, setShow] = useState(expandVariation);
-
-  if (!thisVariants.length) {
-    return null;
-  }
 
   useEffect(() => {
     let minPrice = thisVariants[0]?.base_price;
@@ -123,6 +122,10 @@ const SingleGroup = ({
       setSelectedCheckedIndex([...Array(thisVariants.length).keys()]);
     }
   }, [selectedIndex]);
+
+  if (!thisVariants.length) {
+    return null;
+  }
 
   const handleOnChildValueChange = (
     value: unknown,
@@ -214,6 +217,26 @@ const SingleGroup = ({
     }
   };
 
+  const addToGalleryIfMissing = (media: MediaChangePayload | null) => {
+    if (!media?.id) {
+      return;
+    }
+    const isInGallery = productGallery.some((item) => String(item.id) === String(media.id));
+    if (!isInGallery) {
+      setValue('media', [...productGallery, media as MediaRef], { shouldDirty: true });
+    }
+  };
+
+  const handleParentThumbnailChange = (media: MediaChangePayload | null) => {
+    handleOnParentValueChange(media, 'media');
+    addToGalleryIfMissing(media);
+  };
+
+  const handleChildThumbnailChange = (media: MediaChangePayload | null, variant: ProductVariant) => {
+    handleOnChildValueChange(media, 'media', variant);
+    addToGalleryIfMissing(media);
+  };
+
   const getIndexArray = (variant: ProductVariant): number[] => {
     let indexList: number[] = [];
     if (variant.id) {
@@ -255,10 +278,10 @@ const SingleGroup = ({
                 mediaArray={combinedData?.media as { url?: string }[]}
               />
             ) : (
-              <ThumbnailSelector
+              <VariantThumbnailSelector
                 src={combinedData?.media?.[0]?.url}
-                onChange={(img) => handleOnParentValueChange(img, 'media')}
-                size="small"
+                galleryIds={galleryIds}
+                onChange={handleParentThumbnailChange}
               />
             )}
             <Flex direction={'column'} gap={1}>
@@ -355,12 +378,10 @@ const SingleGroup = ({
                       handleChildCheckboxClick(checked === true, item, index)
                     }
                   />
-                  <ThumbnailSelector
+                  <VariantThumbnailSelector
                     src={(item?.media as MediaRef | null)?.url}
-                    onChange={(img) =>
-                      handleOnChildValueChange(img, 'media', item)
-                    }
-                    size="small"
+                    galleryIds={galleryIds}
+                    onChange={(media) => handleChildThumbnailChange(media, item)}
                   />
                   <div>
                     {item.attribute_values

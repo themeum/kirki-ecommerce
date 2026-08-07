@@ -120,7 +120,7 @@ class OrderApiTest extends RestTestCase
         $response = $this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
             'id' => $this->order_id,
             'customer_id' => $customer_id,
-            'customer_notes' => 'Updated notes',
+            'admin_notes' => 'Updated notes',
             'items' => [
                 [
                     'id' => $order['items'][0]['id'] ?? null,
@@ -131,7 +131,7 @@ class OrderApiTest extends RestTestCase
         ]));
 
         $payload = $this->assert_api_success($response);
-        $this->assertEquals('Updated notes', $payload['data']['customer_notes']);
+        $this->assertEquals('Updated notes', $payload['data']['admin_notes']);
     }
 
     /**
@@ -266,7 +266,7 @@ class OrderApiTest extends RestTestCase
                 ],
             ],
             'currency_code' => 'USD',
-            'payment_method' => 'stripe',
+            'payment_provider' => 'paypal',
             'shipping_method' => 'method-0001',
             'is_manual' => true,
             'shipping_first_name' => 'John',
@@ -284,6 +284,7 @@ class OrderApiTest extends RestTestCase
             'billing_postcode' => '10001',
             'billing_country' => 'US',
             'customer_notes' => 'Test order',
+            'admin_notes' => 'Test order',
         ];
 
         return array_merge($payload, $overrides);

@@ -15,8 +15,10 @@ class CreateOrdersTable implements Migration
             $table->uuid('uuid')->nullable();
             $table->string('order_number', 50)->nullable();
             $table->unsigned_big_integer('customer_id')->nullable();
-            $table->string('order_status', 50)->default('pending')->comment('Available: pending, processing, completed, cancelled, refunded, on-hold');
+            $table->string('order_status', 50)->default('pending')->comment('Available: pending, unpaid_processing, paid_unfulfilled, paid_processing, paid_shipped, shipped_unpaid, delivered_unpaid, completed, on_hold_paid, on_hold_unpaid, paid_cancelled, unpaid_cancelled, failed_cancelled, failed_unfulfilled, failed_processing, failed_shipped, failed_delivered, failed_on_hold, refund_requested, refund_in_progress, refunded, refund_declined, returned_pending_refund, refunded_partially');
+            $table->string('fulfillment_status', 50)->default('unfulfilled')->comment('Available: unfulfilled, processing, shipped, delivered, on-hold, cancelled, delivered-refund-processing, returned-refund-pending, returned-refund-processing, returned, delivered');
             $table->boolean('is_manual')->default(0)->comment('Admin-created order');
+            $table->boolean('is_refund_initiated')->default(0)->comment('When refund initiated, set to true, otherwise set to false');
 
             $table->string('currency_code', 3);
             $table->string('base_currency_code', 3);
@@ -46,17 +48,16 @@ class CreateOrdersTable implements Migration
             $table->integer('items_count')->default(0);
             $table->decimal('total_weight', 10, 2)->nullable();
 
-            $table->string('payment_status', 50)->default('pending')->comment('Available: pending, paid, failed, refunded, partially-refunded');
-            $table->string('payment_method', 100)->nullable();
+            $table->string('payment_status', 50)->default('pending')->comment('Available: paid, unpaid, failed, refunding, refunded');
+            $table->string('payment_provider', 100)->nullable();
             $table->string('payment_transaction_id')->nullable();
-            $table->string('payment_gateway')->nullable();
-            $table->integer('invoiced_payment_gateway_fee')->default(0);
+            $table->integer('invoiced_payment_provider_fee')->default(0);
             $table->text('payment_metadata')->nullable();
 
             $table->string('shipping_method', 100)->nullable();
             $table->string('shipping_carrier', 100)->nullable();
-            $table->string('tracking_number', 100)->nullable();
-            $table->string('tracking_url', 500)->nullable();
+            $table->string('shipping_tracking_number', 100)->nullable();
+            $table->string('shipping_tracking_url', 500)->nullable();
 
             $table->string('shipping_first_name', 100)->nullable();
             $table->string('shipping_last_name', 100)->nullable();
@@ -91,6 +92,7 @@ class CreateOrdersTable implements Migration
 
             $table->text('customer_notes')->nullable();
             $table->text('admin_notes')->nullable();
+            $table->text('flags')->nullable()->comment('Comma separated admin flags, i.e. Backorder, Urgent');
 
             $table->text('cancellation_reason')->nullable();
 
@@ -103,6 +105,7 @@ class CreateOrdersTable implements Migration
             $table->timestamp('fulfilled_at')->nullable()->comment('The order has been completely prepared, packed, and is ready to ship');
             $table->timestamp('estimated_delivery_date')->nullable();
             $table->timestamp('delivered_at')->nullable()->comment('The order was delivered to the customer by the shipping carrier');
+            $table->timestamp('archived_at')->nullable()->comment('The order was archived by an admin');
             $table->timestamps();
 
             $table->foreign('created_by')->on('users')->references('ID')->null_on_delete();
@@ -124,7 +127,7 @@ class CreateOrdersTable implements Migration
             $table->index(['fulfilled_at'], 'idx_fulfilled_orders');
             $table->index(['shipped_at'], 'idx_shipped_orders');
 
-            $table->index(['payment_method', 'payment_status'], 'idx_payment_method_tracking');
+            $table->index(['payment_provider', 'payment_status'], 'idx_payment_provider_tracking');
             $table->index(['shipping_country', 'created_at'], 'idx_country_orders');
 
             $table->index('payment_transaction_id');

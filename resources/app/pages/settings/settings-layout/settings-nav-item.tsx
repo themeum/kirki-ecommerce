@@ -1,8 +1,6 @@
-import { ChevronRight } from 'lucide-react';
 import type { KeyboardEvent, ReactNode } from 'react';
 import { useNavigate } from 'react-router';
 
-import Button from '@/components/ui/button';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
@@ -75,17 +73,6 @@ const SettingsNavItemRow = (props: SettingsNavItemRowProps) => {
           <span data-settings-heading>{header}</span>
         </Text>
       </Flex>
-      <Button
-        variant="ghost"
-        size="icon-xs"
-        cssOverride={styles.actionButton}
-        data-settings-chevron
-        tabIndex={-1}
-        aria-hidden="true"
-        onClick={handleClick}
-      >
-        <ChevronRight size={16} aria-hidden="true" />
-      </Button>
     </div>
   );
 };
@@ -97,6 +84,9 @@ export { SettingsNavItemRow };
 const highlightedRow = defineStyles({
   backgroundColor: theme.colors.background.fillSecondary,
   borderRadius: theme.radius.xl,
+  '& svg': {
+    color: theme.colors.background.fillBrand,
+  }
 });
 
 const highlightedHeading = defineStyles({
@@ -190,18 +180,5 @@ const styles = defineStyles({
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
-  },
-  actionButton: {
-    flexShrink: 0,
-    opacity: 0,
-    visibility: 'hidden',
-    transition: 'opacity 0.2s ease, visibility 0.2s ease',
-    backgroundColor: theme.colors.background.fillSecondaryHover,
-    color: theme.colors.background.fillBrand,
-    borderRadius: theme.radius.lg,
-    '&:hover': {
-      backgroundColor: theme.colors.background.fillSecondaryHover,
-      color: theme.colors.background.fillBrand,
-    },
   },
 });

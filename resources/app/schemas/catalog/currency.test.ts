@@ -61,8 +61,19 @@ describe('CurrencyOptionSchema', () => {
 
 describe('CurrencyDraftSchema', () => {
   it('accepts a newly selected currency with no id (add-currency flow)', () => {
-    const result = CurrencyDraftSchema.safeParse({ name: 'US Dollar', code: 'USD', symbol: '$' });
+    const result = CurrencyDraftSchema.safeParse({
+      name: 'US Dollar',
+      code: 'USD',
+      symbol: '$',
+      is_base: false,
+      is_active: true,
+    });
     expect(result.success).toBe(true);
+  });
+
+  it('rejects a draft missing is_base/is_active', () => {
+    const result = CurrencyDraftSchema.safeParse({ name: 'US Dollar', code: 'USD', symbol: '$' });
+    expect(result.success).toBe(false);
   });
 
   it('accepts an existing currency having one field toggled (available-currency-list.tsx)', () => {
