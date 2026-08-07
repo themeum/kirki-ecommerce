@@ -26,8 +26,8 @@ class Mollie extends PaymentGateway
     public function __construct()
     {
         $this->id = 'mollie';
-        $this->title = __('Mollie', 'kirki-ecommerce');
-        $this->description = __('Mollie payment gateway', 'kirki-ecommerce');
+        $this->title = __('Mollie', 'kirki-mollie');
+        $this->description = __('Mollie payment gateway', 'kirki-mollie');
         $this->icon = 'mollie';
         $this->settings_key = 'mollie';
         $this->is_manual = false;
@@ -39,13 +39,13 @@ class Mollie extends PaymentGateway
         $this->set_admin_fields([
             [
                 'name' => 'api_key',
-                'label' => __('Api key', 'kirki-ecommerce'),
+                'label' => __('Api key', 'kirki-mollie'),
                 'type' => 'password',
                 'required' => true,
             ],
             [
                 'name' => 'sandbox',
-                'label' => __('Sandbox Mode', 'kirki-ecommerce'),
+                'label' => __('Sandbox Mode', 'kirki-mollie'),
                 'type' => 'checkbox',
             ],
         ]);
