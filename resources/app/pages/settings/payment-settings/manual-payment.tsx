@@ -6,8 +6,8 @@ import ActionGroup from '@/components/ui/action-group';
 import Badge from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
-import Text from '@/components/ui/text';
 import Switch from '@/components/ui/switch';
+import Text from '@/components/ui/text';
 import { BankIconLarge, CashIcon, ShowMoreIcon } from '@/icons';
 import { dispatchToastMessage } from '@/pages/utils';
 import { useDeletePaymentMethodMutation, useUpdatePaymentMethodMutation } from '@/services/payment';
@@ -75,15 +75,7 @@ const ManualPayment = (props: ManualPaymentProps) => {
       { id: item?.id, data: updatedItem as Record<string, unknown> },
       {
         onSuccess: () => {
-          dispatchToastMessage('success', {
-            title: __('Payment method updated', 'kirki-ecommerce'),
-          });
           refetch();
-        },
-        onError: () => {
-          dispatchToastMessage('error', {
-            title: __('Something went wrong', 'kirki-ecommerce'),
-          });
         },
       },
     );

@@ -7,18 +7,19 @@ import Badge from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
-import { MapIcon, ShowMoreIcon, StripeIcon } from '@/icons';
+import { ShowMoreIcon } from '@/icons';
 import { dispatchToastMessage } from '@/pages/utils';
 import { getPaymentGateway, useSetEnabledPaymentGatewayMutation } from '@/services/payment';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { defineStyles, mergeCss } from '@/theme/mixins';
+import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
 import type { PaymentGateway } from '@/types';
 import { __ } from '@/wpi18n';
 
 import Switch from '@/components/ui/switch';
 import PaymentGatewayPopup from '@/pages/settings/payment-settings/payment-gateway-dialog';
 import PaymentGatewayEditPopup from '@/pages/settings/payment-settings/payment-gateway-edit-dialog';
+import { CardSimIcon } from 'lucide-react';
 
 type PaymentGatewayProps = {
   paymentGatewayList: PaymentGateway[];
@@ -98,7 +99,7 @@ const PaymentGatewayComponent = (props: PaymentGatewayProps) => {
                   )}
                 >
                   <Flex direction="column" gap={2} align="center">
-                    <MapIcon />
+                    <CardSimIcon />
                     <Text color="subdued">
                       {__('No payment added yet', 'kirki-ecommerce')}
                     </Text>
@@ -117,7 +118,7 @@ const PaymentGatewayComponent = (props: PaymentGatewayProps) => {
                     >
                       <Flex align="center">
                         <Flex gap={2} align="center">
-                          <StripeIcon />
+                          {item.icon && <img src={item.icon} alt="gateway-icon" css={scoped(styles.icon)} />}
                           <Text
                             weight="medium"
                             color={!item?.is_enabled ? 'disabled' : 'primary'}
@@ -190,4 +191,9 @@ const styles = defineStyles({
   emptyStateContent: {
     paddingBlock: theme.spacing[9],
   },
+  icon: {
+    height: 20,
+    width: 'auto',
+    objectFit: 'contain',
+  }
 });

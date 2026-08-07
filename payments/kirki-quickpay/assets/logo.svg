@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 40" role="img" aria-label="QuickPay">
+  <title>QuickPay</title>
+  <g fill="none" stroke="#1E88E5" stroke-width="5.5" stroke-linecap="round">
+    <path d="M8 28c0-10 8-18 18-18s18 8 18 18"/>
+    <path d="M14 12c10 0 18 8 18 18s-8 18-18 18"/>
+  </g>
+  <text x="52" y="27" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="600" fill="#6B7280">Quickpay</text>
+</svg>

@@ -125,7 +125,7 @@ const useInstallPaymentGatewayMutation = () => {
     onSuccess(response) {
       toastMutationSuccess(
         response.message ||
-          __('Payment gateway installed successfully.', 'kirki-ecommerce'),
+        __('Payment gateway installed successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: ['PaymentGateways'] });
       void queryClient.invalidateQueries({
@@ -145,7 +145,7 @@ const useUpdatePaymentGatewayMutation = () => {
     onSuccess(response, variables) {
       toastMutationSuccess(
         response.message ||
-          __('Payment gateway updated successfully.', 'kirki-ecommerce'),
+        __('Payment gateway updated successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: ['PaymentGateways'] });
       void queryClient.invalidateQueries({
@@ -165,7 +165,7 @@ const useSetEnabledPaymentGatewayMutation = () => {
     onSuccess(response) {
       toastMutationSuccess(
         response.message ||
-          __('Payment gateway updated successfully.', 'kirki-ecommerce'),
+        __('Payment gateway updated successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: ['PaymentGateways'] });
     },
@@ -182,7 +182,7 @@ const useCreatePaymentMethodMutation = () => {
     onSuccess(response) {
       toastMutationSuccess(
         response.message ||
-          __('Payment method created successfully.', 'kirki-ecommerce'),
+        __('Payment method created successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: ['PaymentMethods'] });
     },
@@ -199,7 +199,7 @@ const useUpdatePaymentMethodMutation = () => {
     onSuccess(response) {
       toastMutationSuccess(
         response.message ||
-          __('Payment method updated successfully.', 'kirki-ecommerce'),
+        __('Payment method updated successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: ['PaymentMethods'] });
     },
@@ -216,7 +216,7 @@ const useDeletePaymentMethodMutation = () => {
     onSuccess(response) {
       toastMutationSuccess(
         response.message ||
-          __('Payment method deleted successfully.', 'kirki-ecommerce'),
+        __('Payment method deleted successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: ['PaymentMethods'] });
     },
@@ -227,24 +227,6 @@ const useDeletePaymentMethodMutation = () => {
 };
 
 export {
-  getInstallablePaymentGateways,
-  getPaymentGateways,
-  getPaymentGateway,
-  installPaymentGateway,
-  updatePaymentGateway,
-  setEnabledPaymentGateway,
-  getPaymentMethods,
-  createPaymentMethod,
-  updatePaymentMethod,
-  deletePaymentMethod,
-  useInstallablePaymentGatewaysQuery,
-  usePaymentGatewaysQuery,
-  usePaymentGatewayQuery,
-  usePaymentMethodsQuery,
-  useInstallPaymentGatewayMutation,
-  useUpdatePaymentGatewayMutation,
-  useSetEnabledPaymentGatewayMutation,
-  useCreatePaymentMethodMutation,
-  useUpdatePaymentMethodMutation,
-  useDeletePaymentMethodMutation,
+  createPaymentMethod, deletePaymentMethod, getInstallablePaymentGateways, getPaymentGateway, getPaymentGateways, getPaymentMethods, installPaymentGateway, setEnabledPaymentGateway, updatePaymentGateway, updatePaymentMethod, useCreatePaymentMethodMutation, useDeletePaymentMethodMutation, useInstallablePaymentGatewaysQuery, useInstallPaymentGatewayMutation, usePaymentGatewayQuery, usePaymentGatewaysQuery, usePaymentMethodsQuery, useSetEnabledPaymentGatewayMutation, useUpdatePaymentGatewayMutation, useUpdatePaymentMethodMutation
 };
+

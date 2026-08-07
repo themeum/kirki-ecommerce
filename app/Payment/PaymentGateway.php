@@ -45,6 +45,13 @@ class PaymentGateway
     protected $is_manual = false;
 
     /**
+     * Check if the payment method is available.
+     *
+     * @var bool
+     */
+    protected $is_available = true;
+
+    /**
      * Payment method title for the frontend.
      *
      * @var string
@@ -127,6 +134,27 @@ class PaymentGateway
     }
 
     /**
+     * Get the icon URL.
+     *
+     * @return string
+     */
+    public function icon_url(string $name)
+    {
+        return app()->base_url(sprintf('/payments/kirki-%s/assets/logo.svg', $name));
+    }
+
+    /**
+     * Set the icon.
+     *
+     * @param string $icon
+     * @return void
+     */
+    public function set_icon(string $icon)
+    {
+        $this->icon = $icon;
+    }
+
+    /**
      * Create a payment gateway from an array for manual payment.
      *
      * @param array $data
@@ -143,6 +171,29 @@ class PaymentGateway
         $payment_gateway->is_enabled = $data['is_enabled'] ?? false;
         $payment_gateway->is_manual = true;
         $payment_gateway->settings_key = $data['settings_key'] ?? $data['id'];
+
+        return $payment_gateway;
+    }
+
+    /**
+     * Create a payment gateway from an array.
+     *
+     * @param array $data
+     *
+     * @return static
+     */
+    public static function make(array $data)
+    {
+        $payment_gateway = new static();
+
+        $payment_gateway->id = $data['id'] ?? '';
+        $payment_gateway->title = $data['name'] ?? '';
+        $payment_gateway->description = $data['instructions'] ?? '';
+        $payment_gateway->icon = $payment_gateway->icon_url($data['id']) ?? '';
+        $payment_gateway->is_enabled = $data['is_enabled'] ?? false;
+        $payment_gateway->is_manual = false;
+        $payment_gateway->settings_key = $data['settings_key'] ?? $data['id'];
+        $payment_gateway->is_available = $data['is_available'] ?? true;
 
         return $payment_gateway;
     }
@@ -165,6 +216,16 @@ class PaymentGateway
     public function enabled()
     {
         return $this->is_enabled;
+    }
+
+    /**
+     * Check if the payment method is available.
+     *
+     * @return bool
+     */
+    public function available()
+    {
+        return $this->is_available;
     }
 
     /**

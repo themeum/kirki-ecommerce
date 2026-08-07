@@ -29,9 +29,13 @@ class PaymentManager
      */
     public function init_registry()
     {
-        $gateways = apply_filters(HookNames::ECOMMERCE_ALL_PAYMENT_GATEWAYS, array_merge(ManualPaymentFactory::make(), [
-            new PayPal(),
-        ]));
+        $gateways = apply_filters(
+            HookNames::ECOMMERCE_ALL_PAYMENT_GATEWAYS,
+            array_merge(
+                ManualPaymentFactory::make(),
+                [new PayPal()]
+            ),
+        );
 
         foreach ($gateways as $gateway) {
             $this->gateways_registry[$gateway->id()] = $gateway;
