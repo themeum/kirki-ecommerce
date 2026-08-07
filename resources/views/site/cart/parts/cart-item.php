@@ -8,8 +8,6 @@
 
 defined('ABSPATH') || exit;
 
-use Brick\Math\BigDecimal;
-use Kirki\Ecommerce\App\Facades\Money;
 
 use function Kirki\Ecommerce\Framework\include_view;
 
@@ -20,8 +18,8 @@ $media = $product['media'] ?? [];
 $quantity = (int) $item['quantity'] ?? 1;
 $max_quantity = (int) $product['available_quantity'] ?? 1;
 $unit_price = $product['base_sale_price'] > 0
-                ? $product['base_sale_price_money_object']->display
-                : $product['base_price_money_object']->display;
+    ? $product['base_sale_price_money_object']->display
+    : $product['base_price_money_object']->display;
 
 ?>
 

@@ -10,7 +10,10 @@
  */
 
 defined('ABSPATH') || exit;
-extract($data);
+
+$current_sort_by = $data['current_sort_by'] ?? 'recommended';
+$has_filters = $data['has_filters'] ?? false;
+
 
 $short_by_options = ['recommended', 'low_to_high', 'high_to_low'];
 $current_sort_by = in_array($current_sort_by, $short_by_options, true) ? $current_sort_by : 'recommended';
