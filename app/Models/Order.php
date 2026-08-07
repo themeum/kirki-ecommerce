@@ -2,7 +2,6 @@
 
 namespace Kirki\Ecommerce\App\Models;
 
-use Kirki\Ecommerce\App\Constants\Order\OrderStatus;
 use Kirki\Ecommerce\Framework\Database\Query\Model;
 use Kirki\Ecommerce\Framework\Supports\Arr;
 

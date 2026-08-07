@@ -6,6 +6,8 @@ export const queryKeys = {
   Products: (params?: ListParams<ProductListFilter>) =>
     ['Products', params] as const,
   Product: (id: string | number) => ['Product', String(id)] as const,
+  ProductsWithVariants: (params?: ListParams<ProductListFilter>) =>
+    ['ProductsWithVariants', params] as const,
   Categories: (params?: ListQueryParams) => ['Categories', params] as const,
   Category: (id: string | number) => ['Category', String(id)] as const,
   Tags: (params?: ListQueryParams) => ['Tags', params] as const,

@@ -100,8 +100,8 @@ const ProductPickerRow = ({
         </TableCell>
         <TableCell alignment="right">
           <PriceText
-            salePrice={product.sale_price_object}
-            regularPrice={product.price_object}
+            salePrice={product.base_sale_price_money_object}
+            regularPrice={product.base_price_money_object}
           />
         </TableCell>
       </TableRow>

@@ -3,7 +3,7 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tansta
 import { apiClient } from '@/libs/api';
 import { endpoints } from '@/libs/endpoints';
 import { queryKeys } from '@/libs/query-keys';
-import { ProductListItemSchema, ProductSchema } from '@/schemas/catalog/product';
+import { ProductListItemSchema, ProductListItemWithVariantsSchema, ProductSchema } from '@/schemas/catalog/product';
 import type { ProductFormPayload } from '@/schemas/forms/product-form';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
 import { parseData, parseMessage, parseResponse, toastMutationError, toastMutationSuccess } from '@/services/helpers';
@@ -18,6 +18,15 @@ const getProducts = (params: ListParams<ProductListFilter> = {}) => {
       parseData(PaginatedDataSchema(ProductListItemSchema), response),
     );
 };
+
+const getProductsWithVariants = (params: ListParams<ProductListFilter> = {}) => {
+  return apiClient
+    .get(endpoints.PRODUCT_VARIANTS, { params })
+    .then((response) =>
+      parseData(PaginatedDataSchema(ProductListItemWithVariantsSchema), response),
+    );
+};
+
 
 const getProduct = (id: string | number) => {
   return apiClient
@@ -61,6 +70,15 @@ const useProductsQuery = (params: ListParams<ProductListFilter> = {}, enabled = 
   });
 };
 
+const useProductsWithVariantsQuery = (params: ListParams<ProductListFilter> = {}, enabled = true) => {
+  return useQuery({
+    queryKey: queryKeys.ProductsWithVariants(params),
+    queryFn: () => getProductsWithVariants(params),
+    placeholderData: keepPreviousData,
+    enabled,
+  });
+};
+
 const useProductQuery = (id: string | number, enabled = true) => {
   return useQuery({
     queryKey: queryKeys.Product(id),
@@ -79,6 +97,7 @@ const useCreateProductMutation = () => {
         __('Product created successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: ['Products'] });
+      void queryClient.invalidateQueries({ queryKey: ['ProductsWithVariants'] });
     },
   });
 };
@@ -93,6 +112,7 @@ const useUpdateProductMutation = () => {
         __('Product updated successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: ['Products'] });
+      void queryClient.invalidateQueries({ queryKey: ['ProductsWithVariants'] });
       void queryClient.invalidateQueries({
         queryKey: queryKeys.Product(variables.id),
       });
@@ -111,6 +131,7 @@ const useBulkDeleteProductsMutation = () => {
         __('Products deleted successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: ['Products'] });
+      void queryClient.invalidateQueries({ queryKey: ['ProductsWithVariants'] });
     },
     onError(error) {
       toastMutationError(error);
@@ -119,5 +140,6 @@ const useBulkDeleteProductsMutation = () => {
 };
 
 export {
-  bulkDeleteProducts, createProduct, getProduct, getProducts, updateProduct, useBulkDeleteProductsMutation, useCreateProductMutation, useProductQuery, useProductsQuery, useUpdateProductMutation
+  bulkDeleteProducts, createProduct, getProduct, getProducts, updateProduct, useBulkDeleteProductsMutation, useCreateProductMutation, useProductQuery, useProductsQuery, useProductsWithVariantsQuery, useUpdateProductMutation
 };
+
