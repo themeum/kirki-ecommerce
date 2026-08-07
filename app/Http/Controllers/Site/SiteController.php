@@ -15,6 +15,7 @@ use Kirki\Ecommerce\App\Http\Requests\Site\ShopPageFilterRequest;
 use Kirki\Ecommerce\App\Models\Brand;
 use Kirki\Ecommerce\App\Models\Category;
 use Kirki\Ecommerce\App\Models\Product;
+use Kirki\Ecommerce\App\Payment\Facades\Payment;
 use Kirki\Ecommerce\App\Resources\Cart\CartResource;
 use Kirki\Ecommerce\App\Resources\Order\OrderResource;
 use Kirki\Ecommerce\App\Services\ProductService;
@@ -182,13 +183,13 @@ class SiteController
         }
 
         $customer = customer();
-        $payment_gateways =  $payment_gateway_service->get();
+        $payment_gateways =  Payment::get_available_gateways();
         $cart = CartResource::make($cart_service->get_cart($customer->get_customer_id()));
 
 
         $data = [
             'customer'         => $customer,
-            'payment_gateways' => $payment_gateways->all(),
+            'payment_gateways' => $payment_gateways,
             'countries'        => Utils::get_countries(),
             'cart'             => $cart,
         ];

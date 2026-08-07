@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Payment Methods Part
  *
@@ -6,7 +7,8 @@
  */
 
 defined('ABSPATH') || exit;
-extract($data);
+
+$payment_gateways = $data['payment_gateways'] ?? [];
 ?>
 
 <!-- Payment Methods -->
