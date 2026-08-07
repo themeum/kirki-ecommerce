@@ -37,6 +37,7 @@ if (!$variant) {
 
 $regular_price = $variant->base_price;
 $sale_price = $variant->base_sale_price;
+$in_sale = $sale_price > 0 && $sale_price < $regular_price;
 
 $manager = new MoneyManager();
 $formatted_regular_price = $manager->format($manager->from_minor($regular_price));
@@ -78,9 +79,9 @@ $product_url = Url::get_product_url($product->slug);
     <div class="kecom-product-card-footer">
         <div class="kecom-product-card-price-wrapper">
             <span class="kecom-product-card-price">
-                <?php echo esc_html($sale_price > 0 ? $formatted_sale_price : $formatted_regular_price); ?>
+                <?php echo esc_html($in_sale ? $formatted_sale_price : $formatted_regular_price); ?>
             </span>
-            <?php if ($sale_price > 0) : ?>
+            <?php if ($in_sale) : ?>
                 <span class="kecom-product-card-price-discount"><?php echo esc_html($formatted_regular_price); ?></span>
             <?php endif; ?>
         </div>
