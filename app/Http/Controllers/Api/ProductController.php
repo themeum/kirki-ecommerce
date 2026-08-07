@@ -10,6 +10,7 @@ use Kirki\Ecommerce\App\Repositories\ProductRepository;
 use Kirki\Ecommerce\App\Http\Requests\BulkActionRequest;
 use Kirki\Ecommerce\App\Http\Requests\Product\ProductCreateRequest;
 use Kirki\Ecommerce\App\Http\Requests\Product\ProductUpdateRequest;
+use Kirki\Ecommerce\App\Resources\Product\ProductListWithVariantsResource;
 use Kirki\Ecommerce\App\Resources\Product\ProductListResource;
 use Kirki\Ecommerce\App\Resources\Product\ProductResource;
 use Kirki\Ecommerce\App\Services\ProductService;
@@ -55,6 +56,19 @@ class ProductController
 
         return response()->json([
             'data' => ProductListResource::paginated($data),
+            'message' => __('Product retrieved successfully.', 'kirki-ecommerce'),
+        ]);
+    }
+
+    public function get_products_with_variants(ProductListRequest $request)
+    {
+        $params = ProductListFilterDTO::from_array($request->all());
+        $params->sort_by = $request->get_whitelisted('sort_by', 'id', ['id', 'title', 'status', 'created_by', 'updated_by', 'created_at', 'updated_at']);
+
+        $data = $this->service->paginated($params);
+
+        return response()->json([
+            'data' => ProductListWithVariantsResource::paginated($data),
             'message' => __('Product retrieved successfully.', 'kirki-ecommerce'),
         ]);
     }
