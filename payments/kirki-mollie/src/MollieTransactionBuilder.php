@@ -31,13 +31,13 @@ class MollieTransactionBuilder
             $line_items[] = $this->build_line_item($item);
         }
 
-        if (!empty($this->order->shipping_total)) {
+        if (!empty($this->order->invoiced_shipping_total)) {
             $line_items[] = [
                 'type' => 'shipping_fee',
                 'description' => __('Shipping Charge', 'kirki-mollie'),
                 'quantity'    => 1,
-                'unitPrice'   => $this->money($this->order->shipping_total),
-                'totalAmount' => $this->money($this->order->shipping_total),
+                'unitPrice'   => $this->money($this->order->invoiced_shipping_total),
+                'totalAmount' => $this->money($this->order->invoiced_shipping_total),
             ];
         }
 
@@ -53,23 +53,23 @@ class MollieTransactionBuilder
      */
     protected function build_line_item(object $item): array
     {
-        $tax_per_unit = !empty($item->tax_total) ? $item->tax_total / (int) $item->quantity : 0;
-        $unit_price = $item->price + $tax_per_unit;
+        $tax_per_unit = !empty($item->invoiced_tax_total) ? $item->invoiced_tax_total / (int) $item->quantity : 0;
+        $unit_price = $item->invoiced_price + $tax_per_unit;
 
         $line_item = [
             'description' => $item->product_name,
             'quantity'    => (int) $item->quantity,
             'unitPrice'   => $this->money($unit_price),
-            'totalAmount' => $this->money($item->total),
+            'totalAmount' => $this->money($item->invoiced_total),
         ];
 
-        if (!empty($item->discount_amount)) {
-            $line_item['discountAmount'] = $this->money($item->discount_amount);
+        if (!empty($item->invoiced_discount_amount)) {
+            $line_item['discountAmount'] = $this->money($item->invoiced_discount_amount);
         }
 
         if (!empty($item->tax_rate)) {
             $line_item['vatRate']   = (string) $item->tax_rate;
-            $line_item['vatAmount'] = $this->money($item->tax_total ?? 0);
+            $line_item['vatAmount'] = $this->money($item->invoiced_tax_total ?? 0);
         }
 
         return $line_item;

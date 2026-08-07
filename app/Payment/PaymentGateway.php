@@ -434,11 +434,11 @@ class PaymentGateway
     {
         $parts = [];
 
-        if ($order_item->price > 0) {
+        if ($order_item->base_price > 0) {
             $parts[] = sprintf(
                 /* translators: %s: price */
                 __('Price: %s', 'kirki-ecommerce'),
-                Money::format(Money::from_minor($order_item->price, $currency))
+                Money::format(Money::from_minor($order_item->base_price, $currency))
             );
         }
 
@@ -519,6 +519,6 @@ class PaymentGateway
             'order' => 'failed'
         ];
 
-        return url(home_url(), $query_params);
+        return url(Url::get_checkout_url(), $query_params);
     }
 }
