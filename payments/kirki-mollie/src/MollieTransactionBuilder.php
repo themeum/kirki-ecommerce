@@ -10,7 +10,7 @@ defined('ABSPATH') || exit;
 class MollieTransactionBuilder
 {
     protected $order;
-    public function __construct(Order $order = null)
+    public function __construct(?Order $order = null)
     {
         $this->order = $order;
     }
@@ -37,8 +37,8 @@ class MollieTransactionBuilder
 
     protected function build_line_item(object $item): array
     {
-        $tax = !empty($item->tax_total) ? $item->tax_total / (int) $item->quantity : 0;
-        $unit_price = $item->price + ($tax ?? 0);
+        $tax_per_unit = !empty($item->tax_total) ? $item->tax_total / (int) $item->quantity : 0;
+        $unit_price = $item->price + $tax_per_unit;
 
         $line_item = [
             'description' => $item->product_name,
@@ -67,9 +67,9 @@ class MollieTransactionBuilder
         ];
     }
 
-    public function get_address($type): object
+    public function get_address(string $type): object
     {
-        if (empty($address)) {
+        if (empty($this->order->{$type . '_address_line1'})) {
             return new \stdclass();
         }
 

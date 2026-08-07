@@ -21,7 +21,7 @@ defined('ABSPATH') || exit;
  */
 class Mollie extends PaymentGateway
 {
-    protected $mollie;
+    protected $client;
     protected $transaction_builder;
     public function __construct()
     {
@@ -64,11 +64,11 @@ class Mollie extends PaymentGateway
             throw new Exception(__('Mollie is not enabled.', 'kirki-mollie'));
         }
 
-        $this->mollie = $this->get_client();
+        $this->client = $this->get_client();
         $this->transaction_builder = new MollieTransactionBuilder($order);
 
         try {
-            $response = $this->mollie->post([
+            $response = $this->client->post([
                 'description' => 'Order #' . $order->id,
                 'amount' => [
                     'currency' => strtoupper($order->currency_code),
@@ -147,9 +147,9 @@ class Mollie extends PaymentGateway
         }
 
         try {
-            $this->mollie = $this->get_client();
+            $this->client = $this->get_client();
             $endpoint = url(MollieConstant::API_BASE_URL . 'payments/' . $payment_id);
-            $payment = $this->mollie->get($endpoint);
+            $payment = $this->client->get($endpoint);
 
             $order_id = $payment['metadata']['order_id'] ?? '';
             if (empty($order_id)) {
@@ -170,8 +170,8 @@ class Mollie extends PaymentGateway
 
     protected function get_client()
     {
-        if ($this->mollie) {
-            return $this->mollie;
+        if ($this->client) {
+            return $this->client;
         }
 
         $api_key = $this->settings['api_key'] ?? '';
@@ -192,26 +192,25 @@ class Mollie extends PaymentGateway
 
         try {
             $is_paid = !empty($payment['paidAt']) && $payment['status'] === MollieConstant::PAYMENT_STATUS_PAID;
+            $is_unsuccessful = in_array($payment['status'], [
+                MollieConstant::PAYMENT_STATUS_CANCELED,
+                MollieConstant::PAYMENT_STATUS_FAILED,
+                MollieConstant::PAYMENT_STATUS_EXPIRED,
+            ], true);
 
-            switch ($payment['status']) {
-                case $is_paid:
-                    OrderManager::set_transaction_id($order_id, $payment['id']);
-                    OrderManager::mark_payment_as_paid($order_id);
-                    OrderManager::mark_as_processing($order_id);
-                    OrderManager::set_payment_metadata($order_id, wp_json_encode($payment));
-                    break;
-                case MollieConstant::PAYMENT_STATUS_PENDING:
-                    OrderManager::mark_payment_as_pending($order_id);
-                    OrderManager::mark_as_on_hold($order_id);
-                    break;
-                case MollieConstant::PAYMENT_STATUS_CANCELED:
-                case MollieConstant::PAYMENT_STATUS_FAILED:
-                case MollieConstant::PAYMENT_STATUS_EXPIRED:
-                    OrderManager::set_transaction_id($order_id, $payment['id']);
-                    OrderManager::mark_payment_as_failed($order_id);
-                    OrderManager::mark_as_cancelled($order_id);
-                    OrderManager::set_payment_metadata($order_id, wp_json_encode($payment));
-                    break;
+            if ($is_paid) {
+                OrderManager::set_transaction_id($order_id, $payment['id']);
+                OrderManager::mark_payment_as_paid($order_id);
+                OrderManager::mark_as_processing($order_id);
+                OrderManager::set_payment_metadata($order_id, wp_json_encode($payment));
+            } elseif ($payment['status'] === MollieConstant::PAYMENT_STATUS_PENDING) {
+                OrderManager::mark_payment_as_pending($order_id);
+                OrderManager::mark_as_on_hold($order_id);
+            } elseif ($is_unsuccessful) {
+                OrderManager::set_transaction_id($order_id, $payment['id']);
+                OrderManager::mark_payment_as_failed($order_id);
+                OrderManager::mark_as_cancelled($order_id);
+                OrderManager::set_payment_metadata($order_id, wp_json_encode($payment));
             }
 
             DB::commit();

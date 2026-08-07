@@ -15,13 +15,17 @@ class MollieClient
 
     public function __construct(string $api_key, bool $test_mode = false)
     {
-        if (! (bool) preg_match(MollieConstant::API_KEY_PATTERN, \trim($api_key))) {
+        $api_key = trim($api_key);
+
+        if (!preg_match(MollieConstant::API_KEY_PATTERN, $api_key)) {
             throw new InvalidArgumentException(__('Invalid API Key.', 'kirki-mollie'));
         }
 
-        if ((bool)strpos($api_key, 'test_') && !$test_mode) {
-            throw new InvalidArgumentException(__('Invalid API Key For Sandbox Mode.', 'kirki-mollie'));
+        $is_test_key = strpos($api_key, 'test_') === 0;
+        if ($is_test_key && !$test_mode) {
+            throw new InvalidArgumentException(__('Invalid API Key.', 'kirki-mollie'));
         }
+
         $this->api_key = $api_key;
         $this->test_mode = $test_mode;
     }
