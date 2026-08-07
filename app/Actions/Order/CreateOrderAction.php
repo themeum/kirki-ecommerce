@@ -195,8 +195,7 @@ class CreateOrderAction
         $order_dto->items_count = $calculated_result->items_count;
 
         $order_dto->payment_status = PaymentStatus::PENDING;
-        $order_dto->payment_method = $dto->payment_method;
-        $order_dto->payment_gateway = $dto->payment_method;
+        $order_dto->payment_provider = $dto->payment_provider;
         $order_dto->shipping_method = $dto->shipping_method;
 
         $order_dto->shipping_first_name = $dto->shipping_first_name;

@@ -83,7 +83,7 @@ export const OrderItemSchema = z.object({
   })),
   shipping_address: CustomerAddressSchema.nullish(),
   billing_address: CustomerAddressSchema.nullish(),
-  payment_method: z.string(),
+  payment_provider: z.string(),
   payment_status: PaymentStatusSchema,
   shipping_method: z.string().nullish(),
   customer_notes: z.string().nullish(),
@@ -104,7 +104,7 @@ export const OrderListItemSchema = OrderItemSchema.pick({
   total_object: MoneyObjectSchema,
   status: OrderStatusSchema,
   payment_status: PaymentStatusSchema,
-  payment_method: z.string(),
+  payment_provider: z.string(),
   created_at: z.string()
 }));
 

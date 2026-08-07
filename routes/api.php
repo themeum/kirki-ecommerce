@@ -6,9 +6,9 @@ use Kirki\Ecommerce\App\Http\Controllers\Api\AttributeValueController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\BrandController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\OrderCalculationController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\CategoryController;
-use Kirki\Ecommerce\App\Http\Controllers\Api\ManualPaymentMethodController;
+use Kirki\Ecommerce\App\Http\Controllers\Api\OfflinePaymentController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\OnboardingController;
-use Kirki\Ecommerce\App\Http\Controllers\Api\PaymentGatewayController;
+use Kirki\Ecommerce\App\Http\Controllers\Api\OnlinePaymentController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\VariantController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\ProductController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\TagController;
@@ -39,7 +39,7 @@ use function Kirki\Ecommerce\Framework\response;
 
 Route::set_namespace('kirki/ecommerce/v1');
 
-Route::post('/payment/webhook/{gateway_id}', [WebhookController::class, 'handle']);
+Route::post('/payment/webhook/{provider_id}', [WebhookController::class, 'handle']);
 
 Route::group(['middleware' => AuthMiddleware::class], function () {
     // Test route
@@ -210,24 +210,24 @@ Route::group(['middleware' => AuthMiddleware::class], function () {
     // Pages
     Route::get('/pages', [PageController::class, 'get']);
 
-    // Payment Gateways
-    Route::get('/payment-gateways/installable', [PaymentGatewayController::class, 'all']);
-    Route::post('/payment-gateways/install', [PaymentGatewayController::class, 'install']);
-    Route::get('/payment-gateways', [PaymentGatewayController::class, 'get']);
-    Route::get('/payment-gateways/{id}', [PaymentGatewayController::class, 'show']);
-    Route::put('/payment-gateways/{id}', [PaymentGatewayController::class, 'update']);
-    Route::patch('/payment-gateways/{id}', [PaymentGatewayController::class, 'set_enabled']);
+    // Online Payments
+    Route::get('/online-payments/installable', [OnlinePaymentController::class, 'all']);
+    Route::post('/online-payments/install', [OnlinePaymentController::class, 'install']);
+    Route::get('/online-payments', [OnlinePaymentController::class, 'get']);
+    Route::get('/online-payments/{id}', [OnlinePaymentController::class, 'show']);
+    Route::put('/online-payments/{id}', [OnlinePaymentController::class, 'update']);
+    Route::patch('/online-payments/{id}', [OnlinePaymentController::class, 'set_enabled']);
 
-    // Manual Payment Methods
-    Route::get('/payment-methods', [ManualPaymentMethodController::class, 'get']);
-    Route::get('/payment-methods/{id}', [ManualPaymentMethodController::class, 'show']);
-    Route::post('/payment-methods', [ManualPaymentMethodController::class, 'create']);
-    Route::put('/payment-methods/{id}', [ManualPaymentMethodController::class, 'update']);
-    Route::delete('/payment-methods/{id}', [ManualPaymentMethodController::class, 'delete']);
+    // Offline Payments
+    Route::get('/offline-payments', [OfflinePaymentController::class, 'get']);
+    Route::get('/offline-payments/{id}', [OfflinePaymentController::class, 'show']);
+    Route::post('/offline-payments', [OfflinePaymentController::class, 'create']);
+    Route::put('/offline-payments/{id}', [OfflinePaymentController::class, 'update']);
+    Route::delete('/offline-payments/{id}', [OfflinePaymentController::class, 'delete']);
 });
 
 //@todo remove this later as its just to mock the zip download
-Route::get('/payment-gateways/download/{id}', [PaymentGatewayController::class, 'download']);
+Route::get('/online-payments/download/{id}', [OnlinePaymentController::class, 'download']);
 
 Route::get('/test-public', function (Request $request) {
     DB::enable_query_log();

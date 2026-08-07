@@ -18,7 +18,7 @@ export type {
 export type { SetKeyValuePayload } from '@/types/common-actions';
 
 export type { Currency } from '@/schemas/catalog/currency';
-export type { PaymentGateway, PaymentMethod } from '@/schemas/catalog/payment';
+export type { OfflinePayment, OnlinePayment } from '@/schemas/catalog/payment';
 export type { SettingsSectionKey } from '@/schemas/catalog/settings';
 export type {
   ShippingBox, ShippingCarrier, ShippingMethod, ShippingProfile, ShippingRegion, ShippingRule, ShippingRuleAction, ShippingRuleCondition, ShippingZone
