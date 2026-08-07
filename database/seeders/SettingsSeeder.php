@@ -250,23 +250,14 @@ class SettingsSeeder extends Seeder
         return [
             "key" => "payment",
             "data" => [
-                "payment_gateways" => [
+                "offline_payments" => [
                     [
-                        "id" => "fdsf",
+                        "id" => "cod",
                         "is_enabled" => true,
-                        "is_manual" => true,
+                        "is_offline" => true,
                         "name" => "Cash on Delivery",
                         "icon" => "cash",
                         "instructions" => "Cash on Delivery"
-                    ],
-                    [
-                        "id" => "fdsfds",
-                        "is_enabled" => true,
-                        "is_manual" => false,
-                        "name" => "Cash on Delivery",
-                        "icon" => "cash",
-                        "instructions" => "Cash on Delivery",
-                        "config" => []
                     ]
                 ]
             ]

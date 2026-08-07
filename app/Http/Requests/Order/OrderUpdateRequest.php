@@ -87,7 +87,7 @@ class OrderUpdateRequest extends Request
             'items.*.quantity' => 'required|integer|min:1',
 
             'currency_code' => 'nullable|string',
-            'payment_method' => 'required|string',
+            'payment_provider' => 'required|string',
             'coupon_code' => 'nullable|string',
 
             'shipping_method' => 'nullable|string',
@@ -136,7 +136,7 @@ class OrderUpdateRequest extends Request
             'items.*.quantity' => Sanitizer::INT,
 
             'currency_code' => Sanitizer::TEXT,
-            'payment_method' => Sanitizer::TEXT,
+            'payment_provider' => Sanitizer::TEXT,
             'coupon_code' => Sanitizer::TEXT,
 
             'shipping_method' => Sanitizer::TEXT,

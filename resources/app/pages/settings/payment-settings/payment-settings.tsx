@@ -1,17 +1,17 @@
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import { PaymentIcon } from '@/icons';
-import { usePaymentGatewaysQuery, usePaymentMethodsQuery } from '@/services/payment';
+import { useOfflinePaymentsQuery, useOnlinePaymentsQuery } from '@/services/payment';
 import { __ } from '@/wpi18n';
 
 import SettingsPageHeader from '@/pages/settings/settings-page-header';
-import ManualPayment from '@/pages/settings/payment-settings/manual-payment';
-import PaymentGatewayList from '@/pages/settings/payment-settings/payment-gateway';
+import OfflinePayment from '@/pages/settings/payment-settings/offline-payment';
+import OnlinePaymentList from '@/pages/settings/payment-settings/online-payment';
 
 const PaymentSettings = () => {
-  const { data: paymentGatewayList = [] } = usePaymentGatewaysQuery();
-  const { data: manualPaymentMethod = [], refetch: refetchMethods } =
-    usePaymentMethodsQuery();
+  const { data: onlinePaymentList = [] } = useOnlinePaymentsQuery();
+  const { data: offlinePaymentList = [], refetch: refetchOfflinePayments } =
+    useOfflinePaymentsQuery();
 
   return (
     <Container size="sm">
@@ -21,11 +21,11 @@ const PaymentSettings = () => {
           title={__('Payments', 'kirki-ecommerce')}
         />
 
-        <ManualPayment
-          manualPaymentList={manualPaymentMethod}
-          refetch={refetchMethods}
+        <OfflinePayment
+          offlinePaymentList={offlinePaymentList}
+          refetch={refetchOfflinePayments}
         />
-        <PaymentGatewayList paymentGatewayList={paymentGatewayList} />
+        <OnlinePaymentList onlinePaymentList={onlinePaymentList} />
       </Flex>
     </Container>
   );

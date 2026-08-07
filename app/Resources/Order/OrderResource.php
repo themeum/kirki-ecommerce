@@ -95,7 +95,7 @@ class OrderResource extends Resource
                 'email' => $this->billing_email,
             ],
 
-            'payment_method' => $this->payment_method,
+            'payment_provider' => $this->payment_provider,
             'payment_status' => $this->payment_status,
             'shipping_method' => $this->shipping_method,
             'customer_notes' => $this->customer_notes,

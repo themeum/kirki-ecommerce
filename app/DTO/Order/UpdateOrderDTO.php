@@ -76,7 +76,7 @@ class UpdateOrderDTO extends DTO
     public $payment_status;
 
     /** @var string */
-    public $payment_method;
+    public $payment_provider;
 
     /** @var string */
     public $shipping_method;
