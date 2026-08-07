@@ -42,6 +42,7 @@ class Order extends Model
         'base_payment_provider_fee',
         'payment_metadata',
         'shipping_method',
+        'shipping_metadata',
         'shipping_carrier',
         'tracking_number',
         'tracking_url',
@@ -90,6 +91,7 @@ class Order extends Model
         'base_payment_provider_fee' => 'integer',
         'discount_details' => 'json',
         'payment_metadata' => 'json',
+        'shipping_metadata' => 'json',
         'invoiced_tax_total' => 'integer',
         'base_tax_total' => 'integer',
         'is_billing_same_as_shipping' => 'boolean'

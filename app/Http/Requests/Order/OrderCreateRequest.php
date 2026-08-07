@@ -27,16 +27,16 @@ class OrderCreateRequest extends Request
         $is_billing_same_as_shipping = $this->input('is_billing_same_as_shipping') ?? customer(null, $customer_id)->get_customer()->is_billing_same_as_shipping ?? false;
 
         $shipping_address = [
-            'shipping_first_name' => $this->input('shipping_first_name') ?? customer(null, $customer_id)->get_shipping_address()->first_name,
-            'shipping_last_name' => $this->input('shipping_last_name') ?? customer(null, $customer_id)->get_shipping_address()->last_name,
-            'shipping_address_line1' => $this->input('shipping_address_line1') ?? customer(null, $customer_id)->get_shipping_address()->address_line1,
-            'shipping_address_line2' => $this->input('shipping_address_line2') ?? customer(null, $customer_id)->get_shipping_address()->address_line2,
-            'shipping_city' => $this->input('shipping_city') ?? customer(null, $customer_id)->get_shipping_address()->city,
-            'shipping_state' => $this->input('shipping_state') ?? customer(null, $customer_id)->get_shipping_address()->state,
-            'shipping_postcode' => $this->input('shipping_postcode') ?? customer(null, $customer_id)->get_shipping_address()->postal_code,
-            'shipping_country' => $this->input('shipping_country') ?? customer(null, $customer_id)->get_shipping_address()->country,
-            'shipping_phone' => $this->input('shipping_phone') ?? customer(null, $customer_id)->get_shipping_address()->phone,
-            'shipping_email' => $this->input('shipping_email') ?? customer(null, $customer_id)->get_shipping_address()->email,
+            'shipping_first_name' => $this->input('shipping_first_name') ?? customer(null, $customer_id)->get_shipping_address()->first_name ?? null,
+            'shipping_last_name' => $this->input('shipping_last_name') ?? customer(null, $customer_id)->get_shipping_address()->last_name ?? null,
+            'shipping_address_line1' => $this->input('shipping_address_line1') ?? customer(null, $customer_id)->get_shipping_address()->address_line1 ?? null,
+            'shipping_address_line2' => $this->input('shipping_address_line2') ?? customer(null, $customer_id)->get_shipping_address()->address_line2 ?? null,
+            'shipping_city' => $this->input('shipping_city') ?? customer(null, $customer_id)->get_shipping_address()->city ?? null,
+            'shipping_state' => $this->input('shipping_state') ?? customer(null, $customer_id)->get_shipping_address()->state ?? null,
+            'shipping_postcode' => $this->input('shipping_postcode') ?? customer(null, $customer_id)->get_shipping_address()->postal_code ?? null,
+            'shipping_country' => $this->input('shipping_country') ?? customer(null, $customer_id)->get_shipping_address()->country ?? null,
+            'shipping_phone' => $this->input('shipping_phone') ?? customer(null, $customer_id)->get_shipping_address()->phone ?? null,
+            'shipping_email' => $this->input('shipping_email') ?? customer(null, $customer_id)->get_shipping_address()->email ?? null,
         ];
 
         if($is_billing_same_as_shipping){
@@ -54,18 +54,18 @@ class OrderCreateRequest extends Request
             ];
         } else{
             $billing_address = [
-                'billing_first_name' => $this->input('billing_first_name') ?? customer(null, $customer_id)->get_billing_address()->first_name,
-                'billing_last_name' => $this->input('billing_last_name') ?? customer(null, $customer_id)->get_billing_address()->last_name,
-                'billing_address_line1' => $this->input('billing_address_line1') ?? customer(null, $customer_id)->get_billing_address()->address_line1,
-                'billing_address_line2' => $this->input('billing_address_line2') ?? customer(null, $customer_id)->get_billing_address()->address_line2,
-                'billing_city' => $this->input('billing_city') ?? customer(null, $customer_id)->get_billing_address()->city,
-                'billing_state' => $this->input('billing_state') ?? customer(null, $customer_id)->get_billing_address()->state,
-                'billing_postcode' => $this->input('billing_postcode') ?? customer(null, $customer_id)->get_billing_address()->postal_code,
-                'billing_country' => $this->input('billing_country') ?? customer(null, $customer_id)->get_billing_address()->country,
-                'billing_phone' => $this->input('billing_phone') ?? customer(null, $customer_id)->get_billing_address()->phone,
-                'billing_email' => $this->input('billing_email') ?? customer(null, $customer_id)->get_billing_address()->email,
+                'billing_first_name' => $this->input('billing_first_name') ?? customer(null, $customer_id)->get_billing_address()->first_name ?? null,
+                'billing_last_name' => $this->input('billing_last_name') ?? customer(null, $customer_id)->get_billing_address()->last_name ?? null,
+                'billing_address_line1' => $this->input('billing_address_line1') ?? customer(null, $customer_id)->get_billing_address()->address_line1 ?? null,
+                'billing_address_line2' => $this->input('billing_address_line2') ?? customer(null, $customer_id)->get_billing_address()->address_line2 ?? null,
+                'billing_city' => $this->input('billing_city') ?? customer(null, $customer_id)->get_billing_address()->city ?? null,
+                'billing_state' => $this->input('billing_state') ?? customer(null, $customer_id)->get_billing_address()->state ?? null,
+                'billing_postcode' => $this->input('billing_postcode') ?? customer(null, $customer_id)->get_billing_address()->postal_code ?? null,
+                'billing_country' => $this->input('billing_country') ?? customer(null, $customer_id)->get_billing_address()->country ?? null,
+                'billing_phone' => $this->input('billing_phone') ?? customer(null, $customer_id)->get_billing_address()->phone ?? null,
+                'billing_email' => $this->input('billing_email') ?? customer(null, $customer_id)->get_billing_address()->email ?? null,
             ];
-        } 
+        }
 
         $this->merge($shipping_address);
         $this->merge($billing_address);

@@ -346,6 +346,23 @@ class PayPal extends PaymentProvider
             OrderManager::mark_payment_as_paid($order->id);
             OrderManager::mark_as_processing($order->id);
         }
+
+        $this->capture_payment_provider_fee($order, $resource);
+    }
+
+    protected function capture_payment_provider_fee(Order $order, array $resource)
+    {
+        $fee = $resource['seller_receivable_breakdown']['paypal_fee'] ?? null;
+
+        if (!$fee || !isset($fee['value'], $fee['currency_code'])) {
+            return;
+        }
+
+        if (strtoupper($fee['currency_code']) !== strtoupper($order->currency_code)) {
+            return;
+        }
+
+        OrderManager::set_payment_provider_fee($order->id, Money::to_minor($fee['value'], $order->currency_code));
     }
 
     protected function handle_payment_capture_refunded($event)

@@ -54,6 +54,7 @@ class CreateOrdersTable implements Migration
             $table->text('payment_metadata')->nullable();
 
             $table->string('shipping_method', 100)->nullable();
+            $table->text('shipping_metadata')->nullable();
             $table->string('shipping_carrier', 100)->nullable();
             $table->string('tracking_number', 100)->nullable();
             $table->string('tracking_url', 500)->nullable();

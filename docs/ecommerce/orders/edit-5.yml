@@ -199,8 +199,13 @@ examples:
                 "email": "jane.shipping@example.com"
               },
               "payment_provider": "stripe",
+              "payment_provider_name": "Stripe",
+              "payment_provider_icon": "{{baseUrl}}/payments/kirki-stripe/assets/logo.svg",
+              "payment_provider_is_offline": false,
               "payment_status": "unpaid",
               "shipping_method": "fsdfdsfsdfsdf343432jh4",
+              "shipping_method_name": "Standard Delivery",
+              "shipping_method_type": "flat_rate",
               "created_at": "2026-01-07 17:19:56"
             },
             "message": "Order updated successfully."

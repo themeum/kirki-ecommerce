@@ -123,7 +123,7 @@ class PaymentManager
      */
     public function pay(Order $order)
     {
-        $gateway = $this->get_provider($order->payment_method);
+        $gateway = $this->get_provider($order->payment_provider);
 
         if (!$gateway || $gateway->is_offline()) {
             return null;

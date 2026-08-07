@@ -96,8 +96,13 @@ class OrderResource extends Resource
             ],
 
             'payment_provider' => $this->payment_provider,
+            'payment_provider_name' => $this->payment_metadata['payment_provider']['name'] ?? null,
+            'payment_provider_icon' => $this->payment_metadata['payment_provider']['icon'] ?? null,
+            'payment_provider_is_offline' => $this->payment_metadata['payment_provider']['is_offline'] ?? null,
             'payment_status' => $this->payment_status,
             'shipping_method' => $this->shipping_method,
+            'shipping_method_name' => $this->shipping_metadata['shipping_method']['name'] ?? null,
+            'shipping_method_type' => $this->shipping_metadata['shipping_method']['type'] ?? null,
             'customer_notes' => $this->customer_notes,
 
             'refunds' => empty($this->refunds) ? [] : $this->refunds->map(function ($refund) {
