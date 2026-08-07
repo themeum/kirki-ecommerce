@@ -9,17 +9,21 @@
  * @since 1.0.0
  */
 
+defined('ABSPATH') || exit;
+
+use Kirki\Ecommerce\App\Payment\Facades\Payment;
 use Kirki\Ecommerce\App\Supports\Template;
 use Kirki\Ecommerce\App\Supports\Url;
 
 use function Kirki\Ecommerce\Framework\view_data;
 
-defined('ABSPATH') || exit;
-
 $order = view_data('order') ?: null;
 if (empty($order)) {
     return;
 }
+
+$payment_gateway = isset($order['payment_method']) ? Payment::get_gateway($order['payment_method']) : '';
+$payment_method = $payment_gateway ? $payment_gateway->title() : '';
 ?>
 
 <?php Template::get_header(); ?>
@@ -34,7 +38,7 @@ if (empty($order)) {
                     <path fill="#1c7330" d="M50.368 34.08a1.75 1.75 0 0 0-2.856-.568L36.5 44.526l-4.012-4.014a1.75 1.75 0 1 0-2.476 2.477l5.25 5.25a1.75 1.75 0 0 0 2.476 0l12.25-12.25a1.75 1.75 0 0 0 .38-1.909"/>
                 </svg>
             </div>
-            <h3 class="kecom-order-success-title"><?php _e('Payment Successful', 'kirki-ecommerce'); ?></h3>
+            <h3 class="kecom-order-success-title"><?php _e('Order Placed Successfully', 'kirki-ecommerce'); ?></h3>
             <p class="kecom-order-success-subtitle"><?php _e('Your order has been confirmed and is being processed.', 'kirki-ecommerce'); ?></p>
         </div>
 
@@ -54,7 +58,7 @@ if (empty($order)) {
                 </div>
                 <div class="kecom-order-success-row">
                     <div class="kecom-order-success-row-key"><?php _e('Payment Method', 'kirki-ecommerce'); ?></div>
-                    <div class="kecom-order-success-row-value"><?php echo esc_html(ucfirst($order['payment_method'])); ?></div>
+                    <div class="kecom-order-success-row-value"><?php echo esc_html($payment_method); ?></div>
                 </div>
                 <div class="kecom-order-success-row">
                     <div class="kecom-order-success-row-key"><?php _e('Payment Status', 'kirki-ecommerce'); ?></div>
@@ -101,7 +105,7 @@ if (empty($order)) {
 
         <div class="kecom-order-success-total">
             <div class="kecom-order-success-total-label"><?php _e('Total Amount', 'kirki-ecommerce'); ?></div>
-            <div class="kecom-order-success-total-value"><?php echo esc_html($order['totals']['total']->display); ?></div>
+            <div class="kecom-order-success-total-value"><?php echo esc_html($order['totals']['invoiced_total_money_object']->display); ?></div>
         </div>
 
         <?php endif; ?>
