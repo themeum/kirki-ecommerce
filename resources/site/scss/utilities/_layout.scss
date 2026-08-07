@@ -1,0 +1,197 @@
+// Utilities - Layout
+// Display, flex, grid, position …
+
+@use "../tokens" as *;
+@use "../mixins" as *;
+
+.kecom-container {
+  max-width: 1312px;
+  margin: 0 auto;
+  padding-inline: $spacing-8;
+}
+
+// Display
+.kecom-block {
+  display: block;
+}
+.kecom-inline-block {
+  display: inline-block;
+}
+.kecom-inline {
+  display: inline;
+}
+.kecom-flex {
+  display: flex;
+}
+.kecom-inline-flex {
+  display: inline-flex;
+}
+.kecom-grid {
+  display: grid;
+}
+.kecom-hidden {
+  display: none;
+}
+
+// Flex direction
+.kecom-flex-row {
+  flex-direction: row;
+}
+.kecom-flex-col {
+  flex-direction: column;
+}
+.kecom-flex-row-rev {
+  flex-direction: row-reverse;
+}
+.kecom-flex-col-rev {
+  flex-direction: column-reverse;
+}
+
+// Flex wrap
+.kecom-flex-wrap {
+  flex-wrap: wrap;
+}
+.kecom-flex-nowrap {
+  flex-wrap: nowrap;
+}
+
+// Flex shorthand
+.kecom-flex-1 {
+  flex: 1 1 0%;
+}
+.kecom-flex-auto {
+  flex: 1 1 auto;
+}
+.kecom-flex-none {
+  flex: none;
+}
+.kecom-flex-shrink-0 {
+  flex-shrink: 0;
+}
+.kecom-flex-grow-1 {
+  flex-grow: 1;
+}
+
+// Justify content
+.kecom-justify-start {
+  justify-content: flex-start;
+}
+.kecom-justify-end {
+  justify-content: flex-end;
+}
+.kecom-justify-center {
+  justify-content: center;
+}
+.kecom-justify-between {
+  justify-content: space-between;
+}
+.kecom-justify-around {
+  justify-content: space-around;
+}
+.kecom-justify-evenly {
+  justify-content: space-evenly;
+}
+
+// Align items
+.kecom-items-start {
+  align-items: flex-start;
+}
+.kecom-items-end {
+  align-items: flex-end;
+}
+.kecom-items-center {
+  align-items: center;
+}
+.kecom-items-baseline {
+  align-items: baseline;
+}
+.kecom-items-stretch {
+  align-items: stretch;
+}
+
+// Align self
+.kecom-self-start {
+  align-self: flex-start;
+}
+.kecom-self-end {
+  align-self: flex-end;
+}
+.kecom-self-center {
+  align-self: center;
+}
+.kecom-self-stretch {
+  align-self: stretch;
+}
+.kecom-self-auto {
+  align-self: auto;
+}
+
+// Grid columns
+@each $n in (1, 2, 3, 4, 5, 6, 12) {
+  .kecom-grid-cols-#{$n} {
+    grid-template-columns: repeat(#{$n}, minmax(0, 1fr));
+  }
+}
+
+@each $n in (1, 2, 3, 4, 5, 6) {
+  .kecom-col-span-#{$n} {
+    grid-column: span #{$n} / span #{$n};
+  }
+}
+.kecom-col-span-full {
+  grid-column: 1 / -1;
+}
+
+// Position
+.kecom-static {
+  position: static;
+}
+.kecom-relative {
+  position: relative;
+}
+.kecom-absolute {
+  position: absolute;
+}
+.kecom-fixed {
+  position: fixed;
+}
+.kecom-sticky {
+  position: sticky;
+}
+
+// Overflow
+.kecom-overflow-auto {
+  overflow: auto;
+}
+.kecom-overflow-hidden {
+  overflow: hidden;
+}
+.kecom-overflow-visible {
+  overflow: visible;
+}
+.kecom-overflow-scroll {
+  overflow: scroll;
+}
+.kecom-overflow-x-auto {
+  overflow-x: auto;
+}
+.kecom-overflow-y-auto {
+  overflow-y: auto;
+}
+
+// Width / Height helpers
+.kecom-w-full {
+  width: 100%;
+}
+.kecom-w-auto {
+  width: auto;
+}
+.kecom-h-full {
+  height: 100%;
+}
+.kecom-h-auto {
+  height: auto;
+}
+.kecom-min-w-0 {
+  min-width: 0;
+}

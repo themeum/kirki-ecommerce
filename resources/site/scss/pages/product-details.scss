@@ -1,0 +1,304 @@
+// Page - Product Details
+// Styles for single product page layout
+
+@use "../tokens" as *;
+@use "../mixins" as *;
+
+.kecom-product-page {
+  margin: 0px;
+  padding-block: $spacing-10;
+
+  .kecom-product-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 520px;
+    gap: $spacing-18;
+    margin-bottom: $spacing-18;
+    width: 100%;
+
+    @include breakpoint-down(md) {
+      grid-template-columns: 1fr;
+      gap: $spacing-12;
+    }
+  }
+
+  // ── Product Gallery ───────────────────────────────────────────────────────────
+
+  .kecom-product-gallery {
+    position: relative;
+    width: 100%;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .kecom-product-main-image {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background-color: $background-surface-alt;
+    border-radius: $radius-xl;
+    overflow: hidden;
+    margin-bottom: $spacing-8;
+    position: relative;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  .kecom-product-nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 36px;
+    height: 36px;
+    border-radius: $radius-full;
+    background-color: $background-surface;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: $shadow-sm;
+    @include transition((background-color, color, border-color));
+
+    &:hover {
+      background-color: $background-fill-brand;
+      color: $text-light;
+      border-color: $background-fill-brand;
+    }
+  }
+
+  .kecom-product-nav-prev {
+    left: $spacing-8;
+  }
+
+  .kecom-product-nav-next {
+    right: $spacing-8;
+  }
+
+  .kecom-product-thumbnails {
+    display: flex;
+    gap: $spacing-6;
+    overflow-x: auto;
+    padding: $spacing-1;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .kecom-product-thumbnail {
+    width: 129px;
+    height: 129px;
+    border-radius: $radius-md;
+    overflow: hidden;
+    cursor: pointer;
+    border: none;
+    outline: 1px solid $border-default;
+    flex-shrink: 0;
+    @include transition((border-color));
+
+    @include breakpoint-down(md) {
+      width: 60px;
+      height: 60px;
+    }
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    &:hover,
+    &.active {
+      outline: 2px solid $background-fill-brand;
+    }
+  }
+
+  // ── Product Info ───────────────────────────────────────────────────────────────
+
+  .kecom-product-info {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-10;
+
+    @include breakpoint-down(md) {
+      gap: $spacing-9;
+    }
+  }
+
+  .kecom-product-title-and-price {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    gap: $spacing-6;
+    padding-bottom: $spacing-10;
+    border-bottom: 1px solid $border-default;
+  }
+
+  .kecom-product-ribbon {
+    @include typography(xs, medium, $text-light);
+    background-color: $background-fill-critical;
+    padding: $spacing-2 $spacing-4;
+    border-radius: $radius-sm;
+  }
+
+  .kecom-product-title {
+    @include typography(3xl, semibold, $text-primary);
+    margin: 0px;
+  }
+
+  .kecom-product-price {
+    display: flex;
+    align-items: center;
+    gap: $spacing-4;
+  }
+
+  .kecom-product-price-current {
+    @include typography(2xl, semibold, $text-primary);
+  }
+
+  .kecom-product-price-original {
+    @include typography(xl, normal, $text-subdued);
+    text-decoration: line-through;
+  }
+
+  .kecom-product-discount {
+    @include typography(xs, medium, $text-light);
+    background-color: $background-fill-success;
+    padding: $spacing-2 $spacing-4;
+    border-radius: $radius-sm;
+    text-transform: uppercase;
+  }
+
+  .kecom-product-short-description {
+    @include typography(base, normal, $text-secondary);
+    margin: 0px;
+  }
+
+  // ── Product Variants ───────────────────────────────────────────────────────────
+
+  .kecom-product-variant-group {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-4;
+    align-items: start;
+  }
+
+  .kecom-product-variant-label {
+    @include typography(base, semibold, $text-primary);
+
+    span {
+      color: $text-secondary;
+      font-weight: 400;
+    }
+  }
+
+  .kecom-product-variant-options {
+    display: flex;
+    gap: $spacing-4;
+    flex-wrap: wrap;
+  }
+
+  .kecom-product-variant-option {
+    min-width: 44px;
+    height: 44px;
+    background-color: $background-fill;
+    padding: $spacing-3 $spacing-5;
+    border: 1px solid $border-default;
+    border-radius: $radius-md;
+    outline: none;
+    cursor: pointer;
+    @include flex-center();
+    @include typography(base, semibold, $text-primary);
+    @include transition((border-color, background-color, color));
+
+    &:hover {
+      border-color: $border-hover;
+    }
+
+    &:focus-visible {
+      @include focus-ring();
+    }
+
+    &.selected {
+      background-color: $background-fill-brand;
+      border-color: $background-fill-brand;
+      color: $text-light;
+    }
+  }
+
+  .kecom-product-variant-color {
+    width: 28px;
+    height: 28px;
+    border-radius: $radius-full;
+    border: 1px solid $border-default;
+    cursor: pointer;
+    padding: 0px;
+    outline: none;
+    @include transition((transform, border-color, box-shadow));
+
+    &:focus-visible {
+      @include focus-ring();
+    }
+
+    &.selected {
+      outline: 1px solid $border-ring;
+      border-color: $background-surface;
+    }
+  }
+
+  // ── Product Tabs ───────────────────────────────────────────────────────────────
+  .kecom-product-information {
+    background-color: $background-surface-alt;
+  }
+
+  .kecom-product-tabs {
+    padding-block: $spacing-16;
+  }
+
+  .kecom-product-tab-header {
+    display: flex;
+    gap: $spacing-12;
+    border-bottom: 1px solid $border-default;
+    margin-bottom: $spacing-10;
+  }
+
+  .kecom-product-tab-btn {
+    padding: $spacing-4 0;
+    background: none;
+    border: none;
+    outline: none;
+    @include typography(md, medium, $text-secondary);
+    cursor: pointer;
+    position: relative;
+    @include transition((color));
+
+    &:hover {
+      color: $text-primary;
+    }
+
+    &.active {
+      color: $text-primary;
+
+      &::after {
+        content: "";
+        position: absolute;
+        bottom: -1px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background-color: $border-inverse;
+      }
+    }
+  }
+
+  .kecom-product-tab-content {
+    display: none;
+    @include typography(base, normal, $text-primary);
+
+    &.active {
+      display: block;
+    }
+  }
+}

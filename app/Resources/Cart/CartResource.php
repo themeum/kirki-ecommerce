@@ -146,6 +146,18 @@ class CartResource extends Resource
                         'display_sale_price' => !is_null($item->variant->base_sale_price) ? Money::prepare_amount_from_minor($item->variant->base_sale_price, $this->base_currency_code, $display_currency) : null,
                         'display_sale_price_money_object' => !is_null($item->variant->base_sale_price) ? Money::prepare_amount_object_from_minor($item->variant->base_sale_price, $this->base_currency_code, $display_currency) : null,
                         'media' => !empty($item->variant->media) ? MediaAttachment::make($item->variant->media) : MediaAttachment::make($item->product->media->first() ?? null) ?? null,
+                        'categories' => $item->product->categories->map(function ($category) {
+                            return [
+                                'id' => $category->id,
+                                'name' => $category->name,
+                                'parent_id' => $category->parent_id,
+                                'level' => $category->level,
+                            ];
+                        })->to_array(),
+                        'attributes' => $item->variant->attribute_values->map(function ($value) {
+                            return $value->value;
+                        })->to_array(),
+                        'available_quantity' => $item->variant->available_quantity,
                     ],
                     'base_subtotal' => Money::prepare_amount_from_minor($calculated_item->base_subtotal, $this->base_currency_code),
                     'base_subtotal_money_object' => Money::prepare_amount_object_from_minor($calculated_item->base_subtotal, $this->base_currency_code),

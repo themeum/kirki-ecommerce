@@ -7,7 +7,7 @@ import type { AppTheme } from '@/theme';
 type KirkiEcommerceConfig = {
   site_url: string;
   rest_url_base: string;
-  nonce: string;
+  rest_nonce: string;
   version: string;
   is_dev: boolean;
 };
