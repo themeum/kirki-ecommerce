@@ -62,7 +62,6 @@ export const AdditionalInfoItemSchema = z.object({
 
 export type AdditionalInfoItem = z.infer<typeof AdditionalInfoItemSchema>;
 
-// TODO: remove has_variants, attributes and variants when new API is ready for order
 export const ProductListItemSchema = z.object({
   id: z.number(),
   title: z.string(),
@@ -74,19 +73,24 @@ export const ProductListItemSchema = z.object({
   base_price_money_object: MoneyObjectSchema,
   display_price: MoneyAmountSchema,
   display_price_money_object: MoneyObjectSchema,
-  sale_price: MoneyAmountSchema.nullable(),
-  sale_price_object: MoneyObjectSchema.nullable(),
+  base_sale_price: MoneyAmountSchema.nullable(),
+  base_sale_price_money_object: MoneyObjectSchema.nullable(),
   display_sale_price: MoneyAmountSchema.nullish(),
   display_sale_price_money_object: MoneyObjectSchema,
   status: z.union([ProductStatusSchema, z.string()]),
-  has_variants: z.boolean(),
-  attributes: z.array(ProductAttributeSchema),
-  variants: z.array(VariantSchema),
   created_at: z.string().nullish(),
   updated_at: z.string().nullish(),
 });
 
 export type ProductListItem = z.infer<typeof ProductListItemSchema>;
+
+export const ProductListItemWithVariantsSchema = ProductListItemSchema.extend({
+  has_variants: z.boolean(),
+  attributes: z.array(ProductAttributeSchema),
+  variants: z.array(VariantSchema),
+})
+
+export type ProductListItemWithVariants = z.infer<typeof ProductListItemWithVariantsSchema>;
 
 export const ProductSchema = z.object({
   id: z.number().optional(),

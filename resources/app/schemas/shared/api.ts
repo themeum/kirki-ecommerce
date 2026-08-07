@@ -21,7 +21,10 @@ const MoneyAmountSchema = z.union([z.number(), z.string()]);
 const MoneyObjectSchema = z.object({
   raw: MoneyAmountSchema,
   display: z.string(),
-  currency: z.string(),
+  currency: z.object({
+    code: z.string(),
+    symbol: z.string(),
+  }),
 })
 
 /**

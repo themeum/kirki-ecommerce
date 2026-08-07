@@ -18,9 +18,6 @@ class UpdateOrderPayloadDTO extends DTO
     /** @var string */
     public $currency_code;
 
-    /** @var string */
-    public $payment_provider;
-
     /** @var string|null */
     public $coupon_code;
 
@@ -103,14 +100,11 @@ class UpdateOrderPayloadDTO extends DTO
     public $customer_phone;
 
     /** @var string|null */
-    public $customer_notes;
+    public $admin_notes;
+
+    /** @var string[]|null */
+    public $flags;
 
     /** @var int|null */
     public $is_manual;
-
-    /** @var string|null */
-    public $order_status;
-
-    /** @var string|null */
-    public $payment_status;
 }

@@ -103,6 +103,9 @@ class CreateOrderPayloadDTO extends DTO
     public $customer_notes;
 
     /** @var string|null */
+    public $admin_notes;
+
+    /** @var string|null */
     public $ip_address;
 
     /** @var string|null */

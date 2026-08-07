@@ -339,7 +339,6 @@ class PayPal extends PaymentProvider
 
         if ($order->payment_status !== PaymentStatus::PAID) {
             OrderManager::mark_payment_as_paid($order->id);
-            OrderManager::mark_as_processing($order->id);
         }
     }
 

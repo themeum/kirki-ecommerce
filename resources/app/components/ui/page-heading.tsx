@@ -9,7 +9,6 @@ import Text from '@/components/ui/text';
 import { theme } from '@/theme';
 import { defineStyles, flexCenter, itemCenter, scoped, scopedMerge } from '@/theme/mixins';
 import type { ContainerSize, HeadingType } from '@/types';
-import { __ } from '@/wpi18n';
 
 type PageHeadingProps = {
   type?: HeadingType;
@@ -32,7 +31,7 @@ const PageHeading = forwardRef<HTMLDivElement, PageHeadingProps>(
   (props, ref) => {
     const {
       cssOverride,
-      text = __('Button', 'kirki-ecommerce'),
+      text,
       hasBack = false,
       backIcon = null,
       size,

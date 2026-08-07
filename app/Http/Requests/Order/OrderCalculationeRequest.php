@@ -12,8 +12,8 @@ class OrderCalculationeRequest extends Request
         return [
             'customer_id' => 'nullable|integer',
             'items' => 'nullable|array|min:1',
-            'items.*.variant_id' => 'nullable|integer',
-            'items.*.quantity' => 'nullable|integer|min:1',
+            'items.*.variant_id' => 'required|integer',
+            'items.*.quantity' => 'required|integer|min:1',
 
             'currency_code' => 'nullable|string',
             'payment_provider' => 'nullable|string',
@@ -49,7 +49,7 @@ class OrderCalculationeRequest extends Request
             'customer_email' => 'nullable|email',
             'customer_phone' => 'nullable|string',
 
-            'customer_notes' => 'nullable|string',
+            'admin_notes' => 'nullable|string',
             'is_manual' => 'nullable|boolean',
         ];
     }
@@ -58,6 +58,7 @@ class OrderCalculationeRequest extends Request
     {
         return [
             'customer_id' => Sanitizer::INT,
+            'items' => Sanitizer::ARRAY,
             'items.*.variant_id' => Sanitizer::INT,
             'items.*.quantity' => Sanitizer::INT,
 
@@ -95,7 +96,7 @@ class OrderCalculationeRequest extends Request
 
             'customer_email' => Sanitizer::EMAIL,
             'customer_phone' => Sanitizer::TEXT,
-            'customer_notes' => Sanitizer::TEXT,
+            'admin_notes' => Sanitizer::TEXT,
             'is_manual' => Sanitizer::BOOL,
         ];
     }

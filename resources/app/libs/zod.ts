@@ -281,6 +281,18 @@ function numberOrNull() {
     });
 }
 
+function stringOrNull() {
+  return z
+    .string()
+    .nullish()
+    .transform((value): string | null => {
+      if (isEmptyValue(value)) {
+        return null;
+      }
+      return (value as string).trim();
+    });
+}
+
 function booleanish(defaultValue = false) {
   return z
     .union([z.boolean(), z.string()])
@@ -307,6 +319,7 @@ export {
   pickFormValues,
   prepareFormSchema,
   required,
-  requiredWhen
+  requiredWhen,
+  stringOrNull
 };
 

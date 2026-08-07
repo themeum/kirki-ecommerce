@@ -5,6 +5,7 @@ import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { FieldError } from '@/components/ui/field';
+import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { EditIcon, TrashIcon } from '@/icons';
 import AddCustomerDialog from '@/pages/orders/order-create/components/customer/add-customer-dialog';
@@ -18,17 +19,26 @@ import {
 } from '@/pages/orders/order-create/config/customer-address';
 import { useCountriesQuery } from '@/services/country';
 import { useCustomerQuery } from '@/services/customer';
+import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
 import type { OrderFormInput } from '@/types';
 import { __ } from '@/wpi18n';
 
-const CustomerCard = () => {
+type CustomerCardProps = {
+  onSave?: () => void;
+  isSaving?: boolean;
+  readonly?: boolean;
+};
+
+const CustomerCard = ({ onSave, isSaving, readonly = false }: CustomerCardProps) => {
   const form = useFormContext<OrderFormInput>();
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [infoDialogOpen, setInfoDialogOpen] = useState(false);
+  const [isChangingCustomer, setIsChangingCustomer] = useState(false);
   const [dialogPrefill, setDialogPrefill] = useState('');
-  const appliedCustomerId = useRef<number | undefined>(undefined);
+  const snapshot = useRef(form.getValues());
+  const shouldApplyCustomerAddress = useRef(false);
 
   const customerId = form.watch('customer_id');
   const { data: customer } = useCustomerQuery(
@@ -39,17 +49,34 @@ const CustomerCard = () => {
   const error = form.formState.errors.customer_id;
 
   useEffect(() => {
-    if (!customer || appliedCustomerId.current === customer.id) {
+    if (!customer || !shouldApplyCustomerAddress.current) {
       return;
     }
 
-    appliedCustomerId.current = customer.id;
+    shouldApplyCustomerAddress.current = false;
     form.reset({ ...form.getValues(), ...toOrderAddresses(customer) });
   }, [customer, form]);
 
+  const handleSelectCustomer = (id: number) => {
+    shouldApplyCustomerAddress.current = true;
+    form.setValue('customer_id', id, { shouldValidate: true });
+  };
+
   const handleRemove = () => {
-    appliedCustomerId.current = undefined;
+    snapshot.current = form.getValues();
     form.setValue('customer_id', undefined, { shouldValidate: true });
+    setIsChangingCustomer(true);
+  };
+
+  const handleCancelChange = () => {
+    shouldApplyCustomerAddress.current = false;
+    form.reset(snapshot.current);
+    setIsChangingCustomer(false);
+  };
+
+  const handleSaveChange = () => {
+    setIsChangingCustomer(false);
+    onSave?.();
   };
 
   const values = form.watch();
@@ -58,7 +85,7 @@ const CustomerCard = () => {
     <Card cssOverride={cardStyles.formCard}>
       <CardHeader cssOverride={styles.headerRow}>
         <CardTitle><Text variant="small" weight='medium'>{__('Customer', 'kirki-ecommerce')}</Text></CardTitle>
-        {customer && (
+        {customer && !readonly && (
           <ActionGroup>
             <Button
               variant="secondary"
@@ -93,9 +120,7 @@ const CustomerCard = () => {
           />
         ) : (
           <CustomerSearchDropdown
-            onSelect={(id) =>
-              form.setValue('customer_id', id, { shouldValidate: true })
-            }
+            onSelect={handleSelectCustomer}
             onOpenAddDialog={(searchText) => {
               setDialogPrefill(searchText);
               setAddDialogOpen(true);
@@ -103,22 +128,42 @@ const CustomerCard = () => {
           />
         )}
         {error && <FieldError errors={[error]} />}
+        {!readonly && onSave && isChangingCustomer && (
+          <Flex gap={2} justify="flex-end" cssOverride={styles.changeActions}>
+            <Button variant="ghost" onClick={handleCancelChange}>
+              {__('Cancel', 'kirki-ecommerce')}
+            </Button>
+            <Button
+              variant="primary"
+              loading={isSaving}
+              disabled={!customerId}
+              onClick={handleSaveChange}
+            >
+              {__('Save', 'kirki-ecommerce')}
+            </Button>
+          </Flex>
+        )}
       </CardContent>
 
-      {addDialogOpen && (
+      {!readonly && addDialogOpen && (
         <AddCustomerDialog
           open
           onOpenChange={setAddDialogOpen}
           initialSearch={dialogPrefill}
           onCreated={(id) => {
-            form.setValue('customer_id', id, { shouldValidate: true });
+            handleSelectCustomer(id);
             setAddDialogOpen(false);
           }}
         />
       )}
 
-      {infoDialogOpen && (
-        <CustomerInfoDialog open onOpenChange={setInfoDialogOpen} />
+      {!readonly && infoDialogOpen && (
+        <CustomerInfoDialog
+          open
+          onOpenChange={setInfoDialogOpen}
+          onSave={onSave}
+          isSaving={isSaving}
+        />
       )}
     </Card>
   );
@@ -133,5 +178,8 @@ const styles = defineStyles({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+  },
+  changeActions: {
+    marginTop: theme.spacing[3],
   },
 });

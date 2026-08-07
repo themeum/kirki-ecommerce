@@ -132,7 +132,7 @@ const OrderCreate = () => {
   const handleSubmit = async (payload: OrderFormPayload) => {
     try {
       const response = await createMutation.mutateAsync(payload);
-      console.log(response);
+
       if (isDefined(response.data) && isDefined(response.data.id)) {
         navigate(endpoints.ORDER(response.data.id));
       }
@@ -175,8 +175,18 @@ const OrderCreate = () => {
                 onRemoveItem={handleRemoveItem}
               />
               <PaymentSummaryCard
-                calculation={calculation}
+                amounts={{
+                  itemsCount: calculation?.items_count,
+                  subtotal: calculation?.pricing.base_subtotal_money_object.display,
+                  discount: calculation?.pricing.base_discount_total_money_object.display,
+                  shipping: calculation?.pricing.base_shipping_total_money_object.display,
+                  tax: calculation?.pricing.base_tax_total_money_object.display,
+                  total: calculation?.pricing.base_total_money_object.display,
+                }}
+                availableShippingMethods={calculation?.available_shipping_methods}
                 isCalculating={isCalculating}
+                isDiscountEditable
+                isShippingEditable
               />
             </Flex>
 

@@ -32,8 +32,9 @@ import {
 } from '@/components/ui/table';
 import Text from '@/components/ui/text';
 import { BoxIcon, ListFilter } from '@/icons';
-import { useProductsQuery } from '@/services/product';
-import type { PaginationData, ProductListItem } from '@/types';
+import { ProductListItemWithVariants } from '@/schemas/catalog/product';
+import { useProductsWithVariantsQuery } from '@/services/product';
+import type { PaginationData } from '@/types';
 import { __, _n, sprintf } from '@/wpi18n';
 
 type SelectProductsDialogProps = {
@@ -47,7 +48,7 @@ type SelectProductsDialogProps = {
 const LIMIT = 12;
 
 const buildVariantSelections = (
-  product: ProductListItem,
+  product: ProductListItemWithVariants,
 ): ProductVariantSelection[] =>
   product.variants.reduce<ProductVariantSelection[]>((variants, variant) => {
     if (!variant.id) {
@@ -62,20 +63,20 @@ const buildVariantSelections = (
         label || variant.sku || __('Default', 'kirki-ecommerce'),
       thumbnail: variant.media?.url ?? product.image ?? null,
       inStock: variant.in_stock,
-      regularPrice: variant.price_object,
-      salePrice: variant.sale_price_object,
+      regularPrice: variant.base_price_money_object,
+      salePrice: variant.base_sale_price_money_object,
     });
 
     return variants;
   }, []);
 
-const buildProductSelection = (product: ProductListItem): ProductSelection => ({
+const buildProductSelection = (product: ProductListItemWithVariants): ProductSelection => ({
   productId: product.id,
   productTitle: product.title,
   thumbnail: product.image ?? null,
   inStock: Number(product.inventory ?? 0) > 0,
-  regularPrice: product.price_object,
-  salePrice: product.sale_price_object,
+  regularPrice: product.base_price_money_object,
+  salePrice: product.base_sale_price_money_object,
   variants: buildVariantSelections(product),
 });
 
@@ -156,7 +157,7 @@ const SelectProductsDialog = ({
       ),
   );
 
-  const { data, isLoading } = useProductsQuery({
+  const { data, isLoading } = useProductsWithVariantsQuery({
     search,
     page,
     limit: LIMIT,

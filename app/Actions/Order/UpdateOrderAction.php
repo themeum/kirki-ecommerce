@@ -9,7 +9,6 @@ use Kirki\Ecommerce\App\Services\InventoryService;
 use Kirki\Ecommerce\App\Services\OrderService;
 use Kirki\Ecommerce\App\Services\ShippingService;
 use Kirki\Ecommerce\App\Services\VariantService;
-use Kirki\Ecommerce\App\Constants\Order\OrderStatus;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationContextDTO;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationItemDTO;
 use Kirki\Ecommerce\App\DTO\Order\CreateOrderItemDTO;
@@ -73,15 +72,6 @@ class UpdateOrderAction
             $order_dto = $this->prepare_update_order_dto($order, $calculated_result, $dto, $context, $exchange_rate);
             $this->order_service->update_order($order_dto);
             $order->fresh('items');
-
-            if (in_array($order_dto->order_status, [OrderStatus::CANCELLED, OrderStatus::REFUNDED], true)) {
-                $order->coupon_usage->delete();
-                $this->inventory_service->release_all_reserved_stock($order);
-            }
-
-            if ($order_dto->order_status === OrderStatus::COMPLETED) {
-                $this->inventory_service->confirm_all_reserved_stock($order);
-            }
 
             DB::commit();
 
@@ -155,7 +145,6 @@ class UpdateOrderAction
         $order_dto->uuid = $order->uuid;
         $order_dto->order_number = $order->order_number;
         $order_dto->customer_id = $context->customer_id;
-        $order_dto->order_status = $dto->order_status;
         $order_dto->is_manual = $dto->is_manual;
 
         $order_dto->currency_code = $dto->currency_code;
@@ -180,8 +169,6 @@ class UpdateOrderAction
 
         $order_dto->items_count = $calculated_result->items_count;
 
-        $order_dto->payment_status = $dto->payment_status;
-        $order_dto->payment_provider = $dto->payment_provider;
         $order_dto->shipping_method = $dto->shipping_method;
 
         $order_dto->shipping_first_name = $dto->shipping_first_name;
@@ -209,7 +196,8 @@ class UpdateOrderAction
 
         $order_dto->customer_email = $dto->customer_email;
         $order_dto->customer_phone = $dto->customer_phone;
-        $order_dto->customer_notes = $dto->customer_notes;
+        $order_dto->admin_notes = $dto->admin_notes;
+        $order_dto->flags = $dto->flags;
 
         return $order_dto;
     }

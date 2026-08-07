@@ -1,7 +1,8 @@
+import type { ReactNode } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 
 import Button from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import { Separator } from '@/components/ui/separator';
 import Spinner from '@/components/ui/spinner';
@@ -18,33 +19,63 @@ import { __, sprintf } from '@/wpi18n';
 
 const EMPTY_AMOUNT = '—';
 
-type PaymentSummaryCardProps = {
-  calculation?: OrderCalculation;
-  isCalculating?: boolean;
+type PaymentSummaryAmounts = {
+  itemsCount?: number;
+  subtotal?: string;
+  discount?: string;
+  shipping?: string;
+  tax?: string;
+  total?: string;
 };
 
-const PaymentSummaryCard = ({ calculation, isCalculating }: PaymentSummaryCardProps) => {
+type PaymentSummaryCardProps = {
+  amounts?: PaymentSummaryAmounts;
+  availableShippingMethods?: OrderCalculation['available_shipping_methods'];
+  shippingMethodName?: string | null;
+  couponCode?: string | null;
+  isCalculating?: boolean;
+  isDiscountEditable?: boolean;
+  isShippingEditable?: boolean;
+  badge?: ReactNode;
+  actions?: ReactNode;
+};
+
+const PaymentSummaryCard = ({
+  amounts,
+  availableShippingMethods = [],
+  shippingMethodName,
+  couponCode,
+  isCalculating,
+  isDiscountEditable,
+  isShippingEditable,
+  badge,
+  actions,
+}: PaymentSummaryCardProps) => {
   const { control } = useFormContext<OrderFormInput>();
-  const couponCode = useWatch({ control, name: 'coupon_code' });
+  const draftCouponCode = useWatch({ control, name: 'coupon_code' });
   const shippingMethodId = useWatch({ control, name: 'shipping_method' });
 
-  const availableShippingMethods = calculation?.available_shipping_methods ?? [];
-  const shippingMethodName = availableShippingMethods.find(
-    (method) => String(method.id) === shippingMethodId,
-  )?.name;
+  const appliedCouponCode = draftCouponCode ?? couponCode;
 
-  const pricing = calculation?.pricing;
-  const subtotalDisplay = pricing?.subtotal_object.display ?? EMPTY_AMOUNT;
-  const discountDisplay = pricing?.discount_total_object.display ?? EMPTY_AMOUNT;
-  const shippingDisplay = pricing?.shipping_total_object.display ?? EMPTY_AMOUNT;
-  const taxDisplay = pricing?.tax_total_object.display ?? EMPTY_AMOUNT;
-  const totalDisplay = pricing?.total_object.display ?? EMPTY_AMOUNT;
+  const selectedShippingMethodName = availableShippingMethods.find(
+    (method) => String(method.id) === shippingMethodId,
+  )?.name ?? shippingMethodName;
+
+  const itemsCount = amounts?.itemsCount;
+  const subtotalDisplay = amounts?.subtotal ?? EMPTY_AMOUNT;
+  const discountDisplay = amounts?.discount ?? EMPTY_AMOUNT;
+  const shippingDisplay = amounts?.shipping ?? EMPTY_AMOUNT;
+  const taxDisplay = amounts?.tax ?? EMPTY_AMOUNT;
+  const totalDisplay = amounts?.total ?? EMPTY_AMOUNT;
 
   return (
     <Card cssOverride={cardStyles.formCard}>
       <CardHeader cssOverride={styles.headerRow}>
         <CardTitle><Text variant='heading6'>{__('Payment', 'kirki-ecommerce')}</Text></CardTitle>
-        {isCalculating && <Spinner />}
+        <Flex gap={2} align='center'>
+          {isCalculating && <Spinner />}
+          {badge}
+        </Flex>
       </CardHeader>
       <CardContent>
         <Flex direction="column" gap={2} cssOverride={styles.dashedCard}>
@@ -52,10 +83,10 @@ const PaymentSummaryCard = ({ calculation, isCalculating }: PaymentSummaryCardPr
             <Text variant='small' color="secondary" cssOverride={styles.info}>
               {__('Subtotal', 'kirki-ecommerce')}
             </Text>
-            {isDefined(calculation) && calculation.items_count > 0 ? (
+            {isDefined(itemsCount) && itemsCount > 0 ? (
               <Flex justify="space-between" grow={1}>
                 {/* translators: %s: number of items */}
-                <Text variant='small' color="secondary">{sprintf(__('%s items', 'kirki-ecommerce'), calculation.items_count)}</Text>
+                <Text variant='small' color="secondary">{sprintf(__('%s items', 'kirki-ecommerce'), itemsCount)}</Text>
                 <Text>{subtotalDisplay}</Text>
               </Flex>
             ) : (
@@ -63,33 +94,45 @@ const PaymentSummaryCard = ({ calculation, isCalculating }: PaymentSummaryCardPr
             )}
           </Flex>
           <Flex justify="space-between">
-            <DiscountPopover>
-              <Button variant="link" cssOverride={styles.buttonLink}>
-                <Flex gap={1} align='center' cssOverride={styles.info}>
-                  <PlusCircleIcon color={theme.colors.text.emphasis} />
-                  <Text variant='tiny' color='emphasis'>{__('Discount', 'kirki-ecommerce')}</Text>
-                </Flex>
-              </Button>
-            </DiscountPopover>
+            {isDiscountEditable ? (
+              <DiscountPopover>
+                <Button variant="link" cssOverride={styles.buttonLink}>
+                  <Flex gap={1} align='center' cssOverride={styles.info}>
+                    <PlusCircleIcon color={theme.colors.text.emphasis} />
+                    <Text variant='tiny' color='emphasis'>{__('Discount', 'kirki-ecommerce')}</Text>
+                  </Flex>
+                </Button>
+              </DiscountPopover>
+            ) : (
+              <Text variant='tiny' color="emphasis" cssOverride={styles.info}>
+                {__('Discount', 'kirki-ecommerce')}
+              </Text>
+            )}
             <Flex justify="space-between" grow={1}>
-              <Text variant='small' color="secondary">{couponCode}</Text>
+              <Text variant='small' color="secondary">{appliedCouponCode}</Text>
               <Text variant='small'>{discountDisplay}</Text>
             </Flex>
           </Flex>
           <Flex justify="space-between">
-            <ShippingPopover
-              availableShippingMethods={availableShippingMethods}
-              isLoading={isCalculating}
-            >
-              <Button variant="link" cssOverride={styles.buttonLink}>
-                <Flex gap={1} align='center' cssOverride={styles.info}>
-                  <PlusCircleIcon color={theme.colors.text.emphasis} />
-                  <Text variant='tiny' color='emphasis'>{__('Shipping', 'kirki-ecommerce')}</Text>
-                </Flex>
-              </Button>
-            </ShippingPopover>
+            {isShippingEditable ? (
+              <ShippingPopover
+                availableShippingMethods={availableShippingMethods}
+                isLoading={isCalculating}
+              >
+                <Button variant="link" cssOverride={styles.buttonLink}>
+                  <Flex gap={1} align='center' cssOverride={styles.info}>
+                    <PlusCircleIcon color={theme.colors.text.emphasis} />
+                    <Text variant='tiny' color='emphasis'>{__('Shipping', 'kirki-ecommerce')}</Text>
+                  </Flex>
+                </Button>
+              </ShippingPopover>
+            ) : (
+              <Text variant='tiny' color="emphasis" cssOverride={styles.info}>
+                {__('Shipping', 'kirki-ecommerce')}
+              </Text>
+            )}
             <Flex justify="space-between" grow={1}>
-              <Text variant='small' color="secondary">{shippingMethodName}</Text>
+              <Text variant='small' color="secondary">{selectedShippingMethodName}</Text>
               <Text variant='small'>{shippingDisplay}</Text>
             </Flex>
           </Flex>
@@ -106,6 +149,7 @@ const PaymentSummaryCard = ({ calculation, isCalculating }: PaymentSummaryCardPr
           </Flex>
         </Flex>
       </CardContent>
+      {Boolean(actions) && <CardFooter>{actions}</CardFooter>}
     </Card>
   );
 };
