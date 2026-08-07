@@ -161,38 +161,24 @@ class SiteController
         CartService $cart_service,
         OrderService $order_service
     ) {
-        if ($request->get('order') === 'success') {
-            $uuid  = $request->get('uuid');
-            $order = null;
+        $status = $request->get('order');
 
-            if ($uuid) {
-                $order_model = $order_service->find_order_by_uuid($uuid);
-                $order       = $order_model ? OrderResource::make($order_model) : null;
+        if (in_array($status, ['success', 'failed'], true)) {
+            $order_resource = null;
+
+            if ($uuid = $request->get('uuid')) {
+                $order = $order_service->find_order_by_uuid($uuid);
+                $order_resource = $order ? OrderResource::make($order) : null;
             }
 
-            if (! $order) {
+            if (! $order_resource) {
                 wp_safe_redirect(home_url());
                 exit;
             }
 
-            return view('site.order-success', ['order' => $order])->layout(false);
-        }
-
-        if ($request->get('order') === 'failed') {
-            $uuid  = $request->get('uuid');
-            $order = null;
-
-            if ($uuid) {
-                $order_model = $order_service->find_order_by_uuid($uuid);
-                $order       = $order_model ? OrderResource::make($order_model) : null;
-            }
-
-            if (! $order) {
-                wp_safe_redirect(home_url());
-                exit;
-            }
-
-            return view('site.order-failed', ['order' => $order])->layout(false);
+            return view("site.order-{$status}", [
+                'order' => $order_resource,
+            ])->layout(false);
         }
 
         $customer = customer();
