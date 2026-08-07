@@ -4,16 +4,24 @@ import { NEW_ITEM_ID } from '@/conf';
 import { apiClient } from '@/libs/api';
 import { endpoints } from '@/libs/endpoints';
 import { queryKeys } from '@/libs/query-keys';
-import { OrderCalculationSchema, OrderItemSchema } from '@/schemas/catalog/order';
+import { OrderCalculationSchema, OrderItemSchema, OrderListItemSchema } from '@/schemas/catalog/order';
+import { PaginatedDataSchema } from '@/schemas/shared/api';
 import { parseData, parseResponse, toastMutationError, toastMutationSuccess, unwrapResponse } from '@/services/helpers';
 import type { OrderActionPayload } from '@/pages/orders/order-details/config/order-actions';
-import type { OrderCalculationRequestPayload, OrderFormPayload, OrderItem } from '@/types';
+import type { ListParams, OrderCalculationRequestPayload, OrderFormPayload, OrderItem } from '@/types';
+import type { OrderListFilter } from '@/types/filters/order';
 import { __ } from '@/wpi18n';
 
 const createOrder = (data: OrderFormPayload) => {
   return apiClient
     .post(endpoints.ORDERS, data)
     .then((response) => unwrapResponse<OrderItem>(response));
+};
+
+const getOrders = (params: ListParams<OrderListFilter> = {}) => {
+  return apiClient
+    .get(endpoints.ORDERS, { params })
+    .then((response) => parseData(PaginatedDataSchema(OrderListItemSchema), response));
 };
 
 const getOrder = (id: string | number) => {
@@ -54,6 +62,14 @@ const useCreateOrderMutation = () => {
     onError(error) {
       toastMutationError(error);
     },
+  });
+};
+
+const useOrdersQuery = (params: ListParams<OrderListFilter> = {}) => {
+  return useQuery({
+    queryKey: queryKeys.Orders(params),
+    queryFn: () => getOrders(params),
+    placeholderData: keepPreviousData,
   });
 };
 
@@ -122,5 +138,6 @@ export {
   useOrderActionMutation,
   useOrderCalculationQuery,
   useOrderQuery,
+  useOrdersQuery,
   useUpdateOrderMutation,
 };

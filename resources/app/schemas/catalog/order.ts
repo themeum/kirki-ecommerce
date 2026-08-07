@@ -178,6 +178,9 @@ export const OrderListItemSchema = OrderItemSchema.pick({
   order_number: true,
   customer_id: true,
 }).merge(z.object({
+  customer_name: z.string().nullish(),
+  customer_email: z.string().nullish(),
+  is_manual: z.boolean(),
   quantity: z.number(),
   invoiced_total: MoneyAmountSchema,
   invoiced_total_money_object: MoneyObjectSchema,

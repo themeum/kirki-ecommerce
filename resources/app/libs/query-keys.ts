@@ -1,5 +1,6 @@
 import type { ListParams, ListQueryParams, OrderCalculationRequestPayload } from '@/types';
 import { CouponListFilter } from '@/types/filters/coupon';
+import { OrderListFilter } from '@/types/filters/order';
 import { ProductListFilter } from '@/types/filters/product';
 
 export const queryKeys = {
@@ -54,7 +55,7 @@ export const queryKeys = {
   OfflinePayments: () => ['OfflinePayments'] as const,
   Coupons: (params?: ListParams<CouponListFilter>) => params ? ['Coupons', params] as const : ['Coupons'] as const,
   Coupon: (id: string | number) => ['Coupon', String(id)] as const,
-  Orders: (params?: ListQueryParams) => params ? ['Orders', params] as const : ['Orders'] as const,
+  Orders: (params?: ListParams<OrderListFilter>) => params ? ['Orders', params] as const : ['Orders'] as const,
   Order: (id: string | number) => ['Order', String(id)] as const,
   OrderCalculation: (payload?: OrderCalculationRequestPayload) =>
     ['OrderCalculation', payload] as const,

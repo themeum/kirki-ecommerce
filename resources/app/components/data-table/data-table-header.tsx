@@ -43,7 +43,7 @@ const DataTableHeader = memo(
         />
       </TableHead>
       {columns.map((column, index) => (
-        <TableHead key={index} alignment={column.alignment}>
+        <TableHead key={index} alignment={column.alignment} cssOverride={column.cssOverride}>
           {column.sortable && onSort ? (
             <Sorting
               data={{

@@ -171,7 +171,11 @@ class OrderRepository
     protected function list_query($filters = [])
     {
         return Order::when($filters['search'] ?? null, function (QueryBuilder $query, $search) {
-            return $query->where_any(['uuid', 'customer_name', 'customer_email'], 'like', '%' . $search . '%');
+            return $query->where_any(
+                ['uuid', 'order_number', 'customer_email', 'shipping_first_name', 'shipping_last_name'],
+                'like',
+                '%' . $search . '%'
+            );
         })
             ->when(!empty($filters['customer_id']), function (QueryBuilder $query) use ($filters) {
                 return $query->where('customer_id', $filters['customer_id']);
@@ -183,7 +187,13 @@ class OrderRepository
                 return $query->where_date('created_at', '<=', $filters['end_date']);
             })
             ->when(!empty($filters['status']), function (QueryBuilder $query) use ($filters) {
-                return $query->where('status', $filters['status']);
+                return $query->where('order_status', $filters['status']);
+            })
+            ->when(!empty($filters['fulfillment_status']), function (QueryBuilder $query) use ($filters) {
+                return $query->where('fulfillment_status', $filters['fulfillment_status']);
+            })
+            ->when(!empty($filters['payment_status']), function (QueryBuilder $query) use ($filters) {
+                return $query->where('payment_status', $filters['payment_status']);
             })
             ->when(!empty($filters['sort_by']) && !empty($filters['sort_order']), function (QueryBuilder $query) use ($filters) {
                 return $query->order_by($filters['sort_by'], $filters['sort_order']);
