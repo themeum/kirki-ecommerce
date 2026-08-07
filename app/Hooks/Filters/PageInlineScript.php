@@ -47,11 +47,45 @@ class PageInlineScript extends BaseHook
         $config['cart_token_cookie_name'] = Cart::COOKIE_TOKEN;
         $config['cart_token_header_name'] = Cart::HEADER_TOKEN;
 
+        // Add cart data for checkout page
         if (Route::is('checkout')) {
             $config = $this->set_checkout_page_data(view_data(), $config);
         } elseif (Route::is('shop.single')) {
             $config = $this->set_shop_single_page_data(view_data(), $config);
+        } elseif (Route::is('cart')) {
+            $config = $this->set_cart_page_data(view_data(), $config);
         }
+
+        return $config;
+    }
+
+    /**
+     * Add cart page data to the inline config.
+     *
+     * @since 1.0.0
+     *
+     * @param mixed $view_data  Data from the view context.
+     * @param array $config     Existing config array.
+     *
+     * @return array Updated config.
+     */
+    protected function set_cart_page_data($view_data, $config)
+    {
+        $cart = $view_data['cart'];
+        $pricing = $cart['pricing'] ?? [];
+        $items = $cart['items'] ?? [];
+        $cart_config = array(
+            'items_count' => $cart['items_count'],
+            'pricing' => (object) array(
+                'subtotal_formatted' => $pricing['subtotal_formatted'],
+                'total_formatted' => $pricing['total_formatted'],
+            ),
+            'items' => array_map(fn($item) => (object) array(
+                'id' => $item['id'],
+                'total_formatted' => $item['total_formatted'],
+            ), $items),
+        );
+        $config['cart'] = $cart_config;
 
         return $config;
     }
@@ -154,13 +188,13 @@ class PageInlineScript extends BaseHook
                 'id'             => $v['id'] ?? 0,
                 'product_id'     => $product['id'] ?? 0,
                 'price'          => is_object($v['price']) && method_exists($v['price'], 'toFloat')
-                                        ? (float) $v['price']->toFloat()
-                                        : (float) ($v['price'] ?? 0),
+                    ? (float) $v['price']->toFloat()
+                    : (float) ($v['price'] ?? 0),
                 'compare_price'  => isset($v['sale_price'])
-                                        ? (is_object($v['sale_price']) && method_exists($v['sale_price'], 'toFloat')
-                                            ? (float) $v['sale_price']->toFloat()
-                                            : (float) $v['sale_price'])
-                                        : null,
+                    ? (is_object($v['sale_price']) && method_exists($v['sale_price'], 'toFloat')
+                        ? (float) $v['sale_price']->toFloat()
+                        : (float) $v['sale_price'])
+                    : null,
                 'stock'          => (int) ($v['available_quantity'] ?? 0),
                 'attributes'     => $variant_attrs,
                 'available'      => ($v['available_quantity'] ?? 0) > 0,
