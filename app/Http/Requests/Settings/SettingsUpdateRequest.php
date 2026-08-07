@@ -14,6 +14,7 @@ use Kirki\Ecommerce\App\Constants\UpdateFrequency;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
+use Kirki\Ecommerce\Framework\Validation\Rule;
 
 class SettingsUpdateRequest extends Request
 {

@@ -2,8 +2,8 @@ import { useFormContext, useWatch } from 'react-hook-form';
 
 import CheckboxField from '@/components/form/checkbox-field';
 import MoneyField from '@/components/form/money-field';
-import TextField from '@/components/form/text-field';
 import TextareaField from '@/components/form/textarea-field';
+import TextField from '@/components/form/text-field';
 import Flex from '@/components/ui/flex';
 import Grid from '@/components/ui/grid';
 import { __ } from '@/wpi18n';
