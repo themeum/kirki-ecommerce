@@ -277,35 +277,35 @@ const SingleRow = (props: SingleRowProps) => {
           </span>
         </Flex>
       </TableCell>
-      {selectedFields.includes('price') && (
+      {selectedFields.includes('base_price') && (
         <TableCell
-          onMouseDown={(e) => onCellMouseDown(e, 'price')}
-          onMouseEnter={(e) => onCellMouseEnter(e, 'price')}
-          {...getActiveState('price')}
+          onMouseDown={(e) => onCellMouseDown(e, 'base_price')}
+          onMouseEnter={(e) => onCellMouseEnter(e, 'base_price')}
+          {...getActiveState('base_price')}
         >
           <Input
-            value={currentVariation?.price ?? undefined}
+            value={currentVariation?.base_price ?? undefined}
             placeholder="--"
-            onChange={(event) => handleNumberInputChange(event, 'price')}
+            onChange={(event) => handleNumberInputChange(event, 'base_price')}
             onKeyDown={handleInputEnterKeyDown}
             invisible
             type="number"
           />
           <span
             data-grabber={isMaxIndex(index) ? 'true' : undefined}
-            onMouseDown={(e) => onGrabberMouseDown(e, 'price')}
+            onMouseDown={(e) => onGrabberMouseDown(e, 'base_price')}
           />
         </TableCell>
       )}
-      {selectedFields.includes('sale_price') && (
+      {selectedFields.includes('base_sale_price') && (
         <TableCell
-          onMouseDown={(e) => onCellMouseDown(e, 'sale_price')}
-          onMouseEnter={(e) => onCellMouseEnter(e, 'sale_price')}
-          {...getActiveState('sale_price')}
+          onMouseDown={(e) => onCellMouseDown(e, 'base_sale_price')}
+          onMouseEnter={(e) => onCellMouseEnter(e, 'base_sale_price')}
+          {...getActiveState('base_sale_price')}
         >
           <Input
-            value={currentVariation?.sale_price ?? undefined}
-            onChange={(event) => handleNumberInputChange(event, 'sale_price')}
+            value={currentVariation?.base_sale_price ?? undefined}
+            onChange={(event) => handleNumberInputChange(event, 'base_sale_price')}
             onKeyDown={handleInputEnterKeyDown}
             invisible
             type="number"
@@ -313,20 +313,20 @@ const SingleRow = (props: SingleRowProps) => {
           />
           <span
             data-grabber={isMaxIndex(index) ? 'true' : undefined}
-            onMouseDown={(e) => onGrabberMouseDown(e, 'sale_price')}
+            onMouseDown={(e) => onGrabberMouseDown(e, 'base_sale_price')}
           />
         </TableCell>
       )}
-      {selectedFields.includes('cost_of_goods') && (
+      {selectedFields.includes('base_cost_of_goods') && (
         <TableCell
-          onMouseDown={(e) => onCellMouseDown(e, 'cost_of_goods')}
-          onMouseEnter={(e) => onCellMouseEnter(e, 'cost_of_goods')}
-          {...getActiveState('cost_of_goods')}
+          onMouseDown={(e) => onCellMouseDown(e, 'base_cost_of_goods')}
+          onMouseEnter={(e) => onCellMouseEnter(e, 'base_cost_of_goods')}
+          {...getActiveState('base_cost_of_goods')}
         >
           <Input
-            value={currentVariation?.cost_of_goods ?? undefined}
+            value={currentVariation?.base_cost_of_goods ?? undefined}
             onChange={(event) =>
-              handleNumberInputChange(event, 'cost_of_goods')
+              handleNumberInputChange(event, 'base_cost_of_goods')
             }
             onKeyDown={handleInputEnterKeyDown}
             invisible
@@ -335,7 +335,7 @@ const SingleRow = (props: SingleRowProps) => {
           />
           <span
             data-grabber={isMaxIndex(index) ? 'true' : undefined}
-            onMouseDown={(e) => onGrabberMouseDown(e, 'cost_of_goods')}
+            onMouseDown={(e) => onGrabberMouseDown(e, 'base_cost_of_goods')}
           />
         </TableCell>
       )}

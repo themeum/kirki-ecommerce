@@ -75,7 +75,7 @@ class CouponRepository
     public function create(array $data)
     {
         if ($data['discount_value_type'] === DiscountValueType::FIXED) {
-            $data['discount_amount_fixed'] = $data['discount_amount'];
+            $data['base_discount_amount_fixed'] = $data['discount_amount'];
         } else {
             $data['discount_amount_percentage'] = $data['discount_amount'];
         }
@@ -93,7 +93,7 @@ class CouponRepository
     public function update(int $id, array $data)
     {
         if ($data['discount_value_type'] === DiscountValueType::FIXED) {
-            $data['discount_amount_fixed'] = $data['discount_amount'];
+            $data['base_discount_amount_fixed'] = $data['discount_amount'];
         } else {
             $data['discount_amount_percentage'] = $data['discount_amount'];
         }

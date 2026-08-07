@@ -2,19 +2,19 @@ import { useFormContext, useWatch } from 'react-hook-form';
 
 import SelectField from '@/components/form/select-field';
 import TextField from '@/components/form/text-field';
+import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import Input from '@/components/ui/input';
-import Label from '@/components/ui/label';
-import { ReplaceIcon } from '@/icons';
-import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
 import Grid from '@/components/ui/grid';
+import Input from '@/components/ui/input';
+import Label from '@/components/ui/label';
 import Text from '@/components/ui/text';
+import { ReplaceIcon } from '@/icons';
 import type { GeneralSettingsFormInput } from '@/schemas/forms/general-settings-form';
 import { theme } from '@/theme';
-import { mergeCss, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
+import { defineStyles, mergeCss } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 const invoiceResetScheduleOptions = [
@@ -36,9 +36,8 @@ const InvoiceId = () => {
     name: 'invoice_id_suffix',
   });
 
-  const invoiceID = `${invoiceIdPrefix || ''}${invoiceIdSequence || ''} ${
-    invoiceIdSuffix || ''
-  }`;
+  const invoiceID = `${invoiceIdPrefix || ''}${invoiceIdSequence || ''} ${invoiceIdSuffix || ''
+    }`;
 
   const handleResetIDField = () => {
     setValue('invoice_id_prefix', '', { shouldDirty: true });
@@ -48,7 +47,7 @@ const InvoiceId = () => {
 
   return (
     <div>
-      <Card cssOverride={cardStyles.largeCard}>
+      <Card cssOverride={cardStyles.formCard}>
         <CardHeader cssOverride={cardStyles.sectionHeader}>
           <CardTitle>{__('Invoice ID', 'kirki-ecommerce')}</CardTitle>
           <CardDescription>
@@ -119,8 +118,8 @@ const InvoiceId = () => {
                 </Flex>
               </CardContent>
             </Card>
-            <Card cssOverride={mergeCss(cardStyles.largeCard, styles.resetCard)}>
-              <CardContent cssOverride={cardStyles.largeContentPadded}>
+            <Card cssOverride={mergeCss(cardStyles.formCard, styles.resetCard)}>
+              <CardContent >
                 <Flex direction="column" gap={3}>
                   <Flex align="center">
                     <Text weight="medium">{__('Reset Invoice ID', 'kirki-ecommerce')}</Text>
@@ -135,9 +134,9 @@ const InvoiceId = () => {
                     </ActionGroup>
                   </Flex>
                   <Text color="secondary">{__(
-                      'Reset the Invoice ID to your base ID for new fiscal years, system migration, or legal compliance.',
-                      'kirki-ecommerce',
-                    )}</Text>
+                    'Reset the Invoice ID to your base ID for new fiscal years, system migration, or legal compliance.',
+                    'kirki-ecommerce',
+                  )}</Text>
                 </Flex>
               </CardContent>
             </Card>

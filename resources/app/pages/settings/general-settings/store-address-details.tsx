@@ -1,14 +1,22 @@
+import { useWatch } from 'react-hook-form';
+
 import CountryField from '@/components/form/country-field';
+import StateField from '@/components/form/state-field';
 import TextField from '@/components/form/text-field';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
+import type { GeneralSettingsFormInput } from '@/schemas/forms/general-settings-form';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
 const StoreAddressDetails = () => {
+  const country = useWatch<GeneralSettingsFormInput, 'store_address.country'>({
+    name: 'store_address.country',
+  });
+
   return (
     <div>
-      <Card cssOverride={cardStyles.largeCard}>
+      <Card cssOverride={cardStyles.formCard}>
         <CardHeader cssOverride={cardStyles.sectionHeader}>
           <CardTitle>{__('Store address', 'kirki-ecommerce')}</CardTitle>
           <CardDescription>
@@ -41,7 +49,7 @@ const StoreAddressDetails = () => {
                 />
 
                 <TextField
-                  name="store_address.zip_code"
+                  name="store_address.postal_code"
                   label={__('Postcode / Zip', 'kirki-ecommerce')}
                   placeholder={__('Enter Postcode / Zip', 'kirki-ecommerce')}
                 />
@@ -50,6 +58,13 @@ const StoreAddressDetails = () => {
                   name="store_address.country"
                   label={__('Country', 'kirki-ecommerce')}
                 />
+
+                <StateField
+                  name="store_address.state"
+                  country={country as string}
+                  label={__('State / Province', 'kirki-ecommerce')}
+                />
+
               </Flex>
             </CardContent>
           </Card>

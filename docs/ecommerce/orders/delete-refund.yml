@@ -45,11 +45,26 @@ examples:
               "status": "partially-refunded",
               "currency_code": "USD",
               "totals": {
-                "subtotal": "3570.68",
-                "shipping": "14.00",
-                "discount": "100.00",
-                "tax": "714.14",
-                "total": "4298.82"
+                "invoiced_subtotal": 3570.68,
+                "invoiced_subtotal_money_object": { "raw": 3570.68, "display": "$3,570.68", "currency": { "code": "USD", "symbol": "$" } },
+                "base_subtotal": 3570.68,
+                "base_subtotal_money_object": { "raw": 3570.68, "display": "$3,570.68", "currency": { "code": "USD", "symbol": "$" } },
+                "invoiced_shipping": 14.00,
+                "invoiced_shipping_money_object": { "raw": 14.00, "display": "$14.00", "currency": { "code": "USD", "symbol": "$" } },
+                "base_shipping": 14.00,
+                "base_shipping_money_object": { "raw": 14.00, "display": "$14.00", "currency": { "code": "USD", "symbol": "$" } },
+                "invoiced_discount": 100.00,
+                "invoiced_discount_money_object": { "raw": 100.00, "display": "$100.00", "currency": { "code": "USD", "symbol": "$" } },
+                "base_discount": 100.00,
+                "base_discount_money_object": { "raw": 100.00, "display": "$100.00", "currency": { "code": "USD", "symbol": "$" } },
+                "invoiced_tax": 714.14,
+                "invoiced_tax_money_object": { "raw": 714.14, "display": "$714.14", "currency": { "code": "USD", "symbol": "$" } },
+                "base_tax": 714.14,
+                "base_tax_money_object": { "raw": 714.14, "display": "$714.14", "currency": { "code": "USD", "symbol": "$" } },
+                "invoiced_total": 4298.82,
+                "invoiced_total_money_object": { "raw": 4298.82, "display": "$4,298.82", "currency": { "code": "USD", "symbol": "$" } },
+                "base_total": 4298.82,
+                "base_total_money_object": { "raw": 4298.82, "display": "$4,298.82", "currency": { "code": "USD", "symbol": "$" } }
               },
               "items_count": 4,
               "items": [
@@ -58,15 +73,24 @@ examples:
                   "product_name": "Ansley Farrell",
                   "variant_name": "Red, Small",
                   "quantity": 4,
-                  "price": "917.67",
-                  "total": "4284.82",
+                  "invoiced_price": 917.67,
+                  "invoiced_price_money_object": { "raw": 917.67, "display": "$917.67", "currency": { "code": "USD", "symbol": "$" } },
+                  "base_price": 917.67,
+                  "base_price_money_object": { "raw": 917.67, "display": "$917.67", "currency": { "code": "USD", "symbol": "$" } },
+                  "invoiced_total": 4284.82,
+                  "invoiced_total_money_object": { "raw": 4284.82, "display": "$4,284.82", "currency": { "code": "USD", "symbol": "$" } },
+                  "base_total": 4284.82,
+                  "base_total_money_object": { "raw": 4284.82, "display": "$4,284.82", "currency": { "code": "USD", "symbol": "$" } },
                   "tax_rate": 20,
-                  "tax_total": "714.14",
+                  "invoiced_tax_total": 714.14,
+                  "invoiced_tax_total_money_object": { "raw": 714.14, "display": "$714.14", "currency": { "code": "USD", "symbol": "$" } },
+                  "base_tax_total": 714.14,
+                  "base_tax_total_money_object": { "raw": 714.14, "display": "$714.14", "currency": { "code": "USD", "symbol": "$" } },
                   "tax_breakdown": [
                     {
                       "name": "Tax",
                       "rate": 20,
-                      "amount": 71414
+                      "base_amount": 71414
                     }
                   ],
                   "sku": "34f9ef88-46bd-38e3-ac7f-e9cd26ba12d9",
@@ -103,7 +127,8 @@ examples:
               "refunds": [
                 {
                   "id": "3",
-                  "amount": "12.00",
+                  "invoiced_amount": 12.00,
+                  "invoiced_amount_money_object": { "raw": 12.00, "display": "$12.00", "currency": { "code": "USD", "symbol": "$" } },
                   "reason": "Nothing...",
                   "transaction_id": null,
                   "status": "pending",
@@ -112,7 +137,8 @@ examples:
                 },
                 {
                   "id": "6",
-                  "amount": "16.00",
+                  "invoiced_amount": 16.00,
+                  "invoiced_amount_money_object": { "raw": 16.00, "display": "$16.00", "currency": { "code": "USD", "symbol": "$" } },
                   "reason": "Nothing. Just for fun",
                   "transaction_id": null,
                   "status": "completed",

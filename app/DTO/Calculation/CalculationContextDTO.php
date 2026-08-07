@@ -36,7 +36,7 @@ class CalculationContextDTO extends DTO
     {
         $subtotal = 0;
         foreach ($this->items as $item) {
-            $subtotal += $item->unit_price * $item->quantity;
+            $subtotal += $item->base_unit_price * $item->quantity;
         }
         return $subtotal;
     }
@@ -71,7 +71,7 @@ class CalculationContextDTO extends DTO
 
             $variant = $item->variant;
 
-            $item_dto->unit_price = $variant->sale_price ?: $variant->price;
+            $item_dto->base_unit_price = $variant->base_sale_price ?: $variant->base_price;
             $item_dto->weight = $variant->weight;
             $item_dto->shipping_profile_id = $variant->shipping_profile_id;
             $item_dto->tax_profile_id = $variant->tax_profile_id ?: $item->product->tax_profile_id;

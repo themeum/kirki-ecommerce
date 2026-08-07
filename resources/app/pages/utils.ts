@@ -102,9 +102,9 @@ export const calculateProfit = (
   fieldName: string,
   data: ProfitData,
 ): string | undefined => {
-  if ((data.price || data.sale_price) && data.cost_of_goods) {
-    const effectivePrice = Number(data.sale_price || data.price);
-    const profit = effectivePrice - Number(data.cost_of_goods);
+  if ((data.base_price || data.base_sale_price) && data.base_cost_of_goods) {
+    const effectivePrice = Number(data.base_sale_price || data.base_price);
+    const profit = effectivePrice - Number(data.base_cost_of_goods);
     if (fieldName === 'margin') {
       const profitPercentage = (profit / effectivePrice) * 100;
       return profitPercentage.toFixed(2);

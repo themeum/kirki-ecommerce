@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Settings;
 
+use function Kirki\Ecommerce\Framework\deep_set;
 use function Kirki\Ecommerce\Framework\value;
 
 defined('ABSPATH') || exit;
@@ -46,6 +47,37 @@ class SettingsFactory
         }
 
         return $this->get_settings_instance($key);
+    }
+
+    /**
+     * Update settings values
+     *
+     * @param string $key
+     * @param mixed $value
+     * @return void
+     */
+    public function update(string $key, $value)
+    {
+        if (strpos($key, '.')) {
+            $key_parts = explode('.', $key, 2);
+            $setting_instance = $this->get_settings_instance($key_parts[0]);
+
+            if (empty($key_parts[1])) {
+                throw new Exception(__('Invalid settings key!', 'kirki-ecommerce'));
+            }
+
+            if (empty($setting_instance)) {
+                throw new Exception(__('Invalid settings key!', 'kirki-ecommerce'));
+            }
+
+            $settings_array = $setting_instance->to_array();
+
+            deep_set($settings_array, $key_parts[1], $value);
+
+            return $setting_instance->set($settings_array);
+        }
+
+        return $this->get_settings_instance($key)->set($value);
     }
 
     /**

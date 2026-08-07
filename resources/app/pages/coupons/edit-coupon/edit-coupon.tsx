@@ -119,6 +119,7 @@ const EditCoupon = () => {
 
     form.reset(
       pickFormValues(CouponFormSchema, couponInfo, {
+        discount_amount: couponInfo.base_discount_amount,
         start_date: start.date,
         start_time: start.time,
         end_date: end.date,

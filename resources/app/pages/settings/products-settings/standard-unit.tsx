@@ -1,12 +1,12 @@
 import SelectField from '@/components/form/select-field';
 import SwitchField from '@/components/form/switch-field';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import ActionGroup from '@/components/ui/action-group';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
-import { defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
+import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 import { dimensionUnitList, weightUnitList } from '@/pages/settings/utils';
@@ -24,7 +24,7 @@ export const StandardUnit = () => {
 
   return (
     <div>
-      <Card cssOverride={cardStyles.largeCard}>
+      <Card cssOverride={cardStyles.formCard}>
         <CardHeader cssOverride={cardStyles.sectionHeader}>
           <CardTitle>{__('Standards', 'kirki-ecommerce')}</CardTitle>
           <CardDescription>
@@ -58,9 +58,9 @@ export const StandardUnit = () => {
                   <Flex direction="column" gap={2}>
                     <Text weight="medium">{__('Show unit price', 'kirki-ecommerce')}</Text>
                     <Text color="secondary">{__(
-                        'Enable to show unit price in your products',
-                        'kirki-ecommerce',
-                      )}</Text>
+                      'Enable to show unit price in your products',
+                      'kirki-ecommerce',
+                    )}</Text>
                   </Flex>
                   <ActionGroup>
                     <SwitchField name="is_unit_price_visible" />

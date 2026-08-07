@@ -1,8 +1,8 @@
-import { Card, CardContent } from '@/components/ui/card';
+import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
-import ActionGroup from '@/components/ui/action-group';
 import { PlusIcon } from '@/icons';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
@@ -12,8 +12,8 @@ import { theme } from '@/theme';
 const SellerTaxID = () => {
   return (
     <div>
-      <Card cssOverride={cardStyles.largeCard}>
-        <CardContent cssOverride={cardStyles.largeContentPadded}>
+      <Card cssOverride={cardStyles.formCard}>
+        <CardContent >
           <Flex direction="column" gap={2}>
             <Flex align="center">
               <Text weight="semibold" style={{ gap: theme.spacing[3] }}>{__('Seller Tax ID', 'kirki-ecommerce')}</Text>
@@ -25,9 +25,9 @@ const SellerTaxID = () => {
               </ActionGroup>
             </Flex>
             <Text color="secondary">{__(
-                'This information will be used on invoices where tax is applied, based on buyer region and your registration scope.',
-                'kirki-ecommerce',
-              )}</Text>
+              'This information will be used on invoices where tax is applied, based on buyer region and your registration scope.',
+              'kirki-ecommerce',
+            )}</Text>
           </Flex>
         </CardContent>
       </Card>

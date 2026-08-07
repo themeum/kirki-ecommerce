@@ -26,7 +26,7 @@ class ShippingService
      */
     public function calculate(CalculationContextDTO $context, $method = null)
     {
-        return $this->get_selected_shipping_method($context)['cost'] ?? 0;
+        return $this->get_selected_shipping_method($context)['base_cost'] ?? 0;
     }
 
     /**
@@ -45,13 +45,13 @@ class ShippingService
         switch ($type) {
             case ShippingMethodTypes::FLAT_RATE:
             case ShippingMethodTypes::LOCAL_PICKUP:
-                $cost = ((int) $method['amount'] ?? null);
+                $cost = ((int) $method['base_amount'] ?? null);
                 break;
             case ShippingMethodTypes::WEIGHT_BASED:
                 $cost = $this->calculate_weight_based_cost($context, $method);
                 break;
             default:
-                $cost = ((int) $method['amount'] ?? null);
+                $cost = ((int) $method['base_amount'] ?? null);
                 break;
         }
 
@@ -85,7 +85,7 @@ class ShippingService
                 'id' => $method['id'],
                 'name' => $method['name'],
                 'type' => $method['type'],
-                'cost' => $decision_context->get_shipping_cost(),
+                'base_cost' => $decision_context->get_shipping_cost(),
             ];
         }
 
@@ -241,7 +241,7 @@ class ShippingService
      */
     protected function calculate_weight_based_cost(CalculationContextDTO $context, array $method)
     {
-        if ($method['is_free_shipping_enabled'] === true && $context->get_subtotal() >= $method['free_shipping_min_amount']) {
+        if ($method['is_free_shipping_enabled'] === true && $context->get_subtotal() >= $method['base_free_shipping_min_amount']) {
             return 0;
         }
 
@@ -256,7 +256,7 @@ class ShippingService
             $to = floatval($range['to'] ?? PHP_FLOAT_MAX);
 
             if ($total_weight >= $from && $total_weight < $to) {
-                return (int) ($range['amount'] ?? 0);
+                return (int) ($range['base_amount'] ?? 0);
             }
         }
 
@@ -315,9 +315,9 @@ class ShippingService
         });
 
         return DecisionContext::from([
-            'shipping_cost' => $base_cost ?? 0,
+            'base_shipping_cost' => $base_cost ?? 0,
             'cart_weight' => $cart_weight,
-            'cart_subtotal' => $context->get_subtotal() ?? 0,
+            'base_cart_subtotal' => $context->get_subtotal() ?? 0,
             'shipping_address' => $context->shipping_address ?? null,
             'shipping_profiles' => array_unique($shipping_profiles),
             'product_categories' => $product_categories,

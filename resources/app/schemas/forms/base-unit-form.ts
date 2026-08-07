@@ -9,7 +9,7 @@ const BaseUnitFormShape = z.object({
   total_unit: z.string().nullish().default(null),
   base_unit_amount: moneyAmount.nullish().default(null),
   base_unit: z.string().nullish().default(null),
-  price: moneyAmount.nullish().default(null),
+  base_price: moneyAmount.nullish().default(null),
 });
 
 /**
@@ -23,7 +23,7 @@ export const BaseUnitFormSchema = BaseUnitFormShape.transform((values) => ({
   total_unit: values.total_unit ?? null,
   base_unit_amount: values.base_unit_amount ?? null,
   base_unit: values.base_unit ?? null,
-  price: values.price ?? null,
+  base_price: values.base_price ?? null,
 }));
 
 export type BaseUnitFormInput = z.input<typeof BaseUnitFormSchema>;

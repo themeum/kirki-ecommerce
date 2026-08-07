@@ -59,8 +59,8 @@ const useSeoPreviewData = (mode: SeoPreviewMode): SeoPreviewData => {
   const slug = useWatch({ control, name: 'slug' });
   const media = useWatch({ control, name: 'media' });
   const currency = useWatch({ control, name: 'currency' });
-  const price = useWatch({ control, name: 'variants.0.price' });
-  const salePriceValue = useWatch({ control, name: 'variants.0.sale_price' });
+  const price = useWatch({ control, name: 'variants.0.base_price' });
+  const salePriceValue = useWatch({ control, name: 'variants.0.base_sale_price' });
 
   const storeLogo = generalSettings?.store_logo;
   const storeLogoUrl =

@@ -9,7 +9,7 @@ describe('BaseUnitFormSchema', () => {
       total_unit: 'g',
       base_unit_amount: '100',
       base_unit: 'g',
-      price: '9.99',
+      base_price: '9.99',
     });
 
     expect(result).toEqual({
@@ -17,7 +17,7 @@ describe('BaseUnitFormSchema', () => {
       total_unit: 'g',
       base_unit_amount: '100',
       base_unit: 'g',
-      price: '9.99',
+      base_price: '9.99',
     });
   });
 
@@ -28,7 +28,7 @@ describe('BaseUnitFormSchema', () => {
       total_unit: null,
       base_unit_amount: null,
       base_unit: null,
-      price: null,
+      base_price: null,
     });
   });
 });
@@ -41,7 +41,7 @@ describe('mapBaseUnitFromVariant', () => {
       total_unit: 'g',
       base_unit_amount: 100,
       base_unit: 'g',
-      price: '9.99',
+      base_price: '9.99',
     } as any);
 
     expect(result).toEqual({
@@ -49,7 +49,7 @@ describe('mapBaseUnitFromVariant', () => {
       total_unit: 'g',
       base_unit_amount: 100,
       base_unit: 'g',
-      price: '9.99',
+      base_price: '9.99',
     });
   });
 
@@ -60,7 +60,7 @@ describe('mapBaseUnitFromVariant', () => {
       total_unit: null,
       base_unit_amount: null,
       base_unit: null,
-      price: null,
+      base_price: null,
     });
   });
 });

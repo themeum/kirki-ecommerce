@@ -18,14 +18,14 @@ class CreateVariantsTable implements Migration
             $table->string('sku', 100)->unique()->nullable();
             $table->string('barcode', 100)->nullable();
 
-            $table->integer('price')->default(0);
+            $table->integer('base_price')->default(0);
             $table->boolean('show_unit_price')->default(0)->comment('Whether to show unit price');
             $table->string('base_unit', 10)->nullable()->comment('Unit of measurement for weight. Example: g, kg, lb, oz');
             $table->float('base_unit_amount')->nullable()->comment('Base unit amount');
             $table->string('total_unit', 10)->nullable()->comment('The unit of total unit amount in an item');
             $table->float('total_unit_amount')->nullable()->comment('The total unit amount in an item');
-            $table->integer('sale_price')->nullable();
-            $table->integer('cost_of_goods')->nullable();
+            $table->integer('base_sale_price')->nullable();
+            $table->integer('base_cost_of_goods')->nullable();
 
             $table->decimal('weight', 10, 3)->nullable();
             $table->string('weight_unit', 10)->nullable()->comment('Unit of measurement for weight. Example: g, kg, lb, oz');

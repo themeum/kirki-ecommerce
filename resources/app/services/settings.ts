@@ -3,6 +3,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/libs/api';
 import { endpoints } from '@/libs/endpoints';
 import { queryKeys } from '@/libs/query-keys';
+import { AppConfigSchema } from '@/schemas/catalog/app-config';
+import { SettingsSchemaMap, type SettingsSectionKey } from '@/schemas/catalog/settings';
 import type { CheckoutSettingsFormPayload } from '@/schemas/forms/checkout-settings-form';
 import type { EmailSettingsFormPayload } from '@/schemas/forms/email-settings-form';
 import type { GeneralSettingsFormPayload } from '@/schemas/forms/general-settings-form';
@@ -10,15 +12,15 @@ import type { MultiCurrencySettingsFormPayload } from '@/schemas/forms/multi-cur
 import type { ProductsSettingsFormPayload } from '@/schemas/forms/products-settings-form';
 import type { ShippingSettingsFormPayload } from '@/schemas/forms/shipping-settings-form';
 import type { TaxSettingsFormPayload } from '@/schemas/forms/tax-settings-form';
-import { toastMutationError, toastMutationSuccess, unwrapData, unwrapResponse } from '@/services/helpers';
-import type { ListQueryParams, SettingsSectionData, SettingsSectionKey } from '@/types';
+import { parseData, parseResponse, toastMutationError, toastMutationSuccess } from '@/services/helpers';
+import type { ListQueryParams } from '@/types';
 import { __ } from '@/wpi18n';
 
 /**
- * Only the 7 sections converted to a canonical form schema get a real
- * payload type here. `orders`/`payment`/`default` are never sent through
- * `updateSettings` today, so they fall back to the old catch-all rather
- * than being modeled speculatively.
+ * Only the 7 sections converted to a canonical form schema are writable.
+ * `payment` is readable (see `schemas/catalog/settings.ts`) but has no form
+ * schema — payment settings are written through `services/payment.ts`'s
+ * dedicated gateway/method endpoints instead of the generic settings PUT.
  */
 type SettingsPayloadMap = {
   general: GeneralSettingsFormPayload;
@@ -28,24 +30,21 @@ type SettingsPayloadMap = {
   shipping: ShippingSettingsFormPayload;
   tax: TaxSettingsFormPayload;
   currency: MultiCurrencySettingsFormPayload;
-  orders: SettingsSectionData;
-  payment: SettingsSectionData;
-  default: SettingsSectionData;
 };
 
-const getSettings = (key: SettingsSectionKey | string, params: ListQueryParams = {}) => {
+const getSettings = <K extends SettingsSectionKey>(key: K, params: ListQueryParams = {}) => {
   return apiClient
     .get(endpoints.SETTINGS_BY_KEY(key), { params })
-    .then((response) => unwrapData<SettingsSectionData>(response));
+    .then((response) => parseData(SettingsSchemaMap[key], response));
 };
 
 const getDefaultSettings = () => {
   return apiClient
     .get(endpoints.APP_CONFIG)
-    .then((response) => unwrapData<SettingsSectionData>(response));
+    .then((response) => parseData(AppConfigSchema, response));
 };
 
-const updateSettings = <K extends SettingsSectionKey>({
+const updateSettings = <K extends keyof SettingsPayloadMap>({
   key,
   data,
 }: {
@@ -54,11 +53,11 @@ const updateSettings = <K extends SettingsSectionKey>({
 }) => {
   return apiClient
     .put(endpoints.SETTINGS, { key, data })
-    .then((response) => unwrapResponse<SettingsSectionData>(response));
+    .then((response) => parseResponse(SettingsSchemaMap[key], response));
 };
 
-const useSettingsQuery = (
-  key: SettingsSectionKey | string,
+const useSettingsQuery = <K extends SettingsSectionKey>(
+  key: K,
   params: ListQueryParams = {},
   enabled = true,
 ) => {
@@ -77,7 +76,7 @@ const useDefaultSettingsQuery = (enabled = true) => {
   });
 };
 
-const useUpdateSettingsMutation = <K extends SettingsSectionKey>() => {
+const useUpdateSettingsMutation = <K extends keyof SettingsPayloadMap>() => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (variables: { key: K; data: SettingsPayloadMap[K] }) => updateSettings(variables),

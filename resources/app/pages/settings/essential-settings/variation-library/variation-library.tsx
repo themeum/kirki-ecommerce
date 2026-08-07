@@ -1,17 +1,27 @@
-import { useState, useEffect, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router';
 
 import HeaderActionsCard from '@/components/header-actions-card';
-import GroupOptionCard from '@/components/group-option-card';
+import ActionGroup from '@/components/ui/action-group';
+import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { BoxIcon, ColorPaletteIcon } from '@/icons';
 import Flex from '@/components/ui/flex';
+import {
+  StackedItem,
+  StackedItemActions,
+  StackedItemContent,
+  StackedItemMedia,
+  StackedItems,
+  StackedItemTitle,
+} from '@/components/ui/stacked-items';
+import Text from '@/components/ui/text';
+import { BoxIcon, ColorPaletteIcon, EditPenIcon, TrashIcon } from '@/icons';
 import { dispatchToastMessage } from '@/pages/utils';
 import { useAttributesQuery, useDeleteAttributeMutation } from '@/services/attribute';
-import type { Attribute } from '@/types';
 import { theme } from '@/theme';
-import { scoped, mergeCss, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
+import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
+import type { Attribute } from '@/types';
 import { __ } from '@/wpi18n';
 
 import AddVariationPopup from '@/pages/settings/essential-settings/variation-library/add-variation-dialog';
@@ -58,15 +68,15 @@ const VariationList = () => {
 
   const handleEditVariation = (item: AttributeListItem) => {
     if (item?.type === 'color') {
-      navigate(`/settings/essential/color/${item?.id}`);
+      navigate(`/settings/essentials/color/${item?.id}`);
     } else {
-      navigate(`/settings/essential/list/${item?.id}`);
+      navigate(`/settings/essentials/list/${item?.id}`);
     }
   };
 
   return (
-    <Card cssOverride={cardStyles.largeCard}>
-      <CardContent cssOverride={cardStyles.largeContentPadded}>
+    <Card cssOverride={cardStyles.formCard}>
+      <CardContent >
         <HeaderActionsCard
           header={__('Variation Library', 'kirki-ecommerce')}
           subHeader={__(
@@ -80,26 +90,57 @@ const VariationList = () => {
             setShowPopup(true);
           }}
         />
-        {!attributeListArr.length ? (
-          <Card cssOverride={cardStyles.innerDarkCard}>
-            <CardContent cssOverride={mergeCss(cardStyles.innerDarkContent, styles.emptyState)}>
-              <Flex direction="column" gap={2} align="center">
-                <BoxIcon />
-                <span css={scoped(styles.emptyStateText)}>
-                  {__('Added variation library will appear here', 'kirki-ecommerce')}
-                </span>
-              </Flex>
-            </CardContent>
-          </Card>
-        ) : (
-          <Flex direction="column" data-box-wrapper cssOverride={styles.boxWrapper}>
-            <GroupOptionCard
-              dataArr={attributeListArr}
-              handleDeleteItem={(item) => handleDeleteVariation(item as AttributeListItem)}
-              handleEditItem={(item) => handleEditVariation(item as AttributeListItem)}
-            />
-          </Flex>
-        )}
+        <div css={scoped({ marginTop: theme.spacing[5] })}>
+          {!attributeListArr.length ? (
+            <Card cssOverride={cardStyles.innerDarkCard}>
+              <CardContent cssOverride={mergeCss(cardStyles.innerDarkContent, styles.emptyState)}>
+                <Flex direction="column" gap={2} align="center">
+                  <BoxIcon />
+                  <span css={scoped(styles.emptyStateText)}>
+                    {__('Added variation library will appear here', 'kirki-ecommerce')}
+                  </span>
+                </Flex>
+              </CardContent>
+            </Card>
+          ) : (
+            <StackedItems>
+              {attributeListArr.map((item) => (
+                <StackedItem key={item.id} id={String(item.id)}>
+                  {item.icon && <StackedItemMedia>{item.icon}</StackedItemMedia>}
+                  <StackedItemContent>
+                    <StackedItemTitle>
+                      <Text variant="small" weight="medium">
+                        {item.name}
+                      </Text>
+                    </StackedItemTitle>
+                  </StackedItemContent>
+                  <StackedItemActions>
+                    <ActionGroup>
+                      <Button
+                        variant="outline"
+                        size="icon-sm"
+                        aria-label={__('Delete', 'kirki-ecommerce')}
+                        cssOverride={styles.actionButton}
+                        onClick={() => handleDeleteVariation(item)}
+                      >
+                        <TrashIcon />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="icon-sm"
+                        aria-label={__('Edit', 'kirki-ecommerce')}
+                        cssOverride={styles.actionButton}
+                        onClick={() => handleEditVariation(item)}
+                      >
+                        <EditPenIcon />
+                      </Button>
+                    </ActionGroup>
+                  </StackedItemActions>
+                </StackedItem>
+              ))}
+            </StackedItems>
+          )}
+        </div>
         <AddVariationPopup
           isOpen={showPopup}
           variationType={variationType}
@@ -118,23 +159,13 @@ VariationList.displayName = 'VariationList';
 export default VariationList;
 
 const styles = defineStyles({
-  boxWrapper: {
-    '[data-box-card]': {
-      borderTop: 'none',
-      borderRadius: theme.radius.none,
-    },
-    '[data-box-card]:first-of-type': {
-      borderTop: `1px solid ${theme.colors.border.secondary}`,
-      borderRadius: `${theme.radius.md} ${theme.radius.md} ${theme.radius.none} ${theme.radius.none}`,
-    },
-    '[data-box-card]:last-of-type': {
-      borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.md} ${theme.radius.md}`,
-    },
-  },
   emptyState: {
     padding: `${theme.spacing[9]} ${theme.spacing[0]}`,
   },
   emptyStateText: {
     color: theme.colors.text.subdued,
-  }
+  },
+  actionButton: {
+    padding: theme.spacing[1],
+  },
 });
