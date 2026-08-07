@@ -303,7 +303,7 @@ class MoneyManager
      * @param string|null $currency_code
      * @return Money
      */
-    public function prepare_money($amount, $currency_code = null, $target_currency = null)
+    public function prepare_money_from_minor($amount, $currency_code = null, $target_currency = null)
     {
         $currency_code = $currency_code ?? $this->get_base_currency();
 
@@ -321,9 +321,9 @@ class MoneyManager
      * @param string|null $currency_code
      * @return float
      */
-    public function prepare_amount($amount, $currency_code = null, $target_currency = null)
+    public function prepare_amount_from_minor($amount, $currency_code = null, $target_currency = null)
     {
-        return $this->prepare_money($amount, $currency_code, $target_currency)->getAmount()->toFloat();
+        return $this->prepare_money_from_minor($amount, $currency_code, $target_currency)->getAmount()->toFloat();
     }
 
     /**
@@ -334,9 +334,9 @@ class MoneyManager
      * @param string|null $target_currency
      * @return MoneyDTO
      */
-    public function prepare_amount_object($amount, $currency_code = null, $target_currency = null)
+    public function prepare_amount_object_from_minor($amount, $currency_code = null, $target_currency = null)
     {
-        return $this->to_dto($this->prepare_money($amount, $currency_code, $target_currency)->getMinorAmount()->toInt(), $target_currency ?? $currency_code);
+        return $this->to_dto($this->prepare_money_from_minor($amount, $currency_code, $target_currency)->getMinorAmount()->toInt(), $target_currency ?? $currency_code);
     }
 
     /**

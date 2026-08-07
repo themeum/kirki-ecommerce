@@ -132,6 +132,7 @@ Route::group(['middleware' => AuthMiddleware::class], function () {
     Route::patch('/coupons/{id}/action', [CouponController::class, 'action'])->where('id', '[\d]+');
 
     // Products
+    Route::get('/product-variants', [ProductController::class, 'get_products_with_variants']);
     Route::get('/products', [ProductController::class, 'get']);
     Route::get('/products/{id}', [ProductController::class, 'show']);
     Route::post('/products', [ProductController::class, 'create']);
@@ -193,7 +194,7 @@ Route::group(['middleware' => AuthMiddleware::class], function () {
     Route::post('/cart/coupon', [CartController::class, 'apply_coupon']);
     Route::delete('/cart/coupon', [CartController::class, 'remove_coupon']);
 
-    
+
     // Orders
     Route::get('/orders', [OrderController::class, 'get']);
     Route::get('/orders/{id}', [OrderController::class, 'show']);

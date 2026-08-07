@@ -225,15 +225,15 @@ on what currency the value is actually in:
   currency-converted), so `invoiced_*` stands alone there.
 
 Every `base_*`/`invoiced_*`/`display_*` money field in a Resource must ship
-with a matching `*_money_object` key built via `Money::prepare_amount_object()`
+with a matching `*_money_object` key built via `Money::prepare_amount_object_from_minor()`
 (a `MoneyDTO`: `raw` float, `display` formatted string, `currency` `{code, symbol}`).
-`Money::prepare_amount()` gives you the plain float for the bare key.
+`Money::prepare_amount_from_minor()` gives you the plain float for the bare key.
 
 ```php
-'base_price' => Money::prepare_amount($this->base_price),
-'base_price_money_object' => Money::prepare_amount_object($this->base_price),
-'display_price' => Money::prepare_amount($this->base_price, null, $display_currency),
-'display_price_money_object' => Money::prepare_amount_object($this->base_price, null, $display_currency),
+'base_price' => Money::prepare_amount_from_minor($this->base_price),
+'base_price_money_object' => Money::prepare_amount_object_from_minor($this->base_price),
+'display_price' => Money::prepare_amount_from_minor($this->base_price, null, $display_currency),
+'display_price_money_object' => Money::prepare_amount_object_from_minor($this->base_price, null, $display_currency),
 ```
 
 Because DTO/request field names normally mirror DB columns 1:1, this
