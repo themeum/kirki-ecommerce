@@ -55,9 +55,10 @@
 }
 
 // Full typography shorthand
-@mixin typography($size: base, $weight: normal, $color: null) {
+@mixin typography($size: base, $weight: normal, $color: $text-primary) {
   @include text($size);
   font-family: $font-family;
+  color: $color;
 
   $weights: (
     normal: $font-weight-normal,
@@ -69,9 +70,5 @@
 
   @if map.has-key($weights, $weight) {
     font-weight: map.get($weights, $weight);
-  }
-
-  @if $color != null {
-    color: $color;
   }
 }

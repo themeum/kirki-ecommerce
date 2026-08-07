@@ -14,12 +14,27 @@ extract($data);
 
 <!-- Coupon Form -->
 <div x-show="!cartData?.pricing?.discount_details?.code">
-    <form class="kecom-form kecom-coupon-form" @submit.prevent="applyCoupon">
-        <div class="kecom-field">
-            <input class="kecom-input" type="text" id="coupon-code" name="coupon_code" placeholder="<?php esc_html_e('Discount code', 'kirki-ecommerce'); ?>" x-model="couponCode">
+    <form class="kecom-form kecom-coupon-form" x-data="{ couponError: '' }" @submit.prevent="
+        if (!couponCode.trim()) {
+            couponError = '<?php esc_html_e('Please enter a discount code', 'kirki-ecommerce'); ?>';
+            return;
+        }
+        couponError = '';
+        applyCoupon();
+    ">
+        <div class="kecom-field" :class="{ 'kecom-field-error-state': couponError }">
+            <input
+                class="kecom-input"
+                type="text"
+                id="coupon-code"
+                name="coupon_code"
+                placeholder="<?php esc_html_e('Discount code', 'kirki-ecommerce'); ?>"
+                x-model="couponCode"
+                @input="couponError = ''">
+            <span class="kecom-field-error" x-show="couponError" x-text="couponError"></span>
         </div>
         <button type="submit" class="kecom-btn kecom-btn-secondary" :class="{ 'kecom-btn-loading': couponLoading }" :disabled="couponLoading">
-                <?php esc_html_e('Apply', 'kirki-ecommerce'); ?>
+            <?php esc_html_e('Apply', 'kirki-ecommerce'); ?>
         </button>
     </form>
 </div>
