@@ -34,7 +34,7 @@ class SettingResource extends Resource
                             $data['shipping_zones'][$key]['shipping_methods'][$method_key]['ranges'][$range_key]['base_amount_money_object'] = Money::prepare_amount_object($range['base_amount']);
                         }
                     } else {
-                        $data['shipping_zones'][$key]['shipping_methods'][$method_key]['amount'] = Money::from_minor($method['amount'])->getAmount();
+                        $data['shipping_zones'][$key]['shipping_methods'][$method_key]['base_amount'] = Money::prepare_amount($method['base_amount']);
                     }
 
                     if (!empty($method['is_free_shipping_enabled'])) {
