@@ -77,12 +77,18 @@ class PageInlineScript extends BaseHook
         $cart_config = array(
             'items_count' => $cart['items_count'],
             'pricing' => (object) array(
-                'subtotal_formatted' => $pricing['base_subtotal_money_object']->display,
-                'total_formatted' => $pricing['base_total_money_object']->display,
+                'display_subtotal_money_object' => (object) array(
+                    'display' => $pricing['display_subtotal_money_object']->display,
+                ),
+                'display_total_money_object' =>  (object) array(
+                    'display' => $pricing['display_total_money_object']->display,
+                ),
             ),
             'items' => array_map(fn($item) => (object) array(
                 'id' => $item['id'],
-                'total_formatted' => $item['base_total_money_object']->display,
+                'display_total_money_object' => (object) array(
+                    'display' => $item['display_total_money_object']->display,
+                ),
             ), $items),
         );
         $config['cart'] = $cart_config;

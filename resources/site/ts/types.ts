@@ -57,6 +57,9 @@ export interface CartItem {
   total_formatted: string;
   created_at: string;
   updated_at: string;
+  display_total_money_object: {
+    display: string,
+  }
 }
 
 export interface CartUpdateItem {
@@ -64,8 +67,12 @@ export interface CartUpdateItem {
   total: number;
   items_count: number;
   pricing: {
-    subtotal_formatted: number;
-    total_formatted: number;
+    display_subtotal_money_object: {
+      display: string,
+    };
+    display_total_money_object: {
+      display: string,
+    },
   },
   items: CartItem[],
   formatted_items: Record<number, string> | null;
