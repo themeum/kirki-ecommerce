@@ -56,6 +56,7 @@ class OrderController
     }
     public function store(OrderCreateRequest $request, CreateOrderAction $action)
     {
+        // @todo: in future the header will come from a constant
         $currency_code = $request->get_string('currency_code') ?? $request->get_header('kirki-ecommerce-currency-code') ?? base_currency()->code; //todo: implement change the name later
 
         $dto = CreateOrderPayloadDTO::from_request($request);

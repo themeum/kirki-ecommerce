@@ -106,7 +106,7 @@ const ProductFilterPopup = memo(({ value, onApply, children }: ProductFilterPopu
         {filterCount ? (
           <Button
             variant="outline"
-            style={{
+            cssOverride={{
               color: theme.colors.text.emphasis,
               backgroundColor: theme.colors.background.fillSecondary,
               borderLeft: 'none',
