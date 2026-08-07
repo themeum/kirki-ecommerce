@@ -365,26 +365,26 @@ class SettingsUpdateRequest extends Request
     protected function get_payment_settings_rules()
     {
         return [
-            'data.payment_gateways' => 'nullable|array',
-            'data.payment_gateways.*.is_enabled' => 'boolean',
-            'data.payment_gateways.*.is_manual' => 'boolean',
-            'data.payment_gateways.*.name' => 'string',
-            'data.payment_gateways.*.icon' => 'string',
-            'data.payment_gateways.*.instructions' => 'nullable|string',
-            'data.payment_gateways.*.config' => 'nullable|array',
+            'data.offline_payments' => 'nullable|array',
+            'data.offline_payments.*.is_enabled' => 'boolean',
+            'data.offline_payments.*.is_offline' => 'boolean',
+            'data.offline_payments.*.name' => 'string',
+            'data.offline_payments.*.icon' => 'string',
+            'data.offline_payments.*.instructions' => 'nullable|string',
+            'data.offline_payments.*.config' => 'nullable|array',
         ];
     }
 
     protected function get_payment_settings_filters()
     {
         return [
-            'data.payment_gateways' => Sanitizer::ARRAY,
-            'data.payment_gateways.*.is_enabled' => Sanitizer::BOOL,
-            'data.payment_gateways.*.is_manual' => Sanitizer::BOOL,
-            'data.payment_gateways.*.name' => Sanitizer::TEXT,
-            'data.payment_gateways.*.icon' => Sanitizer::TEXT,
-            'data.payment_gateways.*.instructions' => Sanitizer::TEXT,
-            'data.payment_gateways.*.config' => Sanitizer::ARRAY,
+            'data.offline_payments' => Sanitizer::ARRAY,
+            'data.offline_payments.*.is_enabled' => Sanitizer::BOOL,
+            'data.offline_payments.*.is_offline' => Sanitizer::BOOL,
+            'data.offline_payments.*.name' => Sanitizer::TEXT,
+            'data.offline_payments.*.icon' => Sanitizer::TEXT,
+            'data.offline_payments.*.instructions' => Sanitizer::TEXT,
+            'data.offline_payments.*.config' => Sanitizer::ARRAY,
         ];
     }
 

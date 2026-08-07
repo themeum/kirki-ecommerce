@@ -41,7 +41,7 @@ class OrderController
     public function get(Request $request)
     {
         $params = OrderListFilterDTO::from_array($request->all());
-        $params->sort_by = $request->get_whitelisted('sort_by', 'id', ['id', 'uuid', 'order_number', 'customer_id', 'order_status', 'sub_total', 'invoiced_total', 'payment_method', 'created_by', 'updated_by', 'created_at', 'updated_at']);
+        $params->sort_by = $request->get_whitelisted('sort_by', 'id', ['id', 'uuid', 'order_number', 'customer_id', 'order_status', 'sub_total', 'invoiced_total', 'payment_provider', 'created_by', 'updated_by', 'created_at', 'updated_at']);
 
         if ((int) $params->limit === Pagination::ALL) {
             $data = $this->service->all_orders($params);

@@ -1,0 +1,79 @@
+info:
+  name: All Available Online Payments
+  type: http
+  seq: 4
+  tags:
+    - online-payments
+
+http:
+  method: GET
+  url: "{{baseUrl}}/online-payments/installable"
+  auth: inherit
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/online-payments/installable"
+      method: GET
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "data": [
+              {
+                "id": "1edc661d-227b-4ad4-ac22-4dc6b86a018d",
+                "name": "Stripe",
+                "icon": "stripe",
+                "is_installed": false
+              },
+              {
+                "id": "2edc661d-227b-4ad1-ac22-4dc6b86a018d",
+                "name": "Paypal",
+                "icon": "paypal",
+                "is_installed": true
+              },
+              {
+                "id": "3edc661d-227b-4ad8-ac22-4dc6b86a018d",
+                "name": "Paddle",
+                "icon": "paddle",
+                "is_installed": true
+              }
+            ],
+            "message": "Payment methods retrieved successfully.",
+            "success": true
+          }
+  - name: 404 Response
+    description: Failure
+    request:
+      url: "{{baseUrl}}/online-payments/installable"
+      method: GET
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "errors": {},
+            "message": "Order direction must be either \"asc\" or \"desc\"."
+          }
+
+docs: |-
+  ## Available Currency List
+  Returns a paginated collection of resources. Supports optional search, filter, sort, and order parameters to refine the results.

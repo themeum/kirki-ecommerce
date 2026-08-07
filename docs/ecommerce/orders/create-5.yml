@@ -19,7 +19,7 @@ http:
           }
         ],
         "currency_code": "USD",
-        "payment_method": "stripe",
+        "payment_provider": "stripe",
         "coupon_code": "WINTER20",
         "shipping_method": "fsdfdsfsdfsdf343432jh4",
         "shipping_first_name": "Sunny",
@@ -72,7 +72,7 @@ examples:
               }
             ],
             "currency_code": "USD",
-            "payment_method": "stripe",
+            "payment_provider": "stripe",
             "coupon_code": "WINTER20",
             "shipping_method": "fsdfdsfsdfsdf343432jh4",
             "shipping_first_name": "Sunny",
@@ -190,7 +190,7 @@ examples:
                 "phone": "+1 555-000-2000",
                 "email": "jane.shipping@example.com"
               },
-              "payment_method": "stripe",
+              "payment_provider": "stripe",
               "payment_status": "pending",
               "shipping_method": "fsdfdsfsdfsdf343432jh4",
               "created_at": "2026-01-09 10:50:32"
@@ -213,7 +213,7 @@ examples:
               }
             ],
             "currency_code": "USD",
-            "payment_method": "stripe",
+            "payment_provider": "stripe",
             "coupon_code": "WINTER20",
             "shipping_method": "fsdfdsfsdfsdf343432jh4",
             "shipping_first_name": "Sunny",

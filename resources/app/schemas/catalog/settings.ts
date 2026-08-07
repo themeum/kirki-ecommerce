@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { PaymentGatewaySchema } from '@/schemas/catalog/payment';
+import { OfflinePaymentSettingsSchema } from '@/schemas/catalog/payment';
 import { ShippingZoneSchema } from '@/schemas/catalog/shipping';
 import { TaxRegionSchema } from '@/schemas/catalog/tax';
 import { MediaRefSchema } from '@/schemas/shared/media';
@@ -192,7 +192,7 @@ export type CurrencySettings = z.infer<typeof CurrencySettingsSchema>;
 
 export const PaymentSettingsSchema = z
   .object({
-    payment_gateways: z.array(PaymentGatewaySchema).nullish(),
+    offline_payments: z.array(OfflinePaymentSettingsSchema).nullish(),
   })
   .passthrough();
 
