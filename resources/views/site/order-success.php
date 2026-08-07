@@ -17,6 +17,9 @@ use function Kirki\Ecommerce\Framework\view_data;
 defined('ABSPATH') || exit;
 
 $order = view_data('order') ?: null;
+if (empty($order)) {
+    return;
+}
 ?>
 
 <?php Template::get_header(); ?>
@@ -35,8 +38,7 @@ $order = view_data('order') ?: null;
             <p class="kecom-order-success-subtitle"><?php _e('Your order has been confirmed and is being processed.', 'kirki-ecommerce'); ?></p>
         </div>
 
-        <?php if ($order): ?>
-
+        <?php if ($order) : ?>
         <div class="kecom-order-success-section">
             <div class="kecom-order-success-section-label"><?php _e('Payment Details', 'kirki-ecommerce'); ?></div>
             <div class="kecom-order-success-rows">
@@ -66,25 +68,27 @@ $order = view_data('order') ?: null;
         <div class="kecom-order-success-section">
             <div class="kecom-order-success-section-label"><?php _e('Product Details', 'kirki-ecommerce'); ?></div>
             <div class="kecom-order-success-rows">
-                <?php foreach ($order['items']->all() as $item): ?>
+                <?php foreach ($order['items']->all() as $item) : ?>
                 <div class="kecom-order-success-row">
                     <div class="kecom-order-success-row-key">
                         <?php echo esc_html($item['product_name']); ?>
-                        <?php if (!empty($item['variant_name'])): ?>• <?php echo esc_html($item['variant_name']); ?><?php endif; ?>
+                        <?php if (!empty($item['variant_name'])) :
+                            ?>• <?php echo esc_html($item['variant_name']); ?><?php
+                        endif; ?>
                         x<?php echo esc_html($item['quantity']); ?>
                     </div>
                     <div class="kecom-order-success-row-value"><?php echo esc_html($item['total']->display); ?></div>
                 </div>
                 <?php endforeach; ?>
 
-                <?php if ($order['totals']['shipping']->raw > 0): ?>
+                <?php if ($order['totals']['shipping']->raw > 0) : ?>
                 <div class="kecom-order-success-row">
                     <div class="kecom-order-success-row-key"><?php _e('Shipping', 'kirki-ecommerce'); ?></div>
                     <div class="kecom-order-success-row-value"><?php echo esc_html($order['totals']['shipping']->display); ?></div>
                 </div>
                 <?php endif; ?>
 
-                <?php if ($order['totals']['discount']->raw > 0): ?>
+                <?php if ($order['totals']['discount']->raw > 0) : ?>
                 <div class="kecom-order-success-row">
                     <div class="kecom-order-success-row-key"><?php _e('Discount', 'kirki-ecommerce'); ?></div>
                     <div class="kecom-order-success-row-value kecom-order-success-row-value--discount">
