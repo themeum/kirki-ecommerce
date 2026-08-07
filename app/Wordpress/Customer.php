@@ -36,11 +36,11 @@ class Customer extends User
 
     public function get_shipping_address()
     {
-        return $this->customer->shipping_address;
+        return $this->customer->shipping_address ?? null;
     }
 
     public function get_billing_address()
     {
-        return $this->customer->billing_address;
+        return $this->customer->billing_address ?? null;
     }
 }
