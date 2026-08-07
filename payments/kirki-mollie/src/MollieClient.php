@@ -31,14 +31,26 @@ class MollieClient
         return $this->test_mode;
     }
 
-    public function send(array $payload, string $endpoint)
+    public function post(array $payload, string $endpoint)
     {
         $response = Http::with_token($this->api_key)
             ->with_body(wp_json_encode($payload))
             ->post($endpoint);
 
         if ($response->failed()) {
-            throw new Exception(sprintf(__('Mollie API Error: %s', 'kirki-mollie'), $response->body()));
+            throw new Exception($response->body());
+        }
+
+        return $response->json();
+    }
+
+    public function get(string $endpoint)
+    {
+        $response = Http::with_token($this->api_key)
+            ->get($endpoint);
+
+        if ($response->failed()) {
+            throw new Exception($response->body());
         }
 
         return $response->json();

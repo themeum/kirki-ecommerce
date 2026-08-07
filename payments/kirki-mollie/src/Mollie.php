@@ -3,12 +3,16 @@
 namespace Kirki\Ecommerce\Payments;
 
 use Exception;
+use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\Facades\Order as OrderManager;
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Payment\PaymentGateway;
+use Kirki\Ecommerce\Framework\Http\Request;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Kirki\Ecommerce\Framework\Validation\Validator;
+
+use function Kirki\Ecommerce\Framework\url;
 
 defined('ABSPATH') || exit;
 
@@ -64,7 +68,7 @@ class Mollie extends PaymentGateway
         $this->transaction_builder = new MollieTransactionBuilder($order);
 
         try {
-            $response = $this->mollie->send([
+            $response = $this->mollie->post([
                 'description' => 'Order #' . $order->id,
                 'amount' => [
                     'currency' => strtoupper($order->currency_code),
@@ -133,7 +137,35 @@ class Mollie extends PaymentGateway
      */
     public function webhook()
     {
-        return true;
+        $payload = Request::capture();
+        $payment_id = $payload->id ?? null;
+
+        http_response_code(200);
+
+        if (empty($payment_id)) {
+            return false;
+        }
+
+        try {
+            $this->mollie = $this->get_client();
+            $endpoint = url(MollieConstant::API_BASE_URL . 'payments/' . $payment_id);
+            $payment = $this->mollie->get($endpoint);
+
+            $order_id = $payment['metadata']['order_id'] ?? '';
+            if (empty($order_id)) {
+                return false;
+            }
+
+            $order = OrderManager::find($order_id);
+            if ($order->payment_status === PaymentStatus::PAID) {
+                return false;
+            }
+
+            $this->handle_payment_response($payment);
+            return true;
+        } catch (\Throwable $th) {
+            throw new Exception(__('Mollie Webhook Error.', 'kirki-mollie'));
+        }
     }
 
     protected function get_client()
@@ -150,5 +182,42 @@ class Mollie extends PaymentGateway
 
         $is_test_mode = (bool) ($this->settings['sandbox'] ?? false);
         return new MollieClient($api_key, $is_test_mode);
+    }
+
+    protected function handle_payment_response($payment)
+    {
+        $order_id = $payment['metadata']['order_id'];
+
+        DB::begin_transaction();
+
+        try {
+            $is_paid = !empty($payment['paidAt']) && $payment['status'] === MollieConstant::PAYMENT_STATUS_PAID;
+
+            switch ($payment['status']) {
+                case $is_paid:
+                    OrderManager::set_transaction_id($order_id, $payment['id']);
+                    OrderManager::mark_payment_as_paid($order_id);
+                    OrderManager::mark_as_processing($order_id);
+                    OrderManager::set_payment_metadata($order_id, wp_json_encode($payment));
+                    break;
+                case MollieConstant::PAYMENT_STATUS_PENDING:
+                    OrderManager::mark_payment_as_pending($order_id);
+                    OrderManager::mark_as_on_hold($order_id);
+                    break;
+                case MollieConstant::PAYMENT_STATUS_CANCELED:
+                case MollieConstant::PAYMENT_STATUS_FAILED:
+                case MollieConstant::PAYMENT_STATUS_EXPIRED:
+                    OrderManager::set_transaction_id($order_id, $payment['id']);
+                    OrderManager::mark_payment_as_failed($order_id);
+                    OrderManager::mark_as_cancelled($order_id);
+                    OrderManager::set_payment_metadata($order_id, wp_json_encode($payment));
+                    break;
+            }
+
+            DB::commit();
+        } catch (\Throwable $e) {
+            DB::rollback();
+            throw new Exception(sprintf(__('Failed to update order data: %s', 'kirki-mollie'), $e->getMessage()));
+        }
     }
 }
