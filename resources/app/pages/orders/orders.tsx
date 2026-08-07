@@ -4,27 +4,32 @@ import Container from '@/components/ui/container';
 import PageHeading from '@/components/ui/page-heading';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { mergeCss, defineStyles } from '@/theme/mixins';
+import { defineStyles, mergeCss } from '@/theme/mixins';
 
+import { NEW_ITEM_ID } from '@/conf';
+import { endpoints } from '@/libs/endpoints';
 import OrderTable from '@/pages/orders/order-table/order-table';
 import OrderTableAction from '@/pages/orders/order-table/order-table-action';
 import TableInfo from '@/pages/orders/order-table/table-info';
+import { __ } from '@/wpi18n';
+import { useNavigate } from 'react-router';
 
 const Orders = () => {
+  const navigate = useNavigate();
   return (
     <>
       <PageHeading
-        text="Orders"
+        text={__('Orders', 'kirki-ecommerce')}
         actions={
           <>
             <Button variant="ghost">
-              Import
+              {__('Import', 'kirki-ecommerce')}
             </Button>
             <Button variant="ghost">
-              Export
+              {__('Export', 'kirki-ecommerce')}
             </Button>
-            <Button variant="primary">
-              Add Order
+            <Button variant="primary" onClick={() => navigate(endpoints.ORDER(NEW_ITEM_ID))}>
+              {__('Add Order', 'kirki-ecommerce')}
             </Button>
           </>
         }

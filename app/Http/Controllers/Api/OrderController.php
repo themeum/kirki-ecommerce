@@ -27,7 +27,6 @@ use Kirki\Ecommerce\App\Http\Requests\Order\RefundUpdateRequest;
 use Kirki\Ecommerce\Framework\Http\Response;
 
 use function Kirki\Ecommerce\App\base_currency;
-use function Kirki\Ecommerce\App\customer;
 use function Kirki\Ecommerce\Framework\response;
 use function Kirki\Ecommerce\Framework\user;
 
@@ -57,7 +56,8 @@ class OrderController
     }
     public function store(OrderCreateRequest $request, CreateOrderAction $action)
     {
-        $currency_code = $request->get_string('currency_code') ?? $headers['kirki-ecommerce-currency-code'] ?? base_currency()->code; //todo: implement change the name later
+        // @todo: in future the header will come from a constant
+        $currency_code = $request->get_string('currency_code') ?? $request->get_header('kirki-ecommerce-currency-code') ?? base_currency()->code; //todo: implement change the name later
 
         $dto = CreateOrderPayloadDTO::from_request($request);
         $dto->is_manual = user()->is_admin() && $request->get_bool('is_manual') ? true : false;

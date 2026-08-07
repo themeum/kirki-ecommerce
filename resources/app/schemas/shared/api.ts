@@ -18,6 +18,12 @@ const ResourceCollectionSchema = <T extends z.ZodTypeAny>(itemSchema: T) =>
 
 const MoneyAmountSchema = z.union([z.number(), z.string()]);
 
+const MoneyObjectSchema = z.object({
+  raw: MoneyAmountSchema,
+  display: z.string(),
+  currency: z.string(),
+})
+
 /**
  * Shape every `ApiClientResponse<T>` envelope must satisfy before its `data`
  * is handed to a resource schema — catches a malformed or non-object
@@ -40,4 +46,7 @@ const MessageResponseSchema = z
 
 type MessageResponse = z.infer<typeof MessageResponseSchema>;
 
-export { PaginatedDataSchema, ResourceCollectionSchema, MoneyAmountSchema, ApiEnvelopeSchema, MessageResponseSchema, type MessageResponse };
+type MoneyObject = z.infer<typeof MoneyObjectSchema>;
+
+export { ApiEnvelopeSchema, MessageResponseSchema, MoneyAmountSchema, MoneyObjectSchema, PaginatedDataSchema, ResourceCollectionSchema, type MessageResponse, type MoneyObject };
+

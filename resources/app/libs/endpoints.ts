@@ -73,4 +73,8 @@ export const endpoints = {
   ONLINE_PAYMENTS_INSTALL: '/online-payments/install',
   OFFLINE_PAYMENTS: '/offline-payments',
   OFFLINE_PAYMENT: (id: string | number) => `/offline-payments/${id}`,
+
+  ORDER: (id: string | number) => `/orders/${id}`,
+  ORDERS: '/orders',
+  CALCULATE_ORDER: '/calculate/order',
 } as const;

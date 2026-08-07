@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 import { ProductAttributeSchema } from '@/schemas/catalog/attribute';
 import { VariantSchema } from '@/schemas/catalog/variant';
-import { MoneyAmountSchema } from '@/schemas/shared/api';
+import { MoneyAmountSchema, MoneyObjectSchema } from '@/schemas/shared/api';
 import { MediaRefSchema } from '@/schemas/shared/media';
 
 export const ProductStatusSchema = z.enum([
@@ -62,6 +62,7 @@ export const AdditionalInfoItemSchema = z.object({
 
 export type AdditionalInfoItem = z.infer<typeof AdditionalInfoItemSchema>;
 
+// TODO: remove has_variants, attributes and variants when new API is ready for order
 export const ProductListItemSchema = z.object({
   id: z.number(),
   title: z.string(),
@@ -70,10 +71,17 @@ export const ProductListItemSchema = z.object({
   sku: z.string().nullish(),
   inventory: z.number().optional(),
   base_price: MoneyAmountSchema,
-  base_price_money_object: z.any(),
+  base_price_money_object: MoneyObjectSchema,
   display_price: MoneyAmountSchema,
-  display_price_money_object: z.any(),
+  display_price_money_object: MoneyObjectSchema,
+  sale_price: MoneyAmountSchema.nullable(),
+  sale_price_object: MoneyObjectSchema.nullable(),
+  display_sale_price: MoneyAmountSchema.nullish(),
+  display_sale_price_money_object: MoneyObjectSchema,
   status: z.union([ProductStatusSchema, z.string()]),
+  has_variants: z.boolean(),
+  attributes: z.array(ProductAttributeSchema),
+  variants: z.array(VariantSchema),
   created_at: z.string().nullish(),
   updated_at: z.string().nullish(),
 });

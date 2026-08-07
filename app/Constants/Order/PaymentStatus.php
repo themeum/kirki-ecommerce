@@ -6,9 +6,9 @@ final class PaymentStatus
 {
     const PENDING = 'pending';
     const PROCESSING = 'processing';
-    const ON_HOLD = 'on_hold';
+    const ON_HOLD = 'on-hold';
     const PAID = 'paid';
     const FAILED = 'failed';
     const REFUNDED = 'refunded';
-    const PARTIALLY_REFUNDED = 'partially_refunded';
+    const PARTIALLY_REFUNDED = 'partially-refunded';
 }

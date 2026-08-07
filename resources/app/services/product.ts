@@ -52,11 +52,12 @@ const bulkDeleteProducts = ({
     .then((response) => parseMessage(response));
 };
 
-const useProductsQuery = (params: ListParams<ProductListFilter> = {}) => {
+const useProductsQuery = (params: ListParams<ProductListFilter> = {}, enabled = true) => {
   return useQuery({
     queryKey: queryKeys.Products(params),
     queryFn: () => getProducts(params),
     placeholderData: keepPreviousData,
+    enabled,
   });
 };
 
