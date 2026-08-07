@@ -15,7 +15,7 @@ class CreateRefundsTable implements Migration
             $table->unsigned_big_integer('order_id');
             $table->enum('status', ['pending', 'completed', 'failed', 'cancelled'])->default('pending');
 
-            $table->integer('amount')->comment('Refund amount in cents');
+            $table->integer('invoiced_amount')->comment('Refund amount in cents, in the order currency');
             $table->text('reason')->nullable();
 
             $table->enum('refund_type', ['partial', 'full'])->default('partial');

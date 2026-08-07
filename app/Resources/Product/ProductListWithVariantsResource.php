@@ -4,9 +4,10 @@ namespace Kirki\Ecommerce\App\Resources\Product;
 
 use Kirki\Ecommerce\App\Resources\Variant\VariantResource;
 use Kirki\Ecommerce\Framework\Resource;
+use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
 
-class ProductResource extends Resource
+class ProductListWithVariantsResource extends Resource
 {
     /**
      * Convert the product resource to an array.
@@ -15,64 +16,31 @@ class ProductResource extends Resource
      */
     public function to_array()
     {
+        $inventory = 0;
+        $min_price = $this->variants->first()->base_price;
+
+        foreach ($this->variants->all() as $variant) {
+            $inventory += $variant->track_inventory ? $variant->available_quantity : 0;
+            $min_price = min($min_price, $variant->base_price);
+        }
+
+        $display_currency = Money::resolve_display_currency();
+
         return [
             'id' => $this->id,
             'title' => $this->title,
             'slug' => $this->slug,
+            'image' => MediaAttachment::make($this->media->first()->ID ?? null)['url'] ?? null,
+            'sku' => $this->sku,
+            'inventory' => $inventory,
+            'base_price' => Money::prepare_amount($min_price),
+            'base_price_money_object' => Money::prepare_amount_object($min_price),
+            'display_price' => Money::prepare_amount($min_price, null, $display_currency),
+            'display_price_money_object' => Money::prepare_amount_object($min_price, null, $display_currency),
             'status' => $this->status,
-            'ribbon' => $this->ribbon,
-
-            'currency' => !$this->currency_id ? null : [
-                'id' => $this->currency_id,
-                'code' => $this->currency->code,
-                'name' => $this->currency->name,
-                'symbol' => $this->currency->symbol,
-            ],
-
-            'brand' => !$this->brand_id ? null : [
-                'id' => $this->brand_id,
-                'name' => $this->brand->name,
-                'logo' => MediaAttachment::make($this->brand->logo)
-            ],
-
-            'short_description' => $this->short_description,
-            'description' => $this->description,
-            'additional_info' => $this->additional_info,
-            'seo_title' => $this->seo_title,
-            'seo_description' => $this->seo_description,
-            'seo_keywords' => $this->seo_keywords,
-            'og_title' => $this->og_title,
-            'og_description' => $this->og_description,
-            'og_image' => MediaAttachment::make($this->og_image),
-            'schema_id' => $this->schema_id,
-            'llm_instructions' => $this->llm_instructions,
             'has_variants' => $this->has_variants,
-
-            'categories' => $this->categories->map(function ($item) {
-                return [
-                    'id' => $item->id,
-                    'name' => $item->name,
-                    'parent_id' => $item->parent_id,
-                    'level' => $item->level,
-                ];
-            }),
-            'tags' => $this->tags->map(function ($item) {
-                return [
-                    'id' => $item->id,
-                    'name' => $item->name,
-                ];
-            }),
-            'collections' => $this->collections->map(function ($item) {
-                return [
-                    'id' => $item->id,
-                    'title' => $item->title,
-                ];
-            }),
-
             'attributes' => !empty($this->attributes) ? $this->format_attributes($this->attributes->to_array(), $this->attribute_values->to_array()) : [],
             'variants' => VariantResource::collection($this->variants),
-            'media' => MediaAttachment::make_many($this->media->pluck('ID')->all()),
-
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

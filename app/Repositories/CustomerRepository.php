@@ -121,7 +121,7 @@ class CustomerRepository
         return Customer::query()
             ->with_max('orders', 'created_at')
             ->with_count('orders')
-            ->with_sum(['orders' => fn($query) => $query->where('payment_status', PaymentStatus::PAID)], 'total')
+            ->with_sum(['orders' => fn($query) => $query->where('payment_status', PaymentStatus::PAID)], 'base_total')
             ->with('billing_address', 'shipping_address')
             ->when($filters['search'] ?? null, function (QueryBuilder $query, $search) {
                 return $query->where_any(['first_name', 'last_name', 'email', 'phone'], 'like', '%' . $search . '%');

@@ -35,7 +35,7 @@ const WeightRangeField = <
 
   const arrayError = (formState.errors as Record<string, unknown>)?.[name] as
     | RowErrorMessage
-    | Array<{ from?: RowErrorMessage; to?: RowErrorMessage; amount?: RowErrorMessage }>
+    | Array<{ from?: RowErrorMessage; to?: RowErrorMessage; base_amount?: RowErrorMessage }>
     | undefined;
   const arrayLevelMessage = Array.isArray(arrayError) ? undefined : arrayError?.message;
   const rowErrorFor = (index: number) => (Array.isArray(arrayError) ? arrayError[index] : undefined);
@@ -89,7 +89,7 @@ const WeightRangeField = <
             <div css={scoped(styles.rateRow)} data-hover-parent>
               <Controller
                 control={control}
-                name={`${name}.${index}.amount` as FieldPath<TFieldValues>}
+                name={`${name}.${index}.base_amount` as FieldPath<TFieldValues>}
                 render={({ field: amountField, fieldState }) => (
                   <Field data-invalid={fieldState.invalid || undefined}>
                     <Input
@@ -103,7 +103,7 @@ const WeightRangeField = <
                       onBlur={amountField.onBlur}
                       ref={amountField.ref}
                     />
-                    {fieldState.invalid && <FieldError>{rowError?.amount?.message}</FieldError>}
+                    {fieldState.invalid && <FieldError>{rowError?.base_amount?.message}</FieldError>}
                   </Field>
                 )}
               />
@@ -125,7 +125,7 @@ const WeightRangeField = <
       <Button
         variant="ghost"
         disabled={disabled}
-        onClick={() => append({ from: null, to: null, amount: null } as never)}
+        onClick={() => append({ from: null, to: null, base_amount: null } as never)}
       >
         <PlusIcon />
         {__('Add Another Range', 'kirki-ecommerce')}

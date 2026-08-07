@@ -1,45 +1,15 @@
 info:
-  name: List (Product)
+  name: List (Product) with variants
   type: http
-  seq: 7
+  seq: 10
   tags:
     - products
 
 http:
   method: GET
-  url: "{{baseUrl}}/products"
-  params:
-    - name: search
-      value: ""
-      type: query
-    - name: sort_by
-      value: id
-      type: query
-    - name: sort_order
-      value: asc
-      type: query
-    - name: page
-      value: "1"
-      type: query
-    - name: limit
-      value: "-1"
-      type: query
-    - name: category_ids
-      value: 1,2
-      type: query
-    - name: brand_id
-      value: "5"
-      type: query
-    - name: collection_id
-      value: "2"
-      type: query
-    - name: status
-      value: published
-      type: query
-    - name: inventory_type
-      value: in_stock
-      type: query
+  url: "{{baseUrl}}/product-variants"
   auth: inherit
+
 settings:
   encodeUrl: true
   timeout: 0

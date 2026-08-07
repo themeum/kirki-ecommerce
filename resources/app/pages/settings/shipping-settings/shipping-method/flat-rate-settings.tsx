@@ -8,7 +8,7 @@ const FlatRateSettings = () => {
   return (
     <Flex direction="column" gap={4}>
       <MoneyField
-        name="amount"
+        name="base_amount"
         label={__('Rate', 'kirki-ecommerce')}
         placeholder={__('0.00', 'kirki-ecommerce')}
       />

@@ -59,7 +59,7 @@ type ShippingMethodData = {
   subText?: string;
   rightText?: string;
   shipping_rules?: ShippingRule[];
-  amount?: number | string | null;
+  base_amount?: number | string | null;
   is_taxable?: boolean;
   description?: string | null;
   address?: string | null;
@@ -70,10 +70,10 @@ type ShippingMethodData = {
   ranges?: Array<{
     from: number | string | null;
     to: number | string | null;
-    amount: number | string | null;
+    base_amount: number | string | null;
   }>;
   is_free_shipping_enabled?: boolean;
-  free_shipping_min_amount?: number | string | null;
+  base_free_shipping_min_amount?: number | string | null;
 };
 
 type ShippingZone = {
@@ -107,16 +107,10 @@ type SelectOption = {
 
 export type {
   CountryState,
-  CountryWithStates,
-  ShippingRegion,
-  ShippingRule,
-  ShippingRuleCondition,
-  ShippingRuleAction,
-  ShippingMethodData,
-  ShippingZone,
-  RegionTag,
+  CountryWithStates, RegionTag,
   SaveShippingZonesParams,
-  SelectOption,
+  SelectOption, ShippingMethodData, ShippingRegion,
+  ShippingRule, ShippingRuleAction, ShippingRuleCondition, ShippingZone
 };
 
 export type SetState<T> = Dispatch<SetStateAction<T>>;
@@ -224,9 +218,9 @@ export const getShippingMethodSubText = (method: ShippingMethodData): string | u
 export const getShippingMethodRightText = (method: ShippingMethodData): string | undefined => {
   const showsAmount =
     (method.type === 'flat_rate' || (method.type === 'local_pickup' && method.has_fee)) &&
-    !isEmptyAmount(method.amount);
+    !isEmptyAmount(method.base_amount);
 
-  return showsAmount ? sprintf(__('$%s', 'kirki-ecommerce'), method.amount as string | number) : undefined;
+  return showsAmount ? sprintf(__('$%s', 'kirki-ecommerce'), method.base_amount as string | number) : undefined;
 };
 
 export const conditionOptions: SelectOption[] = [
@@ -267,4 +261,3 @@ export const actionOptionsArray: SelectOption[] = [
     value: 'set_free_shipping',
   },
 ];
-

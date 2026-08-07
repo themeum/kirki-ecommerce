@@ -8,7 +8,7 @@ describe('ShippingMethodFormSchema', () => {
       type: 'flat_rate',
       name: 'Standard Delivery',
       description: '2-3 business days',
-      amount: '10',
+      base_amount: '10',
       is_taxable: true,
     });
 
@@ -16,7 +16,7 @@ describe('ShippingMethodFormSchema', () => {
       type: 'flat_rate',
       name: 'Standard Delivery',
       description: '2-3 business days',
-      amount: 10,
+      base_amount: 10,
       is_taxable: true,
     });
   });
@@ -26,7 +26,7 @@ describe('ShippingMethodFormSchema', () => {
       ShippingMethodFormSchema.safeParse({
         type: 'flat_rate',
         name: 'Standard Delivery',
-        amount: '',
+        base_amount: '',
       }).success,
     ).toBe(false);
   });
@@ -36,7 +36,7 @@ describe('ShippingMethodFormSchema', () => {
       ShippingMethodFormSchema.safeParse({
         type: 'flat_rate',
         name: '  ',
-        amount: '5',
+        base_amount: '5',
       }).success,
     ).toBe(false);
   });
@@ -47,7 +47,7 @@ describe('ShippingMethodFormSchema', () => {
       name: 'Store Pickup',
       address: '123 Main St',
       has_fee: false,
-      amount: '5',
+      base_amount: '5',
       has_pick_time: true,
       pickup_time_start: '09:00',
       pickup_time_end: '17:00',
@@ -59,7 +59,7 @@ describe('ShippingMethodFormSchema', () => {
       description: null,
       address: '123 Main St',
       has_fee: false,
-      amount: null,
+      base_amount: null,
       has_pick_time: true,
       pickup_time_start: '09:00',
       pickup_time_end: '17:00',
@@ -72,7 +72,7 @@ describe('ShippingMethodFormSchema', () => {
         type: 'local_pickup',
         name: 'Store Pickup',
         has_fee: true,
-        amount: '',
+        base_amount: '',
       }).success,
     ).toBe(false);
   });
@@ -83,7 +83,7 @@ describe('ShippingMethodFormSchema', () => {
         type: 'local_pickup',
         name: 'Store Pickup',
         has_fee: false,
-        amount: '',
+        base_amount: '',
       }).success,
     ).toBe(true);
   });
@@ -92,20 +92,20 @@ describe('ShippingMethodFormSchema', () => {
     const result = ShippingMethodFormSchema.parse({
       type: 'weight',
       name: 'Heavy Items',
-      ranges: [{ from: '0', to: '10', amount: '15' }],
+      ranges: [{ from: '0', to: '10', base_amount: '15' }],
       is_taxable: false,
       is_free_shipping_enabled: true,
-      free_shipping_min_amount: '100',
+      base_free_shipping_min_amount: '100',
     });
 
     expect(result).toEqual({
       type: 'weight',
       name: 'Heavy Items',
       description: null,
-      ranges: [{ from: 0, to: 10, amount: 15 }],
+      ranges: [{ from: 0, to: 10, base_amount: 15 }],
       is_taxable: false,
       is_free_shipping_enabled: true,
-      free_shipping_min_amount: 100,
+      base_free_shipping_min_amount: 100,
     });
   });
 
@@ -124,7 +124,7 @@ describe('ShippingMethodFormSchema', () => {
       ShippingMethodFormSchema.safeParse({
         type: 'weight',
         name: 'Heavy Items',
-        ranges: [{ from: '0', to: '10', amount: '' }],
+        ranges: [{ from: '0', to: '10', base_amount: '' }],
       }).success,
     ).toBe(false);
   });
@@ -133,14 +133,14 @@ describe('ShippingMethodFormSchema', () => {
     const result = ShippingMethodFormSchema.parse({
       type: 'weight',
       name: 'Heavy Items',
-      ranges: [{ from: '0', to: '10', amount: '15' }],
+      ranges: [{ from: '0', to: '10', base_amount: '15' }],
       is_free_shipping_enabled: false,
     });
 
     if (result.type !== 'weight') {
       throw new Error('expected a weight-type result');
     }
-    expect(result.free_shipping_min_amount).toBeNull();
+    expect(result.base_free_shipping_min_amount).toBeNull();
   });
 
   it('drops the previous type values when switching type', () => {
@@ -148,8 +148,8 @@ describe('ShippingMethodFormSchema', () => {
       type: 'local_pickup',
       name: 'Store Pickup',
       has_fee: false,
-      amount: '10',
-      ranges: [{ from: '0', to: '10', amount: '15' }],
+      base_amount: '10',
+      ranges: [{ from: '0', to: '10', base_amount: '15' }],
     });
 
     expect(result).not.toHaveProperty('ranges');
@@ -159,7 +159,7 @@ describe('ShippingMethodFormSchema', () => {
       description: null,
       address: null,
       has_fee: false,
-      amount: null,
+      base_amount: null,
       has_pick_time: false,
       pickup_time_start: null,
       pickup_time_end: null,

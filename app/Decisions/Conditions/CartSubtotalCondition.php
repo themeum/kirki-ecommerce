@@ -14,7 +14,7 @@ class CartSubtotalCondition extends Condition
 
     public function evaluate(DecisionContext $context, $operator, $value)
     {
-        $cart_subtotal = $context->get('cart_subtotal');
+        $cart_subtotal = $context->get('base_cart_subtotal');
 
         return $this->compare($cart_subtotal, $operator, $value);
     }

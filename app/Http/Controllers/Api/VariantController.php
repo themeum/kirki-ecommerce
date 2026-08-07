@@ -26,7 +26,7 @@ class VariantController
     public function get(VariantListRequest $request)
     {
         $filters = VariantListFilterDTO::from_array($request->all());
-        $filters->sort_by = $request->get_whitelisted('sort_by', 'id', ['id', 'product_id', 'name', 'sku', 'price', 'sale_price', 'available_quantity', 'created_at', 'updated_at']);
+        $filters->sort_by = $request->get_whitelisted('sort_by', 'id', ['id', 'product_id', 'name', 'sku', 'base_price', 'base_sale_price', 'available_quantity', 'created_at', 'updated_at']);
 
         if ((int) $filters->limit === Pagination::ALL) {
             $data = $this->service->all($filters);
