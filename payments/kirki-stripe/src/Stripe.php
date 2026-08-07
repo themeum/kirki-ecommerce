@@ -8,7 +8,7 @@ use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\Models\Refund;
 use Kirki\Ecommerce\Framework\Sanitizer;
-use Kirki\Ecommerce\App\Payment\PaymentGateway;
+use Kirki\Ecommerce\App\Payment\PaymentProvider;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Kirki\Ecommerce\Framework\Validation\Validator;
 use Stripe\Event;
@@ -21,7 +21,7 @@ use Kirki\Ecommerce\App\Facades\Order as OrderManager;
 
 defined('ABSPATH') || exit;
 
-class Stripe extends PaymentGateway
+class Stripe extends PaymentProvider
 {
     /**
      * @var StripeClient
@@ -36,9 +36,10 @@ class Stripe extends PaymentGateway
         $this->id = 'stripe';
         $this->title = __('Stripe', 'kirki-ecommerce');
         $this->description = __('Stripe payment gateway', 'kirki-ecommerce');
-        $this->icon = 'stripe';
+        $this->icon = $this->icon_url('stripe');
         $this->settings_key = 'stripe';
-        $this->is_manual = false;
+        $this->is_offline = false;
+        $this->is_available = true;
         $this->has_fields = false;
 
         parent::__construct();
@@ -579,6 +580,6 @@ class Stripe extends PaymentGateway
             return;
         }
 
-        OrderManager::set_payment_gateway_fee($order->id, $balance_transaction->fee);
+        OrderManager::set_payment_provider_fee($order->id, $balance_transaction->fee);
     }
 }

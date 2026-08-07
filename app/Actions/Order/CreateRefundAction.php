@@ -49,7 +49,7 @@ class CreateRefundAction
         DB::begin_transaction();
 
         try {
-            $payment_gateway = Payment::get_gateway($order->payment_gateway);
+            $provider = Payment::get_provider($order->payment_provider);
 
             // @todo should we create it this way or should we use repository?
             $refund = $order->refunds()->create([
@@ -60,8 +60,8 @@ class CreateRefundAction
                 'created_by' => $dto->created_by,
             ]);
 
-            if ($payment_gateway) {
-                $payment_gateway->refund($order, $refund);
+            if ($provider) {
+                $provider->refund($order, $refund);
             }
 
             // Sync Inventory if full refund

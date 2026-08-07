@@ -49,10 +49,9 @@ class CreateOrdersTable implements Migration
             $table->decimal('total_weight', 10, 2)->nullable();
 
             $table->string('payment_status', 50)->default('pending')->comment('Available: paid, unpaid, failed, refunding, refunded');
-            $table->string('payment_method', 100)->nullable();
+            $table->string('payment_provider', 100)->nullable();
             $table->string('payment_transaction_id')->nullable();
-            $table->string('payment_gateway')->nullable();
-            $table->integer('invoiced_payment_gateway_fee')->default(0);
+            $table->integer('invoiced_payment_provider_fee')->default(0);
             $table->text('payment_metadata')->nullable();
 
             $table->string('shipping_method', 100)->nullable();
@@ -128,7 +127,7 @@ class CreateOrdersTable implements Migration
             $table->index(['fulfilled_at'], 'idx_fulfilled_orders');
             $table->index(['shipped_at'], 'idx_shipped_orders');
 
-            $table->index(['payment_method', 'payment_status'], 'idx_payment_method_tracking');
+            $table->index(['payment_provider', 'payment_status'], 'idx_payment_provider_tracking');
             $table->index(['shipping_country', 'created_at'], 'idx_country_orders');
 
             $table->index('payment_transaction_id');

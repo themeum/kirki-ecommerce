@@ -27,7 +27,7 @@ use Kirki\Ecommerce\App\Managers\OrderManager;
  * @method static bool delete(int $id)
  * @method static bool delete_or_fail(int $id)
  * @method static bool set_transaction_id(int $id, string $transaction_id)
- * @method static bool set_payment_gateway_fee(int $id, int $fee)
+ * @method static bool set_payment_provider_fee(int $id, int $fee)
  * @method static \Kirki\Ecommerce\App\Models\Order create_refund(\Kirki\Ecommerce\App\DTO\Refund\CreateRefundPayloadDTO $dto)
  * @method static \Kirki\Ecommerce\App\Models\Order update_refund(\Kirki\Ecommerce\App\DTO\Refund\UpdateRefundPayloadDTO $dto)
  * @method static \Kirki\Ecommerce\App\Models\Order get_refund(\Kirki\Ecommerce\App\Models\Order $order, int $id)

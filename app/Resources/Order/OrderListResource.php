@@ -23,7 +23,7 @@ class OrderListResource extends Resource
             'fulfillment_status' => $this->fulfillment_status,
             'is_refund_initiated' => $this->is_refund_initiated,
             'payment_status' => $this->payment_status,
-            'payment_method' => $this->payment_method,
+            'payment_provider' => $this->payment_provider,
             'created_at' => $this->created_at,
         ];
     }

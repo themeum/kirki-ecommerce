@@ -1,3 +1,4 @@
+import { CustomerAddressSchema } from "@/schemas/catalog/customer";
 import { MoneyAmountSchema, MoneyObjectSchema } from "@/schemas/shared/api";
 import { MediaRefSchema } from "@/schemas/shared/media";
 import z from "zod";
@@ -46,21 +47,6 @@ export const FulfillmentStatusSchema = z.enum([
 ]);
 
 export type FulfillmentStatus = z.infer<typeof FulfillmentStatusSchema>;
-
-export const OrderAddressSchema = z.object({
-  first_name: z.string().nullish(),
-  last_name: z.string().nullish(),
-  line1: z.string().nullish(),
-  line2: z.string().nullish(),
-  city: z.string().nullish(),
-  state: z.string().nullish(),
-  country: z.string().nullish(),
-  postal_code: z.string().nullish(),
-  phone: z.string().nullish(),
-  email: z.string().nullish(),
-});
-
-export type OrderAddress = z.infer<typeof OrderAddressSchema>;
 
 export const OrderTrackingSchema = z.object({
   carrier: z.string().nullish(),
@@ -164,10 +150,10 @@ export const OrderItemSchema = z.object({
     sku: z.string().nullish(),
     image: MediaRefSchema.nullish(),
   })),
-  shipping_address: OrderAddressSchema,
+  shipping_address: CustomerAddressSchema.nullish(),
   is_billing_same_as_shipping: z.boolean(),
-  billing_address: OrderAddressSchema,
-  payment_method: z.string().nullish(),
+  billing_address: CustomerAddressSchema.nullish(),
+  payment_provider: z.string(),
   payment_status: PaymentStatusSchema,
   shipping_method: z.string().nullish(),
   customer_notes: z.string().nullish(),
@@ -196,7 +182,7 @@ export const OrderListItemSchema = OrderItemSchema.pick({
   fulfillment_status: FulfillmentStatusSchema,
   is_refund_initiated: z.boolean(),
   payment_status: PaymentStatusSchema,
-  payment_method: z.string().nullish(),
+  payment_provider: z.string().nullish(),
   created_at: z.string()
 }));
 

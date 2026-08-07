@@ -361,15 +361,15 @@ class OrderManager
     }
 
     /**
-     * Set payment gateway fee for an order.
+     * Set payment provider fee for an order.
      *
      * @param int $id
      * @param int $fee
      * @return bool
      */
-    public function set_payment_gateway_fee(int $id, int $fee)
+    public function set_payment_provider_fee(int $id, int $fee)
     {
-        return $this->order_service->partial_update_order($id, ['invoiced_payment_gateway_fee' => $fee]);
+        return $this->order_service->partial_update_order($id, ['invoiced_payment_provider_fee' => $fee]);
     }
 
     /**

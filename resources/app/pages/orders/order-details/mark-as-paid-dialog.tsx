@@ -16,7 +16,7 @@ import {
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import Text from '@/components/ui/text';
-import { usePaymentMethodsQuery } from '@/services/payment';
+import { useOfflinePaymentsQuery } from '@/services/payment';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
 import type { OrderItem } from '@/types';
@@ -38,7 +38,7 @@ const MarkAsPaidDialog = ({ open, onOpenChange, order, isSaving, onSubmit }: Mar
   const navigate = useNavigate();
   const form = useForm<MarkAsPaidFormValues>({ defaultValues: { payment_method: '' } });
 
-  const { data: paymentMethods = [], isLoading } = usePaymentMethodsQuery();
+  const { data: paymentMethods = [], isLoading } = useOfflinePaymentsQuery();
   const availablePaymentMethods = paymentMethods.filter((method) => method.is_enabled);
   const paymentMethodOptions = availablePaymentMethods.map((method) => ({
     label: method.name ?? '',

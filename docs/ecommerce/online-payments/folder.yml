@@ -1,0 +1,7 @@
+info:
+  name: Online Payments
+  type: folder
+  seq: 16
+
+request:
+  auth: inherit

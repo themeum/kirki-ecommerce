@@ -18,7 +18,7 @@ export type {
 export type { SetKeyValuePayload } from '@/types/common-actions';
 
 export type { Currency } from '@/schemas/catalog/currency';
-export type { PaymentGateway, PaymentMethod } from '@/schemas/catalog/payment';
+export type { OfflinePayment, OnlinePayment } from '@/schemas/catalog/payment';
 export type { SettingsSectionKey } from '@/schemas/catalog/settings';
 export type {
   ShippingBox, ShippingCarrier, ShippingMethod, ShippingProfile, ShippingRegion, ShippingRule, ShippingRuleAction, ShippingRuleCondition, ShippingZone
@@ -37,7 +37,7 @@ export type {
 } from '@/types/entities/customer';
 export type { MediaRef, MediaSize } from '@/types/entities/media';
 export { FulfillmentStatusSchema, OrderCalculationRequestSchema, OrderCalculationSchema, OrderFormSchema, OrderItemSchema, OrderListItemSchema } from '@/types/entities/order';
-export type { FulfillmentStatus, OrderAddress, OrderCalculation, OrderCalculationRequestPayload, OrderFormInput, OrderFormPayload, OrderItem, OrderStatus, OrderTracking, PaymentStatus, Refund } from '@/types/entities/order';
+export type { FulfillmentStatus, OrderCalculation, OrderCalculationRequestPayload, OrderFormInput, OrderFormPayload, OrderItem, OrderStatus, OrderTracking, PaymentStatus, Refund } from '@/types/entities/order';
 export type { PageItem } from '@/types/entities/page';
 export type {
   AdditionalInfoItem, InventoryVariant, Product,

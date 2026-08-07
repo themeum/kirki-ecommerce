@@ -4,5 +4,5 @@ namespace Kirki\Ecommerce\App\Constants;
 
 class HookNames
 {
-    const ECOMMERCE_ALL_PAYMENT_GATEWAYS = 'kirki_ecommerce_all_payment_gateways';
+    const ECOMMERCE_PAYMENT_PROVIDERS = 'kirki_ecommerce_payment_providers';
 }

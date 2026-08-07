@@ -82,8 +82,8 @@ class OrderResource extends Resource
             'shipping_address' => [
                 'first_name' => $this->shipping_first_name,
                 'last_name' => $this->shipping_last_name,
-                'line1' => $this->shipping_address_line1,
-                'line2' => $this->shipping_address_line2,
+                'address_line1' => $this->shipping_address_line1,
+                'address_line2' => $this->shipping_address_line2,
                 'city' => $this->shipping_city,
                 'state' => $this->shipping_state,
                 'country' => $this->shipping_country,
@@ -97,8 +97,8 @@ class OrderResource extends Resource
             'billing_address' => [
                 'first_name' => $this->billing_first_name,
                 'last_name' => $this->billing_last_name,
-                'line1' => $this->billing_address_line1,
-                'line2' => $this->billing_address_line2,
+                'address_line1' => $this->billing_address_line1,
+                'address_line2' => $this->billing_address_line2,
                 'city' => $this->billing_city,
                 'state' => $this->billing_state,
                 'country' => $this->billing_country,
@@ -107,7 +107,7 @@ class OrderResource extends Resource
                 'email' => $this->billing_email,
             ],
 
-            'payment_method' => $this->payment_method,
+            'payment_provider' => $this->payment_provider,
             'payment_status' => $this->payment_status,
             'shipping_method' => $this->shipping_method,
             'customer_notes' => $this->customer_notes,
