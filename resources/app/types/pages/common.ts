@@ -21,9 +21,9 @@ type ToastMessageConfig = {
 };
 
 type ProfitData = {
-  price?: number | string | null;
-  sale_price?: number | string | null;
-  cost_of_goods?: number | string | null;
+  base_price?: number | string | null;
+  base_sale_price?: number | string | null;
+  base_cost_of_goods?: number | string | null;
 };
 
 type MarkListHandlers = {

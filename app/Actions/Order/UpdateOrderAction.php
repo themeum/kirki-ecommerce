@@ -151,21 +151,21 @@ class UpdateOrderAction
         $order_dto->base_currency_code = $this->base_currency_code;
         $order_dto->exchange_rate = $exchange_rate;
 
-        $order_dto->subtotal = $this->convert_amount($calculated_result->subtotal, $dto->currency_code, $order_dto->exchange_rate);
-        $order_dto->subtotal_base = $calculated_result->subtotal;
+        $order_dto->invoiced_subtotal = $this->convert_amount($calculated_result->base_subtotal, $dto->currency_code, $order_dto->exchange_rate);
+        $order_dto->base_subtotal = $calculated_result->base_subtotal;
 
-        $order_dto->shipping_total = $this->convert_amount($calculated_result->shipping_total, $dto->currency_code, $order_dto->exchange_rate);
-        $order_dto->shipping_total_base = $calculated_result->shipping_total;
+        $order_dto->invoiced_shipping_total = $this->convert_amount($calculated_result->base_shipping_total, $dto->currency_code, $order_dto->exchange_rate);
+        $order_dto->base_shipping_total = $calculated_result->base_shipping_total;
 
-        $order_dto->discount_total = $this->convert_amount($calculated_result->discount_total, $dto->currency_code, $order_dto->exchange_rate);
-        $order_dto->discount_total_base = $calculated_result->discount_total;
+        $order_dto->invoiced_discount_total = $this->convert_amount($calculated_result->base_discount_total, $dto->currency_code, $order_dto->exchange_rate);
+        $order_dto->base_discount_total = $calculated_result->base_discount_total;
         $order_dto->discount_details = $calculated_result->discount_details;
 
-        $order_dto->tax_total = $this->convert_amount($calculated_result->tax_total, $dto->currency_code, $order_dto->exchange_rate);
-        $order_dto->tax_total_base = $calculated_result->tax_total;
+        $order_dto->invoiced_tax_total = $this->convert_amount($calculated_result->base_tax_total, $dto->currency_code, $order_dto->exchange_rate);
+        $order_dto->base_tax_total = $calculated_result->base_tax_total;
 
-        $order_dto->total = $this->convert_amount($calculated_result->total, $dto->currency_code, $order_dto->exchange_rate);
-        $order_dto->total_base = $calculated_result->total;
+        $order_dto->invoiced_total = $this->convert_amount($calculated_result->base_total, $dto->currency_code, $order_dto->exchange_rate);
+        $order_dto->base_total = $calculated_result->base_total;
 
         $order_dto->items_count = $calculated_result->items_count;
 
@@ -243,7 +243,7 @@ class UpdateOrderAction
             $item_dto->variant_id = $variant->id;
             $item_dto->product_id = $product->id;
             $item_dto->quantity = $item_data['quantity'];
-            $item_dto->unit_price = $variant->sale_price ?: $variant->price;
+            $item_dto->base_unit_price = $variant->base_sale_price ?: $variant->base_price;
             $item_dto->weight = $variant->weight;
             $item_dto->shipping_profile_id = $variant->shipping_profile_id;
             $item_dto->product_categories = $product->categories->pluck('id')->to_array();
@@ -269,23 +269,23 @@ class UpdateOrderAction
         $item_dto->barcode = $variant->barcode;
         $item_dto->product_image = $variant->media ?? $product->media->first()->id;
 
-        $item_dto->price = $this->convert_amount($variant->sale_price ?: $variant->price, $currency_code, $exchange_rate);
-        $item_dto->price_base = $variant->sale_price ?: $variant->price;
+        $item_dto->invoiced_price = $this->convert_amount($variant->base_sale_price ?: $variant->base_price, $currency_code, $exchange_rate);
+        $item_dto->base_price = $variant->base_sale_price ?: $variant->base_price;
 
         $item_dto->quantity = $calculated_item->quantity;
 
-        $item_dto->subtotal = $this->convert_amount($calculated_item->subtotal, $currency_code, $exchange_rate);
-        $item_dto->subtotal_base = $calculated_item->subtotal;
+        $item_dto->invoiced_subtotal = $this->convert_amount($calculated_item->base_subtotal, $currency_code, $exchange_rate);
+        $item_dto->base_subtotal = $calculated_item->base_subtotal;
 
-        $item_dto->discount_amount = $this->convert_amount($calculated_item->discount_amount, $currency_code, $exchange_rate);
-        $item_dto->discount_amount_base = $calculated_item->discount_amount;
+        $item_dto->invoiced_discount_amount = $this->convert_amount($calculated_item->base_discount_amount, $currency_code, $exchange_rate);
+        $item_dto->base_discount_amount = $calculated_item->base_discount_amount;
 
-        $item_dto->tax_total = $this->convert_amount($calculated_item->tax_amount, $currency_code, $exchange_rate);
-        $item_dto->tax_total_base = $calculated_item->tax_amount;
+        $item_dto->invoiced_tax_total = $this->convert_amount($calculated_item->base_tax_amount, $currency_code, $exchange_rate);
+        $item_dto->base_tax_total = $calculated_item->base_tax_amount;
         $item_dto->tax_rate = $calculated_item->tax_rate;
 
-        $item_dto->total = $this->convert_amount($calculated_item->total, $currency_code, $exchange_rate);
-        $item_dto->total_base = $calculated_item->total;
+        $item_dto->invoiced_total = $this->convert_amount($calculated_item->base_total, $currency_code, $exchange_rate);
+        $item_dto->base_total = $calculated_item->base_total;
 
         $item_dto->is_physical_product = $variant->is_physical_product ?? true;
         $item_dto->weight = $variant->weight;
@@ -312,23 +312,23 @@ class UpdateOrderAction
         $item_dto->barcode = $existing_item->barcode;
         $item_dto->product_image = $existing_item->product_image;
 
-        $item_dto->price = $existing_item->price;
-        $item_dto->price_base = $existing_item->price_base;
+        $item_dto->invoiced_price = $existing_item->invoiced_price;
+        $item_dto->base_price = $existing_item->base_price;
 
         $item_dto->quantity = $calculated_item->quantity;
 
-        $item_dto->subtotal = $this->convert_amount($calculated_item->subtotal, $currency_code, $exchange_rate);
-        $item_dto->subtotal_base = $calculated_item->subtotal;
+        $item_dto->invoiced_subtotal = $this->convert_amount($calculated_item->base_subtotal, $currency_code, $exchange_rate);
+        $item_dto->base_subtotal = $calculated_item->base_subtotal;
 
-        $item_dto->discount_amount = $this->convert_amount($calculated_item->discount_amount, $currency_code, $exchange_rate);
-        $item_dto->discount_amount_base = $calculated_item->discount_amount;
+        $item_dto->invoiced_discount_amount = $this->convert_amount($calculated_item->base_discount_amount, $currency_code, $exchange_rate);
+        $item_dto->base_discount_amount = $calculated_item->base_discount_amount;
 
-        $item_dto->tax_total = $this->convert_amount($calculated_item->tax_amount, $currency_code, $exchange_rate);
-        $item_dto->tax_total_base = $calculated_item->tax_amount;
+        $item_dto->invoiced_tax_total = $this->convert_amount($calculated_item->base_tax_amount, $currency_code, $exchange_rate);
+        $item_dto->base_tax_total = $calculated_item->base_tax_amount;
         $item_dto->tax_rate = $calculated_item->tax_rate;
 
-        $item_dto->total = $this->convert_amount($calculated_item->total, $currency_code, $exchange_rate);
-        $item_dto->total_base = $calculated_item->total;
+        $item_dto->invoiced_total = $this->convert_amount($calculated_item->base_total, $currency_code, $exchange_rate);
+        $item_dto->base_total = $calculated_item->base_total;
 
         $item_dto->is_physical_product = $existing_item->is_physical_product;
         $item_dto->weight = $existing_item->weight;

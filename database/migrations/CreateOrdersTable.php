@@ -24,26 +24,26 @@ class CreateOrdersTable implements Migration
             $table->string('base_currency_code', 3);
             $table->decimal('exchange_rate', 15, 6)->nullable()->comment('Exchange rate at time of order for accurate historical reporting');
 
-            $table->integer('subtotal')->default(0);
-            $table->integer('subtotal_base')->default(0);
+            $table->integer('invoiced_subtotal')->default(0);
+            $table->integer('base_subtotal')->default(0);
 
             $table->string('tax_id_number', 100)->nullable();
             $table->string('tax_id_type', 50)->nullable()->comment('Available: vat, gst, ein, etc.');
             $table->boolean('reverse_charge')->default(0)->comment('EU reverse charge mechanism');
 
-            $table->integer('shipping_total')->default(0);
-            $table->integer('shipping_total_base')->default(0);
+            $table->integer('invoiced_shipping_total')->default(0);
+            $table->integer('base_shipping_total')->default(0);
 
             $table->string('coupon_code', 100)->nullable();
-            $table->integer('discount_total')->default(0);
-            $table->integer('discount_total_base')->default(0);
+            $table->integer('invoiced_discount_total')->default(0);
+            $table->integer('base_discount_total')->default(0);
             $table->text('discount_details')->nullable()->comment('JSON snapshot of discount details');
 
-            $table->integer('tax_total')->default(0);
-            $table->integer('tax_total_base')->default(0);
+            $table->integer('invoiced_tax_total')->default(0);
+            $table->integer('base_tax_total')->default(0);
 
-            $table->integer('total')->default(0);
-            $table->integer('total_base')->default(0);
+            $table->integer('invoiced_total')->default(0);
+            $table->integer('base_total')->default(0);
 
             $table->integer('items_count')->default(0);
             $table->decimal('total_weight', 10, 2)->nullable();
@@ -52,7 +52,7 @@ class CreateOrdersTable implements Migration
             $table->string('payment_method', 100)->nullable();
             $table->string('payment_transaction_id')->nullable();
             $table->string('payment_gateway')->nullable();
-            $table->integer('payment_gateway_fee')->default(0);
+            $table->integer('invoiced_payment_gateway_fee')->default(0);
             $table->text('payment_metadata')->nullable();
 
             $table->string('shipping_method', 100)->nullable();

@@ -92,7 +92,7 @@ class Stripe extends PaymentGateway
                             'name' => $item->product_name,
                             'description' => $this->get_item_description($item, $currency),
                         ],
-                        'unit_amount' => (int) $item->total,
+                        'unit_amount' => (int) $item->invoiced_total,
                     ],
                     'quantity' => 1,
                 ];
@@ -105,7 +105,7 @@ class Stripe extends PaymentGateway
                         'product_data' => [
                             'name' => __('Order #' . $order->order_number, 'kirki-ecommerce'),
                         ],
-                        'unit_amount' => (int) $order->total,
+                        'unit_amount' => (int) $order->invoiced_total,
                     ],
                     'quantity' => 1,
                 ];
@@ -162,7 +162,7 @@ class Stripe extends PaymentGateway
 
             $refund_payload = [
                 'payment_intent' => $transaction_id,
-                'amount' => (int) $refund->amount,
+                'amount' => (int) $refund->invoiced_amount,
                 'metadata' => ['refund_request_id' => $refund->id],
             ];
 
@@ -550,7 +550,7 @@ class Stripe extends PaymentGateway
         }
 
         OrderManager::update_refund(UpdateRefundPayloadDTO::from_array(array_merge($refund->to_array(), [
-            'amount' => $stripe_refund->amount,
+            'invoiced_amount' => $stripe_refund->amount,
             'refund_id' => $stripe_refund->id,
             'status' => $stripe_refund->status === 'succeeded' ? RefundStatus::COMPLETED : RefundStatus::PENDING,
         ])));

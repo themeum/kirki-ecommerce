@@ -1,13 +1,13 @@
-import { useState, useMemo, type Dispatch, type SetStateAction } from 'react';
+import { useMemo, useState, type Dispatch, type SetStateAction } from 'react';
 import { useOutletContext } from 'react-router';
 
 import BulkActionHandler from '@/components/bulk-action-handler';
 import { Card, CardContent } from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
-import { useMarkList } from '@/hooks';
 import Flex from '@/components/ui/flex';
 import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import Text from '@/components/ui/text';
+import { useMarkList } from '@/hooks';
 import { useBulkDeleteAttributeValuesMutation } from '@/services/attribute';
 import type {
   Attribute,
@@ -17,12 +17,12 @@ import type {
 } from '@/types';
 import { __ } from '@/wpi18n';
 
-import { mergeCss, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
+import { defineStyles, mergeCss } from '@/theme/mixins';
 
-import { getSearchedValue, setUnsavedDataStatus } from '@/pages/settings/utils';
 import SingleRow from '@/pages/settings/essential-settings/variation-library/variation-table/single-row';
 import VariantTableAction from '@/pages/settings/essential-settings/variation-library/variation-table/variant-table-action';
+import { getSearchedValue, setUnsavedDataStatus } from '@/pages/settings/utils';
 
 import { theme } from '@/theme';
 

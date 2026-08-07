@@ -42,7 +42,7 @@ class CreateRefundAction
 
         $refundable_amount = $this->get_refundable_amount($order);
 
-        if ($dto->amount > $refundable_amount) {
+        if ($dto->invoiced_amount > $refundable_amount) {
             throw new ValidationException(__('Refund amount exceeds refundable amount.', 'kirki-ecommerce'), Response::UNPROCESSABLE_ENTITY);
         }
 
@@ -53,9 +53,9 @@ class CreateRefundAction
 
             // @todo should we create it this way or should we use repository?
             $refund = $order->refunds()->create([
-                'amount' => $dto->amount,
+                'invoiced_amount' => $dto->invoiced_amount,
                 'reason' => $dto->reason,
-                'refund_type' => $dto->amount === $refundable_amount ? RefundType::FULL : RefundType::PARTIAL,
+                'refund_type' => $dto->invoiced_amount === $refundable_amount ? RefundType::FULL : RefundType::PARTIAL,
                 'created_at' => Date::now(),
                 'created_by' => $dto->created_by,
             ]);
@@ -86,8 +86,8 @@ class CreateRefundAction
     {
         $total_refund_requested = $order->refunds
             ->filter(fn($refund) => in_array($refund->status, [RefundStatus::PENDING, RefundStatus::COMPLETED]))
-            ->sum(fn($refund) => $refund->amount);
+            ->sum(fn($refund) => $refund->invoiced_amount);
 
-        return $order->total - $total_refund_requested - $order->shipping_total;
+        return $order->invoiced_total - $total_refund_requested - $order->invoiced_shipping_total;
     }
 }

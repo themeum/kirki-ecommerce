@@ -1,22 +1,23 @@
 import CountrySelector from '@/components/country-selector';
+import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
+import Flex from '@/components/ui/flex';
+import Grid from '@/components/ui/grid';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import ActionGroup from '@/components/ui/action-group';
-import Flex from '@/components/ui/flex';
-import Grid from '@/components/ui/grid';
 import Text from '@/components/ui/text';
-import type { FormErrors, SettingsSectionData } from '@/types';
 import { theme } from '@/theme';
-import { defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
+import { defineStyles } from '@/theme/mixins';
+import type { ProductSettings } from '@/schemas/catalog/settings';
+import type { FormErrors } from '@/types';
 import { __ } from '@/wpi18n';
 
 type BarcodeGenerationProps = {
-  dataObj?: SettingsSectionData;
+  dataObj?: ProductSettings;
   handleOnChange?: (value: unknown, key: string) => void;
   errors?: FormErrors;
 };
@@ -24,7 +25,7 @@ type BarcodeGenerationProps = {
 const BarcodeGeneration = (_props: BarcodeGenerationProps) => {
   return (
     <div>
-      <Card cssOverride={cardStyles.largeCard}>
+      <Card cssOverride={cardStyles.formCard}>
         <CardHeader cssOverride={cardStyles.sectionHeader}>
           <CardTitle>{__('Barcode Generation', 'kirki-ecommerce')}</CardTitle>
           <CardDescription>
@@ -97,7 +98,7 @@ const BarcodeGeneration = (_props: BarcodeGenerationProps) => {
 
                 <CountrySelector
                   label={__('Country of origin', 'kirki-ecommerce')}
-                  onChange={() => {}}
+                  onChange={() => { }}
                 />
 
                 <Flex gap={2} align="center">
@@ -136,13 +137,13 @@ const BarcodeGeneration = (_props: BarcodeGenerationProps) => {
               <Flex>
                 <Flex direction="column" gap={2}>
                   <Text weight="medium">{__(
-                      'Generate barcodes for all products',
-                      'kirki-ecommerce',
-                    )}</Text>
+                    'Generate barcodes for all products',
+                    'kirki-ecommerce',
+                  )}</Text>
                   <Text color="secondary">{__(
-                      'Enable this option to let customers submit product reviews',
-                      'kirki-ecommerce',
-                    )}</Text>
+                    'Enable this option to let customers submit product reviews',
+                    'kirki-ecommerce',
+                  )}</Text>
                 </Flex>
                 <ActionGroup>
                   <Button variant="secondary">

@@ -369,7 +369,7 @@ class OrderManager
      */
     public function set_payment_gateway_fee(int $id, int $fee)
     {
-        return $this->order_service->partial_update_order($id, ['payment_gateway_fee' => $fee]);
+        return $this->order_service->partial_update_order($id, ['invoiced_payment_gateway_fee' => $fee]);
     }
 
     /**

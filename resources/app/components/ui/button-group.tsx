@@ -210,7 +210,6 @@ const styles = defineStyles({
     ...theme.typography.small('medium'),
     color: theme.colors.text.secondary,
     whiteSpace: 'nowrap',
-    boxSizing: 'border-box',
     '& svg': {
       flexShrink: 0,
       pointerEvents: 'none',

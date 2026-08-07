@@ -114,7 +114,10 @@ examples:
                   "image": "http://droip.local/wp-content/uploads/2025/10/project-launch-bg.webp",
                   "sku": null,
                   "inventory": 230,
-                  "price": 20,
+                  "base_price": 20,
+                  "base_price_money_object": { "raw": 20, "display": "$20.00", "currency": { "code": "USD", "symbol": "$" } },
+                  "display_price": 20,
+                  "display_price_money_object": { "raw": 20, "display": "$20.00", "currency": { "code": "USD", "symbol": "$" } },
                   "status": "published",
                   "created_at": "2025-11-25 11:02:30",
                   "updated_at": "2025-11-25 11:02:30"

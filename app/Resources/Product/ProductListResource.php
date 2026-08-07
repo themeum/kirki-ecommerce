@@ -17,16 +17,16 @@ class ProductListResource extends Resource
     public function to_array()
     {
         $inventory = 0;
-        $min_price = $this->variants->first()->price;
+        $min_price = $this->variants->first()->base_price;
         $min_sale_price = $this->variants->first()->sale_price;
 
         foreach ($this->variants->all() as $variant) {
             $inventory += $variant->track_inventory ? $variant->available_quantity : 0;
-            $min_price = min($min_price, $variant->price);
+            $min_price = min($min_price, $variant->base_price);
             $min_sale_price = min($min_sale_price, $variant->sale_price);
         }
 
-        // TODO: remove attribute and variants when new API is ready for order creation
+        $display_currency = Money::resolve_display_currency();
 
         return [
             'id' => $this->id,
@@ -35,10 +35,14 @@ class ProductListResource extends Resource
             'image' => MediaAttachment::make($this->media->first()->ID ?? null)['url'] ?? null,
             'sku' => $this->sku,
             'inventory' => $inventory,
-            'price' => Money::from_minor($min_price)->getAmount(),
-            'price_object' => Money::to_dto($min_price),
-            'sale_price' => !is_null($min_sale_price) ? Money::from_minor($min_sale_price)->getAmount() : null,
-            'sale_price_object' => !is_null($min_sale_price) ? Money::to_dto($min_sale_price) : null,
+            'base_price' => Money::prepare_amount_from_minor($min_price),
+            'base_price_money_object' => Money::prepare_amount_object_from_minor($min_price),
+            'display_price' => Money::prepare_amount_from_minor($min_price, null, $display_currency),
+            'display_price_money_object' => Money::prepare_amount_object_from_minor($min_price, null, $display_currency),
+            'sale_price' => Money::prepare_amount_from_minor($min_sale_price),
+            'sale_price_money_object' => Money::prepare_amount_object_from_minor($min_sale_price),
+            'display_sale_price' => Money::prepare_amount_from_minor($min_sale_price, null, $display_currency),
+            'display_sale_price_money_object' => Money::prepare_amount_object_from_minor($min_sale_price, null, $display_currency),
             'status' => $this->status,
             'has_variants' => (bool) $this->has_variants,
             'attributes' => !empty($this->attributes) ? $this->format_attributes($this->attributes->to_array(), $this->attribute_values->to_array()) : [],

@@ -15,8 +15,10 @@ class OrderListResource extends Resource
             'order_number' => $this->order_number,
             'customer_id' => $this->customer_id,
             'quantity' => $this->items_count,
-            'total' => $this->prepare_amount($this->total_base),
-            'total_object' => $this->prepare_amount_object($this->total_base),
+            'invoiced_total' => Money::prepare_amount_from_minor($this->invoiced_total, $this->currency_code),
+            'invoiced_total_money_object' => Money::prepare_amount_object_from_minor($this->invoiced_total, $this->currency_code),
+            'base_total' => Money::prepare_amount_from_minor($this->base_total),
+            'base_total_money_object' => Money::prepare_amount_object_from_minor($this->base_total),
             'status' => $this->order_status,
             'fulfillment_status' => $this->fulfillment_status,
             'is_refund_initiated' => $this->is_refund_initiated,
@@ -24,17 +26,5 @@ class OrderListResource extends Resource
             'payment_method' => $this->payment_method,
             'created_at' => $this->created_at,
         ];
-    }
-
-    protected function prepare_amount($amount)
-    {
-        return Money::from_minor($amount, $this->currency_code)->getMinorAmount();
-    }
-
-    protected function prepare_amount_object($amount)
-    {
-        $value = Money::convert_to_currency(Money::from_minor($amount), $this->currency_code)->getMinorAmount();
-
-        return Money::to_dto($value, $this->currency_code);
     }
 }

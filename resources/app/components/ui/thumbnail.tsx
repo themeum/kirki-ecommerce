@@ -171,7 +171,6 @@ const styles = defineStyles({
       height: 'auto',
       border: `1px solid ${theme.colors.border.gallery}`,
       backgroundColor: theme.colors.background.placeholderSurface,
-      boxSizing: 'border-box',
       img: {
         borderRadius: theme.radius.md,
         maxHeight: '202px',

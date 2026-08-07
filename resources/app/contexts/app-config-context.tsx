@@ -1,11 +1,11 @@
 import { createContext, useContext, useMemo, type ReactNode } from 'react';
 
+import type { AppConfig } from '@/schemas/catalog/app-config';
 import { useDefaultSettingsQuery } from '@/services/settings';
-import type { SettingsSectionData } from '@/types';
 import { __ } from '@/wpi18n';
 
 type AppConfigContextValue = {
-  settings?: SettingsSectionData;
+  settings?: AppConfig;
   isLoading: boolean;
 };
 

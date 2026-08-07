@@ -237,7 +237,6 @@ const styles = defineStyles({
     top: '50%',
     left: '50%',
     transformStyle: 'preserve-3d',
-    boxSizing: 'border-box',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',

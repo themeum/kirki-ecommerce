@@ -250,14 +250,12 @@ const styles = defineStyles({
   },
   row: {
     width: '100%',
-    boxSizing: 'border-box',
     padding: `${theme.spacing[2]} ${theme.spacing[4]}`,
     ...itemCenter(),
   },
   footer: {
     width: '100%',
     padding: `${theme.spacing[2]} ${theme.spacing[4]} ${theme.spacing[4]}`,
-    boxSizing: 'border-box',
   },
   loading: {
     padding: `0 ${theme.spacing[4]} ${theme.spacing[4]}`,

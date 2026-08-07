@@ -77,7 +77,7 @@ class OrderCalculationController
             $variant = $this->variant_service->find($item_dto->variant_id)->load('product.categories');
 
             $item_dto->product_id = $variant->product_id;
-            $item_dto->unit_price = $variant->sale_price ?: $variant->price;
+            $item_dto->base_unit_price = $variant->base_sale_price ?: $variant->base_price;
             $item_dto->weight = $variant->weight;
             $item_dto->shipping_profile_id = $variant->shipping_profile_id;
             $item_dto->tax_profile_id = $variant->tax_profile_id ?: $variant->product->tax_profile_id;

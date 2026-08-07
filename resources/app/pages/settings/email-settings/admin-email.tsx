@@ -1,12 +1,22 @@
 import { useMemo } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 
-import GroupOptionCard from '@/components/group-option-card';
 import OptionAccordion from '@/components/option-accordion';
+import ActionGroup from '@/components/ui/action-group';
+import Badge from '@/components/ui/badge';
+import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
+import {
+  StackedItem,
+  StackedItemActions,
+  StackedItemContent,
+  StackedItems,
+  StackedItemTitle,
+} from '@/components/ui/stacked-items';
+import Switch from '@/components/ui/switch';
 import Text from '@/components/ui/text';
-import { CartIcon, InventoryBoxIcon, SettingsIcon, UserIcon } from '@/icons';
+import { CartIcon, EditPenIcon, InventoryBoxIcon, SettingsIcon, UserIcon } from '@/icons';
 import type { EmailSettingsFormInput } from '@/schemas/forms/email-settings-form';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
@@ -24,6 +34,50 @@ type EmailListItem = {
 type AdminEmailProps = {
   handleToggleOrder: (item: EmailListItem) => void;
   handleEditOrder: (item: EmailListItem) => void;
+};
+
+type EmailRowProps = {
+  item: EmailListItem;
+  onToggle: (item: EmailListItem) => void;
+  onEdit: (item: EmailListItem) => void;
+};
+
+const EmailRow = (props: EmailRowProps) => {
+  const { item, onToggle, onEdit } = props;
+
+  return (
+    <StackedItem id={item.key}>
+      <StackedItemContent>
+        <StackedItemTitle>
+          <Text variant="small" weight="medium">
+            {item.name ?? ''}
+          </Text>
+          {item.is_enabled === false && (
+            <Badge variant="destructive">
+              {__('Inactive', 'kirki-ecommerce')}
+            </Badge>
+          )}
+        </StackedItemTitle>
+      </StackedItemContent>
+      <StackedItemActions>
+        <ActionGroup>
+          <Switch
+            checked={Boolean(item.is_enabled)}
+            onCheckedChange={() => onToggle(item)}
+          />
+          <Button
+            variant="outline"
+            size="icon-sm"
+            aria-label={__('Edit', 'kirki-ecommerce')}
+            cssOverride={styles.actionButton}
+            onClick={() => onEdit(item)}
+          >
+            <EditPenIcon />
+          </Button>
+        </ActionGroup>
+      </StackedItemActions>
+    </StackedItem>
+  );
 };
 
 const AdminEmail = (props: AdminEmailProps) => {
@@ -79,13 +133,18 @@ const AdminEmail = (props: AdminEmailProps) => {
               )}
               leftIcon={<CartIcon />}
             >
-              <GroupOptionCard
-                dataArr={orderEmails}
-                handleToggleItem={(item) =>
-                  handleToggleOrder(item as EmailListItem)
-                }
-                handleEditItem={(item) => handleEditOrder(item as EmailListItem)}
-              />
+              {orderEmails.length > 0 && (
+                <StackedItems variant="card">
+                  {orderEmails.map((item) => (
+                    <EmailRow
+                      key={item.key}
+                      item={item}
+                      onToggle={handleToggleOrder}
+                      onEdit={handleEditOrder}
+                    />
+                  ))}
+                </StackedItems>
+              )}
             </OptionAccordion>
             <OptionAccordion
               header={__('Inventory', 'kirki-ecommerce')}
@@ -95,13 +154,18 @@ const AdminEmail = (props: AdminEmailProps) => {
               )}
               leftIcon={<InventoryBoxIcon />}
             >
-              <GroupOptionCard
-                dataArr={inventoryEmails}
-                handleToggleItem={(item) =>
-                  handleToggleOrder(item as EmailListItem)
-                }
-                handleEditItem={(item) => handleEditOrder(item as EmailListItem)}
-              />
+              {inventoryEmails.length > 0 && (
+                <StackedItems variant="card">
+                  {inventoryEmails.map((item) => (
+                    <EmailRow
+                      key={item.key}
+                      item={item}
+                      onToggle={handleToggleOrder}
+                      onEdit={handleEditOrder}
+                    />
+                  ))}
+                </StackedItems>
+              )}
             </OptionAccordion>
             <OptionAccordion
               header={__('User', 'kirki-ecommerce')}
@@ -111,13 +175,18 @@ const AdminEmail = (props: AdminEmailProps) => {
               )}
               leftIcon={<UserIcon />}
             >
-              <GroupOptionCard
-                dataArr={userEmails}
-                handleToggleItem={(item) =>
-                  handleToggleOrder(item as EmailListItem)
-                }
-                handleEditItem={(item) => handleEditOrder(item as EmailListItem)}
-              />
+              {userEmails.length > 0 && (
+                <StackedItems variant="card">
+                  {userEmails.map((item) => (
+                    <EmailRow
+                      key={item.key}
+                      item={item}
+                      onToggle={handleToggleOrder}
+                      onEdit={handleEditOrder}
+                    />
+                  ))}
+                </StackedItems>
+              )}
             </OptionAccordion>
           </Flex>
         </CardContent>
@@ -133,5 +202,8 @@ export default AdminEmail;
 const styles = defineStyles({
   roundedCard: {
     borderRadius: theme.radius.xl,
+  },
+  actionButton: {
+    padding: theme.spacing[1],
   },
 });

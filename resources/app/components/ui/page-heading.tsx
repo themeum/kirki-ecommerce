@@ -119,7 +119,7 @@ const styles = defineStyles({
     position: 'sticky',
     borderBottom: `1px solid ${theme.colors.border.default}`,
     backgroundColor: theme.colors.background.surfaceTertiary,
-    zIndex: 100,
+    zIndex: theme.zIndex.sticky,
   },
   wrapperNoMargin: {
     marginTop: theme.spacing[0],

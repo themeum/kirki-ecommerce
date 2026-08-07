@@ -9,22 +9,22 @@ const primitiveColors = {
   brand3: '#C7DFFF',
   brand4: '#C7DFFF',
   brand5: '#E3EFFF',
-  gray1: '#FFFFFF',
-  gray2: '#F9F9FB',
-  gray3: '#F9F9FB',
-  gray4: '#F6F5F9',
-  gray5: '#F3F3F7',
-  gray6: '#EEEDF3',
-  gray7: '#EBEAF0',
-  gray8: '#E4E3E9',
-  gray9: '#D2D1DB',
-  gray10: '#CBC9D5',
-  gray11: '#B3B1BF',
-  gray12: '#878593',
-  gray13: '#5F5D69',
-  gray14: '#4A4852',
-  gray15: '#323135',
-  gray16: '#1C1B1D',
+  gray1: '#ffffff',
+  gray2: '#f9fafb',
+  gray3: '#f9fafb',
+  gray4: '#f5f7f9',
+  gray5: '#f3f5f7',
+  gray6: '#edf0f3',
+  gray7: '#eaedf0',
+  gray8: '#e3e6e9',
+  gray9: '#d1d5db',
+  gray10: '#c9ced5',
+  gray11: '#b1b7bf',
+  gray12: '#858b93',
+  gray13: '#5d6269',
+  gray14: '#484c52',
+  gray15: '#313335',
+  gray16: '#1b1c1d',
   green1: '#E3FFED',
   green3: '#479769',
   green4: '#338C58',
@@ -389,6 +389,19 @@ const theme = {
     sm: '0px 1px 2px 0px hsla(0, 0%, 0%, 0.05)',
     md: '0px 4px 6px -1px hsla(0, 0%, 0%, 0.1), 0px 2px 4px -2px hsla(0, 0%, 0%, 0.1)',
     lg: '0px 10px 15px -3px hsla(0, 0%, 0%, 0.1), 0px 4px 6px -4px hsla(0, 0%, 0%, 0.1)',
+  },
+  // WordPress's own chrome sits at #adminmenu(back) z-index 9990 and
+  // #wpadminbar z-index 99999. Every layer here that renders position:fixed
+  // (dropdown/tooltip/toast) is calculated to clear the admin bar so wp-admin's
+  // UI can never sit on top of ours; layers scoped to our own page flow
+  // (sticky, dialog) don't need to, since they never visually collide with it.
+  zIndex: {
+    sticky: 100, // in-app sticky headers, e.g. page-heading, filter-popup panels
+    dialogOverlay: 1000,
+    dialogContent: 1001,
+    dropdown: 100000, // select / popover / dropdown-menu content — clears #wpadminbar (99999)
+    tooltip: 100100, // must float above dialogs and dropdowns
+    toast: 100200, // persistent app notifications — always on top
   },
 } as const;
 
