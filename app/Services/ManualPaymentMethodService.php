@@ -31,8 +31,11 @@ class ManualPaymentMethodService
      */
     public function get()
     {
+        $methods = $this->settings->get('payment_gateways') ?? [];
+
         return collection($this->settings->get('payment_gateways') ?? [])
-            ->map(fn($payment_gateway) => PaymentGateway::from_manual($payment_gateway));
+            ->map(fn($payment_gateway) => PaymentGateway::from_manual($payment_gateway))
+            ->values();
     }
 
     /**

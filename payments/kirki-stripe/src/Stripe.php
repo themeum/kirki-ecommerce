@@ -36,9 +36,10 @@ class Stripe extends PaymentGateway
         $this->id = 'stripe';
         $this->title = __('Stripe', 'kirki-ecommerce');
         $this->description = __('Stripe payment gateway', 'kirki-ecommerce');
-        $this->icon = 'stripe';
+        $this->icon = $this->icon_url('stripe');
         $this->settings_key = 'stripe';
         $this->is_manual = false;
+        $this->is_available = true;
         $this->has_fields = false;
 
         parent::__construct();
@@ -63,7 +64,6 @@ class Stripe extends PaymentGateway
                 'required' => true,
             ],
         ]);
-
     }
 
     /**

@@ -19,6 +19,7 @@ class InstallablePaymentGatewayListResource extends Resource
             'name' => $this->title(),
             'icon' => $this->icon(),
             'is_installed' => Payment::get_gateway($this->id()) ? true : false,
+            'is_available' => $this->available(),
         ];
     }
 }

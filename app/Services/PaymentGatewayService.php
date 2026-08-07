@@ -16,8 +16,12 @@ use Exception;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use ZipArchive;
+
+use function Kirki\Ecommerce\Framework\app;
+use function Kirki\Ecommerce\Framework\app_path;
 use function Kirki\Ecommerce\Framework\base_path;
 use function Kirki\Ecommerce\Framework\collection;
+use function Kirki\Ecommerce\Framework\json_decoded_data;
 
 class PaymentGatewayService
 {
@@ -35,27 +39,30 @@ class PaymentGatewayService
      */
     public function all_installable_gateways() // @todo: replace this with real payment methods later
     {
-        $payment_methods = [
-            [
-                'id' => 'stripe',
-                'name' => 'Stripe',
-                'icon' => 'stripe',
-                'is_enabled' => false,
-            ],
-            [
-                'id' => 'paypal',
-                'name' => 'Paypal',
-                'icon' => 'paypal',
-                'is_enabled' => false,
-            ],
-        ]; // @todo: replace this with real payment methods later
+        // @todo: replace this with real payment methods later
+        $payment_methods = $this->__discover_installable_gateways();
 
         foreach ($payment_methods as $key => $payment_method) {
-            $payment_methods[$key]['is_installed'] = Payment::get_gateway($payment_method['id']) ? true : false;
-            $payment_methods[$key] = PaymentGateway::from_manual($payment_method);
+            $payment_methods[$key] = PaymentGateway::make($payment_method);
+
+            if ($payment_methods[$key]->id() === 'paypal') {
+                $payment_methods[$key]->set_icon(app()->base_url('/app/Payment/Gateways/logo.svg'));
+            }
         }
 
         return collection($payment_methods);
+    }
+
+    /**
+     * Discover installable payment methods
+     *
+     * @todo: will be removed later and discover from remote server instead
+     * @return array
+     */
+    protected function __discover_installable_gateways()
+    {
+        $path = base_path('payments/payments.json');
+        return json_decoded_data($path);
     }
 
     /**

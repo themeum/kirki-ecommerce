@@ -15,6 +15,8 @@ use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\Framework\Validation\Validator;
 use Exception;
 
+use function Kirki\Ecommerce\Framework\app;
+
 defined('ABSPATH') || exit;
 
 class PayPal extends PaymentGateway
@@ -37,7 +39,7 @@ class PayPal extends PaymentGateway
         $this->id = 'paypal';
         $this->title = __('PayPal', 'kirki-ecommerce');
         $this->description = __('PayPal payment gateway', 'kirki-ecommerce');
-        $this->icon = 'paypal';
+        $this->icon = app()->base_url('/app/Payment/Gateways/logo.svg');
         $this->settings_key = 'paypal';
         $this->is_manual = false;
         $this->has_fields = false;
@@ -104,11 +106,11 @@ class PayPal extends PaymentGateway
         $response = Http::with_headers([
             'Authorization' => 'Basic ' . base64_encode($client_id . ':' . $client_secret),
         ])->as_form()->post(
-                $this->get_base_url() . '/v1/oauth2/token',
-                [
-                    'grant_type' => 'client_credentials',
-                ]
-            );
+            $this->get_base_url() . '/v1/oauth2/token',
+            [
+                'grant_type' => 'client_credentials',
+            ]
+        );
 
         if ($response->failed()) {
             throw new Exception(sprintf(__('Failed to authenticate with PayPal: %s', 'kirki-ecommerce'), $response->body()));
@@ -199,7 +201,6 @@ class PayPal extends PaymentGateway
             }
 
             throw new Exception(__('PayPal approve link not found.', 'kirki-ecommerce'));
-
         } catch (Exception $e) {
             throw new Exception(sprintf(__('PayPal Payment Error: %s', 'kirki-ecommerce'), $e->getMessage()));
         }
