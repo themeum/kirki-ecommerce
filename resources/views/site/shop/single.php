@@ -33,6 +33,7 @@ $currency = $product['currency'] ?? [];
 $variant = $variants[0] ?? [];
 $price = Money::format_from_decimal($variant['base_price'], $currency['code']);
 $sale_price = isset($variant['base_sale_price']) ? Money::format_from_decimal($variant['base_sale_price'], $currency['code']) : null;
+$track_inventory = $variant['track_inventory'] ?? false;
 $quantity = (int) $variant['available_quantity'] ?? 0;
 $additional_info = $product['additional_info'] ?? [];
 
@@ -160,13 +161,36 @@ foreach ($media as $media_item) {
                 <?php endif; ?>
 
                 <!-- Quantity -->
-                <div class="kecom-product-variant-group">
+                 <div class="kecom-product-variant-group">
                     <span class="kecom-product-variant-label"><?php esc_html_e('Quantity', 'kirki-ecommerce');?></span>
-                    <div x-data="quantitySelector({ min: 1, max: selectedVariant?.stock || <?php echo esc_js($quantity); ?>, initial: 1 })" class="kecom-quantity" id="product-quantity">
+                    <div
+                        x-data="quantitySelector({
+                            min: 1,
+                            <?php if ( $track_inventory ) : ?>
+                            max: selectedVariant?.stock || <?php echo esc_js( $quantity ); ?>,
+                            <?php endif; ?>
+                            initial: 1
+                        })"
+                        class="kecom-quantity"
+                        id="product-quantity"
+                    >
                         <button class="kecom-quantity-btn" type="button" aria-label="Decrease" @click="decrement">
                             <?php Icon::render('minus'); ?>
                         </button>
-                        <input class="kecom-quantity-input" type="number" :value="quantity" @input="setValue($el.value)" min="1" :max="selectedVariant?.stock || <?php echo esc_js($quantity); ?>" aria-label="Quantity" id="quantity-input">
+
+                        <input
+                            class="kecom-quantity-input"
+                            type="number"
+                            :value="quantity"
+                            @input="setValue($el.value)"
+                            min="1"
+                            <?php if ( $track_inventory ) : ?>
+                                :max="selectedVariant?.stock || <?php echo esc_js( $quantity ); ?>"
+                            <?php endif; ?>
+                            aria-label="Quantity"
+                            id="quantity-input"
+                        >
+
                         <button class="kecom-quantity-btn" type="button" aria-label="Increase" @click="increment">
                             <?php Icon::render('plus'); ?>
                         </button>

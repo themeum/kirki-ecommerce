@@ -199,7 +199,7 @@ class PageInlineScript extends BaseHook
                 'discount_percentage' => ! empty($v['display_price']) && ! empty($v['display_sale_price']) ? round((1 - ($v['display_sale_price'] / $v['display_price'])) * 100): null,
                 'stock'          => (int) ($v['available_quantity'] ?? 0),
                 'attributes'     => $variant_attrs,
-                'available'      => ($v['available_quantity'] ?? 0) > 0,
+                'available'      => $v['in_stock'] ? true : ($v['available_quantity'] ?? 0) > 0,
                 'image'          => $v['media']['url'] ?? null,
             ];
         }

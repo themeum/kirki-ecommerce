@@ -3,7 +3,7 @@
  * Reusable quantity input with +/- buttons.
  *
  * PHP usage:
- *   <div x-data="quantitySelector({ 
+ *   <div x-data="quantitySelector({
  *     min: 1,
  *     max: 99,
  *     initial: 1,
@@ -22,10 +22,10 @@ export function quantitySelector(config: QuantitySelectorConfig = {}) {
   return {
     quantity: config.initial ?? 1,
     min: config.min ?? 1,
-    max: config.max ?? 99,
+    max: config.max,
 
     increment() {
-      if (this.quantity < this.max) {
+      if (this.max === undefined || this.quantity < this.max) {
         this.quantity++;
         this.notifyChange();
       }
@@ -40,17 +40,16 @@ export function quantitySelector(config: QuantitySelectorConfig = {}) {
 
     setValue(value: string) {
       const num = parseInt(value, 10);
-      if (!isNaN(num) && num >= this.min && num <= this.max) {
+
+      if (!isNaN(num) && num >= this.min && (this.max === undefined || num <= this.max)) {
         this.quantity = num;
         this.notifyChange();
       }
     },
 
     notifyChange() {
-      if (config.onChange) {
-        config.onChange(this.quantity);
-      }
-      (this as any).$dispatch('quantity-change', { quantity: this.quantity });
+      config.onChange?.(this.quantity);
+      (this as any).$dispatch("quantity-change", { quantity: this.quantity });
     },
   };
 }
