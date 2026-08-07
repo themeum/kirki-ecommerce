@@ -6,7 +6,6 @@
  */
 
 defined('ABSPATH') || exit;
-extract($data);
 ?>
 
 <!-- Shipping Methods -->

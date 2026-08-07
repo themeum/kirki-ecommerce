@@ -77,12 +77,12 @@ class PageInlineScript extends BaseHook
         $cart_config = array(
             'items_count' => $cart['items_count'],
             'pricing' => (object) array(
-                'subtotal_formatted' => $pricing['base_subtotal'],
-                'total_formatted' => $pricing['base_total'],
+                'subtotal_formatted' => $pricing['base_subtotal_money_object']->display,
+                'total_formatted' => $pricing['base_total_money_object']->display,
             ),
             'items' => array_map(fn($item) => (object) array(
                 'id' => $item['id'],
-                'total_formatted' => $item['base_total'],
+                'total_formatted' => $item['base_total_money_object']->display,
             ), $items),
         );
         $config['cart'] = $cart_config;
@@ -107,19 +107,19 @@ class PageInlineScript extends BaseHook
         $pricing = $cart['pricing'] ?? [];
 
         $discount_details = $pricing['discount_details'] ?? null;
-        $discount_total   = $pricing['discount_total'] ?? null;
+        $discount_total   = $pricing['base_discount_total'] ?? null;
         $has_discount     = $discount_total && !$discount_total->isZero();
 
         $config['checkout_cart'] = [
             'items'                      => $cart['items'] ?? [],
             'is_billing_same_as_shipping' => $cart['is_billing_same_as_shipping'] ?? false,
             'pricing'                    => [
-                'subtotal_formatted'       => $pricing['subtotal_formatted'] ?? null,
+                'subtotal_formatted'       => $pricing['base_subtotal_money_object']->display ?? null,
                 'shipping_total'           => $pricing['shipping_total'] ?? null,
-                'shipping_total_formatted' => $pricing['shipping_total_formatted'] ?? null,
+                'shipping_total_formatted' => $pricing['base_shipping_total_money_object']->display ?? null,
                 'discount_total'           => $discount_total,
-                'discount_total_formatted' => $has_discount ? $pricing['discount_total_formatted'] : null,
-                'total_formatted'          => $pricing['total_formatted'] ?? null,
+                'discount_total_formatted' => $has_discount ? $pricing['discount_total_money_object']->display : null,
+                'total_formatted'          => $pricing['base_total_money_object']->display ?? null,
                 'discount_details'         => $discount_details ? [
                     'code'                       => $discount_details['code'] ?? null,
                     'discount_value_type'        => $discount_details['discount_value_type'] ?? null,
