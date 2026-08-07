@@ -150,6 +150,8 @@ class MoneyManager
      *
      * @param mixed $amount
      * @param mixed $currency
+     * @param int $rounding
+     * @param \Brick\Money\Context $context
      * @return int
      */
     public static function to_minor($amount, $currency = null, $rounding = RoundingMode::HALF_UP, $context = null)
@@ -168,6 +170,8 @@ class MoneyManager
      *
      * @param mixed $amount
      * @param mixed $currency
+     * @param int $rounding
+     * @param \Brick\Money\Context $context
      * @return Money
      */
     public static function from_minor($amount, $currency = null, $rounding = RoundingMode::HALF_UP, $context = null)
@@ -303,7 +307,7 @@ class MoneyManager
     {
         $currency_code = $currency_code ?? $this->get_base_currency();
 
-        if($target_currency !== null) {
+        if ($target_currency !== null) {
             return $this->convert_to_currency($this->from_minor($amount, $currency_code), $target_currency);
         }
 
@@ -334,7 +338,7 @@ class MoneyManager
     {
         return $this->to_dto($this->prepare_money($amount, $currency_code, $target_currency)->getMinorAmount()->toInt(), $target_currency ?? $currency_code);
     }
-    
+
     /**
      * Create a zero amount.
      *
