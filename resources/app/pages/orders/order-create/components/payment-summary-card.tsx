@@ -31,6 +31,8 @@ type PaymentSummaryAmounts = {
 type PaymentSummaryCardProps = {
   amounts?: PaymentSummaryAmounts;
   availableShippingMethods?: OrderCalculation['available_shipping_methods'];
+  shippingMethodName?: string | null;
+  couponCode?: string | null;
   isCalculating?: boolean;
   isDiscountEditable?: boolean;
   isShippingEditable?: boolean;
@@ -41,6 +43,8 @@ type PaymentSummaryCardProps = {
 const PaymentSummaryCard = ({
   amounts,
   availableShippingMethods = [],
+  shippingMethodName,
+  couponCode,
   isCalculating,
   isDiscountEditable,
   isShippingEditable,
@@ -48,12 +52,14 @@ const PaymentSummaryCard = ({
   actions,
 }: PaymentSummaryCardProps) => {
   const { control } = useFormContext<OrderFormInput>();
-  const couponCode = useWatch({ control, name: 'coupon_code' });
+  const draftCouponCode = useWatch({ control, name: 'coupon_code' });
   const shippingMethodId = useWatch({ control, name: 'shipping_method' });
 
-  const shippingMethodName = availableShippingMethods.find(
+  const appliedCouponCode = draftCouponCode ?? couponCode;
+
+  const selectedShippingMethodName = availableShippingMethods.find(
     (method) => String(method.id) === shippingMethodId,
-  )?.name;
+  )?.name ?? shippingMethodName;
 
   const itemsCount = amounts?.itemsCount;
   const subtotalDisplay = amounts?.subtotal ?? EMPTY_AMOUNT;
@@ -103,7 +109,7 @@ const PaymentSummaryCard = ({
               </Text>
             )}
             <Flex justify="space-between" grow={1}>
-              <Text variant='small' color="secondary">{couponCode}</Text>
+              <Text variant='small' color="secondary">{appliedCouponCode}</Text>
               <Text variant='small'>{discountDisplay}</Text>
             </Flex>
           </Flex>
@@ -126,7 +132,7 @@ const PaymentSummaryCard = ({
               </Text>
             )}
             <Flex justify="space-between" grow={1}>
-              <Text variant='small' color="secondary">{shippingMethodName}</Text>
+              <Text variant='small' color="secondary">{selectedShippingMethodName}</Text>
               <Text variant='small'>{shippingDisplay}</Text>
             </Flex>
           </Flex>

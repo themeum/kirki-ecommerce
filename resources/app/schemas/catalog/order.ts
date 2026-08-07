@@ -1,7 +1,9 @@
-import { CustomerAddressSchema } from "@/schemas/catalog/customer";
-import { MoneyAmountSchema, MoneyObjectSchema } from "@/schemas/shared/api";
-import { MediaRefSchema } from "@/schemas/shared/media";
-import z from "zod";
+import { z } from 'zod';
+
+import { CouponSchema } from '@/schemas/catalog/coupon';
+import { CustomerAddressSchema } from '@/schemas/catalog/customer';
+import { MoneyAmountSchema, MoneyObjectSchema } from '@/schemas/shared/api';
+import { MediaRefSchema } from '@/schemas/shared/media';
 
 export const OrderStatusSchema = z.enum([
   'pending',
@@ -84,12 +86,13 @@ export type ShippingType = z.infer<typeof ShippingTypeSchema>;
 
 export const OrderItemSchema = z.object({
   id: z.number(),
-  uuid: z.string(),
-  order_number: z.string(),
-  customer_id: z.number(),
+  uuid: z.string().nullish(),
+  order_number: z.string().nullish(),
+  customer_id: z.number().nullish(),
   status: OrderStatusSchema,
   fulfillment_status: FulfillmentStatusSchema,
   is_refund_initiated: z.boolean(),
+  is_manual: z.boolean(),
   currency_code: z.string(),
   totals: z.object({
     invoiced_subtotal: MoneyAmountSchema,
@@ -104,6 +107,7 @@ export const OrderItemSchema = z.object({
     invoiced_discount_money_object: MoneyObjectSchema,
     base_discount: MoneyAmountSchema,
     base_discount_money_object: MoneyObjectSchema,
+    discount_details: CouponSchema.partial().nullish(),
     invoiced_tax: MoneyAmountSchema,
     invoiced_tax_money_object: MoneyObjectSchema,
     base_tax: MoneyAmountSchema,
@@ -153,9 +157,10 @@ export const OrderItemSchema = z.object({
   shipping_address: CustomerAddressSchema.nullish(),
   is_billing_same_as_shipping: z.boolean(),
   billing_address: CustomerAddressSchema.nullish(),
-  payment_provider: z.string(),
+  payment_provider: z.string().nullable(),
   payment_status: PaymentStatusSchema,
   shipping_method: z.string().nullish(),
+  shipping_method_name: z.string().nullish(),
   customer_notes: z.string().nullish(),
   admin_notes: z.string().nullish(),
   flags: z.array(z.string()).nullish(),
@@ -249,6 +254,7 @@ export const OrderCalculationSchema = z.object({
     base_discount_amount_money_object: MoneyObjectSchema,
     display_discount_amount: MoneyAmountSchema,
     display_discount_amount_money_object: MoneyObjectSchema,
+    discount_details: CouponSchema.partial().nullish(),
     base_total: MoneyAmountSchema,
     base_total_money_object: MoneyObjectSchema,
     display_total: MoneyAmountSchema,

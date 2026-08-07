@@ -236,6 +236,8 @@ const OrderDetails = () => {
                   tax: order.totals.base_tax_money_object.display,
                   total: order.totals.base_total_money_object.display,
                 }}
+                shippingMethodName={order.shipping_method_name}
+                couponCode={order.totals.discount_details?.code}
                 badge={<Badge variant={paymentBadge.variant}>{paymentBadge.text}</Badge>}
                 actions={
                   paymentActions.length > 0 && (

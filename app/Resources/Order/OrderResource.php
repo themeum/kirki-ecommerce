@@ -2,9 +2,12 @@
 
 namespace Kirki\Ecommerce\App\Resources\Order;
 
+use Kirki\Ecommerce\App\Services\ShippingService;
 use Kirki\Ecommerce\Framework\Resource;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
+
+use function Kirki\Ecommerce\Framework\app;
 
 class OrderResource extends Resource
 {
@@ -18,6 +21,7 @@ class OrderResource extends Resource
             'status' => $this->order_status,
             'fulfillment_status' => $this->fulfillment_status,
             'is_refund_initiated' => $this->is_refund_initiated,
+            'is_manual' => $this->is_manual,
             'currency_code' => $this->currency_code,
 
             'totals' => [
@@ -33,6 +37,7 @@ class OrderResource extends Resource
                 'invoiced_discount_money_object' => Money::prepare_amount_object_from_minor($this->invoiced_discount_total, $this->currency_code),
                 'base_discount' => Money::prepare_amount_from_minor($this->base_discount_total),
                 'base_discount_money_object' => Money::prepare_amount_object_from_minor($this->base_discount_total),
+                'discount_details' => $this->discount_details,
                 'invoiced_tax' => Money::prepare_amount_from_minor($this->invoiced_tax_total, $this->currency_code),
                 'invoiced_tax_money_object' => Money::prepare_amount_object_from_minor($this->invoiced_tax_total, $this->currency_code),
                 'base_tax' => Money::prepare_amount_from_minor($this->base_tax_total),
@@ -110,6 +115,7 @@ class OrderResource extends Resource
             'payment_provider' => $this->payment_provider,
             'payment_status' => $this->payment_status,
             'shipping_method' => $this->shipping_method,
+            'shipping_method_name' => $this->resolve_shipping_method_name(),
             'customer_notes' => $this->customer_notes,
             'admin_notes' => $this->admin_notes,
             'flags' => $this->flags,
@@ -137,5 +143,33 @@ class OrderResource extends Resource
             'archived_at' => $this->archived_at,
             'created_at' => $this->created_at,
         ];
+    }
+
+    /**
+     * Resolve the display name of the shipping method stored on the order.
+     *
+     * The order only persists the method identifier, so look it up against the
+     * zone that matches the order's shipping destination.
+     *
+     * @return string|null
+     */
+    protected function resolve_shipping_method_name()
+    {
+        if (empty($this->shipping_method)) {
+            return null;
+        }
+
+        $methods = app()->make(ShippingService::class)->get_available_shipping_methods([
+            'country' => $this->shipping_country,
+            'state' => $this->shipping_state,
+        ]);
+
+        foreach ($methods as $method) {
+            if ($method['id'] === $this->shipping_method) {
+                return $method['name'];
+            }
+        }
+
+        return null;
     }
 }
