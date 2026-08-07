@@ -30,7 +30,11 @@ export interface Country {
 export interface ShippingMethod {
   id: string;
   name: string;
-  cost: string;
+  description: string;
+  display_cost_money_object: {
+    display: string;
+    row: number;
+  };
 }
 
 export function checkout(config: CheckoutConfig = {}) {
@@ -193,8 +197,8 @@ export function checkout(config: CheckoutConfig = {}) {
       }
 
       // Initialize discount state from cart data
-      if (this.cartData?.pricing?.discount_total_formatted) {
-        this.discount = this.cartData.pricing.discount_total_formatted || null;
+      if (this.cartData?.pricing?.discount_details) {
+        this.discount = this.cartData.pricing.display_discount_total_money_object.display || null;
         this.appliedCouponCode = this.cartData.pricing.discount_details?.code ?? "";
       }
 
@@ -250,8 +254,10 @@ export function checkout(config: CheckoutConfig = {}) {
         }
 
         // Keep discount state in sync with the refreshed cart
-        this.discount = response.data.pricing?.discount_total_formatted || null;
-        this.appliedCouponCode = response.data.pricing?.discount_details?.code ?? "";
+        if (response.data?.pricing?.discount_details) {
+          this.discount = response.data.pricing?.display_discount_total_money_object.display || null;
+          this.appliedCouponCode = response.data.pricing?.discount_details?.code ?? "";
+        }
       } catch (e: unknown) {
         handleApiErrors(
           e as Error & { errors?: Record<string, string[]> },
@@ -297,7 +303,7 @@ export function checkout(config: CheckoutConfig = {}) {
       try {
         const response = await cartApi.applyCoupon(this.couponCode);
         this.cartData = response.data;
-        this.discount = response.data.pricing.discount_total_formatted || null;
+        this.discount = response.data.pricing.display_discount_total_money_object.display || null;
         this.appliedCouponCode = this.couponCode;
         this.couponCode = "";
         toastManager.success(__("Coupon applied successfully!", "kirki-ecommerce"));
