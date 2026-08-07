@@ -40,7 +40,7 @@ class SettingsUpdateRequest extends Request
                     continue;
                 }
 
-                foreach (['amount', 'free_shipping_min_amount'] as $field) {
+                foreach (['base_amount', 'base_free_shipping_min_amount'] as $field) {
                     if (array_key_exists($field, $method) && !empty($method[$field])) {
                         $data['shipping_zones'][$zone_index]['shipping_methods'][$method_index][$field] = Money::to_minor($method[$field]);
                     }
@@ -48,8 +48,8 @@ class SettingsUpdateRequest extends Request
 
                 if (isset($method['ranges']) && is_array($method['ranges'])) {
                     foreach ($method['ranges'] as $range_index => $range) {
-                        if (is_array($range) && array_key_exists('amount', $range) && !empty($range['amount'])) {
-                            $data['shipping_zones'][$zone_index]['shipping_methods'][$method_index]['ranges'][$range_index]['amount'] = Money::to_minor($range['amount']);
+                        if (is_array($range) && array_key_exists('base_amount', $range) && !empty($range['base_amount'])) {
+                            $data['shipping_zones'][$zone_index]['shipping_methods'][$method_index]['ranges'][$range_index]['base_amount'] = Money::to_minor($range['base_amount']);
                         }
                     }
                 }
@@ -237,7 +237,7 @@ class SettingsUpdateRequest extends Request
             'data.shipping_zones.*.shipping_methods.*.is_enabled' => 'required|boolean',
             'data.shipping_zones.*.shipping_methods.*.name' => 'required|string',
             'data.shipping_zones.*.shipping_methods.*.type' => 'required|string|in:' . implode(',', ShippingMethodTypes::get_constant_values()),
-            'data.shipping_zones.*.shipping_methods.*.amount' => 'required|number',
+            'data.shipping_zones.*.shipping_methods.*.base_amount' => 'required|number',
             // TODO: replace with a reusable required-if-sibling rule once it can safely mix
             // with type-check rules (e.g. string/array) without failing on null when not required.
             // Bound to the shipping method itself (not the is_taxable leaf) so the check
@@ -269,9 +269,9 @@ class SettingsUpdateRequest extends Request
             'data.shipping_zones.*.shipping_methods.*.ranges' => 'nullable|array',
             'data.shipping_zones.*.shipping_methods.*.ranges.*.from' => 'nullable|number',
             'data.shipping_zones.*.shipping_methods.*.ranges.*.to' => 'nullable|number',
-            'data.shipping_zones.*.shipping_methods.*.ranges.*.amount' => 'nullable|number',
+            'data.shipping_zones.*.shipping_methods.*.ranges.*.base_amount' => 'nullable|number',
             'data.shipping_zones.*.shipping_methods.*.is_free_shipping_enabled' => 'nullable|boolean',
-            'data.shipping_zones.*.shipping_methods.*.free_shipping_min_amount' => 'nullable|number',
+            'data.shipping_zones.*.shipping_methods.*.base_free_shipping_min_amount' => 'nullable|number',
 
             'data.shipping_zones.*.shipping_methods.*.shipping_rules' => 'nullable|array',
             'data.shipping_zones.*.shipping_methods.*.shipping_rules.*.relation' => 'required|string',
@@ -314,7 +314,7 @@ class SettingsUpdateRequest extends Request
             'data.shipping_zones.*.shipping_methods.*.is_enabled' => Sanitizer::BOOL,
             'data.shipping_zones.*.shipping_methods.*.name' => Sanitizer::TEXT,
             'data.shipping_zones.*.shipping_methods.*.type' => Sanitizer::TEXT,
-            'data.shipping_zones.*.shipping_methods.*.amount' => Sanitizer::INT,
+            'data.shipping_zones.*.shipping_methods.*.base_amount' => Sanitizer::INT,
             'data.shipping_zones.*.shipping_methods.*.is_taxable' => Sanitizer::BOOL,
             'data.shipping_zones.*.shipping_methods.*.description' => Sanitizer::TEXT,
 
@@ -329,9 +329,9 @@ class SettingsUpdateRequest extends Request
             'data.shipping_zones.*.shipping_methods.*.ranges' => Sanitizer::ARRAY,
             'data.shipping_zones.*.shipping_methods.*.ranges.*.from' => Sanitizer::FLOAT,
             'data.shipping_zones.*.shipping_methods.*.ranges.*.to' => Sanitizer::FLOAT,
-            'data.shipping_zones.*.shipping_methods.*.ranges.*.amount' => Sanitizer::INT,
+            'data.shipping_zones.*.shipping_methods.*.ranges.*.base_amount' => Sanitizer::INT,
             'data.shipping_zones.*.shipping_methods.*.is_free_shipping_enabled' => Sanitizer::BOOL,
-            'data.shipping_zones.*.shipping_methods.*.free_shipping_min_amount' => Sanitizer::INT,
+            'data.shipping_zones.*.shipping_methods.*.base_free_shipping_min_amount' => Sanitizer::INT,
 
             'data.shipping_zones.*.shipping_methods.*.shipping_rules' => Sanitizer::ARRAY,
             'data.shipping_zones.*.shipping_methods.*.shipping_rules.*.relation' => Sanitizer::TEXT,

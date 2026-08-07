@@ -19,5 +19,5 @@ class TaxItemResultDTO extends DTO
     /**
      * @var int
      */
-    public $amount;
+    public $base_amount;
 }

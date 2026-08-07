@@ -8,7 +8,7 @@ const ShippingMethodTypeSchema = z.enum(['flat_rate', 'local_pickup', 'weight'])
 const WeightRangeRowShape = z.object({
   from: required(numberOrNull(), __('From is required', 'kirki-ecommerce')),
   to: required(numberOrNull(), __('To is required', 'kirki-ecommerce')),
-  amount: required(numberOrNull(), __('Rate is required', 'kirki-ecommerce')),
+  base_amount: required(numberOrNull(), __('Rate is required', 'kirki-ecommerce')),
 });
 
 const ShippingMethodFormShape = z.object({
@@ -16,11 +16,11 @@ const ShippingMethodFormShape = z.object({
   name: required(z.string().default(''), __('Method name is required', 'kirki-ecommerce')),
   description: z.string().nullish().default(null),
 
-  amount: requiredWhen(
+  base_amount: requiredWhen(
     numberOrNull(),
     (values) =>
       (values.type === 'flat_rate' || (values.type === 'local_pickup' && Boolean(values.has_fee))) &&
-      isEmptyValue(values.amount),
+      isEmptyValue(values.base_amount),
     __('Amount is required', 'kirki-ecommerce'),
   ),
   is_taxable: z.boolean().default(false),
@@ -37,9 +37,9 @@ const ShippingMethodFormShape = z.object({
     __('Add at least one weight range', 'kirki-ecommerce'),
   ),
   is_free_shipping_enabled: z.boolean().default(false),
-  free_shipping_min_amount: requiredWhen(
+  base_free_shipping_min_amount: requiredWhen(
     numberOrNull(),
-    (values) => values.type === 'weight' && Boolean(values.is_free_shipping_enabled) && isEmptyValue(values.free_shipping_min_amount),
+    (values) => values.type === 'weight' && Boolean(values.is_free_shipping_enabled) && isEmptyValue(values.base_free_shipping_min_amount),
     __('Amount is required', 'kirki-ecommerce'),
   ),
 });
@@ -54,7 +54,7 @@ export const ShippingMethodFormSchema = prepareFormSchema(ShippingMethodFormShap
     return {
       ...base,
       type: values.type,
-      amount: values.amount,
+      base_amount: values.base_amount,
       is_taxable: values.is_taxable,
     };
   }
@@ -65,7 +65,7 @@ export const ShippingMethodFormSchema = prepareFormSchema(ShippingMethodFormShap
       type: values.type,
       address: values.address || null,
       has_fee: values.has_fee,
-      amount: values.has_fee ? values.amount : null,
+      base_amount: values.has_fee ? values.base_amount : null,
       has_pick_time: values.has_pick_time,
       pickup_time_start: values.has_pick_time ? values.pickup_time_start || null : null,
       pickup_time_end: values.has_pick_time ? values.pickup_time_end || null : null,
@@ -78,7 +78,7 @@ export const ShippingMethodFormSchema = prepareFormSchema(ShippingMethodFormShap
     ranges: values.ranges,
     is_taxable: values.is_taxable,
     is_free_shipping_enabled: values.is_free_shipping_enabled,
-    free_shipping_min_amount: values.is_free_shipping_enabled ? values.free_shipping_min_amount : null,
+    base_free_shipping_min_amount: values.is_free_shipping_enabled ? values.base_free_shipping_min_amount : null,
   };
 });
 

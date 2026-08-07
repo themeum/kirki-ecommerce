@@ -34,7 +34,7 @@ const LocalPickupSettings = () => {
       />
       {hasFee && (
         <MoneyField
-          name="amount"
+          name="base_amount"
           label={__('Fee', 'kirki-ecommerce')}
           placeholder={__('0.00', 'kirki-ecommerce')}
         />

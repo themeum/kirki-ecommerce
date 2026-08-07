@@ -23,24 +23,61 @@ class OrderCalculationResource extends Resource
         $shipping_service = app()->make(ShippingService::class);
         $shipping_options = $shipping_service->get_final_available_shipping_options($context);
 
+        $display_currency = $this->currency_code ?? Money::resolve_display_currency();
+
         return [
             'pricing' => [
-                'subtotal' => $this->prepare_amount($result->subtotal),
-                'tax_total' => $this->prepare_amount($result->tax_total),
+                'base_subtotal' => Money::prepare_amount($result->base_subtotal, $result->currency_code),
+                'base_subtotal_money_object' => Money::prepare_amount_object($result->base_subtotal, $result->currency_code),
+                'display_subtotal' => Money::prepare_amount($result->base_subtotal, $result->currency_code, $display_currency),
+                'display_subtotal_money_object' => Money::prepare_amount_object($result->base_subtotal, $result->currency_code, $display_currency),
+
+                'base_tax_total' => Money::prepare_amount($result->base_tax_total, $result->currency_code),
+                'base_tax_total_money_object' => Money::prepare_amount_object($result->base_tax_total, $result->currency_code),
+                'display_tax_total' => Money::prepare_amount($result->base_tax_total, $result->currency_code, $display_currency),
+                'display_tax_total_money_object' => Money::prepare_amount_object($result->base_tax_total, $result->currency_code, $display_currency),
+
                 'discount_details' => $result->discount_details,
-                'discount_total' => $this->prepare_amount($result->discount_total),
-                'shipping_subtotal' => $this->prepare_amount($result->shipping_subtotal),
-                'shipping_tax' => $this->prepare_amount($result->shipping_tax),
-                'shipping_discount' => $this->prepare_amount($result->shipping_discount),
-                'shipping_total' => $this->prepare_amount($result->shipping_total),
-                'total' => $this->prepare_amount($result->total),
+                'base_discount_total' => Money::prepare_amount($result->base_discount_total, $result->currency_code),
+                'base_discount_total_money_object' => Money::prepare_amount_object($result->base_discount_total, $result->currency_code),
+                'display_discount_total' => Money::prepare_amount($result->base_discount_total, $result->currency_code, $display_currency),
+                'display_discount_total_money_object' => Money::prepare_amount_object($result->base_discount_total, $result->currency_code, $display_currency),
+
+                'base_shipping_subtotal' => Money::prepare_amount($result->base_shipping_subtotal, $result->currency_code),
+                'base_shipping_subtotal_money_object' => Money::prepare_amount_object($result->base_shipping_subtotal, $result->currency_code),
+                'display_shipping_subtotal' => Money::prepare_amount($result->base_shipping_subtotal, $result->currency_code, $display_currency),
+                'display_shipping_subtotal_money_object' => Money::prepare_amount_object($result->base_shipping_subtotal, $result->currency_code, $display_currency),
+
+                'base_shipping_tax' => Money::prepare_amount($result->base_shipping_tax, $result->currency_code),
+                'base_shipping_tax_money_object' => Money::prepare_amount_object($result->base_shipping_tax, $result->currency_code),
+                'display_shipping_tax' => Money::prepare_amount($result->base_shipping_tax, $result->currency_code, $display_currency),
+                'display_shipping_tax_money_object' => Money::prepare_amount_object($result->base_shipping_tax, $result->currency_code, $display_currency),
+
+                'base_shipping_discount' => Money::prepare_amount($result->base_shipping_discount, $result->currency_code),
+                'base_shipping_discount_money_object' => Money::prepare_amount_object($result->base_shipping_discount, $result->currency_code),
+                'display_shipping_discount' => Money::prepare_amount($result->base_shipping_discount, $result->currency_code, $display_currency),
+                'display_shipping_discount_money_object' => Money::prepare_amount_object($result->base_shipping_discount, $result->currency_code, $display_currency),
+
+                'base_shipping_total' => Money::prepare_amount($result->base_shipping_total, $result->currency_code),
+                'base_shipping_total_money_object' => Money::prepare_amount_object($result->base_shipping_total, $result->currency_code),
+                'display_shipping_total' => Money::prepare_amount($result->base_shipping_total, $result->currency_code, $display_currency),
+                'display_shipping_total_money_object' => Money::prepare_amount_object($result->base_shipping_total, $result->currency_code, $display_currency),
+
+                'base_total' => Money::prepare_amount($result->base_total, $result->currency_code),
+                'base_total_money_object' => Money::prepare_amount_object($result->base_total, $result->currency_code),
+                'display_total' => Money::prepare_amount($result->base_total, $result->currency_code, $display_currency),
+                'display_total_money_object' => Money::prepare_amount_object($result->base_total, $result->currency_code, $display_currency),
             ],
 
             'items_count' => $result->items_count,
-            'items' => $this->prepare_items($result->items, $result),
+            'items' => $this->prepare_items($result->items, $result, $display_currency),
 
-            'available_shipping_methods' => array_map(function ($method) {
-                $method['cost'] = $this->prepare_amount($method['cost']);
+            'available_shipping_methods' => array_map(function ($method) use ($result, $display_currency) {
+                $cost = $method['base_cost'];
+                $method['base_cost'] = Money::prepare_amount($cost, $result->currency_code);
+                $method['base_cost_money_object'] = Money::prepare_amount_object($cost, $result->currency_code);
+                $method['display_cost'] = Money::prepare_amount($cost, $result->currency_code, $display_currency);
+                $method['display_cost_money_object'] = Money::prepare_amount_object($cost, $result->currency_code, $display_currency);
                 return $method;
             }, $shipping_options),
 
@@ -48,7 +85,7 @@ class OrderCalculationResource extends Resource
         ];
     }
 
-    protected function prepare_items($items, $result)
+    protected function prepare_items($items, $result, $display_currency)
     {
         $cart_items = [];
 
@@ -56,26 +93,44 @@ class OrderCalculationResource extends Resource
             if (isset($result->items[$item->variant_id])) {
                 $calculated_item = $result->items[$item->variant_id];
 
+                $tax_breakdowns = [];
+
+                foreach ($calculated_item->tax_breakdown as $tax_breakdown_item) {
+                    $tax_breakdowns[] = [
+                        'name' => $tax_breakdown_item->name,
+                        'rate' => $tax_breakdown_item->rate,
+                        'base_amount' => Money::prepare_amount($tax_breakdown_item->base_amount, $result->currency_code),
+                        'base_amount_money_object' => Money::prepare_amount_object($tax_breakdown_item->base_amount, $result->currency_code),
+                        'display_amount' => Money::prepare_amount($tax_breakdown_item->base_amount, $result->currency_code, $display_currency),
+                        'display_amount_money_object' => Money::prepare_amount_object($tax_breakdown_item->base_amount, $result->currency_code, $display_currency),
+                    ];
+                }
+
                 $cart_items[] = [
                     'id' => $item->id,
                     'quantity' => $item->quantity,
-                    'subtotal' => $this->prepare_amount($calculated_item->subtotal),
+                    'base_subtotal' => Money::prepare_amount($calculated_item->base_subtotal, $result->currency_code),
+                    'base_subtotal_money_object' => Money::prepare_amount_object($calculated_item->base_subtotal, $result->currency_code),
+                    'display_subtotal' => Money::prepare_amount($calculated_item->base_subtotal, $result->currency_code, $display_currency),
+                    'display_subtotal_money_object' => Money::prepare_amount_object($calculated_item->base_subtotal, $result->currency_code, $display_currency),
                     'tax_rate' => $calculated_item->tax_rate,
-                    'tax_amount' => $this->prepare_amount($calculated_item->tax_amount),
-                    'tax_breakdown' => $calculated_item->tax_breakdown,
-                    'discount_amount' => $this->prepare_amount($calculated_item->discount_amount),
-                    'total' => $this->prepare_amount($calculated_item->total)
+                    'base_tax_amount' => Money::prepare_amount($calculated_item->base_tax_amount, $result->currency_code),
+                    'base_tax_amount_money_object' => Money::prepare_amount_object($calculated_item->base_tax_amount, $result->currency_code),
+                    'display_tax_amount' => Money::prepare_amount($calculated_item->base_tax_amount, $result->currency_code, $display_currency),
+                    'display_tax_amount_money_object' => Money::prepare_amount_object($calculated_item->base_tax_amount, $result->currency_code, $display_currency),
+                    'tax_breakdown' => $tax_breakdowns,
+                    'base_discount_amount' => Money::prepare_amount($calculated_item->base_discount_amount, $result->currency_code),
+                    'base_discount_amount_money_object' => Money::prepare_amount_object($calculated_item->base_discount_amount, $result->currency_code),
+                    'display_discount_amount' => Money::prepare_amount($calculated_item->base_discount_amount, $result->currency_code, $display_currency),
+                    'display_discount_amount_money_object' => Money::prepare_amount_object($calculated_item->base_discount_amount, $result->currency_code, $display_currency),
+                    'base_total' => Money::prepare_amount($calculated_item->base_total, $result->currency_code),
+                    'base_total_money_object' => Money::prepare_amount_object($calculated_item->base_total, $result->currency_code),
+                    'display_total' => Money::prepare_amount($calculated_item->base_total, $result->currency_code, $display_currency),
+                    'display_total_money_object' => Money::prepare_amount_object($calculated_item->base_total, $result->currency_code, $display_currency),
                 ];
             }
         }
 
         return $cart_items;
-    }
-
-    protected function prepare_amount($amount)
-    {
-        $value = Money::convert_to_currency(Money::from_minor($amount), $this->currency_code)->getMinorAmount();
-        
-        return Money::to_dto($value, $this->currency_code);
     }
 }

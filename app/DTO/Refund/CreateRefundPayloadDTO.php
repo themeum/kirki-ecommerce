@@ -14,7 +14,7 @@ class CreateRefundPayloadDTO extends DTO
     /**
      * @var float
      */
-    public $amount;
+    public $invoiced_amount;
 
     /**
      * @var string|null

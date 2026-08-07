@@ -203,6 +203,58 @@ public function get_all_online_gateways()
 protected $gateways_registry = [];
 ```
 
+### Money and Pricing Fields
+
+Any DB column, model attribute, DTO property, request field, or resource
+output key that holds a monetary amount must be qualified — never a bare
+`price`, `amount`, `total`, `cost`, `fee`, or `subtotal`. Which prefix depends
+on what currency the value is actually in:
+
+- **`base_*`** — the amount in the store's base currency. This is the only
+  form ever persisted to the database for catalog/cart/coupon money (e.g.
+  `variants.base_price`, `variants.base_sale_price`, `coupons.base_discount_amount_fixed`).
+- **`display_*`** — the same amount converted to the visitor's requested
+  currency (`Money::resolve_display_currency()`), computed on the fly in the
+  Resource layer. **Never stored** — there is no `display_*` column, only
+  `display_*` keys in API responses.
+- **`invoiced_*`** — a historical snapshot in the order's transaction
+  currency at the time the order was placed (orders, order items, refunds,
+  `orders.invoiced_payment_gateway_fee`). On `orders`/`order_items` every
+  `invoiced_*` field has a `base_*` sibling captured at the same time; on
+  `refunds` there is currently no `base_*` counterpart (refunds aren't
+  currency-converted), so `invoiced_*` stands alone there.
+
+Every `base_*`/`invoiced_*`/`display_*` money field in a Resource must ship
+with a matching `*_money_object` key built via `Money::prepare_amount_object()`
+(a `MoneyDTO`: `raw` float, `display` formatted string, `currency` `{code, symbol}`).
+`Money::prepare_amount()` gives you the plain float for the bare key.
+
+```php
+'base_price' => Money::prepare_amount($this->base_price),
+'base_price_money_object' => Money::prepare_amount_object($this->base_price),
+'display_price' => Money::prepare_amount($this->base_price, null, $display_currency),
+'display_price_money_object' => Money::prepare_amount_object($this->base_price, null, $display_currency),
+```
+
+Because DTO/request field names normally mirror DB columns 1:1, this
+prefixing has to be threaded through the full round trip — migration column,
+model `$fillable`/`$casts`, DTO property, request validation rule/sanitizer
+key, and the Resource read — not just the API response. See `Variant`/`Coupon`
+(migrations, models, DTOs) and `VariantResource`/`CouponResource` (output) for
+the reference implementation.
+
+**Not every "amount-shaped" field needs a prefix** — only ones that are
+unambiguously a currency amount. Leave bare: percentages (`discount_amount_percentage`),
+rates (`tax_rate`), quantities/counts (`available_quantity`, `spend_condition_value`),
+and units of measure (`total_unit_amount`, `base_unit_amount` — a weight/volume
+unit, not money, despite the `base_` in the name).
+
+If a field's currency is ambiguous by design — e.g. `Coupon`'s `discount_amount`
+request field, which is a fixed currency amount *or* a percentage depending on
+`discount_value_type` — leave it unprefixed rather than picking a misleading
+prefix; the repository layer resolves it to the correct typed column
+(`base_discount_amount_fixed` vs. `discount_amount_percentage`).
+
 ### General
 
 - Match existing project patterns when editing surrounding code

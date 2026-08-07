@@ -40,7 +40,7 @@ const RateByWeightSettings = () => {
       />
       {isFreeShippingEnabled && (
         <MoneyField
-          name="free_shipping_min_amount"
+          name="base_free_shipping_min_amount"
           label={__('Amount', 'kirki-ecommerce')}
           placeholder={__('0.00', 'kirki-ecommerce')}
         />

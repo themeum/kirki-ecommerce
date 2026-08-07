@@ -15,18 +15,14 @@ class OrderListResource extends Resource
             'order_number' => $this->order_number,
             'customer_id' => $this->customer_id,
             'quantity' => $this->items_count,
-            'total' => $this->prepare_amount($this->total_base),
+            'invoiced_total' => Money::prepare_amount($this->invoiced_total, $this->currency_code),
+            'invoiced_total_money_object' => Money::prepare_amount_object($this->invoiced_total, $this->currency_code),
+            'base_total' => Money::prepare_amount($this->base_total),
+            'base_total_money_object' => Money::prepare_amount_object($this->base_total),
             'status' => $this->order_status,
             'payment_status' => $this->payment_status,
             'payment_method' => $this->payment_method,
             'created_at' => $this->created_at,
         ];
-    }
-
-    protected function prepare_amount($amount)
-    {
-        $value = Money::convert_to_currency(Money::from_minor($amount), $this->currency_code)->getMinorAmount();
-        
-        return Money::to_dto($value, $this->currency_code);
     }
 }

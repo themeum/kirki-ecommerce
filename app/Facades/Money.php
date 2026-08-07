@@ -20,6 +20,10 @@ use Kirki\Ecommerce\Framework\Facade;
  * @method static string format_from_minor(mixed $minorAmount, mixed $currency = null, int $roundingMode = \Brick\Math\RoundingMode::HALF_UP, \Brick\Money\Context $context = null)
  * @method static string format_from_decimal(mixed $amount, mixed $currency = null, int $roundingMode = \Brick\Math\RoundingMode::HALF_UP, \Brick\Money\Context $context = null)
  * @method static \Brick\Money\Money convert_to_currency(\Brick\Money\Money $money, string $currency, $exchange_rate = null)
+ * @method static float prepare_amount(mixed $amount, $currency = null, $target_currency = null)
+ * @method static \Kirki\Ecommerce\App\DTO\MoneyDTO prepare_amount_object(mixed $amount, $currency = null, $target_currency = null)
+ * @method static \Brick\Money\Money prepare_amount_money(mixed $amount, string $currency = null)
+ * @method static string resolve_display_currency()
  * 
  * @see \Kirki\Ecommerce\App\Managers\MoneyManager
  */

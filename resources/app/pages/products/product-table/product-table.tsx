@@ -21,6 +21,7 @@ import ProductTableFilter from '@/pages/products/product-table/product-table-fil
 import ProductTableFilterBar from '@/pages/products/product-table/product-table-filter-bar';
 import { useBulkDeleteProductsMutation, useProductsQuery } from '@/services/product';
 import { ProductListFilter, productListOptions } from '@/types/filters/product';
+import { displayMoney } from '@/utils/money';
 
 const ProductTitleCell = ({ item }: { item: ProductListItem }) => {
   const navigate = useNavigate();
@@ -59,7 +60,7 @@ const productColumns: DataTableColumn<ProductListItem>[] = [
   },
   {
     title: __('Price', 'kirki-ecommerce'),
-    renderItem: (item) => item?.price,
+    renderItem: (item) => displayMoney('base_price', item),
   },
   {
     title: __('Status', 'kirki-ecommerce'),

@@ -57,7 +57,7 @@ export const ShippingMethodRangeSchema = z
   .object({
     from: z.union([z.number(), z.string()]).nullish(),
     to: z.union([z.number(), z.string()]).nullish(),
-    amount: z.union([z.number(), z.string()]).nullish(),
+    base_amount: z.union([z.number(), z.string()]).nullish(),
   })
   .passthrough();
 
@@ -69,7 +69,7 @@ export const ShippingMethodSchema = z
     type: z.string().nullish(),
     name: z.string().nullish(),
     is_enabled: z.boolean().nullish(),
-    amount: z.union([z.number(), z.string()]).nullish(),
+    base_amount: z.union([z.number(), z.string()]).nullish(),
     is_taxable: z.boolean().nullish(),
     description: z.string().nullish(),
     address: z.string().nullish(),
@@ -79,7 +79,7 @@ export const ShippingMethodSchema = z
     pickup_time_end: z.string().nullish(),
     ranges: z.array(ShippingMethodRangeSchema).nullish(),
     is_free_shipping_enabled: z.boolean().nullish(),
-    free_shipping_min_amount: z.union([z.number(), z.string()]).nullish(),
+    base_free_shipping_min_amount: z.union([z.number(), z.string()]).nullish(),
     shipping_rules: z.array(ShippingRuleSchema).nullish(),
   })
   .passthrough();
