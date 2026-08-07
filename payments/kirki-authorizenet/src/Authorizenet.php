@@ -85,7 +85,7 @@ class Authorizenet extends PaymentGateway
                     'refId' => $order->id,
                     'transactionRequest' => $this->transaction_builder->build_transaction_request($order),
                     'hostedPaymentSettings' => $this->transaction_builder->build_hosted_payment_settings(
-                        $this->return_url($order)
+                        ['success_url' => $this->success_url($order), 'cancel_url' => $this->cancel_url($order)]
                     ),
                 ],
             ]);
