@@ -23,7 +23,6 @@ use Kirki\Ecommerce\App\DTO\Variant\UpdateVariantDTO;
 use Kirki\Ecommerce\Framework\Http\Response;
 use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 
-use function Kirki\Ecommerce\Framework\dd;
 use function Kirki\Ecommerce\Framework\response;
 
 class ProductController

@@ -18,39 +18,7 @@ class CartUpdateRequest extends Request
 
     public function rules()
     {
-        return [
-            'shipping_address' => 'array',
-            'shipping_address.first_name' => 'string',
-            'shipping_address.last_name' => 'string|nullable',
-            'shipping_address.email' => 'email',
-            'shipping_address.phone' => 'string',
-            'shipping_address.address_line1' => 'string',
-            'shipping_address.address_line2' => 'string|nullable',
-            'shipping_address.city' => 'string',
-            'shipping_address.state' => 'string',
-            'shipping_address.postal_code' => 'string',
-            'shipping_address.country' => 'string',
-            'shipping_address.company' => 'string|nullable',
-
-            'is_billing_same_as_shipping' => 'required|boolean',
-
-            'billing_address' => 'array',
-            'billing_address.first_name' => 'string',
-            'billing_address.last_name' => 'string|nullable',
-            'billing_address.email' => 'email',
-            'billing_address.phone' => 'string',
-            'billing_address.address_line1' => 'string',
-            'billing_address.address_line2' => 'string|nullable',
-            'billing_address.city' => 'string',
-            'billing_address.state' => 'string',
-            'billing_address.postal_code' => 'string',
-            'billing_address.country' => 'string',
-            'billing_address.company' => 'string|nullable',
-
-            'shipping_method' => 'string|nullable',
-            'coupon_code' => 'string|nullable',
-            'customer_notes' => 'string|nullable',
-        ];
+        return [];
     }
 
     public function filters()
