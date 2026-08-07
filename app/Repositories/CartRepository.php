@@ -18,14 +18,36 @@ class CartRepository
     {
         return Cart::where('cart_token', $token)->with([
             'items' => ['product' => ['media', 'categories'], 'variant' => ['media']]
-        ])->first();
+        ])->order_by('id', 'desc')->first();
+    }
+
+    /**
+     * Update cart by token
+     *
+     * @since 1.0.0
+     *
+     * @param string $token
+     * @param array $data
+     *
+     * @return Cart|null
+     */
+    public function update_by_token($token, array $data)
+    {
+        $cart = $this->find_by_token($token);
+
+        if ($cart) {
+            $cart->update($data);
+            return $this->find($cart->id);
+        }
+
+        return null;
     }
 
     public function find_by_customer($customer_id)
     {
         return Cart::where('customer_id', $customer_id)->with([
-            'items' => ['product' => ['media', 'categories'], 'variant' => ['media']]
-        ])->first();
+            'items' => ['product' => ['media', 'categories'], 'variant' => ['media', 'attribute_values', 'available_quantity']]
+        ])->order_by('id', 'desc')->first();
     }
 
     public function create_cart(array $data)

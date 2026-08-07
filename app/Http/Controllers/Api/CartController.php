@@ -15,6 +15,7 @@ use Kirki\Ecommerce\Framework\Contracts\Request;
 use Kirki\Ecommerce\App\DTO\Cart\AddToCartDTO;
 use Kirki\Ecommerce\App\Actions\Cart\ApplyCouponAction;
 use Kirki\Ecommerce\App\Actions\Cart\RemoveCouponAction;
+use Kirki\Ecommerce\App\Constants\Cart;
 use Kirki\Ecommerce\App\DTO\Cart\EmptyCartDTO;
 use Kirki\Ecommerce\App\DTO\Cart\RemoveCartItemDTO;
 use Kirki\Ecommerce\App\DTO\Cart\UpdateCartItemDTO;
@@ -35,7 +36,7 @@ class CartController
     public function get(Request $request)
     {
         $customer = customer();
-        $token = $request->get_header('x-cart-token');
+        $token = $request->get_header(Cart::HEADER_TOKEN);
 
         $cart = $this->service->get_cart($customer->get_customer_id() ?? null, $token);
 
@@ -48,7 +49,7 @@ class CartController
     public function add_item(AddToCartRequest $request, AddToCartAction $add_to_cart_action)
     {
         $customer = customer();
-        $token = $request->get_header('x-cart-token');
+        $token = $request->get_header(Cart::HEADER_TOKEN);
 
         $dto = AddToCartDTO::from_request($request);
         $dto->customer_id = $customer ? $customer->get_customer_id() : null;
@@ -72,7 +73,7 @@ class CartController
         $dto->quantity = $data['quantity'];
 
         $customer = customer();
-        $dto->token = $request->get_header('x-cart-token');
+        $dto->token = $request->get_header(Cart::HEADER_TOKEN);
         $dto->customer_id = $customer ? $customer->get_customer_id() : null;
 
         $updated_cart = $action->execute($dto);
@@ -88,7 +89,7 @@ class CartController
         $item_id = $request->get_int('id');
 
         $customer = customer();
-        $token = $request->get_header('x-cart-token');
+        $token = $request->get_header(Cart::HEADER_TOKEN);
         $customer_id = $customer ? $customer->get_customer_id() : null;
 
         $dto = new RemoveCartItemDTO();
@@ -107,7 +108,7 @@ class CartController
     public function empty_cart(Request $request)
     {
         $customer = customer();
-        $token = $request->get_header('x-cart-token');
+        $token = $request->get_header(Cart::HEADER_TOKEN);
         $customer_id = $customer ? $customer->get_customer_id() : null;
 
         $dto = new EmptyCartDTO();
@@ -125,7 +126,7 @@ class CartController
     public function update(CartUpdateRequest $request, UpdateCartAction $action)
     {
         $customer = customer();
-        $token = $request->get_header('x-cart-token');
+        $token = $request->get_header(Cart::HEADER_TOKEN);
         $customer_id = $customer ? $customer->get_customer_id() : null;
 
         $updated_cart = $action->execute($token, $customer_id, $request->sanitized());
@@ -147,7 +148,7 @@ class CartController
         }
 
         $customer = customer();
-        $token = $request->get_header('x-cart-token');
+        $token = $request->get_header(Cart::HEADER_TOKEN);
 
         $cart = $this->service->get_cart($customer ? $customer->get_customer_id() : null, $token);
 
@@ -162,7 +163,7 @@ class CartController
     public function remove_coupon(Request $request, RemoveCouponAction $remove_coupon_action)
     {
         $customer = customer();
-        $token = $request->get_header('x-cart-token');
+        $token = $request->get_header(Cart::HEADER_TOKEN);
 
         $cart = $this->service->get_cart($customer ? $customer->get_customer_id() : null, $token);
         $cart = $remove_coupon_action->execute($cart);

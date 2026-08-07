@@ -3,6 +3,8 @@
 namespace Kirki\Ecommerce\App;
 
 use Kirki\Ecommerce\App\Scheduler\Scheduler;
+use Kirki\Ecommerce\App\Supports\Utils;
+
 use function Kirki\Ecommerce\Framework\migrator;
 
 final class KirkiEcommerce
@@ -13,6 +15,7 @@ final class KirkiEcommerce
 
         migrator()->run();
         Scheduler::setup();
+        Utils::generate_site_pages();
     }
 
     public static function handle_deactivation()

@@ -1,0 +1,65 @@
+// Mixins - Layout (flex, grid, breakpoints)
+
+@use 'sass:map';
+@use '../tokens' as *;
+
+// Flexbox shorthand
+@mixin flex($dir: row, $align: stretch, $justify: flex-start, $wrap: nowrap) {
+  display: flex;
+  flex-direction: $dir;
+  align-items: $align;
+  justify-content: $justify;
+  flex-wrap: $wrap;
+}
+
+@mixin flex-center {
+  @include flex(row, center, center);
+}
+
+@mixin flex-between {
+  @include flex(row, center, space-between);
+}
+
+@mixin flex-column {
+  @include flex(column);
+}
+
+// Auto-fill grid
+@mixin grid-auto-fill($min: 220px, $gap: $spacing-5) {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax($min, 1fr));
+  gap: $gap;
+}
+
+// Fixed-column grid
+@mixin grid($cols: 2, $gap: $spacing-5) {
+  display: grid;
+  grid-template-columns: repeat($cols, 1fr);
+  gap: $gap;
+}
+
+// Breakpoint up (min-width)
+@mixin breakpoint-up($bp) {
+  @if map.has-key($breakpoints, $bp) {
+    @media (min-width: map.get($breakpoints, $bp)) { @content; }
+  } @else {
+    @warn "Unknown breakpoint: #{$bp}";
+  }
+}
+
+// Breakpoint down (max-width)
+@mixin breakpoint-down($bp) {
+  @if map.has-key($breakpoints, $bp) {
+    @media (max-width: #{map.get($breakpoints, $bp) - 1px}) { @content; }
+  } @else {
+    @warn "Unknown breakpoint: #{$bp}";
+  }
+}
+
+// Container
+@mixin container($max: 960px) {
+  width: 100%;
+  max-width: $max;
+  margin-inline: auto;
+  padding-inline: $spacing-6;
+}

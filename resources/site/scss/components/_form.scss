@@ -1,0 +1,310 @@
+// Component - Form
+// .kecom-field          Field wrapper (label + control + help/error)
+// .kecom-input          Text input
+// .kecom-textarea       Textarea
+// .kecom-select         Select
+// .kecom-checkbox       Checkbox
+// .kecom-radio          Radio
+// .kecom-quantity       Quantity stepper
+//
+// Specificity strategy
+// --------------------
+// Input/select/textarea selectors are doubled (.kecom-foo.kecom-foo) to reach
+// specificity (0,2,0), which beats the single-class (0,1,0) rules that most
+// themes emit for input[type="text"], .woocommerce input, etc.
+// Pseudo-class variants (:focus, :hover, :disabled) naturally sit at (0,3,0)
+// and therefore also win over theme rules.
+
+@use "../tokens" as *;
+@use "../mixins" as *;
+
+// ── Field wrapper ────────────────────────────────────────────────────────────
+
+.kecom-field {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+  width: 100%;
+
+  &-label {
+    @include typography(base, medium, $text-primary);
+
+    &-required::after {
+      content: " *";
+      color: $background-fill-critical;
+    }
+  }
+
+  &-help {
+    @include typography(sm, normal, $text-secondary);
+  }
+  &-error {
+    @include typography(sm, normal, $background-fill-critical);
+  }
+
+  // Error state
+  &-error-state {
+    .kecom-input.kecom-input,
+    .kecom-select.kecom-select,
+    .kecom-textarea.kecom-textarea {
+      border-color: $border-critical;
+      box-shadow: 0 0 0 1px $border-critical;
+
+      &:focus {
+        border-color: $border-critical;
+        box-shadow: 0px 0px 4px 0px #d40000ad;
+        box-shadow: 0px 0px 0px 1px #d40000;
+      }
+    }
+  }
+}
+
+// ── Shared input base ─────────────────────────────────────────────────────────
+
+%kecom-control {
+  display: block;
+  width: 100%;
+  height: 36px;
+  padding: $spacing-2 $spacing-6;
+  font-family: $font-family;
+  font-size: $font-size-base;
+  font-weight: $font-weight-normal;
+  line-height: $line-height-lg;
+  color: $text-primary;
+  background-color: $background-fill;
+  border: 1px solid $border-default;
+  border-radius: $radius-md;
+  appearance: none;
+  box-shadow: none;
+  @include transition((border-color, box-shadow));
+
+  &::placeholder {
+    color: $text-subdued;
+  }
+
+  &:hover:not(:disabled):not(:focus) {
+    border-color: $border-hover;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: $border-default;
+    box-shadow: 0px 1.5px 2px 0px $border-ring;
+    box-shadow: 0px 0px 0px 1.5px $border-ring;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    background-color: $background-surface-alt;
+    color: $text-disabled;
+    border-color: $border-default;
+  }
+}
+
+// ── Text input ───────────────────────────────────────────────────────────────
+
+.kecom-input.kecom-input {
+  @extend %kecom-control;
+
+  &-sm {
+    padding: $spacing-2 $spacing-4;
+    font-size: $font-size-sm;
+    border-radius: $radius-sm;
+  }
+
+  &-lg {
+    padding: $spacing-3 $spacing-4;
+    font-size: $font-size-md;
+    border-radius: $radius-lg;
+  }
+}
+
+.kecom-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  .kecom-input-icon {
+    position: absolute;
+    color: $icon-secondary;
+    pointer-events: none;
+    @include flex-center;
+
+    &-left {
+      left: $spacing-3;
+      ~ .kecom-input {
+        padding-left: $spacing-8;
+      }
+    }
+    &-right {
+      right: $spacing-3;
+      ~ .kecom-input {
+        padding-right: $spacing-8;
+      }
+    }
+  }
+}
+
+// ── Textarea ─────────────────────────────────────────────────────────────────
+
+.kecom-textarea.kecom-textarea {
+  @extend %kecom-control;
+  resize: vertical;
+  min-height: 6rem;
+}
+
+// ── Select ───────────────────────────────────────────────────────────────────
+
+.kecom-select.kecom-select {
+  @extend %kecom-control;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none'%3E%3Cpath fill='%234a4852' fill-rule='evenodd' d='M4.46 6.594a.48.48 0 0 1 .68 0L8 9.454l2.86-2.86a.48.48 0 0 1 .68.679l-3.2 3.2a.48.48 0 0 1-.68 0l-3.2-3.2a.48.48 0 0 1 0-.68' clip-rule='evenodd'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right $spacing-4 center;
+  padding-right: $spacing-8;
+  cursor: pointer;
+}
+
+// ── Checkbox ─────────────────────────────────────────────────────────────────
+
+.kecom-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-2;
+  cursor: pointer;
+  user-select: none;
+
+  &-input.kecom-checkbox-input {
+    appearance: none;
+    outline: none;
+    width: 1rem;
+    height: 1rem;
+    border: 1.5px solid $border-default;
+    border-radius: $radius-sm;
+    background-color: $background-fill;
+    flex-shrink: 0;
+    @include transition((background-color, border-color));
+    cursor: pointer;
+
+    &:checked {
+      background-color: $background-fill-brand;
+      border-color: $background-fill-brand;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='8' viewBox='0 0 10 8'%3E%3Cpath fill='none' stroke='%23fff' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' d='M1 4l3 3 5-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+
+    &:focus-visible {
+      @include focus-ring;
+    }
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+  }
+
+  &-label {
+    @include typography(base, normal, $text-primary);
+  }
+}
+
+// ── Radio ────────────────────────────────────────────────────────────────────
+
+.kecom-radio {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-2;
+  cursor: pointer;
+  user-select: none;
+
+  &-input.kecom-radio-input {
+    appearance: none;
+    outline: none;
+    margin: 0px;
+    width: 1rem;
+    height: 1rem;
+    border: 1.5px solid $border-default;
+    border-radius: $radius-full;
+    background-color: $background-fill;
+    flex-shrink: 0;
+    @include transition((background-color, border-color));
+    cursor: pointer;
+
+    &:checked {
+      border-color: $background-fill-brand;
+      border-width: 2px;
+      background-image: radial-gradient(circle, $background-fill-brand 40%, transparent 40%);
+    }
+
+    &:focus-visible {
+      @include focus-ring;
+    }
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+  }
+
+  &-label {
+    @include typography(base, normal, $text-primary);
+  }
+}
+
+// ── Quantity stepper ─────────────────────────────────────────────────────────
+
+.kecom-quantity {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid $border-default;
+  border-radius: $radius-md;
+  overflow: hidden;
+  background-color: $background-surface-alt;
+
+  .kecom-quantity-btn {
+    @include flex-center;
+    width: 2rem;
+    height: 40px;
+    background: none;
+    border: none;
+    outline: none;
+    padding: 0px;
+    color: $icon-primary;
+    cursor: pointer;
+    font-size: $font-size-md;
+    flex-shrink: 0;
+    @include transition((background-color));
+
+    &:hover:not(:disabled) {
+      background-color: $background-surface-alt;
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      color: $icon-disabled;
+    }
+  }
+
+  .kecom-quantity-input.kecom-quantity-input {
+    width: 3rem;
+    height: 40px;
+    border: none;
+    text-align: center;
+    font-family: $font-family;
+    font-size: $font-size-base;
+    font-weight: $font-weight-medium;
+    color: $text-primary;
+    background-color: $background-surface-alt;
+
+    &:focus {
+      outline: none;
+    }
+
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+      appearance: none;
+      margin: 0;
+    }
+    &[type="number"] {
+      appearance: textfield;
+    }
+  }
+}

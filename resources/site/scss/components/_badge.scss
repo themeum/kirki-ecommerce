@@ -1,0 +1,77 @@
+// Component - Badge
+// Base: .kecom-badge
+// Variants: .kecom-badge-default  .kecom-badge-primary
+//           .kecom-badge-success  .kecom-badge-success-light
+//           .kecom-badge-error    .kecom-badge-error-light
+//           .kecom-badge-warning  .kecom-badge-outline
+// Sizes:    .kecom-badge-sm       .kecom-badge-lg
+
+@use '../tokens' as *;
+
+.kecom-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-1;
+  padding: $spacing-2 $spacing-4;
+  font-family: $font-family;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  line-height: $line-height-xs;
+  border-radius: $radius-sm;
+  white-space: nowrap;
+
+  // ── Variants ──────────────────────────────────────────────────────────────
+
+  &-default {
+    background-color: $background-surface-alt;
+    color: $text-secondary;
+  }
+
+  &-primary {
+    background-color: $background-fill-secondary;
+    color: $background-fill-brand;
+  }
+
+  &-success {
+    background-color: $background-fill-success;
+    color: $text-light;
+  }
+
+  &-success-light {
+    background-color: $background-fill-success-secondary;
+    color: $text-success;
+  }
+
+  &-error {
+    background-color: $background-fill-critical;
+    color: $text-light;
+  }
+
+  &-error-light {
+    background-color: $background-fill-critical-secondary;
+    color: $background-fill-critical;
+  }
+
+  &-warning {
+    background-color: $background-fill-warning-secondary;
+    color: $background-fill-warning;
+  }
+
+  &-outline {
+    background-color: transparent;
+    border: 1px solid $border-default;
+    color: $text-secondary;
+  }
+
+  // ── Sizes ─────────────────────────────────────────────────────────────────
+
+  &-sm {
+    font-size: $font-size-xs;
+    padding: $spacing-1 $spacing-2;
+  }
+
+  &-lg {
+    font-size: $font-size-base;
+    padding: $spacing-3 $spacing-4;
+  }
+}

@@ -6,9 +6,10 @@
     <arg name="cache" value=".phpcs-cache"/>
     <arg name="colors"/>
 
-    <!-- snake_case convention -->
+
     <rule ref="PSR12">
-        <exclude name="PSR1.Methods.CamelCapsMethodName"/>
+        <exclude name="PSR1.Methods.CamelCapsMethodName.NotCamelCaps" />
+        <exclude name="Generic.Files.LineLength.TooLong" />
     </rule>
 
     <!-- Short array syntax: array() -> [] -->

@@ -1,0 +1,39 @@
+@use "../tokens" as *;
+@use "../mixins" as *;
+
+.kecom-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-4;
+}
+
+.kecom-page-link {
+  @include flex-center();
+  min-width: 32px;
+  height: 32px;
+  border: 1px solid $border-default;
+  border-radius: $radius-lg;
+  background-color: $background-surface;
+  color: $text-primary;
+  text-decoration: none;
+  outline: none;
+  @include typography(sm, regular);
+  @include transition((background-color, border-color, color));
+
+  &:hover {
+    border-color: $background-fill-brand;
+    color: $background-fill-brand;
+  }
+
+  &:focus-visible {
+    @include focus-ring();
+  }
+
+  &.active {
+    background-color: $background-fill-brand;
+    border-color: $background-fill-brand;
+    color: $text-light;
+    pointer-events: none;
+  }
+}
