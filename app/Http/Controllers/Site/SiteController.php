@@ -22,10 +22,10 @@ use Kirki\Ecommerce\App\Services\ProductService;
 use Kirki\Ecommerce\App\Resources\Product\ProductResource;
 use Kirki\Ecommerce\App\Services\CartService;
 use Kirki\Ecommerce\App\Services\OrderService;
-use Kirki\Ecommerce\App\Services\PaymentGatewayService;
 use Kirki\Ecommerce\App\Supports\Template;
 use Kirki\Ecommerce\App\Supports\Utils;
 use Kirki\Ecommerce\Framework\Http\Request;
+use Kirki\Ecommerce\Framework\Http\Response;
 
 use function Kirki\Ecommerce\Framework\include_view;
 use function Kirki\Ecommerce\Framework\response;
@@ -125,7 +125,9 @@ class SiteController
             'variants.product',
             'media'
         ])->where('slug', $slug)->first();
+
         $resource = ProductResource::make($product);
+
         return view('site.shop.single', $resource)->layout(false);
     }
 
@@ -152,13 +154,13 @@ class SiteController
      * @since 1.0.0
      *
      * @param Request $request  request.
-     * @param PaymentGatewayService $payment_gateway_service  payment gateway service.
+     * @param CartService $cart_service cart service.
+     * @param OrderService $order_service order service.
      *
      * @return string Template path.
      */
     public function checkout_page(
         Request $request,
-        PaymentGatewayService $payment_gateway_service,
         CartService $cart_service,
         OrderService $order_service
     ) {

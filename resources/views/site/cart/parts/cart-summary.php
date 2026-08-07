@@ -23,14 +23,14 @@ $url = user()->is_logged_in() ? $checkout_url : $login_url;
         <span class="kecom-cart-summary-item-title"><?php _e('Subtotal', 'kirki-ecommerce'); ?></span>
         <span class="kecom-cart-summary-item-value" x-text="cartData.pricing.display_subtotal_money_object.display"></span>
     </div>
-    <div class="kecom-cart-summary-item">
+    <!-- <div class="kecom-cart-summary-item">
         <span class="kecom-cart-summary-item-title"><?php _e('Estimate shipping', 'kirki-ecommerce'); ?></span>
         <span class="kecom-cart-summary-item-value"><?php echo '-' ?></span>
     </div>
     <div class="kecom-cart-summary-item">
         <span class="kecom-cart-summary-item-title"><?php _e('Estimate taxes', 'kirki-ecommerce'); ?></span>
         <span class="kecom-cart-summary-item-value"><?php echo '-' ?></span>
-    </div>
+    </div> -->
     <div class="kecom-cart-summary-total">
         <span class="kecom-cart-summary-total-title"><?php _e('Estimate Total', 'kirki-ecommerce'); ?></span>
         <span class="kecom-cart-summary-total-value" x-text="cartData.pricing.display_total_money_object.display"></span>
