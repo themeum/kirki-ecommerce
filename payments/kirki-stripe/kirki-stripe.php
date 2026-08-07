@@ -21,8 +21,8 @@ if (!defined('ABSPATH')) {
 require_once __DIR__ . '/vendor/autoload.php';
 
 
-add_filter('kirki_ecommerce_all_payment_gateways', function ($gateways) {
-    $gateways[] = new Stripe();
+add_filter('kirki_ecommerce_payment_providers', function ($providers) {
+    $providers[] = new Stripe();
 
-    return $gateways;
+    return $providers;
 });

@@ -19,7 +19,7 @@ class UpdateOrderPayloadDTO extends DTO
     public $currency_code;
 
     /** @var string */
-    public $payment_method;
+    public $payment_provider;
 
     /** @var string|null */
     public $coupon_code;

@@ -266,7 +266,7 @@ class OrderApiTest extends RestTestCase
                 ],
             ],
             'currency_code' => 'USD',
-            'payment_method' => 'stripe',
+            'payment_provider' => 'paypal',
             'shipping_method' => 'method-0001',
             'is_manual' => true,
             'shipping_first_name' => 'John',

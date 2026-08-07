@@ -46,10 +46,10 @@ export const queryKeys = {
   ShippingBox: (id: string | number) => ['ShippingBox', id] as const,
   TaxProfiles: (params?: ListQueryParams) =>
     ['TaxProfiles', params] as const,
-  PaymentGateways: () => ['PaymentGateways'] as const,
-  InstallablePaymentGateways: () => ['InstallablePaymentGateways'] as const,
-  PaymentGateway: (id: string | number) => ['PaymentGateway', id] as const,
-  PaymentMethods: () => ['PaymentMethods'] as const,
+  OnlinePayments: () => ['OnlinePayments'] as const,
+  InstallableOnlinePayments: () => ['InstallableOnlinePayments'] as const,
+  OnlinePayment: (id: string | number) => ['OnlinePayment', id] as const,
+  OfflinePayments: () => ['OfflinePayments'] as const,
   Coupons: (params?: ListParams<CouponListFilter>) => params ? ['Coupons', params] as const : ['Coupons'] as const,
   Coupon: (id: string | number) => ['Coupon', id] as const,
 };

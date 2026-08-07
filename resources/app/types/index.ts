@@ -36,7 +36,7 @@ export type {
   UpdateVariantsPayload
 } from '@/types/entities/product';
 export type { SchemaProfile } from '@/types/entities/schema';
-export type { PaymentGateway, PaymentMethod } from '@/schemas/catalog/payment';
+export type { OfflinePayment, OnlinePayment } from '@/schemas/catalog/payment';
 export type {
   ShippingBox, ShippingCarrier, ShippingMethod, ShippingProfile, ShippingRegion, ShippingRule, ShippingRuleAction, ShippingRuleCondition, ShippingZone
 } from '@/schemas/catalog/shipping';

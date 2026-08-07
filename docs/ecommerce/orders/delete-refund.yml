@@ -121,7 +121,7 @@ examples:
                 "phone": "+1 555-000-2000",
                 "email": "jane.shipping@example.com"
               },
-              "payment_method": "stripe",
+              "payment_provider": "stripe",
               "payment_status": "partially_refunded",
               "shipping_method": "fsdfdsfsdfsdf343432jh4",
               "refunds": [

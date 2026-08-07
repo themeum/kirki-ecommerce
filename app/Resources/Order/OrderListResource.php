@@ -21,7 +21,7 @@ class OrderListResource extends Resource
             'base_total_money_object' => Money::prepare_amount_object_from_minor($this->base_total),
             'status' => $this->order_status,
             'payment_status' => $this->payment_status,
-            'payment_method' => $this->payment_method,
+            'payment_provider' => $this->payment_provider,
             'created_at' => $this->created_at,
         ];
     }
