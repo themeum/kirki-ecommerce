@@ -172,7 +172,7 @@ class OrderRepository
     {
         return Order::when($filters['search'] ?? null, function (QueryBuilder $query, $search) {
             return $query->where_any(
-                ['uuid', 'order_number', 'customer_email', 'shipping_first_name', 'shipping_last_name'],
+                ['order_number', 'customer_email', 'shipping_first_name', 'shipping_last_name'],
                 'like',
                 '%' . $search . '%'
             );

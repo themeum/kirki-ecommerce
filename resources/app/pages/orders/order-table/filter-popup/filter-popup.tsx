@@ -12,7 +12,7 @@ import { CloseIcon, ListFilter } from '@/icons';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
 import { fulfillmentStatusOptions, OrderListFilter, orderListOptions, paymentStatusOptions } from '@/types/filters/order';
-import { __, sprintf } from '@/wpi18n';
+import { __ } from '@/wpi18n';
 
 const emptyFilter: OrderListFilter = {
   fulfillment_status: 'all',
@@ -104,7 +104,7 @@ const FilterPopup = memo(() => {
               borderRadius: `${theme.radius.none} ${theme.radius.md} ${theme.radius.md} ${theme.radius.none}`,
             }}
           >
-            {sprintf(__('%d', 'kirki-ecommerce'), hasFilter)}
+            {hasFilter}
           </Button>
         ) : null}
       </Flex>

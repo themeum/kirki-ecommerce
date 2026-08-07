@@ -1,5 +1,5 @@
 import { format } from 'date-fns';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router';
 
 import DataTable, { type DataTableColumn } from '@/components/data-table';
@@ -16,7 +16,7 @@ import OrderTableFilterBar from '@/pages/orders/order-table/order-table-filter-b
 import { useOrdersQuery } from '@/services/order';
 import type { OrderListItem } from '@/types';
 import { OrderListFilter, orderListOptions } from '@/types/filters/order';
-import { __ } from '@/wpi18n';
+import { __, sprintf } from '@/wpi18n';
 
 const OrderCell = ({ item }: { item: OrderListItem }) => {
   const customerLabel = item.customer_name || item.customer_email;
@@ -33,68 +33,18 @@ const OrderCell = ({ item }: { item: OrderListItem }) => {
         ) : null}
       </Flex>
       {customerLabel ? (
-        <Text variant="tiny">{`${__('by', 'kirki-ecommerce')} ${customerLabel}`}</Text>
+        <Text variant="tiny">
+          {
+            /* translators: %s: customer name */
+            sprintf(__('by %s', 'kirki-ecommerce'), customerLabel)
+          }
+        </Text>
       ) : null}
     </Flex>
   );
 };
 
 OrderCell.displayName = 'OrderCell';
-
-/*
- * Module scope on purpose: a stable `columns` reference is what lets the
- * memoized table header sit out a search.
- */
-const orderColumns: DataTableColumn<OrderListItem>[] = [
-  {
-    title: __('Order', 'kirki-ecommerce'),
-    renderItem: (item) => <OrderCell item={item} />,
-    cssOverride: { width: '10%' }
-  },
-  {
-    title: __('Quantity', 'kirki-ecommerce'),
-    renderItem: (item) => <Text variant="small">{item.quantity}</Text>,
-    alignment: 'center'
-  },
-  {
-    title: __('Price', 'kirki-ecommerce'),
-    renderItem: (item) => <Text variant="small">{item.invoiced_total_money_object.display}</Text>,
-    alignment: 'center'
-  },
-  {
-    title: __('Status', 'kirki-ecommerce'),
-    renderItem: (item) => {
-      const fulfillmentBadge = getFulfillmentBadgeInfo(item.fulfillment_status);
-      const paymentBadge = getPaymentBadgeInfo(item.payment_status);
-      return (
-        <Flex gap={1} align="center"><Badge variant={paymentBadge.variant}>
-          <Text variant="tiny">{paymentBadge.text}</Text>
-        </Badge>
-          <Badge variant={fulfillmentBadge.variant}>
-            <Text variant="tiny">{fulfillmentBadge.text}</Text>
-          </Badge>
-        </Flex>
-      );
-    },
-    alignment: 'center'
-  },
-  {
-    title: __('Payment', 'kirki-ecommerce'),
-    renderItem: (item) => {
-
-      return item.payment_provider ? (
-        <Text variant="tiny" color="subdued">{item.payment_provider.toUpperCase()}</Text>
-      ) : null;
-    },
-    alignment: 'center'
-  },
-  {
-    title: __('Date', 'kirki-ecommerce'),
-    renderItem: (item) =>
-      item.created_at ? format(new Date(item.created_at), DATE_FORMATS.HUMAN_READABLE) : '-',
-    alignment: 'center'
-  },
-];
 
 const OrderTable = () => {
   const navigate = useNavigate();
@@ -108,6 +58,59 @@ const OrderTable = () => {
     },
     [setParam],
   );
+
+  const orderColumns: DataTableColumn<OrderListItem>[] = useMemo(() => {
+    return [
+      {
+        title: __('Order', 'kirki-ecommerce'),
+        renderItem: (item) => <OrderCell item={item} />,
+        cssOverride: { width: '10%' }
+      },
+      {
+        title: __('Quantity', 'kirki-ecommerce'),
+        renderItem: (item) => <Text variant="small">{item.quantity}</Text>,
+        alignment: 'center'
+      },
+      {
+        title: __('Price', 'kirki-ecommerce'),
+        renderItem: (item) => <Text variant="small">{item.invoiced_total_money_object.display}</Text>,
+        alignment: 'center'
+      },
+      {
+        title: __('Status', 'kirki-ecommerce'),
+        renderItem: (item) => {
+          const fulfillmentBadge = getFulfillmentBadgeInfo(item.fulfillment_status);
+          const paymentBadge = getPaymentBadgeInfo(item.payment_status);
+          return (
+            <Flex gap={1} align="center"><Badge variant={paymentBadge.variant}>
+              <Text variant="tiny">{paymentBadge.text}</Text>
+            </Badge>
+              <Badge variant={fulfillmentBadge.variant}>
+                <Text variant="tiny">{fulfillmentBadge.text}</Text>
+              </Badge>
+            </Flex>
+          );
+        },
+        alignment: 'center'
+      },
+      {
+        title: __('Payment', 'kirki-ecommerce'),
+        renderItem: (item) => {
+
+          return item.payment_provider ? (
+            <Text variant="tiny" color="subdued">{item.payment_provider.toUpperCase()}</Text>
+          ) : null;
+        },
+        alignment: 'center'
+      },
+      {
+        title: __('Date', 'kirki-ecommerce'),
+        renderItem: (item) =>
+          item.created_at ? format(new Date(item.created_at), DATE_FORMATS.HUMAN_READABLE) : '-',
+        alignment: 'center'
+      },
+    ];
+  }, [format, getFulfillmentBadgeInfo, getPaymentBadgeInfo])
 
   return (
     <DataTable
