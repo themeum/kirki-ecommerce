@@ -10,18 +10,10 @@ class OrderUpdateRequest extends Request
 {
     public function authorize()
     {
-        if(!customer()->is_admin() 
-            && !empty($this->input('customer_id')) 
-            && $this->input('customer_id') !== customer()->get_customer_id()
-            && $this->input('is_manual')
-        ) {
-            return false;
-        }
-
-        return true;
+        return customer()->is_admin();
     }
 
-    public function prepare_for_validation()
+    protected function prepare_for_validation()
     {
         $customer_id = $this->input('customer_id') ?? null;
         $is_billing_same_as_shipping = $this->input('is_billing_same_as_shipping') ?? customer(null, $customer_id)->get_customer()->is_billing_same_as_shipping ?? false;
@@ -39,7 +31,7 @@ class OrderUpdateRequest extends Request
             'shipping_email' => $this->input('shipping_email'),
         ];
 
-        if($is_billing_same_as_shipping){
+        if ($is_billing_same_as_shipping) {
             $billing_address = [
                 'billing_first_name' => $shipping_address['shipping_first_name'],
                 'billing_last_name' => $shipping_address['shipping_last_name'],
@@ -52,7 +44,7 @@ class OrderUpdateRequest extends Request
                 'billing_phone' => $shipping_address['shipping_phone'],
                 'billing_email' => $shipping_address['shipping_email'],
             ];
-        } else{
+        } else {
             $billing_address = [
                 'billing_first_name' => $this->input('billing_first_name'),
                 'billing_last_name' => $this->input('billing_last_name'),
@@ -65,14 +57,13 @@ class OrderUpdateRequest extends Request
                 'billing_phone' => $this->input('billing_phone'),
                 'billing_email' => $this->input('billing_email'),
             ];
-        } 
+        }
 
         $this->merge($shipping_address);
         $this->merge($billing_address);
         $this->merge([
-            'customer_id' => $customer_id ?? customer()->get_customer_id() ?? 0,
+            'customer_id' => $customer_id ?? 0,
             'is_billing_same_as_shipping' => $is_billing_same_as_shipping,
-            'is_manual' => $this->input('is_manual') ?? false
         ]);
     }
 
@@ -87,10 +78,9 @@ class OrderUpdateRequest extends Request
             'items.*.quantity' => 'required|integer|min:1',
 
             'currency_code' => 'nullable|string',
-            'payment_provider' => 'required|string',
             'coupon_code' => 'nullable|string',
 
-            'shipping_method' => 'nullable|string',
+            'shipping_method' => 'required|string',
 
             'shipping_first_name' => 'required|string',
             'shipping_last_name' => 'required|string',
@@ -103,6 +93,8 @@ class OrderUpdateRequest extends Request
             'shipping_phone' => 'nullable|string',
             'shipping_email' => 'nullable|email',
             'shipping_company' => 'nullable|string',
+
+            'is_billing_same_as_shipping' => 'required|boolean',
 
             'billing_first_name' => 'required|string',
             'billing_last_name' => 'required|string',
@@ -118,10 +110,9 @@ class OrderUpdateRequest extends Request
 
             'customer_email' => 'nullable|email',
             'customer_phone' => 'nullable|string',
-            'customer_notes' => 'nullable|string',
-            'is_manual' => 'nullable|boolean',
-            'order_status' => 'nullable|string',
-            'payment_status' => 'nullable|string',
+            'admin_notes' => 'nullable|string',
+            'flags' => 'nullable|array',
+            'flags.*' => 'string',
         ];
     }
 
@@ -136,7 +127,6 @@ class OrderUpdateRequest extends Request
             'items.*.quantity' => Sanitizer::INT,
 
             'currency_code' => Sanitizer::TEXT,
-            'payment_provider' => Sanitizer::TEXT,
             'coupon_code' => Sanitizer::TEXT,
 
             'shipping_method' => Sanitizer::TEXT,
@@ -169,10 +159,9 @@ class OrderUpdateRequest extends Request
 
             'customer_email' => Sanitizer::EMAIL,
             'customer_phone' => Sanitizer::TEXT,
-            'customer_notes' => Sanitizer::TEXT,
-            'is_manual' => Sanitizer::BOOL,
-            'order_status' => Sanitizer::TEXT,
-            'payment_status' => Sanitizer::TEXT,
+            'admin_notes' => Sanitizer::TEXT,
+            'flags' => Sanitizer::ARRAY,
+            'flags.*' => Sanitizer::TEXT,
         ];
     }
 }

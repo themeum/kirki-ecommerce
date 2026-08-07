@@ -52,6 +52,20 @@ const parseNumberArray = (value: string | null): number[] | undefined => {
   return items;
 };
 
+const parseArray = (value: string | null): string[] | undefined => {
+  if (!value) {
+    return undefined;
+  }
+  const items = value
+    .split(',')
+    .map((item) => item.trim())
+    .filter((item) => Boolean(item));
+  if (!items.length) {
+    return undefined;
+  }
+  return items;
+};
+
 const parseStatus = (value: string | null): string | string[] | undefined => {
   if (!value) {
     return undefined;
@@ -100,5 +114,5 @@ export type {
   SortOrder
 };
 
-export { parseBoolean, parseNumberArray, parseStatus, parseString, serializeFilterValue };
+export { parseArray, parseBoolean, parseNumberArray, parseStatus, parseString, serializeFilterValue };
 

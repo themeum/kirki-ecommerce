@@ -21,6 +21,7 @@ class UpdateRefundAction
         $this->order_service = $order_service;
     }
 
+    // @todo: need to fix this
     public function execute(UpdateRefundPayloadDTO $dto)
     {
         $order = $this->order_service->find_order_or_fail($dto->order_id);
@@ -40,7 +41,7 @@ class UpdateRefundAction
             // @todo should we update it this way or should we use repository?
             $refund->update($dto->to_array());
 
-            $this->sync_order_status($order, $dto->status);
+            $this->sync_fulfillment_status($order, $dto->status);
 
             DB::commit();
 
@@ -51,14 +52,16 @@ class UpdateRefundAction
         }
     }
 
-    protected function sync_order_status($order, $refund_status)
+    // @todo: need to recheck the logic
+    protected function sync_fulfillment_status($order, $refund_status)
     {
         if ($refund_status === RefundStatus::PENDING) {
             return;
         }
 
-        if ($refund_status === RefundStatus::CANCELLED && $order->order_status === OrderStatus::ON_HOLD) {
-            $this->order_service->update_order_status($order->id, OrderStatus::PROCESSING);
+        if ($refund_status === RefundStatus::CANCELLED) {
+            // @todo: should we update it this way or take decision on what to do
+            return;
         }
 
         if ($refund_status === RefundStatus::COMPLETED) {
@@ -69,13 +72,14 @@ class UpdateRefundAction
             $is_fully_refunded = $total_refunded >= $total_refundable;
 
             if ($is_fully_refunded) {
-                $this->order_service->update_order_status($order->id, OrderStatus::REFUNDED);
-                $this->order_service->update_payment_status($order->id, PaymentStatus::REFUNDED);
+                $this->order_service->mark_refund_as_completed($order->id);
             }
 
             if (!$is_fully_refunded && $total_refunded > 0 && $order->order_status !== OrderStatus::REFUNDED) {
-                $this->order_service->update_order_status($order->id, OrderStatus::PARTIALLY_REFUNDED);
-                $this->order_service->update_payment_status($order->id, PaymentStatus::PARTIALLY_REFUNDED);
+                // TODO: need to implement or take a decision regarding partial refund
+
+                // $this->order_service->update_order_status($order->id, OrderStatus::PARTIALLY_REFUNDED);
+                // $this->order_service->update_payment_status($order->id, PaymentStatus::PARTIALLY_REFUNDED);
             }
         }
     }

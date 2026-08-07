@@ -2,7 +2,6 @@ import { type CSSObject } from '@emotion/react';
 import { ArrowLeft } from 'lucide-react';
 import { forwardRef, type ComponentProps, type CSSProperties, type ReactNode } from 'react';
 
-import Badge, { BadgeProps } from '@/components/ui/badge';
 import Button from '@/components/ui/button';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
@@ -10,12 +9,10 @@ import Text from '@/components/ui/text';
 import { theme } from '@/theme';
 import { defineStyles, flexCenter, itemCenter, scoped, scopedMerge } from '@/theme/mixins';
 import type { ContainerSize, HeadingType } from '@/types';
-import { __ } from '@/wpi18n';
 
 type PageHeadingProps = {
   type?: HeadingType;
   text?: string;
-  badge?: BadgeProps | false;
   hasBack?: boolean;
   backIcon?: ReactNode;
   size?: ContainerSize;
@@ -34,8 +31,7 @@ const PageHeading = forwardRef<HTMLDivElement, PageHeadingProps>(
   (props, ref) => {
     const {
       cssOverride,
-      text = __('Button', 'kirki-ecommerce'),
-      badge = false,
+      text,
       hasBack = false,
       backIcon = null,
       size,
@@ -92,8 +88,6 @@ const PageHeading = forwardRef<HTMLDivElement, PageHeadingProps>(
               </span>
             )}
             <Text variant='heading5'>{text}</Text>
-            {badge && <Badge {...badge} />}
-
             {children}
             <Flex cssOverride={styles.actions} gap={2}>
               {actions}

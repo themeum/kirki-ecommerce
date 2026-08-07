@@ -3,6 +3,7 @@
 namespace Kirki\Ecommerce\App\Http\Controllers\Api;
 
 use Kirki\Ecommerce\App\Actions\Cart\RecalculateCartAction;
+use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
 use Kirki\Ecommerce\App\Constants\Order\OrderStatus;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationContextDTO;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationItemDTO;
@@ -38,7 +39,7 @@ class OrderCalculationController
 
     protected function prepare_context_dto($data)
     {
-         $context = CalculationContextDTO::from_array([
+        $context = CalculationContextDTO::from_array([
             'items' => $this->prepare_items($data['items']),
             'shipping_address' => [
                 'first_name' => $data['shipping_first_name'],
@@ -53,12 +54,12 @@ class OrderCalculationController
                 'country' => $data['shipping_country']
             ],
             'customer_id' => $data['customer_id'],
-            'coupon' => $data['coupon'],
-            'shipping_method_id' => $data['shipping_method_id'],
+            'coupon' => $data['coupon_code'] ?? null,
+            'shipping_method_id' => $data['shipping_method'] ?? null,
             'customer_order_count' => 0,
         ]);
 
-        if($context->customer_id){
+        if ($context->customer_id) {
             $context->customer_order_count = $this->get_order_count($context->customer_id);
         }
 
@@ -89,6 +90,7 @@ class OrderCalculationController
     protected function get_order_count($customer_id)
     {
         $customer = customer(null, $customer_id);
-        return $customer->get_customer()->orders()->where_not_in('order_status', [OrderStatus::CANCELLED, OrderStatus::REFUNDED])->count();
+        // @todo: need to update this with order status which are terminal states
+        return $customer->get_customer()->orders()->where_not_in('fulfillment_status', [FulfillmentStatus::CANCELLED, FulfillmentStatus::RETURNED])->count();
     }
 }

@@ -1,10 +1,10 @@
 import type { CSSObject } from '@emotion/react';
-import { forwardRef, type ComponentPropsWithoutRef, type ElementRef } from 'react';
 import * as PopoverPrimitive from '@radix-ui/react-popover';
+import { ComponentRef, forwardRef, type ComponentPropsWithoutRef } from 'react';
 
 import { getPortalContainer } from '@/libs/portal-container';
 import { theme } from '@/theme';
-import { scopedMerge, defineStyles } from '@/theme/mixins';
+import { defineStyles, scopedMerge } from '@/theme/mixins';
 import { getOverlayMotionStyles } from '@/theme/overlay-motion';
 
 const Popover = PopoverPrimitive.Root;
@@ -21,7 +21,7 @@ type PopoverContentProps = Omit<
 };
 
 const PopoverContent = forwardRef<
-  ElementRef<typeof PopoverPrimitive.Content>,
+  ComponentRef<typeof PopoverPrimitive.Content>,
   PopoverContentProps
 >((props, ref) => {
   const { cssOverride, align = 'center', sideOffset = 4, ...rest } = props;
@@ -41,7 +41,7 @@ const PopoverContent = forwardRef<
 
 PopoverContent.displayName = 'PopoverContent';
 
-export { Popover, PopoverTrigger, PopoverContent, PopoverAnchor };
+export { Popover, PopoverAnchor, PopoverContent, PopoverTrigger };
 
 const styles = defineStyles({
   content: {

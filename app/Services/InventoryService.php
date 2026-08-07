@@ -4,9 +4,6 @@ namespace Kirki\Ecommerce\App\Services;
 
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Repositories\VariantRepository;
-use Kirki\Ecommerce\Framework\Collections\Collection;
-use Kirki\Ecommerce\Framework\Database\Query\Paginator;
-use Kirki\Ecommerce\App\DTO\ListFilterDTO;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Exceptions\ValidationException;
 use Kirki\Ecommerce\Framework\Http\Response;

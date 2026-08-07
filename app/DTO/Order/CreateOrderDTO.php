@@ -19,6 +19,9 @@ class CreateOrderDTO extends DTO
     public $customer_id;
 
     /** @var string */
+    public $fulfillment_status;
+
+    /** @var string */
     public $order_status;
 
     /** @var bool */
@@ -115,6 +118,9 @@ class CreateOrderDTO extends DTO
     public $customer_notes;
 
     /** @var string|null */
+    public $admin_notes;
+
+    /** @var string|null */
     public $ip_address;
 
     /** @var string|null */
@@ -137,6 +143,7 @@ class CreateOrderDTO extends DTO
 
     /** @var string|null */
     public $customer_phone;
+
 
     public function __construct()
     {

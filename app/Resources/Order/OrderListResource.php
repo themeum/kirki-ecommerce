@@ -20,6 +20,8 @@ class OrderListResource extends Resource
             'base_total' => Money::prepare_amount_from_minor($this->base_total),
             'base_total_money_object' => Money::prepare_amount_object_from_minor($this->base_total),
             'status' => $this->order_status,
+            'fulfillment_status' => $this->fulfillment_status,
+            'is_refund_initiated' => $this->is_refund_initiated,
             'payment_status' => $this->payment_status,
             'payment_provider' => $this->payment_provider,
             'payment_provider_name' => $this->payment_metadata['payment_provider']['name'] ?? null,

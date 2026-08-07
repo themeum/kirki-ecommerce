@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Http\Requests\Product;
 
+use Kirki\Ecommerce\App\Concerns\ValidatesVariantMatrix;
 use Kirki\Ecommerce\App\Constants\Product\ProductStatus;
 use Kirki\Ecommerce\App\Constants\Unit;
 use Kirki\Ecommerce\App\Constants\WeightUnit;
@@ -11,6 +12,13 @@ use Kirki\Ecommerce\Framework\Http\Request;
 
 class ProductUpdateRequest extends Request
 {
+    use ValidatesVariantMatrix;
+
+    protected function passed_validation()
+    {
+        $this->validate_variant_matrix();
+    }
+
     protected function prepare_for_validation()
     {
         $variants = $this->input('variants') ?? [];

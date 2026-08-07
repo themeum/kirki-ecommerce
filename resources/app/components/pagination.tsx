@@ -69,13 +69,13 @@ const Pagination = (props: PaginationProps) => {
 
   const _current_page = current_page * 1;
 
-  if (total == 0) {
-    return null;
-  }
-
   const pageItems = useMemo(() => {
     return getPageItems(_current_page, last_page);
   }, [_current_page, last_page]);
+
+  if (total == 0) {
+    return null;
+  }
 
   return (
     <div css={scopedMerge(styles.wrapper, cssProp)}>
@@ -159,6 +159,7 @@ const styles = defineStyles({
   wrapper: {
     ...itemCenter(),
     justifyContent: 'space-between',
+    gap: theme.spacing[6],
     padding: `${theme.spacing[2]} ${theme.spacing[0]} ${theme.spacing[3]} ${theme.spacing[0]}`,
   },
   nowrap: {
