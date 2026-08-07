@@ -10,39 +10,38 @@ class OrderCreateRequest extends Request
 {
     public function authorize()
     {
-        if(!customer()->is_admin() 
-            && !empty($this->input('customer_id')) 
-            && $this->input('customer_id') !== customer()->get_customer_id()
-            && $this->input('is_manual')
-        ) {
+        if (customer()->is_admin()) {
+            return true;
+        }
+
+        if (!empty($this->input('customer_id')) && (int) $this->input('customer_id') !== customer()->get_customer_id()) {
             return false;
         }
 
-        return true;
+        return !$this->input('is_manual');
     }
 
-    public function prepare_for_validation()
+    protected function prepare_for_validation()
     {
         $customer_id = $this->input('customer_id') ?? null;
         $customer = customer(null, $customer_id);
-        $customer_shipping = $customer->get_shipping_address();
-        $customer_billing = $customer->get_billing_address();
+        $shipping = $customer->get_shipping_address();
         $is_billing_same_as_shipping = $this->input('is_billing_same_as_shipping') ?? $customer->get_customer()->is_billing_same_as_shipping ?? false;
 
         $shipping_address = [
-            'shipping_first_name' => $this->input('shipping_first_name') ?? $customer_shipping->first_name ?? null,
-            'shipping_last_name' => $this->input('shipping_last_name') ?? $customer_shipping->last_name ?? null,
-            'shipping_address_line1' => $this->input('shipping_address_line1') ?? $customer_shipping->address_line1 ?? null,
-            'shipping_address_line2' => $this->input('shipping_address_line2') ?? $customer_shipping->address_line2 ?? null,
-            'shipping_city' => $this->input('shipping_city') ?? $customer_shipping->city ?? null,
-            'shipping_state' => $this->input('shipping_state') ?? $customer_shipping->state ?? null,
-            'shipping_postcode' => $this->input('shipping_postcode') ?? $customer_shipping->postal_code ?? null,
-            'shipping_country' => $this->input('shipping_country') ?? $customer_shipping->country ?? null,
-            'shipping_phone' => $this->input('shipping_phone') ?? $customer_shipping->phone ?? null,
-            'shipping_email' => $this->input('shipping_email') ?? $customer_shipping->email ?? null,
+            'shipping_first_name' => $this->input('shipping_first_name') ?? $shipping->first_name ?? null,
+            'shipping_last_name' => $this->input('shipping_last_name') ?? $shipping->last_name ?? null,
+            'shipping_address_line1' => $this->input('shipping_address_line1') ?? $shipping->address_line1 ?? null,
+            'shipping_address_line2' => $this->input('shipping_address_line2') ?? $shipping->address_line2 ?? null,
+            'shipping_city' => $this->input('shipping_city') ?? $shipping->city ?? null,
+            'shipping_state' => $this->input('shipping_state') ?? $shipping->state ?? null,
+            'shipping_postcode' => $this->input('shipping_postcode') ?? $shipping->postal_code ?? null,
+            'shipping_country' => $this->input('shipping_country') ?? $shipping->country ?? null,
+            'shipping_phone' => $this->input('shipping_phone') ?? $shipping->phone ?? null,
+            'shipping_email' => $this->input('shipping_email') ?? $shipping->email ?? null,
         ];
 
-        if($is_billing_same_as_shipping){
+        if ($is_billing_same_as_shipping) {
             $billing_address = [
                 'billing_first_name' => $shipping_address['shipping_first_name'],
                 'billing_last_name' => $shipping_address['shipping_last_name'],
@@ -55,20 +54,22 @@ class OrderCreateRequest extends Request
                 'billing_phone' => $shipping_address['shipping_phone'],
                 'billing_email' => $shipping_address['shipping_email'],
             ];
-        } else{
+        } else {
+            $billing = $customer->get_billing_address();
+
             $billing_address = [
-                'billing_first_name' => $this->input('billing_first_name') ?? $customer_billing->first_name ?? null,
-                'billing_last_name' => $this->input('billing_last_name') ?? $customer_billing->last_name ?? null,
-                'billing_address_line1' => $this->input('billing_address_line1') ?? $customer_billing->address_line1 ?? null,
-                'billing_address_line2' => $this->input('billing_address_line2') ?? $customer_billing->address_line2 ?? null,
-                'billing_city' => $this->input('billing_city') ?? $customer_billing->city ?? null,
-                'billing_state' => $this->input('billing_state') ?? $customer_billing->state ?? null,
-                'billing_postcode' => $this->input('billing_postcode') ?? $customer_billing->postal_code ?? null,
-                'billing_country' => $this->input('billing_country') ?? $customer_billing->country ?? null,
-                'billing_phone' => $this->input('billing_phone') ?? $customer_billing->phone ?? null,
-                'billing_email' => $this->input('billing_email') ?? $customer_billing->email ?? null,
+                'billing_first_name' => $this->input('billing_first_name') ?? $billing->first_name ?? null,
+                'billing_last_name' => $this->input('billing_last_name') ?? $billing->last_name ?? null,
+                'billing_address_line1' => $this->input('billing_address_line1') ?? $billing->address_line1 ?? null,
+                'billing_address_line2' => $this->input('billing_address_line2') ?? $billing->address_line2 ?? null,
+                'billing_city' => $this->input('billing_city') ?? $billing->city ?? null,
+                'billing_state' => $this->input('billing_state') ?? $billing->state ?? null,
+                'billing_postcode' => $this->input('billing_postcode') ?? $billing->postal_code ?? null,
+                'billing_country' => $this->input('billing_country') ?? $billing->country ?? null,
+                'billing_phone' => $this->input('billing_phone') ?? $billing->phone ?? null,
+                'billing_email' => $this->input('billing_email') ?? $billing->email ?? null,
             ];
-        } 
+        }
 
         $this->merge($shipping_address);
         $this->merge($billing_address);
@@ -87,11 +88,11 @@ class OrderCreateRequest extends Request
             'items.*.variant_id' => 'required|integer',
             'items.*.quantity' => 'required|integer|min:1',
 
-            'currency_code' => 'required|string',
+            'currency_code' => 'nullable|string',
             'payment_provider' => 'required_if:is_manual,0|nullable|string',
             'coupon_code' => 'nullable|string',
 
-            'shipping_method' => 'required|nullable|string',
+            'shipping_method' => 'required|string',
             'shipping_first_name' => 'required|string',
             'shipping_last_name' => 'required|string',
             'shipping_address_line1' => 'required|string',
@@ -122,6 +123,7 @@ class OrderCreateRequest extends Request
             'customer_phone' => 'nullable|string',
 
             'customer_notes' => 'nullable|string',
+            'admin_notes' => 'nullable|string',
             'is_manual' => 'nullable|boolean',
         ];
     }
@@ -130,6 +132,7 @@ class OrderCreateRequest extends Request
     {
         return [
             'customer_id' => Sanitizer::INT,
+            'items' => Sanitizer::ARRAY,
             'items.*.variant_id' => Sanitizer::INT,
             'items.*.quantity' => Sanitizer::INT,
 
@@ -168,6 +171,7 @@ class OrderCreateRequest extends Request
             'customer_email' => Sanitizer::EMAIL,
             'customer_phone' => Sanitizer::TEXT,
             'customer_notes' => Sanitizer::TEXT,
+            'admin_notes' => Sanitizer::TEXT,
             'is_manual' => Sanitizer::BOOL,
         ];
     }

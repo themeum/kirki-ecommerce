@@ -35,6 +35,17 @@ class ProductService
     }
 
     /**
+     * Return paginated products with variants
+     *
+     * @param ProductListFilterDTO $filters
+     * @return Paginator
+     */
+    public function paginate_with_variants(ProductListFilterDTO $filters)
+    {
+        return $this->repository->paginate_with_variants($filters->to_array());
+    }
+
+    /**
      * Return all products
      *
      * @param ProductListFilterDTO $filters

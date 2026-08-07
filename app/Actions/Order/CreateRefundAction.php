@@ -2,7 +2,9 @@
 
 namespace Kirki\Ecommerce\App\Actions\Order;
 
+use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
 use Kirki\Ecommerce\App\Constants\Order\OrderStatus;
+use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\Constants\Order\RefundStatus;
 use Kirki\Ecommerce\App\Constants\Order\RefundType;
 use Kirki\Ecommerce\App\DTO\Refund\CreateRefundPayloadDTO;
@@ -29,9 +31,14 @@ class CreateRefundAction
         $this->inventory_service = $inventory_service;
     }
 
+    // @todo: need to fix this
     public function execute(CreateRefundPayloadDTO $dto)
     {
         $order = $this->order_service->find_order_or_fail($dto->order_id);
+
+        if ($order->payment_status !== PaymentStatus::PAID || !in_array($order->fulfillment_status, [FulfillmentStatus::DELIVERED, FulfillmentStatus::CANCELLED], true)) {
+            throw new ValidationException(__('Invalid order status for refund.', 'kirki-ecommerce'), Response::UNPROCESSABLE_ENTITY);
+        }
 
         $refundable_amount = $this->get_refundable_amount($order);
 
@@ -63,10 +70,11 @@ class CreateRefundAction
             // Sync Inventory if full refund
             // @todo: Should we release all reserved stock if full refund?
 
-            // @todo should we put the order on hold on refund request pending?
-            if (in_array($order->status, [OrderStatus::PROCESSING, OrderStatus::PENDING])) {
-                $this->order_service->update_order_status($order->id, OrderStatus::ON_HOLD);
-            }
+            // @todo: need to decide what to do with order_status, fulfillment_status and payment_status
+            $this->order_service->partial_update_order($order->id, [
+                'is_refund_initiated' => true,
+                'order_status' => OrderStatus::REFUND_REQUESTED
+            ]);
 
             DB::commit();
 

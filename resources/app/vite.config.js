@@ -29,6 +29,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname),
+      '@data': path.resolve(__dirname, '../data'),
     },
   },
   server: {
@@ -36,6 +37,9 @@ export default defineConfig({
     strictPort: true,
     cors: true,
     origin: 'http://localhost:20100',
+    fs: {
+      allow: [path.resolve(__dirname, '..')],
+    },
   },
   build: {
     outDir: path.resolve(__dirname, '../../assets'),

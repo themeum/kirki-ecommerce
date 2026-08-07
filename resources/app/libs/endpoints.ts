@@ -2,6 +2,7 @@ export const endpoints = {
   PRODUCTS: '/products',
   PRODUCT: (id: string | number) => `/products/${id}`,
   PRODUCTS_BULK: '/products/bulk',
+  PRODUCT_VARIANTS: '/product-variants',
 
   CATEGORIES: '/categories',
   CATEGORY: (id: string | number) => `/categories/${id}`,
@@ -73,4 +74,9 @@ export const endpoints = {
   ONLINE_PAYMENTS_INSTALL: '/online-payments/install',
   OFFLINE_PAYMENTS: '/offline-payments',
   OFFLINE_PAYMENT: (id: string | number) => `/offline-payments/${id}`,
+
+  ORDER: (id: string | number) => `/orders/${id}`,
+  ORDER_ACTION: (id: string | number) => `/orders/${id}/action`,
+  ORDERS: '/orders',
+  CALCULATE_ORDER: '/calculate/order',
 } as const;

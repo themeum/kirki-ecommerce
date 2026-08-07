@@ -2,6 +2,9 @@
 
 namespace Kirki\Ecommerce\App\Services;
 
+use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
+use Kirki\Ecommerce\App\Constants\Order\OrderStatus;
+use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Models\OrderItem;
 use Kirki\Ecommerce\App\Repositories\OrderRepository;
@@ -169,27 +172,56 @@ class OrderService
     }
 
     /**
-     * Update an order status by ID.
+     * Apply an order action's transition, persisting order_status, fulfillment_status and
+     * payment_status together from the order state matrix.
+     *
+     * If the action has no transition entry for the order's current status, it is a
+     * side-effect only action and no status fields are changed.
      *
      * @param int $id
-     * @param string $status
+     * @param string $order_status_before
+     * @param string $action
      * @return bool
      */
-    public function update_order_status(int $id, string $status)
+    public function apply_order_action(int $id, string $order_status_before, string $action)
     {
-        return $this->repository->update_order_status($id, $status);
+        $current_state = OrderStatus::get_state($order_status_before);
+        $target_status = $current_state['transitions'][$action] ?? null;
+
+        if (empty($target_status)) {
+            return true;
+        }
+
+        $target_state = OrderStatus::get_state($target_status);
+
+        $order = $this->find_order_or_fail($id);
+
+        return $order->update([
+            'order_status' => $target_status,
+            'fulfillment_status' => $target_state['fulfillment_status'],
+            'payment_status' => $target_state['payment_status'],
+        ]);
     }
 
     /**
-     * Update an order payment status by ID.
+     * Mark a refund as completed.
      *
      * @param int $id
-     * @param string $status
      * @return bool
      */
-    public function update_payment_status(int $id, string $status)
+    public function mark_refund_as_completed(int $id)
     {
-        return $this->repository->update_payment_status($id, $status);
+        $order = $this->find_order_or_fail($id);
+
+        if (!$order->is_refund_initiated) {
+            return false;
+        }
+
+        return $order->update([
+            'payment_status' => PaymentStatus::REFUNDED,
+            'fulfillment_status' => FulfillmentStatus::RETURNED,
+            'order_status' => OrderStatus::REFUNDED
+        ]);
     }
 
     /**
