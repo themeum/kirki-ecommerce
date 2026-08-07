@@ -72,7 +72,7 @@ class Mollie extends PaymentGateway
                 'description' => 'Order #' . $order->id,
                 'amount' => [
                     'currency' => strtoupper($order->currency_code),
-                    'value' => $this->format_amount($order->invoiced_total),
+                    'value' => $this->format_amount($order->invoiced_total, $order->currency_code),
                 ],
                 'redirectUrl' => $this->success_url($order),
                 'cancelUrl' => $this->cancel_url($order),

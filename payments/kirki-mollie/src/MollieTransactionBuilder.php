@@ -86,7 +86,7 @@ class MollieTransactionBuilder
     {
         return [
             'currency' => strtoupper($this->order->currency_code),
-            'value'    => PaymentGateway::format_amount($amount),
+            'value'    => PaymentGateway::format_amount($amount, $this->order->currency_code),
         ];
     }
 
