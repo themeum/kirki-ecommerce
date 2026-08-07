@@ -31,14 +31,14 @@ extract($data);
                 placeholder="<?php esc_html_e('Discount code', 'kirki-ecommerce'); ?>"
                 x-model="couponCode"
                 @input="couponError = ''">
-            <span class="kecom-field-error" x-show="couponError" x-text="couponError"></span>
+            <span class="kecom-field-error" x-show="couponError" x-text="couponError" x-cloak></span>
         </div>
         <button type="submit" class="kecom-btn kecom-btn-secondary" :class="{ 'kecom-btn-loading': couponLoading }" :disabled="couponLoading">
             <?php esc_html_e('Apply', 'kirki-ecommerce'); ?>
         </button>
     </form>
 </div>
-<div x-show="cartData?.pricing?.discount_details?.code" class="kecom-applied-coupon">
+<div x-show="cartData?.pricing?.discount_details?.code" class="kecom-applied-coupon" x-cloak>
     <div class="kecom-applied-coupon-info">
         <div class="kecom-applied-coupon-code-wrapper">
             <span class="kecom-coupon-code" x-text="cartData.pricing?.discount_details?.code"></span>

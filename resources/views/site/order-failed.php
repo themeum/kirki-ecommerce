@@ -12,7 +12,14 @@
 use Kirki\Ecommerce\App\Supports\Template;
 use Kirki\Ecommerce\App\Supports\Url;
 
+use function Kirki\Ecommerce\Framework\view_data;
+
 defined('ABSPATH') || exit;
+
+$order = view_data('order') ?: null;
+if (empty($order)) {
+    return;
+}
 ?>
 
 <?php Template::get_header(); ?>

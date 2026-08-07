@@ -44,7 +44,11 @@ $available_shipping_methods = $cart["available_shipping_methods"];
                 <?php include_view('site.checkout.parts.order-products', compact('cart')); ?>
                 <?php include_view('site.checkout.parts.coupon-form'); ?>
                 <?php include_view('site.checkout.parts.order-summary', compact('cart')); ?>
-                <?php include_view('site.checkout.parts.place-order-button'); ?>
+
+                <!-- Pay Button -->
+                <button type="button" class="kecom-btn kecom-btn-primary kecom-btn-lg kecom-pay-btn" :class="{ 'kecom-btn-loading': loading }" :disabled="loading" @click="placeOrder">
+                    <?php esc_html_e('Place Order', 'kirki-ecommerce'); ?>
+                </button>
             </div>
         </div>
     </div>
