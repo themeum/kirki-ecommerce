@@ -4,6 +4,8 @@ namespace Kirki\Ecommerce\App\Payment\Gateways;
 
 use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\Constants\Order\RefundStatus;
+use Kirki\Ecommerce\App\Constants\Payment\PaymentActionType;
+use Kirki\Ecommerce\App\DTO\Payment\PaymentActionDTO;
 use Kirki\Ecommerce\App\DTO\Refund\UpdateRefundPayloadDTO;
 use Kirki\Ecommerce\App\Facades\Order as OrderManager;
 use Kirki\Ecommerce\App\Models\Order;
@@ -125,7 +127,7 @@ class PayPal extends PaymentGateway
      * Pay for an order.
      *
      * @param Order $order
-     * @return string
+     * @return PaymentActionDTO
      * @throws Exception
      */
     public function pay(Order $order)
@@ -196,7 +198,10 @@ class PayPal extends PaymentGateway
 
             foreach ($order_data['links'] as $link) {
                 if ($link['rel'] === 'approve') {
-                    return $link['href'];
+                    return PaymentActionDTO::from_array([
+                        'type' => PaymentActionType::REDIRECT,
+                        'value' => $link['href'],
+                    ]);
                 }
             }
 

@@ -14,6 +14,7 @@ use Kirki\Ecommerce\App\Payment\PaymentManager;
  * @method static \Kirki\Ecommerce\App\Payment\PaymentGateway[] get_available_online_gateways()
  * @method static \Kirki\Ecommerce\App\Payment\PaymentGateway[] get_available_manual_gateways()
  * @method static \Kirki\Ecommerce\App\Payment\PaymentGateway|null get_gateway($id)
+ * @method static \Kirki\Ecommerce\App\DTO\Payment\PaymentActionDTO|null pay(\Kirki\Ecommerce\App\Models\Order $order)
  *
  * @see \Kirki\Ecommerce\App\Payment\PaymentManager
  */

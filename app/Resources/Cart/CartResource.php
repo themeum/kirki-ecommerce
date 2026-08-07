@@ -14,6 +14,22 @@ use function Kirki\Ecommerce\Framework\app;
 class CartResource extends Resource
 {
     /**
+     * @var bool
+     */
+    protected $should_calculate_tax;
+
+    /**
+     * @param object|array $resource
+     * @param bool $should_calculate_tax
+     */
+    public function __construct($resource, bool $should_calculate_tax = true)
+    {
+        parent::__construct($resource);
+
+        $this->should_calculate_tax = $should_calculate_tax;
+    }
+
+    /**
      * Convert the cart resource to an array.
      *
      * @return array The cart data as an associative array.
@@ -21,6 +37,8 @@ class CartResource extends Resource
     public function to_array()
     {
         $context = CalculationContextDTO::from_cart($this->resource);
+        $context->should_calculate_tax = $this->should_calculate_tax;
+
         $recalculate_action = app()->make(RecalculateCartAction::class);
         $result = $recalculate_action->execute($context);
 

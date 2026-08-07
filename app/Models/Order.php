@@ -2,7 +2,6 @@
 
 namespace Kirki\Ecommerce\App\Models;
 
-use Kirki\Ecommerce\App\Constants\Order\OrderStatus;
 use Kirki\Ecommerce\Framework\Database\Query\Model;
 use Kirki\Ecommerce\Framework\Supports\Arr;
 
@@ -41,6 +40,7 @@ class Order extends Model
         'payment_transaction_id',
         'payment_gateway',
         'invoiced_payment_gateway_fee',
+        'base_payment_gateway_fee',
         'payment_metadata',
         'shipping_method',
         'shipping_carrier',
@@ -88,6 +88,7 @@ class Order extends Model
         'total_weight' => 'float',
         'reverse_charge' => 'boolean',
         'invoiced_payment_gateway_fee' => 'integer',
+        'base_payment_gateway_fee' => 'integer',
         'discount_details' => 'json',
         'payment_metadata' => 'json',
         'invoiced_tax_total' => 'integer',

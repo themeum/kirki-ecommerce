@@ -51,6 +51,7 @@ class CreateOrdersTable implements Migration
             $table->string('payment_transaction_id')->nullable();
             $table->string('payment_gateway')->nullable();
             $table->integer('invoiced_payment_gateway_fee')->default(0);
+            $table->integer('base_payment_gateway_fee')->default(0);
             $table->text('payment_metadata')->nullable();
 
             $table->string('shipping_method', 100)->nullable();

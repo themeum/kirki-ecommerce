@@ -40,7 +40,7 @@ class TaxStrategyFactory
         $country = EuropeanCountryChecker::is_eu_by_code($country) ? 'EU' : $country;
 
         foreach ($regions as $region) {
-            if (strtoupper($country) === strtoupper($region['code'])) {
+            if (strtoupper($country) === strtoupper($region['code']) && $region['is_enabled'] ?? false) {
                 return $region;
             }
         }

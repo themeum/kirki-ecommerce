@@ -3,6 +3,8 @@
 namespace Kirki\Ecommerce\App\Payment;
 
 use Kirki\Ecommerce\App\Constants\HookNames;
+use Kirki\Ecommerce\App\DTO\Payment\PaymentActionDTO;
+use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Payment\Gateways\PayPal;
 
 use function Kirki\Ecommerce\Framework\collection;
@@ -111,5 +113,22 @@ class PaymentManager
     public function get_gateway($id)
     {
         return $this->gateways_registry[$id] ?? null;
+    }
+
+    /**
+     * Get the next payment step for an order.
+     *
+     * @param Order $order Order.
+     * @return PaymentActionDTO|null Null when the order's gateway is missing or manual.
+     */
+    public function pay(Order $order)
+    {
+        $gateway = $this->get_gateway($order->payment_method);
+
+        if (!$gateway || $gateway->is_manual()) {
+            return null;
+        }
+
+        return $gateway->pay($order);
     }
 }
