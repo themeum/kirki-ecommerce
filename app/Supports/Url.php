@@ -81,4 +81,18 @@ class Url
     {
         return Route::site_url('account');
     }
+
+    /**
+     * Get login URL.
+     *
+     * @since 1.0.0
+     *
+     * @param string $redirect
+     *
+     * @return string
+     */
+    public static function get_login_url($redirect = '')
+    {
+        return wp_login_url($redirect);
+    }
 }

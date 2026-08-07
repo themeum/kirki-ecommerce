@@ -94,8 +94,8 @@ class CustomerService
 
         $data_array = $data->all();
 
-        $data_array['created_by'] = user()->get_id();
-        $data_array['updated_by'] = user()->get_id();
+        $data_array['created_by'] = $data->created_by ?? user()->get_id();
+        $data_array['updated_by'] = $data->updated_by ?? user()->get_id();
 
         return $this->repository->create($data_array);
     }
