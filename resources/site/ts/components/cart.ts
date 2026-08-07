@@ -16,7 +16,7 @@ export function cart() {
       if (this.cartData.items.length > 0) {
         const cart_items = {} as Record<string, string>;
         this.cartData.items.forEach((item: any) => {
-          cart_items[item.id] = item.total_formatted;
+          cart_items[item.id] = item.display_total_money_object.display;
         });
         this.cartData.formatted_items = cart_items;
       }
@@ -32,7 +32,7 @@ export function cart() {
         if (this.cartData.items.length > 0) {
           const cart_items = {} as Record<string, string>;
           this.cartData.items.forEach((item: any) => {
-            cart_items[item.id] = item.total_formatted;
+            cart_items[item.id] = item.display_total_money_object.display;
           });
           this.cartData.formatted_items = cart_items;
         }
