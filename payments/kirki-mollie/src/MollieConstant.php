@@ -4,6 +4,9 @@ namespace Kirki\Ecommerce\Payments;
 
 use Kirki\Ecommerce\Framework\Concerns\HasConstants;
 
+/**
+ * Constants for the Mollie Payments API integration.
+ */
 class MollieConstant
 {
     use HasConstants;

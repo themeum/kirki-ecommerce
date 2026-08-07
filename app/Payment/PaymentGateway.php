@@ -10,6 +10,7 @@ use Kirki\Ecommerce\Framework\Exceptions\ValidationException;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\Framework\Supports\Facades\Option;
 use Exception;
+use Kirki\Ecommerce\App\Supports\Url;
 
 use function Kirki\Ecommerce\Framework\app;
 use function Kirki\Ecommerce\Framework\url;
@@ -361,8 +362,7 @@ class PaymentGateway
      */
     public function webhook_url()
     {
-        //return Route::url('payment/webhook/' . $this->id());
-        return 'https://5fc7-103-203-92-12.ngrok-free.app/' . 'payment/webhook/' . $this->id();
+        return Route::url('payment/webhook/' . $this->id());
     }
 
     /**
@@ -488,19 +488,35 @@ class PaymentGateway
         return number_format(Money::from_minor($amount)->getAmount()->toFloat(), 2, '.', '');
     }
 
+    /**
+     * Build the redirect URL for a successful payment.
+     *
+     * @param Order $order The order being paid for.
+     *
+     * @return string The checkout URL with success query parameters.
+     */
     protected function success_url(Order $order)
     {
         $query_params = [
-            'uuid' => $order->get_attribute_value('uuid')
+            'uuid' => $order->get_attribute_value('uuid'),
+            'order' => 'success'
         ];
 
-        return url(home_url(), $query_params);
+        return url(Url::get_checkout_url(), $query_params);
     }
 
+    /**
+     * Build the redirect URL for a cancelled or failed payment.
+     *
+     * @param Order $order The order the payment was attempted for.
+     *
+     * @return string The home URL with failure query parameters.
+     */
     protected function cancel_url(Order $order)
     {
         $query_params = [
-            'uuid' => $order->get_attribute_value('uuid')
+            'uuid' => $order->get_attribute_value('uuid'),
+            'order' => 'failed'
         ];
 
         return url(home_url(), $query_params);

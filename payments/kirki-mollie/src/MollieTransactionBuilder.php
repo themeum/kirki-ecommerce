@@ -7,6 +7,9 @@ use Kirki\Ecommerce\App\Payment\PaymentGateway;
 
 defined('ABSPATH') || exit;
 
+/**
+ * Builds Mollie API request fragments from an order.
+ */
 class MollieTransactionBuilder
 {
     protected $order;
@@ -14,6 +17,12 @@ class MollieTransactionBuilder
     {
         $this->order = $order;
     }
+
+    /**
+     * Build the `lines` payload for a Mollie payment request.
+     *
+     * @return array
+     */
     public function build_line_items(): array
     {
         $line_items = [];
@@ -35,6 +44,13 @@ class MollieTransactionBuilder
         return $line_items;
     }
 
+    /**
+     * Build a single Mollie-formatted line item from an order item.
+     *
+     * @param object $item The order item
+     *
+     * @return array The line item structured for the Mollie API.
+     */
     protected function build_line_item(object $item): array
     {
         $tax_per_unit = !empty($item->tax_total) ? $item->tax_total / (int) $item->quantity : 0;
@@ -59,6 +75,13 @@ class MollieTransactionBuilder
         return $line_item;
     }
 
+    /**
+     * Format an amount as a Mollie money object.
+     *
+     * @param float $amount The raw amount to format.
+     *
+     * @return array The money object with 'currency' and 'value' keys.
+     */
     protected function money(float $amount): array
     {
         return [
@@ -67,6 +90,12 @@ class MollieTransactionBuilder
         ];
     }
 
+    /**
+     * Get an order address in Mollie's address format.
+     *
+     * @param string $type 'billing' or 'shipping'.
+     * @return object
+     */
     public function get_address(string $type): object
     {
         if (empty($this->order->{$type . '_address_line1'})) {

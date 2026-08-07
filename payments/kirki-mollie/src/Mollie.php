@@ -130,7 +130,7 @@ class Mollie extends PaymentGateway
     }
 
     /**
-     * Handle an Mollie webhook notification.
+     * Handle Mollie webhook notification.
      *
      * @return bool True if the notification was processed, false if ignored.
      * @throws Exception If the payload is missing, invalid, or the API lookup fails.
@@ -168,6 +168,12 @@ class Mollie extends PaymentGateway
         }
     }
 
+    /**
+     * Get the Mollie API client.
+     *
+     * @return MollieClient
+     * @throws Exception If the API key is missing.
+     */
     protected function get_client()
     {
         if ($this->client) {
@@ -184,6 +190,13 @@ class Mollie extends PaymentGateway
         return new MollieClient($api_key, $is_test_mode);
     }
 
+    /**
+     * Update the order based on a Mollie payment's status.
+     *
+     * @param array $payment
+     * @return void
+     * @throws Exception If the order update fails.
+     */
     protected function handle_payment_response($payment)
     {
         $order_id = $payment['metadata']['order_id'];
