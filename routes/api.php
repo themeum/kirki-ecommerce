@@ -185,16 +185,10 @@ Route::group(['middleware' => AuthMiddleware::class], function () {
     Route::post('/shipping-profiles/bulk', [ShippingProfileController::class, 'bulk_actions']);
 
     // Cart
-    Route::get('/cart', [CartController::class, 'get']);
-    Route::post('/cart/items', [CartController::class, 'add_item']);
-    Route::put('/cart/items/{id}', [CartController::class, 'update_item']);
-    Route::delete('/cart/items/{id}', [CartController::class, 'remove_item']);
-    Route::delete('/cart', [CartController::class, 'empty_cart']);
-    Route::put('/cart', [CartController::class, 'update']);
     Route::post('/cart/coupon', [CartController::class, 'apply_coupon']);
     Route::delete('/cart/coupon', [CartController::class, 'remove_coupon']);
 
-    
+
     // Orders
     Route::get('/orders', [OrderController::class, 'get']);
     Route::get('/orders/{id}', [OrderController::class, 'show']);
@@ -245,3 +239,11 @@ Route::get('/items', [SiteProductController::class, 'index']);
 
 // Site api endpoints.
 Route::get('/shop/products-html', [SiteController::class, 'products_html']);
+
+// Cart api endpoints for guest card.
+Route::get('/cart', [CartController::class, 'get']);
+Route::post('/cart/items', [CartController::class, 'add_item']);
+Route::put('/cart/items/{id}', [CartController::class, 'update_item']);
+Route::delete('/cart/items/{id}', [CartController::class, 'remove_item']);
+Route::delete('/cart', [CartController::class, 'empty_cart']);
+Route::put('/cart', [CartController::class, 'update']);

@@ -82,30 +82,6 @@ class OrderController
         ]);
     }
 
-    public function show_by_uuid(Request $request)
-    {
-        $uuid = $request->get_string('uuid');
-        
-        if (empty($uuid)) {
-            return response()->json([
-                'message' => __('Order UUID is required.', 'kirki-ecommerce'),
-            ], Response::BAD_REQUEST);
-        }
-
-        $order = $this->service->find_order_by_uuid($uuid);
-
-        if (!$order) {
-            return response()->json([
-                'message' => __('Order not found.', 'kirki-ecommerce'),
-            ], Response::NOT_FOUND);
-        }
-
-        return response()->json([
-            'data' => OrderResource::make($order),
-            'message' => __('Order retrieved successfully.', 'kirki-ecommerce'),
-        ]);
-    }
-
     public function update(OrderUpdateRequest $request, UpdateOrderAction $action)
     {
         $headers = $request->get_headers();

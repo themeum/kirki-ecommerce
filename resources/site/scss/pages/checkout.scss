@@ -11,7 +11,8 @@
 
   .kecom-checkout-grid {
     display: grid;
-    grid-template-columns: 1fr 624px;
+    grid-template-columns: 17fr 14fr;
+    align-items: start;
 
     @include breakpoint-down(lg) {
       grid-template-columns: 1fr;
@@ -26,7 +27,7 @@
     padding: $spacing-18 $spacing-19;
 
     @include breakpoint-down(md) {
-      padding: $spacing-8;
+      padding: $spacing-8 $spacing-0;
     }
   }
 
@@ -38,8 +39,13 @@
     padding: $spacing-18 $spacing-19;
     background-color: $background-surface-alt;
 
+    position: sticky;
+    top: 2rem;
+    align-self: start;
+
     @include breakpoint-down(md) {
-      padding: $spacing-8;
+      position: static;
+      padding: $spacing-10 $spacing-8;
     }
   }
 
@@ -252,7 +258,7 @@
   .kecom-coupon-form {
     display: flex;
     gap: $spacing-6;
-    align-items: center;
+    align-items: start;
 
     .kecom-field {
       flex: 1;

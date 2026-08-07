@@ -242,7 +242,11 @@ class ProductService
     {
         $filters_dto = ProductListFilterDTO::from_array($filters);
 
-        // $filters_dto->limit = 1;
+        /**
+         * @TODO: Currently fixed at 12 for the 4×3 layout.
+         * This will be made dynamic based on the layout selected by the user.
+         */
+        $filters_dto->limit = 12;
         $filters_dto->status = 'published';
         $filters_dto->page = intval($filters['current_page'] ?? 1);
         $filters_dto->sort_order = null;

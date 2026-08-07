@@ -61,18 +61,6 @@ export function addToCart(config: AddToCartConfig) {
     },
 
     async add(qty?: number) {
-      // Check if user is logged in
-      if (!window.kirki_ecommerce?.is_logged_in) {
-        const loginUrl = new URL(window.kirki_ecommerce?.login_url || '/wp-login.php');
-        const currentUrl = new URL(window.location.href);
-
-        loginUrl.searchParams.set('pending_add_to_cart', this.variantId.toString());
-        loginUrl.searchParams.set('pending_qty', String(qty ?? this.qty));
-        loginUrl.searchParams.set('redirect_to', currentUrl.href);
-
-        window.location.href = loginUrl.toString();
-        return;
-      }
 
       this.loading = true;
       this.error = null;

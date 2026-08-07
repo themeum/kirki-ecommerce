@@ -21,6 +21,28 @@ class CartRepository
         ])->first();
     }
 
+    /**
+     * Update cart by token
+     *
+     * @since 1.0.0
+     *
+     * @param string $token
+     * @param array $data
+     *
+     * @return Cart|null
+     */
+    public function update_by_token($token, array $data)
+    {
+        $cart = $this->find_by_token($token);
+
+        if ($cart) {
+            $cart->update($data);
+            return $this->find($cart->id);
+        }
+
+        return null;
+    }
+
     public function find_by_customer($customer_id)
     {
         return Cart::where('customer_id', $customer_id)->with([

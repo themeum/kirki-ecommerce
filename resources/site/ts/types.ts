@@ -17,6 +17,8 @@ export interface kirkiEcommerceConfig {
   };
   currency?: string;
   countries?: any[];
+  cart_token_cookie_name: string;
+  cart_token_header_name: string;
 }
 
 // Extend window for WordPress-injected config
