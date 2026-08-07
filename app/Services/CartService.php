@@ -178,13 +178,6 @@ class CartService
         return $this->create_new_cart($dto->customer_id);
     }
 
-    public function update_cart(UpdateCartDTO $dto)
-    {
-        $cart = $this->get_cart($dto->customer_id, $dto->token);
-
-        return $this->repository->update_cart($cart->id, $dto->to_array());
-    }
-
     public function find($cart_id)
     {
         return $this->repository->find($cart_id);

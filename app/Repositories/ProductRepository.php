@@ -196,14 +196,14 @@ class ProductRepository
         $query->when($filters['min_price'] ?? null, function (QueryBuilder $query, $min_price) {
             $money = MoneyManager::to_minor($min_price);
             $query->where_relation('variants', function ($q) use ($money) {
-                $q->where(fn ($q)=> $q->where('price', '>=', $money)->or_where('sale_price', '>=', $money));
+                $q->where(fn ($q)=> $q->where('base_price', '>=', $money)->or_where('base_sale_price', '>=', $money));
             });
         });
 
         $query->when($filters['max_price'] ?? null, function (QueryBuilder $query, $max_price) {
             $money = MoneyManager::to_minor($max_price);
             $query->where_relation('variants', function ($q) use ($money) {
-                $q->where(fn ($q) => $q->where('price', '<=', $money)->or_where('sale_price', '<=', $money));
+                $q->where(fn ($q) => $q->where('base_price', '<=', $money)->or_where('base_sale_price', '<=', $money));
             });
         });
 
@@ -225,11 +225,11 @@ class ProductRepository
             $sort_by = $filters['sort_by'] ?? null;
 
             if ($sort_by === 'low_to_high') {
-                return $query->order_by(Variant::where_raw('pid = product_id')->order_by('price', 'asc')->limit(1)->select('price'), 'asc');
+                return $query->order_by(Variant::where_raw('pid = product_id')->order_by('base_price', 'asc')->limit(1)->select('base_price'), 'asc');
             }
 
             if ($sort_by === 'high_to_low') {
-                return $query->order_by(Variant::where_raw('pid = product_id')->order_by('price', 'desc')->limit(1)->select('price'), 'desc');
+                return $query->order_by(Variant::where_raw('pid = product_id')->order_by('base_price', 'desc')->limit(1)->select('base_price'), 'desc');
             }
 
             return $query->order_by('id', 'desc');
