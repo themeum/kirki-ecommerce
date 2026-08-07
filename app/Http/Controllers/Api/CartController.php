@@ -36,12 +36,11 @@ class CartController
     {
         $customer = customer();
         $token = $request->get_header('x-cart-token');
-        $a = $this->should_calculate_tax($request);
 
         $cart = $this->service->get_cart($customer->get_customer_id() ?? null, $token);
 
         return response()->json([
-            'data' => CartResource::make($cart, $this->should_calculate_tax($request)),
+            'data' => !empty($cart) ? CartResource::make($cart, $this->should_calculate_tax($request)) : [],
             'message' => __('Cart retrieved successfully.', 'kirki-ecommerce'),
         ]);
     }
@@ -118,7 +117,7 @@ class CartController
         $updated_cart = $this->service->empty_cart($dto);
 
         return response()->json([
-            'data' => CartResource::make($updated_cart, $this->should_calculate_tax($request)),
+            'data' => !empty($updated_cart) ? CartResource::make($updated_cart, $this->should_calculate_tax($request)) : [],
             'message' => __('Cart emptied successfully.', 'kirki-ecommerce'),
         ]);
     }

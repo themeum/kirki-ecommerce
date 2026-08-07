@@ -20,7 +20,7 @@ class OnlinePaymentResource extends Resource
             'is_enabled' => $this->enabled(),
             'is_offline' => $this->is_offline(),
             'description' => $this->description(),
-            'settings' => $this->settings(),
+            'settings' => (object) $this->settings(),
             'fields' => $this->admin_fields(),
             'webhook_url' => $this->webhook_url(),
             'webhook_events' => $this->webhook_events(),
