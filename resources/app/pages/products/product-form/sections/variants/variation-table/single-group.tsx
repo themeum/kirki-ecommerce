@@ -75,10 +75,6 @@ const SingleGroup = ({
 
   const [show, setShow] = useState(expandVariation);
 
-  if (!thisVariants.length) {
-    return null;
-  }
-
   useEffect(() => {
     let minPrice = thisVariants[0]?.base_price;
     let maxPrice = thisVariants[0]?.base_price;
@@ -123,6 +119,10 @@ const SingleGroup = ({
       setSelectedCheckedIndex([...Array(thisVariants.length).keys()]);
     }
   }, [selectedIndex]);
+
+  if (!thisVariants.length) {
+    return null;
+  }
 
   const handleOnChildValueChange = (
     value: unknown,

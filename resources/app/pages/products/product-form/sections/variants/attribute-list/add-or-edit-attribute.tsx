@@ -1,7 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from 'react';
-import { Controller, useForm, useFormContext } from 'react-hook-form';
+import { Controller, useForm, useFormContext, useWatch } from 'react-hook-form';
 
+import ConfirmationDialog from '@/components/modal/confirmation-dialog';
 import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
 import { ButtonGroup } from '@/components/ui/button-group';
@@ -29,10 +30,14 @@ import type {
   Attribute,
   SelectOption,
 } from '@/types';
-import { __ } from '@/wpi18n';
+import { __, _n, sprintf } from '@/wpi18n';
 
 import AttributeValuesField from '@/components/form/attribute-values-field';
-import { createVariantCombinations } from '@/pages/products/utils';
+import {
+  savedVariants,
+  useVariantMatrix,
+  type MatrixMutation,
+} from '@/pages/products/product-form/sections/variants/use-variant-matrix';
 
 type AttributeSuggestion = SelectOption & {
   type?: string;
@@ -46,8 +51,11 @@ type AddOrEditAttributeProps = {
 const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
   const { onClose = () => { }, data } = props;
 
-  const { getValues, setValue } = useFormContext<ProductFormInput>();
-  const productAttributes = (getValues('attributes') ?? []) as Attribute[];
+  const { control } = useFormContext<ProductFormInput>();
+  const productAttributes = (useWatch({ control, name: 'attributes' }) ??
+    []) as Attribute[];
+  const { addAttribute, updateAttribute, describeDiscarded } = useVariantMatrix();
+  const [pendingApply, setPendingApply] = useState<MatrixMutation | null>(null);
   const { data: allAttributesList, isSuccess: loaded } = useAttributesQuery({
     limit: -1,
   });
@@ -114,28 +122,26 @@ const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
       return;
     }
 
-    const payload = ProductAttributeFormSchema.parse(form.getValues());
+    const payload = ProductAttributeFormSchema.parse(
+      form.getValues(),
+    ) as Attribute;
 
-    let attributeList = productAttributes;
-    if (data?.id) {
-      attributeList = productAttributes.map((item) =>
-        item.id === data?.id
-          ? (payload as Attribute)
-          : item,
-      );
-    } else {
-      attributeList = [...attributeList, payload as Attribute];
+    const mutation = data?.id
+      ? updateAttribute(payload)
+      : addAttribute(payload);
+
+    if (savedVariants(mutation.discarded).length > 0) {
+      setPendingApply(mutation);
+      return;
     }
 
-    const currentVariants = getValues('variants') ?? [];
-    const nextVariants = createVariantCombinations(
-      attributeList,
-      currentVariants as never,
-    );
-    setValue('attributes', attributeList, { shouldDirty: true });
-    setValue('variants', nextVariants as never, { shouldDirty: true });
-    setValue('has_variants', true, { shouldDirty: true });
+    mutation.commit();
+    handleOnClose();
+  };
 
+  const handleConfirmApply = () => {
+    pendingApply?.commit();
+    setPendingApply(null);
     handleOnClose();
   };
 
@@ -316,6 +322,24 @@ const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
           </Flex>
         </CardContent>
       </Card>
+      {!!pendingApply && (
+        <ConfirmationDialog
+          variant="delete"
+          title={__('Remove variations?', 'kirki-ecommerce')}
+          subtitle={sprintf(
+            _n(
+              '%1$d saved variation will be deleted when you save this product: %2$s',
+              '%1$d saved variations will be deleted when you save this product: %2$s',
+              savedVariants(pendingApply.discarded).length,
+              'kirki-ecommerce',
+            ),
+            savedVariants(pendingApply.discarded).length,
+            describeDiscarded(savedVariants(pendingApply.discarded)),
+          )}
+          onConfirm={handleConfirmApply}
+          onCancel={() => setPendingApply(null)}
+        />
+      )}
     </Form>
   );
 };
