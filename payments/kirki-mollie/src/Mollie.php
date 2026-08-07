@@ -138,7 +138,7 @@ class Mollie extends PaymentGateway
     public function webhook()
     {
         $payload = Request::capture();
-        $payment_id = $payload->id ?? null;
+        $payment_id = $payload->get('id', null, 'string');
 
         http_response_code(200);
 
