@@ -14,5 +14,5 @@ class TaxResultDTO extends DTO
     /**
      * @var int
      */
-    public $total = 0;
+    public $base_total = 0;
 }

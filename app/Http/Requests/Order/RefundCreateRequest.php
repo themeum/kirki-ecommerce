@@ -10,10 +10,10 @@ class RefundCreateRequest extends Request
 {
     protected function prepare_for_validation()
     {
-        $amount = $this->input('amount');
+        $amount = $this->input('invoiced_amount');
 
         if (!empty($amount)) {
-            $this->merge(['amount' => Money::to_minor($amount)]);
+            $this->merge(['invoiced_amount' => Money::to_minor($amount)]);
         }
     }
 
@@ -21,7 +21,7 @@ class RefundCreateRequest extends Request
     {
         return [
             'order_id' => 'required|integer',
-            'amount' => 'required|number|gt:0',
+            'invoiced_amount' => 'required|number|gt:0',
             'reason' => 'nullable|string',
         ];
     }
@@ -30,7 +30,7 @@ class RefundCreateRequest extends Request
     {
         return [
             'order_id' => Sanitizer::INT,
-            'amount' => Sanitizer::INT,
+            'invoiced_amount' => Sanitizer::INT,
             'reason' => Sanitizer::TEXT,
         ];
     }

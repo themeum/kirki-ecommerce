@@ -28,7 +28,7 @@ import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
-import ShippingBoxPopup from '@/pages/settings/shipping-settings/shipping-box/shipping-box-dialog';
+import ShippingBoxDialog from '@/pages/settings/shipping-settings/shipping-box/shipping-box-dialog';
 
 type ShippingBoxListItem = {
   value: number | string;
@@ -150,7 +150,7 @@ const ShippingBoxFieldView = ({
   );
 
   const dialog = openCreateDialog ? (
-    <ShippingBoxPopup
+    <ShippingBoxDialog
       isOpen={openCreateDialog}
       onSave={(saveValue) => {
         onSaveNewBox(saveValue);

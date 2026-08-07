@@ -432,11 +432,11 @@ class PaymentGateway
     {
         $parts = [];
 
-        if ($order_item->price > 0) {
+        if ($order_item->base_price > 0) {
             $parts[] = sprintf(
                 /* translators: %s: price */
                 __('Price: %s', 'kirki-ecommerce'),
-                Money::format(Money::from_minor($order_item->price, $currency))
+                Money::format(Money::from_minor($order_item->base_price, $currency))
             );
         }
 
@@ -448,30 +448,29 @@ class PaymentGateway
             );
         }
 
-        if (($order_item->discount_amount ?? 0) > 0) {
-            $parts[] = sprintf(
-                /* translators: %s: discount amount */
-                __('Discount: %s', 'kirki-ecommerce'),
-                Money::format(Money::from_minor($order_item->discount_amount, $currency))
-            );
-        }
-
-        if (($order_item->tax_total ?? 0) > 0) {
-            $parts[] = sprintf(
-                /* translators: %s: tax amount */
-                __('Tax: %s', 'kirki-ecommerce'),
-                Money::format(Money::from_minor($order_item->tax_total, $currency))
-            );
-        }
-
-        if (($order_item->subtotal ?? 0) > 0) {
+        if (($order_item->invoiced_subtotal ?? 0) > 0) {
             $parts[] = sprintf(
                 /* translators: %s: subtotal amount */
                 __('Subtotal: %s', 'kirki-ecommerce'),
-                Money::format(Money::from_minor($order_item->subtotal, $currency))
+                Money::format(Money::from_minor($order_item->invoiced_subtotal, $currency))
             );
         }
 
+        if (($order_item->invoiced_discount_amount ?? 0) > 0) {
+            $parts[] = sprintf(
+                /* translators: %s: discount amount */
+                __('Discount: %s', 'kirki-ecommerce'),
+                Money::format(Money::from_minor($order_item->invoiced_discount_amount, $currency))
+            );
+        }
+
+        if (($order_item->invoiced_tax_total ?? 0) > 0) {
+            $parts[] = sprintf(
+                /* translators: %s: tax amount */
+                __('Tax: %s', 'kirki-ecommerce'),
+                Money::format(Money::from_minor($order_item->invoiced_tax_total, $currency))
+            );
+        }
         return implode(' | ', $parts);
     }
 }

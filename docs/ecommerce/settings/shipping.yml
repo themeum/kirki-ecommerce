@@ -57,7 +57,8 @@ examples:
                       "is_enabled": true,
                       "name": "Standard Delivery",
                       "type": "flat_rate",
-                      "amount": 14,
+                      "base_amount": 14,
+                      "base_amount_money_object": { "raw": 14, "display": "$14.00", "currency": { "code": "USD", "symbol": "$" } },
                       "is_taxable": true,
                       "description": null,
                       "shipping_rules": [
@@ -98,7 +99,8 @@ examples:
                       "type": "local_pickup",
                       "address": null,
                       "has_fee": false,
-                      "amount": 9,
+                      "base_amount": 9,
+                      "base_amount_money_object": { "raw": 9, "display": "$9.00", "currency": { "code": "USD", "symbol": "$" } },
                       "is_taxable": false,
                       "description": null,
                       "has_pick_time": false,
@@ -130,15 +132,18 @@ examples:
                         {
                           "from": 0,
                           "to": 1,
-                          "amount": 5
+                          "base_amount": 5,
+                          "base_amount_money_object": { "raw": 5, "display": "$5.00", "currency": { "code": "USD", "symbol": "$" } }
                         },
                         {
                           "from": 1,
                           "to": 2,
-                          "amount": 10
+                          "base_amount": 10,
+                          "base_amount_money_object": { "raw": 10, "display": "$10.00", "currency": { "code": "USD", "symbol": "$" } }
                         }
                       ],
-                      "amount": 30,
+                      "base_amount": 30,
+                      "base_amount_money_object": { "raw": 30, "display": "$30.00", "currency": { "code": "USD", "symbol": "$" } },
                       "is_taxable": false,
                       "description": null,
                       "shipping_rules": [

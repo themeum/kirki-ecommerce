@@ -56,8 +56,8 @@ const ThumbnailField = <
           previewUrl ??
           getPreviewUrl?.(field.value) ??
           (typeof field.value === 'object' &&
-          field.value !== null &&
-          'url' in field.value
+            field.value !== null &&
+            'url' in field.value
             ? String((field.value as unknown as MediaItem).url ?? '')
             : typeof field.value === 'string' && valueAs === 'object'
               ? field.value

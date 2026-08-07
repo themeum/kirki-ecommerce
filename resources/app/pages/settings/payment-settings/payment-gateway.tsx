@@ -2,29 +2,23 @@ import { useState } from 'react';
 
 import DropdownButton from '@/components/dropdown-button';
 import HeaderActionsCard from '@/components/header-actions-card';
-import { Card, CardContent } from '@/components/ui/card';
-import { MapIcon, StripeIcon, ShowMoreIcon } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
 import Badge from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
-import ToggleButton from '@/components/ui/toggle-button';
+import { MapIcon, ShowMoreIcon, StripeIcon } from '@/icons';
 import { dispatchToastMessage } from '@/pages/utils';
 import { getPaymentGateway, useSetEnabledPaymentGatewayMutation } from '@/services/payment';
-import type { PaymentGateway } from '@/types';
 import { theme } from '@/theme';
-import { scoped, mergeCss, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
-import { __, sprintf } from '@/wpi18n';
+import { defineStyles, mergeCss } from '@/theme/mixins';
+import type { PaymentGateway } from '@/types';
+import { __ } from '@/wpi18n';
 
-import PaymentGatewayEditPopup from '@/pages/settings/payment-settings/payment-gateway-edit-dialog';
+import Switch from '@/components/ui/switch';
 import PaymentGatewayPopup from '@/pages/settings/payment-settings/payment-gateway-dialog';
-
-type PaymentGatewayDetail = PaymentGateway & {
-  settings?: Record<string, unknown>;
-  fields?: Array<{ name: string; label?: string; type?: string }>;
-  is_enabled?: boolean;
-};
+import PaymentGatewayEditPopup from '@/pages/settings/payment-settings/payment-gateway-edit-dialog';
 
 type PaymentGatewayProps = {
   paymentGatewayList: PaymentGateway[];
@@ -34,18 +28,19 @@ const PaymentGatewayComponent = (props: PaymentGatewayProps) => {
   const { paymentGatewayList } = props;
 
   const [isEditPopupOpen, setIsEditPopupOpen] = useState(false);
-  const [editedItem, setEditedItem] = useState<PaymentGatewayDetail | null>(
-    null,
-  );
+  const [editedItem, setEditedItem] = useState<PaymentGateway | null>(null);
   const [openPopup, setOpenPopup] = useState(false);
 
   const { mutate: setEnabledGateway } = useSetEnabledPaymentGatewayMutation();
 
   const handleToggleMethod = (item: PaymentGateway) => {
+    if (item.id === undefined) {
+      return;
+    }
     const isEnabled = Boolean(item?.is_enabled);
-    const params = { is_enabled: !isEnabled };
+
     setEnabledGateway(
-      { id: item?.id, data: params },
+      { id: item.id, data: { is_enabled: !isEnabled } },
       {
         onError: () => {
           dispatchToastMessage('error', {
@@ -64,12 +59,16 @@ const PaymentGatewayComponent = (props: PaymentGatewayProps) => {
       dispatchToastMessage('delete', {
         title: __('Payment gateway deleted', 'kirki-ecommerce'),
         duration: 5000,
-        onSuccess: async () => {},
+        onSuccess: async () => { },
       });
-    } else if (action === 'edit') {
-      const result = await getPaymentGateway(item?.id);
+      return;
+    }
+
+    if (action === 'edit' && item.id !== undefined) {
+      const result = await getPaymentGateway(item.id);
+
       if (result) {
-        setEditedItem(result as PaymentGatewayDetail);
+        setEditedItem(result);
         setOpenPopup(true);
       }
     }
@@ -77,93 +76,99 @@ const PaymentGatewayComponent = (props: PaymentGatewayProps) => {
 
   return (
     <>
-      <Card cssOverride={cardStyles.largeCard} >
-        <CardContent cssOverride={cardStyles.largeContentPadded}>
+      <Card cssOverride={cardStyles.formCard}>
+        <CardContent >
+          <Flex direction="column" gap={4}>
+            <HeaderActionsCard
+              header={__('Payment gateways', 'kirki-ecommerce')}
+              subHeader={__(
+                "Set up and manage your online store's payment options.",
+                'kirki-ecommerce',
+              )}
+              buttonText={__('Add Payment Methods', 'kirki-ecommerce')}
+              onAdd={() => setIsEditPopupOpen(true)}
+            />
 
-        <HeaderActionsCard
-        header={__('Payment gateways', 'kirki-ecommerce')}
-        subHeader={__(
-        "Set up and manage your online store's payment options.",
-        'kirki-ecommerce',
-        )}
-        buttonText={__('Add Payment Methods', 'kirki-ecommerce')}
-        onAdd={() => setIsEditPopupOpen(true)}
-        />
-        {paymentGatewayList?.length === 0 ? (
-        <Card cssOverride={cardStyles.innerDarkCard}>
-          <CardContent cssOverride={mergeCss(cardStyles.innerDarkContent, styles.emptyStateContent)}>
-            <Flex direction="column" gap={2} align="center">
-              <MapIcon />
-              <span css={scoped(styles.mutedText)}>
-                {__('No payment added yet', 'kirki-ecommerce')}
-              </span>
-            </Flex>
-          </CardContent>
-        </Card>
-        ) : (
-        <Flex direction="column" gap={4}>
-        {paymentGatewayList?.map((item, index) => (
-        <Card cssOverride={cardStyles.innerCard}
-                
-        key={index}
-        >
-          <CardContent cssOverride={mergeCss(cardStyles.innerContent, styles.gatewayItemContent)}>
+            {paymentGatewayList.length === 0 ? (
+              <Card cssOverride={cardStyles.innerDarkCard}>
+                <CardContent
+                  cssOverride={mergeCss(
+                    cardStyles.innerDarkContent,
+                    styles.emptyStateContent,
+                  )}
+                >
+                  <Flex direction="column" gap={2} align="center">
+                    <MapIcon />
+                    <Text color="subdued">
+                      {__('No payment added yet', 'kirki-ecommerce')}
+                    </Text>
+                  </Flex>
+                </CardContent>
+              </Card>
+            ) : (
+              <Flex direction="column" gap={3}>
+                {paymentGatewayList.map((item) => (
+                  <Card key={item.id} cssOverride={cardStyles.innerCard}>
+                    <CardContent
+                      cssOverride={mergeCss(
+                        cardStyles.innerContent,
+                        styles.gatewayContent,
+                      )}
+                    >
+                      <Flex align="center">
+                        <Flex gap={2} align="center">
+                          <StripeIcon />
+                          <Text
+                            weight="medium"
+                            color={!item?.is_enabled ? 'disabled' : 'primary'}
+                          >
+                            {item?.name}
+                          </Text>
+                          {!item?.is_enabled && (
+                            <Badge variant="destructive">
+                              {__('Inactive', 'kirki-ecommerce')}
+                            </Badge>
+                          )}
+                        </Flex>
 
-          <Flex align="center">
-          <Flex gap={2} align="center">
-            <StripeIcon />
-            <Text
-              weight="medium"
-              color={!item?.is_enabled ? 'disabled' : 'primary'}
-            >
-              {sprintf(__('%s', 'kirki-ecommerce'), item?.name || '')}
-            </Text>
-            {!item?.is_enabled && (
-              <Badge variant="destructive">
-                {__('Inactive', 'kirki-ecommerce')}
-              </Badge>
+                        <ActionGroup>
+                          <Switch checked={Boolean(item?.is_enabled)} onCheckedChange={() => handleToggleMethod(item)} />
+                          <DropdownButton
+                            dropdownStyle={{ width: '115px' }}
+                            buttonProps={{
+                              size: 'small',
+                              style: { transform: 'rotate(90deg)' },
+                              icon: <ShowMoreIcon />,
+                            }}
+                            options={[
+                              {
+                                title: __('Edit', 'kirki-ecommerce'),
+                                value: 'edit',
+                              },
+                              {
+                                title: __('Delete', 'kirki-ecommerce'),
+                                value: 'delete',
+                              },
+                            ]}
+                            onOptionSelect={(action) => handleAction(action, item)}
+                          />
+                        </ActionGroup>
+                      </Flex>
+                    </CardContent>
+                  </Card>
+                ))}
+              </Flex>
             )}
           </Flex>
-          <ActionGroup>
-          <ToggleButton
-          value={Boolean(item?.is_enabled)}
-          onChange={() => handleToggleMethod(item)}
-          />
-          <DropdownButton
-          dropdownStyle={{ width: '115px' }}
-          buttonProps={{
-          size: 'small',
-          style: { transform: 'rotate(90deg)' },
-          icon: <ShowMoreIcon />,
-          }}
-          options={[
-          {
-          title: __('Edit', 'kirki-ecommerce'),
-          value: 'edit',
-          },
-          {
-          title: __('Delete', 'kirki-ecommerce'),
-          value: 'delete',
-          },
-          ]}
-          onOptionSelect={(action) => handleAction(action, item)}
-          />
-          </ActionGroup>
-          </Flex>
-          </CardContent>
+        </CardContent>
+      </Card>
 
-          </Card>
-
-          ))}
-        </Flex>
-        )}
-        <PaymentGatewayEditPopup
+      <PaymentGatewayEditPopup
         editedItem={editedItem}
         isOpen={openPopup}
         onClose={() => setOpenPopup(false)}
-        />
-        </CardContent>
-      </Card>
+      />
+
       {isEditPopupOpen && (
         <PaymentGatewayPopup
           openPopup={isEditPopupOpen}
@@ -176,14 +181,13 @@ const PaymentGatewayComponent = (props: PaymentGatewayProps) => {
 
 PaymentGatewayComponent.displayName = 'PaymentGatewayComponent';
 
+export default PaymentGatewayComponent;
+
 const styles = defineStyles({
-  emptyStateContent: { padding: `${theme.spacing[9]} 0` },
-  gatewayItemContent: {
+  gatewayContent: {
     padding: `${theme.spacing[3]} ${theme.spacing[4]}`,
   },
-  mutedText: {
-    color: theme.colors.text.subdued,
+  emptyStateContent: {
+    paddingBlock: theme.spacing[9],
   },
 });
-
-export default PaymentGatewayComponent;

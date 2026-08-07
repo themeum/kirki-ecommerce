@@ -1,60 +1,27 @@
-import Checkbox from '@/components/ui/checkbox';
-import { Field, FieldLabel } from '@/components/ui/field';
+import CheckboxField from '@/components/form/checkbox-field';
+import MoneyField from '@/components/form/money-field';
+import TextareaField from '@/components/form/textarea-field';
 import Flex from '@/components/ui/flex';
-import Input from '@/components/ui/input';
-import Label from '@/components/ui/label';
-import Textarea from '@/components/ui/textarea';
-import { theme } from '@/theme';
-import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
-import type { ShippingMethodData } from '@/pages/settings/shipping-settings/utils';
-
-type FlatRateSettingsProps = {
-  handleOnChange: (value: unknown, key: string) => void;
-  dataObj: ShippingMethodData | Record<string, unknown>;
-};
-
-const FlatRateSettings = ({
-  handleOnChange,
-  dataObj,
-}: FlatRateSettingsProps) => {
+const FlatRateSettings = () => {
   return (
     <Flex direction="column" gap={4}>
-      <Flex direction="column" gap={2}>
-        <Label htmlFor="flat-rate-amount">{__('Rate', 'kirki-ecommerce')}</Label>
-        <Input
-          id="flat-rate-amount"
-          value={(dataObj?.amount as string | number) || ''}
-          type="number"
-          placeholder={__('$0.00', 'kirki-ecommerce')}
-          onChange={(e) => handleOnChange(e.target.value, 'amount')}
-        />
-      </Flex>
-
-      <Field orientation="horizontal">
-        <Checkbox
-          id="flat-rate-is-taxable"
-          checked={(dataObj?.['is_taxable'] as boolean) || false}
-          onCheckedChange={(checked) => handleOnChange(checked === true, 'is_taxable')}
-        />
-        <FieldLabel htmlFor="flat-rate-is-taxable">
-          {__('This method is taxable', 'kirki-ecommerce')}
-        </FieldLabel>
-      </Field>
-
-      <Flex direction="column" gap={2}>
-        <Label htmlFor="flat-rate-description">
-          {__('Description', 'kirki-ecommerce')}
-        </Label>
-        <Textarea
-          id="flat-rate-description"
-          value={(dataObj?.description as string) || ''}
-          placeholder={__('e.g., 3–5 business days', 'kirki-ecommerce')}
-          onChange={(e) => handleOnChange(e.target.value, 'description')}
-          cssOverride={styles.textarea}
-        />
-      </Flex>
+      <MoneyField
+        name="base_amount"
+        label={__('Rate', 'kirki-ecommerce')}
+        placeholder={__('0.00', 'kirki-ecommerce')}
+      />
+      <CheckboxField
+        name="is_taxable"
+        label={__('This method is taxable', 'kirki-ecommerce')}
+      />
+      <TextareaField
+        name="description"
+        label={__('Description', 'kirki-ecommerce')}
+        placeholder={__('e.g., 3–5 business days', 'kirki-ecommerce')}
+        rows={4}
+      />
     </Flex>
   );
 };
@@ -62,10 +29,3 @@ const FlatRateSettings = ({
 FlatRateSettings.displayName = 'FlatRateSettings';
 
 export default FlatRateSettings;
-
-const styles = defineStyles({
-  textarea: {
-    padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
-    minHeight: '108px',
-  },
-});

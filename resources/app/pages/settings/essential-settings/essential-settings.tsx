@@ -1,34 +1,24 @@
 import { SnowflakeIcon } from '@/icons';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
-import PageHeading from '@/components/ui/page-heading';
-import PageNavbar from '@/components/page-navbar';
 import { __ } from '@/wpi18n';
 
+import SettingsPageHeader from '@/pages/settings/settings-page-header';
 import SchemaProfile from '@/pages/settings/essential-settings/schema-profile/schema-profile';
 import VariationList from '@/pages/settings/essential-settings/variation-library/variation-library';
 
 const EssentialsSettings = () => {
   return (
-    <div>
-      <PageHeading
-        text={__('Settings', 'kirki-ecommerce')}
-        size="sm"
-        sticky
-        type="primary"
-        style={{ height: '32px' }}
-      />
-      <Container size="sm">
-        <Flex direction="column" gap={4}>
-          <PageNavbar
-            textIcon={<SnowflakeIcon />}
-            text={__('Essentials', 'kirki-ecommerce')}
-          />
-          <VariationList />
-          <SchemaProfile />
-        </Flex>
-      </Container>
-    </div>
+    <Container size="sm">
+      <Flex direction="column" gap={4}>
+        <SettingsPageHeader
+          icon={<SnowflakeIcon />}
+          title={__('Essentials', 'kirki-ecommerce')}
+        />
+        <VariationList />
+        <SchemaProfile />
+      </Flex>
+    </Container>
   );
 };
 
