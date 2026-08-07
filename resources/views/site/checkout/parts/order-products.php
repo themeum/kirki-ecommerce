@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Order Products Part
  *
@@ -46,15 +47,15 @@ $currency_code = $cart['currency']['code'] ?? 'USD';
             }
 
             // Prices from CartResource.
-            $price = $product['price'] ?? 0;
-            $sale_price = $product['sale_price'] ?? 0;
+            $price = $product['base_price'] ?? 0;
+            $sale_price = $product['base_sale_price'] ?? 0;
             $quantity = $item['quantity'] ?? 1;
-            $item_total = $item['total'] ?? 0;
-            $item_subtotal = $item['subtotal'] ?? 0;
+            $item_total = $item['base_total'] ?? 0;
+            $item_subtotal = $item['base_subtotal'] ?? 0;
 
             $formatted_total = Money::format_from_decimal($item_total, $currency_code);
-            $has_sale = $sale_price->isGreaterThan(0) && !$sale_price->isEqualTo($price);
-            $formatted_regular_total = $has_sale ? Money::format_from_decimal($price->multipliedBy($quantity), $currency_code) : '';
+            $has_sale = $sale_price > 0 && $sale_price !== $price;
+            $formatted_regular_total = $has_sale ? Money::format_from_decimal($price * $quantity, $currency_code) : '';
             ?>
         <div class="kecom-product-item">
             <div class="kecom-product-image-wrapper">
