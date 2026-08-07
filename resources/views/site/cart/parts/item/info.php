@@ -20,11 +20,11 @@ $unit_price = $data['unit_price'] ?? '';
 <div class="kecom-cart-item-info">
     <div class="kecom-cart-item-details">
         <a href="<?php echo esc_url(Url::get_product_url($product['slug'])); ?>" class="kecom-cart-item-details-title"><?php echo esc_html($product['title']); ?></a>
-        <?php if (!empty($categories)): ?>
+        <?php if (!empty($categories)) : ?>
             <span class="kecom-cart-item-details-categories"><?php echo esc_html($categories[count($categories) - 1]['name']); ?></span>
         <?php endif; ?>
 
-        <?php if (!empty($attributes)): ?>
+        <?php if (!empty($attributes)) : ?>
             <span class="kecom-cart-item-details-attributes"><?php echo esc_html(implode(" • ", $attributes)); ?></span>
         <?php endif; ?>
 

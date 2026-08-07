@@ -31,8 +31,8 @@ $variants = $product['variants'] ?? [];
 $attributes = $product['attributes'] ?? [];
 $currency = $product['currency'] ?? [];
 $variant = $variants[0] ?? [];
-$price = Money::format_from_decimal($variant['price'], $currency['code']);
-$sale_price = isset($variant['sale_price']) ? Money::format_from_decimal($variant['sale_price'], $currency['code']) : null;
+$price = Money::format_from_decimal($variant['base_price'], $currency['code']);
+$sale_price = isset($variant['base_sale_price']) ? Money::format_from_decimal($variant['base_sale_price'], $currency['code']) : null;
 $quantity = (int) $variant['available_quantity'] ?? 0;
 $additional_info = $product['additional_info'] ?? [];
 
@@ -79,7 +79,7 @@ foreach ($media as $media_item) {
                     <template x-if="!currentImage.url">
                         <img src="<?php echo esc_url(Assets::get_url('images/product-fallback.webp')); ?>" alt="<?php echo esc_attr($product['title']); ?>">
                     </template>
-                    <?php if (count($images) > 1): ?>
+                    <?php if (count($images) > 1) : ?>
                         <button class="kecom-product-nav-btn kecom-product-nav-prev" @click="prev" aria-label="Previous image">
                             <?php Icon::render('arrow-left', array('size' => 20)); ?>
                         </button>
@@ -88,7 +88,7 @@ foreach ($media as $media_item) {
                         </button>
                     <?php endif; ?>
                 </div>
-                <?php if (count($images) > 1): ?>
+                <?php if (count($images) > 1) : ?>
                     <div class="kecom-product-thumbnails">
                         <template x-for="(image, index) in images" :key="image.id">
                             <div class="kecom-product-thumbnail" :class="{ 'active': currentIndex === index }" @click="goTo(index)">
@@ -100,39 +100,41 @@ foreach ($media as $media_item) {
             </div>
 
             <!-- Right: Product Info -->
-            <div class="kecom-product-info" x-data="variantSelector({ variants: kirki_ecommerce.product_variants || []<?php if ($selected_variant_id): ?>, selectedVariantId: <?php echo (int) $selected_variant_id; ?><?php endif; ?> })">
+            <div class="kecom-product-info" x-data="variantSelector({ variants: kirki_ecommerce.product_variants || []<?php if ($selected_variant_id) :
+                ?>, selectedVariantId: <?php echo (int) $selected_variant_id; ?><?php
+                                                                                                                      endif; ?> })">
                 <div class="kecom-product-title-and-price">
-                    <?php if (! empty($ribbon)): ?>
+                    <?php if (! empty($ribbon)) : ?>
                         <span class="kecom-product-ribbon"><?php echo esc_html($ribbon); ?></span>
                     <?php endif; ?>
 
                     <h1 class="kecom-product-title"><?php echo esc_html($product['title']); ?></h1>
                     
                     <div class="kecom-product-price">
-                        <span class="kecom-product-price-current" x-text="'<?php echo esc_html($currency['symbol'] ?? ''); ?>' + Number(selectedVariant?.price ?? <?php echo esc_js($variant['price'] ?? 0); ?>).toFixed(2)"></span>
+                        <span class="kecom-product-price-current" x-text="'<?php echo esc_html($currency['symbol'] ?? ''); ?>' + Number(selectedVariant?.price ?? <?php echo esc_js($variant['base_price'] ?? 0); ?>).toFixed(2)"></span>
                         <span class="kecom-product-price-original" x-show="selectedVariant?.compare_price" x-text="'<?php echo esc_html($currency['symbol'] ?? ''); ?>' + Number(selectedVariant?.compare_price ?? 0).toFixed(2)"></span>
-                        <span class="kecom-product-discount" x-show="selectedVariant?.compare_price" x-text="'Save ' + Math.round((1 - Number(selectedVariant?.price ?? <?php echo esc_js($variant['price'] ?? 0); ?>) / Number(selectedVariant?.compare_price ?? 1)) * 100) + '%'"></span>
+                        <span class="kecom-product-discount" x-show="selectedVariant?.compare_price" x-text="'Save ' + Math.round((1 - Number(selectedVariant?.price ?? <?php echo esc_js($variant['base_price'] ?? 0); ?>) / Number(selectedVariant?.compare_price ?? 1)) * 100) + '%'"></span>
                     </div>
                 </div>
 
-                <?php if (! empty($product['description'])): ?>
+                <?php if (! empty($product['description'])) : ?>
                     <p class="kecom-product-short-description">
                         <?php echo esc_html($product['short_description']); ?>
                     </p>
                 <?php endif; ?>
 
                 <!-- Variant Selection -->
-                <?php if (! empty($attributes)): ?>
-                    <?php foreach ($attributes as $attribute):
+                <?php if (! empty($attributes)) : ?>
+                    <?php foreach ($attributes as $attribute) :
                         $attr_name = $attribute['name'] ?? '';
                         $attr_values = $attribute['values'] ?? [];
                         $is_color = strtolower($attr_name) === 'color';
-                    ?>
+                        ?>
                         <div class="kecom-product-variant-group">
                             <span class="kecom-product-variant-label"><?php echo esc_html($attr_name); ?>: <span x-text="selectedAttributes['<?php echo esc_js($attr_name); ?>']"></span></span>
                             <div class="kecom-product-variant-options">
-                                <?php foreach ($attr_values as $item): ?>
-                                    <?php if ($is_color): ?>
+                                <?php foreach ($attr_values as $item) : ?>
+                                    <?php if ($is_color) : ?>
                                         <button 
                                             type="button"
                                             class="kecom-product-variant-color" 
@@ -141,7 +143,7 @@ foreach ($media as $media_item) {
                                             @click="isAttributeAvailable('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>') && selectAttribute('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>')"
                                             aria-label="<?php echo esc_attr($attr_name . ': ' . $item['value']); ?>"
                                         ></button>
-                                    <?php else: ?>
+                                    <?php else : ?>
                                         <button 
                                             type="button"
                                             class="kecom-product-variant-option" 
@@ -196,8 +198,8 @@ foreach ($media as $media_item) {
             <div class="kecom-product-tabs" x-data="tabs({ activeTab: 'description' })">
                 <div class="kecom-product-tab-header">
                     <button class="kecom-product-tab-btn" :class="{ 'active': activeTab === 'description' }" @click="activeTab = 'description'">Description</button>
-                    <?php if (count($additional_info) > 0): ?>
-                        <?php foreach ($additional_info as $index => $info): ?>
+                    <?php if (count($additional_info) > 0) : ?>
+                        <?php foreach ($additional_info as $index => $info) : ?>
                             <button class="kecom-product-tab-btn" :class="{ 'active': activeTab === 'info-<?php echo esc_attr($index); ?>' }" @click="activeTab = 'info-<?php echo esc_attr($index); ?>'"><?php echo esc_html($info['title']); ?></button>
                         <?php endforeach; ?>
                     <?php endif; ?>
@@ -207,7 +209,7 @@ foreach ($media as $media_item) {
                     <?php echo wp_kses_post($product['description'] ?? ''); ?>
                 </div>
 
-                <?php foreach ($additional_info as $index => $info): ?>
+                <?php foreach ($additional_info as $index => $info) : ?>
                     <div class="kecom-product-tab-content" :class="{ 'active': activeTab === 'info-<?php echo esc_attr($index); ?>' }">
                         <?php echo esc_html($info['description']); ?>
                     </div>

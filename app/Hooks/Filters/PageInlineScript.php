@@ -77,12 +77,12 @@ class PageInlineScript extends BaseHook
         $cart_config = array(
             'items_count' => $cart['items_count'],
             'pricing' => (object) array(
-                'subtotal_formatted' => $pricing['subtotal_formatted'],
-                'total_formatted' => $pricing['total_formatted'],
+                'subtotal_formatted' => $pricing['base_subtotal'],
+                'total_formatted' => $pricing['base_total'],
             ),
             'items' => array_map(fn($item) => (object) array(
                 'id' => $item['id'],
-                'total_formatted' => $item['total_formatted'],
+                'total_formatted' => $item['base_total'],
             ), $items),
         );
         $config['cart'] = $cart_config;
@@ -187,13 +187,13 @@ class PageInlineScript extends BaseHook
             $variants_data[] = [
                 'id'             => $v['id'] ?? 0,
                 'product_id'     => $product['id'] ?? 0,
-                'price'          => is_object($v['price']) && method_exists($v['price'], 'toFloat')
-                    ? (float) $v['price']->toFloat()
-                    : (float) ($v['price'] ?? 0),
-                'compare_price'  => isset($v['sale_price'])
-                    ? (is_object($v['sale_price']) && method_exists($v['sale_price'], 'toFloat')
-                        ? (float) $v['sale_price']->toFloat()
-                        : (float) $v['sale_price'])
+                'price'          => is_object($v['base_price']) && method_exists($v['base_price'], 'toFloat')
+                    ? (float) $v['base_price']->toFloat()
+                    : (float) ($v['base_price'] ?? 0),
+                'compare_price'  => isset($v['base_sale_price'])
+                    ? (is_object($v['base_sale_price']) && method_exists($v['base_sale_price'], 'toFloat')
+                        ? (float) $v['base_sale_price']->toFloat()
+                        : (float) $v['base_sale_price'])
                     : null,
                 'stock'          => (int) ($v['available_quantity'] ?? 0),
                 'attributes'     => $variant_attrs,
