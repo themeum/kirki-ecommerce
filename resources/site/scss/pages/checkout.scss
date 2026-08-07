@@ -11,7 +11,8 @@
 
   .kecom-checkout-grid {
     display: grid;
-    grid-template-columns: 1fr 624px;
+    grid-template-columns: 17fr 14fr;
+    align-items: start;
 
     @include breakpoint-down(lg) {
       grid-template-columns: 1fr;
@@ -26,7 +27,7 @@
     padding: $spacing-18 $spacing-19;
 
     @include breakpoint-down(md) {
-      padding: $spacing-8;
+      padding: $spacing-8 $spacing-0;
     }
   }
 
@@ -38,8 +39,13 @@
     padding: $spacing-18 $spacing-19;
     background-color: $background-surface-alt;
 
+    position: sticky;
+    top: 2rem;
+    align-self: start;
+
     @include breakpoint-down(md) {
-      padding: $spacing-8;
+      position: static;
+      padding: $spacing-10 $spacing-8;
     }
   }
 
@@ -64,6 +70,42 @@
     @include breakpoint-down(sm) {
       grid-template-columns: 1fr;
     }
+  }
+
+  // Shipping Methods
+  .kecom-shipping-methods {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $spacing-6;
+  }
+
+  .kecom-shipping-option {
+    display: flex;
+    align-items: center;
+    gap: $spacing-6;
+    padding: $spacing-8;
+    outline: 1px solid $border-default;
+    border-radius: $radius-xl;
+    cursor: pointer;
+    transition: border-color 0.2s;
+
+    &:hover {
+      border-color: $border-hover;
+    }
+
+    &:has(.kecom-radio-input:checked) {
+      outline-width: 2px;
+      outline-color: $background-fill-brand;
+    }
+  }
+
+  .kecom-shipping-name {
+    @include typography(base, semibold);
+  }
+
+  .kecom-shipping-price {
+    @include typography(base, medium, $text-secondary);
+    margin-inline-start: auto;
   }
 
   // Payment Methods
@@ -175,6 +217,8 @@
 
   .kecom-product-name {
     @include typography(base, medium, $text-primary);
+    text-decoration: none;
+    outline: none;
     margin: 0;
   }
 
@@ -214,10 +258,42 @@
   .kecom-coupon-form {
     display: flex;
     gap: $spacing-6;
-    align-items: center;
+    align-items: start;
 
     .kecom-field {
       flex: 1;
+    }
+  }
+
+  .kecom-applied-coupon {
+    @include flex-column();
+    gap: $spacing-4;
+
+    .kecom-applied-coupon-info {
+      @include flex-between();
+      border: 1px solid $icon-brand;
+      border-radius: $radius-lg;
+      padding: $spacing-3 $spacing-3 $spacing-3 $spacing-6;
+
+      .kecom-applied-coupon-code-wrapper {
+        @include flex-center();
+        gap: $spacing-4;
+      }
+
+      .kecom-coupon-code {
+        @include typography(base, medium);
+        text-transform: uppercase;
+      }
+
+      .kecom-coupon-discount {
+        text-transform: uppercase;
+      }
+
+      button {
+        height: 24px;
+        width: 24px;
+        @include flex-center();
+      }
     }
   }
 

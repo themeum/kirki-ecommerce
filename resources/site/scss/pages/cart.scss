@@ -1,9 +1,8 @@
 // Page - Cart
 // Styles for shopping cart page
 
-@use '../tokens' as *;
-@use '../mixins' as *;
-
+@use "../tokens" as *;
+@use "../mixins" as *;
 
 .kecom-cart-page {
   max-width: 1440px;
@@ -69,6 +68,8 @@
     }
 
     &-image {
+      flex-shrink: 0;
+
       img {
         width: 112px;
         height: auto;
@@ -79,7 +80,6 @@
           height: auto;
         }
       }
-
     }
 
     &-details {
@@ -135,7 +135,6 @@
     .kecom-quantity {
       height: $spacing-12;
     }
-
   }
 
   .kecom-cart-item:not(:last-child) {
@@ -177,8 +176,6 @@
     &-value {
       @include typography(base, medium, $text-primary);
     }
-
-
   }
 
   &-total {

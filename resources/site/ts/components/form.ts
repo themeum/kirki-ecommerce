@@ -27,7 +27,7 @@ export interface FieldError {
 
 export interface FormConfig {
   defaultValues?: Record<string, unknown>;
-  mode?: 'onBlur' | 'onChange' | 'onSubmit';
+  mode?: "onBlur" | "onChange" | "onSubmit";
 }
 
 export interface FormState {
@@ -41,58 +41,61 @@ export interface FormState {
 const ValidationHelpers = {
   required(value: unknown, rule?: boolean | string): string | null {
     if (!rule) return null;
-    const message = typeof rule === 'string' ? rule : 'This field is required';
-    const isEmpty = !value || (typeof value === 'string' && value.trim() === '');
+    const message = typeof rule === "string" ? rule : "This field is required";
+    const isEmpty = !value || (typeof value === "string" && value.trim() === "");
     return isEmpty ? message : null;
   },
 
   minLength(value: string, rule: number | { value: number; message: string }): string | null {
     if (!value) return null;
-    const minLength = typeof rule === 'number' ? rule : rule.value;
-    const message = typeof rule === 'object' ? rule.message : `Minimum length is ${minLength}`;
+    const minLength = typeof rule === "number" ? rule : rule.value;
+    const message = typeof rule === "object" ? rule.message : `Minimum length is ${minLength}`;
     return value.length < minLength ? message : null;
   },
 
   maxLength(value: string, rule: number | { value: number; message: string }): string | null {
     if (!value) return null;
-    const maxLength = typeof rule === 'number' ? rule : rule.value;
-    const message = typeof rule === 'object' ? rule.message : `Maximum length is ${maxLength}`;
+    const maxLength = typeof rule === "number" ? rule : rule.value;
+    const message = typeof rule === "object" ? rule.message : `Maximum length is ${maxLength}`;
     return value.length > maxLength ? message : null;
   },
 
   pattern(value: string, rule: RegExp | { value: RegExp; message: string }): string | null {
     if (!value) return null;
     const pattern = rule instanceof RegExp ? rule : rule.value;
-    const message = typeof rule === 'object' && 'message' in rule ? rule.message : 'Invalid format';
+    const message = typeof rule === "object" && "message" in rule ? rule.message : "Invalid format";
     return !pattern.test(value) ? message : null;
   },
 
   email(value: string, rule?: boolean | string): string | null {
     if (!rule) return null;
-    const message = typeof rule === 'string' ? rule : 'Invalid email address';
+    const message = typeof rule === "string" ? rule : "Invalid email address";
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return !emailPattern.test(value) ? message : null;
   },
 
   min(value: number, rule: number | { value: number; message: string }): string | null {
-    const min = typeof rule === 'number' ? rule : rule.value;
-    const message = typeof rule === 'object' ? rule.message : `Minimum value is ${min}`;
+    const min = typeof rule === "number" ? rule : rule.value;
+    const message = typeof rule === "object" ? rule.message : `Minimum value is ${min}`;
     return value < min ? message : null;
   },
 
   max(value: number, rule: number | { value: number; message: string }): string | null {
-    const max = typeof rule === 'number' ? rule : rule.value;
-    const message = typeof rule === 'object' ? rule.message : `Maximum value is ${max}`;
+    const max = typeof rule === "number" ? rule : rule.value;
+    const message = typeof rule === "object" ? rule.message : `Maximum value is ${max}`;
     return value > max ? message : null;
   },
 
-  async custom(value: unknown, validate: (value: unknown) => boolean | string | Promise<boolean | string>): Promise<string | null> {
+  async custom(
+    value: unknown,
+    validate: (value: unknown) => boolean | string | Promise<boolean | string>,
+  ): Promise<string | null> {
     try {
       const result = await validate(value);
       if (result === true) return null;
-      return typeof result === 'string' ? result : 'Validation failed';
+      return typeof result === "string" ? result : "Validation failed";
     } catch {
-      return 'Validation error';
+      return "Validation error";
     }
   },
 };
@@ -100,20 +103,17 @@ const ValidationHelpers = {
 async function validateField(value: unknown, rules?: ValidationRules): Promise<string | null> {
   if (!rules) return null;
 
-  const stringValue = String(value || '');
-  const numericValue = typeof value === 'number' ? value : parseFloat(stringValue);
+  const stringValue = String(value || "");
+  const numericValue = typeof value === "number" ? value : parseFloat(stringValue);
 
-  // Required validation
   const requiredError = ValidationHelpers.required(value, rules.required);
   if (requiredError) return requiredError;
 
-  // Email special validation
   if (rules.email) {
     const emailError = ValidationHelpers.email(stringValue, rules.email);
     if (emailError) return emailError;
   }
 
-  // String length validations
   if (rules.minLength) {
     const error = ValidationHelpers.minLength(stringValue, rules.minLength);
     if (error) return error;
@@ -124,7 +124,6 @@ async function validateField(value: unknown, rules?: ValidationRules): Promise<s
     if (error) return error;
   }
 
-  // Numeric validations
   if (rules.min && !isNaN(numericValue)) {
     const error = ValidationHelpers.min(numericValue, rules.min);
     if (error) return error;
@@ -135,13 +134,11 @@ async function validateField(value: unknown, rules?: ValidationRules): Promise<s
     if (error) return error;
   }
 
-  // Pattern validation
   if (rules.pattern && stringValue) {
     const error = ValidationHelpers.pattern(stringValue, rules.pattern);
     if (error) return error;
   }
 
-  // Custom validation
   if (rules.validate) {
     const error = await ValidationHelpers.custom(value, rules.validate);
     if (error) return error;
@@ -151,7 +148,7 @@ async function validateField(value: unknown, rules?: ValidationRules): Promise<s
 }
 
 export function form(config: FormConfig = {}) {
-  const { defaultValues = {}, mode = 'onBlur' } = config;
+  const { defaultValues = {}, mode = "onBlur" } = config;
 
   return {
     values: { ...defaultValues },
@@ -163,28 +160,35 @@ export function form(config: FormConfig = {}) {
     fieldRules: {} as Record<string, ValidationRules>,
 
     register(name: string, rules?: ValidationRules) {
-      this.values[name] ??= '';
+      this.values[name] ??= "";
       this.fieldRules[name] = rules || {};
       return {
         name,
-        'x-model': `values.${name}`,
-        ':class': `{ 'kecom-input-error': errors.${name} }`,
-        ':aria-invalid': `!!errors.${name}`,
-        '@blur': mode === 'onBlur' || mode === 'onChange' ? `handleBlur('${name}')` : null,
-        '@input': mode === 'onChange' ? `handleInput('${name}', $event.target.value)` : null,
+        "x-model": `values.${name}`,
+        ":class": `{ 'kecom-input-error': errors.${name} }`,
+        ":aria-invalid": `!!errors.${name}`,
+        "@blur": mode === "onBlur" || mode === "onChange" ? `handleBlur('${name}')` : null,
+        "@input": mode === "onChange" ? `handleInput('${name}', $event.target.value)` : null,
+      };
+    },
+
+    // Apply to the .kecom-field wrapper div to toggle error state class
+    fieldWrapper(name: string) {
+      return {
+        ":class": `{ 'kecom-field-error-state': errors.${name} }`,
       };
     },
 
     handleInput(name: string, value: unknown) {
       this.values[name] = value;
-      if (this.mode === 'onChange') {
+      if (this.mode === "onChange") {
         this.validateField(name);
       }
     },
 
     handleBlur(name: string) {
       this.touched[name] = true;
-      if (this.mode === 'onBlur' || this.mode === 'onChange') {
+      if (this.mode === "onBlur" || this.mode === "onChange") {
         this.validateField(name);
       }
     },
@@ -243,7 +247,6 @@ export function form(config: FormConfig = {}) {
 
       try {
         await this.validateForm();
-        
         if (this.isValid) {
           await onValid({ ...this.values });
         } else {
@@ -262,6 +265,70 @@ export function form(config: FormConfig = {}) {
         isSubmitting: this.isSubmitting,
         isValid: this.isValid,
       };
+    },
+  };
+}
+
+/**
+ * Alpine component: stateField
+ * Handles country→state dropdown population for address forms.
+ * Must be used inside a form() scope so it can watch values.country
+ * and read values.state via the parent form's register() binding.
+ *
+ * PHP usage:
+ *   <div x-data="stateField()">
+ *     <select x-bind="register('state', { required: '...' })">
+ *       <template x-for="state in states" :key="state.id">
+ *         <option :value="state.id" x-text="state.name"></option>
+ *       </template>
+ *     </select>
+ *   </div>
+ */
+export function stateField({ notifyAddressChange = false }: { notifyAddressChange?: boolean } = {}) {
+  return {
+    states: [] as Array<{ id: string; name: string }>,
+
+    init() {
+      const loadStates = (countryCode: string) => {
+        if (!countryCode) {
+          this.states = [];
+          return;
+        }
+        const countries: Array<{ code: string; states: Array<{ id: string; name: string }> }> =
+          window.kirki_ecommerce?.countries ?? [];
+        const country = countries.find((c) => c.code === countryCode);
+        this.states = country?.states || [];
+      };
+
+      // Watch parent form's country value
+      (this as any).$watch("values.country", (newCountry: string) => {
+        loadStates(newCountry);
+        if (notifyAddressChange) {
+          window.dispatchEvent(new CustomEvent("address-changed"));
+        }
+      });
+
+      // Watch parent form's state value
+      if (notifyAddressChange) {
+        (this as any).$watch("values.state", () => {
+          window.dispatchEvent(new CustomEvent("address-changed"));
+        });
+      }
+
+      // Populate states for the current country immediately
+      const currentCountry = (this as any).values?.country ?? "";
+      loadStates(currentCountry);
+
+      // Re-assert the saved state value after x-for stamps the options
+      (this as any).$nextTick(() =>
+        (this as any).$nextTick(() => {
+          const select = (this as any).$el.querySelector("select");
+          const savedState = (this as any).values?.state ?? "";
+          if (select && savedState) {
+            select.value = savedState;
+          }
+        }),
+      );
     },
   };
 }

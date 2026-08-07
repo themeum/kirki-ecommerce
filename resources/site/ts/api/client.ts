@@ -45,7 +45,11 @@ export async function apiRequest<T>(endpoint: string, options: RequestOptions = 
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({ message: res.statusText }));
-    throw new Error(err?.message ?? `Request failed: ${res.status}`);
+    const error = new Error(err?.message ?? `Request failed: ${res.status}`) as Error & { errors?: Record<string, string[]> };
+    if (err?.errors) {
+      error.errors = err.errors;
+    }
+    throw error;
   }
 
   // 204 No Content

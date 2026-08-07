@@ -16,9 +16,11 @@ use Kirki\Ecommerce\App\Models\Brand;
 use Kirki\Ecommerce\App\Models\Category;
 use Kirki\Ecommerce\App\Models\Product;
 use Kirki\Ecommerce\App\Resources\Cart\CartResource;
+use Kirki\Ecommerce\App\Resources\Order\OrderResource;
 use Kirki\Ecommerce\App\Services\ProductService;
 use Kirki\Ecommerce\App\Resources\Product\ProductResource;
 use Kirki\Ecommerce\App\Services\CartService;
+use Kirki\Ecommerce\App\Services\OrderService;
 use Kirki\Ecommerce\App\Services\PaymentGatewayService;
 use Kirki\Ecommerce\App\Supports\Template;
 use Kirki\Ecommerce\App\Supports\Utils;
@@ -156,8 +158,29 @@ class SiteController
     public function checkout_page(
         Request $request,
         PaymentGatewayService $payment_gateway_service,
-        CartService $cart_service
+        CartService $cart_service,
+        OrderService $order_service
     ) {
+        $status = $request->get('order');
+
+        if (in_array($status, ['success', 'failed'], true)) {
+            $order_resource = null;
+
+            if ($uuid = $request->get('uuid')) {
+                $order = $order_service->find_order_by_uuid($uuid);
+                $order_resource = $order ? OrderResource::make($order) : null;
+            }
+
+            if (! $order_resource) {
+                wp_safe_redirect(home_url());
+                exit;
+            }
+
+            return view("site.order-{$status}", [
+                'order' => $order_resource,
+            ])->layout(false);
+        }
+
         $customer = customer();
         $payment_gateways =  $payment_gateway_service->get();
         $cart = CartResource::make($cart_service->get_cart($customer->get_customer_id()));

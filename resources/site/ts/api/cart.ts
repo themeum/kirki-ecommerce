@@ -50,4 +50,16 @@ export const cartApi = {
 
   removeCoupon: () =>
     apiRequest<ApiResponse<Cart>>('/cart/coupon', { method: 'DELETE' }),
+
+  updateShipping: (shippingData: any) =>
+    apiRequest<ApiResponse<Cart>>('/cart/shipping', {
+      method: 'POST',
+      body: shippingData,
+    }),
+
+  update: (cartData: any) =>
+    apiRequest<ApiResponse<Cart>>('/cart', {
+      method: 'PUT',
+      body: cartData,
+    }),
 };

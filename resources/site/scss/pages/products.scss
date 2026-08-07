@@ -63,13 +63,17 @@
 
   .kecom-products-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     row-gap: $spacing-14;
     column-gap: $spacing-10;
     margin-bottom: $spacing-14;
 
     @include breakpoint-down(lg) {
-      grid-template-columns: repeat(2, 1fr);;
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    @include breakpoint-down(md) {
+      grid-template-columns: repeat(2, 1fr);
     }
 
     @include breakpoint-down(sm) {

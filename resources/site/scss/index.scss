@@ -45,6 +45,7 @@ body {
 
 hr {
   border: none;
-  border-top: 1px solid $border-default;
+  background-color: $border-default;
+  height: 1px;
   margin: 0;
 }

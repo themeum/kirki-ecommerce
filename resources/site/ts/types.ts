@@ -7,6 +7,16 @@ export interface kirkiEcommerceConfig {
   is_logged_in: boolean;
   login_url: string;
   cart: CartUpdateItem;
+  thank_you_url: string;
+  checkout_cart?: {
+    items: any[];
+    pricing: any;
+    shipping_method: any;
+    is_billing_same_as_shipping?: boolean;
+    available_shipping_methods?: any[];
+  };
+  currency?: string;
+  countries?: any[];
   cart_token_cookie_name: string;
   cart_token_header_name: string;
 }
@@ -67,6 +77,7 @@ export interface CartPricing {
   tax_total: string;
   discount_details: any;
   discount_total: string;
+  discount_total_formatted: string;
   shipping_subtotal: string;
   shipping_tax: string;
   shipping_discount: string;
@@ -102,27 +113,54 @@ export interface ApiResponse<T> {
   data: T;
   message: string;
   success: boolean;
-  subtotal: number;
-  total: number;
-  coupon_code?: string;
-  discount?: number;
-  formatted_items: Record<number, string>;
-  shipping_address: any;
-  billing_address: any;
-  available_shipping_methods: any[];
-  shipping_method: any;
-  customer_notes: string | null;
-  ip_address: string | null;
-  user_agent: string | null;
-  expires_at: string | null;
-  created_at: string;
-  updated_at: string;
 }
 
-export interface ApiResponse<T> {
-  data: T;
-  message: string;
-  success: boolean;
+export interface OrderItem {
+  variant_id: number;
+  quantity: number;
+}
+
+export interface OrderRequest {
+  items: OrderItem[];
+  currency_code: string;
+  payment_method: string;
+  coupon_code?: string;
+  shipping_method?: string;
+  is_billing_same_as_shipping?: boolean;
+  shipping_first_name: string;
+  shipping_last_name: string;
+  shipping_address_line1: string;
+  shipping_address_line2: string;
+  shipping_city: string;
+  shipping_state: string;
+  shipping_postcode: string;
+  shipping_country: string;
+  shipping_phone: string;
+  shipping_email: string;
+  shipping_company?: string | null;
+  billing_first_name: string;
+  billing_last_name: string;
+  billing_address_line1: string;
+  billing_address_line2: string;
+  billing_city: string;
+  billing_state: string;
+  billing_postcode: string;
+  billing_country: string;
+  billing_phone: string;
+  billing_email: string;
+  billing_company?: string | null;
+  customer_email: string;
+  customer_phone: string;
+  customer_notes?: string | null;
+}
+
+export interface OrderResponse {
+  id: number;
+  uuid: string;
+  order_number: string;
+  status: string;
+  total: string;
+  currency: string;
 }
 
 export interface WishlistItem {
