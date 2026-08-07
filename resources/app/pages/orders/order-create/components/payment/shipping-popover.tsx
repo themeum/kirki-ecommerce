@@ -67,7 +67,7 @@ const ShippingPopover = ({
                 <SelectContent>
                   {availableShippingMethods.map((method) => (
                     <SelectItem key={method.id} value={String(method.id)}>
-                      {`${method.name} (${method.cost_object.display})`}
+                      {`${method.name} (${method.base_cost_money_object.display})`}
                     </SelectItem>
                   ))}
                 </SelectContent>

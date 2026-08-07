@@ -12,6 +12,7 @@ import {
   prepareFormSchema,
   required,
   requiredWhen,
+  stringOrNull,
 } from '@/libs/zod';
 
 describe('isEmptyValue', () => {
@@ -295,6 +296,21 @@ describe('numberOrNull', () => {
 
   it('maps a non-numeric string to null', () => {
     expect(schema.parse({ quantity: 'abc' }).quantity).toBeNull();
+  });
+});
+
+describe('stringOrNull', () => {
+  const schema = z.object({ addressLine2: stringOrNull() });
+
+  it('maps empty string, whitespace, null, and undefined to null', () => {
+    expect(schema.parse({ addressLine2: '' }).addressLine2).toBeNull();
+    expect(schema.parse({ addressLine2: '   ' }).addressLine2).toBeNull();
+    expect(schema.parse({ addressLine2: null }).addressLine2).toBeNull();
+    expect(schema.parse({ addressLine2: undefined }).addressLine2).toBeNull();
+  });
+
+  it('trims a retained value', () => {
+    expect(schema.parse({ addressLine2: ' Flat 2 ' }).addressLine2).toBe('Flat 2');
   });
 });
 

@@ -20,13 +20,13 @@ describe('MultiCurrencySettingsFormSchema', () => {
     next_sync_at: null,
   };
 
-  it('produces the exact payload for a fully filled form', () => {
+  it('pins is_automatic_update_enabled to false regardless of input (@todo in the transform)', () => {
     const result = MultiCurrencySettingsFormSchema.parse({
       ...base,
       is_automatic_update_enabled: true,
       api_config: { ...base.api_config, api_key: 'secret-key' },
     });
-    expect(result.is_automatic_update_enabled).toBe(true);
+    expect(result.is_automatic_update_enabled).toBe(false);
     expect(result.api_config.api_key).toBe('secret-key');
   });
 

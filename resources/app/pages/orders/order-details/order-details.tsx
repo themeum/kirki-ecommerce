@@ -230,11 +230,11 @@ const OrderDetails = () => {
               <PaymentSummaryCard
                 amounts={{
                   itemsCount: order.items_count,
-                  subtotal: order.totals.subtotal_object.display,
-                  discount: order.totals.discount_object.display,
-                  shipping: order.totals.shipping_object.display,
-                  tax: order.totals.tax_object.display,
-                  total: order.totals.total_object.display,
+                  subtotal: order.totals.base_subtotal_money_object.display,
+                  discount: order.totals.base_discount_money_object.display,
+                  shipping: order.totals.base_shipping_money_object.display,
+                  tax: order.totals.base_tax_money_object.display,
+                  total: order.totals.base_total_money_object.display,
                 }}
                 badge={<Badge variant={paymentBadge.variant}>{paymentBadge.text}</Badge>}
                 actions={

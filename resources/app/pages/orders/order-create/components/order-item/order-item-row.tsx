@@ -20,7 +20,7 @@ type OrderItemRowProps = {
 
 const OrderItemRow = ({ row, calculationItem, onQuantityChange, onRemove }: OrderItemRowProps) => {
   const { display, quantity, index } = row;
-  const lineTotal = calculationItem ? calculationItem.total_object.display : EMPTY_AMOUNT;
+  const lineTotal = calculationItem ? calculationItem.base_total_money_object.display : EMPTY_AMOUNT;
 
   return (
     <TableRow>

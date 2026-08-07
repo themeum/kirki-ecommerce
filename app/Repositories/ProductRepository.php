@@ -8,8 +8,6 @@ use Kirki\Ecommerce\App\Constants\Pagination;
 use Kirki\Ecommerce\Framework\Collections\Collection;
 use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
-use Kirki\Ecommerce\Framework\Supports\Facades\DB;
-
 class ProductRepository
 {
     /**
@@ -20,7 +18,20 @@ class ProductRepository
      */
     public function paginate(array $filters = [])
     {
-        return $this->list_query($filters)->paginate($filters['limit'] ?? Pagination::LIMIT, $filters['page'] ?? 1);
+        $query = $this->list_query();
+        return $this->apply_filters($query, $filters)->paginate($filters['limit'] ?? Pagination::LIMIT, $filters['page'] ?? 1);
+    }
+
+    /**
+     * Get paginated products with variants and optional search and sorting.
+     *
+     * @param array $filters
+     * @return Paginator
+     */
+    public function paginate_with_variants(array $filters = [])
+    {
+        $query = Product::query()->with([ 'attributes', 'attribute_values', 'variants', 'variants.attribute_values', 'variants.product', 'media']);
+        return $this->apply_filters($query, $filters)->paginate($filters['limit'] ?? Pagination::LIMIT, $filters['page'] ?? 1);
     }
 
     /**
@@ -31,7 +42,8 @@ class ProductRepository
      */
     public function all(array $filters = [])
     {
-        return $this->list_query($filters)->get();
+        $query = $this->list_query();
+        return $this->apply_filters($query, $filters)->get();
     }
 
     /**
@@ -128,13 +140,17 @@ class ProductRepository
      */
     public function delete_all(array $filters = [])
     {
-        return (bool) $this->list_query($filters)->delete();
+        $query = Product::query();
+        return (bool) $this->apply_filters($query, $filters)->delete();
     }
 
-    protected function list_query($filters = [])
+    protected function list_query()
     {
-        $query = Product::with(['categories', 'tags', 'collections', 'attributes', 'attribute_values', 'variants', 'media']);
+        return Product::query()->with(['categories', 'tags', 'collections', 'attributes', 'attribute_values', 'variants', 'media']);
+    }
 
+    protected function apply_filters(QueryBuilder $query, $filters = [])
+    {
         $query->when($filters['search'] ?? null, function (QueryBuilder $query, $search) {
             return $query->where_any(['title', 'description'], 'like', '%' . $search . '%');
         });

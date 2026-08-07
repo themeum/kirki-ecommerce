@@ -64,7 +64,7 @@ class ProductController
         $params = ProductListFilterDTO::from_array($request->all());
         $params->sort_by = $request->get_whitelisted('sort_by', 'id', ['id', 'title', 'status', 'created_by', 'updated_by', 'created_at', 'updated_at']);
 
-        $data = $this->service->paginated($params);
+        $data = $this->service->paginate_with_variants($params);
 
         return response()->json([
             'data' => ProductListWithVariantsResource::paginated($data),

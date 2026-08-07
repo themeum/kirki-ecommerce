@@ -12,8 +12,8 @@ class OrderCalculationeRequest extends Request
         return [
             'customer_id' => 'nullable|integer',
             'items' => 'nullable|array|min:1',
-            'items.*.variant_id' => 'nullable|integer',
-            'items.*.quantity' => 'nullable|integer|min:1',
+            'items.*.variant_id' => 'required|integer',
+            'items.*.quantity' => 'required|integer|min:1',
 
             'currency_code' => 'nullable|string',
             'payment_method' => 'nullable|string',
@@ -58,6 +58,7 @@ class OrderCalculationeRequest extends Request
     {
         return [
             'customer_id' => Sanitizer::INT,
+            'items' => Sanitizer::ARRAY,
             'items.*.variant_id' => Sanitizer::INT,
             'items.*.quantity' => Sanitizer::INT,
 

@@ -86,7 +86,7 @@ const TakeActionCard = ({ order, onAction, isPerforming }: TakeActionCardProps) 
                 loading={isPerforming}
                 onClick={handleUpdate}
               >
-                <Text variant="tiny" weight="medium">{__('Update', 'kirki-ecommerce')}</Text>
+                <Text variant="tiny" weight="medium" color='light'>{__('Update', 'kirki-ecommerce')}</Text>
               </Button>
             </Flex>
           )}

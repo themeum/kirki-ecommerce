@@ -132,7 +132,7 @@ const OrderCreate = () => {
   const handleSubmit = async (payload: OrderFormPayload) => {
     try {
       const response = await createMutation.mutateAsync(payload);
-      console.log(response);
+
       if (isDefined(response.data) && isDefined(response.data.id)) {
         navigate(endpoints.ORDER(response.data.id));
       }
@@ -177,11 +177,11 @@ const OrderCreate = () => {
               <PaymentSummaryCard
                 amounts={{
                   itemsCount: calculation?.items_count,
-                  subtotal: calculation?.pricing.subtotal_object.display,
-                  discount: calculation?.pricing.discount_total_object.display,
-                  shipping: calculation?.pricing.shipping_total_object.display,
-                  tax: calculation?.pricing.tax_total_object.display,
-                  total: calculation?.pricing.total_object.display,
+                  subtotal: calculation?.pricing.base_subtotal_money_object.display,
+                  discount: calculation?.pricing.base_discount_total_money_object.display,
+                  shipping: calculation?.pricing.base_shipping_total_money_object.display,
+                  tax: calculation?.pricing.base_tax_total_money_object.display,
+                  total: calculation?.pricing.base_total_money_object.display,
                 }}
                 availableShippingMethods={calculation?.available_shipping_methods}
                 isCalculating={isCalculating}

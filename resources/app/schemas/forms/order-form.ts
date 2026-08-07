@@ -1,4 +1,4 @@
-import { isEmptyValue, nullishShape, prepareFormSchema, required, requiredWhen } from "@/libs/zod";
+import { isEmptyValue, nullishShape, prepareFormSchema, required, requiredWhen, stringOrNull } from "@/libs/zod";
 import { __ } from "@/wpi18n";
 import z from "zod";
 
@@ -9,8 +9,8 @@ const OrderFormShape = prepareFormSchema(z.object({
       quantity: z.number(),
     })
   ),
-  currency_code: z.string().nullish(),
-  coupon_code: z.string().nullish(),
+  currency_code: stringOrNull(),
+  coupon_code: stringOrNull(),
   customer_id: required(z.number(), __('Customer is required', 'kirki-ecommerce')),
 
   shipping_method: required(z.string(), __('Shipping method is required', 'kirki-ecommerce')),
@@ -18,29 +18,29 @@ const OrderFormShape = prepareFormSchema(z.object({
   shipping_first_name: required(z.string(), __('First name is required', 'kirki-ecommerce')),
   shipping_last_name: required(z.string(), __('Last name is required', 'kirki-ecommerce')),
   shipping_address_line1: required(z.string(), __('Address is required', 'kirki-ecommerce')),
-  shipping_address_line2: z.string().nullish(),
+  shipping_address_line2: stringOrNull(),
   shipping_city: required(z.string(), __('City is required', 'kirki-ecommerce')),
   shipping_state: required(z.string(), __('State is required', 'kirki-ecommerce')),
   shipping_postal_code: required(z.string(), __('Postal code is required', 'kirki-ecommerce')),
   shipping_country: required(z.string(), __('Country is required', 'kirki-ecommerce')),
-  shipping_phone: z.string().nullish(),
-  shipping_email: z.string().nullish(),
-  shipping_company: z.string().nullish(),
+  shipping_phone: stringOrNull(),
+  shipping_email: stringOrNull(),
+  shipping_company: stringOrNull(),
 
   is_billing_same_as_shipping: z.boolean().default(false),
   billing_first_name: requiredWhen(z.string().nullish(), (values) => !values.is_billing_same_as_shipping && isEmptyValue(values.billing_first_name), __('First name is required', 'kirki-ecommerce')),
   billing_last_name: requiredWhen(z.string().nullish(), (values) => !values.is_billing_same_as_shipping && isEmptyValue(values.billing_last_name), __('Last name is required', 'kirki-ecommerce')),
   billing_address_line1: requiredWhen(z.string().nullish(), (values) => !values.is_billing_same_as_shipping && isEmptyValue(values.billing_address_line1), __('Address is required', 'kirki-ecommerce')),
-  billing_address_line2: z.string().nullish(),
+  billing_address_line2: stringOrNull(),
   billing_city: requiredWhen(z.string().nullish(), (values) => !values.is_billing_same_as_shipping && isEmptyValue(values.billing_city), __('City is required', 'kirki-ecommerce')),
   billing_state: requiredWhen(z.string().nullish(), (values) => !values.is_billing_same_as_shipping && isEmptyValue(values.billing_state), __('State is required', 'kirki-ecommerce')),
   billing_postal_code: requiredWhen(z.string().nullish(), (values) => !values.is_billing_same_as_shipping && isEmptyValue(values.billing_postal_code), __('Postal code is required', 'kirki-ecommerce')),
   billing_country: requiredWhen(z.string().nullish(), (values) => !values.is_billing_same_as_shipping && isEmptyValue(values.billing_country), __('Country is required', 'kirki-ecommerce')),
-  billing_phone: z.string().nullish(),
-  billing_email: z.string().nullish(),
-  billing_company: z.string().nullish(),
+  billing_phone: stringOrNull(),
+  billing_email: stringOrNull(),
+  billing_company: stringOrNull(),
 
-  admin_notes: z.string().nullish(),
+  admin_notes: stringOrNull(),
   flags: z.array(z.string()).nullish(),
   is_manual: z.boolean().default(true),
 }));

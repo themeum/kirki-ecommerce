@@ -13,7 +13,7 @@ class OrderUpdateRequest extends Request
         return customer()->is_admin();
     }
 
-    public function prepare_for_validation()
+    protected function prepare_for_validation()
     {
         $customer_id = $this->input('customer_id') ?? null;
         $is_billing_same_as_shipping = $this->input('is_billing_same_as_shipping') ?? customer(null, $customer_id)->get_customer()->is_billing_same_as_shipping ?? false;
@@ -93,6 +93,8 @@ class OrderUpdateRequest extends Request
             'shipping_phone' => 'nullable|string',
             'shipping_email' => 'nullable|email',
             'shipping_company' => 'nullable|string',
+
+            'is_billing_same_as_shipping' => 'required|boolean',
 
             'billing_first_name' => 'required|string',
             'billing_last_name' => 'required|string',

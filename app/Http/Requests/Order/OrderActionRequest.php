@@ -36,7 +36,7 @@ class OrderActionRequest extends Request
             'tracking_number' => 'required_if:action,' . OrderAction::ADD_TRACKING . '|nullable|string',
             'tracking_url' => 'nullable|string',
             'reason' => 'nullable|string',
-            'payment_method' => 'nullable|string',
+            'payment_method' => 'required_if:action,' . OrderAction::MARK_AS_PAID . '|nullable|string',
         ];
     }
 

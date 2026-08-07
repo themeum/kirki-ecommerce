@@ -127,6 +127,36 @@ describe('OrderFormSchema', () => {
     expect(result.billing_company).toBeNull();
   });
 
+  it('sends null for optional shipping fields left as an empty string', () => {
+    const result = OrderFormSchema.parse({
+      ...base,
+      shipping_address_line2: '',
+      shipping_phone: '',
+      shipping_company: '   ',
+    });
+
+    expect(result.shipping_address_line2).toBeNull();
+    expect(result.shipping_phone).toBeNull();
+    expect(result.shipping_company).toBeNull();
+  });
+
+  it('sends null for optional billing fields left as an empty string', () => {
+    const result = OrderFormSchema.parse({
+      ...separateBilling,
+      billing_address_line2: '',
+      billing_company: '   ',
+    });
+
+    expect(result.billing_address_line2).toBeNull();
+    expect(result.billing_company).toBeNull();
+  });
+
+  it('trims a retained optional value', () => {
+    const result = OrderFormSchema.parse({ ...base, shipping_address_line2: ' Flat 2 ' });
+
+    expect(result.shipping_address_line2).toBe('Flat 2');
+  });
+
   it('trims the coupon code and nulls a blank one', () => {
     expect(OrderFormSchema.parse({ ...base, coupon_code: '  SAVE10  ' }).coupon_code).toBe('SAVE10');
     expect(OrderFormSchema.parse({ ...base, coupon_code: '   ' }).coupon_code).toBeNull();
@@ -233,6 +263,12 @@ describe('OrderCalculationRequestSchema', () => {
     expect(result.customer_id).toBeNull();
     expect(result.shipping_method).toBeNull();
     expect(result.items).toEqual([{ variant_id: 12, quantity: 2 }]);
+  });
+
+  it('sends null for an optional field left as an empty string', () => {
+    const result = OrderCalculationRequestSchema.parse({ shipping_address_line2: '' });
+
+    expect(result.shipping_address_line2).toBeNull();
   });
 
   it('maps shipping_postal_code to shipping_postcode and trims the coupon code', () => {
