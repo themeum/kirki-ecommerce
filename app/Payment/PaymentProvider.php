@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Payment;
 
+use Kirki\Ecommerce\App\Constants\Payment\PaymentActionType;
+use Kirki\Ecommerce\App\DTO\Payment\PaymentActionDTO;
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Models\Refund;
 use Kirki\Ecommerce\App\Services\OrderService;
@@ -356,14 +358,21 @@ class PaymentProvider
      *
      * Process the payment. Override this in your provider.
      *
+     * The returned "type" tells the frontend how to consume "value":
+     * - PaymentActionType::REDIRECT: "value" is a URL to redirect the customer to.
+     * - PaymentActionType::HTML: "value" is markup to render inline (e.g. an auto-submitting form).
+     *
      * @param Order $order Order.
-     * @return string Return/Redirect URL.
+     * @return PaymentActionDTO
      *
      * @throws Exception
      */
     public function pay(Order $order)
     {
-        return $this->return_url($order);
+        return PaymentActionDTO::from_array([
+            'type' => PaymentActionType::REDIRECT,
+            'value' => $this->return_url($order),
+        ]);
     }
 
     /**

@@ -52,9 +52,11 @@ class CreateOrdersTable implements Migration
             $table->string('payment_provider', 100)->nullable();
             $table->string('payment_transaction_id')->nullable();
             $table->integer('invoiced_payment_provider_fee')->default(0);
+            $table->integer('base_payment_provider_fee')->default(0);
             $table->text('payment_metadata')->nullable();
 
             $table->string('shipping_method', 100)->nullable();
+            $table->text('shipping_metadata')->nullable();
             $table->string('shipping_carrier', 100)->nullable();
             $table->string('shipping_tracking_number', 100)->nullable();
             $table->string('shipping_tracking_url', 500)->nullable();

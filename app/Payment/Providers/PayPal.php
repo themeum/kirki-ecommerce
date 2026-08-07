@@ -4,6 +4,8 @@ namespace Kirki\Ecommerce\App\Payment\Providers;
 
 use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\Constants\Order\RefundStatus;
+use Kirki\Ecommerce\App\Constants\Payment\PaymentActionType;
+use Kirki\Ecommerce\App\DTO\Payment\PaymentActionDTO;
 use Kirki\Ecommerce\App\DTO\Refund\UpdateRefundPayloadDTO;
 use Kirki\Ecommerce\App\Facades\Order as OrderManager;
 use Kirki\Ecommerce\App\Models\Order;
@@ -125,7 +127,7 @@ class PayPal extends PaymentProvider
      * Pay for an order.
      *
      * @param Order $order
-     * @return string
+     * @return PaymentActionDTO
      * @throws Exception
      */
     public function pay(Order $order)
@@ -196,7 +198,10 @@ class PayPal extends PaymentProvider
 
             foreach ($order_data['links'] as $link) {
                 if ($link['rel'] === 'approve') {
-                    return $link['href'];
+                    return PaymentActionDTO::from_array([
+                        'type' => PaymentActionType::REDIRECT,
+                        'value' => $link['href'],
+                    ]);
                 }
             }
 
@@ -340,6 +345,23 @@ class PayPal extends PaymentProvider
         if ($order->payment_status !== PaymentStatus::PAID) {
             OrderManager::mark_payment_as_paid($order->id);
         }
+
+        $this->capture_payment_provider_fee($order, $resource);
+    }
+
+    protected function capture_payment_provider_fee(Order $order, array $resource)
+    {
+        $fee = $resource['seller_receivable_breakdown']['paypal_fee'] ?? null;
+
+        if (!$fee || !isset($fee['value'], $fee['currency_code'])) {
+            return;
+        }
+
+        if (strtoupper($fee['currency_code']) !== strtoupper($order->currency_code)) {
+            return;
+        }
+
+        OrderManager::set_payment_provider_fee($order->id, Money::to_minor($fee['value'], $order->currency_code));
     }
 
     protected function handle_payment_capture_refunded($event)

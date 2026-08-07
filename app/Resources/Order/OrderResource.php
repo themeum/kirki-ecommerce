@@ -2,12 +2,9 @@
 
 namespace Kirki\Ecommerce\App\Resources\Order;
 
-use Kirki\Ecommerce\App\Services\ShippingService;
 use Kirki\Ecommerce\Framework\Resource;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
-
-use function Kirki\Ecommerce\Framework\app;
 
 class OrderResource extends Resource
 {
@@ -113,9 +110,13 @@ class OrderResource extends Resource
             ],
 
             'payment_provider' => $this->payment_provider,
+            'payment_provider_name' => $this->payment_metadata['payment_provider']['name'] ?? null,
+            'payment_provider_icon' => $this->payment_metadata['payment_provider']['icon'] ?? null,
+            'payment_provider_is_offline' => $this->payment_metadata['payment_provider']['is_offline'] ?? null,
             'payment_status' => $this->payment_status,
             'shipping_method' => $this->shipping_method,
-            'shipping_method_name' => $this->resolve_shipping_method_name(),
+            'shipping_method_name' => $this->shipping_metadata['shipping_method']['name'] ?? null,
+            'shipping_method_type' => $this->shipping_metadata['shipping_method']['type'] ?? null,
             'customer_notes' => $this->customer_notes,
             'admin_notes' => $this->admin_notes,
             'flags' => $this->flags,
@@ -143,33 +144,5 @@ class OrderResource extends Resource
             'archived_at' => $this->archived_at,
             'created_at' => $this->created_at,
         ];
-    }
-
-    /**
-     * Resolve the display name of the shipping method stored on the order.
-     *
-     * The order only persists the method identifier, so look it up against the
-     * zone that matches the order's shipping destination.
-     *
-     * @return string|null
-     */
-    protected function resolve_shipping_method_name()
-    {
-        if (empty($this->shipping_method)) {
-            return null;
-        }
-
-        $methods = app()->make(ShippingService::class)->get_available_shipping_methods([
-            'country' => $this->shipping_country,
-            'state' => $this->shipping_state,
-        ]);
-
-        foreach ($methods as $method) {
-            if ($method['id'] === $this->shipping_method) {
-                return $method['name'];
-            }
-        }
-
-        return null;
     }
 }

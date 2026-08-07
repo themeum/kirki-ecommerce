@@ -36,11 +36,12 @@ class CartController
     {
         $customer = customer();
         $token = $request->get_header('x-cart-token');
+        $a = $this->should_calculate_tax($request);
 
         $cart = $this->service->get_cart($customer->get_customer_id() ?? null, $token);
 
         return response()->json([
-            'data' => CartResource::make($cart),
+            'data' => CartResource::make($cart, $this->should_calculate_tax($request)),
             'message' => __('Cart retrieved successfully.', 'kirki-ecommerce'),
         ]);
     }
@@ -57,7 +58,7 @@ class CartController
         $updated_cart = $add_to_cart_action->execute($dto);
 
         return response()->json([
-            'data' => CartResource::make($updated_cart),
+            'data' => CartResource::make($updated_cart, $this->should_calculate_tax($request)),
             'message' => __('Item added to cart successfully.', 'kirki-ecommerce'),
         ]);
     }
@@ -78,7 +79,7 @@ class CartController
         $updated_cart = $action->execute($dto);
 
         return response()->json([
-            'data' => CartResource::make($updated_cart),
+            'data' => CartResource::make($updated_cart, $this->should_calculate_tax($request)),
             'message' => __('Cart item updated successfully.', 'kirki-ecommerce'),
         ]);
     }
@@ -99,7 +100,7 @@ class CartController
         $updated_cart = $action->execute($dto);
 
         return response()->json([
-            'data' => CartResource::make($updated_cart),
+            'data' => CartResource::make($updated_cart, $this->should_calculate_tax($request)),
             'message' => __('Item removed from cart successfully.', 'kirki-ecommerce'),
         ]);
     }
@@ -117,7 +118,7 @@ class CartController
         $updated_cart = $this->service->empty_cart($dto);
 
         return response()->json([
-            'data' => CartResource::make($updated_cart),
+            'data' => CartResource::make($updated_cart, $this->should_calculate_tax($request)),
             'message' => __('Cart emptied successfully.', 'kirki-ecommerce'),
         ]);
     }
@@ -131,7 +132,7 @@ class CartController
         $updated_cart = $action->execute($token, $customer_id, $request->sanitized());
 
         return response()->json([
-            'data' => CartResource::make($updated_cart),
+            'data' => CartResource::make($updated_cart, $this->should_calculate_tax($request)),
             'message' => __('Cart updated successfully.', 'kirki-ecommerce'),
         ]);
     }
@@ -154,7 +155,7 @@ class CartController
         $cart = $apply_coupon_action->execute($cart, $code);
 
         return response()->json([
-            'data' => CartResource::make($cart),
+            'data' => CartResource::make($cart, $this->should_calculate_tax($request)),
             'message' => __('Coupon applied successfully.', 'kirki-ecommerce'),
         ]);
     }
@@ -168,8 +169,13 @@ class CartController
         $cart = $remove_coupon_action->execute($cart);
 
         return response()->json([
-            'data' => CartResource::make($cart),
+            'data' => CartResource::make($cart, $this->should_calculate_tax($request)),
             'message' => __('Coupon removed successfully.', 'kirki-ecommerce'),
         ]);
+    }
+
+    protected function should_calculate_tax(Request $request): bool
+    {
+        return !filter_var($request->get_header('kecom-should-skip-tax'), FILTER_VALIDATE_BOOLEAN);
     }
 }

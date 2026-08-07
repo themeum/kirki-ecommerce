@@ -27,6 +27,7 @@ use Kirki\Ecommerce\App\Http\Controllers\Api\ShippingProfileController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\CartController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\OrderController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\PageController;
+use Kirki\Ecommerce\App\Http\Controllers\Site\CheckoutController;
 use Kirki\Ecommerce\App\Http\Controllers\Site\ProductController as SiteProductController;
 use Kirki\Ecommerce\App\Models\Post;
 use Kirki\Ecommerce\App\Payment\WebhookController;
@@ -243,3 +244,4 @@ Route::get('/test-public', function (Request $request) {
 });
 
 Route::get('/items', [SiteProductController::class, 'index']);
+Route::post('/checkout', [CheckoutController::class, 'store']);
