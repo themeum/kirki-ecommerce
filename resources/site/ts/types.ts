@@ -1,8 +1,8 @@
 // Shared TypeScript interfaces for the site bundle
 
 export interface kirkiEcommerceConfig {
-  rest_url_base: string;   // e.g. /wp-json/kirki/ecommerce/v1
-  rest_nonce: string;    // WordPress REST nonce
+  rest_url_base: string; // e.g. /wp-json/kirki/ecommerce/v1
+  rest_nonce: string; // WordPress REST nonce
   cart_variant_ids: number[];
   is_logged_in: boolean;
   login_url: string;
@@ -66,24 +66,38 @@ export interface CartUpdateItem {
   pricing: {
     subtotal_formatted: number;
     total_formatted: number;
-  },
-  items: CartItem[],
+  };
+  items: CartItem[];
   formatted_items: Record<number, string> | null;
 }
 
+export interface MoneyObject {
+  raw: number;
+  display: string;
+  currency: {
+    code: string;
+    symbol: string;
+  };
+}
+
+export interface DiscountDetails {
+  code: string | null;
+  title: string | null;
+  discount_value_type: string | null;
+  discount_amount_percentage: number | null;
+  base_discount_amount_fixed: number | null;
+}
+
 export interface CartPricing {
-  subtotal: string;
-  subtotal_formatted: string;
-  tax_total: string;
-  discount_details: any;
-  discount_total: string;
-  discount_total_formatted: string;
-  shipping_subtotal: string;
-  shipping_tax: string;
-  shipping_discount: string;
-  shipping_total: string;
-  total: string;
-  total_formatted: string;
+  display_subtotal_money_object: MoneyObject;
+  display_tax_total_money_object: MoneyObject;
+  discount_details: DiscountDetails | null;
+  display_discount_total_money_object: MoneyObject;
+  display_shipping_subtotal_money_object: MoneyObject;
+  display_shipping_tax_money_object: MoneyObject;
+  display_shipping_discount_money_object: MoneyObject;
+  display_shipping_total_money_object: MoneyObject;
+  display_total_money_object: MoneyObject;
 }
 
 export interface Cart {
@@ -179,19 +193,13 @@ export interface ApiError {
 
 // ── Toast types ───────────────────────────────────────────────────────────────
 
-export type ToastType = 'success' | 'error' | 'warning' | 'info' | 'default';
+export type ToastType = "success" | "error" | "warning" | "info" | "default";
 
-export type ToastPosition =
-  | 'top-left'
-  | 'top-center'
-  | 'top-right'
-  | 'bottom-left'
-  | 'bottom-center'
-  | 'bottom-right';
+export type ToastPosition = "top-left" | "top-center" | "top-right" | "bottom-left" | "bottom-center" | "bottom-right";
 
-export type ToastExpandMode = 'hover' | 'always' | 'never';
+export type ToastExpandMode = "hover" | "always" | "never";
 
-export type ToastTheme = 'light' | 'dark' | 'auto';
+export type ToastTheme = "light" | "dark" | "auto";
 
 export interface ToastOffset {
   x?: number;
@@ -213,7 +221,7 @@ export interface ToastOptions {
   icon?: string | null;
   duration?: number;
   closeButton?: boolean;
-  dir?: 'ltr' | 'rtl' | 'auto';
+  dir?: "ltr" | "rtl" | "auto";
   richColors?: boolean;
   position?: ToastPosition;
   theme?: ToastTheme;
@@ -224,7 +232,7 @@ export interface ToastConfig {
   duration?: number;
   closeButton?: boolean;
   maxVisible?: number;
-  dir?: 'ltr' | 'rtl' | 'auto';
+  dir?: "ltr" | "rtl" | "auto";
   offset?: ToastOffset;
   expandMode?: ToastExpandMode;
   richColors?: boolean;

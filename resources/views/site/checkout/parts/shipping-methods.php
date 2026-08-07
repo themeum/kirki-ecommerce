@@ -24,7 +24,7 @@ defined('ABSPATH') || exit;
                     <span class="kecom-shipping-name" x-text="shipping.name"></span>
                     <span class="kecom-shipping-description" x-text="shipping.description"></span>
                 </div>
-                <div class="kecom-shipping-price" x-text="shipping.cost"></div>
+                <div class="kecom-shipping-price" x-text="shipping?.display_cost_money_object?.display"></div>
             </label>
         </template>
     </div>
