@@ -4,10 +4,11 @@ import { toast } from 'sonner';
 import { StoreIcon, TruckIcon, WeightIcon } from '@/icons';
 import { queryClient } from '@/libs/query-client';
 import { queryKeys } from '@/libs/query-keys';
+import type { ShippingSettings } from '@/schemas/catalog/settings';
 import { getErrorMessage } from '@/services/helpers';
 import { updateSettings } from '@/services/settings';
-import type { Country, SettingsSectionData, ToastVariant } from '@/types';
-import { __ } from '@/wpi18n';
+import type { Country, ToastVariant } from '@/types';
+import { __, _n, sprintf } from '@/wpi18n';
 
 import { getNestedSearchedValue, setUnsavedDataStatus } from '@/pages/settings/utils';
 
@@ -55,8 +56,10 @@ type ShippingMethodData = {
   is_enabled?: boolean;
   zoneId?: string | number;
   icon?: ReactNode;
+  subText?: string;
+  rightText?: string;
   shipping_rules?: ShippingRule[];
-  base_amount?: number | string;
+  base_amount?: number | string | null;
   is_taxable?: boolean;
   description?: string | null;
   address?: string | null;
@@ -65,12 +68,12 @@ type ShippingMethodData = {
   pickup_time_start?: string | null;
   pickup_time_end?: string | null;
   ranges?: Array<{
-    from: number | string;
-    to: number | string;
-    base_amount: number | string;
+    from: number | string | null;
+    to: number | string | null;
+    base_amount: number | string | null;
   }>;
   is_free_shipping_enabled?: boolean;
-  base_free_shipping_min_amount?: number | string;
+  base_free_shipping_min_amount?: number | string | null;
 };
 
 type ShippingZone = {
@@ -92,12 +95,10 @@ type RegionTag = {
 type SaveShippingZonesParams = {
   zones: ShippingZone[];
   from?: string;
-  shippingSettingsData: SettingsSectionData | null | undefined;
+  shippingSettingsData: ShippingSettings | null | undefined;
   toastMessage?: string;
   variant?: ToastVariant;
 };
-
-type MethodSchema = Record<string, unknown>;
 
 type SelectOption = {
   title: string;
@@ -106,17 +107,10 @@ type SelectOption = {
 
 export type {
   CountryState,
-  CountryWithStates,
-  ShippingRegion,
-  ShippingRule,
-  ShippingRuleCondition,
-  ShippingRuleAction,
-  ShippingMethodData,
-  ShippingZone,
-  RegionTag,
+  CountryWithStates, RegionTag,
   SaveShippingZonesParams,
-  MethodSchema,
-  SelectOption,
+  SelectOption, ShippingMethodData, ShippingRegion,
+  ShippingRule, ShippingRuleAction, ShippingRuleCondition, ShippingZone
 };
 
 export type SetState<T> = Dispatch<SetStateAction<T>>;
@@ -140,12 +134,39 @@ export const getSelectedRegionTags = (
 
       return {
         id: selectedCountry?.code,
-        title: selectedCountry.name,
+        title: statesCount ? `${selectedCountry.name}-` : selectedCountry.name,
         tagIcon: <span>{selectedCountry.flag}</span>,
-        subText: statesCount ? `${statesCount} states` : '',
+        subText: statesCount
+          ? sprintf(
+            _n('%d State', '%d States', statesCount, 'kirki-ecommerce'),
+            statesCount,
+          )
+          : '',
       };
     })
     .filter(Boolean) as RegionTag[];
+};
+
+export const getShippingZoneSummary = (zone: ShippingZone): string => {
+  const regionCount = zone?.regions?.length ?? 0;
+  const methodCount = zone?.shipping_methods?.length ?? 0;
+
+  return sprintf(
+    __('%1$s, %2$s', 'kirki-ecommerce'),
+    sprintf(
+      _n('%d Region', '%d Regions', regionCount, 'kirki-ecommerce'),
+      regionCount,
+    ),
+    sprintf(
+      _n(
+        '%d Shipping Method',
+        '%d Shipping Methods',
+        methodCount,
+        'kirki-ecommerce',
+      ),
+      methodCount,
+    ),
+  );
 };
 
 export const getSearchedCountries = (
@@ -163,16 +184,12 @@ export const getSearchedCountries = (
 export const saveShippingZones = async ({
   zones,
   from = '',
-  shippingSettingsData,
   toastMessage = '',
 }: SaveShippingZonesParams): Promise<void> => {
   try {
     await updateSettings({
       key: 'shipping',
-      data: {
-        ...shippingSettingsData,
-        shipping_zones: zones,
-      },
+      data: { shipping_zones: zones },
     });
     void queryClient.invalidateQueries({
       queryKey: queryKeys.Settings('shipping'),
@@ -188,14 +205,28 @@ export const saveShippingZones = async ({
 
 export const shippingMethodIconMap: Record<string, ReactNode> = {
   flat_rate: <TruckIcon />,
-  local_pickup: <WeightIcon />,
-  weight: <StoreIcon />,
+  local_pickup: <StoreIcon />,
+  weight: <WeightIcon />,
+};
+
+const isEmptyAmount = (amount: unknown): boolean =>
+  amount === undefined || amount === null || amount === '';
+
+export const getShippingMethodSubText = (method: ShippingMethodData): string | undefined =>
+  method.description || undefined;
+
+export const getShippingMethodRightText = (method: ShippingMethodData): string | undefined => {
+  const showsAmount =
+    (method.type === 'flat_rate' || (method.type === 'local_pickup' && method.has_fee)) &&
+    !isEmptyAmount(method.base_amount);
+
+  return showsAmount ? sprintf(__('$%s', 'kirki-ecommerce'), method.base_amount as string | number) : undefined;
 };
 
 export const conditionOptions: SelectOption[] = [
   {
     title: __('Product Category', 'kirki-ecommerce'),
-    value: 'product_categories',
+    value: 'product_category',
   },
   {
     title: __('Shipping Profile', 'kirki-ecommerce'),
@@ -230,29 +261,3 @@ export const actionOptionsArray: SelectOption[] = [
     value: 'set_free_shipping',
   },
 ];
-
-export const METHOD_SCHEMAS: Record<string, MethodSchema> = {
-  flat_rate: {
-    base_amount: 0,
-    is_taxable: false,
-    description: null,
-  },
-
-  local_pickup: {
-    address: null,
-    has_fee: false,
-    base_amount: 0,
-    is_taxable: false,
-    description: null,
-    has_pick_time: false,
-    pickup_time_start: null,
-    pickup_time_end: null,
-  },
-
-  weight: {
-    ranges: [],
-    base_amount: 0,
-    is_taxable: false,
-    description: null,
-  },
-};

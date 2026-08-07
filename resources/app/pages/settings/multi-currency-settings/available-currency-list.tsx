@@ -1,26 +1,37 @@
-import { type ComponentProps, type ReactNode, useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useWatch } from 'react-hook-form';
 
-import GroupOptionCard from '@/components/group-option-card';
+import DropdownButton from '@/components/dropdown-button';
+import ActionGroup from '@/components/ui/action-group';
+import Badge from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { InfoIcon, IncreaseIcon } from '@/icons';
 import Flex from '@/components/ui/flex';
+import {
+  StackedItem,
+  StackedItemActions,
+  StackedItemContent,
+  StackedItemMedia,
+  StackedItems,
+  StackedItemTitle,
+  useStackedItem,
+} from '@/components/ui/stacked-items';
+import Switch from '@/components/ui/switch';
 import Text from '@/components/ui/text';
-import { dispatchToastMessage, dateFormatter } from '@/pages/utils';
+import { IncreaseIcon, InfoIcon, ShowMoreIcon } from '@/icons';
+import { dateFormatter, dispatchToastMessage } from '@/pages/utils';
 import type { MultiCurrencySettingsFormInput } from '@/schemas/forms/multi-currency-settings-form';
-import { useAvailableCurrenciesQuery, useUpdateCurrencyMutation, useDeleteCurrencyMutation } from '@/services/currency';
+import { useAvailableCurrenciesQuery, useDeleteCurrencyMutation, useUpdateCurrencyMutation, type CurrencyBulkPayload } from '@/services/currency';
+import { theme } from '@/theme';
+import { cardStyles } from '@/theme/card-styles';
+import { defineStyles } from '@/theme/mixins';
 import type {
   Currency,
-  CurrencyFormData,
   SelectOption,
 } from '@/types';
-import { theme } from '@/theme';
-import { defineStyles } from '@/theme/mixins';
-import { cardStyles } from '@/theme/card-styles';
 import { __, sprintf } from '@/wpi18n';
 
 import AddCurrencyPopup from '@/pages/settings/multi-currency-settings/add-currency-dialog';
-import EditCurrencyPopup from '@/pages/settings/multi-currency-settings/edit-currency-dialog';
+import EditCurrencyDialog from '@/pages/settings/multi-currency-settings/edit-currency-dialog';
 
 type CurrencyListItem = Currency & {
   badge1?: string;
@@ -52,8 +63,49 @@ const getActionArray = (item: Currency): SelectOption[] => {
   ];
 };
 
+type CurrencyRowActionsProps = {
+  item: CurrencyListItem;
+  onToggle: (item: CurrencyListItem) => void;
+  onAction: (
+    action: string | number | Array<string | number>,
+    item: CurrencyListItem,
+  ) => void;
+};
+
+const CurrencyRowActions = (props: CurrencyRowActionsProps) => {
+  const { item, onToggle, onAction } = props;
+  const { setOpen } = useStackedItem();
+
+  return (
+    <ActionGroup>
+      {!item.is_toggle_disabled && (
+        <Switch
+          checked={Boolean(item.is_enabled)}
+          onCheckedChange={() => onToggle(item)}
+        />
+      )}
+      {!item.is_action_disabled && (
+        <DropdownButton
+          buttonProps={{
+            type: 'secondary',
+            style: { transform: 'rotate(90deg)' },
+            icon: <ShowMoreIcon />,
+            cssOverride: styles.actionButton,
+          }}
+          dropdownStyle={{ minWidth: '170px' }}
+          size="small"
+          hasLeftIcon={false}
+          options={item.actionsArray || []}
+          onOptionToggle={(value) => setOpen(value === true)}
+          onOptionSelect={(action) => onAction(action, item)}
+        />
+      )}
+    </ActionGroup>
+  );
+};
+
 export const AvailableCurrencyList = () => {
-  const [editCurrency, setEditCurrency] = useState<(Currency & { icon?: string }) | null>(null);
+  const [editCurrency, setEditCurrency] = useState<(Currency & { icon?: string | null }) | null>(null);
   const dataObj = useWatch<MultiCurrencySettingsFormInput>();
 
   const { data: rawCurrencies = [], refetch } = useAvailableCurrenciesQuery();
@@ -70,7 +122,6 @@ export const AvailableCurrencyList = () => {
     (item) => ({
       ...item,
       ...(item?.is_base && {
-        badge1: __('Base Currency', 'kirki-ecommerce'),
         is_toggle_disabled: true,
         is_action_disabled: true,
       }),
@@ -83,7 +134,7 @@ export const AvailableCurrencyList = () => {
     }),
   );
 
-  const updateData = (payload: CurrencyFormData) => {
+  const updateData = (payload: CurrencyBulkPayload) => {
     updateCurrencyMutate(payload, {
       onSuccess: () => refetch(),
     });
@@ -98,10 +149,12 @@ export const AvailableCurrencyList = () => {
         return;
       }
 
-      const payload: CurrencyFormData = {
+      const payload: CurrencyBulkPayload = {
         items: [
           {
             ...selectedCurrency,
+            is_active: selectedCurrency?.is_active ?? true,
+            is_base: selectedCurrency?.is_base ?? false,
             [key]: !selectedCurrency[key],
           },
         ],
@@ -111,10 +164,11 @@ export const AvailableCurrencyList = () => {
       return;
     }
 
-    const payload: CurrencyFormData = {
-      items: currencyList?.map((currency) => ({
+    const payload: CurrencyBulkPayload = {
+      items: currencyList.map((currency) => ({
         ...currency,
         is_base: currency?.id === item?.id,
+        is_active: currency?.is_active ?? true,
       })),
     };
     updateData(payload);
@@ -155,41 +209,74 @@ export const AvailableCurrencyList = () => {
 
   return (
     <>
-      <Card cssOverride={cardStyles.innerCard}>
+      <Card cssOverride={{ ...cardStyles.innerCard, marginTop: theme.spacing[5] }}>
         <CardContent cssOverride={styles.innerCardContent}>
           <Flex justify="space-between" cssOverride={{ paddingBottom: theme.spacing[3] }}>
-            <Text weight="semibold">{__('Available Currencies', 'kirki-ecommerce')}</Text>
+            <Flex gap={2} align="center">
+              <Text weight="semibold">{__('Available Currencies', 'kirki-ecommerce')}</Text>
+              <Badge>
+                {__('Coming Soon', 'kirki-ecommerce')}
+              </Badge>
+            </Flex>
             <AddCurrencyPopup />
           </Flex>
-          <GroupOptionCard
-            dataArr={
-              currencyList as ComponentProps<typeof GroupOptionCard>['dataArr']
-            }
-            handleToggleItem={(item) => handleToggleCurrencyItem(item as CurrencyListItem)}
-            handleMoreOption={true}
-            actionsArray={[]}
-            handleAction={(action, item) => handleAction(action, item as CurrencyListItem)}
-          />
-          <Flex gap={2} cssOverride={{ paddingTop: theme.spacing[2] }}>
+          <StackedItems>
+            {currencyList.map((item) => (
+              <StackedItem key={item.id} id={String(item.id)}>
+                {item.icon && <StackedItemMedia>{item.icon}</StackedItemMedia>}
+                <StackedItemContent>
+                  <StackedItemTitle>
+                    <Text variant="small" weight="medium">
+                      {item.name}
+                    </Text>
+                    {item.is_base && (
+                      <Badge variant="secondary">
+                        {__('Base currency', 'kirki-ecommerce')}
+                      </Badge>
+                    )}
+                    {item.is_enabled === false && (
+                      <Badge variant="destructive">
+                        {__('Inactive', 'kirki-ecommerce')}
+                      </Badge>
+                    )}
+                  </StackedItemTitle>
+                </StackedItemContent>
+                <StackedItemActions>
+                  <CurrencyRowActions
+                    item={item}
+                    onToggle={handleToggleCurrencyItem}
+                    onAction={handleAction}
+                  />
+                </StackedItemActions>
+              </StackedItem>
+            ))}
+          </StackedItems>
+          <Flex gap={2} cssOverride={{ marginTop: theme.spacing[4] }} align="center">
             <InfoIcon />
             <Text variant="small" color="subdued">{showApiProviderStatus
-                  ? sprintf(
-                      __(
-                        'API connection is active. Last sync: %s. Next update %s.',
-                        'kirki-ecommerce',
-                      ),
-                      dateFormatter(dataObj?.last_sync_at as string, 'relative'),
-                      dateFormatter(dataObj?.next_sync_at as string, 'relative'),
-                    )
-                  : __('API connection is inactive', 'kirki-ecommerce')}</Text>
+              ? sprintf(
+                __(
+                  'API connection is active. Last sync: %s. Next update %s.',
+                  'kirki-ecommerce',
+                ),
+                dateFormatter(dataObj?.last_sync_at as string, 'relative'),
+                dateFormatter(dataObj?.next_sync_at as string, 'relative'),
+              )
+              : __('API connection is inactive', 'kirki-ecommerce')}</Text>
           </Flex>
         </CardContent>
       </Card>
       {editCurrency && (
-        <EditCurrencyPopup
+        <EditCurrencyDialog
           editCurrency={editCurrency}
           setEditCurrency={setEditCurrency}
-          handleUpdateData={(currency) => updateData({ items: [currency] })}
+          handleUpdateData={(currency) => updateData({
+            items: [{
+              ...currency,
+              is_active: currency?.is_active ?? true,
+              is_base: currency?.is_base ?? false,
+            }]
+          })}
         />
       )}
     </>
@@ -199,5 +286,8 @@ export const AvailableCurrencyList = () => {
 const styles = defineStyles({
   innerCardContent: {
     padding: theme.spacing[5],
-  }
+  },
+  actionButton: {
+    padding: theme.spacing[1],
+  },
 });

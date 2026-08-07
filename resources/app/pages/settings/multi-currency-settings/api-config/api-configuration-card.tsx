@@ -7,7 +7,7 @@ import Badge from '@/components/ui/badge';
 import Flex from '@/components/ui/flex';
 import ProgressBar from '@/components/ui/progressbar';
 import Text from '@/components/ui/text';
-import type { SettingsSectionData } from '@/types';
+import type { CurrencySettings } from '@/schemas/catalog/settings';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
 import { __, sprintf } from '@/wpi18n';
@@ -22,20 +22,11 @@ type ApiConfigData = {
   [key: string]: unknown;
 };
 
-type ApiUsage = {
-  used?: number | string;
-  total?: number | string;
-};
-
 type ApiConfigurationCardProps = {
   selectedAPI: string;
   apiConfigObj: ApiConfigData;
   setOpenPopup: Dispatch<SetStateAction<boolean>>;
-  dataObj: SettingsSectionData & {
-    usage?: ApiUsage | null;
-    last_sync_at?: string | null;
-    next_sync_at?: string | null;
-  };
+  dataObj: CurrencySettings;
 };
 
 const ApiConfigurationCard = ({
@@ -49,7 +40,7 @@ const ApiConfigurationCard = ({
       ?.replace(/_/g, ' ')
       .replace(/\b\w/g, (char) => char.toUpperCase()) ?? '';
 
-  const usage = dataObj?.usage as ApiUsage | null | undefined;
+  const usage = dataObj?.usage;
 
   return (
     <Card>

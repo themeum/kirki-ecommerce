@@ -14,6 +14,28 @@ const unwrapResponse = <T>(response: unknown): ApiClientResponse<T> => {
   return response as ApiClientResponse<T>;
 };
 
+/**
+ * Unwrap a list endpoint whose payload is typed as an array.
+ *
+ * PHP associative arrays serialise to JSON objects rather than arrays, so an
+ * endpoint that loses its integer keys returns `{"stripe": {...}}` where the
+ * client expects `[{...}]`. Callers then hit `.map is not a function` and the
+ * page dies, so coerce back to an array instead of trusting the shape.
+ */
+const unwrapDataList = <T>(response: unknown): T[] => {
+  const data = unwrapData<T[] | Record<string, T> | null>(response);
+
+  if (Array.isArray(data)) {
+    return data;
+  }
+
+  if (data && typeof data === 'object') {
+    return Object.values(data);
+  }
+
+  return [];
+};
+
 const reportValidationFailure = (issues: z.ZodIssue[]) => {
   const error = new ApiValidationError(issues);
   console.error(error.name, error.message, formatValidationIssues(issues));
@@ -103,5 +125,6 @@ export {
   getErrorMessage, parseData,
   parseMessage, parseResponse, toastMutationError,
   toastMutationSuccess, unwrapData,
+  unwrapDataList,
   unwrapResponse
 };

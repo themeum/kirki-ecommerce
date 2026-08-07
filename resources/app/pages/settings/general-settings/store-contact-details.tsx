@@ -15,7 +15,7 @@ const StoreContactDetails = ({
   onStoreLogoPreviewChange,
 }: StoreContactDetailsProps) => {
   return (
-    <Card cssOverride={cardStyles.largeCard}>
+    <Card cssOverride={cardStyles.formCard}>
       <CardHeader cssOverride={cardStyles.sectionHeader}>
         <CardTitle>{__('Store Contact Details', 'kirki-ecommerce')}</CardTitle>
         <CardDescription>
@@ -38,7 +38,15 @@ const StoreContactDetails = ({
               <ThumbnailField
                 name="store_logo"
                 label={__('Store Logo', 'kirki-ecommerce')}
-                description={__('Set store logo', 'kirki-ecommerce')}
+                infoText={__(
+                  'Shown on your storefront, invoices and emails.',
+                  'kirki-ecommerce',
+                )}
+                btnText={__('Upload logo', 'kirki-ecommerce')}
+                placeholder={__(
+                  'Supported formats: SVG, PNG, JPG. Maximum file size: 200KB',
+                  'kirki-ecommerce',
+                )}
                 valueAs="id"
                 previewUrl={storeLogoUrl}
                 onPreviewChange={onStoreLogoPreviewChange}

@@ -249,7 +249,7 @@ class SettingsUpdateRequest extends Request
 
                 if (!array_key_exists('is_taxable', $value) || $value['is_taxable'] === null || $value['is_taxable'] === '') {
                     /* translators: %s: the field name */
-                    return sprintf(__('The %s field is required.', 'growfund'), $key . '.is_taxable');
+                    return sprintf(__('The %s field is required.', 'kirki-ecommerce'), $key . '.is_taxable');
                 }
 
                 return true;

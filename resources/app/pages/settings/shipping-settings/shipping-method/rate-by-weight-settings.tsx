@@ -1,179 +1,49 @@
-import { useState, useEffect } from 'react';
+import { useFormContext, useWatch } from 'react-hook-form';
 
-import Button from '@/components/ui/button';
+import CheckboxField from '@/components/form/checkbox-field';
+import MoneyField from '@/components/form/money-field';
+import TextareaField from '@/components/form/textarea-field';
+import WeightRangeField from '@/components/form/weight-range-field';
 import { Card, CardContent } from '@/components/ui/card';
-import Checkbox from '@/components/ui/checkbox';
-import { Field, FieldLabel } from '@/components/ui/field';
-import Input from '@/components/ui/input';
-import Label from '@/components/ui/label';
-import Textarea from '@/components/ui/textarea';
 import Flex from '@/components/ui/flex';
-import Grid from '@/components/ui/grid';
-import Text from '@/components/ui/text';
 import { theme } from '@/theme';
-import { scoped, mergeCss, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
+import { defineStyles, mergeCss } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
-import { PlusIcon, TrashIcon } from '@/icons';
 
-import type { ShippingMethodData } from '@/pages/settings/shipping-settings/utils';
+import type { ShippingMethodFormInput } from '@/schemas/forms/shipping-method-form';
 
-type WeightRange = {
-  from: number | string;
-  to: number | string;
-  base_amount: number | string;
-};
-
-type RateByWeightSettingsProps = {
-  handleOnChange: (value: unknown, key: string) => void;
-  dataObj: ShippingMethodData | Record<string, unknown>;
-};
-
-const RateByWeightSettings = ({
-  handleOnChange,
-  dataObj,
-}: RateByWeightSettingsProps) => {
-  const [hasFreeShipping, setHasFreeShipping] = useState(false);
-  const initialRanges = dataObj?.ranges as WeightRange[] | undefined;
-  const [ranges, setRanges] = useState<WeightRange[]>(
-    initialRanges && initialRanges.length >= 1
-      ? initialRanges
-      : [{ from: '', to: '', base_amount: '' }],
-  );
-
-  useEffect(() => {
-    handleOnChange(
-      ranges
-        .filter((r) => r.from !== '' && r.to !== '' && r.base_amount !== '')
-        .map((r) => ({
-          from: Number(r.from),
-          to: Number(r.to),
-          base_amount: Number(r.base_amount),
-        })),
-      'ranges',
-    );
-  }, [ranges]);
-
-  const addRange = () => {
-    setRanges((prev) => [...prev, { from: '', to: '', base_amount: '' }]);
-  };
-
-  const updateRange = (
-    index: number,
-    key: keyof WeightRange,
-    value: unknown,
-  ) => {
-    setRanges((prev) =>
-      prev.map((range, i) =>
-        i === index ? { ...range, [key]: value as string | number } : range,
-      ),
-    );
-  };
-
-  const removeRange = (index: number) => {
-    setRanges((prev) => prev.filter((_, i) => i !== index));
-  };
+const RateByWeightSettings = () => {
+  const { control } = useFormContext<ShippingMethodFormInput>();
+  const isFreeShippingEnabled = useWatch({ control, name: 'is_free_shipping_enabled' });
 
   return (
     <Flex direction="column" gap={4}>
-      <Flex direction="column" gap={2}>
-        <Label htmlFor="rate-by-weight-description">
-          {__('Pickup Instructions', 'kirki-ecommerce')}
-        </Label>
-        <Textarea
-          id="rate-by-weight-description"
-          value={(dataObj?.description as string) || ''}
-          placeholder={__('e.g., 3-5 business days', 'kirki-ecommerce')}
-          cssOverride={styles.textarea}
-          onChange={(e) => handleOnChange(e.target.value, 'description')}
-        />
-      </Flex>
-      <Card cssOverride={mergeCss(cardStyles.formCard, styles.rangesCard)} >
+      <TextareaField
+        name="description"
+        label={__('Pickup Instructions', 'kirki-ecommerce')}
+        placeholder={__('e.g., 3-5 business days', 'kirki-ecommerce')}
+        rows={4}
+      />
+      <Card cssOverride={mergeCss(cardStyles.formCard, styles.rangesCard)}>
         <CardContent>
-
-        <Grid columns={3}>
-        <Text>{__('Weight Range (kg)', 'kirki-ecommerce')}</Text>
-        <Text />
-        <Text>{__('Rate', 'kirki-ecommerce')}</Text>
-        </Grid>
-        {ranges?.map((range, index) => (
-        <Grid columns={3} key={index}>
-        <Input
-        value={range.from || ''}
-        type="number"
-        placeholder={__('e.g. 12', 'kirki-ecommerce')}
-        onChange={(e) => updateRange(index, 'from', e.target.value)}
-        />
-        <Input
-        value={range.to || ''}
-        type="number"
-        placeholder={__('e.g. 12', 'kirki-ecommerce')}
-        onChange={(e) => updateRange(index, 'to', e.target.value)}
-        />
-        <div css={scoped(styles.rateRow)} data-hover-parent>
-        <Input
-        value={range.base_amount || ''}
-        type="number"
-        placeholder={__('e.g. 120Tk', 'kirki-ecommerce')}
-        onChange={(e) => updateRange(index, 'base_amount', e.target.value)}
-        />
-
-        {index !== 0 && (
-        <Button
-        variant="secondary"
-        cssOverride={styles.deleteButton}
-        data-hover-reveal
-        onClick={() => removeRange(index)}
-        >
-        <TrashIcon />
-        </Button>
-        )}
-        </div>
-        </Grid>
-        ))}
-        <Button variant="ghost" onClick={addRange}>
-        <PlusIcon />
-        {__('Add Another Range', 'kirki-ecommerce')}
-        </Button>
+          <WeightRangeField name="ranges" />
         </CardContent>
       </Card>
-
-      <Field orientation="horizontal">
-        <Checkbox
-          id="rate-by-weight-is-taxable"
-          checked={dataObj?.['is_taxable'] as boolean}
-          onCheckedChange={(checked) => handleOnChange(checked === true, 'is_taxable')}
+      <CheckboxField
+        name="is_taxable"
+        label={__('Tax applies to the shipping charge', 'kirki-ecommerce')}
+      />
+      <CheckboxField
+        name="is_free_shipping_enabled"
+        label={__('Offer free shipping when a customer buys over a certain amount', 'kirki-ecommerce')}
+      />
+      {isFreeShippingEnabled && (
+        <MoneyField
+          name="base_free_shipping_min_amount"
+          label={__('Amount', 'kirki-ecommerce')}
+          placeholder={__('0.00', 'kirki-ecommerce')}
         />
-        <FieldLabel htmlFor="rate-by-weight-is-taxable">
-          {__('Tax applies to the shipping charge', 'kirki-ecommerce')}
-        </FieldLabel>
-      </Field>
-      <Field orientation="horizontal">
-        <Checkbox
-          id="rate-by-weight-has-free-shipping"
-          checked={hasFreeShipping}
-          onCheckedChange={() => setHasFreeShipping(!hasFreeShipping)}
-        />
-        <FieldLabel htmlFor="rate-by-weight-has-free-shipping">
-          {__(
-            'Offer free shipping when a customer buys over a certain amount',
-            'kirki-ecommerce',
-          )}
-        </FieldLabel>
-      </Field>
-      {hasFreeShipping && (
-        <Flex direction="column" gap={2}>
-          <Label htmlFor="rate-by-weight-amount">
-            {__('Amount', 'kirki-ecommerce')}
-          </Label>
-          <Input
-            id="rate-by-weight-amount"
-            placeholder={__('$0.00', 'kirki-ecommerce')}
-            type="number"
-            value={dataObj?.base_amount as string | number}
-            onChange={(e) => handleOnChange(e.target.value, 'base_amount')}
-          />
-        </Flex>
       )}
     </Flex>
   );
@@ -184,32 +54,8 @@ RateByWeightSettings.displayName = 'RateByWeightSettings';
 export default RateByWeightSettings;
 
 const styles = defineStyles({
-  textarea: {
-    padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
-    minHeight: '108px',
-  },
   rangesCard: {
     border: `1px solid ${theme.colors.border.default}`,
     borderRadius: theme.radius.md,
   },
-  rateRow: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: theme.spacing[4],
-    '&:hover [data-hover-reveal]': {
-      opacity: 1,
-      visibility: 'visible',
-      display: 'block',
-    },
-  },
-  deleteButton: {
-    padding: theme.spacing[1],
-    opacity: 0,
-    display: 'none',
-    visibility: 'hidden',
-    transition: 'opacity 0.2s ease',
-    cursor: 'pointer',
-    background: theme.colors.background.fillSecondary,
-    borderRadius: theme.radius.lg,
-  }
 });

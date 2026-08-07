@@ -46,8 +46,8 @@ const CardPreview = () => {
         <CardContent>Shadow card variant</CardContent>
       </Card>
 
-      <Card cssOverride={cardStyles.largeCard}>
-        <CardContent cssOverride={cardStyles.largeContentPadded}>Large card variant</CardContent>
+      <Card cssOverride={cardStyles.formCard}>
+        <CardContent >Large card variant</CardContent>
       </Card>
     </Flex>
   );

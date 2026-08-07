@@ -10,6 +10,17 @@ change, re-derive rather than trusting `.cursor/rules/` at face value.
 
 ---
 
+## 0. Testing / Verification
+
+Do not use the Browser tool (or any dev-server preview) to test or verify
+changes in this project. Skip the browser-based verification workflow
+entirely — rely on typecheck (`npm run typecheck`), lint, and the test suite
+(`npm test` in `resources/app/`) instead. If a change genuinely needs visual
+confirmation, say so and let the user check it themselves rather than
+opening a browser preview.
+
+---
+
 ## 1. Behavioral Guidelines (always apply)
 
 Source: `.cursor/rules/karpathy-guidelines.mdc`
@@ -80,6 +91,20 @@ For multi-step tasks, state a brief plan:
 Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
 
 **These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and clarifying questions come before implementation rather than after mistakes.
+
+---
+
+## 1a. Planning Workflow
+
+When entering plan mode in this project, always use the **OpenSpec workflow**
+instead of writing a freeform plan. Reach for the `openspec-*` / `opsx:*`
+skills:
+
+- `opsx:explore` — think through the problem before committing to a change
+- `opsx:propose` — generate a full proposal (spec deltas, design, tasks)
+- `opsx:apply` — implement tasks from an existing change
+- `opsx:sync` — sync delta specs into main specs
+- `opsx:archive` — finalize and archive a completed change
 
 ---
 

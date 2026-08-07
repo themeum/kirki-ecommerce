@@ -14,10 +14,10 @@ class Separator extends Menu
     protected $capabilities = 'manage_options';
 
     /** @inheritDoc */
-    protected $menu_slug = 'ecommerce#/';
+    protected $menu_slug = 'kirki-ecommerce#/';
 
     /** @inheritDoc */
-    protected $parent_slug = 'ecommerce';
+    protected $parent_slug = 'kirki-ecommerce';
 
     public function __construct()
     {

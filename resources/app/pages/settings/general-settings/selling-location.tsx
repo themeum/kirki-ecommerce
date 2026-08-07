@@ -57,7 +57,7 @@ const SellingLocation = () => {
 
   return (
     <div>
-      <Card cssOverride={cardStyles.largeCard}>
+      <Card cssOverride={cardStyles.formCard}>
         <CardHeader cssOverride={cardStyles.sectionHeader}>
           <CardTitle>{__('Selling Locations', 'kirki-ecommerce')}</CardTitle>
           <CardDescription>
