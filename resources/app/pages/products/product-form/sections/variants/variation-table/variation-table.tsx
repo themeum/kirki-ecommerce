@@ -195,7 +195,7 @@ const VariationTable = () => {
                       onChange={(event) =>
                         handleSelectedValueChangeFromHeader(
                           parseFloat(event.target.value),
-                          'price',
+                          'base_price',
                         )
                       }
                     />

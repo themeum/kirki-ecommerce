@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { prepareFormSchema } from '@/libs/zod';
 import { __ } from '@/wpi18n';
 
-const ShippingRegionFormShape = z.object({
+export const ShippingRegionFormShape = z.object({
   country: z.string(),
   states: z.array(z.union([z.string(), z.number()])),
   hasDeselectedState: z.boolean().optional(),

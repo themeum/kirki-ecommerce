@@ -4,7 +4,7 @@ export const SchemaProfileSchema = z.object({
   id: z.number(),
   name: z.string(),
   is_default: z.boolean().optional(),
-  schema: z.record(z.array(z.string())),
+  schema: z.record(z.array(z.string())).nullish().transform((value) => value ?? {}),
   created_at: z.string().nullish(),
   updated_at: z.string().nullish(),
 });

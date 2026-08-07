@@ -17,6 +17,13 @@ export type {
 
 export type { SetKeyValuePayload } from '@/types/common-actions';
 
+export type { Currency } from '@/schemas/catalog/currency';
+export type { PaymentGateway, PaymentMethod } from '@/schemas/catalog/payment';
+export type { SettingsSectionKey } from '@/schemas/catalog/settings';
+export type {
+  ShippingBox, ShippingCarrier, ShippingMethod, ShippingProfile, ShippingRegion, ShippingRule, ShippingRuleAction, ShippingRuleCondition, ShippingZone
+} from '@/schemas/catalog/shipping';
+export type { TaxProfile } from '@/schemas/catalog/tax';
 export type {
   Attribute, AttributeType, AttributeValue
 } from '@/types/entities/attribute';
@@ -25,7 +32,6 @@ export type { Category } from '@/types/entities/category';
 export type { Collection } from '@/types/entities/collection';
 export type { Country } from '@/types/entities/country';
 export type { Coupon, CouponFormPayload } from '@/types/entities/coupon';
-export type { Currency, CurrencyFormData } from '@/types/entities/currency';
 export type {
   Customer, CustomerAddress, CustomerListItem
 } from '@/types/entities/customer';
@@ -40,9 +46,6 @@ export type {
   UpdateVariantsPayload
 } from '@/types/entities/product';
 export type { SchemaProfile } from '@/types/entities/schema';
-export type {
-  PaymentGateway, PaymentMethod, SettingsSectionData, SettingsSectionKey, ShippingBox, ShippingMethod, ShippingProfile, ShippingRegion, ShippingRule, ShippingRuleAction, ShippingRuleCondition, ShippingZone, TaxProfile
-} from '@/types/entities/settings';
 export type { Tag } from '@/types/entities/tag';
 export type { ToastVariant } from '@/types/entities/toast';
 

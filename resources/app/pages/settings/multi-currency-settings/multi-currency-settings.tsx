@@ -1,57 +1,38 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useNavigate, useOutletContext } from 'react-router';
 
-import PageNavbar from '@/components/page-navbar';
-import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import Container from '@/components/ui/container';
+import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
+import Text from '@/components/ui/text';
 import { CurrencyIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import { useUnsavedStatus } from '@/libs/unsaved-store';
 import { getDefaults, pickFormValues } from '@/libs/zod';
-import Container from '@/components/ui/container';
-import Flex from '@/components/ui/flex';
-import PageHeading from '@/components/ui/page-heading';
-import Text from '@/components/ui/text';
 import {
   MultiCurrencySettingsFormSchema,
   type MultiCurrencySettingsFormInput,
   type MultiCurrencySettingsFormPayload,
 } from '@/schemas/forms/multi-currency-settings-form';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
-import type { ConfirmationVariant } from '@/types';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
-import { setUnsavedDataStatus } from '@/pages/settings/utils';
 import ApiConfig from '@/pages/settings/multi-currency-settings/api-config/api-config';
 import { AvailableCurrencyList } from '@/pages/settings/multi-currency-settings/available-currency-list';
 import CurrencyFormatSettings from '@/pages/settings/multi-currency-settings/currency-format-settings';
-
-type SettingsOutletContext = {
-  confirmAction: (params: {
-    action?: () => void;
-    otherProps?: {
-      variant?: ConfirmationVariant;
-      force?: boolean;
-      title?: string;
-      subtitle?: string;
-    };
-  }) => void;
-};
+import { useSettingsPageActions } from '@/pages/settings/settings-layout/use-settings-page-actions';
+import SettingsPageHeader from '@/pages/settings/settings-page-header';
+import { setUnsavedDataStatus } from '@/pages/settings/utils';
+import { theme } from '@/theme';
 
 const MultiCurrencySettings = () => {
-  const navigate = useNavigate();
-  const { confirmAction } = useOutletContext<SettingsOutletContext>();
-
   const { data: currencySettingsData, isLoading } = useSettingsQuery('currency');
   const { mutateAsync: saveSettings, isPending: isSaving } =
     useUpdateSettingsMutation<'currency'>();
 
-  const hasUnsavedData = useUnsavedStatus();
   const form = useForm<MultiCurrencySettingsFormInput, unknown, MultiCurrencySettingsFormPayload>({
     resolver: zodResolver(MultiCurrencySettingsFormSchema),
     defaultValues: getDefaults(MultiCurrencySettingsFormSchema),
@@ -104,91 +85,56 @@ const MultiCurrencySettings = () => {
     form.reset();
   };
 
-  const handleBackButton = () => {
-    if (isDirty) {
-      confirmAction({
-        action: () => navigate(`/settings`),
-      });
-      return;
-    }
-    navigate(`/settings`);
-  };
+  useSettingsPageActions({
+    isDirty,
+    isSaving,
+    onSave: form.handleSubmit(handleSaveData),
+    onDiscard: handleDiscardData,
+  });
 
   return (
-    <>
-      <PageHeading
-        text={__('Settings', 'kirki-ecommerce')}
-        size="sm"
-        sticky
-        type="primary"
-        style={{ height: '32px' }}
-        actions={
-          hasUnsavedData ? (
-            <>
-              <Button
-                variant="ghost"
-                onClick={handleDiscardData}
-                disabled={isSaving}
-              >
-                {__('Cancel', 'kirki-ecommerce')}
-              </Button>
-              <Button
-                variant="primary"
-                onClick={form.handleSubmit(handleSaveData)}
-                loading={isSaving}
-              >
-                {__('Save', 'kirki-ecommerce')}
-              </Button>
-            </>
-          ) : (
-            <></>
-          )
-        }
-      />
-      <Container size="sm">
-        {loaded ? (
-          <Form {...form}>
-            <Flex direction="column" gap={4}>
-              <PageNavbar
-                textIcon={<CurrencyIcon />}
-                text={__('Currency', 'kirki-ecommerce')}
-                handleBack={handleBackButton}
-              />
+    <Container size="sm">
+      {loaded ? (
+        <Form {...form}>
+          <Flex direction="column" gap={4}>
+            <SettingsPageHeader
+              icon={<CurrencyIcon />}
+              title={__('Currency', 'kirki-ecommerce')}
+            />
 
-              <Card cssOverride={cardStyles.largeCard} >
-                <CardContent cssOverride={cardStyles.largeContentPadded}>
-
-                <Flex direction="column" gap={2}>
-                  <Text weight="semibold">{__('Currency Management', 'kirki-ecommerce')}</Text>
-                  <Text color="secondary">{__(
-                'Manage product pricing across multiple currencies with manual or automatic conversion rates.',
-                'kirki-ecommerce',
-                )}</Text>
+            <Card cssOverride={cardStyles.innerCard} >
+              <CardContent>
+                <Flex direction="column" gap={2} cssOverride={{ marginTop: theme.spacing[5] }}>
+                  <Flex direction="column" gap={2}>
+                    <Text weight="semibold">{__('Currency Management', 'kirki-ecommerce')}</Text>
+                    <Text variant="small" color="secondary">{__(
+                      'Manage product pricing across multiple currencies with manual or automatic conversion rates.',
+                      'kirki-ecommerce',
+                    )}</Text>
+                  </Flex>
+                  <AvailableCurrencyList />
+                  <ApiConfig />
                 </Flex>
-                <AvailableCurrencyList />
-                <ApiConfig />
-                </CardContent>
-              </Card>
-              <Card cssOverride={cardStyles.largeCard} >
-                <CardContent cssOverride={cardStyles.largeContentPadded}>
-
+              </CardContent>
+            </Card>
+            <Card cssOverride={cardStyles.formCard} >
+              <CardContent>
                 <Flex direction="column" gap={2}>
                   <Text weight="semibold">{__('Currency Preferences', 'kirki-ecommerce')}</Text>
                   <Text color="secondary">{__(
-                'Set your preferences for how currency is displayed.',
-                'kirki-ecommerce',
-                )}</Text>
+                    'Set your preferences for how currency is displayed.',
+                    'kirki-ecommerce',
+                  )}</Text>
                 </Flex>
                 <CurrencyFormatSettings />
-                </CardContent>
-              </Card>
-            </Flex>
-          </Form>
-        ) : (
-          <div>{__('Loading ...', 'kirki-ecommerce')}</div>
-        )}
-      </Container>
-    </>
+              </CardContent>
+            </Card>
+          </Flex>
+        </Form>
+      ) : (
+        <div>{__('Loading ...', 'kirki-ecommerce')}</div>
+      )}
+    </Container>
   );
 };
 

@@ -1,14 +1,13 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, type Dispatch, type SetStateAction } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 
 import SelectField from '@/components/form/select-field';
 import TextField from '@/components/form/text-field';
 import Button from '@/components/ui/button';
 import { Dialog, DialogBody, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Form } from '@/components/ui/form';
-import { LighteningIcon } from '@/icons';
 import Flex from '@/components/ui/flex';
+import { Form } from '@/components/ui/form';
 import Grid from '@/components/ui/grid';
 import Text from '@/components/ui/text';
 import {
@@ -19,15 +18,16 @@ import {
 import { useTaxProfilesQuery } from '@/services/tax';
 import { __ } from '@/wpi18n';
 
-import { taxRuleActionOptionsArray } from '@/pages/settings/tax-settings/utils';
+import ConditionRow from '@/pages/settings/tax-settings/tax-region/tax-rules/condition-row';
 import type {
   TaxConditionRow,
   TaxRegion,
   TaxRule,
 } from '@/pages/settings/tax-settings/utils';
-import ConditionRow from '@/pages/settings/tax-settings/tax-region/tax-rules/condition-row';
+import { taxRuleActionOptionsArray } from '@/pages/settings/tax-settings/utils';
+import { LightningBoltIcon } from '@radix-ui/react-icons';
 
-type TaxRulesModalProps = {
+type TaxRulesDialogProps = {
   showModal: boolean;
   setShowModal: (open: boolean) => void;
   rulesObj: TaxRule[];
@@ -47,7 +47,7 @@ type ConditionOption = {
   id?: number | string;
 };
 
-const TaxRulesModal = (props: TaxRulesModalProps) => {
+const TaxRulesDialog = (props: TaxRulesDialogProps) => {
   const {
     showModal,
     setShowModal,
@@ -139,8 +139,8 @@ const TaxRulesModal = (props: TaxRulesModalProps) => {
     const updatedRules =
       from === 'edit' && typeof ruleIndex === 'number'
         ? newRulesObj.map((existingRule, index) =>
-            index === ruleIndex ? (rule as TaxRule) : existingRule,
-          )
+          index === ruleIndex ? (rule as TaxRule) : existingRule,
+        )
         : [...newRulesObj, rule as TaxRule];
 
     setRulesObj(updatedRules);
@@ -174,7 +174,7 @@ const TaxRulesModal = (props: TaxRulesModalProps) => {
           <DialogHeader>
             <DialogTitle>
               <Flex gap={2} align="center">
-                <LighteningIcon />
+                <LightningBoltIcon />
                 {__('New Tax Rules', 'kirki-ecommerce')}
               </Flex>
             </DialogTitle>
@@ -184,20 +184,20 @@ const TaxRulesModal = (props: TaxRulesModalProps) => {
           <DialogBody>
             <Flex direction={'column'} gap={4}>
               <Flex direction={'column'} gap={2}>
-                  {conditions?.map((row, index) => (
-                    <ConditionRow
-                      key={row.id}
-                      row={row}
-                      index={index}
-                      conditions={conditions}
-                      setConditions={setConditions}
-                      getConditionValue={getConditionValue}
-                      selectedCountries={selectedCountries}
-                      setSelectedCountries={setSelectedCountries}
-                      from={from}
-                      region={region}
-                    />
-                  ))}
+                {conditions?.map((row, index) => (
+                  <ConditionRow
+                    key={row.id}
+                    row={row}
+                    index={index}
+                    conditions={conditions}
+                    setConditions={setConditions}
+                    getConditionValue={getConditionValue}
+                    selectedCountries={selectedCountries}
+                    setSelectedCountries={setSelectedCountries}
+                    from={from}
+                    region={region}
+                  />
+                ))}
               </Flex>
               <Flex direction={'column'} gap={2}>
                 <Text>{__('THEN', 'kirki-ecommerce')}</Text>
@@ -235,6 +235,6 @@ const TaxRulesModal = (props: TaxRulesModalProps) => {
   );
 };
 
-TaxRulesModal.displayName = 'TaxRulesModal';
+TaxRulesDialog.displayName = 'TaxRulesDialog';
 
-export default TaxRulesModal;
+export default TaxRulesDialog;

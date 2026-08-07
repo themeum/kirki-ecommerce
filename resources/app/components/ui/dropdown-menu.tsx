@@ -276,7 +276,6 @@ const styles = defineStyles({
     maxHeight: '424px',
     overflowX: 'hidden',
     overflowY: 'auto',
-    boxSizing: 'border-box',
     color: theme.colors.text.primary,
     ...getOverlayMotionStyles(
       'var(--radix-dropdown-menu-content-transform-origin)',
@@ -301,7 +300,6 @@ const styles = defineStyles({
     margin: `0 ${theme.spacing[1]}`,
     padding: `${theme.spacing[2]} ${theme.spacing[2]}`,
     height: '32px',
-    boxSizing: 'border-box',
     borderRadius: theme.radius.sm,
     cursor: 'pointer',
     outline: 'none',

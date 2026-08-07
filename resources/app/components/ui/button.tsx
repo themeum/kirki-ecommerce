@@ -4,7 +4,7 @@ import { Loader2 } from 'lucide-react';
 import { forwardRef, type ComponentPropsWithoutRef } from 'react';
 
 import { theme } from '@/theme';
-import { flexCenter, mergeCss, scoped, scopedMerge, uiFocusRing, defineStyles } from '@/theme/mixins';
+import { defineStyles, flexCenter, mergeCss, scoped, scopedMerge, uiFocusRing } from '@/theme/mixins';
 
 type ButtonVariant =
   | 'primary'
@@ -124,7 +124,6 @@ const styles = defineStyles({
     cursor: 'pointer',
     columnGap: theme.spacing[2],
     textDecoration: 'none',
-    boxSizing: 'border-box',
     whiteSpace: 'nowrap',
     border: '1px solid transparent',
     margin: 0,

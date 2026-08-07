@@ -1,10 +1,10 @@
 import { type CSSObject } from '@emotion/react';
-import { forwardRef, type ComponentPropsWithoutRef, type ElementRef, type ReactNode } from 'react';
 import * as TooltipPrimitive from '@radix-ui/react-tooltip';
+import { forwardRef, type ComponentPropsWithoutRef, type ElementRef, type ReactNode } from 'react';
 
 import { getPortalContainer } from '@/libs/portal-container';
 import { theme } from '@/theme';
-import { scopedMerge, scoped, defineStyles } from '@/theme/mixins';
+import { defineStyles, scoped, scopedMerge } from '@/theme/mixins';
 import type { TooltipPosition } from '@/types';
 
 const TooltipProvider = TooltipPrimitive.Provider;
@@ -86,7 +86,7 @@ const TooltipContent = forwardRef<
 TooltipContent.displayName = 'TooltipContent';
 
 export default Tooltip;
-export { TooltipProvider, TooltipRoot, TooltipTrigger, TooltipContent };
+export { TooltipContent, TooltipProvider, TooltipRoot, TooltipTrigger };
 
 const styles = defineStyles({
   trigger: {
@@ -94,15 +94,17 @@ const styles = defineStyles({
     alignItems: 'center',
   },
   content: {
-    zIndex: 1000,
+    zIndex: theme.zIndex.tooltip,
     padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
     border: `1px solid ${theme.colors.border.default}`,
     borderRadius: theme.radius.md,
-    backgroundColor: theme.colors.background.fill,
+    backgroundColor: theme.colors.background.inverse,
+    color: theme.colors.text.light,
     height: 'max-content',
     width: 'max-content',
     ...theme.typography.small(),
-    boxShadow: theme.shadow.md,
+    boxShadow: 'none',
+    maxWidth: '320px',
   },
   dark: {
     backgroundColor: theme.colors.background.inverse,

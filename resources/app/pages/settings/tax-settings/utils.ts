@@ -5,8 +5,14 @@ type SelectOption = {
   value: string;
 };
 
+/**
+ * `state` keys a general region's rate, `country` an EU/OSS region's —
+ * confirmed against live `GET /settings/tax` data, where neither key is
+ * guaranteed (see `schemas/catalog/tax.ts`'s `TaxRateSchema`).
+ */
 type TaxRate = {
-  state: string;
+  state?: string;
+  country?: string;
   rate: number | string;
   flag?: string;
 };

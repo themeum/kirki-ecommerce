@@ -1,7 +1,9 @@
-import { useEffect } from 'react';
-import { Controller, useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useEffect } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
 
+import NumberField from '@/components/form/number-field';
+import SelectField from '@/components/form/select-field';
 import TextField from '@/components/form/text-field';
 import ShippingBoxPreview from '@/components/shipping-box-preview/shipping-box-preview';
 import Button from '@/components/ui/button';
@@ -15,20 +17,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Field, FieldError } from '@/components/ui/field';
-import { Form } from '@/components/ui/form';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import type { ErrorResponse } from '@/libs/api';
-import { applyServerErrors } from '@/libs/form-errors';
 import Flex from '@/components/ui/flex';
+import { Form } from '@/components/ui/form';
 import { Separator } from '@/components/ui/separator';
 import Text from '@/components/ui/text';
+import type { ErrorResponse } from '@/libs/api';
+import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults } from '@/libs/zod';
 import {
   ShippingBoxFormSchema,
@@ -40,10 +34,10 @@ import {
   useCreateShippingBoxMutation,
   useUpdateShippingBoxMutation,
 } from '@/services/shipping';
-import type { ShippingBox } from '@/types';
 import { theme } from '@/theme';
-import { mergeCss, defineStyles, scoped } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
+import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
+import type { ShippingBox } from '@/types';
 import { __ } from '@/wpi18n';
 
 type ShippingBoxPopupProps = {
@@ -74,8 +68,8 @@ const convertValue = (
 const ShippingBoxPopup = ({
   selectedItem = null,
   isOpen,
-  onClose = () => {},
-  onSave = () => {},
+  onClose = () => { },
+  onSave = () => { },
 }: ShippingBoxPopupProps) => {
   const { data: productSettingsData } = useSettingsQuery('product');
   const { mutateAsync: createBox, isPending: isCreating } =
@@ -89,13 +83,14 @@ const ShippingBoxPopup = ({
     defaultValues: getDefaults(ShippingBoxFormSchema),
   });
 
+
   const length = useWatch({ control: form.control, name: 'length' });
   const width = useWatch({ control: form.control, name: 'width' });
   const height = useWatch({ control: form.control, name: 'height' });
   const unit = useWatch({ control: form.control, name: 'unit' });
 
   useEffect(() => {
-    if (!isOpen) {
+    if (!isOpen || !selectedItem) {
       return;
     }
 
@@ -169,7 +164,7 @@ const ShippingBoxPopup = ({
             <TextField
               name="name"
               label={__('Title', 'kirki-ecommerce')}
-              placeholder={__('Regular box', 'kirki-ecommerce')}
+              placeholder={__('e.g. Small Package', 'kirki-ecommerce')}
             />
             <div>
               <Card
@@ -189,62 +184,34 @@ const ShippingBoxPopup = ({
                     align="flex-end"
                     cssOverride={styles.dimensionsRow}
                   >
-                    <TextField
+                    <NumberField
                       name="length"
                       label={__('Length', 'kirki-ecommerce')}
-                      placeholder={__('12', 'kirki-ecommerce')}
-                      type="number"
+                      placeholder={__('e.g. 12', 'kirki-ecommerce')}
                       cssOverride={styles.dimensionField}
                     />
-                    <TextField
+                    <NumberField
                       name="width"
                       label={__('Width', 'kirki-ecommerce')}
-                      placeholder={__('12', 'kirki-ecommerce')}
-                      type="number"
+                      placeholder={__('e.g. 12', 'kirki-ecommerce')}
                       cssOverride={styles.dimensionField}
                     />
-                    <TextField
+                    <NumberField
                       name="height"
                       label={__('Height', 'kirki-ecommerce')}
-                      placeholder={__('12', 'kirki-ecommerce')}
-                      type="number"
+                      placeholder={__('e.g. 12', 'kirki-ecommerce')}
                       cssOverride={styles.dimensionField}
                     />
-                    <Controller
-                      control={form.control}
-                      name="unit"
-                      render={({ field, fieldState }) => (
-                        <Field
-                          data-invalid={fieldState.invalid || undefined}
-                          cssOverride={styles.unitField}
-                        >
-                          <Select
-                            value={field.value}
-                            onValueChange={(value) => {
-                              handleUnitChange(value);
-                            }}
-                          >
-                            <SelectTrigger
-                              id="unit"
-                              error={Boolean(fieldState.error)}
-                              aria-invalid={fieldState.invalid}
-                            >
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="cm">
-                                {__('cm', 'kirki-ecommerce')}
-                              </SelectItem>
-                              <SelectItem value="in">
-                                {__('in', 'kirki-ecommerce')}
-                              </SelectItem>
-                            </SelectContent>
-                          </Select>
-                          {fieldState.invalid && (
-                            <FieldError errors={[fieldState.error]} />
-                          )}
-                        </Field>
-                      )}
+                    <SelectField
+                      name='unit'
+                      label={__('Unit', 'kirki-ecommerce')}
+                      placeholder={__('e.g. cm', 'kirki-ecommerce')}
+                      options={[
+                        { value: 'cm', label: __('Centimeters (cm)', 'kirki-ecommerce') },
+                        { value: 'in', label: __('Inches (in)', 'kirki-ecommerce') },
+                      ]}
+                      cssOverride={styles.dimensionField}
+                      onValueChange={(value) => handleUnitChange(value ?? 'in')}
                     />
                   </Flex>
                 </CardContent>
@@ -305,8 +272,8 @@ const styles = defineStyles({
     paddingTop: theme.spacing[5],
   },
   dimensionsLabel: {
-    top: '-12px',
-    left: '50%',
+    top: `-${theme.spacing[3]}`,
+    left: '10%',
     transform: 'translateX(-50%)',
     position: 'absolute',
     padding: `${theme.spacing[0]} ${theme.spacing[2]}`,

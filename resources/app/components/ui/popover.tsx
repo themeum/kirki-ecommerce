@@ -53,7 +53,6 @@ const styles = defineStyles({
     borderRadius: theme.radius.md,
     backgroundColor: theme.colors.background.fill,
     boxShadow: theme.shadow.md,
-    boxSizing: 'border-box',
     ...theme.typography.small(),
     color: theme.colors.text.primary,
     display: 'flex',

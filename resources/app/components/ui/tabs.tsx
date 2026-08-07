@@ -70,7 +70,6 @@ const styles = defineStyles({
     borderRadius: theme.radius.md,
     padding: theme.spacing[1],
     minHeight: '36px',
-    boxSizing: 'border-box',
     color: theme.colors.text.secondary,
   },
   trigger: {

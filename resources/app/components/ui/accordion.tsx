@@ -205,7 +205,6 @@ const slideUp = keyframes({
 const styles = defineStyles({
   base: {
     width: '397px',
-    boxSizing: 'border-box',
     color: theme.colors.text.primary,
   },
   header: {
@@ -213,7 +212,6 @@ const styles = defineStyles({
     display: 'flex',
     alignItems: 'center',
     width: '100%',
-    boxSizing: 'border-box',
     padding: `${theme.spacing[4]} ${theme.spacing[0]}`,
     '&:hover [data-accordion-chevron], &:focus-within [data-accordion-chevron]':
     {
@@ -222,7 +220,6 @@ const styles = defineStyles({
   },
   trigger: {
     all: 'unset',
-    boxSizing: 'border-box',
     flex: 1,
     minWidth: 0,
     cursor: 'pointer',

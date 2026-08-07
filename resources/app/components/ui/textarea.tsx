@@ -43,7 +43,6 @@ const styles = defineStyles({
     boxShadow: theme.shadow.sm,
     borderRadius: theme.radius.lg,
     padding: `${theme.spacing[1]} ${theme.spacing[3]}`,
-    boxSizing: 'border-box',
     resize: 'none',
     height: 'auto',
     ...theme.typography.small(),

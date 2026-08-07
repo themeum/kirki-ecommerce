@@ -12,16 +12,9 @@ import {
 } from '@/services/product';
 import { useDefaultSettingsQuery, useSettingsQuery } from '@/services/settings';
 import { useShippingBoxesQuery } from '@/services/shipping';
-import type { SettingsSectionData, ShippingBox } from '@/types';
 import { useNavigate } from 'react-router';
 
 import ProductForm from '@/pages/products/product-form/product-form';
-
-type ProductSettingsData = SettingsSectionData & {
-  weight_unit?: string;
-  is_unit_price_visible?: boolean;
-  dimension_unit?: string;
-};
 
 const CreateProduct = () => {
   const navigate = useNavigate();
@@ -41,10 +34,7 @@ const CreateProduct = () => {
   }
 
   const defaults = getDefaults(ProductFormSchema);
-  const settings = productSettings as ProductSettingsData | undefined;
-  const defaultBox = (
-    (shippingBoxes ?? []) as (ShippingBox & { is_default?: boolean })[]
-  ).find((item) => Boolean(item.is_default));
+  const defaultBox = (shippingBoxes ?? []).find((item) => Boolean(item.is_default));
 
   const seededValues: ProductFormInput = {
     ...defaults,
@@ -52,9 +42,9 @@ const CreateProduct = () => {
     variants: [
       {
         ...getDefaultVariantValues(),
-        weight_unit: settings?.weight_unit ?? null,
-        show_unit_price: settings?.is_unit_price_visible ?? false,
-        dimension_unit: settings?.dimension_unit ?? null,
+        weight_unit: productSettings?.weight_unit ?? null,
+        show_unit_price: productSettings?.is_unit_price_visible ?? false,
+        dimension_unit: productSettings?.dimension_unit ?? null,
         shipping_box_id: defaultBox?.id ?? null,
       },
     ],

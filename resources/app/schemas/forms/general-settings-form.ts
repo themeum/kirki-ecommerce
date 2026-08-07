@@ -6,8 +6,8 @@ const StoreAddressFormShape = z.object({
   address_line_1: z.string().nullish().default(''),
   address_line_2: z.string().nullish().default(''),
   city: z.string().nullish().default(''),
-  state_province: z.string().nullish().default(''),
-  zip_code: z.string().nullish().default(''),
+  state: z.string().nullish().default(''),
+  postal_code: z.string().nullish().default(''),
   country: z.string().nullish().default(''),
 });
 
@@ -36,8 +36,8 @@ export const GeneralSettingsFormSchema = prepareFormSchema(GeneralSettingsFormSh
     address_line_1: values.store_address.address_line_1 || null,
     address_line_2: values.store_address.address_line_2 || null,
     city: values.store_address.city || null,
-    state_province: values.store_address.state_province || null,
-    zip_code: values.store_address.zip_code || null,
+    state: values.store_address.state || null,
+    postal_code: values.store_address.postal_code || null,
     country: values.store_address.country || null,
   },
   selling_location_type: values.selling_location_type || null,

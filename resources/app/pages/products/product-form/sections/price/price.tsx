@@ -72,13 +72,13 @@ const Price = () => {
       <CardContent cssOverride={styles.cardContent}>
         <Grid columns={2}>
           <MoneyField
-            name="variants.0.price"
+            name="variants.0.base_price"
             label={__('Regular price', 'kirki-ecommerce')}
             placeholder={__('29.00', 'kirki-ecommerce')}
             currencySymbol={currencySymbol}
           />
           <MoneyField
-            name="variants.0.sale_price"
+            name="variants.0.base_sale_price"
             label={__('Sale price', 'kirki-ecommerce')}
             placeholder={__('19.99', 'kirki-ecommerce')}
             currencySymbol={currencySymbol}
@@ -104,6 +104,7 @@ const Price = () => {
                     </Text>
                     <BaseUnitPopup
                       data={variant as never}
+                      currencySymbol={currencySymbol}
                       onChange={handleUnitPriceChange}
                     />
                   </Flex>
@@ -143,7 +144,7 @@ const Price = () => {
 
         <Grid columns={3}>
           <MoneyField
-            name="variants.0.cost_of_goods"
+            name="variants.0.base_cost_of_goods"
             label={__('Cost of goods', 'kirki-ecommerce')}
             placeholder={__('0.00', 'kirki-ecommerce')}
             currencySymbol={currencySymbol}
@@ -206,7 +207,6 @@ const styles = defineStyles({
     justifyContent: 'center',
     padding: `${theme.spacing[1]} ${theme.spacing[2]} ${theme.spacing[1]} ${theme.spacing[3]}`,
     height: '44px',
-    boxSizing: 'border-box',
   },
   taxProfileField: {
     width: 'auto',
