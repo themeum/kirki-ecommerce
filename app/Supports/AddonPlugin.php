@@ -11,6 +11,9 @@ class AddonPlugin
     /**
      * Install a plugin from a ZIP URL
      *
+     * The destination is overwritten so a retry can recover from an earlier
+     * install that copied its files but failed before activation.
+     *
      * @param string $url The URL of the ZIP file
      * @param bool $activate Whether to activate the plugin after installation
      * @return bool True if the plugin was installed successfully
@@ -29,7 +32,7 @@ class AddonPlugin
         $skin = new Automatic_Upgrader_Skin();
         $upgrader = new Plugin_Upgrader($skin);
 
-        $result = $upgrader->install($url);
+        $result = $upgrader->install($url, ['overwrite_package' => true]);
 
         if (empty($result)) {
             throw new Exception(__('Plugin installation failed', 'kirki-ecommerce'));
