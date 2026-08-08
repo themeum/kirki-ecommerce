@@ -38,6 +38,9 @@ class OrderItem extends Model
     ];
 
     protected $casts = [
+        'order_id' => 'integer',
+        'product_id' => 'integer',
+        'variant_id' => 'integer',
         'is_physical_product' => 'boolean',
         'tax_rate' => 'float',
         'weight' => 'float',

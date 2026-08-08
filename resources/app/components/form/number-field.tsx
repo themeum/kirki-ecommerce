@@ -1,9 +1,10 @@
 import type { CSSObject } from '@emotion/react';
-import type { ReactNode } from 'react';
+import type { ChangeEvent, FocusEvent, KeyboardEvent, ReactNode, WheelEvent } from 'react';
 import { Controller, useFormContext, type FieldPath, type FieldValues } from 'react-hook-form';
 
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import Input from '@/components/ui/input';
+import { isDefined } from '@/utils/object';
 
 type NumberFieldProps<
   TFieldValues extends FieldValues = FieldValues,
@@ -14,12 +15,11 @@ type NumberFieldProps<
   description?: ReactNode;
   infoText?: ReactNode;
   placeholder?: string;
-  min?: number;
-  max?: number;
-  step?: number | string;
-  readOnly?: boolean;
   disabled?: boolean;
   cssOverride?: CSSObject;
+  min?: number | null;
+  max?: number | null;
+  readOnly?: boolean
 };
 
 const NumberField = <
@@ -31,15 +31,36 @@ const NumberField = <
   description,
   infoText,
   placeholder,
-  min,
-  max,
-  step,
-  readOnly,
   disabled,
   cssOverride,
+  min,
+  max,
+  readOnly
 }: NumberFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
   const fieldId = String(name);
+
+  const preventStepKeys = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+      event.preventDefault();
+    }
+  };
+
+  const preventStepScroll = (event: WheelEvent<HTMLInputElement>) => {
+    event.currentTarget.blur();
+  };
+
+  const clampValue = (value: number) => {
+    if (isDefined(min) && value < min) {
+      return min;
+    }
+
+    if (isDefined(max) && value > max) {
+      return max;
+    }
+
+    return value;
+  };
 
   return (
     <Controller
@@ -56,24 +77,38 @@ const NumberField = <
             </FieldLabel>
           )}
           <Input
+            {...field}
             id={fieldId}
             value={field.value ?? ''}
-            placeholder={placeholder}
             type="number"
-            min={min}
-            max={max}
-            step={step}
-            readOnly={readOnly}
+            placeholder={placeholder}
             disabled={disabled}
-            onChange={(event) => {
-              const value = event.target.value;
-              field.onChange(value === '' ? null : value);
-            }}
-            onBlur={field.onBlur}
-            name={field.name}
-            ref={field.ref}
+            readOnly={readOnly}
             error={Boolean(fieldState.error)}
             aria-invalid={fieldState.invalid}
+            onChange={(event: ChangeEvent<HTMLInputElement>) => {
+              const nextValue = event.target.value;
+              field.onChange(nextValue === '' ? undefined : Number(nextValue));
+            }}
+            onBlur={(event: FocusEvent<HTMLInputElement>) => {
+              field.onBlur();
+
+              const currentValue = Number(event.target.value);
+
+              if (event.target.value === '' || Number.isNaN(currentValue)) {
+                return;
+              }
+
+              const clampedValue = clampValue(currentValue);
+
+              if (clampedValue !== currentValue) {
+                field.onChange(clampedValue);
+              }
+            }}
+            onKeyDown={preventStepKeys}
+            onWheel={preventStepScroll}
+            name={field.name}
+            ref={field.ref}
             onFocus={event => event.target.select()}
           />
           {description && <FieldDescription>{description}</FieldDescription>}

@@ -17,10 +17,15 @@ import type { ProductFormInput } from '@/schemas/forms/product-form';
 import { flexCenter, scoped, mergeCss, scopedMerge, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
 import type { Attribute } from '@/types';
-import { __ } from '@/wpi18n';
+import { __, _n, sprintf } from '@/wpi18n';
 
 import AddOrEditAttribute from '@/pages/products/product-form/sections/variants/attribute-list/add-or-edit-attribute';
-import { createVariantCombinations } from '@/pages/products/utils';
+import ConfirmationDialog from '@/components/modal/confirmation-dialog';
+import {
+  savedVariants,
+  useVariantMatrix,
+  type MatrixMutation,
+} from '@/pages/products/product-form/sections/variants/use-variant-matrix';
 
 import { theme } from '@/theme';
 
@@ -122,33 +127,38 @@ const SortableCard = ({
 SortableCard.displayName = 'SortableCard';
 
 const AttributeList = () => {
-  const { control, setValue, getValues } = useFormContext<ProductFormInput>();
+  const { control } = useFormContext<ProductFormInput>();
   const formAttributes = useWatch({ control, name: 'attributes' }) ?? [];
   const [attributeValues, setAttributeValues] = useState<Attribute[]>([]);
   const [editingId, setEditingId] = useState<number | string | null>(null);
+  const [pendingRemoval, setPendingRemoval] = useState<MatrixMutation | null>(
+    null,
+  );
+  const { removeAttribute, reorderAttributes, describeDiscarded } =
+    useVariantMatrix();
 
   useEffect(() => {
     setAttributeValues(formAttributes as Attribute[]);
   }, [formAttributes]);
-
-  const applyAttributes = (attributeList: Attribute[]) => {
-    const currentVariants = getValues('variants') ?? [];
-    const nextVariants = createVariantCombinations(
-      attributeList,
-      currentVariants as never,
-    );
-    setValue('attributes', attributeList, { shouldDirty: true });
-    setValue('variants', nextVariants as never, { shouldDirty: true });
-    setValue('has_variants', attributeList.length > 0, { shouldDirty: true });
-  };
 
   const handleAttributeEdit = (attribute: Attribute) => {
     setEditingId(attribute?.id);
   };
 
   const handleAttributeRemove = (id: number) => {
-    const attributeList = attributeValues?.filter((item) => item.id !== id);
-    applyAttributes(attributeList);
+    const mutation = removeAttribute(id);
+
+    if (savedVariants(mutation.discarded).length > 0) {
+      setPendingRemoval(mutation);
+      return;
+    }
+
+    mutation.commit();
+  };
+
+  const handleConfirmRemoval = () => {
+    pendingRemoval?.commit();
+    setPendingRemoval(null);
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -164,7 +174,7 @@ const AttributeList = () => {
 
       const reordered = arrayMove(attributeValues, oldIndex, newIndex);
       setAttributeValues(reordered);
-      applyAttributes(reordered);
+      reorderAttributes(reordered).commit();
     }
   };
 
@@ -211,6 +221,24 @@ const AttributeList = () => {
       </Flex>
       {editingId === 'new' && (
         <AddOrEditAttribute onClose={onClose} />
+      )}
+      {!!pendingRemoval && (
+        <ConfirmationDialog
+          variant="delete"
+          title={__('Remove variation?', 'kirki-ecommerce')}
+          subtitle={sprintf(
+            _n(
+              '%1$d saved variation will be deleted when you save this product: %2$s',
+              '%1$d saved variations will be deleted when you save this product: %2$s',
+              savedVariants(pendingRemoval.discarded).length,
+              'kirki-ecommerce',
+            ),
+            savedVariants(pendingRemoval.discarded).length,
+            describeDiscarded(savedVariants(pendingRemoval.discarded)),
+          )}
+          onConfirm={handleConfirmRemoval}
+          onCancel={() => setPendingRemoval(null)}
+        />
       )}
     </>
   );

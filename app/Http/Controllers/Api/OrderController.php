@@ -20,14 +20,16 @@ use Kirki\Ecommerce\App\Constants\BulkActions;
 use Kirki\Ecommerce\App\Actions\Order\CreateRefundAction;
 use Kirki\Ecommerce\App\Actions\Order\UpdateRefundAction;
 use Kirki\Ecommerce\App\Actions\Order\DeleteRefundAction;
+use Kirki\Ecommerce\App\Actions\Order\PerformOrderAction;
+use Kirki\Ecommerce\App\DTO\Order\PerformOrderActionDTO;
 use Kirki\Ecommerce\App\DTO\Refund\CreateRefundPayloadDTO;
 use Kirki\Ecommerce\App\DTO\Refund\UpdateRefundPayloadDTO;
+use Kirki\Ecommerce\App\Http\Requests\Order\OrderActionRequest;
 use Kirki\Ecommerce\App\Http\Requests\Order\RefundCreateRequest;
 use Kirki\Ecommerce\App\Http\Requests\Order\RefundUpdateRequest;
 use Kirki\Ecommerce\Framework\Http\Response;
 
 use function Kirki\Ecommerce\App\base_currency;
-use function Kirki\Ecommerce\App\customer;
 use function Kirki\Ecommerce\Framework\response;
 use function Kirki\Ecommerce\Framework\user;
 
@@ -41,7 +43,7 @@ class OrderController
     public function get(Request $request)
     {
         $params = OrderListFilterDTO::from_array($request->all());
-        $params->sort_by = $request->get_whitelisted('sort_by', 'id', ['id', 'uuid', 'order_number', 'customer_id', 'order_status', 'sub_total', 'invoiced_total', 'payment_method', 'created_by', 'updated_by', 'created_at', 'updated_at']);
+        $params->sort_by = $request->get_whitelisted('sort_by', 'id', ['id', 'uuid', 'order_number', 'customer_id', 'order_status', 'sub_total', 'invoiced_total', 'payment_provider', 'created_by', 'updated_by', 'created_at', 'updated_at']);
 
         if ((int) $params->limit === Pagination::ALL) {
             $data = $this->service->all_orders($params);
@@ -57,7 +59,8 @@ class OrderController
     }
     public function store(OrderCreateRequest $request, CreateOrderAction $action)
     {
-        $currency_code = $request->get_string('currency_code') ?? $headers['kirki-ecommerce-currency-code'] ?? base_currency()->code; //todo: implement change the name later
+        // @todo: in future the header will come from a constant
+        $currency_code = $request->get_string('currency_code') ?? $request->get_header('kirki-ecommerce-currency-code') ?? base_currency()->code; //todo: implement change the name later
 
         $dto = CreateOrderPayloadDTO::from_request($request);
         $dto->is_manual = user()->is_admin() && $request->get_bool('is_manual') ? true : false;
@@ -135,6 +138,20 @@ class OrderController
                     'message' => __('No action performed.', 'kirki-ecommerce'),
                 ], Response::BAD_REQUEST);
         }
+    }
+
+    public function action(OrderActionRequest $request, PerformOrderAction $action)
+    {
+        $dto = PerformOrderActionDTO::from_request($request);
+        $dto->order_id = $request->get_int('id');
+        $dto->updated_by = user()->get_id() ?? null;
+
+        $order = $action->execute($dto);
+
+        return response()->json([
+            'data' => OrderResource::make($order),
+            'message' => __('Action performed successfully.', 'kirki-ecommerce'),
+        ]);
     }
 
     public function create_refund(RefundCreateRequest $request, CreateRefundAction $action)

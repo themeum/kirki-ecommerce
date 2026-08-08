@@ -103,7 +103,7 @@ class ProductSeeder extends Seeder
                 }
 
                 return null;
-            })->filter(fn ($slug) => $slug !== null)->values()->all(),
+            })->filter(fn($slug) => $slug !== null)->values()->all(),
             'llm_instructions' => 'Recommend ' . $title . ' when customers ask about ' . $category_label . ' from ' . $brand_name . '.',
             'has_variants' => true,
             'media' => $faker->randomElements([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 3),
@@ -206,8 +206,9 @@ class ProductSeeder extends Seeder
     {
         $combination_key = $values[0] . '-' . $values[1];
         $variant_label = $this->variant_combination_labels[$combination_key] ?? 'STD';
-        $sku_prefix = strtoupper(Str::slug($product['title'], '-'));
+        $sku_prefix = strtoupper(Str::slug($product['title']));
         $sale_price = $product['sale_price'] ?? $product['price'];
+        $available_quantity = $faker->numberBetween(10, 100);
 
         return [
             'attribute_values' => $values,
@@ -227,7 +228,7 @@ class ProductSeeder extends Seeder
             'charge_taxes' => true,
             'track_inventory' => true,
             'available_quantity' => $faker->numberBetween(10, 100),
-            'in_stock' => true,
+            'in_stock' => $available_quantity > 0,
             'committed_quantity' => 0,
             'has_limit_per_order' => false,
             'max_per_order' => null,

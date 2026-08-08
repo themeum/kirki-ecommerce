@@ -128,29 +128,6 @@ class OrderRepository
         return Order::find($id)->update($data);
     }
 
-    /**
-     * Update an order status by ID.
-     *
-     * @param int $id
-     * @param string $status
-     * @return bool
-     */
-    public function update_order_status($id, $status)
-    {
-        return Order::find($id)->update(['order_status' => $status]);
-    }
-
-    /**
-     * Update an order payment status by ID.
-     *
-     * @param int $id
-     * @param string $status
-     * @return bool
-     */
-    public function update_payment_status($id, $status)
-    {
-        return Order::find($id)->update(['payment_status' => $status]);
-    }
 
     /**
      * Delete an order by ID.

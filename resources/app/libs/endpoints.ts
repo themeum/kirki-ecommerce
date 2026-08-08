@@ -2,6 +2,7 @@ export const endpoints = {
   PRODUCTS: '/products',
   PRODUCT: (id: string | number) => `/products/${id}`,
   PRODUCTS_BULK: '/products/bulk',
+  PRODUCT_VARIANTS: '/product-variants',
 
   CATEGORIES: '/categories',
   CATEGORY: (id: string | number) => `/categories/${id}`,
@@ -67,10 +68,15 @@ export const endpoints = {
   TAX_PROFILES: '/tax-profiles',
   TAX_PROFILE: (id: string | number) => `/tax-profiles/${id}`,
 
-  PAYMENT_GATEWAYS: '/payment-gateways',
-  PAYMENT_GATEWAY: (id: string | number) => `/payment-gateways/${id}`,
-  PAYMENT_GATEWAYS_INSTALLABLE: '/payment-gateways/installable',
-  PAYMENT_GATEWAYS_INSTALL: '/payment-gateways/install',
-  PAYMENT_METHODS: '/payment-methods',
-  PAYMENT_METHOD: (id: string | number) => `/payment-methods/${id}`,
+  ONLINE_PAYMENTS: '/online-payments',
+  ONLINE_PAYMENT: (id: string | number) => `/online-payments/${id}`,
+  ONLINE_PAYMENTS_INSTALLABLE: '/online-payments/installable',
+  ONLINE_PAYMENTS_INSTALL: '/online-payments/install',
+  OFFLINE_PAYMENTS: '/offline-payments',
+  OFFLINE_PAYMENT: (id: string | number) => `/offline-payments/${id}`,
+
+  ORDER: (id: string | number) => `/orders/${id}`,
+  ORDER_ACTION: (id: string | number) => `/orders/${id}/action`,
+  ORDERS: '/orders',
+  CALCULATE_ORDER: '/calculate/order',
 } as const;

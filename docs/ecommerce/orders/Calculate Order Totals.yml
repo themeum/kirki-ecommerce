@@ -19,7 +19,7 @@ http:
           }
         ],
         "currency_code": "BDT",
-        "payment_method": "stripe",
+        "payment_provider": "stripe",
         "coupon_code": "WINTER20",
         "shipping_method": "fsdfdsfsdfsdf343432jh4",
         "shipping_first_name": "Sunny",
@@ -73,7 +73,7 @@ examples:
               }
             ],
             "currency_code": "USD",
-            "payment_method": "stripe",
+            "payment_provider": "stripe",
             "coupon_code": "WINTER20",
             "shipping_method": "fsdfdsfsdfsdf343432jh4",
             "shipping_first_name": "Sunny",
@@ -208,7 +208,7 @@ examples:
               }
             ],
             "currency_code": "USD",
-            "payment_method": "stripe",
+            "payment_provider": "stripe",
             "coupon_code": "WINTER20",
             "shipping_method": "fsdfdsfsdfsdf343432jh4",
             "shipping_first_name": "Sunny",
