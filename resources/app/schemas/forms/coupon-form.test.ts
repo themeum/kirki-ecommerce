@@ -159,7 +159,7 @@ describe('CouponFormSchema', () => {
       has_customer_limit: false,
       code: null,
       discount_value_type: null,
-      discount_amount: null,
+      discount_amount: undefined,
       start_time: null,
       end_date: null,
       end_time: null,

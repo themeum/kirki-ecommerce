@@ -20,7 +20,8 @@
     "resolveJsonModule": true,
     "noEmit": true,
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "@data/*": ["../data/*"]
     }
   },
   "include": ["**/*.ts", "**/*.tsx", "global.d.ts"],

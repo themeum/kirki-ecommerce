@@ -50,6 +50,7 @@ class CartUpdateRequest extends Request
             'shipping_method' => 'string|nullable',
             'coupon_code' => 'string|nullable',
             'customer_notes' => 'string|nullable',
+            'admin_notes' => 'string|nullable',
         ];
     }
 
@@ -87,6 +88,7 @@ class CartUpdateRequest extends Request
             'shipping_method' => Sanitizer::TEXT,
             'coupon_code' => Sanitizer::TEXT,
             'customer_notes' => Sanitizer::TEXT,
+            'admin_notes' => Sanitizer::TEXT,
         ];
     }
 }

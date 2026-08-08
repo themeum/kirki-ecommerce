@@ -19,7 +19,9 @@ use Kirki\Ecommerce\App\Actions\Cart\RecalculateCartAction;
 use Kirki\Ecommerce\Framework\Supports\Arr;
 use Kirki\Ecommerce\App\Supports\Currency;
 use Kirki\Ecommerce\App\Facades\Money;
+use Kirki\Ecommerce\App\Payment\Facades\Payment;
 use Exception;
+use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Throwable;
 
@@ -169,6 +171,7 @@ class CreateOrderAction
         $order_dto->uuid = uuid();
         $order_dto->order_number = 'ORD-' . strtoupper(uniqid()); // TODO: get from settings
         $order_dto->customer_id = $context->customer_id ?: null;
+        $order_dto->fulfillment_status = FulfillmentStatus::UNFULFILLED;
         $order_dto->order_status = OrderStatus::PENDING;
         $order_dto->is_manual = $dto->is_manual;
 
@@ -194,10 +197,11 @@ class CreateOrderAction
 
         $order_dto->items_count = $calculated_result->items_count;
 
-        $order_dto->payment_status = PaymentStatus::PENDING;
-        $order_dto->payment_method = $dto->payment_method;
-        $order_dto->payment_gateway = $dto->payment_method;
+        $order_dto->payment_status = PaymentStatus::UNPAID;
+        $order_dto->payment_provider = $dto->payment_provider;
+        $order_dto->payment_metadata = $this->build_payment_provider_snapshot($dto->payment_provider);
         $order_dto->shipping_method = $dto->shipping_method;
+        $order_dto->shipping_metadata = $this->build_shipping_method_snapshot($context);
 
         $order_dto->shipping_first_name = $dto->shipping_first_name;
         $order_dto->shipping_last_name = $dto->shipping_last_name;
@@ -225,6 +229,7 @@ class CreateOrderAction
         $order_dto->customer_email = $dto->customer_email;
         $order_dto->customer_phone = $dto->customer_phone;
         $order_dto->customer_notes = $dto->customer_notes;
+        $order_dto->admin_notes = $dto->admin_notes;
         $order_dto->ip_address = $dto->ip_address;
         $order_dto->user_agent = $dto->user_agent;
         $order_dto->created_by = $dto->created_by;
@@ -295,5 +300,40 @@ class CreateOrderAction
         }
 
         return Money::convert_to_currency(Money::from_minor($amount, $this->base_currency_code), $target_currency_code, $exchange_rate)->getMinorAmount()->toInt();
+    }
+
+    protected function build_payment_provider_snapshot($payment_provider_id)
+    {
+        $provider = Payment::get_provider($payment_provider_id);
+
+        if (!$provider) {
+            return null;
+        }
+
+        return [
+            'payment_provider' => [
+                'id' => $provider->id(),
+                'name' => $provider->title(),
+                'icon' => $provider->icon(),
+                'is_offline' => $provider->is_offline(),
+            ],
+        ];
+    }
+
+    protected function build_shipping_method_snapshot(CalculationContextDTO $context)
+    {
+        $method = $this->shipping_service->get_selected_shipping_method($context);
+
+        if (!$method) {
+            return null;
+        }
+
+        return [
+            'shipping_method' => [
+                'id' => $method['id'],
+                'name' => $method['name'],
+                'type' => $method['type'],
+            ],
+        ];
     }
 }
