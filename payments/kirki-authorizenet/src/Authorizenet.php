@@ -4,7 +4,7 @@ namespace Kirki\Ecommerce\Payments;
 use Exception;
 use Kirki\Ecommerce\App\Facades\Order as OrderManager;
 use Kirki\Ecommerce\App\Models\Order;
-use Kirki\Ecommerce\App\Payment\PaymentGateway;
+use Kirki\Ecommerce\App\Payment\PaymentProvider;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Kirki\Ecommerce\Framework\Validation\Validator;
@@ -14,7 +14,7 @@ defined('ABSPATH') || exit;
 /**
  * Authorize.Net payment gateway.
  */
-class Authorizenet extends PaymentGateway
+class Authorizenet extends PaymentProvider
 {
     protected ?AuthorizenetClient $client = null;
     protected AuthorizenetTransactionBuilder $transaction_builder;
@@ -26,7 +26,8 @@ class Authorizenet extends PaymentGateway
         $this->description = __('AuthorizeNet payment gateway', 'kirki-ecommerce');
         $this->icon = 'authorizenet';
         $this->settings_key = 'authorizenet';
-        $this->is_manual = false;
+        $this->is_offline = false;
+        $this->is_available = true;
         $this->has_fields = true;
         $this->transaction_builder = new AuthorizenetTransactionBuilder();
 
