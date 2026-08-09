@@ -4,6 +4,7 @@ namespace Kirki\Ecommerce\Payments;
 
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Models\Order;
+use Kirki\Ecommerce\App\Payment\PaymentGateway;
 use Kirki\Ecommerce\Framework\Supports\Str;
 
 defined('ABSPATH') || exit;
@@ -24,7 +25,7 @@ class AuthorizenetTransactionBuilder
     {
         $transaction_request = [
             'transactionType' => 'authCaptureTransaction',
-            'amount' => $this->format_amount($order->total, $order->currency_code),
+            'amount' => PaymentGateway::format_amount($order->invoiced_total, $order->currency_code),
             'lineItems' => [
                 'lineItem' => $this->build_line_items($order),
             ],
@@ -54,18 +55,6 @@ class AuthorizenetTransactionBuilder
     }
 
     /**
-     * Format a minor-unit amount as a plain decimal string for the Authorize.Net API.
-     *
-     * @param int $amount The amount in minor currency units.
-     * @param string $currency The order's currency code.
-     * @return string
-     */
-    protected function format_amount($amount, string $currency): string
-    {
-        return number_format(Money::from_minor($amount, $currency)->getAmount()->toFloat(), 2, '.', '');
-    }
-
-    /**
      * Build the `lineItem` list from the order's line items.
      *
      * @param Order $order
@@ -81,7 +70,7 @@ class AuthorizenetTransactionBuilder
                 'name' => $this->limit_string_length($item->product_name, 31),
                 'description' => $this->limit_string_length($item->product_name, 255),
                 'quantity' => (float) $item->quantity,
-                'unitPrice' => (float) $this->format_amount($item->subtotal, $order->currency_code),
+                'unitPrice' => (float) PaymentGateway::format_amount($item->invoiced_subtotal, $order->currency_code),
             ];
         }
 
@@ -91,17 +80,16 @@ class AuthorizenetTransactionBuilder
     /**
      * Build the `hostedPaymentSettings.setting` list for the hosted payment page request.
      *
-     * @param string $url The base return URL.
+     * @param array $urls Array of success and cancel url.
      * @return array
      */
-    public function build_hosted_payment_settings($url): array
+    public function build_hosted_payment_settings(array $urls): array
     {
-        //@todo Need to update the success and cancel URL.
         $settings = [
             'hostedPaymentReturnOptions' => [
                 'showReceipt' => true,
-                'url' => $this->encode_return_url($url . '&action=success'),
-                'cancelUrl' => $this->encode_return_url($url . '&action=cancel'),
+                'url' => $this->encode_return_url($urls['success_url']),
+                'cancelUrl' => $this->encode_return_url($urls['cancel_url']),
             ],
             'hostedPaymentPaymentOptions' => [
                 'cardCodeRequired' => true,
