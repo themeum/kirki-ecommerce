@@ -23,6 +23,11 @@ class TestController
     {
         // CurrencyExchange::sync();
 
+        // For Authorizenet testing.
+        // header('Content-Type: text/html');
+        // echo Payment::get_gateway('authorizenet')->pay(Order::find(2));
+        // exit;
+
         $today = Date::today();
 
         return response()->json([

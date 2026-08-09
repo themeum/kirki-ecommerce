@@ -543,7 +543,6 @@ class PaymentProvider
                 Money::format(Money::from_minor($order_item->invoiced_tax_total, $currency))
             );
         }
-
         return implode(' | ', $parts);
     }
 
