@@ -44,7 +44,13 @@ function copy(done) {
 function composerInstall(done) {
     const gateways = listDirs(PAYMENTS_DIR).filter((name) => name.startsWith('kirki-'));
 
-    gateways.forEach((name) => {
+  gateways.forEach((name) => {
+      const gatewayDir = path.join(KIRKI_ROOT, name);
+      const composerFile = path.join(gatewayDir, 'composer.json');
+
+      if (!fs.existsSync(composerFile)) {
+          return; // skip gateways without composer.json
+      }
       execSync('composer install', {
           cwd: path.join(KIRKI_ROOT, name),
           stdio: 'inherit',

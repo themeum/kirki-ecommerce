@@ -27,7 +27,7 @@ add_action('plugins_loaded', function () {
         return;
     }
 
-    add_filter(HookNames::ECOMMERCE_ALL_PAYMENT_GATEWAYS, function ($gateways) {
+    add_filter(HookNames::ECOMMERCE_PAYMENT_PROVIDERS, function ($gateways) {
         $gateways[] = new Authorizenet();
 
         return $gateways;
