@@ -106,18 +106,18 @@ class Authorizenet extends PaymentProvider
             throw new Exception(__('AuthorizeNet did not return a payment token.', 'kirki-ecommerce'));
         }
 
-        $form_url = $this->client->is_sandbox()
-                    ? AuthorizenetConstant::FORM_URL_SANDBOX
-                    : AuthorizenetConstant::FORM_URL_PRODUCTION;
-        return $this->render_redirect_form($form_url, $response->token);
+        return $this->render_redirect_form($response->token);
     }
 
     /**
      * Build an auto-submitting form that POSTs the payment token to
      * AuthorizeNet's hosted payment page.
      */
-    protected function render_redirect_form(string $form_url, string $token): string
+    protected function render_redirect_form(string $token): string
     {
+        $form_url = $this->client->is_sandbox()
+            ? AuthorizenetConstant::FORM_URL_SANDBOX
+            : AuthorizenetConstant::FORM_URL_PRODUCTION;
         ob_start();
         ?>
         <form method="POST" id="authorizenet-form" action="<?php echo esc_url($form_url); ?>">
