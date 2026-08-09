@@ -6,7 +6,7 @@ use Exception;
 use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\Facades\Order as OrderManager;
 use Kirki\Ecommerce\App\Models\Order;
-use Kirki\Ecommerce\App\Payment\PaymentGateway;
+use Kirki\Ecommerce\App\Payment\PaymentProvider;
 use Kirki\Ecommerce\Framework\Http\Request;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
@@ -19,7 +19,7 @@ defined('ABSPATH') || exit;
 /**
  * Mollie payment gateway.
  */
-class Mollie extends PaymentGateway
+class Mollie extends PaymentProvider
 {
     protected $client;
     protected $transaction_builder;
@@ -30,7 +30,8 @@ class Mollie extends PaymentGateway
         $this->description = __('Mollie payment gateway', 'kirki-mollie');
         $this->icon = 'mollie';
         $this->settings_key = 'mollie';
-        $this->is_manual = false;
+        $this->is_offline = false;
+        $this->is_available = true;
         $this->has_fields = true;
         $this->transaction_builder = new MollieTransactionBuilder();
 
