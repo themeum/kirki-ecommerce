@@ -102,10 +102,10 @@ class CartService
     {
         $cart = $this->get_cart($dto->customer_id, $dto->token);
 
-        if(empty($cart)) {
+        if (empty($cart)) {
             $cart = $this->create_new_cart($dto->customer_id);
         }
-        
+
         $cart_id = $cart->id;
 
         $existing_item = $this->find_item_in_cart($cart_id, $dto->variant_id);
@@ -154,7 +154,7 @@ class CartService
     {
         $cart = $this->get_cart($dto->customer_id, $dto->token);
 
-        if(empty($cart)) {
+        if (empty($cart)) {
             $cart = $this->create_new_cart($dto->customer_id);
         }
 
@@ -175,7 +175,7 @@ class CartService
     {
         $cart = $this->get_cart($dto->customer_id, $dto->token);
 
-        if(empty($cart)) {
+        if (empty($cart)) {
             $cart = $this->create_new_cart($dto->customer_id);
         }
 
@@ -250,8 +250,10 @@ class CartService
         if (!headers_sent()) {
             $expires = time() + (DAY_IN_SECONDS * 30);
             $cart = $this->get_cart();
-            setcookie(Cart::COOKIE_TOKEN, $cart->cart_token, $expires, '/');
-            $_COOKIE[Cart::COOKIE_TOKEN] = $cart->cart_token;
+            if (!empty($cart)) {
+                setcookie(Cart::COOKIE_TOKEN, $cart->cart_token, $expires, '/');
+                $_COOKIE[Cart::COOKIE_TOKEN] = $cart->cart_token;
+            }
         }
     }
 

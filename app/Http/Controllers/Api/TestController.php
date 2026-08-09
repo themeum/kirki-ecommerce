@@ -24,9 +24,10 @@ class TestController
         // CurrencyExchange::sync();
 
         // For Authorizenet testing.
-        // header('Content-Type: text/html');
-        // echo Payment::get_gateway('authorizenet')->pay(Order::find(2));
-        // exit;
+        header('Content-Type: text/html');
+        $pay = Payment::get_provider('razorpay')->pay(Order::find(2));
+        echo $pay;
+        exit;
 
         $today = Date::today();
 
@@ -40,7 +41,7 @@ class TestController
             // 'usage' => CurrencyExchange::get_active_provider()->get_usage()->all(),
             // 'is_installed' => AddonPlugin::install('https://kirki.com/addons/paypal-gateway')
             // 'refund' => Payment::get_provider('paypal')->refund(Order::find(7), 1)
-            // 'pay' => Payment::get_provider('paypal')->pay(Order::find(8))
+            //'pay' => Payment::get_provider('razorpay')->pay(Order::find(1))
         ]);
     }
 }
