@@ -4,7 +4,7 @@ namespace Kirki\Ecommerce\Payments;
 use Exception;
 use Kirki\Ecommerce\App\Facades\Order as OrderManager;
 use Kirki\Ecommerce\App\Models\Order;
-use Kirki\Ecommerce\App\Payment\PaymentGateway;
+use Kirki\Ecommerce\App\Payment\PaymentProvider;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Kirki\Ecommerce\Framework\Validation\Validator;
@@ -14,8 +14,10 @@ defined('ABSPATH') || exit;
 /**
  * Razorpay payment gateway.
  */
-class Razorpay extends PaymentGateway
+class Razorpay extends PaymentProvider
 {
+    protected $client;
+
     public function __construct()
     {
         $this->id = 'razorpay';
@@ -23,7 +25,8 @@ class Razorpay extends PaymentGateway
         $this->description = __('Razorpay payment gateway', 'kirki-ecommerce');
         $this->icon = 'razorpay';
         $this->settings_key = 'razorpay';
-        $this->is_manual = false;
+        $this->is_offline = false;
+        $this->is_available = true;
         $this->has_fields = true;
 
         parent::__construct();
@@ -69,6 +72,13 @@ class Razorpay extends PaymentGateway
         }
 
         try {
+            $this->client = new RazorpayClient();
+            $razorpay_order = $this->client->post([
+                'amount' => $order->invoiced_total,
+                'currency' => strtoupper($order->currency_code)
+            ], RazorpayConstant::API_URL . '/orders');
+
+
         } catch (Exception $e) {
             throw new Exception(sprintf(__('AuthorizeNet Payment Error: %s', 'kirki-ecommerce'), $e->getMessage()));
         }
@@ -133,5 +143,22 @@ class Razorpay extends PaymentGateway
     public function webhook()
     {
         return true;
+    }
+
+    protected function get_client(): RazorpayClient
+    {
+        if ($this->client) {
+            return $this->client;
+        }
+
+        $key_id = $this->settings['key_id'] ?? '';
+        $key_secret = $this->settings['key_secret'] ?? '';
+
+        if (empty($key_id) || empty($key_secret)) {
+            throw new Exception(__('Razorpay credentials are missing.', 'kirki-razorpay'));
+        }
+
+        $is_sandbox = (bool) ($this->settings['sandbox'] ?? false);
+        return new RazorpayClient($key_id, $key_secret, $is_sandbox);
     }
 }
