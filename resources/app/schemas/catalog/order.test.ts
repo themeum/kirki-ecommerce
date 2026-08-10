@@ -375,6 +375,9 @@ describe('OrderListItemSchema', () => {
     uuid: '606520b3-fa5b-4612-8257-0c59c0e577b4',
     order_number: 'ORD-695F527B85572',
     customer_id: 2,
+    customer_name: 'Melanie Martinez',
+    customer_email: 'melanie@example.com',
+    is_manual: false,
     quantity: 4,
     invoiced_total: 115.17,
     invoiced_total_money_object: baseMoney(115.17),
@@ -400,6 +403,21 @@ describe('OrderListItemSchema', () => {
       payment_provider: null,
     });
     expect(result.success).toBe(true);
+  });
+
+  it('accepts a row with no shipping name, which OrderListResource resolves to a null customer_name', () => {
+    const result = OrderListItemSchema.safeParse({
+      ...documentedListItem,
+      customer_name: null,
+      customer_email: null,
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('keeps is_manual required, so the Manual Order badge reads the row instead of defaulting', () => {
+    const { is_manual, ...withoutIsManual } = documentedListItem;
+    expect(is_manual).toBe(false);
+    expect(OrderListItemSchema.safeParse(withoutIsManual).success).toBe(false);
   });
 
   it('does not require the detail-only totals and items the list endpoint omits', () => {

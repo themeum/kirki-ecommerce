@@ -143,7 +143,9 @@ class SiteController
     public function cart_page(Request $request, CartService $cart_service)
     {
         $cart = $cart_service->get_current_cart();
-        $cart_resource = CartResource::make($cart);
+        $calculate_tax = false;
+        $cart_resource = CartResource::make($cart, $calculate_tax);
+
         return view('site.cart', ['cart' => $cart_resource])->layout(false);
     }
 
