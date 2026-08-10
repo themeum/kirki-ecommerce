@@ -1,5 +1,5 @@
 import { Megaphone } from 'lucide-react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { useNavigate } from 'react-router';
 
 import SelectField from '@/components/form/select-field';
@@ -23,7 +23,7 @@ import type { OrderItem } from '@/types';
 import { __ } from '@/wpi18n';
 
 type MarkAsPaidFormValues = {
-  payment_method: string;
+  payment_provider: string;
 };
 
 type MarkAsPaidDialogProps = {
@@ -36,7 +36,7 @@ type MarkAsPaidDialogProps = {
 
 const MarkAsPaidDialog = ({ open, onOpenChange, order, isSaving, onSubmit }: MarkAsPaidDialogProps) => {
   const navigate = useNavigate();
-  const form = useForm<MarkAsPaidFormValues>({ defaultValues: { payment_method: '' } });
+  const form = useForm<MarkAsPaidFormValues>({ defaultValues: { payment_provider: '' } });
 
   const { data: paymentMethods = [], isLoading } = useOfflinePaymentsQuery();
   const availablePaymentMethods = paymentMethods.filter((method) => method.is_enabled);
@@ -45,14 +45,14 @@ const MarkAsPaidDialog = ({ open, onOpenChange, order, isSaving, onSubmit }: Mar
     value: String(method.id),
   }));
 
-  const paymentMethod = form.watch('payment_method');
+  const paymentMethod = useWatch({ control: form.control, name: 'payment_provider' });
 
   const handleSubmit = form.handleSubmit((values) => {
-    if (!values.payment_method) {
+    if (!values.payment_provider) {
       return;
     }
 
-    onSubmit(values.payment_method);
+    onSubmit(values.payment_provider);
   });
 
   if (!isLoading && availablePaymentMethods.length === 0) {
@@ -98,7 +98,7 @@ const MarkAsPaidDialog = ({ open, onOpenChange, order, isSaving, onSubmit }: Mar
         <Form {...form}>
           <DialogBody>
             <SelectField
-              name="payment_method"
+              name="payment_provider"
               label={__('Payment method', 'kirki-ecommerce')}
               placeholder={__('Select an option', 'kirki-ecommerce')}
               options={paymentMethodOptions}

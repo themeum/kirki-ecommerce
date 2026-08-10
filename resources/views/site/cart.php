@@ -19,8 +19,6 @@ use function Kirki\Ecommerce\Framework\include_view;
 use function Kirki\Ecommerce\Framework\view_data;
 
 $cart = view_data('cart');
-$pricing = $cart['pricing'];
-$currency = $cart['currency'];
 $items = $cart['items'] ?? [];
 
 ?>

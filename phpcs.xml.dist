@@ -11,7 +11,4 @@
         <exclude name="PSR1.Methods.CamelCapsMethodName.NotCamelCaps" />
         <exclude name="Generic.Files.LineLength.TooLong" />
     </rule>
-
-    <!-- Short array syntax: array() -> [] -->
-    <rule ref="Generic.Arrays.DisallowLongArraySyntax"/>
 </ruleset>

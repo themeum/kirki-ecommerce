@@ -143,7 +143,8 @@ class SiteController
     public function cart_page(Request $request, CartService $cart_service)
     {
         $cart = $cart_service->get_current_cart();
-        $cart_resource = CartResource::make($cart);
+        $calculate_tax = false;
+        $cart_resource = CartResource::make($cart, $calculate_tax);
 
         return view('site.cart', ['cart' => $cart_resource])->layout(false);
     }
@@ -185,8 +186,9 @@ class SiteController
         }
 
         $customer = customer();
-        $payment_gateways =  Payment::get_available_gateways();
-        $cart = CartResource::make($cart_service->get_cart($customer->get_customer_id()));
+        $payment_gateways =  Payment::get_available_providers();
+        $cart = $cart_service->get_current_cart();
+        $cart = CartResource::make($cart);
 
 
         $data = [

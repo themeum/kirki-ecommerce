@@ -1,8 +1,9 @@
-import { type SerializedStyles } from '@emotion/react';
+import { CSSObject } from '@emotion/react';
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 
 import Button from '@/components/ui/button';
 import { Field, FieldLabel } from '@/components/ui/field';
+import { defineStyles, flexCenter, scopedMerge } from '@/theme/mixins';
 import type { MediaRef } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -26,7 +27,7 @@ type MediaSelectorProps = {
   onSelect?: (media: MediaItem | MediaItem[]) => void;
   children?: ReactNode;
   label?: string;
-  css?: SerializedStyles;
+  cssOverride?: CSSObject;
   style?: CSSProperties;
 };
 
@@ -35,7 +36,7 @@ const MediaSelector = ({
   onSelect,
   children,
   label,
-  css: cssProp,
+  cssOverride,
   style = {},
 }: MediaSelectorProps) => {
   const mediaFrameRef = useRef<MediaFrame | null>(null);
@@ -104,7 +105,7 @@ const MediaSelector = ({
       {label && <FieldLabel>{label}</FieldLabel>}
       <div
         onClick={openMediaFrame}
-        css={cssProp}
+        css={scopedMerge(styles.mediaSelector, cssOverride)}
         style={{ cursor: 'pointer', ...style }}
         role="button"
         tabIndex={0}
@@ -129,3 +130,7 @@ const MediaSelector = ({
 MediaSelector.displayName = 'MediaSelector';
 
 export default MediaSelector;
+
+const styles = defineStyles({
+  mediaSelector: flexCenter()
+});

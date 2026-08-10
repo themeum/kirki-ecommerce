@@ -41,7 +41,7 @@ export const getFulfillmentBadgeInfo = (status: FulfillmentStatus): { variant: B
   switch (status) {
     case 'unfulfilled':
       return {
-        variant: 'warning',
+        variant: 'secondary',
         text: __('Unfulfilled', 'kirki-ecommerce'),
       };
     case 'processing':
@@ -71,7 +71,7 @@ export const getFulfillmentBadgeInfo = (status: FulfillmentStatus): { variant: B
       };
     case 'returned':
       return {
-        variant: 'secondary',
+        variant: 'warning',
         text: __('Returned', 'kirki-ecommerce'),
       };
     default:

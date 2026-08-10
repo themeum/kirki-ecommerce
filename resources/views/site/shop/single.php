@@ -166,8 +166,8 @@ foreach ($media as $media_item) {
                     <div
                         x-data="quantitySelector({
                             min: 1,
-                            <?php if ( $track_inventory ) : ?>
-                            max: selectedVariant?.stock || <?php echo esc_js( $quantity ); ?>,
+                            <?php if ($track_inventory) : ?>
+                            max: selectedVariant?.stock || <?php echo esc_js($quantity); ?>,
                             <?php endif; ?>
                             initial: 1
                         })"
@@ -184,8 +184,8 @@ foreach ($media as $media_item) {
                             :value="quantity"
                             @input="setValue($el.value)"
                             min="1"
-                            <?php if ( $track_inventory ) : ?>
-                                :max="selectedVariant?.stock || <?php echo esc_js( $quantity ); ?>"
+                            <?php if ($track_inventory) : ?>
+                                :max="selectedVariant?.stock || <?php echo esc_js($quantity); ?>"
                             <?php endif; ?>
                             aria-label="Quantity"
                             id="quantity-input"

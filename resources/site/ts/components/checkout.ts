@@ -10,9 +10,9 @@
  */
 
 import { cartApi } from "../api/cart";
-import { orderApi } from "../api/order";
+import { checkoutApi } from "../api/checkout";
 import { toastManager } from "../services/toast/runtime";
-import type { OrderRequest } from "../types";
+import type { CheckoutRequest } from "../types";
 
 export interface CheckoutConfig {
   cartTotal?: number;
@@ -167,7 +167,7 @@ export function checkout(config: CheckoutConfig = {}) {
       });
 
       // Pre-select the first payment method
-      const firstPaymentRadio = document.querySelector<HTMLInputElement>('input[name="payment_method"]');
+      const firstPaymentRadio = document.querySelector<HTMLInputElement>('input[name="payment_provider"]');
       if (firstPaymentRadio) {
         this.selectedPaymentMethod = firstPaymentRadio.value;
       }
@@ -389,13 +389,13 @@ export function checkout(config: CheckoutConfig = {}) {
         const billingForm = (window as any).Alpine.$data(billingFormEl);
 
         // Prepare order data
-        const orderData: OrderRequest = {
+        const orderData: CheckoutRequest = {
           items: this.cartData.items.map((item: any) => ({
             variant_id: item.product.variant_id,
             quantity: item.quantity,
           })),
           currency_code: this.currency,
-          payment_method: this.selectedPaymentMethod,
+          payment_provider: this.selectedPaymentMethod,
           coupon_code: this.appliedCouponCode || undefined,
           shipping_method: this.selectedShippingMethod || undefined,
           is_billing_same_as_shipping: this.billingSameAsShipping,
@@ -427,16 +427,22 @@ export function checkout(config: CheckoutConfig = {}) {
         };
 
         // Create order
-        const response = await orderApi.create(orderData);
+        const { data } = await checkoutApi.create(orderData);
         toastManager.success(__("Order placed successfully!", "kirki-ecommerce"));
-        // @TODO: need to be handled via hook
-        await cartApi.empty();
 
-        // Redirect to thank you page
-        const url = new URL(window.location.href);
-        url.searchParams.set("order", "success");
-        url.searchParams.set("uuid", response.data.uuid);
-        window.location.href = url.toString();
+        if (data.payment_next_step) {
+          const { type, value } = data.payment_next_step;
+          if (type === 'redirect') {
+            window.location.href = value;
+          } else if (type === 'html') {
+            //@TODO: need to render HTML.
+          }
+        } else {
+          const url = new URL(window.location.href);
+          url.searchParams.set("order", "success");
+          url.searchParams.set("uuid", data.uuid);
+          window.location.href = url.toString();
+        }
       } catch (e: unknown) {
         const err = e as Error & { errors?: Record<string, string[]> };
         this.error = err.message ?? __("Checkout failed", "kirki-ecommerce");

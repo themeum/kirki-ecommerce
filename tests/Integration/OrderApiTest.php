@@ -310,7 +310,7 @@ class OrderApiTest extends RestTestCase
     /**
      * PaymentManager::pay() resolves the gateway from the order's
      * payment_provider attribute (regression test for the stale
-     * payment_method lookup) instead of silently returning null.
+     * payment_provider lookup) instead of silently returning null.
      *
      * @return void
      */

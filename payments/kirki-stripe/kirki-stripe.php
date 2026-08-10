@@ -9,8 +9,7 @@
  * Author URI:        https://kirki.com/
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain:       kirki-stripe
- * Requires Plugins:  kirki-ecommerce
+ * Text Domain:       kirki-ecommerce-stripe
  */
 
 use Kirki\Ecommerce\App\Constants\HookNames;
@@ -27,7 +26,7 @@ add_action('plugins_loaded', function () {
         return;
     }
 
-    add_filter('kirki_ecommerce_payment_providers', function ($providers) {
+    add_filter(HookNames::ECOMMERCE_PAYMENT_PROVIDERS, function ($providers) {
         $providers[] = new Stripe();
 
         return $providers;

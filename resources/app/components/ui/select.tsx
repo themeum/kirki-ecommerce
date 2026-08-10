@@ -1,4 +1,4 @@
-import { forwardRef, type ComponentPropsWithoutRef, type ElementRef, type ReactNode } from 'react';
+import { ComponentRef, forwardRef, type ComponentPropsWithoutRef, type ReactNode } from 'react';
 import { type CSSObject, type Theme } from '@emotion/react';
 import * as SelectPrimitive from '@radix-ui/react-select';
 import { CheckIcon, ChevronDownIcon } from '@radix-ui/react-icons';
@@ -25,7 +25,7 @@ type SelectTriggerProps = Omit<
 };
 
 const SelectTrigger = forwardRef<
-  ElementRef<typeof SelectPrimitive.Trigger>,
+  ComponentRef<typeof SelectPrimitive.Trigger>,
   SelectTriggerProps
 >((props, ref) => {
   const {
@@ -64,7 +64,7 @@ type SelectContentProps = Omit<
 };
 
 const SelectContent = forwardRef<
-  ElementRef<typeof SelectPrimitive.Content>,
+  ComponentRef<typeof SelectPrimitive.Content>,
   SelectContentProps
 >((props, ref) => {
   const {
@@ -104,7 +104,7 @@ type SelectLabelProps = Omit<
 };
 
 const SelectLabel = forwardRef<
-  ElementRef<typeof SelectPrimitive.Label>,
+  ComponentRef<typeof SelectPrimitive.Label>,
   SelectLabelProps
 >((props, ref) => {
   const { cssOverride, icon, children, ...rest } = props;
@@ -128,7 +128,7 @@ type SelectItemProps = Omit<
 };
 
 const SelectItem = forwardRef<
-  ElementRef<typeof SelectPrimitive.Item>,
+  ComponentRef<typeof SelectPrimitive.Item>,
   SelectItemProps
 >((props, ref) => {
   const { cssOverride, endSlot, children, ...rest } = props;
@@ -156,7 +156,7 @@ type SelectSeparatorProps = Omit<
 };
 
 const SelectSeparator = forwardRef<
-  ElementRef<typeof SelectPrimitive.Separator>,
+  ComponentRef<typeof SelectPrimitive.Separator>,
   SelectSeparatorProps
 >((props, ref) => {
   const { cssOverride, ...rest } = props;

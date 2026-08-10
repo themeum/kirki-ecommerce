@@ -9,7 +9,6 @@ use Kirki\Ecommerce\App\DTO\Cart\RemoveCartItemDTO;
 use Kirki\Ecommerce\App\DTO\Cart\UpdateCartDTO;
 use Exception;
 use Kirki\Ecommerce\App\Constants\Cart;
-use Kirki\Ecommerce\App\DTO\Customer\CreateCustomerDTO;
 
 use function Kirki\Ecommerce\App\base_currency;
 use function Kirki\Ecommerce\App\customer;
@@ -102,10 +101,10 @@ class CartService
     {
         $cart = $this->get_cart($dto->customer_id, $dto->token);
 
-        if(empty($cart)) {
+        if (empty($cart)) {
             $cart = $this->create_new_cart($dto->customer_id);
         }
-        
+
         $cart_id = $cart->id;
 
         $existing_item = $this->find_item_in_cart($cart_id, $dto->variant_id);
@@ -154,7 +153,7 @@ class CartService
     {
         $cart = $this->get_cart($dto->customer_id, $dto->token);
 
-        if(empty($cart)) {
+        if (empty($cart)) {
             $cart = $this->create_new_cart($dto->customer_id);
         }
 
@@ -175,7 +174,7 @@ class CartService
     {
         $cart = $this->get_cart($dto->customer_id, $dto->token);
 
-        if(empty($cart)) {
+        if (empty($cart)) {
             $cart = $this->create_new_cart($dto->customer_id);
         }
 
@@ -190,19 +189,22 @@ class CartService
     }
 
     /**
-     * Get guest cart token.
+     * Get cookie cart token.
      *
      * @since 1.0.0
      *
      * @return string|null
      */
-    public function get_guest_cart_token(): ?string
+    public function get_cookie_cart_token(): ?string
     {
         return sanitize_text_field($_COOKIE[Cart::COOKIE_TOKEN] ?? null);
     }
 
     /**
      * Get current cart.
+     *
+     * Resolves the cart for the current session: by customer ID
+     * for logged-in users, or by guest cart token from cookie.
      *
      * @since 1.0.0
      *
@@ -214,117 +216,15 @@ class CartService
         $cart_token = null;
 
         if (is_user_logged_in()) {
-            $customer = customer();
-            $customer_id = $customer->get_customer_id();
+            $customer_id = customer()->get_customer_id();
+            if (!$customer_id) {
+                $cart_token = $this->get_cookie_cart_token();
+            }
         } else {
-            $cart_token = $this->get_guest_cart_token();
+            $cart_token = $this->get_cookie_cart_token();
         }
 
         return $this->get_cart($customer_id, $cart_token);
-    }
-
-    /**
-     * Clear guest cart cookie.
-     *
-     * @since 1.0.0
-     *
-     * @return void
-     */
-    public function clear_guest_cart_cookie()
-    {
-        if (!headers_sent() && isset($_COOKIE[Cart::COOKIE_TOKEN])) {
-            setcookie(Cart::COOKIE_TOKEN, '', time() - DAY_IN_SECONDS, '/');
-            unset($_COOKIE[Cart::COOKIE_TOKEN]);
-        }
-    }
-
-    /**
-     * Set guest cart token in cookie
-     *
-     * @since 1.0.0
-     *
-     * @return void
-     */
-    public function set_guest_cart_cookie()
-    {
-        if (!headers_sent()) {
-            $expires = time() + (DAY_IN_SECONDS * 30);
-            $cart = $this->get_cart();
-            setcookie(Cart::COOKIE_TOKEN, $cart->cart_token, $expires, '/');
-            $_COOKIE[Cart::COOKIE_TOKEN] = $cart->cart_token;
-        }
-    }
-
-    /**
-     * Ensure guest cart cookie.
-     *
-     * @since 1.0.0
-     *
-     * @return void
-     */
-    public function ensure_guest_cart_cookie(): void
-    {
-        if (is_user_logged_in() || headers_sent()) {
-            return;
-        }
-
-        $token = $this->get_guest_cart_token();
-
-        if (!$token) {
-            $this->set_guest_cart_cookie();
-            return;
-        }
-
-        if (!$this->repository->find_by_token($token)) {
-            $this->clear_guest_cart_cookie();
-            $this->set_guest_cart_cookie();
-        }
-    }
-
-    /**
-     * Sync guest cart with user cart after login.
-     *
-     * @since 1.0.0
-     *
-     * @param string $user_login user login.
-     * @param \WP_User $user wp user object.
-     *
-     * @return void
-     */
-    public function sync_guest_cart(string $user_login, \WP_User $user): void
-    {
-        $current_user_id = $user->ID;
-        $guest_cart_token = $this->get_guest_cart_token();
-
-        if (!$guest_cart_token) {
-            return;
-        }
-
-        $customer_id = null;
-        $customer = customer($current_user_id)->get_customer();
-
-        /**
-         * If existing user has no customer record
-         * First create the record with WP user id.
-         */
-        if (!$customer) {
-            $customer_service = app(CustomerService::class);
-            $dto = app(CreateCustomerDTO::class);
-            $dto->user_id = $current_user_id;
-            $dto->first_name = $user->first_name;
-            $dto->last_name = $user->last_name;
-            $dto->email = $user->user_email;
-            $dto->created_by = $current_user_id;
-            $dto->updated_by = $current_user_id;
-
-            $customer = $customer_service->create($dto);
-            $customer_id = $customer->id;
-        } else {
-            $customer_id = $customer->id;
-        }
-
-        $this->repository->update_by_token($guest_cart_token, ['customer_id' => $customer_id]);
-        $this->clear_guest_cart_cookie();
     }
 
     /**
