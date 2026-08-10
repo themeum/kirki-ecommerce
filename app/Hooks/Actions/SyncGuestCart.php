@@ -11,7 +11,7 @@
 
 namespace Kirki\Ecommerce\App\Hooks\Actions;
 
-use Kirki\Ecommerce\App\Services\CartService;
+use Kirki\Ecommerce\App\Services\GuestCartService;
 use Kirki\Ecommerce\Framework\Wordpress\BaseHook;
 use Kirki\Ecommerce\Framework\Wordpress\Constants\HookTypes;
 
@@ -48,8 +48,8 @@ class SyncGuestCart extends BaseHook
             */
             $user = $args[1];
 
-            $cart_service = app(CartService::class);
-            $cart_service->sync_guest_cart($user_login, $user);
+            $guest_cart_service = app(GuestCartService::class);
+            $guest_cart_service->sync_guest_cart($user_login, $user);
         } catch (\Exception $e) {
             error_log('Error syncing guest cart: ' . $e->getMessage());
         }
