@@ -26,7 +26,6 @@ import { defineStyles, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 import Page from '@/components/ui/page';
-import { endpoints } from '@/libs/endpoints';
 import { getDefaults, pickFormValues } from '@/libs/zod';
 import { getCouponBadgeInfo } from '@/pages/coupons/edit-coupon/config/coupon-badge';
 import { isDefined } from '@/utils/object';
@@ -135,7 +134,10 @@ const EditCoupon = () => {
         await updateMutation.mutateAsync({ id: couponId, data: payload });
       } else {
         const response = await createMutation.mutateAsync(payload);
-        navigate(endpoints.COUPON(response.data.id));
+
+        if (isDefined(response.data) && isDefined(response.data.id)) {
+          navigate(`/coupons/${response.data.id}`);
+        }
       }
     } catch (error) {
       applyServerErrors(form, error as ErrorResponse);
@@ -163,7 +165,7 @@ const EditCoupon = () => {
           sticky
           actions={
             <>
-              <Button variant="ghost" onClick={() => navigate(endpoints.COUPONS)}>
+              <Button variant="ghost" onClick={() => navigate('/coupons')}>
                 {__('Cancel', 'kirki-ecommerce')}
               </Button>
               <Button
@@ -178,7 +180,7 @@ const EditCoupon = () => {
             </>
           }
           hasBack
-          onBack={() => navigate(endpoints.COUPONS)}
+          onBack={() => navigate('/coupons')}
         >
           {
             !isNew && isDefined(couponBadgeInfo) && (
