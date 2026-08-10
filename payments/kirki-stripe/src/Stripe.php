@@ -15,9 +15,12 @@ use Stripe\Event;
 use Stripe\Exception\SignatureVerificationException;
 use Stripe\StripeClient;
 use Exception;
+use Kirki\Ecommerce\App\Constants\Payment\PaymentActionType;
+use Kirki\Ecommerce\App\DTO\Payment\PaymentActionDTO;
 use Stripe\Webhook;
 use UnexpectedValueException;
 use Kirki\Ecommerce\App\Facades\Order as OrderManager;
+use Kirki\Ecommerce\App\Supports\Url;
 
 defined('ABSPATH') || exit;
 
@@ -34,8 +37,8 @@ class Stripe extends PaymentProvider
     public function __construct()
     {
         $this->id = 'stripe';
-        $this->title = __('Stripe', 'kirki-ecommerce');
-        $this->description = __('Stripe payment gateway', 'kirki-ecommerce');
+        $this->title = __('Stripe', 'kirki-ecommerce-stripe');
+        $this->description = __('Stripe payment gateway', 'kirki-ecommerce-stripe');
         $this->icon = $this->icon_url('stripe');
         $this->settings_key = 'stripe';
         $this->is_offline = false;
@@ -47,13 +50,13 @@ class Stripe extends PaymentProvider
         $this->set_admin_fields([
             [
                 'name' => 'secret_key',
-                'label' => __('Secret Key', 'kirki-ecommerce'),
+                'label' => __('Secret Key', 'kirki-ecommerce-stripe'),
                 'type' => 'password',
                 'required' => true,
             ],
             [
                 'name' => 'webhook_secret',
-                'label' => __('Webhook Secret', 'kirki-ecommerce'),
+                'label' => __('Webhook Secret', 'kirki-ecommerce-stripe'),
                 'type' => 'password',
                 'required' => true,
             ],
@@ -70,7 +73,7 @@ class Stripe extends PaymentProvider
     public function pay(Order $order)
     {
         if (!$this->enabled()) {
-            throw new Exception(__('Stripe is not enabled.', 'kirki-ecommerce'));
+            throw new Exception(__('Stripe is not enabled.', 'kirki-ecommerce-stripe'));
         }
 
         try {
@@ -99,7 +102,7 @@ class Stripe extends PaymentProvider
                     'price_data' => [
                         'currency' => $currency,
                         'product_data' => [
-                            'name' => __('Order #' . $order->order_number, 'kirki-ecommerce'),
+                            'name' => __('Order #' . $order->order_number, 'kirki-ecommerce-stripe'),
                         ],
                         'unit_amount' => (int) $order->invoiced_total,
                     ],
@@ -107,13 +110,13 @@ class Stripe extends PaymentProvider
                 ];
             }
 
-            if (!empty($order->shipping_total)) {
+            if (!empty($order->invoiced_shipping_total)) {
                 $shipping_charge[] = [
                     'shipping_rate_data' => [
-                        'display_name' => 'Shipping Charge',
+                        'display_name' => __('Shipping Charge', 'kirki-ecommerce-stripe'),
                         'type'         => 'fixed_amount',
                         'fixed_amount' => [
-                            'amount'   => $order->shipping_total,
+                            'amount'   => $order->invoiced_shipping_total,
                             'currency' => $currency,
                         ],
                     ],
@@ -125,13 +128,12 @@ class Stripe extends PaymentProvider
                 'order_number' => $order->order_number
             ];
 
-            // @todo Need to change success & cancel URL.
             $data = [
                 'currency' => $currency,
                 'line_items' => $line_items,
                 'mode' => 'payment',
-                'success_url' => $this->return_url($order) . '&action=success',
-                'cancel_url' => $this->return_url($order) . '&action=cancel',
+                'success_url' => Url::get_checkout_success_url($order->uuid),
+                'cancel_url' => Url::get_checkout_failed_url($order->uuid),
                 'client_reference_id' => (string) $order->id,
                 'metadata' => $metadata,
                 'payment_intent_data' => [
@@ -146,9 +148,12 @@ class Stripe extends PaymentProvider
 
             $session = $stripe->checkout->sessions->create($data, ['idempotency_key' => 'checkout_' . $order->id]);
 
-            return $session->url;
+            return PaymentActionDTO::from_array([
+                'type' => PaymentActionType::REDIRECT,
+                'value' => $session->url,
+            ]);
         } catch (Exception $e) {
-            throw new Exception(__('Stripe Payment Error: ' . $e->getMessage(), 'kirki-ecommerce'));
+            throw new Exception(__('Stripe Payment Error: ' . $e->getMessage(), 'kirki-ecommerce-stripe'));
         }
     }
 
@@ -168,7 +173,7 @@ class Stripe extends PaymentProvider
             $transaction_id = $order->payment_transaction_id;
 
             if (empty($transaction_id)) {
-                throw new Exception(__('No payment transaction ID found for this order.', 'kirki-ecommerce'));
+                throw new Exception(__('No payment transaction ID found for this order.', 'kirki-ecommerce-stripe'));
             }
 
             $refund_payload = [
@@ -183,9 +188,9 @@ class Stripe extends PaymentProvider
                 return true;
             }
 
-            throw new Exception(__('Refund failed.', 'kirki-ecommerce'));
+            throw new Exception(__('Refund failed.', 'kirki-ecommerce-stripe'));
         } catch (Exception $e) {
-            throw new Exception(sprintf(__('Stripe Refund Error: %s', 'kirki-ecommerce'), $e->getMessage()));
+            throw new Exception(sprintf(__('Stripe Refund Error: %s', 'kirki-ecommerce-stripe'), $e->getMessage()));
         }
     }
 
@@ -201,7 +206,7 @@ class Stripe extends PaymentProvider
         $endpoint_secret = $this->settings['webhook_secret'] ?? '';
 
         if (empty($endpoint_secret)) {
-            throw new Exception(__('Webhook secret is not configured.', 'kirki-ecommerce'));
+            throw new Exception(__('Webhook secret is not configured.', 'kirki-ecommerce-stripe'));
         }
 
         $event = null;
@@ -220,13 +225,13 @@ class Stripe extends PaymentProvider
             DB::commit();
         } catch (UnexpectedValueException $e) {
             DB::rollback();
-            throw new Exception(__('Invalid payload', 'kirki-ecommerce'));
+            throw new Exception(__('Invalid payload', 'kirki-ecommerce-stripe'));
         } catch (SignatureVerificationException $e) {
             DB::rollback();
-            throw new Exception(__('Invalid signature', 'kirki-ecommerce'));
+            throw new Exception(__('Invalid signature', 'kirki-ecommerce-stripe'));
         } catch (Exception $e) {
             DB::rollback();
-            throw new Exception(__('Webhook error: ' . $e->getMessage(), 'kirki-ecommerce'));
+            throw new Exception(__('Webhook error: ' . $e->getMessage(), 'kirki-ecommerce-stripe'));
         }
 
         return true;
@@ -271,6 +276,7 @@ class Stripe extends PaymentProvider
         Validator::make($settings, [
             'secret_key' => 'sometimes|string',
             'webhook_secret' => 'sometimes|string',
+            'sandbox' => 'sometimes|boolean',
         ])->validate();
 
         return true;
@@ -287,6 +293,7 @@ class Stripe extends PaymentProvider
         $data = Sanitizer::make($settings, [
             'secret_key' => Sanitizer::TEXT,
             'webhook_secret' => Sanitizer::TEXT,
+            'sandbox' => Sanitizer::BOOL,
         ])->get_sanitized_data();
 
         return $data;
@@ -350,7 +357,7 @@ class Stripe extends PaymentProvider
         $secret_key = $this->settings['secret_key'] ?? null;
 
         if (empty($secret_key)) {
-            throw new Exception(__('Stripe Secret Key is missing.', 'kirki-ecommerce'));
+            throw new Exception(__('Stripe Secret Key is missing.', 'kirki-ecommerce-stripe'));
         }
 
         $this->stripe = new StripeClient($secret_key);
@@ -377,7 +384,7 @@ class Stripe extends PaymentProvider
         $new_endpoint = $stripe->webhookEndpoints->create([
             'url' => $this->webhook_url(),
             'enabled_events' => $this->webhook_events(),
-            'description' => __('Kirki Ecommerce Webhook', 'kirki-ecommerce'),
+            'description' => __('Kirki Ecommerce Webhook', 'kirki-ecommerce-stripe'),
         ]);
 
         return $new_endpoint->secret;
@@ -408,7 +415,6 @@ class Stripe extends PaymentProvider
 
         if ($session->payment_status === 'paid') {
             OrderManager::mark_payment_as_paid($order_id);
-            OrderManager::mark_as_processing($order_id);
             OrderManager::set_payment_metadata($order_id, $session->toJson());
         } elseif ($session->payment_status === 'unpaid') {
             OrderManager::mark_payment_as_unpaid($order_id);
@@ -447,7 +453,6 @@ class Stripe extends PaymentProvider
         }
 
         OrderManager::mark_payment_as_paid($order_id);
-        OrderManager::mark_as_processing($order_id);
         OrderManager::set_payment_metadata($order_id, $session->toJson());
     }
 
@@ -473,7 +478,7 @@ class Stripe extends PaymentProvider
         }
 
         OrderManager::mark_payment_as_failed($order_id);
-        OrderManager::mark_as_cancelled($order_id);
+        OrderManager::mark_as_cancel($order_id, $session->last_payment_error->message);
         OrderManager::set_payment_metadata($order_id, $session->toJson());
     }
 

@@ -24,24 +24,24 @@ class TestController
         // CurrencyExchange::sync();
 
         // For Authorizenet testing.
-        header('Content-Type: text/html');
-        $pay = Payment::get_provider('razorpay')->pay(Order::find(2));
-        echo $pay;
-        exit;
+        // header('Content-Type: text/html');
+        // $pay = Payment::get_provider('razorpay')->pay(Order::find(2));
+        // echo $pay;
+        // exit;
 
         $today = Date::today();
 
         return response()->json([
-            // 'message' => 'Hello World',
-            // 'money' => Money::from_minor(100, 'INR')->getAmounts(),
-            // 'base_url' => app()->base_url('test'),
-            // 'somoy' => $today->copy()->add_day(),
-            // 'somoy2' => $today,
-            // 'settings' => Settings::update('general.industry', 'tech'),
+            'message' => 'Hello World',
+            'money' => Money::from_minor(100, 'INR')->getAmounts(),
+            'base_url' => app()->base_url('test'),
+            'somoy' => $today->copy()->add_day(),
+            'somoy2' => $today,
+            'settings' => Settings::update('general.industry', 'tech'),
             // 'usage' => CurrencyExchange::get_active_provider()->get_usage()->all(),
             // 'is_installed' => AddonPlugin::install('https://kirki.com/addons/paypal-gateway')
             // 'refund' => Payment::get_provider('paypal')->refund(Order::find(7), 1)
-            //'pay' => Payment::get_provider('razorpay')->pay(Order::find(1))
+            // 'pay' => Payment::get_provider('paypal')->pay(Order::find(8))
         ]);
     }
 }

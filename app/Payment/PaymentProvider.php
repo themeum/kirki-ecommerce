@@ -492,14 +492,13 @@ class PaymentProvider
     /**
      * Get the return URL for the payment provider.
      *
-     * @param Order|null $order Order.
+     * @param Order $order Order.
      * @return string
      */
-    protected function return_url($order = null)
+    protected function return_url($order)
     {
-        // @TODO: Implement return_url() method.
-        if (!$order) {
-            return site_url();
+        if ($order) {
+            return Url::get_checkout_success_url($order->uuid);
         }
 
         return home_url();
@@ -509,11 +508,11 @@ class PaymentProvider
     {
         $parts = [];
 
-        if ($order_item->base_price > 0) {
+        if ($order_item->invoiced_price > 0) {
             $parts[] = sprintf(
                 /* translators: %s: price */
                 __('Price: %s', 'kirki-ecommerce'),
-                Money::format(Money::from_minor($order_item->base_price, $currency))
+                Money::format(Money::from_minor($order_item->invoiced_price, $currency))
             );
         }
 
@@ -561,39 +560,5 @@ class PaymentProvider
     public static function format_amount($amount, $currency)
     {
         return number_format(Money::from_minor($amount, $currency)->getAmount()->toFloat(), 2, '.', '');
-    }
-
-    /**
-     * Build the redirect URL for a successful payment.
-     *
-     * @param Order $order The order being paid for.
-     *
-     * @return string The checkout URL with success query parameters.
-     */
-    protected function success_url(Order $order)
-    {
-        $query_params = [
-            'uuid' => $order->get_attribute_value('uuid'),
-            'order' => 'success'
-        ];
-
-        return url(Url::get_checkout_url(), $query_params);
-    }
-
-    /**
-     * Build the redirect URL for a cancelled or failed payment.
-     *
-     * @param Order $order The order the payment was attempted for.
-     *
-     * @return string The home URL with failure query parameters.
-     */
-    protected function cancel_url(Order $order)
-    {
-        $query_params = [
-            'uuid' => $order->get_attribute_value('uuid'),
-            'order' => 'failed'
-        ];
-
-        return url(Url::get_checkout_url(), $query_params);
     }
 }

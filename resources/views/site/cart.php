@@ -39,7 +39,7 @@ $items = $cart['items'] ?? [];
             <?php if (count($items)) : ?>
                 <?php foreach ($items as $item) :
                     include_view('site.cart.parts.cart-item', ['item' => $item]);
-                ?>
+                    ?>
                 <?php endforeach; ?>
             <?php else : ?>
                 <h4 class="kecom-cart-items-empty-text"><?php _e('No items currently in cart.', 'kirki-ecommerce'); ?></h4>

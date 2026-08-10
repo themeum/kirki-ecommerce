@@ -429,8 +429,6 @@ export function checkout(config: CheckoutConfig = {}) {
         // Create order
         const { data } = await checkoutApi.create(orderData);
         toastManager.success(__("Order placed successfully!", "kirki-ecommerce"));
-        // @TODO: need to be handled via hook
-        await cartApi.empty();
 
         if (data.payment_next_step) {
           const { type, value } = data.payment_next_step;

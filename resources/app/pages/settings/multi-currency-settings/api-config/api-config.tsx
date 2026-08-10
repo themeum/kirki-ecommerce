@@ -86,7 +86,7 @@ const ApiConfig = () => {
       <OptionAccordion
         header={<Flex gap={2} align="center">
           {__('Automatic Updates', 'kirki-ecommerce')}
-          <Badge>Coming Soon</Badge>
+          <Badge>{__('Coming Soon', 'kirki-ecommerce')}</Badge>
         </Flex>}
         subHeader={__(
           'Configure automatic exchange rate providers for real-time currency conversion',
