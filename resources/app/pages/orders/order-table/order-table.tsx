@@ -6,6 +6,7 @@ import DataTable, { type DataTableColumn } from '@/components/data-table';
 import Badge from '@/components/ui/badge';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
+import { RouteConfig } from '@/config/route-config';
 import { useListParams } from '@/hooks';
 import { DATE_FORMATS } from '@/libs/date';
 import { getFulfillmentBadgeInfo, getPaymentBadgeInfo } from '@/pages/orders/order-details/config/order-badge';
@@ -118,7 +119,7 @@ const OrderTable = () => {
       columns={orderColumns}
       onPageChange={handlePaginationChange}
       onRowClick={(item) => {
-        navigate(`/orders/${item.id}`);
+        navigate(RouteConfig.Orders.get('OrderDetail').buildLink({ id: item.id }));
       }}
     >
       <DataTable.Filter>

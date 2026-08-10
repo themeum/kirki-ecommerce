@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 
 
 import Button from '@/components/ui/button';
 import { Field, FieldLabel } from '@/components/ui/field';
+import { useWordpressMedia } from '@/hooks';
 import { defineStyles, flexCenter, scopedMerge } from '@/theme/mixins';
 import type { MediaRef } from '@/types';
 import { __ } from '@/wpi18n';
@@ -20,9 +21,13 @@ type MediaFrame = {
     };
   };
   open: () => void;
+  modal?: { el?: HTMLElement };
 };
 
-type MediaSelectorProps = {
+export type MediaSelectorProps = {
+  title?: string;
+  buttonText?: string;
+  types?: AcceptedMediaTypes[];
   multiple?: boolean;
   onSelect?: (media: MediaItem | MediaItem[]) => void;
   children?: ReactNode;
@@ -31,7 +36,12 @@ type MediaSelectorProps = {
   style?: CSSProperties;
 };
 
+type AcceptedMediaTypes = 'image' | 'video' | 'audio' | 'application/pdf' | 'application/zip';
+
 const MediaSelector = ({
+  title = __('Select Image(s)', 'kirki-ecommerce'),
+  types = ['image'],
+  buttonText,
   multiple = false,
   onSelect,
   children,
@@ -39,7 +49,9 @@ const MediaSelector = ({
   cssOverride,
   style = {},
 }: MediaSelectorProps) => {
+  const { closeWpMediaFrame, openWpMediaFrame } = useWordpressMedia();
   const mediaFrameRef = useRef<MediaFrame | null>(null);
+  const isFrameOpenRef = useRef(false);
   const [selectedImage, setSelectedImage] = useState<MediaItem | MediaItem[]>({
     url: '',
   });
@@ -55,15 +67,25 @@ const MediaSelector = ({
   useEffect(() => {
     if (typeof wp !== 'undefined' && wp?.media) {
       mediaFrameRef.current = wp.media({
-        title: __('Select Image(s)', 'kirki-ecommerce'),
-        library: { type: 'image' },
+        title: title,
+        library: { type: types },
         multiple: multiple,
         button: {
-          text: multiple
+          text: buttonText ?? (multiple
             ? __('Use These Images', 'kirki-ecommerce')
-            : __('Use This Image', 'kirki-ecommerce'),
+            : __('Use This Image', 'kirki-ecommerce')),
         },
       }) as MediaFrame;
+
+      mediaFrameRef.current.on('open', () => {
+        isFrameOpenRef.current = true;
+        openWpMediaFrame(mediaFrameRef.current?.modal?.el);
+      });
+
+      mediaFrameRef.current.on('close', () => {
+        isFrameOpenRef.current = false;
+        closeWpMediaFrame(mediaFrameRef.current?.modal?.el);
+      });
 
       mediaFrameRef.current.on('select', () => {
         if (!mediaFrameRef.current) {
@@ -88,8 +110,15 @@ const MediaSelector = ({
     }
 
     return () => {
+      if (isFrameOpenRef.current) {
+        isFrameOpenRef.current = false;
+        closeWpMediaFrame(mediaFrameRef.current?.modal?.el);
+      }
+
       if (mediaFrameRef.current) {
         mediaFrameRef.current.off('select');
+        mediaFrameRef.current.off('open');
+        mediaFrameRef.current.off('close');
       }
     };
   }, []);

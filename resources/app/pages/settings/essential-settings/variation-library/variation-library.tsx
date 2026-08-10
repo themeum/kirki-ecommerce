@@ -15,6 +15,7 @@ import {
   StackedItemTitle,
 } from '@/components/ui/stacked-items';
 import Text from '@/components/ui/text';
+import { RouteConfig } from '@/config/route-config';
 import { BoxIcon, ColorPaletteIcon, EditPenIcon, TrashIcon } from '@/icons';
 import { dispatchToastMessage } from '@/pages/utils';
 import { useAttributesQuery, useDeleteAttributeMutation } from '@/services/attribute';
@@ -67,10 +68,12 @@ const VariationList = () => {
   };
 
   const handleEditVariation = (item: AttributeListItem) => {
+    const EssentialsRoutes = RouteConfig.Settings.get('EssentialsSettings');
+
     if (item?.type === 'color') {
-      navigate(`/settings/essentials/color/${item?.id}`);
+      navigate(EssentialsRoutes.get('ColorVariation').buildLink({ id: item.id }));
     } else {
-      navigate(`/settings/essentials/list/${item?.id}`);
+      navigate(EssentialsRoutes.get('ListVariation').buildLink({ id: item.id }));
     }
   };
 

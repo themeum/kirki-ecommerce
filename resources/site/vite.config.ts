@@ -22,9 +22,6 @@ export default defineConfig({
     outDir: path.resolve(__dirname, '../../assets'),
     emptyOutDir: false,
     cssCodeSplit: false,
-    watch: {
-      include: ['ts/**', 'scss/**'],
-    },
     rollupOptions: {
       input: {
         site: path.resolve(__dirname, 'ts/index.ts'),

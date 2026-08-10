@@ -1,12 +1,13 @@
 import { keyframes, type CSSObject } from '@emotion/react';
-import { forwardRef, type ComponentPropsWithoutRef, type ElementRef, type HTMLAttributes } from 'react';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { X } from 'lucide-react';
+import { forwardRef, type ComponentPropsWithoutRef, type ComponentRef, type HTMLAttributes } from 'react';
 
 import Button from '@/components/ui/button';
+import { useWordpressMedia } from '@/hooks';
 import { getPortalContainer } from '@/libs/portal-container';
 import { theme } from '@/theme';
-import { mergeCss, scopedMerge, defineStyles } from '@/theme/mixins';
+import { defineStyles, mergeCss, scopedMerge } from '@/theme/mixins';
 
 const Dialog = DialogPrimitive.Root;
 
@@ -32,7 +33,7 @@ type DialogOverlayProps = Omit<
 };
 
 const DialogOverlay = forwardRef<
-  ElementRef<typeof DialogPrimitive.Overlay>,
+  ComponentRef<typeof DialogPrimitive.Overlay>,
   DialogOverlayProps
 >((props, ref) => {
   const { cssOverride, ...rest } = props;
@@ -52,10 +53,11 @@ type DialogContentProps = Omit<
 };
 
 const DialogContent = forwardRef<
-  ElementRef<typeof DialogPrimitive.Content>,
+  ComponentRef<typeof DialogPrimitive.Content>,
   DialogContentProps
 >((props, ref) => {
   const { cssOverride, children, ...rest } = props;
+  const { isWpMediaFrameOpen, isWpMediaNode } = useWordpressMedia();
 
   return (
     <DialogPortal>
@@ -63,6 +65,22 @@ const DialogContent = forwardRef<
       <DialogPrimitive.Content
         ref={ref}
         css={scopedMerge(styles.content, cssOverride)}
+        onEscapeKeyDown={(event) => {
+          if (isWpMediaFrameOpen()) {
+            event.preventDefault();
+            return;
+          }
+
+          rest.onEscapeKeyDown?.(event);
+        }}
+        onInteractOutside={(event) => {
+          if (isWpMediaNode(event.detail.originalEvent.target)) {
+            event.preventDefault();
+            return;
+          }
+
+          rest.onInteractOutside?.(event);
+        }}
         {...rest}
       >
         {children}
@@ -133,7 +151,7 @@ type DialogTitleProps = Omit<
 };
 
 const DialogTitle = forwardRef<
-  ElementRef<typeof DialogPrimitive.Title>,
+  ComponentRef<typeof DialogPrimitive.Title>,
   DialogTitleProps
 >((props, ref) => {
   const { cssOverride, ...rest } = props;
@@ -153,7 +171,7 @@ type DialogDescriptionProps = Omit<
 };
 
 const DialogDescription = forwardRef<
-  ElementRef<typeof DialogPrimitive.Description>,
+  ComponentRef<typeof DialogPrimitive.Description>,
   DialogDescriptionProps
 >((props, ref) => {
   const { cssOverride, ...rest } = props;
@@ -170,18 +188,9 @@ const DialogDescription = forwardRef<
 DialogDescription.displayName = 'DialogDescription';
 
 export {
-  Dialog,
-  DialogPortal,
-  DialogOverlay,
-  DialogTrigger,
-  DialogClose,
+  Dialog, DialogBody, DialogClose,
   DialogCloseButton,
-  DialogContent,
-  DialogHeader,
-  DialogFooter,
-  DialogBody,
-  DialogTitle,
-  DialogDescription,
+  DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogOverlay, DialogPortal, DialogTitle, DialogTrigger
 };
 
 const dialogOverlayIn = keyframes({

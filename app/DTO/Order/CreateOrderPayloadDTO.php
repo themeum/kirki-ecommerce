@@ -94,12 +94,6 @@ class CreateOrderPayloadDTO extends DTO
     public $billing_company;
 
     /** @var string|null */
-    public $customer_email;
-
-    /** @var string|null */
-    public $customer_phone;
-
-    /** @var string|null */
     public $customer_notes;
 
     /** @var string|null */
@@ -116,4 +110,7 @@ class CreateOrderPayloadDTO extends DTO
 
     /** @var int|null */
     public $is_manual;
+
+    /** @var string|null */
+    public $cart_token;
 }

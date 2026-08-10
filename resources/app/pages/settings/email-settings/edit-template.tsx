@@ -14,6 +14,7 @@ import { Form } from '@/components/ui/form';
 import ProgressBar from '@/components/ui/progressbar';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Text from '@/components/ui/text';
+import { RouteConfig } from '@/config/route-config';
 import { AlignCenterIcon, AlignLeftIcon, BrushIcon, SendIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
@@ -140,7 +141,7 @@ const EditTemplate = () => {
               <SettingsPageHeader
                 icon={<BrushIcon />}
                 title={__('Edit Template', 'kirki-ecommerce')}
-                onBack={() => navigate('/settings/email')}
+                onBack={() => navigate(RouteConfig.Settings.get('EmailSettings').buildLink())}
               />
               <Flex gap={12} cssOverride={{ width: '100%' }}>
                 <Flex direction="column" gap={5} cssOverride={{ width: '44%' }}>

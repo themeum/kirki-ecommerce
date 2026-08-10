@@ -4,7 +4,6 @@ namespace Kirki\Ecommerce\App\Models;
 
 use Kirki\Ecommerce\App\Concerns\HasSlug;
 use Kirki\Ecommerce\Framework\Database\Query\Model;
-use Kirki\Ecommerce\Framework\Supports\Arr;
 
 class Product extends Model
 {
@@ -48,16 +47,6 @@ class Product extends Model
         'created_by',
         'updated_by',
     ];
-
-    public function set_additional_info_attribute($value)
-    {
-        $this->attributes['additional_info'] = !empty($value) && is_array($value) ? Arr::json_encode($value) : null;
-    }
-
-    public function set_seo_keywords_attribute($value)
-    {
-        $this->attributes['seo_keywords'] = !empty($value) && is_array($value) ? Arr::json_encode($value) : null;
-    }
 
     public function variants()
     {

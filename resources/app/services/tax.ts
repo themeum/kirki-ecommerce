@@ -1,7 +1,7 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
+import { endpoints } from '@/config/endpoints';
 import { apiClient } from '@/libs/api';
-import { endpoints } from '@/libs/endpoints';
 import { queryKeys } from '@/libs/query-keys';
 import { TaxProfileSchema } from '@/schemas/catalog/tax';
 import type { TaxProfileFormPayload } from '@/schemas/forms/tax-profile-form';
@@ -56,7 +56,7 @@ const useCreateTaxProfileMutation = () => {
     onSuccess(response) {
       toastMutationSuccess(
         response.message ||
-          __('Tax profile created successfully.', 'kirki-ecommerce'),
+        __('Tax profile created successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: ['TaxProfiles'] });
     },
@@ -73,7 +73,7 @@ const useUpdateTaxProfileMutation = () => {
     onSuccess(response) {
       toastMutationSuccess(
         response.message ||
-          __('Tax profile updated successfully.', 'kirki-ecommerce'),
+        __('Tax profile updated successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: ['TaxProfiles'] });
     },
@@ -90,7 +90,7 @@ const useDeleteTaxProfileMutation = () => {
     onSuccess(response) {
       toastMutationSuccess(
         response.message ||
-          __('Tax profile deleted successfully.', 'kirki-ecommerce'),
+        __('Tax profile deleted successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: ['TaxProfiles'] });
     },
@@ -101,12 +101,6 @@ const useDeleteTaxProfileMutation = () => {
 };
 
 export {
-  getTaxProfiles,
-  createTaxProfile,
-  updateTaxProfile,
-  deleteTaxProfile,
-  useTaxProfilesQuery,
-  useCreateTaxProfileMutation,
-  useUpdateTaxProfileMutation,
-  useDeleteTaxProfileMutation,
+  createTaxProfile, deleteTaxProfile, getTaxProfiles, updateTaxProfile, useCreateTaxProfileMutation, useDeleteTaxProfileMutation, useTaxProfilesQuery, useUpdateTaxProfileMutation
 };
+

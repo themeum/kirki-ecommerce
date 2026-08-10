@@ -129,6 +129,12 @@ class CartController
         $token = $request->get_header(Cart::HEADER_TOKEN);
         $customer_id = $customer ? $customer->get_customer_id() : null;
 
+        if (empty($token) && empty($customer_id)) {
+            return response()->json([
+                'message' => __('Invalid request.', 'kirki-ecommerce'),
+            ], 400);
+        }
+
         $updated_cart = $action->execute($token, $customer_id, $request->sanitized());
 
         return response()->json([

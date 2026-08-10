@@ -55,12 +55,16 @@ class PayPal extends PaymentProvider
                 'label' => __('Client ID', 'kirki-ecommerce'),
                 'type' => 'text',
                 'required' => true,
+                'default' => '',
+                'placeholder' => __('Enter your client ID', 'kirki-ecommerce'),
             ],
             [
                 'name' => 'client_secret',
                 'label' => __('Client Secret', 'kirki-ecommerce'),
                 'type' => 'password',
                 'required' => true,
+                'default' => '',
+                'placeholder' => __('Enter your client secret', 'kirki-ecommerce'),
             ],
             [
                 'name' => 'webhook_id',
@@ -68,11 +72,15 @@ class PayPal extends PaymentProvider
                 'type' => 'text',
                 'description' => __('Create a webhook in PayPal Developer Dashboard for events: CHECKOUT.ORDER.APPROVED, PAYMENT.CAPTURE.COMPLETED, PAYMENT.CAPTURE.REFUNDED', 'kirki-ecommerce'),
                 'required' => true,
+                'default' => '',
+                'placeholder' => __('Enter your webhook ID', 'kirki-ecommerce'),
             ],
             [
                 'name' => 'sandbox',
                 'label' => __('Sandbox Mode', 'kirki-ecommerce'),
                 'type' => 'checkbox',
+                'default' => true,
+                'description' => __('Enable sandbox mode to test the payment gateway.', 'kirki-ecommerce'),
             ],
         ]);
     }

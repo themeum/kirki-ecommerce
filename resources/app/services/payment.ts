@@ -1,8 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { z } from 'zod';
 
+import { endpoints } from '@/config/endpoints';
 import { apiClient } from '@/libs/api';
-import { endpoints } from '@/libs/endpoints';
 import { queryKeys } from '@/libs/query-keys';
 import { OfflinePaymentSchema, OnlinePaymentListSchema, OnlinePaymentSchema } from '@/schemas/catalog/payment';
 import type { OfflinePaymentFormPayload } from '@/schemas/forms/offline-payment-form';
@@ -227,6 +227,6 @@ const useDeleteOfflinePaymentMutation = () => {
 };
 
 export {
-  createOfflinePayment, deleteOfflinePayment, getInstallableOnlinePayments, getOnlinePayment, getOnlinePayments, getOfflinePayments, installOnlinePayment, setEnabledOnlinePayment, updateOnlinePayment, updateOfflinePayment, useCreateOfflinePaymentMutation, useDeleteOfflinePaymentMutation, useInstallableOnlinePaymentsQuery, useInstallOnlinePaymentMutation, useOnlinePaymentQuery, useOnlinePaymentsQuery, useOfflinePaymentsQuery, useSetEnabledOnlinePaymentMutation, useUpdateOnlinePaymentMutation, useUpdateOfflinePaymentMutation
+  createOfflinePayment, deleteOfflinePayment, getInstallableOnlinePayments, getOfflinePayments, getOnlinePayment, getOnlinePayments, installOnlinePayment, setEnabledOnlinePayment, updateOfflinePayment, updateOnlinePayment, useCreateOfflinePaymentMutation, useDeleteOfflinePaymentMutation, useInstallableOnlinePaymentsQuery, useInstallOnlinePaymentMutation, useOfflinePaymentsQuery, useOnlinePaymentQuery, useOnlinePaymentsQuery, useSetEnabledOnlinePaymentMutation, useUpdateOfflinePaymentMutation, useUpdateOnlinePaymentMutation
 };
 

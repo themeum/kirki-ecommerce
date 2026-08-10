@@ -81,8 +81,8 @@ class Url
      */
     public static function get_checkout_success_url(string $order_uuid): string
     {
-        return self::add_query_params(
-            self::get_checkout_url(),
+        return static::add_query_params(
+            static::get_checkout_url(),
             [
                 'order' => 'success',
                 'uuid' => $order_uuid,
@@ -101,8 +101,8 @@ class Url
      */
     public static function get_checkout_failed_url(string $order_uuid): string
     {
-        return self::add_query_params(
-            self::get_checkout_url(),
+        return static::add_query_params(
+            static::get_checkout_url(),
             [
                 'order' => 'failed',
                 'uuid' => $order_uuid,
