@@ -10,7 +10,7 @@
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       kirki-authorizenet
- * Requires Plugins:  kirki-ecommerce
+ * Requires Plugins:  kirki-ecommerce-authorizenet
  */
 
 use Kirki\Ecommerce\App\Constants\HookNames;

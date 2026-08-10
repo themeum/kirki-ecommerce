@@ -2,9 +2,8 @@
 
 namespace Kirki\Ecommerce\Payments;
 
-use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Models\Order;
-use Kirki\Ecommerce\App\Payment\PaymentGateway;
+use Kirki\Ecommerce\App\Payment\PaymentProvider;
 use Kirki\Ecommerce\Framework\Supports\Str;
 
 defined('ABSPATH') || exit;
@@ -25,7 +24,7 @@ class AuthorizenetTransactionBuilder
     {
         $transaction_request = [
             'transactionType' => 'authCaptureTransaction',
-            'amount' => PaymentGateway::format_amount($order->invoiced_total, $order->currency_code),
+            'amount' => PaymentProvider::format_amount($order->invoiced_total, $order->currency_code),
             'lineItems' => [
                 'lineItem' => $this->build_line_items($order),
             ],
@@ -70,7 +69,7 @@ class AuthorizenetTransactionBuilder
                 'name' => $this->limit_string_length($item->product_name, 31),
                 'description' => $this->limit_string_length($item->product_name, 255),
                 'quantity' => (float) $item->quantity,
-                'unitPrice' => (float) PaymentGateway::format_amount($item->invoiced_subtotal, $order->currency_code),
+                'unitPrice' => (float) PaymentProvider::format_amount($item->invoiced_subtotal, $order->currency_code),
             ];
         }
 

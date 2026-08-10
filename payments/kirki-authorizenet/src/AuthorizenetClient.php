@@ -93,7 +93,7 @@ class AuthorizenetClient
             ->post($this->endpoint());
 
         if ($response->failed()) {
-            throw new Exception(sprintf(__('AuthorizeNet API Error: %s', 'kirki-ecommerce'), $response->body()));
+            throw new Exception(sprintf(__('AuthorizeNet API Error: %s', 'kirki-ecommerce-authorizenet'), $response->body()));
         }
 
         return $this->decode($response->__toString());
