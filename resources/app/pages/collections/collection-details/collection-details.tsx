@@ -29,7 +29,7 @@ import {
 import { useCollectionQuery, useCreateCollectionMutation, useUpdateCollectionMutation } from '@/services/collection';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { mergeCss, defineStyles } from '@/theme/mixins';
+import { defineStyles, mergeCss } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 const CollectionDetails = () => {
@@ -98,7 +98,10 @@ const CollectionDetails = () => {
         sticky
         actions={
           <>
-            <Button variant="ghost">
+            <Button
+              variant="ghost"
+              onClick={() => navigate('/collections')}
+            >
               {__('Cancel', 'kirki-ecommerce')}
             </Button>
             <Button
@@ -113,6 +116,7 @@ const CollectionDetails = () => {
           </>
         }
         hasBack
+        onBack={() => navigate('/collections')}
       />
 
       <Container size="md">
@@ -173,13 +177,13 @@ const CollectionDetails = () => {
                 <CardHeader>
                   <CardTitle>{__('SEO Settings', 'kirki-ecommerce')}</CardTitle>
                 </CardHeader>
-                <Card cssOverride={cardStyles.innerCard}>
+                <Card cssOverride={mergeCss(cardStyles.innerCard, { padding: theme.spacing[2] })}>
                   <CardContent>
                     <Flex gap={4} justify="space-between">
                       <Flex direction="column" gap={2}>
                         <Text variant="small" cssOverride={styles.seoUrl}>{window.kirki_ecommerce.site_url +
-                            ' › collections › ' +
-                            (watchedSlug || '')}</Text>
+                          ' › collections › ' +
+                          (watchedSlug || '')}</Text>
                         <Text weight="semibold" cssOverride={styles.seoTitle}>{watchedSeoTitle || watchedTitle || ''}</Text>
                         <Text variant="small" cssOverride={styles.seoDescription}>{watchedSeoDescription || watchedDescription || ''}</Text>
                       </Flex>
