@@ -4,9 +4,12 @@ namespace Kirki\Ecommerce\Payments;
 
 use Exception;
 use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
+use Kirki\Ecommerce\App\Constants\Payment\PaymentActionType;
+use Kirki\Ecommerce\App\DTO\Payment\PaymentActionDTO;
 use Kirki\Ecommerce\App\Facades\Order as OrderManager;
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Payment\PaymentProvider;
+use Kirki\Ecommerce\App\Supports\Url;
 use Kirki\Ecommerce\Framework\Http\Request;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
@@ -75,8 +78,8 @@ class Mollie extends PaymentProvider
                     'currency' => strtoupper($order->currency_code),
                     'value' => $this->format_amount($order->invoiced_total, $order->currency_code),
                 ],
-                'redirectUrl' => $this->success_url($order),
-                'cancelUrl' => $this->cancel_url($order),
+                'redirectUrl' => Url::get_checkout_success_url($order->uuid),
+                'cancelUrl' => Url::get_checkout_failed_url($order->uuid),
                 'webhookUrl' => $this->webhook_url(),
                 'lines' => $this->transaction_builder->build_line_items(),
                 'billingAddress' => $this->transaction_builder->get_address('billing'),
@@ -88,7 +91,10 @@ class Mollie extends PaymentProvider
                 return null;
             }
 
-            return $response['_links']['checkout'];
+            return PaymentActionDTO::from_array([
+                'type' => PaymentActionType::REDIRECT,
+                'value' => $response['_links']['checkout'],
+            ]);
         } catch (\Throwable $e) {
             throw new Exception(__('Mollie Payment Error: ' . $e->getMessage(), 'kirki-mollie'));
         }

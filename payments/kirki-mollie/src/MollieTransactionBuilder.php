@@ -4,6 +4,7 @@ namespace Kirki\Ecommerce\Payments;
 
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Payment\PaymentGateway;
+use Kirki\Ecommerce\App\Payment\PaymentProvider;
 
 defined('ABSPATH') || exit;
 
@@ -86,7 +87,7 @@ class MollieTransactionBuilder
     {
         return [
             'currency' => strtoupper($this->order->currency_code),
-            'value'    => PaymentGateway::format_amount($amount, $this->order->currency_code),
+            'value'    => PaymentProvider::format_amount($amount, $this->order->currency_code),
         ];
     }
 
