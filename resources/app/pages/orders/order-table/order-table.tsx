@@ -8,7 +8,6 @@ import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { useListParams } from '@/hooks';
 import { DATE_FORMATS } from '@/libs/date';
-import { endpoints } from '@/libs/endpoints';
 import { getFulfillmentBadgeInfo, getPaymentBadgeInfo } from '@/pages/orders/order-details/config/order-badge';
 import FilterPopup from '@/pages/orders/order-table/filter-popup/filter-popup';
 import OrderTableAction from '@/pages/orders/order-table/order-table-action';
@@ -119,7 +118,7 @@ const OrderTable = () => {
       columns={orderColumns}
       onPageChange={handlePaginationChange}
       onRowClick={(item) => {
-        navigate(endpoints.ORDER(item.id));
+        navigate(`/orders/${item.id}`);
       }}
     >
       <DataTable.Filter>

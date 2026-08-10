@@ -13,7 +13,6 @@ import Page from '@/components/ui/page';
 import PageHeading from '@/components/ui/page-heading';
 import { useDebounce } from '@/hooks';
 import type { ErrorResponse } from '@/libs/api';
-import { endpoints } from '@/libs/endpoints';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults } from '@/libs/zod';
 import CustomerCard from '@/pages/orders/order-create/components/customer-card';
@@ -134,7 +133,7 @@ const OrderCreate = () => {
       const response = await createMutation.mutateAsync(payload);
 
       if (isDefined(response.data) && isDefined(response.data.id)) {
-        navigate(endpoints.ORDER(response.data.id));
+        navigate(`/orders/${response.data.id}`);
       }
     } catch (error) {
       applyServerErrors(form, error as ErrorResponse);
@@ -149,7 +148,7 @@ const OrderCreate = () => {
           type="primary"
           actions={
             <>
-              <Button variant="ghost" onClick={() => navigate(endpoints.ORDERS)}>
+              <Button variant="ghost" onClick={() => navigate('/orders')}>
                 {__('Cancel', 'kirki-ecommerce')}
               </Button>
               <Button
@@ -162,6 +161,7 @@ const OrderCreate = () => {
             </>
           }
           hasBack
+          onBack={() => navigate('/orders')}
           sticky
         />
         <Container>

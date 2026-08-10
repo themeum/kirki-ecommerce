@@ -1,9 +1,8 @@
 import Button from '@/components/ui/button';
 import Container from '@/components/ui/container';
 import PageHeading from '@/components/ui/page-heading';
-
 import { NEW_ITEM_ID } from '@/conf';
-import { endpoints } from '@/libs/endpoints';
+
 import OrderTable from '@/pages/orders/order-table/order-table';
 import { __ } from '@/wpi18n';
 import { useNavigate } from 'react-router';
@@ -23,7 +22,7 @@ const Orders = () => {
             <Button variant="ghost">
               {__('Export', 'kirki-ecommerce')}
             </Button> */}
-            <Button variant="primary" onClick={() => navigate(endpoints.ORDER(NEW_ITEM_ID))}>
+            <Button variant="primary" onClick={() => navigate('/orders/' + NEW_ITEM_ID)}>
               {__('Add Order', 'kirki-ecommerce')}
             </Button>
           </>

@@ -31,7 +31,7 @@ type OrderActionPayload = {
   tracking_number?: string;
   tracking_url?: string;
   reason?: string;
-  payment_method?: string;
+  payment_provider?: string;
 };
 
 type OrderStatusState = {
@@ -120,5 +120,6 @@ export {
   ORDER_ACTIONS,
   PAYMENT_ACTION_GROUP,
   type OrderAction,
-  type OrderActionPayload,
+  type OrderActionPayload
 };
+
