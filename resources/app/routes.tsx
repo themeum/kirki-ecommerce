@@ -155,6 +155,7 @@ export const router = createHashRouter([
       },
       { path: '/analytics', element: withSuspense(ComingSoon, { text: __('Analytics', 'kirki-ecommerce') }) },
       { path: '/report', element: withSuspense(ComingSoon, { text: __('Report', 'kirki-ecommerce') }) },
+      { path: '/tools', element: withSuspense(ComingSoon, { text: __('Tools', 'kirki-ecommerce') }) },
       { path: '*', element: <NotFound /> },
     ],
   },
