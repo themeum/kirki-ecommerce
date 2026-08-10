@@ -45,13 +45,13 @@ class ShippingService
         switch ($type) {
             case ShippingMethodTypes::FLAT_RATE:
             case ShippingMethodTypes::LOCAL_PICKUP:
-                $cost = ((int) $method['base_amount'] ?? null);
+                $cost = (int) ($method['base_amount'] ?? 0);
                 break;
             case ShippingMethodTypes::WEIGHT_BASED:
                 $cost = $this->calculate_weight_based_cost($context, $method);
                 break;
             default:
-                $cost = ((int) $method['base_amount'] ?? null);
+                $cost = (int) ($method['base_amount'] ?? 0);
                 break;
         }
 

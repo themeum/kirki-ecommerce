@@ -12,6 +12,7 @@ final class KirkiEcommerce
         require_once KIRKI_ECOMMERCE_PLUGIN_PATH . '/bootstrap/app.php';
 
         migrator()->run();
+        Installer::run();
         Scheduler::setup();
     }
 

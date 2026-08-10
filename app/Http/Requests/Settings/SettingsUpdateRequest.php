@@ -182,7 +182,6 @@ class SettingsUpdateRequest extends Request
     protected function get_product_settings_rules()
     {
         return [
-            'data.shop_page' => 'nullable|integer',
             'data.weight_unit' => 'required|string',
             'data.dimension_unit' => 'required|string',
             'data.display_layout' => 'nullable|string',
@@ -204,7 +203,6 @@ class SettingsUpdateRequest extends Request
     protected function get_product_settings_filters()
     {
         return [
-            'data.shop_page' => Sanitizer::INT,
             'data.weight_unit' => Sanitizer::TEXT,
             'data.dimension_unit' => Sanitizer::TEXT,
             'data.display_layout' => Sanitizer::TEXT,

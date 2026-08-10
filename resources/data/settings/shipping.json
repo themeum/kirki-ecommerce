@@ -19,7 +19,7 @@
                     "is_enabled": true,
                     "name": "Standard Delivery",
                     "type": "flat_rate",
-                    "amount": 10,
+                    "base_amount": 1000,
                     "is_taxable": true,
                     "description": null,
                     "shipping_rules": [
@@ -46,7 +46,7 @@
                     "type": "local_pickup",
                     "address": null,
                     "has_fee": false,
-                    "amount": 0,
+                    "base_amount": 0,
                     "description": null,
                     "has_pick_time": false,
                     "pickup_time_start": null,
@@ -115,18 +115,18 @@
                         {
                             "from": 0,
                             "to": 1,
-                            "amount": 5
+                            "base_amount": 500
                         },
                         {
                             "from": 1,
                             "to": 2,
-                            "amount": 10
+                            "base_amount": 1000
                         }
                     ],
-                    "amount": 0,
+                    "base_amount": 0,
                     "is_taxable": false,
                     "is_free_shipping_enabled": false,
-                    "free_shipping_min_amount": 0,
+                    "base_free_shipping_min_amount": 0,
                     "description": null,
                     "shipping_rules": [
                         {

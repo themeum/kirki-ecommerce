@@ -5,17 +5,40 @@ namespace Kirki\Ecommerce\Database\Seeders;
 use Kirki\Ecommerce\App\Models\ProductSchema;
 use Kirki\Ecommerce\Framework\Database\Seeder;
 
+use function Kirki\Ecommerce\Framework\collection;
+
 class ProductSchemaSeeder extends Seeder
 {
     /**
      * Seed product schema templates for import mapping.
+     *
+     * Runs on every activation, so templates already present by name are left
+     * alone, and the default flag is only claimed when no default exists.
      *
      * @return void
      * @since 1.0.0
      */
     public function run(): void
     {
-        ProductSchema::query()->insert($this->get_schema_templates());
+        $existing_names = ProductSchema::query()->pluck('name')->all();
+
+        $missing = collection($this->get_schema_templates())
+            ->reject(fn($template) => in_array($template['name'], $existing_names, true))
+            ->all();
+
+        if (empty($missing)) {
+            return;
+        }
+
+        if (ProductSchema::query()->where('is_default', 1)->exists()) {
+            $missing = array_map(function ($template) {
+                $template['is_default'] = false;
+
+                return $template;
+            }, $missing);
+        }
+
+        ProductSchema::query()->insert(array_values($missing));
     }
 
     /**

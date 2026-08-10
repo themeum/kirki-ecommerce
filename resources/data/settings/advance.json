@@ -1,1 +1,8 @@
-{}
+{
+    "pages": {
+        "shop": null,
+        "cart": null,
+        "checkout": null,
+        "account": null
+    }
+}

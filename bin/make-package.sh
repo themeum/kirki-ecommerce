@@ -17,6 +17,9 @@ REQUIRED_PATHS=(
   "assets"
 )
 
+# "database" is a runtime dependency, not dev-only: App\Installer calls the
+# seeders in database/seeders on activation to provision default records.
+# Dropping it from this list breaks a fresh install.
 OPTIONAL_PATHS=(
   "config"
   "database"

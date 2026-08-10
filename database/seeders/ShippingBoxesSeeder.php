@@ -5,17 +5,40 @@ namespace Kirki\Ecommerce\Database\Seeders;
 use Kirki\Ecommerce\App\Models\ShippingBox;
 use Kirki\Ecommerce\Framework\Database\Seeder;
 
+use function Kirki\Ecommerce\Framework\collection;
+
 class ShippingBoxesSeeder extends Seeder
 {
     /**
      * Seed standard shipping box sizes.
+     *
+     * Runs on every activation, so boxes already present by name are left
+     * alone, and the default flag is only claimed when no default exists.
      *
      * @return void
      * @since 1.0.0
      */
     public function run(): void
     {
-        ShippingBox::query()->insert($this->get_shipping_boxes());
+        $existing_names = ShippingBox::query()->pluck('name')->all();
+
+        $missing = collection($this->get_shipping_boxes())
+            ->reject(fn($box) => in_array($box['name'], $existing_names, true))
+            ->all();
+
+        if (empty($missing)) {
+            return;
+        }
+
+        if (ShippingBox::query()->where('is_default', 1)->exists()) {
+            $missing = array_map(function ($box) {
+                $box['is_default'] = false;
+
+                return $box;
+            }, $missing);
+        }
+
+        ShippingBox::query()->insert(array_values($missing));
     }
 
     /**

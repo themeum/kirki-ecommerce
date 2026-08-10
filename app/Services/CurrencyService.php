@@ -39,12 +39,16 @@ class CurrencyService
     /**
      * Set base currency.
      *
+     * A fresh install only carries the currency it was provisioned with, so a
+     * code the store does not stock yet is created from the reference
+     * catalogue first. The base currency's exchange rate is 1 by definition.
+     *
      * @param string $code
      * @return bool
      */
     public function set_base(string $code)
     {
-        $currency = $this->repository->find_by_code($code);
+        $currency = $this->repository->find_by_code($code) ?? $this->stock_from_reference($code);
 
         if (!$currency) {
             throw new NotFoundException(__('Currency not found.', 'kirki-ecommerce'), Response::NOT_FOUND);
@@ -55,6 +59,32 @@ class CurrencyService
         }
 
         return $this->repository->set_base($code);
+    }
+
+    /**
+     * Add a currency the store does not stock yet from the reference catalogue.
+     *
+     * @param string $code
+     * @return Currency|null
+     */
+    protected function stock_from_reference(string $code)
+    {
+        $reference = $this->repository->list()
+            ->accept(fn($currency) => strcasecmp($currency['code'] ?? '', $code) === 0)
+            ->first();
+
+        if (empty($reference)) {
+            return null;
+        }
+
+        return $this->repository->create([
+            'code' => strtoupper($reference['code']),
+            'name' => $reference['name'],
+            'symbol' => $reference['symbol'] ?? null,
+            'exchange_rate' => 1,
+            'is_base' => false,
+            'is_active' => true,
+        ]);
     }
 
     /**

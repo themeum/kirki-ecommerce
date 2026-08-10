@@ -1,12 +1,12 @@
 {
-    "is_tax_inclusive_price": true,
-    "is_enabled_taxed_price": true,
-    "is_shipping_tax_enabled": true,
+    "is_tax_inclusive_price": false,
+    "is_enabled_taxed_price": false,
+    "is_shipping_tax_enabled": false,
     "tax_regions": [
         {
             "code": "EU",
             "name": "European Union",
-            "is_enabled": true,
+            "is_enabled": false,
             "type": "oss",
             "product_tax": [
                 {
@@ -48,7 +48,7 @@
         {
             "code": "BD",
             "name": "Bangladesh",
-            "is_enabled": true,
+            "is_enabled": false,
             "is_central_tax_enabled": true,
             "central_product_tax": 20,
             "central_shipping_tax": 20,
