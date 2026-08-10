@@ -78,7 +78,12 @@ examples:
                   "base_total_money_object": { "raw": 115.17, "display": "$115.17", "currency": { "code": "USD", "symbol": "$" } },
                   "status": "pending",
                   "payment_status": "pending",
-                  "payment_method": "stripe",
+                  "payment_provider": "stripe",
+                  "payment_provider_name": "Stripe",
+                  "payment_provider_icon": "{{baseUrl}}/payments/kirki-stripe/assets/logo.svg",
+                  "payment_provider_is_offline": false,
+                  "shipping_method": "method-0001",
+                  "shipping_method_name": "Standard Delivery",
                   "created_at": "2026-01-08 06:45:15"
                 },
                 {
@@ -93,7 +98,12 @@ examples:
                   "base_total_money_object": { "raw": 89.58, "display": "$89.58", "currency": { "code": "USD", "symbol": "$" } },
                   "status": "pending",
                   "payment_status": "unpaid",
-                  "payment_method": "stripe",
+                  "payment_provider": "stripe",
+                  "payment_provider_name": "Stripe",
+                  "payment_provider_icon": "{{baseUrl}}/payments/kirki-stripe/assets/logo.svg",
+                  "payment_provider_is_offline": false,
+                  "shipping_method": "method-0001",
+                  "shipping_method_name": "Standard Delivery",
                   "created_at": "2026-01-08 06:42:47"
                 },
                 {
@@ -108,7 +118,12 @@ examples:
                   "base_total_money_object": { "raw": 127.96, "display": "$127.96", "currency": { "code": "USD", "symbol": "$" } },
                   "status": "pending",
                   "payment_status": "pending",
-                  "payment_method": "stripe",
+                  "payment_provider": "stripe",
+                  "payment_provider_name": "Stripe",
+                  "payment_provider_icon": "{{baseUrl}}/payments/kirki-stripe/assets/logo.svg",
+                  "payment_provider_is_offline": false,
+                  "shipping_method": "method-0001",
+                  "shipping_method_name": "Standard Delivery",
                   "created_at": "2026-01-08 06:42:14"
                 },
                 {
@@ -123,7 +138,12 @@ examples:
                   "base_total_money_object": { "raw": 127.96, "display": "$127.96", "currency": { "code": "USD", "symbol": "$" } },
                   "status": "pending",
                   "payment_status": "pending",
-                  "payment_method": "stripe",
+                  "payment_provider": "stripe",
+                  "payment_provider_name": "Stripe",
+                  "payment_provider_icon": "{{baseUrl}}/payments/kirki-stripe/assets/logo.svg",
+                  "payment_provider_is_offline": false,
+                  "shipping_method": "method-0001",
+                  "shipping_method_name": "Standard Delivery",
                   "created_at": "2026-01-08 06:39:38"
                 },
                 {
@@ -138,7 +158,12 @@ examples:
                   "base_total_money_object": { "raw": 127.96, "display": "$127.96", "currency": { "code": "USD", "symbol": "$" } },
                   "status": "pending",
                   "payment_status": "pending",
-                  "payment_method": "stripe",
+                  "payment_provider": "stripe",
+                  "payment_provider_name": "Stripe",
+                  "payment_provider_icon": "{{baseUrl}}/payments/kirki-stripe/assets/logo.svg",
+                  "payment_provider_is_offline": false,
+                  "shipping_method": "method-0001",
+                  "shipping_method_name": "Standard Delivery",
                   "created_at": "2026-01-07 11:30:49"
                 },
                 {
@@ -153,7 +178,12 @@ examples:
                   "base_total_money_object": { "raw": 89.58, "display": "$89.58", "currency": { "code": "USD", "symbol": "$" } },
                   "status": "pending",
                   "payment_status": "unpaid",
-                  "payment_method": "stripe",
+                  "payment_provider": "stripe",
+                  "payment_provider_name": "Stripe",
+                  "payment_provider_icon": "{{baseUrl}}/payments/kirki-stripe/assets/logo.svg",
+                  "payment_provider_is_offline": false,
+                  "shipping_method": "method-0001",
+                  "shipping_method_name": "Standard Delivery",
                   "created_at": "2026-01-07 17:19:56"
                 },
                 {
@@ -168,7 +198,12 @@ examples:
                   "base_total_money_object": { "raw": 127.96, "display": "$127.96", "currency": { "code": "USD", "symbol": "$" } },
                   "status": "pending",
                   "payment_status": "pending",
-                  "payment_method": "stripe",
+                  "payment_provider": "stripe",
+                  "payment_provider_name": "Stripe",
+                  "payment_provider_icon": "{{baseUrl}}/payments/kirki-stripe/assets/logo.svg",
+                  "payment_provider_is_offline": false,
+                  "shipping_method": "method-0001",
+                  "shipping_method_name": "Standard Delivery",
                   "created_at": "2026-01-06 10:52:46"
                 },
                 {
@@ -183,7 +218,12 @@ examples:
                   "base_total_money_object": { "raw": 127.96, "display": "$127.96", "currency": { "code": "USD", "symbol": "$" } },
                   "status": "pending",
                   "payment_status": "pending",
-                  "payment_method": "stripe",
+                  "payment_provider": "stripe",
+                  "payment_provider_name": "Stripe",
+                  "payment_provider_icon": "{{baseUrl}}/payments/kirki-stripe/assets/logo.svg",
+                  "payment_provider_is_offline": false,
+                  "shipping_method": "method-0001",
+                  "shipping_method_name": "Standard Delivery",
                   "created_at": "2026-01-06 10:47:25"
                 },
                 {
@@ -198,7 +238,12 @@ examples:
                   "base_total_money_object": { "raw": 127.96, "display": "$127.96", "currency": { "code": "USD", "symbol": "$" } },
                   "status": "pending",
                   "payment_status": "pending",
-                  "payment_method": "stripe",
+                  "payment_provider": "stripe",
+                  "payment_provider_name": "Stripe",
+                  "payment_provider_icon": "{{baseUrl}}/payments/kirki-stripe/assets/logo.svg",
+                  "payment_provider_is_offline": false,
+                  "shipping_method": "method-0001",
+                  "shipping_method_name": "Standard Delivery",
                   "created_at": "2026-01-06 06:27:13"
                 },
                 {
@@ -213,7 +258,12 @@ examples:
                   "base_total_money_object": { "raw": 127.96, "display": "$127.96", "currency": { "code": "USD", "symbol": "$" } },
                   "status": "pending",
                   "payment_status": "pending",
-                  "payment_method": "stripe",
+                  "payment_provider": "stripe",
+                  "payment_provider_name": "Stripe",
+                  "payment_provider_icon": "{{baseUrl}}/payments/kirki-stripe/assets/logo.svg",
+                  "payment_provider_is_offline": false,
+                  "shipping_method": "method-0001",
+                  "shipping_method_name": "Standard Delivery",
                   "created_at": "2026-01-06 06:26:22"
                 },
                 {
@@ -228,7 +278,12 @@ examples:
                   "base_total_money_object": { "raw": 127.96, "display": "$127.96", "currency": { "code": "USD", "symbol": "$" } },
                   "status": "pending",
                   "payment_status": "pending",
-                  "payment_method": "stripe",
+                  "payment_provider": "stripe",
+                  "payment_provider_name": "Stripe",
+                  "payment_provider_icon": "{{baseUrl}}/payments/kirki-stripe/assets/logo.svg",
+                  "payment_provider_is_offline": false,
+                  "shipping_method": "method-0001",
+                  "shipping_method_name": "Standard Delivery",
                   "created_at": "2026-01-06 06:25:20"
                 },
                 {
@@ -243,7 +298,12 @@ examples:
                   "base_total_money_object": { "raw": 127.96, "display": "$127.96", "currency": { "code": "USD", "symbol": "$" } },
                   "status": "pending",
                   "payment_status": "pending",
-                  "payment_method": "stripe",
+                  "payment_provider": "stripe",
+                  "payment_provider_name": "Stripe",
+                  "payment_provider_icon": "{{baseUrl}}/payments/kirki-stripe/assets/logo.svg",
+                  "payment_provider_is_offline": false,
+                  "shipping_method": "method-0001",
+                  "shipping_method_name": "Standard Delivery",
                   "created_at": "2026-01-06 06:22:41"
                 },
                 {
@@ -258,7 +318,12 @@ examples:
                   "base_total_money_object": { "raw": 127.96, "display": "$127.96", "currency": { "code": "USD", "symbol": "$" } },
                   "status": "pending",
                   "payment_status": "pending",
-                  "payment_method": "stripe",
+                  "payment_provider": "stripe",
+                  "payment_provider_name": "Stripe",
+                  "payment_provider_icon": "{{baseUrl}}/payments/kirki-stripe/assets/logo.svg",
+                  "payment_provider_is_offline": false,
+                  "shipping_method": "method-0001",
+                  "shipping_method_name": "Standard Delivery",
                   "created_at": "2026-01-06 06:04:03"
                 },
                 {
@@ -273,7 +338,12 @@ examples:
                   "base_total_money_object": { "raw": 127.96, "display": "$127.96", "currency": { "code": "USD", "symbol": "$" } },
                   "status": "pending",
                   "payment_status": "pending",
-                  "payment_method": "stripe",
+                  "payment_provider": "stripe",
+                  "payment_provider_name": "Stripe",
+                  "payment_provider_icon": "{{baseUrl}}/payments/kirki-stripe/assets/logo.svg",
+                  "payment_provider_is_offline": false,
+                  "shipping_method": "method-0001",
+                  "shipping_method_name": "Standard Delivery",
                   "created_at": "2026-01-06 05:58:36"
                 }
               ],

@@ -177,6 +177,37 @@ export const getDefaultVariantValues = (): ProductFormVariantInput => ({
 });
 
 /**
+ * A product must carry exactly one default variant. Products written before
+ * that was enforced can hold none or several, so both the hydration path and
+ * the variant matrix funnel through here: keep a sole surviving default,
+ * otherwise fall back to the first variant.
+ */
+export const normalizeDefaultVariant = (
+  variants: ProductFormVariantInput[],
+): ProductFormVariantInput[] => {
+  if (variants.length === 0) {
+    return variants;
+  }
+
+  const defaultIndexes = variants.reduce<number[]>((indexes, variant, index) => {
+    if (variant.is_default) {
+      indexes.push(index);
+    }
+    return indexes;
+  }, []);
+
+  const defaultIndex = defaultIndexes.length === 1 ? defaultIndexes[0] : 0;
+
+  return variants.map((variant, index) => {
+    const isDefault = index === defaultIndex;
+    if (variant.is_default === isDefault) {
+      return variant;
+    }
+    return { ...variant, is_default: isDefault };
+  });
+};
+
+/**
  * Hydration fallbacks that differ from the schema's own creation defaults —
  * an existing variant with no `max_per_order` set should read as 1, not the
  * `null` a brand new variant starts with — so these three can't be expressed
@@ -193,7 +224,7 @@ export const mapProductToFormValues = (product: Product): ProductFormInput => {
   const variants: ProductFormVariantInput[] =
     !product.variants || product.variants.length === 0
       ? [getDefaultVariantValues()]
-      : product.variants.map(mapVariantToFormValues);
+      : normalizeDefaultVariant(product.variants.map(mapVariantToFormValues));
 
   return pickFormValues(ProductFormSchema, product, {
     variants,

@@ -16,11 +16,12 @@ const getCountries = (params: ListQueryParams = {}) => {
     );
 };
 
-const useCountriesQuery = (params: ListQueryParams = {}) => {
+const useCountriesQuery = (params: ListQueryParams = {}, enabled = true) => {
   return useQuery({
     queryKey: queryKeys.Countries(params),
     queryFn: () => getCountries(params),
     placeholderData: keepPreviousData,
+    enabled,
   });
 };
 

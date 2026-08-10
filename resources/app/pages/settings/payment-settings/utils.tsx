@@ -3,19 +3,19 @@ import TextField from '@/components/form/text-field';
 import Flex from '@/components/ui/flex';
 import { __ } from '@/wpi18n';
 
-type GatewayField = {
+type OnlinePaymentField = {
   name: string;
   label?: string;
   type?: string;
 };
 
-type DynamicGatewayFieldsProps = {
-  fields?: GatewayField[];
+type DynamicOnlinePaymentFieldsProps = {
+  fields?: OnlinePaymentField[];
 };
 
-export const DynamicGatewayFields = ({
+export const DynamicOnlinePaymentFields = ({
   fields = [],
-}: DynamicGatewayFieldsProps) => {
+}: DynamicOnlinePaymentFieldsProps) => {
   return (
     <>
       {fields.map((field) => {

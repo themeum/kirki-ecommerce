@@ -12,34 +12,45 @@ http:
     - name: search
       value: ""
       type: query
+      disabled: true
     - name: sort_by
       value: id
       type: query
+      disabled: true
     - name: sort_order
       value: asc
       type: query
+      disabled: true
     - name: page
       value: "1"
       type: query
+      disabled: true
     - name: limit
       value: "-1"
       type: query
+      disabled: true
     - name: category_ids
       value: 1,2
       type: query
+      disabled: true
     - name: brand_id
       value: "5"
       type: query
+      disabled: true
     - name: collection_id
       value: "2"
       type: query
+      disabled: true
     - name: status
       value: published
       type: query
+      disabled: true
     - name: inventory_type
       value: in_stock
       type: query
+      disabled: true
   auth: inherit
+
 settings:
   encodeUrl: true
   timeout: 0

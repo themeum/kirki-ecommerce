@@ -37,17 +37,17 @@ examples:
           {
             "success": true,
             "data": {
-              "payment_gateways": [
+              "offline_payments": [
                 {
                   "is_enabled": true,
-                  "is_manual": true,
+                  "is_offline": true,
                   "name": "Cash on Delivery",
                   "icon": "cash",
                   "instructions": "Cash on Delivery"
                 },
                 {
                   "is_enabled": true,
-                  "is_manual": false,
+                  "is_offline": true,
                   "name": "Cash on Delivery",
                   "icon": "cash",
                   "instructions": "Cash on Delivery",

@@ -76,7 +76,7 @@ const AddCurrencyPopup = () => {
     const exists = current.some((item) => item.name === currency.name);
     const next = exists
       ? current.filter((item) => item.name !== currency.name)
-      : [...current, currency];
+      : [...current, { ...currency, is_base: false, is_active: true }];
     form.setValue('selectedCurrencies', next, { shouldDirty: true });
   };
 

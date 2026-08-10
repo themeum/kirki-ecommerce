@@ -8,7 +8,7 @@ use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\Models\Refund;
 use Kirki\Ecommerce\Framework\Sanitizer;
-use Kirki\Ecommerce\App\Payment\PaymentGateway;
+use Kirki\Ecommerce\App\Payment\PaymentProvider;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Kirki\Ecommerce\Framework\Validation\Validator;
 use Stripe\Event;
@@ -21,7 +21,7 @@ use Kirki\Ecommerce\App\Facades\Order as OrderManager;
 
 defined('ABSPATH') || exit;
 
-class Stripe extends PaymentGateway
+class Stripe extends PaymentProvider
 {
     /**
      * @var StripeClient
@@ -36,9 +36,10 @@ class Stripe extends PaymentGateway
         $this->id = 'stripe';
         $this->title = __('Stripe', 'kirki-ecommerce');
         $this->description = __('Stripe payment gateway', 'kirki-ecommerce');
-        $this->icon = 'stripe';
+        $this->icon = $this->icon_url('stripe');
         $this->settings_key = 'stripe';
-        $this->is_manual = false;
+        $this->is_offline = false;
+        $this->is_available = true;
         $this->has_fields = false;
 
         parent::__construct();
@@ -63,7 +64,6 @@ class Stripe extends PaymentGateway
                 'required' => true,
             ],
         ]);
-
     }
 
     /**
@@ -259,9 +259,9 @@ class Stripe extends PaymentGateway
     protected function validate_settings(array $settings)
     {
         Validator::make($settings, [
-            'publishable_key' => 'required|string',
-            'secret_key' => 'required|string',
-            'webhook_secret' => 'nullable|string',
+            'publishable_key' => 'sometimes|string',
+            'secret_key' => 'sometimes|string',
+            'webhook_secret' => 'sometimes|string',
         ])->validate();
 
         return true;
@@ -400,10 +400,8 @@ class Stripe extends PaymentGateway
 
         if ($session->payment_status === 'paid') {
             OrderManager::mark_payment_as_paid($order_id);
-            OrderManager::mark_as_processing($order_id);
         } elseif ($session->payment_status === 'unpaid') {
-            OrderManager::mark_payment_as_pending($order_id);
-            OrderManager::mark_as_on_hold($order_id);
+            OrderManager::mark_payment_as_unpaid($order_id);
         }
 
         $payment_intent = $session->payment_intent;
@@ -439,7 +437,6 @@ class Stripe extends PaymentGateway
         }
 
         OrderManager::mark_payment_as_paid($order_id);
-        OrderManager::mark_as_processing($order_id);
     }
 
     /**
@@ -464,7 +461,6 @@ class Stripe extends PaymentGateway
         }
 
         OrderManager::mark_payment_as_failed($order_id);
-        OrderManager::mark_as_cancelled($order_id);
     }
 
     /**
@@ -488,8 +484,8 @@ class Stripe extends PaymentGateway
             return;
         }
 
+        // @todo: need to check it later
         OrderManager::mark_as_on_hold($order->id);
-        OrderManager::mark_payment_as_on_hold($order->id);
     }
 
     /**
@@ -514,12 +510,13 @@ class Stripe extends PaymentGateway
         }
 
         if ($dispute->status === 'won' && $order->payment_status === PaymentStatus::PAID) {
+            // @todo: need to check it later
             OrderManager::mark_as_processing($order->id);
         }
 
         if ($dispute->status === 'lost') {
-            OrderManager::mark_payment_as_refunded($order->id);
-            OrderManager::mark_as_refunded($order->id);
+            // @todo: need to handle for delivered orders
+            OrderManager::mark_payment_as_unpaid($order->id);
         }
     }
 
@@ -583,6 +580,6 @@ class Stripe extends PaymentGateway
             return;
         }
 
-        OrderManager::set_payment_gateway_fee($order->id, $balance_transaction->fee);
+        OrderManager::set_payment_provider_fee($order->id, $balance_transaction->fee);
     }
 }

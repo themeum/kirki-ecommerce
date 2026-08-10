@@ -16,7 +16,7 @@ class CreateOrderPayloadDTO extends DTO
     public $currency_code;
 
     /** @var string */
-    public $payment_method;
+    public $payment_provider;
 
     /** @var string|null */
     public $coupon_code;
@@ -101,6 +101,9 @@ class CreateOrderPayloadDTO extends DTO
 
     /** @var string|null */
     public $customer_notes;
+
+    /** @var string|null */
+    public $admin_notes;
 
     /** @var string|null */
     public $ip_address;

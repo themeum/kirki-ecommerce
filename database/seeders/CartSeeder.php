@@ -7,6 +7,8 @@ use Kirki\Ecommerce\Framework\Database\Seeder;
 use Kirki\Ecommerce\Framework\Supports\Facades\Log;
 use Kirki\Ecommerce\Framework\Supports\Str;
 
+use function Kirki\Ecommerce\Framework\uuid;
+
 class CartSeeder extends Seeder
 {
     /**
@@ -22,7 +24,7 @@ class CartSeeder extends Seeder
         foreach ($customer_ids as $customer_id) {
             $cart = Cart::create([
                 'customer_id' => $customer_id,
-                'cart_token' => Str::random(32),
+                'cart_token' => uuid(),
                 'currency_code' => 'USD',
                 'base_currency_code' => 'USD',
                 'items_count' => 2,

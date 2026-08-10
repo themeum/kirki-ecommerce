@@ -1,0 +1,277 @@
+{
+    "pending": {
+        "fulfillment_status": "unfulfilled",
+        "payment_status": "unpaid",
+        "fulfillment_actions": [
+            "mark-as-processing"
+        ],
+        "payment_actions": [
+            "mark-as-paid"
+        ],
+        "order_actions": [
+            "cancel-order",
+            "resend-order-email"
+        ],
+        "transitions": {
+            "mark-as-processing": "unpaid_processing",
+            "mark-as-paid": "paid_unfulfilled",
+            "cancel-order": "unpaid_cancelled",
+            "mark-as-hold": "on_hold_unpaid"
+        }
+    },
+    "unpaid_processing": {
+        "fulfillment_status": "processing",
+        "payment_status": "unpaid",
+        "fulfillment_actions": [
+            "mark-as-shipped",
+            "cancel-fulfillment"
+        ],
+        "payment_actions": [
+            "mark-as-paid"
+        ],
+        "order_actions": [
+            "cancel-order"
+        ],
+        "transitions": {
+            "mark-as-shipped": "shipped_unpaid",
+            "mark-as-paid": "paid_processing",
+            "cancel-fulfillment": "unpaid_cancelled",
+            "cancel-order": "unpaid_cancelled",
+            "mark-as-hold": "on_hold_unpaid"
+        }
+    },
+    "paid_unfulfilled": {
+        "fulfillment_status": "unfulfilled",
+        "payment_status": "paid",
+        "fulfillment_actions": [
+            "mark-as-processing"
+        ],
+        "payment_actions": [],
+        "order_actions": [
+            "cancel-order"
+        ],
+        "transitions": {
+            "mark-as-processing": "paid_processing",
+            "cancel-order": "paid_cancelled",
+            "mark-as-hold": "on_hold_paid"
+        }
+    },
+    "paid_processing": {
+        "fulfillment_status": "processing",
+        "payment_status": "paid",
+        "fulfillment_actions": [
+            "mark-as-shipped"
+        ],
+        "payment_actions": [],
+        "order_actions": [
+            "cancel-order"
+        ],
+        "transitions": {
+            "mark-as-shipped": "paid_shipped",
+            "cancel-order": "paid_cancelled",
+            "mark-as-hold": "on_hold_paid"
+        }
+    },
+    "paid_shipped": {
+        "fulfillment_status": "shipped",
+        "payment_status": "paid",
+        "fulfillment_actions": [
+            "add-tracking",
+            "mark-as-delivered"
+        ],
+        "payment_actions": [],
+        "order_actions": [],
+        "transitions": {
+            "mark-as-delivered": "completed"
+        }
+    },
+    "shipped_unpaid": {
+        "fulfillment_status": "shipped",
+        "payment_status": "unpaid",
+        "fulfillment_actions": [
+            "add-tracking",
+            "mark-as-delivered"
+        ],
+        "payment_actions": [
+            "mark-as-paid"
+        ],
+        "order_actions": [],
+        "transitions": {
+            "mark-as-delivered": "delivered_unpaid",
+            "mark-as-paid": "paid_shipped"
+        }
+    },
+    "delivered_unpaid": {
+        "fulfillment_status": "delivered",
+        "payment_status": "unpaid",
+        "fulfillment_actions": [],
+        "payment_actions": [
+            "mark-as-paid"
+        ],
+        "order_actions": [],
+        "transitions": {
+            "mark-as-paid": "completed"
+        }
+    },
+    "completed": {
+        "fulfillment_status": "delivered",
+        "payment_status": "paid",
+        "fulfillment_actions": [],
+        "payment_actions": [],
+        "order_actions": [
+            "archive-order"
+        ],
+        "transitions": {}
+    },
+    "on_hold_paid": {
+        "fulfillment_status": "on-hold",
+        "payment_status": "paid",
+        "fulfillment_actions": [
+            "resume-fulfillment",
+            "cancel-fulfillment"
+        ],
+        "payment_actions": [],
+        "order_actions": [
+            "cancel-order"
+        ],
+        "transitions": {
+            "resume-fulfillment": "paid_processing",
+            "cancel-fulfillment": "paid_cancelled",
+            "cancel-order": "paid_cancelled"
+        }
+    },
+    "on_hold_unpaid": {
+        "fulfillment_status": "on-hold",
+        "payment_status": "unpaid",
+        "fulfillment_actions": [
+            "resume-fulfillment"
+        ],
+        "payment_actions": [
+            "mark-as-paid"
+        ],
+        "order_actions": [
+            "cancel-order"
+        ],
+        "transitions": {
+            "resume-fulfillment": "unpaid_processing",
+            "mark-as-paid": "on_hold_paid",
+            "cancel-order": "unpaid_cancelled"
+        }
+    },
+    "paid_cancelled": {
+        "fulfillment_status": "cancelled",
+        "payment_status": "paid",
+        "fulfillment_actions": [],
+        "payment_actions": [],
+        "order_actions": [],
+        "transitions": {}
+    },
+    "unpaid_cancelled": {
+        "fulfillment_status": "cancelled",
+        "payment_status": "unpaid",
+        "fulfillment_actions": [],
+        "payment_actions": [],
+        "order_actions": [],
+        "transitions": {}
+    },
+    "failed_unfulfilled": {
+        "fulfillment_status": "unfulfilled",
+        "payment_status": "failed",
+        "fulfillment_actions": [],
+        "payment_actions": [
+            "send-payment-link",
+            "send-invoice"
+        ],
+        "order_actions": [
+            "cancel-order"
+        ],
+        "transitions": {
+            "cancel-order": "failed_cancelled",
+            "mark-as-paid": "paid_unfulfilled"
+        }
+    },
+    "failed_processing": {
+        "fulfillment_status": "processing",
+        "payment_status": "failed",
+        "fulfillment_actions": [
+            "mark-as-hold",
+            "cancel-fulfillment"
+        ],
+        "payment_actions": [
+            "send-payment-link",
+            "mark-as-paid"
+        ],
+        "order_actions": [
+            "cancel-order"
+        ],
+        "transitions": {
+            "mark-as-hold": "failed_on_hold",
+            "cancel-fulfillment": "failed_cancelled",
+            "mark-as-paid": "paid_processing",
+            "cancel-order": "failed_cancelled"
+        }
+    },
+    "failed_shipped": {
+        "fulfillment_status": "shipped",
+        "payment_status": "failed",
+        "fulfillment_actions": [
+            "add-tracking",
+            "mark-as-delivered"
+        ],
+        "payment_actions": [
+            "send-payment-link",
+            "mark-as-paid"
+        ],
+        "order_actions": [
+            "cancel-order"
+        ],
+        "transitions": {
+            "mark-as-delivered": "failed_delivered",
+            "mark-as-paid": "paid_shipped",
+            "cancel-order": "failed_cancelled"
+        }
+    },
+    "failed_delivered": {
+        "fulfillment_status": "delivered",
+        "payment_status": "failed",
+        "fulfillment_actions": [],
+        "payment_actions": [
+            "send-payment-link",
+            "mark-as-paid"
+        ],
+        "order_actions": [
+            "cancel-order"
+        ],
+        "transitions": {
+            "mark-as-paid": "completed",
+            "cancel-order": "failed_cancelled"
+        }
+    },
+    "failed_cancelled": {
+        "fulfillment_status": "cancelled",
+        "payment_status": "failed",
+        "fulfillment_actions": [],
+        "payment_actions": [],
+        "order_actions": [],
+        "transitions": {}
+    },
+    "failed_on_hold": {
+        "fulfillment_status": "on-hold",
+        "payment_status": "failed",
+        "fulfillment_actions": [
+            "resume-fulfillment"
+        ],
+        "payment_actions": [
+            "send-payment-link",
+            "mark-as-paid"
+        ],
+        "order_actions": [
+            "cancel-order"
+        ],
+        "transitions": {
+            "resume-fulfillment": "failed_processing",
+            "mark-as-paid": "paid_processing",
+            "cancel-order": "failed_cancelled"
+        }
+    }
+}

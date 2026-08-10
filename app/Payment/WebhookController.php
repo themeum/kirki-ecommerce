@@ -11,15 +11,15 @@ use function Kirki\Ecommerce\Framework\response;
 
 class WebhookController
 {
-    public function handle(Request $request, $gateway_id)
+    public function handle(Request $request, $provider_id)
     {
-        $gateway = Payment::get_gateway($gateway_id);
+        $provider = Payment::get_provider($provider_id);
 
-        if (!$gateway) {
+        if (!$provider) {
             throw new NotFoundException(__('Invalid payment gateway', 'kirki-ecommerce'));
         }
 
-        $result = $gateway->webhook();
+        $result = $provider->webhook();
 
         return response()->json([
             'success' => $result,

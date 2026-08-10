@@ -36,16 +36,8 @@ class CartService
             $cart = $this->repository->find_by_token($token);
         }
 
-        if (!$cart) {
-            $cart = $this->create_new_cart($customer_id)->load('items', 'items.product', 'items.variant');
-        }
-
         if ($cart && $customer_id && !$cart->customer_id) {
             $this->repository->update_cart($cart->id, ['customer_id' => $customer_id]);
-        }
-
-        if (empty($cart)) {
-            throw new Exception(__('Cart not found.', 'kirki-ecommerce'));
         }
 
         return $cart;
@@ -97,7 +89,7 @@ class CartService
             }
         }
 
-        return $this->repository->create_cart($data);
+        return $this->repository->create_cart($data)->load('items', 'items.product', 'items.variant');
     }
 
     public function find_item_in_cart($cart_id, $variant_id = null)
@@ -108,6 +100,11 @@ class CartService
     public function add_item(AddToCartDTO $dto)
     {
         $cart = $this->get_cart($dto->customer_id, $dto->token);
+
+        if(empty($cart)) {
+            $cart = $this->create_new_cart($dto->customer_id);
+        }
+        
         $cart_id = $cart->id;
 
         $existing_item = $this->find_item_in_cart($cart_id, $dto->variant_id);
@@ -155,6 +152,11 @@ class CartService
     public function remove_item(RemoveCartItemDTO $dto)
     {
         $cart = $this->get_cart($dto->customer_id, $dto->token);
+
+        if(empty($cart)) {
+            $cart = $this->create_new_cart($dto->customer_id);
+        }
+
         $item = $this->repository->find_item($dto->item_id);
 
         if (!$item) {
@@ -172,9 +174,13 @@ class CartService
     {
         $cart = $this->get_cart($dto->customer_id, $dto->token);
 
+        if(empty($cart)) {
+            $cart = $this->create_new_cart($dto->customer_id);
+        }
+
         $this->repository->empty_cart($cart->id);
 
-        return $this->create_new_cart($dto->customer_id);
+        return null;
     }
 
     public function find($cart_id)

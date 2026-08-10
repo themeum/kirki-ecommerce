@@ -11,6 +11,7 @@ const CreateProduct = lazy(() => import('@/pages/products/create-product/create-
 const EditProduct = lazy(() => import('@/pages/products/edit-product/edit-product'));
 const BulkEdit = lazy(() => import('@/pages/bulk-edit/bulk-edit'));
 const Inventory = lazy(() => import('@/pages/inventory/inventory'));
+const CreateOrder = lazy(() => import('@/pages/orders/order-create/order-create'));
 const Orders = lazy(() => import('@/pages/orders/orders'));
 const Coupons = lazy(() => import('@/pages/coupons/coupons'));
 const EditCoupon = lazy(() => import('@/pages/coupons/edit-coupon/edit-coupon'));
@@ -62,6 +63,7 @@ export const router = createHashRouter([
       { path: '/coupons', element: withSuspense(Coupons) },
       { path: '/coupons/:id', element: withSuspense(EditCoupon) },
       { path: '/orders', element: withSuspense(Orders) },
+      { path: '/orders/create', element: withSuspense(CreateOrder) },
       { path: '/orders/:id', element: withSuspense(OrderDetails) },
       { path: '/collections', element: withSuspense(Collections) },
       { path: '/collections/:id', element: withSuspense(CollectionDetails) },
