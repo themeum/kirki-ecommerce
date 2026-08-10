@@ -63,7 +63,7 @@ type WpMediaFrame = {
 
 type WpMediaFactory = (options: {
   title?: string;
-  library?: { type?: string };
+  library?: { type?: AcceptedMediaTypes[] };
   multiple?: boolean;
   button?: { text?: string };
 }) => WpMediaFrame;
@@ -90,7 +90,7 @@ declare global {
 }
 
 declare module '@emotion/react' {
-  export interface Theme extends AppTheme {}
+  export interface Theme extends AppTheme { }
 }
 
 declare module '*.css' {
@@ -98,4 +98,5 @@ declare module '*.css' {
   export default content;
 }
 
-export {};
+export { };
+

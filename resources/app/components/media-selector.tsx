@@ -24,7 +24,10 @@ type MediaFrame = {
   modal?: { el?: HTMLElement };
 };
 
-type MediaSelectorProps = {
+export type MediaSelectorProps = {
+  title?: string;
+  buttonText?: string;
+  types?: AcceptedMediaTypes[];
   multiple?: boolean;
   onSelect?: (media: MediaItem | MediaItem[]) => void;
   children?: ReactNode;
@@ -33,7 +36,12 @@ type MediaSelectorProps = {
   style?: CSSProperties;
 };
 
+type AcceptedMediaTypes = 'image' | 'video' | 'audio' | 'application/pdf' | 'application/zip';
+
 const MediaSelector = ({
+  title = __('Select Image(s)', 'kirki-ecommerce'),
+  types = ['image'],
+  buttonText,
   multiple = false,
   onSelect,
   children,
@@ -59,13 +67,13 @@ const MediaSelector = ({
   useEffect(() => {
     if (typeof wp !== 'undefined' && wp?.media) {
       mediaFrameRef.current = wp.media({
-        title: __('Select Image(s)', 'kirki-ecommerce'),
-        library: { type: 'image' },
+        title: title,
+        library: { type: types },
         multiple: multiple,
         button: {
-          text: multiple
+          text: buttonText ?? (multiple
             ? __('Use These Images', 'kirki-ecommerce')
-            : __('Use This Image', 'kirki-ecommerce'),
+            : __('Use This Image', 'kirki-ecommerce')),
         },
       }) as MediaFrame;
 
