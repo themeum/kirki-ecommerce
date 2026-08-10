@@ -46,6 +46,7 @@ class RecalculateCartAction
         $total_tax_money = Money::zero();
         $total_discount_money = Money::zero();
         $total_grand_money = Money::zero();
+        $total_product_amount_money = Money::zero();
 
         // Calculate Coupons & Discounts
         $discount_result = $this->get_discount_result($context);
@@ -60,7 +61,9 @@ class RecalculateCartAction
             $item_result = clone $item;
 
             $unit_price_money = Money::of_minor($item->base_unit_price);
+            $unit_product_money = Money::of_minor($item->base_product_total);
             $item_net_total_money = $unit_price_money->multipliedBy($item->quantity);
+            $item_product_total_money = $unit_product_money->multipliedBy($item->quantity);
 
             $item_discount_minor = $discount_result->item_discounts[$item->variant_id] ?? 0;
             $item_discount_money = Money::of_minor($item_discount_minor);
@@ -105,6 +108,7 @@ class RecalculateCartAction
             $item_result->tax_breakdown = $tax_breakdown;
             $item_result->base_discount_amount = $item_discount_money->getMinorAmount()->toInt();
             $item_result->base_total = $item_total_money->getMinorAmount()->toInt();
+            $item_result->base_product_total = $item_product_total_money->getMinorAmount()->toInt();
 
             // Aggregate Cart Totals
             $result->items[$item->variant_id] = $item_result;
@@ -113,6 +117,7 @@ class RecalculateCartAction
             $total_tax_money = $total_tax_money->plus($item_tax_amount_money);
             $total_discount_money = $total_discount_money->plus($item_discount_money);
             $total_grand_money = $total_grand_money->plus($item_total_money);
+            $total_product_amount_money = $total_product_amount_money->plus($item_product_total_money);
 
             $result->items_count += $item->quantity;
         }
@@ -159,6 +164,7 @@ class RecalculateCartAction
         $result->base_shipping_discount = $shipping_discount_money->getMinorAmount()->toInt();
         $result->base_shipping_tax = $shipping_tax_money->getMinorAmount()->toInt();
         $result->base_shipping_total = $shipping_total_money->getMinorAmount()->toInt();
+        $result->base_product_total = $total_product_amount_money->getMinorAmount()->toInt();
 
         return $result;
     }

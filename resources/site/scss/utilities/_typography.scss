@@ -1,0 +1,290 @@
+// Utilities - Typography
+
+@use "../tokens" as *;
+@use "../mixins" as *;
+
+// Font size + line height pairs
+.kecom-text-xs {
+  @include text(xs);
+}
+.kecom-text-sm {
+  @include text(sm);
+}
+.kecom-text-base {
+  @include text(base);
+}
+.kecom-text-md {
+  @include text(md);
+}
+.kecom-text-lg {
+  @include text(lg);
+}
+.kecom-text-xl {
+  @include text(xl);
+}
+.kecom-text-2xl {
+  @include text(2xl);
+}
+.kecom-text-3xl {
+  @include text(3xl);
+}
+.kecom-text-4xl {
+  @include text(4xl);
+}
+
+// Font weights
+.kecom-font-normal {
+  font-weight: $font-weight-normal;
+}
+.kecom-font-medium {
+  font-weight: $font-weight-medium;
+}
+.kecom-font-semibold {
+  font-weight: $font-weight-semibold;
+}
+.kecom-font-bold {
+  font-weight: $font-weight-bold;
+}
+
+// Text alignment
+.kecom-text-left {
+  text-align: left;
+}
+.kecom-text-center {
+  text-align: center;
+}
+.kecom-text-right {
+  text-align: right;
+}
+.kecom-text-justify {
+  text-align: justify;
+}
+
+// Text decoration
+.kecom-underline {
+  text-decoration: underline;
+}
+.kecom-line-through {
+  text-decoration: line-through;
+}
+.kecom-no-underline {
+  text-decoration: none;
+}
+
+// Text transform
+.kecom-uppercase {
+  text-transform: uppercase;
+}
+.kecom-lowercase {
+  text-transform: lowercase;
+}
+.kecom-capitalize {
+  text-transform: capitalize;
+}
+.kecom-normal-case {
+  text-transform: none;
+}
+
+// Text overflow
+.kecom-truncate {
+  @include text-truncate;
+}
+.kecom-clamp-1 {
+  @include text-clamp(1);
+}
+.kecom-clamp-2 {
+  @include text-clamp(2);
+}
+.kecom-clamp-3 {
+  @include text-clamp(3);
+}
+
+// Whitespace
+.kecom-whitespace-nowrap {
+  white-space: nowrap;
+}
+.kecom-whitespace-normal {
+  white-space: normal;
+}
+.kecom-whitespace-pre {
+  white-space: pre;
+}
+.kecom-whitespace-pre-wrap {
+  white-space: pre-wrap;
+}
+
+// Word break
+.kecom-break-words {
+  overflow-wrap: break-word;
+}
+.kecom-break-all {
+  word-break: break-all;
+}
+
+// Semantic text color utilities
+.kecom-text-default {
+  color: $text-primary;
+}
+.kecom-text-sub {
+  color: $text-secondary;
+}
+.kecom-text-muted {
+  color: $text-muted;
+}
+.kecom-text-disabled {
+  color: $text-disabled;
+}
+.kecom-text-inverse {
+  color: $text-light;
+}
+.kecom-text-brand {
+  color: $text-brand;
+}
+.kecom-text-success {
+  color: $text-success;
+}
+.kecom-text-error {
+  color: $text-critical;
+}
+.kecom-text-warning {
+  color: $text-warning;
+}
+.kecom-text-caution {
+  color: $text-caution;
+}
+.kecom-text-emphasis {
+  color: $text-emphasis;
+}
+.kecom-text-special {
+  color: $text-special;
+}
+.kecom-text-special2 {
+  color: $text-special2;
+}
+.kecom-text-special3 {
+  color: $text-special3;
+}
+.kecom-text-subdued {
+  color: $text-subdued;
+}
+.kecom-text-dark {
+  color: $text-dark;
+}
+
+// Semantic background color utilities
+.kecom-bg-default {
+  background-color: $background-fill;
+}
+.kecom-bg-brand {
+  background-color: $background-fill-brand;
+}
+.kecom-bg-brand-hover {
+  background-color: $background-fill-brand-hover;
+}
+.kecom-bg-caution {
+  background-color: $background-fill-caution;
+}
+.kecom-bg-caution-secondary {
+  background-color: $background-fill-caution-secondary;
+}
+.kecom-bg-critical {
+  background-color: $background-fill-critical;
+}
+.kecom-bg-critical-hover {
+  background-color: $background-fill-critical-hover;
+}
+.kecom-bg-critical-secondary {
+  background-color: $background-fill-critical-secondary;
+}
+.kecom-bg-disabled {
+  background-color: $background-fill-disabled;
+}
+.kecom-bg-hover {
+  background-color: $background-fill-hover;
+}
+.kecom-bg-secondary {
+  background-color: $background-fill-secondary;
+}
+.kecom-bg-secondary-hover {
+  background-color: $background-fill-secondary-hover;
+}
+.kecom-bg-special {
+  background-color: $background-fill-special;
+}
+.kecom-bg-special2 {
+  background-color: $background-fill-special2;
+}
+.kecom-bg-special2-secondary {
+  background-color: $background-fill-special2-secondary;
+}
+.kecom-bg-special3-tertiary {
+  background-color: $background-fill-special3-tertiary;
+}
+.kecom-bg-special-secondary {
+  background-color: $background-fill-special-secondary;
+}
+.kecom-bg-success {
+  background-color: $background-fill-success;
+}
+.kecom-bg-success-secondary {
+  background-color: $background-fill-success-secondary;
+}
+.kecom-bg-tertiary {
+  background-color: $background-fill-tertiary;
+}
+.kecom-bg-tertiary-hover {
+  background-color: $background-fill-tertiary-hover;
+}
+.kecom-bg-warning {
+  background-color: $background-fill-warning;
+}
+.kecom-bg-warning-secondary {
+  background-color: $background-fill-warning-secondary;
+}
+.kecom-bg-inverse {
+  background-color: $background-inverse;
+}
+.kecom-bg-surface {
+  background-color: $background-surface;
+}
+.kecom-bg-surface-alt {
+  background-color: $background-surface-alt;
+}
+.kecom-bg-surface-disabled {
+  background-color: $background-surface-disabled;
+}
+.kecom-bg-surface-secondary {
+  background-color: $background-surface-secondary;
+}
+.kecom-bg-surface-subdued {
+  background-color: $background-surface-subdued;
+}
+.kecom-bg-surface-tertiary {
+  background-color: $background-surface-tertiary;
+}
+.kecom-bg-button-tertiary {
+  background-color: $background-button-tertiary;
+}
+.kecom-bg-settings-hover {
+  background-color: $background-settings-hover;
+}
+.kecom-bg-placeholder-surface {
+  background-color: $background-placeholder-surface;
+}
+.kecom-bg-gallery-hover {
+  background-color: $background-gallery-hover;
+}
+.kecom-bg-option-hover {
+  background-color: $background-option-hover;
+}
+.kecom-bg-neutral-surface {
+  background-color: $background-neutral-surface;
+}
+.kecom-bg-badge-draft {
+  background-color: $background-badge-draft;
+}
+
+// Visibility
+.kecom-sr-only {
+  @include visually-hidden;
+}

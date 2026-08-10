@@ -1,0 +1,21 @@
+// Design Tokens - Breakpoints
+// Mobile-first responsive design breakpoints
+
+$breakpoint-xs: 480px;
+$breakpoint-sm: 576px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 992px;
+$breakpoint-xl: 1200px;
+$breakpoint-2xl: 1400px;
+$breakpoint-3xl: 1920px;
+
+// Breakpoint map for mixins
+$breakpoints: (
+  3xl: $breakpoint-3xl,
+  2xl: $breakpoint-2xl,
+  xl:  $breakpoint-xl,
+  lg:  $breakpoint-lg,
+  md:  $breakpoint-md,
+  sm:  $breakpoint-sm,
+  xs:  $breakpoint-xs,
+);

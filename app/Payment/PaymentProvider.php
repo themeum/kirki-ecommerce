@@ -12,6 +12,8 @@ use Kirki\Ecommerce\Framework\Exceptions\ValidationException;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\Framework\Supports\Facades\Option;
 use Exception;
+use Kirki\Ecommerce\App\Supports\Url;
+use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
 
 use function Kirki\Ecommerce\Framework\app;
 
@@ -166,10 +168,14 @@ class PaymentProvider
     {
         $provider = new static();
 
+        $icon = !empty($data['icon']) && is_int($data['icon']) ? $data['icon'] : null;
+        $attachment = MediaAttachment::make($icon);
+        $icon_url = $attachment['url'] ?? null;
+
         $provider->id = $data['id'] ?? '';
         $provider->title = $data['name'] ?? '';
         $provider->description = $data['instructions'] ?? '';
-        $provider->icon = $data['icon'] ?? '';
+        $provider->icon = $icon_url;
         $provider->is_enabled = $data['is_enabled'] ?? false;
         $provider->is_offline = true;
         $provider->settings_key = $data['settings_key'] ?? $data['id'];
@@ -485,14 +491,13 @@ class PaymentProvider
     /**
      * Get the return URL for the payment provider.
      *
-     * @param Order|null $order Order.
+     * @param Order $order Order.
      * @return string
      */
-    protected function return_url($order = null)
+    protected function return_url($order)
     {
-        // @TODO: Implement return_url() method.
-        if (!$order) {
-            return site_url();
+        if ($order) {
+            return Url::get_checkout_success_url($order->uuid);
         }
 
         return home_url();

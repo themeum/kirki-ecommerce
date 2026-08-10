@@ -12,5 +12,6 @@ Application::macro('is_dev_mode', function () {
 
 return Application::configure(KIRKI_ECOMMERCE_PLUGIN_PATH)
     ->use_prefix(KIRKI_ECOMMERCE_PREFIX)
+    ->use_routing(KIRKI_ECOMMERCE_PLUGIN_PATH . '/routes/site.php')
     ->use_routing(KIRKI_ECOMMERCE_PLUGIN_PATH . '/routes/api.php')
     ->boot();
