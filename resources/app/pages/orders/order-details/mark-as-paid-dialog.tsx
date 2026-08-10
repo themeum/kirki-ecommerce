@@ -1,5 +1,5 @@
 import { Megaphone } from 'lucide-react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { useNavigate } from 'react-router';
 
 import SelectField from '@/components/form/select-field';
@@ -45,7 +45,7 @@ const MarkAsPaidDialog = ({ open, onOpenChange, order, isSaving, onSubmit }: Mar
     value: String(method.id),
   }));
 
-  const paymentMethod = form.watch('payment_provider');
+  const paymentMethod = useWatch({ control: form.control, name: 'payment_provider' });
 
   const handleSubmit = form.handleSubmit((values) => {
     if (!values.payment_provider) {

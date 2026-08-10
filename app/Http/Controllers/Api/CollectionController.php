@@ -30,7 +30,7 @@ class CollectionController
     public function get(Request $request)
     {
         $params = ListFilterDTO::from_array($request->all());
-        $params->sort_by = $request->get_whitelisted('sort_by', 'ordering', ['id', 'title', 'slug', 'ordering', 'created_by', 'updated_by', 'created_at', 'updated_at']);
+        $params->sort_by = $request->whitelisted('sort_by', 'ordering', ['id', 'title', 'slug', 'ordering', 'created_by', 'updated_by', 'created_at', 'updated_at']);
 
         if ((int) $params->limit === Pagination::ALL) {
             $data = $this->service->all($params);
@@ -63,7 +63,7 @@ class CollectionController
 
     public function show(Request $request)
     {
-        $collection = $this->service->find($request->get_int('id'));
+        $collection = $this->service->find($request->int('id'));
 
         return response()->json([
             'data' => CollectionResource::make($collection),
@@ -85,7 +85,7 @@ class CollectionController
 
     public function delete(Request $request)
     {
-        $result = $this->service->delete($request->get_int('id'));
+        $result = $this->service->delete($request->int('id'));
 
         return response()->json([
             'data' => $result,

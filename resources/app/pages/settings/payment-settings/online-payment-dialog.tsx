@@ -104,7 +104,7 @@ const styles = defineStyles({
     },
   },
   icon: {
-    height: 20,
+    height: 16,
     width: 'auto',
     objectFit: 'contain',
   }

@@ -31,7 +31,7 @@ class OnboardingController
         $general_settings = Settings::get(OptionKeys::GENERAL_SETTINGS);
         $general_settings->set($general_settings_data);
 
-        $this->currency_service->set_base($request->get_string('default_currency'));
+        $this->currency_service->set_base($request->string('default_currency'));
 
         //@todo handle sample data import based on $data['should_import_samples']
 

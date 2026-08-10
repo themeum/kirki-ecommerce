@@ -15,10 +15,10 @@ class CheckoutController
 {
     public function store(OrderCreateRequest $request, CreateOrderAction $action)
     {
-        $currency_code = $request->get_string('currency_code') ?? $headers['kirki-ecommerce-currency-code'] ?? base_currency()->code; //todo: implement change the name later
+        $currency_code = $request->string('currency_code') ?? $headers['kirki-ecommerce-currency-code'] ?? base_currency()->code; //todo: implement change the name later
 
         $dto = CreateOrderPayloadDTO::from_request($request);
-        $dto->is_manual = user()->is_admin() && $request->get_bool('is_manual') ? true : false;
+        $dto->is_manual = user()->is_admin() && $request->bool('is_manual') ? true : false;
         $dto->created_by = user()->get_id() ?? null;
         $dto->currency_code = $currency_code;
 
