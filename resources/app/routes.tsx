@@ -73,14 +73,14 @@ export const router = createHashRouter([
       { path: OrderRoutes.get('OrderDetail').template, element: withSuspense(OrderDetails) },
       { path: RouteConfig.Collections.template, element: withSuspense(Collections) },
       {
-        path: RouteConfig.Collections.get('CollectionDetails').template,
+        path: RouteConfig.Collections.get('CollectionDetail').template,
         element: withSuspense(CollectionDetails),
       },
       { path: RouteConfig.Tags.template, element: withSuspense(Tags) },
       { path: RouteConfig.Categories.template, element: withSuspense(Categories) },
       { path: RouteConfig.Brands.template, element: withSuspense(Brands) },
       { path: CustomerRoutes.template, element: withSuspense(Customers) },
-      { path: CustomerRoutes.get('CustomerDetails').template, element: withSuspense(CustomerDetails) },
+      { path: CustomerRoutes.get('CustomerDetail').template, element: withSuspense(CustomerDetails) },
       { path: CustomerRoutes.get('CustomerGroups').template, element: withSuspense(CustomerGroups) },
       {
         path: SettingsRoutes.template,

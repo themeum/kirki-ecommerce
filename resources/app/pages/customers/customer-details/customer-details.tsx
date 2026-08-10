@@ -66,7 +66,7 @@ const CustomerDetails = () => {
         });
       } else {
         const result = await createMutation.mutateAsync(payload);
-        navigate(RouteConfig.Customers.get('CustomerDetails').buildLink({ id: result.data.id }));
+        navigate(RouteConfig.Customers.get('CustomerDetail').buildLink({ id: result.data.id }));
       }
     } catch (error) {
       applyServerErrors(form, error as ErrorResponse);

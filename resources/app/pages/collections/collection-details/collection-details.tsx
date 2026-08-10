@@ -80,7 +80,7 @@ const CollectionDetails = () => {
         });
       } else {
         const response = await createMutation.mutateAsync(payload);
-        navigate(RouteConfig.Collections.get('CollectionDetails').buildLink({ id: response.data.id }));
+        navigate(RouteConfig.Collections.get('CollectionDetail').buildLink({ id: response.data.id }));
       }
     } catch (error) {
       applyServerErrors(form, error as ErrorResponse);

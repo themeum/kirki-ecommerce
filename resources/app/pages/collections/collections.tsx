@@ -44,7 +44,7 @@ const Collections = () => {
             variant="primary"
             onClick={() => {
               navigate(
-                RouteConfig.Collections.get('CollectionDetails').buildLink({ id: NEW_ITEM_ID }),
+                RouteConfig.Collections.get('CollectionDetail').buildLink({ id: NEW_ITEM_ID }),
               );
             }}
           >

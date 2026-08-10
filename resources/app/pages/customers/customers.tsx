@@ -35,7 +35,7 @@ const Customers = () => {
   const { data, isLoading, isFetching } = useCustomersQuery(params);
 
   const handleAddNewCustomer = () => {
-    navigate(RouteConfig.Customers.get('CustomerDetails').buildLink({ id: NEW_ITEM_ID }));
+    navigate(RouteConfig.Customers.get('CustomerDetail').buildLink({ id: NEW_ITEM_ID }));
   };
 
   const handlePaginationChange = (value: number) => {

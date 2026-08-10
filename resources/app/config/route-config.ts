@@ -20,7 +20,7 @@ export const RouteConfig = {
   }),
 
   Collections: defineRoute('/collections', {
-    CollectionDetails: defineRoute('/:id'),
+    CollectionDetail: defineRoute('/:id'),
   }),
 
   Tags: defineRoute('/tags'),
@@ -29,7 +29,7 @@ export const RouteConfig = {
 
   Customers: defineRoute('/customers', {
     CustomerGroups: defineRoute('/groups'),
-    CustomerDetails: defineRoute('/:id'),
+    CustomerDetail: defineRoute('/:id'),
   }),
 
   Settings: defineRoute('/settings', {
