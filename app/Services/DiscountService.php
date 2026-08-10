@@ -123,7 +123,7 @@ class DiscountService
 
         $this->validate_coupon($coupon, $context);
 
-        $result->discount_details = $coupon->to_array();
+        $result->discount_details = $coupon;
 
         switch ($coupon->discount_type) {
             case DiscountType::AMOUNT_OFF:
@@ -151,10 +151,10 @@ class DiscountService
         $eligible_items = $this->get_eligible_items($context, $coupon);
 
         $eligible_items->each(function ($item) use ($coupon, $result, $context) {
-            $item_subtotal = $item->unit_price * $item->quantity;
+            $item_subtotal = $item->base_unit_price * $item->quantity;
 
             if ($coupon->discount_value_type === DiscountValueType::FIXED) {
-                $result->item_discounts[$item->variant_id] = $this->get_fixed_discounted_amount($coupon->discount_target, $coupon->discount_amount_fixed, $item_subtotal, $context->get_subtotal());
+                $result->item_discounts[$item->variant_id] = $this->get_fixed_discounted_amount($coupon->discount_target, $coupon->base_discount_amount_fixed, $item_subtotal, $context->get_subtotal());
             } elseif ($coupon->discount_value_type === DiscountValueType::PERCENTAGE) {
                 $result->item_discounts[$item->variant_id] = $this->get_percent_discounted_amount($coupon->discount_amount_percentage, $item_subtotal);
             }

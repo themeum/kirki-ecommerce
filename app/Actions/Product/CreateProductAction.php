@@ -40,6 +40,8 @@ class CreateProductAction
         DB::begin_transaction();
 
         try {
+            $product_payload->has_variants = count($product_payload->attributes) > 0;
+
             $product = $this->product_service->create($product_payload);
 
             if (empty($product)) {

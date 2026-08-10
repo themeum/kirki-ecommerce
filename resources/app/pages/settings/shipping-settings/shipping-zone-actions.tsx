@@ -1,14 +1,15 @@
 import ActionGroup from '@/components/ui/action-group';
-import ToggleButton from '@/components/ui/toggle-button';
-import DropdownButton from '@/components/dropdown-button';
-import { ShowMoreIcon, EditIcon, TrashIcon } from '@/icons';
-import { useOutletContext, useNavigate } from 'react-router';
-import { theme } from '@/theme';
-import { defineStyles } from '@/theme/mixins';
+import { EditIcon, TrashIcon } from '@/icons';
 import { __ } from '@/wpi18n';
+import { useNavigate, useOutletContext } from 'react-router';
 
-import { setUnsavedDataStatus } from '@/pages/settings/utils';
+import Button from '@/components/ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import Switch from '@/components/ui/switch';
 import type { ShippingZone } from '@/pages/settings/shipping-settings/utils';
+import { setUnsavedDataStatus } from '@/pages/settings/utils';
+import { theme } from '@/theme';
+import { MoreVertical } from 'lucide-react';
 
 type SettingsOutletContext = {
   confirmAction: (opts: {
@@ -30,6 +31,7 @@ const ShippingZoneActions = ({
 }: ShippingZoneActionsProps) => {
   const { confirmAction } = useOutletContext<SettingsOutletContext>();
   const navigate = useNavigate();
+
   const handleEditAndDelete = (action: string, item: ShippingZone) => {
     if (action === 'edit') {
       confirmAction({
@@ -52,29 +54,29 @@ const ShippingZoneActions = ({
     }
   };
   return (
-    <ActionGroup gap={2}>
-      <ToggleButton value={item?.is_enabled} onChange={() => onToggle(item)} />
-      <DropdownButton
-        buttonProps={{
-          cssOverride: styles.menuButton,
-          icon: <ShowMoreIcon />,
-        }}
-        options={[
-          {
-            title: __('Edit', 'kirki-ecommerce'),
-            value: 'edit',
-            icon: <EditIcon />,
-          },
-          {
-            title: __('Delete', 'kirki-ecommerce'),
-            value: 'delete',
-            icon: <TrashIcon />,
-          },
-        ]}
-        onOptionSelect={(action) =>
-          handleEditAndDelete(String(action), item)
-        }
-      />
+    <ActionGroup gap={2} cssOverride={{ marginLeft: theme.spacing[2] }}>
+      <Switch checked={item?.is_enabled} onCheckedChange={() => onToggle(item)} />
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            cssOverride={{ '& svg': { width: 16, height: 16 } }}
+          >
+            <MoreVertical />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuItem onClick={() => handleEditAndDelete('edit', item)}>
+            <EditIcon />
+            <span>{__('Edit', 'kirki-ecommerce')}</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => handleEditAndDelete('delete', item)}>
+            <TrashIcon />
+            <span>{__('Delete', 'kirki-ecommerce')}</span>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </ActionGroup>
   );
 };
@@ -83,9 +85,3 @@ ShippingZoneActions.displayName = 'ShippingZoneActions';
 
 export default ShippingZoneActions;
 
-const styles = defineStyles({
-  menuButton: {
-    transform: 'rotate(90deg)',
-    padding: theme.spacing[2],
-  },
-});

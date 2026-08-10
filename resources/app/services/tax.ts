@@ -3,21 +3,24 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tansta
 import { apiClient } from '@/libs/api';
 import { endpoints } from '@/libs/endpoints';
 import { queryKeys } from '@/libs/query-keys';
-import { toastMutationError, toastMutationSuccess, unwrapData, unwrapResponse } from '@/services/helpers';
-import type { ListQueryParams, PaginatedData, TaxProfile } from '@/types';
+import { TaxProfileSchema } from '@/schemas/catalog/tax';
+import type { TaxProfileFormPayload } from '@/schemas/forms/tax-profile-form';
+import { PaginatedDataSchema } from '@/schemas/shared/api';
+import { parseData, parseMessage, parseResponse, toastMutationError, toastMutationSuccess } from '@/services/helpers';
+import type { ListQueryParams } from '@/types';
 import { __ } from '@/wpi18n';
 
 const getTaxProfiles = async (params: ListQueryParams = {}) => {
   const data = await apiClient
     .get(endpoints.TAX_PROFILES, { params })
-    .then((response) => unwrapData<PaginatedData<TaxProfile>>(response));
+    .then((response) => parseData(PaginatedDataSchema(TaxProfileSchema), response));
   return data.results;
 };
 
-const createTaxProfile = (data: Record<string, unknown>) => {
+const createTaxProfile = (data: TaxProfileFormPayload) => {
   return apiClient
     .post(endpoints.TAX_PROFILES, data)
-    .then((response) => unwrapResponse<TaxProfile>(response));
+    .then((response) => parseResponse(TaxProfileSchema, response));
 };
 
 const updateTaxProfile = ({
@@ -25,17 +28,17 @@ const updateTaxProfile = ({
   data,
 }: {
   id: string | number;
-  data: Record<string, unknown>;
+  data: TaxProfileFormPayload;
 }) => {
   return apiClient
     .put(endpoints.TAX_PROFILE(id), data)
-    .then((response) => unwrapResponse<TaxProfile>(response));
+    .then((response) => parseResponse(TaxProfileSchema, response));
 };
 
 const deleteTaxProfile = (id: string | number) => {
   return apiClient
     .delete(endpoints.TAX_PROFILE(id))
-    .then((response) => unwrapResponse(response));
+    .then((response) => parseMessage(response));
 };
 
 const useTaxProfilesQuery = (params: ListQueryParams = {}) => {

@@ -17,17 +17,27 @@ export type {
 
 export type { SetKeyValuePayload } from '@/types/common-actions';
 
-export type { Attribute, AttributeType, AttributeValue } from '@/types/entities/attribute';
+export type { Currency } from '@/schemas/catalog/currency';
+export type { OfflinePayment, OnlinePayment } from '@/schemas/catalog/payment';
+export type { SettingsSectionKey } from '@/schemas/catalog/settings';
+export type {
+  ShippingBox, ShippingCarrier, ShippingMethod, ShippingProfile, ShippingRegion, ShippingRule, ShippingRuleAction, ShippingRuleCondition, ShippingZone
+} from '@/schemas/catalog/shipping';
+export type { TaxProfile } from '@/schemas/catalog/tax';
+export type {
+  Attribute, AttributeType, AttributeValue
+} from '@/types/entities/attribute';
 export type { Brand } from '@/types/entities/brand';
 export type { Category } from '@/types/entities/category';
 export type { Collection } from '@/types/entities/collection';
-export type { Coupon, CouponFormPayload } from '@/types/entities/coupon';
 export type { Country } from '@/types/entities/country';
-export type { Currency, CurrencyFormData } from '@/types/entities/currency';
+export type { Coupon, CouponFormPayload } from '@/types/entities/coupon';
 export type {
   Customer, CustomerAddress, CustomerListItem
 } from '@/types/entities/customer';
 export type { MediaRef, MediaSize } from '@/types/entities/media';
+export { FulfillmentStatusSchema, OrderCalculationRequestSchema, OrderCalculationSchema, OrderFormSchema, OrderItemSchema, OrderListItemSchema } from '@/types/entities/order';
+export type { FulfillmentStatus, OrderCalculation, OrderCalculationRequestPayload, OrderFormInput, OrderFormPayload, OrderItem, OrderListItem, OrderStatus, OrderTracking, PaymentStatus, Refund } from '@/types/entities/order';
 export type { PageItem } from '@/types/entities/page';
 export type {
   AdditionalInfoItem, InventoryVariant, Product,
@@ -36,9 +46,6 @@ export type {
   UpdateVariantsPayload
 } from '@/types/entities/product';
 export type { SchemaProfile } from '@/types/entities/schema';
-export type {
-  PaymentGateway, PaymentMethod, SettingsSectionData, SettingsSectionKey, ShippingBox, ShippingMethod, ShippingProfile, ShippingRegion, ShippingRule, ShippingRuleAction, ShippingRuleCondition, ShippingZone, TaxProfile
-} from '@/types/entities/settings';
 export type { Tag } from '@/types/entities/tag';
 export type { ToastVariant } from '@/types/entities/toast';
 

@@ -3,21 +3,25 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tansta
 import { apiClient } from '@/libs/api';
 import { endpoints } from '@/libs/endpoints';
 import { queryKeys } from '@/libs/query-keys';
-import { toastMutationError, toastMutationSuccess, unwrapData, unwrapResponse } from '@/services/helpers';
-import type { ListQueryParams, PaginatedData, ShippingBox, ShippingProfile } from '@/types';
+import { ShippingBoxSchema, ShippingProfileSchema } from '@/schemas/catalog/shipping';
+import type { ShippingBoxFormPayload } from '@/schemas/forms/shipping-box-form';
+import type { ShippingProfileFormPayload } from '@/schemas/forms/shipping-profile-form';
+import { PaginatedDataSchema } from '@/schemas/shared/api';
+import { parseData, parseMessage, parseResponse, toastMutationError, toastMutationSuccess } from '@/services/helpers';
+import type { ListQueryParams } from '@/types';
 import { __ } from '@/wpi18n';
 
 const getShippingProfiles = async (params: ListQueryParams = {}) => {
   const data = await apiClient
     .get(endpoints.SHIPPING_PROFILES, { params })
-    .then((response) => unwrapData<PaginatedData<ShippingProfile>>(response));
+    .then((response) => parseData(PaginatedDataSchema(ShippingProfileSchema), response));
   return data.results;
 };
 
-const createShippingProfile = (data: Record<string, unknown>) => {
+const createShippingProfile = (data: ShippingProfileFormPayload) => {
   return apiClient
     .post(endpoints.SHIPPING_PROFILES, data)
-    .then((response) => unwrapResponse<ShippingProfile>(response));
+    .then((response) => parseResponse(ShippingProfileSchema, response));
 };
 
 const updateShippingProfile = ({
@@ -25,36 +29,36 @@ const updateShippingProfile = ({
   data,
 }: {
   id: string | number;
-  data: Record<string, unknown>;
+  data: ShippingProfileFormPayload;
 }) => {
   return apiClient
     .put(endpoints.SHIPPING_PROFILE(id), data)
-    .then((response) => unwrapResponse<ShippingProfile>(response));
+    .then((response) => parseResponse(ShippingProfileSchema, response));
 };
 
 const deleteShippingProfile = (id: string | number) => {
   return apiClient
     .delete(endpoints.SHIPPING_PROFILE(id))
-    .then((response) => unwrapResponse(response));
+    .then((response) => parseMessage(response));
 };
 
 const getShippingBoxes = async (params: ListQueryParams = {}) => {
   const data = await apiClient
     .get(endpoints.SHIPPING_BOXES, { params })
-    .then((response) => unwrapData<PaginatedData<ShippingBox>>(response));
+    .then((response) => parseData(PaginatedDataSchema(ShippingBoxSchema), response));
   return data.results;
 };
 
 const getShippingBox = (id: string | number) => {
   return apiClient
     .get(endpoints.SHIPPING_BOX(id))
-    .then((response) => unwrapData<ShippingBox>(response));
+    .then((response) => parseData(ShippingBoxSchema, response));
 };
 
-const createShippingBox = (data: Record<string, unknown>) => {
+const createShippingBox = (data: ShippingBoxFormPayload) => {
   return apiClient
     .post(endpoints.SHIPPING_BOXES, data)
-    .then((response) => unwrapResponse<ShippingBox>(response));
+    .then((response) => parseResponse(ShippingBoxSchema, response));
 };
 
 const updateShippingBox = ({
@@ -62,24 +66,25 @@ const updateShippingBox = ({
   data,
 }: {
   id: string | number;
-  data: Record<string, unknown>;
+  data: ShippingBoxFormPayload | Record<string, unknown>;
 }) => {
   return apiClient
     .put(endpoints.SHIPPING_BOX(id), data)
-    .then((response) => unwrapResponse<ShippingBox>(response));
+    .then((response) => parseResponse(ShippingBoxSchema, response));
 };
 
 const deleteShippingBox = (id: string | number) => {
   return apiClient
     .delete(endpoints.SHIPPING_BOX(id))
-    .then((response) => unwrapResponse(response));
+    .then((response) => parseMessage(response));
 };
 
-const useShippingProfilesQuery = (params: ListQueryParams = {}) => {
+const useShippingProfilesQuery = (params: ListQueryParams = {}, enabled = true) => {
   return useQuery({
     queryKey: queryKeys.ShippingProfiles(params),
     queryFn: () => getShippingProfiles(params),
     placeholderData: keepPreviousData,
+    enabled
   });
 };
 
@@ -106,7 +111,7 @@ const useCreateShippingProfileMutation = () => {
     onSuccess(response) {
       toastMutationSuccess(
         response.message ||
-          __('Shipping profile created successfully.', 'kirki-ecommerce'),
+        __('Shipping profile created successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: ['ShippingProfiles'] });
     },
@@ -123,7 +128,7 @@ const useUpdateShippingProfileMutation = () => {
     onSuccess(response) {
       toastMutationSuccess(
         response.message ||
-          __('Shipping profile updated successfully.', 'kirki-ecommerce'),
+        __('Shipping profile updated successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: ['ShippingProfiles'] });
     },
@@ -140,7 +145,7 @@ const useDeleteShippingProfileMutation = () => {
     onSuccess(response) {
       toastMutationSuccess(
         response.message ||
-          __('Shipping profile deleted successfully.', 'kirki-ecommerce'),
+        __('Shipping profile deleted successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: ['ShippingProfiles'] });
     },
@@ -157,7 +162,7 @@ const useCreateShippingBoxMutation = () => {
     onSuccess(response) {
       toastMutationSuccess(
         response.message ||
-          __('Shipping box created successfully.', 'kirki-ecommerce'),
+        __('Shipping box created successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: ['ShippingBoxes'] });
     },
@@ -174,7 +179,7 @@ const useUpdateShippingBoxMutation = () => {
     onSuccess(response, variables) {
       toastMutationSuccess(
         response.message ||
-          __('Shipping box updated successfully.', 'kirki-ecommerce'),
+        __('Shipping box updated successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: ['ShippingBoxes'] });
       void queryClient.invalidateQueries({
@@ -194,7 +199,7 @@ const useDeleteShippingBoxMutation = () => {
     onSuccess(response) {
       toastMutationSuccess(
         response.message ||
-          __('Shipping box deleted successfully.', 'kirki-ecommerce'),
+        __('Shipping box deleted successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: ['ShippingBoxes'] });
     },
@@ -205,22 +210,7 @@ const useDeleteShippingBoxMutation = () => {
 };
 
 export {
-  getShippingProfiles,
-  createShippingProfile,
-  updateShippingProfile,
-  deleteShippingProfile,
-  getShippingBoxes,
-  getShippingBox,
-  createShippingBox,
-  updateShippingBox,
-  deleteShippingBox,
-  useShippingProfilesQuery,
-  useShippingBoxesQuery,
-  useShippingBoxQuery,
-  useCreateShippingProfileMutation,
-  useUpdateShippingProfileMutation,
-  useDeleteShippingProfileMutation,
-  useCreateShippingBoxMutation,
-  useUpdateShippingBoxMutation,
-  useDeleteShippingBoxMutation,
+  createShippingBox, createShippingProfile, deleteShippingBox, deleteShippingProfile, getShippingBox, getShippingBoxes, getShippingProfiles, updateShippingBox, updateShippingProfile, useCreateShippingBoxMutation, useCreateShippingProfileMutation, useDeleteShippingBoxMutation, useDeleteShippingProfileMutation, useShippingBoxesQuery,
+  useShippingBoxQuery, useShippingProfilesQuery, useUpdateShippingBoxMutation, useUpdateShippingProfileMutation
 };
+

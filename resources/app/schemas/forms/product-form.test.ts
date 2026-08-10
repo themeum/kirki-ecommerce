@@ -47,7 +47,7 @@ describe('ProductFormVariantSchema', () => {
       name: 'Small',
       media: { id: 3, url: 'https://x/v.png' },
       sku: 'SKU-1',
-      price: '19.99',
+      base_price: '19.99',
       available_quantity: '10',
       committed_quantity: '2',
       min_stock_threshold: '5',
@@ -65,14 +65,14 @@ describe('ProductFormVariantSchema', () => {
       media: 3,
       sku: 'SKU-1',
       barcode: null,
-      price: '19.99',
+      base_price: '19.99',
       show_unit_price: false,
       base_unit: null,
       base_unit_amount: null,
       total_unit: null,
       total_unit_amount: null,
-      sale_price: null,
-      cost_of_goods: null,
+      base_sale_price: null,
+      base_cost_of_goods: null,
       weight: null,
       weight_unit: null,
       dimension_unit: null,
@@ -259,14 +259,14 @@ describe('mapProductToFormValues', () => {
           media: null,
           sku: null,
           barcode: null,
-          price: null,
+          base_price: null,
           show_unit_price: false,
           base_unit: null,
           base_unit_amount: null,
           total_unit: null,
           total_unit_amount: null,
-          sale_price: null,
-          cost_of_goods: null,
+          base_sale_price: null,
+          base_cost_of_goods: null,
           weight: null,
           weight_unit: null,
           dimension_unit: null,
@@ -293,5 +293,83 @@ describe('mapProductToFormValues', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const formValues = mapProductToFormValues(productWithVariant as any);
     expect(formValues.variants?.[0]?.max_per_order).toBe(1);
+  });
+
+  const savedVariant = (id: number, isDefault: boolean) => ({
+    id,
+    name: `Variant ${id}`,
+    media: null,
+    sku: `SKU-${id}`,
+    barcode: null,
+    base_price: 10,
+    show_unit_price: false,
+    base_unit: null,
+    base_unit_amount: null,
+    total_unit: null,
+    total_unit_amount: null,
+    base_sale_price: null,
+    base_cost_of_goods: null,
+    weight: null,
+    weight_unit: null,
+    dimension_unit: null,
+    charge_taxes: true,
+    allow_back_order: false,
+    track_inventory: false,
+    available_quantity: 0,
+    in_stock: true,
+    committed_quantity: 0,
+    min_stock_threshold: null,
+    has_limit_per_order: false,
+    max_per_order: 1,
+    tax_profile_id: null,
+    shipping_profile_id: null,
+    shipping_box_id: null,
+    is_visible: true,
+    is_physical_product: true,
+    is_default: isDefault,
+    attribute_values: [],
+  });
+
+  it('collapses a legacy product carrying several default variants down to one', () => {
+    const product = {
+      ...productWithNoVariants,
+      variants: [savedVariant(2, true), savedVariant(3, true), savedVariant(4, true)],
+    };
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const formValues = mapProductToFormValues(product as any);
+    expect(formValues.variants?.map((item) => item.is_default)).toEqual([
+      true,
+      false,
+      false,
+    ]);
+  });
+
+  it('promotes the first variant when a product carries no default', () => {
+    const product = {
+      ...productWithNoVariants,
+      variants: [savedVariant(2, false), savedVariant(3, false)],
+    };
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const formValues = mapProductToFormValues(product as any);
+    expect(formValues.variants?.map((item) => item.is_default)).toEqual([
+      true,
+      false,
+    ]);
+  });
+
+  it('leaves a product with exactly one default untouched', () => {
+    const product = {
+      ...productWithNoVariants,
+      variants: [savedVariant(2, false), savedVariant(3, true)],
+    };
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const formValues = mapProductToFormValues(product as any);
+    expect(formValues.variants?.map((item) => item.is_default)).toEqual([
+      false,
+      true,
+    ]);
   });
 });

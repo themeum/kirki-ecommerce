@@ -8,7 +8,6 @@ import DataTable, {
 import Badge from '@/components/ui/badge';
 import Flex from '@/components/ui/flex';
 import Thumbnail from '@/components/ui/thumbnail';
-import { endpoints } from '@/libs/endpoints';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
 import type { ProductListItem } from '@/types';
@@ -21,6 +20,7 @@ import ProductTableFilter from '@/pages/products/product-table/product-table-fil
 import ProductTableFilterBar from '@/pages/products/product-table/product-table-filter-bar';
 import { useBulkDeleteProductsMutation, useProductsQuery } from '@/services/product';
 import { ProductListFilter, productListOptions } from '@/types/filters/product';
+import { displayMoney } from '@/utils/money';
 
 const ProductTitleCell = ({ item }: { item: ProductListItem }) => {
   const navigate = useNavigate();
@@ -31,10 +31,10 @@ const ProductTitleCell = ({ item }: { item: ProductListItem }) => {
       <span
         css={scoped(styles.clickable)}
         onClick={() => {
-          navigate(endpoints.PRODUCT(item.id));
+          navigate(`/products/${item.id}`);
         }}
       >
-        <span css={scoped(styles.mutedText)}>{item?.title} </span>
+        <span css={scoped(styles.mutedText)}>{item.title} </span>
       </span>
     </Flex>
   );
@@ -59,7 +59,7 @@ const productColumns: DataTableColumn<ProductListItem>[] = [
   },
   {
     title: __('Price', 'kirki-ecommerce'),
-    renderItem: (item) => item?.price,
+    renderItem: (item) => displayMoney('base_price', item),
   },
   {
     title: __('Status', 'kirki-ecommerce'),

@@ -14,14 +14,14 @@ import { applyServerErrors } from '@/libs/form-errors';
 import Flex from '@/components/ui/flex';
 import { theme } from '@/theme';
 import Text from '@/components/ui/text';
+import type { CurrencyDraft } from '@/schemas/catalog/currency';
 import { ExchangeRateFormSchema, type ExchangeRateFormInput, type ExchangeRateFormPayload } from '@/schemas/forms/exchange-rate-form';
-import { useAvailableCurrenciesQuery, useCreateCurrencyMutation } from '@/services/currency';
-import type { Currency, CurrencyFormData } from '@/types';
+import { useAvailableCurrenciesQuery, useCreateCurrencyMutation, type CurrencyBulkPayload } from '@/services/currency';
 import { __, sprintf } from '@/wpi18n';
 
 type ExchangeRatePopupProps = {
-  selectedCurrencyList?: Currency[];
-  setSelectedCurrencyList: Dispatch<SetStateAction<Currency[]>>;
+  selectedCurrencyList?: CurrencyDraft[];
+  setSelectedCurrencyList: Dispatch<SetStateAction<CurrencyDraft[]>>;
   isOpen: boolean;
   setIsOpen: Dispatch<SetStateAction<boolean>>;
   setAddCurrencyPopup: Dispatch<SetStateAction<boolean>>;
@@ -68,7 +68,7 @@ const ExchangeRatePopup = ({
   }, [isOpen, selectedCurrencyList, form]);
 
   const handleSaveCurrencyData = async (values: ExchangeRateFormPayload) => {
-    const payload: CurrencyFormData = {
+    const payload: CurrencyBulkPayload = {
       items: values.items.map((item, idx) => ({
         ...item,
         is_base:
@@ -76,7 +76,7 @@ const ExchangeRatePopup = ({
             ? true
             : item?.is_base,
         is_active: true,
-      })) as Currency[],
+      })),
     };
 
     try {

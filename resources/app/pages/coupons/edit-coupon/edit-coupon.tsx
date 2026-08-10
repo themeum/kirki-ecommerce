@@ -26,12 +26,12 @@ import { defineStyles, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 import Page from '@/components/ui/page';
-import { endpoints } from '@/libs/endpoints';
 import { getDefaults, pickFormValues } from '@/libs/zod';
 import { getCouponBadgeInfo } from '@/pages/coupons/edit-coupon/config/coupon-badge';
 import { isDefined } from '@/utils/object';
 import CouponPreview from './components/coupon-preview';
 // import ConditionsTab from './components/tabs/conditions-tab';
+import Badge from '@/components/ui/badge';
 import DetailsTab from './components/tabs/details-tab';
 import { splitIsoDateTime } from './config/coupon-datetime';
 
@@ -119,6 +119,7 @@ const EditCoupon = () => {
 
     form.reset(
       pickFormValues(CouponFormSchema, couponInfo, {
+        discount_amount: couponInfo.base_discount_amount,
         start_date: start.date,
         start_time: start.time,
         end_date: end.date,
@@ -133,7 +134,10 @@ const EditCoupon = () => {
         await updateMutation.mutateAsync({ id: couponId, data: payload });
       } else {
         const response = await createMutation.mutateAsync(payload);
-        navigate(endpoints.COUPON(response.data.id));
+
+        if (isDefined(response.data) && isDefined(response.data.id)) {
+          navigate(`/coupons/${response.data.id}`);
+        }
       }
     } catch (error) {
       applyServerErrors(form, error as ErrorResponse);
@@ -157,15 +161,11 @@ const EditCoupon = () => {
               ? __('New Coupon', 'kirki-ecommerce')
               : __('Edit Coupon', 'kirki-ecommerce')
           }
-          badge={isDefined(couponBadgeInfo) && {
-            variant: couponBadgeInfo.variant,
-            children: couponBadgeInfo.text,
-          }}
           type="primary"
           sticky
           actions={
             <>
-              <Button variant="ghost" onClick={() => navigate(endpoints.COUPONS)}>
+              <Button variant="ghost" onClick={() => navigate('/coupons')}>
                 {__('Cancel', 'kirki-ecommerce')}
               </Button>
               <Button
@@ -180,7 +180,14 @@ const EditCoupon = () => {
             </>
           }
           hasBack
-        />
+          onBack={() => navigate('/coupons')}
+        >
+          {
+            !isNew && isDefined(couponBadgeInfo) && (
+              <Badge variant={couponBadgeInfo.variant} >{couponBadgeInfo.text}</Badge>
+            )
+          }
+        </PageHeading>
 
         <Container>
           <Flex gap={4}>

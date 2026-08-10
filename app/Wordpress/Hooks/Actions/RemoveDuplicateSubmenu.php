@@ -20,6 +20,6 @@ class RemoveDuplicateSubmenu extends BaseHook
 
     public function handle(...$args)
     {
-        remove_submenu_page('ecommerce', 'ecommerce');
+        remove_submenu_page('kirki-ecommerce', 'kirki-ecommerce');
     }
 }

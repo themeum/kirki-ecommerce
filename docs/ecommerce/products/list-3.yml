@@ -12,34 +12,45 @@ http:
     - name: search
       value: ""
       type: query
+      disabled: true
     - name: sort_by
       value: id
       type: query
+      disabled: true
     - name: sort_order
       value: asc
       type: query
+      disabled: true
     - name: page
       value: "1"
       type: query
+      disabled: true
     - name: limit
       value: "-1"
       type: query
+      disabled: true
     - name: category_ids
       value: 1,2
       type: query
+      disabled: true
     - name: brand_id
       value: "5"
       type: query
+      disabled: true
     - name: collection_id
       value: "2"
       type: query
+      disabled: true
     - name: status
       value: published
       type: query
+      disabled: true
     - name: inventory_type
       value: in_stock
       type: query
+      disabled: true
   auth: inherit
+
 settings:
   encodeUrl: true
   timeout: 0
@@ -103,7 +114,10 @@ examples:
                   "image": "http://droip.local/wp-content/uploads/2025/10/project-launch-bg.webp",
                   "sku": null,
                   "inventory": 230,
-                  "price": 20,
+                  "base_price": 20,
+                  "base_price_money_object": { "raw": 20, "display": "$20.00", "currency": { "code": "USD", "symbol": "$" } },
+                  "display_price": 20,
+                  "display_price_money_object": { "raw": 20, "display": "$20.00", "currency": { "code": "USD", "symbol": "$" } },
                   "status": "published",
                   "created_at": "2025-11-25 11:02:30",
                   "updated_at": "2025-11-25 11:02:30"

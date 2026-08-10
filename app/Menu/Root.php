@@ -15,7 +15,7 @@ class Root extends Menu
     protected $capabilities = 'manage_options';
 
     /** @inheritDoc */
-    protected $menu_slug = 'ecommerce';
+    protected $menu_slug = 'kirki-ecommerce';
 
     protected $position = 2;
 

@@ -5,7 +5,7 @@ import { __ } from '@/wpi18n';
 
 const TagFormShape = z.object({
   name: required(z.string().default(''), __('Name is required', 'kirki-ecommerce')),
-  slug: required(z.string().default(''), __('Slug is required', 'kirki-ecommerce')),
+  slug: z.string().nullish(),
   description: z.string().nullish().default(''),
 });
 

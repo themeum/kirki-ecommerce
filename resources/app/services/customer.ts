@@ -57,11 +57,12 @@ const bulkDeleteCustomers = ({
     .then((response) => parseMessage(response));
 };
 
-const useCustomersQuery = (params: ListQueryParams = {}) => {
+const useCustomersQuery = (params: ListQueryParams = {}, enabled = true) => {
   return useQuery({
     queryKey: queryKeys.Customers(params),
     queryFn: () => getCustomers(params),
     placeholderData: keepPreviousData,
+    enabled,
   });
 };
 

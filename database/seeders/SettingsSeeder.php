@@ -110,7 +110,7 @@ class SettingsSeeder extends Seeder
                                 "is_enabled" => true,
                                 "name" => "Standard Delivery",
                                 "type" => "flat_rate",
-                                "amount" => 14,
+                                "base_amount" => 14,
                                 "is_taxable" => true,
                                 "description" => null,
                                 "shipping_rules" => [
@@ -151,7 +151,7 @@ class SettingsSeeder extends Seeder
                                 "type" => "local_pickup",
                                 "address" => null,
                                 "has_fee" => false,
-                                "amount" => 9,
+                                "base_amount" => 9,
                                 "description" => null,
                                 "has_pick_time" => false,
                                 "pickup_time_start" => null,
@@ -182,17 +182,17 @@ class SettingsSeeder extends Seeder
                                     [
                                         "from" => 0,
                                         "to" => 1,
-                                        "amount" => 5
+                                        "base_amount" => 5
                                     ],
                                     [
                                         "from" => 1,
                                         "to" => 2,
-                                        "amount" => 10
+                                        "base_amount" => 10
                                     ]
                                 ],
-                                "amount" => 30,
+                                "base_amount" => 30,
                                 "is_free_shipping_enabled" => false,
-                                "free_shipping_min_amount" => 10,
+                                "base_free_shipping_min_amount" => 10,
                                 "is_taxable" => false,
                                 "description" => null,
                                 "shipping_rules" => [
@@ -250,11 +250,11 @@ class SettingsSeeder extends Seeder
         return [
             "key" => "payment",
             "data" => [
-                "payment_gateways" => [
+                "offline_payments" => [
                     [
-                        "id" => "fdsf",
+                        "id" => "cod",
                         "is_enabled" => true,
-                        "is_manual" => true,
+                        "is_offline" => true,
                         "name" => "Cash on Delivery",
                         "icon" => "cash",
                         "instructions" => "Cash on Delivery"

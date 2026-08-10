@@ -19,7 +19,9 @@ use Kirki\Ecommerce\App\Actions\Cart\RecalculateCartAction;
 use Kirki\Ecommerce\Framework\Supports\Arr;
 use Kirki\Ecommerce\App\Supports\Currency;
 use Kirki\Ecommerce\App\Facades\Money;
+use Kirki\Ecommerce\App\Payment\Facades\Payment;
 use Exception;
+use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Throwable;
 
@@ -151,7 +153,7 @@ class CreateOrderAction
             $item_dto->variant_id = $variant->id;
             $item_dto->product_id = $product->id;
             $item_dto->quantity = $item_data['quantity'];
-            $item_dto->unit_price = $variant->sale_price ?: $variant->price;
+            $item_dto->base_unit_price = $variant->base_sale_price ?: $variant->base_price;
             $item_dto->weight = $variant->weight;
             $item_dto->shipping_profile_id = $variant->shipping_profile_id;
             $item_dto->product_categories = $product->categories->pluck('id')->all();
@@ -169,6 +171,7 @@ class CreateOrderAction
         $order_dto->uuid = uuid();
         $order_dto->order_number = 'ORD-' . strtoupper(uniqid()); // TODO: get from settings
         $order_dto->customer_id = $context->customer_id ?: null;
+        $order_dto->fulfillment_status = FulfillmentStatus::UNFULFILLED;
         $order_dto->order_status = OrderStatus::PENDING;
         $order_dto->is_manual = $dto->is_manual;
 
@@ -176,28 +179,29 @@ class CreateOrderAction
         $order_dto->base_currency_code = $this->base_currency_code;
         $order_dto->exchange_rate = Currency::exchange_rate($target_currency_code);
 
-        $order_dto->subtotal = $this->convert_amount($calculated_result->subtotal, $target_currency_code, $order_dto->exchange_rate);
-        $order_dto->subtotal_base = $calculated_result->subtotal;
+        $order_dto->invoiced_subtotal = $this->convert_amount($calculated_result->base_subtotal, $target_currency_code, $order_dto->exchange_rate);
+        $order_dto->base_subtotal = $calculated_result->base_subtotal;
 
-        $order_dto->shipping_total = $this->convert_amount($calculated_result->shipping_total, $target_currency_code, $order_dto->exchange_rate);
-        $order_dto->shipping_total_base = $calculated_result->shipping_total;
+        $order_dto->invoiced_shipping_total = $this->convert_amount($calculated_result->base_shipping_total, $target_currency_code, $order_dto->exchange_rate);
+        $order_dto->base_shipping_total = $calculated_result->base_shipping_total;
 
-        $order_dto->discount_total = $this->convert_amount($calculated_result->discount_total, $target_currency_code, $order_dto->exchange_rate);
-        $order_dto->discount_total_base = $calculated_result->discount_total;
+        $order_dto->invoiced_discount_total = $this->convert_amount($calculated_result->base_discount_total, $target_currency_code, $order_dto->exchange_rate);
+        $order_dto->base_discount_total = $calculated_result->base_discount_total;
         $order_dto->discount_details = $calculated_result->discount_details;
 
-        $order_dto->tax_total = $this->convert_amount($calculated_result->tax_total, $target_currency_code, $order_dto->exchange_rate);
-        $order_dto->tax_total_base = $calculated_result->tax_total;
+        $order_dto->invoiced_tax_total = $this->convert_amount($calculated_result->base_tax_total, $target_currency_code, $order_dto->exchange_rate);
+        $order_dto->base_tax_total = $calculated_result->base_tax_total;
 
-        $order_dto->total = $this->convert_amount($calculated_result->total, $target_currency_code, $order_dto->exchange_rate);
-        $order_dto->total_base = $calculated_result->total;
+        $order_dto->invoiced_total = $this->convert_amount($calculated_result->base_total, $target_currency_code, $order_dto->exchange_rate);
+        $order_dto->base_total = $calculated_result->base_total;
 
         $order_dto->items_count = $calculated_result->items_count;
 
-        $order_dto->payment_status = PaymentStatus::PENDING;
-        $order_dto->payment_method = $dto->payment_method;
-        $order_dto->payment_gateway = $dto->payment_method;
+        $order_dto->payment_status = PaymentStatus::UNPAID;
+        $order_dto->payment_provider = $dto->payment_provider;
+        $order_dto->payment_metadata = $this->build_payment_provider_snapshot($dto->payment_provider);
         $order_dto->shipping_method = $dto->shipping_method;
+        $order_dto->shipping_metadata = $this->build_shipping_method_snapshot($context);
 
         $order_dto->shipping_first_name = $dto->shipping_first_name;
         $order_dto->shipping_last_name = $dto->shipping_last_name;
@@ -225,6 +229,7 @@ class CreateOrderAction
         $order_dto->customer_email = $dto->customer_email;
         $order_dto->customer_phone = $dto->customer_phone;
         $order_dto->customer_notes = $dto->customer_notes;
+        $order_dto->admin_notes = $dto->admin_notes;
         $order_dto->ip_address = $dto->ip_address;
         $order_dto->user_agent = $dto->user_agent;
         $order_dto->created_by = $dto->created_by;
@@ -257,24 +262,24 @@ class CreateOrderAction
         $item_dto->barcode = $variant->barcode;
         $item_dto->product_image = $variant->media ?? ($first_media ? $first_media->id : null);
 
-        $item_dto->price = $this->convert_amount($variant->sale_price ?: $variant->price, $currency_code, $exchange_rate);
-        $item_dto->price_base = $variant->sale_price ?: $variant->price;
+        $item_dto->invoiced_price = $this->convert_amount($variant->base_sale_price ?: $variant->base_price, $currency_code, $exchange_rate);
+        $item_dto->base_price = $variant->base_sale_price ?: $variant->base_price;
 
         $item_dto->quantity = $calculated_item->quantity;
 
-        $item_dto->subtotal = $this->convert_amount($calculated_item->subtotal, $currency_code, $exchange_rate);
-        $item_dto->subtotal_base = $calculated_item->subtotal;
+        $item_dto->invoiced_subtotal = $this->convert_amount($calculated_item->base_subtotal, $currency_code, $exchange_rate);
+        $item_dto->base_subtotal = $calculated_item->base_subtotal;
 
-        $item_dto->discount_amount = $this->convert_amount($calculated_item->discount_amount, $currency_code, $exchange_rate);
-        $item_dto->discount_amount_base = $calculated_item->discount_amount;
+        $item_dto->invoiced_discount_amount = $this->convert_amount($calculated_item->base_discount_amount, $currency_code, $exchange_rate);
+        $item_dto->base_discount_amount = $calculated_item->base_discount_amount;
 
-        $item_dto->tax_total = $this->convert_amount($calculated_item->tax_amount, $currency_code, $exchange_rate);
-        $item_dto->tax_total_base = $calculated_item->tax_amount;
+        $item_dto->invoiced_tax_total = $this->convert_amount($calculated_item->base_tax_amount, $currency_code, $exchange_rate);
+        $item_dto->base_tax_total = $calculated_item->base_tax_amount;
         $item_dto->tax_rate = $calculated_item->tax_rate;
         $item_dto->tax_breakdown = $calculated_item->tax_breakdown;
 
-        $item_dto->total = $this->convert_amount($calculated_item->total, $currency_code, $exchange_rate);
-        $item_dto->total_base = $calculated_item->total;
+        $item_dto->invoiced_total = $this->convert_amount($calculated_item->base_total, $currency_code, $exchange_rate);
+        $item_dto->base_total = $calculated_item->base_total;
 
         $item_dto->is_physical_product = $variant->is_physical_product ?? true;
         $item_dto->weight = $variant->weight;
@@ -295,5 +300,40 @@ class CreateOrderAction
         }
 
         return Money::convert_to_currency(Money::from_minor($amount, $this->base_currency_code), $target_currency_code, $exchange_rate)->getMinorAmount()->toInt();
+    }
+
+    protected function build_payment_provider_snapshot($payment_provider_id)
+    {
+        $provider = Payment::get_provider($payment_provider_id);
+
+        if (!$provider) {
+            return null;
+        }
+
+        return [
+            'payment_provider' => [
+                'id' => $provider->id(),
+                'name' => $provider->title(),
+                'icon' => $provider->icon(),
+                'is_offline' => $provider->is_offline(),
+            ],
+        ];
+    }
+
+    protected function build_shipping_method_snapshot(CalculationContextDTO $context)
+    {
+        $method = $this->shipping_service->get_selected_shipping_method($context);
+
+        if (!$method) {
+            return null;
+        }
+
+        return [
+            'shipping_method' => [
+                'id' => $method['id'],
+                'name' => $method['name'],
+                'type' => $method['type'],
+            ],
+        ];
     }
 }

@@ -1,13 +1,13 @@
 import type { CSSProperties, ReactNode } from 'react';
 
 import Button from '@/components/ui/button';
-import { ArrowLeftIcon } from '@/icons';
 import { Card } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
+import { ArrowLeftIcon } from '@/icons';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { scoped, defineStyles } from '@/theme/mixins';
+import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 type PageNavbarProps = {
@@ -31,7 +31,7 @@ const PageNavbar = (props: PageNavbarProps) => {
 
   return (
     <div style={style}>
-      <Flex align="center" justify="center">
+      <Flex align="center" justify="center" gap={2}>
         <Button
           variant="ghost"
           aria-label={__('Back', 'kirki-ecommerce')}
@@ -40,7 +40,6 @@ const PageNavbar = (props: PageNavbarProps) => {
         >
           {buttonIcon}
         </Button>
-        <div css={scoped(styles.connector)} />
         <Card cssOverride={cardStyles.navbarCard}>
           <Flex gap={2} align="center">
             {textIcon}

@@ -1,9 +1,10 @@
 import MediaSelector from '@/components/media-selector';
 import Button from '@/components/ui/button';
-import { CloudUpload } from '@/icons';
+import Flex from '@/components/ui/flex';
 import Placeholder from '@/components/ui/placeholder';
 import Text from '@/components/ui/text';
 import Thumbnail from '@/components/ui/thumbnail';
+import { CloudUpload } from '@/icons';
 import type { LabelFieldProps, MediaRef, ThumbnailSize } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -21,7 +22,7 @@ type ThumbnailSelectorProps = LabelFieldProps & {
 
 const ThumbnailSelector = (props: ThumbnailSelectorProps) => {
   const {
-    onChange = () => {},
+    onChange = () => { },
     error,
     src,
     placeholder = __('Drag and drop, or upload image', 'kirki-ecommerce'),
@@ -79,13 +80,15 @@ const ThumbnailSelector = (props: ThumbnailSelectorProps) => {
           error={error}
           helpText={helpText}
         >
-          <MediaSelector onSelect={onChange}>
-            <Button variant="ghost">
-              <CloudUpload />
-              {btnText}
-            </Button>
-          </MediaSelector>
-          <Text color="secondary">{placeholder}</Text>
+          <Flex direction="column" gap={2}>
+            <MediaSelector onSelect={onChange}>
+              <Button variant="ghost">
+                <CloudUpload />
+                {btnText}
+              </Button>
+            </MediaSelector>
+            <Text color="secondary">{placeholder}</Text>
+          </Flex>
         </Placeholder>
       )}
     </>

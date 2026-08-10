@@ -1,44 +1,33 @@
-import PageNavbar from '@/components/page-navbar';
-import { PaymentIcon } from '@/icons';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
-import PageHeading from '@/components/ui/page-heading';
-import { usePaymentGatewaysQuery } from '@/services/payment';
-import { usePaymentMethodsQuery } from '@/services/payment';
+import { PaymentIcon } from '@/icons';
+import { useOfflinePaymentsQuery, useOnlinePaymentsQuery } from '@/services/payment';
 import { __ } from '@/wpi18n';
 
-import ManualPayment from '@/pages/settings/payment-settings/manual-payment';
-import PaymentGatewayList from '@/pages/settings/payment-settings/payment-gateway';
+import SettingsPageHeader from '@/pages/settings/settings-page-header';
+import OfflinePayment from '@/pages/settings/payment-settings/offline-payment';
+import OnlinePaymentList from '@/pages/settings/payment-settings/online-payment';
 
 const PaymentSettings = () => {
-  const { data: paymentGatewayList = [] } = usePaymentGatewaysQuery();
-  const { data: manualPaymentMethod = [], refetch: refetchMethods } =
-    usePaymentMethodsQuery();
+  const { data: onlinePaymentList = [] } = useOnlinePaymentsQuery();
+  const { data: offlinePaymentList = [], refetch: refetchOfflinePayments } =
+    useOfflinePaymentsQuery();
 
   return (
-    <>
-      <PageHeading
-        text={__('Settings', 'kirki-ecommerce')}
-        size="sm"
-        sticky
-        type="primary"
-        style={{ height: '32px' }}
-      />
-      <Container size="sm">
-        <Flex direction="column" gap={4}>
-          <PageNavbar
-            textIcon={<PaymentIcon />}
-            text={__('Payments', 'kirki-ecommerce')}
-          />
+    <Container size="sm">
+      <Flex direction="column" gap={4}>
+        <SettingsPageHeader
+          icon={<PaymentIcon />}
+          title={__('Payments', 'kirki-ecommerce')}
+        />
 
-          <ManualPayment
-            manualPaymentList={manualPaymentMethod}
-            refetch={refetchMethods}
-          />
-          <PaymentGatewayList paymentGatewayList={paymentGatewayList} />
-        </Flex>
-      </Container>
-    </>
+        <OfflinePayment
+          offlinePaymentList={offlinePaymentList}
+          refetch={refetchOfflinePayments}
+        />
+        <OnlinePaymentList onlinePaymentList={onlinePaymentList} />
+      </Flex>
+    </Container>
   );
 };
 

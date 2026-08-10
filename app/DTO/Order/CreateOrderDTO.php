@@ -19,6 +19,9 @@ class CreateOrderDTO extends DTO
     public $customer_id;
 
     /** @var string */
+    public $fulfillment_status;
+
+    /** @var string */
     public $order_status;
 
     /** @var bool */
@@ -34,37 +37,37 @@ class CreateOrderDTO extends DTO
     public $exchange_rate;
 
     /** @var int */
-    public $subtotal;
+    public $invoiced_subtotal;
 
     /** @var int */
-    public $subtotal_base;
+    public $base_subtotal;
 
     /** @var int */
-    public $shipping_total;
+    public $invoiced_shipping_total;
 
     /** @var int */
-    public $shipping_total_base;
+    public $base_shipping_total;
 
     /** @var int */
-    public $discount_total;
+    public $invoiced_discount_total;
 
     /** @var int */
-    public $discount_total_base;
+    public $base_discount_total;
 
     /** @var array */
     public $discount_details;
 
     /** @var int */
-    public $tax_total = 0;
+    public $invoiced_tax_total = 0;
 
     /** @var int */
-    public $tax_total_base = 0;
+    public $base_tax_total = 0;
 
     /** @var int */
-    public $total;
+    public $invoiced_total;
 
     /** @var int */
-    public $total_base;
+    public $base_total;
 
     /** @var int */
     public $items_count;
@@ -73,13 +76,16 @@ class CreateOrderDTO extends DTO
     public $payment_status;
 
     /** @var string */
-    public $payment_method;
+    public $payment_provider;
 
-    /** @var string */
-    public $payment_gateway;
+    /** @var array|null */
+    public $payment_metadata;
 
     /** @var string */
     public $shipping_method;
+
+    /** @var array|null */
+    public $shipping_metadata;
 
     // Shipping Address Fields
     public $shipping_first_name;
@@ -112,6 +118,9 @@ class CreateOrderDTO extends DTO
     public $customer_notes;
 
     /** @var string|null */
+    public $admin_notes;
+
+    /** @var string|null */
     public $ip_address;
 
     /** @var string|null */
@@ -134,6 +143,7 @@ class CreateOrderDTO extends DTO
 
     /** @var string|null */
     public $customer_phone;
+
 
     public function __construct()
     {

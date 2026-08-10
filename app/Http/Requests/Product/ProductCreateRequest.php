@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Http\Requests\Product;
 
+use Kirki\Ecommerce\App\Concerns\ValidatesVariantMatrix;
 use Kirki\Ecommerce\App\Constants\Product\ProductStatus;
 use Kirki\Ecommerce\App\Constants\Unit;
 use Kirki\Ecommerce\App\Constants\WeightUnit;
@@ -11,6 +12,13 @@ use Kirki\Ecommerce\Framework\Http\Request;
 
 class ProductCreateRequest extends Request
 {
+    use ValidatesVariantMatrix;
+
+    protected function passed_validation()
+    {
+        $this->validate_variant_matrix();
+    }
+
     protected function prepare_for_validation()
     {
         $variants = $this->input('variants') ?? [];
@@ -20,7 +28,7 @@ class ProductCreateRequest extends Request
                 continue;
             }
 
-            foreach (['price', 'sale_price', 'cost_of_goods'] as $field) {
+            foreach (['base_price', 'base_sale_price', 'base_cost_of_goods'] as $field) {
                 if (array_key_exists($field, $variant) && !empty($variant[$field])) {
                     $variants[$index][$field] = Money::to_minor($variant[$field]);
                 }
@@ -90,14 +98,14 @@ class ProductCreateRequest extends Request
             'variants.*.sku' => 'string|nullable|max:100',
             'variants.*.barcode' => 'string|nullable|max:100',
 
-            'variants.*.price' => 'required|number|min:0',
+            'variants.*.base_price' => 'required|number|min:0',
             'variants.*.show_unit_price' => 'boolean|nullable',
             'variants.*.base_unit' => 'string|nullable|max:10|in:' . implode(',', Unit::get_constant_values()),
             'variants.*.base_unit_amount' => 'number|min:0|nullable',
             'variants.*.total_unit' => 'string|nullable|max:10|in:' . implode(',', Unit::get_constant_values()),
             'variants.*.total_unit_amount' => 'number|min:0|nullable',
-            'variants.*.sale_price' => 'number|min:0|nullable',
-            'variants.*.cost_of_goods' => 'number|min:0|nullable',
+            'variants.*.base_sale_price' => 'number|min:0|nullable',
+            'variants.*.base_cost_of_goods' => 'number|min:0|nullable',
 
             'variants.*.weight' => 'numeric|nullable',
             'variants.*.weight_unit' => 'nullable|string|max:10|in:' . implode(',', WeightUnit::get_constant_values()),
@@ -162,14 +170,14 @@ class ProductCreateRequest extends Request
             'variants.*.media' => Sanitizer::INT,
             'variants.*.sku' => Sanitizer::TEXT,
             'variants.*.barcode' => Sanitizer::TEXT,
-            'variants.*.price' => Sanitizer::INT,
+            'variants.*.base_price' => Sanitizer::INT,
             'variants.*.show_unit_price' => Sanitizer::BOOL,
             'variants.*.base_unit' => Sanitizer::TEXT,
             'variants.*.base_unit_amount' => Sanitizer::INT,
             'variants.*.total_unit' => Sanitizer::TEXT,
             'variants.*.total_unit_amount' => Sanitizer::INT,
-            'variants.*.sale_price' => Sanitizer::INT,
-            'variants.*.cost_of_goods' => Sanitizer::INT,
+            'variants.*.base_sale_price' => Sanitizer::INT,
+            'variants.*.base_cost_of_goods' => Sanitizer::INT,
             'variants.*.weight' => Sanitizer::FLOAT,
             'variants.*.weight_unit' => Sanitizer::TEXT,
             'variants.*.charge_taxes' => Sanitizer::BOOL,

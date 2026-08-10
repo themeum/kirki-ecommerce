@@ -1,131 +1,135 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { z } from 'zod';
 
 import { apiClient } from '@/libs/api';
 import { endpoints } from '@/libs/endpoints';
 import { queryKeys } from '@/libs/query-keys';
-import { toastMutationError, toastMutationSuccess, unwrapData, unwrapResponse } from '@/services/helpers';
-import type { PaymentGateway, PaymentMethod } from '@/types';
+import { OfflinePaymentSchema, OnlinePaymentListSchema, OnlinePaymentSchema } from '@/schemas/catalog/payment';
+import type { OfflinePaymentFormPayload } from '@/schemas/forms/offline-payment-form';
+import type { OnlinePaymentEditFormPayload } from '@/schemas/forms/online-payment-form';
+import { ResourceCollectionSchema } from '@/schemas/shared/api';
+import { parseData, parseMessage, parseResponse, toastMutationError, toastMutationSuccess } from '@/services/helpers';
 import { __ } from '@/wpi18n';
 
-const getInstallablePaymentGateways = () => {
+const getInstallableOnlinePayments = () => {
   return apiClient
-    .get(endpoints.PAYMENT_GATEWAYS_INSTALLABLE)
-    .then((response) => unwrapData(response));
+    .get(endpoints.ONLINE_PAYMENTS_INSTALLABLE)
+    .then((response) => parseData(ResourceCollectionSchema(OnlinePaymentSchema), response));
 };
 
-const getPaymentGateways = () => {
+const getOnlinePayments = () => {
   return apiClient
-    .get(endpoints.PAYMENT_GATEWAYS)
-    .then((response) => unwrapData<PaymentGateway[]>(response));
+    .get(endpoints.ONLINE_PAYMENTS)
+    .then((response) => parseData(OnlinePaymentListSchema, response));
 };
 
-const getPaymentGateway = (id: string | number) => {
+const getOnlinePayment = (id: string | number) => {
   return apiClient
-    .get(endpoints.PAYMENT_GATEWAY(id))
-    .then((response) => unwrapData<PaymentGateway>(response));
+    .get(endpoints.ONLINE_PAYMENT(id))
+    .then((response) => parseData(OnlinePaymentSchema, response));
 };
 
-const installPaymentGateway = (id: unknown) => {
+const installOnlinePayment = (data: { id: string | number }) => {
   return apiClient
-    .post(endpoints.PAYMENT_GATEWAYS_INSTALL, id)
-    .then((response) => unwrapResponse(response));
+    .post(endpoints.ONLINE_PAYMENTS_INSTALL, data)
+    .then((response) => parseResponse(OnlinePaymentSchema, response));
 };
 
-const updatePaymentGateway = ({
+const updateOnlinePayment = ({
   id,
   data,
 }: {
   id: string | number;
-  data: Record<string, unknown>;
+  data: OnlinePaymentEditFormPayload;
 }) => {
   return apiClient
-    .put(endpoints.PAYMENT_GATEWAY(id), data)
-    .then((response) => unwrapResponse(response));
+    .put(endpoints.ONLINE_PAYMENT(id), data)
+    .then((response) => parseResponse(OnlinePaymentSchema, response));
 };
 
-const setEnabledPaymentGateway = ({
+const setEnabledOnlinePayment = ({
   id,
   data,
 }: {
   id: string | number;
-  data: Record<string, unknown>;
+  data: { is_enabled: boolean };
 }) => {
   return apiClient
-    .patch(endpoints.PAYMENT_GATEWAY(id), data)
-    .then((response) => unwrapResponse(response));
+    .patch(endpoints.ONLINE_PAYMENT(id), data)
+    .then((response) => parseResponse(z.boolean(), response));
 };
 
-const getPaymentMethods = () => {
+const getOfflinePayments = () => {
   return apiClient
-    .get(endpoints.PAYMENT_METHODS)
-    .then((response) => unwrapData<PaymentMethod[]>(response));
+    .get(endpoints.OFFLINE_PAYMENTS)
+    .then((response) => parseData(ResourceCollectionSchema(OfflinePaymentSchema), response));
 };
 
-const createPaymentMethod = (data: Record<string, unknown>) => {
+const createOfflinePayment = (data: OfflinePaymentFormPayload) => {
   return apiClient
-    .post(endpoints.PAYMENT_METHODS, data)
-    .then((response) => unwrapResponse<PaymentMethod>(response));
+    .post(endpoints.OFFLINE_PAYMENTS, data)
+    .then((response) => parseResponse(OfflinePaymentSchema, response));
 };
 
-const updatePaymentMethod = ({
+const updateOfflinePayment = ({
   id,
   data,
 }: {
   id: string | number;
-  data: Record<string, unknown>;
+  data: OfflinePaymentFormPayload | Record<string, unknown>;
 }) => {
   return apiClient
-    .put(endpoints.PAYMENT_METHOD(id), data)
-    .then((response) => unwrapResponse(response));
+    .put(endpoints.OFFLINE_PAYMENT(id), data)
+    .then((response) => parseResponse(OfflinePaymentSchema, response));
 };
 
-const deletePaymentMethod = (id: string | number) => {
+const deleteOfflinePayment = (id: string | number) => {
   return apiClient
-    .delete(endpoints.PAYMENT_METHOD(id))
-    .then((response) => unwrapResponse(response));
+    .delete(endpoints.OFFLINE_PAYMENT(id))
+    .then((response) => parseMessage(response));
 };
 
-const useInstallablePaymentGatewaysQuery = () => {
+const useInstallableOnlinePaymentsQuery = () => {
   return useQuery({
-    queryKey: queryKeys.InstallablePaymentGateways(),
-    queryFn: getInstallablePaymentGateways,
+    queryKey: queryKeys.InstallableOnlinePayments(),
+    queryFn: getInstallableOnlinePayments,
   });
 };
 
-const usePaymentGatewaysQuery = () => {
+const useOnlinePaymentsQuery = () => {
   return useQuery({
-    queryKey: queryKeys.PaymentGateways(),
-    queryFn: getPaymentGateways,
+    queryKey: queryKeys.OnlinePayments(),
+    queryFn: getOnlinePayments,
   });
 };
 
-const usePaymentGatewayQuery = (id: string | number, enabled = true) => {
+const useOnlinePaymentQuery = (id: string | number, enabled = true) => {
   return useQuery({
-    queryKey: queryKeys.PaymentGateway(id),
-    queryFn: () => getPaymentGateway(id),
+    queryKey: queryKeys.OnlinePayment(id),
+    queryFn: () => getOnlinePayment(id),
     enabled: enabled && Boolean(id),
   });
 };
 
-const usePaymentMethodsQuery = () => {
+const useOfflinePaymentsQuery = () => {
   return useQuery({
-    queryKey: queryKeys.PaymentMethods(),
-    queryFn: getPaymentMethods,
+    queryKey: queryKeys.OfflinePayments(),
+    queryFn: getOfflinePayments,
   });
 };
 
-const useInstallPaymentGatewayMutation = () => {
+const useInstallOnlinePaymentMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: installPaymentGateway,
+    mutationFn: installOnlinePayment,
     onSuccess(response) {
       toastMutationSuccess(
         response.message ||
-          __('Payment gateway installed successfully.', 'kirki-ecommerce'),
+        __('Payment gateway installed successfully.', 'kirki-ecommerce'),
       );
-      void queryClient.invalidateQueries({ queryKey: ['PaymentGateways'] });
+      void queryClient.invalidateQueries({ queryKey: ['OnlinePayments'] });
       void queryClient.invalidateQueries({
-        queryKey: ['InstallablePaymentGateways'],
+        queryKey: ['InstallableOnlinePayments'],
       });
     },
     onError(error) {
@@ -134,18 +138,18 @@ const useInstallPaymentGatewayMutation = () => {
   });
 };
 
-const useUpdatePaymentGatewayMutation = () => {
+const useUpdateOnlinePaymentMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: updatePaymentGateway,
+    mutationFn: updateOnlinePayment,
     onSuccess(response, variables) {
       toastMutationSuccess(
         response.message ||
-          __('Payment gateway updated successfully.', 'kirki-ecommerce'),
+        __('Payment gateway updated successfully.', 'kirki-ecommerce'),
       );
-      void queryClient.invalidateQueries({ queryKey: ['PaymentGateways'] });
+      void queryClient.invalidateQueries({ queryKey: ['OnlinePayments'] });
       void queryClient.invalidateQueries({
-        queryKey: queryKeys.PaymentGateway(variables.id),
+        queryKey: queryKeys.OnlinePayment(variables.id),
       });
     },
     onError(error) {
@@ -154,16 +158,16 @@ const useUpdatePaymentGatewayMutation = () => {
   });
 };
 
-const useSetEnabledPaymentGatewayMutation = () => {
+const useSetEnabledOnlinePaymentMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: setEnabledPaymentGateway,
+    mutationFn: setEnabledOnlinePayment,
     onSuccess(response) {
       toastMutationSuccess(
         response.message ||
-          __('Payment gateway updated successfully.', 'kirki-ecommerce'),
+        __('Payment gateway updated successfully.', 'kirki-ecommerce'),
       );
-      void queryClient.invalidateQueries({ queryKey: ['PaymentGateways'] });
+      void queryClient.invalidateQueries({ queryKey: ['OnlinePayments'] });
     },
     onError(error) {
       toastMutationError(error);
@@ -171,16 +175,16 @@ const useSetEnabledPaymentGatewayMutation = () => {
   });
 };
 
-const useCreatePaymentMethodMutation = () => {
+const useCreateOfflinePaymentMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: createPaymentMethod,
+    mutationFn: createOfflinePayment,
     onSuccess(response) {
       toastMutationSuccess(
         response.message ||
-          __('Payment method created successfully.', 'kirki-ecommerce'),
+        __('Payment method created successfully.', 'kirki-ecommerce'),
       );
-      void queryClient.invalidateQueries({ queryKey: ['PaymentMethods'] });
+      void queryClient.invalidateQueries({ queryKey: ['OfflinePayments'] });
     },
     onError(error) {
       toastMutationError(error);
@@ -188,16 +192,16 @@ const useCreatePaymentMethodMutation = () => {
   });
 };
 
-const useUpdatePaymentMethodMutation = () => {
+const useUpdateOfflinePaymentMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: updatePaymentMethod,
+    mutationFn: updateOfflinePayment,
     onSuccess(response) {
       toastMutationSuccess(
         response.message ||
-          __('Payment method updated successfully.', 'kirki-ecommerce'),
+        __('Payment method updated successfully.', 'kirki-ecommerce'),
       );
-      void queryClient.invalidateQueries({ queryKey: ['PaymentMethods'] });
+      void queryClient.invalidateQueries({ queryKey: ['OfflinePayments'] });
     },
     onError(error) {
       toastMutationError(error);
@@ -205,16 +209,16 @@ const useUpdatePaymentMethodMutation = () => {
   });
 };
 
-const useDeletePaymentMethodMutation = () => {
+const useDeleteOfflinePaymentMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: deletePaymentMethod,
+    mutationFn: deleteOfflinePayment,
     onSuccess(response) {
       toastMutationSuccess(
         response.message ||
-          __('Payment method deleted successfully.', 'kirki-ecommerce'),
+        __('Payment method deleted successfully.', 'kirki-ecommerce'),
       );
-      void queryClient.invalidateQueries({ queryKey: ['PaymentMethods'] });
+      void queryClient.invalidateQueries({ queryKey: ['OfflinePayments'] });
     },
     onError(error) {
       toastMutationError(error);
@@ -223,24 +227,6 @@ const useDeletePaymentMethodMutation = () => {
 };
 
 export {
-  getInstallablePaymentGateways,
-  getPaymentGateways,
-  getPaymentGateway,
-  installPaymentGateway,
-  updatePaymentGateway,
-  setEnabledPaymentGateway,
-  getPaymentMethods,
-  createPaymentMethod,
-  updatePaymentMethod,
-  deletePaymentMethod,
-  useInstallablePaymentGatewaysQuery,
-  usePaymentGatewaysQuery,
-  usePaymentGatewayQuery,
-  usePaymentMethodsQuery,
-  useInstallPaymentGatewayMutation,
-  useUpdatePaymentGatewayMutation,
-  useSetEnabledPaymentGatewayMutation,
-  useCreatePaymentMethodMutation,
-  useUpdatePaymentMethodMutation,
-  useDeletePaymentMethodMutation,
+  createOfflinePayment, deleteOfflinePayment, getInstallableOnlinePayments, getOnlinePayment, getOnlinePayments, getOfflinePayments, installOnlinePayment, setEnabledOnlinePayment, updateOnlinePayment, updateOfflinePayment, useCreateOfflinePaymentMutation, useDeleteOfflinePaymentMutation, useInstallableOnlinePaymentsQuery, useInstallOnlinePaymentMutation, useOnlinePaymentQuery, useOnlinePaymentsQuery, useOfflinePaymentsQuery, useSetEnabledOnlinePaymentMutation, useUpdateOnlinePaymentMutation, useUpdateOfflinePaymentMutation
 };
+

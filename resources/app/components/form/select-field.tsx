@@ -22,6 +22,7 @@ type SelectFieldProps<
   options: SelectFieldOption[];
   disabled?: boolean;
   cssOverride?: CSSObject;
+  onValueChange?: (value: string | null) => void;
 };
 
 const SelectField = <
@@ -36,6 +37,7 @@ const SelectField = <
   options,
   disabled,
   cssOverride,
+  onValueChange
 }: SelectFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
   const fieldId = String(name);
@@ -44,43 +46,46 @@ const SelectField = <
     <Controller
       control={control}
       name={name}
-      render={({ field, fieldState }) => (
-        <Field data-invalid={fieldState.invalid || undefined} cssOverride={cssOverride}>
-          {label && (
-            <FieldLabel htmlFor={fieldId} infoText={infoText}>
-              {label}
-            </FieldLabel>
-          )}
-          <Select
-            value={
-              field.value === null || field.value === undefined
-                ? ''
-                : String(field.value)
-            }
-            onValueChange={(nextValue) => {
-              field.onChange(nextValue === '' ? null : nextValue);
-            }}
-            disabled={disabled}
-          >
-            <SelectTrigger
-              id={fieldId}
-              error={Boolean(fieldState.error)}
-              aria-invalid={fieldState.invalid}
+      render={({ field, fieldState }) => {
+        return (
+          <Field data-invalid={fieldState.invalid || undefined} cssOverride={cssOverride}>
+            {label && (
+              <FieldLabel htmlFor={fieldId} infoText={infoText}>
+                {label}
+              </FieldLabel>
+            )}
+            <Select
+              value={
+                field.value === null || field.value === undefined
+                  ? ''
+                  : String(field.value)
+              }
+              onValueChange={(nextValue) => {
+                field.onChange(nextValue === '' ? null : nextValue);
+                onValueChange?.(nextValue === '' ? null : nextValue);
+              }}
+              disabled={disabled}
             >
-              <SelectValue placeholder={placeholder} />
-            </SelectTrigger>
-            <SelectContent>
-              {options.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {description && <FieldDescription>{description}</FieldDescription>}
-          {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-        </Field>
-      )}
+              <SelectTrigger
+                id={fieldId}
+                error={Boolean(fieldState.error)}
+                aria-invalid={fieldState.invalid}
+              >
+                <SelectValue placeholder={placeholder} />
+              </SelectTrigger>
+              <SelectContent>
+                {options.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {description && <FieldDescription>{description}</FieldDescription>}
+            {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+          </Field>
+        )
+      }}
     />
   );
 };

@@ -13,6 +13,8 @@ type DataTableColumn<T> = {
   renderItem: (item: T) => ReactNode;
   alignment?: TableAlignment;
   sortable?: Pick<SortableConfig, 'sort_by'>
+  cssOverride?: CSSObject;
+  onColumnClick?: (item: T) => void;
 };
 
 type DataTableBulkApplyPayload = {

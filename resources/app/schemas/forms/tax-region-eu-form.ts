@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 import { prepareFormSchema } from '@/libs/zod';
-import { TaxRateSchema } from '@/schemas/forms/tax-settings-form';
+import { TaxRateSchema } from '@/schemas/catalog/tax';
 
 const TaxRegionEuFormShape = z.object({
   type: z.string().nullish().default('oss'),

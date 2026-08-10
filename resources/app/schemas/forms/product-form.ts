@@ -24,14 +24,14 @@ const ProductFormVariantShape = z.object({
   media: mediaId(),
   sku: z.string().nullish(),
   barcode: z.string().nullish(),
-  price: moneyAmount.nullish(),
+  base_price: moneyAmount.nullish(),
   show_unit_price: z.boolean().nullish(),
   base_unit: z.string().nullish(),
   base_unit_amount: moneyAmount.nullish(),
   total_unit: z.string().nullish(),
   total_unit_amount: moneyAmount.nullish(),
-  sale_price: moneyAmount.nullish(),
-  cost_of_goods: moneyAmount.nullish(),
+  base_sale_price: moneyAmount.nullish(),
+  base_cost_of_goods: moneyAmount.nullish(),
   weight: moneyAmount.nullish(),
   weight_unit: z.string().nullish(),
   dimension_unit: z.string().nullish(),
@@ -59,14 +59,14 @@ export const ProductFormVariantSchema = prepareFormSchema(ProductFormVariantShap
   media: values.media,
   sku: values.sku || null,
   barcode: values.barcode || null,
-  price: values.price ?? null,
+  base_price: values.base_price ?? null,
   show_unit_price: values.show_unit_price ?? false,
   base_unit: values.base_unit || null,
   base_unit_amount: values.base_unit_amount ?? null,
   total_unit: values.total_unit || null,
   total_unit_amount: values.total_unit_amount ?? null,
-  sale_price: values.sale_price ?? null,
-  cost_of_goods: values.cost_of_goods ?? null,
+  base_sale_price: values.base_sale_price ?? null,
+  base_cost_of_goods: values.base_cost_of_goods ?? null,
   weight: values.weight ?? null,
   weight_unit: values.weight_unit || null,
   dimension_unit: values.dimension_unit || null,
@@ -148,14 +148,14 @@ export const getDefaultVariantValues = (): ProductFormVariantInput => ({
   media: null,
   sku: null,
   barcode: null,
-  price: null,
+  base_price: null,
   show_unit_price: false,
   base_unit: null,
   base_unit_amount: null,
   total_unit: null,
   total_unit_amount: null,
-  sale_price: null,
-  cost_of_goods: null,
+  base_sale_price: null,
+  base_cost_of_goods: null,
   weight: null,
   weight_unit: null,
   dimension_unit: null,
@@ -177,6 +177,37 @@ export const getDefaultVariantValues = (): ProductFormVariantInput => ({
 });
 
 /**
+ * A product must carry exactly one default variant. Products written before
+ * that was enforced can hold none or several, so both the hydration path and
+ * the variant matrix funnel through here: keep a sole surviving default,
+ * otherwise fall back to the first variant.
+ */
+export const normalizeDefaultVariant = (
+  variants: ProductFormVariantInput[],
+): ProductFormVariantInput[] => {
+  if (variants.length === 0) {
+    return variants;
+  }
+
+  const defaultIndexes = variants.reduce<number[]>((indexes, variant, index) => {
+    if (variant.is_default) {
+      indexes.push(index);
+    }
+    return indexes;
+  }, []);
+
+  const defaultIndex = defaultIndexes.length === 1 ? defaultIndexes[0] : 0;
+
+  return variants.map((variant, index) => {
+    const isDefault = index === defaultIndex;
+    if (variant.is_default === isDefault) {
+      return variant;
+    }
+    return { ...variant, is_default: isDefault };
+  });
+};
+
+/**
  * Hydration fallbacks that differ from the schema's own creation defaults —
  * an existing variant with no `max_per_order` set should read as 1, not the
  * `null` a brand new variant starts with — so these three can't be expressed
@@ -193,7 +224,7 @@ export const mapProductToFormValues = (product: Product): ProductFormInput => {
   const variants: ProductFormVariantInput[] =
     !product.variants || product.variants.length === 0
       ? [getDefaultVariantValues()]
-      : product.variants.map(mapVariantToFormValues);
+      : normalizeDefaultVariant(product.variants.map(mapVariantToFormValues));
 
   return pickFormValues(ProductFormSchema, product, {
     variants,

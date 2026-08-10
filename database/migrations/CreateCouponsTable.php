@@ -19,7 +19,7 @@ class CreateCouponsTable implements Migration
             $table->enum('discount_type', ['amount-off', 'free-shipping', 'buy-x-get-y'])->default('amount-off');
             $table->enum('discount_target', ['order', 'products'])->nullable();
             $table->enum('discount_value_type', ['percentage', 'fixed'])->nullable();
-            $table->integer('discount_amount_fixed')->nullable();
+            $table->integer('base_discount_amount_fixed')->nullable();
             $table->float('discount_amount_percentage')->nullable();
 
             $table->enum('eligible_item_type', ['specific-products', 'specific-categories', 'all-products'])->nullable();

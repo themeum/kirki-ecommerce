@@ -26,9 +26,9 @@ add_action('plugins_loaded', function () {
         return;
     }
 
-    add_filter(HookNames::ECOMMERCE_ALL_PAYMENT_GATEWAYS, function ($gateways) {
-        $gateways[] = new Stripe();
+    add_filter(HookNames::ECOMMERCE_PAYMENT_PROVIDERS, function ($providers) {
+        $providers[] = new Stripe();
 
-        return $gateways;
+        return $providers;
     });
 });
