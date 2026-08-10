@@ -19,6 +19,11 @@ class RazorpayClient
     protected $test_mode;
     protected $webhook_secret;
 
+    /**
+     * @param string $key_id
+     * @param string $key_secret
+     * @param string $webhook_secret
+     */
     public function __construct(string $key_id, string $key_secret, string $webhook_secret)
     {
         $this->key_id = $key_id;
@@ -26,6 +31,14 @@ class RazorpayClient
         $this->webhook_secret = $webhook_secret;
     }
 
+    /**
+     * Send a POST request to the Razorpay API.
+     *
+     * @param array $payload
+     * @param string $endpoint
+     * @return mixed Decoded JSON response.
+     * @throws Exception If the request fails.
+     */
     public function post(array $payload, string $endpoint)
     {
         $response = Http::with_token($this->get_auth(), 'Basic')
@@ -39,6 +52,12 @@ class RazorpayClient
         return $response->json();
     }
 
+    /**
+     * Build the HTTP Basic auth token from the key ID and secret.
+     *
+     * @return string
+     * @throws InvalidArgumentException If the key ID or secret is missing.
+     */
     protected function get_auth()
     {
         if (empty($this->key_id) || empty($this->key_secret)) {
@@ -47,6 +66,14 @@ class RazorpayClient
         return base64_encode($this->key_id . ':' . $this->key_secret);
     }
 
+    /**
+     * Render the Razorpay Checkout script for an order.
+     *
+     * @param Order $order
+     * @param string $razorpay_order_id
+     * @param string $success_url
+     * @return string HTML markup.
+     */
     public function render_checkout_form(Order $order, string $razorpay_order_id, string $success_url): string
     {
         $options = [
@@ -81,6 +108,12 @@ class RazorpayClient
         HTML;
     }
 
+    /**
+     * Verify a webhook payload's signature against the configured webhook secret.
+     *
+     * @param string $raw_payload
+     * @return bool
+     */
     public function is_verified(string $raw_payload): bool
     {
         $given_signature = $_SERVER['HTTP_X_RAZORPAY_SIGNATURE'] ?? '';

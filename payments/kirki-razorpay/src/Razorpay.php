@@ -165,6 +165,12 @@ class Razorpay extends PaymentProvider
         return true;
     }
 
+    /**
+     * Razorpay API client.
+     *
+     * @return RazorpayClient
+     * @throws Exception If credentials are missing.
+     */
     protected function get_client(): RazorpayClient
     {
         if ($this->client) {
@@ -182,6 +188,12 @@ class Razorpay extends PaymentProvider
         return new RazorpayClient($key_id, $key_secret, $webhook_secret);
     }
 
+    /**
+     * Create a Razorpay order for the current order and return its ID.
+     *
+     * @return string
+     * @throws Exception If Razorpay doesn't return an order ID.
+     */
     protected function create_order(): string
     {
         $razorpay_order = $this->client->post([
@@ -196,6 +208,12 @@ class Razorpay extends PaymentProvider
         return $razorpay_order['id'];
     }
 
+    /**
+     * Read the raw webhook payload, verify its signature, and decode it.
+     *
+     * @return object
+     * @throws Exception If the payload is empty or its signature is invalid.
+     */
     protected function verify_and_parse_notification(): object
     {
         $payload = file_get_contents('php://input');
@@ -215,6 +233,13 @@ class Razorpay extends PaymentProvider
         return json_decode($payload);
     }
 
+    /**
+     * Update the order based on a Razorpay payment event's status.
+     *
+     * @param object $payload
+     * @return void
+     * @throws Exception If the order update fails.
+     */
     protected function handle_transaction_response(object $payload)
     {
         $entity   = $payload->payload->payment->entity;
@@ -254,6 +279,10 @@ class Razorpay extends PaymentProvider
 
     /**
      * Store the transaction ID and raw payment payload for an order.
+     *
+     * @param string $order_id
+     * @param object $entity
+     * @return void
      */
     protected function record_transaction(string $order_id, object $entity): void
     {

@@ -4,6 +4,9 @@ namespace Kirki\Ecommerce\Payments;
 
 use Kirki\Ecommerce\Framework\Concerns\HasConstants;
 
+/**
+ * Constants for the Razorpay Payments API integration.
+ */
 class RazorpayConstant
 {
     use HasConstants;
