@@ -30,7 +30,7 @@ class ShippingProfileController
     public function get(Request $request)
     {
         $params = ListFilterDTO::from_array($request->all());
-        $params->sort_by = $request->get_whitelisted('sort_by', 'id', ['id', 'name', 'created_at', 'updated_at']);
+        $params->sort_by = $request->whitelisted('sort_by', 'id', ['id', 'name', 'created_at', 'updated_at']);
 
         if ((int) $params->limit === Pagination::ALL) {
             $data = $this->service->all($params);
@@ -63,7 +63,7 @@ class ShippingProfileController
 
     public function show(Request $request)
     {
-        $shipping_profile = $this->service->find($request->get_int('id'));
+        $shipping_profile = $this->service->find($request->int('id'));
 
         return response()->json([
             'data' => ShippingProfileResource::make($shipping_profile),
@@ -85,7 +85,7 @@ class ShippingProfileController
 
     public function delete(Request $request)
     {
-        $result = $this->service->delete($request->get_int('id'));
+        $result = $this->service->delete($request->int('id'));
 
         return response()->json([
             'data' => $result,

@@ -31,7 +31,8 @@ class OnlinePaymentController
 
     public function install(Request $request)
     {
-        $data = $this->service->install($request->get_string('id'));
+        $id = $request->string('id');
+        $data = $this->service->install($request->string('id'));
 
         return response()->json([
             'data' => OnlinePaymentResource::make($data),
@@ -51,7 +52,7 @@ class OnlinePaymentController
 
     public function show(Request $request)
     {
-        $data = $this->service->find_or_fail($request->get_string('id'));
+        $data = $this->service->find_or_fail($request->string('id'));
 
         return response()->json([
             'data' => OnlinePaymentResource::make($data),
@@ -61,7 +62,7 @@ class OnlinePaymentController
 
     public function update(Request $request)
     {
-        $data = $this->service->update($request->get_string('id'), $request->get_array('data'));
+        $data = $this->service->update($request->string('id'), $request->array('data'));
 
         return response()->json([
             'data' => OnlinePaymentResource::make($data),
@@ -71,7 +72,7 @@ class OnlinePaymentController
 
     public function set_enabled(Request $request)
     {
-        $is_updated = $this->service->set_enabled($request->get_string('id'), $request->get_bool('is_enabled', false));
+        $is_updated = $this->service->set_enabled($request->string('id'), $request->bool('is_enabled', false));
 
         return response()->json([
             'data' => $is_updated,
@@ -82,7 +83,7 @@ class OnlinePaymentController
     //@todo remove this later as its just to mock the zip download
     public function download(Request $request)
     {
-        $this->service->mock_download_provider_zip($request->get_string('id'));
+        $this->service->mock_download_provider_zip($request->string('id'));
 
         return response()->json([
             'message' => __('Payment gateway downloaded successfully.', 'kirki-ecommerce'),

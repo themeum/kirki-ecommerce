@@ -74,7 +74,7 @@ class CurrencyController
 
     public function show(Request $request)
     {
-        $currency = $this->service->find($request->get_int('id'));
+        $currency = $this->service->find($request->int('id'));
 
         return response()->json([
             'data' => CurrencyResource::make($currency),
@@ -113,7 +113,7 @@ class CurrencyController
 
     public function delete(Request $request)
     {
-        $result = $this->service->delete($request->get_int('id'));
+        $result = $this->service->delete($request->int('id'));
 
         return response()->json([
             'data' => $result,

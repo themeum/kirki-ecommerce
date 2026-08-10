@@ -85,7 +85,7 @@ class CartController
 
     public function remove_item(Request $request, RemoveCartItemAction $action)
     {
-        $item_id = $request->get_int('id');
+        $item_id = $request->int('id');
 
         $customer = customer();
         $token = $request->get_header('x-cart-token');
@@ -138,7 +138,7 @@ class CartController
 
     public function apply_coupon(Request $request, ApplyCouponAction $apply_coupon_action)
     {
-        $code = $request->get_string('code');
+        $code = $request->string('code');
 
         if (empty($code)) {
             return response()->json([

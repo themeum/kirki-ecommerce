@@ -33,7 +33,7 @@ class CouponController
     public function get(Request $request)
     {
         $params = CouponFilterDTO::from_array($request->all());
-        $params->sort_by = $request->get_whitelisted('sort_by', 'id', ['id', 'title', 'code', 'start_datetime', 'end_datetime', 'usage_limit', 'is_active', 'created_by', 'updated_by', 'created_at', 'updated_at']);
+        $params->sort_by = $request->whitelisted('sort_by', 'id', ['id', 'title', 'code', 'start_datetime', 'end_datetime', 'usage_limit', 'is_active', 'created_by', 'updated_by', 'created_at', 'updated_at']);
 
         if ((int) $params->limit === Pagination::ALL) {
             $data = $this->service->all($params);
@@ -64,7 +64,7 @@ class CouponController
 
     public function show(Request $request)
     {
-        $coupon = $this->service->find($request->get_int('id'));
+        $coupon = $this->service->find($request->int('id'));
 
         return response()->json([
             'data' => CouponResource::make($coupon),
@@ -84,7 +84,7 @@ class CouponController
 
     public function delete(Request $request)
     {
-        $result = $this->service->delete($request->get_int('id'));
+        $result = $this->service->delete($request->int('id'));
 
         return response()->json([
             'data' => $result,
@@ -133,7 +133,7 @@ class CouponController
 
     public function validate_code(Request $request)
     {
-        $is_valid = $this->service->validate_code($request->get_string('code'));
+        $is_valid = $this->service->validate_code($request->string('code'));
 
         return response()->json([
             'data' => $is_valid,
@@ -143,17 +143,17 @@ class CouponController
 
     public function action(Request $request)
     {
-        switch ($request->get_string('action')) {
+        switch ($request->string('action')) {
             case 'duplicate':
-                $coupon = $this->service->duplicate($request->get_int('id'));
+                $coupon = $this->service->duplicate($request->int('id'));
                 $message = __('Coupon duplicated successfully.', 'kirki-ecommerce');
                 break;
             case 'activate':
-                $coupon = $this->service->change_activation_state($request->get_int('id'), true);
+                $coupon = $this->service->change_activation_state($request->int('id'), true);
                 $message = __('Coupon activated successfully.', 'kirki-ecommerce');
                 break;
             case 'deactivate':
-                $coupon = $this->service->change_activation_state($request->get_int('id'), false);
+                $coupon = $this->service->change_activation_state($request->int('id'), false);
                 $message = __('Coupon deactivated successfully.', 'kirki-ecommerce');
                 break;
             default:

@@ -30,7 +30,7 @@ class TagController
     public function get(Request $request)
     {
         $params = ListFilterDTO::from_array($request->all());
-        $params->sort_by = $request->get_whitelisted('sort_by', 'id', ['id', 'name', 'created_by', 'updated_by', 'created_at', 'updated_at']);
+        $params->sort_by = $request->whitelisted('sort_by', 'id', ['id', 'name', 'created_by', 'updated_by', 'created_at', 'updated_at']);
 
         if ((int) $params->limit === Pagination::ALL) {
             $data = $this->service->all($params);
@@ -63,7 +63,7 @@ class TagController
 
     public function show(Request $request)
     {
-        $tag = $this->service->find($request->get_int('id'));
+        $tag = $this->service->find($request->int('id'));
 
         return response()->json([
             'data' => TagResource::make($tag),
@@ -85,7 +85,7 @@ class TagController
 
     public function delete(Request $request)
     {
-        $result = $this->service->delete($request->get_int('id'));
+        $result = $this->service->delete($request->int('id'));
 
         return response()->json([
             'data' => $result,
