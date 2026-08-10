@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 
 
 import Button from '@/components/ui/button';
 import { Field, FieldLabel } from '@/components/ui/field';
+import { useWordpressMedia } from '@/hooks';
 import { defineStyles, flexCenter, scopedMerge } from '@/theme/mixins';
 import type { MediaRef } from '@/types';
 import { __ } from '@/wpi18n';
@@ -20,6 +21,7 @@ type MediaFrame = {
     };
   };
   open: () => void;
+  modal?: { el?: HTMLElement };
 };
 
 type MediaSelectorProps = {
@@ -39,7 +41,9 @@ const MediaSelector = ({
   cssOverride,
   style = {},
 }: MediaSelectorProps) => {
+  const { closeWpMediaFrame, openWpMediaFrame } = useWordpressMedia();
   const mediaFrameRef = useRef<MediaFrame | null>(null);
+  const isFrameOpenRef = useRef(false);
   const [selectedImage, setSelectedImage] = useState<MediaItem | MediaItem[]>({
     url: '',
   });
@@ -65,6 +69,16 @@ const MediaSelector = ({
         },
       }) as MediaFrame;
 
+      mediaFrameRef.current.on('open', () => {
+        isFrameOpenRef.current = true;
+        openWpMediaFrame(mediaFrameRef.current?.modal?.el);
+      });
+
+      mediaFrameRef.current.on('close', () => {
+        isFrameOpenRef.current = false;
+        closeWpMediaFrame(mediaFrameRef.current?.modal?.el);
+      });
+
       mediaFrameRef.current.on('select', () => {
         if (!mediaFrameRef.current) {
           return;
@@ -88,8 +102,15 @@ const MediaSelector = ({
     }
 
     return () => {
+      if (isFrameOpenRef.current) {
+        isFrameOpenRef.current = false;
+        closeWpMediaFrame(mediaFrameRef.current?.modal?.el);
+      }
+
       if (mediaFrameRef.current) {
         mediaFrameRef.current.off('select');
+        mediaFrameRef.current.off('open');
+        mediaFrameRef.current.off('close');
       }
     };
   }, []);
