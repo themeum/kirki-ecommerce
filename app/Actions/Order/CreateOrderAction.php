@@ -214,6 +214,13 @@ class CreateOrderAction
     {
         $context = new CalculationContextDTO();
         $context->customer_id = $dto->customer_id ?? 0;
+
+        if ($context->customer_id) {
+            $context->customer_order_count = $this->customer_service->find($context->customer_id)->orders()
+                ->where_not_in('fulfillment_status', [FulfillmentStatus::CANCELLED, FulfillmentStatus::RETURNED])
+                ->count();
+        }
+
         $context->shipping_address = [
             'first_name' => $dto->shipping_first_name,
             'last_name' => $dto->shipping_last_name,

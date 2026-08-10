@@ -622,10 +622,21 @@ class OrderApiTest extends RestTestCase
     }
 
     /**
-     * A first_time_buyer_only coupon is not rejected with "please login"
-     * for an authenticated user with no existing customer record - the
-     * customer is now resolved before coupon validation runs, so their
-     * customer_id is available at that point.
+     * A first_time_buyer_only coupon is actually applied (free shipping
+     * takes effect) for an authenticated user with no existing customer
+     * record - the customer is now resolved before coupon validation
+     * runs, so their customer_id is available at that point instead of
+     * being unavailable (which, before this fix, made validate_coupon()
+     * throw "please login"; that failure is swallowed by
+     * RecalculateCartAction::get_discount_result(), so checkout would
+     * still return 201 but silently without the discount - asserting
+     * only the 201 status does not distinguish fixed from broken).
+     *
+     * Asserts on the shipping total rather than the order's
+     * discount_details field: discount_details is a separate,
+     * pre-existing bug (storing a raw Coupon model into a JSON column
+     * loses it on persist) unrelated to this fix - discovered while
+     * writing this test, out of scope here.
      *
      * @return void
      */
@@ -647,14 +658,56 @@ class OrderApiTest extends RestTestCase
             'coupon_code' => $coupon->code,
         ]));
 
-        $this->assert_api_success($response, 201);
+        $payload = $this->assert_api_success($response, 201);
+        $this->assertEquals(0.0, $payload['data']['totals']['base_shipping']);
     }
 
     /**
-     * A has_customer_limit coupon is not rejected with "please login" for
-     * an authenticated user with no existing customer record - their
-     * resolved customer_id (with zero prior usage) is available at coupon
-     * validation time instead of being unavailable.
+     * A first_time_buyer_only coupon is silently not applied (order still
+     * succeeds without it, at full shipping cost - RecalculateCartAction
+     * ::get_discount_result() swallows coupon validation failures rather
+     * than failing checkout) for a customer who has already placed a
+     * prior (non-cancelled/non-returned) order. The resolved customer's
+     * order count is now available at coupon validation time, not just
+     * their customer_id.
+     *
+     * @return void
+     */
+    public function test_checkout_ignores_first_time_buyer_coupon_for_repeat_customer(): void
+    {
+        $user_id = $this->create_shopper_user();
+        wp_set_current_user($user_id);
+
+        $this->provision_customer_for_user($user_id);
+
+        $this->assert_api_success($this->request('POST', 'orders', $this->order_payload([
+            'is_manual' => false,
+        ])), 201);
+
+        $coupon = Coupon::create([
+            'title' => 'First Time Buyer',
+            'code' => 'FIRSTBUY' . wp_generate_password(6, false),
+            'discount_type' => DiscountType::FREE_SHIPPING,
+            'first_time_buyer_only' => true,
+            'is_active' => true,
+        ]);
+
+        $response = $this->request('POST', 'orders', $this->order_payload([
+            'is_manual' => false,
+            'coupon_code' => $coupon->code,
+        ]));
+
+        $payload = $this->assert_api_success($response, 201);
+        $this->assertEquals(10.0, $payload['data']['totals']['base_shipping']);
+    }
+
+    /**
+     * A has_customer_limit coupon is actually applied (free shipping
+     * takes effect) for an authenticated user with no existing customer
+     * record - their resolved customer_id (with zero prior usage) is
+     * available at coupon validation time instead of being unavailable
+     * (see the first_time_buyer test above for why asserting only the
+     * 201 status would not distinguish fixed from broken here).
      *
      * @return void
      */
@@ -677,7 +730,8 @@ class OrderApiTest extends RestTestCase
             'coupon_code' => $coupon->code,
         ]));
 
-        $this->assert_api_success($response, 201);
+        $payload = $this->assert_api_success($response, 201);
+        $this->assertEquals(0.0, $payload['data']['totals']['base_shipping']);
     }
 
     /**
