@@ -2,7 +2,7 @@
     "name": "kirki-apps/kirki-stripe",
     "autoload": {
         "psr-4": {
-            "Ecommerce\\Payments\\": "src/"
+            "Kirki\\Ecommerce\\Payments\\": "src/"
         }
     },
     "require": {
