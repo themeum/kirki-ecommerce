@@ -9,7 +9,7 @@
  * Author URI:        https://kirki.com/
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain:       kirki-mollie
+ * Text Domain:       kirki-ecommerce-mollie
  * Requires Plugins:  kirki-ecommerce
  */
 

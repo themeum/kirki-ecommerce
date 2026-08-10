@@ -29,8 +29,8 @@ class Mollie extends PaymentProvider
     public function __construct()
     {
         $this->id = 'mollie';
-        $this->title = __('Mollie', 'kirki-mollie');
-        $this->description = __('Mollie payment gateway', 'kirki-mollie');
+        $this->title = __('Mollie', 'kirki-ecommerce-mollie');
+        $this->description = __('Mollie payment gateway', 'kirki-ecommerce-mollie');
         $this->icon = 'mollie';
         $this->settings_key = 'mollie';
         $this->is_offline = false;
@@ -43,13 +43,13 @@ class Mollie extends PaymentProvider
         $this->set_admin_fields([
             [
                 'name' => 'api_key',
-                'label' => __('Api key', 'kirki-mollie'),
+                'label' => __('Api key', 'kirki-ecommerce-mollie'),
                 'type' => 'password',
                 'required' => true,
             ],
             [
                 'name' => 'sandbox',
-                'label' => __('Sandbox Mode', 'kirki-mollie'),
+                'label' => __('Sandbox Mode', 'kirki-ecommerce-mollie'),
                 'type' => 'checkbox',
             ],
         ]);
@@ -65,7 +65,7 @@ class Mollie extends PaymentProvider
     public function pay(Order $order)
     {
         if (!$this->enabled()) {
-            throw new Exception(__('Mollie is not enabled.', 'kirki-mollie'));
+            throw new Exception(__('Mollie is not enabled.', 'kirki-ecommerce-mollie'));
         }
 
         $this->client = $this->get_client();
@@ -87,16 +87,16 @@ class Mollie extends PaymentProvider
                 'metadata' => ['order_id' => $order->id],
             ], MollieConstant::API_BASE_URL . 'payments');
 
-            if (empty($response['_links']['checkout'])) {
+            if (empty($response['_links']['checkout']['href'])) {
                 return null;
             }
 
             return PaymentActionDTO::from_array([
                 'type' => PaymentActionType::REDIRECT,
-                'value' => $response['_links']['checkout'],
+                'value' => $response['_links']['checkout']['href'],
             ]);
         } catch (\Throwable $e) {
-            throw new Exception(__('Mollie Payment Error: ' . $e->getMessage(), 'kirki-mollie'));
+            throw new Exception(__('Mollie Payment Error: ' . $e->getMessage(), 'kirki-ecommerce-mollie'));
         }
     }
 
@@ -111,7 +111,7 @@ class Mollie extends PaymentProvider
         parent::validate_settings($settings);
 
         Validator::make($settings, [
-            'api_key' => 'required|string',
+            'api_key' => 'sometimes|string',
             'sandbox' => 'boolean',
         ])->validate();
 
@@ -171,7 +171,7 @@ class Mollie extends PaymentProvider
             $this->handle_payment_response($payment);
             return true;
         } catch (\Throwable $th) {
-            throw new Exception(__('Mollie Webhook Error.', 'kirki-mollie'));
+            throw new Exception(__('Mollie Webhook Error.', 'kirki-ecommerce-mollie'));
         }
     }
 
@@ -190,7 +190,7 @@ class Mollie extends PaymentProvider
         $api_key = $this->settings['api_key'] ?? '';
 
         if (empty($api_key)) {
-            throw new Exception(__('Mollie API Key is missing.', 'kirki-mollie'));
+            throw new Exception(__('Mollie API Key is missing.', 'kirki-ecommerce-mollie'));
         }
 
         $is_test_mode = (bool) ($this->settings['sandbox'] ?? false);
@@ -206,37 +206,81 @@ class Mollie extends PaymentProvider
      */
     protected function handle_payment_response($payment)
     {
-        $order_id = $payment['metadata']['order_id'];
+        $order_id = $payment['metadata']['order_id'] ?? null;
+
+        if (!$order_id) {
+            return;
+        }
 
         DB::begin_transaction();
 
         try {
-            $is_paid = !empty($payment['paidAt']) && $payment['status'] === MollieConstant::PAYMENT_STATUS_PAID;
-            $is_unsuccessful = in_array($payment['status'], [
-                MollieConstant::PAYMENT_STATUS_CANCELED,
-                MollieConstant::PAYMENT_STATUS_FAILED,
-                MollieConstant::PAYMENT_STATUS_EXPIRED,
-            ], true);
+            switch ($payment) {
+                case $this->is_paid($payment):
+                    $this->record_transaction($order_id, $payment);
+                    OrderManager::mark_payment_as_paid($order_id);
+                    break;
 
-            if ($is_paid) {
-                OrderManager::set_transaction_id($order_id, $payment['id']);
-                OrderManager::mark_payment_as_paid($order_id);
-                OrderManager::mark_as_processing($order_id);
-                OrderManager::set_payment_metadata($order_id, wp_json_encode($payment));
-            } elseif ($payment['status'] === MollieConstant::PAYMENT_STATUS_PENDING) {
-                OrderManager::mark_payment_as_pending($order_id);
-                OrderManager::mark_as_on_hold($order_id);
-            } elseif ($is_unsuccessful) {
-                OrderManager::set_transaction_id($order_id, $payment['id']);
-                OrderManager::mark_payment_as_failed($order_id);
-                OrderManager::mark_as_cancelled($order_id);
-                OrderManager::set_payment_metadata($order_id, wp_json_encode($payment));
+                case $this->is_unsuccessful($payment):
+                    $this->record_transaction($order_id, $payment);
+                    OrderManager::mark_payment_as_failed($order_id);
+                    break;
+
+                case $payment['status'] === MollieConstant::PAYMENT_STATUS_PENDING:
+                    OrderManager::mark_payment_as_pending($order_id);
+                    break;
             }
 
             DB::commit();
         } catch (\Throwable $e) {
             DB::rollback();
-            throw new Exception(sprintf(__('Failed to update order data: %s', 'kirki-mollie'), $e->getMessage()));
+
+            throw new Exception(
+                sprintf(__('Failed to update order data: %s', 'kirki-ecommerce-mollie'), $e->getMessage())
+            );
         }
+    }
+
+    /**
+     * Whether the payment is confirmed as paid.
+     *
+     * @param array  $payment  The payment response data from the gateway.
+     *
+     * return bool
+     */
+    protected function is_paid(array $payment): bool
+    {
+        return !empty($payment['paidAt'])
+            && $payment['status'] === MollieConstant::PAYMENT_STATUS_PAID;
+    }
+
+    /**
+     * Whether the payment ended in a terminal unsuccessful state.
+     *
+     * @param array  $payment  The payment response data from the gateway.
+     *
+     * return bool
+     */
+    protected function is_unsuccessful(array $payment): bool
+    {
+        return in_array($payment['status'], [
+            MollieConstant::PAYMENT_STATUS_CANCELED,
+            MollieConstant::PAYMENT_STATUS_FAILED,
+            MollieConstant::PAYMENT_STATUS_EXPIRED,
+        ], true);
+    }
+
+    /**
+     * Store the transaction ID and raw payment payload for an order.
+     *
+     * @param string $order_id The ID of the order to update.
+     * @param array  $payment  The payment response data from the gateway.
+     *
+     * @return void
+     */
+    protected function record_transaction(string $order_id, array $payment): void
+    {
+        OrderManager::set_transaction_id($order_id, $payment['id']);
+        OrderManager::set_payment_metadata($order_id, wp_json_encode($payment));
     }
 }

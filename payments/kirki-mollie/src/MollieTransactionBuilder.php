@@ -3,7 +3,6 @@
 namespace Kirki\Ecommerce\Payments;
 
 use Kirki\Ecommerce\App\Models\Order;
-use Kirki\Ecommerce\App\Payment\PaymentGateway;
 use Kirki\Ecommerce\App\Payment\PaymentProvider;
 
 defined('ABSPATH') || exit;
@@ -35,7 +34,7 @@ class MollieTransactionBuilder
         if (!empty($this->order->invoiced_shipping_total)) {
             $line_items[] = [
                 'type' => 'shipping_fee',
-                'description' => __('Shipping Charge', 'kirki-mollie'),
+                'description' => __('Shipping Charge', 'kirki-ecommerce-mollie'),
                 'quantity'    => 1,
                 'unitPrice'   => $this->money($this->order->invoiced_shipping_total),
                 'totalAmount' => $this->money($this->order->invoiced_shipping_total),

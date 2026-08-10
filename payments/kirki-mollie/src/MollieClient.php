@@ -26,12 +26,12 @@ class MollieClient
         $api_key = trim($api_key);
 
         if (!preg_match(MollieConstant::API_KEY_PATTERN, $api_key)) {
-            throw new InvalidArgumentException(__('Invalid API Key.', 'kirki-mollie'));
+            throw new InvalidArgumentException(__('Invalid API Key.', 'kirki-ecommerce-mollie'));
         }
 
         $is_test_key = strpos($api_key, 'test_') === 0;
         if ($is_test_key && !$test_mode) {
-            throw new InvalidArgumentException(__('Invalid API Key.', 'kirki-mollie'));
+            throw new InvalidArgumentException(__('Invalid API Key.', 'kirki-ecommerce-mollie'));
         }
 
         $this->api_key = $api_key;
