@@ -15,6 +15,9 @@ export const OnlinePaymentFieldSchema = z
     label: z.string().optional(),
     type: z.string().optional(),
     required: z.boolean().optional(),
+    description: z.string().optional(),
+    placeholder: z.string().optional(),
+    default: z.unknown().optional(),
   })
   .passthrough();
 
@@ -38,6 +41,8 @@ export const OnlinePaymentSchema = z
   .passthrough();
 
 export type OnlinePayment = z.infer<typeof OnlinePaymentSchema>;
+export type OnlinePaymentField = z.infer<typeof OnlinePaymentFieldSchema>;
+export type OnlinePaymentFields = OnlinePaymentField[];
 
 /**
  * `GET /online-payments` returns an object keyed by provider id
