@@ -2,6 +2,8 @@
 namespace Kirki\Ecommerce\Payments;
 
 use Exception;
+use Kirki\Ecommerce\App\Constants\Payment\PaymentActionType;
+use Kirki\Ecommerce\App\DTO\Payment\PaymentActionDTO;
 use Kirki\Ecommerce\App\Facades\Order as OrderManager;
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Payment\PaymentProvider;
@@ -107,7 +109,12 @@ class Authorizenet extends PaymentProvider
             throw new Exception(__('AuthorizeNet did not return a payment token.', 'kirki-ecommerce-authorizenet'));
         }
 
-        return $this->render_redirect_form($response->token);
+        $html = $this->render_redirect_form($response->token);
+
+        return PaymentActionDTO::from_array([
+            'type' => PaymentActionType::HTML,
+            'value' => $html,
+        ]);
     }
 
     /**
@@ -302,18 +309,16 @@ class Authorizenet extends PaymentProvider
                 case AuthorizenetConstant::PAID:
                     OrderManager::set_transaction_id($order_id, $response->transaction->transId);
                     OrderManager::mark_payment_as_paid($order_id);
-                    OrderManager::mark_as_processing($order_id);
                     OrderManager::set_payment_metadata($order_id, wp_json_encode($response));
                     break;
                 case AuthorizenetConstant::PENDING:
                     OrderManager::mark_payment_as_pending($order_id);
-                    OrderManager::mark_as_on_hold($order_id);
                     break;
                 case AuthorizenetConstant::CANCELED:
                 case AuthorizenetConstant::FAILED:
                     OrderManager::set_transaction_id($order_id, $response->transaction->transId);
                     OrderManager::mark_payment_as_failed($order_id);
-                    OrderManager::mark_as_cancelled($order_id);
+                    OrderManager::mark_as_cancel($order_id, $response->transaction->responseReasonDescription);
                     OrderManager::set_payment_metadata($order_id, wp_json_encode($response));
                     break;
             }
