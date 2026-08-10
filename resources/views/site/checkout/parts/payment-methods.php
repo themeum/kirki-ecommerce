@@ -18,18 +18,18 @@ $payment_gateways = $data['payment_gateways'] ?? [];
         <?php foreach ($payment_gateways as $payment_gateway) : ?>
             <label class="kecom-radio kecom-payment-option">
                 <input class="kecom-radio-input"
-                        type="radio"
-                        name="payment_method"
-                        value="<?php echo esc_attr($payment_gateway->id()); ?>"
-                        x-model="selectedPaymentMethod"
-                        @change="setPaymentMethod('<?php echo esc_attr($payment_gateway->id()); ?>')">
+                    type="radio"
+                    name="payment_provider"
+                    value="<?php echo esc_attr($payment_gateway->id()); ?>"
+                    x-model="selectedPaymentMethod"
+                    @change="setPaymentMethod('<?php echo esc_attr($payment_gateway->id()); ?>')">
                 <div class="kecom-radio-label">
-                    <?php if ($payment_gateway->icon()) :?>
-                    <div class="kecom-payment-logo">
-                        <img src="<?php echo esc_url($payment_gateway->icon()); ?>"
-                            alt="<?php echo esc_attr($payment_gateway->title()); ?>"
-                            class="kecom-payment-logo-img">
-                    </div>
+                    <?php if ($payment_gateway->icon()) : ?>
+                        <div class="kecom-payment-logo">
+                            <img src="<?php echo esc_url($payment_gateway->icon()); ?>"
+                                alt="<?php echo esc_attr($payment_gateway->title()); ?>"
+                                class="kecom-payment-logo-img">
+                        </div>
                     <?php endif; ?>
                     <span class="kecom-payment-name">
                         <?php echo esc_html($payment_gateway->title()); ?>

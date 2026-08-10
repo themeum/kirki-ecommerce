@@ -239,4 +239,15 @@ Route::get('/test-public', function (Request $request) {
 });
 
 Route::get('/items', [SiteProductController::class, 'index']);
+
+// Site api endpoints.
+Route::get('/shop/products-html', [SiteController::class, 'products_html']);
+
+// Cart api endpoints for guest card.
+Route::get('/cart', [CartController::class, 'get']);
+Route::post('/cart/items', [CartController::class, 'add_item']);
+Route::put('/cart/items/{id}', [CartController::class, 'update_item']);
+Route::delete('/cart/items/{id}', [CartController::class, 'remove_item']);
+Route::delete('/cart', [CartController::class, 'empty_cart']);
+Route::put('/cart', [CartController::class, 'update']);
 Route::post('/checkout', [CheckoutController::class, 'store']);

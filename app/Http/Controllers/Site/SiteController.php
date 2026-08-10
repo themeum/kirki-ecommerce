@@ -185,7 +185,7 @@ class SiteController
         }
 
         $customer = customer();
-        $payment_gateways =  Payment::get_available_gateways();
+        $payment_gateways =  Payment::get_available_providers();
         $cart = CartResource::make($cart_service->get_cart($customer->get_customer_id()));
 
 

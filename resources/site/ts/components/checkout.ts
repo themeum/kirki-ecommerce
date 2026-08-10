@@ -167,7 +167,7 @@ export function checkout(config: CheckoutConfig = {}) {
       });
 
       // Pre-select the first payment method
-      const firstPaymentRadio = document.querySelector<HTMLInputElement>('input[name="payment_method"]');
+      const firstPaymentRadio = document.querySelector<HTMLInputElement>('input[name="payment_provider"]');
       if (firstPaymentRadio) {
         this.selectedPaymentMethod = firstPaymentRadio.value;
       }
@@ -395,7 +395,7 @@ export function checkout(config: CheckoutConfig = {}) {
             quantity: item.quantity,
           })),
           currency_code: this.currency,
-          payment_method: this.selectedPaymentMethod,
+          payment_provider: this.selectedPaymentMethod,
           coupon_code: this.appliedCouponCode || undefined,
           shipping_method: this.selectedShippingMethod || undefined,
           is_billing_same_as_shipping: this.billingSameAsShipping,

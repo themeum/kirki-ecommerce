@@ -11,7 +11,7 @@
 
 namespace Kirki\Ecommerce\App\Hooks\Actions;
 
-use Kirki\Ecommerce\App\Services\CartService;
+use Kirki\Ecommerce\App\Services\GuestCartService;
 use Kirki\Ecommerce\Framework\Wordpress\BaseHook;
 use Kirki\Ecommerce\Framework\Wordpress\Constants\HookNames;
 use Kirki\Ecommerce\Framework\Wordpress\Constants\HookTypes;
@@ -37,6 +37,6 @@ class GuestCart extends BaseHook
 
     public function handle(...$args)
     {
-        app(CartService::class)->ensure_guest_cart_cookie();
+        app(GuestCartService::class)->ensure_guest_cart_cookie();
     }
 }
