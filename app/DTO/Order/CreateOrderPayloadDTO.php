@@ -116,4 +116,7 @@ class CreateOrderPayloadDTO extends DTO
 
     /** @var int|null */
     public $is_manual;
+
+    /** @var string|null */
+    public $cart_token;
 }

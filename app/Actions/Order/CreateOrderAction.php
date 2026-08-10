@@ -3,6 +3,7 @@
 namespace Kirki\Ecommerce\App\Actions\Order;
 
 use Kirki\Ecommerce\App\Actions\Customer\CreateCustomerAction;
+use Kirki\Ecommerce\App\Services\CartService;
 use Kirki\Ecommerce\App\Services\CouponService;
 use Kirki\Ecommerce\App\Services\CustomerService;
 use Kirki\Ecommerce\App\Services\InventoryService;
@@ -15,6 +16,7 @@ use Kirki\Ecommerce\App\DTO\Address\CreateAddressDTO;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationContextDTO;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationItemDTO;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationResultDTO;
+use Kirki\Ecommerce\App\DTO\Cart\EmptyCartDTO;
 use Kirki\Ecommerce\App\DTO\Customer\CreateCustomerDTO;
 use Kirki\Ecommerce\App\DTO\Order\CreateOrderPayloadDTO;
 use Kirki\Ecommerce\App\DTO\Order\CreateOrderDTO;
@@ -44,6 +46,7 @@ class CreateOrderAction
     protected $coupon_service;
     protected $customer_service;
     protected $create_customer_action;
+    protected $cart_service;
     protected $variants_map = [];
     protected $base_currency_code;
 
@@ -55,7 +58,8 @@ class CreateOrderAction
         ShippingService $shipping_service,
         CouponService $coupon_service,
         CustomerService $customer_service,
-        CreateCustomerAction $create_customer_action
+        CreateCustomerAction $create_customer_action,
+        CartService $cart_service
     ) {
         $this->recalculate_cart_action = $recalculate_cart_action;
         $this->variant_service = $variant_service;
@@ -65,6 +69,7 @@ class CreateOrderAction
         $this->coupon_service = $coupon_service;
         $this->customer_service = $customer_service;
         $this->create_customer_action = $create_customer_action;
+        $this->cart_service = $cart_service;
 
         $this->base_currency_code = base_currency()->code;
     }
@@ -106,6 +111,14 @@ class CreateOrderAction
 
                 $this->order_service->create_order_item($order_item_dto);
                 $this->inventory_service->reserve_stock($order_item_dto->variant_id, $order_item_dto->quantity);
+            }
+
+            if (!empty($create_order_dto->customer_id) || !empty($dto->cart_token)) {
+                $empty_cart_dto = new EmptyCartDTO();
+                $empty_cart_dto->customer_id = $create_order_dto->customer_id;
+                $empty_cart_dto->token = $dto->cart_token;
+
+                $this->cart_service->empty_cart($empty_cart_dto);
             }
 
             DB::commit();

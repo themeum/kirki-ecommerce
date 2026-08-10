@@ -8,13 +8,16 @@ use Kirki\Ecommerce\App\Constants\AddressType;
 use Kirki\Ecommerce\App\Constants\BulkActions;
 use Kirki\Ecommerce\App\Constants\Order\RefundStatus;
 use Kirki\Ecommerce\App\DTO\Address\CreateAddressDTO;
+use Kirki\Ecommerce\App\DTO\Cart\AddToCartDTO;
 use Kirki\Ecommerce\App\DTO\Customer\CreateCustomerDTO;
 use Kirki\Ecommerce\App\DTO\Order\CreateOrderPayloadDTO;
 use Kirki\Ecommerce\App\Facades\Order as OrderManager;
 use Kirki\Ecommerce\App\Models\Address;
+use Kirki\Ecommerce\App\Models\Cart;
 use Kirki\Ecommerce\App\Models\Customer;
 use Kirki\Ecommerce\App\Payment\PaymentManager;
 use Kirki\Ecommerce\App\Payment\Providers\PayPal;
+use Kirki\Ecommerce\App\Services\CartService;
 use Kirki\Ecommerce\Tests\Support\CreatesTestProducts;
 use Kirki\Ecommerce\Tests\Support\RestTestCase;
 use Kirki\Ecommerce\Tests\Support\SeedsTestShipping;
@@ -513,6 +516,82 @@ class OrderApiTest extends RestTestCase
         $this->assertEquals($customer_count_before, Customer::count());
         $this->assertEquals($address_count_before, Address::count());
         $this->assertNull(Customer::where('user_id', $user_id)->first());
+    }
+
+    /**
+     * Placing an order empties the authenticated shopper's cart - matched
+     * by the cart_token sent on the checkout request, which also lets the
+     * cart get linked to the customer newly provisioned for this order.
+     *
+     * @return void
+     */
+    public function test_checkout_empties_cart_for_authenticated_user(): void
+    {
+        $user_id = $this->create_shopper_user();
+        wp_set_current_user($user_id);
+
+        $add_response = $this->request('POST', 'cart/items', [
+            'variant_id' => $this->variant_id,
+            'quantity' => 1,
+        ]);
+        $cart_payload = $this->assert_api_success($add_response)['data'];
+        $cart_token = $cart_payload['cart_token'];
+
+        $this->assertNotEmpty($cart_payload['items']);
+
+        $response = $this->request('POST', 'orders', $this->order_payload(['is_manual' => false]), [
+            'x-cart-token' => $cart_token,
+        ]);
+        $payload = $this->assert_api_success($response, 201);
+        $this->order_id = $payload['data']['id'];
+
+        $cart_response = $this->request('GET', 'cart', [], ['x-cart-token' => $cart_token]);
+        $cart_after = $this->assert_api_success($cart_response);
+
+        $this->assertEmpty($cart_after['data']);
+    }
+
+    /**
+     * Placing a guest order empties the cart matched by its token - the
+     * only identifier available for a guest, since there's no customer_id.
+     *
+     * Exercised directly through CreateOrderAction rather than the HTTP
+     * `/checkout` endpoint, for the same reason as
+     * test_checkout_guest_order_has_no_customer above.
+     *
+     * @return void
+     */
+    public function test_checkout_empties_guest_cart_by_token(): void
+    {
+        $product = $this->create_product();
+        $variant_id = $this->default_variant_id($product);
+
+        $this->logout();
+
+        $add_to_cart_dto = new AddToCartDTO();
+        $add_to_cart_dto->product_id = $product['id'];
+        $add_to_cart_dto->variant_id = $variant_id;
+        $add_to_cart_dto->quantity = 1;
+
+        $cart = app()->make(CartService::class)->add_item($add_to_cart_dto);
+        $cart_token = $cart->cart_token;
+
+        $this->assertNotNull(Cart::where('cart_token', $cart_token)->first());
+
+        $dto = CreateOrderPayloadDTO::from_array($this->order_payload([
+            'is_manual' => false,
+            'items' => [
+                ['variant_id' => $variant_id, 'quantity' => 1],
+            ],
+        ]));
+        $dto->created_by = null;
+        $dto->currency_code = 'USD';
+        $dto->cart_token = $cart_token;
+
+        $order = app()->make(CreateOrderAction::class)->execute($dto);
+        $this->order_id = $order->id;
+
+        $this->assertNull(Cart::where('cart_token', $cart_token)->first());
     }
 
     /**
