@@ -6,12 +6,14 @@
 
 .kecom-cart-page {
   max-width: 1440px;
+  width: 100%;
   margin: 0 auto;
 }
 
 .kecom-cart-grid {
   display: grid;
-  grid-template-columns: 1fr 624px;
+  grid-template-columns: 1fr 640px;
+  align-items: start;
 
   @include breakpoint-down(lg) {
     grid-template-columns: 1fr;
@@ -107,7 +109,7 @@
       }
 
       &-wrapper {
-        @include flex(row, center, center);
+        @include flex(row, center, flex-start);
         gap: $spacing-3;
       }
 
@@ -131,7 +133,6 @@
 
     &-pricing-total {
       text-align: end;
-      margin-bottom: $spacing-2;
     }
 
     &-details-categories,
@@ -179,6 +180,8 @@
 .kecom-cart-summary {
   background-color: $background-surface-alt;
   padding: $spacing-18 $spacing-19;
+  position: sticky;
+  top: 2rem;
 
   &-title {
     @include typography(xl, semibold, $text-primary);
@@ -225,5 +228,6 @@
 
   @include breakpoint-down(md) {
     padding: $spacing-16 $spacing-8;
+    position: static;
   }
 }

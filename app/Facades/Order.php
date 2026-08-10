@@ -31,6 +31,7 @@ use Kirki\Ecommerce\App\Managers\OrderManager;
  * @method static \Kirki\Ecommerce\App\Models\Order create_refund(\Kirki\Ecommerce\App\DTO\Refund\CreateRefundPayloadDTO $dto)
  * @method static \Kirki\Ecommerce\App\Models\Order update_refund(\Kirki\Ecommerce\App\DTO\Refund\UpdateRefundPayloadDTO $dto)
  * @method static \Kirki\Ecommerce\App\Models\Order get_refund(\Kirki\Ecommerce\App\Models\Order $order, int $id)
+ * @method static bool set_payment_metadata(int $id, string $metadata)
  * @method static bool send_invoice_email(int $id)
  * @method static bool send_payment_link(int $id)
  * @method static bool resend_order_email(int $id)

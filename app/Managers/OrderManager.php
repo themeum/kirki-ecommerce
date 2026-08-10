@@ -439,7 +439,18 @@ class OrderManager
     }
 
     /**
-     * Send the invoice email of an order to the customer.
+     * Set payment metadata for an order.
+     *
+     * @param int $id
+     * @param string $payment_metadata
+     * @return bool
+     */
+    public function set_payment_metadata(int $id, string $payment_metadata)
+    {
+        return $this->order_service->partial_update_order($id, [ 'payment_metadata' => $payment_metadata]);
+    }
+
+    /* * Send the invoice email of an order to the customer.
      *
      * @param int $id
      * @return bool
