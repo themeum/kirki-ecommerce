@@ -15,6 +15,7 @@ REQUIRED_PATHS=(
   "bootstrap"
   "vendor"
   "assets"
+  "resources/views"
 )
 
 OPTIONAL_PATHS=(
@@ -39,8 +40,19 @@ echo "==> Cleaning build directory"
 rm -rf "$BUILD_DIR"
 mkdir -p "$STAGE_DIR"
 
+echo "==> Cleaning generated assets"
+rm -rf "$ROOT_DIR/assets/js" "$ROOT_DIR/assets/css"
+
 echo "==> Building frontend (resources/app)"
 pushd "$ROOT_DIR/resources/app" > /dev/null
+if [ ! -d node_modules ]; then
+  npm install
+fi
+npm run build
+popd > /dev/null
+
+echo "==> Building frontend (resources/site)"
+pushd "$ROOT_DIR/resources/site" > /dev/null
 if [ ! -d node_modules ]; then
   npm install
 fi
