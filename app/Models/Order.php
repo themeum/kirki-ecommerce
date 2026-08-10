@@ -110,11 +110,6 @@ class Order extends Model
         'is_billing_same_as_shipping' => 'boolean'
     ];
 
-    public function set_discount_details_attribute($value)
-    {
-        return !empty($value) && is_array($value) ? Arr::json_encode($value) : null;
-    }
-
     /**
      * Store flags as a comma separated string.
      *
