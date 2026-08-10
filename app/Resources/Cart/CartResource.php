@@ -180,6 +180,7 @@ class CartResource extends Resource
                             return $value->value;
                         })->to_array(),
                         'available_quantity' => $item->variant->available_quantity,
+                        'in_stock' => $item->variant->in_stock,
                     ],
                     'base_product_total' => Money::prepare_amount_from_minor($calculated_item->base_product_total, $this->base_currency_code),
                     'base_product_total_money_object' => Money::prepare_amount_object_from_minor($calculated_item->base_product_total, $this->base_currency_code),
