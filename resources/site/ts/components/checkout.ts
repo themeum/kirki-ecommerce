@@ -436,15 +436,14 @@ export function checkout(config: CheckoutConfig = {}) {
           const { type, value } = data.payment_next_step;
           if (type === 'redirect') {
             window.location.href = value;
-            return;
           } else if (type === 'html') {
             //@TODO: need to render HTML.
-          } else {
-            const url = new URL(window.location.href);
-            url.searchParams.set("order", "success");
-            url.searchParams.set("uuid", data.uuid);
-            window.location.href = url.toString();
           }
+        } else {
+          const url = new URL(window.location.href);
+          url.searchParams.set("order", "success");
+          url.searchParams.set("uuid", data.uuid);
+          window.location.href = url.toString();
         }
       } catch (e: unknown) {
         const err = e as Error & { errors?: Record<string, string[]> };
