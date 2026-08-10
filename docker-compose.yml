@@ -14,7 +14,6 @@ services:
     volumes:
       - wordpress_data:/var/www/html:ro
       - .:/var/www/html/wp-content/plugins/kirki-ecommerce:cached
-  
       - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
       - php
@@ -29,7 +28,6 @@ services:
     volumes:
       - wordpress_data:/var/www/html
       - .:/var/www/html/wp-content/plugins/kirki-ecommerce:cached
-  
       - ./docker/wp-config.php:/var/www/html/wp-config.php:ro
       - ./docker/php/php.ini:/usr/local/etc/php/conf.d/zz-php.ini:ro
       - ./docker/php/conf.d:/usr/local/etc/php/conf.d/local:ro
@@ -113,7 +111,6 @@ services:
     volumes:
       - wordpress_data:/var/www/html
       - .:/var/www/html/wp-content/plugins/kirki-ecommerce:cached
-  
       - ./docker/wp-config.php:/var/www/html/wp-config.php:ro
       - ./docker/php/php.ini:/usr/local/etc/php/conf.d/zz-php.ini:ro
       - ./docker/scripts/install-wordpress.sh:/usr/local/bin/install-wordpress.sh:ro
