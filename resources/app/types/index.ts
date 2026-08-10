@@ -37,7 +37,7 @@ export type {
 } from '@/types/entities/customer';
 export type { MediaRef, MediaSize } from '@/types/entities/media';
 export { FulfillmentStatusSchema, OrderCalculationRequestSchema, OrderCalculationSchema, OrderFormSchema, OrderItemSchema, OrderListItemSchema } from '@/types/entities/order';
-export type { FulfillmentStatus, OrderCalculation, OrderCalculationRequestPayload, OrderFormInput, OrderFormPayload, OrderItem, OrderStatus, OrderTracking, PaymentStatus, Refund } from '@/types/entities/order';
+export type { FulfillmentStatus, OrderCalculation, OrderCalculationRequestPayload, OrderFormInput, OrderFormPayload, OrderItem, OrderListItem, OrderStatus, OrderTracking, PaymentStatus, Refund } from '@/types/entities/order';
 export type { PageItem } from '@/types/entities/page';
 export type {
   AdditionalInfoItem, InventoryVariant, Product,

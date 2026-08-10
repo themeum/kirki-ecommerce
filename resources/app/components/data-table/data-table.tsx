@@ -26,6 +26,7 @@ type DataTableProps<T extends DataTableItem> = {
     payload: DataTableBulkApplyPayload,
   ) => void | Promise<void>;
   onPageChange: (page: number) => void;
+  onRowClick?: (item: T) => void;
   fixed?: boolean;
   children?: ReactNode;
   isLoading?: boolean;
@@ -48,7 +49,8 @@ const DataTableLayout = <T extends DataTableItem>({
   bulkActionOptions,
   onBulkApply,
   onPageChange,
-  fixed = true,
+  onRowClick,
+  fixed = false,
   children,
   isLoading = false,
   onSort,
@@ -88,8 +90,9 @@ const DataTableLayout = <T extends DataTableItem>({
       isLoading,
       columns: resolvedColumns as unknown as DataTableColumn<DataTableItem>[],
       onPageChange,
+      onRowClick: onRowClick as unknown as DataTableContextValue<DataTableItem>['onRowClick'],
     }),
-    [data, isLoading, resolvedColumns, onPageChange],
+    [data, isLoading, resolvedColumns, onPageChange, onRowClick],
   );
 
   return (
