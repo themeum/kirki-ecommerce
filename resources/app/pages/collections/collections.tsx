@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router';
 import Pagination from '@/components/pagination';
 import Button from '@/components/ui/button';
 import { NEW_ITEM_ID } from '@/conf';
+import { RouteConfig } from '@/config/route-config';
 import { useListParams } from '@/hooks';
 import { Card, CardContent } from '@/components/ui/card';
 import { cardStyles } from '@/theme/card-styles';
@@ -42,7 +43,9 @@ const Collections = () => {
           <Button
             variant="primary"
             onClick={() => {
-              navigate('/collections/' + NEW_ITEM_ID);
+              navigate(
+                RouteConfig.Collections.get('CollectionDetails').buildLink({ id: NEW_ITEM_ID }),
+              );
             }}
           >
             {__('Add Collection', 'kirki-ecommerce')}

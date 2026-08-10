@@ -8,6 +8,7 @@ import Flex from '@/components/ui/flex';
 import { TableCell, TableRow } from '@/components/ui/table';
 import Text from '@/components/ui/text';
 import Thumbnail from '@/components/ui/thumbnail';
+import { RouteConfig } from '@/config/route-config';
 import { useDeleteCollectionMutation } from '@/services/collection';
 import type { Collection, MarkListHandlers } from '@/types';
 import { __ } from '@/wpi18n';
@@ -25,7 +26,7 @@ const SingleRow = ({
   const deleteMutation = useDeleteCollectionMutation();
 
   const handleItemClick = (id: number) => {
-    navigate('/collections/' + id);
+    navigate(RouteConfig.Collections.get('CollectionDetails').buildLink({ id }));
   };
 
   const onItemDelete = (id: number) => {

@@ -1,7 +1,7 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
+import { endpoints } from '@/config/endpoints';
 import { apiClient } from '@/libs/api';
-import { endpoints } from '@/libs/endpoints';
 import { queryKeys } from '@/libs/query-keys';
 import { SchemaProfileSchema } from '@/schemas/catalog/schema-profile';
 import type { SchemaProfileFormPayload } from '@/schemas/forms/schema-profile-form';
@@ -58,7 +58,7 @@ const useCreateSchemaMutation = () => {
     onSuccess(response) {
       toastMutationSuccess(
         response.message ||
-          __('Schema created successfully.', 'kirki-ecommerce'),
+        __('Schema created successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: ['Schemas'] });
     },
@@ -75,7 +75,7 @@ const useUpdateSchemaMutation = () => {
     onSuccess(response) {
       toastMutationSuccess(
         response.message ||
-          __('Schema updated successfully.', 'kirki-ecommerce'),
+        __('Schema updated successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: ['Schemas'] });
     },
@@ -92,7 +92,7 @@ const useDeleteSchemaMutation = () => {
     onSuccess(response) {
       toastMutationSuccess(
         response.message ||
-          __('Schema deleted successfully.', 'kirki-ecommerce'),
+        __('Schema deleted successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: ['Schemas'] });
     },
@@ -103,12 +103,6 @@ const useDeleteSchemaMutation = () => {
 };
 
 export {
-  getSchemas,
-  createSchema,
-  updateSchema,
-  deleteSchema,
-  useSchemasQuery,
-  useCreateSchemaMutation,
-  useUpdateSchemaMutation,
-  useDeleteSchemaMutation,
+  createSchema, deleteSchema, getSchemas, updateSchema, useCreateSchemaMutation, useDeleteSchemaMutation, useSchemasQuery, useUpdateSchemaMutation
 };
+

@@ -8,6 +8,7 @@ import Flex from '@/components/ui/flex';
 import { TableCell, TableRow } from '@/components/ui/table';
 import Text from '@/components/ui/text';
 import Thumbnail from '@/components/ui/thumbnail';
+import { RouteConfig } from '@/config/route-config';
 import { useDeleteCustomerMutation } from '@/services/customer';
 import type { CustomerListItem, MarkListHandlers } from '@/types';
 import { displayMoney } from '@/utils/money';
@@ -26,7 +27,7 @@ const SingleRow = ({
   const deleteMutation = useDeleteCustomerMutation();
 
   const handleItemClick = (id: number) => {
-    navigate('/customers/' + id);
+    navigate(RouteConfig.Customers.get('CustomerDetails').buildLink({ id }));
   };
 
   const onItemDelete = (id: number) => {

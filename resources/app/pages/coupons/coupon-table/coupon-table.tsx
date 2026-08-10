@@ -9,6 +9,7 @@ import DataTable, {
 } from '@/components/data-table';
 import Badge from '@/components/ui/badge';
 import Flex from '@/components/ui/flex';
+import { RouteConfig } from '@/config/route-config';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
@@ -32,7 +33,7 @@ const CouponTitleCell = ({ item }: { item: CouponListItem }) => {
       <span
         css={scoped(styles.clickable)}
         onClick={() => {
-          navigate(`/coupons/${item.id}`);
+          navigate(RouteConfig.Coupons.get('EditCoupon').buildLink({ id: item.id }));
         }}
       >
         <span css={scoped(styles.mutedText)}>{item.title} </span>
@@ -123,7 +124,9 @@ const CouponTable = () => {
 
   const rowActions = useCallback<DataTableRowActionsResolver<CouponListItem>>(
     (item) => ({
-      edit: { onClick: () => navigate(`/coupons/${item.id}`) },
+      edit: {
+        onClick: () => navigate(RouteConfig.Coupons.get('EditCoupon').buildLink({ id: item.id })),
+      },
       actions: [
         {
           label: __('Duplicate', 'kirki-ecommerce'),

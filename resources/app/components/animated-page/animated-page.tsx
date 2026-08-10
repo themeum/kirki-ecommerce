@@ -1,5 +1,6 @@
 import { Outlet, useLocation } from 'react-router';
 
+import { RouteConfig } from '@/config/route-config';
 import { pageEnterKeyframes } from '@/theme/shell-styles';
 import { scoped, defineStyles } from '@/theme/mixins';
 import type { ConfirmationVariant } from '@/types';
@@ -24,7 +25,7 @@ type AnimatedPageProps = {
   context: AnimatedPageContext;
 };
 
-const SETTINGS_PATH_PREFIX = '/settings';
+const SETTINGS_PATH_PREFIX = RouteConfig.Settings.template;
 
 // Settings is a nested layout route: SettingsLayout owns a persistent
 // sidebar + header and renders its own child Outlet. Keying this wrapper on

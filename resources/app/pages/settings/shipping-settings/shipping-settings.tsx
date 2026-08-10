@@ -11,6 +11,7 @@ import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import { ItemGroup, ItemSeparator } from '@/components/ui/item';
 import Text from '@/components/ui/text';
+import { RouteConfig } from '@/config/route-config';
 import { LocationIcon, TruckIcon } from '@/icons';
 import { getErrorsObject, type ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
@@ -40,6 +41,8 @@ import ShippingZoneActions from '@/pages/settings/shipping-settings/shipping-zon
 import { ShippingRegionPopup } from '@/pages/settings/shipping-settings/shipping-zone/shipping-region-dialog';
 import { getSearchedCountries, getSelectedRegionTags, getShippingMethodRightText, getShippingMethodSubText, getShippingZoneSummary, shippingMethodIconMap, type CountryWithStates, type ShippingMethodData, type ShippingZone } from '@/pages/settings/shipping-settings/utils';
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
+
+const ShippingRoutes = RouteConfig.Settings.get('ShippingSettings');
 
 type SettingsOutletContext = {
   confirmAction: (opts: {
@@ -166,7 +169,7 @@ const ShippingSettings = () => {
     confirmAction({
       action: () =>
         navigate(
-          `/settings/shipping/delivery-method?methodId=${method.id}&zoneId=${method.zoneId}`,
+          `${ShippingRoutes.get('ShippingDeliveryMethod').buildLink()}?methodId=${method.id}&zoneId=${method.zoneId}`,
         ),
     });
   };
@@ -246,7 +249,7 @@ const ShippingSettings = () => {
         data: { shipping_zones: updatedZones },
       });
       setShowCreateZonePopup(false);
-      navigate(`/settings/shipping/zone/${newZoneIdRef.current}`);
+      navigate(ShippingRoutes.get('ShippingZone').buildLink({ zone_Id: newZoneIdRef.current }));
       newZoneIdRef.current = crypto.randomUUID();
     } catch (error) {
       const errObj = error as ErrorResponse;

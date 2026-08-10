@@ -11,6 +11,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Switch from '@/components/ui/switch';
 import Text from '@/components/ui/text';
+import { RouteConfig } from '@/config/route-config';
 import { EditIcon, LocationIcon, ShowMoreIcon, TrashIcon } from '@/icons';
 import type { TaxSettingsFormInput } from '@/schemas/forms/tax-settings-form';
 import { theme } from '@/theme';
@@ -65,9 +66,11 @@ const TaxRegions = (props: TaxRegionsProps) => {
   const handleEditAndDelete = (action: string, item: TaxRegion) => {
     if (action === 'edit') {
       if (item?.code === 'EU') {
-        navigate(`/settings/tax/region/eu`);
+        navigate(RouteConfig.Settings.get('TaxSettings').get('EditRegionEU').buildLink());
       } else {
-        navigate(`/settings/tax/region/${item?.code}`);
+        navigate(
+          RouteConfig.Settings.get('TaxSettings').get('EditTaxRegion').buildLink({ code: item.code }),
+        );
       }
       return;
     } else {

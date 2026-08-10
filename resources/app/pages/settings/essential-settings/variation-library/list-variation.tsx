@@ -5,6 +5,7 @@ import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
+import { RouteConfig } from '@/config/route-config';
 import { BoxIcon } from '@/icons';
 import { useAttributeQuery } from '@/services/attribute';
 import { theme } from '@/theme';
@@ -46,7 +47,7 @@ const ListVariation = () => {
           <SettingsPageHeader
             icon={<BoxIcon />}
             title={sprintf(__('%s', 'kirki-ecommerce'), selectedAttribute?.name ?? '')}
-            onBack={() => { navigate('/settings/essentials'); }}
+            onBack={() => { navigate(RouteConfig.Settings.get('EssentialsSettings').buildLink()); }}
             rightAction={
               <div>
                 <Button

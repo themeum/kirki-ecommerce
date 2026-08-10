@@ -9,6 +9,7 @@ import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import PageHeading from '@/components/ui/page-heading';
 import { NEW_ITEM_ID } from '@/conf';
+import { RouteConfig } from '@/config/route-config';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import {
@@ -136,7 +137,7 @@ const EditCoupon = () => {
         const response = await createMutation.mutateAsync(payload);
 
         if (isDefined(response.data) && isDefined(response.data.id)) {
-          navigate(`/coupons/${response.data.id}`);
+          navigate(RouteConfig.Coupons.get('EditCoupon').buildLink({ id: response.data.id }));
         }
       }
     } catch (error) {
@@ -165,7 +166,7 @@ const EditCoupon = () => {
           sticky
           actions={
             <>
-              <Button variant="ghost" onClick={() => navigate('/coupons')}>
+              <Button variant="ghost" onClick={() => navigate(RouteConfig.Coupons.buildLink())}>
                 {__('Cancel', 'kirki-ecommerce')}
               </Button>
               <Button
@@ -180,7 +181,7 @@ const EditCoupon = () => {
             </>
           }
           hasBack
-          onBack={() => navigate('/coupons')}
+          onBack={() => navigate(RouteConfig.Coupons.buildLink())}
         >
           {
             !isNew && isDefined(couponBadgeInfo) && (
