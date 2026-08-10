@@ -1,7 +1,9 @@
 <?php
+
 namespace Kirki\Ecommerce\Payments;
 
 use Exception;
+use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\Constants\Payment\PaymentActionType;
 use Kirki\Ecommerce\App\DTO\Payment\PaymentActionDTO;
 use Kirki\Ecommerce\App\Facades\Order as OrderManager;
@@ -225,8 +227,16 @@ class Authorizenet extends PaymentProvider
         }
 
         $order_id = $event->payload->merchantReferenceId;
-        $transaction = $this->fetch_transaction($order_id, $event->payload->id);
+        if (empty($order_id)) {
+            return false;
+        }
 
+        $order = OrderManager::find($order_id);
+        if ($order->payment_status === PaymentStatus::PAID) {
+            return false;
+        }
+
+        $transaction = $this->fetch_transaction($order_id, $event->payload->id);
         $this->handle_transaction_response($order_id, $transaction);
         return true;
     }
