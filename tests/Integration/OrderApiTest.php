@@ -15,6 +15,7 @@ use Kirki\Ecommerce\App\Facades\Order as OrderManager;
 use Kirki\Ecommerce\App\Models\Address;
 use Kirki\Ecommerce\App\Models\Cart;
 use Kirki\Ecommerce\App\Models\Customer;
+use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Payment\PaymentManager;
 use Kirki\Ecommerce\App\Payment\Providers\PayPal;
 use Kirki\Ecommerce\App\Services\CartService;
@@ -142,6 +143,7 @@ class OrderApiTest extends RestTestCase
         }
 
         $this->assertNotNull($listed_order);
+        $this->assertEquals('John Doe', $listed_order['customer_name']);
         $this->assertEquals('PayPal', $listed_order['payment_provider_name']);
         $this->assertNotEmpty($listed_order['payment_provider_icon']);
         $this->assertFalse($listed_order['payment_provider_is_offline']);
@@ -444,6 +446,101 @@ class OrderApiTest extends RestTestCase
         $this->assertEquals('Fallback', $customer->first_name);
         $this->assertEquals('Billing', $customer->last_name);
         $this->assertEquals($wp_user->user_email, $customer->email);
+    }
+
+    /**
+     * The order's own customer contact snapshot is sourced from the
+     * WordPress user profile when it has all four fields, even when
+     * billing carries different values.
+     *
+     * @return void
+     */
+    public function test_order_customer_contact_uses_wp_profile_when_complete(): void
+    {
+        $user_id = $this->create_shopper_user([
+            'first_name' => 'Jordan',
+            'last_name' => 'Rivers',
+        ]);
+        update_user_meta($user_id, 'phone', '555-0100');
+        $wp_user = get_userdata($user_id);
+
+        wp_set_current_user($user_id);
+
+        $response = $this->request('POST', 'orders', $this->order_payload([
+            'is_manual' => false,
+            'billing_first_name' => 'Fallback',
+            'billing_last_name' => 'Billing',
+            'billing_phone' => '555-9999',
+        ]));
+        $payload = $this->assert_api_success($response, 201);
+        $this->order_id = $payload['data']['id'];
+
+        $order = Order::find($this->order_id);
+
+        $this->assertEquals('Jordan', $order->customer_first_name);
+        $this->assertEquals('Rivers', $order->customer_last_name);
+        $this->assertEquals($wp_user->user_email, $order->customer_email);
+        $this->assertEquals('555-0100', $order->customer_phone);
+    }
+
+    /**
+     * When the WordPress profile is missing a contact field, the order's
+     * snapshot falls back to the corresponding billing field for that
+     * field only, leaving fields the profile does provide untouched.
+     *
+     * @return void
+     */
+    public function test_order_customer_contact_falls_back_to_billing_for_missing_wp_fields(): void
+    {
+        $user_id = $this->create_shopper_user();
+        $wp_user = get_userdata($user_id);
+
+        wp_set_current_user($user_id);
+
+        $response = $this->request('POST', 'orders', $this->order_payload([
+            'is_manual' => false,
+            'billing_first_name' => 'Fallback',
+            'billing_last_name' => 'Billing',
+            'billing_phone' => '555-9999',
+        ]));
+        $payload = $this->assert_api_success($response, 201);
+        $this->order_id = $payload['data']['id'];
+
+        $order = Order::find($this->order_id);
+
+        $this->assertEquals('Fallback', $order->customer_first_name);
+        $this->assertEquals('Billing', $order->customer_last_name);
+        $this->assertEquals($wp_user->user_email, $order->customer_email);
+        $this->assertEquals('555-9999', $order->customer_phone);
+    }
+
+    /**
+     * A guest checkout (no WordPress user) sources the order's customer
+     * contact snapshot entirely from the billing fields.
+     *
+     * @return void
+     */
+    public function test_order_customer_contact_uses_billing_for_guest_checkout(): void
+    {
+        $this->logout();
+
+        $dto = CreateOrderPayloadDTO::from_array($this->order_payload([
+            'is_manual' => false,
+            'billing_first_name' => 'Guest',
+            'billing_last_name' => 'Shopper',
+            'billing_email' => 'guest-shopper@example.com',
+            'billing_phone' => '555-1234',
+        ]));
+        $dto->created_by = null;
+        $dto->currency_code = 'USD';
+
+        $order = app()->make(CreateOrderAction::class)->execute($dto);
+        $this->order_id = $order->id;
+
+        $this->assertEquals('Guest', $order->customer_first_name);
+        $this->assertEquals('Shopper', $order->customer_last_name);
+        $this->assertEquals('guest-shopper@example.com', $order->customer_email);
+        $this->assertEquals('555-1234', $order->customer_phone);
     }
 
     /**

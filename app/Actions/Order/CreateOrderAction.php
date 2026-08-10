@@ -174,6 +174,25 @@ class CreateOrderAction
         return $customer_payload;
     }
 
+    /**
+     * Resolve the order's customer contact snapshot from the placing
+     * WordPress user's profile when they have an account, else billing.
+     *
+     * @param CreateOrderPayloadDTO $dto
+     * @return array{first_name: ?string, last_name: ?string, email: ?string, phone: ?string}
+     */
+    protected function resolve_customer_contact_details(CreateOrderPayloadDTO $dto)
+    {
+        $wp_user = !empty($dto->created_by) ? (get_userdata($dto->created_by) ?: null) : null;
+
+        return [
+            'first_name' => !empty($wp_user->first_name) ? $wp_user->first_name : $dto->billing_first_name,
+            'last_name' => !empty($wp_user->last_name) ? $wp_user->last_name : $dto->billing_last_name,
+            'email' => !empty($wp_user->user_email) ? $wp_user->user_email : $dto->billing_email,
+            'phone' => !empty($wp_user->phone) ? $wp_user->phone : $dto->billing_phone,
+        ];
+    }
+
     protected function prepare_checkout_address_dto(CreateOrderPayloadDTO $dto, string $prefix)
     {
         $address_payload = new CreateAddressDTO();
@@ -315,8 +334,11 @@ class CreateOrderAction
         $order_dto->billing_email = $dto->billing_email;
         $order_dto->billing_company = $dto->billing_company;
 
-        $order_dto->customer_email = $dto->customer_email;
-        $order_dto->customer_phone = $dto->customer_phone;
+        $customer_contact = $this->resolve_customer_contact_details($dto);
+        $order_dto->customer_first_name = $customer_contact['first_name'];
+        $order_dto->customer_last_name = $customer_contact['last_name'];
+        $order_dto->customer_email = $customer_contact['email'];
+        $order_dto->customer_phone = $customer_contact['phone'];
         $order_dto->customer_notes = $dto->customer_notes;
         $order_dto->admin_notes = $dto->admin_notes;
         $order_dto->ip_address = $dto->ip_address;
