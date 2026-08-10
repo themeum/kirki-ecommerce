@@ -46,20 +46,22 @@ export const cartApi = {
     apiRequest<ApiResponse<void>>('/cart', { method: 'DELETE', headers: headers }),
 
   applyCoupon: (code: string) =>
-    apiRequest<ApiResponse<Cart>>('/cart/coupon', { method: 'POST', body: { code } }),
+    apiRequest<ApiResponse<Cart>>('/cart/coupon', { method: 'POST', body: { code }, headers: headers, }),
 
   removeCoupon: () =>
-    apiRequest<ApiResponse<Cart>>('/cart/coupon', { method: 'DELETE' }),
+    apiRequest<ApiResponse<Cart>>('/cart/coupon', { method: 'DELETE', headers: headers, }),
 
   updateShipping: (shippingData: any) =>
     apiRequest<ApiResponse<Cart>>('/cart/shipping', {
       method: 'POST',
       body: shippingData,
+      headers: headers,
     }),
 
   update: (cartData: any) =>
     apiRequest<ApiResponse<Cart>>('/cart', {
       method: 'PUT',
       body: cartData,
+      headers: headers,
     }),
 };
