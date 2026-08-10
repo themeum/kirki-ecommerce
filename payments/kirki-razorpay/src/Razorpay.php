@@ -26,8 +26,8 @@ class Razorpay extends PaymentProvider
     public function __construct()
     {
         $this->id = 'razorpay';
-        $this->title = __('Razorpay', 'kirki-ecommerce');
-        $this->description = __('Razorpay payment gateway', 'kirki-ecommerce');
+        $this->title = __('Razorpay', 'kirki-ecommerce-razorpay');
+        $this->description = __('Razorpay payment gateway', 'kirki-ecommerce-razorpay');
         $this->icon = 'razorpay';
         $this->settings_key = 'razorpay';
         $this->is_offline = false;
@@ -39,25 +39,25 @@ class Razorpay extends PaymentProvider
         $this->set_admin_fields([
             [
                 'name' => 'key_id',
-                'label' => __('Key ID', 'kirki-ecommerce'),
+                'label' => __('Key ID', 'kirki-ecommerce-razorpay'),
                 'type' => 'text',
                 'required' => true,
             ],
             [
                 'name' => 'key_secret',
-                'label' => __('Key Secret', 'kirki-ecommerce'),
+                'label' => __('Key Secret', 'kirki-ecommerce-razorpay'),
                 'type' => 'password',
                 'required' => true,
             ],
             [
                 'name' => 'webhook_secret',
-                'label' => __('Webhook Secret', 'kirki-ecommerce'),
+                'label' => __('Webhook Secret', 'kirki-ecommerce-razorpay'),
                 'type' => 'password',
                 'required' => true,
             ],
             [
                 'name' => 'sandbox',
-                'label' => __('Sandbox Mode', 'kirki-ecommerce'),
+                'label' => __('Sandbox Mode', 'kirki-ecommerce-razorpay'),
                 'type' => 'checkbox',
             ],
         ]);
@@ -73,7 +73,7 @@ class Razorpay extends PaymentProvider
     public function pay(Order $order)
     {
         if (!$this->enabled()) {
-            throw new Exception(__('Razorpay is not enabled.', 'kirki-ecommerce'));
+            throw new Exception(__('Razorpay is not enabled.', 'kirki-ecommerce-razorpay'));
         }
 
         try {
@@ -91,7 +91,7 @@ class Razorpay extends PaymentProvider
                 'value' => $html,
             ]);
         } catch (Exception $e) {
-            throw new Exception(sprintf(__('Razorpay Payment Error: %s', 'kirki-razorpay'), $e->getMessage()));
+            throw new Exception(sprintf(__('Razorpay Payment Error: %s', 'kirki-ecommerce-razorpay'), $e->getMessage()));
         }
     }
 
@@ -181,7 +181,7 @@ class Razorpay extends PaymentProvider
         $webhook_secret = $this->settings['webhook_secret'] ?? '';
 
         if (empty($key_id) || empty($key_secret) || empty($webhook_secret)) {
-            throw new Exception(__('Razorpay credentials are missing.', 'kirki-razorpay'));
+            throw new Exception(__('Razorpay credentials are missing.', 'kirki-ecommerce-razorpay'));
         }
 
         return new RazorpayClient($key_id, $key_secret, $webhook_secret);
@@ -201,7 +201,7 @@ class Razorpay extends PaymentProvider
         ], RazorpayConstant::API_URL . '/orders');
 
         if (empty($razorpay_order['id'])) {
-            throw new Exception(__('Razorpay Payment Order ID Not Found.', 'kirki-razorpay'));
+            throw new Exception(__('Razorpay Payment Order ID Not Found.', 'kirki-ecommerce-razorpay'));
         }
 
         return $razorpay_order['id'];
@@ -221,12 +221,12 @@ class Razorpay extends PaymentProvider
         http_response_code(200);
 
         if (empty($payload)) {
-            throw new Exception(__('Invalid Payload From Razorpay.', 'kirki-razorpay'));
+            throw new Exception(__('Invalid Payload From Razorpay.', 'kirki-ecommerce-razorpay'));
         }
 
         $this->client = $this->get_client();
         if (!$this->client->is_verified($payload)) {
-            throw new Exception(__('Webhook Notification Is Not Valid.', 'kirki-razorpay'));
+            throw new Exception(__('Webhook Notification Is Not Valid.', 'kirki-ecommerce-razorpay'));
         }
 
         return json_decode($payload);
@@ -258,7 +258,6 @@ class Razorpay extends PaymentProvider
                 case RazorpayConstant::STATUS_PAYMENT_FAILED:
                     $this->record_transaction($order_id, $entity);
                     OrderManager::mark_payment_as_failed($order_id);
-                    OrderManager::mark_as_cancel($order_id, $entity->error_reason);
                     break;
 
                 default:
@@ -270,7 +269,7 @@ class Razorpay extends PaymentProvider
             DB::rollback();
 
             throw new Exception(
-                sprintf(__('Failed to update order data: %s', 'kirki-razorpay'), $e->getMessage())
+                sprintf(__('Failed to update order data: %s', 'kirki-ecommerce-razorpay'), $e->getMessage())
             );
         }
     }

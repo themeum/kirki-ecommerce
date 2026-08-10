@@ -62,7 +62,7 @@ class RazorpayClient
     protected function get_auth()
     {
         if (empty($this->key_id) || empty($this->key_secret)) {
-            throw new InvalidArgumentException(__('Invalid API Key Or Key Secret.', 'kirki-razorpay'));
+            throw new InvalidArgumentException(__('Invalid API Key Or Key Secret.', 'kirki-ecommerce-razorpay'));
         }
         return base64_encode($this->key_id . ':' . $this->key_secret);
     }
