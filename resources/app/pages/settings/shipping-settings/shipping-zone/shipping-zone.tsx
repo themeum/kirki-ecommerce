@@ -9,6 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
+import { RouteConfig } from '@/config/route-config';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults, pickFormValues } from '@/libs/zod';
@@ -119,7 +120,7 @@ const ShippingZonePage = () => {
             <Flex direction="column" gap={4}>
               <SettingsPageHeader
                 title={__('Set Zone Details', 'kirki-ecommerce')}
-                onBack={() => navigate('/settings/shipping')}
+                onBack={() => navigate(RouteConfig.Settings.get('ShippingSettings').buildLink())}
               />
               <Card cssOverride={cardStyles.formCard}>
                 <CardContent>

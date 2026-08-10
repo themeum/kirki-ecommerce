@@ -1,13 +1,13 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
+import { endpoints } from '@/config/endpoints';
 import { apiClient } from '@/libs/api';
-import { endpoints } from '@/libs/endpoints';
 import { queryKeys } from '@/libs/query-keys';
 import { BrandSchema } from '@/schemas/catalog/brand';
 import type { BrandFormPayload } from '@/schemas/forms/brand-form';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
 import { parseData, parseMessage, parseResponse, toastMutationError, toastMutationSuccess } from '@/services/helpers';
-import type { ListQueryParams, BulkActionParams } from '@/types';
+import type { BulkActionParams, ListQueryParams } from '@/types';
 import { __ } from '@/wpi18n';
 
 const getBrands = (params: ListQueryParams = {}) => {
@@ -116,14 +116,6 @@ const useBulkDeleteBrandsMutation = () => {
 };
 
 export {
-  getBrands,
-  createBrand,
-  updateBrand,
-  deleteBrand,
-  bulkDeleteBrands,
-  useBrandsQuery,
-  useCreateBrandMutation,
-  useUpdateBrandMutation,
-  useDeleteBrandMutation,
-  useBulkDeleteBrandsMutation,
+  bulkDeleteBrands, createBrand, deleteBrand, getBrands, updateBrand, useBrandsQuery, useBulkDeleteBrandsMutation, useCreateBrandMutation, useDeleteBrandMutation, useUpdateBrandMutation
 };
+

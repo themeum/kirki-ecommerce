@@ -1,13 +1,13 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { NEW_ITEM_ID } from '@/conf';
+import { endpoints } from '@/config/endpoints';
 import { apiClient } from '@/libs/api';
-import { endpoints } from '@/libs/endpoints';
 import { queryKeys } from '@/libs/query-keys';
+import type { OrderActionPayload } from '@/pages/orders/order-details/config/order-actions';
 import { OrderCalculationSchema, OrderItemSchema, OrderListItemSchema } from '@/schemas/catalog/order';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
 import { parseData, parseResponse, toastMutationError, toastMutationSuccess, unwrapResponse } from '@/services/helpers';
-import type { OrderActionPayload } from '@/pages/orders/order-details/config/order-actions';
 import type { ListParams, OrderCalculationRequestPayload, OrderFormPayload, OrderItem } from '@/types';
 import type { OrderListFilter } from '@/types/filters/order';
 import { __ } from '@/wpi18n';
@@ -139,5 +139,6 @@ export {
   useOrderCalculationQuery,
   useOrderQuery,
   useOrdersQuery,
-  useUpdateOrderMutation,
+  useUpdateOrderMutation
 };
+

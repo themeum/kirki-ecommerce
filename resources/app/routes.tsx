@@ -1,7 +1,8 @@
 import { createElement, lazy, Suspense, type ComponentType, type ReactElement } from 'react';
-import { createHashRouter, Navigate, type RouteObject } from 'react-router';
+import { createHashRouter, Navigate } from 'react-router';
 
 import LoadingSpinner from '@/components/loading-spinner';
+import { RouteConfig } from '@/config/route-config';
 import UnsavedChangesController from '@/floating-components/unsaved-tracker';
 import NotFound from '@/pages/not-found/not-found';
 import { __ } from '@/wpi18n';
@@ -54,57 +55,102 @@ const withSuspense = <Props extends object>(
   </Suspense>
 );
 
-const developmentRoutes: RouteObject[] = import.meta.env.DEV
-  ? [{ path: '/tryouts', element: withSuspense(lazy(() => import('@/tryouts'))) }]
-  : [];
+const ProductRoutes = RouteConfig.Products;
+const OrderRoutes = RouteConfig.Orders;
+const CustomerRoutes = RouteConfig.Customers;
+const SettingsRoutes = RouteConfig.Settings;
 
 export const router = createHashRouter([
   {
     element: <UnsavedChangesController />,
     children: [
-      { path: '/', element: <Navigate to="/products" replace /> },
-      ...developmentRoutes,
-      { path: '/products', element: withSuspense(Products) },
-      { path: '/products/create', element: withSuspense(CreateProduct) },
-      { path: '/products/:id', element: withSuspense(EditProduct) },
-      { path: '/variants/bulk', element: withSuspense(BulkEdit) },
-      { path: '/inventory', element: withSuspense(Inventory) },
-      { path: '/coupons', element: withSuspense(Coupons) },
-      { path: '/coupons/:id', element: withSuspense(EditCoupon) },
-      { path: '/orders', element: withSuspense(Orders) },
-      { path: '/orders/create', element: withSuspense(CreateOrder) },
-      { path: '/orders/:id', element: withSuspense(OrderDetails) },
-      { path: '/collections', element: withSuspense(Collections) },
-      { path: '/collections/:id', element: withSuspense(CollectionDetails) },
-      { path: '/tags', element: withSuspense(Tags) },
-      { path: '/categories', element: withSuspense(Categories) },
-      { path: '/brands', element: withSuspense(Brands) },
-      { path: '/customers', element: withSuspense(Customers) },
-      { path: '/customers/:id', element: withSuspense(CustomerDetails) },
-      { path: '/customers/groups', element: withSuspense(CustomerGroups) },
+      { path: RouteConfig.Home.template, element: <Navigate to={ProductRoutes.template} replace /> },
+      { path: ProductRoutes.template, element: withSuspense(Products) },
+      { path: ProductRoutes.get('CreateProduct').template, element: withSuspense(CreateProduct) },
+      { path: ProductRoutes.get('EditProduct').template, element: withSuspense(EditProduct) },
+      { path: RouteConfig.BulkVariants.template, element: withSuspense(BulkEdit) },
+      { path: RouteConfig.Inventory.template, element: withSuspense(Inventory) },
+      { path: RouteConfig.Coupons.template, element: withSuspense(Coupons) },
+      { path: RouteConfig.Coupons.get('EditCoupon').template, element: withSuspense(EditCoupon) },
+      { path: OrderRoutes.template, element: withSuspense(Orders) },
+      { path: OrderRoutes.get('CreateOrder').template, element: withSuspense(CreateOrder) },
+      { path: OrderRoutes.get('OrderDetail').template, element: withSuspense(OrderDetails) },
+      { path: RouteConfig.Collections.template, element: withSuspense(Collections) },
       {
-        path: '/settings',
+        path: RouteConfig.Collections.get('CollectionDetail').template,
+        element: withSuspense(CollectionDetails),
+      },
+      { path: RouteConfig.Tags.template, element: withSuspense(Tags) },
+      { path: RouteConfig.Categories.template, element: withSuspense(Categories) },
+      { path: RouteConfig.Brands.template, element: withSuspense(Brands) },
+      { path: CustomerRoutes.template, element: withSuspense(Customers) },
+      { path: CustomerRoutes.get('CustomerDetail').template, element: withSuspense(CustomerDetails) },
+      { path: CustomerRoutes.get('CustomerGroups').template, element: withSuspense(CustomerGroups) },
+      {
+        path: SettingsRoutes.template,
         element: withSuspense(SettingsLayout),
         children: [
-          { index: true, element: <Navigate to="/settings/general" replace /> },
-          { path: 'general', element: withSuspense(GeneralSettings) },
-          { path: 'products', element: withSuspense(ProductsSettings) },
-          { path: 'payments', element: withSuspense(PaymentSettings) },
-          { path: 'shipping', element: withSuspense(ShippingSettings) },
-          { path: 'shipping/zone/:zone_Id', element: withSuspense(ShippingZone) },
-          { path: 'shipping/delivery-method', element: withSuspense(ShippingDeliveryMethod) },
-          { path: 'currency', element: withSuspense(MultiCurrencySettings) },
-          { path: 'tax', element: withSuspense(TaxSettings) },
-          { path: 'tax/region/eu', element: withSuspense(EditRegionEU) },
-          { path: 'tax/region/:code', element: withSuspense(GeneralEditRegion) },
-          { path: 'email', element: withSuspense(EmailSettings) },
-          { path: 'checkout', element: withSuspense(CheckoutSettings) },
-          { path: 'email/edit-template', element: withSuspense(EditTemplate) },
-          { path: 'essentials', element: withSuspense(EssentialsSettings) },
-          { path: 'essentials/color/:id', element: withSuspense(ColorVariation) },
-          { path: 'essentials/list/:id', element: withSuspense(ListVariation) },
-          { path: 'advanced', element: withSuspense(AdvancedSettings) },
-          { path: 'license', element: withSuspense(LicenseSettings) },
+          {
+            index: true,
+            element: <Navigate to={SettingsRoutes.get('GeneralSettings').buildLink()} replace />,
+          },
+          { path: SettingsRoutes.get('GeneralSettings').template, element: withSuspense(GeneralSettings) },
+          {
+            path: SettingsRoutes.get('ProductsSettings').template,
+            element: withSuspense(ProductsSettings),
+          },
+          { path: SettingsRoutes.get('PaymentSettings').template, element: withSuspense(PaymentSettings) },
+          {
+            path: SettingsRoutes.get('ShippingSettings').template,
+            element: withSuspense(ShippingSettings),
+          },
+          {
+            path: SettingsRoutes.get('ShippingSettings').get('ShippingZone').template,
+            element: withSuspense(ShippingZone),
+          },
+          {
+            path: SettingsRoutes.get('ShippingSettings').get('ShippingDeliveryMethod').template,
+            element: withSuspense(ShippingDeliveryMethod),
+          },
+          {
+            path: SettingsRoutes.get('MultiCurrencySettings').template,
+            element: withSuspense(MultiCurrencySettings),
+          },
+          { path: SettingsRoutes.get('TaxSettings').template, element: withSuspense(TaxSettings) },
+          {
+            path: SettingsRoutes.get('TaxSettings').get('EditRegionEU').template,
+            element: withSuspense(EditRegionEU),
+          },
+          {
+            path: SettingsRoutes.get('TaxSettings').get('EditTaxRegion').template,
+            element: withSuspense(GeneralEditRegion),
+          },
+          { path: SettingsRoutes.get('EmailSettings').template, element: withSuspense(EmailSettings) },
+          {
+            path: SettingsRoutes.get('CheckoutSettings').template,
+            element: withSuspense(CheckoutSettings),
+          },
+          {
+            path: SettingsRoutes.get('EmailSettings').get('EditEmailTemplate').template,
+            element: withSuspense(EditTemplate),
+          },
+          {
+            path: SettingsRoutes.get('EssentialsSettings').template,
+            element: withSuspense(EssentialsSettings),
+          },
+          {
+            path: SettingsRoutes.get('EssentialsSettings').get('ColorVariation').template,
+            element: withSuspense(ColorVariation),
+          },
+          {
+            path: SettingsRoutes.get('EssentialsSettings').get('ListVariation').template,
+            element: withSuspense(ListVariation),
+          },
+          {
+            path: SettingsRoutes.get('AdvancedSettings').template,
+            element: withSuspense(AdvancedSettings),
+          },
+          { path: SettingsRoutes.get('LicenseSettings').template, element: withSuspense(LicenseSettings) },
         ],
       },
       { path: '/analytics', element: withSuspense(ComingSoon, { text: __('Analytics', 'kirki-ecommerce') }) },

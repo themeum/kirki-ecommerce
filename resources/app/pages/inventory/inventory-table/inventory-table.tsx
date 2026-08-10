@@ -8,6 +8,7 @@ import { useMarkList } from '@/hooks';
 import Checkbox from '@/components/ui/checkbox';
 import Flex from '@/components/ui/flex';
 import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { RouteConfig } from '@/config/route-config';
 import type { InventoryVariant } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -37,7 +38,7 @@ const InventoryTable = () => {
   });
 
   const handleApplyAction = () => {
-    navigate(`/variants/bulk?ids=${selectedItems.join(',')}`);
+    navigate(`${RouteConfig.BulkVariants.buildLink()}?ids=${selectedItems.join(',')}`);
   };
 
   return (

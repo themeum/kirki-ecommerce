@@ -12,6 +12,7 @@ import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
 import { Separator } from '@/components/ui/separator';
 import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { RouteConfig } from '@/config/route-config';
 import type { ProductFormInput } from '@/schemas/forms/product-form';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
@@ -73,12 +74,12 @@ const VariationTable = () => {
   const handleBulkEditVariants = () => {
     if (selectedIndex.length === 0) {
       const selectedIds = Object.values(variants).map((item) => item.id);
-      navigate(`/variants/bulk?ids=${selectedIds.join(',')}`);
+      navigate(`${RouteConfig.BulkVariants.buildLink()}?ids=${selectedIds.join(',')}`);
     } else {
       const selectedIds = Object.values(variants)
         .filter((_item, index) => selectedIndex.includes(index))
         .map((item) => item.id);
-      navigate(`/variants/bulk?ids=${selectedIds.join(',')}`);
+      navigate(`${RouteConfig.BulkVariants.buildLink()}?ids=${selectedIds.join(',')}`);
     }
   };
 

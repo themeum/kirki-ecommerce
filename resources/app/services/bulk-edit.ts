@@ -1,7 +1,7 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
+import { endpoints } from '@/config/endpoints';
 import { apiClient } from '@/libs/api';
-import { endpoints } from '@/libs/endpoints';
 import { queryKeys } from '@/libs/query-keys';
 import { VariantSchema } from '@/schemas/catalog/variant';
 import { ResourceCollectionSchema } from '@/schemas/shared/api';
@@ -48,7 +48,7 @@ const useUpdateBulkVariantsMutation = () => {
     onSuccess(response) {
       toastMutationSuccess(
         response.message ||
-          __('Variants updated successfully.', 'kirki-ecommerce'),
+        __('Variants updated successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: ['BulkVariants'] });
       void queryClient.invalidateQueries({ queryKey: ['Inventory'] });
@@ -64,5 +64,6 @@ export {
   getBulkVariants,
   updateBulkVariants,
   useBulkVariantsQuery,
-  useUpdateBulkVariantsMutation,
+  useUpdateBulkVariantsMutation
 };
+

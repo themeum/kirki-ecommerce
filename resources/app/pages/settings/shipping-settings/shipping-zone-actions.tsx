@@ -6,10 +6,13 @@ import { useNavigate, useOutletContext } from 'react-router';
 import Button from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import Switch from '@/components/ui/switch';
+import { RouteConfig } from '@/config/route-config';
 import type { ShippingZone } from '@/pages/settings/shipping-settings/utils';
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
 import { theme } from '@/theme';
 import { MoreVertical } from 'lucide-react';
+
+const ShippingRoutes = RouteConfig.Settings.get('ShippingSettings');
 
 type SettingsOutletContext = {
   confirmAction: (opts: {
@@ -35,7 +38,7 @@ const ShippingZoneActions = ({
   const handleEditAndDelete = (action: string, item: ShippingZone) => {
     if (action === 'edit') {
       confirmAction({
-        action: () => navigate(`/settings/shipping/zone/${item.id}`),
+        action: () => navigate(ShippingRoutes.get('ShippingZone').buildLink({ zone_Id: item.id })),
       });
     } else {
       setUnsavedDataStatus(true);

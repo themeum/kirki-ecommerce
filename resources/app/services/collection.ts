@@ -1,13 +1,13 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
+import { endpoints } from '@/config/endpoints';
 import { apiClient } from '@/libs/api';
-import { endpoints } from '@/libs/endpoints';
 import { queryKeys } from '@/libs/query-keys';
 import { CollectionSchema } from '@/schemas/catalog/collection';
 import type { CollectionFormPayload } from '@/schemas/forms/collection-form';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
 import { parseData, parseMessage, parseResponse, toastMutationError, toastMutationSuccess } from '@/services/helpers';
-import type { ListQueryParams, BulkActionParams } from '@/types';
+import type { BulkActionParams, ListQueryParams } from '@/types';
 import { __ } from '@/wpi18n';
 
 const getCollections = (params: ListQueryParams = {}) => {
@@ -87,7 +87,7 @@ const useCreateCollectionMutation = () => {
     onSuccess(response) {
       toastMutationSuccess(
         response.message ||
-          __('Collection created successfully.', 'kirki-ecommerce'),
+        __('Collection created successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: ['Collections'] });
     },
@@ -104,7 +104,7 @@ const useUpdateCollectionMutation = () => {
     onSuccess(response, variables) {
       toastMutationSuccess(
         response.message ||
-          __('Collection updated successfully.', 'kirki-ecommerce'),
+        __('Collection updated successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: ['Collections'] });
       void queryClient.invalidateQueries({
@@ -124,7 +124,7 @@ const useDeleteCollectionMutation = () => {
     onSuccess(response) {
       toastMutationSuccess(
         response.message ||
-          __('Collection deleted successfully.', 'kirki-ecommerce'),
+        __('Collection deleted successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: ['Collections'] });
     },
@@ -141,7 +141,7 @@ const useBulkDeleteCollectionsMutation = () => {
     onSuccess(response) {
       toastMutationSuccess(
         response.message ||
-          __('Collections deleted successfully.', 'kirki-ecommerce'),
+        __('Collections deleted successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: ['Collections'] });
     },
@@ -152,16 +152,6 @@ const useBulkDeleteCollectionsMutation = () => {
 };
 
 export {
-  getCollections,
-  getCollection,
-  createCollection,
-  updateCollection,
-  deleteCollection,
-  bulkDeleteCollections,
-  useCollectionsQuery,
-  useCollectionQuery,
-  useCreateCollectionMutation,
-  useUpdateCollectionMutation,
-  useDeleteCollectionMutation,
-  useBulkDeleteCollectionsMutation,
+  bulkDeleteCollections, createCollection, deleteCollection, getCollection, getCollections, updateCollection, useBulkDeleteCollectionsMutation, useCollectionQuery, useCollectionsQuery, useCreateCollectionMutation, useDeleteCollectionMutation, useUpdateCollectionMutation
 };
+
