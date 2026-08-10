@@ -139,6 +139,12 @@ class CreateOrderDTO extends DTO
     public $shipping_company;
 
     /** @var string|null */
+    public $customer_first_name;
+
+    /** @var string|null */
+    public $customer_last_name;
+
+    /** @var string|null */
     public $customer_email;
 
     /** @var string|null */

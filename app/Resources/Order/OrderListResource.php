@@ -37,13 +37,13 @@ class OrderListResource extends Resource
     }
 
     /**
-     * Build the customer name from the shipping name pair.
+     * Build the customer name from the customer name pair.
      *
      * @return string|null
      */
     protected function resolve_customer_name()
     {
-        $name = trim($this->shipping_first_name . ' ' . $this->shipping_last_name);
+        $name = trim($this->customer_first_name . ' ' . $this->customer_last_name);
 
         return '' === $name ? null : $name;
     }

@@ -21,6 +21,7 @@ class CheckoutController
         $dto->is_manual = user()->is_admin() && $request->bool('is_manual') ? true : false;
         $dto->created_by = user()->get_id() ?? null;
         $dto->currency_code = $currency_code;
+        $dto->cart_token = $request->get_header('x-cart-token');
 
         $order = $action->execute($dto);
 

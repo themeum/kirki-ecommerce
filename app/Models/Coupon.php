@@ -5,7 +5,6 @@ namespace Kirki\Ecommerce\App\Models;
 use Kirki\Ecommerce\App\Constants\Coupon\CouponStatus;
 use Kirki\Ecommerce\Framework\Database\Query\Model;
 use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
-use Kirki\Ecommerce\Framework\Supports\Arr;
 use Kirki\Ecommerce\Framework\Supports\Facades\Date;
 
 class Coupon extends Model
@@ -89,22 +88,6 @@ class Coupon extends Model
         }
 
         return CouponStatus::ACTIVE;
-    }
-
-    /**
-     * @param array|null $value
-     */
-    public function set_target_countries_attribute($value)
-    {
-        $this->attributes['target_countries'] = !empty($value) && is_array($value) ? Arr::json_encode($value) : null;
-    }
-
-    /**
-     * @param array|null $value
-     */
-    public function set_combinations_attribute($value)
-    {
-        $this->attributes['combinations'] = !empty($value) && is_array($value) ? Arr::json_encode($value) : null;
     }
 
     public function set_start_datetime_attribute(?string $value)
