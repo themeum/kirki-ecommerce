@@ -16,7 +16,7 @@ use Kirki\Ecommerce\App\Supports\Template;
 
 <?php Template::get_header(); ?>
 
-<div class="kirki-ecom-page-wrapper">
+<div class="kecom-container">
     <h1>Account page</h1>
 </div>
 

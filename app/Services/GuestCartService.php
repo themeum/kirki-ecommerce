@@ -15,10 +15,6 @@
 namespace Kirki\Ecommerce\App\Services;
 
 use Kirki\Ecommerce\App\Constants\Cart;
-use Kirki\Ecommerce\App\DTO\Customer\CreateCustomerDTO;
-
-use function Kirki\Ecommerce\App\customer;
-use function Kirki\Ecommerce\Framework\app;
 
 /**
  * Class GuestCartService
@@ -86,54 +82,5 @@ class GuestCartService extends CartService
             $this->clear_guest_cart_cookie();
             $this->set_guest_cart_cookie();
         }
-    }
-
-    /**
-     * Sync guest cart with user cart after login.
-     *
-     * Assigns the guest cart (identified by cookie token) to the
-     * logged-in customer, creating a customer record if needed.
-     *
-     * @since 1.0.0
-     *
-     * @param string $user_login Username.
-     * @param \WP_User $user WP user object.
-     *
-     * @return void
-     */
-    public function sync_guest_cart(string $user_login, \WP_User $user): void
-    {
-        $current_user_id = $user->ID;
-        $guest_cart_token = $this->get_cookie_cart_token();
-
-        if (!$guest_cart_token) {
-            return;
-        }
-
-        $customer_id = null;
-        $customer = customer($current_user_id)->get_customer();
-
-        /**
-         * If existing user has no customer record
-         * First create the record with WP user id.
-         */
-        if (!$customer) {
-            $customer_service = app(CustomerService::class);
-            $dto = app(CreateCustomerDTO::class);
-            $dto->user_id = $current_user_id;
-            $dto->first_name = $user->first_name;
-            $dto->last_name = $user->last_name;
-            $dto->email = $user->user_email;
-            $dto->created_by = $current_user_id;
-            $dto->updated_by = $current_user_id;
-
-            $customer = $customer_service->create($dto);
-            $customer_id = $customer->id;
-        } else {
-            $customer_id = $customer->id;
-        }
-
-        $this->repository->update_by_token($guest_cart_token, ['customer_id' => $customer_id]);
-        $this->clear_guest_cart_cookie();
     }
 }

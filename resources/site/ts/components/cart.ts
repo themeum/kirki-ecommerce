@@ -12,14 +12,21 @@ export function cart() {
     error: null as string | null,
     cartData: window.kirki_ecommerce.cart,
 
-    init() {
+    format_cart_items() {
       if (this.cartData.items.length > 0) {
-        const cart_items = {} as Record<string, string>;
+        const cart_items = {} as Record<string, any>;
         this.cartData.items.forEach((item: any) => {
-          cart_items[item.id] = item.display_total_money_object.display;
+          cart_items[item.id] = {
+            total: item.display_total_money_object.display,
+            product_total: item.display_product_total_money_object.display,
+          };
         });
         this.cartData.formatted_items = cart_items;
       }
+    },
+
+    init() {
+      this.format_cart_items();
     },
 
     async update(id: number, qty?: number) {
@@ -29,13 +36,7 @@ export function cart() {
       try {
         const result = await cartApi.updateItem(itemId, quantity);
         this.cartData = Object.assign(this.cartData, result.data);
-        if (this.cartData.items.length > 0) {
-          const cart_items = {} as Record<string, string>;
-          this.cartData.items.forEach((item: any) => {
-            cart_items[item.id] = item.display_total_money_object.display;
-          });
-          this.cartData.formatted_items = cart_items;
-        }
+        this.format_cart_items();
       } catch (e: unknown) {
         this.error = e instanceof Error ? e.message : null;
         toastManager.error(this.error ?? __("Something went wrong", "kirki-ecommerce"));

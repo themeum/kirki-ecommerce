@@ -12,6 +12,8 @@ class CalculationResultDTO extends DTO
     /** @var int */
     public $base_subtotal = 0;
     /** @var int */
+    public $base_product_total = 0;
+    /** @var int */
     public $base_discount_total = 0;
     /** @var array|null */
     public $discount_details;

@@ -12,6 +12,7 @@ use Kirki\Ecommerce\Framework\Exceptions\ValidationException;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\Framework\Supports\Facades\Option;
 use Exception;
+use Kirki\Ecommerce\App\Supports\Url;
 use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
 
 use function Kirki\Ecommerce\Framework\app;
@@ -490,14 +491,13 @@ class PaymentProvider
     /**
      * Get the return URL for the payment provider.
      *
-     * @param Order|null $order Order.
+     * @param Order $order Order.
      * @return string
      */
-    protected function return_url($order = null)
+    protected function return_url($order)
     {
-        // @TODO: Implement return_url() method.
-        if (!$order) {
-            return site_url();
+        if ($order) {
+            return Url::get_checkout_success_url($order->uuid);
         }
 
         return home_url();
