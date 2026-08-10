@@ -84,6 +84,8 @@ class CategoryService
             }
         }
 
+        $data->is_active = $data->is_active ?? 1;
+        $data->is_deletable = $data->is_deletable ?? 1;
         $attributes = $data->to_array();
         $attributes['created_by'] = user()->get_id();
         $attributes['updated_by'] = user()->get_id();

@@ -1,27 +1,28 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 
 import SelectField from '@/components/form/select-field';
-import TextareaField from '@/components/form/textarea-field';
 import TextField from '@/components/form/text-field';
+import TextareaField from '@/components/form/textarea-field';
 import ThumbnailField from '@/components/form/thumbnail-field';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogBody, DialogClose, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Form } from '@/components/ui/form';
-import { applyServerErrors } from '@/libs/form-errors';
-import type { ErrorResponse } from '@/libs/api';
-import { pickFormValues } from '@/libs/zod';
 import Flex from '@/components/ui/flex';
+import { Form } from '@/components/ui/form';
+import type { ErrorResponse } from '@/libs/api';
+import { applyServerErrors } from '@/libs/form-errors';
+import { pickFormValues } from '@/libs/zod';
 import {
   CategoryFormSchema,
   type CategoryFormInput,
   type CategoryFormPayload,
 } from '@/schemas/forms/category-form';
 import { useCategoriesQuery, useCreateCategoryMutation, useUpdateCategoryMutation } from '@/services/category';
-import type { Category } from '@/types';
+import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
+import type { Category } from '@/types';
 import { __ } from '@/wpi18n';
 
 type CategoryAddEditPopoverProps = {
@@ -39,7 +40,7 @@ const getInitialImageUrl = (category: Category | CategoryFormInput) => {
 
 const CategoryAddEditPopover = ({
   category,
-  onClose = () => {},
+  onClose = () => { },
 }: CategoryAddEditPopoverProps) => {
   const { data: categoriesData } = useCategoriesQuery({ limit: -1 });
   const categories = categoriesData?.results ?? [];
@@ -105,7 +106,7 @@ const CategoryAddEditPopover = ({
           <form onSubmit={form.handleSubmit(handleSubmit)}>
             <DialogBody>
               <Card cssOverride={cardStyles.lightCard}>
-                <CardContent>
+                <CardContent cssOverride={{ paddingTop: theme.spacing[4], paddingBottom: theme.spacing[4] }}>
                   <Flex direction="column" gap={4}>
                     <TextField
                       name="name"

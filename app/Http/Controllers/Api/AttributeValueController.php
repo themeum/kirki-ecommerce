@@ -28,9 +28,9 @@ class AttributeValueController
     public function get(Request $request)
     {
         $params = ListFilterDTO::from_array($request->all());
-        $params->sort_by = $request->get_whitelisted('sort_by', 'id', ['id', 'attribute_id', 'value', 'color', 'created_at', 'updated_at']);
+        $params->sort_by = $request->whitelisted('sort_by', 'id', ['id', 'attribute_id', 'value', 'color', 'created_at', 'updated_at']);
 
-        $data = $this->service->all($request->get_int('attribute_id'), $params);
+        $data = $this->service->all($request->int('attribute_id'), $params);
 
         return response()->json([
             'data' => AttributeValueResource::collection($data),
@@ -52,7 +52,7 @@ class AttributeValueController
 
     public function show(Request $request)
     {
-        $attribute_value = $this->service->find($request->get_int('id'));
+        $attribute_value = $this->service->find($request->int('id'));
 
         return response()->json([
             'data' => AttributeValueResource::make($attribute_value),
@@ -74,7 +74,7 @@ class AttributeValueController
 
     public function delete(Request $request)
     {
-        $result = $this->service->delete($request->get_int('id'));
+        $result = $this->service->delete($request->int('id'));
 
         return response()->json([
             'data' => $result,

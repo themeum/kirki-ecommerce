@@ -13,6 +13,7 @@ use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\Framework\Supports\Facades\Option;
 use Exception;
 use Kirki\Ecommerce\App\Supports\Url;
+use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
 
 use function Kirki\Ecommerce\Framework\app;
 use function Kirki\Ecommerce\Framework\url;
@@ -168,10 +169,14 @@ class PaymentProvider
     {
         $provider = new static();
 
+        $icon = !empty($data['icon']) && is_int($data['icon']) ? $data['icon'] : null;
+        $attachment = MediaAttachment::make($icon);
+        $icon_url = $attachment['url'] ?? null;
+
         $provider->id = $data['id'] ?? '';
         $provider->title = $data['name'] ?? '';
         $provider->description = $data['instructions'] ?? '';
-        $provider->icon = $data['icon'] ?? '';
+        $provider->icon = $icon_url;
         $provider->is_enabled = $data['is_enabled'] ?? false;
         $provider->is_offline = true;
         $provider->settings_key = $data['settings_key'] ?? $data['id'];
@@ -487,14 +492,13 @@ class PaymentProvider
     /**
      * Get the return URL for the payment provider.
      *
-     * @param Order|null $order Order.
+     * @param Order $order Order.
      * @return string
      */
-    protected function return_url($order = null)
+    protected function return_url($order)
     {
-        // @TODO: Implement return_url() method.
-        if (!$order) {
-            return site_url();
+        if ($order) {
+            return Url::get_checkout_success_url($order->uuid);
         }
 
         return home_url();
@@ -504,11 +508,11 @@ class PaymentProvider
     {
         $parts = [];
 
-        if ($order_item->base_price > 0) {
+        if ($order_item->invoiced_price > 0) {
             $parts[] = sprintf(
                 /* translators: %s: price */
                 __('Price: %s', 'kirki-ecommerce'),
-                Money::format(Money::from_minor($order_item->base_price, $currency))
+                Money::format(Money::from_minor($order_item->invoiced_price, $currency))
             );
         }
 
@@ -556,39 +560,5 @@ class PaymentProvider
     public static function format_amount($amount, $currency)
     {
         return number_format(Money::from_minor($amount, $currency)->getAmount()->toFloat(), 2, '.', '');
-    }
-
-    /**
-     * Build the redirect URL for a successful payment.
-     *
-     * @param Order $order The order being paid for.
-     *
-     * @return string The checkout URL with success query parameters.
-     */
-    protected function success_url(Order $order)
-    {
-        $query_params = [
-            'uuid' => $order->get_attribute_value('uuid'),
-            'order' => 'success'
-        ];
-
-        return url(Url::get_checkout_url(), $query_params);
-    }
-
-    /**
-     * Build the redirect URL for a cancelled or failed payment.
-     *
-     * @param Order $order The order the payment was attempted for.
-     *
-     * @return string The home URL with failure query parameters.
-     */
-    protected function cancel_url(Order $order)
-    {
-        $query_params = [
-            'uuid' => $order->get_attribute_value('uuid'),
-            'order' => 'failed'
-        ];
-
-        return url(Url::get_checkout_url(), $query_params);
     }
 }

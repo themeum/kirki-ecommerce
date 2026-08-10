@@ -39,8 +39,8 @@ temp/
 libraries/
 
 # Vite build output (resources/app npm run build)
-assets/css/*
-assets/js/*
+assets/css
+assets/js
 
 # Backup files
 *.bak

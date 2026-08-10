@@ -14,6 +14,9 @@ class OrderListResource extends Resource
             'uuid' => $this->uuid,
             'order_number' => $this->order_number,
             'customer_id' => $this->customer_id,
+            'customer_name' => $this->resolve_customer_name(),
+            'customer_email' => $this->customer_email,
+            'is_manual' => $this->is_manual,
             'quantity' => $this->items_count,
             'invoiced_total' => Money::prepare_amount_from_minor($this->invoiced_total, $this->currency_code),
             'invoiced_total_money_object' => Money::prepare_amount_object_from_minor($this->invoiced_total, $this->currency_code),
@@ -31,5 +34,17 @@ class OrderListResource extends Resource
             'shipping_method_name' => $this->shipping_metadata['shipping_method']['name'] ?? null,
             'created_at' => $this->created_at,
         ];
+    }
+
+    /**
+     * Build the customer name from the shipping name pair.
+     *
+     * @return string|null
+     */
+    protected function resolve_customer_name()
+    {
+        $name = trim($this->shipping_first_name . ' ' . $this->shipping_last_name);
+
+        return '' === $name ? null : $name;
     }
 }

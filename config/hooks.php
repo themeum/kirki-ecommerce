@@ -22,8 +22,7 @@ return [
         RegisterRestApi::class,
         AddWpHeadMeta::class,
         SMTPConfig::class,
-        GuestCart::class,
-        SyncGuestCart::class,
+        // GuestCart::class,
     ],
     'filters' => [
         ReplaceSiteTitle::class,

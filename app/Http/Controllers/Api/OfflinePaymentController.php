@@ -47,7 +47,7 @@ class OfflinePaymentController
 
     public function show(Request $request)
     {
-        $offline_payment = $this->service->find_or_fail($request->get_string('id'));
+        $offline_payment = $this->service->find_or_fail($request->string('id'));
 
         return response()->json([
             'data' => OfflinePaymentResource::make($offline_payment),
@@ -69,7 +69,7 @@ class OfflinePaymentController
 
     public function delete(Request $request)
     {
-        $result = $this->service->delete($request->get_string('id'));
+        $result = $this->service->delete($request->string('id'));
 
         return response()->json([
             'data' => $result,

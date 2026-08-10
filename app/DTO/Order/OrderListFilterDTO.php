@@ -17,4 +17,10 @@ class OrderListFilterDTO extends ListFilterDTO
 
     /** @var string|null */
     public $status;
+
+    /** @var string|null */
+    public $fulfillment_status;
+
+    /** @var string|null */
+    public $payment_status;
 }

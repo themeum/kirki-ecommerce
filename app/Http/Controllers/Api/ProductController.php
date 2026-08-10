@@ -40,7 +40,7 @@ class ProductController
     public function get(ProductListRequest $request)
     {
         $params = ProductListFilterDTO::from_array($request->all());
-        $params->sort_by = $request->get_whitelisted('sort_by', 'id', ['id', 'title', 'status', 'created_by', 'updated_by', 'created_at', 'updated_at']);
+        $params->sort_by = $request->whitelisted('sort_by', 'id', ['id', 'title', 'status', 'created_by', 'updated_by', 'created_at', 'updated_at']);
 
         if ((int) $params->limit === Pagination::ALL) {
             $data = $this->service->all($params);
@@ -62,7 +62,7 @@ class ProductController
     public function get_products_with_variants(ProductListRequest $request)
     {
         $params = ProductListFilterDTO::from_array($request->all());
-        $params->sort_by = $request->get_whitelisted('sort_by', 'id', ['id', 'title', 'status', 'created_by', 'updated_by', 'created_at', 'updated_at']);
+        $params->sort_by = $request->whitelisted('sort_by', 'id', ['id', 'title', 'status', 'created_by', 'updated_by', 'created_at', 'updated_at']);
 
         $data = $this->service->paginate_with_variants($params);
 
@@ -90,7 +90,7 @@ class ProductController
 
     public function show(Request $request)
     {
-        $product = $this->service->find($request->get_int('id'));
+        $product = $this->service->find($request->int('id'));
 
         return response()->json([
             'data' => ProductResource::make($product),
@@ -116,7 +116,7 @@ class ProductController
 
     public function delete(Request $request)
     {
-        $result = $this->service->delete($request->get_int('id'));
+        $result = $this->service->delete($request->int('id'));
 
         return response()->json([
             'data' => $result,
