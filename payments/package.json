@@ -1,0 +1,11 @@
+{
+  "name": "kirki-payment-plugins",
+  "private": true,
+  "scripts": {
+    "payment-plugins": "gulp"
+  },
+  "devDependencies": {
+    "del": "^6.1.1",
+    "gulp": "^4.0.2"
+  }
+}

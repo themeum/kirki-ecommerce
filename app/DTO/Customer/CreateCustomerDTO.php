@@ -38,4 +38,10 @@ class CreateCustomerDTO extends DTO
 
     /** @var string|null */
     public $language = 'en';
+
+    /** @var int|null */
+    public $created_by = null;
+
+    /** @var int|null */
+    public $updated_by = null;
 }

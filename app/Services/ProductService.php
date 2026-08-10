@@ -236,4 +236,37 @@ class ProductService
 
         return $ordered_data;
     }
+
+    /**
+     * Get shop page data.
+     *
+     * @since 1.0.0
+     *
+     * @param array $filters filters.
+     *
+     * @return array{
+     *      products: Paginator,
+     *      filters: array
+     * }
+     */
+    public function shop_page_data(array $filters = [])
+    {
+        $filters_dto = ProductListFilterDTO::from_array($filters);
+
+        /**
+         * @TODO: Currently fixed at 12 for the 4×3 layout.
+         * This will be made dynamic based on the layout selected by the user.
+         */
+        $filters_dto->limit = 12;
+        $filters_dto->status = 'published';
+        $filters_dto->page = intval($filters['current_page'] ?? 1);
+        $filters_dto->sort_order = null;
+
+        $products = $this->paginated($filters_dto);
+
+        return [
+            'products' => $products,
+            'filters'  => $filters,
+        ];
+    }
 }

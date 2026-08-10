@@ -16,6 +16,7 @@ use Kirki\Ecommerce\Framework\Supports\Facades\Http;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\Framework\Validation\Validator;
 use Exception;
+use Kirki\Ecommerce\App\Supports\Url;
 
 use function Kirki\Ecommerce\Framework\app;
 
@@ -54,12 +55,16 @@ class PayPal extends PaymentProvider
                 'label' => __('Client ID', 'kirki-ecommerce'),
                 'type' => 'text',
                 'required' => true,
+                'default' => '',
+                'placeholder' => __('Enter your client ID', 'kirki-ecommerce'),
             ],
             [
                 'name' => 'client_secret',
                 'label' => __('Client Secret', 'kirki-ecommerce'),
                 'type' => 'password',
                 'required' => true,
+                'default' => '',
+                'placeholder' => __('Enter your client secret', 'kirki-ecommerce'),
             ],
             [
                 'name' => 'webhook_id',
@@ -67,11 +72,15 @@ class PayPal extends PaymentProvider
                 'type' => 'text',
                 'description' => __('Create a webhook in PayPal Developer Dashboard for events: CHECKOUT.ORDER.APPROVED, PAYMENT.CAPTURE.COMPLETED, PAYMENT.CAPTURE.REFUNDED', 'kirki-ecommerce'),
                 'required' => true,
+                'default' => '',
+                'placeholder' => __('Enter your webhook ID', 'kirki-ecommerce'),
             ],
             [
                 'name' => 'sandbox',
                 'label' => __('Sandbox Mode', 'kirki-ecommerce'),
                 'type' => 'checkbox',
+                'default' => true,
+                'description' => __('Enable sandbox mode to test the payment gateway.', 'kirki-ecommerce'),
             ],
         ]);
     }
@@ -145,7 +154,7 @@ class PayPal extends PaymentProvider
                     'quantity' => 1,
                     'unit_amount' => [
                         'currency_code' => $currency,
-                        'value' => $this->format_amount($item->invoiced_total),
+                        'value' => $this->format_amount($item->invoiced_total, $currency),
                     ],
                 ];
             }
@@ -154,15 +163,15 @@ class PayPal extends PaymentProvider
                 [
                     'amount' => [
                         'currency_code' => $currency,
-                        'value' => $this->format_amount($order->invoiced_total),
+                        'value' => $this->format_amount($order->invoiced_total, $currency),
                         'breakdown' => [
                             'item_total' => [
                                 'currency_code' => $currency,
-                                'value' => $this->format_amount($order->invoiced_total - $order->invoiced_shipping_total),
+                                'value' => $this->format_amount($order->invoiced_total - $order->invoiced_shipping_total, $currency),
                             ],
                             'shipping' => [
                                 'currency_code' => $currency,
-                                'value' => $this->format_amount($order->invoiced_shipping_total),
+                                'value' => $this->format_amount($order->invoiced_shipping_total, $currency),
                             ],
                         ],
                     ],
@@ -173,16 +182,14 @@ class PayPal extends PaymentProvider
                 ]
             ];
 
-            $return_url = $this->return_url($order);
-
             $response = Http::with_token($token)
                 ->as_json()
                 ->post($this->get_base_url() . '/v2/checkout/orders', [
                     'intent' => 'CAPTURE',
                     'purchase_units' => $purchase_units,
                     'application_context' => [
-                        'return_url' => $return_url . '&action=success',
-                        'cancel_url' => $return_url . '&action=cancel',
+                        'return_url' => Url::get_checkout_success_url($order->uuid),
+                        'cancel_url' => Url::get_checkout_failed_url($order->uuid),
                         'brand_name' => get_bloginfo('name'),
                         'user_action' => 'PAY_NOW',
                     ],
@@ -235,7 +242,7 @@ class PayPal extends PaymentProvider
                 ->as_json()
                 ->post($this->get_base_url() . "/v2/payments/captures/{$transaction_id}/refund", [
                     'amount' => [
-                        'value' => $this->format_amount($refund->invoiced_amount),
+                        'value' => $this->format_amount($refund->invoiced_amount, $currency),
                         'currency_code' => $currency,
                     ],
                     'note_to_payer' => $refund->reason,
@@ -344,6 +351,7 @@ class PayPal extends PaymentProvider
 
         if ($order->payment_status !== PaymentStatus::PAID) {
             OrderManager::mark_payment_as_paid($order->id);
+            OrderManager::set_payment_metadata($order->id, wp_json_encode($resource));
         }
 
         $this->capture_payment_provider_fee($order, $resource);
@@ -444,16 +452,5 @@ class PayPal extends PaymentProvider
         ])->get_sanitized_data();
 
         return array_merge($parent_settings, $data);
-    }
-
-    /**
-     * Format amount.
-     *
-     * @param int $amount
-     * @return string
-     */
-    protected function format_amount($amount)
-    {
-        return number_format(Money::from_minor($amount)->getAmount()->toFloat(), 2, '.', '');
     }
 }

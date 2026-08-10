@@ -75,13 +75,13 @@ function prepare(config: InternalAxiosRequestConfig) {
     config.headers = {} as AxiosRequestHeaders;
   }
 
-  const { nonce } = window.kirki_ecommerce;
+  const { rest_nonce } = window.kirki_ecommerce;
 
   config.headers.Accept = 'application/json';
   config.headers['Content-Type'] = 'application/json';
 
-  if (nonce) {
-    config.headers['X-WP-Nonce'] = nonce;
+  if (rest_nonce) {
+    config.headers['X-WP-Nonce'] = rest_nonce;
   }
 
   if (config.data && import.meta.env.DEV) {

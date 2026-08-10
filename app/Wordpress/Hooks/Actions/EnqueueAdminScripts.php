@@ -7,6 +7,8 @@ use Kirki\Ecommerce\Framework\Wordpress\Constants\HookNames;
 use Kirki\Ecommerce\Framework\Wordpress\Constants\HookTypes;
 use Kirki\Ecommerce\Framework\Wordpress\BaseHook;
 
+use function Kirki\Ecommerce\Framework\app;
+
 /**
  * This hook is responsible for enqueueing the admin script.
  *
@@ -36,7 +38,7 @@ class EnqueueAdminScripts extends BaseHook
         wp_enqueue_editor();
         wp_enqueue_media();
 
-        if (defined('KIRKI_ECOMMERCE_IS_DEV') && KIRKI_ECOMMERCE_IS_DEV) {
+        if (app()->is_dev_mode()) {
             $this->enqueue_vite_dev_scripts();
             return;
         }
@@ -46,13 +48,13 @@ class EnqueueAdminScripts extends BaseHook
 
     protected function enqueue_vite_dev_scripts()
     {
-        $vite_refresh_handle = KIRKI_ECOMMERCE_PREFIX . 'vite-refresh';
+        $vite_refresh_handle = app()->prefix() . 'vite-refresh';
 
         wp_enqueue_script(
             $vite_refresh_handle,
             esc_url($this->get_vite_refresh_script_url()),
             [],
-            KIRKI_ECOMMERCE_VERSION,
+            app()->version(),
             true
         );
 
@@ -65,7 +67,7 @@ class EnqueueAdminScripts extends BaseHook
         );
 
         wp_enqueue_script(
-            KIRKI_ECOMMERCE_PREFIX . 'vite-client',
+            app()->prefix() . 'vite-client',
             static::VITE_DEV_SERVER . '/@vite/client',
             [$vite_refresh_handle],
             null,
@@ -73,14 +75,14 @@ class EnqueueAdminScripts extends BaseHook
         );
 
         wp_enqueue_script(
-            KIRKI_ECOMMERCE_PREFIX . 'app',
+            app()->prefix() . 'app',
             static::VITE_DEV_SERVER . '/main.tsx',
-            [KIRKI_ECOMMERCE_PREFIX . 'vite-client'],
+            [app()->prefix() . 'vite-client'],
             null,
             true
         );
 
-        add_filter('script_loader_tag', [$this, 'add_module_type_to_scripts'], 10, 3);
+        add_filter('wp_script_attributes', [$this, 'add_module_type_to_scripts']);
     }
 
     protected function get_vite_refresh_script_url()
@@ -93,50 +95,89 @@ class EnqueueAdminScripts extends BaseHook
 
     protected function enqueue_production_scripts()
     {
-        wp_enqueue_style(
-            KIRKI_ECOMMERCE_PREFIX . 'bundle',
-            KIRKI_ECOMMERCE_ASSETS_URL . '/css/kirki-ecommerce.bundle.css',
-            [],
-            KIRKI_ECOMMERCE_VERSION
-        );
+        $manifest = Assets::get_manifest();
+        $entry = $manifest['main.tsx'] ?? null;
+
+        if (!$entry) {
+            return;
+        }
+
+        $vendor_handle = app()->prefix() . 'vendor';
+        $dependencies = [];
+
+        foreach ($entry['imports'] ?? [] as $import_key) {
+            $chunk = $manifest[$import_key] ?? null;
+
+            if (!$chunk) {
+                continue;
+            }
+
+            /*
+             * No version query string: the manifest already content-hashes
+             * this file's name, and the built chunks reference each other
+             * through relative ES module imports that never carry a query
+             * string. Appending one here would make the `<script src>` URL
+             * diverge from those internal import URLs, so the browser would
+             * treat them as two different modules and execute the chunk's
+             * top-level code twice — for the vendor chunk that means a
+             * second React root on the same container and DOM
+             * reconciliation errors on navigation.
+             */
+            wp_enqueue_script(
+                $vendor_handle,
+                KIRKI_ECOMMERCE_ASSETS_URL . '/' . $chunk['file'],
+                [],
+                null,
+                true
+            );
+
+            $dependencies[] = $vendor_handle;
+        }
 
         wp_enqueue_script(
-            KIRKI_ECOMMERCE_PREFIX . 'vendor',
-            KIRKI_ECOMMERCE_ASSETS_URL . '/js/kirki-ecommerce.vendor.js',
-            [],
-            KIRKI_ECOMMERCE_VERSION,
+            app()->prefix() . 'bundle',
+            KIRKI_ECOMMERCE_ASSETS_URL . '/' . $entry['file'],
+            $dependencies,
+            null,
             true
         );
 
-        wp_enqueue_script(
-            KIRKI_ECOMMERCE_PREFIX . 'bundle',
-            KIRKI_ECOMMERCE_ASSETS_URL . '/js/kirki-ecommerce.bundle.js',
-            [KIRKI_ECOMMERCE_PREFIX . 'vendor'],
-            KIRKI_ECOMMERCE_VERSION,
-            true
-        );
-
-        add_filter('script_loader_tag', [$this, 'add_module_type_to_scripts'], 10, 3);
+        add_filter('wp_script_attributes', [$this, 'add_module_type_to_scripts']);
     }
 
-    public function add_module_type_to_scripts($tag, $handle, $src)
+    /**
+     * Mark the app's own scripts as ES modules.
+     *
+     * Filters `wp_script_attributes` rather than `script_loader_tag` because the
+     * latter receives the handle's inline before/after scripts concatenated with
+     * the `<script src>` tag, so any tag rewriting there also hits the inline
+     * config and localization snippets.
+     *
+     * @param array $attributes
+     *
+     * @return array
+     */
+    public function add_module_type_to_scripts($attributes)
     {
         $handles = [
-            KIRKI_ECOMMERCE_PREFIX . 'vite-refresh',
-            KIRKI_ECOMMERCE_PREFIX . 'vite-client',
-            KIRKI_ECOMMERCE_PREFIX . 'app',
-            KIRKI_ECOMMERCE_PREFIX . 'vendor',
-            KIRKI_ECOMMERCE_PREFIX . 'bundle',
+            app()->prefix() . 'vite-refresh',
+            app()->prefix() . 'vite-client',
+            app()->prefix() . 'app',
+            app()->prefix() . 'vendor',
+            app()->prefix() . 'bundle',
         ];
 
-        if (!in_array($handle, $handles, true)) {
-            return $tag;
+        if (!isset($attributes['id'])) {
+            return $attributes;
         }
 
-        if (strpos($tag, 'type=') !== false) {
-            return $tag;
+        foreach ($handles as $handle) {
+            if ($attributes['id'] === $handle . '-js') {
+                $attributes['type'] = 'module';
+                break;
+            }
         }
 
-        return str_replace('<script ', '<script type="module" ', $tag);
+        return $attributes;
     }
 }

@@ -80,6 +80,7 @@ class CalculationContextDTO extends DTO
             $item_dto->shipping_profile_id = $variant->shipping_profile_id;
             $item_dto->tax_profile_id = $variant->tax_profile_id ?: $item->product->tax_profile_id;
             $item_dto->product_categories = $item->product->load('categories')->categories->pluck('id')->to_array();
+            $item_dto->base_product_total = $variant->base_price;
 
             return $item_dto;
         }) ?? collection();

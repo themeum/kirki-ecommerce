@@ -1,0 +1,90 @@
+// Page - Products
+// Styles for products listing/shop page
+
+@use "../tokens" as *;
+@use "../mixins" as *;
+
+.kecom-products-page {
+  padding-block: $spacing-10;
+  margin: 0px;
+
+  .kecom-products-page-header {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-8;
+    margin-bottom: $spacing-10;
+    margin-top: $spacing-12;
+
+    @include breakpoint-down(lg) {
+      margin-top: $spacing-10;
+    }
+  }
+
+  .kecom-products-page-title {
+    @include typography(4xl, extrabold);
+    margin: 0px;
+    padding: 0px;
+  }
+
+  .kecom-products-page-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    @include breakpoint-down(lg) {
+      flex-direction: column;
+      align-items: start;
+      gap: $spacing-8;
+    }
+  }
+
+  .kecom-products-page-meta-description {
+    @include typography(md);
+    margin: 0px;
+  }
+
+  .kecom-products-page-meta-sortby {
+    @include typography();
+    padding: $spacing-4 $spacing-6;
+    border: 1px solid $border-default;
+    border-radius: $radius-lg;
+
+    label {
+      color: $text-subdued;
+    }
+
+    select {
+      @include typography();
+      border: none;
+      outline: none;
+      background-color: transparent;
+    }
+  }
+
+  .kecom-products-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    row-gap: $spacing-14;
+    column-gap: $spacing-10;
+    margin-bottom: $spacing-14;
+
+    @include breakpoint-down(lg) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    @include breakpoint-down(md) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @include breakpoint-down(sm) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .kecom-pagination {
+    @include flex-center();
+    padding-top: $spacing-14;
+    padding-bottom: $spacing-8;
+    border-top: 1px solid $border-default;
+  }
+}

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -23,6 +23,8 @@ const ColorVariation = () => {
   const { id } = useParams();
   const { data: selectedItem } = useAttributeQuery(Number(id), Boolean(id));
 
+  const navigate = useNavigate();
+
   const [colorList, setColorList] = useState<AttributeValue[]>([]);
   const [addVariantPopup, setAddVariantPopup] = useState(false);
   const selectedAttribute = selectedItem as AttributeWithMeta | undefined;
@@ -44,6 +46,7 @@ const ColorVariation = () => {
           <SettingsPageHeader
             icon={<ColorPaletteIcon />}
             title={__('Color', 'kirki-ecommerce')}
+            onBack={() => navigate('/settings/essentials')}
             rightAction={
               <div>
                 <Button

@@ -8,9 +8,12 @@ use Kirki\Ecommerce\App\DTO\Cart\EmptyCartDTO;
 use Kirki\Ecommerce\App\DTO\Cart\RemoveCartItemDTO;
 use Kirki\Ecommerce\App\DTO\Cart\UpdateCartDTO;
 use Exception;
+use Kirki\Ecommerce\App\Constants\Cart;
 
 use function Kirki\Ecommerce\App\base_currency;
 use function Kirki\Ecommerce\App\customer;
+use function Kirki\Ecommerce\Framework\app;
+use function Kirki\Ecommerce\Framework\user;
 use function Kirki\Ecommerce\Framework\uuid;
 
 class CartService
@@ -98,10 +101,10 @@ class CartService
     {
         $cart = $this->get_cart($dto->customer_id, $dto->token);
 
-        if(empty($cart)) {
+        if (empty($cart)) {
             $cart = $this->create_new_cart($dto->customer_id);
         }
-        
+
         $cart_id = $cart->id;
 
         $existing_item = $this->find_item_in_cart($cart_id, $dto->variant_id);
@@ -150,7 +153,7 @@ class CartService
     {
         $cart = $this->get_cart($dto->customer_id, $dto->token);
 
-        if(empty($cart)) {
+        if (empty($cart)) {
             $cart = $this->create_new_cart($dto->customer_id);
         }
 
@@ -171,7 +174,7 @@ class CartService
     {
         $cart = $this->get_cart($dto->customer_id, $dto->token);
 
-        if(empty($cart)) {
+        if (empty($cart)) {
             $cart = $this->create_new_cart($dto->customer_id);
         }
 
@@ -183,5 +186,75 @@ class CartService
     public function find($cart_id)
     {
         return $this->repository->find($cart_id);
+    }
+
+    /**
+     * Get cookie cart token.
+     *
+     * @since 1.0.0
+     *
+     * @return string|null
+     */
+    public function get_cookie_cart_token(): ?string
+    {
+        return sanitize_text_field($_COOKIE[Cart::COOKIE_TOKEN] ?? null);
+    }
+
+    /**
+     * Get current cart.
+     *
+     * Resolves the cart for the current session: by customer ID
+     * for logged-in users, or by guest cart token from cookie.
+     *
+     * @since 1.0.0
+     *
+     * @return \Kirki\Ecommerce\App\Models\Cart
+     */
+    public function get_current_cart()
+    {
+        $customer_id = null;
+        $cart_token = null;
+
+        if (is_user_logged_in()) {
+            $customer_id = customer()->get_customer_id();
+            if (!$customer_id) {
+                $cart_token = $this->get_cookie_cart_token();
+            }
+        } else {
+            $cart_token = $this->get_cookie_cart_token();
+        }
+
+        return $this->get_cart($customer_id, $cart_token);
+    }
+
+    /**
+     * Get all variant IDs in the cart.
+     *
+     * @since 1.0.0
+     *
+     * @param int|null $customer_id
+     * @param string|null $token
+     *
+     * @return array
+     */
+    public function get_cart_variant_ids($customer_id = null, $token = null): array
+    {
+        try {
+            if ($customer_id == null && $token === null) {
+                $cart = $this->get_current_cart();
+            } else {
+                $cart = $this->get_cart($customer_id, $token);
+            }
+
+
+            if ($cart && $cart->items) {
+                $items = is_array($cart->items) ? $cart->items : $cart->items->all();
+                return array_map(fn($item) => $item->variant_id, $items);
+            }
+        } catch (Exception $e) {
+            return [];
+        }
+
+        return [];
     }
 }

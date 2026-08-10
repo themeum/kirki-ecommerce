@@ -23,6 +23,7 @@ import { __ } from '@/wpi18n';
 
 import { cardStyles } from '@/theme/card-styles';
 
+import Badge from '@/components/ui/badge';
 import CheckoutConf from '@/pages/settings/checkout-settings/checkout-conf';
 import LegalInfo from '@/pages/settings/checkout-settings/legal-info';
 import { useSettingsPageActions } from '@/pages/settings/settings-layout/use-settings-page-actions';
@@ -89,14 +90,15 @@ const CheckoutSettings = () => {
 
                 <Flex align="center">
                   <Flex direction="column" gap={2}>
-                    <Text weight="medium">{__('Allow Guest Checkout', 'kirki-ecommerce')}</Text>
+                    <Text weight="medium">{__('Allow Guest Checkout', 'kirki-ecommerce')} <Badge>Work in progress</Badge></Text>
                     <Text variant="small" color="secondary">{__(
                       'Let customers buy without logging in or creating an account.',
                       'kirki-ecommerce',
                     )}</Text>
                   </Flex>
                   <ActionGroup>
-                    <SwitchField name="is_allowed_guest_checkout" />
+                    {/* @TODO: disabled need to be removed in the future */}
+                    <SwitchField name="is_allowed_guest_checkout" disabled />
                   </ActionGroup>
                 </Flex>
               </CardContent>
