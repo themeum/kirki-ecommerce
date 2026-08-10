@@ -1,66 +1,54 @@
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import Button from '@/components/ui/button';
-import { ArrowDownUp, ListFilter } from '@/icons';
+import { memo } from 'react';
+
 import ActionGroup from '@/components/ui/action-group';
+import Button from '@/components/ui/button';
 import Flex from '@/components/ui/flex';
 import Searchbox from '@/components/ui/searchbox';
+import { useListParams } from '@/hooks';
+import { ArrowDownUp } from '@/icons';
+import FilterPopup from '@/pages/orders/order-table/filter-popup/filter-popup';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
-import type { SelectOption } from '@/types';
+import { OrderListFilter, orderListOptions } from '@/types/filters/order';
+import { __ } from '@/wpi18n';
 
-const OrderTableAction = () => {
-  const selectOptions: SelectOption[] = [
-    { value: 'all', title: 'All Orders' },
-    { value: 'new', title: 'New Orders' },
-    { value: 'top', title: 'Top Orders' },
-  ];
+const OrderTableAction = memo(() => {
+  const { params, setParam } = useListParams<OrderListFilter>(orderListOptions);
+
+  const handleSearchChange = (value: string) => {
+    setParam('search', value);
+  };
+
+  const handleSortChange = () => {
+    setParam('sort_order', params.sort_order === 'asc' ? 'desc' : 'asc');
+  };
 
   return (
     <Flex cssOverride={styles.wrapper}>
-      <Select defaultValue="new">
-        <SelectTrigger variant="secondary">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {selectOptions.map((option) => (
-            <SelectItem key={option.value} value={String(option.value)}>
-              {option.title}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      <div style={{ width: '160px' }}>
+        <Searchbox
+          placeholder={__('Search', 'kirki-ecommerce')}
+          value={params.search || ''}
+          delay={500}
+          onChange={(value) => handleSearchChange(value as string)}
+        />
+      </div>
       <ActionGroup>
-        <Select disabled>
-          <SelectTrigger cssOverride={styles.selectTrigger}>
-            <SelectValue placeholder="Date: This Month" />
-          </SelectTrigger>
-          <SelectContent />
-        </Select>
-        <Button variant="outline">
-          <ListFilter />
-          Filter
-        </Button>
-        <Button variant="outline" aria-label="Sort">
+        <FilterPopup />
+        <Button variant="outline" aria-label={__('Sort', 'kirki-ecommerce')} onClick={handleSortChange}>
           <ArrowDownUp />
         </Button>
-        <Searchbox
-          placeholder="Search"
-          onChange={() => {
-            // @todo: will be implemented later
-          }}
-        />
       </ActionGroup>
     </Flex>
   );
-};
+});
+
+OrderTableAction.displayName = 'OrderTableAction';
 
 export default OrderTableAction;
 
 const styles = defineStyles({
   wrapper: {
     padding: `${theme.spacing[4]} ${theme.spacing[3]}`,
-  },
-  selectTrigger: {
-    padding: `${theme.spacing[2]} ${theme.spacing[4]}`,
   },
 });
