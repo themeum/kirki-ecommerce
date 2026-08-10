@@ -78,7 +78,7 @@ define('KIRKI_ECOMMERCE_PREFIX', 'kirki_ecommerce_');
  * The kirki ecommerce plugin mode
  * @var string
  */
-define('KIRKI_ECOMMERCE_MODE', 'production');
+define('KIRKI_ECOMMERCE_MODE', 'development');
 
 
 require_once KIRKI_ECOMMERCE_PLUGIN_PATH . '/vendor/autoload.php';

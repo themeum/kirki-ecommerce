@@ -78,6 +78,7 @@ const TaxCollectionRadio = () => {
         'kirki-ecommerce',
       ),
       value: 'inclusive',
+      disabled: true,
     },
   ];
 
@@ -97,6 +98,7 @@ const TaxCollectionRadio = () => {
                 <RadioGroupItem
                   value={option.value}
                   id={`tax-collection-${option.value}`}
+                  disabled={option.disabled ?? false}
                 />
                 <FieldLabel htmlFor={`tax-collection-${option.value}`}>
                   {option.title}
@@ -198,7 +200,8 @@ const TaxSettings = () => {
                   </Flex>
                   <Flex direction="column" gap={3}>
                     <TaxCollectionRadio />
-                    <TaxCollectionOptions />
+                    {/* @TODO: will be handled in the future */}
+                    {/* <TaxCollectionOptions /> */}
                   </Flex>
                 </Flex>
               </CardContent>

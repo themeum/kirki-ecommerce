@@ -85,13 +85,14 @@ export default defineConfig({
   build: {
     outDir: path.resolve(__dirname, '../../assets'),
     emptyOutDir: false,
+    manifest: true,
     rollupOptions: {
       input: path.resolve(__dirname, 'main.tsx'),
       output: {
-        entryFileNames: 'js/kirki-ecommerce.bundle.js',
+        entryFileNames: 'js/kirki-ecommerce.bundle-[hash].js',
         chunkFileNames: (chunkInfo) => {
           if (chunkInfo.name === 'kirki-ecommerce.vendor') {
-            return 'js/kirki-ecommerce.vendor.js';
+            return 'js/kirki-ecommerce.vendor-[hash].js';
           }
 
           if (chunkInfo.isDynamicEntry) {

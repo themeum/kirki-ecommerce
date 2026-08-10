@@ -95,28 +95,49 @@ class EnqueueAdminScripts extends BaseHook
 
     protected function enqueue_production_scripts()
     {
-        /*
-         * No version query string: the built bundle/vendor files are also
-         * cross-referenced by relative ES module imports from the lazy page
-         * chunks (e.g. `from "../kirki-ecommerce.bundle.js"`), which never
-         * carry a query string. If the `<script src>` tag here added one,
-         * the browser would treat the two as different module URLs and
-         * execute the entry chunk's top-level code (createRoot().render())
-         * a second time, producing a second React root on the same
-         * container and DOM reconciliation errors on navigation.
-         */
-        wp_enqueue_script(
-            app()->prefix() . 'vendor',
-            KIRKI_ECOMMERCE_ASSETS_URL . '/js/kirki-ecommerce.vendor.js',
-            [],
-            null,
-            true
-        );
+        $manifest = Assets::get_manifest();
+        $entry = $manifest['main.tsx'] ?? null;
+
+        if (!$entry) {
+            return;
+        }
+
+        $vendor_handle = app()->prefix() . 'vendor';
+        $dependencies = [];
+
+        foreach ($entry['imports'] ?? [] as $import_key) {
+            $chunk = $manifest[$import_key] ?? null;
+
+            if (!$chunk) {
+                continue;
+            }
+
+            /*
+             * No version query string: the manifest already content-hashes
+             * this file's name, and the built chunks reference each other
+             * through relative ES module imports that never carry a query
+             * string. Appending one here would make the `<script src>` URL
+             * diverge from those internal import URLs, so the browser would
+             * treat them as two different modules and execute the chunk's
+             * top-level code twice — for the vendor chunk that means a
+             * second React root on the same container and DOM
+             * reconciliation errors on navigation.
+             */
+            wp_enqueue_script(
+                $vendor_handle,
+                KIRKI_ECOMMERCE_ASSETS_URL . '/' . $chunk['file'],
+                [],
+                null,
+                true
+            );
+
+            $dependencies[] = $vendor_handle;
+        }
 
         wp_enqueue_script(
             app()->prefix() . 'bundle',
-            KIRKI_ECOMMERCE_ASSETS_URL . '/js/kirki-ecommerce.bundle.js',
-            [app()->prefix() . 'vendor'],
+            KIRKI_ECOMMERCE_ASSETS_URL . '/' . $entry['file'],
+            $dependencies,
             null,
             true
         );
