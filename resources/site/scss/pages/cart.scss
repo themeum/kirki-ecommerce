@@ -145,6 +145,7 @@
       @include typography(sm, normal, $text-secondary);
       vertical-align: middle;
       margin: 0;
+      text-transform: inherit;
     }
 
     .kecom-cart-item-remove,
