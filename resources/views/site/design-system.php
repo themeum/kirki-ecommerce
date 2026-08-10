@@ -11,6 +11,9 @@ defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Supports\Icon;
 
+if (!current_user_can('manage_options')) {
+    wp_die(__('You are not allowed to access this page.', 'kirki-ecommerce'));
+}
 ?>
 <style>
 .kds { max-width:960px; margin:2.5rem auto; padding:0 1.5rem 4rem; font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; color:#18181b; }
