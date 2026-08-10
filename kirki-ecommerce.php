@@ -80,7 +80,6 @@ define('KIRKI_ECOMMERCE_PREFIX', 'kirki_ecommerce_');
  */
 define('KIRKI_ECOMMERCE_MODE', 'development');
 
-
 require_once KIRKI_ECOMMERCE_PLUGIN_PATH . '/vendor/autoload.php';
 
 // Set UTC as default timezone for the application

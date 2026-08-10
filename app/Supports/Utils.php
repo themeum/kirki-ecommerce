@@ -48,7 +48,7 @@ class Utils
      */
     public static function get_shop_page_id()
     {
-        return Settings::get('advance.pages.shop_page', 0);
+        return Settings::get('advance.pages.shop', 0);
     }
 
     /**
@@ -84,7 +84,7 @@ class Utils
     public static function generate_site_pages()
     {
         try {
-            $pages = self::get_site_pages();
+            $pages = static::get_site_pages();
 
             foreach ($pages as $settings_key => $page_title) {
                 $page_id = Settings::get($settings_key);
@@ -115,7 +115,7 @@ class Utils
      */
     public static function get_cart_page_id()
     {
-        return Settings::get('advance.pages.cart_page', 0);
+        return Settings::get('advance.pages.cart', 0);
     }
 
     /**
@@ -127,7 +127,7 @@ class Utils
      */
     public static function get_checkout_page_id()
     {
-        return Settings::get('advance.pages.checkout_page', 0);
+        return Settings::get('advance.pages.checkout', 0);
     }
 
     /**
@@ -146,7 +146,7 @@ class Utils
      */
     public static function get_account_page_id()
     {
-        return Settings::get('advance.pages.account_page', 0);
+        return Settings::get('advance.pages.account', 0);
     }
 
     /**
@@ -158,7 +158,7 @@ class Utils
      */
     public static function get_design_system_page_id()
     {
-        return Settings::get('advance.pages.design_system_page', 0);
+        return Settings::get('advance.pages.design_system', 0);
     }
 
     /**
