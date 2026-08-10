@@ -5,6 +5,7 @@ namespace Kirki\Ecommerce\Payments;
 use Exception;
 use InvalidArgumentException;
 use Kirki\Ecommerce\App\Models\Order;
+use Kirki\Ecommerce\App\Supports\Url;
 use Kirki\Ecommerce\Framework\Supports\Facades\Http;
 
 defined('ABSPATH') || exit;
@@ -71,17 +72,16 @@ class RazorpayClient
      *
      * @param Order $order
      * @param string $razorpay_order_id
-     * @param string $success_url
      * @return string HTML markup.
      */
-    public function render_checkout_form(Order $order, string $razorpay_order_id, string $success_url): string
+    public function render_checkout_form(Order $order, string $razorpay_order_id): string
     {
         $options = [
             'key' => $this->key_id,
             'amount' => $order->invoiced_total,
             'currency' => strtoupper($order->currency_code),
             'order_id' => $razorpay_order_id,
-            'callback_url' => $success_url,
+            'callback_url' => Url::get_checkout_success_url($order->uuid),
             'prefill' => [
                 'name' => trim($order->billing_first_name . ' ' . $order->billing_last_name),
                 'email' => $order->billing_email,

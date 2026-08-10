@@ -83,8 +83,7 @@ class Razorpay extends PaymentProvider
 
             $html = $this->client->render_checkout_form(
                 $this->order,
-                $razorpay_order_id,
-                $this->success_url($this->order)
+                $razorpay_order_id
             );
 
             return PaymentActionDTO::from_array([
@@ -253,7 +252,6 @@ class Razorpay extends PaymentProvider
                 case RazorpayConstant::STATUS_PAYMENT_CAPTURED:
                     $this->record_transaction($order_id, $entity);
                     OrderManager::mark_payment_as_paid($order_id);
-                    OrderManager::mark_as_processing($order_id);
                     OrderManager::set_payment_provider_fee($order_id, $entity->fee);
                     break;
 
