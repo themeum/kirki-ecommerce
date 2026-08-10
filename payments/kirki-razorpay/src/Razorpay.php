@@ -211,33 +211,47 @@ class Razorpay extends PaymentProvider
 
     protected function handle_transaction_response(object $payload)
     {
-        $entity = $payload->payload->payment->entity;
-        $status = $entity->status ?? PaymentStatus::UNPAID;
+        $entity   = $payload->payload->payment->entity;
+        $status   = $entity->status ?? PaymentStatus::UNPAID;
         $order_id = $entity->notes->order_id;
 
         DB::begin_transaction();
 
         try {
-            if ($status === RazorpayConstant::STATUS_PAYMENT_CAPTURED) {
-                OrderManager::set_transaction_id($order_id, $entity->id);
-                OrderManager::mark_payment_as_paid($order_id);
-                OrderManager::mark_as_processing($order_id);
-                OrderManager::set_payment_metadata($order_id, wp_json_encode($entity));
-                OrderManager::set_payment_provider_fee($order_id, $entity->fee);
-            } elseif ($status === RazorpayConstant::STATUS_PAYMENT_FAILED) {
-                OrderManager::set_transaction_id($order_id, $entity->id);
-                OrderManager::mark_payment_as_failed($order_id);
-                OrderManager::mark_as_cancel($order_id, $entity->error_reason);
-                OrderManager::set_payment_metadata($order_id, wp_json_encode($entity));
-            } else {
-                OrderManager::mark_payment_as_unpaid($order_id);
+            switch ($status) {
+                case RazorpayConstant::STATUS_PAYMENT_CAPTURED:
+                    $this->record_transaction($order_id, $entity);
+                    OrderManager::mark_payment_as_paid($order_id);
+                    OrderManager::mark_as_processing($order_id);
+                    OrderManager::set_payment_provider_fee($order_id, $entity->fee);
+                    break;
+
+                case RazorpayConstant::STATUS_PAYMENT_FAILED:
+                    $this->record_transaction($order_id, $entity);
+                    OrderManager::mark_payment_as_failed($order_id);
+                    OrderManager::mark_as_cancel($order_id, $entity->error_reason);
+                    break;
+
+                default:
+                    OrderManager::mark_payment_as_unpaid($order_id);
             }
 
             DB::commit();
         } catch (\Throwable $e) {
             DB::rollback();
 
-            throw new Exception(sprintf(__('Failed to update order data: %s', 'kirki-razorpay'), $e->getMessage()));
+            throw new Exception(
+                sprintf(__('Failed to update order data: %s', 'kirki-razorpay'), $e->getMessage())
+            );
         }
+    }
+
+    /**
+     * Store the transaction ID and raw payment payload for an order.
+     */
+    protected function record_transaction(string $order_id, object $entity): void
+    {
+        OrderManager::set_transaction_id($order_id, $entity->id);
+        OrderManager::set_payment_metadata($order_id, wp_json_encode($entity));
     }
 }
