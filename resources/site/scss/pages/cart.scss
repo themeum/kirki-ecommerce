@@ -102,6 +102,16 @@
         @include flex(row-reverse, center, space-between);
         width: 100%;
       }
+
+      &-wrapper {
+        @include flex(row, center, center);
+        gap: $spacing-3;
+      }
+
+      &-product-total {
+        @include typography(base, normal, $text-secondary);
+        text-decoration: line-through;
+      }
     }
 
     &-details-title,
@@ -109,6 +119,8 @@
       @include typography(md, semibold, $text-primary);
       margin: 0;
     }
+
+
 
     &-details-title {
       margin-bottom: $spacing-2;
@@ -129,6 +141,7 @@
     &-pricing-each {
       @include typography(sm, normal, $text-secondary);
       vertical-align: middle;
+      margin: 0;
     }
 
     .kecom-cart-item-remove,

@@ -2,9 +2,9 @@
  * Cart API — wraps /kirki/ecommerce/v1/cart/*
  */
 
-import type { Cart, CartUpdateItem, ApiResponse } from '../types';
-import { apiRequest } from './client';
 import { Cookie } from '../cookie';
+import type { ApiResponse, Cart, CartUpdateItem } from '../types';
+import { apiRequest } from './client';
 
 function getConfig() {
   if (!window.kirki_ecommerce) {
@@ -13,9 +13,10 @@ function getConfig() {
   return window.kirki_ecommerce;
 }
 
-const { cart_token_header_name, cart_token_cookie_name } = getConfig();
+const { cart_token_header_name, cart_token_cookie_name, header_skip_tax } = getConfig();
 const headers = {
   [cart_token_header_name]: Cookie.get(cart_token_cookie_name) || '',
+  [header_skip_tax]: 'true',
 }
 
 export const cartApi = {

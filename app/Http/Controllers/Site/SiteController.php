@@ -144,7 +144,6 @@ class SiteController
     {
         $cart = $cart_service->get_current_cart();
         $cart_resource = CartResource::make($cart);
-
         return view('site.cart', ['cart' => $cart_resource])->layout(false);
     }
 

@@ -176,6 +176,6 @@ class CartController
 
     protected function should_calculate_tax(Request $request): bool
     {
-        return !filter_var($request->get_header('kecom-should-skip-tax'), FILTER_VALIDATE_BOOLEAN);
+        return !filter_var($request->get_header(Cart::HEADER_SKIP_TAX), FILTER_VALIDATE_BOOLEAN);
     }
 }

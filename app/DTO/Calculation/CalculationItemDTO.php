@@ -38,4 +38,6 @@ class CalculationItemDTO extends DTO
     public $base_discount_amount = 0;
     /** @var int */
     public $base_total = 0;
+    /** @var int */
+    public $base_product_total = 0;
 }
