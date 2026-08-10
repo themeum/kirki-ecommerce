@@ -205,10 +205,10 @@ class OrderManager
      * Mark an order as paid.
      *
      * @param int $id
-     * @param string|null $payment_method
+     * @param string|null $payment_provider
      * @return bool
      */
-    public function mark_payment_as_paid(int $id, ?string $payment_method = null)
+    public function mark_payment_as_paid(int $id, ?string $payment_provider = null)
     {
         $order = $this->order_service->find_order_or_fail($id);
         $is_paid = $this->order_service->apply_order_action($id, $order->order_status, OrderAction::MARK_AS_PAID);
@@ -216,8 +216,8 @@ class OrderManager
         if ($is_paid) {
             $update = ['paid_at' => Date::now()];
 
-            if ($payment_method !== null) {
-                $update['payment_method'] = $payment_method;
+            if (!empty($payment_provider)) {
+                $update['payment_provider'] = $payment_provider;
             }
 
             $this->order_service->partial_update_order($id, $update);

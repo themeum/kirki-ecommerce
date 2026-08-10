@@ -16,7 +16,7 @@ use Kirki\Ecommerce\App\Managers\OrderManager;
  * @method static bool mark_as_delivered(int $id)
  * @method static bool add_tracking(int $id, array $tracking)
  * @method static bool mark_as_archive(int $id)
- * @method static bool mark_payment_as_paid(int $id, string|null $payment_method = null)
+ * @method static bool mark_payment_as_paid(int $id, string|null $payment_provider = null)
  * @method static bool mark_payment_as_unpaid(int $id)
  * @method static bool mark_payment_as_failed(int $id)
  * @method static bool mark_refund_as_completed(int $id)

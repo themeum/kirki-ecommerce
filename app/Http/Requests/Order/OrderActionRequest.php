@@ -36,7 +36,7 @@ class OrderActionRequest extends Request
             'tracking_number' => 'required_if:action,' . OrderAction::ADD_TRACKING . '|nullable|string',
             'tracking_url' => 'nullable|string',
             'reason' => 'nullable|string',
-            'payment_method' => 'required_if:action,' . OrderAction::MARK_AS_PAID . '|nullable|string',
+            'payment_provider' => 'required_if:action,' . OrderAction::MARK_AS_PAID . '|nullable|string',
         ];
     }
 
@@ -51,7 +51,7 @@ class OrderActionRequest extends Request
             'tracking_number' => Sanitizer::TEXT,
             'tracking_url' => Sanitizer::URL,
             'reason' => Sanitizer::TEXT,
-            'payment_method' => Sanitizer::TEXT,
+            'payment_provider' => Sanitizer::TEXT,
         ];
     }
 }
