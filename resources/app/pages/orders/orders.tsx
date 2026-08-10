@@ -1,7 +1,7 @@
 import Button from '@/components/ui/button';
 import Container from '@/components/ui/container';
 import PageHeading from '@/components/ui/page-heading';
-import { NEW_ITEM_ID } from '@/conf';
+import { RouteConfig } from '@/config/route-config';
 
 import OrderTable from '@/pages/orders/order-table/order-table';
 import { __ } from '@/wpi18n';
@@ -22,7 +22,10 @@ const Orders = () => {
             <Button variant="ghost">
               {__('Export', 'kirki-ecommerce')}
             </Button> */}
-            <Button variant="primary" onClick={() => navigate('/orders/' + NEW_ITEM_ID)}>
+            <Button
+              variant="primary"
+              onClick={() => navigate(RouteConfig.Orders.get('CreateOrder').buildLink())}
+            >
               {__('Add Order', 'kirki-ecommerce')}
             </Button>
           </>

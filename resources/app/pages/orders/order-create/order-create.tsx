@@ -11,6 +11,7 @@ import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import Page from '@/components/ui/page';
 import PageHeading from '@/components/ui/page-heading';
+import { RouteConfig } from '@/config/route-config';
 import { useDebounce } from '@/hooks';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
@@ -133,7 +134,7 @@ const OrderCreate = () => {
       const response = await createMutation.mutateAsync(payload);
 
       if (isDefined(response.data) && isDefined(response.data.id)) {
-        navigate(`/orders/${response.data.id}`);
+        navigate(RouteConfig.Orders.get('OrderDetail').buildLink({ id: response.data.id }));
       }
     } catch (error) {
       applyServerErrors(form, error as ErrorResponse);
@@ -148,7 +149,7 @@ const OrderCreate = () => {
           type="primary"
           actions={
             <>
-              <Button variant="ghost" onClick={() => navigate('/orders')}>
+              <Button variant="ghost" onClick={() => navigate(RouteConfig.Orders.buildLink())}>
                 {__('Cancel', 'kirki-ecommerce')}
               </Button>
               <Button
@@ -161,7 +162,7 @@ const OrderCreate = () => {
             </>
           }
           hasBack
-          onBack={() => navigate('/orders')}
+          onBack={() => navigate(RouteConfig.Orders.buildLink())}
           sticky
         />
         <Container>

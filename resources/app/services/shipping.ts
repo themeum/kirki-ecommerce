@@ -1,7 +1,7 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
+import { endpoints } from '@/config/endpoints';
 import { apiClient } from '@/libs/api';
-import { endpoints } from '@/libs/endpoints';
 import { queryKeys } from '@/libs/query-keys';
 import { ShippingBoxSchema, ShippingProfileSchema } from '@/schemas/catalog/shipping';
 import type { ShippingBoxFormPayload } from '@/schemas/forms/shipping-box-form';

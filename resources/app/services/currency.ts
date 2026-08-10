@@ -1,7 +1,7 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
+import { endpoints } from '@/config/endpoints';
 import { apiClient } from '@/libs/api';
-import { endpoints } from '@/libs/endpoints';
 import { queryKeys } from '@/libs/query-keys';
 import {
   CurrencyExchangeProviderSchema,
@@ -89,7 +89,7 @@ const useCreateCurrencyMutation = () => {
     onSuccess(response) {
       toastMutationSuccess(
         response.message ||
-          __('Currency created successfully.', 'kirki-ecommerce'),
+        __('Currency created successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: ['Currencies'] });
       void queryClient.invalidateQueries({ queryKey: ['CurrenciesList'] });
@@ -107,7 +107,7 @@ const useUpdateCurrencyMutation = () => {
     onSuccess(response) {
       toastMutationSuccess(
         response.message ||
-          __('Currency updated successfully.', 'kirki-ecommerce'),
+        __('Currency updated successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: ['Currencies'] });
       void queryClient.invalidateQueries({ queryKey: ['CurrenciesList'] });
@@ -125,7 +125,7 @@ const useDeleteCurrencyMutation = () => {
     onSuccess(response) {
       toastMutationSuccess(
         response.message ||
-          __('Currency deleted successfully.', 'kirki-ecommerce'),
+        __('Currency deleted successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: ['Currencies'] });
       void queryClient.invalidateQueries({ queryKey: ['CurrenciesList'] });
@@ -137,17 +137,6 @@ const useDeleteCurrencyMutation = () => {
 };
 
 export {
-  getAvailableCurrencies,
-  getAllCurrencies,
-  getCurrencyExchangeProviders,
-  createCurrency,
-  updateCurrency,
-  deleteCurrency,
-  useAvailableCurrenciesQuery,
-  useAllCurrenciesQuery,
-  useCurrencyExchangeProvidersQuery,
-  useCreateCurrencyMutation,
-  useUpdateCurrencyMutation,
-  useDeleteCurrencyMutation,
-  type CurrencyBulkPayload,
+  createCurrency, deleteCurrency, getAllCurrencies, getAvailableCurrencies, getCurrencyExchangeProviders, updateCurrency, useAllCurrenciesQuery, useAvailableCurrenciesQuery, useCreateCurrencyMutation, useCurrencyExchangeProvidersQuery, useDeleteCurrencyMutation, useUpdateCurrencyMutation, type CurrencyBulkPayload
 };
+

@@ -1,13 +1,13 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
+import { endpoints } from '@/config/endpoints';
 import { apiClient } from '@/libs/api';
-import { endpoints } from '@/libs/endpoints';
 import { queryKeys } from '@/libs/query-keys';
 import { TagSchema } from '@/schemas/catalog/tag';
 import type { TagFormPayload } from '@/schemas/forms/tag-form';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
 import { parseData, parseMessage, parseResponse, toastMutationError, toastMutationSuccess } from '@/services/helpers';
-import type { ListQueryParams, BulkActionParams } from '@/types';
+import type { BulkActionParams, ListQueryParams } from '@/types';
 import { __ } from '@/wpi18n';
 
 const getTags = (params: ListQueryParams = {}) => {
@@ -121,14 +121,6 @@ const useBulkDeleteTagsMutation = () => {
 };
 
 export {
-  getTags,
-  createTag,
-  updateTag,
-  deleteTag,
-  bulkDeleteTags,
-  useTagsQuery,
-  useCreateTagMutation,
-  useUpdateTagMutation,
-  useDeleteTagMutation,
-  useBulkDeleteTagsMutation,
+  bulkDeleteTags, createTag, deleteTag, getTags, updateTag, useBulkDeleteTagsMutation, useCreateTagMutation, useDeleteTagMutation, useTagsQuery, useUpdateTagMutation
 };
+

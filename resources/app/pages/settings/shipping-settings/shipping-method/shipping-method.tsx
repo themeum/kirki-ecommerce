@@ -16,6 +16,7 @@ import {
   StackedItemTitle,
 } from '@/components/ui/stacked-items';
 import Text from '@/components/ui/text';
+import { RouteConfig } from '@/config/route-config';
 import { EditPenIcon, TrashIcon } from '@/icons';
 import { dispatchToastMessage } from '@/pages/utils';
 import type { ShippingSettings } from '@/schemas/catalog/settings';
@@ -26,6 +27,8 @@ import { __ } from '@/wpi18n';
 
 import { getShippingMethodRightText, getShippingMethodSubText, saveShippingZones, shippingMethodIconMap, type ShippingMethodData, type ShippingZone } from '@/pages/settings/shipping-settings/utils';
 import { BoxIcon } from 'lucide-react';
+
+const ShippingRoutes = RouteConfig.Settings.get('ShippingSettings');
 
 type ShippingMethodProps = {
   shippingSettingsData: ShippingSettings | null | undefined;
@@ -84,16 +87,16 @@ export const ShippingMethod = ({
 
   const handleEditDeliveryMethod = (item: ShippingMethodData) => {
     navigate(
-      `/settings/shipping/delivery-method?methodId=${item.id}&zoneId=${item.zoneId}`,
+      `${ShippingRoutes.get('ShippingDeliveryMethod').buildLink()}?methodId=${item.id}&zoneId=${item.zoneId}`,
     );
   };
 
   const handleAddMethod = () => {
     if (zoneId !== undefined && zoneId !== null) {
-      navigate(`/settings/shipping/delivery-method?zoneId=${zoneId}`);
+      navigate(`${ShippingRoutes.get('ShippingDeliveryMethod').buildLink()}?zoneId=${zoneId}`);
       return;
     }
-    navigate('/settings/shipping/delivery-method');
+    navigate(ShippingRoutes.get('ShippingDeliveryMethod').buildLink());
   };
 
   return (
