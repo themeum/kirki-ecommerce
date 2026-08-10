@@ -201,7 +201,7 @@ const TaxSettings = () => {
                   <Flex direction="column" gap={3}>
                     <TaxCollectionRadio />
                     {/* @TODO: will be handled in the future */}
-                    {/* <TaxCollectionOptions /> */}
+                    {false && <TaxCollectionOptions />}
                   </Flex>
                 </Flex>
               </CardContent>
