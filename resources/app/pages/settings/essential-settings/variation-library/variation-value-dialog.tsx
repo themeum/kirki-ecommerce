@@ -1,15 +1,15 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 
 import ColorPickerField from '@/components/form/color-picker-field';
 import TextField from '@/components/form/text-field';
 import Button from '@/components/ui/button';
 import { Dialog, DialogBody, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import Flex from '@/components/ui/flex';
 import {
   VariationValueFormSchema,
   type VariationValueFormInput,
@@ -89,6 +89,15 @@ const VariationValuePopup = ({
       ? 'disabled'
       : '';
 
+  let dialogTitle = '';
+  const isEditMode = Boolean(editedItem?.id);
+
+  if (type === 'color') {
+    dialogTitle = isEditMode ? __('Edit Color', 'kirki-ecommerce') : __('Add Color', 'kirki-ecommerce');
+  } else {
+    dialogTitle = isEditMode ? __('Edit Value', 'kirki-ecommerce') : __('Add Value', 'kirki-ecommerce');
+  }
+
   return (
     <Dialog
       open={isOpen}
@@ -102,9 +111,7 @@ const VariationValuePopup = ({
         <DialogCloseButton />
         <DialogHeader>
           <DialogTitle>
-            {type === 'color'
-              ? __('Add Color', 'kirki-ecommerce')
-              : __('Add Value', 'kirki-ecommerce')}
+            {dialogTitle}
           </DialogTitle>
         </DialogHeader>
         <Form {...form}>
@@ -115,9 +122,10 @@ const VariationValuePopup = ({
                 label={__('Title', 'kirki-ecommerce')}
                 placeholder={
                   type === 'color'
-                    ? __('Cerulean', 'kirki-ecommerce')
+                    ? __('Add a color', 'kirki-ecommerce')
                     : __('Add a value', 'kirki-ecommerce')
                 }
+                autoFocus
               />
               {type === 'color' && (
                 <ColorPickerField

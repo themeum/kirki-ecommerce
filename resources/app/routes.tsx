@@ -1,10 +1,9 @@
 import { lazy, Suspense, type ComponentType, type ReactElement } from 'react';
-import { createHashRouter, Navigate } from 'react-router';
+import { createHashRouter, Navigate, type RouteObject } from 'react-router';
 
 import LoadingSpinner from '@/components/loading-spinner';
 import UnsavedChangesController from '@/floating-components/unsaved-tracker';
 import NotFound from '@/pages/not-found/not-found';
-import Tryouts from '@/tryouts';
 
 const Products = lazy(() => import('@/pages/products/products'));
 const CreateProduct = lazy(() => import('@/pages/products/create-product/create-product'));
@@ -50,11 +49,16 @@ const withSuspense = (Component: ComponentType): ReactElement => (
   </Suspense>
 );
 
+const developmentRoutes: RouteObject[] = import.meta.env.DEV
+  ? [{ path: '/tryouts', element: withSuspense(lazy(() => import('@/tryouts'))) }]
+  : [];
+
 export const router = createHashRouter([
   {
     element: <UnsavedChangesController />,
     children: [
-      { path: '/', element: <Tryouts /> },
+      { path: '/', element: <Navigate to="/products" replace /> },
+      ...developmentRoutes,
       { path: '/products', element: withSuspense(Products) },
       { path: '/products/create', element: withSuspense(CreateProduct) },
       { path: '/products/:id', element: withSuspense(EditProduct) },

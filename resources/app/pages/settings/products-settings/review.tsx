@@ -1,5 +1,6 @@
 import SwitchField from '@/components/form/switch-field';
 import ActionGroup from '@/components/ui/action-group';
+import Badge from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
@@ -12,7 +13,7 @@ export const Review = () => {
   return (
     <Card cssOverride={cardStyles.formCard}>
       <CardHeader cssOverride={cardStyles.sectionHeader}>
-        <CardTitle>{__('Reviews', 'kirki-ecommerce')}</CardTitle>
+        <CardTitle>{__('Reviews', 'kirki-ecommerce')} <Badge>Work in progress</Badge></CardTitle>
         <CardDescription>
           {__(
             'Configure how customers can submit reviews for your products',

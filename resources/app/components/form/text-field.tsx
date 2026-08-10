@@ -17,6 +17,7 @@ type TextFieldProps<
   type?: ComponentPropsWithoutRef<typeof Input>['type'];
   disabled?: boolean;
   cssOverride?: CSSObject;
+  autoFocus?: boolean;
 };
 
 const TextField = <
@@ -31,6 +32,7 @@ const TextField = <
   type = 'text',
   disabled,
   cssOverride,
+  autoFocus = false,
 }: TextFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
   const fieldId = String(name);
@@ -58,6 +60,7 @@ const TextField = <
             disabled={disabled}
             error={Boolean(fieldState.error)}
             aria-invalid={fieldState.invalid}
+            autoFocus={autoFocus}
           />
           {description && <FieldDescription>{description}</FieldDescription>}
           {fieldState.invalid && <FieldError errors={[fieldState.error]} />}

@@ -37,6 +37,6 @@ class GuestCart extends BaseHook
 
     public function handle(...$args)
     {
-        app(GuestCartService::class)->ensure_guest_cart_cookie();
+        // app(GuestCartService::class)->ensure_guest_cart_cookie();
     }
 }

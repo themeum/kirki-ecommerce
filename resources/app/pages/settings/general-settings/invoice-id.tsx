@@ -3,6 +3,7 @@ import { useFormContext, useWatch } from 'react-hook-form';
 import SelectField from '@/components/form/select-field';
 import TextField from '@/components/form/text-field';
 import ActionGroup from '@/components/ui/action-group';
+import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
@@ -49,7 +50,7 @@ const InvoiceId = () => {
     <div>
       <Card cssOverride={cardStyles.formCard}>
         <CardHeader cssOverride={cardStyles.sectionHeader}>
-          <CardTitle>{__('Invoice ID', 'kirki-ecommerce')}</CardTitle>
+          <CardTitle>{__('Invoice ID', 'kirki-ecommerce')} <Badge>Work in progress</Badge></CardTitle>
           <CardDescription>
             {__(
               'Customize your invoice ID structure and auto-numbering',
@@ -122,7 +123,10 @@ const InvoiceId = () => {
               <CardContent >
                 <Flex direction="column" gap={3}>
                   <Flex align="center">
-                    <Text weight="medium">{__('Reset Invoice ID', 'kirki-ecommerce')}</Text>
+                    <Flex gap={1}>
+                      <Text weight="medium">{__('Reset Invoice ID', 'kirki-ecommerce')}</Text>
+                      <Badge>Work in progress</Badge>
+                    </Flex>
                     <ActionGroup>
                       <Button
                         variant="secondary"
