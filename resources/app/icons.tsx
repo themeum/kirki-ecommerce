@@ -2485,3 +2485,110 @@ export const WandIcon = () => (
     />
   </svg>
 );
+
+export const LockIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect width="24" height="24" rx="6.66667" fill="#5741F2" />
+    <path d="M12 12.6641C11.1159 12.6641 10.2681 12.3129 9.64298 11.6878C9.01786 11.0626 8.66667 10.2148 8.66667 9.33073H10C10 9.86116 10.2107 10.3699 10.5858 10.7449C10.9609 11.12 11.4696 11.3307 12 11.3307C12.5304 11.3307 13.0391 11.12 13.4142 10.7449C13.7893 10.3699 14 9.86116 14 9.33073H15.3333C15.3333 10.2148 14.9821 11.0626 14.357 11.6878C13.7319 12.3129 12.8841 12.6641 12 12.6641ZM12 5.9974C12.5304 5.9974 13.0391 6.20811 13.4142 6.58318C13.7893 6.95826 14 7.46696 14 7.9974H10C10 7.46696 10.2107 6.95826 10.5858 6.58318C10.9609 6.20811 11.4696 5.9974 12 5.9974ZM16.6667 7.9974H15.3333C15.3333 7.55966 15.2471 7.1262 15.0796 6.72178C14.9121 6.31737 14.6666 5.9499 14.357 5.64037C14.0475 5.33084 13.68 5.08531 13.2756 4.9178C12.8712 4.75028 12.4377 4.66406 12 4.66406C11.1159 4.66406 10.2681 5.01525 9.64298 5.64037C9.01786 6.26549 8.66667 7.11334 8.66667 7.9974H7.33333C6.59333 7.9974 6 8.59073 6 9.33073V17.3307C6 17.6844 6.14048 18.0235 6.39052 18.2735C6.64057 18.5236 6.97971 18.6641 7.33333 18.6641H16.6667C17.0203 18.6641 17.3594 18.5236 17.6095 18.2735C17.8595 18.0235 18 17.6844 18 17.3307V9.33073C18 8.97711 17.8595 8.63797 17.6095 8.38792C17.3594 8.13787 17.0203 7.9974 16.6667 7.9974Z" fill="white" />
+  </svg>
+
+)
+
+export const LoudHandMic = () => (
+  <svg width="70" height="70" viewBox="0 0 70 70" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <mask id="mask0_13974_106511" style={{ maskType: 'alpha' }} maskUnits="userSpaceOnUse" x="14" y="17" width="36" height="38">
+      <path d="M48.9655 31.0946C48.5982 29.5109 47.733 28.0866 46.497 27.0306C45.2609 25.9746 43.7189 25.3425 42.0973 25.227L40.6912 19.1514C40.5998 18.7537 40.4011 18.3887 40.1167 18.096C39.8323 17.8033 39.473 17.5943 39.0781 17.4916C38.6831 17.3889 38.2676 17.3964 37.8766 17.5135C37.4856 17.6305 37.1343 17.8525 36.8607 18.1553L28.772 27.0528L18.7216 29.3789C17.4513 29.6753 16.3503 30.463 15.6597 31.5696C14.969 32.6761 14.7451 34.0113 15.0369 35.2826L16.4491 41.3844C16.7455 42.6546 17.5332 43.7556 18.6398 44.4463C19.7463 45.1369 21.0815 45.3608 22.3528 45.069L23.6603 44.7664L25.5769 53.0473C25.8553 54.2502 27.0575 55.0006 28.2604 54.7222L30.8754 54.1169C32.0783 53.8385 32.8287 52.6363 32.5503 51.4334L30.6337 43.1525L32.4032 42.743L43.5785 47.1821C43.9573 47.3333 44.3703 47.3778 44.7726 47.3109C45.1749 47.244 45.5512 47.0682 45.8607 46.8026C46.1702 46.537 46.401 46.1917 46.5282 45.8041C46.6553 45.4166 46.6739 45.0017 46.582 44.6043L45.3776 39.4004C46.7816 38.5822 47.8873 37.3366 48.5335 35.8456C49.1797 34.3545 49.3324 32.696 48.9695 31.112L48.9655 31.0946Z" fill="black" />
+    </mask>
+    <g mask="url(#mask0_13974_106511)">
+      <g filter="url(#filter0_gn_13974_106511)">
+        <rect x="15.2148" y="20.1484" width="32.8031" height="32.6876" fill="#F46AD6" />
+        <ellipse cx="31.6339" cy="49.0754" rx="8.37046" ry="8.34098" fill="url(#paint0_linear_13974_106511)" />
+        <ellipse cx="8.3615" cy="3.03304" rx="8.3615" ry="3.03304" transform="matrix(0.834982 -0.550277 0.552985 0.833191 12.2888 51.5703)" fill="#FED028" />
+        <ellipse cx="11.5284" cy="4.1818" rx="11.5284" ry="4.1818" transform="matrix(0.834982 -0.550277 0.552985 0.833191 18.4641 25.2188)" fill="#FED028" />
+        <ellipse cx="45.2268" cy="21.1632" rx="7.31101" ry="5.93663" fill="#6EB3FF" />
+        <ellipse cx="39.2877" cy="41.8175" rx="8.37046" ry="8.34098" fill="#FF33D4" />
+        <ellipse cx="8.36296" cy="3.93276" rx="8.36296" ry="3.93276" transform="matrix(0.864044 -0.503416 0.50607 0.862492 11.9668 42.2344)" fill="#FF4346" />
+        <ellipse cx="10.5874" cy="6.73391" rx="10.5874" ry="6.73391" transform="matrix(0.864044 -0.503416 0.50607 0.862492 7.28003 34.1094)" fill="#FF4346" />
+        <ellipse cx="27.1671" cy="44.9089" rx="8.37046" ry="1.15656" transform="rotate(-10.8168 27.1671 44.9089)" fill="#9864F0" />
+        <ellipse cx="36.6724" cy="45.7324" rx="8.37046" ry="2.5572" transform="rotate(20.9487 36.6724 45.7324)" fill="#9864F0" />
+        <ellipse cx="45.7427" cy="31.8588" rx="8.37046" ry="2.40162" transform="rotate(77.1731 45.7427 31.8588)" fill="#9864F0" />
+        <ellipse cx="10.4031" cy="3.19721" rx="10.4031" ry="3.19721" transform="matrix(-0.187326 -0.982298 0.981684 -0.190514 45.0156 41.8438)" fill="#FED028" />
+        <ellipse cx="11.5284" cy="2.41994" rx="11.5284" ry="2.41994" transform="matrix(0.975268 -0.221027 0.224192 0.974545 8.96021 28.3281)" fill="#FED028" />
+      </g>
+    </g>
+    <mask id="mask1_13974_106511" style={{ maskType: 'alpha' }} maskUnits="userSpaceOnUse" x="48" y="22" width="9" height="18">
+      <path d="M51.0816 29.4836L56.1854 28.7116L56.6266 31.6281L51.5227 32.4L51.0816 29.4836ZM50.8964 27.7664L52.8632 25.9773L54.83 24.1882L53.8449 23.0992L52.8598 22.0102L50.893 23.7993L48.9262 25.5883L49.9113 26.6774L50.8964 27.7664ZM51.8537 34.0952L51.2347 35.4268L50.6158 36.7584L53.0237 37.8858L55.4316 39.0132L56.0506 37.6816L56.6696 36.3499L54.2616 35.2225L51.8537 34.0952Z" fill="black" />
+    </mask>
+    <g mask="url(#mask1_13974_106511)">
+      <g filter="url(#filter1_gn_13974_106511)">
+        <rect x="44.3892" y="22.2891" width="18.7519" height="18.6859" transform="rotate(-8.60113 44.3892 22.2891)" fill="#F46AD6" />
+        <ellipse cx="55.9782" cy="35.0926" rx="4.78497" ry="4.76812" transform="rotate(-8.60113 55.9782 35.0926)" fill="url(#paint1_linear_13974_106511)" />
+        <ellipse cx="4.77985" cy="1.73384" rx="4.77985" ry="1.73384" transform="matrix(0.743295 -0.668964 0.671374 0.741119 45.4221 40.3047)" fill="#FED028" />
+        <ellipse cx="4.77985" cy="1.73384" rx="4.77985" ry="1.73384" transform="matrix(0.743295 -0.668964 0.671374 0.741119 48.0056 23.6719)" fill="#FED028" />
+        <ellipse cx="61.0156" cy="22.1105" rx="4.78497" ry="3.88546" transform="rotate(-8.60113 61.0156 22.1105)" fill="#6EB3FF" />
+        <ellipse cx="59.8483" cy="32.4833" rx="4.78497" ry="4.76812" transform="rotate(-8.60113 59.8483 32.4833)" fill="#FF33D4" />
+        <ellipse cx="4.78068" cy="2.24816" rx="4.78068" ry="2.24816" transform="matrix(0.779038 -0.626977 0.629369 0.777107 45.302 33.1797)" fill="#FF4346" />
+        <ellipse cx="4.78068" cy="2.24816" rx="4.78068" ry="2.24816" transform="matrix(0.779038 -0.626977 0.629369 0.777107 43.2563 31.5703)" fill="#FF4346" />
+        <ellipse cx="47.2632" cy="23.9295" rx="4.78497" ry="3.68654" transform="rotate(-8.60113 47.2632 23.9295)" fill="#9864F0" />
+      </g>
+    </g>
+    <defs>
+      <filter id="filter0_gn_13974_106511" x="3.70697" y="9.33466" width="54.6134" height="53.8619" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+        <feFlood floodOpacity="0" result="BackgroundImageFix" />
+        <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+        <feTurbulence type="fractalNoise" baseFrequency="0.99900001287460327 0.99900001287460327" numOctaves="3" seed="9952" />
+        <feDisplacementMap in="shape" scale="11.565059661865234" xChannelSelector="R" yChannelSelector="G" result="displacedImage" width="100%" height="100%" />
+        <feMerge result="effect1_texture_13974_106511">
+          <feMergeNode in="displacedImage" />
+        </feMerge>
+        <feTurbulence type="fractalNoise" baseFrequency="inf inf" stitchTiles="stitch" numOctaves="3" result="noise" seed="1854" />
+        <feComponentTransfer in="noise" result="coloredNoise1">
+          <feFuncR type="linear" slope="2" intercept="-0.5" />
+          <feFuncG type="linear" slope="2" intercept="-0.5" />
+          <feFuncB type="linear" slope="2" intercept="-0.5" />
+          <feFuncA type="discrete" tableValues="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 " />
+        </feComponentTransfer>
+        <feComposite operator="in" in2="effect1_texture_13974_106511" in="coloredNoise1" result="noise1Clipped" />
+        <feComponentTransfer in="noise1Clipped" result="color1">
+          <feFuncA type="table" tableValues="0 0.79" />
+        </feComponentTransfer>
+        <feMerge result="effect2_noise_13974_106511">
+          <feMergeNode in="effect1_texture_13974_106511" />
+          <feMergeNode in="color1" />
+        </feMerge>
+      </filter>
+      <filter id="filter1_gn_13974_106511" x="39.1939" y="14.8975" width="30.4979" height="30.244" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+        <feFlood floodOpacity="0" result="BackgroundImageFix" />
+        <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+        <feTurbulence type="fractalNoise" baseFrequency="0.99900001287460327 0.99900001287460327" numOctaves="3" seed="9952" />
+        <feDisplacementMap in="shape" scale="6.6111664772033691" xChannelSelector="R" yChannelSelector="G" result="displacedImage" width="100%" height="100%" />
+        <feMerge result="effect1_texture_13974_106511">
+          <feMergeNode in="displacedImage" />
+        </feMerge>
+        <feTurbulence type="fractalNoise" baseFrequency="inf inf" stitchTiles="stitch" numOctaves="3" result="noise" seed="1854" />
+        <feComponentTransfer in="noise" result="coloredNoise1">
+          <feFuncR type="linear" slope="2" intercept="-0.5" />
+          <feFuncG type="linear" slope="2" intercept="-0.5" />
+          <feFuncB type="linear" slope="2" intercept="-0.5" />
+          <feFuncA type="discrete" tableValues="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 " />
+        </feComponentTransfer>
+        <feComposite operator="in" in2="effect1_texture_13974_106511" in="coloredNoise1" result="noise1Clipped" />
+        <feComponentTransfer in="noise1Clipped" result="color1">
+          <feFuncA type="table" tableValues="0 0.79" />
+        </feComponentTransfer>
+        <feMerge result="effect2_noise_13974_106511">
+          <feMergeNode in="effect1_texture_13974_106511" />
+          <feMergeNode in="color1" />
+        </feMerge>
+      </filter>
+      <linearGradient id="paint0_linear_13974_106511" x1="31.6339" y1="40.7344" x2="31.6339" y2="57.4163" gradientUnits="userSpaceOnUse">
+        <stop stopColor="#FE8C28" />
+        <stop offset="1" stopColor="#FF8A60" />
+      </linearGradient>
+      <linearGradient id="paint1_linear_13974_106511" x1="55.9782" y1="30.3245" x2="55.9782" y2="39.8607" gradientUnits="userSpaceOnUse">
+        <stop stopColor="#FE8C28" />
+        <stop offset="1" stopColor="#FF8A60" />
+      </linearGradient>
+    </defs>
+  </svg>
+);

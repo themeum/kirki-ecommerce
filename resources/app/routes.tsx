@@ -1,10 +1,11 @@
-import { lazy, Suspense, type ComponentType, type ReactElement } from 'react';
+import { createElement, lazy, Suspense, type ComponentType, type ReactElement } from 'react';
 import { createHashRouter, Navigate } from 'react-router';
 
 import LoadingSpinner from '@/components/loading-spinner';
 import { RouteConfig } from '@/config/route-config';
 import UnsavedChangesController from '@/floating-components/unsaved-tracker';
 import NotFound from '@/pages/not-found/not-found';
+import { __ } from '@/wpi18n';
 
 const Products = lazy(() => import('@/pages/products/products'));
 const CreateProduct = lazy(() => import('@/pages/products/create-product/create-product'));
@@ -43,10 +44,14 @@ const ColorVariation = lazy(() => import('@/pages/settings/essential-settings/va
 const ListVariation = lazy(() => import('@/pages/settings/essential-settings/variation-library/list-variation'));
 const AdvancedSettings = lazy(() => import('@/pages/settings/advanced-settings/advanced-settings'));
 const LicenseSettings = lazy(() => import('@/pages/settings/license-settings/license-settings'));
+const ComingSoon = lazy(() => import('@/pages/coming-soon/coming-soon'));
 
-const withSuspense = (Component: ComponentType): ReactElement => (
+const withSuspense = <Props extends object>(
+  Component: ComponentType<Props>,
+  props = {} as Props,
+): ReactElement => (
   <Suspense fallback={<LoadingSpinner />}>
-    <Component />
+    {createElement(Component, props)}
   </Suspense>
 );
 
@@ -148,6 +153,8 @@ export const router = createHashRouter([
           { path: SettingsRoutes.get('LicenseSettings').template, element: withSuspense(LicenseSettings) },
         ],
       },
+      { path: '/analytics', element: withSuspense(ComingSoon, { text: __('Analytics', 'kirki-ecommerce') }) },
+      { path: '/report', element: withSuspense(ComingSoon, { text: __('Report', 'kirki-ecommerce') }) },
       { path: '*', element: <NotFound /> },
     ],
   },
