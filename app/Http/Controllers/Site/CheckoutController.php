@@ -3,6 +3,8 @@
 namespace Kirki\Ecommerce\App\Http\Controllers\Site;
 
 use Kirki\Ecommerce\App\Actions\Order\CreateOrderAction;
+use Kirki\Ecommerce\App\Constants\Cart;
+use Kirki\Ecommerce\App\Constants\CookieNames;
 use Kirki\Ecommerce\App\Http\Requests\Order\OrderCreateRequest;
 use Kirki\Ecommerce\App\Resources\Site\Order\OrderResource;
 use Kirki\Ecommerce\App\DTO\Order\CreateOrderPayloadDTO;
@@ -15,13 +17,13 @@ class CheckoutController
 {
     public function store(OrderCreateRequest $request, CreateOrderAction $action)
     {
-        $currency_code = $request->string('currency_code') ?? $headers['kirki-ecommerce-currency-code'] ?? base_currency()->code; //todo: implement change the name later
+        $currency_code = $request->string('currency_code') ?? $request->get_header(CookieNames::CURRENCY_CODE) ?? base_currency()->code;
 
         $dto = CreateOrderPayloadDTO::from_request($request);
         $dto->is_manual = user()->is_admin() && $request->bool('is_manual') ? true : false;
         $dto->created_by = user()->get_id() ?? null;
         $dto->currency_code = $currency_code;
-        $dto->cart_token = $request->get_header('x-cart-token');
+        $dto->cart_token = $request->get_header(Cart::HEADER_TOKEN);
 
         $order = $action->execute($dto);
 
