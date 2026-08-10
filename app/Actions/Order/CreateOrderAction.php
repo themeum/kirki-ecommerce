@@ -2,20 +2,25 @@
 
 namespace Kirki\Ecommerce\App\Actions\Order;
 
+use Kirki\Ecommerce\App\Actions\Customer\CreateCustomerAction;
 use Kirki\Ecommerce\App\Services\CouponService;
+use Kirki\Ecommerce\App\Services\CustomerService;
 use Kirki\Ecommerce\App\Services\InventoryService;
 use Kirki\Ecommerce\App\Services\OrderService;
 use Kirki\Ecommerce\App\Services\ShippingService;
 use Kirki\Ecommerce\App\Services\VariantService;
 use Kirki\Ecommerce\App\Constants\Order\OrderStatus;
 use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
+use Kirki\Ecommerce\App\DTO\Address\CreateAddressDTO;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationContextDTO;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationItemDTO;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationResultDTO;
+use Kirki\Ecommerce\App\DTO\Customer\CreateCustomerDTO;
 use Kirki\Ecommerce\App\DTO\Order\CreateOrderPayloadDTO;
 use Kirki\Ecommerce\App\DTO\Order\CreateOrderDTO;
 use Kirki\Ecommerce\App\DTO\Order\CreateOrderItemDTO;
 use Kirki\Ecommerce\App\Actions\Cart\RecalculateCartAction;
+use Kirki\Ecommerce\Framework\Exceptions\UniqueConstraintViolationException;
 use Kirki\Ecommerce\Framework\Supports\Arr;
 use Kirki\Ecommerce\App\Supports\Currency;
 use Kirki\Ecommerce\App\Facades\Money;
@@ -37,6 +42,8 @@ class CreateOrderAction
     protected $inventory_service;
     protected $shipping_service;
     protected $coupon_service;
+    protected $customer_service;
+    protected $create_customer_action;
     protected $variants_map = [];
     protected $base_currency_code;
 
@@ -46,7 +53,9 @@ class CreateOrderAction
         OrderService $order_service,
         InventoryService $inventory_service,
         ShippingService $shipping_service,
-        CouponService $coupon_service
+        CouponService $coupon_service,
+        CustomerService $customer_service,
+        CreateCustomerAction $create_customer_action
     ) {
         $this->recalculate_cart_action = $recalculate_cart_action;
         $this->variant_service = $variant_service;
@@ -54,6 +63,8 @@ class CreateOrderAction
         $this->inventory_service = $inventory_service;
         $this->shipping_service = $shipping_service;
         $this->coupon_service = $coupon_service;
+        $this->customer_service = $customer_service;
+        $this->create_customer_action = $create_customer_action;
 
         $this->base_currency_code = base_currency()->code;
     }
@@ -72,13 +83,17 @@ class CreateOrderAction
         DB::begin_transaction();
 
         try {
+            if (empty($create_order_dto->customer_id) && !$dto->is_manual && !empty($dto->created_by)) {
+                $create_order_dto->customer_id = $this->resolve_checkout_customer_id($dto);
+            }
+
             $order = $this->order_service->create_order($create_order_dto);
             $coupon = !empty($order->discount_details) ? $this->coupon_service->find($order->discount_details['id']) : null;
 
             if ($coupon) {
                 $coupon->usage()->create([
                     'order_id' => $order->id,
-                    'customer_id' => $dto->customer_id,
+                    'customer_id' => $create_order_dto->customer_id,
                 ]);
             }
 
@@ -100,6 +115,67 @@ class CreateOrderAction
             DB::rollback();
             throw $e;
         }
+    }
+
+    /**
+     * Resolve the customer_id to link a checkout order to, provisioning a
+     * Customer record (with addresses) for the authenticated user placing
+     * the order if one doesn't already exist for their WordPress user_id.
+     *
+     * @param CreateOrderPayloadDTO $dto
+     * @return int
+     */
+    protected function resolve_checkout_customer_id(CreateOrderPayloadDTO $dto)
+    {
+        try {
+            $customer = $this->create_customer_action->provision(
+                $this->prepare_checkout_customer_dto($dto),
+                $this->prepare_checkout_address_dto($dto, 'shipping'),
+                $this->prepare_checkout_address_dto($dto, 'billing')
+            );
+
+            return $customer->id;
+        } catch (UniqueConstraintViolationException $e) {
+            $customer = $this->customer_service->find_by_user_id($dto->created_by);
+
+            if (empty($customer)) {
+                throw $e;
+            }
+
+            return $customer->id;
+        }
+    }
+
+    protected function prepare_checkout_customer_dto(CreateOrderPayloadDTO $dto)
+    {
+        $wp_user = get_userdata($dto->created_by) ?: null;
+
+        $customer_payload = new CreateCustomerDTO();
+        $customer_payload->user_id = $dto->created_by;
+        $customer_payload->first_name = !empty($wp_user->first_name) ? $wp_user->first_name : $dto->billing_first_name;
+        $customer_payload->last_name = !empty($wp_user->last_name) ? $wp_user->last_name : $dto->billing_last_name;
+        $customer_payload->email = !empty($wp_user->user_email) ? $wp_user->user_email : $dto->billing_email;
+        $customer_payload->phone = !empty($wp_user->phone) ? $wp_user->phone : $dto->billing_phone;
+        $customer_payload->is_billing_same_as_shipping = (bool) $dto->is_billing_same_as_shipping;
+
+        return $customer_payload;
+    }
+
+    protected function prepare_checkout_address_dto(CreateOrderPayloadDTO $dto, string $prefix)
+    {
+        $address_payload = new CreateAddressDTO();
+        $address_payload->first_name = $dto->{"{$prefix}_first_name"};
+        $address_payload->last_name = $dto->{"{$prefix}_last_name"};
+        $address_payload->address_line1 = $dto->{"{$prefix}_address_line1"};
+        $address_payload->address_line2 = $dto->{"{$prefix}_address_line2"};
+        $address_payload->city = $dto->{"{$prefix}_city"};
+        $address_payload->state = $dto->{"{$prefix}_state"};
+        $address_payload->country = $dto->{"{$prefix}_country"};
+        $address_payload->postal_code = $dto->{"{$prefix}_postcode"};
+        $address_payload->email = $dto->{"{$prefix}_email"};
+        $address_payload->phone = $dto->{"{$prefix}_phone"};
+
+        return $address_payload;
     }
 
     protected function prepare_calculation_context_dto(CreateOrderPayloadDTO $dto)

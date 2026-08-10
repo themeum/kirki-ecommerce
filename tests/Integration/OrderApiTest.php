@@ -2,9 +2,17 @@
 
 namespace Kirki\Ecommerce\Tests\Integration;
 
+use Kirki\Ecommerce\App\Actions\Customer\CreateCustomerAction;
+use Kirki\Ecommerce\App\Actions\Order\CreateOrderAction;
+use Kirki\Ecommerce\App\Constants\AddressType;
 use Kirki\Ecommerce\App\Constants\BulkActions;
 use Kirki\Ecommerce\App\Constants\Order\RefundStatus;
+use Kirki\Ecommerce\App\DTO\Address\CreateAddressDTO;
+use Kirki\Ecommerce\App\DTO\Customer\CreateCustomerDTO;
+use Kirki\Ecommerce\App\DTO\Order\CreateOrderPayloadDTO;
 use Kirki\Ecommerce\App\Facades\Order as OrderManager;
+use Kirki\Ecommerce\App\Models\Address;
+use Kirki\Ecommerce\App\Models\Customer;
 use Kirki\Ecommerce\App\Payment\PaymentManager;
 use Kirki\Ecommerce\App\Payment\Providers\PayPal;
 use Kirki\Ecommerce\Tests\Support\CreatesTestProducts;
@@ -325,6 +333,234 @@ class OrderApiTest extends RestTestCase
         $this->expectExceptionMessage('PayPal is not enabled.');
 
         app()->make(PaymentManager::class)->pay($order_model);
+    }
+
+    /**
+     * An authenticated user with no customer record gets one provisioned
+     * for them as part of placing their order.
+     *
+     * @return void
+     */
+    public function test_checkout_provisions_customer_for_authenticated_user_without_record(): void
+    {
+        $unique = wp_generate_password(8, false);
+        $user_id = $this->create_shopper_user([
+            'first_name' => 'Ada',
+            'last_name' => 'Lovelace',
+            'user_email' => 'ada-' . $unique . '@example.com',
+        ]);
+
+        wp_set_current_user($user_id);
+
+        $response = $this->request('POST', 'orders', $this->order_payload(['is_manual' => false]));
+        $payload = $this->assert_api_success($response, 201);
+        $this->order_id = $payload['data']['id'];
+
+        $customer = Customer::where('user_id', $user_id)->first();
+
+        $this->assertNotNull($customer);
+        $this->assertEquals($customer->id, $payload['data']['customer_id']);
+        $this->assertTrue(Address::where('customer_id', $customer->id)->where('type', AddressType::SHIPPING)->exists());
+    }
+
+    /**
+     * An authenticated user who already has a customer record reuses it
+     * instead of getting a duplicate one provisioned.
+     *
+     * @return void
+     */
+    public function test_checkout_reuses_existing_customer_without_duplicating(): void
+    {
+        $user_id = $this->create_shopper_user();
+        $existing_customer = $this->provision_customer_for_user($user_id);
+
+        wp_set_current_user($user_id);
+
+        $response = $this->request('POST', 'orders', $this->order_payload(['is_manual' => false]));
+        $payload = $this->assert_api_success($response, 201);
+        $this->order_id = $payload['data']['id'];
+
+        $this->assertEquals($existing_customer->id, $payload['data']['customer_id']);
+        $this->assertEquals(1, Customer::where('user_id', $user_id)->count());
+    }
+
+    /**
+     * Guest checkout is unaffected by customer auto-provisioning: no
+     * customer record is created and the order's customer_id stays null.
+     *
+     * Exercised directly through CreateOrderAction rather than the HTTP
+     * `/checkout` endpoint: guest requests there currently fail with an
+     * unrelated, pre-existing database error (CheckoutController passes
+     * user()->get_id() - 0 for a guest, not null - as orders.created_by,
+     * which violates that column's foreign key). That bug predates and is
+     * unrelated to this change; calling the action directly isolates this
+     * regression check from it.
+     *
+     * @return void
+     */
+    public function test_checkout_guest_order_has_no_customer(): void
+    {
+        $this->logout();
+        $customer_count_before = Customer::count();
+
+        $dto = CreateOrderPayloadDTO::from_array($this->order_payload(['is_manual' => false]));
+        $dto->created_by = null;
+        $dto->currency_code = 'USD';
+
+        $order = app()->make(CreateOrderAction::class)->execute($dto);
+        $this->order_id = $order->id;
+
+        $this->assertNull($order->customer_id);
+        $this->assertEquals($customer_count_before, Customer::count());
+    }
+
+    /**
+     * The provisioned customer's name is sourced from the WordPress user
+     * profile, falling back to the checkout billing fields for anything
+     * the profile doesn't have.
+     *
+     * @return void
+     */
+    public function test_checkout_customer_prefers_wp_profile_then_falls_back_to_billing(): void
+    {
+        $user_id = $this->create_shopper_user();
+        $wp_user = get_userdata($user_id);
+
+        wp_set_current_user($user_id);
+
+        $response = $this->request('POST', 'orders', $this->order_payload([
+            'is_manual' => false,
+            'billing_first_name' => 'Fallback',
+            'billing_last_name' => 'Billing',
+        ]));
+        $payload = $this->assert_api_success($response, 201);
+        $this->order_id = $payload['data']['id'];
+
+        $customer = Customer::where('user_id', $user_id)->first();
+
+        $this->assertEquals('Fallback', $customer->first_name);
+        $this->assertEquals('Billing', $customer->last_name);
+        $this->assertEquals($wp_user->user_email, $customer->email);
+    }
+
+    /**
+     * When billing is marked as same as shipping, the provisioned
+     * customer's billing address is duplicated from the shipping address.
+     *
+     * @return void
+     */
+    public function test_checkout_duplicates_billing_address_from_shipping_when_same(): void
+    {
+        $user_id = $this->create_shopper_user();
+        wp_set_current_user($user_id);
+
+        $response = $this->request('POST', 'orders', $this->order_payload([
+            'is_manual' => false,
+            'is_billing_same_as_shipping' => true,
+        ]));
+        $payload = $this->assert_api_success($response, 201);
+        $this->order_id = $payload['data']['id'];
+
+        $customer = Customer::where('user_id', $user_id)->first();
+
+        $shipping_address = Address::where('customer_id', $customer->id)->where('type', AddressType::SHIPPING)->first();
+        $billing_address = Address::where('customer_id', $customer->id)->where('type', AddressType::BILLING)->first();
+
+        $this->assertNotNull($shipping_address);
+        $this->assertNotNull($billing_address);
+        $this->assertEquals($shipping_address->address_line1, $billing_address->address_line1);
+        $this->assertEquals('123 Main St', $shipping_address->address_line1);
+    }
+
+    /**
+     * When order creation fails after customer provisioning would have
+     * occurred, nothing - customer, address, or order - is persisted.
+     *
+     * @return void
+     */
+    public function test_checkout_failure_leaves_no_customer_or_address_behind(): void
+    {
+        $limited_product = $this->create_product([
+            'variants' => [
+                [
+                    'base_price' => 29.99,
+                    'sku' => 'SKU-' . wp_generate_password(6, false),
+                    'available_quantity' => 1,
+                    'in_stock' => true,
+                    'track_inventory' => true,
+                    'is_default' => true,
+                    'attribute_values' => [],
+                ],
+            ],
+        ]);
+        $limited_variant_id = $this->default_variant_id($limited_product);
+
+        $user_id = $this->create_shopper_user();
+        wp_set_current_user($user_id);
+
+        $customer_count_before = Customer::count();
+        $address_count_before = Address::count();
+
+        $response = $this->request('POST', 'orders', $this->order_payload([
+            'is_manual' => false,
+            'items' => [
+                ['variant_id' => $limited_variant_id, 'quantity' => 2],
+            ],
+        ]));
+
+        $this->assert_api_error($response, 500);
+
+        $this->assertEquals($customer_count_before, Customer::count());
+        $this->assertEquals($address_count_before, Address::count());
+        $this->assertNull(Customer::where('user_id', $user_id)->first());
+    }
+
+    /**
+     * Create a non-admin WordPress user for checkout-provisioning tests.
+     *
+     * @param array $overrides Factory attribute overrides.
+     *
+     * @return int
+     * @since 1.0.0
+     */
+    protected function create_shopper_user(array $overrides = []): int
+    {
+        return static::factory()->user->create(array_merge([
+            'role' => 'subscriber',
+        ], $overrides));
+    }
+
+    /**
+     * Provision a customer record (with addresses) linked to an existing
+     * WordPress user, simulating a shopper who already has one.
+     *
+     * @param int $user_id WordPress user id.
+     *
+     * @return Customer
+     * @since 1.0.0
+     */
+    protected function provision_customer_for_user(int $user_id): Customer
+    {
+        $unique = wp_generate_password(8, false);
+
+        $customer_payload = new CreateCustomerDTO();
+        $customer_payload->user_id = $user_id;
+        $customer_payload->first_name = 'Existing';
+        $customer_payload->last_name = 'Customer';
+        $customer_payload->email = 'existing-' . $unique . '@example.com';
+        $customer_payload->is_billing_same_as_shipping = true;
+
+        $address_payload = new CreateAddressDTO();
+        $address_payload->first_name = 'Existing';
+        $address_payload->last_name = 'Customer';
+        $address_payload->address_line1 = '456 Existing Ave';
+        $address_payload->city = 'New York';
+        $address_payload->state = 'NY';
+        $address_payload->country = 'US';
+        $address_payload->postal_code = '10001';
+        $address_payload->email = $customer_payload->email;
+
+        return app()->make(CreateCustomerAction::class)->execute($customer_payload, $address_payload, $address_payload);
     }
 
     /**
