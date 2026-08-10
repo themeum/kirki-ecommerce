@@ -76,6 +76,10 @@ class CreateOrderAction
 
     public function execute(CreateOrderPayloadDTO $dto)
     {
+        if (empty($dto->customer_id) && !$dto->is_manual && !empty($dto->created_by)) {
+            $dto->customer_id = $this->resolve_checkout_customer_id($dto);
+        }
+
         $context = $this->prepare_calculation_context_dto($dto);
 
         if (!$this->shipping_service->has_valid_shipping_method($context)) {
@@ -88,10 +92,6 @@ class CreateOrderAction
         DB::begin_transaction();
 
         try {
-            if (empty($create_order_dto->customer_id) && !$dto->is_manual && !empty($dto->created_by)) {
-                $create_order_dto->customer_id = $this->resolve_checkout_customer_id($dto);
-            }
-
             $order = $this->order_service->create_order($create_order_dto);
             $coupon = !empty($order->discount_details) ? $this->coupon_service->find($order->discount_details['id']) : null;
 
@@ -141,7 +141,7 @@ class CreateOrderAction
     protected function resolve_checkout_customer_id(CreateOrderPayloadDTO $dto)
     {
         try {
-            $customer = $this->create_customer_action->provision(
+            $customer = $this->create_customer_action->execute(
                 $this->prepare_checkout_customer_dto($dto),
                 $this->prepare_checkout_address_dto($dto, 'shipping'),
                 $this->prepare_checkout_address_dto($dto, 'billing')

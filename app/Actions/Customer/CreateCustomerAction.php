@@ -42,7 +42,29 @@ class CreateCustomerAction
         DB::begin_transaction();
 
         try {
-            $customer = $this->provision($customer_payload, $shipping_address_payload, $billing_address_payload);
+            $customer_payload->user_id = $this->create_user($customer_payload);
+
+            $customer = $this->customer_service->create($customer_payload);
+
+            if (empty($customer)) {
+                throw new Exception(__('Customer could not be created.', 'kirki-ecommerce'));
+            }
+
+            $shipping_address_payload->customer_id = $customer->id;
+            $shipping_address_payload->type = AddressType::SHIPPING;
+
+            $this->create_address($shipping_address_payload);
+
+            if ($customer_payload->is_billing_same_as_shipping) {
+                $billing_address_payload = $shipping_address_payload;
+            }
+
+            $billing_address_payload->customer_id = $customer->id;
+            $billing_address_payload->type = AddressType::BILLING;
+
+            $this->create_address($billing_address_payload);
+
+            $customer = $this->customer_service->find($customer->id);
 
             DB::commit();
 
@@ -52,44 +74,6 @@ class CreateCustomerAction
 
             throw $e;
         }
-    }
-
-    /**
-     * Create a customer with its shipping/billing addresses without managing its own
-     * transaction, so a caller that already owns a transaction (e.g. checkout order
-     * creation) can call it without nesting `DB::begin_transaction()` calls.
-     *
-     * @param CreateCustomerDTO $customer_payload
-     * @param CreateAddressDTO $shipping_address_payload
-     * @param CreateAddressDTO $billing_address_payload
-     * @return Customer
-     * @throws Throwable
-     */
-    public function provision(CreateCustomerDTO $customer_payload, CreateAddressDTO $shipping_address_payload, CreateAddressDTO $billing_address_payload)
-    {
-        $customer_payload->user_id = $this->create_user($customer_payload);
-
-        $customer = $this->customer_service->create($customer_payload);
-
-        if (empty($customer)) {
-            throw new Exception(__('Customer could not be created.', 'kirki-ecommerce'));
-        }
-
-        $shipping_address_payload->customer_id = $customer->id;
-        $shipping_address_payload->type = AddressType::SHIPPING;
-
-        $this->create_address($shipping_address_payload);
-
-        if ($customer_payload->is_billing_same_as_shipping) {
-            $billing_address_payload = $shipping_address_payload;
-        }
-
-        $billing_address_payload->customer_id = $customer->id;
-        $billing_address_payload->type = AddressType::BILLING;
-
-        $this->create_address($billing_address_payload);
-
-        return $this->customer_service->find($customer->id);
     }
 
     protected function create_user(CreateCustomerDTO $customer)

@@ -6,6 +6,7 @@ use Kirki\Ecommerce\App\Actions\Customer\CreateCustomerAction;
 use Kirki\Ecommerce\App\Actions\Order\CreateOrderAction;
 use Kirki\Ecommerce\App\Constants\AddressType;
 use Kirki\Ecommerce\App\Constants\BulkActions;
+use Kirki\Ecommerce\App\Constants\Coupon\DiscountType;
 use Kirki\Ecommerce\App\Constants\Order\RefundStatus;
 use Kirki\Ecommerce\App\DTO\Address\CreateAddressDTO;
 use Kirki\Ecommerce\App\DTO\Cart\AddToCartDTO;
@@ -14,6 +15,7 @@ use Kirki\Ecommerce\App\DTO\Order\CreateOrderPayloadDTO;
 use Kirki\Ecommerce\App\Facades\Order as OrderManager;
 use Kirki\Ecommerce\App\Models\Address;
 use Kirki\Ecommerce\App\Models\Cart;
+use Kirki\Ecommerce\App\Models\Coupon;
 use Kirki\Ecommerce\App\Models\Customer;
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Payment\PaymentManager;
@@ -573,12 +575,14 @@ class OrderApiTest extends RestTestCase
     }
 
     /**
-     * When order creation fails after customer provisioning would have
-     * occurred, nothing - customer, address, or order - is persisted.
+     * When order creation fails after customer provisioning already
+     * succeeded, the provisioned customer, its WordPress user, and its
+     * addresses remain persisted - provisioning is no longer rolled back
+     * together with the order.
      *
      * @return void
      */
-    public function test_checkout_failure_leaves_no_customer_or_address_behind(): void
+    public function test_checkout_failure_leaves_provisioned_customer_behind(): void
     {
         $limited_product = $this->create_product([
             'variants' => [
@@ -598,8 +602,7 @@ class OrderApiTest extends RestTestCase
         $user_id = $this->create_shopper_user();
         wp_set_current_user($user_id);
 
-        $customer_count_before = Customer::count();
-        $address_count_before = Address::count();
+        $order_count_before = Order::count();
 
         $response = $this->request('POST', 'orders', $this->order_payload([
             'is_manual' => false,
@@ -610,9 +613,71 @@ class OrderApiTest extends RestTestCase
 
         $this->assert_api_error($response, 500);
 
-        $this->assertEquals($customer_count_before, Customer::count());
-        $this->assertEquals($address_count_before, Address::count());
-        $this->assertNull(Customer::where('user_id', $user_id)->first());
+        $customer = Customer::where('user_id', $user_id)->first();
+
+        $this->assertNotNull($customer);
+        $this->assertTrue(Address::where('customer_id', $customer->id)->where('type', AddressType::SHIPPING)->exists());
+        $this->assertTrue(Address::where('customer_id', $customer->id)->where('type', AddressType::BILLING)->exists());
+        $this->assertEquals($order_count_before, Order::count());
+    }
+
+    /**
+     * A first_time_buyer_only coupon is not rejected with "please login"
+     * for an authenticated user with no existing customer record - the
+     * customer is now resolved before coupon validation runs, so their
+     * customer_id is available at that point.
+     *
+     * @return void
+     */
+    public function test_checkout_accepts_first_time_buyer_coupon_for_new_customer(): void
+    {
+        $coupon = Coupon::create([
+            'title' => 'First Time Buyer',
+            'code' => 'FIRSTBUY' . wp_generate_password(6, false),
+            'discount_type' => DiscountType::FREE_SHIPPING,
+            'first_time_buyer_only' => true,
+            'is_active' => true,
+        ]);
+
+        $user_id = $this->create_shopper_user();
+        wp_set_current_user($user_id);
+
+        $response = $this->request('POST', 'orders', $this->order_payload([
+            'is_manual' => false,
+            'coupon_code' => $coupon->code,
+        ]));
+
+        $this->assert_api_success($response, 201);
+    }
+
+    /**
+     * A has_customer_limit coupon is not rejected with "please login" for
+     * an authenticated user with no existing customer record - their
+     * resolved customer_id (with zero prior usage) is available at coupon
+     * validation time instead of being unavailable.
+     *
+     * @return void
+     */
+    public function test_checkout_accepts_customer_usage_limit_coupon_for_new_customer(): void
+    {
+        $coupon = Coupon::create([
+            'title' => 'Limited Per Customer',
+            'code' => 'LIMITED' . wp_generate_password(6, false),
+            'discount_type' => DiscountType::FREE_SHIPPING,
+            'has_customer_limit' => true,
+            'customer_limit' => 1,
+            'is_active' => true,
+        ]);
+
+        $user_id = $this->create_shopper_user();
+        wp_set_current_user($user_id);
+
+        $response = $this->request('POST', 'orders', $this->order_payload([
+            'is_manual' => false,
+            'coupon_code' => $coupon->code,
+        ]));
+
+        $this->assert_api_success($response, 201);
     }
 
     /**
