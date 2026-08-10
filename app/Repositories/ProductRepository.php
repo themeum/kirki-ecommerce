@@ -6,6 +6,7 @@ use Kirki\Ecommerce\App\Constants\InventoryType;
 use Kirki\Ecommerce\App\Models\Product;
 use Kirki\Ecommerce\App\Constants\Pagination;
 use Kirki\Ecommerce\App\Managers\MoneyManager;
+use Kirki\Ecommerce\App\Models\Variant;
 use Kirki\Ecommerce\Framework\Collections\Collection;
 use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
@@ -237,10 +238,19 @@ class ProductRepository
             return $query->where('status', $filters['status']);
         });
 
-
         $query->when(!empty($filters['sort_by']) && !empty($filters['sort_order']), function (QueryBuilder $query) use ($filters) {
             return $query->order_by($filters['sort_by'], $filters['sort_order']);
-        }, function (QueryBuilder $query) {
+        }, function (QueryBuilder $query) use ($filters) {
+            $sort_by = $filters['sort_by'] ?? null;
+
+            if ($sort_by === 'low_to_high') {
+                return $query->order_by(Variant::where_raw('pid = product_id')->order_by('base_price', 'asc')->limit(1)->select('base_price'), 'asc');
+            }
+
+            if ($sort_by === 'high_to_low') {
+                return $query->order_by(Variant::where_raw('pid = product_id')->order_by('base_price', 'desc')->limit(1)->select('base_price'), 'desc');
+            }
+
             return $query->order_by('id', 'desc');
         });
 
