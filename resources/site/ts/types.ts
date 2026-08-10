@@ -141,7 +141,7 @@ export interface OrderItem {
   quantity: number;
 }
 
-export interface OrderRequest {
+export interface CheckoutRequest {
   items: OrderItem[];
   currency_code: string;
   payment_provider: string;
@@ -175,13 +175,17 @@ export interface OrderRequest {
   customer_notes?: string | null;
 }
 
-export interface OrderResponse {
+export interface CheckoutResponse {
   id: number;
   uuid: string;
   order_number: string;
   status: string;
   total: string;
   currency: string;
+  payment_next_step: {
+    type: 'redirect' | 'html',
+    value: string
+  } | null
 }
 
 export interface WishlistItem {

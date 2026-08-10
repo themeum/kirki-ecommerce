@@ -71,6 +71,42 @@ class Url
     }
 
     /**
+     * Get checkout success URL.
+     *
+     * @since 1.0.0
+     *
+     * @return string
+     */
+    public static function get_checkout_success_url(string $uuid): string
+    {
+        return self::add_query_params(
+            self::get_checkout_url(),
+            [
+                'order' => 'success',
+                'uuid' => $uuid,
+            ]
+        );
+    }
+
+    /**
+     * Get checkout fail URL.
+     *
+     * @since 1.0.0
+     *
+     * @return string
+     */
+    public static function get_checkout_failed_url(string $uuid): string
+    {
+        return self::add_query_params(
+            self::get_checkout_url(),
+            [
+                'order' => 'failed',
+                'uuid' => $uuid,
+            ]
+        );
+    }
+
+    /**
      * Get account URL.
      *
      * @since 1.0.0
@@ -94,5 +130,41 @@ class Url
     public static function get_login_url($redirect = '')
     {
         return wp_login_url($redirect);
+    }
+
+    /**
+     * Add query params to URL.
+     *
+     * @since 1.0.0
+     *
+     * @param string $url URL.
+     * @param array  $query_params Query params.
+     *
+     * @return string
+     */
+    public static function add_query_params($url, array $query_params = array()): string
+    {
+        $url = ltrim($url, '/');
+
+        if (! empty($query_params)) {
+            $url = add_query_arg($query_params, $url);
+        }
+
+        return $url;
+    }
+
+    /**
+     * Remove query params from URL.
+     *
+     * @since 1.0.0
+     *
+     * @param string $url URL.
+     * @param array  $query_params Query params.
+     *
+     * @return string
+     */
+    public static function remove_query_params($url, array $query_params = array()): string
+    {
+        return remove_query_arg($query_params, $url);
     }
 }

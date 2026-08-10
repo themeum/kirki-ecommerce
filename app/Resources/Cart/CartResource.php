@@ -36,6 +36,10 @@ class CartResource extends Resource
      */
     public function to_array()
     {
+        if (!$this->resource) {
+            return [];
+        }
+
         $context = CalculationContextDTO::from_cart($this->resource);
         $context->should_calculate_tax = $this->should_calculate_tax;
 

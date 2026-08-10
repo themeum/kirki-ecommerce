@@ -216,8 +216,10 @@ class CartService
         $cart_token = null;
 
         if (is_user_logged_in()) {
-            $customer = customer();
-            $customer_id = $customer->get_customer_id();
+            $customer_id = customer()->get_customer_id();
+            if (!$customer_id) {
+                $cart_token = $this->get_cookie_cart_token();
+            }
         } else {
             $cart_token = $this->get_cookie_cart_token();
         }

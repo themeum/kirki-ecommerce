@@ -21,9 +21,9 @@ $countries = $data->countries ?? [];
 $payment_gateways = $data->payment_gateways ?? [];
 
 $cart = $data->cart ?? null;
-$shipping_address = $cart["shipping_address"];
-$billing_address = $cart["billing_address"];
-$available_shipping_methods = $cart["available_shipping_methods"];
+$shipping_address = $cart["shipping_address"] ?? [];
+$billing_address = $cart["billing_address"] ?? [];
+$available_shipping_methods = $cart["available_shipping_methods"] ?? [];
 ?>
 
 <?php Template::get_header(); ?>
