@@ -55,7 +55,6 @@ function renderField(field: OnlinePaymentField) {
     default:
       return null;
   }
-
 }
 
 export const DynamicOnlinePaymentFields = ({
