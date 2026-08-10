@@ -1,0 +1,24 @@
+## 1. Schema and model
+
+- [x] 1.1 Add `customer_first_name` and `customer_last_name` columns to `kirki_ecommerce_orders` in `database/migrations/CreateOrdersTable.php` (nullable string, 100, placed next to `customer_email`/`customer_phone`, matching the `string(100)` sizing already used for `shipping_first_name`/`billing_first_name`) — edit the create migration directly, matching how every prior order-field change in this repo has been made (no `Add*`/`Alter*` migrations exist yet).
+- [x] 1.2 Add `customer_first_name` and `customer_last_name` to `Order::$fillable` in `app/Models/Order.php`.
+- [x] 1.3 Verify: `composer test:unit` runs clean (no behavior yet, just confirming the schema/model change doesn't break existing model tests).
+
+## 2. DTO plumbing (resolved output only — no request input)
+
+- [x] 2.1 Add `public $customer_first_name;` and `public $customer_last_name;` (nullable strings) to `app/DTO/Order/CreateOrderDTO.php`, next to `customer_email`/`customer_phone`. **Correction during implementation:** these are not accepted as create-order request input — `CreateOrderPayloadDTO` and `OrderCreateRequest` are not touched. See design.md's "Correction during implementation" note: the original plan added `customer_first_name`/`customer_last_name` as request fields and kept `customer_email`/`customer_phone` request-overridable; the user redirected mid-implementation to a WordPress-profile-or-billing-only resolution, with no request-level override at all. The `customer_email`/`customer_phone` fields that previously existed on `CreateOrderPayloadDTO`/`OrderCreateRequest` were removed as part of this correction (task 2.2) since they became unread.
+- [x] 2.2 Remove the now-unused `customer_email`/`customer_phone` fields from `app/DTO/Order/CreateOrderPayloadDTO.php`, and their validation rule + sanitizer from `app/Http/Requests/Order/OrderCreateRequest.php`'s `rules()`/`filters()`. Do not add `customer_first_name`/`customer_last_name` to either — they were never request-accepted.
+- [x] 2.4 Verify: `composer test` still passes for existing `OrderApiTest` cases (e.g. `test_store_order_returns_201`, `test_store_order_validation_fails_without_items`) — confirms removing these request fields doesn't break existing request validation.
+
+## 3. Contact resolution in order creation
+
+- [x] 3.1 In `app/Actions/Order/CreateOrderAction.php`, add a protected method `resolve_customer_contact_details(CreateOrderPayloadDTO $dto): array` that returns `['first_name' => ..., 'last_name' => ..., 'email' => ..., 'phone' => ...]`, resolving each field independently with priority: the WordPress user's profile (via `get_userdata($dto->created_by)`, only when `$dto->created_by` is set: `first_name`, `last_name`, `user_email`, `phone`) → billing fields (`billing_first_name`, `billing_last_name`, `billing_email`, `billing_phone`). No request-level value is consulted.
+- [x] 3.2 Call `resolve_customer_contact_details($dto)` from `prepare_create_order_dto()` and assign the four resulting values to `$order_dto->customer_first_name`, `$order_dto->customer_last_name`, `$order_dto->customer_email`, `$order_dto->customer_phone` (replacing the prior direct passthrough of `$dto->customer_email`/`$dto->customer_phone`).
+- [x] 3.3 Add integration tests in `tests/Integration/OrderApiTest.php` (mirroring the style of `test_checkout_customer_prefers_wp_profile_then_falls_back_to_billing`) covering: authenticated user with a full WP profile → order uses WP profile values even when billing differs; authenticated user with a partial WP profile (e.g. no phone meta) → missing field falls back to billing, present fields don't; guest checkout → order uses billing values entirely.
+- [x] 3.4 Verify: `composer test` passes, including the new tests from 3.3. (One pre-existing, unrelated failure: `test_create_refund_on_order` fails with 422 both before and after this change's edits — not touched by this change, left as-is.)
+
+## 4. Order list API
+
+- [x] 4.1 In `app/Resources/Order/OrderListResource.php`, update `resolve_customer_name()` to build the string from `$this->customer_first_name`/`$this->customer_last_name` instead of `shipping_first_name`/`shipping_last_name`. The `customer_name` key and its trim-to-null-if-empty behavior stay the same; `customer_email` output is unchanged; `customer_phone` is not added.
+- [x] 4.2 Add/update an integration test asserting `GET /orders` returns a `customer_name` built from the stored `customer_first_name`/`customer_last_name` for a listed order.
+- [x] 4.3 Verify: `composer test` passes. (Full suite has two other pre-existing failures unrelated to this change: `CartApiTest::test_get_cart_returns_empty_cart_initially`/`test_cart_item_and_address_lifecycle`, and `OrderApiTest::test_create_refund_on_order` — none touch code this change modifies.)

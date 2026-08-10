@@ -1,5 +1,6 @@
 import { keyframes, type CSSObject, type Theme } from '@emotion/react';
 
+import { WP_MEDIA_FRAME_SELECTOR } from '@/hooks/use-wordpress-media';
 import { APP_ROOT_SELECTOR } from '@/theme/mixins';
 
 const pageEnterKeyframes = keyframes({
@@ -31,6 +32,9 @@ const getShellStyles = (theme: Theme): CSSObject => {
     },
     [APP_ROOT_SELECTOR]: {
       marginLeft: '-20px',
+    },
+    [WP_MEDIA_FRAME_SELECTOR]: {
+      pointerEvents: 'auto',
     },
     [`#wpwrap:has(${NOT_FOUND_SELECTOR})`]: {
       backgroundColor: surfaceTertiary,

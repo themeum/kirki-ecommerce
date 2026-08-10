@@ -41,7 +41,9 @@ const styles = defineStyles({
     display: 'inline-block',
     flexShrink: 0,
     borderRadius: theme.radius.full,
+    border: `1px solid ${theme.colors.border.default}`,
     backgroundColor: 'var(--swatch-color)',
     width: 'var(--swatch-size)',
+    height: 'var(--swatch-size)',
   },
 });

@@ -1,1 +1,13 @@
-<svg fill="#FFB3C7" role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>Klarna</title><path d="M4.592 2v20H0V2h4.592zm11.46 0c0 4.194-1.583 8.105-4.415 11.068l-.278.283L17.702 22h-5.668l-6.893-9.4 1.779-1.332c2.858-2.14 4.535-5.378 4.637-8.924L11.562 2h4.49zM21.5 17a2.5 2.5 0 110 5 2.5 2.5 0 010-5z"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none">
+  <g clip-path="url(#a)">
+    <rect width="18.333" height="18.333" x=".836" y=".832" fill="#ffb3c7" rx="9.167" />
+    <path fill="#0a0b09"
+      d="M7.16 14.583H5l.001-9.167h2.16zM10.348 10.619a7.2 7.2 0 0 0 2.21-5.203h-2.116a5.1 5.1 0 0 1-.57 2.374A5.3 5.3 0 0 1 8.26 9.664l-.838.612 3.244 4.307h2.668z" />
+    <circle cx="14.956" cy="13.542" r="1.042" fill="#000" />
+  </g>
+  <defs>
+    <clipPath id="a">
+      <rect width="20" height="20" fill="#fff" rx="2" />
+    </clipPath>
+  </defs>
+</svg>

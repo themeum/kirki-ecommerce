@@ -26,4 +26,18 @@ class Home extends Menu
 
         parent::__construct();
     }
+
+    public function render()
+    {
+        parent::render();
+
+        // @todo: will be removed after the home menu is back
+        add_action('admin_head', function () {
+            echo '<style>
+                #toplevel_page_kirki-ecommerce > ul.wp-submenu > li.wp-first-item {
+                    display: none;
+                }
+            </style>';
+        });
+    }
 }

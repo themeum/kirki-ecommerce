@@ -7,6 +7,7 @@ x-wordpress-volumes: &wordpress-volumes
   - ../kirki-razorpay:/var/www/html/wp-content/plugins/kirki-razorpay:cached
   - ./docker/wp-config.php:/var/www/html/wp-config.php:ro
   - ./docker/php/php.ini:/usr/local/etc/php/conf.d/zz-php.ini:ro
+  - ./wordpress-debug.log:/var/www/html/wp-content/debug.log
 
 services:
   nginx:
@@ -42,6 +43,7 @@ services:
       - ./docker/wp-config.php:/var/www/html/wp-config.php:ro
       - ./docker/php/php.ini:/usr/local/etc/php/conf.d/zz-php.ini:ro
       - ./docker/php/conf.d:/usr/local/etc/php/conf.d/local:ro
+      - ./wordpress-debug.log:/var/www/html/wp-content/debug.log
     environment:
       DB_NAME: ${DB_NAME:-kirki_ecommerce}
       DB_USER: ${DB_USER:-wordpress}
@@ -128,6 +130,7 @@ services:
       - ./docker/wp-config.php:/var/www/html/wp-config.php:ro
       - ./docker/php/php.ini:/usr/local/etc/php/conf.d/zz-php.ini:ro
       - ./docker/scripts/install-wordpress.sh:/usr/local/bin/install-wordpress.sh:ro
+      - ./wordpress-debug.log:/var/www/html/wp-content/debug.log
     environment:
       DB_NAME: ${DB_NAME:-kirki_ecommerce}
       DB_USER: ${DB_USER:-wordpress}

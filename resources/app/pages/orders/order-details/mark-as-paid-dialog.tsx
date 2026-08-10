@@ -16,6 +16,7 @@ import {
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import Text from '@/components/ui/text';
+import { RouteConfig } from '@/config/route-config';
 import { useOfflinePaymentsQuery } from '@/services/payment';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
@@ -77,7 +78,10 @@ const MarkAsPaidDialog = ({ open, onOpenChange, order, isSaving, onSubmit }: Mar
             <Button variant="outline" onClick={() => onOpenChange(false)}>
               {__('Dismiss', 'kirki-ecommerce')}
             </Button>
-            <Button variant="primary" onClick={() => navigate('/settings/payments')}>
+            <Button
+              variant="primary"
+              onClick={() => navigate(RouteConfig.Settings.get('PaymentSettings').buildLink())}
+            >
               {__('Include a payment option', 'kirki-ecommerce')}
             </Button>
           </DialogFooter>

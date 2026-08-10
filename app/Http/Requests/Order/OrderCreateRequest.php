@@ -119,9 +119,6 @@ class OrderCreateRequest extends Request
             'billing_email' => 'nullable|email',
             'billing_company' => 'nullable|string',
 
-            'customer_email' => 'nullable|email',
-            'customer_phone' => 'nullable|string',
-
             'customer_notes' => 'nullable|string',
             'admin_notes' => 'nullable|string',
             'is_manual' => 'nullable|boolean',
@@ -168,8 +165,6 @@ class OrderCreateRequest extends Request
             'billing_email' => Sanitizer::EMAIL,
             'billing_company' => Sanitizer::TEXT,
 
-            'customer_email' => Sanitizer::EMAIL,
-            'customer_phone' => Sanitizer::TEXT,
             'customer_notes' => Sanitizer::TEXT,
             'admin_notes' => Sanitizer::TEXT,
             'is_manual' => Sanitizer::BOOL,

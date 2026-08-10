@@ -1,20 +1,20 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 
 import Button from '@/components/ui/button';
 import { Dialog, DialogBody, DialogClose, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import Flex from '@/components/ui/flex';
 import { OnlinePaymentEditFormSchema, onlinePaymentEditDefaultValues, type OnlinePaymentEditFormInput, type OnlinePaymentEditFormPayload } from '@/schemas/forms/online-payment-form';
 import { useUpdateOnlinePaymentMutation } from '@/services/payment';
 import type { OnlinePayment } from '@/types';
 import { __ } from '@/wpi18n';
 
-import { dispatchToastMessage } from '@/pages/utils';
 import { DynamicOnlinePaymentFields } from '@/pages/settings/payment-settings/utils';
+import { dispatchToastMessage } from '@/pages/utils';
 
 type OnlinePaymentEditPopupProps = {
   editedItem: OnlinePayment | null;
@@ -35,6 +35,7 @@ const OnlinePaymentEditPopup = ({
     defaultValues: onlinePaymentEditDefaultValues,
   });
 
+
   useEffect(() => {
     if (!isOpen) {
       return;
@@ -42,7 +43,7 @@ const OnlinePaymentEditPopup = ({
 
     form.reset(
       (editedItem?.settings as OnlinePaymentEditFormInput) ||
-        onlinePaymentEditDefaultValues,
+      onlinePaymentEditDefaultValues,
     );
   }, [isOpen, editedItem, form]);
 

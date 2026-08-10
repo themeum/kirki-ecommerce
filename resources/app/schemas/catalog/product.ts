@@ -76,7 +76,7 @@ export const ProductListItemSchema = z.object({
   base_sale_price: MoneyAmountSchema.nullable(),
   base_sale_price_money_object: MoneyObjectSchema.nullable(),
   display_sale_price: MoneyAmountSchema.nullish(),
-  display_sale_price_money_object: MoneyObjectSchema,
+  display_sale_price_money_object: MoneyObjectSchema.nullish(),
   status: z.union([ProductStatusSchema, z.string()]),
   created_at: z.string().nullish(),
   updated_at: z.string().nullish(),

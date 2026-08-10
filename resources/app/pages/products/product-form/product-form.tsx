@@ -16,6 +16,7 @@ import { Form } from '@/components/ui/form';
 import Grid from '@/components/ui/grid';
 import PageHeading from '@/components/ui/page-heading';
 import { Separator } from '@/components/ui/separator';
+import { RouteConfig } from '@/config/route-config';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { setUnsavedDataStatus } from '@/libs/unsaved-store';
@@ -142,7 +143,7 @@ const ProductForm = ({
   return (
     <Form {...form}>
       <PageHeading
-        onBack={() => navigate('/products')}
+        onBack={() => navigate(RouteConfig.Products.buildLink())}
         text={
           isCreate
             ? __('New Product', 'kirki-ecommerce')
@@ -154,7 +155,7 @@ const ProductForm = ({
           <>
             <Button
               variant="ghost"
-              onClick={() => navigate('/products')}
+              onClick={() => navigate(RouteConfig.Products.buildLink())}
               disabled={isSubmitting}
             >
               {__('Cancel', 'kirki-ecommerce')}

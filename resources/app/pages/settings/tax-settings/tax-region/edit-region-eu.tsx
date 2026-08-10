@@ -10,6 +10,7 @@ import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { RouteConfig } from '@/config/route-config';
 import Text from '@/components/ui/text';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
@@ -295,7 +296,7 @@ const EditRegionEU = () => {
               <SettingsPageHeader
                 title={__('EU', 'kirki-ecommerce')}
                 icon={'🇪🇺'}
-                onBack={() => navigate('/settings/tax')}
+                onBack={() => navigate(RouteConfig.Settings.get('TaxSettings').buildLink())}
               />
 
               <Card cssOverride={cardStyles.formCard} >

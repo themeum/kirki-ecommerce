@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
+import { endpoints } from '@/config/endpoints';
 import { apiClient } from '@/libs/api';
-import { endpoints } from '@/libs/endpoints';
 import { queryKeys } from '@/libs/query-keys';
 import { AppConfigSchema } from '@/schemas/catalog/app-config';
 import { SettingsSchemaMap, type SettingsSectionKey } from '@/schemas/catalog/settings';
@@ -83,7 +83,7 @@ const useUpdateSettingsMutation = <K extends keyof SettingsPayloadMap>() => {
     onSuccess(response, variables) {
       toastMutationSuccess(
         response.message ||
-          __('Settings updated successfully.', 'kirki-ecommerce'),
+        __('Settings updated successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({
         queryKey: queryKeys.Settings(variables.key),
@@ -99,10 +99,6 @@ const useUpdateSettingsMutation = <K extends keyof SettingsPayloadMap>() => {
 };
 
 export {
-  getSettings,
-  getDefaultSettings,
-  updateSettings,
-  useSettingsQuery,
-  useDefaultSettingsQuery,
-  useUpdateSettingsMutation,
+  getDefaultSettings, getSettings, updateSettings, useDefaultSettingsQuery, useSettingsQuery, useUpdateSettingsMutation
 };
+

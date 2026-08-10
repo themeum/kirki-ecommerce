@@ -20,7 +20,7 @@ const AdvancedSettings = () => {
           <CardContent >
             <Flex direction="column" gap={2}>
               <Text weight="semibold">
-                {__('Coming soon', 'kirki-ecommerce')}
+                {__('Work in progress', 'kirki-ecommerce')}
               </Text>
               <Text color="secondary">
                 {__(

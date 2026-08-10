@@ -1,13 +1,14 @@
 import { useNavigate } from 'react-router';
 
-import Button from '@/components/ui/button';
-import { EditPenIcon, TrashIcon } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
+import Button from '@/components/ui/button';
 import Checkbox from '@/components/ui/checkbox';
 import Flex from '@/components/ui/flex';
 import { TableCell, TableRow } from '@/components/ui/table';
 import Text from '@/components/ui/text';
 import Thumbnail from '@/components/ui/thumbnail';
+import { RouteConfig } from '@/config/route-config';
+import { EditPenIcon, TrashIcon } from '@/icons';
 import { useDeleteCollectionMutation } from '@/services/collection';
 import type { Collection, MarkListHandlers } from '@/types';
 import { __ } from '@/wpi18n';
@@ -25,7 +26,7 @@ const SingleRow = ({
   const deleteMutation = useDeleteCollectionMutation();
 
   const handleItemClick = (id: number) => {
-    navigate('/collections/' + id);
+    navigate(RouteConfig.Collections.get('CollectionDetail').buildLink({ id }));
   };
 
   const onItemDelete = (id: number) => {

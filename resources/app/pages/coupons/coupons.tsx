@@ -6,6 +6,7 @@ import PageHeading from '@/components/ui/page-heading';
 
 import Page from '@/components/ui/page';
 import { NEW_ITEM_ID } from '@/conf';
+import { RouteConfig } from '@/config/route-config';
 import CouponTable from '@/pages/coupons/coupon-table/coupon-table';
 import { __ } from '@/wpi18n';
 
@@ -19,7 +20,7 @@ const Coupons = () => {
           <Button
             variant="primary"
             onClick={() => {
-              navigate('/coupons/' + NEW_ITEM_ID);
+              navigate(RouteConfig.Coupons.get('EditCoupon').buildLink({ id: NEW_ITEM_ID }));
             }}
           >
             {__('Create Coupon', 'kirki-ecommerce')}

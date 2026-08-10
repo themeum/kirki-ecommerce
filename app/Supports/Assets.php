@@ -4,6 +4,8 @@ namespace Kirki\Ecommerce\App\Supports;
 
 use Kirki\Ecommerce\Framework\Supports\Arr;
 
+use function Kirki\Ecommerce\Framework\app;
+
 class Assets
 {
     const ADMIN_PAGE = 'kirki-ecommerce';
@@ -38,6 +40,34 @@ class Assets
         return KIRKI_ECOMMERCE_ASSETS_PATH . ($path ? '/' . $path : '');
     }
 
+    /**
+     * Get the Vite build manifest, mapping each entry/chunk source path to
+     * its current content-hashed output file.
+     *
+     * @since 1.0.0
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    public static function get_manifest()
+    {
+        static $manifest;
+
+        if ($manifest !== null) {
+            return $manifest;
+        }
+
+        $manifest_path = static::get_path('.vite/manifest.json');
+
+        if (!file_exists($manifest_path)) {
+            return $manifest = [];
+        }
+
+        $contents = file_get_contents($manifest_path);
+        $decoded = json_decode($contents, true);
+
+        return $manifest = is_array($decoded) ? $decoded : [];
+    }
+
     public static function is_admin_page()
     {
         if (!is_admin()) {
@@ -63,8 +93,8 @@ class Assets
             'ajax_url' => esc_url(admin_url('admin-ajax.php')),
             'rest_nonce' => esc_attr(wp_create_nonce('wp_rest')),
             'rest_url_base' => esc_url(rest_url() . 'kirki/ecommerce/v1'),
-            'version' => KIRKI_ECOMMERCE_VERSION,
-            'is_dev' => defined('KIRKI_ECOMMERCE_IS_DEV') && KIRKI_ECOMMERCE_IS_DEV,
+            'version' => app()->version(),
+            'is_dev' => app()->is_dev_mode(),
             'is_logged_in' => is_user_logged_in(),
             'login_url' => esc_url(wp_login_url()),
         ];

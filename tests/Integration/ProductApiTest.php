@@ -51,6 +51,31 @@ class ProductApiTest extends RestTestCase
     }
 
     /**
+     * Create product persists additional info and SEO keywords.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_create_product_persists_additional_info_and_seo_keywords(): void
+    {
+        $response = $this->request('POST', 'products', $this->product_payload([
+            'title' => 'Info Product',
+            'additional_info' => ['material' => 'cotton', 'origin' => 'US'],
+            'seo_keywords' => ['shirt', 'summer'],
+        ]));
+
+        $payload = $this->assert_api_success($response, 201);
+        $this->assertEquals(['material' => 'cotton', 'origin' => 'US'], $payload['data']['additional_info']);
+        $this->assertEquals(['shirt', 'summer'], $payload['data']['seo_keywords']);
+
+        $this->product_id = $payload['data']['id'];
+        $fetched = $this->request('GET', 'products/' . $this->product_id);
+        $fetched_payload = $this->assert_api_success($fetched);
+        $this->assertEquals(['material' => 'cotton', 'origin' => 'US'], $fetched_payload['data']['additional_info']);
+        $this->assertEquals(['shirt', 'summer'], $fetched_payload['data']['seo_keywords']);
+    }
+
+    /**
      * Show product returns resource.
      *
      * @return void

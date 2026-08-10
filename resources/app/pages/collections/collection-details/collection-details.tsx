@@ -17,6 +17,7 @@ import { Separator } from '@/components/ui/separator';
 import Text from '@/components/ui/text';
 import Thumbnail from '@/components/ui/thumbnail';
 import { NEW_ITEM_ID } from '@/conf';
+import { RouteConfig } from '@/config/route-config';
 import { PlusIcon, ProductIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
@@ -79,7 +80,7 @@ const CollectionDetails = () => {
         });
       } else {
         const response = await createMutation.mutateAsync(payload);
-        navigate('/collections/' + response.data.id);
+        navigate(RouteConfig.Collections.get('CollectionDetail').buildLink({ id: response.data.id }));
       }
     } catch (error) {
       applyServerErrors(form, error as ErrorResponse);
@@ -100,7 +101,7 @@ const CollectionDetails = () => {
           <>
             <Button
               variant="ghost"
-              onClick={() => navigate('/collections')}
+              onClick={() => navigate(RouteConfig.Collections.buildLink())}
             >
               {__('Cancel', 'kirki-ecommerce')}
             </Button>
@@ -116,7 +117,7 @@ const CollectionDetails = () => {
           </>
         }
         hasBack
-        onBack={() => navigate('/collections')}
+        onBack={() => navigate(RouteConfig.Collections.buildLink())}
       />
 
       <Container size="md">

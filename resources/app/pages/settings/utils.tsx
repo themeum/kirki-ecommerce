@@ -1,6 +1,7 @@
 import { CircleDollarSign, CreditCard, Home, KeyRound, Mail, Package, Percent, Settings2, ShoppingCart, Snowflake, Truck } from 'lucide-react';
 import type { ReactNode } from 'react';
 
+import { RouteConfig } from '@/config/route-config';
 import type { SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -154,13 +155,13 @@ const navIconProps = { size: 16, strokeWidth: 1.5, 'aria-hidden': true as const 
 
 export const storeManagementSettings: SettingsNavItem[] = [
   {
-    link: '/settings/general',
+    link: RouteConfig.Settings.get('GeneralSettings').buildLink(),
     icon: <Home {...navIconProps} />,
     header: __('General', 'kirki-ecommerce'),
     subHeader: __('Basic settings of your store', 'kirki-ecommerce'),
   },
   {
-    link: '/settings/products',
+    link: RouteConfig.Settings.get('ProductsSettings').buildLink(),
     icon: <Package {...navIconProps} />,
     header: __('Products', 'kirki-ecommerce'),
     subHeader: __('Product-related configurations', 'kirki-ecommerce'),
@@ -169,31 +170,31 @@ export const storeManagementSettings: SettingsNavItem[] = [
 
 export const businessOperationSettings: SettingsNavItem[] = [
   {
-    link: '/settings/shipping',
+    link: RouteConfig.Settings.get('ShippingSettings').buildLink(),
     icon: <Truck {...navIconProps} />,
     header: __('Shipping', 'kirki-ecommerce'),
     subHeader: __('Delivery, pickup, and logistics setup', 'kirki-ecommerce'),
   },
   {
-    link: '/settings/currency',
+    link: RouteConfig.Settings.get('MultiCurrencySettings').buildLink(),
     icon: <CircleDollarSign {...navIconProps} />,
     header: __('Currency', 'kirki-ecommerce'),
     subHeader: __('Tax zones and rules setup', 'kirki-ecommerce'),
   },
   {
-    link: '/settings/tax',
+    link: RouteConfig.Settings.get('TaxSettings').buildLink(),
     icon: <Percent {...navIconProps} />,
     header: __('Tax', 'kirki-ecommerce'),
     subHeader: __('Tax zones and rules setup', 'kirki-ecommerce'),
   },
   {
-    link: '/settings/payments',
+    link: RouteConfig.Settings.get('PaymentSettings').buildLink(),
     icon: <CreditCard {...navIconProps} />,
     header: __('Payments', 'kirki-ecommerce'),
     subHeader: __('Configure how you accept payments', 'kirki-ecommerce'),
   },
   {
-    link: '/settings/email',
+    link: RouteConfig.Settings.get('EmailSettings').buildLink(),
     icon: <Mail {...navIconProps} />,
     header: __('Emails', 'kirki-ecommerce'),
     subHeader: __(
@@ -202,7 +203,7 @@ export const businessOperationSettings: SettingsNavItem[] = [
     ),
   },
   {
-    link: '/settings/checkout',
+    link: RouteConfig.Settings.get('CheckoutSettings').buildLink(),
     icon: <ShoppingCart {...navIconProps} />,
     header: __('Checkout', 'kirki-ecommerce'),
     subHeader: __('Guest checkout and legal information', 'kirki-ecommerce'),
@@ -211,19 +212,19 @@ export const businessOperationSettings: SettingsNavItem[] = [
 
 export const advancedSettings: SettingsNavItem[] = [
   {
-    link: '/settings/advanced',
+    link: RouteConfig.Settings.get('AdvancedSettings').buildLink(),
     icon: <Settings2 {...navIconProps} />,
     header: __('Advanced', 'kirki-ecommerce'),
     subHeader: __('Advanced settings of your store', 'kirki-ecommerce'),
   },
   {
-    link: '/settings/essentials',
+    link: RouteConfig.Settings.get('EssentialsSettings').buildLink(),
     icon: <Snowflake {...navIconProps} />,
     header: __('Essentials', 'kirki-ecommerce'),
     subHeader: __('Advanced settings of your store', 'kirki-ecommerce'),
   },
   {
-    link: '/settings/license',
+    link: RouteConfig.Settings.get('LicenseSettings').buildLink(),
     icon: <KeyRound {...navIconProps} />,
     header: __('License', 'kirki-ecommerce'),
     subHeader: __('Basic settings of your store', 'kirki-ecommerce'),

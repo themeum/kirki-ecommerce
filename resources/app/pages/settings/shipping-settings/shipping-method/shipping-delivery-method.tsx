@@ -10,6 +10,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
+import { RouteConfig } from '@/config/route-config';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { queryClient } from '@/libs/query-client';
@@ -22,6 +23,7 @@ import {
 } from '@/schemas/forms/shipping-method-form';
 import { updateSettings, useSettingsQuery } from '@/services/settings';
 import { cardStyles } from '@/theme/card-styles';
+import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
 
 import { useSettingsPageActions } from '@/pages/settings/settings-layout/use-settings-page-actions';
@@ -32,6 +34,8 @@ import RateByWeightSettings from '@/pages/settings/shipping-settings/shipping-me
 import { ShippingRules } from '@/pages/settings/shipping-settings/shipping-method/shipping-rules/shipping-rules';
 import type { ShippingMethodData, ShippingZone } from '@/pages/settings/shipping-settings/utils';
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
+
+const ShippingRoutes = RouteConfig.Settings.get('ShippingSettings');
 
 const methodTypeOptions = [
   { label: __('Flat Rate', 'kirki-ecommerce'), value: 'flat_rate' },
@@ -133,7 +137,7 @@ const ShippingDeliveryMethod = () => {
       );
       form.reset(payload);
       navigate(
-        `/settings/shipping/delivery-method?methodId=${methodId}&zoneId=${zoneIdParam}`,
+        `${ShippingRoutes.get('ShippingDeliveryMethod').buildLink()}?methodId=${methodId}&zoneId=${zoneIdParam}`,
       );
     } catch (error) {
       applyServerErrors(form, error as ErrorResponse);
@@ -156,7 +160,13 @@ const ShippingDeliveryMethod = () => {
         <Flex direction="column" gap={4}>
           <SettingsPageHeader
             title={methodTypeTitles[methodType] ?? ''}
-            onBack={() => navigate(`/settings/shipping/zone/${zoneIdParam}`)}
+            onBack={() =>
+              navigate(
+                isDefined(zoneIdParam)
+                  ? ShippingRoutes.get('ShippingZone').buildLink({ zone_Id: zoneIdParam })
+                  : ShippingRoutes.buildLink(),
+              )
+            }
           />
           <Card cssOverride={cardStyles.formCard}>
             <CardContent>

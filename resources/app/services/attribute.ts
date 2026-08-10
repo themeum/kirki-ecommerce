@@ -1,7 +1,7 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
+import { endpoints } from '@/config/endpoints';
 import { apiClient } from '@/libs/api';
-import { endpoints } from '@/libs/endpoints';
 import { queryKeys } from '@/libs/query-keys';
 import { AttributeSchema, AttributeValueSchema } from '@/schemas/catalog/attribute';
 import type { AddVariationFormPayload } from '@/schemas/forms/add-variation-form';
@@ -126,7 +126,7 @@ const useCreateAttributeMutation = () => {
     onSuccess(response) {
       toastMutationSuccess(
         response.message ||
-          __('Attribute created successfully.', 'kirki-ecommerce'),
+        __('Attribute created successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: ['Attributes'] });
     },
@@ -143,7 +143,7 @@ const useUpdateAttributeMutation = () => {
     onSuccess(response) {
       toastMutationSuccess(
         response.message ||
-          __('Attribute updated successfully.', 'kirki-ecommerce'),
+        __('Attribute updated successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: ['Attributes'] });
     },
@@ -160,7 +160,7 @@ const useDeleteAttributeMutation = () => {
     onSuccess(response) {
       toastMutationSuccess(
         response.message ||
-          __('Attribute deleted successfully.', 'kirki-ecommerce'),
+        __('Attribute deleted successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: ['Attributes'] });
     },
@@ -177,7 +177,7 @@ const useCreateAttributeValueMutation = () => {
     onSuccess(response) {
       toastMutationSuccess(
         response.message ||
-          __('Attribute value created successfully.', 'kirki-ecommerce'),
+        __('Attribute value created successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: ['Attributes'] });
       void queryClient.invalidateQueries({ queryKey: ['AttributeValues'] });
@@ -195,7 +195,7 @@ const useUpdateAttributeValueMutation = () => {
     onSuccess(response) {
       toastMutationSuccess(
         response.message ||
-          __('Attribute value updated successfully.', 'kirki-ecommerce'),
+        __('Attribute value updated successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: ['Attributes'] });
       void queryClient.invalidateQueries({ queryKey: ['AttributeValues'] });
@@ -213,7 +213,7 @@ const useDeleteAttributeValueMutation = () => {
     onSuccess(response) {
       toastMutationSuccess(
         response.message ||
-          __('Attribute value deleted successfully.', 'kirki-ecommerce'),
+        __('Attribute value deleted successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: ['Attributes'] });
       void queryClient.invalidateQueries({ queryKey: ['AttributeValues'] });
@@ -231,7 +231,7 @@ const useBulkDeleteAttributeValuesMutation = () => {
     onSuccess(response) {
       toastMutationSuccess(
         response.message ||
-          __('Attribute values deleted successfully.', 'kirki-ecommerce'),
+        __('Attribute values deleted successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: ['Attributes'] });
       void queryClient.invalidateQueries({ queryKey: ['AttributeValues'] });
@@ -243,24 +243,6 @@ const useBulkDeleteAttributeValuesMutation = () => {
 };
 
 export {
-  getAttributes,
-  getAttribute,
-  getAttributeValues,
-  createAttribute,
-  updateAttribute,
-  deleteAttribute,
-  createAttributeValue,
-  updateAttributeValue,
-  deleteAttributeValue,
-  bulkDeleteAttributeValues,
-  useAttributesQuery,
-  useAttributeQuery,
-  useAttributeValuesQuery,
-  useCreateAttributeMutation,
-  useUpdateAttributeMutation,
-  useDeleteAttributeMutation,
-  useCreateAttributeValueMutation,
-  useUpdateAttributeValueMutation,
-  useDeleteAttributeValueMutation,
-  useBulkDeleteAttributeValuesMutation,
+  bulkDeleteAttributeValues, createAttribute, createAttributeValue, deleteAttribute, deleteAttributeValue, getAttribute, getAttributes, getAttributeValues, updateAttribute, updateAttributeValue, useAttributeQuery, useAttributesQuery, useAttributeValuesQuery, useBulkDeleteAttributeValuesMutation, useCreateAttributeMutation, useCreateAttributeValueMutation, useDeleteAttributeMutation, useDeleteAttributeValueMutation, useUpdateAttributeMutation, useUpdateAttributeValueMutation
 };
+
