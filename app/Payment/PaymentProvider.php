@@ -507,6 +507,14 @@ class PaymentProvider
     {
         $parts = [];
 
+        if ($order_item->invoiced_price > 0) {
+            $parts[] = sprintf(
+                /* translators: %s: price */
+                __('Price: %s', 'kirki-ecommerce'),
+                Money::format(Money::from_minor($order_item->invoiced_price, $currency))
+            );
+        }
+
         if ($order_item->quantity > 0) {
             $parts[] = sprintf(
                 /* translators: %d: quantity */
@@ -540,5 +548,17 @@ class PaymentProvider
         }
 
         return implode(' | ', $parts);
+    }
+
+    /**
+     * Format amount.
+     *
+     * @param int $amount
+     * @param string $currency The order's currency code.
+     * @return string
+     */
+    public static function format_amount($amount, $currency)
+    {
+        return number_format(Money::from_minor($amount, $currency)->getAmount()->toFloat(), 2, '.', '');
     }
 }

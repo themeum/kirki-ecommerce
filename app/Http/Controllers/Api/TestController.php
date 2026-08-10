@@ -8,9 +8,10 @@ use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Payment\Facades\Payment;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\Framework\Http\Request;
-
 use Kirki\Ecommerce\App\Supports\AddonPlugin;
 use Kirki\Ecommerce\Framework\Supports\Facades\Date;
+use Kirki\Ecommerce\Payments\Stripe;
+
 use function Kirki\Ecommerce\Framework\app;
 use function Kirki\Ecommerce\Framework\response;
 
@@ -18,7 +19,6 @@ use function Kirki\Ecommerce\Framework\response;
 // Hit {{base_url}}/test for accessing this.
 class TestController
 {
-
     public function test(Request $request)
     {
         // CurrencyExchange::sync();
