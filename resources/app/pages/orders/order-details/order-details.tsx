@@ -20,6 +20,7 @@ import { Form } from '@/components/ui/form';
 import Page from '@/components/ui/page';
 import PageHeading from '@/components/ui/page-heading';
 import Text from '@/components/ui/text';
+import { RouteConfig } from '@/config/route-config';
 import { ShowMoreIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
@@ -95,7 +96,7 @@ const OrderDetails = () => {
           text={__('Orders', 'kirki-ecommerce')}
           type="primary"
           hasBack
-          onBack={() => navigate('/orders')}
+          onBack={() => navigate(RouteConfig.Orders.buildLink())}
           sticky
         />
         <Container>
@@ -198,7 +199,7 @@ const OrderDetails = () => {
             </>
           }
           hasBack
-          onBack={() => navigate('/orders')}
+          onBack={() => navigate(RouteConfig.Orders.buildLink())}
           sticky
         >
           <Flex gap={1}>

@@ -1,0 +1,34 @@
+## 1. Database
+
+- [x] 1.1 Change `kirki_ecommerce_customers.user_id` from a plain index to a **unique** one in `CreateCustomersTable::up()` directly, per design.md D5 - the table hasn't shipped in a release yet, so no separate migration or upgrade path is needed. (Revised mid-implementation from an initial separate-migration approach, at the user's direction, once confirmed the table is unreleased.)
+- [x] 1.2 N/A - superseded by 1.1's revision. No pre-existing-installation de-duplication note is needed since there's no shipped schema to migrate.
+- [x] 1.3 Verify: run `composer test:integration` - existing `CustomerApiTest` and `OrderApiTest` suites still pass against the migrated schema. (One pre-existing failure, `test_create_refund_on_order`, confirmed unrelated - it fails identically against `HEAD`'s `InventoryService.php`, before any of this change's edits.)
+
+## 2. Reusable customer provisioning (`CreateCustomerAction`)
+
+- [x] 2.1 In `CreateCustomerAction::create_user()`, when `$customer->user_id` is non-empty, look the WordPress user up (`get_userdata`) and reuse that ID; only call `wp_insert_user()` when `user_id` is empty. Throw if a `user_id` is provided but no such WordPress user exists.
+- [x] 2.2 Split `CreateCustomerAction::execute()` per design.md D2: keep its current public signature/transaction/behavior for `CustomerController`, and factor the actual create-customer-plus-addresses logic into a form `CreateOrderAction` can call directly without opening a nested transaction. (New public `provision()` method holds the logic; `execute()` now just wraps it in the transaction.)
+- [x] 2.3 Verify: run `composer test:integration` - existing `CustomerApiTest` (admin "add customer" flow) still passes unchanged.
+
+## 3. Checkout provisioning (`CreateOrderAction`)
+
+- [x] 3.1 In `CreateOrderAction::execute()`, inside the existing DB transaction, detect the trigger condition from design.md D1 (`$context->customer_id` empty, `!$dto->is_manual`, `$dto->created_by` non-empty).
+- [x] 3.2 When triggered, build a `CreateCustomerDTO` (`user_id = $dto->created_by`, first/last name + email + phone sourced from the WordPress user profile first and `$dto`'s `billing_*` fields as fallback per design.md D3) and shipping/billing `CreateAddressDTO`s from `$dto`'s resolved `shipping_*`/`billing_*` fields per design.md D4.
+- [x] 3.3 Invoke the non-transactional provisioning logic from task 2.2 and set `$context->customer_id` (and therefore the order's `customer_id`) to the resulting customer's ID. (Implemented as `resolve_checkout_customer_id()` setting `$create_order_dto->customer_id` directly, since `prepare_create_order_dto()` already runs before the transaction opens - functionally equivalent to routing through `$context->customer_id`.)
+- [x] 3.4 Handle the concurrent-first-checkout race per design.md D6: catch the unique-constraint violation from task 1.1's index, re-fetch the customer by `user_id`, and continue using that customer instead of failing the order.
+- [x] 3.5 Verify: run `composer test:integration` and `composer test:unit`. (Full suites run: only the two pre-existing, unrelated failures from tasks 1.3/4.7 remain - confirmed by temporarily stashing this change's code and reproducing the same failures against unmodified `HEAD`.)
+
+## 4. Integration test coverage
+
+- [x] 4.1 Add a test: authenticated user with no `Customer` row places an order via `POST /checkout` (or the existing order-store endpoint used by `OrderApiTest`) → asserts a `Customer` row now exists for their `user_id` and the order's `customer_id` references it (spec scenario "Logged-in user with no customer record places an order"). (`test_checkout_provisions_customer_for_authenticated_user_without_record`, via the `orders` endpoint per the task's own alternative - see 4.3 note on why `/checkout` itself is avoided in these tests.)
+- [x] 4.2 Add a test: authenticated user who already has a `Customer` row places an order → asserts no additional `Customer` row is created and the order links to the existing one (spec scenario "Logged-in user with an existing customer record places an order"). (`test_checkout_reuses_existing_customer_without_duplicating`)
+- [x] 4.3 Add/confirm a test: guest checkout still results in `customer_id = null` and no `Customer` row created (spec scenario "Guest places an order" - regression guard). (`test_checkout_guest_order_has_no_customer` - calls `CreateOrderAction` directly rather than `POST /checkout`: discovered mid-implementation that guest requests to the real `/checkout` endpoint currently 500 on an unrelated, pre-existing bug - `CheckoutController` passes `user()->get_id()` (`0` for a guest, not `null`) as `orders.created_by`, which violates that column's foreign key. Confirmed pre-existing by reproducing against unmodified `HEAD`. Flagged to the user; not fixed here as it's out of this change's scope.)
+- [x] 4.4 Add a test: the auto-provisioned customer's fields prefer the WordPress user profile and fall back to submitted billing fields for anything missing (spec scenario "WordPress profile is missing some fields"). (`test_checkout_customer_prefers_wp_profile_then_falls_back_to_billing`)
+- [x] 4.5 Add a test: shipping and billing `Address` rows are created for the auto-provisioned customer from the checkout payload, including the `is_billing_same_as_shipping` case (spec scenario "Addresses created from checkout payload"). (`test_checkout_duplicates_billing_address_from_shipping_when_same`, plus a shipping-address assertion folded into 4.1's test.)
+- [x] 4.6 Add a test: an order that fails after provisioning would occur (e.g. insufficient stock) leaves no `Customer`, `Address`, or order row behind (spec scenario "Order creation fails after customer provisioning would occur"). (`test_checkout_failure_leaves_no_customer_or_address_behind`)
+- [x] 4.7 Verify: run `composer test:integration` - all new and existing tests pass. (Only the pre-existing, unrelated `test_create_refund_on_order` failure remains.)
+
+## 5. Final verification
+
+- [x] 5.1 Run `composer test` (full Unit + Integration suite) and confirm everything passes. (Unit: 117/117 pass. Integration: 179/182 pass; the 3 failures - `test_create_refund_on_order`, and `CartApiTest`'s `test_get_cart_returns_empty_cart_initially` / `test_cart_item_and_address_lifecycle` - are pre-existing and unrelated, confirmed by reproducing each against unmodified `HEAD` before any of this change's edits.)
+- [x] 5.2 Manually confirm admin-manual order creation (`is_manual = true`) is unaffected - no customer auto-provisioning triggered for that path. (`CreateOrderAction`'s trigger condition is `empty($create_order_dto->customer_id) && !$dto->is_manual && !empty($dto->created_by)` - `is_manual = true` short-circuits it unconditionally. Every pre-existing `OrderApiTest` test uses `order_payload()`'s default `is_manual = true` and continues to pass unchanged, which exercises this directly.)

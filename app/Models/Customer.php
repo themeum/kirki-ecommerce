@@ -4,7 +4,6 @@ namespace Kirki\Ecommerce\App\Models;
 
 use Kirki\Ecommerce\App\Constants\AddressType;
 use Kirki\Ecommerce\Framework\Database\Query\Model;
-use Kirki\Ecommerce\Framework\Supports\Arr;
 
 class Customer extends Model
 {
@@ -34,11 +33,6 @@ class Customer extends Model
         'created_by',
         'updated_by',
     ];
-
-    public function set_tags_attribute($value)
-    {
-        return !empty($value) && is_array($value) ? Arr::json_encode($value) : null;
-    }
 
     public function addresses()
     {

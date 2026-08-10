@@ -10,6 +10,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
+import { RouteConfig } from '@/config/route-config';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { queryKeys } from '@/libs/query-keys';
@@ -213,7 +214,7 @@ const GeneralEditRegion = () => {
                 <SettingsPageHeader
                   title={selectedCountry?.name}
                   icon={selectedCountry?.flag}
-                  onBack={() => navigate('/settings/tax')}
+                  onBack={() => navigate(RouteConfig.Settings.get('TaxSettings').buildLink())}
                 />
 
                 <Card cssOverride={mergeCss(cardStyles.formCard, styles.citiesCard)} >

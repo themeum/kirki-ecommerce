@@ -9,6 +9,7 @@ import Flex from '@/components/ui/flex';
 import PageHeading from '@/components/ui/page-heading';
 import Text from '@/components/ui/text';
 import { NEW_ITEM_ID } from '@/conf';
+import { RouteConfig } from '@/config/route-config';
 import { useListParams } from '@/hooks';
 import { CustomerInfoIcon } from '@/icons';
 import { useCustomersQuery } from '@/services/customer';
@@ -34,7 +35,7 @@ const Customers = () => {
   const { data, isLoading, isFetching } = useCustomersQuery(params);
 
   const handleAddNewCustomer = () => {
-    navigate('/customers/' + NEW_ITEM_ID);
+    navigate(RouteConfig.Customers.get('CustomerDetail').buildLink({ id: NEW_ITEM_ID }));
   };
 
   const handlePaginationChange = (value: number) => {
@@ -78,7 +79,7 @@ const Customers = () => {
                     {/* TODO: implement group management later */}
                     {/* <Button
                       variant="ghost"
-                      onClick={() => navigate('/customers/groups')}
+                      onClick={() => navigate(RouteConfig.Customers.get('CustomerGroups').buildLink())}
                     >
                       {__('Manage Group', 'kirki-ecommerce')}
                     </Button>

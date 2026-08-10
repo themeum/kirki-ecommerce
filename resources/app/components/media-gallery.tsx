@@ -1,18 +1,18 @@
+import { closestCenter, DndContext, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
+import { restrictToParentElement } from '@dnd-kit/modifiers';
+import { arrayMove, rectSortingStrategy, SortableContext, sortableKeyboardCoordinates, useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { type CSSObject } from '@emotion/react';
 import { useState } from 'react';
-import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
-import { restrictToParentElement } from '@dnd-kit/modifiers';
-import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, rectSortingStrategy } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
 
 import MediaSelector from '@/components/media-selector';
 import Button from '@/components/ui/button';
-import { MoveIcon, PlusIcon, TrashIcon } from '@/icons';
 import Checkbox from '@/components/ui/checkbox';
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
+import { MoveIcon, PlusIcon, TrashIcon } from '@/icons';
 import { theme } from '@/theme';
-import { flexCenter, scoped, scopedMerge, defineStyles } from '@/theme/mixins';
+import { defineStyles, flexCenter, scoped, scopedMerge } from '@/theme/mixins';
 import type { MediaRef } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -45,8 +45,8 @@ const SortableItem = ({
   url,
   alt = '',
   cssOverride,
-  onSelectImage = () => {},
-  onDeleteImage = () => {},
+  onSelectImage = () => { },
+  onDeleteImage = () => { },
   selectedImages = [],
   isLarge,
   disableDrag,
@@ -158,7 +158,7 @@ type MediaGalleryProps = {
 const MediaGallery = ({
   mediaItems = [],
   label = '',
-  onUpdate = () => {},
+  onUpdate = () => { },
   error,
   helpText,
 }: MediaGalleryProps) => {
@@ -243,9 +243,8 @@ const MediaGallery = ({
         <Flex align="center" justify="space-between">
           <Checkbox
             value={selectedImages?.length === mediaItems?.length}
-            label={`${selectedImages?.length} ${
-              selectedImages?.length > 1 ? 'files' : 'file'
-            } selected`}
+            label={`${selectedImages?.length} ${selectedImages?.length > 1 ? 'files' : 'file'
+              } selected`}
             isPartialChecked={
               selectedImages?.length < mediaItems?.length &&
               selectedImages?.length !== 0
@@ -407,6 +406,8 @@ const styles = defineStyles({
     '&:hover': {
       background: theme.colors.background.galleryHover,
     },
+    minHeight: '8.5rem',
+    minWidth: '8.5rem',
   },
   dragHandlerButton: {
     borderRadius: theme.radius.full,

@@ -87,6 +87,8 @@ class CreateOrdersTable implements Migration
             $table->string('billing_email', 255)->nullable();
             $table->string('billing_company')->nullable();
 
+            $table->string('customer_first_name', 100)->nullable();
+            $table->string('customer_last_name', 100)->nullable();
             $table->string('customer_email', 255)->nullable();
             $table->string('customer_phone', 50)->nullable();
             $table->ip_address('ip_address')->nullable();

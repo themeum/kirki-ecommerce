@@ -8,6 +8,7 @@ import DataTable, {
 import Badge from '@/components/ui/badge';
 import Flex from '@/components/ui/flex';
 import Thumbnail from '@/components/ui/thumbnail';
+import { RouteConfig } from '@/config/route-config';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
 import type { ProductListItem } from '@/types';
@@ -31,7 +32,7 @@ const ProductTitleCell = ({ item }: { item: ProductListItem }) => {
       <span
         css={scoped(styles.clickable)}
         onClick={() => {
-          navigate(`/products/${item.id}`);
+          navigate(RouteConfig.Products.get('EditProduct').buildLink({ id: item.id }));
         }}
       >
         <span css={scoped(styles.mutedText)}>{item.title} </span>

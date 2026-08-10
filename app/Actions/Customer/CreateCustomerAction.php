@@ -27,10 +27,10 @@ class CreateCustomerAction
 
     /**
      * Create a new customer with the given address.
-     * 
+     *
      * The customer and address will be created in a single transaction.
      * If either the customer or address cannot be created, a Throwable will be thrown.
-     * 
+     *
      * @param CreateCustomerDTO $customer_payload
      * @param CreateAddressDTO $billing_address_payload
      * @param CreateAddressDTO $shipping_address_payload
@@ -64,9 +64,11 @@ class CreateCustomerAction
 
             $this->create_address($billing_address_payload);
 
+            $customer = $this->customer_service->find($customer->id);
+
             DB::commit();
 
-            return $this->customer_service->find($customer->id);
+            return $customer;
         } catch (Throwable $e) {
             DB::rollback();
 
@@ -76,6 +78,14 @@ class CreateCustomerAction
 
     protected function create_user(CreateCustomerDTO $customer)
     {
+        if (!empty($customer->user_id)) {
+            if (empty(get_userdata($customer->user_id))) {
+                throw new Exception(__('User could not be found.', 'kirki-ecommerce'));
+            }
+
+            return $customer->user_id;
+        }
+
         $new_user = [
             'user_login'    => $customer->email,
             'user_pass'     => wp_generate_password(12, true),

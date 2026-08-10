@@ -71,6 +71,8 @@ class Order extends Model
         'billing_email',
         'billing_company',
         'is_billing_same_as_shipping',
+        'customer_first_name',
+        'customer_last_name',
         'customer_email',
         'customer_phone',
         'ip_address',
@@ -108,27 +110,23 @@ class Order extends Model
         'is_billing_same_as_shipping' => 'boolean'
     ];
 
-    public function set_discount_details_attribute($value)
-    {
-        return !empty($value) && is_array($value) ? Arr::json_encode($value) : null;
-    }
-
     /**
      * Store flags as a comma separated string.
      *
      * @param array|string|null $value Flags to persist.
      *
-     * @return string|null
+     * @return void
      */
     public function set_flags_attribute($value)
     {
         if (!is_array($value)) {
-            return empty($value) ? null : $value;
+            $this->attributes['flags'] = empty($value) ? null : $value;
+            return;
         }
 
         $flags = array_filter(array_map('trim', $value), 'strlen');
 
-        return empty($flags) ? null : implode(',', $flags);
+        $this->attributes['flags'] = empty($flags) ? null : implode(',', $flags);
     }
 
     /**

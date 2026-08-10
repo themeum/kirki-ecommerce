@@ -29,7 +29,7 @@ class CreateCustomersTable implements Migration
             $table->foreign('created_by')->on('users')->references('ID')->null_on_delete();
             $table->foreign('updated_by')->on('users')->references('ID')->null_on_delete();
 
-            $table->index('user_id');
+            $table->unique('user_id');
             $table->index('email');
 
             $table->foreign('user_id')
