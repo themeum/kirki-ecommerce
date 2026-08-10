@@ -39,8 +39,10 @@ class GuestCartService extends CartService
         if (!headers_sent()) {
             $expires = time() + (DAY_IN_SECONDS * 30);
             $cart = $this->get_cart();
-            setcookie(Cart::COOKIE_TOKEN, $cart->cart_token, $expires, '/');
-            $_COOKIE[Cart::COOKIE_TOKEN] = $cart->cart_token;
+            if (!empty($cart)) {
+                setcookie(Cart::COOKIE_TOKEN, $cart->cart_token, $expires, '/');
+                $_COOKIE[Cart::COOKIE_TOKEN] = $cart->cart_token;
+            }
         }
     }
 
