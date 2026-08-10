@@ -22,7 +22,6 @@ import PageHeading from '@/components/ui/page-heading';
 import Text from '@/components/ui/text';
 import { ShowMoreIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
-import { endpoints } from '@/libs/endpoints';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults, pickFormValues } from '@/libs/zod';
 import CustomerCard from '@/pages/orders/order-create/components/customer-card';
@@ -96,7 +95,7 @@ const OrderDetails = () => {
           text={__('Orders', 'kirki-ecommerce')}
           type="primary"
           hasBack
-          onBack={() => navigate(endpoints.ORDERS)}
+          onBack={() => navigate('/orders')}
           sticky
         />
         <Container>
@@ -148,9 +147,9 @@ const OrderDetails = () => {
     );
   };
 
-  const handleMarkAsPaid = (paymentMethod: string) => {
+  const handleMarkAsPaid = (paymentProvider: string) => {
     actionMutation.mutate(
-      { id: order.id, action: ORDER_ACTIONS.MARK_AS_PAID, payment_provider: paymentMethod },
+      { id: order.id, action: ORDER_ACTIONS.MARK_AS_PAID, payment_provider: paymentProvider },
       { onSuccess: () => setIsMarkAsPaidDialogOpen(false) },
     );
   };
@@ -199,6 +198,7 @@ const OrderDetails = () => {
             </>
           }
           hasBack
+          onBack={() => navigate('/orders')}
           sticky
         >
           <Flex gap={1}>

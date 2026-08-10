@@ -216,7 +216,7 @@ class OrderManager
         if ($is_paid) {
             $update = ['paid_at' => Date::now()];
 
-            if ($payment_provider !== null) {
+            if (!empty($payment_provider)) {
                 $update['payment_provider'] = $payment_provider;
             }
 
