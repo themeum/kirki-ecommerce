@@ -865,12 +865,12 @@ class OrderApiTest extends RestTestCase
         $this->assertNotEmpty($cart_payload['items']);
 
         $response = $this->request('POST', 'orders', $this->order_payload(['is_manual' => false]), [
-            'x-cart-token' => $cart_token,
+            'kecom-cart-token' => $cart_token,
         ]);
         $payload = $this->assert_api_success($response, 201);
         $this->order_id = $payload['data']['id'];
 
-        $cart_response = $this->request('GET', 'cart', [], ['x-cart-token' => $cart_token]);
+        $cart_response = $this->request('GET', 'cart', [], ['kecom-cart-token' => $cart_token]);
         $cart_after = $this->assert_api_success($cart_response);
 
         $this->assertEmpty($cart_after['data']);
