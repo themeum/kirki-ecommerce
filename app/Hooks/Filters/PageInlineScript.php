@@ -12,6 +12,7 @@
 namespace Kirki\Ecommerce\App\Hooks\Filters;
 
 use Kirki\Ecommerce\App\Constants\Cart;
+use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Services\CartService;
 use Kirki\Ecommerce\Framework\Route;
 use Kirki\Ecommerce\Framework\Wordpress\BaseHook;
@@ -76,22 +77,22 @@ class PageInlineScript extends BaseHook
         $pricing = $cart['pricing'] ?? [];
         $items = $cart['items'] ?? [];
         $cart_config = array(
-            'items_count' => $cart['items_count'],
+            'items_count' => $cart['items_count'] ?? 0,
             'pricing' => (object) array(
                 'display_subtotal_money_object' => (object) array(
-                    'display' => $pricing['display_subtotal_money_object']->display,
+                    'display' => $pricing['display_subtotal_money_object']->display ?? Money::format_from_decimal(0),
                 ),
                 'display_total_money_object' =>  (object) array(
-                    'display' => $pricing['display_total_money_object']->display,
+                    'display' => $pricing['display_total_money_object']->display ?? Money::format_from_decimal(0),
                 ),
             ),
             'items' => array_map(fn($item) => (object) array(
                 'id' => $item['id'],
                 'display_product_total_money_object' => (object) array(
-                    'display' => $item['display_product_total_money_object']->display,
+                    'display' => $item['display_product_total_money_object']->display ?? Money::format_from_decimal(0),
                 ),
                 'display_total_money_object' => (object) array(
-                    'display' => $item['display_total_money_object']->display,
+                    'display' => $item['display_total_money_object']->display ?? Money::format_from_decimal(0),
                 ),
             ), $items),
         );

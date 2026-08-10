@@ -17,7 +17,7 @@ $product = $item['product'] ?? [];
 $media = $product['media'] ?? [];
 $quantity = (int) $item['quantity'] ?? 1;
 $available = (int) $product['available_quantity'];
-$max_quantity = (0 === $available && $product['in_stock']) ? 'undefined' : $available;
+$max_quantity = (0 >= $available && $product['in_stock']) ? 'undefined' : $available;
 $unit_price = $product['base_sale_price'] > 0
     ? $product['base_sale_price_money_object']->display
     : $product['base_price_money_object']->display;
