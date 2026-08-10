@@ -23,7 +23,6 @@ return [
         AddWpHeadMeta::class,
         SMTPConfig::class,
         GuestCart::class,
-        SyncGuestCart::class,
     ],
     'filters' => [
         ReplaceSiteTitle::class,

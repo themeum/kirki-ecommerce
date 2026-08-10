@@ -101,10 +101,10 @@ class CartService
     {
         $cart = $this->get_cart($dto->customer_id, $dto->token);
 
-        if(empty($cart)) {
+        if (empty($cart)) {
             $cart = $this->create_new_cart($dto->customer_id);
         }
-        
+
         $cart_id = $cart->id;
 
         $existing_item = $this->find_item_in_cart($cart_id, $dto->variant_id);
@@ -153,7 +153,7 @@ class CartService
     {
         $cart = $this->get_cart($dto->customer_id, $dto->token);
 
-        if(empty($cart)) {
+        if (empty($cart)) {
             $cart = $this->create_new_cart($dto->customer_id);
         }
 
@@ -174,7 +174,7 @@ class CartService
     {
         $cart = $this->get_cart($dto->customer_id, $dto->token);
 
-        if(empty($cart)) {
+        if (empty($cart)) {
             $cart = $this->create_new_cart($dto->customer_id);
         }
 
@@ -216,8 +216,10 @@ class CartService
         $cart_token = null;
 
         if (is_user_logged_in()) {
-            $customer = customer();
-            $customer_id = $customer->get_customer_id();
+            $customer_id = customer()->get_customer_id();
+            if (!$customer_id) {
+                $cart_token = $this->get_cookie_cart_token();
+            }
         } else {
             $cart_token = $this->get_cookie_cart_token();
         }

@@ -10,6 +10,7 @@
  */
 
 import { cartApi } from "../api/cart";
+import { Cookie } from "../cookie";
 import { toastManager } from "../services/toast/runtime";
 
 export interface AddToCartConfig {
@@ -66,7 +67,11 @@ export function addToCart(config: AddToCartConfig) {
       this.error = null;
       const quantity = Number(qty ?? this.qty);
       try {
-        await cartApi.addItem(this.variantId, quantity);
+        const { data } = await cartApi.addItem(this.variantId, quantity);
+        if (data.cart_token !== '') {
+          Cookie.set(window.kirki_ecommerce.cart_token_cookie_name, data.cart_token);
+        }
+
         this.success = true;
         this.buttonText = "View Cart";
 
