@@ -115,17 +115,18 @@ class Order extends Model
      *
      * @param array|string|null $value Flags to persist.
      *
-     * @return string|null
+     * @return void
      */
     public function set_flags_attribute($value)
     {
         if (!is_array($value)) {
-            return empty($value) ? null : $value;
+            $this->attributes['flags'] = empty($value) ? null : $value;
+            return;
         }
 
         $flags = array_filter(array_map('trim', $value), 'strlen');
 
-        return empty($flags) ? null : implode(',', $flags);
+        $this->attributes['flags'] = empty($flags) ? null : implode(',', $flags);
     }
 
     /**

@@ -3,7 +3,6 @@
 namespace Kirki\Ecommerce\App\Models;
 
 use Kirki\Ecommerce\Framework\Database\Query\Model;
-use Kirki\Ecommerce\Framework\Supports\Arr;
 
 class OrderItem extends Model
 {
@@ -48,16 +47,6 @@ class OrderItem extends Model
         'quantity' => 'integer',
         'tax_breakdown' => 'json',
     ];
-
-    public function set_product_data_attribute($value)
-    {
-        return !empty($value) && is_array($value) ? Arr::json_encode($value) : null;
-    }
-
-    public function set_tax_breakdown_attribute($value)
-    {
-        return !empty($value) && is_array($value) ? Arr::json_encode($value) : null;
-    }
 
     public function order()
     {

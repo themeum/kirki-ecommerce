@@ -18,6 +18,7 @@ use Kirki\Ecommerce\App\Models\Cart;
 use Kirki\Ecommerce\App\Models\Coupon;
 use Kirki\Ecommerce\App\Models\Customer;
 use Kirki\Ecommerce\App\Models\Order;
+use Kirki\Ecommerce\App\Models\OrderItem;
 use Kirki\Ecommerce\App\Payment\PaymentManager;
 use Kirki\Ecommerce\App\Payment\Providers\PayPal;
 use Kirki\Ecommerce\App\Services\CartService;
@@ -180,6 +181,114 @@ class OrderApiTest extends RestTestCase
 
         $payload = $this->assert_api_success($response);
         $this->assertEquals('Updated notes', $payload['data']['admin_notes']);
+    }
+
+    /**
+     * Create order persists order item product data and tax breakdown.
+     *
+     * `product_data` is not exposed through the order resource, so this
+     * asserts persistence at the model layer directly.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_create_order_persists_item_product_data_and_tax_breakdown(): void
+    {
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+
+        $this->assertIsArray($order['items'][0]['tax_breakdown']);
+
+        $item = OrderItem::find($order['items'][0]['id']);
+        $this->assertIsArray($item->product_data);
+        $this->assertArrayHasKey('product', $item->product_data);
+        $this->assertArrayHasKey('variant', $item->product_data);
+    }
+
+    /**
+     * Update order persists flags.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_update_order_persists_flags(): void
+    {
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+        $customer_id = $this->create_customer()['id'];
+
+        $response = $this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
+            'id' => $this->order_id,
+            'customer_id' => $customer_id,
+            'flags' => ['gift', 'priority'],
+            'items' => [
+                [
+                    'id' => $order['items'][0]['id'] ?? null,
+                    'variant_id' => $this->variant_id,
+                    'quantity' => 1,
+                ],
+            ],
+        ]));
+
+        $payload = $this->assert_api_success($response);
+        $this->assertEquals(['gift', 'priority'], $payload['data']['flags']);
+
+        $fetched = $this->request('GET', 'orders/' . $this->order_id);
+        $fetched_payload = $this->assert_api_success($fetched);
+        $this->assertEquals(['gift', 'priority'], $fetched_payload['data']['flags']);
+    }
+
+    /**
+     * Update order clears flags.
+     *
+     * Asserts persistence at the model layer rather than the API response's
+     * `flags` value: `Model::offsetExists()` (`isset($this->attributes[$key])`)
+     * treats a present-but-null attribute as "not set", so `Resource::__get`'s
+     * `?? null` short-circuits before calling `Order::get_flags_attribute()`
+     * and the response value for a cleared order is `null` instead of the
+     * mutator's `[]`. Pre-existing bug in the base Model class, unrelated to
+     * this fix and orthogonal to any `set_*_attribute` mutator - out of scope
+     * here.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_update_order_clears_flags(): void
+    {
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+        $customer_id = $this->create_customer()['id'];
+
+        $this->assert_api_success($this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
+            'id' => $this->order_id,
+            'customer_id' => $customer_id,
+            'flags' => ['gift'],
+            'items' => [
+                [
+                    'id' => $order['items'][0]['id'] ?? null,
+                    'variant_id' => $this->variant_id,
+                    'quantity' => 1,
+                ],
+            ],
+        ])));
+
+        $response = $this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
+            'id' => $this->order_id,
+            'customer_id' => $customer_id,
+            'flags' => [],
+            'items' => [
+                [
+                    'id' => $order['items'][0]['id'] ?? null,
+                    'variant_id' => $this->variant_id,
+                    'quantity' => 1,
+                ],
+            ],
+        ]));
+
+        $this->assert_api_success($response);
+
+        $item = Order::find($this->order_id);
+        $this->assertNull($item->get_attributes()['flags']);
     }
 
     /**
