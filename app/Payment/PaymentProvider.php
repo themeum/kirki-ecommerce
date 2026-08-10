@@ -549,4 +549,16 @@ class PaymentProvider
 
         return implode(' | ', $parts);
     }
+
+    /**
+     * Format amount.
+     *
+     * @param int $amount
+     * @param string $currency The order's currency code.
+     * @return string
+     */
+    public static function format_amount($amount, $currency)
+    {
+        return number_format(Money::from_minor($amount, $currency)->getAmount()->toFloat(), 2, '.', '');
+    }
 }

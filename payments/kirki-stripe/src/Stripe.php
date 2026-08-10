@@ -15,9 +15,12 @@ use Stripe\Event;
 use Stripe\Exception\SignatureVerificationException;
 use Stripe\StripeClient;
 use Exception;
+use Kirki\Ecommerce\App\Constants\Payment\PaymentActionType;
+use Kirki\Ecommerce\App\DTO\Payment\PaymentActionDTO;
 use Stripe\Webhook;
 use UnexpectedValueException;
 use Kirki\Ecommerce\App\Facades\Order as OrderManager;
+use Kirki\Ecommerce\App\Supports\Url;
 
 defined('ABSPATH') || exit;
 
@@ -125,13 +128,12 @@ class Stripe extends PaymentProvider
                 'order_number' => $order->order_number
             ];
 
-            // @todo Need to change success & cancel URL.
             $data = [
                 'currency' => $currency,
                 'line_items' => $line_items,
                 'mode' => 'payment',
-                'success_url' => $this->return_url($order) . '&action=success',
-                'cancel_url' => $this->return_url($order) . '&action=cancel',
+                'success_url' => Url::get_checkout_success_url($order->uuid),
+                'cancel_url' => Url::get_checkout_failed_url($order->uuid),
                 'client_reference_id' => (string) $order->id,
                 'metadata' => $metadata,
                 'payment_intent_data' => [
@@ -146,7 +148,10 @@ class Stripe extends PaymentProvider
 
             $session = $stripe->checkout->sessions->create($data, ['idempotency_key' => 'checkout_' . $order->id]);
 
-            return $session->url;
+            return PaymentActionDTO::from_array([
+                'type' => PaymentActionType::REDIRECT,
+                'value' => $session->url,
+            ]);
         } catch (Exception $e) {
             throw new Exception(__('Stripe Payment Error: ' . $e->getMessage(), 'kirki-ecommerce'));
         }
@@ -271,6 +276,7 @@ class Stripe extends PaymentProvider
         Validator::make($settings, [
             'secret_key' => 'sometimes|string',
             'webhook_secret' => 'sometimes|string',
+            'sandbox' => 'sometimes|boolean',
         ])->validate();
 
         return true;
@@ -287,6 +293,7 @@ class Stripe extends PaymentProvider
         $data = Sanitizer::make($settings, [
             'secret_key' => Sanitizer::TEXT,
             'webhook_secret' => Sanitizer::TEXT,
+            'sandbox' => Sanitizer::BOOL,
         ])->get_sanitized_data();
 
         return $data;
