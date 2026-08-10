@@ -5,7 +5,7 @@ import { __ } from '@/wpi18n';
 
 const CollectionFormShape = z.object({
   title: required(z.string().default(''), __('Title is required', 'kirki-ecommerce')),
-  slug: required(z.string().default(''), __('Slug is required', 'kirki-ecommerce')),
+  slug: z.string().nullish(),
   description: z.string().nullish().default(''),
   banner: mediaId(),
   seo_title: z.string().nullish().default(''),
