@@ -5,7 +5,6 @@ import LoadingSpinner from '@/components/loading-spinner';
 import { RouteConfig } from '@/config/route-config';
 import UnsavedChangesController from '@/floating-components/unsaved-tracker';
 import NotFound from '@/pages/not-found/not-found';
-import Tryouts from '@/tryouts';
 
 const Products = lazy(() => import('@/pages/products/products'));
 const CreateProduct = lazy(() => import('@/pages/products/create-product/create-product'));
@@ -60,7 +59,7 @@ export const router = createHashRouter([
   {
     element: <UnsavedChangesController />,
     children: [
-      { path: RouteConfig.Home.template, element: <Tryouts /> },
+      { path: RouteConfig.Home.template, element: <Navigate to={ProductRoutes.template} replace /> },
       { path: ProductRoutes.template, element: withSuspense(Products) },
       { path: ProductRoutes.get('CreateProduct').template, element: withSuspense(CreateProduct) },
       { path: ProductRoutes.get('EditProduct').template, element: withSuspense(EditProduct) },

@@ -29,6 +29,7 @@ use Kirki\Ecommerce\App\Http\Controllers\Api\OrderController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\PageController;
 use Kirki\Ecommerce\App\Http\Controllers\Site\CheckoutController;
 use Kirki\Ecommerce\App\Http\Controllers\Site\ProductController as SiteProductController;
+use Kirki\Ecommerce\App\Http\Controllers\Site\SiteController;
 use Kirki\Ecommerce\App\Models\Post;
 use Kirki\Ecommerce\App\Payment\WebhookController;
 use Kirki\Ecommerce\Framework\Http\Request;
@@ -186,12 +187,6 @@ Route::group(['middleware' => AuthMiddleware::class], function () {
     Route::post('/shipping-profiles/bulk', [ShippingProfileController::class, 'bulk_actions']);
 
     // Cart
-    Route::get('/cart', [CartController::class, 'get']);
-    Route::post('/cart/items', [CartController::class, 'add_item']);
-    Route::put('/cart/items/{id}', [CartController::class, 'update_item']);
-    Route::delete('/cart/items/{id}', [CartController::class, 'remove_item']);
-    Route::delete('/cart', [CartController::class, 'empty_cart']);
-    Route::put('/cart', [CartController::class, 'update']);
     Route::post('/cart/coupon', [CartController::class, 'apply_coupon']);
     Route::delete('/cart/coupon', [CartController::class, 'remove_coupon']);
 
@@ -244,4 +239,15 @@ Route::get('/test-public', function (Request $request) {
 });
 
 Route::get('/items', [SiteProductController::class, 'index']);
+
+// Site api endpoints.
+Route::get('/shop/products-html', [SiteController::class, 'products_html']);
+
+// Cart api endpoints for guest card.
+Route::get('/cart', [CartController::class, 'get']);
+Route::post('/cart/items', [CartController::class, 'add_item']);
+Route::put('/cart/items/{id}', [CartController::class, 'update_item']);
+Route::delete('/cart/items/{id}', [CartController::class, 'remove_item']);
+Route::delete('/cart', [CartController::class, 'empty_cart']);
+Route::put('/cart', [CartController::class, 'update']);
 Route::post('/checkout', [CheckoutController::class, 'store']);

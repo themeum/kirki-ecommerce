@@ -1,0 +1,152 @@
+// Page - Order Success
+// Styles for order success page
+
+@use "../tokens" as *;
+@use "../mixins" as *;
+
+.kecom-order-success-page {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: $spacing-16 $spacing-10;
+  background-color: $background-surface-tertiary;
+
+  @include breakpoint-down(sm) {
+    padding: $spacing-10 $spacing-8;
+  }
+}
+
+.kecom-order-success-card {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-0;
+  background-color: $background-surface;
+  border-radius: $radius-2xl;
+  padding: $spacing-12 $spacing-10;
+  overflow: hidden;
+
+  // =========================================================================
+  // Hero — icon, title, subtitle
+  // =========================================================================
+
+  .kecom-order-success-hero {
+    @include flex-column();
+    align-items: center;
+    text-align: center;
+    border-bottom: 1px solid $border-secondary;
+    padding-bottom: $spacing-9;
+  }
+
+  .kecom-order-success-icon {
+    @include flex-center();
+    width: 80px;
+    height: 80px;
+    border-radius: $radius-full;
+    flex-shrink: 0;
+    margin-bottom: $spacing-9;
+  }
+
+  .kecom-order-success-title {
+    @include typography(2xl, semibold, $text-primary);
+    margin-top: 0;
+    margin-bottom: $spacing-6;
+  }
+
+  .kecom-order-success-subtitle {
+    @include typography(base, regular, $text-secondary);
+    margin: 0;
+  }
+
+  // =========================================================================
+  // Detail Sections — Payment Details & Product Details
+  // =========================================================================
+
+  .kecom-order-success-section {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-6;
+    padding-block: $spacing-9;
+    border-bottom: 1px solid $border-secondary;
+  }
+
+  .kecom-order-success-section-label {
+    @include typography(base, semibold, $text-primary);
+  }
+
+  .kecom-order-success-rows {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-6;
+  }
+
+  .kecom-order-success-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    gap: $spacing-6;
+  }
+
+  .kecom-order-success-row-key {
+    @include typography(base, regular, $text-secondary);
+    flex: 1;
+  }
+
+  .kecom-order-success-row-value {
+    @include typography(base, semibold, $text-primary);
+    text-align: right;
+    flex-shrink: 0;
+
+    &--discount {
+      color: $text-success;
+    }
+  }
+
+  // =========================================================================
+  // Total Row
+  // =========================================================================
+
+  .kecom-order-success-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: $spacing-6;
+    padding-bottom: $spacing-10;
+  }
+
+  .kecom-order-success-total-label {
+    @include typography(md, semibold, $text-primary);
+  }
+
+  .kecom-order-success-total-value {
+    @include typography(md, bold, $text-primary);
+  }
+
+  // =========================================================================
+  // CTA
+  // =========================================================================
+
+  .kecom-order-success-actions {
+    border-top: 1px dashed $border-secondary;
+    padding-top: $spacing-10;
+    position: relative;
+
+    &::before,
+    &::after {
+      content: "";
+      height: 30px;
+      width: 30px;
+      position: absolute;
+      left: -38px;
+      top: -16px;
+      background-color: $background-surface-tertiary;
+      border-radius: $radius-full;
+    }
+
+    &::after {
+      left: auto;
+      right: -38px;
+    }
+  }
+}

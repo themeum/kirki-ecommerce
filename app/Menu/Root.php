@@ -6,6 +6,8 @@ use Kirki\Ecommerce\Framework\Wordpress\Constants\MenuTypes;
 use Kirki\Ecommerce\App\Supports\Assets;
 use Kirki\Ecommerce\Framework\Wordpress\Menu;
 
+use function Kirki\Ecommerce\Framework\app;
+
 class Root extends Menu
 {
     /** @inheritDoc */
@@ -34,9 +36,9 @@ class Root extends Menu
 
     public function enqueue_admin_assets()
     {
-        $menu_style_handle = KIRKI_ECOMMERCE_PREFIX . 'admin-menu';
+        $menu_style_handle = app()->prefix() . 'admin-menu';
 
-        wp_register_style($menu_style_handle, false, [], KIRKI_ECOMMERCE_VERSION);
+        wp_register_style($menu_style_handle, false, [], app()->version());
         wp_enqueue_style($menu_style_handle);
 
         wp_add_inline_style(
@@ -51,7 +53,7 @@ class Root extends Menu
         add_filter('wp_resource_hints', [$this, 'add_font_resource_hints'], 10, 2);
 
         wp_enqueue_style(
-            KIRKI_ECOMMERCE_PREFIX . 'inter-font',
+            app()->prefix() . 'inter-font',
             esc_url(
                 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=block'
             ),
@@ -59,13 +61,13 @@ class Root extends Menu
             null
         );
 
-        $root_style_handle = KIRKI_ECOMMERCE_PREFIX . 'root-shell';
+        $root_style_handle = app()->prefix() . 'root-shell';
 
         wp_register_style(
             $root_style_handle,
             false,
-            [KIRKI_ECOMMERCE_PREFIX . 'inter-font'],
-            KIRKI_ECOMMERCE_VERSION
+            [app()->prefix() . 'inter-font'],
+            app()->version()
         );
         wp_enqueue_style($root_style_handle);
 
@@ -88,11 +90,11 @@ class Root extends Menu
 
     protected function get_app_script_handle()
     {
-        if (defined('KIRKI_ECOMMERCE_IS_DEV') && KIRKI_ECOMMERCE_IS_DEV) {
-            return KIRKI_ECOMMERCE_PREFIX . 'app';
+        if (app()->is_dev_mode()) {
+            return app()->prefix() . 'app';
         }
 
-        return KIRKI_ECOMMERCE_PREFIX . 'bundle';
+        return app()->prefix() . 'bundle';
     }
 
     protected function get_dashicon_inline_styles()

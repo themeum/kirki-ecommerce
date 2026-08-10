@@ -125,7 +125,7 @@ class PaymentManager
     {
         $gateway = $this->get_provider($order->payment_provider);
 
-        if (!$gateway || $gateway->is_offline()) {
+        if (!$gateway) {
             return null;
         }
 

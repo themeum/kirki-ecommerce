@@ -2,6 +2,7 @@ import { useFormContext, useWatch } from 'react-hook-form';
 
 import TextField from '@/components/form/text-field';
 import ActionGroup from '@/components/ui/action-group';
+import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
@@ -36,7 +37,7 @@ const OrderId = () => {
     <div>
       <Card cssOverride={cardStyles.formCard}>
         <CardHeader cssOverride={cardStyles.sectionHeader}>
-          <CardTitle>{__('Order ID', 'kirki-ecommerce')}</CardTitle>
+          <CardTitle>{__('Order ID', 'kirki-ecommerce')} <Badge>Work in progress</Badge></CardTitle>
           <CardDescription>
             {__(
               'Shown on the order page, customer pages, and customer order notifications to identify order',

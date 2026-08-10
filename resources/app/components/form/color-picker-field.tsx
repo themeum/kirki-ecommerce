@@ -2,7 +2,15 @@ import type { CSSObject } from '@emotion/react';
 import type { ReactNode } from 'react';
 import { Controller, useFormContext, type FieldPath, type FieldValues } from 'react-hook-form';
 
-import ColorPicker from '@/components/color-picker';
+import {
+  ColorPicker,
+  ColorPickerArea,
+  ColorPickerContent,
+  ColorPickerInput,
+  ColorPickerSwatch,
+  ColorPickerTrigger,
+  ColorPickerValue,
+} from '@/components/ui/color-picker';
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 
 type ColorPickerFieldProps<
@@ -14,6 +22,8 @@ type ColorPickerFieldProps<
   description?: ReactNode;
   infoText?: ReactNode;
   placeholder?: string;
+  alpha?: boolean;
+  disabled?: boolean;
   cssOverride?: CSSObject;
 };
 
@@ -26,9 +36,12 @@ const ColorPickerField = <
   description,
   infoText,
   placeholder,
+  alpha,
+  disabled,
   cssOverride,
 }: ColorPickerFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
+  const fieldId = String(name);
 
   return (
     <Controller
@@ -36,13 +49,31 @@ const ColorPickerField = <
       name={name}
       render={({ field, fieldState }) => (
         <Field data-invalid={fieldState.invalid || undefined} cssOverride={cssOverride}>
-          {label && <FieldLabel infoText={infoText}>{label}</FieldLabel>}
+          {label && (
+            <FieldLabel htmlFor={fieldId} infoText={infoText}>
+              {label}
+            </FieldLabel>
+          )}
           <ColorPicker
             value={field.value ?? ''}
-            onChange={field.onChange}
-            placeholder={placeholder}
-            error={Boolean(fieldState.error)}
-          />
+            onValueChange={field.onChange}
+            alpha={alpha}
+            disabled={disabled}
+          >
+            <ColorPickerTrigger
+              id={fieldId}
+              error={Boolean(fieldState.error)}
+              aria-invalid={fieldState.invalid}
+              onBlur={field.onBlur}
+            >
+              <ColorPickerSwatch />
+              <ColorPickerValue placeholder={placeholder} />
+            </ColorPickerTrigger>
+            <ColorPickerContent>
+              <ColorPickerArea />
+              <ColorPickerInput placeholder={placeholder} />
+            </ColorPickerContent>
+          </ColorPicker>
           {description && <FieldDescription>{description}</FieldDescription>}
           {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
         </Field>

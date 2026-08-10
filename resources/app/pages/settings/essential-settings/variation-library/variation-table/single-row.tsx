@@ -6,7 +6,6 @@ import Button from '@/components/ui/button';
 import Checkbox from '@/components/ui/checkbox';
 import Flex from '@/components/ui/flex';
 import { TableCell, TableRow } from '@/components/ui/table';
-import { EditPenIcon, TrashIcon } from '@/icons';
 import { useDeleteAttributeValueMutation } from '@/services/attribute';
 import { theme } from '@/theme';
 import type {
@@ -20,7 +19,9 @@ import { __ } from '@/wpi18n';
 import { DATE_FORMATS } from '@/libs/date';
 import VariationValuePopup from '@/pages/settings/essential-settings/variation-library/variation-value-dialog';
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
+import { scoped } from '@/theme/mixins';
 import { format } from 'date-fns';
+import { Edit3, Trash2 } from 'lucide-react';
 
 type AttributeWithMeta = Attribute & { updated_at?: string };
 
@@ -89,15 +90,15 @@ const SingleRow = ({
           <Flex gap={3} align="center">
             {selectedItem?.type === 'color' && (
               <div
-                style={{
-                  height: '32px',
-                  width: '32px',
-                  minWidth: '32px',
+                css={scoped({
+                  height: 32,
+                  width: 32,
+                  minWidth: 32,
                   borderRadius: theme.radius.md,
-                  border: `1.17px solid ${theme.colors.border.default}`,
-                  background: `${item?.color}`,
-                }}
-              ></div>
+                  border: `1px solid ${theme.colors.border.default}`,
+                  backgroundColor: `${item?.color ?? 'transparent'}`,
+                })}
+              />
             )}
             {item?.value}
           </Flex>
@@ -105,21 +106,21 @@ const SingleRow = ({
 
         {selectedItem?.type === 'color' && <TableCell>{item?.color}</TableCell>}
         <TableCell>{selectedItem?.updated_at ? format(selectedItem.updated_at, DATE_FORMATS.HUMAN_READABLE) : '--'}</TableCell>
-        <TableCell alignment="right" style={{ width: '1%' }}>
+        <TableCell alignment="right">
           <ActionGroup>
             <Button
               variant="outline"
               size="icon-sm"
               onClick={handleAttributeValueRemove}
             >
-              <TrashIcon />
+              <Trash2 />
             </Button>
             <Button
               variant="outline"
               size="icon-sm"
               onClick={() => setEditedItem(item)}
             >
-              <EditPenIcon />
+              <Edit3 />
             </Button>
           </ActionGroup>
         </TableCell>

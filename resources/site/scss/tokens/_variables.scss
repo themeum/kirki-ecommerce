@@ -1,0 +1,8 @@
+// Design Tokens - CSS Variable Prefix
+//
+// Both the SCSS class prefix and CSS custom property prefix use 'kecom'.
+// Classes:      .kecom-btn, .kecom-badge, .kecom-input …
+// CSS vars:     --kecom-color-brand, --kecom-spacing-4 …
+
+$prefix: 'kecom';
+$css-var-prefix: '--#{$prefix}';
