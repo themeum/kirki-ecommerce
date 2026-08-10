@@ -4,6 +4,8 @@ namespace Kirki\Ecommerce\Payments;
 
 use Exception;
 use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
+use Kirki\Ecommerce\App\Constants\Payment\PaymentActionType;
+use Kirki\Ecommerce\App\DTO\Payment\PaymentActionDTO;
 use Kirki\Ecommerce\App\Facades\Order as OrderManager;
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Payment\PaymentProvider;
@@ -18,7 +20,7 @@ defined('ABSPATH') || exit;
  */
 class Razorpay extends PaymentProvider
 {
-    protected $client;
+    protected ?RazorpayClient $client = null;
     protected Order $order;
 
     public function __construct()
@@ -65,7 +67,7 @@ class Razorpay extends PaymentProvider
      * Pay for an order.
      *
      * @param Order $order
-     * @return string HTML markup.
+     * @return PaymentActionDTO
      * @throws Exception
      */
     public function pay(Order $order)
@@ -78,15 +80,19 @@ class Razorpay extends PaymentProvider
             $this->client = $this->get_client();
             $this->order = $order;
             $razorpay_order_id = $this->create_order();
-            $checkout_data = [
-                'order' => $this->order,
-                'success_url' => $this->success_url($this->order),
-                'cancel_url' => $this->cancel_url($this->order),
-                'razorpay_order_id' => $razorpay_order_id
-            ];
-            return $this->client->render_redirect_form($checkout_data);
+
+            $html = $this->client->render_checkout_form(
+                $this->order,
+                $razorpay_order_id,
+                $this->success_url($this->order)
+            );
+
+            return PaymentActionDTO::from_array([
+                'type' => PaymentActionType::HTML,
+                'value' => $html,
+            ]);
         } catch (Exception $e) {
-            throw new Exception(sprintf(__('AuthorizeNet Payment Error: %s', 'kirki-razorpay'), $e->getMessage()));
+            throw new Exception(sprintf(__('Razorpay Payment Error: %s', 'kirki-razorpay'), $e->getMessage()));
         }
     }
 
@@ -131,7 +137,7 @@ class Razorpay extends PaymentProvider
     }
 
     /**
-     * Handle an Authorize.Net webhook notification.
+     * Handle a Razorpay webhook notification.
      *
      * @return bool True if the notification was processed, false if ignored.
      * @throws Exception If the payload is missing, invalid, or the API lookup fails.
@@ -170,7 +176,7 @@ class Razorpay extends PaymentProvider
         return new RazorpayClient($key_id, $key_secret, $webhook_secret);
     }
 
-    protected function create_order()
+    protected function create_order(): string
     {
         $razorpay_order = $this->client->post([
             'amount' => $this->order->invoiced_total,
@@ -178,15 +184,15 @@ class Razorpay extends PaymentProvider
         ], RazorpayConstant::API_URL . '/orders');
 
         if (empty($razorpay_order['id'])) {
-            throw new Exception(__('Razorpay Payment Order ID Not Found.', 'kirki-razorpay'), $e->getMessage());
+            throw new Exception(__('Razorpay Payment Order ID Not Found.', 'kirki-razorpay'));
         }
 
         return $razorpay_order['id'];
     }
 
-    protected function verify_and_parse_notification()
+    protected function verify_and_parse_notification(): object
     {
-        $payload = @file_get_contents('php://input');
+        $payload = file_get_contents('php://input');
 
         // Respond with a 200 status code to acknowledge the notification.
         http_response_code(200);
@@ -203,7 +209,8 @@ class Razorpay extends PaymentProvider
         return json_decode($payload);
     }
 
-    protected function handle_transaction_response($payload){
+    protected function handle_transaction_response(object $payload)
+    {
         $entity = $payload->payload->payment->entity;
         $status = $entity->status ?? PaymentStatus::UNPAID;
         $order_id = $entity->notes->order_id;
@@ -211,23 +218,19 @@ class Razorpay extends PaymentProvider
         DB::begin_transaction();
 
         try {
-            switch ($status) {
-                case RazorpayConstant::STATUS_PAYMENT_CAPTURED:
-                    OrderManager::set_transaction_id($order_id, $entity->id);
-                    OrderManager::mark_payment_as_paid($order_id);
-                    OrderManager::mark_as_processing($order_id);
-                    OrderManager::set_payment_metadata($order_id, wp_json_encode($entity));
-                    OrderManager::set_payment_provider_fee($order_id, $entity->fee);
-                    break;
-                case PaymentStatus::UNPAID:
-                    OrderManager::mark_payment_as_unpaid($order_id);
-                    break;
-                case RazorpayConstant::STATUS_PAYMENT_FAILED:
-                    OrderManager::set_transaction_id($order_id, $entity->id);
-                    OrderManager::mark_payment_as_failed($order_id);
-                    OrderManager::mark_as_cancelled($order_id);
-                    OrderManager::set_payment_metadata($order_id, wp_json_encode($entity));
-                    break;
+            if ($status === RazorpayConstant::STATUS_PAYMENT_CAPTURED) {
+                OrderManager::set_transaction_id($order_id, $entity->id);
+                OrderManager::mark_payment_as_paid($order_id);
+                OrderManager::mark_as_processing($order_id);
+                OrderManager::set_payment_metadata($order_id, wp_json_encode($entity));
+                OrderManager::set_payment_provider_fee($order_id, $entity->fee);
+            } elseif ($status === RazorpayConstant::STATUS_PAYMENT_FAILED) {
+                OrderManager::set_transaction_id($order_id, $entity->id);
+                OrderManager::mark_payment_as_failed($order_id);
+                OrderManager::mark_as_cancel($order_id, $entity->error_reason);
+                OrderManager::set_payment_metadata($order_id, wp_json_encode($entity));
+            } else {
+                OrderManager::mark_payment_as_unpaid($order_id);
             }
 
             DB::commit();
