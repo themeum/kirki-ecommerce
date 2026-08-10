@@ -155,6 +155,12 @@ class Razorpay extends PaymentProvider
             return false;
         }
 
+        $order_id = $event->payload->payment->entity->notes->order_id ?? null;
+        $order = OrderManager::find($order_id);
+        if ($order->payment_status === PaymentStatus::PAID) {
+            return false;
+        }
+
         $this->handle_transaction_response($event);
         return true;
     }
