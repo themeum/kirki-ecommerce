@@ -32,7 +32,7 @@ class SettingsController
 
     public function update(SettingsUpdateRequest $request)
     {
-        $key = $request->get_string('key');
+        $key = $request->string('key');
         $clean_data = $request->all();
         $data = $clean_data['data'] ?? [];
 
