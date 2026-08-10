@@ -19,6 +19,7 @@ export interface kirkiEcommerceConfig {
   countries?: any[];
   cart_token_cookie_name: string;
   cart_token_header_name: string;
+  header_skip_tax: string;
 }
 
 // Extend window for WordPress-injected config
@@ -57,9 +58,12 @@ export interface CartItem {
   total_formatted: string;
   created_at: string;
   updated_at: string;
+  display_product_total_money_object: {
+    display: string,
+  };
   display_total_money_object: {
     display: string,
-  }
+  };
 }
 
 export interface CartUpdateItem {

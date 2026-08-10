@@ -12,6 +12,7 @@
 namespace Kirki\Ecommerce\App\Hooks\Filters;
 
 use Kirki\Ecommerce\App\Constants\Cart;
+use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Services\CartService;
 use Kirki\Ecommerce\Framework\Route;
 use Kirki\Ecommerce\Framework\Wordpress\BaseHook;
@@ -46,6 +47,7 @@ class PageInlineScript extends BaseHook
         $config['cart_variant_ids'] = $cart_variant_ids;
         $config['cart_token_cookie_name'] = Cart::COOKIE_TOKEN;
         $config['cart_token_header_name'] = Cart::HEADER_TOKEN;
+        $config['header_skip_tax'] = Cart::HEADER_SKIP_TAX;
 
         // Add cart data for checkout page
         if (Route::is('checkout')) {
@@ -75,19 +77,22 @@ class PageInlineScript extends BaseHook
         $pricing = $cart['pricing'] ?? [];
         $items = $cart['items'] ?? [];
         $cart_config = array(
-            'items_count' => $cart['items_count'],
+            'items_count' => $cart['items_count'] ?? 0,
             'pricing' => (object) array(
                 'display_subtotal_money_object' => (object) array(
-                    'display' => $pricing['display_subtotal_money_object']->display,
+                    'display' => $pricing['display_subtotal_money_object']->display ?? Money::format_from_decimal(0),
                 ),
                 'display_total_money_object' =>  (object) array(
-                    'display' => $pricing['display_total_money_object']->display,
+                    'display' => $pricing['display_total_money_object']->display ?? Money::format_from_decimal(0),
                 ),
             ),
             'items' => array_map(fn($item) => (object) array(
                 'id' => $item['id'],
+                'display_product_total_money_object' => (object) array(
+                    'display' => $item['display_product_total_money_object']->display ?? Money::format_from_decimal(0),
+                ),
                 'display_total_money_object' => (object) array(
-                    'display' => $item['display_total_money_object']->display,
+                    'display' => $item['display_total_money_object']->display ?? Money::format_from_decimal(0),
                 ),
             ), $items),
         );
@@ -196,7 +201,7 @@ class PageInlineScript extends BaseHook
                 'product_id'     => $product['id'] ?? 0,
                 'price'          => $v['display_price_money_object']->display,
                 'sale_price'     => $v['display_sale_price'] ? $v['display_sale_price_money_object']->display : null,
-                'discount_percentage' => ! empty($v['display_price']) && ! empty($v['display_sale_price']) ? round((1 - ($v['display_sale_price'] / $v['display_price'])) * 100): null,
+                'discount_percentage' => ! empty($v['display_price']) && ! empty($v['display_sale_price']) ? round((1 - ($v['display_sale_price'] / $v['display_price'])) * 100) : null,
                 'stock'          => (int) ($v['available_quantity'] ?? 0),
                 'attributes'     => $variant_attrs,
                 'available'      => $v['in_stock'] ? true : ($v['available_quantity'] ?? 0) > 0,
