@@ -1,10 +1,6 @@
 x-wordpress-volumes: &wordpress-volumes
   - wordpress_data:/var/www/html
   - .:/var/www/html/wp-content/plugins/kirki-ecommerce:cached
-  - ../kirki-stripe:/var/www/html/wp-content/plugins/kirki-stripe:cached
-  - ../kirki-authorizenet:/var/www/html/wp-content/plugins/kirki-authorizenet:cached
-  - ../kirki-mollie:/var/www/html/wp-content/plugins/kirki-mollie:cached
-  - ../kirki-razorpay:/var/www/html/wp-content/plugins/kirki-razorpay:cached
   - ./docker/wp-config.php:/var/www/html/wp-config.php:ro
   - ./docker/php/php.ini:/usr/local/etc/php/conf.d/zz-php.ini:ro
   - ./wordpress-debug.log:/var/www/html/wp-content/debug.log
@@ -18,7 +14,6 @@ services:
     volumes:
       - wordpress_data:/var/www/html:ro
       - .:/var/www/html/wp-content/plugins/kirki-ecommerce:cached
-      - ../kirki-razorpay:/var/www/html/wp-content/plugins/kirki-razorpay:cached
       - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
       - php
@@ -33,7 +28,6 @@ services:
     volumes:
       - wordpress_data:/var/www/html
       - .:/var/www/html/wp-content/plugins/kirki-ecommerce:cached
-      - ../kirki-razorpay:/var/www/html/wp-content/plugins/kirki-razorpay:cached
       - ./docker/wp-config.php:/var/www/html/wp-config.php:ro
       - ./docker/php/php.ini:/usr/local/etc/php/conf.d/zz-php.ini:ro
       - ./docker/php/conf.d:/usr/local/etc/php/conf.d/local:ro
@@ -117,7 +111,6 @@ services:
     volumes:
       - wordpress_data:/var/www/html
       - .:/var/www/html/wp-content/plugins/kirki-ecommerce:cached
-      - ../kirki-razorpay:/var/www/html/wp-content/plugins/kirki-razorpay:cached
       - ./docker/wp-config.php:/var/www/html/wp-config.php:ro
       - ./docker/php/php.ini:/usr/local/etc/php/conf.d/zz-php.ini:ro
       - ./docker/scripts/install-wordpress.sh:/usr/local/bin/install-wordpress.sh:ro
