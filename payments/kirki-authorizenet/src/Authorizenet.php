@@ -176,10 +176,10 @@ class Authorizenet extends PaymentProvider
         parent::validate_settings($settings);
 
         Validator::make($settings, [
-            'login_id' => 'required|string',
-            'transaction_key' => 'required|string',
-            'signature_key' => 'required|string',
-            'sandbox' => 'boolean',
+            'login_id' => 'sometimes|string',
+            'transaction_key' => 'sometimes|string',
+            'signature_key' => 'sometimes|string',
+            'sandbox' => 'sometimes|boolean',
         ])->validate();
 
         return true;
@@ -318,7 +318,6 @@ class Authorizenet extends PaymentProvider
                 case AuthorizenetConstant::FAILED:
                     OrderManager::set_transaction_id($order_id, $response->transaction->transId);
                     OrderManager::mark_payment_as_failed($order_id);
-                    OrderManager::mark_as_cancel($order_id, $response->transaction->responseReasonDescription);
                     OrderManager::set_payment_metadata($order_id, wp_json_encode($response));
                     break;
             }
