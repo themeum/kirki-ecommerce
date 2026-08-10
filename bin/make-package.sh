@@ -14,6 +14,7 @@ REQUIRED_PATHS=(
   "app"
   "bootstrap"
   "vendor"
+  "libraries"
   "assets"
   "resources/views"
 )
@@ -21,7 +22,6 @@ REQUIRED_PATHS=(
 OPTIONAL_PATHS=(
   "config"
   "database"
-  "libraries"
   "payments"
   "routes"
   "resources/data"
@@ -63,6 +63,15 @@ echo "==> Installing PHP dependencies"
 composer install
 composer install --no-dev --optimize-autoloader --no-scripts
 
+# The --no-dev install restores vendor/themeum, but the plugin only ever uses the
+# php-scoper output in libraries/framework. Composer skips packages whose install
+# path is missing, so dumping the autoloader after the removal drops the stale
+# Framework\ psr-4 map and the src/helpers.php + src/Polyfill/Polyfill.php file
+# includes that would otherwise fatal at runtime.
+echo "==> Removing unscoped framework package"
+rm -rf "$ROOT_DIR/vendor/themeum"
+composer dump-autoload --no-dev --optimize
+
 echo "==> Assembling plugin files"
 for path in "${REQUIRED_PATHS[@]}"; do
   if [ ! -e "$ROOT_DIR/$path" ]; then
@@ -84,7 +93,6 @@ done
 
 echo "==> Patching production flags"
 STAGED_ENTRY_FILE="$STAGE_DIR/kirki-ecommerce.php"
-sed -i.bak "s/define('KIRKI_ECOMMERCE_IS_DEV', true);/define('KIRKI_ECOMMERCE_IS_DEV', false);/" "$STAGED_ENTRY_FILE"
 sed -i.bak "s/define('KIRKI_ECOMMERCE_MODE', 'development');/define('KIRKI_ECOMMERCE_MODE', 'production');/" "$STAGED_ENTRY_FILE"
 rm -f "$STAGED_ENTRY_FILE.bak"
 

@@ -4,6 +4,8 @@ namespace Kirki\Ecommerce\App\Supports;
 
 use Kirki\Ecommerce\Framework\Supports\Arr;
 
+use function Kirki\Ecommerce\Framework\app;
+
 class Assets
 {
     const ADMIN_PAGE = 'kirki-ecommerce';
@@ -63,8 +65,8 @@ class Assets
             'ajax_url' => esc_url(admin_url('admin-ajax.php')),
             'rest_nonce' => esc_attr(wp_create_nonce('wp_rest')),
             'rest_url_base' => esc_url(rest_url() . 'kirki/ecommerce/v1'),
-            'version' => KIRKI_ECOMMERCE_VERSION,
-            'is_dev' => defined('KIRKI_ECOMMERCE_IS_DEV') && KIRKI_ECOMMERCE_IS_DEV,
+            'version' => app()->version(),
+            'is_dev' => app()->is_dev_mode(),
             'is_logged_in' => is_user_logged_in(),
             'login_url' => esc_url(wp_login_url()),
         ];
