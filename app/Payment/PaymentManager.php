@@ -57,7 +57,7 @@ class PaymentManager
     /**
      * Get all online providers.
      *
-     * @return Payme[]
+     * @return PaymentProvider[]
      */
     public function get_online_providers()
     {
