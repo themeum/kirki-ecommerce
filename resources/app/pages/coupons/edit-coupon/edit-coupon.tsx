@@ -178,6 +178,7 @@ const EditCoupon = () => {
             </>
           }
           hasBack
+          onBack={() => navigate(endpoints.COUPONS)}
         >
           {
             !isNew && isDefined(couponBadgeInfo) && (

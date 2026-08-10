@@ -60,7 +60,7 @@ class PerformOrderAction
                 ]);
                 break;
             case OrderAction::MARK_AS_PAID:
-                OrderManager::mark_payment_as_paid($order->id, $dto->payment_method);
+                OrderManager::mark_payment_as_paid($order->id, $dto->payment_provider);
                 break;
             case OrderAction::SEND_PAYMENT_LINK:
                 OrderManager::send_payment_link($order->id);

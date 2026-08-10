@@ -148,9 +148,9 @@ const OrderDetails = () => {
     );
   };
 
-  const handleMarkAsPaid = (paymentMethod: string) => {
+  const handleMarkAsPaid = (paymentProvider: string) => {
     actionMutation.mutate(
-      { id: order.id, action: ORDER_ACTIONS.MARK_AS_PAID, payment_method: paymentMethod },
+      { id: order.id, action: ORDER_ACTIONS.MARK_AS_PAID, payment_provider: paymentProvider },
       { onSuccess: () => setIsMarkAsPaidDialogOpen(false) },
     );
   };
@@ -199,6 +199,7 @@ const OrderDetails = () => {
             </>
           }
           hasBack
+          onBack={() => navigate(endpoints.ORDERS)}
           sticky
         >
           <Flex gap={1}>

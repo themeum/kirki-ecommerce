@@ -162,6 +162,7 @@ const OrderCreate = () => {
             </>
           }
           hasBack
+          onBack={() => navigate(endpoints.ORDERS)}
           sticky
         />
         <Container>
