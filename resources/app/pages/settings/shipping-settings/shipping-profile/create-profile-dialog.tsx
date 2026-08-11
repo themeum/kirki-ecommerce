@@ -28,8 +28,8 @@ type CreateProfilePopupProps = {
 
 export const CreateProfilePopup = ({
   isOpen,
-  onClose = () => { },
-  onSave = () => { },
+  onClose,
+  onSave,
   editIndex = null,
   shippingProfileList = [],
 }: CreateProfilePopupProps) => {
@@ -66,7 +66,7 @@ export const CreateProfilePopup = ({
 
   const handleOnPopupClose = () => {
     form.reset(getDefaults(ShippingProfileFormSchema));
-    onClose();
+    onClose?.();
   };
 
   const handleAddOrUpdateShippingProfile = async (
@@ -84,10 +84,10 @@ export const CreateProfilePopup = ({
           id: selectedProfile.id,
           data: payload,
         });
-        onSave((response.data as { id?: number })?.id as number);
+        onSave?.((response.data as { id?: number })?.id as number);
       } else {
         const response = await createProfile(payload);
-        onSave((response.data as { id?: number })?.id as number);
+        onSave?.((response.data as { id?: number })?.id as number);
       }
       handleOnPopupClose();
     } catch (error) {
@@ -107,7 +107,7 @@ export const CreateProfilePopup = ({
       }}
     >
       <Form {...form}>
-        <DialogContent style={{ width: '400px' }}>
+        <DialogContent cssOverride={{ width: 400 }}>
           <DialogCloseButton />
           <DialogHeader>
             <DialogTitle>
