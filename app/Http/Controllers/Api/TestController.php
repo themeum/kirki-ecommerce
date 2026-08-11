@@ -25,9 +25,10 @@ class TestController
 
         // For Authorizenet testing.
         // header('Content-Type: text/html');
-        // $pay = Payment::get_provider('razorpay')->pay(Order::find(2));
-        // echo $pay;
+        // $data = Payment::get_provider('authorizenet')->pay(Order::find(14));
+        // echo $data->value;
         // exit;
+
 
         $today = Date::today();
 

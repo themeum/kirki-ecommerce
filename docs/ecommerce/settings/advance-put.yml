@@ -16,11 +16,11 @@ http:
         "data": {
           "pages": 
             {
-              "shop_page": 34,
-              "cart_page": 32,
-              "checkout_page":2,
-              "account_page": 52,
-              "design_system_page":56
+              "shop": 34,
+              "cart": 32,
+              "checkout":2,
+              "account": 52,
+              "design_system":56
             }
         }
       }
