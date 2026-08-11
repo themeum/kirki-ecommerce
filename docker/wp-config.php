@@ -19,7 +19,7 @@ define('NONCE_SALT',       'dev-docker-nonce-salt-change-me');
 $table_prefix = 'wp_';
 
 define('WP_DEBUG', true);
-define('WP_DEBUG_LOG', true);
+define('WP_DEBUG_LOG', '/var/www/html/wp-content/plugins/kirki-ecommerce/wordpress-debug.log');
 define('WP_DEBUG_DISPLAY', true);
 define('SCRIPT_DEBUG', true);
 define('WP_ENVIRONMENT_TYPE', 'local');
