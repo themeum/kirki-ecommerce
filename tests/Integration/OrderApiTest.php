@@ -684,6 +684,36 @@ class OrderApiTest extends RestTestCase
     }
 
     /**
+     * An order created with billing marked as same as shipping persists the
+     * flag and snapshots the shipping address into the billing fields,
+     * discarding any billing address sent alongside it.
+     *
+     * @return void
+     */
+    public function test_store_order_persists_billing_same_as_shipping(): void
+    {
+        $response = $this->request('POST', 'orders', $this->order_payload([
+            'is_billing_same_as_shipping' => true,
+            'shipping_address_line1' => '742 Evergreen Terrace',
+            'shipping_city' => 'Springfield',
+            'billing_address_line1' => '1 Stale Street',
+            'billing_city' => 'Oldtown',
+        ]));
+        $payload = $this->assert_api_success($response, 201);
+        $this->order_id = $payload['data']['id'];
+
+        $this->assertTrue($payload['data']['is_billing_same_as_shipping']);
+        $this->assertEquals($payload['data']['shipping_address'], $payload['data']['billing_address']);
+        $this->assertEquals('742 Evergreen Terrace', $payload['data']['billing_address']['address_line1']);
+        $this->assertEquals('Springfield', $payload['data']['billing_address']['city']);
+
+        $order = Order::find($this->order_id);
+
+        $this->assertTrue((bool) $order->is_billing_same_as_shipping);
+        $this->assertEquals('742 Evergreen Terrace', $order->billing_address_line1);
+    }
+
+    /**
      * When order creation fails after customer provisioning already
      * succeeded, the provisioned customer, its WordPress user, and its
      * addresses remain persisted - provisioning is no longer rolled back

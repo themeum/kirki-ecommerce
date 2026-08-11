@@ -86,6 +86,8 @@ class UpdateOrderDTO extends DTO
     public $shipping_postal_code;
     public $shipping_phone;
     public $shipping_email;
+    /** @var string|null */
+    public $shipping_company;
 
     /** @var bool */
     public $is_billing_same_as_shipping = false;
@@ -101,6 +103,8 @@ class UpdateOrderDTO extends DTO
     public $billing_postal_code;
     public $billing_phone;
     public $billing_email;
+    /** @var string|null */
+    public $billing_company;
 
     /** @var string|null */
     public $admin_notes;
@@ -110,9 +114,6 @@ class UpdateOrderDTO extends DTO
 
     /** @var Collection<CreateOrderItemDTO> */
     public $items;
-
-    /** @var string|null */
-    public $billing_company;
 
     /** @var string|null */
     public $customer_email;

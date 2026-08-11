@@ -46,8 +46,11 @@ describe('CollectionFormSchema', () => {
     expect(result.banner).toBe(11);
   });
 
-  it('rejects a blank required title or slug', () => {
+  it('rejects a blank required title', () => {
     expect(CollectionFormSchema.safeParse({ ...base, title: '  ' }).success).toBe(false);
-    expect(CollectionFormSchema.safeParse({ ...base, slug: '  ' }).success).toBe(false);
+  });
+
+  it('accepts a blank slug, leaving generation to the server', () => {
+    expect(CollectionFormSchema.safeParse({ ...base, slug: '  ' }).success).toBe(true);
   });
 });

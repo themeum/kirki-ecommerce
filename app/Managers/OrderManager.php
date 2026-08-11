@@ -97,7 +97,9 @@ class OrderManager
         $is_cancelled = $this->order_service->apply_order_action($id, $order->order_status, OrderAction::CANCEL_ORDER);
 
         if ($is_cancelled) {
-            $order->coupon_usage->delete();
+            if (!empty($order->coupon_usage)) {
+                $order->coupon_usage->delete();
+            }
             $this->inventory_service->release_all_reserved_stock($order);
             $this->order_service->partial_update_order($id, [
                 'cancellation_reason' => $reason,
@@ -447,7 +449,7 @@ class OrderManager
      */
     public function set_payment_metadata(int $id, string $payment_metadata)
     {
-        return $this->order_service->partial_update_order($id, [ 'payment_metadata' => $payment_metadata]);
+        return $this->order_service->partial_update_order($id, ['payment_metadata' => $payment_metadata]);
     }
 
     /* * Send the invoice email of an order to the customer.

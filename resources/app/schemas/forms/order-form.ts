@@ -49,17 +49,17 @@ const OrderFormShape = prepareFormSchema(z.object({
 const buildBillingFields = (values: z.output<typeof OrderFormShape>) => {
   if (values.is_billing_same_as_shipping) {
     return {
-      billing_first_name: null,
-      billing_last_name: null,
-      billing_address_line1: null,
-      billing_address_line2: null,
-      billing_city: null,
-      billing_state: null,
-      billing_postcode: null,
-      billing_country: null,
-      billing_phone: null,
-      billing_email: null,
-      billing_company: null,
+      billing_first_name: values.shipping_first_name ?? null,
+      billing_last_name: values.shipping_last_name ?? null,
+      billing_address_line1: values.shipping_address_line1 ?? null,
+      billing_address_line2: values.shipping_address_line2 ?? null,
+      billing_city: values.shipping_city ?? null,
+      billing_state: values.shipping_state ?? null,
+      billing_postcode: values.shipping_postal_code ?? null,
+      billing_country: values.shipping_country ?? null,
+      billing_phone: values.shipping_phone ?? null,
+      billing_email: values.shipping_email ?? null,
+      billing_company: values.shipping_company ?? null,
     };
   }
 

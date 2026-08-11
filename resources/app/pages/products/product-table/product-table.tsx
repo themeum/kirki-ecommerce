@@ -16,12 +16,15 @@ import { getBadgeVariantForStatus } from '@/utils/badge-status';
 import { __ } from '@/wpi18n';
 
 import { useListParams } from '@/hooks';
+import { DATE_FORMATS } from '@/libs/date';
 import FilterPopup from '@/pages/products/product-table/filter-popup/filter-popup';
 import ProductTableFilter from '@/pages/products/product-table/product-table-filter';
 import ProductTableFilterBar from '@/pages/products/product-table/product-table-filter-bar';
 import { useBulkDeleteProductsMutation, useProductsQuery } from '@/services/product';
 import { ProductListFilter, productListOptions } from '@/types/filters/product';
 import { displayMoney } from '@/utils/money';
+import { isDefined } from '@/utils/object';
+import { format } from 'date-fns';
 
 const ProductTitleCell = ({ item }: { item: ProductListItem }) => {
   const navigate = useNavigate();
@@ -72,7 +75,7 @@ const productColumns: DataTableColumn<ProductListItem>[] = [
   },
   {
     title: __('Date', 'kirki-ecommerce'),
-    renderItem: (item) => item?.created_at,
+    renderItem: (item) => isDefined(item.created_at) ? format(new Date(item.created_at), DATE_FORMATS.HUMAN_READABLE) : '',
   },
 ];
 

@@ -1,13 +1,13 @@
 import type { MediaRef } from '@/types';
 
-import { isObject } from '@/utils/object';
+import { isDefined, isObject } from '@/utils/object';
 
 export const isMediaObject = (value: unknown): value is MediaRef => {
   if (!isObject(value)) {
     return false;
   }
 
-  return 'id' in value && ('url' in value || 'mime' in value || 'type' in value);
+  return isDefined(value.id) && (isDefined(value.url) || isDefined(value.mime) || isDefined(value.type));
 };
 
 export const isVideoObject = (value: MediaRef): boolean => {

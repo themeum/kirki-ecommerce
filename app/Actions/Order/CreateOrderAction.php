@@ -328,6 +328,9 @@ class CreateOrderAction
         $order_dto->shipping_postal_code = $dto->shipping_postcode;
         $order_dto->shipping_phone = $dto->shipping_phone;
         $order_dto->shipping_email = $dto->shipping_email;
+        $order_dto->shipping_company = $dto->shipping_company;
+
+        $order_dto->is_billing_same_as_shipping = filter_var($dto->is_billing_same_as_shipping, FILTER_VALIDATE_BOOLEAN);
 
         $order_dto->billing_first_name = $dto->billing_first_name;
         $order_dto->billing_last_name = $dto->billing_last_name;
