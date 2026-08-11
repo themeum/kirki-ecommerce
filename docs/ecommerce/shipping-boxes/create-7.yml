@@ -1,0 +1,87 @@
+info:
+  name: Create (Shipping Box)
+  type: http
+  seq: 3
+  tags:
+    - shipping-boxes
+
+http:
+  method: POST
+  url: "{{baseUrl}}/shipping-boxes"
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Large Box",
+        "description": "Suitable for oversized products",
+        "width": 12.5,
+        "height": 8.3,
+        "length": 20.75,
+        "unit": "cm",
+        "is_default": true
+      }
+  auth: inherit
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/shipping-boxes"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "name": "Large Box",
+            "description": "Suitable for oversized products",
+            "width": 12.5,
+            "height": 8.3,
+            "length": 20.75,
+            "unit": "cm",
+            "is_default": true
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": true,
+            "data": {
+              "id": 3,
+              "name": "Small Box",
+              "description": "Suitable for small products",
+              "width": 12.5,
+              "height": 8.3,
+              "length": 20.75,
+              "unit": "cm",
+              "is_default": true,
+              "created_at": {
+                "date": "2025-11-26 09:55:16.385904",
+                "timezone_type": 3,
+                "timezone": "UTC"
+              },
+              "updated_at": {
+                "date": "2025-11-26 09:55:16.385904",
+                "timezone_type": 3,
+                "timezone": "UTC"
+              }
+            },
+            "message": "Shipping box created successfully."
+          }
+docs: |-
+  # Create Shipping Box
+
+  ## 1. Detailed description of the API function
+  This API is designed to create shipping boxes.
+
+  Upon successful creation, the API returns a response with a `success` boolean indicating the success of the operation and a `message` which may contain information about the result.

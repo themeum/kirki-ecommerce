@@ -2,10 +2,10 @@
 
 namespace Kirki\Ecommerce\App\DTO\Order;
 
-use Kirki\Ecommerce\DTO;
-use Kirki\Ecommerce\Collections\Collection;
+use Kirki\Ecommerce\Framework\DTO;
+use Kirki\Ecommerce\Framework\Collections\Collection;
 
-use function Kirki\Ecommerce\collection;
+use function Kirki\Ecommerce\Framework\collection;
 
 class UpdateOrderDTO extends DTO
 {
@@ -21,9 +21,6 @@ class UpdateOrderDTO extends DTO
     /** @var int */
     public $customer_id;
 
-    /** @var string */
-    public $order_status;
-
     /** @var bool */
     public $is_manual;
 
@@ -37,46 +34,43 @@ class UpdateOrderDTO extends DTO
     public $exchange_rate;
 
     /** @var int */
-    public $subtotal;
+    public $invoiced_subtotal;
 
     /** @var int */
-    public $subtotal_base;
+    public $base_subtotal;
 
     /** @var int */
-    public $shipping_total;
+    public $invoiced_shipping_total;
 
     /** @var int */
-    public $shipping_total_base;
+    public $base_shipping_total;
 
     /** @var int */
-    public $discount_total;
+    public $invoiced_discount_total;
 
     /** @var int */
-    public $discount_total_base;
+    public $base_discount_total;
 
     /** @var array */
     public $discount_details;
 
     /** @var int */
-    public $tax_total;
+    public $invoiced_tax_total;
 
     /** @var int */
-    public $tax_total_base;
+    public $base_tax_total;
 
     /** @var int */
-    public $total;
+    public $invoiced_total;
 
     /** @var int */
-    public $total_base;
+    public $base_total;
 
     /** @var int */
     public $items_count;
 
     /** @var string */
-    public $payment_status;
-
-    /** @var string */
-    public $payment_method;
+    public $payment_provider;
 
     /** @var string */
     public $shipping_method;
@@ -92,6 +86,11 @@ class UpdateOrderDTO extends DTO
     public $shipping_postal_code;
     public $shipping_phone;
     public $shipping_email;
+    /** @var string|null */
+    public $shipping_company;
+
+    /** @var bool */
+    public $is_billing_same_as_shipping = false;
 
     // Billing Address Fields
     public $billing_first_name;
@@ -104,15 +103,17 @@ class UpdateOrderDTO extends DTO
     public $billing_postal_code;
     public $billing_phone;
     public $billing_email;
+    /** @var string|null */
+    public $billing_company;
 
     /** @var string|null */
-    public $customer_notes;
+    public $admin_notes;
+
+    /** @var string[]|null */
+    public $flags;
 
     /** @var Collection<CreateOrderItemDTO> */
     public $items;
-
-    /** @var string|null */
-    public $billing_company;
 
     /** @var string|null */
     public $customer_email;

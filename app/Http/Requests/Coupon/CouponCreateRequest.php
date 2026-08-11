@@ -9,12 +9,23 @@ use Kirki\Ecommerce\App\Constants\Coupon\DiscountTarget;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountValueType;
 use Kirki\Ecommerce\App\Constants\Coupon\EligibleItemType;
 use Kirki\Ecommerce\App\Constants\Coupon\SpendConditionType;
+use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Models\Coupon;
-use Kirki\Ecommerce\Sanitizer;
-use Kirki\Ecommerce\Http\Request;
+use Kirki\Ecommerce\Framework\Sanitizer;
+use Kirki\Ecommerce\Framework\Http\Request;
+use Kirki\Ecommerce\Framework\Supports\Somoy;
 
 class CouponCreateRequest extends Request
 {
+    protected function prepare_for_validation()
+    {
+        $discount_amount = $this->input('discount_amount');
+
+        if ($this->get('discount_value_type') === DiscountValueType::FIXED && !empty($discount_amount)) {
+            $this->merge(['discount_amount' => Money::to_minor($discount_amount)]);
+        }
+    }
+
     public function rules()
     {
         return [
@@ -30,19 +41,17 @@ class CouponCreateRequest extends Request
             'spend_condition_value' => 'integer|nullable',
             'reward_quantity' => 'integer|nullable',
             'reward_value' => 'integer|nullable',
-            'start_date' => 'required|date',
-            'start_time' => 'string|nullable',
-            'has_end_date' => 'boolean|nullable',
-            'end_date' => 'required_if:has_end_date,1|date|nullable',
-            'end_time' => 'string|nullable',
+            'start_datetime' => 'date|format:' . Somoy::ATOM,
+            'has_end_datetime' => 'boolean|nullable',
+            'end_datetime' => 'required_if:has_end_datetime,true|date|format:' . Somoy::ATOM . '|nullable',
             'target_countries' => 'array|nullable',
             'first_time_buyer_only' => 'boolean|nullable',
             'customer_eligibility' => 'string|in:' . implode(',', CustomerEligibility::get_constant_values()) . '|nullable',
             'exclude_customers' => 'boolean|nullable',
             'has_usage_limit' => 'boolean|nullable',
-            'usage_limit' => 'integer|nullable',
+            'usage_limit' => 'required_if:has_usage_limit,true|integer|nullable',
             'has_customer_limit' => 'boolean|nullable',
-            'customer_limit' => 'integer|nullable',
+            'customer_limit' => 'required_if:has_customer_limit,true|integer|nullable',
             'is_active' => 'boolean|nullable',
             'category_ids' => 'array|nullable',
             'category_ids.*' => 'integer',
@@ -64,18 +73,16 @@ class CouponCreateRequest extends Request
             'discount_type' => Sanitizer::TEXT,
             'discount_target' => Sanitizer::TEXT,
             'discount_value_type' => Sanitizer::TEXT,
-            'discount_amount' => $this->get('discount_value_type') === DiscountValueType::FIXED ? Sanitizer::MONEY : Sanitizer::FLOAT,
+            'discount_amount' => $this->get('discount_value_type') === DiscountValueType::FIXED ? Sanitizer::INT : Sanitizer::FLOAT,
             'eligible_item_type' => Sanitizer::TEXT,
             'spend_condition_type' => Sanitizer::TEXT,
             'spend_condition_value' => Sanitizer::INT,
             'reward_quantity' => Sanitizer::INT,
             'reward_value' => Sanitizer::INT,
-            'start_date' => Sanitizer::TEXT,
-            'start_time' => Sanitizer::TEXT,
-            'has_end_date' => Sanitizer::BOOL,
-            'end_date' => Sanitizer::TEXT,
-            'end_time' => Sanitizer::TEXT,
-            'target_countries' => Sanitizer::ARRAY ,
+            'start_datetime' => Sanitizer::TEXT,
+            'has_end_datetime' => Sanitizer::BOOL,
+            'end_datetime' => Sanitizer::TEXT,
+            'target_countries' => Sanitizer::ARRAY,
             'first_time_buyer_only' => Sanitizer::BOOL,
             'customer_eligibility' => Sanitizer::TEXT,
             'exclude_customers' => Sanitizer::BOOL,
@@ -84,13 +91,13 @@ class CouponCreateRequest extends Request
             'has_customer_limit' => Sanitizer::BOOL,
             'customer_limit' => Sanitizer::INT,
             'is_active' => Sanitizer::BOOL,
-            'category_ids' => Sanitizer::ARRAY ,
+            'category_ids' => Sanitizer::ARRAY,
             'category_ids.*' => Sanitizer::INT,
-            'product_ids' => Sanitizer::ARRAY ,
+            'product_ids' => Sanitizer::ARRAY,
             'product_ids.*' => Sanitizer::INT,
-            'customer_ids' => Sanitizer::ARRAY ,
+            'customer_ids' => Sanitizer::ARRAY,
             'customer_ids.*' => Sanitizer::INT,
-            'reward_product_ids' => Sanitizer::ARRAY ,
+            'reward_product_ids' => Sanitizer::ARRAY,
             'reward_product_ids.*' => Sanitizer::INT,
         ];
     }

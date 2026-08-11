@@ -10,15 +10,15 @@ use Kirki\Ecommerce\App\Resources\Currency\CurrencyResource;
 use Kirki\Ecommerce\App\Services\CurrencyService;
 use Kirki\Ecommerce\App\Constants\BulkActions;
 use Kirki\Ecommerce\App\Constants\Pagination;
-use Kirki\Ecommerce\Contracts\Request;
+use Kirki\Ecommerce\Framework\Contracts\Request;
 use Kirki\Ecommerce\App\DTO\Currency\CreateCurrencyDTO;
 use Kirki\Ecommerce\App\DTO\Currency\UpdateCurrencyDTO;
 use Kirki\Ecommerce\App\DTO\ListFilterDTO;
-use Kirki\Ecommerce\Http\Response;
-use Kirki\Ecommerce\Database\Query\Paginator;
+use Kirki\Ecommerce\Framework\Http\Response;
+use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 use Exception;
 
-use function Kirki\Ecommerce\response;
+use function Kirki\Ecommerce\Framework\response;
 
 class CurrencyController
 {
@@ -62,7 +62,7 @@ class CurrencyController
 
     public function create(CurrencyCreateRequest $request)
     {
-        $items = $request->clean()['items'] ?? [];
+        $items = $request->input('items') ?? [];
         $currencies = CreateCurrencyDTO::from_list($items);
         $currencies = $this->service->insert($currencies);
 
@@ -74,7 +74,7 @@ class CurrencyController
 
     public function show(Request $request)
     {
-        $currency = $this->service->find($request->get_int('id'));
+        $currency = $this->service->find($request->int('id'));
 
         return response()->json([
             'data' => CurrencyResource::make($currency),
@@ -84,7 +84,7 @@ class CurrencyController
 
     public function update(CurrencyUpdateRequest $request)
     {
-        $items = $request->clean()['items'] ?? [];
+        $items = $request->input('items') ?? [];
         $currencies = [];
         $total_count = count($items);
         $error_count = 0;
@@ -113,7 +113,7 @@ class CurrencyController
 
     public function delete(Request $request)
     {
-        $result = $this->service->delete($request->get_int('id'));
+        $result = $this->service->delete($request->int('id'));
 
         return response()->json([
             'data' => $result,

@@ -10,20 +10,21 @@ use Kirki\Ecommerce\App\Repositories\ProductRepository;
 use Kirki\Ecommerce\App\Http\Requests\BulkActionRequest;
 use Kirki\Ecommerce\App\Http\Requests\Product\ProductCreateRequest;
 use Kirki\Ecommerce\App\Http\Requests\Product\ProductUpdateRequest;
+use Kirki\Ecommerce\App\Resources\Product\ProductListWithVariantsResource;
 use Kirki\Ecommerce\App\Resources\Product\ProductListResource;
 use Kirki\Ecommerce\App\Resources\Product\ProductResource;
 use Kirki\Ecommerce\App\Services\ProductService;
 use Kirki\Ecommerce\App\Constants\BulkActions;
 use Kirki\Ecommerce\App\Constants\Pagination;
-use Kirki\Ecommerce\Contracts\Request;
+use Kirki\Ecommerce\Framework\Contracts\Request;
 use Kirki\Ecommerce\App\DTO\Product\CreateProductDTO;
 use Kirki\Ecommerce\App\DTO\Variant\CreateVariantDTO;
 use Kirki\Ecommerce\App\DTO\Product\UpdateProductDTO;
 use Kirki\Ecommerce\App\DTO\Variant\UpdateVariantDTO;
-use Kirki\Ecommerce\Http\Response;
-use Kirki\Ecommerce\Database\Query\Paginator;
+use Kirki\Ecommerce\Framework\Http\Response;
+use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 
-use function Kirki\Ecommerce\response;
+use function Kirki\Ecommerce\Framework\response;
 
 class ProductController
 {
@@ -39,7 +40,7 @@ class ProductController
     public function get(ProductListRequest $request)
     {
         $params = ProductListFilterDTO::from_array($request->all());
-        $params->sort_by = $request->get_whitelisted('sort_by', 'id', ['id', 'title', 'status', 'created_by', 'updated_by', 'created_at', 'updated_at']);
+        $params->sort_by = $request->whitelisted('sort_by', 'id', ['id', 'title', 'status', 'created_by', 'updated_by', 'created_at', 'updated_at']);
 
         if ((int) $params->limit === Pagination::ALL) {
             $data = $this->service->all($params);
@@ -58,9 +59,22 @@ class ProductController
         ]);
     }
 
+    public function get_products_with_variants(ProductListRequest $request)
+    {
+        $params = ProductListFilterDTO::from_array($request->all());
+        $params->sort_by = $request->whitelisted('sort_by', 'id', ['id', 'title', 'status', 'created_by', 'updated_by', 'created_at', 'updated_at']);
+
+        $data = $this->service->paginate_with_variants($params);
+
+        return response()->json([
+            'data' => ProductListWithVariantsResource::paginated($data),
+            'message' => __('Product retrieved successfully.', 'kirki-ecommerce'),
+        ]);
+    }
+
     public function create(ProductCreateRequest $request, CreateProductAction $action)
     {
-        $data = $request->clean();
+        $data = $request->all();
 
         $variants = array_map(function ($variant) {
             return CreateVariantDTO::from_array($variant);
@@ -76,7 +90,7 @@ class ProductController
 
     public function show(Request $request)
     {
-        $product = $this->service->find($request->get_int('id'));
+        $product = $this->service->find($request->int('id'));
 
         return response()->json([
             'data' => ProductResource::make($product),
@@ -86,7 +100,7 @@ class ProductController
 
     public function update(ProductUpdateRequest $request, UpdateProductAction $action)
     {
-        $data = $request->clean();
+        $data = $request->all();
 
         $variants = array_map(function ($variant) {
             return UpdateVariantDTO::from_array($variant);
@@ -102,7 +116,7 @@ class ProductController
 
     public function delete(Request $request)
     {
-        $result = $this->service->delete($request->get_int('id'));
+        $result = $this->service->delete($request->int('id'));
 
         return response()->json([
             'data' => $result,
@@ -112,7 +126,7 @@ class ProductController
 
     public function bulk_actions(BulkActionRequest $request)
     {
-        $data = $request->clean();
+        $data = $request->all();
 
         $action = $data['action'];
         $ids = $data['ids'] ?? [];

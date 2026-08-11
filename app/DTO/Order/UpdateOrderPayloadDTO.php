@@ -2,7 +2,7 @@
 
 namespace Kirki\Ecommerce\App\DTO\Order;
 
-use Kirki\Ecommerce\DTO;
+use Kirki\Ecommerce\Framework\DTO;
 
 class UpdateOrderPayloadDTO extends DTO
 {
@@ -17,9 +17,6 @@ class UpdateOrderPayloadDTO extends DTO
 
     /** @var string */
     public $currency_code;
-
-    /** @var string */
-    public $payment_method;
 
     /** @var string|null */
     public $coupon_code;
@@ -59,6 +56,9 @@ class UpdateOrderPayloadDTO extends DTO
 
     /** @var string|null */
     public $shipping_company;
+
+    /** @var bool */
+    public $is_billing_same_as_shipping = false;
 
     /** @var string|null */
     public $billing_first_name;
@@ -100,14 +100,11 @@ class UpdateOrderPayloadDTO extends DTO
     public $customer_phone;
 
     /** @var string|null */
-    public $customer_notes;
+    public $admin_notes;
+
+    /** @var string[]|null */
+    public $flags;
 
     /** @var int|null */
     public $is_manual;
-
-    /** @var string|null */
-    public $order_status;
-
-    /** @var string|null */
-    public $payment_status;
 }

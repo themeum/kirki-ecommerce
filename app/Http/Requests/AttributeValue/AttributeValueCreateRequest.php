@@ -2,8 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Http\Requests\AttributeValue;
 
-use Kirki\Ecommerce\Sanitizer;
-use Kirki\Ecommerce\Http\Request;
+use Kirki\Ecommerce\Framework\Sanitizer;
+use Kirki\Ecommerce\Framework\Http\Request;
 
 class AttributeValueCreateRequest extends Request
 {
@@ -11,8 +11,9 @@ class AttributeValueCreateRequest extends Request
     {
         return [
             'attribute_id' => 'required|integer',
-            'value' => 'required|string',
+            'value' => 'required|unique:kirki_ecommerce_attribute_values,value|string',
             'color' => 'string|nullable',
+            'media' => 'integer|nullable',
         ];
     }
 
@@ -22,6 +23,7 @@ class AttributeValueCreateRequest extends Request
             'attribute_id' => Sanitizer::INT,
             'value' => Sanitizer::TEXT,
             'color' => Sanitizer::TEXT,
+            'media' => Sanitizer::INT,
         ];
     }
 }

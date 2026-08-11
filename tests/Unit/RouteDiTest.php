@@ -4,8 +4,8 @@ namespace Kirki\Ecommerce\Tests\Unit;
 
 use Exception;
 use InvalidArgumentException;
-use Kirki\Ecommerce\Contracts\Request as RequestContract;
-use Kirki\Ecommerce\Route;
+use Kirki\Ecommerce\Framework\Contracts\Request as RequestContract;
+use Kirki\Ecommerce\Framework\Route;
 
 class RouteDiTest extends TestCase
 {

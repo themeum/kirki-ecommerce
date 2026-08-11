@@ -1,0 +1,210 @@
+info:
+  name: Update Refund
+  type: http
+  seq: 4
+  tags:
+    - orders
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/orders/2/refunds/6"
+  body:
+    type: json
+    data: |-
+      {
+        "invoiced_amount": 16,
+        "status": "completed",
+        "reason": "Nothing. Just for fun"
+      }
+  auth: inherit
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/orders/2/refunds/6"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "invoiced_amount": 16,
+            "status": "completed",
+            "reason": "Nothing. Just for fun"
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "data": {
+              "id": 2,
+              "uuid": "fe4d1707-d647-45a4-b55b-ff295a97cae4",
+              "order_number": "ORD-698036A581404",
+              "customer_id": "1",
+              "status": "partially-refunded",
+              "currency_code": "USD",
+              "totals": {
+                "invoiced_subtotal": 3570.68,
+                "invoiced_subtotal_money_object": { "raw": 3570.68, "display": "$3,570.68", "currency": { "code": "USD", "symbol": "$" } },
+                "base_subtotal": 3570.68,
+                "base_subtotal_money_object": { "raw": 3570.68, "display": "$3,570.68", "currency": { "code": "USD", "symbol": "$" } },
+                "invoiced_shipping": 14.00,
+                "invoiced_shipping_money_object": { "raw": 14.00, "display": "$14.00", "currency": { "code": "USD", "symbol": "$" } },
+                "base_shipping": 14.00,
+                "base_shipping_money_object": { "raw": 14.00, "display": "$14.00", "currency": { "code": "USD", "symbol": "$" } },
+                "invoiced_discount": 100.00,
+                "invoiced_discount_money_object": { "raw": 100.00, "display": "$100.00", "currency": { "code": "USD", "symbol": "$" } },
+                "base_discount": 100.00,
+                "base_discount_money_object": { "raw": 100.00, "display": "$100.00", "currency": { "code": "USD", "symbol": "$" } },
+                "invoiced_tax": 714.14,
+                "invoiced_tax_money_object": { "raw": 714.14, "display": "$714.14", "currency": { "code": "USD", "symbol": "$" } },
+                "base_tax": 714.14,
+                "base_tax_money_object": { "raw": 714.14, "display": "$714.14", "currency": { "code": "USD", "symbol": "$" } },
+                "invoiced_total": 4298.82,
+                "invoiced_total_money_object": { "raw": 4298.82, "display": "$4,298.82", "currency": { "code": "USD", "symbol": "$" } },
+                "base_total": 4298.82,
+                "base_total_money_object": { "raw": 4298.82, "display": "$4,298.82", "currency": { "code": "USD", "symbol": "$" } }
+              },
+              "items_count": 4,
+              "items": [
+                {
+                  "id": "2",
+                  "product_name": "Ansley Farrell",
+                  "variant_name": "Red, Small",
+                  "quantity": 4,
+                  "invoiced_price": 917.67,
+                  "invoiced_price_money_object": { "raw": 917.67, "display": "$917.67", "currency": { "code": "USD", "symbol": "$" } },
+                  "base_price": 917.67,
+                  "base_price_money_object": { "raw": 917.67, "display": "$917.67", "currency": { "code": "USD", "symbol": "$" } },
+                  "invoiced_total": 4284.82,
+                  "invoiced_total_money_object": { "raw": 4284.82, "display": "$4,284.82", "currency": { "code": "USD", "symbol": "$" } },
+                  "base_total": 4284.82,
+                  "base_total_money_object": { "raw": 4284.82, "display": "$4,284.82", "currency": { "code": "USD", "symbol": "$" } },
+                  "tax_rate": 20,
+                  "invoiced_tax_total": 714.14,
+                  "invoiced_tax_total_money_object": { "raw": 714.14, "display": "$714.14", "currency": { "code": "USD", "symbol": "$" } },
+                  "base_tax_total": 714.14,
+                  "base_tax_total_money_object": { "raw": 714.14, "display": "$714.14", "currency": { "code": "USD", "symbol": "$" } },
+                  "tax_breakdown": [
+                    {
+                      "name": "Tax",
+                      "rate": 20,
+                      "base_amount": 71414
+                    }
+                  ],
+                  "sku": "34f9ef88-46bd-38e3-ac7f-e9cd26ba12d9",
+                  "image": null
+                }
+              ],
+              "shipping_address": {
+                "first_name": "Sunny",
+                "last_name": "Doe",
+                "line1": "Nikunja 2, Khilket",
+                "line2": "",
+                "city": "Dhaka",
+                "state": "5665",
+                "country": "BD",
+                "postal_code": "5665",
+                "phone": "+1 555-000-2000",
+                "email": "jane.shipping@example.com"
+              },
+              "billing_address": {
+                "first_name": "Jane",
+                "last_name": "Doe",
+                "line1": "78 Sunset Blvd",
+                "line2": "",
+                "city": "Los Angeles",
+                "state": "CA",
+                "country": "US",
+                "postal_code": "90001",
+                "phone": "+1 555-000-2000",
+                "email": "jane.shipping@example.com"
+              },
+              "payment_provider": "stripe",
+              "payment_provider_name": "Stripe",
+              "payment_provider_icon": "{{baseUrl}}/payments/kirki-stripe/assets/logo.svg",
+              "payment_provider_is_offline": false,
+              "payment_status": "pending",
+              "shipping_method": "fsdfdsfsdfsdf343432jh4",
+              "shipping_method_name": "Standard Delivery",
+              "shipping_method_type": "flat_rate",
+              "refunds": [
+                {
+                  "id": "3",
+                  "invoiced_amount": 12.00,
+                  "invoiced_amount_money_object": { "raw": 12.00, "display": "$12.00", "currency": { "code": "USD", "symbol": "$" } },
+                  "reason": "Nothing...",
+                  "transaction_id": null,
+                  "status": "pending",
+                  "processed_at": "2026-02-02T05:36:34.000000Z",
+                  "processed_by": null
+                },
+                {
+                  "id": "4",
+                  "invoiced_amount": 12.00,
+                  "invoiced_amount_money_object": { "raw": 12.00, "display": "$12.00", "currency": { "code": "USD", "symbol": "$" } },
+                  "reason": "Nothing...",
+                  "transaction_id": null,
+                  "status": "pending",
+                  "processed_at": "2026-02-02T06:32:29.000000Z",
+                  "processed_by": null
+                },
+                {
+                  "id": "5",
+                  "invoiced_amount": 12.00,
+                  "invoiced_amount_money_object": { "raw": 12.00, "display": "$12.00", "currency": { "code": "USD", "symbol": "$" } },
+                  "reason": "Nothing...",
+                  "transaction_id": null,
+                  "status": "pending",
+                  "processed_at": "2026-02-02T06:33:16.000000Z",
+                  "processed_by": null
+                }
+              ],
+              "created_at": "2026-02-02 05:31:17"
+            },
+            "message": "Refund processed successfully.",
+            "success": true
+          }
+  - name: 404 Response
+    description: Failure
+    request:
+      url: "{{baseUrl}}/orders/2/refunds/6"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "invoiced_amount": 16,
+            "status": "completed",
+            "reason": "Nothing. Just for fun"
+          }
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "message": "deserunt tempor voluptate",
+            "success": "true"
+          }
+
+docs: |-
+  # Update Refund Request
+
+  ## 1. Detailed description of the API function
+  This API is designed to update refunds.

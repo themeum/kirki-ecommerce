@@ -2,7 +2,7 @@
 
 namespace Kirki\Ecommerce\App\DTO\Order;
 
-use Kirki\Ecommerce\DTO;
+use Kirki\Ecommerce\Framework\DTO;
 
 class CreateOrderItemDTO extends DTO
 {
@@ -31,31 +31,31 @@ class CreateOrderItemDTO extends DTO
     public $product_image;
 
     /** @var float */
-    public $price;
+    public $invoiced_price;
 
     /** @var float */
-    public $price_base;
+    public $base_price;
 
     /** @var int */
     public $quantity;
 
     /** @var float */
-    public $subtotal;
+    public $invoiced_subtotal;
 
     /** @var float */
-    public $subtotal_base;
+    public $base_subtotal;
 
     /** @var float */
-    public $discount_amount;
+    public $invoiced_discount_amount;
 
     /** @var float */
-    public $discount_amount_base;
+    public $base_discount_amount;
 
     /** @var float */
-    public $tax_total;
+    public $invoiced_tax_total;
 
     /** @var float */
-    public $tax_total_base;
+    public $base_tax_total;
 
     /** @var float */
     public $tax_rate;
@@ -64,10 +64,10 @@ class CreateOrderItemDTO extends DTO
     public $tax_breakdown = [];
 
     /** @var float */
-    public $total;
+    public $invoiced_total;
 
     /** @var float */
-    public $total_base;
+    public $base_total;
 
     /** @var bool */
     public $is_physical_product;

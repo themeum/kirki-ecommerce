@@ -1,0 +1,4 @@
+node_modules
+package-lock.json
+kirki-*/composer.lock
+kirki-*/vendor

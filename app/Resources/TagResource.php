@@ -2,8 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Resources;
 
-use Kirki\Ecommerce\Resource;
-use Kirki\Ecommerce\Supports\MediaAttachment;
+use Kirki\Ecommerce\Framework\Resource;
+use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
 
 class TagResource extends Resource
 {
@@ -19,7 +19,7 @@ class TagResource extends Resource
             'name' => $this->name,
             'slug' => $this->slug,
             'description' => $this->description,
-            'count' => $this->products_count,
+            'count' => $this->products_count ?? 0,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

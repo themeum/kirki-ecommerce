@@ -1,0 +1,327 @@
+info:
+  name: Create (Coupon)
+  type: http
+  seq: 4
+  tags:
+    - coupons
+
+http:
+  method: POST
+  url: "{{baseUrl}}/coupons"
+  body:
+    type: json
+    data: |-
+      {
+        "method": "code",
+        "title": "10% Off Winter Sale",
+        "code": "WINTER102",
+        "discount_type": "amount-off",
+        "discount_target": "order",
+        "discount_value_type": "percentage",
+        "discount_amount": 20,
+        "eligible_item_type": "all-products",
+        "spend_condition_type": "min-cart-amount",
+        "spend_condition_value": 10,
+        "reward_quantity": null,
+        "reward_value": null,
+        "start_datetime": "2026-07-24T00:00:00+06:00",
+        "has_end_datetime": true,
+        "end_datetime": "2026-12-31T23:59:00+06:00",
+        "target_countries": [
+          "EU",
+          "BD",
+          "US"
+        ],
+        "first_time_buyer_only": false,
+        "customer_eligibility": "all",
+        "exclude_customers": false,
+        "has_usage_limit": false,
+        "usage_limit": null,
+        "has_customer_limit": false,
+        "customer_limit": null,
+        "is_active": true,
+        "category_ids": null,
+        "product_ids": null,
+        "customer_ids": null,
+        "reward_product_ids": null
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/coupons"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "method": "code",
+            "title": "20% Off Winter Sale",
+            "code": "WINTER20",
+            "discount_type": "amount-off",
+            "discount_target": "order",
+            "discount_value_type": "percentage",
+            "discount_amount": 20,
+            "eligible_item_type": "all-products",
+            "spend_condition_type": "min-cart-amount",
+            "spend_condition_value": 10,
+            "reward_quantity": null,
+            "reward_value": null,
+            "start_datetime": "2026-07-24T00:00:00+06:00",
+            "has_end_datetime": true,
+            "end_datetime": "2026-12-31T23:59:00+06:00",
+            "target_countries": [
+              "EU",
+              "BD",
+              "US"
+            ],
+            "first_time_buyer_only": false,
+            "customer_eligibility": "all",
+            "exclude_customers": false,
+            "has_usage_limit": true,
+            "usage_limit": 1000,
+            "has_customer_limit": false,
+            "customer_limit": null,
+            "is_active": true,
+            "category_ids": [
+              1
+            ],
+            "product_ids": [
+              2
+            ],
+            "customer_ids": [
+              1
+            ],
+            "reward_product_ids": null
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": true,
+            "data": {
+              "id": 11,
+              "method": "code",
+              "title": "20% Off Winter Sale",
+              "code": "WINTER20",
+              "discount_type": "amount-off",
+              "discount_target": "order",
+              "discount_value_type": "percentage",
+              "base_discount_amount": 20,
+              "base_discount_amount_money_object": null,
+              "display_discount_amount": 20,
+              "display_discount_amount_money_object": null,
+              "eligible_item_type": "all-products",
+              "spend_condition_type": "min-cart-amount",
+              "spend_condition_value": 100,
+              "reward_quantity": null,
+              "reward_value": null,
+              "start_date": "2025-11-24",
+              "start_time": "00:00:00",
+              "has_end_date": true,
+              "end_date": "2025-12-31",
+              "end_time": "23:59:00",
+              "target_countries": "US,CA,UK",
+              "first_time_buyer_only": false,
+              "customer_eligibility": "all",
+              "exclude_customers": false,
+              "has_usage_limit": true,
+              "usage_limit": 1000,
+              "has_customer_limit": false,
+              "customer_limit": null,
+              "current_usage_count": 0,
+              "is_active": true,
+              "categories": [],
+              "products": [],
+              "customers": [],
+              "created_at": "2025-11-24 08:05:42",
+              "updated_at": "2025-11-24 08:05:42"
+            },
+            "message": "Coupon created successfully."
+          }
+  - name: 404 Response
+    description: Failure
+    request:
+      url: "{{baseUrl}}/coupons"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "method": "code",
+            "title": "20% Off Winter Sale",
+            "code": "WINTER20",
+            "discount_type": "amount-off",
+            "discount_target": "order",
+            "discount_value_type": "percentage",
+            "discount_amount": 20,
+            "eligible_item_type": "all-products",
+            "spend_condition_type": "min-cart-amount",
+            "spend_condition_value": 10,
+            "reward_quantity": null,
+            "reward_value": null,
+            "start_datetime": "2026-07-24T00:00:00+06:00",
+            "has_end_datetime": true,
+            "end_datetime": "2026-12-31T23:59:00+06:00",
+            "target_countries": [
+              "EU",
+              "BD",
+              "US"
+            ],
+            "first_time_buyer_only": false,
+            "customer_eligibility": "all",
+            "exclude_customers": false,
+            "has_usage_limit": true,
+            "usage_limit": 1000,
+            "has_customer_limit": false,
+            "customer_limit": null,
+            "is_active": true,
+            "category_ids": [
+              1
+            ],
+            "product_ids": [
+              2
+            ],
+            "customer_ids": [
+              1
+            ],
+            "reward_product_ids": null
+          }
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "errors": {
+              "spend_condition_type": [
+                "The spend_condition_type field must contain a value from: min-cart-amount,min-items."
+              ]
+            },
+            "message": "Validation failed!"
+          }
+  - name: Simple Coupon
+    description: Create a simple coupon without product_ids, category_ids, customer_ids, target_countries
+    request:
+      url: "{{baseUrl}}/coupons"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "method": "code",
+            "title": "20% Off Winter Sale",
+            "code": "WINTER20",
+            "discount_type": "amount-off",
+            "discount_target": "order",
+            "discount_value_type": "percentage",
+            "discount_amount": 20,
+            "eligible_item_type": "all-products",
+            "spend_condition_type": "min-cart-amount",
+            "spend_condition_value": 10,
+            "reward_quantity": null,
+            "reward_value": null,
+            "start_datetime": "2026-07-24T00:00:00+06:00",
+            "has_end_datetime": true,
+            "end_datetime": "2026-12-31T23:59:00+06:00",
+            "target_countries": null,
+            "first_time_buyer_only": false,
+            "customer_eligibility": "all",
+            "exclude_customers": false,
+            "has_usage_limit": true,
+            "usage_limit": 1000,
+            "has_customer_limit": false,
+            "customer_limit": null,
+            "is_active": true,
+            "category_ids": null,
+            "product_ids": null,
+            "customer_ids": null,
+            "reward_product_ids": null
+          }
+    response:
+      status: 200
+      statusText: OK
+      body:
+        type: text
+        data: ""
+  - name: Complex coupon
+    description: All types of conditions available
+    request:
+      url: "{{baseUrl}}/coupons"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "method": "code",
+            "title": "20% Off Winter Sale",
+            "code": "WINTER20",
+            "discount_type": "amount-off",
+            "discount_target": "order",
+            "discount_value_type": "percentage",
+            "discount_amount": 20,
+            "eligible_item_type": "all-products",
+            "spend_condition_type": "min-cart-amount",
+            "spend_condition_value": 10,
+            "reward_quantity": null,
+            "reward_value": null,
+            "start_datetime": "2026-07-24T00:00:00+06:00",
+            "has_end_datetime": true,
+            "end_datetime": "2026-12-31T23:59:00+06:00",
+            "target_countries": [
+              "EU",
+              "BD",
+              "US"
+            ],
+            "first_time_buyer_only": false,
+            "customer_eligibility": "all",
+            "exclude_customers": false,
+            "has_usage_limit": true,
+            "usage_limit": 1000,
+            "has_customer_limit": false,
+            "customer_limit": null,
+            "is_active": true,
+            "category_ids": [
+              1
+            ],
+            "product_ids": [
+              2
+            ],
+            "customer_ids": [
+              1
+            ],
+            "reward_product_ids": null
+          }
+    response:
+      status: 200
+      statusText: OK
+      body:
+        type: text
+        data: ""
+
+docs: |-
+  # Create Coupon
+
+  ## 1. Detailed description of the API function
+  This API is designed to create product.
+
+  Upon successful creation, the API returns a response with a `success` boolean indicating the success of the operation and a `message` which may contain information about the result.

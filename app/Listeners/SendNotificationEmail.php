@@ -3,8 +3,8 @@
 namespace Kirki\Ecommerce\App\Listeners;
 
 use Kirki\Ecommerce\App\Events\OrderShipped;
-use Kirki\Ecommerce\Listener;
-use Kirki\Ecommerce\Supports\Facades\Log;
+use Kirki\Ecommerce\Framework\Listener;
+use Kirki\Ecommerce\Framework\Supports\Facades\Log;
 
 class SendNotificationEmail extends Listener
 {

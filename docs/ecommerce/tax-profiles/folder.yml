@@ -1,0 +1,7 @@
+info:
+  name: Tax Profiles
+  type: folder
+  seq: 24
+
+request:
+  auth: inherit

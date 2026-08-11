@@ -76,6 +76,48 @@ class CustomerApiTest extends RestTestCase
     }
 
     /**
+     * Create customer persists tags.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_create_customer_persists_tags(): void
+    {
+        $response = $this->request('POST', 'customers', $this->customer_payload([
+            'tags' => ['vip', 'wholesale'],
+        ]));
+
+        $payload = $this->assert_api_success($response, 201);
+        $this->assertEquals(['vip', 'wholesale'], $payload['data']['tags']);
+
+        $this->customer_id = $payload['data']['id'];
+        $fetched = $this->request('GET', 'customers/' . $this->customer_id);
+        $fetched_payload = $this->assert_api_success($fetched);
+        $this->assertEquals(['vip', 'wholesale'], $fetched_payload['data']['tags']);
+    }
+
+    /**
+     * Create customer with empty tags persists as an empty array.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_create_customer_with_empty_tags_persists_empty_array(): void
+    {
+        $response = $this->request('POST', 'customers', $this->customer_payload([
+            'tags' => [],
+        ]));
+
+        $payload = $this->assert_api_success($response, 201);
+        $this->assertEquals([], $payload['data']['tags']);
+
+        $this->customer_id = $payload['data']['id'];
+        $fetched = $this->request('GET', 'customers/' . $this->customer_id);
+        $fetched_payload = $this->assert_api_success($fetched);
+        $this->assertEquals([], $fetched_payload['data']['tags']);
+    }
+
+    /**
      * Update customer changes fields.
      *
      * @return void

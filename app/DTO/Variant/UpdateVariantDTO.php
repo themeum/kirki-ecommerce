@@ -2,7 +2,7 @@
 
 namespace Kirki\Ecommerce\App\DTO\Variant;
 
-use Kirki\Ecommerce\DTO;
+use Kirki\Ecommerce\Framework\DTO;
 
 class UpdateVariantDTO extends DTO
 {
@@ -22,7 +22,7 @@ class UpdateVariantDTO extends DTO
     public $barcode;
 
     /** @var int|null */
-    public $price;
+    public $base_price;
 
     /** @var bool|null */
     public $show_unit_price;
@@ -40,10 +40,10 @@ class UpdateVariantDTO extends DTO
     public $total_unit_amount;
 
     /** @var int|null */
-    public $sale_price;
+    public $base_sale_price;
 
     /** @var int|null */
-    public $cost_of_goods;
+    public $base_cost_of_goods;
 
     /** @var float|null */
     public $weight;
@@ -67,7 +67,7 @@ class UpdateVariantDTO extends DTO
     public $in_stock = true;
 
     /** @var int|null */
-    public $committed_quantity = 0;
+    public $committed_quantity = null;
 
     /** @var bool|null */
     public $has_limit_per_order = false;

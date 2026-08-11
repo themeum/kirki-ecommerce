@@ -51,6 +51,31 @@ class ProductApiTest extends RestTestCase
     }
 
     /**
+     * Create product persists additional info and SEO keywords.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_create_product_persists_additional_info_and_seo_keywords(): void
+    {
+        $response = $this->request('POST', 'products', $this->product_payload([
+            'title' => 'Info Product',
+            'additional_info' => ['material' => 'cotton', 'origin' => 'US'],
+            'seo_keywords' => ['shirt', 'summer'],
+        ]));
+
+        $payload = $this->assert_api_success($response, 201);
+        $this->assertEquals(['material' => 'cotton', 'origin' => 'US'], $payload['data']['additional_info']);
+        $this->assertEquals(['shirt', 'summer'], $payload['data']['seo_keywords']);
+
+        $this->product_id = $payload['data']['id'];
+        $fetched = $this->request('GET', 'products/' . $this->product_id);
+        $fetched_payload = $this->assert_api_success($fetched);
+        $this->assertEquals(['material' => 'cotton', 'origin' => 'US'], $fetched_payload['data']['additional_info']);
+        $this->assertEquals(['shirt', 'summer'], $fetched_payload['data']['seo_keywords']);
+    }
+
+    /**
      * Show product returns resource.
      *
      * @return void
@@ -86,7 +111,7 @@ class ProductApiTest extends RestTestCase
             'id' => $this->product_id,
             'title' => 'Updated Product',
             'variants' => $this->variants_for_update($product, [
-                'price' => 39.99,
+                'base_price' => 39.99,
             ]),
         ]));
 
@@ -198,5 +223,209 @@ class ProductApiTest extends RestTestCase
 
         $check = $this->request('GET', 'products/' . $first['id']);
         $this->assert_api_error($check, 404);
+    }
+
+    /**
+     * Create a variant product with a single Color attribute.
+     *
+     * @return array
+     * @since 1.0.0
+     */
+    protected function create_color_product(): array
+    {
+        $attribute = $this->request('POST', 'attributes', [
+            'name' => 'Color ' . wp_generate_password(6, false),
+            'slug' => 'color-' . wp_generate_password(6, false),
+            'type' => 'list',
+        ]);
+        $attribute_id = $this->assert_api_success($attribute, 201)['data']['id'];
+
+        $value_ids = [];
+
+        foreach (['Red', 'Blue'] as $value) {
+            $created = $this->request('POST', 'attributes/' . $attribute_id . '/values', [
+                'attribute_id' => $attribute_id,
+                'value' => $value,
+            ]);
+            $value_ids[] = $this->assert_api_success($created, 201)['data']['id'];
+        }
+
+        $response = $this->request('POST', 'products', $this->product_payload([
+            'title' => 'Variant Product',
+            'has_variants' => true,
+            'attributes' => [
+                ['id' => $attribute_id, 'values' => $value_ids],
+            ],
+            'variants' => [
+                [
+                    'base_price' => 29.99,
+                    'sku' => 'SKU-' . wp_generate_password(6, false),
+                    'available_quantity' => 40,
+                    'in_stock' => true,
+                    'is_default' => true,
+                    'attribute_values' => [$value_ids[0]],
+                ],
+                [
+                    'base_price' => 29.99,
+                    'sku' => 'SKU-' . wp_generate_password(6, false),
+                    'available_quantity' => 12,
+                    'in_stock' => true,
+                    'is_default' => false,
+                    'attribute_values' => [$value_ids[1]],
+                ],
+            ],
+        ]));
+
+        $product = $this->assert_api_success($response, 201)['data'];
+        $this->product_id = $product['id'];
+
+        return [$product, $attribute_id, $value_ids];
+    }
+
+    /**
+     * A variant product round-trips its attribute values.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_create_variant_product_persists_attribute_values(): void
+    {
+        [$product, , $value_ids] = $this->create_color_product();
+
+        $this->assertTrue($product['has_variants']);
+        $this->assertCount(2, $product['variants']);
+        $this->assertEquals([$value_ids[0]], $product['variants'][0]['attribute_values']);
+        $this->assertEquals([$value_ids[1]], $product['variants'][1]['attribute_values']);
+    }
+
+    /**
+     * A value that belongs to no listed attribute is rejected.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_variant_referencing_an_unlisted_value_is_rejected(): void
+    {
+        [$product, $attribute_id, $value_ids] = $this->create_color_product();
+
+        $response = $this->request('PUT', 'products/' . $product['id'], $this->product_payload([
+            'id' => $product['id'],
+            'has_variants' => true,
+            'attributes' => [
+                ['id' => $attribute_id, 'values' => $value_ids],
+            ],
+            'variants' => [
+                [
+                    'id' => $product['variants'][0]['id'],
+                    'base_price' => 29.99,
+                    'is_default' => true,
+                    'attribute_values' => [$value_ids[0]],
+                ],
+                [
+                    'id' => $product['variants'][1]['id'],
+                    'base_price' => 29.99,
+                    'is_default' => false,
+                    'attribute_values' => [999999],
+                ],
+            ],
+        ]));
+
+        $this->assert_validation_error($response);
+    }
+
+    /**
+     * Two variants sharing a combination are rejected.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_duplicate_variant_combination_is_rejected(): void
+    {
+        [$product, $attribute_id, $value_ids] = $this->create_color_product();
+
+        $response = $this->request('PUT', 'products/' . $product['id'], $this->product_payload([
+            'id' => $product['id'],
+            'has_variants' => true,
+            'attributes' => [
+                ['id' => $attribute_id, 'values' => $value_ids],
+            ],
+            'variants' => [
+                [
+                    'id' => $product['variants'][0]['id'],
+                    'base_price' => 29.99,
+                    'is_default' => true,
+                    'attribute_values' => [$value_ids[0]],
+                ],
+                [
+                    'id' => $product['variants'][1]['id'],
+                    'base_price' => 29.99,
+                    'is_default' => false,
+                    'attribute_values' => [$value_ids[0]],
+                ],
+            ],
+        ]));
+
+        $this->assert_validation_error($response);
+    }
+
+    /**
+     * Omitting attribute values on a variant product is rejected, since the
+     * service would otherwise detach every pivot row.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_update_without_attribute_values_is_rejected(): void
+    {
+        [$product, $attribute_id, $value_ids] = $this->create_color_product();
+
+        $response = $this->request('PUT', 'products/' . $product['id'], $this->product_payload([
+            'id' => $product['id'],
+            'has_variants' => true,
+            'attributes' => [
+                ['id' => $attribute_id, 'values' => $value_ids],
+            ],
+            'variants' => [
+                [
+                    'id' => $product['variants'][0]['id'],
+                    'base_price' => 29.99,
+                    'is_default' => true,
+                ],
+                [
+                    'id' => $product['variants'][1]['id'],
+                    'base_price' => 29.99,
+                    'is_default' => false,
+                ],
+            ],
+        ]));
+
+        $this->assert_validation_error($response);
+
+        $check = $this->request('GET', 'products/' . $product['id']);
+        $unchanged = $this->assert_api_success($check)['data'];
+        $this->assertEquals([$value_ids[0]], $unchanged['variants'][0]['attribute_values']);
+    }
+
+    /**
+     * A payload with no default variant is rejected.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_product_without_a_default_variant_is_rejected(): void
+    {
+        $response = $this->request('POST', 'products', $this->product_payload([
+            'title' => 'No Default',
+            'variants' => [
+                [
+                    'base_price' => 29.99,
+                    'sku' => 'SKU-' . wp_generate_password(6, false),
+                    'is_default' => false,
+                    'attribute_values' => [],
+                ],
+            ],
+        ]));
+
+        $this->assert_validation_error($response);
     }
 }

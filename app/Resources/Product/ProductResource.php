@@ -3,8 +3,8 @@
 namespace Kirki\Ecommerce\App\Resources\Product;
 
 use Kirki\Ecommerce\App\Resources\Variant\VariantResource;
-use Kirki\Ecommerce\Resource;
-use Kirki\Ecommerce\Supports\MediaAttachment;
+use Kirki\Ecommerce\Framework\Resource;
+use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
 
 class ProductResource extends Resource
 {
@@ -35,9 +35,9 @@ class ProductResource extends Resource
                 'logo' => MediaAttachment::make($this->brand->logo)
             ],
 
+            'short_description' => $this->short_description,
             'description' => $this->description,
             'additional_info' => $this->additional_info,
-            'allow_back_order' => (bool) $this->allow_back_order,
             'seo_title' => $this->seo_title,
             'seo_description' => $this->seo_description,
             'seo_keywords' => $this->seo_keywords,
@@ -46,7 +46,7 @@ class ProductResource extends Resource
             'og_image' => MediaAttachment::make($this->og_image),
             'schema_id' => $this->schema_id,
             'llm_instructions' => $this->llm_instructions,
-            'has_variants' => (bool) $this->has_variants,
+            'has_variants' => $this->has_variants,
 
             'categories' => $this->categories->map(function ($item) {
                 return [

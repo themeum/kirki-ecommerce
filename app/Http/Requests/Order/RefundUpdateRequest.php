@@ -3,8 +3,8 @@
 namespace Kirki\Ecommerce\App\Http\Requests\Order;
 
 use Kirki\Ecommerce\App\Constants\Order\RefundStatus;
-use Kirki\Ecommerce\Http\Request;
-use Kirki\Ecommerce\Sanitizer;
+use Kirki\Ecommerce\Framework\Http\Request;
+use Kirki\Ecommerce\Framework\Sanitizer;
 
 class RefundUpdateRequest extends Request
 {
@@ -13,7 +13,7 @@ class RefundUpdateRequest extends Request
         return [
             'id' => 'required|integer',
             'order_id' => 'required|integer',
-            'amount' => 'required|number|gt:0',
+            'invoiced_amount' => 'required|number|gt:0',
             'reason' => 'nullable|string',
             'status' => 'required|in:' . RefundStatus::PENDING . ',' . RefundStatus::COMPLETED . ',' . RefundStatus::CANCELLED,
         ];
@@ -24,7 +24,7 @@ class RefundUpdateRequest extends Request
         return [
             'id' => Sanitizer::INT,
             'order_id' => Sanitizer::INT,
-            'amount' => Sanitizer::FLOAT,
+            'invoiced_amount' => Sanitizer::FLOAT,
             'reason' => Sanitizer::TEXT,
             'status' => Sanitizer::TEXT,
         ];

@@ -2,7 +2,7 @@
 
 namespace Kirki\Ecommerce\App\DTO\Customer;
 
-use Kirki\Ecommerce\DTO;
+use Kirki\Ecommerce\Framework\DTO;
 
 class CreateCustomerDTO extends DTO
 {
@@ -38,4 +38,10 @@ class CreateCustomerDTO extends DTO
 
     /** @var string|null */
     public $language = 'en';
+
+    /** @var int|null */
+    public $created_by = null;
+
+    /** @var int|null */
+    public $updated_by = null;
 }

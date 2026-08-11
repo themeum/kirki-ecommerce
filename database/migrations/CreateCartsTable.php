@@ -2,9 +2,9 @@
 
 namespace Kirki\Ecommerce\Database\Migrations;
 
-use Kirki\Ecommerce\Contracts\Migration;
-use Kirki\Ecommerce\Database\Schema\Structure;
-use Kirki\Ecommerce\Supports\Facades\Schema;
+use Kirki\Ecommerce\Framework\Contracts\Migration;
+use Kirki\Ecommerce\Framework\Database\Schema\Structure;
+use Kirki\Ecommerce\Framework\Supports\Facades\Schema;
 
 class CreateCartsTable implements Migration
 {
@@ -30,6 +30,7 @@ class CreateCartsTable implements Migration
             $table->text('customer_notes')->nullable();
             $table->text('shipping_address')->nullable();
             $table->text('billing_address')->nullable();
+            $table->boolean('is_billing_same_as_shipping')->default(false);
 
             $table->timestamp('expires_at')->nullable()->comment('Cart expiration timestamp for cleanup of abandoned carts');
             $table->timestamps();

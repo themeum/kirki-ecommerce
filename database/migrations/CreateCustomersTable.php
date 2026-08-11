@@ -2,9 +2,9 @@
 
 namespace Kirki\Ecommerce\Database\Migrations;
 
-use Kirki\Ecommerce\Contracts\Migration;
-use Kirki\Ecommerce\Database\Schema\Structure;
-use Kirki\Ecommerce\Supports\Facades\Schema;
+use Kirki\Ecommerce\Framework\Contracts\Migration;
+use Kirki\Ecommerce\Framework\Database\Schema\Structure;
+use Kirki\Ecommerce\Framework\Supports\Facades\Schema;
 
 class CreateCustomersTable implements Migration
 {
@@ -29,7 +29,7 @@ class CreateCustomersTable implements Migration
             $table->foreign('created_by')->on('users')->references('ID')->null_on_delete();
             $table->foreign('updated_by')->on('users')->references('ID')->null_on_delete();
 
-            $table->index('user_id');
+            $table->unique('user_id');
             $table->index('email');
 
             $table->foreign('user_id')

@@ -8,15 +8,15 @@ use Kirki\Ecommerce\App\Http\Requests\BulkActionRequest;
 use Kirki\Ecommerce\App\Resources\BrandResource;
 use Kirki\Ecommerce\App\Constants\BulkActions;
 use Kirki\Ecommerce\App\Constants\Pagination;
-use Kirki\Ecommerce\Contracts\Request;
-use Kirki\Ecommerce\Database\Query\Paginator;
+use Kirki\Ecommerce\Framework\Contracts\Request;
+use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 use Kirki\Ecommerce\App\DTO\Brand\CreateBrandDTO;
 use Kirki\Ecommerce\App\DTO\Brand\UpdateBrandDTO;
 use Kirki\Ecommerce\App\DTO\ListFilterDTO;
-use Kirki\Ecommerce\Http\Response;
+use Kirki\Ecommerce\Framework\Http\Response;
 use Kirki\Ecommerce\App\Services\BrandService;
 
-use function Kirki\Ecommerce\response;
+use function Kirki\Ecommerce\Framework\response;
 
 class BrandController
 {
@@ -30,7 +30,7 @@ class BrandController
     public function get(Request $request)
     {
         $params = ListFilterDTO::from_array($request->all());
-        $params->sort_by = $request->get_whitelisted('sort_by', 'id', ['id', 'name', 'slug', 'created_by', 'updated_by', 'created_at', 'updated_at']);
+        $params->sort_by = $request->whitelisted('sort_by', 'id', ['id', 'name', 'slug', 'created_by', 'updated_by', 'created_at', 'updated_at']);
 
         if ((int) $params->limit === Pagination::ALL) {
             $data = $this->service->all($params);
@@ -63,7 +63,7 @@ class BrandController
 
     public function show(Request $request)
     {
-        $brand = $this->service->find($request->get_int('id'));
+        $brand = $this->service->find($request->int('id'));
 
         return response()->json([
             'data' => BrandResource::make($brand),
@@ -85,7 +85,7 @@ class BrandController
 
     public function delete(Request $request)
     {
-        $result = $this->service->delete($request->get_int('id'));
+        $result = $this->service->delete($request->int('id'));
 
         return response()->json([
             'data' => $result,

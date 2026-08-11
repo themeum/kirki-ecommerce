@@ -8,15 +8,15 @@ use Kirki\Ecommerce\App\Http\Requests\BulkActionRequest;
 use Kirki\Ecommerce\App\Resources\AttributeResource;
 use Kirki\Ecommerce\App\Constants\BulkActions;
 use Kirki\Ecommerce\App\Constants\Pagination;
-use Kirki\Ecommerce\Contracts\Request;
+use Kirki\Ecommerce\Framework\Contracts\Request;
 use Kirki\Ecommerce\App\DTO\Attribute\AttributeListFilterDTO;
 use Kirki\Ecommerce\App\DTO\Attribute\CreateAttributeDTO;
 use Kirki\Ecommerce\App\DTO\Attribute\UpdateAttributeDTO;
-use Kirki\Ecommerce\Http\Response;
+use Kirki\Ecommerce\Framework\Http\Response;
 use Kirki\Ecommerce\App\Services\AttributeService;
-use Kirki\Ecommerce\Database\Query\Paginator;
+use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 
-use function Kirki\Ecommerce\response;
+use function Kirki\Ecommerce\Framework\response;
 
 class AttributeController
 {
@@ -30,7 +30,7 @@ class AttributeController
     public function get(Request $request)
     {
         $params = AttributeListFilterDTO::from_array($request->all());
-        $params->sort_by = $request->get_whitelisted('sort_by', 'id', ['id', 'name', 'slug', 'type', 'created_by', 'updated_by', 'created_at', 'updated_at']);
+        $params->sort_by = $request->whitelisted('sort_by', 'id', ['id', 'name', 'slug', 'type', 'created_by', 'updated_by', 'created_at', 'updated_at']);
 
         if ((int) $params->limit === Pagination::ALL) {
             $data = $this->service->all($params);
@@ -61,7 +61,7 @@ class AttributeController
 
     public function show(Request $request)
     {
-        $attribute = $this->service->find($request->get_int('id'));
+        $attribute = $this->service->find($request->int('id'));
 
         return response()->json([
             'data' => AttributeResource::make($attribute),
@@ -81,7 +81,7 @@ class AttributeController
 
     public function delete(Request $request)
     {
-        $result = $this->service->delete($request->get_int('id'));
+        $result = $this->service->delete($request->int('id'));
 
         return response()->json([
             'data' => $result,

@@ -2,8 +2,10 @@
 
 namespace Kirki\Ecommerce\App\Models;
 
-use Kirki\Ecommerce\Database\Query\Model;
-use Kirki\Ecommerce\Supports\Arr;
+use Kirki\Ecommerce\App\Constants\Coupon\CouponStatus;
+use Kirki\Ecommerce\Framework\Database\Query\Model;
+use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
+use Kirki\Ecommerce\Framework\Supports\Facades\Date;
 
 class Coupon extends Model
 {
@@ -12,7 +14,7 @@ class Coupon extends Model
 
     protected $casts = [
         'id' => 'integer',
-        'has_end_date' => 'boolean',
+        'has_end_datetime' => 'boolean',
         'first_time_buyer_only' => 'boolean',
         'exclude_customers' => 'boolean',
         'has_usage_limit' => 'boolean',
@@ -21,14 +23,15 @@ class Coupon extends Model
         'customer_limit' => 'integer',
         'current_usage_count' => 'integer',
         'is_active' => 'boolean',
-        'discount_amount_fixed' => 'integer',
+        'base_discount_amount_fixed' => 'integer',
         'discount_amount_percentage' => 'float',
         'spend_condition_value' => 'integer',
         'reward_quantity' => 'integer',
         'reward_value' => 'integer',
-        'start_date' => 'date',
-        'end_date' => 'date',
+        'start_datetime' => 'datetime',
+        'end_datetime' => 'datetime',
         'target_countries' => 'json',
+        'combinations' => 'json',
         'created_by' => 'integer',
         'updated_by' => 'integer',
         'created_at' => 'datetime',
@@ -42,18 +45,16 @@ class Coupon extends Model
         'discount_type',
         'discount_target',
         'discount_value_type',
-        'discount_amount_fixed',
+        'base_discount_amount_fixed',
         'discount_amount_percentage',
         'eligible_item_type',
         'spend_condition_type',
         'spend_condition_value',
         'reward_quantity',
         'reward_value',
-        'start_date',
-        'start_time',
-        'has_end_date',
-        'end_date',
-        'end_time',
+        'start_datetime',
+        'has_end_datetime',
+        'end_datetime',
         'target_countries',
         'first_time_buyer_only',
         'customer_eligibility',
@@ -64,13 +65,55 @@ class Coupon extends Model
         'customer_limit',
         'current_usage_count',
         'is_active',
+        'combinations',
         'created_by',
         'updated_by',
     ];
 
-    public function set_target_countries_attribute($value)
+    // TODO: we need to make get_status_attribute later when accessor is available for custom attribute which is not available in fillable
+    public function get_status()
     {
-        return !empty($value) && is_array($value) ? Arr::json_encode($value) : null;
+        if (!$this->is_active) {
+            return CouponStatus::INACTIVE;
+        }
+
+        $now = Date::now();
+
+        if ($this->start_datetime && $now->lt($this->start_datetime)) {
+            return CouponStatus::SCHEDULED;
+        }
+
+        if ($this->has_end_datetime && $this->end_datetime && $now->gt($this->end_datetime)) {
+            return CouponStatus::EXPIRED;
+        }
+
+        return CouponStatus::ACTIVE;
+    }
+
+    public function set_start_datetime_attribute(?string $value)
+    {
+        $this->attributes['start_datetime'] = $this->to_utc($value);
+    }
+
+    public function set_end_datetime_attribute(?string $value)
+    {
+        $this->attributes['end_datetime'] = $this->to_utc($value);
+    }
+
+    /**
+     * Parse a datetime value and normalize it to GMT.
+     *
+     * @param string|null $value ATOM string (with offset) or a plain GMT datetime string.
+     *
+     * @return \Kirki\Ecommerce\Framework\Contracts\SomoyInterface|null
+     */
+    protected function to_utc($value)
+    {
+        if (empty($value)) {
+            return null;
+        }
+
+        return Date::parse($value)->set_timezone('UTC');
     }
 
     public function categories()
@@ -91,5 +134,41 @@ class Coupon extends Model
     public function usage()
     {
         return $this->has_many(CouponUsage::class, 'coupon_id', 'id');
+    }
+
+    /**
+     * @param QueryBuilder $query
+     * @param string $status
+     */
+    public function scope_apply_status_filter(QueryBuilder $query, $status)
+    {
+        if (empty($status)) {
+            return $query;
+        }
+
+        $now = Date::now()->to_date_time_string();
+
+        switch ($status) {
+            case CouponStatus::ACTIVE:
+                return $query->where('is_active', 1)
+                    ->where(function (QueryBuilder $query) use ($now) {
+                        $query->where_null('start_datetime')
+                            ->or_where('start_datetime', '<=', $now);
+                    })
+                    ->where(function (QueryBuilder $query) use ($now) {
+                        $query->where('has_end_datetime', 0)
+                            ->or_where_null('end_datetime')
+                            ->or_where('end_datetime', '>=', $now);
+                    });
+            case CouponStatus::EXPIRED:
+                return $query->where('is_active', 1)
+                    ->where('has_end_datetime', 1)
+                    ->where('end_datetime', '<', $now);
+            case CouponStatus::SCHEDULED:
+                return $query->where('is_active', 1)
+                    ->where('start_datetime', '>', $now);
+            case CouponStatus::INACTIVE:
+                return $query->where('is_active', 0);
+        }
     }
 }

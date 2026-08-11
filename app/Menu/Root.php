@@ -2,9 +2,11 @@
 
 namespace Kirki\Ecommerce\App\Menu;
 
-use Kirki\Ecommerce\Wordpress\Constants\MenuTypes;
-use Kirki\Ecommerce\Supports\Assets;
-use Kirki\Ecommerce\Wordpress\Menu;
+use Kirki\Ecommerce\Framework\Wordpress\Constants\MenuTypes;
+use Kirki\Ecommerce\App\Supports\Assets;
+use Kirki\Ecommerce\Framework\Wordpress\Menu;
+
+use function Kirki\Ecommerce\Framework\app;
 
 class Root extends Menu
 {
@@ -15,7 +17,7 @@ class Root extends Menu
     protected $capabilities = 'manage_options';
 
     /** @inheritDoc */
-    protected $menu_slug = 'ecommerce';
+    protected $menu_slug = 'kirki-ecommerce';
 
     protected $position = 2;
 
@@ -34,9 +36,9 @@ class Root extends Menu
 
     public function enqueue_admin_assets()
     {
-        $menu_style_handle = KIRKI_ECOMMERCE_PREFIX . 'admin-menu';
+        $menu_style_handle = app()->prefix() . 'admin-menu';
 
-        wp_register_style($menu_style_handle, false, [], KIRKI_ECOMMERCE_VERSION);
+        wp_register_style($menu_style_handle, false, [], app()->version());
         wp_enqueue_style($menu_style_handle);
 
         wp_add_inline_style(
@@ -51,7 +53,7 @@ class Root extends Menu
         add_filter('wp_resource_hints', [$this, 'add_font_resource_hints'], 10, 2);
 
         wp_enqueue_style(
-            KIRKI_ECOMMERCE_PREFIX . 'inter-font',
+            app()->prefix() . 'inter-font',
             esc_url(
                 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=block'
             ),
@@ -59,13 +61,13 @@ class Root extends Menu
             null
         );
 
-        $root_style_handle = KIRKI_ECOMMERCE_PREFIX . 'root-shell';
+        $root_style_handle = app()->prefix() . 'root-shell';
 
         wp_register_style(
             $root_style_handle,
             false,
-            [KIRKI_ECOMMERCE_PREFIX . 'inter-font'],
-            KIRKI_ECOMMERCE_VERSION
+            [app()->prefix() . 'inter-font'],
+            app()->version()
         );
         wp_enqueue_style($root_style_handle);
 
@@ -88,11 +90,11 @@ class Root extends Menu
 
     protected function get_app_script_handle()
     {
-        if (defined('KIRKI_ECOMMERCE_IS_DEV') && KIRKI_ECOMMERCE_IS_DEV) {
-            return KIRKI_ECOMMERCE_PREFIX . 'app';
+        if (app()->is_dev_mode()) {
+            return app()->prefix() . 'app';
         }
 
-        return KIRKI_ECOMMERCE_PREFIX . 'bundle';
+        return app()->prefix() . 'bundle';
     }
 
     protected function get_dashicon_inline_styles()
@@ -114,6 +116,27 @@ class Root extends Menu
     {
         return '.kirki-ecommerce-root {
                 font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            }
+
+            /* Warm Inter 500/600 during the hidden shell so Emotion UI does not FOIT after reveal. */
+            .kirki-ecommerce-root::before,
+            .kirki-ecommerce-root::after {
+                content: ".";
+                position: absolute;
+                width: 0;
+                height: 0;
+                overflow: hidden;
+                opacity: 0;
+                pointer-events: none;
+                font-family: "Inter", sans-serif;
+            }
+
+            .kirki-ecommerce-root::before {
+                font-weight: 500;
+            }
+
+            .kirki-ecommerce-root::after {
+                font-weight: 600;
             }
 
             .kirki-ecommerce-root:not(.kirki-ecommerce-root--ready) {

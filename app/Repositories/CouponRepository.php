@@ -5,9 +5,9 @@ namespace Kirki\Ecommerce\App\Repositories;
 use Kirki\Ecommerce\App\Models\Coupon;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountValueType;
 use Kirki\Ecommerce\App\Constants\Pagination;
-use Kirki\Ecommerce\Collections\Collection;
-use Kirki\Ecommerce\Database\Query\Paginator;
-use Kirki\Ecommerce\Database\Query\QueryBuilder;
+use Kirki\Ecommerce\Framework\Collections\Collection;
+use Kirki\Ecommerce\Framework\Database\Query\Paginator;
+use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
 
 class CouponRepository
 {
@@ -75,9 +75,9 @@ class CouponRepository
     public function create(array $data)
     {
         if ($data['discount_value_type'] === DiscountValueType::FIXED) {
-            $data['discount_amount_fixed'] = $data['discount_amount'];
+            $data['base_discount_amount_fixed'] = $data['discount_amount'];
         } else {
-            $data['discount_amount_percent'] = $data['discount_amount'];
+            $data['discount_amount_percentage'] = $data['discount_amount'];
         }
 
         return Coupon::create($data);
@@ -93,7 +93,7 @@ class CouponRepository
     public function update(int $id, array $data)
     {
         if ($data['discount_value_type'] === DiscountValueType::FIXED) {
-            $data['discount_amount_fixed'] = $data['discount_amount'];
+            $data['base_discount_amount_fixed'] = $data['discount_amount'];
         } else {
             $data['discount_amount_percentage'] = $data['discount_amount'];
         }
@@ -150,15 +150,29 @@ class CouponRepository
                 return $query->where('is_active', (int) $filters['is_active']);
             })
             ->when(!empty($filters['start_date']), function (QueryBuilder $query) use ($filters) {
-                return $query->where_date('start_date', '>=', $filters['start_date']);
+                return $query->where_date('start_datetime', '>=', $filters['start_date']);
             })
             ->when(!empty($filters['end_date']), function (QueryBuilder $query) use ($filters) {
-                return $query->where_date('end_date', '<=', $filters['end_date']);
+                return $query->where_date('end_datetime', '<=', $filters['end_date']);
             })
             ->when(!empty($filters['sort_by']) && !empty($filters['sort_order']), function (QueryBuilder $query) use ($filters) {
                 return $query->order_by($filters['sort_by'], $filters['sort_order']);
             }, function (QueryBuilder $query) {
                 return $query->order_by('id', 'desc');
+            })
+            ->when(!empty($filters['status']), function (QueryBuilder $query) use ($filters) {
+                return $query->apply_status_filter($filters['status']);
             });
+    }
+
+    /**
+     * Check if a coupon code exists.
+     *
+     * @param string $code
+     * @return bool
+     */
+    public function is_exists(string $code)
+    {
+        return Coupon::query()->where('code', $code)->exists();
     }
 }

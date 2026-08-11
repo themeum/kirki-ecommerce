@@ -2,7 +2,7 @@
 
 namespace Kirki\Ecommerce\App\DTO\Calculation;
 
-use Kirki\Ecommerce\DTO;
+use Kirki\Ecommerce\Framework\DTO;
 
 class CalculationItemDTO extends DTO
 {
@@ -15,7 +15,7 @@ class CalculationItemDTO extends DTO
     /** @var int */
     public $quantity;
     /** @var int */
-    public $unit_price;
+    public $base_unit_price;
     /** @var int */
     public $weight;
     /** @var int */
@@ -27,15 +27,17 @@ class CalculationItemDTO extends DTO
     /** @var array */
     public $meta = [];
     /** @var int */
-    public $subtotal = 0;
+    public $base_subtotal = 0;
     /** @var int */
     public $tax_rate = 0;
     /** @var int */
-    public $tax_amount = 0;
+    public $base_tax_amount = 0;
     /** @var array */
     public $tax_breakdown = [];
     /** @var int */
-    public $discount_amount = 0;
+    public $base_discount_amount = 0;
     /** @var int */
-    public $total = 0;
+    public $base_total = 0;
+    /** @var int */
+    public $base_product_total = 0;
 }

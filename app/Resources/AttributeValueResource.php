@@ -2,7 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Resources;
 
-use Kirki\Ecommerce\Resource;
+use Kirki\Ecommerce\Framework\Resource;
+use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
 
 class AttributeValueResource extends Resource
 {
@@ -17,6 +18,7 @@ class AttributeValueResource extends Resource
             'id' => $this->id,
             'value' => $this->value,
             'color' => $this->color,
+            'media' => MediaAttachment::make($this->media),
         ];
     }
 }

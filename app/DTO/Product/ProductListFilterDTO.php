@@ -15,8 +15,20 @@ class ProductListFilterDTO extends ListFilterDTO
     /** @var int|null */
     public $brand_id;
 
+    /** @var int[]|null */
+    public $brand_ids;
+
     /** @var string|null */
     public $collection_id;
+
+    /** @var int|null */
+    public $min_price;
+
+    /** @var int|null */
+    public $max_price;
+
+    /** @var int[]|null */
+    public $attribute_value_ids;
 
     /** @var string|null */
     public $inventory_type = 'all';

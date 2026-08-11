@@ -2,9 +2,9 @@
 
 namespace Kirki\Ecommerce\Database\Migrations;
 
-use Kirki\Ecommerce\Contracts\Migration;
-use Kirki\Ecommerce\Database\Schema\Structure;
-use Kirki\Ecommerce\Supports\Facades\Schema;
+use Kirki\Ecommerce\Framework\Contracts\Migration;
+use Kirki\Ecommerce\Framework\Database\Schema\Structure;
+use Kirki\Ecommerce\Framework\Supports\Facades\Schema;
 
 class CreateOrderItemsTable implements Migration
 {
@@ -22,23 +22,23 @@ class CreateOrderItemsTable implements Migration
             $table->unsigned_big_integer('product_image')->nullable();
 
             $table->decimal('tax_rate', 8, 4)->nullable()->comment('Tax rate as a percentage');
-            $table->integer('tax_total')->default(0);
-            $table->integer('tax_total_base')->default(0);
+            $table->integer('invoiced_tax_total')->default(0);
+            $table->integer('base_tax_total')->default(0);
             $table->text('tax_breakdown')->nullable()->comment('JSON snapshot of tax breakdown');
 
-            $table->integer('discount_amount')->default(0);
-            $table->integer('discount_amount_base')->default(0);
+            $table->integer('invoiced_discount_amount')->default(0);
+            $table->integer('base_discount_amount')->default(0);
 
-            $table->integer('price');
-            $table->integer('price_base');
+            $table->integer('invoiced_price');
+            $table->integer('base_price');
 
             $table->integer('quantity')->default(1);
 
-            $table->integer('subtotal')->default(0);
-            $table->integer('subtotal_base')->default(0);
+            $table->integer('invoiced_subtotal')->default(0);
+            $table->integer('base_subtotal')->default(0);
 
-            $table->integer('total')->default(0);
-            $table->integer('total_base')->default(0);
+            $table->integer('invoiced_total')->default(0);
+            $table->integer('base_total')->default(0);
 
             $table->boolean('is_physical_product')->default(1);
             $table->decimal('weight', 10, 2)->nullable();

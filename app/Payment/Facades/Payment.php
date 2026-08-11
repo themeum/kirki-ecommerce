@@ -2,18 +2,18 @@
 
 namespace Kirki\Ecommerce\App\Payment\Facades;
 
-use Kirki\Ecommerce\Facade;
+use Kirki\Ecommerce\Framework\Facade;
 use Kirki\Ecommerce\App\Payment\PaymentManager;
 
 /**
  * @method static void init_registry()
- * @method static \Kirki\Ecommerce\App\Payment\PaymentGateway[] get_all_gateways()
- * @method static \Kirki\Ecommerce\App\Payment\PaymentGateway[] get_all_online_gateways()
- * @method static \Kirki\Ecommerce\App\Payment\PaymentGateway[] get_all_manual_gateways()
- * @method static \Kirki\Ecommerce\App\Payment\PaymentGateway[] get_available_gateways()
- * @method static \Kirki\Ecommerce\App\Payment\PaymentGateway[] get_available_online_gateways()
- * @method static \Kirki\Ecommerce\App\Payment\PaymentGateway[] get_available_manual_gateways()
- * @method static \Kirki\Ecommerce\App\Payment\PaymentGateway|null get_gateway($id)
+ * @method static \Kirki\Ecommerce\App\Payment\PaymentProvider[] get_all_providers()
+ * @method static \Kirki\Ecommerce\App\Payment\PaymentProvider[] get_online_providers()
+ * @method static \Kirki\Ecommerce\App\Payment\PaymentProvider[] get_offline_providers()
+ * @method static \Kirki\Ecommerce\App\Payment\PaymentProvider[] get_available_providers()
+ * @method static \Kirki\Ecommerce\App\Payment\PaymentProvider[] get_available_online_providers()
+ * @method static \Kirki\Ecommerce\App\Payment\PaymentProvider[] get_available_offline_providers()
+ * @method static \Kirki\Ecommerce\App\Payment\PaymentProvider|null get_provider($id)
  *
  * @see \Kirki\Ecommerce\App\Payment\PaymentManager
  */

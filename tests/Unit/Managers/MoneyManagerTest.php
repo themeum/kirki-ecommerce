@@ -5,7 +5,7 @@ namespace Kirki\Ecommerce\Tests\Unit\Managers;
 use BadMethodCallException;
 use Brick\Money\Money;
 use InvalidArgumentException;
-use Kirki\Ecommerce\Managers\MoneyManager;
+use Kirki\Ecommerce\App\Managers\MoneyManager;
 use Kirki\Ecommerce\Tests\Unit\TestCase;
 
 class MoneyManagerTest extends TestCase

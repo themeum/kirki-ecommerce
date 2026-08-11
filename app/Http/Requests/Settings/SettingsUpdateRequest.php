@@ -11,11 +11,54 @@ use Kirki\Ecommerce\App\Constants\SellingLocationType;
 use Kirki\Ecommerce\App\Constants\ShippingMethodTypes;
 use Kirki\Ecommerce\App\Constants\ThousandSeparator;
 use Kirki\Ecommerce\App\Constants\UpdateFrequency;
-use Kirki\Ecommerce\Sanitizer;
-use Kirki\Ecommerce\Http\Request;
+use Kirki\Ecommerce\App\Facades\Money;
+use Kirki\Ecommerce\Framework\Sanitizer;
+use Kirki\Ecommerce\Framework\Http\Request;
+use Kirki\Ecommerce\Framework\Validation\Rule;
 
 class SettingsUpdateRequest extends Request
 {
+    protected function prepare_for_validation()
+    {
+        if ($this->get_string('key') !== OptionKeys::SHIPPING_SETTINGS) {
+            return;
+        }
+
+        $data = $this->input('data');
+
+        if (!is_array($data) || !isset($data['shipping_zones']) || !is_array($data['shipping_zones'])) {
+            return;
+        }
+
+        foreach ($data['shipping_zones'] as $zone_index => $zone) {
+            if (!is_array($zone) || !isset($zone['shipping_methods']) || !is_array($zone['shipping_methods'])) {
+                continue;
+            }
+
+            foreach ($zone['shipping_methods'] as $method_index => $method) {
+                if (!is_array($method)) {
+                    continue;
+                }
+
+                foreach (['base_amount', 'base_free_shipping_min_amount'] as $field) {
+                    if (array_key_exists($field, $method) && !empty($method[$field])) {
+                        $data['shipping_zones'][$zone_index]['shipping_methods'][$method_index][$field] = Money::to_minor($method[$field]);
+                    }
+                }
+
+                if (isset($method['ranges']) && is_array($method['ranges'])) {
+                    foreach ($method['ranges'] as $range_index => $range) {
+                        if (is_array($range) && array_key_exists('base_amount', $range) && !empty($range['base_amount'])) {
+                            $data['shipping_zones'][$zone_index]['shipping_methods'][$method_index]['ranges'][$range_index]['base_amount'] = Money::to_minor($range['base_amount']);
+                        }
+                    }
+                }
+            }
+        }
+
+        $this->merge(['data' => $data]);
+    }
+
     public function rules()
     {
         $rules = [];
@@ -45,6 +88,9 @@ class SettingsUpdateRequest extends Request
                 break;
             case OptionKeys::EMAIL_SETTINGS:
                 $rules = $this->get_email_settings_rules();
+                break;
+            case OptionKeys::ADVANCE_SETTINGS:
+                $rules = []; // @todo: implement later
                 break;
             default:
                 break;
@@ -76,6 +122,8 @@ class SettingsUpdateRequest extends Request
                 return $this->get_currency_settings_filters();
             case OptionKeys::EMAIL_SETTINGS:
                 return $this->get_email_settings_filters();
+            case OptionKeys::ADVANCE_SETTINGS:
+                return []; //@todo: implement later
             default:
                 return [];
         }
@@ -113,7 +161,7 @@ class SettingsUpdateRequest extends Request
             'data.store_email' => Sanitizer::EMAIL,
             'data.store_logo' => Sanitizer::INT,
             'data.store_phone' => Sanitizer::TEXT,
-            'data.store_address' => Sanitizer::ARRAY ,
+            'data.store_address' => Sanitizer::ARRAY,
             'data.store_address.address_line_1' => Sanitizer::TEXT,
             'data.store_address.address_line_2' => Sanitizer::TEXT,
             'data.store_address.city' => Sanitizer::TEXT,
@@ -121,7 +169,7 @@ class SettingsUpdateRequest extends Request
             'data.store_address.postal_code' => Sanitizer::TEXT,
             'data.store_address.country' => Sanitizer::TEXT,
             'data.selling_location_type' => Sanitizer::TEXT,
-            'data.selling_countries' => Sanitizer::ARRAY ,
+            'data.selling_countries' => Sanitizer::ARRAY,
             'data.order_id_prefix' => Sanitizer::TEXT,
             'data.order_id_suffix' => Sanitizer::TEXT,
             'data.invoice_id_prefix' => Sanitizer::TEXT,
@@ -163,7 +211,7 @@ class SettingsUpdateRequest extends Request
             'data.is_enabled_reviews' => Sanitizer::BOOL,
             'data.is_enabled_star_ratings' => Sanitizer::BOOL,
             'data.is_unit_price_visible' => Sanitizer::BOOL,
-            'data.barcode_generation' => Sanitizer::ARRAY ,
+            'data.barcode_generation' => Sanitizer::ARRAY,
             'data.barcode_generation.data_origin' => Sanitizer::TEXT,
             'data.barcode_generation.format' => Sanitizer::TEXT,
             'data.barcode_generation.width' => Sanitizer::FLOAT,
@@ -189,8 +237,25 @@ class SettingsUpdateRequest extends Request
             'data.shipping_zones.*.shipping_methods.*.is_enabled' => 'required|boolean',
             'data.shipping_zones.*.shipping_methods.*.name' => 'required|string',
             'data.shipping_zones.*.shipping_methods.*.type' => 'required|string|in:' . implode(',', ShippingMethodTypes::get_constant_values()),
-            'data.shipping_zones.*.shipping_methods.*.amount' => 'required|number',
-            'data.shipping_zones.*.shipping_methods.*.is_taxable' => 'required_if_sibling:type,' . implode(';', [ShippingMethodTypes::FLAT_RATE, ShippingMethodTypes::WEIGHT_BASED]) . '|boolean',
+            'data.shipping_zones.*.shipping_methods.*.base_amount' => 'required|number',
+            // TODO: replace with a reusable required-if-sibling rule once it can safely mix
+            // with type-check rules (e.g. string/array) without failing on null when not required.
+            // Bound to the shipping method itself (not the is_taxable leaf) so the check
+            // still runs even when the client omits is_taxable entirely - a wildcard rule
+            // keyed on a leaf field is only evaluated when that key is present in the payload.
+            'data.shipping_zones.*.shipping_methods.*' => function ($value, $key, $data) {
+                if (!is_array($value) || !in_array($value['type'] ?? null, [ShippingMethodTypes::FLAT_RATE, ShippingMethodTypes::WEIGHT_BASED], true)) {
+                    return true;
+                }
+
+                if (!array_key_exists('is_taxable', $value) || $value['is_taxable'] === null || $value['is_taxable'] === '') {
+                    /* translators: %s: the field name */
+                    return sprintf(__('The %s field is required.', 'kirki-ecommerce'), $key . '.is_taxable');
+                }
+
+                return true;
+            },
+            'data.shipping_zones.*.shipping_methods.*.is_taxable' => 'nullable|boolean',
             'data.shipping_zones.*.shipping_methods.*.description' => 'nullable|string',
 
             // Local pickup specific fields
@@ -204,9 +269,9 @@ class SettingsUpdateRequest extends Request
             'data.shipping_zones.*.shipping_methods.*.ranges' => 'nullable|array',
             'data.shipping_zones.*.shipping_methods.*.ranges.*.from' => 'nullable|number',
             'data.shipping_zones.*.shipping_methods.*.ranges.*.to' => 'nullable|number',
-            'data.shipping_zones.*.shipping_methods.*.ranges.*.amount' => 'nullable|number',
+            'data.shipping_zones.*.shipping_methods.*.ranges.*.base_amount' => 'nullable|number',
             'data.shipping_zones.*.shipping_methods.*.is_free_shipping_enabled' => 'nullable|boolean',
-            'data.shipping_zones.*.shipping_methods.*.free_shipping_min_amount' => 'nullable|number',
+            'data.shipping_zones.*.shipping_methods.*.base_free_shipping_min_amount' => 'nullable|number',
 
             'data.shipping_zones.*.shipping_methods.*.shipping_rules' => 'nullable|array',
             'data.shipping_zones.*.shipping_methods.*.shipping_rules.*.relation' => 'required|string',
@@ -238,18 +303,18 @@ class SettingsUpdateRequest extends Request
     protected function get_shipping_settings_filters()
     {
         return [
-            'data.shipping_zones' => Sanitizer::ARRAY ,
+            'data.shipping_zones' => Sanitizer::ARRAY,
             'data.shipping_zones.*.is_enabled' => Sanitizer::BOOL,
             'data.shipping_zones.*.title' => Sanitizer::TEXT,
-            'data.shipping_zones.*.regions' => Sanitizer::ARRAY ,
+            'data.shipping_zones.*.regions' => Sanitizer::ARRAY,
             'data.shipping_zones.*.regions.*.country' => Sanitizer::TEXT,
-            'data.shipping_zones.*.regions.*.states' => Sanitizer::ARRAY ,
-            'data.shipping_zones.*.shipping_methods' => Sanitizer::ARRAY ,
+            'data.shipping_zones.*.regions.*.states' => Sanitizer::ARRAY,
+            'data.shipping_zones.*.shipping_methods' => Sanitizer::ARRAY,
             'data.shipping_zones.*.shipping_methods.*.id' => Sanitizer::TEXT,
             'data.shipping_zones.*.shipping_methods.*.is_enabled' => Sanitizer::BOOL,
             'data.shipping_zones.*.shipping_methods.*.name' => Sanitizer::TEXT,
             'data.shipping_zones.*.shipping_methods.*.type' => Sanitizer::TEXT,
-            'data.shipping_zones.*.shipping_methods.*.amount' => Sanitizer::MONEY,
+            'data.shipping_zones.*.shipping_methods.*.base_amount' => Sanitizer::INT,
             'data.shipping_zones.*.shipping_methods.*.is_taxable' => Sanitizer::BOOL,
             'data.shipping_zones.*.shipping_methods.*.description' => Sanitizer::TEXT,
 
@@ -261,20 +326,20 @@ class SettingsUpdateRequest extends Request
             'data.shipping_zones.*.shipping_methods.*.pickup_time_end' => Sanitizer::TEXT,
 
             // Weight-based shipping specific fields
-            'data.shipping_zones.*.shipping_methods.*.ranges' => Sanitizer::ARRAY ,
+            'data.shipping_zones.*.shipping_methods.*.ranges' => Sanitizer::ARRAY,
             'data.shipping_zones.*.shipping_methods.*.ranges.*.from' => Sanitizer::FLOAT,
             'data.shipping_zones.*.shipping_methods.*.ranges.*.to' => Sanitizer::FLOAT,
-            'data.shipping_zones.*.shipping_methods.*.ranges.*.amount' => Sanitizer::MONEY,
+            'data.shipping_zones.*.shipping_methods.*.ranges.*.base_amount' => Sanitizer::INT,
             'data.shipping_zones.*.shipping_methods.*.is_free_shipping_enabled' => Sanitizer::BOOL,
-            'data.shipping_zones.*.shipping_methods.*.free_shipping_min_amount' => Sanitizer::MONEY,
+            'data.shipping_zones.*.shipping_methods.*.base_free_shipping_min_amount' => Sanitizer::INT,
 
-            'data.shipping_zones.*.shipping_methods.*.shipping_rules' => Sanitizer::ARRAY ,
+            'data.shipping_zones.*.shipping_methods.*.shipping_rules' => Sanitizer::ARRAY,
             'data.shipping_zones.*.shipping_methods.*.shipping_rules.*.relation' => Sanitizer::TEXT,
-            'data.shipping_zones.*.shipping_methods.*.shipping_rules.*.conditions' => Sanitizer::ARRAY ,
+            'data.shipping_zones.*.shipping_methods.*.shipping_rules.*.conditions' => Sanitizer::ARRAY,
             'data.shipping_zones.*.shipping_methods.*.shipping_rules.*.conditions.*.type' => Sanitizer::TEXT,
             'data.shipping_zones.*.shipping_methods.*.shipping_rules.*.conditions.*.operator' => Sanitizer::TEXT,
             'data.shipping_zones.*.shipping_methods.*.shipping_rules.*.conditions.*.value' => Sanitizer::ANY,
-            'data.shipping_zones.*.shipping_methods.*.shipping_rules.*.action' => Sanitizer::ARRAY ,
+            'data.shipping_zones.*.shipping_methods.*.shipping_rules.*.action' => Sanitizer::ARRAY,
             'data.shipping_zones.*.shipping_methods.*.shipping_rules.*.action.type' => Sanitizer::TEXT,
             'data.shipping_zones.*.shipping_methods.*.shipping_rules.*.action.value' => Sanitizer::TEXT,
 
@@ -300,26 +365,26 @@ class SettingsUpdateRequest extends Request
     protected function get_payment_settings_rules()
     {
         return [
-            'data.payment_gateways' => 'nullable|array',
-            'data.payment_gateways.*.is_enabled' => 'boolean',
-            'data.payment_gateways.*.is_manual' => 'boolean',
-            'data.payment_gateways.*.name' => 'string',
-            'data.payment_gateways.*.icon' => 'string',
-            'data.payment_gateways.*.instructions' => 'nullable|string',
-            'data.payment_gateways.*.config' => 'nullable|array',
+            'data.offline_payments' => 'nullable|array',
+            'data.offline_payments.*.is_enabled' => 'boolean',
+            'data.offline_payments.*.is_offline' => 'boolean',
+            'data.offline_payments.*.name' => 'string',
+            'data.offline_payments.*.icon' => 'string',
+            'data.offline_payments.*.instructions' => 'nullable|string',
+            'data.offline_payments.*.config' => 'nullable|array',
         ];
     }
 
     protected function get_payment_settings_filters()
     {
         return [
-            'data.payment_gateways' => Sanitizer::ARRAY ,
-            'data.payment_gateways.*.is_enabled' => Sanitizer::BOOL,
-            'data.payment_gateways.*.is_manual' => Sanitizer::BOOL,
-            'data.payment_gateways.*.name' => Sanitizer::TEXT,
-            'data.payment_gateways.*.icon' => Sanitizer::TEXT,
-            'data.payment_gateways.*.instructions' => Sanitizer::TEXT,
-            'data.payment_gateways.*.config' => Sanitizer::ARRAY ,
+            'data.offline_payments' => Sanitizer::ARRAY,
+            'data.offline_payments.*.is_enabled' => Sanitizer::BOOL,
+            'data.offline_payments.*.is_offline' => Sanitizer::BOOL,
+            'data.offline_payments.*.name' => Sanitizer::TEXT,
+            'data.offline_payments.*.icon' => Sanitizer::TEXT,
+            'data.offline_payments.*.instructions' => Sanitizer::TEXT,
+            'data.offline_payments.*.config' => Sanitizer::ARRAY,
         ];
     }
 
@@ -365,7 +430,7 @@ class SettingsUpdateRequest extends Request
             'data.is_tax_inclusive_price' => Sanitizer::BOOL,
             'data.is_shipping_tax_enabled' => Sanitizer::BOOL,
             'data.is_enabled_taxed_price' => Sanitizer::BOOL,
-            'data.tax_regions' => Sanitizer::ARRAY ,
+            'data.tax_regions' => Sanitizer::ARRAY,
             'data.tax_regions.*.code' => Sanitizer::TEXT,
             'data.tax_regions.*.name' => Sanitizer::TEXT,
             'data.tax_regions.*.is_enabled' => Sanitizer::BOOL,
@@ -373,25 +438,25 @@ class SettingsUpdateRequest extends Request
             'data.tax_regions.*.is_central_tax_enabled' => Sanitizer::BOOL,
             'data.tax_regions.*.central_product_tax' => Sanitizer::FLOAT,
             'data.tax_regions.*.central_shipping_tax' => Sanitizer::FLOAT,
-            'data.tax_regions.*.product_tax' => Sanitizer::ARRAY ,
+            'data.tax_regions.*.product_tax' => Sanitizer::ARRAY,
             'data.tax_regions.*.product_tax.*.country' => Sanitizer::TEXT,
             'data.tax_regions.*.product_tax.*.state' => Sanitizer::TEXT,
             'data.tax_regions.*.product_tax.*.rate' => Sanitizer::FLOAT,
-            'data.tax_regions.*.shipping_tax' => Sanitizer::ARRAY ,
+            'data.tax_regions.*.shipping_tax' => Sanitizer::ARRAY,
             'data.tax_regions.*.shipping_tax.*.country' => Sanitizer::TEXT,
             'data.tax_regions.*.shipping_tax.*.state' => Sanitizer::TEXT,
             'data.tax_regions.*.shipping_tax.*.rate' => Sanitizer::FLOAT,
-            'data.tax_regions.*.rules' => Sanitizer::ARRAY ,
+            'data.tax_regions.*.rules' => Sanitizer::ARRAY,
             'data.tax_regions.*.rules.*.relation' => Sanitizer::TEXT,
-            'data.tax_regions.*.rules.*.conditions' => Sanitizer::ARRAY ,
+            'data.tax_regions.*.rules.*.conditions' => Sanitizer::ARRAY,
             'data.tax_regions.*.rules.*.conditions.*.type' => Sanitizer::TEXT,
             'data.tax_regions.*.rules.*.conditions.*.operator' => Sanitizer::TEXT,
             'data.tax_regions.*.rules.*.conditions.*.value' => Sanitizer::ANY,
-            'data.tax_regions.*.rules.*.action' => Sanitizer::ARRAY ,
+            'data.tax_regions.*.rules.*.action' => Sanitizer::ARRAY,
             'data.tax_regions.*.rules.*.action.type' => Sanitizer::TEXT,
             'data.tax_regions.*.rules.*.action.value' => Sanitizer::ANY,
-            'data.tax_services' => Sanitizer::ARRAY ,
-            'data.tax_ids' => Sanitizer::ARRAY ,
+            'data.tax_services' => Sanitizer::ARRAY,
+            'data.tax_ids' => Sanitizer::ARRAY,
         ];
     }
 
@@ -417,7 +482,7 @@ class SettingsUpdateRequest extends Request
     {
         return [
             'data.is_allowed_guest_checkout' => Sanitizer::BOOL,
-            'data.checkout_configuration' => Sanitizer::ARRAY ,
+            'data.checkout_configuration' => Sanitizer::ARRAY,
             'data.checkout_configuration.address_line_validation' => Sanitizer::TEXT,
             'data.checkout_configuration.phone_number_validation' => Sanitizer::TEXT,
             'data.checkout_configuration.company_name_validation' => Sanitizer::TEXT,
@@ -461,8 +526,40 @@ class SettingsUpdateRequest extends Request
                 }
             ],
             'data.is_automatic_update_enabled' => 'required|boolean',
-            'data.api_provider' => 'required_if_sibling:is_automatic_update_enabled,true|string',
-            'data.api_config' => 'required_if_sibling:is_automatic_update_enabled,true|array',
+            // TODO: replace with a reusable required-if-sibling rule once it can safely mix
+            // with type-check rules (e.g. string/array) without failing on null when not required.
+            'data.api_provider' => function ($value, $key, $data) {
+                if (($data['data']['is_automatic_update_enabled'] ?? null) !== true) {
+                    return true;
+                }
+
+                if ($value === null || $value === '') {
+                    return sprintf(__('The %s field is required.', 'growfund'), $key);
+                }
+
+                if (!is_string($value)) {
+                    return sprintf(__('The %s field must be a string.', 'growfund'), $key);
+                }
+
+                return true;
+            },
+            // TODO: replace with a reusable required-if-sibling rule once it can safely mix
+            // with type-check rules (e.g. string/array) without failing on null when not required.
+            'data.api_config' => function ($value, $key, $data) {
+                if (($data['data']['is_automatic_update_enabled'] ?? null) !== true) {
+                    return true;
+                }
+
+                if ($value === null || (is_array($value) && empty($value))) {
+                    return sprintf(__('The %s field is required.', 'growfund'), $key);
+                }
+
+                if (!is_array($value)) {
+                    return sprintf(__('The %s field must be an array.', 'growfund'), $key);
+                }
+
+                return true;
+            },
             'data.api_config.api_key' => 'nullable|string',
             'data.api_config.update_frequency' => 'nullable|string|in:' . implode(',', UpdateFrequency::get_constant_values()),
             'data.api_config.fallback_behaviour' => 'nullable|string|in:' . implode(',', CurrencyUpdateFallback::get_constant_values()),
@@ -479,7 +576,7 @@ class SettingsUpdateRequest extends Request
             'data.decimal_separator' => Sanitizer::TEXT,
             'data.is_automatic_update_enabled' => Sanitizer::BOOL,
             'data.api_provider' => Sanitizer::TEXT,
-            'data.api_config' => Sanitizer::ARRAY ,
+            'data.api_config' => Sanitizer::ARRAY,
             'data.api_config.api_key' => Sanitizer::TEXT,
             'data.api_config.update_frequency' => Sanitizer::TEXT,
             'data.api_config.fallback_behaviour' => Sanitizer::TEXT,
@@ -656,11 +753,11 @@ class SettingsUpdateRequest extends Request
     {
         return [
             // Default template settings
-            'data.default_template' => Sanitizer::ARRAY ,
+            'data.default_template' => Sanitizer::ARRAY,
             'data.default_template.logo' => Sanitizer::TEXT,
             'data.default_template.height' => Sanitizer::TEXT,
             'data.default_template.position' => Sanitizer::TEXT,
-            'data.default_template.colors' => Sanitizer::ARRAY ,
+            'data.default_template.colors' => Sanitizer::ARRAY,
             'data.default_template.colors.background' => Sanitizer::TEXT,
             'data.default_template.colors.text' => Sanitizer::TEXT,
             'data.default_template.colors.link' => Sanitizer::TEXT,
@@ -669,151 +766,151 @@ class SettingsUpdateRequest extends Request
             'data.default_template.colors.button_bg' => Sanitizer::TEXT,
 
             // Customer emails
-            'data.customer_emails' => Sanitizer::ARRAY ,
-            'data.customer_emails.order_notifications' => Sanitizer::ARRAY ,
+            'data.customer_emails' => Sanitizer::ARRAY,
+            'data.customer_emails.order_notifications' => Sanitizer::ARRAY,
 
             // Customer order notifications
-            'data.customer_emails.order_notifications.new_order_email' => Sanitizer::ARRAY ,
+            'data.customer_emails.order_notifications.new_order_email' => Sanitizer::ARRAY,
             'data.customer_emails.order_notifications.new_order_email.is_enabled' => Sanitizer::BOOL,
             'data.customer_emails.order_notifications.new_order_email.name' => Sanitizer::TEXT,
             'data.customer_emails.order_notifications.new_order_email.subject' => Sanitizer::TEXT,
             'data.customer_emails.order_notifications.new_order_email.heading' => Sanitizer::TEXT,
             'data.customer_emails.order_notifications.new_order_email.message' => Sanitizer::TEXTAREA,
-            'data.customer_emails.order_notifications.new_order_email.shortcodes' => Sanitizer::ARRAY ,
+            'data.customer_emails.order_notifications.new_order_email.shortcodes' => Sanitizer::ARRAY,
 
-            'data.customer_emails.order_notifications.cancelled_order_email' => Sanitizer::ARRAY ,
+            'data.customer_emails.order_notifications.cancelled_order_email' => Sanitizer::ARRAY,
             'data.customer_emails.order_notifications.cancelled_order_email.is_enabled' => Sanitizer::BOOL,
             'data.customer_emails.order_notifications.cancelled_order_email.name' => Sanitizer::TEXT,
             'data.customer_emails.order_notifications.cancelled_order_email.subject' => Sanitizer::TEXT,
             'data.customer_emails.order_notifications.cancelled_order_email.heading' => Sanitizer::TEXT,
             'data.customer_emails.order_notifications.cancelled_order_email.message' => Sanitizer::TEXTAREA,
-            'data.customer_emails.order_notifications.cancelled_order_email.shortcodes' => Sanitizer::ARRAY ,
+            'data.customer_emails.order_notifications.cancelled_order_email.shortcodes' => Sanitizer::ARRAY,
 
-            'data.customer_emails.order_notifications.failed_order_email' => Sanitizer::ARRAY ,
+            'data.customer_emails.order_notifications.failed_order_email' => Sanitizer::ARRAY,
             'data.customer_emails.order_notifications.failed_order_email.is_enabled' => Sanitizer::BOOL,
             'data.customer_emails.order_notifications.failed_order_email.name' => Sanitizer::TEXT,
             'data.customer_emails.order_notifications.failed_order_email.subject' => Sanitizer::TEXT,
             'data.customer_emails.order_notifications.failed_order_email.heading' => Sanitizer::TEXT,
             'data.customer_emails.order_notifications.failed_order_email.message' => Sanitizer::TEXTAREA,
-            'data.customer_emails.order_notifications.failed_order_email.shortcodes' => Sanitizer::ARRAY ,
+            'data.customer_emails.order_notifications.failed_order_email.shortcodes' => Sanitizer::ARRAY,
 
-            'data.customer_emails.order_notifications.order_on_hold_email' => Sanitizer::ARRAY ,
+            'data.customer_emails.order_notifications.order_on_hold_email' => Sanitizer::ARRAY,
             'data.customer_emails.order_notifications.order_on_hold_email.is_enabled' => Sanitizer::BOOL,
             'data.customer_emails.order_notifications.order_on_hold_email.name' => Sanitizer::TEXT,
             'data.customer_emails.order_notifications.order_on_hold_email.subject' => Sanitizer::TEXT,
             'data.customer_emails.order_notifications.order_on_hold_email.heading' => Sanitizer::TEXT,
             'data.customer_emails.order_notifications.order_on_hold_email.message' => Sanitizer::TEXTAREA,
-            'data.customer_emails.order_notifications.order_on_hold_email.shortcodes' => Sanitizer::ARRAY ,
+            'data.customer_emails.order_notifications.order_on_hold_email.shortcodes' => Sanitizer::ARRAY,
 
-            'data.customer_emails.order_notifications.processing_order_email' => Sanitizer::ARRAY ,
+            'data.customer_emails.order_notifications.processing_order_email' => Sanitizer::ARRAY,
             'data.customer_emails.order_notifications.processing_order_email.is_enabled' => Sanitizer::BOOL,
             'data.customer_emails.order_notifications.processing_order_email.name' => Sanitizer::TEXT,
             'data.customer_emails.order_notifications.processing_order_email.subject' => Sanitizer::TEXT,
             'data.customer_emails.order_notifications.processing_order_email.heading' => Sanitizer::TEXT,
             'data.customer_emails.order_notifications.processing_order_email.message' => Sanitizer::TEXTAREA,
-            'data.customer_emails.order_notifications.processing_order_email.shortcodes' => Sanitizer::ARRAY ,
+            'data.customer_emails.order_notifications.processing_order_email.shortcodes' => Sanitizer::ARRAY,
 
-            'data.customer_emails.order_notifications.completed_order_email' => Sanitizer::ARRAY ,
+            'data.customer_emails.order_notifications.completed_order_email' => Sanitizer::ARRAY,
             'data.customer_emails.order_notifications.completed_order_email.is_enabled' => Sanitizer::BOOL,
             'data.customer_emails.order_notifications.completed_order_email.name' => Sanitizer::TEXT,
             'data.customer_emails.order_notifications.completed_order_email.subject' => Sanitizer::TEXT,
             'data.customer_emails.order_notifications.completed_order_email.heading' => Sanitizer::TEXT,
             'data.customer_emails.order_notifications.completed_order_email.message' => Sanitizer::TEXTAREA,
-            'data.customer_emails.order_notifications.completed_order_email.shortcodes' => Sanitizer::ARRAY ,
+            'data.customer_emails.order_notifications.completed_order_email.shortcodes' => Sanitizer::ARRAY,
 
-            'data.customer_emails.order_notifications.order_note_email' => Sanitizer::ARRAY ,
+            'data.customer_emails.order_notifications.order_note_email' => Sanitizer::ARRAY,
             'data.customer_emails.order_notifications.order_note_email.is_enabled' => Sanitizer::BOOL,
             'data.customer_emails.order_notifications.order_note_email.name' => Sanitizer::TEXT,
             'data.customer_emails.order_notifications.order_note_email.subject' => Sanitizer::TEXT,
             'data.customer_emails.order_notifications.order_note_email.heading' => Sanitizer::TEXT,
             'data.customer_emails.order_notifications.order_note_email.message' => Sanitizer::TEXTAREA,
-            'data.customer_emails.order_notifications.order_note_email.shortcodes' => Sanitizer::ARRAY ,
+            'data.customer_emails.order_notifications.order_note_email.shortcodes' => Sanitizer::ARRAY,
 
             // Customer user notifications
-            'data.customer_emails.user_notifications' => Sanitizer::ARRAY ,
+            'data.customer_emails.user_notifications' => Sanitizer::ARRAY,
 
-            'data.customer_emails.user_notifications.new_customer_registered_email' => Sanitizer::ARRAY ,
+            'data.customer_emails.user_notifications.new_customer_registered_email' => Sanitizer::ARRAY,
             'data.customer_emails.user_notifications.new_customer_registered_email.is_enabled' => Sanitizer::BOOL,
             'data.customer_emails.user_notifications.new_customer_registered_email.name' => Sanitizer::TEXT,
             'data.customer_emails.user_notifications.new_customer_registered_email.subject' => Sanitizer::TEXT,
             'data.customer_emails.user_notifications.new_customer_registered_email.heading' => Sanitizer::TEXT,
             'data.customer_emails.user_notifications.new_customer_registered_email.message' => Sanitizer::TEXTAREA,
-            'data.customer_emails.user_notifications.new_customer_registered_email.shortcodes' => Sanitizer::ARRAY ,
+            'data.customer_emails.user_notifications.new_customer_registered_email.shortcodes' => Sanitizer::ARRAY,
 
-            'data.customer_emails.user_notifications.reset_password_email' => Sanitizer::ARRAY ,
+            'data.customer_emails.user_notifications.reset_password_email' => Sanitizer::ARRAY,
             'data.customer_emails.user_notifications.reset_password_email.is_enabled' => Sanitizer::BOOL,
             'data.customer_emails.user_notifications.reset_password_email.name' => Sanitizer::TEXT,
             'data.customer_emails.user_notifications.reset_password_email.subject' => Sanitizer::TEXT,
             'data.customer_emails.user_notifications.reset_password_email.heading' => Sanitizer::TEXT,
             'data.customer_emails.user_notifications.reset_password_email.message' => Sanitizer::TEXTAREA,
-            'data.customer_emails.user_notifications.reset_password_email.shortcodes' => Sanitizer::ARRAY ,
+            'data.customer_emails.user_notifications.reset_password_email.shortcodes' => Sanitizer::ARRAY,
 
             // Admin emails
-            'data.admin_emails' => Sanitizer::ARRAY ,
-            'data.admin_emails.order_notifications' => Sanitizer::ARRAY ,
+            'data.admin_emails' => Sanitizer::ARRAY,
+            'data.admin_emails.order_notifications' => Sanitizer::ARRAY,
 
             // Admin order notifications
-            'data.admin_emails.order_notifications.new_order_email' => Sanitizer::ARRAY ,
+            'data.admin_emails.order_notifications.new_order_email' => Sanitizer::ARRAY,
             'data.admin_emails.order_notifications.new_order_email.is_enabled' => Sanitizer::BOOL,
             'data.admin_emails.order_notifications.new_order_email.name' => Sanitizer::TEXT,
             'data.admin_emails.order_notifications.new_order_email.subject' => Sanitizer::TEXT,
             'data.admin_emails.order_notifications.new_order_email.heading' => Sanitizer::TEXT,
             'data.admin_emails.order_notifications.new_order_email.message' => Sanitizer::TEXTAREA,
-            'data.admin_emails.order_notifications.new_order_email.shortcodes' => Sanitizer::ARRAY ,
+            'data.admin_emails.order_notifications.new_order_email.shortcodes' => Sanitizer::ARRAY,
 
-            'data.admin_emails.order_notifications.cancelled_order_email' => Sanitizer::ARRAY ,
+            'data.admin_emails.order_notifications.cancelled_order_email' => Sanitizer::ARRAY,
             'data.admin_emails.order_notifications.cancelled_order_email.is_enabled' => Sanitizer::BOOL,
             'data.admin_emails.order_notifications.cancelled_order_email.name' => Sanitizer::TEXT,
             'data.admin_emails.order_notifications.cancelled_order_email.subject' => Sanitizer::TEXT,
             'data.admin_emails.order_notifications.cancelled_order_email.heading' => Sanitizer::TEXT,
             'data.admin_emails.order_notifications.cancelled_order_email.message' => Sanitizer::TEXTAREA,
-            'data.admin_emails.order_notifications.cancelled_order_email.shortcodes' => Sanitizer::ARRAY ,
+            'data.admin_emails.order_notifications.cancelled_order_email.shortcodes' => Sanitizer::ARRAY,
 
-            'data.admin_emails.order_notifications.failed_order_email' => Sanitizer::ARRAY ,
+            'data.admin_emails.order_notifications.failed_order_email' => Sanitizer::ARRAY,
             'data.admin_emails.order_notifications.failed_order_email.is_enabled' => Sanitizer::BOOL,
             'data.admin_emails.order_notifications.failed_order_email.name' => Sanitizer::TEXT,
             'data.admin_emails.order_notifications.failed_order_email.subject' => Sanitizer::TEXT,
             'data.admin_emails.order_notifications.failed_order_email.heading' => Sanitizer::TEXT,
             'data.admin_emails.order_notifications.failed_order_email.message' => Sanitizer::TEXTAREA,
-            'data.admin_emails.order_notifications.failed_order_email.shortcodes' => Sanitizer::ARRAY ,
+            'data.admin_emails.order_notifications.failed_order_email.shortcodes' => Sanitizer::ARRAY,
 
-            'data.admin_emails.order_notifications.customer_requested_refund_email' => Sanitizer::ARRAY ,
+            'data.admin_emails.order_notifications.customer_requested_refund_email' => Sanitizer::ARRAY,
             'data.admin_emails.order_notifications.customer_requested_refund_email.is_enabled' => Sanitizer::BOOL,
             'data.admin_emails.order_notifications.customer_requested_refund_email.name' => Sanitizer::TEXT,
             'data.admin_emails.order_notifications.customer_requested_refund_email.subject' => Sanitizer::TEXT,
             'data.admin_emails.order_notifications.customer_requested_refund_email.heading' => Sanitizer::TEXT,
             'data.admin_emails.order_notifications.customer_requested_refund_email.message' => Sanitizer::TEXTAREA,
-            'data.admin_emails.order_notifications.customer_requested_refund_email.shortcodes' => Sanitizer::ARRAY ,
+            'data.admin_emails.order_notifications.customer_requested_refund_email.shortcodes' => Sanitizer::ARRAY,
 
             // Admin inventory notifications
-            'data.admin_emails.inventory_notifications' => Sanitizer::ARRAY ,
+            'data.admin_emails.inventory_notifications' => Sanitizer::ARRAY,
 
-            'data.admin_emails.inventory_notifications.low_stock_email' => Sanitizer::ARRAY ,
+            'data.admin_emails.inventory_notifications.low_stock_email' => Sanitizer::ARRAY,
             'data.admin_emails.inventory_notifications.low_stock_email.is_enabled' => Sanitizer::BOOL,
             'data.admin_emails.inventory_notifications.low_stock_email.name' => Sanitizer::TEXT,
             'data.admin_emails.inventory_notifications.low_stock_email.subject' => Sanitizer::TEXT,
             'data.admin_emails.inventory_notifications.low_stock_email.heading' => Sanitizer::TEXT,
             'data.admin_emails.inventory_notifications.low_stock_email.message' => Sanitizer::TEXTAREA,
-            'data.admin_emails.inventory_notifications.low_stock_email.shortcodes' => Sanitizer::ARRAY ,
+            'data.admin_emails.inventory_notifications.low_stock_email.shortcodes' => Sanitizer::ARRAY,
 
-            'data.admin_emails.inventory_notifications.out_of_stock_email' => Sanitizer::ARRAY ,
+            'data.admin_emails.inventory_notifications.out_of_stock_email' => Sanitizer::ARRAY,
             'data.admin_emails.inventory_notifications.out_of_stock_email.is_enabled' => Sanitizer::BOOL,
             'data.admin_emails.inventory_notifications.out_of_stock_email.name' => Sanitizer::TEXT,
             'data.admin_emails.inventory_notifications.out_of_stock_email.subject' => Sanitizer::TEXT,
             'data.admin_emails.inventory_notifications.out_of_stock_email.heading' => Sanitizer::TEXT,
             'data.admin_emails.inventory_notifications.out_of_stock_email.message' => Sanitizer::TEXTAREA,
-            'data.admin_emails.inventory_notifications.out_of_stock_email.shortcodes' => Sanitizer::ARRAY ,
+            'data.admin_emails.inventory_notifications.out_of_stock_email.shortcodes' => Sanitizer::ARRAY,
 
             // Admin user notifications
-            'data.admin_emails.user_notifications' => Sanitizer::ARRAY ,
+            'data.admin_emails.user_notifications' => Sanitizer::ARRAY,
 
-            'data.admin_emails.user_notifications.new_customer_registered_email' => Sanitizer::ARRAY ,
+            'data.admin_emails.user_notifications.new_customer_registered_email' => Sanitizer::ARRAY,
             'data.admin_emails.user_notifications.new_customer_registered_email.is_enabled' => Sanitizer::BOOL,
             'data.admin_emails.user_notifications.new_customer_registered_email.name' => Sanitizer::TEXT,
             'data.admin_emails.user_notifications.new_customer_registered_email.subject' => Sanitizer::TEXT,
             'data.admin_emails.user_notifications.new_customer_registered_email.heading' => Sanitizer::TEXT,
             'data.admin_emails.user_notifications.new_customer_registered_email.message' => Sanitizer::TEXTAREA,
-            'data.admin_emails.user_notifications.new_customer_registered_email.shortcodes' => Sanitizer::ARRAY ,
+            'data.admin_emails.user_notifications.new_customer_registered_email.shortcodes' => Sanitizer::ARRAY,
         ];
     }
 }

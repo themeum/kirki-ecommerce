@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\Tests\Integration;
 
+use Kirki\Ecommerce\App\Constants\Cart;
 use Kirki\Ecommerce\App\Constants\Coupon\CouponMethod;
 use Kirki\Ecommerce\App\Constants\Coupon\CustomerEligibility;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountTarget;
@@ -237,7 +238,7 @@ class CartApiTest extends RestTestCase
 
         if (!empty($payload['cart_token'])) {
             $this->cart_token = $payload['cart_token'];
-            $this->cart_headers = ['x-cart-token' => $this->cart_token];
+            $this->cart_headers = [Cart::HEADER_TOKEN => $this->cart_token];
         }
 
         return $payload;
@@ -260,8 +261,8 @@ class CartApiTest extends RestTestCase
             'discount_target' => DiscountTarget::ORDER,
             'discount_value_type' => DiscountValueType::PERCENTAGE,
             'discount_amount' => 10,
-            'start_date' => '2025-01-01',
-            'has_end_date' => false,
+            'start_datetime' => '2025-01-01T00:00:00+00:00',
+            'has_end_datetime' => false,
             'customer_eligibility' => CustomerEligibility::ALL,
             'is_active' => true,
         ]);

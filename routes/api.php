@@ -4,10 +4,11 @@ use Kirki\Ecommerce\App\Http\Controllers\Api\AppConfigController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\AttributeController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\AttributeValueController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\BrandController;
+use Kirki\Ecommerce\App\Http\Controllers\Api\OrderCalculationController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\CategoryController;
-use Kirki\Ecommerce\App\Http\Controllers\Api\ManualPaymentMethodController;
+use Kirki\Ecommerce\App\Http\Controllers\Api\OfflinePaymentController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\OnboardingController;
-use Kirki\Ecommerce\App\Http\Controllers\Api\PaymentGatewayController;
+use Kirki\Ecommerce\App\Http\Controllers\Api\OnlinePaymentController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\VariantController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\ProductController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\TagController;
@@ -26,19 +27,21 @@ use Kirki\Ecommerce\App\Http\Controllers\Api\ShippingProfileController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\CartController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\OrderController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\PageController;
+use Kirki\Ecommerce\App\Http\Controllers\Site\CheckoutController;
 use Kirki\Ecommerce\App\Http\Controllers\Site\ProductController as SiteProductController;
+use Kirki\Ecommerce\App\Http\Controllers\Site\SiteController;
 use Kirki\Ecommerce\App\Models\Post;
 use Kirki\Ecommerce\App\Payment\WebhookController;
-use Kirki\Ecommerce\Http\Request;
-use Kirki\Ecommerce\Route;
-use Kirki\Ecommerce\Middlewares\AuthMiddleware;
-use Kirki\Ecommerce\Supports\Facades\DB;
+use Kirki\Ecommerce\Framework\Http\Request;
+use Kirki\Ecommerce\Framework\Route;
+use Kirki\Ecommerce\Framework\Middlewares\AuthMiddleware;
+use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 
-use function Kirki\Ecommerce\response;
+use function Kirki\Ecommerce\Framework\response;
 
 Route::set_namespace('kirki/ecommerce/v1');
 
-Route::post('/payment/webhook/{gateway_id}', [WebhookController::class, 'handle']);
+Route::post('/payment/webhook/{provider_id}', [WebhookController::class, 'handle']);
 
 Route::group(['middleware' => AuthMiddleware::class], function () {
     // Test route
@@ -121,13 +124,17 @@ Route::group(['middleware' => AuthMiddleware::class], function () {
 
     // Coupons
     Route::get('/coupons', [CouponController::class, 'get']);
-    Route::get('/coupons/{id}', [CouponController::class, 'show']);
+    Route::get('/coupons/{id}', [CouponController::class, 'show'])->where('id', '[\d]+');
     Route::post('/coupons', [CouponController::class, 'create']);
-    Route::put('/coupons/{id}', [CouponController::class, 'update']);
-    Route::delete('/coupons/{id}', [CouponController::class, 'delete']);
+    Route::put('/coupons/{id}', [CouponController::class, 'update'])->where('id', '[\d]+');
+    Route::delete('/coupons/{id}', [CouponController::class, 'delete'])->where('id', '[\d]+');
     Route::post('/coupons/bulk', [CouponController::class, 'bulk_actions']);
+    Route::get('/coupons/generate-new-code', [CouponController::class, 'generate_new_code']);
+    Route::get('/coupons/validate', [CouponController::class, 'validate_code']);
+    Route::patch('/coupons/{id}/action', [CouponController::class, 'action'])->where('id', '[\d]+');
 
     // Products
+    Route::get('/product-variants', [ProductController::class, 'get_products_with_variants']);
     Route::get('/products', [ProductController::class, 'get']);
     Route::get('/products/{id}', [ProductController::class, 'show']);
     Route::post('/products', [ProductController::class, 'create']);
@@ -180,14 +187,9 @@ Route::group(['middleware' => AuthMiddleware::class], function () {
     Route::post('/shipping-profiles/bulk', [ShippingProfileController::class, 'bulk_actions']);
 
     // Cart
-    Route::get('/cart', [CartController::class, 'get']);
-    Route::post('/cart/items', [CartController::class, 'add_item']);
-    Route::put('/cart/items/{id}', [CartController::class, 'update_item']);
-    Route::delete('/cart/items/{id}', [CartController::class, 'remove_item']);
-    Route::delete('/cart', [CartController::class, 'empty_cart']);
-    Route::put('/cart', [CartController::class, 'update']);
     Route::post('/cart/coupon', [CartController::class, 'apply_coupon']);
     Route::delete('/cart/coupon', [CartController::class, 'remove_coupon']);
+
 
     // Orders
     Route::get('/orders', [OrderController::class, 'get']);
@@ -196,31 +198,33 @@ Route::group(['middleware' => AuthMiddleware::class], function () {
     Route::post('/orders/{order_id}/refunds', [OrderController::class, 'create_refund']);
     Route::put('/orders/{order_id}/refunds/{id}', [OrderController::class, 'update_refund']);
     Route::delete('/orders/{order_id}/refunds/{id}', [OrderController::class, 'delete_refund']);
+    Route::patch('/orders/{id}/action', [OrderController::class, 'action'])->where('id', '[\d]+');
     Route::put('/orders/{id}', [OrderController::class, 'update']);
     Route::delete('/orders/{id}', [OrderController::class, 'delete']);
     Route::post('/orders/bulk', [OrderController::class, 'bulk_actions']);
+    Route::post('/calculate/order', [OrderCalculationController::class, 'get']);
 
     // Pages
     Route::get('/pages', [PageController::class, 'get']);
 
-    // Payment Gateways
-    Route::get('/payment-gateways/installable', [PaymentGatewayController::class, 'all']);
-    Route::post('/payment-gateways/install', [PaymentGatewayController::class, 'install']);
-    Route::get('/payment-gateways', [PaymentGatewayController::class, 'get']);
-    Route::get('/payment-gateways/{id}', [PaymentGatewayController::class, 'show']);
-    Route::put('/payment-gateways/{id}', [PaymentGatewayController::class, 'update']);
-    Route::patch('/payment-gateways/{id}', [PaymentGatewayController::class, 'set_enabled']);
+    // Online Payments
+    Route::get('/online-payments/installable', [OnlinePaymentController::class, 'all']);
+    Route::post('/online-payments/install', [OnlinePaymentController::class, 'install']);
+    Route::get('/online-payments', [OnlinePaymentController::class, 'get']);
+    Route::get('/online-payments/{id}', [OnlinePaymentController::class, 'show']);
+    Route::put('/online-payments/{id}', [OnlinePaymentController::class, 'update']);
+    Route::patch('/online-payments/{id}', [OnlinePaymentController::class, 'set_enabled']);
 
-    // Manual Payment Methods
-    Route::get('/payment-methods', [ManualPaymentMethodController::class, 'get']);
-    Route::get('/payment-methods/{id}', [ManualPaymentMethodController::class, 'show']);
-    Route::post('/payment-methods', [ManualPaymentMethodController::class, 'create']);
-    Route::put('/payment-methods/{id}', [ManualPaymentMethodController::class, 'update']);
-    Route::delete('/payment-methods/{id}', [ManualPaymentMethodController::class, 'delete']);
+    // Offline Payments
+    Route::get('/offline-payments', [OfflinePaymentController::class, 'get']);
+    Route::get('/offline-payments/{id}', [OfflinePaymentController::class, 'show']);
+    Route::post('/offline-payments', [OfflinePaymentController::class, 'create']);
+    Route::put('/offline-payments/{id}', [OfflinePaymentController::class, 'update']);
+    Route::delete('/offline-payments/{id}', [OfflinePaymentController::class, 'delete']);
 });
 
 //@todo remove this later as its just to mock the zip download
-Route::get('/payment-gateways/download/{id}', [PaymentGatewayController::class, 'download']);
+Route::get('/online-payments/download/{id}', [OnlinePaymentController::class, 'download']);
 
 Route::get('/test-public', function (Request $request) {
     DB::enable_query_log();
@@ -235,3 +239,15 @@ Route::get('/test-public', function (Request $request) {
 });
 
 Route::get('/items', [SiteProductController::class, 'index']);
+
+// Site api endpoints.
+Route::get('/shop/products-html', [SiteController::class, 'products_html']);
+
+// Cart api endpoints for guest card.
+Route::get('/cart', [CartController::class, 'get']);
+Route::post('/cart/items', [CartController::class, 'add_item']);
+Route::put('/cart/items/{id}', [CartController::class, 'update_item']);
+Route::delete('/cart/items/{id}', [CartController::class, 'remove_item']);
+Route::delete('/cart', [CartController::class, 'empty_cart']);
+Route::put('/cart', [CartController::class, 'update']);
+Route::post('/checkout', [CheckoutController::class, 'store']);

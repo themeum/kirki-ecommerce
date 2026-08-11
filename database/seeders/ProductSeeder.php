@@ -3,16 +3,16 @@
 namespace Kirki\Ecommerce\Database\Seeders;
 
 use Kirki\Ecommerce\App\Actions\Product\CreateProductAction;
-use Kirki\Ecommerce\Collections\Collection;
-use Kirki\Ecommerce\Database\Seeder;
+use Kirki\Ecommerce\Framework\Collections\Collection;
+use Kirki\Ecommerce\Framework\Database\Seeder;
 use Kirki\Ecommerce\App\DTO\Product\CreateProductDTO;
 use Kirki\Ecommerce\App\DTO\Variant\CreateVariantDTO;
-use Kirki\Ecommerce\Supports\Facades\Log;
-use Kirki\Ecommerce\Supports\Str;
+use Kirki\Ecommerce\Framework\Supports\Facades\Log;
+use Kirki\Ecommerce\Framework\Supports\Str;
 
-use function Kirki\Ecommerce\app;
-use function Kirki\Ecommerce\collection;
-use function Kirki\Ecommerce\faker;
+use function Kirki\Ecommerce\Framework\app;
+use function Kirki\Ecommerce\Framework\collection;
+use function Kirki\Ecommerce\Framework\faker;
 
 class ProductSeeder extends Seeder
 {
@@ -75,7 +75,14 @@ class ProductSeeder extends Seeder
         $slug = Str::slug($title);
         $brand_name = SeedCatalog::get_brand_name($product['brand_id']);
         $category_label = SeedCatalog::get_category_label($product['category_type']);
-        $has_limit_per_order = $faker->boolean();
+        $category_type_to_collections = [
+            'electronics' => [1],
+            'fashion' => [2],
+            'kitchen' => [3],
+            'home' => [4],
+            'furniture' => [4],
+            'beauty' => [5],
+        ];
 
         $product_payload = [
             'title' => $title,
@@ -86,9 +93,6 @@ class ProductSeeder extends Seeder
             'brand_id' => $product['brand_id'],
             'description' => $this->make_description($product, $brand_name, $category_label),
             'additional_info' => $this->make_additional_info($product, $category_label),
-            'allow_back_order' => $faker->boolean(20),
-            'has_limit_per_order' => $has_limit_per_order,
-            'max_per_order' => $has_limit_per_order ? $faker->numberBetween(1, 10) : null,
             'seo_title' => $title . ' | Kirki Ecommerce',
             'seo_description' => 'Shop ' . $title . ' from ' . $brand_name . '. Free returns on ' . $category_label . '.',
             'seo_keywords' => collection($product['tags'])->map(function ($tag_id) {
@@ -99,12 +103,13 @@ class ProductSeeder extends Seeder
                 }
 
                 return null;
-            })->filter(fn ($slug) => $slug !== null)->values()->all(),
+            })->filter(fn($slug) => $slug !== null)->values()->all(),
             'llm_instructions' => 'Recommend ' . $title . ' when customers ask about ' . $category_label . ' from ' . $brand_name . '.',
             'has_variants' => true,
             'media' => $faker->randomElements([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 3),
             'categories' => $product['categories'],
             'tags' => $product['tags'],
+            'collections' => $category_type_to_collections[$product['category_type']] ?? [],
             'attributes' => [
                 [
                     'id' => 1,
@@ -115,7 +120,6 @@ class ProductSeeder extends Seeder
                     'values' => [4, 5, 6],
                 ],
             ],
-            'created_by' => 1,
         ];
 
         return CreateProductDTO::from_array($product_payload);
@@ -202,29 +206,29 @@ class ProductSeeder extends Seeder
     {
         $combination_key = $values[0] . '-' . $values[1];
         $variant_label = $this->variant_combination_labels[$combination_key] ?? 'STD';
-        $sku_prefix = strtoupper(Str::slug($product['title'], '-'));
+        $sku_prefix = strtoupper(Str::slug($product['title']));
         $sale_price = $product['sale_price'] ?? $product['price'];
+        $available_quantity = $faker->numberBetween(10, 100);
 
         return [
             'attribute_values' => $values,
             'media' => $faker->randomElement([1, 2, 3, 4, 5]),
             'sku' => $sku_prefix . '-' . $variant_label,
             'barcode' => $faker->ean13(),
-            'price' => $product['price'],
+            'base_price' => $product['price'],
             'show_unit_price' => false,
-            'base_unit' => 1,
-            'base_unit_amount' => $product['price'],
-            'total_unit' => 1,
-            'total_unit_amount' => $product['price'],
-            'sale_price' => $sale_price,
-            'cost_of_goods' => (int) round($product['price'] * 0.6),
+            'base_unit' => null,
+            'base_unit_amount' => null,
+            'total_unit' => null,
+            'total_unit_amount' => null,
+            'base_sale_price' => $sale_price,
+            'base_cost_of_goods' => (int) round($product['price'] * 0.6),
             'weight' => $this->get_weight_for_category($product['category_type']),
             'weight_unit' => 'kg',
             'charge_taxes' => true,
-            'allow_back_order' => $faker->boolean(10),
             'track_inventory' => true,
             'available_quantity' => $faker->numberBetween(10, 100),
-            'in_stock' => true,
+            'in_stock' => $available_quantity > 0,
             'committed_quantity' => 0,
             'has_limit_per_order' => false,
             'max_per_order' => null,
@@ -259,7 +263,7 @@ class ProductSeeder extends Seeder
     /**
      * Build variant DTO list for a product.
      *
-     * @param \Kirki\Ecommerce\Collections\Collection $combinations Variant combinations.
+     * @param \Kirki\Ecommerce\Framework\Collections\Collection $combinations Variant combinations.
      * @param \Faker\Generator $faker Faker instance.
      * @param array $product Product catalog entry.
      *

@@ -37,6 +37,29 @@ class ProductSchemaApiTest extends RestTestCase
     }
 
     /**
+     * Create product schema persists the schema field.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_create_product_schema_persists_schema_field(): void
+    {
+        $response = $this->request('POST', 'product-schemas', [
+            'name' => 'Schema With Data',
+            'is_default' => false,
+            'schema' => ['@type' => 'Product', '@context' => 'https://schema.org'],
+        ]);
+
+        $payload = $this->assert_api_success($response, 201);
+        $this->assertEquals(['@type' => 'Product', '@context' => 'https://schema.org'], $payload['data']['schema']);
+
+        $this->schema_id = $payload['data']['id'];
+        $fetched = $this->request('GET', 'product-schemas/' . $this->schema_id);
+        $fetched_payload = $this->assert_api_success($fetched);
+        $this->assertEquals(['@type' => 'Product', '@context' => 'https://schema.org'], $fetched_payload['data']['schema']);
+    }
+
+    /**
      * Show product schema returns resource.
      *
      * @return void

@@ -1,0 +1,690 @@
+info:
+  name: Shipping (PUT)
+  type: http
+  seq: 2
+  tags:
+    - settings
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/settings"
+  body:
+    type: json
+    data: |-
+      {
+        "key": "shipping",
+        "data": {
+          "shipping_zones": [
+            {
+              "id": "f12fdsfsdfsdf343432jh0",
+              "is_enabled": true,
+              "title": "All Countries",
+              "regions": [
+                {
+                  "country": "BD",
+                  "states": [
+                    "5665",
+                    "6565"
+                  ]
+                }
+              ],
+              "shipping_methods": [
+                {
+                  "id": "fsdfdsfsdfsdf343432jh4",
+                  "is_enabled": true,
+                  "name": "Standard Delivery",
+                  "type": "flat_rate",
+                  "base_amount": 14,
+                  "is_taxable": true,
+                  "description": null,
+                  "shipping_rules": [
+                    {
+                      "relation": "AND",
+                      "conditions": [
+                        {
+                          "type": "product_profile",
+                          "operator": "=",
+                          "value": "fragile"
+                        }
+                      ],
+                      "action": {
+                        "type": "set_shipping_cost",
+                        "value": 5
+                      }
+                    },
+                    {
+                      "relation": "AND",
+                      "conditions": [
+                        {
+                          "type": "shipping_profile",
+                          "operator": "=",
+                          "value": "2"
+                        }
+                      ],
+                      "action": {
+                        "type": "add_shipping_cost",
+                        "value": 50
+                      }
+                    }
+                  ]
+                },
+                {
+                  "id": "fsdfdsfsd56df343432jh4",
+                  "is_enabled": true,
+                  "name": "Local Pickup",
+                  "type": "local_pickup",
+                  "address": null,
+                  "has_fee": false,
+                  "base_amount": 9,
+                  "description": null,
+                  "has_pick_time": false,
+                  "pickup_time_start": null,
+                  "pickup_time_end": null,
+                  "shipping_rules": [
+                    {
+                      "relation": "AND",
+                      "conditions": [
+                        {
+                          "type": "product_profile",
+                          "operator": "=",
+                          "value": "fragile"
+                        }
+                      ],
+                      "action": {
+                        "type": "set_shipping_cost",
+                        "value": 5
+                      }
+                    }
+                  ]
+                },
+                {
+                  "id": "f12fdsfsdfsdf343432jh4",
+                  "is_enabled": true,
+                  "name": "Rate by Weight",
+                  "type": "weight",
+                  "ranges": [
+                    {
+                      "from": 0,
+                      "to": 1,
+                      "base_amount": 5
+                    },
+                    {
+                      "from": 1,
+                      "to": 2,
+                      "base_amount": 10
+                    }
+                  ],
+                  "base_amount": 30,
+                  "is_free_shipping_enabled": false,
+                  "base_free_shipping_min_amount": 10,
+                  "is_taxable": false,
+                  "description": null,
+                  "shipping_rules": [
+                    {
+                      "relation": "AND",
+                      "conditions": [
+                        {
+                          "type": "product_profile",
+                          "operator": "=",
+                          "value": "fragile"
+                        }
+                      ],
+                      "action": {
+                        "type": "shipping_cost",
+                        "value": 5
+                      }
+                    }
+                  ]
+                }
+              ],
+              "shipping_carriers": [
+                {
+                  "is_enabled": true,
+                  "name": "DHL",
+                  "type": "flat_rate",
+                  "rate": 10,
+                  "is_taxable": true,
+                  "description": null,
+                  "shipping_rules": [
+                    {
+                      "relation": "AND",
+                      "conditions": [
+                        {
+                          "type": "product_profile",
+                          "operator": "=",
+                          "value": "fragile"
+                        }
+                      ],
+                      "action": {
+                        "type": "shipping_cost",
+                        "value": 5
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/settings"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "key": "shipping",
+            "data": {
+              "shipping_zones": [
+                {
+                  "id": "f12fdsfsdfsdf343432jh0",
+                  "is_enabled": true,
+                  "title": "All Countries",
+                  "regions": [
+                    {
+                      "country": "BD",
+                      "states": [
+                        "5665",
+                        "6565"
+                      ]
+                    }
+                  ],
+                  "shipping_methods": [
+                    {
+                      "id": "fsdfdsfsdfsdf343432jh4",
+                      "is_enabled": true,
+                      "name": "Standard Delivery",
+                      "type": "flat_rate",
+                      "base_amount": 14,
+                      "is_taxable": true,
+                      "description": null,
+                      "shipping_rules": [
+                        {
+                          "relation": "AND",
+                          "conditions": [
+                            {
+                              "type": "product_profile",
+                              "operator": "=",
+                              "value": "fragile"
+                            }
+                          ],
+                          "action": {
+                            "type": "set_shipping_cost",
+                            "value": 5
+                          }
+                        },
+                        {
+                          "relation": "AND",
+                          "conditions": [
+                            {
+                              "type": "shipping_profile",
+                              "operator": "=",
+                              "value": "2"
+                            }
+                          ],
+                          "action": {
+                            "type": "add_shipping_cost",
+                            "value": 50
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "id": "fsdfdsfsd56df343432jh4",
+                      "is_enabled": true,
+                      "name": "Local Pickup",
+                      "type": "local_pickup",
+                      "address": null,
+                      "has_fee": false,
+                      "base_amount": 9,
+                      "description": null,
+                      "has_pick_time": false,
+                      "pickup_time_start": null,
+                      "pickup_time_end": null,
+                      "shipping_rules": [
+                        {
+                          "relation": "AND",
+                          "conditions": [
+                            {
+                              "type": "product_profile",
+                              "operator": "=",
+                              "value": "fragile"
+                            }
+                          ],
+                          "action": {
+                            "type": "set_shipping_cost",
+                            "value": 5
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "id": "f12fdsfsdfsdf343432jh4",
+                      "is_enabled": true,
+                      "name": "Rate by Weight",
+                      "type": "weight",
+                      "ranges": [
+                        {
+                          "from": 0,
+                          "to": 1,
+                          "base_amount": 5
+                        },
+                        {
+                          "from": 1,
+                          "to": 2,
+                          "base_amount": 10
+                        }
+                      ],
+                      "base_amount": 30,
+                      "is_free_shipping_enabled": false,
+                      "base_free_shipping_min_amount": 10,
+                      "is_taxable": false,
+                      "description": null,
+                      "shipping_rules": [
+                        {
+                          "relation": "AND",
+                          "conditions": [
+                            {
+                              "type": "product_profile",
+                              "operator": "=",
+                              "value": "fragile"
+                            }
+                          ],
+                          "action": {
+                            "type": "shipping_cost",
+                            "value": 5
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "shipping_carriers": [
+                    {
+                      "is_enabled": true,
+                      "name": "DHL",
+                      "type": "flat_rate",
+                      "rate": 10,
+                      "is_taxable": true,
+                      "description": null,
+                      "shipping_rules": [
+                        {
+                          "relation": "AND",
+                          "conditions": [
+                            {
+                              "type": "product_profile",
+                              "operator": "=",
+                              "value": "fragile"
+                            }
+                          ],
+                          "action": {
+                            "type": "shipping_cost",
+                            "value": 5
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "data": {
+              "shipping_zones": [
+                {
+                  "id": "f12fdsfsdfsdf343432jh0",
+                  "is_enabled": true,
+                  "title": "All Countries",
+                  "regions": [
+                    {
+                      "country": "BD",
+                      "states": [
+                        "5665",
+                        "6565"
+                      ]
+                    }
+                  ],
+                  "shipping_methods": [
+                    {
+                      "id": "fsdfdsfsdfsdf343432jh4",
+                      "is_enabled": true,
+                      "name": "Standard Delivery",
+                      "type": "flat_rate",
+                      "base_amount": 14,
+                      "base_amount_money_object": { "raw": 14, "display": "$14.00", "currency": { "code": "USD", "symbol": "$" } },
+                      "is_taxable": true,
+                      "description": null,
+                      "shipping_rules": [
+                        {
+                          "relation": "AND",
+                          "conditions": [
+                            {
+                              "type": "product_profile",
+                              "operator": "=",
+                              "value": "fragile"
+                            }
+                          ],
+                          "action": {
+                            "type": "set_shipping_cost",
+                            "value": 5
+                          }
+                        },
+                        {
+                          "relation": "AND",
+                          "conditions": [
+                            {
+                              "type": "shipping_profile",
+                              "operator": "=",
+                              "value": "2"
+                            }
+                          ],
+                          "action": {
+                            "type": "add_shipping_cost",
+                            "value": 50
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "id": "fsdfdsfsd56df343432jh4",
+                      "is_enabled": true,
+                      "name": "Local Pickup",
+                      "type": "local_pickup",
+                      "address": null,
+                      "has_fee": false,
+                      "base_amount": 9,
+                      "base_amount_money_object": { "raw": 9, "display": "$9.00", "currency": { "code": "USD", "symbol": "$" } },
+                      "description": null,
+                      "has_pick_time": false,
+                      "pickup_time_start": null,
+                      "pickup_time_end": null,
+                      "shipping_rules": [
+                        {
+                          "relation": "AND",
+                          "conditions": [
+                            {
+                              "type": "product_profile",
+                              "operator": "=",
+                              "value": "fragile"
+                            }
+                          ],
+                          "action": {
+                            "type": "set_shipping_cost",
+                            "value": 5
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "id": "f12fdsfsdfsdf343432jh4",
+                      "is_enabled": true,
+                      "name": "Rate by Weight",
+                      "type": "weight",
+                      "ranges": [
+                        {
+                          "from": 0,
+                          "to": 1,
+                          "base_amount": 5,
+                          "base_amount_money_object": { "raw": 5, "display": "$5.00", "currency": { "code": "USD", "symbol": "$" } }
+                        },
+                        {
+                          "from": 1,
+                          "to": 2,
+                          "base_amount": 10,
+                          "base_amount_money_object": { "raw": 10, "display": "$10.00", "currency": { "code": "USD", "symbol": "$" } }
+                        }
+                      ],
+                      "base_amount": 30,
+                      "base_amount_money_object": { "raw": 30, "display": "$30.00", "currency": { "code": "USD", "symbol": "$" } },
+                      "is_free_shipping_enabled": true,
+                      "base_free_shipping_min_amount": 10,
+                      "base_free_shipping_min_amount_money_object": { "raw": 10, "display": "$10.00", "currency": { "code": "USD", "symbol": "$" } },
+                      "is_taxable": false,
+                      "description": null,
+                      "shipping_rules": [
+                        {
+                          "relation": "AND",
+                          "conditions": [
+                            {
+                              "type": "product_profile",
+                              "operator": "=",
+                              "value": "fragile"
+                            }
+                          ],
+                          "action": {
+                            "type": "shipping_cost",
+                            "value": 5
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "shipping_carriers": [
+                    {
+                      "is_enabled": true,
+                      "name": "DHL",
+                      "type": "flat_rate",
+                      "rate": 10,
+                      "is_taxable": true,
+                      "description": null,
+                      "shipping_rules": [
+                        {
+                          "relation": "AND",
+                          "conditions": [
+                            {
+                              "type": "product_profile",
+                              "operator": "=",
+                              "value": "fragile"
+                            }
+                          ],
+                          "action": {
+                            "type": "shipping_cost",
+                            "value": 5
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            "message": "Settings updated successfully."
+          }
+  - name: 404 Response
+    description: Failure
+    request:
+      url: "{{baseUrl}}/settings"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "key": "shipping",
+            "data": {
+              "shipping_zones": [
+                {
+                  "id": "f12fdsfsdfsdf343432jh0",
+                  "is_enabled": true,
+                  "title": "All Countries",
+                  "regions": [
+                    {
+                      "country": "BD",
+                      "states": [
+                        "5665",
+                        "6565"
+                      ]
+                    }
+                  ],
+                  "shipping_methods": [
+                    {
+                      "id": "fsdfdsfsdfsdf343432jh4",
+                      "is_enabled": true,
+                      "name": "Standard Delivery",
+                      "type": "flat_rate",
+                      "base_amount": 14,
+                      "is_taxable": true,
+                      "description": null,
+                      "shipping_rules": [
+                        {
+                          "relation": "AND",
+                          "conditions": [
+                            {
+                              "type": "product_profile",
+                              "operator": "=",
+                              "value": "fragile"
+                            }
+                          ],
+                          "action": {
+                            "type": "set_shipping_cost",
+                            "value": 5
+                          }
+                        },
+                        {
+                          "relation": "AND",
+                          "conditions": [
+                            {
+                              "type": "shipping_profile",
+                              "operator": "=",
+                              "value": "2"
+                            }
+                          ],
+                          "action": {
+                            "type": "add_shipping_cost",
+                            "value": 50
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "id": "fsdfdsfsd56df343432jh4",
+                      "is_enabled": true,
+                      "name": "Local Pickup",
+                      "type": "local_pickup",
+                      "address": null,
+                      "has_fee": false,
+                      "base_amount": 9,
+                      "description": null,
+                      "has_pick_time": false,
+                      "pickup_time_start": null,
+                      "pickup_time_end": null,
+                      "shipping_rules": [
+                        {
+                          "relation": "AND",
+                          "conditions": [
+                            {
+                              "type": "product_profile",
+                              "operator": "=",
+                              "value": "fragile"
+                            }
+                          ],
+                          "action": {
+                            "type": "set_shipping_cost",
+                            "value": 5
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "id": "f12fdsfsdfsdf343432jh4",
+                      "is_enabled": true,
+                      "name": "Rate by Weight",
+                      "type": "weight",
+                      "ranges": [
+                        {
+                          "from": 0,
+                          "to": 1,
+                          "base_amount": 5
+                        },
+                        {
+                          "from": 1,
+                          "to": 2,
+                          "base_amount": 10
+                        }
+                      ],
+                      "base_amount": 30,
+                      "is_free_shipping_enabled": false,
+                      "base_free_shipping_min_amount": 10,
+                      "is_taxable": false,
+                      "description": null,
+                      "shipping_rules": [
+                        {
+                          "relation": "AND",
+                          "conditions": [
+                            {
+                              "type": "product_profile",
+                              "operator": "=",
+                              "value": "fragile"
+                            }
+                          ],
+                          "action": {
+                            "type": "shipping_cost",
+                            "value": 5
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "shipping_carriers": [
+                    {
+                      "is_enabled": true,
+                      "name": "DHL",
+                      "type": "flat_rate",
+                      "rate": 10,
+                      "is_taxable": true,
+                      "description": null,
+                      "shipping_rules": [
+                        {
+                          "relation": "AND",
+                          "conditions": [
+                            {
+                              "type": "product_profile",
+                              "operator": "=",
+                              "value": "fragile"
+                            }
+                          ],
+                          "action": {
+                            "type": "shipping_cost",
+                            "value": 5
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: "{}"
+
+docs: |-
+  # Update Shipping Settings
+  Returns the settings by key

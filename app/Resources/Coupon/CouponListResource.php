@@ -2,8 +2,11 @@
 
 namespace Kirki\Ecommerce\App\Resources\Coupon;
 
+use Kirki\Ecommerce\App\Constants\Coupon\CouponMethod;
+use Kirki\Ecommerce\App\Constants\Coupon\DiscountType;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountValueType;
-use Kirki\Ecommerce\Resource;
+use Kirki\Ecommerce\Framework\Resource;
+use Kirki\Ecommerce\App\Facades\Money;
 
 class CouponListResource extends Resource
 {
@@ -14,29 +17,34 @@ class CouponListResource extends Resource
      */
     public function to_array()
     {
+        $is_fixed_discount = $this->discount_value_type === DiscountValueType::FIXED;
+        $display_currency = Money::resolve_display_currency();
+
         return [
             'id' => $this->id,
-            'method' => $this->method,
+            'method' => $this->method ?? CouponMethod::CODE,
             'title' => $this->title,
             'code' => $this->code,
-            'discount_type' => $this->discount_type,
+            'discount_type' => $this->discount_type ?? DiscountType::AMOUNT_OFF,
             'discount_target' => $this->discount_target,
             'discount_value_type' => $this->discount_value_type,
-            'discount_amount' => $this->discount_value_type === DiscountValueType::FIXED ? $this->discount_amount_fixed : $this->discount_amount_percent,
+            'base_discount_amount' => $is_fixed_discount ? Money::prepare_amount_from_minor($this->base_discount_amount_fixed) : $this->discount_amount_percentage,
+            'base_discount_amount_money_object' => $is_fixed_discount ? Money::prepare_amount_object_from_minor($this->base_discount_amount_fixed) : null,
+            'display_discount_amount' => $is_fixed_discount ? Money::prepare_amount_from_minor($this->base_discount_amount_fixed, null, $display_currency) : $this->discount_amount_percentage,
+            'display_discount_amount_money_object' => $is_fixed_discount ? Money::prepare_amount_object_from_minor($this->base_discount_amount_fixed, null, $display_currency) : null,
             'eligible_item_type' => $this->eligible_item_type,
             'spend_condition_type' => $this->spend_condition_type,
             'spend_condition_value' => $this->spend_condition_value,
             'reward_quantity' => $this->reward_quantity,
             'reward_value' => $this->reward_value,
-            'start_date' => $this->start_date,
-            'start_time' => $this->start_time,
-            'has_end_date' => $this->has_end_date,
-            'end_date' => $this->end_date,
-            'end_time' => $this->end_time,
+            'start_datetime' => $this->start_datetime,
+            'has_end_datetime' => $this->has_end_datetime,
+            'end_datetime' => $this->end_datetime,
             'has_usage_limit' => $this->has_usage_limit,
             'usage_limit' => $this->usage_limit,
-            'usage_count' => !empty($this->usage) ? $this->usage->count() : 0,
+            'current_usage_count' => $this->current_usage_count,
             'is_active' => $this->is_active,
+            'status' => $this->get_status(),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

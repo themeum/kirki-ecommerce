@@ -2,7 +2,7 @@
 
 namespace Kirki\Ecommerce\App\DTO\Coupon;
 
-use Kirki\Ecommerce\DTO;
+use Kirki\Ecommerce\Framework\DTO;
 
 class UpdateCouponDTO extends DTO
 {
@@ -45,20 +45,14 @@ class UpdateCouponDTO extends DTO
     /** @var int|null */
     public $reward_value;
 
-    /** @var string */
-    public $start_date;
-
     /** @var string|null */
-    public $start_time;
+    public $start_datetime;
 
     /** @var bool */
-    public $has_end_date = false;
+    public $has_end_datetime = false;
 
     /** @var string|null */
-    public $end_date;
-
-    /** @var string|null */
-    public $end_time;
+    public $end_datetime;
 
     /** @var string|null */
     public $target_countries;
@@ -98,4 +92,7 @@ class UpdateCouponDTO extends DTO
 
     /** @var array */
     public $reward_product_ids = [];
+
+    /** @var array */
+    public $combinations = [];
 }

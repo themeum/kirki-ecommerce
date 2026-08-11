@@ -2,10 +2,10 @@
 
 namespace Kirki\Ecommerce\App\DTO\Order;
 
-use Kirki\Ecommerce\DTO;
-use Kirki\Ecommerce\Collections\Collection;
+use Kirki\Ecommerce\Framework\DTO;
+use Kirki\Ecommerce\Framework\Collections\Collection;
 
-use function Kirki\Ecommerce\collection;
+use function Kirki\Ecommerce\Framework\collection;
 
 class CreateOrderDTO extends DTO
 {
@@ -17,6 +17,9 @@ class CreateOrderDTO extends DTO
 
     /** @var int */
     public $customer_id;
+
+    /** @var string */
+    public $fulfillment_status;
 
     /** @var string */
     public $order_status;
@@ -34,37 +37,37 @@ class CreateOrderDTO extends DTO
     public $exchange_rate;
 
     /** @var int */
-    public $subtotal;
+    public $invoiced_subtotal;
 
     /** @var int */
-    public $subtotal_base;
+    public $base_subtotal;
 
     /** @var int */
-    public $shipping_total;
+    public $invoiced_shipping_total;
 
     /** @var int */
-    public $shipping_total_base;
+    public $base_shipping_total;
 
     /** @var int */
-    public $discount_total;
+    public $invoiced_discount_total;
 
     /** @var int */
-    public $discount_total_base;
+    public $base_discount_total;
 
     /** @var array */
     public $discount_details;
 
     /** @var int */
-    public $tax_total = 0;
+    public $invoiced_tax_total = 0;
 
     /** @var int */
-    public $tax_total_base = 0;
+    public $base_tax_total = 0;
 
     /** @var int */
-    public $total;
+    public $invoiced_total;
 
     /** @var int */
-    public $total_base;
+    public $base_total;
 
     /** @var int */
     public $items_count;
@@ -73,13 +76,16 @@ class CreateOrderDTO extends DTO
     public $payment_status;
 
     /** @var string */
-    public $payment_method;
+    public $payment_provider;
 
-    /** @var string */
-    public $payment_gateway;
+    /** @var array|null */
+    public $payment_metadata;
 
     /** @var string */
     public $shipping_method;
+
+    /** @var array|null */
+    public $shipping_metadata;
 
     // Shipping Address Fields
     public $shipping_first_name;
@@ -92,6 +98,9 @@ class CreateOrderDTO extends DTO
     public $shipping_postal_code;
     public $shipping_phone;
     public $shipping_email;
+
+    /** @var bool */
+    public $is_billing_same_as_shipping = false;
 
     // Billing Address Fields
     public $billing_first_name;
@@ -107,6 +116,9 @@ class CreateOrderDTO extends DTO
 
     /** @var string|null */
     public $customer_notes;
+
+    /** @var string|null */
+    public $admin_notes;
 
     /** @var string|null */
     public $ip_address;
@@ -127,10 +139,17 @@ class CreateOrderDTO extends DTO
     public $shipping_company;
 
     /** @var string|null */
+    public $customer_first_name;
+
+    /** @var string|null */
+    public $customer_last_name;
+
+    /** @var string|null */
     public $customer_email;
 
     /** @var string|null */
     public $customer_phone;
+
 
     public function __construct()
     {

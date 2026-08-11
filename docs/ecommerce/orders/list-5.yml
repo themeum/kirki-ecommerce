@@ -1,0 +1,399 @@
+info:
+  name: List (Order)
+  type: http
+  seq: 7
+  tags:
+    - orders
+
+http:
+  method: GET
+  url: "{{baseUrl}}/orders"
+  params:
+    - name: search
+      value: ""
+      type: query
+    - name: sort_by
+      value: id
+      type: query
+    - name: sort_order
+      value: desc
+      type: query
+    - name: page
+      value: "1"
+      type: query
+    - name: limit
+      value: "-1"
+      type: query
+  auth: inherit
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/orders"
+      method: GET
+      params:
+        - name: search
+          value: ""
+          type: query
+        - name: sort_by
+          value: id
+          type: query
+        - name: sort_order
+          value: desc
+          type: query
+        - name: page
+          value: "1"
+          type: query
+        - name: limit
+          value: "-1"
+          type: query
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": true,
+            "data": {
+              "results": [
+                {
+                  "id": "37",
+                  "uuid": "606520b3-fa5b-4612-8257-0c59c0e577b4",
+                  "order_number": "ORD-695F527B85572",
+                  "customer_id": "2",
+                  "quantity": 4,
+                  "invoiced_total": 115.17,
+                  "invoiced_total_money_object": { "raw": 115.17, "display": "$115.17", "currency": { "code": "USD", "symbol": "$" } },
+                  "base_total": 115.17,
+                  "base_total_money_object": { "raw": 115.17, "display": "$115.17", "currency": { "code": "USD", "symbol": "$" } },
+                  "status": "pending",
+                  "payment_status": "pending",
+                  "payment_provider": "stripe",
+                  "payment_provider_name": "Stripe",
+                  "payment_provider_icon": "{{baseUrl}}/payments/kirki-stripe/assets/logo.svg",
+                  "payment_provider_is_offline": false,
+                  "shipping_method": "method-0001",
+                  "shipping_method_name": "Standard Delivery",
+                  "created_at": "2026-01-08 06:45:15"
+                },
+                {
+                  "id": "36",
+                  "uuid": "40e46f9b-e72a-40f4-a57e-893726e6b7dc",
+                  "order_number": "ORD-695F51E78894E",
+                  "customer_id": "2",
+                  "quantity": 2,
+                  "invoiced_total": 89.58,
+                  "invoiced_total_money_object": { "raw": 89.58, "display": "$89.58", "currency": { "code": "USD", "symbol": "$" } },
+                  "base_total": 89.58,
+                  "base_total_money_object": { "raw": 89.58, "display": "$89.58", "currency": { "code": "USD", "symbol": "$" } },
+                  "status": "pending",
+                  "payment_status": "unpaid",
+                  "payment_provider": "stripe",
+                  "payment_provider_name": "Stripe",
+                  "payment_provider_icon": "{{baseUrl}}/payments/kirki-stripe/assets/logo.svg",
+                  "payment_provider_is_offline": false,
+                  "shipping_method": "method-0001",
+                  "shipping_method_name": "Standard Delivery",
+                  "created_at": "2026-01-08 06:42:47"
+                },
+                {
+                  "id": "35",
+                  "uuid": "21e82431-2f44-4707-b95e-ebfc25711087",
+                  "order_number": "ORD-695F51C6CF5C5",
+                  "customer_id": "2",
+                  "quantity": 4,
+                  "invoiced_total": 127.96,
+                  "invoiced_total_money_object": { "raw": 127.96, "display": "$127.96", "currency": { "code": "USD", "symbol": "$" } },
+                  "base_total": 127.96,
+                  "base_total_money_object": { "raw": 127.96, "display": "$127.96", "currency": { "code": "USD", "symbol": "$" } },
+                  "status": "pending",
+                  "payment_status": "pending",
+                  "payment_provider": "stripe",
+                  "payment_provider_name": "Stripe",
+                  "payment_provider_icon": "{{baseUrl}}/payments/kirki-stripe/assets/logo.svg",
+                  "payment_provider_is_offline": false,
+                  "shipping_method": "method-0001",
+                  "shipping_method_name": "Standard Delivery",
+                  "created_at": "2026-01-08 06:42:14"
+                },
+                {
+                  "id": "33",
+                  "uuid": "6fcfa337-3788-46e5-be11-67dba39a46a1",
+                  "order_number": "ORD-695F512AE979D",
+                  "customer_id": "2",
+                  "quantity": 4,
+                  "invoiced_total": 127.96,
+                  "invoiced_total_money_object": { "raw": 127.96, "display": "$127.96", "currency": { "code": "USD", "symbol": "$" } },
+                  "base_total": 127.96,
+                  "base_total_money_object": { "raw": 127.96, "display": "$127.96", "currency": { "code": "USD", "symbol": "$" } },
+                  "status": "pending",
+                  "payment_status": "pending",
+                  "payment_provider": "stripe",
+                  "payment_provider_name": "Stripe",
+                  "payment_provider_icon": "{{baseUrl}}/payments/kirki-stripe/assets/logo.svg",
+                  "payment_provider_is_offline": false,
+                  "shipping_method": "method-0001",
+                  "shipping_method_name": "Standard Delivery",
+                  "created_at": "2026-01-08 06:39:38"
+                },
+                {
+                  "id": "30",
+                  "uuid": "ba86265b-54e9-44d0-a385-b12cc0e6d656",
+                  "order_number": "ORD-695E43E9D8F63",
+                  "customer_id": "2",
+                  "quantity": 4,
+                  "invoiced_total": 127.96,
+                  "invoiced_total_money_object": { "raw": 127.96, "display": "$127.96", "currency": { "code": "USD", "symbol": "$" } },
+                  "base_total": 127.96,
+                  "base_total_money_object": { "raw": 127.96, "display": "$127.96", "currency": { "code": "USD", "symbol": "$" } },
+                  "status": "pending",
+                  "payment_status": "pending",
+                  "payment_provider": "stripe",
+                  "payment_provider_name": "Stripe",
+                  "payment_provider_icon": "{{baseUrl}}/payments/kirki-stripe/assets/logo.svg",
+                  "payment_provider_is_offline": false,
+                  "shipping_method": "method-0001",
+                  "shipping_method_name": "Standard Delivery",
+                  "created_at": "2026-01-07 11:30:49"
+                },
+                {
+                  "id": "29",
+                  "uuid": "d9249ee1-b100-4f2e-b34b-a5caf2ef9725",
+                  "order_number": "ORD-695CEA20C3A9D",
+                  "customer_id": "2",
+                  "quantity": 2,
+                  "invoiced_total": 89.58,
+                  "invoiced_total_money_object": { "raw": 89.58, "display": "$89.58", "currency": { "code": "USD", "symbol": "$" } },
+                  "base_total": 89.58,
+                  "base_total_money_object": { "raw": 89.58, "display": "$89.58", "currency": { "code": "USD", "symbol": "$" } },
+                  "status": "pending",
+                  "payment_status": "unpaid",
+                  "payment_provider": "stripe",
+                  "payment_provider_name": "Stripe",
+                  "payment_provider_icon": "{{baseUrl}}/payments/kirki-stripe/assets/logo.svg",
+                  "payment_provider_is_offline": false,
+                  "shipping_method": "method-0001",
+                  "shipping_method_name": "Standard Delivery",
+                  "created_at": "2026-01-07 17:19:56"
+                },
+                {
+                  "id": "27",
+                  "uuid": "b90711cc-3429-4b69-99f9-7365f701b9df",
+                  "order_number": "ORD-695CE97E994EA",
+                  "customer_id": "2",
+                  "quantity": 4,
+                  "invoiced_total": 127.96,
+                  "invoiced_total_money_object": { "raw": 127.96, "display": "$127.96", "currency": { "code": "USD", "symbol": "$" } },
+                  "base_total": 127.96,
+                  "base_total_money_object": { "raw": 127.96, "display": "$127.96", "currency": { "code": "USD", "symbol": "$" } },
+                  "status": "pending",
+                  "payment_status": "pending",
+                  "payment_provider": "stripe",
+                  "payment_provider_name": "Stripe",
+                  "payment_provider_icon": "{{baseUrl}}/payments/kirki-stripe/assets/logo.svg",
+                  "payment_provider_is_offline": false,
+                  "shipping_method": "method-0001",
+                  "shipping_method_name": "Standard Delivery",
+                  "created_at": "2026-01-06 10:52:46"
+                },
+                {
+                  "id": "25",
+                  "uuid": "b664664f-57c5-4f0c-a25b-089caa18e5ca",
+                  "order_number": "ORD-695CE83D3B84E",
+                  "customer_id": "2",
+                  "quantity": 4,
+                  "invoiced_total": 127.96,
+                  "invoiced_total_money_object": { "raw": 127.96, "display": "$127.96", "currency": { "code": "USD", "symbol": "$" } },
+                  "base_total": 127.96,
+                  "base_total_money_object": { "raw": 127.96, "display": "$127.96", "currency": { "code": "USD", "symbol": "$" } },
+                  "status": "pending",
+                  "payment_status": "pending",
+                  "payment_provider": "stripe",
+                  "payment_provider_name": "Stripe",
+                  "payment_provider_icon": "{{baseUrl}}/payments/kirki-stripe/assets/logo.svg",
+                  "payment_provider_is_offline": false,
+                  "shipping_method": "method-0001",
+                  "shipping_method_name": "Standard Delivery",
+                  "created_at": "2026-01-06 10:47:25"
+                },
+                {
+                  "id": "24",
+                  "uuid": "4070bc9c-102c-49ae-adea-d04e89cc2a6a",
+                  "order_number": "ORD-695CAB41253BE",
+                  "customer_id": "2",
+                  "quantity": 4,
+                  "invoiced_total": 127.96,
+                  "invoiced_total_money_object": { "raw": 127.96, "display": "$127.96", "currency": { "code": "USD", "symbol": "$" } },
+                  "base_total": 127.96,
+                  "base_total_money_object": { "raw": 127.96, "display": "$127.96", "currency": { "code": "USD", "symbol": "$" } },
+                  "status": "pending",
+                  "payment_status": "pending",
+                  "payment_provider": "stripe",
+                  "payment_provider_name": "Stripe",
+                  "payment_provider_icon": "{{baseUrl}}/payments/kirki-stripe/assets/logo.svg",
+                  "payment_provider_is_offline": false,
+                  "shipping_method": "method-0001",
+                  "shipping_method_name": "Standard Delivery",
+                  "created_at": "2026-01-06 06:27:13"
+                },
+                {
+                  "id": "23",
+                  "uuid": "532ebd5b-f601-44cf-9d91-a1558edf6f21",
+                  "order_number": "ORD-695CAB0E784FC",
+                  "customer_id": "2",
+                  "quantity": 4,
+                  "invoiced_total": 127.96,
+                  "invoiced_total_money_object": { "raw": 127.96, "display": "$127.96", "currency": { "code": "USD", "symbol": "$" } },
+                  "base_total": 127.96,
+                  "base_total_money_object": { "raw": 127.96, "display": "$127.96", "currency": { "code": "USD", "symbol": "$" } },
+                  "status": "pending",
+                  "payment_status": "pending",
+                  "payment_provider": "stripe",
+                  "payment_provider_name": "Stripe",
+                  "payment_provider_icon": "{{baseUrl}}/payments/kirki-stripe/assets/logo.svg",
+                  "payment_provider_is_offline": false,
+                  "shipping_method": "method-0001",
+                  "shipping_method_name": "Standard Delivery",
+                  "created_at": "2026-01-06 06:26:22"
+                },
+                {
+                  "id": "22",
+                  "uuid": null,
+                  "order_number": "ORD-695CAAD0AF74B",
+                  "customer_id": "2",
+                  "quantity": 4,
+                  "invoiced_total": 127.96,
+                  "invoiced_total_money_object": { "raw": 127.96, "display": "$127.96", "currency": { "code": "USD", "symbol": "$" } },
+                  "base_total": 127.96,
+                  "base_total_money_object": { "raw": 127.96, "display": "$127.96", "currency": { "code": "USD", "symbol": "$" } },
+                  "status": "pending",
+                  "payment_status": "pending",
+                  "payment_provider": "stripe",
+                  "payment_provider_name": "Stripe",
+                  "payment_provider_icon": "{{baseUrl}}/payments/kirki-stripe/assets/logo.svg",
+                  "payment_provider_is_offline": false,
+                  "shipping_method": "method-0001",
+                  "shipping_method_name": "Standard Delivery",
+                  "created_at": "2026-01-06 06:25:20"
+                },
+                {
+                  "id": "21",
+                  "uuid": null,
+                  "order_number": "ORD-695CAA31CCC32",
+                  "customer_id": "2",
+                  "quantity": 4,
+                  "invoiced_total": 127.96,
+                  "invoiced_total_money_object": { "raw": 127.96, "display": "$127.96", "currency": { "code": "USD", "symbol": "$" } },
+                  "base_total": 127.96,
+                  "base_total_money_object": { "raw": 127.96, "display": "$127.96", "currency": { "code": "USD", "symbol": "$" } },
+                  "status": "pending",
+                  "payment_status": "pending",
+                  "payment_provider": "stripe",
+                  "payment_provider_name": "Stripe",
+                  "payment_provider_icon": "{{baseUrl}}/payments/kirki-stripe/assets/logo.svg",
+                  "payment_provider_is_offline": false,
+                  "shipping_method": "method-0001",
+                  "shipping_method_name": "Standard Delivery",
+                  "created_at": "2026-01-06 06:22:41"
+                },
+                {
+                  "id": "15",
+                  "uuid": null,
+                  "order_number": "ORD-695CA5D3E63D3",
+                  "customer_id": "2",
+                  "quantity": 4,
+                  "invoiced_total": 127.96,
+                  "invoiced_total_money_object": { "raw": 127.96, "display": "$127.96", "currency": { "code": "USD", "symbol": "$" } },
+                  "base_total": 127.96,
+                  "base_total_money_object": { "raw": 127.96, "display": "$127.96", "currency": { "code": "USD", "symbol": "$" } },
+                  "status": "pending",
+                  "payment_status": "pending",
+                  "payment_provider": "stripe",
+                  "payment_provider_name": "Stripe",
+                  "payment_provider_icon": "{{baseUrl}}/payments/kirki-stripe/assets/logo.svg",
+                  "payment_provider_is_offline": false,
+                  "shipping_method": "method-0001",
+                  "shipping_method_name": "Standard Delivery",
+                  "created_at": "2026-01-06 06:04:03"
+                },
+                {
+                  "id": "14",
+                  "uuid": null,
+                  "order_number": "ORD-695CA48C283F2",
+                  "customer_id": "2",
+                  "quantity": 4,
+                  "invoiced_total": 127.96,
+                  "invoiced_total_money_object": { "raw": 127.96, "display": "$127.96", "currency": { "code": "USD", "symbol": "$" } },
+                  "base_total": 127.96,
+                  "base_total_money_object": { "raw": 127.96, "display": "$127.96", "currency": { "code": "USD", "symbol": "$" } },
+                  "status": "pending",
+                  "payment_status": "pending",
+                  "payment_provider": "stripe",
+                  "payment_provider_name": "Stripe",
+                  "payment_provider_icon": "{{baseUrl}}/payments/kirki-stripe/assets/logo.svg",
+                  "payment_provider_is_offline": false,
+                  "shipping_method": "method-0001",
+                  "shipping_method_name": "Standard Delivery",
+                  "created_at": "2026-01-06 05:58:36"
+                }
+              ],
+              "total": 14,
+              "count": 14,
+              "per_page": 14,
+              "current_page": 1,
+              "last_page": 1,
+              "from": 1,
+              "to": 14,
+              "has_more_pages": false
+            },
+            "message": "Orders retrieved successfully."
+          }
+  - name: 404 Response
+    description: Failure
+    request:
+      url: "{{baseUrl}}/orders"
+      method: GET
+      params:
+        - name: search
+          value: ""
+          type: query
+        - name: sort_by
+          value: id
+          type: query
+        - name: sort_order
+          value: desc
+          type: query
+        - name: page
+          value: "1"
+          type: query
+        - name: limit
+          value: "-1"
+          type: query
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "errors": {},
+            "message": "Order direction must be either \"asc\" or \"desc\"."
+          }
+
+docs: |-
+  ## Orders List
+  Returns a paginated collection of resources. Supports optional search, filter, sort, and order parameters to refine the results.

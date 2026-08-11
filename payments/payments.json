@@ -1,0 +1,82 @@
+[
+  {
+    "id": "paypal",
+    "name": "Paypal",
+    "is_available": true
+  },
+  {
+    "id": "stripe",
+    "name": "Stripe",
+    "is_available": true
+  },
+  {
+    "id": "authorizenet",
+    "name": "Authorize.net",
+    "is_available": true
+  },
+  {
+    "id": "razorpay",
+    "name": "Razorpay",
+    "is_available": true
+  },
+  {
+    "id": "mollie",
+    "name": "Mollie",
+    "is_available": true
+  },
+  {
+    "id": "paddle",
+    "name": "Paddle",
+    "is_available": false
+  },
+  {
+    "id": "paystack",
+    "name": "Paystack",
+    "is_available": false
+  },
+  {
+    "id": "klarna",
+    "name": "Klarna",
+    "is_available": false
+  },
+  {
+    "id": "2checkout",
+    "name": "2Checkout",
+    "is_available": false
+  },
+  {
+    "id": "redsys",
+    "name": "Redsys",
+    "is_available": false
+  },
+  {
+    "id": "paymango",
+    "name": "PayMango",
+    "is_available": false
+  },
+  {
+    "id": "payfast",
+    "name": "PayFast",
+    "is_available": false
+  },
+  {
+    "id": "quickpay",
+    "name": "QuickPay",
+    "is_available": false
+  },
+  {
+    "id": "eway",
+    "name": "Eway",
+    "is_available": false
+  },
+  {
+    "id": "payu",
+    "name": "PayU",
+    "is_available": false
+  },
+  {
+    "id": "square",
+    "name": "Square",
+    "is_available": false
+  }
+]

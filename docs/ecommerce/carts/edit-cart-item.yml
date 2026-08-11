@@ -1,0 +1,229 @@
+info:
+  name: Edit Cart Item
+  type: http
+  seq: 7
+  tags:
+    - carts
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/cart/items/3"
+  body:
+    type: json
+    data: |-
+      {
+        "quantity": 2
+      }
+  auth: inherit
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/cart/items/3"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "quantity": 2
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": true,
+            "data": {
+              "id": "15",
+              "customer_id": 2,
+              "cart_token": "38c51e6c-e936-472c-9cc3-5d90587f9cf6",
+              "currency": {
+                "code": "USD",
+                "base_code": "USD",
+                "display_code": "USD"
+              },
+              "pricing": {
+                "base_subtotal": 31.98,
+                "base_subtotal_money_object": { "raw": 31.98, "display": "$31.98", "currency": { "code": "USD", "symbol": "$" } },
+                "display_subtotal": 31.98,
+                "display_subtotal_money_object": { "raw": 31.98, "display": "$31.98", "currency": { "code": "USD", "symbol": "$" } },
+                "base_tax_total": 0,
+                "base_tax_total_money_object": { "raw": 0, "display": "$0.00", "currency": { "code": "USD", "symbol": "$" } },
+                "display_tax_total": 0,
+                "display_tax_total_money_object": { "raw": 0, "display": "$0.00", "currency": { "code": "USD", "symbol": "$" } },
+                "discount_details": null,
+                "base_discount_total": 0,
+                "base_discount_total_money_object": { "raw": 0, "display": "$0.00", "currency": { "code": "USD", "symbol": "$" } },
+                "display_discount_total": 0,
+                "display_discount_total_money_object": { "raw": 0, "display": "$0.00", "currency": { "code": "USD", "symbol": "$" } },
+                "base_shipping_subtotal": 64,
+                "base_shipping_subtotal_money_object": { "raw": 64, "display": "$64.00", "currency": { "code": "USD", "symbol": "$" } },
+                "display_shipping_subtotal": 64,
+                "display_shipping_subtotal_money_object": { "raw": 64, "display": "$64.00", "currency": { "code": "USD", "symbol": "$" } },
+                "base_shipping_tax": 0,
+                "base_shipping_tax_money_object": { "raw": 0, "display": "$0.00", "currency": { "code": "USD", "symbol": "$" } },
+                "display_shipping_tax": 0,
+                "display_shipping_tax_money_object": { "raw": 0, "display": "$0.00", "currency": { "code": "USD", "symbol": "$" } },
+                "base_shipping_discount": 0,
+                "base_shipping_discount_money_object": { "raw": 0, "display": "$0.00", "currency": { "code": "USD", "symbol": "$" } },
+                "display_shipping_discount": 0,
+                "display_shipping_discount_money_object": { "raw": 0, "display": "$0.00", "currency": { "code": "USD", "symbol": "$" } },
+                "base_shipping_total": 64,
+                "base_shipping_total_money_object": { "raw": 64, "display": "$64.00", "currency": { "code": "USD", "symbol": "$" } },
+                "display_shipping_total": 64,
+                "display_shipping_total_money_object": { "raw": 64, "display": "$64.00", "currency": { "code": "USD", "symbol": "$" } },
+                "base_total": 95.98,
+                "base_total_money_object": { "raw": 95.98, "display": "$95.98", "currency": { "code": "USD", "symbol": "$" } },
+                "display_total": 95.98,
+                "display_total_money_object": { "raw": 95.98, "display": "$95.98", "currency": { "code": "USD", "symbol": "$" } }
+              },
+              "items_count": 2,
+              "items": [
+                {
+                  "id": "3",
+                  "cart_id": "15",
+                  "quantity": 2,
+                  "product": {
+                    "id": 27,
+                    "variant_id": 1,
+                    "title": "Classic Cotton T-Shirt",
+                    "slug": "classic-cotton-t-shirt",
+                    "base_price": 19.99,
+                    "base_price_money_object": { "raw": 19.99, "display": "$19.99", "currency": { "code": "USD", "symbol": "$" } },
+                    "display_price": 19.99,
+                    "display_price_money_object": { "raw": 19.99, "display": "$19.99", "currency": { "code": "USD", "symbol": "$" } },
+                    "base_sale_price": 15.99,
+                    "base_sale_price_money_object": { "raw": 15.99, "display": "$15.99", "currency": { "code": "USD", "symbol": "$" } },
+                    "display_sale_price": 15.99,
+                    "display_sale_price_money_object": { "raw": 15.99, "display": "$15.99", "currency": { "code": "USD", "symbol": "$" } },
+                    "media": null
+                  },
+                  "base_subtotal": 31.98,
+                  "base_subtotal_money_object": { "raw": 31.98, "display": "$31.98", "currency": { "code": "USD", "symbol": "$" } },
+                  "display_subtotal": 31.98,
+                  "display_subtotal_money_object": { "raw": 31.98, "display": "$31.98", "currency": { "code": "USD", "symbol": "$" } },
+                  "tax_rate": 0,
+                  "base_tax_amount": 0,
+                  "base_tax_amount_money_object": { "raw": 0, "display": "$0.00", "currency": { "code": "USD", "symbol": "$" } },
+                  "display_tax_amount": 0,
+                  "display_tax_amount_money_object": { "raw": 0, "display": "$0.00", "currency": { "code": "USD", "symbol": "$" } },
+                  "tax_breakdown": [],
+                  "base_discount_amount": 0,
+                  "base_discount_amount_money_object": { "raw": 0, "display": "$0.00", "currency": { "code": "USD", "symbol": "$" } },
+                  "display_discount_amount": 0,
+                  "display_discount_amount_money_object": { "raw": 0, "display": "$0.00", "currency": { "code": "USD", "symbol": "$" } },
+                  "base_total": 31.98,
+                  "base_total_money_object": { "raw": 31.98, "display": "$31.98", "currency": { "code": "USD", "symbol": "$" } },
+                  "display_total": 31.98,
+                  "display_total_money_object": { "raw": 31.98, "display": "$31.98", "currency": { "code": "USD", "symbol": "$" } },
+                  "created_at": "2025-12-22 07:09:23",
+                  "updated_at": "2025-12-22 07:18:11"
+                }
+              ],
+              "shipping_address": {
+                "first_name": "Sunny",
+                "last_name": "Doe",
+                "email": "jane.shipping@example.com",
+                "phone": "+1 555-000-2000",
+                "address_line1": "Nikunja 2, Khilket",
+                "address_line2": "",
+                "city": "Dhaka",
+                "state": "5665",
+                "postal_code": "5665",
+                "country": "BD"
+              },
+              "billing_address": {
+                "first_name": "Jane",
+                "last_name": "Doe",
+                "email": "jane.shipping@example.com",
+                "phone": "+1 555-000-2000",
+                "address_line1": "78 Sunset Blvd",
+                "address_line2": "",
+                "city": "Los Angeles",
+                "state": "CA",
+                "postal_code": "90001",
+                "country": "US"
+              },
+              "available_shipping_methods": [
+                {
+                  "id": "fsdfdsfsdfsdf343432jh4",
+                  "name": "Standard Delivery",
+                  "type": "flat_rate",
+                  "base_cost": 64,
+                  "base_cost_money_object": { "raw": 64, "display": "$64.00", "currency": { "code": "USD", "symbol": "$" } },
+                  "display_cost": 64,
+                  "display_cost_money_object": { "raw": 64, "display": "$64.00", "currency": { "code": "USD", "symbol": "$" } }
+                },
+                {
+                  "id": "fsdfdsfsd56df343432jh4",
+                  "name": "Local Pickup",
+                  "type": "local_pickup",
+                  "base_cost": 9,
+                  "base_cost_money_object": { "raw": 9, "display": "$9.00", "currency": { "code": "USD", "symbol": "$" } },
+                  "display_cost": 9,
+                  "display_cost_money_object": { "raw": 9, "display": "$9.00", "currency": { "code": "USD", "symbol": "$" } }
+                },
+                {
+                  "id": "f12fdsfsdfsdf343432jh4",
+                  "name": "Rate by Weight",
+                  "type": "weight",
+                  "base_cost": 5,
+                  "base_cost_money_object": { "raw": 5, "display": "$5.00", "currency": { "code": "USD", "symbol": "$" } },
+                  "display_cost": 5,
+                  "display_cost_money_object": { "raw": 5, "display": "$5.00", "currency": { "code": "USD", "symbol": "$" } }
+                }
+              ],
+              "shipping_method": "fsdfdsfsdfsdf343432jh4",
+              "customer_notes": null,
+              "ip_address": null,
+              "user_agent": null,
+              "expires_at": {
+                "date": "2025-12-22 13:18:11.000000",
+                "timezone_type": 3,
+                "timezone": "UTC"
+              },
+              "created_at": "2025-12-19 11:01:50",
+              "updated_at": "2025-12-22 07:18:11"
+            },
+            "message": "Cart item updated successfully."
+          }
+  - name: 404 Response
+    description: Failure
+    request:
+      url: "{{baseUrl}}/cart/items/3"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "quantity": 2
+          }
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "errors": {},
+            "message": "Cart item not found."
+          }
+
+docs: |-
+  ## Edit Cart Item
+  Updates an existing cart item with the provided data.

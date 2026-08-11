@@ -9,10 +9,10 @@ use Kirki\Ecommerce\App\Resources\Variant\InventoryResource;
 use Kirki\Ecommerce\App\Resources\Variant\VariantResource;
 use Kirki\Ecommerce\App\Services\VariantService;
 use Kirki\Ecommerce\App\Constants\Pagination;
-use Kirki\Ecommerce\Contracts\Request;
-use Kirki\Ecommerce\Database\Query\Paginator;
+use Kirki\Ecommerce\Framework\Contracts\Request;
+use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 
-use function Kirki\Ecommerce\response;
+use function Kirki\Ecommerce\Framework\response;
 
 class VariantController
 {
@@ -26,7 +26,7 @@ class VariantController
     public function get(VariantListRequest $request)
     {
         $filters = VariantListFilterDTO::from_array($request->all());
-        $filters->sort_by = $request->get_whitelisted('sort_by', 'id', ['id', 'product_id', 'name', 'sku', 'price', 'sale_price', 'available_quantity', 'created_at', 'updated_at']);
+        $filters->sort_by = $request->whitelisted('sort_by', 'id', ['id', 'product_id', 'name', 'sku', 'base_price', 'base_sale_price', 'available_quantity', 'created_at', 'updated_at']);
 
         if ((int) $filters->limit === Pagination::ALL) {
             $data = $this->service->all($filters);
@@ -47,7 +47,7 @@ class VariantController
 
     public function get_by_ids(Request $request)
     {
-        $ids = explode(',', $request->get_string('ids')) ?? [];
+        $ids = explode(',', $request->string('ids')) ?? [];
         $variants = $this->service->get_by_ids($ids);
 
         return response()->json([
@@ -58,7 +58,7 @@ class VariantController
 
     public function bulk_update(BulkUpdateVariantRequest $request)
     {
-        $data = $request->clean();
+        $data = $request->all();
 
         $updated_variants = $this->service->bulk_update($data['variants'] ?? []);
 

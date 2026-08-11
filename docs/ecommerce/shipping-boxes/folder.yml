@@ -1,0 +1,7 @@
+info:
+  name: Shipping Boxes
+  type: folder
+  seq: 21
+
+request:
+  auth: inherit

@@ -3,7 +3,7 @@
 namespace Kirki\Ecommerce\App\Resources;
 
 use Dom\Attr;
-use Kirki\Ecommerce\Resource;
+use Kirki\Ecommerce\Framework\Resource;
 
 class AttributeResource extends Resource
 {
@@ -19,7 +19,7 @@ class AttributeResource extends Resource
             'name' => $this->name,
             'slug' => $this->slug,
             'type' => $this->type,
-            'values' => AttributeValueResource::collection($this->values),
+            'values' => AttributeValueResource::collection($this->values ?? []),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

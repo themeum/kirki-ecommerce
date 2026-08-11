@@ -1,0 +1,124 @@
+info:
+  name: Create (Tag)
+  type: http
+  seq: 1
+  tags:
+    - tags
+
+http:
+  method: POST
+  url: "{{baseUrl}}/tags"
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Tech",
+        "slug": "tech",
+        "description": "Tech desc"
+      }
+  auth: inherit
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/tags"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "name": "Tech",
+            "slug": "tech",
+            "description": "Tech desc"
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": true,
+            "data": {
+              "name": "sample_noun",
+              "slug": "sample_slug",
+              "description": "sample_words",
+              "created_at": {
+                "date": "2025-10-27 05:02:06.584390",
+                "timezone_type": 3,
+                "timezone": "UTC"
+              },
+              "updated_at": {
+                "date": "2025-10-27 05:02:06.584390",
+                "timezone_type": 3,
+                "timezone": "UTC"
+              },
+              "id": 0
+            },
+            "message": "Tag created successfully."
+          }
+  - name: 404 Response
+    description: Failure
+    request:
+      url: "{{baseUrl}}/tags"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "name": "Tech",
+            "slug": "tech",
+            "description": "Tech desc"
+          }
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "errors": {
+              "name": [
+                "The name field is required."
+              ]
+            },
+            "message": "Validation failed!"
+          }
+
+docs: |-
+  # Create Tag
+
+  ## 1. Detailed description of the API function
+  This API is designed to create tags. It expects form - data parameters such as `name`, `slug`, and `description` in the request body. The `name` is likely a noun representing the tag name, the `slug` is a URL - friendly identifier for the tag, and the `description` provides more details about the tag.
+
+  Upon successful creation, the API returns a response with a `success` boolean indicating the success of the operation and a `message` which may contain information about the result.
+
+  ### Example Usage
+  #### Request
+  ```json
+  {
+      "name": "SampleTagName",
+      "slug": "sample - tag - slug",
+      "description": "This is a sample tag description"
+  }
+  ```
+  #### Response
+  ```json
+  {
+      "success": true,
+      "message": "Tag created successfully"
+  }
+  ```

@@ -2,8 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Models;
 
-use Kirki\Ecommerce\Database\Query\Model;
-use Kirki\Ecommerce\Supports\Arr;
+use Kirki\Ecommerce\Framework\Database\Query\Model;
 
 class ProductSchema extends Model
 {
@@ -21,9 +20,4 @@ class ProductSchema extends Model
         'is_default',
         'schema',
     ];
-
-    public function set_schema_attribute($value)
-    {
-        return !empty($value) && is_array($value) ? Arr::json_encode($value) : null;
-    }
 }

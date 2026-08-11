@@ -1,0 +1,115 @@
+// Component - Modal
+// Base: .kecom-modal
+// Modifiers: .kecom-modal-sm  .kecom-modal-lg  .kecom-modal-fullscreen
+// Elements:  .kecom-modal-backdrop  .kecom-modal-content  .kecom-modal-header
+//            .kecom-modal-body      .kecom-modal-footer
+
+@use '../tokens' as *;
+@use '../mixins' as *;
+
+// ── Backdrop ─────────────────────────────────────────────────────────────────
+
+.kecom-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+  @include transition((opacity), 200ms);
+
+  &[x-cloak] { display: none; }
+}
+
+// ── Modal Container ───────────────────────────────────────────────────────────
+
+.kecom-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1001;
+  @include flex-center;
+  padding: $spacing-4;
+  overflow-y: auto;
+
+  &[x-cloak] { display: none; }
+}
+
+// ── Modal Content ─────────────────────────────────────────────────────────────
+
+.kecom-modal-content {
+  position: relative;
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  background-color: $background-fill;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-lg;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+
+  // Size variants
+  &-sm { max-width: 400px; }
+  &-lg { max-width: 700px; }
+  &-fullscreen {
+    max-width: 100%;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+}
+
+// ── Modal Header ─────────────────────────────────────────────────────────────
+
+.kecom-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-4 $spacing-5;
+  border-bottom: 1px solid $border-default;
+
+  &-title {
+    @include typography(lg, semibold, $text-primary);
+    margin: 0;
+  }
+
+  &-close {
+    @include button-reset;
+    @include flex-center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: $radius-md;
+    color: $icon-secondary;
+    @include transition((background-color, color));
+
+    &:hover {
+      background-color: $background-fill-hover;
+      color: $text-primary;
+    }
+
+    &:focus-visible {
+      @include focus-ring;
+    }
+  }
+}
+
+// ── Modal Body ───────────────────────────────────────────────────────────────
+
+.kecom-modal-body {
+  flex: 1;
+  padding: $spacing-5;
+  overflow-y: auto;
+
+  // Custom scrollbar
+  @include scrollbar(6px, $border-hover, $background-surface-alt);
+}
+
+// ── Modal Footer ─────────────────────────────────────────────────────────────
+
+.kecom-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: $spacing-3;
+  padding: $spacing-4 $spacing-5;
+  border-top: 1px solid $border-default;
+  background-color: $background-surface-alt;
+}

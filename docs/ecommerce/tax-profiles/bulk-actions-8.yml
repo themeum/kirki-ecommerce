@@ -1,0 +1,91 @@
+info:
+  name: Bulk Actions (Tax Profile)
+  type: http
+  seq: 1
+  tags:
+    - tax-profiles
+
+http:
+  method: POST
+  url: "{{baseUrl}}/tax-profiles/bulk"
+  body:
+    type: json
+    data: |-
+      {
+        "action": "delete",
+        "ids": [
+          3,
+          4
+        ]
+      }
+  auth: inherit
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/tax-profiles/bulk"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "action": "delete",
+            "ids": [
+              3,
+              4
+            ]
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": true,
+            "data": true,
+            "message": "Shipping profiles deleted successfully."
+          }
+  - name: 404 Response
+    description: Failure
+    request:
+      url: "{{baseUrl}}/tax-profiles/bulk"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "action": "delete",
+            "ids": [
+              3,
+              4
+            ]
+          }
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "errors": {},
+            "message": "Shipping profiles could not be deleted."
+          }
+
+docs: |-
+  ## Bulk Actions
+
+  Performs a specified action (e.g., delete) on multiple resources identified by their IDs.

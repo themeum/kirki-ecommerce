@@ -2,8 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Models;
 
-use Kirki\Ecommerce\Database\Query\Model;
-use Kirki\Ecommerce\Supports\Arr;
+use Kirki\Ecommerce\Framework\Database\Query\Model;
 
 class Cart extends Model
 {
@@ -24,6 +23,7 @@ class Cart extends Model
         'expires_at',
         'shipping_address',
         'billing_address',
+        'is_billing_same_as_shipping',
         'shipping_method',
     ];
 
@@ -35,27 +35,8 @@ class Cart extends Model
         'shipping_address' => 'json',
         'billing_address' => 'json',
         'shipping_details' => 'json',
+        'is_billing_same_as_shipping' => 'boolean'
     ];
-
-    public function set_shipping_address_attribute($value)
-    {
-        return !empty($value) && is_array($value) ? Arr::json_encode($value) : null;
-    }
-
-    public function set_billing_address_attribute($value)
-    {
-        return !empty($value) && is_array($value) ? Arr::json_encode($value) : null;
-    }
-
-    public function set_shipping_details_attribute($value)
-    {
-        return !empty($value) && is_array($value) ? Arr::json_encode($value) : null;
-    }
-
-    public function set_discount_details_attribute($value)
-    {
-        return !empty($value) && is_array($value) ? Arr::json_encode($value) : null;
-    }
 
     public function items()
     {

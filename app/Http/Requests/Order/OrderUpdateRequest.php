@@ -2,26 +2,85 @@
 
 namespace Kirki\Ecommerce\App\Http\Requests\Order;
 
-use Kirki\Ecommerce\Sanitizer;
-use Kirki\Ecommerce\Http\Request;
+use Kirki\Ecommerce\Framework\Sanitizer;
+use Kirki\Ecommerce\Framework\Http\Request;
+use function Kirki\Ecommerce\App\customer;
 
 class OrderUpdateRequest extends Request
 {
+    public function authorize()
+    {
+        return customer()->is_admin();
+    }
+
+    protected function prepare_for_validation()
+    {
+        $customer_id = $this->input('customer_id') ?? null;
+        $is_billing_same_as_shipping = $this->input('is_billing_same_as_shipping') ?? customer(null, $customer_id)->get_customer()->is_billing_same_as_shipping ?? false;
+
+        $shipping_address = [
+            'shipping_first_name' => $this->input('shipping_first_name'),
+            'shipping_last_name' => $this->input('shipping_last_name'),
+            'shipping_address_line1' => $this->input('shipping_address_line1'),
+            'shipping_address_line2' => $this->input('shipping_address_line2'),
+            'shipping_city' => $this->input('shipping_city'),
+            'shipping_state' => $this->input('shipping_state'),
+            'shipping_postcode' => $this->input('shipping_postcode'),
+            'shipping_country' => $this->input('shipping_country'),
+            'shipping_phone' => $this->input('shipping_phone'),
+            'shipping_email' => $this->input('shipping_email'),
+        ];
+
+        if ($is_billing_same_as_shipping) {
+            $billing_address = [
+                'billing_first_name' => $shipping_address['shipping_first_name'],
+                'billing_last_name' => $shipping_address['shipping_last_name'],
+                'billing_address_line1' => $shipping_address['shipping_address_line1'],
+                'billing_address_line2' => $shipping_address['shipping_address_line2'],
+                'billing_city' => $shipping_address['shipping_city'],
+                'billing_state' => $shipping_address['shipping_state'],
+                'billing_postcode' => $shipping_address['shipping_postcode'],
+                'billing_country' => $shipping_address['shipping_country'],
+                'billing_phone' => $shipping_address['shipping_phone'],
+                'billing_email' => $shipping_address['shipping_email'],
+            ];
+        } else {
+            $billing_address = [
+                'billing_first_name' => $this->input('billing_first_name'),
+                'billing_last_name' => $this->input('billing_last_name'),
+                'billing_address_line1' => $this->input('billing_address_line1'),
+                'billing_address_line2' => $this->input('billing_address_line2'),
+                'billing_city' => $this->input('billing_city'),
+                'billing_state' => $this->input('billing_state'),
+                'billing_postcode' => $this->input('billing_postcode'),
+                'billing_country' => $this->input('billing_country'),
+                'billing_phone' => $this->input('billing_phone'),
+                'billing_email' => $this->input('billing_email'),
+            ];
+        }
+
+        $this->merge($shipping_address);
+        $this->merge($billing_address);
+        $this->merge([
+            'customer_id' => $customer_id ?? 0,
+            'is_billing_same_as_shipping' => $is_billing_same_as_shipping,
+        ]);
+    }
+
     public function rules()
     {
         return [
             'id' => 'required|integer',
-            'customer_id' => 'required|integer',
+            'customer_id' => 'nullable|integer',
             'items' => 'required|array|min:1',
             'items.*.id' => 'nullable|integer',
             'items.*.variant_id' => 'required|integer',
             'items.*.quantity' => 'required|integer|min:1',
 
             'currency_code' => 'nullable|string',
-            'payment_method' => 'required|string',
             'coupon_code' => 'nullable|string',
 
-            'shipping_method' => 'nullable|string',
+            'shipping_method' => 'required|string',
 
             'shipping_first_name' => 'required|string',
             'shipping_last_name' => 'required|string',
@@ -34,6 +93,8 @@ class OrderUpdateRequest extends Request
             'shipping_phone' => 'nullable|string',
             'shipping_email' => 'nullable|email',
             'shipping_company' => 'nullable|string',
+
+            'is_billing_same_as_shipping' => 'required|boolean',
 
             'billing_first_name' => 'required|string',
             'billing_last_name' => 'required|string',
@@ -49,10 +110,9 @@ class OrderUpdateRequest extends Request
 
             'customer_email' => 'nullable|email',
             'customer_phone' => 'nullable|string',
-            'customer_notes' => 'nullable|string',
-            'is_manual' => 'nullable|boolean',
-            'order_status' => 'nullable|string',
-            'payment_status' => 'nullable|string',
+            'admin_notes' => 'nullable|string',
+            'flags' => 'nullable|array',
+            'flags.*' => 'string',
         ];
     }
 
@@ -67,7 +127,6 @@ class OrderUpdateRequest extends Request
             'items.*.quantity' => Sanitizer::INT,
 
             'currency_code' => Sanitizer::TEXT,
-            'payment_method' => Sanitizer::TEXT,
             'coupon_code' => Sanitizer::TEXT,
 
             'shipping_method' => Sanitizer::TEXT,
@@ -84,6 +143,8 @@ class OrderUpdateRequest extends Request
             'shipping_email' => Sanitizer::EMAIL,
             'shipping_company' => Sanitizer::TEXT,
 
+            'is_billing_same_as_shipping' => Sanitizer::BOOL,
+
             'billing_first_name' => Sanitizer::TEXT,
             'billing_last_name' => Sanitizer::TEXT,
             'billing_address_line1' => Sanitizer::TEXT,
@@ -98,10 +159,9 @@ class OrderUpdateRequest extends Request
 
             'customer_email' => Sanitizer::EMAIL,
             'customer_phone' => Sanitizer::TEXT,
-            'customer_notes' => Sanitizer::TEXT,
-            'is_manual' => Sanitizer::BOOL,
-            'order_status' => Sanitizer::TEXT,
-            'payment_status' => Sanitizer::TEXT,
+            'admin_notes' => Sanitizer::TEXT,
+            'flags' => Sanitizer::ARRAY,
+            'flags.*' => Sanitizer::TEXT,
         ];
     }
 }

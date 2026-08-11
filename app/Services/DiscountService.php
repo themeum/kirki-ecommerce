@@ -9,14 +9,15 @@ use Kirki\Ecommerce\App\Constants\Coupon\DiscountType;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountValueType;
 use Kirki\Ecommerce\App\Constants\Coupon\EligibleItemType;
 use Kirki\Ecommerce\App\Constants\Coupon\SpendConditionType;
-use Kirki\Ecommerce\Collections\Collection;
+use Kirki\Ecommerce\Framework\Collections\Collection;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationContextDTO;
 use Kirki\Ecommerce\App\DTO\Discount\DiscountCalculationResultDTO;
-use Kirki\Ecommerce\Exceptions\ValidationException;
-use Kirki\Ecommerce\Supports\Facades\Date;
-use Kirki\Ecommerce\Supports\Facades\Money;
+use Kirki\Ecommerce\Framework\Exceptions\ValidationException;
+use Kirki\Ecommerce\Framework\Supports\Facades\Date;
+use Kirki\Ecommerce\App\Facades\Money;
 
-use function Kirki\Ecommerce\collection;
+use function Kirki\Ecommerce\Framework\collection;
+use function Kirki\Ecommerce\Framework\user;
 
 class DiscountService
 {
@@ -35,11 +36,11 @@ class DiscountService
 
         $now = Date::now();
 
-        if ($coupon->start_date && $coupon->start_date->gt($now)) {
+        if ($coupon->start_datetime && $coupon->start_datetime->gt($now)) {
             throw new ValidationException(__('Coupon has not started yet.', 'kirki-ecommerce'));
         }
 
-        if ($coupon->has_end_date && $coupon->end_date && $coupon->end_date->lt($now)) {
+        if ($coupon->has_end_datetime && $coupon->end_datetime && $coupon->end_datetime->lt($now)) {
             throw new ValidationException(__('Coupon has expired.', 'kirki-ecommerce'));
         }
 
@@ -83,7 +84,7 @@ class DiscountService
 
         // First time buyer
         if ($coupon->first_time_buyer_only) {
-            if (!$context->customer_id) {
+            if (!$context->customer_id || empty(user()->get_id())) {
                 throw new ValidationException(__('Please login to use this coupon.', 'kirki-ecommerce'));
             }
 
@@ -94,7 +95,7 @@ class DiscountService
 
         // Has customer limit
         if ($coupon->has_customer_limit && $coupon->customer_limit > 0) {
-            if (!$context->customer_id) {
+            if (!$context->customer_id || empty(user()->get_id())) {
                 throw new ValidationException(__('Please login to use this coupon.', 'kirki-ecommerce'));
             }
 
@@ -123,7 +124,7 @@ class DiscountService
 
         $this->validate_coupon($coupon, $context);
 
-        $result->discount_details = $coupon->to_array();
+        $result->discount_details = $coupon;
 
         switch ($coupon->discount_type) {
             case DiscountType::AMOUNT_OFF:
@@ -151,10 +152,10 @@ class DiscountService
         $eligible_items = $this->get_eligible_items($context, $coupon);
 
         $eligible_items->each(function ($item) use ($coupon, $result, $context) {
-            $item_subtotal = $item->unit_price * $item->quantity;
+            $item_subtotal = $item->base_unit_price * $item->quantity;
 
             if ($coupon->discount_value_type === DiscountValueType::FIXED) {
-                $result->item_discounts[$item->variant_id] = $this->get_fixed_discounted_amount($coupon->discount_target, $coupon->discount_amount_fixed, $item_subtotal, $context->get_subtotal());
+                $result->item_discounts[$item->variant_id] = $this->get_fixed_discounted_amount($coupon->discount_target, $coupon->base_discount_amount_fixed, $item_subtotal, $context->get_subtotal());
             } elseif ($coupon->discount_value_type === DiscountValueType::PERCENTAGE) {
                 $result->item_discounts[$item->variant_id] = $this->get_percent_discounted_amount($coupon->discount_amount_percentage, $item_subtotal);
             }

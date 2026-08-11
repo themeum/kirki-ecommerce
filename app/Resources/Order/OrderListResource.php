@@ -2,8 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Resources\Order;
 
-use Kirki\Ecommerce\Resource;
-use Kirki\Ecommerce\Supports\Facades\Money;
+use Kirki\Ecommerce\Framework\Resource;
+use Kirki\Ecommerce\App\Facades\Money;
 
 class OrderListResource extends Resource
 {
@@ -14,18 +14,37 @@ class OrderListResource extends Resource
             'uuid' => $this->uuid,
             'order_number' => $this->order_number,
             'customer_id' => $this->customer_id,
+            'customer_name' => $this->resolve_customer_name(),
+            'customer_email' => $this->customer_email,
+            'is_manual' => $this->is_manual,
             'quantity' => $this->items_count,
-            'total' => $this->prepare_amount($this->total_base),
+            'invoiced_total' => Money::prepare_amount_from_minor($this->invoiced_total, $this->currency_code),
+            'invoiced_total_money_object' => Money::prepare_amount_object_from_minor($this->invoiced_total, $this->currency_code),
+            'base_total' => Money::prepare_amount_from_minor($this->base_total),
+            'base_total_money_object' => Money::prepare_amount_object_from_minor($this->base_total),
             'status' => $this->order_status,
+            'fulfillment_status' => $this->fulfillment_status,
+            'is_refund_initiated' => $this->is_refund_initiated,
             'payment_status' => $this->payment_status,
-            'payment_method' => $this->payment_method,
+            'payment_provider' => $this->payment_provider,
+            'payment_provider_name' => $this->payment_metadata['payment_provider']['name'] ?? null,
+            'payment_provider_icon' => $this->payment_metadata['payment_provider']['icon'] ?? null,
+            'payment_provider_is_offline' => $this->payment_metadata['payment_provider']['is_offline'] ?? null,
+            'shipping_method' => $this->shipping_method,
+            'shipping_method_name' => $this->shipping_metadata['shipping_method']['name'] ?? null,
             'created_at' => $this->created_at,
         ];
     }
 
-    protected function prepare_amount($amount)
+    /**
+     * Build the customer name from the customer name pair.
+     *
+     * @return string|null
+     */
+    protected function resolve_customer_name()
     {
-        // Assuming amount is in minor units (integer)
-        return Money::from_minor($amount, $this->currency_code)->getAmount();
+        $name = trim($this->customer_first_name . ' ' . $this->customer_last_name);
+
+        return '' === $name ? null : $name;
     }
 }

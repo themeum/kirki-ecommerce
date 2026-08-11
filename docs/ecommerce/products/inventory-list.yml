@@ -1,0 +1,733 @@
+info:
+  name: Inventory List
+  type: http
+  seq: 4
+  tags:
+    - products
+
+http:
+  method: GET
+  url: "{{baseUrl}}/variants"
+  params:
+    - name: search
+      value: ""
+      type: query
+    - name: sort_by
+      value: id
+      type: query
+    - name: sort_order
+      value: asc
+      type: query
+    - name: page
+      value: "1"
+      type: query
+    - name: limit
+      value: "-1"
+      type: query
+    - name: category_ids
+      value: 1,2
+      type: query
+    - name: brand_id
+      value: "5"
+      type: query
+    - name: collection_id
+      value: "2"
+      type: query
+    - name: status
+      value: published
+      type: query
+    - name: inventory_type
+      value: in_stock
+      type: query
+  auth: inherit
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/variants"
+      method: GET
+      params:
+        - name: search
+          value: ""
+          type: query
+        - name: sort_by
+          value: id
+          type: query
+        - name: sort_order
+          value: asc
+          type: query
+        - name: page
+          value: "1"
+          type: query
+        - name: limit
+          value: "-1"
+          type: query
+        - name: category_ids
+          value: 1,2
+          type: query
+        - name: brand_id
+          value: "5"
+          type: query
+        - name: collection_id
+          value: "2"
+          type: query
+        - name: status
+          value: published
+          type: query
+        - name: inventory_type
+          value: in_stock
+          type: query
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "data": {
+              "results": [
+                {
+                  "id": 52,
+                  "name": "",
+                  "sku": "SKU-P1",
+                  "base_price": 56.86,
+                  "base_price_money_object": { "raw": 56.86, "display": "$56.86", "currency": { "code": "USD", "symbol": "$" } },
+                  "display_price": 56.86,
+                  "display_price_money_object": { "raw": 56.86, "display": "$56.86", "currency": { "code": "USD", "symbol": "$" } },
+                  "base_sale_price": null,
+                  "base_sale_price_money_object": null,
+                  "display_sale_price": null,
+                  "display_sale_price_money_object": null,
+                  "base_cost_of_goods": null,
+                  "base_cost_of_goods_money_object": null,
+                  "display_cost_of_goods": null,
+                  "display_cost_of_goods_money_object": null,
+                  "stock_quantity": null,
+                  "product": {
+                    "id": 48,
+                    "name": "Demo Simple Product 1",
+                    "image": null
+                  }
+                },
+                {
+                  "id": 53,
+                  "name": "",
+                  "sku": "SKU-P2",
+                  "base_price": "86.40",
+                  "base_sale_price": null,
+                  "base_cost_of_goods": null,
+                  "stock_quantity": null,
+                  "product": {
+                    "id": 49,
+                    "name": "Demo Simple Product 2",
+                    "image": null
+                  }
+                },
+                {
+                  "id": 54,
+                  "name": "",
+                  "sku": "SKU-Ppp3",
+                  "base_price": "13.29",
+                  "base_sale_price": "1050.00",
+                  "base_cost_of_goods": null,
+                  "stock_quantity": null,
+                  "product": {
+                    "id": 50,
+                    "name": "Demo Simple Product 3",
+                    "image": null
+                  }
+                },
+                {
+                  "id": 55,
+                  "name": "White",
+                  "sku": "SKU-P4-V103",
+                  "base_price": "58.72",
+                  "base_sale_price": null,
+                  "base_cost_of_goods": null,
+                  "stock_quantity": null,
+                  "product": {
+                    "id": 51,
+                    "name": "Demo Variable Product 4",
+                    "image": null
+                  }
+                },
+                {
+                  "id": 56,
+                  "name": "Black",
+                  "sku": "SKU-P4-V102",
+                  "base_price": "55.48",
+                  "base_sale_price": null,
+                  "base_cost_of_goods": null,
+                  "stock_quantity": null,
+                  "product": {
+                    "id": 51,
+                    "name": "Demo Variable Product 4",
+                    "image": null
+                  }
+                },
+                {
+                  "id": 57,
+                  "name": "Green",
+                  "sku": "SKU-P4-V101",
+                  "base_price": "52.11",
+                  "base_sale_price": null,
+                  "base_cost_of_goods": null,
+                  "stock_quantity": null,
+                  "product": {
+                    "id": 51,
+                    "name": "Demo Variable Product 4",
+                    "image": null
+                  }
+                },
+                {
+                  "id": 58,
+                  "name": "Blue",
+                  "sku": "SKU-P4-V100",
+                  "base_price": "58.49",
+                  "base_sale_price": null,
+                  "base_cost_of_goods": null,
+                  "stock_quantity": null,
+                  "product": {
+                    "id": 51,
+                    "name": "Demo Variable Product 4",
+                    "image": null
+                  }
+                },
+                {
+                  "id": 59,
+                  "name": "Red",
+                  "sku": "SKU-P4-V99",
+                  "base_price": "57.77",
+                  "base_sale_price": null,
+                  "base_cost_of_goods": null,
+                  "stock_quantity": null,
+                  "product": {
+                    "id": 51,
+                    "name": "Demo Variable Product 4",
+                    "image": null
+                  }
+                },
+                {
+                  "id": 60,
+                  "name": "",
+                  "sku": "SKU-P5",
+                  "base_price": "43.17",
+                  "base_sale_price": null,
+                  "base_cost_of_goods": null,
+                  "stock_quantity": null,
+                  "product": {
+                    "id": 52,
+                    "name": "Demo Simple Product 5",
+                    "image": null
+                  }
+                },
+                {
+                  "id": 61,
+                  "name": "",
+                  "sku": "SKU-P6",
+                  "base_price": "41.44",
+                  "base_sale_price": "33.15",
+                  "base_cost_of_goods": null,
+                  "stock_quantity": null,
+                  "product": {
+                    "id": 53,
+                    "name": "Demo Simple Product 6",
+                    "image": null
+                  }
+                },
+                {
+                  "id": 62,
+                  "name": "",
+                  "sku": "SKU-P7",
+                  "base_price": "19.62",
+                  "base_sale_price": null,
+                  "base_cost_of_goods": null,
+                  "stock_quantity": null,
+                  "product": {
+                    "id": 54,
+                    "name": "Demo Simple Product 7",
+                    "image": null
+                  }
+                },
+                {
+                  "id": 63,
+                  "name": "White",
+                  "sku": "SKU-P8-V103",
+                  "base_price": "94.90",
+                  "base_sale_price": null,
+                  "base_cost_of_goods": null,
+                  "stock_quantity": null,
+                  "product": {
+                    "id": 55,
+                    "name": "Demo Variable Product 8",
+                    "image": null
+                  }
+                },
+                {
+                  "id": 64,
+                  "name": "Black",
+                  "sku": "SKU-P8-V102",
+                  "base_price": "101.91",
+                  "base_sale_price": null,
+                  "base_cost_of_goods": null,
+                  "stock_quantity": null,
+                  "product": {
+                    "id": 55,
+                    "name": "Demo Variable Product 8",
+                    "image": null
+                  }
+                },
+                {
+                  "id": 65,
+                  "name": "Green",
+                  "sku": "SKU-P8-V101",
+                  "base_price": "99.73",
+                  "base_sale_price": null,
+                  "base_cost_of_goods": null,
+                  "stock_quantity": null,
+                  "product": {
+                    "id": 55,
+                    "name": "Demo Variable Product 8",
+                    "image": null
+                  }
+                },
+                {
+                  "id": 66,
+                  "name": "Blue",
+                  "sku": "SKU-P8-V100",
+                  "base_price": "95.43",
+                  "base_sale_price": null,
+                  "base_cost_of_goods": null,
+                  "stock_quantity": null,
+                  "product": {
+                    "id": 55,
+                    "name": "Demo Variable Product 8",
+                    "image": null
+                  }
+                },
+                {
+                  "id": 67,
+                  "name": "Red",
+                  "sku": "SKU-P8-V99",
+                  "base_price": "93.35",
+                  "base_sale_price": null,
+                  "base_cost_of_goods": null,
+                  "stock_quantity": null,
+                  "product": {
+                    "id": 55,
+                    "name": "Demo Variable Product 8",
+                    "image": null
+                  }
+                },
+                {
+                  "id": 68,
+                  "name": "",
+                  "sku": "SKU-P9",
+                  "base_price": "83.87",
+                  "base_sale_price": "67.09",
+                  "base_cost_of_goods": null,
+                  "stock_quantity": null,
+                  "product": {
+                    "id": 56,
+                    "name": "Demo Simple Product 9",
+                    "image": null
+                  }
+                },
+                {
+                  "id": 69,
+                  "name": "",
+                  "sku": "SKU-P10",
+                  "base_price": "76.90",
+                  "base_sale_price": null,
+                  "base_cost_of_goods": null,
+                  "stock_quantity": null,
+                  "product": {
+                    "id": 57,
+                    "name": "Demo Simple Product 10",
+                    "image": null
+                  }
+                },
+                {
+                  "id": 70,
+                  "name": "",
+                  "sku": "SKU-P11",
+                  "base_price": "31.06",
+                  "base_sale_price": null,
+                  "base_cost_of_goods": null,
+                  "stock_quantity": null,
+                  "product": {
+                    "id": 58,
+                    "name": "Demo Simple Product 11",
+                    "image": null
+                  }
+                },
+                {
+                  "id": 71,
+                  "name": "White",
+                  "sku": "SKU-P12-V103",
+                  "base_price": "33.15",
+                  "base_sale_price": null,
+                  "base_cost_of_goods": null,
+                  "stock_quantity": null,
+                  "product": {
+                    "id": 59,
+                    "name": "Demo Variable Product 12",
+                    "image": null
+                  }
+                },
+                {
+                  "id": 72,
+                  "name": "Black",
+                  "sku": "SKU-P12-V102",
+                  "base_price": "26.48",
+                  "base_sale_price": null,
+                  "base_cost_of_goods": null,
+                  "stock_quantity": null,
+                  "product": {
+                    "id": 59,
+                    "name": "Demo Variable Product 12",
+                    "image": null
+                  }
+                },
+                {
+                  "id": 73,
+                  "name": "Green",
+                  "sku": "SKU-P12-V101",
+                  "base_price": "29.02",
+                  "base_sale_price": null,
+                  "base_cost_of_goods": null,
+                  "stock_quantity": null,
+                  "product": {
+                    "id": 59,
+                    "name": "Demo Variable Product 12",
+                    "image": null
+                  }
+                },
+                {
+                  "id": 74,
+                  "name": "Blue",
+                  "sku": "SKU-P12-V100",
+                  "base_price": "32.27",
+                  "base_sale_price": null,
+                  "base_cost_of_goods": null,
+                  "stock_quantity": null,
+                  "product": {
+                    "id": 59,
+                    "name": "Demo Variable Product 12",
+                    "image": null
+                  }
+                },
+                {
+                  "id": 75,
+                  "name": "Red",
+                  "sku": "SKU-P12-V99",
+                  "base_price": "26.18",
+                  "base_sale_price": null,
+                  "base_cost_of_goods": null,
+                  "stock_quantity": null,
+                  "product": {
+                    "id": 59,
+                    "name": "Demo Variable Product 12",
+                    "image": null
+                  }
+                },
+                {
+                  "id": 76,
+                  "name": "",
+                  "sku": "SKU-P13",
+                  "base_price": "91.40",
+                  "base_sale_price": null,
+                  "base_cost_of_goods": null,
+                  "stock_quantity": null,
+                  "product": {
+                    "id": 60,
+                    "name": "Demo Simple Product 13",
+                    "image": null
+                  }
+                },
+                {
+                  "id": 77,
+                  "name": "",
+                  "sku": "SKU-P14",
+                  "base_price": "84.81",
+                  "base_sale_price": null,
+                  "base_cost_of_goods": null,
+                  "stock_quantity": null,
+                  "product": {
+                    "id": 61,
+                    "name": "Demo Simple Product 14",
+                    "image": null
+                  }
+                },
+                {
+                  "id": 78,
+                  "name": "",
+                  "sku": "SKU-P15",
+                  "base_price": "16.28",
+                  "base_sale_price": "13.02",
+                  "base_cost_of_goods": null,
+                  "stock_quantity": null,
+                  "product": {
+                    "id": 62,
+                    "name": "Demo Simple Product 15",
+                    "image": null
+                  }
+                },
+                {
+                  "id": 79,
+                  "name": "White",
+                  "sku": "SKU-P16-V103",
+                  "base_price": "20.68",
+                  "base_sale_price": null,
+                  "base_cost_of_goods": null,
+                  "stock_quantity": null,
+                  "product": {
+                    "id": 63,
+                    "name": "Demo Variable Product 16",
+                    "image": null
+                  }
+                },
+                {
+                  "id": 80,
+                  "name": "Black",
+                  "sku": "SKU-P16-V102",
+                  "base_price": "14.26",
+                  "base_sale_price": null,
+                  "base_cost_of_goods": null,
+                  "stock_quantity": null,
+                  "product": {
+                    "id": 63,
+                    "name": "Demo Variable Product 16",
+                    "image": null
+                  }
+                },
+                {
+                  "id": 81,
+                  "name": "Green",
+                  "sku": "SKU-P16-V101",
+                  "base_price": "21.00",
+                  "base_sale_price": null,
+                  "base_cost_of_goods": null,
+                  "stock_quantity": null,
+                  "product": {
+                    "id": 63,
+                    "name": "Demo Variable Product 16",
+                    "image": null
+                  }
+                },
+                {
+                  "id": 82,
+                  "name": "Blue",
+                  "sku": "SKU-P16-V100",
+                  "base_price": "15.63",
+                  "base_sale_price": null,
+                  "base_cost_of_goods": null,
+                  "stock_quantity": null,
+                  "product": {
+                    "id": 63,
+                    "name": "Demo Variable Product 16",
+                    "image": null
+                  }
+                },
+                {
+                  "id": 83,
+                  "name": "Red",
+                  "sku": "SKU-P16-V99",
+                  "base_price": "15.97",
+                  "base_sale_price": null,
+                  "base_cost_of_goods": null,
+                  "stock_quantity": null,
+                  "product": {
+                    "id": 63,
+                    "name": "Demo Variable Product 16",
+                    "image": null
+                  }
+                },
+                {
+                  "id": 84,
+                  "name": "",
+                  "sku": "SKU-P17",
+                  "base_price": "83.88",
+                  "base_sale_price": null,
+                  "base_cost_of_goods": null,
+                  "stock_quantity": null,
+                  "product": {
+                    "id": 64,
+                    "name": "Demo Simple Product 17",
+                    "image": null
+                  }
+                },
+                {
+                  "id": 85,
+                  "name": "",
+                  "sku": "SKU-P18",
+                  "base_price": "17.50",
+                  "base_sale_price": "14.00",
+                  "base_cost_of_goods": null,
+                  "stock_quantity": null,
+                  "product": {
+                    "id": 65,
+                    "name": "Demo Simple Product 18",
+                    "image": null
+                  }
+                },
+                {
+                  "id": 86,
+                  "name": "",
+                  "sku": "SKU-P19",
+                  "base_price": "65.84",
+                  "base_sale_price": null,
+                  "base_cost_of_goods": null,
+                  "stock_quantity": null,
+                  "product": {
+                    "id": 66,
+                    "name": "Demo Simple Product 19",
+                    "image": null
+                  }
+                },
+                {
+                  "id": 87,
+                  "name": "White",
+                  "sku": "SKU-P20-V103",
+                  "base_price": "83.69",
+                  "base_sale_price": null,
+                  "base_cost_of_goods": null,
+                  "stock_quantity": null,
+                  "product": {
+                    "id": 67,
+                    "name": "Demo Variable Product 20",
+                    "image": null
+                  }
+                },
+                {
+                  "id": 88,
+                  "name": "Black",
+                  "sku": "SKU-P20-V102",
+                  "base_price": "88.54",
+                  "base_sale_price": null,
+                  "base_cost_of_goods": null,
+                  "stock_quantity": null,
+                  "product": {
+                    "id": 67,
+                    "name": "Demo Variable Product 20",
+                    "image": null
+                  }
+                },
+                {
+                  "id": 89,
+                  "name": "Green",
+                  "sku": "SKU-P20-V101",
+                  "base_price": "89.73",
+                  "base_sale_price": null,
+                  "base_cost_of_goods": null,
+                  "stock_quantity": null,
+                  "product": {
+                    "id": 67,
+                    "name": "Demo Variable Product 20",
+                    "image": null
+                  }
+                },
+                {
+                  "id": 90,
+                  "name": "Blue",
+                  "sku": "SKU-P20-V100",
+                  "base_price": "88.39",
+                  "base_sale_price": null,
+                  "base_cost_of_goods": null,
+                  "stock_quantity": null,
+                  "product": {
+                    "id": 67,
+                    "name": "Demo Variable Product 20",
+                    "image": null
+                  }
+                },
+                {
+                  "id": 91,
+                  "name": "Red",
+                  "sku": "SKU-P20-V99",
+                  "base_price": "83.27",
+                  "base_sale_price": null,
+                  "base_cost_of_goods": null,
+                  "stock_quantity": null,
+                  "product": {
+                    "id": 67,
+                    "name": "Demo Variable Product 20",
+                    "image": null
+                  }
+                }
+              ],
+              "total": 40,
+              "count": 40,
+              "per_page": 40,
+              "current_page": 1,
+              "last_page": 1,
+              "from": 1,
+              "to": 40,
+              "has_more_pages": false
+            },
+            "message": "Inventory retrieved successfully.",
+            "success": true
+          }
+  - name: 404 Response
+    description: Failure
+    request:
+      url: "{{baseUrl}}/variants"
+      method: GET
+      params:
+        - name: search
+          value: ""
+          type: query
+        - name: sort_by
+          value: id
+          type: query
+        - name: sort_order
+          value: asc
+          type: query
+        - name: page
+          value: "1"
+          type: query
+        - name: limit
+          value: "-1"
+          type: query
+        - name: category_ids
+          value: 1,2
+          type: query
+        - name: brand_id
+          value: "5"
+          type: query
+        - name: collection_id
+          value: "2"
+          type: query
+        - name: status
+          value: published
+          type: query
+        - name: inventory_type
+          value: in_stock
+          type: query
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "errors": {},
+            "message": "Order direction must be either \"asc\" or \"desc\"."
+          }
+
+docs: |-
+  ## Inventory List
+  Returns a paginated collection of resources. Supports optional search, filter, sort, and order parameters to refine the results.

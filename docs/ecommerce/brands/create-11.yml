@@ -1,0 +1,160 @@
+info:
+  name: Create (Brand)
+  type: http
+  seq: 4
+  tags:
+    - brands
+
+http:
+  method: POST
+  url: "{{baseUrl}}/brands"
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Google",
+        "slug": "Google",
+        "description": "qua inasmuch discrete",
+        "logo": 7,
+        "website_url": "https://google.com",
+        "is_active": true
+      }
+  auth: inherit
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/brands"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "name": "Google",
+            "slug": "Google",
+            "description": "qua inasmuch discrete",
+            "logo": 7,
+            "website_url": "https://google.com",
+            "is_active": true
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": true,
+            "data": {
+              "id": 50,
+              "name": "Torp, Sporer and Lind",
+              "slug": "torp-sporer-and-lind-2",
+              "description": "qua inasmuch discrete",
+              "logo": {
+                "id": "7",
+                "filename": "project-launch-bg.webp",
+                "url": "http://droip.local/wp-content/uploads/2025/10/project-launch-bg.webp",
+                "sizes": {
+                  "medium": {
+                    "height": 225,
+                    "width": 300,
+                    "url": "http://droip.local/wp-content/uploads/2025/10/project-launch-bg-300x225.webp",
+                    "orientation": "landscape"
+                  },
+                  "large": {
+                    "height": 768,
+                    "width": 1024,
+                    "url": "http://droip.local/wp-content/uploads/2025/10/project-launch-bg-1024x768.webp",
+                    "orientation": "landscape"
+                  },
+                  "thumbnail": {
+                    "height": 150,
+                    "width": 150,
+                    "url": "http://droip.local/wp-content/uploads/2025/10/project-launch-bg-150x150.webp",
+                    "orientation": "portrait"
+                  },
+                  "medium_large": {
+                    "height": 576,
+                    "width": 768,
+                    "url": "http://droip.local/wp-content/uploads/2025/10/project-launch-bg-768x576.webp",
+                    "orientation": "landscape"
+                  },
+                  "1536x1536": {
+                    "height": 1152,
+                    "width": 1536,
+                    "url": "http://droip.local/wp-content/uploads/2025/10/project-launch-bg-1536x1152.webp",
+                    "orientation": "landscape"
+                  }
+                },
+                "height": 1300,
+                "width": 1733,
+                "filesize": 133260,
+                "mime": "image/webp",
+                "type": "image",
+                "thumb": null,
+                "author": "1",
+                "author_name": "admin",
+                "date": "2025-10-28T05:18:56+00:00"
+              },
+              "count": 0,
+              "website_url": "https://google.com",
+              "is_active": true,
+              "created_at": {
+                "date": "2025-11-07 06:01:55.656981",
+                "timezone_type": 3,
+                "timezone": "UTC"
+              },
+              "updated_at": {
+                "date": "2025-11-07 06:01:55.656981",
+                "timezone_type": 3,
+                "timezone": "UTC"
+              }
+            },
+            "message": "Brand created successfully."
+          }
+  - name: 404 Response
+    description: Failure
+    request:
+      url: "{{baseUrl}}/brands"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "name": "Google",
+            "slug": "Google",
+            "description": "qua inasmuch discrete",
+            "logo": 7,
+            "website_url": "https://google.com",
+            "is_active": true
+          }
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "message": "deserunt tempor voluptate",
+            "success": "true"
+          }
+
+docs: |-
+  # Create Brand
+
+  ## 1. Detailed description of the API function
+  This API is designed to create brands. It expects form - data parameters such as `name`, `slug`, and `description` in the request body. The `name` is likely a noun representing the brand name, the `slug` is a URL - friendly identifier for the brand, and the `description` provides more details about the brand.
+
+  Upon successful creation, the API returns a response with a `success` boolean indicating the success of the operation and a `message` which may contain information about the result.

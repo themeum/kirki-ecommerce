@@ -5,10 +5,10 @@ namespace Kirki\Ecommerce\App\Http\Controllers\Api;
 use Kirki\Ecommerce\App\Resources\Country\CountryListResource;
 use Kirki\Ecommerce\App\Resources\Country\CountryResource;
 use Kirki\Ecommerce\App\Services\CountryService;
-use Kirki\Ecommerce\Contracts\Request;
+use Kirki\Ecommerce\Framework\Contracts\Request;
 use Kirki\Ecommerce\App\DTO\Country\CountryFilterDTO;
 
-use function Kirki\Ecommerce\response;
+use function Kirki\Ecommerce\Framework\response;
 
 class CountryController
 {

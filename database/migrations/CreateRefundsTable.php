@@ -2,9 +2,9 @@
 
 namespace Kirki\Ecommerce\Database\Migrations;
 
-use Kirki\Ecommerce\Contracts\Migration;
-use Kirki\Ecommerce\Database\Schema\Structure;
-use Kirki\Ecommerce\Supports\Facades\Schema;
+use Kirki\Ecommerce\Framework\Contracts\Migration;
+use Kirki\Ecommerce\Framework\Database\Schema\Structure;
+use Kirki\Ecommerce\Framework\Supports\Facades\Schema;
 
 class CreateRefundsTable implements Migration
 {
@@ -13,9 +13,9 @@ class CreateRefundsTable implements Migration
         Schema::create('kirki_ecommerce_refunds', function (Structure $table) {
             $table->id();
             $table->unsigned_big_integer('order_id');
-            $table->enum('status', ['pending', 'completed', 'failed'])->default('pending');
+            $table->enum('status', ['pending', 'completed', 'failed', 'cancelled'])->default('pending');
 
-            $table->integer('amount')->comment('Refund amount in cents');
+            $table->integer('invoiced_amount')->comment('Refund amount in cents, in the order currency');
             $table->text('reason')->nullable();
 
             $table->enum('refund_type', ['partial', 'full'])->default('partial');

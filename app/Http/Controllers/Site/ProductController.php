@@ -7,7 +7,7 @@ use Kirki\Ecommerce\App\Http\Requests\Product\ProductListRequest;
 use Kirki\Ecommerce\App\Resources\Product\ProductListResource;
 use Kirki\Ecommerce\App\Services\ProductService;
 
-use function Kirki\Ecommerce\response;
+use function Kirki\Ecommerce\Framework\response;
 
 class ProductController
 {
@@ -24,7 +24,7 @@ class ProductController
     public function index(ProductListRequest $request)
     {
         $params = ProductListFilterDTO::from_array($request->all());
-        $params->sort_by = $request->get_whitelisted('sort_by', 'id', ['id', 'title', 'status', 'created_by', 'updated_by', 'created_at', 'updated_at']);
+        $params->sort_by = $request->whitelisted('sort_by', 'id', ['id', 'title', 'status', 'created_by', 'updated_by', 'created_at', 'updated_at']);
 
         $products = $this->service->all($params);
         $products = ProductListResource::collection($products);

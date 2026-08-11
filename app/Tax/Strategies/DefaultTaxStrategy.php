@@ -6,13 +6,13 @@ use Brick\Math\RoundingMode;
 use Kirki\Ecommerce\App\DTO\Tax\ProductTaxContextDTO;
 use Kirki\Ecommerce\App\DTO\Tax\TaxItemResultDTO;
 use Kirki\Ecommerce\App\DTO\Tax\TaxResultDTO;
-use Kirki\Ecommerce\Supports\Facades\Money;
+use Kirki\Ecommerce\App\Facades\Money;
 
 class DefaultTaxStrategy extends AbstractTaxStrategy
 {
     public function calculate_product_tax(ProductTaxContextDTO $tax_context): TaxResultDTO
     {
-        return $this->calculate_tax('product_tax', $tax_context->all(), $tax_context->product_price);
+        return $this->calculate_tax('product_tax', $tax_context->all(), $tax_context->base_product_price);
     }
 
     public function calculate_shipping_tax(int $shipping_cost): TaxResultDTO
@@ -45,10 +45,10 @@ class DefaultTaxStrategy extends AbstractTaxStrategy
                 TaxItemResultDTO::from_array([
                     'name' => 'Tax',
                     'rate' => $rate,
-                    'amount' => $tax_amount
+                    'base_amount' => $tax_amount
                 ])
             ];
-            $result->total = $tax_amount;
+            $result->base_total = $tax_amount;
 
             return $result;
         }
@@ -59,10 +59,10 @@ class DefaultTaxStrategy extends AbstractTaxStrategy
             TaxItemResultDTO::from_array([
                 'name' => 'Tax',
                 'rate' => $rate,
-                'amount' => $tax_amount
+                'base_amount' => $tax_amount
             ])
         ];
-        $result->total = $tax_amount;
+        $result->base_total = $tax_amount;
 
         return $result;
     }

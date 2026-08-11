@@ -2,15 +2,44 @@
 
 namespace Kirki\Ecommerce\App\Http\Requests\Product;
 
-use Kirki\Ecommerce\App\Constants\DimensionUnit;
+use Kirki\Ecommerce\App\Concerns\ValidatesVariantMatrix;
 use Kirki\Ecommerce\App\Constants\Product\ProductStatus;
 use Kirki\Ecommerce\App\Constants\Unit;
 use Kirki\Ecommerce\App\Constants\WeightUnit;
-use Kirki\Ecommerce\Sanitizer;
-use Kirki\Ecommerce\Http\Request;
+use Kirki\Ecommerce\App\Facades\Money;
+use Kirki\Ecommerce\Framework\Sanitizer;
+use Kirki\Ecommerce\Framework\Http\Request;
 
 class ProductCreateRequest extends Request
 {
+    use ValidatesVariantMatrix;
+
+    protected function passed_validation()
+    {
+        $this->validate_variant_matrix();
+    }
+
+    protected function prepare_for_validation()
+    {
+        $variants = $this->input('variants') ?? [];
+
+        foreach ($variants as $index => $variant) {
+            if (!is_array($variant)) {
+                continue;
+            }
+
+            foreach (['base_price', 'base_sale_price', 'base_cost_of_goods'] as $field) {
+                if (array_key_exists($field, $variant) && !empty($variant[$field])) {
+                    $variants[$index][$field] = Money::to_minor($variant[$field]);
+                }
+            }
+        }
+
+        if (!empty($variants)) {
+            $this->merge(['variants' => $variants]);
+        }
+    }
+
     public function rules()
     {
         return [
@@ -21,9 +50,11 @@ class ProductCreateRequest extends Request
             'ribbon' => 'string|nullable|max:100',
             'currency_id' => 'integer|nullable',
             'brand_id' => 'integer|nullable',
+            'short_description' => 'string|nullable',
             'description' => 'string|nullable',
             'additional_info' => 'array|nullable', // JSON string, can be validated later
-            'allow_back_order' => 'boolean|nullable',
+            'additional_info.*.title' => 'required|string',
+            'additional_info.*.description' => 'required|string',
             'seo_title' => 'string|nullable|max:500',
             'seo_description' => 'string|nullable',
             'seo_keywords' => 'array|nullable',
@@ -67,17 +98,17 @@ class ProductCreateRequest extends Request
             'variants.*.sku' => 'string|nullable|max:100',
             'variants.*.barcode' => 'string|nullable|max:100',
 
-            'variants.*.price' => 'required|number|min:0',
+            'variants.*.base_price' => 'required|number|min:0',
             'variants.*.show_unit_price' => 'boolean|nullable',
             'variants.*.base_unit' => 'string|nullable|max:10|in:' . implode(',', Unit::get_constant_values()),
             'variants.*.base_unit_amount' => 'number|min:0|nullable',
             'variants.*.total_unit' => 'string|nullable|max:10|in:' . implode(',', Unit::get_constant_values()),
             'variants.*.total_unit_amount' => 'number|min:0|nullable',
-            'variants.*.sale_price' => 'number|min:0|nullable',
-            'variants.*.cost_of_goods' => 'number|min:0|nullable',
+            'variants.*.base_sale_price' => 'number|min:0|nullable',
+            'variants.*.base_cost_of_goods' => 'number|min:0|nullable',
 
-            'variants.*.weight' => 'number|min:0|nullable',
-            'variants.*.weight_unit' => 'string|nullable|max:10|in:' . implode(',', WeightUnit::get_constant_values()),
+            'variants.*.weight' => 'numeric|nullable',
+            'variants.*.weight_unit' => 'nullable|string|max:10|in:' . implode(',', WeightUnit::get_constant_values()),
 
             'variants.*.charge_taxes' => 'boolean|nullable',
             'variants.*.allow_back_order' => 'boolean|nullable',
@@ -106,12 +137,12 @@ class ProductCreateRequest extends Request
             'ribbon' => Sanitizer::TEXT,
             'currency_id' => Sanitizer::INT,
             'brand_id' => Sanitizer::INT,
+            'short_description' => Sanitizer::TEXT,
             'description' => Sanitizer::TEXT,
-            'additional_info' => Sanitizer::ARRAY ,
-            'allow_back_order' => Sanitizer::BOOL,
+            'additional_info' => Sanitizer::ARRAY,
             'seo_title' => Sanitizer::TEXT,
             'seo_description' => Sanitizer::TEXT,
-            'seo_keywords' => Sanitizer::ARRAY ,
+            'seo_keywords' => Sanitizer::ARRAY,
             'seo_keywords.*' => Sanitizer::TEXT,
             'og_title' => Sanitizer::TEXT,
             'og_description' => Sanitizer::TEXT,
@@ -121,32 +152,32 @@ class ProductCreateRequest extends Request
             'has_variants' => Sanitizer::BOOL,
 
             // relations
-            'media' => Sanitizer::ARRAY ,
+            'media' => Sanitizer::ARRAY,
             'media.*' => Sanitizer::INT,
-            'categories' => Sanitizer::ARRAY ,
+            'categories' => Sanitizer::ARRAY,
             'categories.*' => Sanitizer::INT,
-            'tags' => Sanitizer::ARRAY ,
+            'tags' => Sanitizer::ARRAY,
             'tags.*' => Sanitizer::INT,
-            'collections' => Sanitizer::ARRAY ,
+            'collections' => Sanitizer::ARRAY,
             'collections.*' => Sanitizer::INT,
-            'attributes' => Sanitizer::ARRAY ,
+            'attributes' => Sanitizer::ARRAY,
             'attributes.*.id' => Sanitizer::INT,
-            'attributes.*.values' => Sanitizer::ARRAY ,
+            'attributes.*.values' => Sanitizer::ARRAY,
             'attributes.*.values.*' => Sanitizer::INT,
 
             // variants
-            'variants' => Sanitizer::ARRAY ,
+            'variants' => Sanitizer::ARRAY,
             'variants.*.media' => Sanitizer::INT,
             'variants.*.sku' => Sanitizer::TEXT,
             'variants.*.barcode' => Sanitizer::TEXT,
-            'variants.*.price' => Sanitizer::MONEY,
+            'variants.*.base_price' => Sanitizer::INT,
             'variants.*.show_unit_price' => Sanitizer::BOOL,
             'variants.*.base_unit' => Sanitizer::TEXT,
             'variants.*.base_unit_amount' => Sanitizer::INT,
             'variants.*.total_unit' => Sanitizer::TEXT,
             'variants.*.total_unit_amount' => Sanitizer::INT,
-            'variants.*.sale_price' => Sanitizer::MONEY,
-            'variants.*.cost_of_goods' => Sanitizer::MONEY,
+            'variants.*.base_sale_price' => Sanitizer::INT,
+            'variants.*.base_cost_of_goods' => Sanitizer::INT,
             'variants.*.weight' => Sanitizer::FLOAT,
             'variants.*.weight_unit' => Sanitizer::TEXT,
             'variants.*.charge_taxes' => Sanitizer::BOOL,
@@ -165,7 +196,7 @@ class ProductCreateRequest extends Request
             'variants.*.is_default' => Sanitizer::BOOL,
 
             // variant attributes
-            'variants.*.attribute_values' => Sanitizer::ARRAY ,
+            'variants.*.attribute_values' => Sanitizer::ARRAY,
             'variants.*.attribute_values.*' => Sanitizer::INT,
         ];
     }

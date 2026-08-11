@@ -4,8 +4,8 @@ namespace Kirki\Ecommerce\Database\Seeders;
 
 use Kirki\Ecommerce\App\DTO\Order\CreateOrderPayloadDTO;
 use Kirki\Ecommerce\App\Facades\Order;
-use Kirki\Ecommerce\Database\Seeder;
-use Kirki\Ecommerce\Supports\Facades\Log;
+use Kirki\Ecommerce\Framework\Database\Seeder;
+use Kirki\Ecommerce\Framework\Supports\Facades\Log;
 
 class OrderSeeder extends Seeder
 {
@@ -32,7 +32,7 @@ class OrderSeeder extends Seeder
                 ],
             ],
             'currency_code' => 'USD',
-            'payment_method' => 'stripe',
+            'payment_provider' => 'paypal',
             'coupon_code' => 'WINTER20',
             'shipping_method' => 'method-0001',
             'shipping_first_name' => $customer['first_name'],

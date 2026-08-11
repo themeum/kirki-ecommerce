@@ -1,0 +1,80 @@
+import { z } from 'zod';
+
+import { MoneyAmountSchema, MoneyObjectSchema } from '@/schemas/shared/api';
+import { MediaRefSchema } from '@/schemas/shared/media';
+
+export const VariantSchema = z.object({
+  id: z.number().optional(),
+  name: z.string(),
+  media: MediaRefSchema.nullish(),
+  sku: z.string().nullable(),
+  barcode: z.string().nullable(),
+  base_price: MoneyAmountSchema,
+  base_price_money_object: MoneyObjectSchema,
+  display_price: MoneyAmountSchema,
+  display_price_money_object: MoneyObjectSchema,
+  show_unit_price: z.boolean().nullish(),
+  base_unit: z.string().nullish(),
+  base_unit_amount: MoneyAmountSchema.nullish(),
+  total_unit: z.string().nullish(),
+  total_unit_amount: MoneyAmountSchema.nullish(),
+  base_sale_price: MoneyAmountSchema.nullable(),
+  base_sale_price_money_object: MoneyObjectSchema.nullable(),
+  display_sale_price: MoneyAmountSchema.nullish(),
+  display_sale_price_money_object: MoneyObjectSchema.nullable(),
+  base_cost_of_goods: MoneyAmountSchema.nullable(),
+  base_cost_of_goods_money_object: MoneyObjectSchema.nullable(),
+  display_cost_of_goods: MoneyAmountSchema.nullish(),
+  display_cost_of_goods_money_object: MoneyObjectSchema.nullable(),
+  weight: MoneyAmountSchema.nullable(),
+  weight_unit: z.string().nullable(),
+  dimension_unit: z.string().nullish(),
+  charge_taxes: z.boolean(),
+  allow_back_order: z.boolean(),
+  track_inventory: z.boolean(),
+  available_quantity: z.number(),
+  in_stock: z.boolean(),
+  committed_quantity: z.number(),
+  min_stock_threshold: z.number().nullish(),
+  has_limit_per_order: z.boolean(),
+  max_per_order: z.number().nullable(),
+  tax_profile_id: z.number().nullable(),
+  shipping_profile_id: z.number().nullable(),
+  shipping_box_id: z.number().nullable(),
+  is_visible: z.boolean(),
+  is_physical_product: z.boolean(),
+  is_default: z.boolean(),
+  attribute_values: z.array(z.number()),
+  created_by: z.number().nullish(),
+  updated_by: z.number().nullish(),
+  created_at: z.string().nullish(),
+  updated_at: z.string().nullish(),
+});
+
+export type ProductVariant = z.infer<typeof VariantSchema>;
+
+export const InventoryVariantSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  sku: z.string().nullable(),
+  base_price: MoneyAmountSchema,
+  base_price_money_object: MoneyObjectSchema,
+  display_price: MoneyAmountSchema,
+  display_price_money_object: MoneyObjectSchema,
+  base_sale_price: MoneyAmountSchema.nullable(),
+  base_sale_price_money_object: MoneyObjectSchema.nullable(),
+  display_sale_price: MoneyAmountSchema.nullish(),
+  display_sale_price_money_object: MoneyObjectSchema.nullable(),
+  base_cost_of_goods: MoneyAmountSchema.nullable(),
+  base_cost_of_goods_money_object: MoneyObjectSchema.nullable(),
+  display_cost_of_goods: MoneyAmountSchema.nullish(),
+  display_cost_of_goods_money_object: MoneyObjectSchema.nullable(),
+  stock_quantity: z.number().nullish(),
+  product: z.object({
+    id: z.number(),
+    name: z.string(),
+    image: MediaRefSchema.nullish(),
+  }),
+});
+
+export type InventoryVariant = z.infer<typeof InventoryVariantSchema>;

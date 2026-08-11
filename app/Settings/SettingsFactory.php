@@ -2,13 +2,16 @@
 
 namespace Kirki\Ecommerce\App\Settings;
 
+use function Kirki\Ecommerce\Framework\deep_set;
+use function Kirki\Ecommerce\Framework\value;
+
 defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Constants\OptionKeys;
-use Kirki\Ecommerce\AppSettings;
+use Kirki\Ecommerce\App\AppSettings;
 use Exception;
 
-use function Kirki\Ecommerce\app;
+use function Kirki\Ecommerce\Framework\app;
 
 class SettingsFactory
 {
@@ -20,13 +23,71 @@ class SettingsFactory
     protected static $cache = [];
 
     /**
+     * Get all settings instances
+     *
+     * @param string $key
+     * @param mixed $default
+     * @return mixed
+     */
+    public function get(string $key, $default = null)
+    {
+        if (strpos($key, '.')) {
+            $key_parts = explode('.', $key, 2);
+            $setting_instance = $this->get_settings_instance($key_parts[0]);
+
+            if (empty($key_parts[1])) {
+                throw new Exception(__('Invalid settings key!', 'kirki-ecommerce'));
+            }
+
+            if (empty($setting_instance)) {
+                return value($default);
+            }
+
+            return $setting_instance->get($key_parts[1]) ?? value($default);
+        }
+
+        return $this->get_settings_instance($key);
+    }
+
+    /**
+     * Update settings values
+     *
+     * @param string $key
+     * @param mixed $value
+     * @return void
+     */
+    public function update(string $key, $value)
+    {
+        if (strpos($key, '.')) {
+            $key_parts = explode('.', $key, 2);
+            $setting_instance = $this->get_settings_instance($key_parts[0]);
+
+            if (empty($key_parts[1])) {
+                throw new Exception(__('Invalid settings key!', 'kirki-ecommerce'));
+            }
+
+            if (empty($setting_instance)) {
+                throw new Exception(__('Invalid settings key!', 'kirki-ecommerce'));
+            }
+
+            $settings_array = $setting_instance->to_array();
+
+            deep_set($settings_array, $key_parts[1], $value);
+
+            return $setting_instance->set($settings_array);
+        }
+
+        return $this->get_settings_instance($key)->set($value);
+    }
+
+    /**
      * Get the settings instance for the given key.
      *
      * @param string $key
-     * @return AppSettings
+     * @return AppSettings|null
      * @throws Exception
      */
-    public function get(string $key): AppSettings
+    public function get_settings_instance(string $key)
     {
         if (isset(static::$cache[$key])) {
             return static::$cache[$key];
@@ -57,8 +118,11 @@ class SettingsFactory
             case OptionKeys::EMAIL_SETTINGS:
                 static::$cache[$key] = app()->make(EmailSettings::class);
                 break;
+            case OptionKeys::ADVANCE_SETTINGS:
+                static::$cache[$key] = app()->make(AdvanceSettings::class);
+                break;
             default:
-                throw new Exception("Invalid settings key: {$key}");
+                return null;
         }
 
         return static::$cache[$key];

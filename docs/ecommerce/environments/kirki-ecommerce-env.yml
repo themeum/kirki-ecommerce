@@ -1,0 +1,11 @@
+name: Kirki Ecommerce Env
+variables:
+  - name: baseUrl
+    value: '{{process.env.base_url}}'
+    description: 'The base URL of the Kirki Ecommerce API'
+  - name: auth_username
+    value: '{{process.env.auth_username}}'
+    description: 'The username for the Kirki Ecommerce API'
+  - name: auth_password
+    value: '{{process.env.auth_password}}'
+    description: 'The password for the Kirki Ecommerce API'

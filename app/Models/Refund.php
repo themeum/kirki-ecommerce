@@ -2,7 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Models;
 
-use Kirki\Ecommerce\Database\Query\Model;
+use Kirki\Ecommerce\Framework\Database\Query\Model;
 
 class Refund extends Model
 {
@@ -11,7 +11,7 @@ class Refund extends Model
     protected $fillable = [
         'order_id',
         'status',
-        'amount',
+        'invoiced_amount',
         'reason',
         'refund_type',
         'refund_id',
@@ -20,7 +20,7 @@ class Refund extends Model
     ];
 
     protected $casts = [
-        'amount' => 'integer',
+        'invoiced_amount' => 'integer',
     ];
 
     public function order()

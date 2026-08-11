@@ -2,9 +2,9 @@
 
 namespace Kirki\Ecommerce\Database\Migrations;
 
-use Kirki\Ecommerce\Contracts\Migration;
-use Kirki\Ecommerce\Database\Schema\Structure;
-use Kirki\Ecommerce\Supports\Facades\Schema;
+use Kirki\Ecommerce\Framework\Contracts\Migration;
+use Kirki\Ecommerce\Framework\Database\Schema\Structure;
+use Kirki\Ecommerce\Framework\Supports\Facades\Schema;
 
 class CreateCouponsTable implements Migration
 {
@@ -19,7 +19,7 @@ class CreateCouponsTable implements Migration
             $table->enum('discount_type', ['amount-off', 'free-shipping', 'buy-x-get-y'])->default('amount-off');
             $table->enum('discount_target', ['order', 'products'])->nullable();
             $table->enum('discount_value_type', ['percentage', 'fixed'])->nullable();
-            $table->integer('discount_amount_fixed')->nullable();
+            $table->integer('base_discount_amount_fixed')->nullable();
             $table->float('discount_amount_percentage')->nullable();
 
             $table->enum('eligible_item_type', ['specific-products', 'specific-categories', 'all-products'])->nullable();
@@ -28,11 +28,9 @@ class CreateCouponsTable implements Migration
             $table->integer('reward_quantity')->nullable();
             $table->integer('reward_value')->nullable();
 
-            $table->date('start_date');
-            $table->time('start_time')->nullable();
-            $table->boolean('has_end_date')->default(0);
-            $table->date('end_date')->nullable();
-            $table->time('end_time')->nullable();
+            $table->datetime('start_datetime')->nullable();
+            $table->boolean('has_end_datetime')->default(0);
+            $table->datetime('end_datetime')->nullable();
 
             $table->text('target_countries')->nullable()->comment('Array of country codes as JSON');
             $table->boolean('first_time_buyer_only')->default(0);
@@ -46,6 +44,7 @@ class CreateCouponsTable implements Migration
 
             $table->integer('current_usage_count')->default(0);
             $table->boolean('is_active')->default(1);
+            $table->text('combinations')->nullable()->comment('Array of combinations as JSON');
             $table->unsigned_big_integer('created_by')->nullable();
             $table->unsigned_big_integer('updated_by')->nullable();
             $table->timestamps();
@@ -53,7 +52,7 @@ class CreateCouponsTable implements Migration
             $table->foreign('created_by')->on('users')->references('ID')->null_on_delete();
             $table->foreign('updated_by')->on('users')->references('ID')->null_on_delete();
 
-            $table->index(['is_active', 'start_date', 'end_date'], 'idx_active_coupons');
+            $table->index(['is_active', 'start_datetime', 'has_end_datetime', 'end_datetime'], 'idx_active_coupons');
         });
     }
 

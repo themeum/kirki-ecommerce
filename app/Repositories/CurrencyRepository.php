@@ -4,11 +4,11 @@ namespace Kirki\Ecommerce\App\Repositories;
 
 use Kirki\Ecommerce\App\Models\Currency;
 use Kirki\Ecommerce\App\Constants\Pagination;
-use Kirki\Ecommerce\Collections\Collection;
-use Kirki\Ecommerce\Database\Query\Paginator;
-use Kirki\Ecommerce\Database\Query\QueryBuilder;
+use Kirki\Ecommerce\Framework\Collections\Collection;
+use Kirki\Ecommerce\Framework\Database\Query\Paginator;
+use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
 
-use function Kirki\Ecommerce\collection;
+use function Kirki\Ecommerce\Framework\collection;
 
 class CurrencyRepository
 {

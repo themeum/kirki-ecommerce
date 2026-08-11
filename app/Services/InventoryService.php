@@ -4,12 +4,9 @@ namespace Kirki\Ecommerce\App\Services;
 
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Repositories\VariantRepository;
-use Kirki\Ecommerce\Collections\Collection;
-use Kirki\Ecommerce\Database\Query\Paginator;
-use Kirki\Ecommerce\App\DTO\ListFilterDTO;
-use Kirki\Ecommerce\Exceptions\NotFoundException;
-use Kirki\Ecommerce\Exceptions\ValidationException;
-use Kirki\Ecommerce\Http\Response;
+use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
+use Kirki\Ecommerce\Framework\Exceptions\ValidationException;
+use Kirki\Ecommerce\Framework\Http\Response;
 
 class InventoryService
 {
@@ -115,7 +112,11 @@ class InventoryService
             throw new NotFoundException(sprintf(__('Variant with id %s could not be found.', 'kirki-ecommerce'), $variant_id), Response::NOT_FOUND);
         }
 
-        if ($variant->track_inventory && !$variant->allow_back_order && $variant->available_quantity < $quantity) {
+        if (!$variant->track_inventory) {
+            return true;
+        }
+
+        if (!$variant->allow_back_order && $variant->available_quantity < $quantity) {
             throw new ValidationException(__('Insufficient stock to reserve.', 'kirki-ecommerce'), Response::UNPROCESSABLE_ENTITY);
         }
 
@@ -138,6 +139,10 @@ class InventoryService
             throw new NotFoundException(sprintf(__('Variant with id %s could not be found.', 'kirki-ecommerce'), $variant_id), Response::NOT_FOUND);
         }
 
+        if (!$variant->track_inventory) {
+            return true;
+        }
+
         $current_committed = $variant->committed_quantity;
         $release_amount = min($current_committed, $quantity);
 
@@ -158,6 +163,10 @@ class InventoryService
 
         if (empty($variant)) {
             throw new NotFoundException(sprintf(__('Variant with id %s could not be found.', 'kirki-ecommerce'), $variant_id), Response::NOT_FOUND);
+        }
+
+        if (!$variant->track_inventory) {
+            return true;
         }
 
         $current_committed = $variant->committed_quantity;

@@ -9,8 +9,8 @@ use Kirki\Ecommerce\App\Currency\DTO\ExchangeRateDTO;
 use Kirki\Ecommerce\App\DTO\Currency\UpdateCurrencyDTO;
 use Kirki\Ecommerce\App\DTO\ListFilterDTO;
 use Kirki\Ecommerce\App\Services\CurrencyService;
-use Kirki\Ecommerce\Supports\Facades\Date;
-use Kirki\Ecommerce\Supports\Facades\Settings;
+use Kirki\Ecommerce\Framework\Supports\Facades\Date;
+use Kirki\Ecommerce\App\Supports\Facades\Settings;
 
 class CurrencyExchangeManager
 {
@@ -117,7 +117,7 @@ class CurrencyExchangeManager
         $usage = $this->get_active_provider()->get_usage();
 
         $settings_array['usage'] = is_null($usage->total) || is_null($usage->remaining) ? null : $usage->to_array();
-        $settings_array['last_sync_at'] = Date::now()->toDateTimeString();
+        $settings_array['last_sync_at'] = Date::now()->to_date_time_string();
         $settings_array['next_sync_at'] = $this->get_next_sync_at($frequency);
 
         $currency_settings->set($settings_array, false);
@@ -133,18 +133,18 @@ class CurrencyExchangeManager
     {
         switch ($frequency) {
             case UpdateFrequency::EVERY_15_MIN:
-                return Date::now()->addMinutes(15)->toDateTimeString();
+                return Date::now()->add_minutes(15)->to_date_time_string();
             case UpdateFrequency::EVERY_30_MIN:
-                return Date::now()->addMinutes(30)->toDateTimeString();
+                return Date::now()->add_minutes(30)->to_date_time_string();
             case UpdateFrequency::EVERY_1_HOUR:
-                return Date::now()->addHour()->toDateTimeString();
+                return Date::now()->add_hour()->to_date_time_string();
             case UpdateFrequency::EVERY_6_HOURS:
-                return Date::now()->addHours(6)->toDateTimeString();
+                return Date::now()->add_hours(6)->to_date_time_string();
             case UpdateFrequency::EVERY_12_HOURS:
-                return Date::now()->addHours(12)->toDateTimeString();
+                return Date::now()->add_hours(12)->to_date_time_string();
             case UpdateFrequency::DAILY_24_HOURS:
             default:
-                return Date::now()->addDay()->toDateTimeString();
+                return Date::now()->add_day()->to_date_time_string();
         }
     }
 }

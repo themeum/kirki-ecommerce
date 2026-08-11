@@ -2,7 +2,7 @@
 
 namespace Kirki\Ecommerce\Tests\Unit\Database\Schema;
 
-use Kirki\Ecommerce\Database\Schema\Compiler;
+use Kirki\Ecommerce\Framework\Database\Schema\Compiler;
 use Kirki\Ecommerce\Tests\Unit\TestCase;
 
 class CompilerTest extends TestCase
@@ -13,7 +13,7 @@ class CompilerTest extends TestCase
     {
         parent::setUp();
 
-        $this->compiler = new Compiler();
+        $this->compiler = new Compiler($this->make_test_connection());
     }
 
     public function test_compile_create_builds_basic_table(): void

@@ -8,6 +8,7 @@ use Kirki\Ecommerce\App\Constants\Coupon\CustomerEligibility;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountTarget;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountType;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountValueType;
+use Kirki\Ecommerce\App\Models\Coupon;
 use Kirki\Ecommerce\Tests\Support\RestTestCase;
 
 class CouponApiTest extends RestTestCase
@@ -41,6 +42,77 @@ class CouponApiTest extends RestTestCase
         $this->assertTrue($payload['data']['is_active']);
 
         $this->coupon_id = $payload['data']['id'];
+    }
+
+    /**
+     * Create coupon persists target countries.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_create_coupon_persists_target_countries(): void
+    {
+        $response = $this->request('POST', 'coupons', $this->coupon_payload([
+            'title' => 'Target Countries Coupon',
+            'code' => 'TARGET-' . wp_generate_password(6, false),
+            'target_countries' => ['US', 'CA'],
+        ]));
+
+        $payload = $this->assert_api_success($response, 201);
+        $this->assertEquals(['US', 'CA'], $payload['data']['target_countries']);
+
+        $this->coupon_id = $payload['data']['id'];
+        $fetched = $this->request('GET', 'coupons/' . $this->coupon_id);
+        $fetched_payload = $this->assert_api_success($fetched);
+        $this->assertEquals(['US', 'CA'], $fetched_payload['data']['target_countries']);
+    }
+
+    /**
+     * Create coupon with empty target countries persists as an empty array.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_create_coupon_with_empty_target_countries_persists_empty_array(): void
+    {
+        $response = $this->request('POST', 'coupons', $this->coupon_payload([
+            'title' => 'Empty Target Countries Coupon',
+            'code' => 'EMPTY-' . wp_generate_password(6, false),
+            'target_countries' => [],
+        ]));
+
+        $payload = $this->assert_api_success($response, 201);
+        $this->assertEquals([], $payload['data']['target_countries']);
+
+        $this->coupon_id = $payload['data']['id'];
+        $fetched = $this->request('GET', 'coupons/' . $this->coupon_id);
+        $fetched_payload = $this->assert_api_success($fetched);
+        $this->assertEquals([], $fetched_payload['data']['target_countries']);
+    }
+
+    /**
+     * Coupon persists combinations on save.
+     *
+     * `combinations` is not currently exposed through the coupon create/update
+     * REST request (no validation rule wires it from the request payload), so
+     * this asserts persistence at the model layer directly rather than via
+     * the API, mirroring the existing `Coupon::create()` usage in
+     * OrderApiTest.php for setup unrelated to API validation.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_coupon_persists_combinations(): void
+    {
+        $coupon = Coupon::create($this->coupon_payload([
+            'title' => 'Combinations Coupon',
+            'code' => 'COMBO-' . wp_generate_password(6, false),
+            'combinations' => ['free-shipping', 'seasonal'],
+        ]));
+
+        $this->coupon_id = $coupon->id;
+        $fetched = Coupon::find($coupon->id);
+        $this->assertEquals(['free-shipping', 'seasonal'], $fetched->combinations);
     }
 
     /**
@@ -222,8 +294,8 @@ class CouponApiTest extends RestTestCase
             'discount_target' => DiscountTarget::ORDER,
             'discount_value_type' => DiscountValueType::PERCENTAGE,
             'discount_amount' => 10,
-            'start_date' => '2025-01-01',
-            'has_end_date' => false,
+            'start_datetime' => '2025-01-01T00:00:00+00:00',
+            'has_end_datetime' => false,
             'customer_eligibility' => CustomerEligibility::ALL,
             'is_active' => true,
         ];

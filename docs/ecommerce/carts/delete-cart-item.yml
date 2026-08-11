@@ -1,0 +1,138 @@
+info:
+  name: Delete Cart Item
+  type: http
+  seq: 8
+  tags:
+    - carts
+
+http:
+  method: DELETE
+  url: "{{baseUrl}}/cart/items/3"
+  auth: inherit
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/cart/items/3"
+      method: DELETE
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": true,
+            "data": {
+              "id": "15",
+              "customer_id": 2,
+              "cart_token": "38c51e6c-e936-472c-9cc3-5d90587f9cf6",
+              "currency": {
+                "code": "USD",
+                "base_code": "USD",
+                "exchange_rate": 1
+              },
+              "pricing": {
+                "subtotal": 0,
+                "tax_rate": null,
+                "tax_total": 0,
+                "discount_details": null,
+                "discount_total": 0,
+                "shipping_subtotal": 14,
+                "shipping_tax": 0,
+                "shipping_total": 14,
+                "total": 14
+              },
+              "items_count": 0,
+              "items": [],
+              "shipping_address": {
+                "first_name": "Sunny",
+                "last_name": "Doe",
+                "email": "jane.shipping@example.com",
+                "phone": "+1 555-000-2000",
+                "address_line1": "Nikunja 2, Khilket",
+                "address_line2": "",
+                "city": "Dhaka",
+                "state": "5665",
+                "postal_code": "5665",
+                "country": "BD"
+              },
+              "billing_address": {
+                "first_name": "Jane",
+                "last_name": "Doe",
+                "email": "jane.shipping@example.com",
+                "phone": "+1 555-000-2000",
+                "address_line1": "78 Sunset Blvd",
+                "address_line2": "",
+                "city": "Los Angeles",
+                "state": "CA",
+                "postal_code": "90001",
+                "country": "US"
+              },
+              "available_shipping_methods": [
+                {
+                  "id": "fsdfdsfsdfsdf343432jh4",
+                  "name": "Standard Delivery",
+                  "type": "flat_rate",
+                  "cost": 14
+                },
+                {
+                  "id": "fsdfdsfsd56df343432jh4",
+                  "name": "Local Pickup",
+                  "type": "local_pickup",
+                  "cost": 9
+                },
+                {
+                  "id": "f12fdsfsdfsdf343432jh4",
+                  "name": "Rate by Weight",
+                  "type": "weight",
+                  "cost": 5
+                }
+              ],
+              "shipping_method": "fsdfdsfsdfsdf343432jh4",
+              "customer_notes": null,
+              "ip_address": null,
+              "user_agent": null,
+              "expires_at": {
+                "date": "2025-12-22 13:20:49.000000",
+                "timezone_type": 3,
+                "timezone": "UTC"
+              },
+              "created_at": "2025-12-19 11:01:50",
+              "updated_at": "2025-12-22 07:20:49"
+            },
+            "message": "Item removed from cart successfully."
+          }
+  - name: 404 Response
+    description: Failure
+    request:
+      url: "{{baseUrl}}/cart/items/3"
+      method: DELETE
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "errors": {},
+            "message": "Cart item not found."
+          }
+
+docs: |-
+  ## Delete a cart item
+
+  Deletes an existing resource identified by its ID.

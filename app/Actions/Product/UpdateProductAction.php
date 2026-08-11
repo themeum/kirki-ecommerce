@@ -8,7 +8,7 @@ use Kirki\Ecommerce\App\Services\VariantService;
 use Kirki\Ecommerce\App\DTO\Variant\CreateVariantDTO;
 use Kirki\Ecommerce\App\DTO\Product\UpdateProductDTO;
 use Kirki\Ecommerce\App\DTO\Variant\UpdateVariantDTO;
-use Kirki\Ecommerce\Supports\Facades\DB;
+use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Exception;
 use Throwable;
 
@@ -41,6 +41,7 @@ class UpdateProductAction
         DB::begin_transaction();
 
         try {
+            $product_payload->has_variants = count($product_payload->attributes) > 0;
             $product = $this->product_service->update($product_payload);
 
             if (empty($product)) {

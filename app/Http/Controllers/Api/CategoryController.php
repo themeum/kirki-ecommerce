@@ -8,15 +8,15 @@ use Kirki\Ecommerce\App\Http\Requests\Category\CategoryUpdateRequest;
 use Kirki\Ecommerce\App\Resources\CategoryResource;
 use Kirki\Ecommerce\App\Constants\BulkActions;
 use Kirki\Ecommerce\App\Constants\Pagination;
-use Kirki\Ecommerce\Contracts\Request;
+use Kirki\Ecommerce\Framework\Contracts\Request;
 use Kirki\Ecommerce\App\DTO\Category\CreateCategoryDTO;
 use Kirki\Ecommerce\App\DTO\Category\UpdateCategoryDTO;
 use Kirki\Ecommerce\App\DTO\ListFilterDTO;
-use Kirki\Ecommerce\Http\Response;
+use Kirki\Ecommerce\Framework\Http\Response;
 use Kirki\Ecommerce\App\Services\CategoryService;
-use Kirki\Ecommerce\Database\Query\Paginator;
+use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 
-use function Kirki\Ecommerce\response;
+use function Kirki\Ecommerce\Framework\response;
 
 class CategoryController
 {
@@ -30,7 +30,7 @@ class CategoryController
     public function get(Request $request)
     {
         $params = ListFilterDTO::from_array($request->all());
-        $params->sort_by = $request->get_whitelisted('sort_by', 'ordering', ['id', 'name', 'slug', 'parent_id', 'ordering', 'created_by', 'updated_by', 'created_at', 'updated_at']);
+        $params->sort_by = $request->whitelisted('sort_by', 'ordering', ['id', 'name', 'slug', 'parent_id', 'ordering', 'created_by', 'updated_by', 'created_at', 'updated_at']);
 
         if ((int) $params->limit === Pagination::ALL) {
             $data = $this->service->all($params);
@@ -63,7 +63,7 @@ class CategoryController
 
     public function show(Request $request)
     {
-        $category = $this->service->find($request->get_int('id'));
+        $category = $this->service->find($request->int('id'));
 
         return response()->json([
             'data' => CategoryResource::make($category),
@@ -85,7 +85,7 @@ class CategoryController
 
     public function delete(Request $request)
     {
-        $result = $this->service->delete($request->get_int('id'));
+        $result = $this->service->delete($request->int('id'));
 
         return response()->json([
             'data' => $result,

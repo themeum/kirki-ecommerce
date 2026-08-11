@@ -1,0 +1,258 @@
+info:
+  name: Calculate Order Totals
+  type: http
+  seq: 10
+  tags:
+    - orders
+
+http:
+  method: POST
+  url: "{{baseUrl}}/calculate/order"
+  body:
+    type: json
+    data: |-
+      {
+        "items": [
+          {
+            "variant_id": 1,
+            "quantity": 4
+          }
+        ],
+        "currency_code": "BDT",
+        "payment_provider": "stripe",
+        "coupon_code": "WINTER20",
+        "shipping_method": "fsdfdsfsdfsdf343432jh4",
+        "shipping_first_name": "Sunny",
+        "shipping_last_name": "Doe",
+        "shipping_address_line1": "Nikunja 2, Khilket",
+        "shipping_address_line2": "",
+        "shipping_city": "Dhaka",
+        "shipping_state": "5665",
+        "shipping_postcode": "5665",
+        "shipping_country": "BD",
+        "shipping_phone": "+1 555-000-2000",
+        "shipping_email": "jane.shipping@example.com",
+        "shipping_company": null,
+        "billing_first_name": "Jane",
+        "billing_last_name": "Doe",
+        "billing_address_line1": "78 Sunset Blvd",
+        "billing_address_line2": "",
+        "billing_city": "Los Angeles",
+        "billing_state": "CA",
+        "billing_postcode": "90001",
+        "billing_country": "US",
+        "billing_phone": "+1 555-000-2000",
+        "billing_email": "jane.shipping@example.com",
+        "billing_company": null,
+        "customer_email": "jane.shipping@example.com",
+        "customer_phone": "+1 555-000-2000",
+        "customer_notes": null
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/orders"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "items": [
+              {
+                "variant_id": 1,
+                "quantity": 4
+              }
+            ],
+            "currency_code": "USD",
+            "payment_provider": "stripe",
+            "coupon_code": "WINTER20",
+            "shipping_method": "fsdfdsfsdfsdf343432jh4",
+            "shipping_first_name": "Sunny",
+            "shipping_last_name": "Doe",
+            "shipping_address_line1": "Nikunja 2, Khilket",
+            "shipping_address_line2": "",
+            "shipping_city": "Dhaka",
+            "shipping_state": "5665",
+            "shipping_postcode": "5665",
+            "shipping_country": "BD",
+            "shipping_phone": "+1 555-000-2000",
+            "shipping_email": "jane.shipping@example.com",
+            "shipping_company": null,
+            "billing_first_name": "Jane",
+            "billing_last_name": "Doe",
+            "billing_address_line1": "78 Sunset Blvd",
+            "billing_address_line2": "",
+            "billing_city": "Los Angeles",
+            "billing_state": "CA",
+            "billing_postcode": "90001",
+            "billing_country": "US",
+            "billing_phone": "+1 555-000-2000",
+            "billing_email": "jane.shipping@example.com",
+            "billing_company": null,
+            "customer_email": "jane.shipping@example.com",
+            "customer_phone": "+1 555-000-2000",
+            "customer_notes": null
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": true,
+            "data": {
+              "pricing": {
+                "base_subtotal": 5308.68,
+                "base_subtotal_money_object": { "raw": 5308.68, "display": "৳5,308.68", "currency": { "code": "BDT", "symbol": "৳" } },
+                "display_subtotal": 5308.68,
+                "display_subtotal_money_object": { "raw": 5308.68, "display": "৳5,308.68", "currency": { "code": "BDT", "symbol": "৳" } },
+                "base_tax_total": 0,
+                "base_tax_total_money_object": { "raw": 0, "display": "৳0.00", "currency": { "code": "BDT", "symbol": "৳" } },
+                "display_tax_total": 0,
+                "display_tax_total_money_object": { "raw": 0, "display": "৳0.00", "currency": { "code": "BDT", "symbol": "৳" } },
+                "discount_details": {
+                  "id": 6,
+                  "code": "WINTER20"
+                },
+                "base_discount_total": 12.79,
+                "base_discount_total_money_object": { "raw": 12.79, "display": "৳12.79", "currency": { "code": "BDT", "symbol": "৳" } },
+                "display_discount_total": 12.79,
+                "display_discount_total_money_object": { "raw": 12.79, "display": "৳12.79", "currency": { "code": "BDT", "symbol": "৳" } },
+                "base_shipping_subtotal": 5312.00,
+                "base_shipping_subtotal_money_object": { "raw": 5312.00, "display": "৳5,312.00", "currency": { "code": "BDT", "symbol": "৳" } },
+                "display_shipping_subtotal": 5312.00,
+                "display_shipping_subtotal_money_object": { "raw": 5312.00, "display": "৳5,312.00", "currency": { "code": "BDT", "symbol": "৳" } },
+                "base_shipping_tax": 0,
+                "base_shipping_tax_money_object": { "raw": 0, "display": "৳0.00", "currency": { "code": "BDT", "symbol": "৳" } },
+                "display_shipping_tax": 0,
+                "display_shipping_tax_money_object": { "raw": 0, "display": "৳0.00", "currency": { "code": "BDT", "symbol": "৳" } },
+                "base_shipping_discount": 0,
+                "base_shipping_discount_money_object": { "raw": 0, "display": "৳0.00", "currency": { "code": "BDT", "symbol": "৳" } },
+                "display_shipping_discount": 0,
+                "display_shipping_discount_money_object": { "raw": 0, "display": "৳0.00", "currency": { "code": "BDT", "symbol": "৳" } },
+                "base_shipping_total": 5312.00,
+                "base_shipping_total_money_object": { "raw": 5312.00, "display": "৳5,312.00", "currency": { "code": "BDT", "symbol": "৳" } },
+                "display_shipping_total": 5312.00,
+                "display_shipping_total_money_object": { "raw": 5312.00, "display": "৳5,312.00", "currency": { "code": "BDT", "symbol": "৳" } },
+                "base_total": 9559.11,
+                "base_total_money_object": { "raw": 9559.11, "display": "৳9,559.11", "currency": { "code": "BDT", "symbol": "৳" } },
+                "display_total": 9559.11,
+                "display_total_money_object": { "raw": 9559.11, "display": "৳9,559.11", "currency": { "code": "BDT", "symbol": "৳" } }
+              },
+              "items_count": 4,
+              "items": [
+                {
+                  "id": 1,
+                  "quantity": 4,
+                  "base_subtotal": 5308.68,
+                  "base_subtotal_money_object": { "raw": 5308.68, "display": "৳5,308.68", "currency": { "code": "BDT", "symbol": "৳" } },
+                  "display_subtotal": 5308.68,
+                  "display_subtotal_money_object": { "raw": 5308.68, "display": "৳5,308.68", "currency": { "code": "BDT", "symbol": "৳" } },
+                  "tax_rate": 0,
+                  "base_tax_amount": 0,
+                  "base_tax_amount_money_object": { "raw": 0, "display": "৳0.00", "currency": { "code": "BDT", "symbol": "৳" } },
+                  "display_tax_amount": 0,
+                  "display_tax_amount_money_object": { "raw": 0, "display": "৳0.00", "currency": { "code": "BDT", "symbol": "৳" } },
+                  "tax_breakdown": [],
+                  "base_discount_amount": 12.79,
+                  "base_discount_amount_money_object": { "raw": 12.79, "display": "৳12.79", "currency": { "code": "BDT", "symbol": "৳" } },
+                  "display_discount_amount": 12.79,
+                  "display_discount_amount_money_object": { "raw": 12.79, "display": "৳12.79", "currency": { "code": "BDT", "symbol": "৳" } },
+                  "base_total": 4247.11,
+                  "base_total_money_object": { "raw": 4247.11, "display": "৳4,247.11", "currency": { "code": "BDT", "symbol": "৳" } },
+                  "display_total": 4247.11,
+                  "display_total_money_object": { "raw": 4247.11, "display": "৳4,247.11", "currency": { "code": "BDT", "symbol": "৳" } }
+                }
+              ],
+              "available_shipping_methods": [
+                {
+                  "id": "fsdfdsfsdfsdf343432jh4",
+                  "name": "Standard Delivery",
+                  "type": "flat_rate",
+                  "base_cost": 5312.00,
+                  "base_cost_money_object": { "raw": 5312.00, "display": "৳5,312.00", "currency": { "code": "BDT", "symbol": "৳" } },
+                  "display_cost": 5312.00,
+                  "display_cost_money_object": { "raw": 5312.00, "display": "৳5,312.00", "currency": { "code": "BDT", "symbol": "৳" } }
+                }
+              ],
+              "shipping_method": "fsdfdsfsdfsdf343432jh4"
+            },
+            "message": "Order totals calculated successfully."
+          }
+  - name: 404 Response
+    description: Failure
+    request:
+      url: "{{baseUrl}}/orders"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "items": [
+              {
+                "variant_id": 1,
+                "quantity": 4
+              }
+            ],
+            "currency_code": "USD",
+            "payment_provider": "stripe",
+            "coupon_code": "WINTER20",
+            "shipping_method": "fsdfdsfsdfsdf343432jh4",
+            "shipping_first_name": "Sunny",
+            "shipping_last_name": "Doe",
+            "shipping_address_line1": "Nikunja 2, Khilket",
+            "shipping_address_line2": "",
+            "shipping_city": "Dhaka",
+            "shipping_state": "5665",
+            "shipping_postcode": "5665",
+            "shipping_country": "BD",
+            "shipping_phone": "+1 555-000-2000",
+            "shipping_email": "jane.shipping@example.com",
+            "shipping_company": null,
+            "billing_first_name": "Jane",
+            "billing_last_name": "Doe",
+            "billing_address_line1": "78 Sunset Blvd",
+            "billing_address_line2": "",
+            "billing_city": "Los Angeles",
+            "billing_state": "CA",
+            "billing_postcode": "90001",
+            "billing_country": "US",
+            "billing_phone": "+1 555-000-2000",
+            "billing_email": "jane.shipping@example.com",
+            "billing_company": null,
+            "customer_email": "jane.shipping@example.com",
+            "customer_phone": "+1 555-000-2000",
+            "customer_notes": null
+          }
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "message": "deserunt tempor voluptate",
+            "success": "true"
+          }
+
+docs: |-
+  # Create Order
+
+  ## 1. Detailed description of the API function
+  This API is designed to create orders.

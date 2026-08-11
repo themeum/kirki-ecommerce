@@ -4,8 +4,8 @@ namespace Kirki\Ecommerce\Database\Seeders;
 
 use Kirki\Ecommerce\App\Models\Customer;
 use Kirki\Ecommerce\App\Constants\AddressType;
-use Kirki\Ecommerce\Database\Seeder;
-use Kirki\Ecommerce\Supports\Facades\Log;
+use Kirki\Ecommerce\Framework\Database\Seeder;
+use Kirki\Ecommerce\Framework\Supports\Facades\Log;
 
 class CustomerSeeder extends Seeder
 {
@@ -48,12 +48,11 @@ class CustomerSeeder extends Seeder
                 'last_name' => $customer_data['last_name'],
                 'email' => $customer_data['email'],
                 'phone' => $customer_data['phone'],
-                'tags' => $customer_data['tags'],
-                'note' => $customer_data['note'],
+                'tags' => is_string($customer_data['tags']) ? explode(',', $customer_data['tags']) : $customer_data['tags'],
+                'notes' => $customer_data['note'] ?? $customer_data['notes'] ?? null,
             ]);
 
-            $customer->shipping_address()->insert($shipping_address);
-            $customer->billing_address()->insert($billing_address);
+            $customer->addresses()->create_many([$shipping_address, $billing_address]);
         }
 
         Log::info('CustomerSeeder run successfully');

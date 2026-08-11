@@ -2,7 +2,7 @@
 
 namespace Kirki\Ecommerce\App\DTO\Product;
 
-use Kirki\Ecommerce\DTO;
+use Kirki\Ecommerce\Framework\DTO;
 
 class UpdateProductDTO extends DTO
 {
@@ -28,13 +28,13 @@ class UpdateProductDTO extends DTO
     public $brand_id;
 
     /** @var string|null */
+    public $short_description;
+
+    /** @var string|null */
     public $description;
 
     /** @var string|null */
     public $additional_info;
-
-    /** @var bool|null */
-    public $allow_back_order = false;
 
     /** @var string|null */
     public $seo_title;

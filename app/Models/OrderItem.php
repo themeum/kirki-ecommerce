@@ -2,8 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Models;
 
-use Kirki\Ecommerce\Database\Query\Model;
-use Kirki\Ecommerce\Supports\Arr;
+use Kirki\Ecommerce\Framework\Database\Query\Model;
 
 class OrderItem extends Model
 {
@@ -19,18 +18,18 @@ class OrderItem extends Model
         'barcode',
         'product_image',
         'tax_rate',
-        'tax_total',
-        'tax_total_base',
+        'invoiced_tax_total',
+        'base_tax_total',
         'tax_breakdown',
-        'discount_amount',
-        'discount_amount_base',
-        'price',
-        'price_base',
+        'invoiced_discount_amount',
+        'base_discount_amount',
+        'invoiced_price',
+        'base_price',
         'quantity',
-        'subtotal',
-        'subtotal_base',
-        'total',
-        'total_base',
+        'invoiced_subtotal',
+        'base_subtotal',
+        'invoiced_total',
+        'base_total',
         'is_physical_product',
         'weight',
         'weight_unit',
@@ -38,6 +37,9 @@ class OrderItem extends Model
     ];
 
     protected $casts = [
+        'order_id' => 'integer',
+        'product_id' => 'integer',
+        'variant_id' => 'integer',
         'is_physical_product' => 'boolean',
         'tax_rate' => 'float',
         'weight' => 'float',
@@ -45,16 +47,6 @@ class OrderItem extends Model
         'quantity' => 'integer',
         'tax_breakdown' => 'json',
     ];
-
-    public function set_product_data_attribute($value)
-    {
-        return !empty($value) && is_array($value) ? Arr::json_encode($value) : null;
-    }
-
-    public function set_tax_breakdown_attribute($value)
-    {
-        return !empty($value) && is_array($value) ? Arr::json_encode($value) : null;
-    }
 
     public function order()
     {

@@ -4,32 +4,32 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b6e442fb6eb17daa1c7a4db6ce02d631",
+    "content-hash": "867683ab04196a8048c68f1ce0c2342d",
     "packages": [
         {
             "name": "stripe/stripe-php",
-            "version": "v19.2.0",
+            "version": "v21.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/stripe/stripe-php.git",
-                "reference": "e444fbc524cd3d6583dde2c5b375d26174c54d96"
+                "reference": "edf8118f0b96d69f06f372da9168d613d1aed072"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/stripe/stripe-php/zipball/e444fbc524cd3d6583dde2c5b375d26174c54d96",
-                "reference": "e444fbc524cd3d6583dde2c5b375d26174c54d96",
+                "url": "https://api.github.com/repos/stripe/stripe-php/zipball/edf8118f0b96d69f06f372da9168d613d1aed072",
+                "reference": "edf8118f0b96d69f06f372da9168d613d1aed072",
                 "shasum": ""
             },
             "require": {
                 "ext-curl": "*",
                 "ext-json": "*",
                 "ext-mbstring": "*",
-                "php": ">=5.6.0"
+                "php": ">=7.2.0"
             },
             "require-dev": {
-                "friendsofphp/php-cs-fixer": "3.72.0",
+                "friendsofphp/php-cs-fixer": "3.94.0",
                 "phpstan/phpstan": "^1.2",
-                "phpunit/phpunit": "^5.7 || ^9.0"
+                "phpunit/phpunit": "^8.0 || ^9.0"
             },
             "type": "library",
             "extra": {
@@ -38,6 +38,10 @@
                 }
             },
             "autoload": {
+                "files": [
+                    "lib/version_check.php",
+                    "lib/agent_plugin_hint.php"
+                ],
                 "psr-4": {
                     "Stripe\\": "lib/"
                 }
@@ -61,9 +65,9 @@
             ],
             "support": {
                 "issues": "https://github.com/stripe/stripe-php/issues",
-                "source": "https://github.com/stripe/stripe-php/tree/v19.2.0"
+                "source": "https://github.com/stripe/stripe-php/tree/v21.2.0"
             },
-            "time": "2026-01-16T21:28:14+00:00"
+            "time": "2026-08-10T22:11:35+00:00"
         }
     ],
     "packages-dev": [],
@@ -74,5 +78,5 @@
     "prefer-lowest": false,
     "platform": {},
     "platform-dev": {},
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.9.0"
 }

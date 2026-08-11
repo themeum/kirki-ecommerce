@@ -1,0 +1,15 @@
+info:
+  name: Settings
+  type: http
+  seq: 10
+
+http:
+  method: PUT
+  url: ""
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

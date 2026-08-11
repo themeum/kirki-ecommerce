@@ -11,17 +11,17 @@ use Kirki\Ecommerce\App\Resources\Customer\CustomerListResource;
 use Kirki\Ecommerce\App\Resources\Customer\CustomerResource;
 use Kirki\Ecommerce\App\Constants\BulkActions;
 use Kirki\Ecommerce\App\Constants\Pagination;
-use Kirki\Ecommerce\Contracts\Request;
+use Kirki\Ecommerce\Framework\Contracts\Request;
 use Kirki\Ecommerce\App\DTO\ListFilterDTO;
-use Kirki\Ecommerce\Database\Query\Paginator;
-use Kirki\Ecommerce\Http\Response;
+use Kirki\Ecommerce\Framework\Database\Query\Paginator;
+use Kirki\Ecommerce\Framework\Http\Response;
 use Kirki\Ecommerce\App\Services\CustomerService;
 use Kirki\Ecommerce\App\DTO\Address\CreateAddressDTO;
 use Kirki\Ecommerce\App\DTO\Address\UpdateAddressDTO;
 use Kirki\Ecommerce\App\DTO\Customer\CreateCustomerDTO;
 use Kirki\Ecommerce\App\DTO\Customer\UpdateCustomerDTO;
 
-use function Kirki\Ecommerce\response;
+use function Kirki\Ecommerce\Framework\response;
 
 class CustomerController
 {
@@ -35,7 +35,7 @@ class CustomerController
     public function get(Request $request)
     {
         $params = ListFilterDTO::from_array($request->all());
-        $params->sort_by = $request->get_whitelisted('sort_by', 'id', ['id', 'user_id', 'first_name', 'last_name', 'email', 'phone', 'created_by', 'updated_by', 'created_at', 'updated_at']);
+        $params->sort_by = $request->whitelisted('sort_by', 'id', ['id', 'user_id', 'first_name', 'last_name', 'email', 'phone', 'created_by', 'updated_by', 'created_at', 'updated_at']);
 
         if ((int) $params->limit === Pagination::ALL) {
             $data = $this->service->all($params);
@@ -72,7 +72,7 @@ class CustomerController
 
     public function show(Request $request)
     {
-        $customer = $this->service->find($request->get_int('id'));
+        $customer = $this->service->find($request->int('id'));
 
         return response()->json([
             'data' => CustomerResource::make($customer),
@@ -98,7 +98,7 @@ class CustomerController
 
     public function delete(Request $request)
     {
-        $result = $this->service->delete($request->get_int('id'));
+        $result = $this->service->delete($request->int('id'));
 
         return response()->json([
             'data' => $result,

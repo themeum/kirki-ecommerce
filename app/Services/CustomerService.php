@@ -4,17 +4,17 @@ namespace Kirki\Ecommerce\App\Services;
 
 use Kirki\Ecommerce\App\Models\Customer;
 use Kirki\Ecommerce\App\Repositories\CustomerRepository;
-use Kirki\Ecommerce\Database\Query\Paginator;
+use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 use Kirki\Ecommerce\App\DTO\ListFilterDTO;
-use Kirki\Ecommerce\Collections\Collection;
+use Kirki\Ecommerce\Framework\Collections\Collection;
 use Kirki\Ecommerce\App\DTO\Customer\CreateCustomerDTO;
 use Kirki\Ecommerce\App\DTO\Customer\UpdateCustomerDTO;
-use Kirki\Ecommerce\Exceptions\NotFoundException;
-use Kirki\Ecommerce\Http\Response;
-use Kirki\Ecommerce\Supports\Facades\DB;
+use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
+use Kirki\Ecommerce\Framework\Http\Response;
+use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Exception;
 
-use function Kirki\Ecommerce\user;
+use function Kirki\Ecommerce\Framework\user;
 
 class CustomerService
 {
@@ -94,8 +94,8 @@ class CustomerService
 
         $data_array = $data->all();
 
-        $data_array['created_by'] = user()->get_id();
-        $data_array['updated_by'] = user()->get_id();
+        $data_array['created_by'] = $data->created_by ?? user()->get_id();
+        $data_array['updated_by'] = $data->updated_by ?? user()->get_id();
 
         return $this->repository->create($data_array);
     }

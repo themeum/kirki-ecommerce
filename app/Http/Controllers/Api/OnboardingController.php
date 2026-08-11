@@ -6,8 +6,8 @@ use Kirki\Ecommerce\App\Http\Requests\Settings\OnboardingRequest;
 use Kirki\Ecommerce\App\Constants\OptionKeys;
 
 use Kirki\Ecommerce\App\Services\CurrencyService;
-use Kirki\Ecommerce\Supports\Facades\Settings;
-use function Kirki\Ecommerce\response;
+use Kirki\Ecommerce\App\Supports\Facades\Settings;
+use function Kirki\Ecommerce\Framework\response;
 
 class OnboardingController
 {
@@ -31,7 +31,7 @@ class OnboardingController
         $general_settings = Settings::get(OptionKeys::GENERAL_SETTINGS);
         $general_settings->set($general_settings_data);
 
-        $this->currency_service->set_base($request->get_string('default_currency'));
+        $this->currency_service->set_base($request->string('default_currency'));
 
         //@todo handle sample data import based on $data['should_import_samples']
 

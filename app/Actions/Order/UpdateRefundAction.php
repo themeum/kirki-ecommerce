@@ -7,9 +7,9 @@ use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\Constants\Order\RefundStatus;
 use Kirki\Ecommerce\App\DTO\Refund\UpdateRefundPayloadDTO;
 use Kirki\Ecommerce\App\Services\OrderService;
-use Kirki\Ecommerce\Exceptions\NotFoundException;
-use Kirki\Ecommerce\Supports\Carbon;
-use Kirki\Ecommerce\Supports\Facades\DB;
+use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
+use Kirki\Ecommerce\Framework\Supports\Facades\Date;
+use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Throwable;
 
 class UpdateRefundAction
@@ -21,6 +21,7 @@ class UpdateRefundAction
         $this->order_service = $order_service;
     }
 
+    // @todo: need to fix this
     public function execute(UpdateRefundPayloadDTO $dto)
     {
         $order = $this->order_service->find_order_or_fail($dto->order_id);
@@ -34,13 +35,13 @@ class UpdateRefundAction
 
         try {
             if ($dto->status === RefundStatus::COMPLETED && $refund->status !== RefundStatus::COMPLETED) {
-                $refund->created_at = Carbon::now();
+                $refund->created_at = Date::now();
             }
 
             // @todo should we update it this way or should we use repository?
             $refund->update($dto->to_array());
 
-            $this->sync_order_status($order, $dto->status);
+            $this->sync_fulfillment_status($order, $dto->status);
 
             DB::commit();
 
@@ -51,31 +52,34 @@ class UpdateRefundAction
         }
     }
 
-    protected function sync_order_status($order, $refund_status)
+    // @todo: need to recheck the logic
+    protected function sync_fulfillment_status($order, $refund_status)
     {
         if ($refund_status === RefundStatus::PENDING) {
             return;
         }
 
-        if ($refund_status === RefundStatus::CANCELLED && $order->order_status === OrderStatus::ON_HOLD) {
-            $this->order_service->update_order_status($order->id, OrderStatus::PROCESSING);
+        if ($refund_status === RefundStatus::CANCELLED) {
+            // @todo: should we update it this way or take decision on what to do
+            return;
         }
 
         if ($refund_status === RefundStatus::COMPLETED) {
             $total_refunded = $order->refunds
                 ->filter(fn($refund) => $refund->status === RefundStatus::COMPLETED)
-                ->sum(fn($refund) => $refund->amount);
-            $total_refundable = $order->total - $order->shipping_total - $order->payment_gateway_fee;
+                ->sum(fn($refund) => $refund->invoiced_amount);
+            $total_refundable = $order->invoiced_total - $order->invoiced_shipping_total - $order->invoiced_payment_provider_fee;
             $is_fully_refunded = $total_refunded >= $total_refundable;
 
             if ($is_fully_refunded) {
-                $this->order_service->update_order_status($order->id, OrderStatus::REFUNDED);
-                $this->order_service->update_payment_status($order->id, PaymentStatus::REFUNDED);
+                $this->order_service->mark_refund_as_completed($order->id);
             }
 
             if (!$is_fully_refunded && $total_refunded > 0 && $order->order_status !== OrderStatus::REFUNDED) {
-                $this->order_service->update_order_status($order->id, OrderStatus::PARTIALLY_REFUNDED);
-                $this->order_service->update_payment_status($order->id, PaymentStatus::PARTIALLY_REFUNDED);
+                // TODO: need to implement or take a decision regarding partial refund
+
+                // $this->order_service->update_order_status($order->id, OrderStatus::PARTIALLY_REFUNDED);
+                // $this->order_service->update_payment_status($order->id, PaymentStatus::PARTIALLY_REFUNDED);
             }
         }
     }

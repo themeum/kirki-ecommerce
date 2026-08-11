@@ -2,9 +2,9 @@
 
 namespace Kirki\Ecommerce\Database\Migrations;
 
-use Kirki\Ecommerce\Contracts\Migration;
-use Kirki\Ecommerce\Database\Schema\Structure;
-use Kirki\Ecommerce\Supports\Facades\Schema;
+use Kirki\Ecommerce\Framework\Contracts\Migration;
+use Kirki\Ecommerce\Framework\Database\Schema\Structure;
+use Kirki\Ecommerce\Framework\Supports\Facades\Schema;
 
 class CreateProductsTable implements Migration
 {
@@ -21,10 +21,9 @@ class CreateProductsTable implements Migration
             $table->unsigned_big_integer('currency_id');
             $table->unsigned_big_integer('brand_id')->nullable();
 
+            $table->text('short_description')->nullable();
             $table->long_text('description')->nullable();
             $table->text('additional_info')->nullable()->comment('JSON string of product attributes');
-
-            $table->boolean('allow_back_order')->default(0)->comment('Continue selling when out of stock');
 
             $table->string('seo_title', 500)->nullable();
             $table->text('seo_description')->nullable();

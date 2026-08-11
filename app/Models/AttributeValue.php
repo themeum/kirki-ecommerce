@@ -2,7 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Models;
 
-use Kirki\Ecommerce\Database\Query\Model;
+use Kirki\Ecommerce\Framework\Database\Query\Model;
 
 class AttributeValue extends Model
 {
@@ -13,12 +13,16 @@ class AttributeValue extends Model
     protected $casts = [
         'id' => 'integer',
         'attribute_id' => 'integer',
+        'media' => 'integer',
+        'created_by' => 'integer',
+        'updated_by' => 'integer',
     ];
 
     protected $fillable = [
         'attribute_id',
         'value',
         'color',
+        'media'
     ];
 
     public function get_route_key()

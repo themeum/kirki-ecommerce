@@ -3,8 +3,8 @@
 namespace Kirki\Ecommerce\App\Http\Requests\Attribute;
 
 use Kirki\Ecommerce\App\Models\Attribute;
-use Kirki\Ecommerce\Sanitizer;
-use Kirki\Ecommerce\Http\Request;
+use Kirki\Ecommerce\Framework\Sanitizer;
+use Kirki\Ecommerce\Framework\Http\Request;
 
 class AttributeCreateRequest extends Request
 {

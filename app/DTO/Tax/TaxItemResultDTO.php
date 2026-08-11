@@ -2,7 +2,7 @@
 
 namespace Kirki\Ecommerce\App\DTO\Tax;
 
-use Kirki\Ecommerce\DTO;
+use Kirki\Ecommerce\Framework\DTO;
 
 class TaxItemResultDTO extends DTO
 {
@@ -19,5 +19,5 @@ class TaxItemResultDTO extends DTO
     /**
      * @var int
      */
-    public $amount;
+    public $base_amount;
 }

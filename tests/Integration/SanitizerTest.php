@@ -2,7 +2,7 @@
 
 namespace Kirki\Ecommerce\Tests\Integration;
 
-use Kirki\Ecommerce\Sanitizer;
+use Kirki\Ecommerce\Framework\Sanitizer;
 use WP_UnitTestCase;
 
 class SanitizerTest extends WP_UnitTestCase

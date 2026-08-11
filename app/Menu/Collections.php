@@ -2,8 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Menu;
 
-use Kirki\Ecommerce\Wordpress\Constants\MenuTypes;
-use Kirki\Ecommerce\Wordpress\Menu;
+use Kirki\Ecommerce\Framework\Wordpress\Constants\MenuTypes;
+use Kirki\Ecommerce\Framework\Wordpress\Menu;
 
 class Collections extends Menu
 {
@@ -14,10 +14,10 @@ class Collections extends Menu
     protected $capabilities = 'manage_options';
 
     /** @inheritDoc */
-    protected $menu_slug = 'ecommerce#/collections';
+    protected $menu_slug = 'kirki-ecommerce#/collections';
 
     /** @inheritDoc */
-    protected $parent_slug = 'ecommerce';
+    protected $parent_slug = 'kirki-ecommerce';
 
     public function __construct()
     {

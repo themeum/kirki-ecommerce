@@ -2,9 +2,9 @@
 
 namespace Kirki\Ecommerce\Tests\Unit\Database\Query;
 
-use Kirki\Ecommerce\Database\Query\Expression;
-use Kirki\Ecommerce\Database\Query\QueryBuilder;
-use Kirki\Ecommerce\Database\Query\QueryCompiler;
+use Kirki\Ecommerce\Framework\Database\Query\Expression;
+use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
+use Kirki\Ecommerce\Framework\Database\Query\QueryCompiler;
 use Kirki\Ecommerce\Tests\Unit\TestCase;
 
 class QueryCompilerTest extends TestCase

@@ -1,0 +1,5 @@
+{
+  "scripts": {
+    "make:package": "bash bin/make-package.sh"
+  }
+}

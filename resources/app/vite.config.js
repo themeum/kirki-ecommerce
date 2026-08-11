@@ -1,67 +1,112 @@
-import { defineConfig, transformWithEsbuild } from "vite";
-import react from "@vitejs/plugin-react";
-import path from "path";
-import { fileURLToPath } from "url";
+import react from '@vitejs/plugin-react';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { defineConfig } from 'vite';
+
+import babelPluginScopedAutoLabel from './scripts/babel-plugin-scoped-auto-label.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const treatJsFilesAsJsx = () => ({
-  name: "treat-js-files-as-jsx",
-  async transform(code, id) {
-    if (!id.endsWith(".js") || id.includes("node_modules")) {
-      return null;
-    }
-    return transformWithEsbuild(code, id, {
-      loader: "jsx",
-      jsx: "automatic",
-    });
-  },
-});
+const EAGER_CORE_PACKAGES = new Set([
+  'react',
+  'react-dom',
+  'scheduler',
+  'react-router',
+  'axios',
+  'sonner',
+]);
+
+const EAGER_CORE_SCOPES = ['@emotion/', '@tanstack/'];
+
+const resolvePackageName = (id) => {
+  const marker = 'node_modules/';
+  const markerIndex = id.lastIndexOf(marker);
+
+  if (markerIndex === -1) {
+    return null;
+  }
+
+  const segments = id.slice(markerIndex + marker.length).split('/');
+
+  if (segments[0].startsWith('@')) {
+    return `${segments[0]}/${segments[1]}`;
+  }
+
+  return segments[0];
+};
+
+const isEagerCorePackage = (packageName) => {
+  if (EAGER_CORE_PACKAGES.has(packageName)) {
+    return true;
+  }
+
+  return EAGER_CORE_SCOPES.some((scope) => packageName.startsWith(scope));
+};
 
 export default defineConfig({
-  plugins: [treatJsFilesAsJsx(), react()],
-  optimizeDeps: {
-    esbuildOptions: {
-      loader: {
-        ".js": "jsx",
+  plugins: [
+    react({
+      jsxImportSource: '@emotion/react',
+      babel: {
+        plugins: [
+          [
+            '@emotion/babel-plugin',
+            {
+              autoLabel: 'dev-only',
+              labelFormat: ({ name }) => (name === 'scoped' ? '' : name),
+            },
+          ],
+          babelPluginScopedAutoLabel,
+        ],
       },
-    },
-  },
+    }),
+  ],
   root: __dirname,
   resolve: {
     alias: {
-      "@": path.resolve(__dirname),
+      '@': path.resolve(__dirname),
+      '@data': path.resolve(__dirname, '../data'),
     },
   },
   server: {
     port: 5173,
-    strictPort: true,
+    strictPort: false,
     cors: true,
-    origin: "http://localhost:20100",
+    origin: 'http://localhost:20100',
+    fs: {
+      allow: [path.resolve(__dirname, '..')],
+    },
+  },
+  experimental: {
+    renderBuiltUrl() {
+      return { relative: true };
+    },
   },
   build: {
-    outDir: path.resolve(__dirname, "../../assets"),
+    outDir: path.resolve(__dirname, '../../assets'),
     emptyOutDir: false,
-    cssCodeSplit: false,
+    manifest: true,
     rollupOptions: {
-      input: path.resolve(__dirname, "main.jsx"),
+      input: path.resolve(__dirname, 'main.tsx'),
       output: {
-        entryFileNames: "js/kirki-ecommerce.bundle.js",
+        entryFileNames: 'js/kirki-ecommerce.bundle-[hash].js',
         chunkFileNames: (chunkInfo) => {
-          if (chunkInfo.name === "kirki-ecommerce.vendor") {
-            return "js/kirki-ecommerce.vendor.js";
+          if (chunkInfo.name === 'kirki-ecommerce.vendor') {
+            return 'js/kirki-ecommerce.vendor-[hash].js';
           }
-          return "js/pages/[name]-[hash].chunk.js";
-        },
-        assetFileNames: (assetInfo) => {
-          if (assetInfo.name && assetInfo.name.endsWith(".css")) {
-            return "css/kirki-ecommerce.bundle.css";
+
+          if (chunkInfo.isDynamicEntry) {
+            return 'js/pages/[name]-[hash].chunk.js';
           }
-          return "assets/[name]-[hash][extname]";
+
+          return 'js/chunks/[name]-[hash].chunk.js';
         },
+        assetFileNames: 'assets/[name]-[hash][extname]',
         manualChunks(id) {
-          if (id.includes("node_modules")) {
-            return "kirki-ecommerce.vendor";
+          const packageName = resolvePackageName(id);
+
+          if (packageName && isEagerCorePackage(packageName)) {
+            return 'kirki-ecommerce.vendor';
           }
         },
       },

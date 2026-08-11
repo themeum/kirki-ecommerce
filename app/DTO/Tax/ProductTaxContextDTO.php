@@ -2,7 +2,7 @@
 
 namespace Kirki\Ecommerce\App\DTO\Tax;
 
-use Kirki\Ecommerce\DTO;
+use Kirki\Ecommerce\Framework\DTO;
 
 class ProductTaxContextDTO extends DTO
 {
@@ -19,7 +19,7 @@ class ProductTaxContextDTO extends DTO
     /**
      * @var int
      */
-    public $product_price;
+    public $base_product_price;
 
     /**
      * @var array|null

@@ -2,7 +2,7 @@
 
 namespace Kirki\Ecommerce\Tests\Unit\Scheduler;
 
-use Kirki\Ecommerce\Scheduler\DTO\JobDTO;
+use Kirki\Ecommerce\App\Scheduler\DTO\JobDTO;
 use Kirki\Ecommerce\Tests\Unit\TestCase;
 
 class JobDTOTest extends TestCase

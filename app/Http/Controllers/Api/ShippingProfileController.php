@@ -9,14 +9,14 @@ use Kirki\Ecommerce\App\Resources\ShippingProfileResource;
 use Kirki\Ecommerce\App\Services\ShippingProfileService;
 use Kirki\Ecommerce\App\Constants\BulkActions;
 use Kirki\Ecommerce\App\Constants\Pagination;
-use Kirki\Ecommerce\Contracts\Request;
+use Kirki\Ecommerce\Framework\Contracts\Request;
 use Kirki\Ecommerce\App\DTO\ListFilterDTO;
 use Kirki\Ecommerce\App\DTO\ShippingProfile\CreateShippingProfileDTO;
 use Kirki\Ecommerce\App\DTO\ShippingProfile\UpdateShippingProfileDTO;
-use Kirki\Ecommerce\Http\Response;
-use Kirki\Ecommerce\Database\Query\Paginator;
+use Kirki\Ecommerce\Framework\Http\Response;
+use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 
-use function Kirki\Ecommerce\response;
+use function Kirki\Ecommerce\Framework\response;
 
 class ShippingProfileController
 {
@@ -30,7 +30,7 @@ class ShippingProfileController
     public function get(Request $request)
     {
         $params = ListFilterDTO::from_array($request->all());
-        $params->sort_by = $request->get_whitelisted('sort_by', 'id', ['id', 'name', 'created_at', 'updated_at']);
+        $params->sort_by = $request->whitelisted('sort_by', 'id', ['id', 'name', 'created_at', 'updated_at']);
 
         if ((int) $params->limit === Pagination::ALL) {
             $data = $this->service->all($params);
@@ -63,7 +63,7 @@ class ShippingProfileController
 
     public function show(Request $request)
     {
-        $shipping_profile = $this->service->find($request->get_int('id'));
+        $shipping_profile = $this->service->find($request->int('id'));
 
         return response()->json([
             'data' => ShippingProfileResource::make($shipping_profile),
@@ -85,7 +85,7 @@ class ShippingProfileController
 
     public function delete(Request $request)
     {
-        $result = $this->service->delete($request->get_int('id'));
+        $result = $this->service->delete($request->int('id'));
 
         return response()->json([
             'data' => $result,
@@ -95,7 +95,7 @@ class ShippingProfileController
 
     public function bulk_actions(BulkActionRequest $request)
     {
-        $validated = $request->clean();
+        $validated = $request->all();
 
         $action = $validated['action'];
         $ids = $validated['ids'] ?? [];

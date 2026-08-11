@@ -12,6 +12,8 @@ ehthumbs.db
 Thumbs.db
 bundle-analysis.html
 *.zip
+checklist.md
+release.md
 
 docker/php/conf.d/99-local.ini
 config/listeners.cache.php
@@ -35,12 +37,11 @@ build/
 tmp/
 temp/
 .vite/
+libraries/
 
 # Vite build output (resources/app npm run build)
-assets/css/kirki-ecommerce.bundle.css
-assets/js/kirki-ecommerce.bundle.js
-assets/js/kirki-ecommerce.vendor.js
-assets/js/pages/
+assets/css
+assets/js
 
 # Backup files
 *.bak
@@ -49,3 +50,5 @@ assets/js/pages/
 
 # Vscode settings
 .vscode/launch.json
+
+.cursor/debug-*.log

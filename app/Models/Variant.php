@@ -2,7 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Models;
 
-use Kirki\Ecommerce\Database\Query\Model;
+use Kirki\Ecommerce\Framework\Database\Query\Model;
 
 class Variant extends Model
 {
@@ -13,14 +13,14 @@ class Variant extends Model
         'id' => 'integer',
         'product_id' => 'integer',
         'media' => 'integer',
-        'price' => 'integer',
+        'base_price' => 'integer',
         'show_unit_price' => 'boolean',
         'base_unit' => 'string',
         'base_unit_amount' => 'integer',
         'total_unit' => 'string',
         'total_unit_amount' => 'integer',
-        'sale_price' => 'integer',
-        'cost_of_goods' => 'integer',
+        'base_sale_price' => 'integer',
+        'base_cost_of_goods' => 'integer',
         'weight' => 'float',
         'weight_unit' => 'string',
         'charge_taxes' => 'boolean',
@@ -35,6 +35,10 @@ class Variant extends Model
         'shipping_profile_id' => 'integer',
         'shipping_box_id' => 'integer',
         'is_visible' => 'boolean',
+        'is_physical_product' => 'boolean',
+        'is_default' => 'boolean',
+        'created_by' => 'integer',
+        'updated_by' => 'integer',
     ];
 
     protected $fillable = [
@@ -42,14 +46,14 @@ class Variant extends Model
         'media',
         'sku',
         'barcode',
-        'price',
+        'base_price',
         'show_unit_price',
         'base_unit',
         'base_unit_amount',
         'total_unit',
         'total_unit_amount',
-        'sale_price',
-        'cost_of_goods',
+        'base_sale_price',
+        'base_cost_of_goods',
         'weight',
         'weight_unit',
         'charge_taxes',

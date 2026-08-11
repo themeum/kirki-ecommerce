@@ -7,21 +7,24 @@ use Kirki\Ecommerce\App\DTO\Refund\UpdateRefundPayloadDTO;
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\Models\Refund;
-use Kirki\Ecommerce\Sanitizer;
-use Kirki\Ecommerce\App\Payment\PaymentGateway;
-use Kirki\Ecommerce\Supports\Facades\DB;
-use Kirki\Ecommerce\Validation\Validator;
+use Kirki\Ecommerce\Framework\Sanitizer;
+use Kirki\Ecommerce\App\Payment\PaymentProvider;
+use Kirki\Ecommerce\Framework\Supports\Facades\DB;
+use Kirki\Ecommerce\Framework\Validation\Validator;
 use Stripe\Event;
 use Stripe\Exception\SignatureVerificationException;
 use Stripe\StripeClient;
 use Exception;
+use Kirki\Ecommerce\App\Constants\Payment\PaymentActionType;
+use Kirki\Ecommerce\App\DTO\Payment\PaymentActionDTO;
 use Stripe\Webhook;
 use UnexpectedValueException;
 use Kirki\Ecommerce\App\Facades\Order as OrderManager;
+use Kirki\Ecommerce\App\Supports\Url;
 
 defined('ABSPATH') || exit;
 
-class Stripe extends PaymentGateway
+class Stripe extends PaymentProvider
 {
     /**
      * @var StripeClient
@@ -34,36 +37,30 @@ class Stripe extends PaymentGateway
     public function __construct()
     {
         $this->id = 'stripe';
-        $this->title = __('Stripe', 'kirki-ecommerce');
-        $this->description = __('Stripe payment gateway', 'kirki-ecommerce');
-        $this->icon = 'stripe';
+        $this->title = __('Stripe', 'kirki-ecommerce-stripe');
+        $this->description = __('Stripe payment gateway', 'kirki-ecommerce-stripe');
+        $this->icon = $this->icon_url('stripe');
         $this->settings_key = 'stripe';
-        $this->is_manual = false;
+        $this->is_offline = false;
+        $this->is_available = true;
         $this->has_fields = false;
 
         parent::__construct();
 
         $this->set_admin_fields([
             [
-                'name' => 'publishable_key',
-                'label' => __('Publishable Key', 'kirki-ecommerce'),
-                'type' => 'text',
-                'required' => true,
-            ],
-            [
                 'name' => 'secret_key',
-                'label' => __('Secret Key', 'kirki-ecommerce'),
+                'label' => __('Secret Key', 'kirki-ecommerce-stripe'),
                 'type' => 'password',
                 'required' => true,
             ],
             [
                 'name' => 'webhook_secret',
-                'label' => __('Webhook Secret', 'kirki-ecommerce'),
+                'label' => __('Webhook Secret', 'kirki-ecommerce-stripe'),
                 'type' => 'password',
                 'required' => true,
             ],
         ]);
-
     }
 
     /**
@@ -76,13 +73,14 @@ class Stripe extends PaymentGateway
     public function pay(Order $order)
     {
         if (!$this->enabled()) {
-            throw new Exception(__('Stripe is not enabled.', 'kirki-ecommerce'));
+            throw new Exception(__('Stripe is not enabled.', 'kirki-ecommerce-stripe'));
         }
 
         try {
             $stripe = $this->get_client();
 
             $line_items = [];
+            $shipping_charge = [];
             $currency = strtoupper($order->currency_code);
 
             foreach ($order->items as $item) {
@@ -93,7 +91,7 @@ class Stripe extends PaymentGateway
                             'name' => $item->product_name,
                             'description' => $this->get_item_description($item, $currency),
                         ],
-                        'unit_amount' => (int) $item->total,
+                        'unit_amount' => (int) $item->invoiced_total,
                     ],
                     'quantity' => 1,
                 ];
@@ -104,11 +102,24 @@ class Stripe extends PaymentGateway
                     'price_data' => [
                         'currency' => $currency,
                         'product_data' => [
-                            'name' => __('Order #' . $order->order_number, 'kirki-ecommerce'),
+                            'name' => __('Order #' . $order->order_number, 'kirki-ecommerce-stripe'),
                         ],
-                        'unit_amount' => (int) $order->total,
+                        'unit_amount' => (int) $order->invoiced_total,
                     ],
                     'quantity' => 1,
+                ];
+            }
+
+            if (!empty($order->invoiced_shipping_total)) {
+                $shipping_charge[] = [
+                    'shipping_rate_data' => [
+                        'display_name' => __('Shipping Charge', 'kirki-ecommerce-stripe'),
+                        'type'         => 'fixed_amount',
+                        'fixed_amount' => [
+                            'amount'   => $order->invoiced_shipping_total,
+                            'currency' => $currency,
+                        ],
+                    ],
                 ];
             }
 
@@ -121,24 +132,28 @@ class Stripe extends PaymentGateway
                 'currency' => $currency,
                 'line_items' => $line_items,
                 'mode' => 'payment',
-                'success_url' => $this->return_url($order) . '&session_id={CHECKOUT_SESSION_ID}&success=true',
-                'cancel_url' => $this->return_url($order) . '&session_id={CHECKOUT_SESSION_ID}&cancel=true',
+                'success_url' => Url::get_checkout_success_url($order->uuid),
+                'cancel_url' => Url::get_checkout_failed_url($order->uuid),
                 'client_reference_id' => (string) $order->id,
                 'metadata' => $metadata,
                 'payment_intent_data' => [
                     'metadata' => $metadata,
                 ],
+                'shipping_options' => $shipping_charge
             ];
 
             if ($order->billing_email) {
                 $data['customer_email'] = $order->billing_email;
             }
 
-            $session = $stripe->checkout->sessions->create($data);
+            $session = $stripe->checkout->sessions->create($data, ['idempotency_key' => 'checkout_' . $order->id]);
 
-            return $session->url;
+            return PaymentActionDTO::from_array([
+                'type' => PaymentActionType::REDIRECT,
+                'value' => $session->url,
+            ]);
         } catch (Exception $e) {
-            throw new Exception(__('Stripe Payment Error: ' . $e->getMessage(), 'kirki-ecommerce'));
+            throw new Exception(__('Stripe Payment Error: ' . $e->getMessage(), 'kirki-ecommerce-stripe'));
         }
     }
 
@@ -158,12 +173,12 @@ class Stripe extends PaymentGateway
             $transaction_id = $order->payment_transaction_id;
 
             if (empty($transaction_id)) {
-                throw new Exception(__('No payment transaction ID found for this order.', 'kirki-ecommerce'));
+                throw new Exception(__('No payment transaction ID found for this order.', 'kirki-ecommerce-stripe'));
             }
 
             $refund_payload = [
                 'payment_intent' => $transaction_id,
-                'amount' => (int) $refund->amount,
+                'amount' => (int) $refund->invoiced_amount,
                 'metadata' => ['refund_request_id' => $refund->id],
             ];
 
@@ -173,9 +188,9 @@ class Stripe extends PaymentGateway
                 return true;
             }
 
-            throw new Exception(__('Refund failed.', 'kirki-ecommerce'));
+            throw new Exception(__('Refund failed.', 'kirki-ecommerce-stripe'));
         } catch (Exception $e) {
-            throw new Exception(sprintf(__('Stripe Refund Error: %s', 'kirki-ecommerce'), $e->getMessage()));
+            throw new Exception(sprintf(__('Stripe Refund Error: %s', 'kirki-ecommerce-stripe'), $e->getMessage()));
         }
     }
 
@@ -191,7 +206,7 @@ class Stripe extends PaymentGateway
         $endpoint_secret = $this->settings['webhook_secret'] ?? '';
 
         if (empty($endpoint_secret)) {
-            throw new Exception(__('Webhook secret is not configured.', 'kirki-ecommerce'));
+            throw new Exception(__('Webhook secret is not configured.', 'kirki-ecommerce-stripe'));
         }
 
         $event = null;
@@ -210,13 +225,13 @@ class Stripe extends PaymentGateway
             DB::commit();
         } catch (UnexpectedValueException $e) {
             DB::rollback();
-            throw new Exception(__('Invalid payload', 'kirki-ecommerce'));
+            throw new Exception(__('Invalid payload', 'kirki-ecommerce-stripe'));
         } catch (SignatureVerificationException $e) {
             DB::rollback();
-            throw new Exception(__('Invalid signature', 'kirki-ecommerce'));
+            throw new Exception(__('Invalid signature', 'kirki-ecommerce-stripe'));
         } catch (Exception $e) {
             DB::rollback();
-            throw new Exception(__('Webhook error: ' . $e->getMessage(), 'kirki-ecommerce'));
+            throw new Exception(__('Webhook error: ' . $e->getMessage(), 'kirki-ecommerce-stripe'));
         }
 
         return true;
@@ -242,7 +257,8 @@ class Stripe extends PaymentGateway
     {
         $webhook_secret = $settings['webhook_secret'] ?? null;
 
-        if (empty($webhook_secret)) {
+        if (empty($webhook_secret) && !empty($settings['secret_key'])) {
+            $this->settings['secret_key'] = $settings['secret_key'];
             $webhook_secret = $this->setup_webhook_endpoint();
             $settings['webhook_secret'] = $webhook_secret;
         }
@@ -259,9 +275,9 @@ class Stripe extends PaymentGateway
     protected function validate_settings(array $settings)
     {
         Validator::make($settings, [
-            'publishable_key' => 'required|string',
-            'secret_key' => 'required|string',
-            'webhook_secret' => 'nullable|string',
+            'secret_key' => 'sometimes|string',
+            'webhook_secret' => 'sometimes|string',
+            'sandbox' => 'sometimes|boolean',
         ])->validate();
 
         return true;
@@ -276,9 +292,9 @@ class Stripe extends PaymentGateway
     protected function sanitize_settings(array $settings)
     {
         $data = Sanitizer::make($settings, [
-            'publishable_key' => Sanitizer::TEXT,
             'secret_key' => Sanitizer::TEXT,
             'webhook_secret' => Sanitizer::TEXT,
+            'sandbox' => Sanitizer::BOOL,
         ])->get_sanitized_data();
 
         return $data;
@@ -318,9 +334,9 @@ class Stripe extends PaymentGateway
                 $this->handle_dispute_closed($dispute);
                 break;
 
-            case WebhookEventType::CHARGE_SUCCEEDED:
+            case WebhookEventType::CHARGE_UPDATED:
                 $charge = $event->data->object;
-                $this->handle_charge_succeeded($charge);
+                $this->handle_charge_updated($charge);
                 break;
             default:
                 break;
@@ -329,7 +345,7 @@ class Stripe extends PaymentGateway
 
     /**
      * Initialize Stripe Client.
-     * 
+     *
      * @return StripeClient
      * @throws Exception
      */
@@ -342,7 +358,7 @@ class Stripe extends PaymentGateway
         $secret_key = $this->settings['secret_key'] ?? null;
 
         if (empty($secret_key)) {
-            throw new Exception(__('Stripe Secret Key is missing.', 'kirki-ecommerce'));
+            throw new Exception(__('Stripe Secret Key is missing.', 'kirki-ecommerce-stripe'));
         }
 
         $this->stripe = new StripeClient($secret_key);
@@ -369,7 +385,7 @@ class Stripe extends PaymentGateway
         $new_endpoint = $stripe->webhookEndpoints->create([
             'url' => $this->webhook_url(),
             'enabled_events' => $this->webhook_events(),
-            'description' => __('Kirki Ecommerce Webhook', 'kirki-ecommerce'),
+            'description' => __('Kirki Ecommerce Webhook', 'kirki-ecommerce-stripe'),
         ]);
 
         return $new_endpoint->secret;
@@ -377,7 +393,7 @@ class Stripe extends PaymentGateway
 
     /**
      * Handle checkout.session.completed event.
-     * 
+     *
      * @param object $session
      */
     protected function handle_checkout_session_completed($session)
@@ -400,10 +416,9 @@ class Stripe extends PaymentGateway
 
         if ($session->payment_status === 'paid') {
             OrderManager::mark_payment_as_paid($order_id);
-            OrderManager::mark_as_processing($order_id);
+            OrderManager::set_payment_metadata($order_id, $session->toJson());
         } elseif ($session->payment_status === 'unpaid') {
-            OrderManager::mark_payment_as_pending($order_id);
-            OrderManager::mark_as_on_hold($order_id);
+            OrderManager::mark_payment_as_unpaid($order_id);
         }
 
         $payment_intent = $session->payment_intent;
@@ -415,7 +430,7 @@ class Stripe extends PaymentGateway
 
     /**
      * Handle checkout.session.async_payment_succeeded event.
-     * 
+     *
      * This is triggered when an async payment method (SEPA, ACH, etc.) succeeds.
      *
      * @param object $session
@@ -439,12 +454,12 @@ class Stripe extends PaymentGateway
         }
 
         OrderManager::mark_payment_as_paid($order_id);
-        OrderManager::mark_as_processing($order_id);
+        OrderManager::set_payment_metadata($order_id, $session->toJson());
     }
 
     /**
      * Handle checkout.session.async_payment_failed event.
-     * 
+     *
      * This is triggered when an async payment method (SEPA, ACH, etc.) fails.
      *
      * @param object $session
@@ -464,12 +479,12 @@ class Stripe extends PaymentGateway
         }
 
         OrderManager::mark_payment_as_failed($order_id);
-        OrderManager::mark_as_cancelled($order_id);
+        OrderManager::set_payment_metadata($order_id, $session->toJson());
     }
 
     /**
      * Handle charge.dispute.created event.
-     * 
+     *
      * This is triggered when a customer disputes a charge (chargeback).
      *
      * @param object $dispute
@@ -488,13 +503,13 @@ class Stripe extends PaymentGateway
             return;
         }
 
+        // @todo: need to check it later
         OrderManager::mark_as_on_hold($order->id);
-        OrderManager::mark_payment_as_on_hold($order->id);
     }
 
     /**
      * Handle charge.dispute.closed event.
-     * 
+     *
      * This is triggered when a dispute is resolved (won or lost).
      *
      * @param object $dispute
@@ -514,12 +529,13 @@ class Stripe extends PaymentGateway
         }
 
         if ($dispute->status === 'won' && $order->payment_status === PaymentStatus::PAID) {
+            // @todo: need to check it later
             OrderManager::mark_as_processing($order->id);
         }
 
         if ($dispute->status === 'lost') {
-            OrderManager::mark_payment_as_refunded($order->id);
-            OrderManager::mark_as_refunded($order->id);
+            // @todo: need to handle for delivered orders
+            OrderManager::mark_payment_as_unpaid($order->id);
         }
     }
 
@@ -554,7 +570,7 @@ class Stripe extends PaymentGateway
         }
 
         OrderManager::update_refund(UpdateRefundPayloadDTO::from_array(array_merge($refund->to_array(), [
-            'amount' => $stripe_refund->amount,
+            'invoiced_amount' => $stripe_refund->amount,
             'refund_id' => $stripe_refund->id,
             'status' => $stripe_refund->status === 'succeeded' ? RefundStatus::COMPLETED : RefundStatus::PENDING,
         ])));
@@ -565,7 +581,7 @@ class Stripe extends PaymentGateway
      *
      * @param object $charge
      */
-    protected function handle_charge_succeeded($charge)
+    protected function handle_charge_updated($charge)
     {
         $charge = $this->get_client()->charges->retrieve($charge->id, [
             'expand' => ['balance_transaction']
@@ -583,6 +599,6 @@ class Stripe extends PaymentGateway
             return;
         }
 
-        OrderManager::set_payment_gateway_fee($order->id, $balance_transaction->fee);
+        OrderManager::set_payment_provider_fee($order->id, $balance_transaction->fee);
     }
 }
