@@ -25,6 +25,7 @@ import type {
   TaxRule,
 } from '@/pages/settings/tax-settings/utils';
 import { taxRuleActionOptionsArray } from '@/pages/settings/tax-settings/utils';
+import { uuid } from '@/utils';
 import { LightningBoltIcon } from '@radix-ui/react-icons';
 
 type TaxRulesDialogProps = {
@@ -66,7 +67,7 @@ const TaxRulesDialog = (props: TaxRulesDialogProps) => {
     defaultValues: {
       conditions: [
         {
-          id: crypto.randomUUID(),
+          id: uuid(),
           condition: 'tax_profile',
           value: null,
         },
@@ -94,7 +95,7 @@ const TaxRulesDialog = (props: TaxRulesDialogProps) => {
 
       form.reset({
         conditions: existingRule.conditions.map((c) => ({
-          id: crypto.randomUUID(),
+          id: uuid(),
           condition: c.type,
           value: c.value ?? null,
         })),
@@ -110,7 +111,7 @@ const TaxRulesDialog = (props: TaxRulesDialogProps) => {
 
     form.reset({
       conditions: [
-        { id: crypto.randomUUID(), condition: 'tax_profile', value: null },
+        { id: uuid(), condition: 'tax_profile', value: null },
       ],
       action_type: 'set_tax_rate',
       action_value: '',

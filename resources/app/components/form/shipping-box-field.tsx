@@ -21,7 +21,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import Text from '@/components/ui/text';
-import { EyeClosedIcon, EyeIcon, PlusIcon } from '@/icons';
+import { EyeClosedIcon, EyeIcon } from '@/icons';
 import { useShippingBoxesQuery } from '@/services/shipping';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
@@ -29,6 +29,7 @@ import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 import ShippingBoxDialog from '@/pages/settings/shipping-settings/shipping-box/shipping-box-dialog';
+import { Plus } from 'lucide-react';
 
 type ShippingBoxListItem = {
   value: number | string;
@@ -107,6 +108,7 @@ const ShippingBoxFieldView = ({
   const selectedBox = shippingBoxList.find(
     (item) => String(item.value) === selectedValue,
   );
+  const hasShippingBoxes = shippingBoxList.length > 0;
 
   const handleOpenCreate = () => {
     setSelectOpen(false);
@@ -129,19 +131,19 @@ const ShippingBoxFieldView = ({
           placeholder={__('Select shipping box', 'kirki-ecommerce')}
         />
       </SelectTrigger>
-      <SelectContent>
+      <SelectContent position={hasShippingBoxes ? 'item-aligned' : 'popper'}>
         {shippingBoxList.map((option) => (
           <SelectItem key={option.value} value={String(option.value)}>
             {option.title}
           </SelectItem>
         ))}
-        <SelectSeparator />
+        {hasShippingBoxes && <SelectSeparator />}
         <ActionGroup cssOverride={styles.footer}>
           <Button
             variant="secondary"
             onClick={handleOpenCreate}
           >
-            <PlusIcon />
+            <Plus size={16} />
             {__('Add new shipping box', 'kirki-ecommerce')}
           </Button>
         </ActionGroup>

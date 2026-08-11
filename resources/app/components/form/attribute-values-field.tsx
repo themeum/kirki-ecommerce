@@ -10,7 +10,8 @@ import { useAttributesQuery, useCreateAttributeValueMutation } from '@/services/
 import type { Attribute } from '@/types';
 import { __ } from '@/wpi18n';
 
-import VariationPopover from '@/pages/products/product-form/sections/variants/variation-dialog';
+import VariationDialog from '@/pages/products/product-form/sections/variants/variation-dialog';
+import { ProductVariationPopoverFormPayload } from '@/schemas/forms/product-variation-popover-form';
 
 type AttributeValueRef = {
   value?: number | string;
@@ -58,6 +59,7 @@ const AttributeValuesField = <
   const { data: allAttributesList } = useAttributesQuery({ limit: -1 });
   const createAttributeValueMutation = useCreateAttributeValueMutation();
   const [colorDialogOpen, setColorDialogOpen] = useState(false);
+  const [initialValues, setInitialValues] = useState<ProductVariationPopoverFormPayload | null>(null);
 
   const valueType = getAttributeValueType(type);
 
@@ -150,6 +152,10 @@ const AttributeValuesField = <
         const handleCreate = (query: string) => {
           if (valueType.createVia === 'dialog') {
             setColorDialogOpen(true);
+            setInitialValues({
+              title: query,
+              color: '',
+            } as ProductVariationPopoverFormPayload);
             return;
           }
 
@@ -172,12 +178,13 @@ const AttributeValuesField = <
               renderChip={valueType.renderChip}
             />
             {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-            <VariationPopover
+            <VariationDialog
               isOpen={colorDialogOpen}
               onClose={() => setColorDialogOpen(false)}
+              initialValues={initialValues}
               onSave={(variation) => {
                 void createValue(variation.title, variation.color).catch(
-                  () => {},
+                  () => { },
                 );
                 setColorDialogOpen(false);
               }}

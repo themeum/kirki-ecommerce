@@ -1,4 +1,4 @@
-import { type ReactElement, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 
 import { Card, CardContent } from '@/components/ui/card';
@@ -61,12 +61,6 @@ const ShippingProfile = () => {
     }
   };
 
-  const CreateProfilePopupView = CreateProfilePopup as (props: {
-    isOpen: boolean;
-    onClose: () => void;
-    onSave: (value: unknown) => void;
-  }) => ReactElement;
-
   return (
     <Card cssOverride={cardStyles.innerDarkCard}>
       <CardContent cssOverride={styles.innerDarkRowContent}>
@@ -119,11 +113,11 @@ const ShippingProfile = () => {
           </Select>
         </Grid>
       </CardContent>
-      <CreateProfilePopupView
+      <CreateProfilePopup
         isOpen={openAddProfilePopup}
         onClose={() => setOpenAddProfilePopup(false)}
-        onSave={(value) =>
-          setValue('variants.0.shipping_profile_id', value as number | string, {
+        onSave={(id) =>
+          setValue('variants.0.shipping_profile_id', id, {
             shouldDirty: true,
           })
         }

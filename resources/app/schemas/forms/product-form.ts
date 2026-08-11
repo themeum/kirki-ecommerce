@@ -25,7 +25,7 @@ const ProductFormVariantShape = z.object({
   sku: z.string().nullish(),
   barcode: z.string().nullish(),
   base_price: moneyAmount.nullish(),
-  show_unit_price: z.boolean().nullish(),
+  show_unit_price: z.boolean().nullish().default(false),
   base_unit: z.string().nullish(),
   base_unit_amount: moneyAmount.nullish(),
   total_unit: z.string().nullish(),

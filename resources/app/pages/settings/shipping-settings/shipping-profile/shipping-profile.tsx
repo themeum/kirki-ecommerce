@@ -142,17 +142,15 @@ const ShippingProfile = () => {
           )}
         </CardContent>
       </Card>
-      {showPopup && (
-        <CreateProfilePopup
-          isOpen={showPopup}
-          onClose={() => {
-            setShowPopup(false);
-            setEditProfileIndex(null);
-          }}
-          shippingProfileList={shippingProfileList}
-          editIndex={editProfileIndex}
-        />
-      )}
+      <CreateProfilePopup
+        isOpen={showPopup}
+        onClose={() => {
+          setShowPopup(false);
+          setEditProfileIndex(null);
+        }}
+        shippingProfileList={shippingProfileList}
+        editIndex={editProfileIndex}
+      />
     </>
   );
 };

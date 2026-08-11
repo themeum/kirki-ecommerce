@@ -1,13 +1,14 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 
 import ColorPickerField from '@/components/form/color-picker-field';
 import TextField from '@/components/form/text-field';
 import Button from '@/components/ui/button';
 import { Dialog, DialogBody, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Form } from '@/components/ui/form';
 import Flex from '@/components/ui/flex';
+import { Form } from '@/components/ui/form';
+import { getDefaults } from '@/libs/zod';
 import {
   ProductVariationPopoverFormSchema,
   type ProductVariationPopoverFormInput,
@@ -20,19 +21,18 @@ type VariationPopoverProps = {
   isOpen?: boolean;
   onClose?: () => void;
   onSave?: (variation: ProductVariationPopoverFormPayload) => void;
+  initialValues?: ProductVariationPopoverFormPayload | null;
 };
 
-const VariationPopover = ({
+const VariationDialog = ({
   isOpen,
-  onClose = () => {},
-  onSave = () => {},
+  onClose,
+  onSave,
+  initialValues
 }: VariationPopoverProps) => {
   const form = useForm<ProductVariationPopoverFormInput, unknown, ProductVariationPopoverFormPayload>({
     resolver: zodResolver(ProductVariationPopoverFormSchema),
-    defaultValues: {
-      title: '',
-      color: '',
-    },
+    defaultValues: getDefaults(ProductVariationPopoverFormSchema),
   });
 
   const titleValue = form.watch('title');
@@ -44,18 +44,18 @@ const VariationPopover = ({
     }
 
     form.reset({
-      title: '',
+      title: initialValues?.title ?? '',
       color: '',
     });
-  }, [isOpen, form]);
+  }, [isOpen, form.reset, initialValues]);
 
   const handleNewValueSave = (payload: ProductVariationPopoverFormPayload) => {
-    onSave(payload);
+    onSave?.(payload);
     form.reset({
       title: '',
       color: '',
     });
-    onClose();
+    onClose?.();
   };
 
   const btnState: ButtonState = !titleValue || !colorValue ? 'disabled' : '';
@@ -65,7 +65,7 @@ const VariationPopover = ({
       open={isOpen}
       onOpenChange={(next) => {
         if (!next) {
-          onClose();
+          onClose?.();
         }
       }}
     >
@@ -107,6 +107,6 @@ const VariationPopover = ({
   );
 };
 
-VariationPopover.displayName = 'VariationPopover';
+VariationDialog.displayName = 'VariationDialog';
 
-export default VariationPopover;
+export default VariationDialog;
