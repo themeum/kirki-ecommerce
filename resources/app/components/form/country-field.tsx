@@ -13,7 +13,8 @@ type CountryFieldProps<
   name: TName;
   label?: string;
   description?: ReactNode;
-  cssOverride?: CSSObject;
+    cssOverride?: CSSObject;
+  disabled?: boolean
 };
 
 const CountryField = <
@@ -24,6 +25,7 @@ const CountryField = <
   label = __('Country / Region', 'kirki-ecommerce'),
   description,
   cssOverride,
+  disabled,
 }: CountryFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
 
@@ -38,6 +40,7 @@ const CountryField = <
             value={field.value ?? ''}
             onChange={field.onChange}
             error={Boolean(fieldState.error)}
+            disabled={disabled}
           />
           {description && <FieldDescription>{description}</FieldDescription>}
           {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
