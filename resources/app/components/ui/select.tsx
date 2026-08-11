@@ -1,11 +1,11 @@
-import { ComponentRef, forwardRef, type ComponentPropsWithoutRef, type ReactNode } from 'react';
 import { type CSSObject, type Theme } from '@emotion/react';
-import * as SelectPrimitive from '@radix-ui/react-select';
 import { CheckIcon, ChevronDownIcon } from '@radix-ui/react-icons';
+import * as SelectPrimitive from '@radix-ui/react-select';
+import { ComponentRef, forwardRef, type ComponentPropsWithoutRef, type ReactNode } from 'react';
 
-import { theme } from '@/theme';
-import { flexCenter, itemCenter, uiFocusRing, scopedMerge, scoped, defineStyles } from '@/theme/mixins';
 import { getPortalContainer } from '@/libs/portal-container';
+import { theme } from '@/theme';
+import { defineStyles, flexCenter, itemCenter, scoped, scopedMerge, uiFocusRing } from '@/theme/mixins';
 
 const Select = SelectPrimitive.Root;
 
@@ -41,7 +41,7 @@ const SelectTrigger = forwardRef<
       ref={ref}
       data-slot="select-trigger"
       data-error={error ? 'true' : undefined}
-      css={scopedMerge(styles.trigger,         styles.variants[variant],         error && styles.error,         cssOverride)}
+      css={scopedMerge(styles.trigger, styles.variants[variant], error && styles.error, cssOverride)}
       {...rest}
     >
       <span css={scoped(styles.value)}>{children}</span>
@@ -173,14 +173,7 @@ const SelectSeparator = forwardRef<
 SelectSeparator.displayName = 'SelectSeparator';
 
 export {
-  Select,
-  SelectGroup,
-  SelectValue,
-  SelectTrigger,
-  SelectContent,
-  SelectLabel,
-  SelectItem,
-  SelectSeparator,
+  Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectSeparator, SelectTrigger, SelectValue
 };
 
 const styles = defineStyles({
@@ -271,7 +264,6 @@ const styles = defineStyles({
   viewportPopper: {
     width: '100%',
     minWidth: 'var(--radix-select-trigger-width)',
-    height: 'var(--radix-select-trigger-height)',
   },
   label: {
     padding: `${theme.spacing[1]} ${theme.spacing[2]}`,

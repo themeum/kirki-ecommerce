@@ -17,10 +17,10 @@ const Products = () => {
         text={__('Products', 'kirki-ecommerce')}
         actions={
           <>
-            <Button variant="ghost">
+            <Button variant="ghost" disabled>
               {__('Import', 'kirki-ecommerce')}
             </Button>
-            <Button variant="ghost">
+            <Button variant="ghost" disabled>
               {__('Export', 'kirki-ecommerce')}
             </Button>
             <Button

@@ -17,6 +17,7 @@ use Kirki\Ecommerce\Framework\Supports\Facades\Date;
 use Kirki\Ecommerce\App\Facades\Money;
 
 use function Kirki\Ecommerce\Framework\collection;
+use function Kirki\Ecommerce\Framework\user;
 
 class DiscountService
 {
@@ -83,7 +84,7 @@ class DiscountService
 
         // First time buyer
         if ($coupon->first_time_buyer_only) {
-            if (!$context->customer_id) {
+            if (!$context->customer_id || empty(user()->get_id())) {
                 throw new ValidationException(__('Please login to use this coupon.', 'kirki-ecommerce'));
             }
 
@@ -94,7 +95,7 @@ class DiscountService
 
         // Has customer limit
         if ($coupon->has_customer_limit && $coupon->customer_limit > 0) {
-            if (!$context->customer_id) {
+            if (!$context->customer_id || empty(user()->get_id())) {
                 throw new ValidationException(__('Please login to use this coupon.', 'kirki-ecommerce'));
             }
 

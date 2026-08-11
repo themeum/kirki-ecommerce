@@ -2,19 +2,20 @@ import { css } from '@emotion/react';
 import { useState, type Dispatch, type SetStateAction } from 'react';
 
 import Button from '@/components/ui/button';
+import Grid from '@/components/ui/grid';
 import Input from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { PlusIcon, TrashIcon } from '@/icons';
-import Grid from '@/components/ui/grid';
 import Text from '@/components/ui/text';
+import { PlusIcon, TrashIcon } from '@/icons';
 import { theme } from '@/theme';
-import { mergeCss, defineStyles } from '@/theme/mixins';
+import { defineStyles, mergeCss } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
-import { taxRuleConditionOptions } from '@/pages/settings/tax-settings/utils';
-import type { TaxConditionRow, TaxRegion } from '@/pages/settings/tax-settings/utils';
 import { AddStatePopup } from '@/pages/settings/tax-settings/tax-region/tax-rules/add-state-dialog';
 import { getDestinationDisplayValue } from '@/pages/settings/tax-settings/tax-region/tax-rules/helper';
+import type { TaxConditionRow, TaxRegion } from '@/pages/settings/tax-settings/utils';
+import { taxRuleConditionOptions } from '@/pages/settings/tax-settings/utils';
+import { uuid } from '@/utils';
 
 type ConditionOption = {
   title: string;
@@ -54,9 +55,9 @@ const ConditionRow = (props: ConditionRowProps) => {
       prev.map((item) =>
         item.id === row.id
           ? {
-              ...item,
-              value: selectedCountries,
-            }
+            ...item,
+            value: selectedCountries,
+          }
           : item,
       ),
     );
@@ -67,7 +68,7 @@ const ConditionRow = (props: ConditionRowProps) => {
     setConditions((prev) => [
       ...prev,
       {
-        id: crypto.randomUUID(),
+        id: uuid(),
         condition: 'tax_profile',
         value: null,
       },

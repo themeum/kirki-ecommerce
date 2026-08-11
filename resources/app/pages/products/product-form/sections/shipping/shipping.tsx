@@ -1,5 +1,5 @@
-import WeightField from '@/components/form/weight-field';
 import ShippingBoxField from '@/components/form/shipping-box-field';
+import WeightField from '@/components/form/weight-field';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import { cardStyles } from '@/theme/card-styles';

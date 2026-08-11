@@ -1,4 +1,4 @@
-import { CircleDollarSign, CreditCard, Home, KeyRound, Mail, Package, Percent, Settings2, ShoppingCart, Snowflake, Truck } from 'lucide-react';
+import { CircleDollarSign, CreditCard, Home, Mail, Package, Percent, Settings2, ShoppingCart, Snowflake, Truck } from 'lucide-react';
 import type { ReactNode } from 'react';
 
 import { RouteConfig } from '@/config/route-config';
@@ -222,12 +222,6 @@ export const advancedSettings: SettingsNavItem[] = [
     icon: <Snowflake {...navIconProps} />,
     header: __('Essentials', 'kirki-ecommerce'),
     subHeader: __('Advanced settings of your store', 'kirki-ecommerce'),
-  },
-  {
-    link: RouteConfig.Settings.get('LicenseSettings').buildLink(),
-    icon: <KeyRound {...navIconProps} />,
-    header: __('License', 'kirki-ecommerce'),
-    subHeader: __('Basic settings of your store', 'kirki-ecommerce'),
   },
 ];
 
