@@ -59,7 +59,7 @@ class Mollie extends PaymentProvider
      * Pay for an order.
      *
      * @param Order $order
-     * @return string HTML markup.
+     * @return PaymentActionDTO returns mollie checkout url.
      * @throws Exception
      */
     public function pay(Order $order)
@@ -88,7 +88,7 @@ class Mollie extends PaymentProvider
             ], MollieConstant::API_BASE_URL . 'payments');
 
             if (empty($response['_links']['checkout']['href'])) {
-                return null;
+                throw new Exception(__('Mollie checkout link not found.', 'kirki-ecommerce-mollie'));
             }
 
             return PaymentActionDTO::from_array([
