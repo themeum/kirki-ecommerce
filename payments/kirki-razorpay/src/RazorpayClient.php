@@ -98,11 +98,18 @@ class RazorpayClient
 
         $script_url = esc_url(RazorpayConstant::JS_SCRIPT);
         $options_json = wp_json_encode($options);
+        $cancel_url = Url::get_checkout_failed_url($order->uuid);
 
         return <<<HTML
         <script src="{$script_url}"/></script>
         <script>
-            var razorpay = new Razorpay($options_json);
+            var options = {$options_json};
+
+            options.modal.ondismiss = function () {
+                window.location.href = "{$cancel_url}";
+            };
+
+            var razorpay = new Razorpay(options);
             razorpay.open();
         </script>
         HTML;
