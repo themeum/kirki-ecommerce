@@ -1,16 +1,24 @@
 import CountryField from '@/components/form/country-field';
+import StateField from '@/components/form/state-field';
 import TextField from '@/components/form/text-field';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { ShippingAddressIcon } from '@/icons';
 import Flex from '@/components/ui/flex';
 import Grid from '@/components/ui/grid';
 import Text from '@/components/ui/text';
+import { ShippingAddressIcon } from '@/icons';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { mergeCss, defineStyles } from '@/theme/mixins';
+import { defineStyles, mergeCss } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
+import { useFormContext, useWatch } from 'react-hook-form';
 
 const ShippingAddress = () => {
+  const { control } = useFormContext();
+  const country = useWatch({
+    control,
+    name: 'shipping_address.country',
+  });
+
   return (
     <Card cssOverride={mergeCss(cardStyles.formCard, styles.roundedCard)}>
       <CardHeader>
@@ -45,7 +53,8 @@ const ShippingAddress = () => {
                 name="shipping_address.city"
                 label={__('City', 'kirki-ecommerce')}
               />
-              <TextField
+              <StateField
+                country={country}
                 name="shipping_address.state"
                 label={__('State / Province', 'kirki-ecommerce')}
               />

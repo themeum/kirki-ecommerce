@@ -1,30 +1,28 @@
-import { Controller, useFormContext } from 'react-hook-form';
+import { Controller, useFormContext, useWatch } from 'react-hook-form';
 
-import SelectField from '@/components/form/select-field';
+import CountryField from '@/components/form/country-field';
+import StateField from '@/components/form/state-field';
 import TextField from '@/components/form/text-field';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
-import { PaymentIcon } from '@/icons';
 import Flex from '@/components/ui/flex';
 import Grid from '@/components/ui/grid';
 import Text from '@/components/ui/text';
+import { PaymentIcon } from '@/icons';
 import type { CustomerFormInput } from '@/schemas/forms/customer-form';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { mergeCss, defineStyles } from '@/theme/mixins';
+import { defineStyles, mergeCss } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
-const regionOptions = [
-  { value: 'bangladesh', label: 'Bangladesh' },
-  { value: 'uk', label: 'United Kingdom' },
-  { value: 'usa', label: 'United States' },
-  { value: 'spain', label: 'Spain' },
-];
-
 const BillingAddress = () => {
-  const { watch, setValue, control } = useFormContext<CustomerFormInput>();
-  const isSameAsShipping = Boolean(watch('is_billing_same_as_shipping'));
+  const { setValue, control } = useFormContext<CustomerFormInput>();
+  const isSameAsShipping = Boolean(useWatch({ control, name: 'is_billing_same_as_shipping' }));
+  const country = useWatch({
+    control,
+    name: 'billing_address.country',
+  });
 
   return (
     <Card cssOverride={mergeCss(cardStyles.formCard, styles.roundedCard)}>
@@ -71,11 +69,9 @@ const BillingAddress = () => {
           <Card cssOverride={cardStyles.innerCard}>
             <CardContent cssOverride={cardStyles.innerContent}>
               <Flex direction="column" gap={4}>
-                <SelectField
+                <CountryField
                   name="billing_address.country"
                   label={__('Country / Region', 'kirki-ecommerce')}
-                  options={regionOptions}
-                  placeholder="Bangladesh"
                   disabled={isSameAsShipping}
                 />
                 <TextField
@@ -98,7 +94,8 @@ const BillingAddress = () => {
                     label={__('City', 'kirki-ecommerce')}
                     disabled={isSameAsShipping}
                   />
-                  <TextField
+                  <StateField
+                    country={country}
                     name="billing_address.state"
                     label={__('State / Province', 'kirki-ecommerce')}
                     disabled={isSameAsShipping}

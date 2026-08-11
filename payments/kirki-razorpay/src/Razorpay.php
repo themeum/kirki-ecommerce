@@ -28,7 +28,7 @@ class Razorpay extends PaymentProvider
         $this->id = 'razorpay';
         $this->title = __('Razorpay', 'kirki-ecommerce-razorpay');
         $this->description = __('Razorpay payment gateway', 'kirki-ecommerce-razorpay');
-        $this->icon = 'razorpay';
+        $this->icon = $this->icon_url('razorpay');
         $this->settings_key = 'razorpay';
         $this->is_offline = false;
         $this->is_available = true;

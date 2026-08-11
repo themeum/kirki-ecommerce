@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useFormContext } from 'react-hook-form';
+import { useFormContext, useWatch } from 'react-hook-form';
 
 import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
@@ -40,7 +40,7 @@ const CustomerCard = ({ onSave, isSaving, readonly = false }: CustomerCardProps)
   const snapshot = useRef(form.getValues());
   const shouldApplyCustomerAddress = useRef(false);
 
-  const customerId = form.watch('customer_id');
+  const customerId = useWatch({ control: form.control, name: 'customer_id' });
   const { data: customer } = useCustomerQuery(
     Number(customerId ?? 0),
     Boolean(customerId),
@@ -79,7 +79,7 @@ const CustomerCard = ({ onSave, isSaving, readonly = false }: CustomerCardProps)
     onSave?.();
   };
 
-  const values = form.watch();
+  const values = useWatch({ control: form.control });
 
   return (
     <Card cssOverride={cardStyles.formCard}>

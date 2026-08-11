@@ -29,7 +29,7 @@ class Authorizenet extends PaymentProvider
         $this->id = 'authorizenet';
         $this->title = __('AuthorizeNet', 'kirki-ecommerce-authorizenet');
         $this->description = __('AuthorizeNet payment gateway', 'kirki-ecommerce-authorizenet');
-        $this->icon = 'authorizenet';
+        $this->icon = $this->icon_url('authorizenet');
         $this->settings_key = 'authorizenet';
         $this->is_offline = false;
         $this->is_available = true;
@@ -129,17 +129,15 @@ class Authorizenet extends PaymentProvider
             ? AuthorizenetConstant::FORM_URL_SANDBOX
             : AuthorizenetConstant::FORM_URL_PRODUCTION;
         ob_start();
-        ?>
+?>
         <form method="POST" id="authorizenet-form" action="<?php echo esc_url($form_url); ?>">
             <input type="hidden" name="token" value="<?php echo esc_attr($token); ?>" />
         </form>
         <script>
-            document.addEventListener('DOMContentLoaded', () => {
-                const form = document.getElementById('authorizenet-form');
-                form.submit();
-            })
+            const form = document.getElementById('authorizenet-form');
+            form.submit()
         </script>
-        <?php
+<?php
         return ob_get_clean();
     }
 

@@ -451,25 +451,42 @@ export function checkout(config: CheckoutConfig = {}) {
         this.loading = false;
       }
     },
-    renderPaymentGatewayHTML(html: string) {
-      // 1. Create a container and append HTML markup to body.
+    async renderPaymentGatewayHTML(html: string) {
       const container = document.createElement('div');
       container.innerHTML = html;
       document.body.appendChild(container);
 
-      // 2. Re-create and execute any embedded <script> tags.
-      const scripts = container.querySelectorAll('script');
-      scripts.forEach((oldScript) => {
+      const scripts = Array.from(container.querySelectorAll('script'));
+
+      for (const oldScript of scripts) {
         const newScript = document.createElement('script');
+
+        // Copy attributes
         Array.from(oldScript.attributes).forEach((attr) => {
           newScript.setAttribute(attr.name, attr.value);
         });
-        newScript.appendChild(document.createTextNode(oldScript.innerHTML));
-        oldScript.parentNode?.replaceChild(newScript, oldScript);
-      });
 
-      // 3. Fallback: Auto-submit form if present (in case script relied on DOMContentLoaded)
+        if (oldScript.src) {
+          // External script: wait until it has loaded
+          await new Promise<void>((resolve, reject) => {
+            newScript.onload = () => resolve();
+            newScript.onerror = () =>
+              reject(new Error(`Failed to load script: ${oldScript.src}`));
+
+            document.head.appendChild(newScript);
+          });
+        } else {
+          // Inline script
+          newScript.textContent = oldScript.textContent;
+          document.body.appendChild(newScript);
+        }
+
+        oldScript.remove();
+      }
+
+      // Submit form only if needed
       const form = container.querySelector<HTMLFormElement>('form');
+
       if (form) {
         form.submit();
       }

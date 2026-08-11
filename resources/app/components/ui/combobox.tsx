@@ -147,6 +147,7 @@ const Combobox = ({
 
   return (
     <Popover
+      modal
       open={open}
       onOpenChange={(nextOpen) => {
         setOpen(nextOpen);

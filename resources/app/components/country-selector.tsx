@@ -1,15 +1,16 @@
 import Combobox from '@/components/ui/combobox';
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import { useCountriesQuery } from '@/services/country';
-import type { LabelFieldProps } from '@/types';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
+import type { LabelFieldProps } from '@/types';
 import { __ } from '@/wpi18n';
 
 type CountrySelectorProps = LabelFieldProps & {
   value?: string | string[];
   onChange: (value: string | string[]) => void;
   multiple?: boolean;
+  disabled?: boolean;
 };
 
 const CountrySelector = ({
@@ -19,6 +20,7 @@ const CountrySelector = ({
   onChange,
   error,
   multiple = false,
+  disabled
 }: CountrySelectorProps) => {
   const { data: countries = [] } = useCountriesQuery({ limit: -1 });
 
@@ -40,6 +42,7 @@ const CountrySelector = ({
         multiple={multiple}
         listCss={styles.wrapper}
         searchInputCss={styles.searchInput}
+        disabled={disabled}
       />
       {helpText && !error && <FieldDescription>{helpText}</FieldDescription>}
       {typeof error === 'string' && <FieldError>{error}</FieldError>}
