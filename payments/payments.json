@@ -10,6 +10,21 @@
     "is_available": true
   },
   {
+    "id": "authorizenet",
+    "name": "Authorize.net",
+    "is_available": true
+  },
+  {
+    "id": "razorpay",
+    "name": "Razorpay",
+    "is_available": true
+  },
+  {
+    "id": "mollie",
+    "name": "Mollie",
+    "is_available": true
+  },
+  {
     "id": "paddle",
     "name": "Paddle",
     "is_available": false

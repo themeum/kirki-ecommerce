@@ -22,14 +22,17 @@ if (!defined('ABSPATH')) {
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-add_action('plugins_loaded', function () {
+add_action('plugins_loaded', 'kirki_mollie_register_payment_provider');
+register_activation_hook(__FILE__, 'kirki_mollie_register_payment_provider');
+
+function kirki_mollie_register_payment_provider()
+{
     if (!class_exists(HookNames::class)) {
         return;
     }
+    add_filter(HookNames::ECOMMERCE_PAYMENT_PROVIDERS, function ($providers) {
+        $providers[Mollie::class] = new Mollie();
 
-    add_filter(HookNames::ECOMMERCE_PAYMENT_PROVIDERS, function ($gateways) {
-        $gateways[] = new Mollie();
-
-        return $gateways;
+        return $providers;
     });
-});
+}
