@@ -22,6 +22,14 @@ class TestController
     public function test(Request $request)
     {
         // CurrencyExchange::sync();
+
+        // For Authorizenet testing.
+        // header('Content-Type: text/html');
+        // $data = Payment::get_provider('authorizenet')->pay(Order::find(14));
+        // echo $data->value;
+        // exit;
+
+
         $today = Date::today();
 
         return response()->json([

@@ -15,6 +15,7 @@ http:
         "is_enabled": true
       }
   auth: inherit
+
 settings:
   encodeUrl: true
   timeout: 0
