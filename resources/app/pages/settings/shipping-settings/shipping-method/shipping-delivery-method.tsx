@@ -34,6 +34,7 @@ import RateByWeightSettings from '@/pages/settings/shipping-settings/shipping-me
 import { ShippingRules } from '@/pages/settings/shipping-settings/shipping-method/shipping-rules/shipping-rules';
 import type { ShippingMethodData, ShippingZone } from '@/pages/settings/shipping-settings/utils';
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
+import { uuid } from '@/utils';
 
 const ShippingRoutes = RouteConfig.Settings.get('ShippingSettings');
 
@@ -61,7 +62,7 @@ const ShippingDeliveryMethod = () => {
   const methodIdParam = searchParams.get('methodId');
   const zoneIdParam = searchParams.get('zoneId');
 
-  const methodId = useMemo(() => methodIdParam || crypto.randomUUID(), [methodIdParam]);
+  const methodId = useMemo(() => methodIdParam || uuid(), [methodIdParam]);
 
   const { data: shippingSettingsData } = useSettingsQuery('shipping');
   const shippingZones = (shippingSettingsData?.shipping_zones as ShippingZone[] | undefined) ?? [];

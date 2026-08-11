@@ -1,6 +1,6 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 
 import TextField from '@/components/form/text-field';
 import Button from '@/components/ui/button';
@@ -28,8 +28,8 @@ type CreateProfilePopupProps = {
 
 export const CreateProfilePopup = ({
   isOpen,
-  onClose = () => {},
-  onSave = () => {},
+  onClose = () => { },
+  onSave = () => { },
   editIndex = null,
   shippingProfileList = [],
 }: CreateProfilePopupProps) => {
@@ -46,21 +46,23 @@ export const CreateProfilePopup = ({
 
   const profileTitle = useWatch({ control: form.control, name: 'name' });
 
+  const editingProfileName = editIndex
+    ? (shippingProfileList.find((profile) => profile?.id === editIndex)?.name ??
+      '')
+    : '';
+
   useEffect(() => {
     if (!isOpen) {
       return;
     }
 
     if (editIndex) {
-      const selectedProfile = shippingProfileList.find(
-        (profile) => profile?.id === editIndex,
-      );
-      form.reset({ name: selectedProfile?.name ?? '' });
+      form.reset({ name: editingProfileName });
       return;
     }
 
     form.reset(getDefaults(ShippingProfileFormSchema));
-  }, [isOpen, editIndex, shippingProfileList, form]);
+  }, [isOpen, editIndex, editingProfileName, form]);
 
   const handleOnPopupClose = () => {
     form.reset(getDefaults(ShippingProfileFormSchema));
@@ -104,14 +106,15 @@ export const CreateProfilePopup = ({
         }
       }}
     >
-      <DialogContent style={{ width: '400px' }}>
-        <DialogCloseButton />
-        <DialogHeader>
-          <DialogTitle>
-            {__('Create shipping profile', 'kirki-ecommerce')}
-          </DialogTitle>
-        </DialogHeader>
-        <Form {...form}>
+      <Form {...form}>
+        <DialogContent style={{ width: '400px' }}>
+          <DialogCloseButton />
+          <DialogHeader>
+            <DialogTitle>
+              {__('Create shipping profile', 'kirki-ecommerce')}
+            </DialogTitle>
+          </DialogHeader>
+
           <DialogBody>
             <TextField
               name="name"
@@ -133,8 +136,9 @@ export const CreateProfilePopup = ({
               {__('Save', 'kirki-ecommerce')}
             </Button>
           </DialogFooter>
-        </Form>
-      </DialogContent>
+
+        </DialogContent>
+      </Form >
     </Dialog>
   );
 };

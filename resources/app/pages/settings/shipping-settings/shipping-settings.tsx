@@ -41,6 +41,7 @@ import ShippingZoneActions from '@/pages/settings/shipping-settings/shipping-zon
 import { ShippingRegionPopup } from '@/pages/settings/shipping-settings/shipping-zone/shipping-region-dialog';
 import { getSearchedCountries, getSelectedRegionTags, getShippingMethodRightText, getShippingMethodSubText, getShippingZoneSummary, shippingMethodIconMap, type CountryWithStates, type ShippingMethodData, type ShippingZone } from '@/pages/settings/shipping-settings/utils';
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
+import { uuid } from '@/utils';
 
 const ShippingRoutes = RouteConfig.Settings.get('ShippingSettings');
 
@@ -55,7 +56,7 @@ const ShippingSettings = () => {
   const navigate = useNavigate();
   const { confirmAction } = useOutletContext<SettingsOutletContext>();
 
-  const newZoneIdRef = useRef(crypto.randomUUID());
+  const newZoneIdRef = useRef(uuid());
   const [searchValue, setSearchValue] = useState('');
   const [showCreateZonePopup, setShowCreateZonePopup] = useState(false);
   const [popupErrors, setPopupErrors] = useState<FormErrors>({});
@@ -250,7 +251,7 @@ const ShippingSettings = () => {
       });
       setShowCreateZonePopup(false);
       navigate(ShippingRoutes.get('ShippingZone').buildLink({ zone_Id: newZoneIdRef.current }));
-      newZoneIdRef.current = crypto.randomUUID();
+      newZoneIdRef.current = uuid();
     } catch (error) {
       const errObj = error as ErrorResponse;
       setPopupErrors(

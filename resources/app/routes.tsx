@@ -43,7 +43,6 @@ const EssentialsSettings = lazy(() => import('@/pages/settings/essential-setting
 const ColorVariation = lazy(() => import('@/pages/settings/essential-settings/variation-library/color-variation'));
 const ListVariation = lazy(() => import('@/pages/settings/essential-settings/variation-library/list-variation'));
 const AdvancedSettings = lazy(() => import('@/pages/settings/advanced-settings/advanced-settings'));
-const LicenseSettings = lazy(() => import('@/pages/settings/license-settings/license-settings'));
 const ComingSoon = lazy(() => import('@/pages/coming-soon/coming-soon'));
 
 const withSuspense = <Props extends object>(
@@ -150,7 +149,6 @@ export const router = createHashRouter([
             path: SettingsRoutes.get('AdvancedSettings').template,
             element: withSuspense(AdvancedSettings),
           },
-          { path: SettingsRoutes.get('LicenseSettings').template, element: withSuspense(LicenseSettings) },
         ],
       },
       { path: '/analytics', element: withSuspense(ComingSoon, { text: __('Analytics', 'kirki-ecommerce') }) },
