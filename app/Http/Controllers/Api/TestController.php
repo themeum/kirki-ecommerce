@@ -25,8 +25,10 @@ class TestController
 
         // For Authorizenet testing.
         // header('Content-Type: text/html');
-        // echo Payment::get_gateway('authorizenet')->pay(Order::find(2));
+        // $data = Payment::get_provider('authorizenet')->pay(Order::find(14));
+        // echo $data->value;
         // exit;
+
 
         $today = Date::today();
 

@@ -16,7 +16,6 @@ use Kirki\Ecommerce\App\Supports\Url;
 use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
 
 use function Kirki\Ecommerce\Framework\app;
-use function Kirki\Ecommerce\Framework\url;
 
 defined('ABSPATH') || exit;
 

@@ -17,7 +17,10 @@ use Kirki\Ecommerce\App\Supports\Template;
 <?php Template::get_header(); ?>
 
 <div class="kecom-container">
-    <h1>Account page</h1>
+    <div class="kecom-account-page">
+        <h1 class="kecom-account-page-title"><?php esc_html_e('Account', 'kirki-ecommerce'); ?></h1>
+        <div class="kecom-account-page-info"><?php esc_html_e('Comming Soon', 'kirki-ecommerce'); ?></div>
+    </div>
 </div>
 
 <?php Template::get_footer(); ?>

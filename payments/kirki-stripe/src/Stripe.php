@@ -478,7 +478,6 @@ class Stripe extends PaymentProvider
         }
 
         OrderManager::mark_payment_as_failed($order_id);
-        OrderManager::mark_as_cancel($order_id, $session->last_payment_error->message);
         OrderManager::set_payment_metadata($order_id, $session->toJson());
     }
 

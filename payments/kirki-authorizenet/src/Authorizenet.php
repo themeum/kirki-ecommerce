@@ -1,10 +1,15 @@
 <?php
+
 namespace Kirki\Ecommerce\Payments;
 
 use Exception;
+use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
+use Kirki\Ecommerce\App\Constants\Payment\PaymentActionType;
+use Kirki\Ecommerce\App\DTO\Payment\PaymentActionDTO;
 use Kirki\Ecommerce\App\Facades\Order as OrderManager;
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Payment\PaymentProvider;
+use Kirki\Ecommerce\App\Supports\Url;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Kirki\Ecommerce\Framework\Validation\Validator;
@@ -22,8 +27,8 @@ class Authorizenet extends PaymentProvider
     public function __construct()
     {
         $this->id = 'authorizenet';
-        $this->title = __('AuthorizeNet', 'kirki-ecommerce');
-        $this->description = __('AuthorizeNet payment gateway', 'kirki-ecommerce');
+        $this->title = __('AuthorizeNet', 'kirki-ecommerce-authorizenet');
+        $this->description = __('AuthorizeNet payment gateway', 'kirki-ecommerce-authorizenet');
         $this->icon = 'authorizenet';
         $this->settings_key = 'authorizenet';
         $this->is_offline = false;
@@ -36,88 +41,93 @@ class Authorizenet extends PaymentProvider
         $this->set_admin_fields([
             [
                 'name' => 'login_id',
-                'label' => __('Login ID', 'kirki-ecommerce'),
+                'label' => __('Login ID', 'kirki-ecommerce-authorizenet'),
                 'type' => 'text',
                 'required' => true,
             ],
             [
                 'name' => 'transaction_key',
-                'label' => __('Transaction key', 'kirki-ecommerce'),
+                'label' => __('Transaction key', 'kirki-ecommerce-authorizenet'),
                 'type' => 'password',
                 'required' => true,
             ],
             [
                 'name' => 'signature_key',
-                'label' => __('Signature key', 'kirki-ecommerce'),
+                'label' => __('Signature key', 'kirki-ecommerce-authorizenet'),
                 'type' => 'password',
                 'required' => true,
             ],
             [
                 'name' => 'sandbox',
-                'label' => __('Sandbox Mode', 'kirki-ecommerce'),
+                'label' => __('Sandbox Mode', 'kirki-ecommerce-authorizenet'),
                 'type' => 'checkbox',
             ],
         ]);
-
-        $this->client = $this->get_client();
     }
 
     /**
      * Pay for an order.
      *
      * @param Order $order
-     * @return string HTML markup.
+     * @return PaymentActionDTO returns HTML markup.
      * @throws Exception
      */
     public function pay(Order $order)
     {
         if (!$this->enabled()) {
-            throw new Exception(__('AuthorizeNet is not enabled.', 'kirki-ecommerce'));
+            throw new Exception(__('AuthorizeNet is not enabled.', 'kirki-ecommerce-authorizenet'));
         }
 
         if (!in_array($order->currency_code, $this->client->supported_currencies(), true)) {
-            throw new Exception(__('Currency is not supported.', 'kirki-ecommerce'));
+            throw new Exception(__('Currency is not supported.', 'kirki-ecommerce-authorizenet'));
         }
 
         try {
+            $this->client = $this->get_client();
+
             $response = $this->client->send([
                 'getHostedPaymentPageRequest' => [
                     'merchantAuthentication' => $this->client->authentication(),
                     'refId' => $order->id,
                     'transactionRequest' => $this->transaction_builder->build_transaction_request($order),
                     'hostedPaymentSettings' => $this->transaction_builder->build_hosted_payment_settings(
-                        ['success_url' => $this->success_url($order), 'cancel_url' => $this->cancel_url($order)]
+                        ['success_url' => Url::get_checkout_success_url($order->uuid), 'cancel_url' => Url::get_checkout_failed_url($order->uuid)]
                     ),
                 ],
             ]);
         } catch (Exception $e) {
-            throw new Exception(sprintf(__('AuthorizeNet Payment Error: %s', 'kirki-ecommerce'), $e->getMessage()));
+            throw new Exception(sprintf(__('AuthorizeNet Payment Error: %s', 'kirki-ecommerce-authorizenet'), $e->getMessage()));
         }
 
         $result_code = $response->messages->resultCode;
 
         if (AuthorizenetConstant::RESULT_CODE_ERROR === $result_code) {
             throw new Exception(
-                sprintf(__('AuthorizeNet Payment Error: %s', 'kirki-ecommerce'), $response->messages->message)
+                sprintf(__('AuthorizeNet Payment Error: %s', 'kirki-ecommerce-authorizenet'), $response->messages->message)
             );
         }
 
         if (empty($response->token)) {
-            throw new Exception(__('AuthorizeNet did not return a payment token.', 'kirki-ecommerce'));
+            throw new Exception(__('AuthorizeNet did not return a payment token.', 'kirki-ecommerce-authorizenet'));
         }
 
-        $form_url = $this->client->is_sandbox()
-                    ? AuthorizenetConstant::FORM_URL_SANDBOX
-                    : AuthorizenetConstant::FORM_URL_PRODUCTION;
-        return $this->render_redirect_form($form_url, $response->token);
+        $html = $this->render_redirect_form($response->token);
+
+        return PaymentActionDTO::from_array([
+            'type' => PaymentActionType::HTML,
+            'value' => $html,
+        ]);
     }
 
     /**
      * Build an auto-submitting form that POSTs the payment token to
      * AuthorizeNet's hosted payment page.
      */
-    protected function render_redirect_form(string $form_url, string $token): string
+    protected function render_redirect_form(string $token): string
     {
+        $form_url = $this->client->is_sandbox()
+            ? AuthorizenetConstant::FORM_URL_SANDBOX
+            : AuthorizenetConstant::FORM_URL_PRODUCTION;
         ob_start();
         ?>
         <form method="POST" id="authorizenet-form" action="<?php echo esc_url($form_url); ?>">
@@ -150,7 +160,7 @@ class Authorizenet extends PaymentProvider
         $signature_key = $this->settings['signature_key'] ?? '';
 
         if (empty($login_id) || empty($transaction_key) || empty($signature_key)) {
-            throw new Exception(__('AuthorizeNet credentials are missing.', 'kirki-ecommerce'));
+            throw new Exception(__('AuthorizeNet credentials are missing.', 'kirki-ecommerce-authorizenet'));
         }
 
         $is_sandbox = (bool) ($this->settings['sandbox'] ?? false);
@@ -168,10 +178,10 @@ class Authorizenet extends PaymentProvider
         parent::validate_settings($settings);
 
         Validator::make($settings, [
-            'login_id' => 'required|string',
-            'transaction_key' => 'required|string',
-            'signature_key' => 'required|string',
-            'sandbox' => 'boolean',
+            'login_id' => 'sometimes|string',
+            'transaction_key' => 'sometimes|string',
+            'signature_key' => 'sometimes|string',
+            'sandbox' => 'sometimes|boolean',
         ])->validate();
 
         return true;
@@ -217,8 +227,17 @@ class Authorizenet extends PaymentProvider
         }
 
         $order_id = $event->payload->merchantReferenceId;
-        $transaction = $this->fetch_transaction($order_id, $event->payload->id);
+        if (empty($order_id)) {
+            return false;
+        }
 
+        $order = OrderManager::find($order_id);
+        if ($order->payment_status === PaymentStatus::PAID) {
+            return false;
+        }
+
+        $this->client = $this->get_client();
+        $transaction = $this->fetch_transaction($order_id, $event->payload->id);
         $this->handle_transaction_response($order_id, $transaction);
         return true;
     }
@@ -237,11 +256,11 @@ class Authorizenet extends PaymentProvider
         http_response_code(200);
 
         if (empty($payload)) {
-            throw new Exception(__('Invalid Payload From AuthorizeNet.', 'kirki-ecommerce'));
+            throw new Exception(__('Invalid Payload From AuthorizeNet.', 'kirki-ecommerce-authorizenet'));
         }
 
         if (!$this->client->is_verified($payload)) {
-            throw new Exception(__('Webhook Notification Is Not Valid.', 'kirki-ecommerce'));
+            throw new Exception(__('Webhook Notification Is Not Valid.', 'kirki-ecommerce-authorizenet'));
         }
 
         return json_decode($payload);
@@ -267,15 +286,15 @@ class Authorizenet extends PaymentProvider
             ]);
         } catch (\Throwable $e) {
             throw new Exception(
-                sprintf(__('Authorize.Net API error: %s', 'kirki-ecommerce'), $e->getMessage()),
+                sprintf(__('Authorize.Net API error: %s', 'kirki-ecommerce-authorizenet'), $e->getMessage()),
             );
         }
 
         if (AuthorizenetConstant::RESULT_CODE_ERROR === $response->messages->resultCode) {
-            $text = $response->messages->message ?? __('Unknown error', 'kirki-ecommerce');
+            $text = $response->messages->message ?? __('Unknown error', 'kirki-ecommerce-authorizenet');
 
             throw new Exception(
-                sprintf(__('Authorize.Net API error: %s', 'kirki-ecommerce'), $text)
+                sprintf(__('Authorize.Net API error: %s', 'kirki-ecommerce-authorizenet'), $text)
             );
         }
 
@@ -301,18 +320,15 @@ class Authorizenet extends PaymentProvider
                 case AuthorizenetConstant::PAID:
                     OrderManager::set_transaction_id($order_id, $response->transaction->transId);
                     OrderManager::mark_payment_as_paid($order_id);
-                    OrderManager::mark_as_processing($order_id);
                     OrderManager::set_payment_metadata($order_id, wp_json_encode($response));
                     break;
                 case AuthorizenetConstant::PENDING:
                     OrderManager::mark_payment_as_pending($order_id);
-                    OrderManager::mark_as_on_hold($order_id);
                     break;
                 case AuthorizenetConstant::CANCELED:
                 case AuthorizenetConstant::FAILED:
                     OrderManager::set_transaction_id($order_id, $response->transaction->transId);
                     OrderManager::mark_payment_as_failed($order_id);
-                    OrderManager::mark_as_cancelled($order_id);
                     OrderManager::set_payment_metadata($order_id, wp_json_encode($response));
                     break;
             }
@@ -321,7 +337,7 @@ class Authorizenet extends PaymentProvider
         } catch (\Throwable $e) {
             DB::rollback();
 
-            throw new Exception(sprintf(__('Failed to update order data: %s', 'kirki-ecommerce'), $e->getMessage()));
+            throw new Exception(sprintf(__('Failed to update order data: %s', 'kirki-ecommerce-authorizenet'), $e->getMessage()));
         }
     }
 }
