@@ -13,8 +13,11 @@ import { useUpdateOnlinePaymentMutation } from '@/services/payment';
 import type { OnlinePayment } from '@/types';
 import { __ } from '@/wpi18n';
 
+import Alert from '@/components/ui/alert';
+import Text from '@/components/ui/text';
 import { DynamicOnlinePaymentFields } from '@/pages/settings/payment-settings/utils';
 import { dispatchToastMessage } from '@/pages/utils';
+import { isDefined } from '@/utils/object';
 
 type OnlinePaymentEditPopupProps = {
   editedItem: OnlinePayment | null;
@@ -34,7 +37,6 @@ const OnlinePaymentEditPopup = ({
     resolver: zodResolver(OnlinePaymentEditFormSchema),
     defaultValues: onlinePaymentEditDefaultValues,
   });
-
 
   useEffect(() => {
     if (!isOpen) {
@@ -93,6 +95,10 @@ const OnlinePaymentEditPopup = ({
             <DialogBody>
               <Flex direction="column" gap={4}>
                 <DynamicOnlinePaymentFields fields={editedItem?.fields} />
+                {
+                  isDefined(editedItem) && <Alert text={<Flex direction='column' gap={1}><Text variant='tiny' weight='semibold'>{__('Webhook URL: ', 'kirki-ecommerce')}</Text><Text variant='tiny' weight='semibold' color='emphasis'>{editedItem?.webhook_url}</Text></Flex>} />
+                }
+
               </Flex>
             </DialogBody>
             <DialogFooter>
