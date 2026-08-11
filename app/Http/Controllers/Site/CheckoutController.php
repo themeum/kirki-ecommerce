@@ -18,10 +18,11 @@ class CheckoutController
     public function store(OrderCreateRequest $request, CreateOrderAction $action)
     {
         $currency_code = $request->string('currency_code') ?? $request->get_header(CookieNames::CURRENCY_CODE) ?? base_currency()->code;
+        $user_id = user()->get_id();
 
         $dto = CreateOrderPayloadDTO::from_request($request);
         $dto->is_manual = user()->is_admin() && $request->bool('is_manual') ? true : false;
-        $dto->created_by = user()->get_id() ?? null;
+        $dto->created_by = $user_id ?: null;
         $dto->currency_code = $currency_code;
         $dto->cart_token = $request->get_header(Cart::HEADER_TOKEN);
 
