@@ -22,14 +22,17 @@ if (!defined('ABSPATH')) {
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-add_action('plugins_loaded', function () {
+add_action('plugins_loaded', 'kirki_authorizenet_register_payment_provider');
+register_activation_hook(__FILE__, 'kirki_authorizenet_register_payment_provider');
+
+function kirki_authorizenet_register_payment_provider()
+{
     if (!class_exists(HookNames::class)) {
         return;
     }
+    add_filter(HookNames::ECOMMERCE_PAYMENT_PROVIDERS, function ($providers) {
+        $providers[Authorizenet::class] = new Authorizenet();
 
-    add_filter(HookNames::ECOMMERCE_PAYMENT_PROVIDERS, function ($gateways) {
-        $gateways[] = new Authorizenet();
-
-        return $gateways;
+        return $providers;
     });
-});
+}

@@ -435,7 +435,7 @@ export function checkout(config: CheckoutConfig = {}) {
           if (type === 'redirect') {
             window.location.href = value;
           } else if (type === 'html') {
-            //@TODO: need to render HTML.
+            this.renderPaymentGatewayHTML(value);
           }
         } else {
           const url = new URL(window.location.href);
@@ -451,5 +451,28 @@ export function checkout(config: CheckoutConfig = {}) {
         this.loading = false;
       }
     },
+    renderPaymentGatewayHTML(html: string) {
+      // 1. Create a container and append HTML markup to body.
+      const container = document.createElement('div');
+      container.innerHTML = html;
+      document.body.appendChild(container);
+
+      // 2. Re-create and execute any embedded <script> tags.
+      const scripts = container.querySelectorAll('script');
+      scripts.forEach((oldScript) => {
+        const newScript = document.createElement('script');
+        Array.from(oldScript.attributes).forEach((attr) => {
+          newScript.setAttribute(attr.name, attr.value);
+        });
+        newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+        oldScript.parentNode?.replaceChild(newScript, oldScript);
+      });
+
+      // 3. Fallback: Auto-submit form if present (in case script relied on DOMContentLoaded)
+      const form = container.querySelector<HTMLFormElement>('form');
+      if (form) {
+        form.submit();
+      }
+    }
   };
 }

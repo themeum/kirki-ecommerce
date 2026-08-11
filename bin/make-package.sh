@@ -36,6 +36,33 @@ copy_path() {
   cp -R "$ROOT_DIR/$rel_path" "$dest"
 }
 
+# A present composer.lock means the resolved set is re-derived with `update`,
+# so a composer.json edit that outdated the lock does not abort the build.
+run_composer() {
+  local target_dir="$1"
+  shift
+  pushd "$target_dir" > /dev/null
+  if [ -f composer.lock ]; then
+    composer update "$@"
+  else
+    composer install "$@"
+  fi
+  popd > /dev/null
+}
+
+build_frontend() {
+  local rel_path="$1"
+  echo "==> Building frontend ($rel_path)"
+  pushd "$ROOT_DIR/$rel_path" > /dev/null
+  if [ -f package-lock.json ]; then
+    npm ci
+  else
+    npm install
+  fi
+  npm run build
+  popd > /dev/null
+}
+
 echo "==> Cleaning build directory"
 rm -rf "$BUILD_DIR"
 mkdir -p "$STAGE_DIR"
@@ -43,24 +70,11 @@ mkdir -p "$STAGE_DIR"
 echo "==> Cleaning generated assets"
 rm -rf "$ROOT_DIR/assets/js" "$ROOT_DIR/assets/css"
 
-echo "==> Building frontend (resources/app)"
-pushd "$ROOT_DIR/resources/app" > /dev/null
-if [ ! -d node_modules ]; then
-  npm install
-fi
-npm run build
-popd > /dev/null
-
-echo "==> Building frontend (resources/site)"
-pushd "$ROOT_DIR/resources/site" > /dev/null
-if [ ! -d node_modules ]; then
-  npm install
-fi
-npm run build
-popd > /dev/null
+build_frontend "resources/app"
+build_frontend "resources/site"
 
 echo "==> Installing PHP dependencies"
-composer install
+run_composer "$ROOT_DIR"
 composer install --no-dev --optimize-autoloader --no-scripts
 
 # The --no-dev install restores vendor/themeum, but the plugin only ever uses the
@@ -71,6 +85,14 @@ composer install --no-dev --optimize-autoloader --no-scripts
 echo "==> Removing unscoped framework package"
 rm -rf "$ROOT_DIR/vendor/themeum"
 composer dump-autoload --no-dev --optimize
+
+echo "==> Installing payment gateway dependencies"
+for gateway_manifest in "$ROOT_DIR"/payments/*/composer.json; do
+  [ -e "$gateway_manifest" ] || continue
+  gateway_dir="$(dirname "$gateway_manifest")"
+  echo "--> $(basename "$gateway_dir")"
+  run_composer "$gateway_dir" --no-dev --optimize-autoloader
+done
 
 echo "==> Assembling plugin files"
 for path in "${REQUIRED_PATHS[@]}"; do
