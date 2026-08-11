@@ -63,15 +63,13 @@ class Authorizenet extends PaymentProvider
                 'type' => 'checkbox',
             ],
         ]);
-
-        $this->client = $this->get_client();
     }
 
     /**
      * Pay for an order.
      *
      * @param Order $order
-     * @return string HTML markup.
+     * @return PaymentActionDTO returns HTML markup.
      * @throws Exception
      */
     public function pay(Order $order)
@@ -85,6 +83,8 @@ class Authorizenet extends PaymentProvider
         }
 
         try {
+            $this->client = $this->get_client();
+
             $response = $this->client->send([
                 'getHostedPaymentPageRequest' => [
                     'merchantAuthentication' => $this->client->authentication(),
@@ -236,6 +236,7 @@ class Authorizenet extends PaymentProvider
             return false;
         }
 
+        $this->client = $this->get_client();
         $transaction = $this->fetch_transaction($order_id, $event->payload->id);
         $this->handle_transaction_response($order_id, $transaction);
         return true;
