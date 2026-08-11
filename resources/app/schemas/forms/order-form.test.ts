@@ -62,14 +62,14 @@ describe('OrderFormSchema', () => {
       shipping_email: null,
       shipping_company: null,
       is_billing_same_as_shipping: true,
-      billing_first_name: null,
-      billing_last_name: null,
-      billing_address_line1: null,
+      billing_first_name: 'John',
+      billing_last_name: 'Doe',
+      billing_address_line1: '221B Baker Street',
       billing_address_line2: null,
-      billing_city: null,
-      billing_state: null,
-      billing_postcode: null,
-      billing_country: null,
+      billing_city: 'London',
+      billing_state: 'Greater London',
+      billing_postcode: 'NW1 6XE',
+      billing_country: 'GB',
       billing_phone: null,
       billing_email: null,
       billing_company: null,
@@ -79,11 +79,11 @@ describe('OrderFormSchema', () => {
     });
   });
 
-  it('discards billing values entirely when billing is same as shipping', () => {
+  it('copies the shipping address into the billing fields when billing is same as shipping', () => {
     const result = OrderFormSchema.parse({ ...separateBilling, is_billing_same_as_shipping: true });
 
-    expect(result.billing_first_name).toBeNull();
-    expect(result.billing_postcode).toBeNull();
+    expect(result.billing_first_name).toBe('John');
+    expect(result.billing_postcode).toBe('NW1 6XE');
     expect(result.billing_company).toBeNull();
   });
 

@@ -27,8 +27,11 @@ describe('TagFormSchema', () => {
     expect(result.description).toBeNull();
   });
 
-  it('rejects a blank required name or slug', () => {
+  it('rejects a blank required name', () => {
     expect(TagFormSchema.safeParse({ name: '  ', slug: 'sale', description: '' }).success).toBe(false);
-    expect(TagFormSchema.safeParse({ name: 'Sale', slug: '  ', description: '' }).success).toBe(false);
+  });
+
+  it('accepts a blank slug, leaving generation to the server', () => {
+    expect(TagFormSchema.safeParse({ name: 'Sale', slug: '  ', description: '' }).success).toBe(true);
   });
 });

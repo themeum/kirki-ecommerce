@@ -63,7 +63,7 @@ describe('BrandFormSchema', () => {
     expect(result.success).toBe(false);
   });
 
-  it('rejects a blank required slug', () => {
+  it('accepts a blank slug, leaving generation to the server', () => {
     const result = BrandFormSchema.safeParse({
       name: 'Apple',
       slug: '',
@@ -71,6 +71,6 @@ describe('BrandFormSchema', () => {
       logo: null,
     });
 
-    expect(result.success).toBe(false);
+    expect(result.success).toBe(true);
   });
 });

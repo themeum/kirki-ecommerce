@@ -51,8 +51,11 @@ describe('CategoryFormSchema', () => {
     expect(result.is_active).toBeNull();
   });
 
-  it('rejects a blank required name or slug', () => {
+  it('rejects a blank required name', () => {
     expect(CategoryFormSchema.safeParse({ ...base, name: '  ' }).success).toBe(false);
-    expect(CategoryFormSchema.safeParse({ ...base, slug: '  ' }).success).toBe(false);
+  });
+
+  it('accepts a blank slug, leaving generation to the server', () => {
+    expect(CategoryFormSchema.safeParse({ ...base, slug: '  ' }).success).toBe(true);
   });
 });

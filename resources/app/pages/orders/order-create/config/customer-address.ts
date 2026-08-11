@@ -6,6 +6,8 @@ export type AddressLines = {
   line2: string;
 };
 
+type AddressFormValues = Partial<Omit<OrderFormInput, 'items'>>;
+
 export const getCountryName = (
   countries: Country[],
   code?: string | null,
@@ -46,7 +48,7 @@ const buildAddressLines = (
 };
 
 export const formatShippingAddress = (
-  values: OrderFormInput,
+  values: AddressFormValues,
   countries: Country[],
 ): AddressLines | null =>
   buildAddressLines(
@@ -62,10 +64,14 @@ export const formatShippingAddress = (
   );
 
 export const formatBillingAddress = (
-  values: OrderFormInput,
+  values: AddressFormValues,
   countries: Country[],
-): AddressLines | null =>
-  buildAddressLines(
+): AddressLines | null => {
+  if (values.is_billing_same_as_shipping) {
+    return formatShippingAddress(values, countries);
+  }
+
+  return buildAddressLines(
     {
       addressLine1: values.billing_address_line1,
       addressLine2: values.billing_address_line2,
@@ -76,6 +82,7 @@ export const formatBillingAddress = (
     },
     countries,
   );
+};
 
 const addressName = (
   address: CustomerAddress | null | undefined,
