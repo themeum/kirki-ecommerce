@@ -8,7 +8,7 @@ body:
         Thanks for reporting a bug. Kirki Ecommerce is currently in **alpha** — please check the
         [open issues](https://github.com/themeum/kirki-ecommerce/issues) first to avoid duplicates.
 
-        **Do not report security vulnerabilities here.** Email support@themeum.com instead.
+        **Do not report security vulnerabilities here.** Email support@kirki.com instead.
 
   - type: textarea
     id: description
