@@ -18,6 +18,7 @@ import {
 } from '@/schemas/forms/tag-form';
 import { useCreateTagMutation, useUpdateTagMutation } from '@/services/tag';
 import type { Tag } from '@/types';
+import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 
 type TagAddEditDialogProps = {
@@ -29,7 +30,7 @@ type TagAddEditDialogProps = {
 const TagAddEditDialog = ({
   tag,
   open,
-  onClose = () => {},
+  onClose = noop,
 }: TagAddEditDialogProps) => {
   const createMutation = useCreateTagMutation();
   const updateMutation = useUpdateTagMutation();

@@ -11,6 +11,7 @@ import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
 import type { SelectOption } from '@/types';
+import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 
 type GroupedValues = Record<string, (string | number)[]>;
@@ -65,7 +66,7 @@ const GroupTagTable = (props: GroupTagTableProps) => {
     selectedValues,
     groupDetails = {},
     requiredFields = {},
-    onChange = () => {},
+    onChange = noop,
     optionsArray = [],
     placeholder = '',
     hasSelect,

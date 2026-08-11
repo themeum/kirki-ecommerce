@@ -54,7 +54,7 @@ const SingleRow = ({
             <Text variant="small">{item?.title || '--'}</Text>
           </Flex>
         </TableCell>
-        <TableCell>{item?.count || 0}</TableCell>
+        <TableCell>{item?.count ?? 0}</TableCell>
         <TableCell>{item?.created_at || '--'}</TableCell>
         <TableCell alignment="right">
           <ActionGroup>

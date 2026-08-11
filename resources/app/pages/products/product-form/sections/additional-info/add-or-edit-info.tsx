@@ -16,6 +16,7 @@ import {
 } from '@/schemas/forms/product-additional-info-form';
 import { cardStyles } from '@/theme/card-styles';
 import type { AdditionalInfoItem } from '@/types';
+import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 
 type AddOrEditInfoProps = {
@@ -28,7 +29,7 @@ type AddOrEditInfoProps = {
 const AddOrEditInfo = ({
   index,
   initialValues,
-  onClose = () => {},
+  onClose = noop,
   onSave,
 }: AddOrEditInfoProps) => {
   const form = useForm<ProductAdditionalInfoFormInput, unknown, ProductAdditionalInfoFormPayload>({

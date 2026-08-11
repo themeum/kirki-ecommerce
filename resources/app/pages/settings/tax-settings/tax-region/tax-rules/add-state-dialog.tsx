@@ -59,6 +59,7 @@ export const AddStatePopup = (props: AddStatePopupProps) => {
 
     form.reset({ selectedCountries });
     setSearchValue('');
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- seeds the form from the current selection only as the dialog opens; tracking selectedCountries would reset the form while the user is picking states
   }, [openPopup]);
 
   const syncSelection = (next: DestinationSelection[]) => {

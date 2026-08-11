@@ -4,6 +4,7 @@ import Combobox from '@/components/ui/combobox';
 import Flex from '@/components/ui/flex';
 import Label from '@/components/ui/label';
 import { useCollectionsQuery } from '@/services/collection';
+import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 
 type FilterObject = {
@@ -19,7 +20,7 @@ type CollectionOption = { label: string; value: string };
 
 const CollectionFilter = ({
   filterObject,
-  onChange = () => {},
+  onChange = noop,
 }: CollectionFilterProps) => {
   const { data: collectionData } = useCollectionsQuery({ limit: -1 });
   const [collectionOptions, setCollectionOptions] = useState<
@@ -31,7 +32,7 @@ const CollectionFilter = ({
       label: item.title,
       value: String(item.id),
     }));
-    setCollectionOptions(suggestionList || []);
+    setCollectionOptions(suggestionList ?? []);
   }, [collectionData]);
 
   const options = [
@@ -53,7 +54,7 @@ const CollectionFilter = ({
       <Label>{__('Collection', 'kirki-ecommerce')}</Label>
       <Combobox
         options={options}
-        value={String(filterObject?.collection_ids || 'all')}
+        value={String(filterObject?.collection_ids ?? 'all')}
         onChange={handleChange}
       />
     </Flex>

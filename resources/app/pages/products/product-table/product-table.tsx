@@ -33,14 +33,15 @@ const ProductTitleCell = ({ item }: { item: ProductListItem }) => {
   return (
     <Flex gap={3} align="center">
       <Thumbnail src={item?.image ?? undefined} size="small" />
-      <span
+      <button
+        type="button"
         css={scoped(styles.clickable)}
         onClick={() => {
           void navigate(RouteConfig.Products.get('EditProduct').buildLink({ id: item.id }));
         }}
       >
         <Text variant="small">{item.title}</Text>
-      </span>
+      </button>
     </Flex>
   );
 };
@@ -151,6 +152,12 @@ export default ProductTable;
 
 const styles = defineStyles({
   clickable: {
+    padding: 0,
+    border: 'none',
+    background: 'none',
+    font: 'inherit',
+    color: 'inherit',
+    textAlign: 'left',
     cursor: 'pointer',
   },
   mutedText: {

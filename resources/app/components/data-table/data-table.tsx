@@ -1,4 +1,4 @@
-import { type ReactNode, useMemo } from 'react';
+import { Children, isValidElement, type ReactElement, type ReactNode, useMemo } from 'react';
 
 import DataTableBody from '@/components/data-table/data-table-body';
 import type { DataTableContextValue } from '@/components/data-table/data-table-context';
@@ -7,7 +7,7 @@ import DataTableHeader from '@/components/data-table/data-table-header';
 import DataTablePagination from '@/components/data-table/data-table-pagination';
 import DataTableRowActions from '@/components/data-table/data-table-row-actions';
 import { DataTableSelectionProvider, useDataTableSelection } from '@/components/data-table/data-table-selection-context';
-import { DataTableFilter, DataTableFilterBar, DataTableSelectionFilter, findSlot } from '@/components/data-table/data-table-slots';
+import { DataTableFilter, DataTableFilterBar, DataTableSelectionFilter } from '@/components/data-table/data-table-slots';
 import DataTableToolbar from '@/components/data-table/data-table-toolbar';
 import { type DataTableBulkApplyPayload, type DataTableColumn, type DataTableItem, type DataTableRowActionsResolver, EMPTY_PAGE } from '@/components/data-table/types';
 import { Card, CardContent } from '@/components/ui/card';
@@ -40,6 +40,18 @@ type DataTableLayoutProps<T extends DataTableItem> = Omit<
   'data'
 > & {
   data: PaginatedData<T>;
+};
+
+const findSlot = (children: ReactNode, type: unknown) => {
+  let match: ReactElement | undefined;
+
+  Children.forEach(children, (child) => {
+    if (isValidElement(child) && child.type === type) {
+      match = child;
+    }
+  });
+
+  return match;
 };
 
 const DataTableLayout = <T extends DataTableItem>({

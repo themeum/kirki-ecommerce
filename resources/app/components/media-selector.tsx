@@ -62,6 +62,7 @@ const MediaSelector = ({
       onSelect(selectedImage);
       setOnSelectToggler(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- fires once per external toggle to hand back the current pick; re-running on onSelect/selectedImage identity would re-emit the same selection
   }, [onSelectToggler]);
 
   useEffect(() => {
@@ -121,6 +122,7 @@ const MediaSelector = ({
         mediaFrameRef.current.off('close');
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- builds the wp.media frame once on mount — re-running on any prop identity change would discard the frame and its open state
   }, []);
 
   const openMediaFrame = () => {

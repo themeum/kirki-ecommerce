@@ -8,6 +8,7 @@ import Text from '@/components/ui/text';
 import { theme } from '@/theme';
 import { defineStyles, flexCenter, scoped, scopedMerge } from '@/theme/mixins';
 import type { SelectOption } from '@/types';
+import { noop } from '@/utils/function';
 
 type CapsuleValue = string | number;
 type CapsuleValueOrArray = CapsuleValue | CapsuleValue[];
@@ -29,7 +30,7 @@ const toStringValue = (value?: CapsuleValue) => {
 const Capsule = ({
   optionsArray,
   value,
-  onClearItem = () => {},
+  onClearItem = noop,
   onValueChange = () => [],
   uniqueKey,
   multiple,
@@ -37,7 +38,7 @@ const Capsule = ({
 }: CapsuleProps) => {
   const options = useMemo(
     () =>
-      (optionsArray || [])
+      (optionsArray ?? [])
         .filter((option) => !option.heading)
         .map((option) => ({
           label: option.title,

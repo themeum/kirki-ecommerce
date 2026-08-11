@@ -26,7 +26,7 @@ import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
-type DestinationConditionValue = {
+export type DestinationConditionValue = {
   country: string;
   states: (string | number)[];
 };
@@ -38,8 +38,10 @@ type SelectDestinationPopupProps = {
   selectedCountry: string | null;
   setSelectedCountry: Dispatch<SetStateAction<string | null>>;
   setSelectedRegion: Dispatch<SetStateAction<ShippingRegion[]>>;
-  selectedConditionValue: unknown;
-  setSelectedConditionValue: Dispatch<SetStateAction<unknown>>;
+  selectedConditionValue: DestinationConditionValue | null;
+  setSelectedConditionValue: Dispatch<
+    SetStateAction<DestinationConditionValue | null>
+  >;
   setRulesObj: Dispatch<SetStateAction<ShippingRule[]>>;
   ruleIndex: number;
   onSave?: (values: SelectDestinationFormPayload) => void;
@@ -71,7 +73,7 @@ export const SelectDestinationPopup = ({
 
   const formCountry = useWatch({ control: form.control, name: 'country' });
   const selectedStates =
-    useWatch({ control: form.control, name: 'states' }) || [];
+    useWatch({ control: form.control, name: 'states' }) ?? [];
   const [searchValue, setSearchValue] = useState('');
 
   const countryOptions = useMemo(
@@ -93,9 +95,7 @@ export const SelectDestinationPopup = ({
     }
 
     const country = selectedCountry ?? '';
-    const conditionValue = selectedConditionValue as
-      | DestinationConditionValue
-      | null;
+    const conditionValue = selectedConditionValue;
     const statesFromCondition =
       conditionValue?.country === country ? conditionValue.states : null;
     const regionForCountry = selectedRegion?.find(
@@ -107,6 +107,7 @@ export const SelectDestinationPopup = ({
       states: statesFromCondition ?? regionForCountry?.states ?? [],
     });
     setSearchValue('');
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- seeds the form from the current selection only as the dialog opens; tracking the selection would reset the form while the user is picking states
   }, [openPopup, form]);
 
   useEffect(() => {
@@ -119,11 +120,9 @@ export const SelectDestinationPopup = ({
       (item) => item.code.toLowerCase() === formCountry.toLowerCase(),
     );
 
-    setStateList(country?.states || []);
+    setStateList(country?.states ?? []);
 
-    const conditionValue = selectedConditionValue as
-      | DestinationConditionValue
-      | null;
+    const conditionValue = selectedConditionValue;
     const statesFromCondition =
       conditionValue?.country === formCountry ? conditionValue.states : null;
     const regionForCountry = selectedRegion?.find(
@@ -134,6 +133,7 @@ export const SelectDestinationPopup = ({
       'states',
       statesFromCondition ?? regionForCountry?.states ?? [],
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- reacts to a country change only; adding the selection deps would re-apply the stored states over the user current picks
   }, [formCountry, countryList]);
 
   const filteredStates = useMemo(() => {
@@ -147,7 +147,7 @@ export const SelectDestinationPopup = ({
   }, [stateList, searchValue]);
 
   const handleSelectState = (stateId: string | number) => {
-    const current = form.getValues('states') || [];
+    const current = form.getValues('states') ?? [];
     const next = current.includes(stateId)
       ? current.filter((id) => id !== stateId)
       : [...current, stateId];

@@ -16,6 +16,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { theme } from '@/theme';
 import { defineStyles, itemCenter, scoped, scopedMerge, uiFocusRing } from '@/theme/mixins';
 import { isValidHex, normalizeHex } from '@/utils/color';
+import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 
 const FALLBACK_COLOR = '#000000';
@@ -62,7 +63,7 @@ const ColorPicker = ({
     <ColorPickerContext.Provider
       value={{
         value,
-        onValueChange: onValueChange ?? (() => {}),
+        onValueChange: onValueChange ?? noop,
         alpha,
         disabled,
       }}

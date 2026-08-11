@@ -23,6 +23,7 @@ import { useCategoriesQuery, useCreateCategoryMutation, useUpdateCategoryMutatio
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import type { Category } from '@/types';
+import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 
 type CategoryAddEditPopoverProps = {
@@ -40,7 +41,7 @@ const getInitialImageUrl = (category: Category | CategoryFormInput) => {
 
 const CategoryAddEditPopover = ({
   category,
-  onClose = () => { },
+  onClose = noop,
 }: CategoryAddEditPopoverProps) => {
   const { data: categoriesData } = useCategoriesQuery({ limit: -1 });
   const categories = categoriesData?.results ?? [];

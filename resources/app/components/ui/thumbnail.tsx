@@ -10,6 +10,7 @@ import { ThumbnailPlaceholder } from '@/icons';
 import { theme } from '@/theme';
 import { defineStyles, flexCenter, scopedMerge } from '@/theme/mixins';
 import type { ThumbnailSize, ThumbnailType } from '@/types';
+import { noop } from '@/utils/function';
 
 type MediaSelectorOnSelect = NonNullable<
   ComponentProps<typeof MediaSelector>['onSelect']
@@ -40,7 +41,7 @@ const Thumbnail = forwardRef<HTMLDivElement, ThumbnailProps>((props, ref) => {
     objectFit = 'cover',
     label,
     error,
-    onChange = () => { },
+    onChange = noop,
     helpText,
   } = props;
 

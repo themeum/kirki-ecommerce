@@ -14,6 +14,7 @@ import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
 import type { FormErrors } from '@/types';
+import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 
 type BarcodeGenerationProps = {
@@ -98,7 +99,7 @@ const BarcodeGeneration = (_props: BarcodeGenerationProps) => {
 
                 <CountrySelector
                   label={__('Country of origin', 'kirki-ecommerce')}
-                  onChange={() => { }}
+                  onChange={noop}
                 />
 
                 <Flex gap={2} align="center">

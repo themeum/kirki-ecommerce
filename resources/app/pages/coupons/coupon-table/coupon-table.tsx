@@ -30,14 +30,15 @@ const CouponTitleCell = ({ item }: { item: CouponListItem }) => {
 
   return (
     <Flex gap={3} align="center">
-      <span
+      <button
+        type="button"
         css={scoped(styles.clickable)}
         onClick={() => {
           void navigate(RouteConfig.Coupons.get('EditCoupon').buildLink({ id: item.id }));
         }}
       >
         <span css={scoped(styles.mutedText)}>{item.title} </span>
-      </span>
+      </button>
     </Flex>
   );
 };
@@ -191,6 +192,12 @@ export default CouponTable;
 
 const styles = defineStyles({
   clickable: {
+    padding: 0,
+    border: 'none',
+    background: 'none',
+    font: 'inherit',
+    color: 'inherit',
+    textAlign: 'left',
     cursor: 'pointer',
   },
   mutedText: {

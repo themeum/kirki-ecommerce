@@ -14,6 +14,7 @@ import { MoveIcon, PlusIcon, TrashIcon } from '@/icons';
 import { theme } from '@/theme';
 import { defineStyles, flexCenter, scoped, scopedMerge } from '@/theme/mixins';
 import type { MediaRef } from '@/types';
+import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 
 type MediaItem = Omit<MediaRef, 'id'> & {
@@ -45,8 +46,8 @@ const SortableItem = ({
   url,
   alt = '',
   cssOverride,
-  onSelectImage = () => { },
-  onDeleteImage = () => { },
+  onSelectImage = noop,
+  onDeleteImage = noop,
   selectedImages = [],
   isLarge,
   disableDrag,
@@ -158,7 +159,7 @@ type MediaGalleryProps = {
 const MediaGallery = ({
   mediaItems = [],
   label = '',
-  onUpdate = () => { },
+  onUpdate = noop,
   error,
   helpText,
 }: MediaGalleryProps) => {
@@ -305,7 +306,8 @@ const MediaGallery = ({
             })}
 
             {!expanded && remainingCount > 0 && (
-              <div
+              <button
+                type="button"
                 css={scopedMerge(styles.galleryItem, styles.remainingOverlay)}
                 onClick={() => setExpanded(true)}
               >
@@ -313,7 +315,7 @@ const MediaGallery = ({
                   <img src={fourthItem.url} alt={fourthItem.alt || ''} />
                 )}
                 <div css={scoped(styles.remainingOverlayText)}>+{remainingCount}</div>
-              </div>
+              </button>
             )}
 
             <MediaSelector onSelect={handleOnAddNewImages} multiple={true}>
@@ -384,6 +386,11 @@ const styles = defineStyles({
     transition: 'opacity 0.2s ease',
   },
   remainingOverlay: {
+    padding: 0,
+    border: 'none',
+    background: 'none',
+    font: 'inherit',
+    cursor: 'pointer',
     img: {
       transform: 'scale(1.05)',
     },

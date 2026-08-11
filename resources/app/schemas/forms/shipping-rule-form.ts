@@ -8,7 +8,7 @@ const COST_ACTIONS = ['set_shipping_cost', 'add_shipping_cost'];
 const ShippingRuleFormShape = z.object({
   condition: required(z.string().default(''), __('Condition is required', 'kirki-ecommerce')),
   operator: z.string().nullish(),
-  condition_value: z.any().nullish(),
+  condition_value: z.unknown().nullish(),
   action: required(z.string().default(''), __('Action is required', 'kirki-ecommerce')),
   action_value: z.union([z.string(), z.number()]).nullish(),
   selected_country: z.string().nullish().default(''),

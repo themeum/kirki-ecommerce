@@ -52,9 +52,9 @@ const SingleRow = ({
           {item?.description || '--'}
         </TableCell>
         <TableCell>{item?.slug || '--'}</TableCell>
-        <TableCell>{item?.count || 0}</TableCell>
+        <TableCell>{item?.count ?? 0}</TableCell>
         <TableCell alignment="right" style={{ width: '1%' }}>
-          <div onClick={handleStopPropagation}>
+          <div role="presentation" onClick={handleStopPropagation}>
             <ActionGroup>
               <Button variant="secondary" onClick={handleOpenEdit}>
                 <EditPenIcon />

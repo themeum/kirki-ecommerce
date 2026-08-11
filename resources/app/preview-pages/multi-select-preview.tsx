@@ -4,6 +4,7 @@ import ColorSwatch from '@/components/ui/color-swatch';
 import { Field, FieldLabel } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
 import MultiSelect from '@/components/ui/multi-select';
+import { noop } from '@/utils/function';
 
 type ColorOption = {
   value: string;
@@ -99,7 +100,7 @@ const MultiSelectPreview = () => {
         <MultiSelect
           options={plainOptions}
           value={[plainOptions[1]]}
-          onChange={() => {}}
+          onChange={noop}
           disabled
           placeholder="Select sizes.."
         />

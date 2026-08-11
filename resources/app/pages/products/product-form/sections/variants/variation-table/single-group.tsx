@@ -1,5 +1,5 @@
 import type React from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 
 import MediaStack from '@/components/media-stack';
@@ -63,7 +63,11 @@ const SingleGroup = ({
 }: SingleGroupProps) => {
   const { control, setValue } = useFormContext<ProductFormInput>();
   const attributes = useWatch({ control, name: 'attributes' }) ?? [];
-  const variants = (useWatch({ control, name: 'variants' }) ?? []) as ProductVariant[];
+  const watchedVariants = useWatch({ control, name: 'variants' });
+  const variants = useMemo(
+    () => (watchedVariants ?? []) as ProductVariant[],
+    [watchedVariants],
+  );
   const productGallery = (useWatch({ control, name: 'media' }) ?? []);
   const galleryIds = productGallery.map((item) => Number(item.id)).filter(Boolean);
   const [selectedCheckedIndex, setSelectedCheckedIndex] = useState<number[]>(
@@ -71,9 +75,10 @@ const SingleGroup = ({
   );
   const [combinedData, setCombinedData] = useState<CombinedData>({});
 
-  const thisVariants = variants.filter((v) => {
-    return v.attribute_values?.includes(parentId);
-  });
+  const thisVariants = useMemo(
+    () => variants.filter((v) => v.attribute_values?.includes(parentId)),
+    [variants, parentId],
+  );
 
   const [show, setShow] = useState(expandVariation);
 
@@ -93,7 +98,7 @@ const SingleGroup = ({
       available_quantity += Number(item?.available_quantity);
       mediaArray =
         item?.media && (mediaArray?.length ?? 0) < 2
-          ? [...(mediaArray || []), item.media]
+          ? [...(mediaArray ?? []), item.media]
           : mediaArray;
     });
     setCombinedData((prev) => ({
@@ -103,7 +108,7 @@ const SingleGroup = ({
       available_quantity,
       media: mediaArray,
     }));
-  }, [variants]);
+  }, [thisVariants]);
 
   const thisAttribute = getAttributeByValueId(
     attributes,
@@ -120,7 +125,7 @@ const SingleGroup = ({
     } else if (selectedIndex.length === variants.length) {
       setSelectedCheckedIndex([...Array(thisVariants.length).keys()]);
     }
-  }, [selectedIndex]);
+  }, [selectedIndex, thisVariants.length, variants.length]);
 
   if (!thisVariants.length) {
     return null;

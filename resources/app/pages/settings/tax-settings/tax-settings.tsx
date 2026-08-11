@@ -33,7 +33,10 @@ import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 const TaxCollectionOptions = () => {
-  const isTaxInclusivePrice = useWatch<TaxSettingsFormInput>({
+  const isTaxInclusivePrice = useWatch<
+    TaxSettingsFormInput,
+    'is_tax_inclusive_price'
+  >({
     name: 'is_tax_inclusive_price',
   });
 

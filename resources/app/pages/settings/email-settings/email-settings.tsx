@@ -28,6 +28,7 @@ import {
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
+import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 
 type EmailGroupData = {
@@ -52,7 +53,7 @@ type EmailListItem = {
   [key: string]: unknown;
 };
 
-const handleEditOrder = (item: EmailListItem) => console.log('Edit:', item);
+const handleEditOrder = noop;
 
 const EmailSettings = () => {
   const navigate = useNavigate();

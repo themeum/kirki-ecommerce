@@ -38,6 +38,7 @@ const FilterPopup = memo(() => {
       fulfillment_status: (params.fulfillment_status!) || 'all',
       payment_status: (params.payment_status!) || 'all',
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- seeds the draft filters from the URL params only as the popup opens; tracking params.* would overwrite the user edits as they change each control
   }, [openPopup]);
 
   const handleOnFilterChange = (

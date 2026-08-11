@@ -19,7 +19,7 @@ const Categories = () => {
     limit: -1,
   });
   const categories = categoryData?.results ?? [];
-  const selectedCategories: ProductCategoryRef[] = watch('categories') || [];
+  const selectedCategories: ProductCategoryRef[] = watch('categories') ?? [];
 
   const getParentsToDeselect = (
     category: Category,

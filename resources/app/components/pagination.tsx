@@ -24,7 +24,7 @@ const getPageItems = (current_page: number, last_page: number, siblingCount = 1)
   const totalPageNumbers = siblingCount * 2 + 5;
 
   if (totalPageNumbers >= last_page) {
-    return [...Array(last_page)].map((_, i) => i + 1);
+    return Array.from({ length: last_page }, (_, i) => i + 1);
   }
 
   const leftSiblingIndex = Math.max(current_page - siblingCount, 1);
@@ -35,19 +35,25 @@ const getPageItems = (current_page: number, last_page: number, siblingCount = 1)
 
   if (!showLeftEllipsis && showRightEllipsis) {
     const leftRangeLength = 3 + siblingCount * 2;
-    const leftRange = [...Array(leftRangeLength)].map((_, i) => i + 1);
+    const leftRange = Array.from({ length: leftRangeLength }, (_, i) => i + 1);
 
     return [...leftRange, ELLIPSIS, last_page];
   }
 
   if (showLeftEllipsis && !showRightEllipsis) {
     const rightRangeLength = 3 + siblingCount * 2;
-    const rightRange = [...Array(rightRangeLength)].map((_, i) => last_page - rightRangeLength + i + 1);
+    const rightRange = Array.from(
+      { length: rightRangeLength },
+      (_, i) => last_page - rightRangeLength + i + 1,
+    );
 
     return [1, ELLIPSIS, ...rightRange];
   }
 
-  const middleRange = [...Array(rightSiblingIndex - leftSiblingIndex + 1)].map((_, i) => leftSiblingIndex + i);
+  const middleRange = Array.from(
+    { length: rightSiblingIndex - leftSiblingIndex + 1 },
+    (_, i) => leftSiblingIndex + i,
+  );
 
   return [1, ELLIPSIS, ...middleRange, ELLIPSIS, last_page];
 };
@@ -61,7 +67,7 @@ const Pagination = (props: PaginationProps) => {
   } = data;
 
   const pagesArray = useMemo(() => {
-    return [...Array(last_page)].map((_, i) => ({
+    return Array.from({ length: last_page }, (_, i) => ({
       title: `${i + 1}`,
       value: i + 1,
     }));

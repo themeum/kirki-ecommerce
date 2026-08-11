@@ -52,7 +52,6 @@ const OnlinePaymentList = (props: OnlinePaymentProps) => {
       dispatchToastMessage('delete', {
         title: __('Payment gateway deleted', 'kirki-ecommerce'),
         duration: 5000,
-        onSuccess: async () => { },
       });
       return;
     }

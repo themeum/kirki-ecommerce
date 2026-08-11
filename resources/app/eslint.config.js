@@ -83,7 +83,7 @@ export default tseslint.config(
         { allowObjectTypes: 'always' },
       ],
       '@typescript-eslint/prefer-nullish-coalescing': [
-        'warn',
+        'error',
         { ignorePrimitives: { string: true, boolean: true } },
       ],
       '@typescript-eslint/no-unused-vars': [
@@ -118,18 +118,24 @@ export default tseslint.config(
       'jsx-a11y/click-events-have-key-events': 'warn',
       'jsx-a11y/no-noninteractive-element-interactions': 'warn',
 
-      'react-refresh/only-export-components': 'warn',
-      'react-hooks/set-state-in-effect': 'warn',
-      'react-hooks/refs': 'warn',
-      'react-hooks/immutability': 'warn',
-      'react-hooks/preserve-manual-memoization': 'warn',
+      'react-refresh/only-export-components': [
+        'error',
+        { allowConstantExport: true },
+      ],
 
-      '@typescript-eslint/no-unsafe-assignment': 'warn',
-      '@typescript-eslint/no-unsafe-argument': 'warn',
-      '@typescript-eslint/no-unsafe-member-access': 'warn',
-      '@typescript-eslint/no-unsafe-call': 'warn',
-      '@typescript-eslint/no-unsafe-return': 'warn',
-      '@typescript-eslint/no-empty-function': 'warn',
+      // eslint-plugin-react-hooks v7 turns on a second family of rules powered
+      // by the React Compiler. They report where the compiler would bail out of
+      // auto-memoizing. This build does not run the compiler (see vite.config.js
+      // — only @emotion/babel-plugin and the scoped-auto-label plugin), so they
+      // describe an optimization that never happens. Turn them back on when the
+      // compiler is adopted; the classic rules-of-hooks and exhaustive-deps
+      // rules stay on as errors below.
+      'react-hooks/set-state-in-effect': 'off',
+      'react-hooks/refs': 'off',
+      'react-hooks/immutability': 'off',
+      'react-hooks/preserve-manual-memoization': 'off',
+      'react-hooks/incompatible-library': 'off',
+      'react-hooks/exhaustive-deps': 'error',
 
       curly: ['error', 'all'],
       eqeqeq: ['error', 'always', { null: 'ignore' }],
@@ -145,6 +151,41 @@ export default tseslint.config(
       '@stylistic/jsx-quotes': ['error', 'prefer-double'],
       '@stylistic/comma-spacing': ['error', { before: false, after: true }],
       '@stylistic/comma-dangle': ['error', 'always-multiline'],
+    },
+  },
+
+  {
+    // A route manifest is a data module, not a component module — the lazy()
+    // route entries it declares are never the thing Fast Refresh reloads.
+    name: 'kirki/route-manifest',
+    files: ['routes.tsx'],
+    rules: {
+      'react-refresh/only-export-components': 'off',
+    },
+  },
+
+  {
+    // Context modules deliberately export their consumer hook next to the
+    // provider; splitting them across files to satisfy Fast Refresh would make
+    // the API worse than the HMR cost it saves.
+    name: 'kirki/context-modules',
+    files: [
+      'contexts/**/*.tsx',
+      '**/*-context.tsx',
+      'components/ui/stacked-items.tsx',
+    ],
+    rules: {
+      'react-refresh/only-export-components': 'off',
+    },
+  },
+
+  {
+    // Internal component playgrounds — not shipped, and logging is the point.
+    name: 'kirki/preview-sandboxes',
+    files: ['preview-pages/**/*.tsx', 'tryouts.tsx'],
+    rules: {
+      'no-console': 'off',
+      'react-refresh/only-export-components': 'off',
     },
   },
 

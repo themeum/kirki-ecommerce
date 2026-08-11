@@ -20,7 +20,6 @@ import { queryClient } from '@/libs/query-client';
 import { queryKeys } from '@/libs/query-keys';
 import { CreateProfilePopup } from '@/pages/settings/shipping-settings/shipping-profile/create-profile-dialog';
 import { dispatchToastMessage } from '@/pages/utils';
-import { useSettingsQuery } from '@/services/settings';
 import { deleteShippingProfile, useShippingProfilesQuery } from '@/services/shipping';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
@@ -37,7 +36,6 @@ const ShippingProfile = () => {
   const { data: shippingProfiles = [] } = useShippingProfilesQuery(
     SHIPPING_PROFILES_PARAMS,
   );
-  const { data: shippingSettingsData } = useSettingsQuery('shipping');
 
   const shippingProfileList = useMemo(() => {
     return shippingProfiles.map((profile) => {
@@ -46,7 +44,7 @@ const ShippingProfile = () => {
         icon: <Package size={16} />,
       };
     });
-  }, [shippingProfiles, shippingSettingsData]);
+  }, [shippingProfiles]);
 
   const handleEditShippingProfile = (item: ShippingProfileType) => {
     setEditProfileIndex(item?.id);

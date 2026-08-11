@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Controller, useForm, useFormContext, useWatch } from 'react-hook-form';
 
 import AttributeValuesField from '@/components/form/attribute-values-field';
@@ -35,6 +35,7 @@ import type {
   Attribute,
   SelectOption,
 } from '@/types';
+import { noop } from '@/utils/function';
 import { __, _n, sprintf } from '@/wpi18n';
 
 type AttributeSuggestion = SelectOption & {
@@ -47,11 +48,14 @@ type AddOrEditAttributeProps = {
 };
 
 const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
-  const { onClose = () => { }, data } = props;
+  const { onClose = noop, data } = props;
 
   const { control } = useFormContext<ProductFormInput>();
-  const productAttributes = (useWatch({ control, name: 'attributes' }) ??
-    []) as Attribute[];
+  const watchedProductAttributes = useWatch({ control, name: 'attributes' });
+  const productAttributes = useMemo(
+    () => (watchedProductAttributes ?? []) as Attribute[],
+    [watchedProductAttributes],
+  );
   const { addAttribute, updateAttribute, describeDiscarded } = useVariantMatrix();
   const [pendingApply, setPendingApply] = useState<MatrixMutation | null>(null);
   const { data: allAttributesList, isSuccess: loaded } = useAttributesQuery({
@@ -76,11 +80,26 @@ const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
     AttributeSuggestion[]
   >([]);
 
+  const generateAttributeSuggestionArray = useCallback(() => {
+    const allAttributes = (allAttributesList ?? [])
+      .map((item) => ({
+        value: item?.id,
+        title: item?.name,
+        type: item?.type,
+      }))
+      .filter(
+        (attr) =>
+          attr.type === type &&
+          !productAttributes.some((val) => val.id === attr.value),
+      );
+    setAttributeSuggestionArray(allAttributes);
+  }, [allAttributesList, type, productAttributes]);
+
   useEffect(() => {
     if (loaded) {
       generateAttributeSuggestionArray();
     }
-  }, [allAttributesList, type, loaded]);
+  }, [loaded, generateAttributeSuggestionArray]);
 
   useEffect(() => {
     if (loaded && data) {
@@ -98,21 +117,6 @@ const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
       });
     }
   }, [loaded, data, form]);
-
-  const generateAttributeSuggestionArray = () => {
-    const allAttributes = (allAttributesList || [])
-      .map((item) => ({
-        value: item?.id,
-        title: item?.name,
-        type: item?.type,
-      }))
-      .filter(
-        (attr) =>
-          attr.type === type &&
-          !productAttributes.some((val) => val.id === attr.value),
-      );
-    setAttributeSuggestionArray(allAttributes);
-  };
 
   const handleApply = async () => {
     const isValid = await form.trigger();
@@ -242,8 +246,8 @@ const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
                   </FieldLabel>
                   <Combobox
                     error={Boolean(
-                      fieldState.error ||
-                      form.formState.errors.id ||
+                      fieldState.error ??
+                      form.formState.errors.id ??
                       form.formState.errors.name,
                     )}
                     value={

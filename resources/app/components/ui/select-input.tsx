@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { theme } from '@/theme';
 import { defineStyles, mergeCss } from '@/theme/mixins';
 import type { SelectOption } from '@/types';
+import { noop } from '@/utils/function';
 
 type SelectInputValue = {
   value?: string | number;
@@ -43,7 +44,7 @@ const SelectInput = ({
   max,
   min,
   error,
-  onChange = () => {},
+  onChange = noop,
   invisible,
   selectWidth,
 }: SelectInputProps) => {

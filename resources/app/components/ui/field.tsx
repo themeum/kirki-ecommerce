@@ -157,6 +157,7 @@ const FieldLabel = forwardRef<ComponentRef<typeof Label>, FieldLabelProps>(
         {children}
         {infoText ? (
           <Tooltip tip={infoText} position="top">
+            {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- the icon is not a control; the handlers only stop a click or key press on it from activating the label it sits inside */}
             <span
               css={scoped(styles.infoIconTrigger)}
               // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- keyboard users need to reach the trigger for the tooltip to open
@@ -536,5 +537,3 @@ const styles = defineStyles({
     gap: theme.spacing[1],
   },
 });
-
-export const fieldErrorStyle = scoped(styles.fieldError);

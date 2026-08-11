@@ -43,7 +43,7 @@ const VariationList = () => {
   useEffect(() => {
     const formattedAttributes = attributeList.map((item) => ({
       ...item,
-      badge1: `${item.values?.length || 0} values`,
+      badge1: `${item.values?.length ?? 0} values`,
       icon: item.type === 'color' ? <ColorPaletteIcon /> : <BoxIcon />,
     }));
     setAttributeListArr(formattedAttributes);

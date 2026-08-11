@@ -43,7 +43,7 @@ const useListParams = <
     filter: filterConfig,
   } = options;
 
-  const filterKeys = filterConfig?.keys ?? [];
+  const filterKeys = useMemo(() => filterConfig?.keys ?? [], [filterConfig]);
 
   const [searchParams, setSearchParams] = useSearchParams();
 

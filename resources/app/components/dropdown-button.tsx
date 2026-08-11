@@ -6,6 +6,7 @@ import Checkbox from '@/components/ui/checkbox';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { theme } from '@/theme';
 import type { ButtonSize, ButtonState, ButtonType, DropdownSize, SelectOption } from '@/types';
+import { noop } from '@/utils/function';
 
 type DropdownOption = SelectOption & {
   isDefault?: boolean;
@@ -77,8 +78,8 @@ const DropdownButton = ({
   dropdownStyle,
   value,
   options = [],
-  onOptionToggle = () => {},
-  onOptionSelect = () => {},
+  onOptionToggle = noop,
+  onOptionSelect = noop,
   children,
   size: _size,
   hasLeftIcon: _hasLeftIcon,

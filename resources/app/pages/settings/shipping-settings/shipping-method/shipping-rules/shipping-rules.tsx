@@ -81,7 +81,7 @@ export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
       }
     }
     if (foundMethod) {
-      setRulesObj(foundMethod.shipping_rules || []);
+      setRulesObj(foundMethod.shipping_rules ?? []);
     }
   }, [shippingSettingsData, methodId]);
 

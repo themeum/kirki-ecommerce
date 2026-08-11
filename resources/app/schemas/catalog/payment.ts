@@ -52,12 +52,12 @@ export type OnlinePaymentFields = OnlinePaymentField[];
  * happens here, ahead of validation, so the result is both reshaped and
  * checked rather than reshaped and trusted.
  */
-const normalizeProviderCollection = (value: unknown) => {
+const normalizeProviderCollection = (value: unknown): unknown => {
   if (Array.isArray(value)) {
-    return value;
+    return value as unknown[];
   }
   if (value && typeof value === 'object') {
-    return Object.values(value);
+    return Object.values(value as Record<string, unknown>);
   }
   return value;
 };

@@ -1,11 +1,19 @@
 import { describe, expect, it } from 'vitest';
 
+import type { Product } from '@/schemas/catalog/product';
 import {
   getDefaultVariantValues,
   mapProductToFormValues,
   ProductFormSchema,
   ProductFormVariantSchema,
 } from '@/schemas/forms/product-form';
+
+/**
+ * The fixtures below carry only the fields `mapProductToFormValues` reads —
+ * notably not the `*_money_object` keys, which it never touches. Spelling all
+ * of them out per variant would bury what each test is actually asserting.
+ */
+const asProduct = (value: unknown) => value as Product;
 
 const baseVariantInput = {
   ...getDefaultVariantValues(),
@@ -290,8 +298,7 @@ describe('mapProductToFormValues', () => {
       ],
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const formValues = mapProductToFormValues(productWithVariant as any);
+    const formValues = mapProductToFormValues(asProduct(productWithVariant));
     expect(formValues.variants?.[0]?.max_per_order).toBe(1);
   });
 
@@ -336,8 +343,7 @@ describe('mapProductToFormValues', () => {
       variants: [savedVariant(2, true), savedVariant(3, true), savedVariant(4, true)],
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const formValues = mapProductToFormValues(product as any);
+    const formValues = mapProductToFormValues(asProduct(product));
     expect(formValues.variants?.map((item) => item.is_default)).toEqual([
       true,
       false,
@@ -351,8 +357,7 @@ describe('mapProductToFormValues', () => {
       variants: [savedVariant(2, false), savedVariant(3, false)],
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const formValues = mapProductToFormValues(product as any);
+    const formValues = mapProductToFormValues(asProduct(product));
     expect(formValues.variants?.map((item) => item.is_default)).toEqual([
       true,
       false,
@@ -365,8 +370,7 @@ describe('mapProductToFormValues', () => {
       variants: [savedVariant(2, false), savedVariant(3, true)],
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const formValues = mapProductToFormValues(product as any);
+    const formValues = mapProductToFormValues(asProduct(product));
     expect(formValues.variants?.map((item) => item.is_default)).toEqual([
       false,
       true,

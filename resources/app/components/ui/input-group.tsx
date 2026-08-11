@@ -129,6 +129,7 @@ const InputGroupAddon = forwardRef<HTMLDivElement, InputGroupAddonProps>(
     };
 
     return (
+      // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions -- widens the click target onto the addon so a stray click still focuses the control; keyboard users tab straight to the control, so there is nothing to bind
       <div
         ref={ref}
         role="group"

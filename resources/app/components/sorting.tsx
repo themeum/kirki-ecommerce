@@ -24,7 +24,7 @@ type SortingProps = {
 
 const Sorting = ({ data }: SortingProps) => {
   const { title, sortable } = data;
-  const { sort_by, activeSortBy, sortOrder, onSort } = sortable || {};
+  const { sort_by, activeSortBy, sortOrder, onSort } = sortable ?? {};
 
   const handleSorting = () => {
     if (!onSort || !sort_by) {

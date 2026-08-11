@@ -32,7 +32,7 @@ const BulkEditPage = () => {
     if (bulkData) {
       setVariants(bulkData);
     }
-  }, [bulkData]);
+  }, [bulkData, setVariants]);
 
   const handleProductBulkSave = () => {
     if (!loaded) {

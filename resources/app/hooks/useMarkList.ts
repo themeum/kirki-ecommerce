@@ -20,15 +20,15 @@ const useMarkList = ({ data }: UseMarkListParams) => {
   const [selectedItems, setSelectedItems] = useState<SelectedItem[]>([]);
   const [itemCount, setItemCount] = useState(0);
 
-  const checkIfAnyIdExist = () => {
+  const checkIfAnyIdExist = useCallback(() => {
     const selectedIdSet = new Set(selectedItems);
 
     const hasAny = results.some((item) => selectedIdSet.has(item.id));
 
     return hasAny;
-  };
+  }, [selectedItems, results]);
 
-  const checkIfAllIdExist = () => {
+  const checkIfAllIdExist = useCallback(() => {
     const selectedIdSet = new Set(selectedItems);
 
     const hasAll =
@@ -36,7 +36,7 @@ const useMarkList = ({ data }: UseMarkListParams) => {
       results.every((item) => selectedIdSet.has(item.id));
 
     return hasAll;
-  };
+  }, [selectedItems, results]);
 
   const handleSelectAll = () => {
     setSelectedItems(['*']);
@@ -91,7 +91,7 @@ const useMarkList = ({ data }: UseMarkListParams) => {
       }
       return b;
     },
-    [selectedItems, results],
+    [selectedItems, checkIfAllIdExist],
   );
 
   const isPartiallySelected = useCallback(
@@ -102,7 +102,7 @@ const useMarkList = ({ data }: UseMarkListParams) => {
       }
       return b;
     },
-    [selectedItems, results],
+    [selectedItems, checkIfAnyIdExist, checkIfAllIdExist],
   );
 
   return {

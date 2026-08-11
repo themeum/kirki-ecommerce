@@ -12,7 +12,7 @@ export const getAttributeByValueId = (
   valueId: number,
 ): AttributeValue | null => {
   for (const attr of attributes) {
-    for (const value of attr.values || []) {
+    for (const value of attr.values ?? []) {
       if (value.id === valueId) {
         return value;
       }

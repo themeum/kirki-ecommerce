@@ -94,7 +94,7 @@ const CurrencyRowActions = (props: CurrencyRowActionsProps) => {
           dropdownStyle={{ minWidth: '170px' }}
           size="small"
           hasLeftIcon={false}
-          options={item.actionsArray || []}
+          options={item.actionsArray ?? []}
           onOptionToggle={(value) => setOpen(value === true)}
           onOptionSelect={(action) => onAction(action, item)}
         />

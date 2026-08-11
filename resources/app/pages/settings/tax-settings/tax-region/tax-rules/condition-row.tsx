@@ -185,7 +185,7 @@ const ConditionRow = (props: ConditionRowProps) => {
           openPopup={showStatesPopup}
           setOpenPopup={setShowStatesPopup}
           countryName={region?.code}
-          countryList={region?.states || []}
+          countryList={region?.states ?? []}
           selectedCountries={selectedCountries}
           setSelectedCountries={setSelectedCountries}
           onAdd={handleAddStates}

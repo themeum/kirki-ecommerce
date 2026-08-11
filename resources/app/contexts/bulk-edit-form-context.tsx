@@ -1,4 +1,4 @@
-import { createContext, type Dispatch, type ReactNode, useContext, useMemo, useReducer } from 'react';
+import { createContext, type Dispatch, type ReactNode, useCallback, useContext, useMemo, useReducer } from 'react';
 
 import type {
   ProductVariant,
@@ -104,23 +104,41 @@ type BulkEditFormProviderProps = {
 const BulkEditFormProvider = ({ children }: BulkEditFormProviderProps) => {
   const [state, dispatch] = useReducer(bulkEditFormReducer, initialState);
 
+  /**
+   * The action creators are memoized apart from `state` so their identity is
+   * stable. Rebuilding them alongside `state` made them unusable as effect
+   * dependencies — every dispatch produced fresh functions, so any effect that
+   * listed one would re-run on its own output.
+   */
+  const setVariants = useCallback<BulkEditFormContextValue['setVariants']>(
+    (payload) => {
+      dispatch({ type: 'SET_VARIANTS', payload });
+    },
+    [],
+  );
+
+  const updateVariants = useCallback<BulkEditFormContextValue['updateVariants']>(
+    (payload) => {
+      dispatch({ type: 'UPDATE_VARIANTS', payload });
+    },
+    [],
+  );
+
+  const reset = useCallback(() => {
+    dispatch({ type: 'RESET' });
+  }, []);
+
   const value = useMemo<BulkEditFormContextValue>(
     () => ({
       state,
       dispatch,
       variants: state.variants,
       loaded: state.loaded,
-      setVariants: (payload) => {
-        dispatch({ type: 'SET_VARIANTS', payload });
-      },
-      updateVariants: (payload) => {
-        dispatch({ type: 'UPDATE_VARIANTS', payload });
-      },
-      reset: () => {
-        dispatch({ type: 'RESET' });
-      },
+      setVariants,
+      updateVariants,
+      reset,
     }),
-    [state],
+    [state, setVariants, updateVariants, reset],
   );
 
   return (

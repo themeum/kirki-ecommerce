@@ -16,6 +16,7 @@ import { getDefaults } from '@/libs/zod';
 import { type ApiConfigurationFormInput, type ApiConfigurationFormPayload, ApiConfigurationFormSchema } from '@/schemas/forms/api-configuration-form';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
+import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 
 const apiConfigurationDefaultValues = getDefaults(ApiConfigurationFormSchema);
@@ -39,7 +40,7 @@ type ApiConfigurationPopupProps = {
 
 const ApiConfigurationPopup = ({
   isOpen,
-  onClose = () => {},
+  onClose = noop,
   onSave,
   handleOnChange,
   dataObj,

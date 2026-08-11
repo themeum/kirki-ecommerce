@@ -50,10 +50,10 @@ const reportValidationFailure = (issues: z.ZodIssue[]) => {
  * the page-level catch in `product-form.tsx`) report it — toasting here too
  * would double the message.
  */
-const parseData = <T extends z.ZodTypeAny>(
-  schema: T,
+const parseData = <TOutput, TInput>(
+  schema: z.ZodType<TOutput, z.ZodTypeDef, TInput>,
   response: unknown,
-): z.infer<T> => {
+): TOutput => {
   const envelope = ApiEnvelopeSchema.safeParse(response);
   if (!envelope.success) {
     const error = reportValidationFailure(envelope.error.issues);
@@ -70,10 +70,10 @@ const parseData = <T extends z.ZodTypeAny>(
   return result.data;
 };
 
-const parseResponse = <T extends z.ZodTypeAny>(
-  schema: T,
+const parseResponse = <TOutput, TInput>(
+  schema: z.ZodType<TOutput, z.ZodTypeDef, TInput>,
   response: unknown,
-): ApiClientResponse<z.infer<T>> => {
+): ApiClientResponse<TOutput> => {
   const envelope = ApiEnvelopeSchema.safeParse(response);
   if (!envelope.success) {
     throw reportValidationFailure(envelope.error.issues);

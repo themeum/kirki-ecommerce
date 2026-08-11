@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import type { z } from 'zod';
 
 import { endpoints } from '@/config/endpoints';
 import { apiClient } from '@/libs/api';
@@ -32,10 +33,24 @@ type SettingsPayloadMap = {
   currency: MultiCurrencySettingsFormPayload;
 };
 
-const getSettings = <K extends SettingsSectionKey>(key: K, params: ListQueryParams = {}) => {
+/**
+ * The cast re-attaches the section's own output type. Indexing the schema map
+ * with a still-generic `K` gives TypeScript a union of all eight schemas, which
+ * it widens to `{}` when inferring `parseData`'s output; naming the type here
+ * keeps every caller of `useSettingsQuery('general')` fully typed.
+ */
+const getSettings = <K extends SettingsSectionKey>(
+  key: K,
+  params: ListQueryParams = {},
+): Promise<z.infer<(typeof SettingsSchemaMap)[K]>> => {
   return apiClient
     .get(endpoints.SETTINGS_BY_KEY(key), { params })
-    .then((response) => parseData(SettingsSchemaMap[key], response));
+    .then(
+      (response) =>
+        parseData(SettingsSchemaMap[key], response) as z.infer<
+          (typeof SettingsSchemaMap)[K]
+        >,
+    );
 };
 
 const getDefaultSettings = () => {

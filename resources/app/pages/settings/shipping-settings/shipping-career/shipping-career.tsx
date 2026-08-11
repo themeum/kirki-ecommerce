@@ -6,6 +6,7 @@ import { BoxOpenIcon } from '@/icons';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
+import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 
 type ShippingCareerProps = Record<string, unknown>;
@@ -24,7 +25,7 @@ const ShippingCareer = (_props: ShippingCareerProps) => {
               'kirki-ecommerce',
             )}
             buttonText={__('Add Career', 'kirki-ecommerce')}
-            onAdd={() => console.log('')}
+            onAdd={noop}
           />
 
           {!hasShippingCareers ? (

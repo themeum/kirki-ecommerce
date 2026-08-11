@@ -15,6 +15,7 @@ import {
 } from '@/schemas/forms/tax-profile-form';
 import { useCreateTaxProfileMutation, useUpdateTaxProfileMutation } from '@/services/tax';
 import type { TaxProfile } from '@/types';
+import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 
 type TaxProfilePopupProps = {
@@ -27,8 +28,8 @@ type TaxProfilePopupProps = {
 
 export const TaxProfilePopup = ({
   isOpen,
-  onClose = () => {},
-  onSave = () => {},
+  onClose = noop,
+  onSave = noop,
   from = '',
   taxProfile = null,
 }: TaxProfilePopupProps) => {

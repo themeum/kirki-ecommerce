@@ -55,7 +55,7 @@ const SingleRow = ({
         </TableCell>
         <TableCell>{item?.description || '--'}</TableCell>
         <TableCell>{item?.slug || '--'}</TableCell>
-        <TableCell>{item?.count || 0}</TableCell>
+        <TableCell>{item?.count ?? 0}</TableCell>
         <TableCell alignment="right" style={{ width: '1%' }}>
           <ActionGroup>
             <Button

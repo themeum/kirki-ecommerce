@@ -168,6 +168,5 @@ const styles = defineStyles({
 });
 
 export default Badge;
-export { badgeVariantStyles };
 export type { BadgeProps, BadgeVariant };
 

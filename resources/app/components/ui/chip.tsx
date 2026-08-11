@@ -5,6 +5,7 @@ import Flex from '@/components/ui/flex';
 import { theme } from '@/theme';
 import { defineStyles, flexCenter, scoped, scopedMerge } from '@/theme/mixins';
 import type { GapValue } from '@/types';
+import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 
 type ChipProps = Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'css'> & {
@@ -28,7 +29,7 @@ const Chip = forwardRef<HTMLDivElement, ChipProps>((props, ref) => {
     gap = 2,
     closeIcon,
     style,
-    onRemove = () => {},
+    onRemove = noop,
     ...rest
   } = props;
 

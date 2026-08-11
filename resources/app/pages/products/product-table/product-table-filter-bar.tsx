@@ -45,9 +45,9 @@ const ProductTableFilterBar = memo(() => {
   const { data: categoriesData } = useCategoriesQuery({ limit: -1 });
   const { data: collectionsData } = useCollectionsQuery({ limit: -1 });
 
-  const brandOptions = makeSuggestionList(brandsData?.results || [], []);
-  const categoryOptions = makeSuggestionList(categoriesData?.results || [], []);
-  const collectionOptions = makeSuggestionList(collectionsData?.results || [], []);
+  const brandOptions = makeSuggestionList(brandsData?.results ?? [], []);
+  const categoryOptions = makeSuggestionList(categoriesData?.results ?? [], []);
+  const collectionOptions = makeSuggestionList(collectionsData?.results ?? [], []);
 
   const filterOptionsMap: Partial<Record<ProductFilterKey, SuggestionOption[]>> = {
     category_ids: categoryOptions,
@@ -67,7 +67,7 @@ const ProductTableFilterBar = memo(() => {
 
   const getFilterValue = (key: ProductFilterKey): FilterValue => {
     if (key === 'category_ids') {
-      return (params.category_ids || []);
+      return (params.category_ids ?? []);
     }
     if (key === 'collection_ids') {
       return (params.collection_ids?.[0] ?? '');

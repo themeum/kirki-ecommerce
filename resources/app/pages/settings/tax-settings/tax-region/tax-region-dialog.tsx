@@ -23,6 +23,7 @@ import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, scoped } from '@/theme/mixins';
 import type { FormErrors } from '@/types';
+import { noop } from '@/utils/function';
 import { __, sprintf } from '@/wpi18n';
 
 type TaxRegionPopupProps = {
@@ -54,10 +55,10 @@ const TaxRegionPopup = (props: TaxRegionPopupProps) => {
     setOpenPopup,
     regions,
     selectedCountries = [],
-    setSelectedCountries = () => {},
-    setSelectedRegion = () => {},
+    setSelectedCountries = noop,
+    setSelectedRegion = noop,
     selectedRegion = [],
-    onAdd = () => {},
+    onAdd = noop,
   } = props;
 
   const [searchValue, setSearchValue] = useState('');
@@ -97,6 +98,7 @@ const TaxRegionPopup = (props: TaxRegionPopupProps) => {
       selectedRegion: [...selectedRegion],
     });
     setSearchValue('');
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- seeds the form from the current selection only as the dialog opens; tracking the selection would reset the form while the user is picking regions
   }, [openPopup]);
 
   const syncSelection = (
@@ -140,7 +142,7 @@ const TaxRegionPopup = (props: TaxRegionPopupProps) => {
     if (exists) {
       nextRegions = prevRegions.filter((r) => r.country !== country.name);
     } else {
-      const states = (country.states || []) as CountryStateOption[];
+      const states = (country.states ?? []) as CountryStateOption[];
       nextRegions = [
         ...prevRegions,
         {
@@ -273,7 +275,7 @@ const TaxRegionPopup = (props: TaxRegionPopupProps) => {
                     const regionInfo = formRegions.find(
                       (region) => region?.country === country.code,
                     );
-                    const countryStates = (country.states ||
+                    const countryStates = (country.states ??
                       []) as CountryStateOption[];
                     return (
                       <div key={index} css={scoped(styles.checkboxItem)}>

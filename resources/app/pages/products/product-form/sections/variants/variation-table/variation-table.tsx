@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 import { useNavigate } from 'react-router';
 
@@ -23,7 +23,11 @@ import { __ } from '@/wpi18n';
 
 const VariationTable = () => {
   const { control, getValues, setValue } = useFormContext<ProductFormInput>();
-  const attributes = useWatch({ control, name: 'attributes' }) ?? [];
+  const watchedAttributes = useWatch({ control, name: 'attributes' });
+  const attributes = useMemo<NonNullable<typeof watchedAttributes>>(
+    () => watchedAttributes ?? [],
+    [watchedAttributes],
+  );
   const variants = useWatch({ control, name: 'variants' }) ?? [];
   const [showBy, setShowBy] = useState<number | null>(null);
   const [selectedIndex, setSelectedIndex] = useState<number[]>([]);
@@ -247,7 +251,7 @@ const VariationTable = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {(selectedAttribute?.values || []).map((item) => (
+            {(selectedAttribute?.values ?? []).map((item) => (
               <SingleGroup
                 parentId={item.id}
                 key={item.id}

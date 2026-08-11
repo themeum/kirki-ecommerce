@@ -206,9 +206,9 @@ const ShippingBoxFieldView = ({
           {showPreview && (
             <div css={scoped(styles.previewArea)}>
               <ShippingBoxPreview
-                length={selectedBox?.length || 0}
-                width={selectedBox?.width || 0}
-                height={selectedBox?.height || 0}
+                length={selectedBox?.length ?? 0}
+                width={selectedBox?.width ?? 0}
+                height={selectedBox?.height ?? 0}
                 unit={selectedBox?.unit || 'in'}
               />
             </div>

@@ -21,6 +21,7 @@ import {
 import { useCreateBrandMutation, useUpdateBrandMutation } from '@/services/brand';
 import { cardStyles } from '@/theme/card-styles';
 import type { Brand } from '@/types';
+import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 
 type BrandAddEditPopoverProps = {
@@ -35,7 +36,7 @@ const getInitialLogoUrl = (brand: Brand | BrandFormInput) => {
 
 const BrandAddEditPopover = ({
   brand,
-  onClose = () => { },
+  onClose = noop,
 }: BrandAddEditPopoverProps) => {
   const createMutation = useCreateBrandMutation();
   const updateMutation = useUpdateBrandMutation();

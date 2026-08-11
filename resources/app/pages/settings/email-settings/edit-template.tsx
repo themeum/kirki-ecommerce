@@ -106,7 +106,7 @@ const EditTemplate = () => {
           admin_emails: currentEmailSettings.admin_emails,
           customer_emails: currentEmailSettings.customer_emails,
           default_template: {
-            ...(emailSettingsData.default_template as Record<string, unknown>),
+            ...(emailSettingsData.default_template ?? {}),
             ...payload,
           },
         },

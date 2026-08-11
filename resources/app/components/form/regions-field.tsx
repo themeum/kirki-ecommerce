@@ -4,7 +4,8 @@ import { useState } from 'react';
 import { Controller, type FieldPath, type FieldValues, useFormContext } from 'react-hook-form';
 
 import Chip from '@/components/ui/chip';
-import ChipField, { chipFieldControlCss } from '@/components/ui/chip-field';
+import ChipField from '@/components/ui/chip-field';
+import { chipFieldControlCss } from '@/components/ui/chip-field-styles';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import Input from '@/components/ui/input';
 import { LocationIcon } from '@/icons';

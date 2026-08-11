@@ -62,7 +62,7 @@ const SingleRow = (props: SingleRowProps) => {
   useEffect(() => {
     const attributeValueMap = Object.fromEntries(
       (attributes || []).flatMap((attr) =>
-        (attr.values || []).map((v) => [v.id, v.value]),
+        (attr.values ?? []).map((v) => [v.id, v.value]),
       ),
     );
 
@@ -70,7 +70,7 @@ const SingleRow = (props: SingleRowProps) => {
       (valueId) => attributeValueMap[valueId],
     );
     setVarTitle(variatioNames);
-  }, [attributes]);
+  }, [attributes, currentVariation?.attribute_values]);
 
   useEffect(() => {
     const handleMouseUp = () => {
@@ -103,6 +103,7 @@ const SingleRow = (props: SingleRowProps) => {
     };
     window.addEventListener('mouseup', handleMouseUp);
     return () => window.removeEventListener('mouseup', handleMouseUp);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- binds the window mouseup that ends a fill-drag; re-binding on every variant edit would drop the in-flight gesture
   }, [selectionData]);
 
   const handleInputEnterKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
@@ -291,6 +292,7 @@ const SingleRow = (props: SingleRowProps) => {
             type="number"
           />
           <span
+            role="presentation"
             data-grabber={isMaxIndex(index) ? 'true' : undefined}
             onMouseDown={(e) => onGrabberMouseDown(e, 'base_price')}
           />
@@ -311,6 +313,7 @@ const SingleRow = (props: SingleRowProps) => {
             placeholder="--"
           />
           <span
+            role="presentation"
             data-grabber={isMaxIndex(index) ? 'true' : undefined}
             onMouseDown={(e) => onGrabberMouseDown(e, 'base_sale_price')}
           />
@@ -333,6 +336,7 @@ const SingleRow = (props: SingleRowProps) => {
             placeholder="--"
           />
           <span
+            role="presentation"
             data-grabber={isMaxIndex(index) ? 'true' : undefined}
             onMouseDown={(e) => onGrabberMouseDown(e, 'base_cost_of_goods')}
           />
@@ -372,6 +376,7 @@ const SingleRow = (props: SingleRowProps) => {
             onChange={(value) => handleOnChange(value, 'show_unit_price')}
           />
           <span
+            role="presentation"
             data-grabber={isMaxIndex(index) ? 'true' : undefined}
             onMouseDown={(e) => onGrabberMouseDown(e, 'show_unit_price')}
           />
@@ -395,6 +400,7 @@ const SingleRow = (props: SingleRowProps) => {
             <span style={{ marginLeft: theme.spacing[3] }}>_</span>
           )}
           <span
+            role="presentation"
             data-grabber={isMaxIndex(index) ? 'true' : undefined}
             onMouseDown={(e) => onGrabberMouseDown(e, 'base_price_per_unit')}
           />
@@ -413,6 +419,7 @@ const SingleRow = (props: SingleRowProps) => {
             placeholder="--"
           />
           <span
+            role="presentation"
             data-grabber={isMaxIndex(index) ? 'true' : undefined}
             onMouseDown={(e) => onGrabberMouseDown(e, 'sku')}
           />
@@ -433,6 +440,7 @@ const SingleRow = (props: SingleRowProps) => {
             }}
           />
           <span
+            role="presentation"
             data-grabber={isMaxIndex(index) ? 'true' : undefined}
             onMouseDown={(e) => onGrabberMouseDown(e, 'shipping_box_id')}
           />
@@ -452,6 +460,7 @@ const SingleRow = (props: SingleRowProps) => {
             type="number"
           />
           <span
+            role="presentation"
             data-grabber={isMaxIndex(index) ? 'true' : undefined}
             onMouseDown={(e) => onGrabberMouseDown(e, 'weight')}
           />
@@ -478,6 +487,7 @@ const SingleRow = (props: SingleRowProps) => {
             </SelectContent>
           </Select>
           <span
+            role="presentation"
             data-grabber={isMaxIndex(index) ? 'true' : undefined}
             onMouseDown={(e) => onGrabberMouseDown(e, 'weight_unit')}
           />
@@ -495,6 +505,7 @@ const SingleRow = (props: SingleRowProps) => {
             onChange={(value) => handleOnChange(value, 'track_inventory')}
           />
           <span
+            role="presentation"
             data-grabber={isMaxIndex(index) ? 'true' : undefined}
             onMouseDown={(e) => onGrabberMouseDown(e, 'track_inventory')}
           />
@@ -520,6 +531,7 @@ const SingleRow = (props: SingleRowProps) => {
             <span style={{ marginLeft: theme.spacing[3] }}>_</span>
           )}
           <span
+            role="presentation"
             data-grabber={isMaxIndex(index) ? 'true' : undefined}
             onMouseDown={(e) => onGrabberMouseDown(e, 'available_quantity')}
           />
@@ -551,6 +563,7 @@ const SingleRow = (props: SingleRowProps) => {
             onChange={(value) => handleOnChange(value, 'has_limit_per_order')}
           />
           <span
+            role="presentation"
             data-grabber={isMaxIndex(index) ? 'true' : undefined}
             onMouseDown={(e) => onGrabberMouseDown(e, 'has_limit_per_order')}
           />
@@ -577,6 +590,7 @@ const SingleRow = (props: SingleRowProps) => {
           )}
 
           <span
+            role="presentation"
             data-grabber={isMaxIndex(index) ? 'true' : undefined}
             onMouseDown={(e) => onGrabberMouseDown(e, 'max_per_order')}
           />
@@ -594,6 +608,7 @@ const SingleRow = (props: SingleRowProps) => {
             onChange={(value) => handleOnChange(value, 'is_visible')}
           />
           <span
+            role="presentation"
             data-grabber={isMaxIndex(index) ? 'true' : undefined}
             onMouseDown={(e) => onGrabberMouseDown(e, 'is_visible')}
           />
@@ -611,6 +626,7 @@ const SingleRow = (props: SingleRowProps) => {
             onChange={(value) => handleOnChange(value, 'charge_taxes')}
           />
           <span
+            role="presentation"
             data-grabber={isMaxIndex(index) ? 'true' : undefined}
             onMouseDown={(e) => onGrabberMouseDown(e, 'charge_taxes')}
           />
@@ -641,6 +657,7 @@ const SingleRow = (props: SingleRowProps) => {
             <span style={{ marginLeft: theme.spacing[3] }}>_</span>
           )}
           <span
+            role="presentation"
             data-grabber={isMaxIndex(index) ? 'true' : undefined}
             onMouseDown={(e) => onGrabberMouseDown(e, 'tax_profile_id')}
           />
@@ -682,6 +699,7 @@ const SingleRow = (props: SingleRowProps) => {
             </SelectContent>
           </Select>
           <span
+            role="presentation"
             data-grabber={isMaxIndex(index) ? 'true' : undefined}
             onMouseDown={(e) => onGrabberMouseDown(e, 'shipping_profile_id')}
           />

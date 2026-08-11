@@ -1,4 +1,4 @@
-import { type CSSProperties, forwardRef, type MouseEvent, type ReactNode, useEffect, useRef, useState } from 'react';
+import { type CSSProperties, forwardRef, type MouseEvent, type ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 
 import Flex from '@/components/ui/flex';
 import Label from '@/components/ui/label';
@@ -37,19 +37,22 @@ const ProgressBar = forwardRef<HTMLDivElement, ProgressBarProps>(
       setProgress(value);
     }, [value]);
 
-    const updateValueFromEvent = (e: MouseEvent | globalThis.MouseEvent) => {
-      if (!barRef.current || !onChange) {
-        return;
-      }
+    const updateValueFromEvent = useCallback(
+      (e: MouseEvent | globalThis.MouseEvent) => {
+        if (!barRef.current || !onChange) {
+          return;
+        }
 
-      const rect = barRef.current.getBoundingClientRect();
-      const clientX = e.clientX ?? e.pageX;
-      const percent = ((clientX - rect.left) / rect.width) * 100;
-      const normalized = Math.min(100, Math.max(0, percent));
-      const rounded = Math.round(normalized);
-      setProgress(rounded);
-      onChange(rounded);
-    };
+        const rect = barRef.current.getBoundingClientRect();
+        const clientX = e.clientX ?? e.pageX;
+        const percent = ((clientX - rect.left) / rect.width) * 100;
+        const normalized = Math.min(100, Math.max(0, percent));
+        const rounded = Math.round(normalized);
+        setProgress(rounded);
+        onChange(rounded);
+      },
+      [onChange],
+    );
 
     const handleMouseDown = (e: MouseEvent) => {
       e.preventDefault();
@@ -81,7 +84,7 @@ const ProgressBar = forwardRef<HTMLDivElement, ProgressBarProps>(
         window.removeEventListener('mousemove', handleMove);
         window.removeEventListener('mouseup', stopDragging);
       };
-    }, []);
+    }, [updateValueFromEvent]);
 
     return (
       <Flex ref={ref} direction="column" gap={4} style={style}>
@@ -111,6 +114,7 @@ const ProgressBar = forwardRef<HTMLDivElement, ProgressBarProps>(
           />
           {showProgressIndicator && (
             <div
+              role="presentation"
               css={scoped(styles.thumb)}
               style={{ '--progressbar-thumb-left': `${progress}%` } as CSSProperties}
               onMouseDown={handleThumbMouseDown}

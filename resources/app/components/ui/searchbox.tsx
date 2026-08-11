@@ -7,6 +7,7 @@ import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/in
 import { theme } from '@/theme';
 import { defineStyles, mergeCss } from '@/theme/mixins';
 import type { InputState } from '@/types';
+import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 
 type SearchboxProps = {
@@ -57,10 +58,10 @@ function debounce<Args extends unknown[]>(
 const Searchbox = forwardRef<HTMLInputElement, SearchboxProps>((props, ref) => {
   const {
     value,
-    onChange = () => { },
-    onClick = () => { },
-    onEnter = () => { },
-    onBlur = () => { },
+    onChange = noop,
+    onClick = noop,
+    onEnter = noop,
+    onBlur = noop,
     style = {},
     cssOverride,
     label,

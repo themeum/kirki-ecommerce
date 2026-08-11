@@ -46,7 +46,7 @@ const MultiCurrencySettings = () => {
     }
 
     const apiConfigData =
-      (currencySettingsData.api_config as Record<string, unknown> | null) || {};
+      (currencySettingsData.api_config as Record<string, unknown> | null) ?? {};
 
     form.reset(
       pickFormValues(MultiCurrencySettingsFormSchema, currencySettingsData, {

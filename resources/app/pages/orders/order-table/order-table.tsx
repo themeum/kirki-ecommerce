@@ -111,7 +111,7 @@ const OrderTable = () => {
         alignment: 'center',
       },
     ];
-  }, [format, getFulfillmentBadgeInfo, getPaymentBadgeInfo])
+  }, [])
 
   return (
     <DataTable

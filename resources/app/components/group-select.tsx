@@ -12,6 +12,7 @@ import { Separator } from '@/components/ui/separator';
 import { theme } from '@/theme';
 import { defineStyles, itemCenter, scoped, scopedMerge, uiFocusRing } from '@/theme/mixins';
 import type { LabelFieldProps, SelectOption, SelectState } from '@/types';
+import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 
 type GroupedValues = Record<string, (string | number)[]>;
@@ -48,8 +49,8 @@ const GroupSelect = (props: GroupSelectProps) => {
     valueArray = {},
     optionsArray = [],
     placeholder = __('Type to add schemas..', 'kirki-ecommerce'),
-    onChange = () => {},
-    onClose = () => {},
+    onChange = noop,
+    onClose = noop,
     label,
     helpText,
     error,

@@ -60,6 +60,7 @@ const AddCitiesPopup = (props: AddCitiesPopupProps) => {
 
     form.reset({ selectedCities });
     setSearchValue('');
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- seeds the form from the current selection only as the dialog opens; tracking selectedCities would reset the form while the user is picking cities
   }, [openPopup]);
 
   const syncSelection = (next: TaxRegionState[]) => {
@@ -68,7 +69,7 @@ const AddCitiesPopup = (props: AddCitiesPopupProps) => {
   };
 
   const allCityIds = useMemo(
-    () => cityList?.map((city) => city.id) || [],
+    () => cityList?.map((city) => city.id) ?? [],
     [cityList],
   );
 
@@ -91,7 +92,7 @@ const AddCitiesPopup = (props: AddCitiesPopupProps) => {
 
   const filteredCities = getSearchedValue(
     searchValue,
-    (cityList || []).filter(
+    (cityList ?? []).filter(
       (city) => !taxRates.some((tax) => tax.state === city.title),
     ),
   );
@@ -102,7 +103,7 @@ const AddCitiesPopup = (props: AddCitiesPopupProps) => {
       return;
     }
 
-    syncSelection(selectAll ? [] : [...(cityList || [])]);
+    syncSelection(selectAll ? [] : [...(cityList ?? [])]);
   };
 
   const buttonState = formSelectedCities?.length <= 0;

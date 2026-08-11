@@ -170,7 +170,7 @@ const SelectProductsDialog = ({
     brand_ids: filters.brand_ids ? [filters.brand_ids] : undefined,
   }, open);
 
-  const products = data?.results ?? [];
+  const products = useMemo(() => data?.results ?? [], [data?.results]);
   const pickerItems = useMemo(
     () =>
       products.map((product) => ({

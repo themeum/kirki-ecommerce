@@ -62,6 +62,7 @@ const SingleRow = ({
           </Flex>
         </Flex>
       </TableCell>
+      {/* eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing -- a customer with 0 orders renders as '--' like the other empty cells in this row; ?? would print 0 */}
       <TableCell>{item?.orders_count || '--'}</TableCell>
       <TableCell>{displayMoney('base_amount_spent', item)}</TableCell>
       <TableCell>{item?.location || '--'}</TableCell>

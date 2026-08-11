@@ -43,7 +43,7 @@ function renderField(field: OnlinePaymentField) {
       return <SelectField
         name={field.name}
         label={field.label}
-        options={field.options || []}
+        options={field.options ?? []}
         infoText={field.description}
       />
     case 'checkbox':

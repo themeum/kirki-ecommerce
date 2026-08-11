@@ -3,7 +3,7 @@ import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifi
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { css } from '@emotion/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 
 import ConfirmationDialog from '@/components/modal/confirmation-dialog';
@@ -85,7 +85,7 @@ const SortableCard = ({
             <Flex direction="column" gap={2}>
               <Text weight="medium">{item?.name}</Text>
               <Flex gap={2} wrap="wrap" rowGap={3} cssOverride={{ maxWidth: '480px' }}>
-                {(item?.values || []).map((variant, index) => (
+                {(item?.values ?? []).map((variant, index) => (
                   <Chip
                     gap={2}
                     key={index}
@@ -126,7 +126,11 @@ SortableCard.displayName = 'SortableCard';
 
 const AttributeList = () => {
   const { control } = useFormContext<ProductFormInput>();
-  const formAttributes = useWatch({ control, name: 'attributes' }) ?? [];
+  const watchedAttributes = useWatch({ control, name: 'attributes' });
+  const formAttributes = useMemo<NonNullable<typeof watchedAttributes>>(
+    () => watchedAttributes ?? [],
+    [watchedAttributes],
+  );
   const [attributeValues, setAttributeValues] = useState<Attribute[]>([]);
   const [editingId, setEditingId] = useState<number | string | null>(null);
   const [pendingRemoval, setPendingRemoval] = useState<MatrixMutation | null>(

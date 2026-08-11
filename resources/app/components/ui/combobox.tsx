@@ -7,6 +7,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Separator } from '@/components/ui/separator';
 import { theme } from '@/theme';
 import { defineStyles, flexCenter, itemCenter, scoped, scopedMerge, uiFocusRing } from '@/theme/mixins';
+import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 
 type ComboboxOption = {
@@ -43,7 +44,7 @@ type ComboboxProps = {
 const Combobox = ({
   options,
   value,
-  onChange = () => {},
+  onChange = noop,
   placeholder = __('Select...', 'kirki-ecommerce'),
   searchPlaceholder = __('Search...', 'kirki-ecommerce'),
   emptyText = __('No results found.', 'kirki-ecommerce'),
@@ -52,7 +53,7 @@ const Combobox = ({
   multiple = false,
   creatable = false,
   addItemLabel = __('Add item', 'kirki-ecommerce'),
-  onAddItem = () => {},
+  onAddItem = noop,
   cssOverride,
   listCss,
   searchInputCss,

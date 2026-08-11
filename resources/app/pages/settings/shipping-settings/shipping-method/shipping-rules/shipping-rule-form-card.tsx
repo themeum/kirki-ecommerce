@@ -20,6 +20,7 @@ import { applyServerErrors } from '@/libs/form-errors';
 import { queryClient } from '@/libs/query-client';
 import { queryKeys } from '@/libs/query-keys';
 import { getDefaults } from '@/libs/zod';
+import type { DestinationConditionValue } from '@/pages/settings/shipping-settings/shipping-method/select-destination-dialog';
 import { SelectDestinationPopup } from '@/pages/settings/shipping-settings/shipping-method/select-destination-dialog';
 import { resolveDestinationRegion } from '@/pages/settings/shipping-settings/shipping-method/shipping-rules/helper';
 import { actionOptionsArray, conditionOptions, type ShippingRegion, type ShippingRule, type ShippingZone } from '@/pages/settings/shipping-settings/utils';
@@ -35,6 +36,7 @@ import { useShippingProfilesQuery } from '@/services/shipping';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss } from '@/theme/mixins';
+import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 
 type ShippingRuleFormCardProps = {
@@ -66,7 +68,7 @@ const buildDefaultValues = (initialRule?: ShippingRule): ShippingRuleFormInput =
     condition_value: isDestination
       ? {
         country: (condition.value as { country: string }).country,
-        states: (condition.value as { states?: (string | number)[] }).states || [],
+        states: (condition.value as { states?: (string | number)[] }).states ?? [],
       }
       : (condition?.value ?? null),
     action: action?.type || 'set_shipping_cost',
@@ -114,10 +116,15 @@ const ShippingRuleFormCard = ({
     control: form.control,
     name: 'selected_country',
   });
+  /**
+   * `condition_value` is polymorphic across condition types, so the schema
+   * types it as `unknown`. The destination dialog below is only rendered for
+   * `destination_region`, where it always holds a `{country, states}` pair.
+   */
   const selectedConditionValue = useWatch({
     control: form.control,
     name: 'condition_value',
-  });
+  }) as DestinationConditionValue | null;
 
   useEffect(() => {
     if (selectedCondition !== 'destination_region') {
@@ -144,7 +151,7 @@ const ShippingRuleFormCard = ({
     if (selected_country && mode !== 'edit') {
       form.setValue('condition_value', {
         country: selected_country,
-        states: regionForCountry?.states || [],
+        states: regionForCountry?.states ?? [],
       });
     }
   }, [selectedCountry, selectedRegion, selectedCondition, mode, form]);
@@ -241,7 +248,7 @@ const ShippingRuleFormCard = ({
     method: { shipping_rules?: ShippingRule[] },
     rule: ShippingRuleFormPayload,
   ) => {
-    const rules = method.shipping_rules || [];
+    const rules = method.shipping_rules ?? [];
 
     if (ruleIndex !== -1) {
       return rules.map((existingRule, idx) =>
@@ -417,7 +424,7 @@ const ShippingRuleFormCard = ({
                 : value;
             form.setValue('condition_value', next);
           }}
-          setRulesObj={() => { }}
+          setRulesObj={noop}
           ruleIndex={-1}
           onSave={(values) => {
             form.setValue('selected_country', values.country);

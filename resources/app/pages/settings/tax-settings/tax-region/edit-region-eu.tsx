@@ -45,7 +45,7 @@ const VatCollectionProcessRadios = () => {
     setValue('type', nextType, { shouldDirty: true });
 
     if (nextType === 'micro_business') {
-      const currentList = getValues('product_tax') || [];
+      const currentList = getValues('product_tax') ?? [];
       if (Array.isArray(currentList) && currentList.length > 0) {
         setValue('product_tax', [currentList[0]], { shouldDirty: true });
       }
@@ -170,9 +170,14 @@ const EditRegionEU = () => {
     control: form.control,
     name: 'type',
   });
-  const vatCollectionList =
-    (useWatch({ control: form.control, name: 'product_tax' }) as TaxRate[]) ||
-    [];
+  const watchedProductTax = useWatch({
+    control: form.control,
+    name: 'product_tax',
+  });
+  const vatCollectionList = useMemo(
+    () => watchedProductTax ?? [],
+    [watchedProductTax],
+  );
 
   const euRegion = useMemo(() => {
     const base = regions.find((region) => region.code === 'EU');
@@ -196,7 +201,7 @@ const EditRegionEU = () => {
     const eu = regionList.find((region) => region.code === 'EU');
     form.reset({
       type: eu?.type ? String(eu.type) : 'oss',
-      product_tax: eu?.product_tax || [],
+      product_tax: eu?.product_tax ?? [],
     });
   }, [taxSettingsData, form]);
 

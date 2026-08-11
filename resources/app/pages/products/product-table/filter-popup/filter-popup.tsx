@@ -18,6 +18,7 @@ import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
 import type { ProductListFilter} from '@/types/filters/product';
 import { productListOptions } from '@/types/filters/product';
+import { noop } from '@/utils/function';
 import { __, sprintf } from '@/wpi18n';
 
 type LocalFilterState = {
@@ -35,7 +36,7 @@ type FilterPopupProps = {
 };
 
 const FilterPopup = memo(({
-  onChange: _onChange = () => { },
+  onChange: _onChange = noop,
   buttonProps,
   data: _data,
 }: FilterPopupProps) => {
@@ -62,12 +63,13 @@ const FilterPopup = memo(({
       return;
     }
     setFilterObject({
-      category_ids: params.category_ids || [],
+      category_ids: params.category_ids ?? [],
       status: (params.status as string) || 'all',
       stock_status: params.stock_status || '',
       collection_ids: params.collection_ids?.[0],
       brand_ids: params.brand_ids?.[0],
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- seeds the draft filters from the URL params only as the popup opens; tracking params.* would overwrite the user edits as they change each control
   }, [openPopup]);
 
   const handleOnFilterChange = (

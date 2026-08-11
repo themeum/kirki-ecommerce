@@ -10,6 +10,7 @@ import type { ProductVariationPopoverFormPayload } from '@/schemas/forms/product
 import type { VariationValueFormPayload } from '@/schemas/forms/variation-value-form';
 import { useAttributesQuery, useCreateAttributeValueMutation } from '@/services/attribute';
 import type { Attribute } from '@/types';
+import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 
 type AttributeValueRef = {
@@ -179,7 +180,7 @@ const AttributeValuesField = <
               initialValues={initialValues}
               onSave={(variation) => {
                 void createValue(variation.title, variation.color).catch(
-                  () => { },
+                  noop,
                 );
                 setColorDialogOpen(false);
               }}

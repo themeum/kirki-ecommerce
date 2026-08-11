@@ -9,6 +9,7 @@ import Text from '@/components/ui/text';
 import { theme } from '@/theme';
 import { defineStyles, scopedMerge } from '@/theme/mixins';
 import type { SelectOption } from '@/types';
+import { noop } from '@/utils/function';
 import { __, sprintf } from '@/wpi18n';
 
 type BulkActionHandlerProps = {
@@ -28,7 +29,7 @@ const BulkActionHandler = (props: BulkActionHandlerProps) => {
     itemCount,
     optionsArray,
     onSelectAll = false,
-    onApply = () => {},
+    onApply = noop,
     style = {},
     filterAction,
     total,

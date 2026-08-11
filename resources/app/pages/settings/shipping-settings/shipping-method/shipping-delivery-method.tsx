@@ -87,7 +87,7 @@ const ShippingDeliveryMethod = () => {
       return;
     }
     form.reset(pickFormValues(ShippingMethodFormSchema, editingMethod));
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- re-hydrate only when the edited method's identity changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- keyed on the method id so the form only reloads when a different method is opened; depending on the whole object would discard edits on every keystroke upstream
   }, [editingMethod?.id]);
 
   useEffect(() => {

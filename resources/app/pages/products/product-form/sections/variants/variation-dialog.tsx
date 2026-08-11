@@ -47,7 +47,7 @@ const VariationDialog = ({
       title: initialValues?.title ?? '',
       color: '',
     });
-  }, [isOpen, form.reset, initialValues]);
+  }, [isOpen, form, initialValues]);
 
   const handleNewValueSave = (payload: ProductVariationPopoverFormPayload) => {
     onSave?.(payload);

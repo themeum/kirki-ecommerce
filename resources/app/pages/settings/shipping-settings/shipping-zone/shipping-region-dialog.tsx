@@ -76,7 +76,7 @@ export const ShippingRegionPopup = ({
       regions: initialRegions,
     });
     setSearchValue('');
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- only re-hydrate when the dialog opens, not on every prop identity change
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- seeds the form from the initial props only as the dialog opens; tracking them would reset the form while the user is picking regions
   }, [open]);
 
   useEffect(() => {

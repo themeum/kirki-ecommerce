@@ -38,6 +38,7 @@ import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
 import type { ShippingBox } from '@/types';
+import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 
 type ShippingBoxPopupProps = {
@@ -68,8 +69,8 @@ const convertValue = (
 const ShippingBoxPopup = ({
   selectedItem = null,
   isOpen,
-  onClose = () => { },
-  onSave = () => { },
+  onClose = noop,
+  onSave = noop,
 }: ShippingBoxPopupProps) => {
   const { data: productSettingsData } = useSettingsQuery('product');
   const { mutateAsync: createBox, isPending: isCreating } =

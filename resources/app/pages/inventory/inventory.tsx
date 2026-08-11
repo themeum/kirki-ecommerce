@@ -26,7 +26,7 @@ const InventoryPage = () => {
     if (inventoryData) {
       setInventory(inventoryData);
     }
-  }, [inventoryData]);
+  }, [inventoryData, setInventory]);
 
   const handleInventoryUpdate = () => {
     if (!data) {

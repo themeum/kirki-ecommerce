@@ -39,7 +39,10 @@ const ShippingZonePage = () => {
   const { mutateAsync: saveSettings, isPending: isSaving } = useUpdateSettingsMutation<'shipping'>();
 
   const loaded = !isLoading && Boolean(shippingSettingsData);
-  const zones = (shippingSettingsData?.shipping_zones as ShippingZone[]) || [];
+  const zones = useMemo(
+    () => (shippingSettingsData?.shipping_zones as ShippingZone[] | undefined) ?? [],
+    [shippingSettingsData?.shipping_zones],
+  );
 
   const activeZone = zones.find((zone) => String(zone.id) === String(zoneId));
 
@@ -74,7 +77,7 @@ const ShippingZonePage = () => {
       return;
     }
     form.reset(pickFormValues(ShippingZoneFormSchema, activeZone));
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- re-hydrate only when the active zone identity changes, not on every unrelated zones update
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- keyed on the zone id so the form only reloads when a different zone is opened; depending on the whole object would discard edits as the zone list refetches
   }, [activeZone?.id]);
 
   useEffect(() => {

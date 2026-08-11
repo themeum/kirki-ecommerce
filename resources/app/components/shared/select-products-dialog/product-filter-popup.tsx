@@ -63,6 +63,7 @@ const ProductFilterPopup = memo(({ value, onApply, children }: ProductFilterPopu
       collection_ids: value.collection_ids,
       brand_ids: value.brand_ids,
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- seeds the draft filters from `value` only as the popup opens; tracking value.* would overwrite the user edits as they change each control
   }, [openPopup]);
 
   const handleOnFilterChange = (
