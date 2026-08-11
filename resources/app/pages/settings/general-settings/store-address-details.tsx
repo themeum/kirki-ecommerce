@@ -61,7 +61,7 @@ const StoreAddressDetails = () => {
 
                 <StateField
                   name="store_address.state"
-                  country={country as string}
+                  country={country}
                   label={__('State / Province', 'kirki-ecommerce')}
                 />
 

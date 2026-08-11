@@ -14,7 +14,7 @@ const ProgressBarPreview = () => {
       <ProgressBar
         value={value}
         onChange={handleProgress}
-        label={'Progress Bar'}
+        label="Progress Bar"
         rightText={value}
       />
     </div>

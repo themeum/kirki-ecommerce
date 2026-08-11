@@ -1,3 +1,4 @@
+import { Check } from 'lucide-react';
 import { type Dispatch, type SetStateAction } from 'react';
 
 import ActionGroup from '@/components/ui/action-group';
@@ -12,7 +13,6 @@ import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
 import type { OnlinePayment } from '@/types';
 import { __ } from '@/wpi18n';
-import { Check } from 'lucide-react';
 
 type OnlinePaymentPopupProps = {
   openPopup: boolean;
@@ -107,5 +107,5 @@ const styles = defineStyles({
     height: 20,
     width: 'auto',
     objectFit: 'contain',
-  }
+  },
 });

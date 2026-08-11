@@ -2,13 +2,12 @@ import { useFormContext, useWatch } from 'react-hook-form';
 
 import CheckboxField from '@/components/form/checkbox-field';
 import MoneyField from '@/components/form/money-field';
-import TextareaField from '@/components/form/textarea-field';
 import TextField from '@/components/form/text-field';
+import TextareaField from '@/components/form/textarea-field';
 import Flex from '@/components/ui/flex';
 import Grid from '@/components/ui/grid';
-import { __ } from '@/wpi18n';
-
 import type { ShippingMethodFormInput } from '@/schemas/forms/shipping-method-form';
+import { __ } from '@/wpi18n';
 
 const LocalPickupSettings = () => {
   const { control } = useFormContext<ShippingMethodFormInput>();

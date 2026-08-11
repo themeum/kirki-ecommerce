@@ -1,5 +1,5 @@
 export type {
-  AttributeType,
   Attribute,
+  AttributeType,
   AttributeValue,
 } from '@/schemas/catalog/attribute';

@@ -1,5 +1,5 @@
-import { CSSObject } from '@emotion/react';
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import type { CSSObject } from '@emotion/react';
+import { type CSSProperties, type ReactNode, useEffect, useRef, useState } from 'react';
 
 import Button from '@/components/ui/button';
 import { Field, FieldLabel } from '@/components/ui/field';
@@ -67,9 +67,9 @@ const MediaSelector = ({
   useEffect(() => {
     if (typeof wp !== 'undefined' && wp?.media) {
       mediaFrameRef.current = wp.media({
-        title: title,
+        title,
         library: { type: types },
-        multiple: multiple,
+        multiple,
         button: {
           text: buttonText ?? (multiple
             ? __('Use These Images', 'kirki-ecommerce')
@@ -161,5 +161,5 @@ MediaSelector.displayName = 'MediaSelector';
 export default MediaSelector;
 
 const styles = defineStyles({
-  mediaSelector: flexCenter()
+  mediaSelector: flexCenter(),
 });

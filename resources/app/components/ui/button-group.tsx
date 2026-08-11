@@ -1,10 +1,10 @@
 import type { CSSObject } from '@emotion/react';
 import { Slot } from '@radix-ui/react-slot';
+import type {
+  ComponentRef} from 'react';
 import {
-  ComponentRef,
-  forwardRef,
-  type ComponentPropsWithoutRef
-} from 'react';
+  type ComponentPropsWithoutRef,
+  forwardRef} from 'react';
 
 import { Separator } from '@/components/ui/separator';
 import { theme } from '@/theme';
@@ -147,14 +147,14 @@ ButtonGroupSeparator.displayName = 'ButtonGroupSeparator';
 export {
   ButtonGroup,
   ButtonGroupSeparator,
-  ButtonGroupText
+  ButtonGroupText,
 };
 
 export type {
   ButtonGroupOrientation,
   ButtonGroupProps,
   ButtonGroupSeparatorProps,
-  ButtonGroupTextProps
+  ButtonGroupTextProps,
 };
 
 const styles = defineStyles({

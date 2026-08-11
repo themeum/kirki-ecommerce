@@ -1,3 +1,4 @@
+import { Edit3, User2 } from 'lucide-react';
 import { useMemo } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 
@@ -17,13 +18,11 @@ import {
 import Switch from '@/components/ui/switch';
 import Text from '@/components/ui/text';
 import { CartIcon, UserIcon } from '@/icons';
+import { mapEmailGroup } from '@/pages/settings/email-settings/utils';
 import type { EmailSettingsFormInput } from '@/schemas/forms/email-settings-form';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
-
-import { mapEmailGroup } from '@/pages/settings/email-settings/utils';
-import { Edit3, User2 } from 'lucide-react';
 
 type EmailListItem = {
   key: string;

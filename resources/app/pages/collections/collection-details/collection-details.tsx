@@ -23,9 +23,9 @@ import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults, pickFormValues } from '@/libs/zod';
 import {
-  CollectionFormSchema,
   type CollectionFormInput,
   type CollectionFormPayload,
+  CollectionFormSchema,
 } from '@/schemas/forms/collection-form';
 import { useCollectionQuery, useCreateCollectionMutation, useUpdateCollectionMutation } from '@/services/collection';
 import { theme } from '@/theme';
@@ -80,7 +80,7 @@ const CollectionDetails = () => {
         });
       } else {
         const response = await createMutation.mutateAsync(payload);
-        navigate(RouteConfig.Collections.get('CollectionDetail').buildLink({ id: response.data.id }));
+        void navigate(RouteConfig.Collections.get('CollectionDetail').buildLink({ id: response.data.id }));
       }
     } catch (error) {
       applyServerErrors(form, error as ErrorResponse);

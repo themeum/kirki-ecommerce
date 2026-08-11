@@ -4,12 +4,11 @@ import { useLocation } from 'react-router';
 import Flex from '@/components/ui/flex';
 import Searchbox from '@/components/ui/searchbox';
 import Text from '@/components/ui/text';
+import { SettingsNavItemRow } from '@/pages/settings/settings-layout/settings-nav-item';
+import { advancedSettings, businessOperationSettings, type SettingsNavItem, storeManagementSettings } from '@/pages/settings/utils';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
-
-import { SettingsNavItemRow } from '@/pages/settings/settings-layout/settings-nav-item';
-import { advancedSettings, businessOperationSettings, storeManagementSettings, type SettingsNavItem } from '@/pages/settings/utils';
 
 type SettingsSection = {
   title: string;

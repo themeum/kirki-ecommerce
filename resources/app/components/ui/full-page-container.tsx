@@ -1,8 +1,8 @@
-import { forwardRef, type ComponentPropsWithoutRef } from 'react';
+import { type ComponentPropsWithoutRef, forwardRef } from 'react';
 
 import Container from '@/components/ui/container';
 import { theme } from '@/theme';
-import { mergeCss, defineStyles } from '@/theme/mixins';
+import { defineStyles, mergeCss } from '@/theme/mixins';
 
 type FullPageContainerProps = ComponentPropsWithoutRef<typeof Container>;
 

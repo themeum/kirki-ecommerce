@@ -70,7 +70,7 @@ const createAttributeValue = (data: VariationValueFormPayload) => {
 const updateAttributeValue = (params: VariationValueFormPayload) => {
   const { attribute_id, value_id, value, color } = params;
   return apiClient
-    .put(endpoints.ATTRIBUTE_VALUE(attribute_id, value_id as number), { value, color })
+    .put(endpoints.ATTRIBUTE_VALUE(attribute_id, value_id!), { value, color })
     .then((response) => parseResponse(AttributeValueSchema, response));
 };
 
@@ -243,6 +243,6 @@ const useBulkDeleteAttributeValuesMutation = () => {
 };
 
 export {
-  bulkDeleteAttributeValues, createAttribute, createAttributeValue, deleteAttribute, deleteAttributeValue, getAttribute, getAttributes, getAttributeValues, updateAttribute, updateAttributeValue, useAttributeQuery, useAttributesQuery, useAttributeValuesQuery, useBulkDeleteAttributeValuesMutation, useCreateAttributeMutation, useCreateAttributeValueMutation, useDeleteAttributeMutation, useDeleteAttributeValueMutation, useUpdateAttributeMutation, useUpdateAttributeValueMutation
+  bulkDeleteAttributeValues, createAttribute, createAttributeValue, deleteAttribute, deleteAttributeValue, getAttribute, getAttributes, getAttributeValues, updateAttribute, updateAttributeValue, useAttributeQuery, useAttributesQuery, useAttributeValuesQuery, useBulkDeleteAttributeValuesMutation, useCreateAttributeMutation, useCreateAttributeValueMutation, useDeleteAttributeMutation, useDeleteAttributeValueMutation, useUpdateAttributeMutation, useUpdateAttributeValueMutation,
 };
 

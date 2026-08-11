@@ -17,7 +17,7 @@ type TranslatePluralContext = (
   context: string,
   domain?: string,
 ) => string;
-type SprintfFn = (format: string, ...args: Array<string | number>) => string;
+type SprintfFn = (format: string, ...args: (string | number)[]) => string;
 type SetLocaleDataFn = (
   data: Record<string, unknown>,
   domain?: string,

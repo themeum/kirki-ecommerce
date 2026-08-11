@@ -27,7 +27,7 @@ const SingleRow = ({
   const deleteMutation = useDeleteCustomerMutation();
 
   const handleItemClick = (id: number) => {
-    navigate(RouteConfig.Customers.get('CustomerDetail').buildLink({ id }));
+    void navigate(RouteConfig.Customers.get('CustomerDetail').buildLink({ id }));
   };
 
   const onItemDelete = (id: number) => {

@@ -1,7 +1,7 @@
 import Button from '@/components/ui/button';
-import { ButtonDefaultIcon } from '@/icons';
 import Flex from '@/components/ui/flex';
 import Tooltip from '@/components/ui/tooltip';
+import { ButtonDefaultIcon } from '@/icons';
 
 const ButtonPreview = () => {
   return (

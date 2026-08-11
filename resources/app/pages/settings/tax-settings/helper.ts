@@ -17,15 +17,15 @@ type EuGroupedCountry = {
   code: string;
   group: string;
   flag: string;
-  states: Array<{
+  states: {
     id: string;
     name: string;
     code: string;
     flag?: string;
-  }>;
+  }[];
 };
 
-type GroupedCountryList = Array<CountryWithGroup | EuGroupedCountry>;
+type GroupedCountryList = (CountryWithGroup | EuGroupedCountry)[];
 
 export type { CountryWithGroup, EuGroupedCountry, GroupedCountryList };
 

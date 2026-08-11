@@ -90,4 +90,4 @@ type CustomerFormInput = z.input<typeof CustomerFormSchema>;
 
 type CustomerFormPayload = z.output<typeof CustomerFormSchema>;
 
-export { CustomerFormSchema, type CustomerFormInput, type CustomerFormPayload };
+export { type CustomerFormInput, type CustomerFormPayload, CustomerFormSchema };

@@ -1,22 +1,21 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 
+import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Combobox from '@/components/ui/combobox';
 import { Field, FieldLabel } from '@/components/ui/field';
-import { MinusIcon } from '@/icons';
-import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import Thumbnail from '@/components/ui/thumbnail';
+import { MinusIcon } from '@/icons';
+import BrandAddEditPopover from '@/pages/brands/brand-add-edit-dialog';
 import type { ProductFormInput } from '@/schemas/forms/product-form';
 import { useBrandsQuery } from '@/services/brand';
 import { cardStyles } from '@/theme/card-styles';
 import type { Brand as BrandEntity, SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
-
-import BrandAddEditPopover from '@/pages/brands/brand-add-edit-dialog';
 
 type BrandSuggestion = SelectOption & BrandEntity;
 

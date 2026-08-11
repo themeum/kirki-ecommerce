@@ -1,10 +1,9 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
-import { cardStyles } from '@/theme/card-styles';
-import { __ } from '@/wpi18n';
-
 import AttributeList from '@/pages/products/product-form/sections/variants/attribute-list/attribute-list';
 import VariationTable from '@/pages/products/product-form/sections/variants/variation-table/variation-table';
+import { cardStyles } from '@/theme/card-styles';
+import { __ } from '@/wpi18n';
 
 const Variants = () => {
   return (

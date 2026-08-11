@@ -1,5 +1,5 @@
 import type { CSSObject } from '@emotion/react';
-import { useEffect, useState, type ComponentProps, type CSSProperties, type ReactNode } from 'react';
+import { type ComponentProps, type CSSProperties, type ReactNode, useEffect, useState } from 'react';
 
 import Button from '@/components/ui/button';
 import Checkbox from '@/components/ui/checkbox';
@@ -61,10 +61,10 @@ const mapButtonSize = (size?: ButtonSize): NewButtonSize =>
 type DropdownButtonProps = {
   buttonProps?: DropdownTriggerButtonProps;
   dropdownStyle?: CSSProperties;
-  value?: Array<string | number>;
+  value?: (string | number)[];
   options?: DropdownOption[];
   onOptionToggle?: (open: boolean) => void;
-  onOptionSelect?: (value: string | number | Array<string | number>) => void;
+  onOptionSelect?: (value: string | number | (string | number)[]) => void;
   children?: ReactNode;
   size?: DropdownSize;
   hasLeftIcon?: boolean;
@@ -86,7 +86,7 @@ const DropdownButton = ({
   multiple,
 }: DropdownButtonProps) => {
   const [openDropdown, setOpenDropdown] = useState(false);
-  const [selectedValues, setSelectedValues] = useState<Array<string | number>>(
+  const [selectedValues, setSelectedValues] = useState<(string | number)[]>(
     value ?? [],
   );
 

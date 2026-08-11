@@ -1,7 +1,7 @@
 import MediaSelector from '@/components/media-selector';
-import { ThumbnailPlaceholder } from '@/icons';
 import Flex from '@/components/ui/flex';
 import Placeholder from '@/components/ui/placeholder';
+import { ThumbnailPlaceholder } from '@/icons';
 
 const PlaceholderPreview = () => {
   const handlePlaceholderClick = () => {

@@ -1,16 +1,15 @@
 import BulkActionHandler from '@/components/bulk-action-handler';
 import Sorting from '@/components/sorting';
-import { useListParams, useMarkList } from '@/hooks';
 import Checkbox from '@/components/ui/checkbox';
 import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { useListParams, useMarkList } from '@/hooks';
+import CategoryTableAction from '@/pages/categories/category-table/category-table-action';
+import SingleRow from '@/pages/categories/category-table/single-row';
 import { useBulkDeleteCategoriesMutation } from '@/services/category';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
 import type { Category, PaginatedData, TaxonomyTableHeader } from '@/types';
 import { __ } from '@/wpi18n';
-
-import CategoryTableAction from '@/pages/categories/category-table/category-table-action';
-import SingleRow from '@/pages/categories/category-table/single-row';
 
 type CategoryTableProps = {
   data: PaginatedData<Category>;
@@ -135,7 +134,7 @@ const CategoryTable = ({ data }: CategoryTableProps) => {
                 <Sorting data={header} />
               </TableHead>
             ))}
-            <TableHead></TableHead>
+            <TableHead />
           </TableRow>
         </TableHeader>
         <TableBody>

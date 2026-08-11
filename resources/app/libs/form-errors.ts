@@ -1,6 +1,6 @@
 import type { FieldPath, FieldValues, UseFormReturn } from 'react-hook-form';
 
-import { getErrorsObject, type ErrorResponse } from '@/libs/api';
+import { type ErrorResponse, getErrorsObject } from '@/libs/api';
 
 type ApplyServerErrorsOptions = {
   stripPrefix?: string;

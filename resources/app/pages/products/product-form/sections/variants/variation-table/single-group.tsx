@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import type React from 'react';
+import { useEffect, useState } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 
 import MediaStack from '@/components/media-stack';
@@ -9,17 +10,15 @@ import Input from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { TableCell, TableRow } from '@/components/ui/table';
 import { ChevronDownIcon } from '@/icons';
+import { generateVariantIndexById, generateVariantIndexes, getAttributeByValueId } from '@/pages/products/utils';
 import type { ProductFormInput } from '@/schemas/forms/product-form';
+import { defineStyles } from '@/theme/mixins';
 import type {
-  AttributeValue,
   MediaChangePayload,
   MediaRef,
   ProductVariant,
 } from '@/types';
 import { __ } from '@/wpi18n';
-
-import { generateVariantIndexById, generateVariantIndexes, getAttributeByValueId } from '@/pages/products/utils';
-import { defineStyles } from '@/theme/mixins';
 
 import VariantThumbnailSelector from './variant-thumbnail-selector';
 
@@ -65,7 +64,7 @@ const SingleGroup = ({
   const { control, setValue } = useFormContext<ProductFormInput>();
   const attributes = useWatch({ control, name: 'attributes' }) ?? [];
   const variants = (useWatch({ control, name: 'variants' }) ?? []) as ProductVariant[];
-  const productGallery = (useWatch({ control, name: 'media' }) ?? []) as MediaRef[];
+  const productGallery = (useWatch({ control, name: 'media' }) ?? []);
   const galleryIds = productGallery.map((item) => Number(item.id)).filter(Boolean);
   const [selectedCheckedIndex, setSelectedCheckedIndex] = useState<number[]>(
     [],
@@ -84,7 +83,7 @@ const SingleGroup = ({
     let in_stock: boolean | string | undefined = thisVariants[0]?.in_stock;
     let available_quantity = 0;
     let mediaArray: CombinedData['media'] = [
-      thisVariants[0]?.media as MediaRef | null | undefined,
+      thisVariants[0]?.media,
     ];
 
     thisVariants.forEach((item) => {
@@ -94,14 +93,14 @@ const SingleGroup = ({
       available_quantity += Number(item?.available_quantity);
       mediaArray =
         item?.media && (mediaArray?.length ?? 0) < 2
-          ? [...(mediaArray || []), item.media as MediaRef]
+          ? [...(mediaArray || []), item.media]
           : mediaArray;
     });
     setCombinedData((prev) => ({
       ...prev,
       base_price: minPrice === maxPrice ? minPrice : `${minPrice} - ${maxPrice}`,
-      in_stock: in_stock,
-      available_quantity: available_quantity,
+      in_stock,
+      available_quantity,
       media: mediaArray,
     }));
   }, [variants]);
@@ -109,7 +108,7 @@ const SingleGroup = ({
   const thisAttribute = getAttributeByValueId(
     attributes,
     parentId,
-  ) as AttributeValue | null;
+  );
 
   useEffect(() => {
     setShow(expandVariation);
@@ -146,7 +145,7 @@ const SingleGroup = ({
 
     updateVariants({
       key: fieldName,
-      value: value,
+      value,
       variant_index: [...selectedIndex, ...indexList],
     });
   };
@@ -154,7 +153,7 @@ const SingleGroup = ({
   const handleOnParentValueChange = (value: unknown, fieldName: string) => {
     const indexList = generateVariantIndexes(variants, [
       parentId,
-    ]) as number[];
+    ]);
     if (fieldName === 'media') {
       const mediaValue = value as MediaChangePayload & {
         date?: unknown;
@@ -165,7 +164,7 @@ const SingleGroup = ({
     }
     updateVariants({
       key: fieldName,
-      value: value,
+      value,
       variant_index: [
         ...selectedIndex,
         ...indexList.filter((item: number) => !selectedIndex.includes(item)),
@@ -183,7 +182,7 @@ const SingleGroup = ({
     const indexList = generateVariantIndexes(
       variants,
       attributeArray,
-    ) as number[];
+    );
     if (value) {
       setSelectedIndex((prev) => [
         ...prev,
@@ -240,12 +239,12 @@ const SingleGroup = ({
   const getIndexArray = (variant: ProductVariant): number[] => {
     let indexList: number[] = [];
     if (variant.id) {
-      indexList = generateVariantIndexById(variants, variant?.id) as number[];
+      indexList = generateVariantIndexById(variants, variant?.id);
     } else {
       indexList = generateVariantIndexes(
         variants,
         variant?.attribute_values,
-      ) as number[];
+      );
     }
     return indexList;
   };
@@ -284,7 +283,7 @@ const SingleGroup = ({
                 onChange={handleParentThumbnailChange}
               />
             )}
-            <Flex direction={'column'} gap={1}>
+            <Flex direction="column" gap={1}>
               <div>{thisAttribute?.value ?? ''}</div>
               {thisVariants[0]?.attribute_values.length > 1 && (
                 <div>
@@ -369,7 +368,7 @@ const SingleGroup = ({
         <>
           {thisVariants.map((item, index) => (
             <TableRow key={index}>
-              <TableCell></TableCell>
+              <TableCell />
               <TableCell>
                 <Flex gap={3} align="center">
                   <Checkbox
@@ -392,7 +391,7 @@ const SingleGroup = ({
                             getAttributeByValueId(
                               attributes,
                               v,
-                            ) as AttributeValue | null
+                            )
                           )?.value ?? String(v),
                       )
                       .join(' | ')}

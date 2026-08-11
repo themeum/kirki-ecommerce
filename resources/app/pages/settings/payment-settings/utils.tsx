@@ -3,7 +3,7 @@ import SelectField from '@/components/form/select-field';
 import SwitchField from '@/components/form/switch-field';
 import TextField from '@/components/form/text-field';
 import Flex from '@/components/ui/flex';
-import { OnlinePaymentFields } from '@/schemas/catalog/payment';
+import type { OnlinePaymentFields } from '@/schemas/catalog/payment';
 
 type OnlinePaymentField = {
   name: string;

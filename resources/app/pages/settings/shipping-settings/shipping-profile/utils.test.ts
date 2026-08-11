@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
-import type { ShippingZone } from '@/pages/settings/shipping-settings/utils';
 import { getProfileUsage } from '@/pages/settings/shipping-settings/shipping-profile/utils';
+import type { ShippingZone } from '@/pages/settings/shipping-settings/utils';
 
 const buildZone = (
   id: string | number,
-  profileNames: Array<string | null>,
+  profileNames: (string | null)[],
 ): ShippingZone => ({
   id,
   title: `Zone ${id}`,

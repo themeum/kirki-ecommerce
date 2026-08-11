@@ -16,7 +16,7 @@ const ColorPickerPreview = () => {
 
   return (
     <Field cssOverride={{ maxWidth: '280px' }}>
-      <FieldLabel htmlFor="color-picker-preview">{'Set Color'}</FieldLabel>
+      <FieldLabel htmlFor="color-picker-preview">Set Color</FieldLabel>
       <ColorPicker value={color} onValueChange={setColor}>
         <ColorPickerTrigger id="color-picker-preview">
           <ColorPickerSwatch />

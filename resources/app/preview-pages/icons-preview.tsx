@@ -1,15 +1,13 @@
-import * as Components from '@/icons';
 import Grid from '@/components/ui/grid';
+import * as Components from '@/icons';
 
-type IconComponent = (typeof Components)[keyof typeof Components];
-
-const iconNames = Object.keys(Components) as Array<keyof typeof Components>;
+const iconNames = Object.keys(Components) as (keyof typeof Components)[];
 
 const IconsPreview = () => {
   return (
     <Grid columns={6} gap={5}>
       {iconNames.map((iconName) => {
-        const Icon = Components[iconName] as IconComponent;
+        const Icon = Components[iconName];
         return (
           <div key={iconName}>
             <p>{iconName}</p>

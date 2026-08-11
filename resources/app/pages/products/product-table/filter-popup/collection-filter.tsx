@@ -12,7 +12,7 @@ type FilterObject = {
 
 type CollectionFilterProps = {
   filterObject: FilterObject;
-  onChange?: (val: string | number | Array<string | number>) => void;
+  onChange?: (val: string | number | (string | number)[]) => void;
 };
 
 type CollectionOption = { label: string; value: string };

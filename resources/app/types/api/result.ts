@@ -19,4 +19,4 @@ type AxiosErrorLike = {
   message?: string;
 };
 
-export type { BulkActionParams, ApiCallResult, AxiosErrorLike };
+export type { ApiCallResult, AxiosErrorLike, BulkActionParams };

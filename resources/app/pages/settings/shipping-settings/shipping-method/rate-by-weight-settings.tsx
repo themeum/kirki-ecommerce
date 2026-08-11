@@ -6,12 +6,11 @@ import TextareaField from '@/components/form/textarea-field';
 import WeightRangeField from '@/components/form/weight-range-field';
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
+import type { ShippingMethodFormInput } from '@/schemas/forms/shipping-method-form';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
-
-import type { ShippingMethodFormInput } from '@/schemas/forms/shipping-method-form';
 
 const RateByWeightSettings = () => {
   const { control } = useFormContext<ShippingMethodFormInput>();

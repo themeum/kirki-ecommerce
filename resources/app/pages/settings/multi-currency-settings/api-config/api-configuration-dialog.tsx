@@ -1,19 +1,19 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 
 import CheckboxField from '@/components/form/checkbox-field';
 import PasswordField from '@/components/form/password-field';
 import SelectField from '@/components/form/select-field';
+import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
 import { Dialog, DialogBody, DialogClose, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Form } from '@/components/ui/form';
-import { ConfigureKeyIcon } from '@/icons';
-import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
+import { Form } from '@/components/ui/form';
 import Text from '@/components/ui/text';
-import { ApiConfigurationFormSchema, type ApiConfigurationFormInput, type ApiConfigurationFormPayload } from '@/schemas/forms/api-configuration-form';
+import { ConfigureKeyIcon } from '@/icons';
 import { getDefaults } from '@/libs/zod';
+import { type ApiConfigurationFormInput, type ApiConfigurationFormPayload, ApiConfigurationFormSchema } from '@/schemas/forms/api-configuration-form';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
@@ -132,7 +132,7 @@ const ApiConfigurationPopup = ({
                 <PasswordField
                   name="api_key"
                   label={__('API Key', 'kirki-ecommerce')}
-                  placeholder={'******'}
+                  placeholder="******"
                 />
                 <Text weight="medium" cssOverride={styles.helperText}>{__(
                     'Your API key is encrypted and stored securely. Get your API key from ExchangeRate API',

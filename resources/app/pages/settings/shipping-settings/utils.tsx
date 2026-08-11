@@ -4,13 +4,12 @@ import { toast } from 'sonner';
 import { StoreIcon, TruckIcon, WeightIcon } from '@/icons';
 import { queryClient } from '@/libs/query-client';
 import { queryKeys } from '@/libs/query-keys';
+import { getNestedSearchedValue, setUnsavedDataStatus } from '@/pages/settings/utils';
 import type { ShippingSettings } from '@/schemas/catalog/settings';
 import { getErrorMessage } from '@/services/helpers';
 import { updateSettings } from '@/services/settings';
 import type { Country, ToastVariant } from '@/types';
 import { __, _n, sprintf } from '@/wpi18n';
-
-import { getNestedSearchedValue, setUnsavedDataStatus } from '@/pages/settings/utils';
 
 type CountryState = {
   id: string | number;
@@ -27,7 +26,7 @@ type CountryWithStates = Country & {
 
 type ShippingRegion = {
   country: string;
-  states: Array<string | number>;
+  states: (string | number)[];
   hasDeselectedState?: boolean;
   flag?: string;
 };
@@ -67,11 +66,11 @@ type ShippingMethodData = {
   has_pick_time?: boolean;
   pickup_time_start?: string | null;
   pickup_time_end?: string | null;
-  ranges?: Array<{
+  ranges?: {
     from: number | string | null;
     to: number | string | null;
     base_amount: number | string | null;
-  }>;
+  }[];
   is_free_shipping_enabled?: boolean;
   base_free_shipping_min_amount?: number | string | null;
 };
@@ -110,7 +109,7 @@ export type {
   CountryWithStates, RegionTag,
   SaveShippingZonesParams,
   SelectOption, ShippingMethodData, ShippingRegion,
-  ShippingRule, ShippingRuleAction, ShippingRuleCondition, ShippingZone
+  ShippingRule, ShippingRuleAction, ShippingRuleCondition, ShippingZone,
 };
 
 export type SetState<T> = Dispatch<SetStateAction<T>>;
@@ -178,7 +177,7 @@ export const getSearchedCountries = (
   }
   return getNestedSearchedValue(searchValue, countryList ?? [], [
     'states',
-  ]) as CountryWithStates[];
+  ]);
 };
 
 export const saveShippingZones = async ({
@@ -220,7 +219,7 @@ export const getShippingMethodRightText = (method: ShippingMethodData): string |
     (method.type === 'flat_rate' || (method.type === 'local_pickup' && method.has_fee)) &&
     !isEmptyAmount(method.base_amount);
 
-  return showsAmount ? sprintf(__('$%s', 'kirki-ecommerce'), method.base_amount as string | number) : undefined;
+  return showsAmount ? sprintf(__('$%s', 'kirki-ecommerce'), method.base_amount!) : undefined;
 };
 
 export const conditionOptions: SelectOption[] = [

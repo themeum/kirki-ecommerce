@@ -146,6 +146,6 @@ const useBulkDeleteCustomersMutation = () => {
 };
 
 export {
-  bulkDeleteCustomers, createCustomer, deleteCustomer, getCustomer, getCustomers, updateCustomer, useBulkDeleteCustomersMutation, useCreateCustomerMutation, useCustomerQuery, useCustomersQuery, useDeleteCustomerMutation, useUpdateCustomerMutation
+  bulkDeleteCustomers, createCustomer, deleteCustomer, getCustomer, getCustomers, updateCustomer, useBulkDeleteCustomersMutation, useCreateCustomerMutation, useCustomerQuery, useCustomersQuery, useDeleteCustomerMutation, useUpdateCustomerMutation,
 };
 

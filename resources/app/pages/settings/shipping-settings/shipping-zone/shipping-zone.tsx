@@ -13,20 +13,19 @@ import { RouteConfig } from '@/config/route-config';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults, pickFormValues } from '@/libs/zod';
-import {
-  ShippingZoneFormSchema,
-  type ShippingZoneFormInput,
-  type ShippingZoneFormPayload,
-} from '@/schemas/forms/shipping-zone-form';
-import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
-import { cardStyles } from '@/theme/card-styles';
-import { __ } from '@/wpi18n';
-
 import { useSettingsPageActions } from '@/pages/settings/settings-layout/use-settings-page-actions';
 import SettingsPageHeader from '@/pages/settings/settings-page-header';
 import { ShippingMethod } from '@/pages/settings/shipping-settings/shipping-method/shipping-method';
 import type { ShippingMethodData, ShippingZone } from '@/pages/settings/shipping-settings/utils';
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
+import {
+  type ShippingZoneFormInput,
+  type ShippingZoneFormPayload,
+  ShippingZoneFormSchema,
+} from '@/schemas/forms/shipping-zone-form';
+import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
+import { cardStyles } from '@/theme/card-styles';
+import { __ } from '@/wpi18n';
 
 const ShippingZonePage = () => {
   const navigate = useNavigate();

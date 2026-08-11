@@ -1,25 +1,24 @@
 import type { CSSObject } from '@emotion/react';
 import { Minus } from 'lucide-react';
 import { useState } from 'react';
-import { Controller, useFormContext, type FieldPath, type FieldValues } from 'react-hook-form';
+import { Controller, type FieldPath, type FieldValues, useFormContext } from 'react-hook-form';
 
 import Chip from '@/components/ui/chip';
 import ChipField, { chipFieldControlCss } from '@/components/ui/chip-field';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import Input from '@/components/ui/input';
 import { LocationIcon } from '@/icons';
+import { ShippingRegionPopup } from '@/pages/settings/shipping-settings/shipping-zone/shipping-region-dialog';
+import {
+  type CountryWithStates,
+  getSearchedCountries,
+  getSelectedRegionTags,
+  type ShippingRegion,
+} from '@/pages/settings/shipping-settings/utils';
+import { useCountriesQuery } from '@/services/country';
 import { theme } from '@/theme';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
-
-import {
-  getSearchedCountries,
-  getSelectedRegionTags,
-  type CountryWithStates,
-  type ShippingRegion,
-} from '@/pages/settings/shipping-settings/utils';
-import { ShippingRegionPopup } from '@/pages/settings/shipping-settings/shipping-zone/shipping-region-dialog';
-import { useCountriesQuery } from '@/services/country';
 
 type RegionsFieldProps<
   TFieldValues extends FieldValues = FieldValues,

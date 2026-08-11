@@ -3,7 +3,7 @@ import { useEffect, useRef } from 'react';
 
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import { theme } from '@/theme';
-import { scopedMerge, defineStyles } from '@/theme/mixins';
+import { defineStyles, scopedMerge } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 type RichTextProps = {

@@ -15,7 +15,8 @@ import OrderTableAction from '@/pages/orders/order-table/order-table-action';
 import OrderTableFilterBar from '@/pages/orders/order-table/order-table-filter-bar';
 import { useOrdersQuery } from '@/services/order';
 import type { OrderListItem } from '@/types';
-import { OrderListFilter, orderListOptions } from '@/types/filters/order';
+import type { OrderListFilter} from '@/types/filters/order';
+import { orderListOptions } from '@/types/filters/order';
 import { __, sprintf } from '@/wpi18n';
 
 const OrderCell = ({ item }: { item: OrderListItem }) => {
@@ -64,17 +65,17 @@ const OrderTable = () => {
       {
         title: __('Order', 'kirki-ecommerce'),
         renderItem: (item) => <OrderCell item={item} />,
-        cssOverride: { width: '10%' }
+        cssOverride: { width: '10%' },
       },
       {
         title: __('Quantity', 'kirki-ecommerce'),
         renderItem: (item) => <Text variant="small">{item.quantity}</Text>,
-        alignment: 'center'
+        alignment: 'center',
       },
       {
         title: __('Price', 'kirki-ecommerce'),
         renderItem: (item) => <Text variant="small">{item.invoiced_total_money_object.display}</Text>,
-        alignment: 'center'
+        alignment: 'center',
       },
       {
         title: __('Status', 'kirki-ecommerce'),
@@ -91,7 +92,7 @@ const OrderTable = () => {
             </Flex>
           );
         },
-        alignment: 'center'
+        alignment: 'center',
       },
       {
         title: __('Payment', 'kirki-ecommerce'),
@@ -101,13 +102,13 @@ const OrderTable = () => {
             <Text variant="tiny" color="subdued">{item.payment_provider.toUpperCase()}</Text>
           ) : null;
         },
-        alignment: 'center'
+        alignment: 'center',
       },
       {
         title: __('Date', 'kirki-ecommerce'),
         renderItem: (item) =>
           item.created_at ? format(new Date(item.created_at), DATE_FORMATS.HUMAN_READABLE) : '-',
-        alignment: 'center'
+        alignment: 'center',
       },
     ];
   }, [format, getFulfillmentBadgeInfo, getPaymentBadgeInfo])
@@ -119,7 +120,7 @@ const OrderTable = () => {
       columns={orderColumns}
       onPageChange={handlePaginationChange}
       onRowClick={(item) => {
-        navigate(RouteConfig.Orders.get('OrderDetail').buildLink({ id: item.id }));
+        void navigate(RouteConfig.Orders.get('OrderDetail').buildLink({ id: item.id }));
       }}
     >
       <DataTable.Filter>

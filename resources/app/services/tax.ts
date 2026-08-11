@@ -101,6 +101,6 @@ const useDeleteTaxProfileMutation = () => {
 };
 
 export {
-  createTaxProfile, deleteTaxProfile, getTaxProfiles, updateTaxProfile, useCreateTaxProfileMutation, useDeleteTaxProfileMutation, useTaxProfilesQuery, useUpdateTaxProfileMutation
+  createTaxProfile, deleteTaxProfile, getTaxProfiles, updateTaxProfile, useCreateTaxProfileMutation, useDeleteTaxProfileMutation, useTaxProfilesQuery, useUpdateTaxProfileMutation,
 };
 

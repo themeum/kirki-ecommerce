@@ -1,3 +1,4 @@
+import { format } from 'date-fns';
 import { Ban, Copy, Trash2 } from 'lucide-react';
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router';
@@ -10,20 +11,19 @@ import DataTable, {
 import Badge from '@/components/ui/badge';
 import Flex from '@/components/ui/flex';
 import { RouteConfig } from '@/config/route-config';
-import { theme } from '@/theme';
-import { defineStyles, scoped } from '@/theme/mixins';
-import { __ } from '@/wpi18n';
-
 import { useListParams } from '@/hooks';
 import { DATE_FORMATS } from '@/libs/date';
 import CouponTableFilter from '@/pages/coupons/coupon-table/coupon-table-filter';
 import CouponTableFilterBar from '@/pages/coupons/coupon-table/coupon-table-filter-bar';
 import FilterPopup from '@/pages/coupons/coupon-table/filter-popup/filter-popup';
 import { getCouponBadgeInfo } from '@/pages/coupons/edit-coupon/config/coupon-badge';
-import { CouponListItem } from '@/schemas/catalog/coupon';
+import type { CouponListItem } from '@/schemas/catalog/coupon';
 import { useBulkDeleteCouponsMutation, useCouponActionMutation, useCouponsQuery, useDeleteCouponMutation } from '@/services/coupon';
-import { CouponListFilter, couponListOptions } from '@/types/filters/coupon';
-import { format } from 'date-fns';
+import { theme } from '@/theme';
+import { defineStyles, scoped } from '@/theme/mixins';
+import type { CouponListFilter} from '@/types/filters/coupon';
+import { couponListOptions } from '@/types/filters/coupon';
+import { __ } from '@/wpi18n';
 
 const CouponTitleCell = ({ item }: { item: CouponListItem }) => {
   const navigate = useNavigate();
@@ -33,7 +33,7 @@ const CouponTitleCell = ({ item }: { item: CouponListItem }) => {
       <span
         css={scoped(styles.clickable)}
         onClick={() => {
-          navigate(RouteConfig.Coupons.get('EditCoupon').buildLink({ id: item.id }));
+          void navigate(RouteConfig.Coupons.get('EditCoupon').buildLink({ id: item.id }));
         }}
       >
         <span css={scoped(styles.mutedText)}>{item.title} </span>

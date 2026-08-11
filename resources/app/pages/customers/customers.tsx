@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router';
 
 import Pagination from '@/components/pagination';
 import ActionGroup from '@/components/ui/action-group';
+import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Container from '@/components/ui/container';
@@ -12,14 +13,12 @@ import { NEW_ITEM_ID } from '@/conf';
 import { RouteConfig } from '@/config/route-config';
 import { useListParams } from '@/hooks';
 import { CustomerInfoIcon } from '@/icons';
+import CustomerTable from '@/pages/customers/customer-table/customer-table';
 import { useCustomersQuery } from '@/services/customer';
 import { cardStyles } from '@/theme/card-styles';
 import { flexCenter, scoped } from '@/theme/mixins';
 import type { PaginationData } from '@/types';
 import { __ } from '@/wpi18n';
-
-import Badge from '@/components/ui/badge';
-import CustomerTable from '@/pages/customers/customer-table/customer-table';
 
 const Customers = () => {
   const navigate = useNavigate();
@@ -35,7 +34,7 @@ const Customers = () => {
   const { data, isLoading, isFetching } = useCustomersQuery(params);
 
   const handleAddNewCustomer = () => {
-    navigate(RouteConfig.Customers.get('CustomerDetail').buildLink({ id: NEW_ITEM_ID }));
+    void navigate(RouteConfig.Customers.get('CustomerDetail').buildLink({ id: NEW_ITEM_ID }));
   };
 
   const handlePaginationChange = (value: number) => {
@@ -113,5 +112,5 @@ Customers.displayName = 'Customers';
 export default Customers;
 
 const styles = {
-  svgClass: scoped(flexCenter())
+  svgClass: scoped(flexCenter()),
 };

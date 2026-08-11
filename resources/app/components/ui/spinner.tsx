@@ -1,8 +1,8 @@
-import { keyframes, type CSSObject } from '@emotion/react';
+import { type CSSObject, keyframes } from '@emotion/react';
 import { Loader2 } from 'lucide-react';
-import { forwardRef, type ComponentPropsWithoutRef } from 'react';
+import { type ComponentPropsWithoutRef, forwardRef } from 'react';
 
-import { scopedMerge, defineStyles } from '@/theme/mixins';
+import { defineStyles, scopedMerge } from '@/theme/mixins';
 
 type SpinnerProps = Omit<
   ComponentPropsWithoutRef<'span'>,

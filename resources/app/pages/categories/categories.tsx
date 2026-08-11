@@ -1,16 +1,15 @@
+import Pagination from '@/components/pagination';
 import { Card, CardContent } from '@/components/ui/card';
-import { cardStyles } from '@/theme/card-styles';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import PageHeading from '@/components/ui/page-heading';
-import Pagination from '@/components/pagination';
 import { useListParams } from '@/hooks';
-import { useCategoriesQuery } from '@/services/category';
-import type { PaginationData } from '@/types';
-import { __ } from '@/wpi18n';
-
 import CategoryTable from '@/pages/categories/category-table/category-table';
 import NewCategory from '@/pages/categories/new-category';
+import { useCategoriesQuery } from '@/services/category';
+import { cardStyles } from '@/theme/card-styles';
+import type { PaginationData } from '@/types';
+import { __ } from '@/wpi18n';
 
 const Categories = () => {
   const { params, setParam } = useListParams({

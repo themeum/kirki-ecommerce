@@ -22,9 +22,9 @@ type ArrowDownUpFilledProps = {
 };
 
 export type {
-  IconProps,
+  ArrowDownUpFilledProps,
   IconColorProps,
   IconDimensionProps,
+  IconProps,
   IconStyleProps,
-  ArrowDownUpFilledProps,
 };

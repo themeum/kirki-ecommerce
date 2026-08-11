@@ -1,9 +1,9 @@
-import { scoped, defineStyles } from '@/theme/mixins';
-import { forwardRef, useEffect, useRef, useState, type CSSProperties, type MouseEvent, type ReactNode } from 'react';
+import { type CSSProperties, forwardRef, type MouseEvent, type ReactNode, useEffect, useRef, useState } from 'react';
 
 import Flex from '@/components/ui/flex';
 import Label from '@/components/ui/label';
 import { theme } from '@/theme';
+import { defineStyles, scoped } from '@/theme/mixins';
 
 type ProgressBarProps = {
   value?: number;

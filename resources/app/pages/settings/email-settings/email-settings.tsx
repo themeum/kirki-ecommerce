@@ -14,22 +14,21 @@ import { AtSignIcon, BrushIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults, pickFormValues } from '@/libs/zod';
-import {
-  EmailSettingsFormSchema,
-  type EmailSettingsFormInput,
-  type EmailSettingsFormPayload,
-} from '@/schemas/forms/email-settings-form';
-import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
-import { theme } from '@/theme';
-import { defineStyles } from '@/theme/mixins';
-import { __ } from '@/wpi18n';
-
 import AdminEmail from '@/pages/settings/email-settings/admin-email';
 import CustomerEmail from '@/pages/settings/email-settings/customer-email';
 import { buildTogglePayload, EMAIL_CONFIG, findEmailKeyByName } from '@/pages/settings/email-settings/utils';
 import { useSettingsPageActions } from '@/pages/settings/settings-layout/use-settings-page-actions';
 import SettingsPageHeader from '@/pages/settings/settings-page-header';
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
+import {
+  type EmailSettingsFormInput,
+  type EmailSettingsFormPayload,
+  EmailSettingsFormSchema,
+} from '@/schemas/forms/email-settings-form';
+import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
+import { theme } from '@/theme';
+import { defineStyles } from '@/theme/mixins';
+import { __ } from '@/wpi18n';
 
 type EmailGroupData = {
   order_notifications?: Record<
@@ -175,7 +174,7 @@ const EmailSettings = () => {
                   <Button
                     variant="secondary"
                     onClick={() => {
-                      navigate(
+                      void navigate(
                         RouteConfig.Settings.get('EmailSettings').get('EditEmailTemplate').buildLink(),
                       );
                     }}

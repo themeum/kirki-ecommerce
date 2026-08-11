@@ -1,18 +1,17 @@
 import type { Dispatch, SetStateAction } from 'react';
 
 import DropdownButton from '@/components/dropdown-button';
+import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
+import Flex from '@/components/ui/flex';
+import Searchbox from '@/components/ui/searchbox';
 import { Select, SelectContent, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useListParams } from '@/hooks';
 import { LayoutIcon, ListFilter } from '@/icons';
-import ActionGroup from '@/components/ui/action-group';
-import Flex from '@/components/ui/flex';
-import Searchbox from '@/components/ui/searchbox';
+import { allTableHeaders } from '@/pages/inventory/utils';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
-
-import { allTableHeaders } from '@/pages/inventory/utils';
 
 type InventoryTableActionProps = {
   selectedFields: string[];
@@ -31,7 +30,7 @@ const InventoryTableAction = ({
     <Flex cssOverride={styles.wrapper}>
       <div style={{ width: '180px' }}>
         <Searchbox
-          onChange={(value) => setParam('search', value as string)}
+          onChange={(value) => setParam('search', value)}
           value={params.search}
           placeholder={__('Search Products', 'kirki-ecommerce')}
         />

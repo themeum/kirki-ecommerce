@@ -1,4 +1,4 @@
-import { BadgeVariant } from '@/components/ui/badge';
+import type { BadgeVariant } from '@/components/ui/badge';
 import type { FulfillmentStatus, PaymentStatus } from '@/types';
 import { __ } from '@/wpi18n';
 

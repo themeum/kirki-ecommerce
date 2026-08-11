@@ -1,9 +1,9 @@
-import { type CSSObject, type Theme } from '@emotion/react';
+import { type CSSObject } from '@emotion/react';
 import { Slot } from '@radix-ui/react-slot';
-import { forwardRef, type ComponentPropsWithoutRef } from 'react';
+import { type ComponentPropsWithoutRef, forwardRef } from 'react';
 
 import { theme } from '@/theme';
-import { scopedMerge, uiFocusRing, defineStyles } from '@/theme/mixins';
+import { defineStyles, scopedMerge, uiFocusRing } from '@/theme/mixins';
 
 type BadgeVariant =
   | 'default'
@@ -149,7 +149,7 @@ const styles = defineStyles({
     textDecoration: 'none',
     transition: 'color 150ms ease, box-shadow 150ms ease, background-color 150ms ease',
     '&:focus-visible': {
-      ...uiFocusRing(theme as Theme),
+      ...uiFocusRing(theme),
     },
     '& svg': {
       flexShrink: 0,

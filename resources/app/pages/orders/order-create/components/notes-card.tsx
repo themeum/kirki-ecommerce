@@ -1,14 +1,15 @@
+import { PlusIcon } from 'lucide-react';
+import { useRef, useState } from 'react';
+import { useFormContext, useWatch } from 'react-hook-form';
+
 import TextareaField from '@/components/form/textarea-field';
 import Button from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { cardStyles } from '@/theme/card-styles';
-import { OrderFormInput } from '@/types';
+import type { OrderFormInput } from '@/types';
 import { __ } from '@/wpi18n';
-import { PlusIcon } from 'lucide-react';
-import { useRef, useState } from 'react';
-import { useFormContext, useWatch } from 'react-hook-form';
 
 type NotesCardProps = {
   onSave?: () => void;
@@ -21,7 +22,7 @@ const NotesCard = ({ onSave, isSaving }: NotesCardProps) => {
   const { control, getValues, setValue } = useFormContext<OrderFormInput>();
   const notes = useWatch({
     name: 'admin_notes',
-    control
+    control,
   });
 
   const handleEdit = () => {
@@ -41,7 +42,7 @@ const NotesCard = ({ onSave, isSaving }: NotesCardProps) => {
   return (
     <Card cssOverride={cardStyles.formCard}>
       <CardHeader>
-        <CardTitle><Text variant='small' weight='medium'>{__('Notes', 'kirki-ecommerce')}</Text></CardTitle>
+        <CardTitle><Text variant="small" weight="medium">{__('Notes', 'kirki-ecommerce')}</Text></CardTitle>
       </CardHeader>
       <CardContent>
         <Flex direction="column" gap={3}>
@@ -68,7 +69,7 @@ const NotesCard = ({ onSave, isSaving }: NotesCardProps) => {
               {Boolean(notes) && <Text variant="tiny">{notes}</Text>}
               <Button variant="secondary" style={{ width: '100%' }} onClick={handleEdit}>
                 <PlusIcon />
-                {Boolean(notes) ? __('Edit note', 'kirki-ecommerce') : __('Add note', 'kirki-ecommerce')}
+                {notes ? __('Edit note', 'kirki-ecommerce') : __('Add note', 'kirki-ecommerce')}
               </Button>
             </>
           )}

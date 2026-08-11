@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 
 import { RouteConfig } from '@/config/route-config';
 import type { SelectOption } from '@/types';
+import { toDisplayString } from '@/utils/string';
 import { __ } from '@/wpi18n';
 
 export type SettingsNavItem = {
@@ -53,8 +54,8 @@ export const getSortedList = <T extends Record<string, unknown>>({
   }
 
   const sorted = [...data].sort((a, b) => {
-    const aVal = String(a?.[key] ?? '').toLowerCase();
-    const bVal = String(b?.[key] ?? '').toLowerCase();
+    const aVal = toDisplayString(a?.[key]).toLowerCase();
+    const bVal = toDisplayString(b?.[key]).toLowerCase();
 
     if (aVal < bVal) {
       return order === 'asc' ? -1 : 1;

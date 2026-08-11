@@ -1,12 +1,12 @@
 import {
-  useRef,
-  useState,
   type CSSProperties,
   type PointerEvent as ReactPointerEvent,
+  useRef,
+  useState,
 } from 'react';
 
 import { theme } from '@/theme';
-import { scoped, scopedMerge, defineStyles } from '@/theme/mixins';
+import { defineStyles, scoped, scopedMerge } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 type ShippingBoxPreviewProps = {
@@ -110,7 +110,7 @@ const ShippingBoxPreview = ({
   };
 
   const handlePointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
-    if (!dragRef.current || dragRef.current.pointerId !== event.pointerId) {
+    if (dragRef.current?.pointerId !== event.pointerId) {
       return;
     }
 
@@ -124,7 +124,7 @@ const ShippingBoxPreview = ({
   };
 
   const handlePointerUp = (event: ReactPointerEvent<HTMLDivElement>) => {
-    if (!dragRef.current || dragRef.current.pointerId !== event.pointerId) {
+    if (dragRef.current?.pointerId !== event.pointerId) {
       return;
     }
 

@@ -6,7 +6,7 @@ import Button from '@/components/ui/button';
 import Combobox from '@/components/ui/combobox';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
-import { flexCenter, scopedMerge, scoped, defineStyles } from '@/theme/mixins';
+import { defineStyles, flexCenter, scoped, scopedMerge } from '@/theme/mixins';
 import type { SelectOption } from '@/types';
 
 type CapsuleValue = string | number;

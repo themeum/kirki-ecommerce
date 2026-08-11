@@ -1,4 +1,4 @@
-import { useState, type ReactElement } from 'react';
+import { type ReactElement, useState } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 
 import CheckboxField from '@/components/form/checkbox-field';
@@ -11,6 +11,9 @@ import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import Text from '@/components/ui/text';
+import BaseUnitPopup from '@/pages/products/product-form/sections/price/base-unit-dialog';
+import { TaxProfilePopup } from '@/pages/settings/tax-settings/tax-profile/tax-profile-dialog';
+import { calculateProfit } from '@/pages/utils';
 import type { ProductFormInput } from '@/schemas/forms/product-form';
 import { useTaxProfilesQuery } from '@/services/tax';
 import { theme } from '@/theme';
@@ -18,10 +21,6 @@ import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, flexCenter, scoped } from '@/theme/mixins';
 import type { UnitPriceValue } from '@/types';
 import { __ } from '@/wpi18n';
-
-import BaseUnitPopup from '@/pages/products/product-form/sections/price/base-unit-dialog';
-import { TaxProfilePopup } from '@/pages/settings/tax-settings/tax-profile/tax-profile-dialog';
-import { calculateProfit } from '@/pages/utils';
 
 const Price = () => {
   const { control, setValue } = useFormContext<ProductFormInput>();

@@ -10,9 +10,9 @@ import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import { getDefaults } from '@/libs/zod';
 import {
-  ProductVariationPopoverFormSchema,
   type ProductVariationPopoverFormInput,
   type ProductVariationPopoverFormPayload,
+  ProductVariationPopoverFormSchema,
 } from '@/schemas/forms/product-variation-popover-form';
 import type { ButtonState } from '@/types';
 import { __ } from '@/wpi18n';
@@ -28,7 +28,7 @@ const VariationDialog = ({
   isOpen,
   onClose,
   onSave,
-  initialValues
+  initialValues,
 }: VariationPopoverProps) => {
   const form = useForm<ProductVariationPopoverFormInput, unknown, ProductVariationPopoverFormPayload>({
     resolver: zodResolver(ProductVariationPopoverFormSchema),

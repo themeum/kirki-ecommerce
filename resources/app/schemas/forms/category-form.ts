@@ -25,4 +25,4 @@ type CategoryFormInput = z.input<typeof CategoryFormSchema>;
 
 type CategoryFormPayload = z.output<typeof CategoryFormSchema>;
 
-export { CategoryFormSchema, type CategoryFormInput, type CategoryFormPayload };
+export { type CategoryFormInput, type CategoryFormPayload, CategoryFormSchema };

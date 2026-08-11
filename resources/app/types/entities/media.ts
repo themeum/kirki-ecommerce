@@ -1,1 +1,1 @@
-export type { MediaSize, MediaRef } from '@/schemas/shared/media';
+export type { MediaRef, MediaSize } from '@/schemas/shared/media';

@@ -1,6 +1,6 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 
 import TextField from '@/components/form/text-field';
 import Button from '@/components/ui/button';
@@ -9,9 +9,9 @@ import { Form } from '@/components/ui/form';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import {
-  TaxProfileFormSchema,
   type TaxProfileFormInput,
   type TaxProfileFormPayload,
+  TaxProfileFormSchema,
 } from '@/schemas/forms/tax-profile-form';
 import { useCreateTaxProfileMutation, useUpdateTaxProfileMutation } from '@/services/tax';
 import type { TaxProfile } from '@/types';
@@ -63,17 +63,20 @@ export const TaxProfilePopup = ({
   const handleSubmit = async (payload: TaxProfileFormPayload) => {
     try {
       if (from === 'edit') {
+        if (!taxProfile) {
+          return;
+        }
         const response = await updateMutation.mutateAsync({
-          id: taxProfile?.id as number,
+          id: taxProfile.id,
           data: payload,
         });
-        onSave(response.data?.id as number);
+        onSave(response.data?.id);
         handleOnPopupClose();
         return;
       }
 
       const response = await createMutation.mutateAsync(payload);
-      onSave(response.data?.id as number);
+      onSave(response.data?.id);
       handleOnPopupClose();
     } catch (error) {
       applyServerErrors(form, error as ErrorResponse);

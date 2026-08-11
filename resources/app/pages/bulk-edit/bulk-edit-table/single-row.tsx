@@ -3,7 +3,7 @@ import type {
   Dispatch,
   KeyboardEvent,
   MouseEvent,
-  SetStateAction
+  SetStateAction,
 } from 'react';
 import { useEffect, useState } from 'react';
 
@@ -16,15 +16,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { TableCell, TableRow } from '@/components/ui/table';
 import { useBulkEditForm } from '@/contexts/bulk-edit-form-context';
 import { useBulkEditList } from '@/hooks';
-import { useAttributesQuery } from '@/services/attribute';
-import { theme } from '@/theme';
-import { defineStyles, scoped } from '@/theme/mixins';
-import type { MediaRef, ProductVariant, UnitPriceValue } from '@/types';
-import { __ } from '@/wpi18n';
-
 import type { BulkEditSelectionData } from '@/pages/bulk-edit/bulk-edit-table/bulk-edit-table';
 import { default as BaseUnitDialog } from '@/pages/products/product-form/sections/price/base-unit-dialog';
 import { calculateProfit } from '@/pages/utils';
+import { useAttributesQuery } from '@/services/attribute';
+import { theme } from '@/theme';
+import { defineStyles, scoped } from '@/theme/mixins';
+import type { ProductVariant, UnitPriceValue } from '@/types';
+import { __ } from '@/wpi18n';
 
 type BulkEditVariant = ProductVariant & {
   has_limit_per_order?: boolean;
@@ -75,7 +74,7 @@ const SingleRow = (props: SingleRowProps) => {
 
   useEffect(() => {
     const handleMouseUp = () => {
-      if (!selectionData || selectionData.mode !== 'fill') {
+      if (selectionData?.mode !== 'fill') {
         setIsDragging(false);
         return;
       }
@@ -85,12 +84,12 @@ const SingleRow = (props: SingleRowProps) => {
         handleUnitInfoChange(variantIndexes);
       } else {
         const sourceValue =
-          variants[selectionData.baseIndex as number][
+          variants[selectionData.baseIndex!][
           selectionData.fieldName as keyof ProductVariant
           ];
 
         updateVariants({
-          key: selectionData.fieldName as string,
+          key: selectionData.fieldName!,
           value: sourceValue,
           variant_index: variantIndexes,
         });
@@ -98,7 +97,7 @@ const SingleRow = (props: SingleRowProps) => {
       setSelectionData((prev) => ({
         ...prev!,
         mode: 'select',
-        end: prev!.lastIndex as number,
+        end: prev!.lastIndex!,
       }));
       setIsDragging(false);
     };
@@ -123,7 +122,7 @@ const SingleRow = (props: SingleRowProps) => {
     if (selectionData!.start === selectionData!.end) {
       updateVariants({
         key: fieldName,
-        value: value,
+        value,
         variant_index: [index],
       });
       return;
@@ -143,8 +142,8 @@ const SingleRow = (props: SingleRowProps) => {
       handleUnitInfoChange(variantIndexes, value as UnitPriceValue);
     } else {
       updateVariants({
-        key: fieldName || (selectionData.fieldName as string),
-        value: value,
+        key: fieldName || (selectionData.fieldName!),
+        value,
         variant_index: variantIndexes,
       });
     }
@@ -210,12 +209,12 @@ const SingleRow = (props: SingleRowProps) => {
     newValue: UnitPriceValue = {},
   ) => {
     const unitValues = {
-      total_unit: variants[selectionData!.baseIndex as number]?.total_unit,
-      base_unit: variants[selectionData!.baseIndex as number]?.base_unit,
+      total_unit: variants[selectionData!.baseIndex!]?.total_unit,
+      base_unit: variants[selectionData!.baseIndex!]?.base_unit,
       total_unit_amount:
-        variants[selectionData!.baseIndex as number]?.total_unit_amount,
+        variants[selectionData!.baseIndex!]?.total_unit_amount,
       base_unit_amount:
-        variants[selectionData!.baseIndex as number]?.base_unit_amount,
+        variants[selectionData!.baseIndex!]?.base_unit_amount,
       ...newValue,
     };
     updateVariants({
@@ -226,10 +225,10 @@ const SingleRow = (props: SingleRowProps) => {
   };
 
   const isMaxIndex = (rowIndex: number) => {
-    const max = Math.max(
-      selectionData?.baseIndex as number,
-      selectionData?.end as number,
-    );
+    if (selectionData?.baseIndex === undefined) {
+      return false;
+    }
+    const max = Math.max(selectionData.baseIndex, selectionData.end);
     if (rowIndex === max) {
       return true;
     }
@@ -249,7 +248,7 @@ const SingleRow = (props: SingleRowProps) => {
     });
   };
 
-  const media = currentVariation?.media as MediaRef | null | undefined;
+  const media = currentVariation?.media;
 
   return (
     <TableRow
@@ -265,7 +264,7 @@ const SingleRow = (props: SingleRowProps) => {
             src={media?.url}
             onChange={(img) =>
               handleMediaChange(
-                (Array.isArray(img) ? img[0] : img) as Record<string, unknown>,
+                (Array.isArray(img) ? img[0] : img),
                 'media',
               )
             }

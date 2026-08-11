@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { useEffect, useState, type ReactNode } from 'react';
+import { type ReactNode, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 import HeaderActionsCard from '@/components/header-actions-card';
@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/stacked-items';
 import Text from '@/components/ui/text';
 import { BoxClosedIcon, BoxOpenIcon, EditPenIcon, TrashIcon } from '@/icons';
+import { TaxProfilePopup } from '@/pages/settings/tax-settings/tax-profile/tax-profile-dialog';
 import { toastMutationError } from '@/services/helpers';
 import { deleteTaxProfile, useTaxProfilesQuery } from '@/services/tax';
 import { theme } from '@/theme';
@@ -24,8 +25,6 @@ import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
 import type { TaxProfile as TaxProfileType } from '@/types';
 import { __ } from '@/wpi18n';
-
-import { TaxProfilePopup } from '@/pages/settings/tax-settings/tax-profile/tax-profile-dialog';
 
 type TaxProfileListItem = TaxProfileType & {
   icon?: ReactNode;

@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo, useReducer, type Dispatch, type ReactNode } from 'react';
+import { createContext, type Dispatch, type ReactNode, useContext, useMemo, useReducer } from 'react';
 
 import type {
   ProductVariant,
@@ -29,11 +29,11 @@ const applyVariantField = (
   if (key === 'base_price_per_unit') {
     const unitValue = value as UnitPriceValue;
     variant.total_unit_amount =
-      unitValue?.total_unit_amount as ProductVariant['total_unit_amount'];
-    variant.total_unit = unitValue?.total_unit as ProductVariant['total_unit'];
+      unitValue?.total_unit_amount;
+    variant.total_unit = unitValue?.total_unit;
     variant.base_unit_amount =
-      unitValue?.base_unit_amount as ProductVariant['base_unit_amount'];
-    variant.base_unit = unitValue?.base_unit as ProductVariant['base_unit'];
+      unitValue?.base_unit_amount;
+    variant.base_unit = unitValue?.base_unit;
     return;
   }
 
@@ -141,4 +141,4 @@ const useBulkEditForm = () => {
 BulkEditFormProvider.displayName = 'BulkEditFormProvider';
 
 export { BulkEditFormProvider, useBulkEditForm };
-export type { BulkEditFormState, BulkEditFormAction };
+export type { BulkEditFormAction, BulkEditFormState };

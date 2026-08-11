@@ -17,12 +17,11 @@ import {
 import Switch from '@/components/ui/switch';
 import Text from '@/components/ui/text';
 import { CartIcon, EditPenIcon, InventoryBoxIcon, SettingsIcon, UserIcon } from '@/icons';
+import { mapEmailGroup } from '@/pages/settings/email-settings/utils';
 import type { EmailSettingsFormInput } from '@/schemas/forms/email-settings-form';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
-
-import { mapEmailGroup } from '@/pages/settings/email-settings/utils';
 
 type EmailListItem = {
   key: string;

@@ -4,11 +4,10 @@ import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Input from '@/components/ui/input';
 import Text from '@/components/ui/text';
+import { setUnsavedDataStatus } from '@/pages/settings/utils';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss } from '@/theme/mixins';
 import { __, sprintf } from '@/wpi18n';
-
-import { setUnsavedDataStatus } from '@/pages/settings/utils';
 
 type SingleTaxRateProps = {
   centralTaxValue: number | string;

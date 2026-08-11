@@ -19,10 +19,10 @@ import { __ } from '@/wpi18n';
 
 const OrderId = () => {
   const { setValue } = useFormContext<GeneralSettingsFormInput>();
-  const orderIdPrefix = useWatch<GeneralSettingsFormInput>({
+  const orderIdPrefix = useWatch<GeneralSettingsFormInput, 'order_id_prefix'>({
     name: 'order_id_prefix',
   });
-  const orderIdSuffix = useWatch<GeneralSettingsFormInput>({
+  const orderIdSuffix = useWatch<GeneralSettingsFormInput, 'order_id_suffix'>({
     name: 'order_id_suffix',
   });
 
@@ -129,5 +129,5 @@ const styles = defineStyles({
   resetCard: {
     borderRadius: theme.radius.lg,
     border: `1px solid ${theme.colors.border.default}`,
-  }
+  },
 });

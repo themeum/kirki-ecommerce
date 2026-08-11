@@ -104,7 +104,7 @@ const CouponFormSchema = prepareFormSchema(CouponFormShape).transform((values) =
     end_datetime: formatDateTime(
       values.has_end_datetime
         ? mergeDateTime(values.end_date ?? '', values.end_time ?? END_OF_DAY_TIME)
-        : null
+        : null,
     ),
     has_usage_limit: values.has_usage_limit,
     usage_limit: values.has_usage_limit ? values.usage_limit : null,
@@ -117,5 +117,5 @@ type CouponFormPayload = z.output<typeof CouponFormSchema>;
 
 type CouponFormInput = z.input<typeof CouponFormSchema>;
 
-export { CouponFormSchema, type CouponFormInput, type CouponFormPayload };
+export { type CouponFormInput, type CouponFormPayload, CouponFormSchema };
 

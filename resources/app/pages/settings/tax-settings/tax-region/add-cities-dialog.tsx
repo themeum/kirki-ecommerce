@@ -1,24 +1,23 @@
-import { useEffect, useMemo, useState, type Dispatch, type SetStateAction } from 'react';
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { type Dispatch, type SetStateAction, useEffect, useMemo, useState } from 'react';
+import { useForm } from 'react-hook-form';
 
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
 import { Dialog, DialogBody, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
-import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
-import { theme } from '@/theme';
-import { scoped, defineStyles } from '@/theme/mixins';
-import { cardStyles } from '@/theme/card-styles';
-import { AddCitiesPopupFormSchema, type AddCitiesPopupFormInput } from '@/schemas/forms/add-cities-popup-form';
-import { __ } from '@/wpi18n';
-
-import { getSearchedValue } from '@/pages/settings/utils';
 import type { TaxRate, TaxRegionState } from '@/pages/settings/tax-settings/utils';
+import { getSearchedValue } from '@/pages/settings/utils';
+import { type AddCitiesPopupFormInput, AddCitiesPopupFormSchema } from '@/schemas/forms/add-cities-popup-form';
+import { theme } from '@/theme';
+import { cardStyles } from '@/theme/card-styles';
+import { defineStyles, scoped } from '@/theme/mixins';
+import { __ } from '@/wpi18n';
 
 type AddCitiesPopupProps = {
   openPopup: boolean;

@@ -1,8 +1,8 @@
 /// <reference types="vite/client" />
 
-import '@emotion/react';
-
 import type { AppTheme } from '@/theme';
+
+import '@emotion/react';
 
 type KirkiEcommerceConfig = {
   site_url: string;
@@ -28,7 +28,7 @@ type WpI18n = {
     context: string,
     domain?: string,
   ) => string;
-  sprintf: (format: string, ...args: Array<string | number>) => string;
+  sprintf: (format: string, ...args: (string | number)[]) => string;
   setLocaleData: (data: Record<string, unknown>, domain?: string) => void;
   getLocaleData: (domain?: string) => Record<string, unknown>;
 };

@@ -3,10 +3,9 @@ import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { AdvancedSettingsIcon } from '@/icons';
+import SettingsPageHeader from '@/pages/settings/settings-page-header';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
-
-import SettingsPageHeader from '@/pages/settings/settings-page-header';
 
 const AdvancedSettings = () => {
   return (

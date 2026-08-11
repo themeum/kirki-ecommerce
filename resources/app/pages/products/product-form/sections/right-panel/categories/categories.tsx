@@ -4,15 +4,14 @@ import { Card } from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
 import Flex from '@/components/ui/flex';
 import Label from '@/components/ui/label';
+import AddNewCategory from '@/pages/products/product-form/sections/right-panel/categories/add-new-category';
+import List from '@/pages/products/product-form/sections/right-panel/categories/list';
 import type { ProductFormInput } from '@/schemas/forms/product-form';
 import { useCategoriesQuery } from '@/services/category';
 import { theme } from '@/theme';
-import { itemCenter, scoped, defineStyles } from '@/theme/mixins';
+import { defineStyles, itemCenter, scoped } from '@/theme/mixins';
 import type { Category, ProductCategoryRef } from '@/types';
 import { __ } from '@/wpi18n';
-
-import AddNewCategory from '@/pages/products/product-form/sections/right-panel/categories/add-new-category';
-import List from '@/pages/products/product-form/sections/right-panel/categories/list';
 
 const Categories = () => {
   const { watch, setValue } = useFormContext<ProductFormInput>();

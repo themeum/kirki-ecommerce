@@ -2,9 +2,9 @@ import type { CSSObject } from '@emotion/react';
 import type { ReactNode } from 'react';
 import {
   Controller,
-  useFormContext,
   type FieldPath,
   type FieldValues,
+  useFormContext,
 } from 'react-hook-form';
 
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
@@ -126,7 +126,7 @@ const WeightField = <
                     onBlur={weightField.onBlur}
                     disabled={disabled}
                     aria-invalid={weightState.invalid}
-                    placeholder='e.g. 10'
+                    placeholder="e.g. 10"
                   />
                   <InputGroupAddon align="inline-end">
                     <Select

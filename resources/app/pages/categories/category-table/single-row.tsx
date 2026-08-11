@@ -1,16 +1,15 @@
 import { useState } from 'react';
 
+import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
 import Checkbox from '@/components/ui/checkbox';
-import { EditPenIcon, TrashIcon } from '@/icons';
-import ActionGroup from '@/components/ui/action-group';
 import { TableCell, TableRow } from '@/components/ui/table';
 import Thumbnail from '@/components/ui/thumbnail';
+import { EditPenIcon, TrashIcon } from '@/icons';
+import CategoryAddEditPopover from '@/pages/categories/category-add-edit-dialog';
 import { useDeleteCategoryMutation } from '@/services/category';
 import type { Category, MarkListHandlers } from '@/types';
 import { __ } from '@/wpi18n';
-
-import CategoryAddEditPopover from '@/pages/categories/category-add-edit-dialog';
 
 type SingleRowProps = MarkListHandlers & {
   item: Category;

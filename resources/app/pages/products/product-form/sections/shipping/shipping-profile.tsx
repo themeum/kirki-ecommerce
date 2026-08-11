@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { PlusCircleIcon } from '@/icons';
+import { CreateProfilePopup } from '@/pages/settings/shipping-settings/shipping-profile/create-profile-dialog';
 import type { ProductFormInput } from '@/schemas/forms/product-form';
 import { useShippingProfilesQuery } from '@/services/shipping';
 import { theme } from '@/theme';
@@ -22,8 +23,6 @@ import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
 import type { SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
-
-import { CreateProfilePopup } from '@/pages/settings/shipping-settings/shipping-profile/create-profile-dialog';
 
 const ADD_SHIPPING_PROFILE_VALUE = '__add_shipping_profile__';
 

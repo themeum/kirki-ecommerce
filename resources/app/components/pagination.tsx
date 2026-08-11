@@ -1,4 +1,5 @@
 import { type SerializedStyles } from '@emotion/react';
+import { useMemo } from 'react';
 
 import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
@@ -10,7 +11,6 @@ import { theme } from '@/theme';
 import { defineStyles, itemCenter, scopedMerge } from '@/theme/mixins';
 import type { PaginationData } from '@/types';
 import { __, sprintf } from '@/wpi18n';
-import { useMemo } from 'react';
 
 type PaginationProps = {
   data: PaginationData;
@@ -73,7 +73,7 @@ const Pagination = (props: PaginationProps) => {
     return getPageItems(_current_page, last_page);
   }, [_current_page, last_page]);
 
-  if (total == 0) {
+  if (total === 0) {
     return null;
   }
 

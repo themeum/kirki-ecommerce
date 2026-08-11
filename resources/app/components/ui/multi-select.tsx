@@ -1,7 +1,7 @@
-import { useRef, useState, type ReactNode } from 'react';
 import { type CSSObject } from '@emotion/react';
 import { Command as CommandPrimitive } from 'cmdk';
 import { Check, Minus, PlusCircle } from 'lucide-react';
+import { type ReactNode, useRef, useState } from 'react';
 
 import Chip from '@/components/ui/chip';
 import ChipField, { chipFieldControlCss } from '@/components/ui/chip-field';

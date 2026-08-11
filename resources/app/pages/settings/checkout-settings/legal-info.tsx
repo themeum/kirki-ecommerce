@@ -77,5 +77,5 @@ const styles = defineStyles({
   formCardBorder: {
     border: `1px solid ${theme.colors.border.default}`,
     borderRadius: theme.radius.lg,
-  }
+  },
 });

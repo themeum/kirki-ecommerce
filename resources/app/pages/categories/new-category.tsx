@@ -1,10 +1,9 @@
 import { useState } from 'react';
 
 import Button from '@/components/ui/button';
+import CategoryAddEditPopover from '@/pages/categories/category-add-edit-dialog';
 import type { CategoryFormInput } from '@/schemas/forms/category-form';
 import { __ } from '@/wpi18n';
-
-import CategoryAddEditPopover from '@/pages/categories/category-add-edit-dialog';
 
 const initialState: CategoryFormInput = {
   name: '',

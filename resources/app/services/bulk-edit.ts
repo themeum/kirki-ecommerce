@@ -10,7 +10,7 @@ import type { ListQueryParams } from '@/types';
 import { __ } from '@/wpi18n';
 
 const getBulkVariants = (
-  ids: Array<string | number>,
+  ids: (string | number)[],
   params: ListQueryParams = {},
 ) => {
   return apiClient
@@ -29,7 +29,7 @@ const updateBulkVariants = (data: Record<string, unknown>) => {
 };
 
 const useBulkVariantsQuery = (
-  ids: Array<string | number>,
+  ids: (string | number)[],
   params: ListQueryParams = {},
   enabled = true,
 ) => {
@@ -64,6 +64,6 @@ export {
   getBulkVariants,
   updateBulkVariants,
   useBulkVariantsQuery,
-  useUpdateBulkVariantsMutation
+  useUpdateBulkVariantsMutation,
 };
 

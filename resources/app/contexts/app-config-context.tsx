@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo, type ReactNode } from 'react';
+import { createContext, type ReactNode, useContext, useMemo } from 'react';
 
 import type { AppConfig } from '@/schemas/catalog/app-config';
 import { useDefaultSettingsQuery } from '@/services/settings';

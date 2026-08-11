@@ -1,5 +1,6 @@
-import type { UseListParamsOptions } from "@/hooks/use-list-params";
-import { ListFilterConfig, parseNumberArray, parseStatus, parseString } from "@/types/list-state";
+import type { UseListParamsOptions } from '@/hooks/use-list-params';
+import type { ListFilterConfig} from '@/types/list-state';
+import { parseNumberArray, parseStatus, parseString } from '@/types/list-state';
 
 export type ProductListFilter = {
   search?: string;

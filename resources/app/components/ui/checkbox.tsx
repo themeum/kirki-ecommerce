@@ -1,11 +1,11 @@
-import { type CSSObject, type Theme } from '@emotion/react';
-import { forwardRef, useId, type ComponentPropsWithoutRef, type CSSProperties, type ElementRef, type MouseEvent, type ReactNode } from 'react';
+import { type CSSObject } from '@emotion/react';
 import * as CheckboxPrimitive from '@radix-ui/react-checkbox';
 import { Check, Minus } from 'lucide-react';
+import { type ComponentPropsWithoutRef, type CSSProperties, type ElementRef, forwardRef, type MouseEvent, type ReactNode, useId } from 'react';
 
 import { Field, FieldLabel } from '@/components/ui/field';
 import { theme } from '@/theme';
-import { flexCenter, uiFocusRing, scopedMerge, scoped, defineStyles } from '@/theme/mixins';
+import { defineStyles, flexCenter, scoped, scopedMerge, uiFocusRing } from '@/theme/mixins';
 
 type CheckboxProps = Omit<
   ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>,
@@ -126,7 +126,7 @@ const styles = defineStyles({
     backgroundColor: theme.colors.background.surface,
     color: theme.colors.background.surfaceTertiary,
     '&:focus-visible': {
-      ...uiFocusRing(theme as Theme),
+      ...uiFocusRing(theme),
     },
     '&[data-state="checked"], &[data-state="indeterminate"]': {
       backgroundColor: theme.colors.background.fillBrand,

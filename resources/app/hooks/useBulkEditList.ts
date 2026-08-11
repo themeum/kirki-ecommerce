@@ -49,7 +49,7 @@ const useBulkEditList = ({ selectionData, index }: UseBulkEditListParams) => {
   };
 
   const isSelected = (fieldName: string) => {
-    if (!selectionData || selectionData.fieldName !== fieldName) {
+    if (selectionData?.fieldName !== fieldName) {
       return false;
     }
 
@@ -59,7 +59,7 @@ const useBulkEditList = ({ selectionData, index }: UseBulkEditListParams) => {
   };
 
   const isFilled = (fieldName: string) => {
-    if (!selectionData || selectionData.fieldName !== fieldName) {
+    if (selectionData?.fieldName !== fieldName) {
       return false;
     }
     if (

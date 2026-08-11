@@ -46,7 +46,7 @@ const PreviewSection = ({ title, lines }: PreviewSectionProps) => (
         ))}
       </Flex>
     ) : (
-      <Text variant='tiny' weight='normal' cssOverride={styles.emptySection}>{__('Not set yet', 'kirki-ecommerce')}</Text>
+      <Text variant="tiny" weight="normal" cssOverride={styles.emptySection}>{__('Not set yet', 'kirki-ecommerce')}</Text>
     )}
   </Flex>
 );
@@ -124,7 +124,7 @@ const CouponPreview = () => {
         <CardContent>
           <Flex direction="column" gap={2}>
             <Flex justify="space-between" align="center" gap={2}>
-              <Text variant="small" weight='normal'>
+              <Text variant="small" weight="normal">
                 {values.title?.trim() || __('Untitled coupon', 'kirki-ecommerce')}
               </Text>
               {hasDiscountAmount && (
@@ -138,7 +138,7 @@ const CouponPreview = () => {
             <Flex direction="column">
               {values.method === 'code' && (
                 <Flex align="center" gap={1}>
-                  <Text variant="heading4" weight='semibold' color={values.code ? "emphasis" : "disabled"}>
+                  <Text variant="heading4" weight="semibold" color={values.code ? 'emphasis' : 'disabled'}>
                     {values.code || __('No code set', 'kirki-ecommerce')}
                   </Text>
                   {
@@ -164,7 +164,7 @@ const CouponPreview = () => {
                     ? __('Valid until', 'kirki-ecommerce')
                     : __('No expiration date', 'kirki-ecommerce')}
                 </Text>
-                <Text variant="small" color="primary" weight='semibold'>
+                <Text variant="small" color="primary" weight="semibold">
                   {validUntil}
                 </Text>
               </Flex>

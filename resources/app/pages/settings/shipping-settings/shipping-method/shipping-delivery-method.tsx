@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect, useMemo, type ReactNode } from 'react';
+import { type ReactNode, useEffect, useMemo } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { useNavigate, useSearchParams } from 'react-router';
 import { toast } from 'sonner';
@@ -16,16 +16,6 @@ import { applyServerErrors } from '@/libs/form-errors';
 import { queryClient } from '@/libs/query-client';
 import { queryKeys } from '@/libs/query-keys';
 import { getDefaults, pickFormValues } from '@/libs/zod';
-import {
-  ShippingMethodFormSchema,
-  type ShippingMethodFormInput,
-  type ShippingMethodFormPayload,
-} from '@/schemas/forms/shipping-method-form';
-import { updateSettings, useSettingsQuery } from '@/services/settings';
-import { cardStyles } from '@/theme/card-styles';
-import { isDefined } from '@/utils/object';
-import { __ } from '@/wpi18n';
-
 import { useSettingsPageActions } from '@/pages/settings/settings-layout/use-settings-page-actions';
 import SettingsPageHeader from '@/pages/settings/settings-page-header';
 import FlatRateSettings from '@/pages/settings/shipping-settings/shipping-method/flat-rate-settings';
@@ -34,7 +24,16 @@ import RateByWeightSettings from '@/pages/settings/shipping-settings/shipping-me
 import { ShippingRules } from '@/pages/settings/shipping-settings/shipping-method/shipping-rules/shipping-rules';
 import type { ShippingMethodData, ShippingZone } from '@/pages/settings/shipping-settings/utils';
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
+import {
+  type ShippingMethodFormInput,
+  type ShippingMethodFormPayload,
+  ShippingMethodFormSchema,
+} from '@/schemas/forms/shipping-method-form';
+import { updateSettings, useSettingsQuery } from '@/services/settings';
+import { cardStyles } from '@/theme/card-styles';
 import { uuid } from '@/utils';
+import { isDefined } from '@/utils/object';
+import { __ } from '@/wpi18n';
 
 const ShippingRoutes = RouteConfig.Settings.get('ShippingSettings');
 
@@ -137,7 +136,7 @@ const ShippingDeliveryMethod = () => {
           : __('New shipping method created', 'kirki-ecommerce'),
       );
       form.reset(payload);
-      navigate(
+      void navigate(
         `${ShippingRoutes.get('ShippingDeliveryMethod').buildLink()}?methodId=${methodId}&zoneId=${zoneIdParam}`,
       );
     } catch (error) {

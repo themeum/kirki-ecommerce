@@ -3,12 +3,10 @@ import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import { StackedItems } from '@/components/ui/stacked-items';
 import { BoxOpenIcon } from '@/icons';
-import { __ } from '@/wpi18n';
-
+import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
-
-import { theme } from '@/theme';
+import { __ } from '@/wpi18n';
 
 type ShippingCareerProps = Record<string, unknown>;
 

@@ -1,5 +1,5 @@
 export type {
   Customer,
-  CustomerListItem,
   CustomerAddress,
+  CustomerListItem,
 } from '@/schemas/catalog/customer';

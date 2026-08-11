@@ -1,4 +1,4 @@
-import type { CSSObject, Theme } from '@emotion/react';
+import type { CSSObject } from '@emotion/react';
 import { forwardRef, type ReactNode } from 'react';
 
 import { theme } from '@/theme';
@@ -90,13 +90,13 @@ const styles = defineStyles({
     overflow: 'hidden',
     '&:focus-within': {
       borderColor: theme.colors.border.default,
-      ...uiFocusRing(theme as Theme),
+      ...uiFocusRing(theme),
     },
     '&[data-error="true"]': {
       borderColor: theme.colors.border.critical,
       '&:focus-within': {
         borderColor: theme.colors.border.critical,
-        ...uiFocusRing(theme as Theme, theme.colors.border.critical),
+        ...uiFocusRing(theme, theme.colors.border.critical),
       },
     },
     '&[data-disabled="true"]': {

@@ -1,13 +1,14 @@
-import { isEmptyValue, nullishShape, prepareFormSchema, required, requiredWhen, stringOrNull } from "@/libs/zod";
-import { __ } from "@/wpi18n";
-import z from "zod";
+import z from 'zod';
+
+import { isEmptyValue, nullishShape, prepareFormSchema, required, requiredWhen, stringOrNull } from '@/libs/zod';
+import { __ } from '@/wpi18n';
 
 const OrderFormShape = prepareFormSchema(z.object({
   items: z.array(
     z.object({
       variant_id: z.number(),
       quantity: z.number(),
-    })
+    }),
   ),
   currency_code: stringOrNull(),
   coupon_code: stringOrNull(),

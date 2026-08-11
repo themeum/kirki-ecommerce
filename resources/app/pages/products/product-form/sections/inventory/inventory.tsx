@@ -16,13 +16,12 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { WandIcon } from '@/icons';
+import { generateSku } from '@/pages/products/utils';
 import type { ProductFormInput } from '@/schemas/forms/product-form';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
-
-import { generateSku } from '@/pages/products/utils';
 
 const Inventory = () => {
   const { control, setValue } = useFormContext<ProductFormInput>();

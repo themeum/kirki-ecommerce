@@ -1,3 +1,4 @@
+import { ArrowLeft } from 'lucide-react';
 import type { ReactNode } from 'react';
 
 import Button from '@/components/ui/button';
@@ -8,7 +9,6 @@ import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
-import { ArrowLeft } from 'lucide-react';
 
 type SettingsPageHeaderProps = {
   icon?: ReactNode;
@@ -37,7 +37,7 @@ const SettingsPageHeader = (props: SettingsPageHeaderProps) => {
       <Card cssOverride={cardStyles.navbarCard}>
         <Flex gap={2} align="center">
           {icon}
-          <Text variant='heading6' weight="semibold">{title}</Text>
+          <Text variant="heading6" weight="semibold">{title}</Text>
         </Flex>
         {rightAction}
       </Card>

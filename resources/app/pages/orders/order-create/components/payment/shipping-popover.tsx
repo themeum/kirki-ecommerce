@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { type ReactNode, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 
 import Button from '@/components/ui/button';
@@ -96,6 +96,6 @@ export default ShippingPopover;
 const styles = defineStyles({
   content: {
     width: '280px',
-    padding: theme.spacing[4]
+    padding: theme.spacing[4],
   },
 });

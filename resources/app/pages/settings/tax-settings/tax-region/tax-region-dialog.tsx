@@ -1,30 +1,29 @@
-import { useState, useMemo, useEffect, type Dispatch, type SetStateAction } from 'react';
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { type Dispatch, type SetStateAction, useEffect, useMemo, useState } from 'react';
+import { useForm } from 'react-hook-form';
 
 import Button from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
 import { Dialog, DialogBody, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
-import Flex from '@/components/ui/flex';
-import { theme } from '@/theme';
-import { cardStyles } from '@/theme/card-styles';
-import { scoped, defineStyles } from '@/theme/mixins';
-import { TaxRegionPopupFormSchema, type TaxRegionPopupFormInput } from '@/schemas/forms/tax-region-popup-form';
-import { useCountriesQuery } from '@/services/country';
-import type { FormErrors } from '@/types';
-import { __, sprintf } from '@/wpi18n';
-
-import { getSearchedCountries } from '@/pages/settings/utils';
 import type { CountryWithGroup } from '@/pages/settings/tax-settings/helper';
 import { groupEUCountries } from '@/pages/settings/tax-settings/helper';
 import type {
   SelectedTaxRegionDraft,
   TaxRegion,
 } from '@/pages/settings/tax-settings/utils';
+import { getSearchedCountries } from '@/pages/settings/utils';
+import { type TaxRegionPopupFormInput, TaxRegionPopupFormSchema } from '@/schemas/forms/tax-region-popup-form';
+import { useCountriesQuery } from '@/services/country';
+import { theme } from '@/theme';
+import { cardStyles } from '@/theme/card-styles';
+import { defineStyles, scoped } from '@/theme/mixins';
+import type { FormErrors } from '@/types';
+import { __, sprintf } from '@/wpi18n';
 
 type TaxRegionPopupProps = {
   openPopup: boolean;
@@ -287,7 +286,7 @@ const TaxRegionPopup = (props: TaxRegionPopupProps) => {
                                 : formCountries?.includes(country?.code)
                             }
                             onCheckedChange={() =>
-                              handleSelectCountries(country as CountryWithGroup)
+                              handleSelectCountries(country)
                             }
                           />
                           <Label htmlFor={`tax-region-country-${country.code}`}>

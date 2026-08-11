@@ -1,12 +1,12 @@
-import { mergeCss, defineStyles } from '@/theme/mixins';
-import { useEffect, useState, type ChangeEvent, type CSSProperties } from 'react';
 import { css, type CSSObject } from '@emotion/react';
+import { type ChangeEvent, type CSSProperties, useEffect, useState } from 'react';
 
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
 import Input from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { theme } from '@/theme';
+import { defineStyles, mergeCss } from '@/theme/mixins';
 import type { SelectOption } from '@/types';
 
 type SelectInputValue = {
@@ -127,7 +127,7 @@ const SelectInput = ({
         cssOverride={mergeCss(styles.wrapper,
           invisible && styles.wrapperInvisible,
           error && styles.wrapperError,
-          cssOverride,)}
+          cssOverride)}
         style={style}
       >
         <div style={{ flex: '1' }}>

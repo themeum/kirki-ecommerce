@@ -1,19 +1,20 @@
-import NumberField from "@/components/form/number-field";
-import SelectField from "@/components/form/select-field";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import Flex from "@/components/ui/flex";
-import Grid from "@/components/ui/grid";
-import Text from "@/components/ui/text";
-import { CouponFormInput } from "@/schemas/forms/coupon-form";
-import { cardStyles } from "@/theme/card-styles";
-import { __ } from "@/wpi18n";
-import { useFormContext, useWatch } from "react-hook-form";
+import { useFormContext, useWatch } from 'react-hook-form';
+
+import NumberField from '@/components/form/number-field';
+import SelectField from '@/components/form/select-field';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import Flex from '@/components/ui/flex';
+import Grid from '@/components/ui/grid';
+import Text from '@/components/ui/text';
+import type { CouponFormInput } from '@/schemas/forms/coupon-form';
+import { cardStyles } from '@/theme/card-styles';
+import { __ } from '@/wpi18n';
 
 const DiscountValueSection = () => {
   const { control } = useFormContext<CouponFormInput>();
   const discountValueType = useWatch({
     name: 'discount_value_type',
-    control
+    control,
   })
   return (
     <Card cssOverride={cardStyles.formCard}>

@@ -1,11 +1,11 @@
+import { useNavigate } from 'react-router';
+
 import Button from '@/components/ui/button';
 import Container from '@/components/ui/container';
 import PageHeading from '@/components/ui/page-heading';
 import { RouteConfig } from '@/config/route-config';
-
 import OrderTable from '@/pages/orders/order-table/order-table';
 import { __ } from '@/wpi18n';
-import { useNavigate } from 'react-router';
 
 const Orders = () => {
   const navigate = useNavigate();

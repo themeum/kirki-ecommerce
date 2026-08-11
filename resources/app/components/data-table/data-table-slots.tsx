@@ -34,7 +34,7 @@ const findSlot = (children: ReactNode, type: unknown) => {
 
 export {
   DataTableFilter,
-  DataTableSelectionFilter,
   DataTableFilterBar,
+  DataTableSelectionFilter,
   findSlot,
 };

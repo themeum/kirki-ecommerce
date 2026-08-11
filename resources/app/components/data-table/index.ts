@@ -22,10 +22,10 @@ export type {
   DataTableRowAction,
   DataTableRowActionsConfig,
   DataTableRowActionsResolver,
-  DataTableRowEditAction
+  DataTableRowEditAction,
 } from '@/components/data-table/types';
 export {
   DataTableFilter, DataTableFilterBar,
-  DataTablePagination, DataTableSelectionFilter
+  DataTablePagination, DataTableSelectionFilter,
 };
 

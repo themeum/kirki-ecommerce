@@ -1,7 +1,7 @@
-import { keyframes, type CSSObject } from '@emotion/react';
+import { type CSSObject, keyframes } from '@emotion/react';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { X } from 'lucide-react';
-import { forwardRef, type ComponentPropsWithoutRef, type ComponentRef, type HTMLAttributes } from 'react';
+import { type ComponentPropsWithoutRef, type ComponentRef, forwardRef, type HTMLAttributes } from 'react';
 
 import Button from '@/components/ui/button';
 import { useWordpressMedia } from '@/hooks';
@@ -190,7 +190,7 @@ DialogDescription.displayName = 'DialogDescription';
 export {
   Dialog, DialogBody, DialogClose,
   DialogCloseButton,
-  DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogOverlay, DialogPortal, DialogTitle, DialogTrigger
+  DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogOverlay, DialogPortal, DialogTitle, DialogTrigger,
 };
 
 const dialogOverlayIn = keyframes({

@@ -119,7 +119,7 @@ export const normalizeErrors = (
   const normalized: Record<string, unknown> = {};
 
   Object.entries(errorObj).forEach(([key, value]) => {
-    const fieldName = key.split('.').pop() as string;
+    const fieldName = key.split('.').pop()!;
     normalized[fieldName] = value;
   });
 

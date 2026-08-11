@@ -1,7 +1,7 @@
-import { keyframes, type CSSObject, type Theme } from '@emotion/react';
+import { type CSSObject, keyframes } from '@emotion/react';
 import { Slot } from '@radix-ui/react-slot';
 import { Loader2 } from 'lucide-react';
-import { forwardRef, type ComponentPropsWithoutRef } from 'react';
+import { type ComponentPropsWithoutRef, forwardRef } from 'react';
 
 import { theme } from '@/theme';
 import { defineStyles, flexCenter, mergeCss, scoped, scopedMerge, uiFocusRing } from '@/theme/mixins';
@@ -143,7 +143,7 @@ const styles = defineStyles({
     },
     '&:focus-visible': {
       textDecoration: 'none',
-      ...uiFocusRing(theme as Theme),
+      ...uiFocusRing(theme),
     },
   },
   variants: {

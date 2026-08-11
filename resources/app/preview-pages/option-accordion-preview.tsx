@@ -5,31 +5,29 @@ import StackedItemsPreview from '@/preview-pages/stacked-items-preview';
 
 const OptionAccordionPreview = () => {
   const rightActions = (
-    <ActionGroup gap={2}>
-
-    </ActionGroup>
+    <ActionGroup gap={2} />
   );
 
   return (
     <div>
       <OptionAccordion
-        header={'Zone 1- EU Countries'}
-        subHeader={'3 Regions, 2 Shipping Methods'}
+        header="Zone 1- EU Countries"
+        subHeader="3 Regions, 2 Shipping Methods"
         leftIcon={<LocationIcon height={20} width={20} />}
         rightActions={rightActions}
       >
         <StackedItemsPreview />
       </OptionAccordion>
       <OptionAccordion
-        header={'Zone 2- South Asia'}
-        subHeader={'3 Regions, 2 Shipping Methods'}
+        header="Zone 2- South Asia"
+        subHeader="3 Regions, 2 Shipping Methods"
         leftIcon={<LocationIcon height={20} width={20} />}
       >
         <StackedItemsPreview />
       </OptionAccordion>
       <OptionAccordion
-        header={'Zone 3- International Shipping'}
-        subHeader={'3 Regions, 2 Shipping Methods'}
+        header="Zone 3- International Shipping"
+        subHeader="3 Regions, 2 Shipping Methods"
         leftIcon={<LocationIcon height={20} width={20} />}
         rightActions={rightActions}
       >

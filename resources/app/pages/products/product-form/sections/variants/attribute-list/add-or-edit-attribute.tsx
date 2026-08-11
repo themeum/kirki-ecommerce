@@ -2,6 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from 'react';
 import { Controller, useForm, useFormContext, useWatch } from 'react-hook-form';
 
+import AttributeValuesField from '@/components/form/attribute-values-field';
 import ConfirmationDialog from '@/components/modal/confirmation-dialog';
 import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
@@ -15,11 +16,15 @@ import Text from '@/components/ui/text';
 import { ColorPaletteIcon, ListIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
+import {
+  type MatrixMutation,
+  savedVariants,
+  useVariantMatrix,
+} from '@/pages/products/product-form/sections/variants/use-variant-matrix';
 import type { AddVariationFormPayload } from '@/schemas/forms/add-variation-form';
 import {
-  ProductAttributeFormSchema,
   type ProductAttributeFormInput,
-  type ProductAttributeValueInput,
+  ProductAttributeFormSchema,
 } from '@/schemas/forms/product-attribute-form';
 import type { ProductFormInput } from '@/schemas/forms/product-form';
 import { useAttributesQuery, useCreateAttributeMutation } from '@/services/attribute';
@@ -31,13 +36,6 @@ import type {
   SelectOption,
 } from '@/types';
 import { __, _n, sprintf } from '@/wpi18n';
-
-import AttributeValuesField from '@/components/form/attribute-values-field';
-import {
-  savedVariants,
-  useVariantMatrix,
-  type MatrixMutation,
-} from '@/pages/products/product-form/sections/variants/use-variant-matrix';
 
 type AttributeSuggestion = SelectOption & {
   type?: string;
@@ -88,7 +86,7 @@ const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
     if (loaded && data) {
       const selectedValues = (data.values ?? []).map((item) => ({
         ...item,
-        title: item?.value as string,
+        title: item?.value,
         value: item?.id,
       }));
       form.reset({
@@ -174,7 +172,7 @@ const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
         name,
         slug,
         type: attrType,
-        values: (values as ProductAttributeValueInput[]) ?? [],
+        values: (values) ?? [],
       });
     } catch (error) {
       applyServerErrors(form, error as ErrorResponse);

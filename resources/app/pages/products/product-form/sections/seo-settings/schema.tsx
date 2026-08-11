@@ -10,7 +10,7 @@ import type { ProductFormInput } from '@/schemas/forms/product-form';
 import { useSchemasQuery } from '@/services/schema';
 import { __ } from '@/wpi18n';
 
-type GroupedValues = Record<string, Array<string | number>>;
+type GroupedValues = Record<string, (string | number)[]>;
 
 const Schema = () => {
   const { control, watch } = useFormContext<ProductFormInput>();

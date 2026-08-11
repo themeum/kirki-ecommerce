@@ -1,9 +1,9 @@
 import type { CSSObject } from '@emotion/react';
-import { forwardRef, type ComponentPropsWithoutRef, type ReactNode } from 'react';
+import { type ComponentPropsWithoutRef, forwardRef, type ReactNode } from 'react';
 
 import Flex from '@/components/ui/flex';
 import { theme } from '@/theme';
-import { scopedMerge, scoped, defineStyles } from '@/theme/mixins';
+import { defineStyles, scoped, scopedMerge } from '@/theme/mixins';
 import type { AlertType } from '@/types';
 
 type AlertProps = Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'css'> & {

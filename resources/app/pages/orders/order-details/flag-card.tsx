@@ -1,5 +1,5 @@
 import { X } from 'lucide-react';
-import { useState, type KeyboardEvent } from 'react';
+import { type KeyboardEvent, useState } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 
 import { Card, CardContent } from '@/components/ui/card';

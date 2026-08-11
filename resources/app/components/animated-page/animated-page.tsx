@@ -1,8 +1,8 @@
 import { Outlet, useLocation } from 'react-router';
 
 import { RouteConfig } from '@/config/route-config';
+import { defineStyles, scoped } from '@/theme/mixins';
 import { pageEnterKeyframes } from '@/theme/shell-styles';
-import { scoped, defineStyles } from '@/theme/mixins';
 import type { ConfirmationVariant } from '@/types';
 
 type ConfirmActionOtherProps = {

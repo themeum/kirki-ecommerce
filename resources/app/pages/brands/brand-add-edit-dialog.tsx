@@ -14,9 +14,9 @@ import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { pickFormValues } from '@/libs/zod';
 import {
-  BrandFormSchema,
   type BrandFormInput,
   type BrandFormPayload,
+  BrandFormSchema,
 } from '@/schemas/forms/brand-form';
 import { useCreateBrandMutation, useUpdateBrandMutation } from '@/services/brand';
 import { cardStyles } from '@/theme/card-styles';

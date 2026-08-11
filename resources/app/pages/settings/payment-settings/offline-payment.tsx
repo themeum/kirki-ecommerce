@@ -9,6 +9,7 @@ import Flex from '@/components/ui/flex';
 import Switch from '@/components/ui/switch';
 import Text from '@/components/ui/text';
 import { BankIconLarge, CashIcon, ShowMoreIcon } from '@/icons';
+import OfflinePaymentPopup from '@/pages/settings/payment-settings/offline-payment-dialog';
 import { dispatchToastMessage } from '@/pages/utils';
 import { useDeleteOfflinePaymentMutation, useUpdateOfflinePaymentMutation } from '@/services/payment';
 import { theme } from '@/theme';
@@ -16,8 +17,6 @@ import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss } from '@/theme/mixins';
 import type { OfflinePayment } from '@/types';
 import { __ } from '@/wpi18n';
-
-import OfflinePaymentPopup from '@/pages/settings/payment-settings/offline-payment-dialog';
 
 type OfflinePaymentProps = {
   offlinePaymentList: OfflinePayment[];
@@ -47,7 +46,7 @@ const OfflinePaymentComponent = (props: OfflinePaymentProps) => {
   const { mutate: updateOfflinePayment } = useUpdateOfflinePaymentMutation();
 
   const handleAction = (
-    action: string | number | Array<string | number>,
+    action: string | number | (string | number)[],
     item: OfflinePayment,
   ) => {
     if (action === 'delete') {
@@ -55,7 +54,7 @@ const OfflinePaymentComponent = (props: OfflinePaymentProps) => {
         title: __('Payment method deleted', 'kirki-ecommerce'),
         duration: 5000,
         undoAction: () => refetch(),
-        onSuccess: async () => {
+        onSuccess: () => {
           deleteOfflinePayment(item.id, { onSuccess: () => refetch() });
         },
       });
@@ -72,7 +71,7 @@ const OfflinePaymentComponent = (props: OfflinePaymentProps) => {
     const updatedItem = { ...item, is_enabled: !isEnabled };
 
     updateOfflinePayment(
-      { id: item?.id, data: updatedItem as Record<string, unknown> },
+      { id: item?.id, data: updatedItem },
       {
         onSuccess: () => {
           refetch();
@@ -126,7 +125,7 @@ const OfflinePaymentComponent = (props: OfflinePaymentProps) => {
                         <Flex gap={2} align="center">
                           {getIconUrl(item?.icon) ? (
                             <img
-                              src={getIconUrl(item.icon) as string}
+                              src={getIconUrl(item.icon)!}
                               alt=""
                               height={20}
                               width={20}

@@ -1,5 +1,5 @@
-import { type CSSObject, type Theme } from '@emotion/react';
-import { forwardRef, type ComponentPropsWithoutRef } from 'react';
+import { type CSSObject } from '@emotion/react';
+import { type ComponentPropsWithoutRef, forwardRef } from 'react';
 
 import { theme } from '@/theme';
 import { defineStyles, scopedMerge, uiFocusRing } from '@/theme/mixins';
@@ -53,14 +53,14 @@ const styles = defineStyles({
     },
     '&:focus-visible': {
       borderColor: theme.colors.border.default,
-      ...uiFocusRing(theme as Theme),
+      ...uiFocusRing(theme),
     },
     '&[data-error="true"]': {
       border: `1px solid ${theme.colors.border.critical}`,
       boxShadow: 'none',
       '&:focus-visible': {
         borderColor: theme.colors.border.critical,
-        ...uiFocusRing(theme as Theme, theme.colors.border.critical),
+        ...uiFocusRing(theme, theme.colors.border.critical),
       },
     },
     '&:disabled': {

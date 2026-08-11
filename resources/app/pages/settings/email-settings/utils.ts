@@ -28,7 +28,7 @@ type BuildTogglePayloadParams = {
 export const mapEmailGroup = (
   group: EmailGroup | null | undefined,
   prefix: string,
-): Array<EmailNotification & { key: string }> => {
+): (EmailNotification & { key: string })[] => {
   if (!group) {
     return [];
   }

@@ -1,4 +1,4 @@
-import { Global, css, useTheme } from '@emotion/react';
+import { css, Global, useTheme } from '@emotion/react';
 
 import { getCssVarName, type PrimitiveColorKey } from '@/theme';
 import { getNormalizeStyles } from '@/theme/normalize';
@@ -11,9 +11,7 @@ import { getShellStyles } from '@/theme/shell-styles';
  */
 const GlobalStyles = () => {
   const theme = useTheme();
-  const primitiveEntries = Object.entries(theme.primitives.colors) as Array<
-    [PrimitiveColorKey, string]
-  >;
+  const primitiveEntries = Object.entries(theme.primitives.colors) as [PrimitiveColorKey, string][];
 
   const cssVariables: Record<string, string> = {};
 

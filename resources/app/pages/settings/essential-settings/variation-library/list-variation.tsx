@@ -1,3 +1,4 @@
+import { Box } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 
@@ -7,17 +8,15 @@ import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import { RouteConfig } from '@/config/route-config';
 import { BoxIcon } from '@/icons';
+import VariationTable from '@/pages/settings/essential-settings/variation-library/variation-table/variation-table';
+import VariationValuePopup from '@/pages/settings/essential-settings/variation-library/variation-value-dialog';
+import SettingsPageHeader from '@/pages/settings/settings-page-header';
 import { useAttributeQuery } from '@/services/attribute';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
 import type { Attribute, AttributeValue, TaxonomyTableHeader } from '@/types';
 import { __, sprintf } from '@/wpi18n';
-
-import VariationTable from '@/pages/settings/essential-settings/variation-library/variation-table/variation-table';
-import VariationValuePopup from '@/pages/settings/essential-settings/variation-library/variation-value-dialog';
-import SettingsPageHeader from '@/pages/settings/settings-page-header';
-import { Box } from 'lucide-react';
 
 type AttributeWithMeta = Attribute & { updated_at?: string };
 
@@ -47,7 +46,7 @@ const ListVariation = () => {
           <SettingsPageHeader
             icon={<BoxIcon />}
             title={sprintf(__('%s', 'kirki-ecommerce'), selectedAttribute?.name ?? '')}
-            onBack={() => { navigate(RouteConfig.Settings.get('EssentialsSettings').buildLink()); }}
+            onBack={() => { void navigate(RouteConfig.Settings.get('EssentialsSettings').buildLink()); }}
             rightAction={
               <div>
                 <Button

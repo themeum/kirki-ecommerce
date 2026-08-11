@@ -152,6 +152,6 @@ const useBulkDeleteCollectionsMutation = () => {
 };
 
 export {
-  bulkDeleteCollections, createCollection, deleteCollection, getCollection, getCollections, updateCollection, useBulkDeleteCollectionsMutation, useCollectionQuery, useCollectionsQuery, useCreateCollectionMutation, useDeleteCollectionMutation, useUpdateCollectionMutation
+  bulkDeleteCollections, createCollection, deleteCollection, getCollection, getCollections, updateCollection, useBulkDeleteCollectionsMutation, useCollectionQuery, useCollectionsQuery, useCreateCollectionMutation, useDeleteCollectionMutation, useUpdateCollectionMutation,
 };
 

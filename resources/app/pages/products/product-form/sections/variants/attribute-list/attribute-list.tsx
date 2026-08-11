@@ -6,28 +6,26 @@ import { css } from '@emotion/react';
 import { useEffect, useState } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 
+import ConfirmationDialog from '@/components/modal/confirmation-dialog';
+import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { DragIcon, EditIcon, PlusIcon, TrashIcon } from '@/icons';
-import ActionGroup from '@/components/ui/action-group';
-import Flex from '@/components/ui/flex';
 import Chip from '@/components/ui/chip';
+import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
-import type { ProductFormInput } from '@/schemas/forms/product-form';
-import { flexCenter, scoped, mergeCss, scopedMerge, defineStyles } from '@/theme/mixins';
-import { cardStyles } from '@/theme/card-styles';
-import type { Attribute } from '@/types';
-import { __, _n, sprintf } from '@/wpi18n';
-
+import { DragIcon, EditIcon, PlusIcon, TrashIcon } from '@/icons';
 import AddOrEditAttribute from '@/pages/products/product-form/sections/variants/attribute-list/add-or-edit-attribute';
-import ConfirmationDialog from '@/components/modal/confirmation-dialog';
 import {
+  type MatrixMutation,
   savedVariants,
   useVariantMatrix,
-  type MatrixMutation,
 } from '@/pages/products/product-form/sections/variants/use-variant-matrix';
-
+import type { ProductFormInput } from '@/schemas/forms/product-form';
 import { theme } from '@/theme';
+import { cardStyles } from '@/theme/card-styles';
+import { defineStyles, flexCenter, mergeCss, scoped, scopedMerge } from '@/theme/mixins';
+import type { Attribute } from '@/types';
+import { __, _n, sprintf } from '@/wpi18n';
 
 type SortableCardProps = {
   item: Attribute;
@@ -138,7 +136,7 @@ const AttributeList = () => {
     useVariantMatrix();
 
   useEffect(() => {
-    setAttributeValues(formAttributes as Attribute[]);
+    setAttributeValues(formAttributes);
   }, [formAttributes]);
 
   const handleAttributeEdit = (attribute: Attribute) => {
@@ -258,5 +256,5 @@ const styles = defineStyles({
     '&:active': {
       cursor: 'grabbing',
     },
-  }
+  },
 });

@@ -78,16 +78,16 @@ const UiBadgePreview = () => {
         <Text weight="semibold">As link</Text>
         <Flex gap={2} wrap="wrap" align="center">
           <Badge variant="default" asChild>
-            <a href="#">Default link</a>
+            <a href="#badge-link-demo">Default link</a>
           </Badge>
           <Badge variant="success" asChild>
-            <a href="#">Success link</a>
+            <a href="#badge-link-demo">Success link</a>
           </Badge>
           <Badge variant="link" asChild>
-            <a href="#">Link variant</a>
+            <a href="#badge-link-demo">Link variant</a>
           </Badge>
           <Badge variant="outline" asChild>
-            <a href="#">
+            <a href="#badge-link-demo">
               <Check data-icon="inline-start" aria-hidden="true" />
               Outline link
             </a>

@@ -3,13 +3,12 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { cardStyles } from '@/theme/card-styles';
-import { __ } from '@/wpi18n';
-
 import AEO from '@/pages/products/product-form/sections/seo-settings/aeo';
 import Schema from '@/pages/products/product-form/sections/seo-settings/schema';
 import SearchEngines from '@/pages/products/product-form/sections/seo-settings/search-engines';
 import SocialShare from '@/pages/products/product-form/sections/seo-settings/social-share';
+import { cardStyles } from '@/theme/card-styles';
+import { __ } from '@/wpi18n';
 
 const SEOSettings = () => {
   const [activeTab, setActiveTab] = useState(0);

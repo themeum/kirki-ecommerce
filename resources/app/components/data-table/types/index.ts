@@ -1,8 +1,8 @@
 import type { CSSObject } from '@emotion/react';
 import type { CSSProperties, ReactNode } from 'react';
 
+import type { SortableConfig } from '@/components/sorting';
 import type { PaginatedData, TableAlignment } from '@/types';
-import { SortableConfig } from '@/components/sorting';
 
 type DataTableItem = {
   id: string | number;
@@ -63,6 +63,6 @@ export type {
   DataTableRowAction,
   DataTableRowActionsConfig,
   DataTableRowActionsResolver,
-  DataTableRowEditAction
+  DataTableRowEditAction,
 };
 

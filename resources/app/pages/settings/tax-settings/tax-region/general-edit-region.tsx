@@ -15,15 +15,6 @@ import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { queryKeys } from '@/libs/query-keys';
 import { getDefaults, pickFormValues } from '@/libs/zod';
-import { TaxRegionGeneralFormSchema, type TaxRegionGeneralFormInput } from '@/schemas/forms/tax-region-general-form';
-import { TaxSettingsFormSchema, type TaxSettingsFormPayload } from '@/schemas/forms/tax-settings-form';
-import { toastMutationError } from '@/services/helpers';
-import { updateSettings, useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
-import { theme } from '@/theme';
-import { cardStyles } from '@/theme/card-styles';
-import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
-import { __ } from '@/wpi18n';
-
 import { useSettingsPageActions } from '@/pages/settings/settings-layout/use-settings-page-actions';
 import SettingsPageHeader from '@/pages/settings/settings-page-header';
 import AddCitiesPopup from '@/pages/settings/tax-settings/tax-region/add-cities-dialog';
@@ -32,9 +23,17 @@ import { TaxRateList } from '@/pages/settings/tax-settings/tax-region/tax-rate-l
 import TaxRules from '@/pages/settings/tax-settings/tax-region/tax-rules/tax-rules';
 import type { TaxRate, TaxRegion, TaxRegionState, TaxRule } from '@/pages/settings/tax-settings/utils';
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
+import { type TaxRegionGeneralFormInput, TaxRegionGeneralFormSchema } from '@/schemas/forms/tax-region-general-form';
+import { type TaxSettingsFormPayload, TaxSettingsFormSchema } from '@/schemas/forms/tax-settings-form';
+import { toastMutationError } from '@/services/helpers';
+import { updateSettings, useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
+import { theme } from '@/theme';
+import { cardStyles } from '@/theme/card-styles';
+import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
+import { __ } from '@/wpi18n';
 
 const GeneralEditRegion = () => {
-  let { code } = useParams();
+  const { code } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [regions, setRegions] = useState<TaxRegion[]>([]);
@@ -299,5 +298,5 @@ export default GeneralEditRegion;
 const styles = defineStyles({
   citiesCard: {
     gap: theme.spacing[4],
-  }
+  },
 });

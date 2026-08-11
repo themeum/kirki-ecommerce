@@ -99,6 +99,6 @@ const useUpdateSettingsMutation = <K extends keyof SettingsPayloadMap>() => {
 };
 
 export {
-  getDefaultSettings, getSettings, updateSettings, useDefaultSettingsQuery, useSettingsQuery, useUpdateSettingsMutation
+  getDefaultSettings, getSettings, updateSettings, useDefaultSettingsQuery, useSettingsQuery, useUpdateSettingsMutation,
 };
 

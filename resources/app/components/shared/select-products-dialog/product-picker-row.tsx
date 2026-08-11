@@ -109,7 +109,7 @@ const ProductPickerRow = ({
       {expanded &&
         variants.map((variant) => (
           <TableRow key={variant.variantId}>
-            <TableCell></TableCell>
+            <TableCell />
             <TableCell>
               <Flex gap={6} align="center">
                 {selectVariants && (

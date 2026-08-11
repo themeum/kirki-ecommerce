@@ -1,5 +1,4 @@
 import type { MediaRef } from '@/types';
-
 import { isDefined, isObject } from '@/utils/object';
 
 export const isMediaObject = (value: unknown): value is MediaRef => {

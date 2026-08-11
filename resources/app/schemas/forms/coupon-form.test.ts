@@ -3,11 +3,11 @@ import { describe, expect, it } from 'vitest';
 
 import { DATE_FORMATS } from '@/libs/date';
 import { getDefaults } from '@/libs/zod';
-import { CouponFormSchema } from '@/schemas/forms/coupon-form';
 import { mergeDateTime } from '@/pages/coupons/edit-coupon/config/coupon-datetime';
+import { CouponFormSchema } from '@/schemas/forms/coupon-form';
 
 const expectedDateTime = (date: string, time: string) =>
-  format(mergeDateTime(date, time) as Date, DATE_FORMATS.ATOM);
+  format(mergeDateTime(date, time)!, DATE_FORMATS.ATOM);
 
 describe('CouponFormSchema', () => {
   const base = {

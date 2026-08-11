@@ -227,6 +227,6 @@ const useDeleteOfflinePaymentMutation = () => {
 };
 
 export {
-  createOfflinePayment, deleteOfflinePayment, getInstallableOnlinePayments, getOfflinePayments, getOnlinePayment, getOnlinePayments, installOnlinePayment, setEnabledOnlinePayment, updateOfflinePayment, updateOnlinePayment, useCreateOfflinePaymentMutation, useDeleteOfflinePaymentMutation, useInstallableOnlinePaymentsQuery, useInstallOnlinePaymentMutation, useOfflinePaymentsQuery, useOnlinePaymentQuery, useOnlinePaymentsQuery, useSetEnabledOnlinePaymentMutation, useUpdateOfflinePaymentMutation, useUpdateOnlinePaymentMutation
+  createOfflinePayment, deleteOfflinePayment, getInstallableOnlinePayments, getOfflinePayments, getOnlinePayment, getOnlinePayments, installOnlinePayment, setEnabledOnlinePayment, updateOfflinePayment, updateOnlinePayment, useCreateOfflinePaymentMutation, useDeleteOfflinePaymentMutation, useInstallableOnlinePaymentsQuery, useInstallOnlinePaymentMutation, useOfflinePaymentsQuery, useOnlinePaymentQuery, useOnlinePaymentsQuery, useSetEnabledOnlinePaymentMutation, useUpdateOfflinePaymentMutation, useUpdateOnlinePaymentMutation,
 };
 

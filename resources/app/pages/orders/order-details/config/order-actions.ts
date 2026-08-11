@@ -1,6 +1,5 @@
 import type { FulfillmentStatus, OrderItem, OrderStatus, PaymentStatus } from '@/types';
 import { __ } from '@/wpi18n';
-
 import orderStateMatrix from '@data/order-state-matrix.json';
 
 /**
@@ -118,8 +117,7 @@ export {
   isActionAvailable,
   ORDER_ACTION_GROUP,
   ORDER_ACTIONS,
-  PAYMENT_ACTION_GROUP,
   type OrderAction,
-  type OrderActionPayload
-};
+  type OrderActionPayload,
+  PAYMENT_ACTION_GROUP};
 

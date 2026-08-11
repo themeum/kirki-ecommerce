@@ -1,6 +1,6 @@
 import type { CSSObject } from '@emotion/react';
 import { Slot } from '@radix-ui/react-slot';
-import { forwardRef, type ComponentPropsWithoutRef } from 'react';
+import { type ComponentPropsWithoutRef, forwardRef } from 'react';
 
 import { Separator } from '@/components/ui/separator';
 import { theme } from '@/theme';
@@ -226,7 +226,7 @@ export {
   ItemHeader,
   ItemMedia,
   ItemSeparator,
-  ItemTitle
+  ItemTitle,
 };
 
 export type {
@@ -235,7 +235,7 @@ export type {
   ItemMediaVariant,
   ItemProps,
   ItemSize,
-  ItemVariant
+  ItemVariant,
 };
 
 const styles = defineStyles({

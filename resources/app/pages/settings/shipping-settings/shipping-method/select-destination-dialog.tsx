@@ -1,35 +1,34 @@
-import { useEffect, useMemo, useState, type Dispatch, type SetStateAction } from 'react';
-import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { type Dispatch, type SetStateAction, useEffect, useMemo, useState } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
 
 import SelectField from '@/components/form/select-field';
 import Button from '@/components/ui/button';
 import Checkbox from '@/components/ui/checkbox';
 import { Dialog, DialogBody, DialogClose, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
-import Flex from '@/components/ui/flex';
-import { theme } from '@/theme';
-import { scoped, defineStyles } from '@/theme/mixins';
 import { getDefaults } from '@/libs/zod';
-import {
-  SelectDestinationFormSchema,
-  type SelectDestinationFormInput,
-  type SelectDestinationFormPayload,
-} from '@/schemas/forms/select-destination-form';
-import { useCountriesQuery } from '@/services/country';
-import { __ } from '@/wpi18n';
-
 import type {
   CountryWithStates,
   ShippingRegion,
   ShippingRule,
 } from '@/pages/settings/shipping-settings/utils';
+import {
+  type SelectDestinationFormInput,
+  type SelectDestinationFormPayload,
+  SelectDestinationFormSchema,
+} from '@/schemas/forms/select-destination-form';
+import { useCountriesQuery } from '@/services/country';
+import { theme } from '@/theme';
+import { defineStyles, scoped } from '@/theme/mixins';
+import { __ } from '@/wpi18n';
 
 type DestinationConditionValue = {
   country: string;
-  states: Array<string | number>;
+  states: (string | number)[];
 };
 
 type SelectDestinationPopupProps = {
@@ -39,7 +38,7 @@ type SelectDestinationPopupProps = {
   selectedCountry: string | null;
   setSelectedCountry: Dispatch<SetStateAction<string | null>>;
   setSelectedRegion: Dispatch<SetStateAction<ShippingRegion[]>>;
-  selectedConditionValue: DestinationConditionValue | unknown;
+  selectedConditionValue: unknown;
   setSelectedConditionValue: Dispatch<SetStateAction<unknown>>;
   setRulesObj: Dispatch<SetStateAction<ShippingRule[]>>;
   ruleIndex: number;
@@ -62,7 +61,7 @@ export const SelectDestinationPopup = ({
   const { data: countries } = useCountriesQuery({ limit: -1 });
   const countryList = countries as CountryWithStates[] | null | undefined;
   const [stateList, setStateList] = useState<
-    Array<{ id: string | number; name: string }>
+    { id: string | number; name: string }[]
   >([]);
 
   const form = useForm<SelectDestinationFormInput, unknown, SelectDestinationFormPayload>({
@@ -173,7 +172,7 @@ export const SelectDestinationPopup = ({
           }
 
           const condition = rule.conditions?.[0];
-          if (!condition || condition.type !== 'destination_region') {
+          if (condition?.type !== 'destination_region') {
             return rule;
           }
 

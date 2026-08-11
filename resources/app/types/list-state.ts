@@ -87,7 +87,7 @@ const parseBoolean = (value: unknown): 0 | 1 => {
     return 0;
   }
 
-  return Boolean(value) ? 1 : 0;
+  return value ? 1 : 0;
 }
 
 const serializeFilterValue = (value: unknown): string | null => {
@@ -100,7 +100,10 @@ const serializeFilterValue = (value: unknown): string | null => {
     }
     return value.join(',');
   }
-  return String(value);
+  if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+    return String(value);
+  }
+  return null;
 };
 
 
@@ -111,7 +114,7 @@ export type {
   ListParams,
   ListQueryParams,
   ListState,
-  SortOrder
+  SortOrder,
 };
 
 export { parseArray, parseBoolean, parseNumberArray, parseStatus, parseString, serializeFilterValue };

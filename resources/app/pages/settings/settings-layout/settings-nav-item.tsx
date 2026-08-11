@@ -1,3 +1,4 @@
+import type { CSSObject } from '@emotion/react';
 import type { KeyboardEvent, ReactNode } from 'react';
 import { useNavigate } from 'react-router';
 
@@ -5,7 +6,6 @@ import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
 import { defineStyles, scoped, scopedMerge } from '@/theme/mixins';
-import { CSSObject } from '@emotion/react';
 
 type SettingsNavItemRowProps = {
   link: string;
@@ -35,7 +35,7 @@ const SettingsNavItemRow = (props: SettingsNavItemRowProps) => {
     if (isDisabled) {
       return;
     }
-    navigate(link);
+    void navigate(link);
   };
 
   const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
@@ -44,7 +44,7 @@ const SettingsNavItemRow = (props: SettingsNavItemRowProps) => {
     }
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
-      navigate(link);
+      void navigate(link);
     }
   };
 
@@ -55,7 +55,7 @@ const SettingsNavItemRow = (props: SettingsNavItemRowProps) => {
         !isOnly && isFirst && styles.rowFirst,
         !isOnly && isLast && styles.rowLast,
         !isOnly && !isFirst && !isLast && styles.rowMiddle,
-        isDisabled && styles.rowDisabled,)}
+        isDisabled && styles.rowDisabled)}
       data-active={isActive ? 'true' : undefined}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
@@ -69,7 +69,7 @@ const SettingsNavItemRow = (props: SettingsNavItemRowProps) => {
         <span css={scoped(styles.iconWrap)} data-settings-icon>
           {icon}
         </span>
-        <Text variant='small' weight="medium" cssOverride={styles.heading}>
+        <Text variant="small" weight="medium" cssOverride={styles.heading}>
           <span data-settings-heading>{header}</span>
         </Text>
       </Flex>
@@ -86,7 +86,7 @@ const highlightedRow = defineStyles({
   borderRadius: theme.radius.xl,
   '& svg': {
     color: theme.colors.background.fillBrand,
-  }
+  },
 });
 
 const highlightedHeading = defineStyles({
@@ -173,7 +173,7 @@ const styles = defineStyles({
       width: 16,
       height: 16,
       color: theme.colors.icon.primary,
-    }
+    },
   },
   heading: {
     transition: 'color 0.2s ease',

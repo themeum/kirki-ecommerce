@@ -5,11 +5,10 @@ import { Item, ItemActions, ItemContent, ItemMedia, ItemTitle } from '@/componen
 import Switch from '@/components/ui/switch';
 import Text from '@/components/ui/text';
 import { EditPenIcon, TrashIcon } from '@/icons';
+import type { ShippingMethodData } from '@/pages/settings/shipping-settings/utils';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
-
-import type { ShippingMethodData } from '@/pages/settings/shipping-settings/utils';
 
 type ShippingMethodRowProps = {
   method: ShippingMethodData;

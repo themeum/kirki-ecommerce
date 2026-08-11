@@ -1,4 +1,4 @@
-import { memo, useEffect, useState, type ReactNode } from 'react';
+import { memo, type ReactNode, useEffect, useState } from 'react';
 
 import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
@@ -8,13 +8,12 @@ import Label from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Text from '@/components/ui/text';
 import { CloseIcon } from '@/icons';
-import { theme } from '@/theme';
-import { defineStyles } from '@/theme/mixins';
-import { __, sprintf } from '@/wpi18n';
-
 import BrandFilter from '@/pages/products/product-table/filter-popup/brand-filter';
 import CategoriesFilter from '@/pages/products/product-table/filter-popup/categories-filter';
 import CollectionFilter from '@/pages/products/product-table/filter-popup/collection-filter';
+import { theme } from '@/theme';
+import { defineStyles } from '@/theme/mixins';
+import { __, sprintf } from '@/wpi18n';
 
 type ProductFilterValue = {
   category_ids: number[];
@@ -67,7 +66,7 @@ const ProductFilterPopup = memo(({ value, onApply, children }: ProductFilterPopu
   }, [openPopup]);
 
   const handleOnFilterChange = (
-    val: string | number | Array<string | number>,
+    val: string | number | (string | number)[],
     filterName: keyof ProductFilterValue,
   ) => {
     setFilterObject((prev) => ({

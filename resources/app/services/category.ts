@@ -136,6 +136,6 @@ const useBulkDeleteCategoriesMutation = () => {
 
 export {
   bulkDeleteCategories, createCategory, deleteCategory, getCategories, updateCategory, useBulkDeleteCategoriesMutation, useCategoriesQuery,
-  useCreateCategoryMutation, useDeleteCategoryMutation, useUpdateCategoryMutation
+  useCreateCategoryMutation, useDeleteCategoryMutation, useUpdateCategoryMutation,
 };
 

@@ -139,6 +139,6 @@ export {
   useOrderCalculationQuery,
   useOrderQuery,
   useOrdersQuery,
-  useUpdateOrderMutation
+  useUpdateOrderMutation,
 };
 

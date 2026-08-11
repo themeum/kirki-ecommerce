@@ -1,14 +1,13 @@
-import Input from '@/components/ui/input';
-import { useInventoryForm } from '@/contexts/inventory-form-context';
 import Checkbox from '@/components/ui/checkbox';
 import Flex from '@/components/ui/flex';
+import Input from '@/components/ui/input';
 import { TableCell, TableRow } from '@/components/ui/table';
 import Thumbnail from '@/components/ui/thumbnail';
+import { useInventoryForm } from '@/contexts/inventory-form-context';
+import { calculateProfit } from '@/pages/utils';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
 import type { InventoryVariant, MarkListHandlers } from '@/types';
-
-import { calculateProfit } from '@/pages/utils';
 
 type SingleRowProps = MarkListHandlers & {
   item: InventoryVariant;

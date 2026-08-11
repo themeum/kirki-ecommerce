@@ -26,7 +26,7 @@ const SingleRow = ({
   const deleteMutation = useDeleteCollectionMutation();
 
   const handleItemClick = (id: number) => {
-    navigate(RouteConfig.Collections.get('CollectionDetail').buildLink({ id }));
+    void navigate(RouteConfig.Collections.get('CollectionDetail').buildLink({ id }));
   };
 
   const onItemDelete = (id: number) => {

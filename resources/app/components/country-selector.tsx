@@ -20,7 +20,7 @@ const CountrySelector = ({
   onChange,
   error,
   multiple = false,
-  disabled
+  disabled,
 }: CountrySelectorProps) => {
   const { data: countries = [] } = useCountriesQuery({ limit: -1 });
 

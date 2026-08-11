@@ -15,23 +15,22 @@ import { TaxIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults, pickFormValues } from '@/libs/zod';
-import {
-  TaxSettingsFormSchema,
-  type TaxSettingsFormInput,
-  type TaxSettingsFormPayload,
-} from '@/schemas/forms/tax-settings-form';
-import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
-import { theme } from '@/theme';
-import { cardStyles } from '@/theme/card-styles';
-import { defineStyles } from '@/theme/mixins';
-import { __ } from '@/wpi18n';
-
 import { useSettingsPageActions } from '@/pages/settings/settings-layout/use-settings-page-actions';
 import SettingsPageHeader from '@/pages/settings/settings-page-header';
 import TaxProfile from '@/pages/settings/tax-settings/tax-profile/tax-profile';
 import TaxRegions from '@/pages/settings/tax-settings/tax-region/tax-region';
 import type { TaxRegion } from '@/pages/settings/tax-settings/utils';
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
+import {
+  type TaxSettingsFormInput,
+  type TaxSettingsFormPayload,
+  TaxSettingsFormSchema,
+} from '@/schemas/forms/tax-settings-form';
+import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
+import { theme } from '@/theme';
+import { cardStyles } from '@/theme/card-styles';
+import { defineStyles } from '@/theme/mixins';
+import { __ } from '@/wpi18n';
 
 const TaxCollectionOptions = () => {
   const isTaxInclusivePrice = useWatch<TaxSettingsFormInput>({
@@ -201,6 +200,7 @@ const TaxSettings = () => {
                   <Flex direction="column" gap={3}>
                     <TaxCollectionRadio />
                     {/* @TODO: will be handled in the future */}
+                    {/* eslint-disable-next-line no-constant-binary-expression -- kept in place until the feature is enabled */}
                     {false && <TaxCollectionOptions />}
                   </Flex>
                 </Flex>
@@ -227,5 +227,5 @@ const styles = defineStyles({
   },
   taxCollectionHeader: {
     gap: theme.spacing[2],
-  }
+  },
 });

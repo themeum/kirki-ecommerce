@@ -1,6 +1,6 @@
 import { type CSSObject } from '@emotion/react';
 import { ArrowLeft } from 'lucide-react';
-import { forwardRef, type ComponentProps, type CSSProperties, type ReactNode } from 'react';
+import { type ComponentProps, type CSSProperties, forwardRef, type ReactNode } from 'react';
 
 import Button from '@/components/ui/button';
 import Container from '@/components/ui/container';
@@ -87,7 +87,7 @@ const PageHeading = forwardRef<HTMLDivElement, PageHeadingProps>(
                 {leftIcon}
               </span>
             )}
-            <Text variant='heading5'>{text}</Text>
+            <Text variant="heading5">{text}</Text>
             {children}
             <Flex cssOverride={styles.actions} gap={2}>
               {actions}

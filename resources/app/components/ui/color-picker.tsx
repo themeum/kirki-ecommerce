@@ -1,13 +1,13 @@
-import { type CSSObject, type Theme } from '@emotion/react';
+import { type CSSObject } from '@emotion/react';
 import {
+  type ComponentPropsWithoutRef,
+  type ComponentRef,
   createContext,
   forwardRef,
+  type ReactNode,
   useContext,
   useEffect,
   useState,
-  type ComponentPropsWithoutRef,
-  type ComponentRef,
-  type ReactNode,
 } from 'react';
 import { HexAlphaColorPicker, HexColorPicker } from 'react-colorful';
 
@@ -245,13 +245,13 @@ const styles = defineStyles({
     textAlign: 'left',
     '&:focus-visible': {
       borderColor: theme.colors.border.default,
-      ...uiFocusRing(theme as Theme),
+      ...uiFocusRing(theme),
     },
     '&[data-error="true"]': {
       borderColor: theme.colors.border.critical,
       boxShadow: 'none',
       '&:focus-visible': {
-        ...uiFocusRing(theme as Theme, theme.colors.border.critical),
+        ...uiFocusRing(theme, theme.colors.border.critical),
       },
     },
     '&:disabled': {

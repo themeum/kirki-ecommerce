@@ -1,6 +1,6 @@
 import PageNavbar from '@/components/page-navbar';
-import { HomeIcon } from '@/icons';
 import Flex from '@/components/ui/flex';
+import { HomeIcon } from '@/icons';
 
 const PageNavbarPreview = () => {
   return (
@@ -8,7 +8,7 @@ const PageNavbarPreview = () => {
       <PageNavbar
         style={{ width: '100%' }}
         textIcon={<HomeIcon />}
-        text={'Home'}
+        text="Home"
       />
     </Flex>
   );

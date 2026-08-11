@@ -1,9 +1,9 @@
-import { type CSSObject, type Theme } from '@emotion/react';
-import { forwardRef, type ComponentPropsWithoutRef, type MouseEvent } from 'react';
+import { type CSSObject } from '@emotion/react';
+import { type ComponentPropsWithoutRef, forwardRef, type MouseEvent } from 'react';
 
 import Button from '@/components/ui/button';
 import { theme } from '@/theme';
-import { flexCenter, itemCenter, uiFocusRing, scopedMerge, mergeCss, defineStyles } from '@/theme/mixins';
+import { defineStyles, flexCenter, itemCenter, mergeCss, scopedMerge, uiFocusRing } from '@/theme/mixins';
 
 type InputGroupAlign =
   | 'inline-start'
@@ -261,14 +261,14 @@ export {
 };
 
 export type {
-  InputGroupAlign,
-  InputGroupButtonSize,
-  InputGroupProps,
   InputGroupAddonProps,
+  InputGroupAlign,
+  InputGroupButtonProps,
+  InputGroupButtonSize,
   InputGroupInputProps,
+  InputGroupProps,
   InputGroupTextareaProps,
   InputGroupTextProps,
-  InputGroupButtonProps,
 };
 
 const styles = defineStyles({
@@ -286,14 +286,14 @@ const styles = defineStyles({
     overflow: 'hidden',
     '&:focus-within': {
       borderColor: theme.colors.border.default,
-      ...uiFocusRing(theme as Theme),
+      ...uiFocusRing(theme),
     },
     '&[data-error="true"]': {
       border: `1px solid ${theme.colors.border.critical}`,
       boxShadow: 'none',
       '&:focus-within': {
         borderColor: theme.colors.border.critical,
-        ...uiFocusRing(theme as Theme, theme.colors.border.critical),
+        ...uiFocusRing(theme, theme.colors.border.critical),
       },
     },
     '&[data-disabled="true"]': {

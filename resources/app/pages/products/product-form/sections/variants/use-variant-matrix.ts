@@ -26,7 +26,7 @@ export const useVariantMatrix = () => {
   const { getValues, setValue } = useFormContext<ProductFormInput>();
 
   const prepare = (nextAttributes: AttributeList): MatrixMutation => {
-    const previousAttributes = (getValues('attributes') ?? []) as AttributeList;
+    const previousAttributes = (getValues('attributes') ?? []);
     const { variants, discarded } = syncVariantMatrix({
       attributes: nextAttributes,
       previousAttributes,
@@ -45,7 +45,7 @@ export const useVariantMatrix = () => {
     };
   };
 
-  const currentAttributes = () => (getValues('attributes') ?? []) as AttributeList;
+  const currentAttributes = () => (getValues('attributes') ?? []);
 
   return {
     /**

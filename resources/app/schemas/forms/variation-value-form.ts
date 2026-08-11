@@ -16,7 +16,7 @@ const VariationValueFormShape = z.object({
 });
 
 export const VariationValueFormSchema = prepareFormSchema(VariationValueFormShape).transform((values) => ({
-  attribute_id: values.attribute_id as number,
+  attribute_id: values.attribute_id!,
   value: values.value,
   color: values.type === 'color' ? values.color || null : null,
   value_id: values.value_id || undefined,

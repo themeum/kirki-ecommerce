@@ -66,7 +66,7 @@ const DiscountTypeSelector = () => {
                 )}
                 <Field orientation="vertical" cssOverride={styles.cardField}>
                   <span css={styles.iconBadge}>{option.icon}</span>
-                  <Text variant='small' weight="medium">{option.label}</Text>
+                  <Text variant="small" weight="medium">{option.label}</Text>
                 </Field>
               </FieldLabel>
             );
@@ -105,7 +105,7 @@ const styles = defineStyles({
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: theme.radius.full,
-    color: theme.colors.icon.primary
+    color: theme.colors.icon.primary,
   },
   hiddenRadio: {
     position: 'absolute',

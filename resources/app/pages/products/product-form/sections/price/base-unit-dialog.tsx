@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ChevronDown } from 'lucide-react';
-import { Fragment, useEffect, useState, type Dispatch, type ReactNode, type SetStateAction } from 'react';
+import { type Dispatch, Fragment, type ReactNode, type SetStateAction, useEffect, useState } from 'react';
 import { Controller, useForm, useFormContext } from 'react-hook-form';
 
 import Button from '@/components/ui/button';
@@ -13,23 +13,22 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectSepa
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import {
-  BaseUnitFormSchema,
-  mapBaseUnitFromVariant,
-  type BaseUnitFormInput,
-  type BaseUnitFormPayload,
-} from '@/schemas/forms/base-unit-form';
-import type { FormErrors, ProductVariant } from '@/types';
-import { __ } from '@/wpi18n';
-
-import {
   calculateBasePricePerUnit,
   DEFAULT_UNIT,
   getSpecifiedUnitList,
   getUnitShortText,
   unitGroups,
 } from '@/pages/products/product-form/sections/price/utils';
+import {
+  type BaseUnitFormInput,
+  type BaseUnitFormPayload,
+  BaseUnitFormSchema,
+  mapBaseUnitFromVariant,
+} from '@/schemas/forms/base-unit-form';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
+import type { FormErrors, ProductVariant } from '@/types';
+import { __ } from '@/wpi18n';
 
 type BaseUnitPopupProps = {
   errors?: FormErrors;
@@ -242,7 +241,7 @@ const BaseUnitDialog = ({
                       {group.items.map((item) => (
                         <SelectItem
                           key={item.value}
-                          value={item.value as string}
+                          value={item.value!}
                           endSlot={item.subText}
                         >
                           {item.title}
@@ -266,7 +265,7 @@ const BaseUnitDialog = ({
                 {baseUnitOptions.map((item) => (
                   <SelectItem
                     key={item.value}
-                    value={item.value as string}
+                    value={item.value!}
                     endSlot={item.subText}
                   >
                     {item.title}

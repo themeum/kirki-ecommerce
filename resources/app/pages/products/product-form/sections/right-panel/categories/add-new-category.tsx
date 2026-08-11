@@ -1,6 +1,6 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 
 import SelectField from '@/components/form/select-field';
 import TextField from '@/components/form/text-field';
@@ -13,14 +13,14 @@ import { PlusIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import {
-  ProductAddCategoryFormSchema,
   type ProductAddCategoryFormInput,
   type ProductAddCategoryFormPayload,
+  ProductAddCategoryFormSchema,
 } from '@/schemas/forms/product-add-category-form';
 import { useCategoriesQuery, useCreateCategoryMutation } from '@/services/category';
 import { theme } from '@/theme';
-import { scoped, defineStyles } from '@/theme/mixins';
 import { cardStyles } from '@/theme/card-styles';
+import { defineStyles, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 const AddNewCategory = () => {
@@ -140,5 +140,5 @@ const styles = defineStyles({
       backgroundColor: 'transparent',
       color: theme.colors.background.fillBrandHover,
     },
-  }
+  },
 });

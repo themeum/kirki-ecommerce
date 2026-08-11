@@ -13,7 +13,7 @@ type HeaderActionsCardProps = {
   onAdd?: () => void;
   hideButton?: boolean;
   dropDownButton?: boolean;
-  handleOptionSelect?: (value: string | number | Array<string | number>) => void;
+  handleOptionSelect?: (value: string | number | (string | number)[]) => void;
 };
 
 const HeaderActionsCard = (props: HeaderActionsCardProps) => {

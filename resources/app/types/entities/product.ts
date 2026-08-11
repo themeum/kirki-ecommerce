@@ -1,9 +1,8 @@
 export type {
   AdditionalInfoItem, Product,
   ProductAttribute, ProductBrand,
-  ProductCategoryRef, ProductCollectionRef, ProductCurrency, ProductListItem, ProductStatus, ProductTagRef
+  ProductCategoryRef, ProductCollectionRef, ProductCurrency, ProductListItem, ProductStatus, ProductTagRef,
 } from '@/schemas/catalog/product';
-
 export type { InventoryVariant, ProductVariant } from '@/schemas/catalog/variant';
 
 type UnitPriceValue = {

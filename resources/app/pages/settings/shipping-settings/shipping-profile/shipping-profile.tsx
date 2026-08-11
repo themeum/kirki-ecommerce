@@ -1,3 +1,4 @@
+import { Package } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
 import HeaderActionsCard from '@/components/header-actions-card';
@@ -17,17 +18,15 @@ import Text from '@/components/ui/text';
 import { BoxOpenIcon, EditPenIcon, TrashIcon } from '@/icons';
 import { queryClient } from '@/libs/query-client';
 import { queryKeys } from '@/libs/query-keys';
+import { CreateProfilePopup } from '@/pages/settings/shipping-settings/shipping-profile/create-profile-dialog';
 import { dispatchToastMessage } from '@/pages/utils';
 import { useSettingsQuery } from '@/services/settings';
 import { deleteShippingProfile, useShippingProfilesQuery } from '@/services/shipping';
+import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
+import { defineStyles, scoped } from '@/theme/mixins';
 import type { ShippingProfile as ShippingProfileType } from '@/types';
 import { __ } from '@/wpi18n';
-
-import { CreateProfilePopup } from '@/pages/settings/shipping-settings/shipping-profile/create-profile-dialog';
-import { theme } from '@/theme';
-import { defineStyles, scoped } from '@/theme/mixins';
-import { Package } from 'lucide-react';
 
 const SHIPPING_PROFILES_PARAMS = { limit: -1 };
 

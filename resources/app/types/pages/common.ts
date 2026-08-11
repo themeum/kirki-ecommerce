@@ -17,7 +17,7 @@ type ToastMessageConfig = {
   title?: string;
   duration?: number;
   undoAction?: () => void;
-  onSuccess?: () => Promise<void>;
+  onSuccess?: () => void | Promise<void>;
 };
 
 type ProfitData = {
@@ -50,13 +50,13 @@ type MediaChangePayload = {
 };
 
 export type {
-  FormErrors,
   DateFormatType,
+  FormErrors,
+  MarkListHandlers,
+  MediaChangePayload,
+  ProfitData,
   SuggestionItem,
   SuggestionOption,
-  ToastMessageConfig,
-  ProfitData,
-  MarkListHandlers,
   TaxonomyTableHeader,
-  MediaChangePayload,
+  ToastMessageConfig,
 };

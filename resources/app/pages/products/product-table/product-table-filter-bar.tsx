@@ -11,10 +11,11 @@ import { useCollectionsQuery } from '@/services/collection';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
 import type { SuggestionOption } from '@/types';
-import { ProductListFilter, productListFilterConfig, productListOptions } from '@/types/filters/product';
+import type { ProductListFilter} from '@/types/filters/product';
+import { productListFilterConfig, productListOptions } from '@/types/filters/product';
 import { __ } from '@/wpi18n';
 
-type FilterValue = string | number | Array<string | number>;
+type FilterValue = string | number | (string | number)[];
 
 const statusOptions: SuggestionOption[] = [
   { value: 'published', title: __('Published', 'kirki-ecommerce') },
@@ -66,13 +67,13 @@ const ProductTableFilterBar = memo(() => {
 
   const getFilterValue = (key: ProductFilterKey): FilterValue => {
     if (key === 'category_ids') {
-      return (params.category_ids || []) as FilterValue;
+      return (params.category_ids || []);
     }
     if (key === 'collection_ids') {
-      return (params.collection_ids?.[0] ?? '') as FilterValue;
+      return (params.collection_ids?.[0] ?? '');
     }
     if (key === 'brand_ids') {
-      return (params.brand_ids?.[0] ?? '') as FilterValue;
+      return (params.brand_ids?.[0] ?? '');
     }
     if (key === 'status') {
       return (params.status as FilterValue) ?? '';
@@ -80,7 +81,7 @@ const ProductTableFilterBar = memo(() => {
     if (key === 'stock_status') {
       return params.stock_status ?? '';
     }
-    return (params[key] ?? '') as FilterValue;
+    return (params[key] ?? '');
   };
 
   const handleFilterChange = (val: FilterValue, key: ProductFilterKey) => {
@@ -99,7 +100,7 @@ const ProductTableFilterBar = memo(() => {
     setParams(
       Object.fromEntries(
         PRODUCT_FILTER_KEYS.map((key) => [key, undefined]),
-      ) as Partial<ProductListFilter>,
+      ),
     );
   };
 
@@ -115,7 +116,7 @@ const ProductTableFilterBar = memo(() => {
           uniqueKey={key}
           optionsArray={filterOptionsMap[key]}
           value={getFilterValue(key)}
-          onValueChange={(val) => handleFilterChange(val as FilterValue, key)}
+          onValueChange={(val) => handleFilterChange(val, key)}
           onClearItem={() => handleClearSingleFilter(key)}
           multiple={key === 'category_ids'}
         />

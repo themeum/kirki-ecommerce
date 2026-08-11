@@ -2,19 +2,18 @@ import { useNavigate } from 'react-router';
 
 import Pagination from '@/components/pagination';
 import Button from '@/components/ui/button';
-import { NEW_ITEM_ID } from '@/conf';
-import { RouteConfig } from '@/config/route-config';
-import { useListParams } from '@/hooks';
 import { Card, CardContent } from '@/components/ui/card';
-import { cardStyles } from '@/theme/card-styles';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import PageHeading from '@/components/ui/page-heading';
+import { NEW_ITEM_ID } from '@/conf';
+import { RouteConfig } from '@/config/route-config';
+import { useListParams } from '@/hooks';
+import CollectionTable from '@/pages/collections/collection-table/collection-table';
 import { useCollectionsQuery } from '@/services/collection';
+import { cardStyles } from '@/theme/card-styles';
 import type { PaginationData } from '@/types';
 import { __ } from '@/wpi18n';
-
-import CollectionTable from '@/pages/collections/collection-table/collection-table';
 
 const Collections = () => {
   const navigate = useNavigate();
@@ -43,7 +42,7 @@ const Collections = () => {
           <Button
             variant="primary"
             onClick={() => {
-              navigate(
+              void navigate(
                 RouteConfig.Collections.get('CollectionDetail').buildLink({ id: NEW_ITEM_ID }),
               );
             }}

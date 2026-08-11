@@ -1,4 +1,5 @@
-import { useMemo, type Dispatch, type SetStateAction } from 'react';
+import { BoxIcon } from 'lucide-react';
+import { type Dispatch, type SetStateAction, useMemo } from 'react';
 import { useNavigate } from 'react-router';
 
 import HeaderActionsCard from '@/components/header-actions-card';
@@ -18,15 +19,13 @@ import {
 import Text from '@/components/ui/text';
 import { RouteConfig } from '@/config/route-config';
 import { EditPenIcon, TrashIcon } from '@/icons';
+import { getShippingMethodRightText, getShippingMethodSubText, saveShippingZones, type ShippingMethodData, shippingMethodIconMap, type ShippingZone } from '@/pages/settings/shipping-settings/utils';
 import { dispatchToastMessage } from '@/pages/utils';
 import type { ShippingSettings } from '@/schemas/catalog/settings';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
-
-import { getShippingMethodRightText, getShippingMethodSubText, saveShippingZones, shippingMethodIconMap, type ShippingMethodData, type ShippingZone } from '@/pages/settings/shipping-settings/utils';
-import { BoxIcon } from 'lucide-react';
 
 const ShippingRoutes = RouteConfig.Settings.get('ShippingSettings');
 
@@ -86,17 +85,17 @@ export const ShippingMethod = ({
   };
 
   const handleEditDeliveryMethod = (item: ShippingMethodData) => {
-    navigate(
+    void navigate(
       `${ShippingRoutes.get('ShippingDeliveryMethod').buildLink()}?methodId=${item.id}&zoneId=${item.zoneId}`,
     );
   };
 
   const handleAddMethod = () => {
     if (zoneId !== undefined && zoneId !== null) {
-      navigate(`${ShippingRoutes.get('ShippingDeliveryMethod').buildLink()}?zoneId=${zoneId}`);
+      void navigate(`${ShippingRoutes.get('ShippingDeliveryMethod').buildLink()}?zoneId=${zoneId}`);
       return;
     }
-    navigate(ShippingRoutes.get('ShippingDeliveryMethod').buildLink());
+    void navigate(ShippingRoutes.get('ShippingDeliveryMethod').buildLink());
   };
 
   return (

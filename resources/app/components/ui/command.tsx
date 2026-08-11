@@ -1,10 +1,10 @@
-import { forwardRef, type ComponentPropsWithoutRef, type ElementRef, type HTMLAttributes } from 'react';
 import { type CSSObject } from '@emotion/react';
 import { Command as CommandPrimitive } from 'cmdk';
 import { Search } from 'lucide-react';
+import { type ComponentPropsWithoutRef, type ElementRef, forwardRef, type HTMLAttributes } from 'react';
 
 import { theme } from '@/theme';
-import { itemCenter, scopedMerge, scoped, defineStyles } from '@/theme/mixins';
+import { defineStyles, itemCenter, scoped, scopedMerge } from '@/theme/mixins';
 
 type CommandProps = Omit<
   ComponentPropsWithoutRef<typeof CommandPrimitive>,
@@ -161,11 +161,11 @@ CommandShortcut.displayName = 'CommandShortcut';
 
 export {
   Command,
-  CommandInput,
-  CommandList,
   CommandEmpty,
   CommandGroup,
+  CommandInput,
   CommandItem,
+  CommandList,
   CommandSeparator,
   CommandShortcut,
 };

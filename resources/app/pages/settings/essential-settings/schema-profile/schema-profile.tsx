@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { type ReactNode, useEffect, useState } from 'react';
 
 import HeaderActionsCard from '@/components/header-actions-card';
 import ActionGroup from '@/components/ui/action-group';
@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/stacked-items';
 import Text from '@/components/ui/text';
 import { BoxOpenIcon, EditPenIcon, TrashIcon } from '@/icons';
+import AddSchemaPopup from '@/pages/settings/essential-settings/schema-profile/add-schema-dialog';
 import { dispatchToastMessage } from '@/pages/utils';
 import { useDeleteSchemaMutation, useSchemasQuery } from '@/services/schema';
 import { theme } from '@/theme';
@@ -22,8 +23,6 @@ import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
 import type { SchemaProfile } from '@/types';
 import { __ } from '@/wpi18n';
-
-import AddSchemaPopup from '@/pages/settings/essential-settings/schema-profile/add-schema-dialog';
 
 type SchemaListItem = SchemaProfile & {
   badge1?: string;
@@ -59,8 +58,8 @@ const SchemaProfileComponent = () => {
       undoAction: () => {
         setSchemaProfileList(initialList);
       },
-      onSuccess: async () => {
-        deleteSchema(item.id as number, { onSuccess: () => refetch() });
+      onSuccess: () => {
+        deleteSchema(item.id, { onSuccess: () => refetch() });
       },
     });
   };

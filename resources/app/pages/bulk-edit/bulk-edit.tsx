@@ -1,3 +1,4 @@
+import { ChevronLeft } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router';
 
@@ -8,16 +9,13 @@ import FullPageContainer from '@/components/ui/full-page-container';
 import PageHeading from '@/components/ui/page-heading';
 import { BulkEditFormProvider, useBulkEditForm } from '@/contexts/bulk-edit-form-context';
 import { LayoutIcon } from '@/icons';
-import { useBulkVariantsQuery, useUpdateBulkVariantsMutation } from '@/services/bulk-edit';
-import type { MediaRef } from '@/types';
-import { __ } from '@/wpi18n';
-
 import BulkEditTable from '@/pages/bulk-edit/bulk-edit-table/bulk-edit-table';
 import { allTableHeaders } from '@/pages/bulk-edit/utils';
-
+import { useBulkVariantsQuery, useUpdateBulkVariantsMutation } from '@/services/bulk-edit';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
-import { ChevronLeft } from 'lucide-react';
+import type { MediaRef } from '@/types';
+import { __ } from '@/wpi18n';
 
 const BulkEditPage = () => {
   const [searchParams] = useSearchParams();

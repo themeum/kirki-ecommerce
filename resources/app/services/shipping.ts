@@ -84,7 +84,7 @@ const useShippingProfilesQuery = (params: ListQueryParams = {}, enabled = true) 
     queryKey: queryKeys.ShippingProfiles(params),
     queryFn: () => getShippingProfiles(params),
     placeholderData: keepPreviousData,
-    enabled
+    enabled,
   });
 };
 
@@ -211,6 +211,6 @@ const useDeleteShippingBoxMutation = () => {
 
 export {
   createShippingBox, createShippingProfile, deleteShippingBox, deleteShippingProfile, getShippingBox, getShippingBoxes, getShippingProfiles, updateShippingBox, updateShippingProfile, useCreateShippingBoxMutation, useCreateShippingProfileMutation, useDeleteShippingBoxMutation, useDeleteShippingProfileMutation, useShippingBoxesQuery,
-  useShippingBoxQuery, useShippingProfilesQuery, useUpdateShippingBoxMutation, useUpdateShippingProfileMutation
+  useShippingBoxQuery, useShippingProfilesQuery, useUpdateShippingBoxMutation, useUpdateShippingProfileMutation,
 };
 

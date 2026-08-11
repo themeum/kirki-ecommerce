@@ -1,4 +1,5 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { Package2 } from 'lucide-react';
+import { type ReactNode, useEffect, useState } from 'react';
 
 import DropdownButton from '@/components/dropdown-button';
 import HeaderActionsCard from '@/components/header-actions-card';
@@ -17,17 +18,14 @@ import {
 } from '@/components/ui/stacked-items';
 import Text from '@/components/ui/text';
 import { EditPenIcon, ShowMoreIcon } from '@/icons';
+import ShippingBoxPopup from '@/pages/settings/shipping-settings/shipping-box/shipping-box-dialog';
 import { dispatchToastMessage } from '@/pages/utils';
 import { useDeleteShippingBoxMutation, useShippingBoxesQuery, useUpdateShippingBoxMutation } from '@/services/shipping';
 import { theme } from '@/theme';
-import type { ShippingBox as ShippingBoxType } from '@/types';
-import { __, sprintf } from '@/wpi18n';
-
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
-
-import ShippingBoxPopup from '@/pages/settings/shipping-settings/shipping-box/shipping-box-dialog';
-import { Package2 } from 'lucide-react';
+import type { ShippingBox as ShippingBoxType } from '@/types';
+import { __, sprintf } from '@/wpi18n';
 
 type BoxAction = {
   title: string;
@@ -154,8 +152,8 @@ const ShippingBox = () => {
         undoAction: () => {
           setShippingBoxList(initialList);
         },
-        onSuccess: async () => {
-          deleteBox(item?.id as number, {
+        onSuccess: () => {
+          deleteBox(item?.id, {
             onSuccess: () => refetch(),
           });
         },
@@ -166,7 +164,7 @@ const ShippingBox = () => {
         is_default: !item?.is_default,
       };
       updateBox(
-        { id: item?.id as number, data: data as Record<string, unknown> },
+        { id: item?.id, data },
         {
           onSuccess: () => {
             dispatchToastMessage('success', {
@@ -174,7 +172,7 @@ const ShippingBox = () => {
                 ? __('Shipping box unset as default', 'kirki-ecommerce')
                 : __('Shipping box set as default', 'kirki-ecommerce'),
             });
-            refetch();
+            void refetch();
           },
         },
       );

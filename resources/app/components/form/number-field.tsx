@@ -1,6 +1,6 @@
 import type { CSSObject } from '@emotion/react';
 import type { ChangeEvent, FocusEvent, KeyboardEvent, ReactNode, WheelEvent } from 'react';
-import { Controller, useFormContext, type FieldPath, type FieldValues } from 'react-hook-form';
+import { Controller, type FieldPath, type FieldValues, useFormContext } from 'react-hook-form';
 
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import Input from '@/components/ui/input';
@@ -35,7 +35,7 @@ const NumberField = <
   cssOverride,
   min,
   max,
-  readOnly
+  readOnly,
 }: NumberFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
   const fieldId = String(name);

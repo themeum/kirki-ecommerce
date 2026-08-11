@@ -57,13 +57,13 @@ const deepMergeCss = (base: CSSObject, override: CSSObject): CSSObject => {
 
     if (isPlainObject(baseValue) && isPlainObject(overrideValue)) {
       result[key as keyof CSSObject] = deepMergeCss(
-        baseValue as CSSObject,
-        overrideValue as CSSObject,
-      ) as CSSObject[keyof CSSObject];
+        baseValue,
+        overrideValue,
+      );
       continue;
     }
 
-    result[key as keyof CSSObject] = overrideValue as CSSObject[keyof CSSObject];
+    result[key as keyof CSSObject] = overrideValue;
   }
 
   return result;
@@ -164,7 +164,7 @@ export {
   mergeCss,
   scoped,
   scopedMerge,
-  uiFocusRing
+  uiFocusRing,
 };
 
 export type { CssOverrideProp, StyleTree };

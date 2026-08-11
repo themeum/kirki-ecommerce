@@ -9,15 +9,6 @@ import { HomeIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults, pickFormValues } from '@/libs/zod';
-import type { GeneralSettings as GeneralSettingsData } from '@/schemas/catalog/settings';
-import {
-  GeneralSettingsFormSchema,
-  type GeneralSettingsFormInput,
-  type GeneralSettingsFormPayload,
-} from '@/schemas/forms/general-settings-form';
-import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
-import { __ } from '@/wpi18n';
-
 import InvoiceId from '@/pages/settings/general-settings/invoice-id';
 import OrderId from '@/pages/settings/general-settings/order-id';
 import SellingLocation from '@/pages/settings/general-settings/selling-location';
@@ -26,6 +17,14 @@ import StoreContactDetails from '@/pages/settings/general-settings/store-contact
 import { useSettingsPageActions } from '@/pages/settings/settings-layout/use-settings-page-actions';
 import SettingsPageHeader from '@/pages/settings/settings-page-header';
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
+import type { GeneralSettings as GeneralSettingsData } from '@/schemas/catalog/settings';
+import {
+  type GeneralSettingsFormInput,
+  type GeneralSettingsFormPayload,
+  GeneralSettingsFormSchema,
+} from '@/schemas/forms/general-settings-form';
+import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
+import { __ } from '@/wpi18n';
 
 const mapSettingsToFormValues = (
   settings: GeneralSettingsData,

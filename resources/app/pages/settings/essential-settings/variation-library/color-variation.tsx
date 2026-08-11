@@ -6,16 +6,15 @@ import { Card, CardContent } from '@/components/ui/card';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import { ColorPaletteIcon } from '@/icons';
+import VariationTable from '@/pages/settings/essential-settings/variation-library/variation-table/variation-table';
+import VariationValuePopup from '@/pages/settings/essential-settings/variation-library/variation-value-dialog';
+import SettingsPageHeader from '@/pages/settings/settings-page-header';
 import { useAttributeQuery } from '@/services/attribute';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
 import type { Attribute, AttributeValue, TaxonomyTableHeader } from '@/types';
 import { __, sprintf } from '@/wpi18n';
-
-import VariationTable from '@/pages/settings/essential-settings/variation-library/variation-table/variation-table';
-import VariationValuePopup from '@/pages/settings/essential-settings/variation-library/variation-value-dialog';
-import SettingsPageHeader from '@/pages/settings/settings-page-header';
 
 type AttributeWithMeta = Attribute & { updated_at?: string };
 

@@ -25,9 +25,9 @@ import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults } from '@/libs/zod';
 import {
-  ShippingBoxFormSchema,
   type ShippingBoxFormInput,
   type ShippingBoxFormPayload,
+  ShippingBoxFormSchema,
 } from '@/schemas/forms/shipping-box-form';
 import { useSettingsQuery } from '@/services/settings';
 import {
@@ -95,15 +95,15 @@ const ShippingBoxPopup = ({
     }
 
     form.reset({
-      length: (selectedItem?.length as number | string) ?? 120,
-      width: (selectedItem?.width as number | string) ?? 80,
-      height: (selectedItem?.height as number | string) ?? 80,
+      length: selectedItem.length ?? 120,
+      width: selectedItem.width ?? 80,
+      height: selectedItem.height ?? 80,
       unit:
-        (selectedItem?.unit as 'cm' | 'in') ??
+        (selectedItem.unit as 'cm' | 'in') ??
         (productSettingsData?.dimension_unit as 'cm' | 'in') ??
         'in',
-      name: selectedItem?.name ?? '',
-      is_default: (selectedItem?.is_default as boolean) || false,
+      name: selectedItem.name ?? '',
+      is_default: selectedItem.is_default ?? false,
     });
   }, [isOpen, selectedItem, productSettingsData, form]);
 
@@ -127,7 +127,7 @@ const ShippingBoxPopup = ({
     try {
       if (selectedItem) {
         const response = await updateBox({
-          id: selectedItem?.id as number,
+          id: selectedItem?.id,
           data: payload,
         });
         onSave((response?.data as { id?: number })?.id);
@@ -203,7 +203,7 @@ const ShippingBoxPopup = ({
                       cssOverride={styles.dimensionField}
                     />
                     <SelectField
-                      name='unit'
+                      name="unit"
                       label={__('Unit', 'kirki-ecommerce')}
                       placeholder={__('e.g. cm', 'kirki-ecommerce')}
                       options={[

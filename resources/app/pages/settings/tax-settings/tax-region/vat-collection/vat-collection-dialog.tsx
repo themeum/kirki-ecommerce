@@ -1,6 +1,6 @@
-import { useEffect, type ReactNode } from 'react';
-import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { type ReactNode, useEffect } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 
 import TextField from '@/components/form/text-field';
 import Button from '@/components/ui/button';
@@ -8,15 +8,14 @@ import { Dialog, DialogBody, DialogClose, DialogCloseButton, DialogContent, Dial
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Form } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import type { TaxRate } from '@/pages/settings/tax-settings/utils';
 import {
-  VatCollectionFormSchema,
   type VatCollectionFormInput,
   type VatCollectionFormPayload,
+  VatCollectionFormSchema,
 } from '@/schemas/forms/vat-collection-form';
 import type { SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
-
-import type { TaxRate } from '@/pages/settings/tax-settings/utils';
 
 type VatStateOption = SelectOption & {
   leftIcon?: ReactNode;

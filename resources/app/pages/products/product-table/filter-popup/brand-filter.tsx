@@ -12,7 +12,7 @@ type FilterObject = {
 
 type BrandFilterProps = {
   filterObject: FilterObject;
-  onChange?: (val: string | number | Array<string | number>) => void;
+  onChange?: (val: string | number | (string | number)[]) => void;
 };
 
 type BrandOption = { label: string; value: string };

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { BaseUnitFormSchema, mapBaseUnitFromVariant } from '@/schemas/forms/base-unit-form';
+import type { ProductVariant } from '@/types';
 
 describe('BaseUnitFormSchema', () => {
   it('produces the exact payload for a fully filled form', () => {
@@ -35,14 +36,13 @@ describe('BaseUnitFormSchema', () => {
 
 describe('mapBaseUnitFromVariant', () => {
   it('picks matching fields from a variant', () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result = mapBaseUnitFromVariant({
       total_unit_amount: 500,
       total_unit: 'g',
       base_unit_amount: 100,
       base_unit: 'g',
       base_price: '9.99',
-    } as any);
+    } as unknown as ProductVariant);
 
     expect(result).toEqual({
       total_unit_amount: 500,

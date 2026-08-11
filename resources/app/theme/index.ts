@@ -414,6 +414,6 @@ export type {
   PrimitiveColorKey,
   SpacingKey,
   TypographyStyle,
-  TypographyWeight
+  TypographyWeight,
 };
 

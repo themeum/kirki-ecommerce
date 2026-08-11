@@ -1,6 +1,5 @@
-import Flex from '@/components/ui/flex';
-
 import Button from '@/components/ui/button';
+import Flex from '@/components/ui/flex';
 
 const UiButtonPreview = () => {
   return (

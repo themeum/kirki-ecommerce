@@ -236,15 +236,15 @@ describe('mapProductToFormValues', () => {
   };
 
   it('falls back to a single default variant when the product has none', () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const formValues = mapProductToFormValues(productWithNoVariants as any);
+     
+    const formValues = mapProductToFormValues(productWithNoVariants);
     expect(formValues.variants).toHaveLength(1);
     expect(formValues.variants?.[0]?.in_stock).toBe(true);
   });
 
   it('converts a null additional_info/seo_keywords into empty arrays', () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const formValues = mapProductToFormValues(productWithNoVariants as any);
+     
+    const formValues = mapProductToFormValues(productWithNoVariants);
     expect(formValues.additional_info).toEqual([]);
     expect(formValues.seo_keywords).toEqual([]);
   });

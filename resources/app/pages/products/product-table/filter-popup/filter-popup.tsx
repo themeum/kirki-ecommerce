@@ -1,4 +1,4 @@
-import { memo, useEffect, useState, type ComponentProps } from 'react';
+import { type ComponentProps, memo, useEffect, useState } from 'react';
 
 import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
@@ -9,16 +9,16 @@ import Label from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Text from '@/components/ui/text';
-import { CloseIcon, ListFilter } from '@/icons';
-import { theme } from '@/theme';
-import { defineStyles } from '@/theme/mixins';
-import { __, sprintf } from '@/wpi18n';
-
 import { useListParams } from '@/hooks';
+import { CloseIcon, ListFilter } from '@/icons';
 import BrandFilter from '@/pages/products/product-table/filter-popup/brand-filter';
 import CategoriesFilter from '@/pages/products/product-table/filter-popup/categories-filter';
 import CollectionFilter from '@/pages/products/product-table/filter-popup/collection-filter';
-import { ProductListFilter, productListOptions } from '@/types/filters/product';
+import { theme } from '@/theme';
+import { defineStyles } from '@/theme/mixins';
+import type { ProductListFilter} from '@/types/filters/product';
+import { productListOptions } from '@/types/filters/product';
+import { __, sprintf } from '@/wpi18n';
 
 type LocalFilterState = {
   category_ids: number[];
@@ -71,7 +71,7 @@ const FilterPopup = memo(({
   }, [openPopup]);
 
   const handleOnFilterChange = (
-    val: string | number | Array<string | number>,
+    val: string | number | (string | number)[],
     filterName: keyof LocalFilterState,
   ) => {
     setFilterObject((prev) => ({

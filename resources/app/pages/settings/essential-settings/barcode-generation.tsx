@@ -9,10 +9,10 @@ import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Text from '@/components/ui/text';
+import type { ProductSettings } from '@/schemas/catalog/settings';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
-import type { ProductSettings } from '@/schemas/catalog/settings';
 import type { FormErrors } from '@/types';
 import { __ } from '@/wpi18n';
 
@@ -128,7 +128,10 @@ const BarcodeGeneration = (_props: BarcodeGenerationProps) => {
           <Card cssOverride={cardStyles.innerDarkCard}>
             <CardContent cssOverride={styles.previewContent}>
               <span>
-                <img src="https://kirki-ecommerce.test/wp-content/uploads/2025/10/Screenshot-2025-07-24-at-2.29.50-PM-1.png" />
+                <img
+                  src="https://kirki-ecommerce.test/wp-content/uploads/2025/10/Screenshot-2025-07-24-at-2.29.50-PM-1.png"
+                  alt={__('Barcode label preview', 'kirki-ecommerce')}
+                />
               </span>
             </CardContent>
           </Card>
@@ -168,5 +171,5 @@ const styles = defineStyles({
     alignItems: 'center',
     justifyContent: 'center',
     border: `1px solid ${theme.colors.border.default}`,
-  }
+  },
 });

@@ -1,3 +1,4 @@
+import { format } from 'date-fns';
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router';
 
@@ -7,25 +8,24 @@ import DataTable, {
 } from '@/components/data-table';
 import Badge from '@/components/ui/badge';
 import Flex from '@/components/ui/flex';
+import Text from '@/components/ui/text';
 import Thumbnail from '@/components/ui/thumbnail';
 import { RouteConfig } from '@/config/route-config';
-import { theme } from '@/theme';
-import { defineStyles, scoped } from '@/theme/mixins';
-import type { ProductListItem } from '@/types';
-import { getBadgeVariantForStatus } from '@/utils/badge-status';
-import { __ } from '@/wpi18n';
-
-import Text from '@/components/ui/text';
 import { useListParams } from '@/hooks';
 import { DATE_FORMATS } from '@/libs/date';
 import FilterPopup from '@/pages/products/product-table/filter-popup/filter-popup';
 import ProductTableFilter from '@/pages/products/product-table/product-table-filter';
 import ProductTableFilterBar from '@/pages/products/product-table/product-table-filter-bar';
 import { useBulkDeleteProductsMutation, useProductsQuery } from '@/services/product';
-import { ProductListFilter, productListOptions } from '@/types/filters/product';
+import { theme } from '@/theme';
+import { defineStyles, scoped } from '@/theme/mixins';
+import type { ProductListItem } from '@/types';
+import type { ProductListFilter} from '@/types/filters/product';
+import { productListOptions } from '@/types/filters/product';
+import { getBadgeVariantForStatus } from '@/utils/badge-status';
 import { displayMoney } from '@/utils/money';
 import { isDefined } from '@/utils/object';
-import { format } from 'date-fns';
+import { __ } from '@/wpi18n';
 
 const ProductTitleCell = ({ item }: { item: ProductListItem }) => {
   const navigate = useNavigate();
@@ -36,7 +36,7 @@ const ProductTitleCell = ({ item }: { item: ProductListItem }) => {
       <span
         css={scoped(styles.clickable)}
         onClick={() => {
-          navigate(RouteConfig.Products.get('EditProduct').buildLink({ id: item.id }));
+          void navigate(RouteConfig.Products.get('EditProduct').buildLink({ id: item.id }));
         }}
       >
         <Text variant="small">{item.title}</Text>

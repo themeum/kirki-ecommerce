@@ -1,9 +1,9 @@
-import { type CSSObject, type Theme } from '@emotion/react';
-import { forwardRef, type ComponentPropsWithoutRef, type ElementRef } from 'react';
+import { type CSSObject } from '@emotion/react';
 import * as TabsPrimitive from '@radix-ui/react-tabs';
+import { type ComponentPropsWithoutRef, type ElementRef, forwardRef } from 'react';
 
 import { theme } from '@/theme';
-import { flexCenter, uiFocusRing, scopedMerge, defineStyles } from '@/theme/mixins';
+import { defineStyles, flexCenter, scopedMerge, uiFocusRing } from '@/theme/mixins';
 
 const Tabs = TabsPrimitive.Root;
 
@@ -60,7 +60,7 @@ const TabsContent = forwardRef<
 
 TabsContent.displayName = 'TabsContent';
 
-export { Tabs, TabsList, TabsTrigger, TabsContent };
+export { Tabs, TabsContent, TabsList, TabsTrigger };
 
 const styles = defineStyles({
   list: {
@@ -91,7 +91,7 @@ const styles = defineStyles({
       boxShadow: theme.shadow.sm,
     },
     '&:focus-visible': {
-      ...uiFocusRing(theme as Theme),
+      ...uiFocusRing(theme),
     },
     '&[data-disabled]': {
       opacity: 0.5,

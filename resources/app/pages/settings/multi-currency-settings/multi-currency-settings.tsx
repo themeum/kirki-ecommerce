@@ -11,22 +11,21 @@ import { CurrencyIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults, pickFormValues } from '@/libs/zod';
-import {
-  MultiCurrencySettingsFormSchema,
-  type MultiCurrencySettingsFormInput,
-  type MultiCurrencySettingsFormPayload,
-} from '@/schemas/forms/multi-currency-settings-form';
-import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
-import { cardStyles } from '@/theme/card-styles';
-import { __ } from '@/wpi18n';
-
 import ApiConfig from '@/pages/settings/multi-currency-settings/api-config/api-config';
 import { AvailableCurrencyList } from '@/pages/settings/multi-currency-settings/available-currency-list';
 import CurrencyFormatSettings from '@/pages/settings/multi-currency-settings/currency-format-settings';
 import { useSettingsPageActions } from '@/pages/settings/settings-layout/use-settings-page-actions';
 import SettingsPageHeader from '@/pages/settings/settings-page-header';
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
+import {
+  type MultiCurrencySettingsFormInput,
+  type MultiCurrencySettingsFormPayload,
+  MultiCurrencySettingsFormSchema,
+} from '@/schemas/forms/multi-currency-settings-form';
+import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import { theme } from '@/theme';
+import { cardStyles } from '@/theme/card-styles';
+import { __ } from '@/wpi18n';
 
 const MultiCurrencySettings = () => {
   const { data: currencySettingsData, isLoading } = useSettingsQuery('currency');

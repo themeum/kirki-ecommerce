@@ -4,10 +4,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { PlusIcon } from '@/icons';
+import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
-
-import { theme } from '@/theme';
 
 const SellerTaxID = () => {
   return (

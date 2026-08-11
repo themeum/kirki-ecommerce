@@ -13,14 +13,13 @@ import Switch from '@/components/ui/switch';
 import Text from '@/components/ui/text';
 import { RouteConfig } from '@/config/route-config';
 import { EditIcon, LocationIcon, ShowMoreIcon, TrashIcon } from '@/icons';
+import TaxRegionPopup from '@/pages/settings/tax-settings/tax-region/tax-region-dialog';
+import type { SelectedTaxRegionDraft, TaxRegion } from '@/pages/settings/tax-settings/utils';
 import type { TaxSettingsFormInput } from '@/schemas/forms/tax-settings-form';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
-
-import TaxRegionPopup from '@/pages/settings/tax-settings/tax-region/tax-region-dialog';
-import type { SelectedTaxRegionDraft, TaxRegion } from '@/pages/settings/tax-settings/utils';
 
 type SettingsOutletContext = {
   confirmAction: (opts: {
@@ -66,9 +65,9 @@ const TaxRegions = (props: TaxRegionsProps) => {
   const handleEditAndDelete = (action: string, item: TaxRegion) => {
     if (action === 'edit') {
       if (item?.code === 'EU') {
-        navigate(RouteConfig.Settings.get('TaxSettings').get('EditRegionEU').buildLink());
+        void navigate(RouteConfig.Settings.get('TaxSettings').get('EditRegionEU').buildLink());
       } else {
-        navigate(
+        void navigate(
           RouteConfig.Settings.get('TaxSettings').get('EditTaxRegion').buildLink({ code: item.code }),
         );
       }
@@ -198,7 +197,7 @@ const TaxRegions = (props: TaxRegionsProps) => {
                         </Flex>
                         <ActionGroup
                           cssOverride={mergeCss(hoverVisibleCss,
-                            activeIndex === index && activeCardCss,)}
+                            activeIndex === index && activeCardCss)}
                         >
                           <Switch
                             checked={Boolean(item?.is_enabled)}

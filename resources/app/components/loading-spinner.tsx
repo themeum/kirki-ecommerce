@@ -1,7 +1,7 @@
 import { keyframes } from '@emotion/react';
 
 import { theme } from '@/theme';
-import { flexCenter, scoped, defineStyles } from '@/theme/mixins';
+import { defineStyles, flexCenter, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 const LoadingSpinner = () => {

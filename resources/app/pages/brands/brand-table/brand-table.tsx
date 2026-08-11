@@ -1,16 +1,15 @@
 import BulkActionHandler from '@/components/bulk-action-handler';
 import Sorting from '@/components/sorting';
-import { useListParams, useMarkList } from '@/hooks';
 import Checkbox from '@/components/ui/checkbox';
 import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { useListParams, useMarkList } from '@/hooks';
+import BrandTableAction from '@/pages/brands/brand-table/brand-table-action';
+import SingleRow from '@/pages/brands/brand-table/single-row';
 import { useBulkDeleteBrandsMutation } from '@/services/brand';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
 import type { Brand, PaginatedData, TaxonomyTableHeader } from '@/types';
 import { __ } from '@/wpi18n';
-
-import BrandTableAction from '@/pages/brands/brand-table/brand-table-action';
-import SingleRow from '@/pages/brands/brand-table/single-row';
 
 type BrandTableProps = {
   data: PaginatedData<Brand>;
@@ -135,7 +134,7 @@ const BrandTable = ({ data }: BrandTableProps) => {
                 <Sorting data={header} />
               </TableHead>
             ))}
-            <TableHead></TableHead>
+            <TableHead />
           </TableRow>
         </TableHeader>
         <TableBody>

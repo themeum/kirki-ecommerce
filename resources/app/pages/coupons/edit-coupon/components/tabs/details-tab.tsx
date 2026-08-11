@@ -11,16 +11,15 @@ import Input from '@/components/ui/input';
 import Spinner from '@/components/ui/spinner';
 import Text from '@/components/ui/text';
 import { useDebounce } from '@/hooks';
+import DiscountTypeSelector from '@/pages/coupons/edit-coupon/components/contents/discount-type-selector';
+import DiscountValueSection from '@/pages/coupons/edit-coupon/components/contents/discount-value-section';
+import ValidityPeriodSection from '@/pages/coupons/edit-coupon/components/contents/validity-period-section';
 import type { CouponFormInput } from '@/schemas/forms/coupon-form';
 import { useGenerateNewCodeQuery, useValidateQuery } from '@/services/coupon';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
-
-import DiscountTypeSelector from '@/pages/coupons/edit-coupon/components/contents/discount-type-selector';
-import DiscountValueSection from '@/pages/coupons/edit-coupon/components/contents/discount-value-section';
-import ValidityPeriodSection from '@/pages/coupons/edit-coupon/components/contents/validity-period-section';
 
 
 const DetailsTab = () => {

@@ -1,8 +1,9 @@
+import { z } from 'zod';
+
 import type { MediaRef } from '@/schemas/shared/media';
 import { isMediaObject, isVideoObject } from '@/utils/media';
 import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
-import { z } from 'zod';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type DefaultSchema = z.ZodObject<any> | z.ZodEffects<z.ZodTypeAny>;
@@ -92,7 +93,7 @@ function pickFormValues<Schema extends DefaultSchema>(
     return acc;
   }, {});
 
-  return { ...picked, ...overrides } as z.input<Schema>;
+  return { ...picked, ...overrides };
 }
 
 function isEmptyValue(value: unknown): boolean {
@@ -140,7 +141,7 @@ function requiredWhen<Base extends z.ZodTypeAny>(schema: Base, isValidationFaile
   if (!isDefined(message)) {
     message = __('Validation failed.', 'kirki-ecommerce');
   }
-  const cloned = schema.describe(schema.description ?? '') as Base;
+  const cloned = schema.describe(schema.description ?? '');
   const rules = requiredWhenRules.get(cloned) ?? [];
   rules.push({ isValidationFailed, message });
   requiredWhenRules.set(cloned, rules);
@@ -289,7 +290,7 @@ function stringOrNull() {
       if (isEmptyValue(value)) {
         return null;
       }
-      return (value as string).trim();
+      return (value!).trim();
     });
 }
 
@@ -320,6 +321,6 @@ export {
   prepareFormSchema,
   required,
   requiredWhen,
-  stringOrNull
+  stringOrNull,
 };
 

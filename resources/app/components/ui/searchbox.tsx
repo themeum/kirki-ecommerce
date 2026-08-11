@@ -1,11 +1,11 @@
 import type { CSSObject } from '@emotion/react';
 import { Search } from 'lucide-react';
-import { forwardRef, useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type RefObject } from 'react';
+import { type CSSProperties, forwardRef, type KeyboardEvent, type RefObject, useEffect, useRef, useState } from 'react';
 
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
 import { theme } from '@/theme';
-import { mergeCss, defineStyles } from '@/theme/mixins';
+import { defineStyles, mergeCss } from '@/theme/mixins';
 import type { InputState } from '@/types';
 import { __ } from '@/wpi18n';
 

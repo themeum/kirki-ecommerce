@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import Button from '@/components/ui/button';
 import { Dialog, DialogCloseButton, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { theme } from '@/theme';
-import { flexCenter, scoped, defineStyles } from '@/theme/mixins';
+import { defineStyles, flexCenter, scoped } from '@/theme/mixins';
 import type { ConfirmationVariant } from '@/types';
 import { __ } from '@/wpi18n';
 

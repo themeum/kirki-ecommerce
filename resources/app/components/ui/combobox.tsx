@@ -1,12 +1,12 @@
-import { useState, type ReactNode } from 'react';
-import { type CSSObject, type Theme } from '@emotion/react';
+import { type CSSObject } from '@emotion/react';
 import { Check, ChevronsUpDown, PlusCircle, X } from 'lucide-react';
+import { type ReactNode, useId, useState } from 'react';
 
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Separator } from '@/components/ui/separator';
 import { theme } from '@/theme';
-import { flexCenter, itemCenter, uiFocusRing, scopedMerge, scoped, defineStyles } from '@/theme/mixins';
+import { defineStyles, flexCenter, itemCenter, scoped, scopedMerge, uiFocusRing } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 type ComboboxOption = {
@@ -58,6 +58,7 @@ const Combobox = ({
   searchInputCss,
 }: ComboboxProps) => {
   const [open, setOpen] = useState(false);
+  const listboxId = useId();
   const [search, setSearch] = useState('');
 
   const selectedValues = multiple
@@ -161,6 +162,7 @@ const Combobox = ({
           type="button"
           role="combobox"
           aria-expanded={open}
+          aria-controls={listboxId}
           disabled={disabled}
           data-error={error ? 'true' : undefined}
           css={scopedMerge(styles.trigger, error && styles.triggerError, cssOverride)}
@@ -169,7 +171,7 @@ const Combobox = ({
           <ChevronsUpDown size={16} css={scoped(styles.chevron)} />
         </button>
       </PopoverTrigger>
-      <PopoverContent align="start" cssOverride={styles.content}>
+      <PopoverContent id={listboxId} align="start" cssOverride={styles.content}>
         <Command>
           <CommandInput
             placeholder={searchPlaceholder}
@@ -239,7 +241,7 @@ const styles = defineStyles({
     textAlign: 'left',
     '&:focus-visible, &[data-state="open"]': {
       borderColor: theme.colors.border.default,
-      ...uiFocusRing(theme as Theme),
+      ...uiFocusRing(theme),
     },
     '&:disabled': {
       backgroundColor: theme.colors.background.surfaceAlt,
@@ -254,7 +256,7 @@ const styles = defineStyles({
     boxShadow: 'none',
     '&:focus-visible, &[data-state="open"]': {
       borderColor: theme.colors.border.critical,
-      ...uiFocusRing(theme as Theme, theme.colors.border.critical),
+      ...uiFocusRing(theme, theme.colors.border.critical),
     },
   },
   value: {
