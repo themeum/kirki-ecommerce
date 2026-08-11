@@ -1,5 +1,5 @@
 info:
-  name: Install
+  name: Install Authorize.Net
   type: http
   seq: 5
   tags:
@@ -12,7 +12,7 @@ http:
     type: json
     data: |-
       {
-        "id": "stripe"
+        "id": "authorizenet"
       }
   auth: inherit
 
@@ -32,7 +32,7 @@ examples:
         type: json
         data: |-
           {
-            "id": "stripe"
+            "id": "authorizenet"
           }
     response:
       status: 200
@@ -47,8 +47,8 @@ examples:
             "success": true,
             "data": {
               "id": "ec615e96-78bc-40b5-b944-dc69ae570d31",
-              "name": "Paddle",
-              "icon": "paddle",
+              "name": "Authorize.Net",
+              "icon": "authorizenet",
               "is_enabled": null,
               "is_offline": null,
               "instructions": null,
@@ -65,7 +65,7 @@ examples:
         type: json
         data: |-
           {
-            "id": "stripe"
+            "id": "authorizenet"
           }
     response:
       status: 404
