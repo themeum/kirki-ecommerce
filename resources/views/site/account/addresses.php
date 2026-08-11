@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Account Page Template.
+ * Account - Addresses Page Template.
  *
  * @package Kirki\Ecommerce\Templates
  * @author Themeum <support@themeum.com>
@@ -28,7 +28,7 @@ $pages = view_data('pages', [])
         <!-- page navigation end -->
         <!-- page content start -->
         <div class="kecom-account-page-main">
-            <h1 class="kecom-account-page-title"><?php esc_html_e('Account', 'kirki-ecommerce'); ?></h1>
+            <h1 class="kecom-account-page-title"><?php esc_html_e('Addresses', 'kirki-ecommerce'); ?></h1>
             <div class="kecom-account-page-info"><?php esc_html_e('Comming Soon', 'kirki-ecommerce'); ?></div>
         </div>
         <!-- page content end -->

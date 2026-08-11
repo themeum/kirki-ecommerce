@@ -11,6 +11,7 @@
 
 namespace Kirki\Ecommerce\App\Supports;
 
+use Kirki\Ecommerce\App\Http\Controllers\Site\AccountController;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\Framework\Supports\Arr;
 
@@ -68,6 +69,47 @@ class Utils
         ];
 
         $pages = apply_filters('kirki_ecommerce_site_pages', $pages);
+
+        return $pages;
+    }
+
+    /**
+     * Get account pages.
+     *
+     * @since 1.0.0
+     *
+     * @return array The account pages.
+     */
+    public static function get_account_pages()
+    {
+        $pages = [
+            'dashboard' => [
+                'title' => __('Dashboard', 'kirki-ecommerce'),
+                'icon'  => 'dashboard',
+                'url' => Url::get_account_url(),
+                'callback' => [AccountController::class, 'dashboard']
+            ],
+            'orders' => [
+                'title' => __('Orders', 'kirki-ecommerce'),
+                'icon'  => 'orders',
+                'url' => Url::get_account_url('orders'),
+                'callback' => [AccountController::class, 'orders']
+            ],
+            'addresses' => [
+                'title' => __('Addresses', 'kirki-ecommerce'),
+                'icon'  => 'addresses',
+                'url' => Url::get_account_url('addresses'),
+                'callback' => [AccountController::class,'addresses'],
+            ],
+            'account-details' => [
+                'title' => __('Account Details', 'kirki-ecommerce'),
+                'icon'  => 'account-details',
+                'url' => Url::get_account_url('account-details'),
+                'callback' => [AccountController::class,'account_details'],
+            ],
+        ];
+
+        $pages = apply_filters('kirki_ecommerce_account_pages', $pages);
 
         return $pages;
     }
