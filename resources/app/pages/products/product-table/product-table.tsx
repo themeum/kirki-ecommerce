@@ -15,6 +15,7 @@ import type { ProductListItem } from '@/types';
 import { getBadgeVariantForStatus } from '@/utils/badge-status';
 import { __ } from '@/wpi18n';
 
+import Text from '@/components/ui/text';
 import { useListParams } from '@/hooks';
 import { DATE_FORMATS } from '@/libs/date';
 import FilterPopup from '@/pages/products/product-table/filter-popup/filter-popup';
@@ -38,7 +39,7 @@ const ProductTitleCell = ({ item }: { item: ProductListItem }) => {
           navigate(RouteConfig.Products.get('EditProduct').buildLink({ id: item.id }));
         }}
       >
-        <span css={scoped(styles.mutedText)}>{item.title} </span>
+        <Text variant="small">{item.title}</Text>
       </span>
     </Flex>
   );
