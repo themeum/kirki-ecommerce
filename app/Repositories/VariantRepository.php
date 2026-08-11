@@ -11,7 +11,6 @@ use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
-use Exception;
 
 class VariantRepository
 {
@@ -150,7 +149,11 @@ class VariantRepository
      */
     public function increment(int $id, string $column, int $amount = 1)
     {
-        return (bool) Variant::find($id)->increment($column, $amount);
+        // @todo: use query builder increment() instead
+        $variant = Variant::find($id);
+        $variant->$column += $amount;
+
+        return $variant->save();
     }
 
     /**
@@ -163,7 +166,11 @@ class VariantRepository
      */
     public function decrement(int $id, string $column, int $amount = 1)
     {
-        return (bool) Variant::find($id)->decrement($column, $amount);
+        // @todo: use query builder decrement() instead
+        $variant = Variant::find($id);
+        $variant->$column -= $amount;
+
+        return $variant->save();
     }
 
     /**

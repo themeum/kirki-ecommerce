@@ -686,7 +686,7 @@ class OnBoardingCatalog
     {
         return [
             [
-                'title' => 'Abstract Face Ceramic Vase',
+                'title' => 'Sample product',
                 'short_description' => 'A bold, hand-painted ceramic vase featuring playful abstract facial motifs in a vibrant palette of pink, coral, navy, yellow, and purple. A statement art piece for any shelf or tabletop.',
                 'description' => 'Bring a burst of creative energy into your space with this striking Abstract Face Ceramic Vase. Inspired by contemporary pop art and abstract expressionism, this piece features a whimsical composition of eyes, curves, and geometric shapes hand-painted in a rich, saturated palette. The rounded silhouette and matte finish give it a tactile, sculptural quality that works equally well as a standalone art object or a bold vessel for dried florals. Each vase is crafted from high-quality ceramic and finished with care, making it a unique addition to modern living rooms, studios, or creative workspaces. Dimensions: approx. 8" H × 5" W.',
                 'category_path' => ['Home & Living', 'Home Décor', 'Vases'],
@@ -704,7 +704,7 @@ class OnBoardingCatalog
                 ],
             ],
             [
-                'title' => 'Cat Crowd Canvas Tote Bag',
+                'title' => 'Sample product with variants',
                 'short_description' => 'A sturdy canvas tote featuring an all-over illustration of whimsical cats in warm tones of red, orange, gold, and cream. Finished with bold red handles for easy carrying.',
                 'description' => 'Meet your new everyday carry — the Cat Crowd Canvas Tote Bag. This charming bag is covered in a dense, hand-drawn illustration of dozens of unique cat characters, each with its own personality and expression. Rendered in a warm palette of red, burnt orange, mustard, and cream on natural cotton canvas, the design has a playful, folk-art quality that\'s sure to spark joy (and conversations). The reinforced red cotton handles provide comfortable over-the-shoulder carry, while the roomy interior fits groceries, books, laptops, or weekend market finds with ease. Durable, machine-washable, and endlessly cheerful — perfect for cat lovers and illustration enthusiasts alike. Dimensions: approx. 15" × 16" with 10" handle drop.',
                 'category_path' => ['Fashion & Apparel', 'Bags & Accessories'],
@@ -740,7 +740,7 @@ class OnBoardingCatalog
                 ],
             ],
             [
-                'title' => 'Botanical Garden Handpainted Ceramic Cup',
+                'title' => 'Sample product with multiple variants',
                 'short_description' => 'A charming stoneware cup featuring delicate hand-painted botanicals — soft pink blooms, green foliage, and blue buds — layered over bands of warm yellow, sky blue, and sandy terracotta.',
                 'description' => 'Sip your morning tea or coffee from something truly special. The Botanical Garden Handpainted Ceramic Cup is a one-of-a-kind piece crafted from natural stoneware and finished with a soft matte glaze. Each cup is individually decorated by hand with a garden scene of stylized flowers, leaves, and seed pods in gentle pinks, greens, and blues, set against layered horizontal bands of buttercup yellow and cornflower blue. The glazed interior provides a smooth drinking surface, while the unglazed sandy base gives it an earthy, artisan feel. Perfectly sized for espresso, matcha, or a small pour of your favorite brew. Food-safe, microwave-friendly, and crafted to become a daily ritual favorite. Capacity: approx. 8 oz. Dimensions: 3.5" H × 3.5" W.',
                 'category_path' => ['Home & Living', 'Kitchen', 'Utensils'],
