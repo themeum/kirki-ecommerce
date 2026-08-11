@@ -12,7 +12,7 @@ http:
     type: json
     data: |-
       {
-        "id": "authorizenet"
+        "id": "stripe"
       }
   auth: inherit
 

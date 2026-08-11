@@ -78,13 +78,13 @@ class Authorizenet extends PaymentProvider
             throw new Exception(__('AuthorizeNet is not enabled.', 'kirki-ecommerce-authorizenet'));
         }
 
+        $this->client = $this->get_client();
+
         if (!in_array($order->currency_code, $this->client->supported_currencies(), true)) {
             throw new Exception(__('Currency is not supported.', 'kirki-ecommerce-authorizenet'));
         }
 
         try {
-            $this->client = $this->get_client();
-
             $response = $this->client->send([
                 'getHostedPaymentPageRequest' => [
                     'merchantAuthentication' => $this->client->authentication(),
@@ -178,10 +178,10 @@ class Authorizenet extends PaymentProvider
         parent::validate_settings($settings);
 
         Validator::make($settings, [
-            'login_id' => 'sometimes|string',
-            'transaction_key' => 'sometimes|string',
-            'signature_key' => 'sometimes|string',
-            'sandbox' => 'sometimes|boolean',
+            'login_id' => 'required|string',
+            'transaction_key' => 'required|string',
+            'signature_key' => 'required|string',
+            'sandbox' => 'required|boolean',
         ])->validate();
 
         return true;
