@@ -67,7 +67,7 @@ class Razorpay extends PaymentProvider
      * Pay for an order.
      *
      * @param Order $order
-     * @return PaymentActionDTO
+     * @return PaymentActionDTO returns HTML markup
      * @throws Exception
      */
     public function pay(Order $order)
@@ -143,6 +143,7 @@ class Razorpay extends PaymentProvider
      */
     public function webhook()
     {
+        $this->client = $this->get_client();
         $event = $this->verify_and_parse_notification();
 
         $allowed_event_types = [
@@ -224,7 +225,6 @@ class Razorpay extends PaymentProvider
             throw new Exception(__('Invalid Payload From Razorpay.', 'kirki-ecommerce-razorpay'));
         }
 
-        $this->client = $this->get_client();
         if (!$this->client->is_verified($payload)) {
             throw new Exception(__('Webhook Notification Is Not Valid.', 'kirki-ecommerce-razorpay'));
         }
