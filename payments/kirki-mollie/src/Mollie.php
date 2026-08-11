@@ -24,7 +24,17 @@ defined('ABSPATH') || exit;
  */
 class Mollie extends PaymentProvider
 {
+    /**
+     * The Mollie API client instance.
+     *
+     * @var MollieClient
+     */
     protected $client;
+    /**
+     * Builds transaction payloads for the Mollie API.
+     *
+     * @var MollieTransactionBuilder
+     */
     protected $transaction_builder;
     public function __construct()
     {
@@ -36,7 +46,6 @@ class Mollie extends PaymentProvider
         $this->is_offline = false;
         $this->is_available = true;
         $this->has_fields = true;
-        $this->transaction_builder = new MollieTransactionBuilder();
 
         parent::__construct();
 
