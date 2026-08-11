@@ -134,10 +134,8 @@ class Authorizenet extends PaymentProvider
             <input type="hidden" name="token" value="<?php echo esc_attr($token); ?>" />
         </form>
         <script>
-            document.addEventListener('DOMContentLoaded', () => {
-                const form = document.getElementById('authorizenet-form');
-                form.submit();
-            })
+            const form = document.getElementById('authorizenet-form');
+            form.submit()
         </script>
 <?php
         return ob_get_clean();
