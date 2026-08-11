@@ -100,9 +100,9 @@ class RazorpayClient
         $options_json = wp_json_encode($options);
 
         return <<<HTML
-        <script src="{$script_url}"></script>
+        <script src="{$script_url}"/></script>
         <script>
-            var razorpay = new Razorpay({$options_json});
+            var razorpay = new Razorpay($options_json);
             razorpay.open();
         </script>
         HTML;
