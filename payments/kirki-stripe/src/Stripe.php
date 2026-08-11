@@ -257,7 +257,8 @@ class Stripe extends PaymentProvider
     {
         $webhook_secret = $settings['webhook_secret'] ?? null;
 
-        if (empty($webhook_secret)) {
+        if (empty($webhook_secret) && !empty($settings['secret_key'])) {
+            $this->settings['secret_key'] = $settings['secret_key'];
             $webhook_secret = $this->setup_webhook_endpoint();
             $settings['webhook_secret'] = $webhook_secret;
         }
