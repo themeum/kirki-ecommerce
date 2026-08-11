@@ -25,7 +25,7 @@ type OnlinePaymentProps = {
   onlinePaymentList: OnlinePayment[];
 };
 
-const OnlinePaymentComponent = (props: OnlinePaymentProps) => {
+const OnlinePaymentList = (props: OnlinePaymentProps) => {
   const { onlinePaymentList } = props;
 
   const [isEditPopupOpen, setIsEditPopupOpen] = useState(false);
@@ -42,13 +42,6 @@ const OnlinePaymentComponent = (props: OnlinePaymentProps) => {
 
     setEnabledOnlinePayment(
       { id: item.id, data: { is_enabled: !isEnabled } },
-      {
-        onError: () => {
-          dispatchToastMessage('error', {
-            title: __('Something went wrong', 'kirki-ecommerce'),
-          });
-        },
-      },
     );
   };
 
@@ -180,9 +173,9 @@ const OnlinePaymentComponent = (props: OnlinePaymentProps) => {
   );
 };
 
-OnlinePaymentComponent.displayName = 'OnlinePaymentComponent';
+OnlinePaymentList.displayName = 'OnlinePaymentList';
 
-export default OnlinePaymentComponent;
+export default OnlinePaymentList;
 
 const styles = defineStyles({
   onlinePaymentContent: {
