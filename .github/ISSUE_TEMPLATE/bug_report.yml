@@ -1,0 +1,120 @@
+name: Bug report
+description: Something in Kirki Ecommerce is broken or behaves unexpectedly
+labels: ['bug', 'needs triage']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. Kirki Ecommerce is currently in **alpha** — please check the
+        [open issues](https://github.com/themeum/kirki-ecommerce/issues) first to avoid duplicates.
+
+        **Do not report security vulnerabilities here.** Email support@themeum.com instead.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: A clear description of the bug, including any error message shown.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Go to Kirki Ecommerce → Products
+        2. Click '...'
+        3. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect to happen?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected area
+      description: Where in the plugin does this happen?
+      options:
+        - Products / catalog (variants, categories, tags, brands, collections)
+        - Cart & checkout
+        - Payments / payment gateways
+        - Orders & refunds
+        - Customers
+        - Inventory
+        - Coupons & discounts
+        - Shipping
+        - Tax
+        - Currency & pricing
+        - Settings
+        - Admin dashboard (UI)
+        - Storefront (frontend)
+        - REST API
+        - WP-CLI / migrations
+        - Emails & notifications
+        - Other / not sure
+    validations:
+      required: true
+
+  - type: input
+    id: gateway
+    attributes:
+      label: Payment gateway (if applicable)
+      description: e.g. Stripe, Razorpay, Mollie, Paddle, Square — include whether it was in test or live mode.
+
+  - type: input
+    id: plugin-version
+    attributes:
+      label: Kirki Ecommerce version
+      placeholder: 1.0.0-alpha.1
+    validations:
+      required: true
+
+  - type: input
+    id: wp-version
+    attributes:
+      label: WordPress version
+      placeholder: '6.9'
+    validations:
+      required: true
+
+  - type: input
+    id: php-version
+    attributes:
+      label: PHP version
+      placeholder: '8.2'
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Other environment details
+      description: Active theme, other active plugins, server (nginx/Apache/LiteSpeed), browser, single site or multisite.
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Error logs / screenshots
+      description: |
+        Paste relevant output from the WordPress debug log or the plugin log, plus any browser
+        console errors. Screenshots or a short screen recording help a lot.
+        **Remove API keys, tokens, customer data, and order details before pasting.**
+      render: shell
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched existing issues and this is not a duplicate.
+          required: true
+        - label: I reproduced this with other plugins deactivated and a default theme (or explained above why I could not).
+        - label: I removed all secrets and personal/customer data from the details above.
+          required: true

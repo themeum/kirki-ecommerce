@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: mailto:support@themeum.com
+    about: Please report security issues privately by email — do not open a public issue.
+  - name: Kirki Ecommerce website
+    url: https://ecommerce.kirki.com
+    about: Product information and general questions.
+  - name: Setup and development docs
+    url: https://github.com/themeum/kirki-ecommerce#readme
+    about: Local Docker setup, WP-CLI commands, and project layout.
