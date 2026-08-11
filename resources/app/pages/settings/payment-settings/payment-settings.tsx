@@ -4,9 +4,9 @@ import { PaymentIcon } from '@/icons';
 import { useOfflinePaymentsQuery, useOnlinePaymentsQuery } from '@/services/payment';
 import { __ } from '@/wpi18n';
 
-import SettingsPageHeader from '@/pages/settings/settings-page-header';
 import OfflinePayment from '@/pages/settings/payment-settings/offline-payment';
-import OnlinePaymentList from '@/pages/settings/payment-settings/online-payment';
+import OnlinePaymentList from '@/pages/settings/payment-settings/online-payment-list';
+import SettingsPageHeader from '@/pages/settings/settings-page-header';
 
 const PaymentSettings = () => {
   const { data: onlinePaymentList = [] } = useOnlinePaymentsQuery();

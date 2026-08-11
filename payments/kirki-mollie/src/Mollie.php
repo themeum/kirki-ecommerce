@@ -41,7 +41,7 @@ class Mollie extends PaymentProvider
         $this->id = 'mollie';
         $this->title = __('Mollie', 'kirki-ecommerce-mollie');
         $this->description = __('Mollie payment gateway', 'kirki-ecommerce-mollie');
-        $this->icon = 'mollie';
+        $this->icon = $this->icon_url('mollie');
         $this->settings_key = 'mollie';
         $this->is_offline = false;
         $this->is_available = true;
