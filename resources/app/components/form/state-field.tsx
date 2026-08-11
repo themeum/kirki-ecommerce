@@ -11,10 +11,11 @@ type StateFieldProps<
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 > = {
   name: TName;
-  country?: string;
+  country?: string | null;
   label?: string;
   description?: ReactNode;
   cssOverride?: CSSObject;
+  disabled?: boolean;
 };
 
 const StateField = <
@@ -26,6 +27,7 @@ const StateField = <
   label = __('State / Province', 'kirki-ecommerce'),
   description,
   cssOverride,
+  disabled,
 }: StateFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
 
@@ -41,6 +43,7 @@ const StateField = <
             value={field.value ?? ''}
             onChange={field.onChange}
             error={Boolean(fieldState.error)}
+            disabled={disabled}
           />
           {description && <FieldDescription>{description}</FieldDescription>}
           {fieldState.invalid && <FieldError errors={[fieldState.error]} />}

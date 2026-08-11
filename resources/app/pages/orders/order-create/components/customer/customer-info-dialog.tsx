@@ -1,8 +1,9 @@
 import { useRef } from 'react';
-import { useFormContext } from 'react-hook-form';
+import { useFormContext, useWatch } from 'react-hook-form';
 
 import CheckboxField from '@/components/form/checkbox-field';
 import CountryField from '@/components/form/country-field';
+import StateField from '@/components/form/state-field';
 import TextField from '@/components/form/text-field';
 import Button from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -33,7 +34,9 @@ type CustomerInfoDialogProps = {
 const CustomerInfoDialog = ({ open, onOpenChange, onSave, isSaving }: CustomerInfoDialogProps) => {
   const form = useFormContext<OrderFormInput>();
   const snapshot = useRef(form.getValues());
-  const isBillingSameAsShipping = form.watch('is_billing_same_as_shipping');
+  const isBillingSameAsShipping = useWatch({ control: form.control, name: 'is_billing_same_as_shipping' });
+  const shippingCountry = useWatch({ control: form.control, name: 'shipping_country' });
+  const billingCountry = useWatch({ control: form.control, name: 'billing_country' });
 
   const handleCancel = () => {
     form.reset(snapshot.current);
@@ -101,7 +104,8 @@ const CustomerInfoDialog = ({ open, onOpenChange, onSave, isSaving }: CustomerIn
                       name="shipping_city"
                       label={__('City', 'kirki-ecommerce')}
                     />
-                    <TextField<OrderFormInput>
+                    <StateField<OrderFormInput>
+                      country={shippingCountry}
                       name="shipping_state"
                       label={__('State / Province', 'kirki-ecommerce')}
                     />
@@ -165,7 +169,8 @@ const CustomerInfoDialog = ({ open, onOpenChange, onSave, isSaving }: CustomerIn
                           name="billing_city"
                           label={__('City', 'kirki-ecommerce')}
                         />
-                        <TextField<OrderFormInput>
+                        <StateField<OrderFormInput>
+                          country={billingCountry}
                           name="billing_state"
                           label={__('State / Province', 'kirki-ecommerce')}
                         />

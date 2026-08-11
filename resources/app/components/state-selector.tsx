@@ -4,12 +4,14 @@ import { useCountriesQuery } from '@/services/country';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
 import type { LabelFieldProps } from '@/types';
+import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
 
 type StateSelectorProps = LabelFieldProps & {
-  country?: string;
+  country?: string | null;
   value?: string;
   onChange: (value: string) => void;
+  disabled?: boolean;
 };
 
 const StateSelector = ({
@@ -19,6 +21,7 @@ const StateSelector = ({
   value,
   onChange,
   error,
+  disabled,
 }: StateSelectorProps) => {
   const { data: countries = [] } = useCountriesQuery({ limit: -1 });
 
@@ -37,9 +40,9 @@ const StateSelector = ({
         value={value}
         onChange={(next) => onChange(Array.isArray(next) ? (next[0] ?? '') : next)}
         error={Boolean(error)}
-        disabled={!country}
+        disabled={!isDefined(country) || disabled}
         placeholder={
-          country
+          isDefined(country)
             ? __('Select state', 'kirki-ecommerce')
             : __('Select a country first', 'kirki-ecommerce')
         }
