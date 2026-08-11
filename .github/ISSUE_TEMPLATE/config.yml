@@ -4,7 +4,7 @@ contact_links:
     url: mailto:support@themeum.com
     about: Please report security issues privately by email — do not open a public issue.
   - name: Kirki Ecommerce website
-    url: https://ecommerce.kirki.com
+    url: https://github.com/themeum/kirki-ecommerce
     about: Product information and general questions.
   - name: Setup and development docs
     url: https://github.com/themeum/kirki-ecommerce#readme
