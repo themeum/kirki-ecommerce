@@ -54,6 +54,8 @@
     height: 36px;
     border-radius: $radius-full;
     background-color: $background-surface;
+    color: $icon-primary;
+    padding: 0;
     border: none;
     outline: none;
     cursor: pointer;
@@ -106,7 +108,7 @@
     img {
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      object-fit: contain;
     }
 
     &:hover,
