@@ -90,14 +90,14 @@ Largest single feature (51 files) and the hub for most cross-feature edges.
 
 ## 8. System feature and dead-code removal
 
-- [ ] 8.1 Move `pages/not-found/**` and `pages/coming-soon/**` → `features/system/pages/`, add `features/system/routes.tsx` (`/analytics`, `/report`, `/tools`, and the `*` catch-all, keeping `NotFound` eagerly imported as it is today).
-- [ ] 8.2 Delete the now-empty `pages/` directory and confirm no `@/pages/` import remains anywhere.
-- [ ] 8.3 Delete `services/page.ts`, `schemas/catalog/page.ts`, `types/entities/page.ts` (zero importers, verified).
-- [ ] 8.4 Delete `preview-pages/` (45 files), `tryouts.tsx`, and their `eslint.config.js` override block.
-- [ ] 8.5 In `openspec/changes/stacked-items-primitive/tasks.md`, mark task 7.3 obsolete with the reason (preview harness removed by this change). Leave the other pending QA tasks in `stacked-items-primitive`, `rule-items-primitive` and `variant-matrix-regeneration` open, annotated to be run against the restructured tree.
-- [ ] 8.6 Delete the 15 spent one-off codemods in `scripts/`. **Keep `scripts/babel-plugin-scoped-auto-label.js`** — `vite.config.js` loads it.
-- [ ] 8.7 Rewrite root `routes.tsx` to compose the 12 features' route arrays inside the existing `UnsavedChangesController` layout route.
-- [ ] 8.8 Verify: `npm run typecheck && npm test`.
+- [x] 8.1 Moved `pages/not-found/**` and `pages/coming-soon/**` → `features/system/pages/`, added `features/system/routes.tsx` (`/analytics`, `/report`, `/tools`, and the `*` catch-all, keeping `NotFound` eagerly imported as it is today).
+- [x] 8.2 `pages/` was already fully empty (every remaining sub-tree had moved in groups 3–7); confirmed no `@/pages/` import remains anywhere.
+- [x] 8.3 Deleted `services/page.ts`, `schemas/catalog/page.ts` (zero importers, verified). `types/entities/page.ts` no longer applies — `types/entities/` as a whole was already deleted in group 2.
+- [x] 8.4 Deleted `preview-pages/` (45 files), `tryouts.tsx`, and their `eslint.config.js` `kirki/preview-sandboxes` override block.
+- [x] 8.5 In the archived `openspec/changes/archive/2026-08-12-stacked-items-primitive/tasks.md` (the change was archived, un-committed, before this session started — same relative task numbering), marked task 7.3 obsolete with the reason (preview harness removed by this change). Left the other pending QA tasks in `stacked-items-primitive`, `rule-items-primitive` and `variant-matrix-regeneration` open, each annotated with the specific new file paths to check against.
+- [x] 8.6 Deleted the 15 spent one-off codemods in `scripts/`. Kept `scripts/babel-plugin-scoped-auto-label.js` (`vite.config.js` loads it). Also deleted this change's own now-spent one-off artifacts by the same logic — `scripts/inline-types-barrel.mjs` (hardcoded to the now-deleted `types/index.ts`) and `scripts/manifests/*.json` (one-off move manifests, superseded by git history) — while keeping `scripts/migrate-feature.mjs`, which is generic and reusable, not one-off.
+- [x] 8.7 Rewrote root `routes.tsx` to compose all 12 features' route arrays inside the existing `UnsavedChangesController` layout route. Groups 3–4's eight features (brands, tags, categories, collections, customers, coupons, inventory, bulk-edit) never got their own `routes.tsx` in their own stage — added all eight here so every feature is composed the same way, rather than leaving some routes inlined in root indefinitely.
+- [x] 8.8 Verify: `npm run typecheck && npm test && npm run lint && npm run build` — all clean. lint: 1 pre-existing unrelated error, 0 warnings.
 
 ## 9. Enforcement and final verification
 

@@ -1,6 +1,0 @@
-[
-  { "from": "schemas/forms/exchange-rate-form.ts", "to": "features/settings/multi-currency/schemas/forms/exchange-rate-form.ts" },
-  { "from": "schemas/forms/exchange-rate-form.test.ts", "to": "features/settings/multi-currency/tests/schemas/forms/exchange-rate-form.test.ts" },
-  { "from": "schemas/forms/add-currency-popup-form.ts", "to": "features/settings/multi-currency/schemas/forms/add-currency-popup-form.ts" },
-  { "from": "schemas/forms/add-currency-popup-form.test.ts", "to": "features/settings/multi-currency/tests/schemas/forms/add-currency-popup-form.test.ts" }
-]

@@ -1,5 +1,0 @@
-[
-  { "from": "features/products/components/product-form/sections/price/utils.tsx", "to": "features/products/lib/price/utils.tsx" },
-  { "from": "features/products/components/product-form/sections/price/utils.test.ts", "to": "features/products/tests/lib/price/utils.test.ts" },
-  { "from": "features/products/components/product-form/sections/seo-settings/utils.tsx", "to": "features/products/lib/seo-settings/utils.tsx" }
-]

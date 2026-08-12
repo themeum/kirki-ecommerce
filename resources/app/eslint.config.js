@@ -269,16 +269,6 @@ export default tseslint.config(
   },
 
   {
-    // Internal component playgrounds — not shipped, and logging is the point.
-    name: 'kirki/preview-sandboxes',
-    files: ['preview-pages/**/*.tsx', 'tryouts.tsx'],
-    rules: {
-      'no-console': 'off',
-      'react-refresh/only-export-components': 'off',
-    },
-  },
-
-  {
     name: 'kirki/declaration-files',
     files: ['**/*.d.ts'],
     rules: {

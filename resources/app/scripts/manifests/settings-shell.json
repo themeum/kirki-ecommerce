@@ -1,8 +1,0 @@
-[
-  { "from": "pages/settings/settings-layout/settings-layout.tsx", "to": "features/settings/pages/settings-layout.tsx" },
-  { "from": "pages/settings/settings-layout/settings-sidebar.tsx", "to": "features/settings/pages/settings-sidebar.tsx" },
-  { "from": "pages/settings/settings-layout/settings-nav-item.tsx", "to": "features/settings/pages/settings-nav-item.tsx" },
-  { "from": "pages/settings/settings-layout/use-settings-page-actions.ts", "to": "features/settings/hooks/use-settings-page-actions.ts" },
-  { "from": "pages/settings/settings-page-header.tsx", "to": "features/settings/pages/settings-page-header.tsx" },
-  { "from": "pages/settings/utils.tsx", "to": "features/settings/lib/utils.tsx" }
-]
