@@ -1,0 +1,105 @@
+All commands run from `resources/app/`. Every file move uses `git mv` so blame survives. No task in this change may alter a statement inside a moved file — only its import block.
+
+## 1. Preparation: codemod and boundary rules
+
+- [x] 1.1 Write `scripts/migrate-feature.mjs`: given a feature name and a move manifest (old path → new path), it rewrites `@/`-alias imports across the whole app, updates relative imports inside moved files, and reports any path it could not resolve rather than guessing. Model it on the existing `scripts/migrate-pages.mjs` / `fix-page-paths.mjs` prior art.
+- [x] 1.2 Add the boundary rules to `eslint.config.js` at severity `warn`: (a) no import of `@/features/<x>/**` from outside `features/<x>/`, the barrel `@/features/<x>` being the sole permitted entry; (b) no import of `@/features/*` from any of `components/`, `hooks/`, `utils/`, `libs/`, `theme/`, `types/`, `schemas/`, `services/`, `contexts/`, `config/`. Generated per-feature from a `FEATURES` array rather than hand-written 12 times.
+- [x] 1.3 Add `eslint-plugin-import` (+ `eslint-import-resolver-typescript`, needed for the resolver to understand the `@/` alias) and enable `import/no-cycle` at `error` (not gated by the warn/error migration toggle — a cycle is always a real defect). Baseline violation count: 0.
+- [x] 1.4 Create `features/` with the 12 empty feature directories, each with a placeholder `index.ts`, so later commits only add to an existing skeleton.
+- [x] 1.5 Verify: `npm run typecheck && npm test` — both clean (378/378 tests, 59 files). `npm run lint` baseline: 1 pre-existing error unrelated to this change (`object-shorthand` in `pages/products/product-form/sections/right-panel/categories/categories.tsx`, present on `dev` before this branch — confirmed via `git log`), 0 warnings from the new boundary/cycle rules (expected, since nothing imports `@/features/*` yet).
+
+## 2. Shared-layer splits
+
+Nothing may move into a feature before this group lands — it is the dependency root for every later commit.
+
+- [ ] 2.1 Delete `types/index.ts`. Rewrote all importing files (184, not the estimated 179) via a purpose-built codemod (`scripts/inline-types-barrel.mjs`) that maps every barrel-exported symbol to its real defining module and splits mixed-source import statements accordingly, preserving `type`/value distinctions and `as` aliases. `npm run typecheck` is 0 errors.
+- [ ] 2.2 Delete `types/entities/` (18 files). `UnitPriceValue`/`UpdateVariantsPayload` (the two real declarations inside `types/entities/product.ts`, not re-exports) and `ToastVariant` (`types/entities/toast.ts`) had no schema to import from — see correction note below.
+- [ ] 2.3 Move `types/filters/{product,order,coupon}.ts` to `features/{products,orders,coupons}/types.ts` (content unchanged, only relocated + import paths fixed).
+- [ ] 2.4 `types/components/{common,icon}.ts`, `types/list-state.ts`, `types/api/{response,result}.ts`, `types/pages/*`, `types/common-actions.ts` stay at root as deep-import targets (no barrel file re-exports them — a barrel would just recreate the god-barrel at smaller scope, so importers use the deep path directly, e.g. `@/types/list-state`).
+- [ ] 2.5 Split `libs/query-keys.ts` into `features/<f>/services/query-keys.ts` for every feature except the 3 that stay root-owned. Every group has an `all` root; list/detail nest under it (`[...xKeys.all, 'list', params]`) so `all` is always a strict prefix — this is a deliberate key-shape change from the original flat strings (`'Products'` vs `'Product'` were different top-level literals; cache keys are pure-internal so this is invisible behaviorally). Settings' 5 sub-domain groups (`shippingKeys`, `taxKeys`, `currencyKeys`, `paymentKeys`, `schemaProfileKeys`) live in one `features/settings/services/query-keys.ts` for now — pushed down into sub-feature dirs in group 7 when those services move.
+- [ ] 2.6 Replaced all raw literal invalidations — 61 in `services/*.ts` plus 2 more found by an app-wide sweep that the original scan missed: `pages/settings/shipping-settings/shipping-profile/shipping-profile.tsx` and `pages/settings/tax-settings/tax-profile/tax-profile.tsx` (both optimistic-update call sites using `useQueryClient()` directly, outside any service). Verified via `rg "queryKey: \['[A-Za-z]"` returning zero matches.
+- [ ] 2.7 Wired: `product.ts` → `inventoryKeys.all` (via `@/features/inventory` barrel); `bulk-edit.ts` → `inventoryKeys.all` + `productKeys.all` (via `@/features/inventory` and `@/features/products` barrels).
+- [ ] 2.8 Moved both contexts; rewrote their 6 importers (bulk-edit: 3 files, inventory: 3 files).
+- [ ] 2.9 Confirmed: `services/helpers.ts`, `services/country.ts`, `services/settings.ts` are the only ones with no feature-move task in groups 3–8.
+- [ ] 2.10 `npm run typecheck && npm test` — 0 errors, 378/378 tests, 59 files, content unchanged. `npm run lint`: 0 errors, 22 warnings — all expected transient `no-restricted-imports` warnings from the 16 not-yet-moved root services reaching into `@/features/*`; each disappears when that service moves in groups 3–8.
+
+**Correction during implementation** (recorded per `openspec/config.yaml` rule): `UnitPriceValue`, `UpdateVariantsPayload` (product-specific, also used by `bulk-edit` — folded into `features/products/types.ts`, created ahead of the rest of the `products` move since `bulk-edit`'s context needs it now) and `ToastVariant` (genuinely cross-feature — folded into the surviving `types/pages/common.ts` next to the related `ToastMessageConfig`) are not mentioned in design.md's `types/` disposition table because that table only accounted for entity files that were pure re-exports. These three are the exceptions.
+
+## 3. Clone features — brands, tags, categories, collections
+
+Four structurally identical features (~24 files total). They exercise the codemod on the smallest blast radius and cover the same code paths four times. One commit each.
+
+- [ ] 3.1 `brands`: moved (`brands.tsx`→`pages/`, `new-brand.tsx`+`brand-add-edit-dialog.tsx`+`brand-table/`→`components/`, `services/brand.ts`, `schemas/catalog/brand.ts`, `schemas/forms/brand-form.ts`+test). Barrel exports `BrandAddEditPopover`, `useBrandsQuery`, `brandKeys`, `Brand` type; the 3 `products` call sites that used deep paths now import from `@/features/brands`.
+      **Codemod bug found and fixed**: `migrate-feature.mjs` was normalizing _every_ file's relative imports to `@/`-alias form, not just moved files' — touching ~15 unrelated files per run (cosmetic-only, but out of scope for this commit). Fixed to gate that normalization on whether the file itself moved; reverted the incidental touches by hand before re-verifying. `routes.tsx` did need touching that first run (correct — `Brands`' lazy import target moved) and was left alone.
+- [ ] 3.2 `tags`: moved, plus `components/form/tags-field.tsx` → `features/tags/components/fields/`. Barrel exports `TagsField`, `tagKeys`.
+- [ ] 3.3 `categories`: moved. Barrel exports `useCategoriesQuery`, `useCreateCategoryMutation`, `categoryKeys`, `Category` type. 7 cross-feature call sites fixed (5 in products, 1 in settings/shipping-rule-form-card.tsx — categories turned out to be consumed outside products too).
+- [ ] 3.4 `collections`: moved, plus `components/form/collections-field.tsx` → `features/collections/components/fields/`. Barrel exports `CollectionsField`, `useCollectionsQuery`, `collectionKeys`. `collection-details.tsx` flattened out of its single-file `collection-details/` subfolder into `pages/` directly, matching the anatomy's `pages/` being route components, not a folder-per-route wrapper.
+- [ ] 3.5 Codemod bug found on the very first run (brands) and fixed before proceeding — see 3.1 note. No further unresolved paths across tags/categories/collections.
+- [ ] 3.6 `npm run typecheck && npm test` after each of the four commits — all clean, 378/378 tests throughout.
+
+## 4. Small features — customers, coupons, inventory, bulk-edit
+
+- [ ] 4.1 `customers`: moved `pages/customers/**`, `services/customer.ts`, catalog + form schemas and their tests into `features/customers/`. Barrel exports `BillingAddress`, `ShippingAddress`, `CustomerOverview` (the three components `orders`' `add-customer-dialog.tsx` embeds), plus `useCreateCustomerMutation`/`useCustomerQuery`/`useCustomersQuery`, `customerKeys`, `CustomerFormSchema`, `CustomerAddressSchema`, and the `Customer`/`CustomerAddress`/`CustomerFormInput`/`CustomerFormPayload` types — `schemas/catalog/order.ts` (root, pre-group-5) needs `CustomerAddressSchema` for its `shipping_address`/`billing_address` fields.
+      **Found and fixed a pre-existing test-infra gap**: `vitest.setup.ts`'s comment already promised to stub `window.kirki_ecommerce` (so import-time reads don't throw outside a browser) but the code only stubbed `window` itself. Latent until now because nothing had previously imported a feature barrel from a plain schema module — `schemas/catalog/order.ts` importing `CustomerAddressSchema` via `@/features/customers` transitively evaluates the barrel's re-exported service hooks, which reach `libs/api.ts` → `conf.ts`'s `window.kirki_ecommerce.rest_url_base` at module-eval time. Completed the stub rather than routing around it with a deep import (which group 9 would later flag as a permanent boundary violation).
+- [ ] 4.2 `coupons`: moved `pages/coupons/**`, `services/coupon.ts`, `schemas/catalog/coupon.ts`, `schemas/forms/coupon-form.ts` + test into `features/coupons/`. `edit-coupon/config/{coupon-badge,coupon-datetime}.ts` → `features/coupons/lib/`. The pre-existing `coupon-form.ts` → `coupon-datetime` import is now intra-feature. Barrel exports `couponKeys` and `CouponSchema` (for `schemas/catalog/order.ts`'s `discount_details` field — same transient root→feature pattern as 4.1's `CustomerAddressSchema`, resolves once `order.ts` moves in group 5).
+- [ ] 4.3 `inventory`: moved `pages/inventory/**`, `services/inventory.ts` into `features/inventory/` (the skeleton, context, and `inventoryKeys` barrel export already existed from the group 2 context move). `pages/inventory/utils.tsx` (JSX-bearing table-header config) → `lib/utils.tsx`, relocated as-is.
+- [ ] 4.4 `bulk-edit`: moved `pages/bulk-edit/**`, `services/bulk-edit.ts` into `features/bulk-edit/`; `hooks/useBulkEditList.ts` → `features/bulk-edit/hooks/use-bulk-edit-list.ts` (its only consumer, `single-row.tsx`, moved with it). Barrel exports `bulkEditKeys` and `useUpdateBulkVariantsMutation` (consumed by `inventory`'s page).
+      **Correction during implementation**: task originally also called for moving `hooks/useMarkList.ts` into `features/bulk-edit/hooks/`. It turned out to be genuinely shared generic list-selection state — consumed by `brands`, `categories`, `collections`, `customers`, `inventory`, `tags`, a settings page, and `components/data-table/data-table-selection-context.tsx` — not bulk-edit domain logic. Moving it would have made every one of those a bulk-edit consumer through the boundary barrel, which is backwards. Left at `hooks/useMarkList.ts`, camelCase filename untouched (matches the plan's explicit out-of-scope note that only the two hooks actually moving get kebab-cased).
+- [ ] 4.5 Verified after each of the four commits: `npm run typecheck` (0 errors throughout), `npm test` (378/378, 59 files, unchanged), `npm run lint` (0 errors; warnings shrank from 18 → 13 as each service moved out from under the root `no-restricted-imports` rule).
+
+## 5. Orders
+
+- [ ] 5.1 Move `pages/orders/**` → `features/orders/{pages,components}/`, `services/order.ts` → `features/orders/services/`, `schemas/catalog/order.ts` and the order form schemas + tests → `features/orders/schemas/`.
+- [ ] 5.2 Move `order-details/config/{order-actions,order-address,order-badge}.ts` and `order-create/config/customer-address.ts` → `features/orders/lib/`; `order-create/types.ts` folds into `features/orders/types.ts`.
+- [ ] 5.3 Confirm the pre-existing `services/order.ts` → `order-actions` import is now intra-feature.
+- [ ] 5.4 Point the `orders` → `customers` imports in `order-create/components/customer/add-customer-dialog.tsx` at `@/features/customers` rather than deep paths.
+- [ ] 5.5 Add `features/orders/routes.tsx` (`/orders`, `/orders/create`, `/orders/:id`).
+- [ ] 5.6 Verify: `npm run typecheck && npm test`.
+
+## 6. Products
+
+Largest single feature (51 files) and the hub for most cross-feature edges.
+
+- [ ] 6.1 Move `pages/products/**` → `features/products/{pages,components}/`, `services/{product,attribute}.ts` → `features/products/services/`, and the product/variant/attribute catalog schemas plus the 6 product form schemas and their tests.
+- [ ] 6.2 Move `products/utils.ts`, `products/variant-matrix.ts`, `product-form/sections/price/utils.ts`, `product-form/sections/seo-settings/utils.ts` → `features/products/lib/`; their tests (`variant-matrix.test.ts`, `price/utils.test.ts`) → `features/products/tests/lib/`.
+- [ ] 6.3 Move `components/form/attribute-values-field.tsx` and `components/shared/select-products-dialog.tsx` + `select-products-dialog/` → `features/products/components/`, resolving their imports of `variation-dialog` and the three product-table filters into intra-feature imports.
+- [ ] 6.4 Relocate `pages/utils.ts` (`calculateProfit`, `normalizeErrors`): it is consumed by `products`, `bulk-edit`, `inventory` and `settings`. Place it in `utils/` at root — it is feature-independent arithmetic and error shaping — and delete `pages/utils.ts`.
+- [ ] 6.5 Point `products` → `brands` / `settings` imports (brand dialog, tax-profile dialog, shipping-profile dialog) at the respective feature barrels.
+- [ ] 6.6 Add `features/products/routes.tsx` (`/products`, `/products/create`, `/products/:id`).
+- [ ] 6.7 Verify: `npm run typecheck && npm test`.
+
+## 7. Settings
+
+98 files, 11 sub-features, nested one level deep. Each sub-feature takes the same anatomy.
+
+- [ ] 7.1 Create `features/settings/` with the shell: `pages/settings-layout.tsx`, `hooks/use-settings-page-actions.ts`, `lib/` (from `pages/settings/utils.tsx`, incl. `setUnsavedDataStatus`), and the sub-feature directories.
+- [ ] 7.2 Move `shipping/` (23 files): pages, components, `services/shipping.ts`, shipping catalog + form schemas and tests. `shipping-settings/utils.tsx` (262L, mixes types + logic) splits into `features/settings/shipping/lib/` and `types.ts`; `shipping-profile/utils.ts` + its test and `shipping-method/shipping-rules/helper.ts` → `lib/`.
+- [ ] 7.3 Move `components/form/shipping-box-field.tsx` and `components/form/regions-field.tsx` → `features/settings/shipping/components/fields/`, resolving their dialog and utils imports intra-feature. Export both from `features/settings/index.ts` for their outside consumers.
+- [ ] 7.4 Move `tax/` (22 files): pages, components, `services/tax.ts`, schemas and tests; `tax-settings/{utils.ts,helper.ts}` and `tax-region/tax-rules/helper.ts` → `lib/`. Remove the three direct `useQueryClient` uses in `tax-profile.tsx`, `general-edit-region.tsx`, `edit-region-eu.tsx` **only if** they can be replaced by an existing service hook without changing behavior; otherwise leave them and record it for `extract-feature-logic-hooks`.
+- [ ] 7.5 Move `essentials/` (12 files, incl. `schema-profile/` and `variation-library/`) with `services/schema.ts` and their schemas/tests. Resolve `add-schema-dialog.tsx`'s import of the product SEO utils via `@/features/products`.
+- [ ] 7.6 Move `multi-currency/` (9 files) with `services/currency.ts`, and `payment/` (7 files) with `services/payment.ts`, plus their schemas and tests.
+- [ ] 7.7 Move the remaining sub-features: `general/` (7), `email/` (5, incl. `utils.ts` → `lib/`), `products/` (3), `checkout/` (3), `advanced/` (1).
+- [ ] 7.8 Add `features/settings/routes.tsx` with the nested `SettingsLayout` parent, the index redirect to `/settings/general`, and all 18 children. Leave `RouteConfig.Settings.LicenseSettings` unregistered as it is today — record it, do not fix it.
+- [ ] 7.9 Verify: `npm run typecheck && npm test`.
+
+## 8. System feature and dead-code removal
+
+- [ ] 8.1 Move `pages/not-found/**` and `pages/coming-soon/**` → `features/system/pages/`, add `features/system/routes.tsx` (`/analytics`, `/report`, `/tools`, and the `*` catch-all, keeping `NotFound` eagerly imported as it is today).
+- [ ] 8.2 Delete the now-empty `pages/` directory and confirm no `@/pages/` import remains anywhere.
+- [ ] 8.3 Delete `services/page.ts`, `schemas/catalog/page.ts`, `types/entities/page.ts` (zero importers, verified).
+- [ ] 8.4 Delete `preview-pages/` (45 files), `tryouts.tsx`, and their `eslint.config.js` override block.
+- [ ] 8.5 In `openspec/changes/stacked-items-primitive/tasks.md`, mark task 7.3 obsolete with the reason (preview harness removed by this change). Leave the other pending QA tasks in `stacked-items-primitive`, `rule-items-primitive` and `variant-matrix-regeneration` open, annotated to be run against the restructured tree.
+- [ ] 8.6 Delete the 15 spent one-off codemods in `scripts/`. **Keep `scripts/babel-plugin-scoped-auto-label.js`** — `vite.config.js` loads it.
+- [ ] 8.7 Rewrite root `routes.tsx` to compose the 12 features' route arrays inside the existing `UnsavedChangesController` layout route.
+- [ ] 8.8 Verify: `npm run typecheck && npm test`.
+
+## 9. Enforcement and final verification
+
+- [ ] 9.1 Promote both boundary rules from `warn` to `error` in `eslint.config.js` and confirm `npm run lint` is clean at zero violations.
+- [ ] 9.2 Confirm `import/no-cycle` reports zero — the same count recorded in 1.3. Any cycle here was introduced by a barrel and must be fixed by narrowing that barrel, not by suppressing the rule.
+- [ ] 9.3 Audit every `features/*/index.ts`: each export must correspond to a real cross-feature import. Delete any speculative export — a barrel that exposes the whole feature passes lint while restoring the coupling this change removes.
+- [ ] 9.4 Add `knip` with config, run it, and act on what it reports. Record anything intentional rather than silently ignoring it.
+- [ ] 9.5 Run `npm run build` and diff the emitted chunk list under `../../assets` against a pre-change build — each feature's routes must still resolve to their own dynamic chunks.
+- [ ] 9.6 Review the whole branch with `git diff -M dev...HEAD`: every moved file must show import-block changes only. A moved file with altered statements is a defect in this change.
+- [ ] 9.7 Confirm all 59 original test files are present at their mirrored paths with unchanged content, and that `npm test` passes.
+- [ ] 9.8 Final verification: `npm run typecheck && npm test`, plus `npm run lint && npm run build`.

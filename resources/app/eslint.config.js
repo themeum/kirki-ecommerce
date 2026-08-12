@@ -1,6 +1,7 @@
 import js from '@eslint/js';
 import stylistic from '@stylistic/eslint-plugin';
 import vitest from '@vitest/eslint-plugin';
+import importPlugin from 'eslint-plugin-import';
 import jsxA11y from 'eslint-plugin-jsx-a11y';
 import react from 'eslint-plugin-react';
 import reactHooks from 'eslint-plugin-react-hooks';
@@ -8,6 +9,94 @@ import reactRefresh from 'eslint-plugin-react-refresh';
 import simpleImportSort from 'eslint-plugin-simple-import-sort';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
+
+// The features/ restructure (see openspec/changes/restructure-app-features)
+// is migrated feature by feature; this rule is `warn` while that's in
+// progress so violations are a visible, shrinking count rather than an
+// all-or-nothing gate, and promoted to `error` once every feature has moved.
+const FEATURE_BOUNDARY_SEVERITY = 'warn';
+
+const FEATURES = [
+  'brands',
+  'tags',
+  'categories',
+  'collections',
+  'customers',
+  'coupons',
+  'inventory',
+  'bulk-edit',
+  'orders',
+  'products',
+  'settings',
+  'system',
+];
+
+const SHARED_ROOT_DIRS = [
+  'components',
+  'hooks',
+  'utils',
+  'libs',
+  'theme',
+  'types',
+  'schemas',
+  'services',
+  'contexts',
+  'config',
+];
+
+const featureBoundaryConfigs = FEATURES.map((feature) => ({
+  name: `kirki/feature-boundary-${feature}`,
+  files: ['**/*.{ts,tsx}'],
+  ignores: [`features/${feature}/**`],
+  rules: {
+    'no-restricted-imports': [
+      FEATURE_BOUNDARY_SEVERITY,
+      {
+        patterns: [
+          {
+            group: [`@/features/${feature}/*`, `@/features/${feature}/**`],
+            message: `Import from '@/features/${feature}' (its public API) instead of reaching into its internals.`,
+          },
+        ],
+      },
+    ],
+  },
+}));
+
+const sharedNoFeatureImportConfig = {
+  name: 'kirki/shared-no-feature-import',
+  files: SHARED_ROOT_DIRS.map((dir) => `${dir}/**/*.{ts,tsx}`),
+  rules: {
+    'no-restricted-imports': [
+      FEATURE_BOUNDARY_SEVERITY,
+      {
+        patterns: [
+          {
+            group: ['@/features/*', '@/features/**'],
+            message: 'Shared code may not depend on a feature. Move this file into the feature that owns the data it needs.',
+          },
+        ],
+      },
+    ],
+  },
+};
+
+const importNoCycleConfig = {
+  name: 'kirki/import-no-cycle',
+  files: ['**/*.{ts,tsx}'],
+  plugins: { import: importPlugin },
+  settings: {
+    'import/resolver': {
+      typescript: { project: './tsconfig.json' },
+    },
+  },
+  rules: {
+    // Not gated by FEATURE_BOUNDARY_SEVERITY — a cycle is always a real
+    // defect (undefined at module init), never a migration-in-progress
+    // warning.
+    'import/no-cycle': 'error',
+  },
+};
 
 export default tseslint.config(
   {
@@ -217,4 +306,8 @@ export default tseslint.config(
       'react-refresh/only-export-components': 'off',
     },
   },
+
+  importNoCycleConfig,
+  ...featureBoundaryConfigs,
+  sharedNoFeatureImportConfig,
 );
