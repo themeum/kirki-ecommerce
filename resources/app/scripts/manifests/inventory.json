@@ -1,0 +1,6 @@
+[
+  { "from": "pages/inventory/inventory.tsx", "to": "features/inventory/pages/inventory.tsx" },
+  { "from": "pages/inventory/inventory-table", "to": "features/inventory/pages/inventory-table" },
+  { "from": "pages/inventory/utils.tsx", "to": "features/inventory/lib/utils.tsx" },
+  { "from": "services/inventory.ts", "to": "features/inventory/services/inventory.ts" }
+]

@@ -1,7 +1,7 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 
 import { endpoints } from '@/config/endpoints';
-import { inventoryKeys } from '@/features/inventory';
+import { inventoryKeys } from '@/features/inventory/index';
 import { apiClient } from '@/libs/api';
 import { InventoryVariantSchema } from '@/schemas/catalog/variant';
 import { PaginatedDataSchema } from '@/schemas/shared/api';

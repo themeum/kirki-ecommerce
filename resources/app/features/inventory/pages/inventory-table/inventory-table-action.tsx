@@ -6,10 +6,10 @@ import Button from '@/components/ui/button';
 import Flex from '@/components/ui/flex';
 import Searchbox from '@/components/ui/searchbox';
 import { Select, SelectContent, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useListParams } from '@/hooks';
+import { allTableHeaders } from '@/features/inventory/lib/utils';
+import { useListParams } from '@/hooks/index';
 import { LayoutIcon, ListFilter } from '@/icons';
-import { allTableHeaders } from '@/pages/inventory/utils';
-import { theme } from '@/theme';
+import { theme } from '@/theme/index';
 import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 

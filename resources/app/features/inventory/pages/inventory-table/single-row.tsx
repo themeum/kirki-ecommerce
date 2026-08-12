@@ -3,10 +3,10 @@ import Flex from '@/components/ui/flex';
 import Input from '@/components/ui/input';
 import { TableCell, TableRow } from '@/components/ui/table';
 import Thumbnail from '@/components/ui/thumbnail';
-import { useInventoryForm } from '@/features/inventory';
+import { useInventoryForm } from '@/features/inventory/index';
 import { calculateProfit } from '@/pages/utils';
 import type { InventoryVariant } from '@/schemas/catalog/variant';
-import { theme } from '@/theme';
+import { theme } from '@/theme/index';
 import { defineStyles } from '@/theme/mixins';
 import type { MarkListHandlers } from '@/types/pages/common';
 
