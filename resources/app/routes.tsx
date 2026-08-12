@@ -3,6 +3,7 @@ import { createHashRouter, Navigate } from 'react-router';
 
 import LoadingSpinner from '@/components/loading-spinner';
 import { RouteConfig } from '@/config/route-config';
+import ordersRoutes from '@/features/orders/routes';
 import UnsavedChangesController from '@/floating-components/unsaved-tracker';
 import NotFound from '@/pages/not-found/not-found';
 import { __ } from '@/wpi18n';
@@ -12,11 +13,8 @@ const CreateProduct = lazy(() => import('@/pages/products/create-product/create-
 const EditProduct = lazy(() => import('@/pages/products/edit-product/edit-product'));
 const BulkEdit = lazy(() => import('@/features/bulk-edit/pages/bulk-edit'));
 const Inventory = lazy(() => import('@/features/inventory/pages/inventory'));
-const CreateOrder = lazy(() => import('@/pages/orders/order-create/order-create'));
-const Orders = lazy(() => import('@/pages/orders/orders'));
 const Coupons = lazy(() => import('@/features/coupons/pages/coupons'));
 const EditCoupon = lazy(() => import('@/features/coupons/pages/edit-coupon/edit-coupon'));
-const OrderDetails = lazy(() => import('@/pages/orders/order-details/order-details'));
 const Collections = lazy(() => import('@/features/collections/pages/collections'));
 const CollectionDetails = lazy(() => import('@/features/collections/pages/collection-details'));
 const Tags = lazy(() => import('@/features/tags/pages/tags'));
@@ -55,7 +53,6 @@ const withSuspense = <Props extends object>(
 );
 
 const ProductRoutes = RouteConfig.Products;
-const OrderRoutes = RouteConfig.Orders;
 const CustomerRoutes = RouteConfig.Customers;
 const SettingsRoutes = RouteConfig.Settings;
 
@@ -71,9 +68,7 @@ export const router = createHashRouter([
       { path: RouteConfig.Inventory.template, element: withSuspense(Inventory) },
       { path: RouteConfig.Coupons.template, element: withSuspense(Coupons) },
       { path: RouteConfig.Coupons.get('EditCoupon').template, element: withSuspense(EditCoupon) },
-      { path: OrderRoutes.template, element: withSuspense(Orders) },
-      { path: OrderRoutes.get('CreateOrder').template, element: withSuspense(CreateOrder) },
-      { path: OrderRoutes.get('OrderDetail').template, element: withSuspense(OrderDetails) },
+      ...ordersRoutes,
       { path: RouteConfig.Collections.template, element: withSuspense(Collections) },
       {
         path: RouteConfig.Collections.get('CollectionDetail').template,

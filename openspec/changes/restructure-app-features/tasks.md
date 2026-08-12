@@ -52,12 +52,12 @@ Four structurally identical features (~24 files total). They exercise the codemo
 
 ## 5. Orders
 
-- [ ] 5.1 Move `pages/orders/**` → `features/orders/{pages,components}/`, `services/order.ts` → `features/orders/services/`, `schemas/catalog/order.ts` and the order form schemas + tests → `features/orders/schemas/`.
-- [ ] 5.2 Move `order-details/config/{order-actions,order-address,order-badge}.ts` and `order-create/config/customer-address.ts` → `features/orders/lib/`; `order-create/types.ts` folds into `features/orders/types.ts`.
-- [ ] 5.3 Confirm the pre-existing `services/order.ts` → `order-actions` import is now intra-feature.
-- [ ] 5.4 Point the `orders` → `customers` imports in `order-create/components/customer/add-customer-dialog.tsx` at `@/features/customers` rather than deep paths.
-- [ ] 5.5 Add `features/orders/routes.tsx` (`/orders`, `/orders/create`, `/orders/:id`).
-- [ ] 5.6 Verify: `npm run typecheck && npm test`.
+- [x] 5.1 Move `pages/orders/**` → `features/orders/{pages,components}/`, `services/order.ts` → `features/orders/services/`, `schemas/catalog/order.ts` and the order form schemas + tests → `features/orders/schemas/`.
+- [x] 5.2 Move `order-details/config/{order-actions,order-address,order-badge}.ts` and `order-create/config/customer-address.ts` → `features/orders/lib/`; `order-create/types.ts` folds into `features/orders/types.ts`. Kept the `OrderItem` name as-is (no actual collision with the schema's `OrderItem` — different files, and neither is re-exported through the same barrel entry).
+- [x] 5.3 Confirmed the pre-existing `services/order.ts` → `order-actions` import is now intra-feature.
+- [x] 5.4 Already correct from group 4 — `order-create/components/customer/add-customer-dialog.tsx` already imported customers via `@/features/customers` when the customers feature moved.
+- [x] 5.5 Added `features/orders/routes.tsx` (`/orders`, `/orders/create`, `/orders/:id`) and wired it into root `routes.tsx` via `...ordersRoutes` — not deferred to group 8, since an unused per-feature `routes.tsx` would be dead code for three more stages.
+- [x] 5.6 Verify: `npm run typecheck && npm test && npm run lint && npm run build` — all clean. lint: 1 pre-existing unrelated error, 9 warnings (down from 13; `schemas/catalog/order.ts`'s coupons/customers imports are no longer flagged at all now that the file itself lives inside `features/orders/`).
 
 ## 6. Products
 

@@ -1,0 +1,22 @@
+[
+  { "from": "pages/orders/orders.tsx", "to": "features/orders/pages/orders.tsx" },
+  { "from": "pages/orders/order-table", "to": "features/orders/pages/order-table" },
+  { "from": "pages/orders/order-details/add-tracking-dialog.tsx", "to": "features/orders/pages/order-details/add-tracking-dialog.tsx" },
+  { "from": "pages/orders/order-details/flag-card.tsx", "to": "features/orders/pages/order-details/flag-card.tsx" },
+  { "from": "pages/orders/order-details/items-table.tsx", "to": "features/orders/pages/order-details/items-table.tsx" },
+  { "from": "pages/orders/order-details/mark-as-paid-dialog.tsx", "to": "features/orders/pages/order-details/mark-as-paid-dialog.tsx" },
+  { "from": "pages/orders/order-details/order-details.tsx", "to": "features/orders/pages/order-details/order-details.tsx" },
+  { "from": "pages/orders/order-details/take-action-card.tsx", "to": "features/orders/pages/order-details/take-action-card.tsx" },
+  { "from": "pages/orders/order-details/timeline.tsx", "to": "features/orders/pages/order-details/timeline.tsx" },
+  { "from": "pages/orders/order-details/config/order-actions.ts", "to": "features/orders/lib/order-actions.ts" },
+  { "from": "pages/orders/order-details/config/order-address.ts", "to": "features/orders/lib/order-address.ts" },
+  { "from": "pages/orders/order-details/config/order-badge.ts", "to": "features/orders/lib/order-badge.ts" },
+  { "from": "pages/orders/order-create/components", "to": "features/orders/pages/order-create/components" },
+  { "from": "pages/orders/order-create/order-create.tsx", "to": "features/orders/pages/order-create/order-create.tsx" },
+  { "from": "pages/orders/order-create/config/customer-address.ts", "to": "features/orders/lib/customer-address.ts" },
+  { "from": "services/order.ts", "to": "features/orders/services/order.ts" },
+  { "from": "schemas/catalog/order.ts", "to": "features/orders/schemas/catalog/order.ts" },
+  { "from": "schemas/catalog/order.test.ts", "to": "features/orders/tests/schemas/catalog/order.test.ts" },
+  { "from": "schemas/forms/order-form.ts", "to": "features/orders/schemas/forms/order-form.ts" },
+  { "from": "schemas/forms/order-form.test.ts", "to": "features/orders/tests/schemas/forms/order-form.test.ts" }
+]

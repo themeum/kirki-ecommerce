@@ -1,8 +1,20 @@
+import type { ProductVariantSelection } from '@/components/shared/select-products-dialog/types';
 import type { UseListParamsOptions } from '@/hooks/use-list-params';
 import type { ListFilterConfig} from '@/types/list-state';
 import { parseString } from '@/types/list-state';
 import type { SuggestionOption } from '@/types/pages/common';
 import { __ } from '@/wpi18n';
+
+export type OrderRowDisplay = ProductVariantSelection & {
+  productId: number;
+  productTitle: string;
+};
+
+export type OrderItem = {
+  index: number;
+  quantity: number;
+  display: OrderRowDisplay;
+};
 
 type OrderListFilter = {
   search?: string;

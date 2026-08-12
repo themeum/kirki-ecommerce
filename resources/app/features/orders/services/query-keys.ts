@@ -1,5 +1,5 @@
+import type { OrderCalculationRequestPayload } from '@/features/orders/schemas/forms/order-form';
 import type { OrderListFilter } from '@/features/orders/types';
-import type { OrderCalculationRequestPayload } from '@/schemas/forms/order-form';
 import type { ListParams } from '@/types/list-state';
 
 const orderKeys = {
