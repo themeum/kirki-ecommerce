@@ -21,7 +21,7 @@ const Collections = lazy(() => import('@/pages/collections/collections'));
 const CollectionDetails = lazy(() => import('@/pages/collections/collection-details/collection-details'));
 const Tags = lazy(() => import('@/pages/tags/tags'));
 const Categories = lazy(() => import('@/pages/categories/categories'));
-const Brands = lazy(() => import('@/pages/brands/brands'));
+const Brands = lazy(() => import('@/features/brands/pages/brands'));
 const Customers = lazy(() => import('@/pages/customers/customers'));
 const CustomerDetails = lazy(() => import('@/pages/customers/customer-details/customer-details'));
 const CustomerGroups = lazy(() => import('@/pages/customers/customer-groups/customer-groups'));

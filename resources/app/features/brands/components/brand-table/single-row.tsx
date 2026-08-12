@@ -5,10 +5,10 @@ import Button from '@/components/ui/button';
 import Checkbox from '@/components/ui/checkbox';
 import { TableCell, TableRow } from '@/components/ui/table';
 import Thumbnail from '@/components/ui/thumbnail';
+import BrandAddEditPopover from '@/features/brands/components/brand-add-edit-dialog';
+import type { Brand } from '@/features/brands/schemas/catalog/brand';
+import { useDeleteBrandMutation } from '@/features/brands/services/brand';
 import { EditPenIcon, TrashIcon } from '@/icons';
-import BrandAddEditPopover from '@/pages/brands/brand-add-edit-dialog';
-import type { Brand } from '@/schemas/catalog/brand';
-import { useDeleteBrandMutation } from '@/services/brand';
 import type { MarkListHandlers } from '@/types/pages/common';
 import { __ } from '@/wpi18n';
 

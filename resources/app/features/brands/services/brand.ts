@@ -1,10 +1,10 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { endpoints } from '@/config/endpoints';
-import { brandKeys } from '@/features/brands';
+import { brandKeys } from '@/features/brands/index';
+import { BrandSchema } from '@/features/brands/schemas/catalog/brand';
+import type { BrandFormPayload } from '@/features/brands/schemas/forms/brand-form';
 import { apiClient } from '@/libs/api';
-import { BrandSchema } from '@/schemas/catalog/brand';
-import type { BrandFormPayload } from '@/schemas/forms/brand-form';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
 import { parseData, parseMessage, parseResponse, toastMutationError, toastMutationSuccess } from '@/services/helpers';
 import type { BulkActionParams } from '@/types/api/result';

@@ -1,8 +1,8 @@
 import { useState } from 'react';
 
 import Button from '@/components/ui/button';
-import BrandAddEditPopover from '@/pages/brands/brand-add-edit-dialog';
-import type { BrandFormInput } from '@/schemas/forms/brand-form';
+import BrandAddEditPopover from '@/features/brands/components/brand-add-edit-dialog';
+import type { BrandFormInput } from '@/features/brands/schemas/forms/brand-form';
 import { __ } from '@/wpi18n';
 
 const initialState: BrandFormInput = {

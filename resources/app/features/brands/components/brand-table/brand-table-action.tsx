@@ -1,7 +1,7 @@
 import Flex from '@/components/ui/flex';
 import Searchbox from '@/components/ui/searchbox';
-import { useListParams } from '@/hooks';
-import { theme } from '@/theme';
+import { useListParams } from '@/hooks/index';
+import { theme } from '@/theme/index';
 import { defineStyles } from '@/theme/mixins';
 
 const BrandTableAction = () => {

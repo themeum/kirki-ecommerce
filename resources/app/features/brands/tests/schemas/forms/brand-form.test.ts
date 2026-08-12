@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { BrandFormSchema } from '@/schemas/forms/brand-form';
+import { BrandFormSchema } from '@/features/brands/schemas/forms/brand-form';
 
 describe('BrandFormSchema', () => {
   it('produces the exact payload for a fully filled form', () => {

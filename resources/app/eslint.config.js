@@ -247,7 +247,7 @@ export default tseslint.config(
     // A route manifest is a data module, not a component module — the lazy()
     // route entries it declares are never the thing Fast Refresh reloads.
     name: 'kirki/route-manifest',
-    files: ['routes.tsx'],
+    files: ['**/routes.tsx'],
     rules: {
       'react-refresh/only-export-components': 'off',
     },
@@ -310,4 +310,19 @@ export default tseslint.config(
   importNoCycleConfig,
   ...featureBoundaryConfigs,
   sharedNoFeatureImportConfig,
+
+  {
+    // `lazy(() => import(...))` needs a concrete file target for its own
+    // code-split chunk, which is a structurally different dependency than a
+    // feature's internals being reused elsewhere — route composition is
+    // exempt from the deep-import boundary rules for that reason. Must come
+    // after the boundary configs above: flat config resolves per-rule by
+    // last-matching block, and this is the one place that reopens a rule
+    // those configs close.
+    name: 'kirki/route-manifest-lazy-imports',
+    files: ['**/routes.tsx'],
+    rules: {
+      'no-restricted-imports': 'off',
+    },
+  },
 );

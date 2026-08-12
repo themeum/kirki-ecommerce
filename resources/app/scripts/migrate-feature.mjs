@@ -57,9 +57,18 @@ function expandManifest(manifest) {
   return entries;
 }
 
-function resolveSpecifier(baseDir, spec) {
+// `movedByOldAbs` is consulted before the filesystem: by the time imports
+// are scanned, every moved file has already been `git mv`'d away from its
+// old path, so an fs-only lookup can never resolve a specifier pointing at
+// something that moved in this same batch.
+function resolveSpecifier(baseDir, spec, movedByOldAbs) {
   const base = spec.startsWith('@/') ? path.join(APP_ROOT, spec.slice(2)) : path.resolve(baseDir, spec);
   const candidates = [base, `${base}.ts`, `${base}.tsx`, path.join(base, 'index.ts'), path.join(base, 'index.tsx')];
+  for (const candidate of candidates) {
+    if (movedByOldAbs.has(candidate)) {
+      return candidate;
+    }
+  }
   for (const candidate of candidates) {
     if (fs.existsSync(candidate) && fs.statSync(candidate).isFile()) {
       return candidate;
@@ -117,6 +126,21 @@ function main() {
   }
   console.log(`Moved ${entries.length} file(s).`);
 
+  // git doesn't track directories, so emptying one via git mv leaves it
+  // behind on disk. Prune every source directory left empty by the move.
+  const sourceDirs = [...new Set(entries.map(({ from }) => path.dirname(path.join(APP_ROOT, from))))]
+    .sort((a, b) => b.length - a.length);
+  for (const dir of sourceDirs) {
+    let current = dir;
+    while (current.startsWith(APP_ROOT) && current !== APP_ROOT) {
+      if (!fs.existsSync(current) || fs.readdirSync(current).length > 0) {
+        break;
+      }
+      fs.rmdirSync(current);
+      current = path.dirname(current);
+    }
+  }
+
   const unresolved = [];
   let filesChanged = 0;
 
@@ -138,7 +162,7 @@ function main() {
         return match;
       }
 
-      const targetAbs = resolveSpecifier(isAlias ? APP_ROOT : baseDirForRelative, spec);
+      const targetAbs = resolveSpecifier(isAlias ? APP_ROOT : baseDirForRelative, spec, movedByOldAbs);
       if (!targetAbs) {
         unresolved.push({ file: path.relative(APP_ROOT, fileAbs), spec });
         return match;
