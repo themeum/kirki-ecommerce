@@ -25,4 +25,4 @@ type CollectionFormInput = z.input<typeof CollectionFormSchema>;
 
 type CollectionFormPayload = z.output<typeof CollectionFormSchema>;
 
-export { CollectionFormSchema, type CollectionFormInput, type CollectionFormPayload };
+export { type CollectionFormInput, type CollectionFormPayload, CollectionFormSchema };

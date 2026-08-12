@@ -1,29 +1,28 @@
-import { useEffect, type Dispatch, type SetStateAction } from 'react';
-import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { type Dispatch, type SetStateAction, useEffect } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 
-import GroupTagTable from '@/components/group-tag-table';
 import TextField from '@/components/form/text-field';
+import GroupTagTable from '@/components/group-tag-table';
+import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
 import { Dialog, DialogBody, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Field, FieldError } from '@/components/ui/field';
+import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
+import Text from '@/components/ui/text';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { pickFormValues } from '@/libs/zod';
-import ActionGroup from '@/components/ui/action-group';
-import Flex from '@/components/ui/flex';
-import Text from '@/components/ui/text';
+import { groupDetails, optionsList, requiredFields } from '@/pages/products/product-form/sections/seo-settings/utils';
 import {
-  SchemaProfileFormSchema,
   type SchemaProfileFormInput,
   type SchemaProfileFormPayload,
+  SchemaProfileFormSchema,
 } from '@/schemas/forms/schema-profile-form';
 import { useCreateSchemaMutation, useUpdateSchemaMutation } from '@/services/schema';
 import type { SchemaProfile, SelectOption } from '@/types';
 import { __, sprintf } from '@/wpi18n';
-
-import { groupDetails, optionsList, requiredFields } from '@/pages/products/product-form/sections/seo-settings/utils';
 
 type AddSchemaPopupProps = {
   isOpen: boolean;
@@ -78,7 +77,7 @@ const AddSchemaPopup = ({
     try {
       if (editedItem) {
         await updateMutation.mutateAsync({
-          id: editedItem?.id as number,
+          id: editedItem?.id,
           data: payload,
         });
       } else {
@@ -132,7 +131,7 @@ const AddSchemaPopup = ({
                       optionsArray={optionsList as SelectOption[]}
                       requiredFields={requiredFields}
                       onChange={(value) =>
-                        field.onChange(value as Record<string, string[]>)
+                        field.onChange(value)
                       }
                       hasSelect
                       isEditable

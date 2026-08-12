@@ -14,13 +14,14 @@ import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { pickFormValues } from '@/libs/zod';
 import {
-  BrandFormSchema,
   type BrandFormInput,
   type BrandFormPayload,
+  BrandFormSchema,
 } from '@/schemas/forms/brand-form';
 import { useCreateBrandMutation, useUpdateBrandMutation } from '@/services/brand';
 import { cardStyles } from '@/theme/card-styles';
 import type { Brand } from '@/types';
+import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 
 type BrandAddEditPopoverProps = {
@@ -35,7 +36,7 @@ const getInitialLogoUrl = (brand: Brand | BrandFormInput) => {
 
 const BrandAddEditPopover = ({
   brand,
-  onClose = () => { },
+  onClose = noop,
 }: BrandAddEditPopoverProps) => {
   const createMutation = useCreateBrandMutation();
   const updateMutation = useUpdateBrandMutation();

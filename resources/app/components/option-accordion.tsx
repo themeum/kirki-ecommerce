@@ -16,7 +16,7 @@ type OptionAccordionProps = {
   leftIcon?: ReactNode;
   children?: ReactNode;
   rightActions?: ReactNode;
-  variant?: 'shipping' | 'inactive' | string;
+  variant?: 'shipping' | 'inactive';
   enabled?: boolean;
   disabled?: boolean;
 };

@@ -1,4 +1,4 @@
-import { useMemo, type ReactNode } from 'react';
+import { Children, isValidElement, type ReactElement, type ReactNode, useMemo } from 'react';
 
 import DataTableBody from '@/components/data-table/data-table-body';
 import type { DataTableContextValue } from '@/components/data-table/data-table-context';
@@ -7,9 +7,9 @@ import DataTableHeader from '@/components/data-table/data-table-header';
 import DataTablePagination from '@/components/data-table/data-table-pagination';
 import DataTableRowActions from '@/components/data-table/data-table-row-actions';
 import { DataTableSelectionProvider, useDataTableSelection } from '@/components/data-table/data-table-selection-context';
-import { DataTableFilter, DataTableFilterBar, DataTableSelectionFilter, findSlot } from '@/components/data-table/data-table-slots';
+import { DataTableFilter, DataTableFilterBar, DataTableSelectionFilter } from '@/components/data-table/data-table-slots';
 import DataTableToolbar from '@/components/data-table/data-table-toolbar';
-import { EMPTY_PAGE, type DataTableBulkApplyPayload, type DataTableColumn, type DataTableItem, type DataTableRowActionsResolver } from '@/components/data-table/types';
+import { type DataTableBulkApplyPayload, type DataTableColumn, type DataTableItem, type DataTableRowActionsResolver, EMPTY_PAGE } from '@/components/data-table/types';
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import { Table, TableBody, TableHeader } from '@/components/ui/table';
@@ -42,6 +42,18 @@ type DataTableLayoutProps<T extends DataTableItem> = Omit<
   data: PaginatedData<T>;
 };
 
+const findSlot = (children: ReactNode, type: unknown) => {
+  let match: ReactElement | undefined;
+
+  Children.forEach(children, (child) => {
+    if (isValidElement(child) && child.type === type) {
+      match = child;
+    }
+  });
+
+  return match;
+};
+
 const DataTableLayout = <T extends DataTableItem>({
   data,
   columns,
@@ -55,7 +67,7 @@ const DataTableLayout = <T extends DataTableItem>({
   isLoading = false,
   onSort,
   sortBy,
-  sortOrder
+  sortOrder,
 }: DataTableLayoutProps<T>) => {
   const { total, per_page } = data;
   const { isAllSelected, isPartiallySelected, onToggleAll } =
@@ -86,7 +98,7 @@ const DataTableLayout = <T extends DataTableItem>({
 
   const contextValue = useMemo<DataTableContextValue<DataTableItem>>(
     () => ({
-      data: data as unknown as PaginatedData<DataTableItem>,
+      data,
       isLoading,
       columns: resolvedColumns as unknown as DataTableColumn<DataTableItem>[],
       onPageChange,
@@ -137,11 +149,11 @@ const DataTable = <T extends DataTableItem>({
   data,
   ...rest
 }: DataTableProps<T>) => {
-  const tableData = (data ?? EMPTY_PAGE) as PaginatedData<T>;
+  const tableData = (data ?? EMPTY_PAGE);
 
   return (
     <DataTableSelectionProvider
-      data={tableData as unknown as PaginatedData<DataTableItem>}
+      data={tableData}
     >
       <DataTableLayout {...rest} data={tableData} />
     </DataTableSelectionProvider>

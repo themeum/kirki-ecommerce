@@ -1,7 +1,8 @@
-import type { UseListParamsOptions } from "@/hooks/use-list-params";
-import { ListFilterConfig, parseString } from "@/types/list-state";
-import type { SuggestionOption } from "@/types/pages/common";
-import { __ } from "@/wpi18n";
+import type { UseListParamsOptions } from '@/hooks/use-list-params';
+import type { ListFilterConfig} from '@/types/list-state';
+import { parseString } from '@/types/list-state';
+import type { SuggestionOption } from '@/types/pages/common';
+import { __ } from '@/wpi18n';
 
 type OrderListFilter = {
   search?: string;

@@ -1,6 +1,6 @@
 import type { CSSObject } from '@emotion/react';
 import type { ComponentPropsWithoutRef, ReactNode } from 'react';
-import { Controller, useFormContext, type FieldPath, type FieldValues } from 'react-hook-form';
+import { Controller, type FieldPath, type FieldValues, useFormContext } from 'react-hook-form';
 
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import Input from '@/components/ui/input';
@@ -60,6 +60,7 @@ const TextField = <
             disabled={disabled}
             error={Boolean(fieldState.error)}
             aria-invalid={fieldState.invalid}
+            // eslint-disable-next-line jsx-a11y/no-autofocus -- opt-in prop, the caller decides whether the field should take focus
             autoFocus={autoFocus}
           />
           {description && <FieldDescription>{description}</FieldDescription>}

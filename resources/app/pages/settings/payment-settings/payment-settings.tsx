@@ -1,12 +1,11 @@
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import { PaymentIcon } from '@/icons';
-import { useOfflinePaymentsQuery, useOnlinePaymentsQuery } from '@/services/payment';
-import { __ } from '@/wpi18n';
-
 import OfflinePayment from '@/pages/settings/payment-settings/offline-payment';
 import OnlinePaymentList from '@/pages/settings/payment-settings/online-payment-list';
 import SettingsPageHeader from '@/pages/settings/settings-page-header';
+import { useOfflinePaymentsQuery, useOnlinePaymentsQuery } from '@/services/payment';
+import { __ } from '@/wpi18n';
 
 const PaymentSettings = () => {
   const { data: onlinePaymentList = [] } = useOnlinePaymentsQuery();

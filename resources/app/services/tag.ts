@@ -121,6 +121,6 @@ const useBulkDeleteTagsMutation = () => {
 };
 
 export {
-  bulkDeleteTags, createTag, deleteTag, getTags, updateTag, useBulkDeleteTagsMutation, useCreateTagMutation, useDeleteTagMutation, useTagsQuery, useUpdateTagMutation
+  bulkDeleteTags, createTag, deleteTag, getTags, updateTag, useBulkDeleteTagsMutation, useCreateTagMutation, useDeleteTagMutation, useTagsQuery, useUpdateTagMutation,
 };
 

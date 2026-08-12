@@ -1,20 +1,21 @@
-import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 import { ChevronsUpDown } from 'lucide-react';
+import { type CSSProperties, type ReactNode, useEffect, useState } from 'react';
 
-import Button from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import ActionGroup from '@/components/ui/action-group';
 import Badge from '@/components/ui/badge';
+import Button from '@/components/ui/button';
 import Checkbox from '@/components/ui/checkbox';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
 import { Separator } from '@/components/ui/separator';
 import { theme } from '@/theme';
-import { itemCenter, uiFocusRing, scoped, scopedMerge, defineStyles } from '@/theme/mixins';
+import { defineStyles, itemCenter, scoped, scopedMerge, uiFocusRing } from '@/theme/mixins';
 import type { LabelFieldProps, SelectOption, SelectState } from '@/types';
+import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 
-type GroupedValues = Record<string, Array<string | number>>;
+type GroupedValues = Record<string, (string | number)[]>;
 
 type GroupSelectOption = SelectOption & {
   isRequired?: boolean;
@@ -32,7 +33,7 @@ type GroupSelectProps = LabelFieldProps & {
   style?: CSSProperties;
   checkboxField?: boolean;
   dropdownHeader?: ReactNode;
-  dropdownFooter?: boolean | ReactNode;
+  dropdownFooter?: ReactNode;
 };
 
 /**
@@ -48,8 +49,8 @@ const GroupSelect = (props: GroupSelectProps) => {
     valueArray = {},
     optionsArray = [],
     placeholder = __('Type to add schemas..', 'kirki-ecommerce'),
-    onChange = () => {},
-    onClose = () => {},
+    onChange = noop,
+    onClose = noop,
     label,
     helpText,
     error,
@@ -75,10 +76,7 @@ const GroupSelect = (props: GroupSelectProps) => {
 
   const handleOptionClick = (option: string | number, groupName: string) => {
     let newValues = selectedValues[groupName];
-    if (
-      selectedValues[groupName] &&
-      selectedValues[groupName].includes(option)
-    ) {
+    if (selectedValues[groupName]?.includes(option)) {
       newValues = selectedValues[groupName].filter((item) => item !== option);
       if (newValues.length === 0) {
         const fullData = { ...selectedValues };

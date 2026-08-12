@@ -1,4 +1,4 @@
-import { memo, useEffect, useState, type ComponentProps } from 'react';
+import { type ComponentProps, memo, useEffect, useState } from 'react';
 
 import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
@@ -11,7 +11,9 @@ import { useListParams } from '@/hooks';
 import { CloseIcon, ListFilter } from '@/icons';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
-import { CouponListFilter, couponListOptions, discountTypeOptions, methodOptions, statusOptions } from '@/types/filters/coupon';
+import type { CouponListFilter} from '@/types/filters/coupon';
+import { couponListOptions, discountTypeOptions, methodOptions, statusOptions } from '@/types/filters/coupon';
+import { noop } from '@/utils/function';
 import { __, sprintf } from '@/wpi18n';
 
 
@@ -22,7 +24,7 @@ type FilterPopupProps = {
 };
 
 const FilterPopup = memo(({
-  onChange: _onChange = () => { },
+  onChange: _onChange = noop,
   buttonProps,
   data: _data,
 }: FilterPopupProps) => {
@@ -45,10 +47,11 @@ const FilterPopup = memo(({
       return;
     }
     setFilterObject({
-      status: (params.status as string) || 'all',
-      discount_type: (params.discount_type as string) || 'all',
-      method: (params.method as string) || 'all',
+      status: (params.status!) || 'all',
+      discount_type: (params.discount_type!) || 'all',
+      method: (params.method!) || 'all',
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- seeds the draft filters from the URL params only as the popup opens; tracking params.* would overwrite the user edits as they change each control
   }, [openPopup]);
 
   const handleOnFilterChange = (

@@ -32,7 +32,7 @@ const ItemsTable = ({ items }: ItemsTableProps) => {
               </Text>
             </TableCell>
             <TableCell alignment="right">
-              <Text variant='tiny' weight='medium'>{item.base_total_money_object.display}</Text>
+              <Text variant="tiny" weight="medium">{item.base_total_money_object.display}</Text>
             </TableCell>
           </TableRow>
         ))}

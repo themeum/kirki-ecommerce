@@ -1,9 +1,9 @@
-import { type CSSObject, type Theme } from '@emotion/react';
+import { type CSSObject } from '@emotion/react';
 import * as SwitchPrimitive from '@radix-ui/react-switch';
-import { forwardRef, type ComponentPropsWithoutRef, type ElementRef } from 'react';
+import { type ComponentPropsWithoutRef, type ElementRef, forwardRef } from 'react';
 
 import { theme } from '@/theme';
-import { uiFocusRing, scopedMerge, scoped, defineStyles } from '@/theme/mixins';
+import { defineStyles, scoped, scopedMerge, uiFocusRing } from '@/theme/mixins';
 
 type SwitchProps = Omit<
   ComponentPropsWithoutRef<typeof SwitchPrimitive.Root>,
@@ -44,7 +44,7 @@ const styles = defineStyles({
     backgroundColor: theme.colors.background.fillTertiary,
     transition: 'background-color 0.15s ease',
     '&:focus-visible': {
-      ...uiFocusRing(theme as Theme),
+      ...uiFocusRing(theme),
     },
     '&[data-state="checked"]': {
       backgroundColor: theme.colors.background.fillBrand,

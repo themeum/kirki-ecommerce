@@ -61,7 +61,7 @@ const TaxServices = () => {
                     )}
                     <ActionGroup
                       cssOverride={mergeCss(styles.hoverVisible,
-                        hoveredIndex === index && styles.hoverVisibleActive,)}
+                        hoveredIndex === index && styles.hoverVisibleActive)}
                     >
                       <Button variant="secondary">
                         <PlusIcon />

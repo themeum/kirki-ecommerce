@@ -1,9 +1,10 @@
+import { Plus } from 'lucide-react';
 import { useState } from 'react';
 import {
   Controller,
-  useFormContext,
   type FieldPath,
   type FieldValues,
+  useFormContext,
 } from 'react-hook-form';
 
 import ShippingBoxPreview from '@/components/shipping-box-preview/shipping-box-preview';
@@ -22,14 +23,12 @@ import {
 } from '@/components/ui/select';
 import Text from '@/components/ui/text';
 import { EyeClosedIcon, EyeIcon } from '@/icons';
+import ShippingBoxDialog from '@/pages/settings/shipping-settings/shipping-box/shipping-box-dialog';
 import { useShippingBoxesQuery } from '@/services/shipping';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
-
-import ShippingBoxDialog from '@/pages/settings/shipping-settings/shipping-box/shipping-box-dialog';
-import { Plus } from 'lucide-react';
 
 type ShippingBoxListItem = {
   value: number | string;
@@ -207,10 +206,10 @@ const ShippingBoxFieldView = ({
           {showPreview && (
             <div css={scoped(styles.previewArea)}>
               <ShippingBoxPreview
-                length={selectedBox?.length || 0}
-                width={selectedBox?.width || 0}
-                height={selectedBox?.height || 0}
-                unit={selectedBox?.unit || 'in'}
+                length={selectedBox?.length ?? 0}
+                width={selectedBox?.width ?? 0}
+                height={selectedBox?.height ?? 0}
+                unit={selectedBox?.unit ?? 'in'}
               />
             </div>
           )}

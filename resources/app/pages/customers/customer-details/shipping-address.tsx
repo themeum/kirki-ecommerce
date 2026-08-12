@@ -1,3 +1,5 @@
+import { useFormContext, useWatch } from 'react-hook-form';
+
 import CountryField from '@/components/form/country-field';
 import StateField from '@/components/form/state-field';
 import TextField from '@/components/form/text-field';
@@ -10,10 +12,17 @@ import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
-import { useFormContext, useWatch } from 'react-hook-form';
+
+/**
+ * Rendered inside two different customer forms, so the context is typed down to
+ * the one field this card reads rather than to either form's full shape.
+ */
+type ShippingAddressFields = {
+  shipping_address: { country?: string | null };
+};
 
 const ShippingAddress = () => {
-  const { control } = useFormContext();
+  const { control } = useFormContext<ShippingAddressFields>();
   const country = useWatch({
     control,
     name: 'shipping_address.country',

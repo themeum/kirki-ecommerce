@@ -1,4 +1,4 @@
-import { keyframes, type CSSObject, type Theme } from '@emotion/react';
+import { type CSSObject, keyframes, type Theme } from '@emotion/react';
 
 import { WP_MEDIA_FRAME_SELECTOR } from '@/hooks/use-wordpress-media';
 import { APP_ROOT_SELECTOR } from '@/theme/mixins';

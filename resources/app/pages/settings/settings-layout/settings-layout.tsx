@@ -4,13 +4,12 @@ import { Outlet, useBlocker, useLocation, useOutletContext } from 'react-router'
 import ConfirmationDialog from '@/components/modal/confirmation-dialog';
 import Button from '@/components/ui/button';
 import PageHeading from '@/components/ui/page-heading';
+import SettingsSidebar from '@/pages/settings/settings-layout/settings-sidebar';
+import type { RegisteredSettingsPageActions } from '@/pages/settings/settings-layout/use-settings-page-actions';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
 import { pageEnterKeyframes } from '@/theme/shell-styles';
 import { __ } from '@/wpi18n';
-
-import SettingsSidebar from '@/pages/settings/settings-layout/settings-sidebar';
-import type { RegisteredSettingsPageActions } from '@/pages/settings/settings-layout/use-settings-page-actions';
 
 type ConfirmActionParams = {
   action?: () => void;

@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo, useReducer, type Dispatch, type ReactNode } from 'react';
+import { createContext, type Dispatch, type ReactNode, useCallback, useContext, useMemo, useReducer } from 'react';
 
 import type { InventoryVariant, PaginatedData } from '@/types';
 
@@ -120,6 +120,35 @@ type InventoryFormProviderProps = {
 const InventoryFormProvider = ({ children }: InventoryFormProviderProps) => {
   const [state, dispatch] = useReducer(inventoryFormReducer, initialState);
 
+  /**
+   * The action creators are memoized apart from `state` so their identity is
+   * stable. Rebuilding them alongside `state` made them unusable as effect
+   * dependencies — every dispatch produced fresh functions, so any effect that
+   * listed one would re-run on its own output.
+   */
+  const setInventory = useCallback<InventoryFormContextValue['setInventory']>(
+    (payload) => {
+      dispatch({ type: 'SET_INVENTORY', payload });
+    },
+    [],
+  );
+
+  const updateInventory = useCallback<
+    InventoryFormContextValue['updateInventory']
+  >((payload) => {
+    dispatch({ type: 'UPDATE_INVENTORY', payload });
+  }, []);
+
+  const setHasChanges = useCallback<
+    InventoryFormContextValue['setHasChanges']
+  >((payload) => {
+    dispatch({ type: 'SET_HAS_CHANGES', payload });
+  }, []);
+
+  const resetChanges = useCallback(() => {
+    dispatch({ type: 'RESET_CHANGES' });
+  }, []);
+
   const value = useMemo<InventoryFormContextValue>(
     () => ({
       state,
@@ -127,20 +156,12 @@ const InventoryFormProvider = ({ children }: InventoryFormProviderProps) => {
       data: state.data,
       loaded: state.loaded,
       hasChanges: state.hasChanges,
-      setInventory: (payload) => {
-        dispatch({ type: 'SET_INVENTORY', payload });
-      },
-      updateInventory: (payload) => {
-        dispatch({ type: 'UPDATE_INVENTORY', payload });
-      },
-      setHasChanges: (payload) => {
-        dispatch({ type: 'SET_HAS_CHANGES', payload });
-      },
-      resetChanges: () => {
-        dispatch({ type: 'RESET_CHANGES' });
-      },
+      setInventory,
+      updateInventory,
+      setHasChanges,
+      resetChanges,
     }),
-    [state],
+    [state, setInventory, updateInventory, setHasChanges, resetChanges],
   );
 
   return (
@@ -163,4 +184,4 @@ const useInventoryForm = () => {
 InventoryFormProvider.displayName = 'InventoryFormProvider';
 
 export { InventoryFormProvider, useInventoryForm };
-export type { InventoryFormState, InventoryFormAction, InventoryStoredData };
+export type { InventoryFormAction, InventoryFormState, InventoryStoredData };

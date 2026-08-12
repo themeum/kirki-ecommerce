@@ -19,22 +19,20 @@ import { AlignCenterIcon, AlignLeftIcon, BrushIcon, SendIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults, pickFormValues } from '@/libs/zod';
-import { EmailSettingsFormSchema } from '@/schemas/forms/email-settings-form';
-import {
-  EmailTemplateFormSchema,
-  type EmailTemplateFormInput,
-  type EmailTemplateFormPayload,
-} from '@/schemas/forms/email-template-form';
-import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
-import { theme } from '@/theme';
-import { defineStyles, mergeCss } from '@/theme/mixins';
-import { __ } from '@/wpi18n';
-
-import { cardStyles } from '@/theme/card-styles';
-
 import { useSettingsPageActions } from '@/pages/settings/settings-layout/use-settings-page-actions';
 import SettingsPageHeader from '@/pages/settings/settings-page-header';
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
+import { EmailSettingsFormSchema } from '@/schemas/forms/email-settings-form';
+import {
+  type EmailTemplateFormInput,
+  type EmailTemplateFormPayload,
+  EmailTemplateFormSchema,
+} from '@/schemas/forms/email-template-form';
+import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
+import { theme } from '@/theme';
+import { cardStyles } from '@/theme/card-styles';
+import { defineStyles, mergeCss } from '@/theme/mixins';
+import { __ } from '@/wpi18n';
 
 const POSITION_MAP: Record<string, number> = {
   start: 0,
@@ -108,7 +106,7 @@ const EditTemplate = () => {
           admin_emails: currentEmailSettings.admin_emails,
           customer_emails: currentEmailSettings.customer_emails,
           default_template: {
-            ...(emailSettingsData.default_template as Record<string, unknown>),
+            ...(emailSettingsData.default_template ?? {}),
             ...payload,
           },
         },
@@ -176,7 +174,7 @@ const EditTemplate = () => {
                             <ProgressBar
                               value={Number(field.value) || 0}
                               onChange={(value) => field.onChange(value)}
-                              label={'Height'}
+                              label={__('Height', 'kirki-ecommerce')}
                               rightText={`${heightValue}px`}
                             />
                             {fieldState.invalid && (
@@ -233,18 +231,18 @@ const EditTemplate = () => {
                       </Flex>
                       <ColorPickerField
                         name="colors.background"
-                        label={'Background'}
+                        label="Background"
                       />
-                      <ColorPickerField name="colors.text" label={'Text'} />
-                      <ColorPickerField name="colors.link" label={'Link'} />
-                      <ColorPickerField name="colors.label" label={'Label'} />
+                      <ColorPickerField name="colors.text" label="Text" />
+                      <ColorPickerField name="colors.link" label="Link" />
+                      <ColorPickerField name="colors.label" label="Label" />
                       <ColorPickerField
                         name="colors.button"
-                        label={'Button Color'}
+                        label={__('Button Color', 'kirki-ecommerce')}
                       />
                       <ColorPickerField
                         name="colors.button_bg"
-                        label={'Button BG'}
+                        label={__('Button BG', 'kirki-ecommerce')}
                       />
                     </CardContent>
                   </Card>
@@ -260,8 +258,7 @@ const EditTemplate = () => {
                     </Flex>
                   </Flex>
                   <Card cssOverride={styles.squareCard}>
-                    <CardContent>
-                    </CardContent>
+                    <CardContent />
                   </Card>
                 </Flex>
               </Flex>

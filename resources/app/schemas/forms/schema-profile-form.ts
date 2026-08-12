@@ -25,7 +25,7 @@ type SchemaProfileFormInput = z.input<typeof SchemaProfileFormSchema>;
 type SchemaProfileFormPayload = z.output<typeof SchemaProfileFormSchema>;
 
 export {
-  SchemaProfileFormSchema,
   type SchemaProfileFormInput,
   type SchemaProfileFormPayload,
+  SchemaProfileFormSchema,
 };

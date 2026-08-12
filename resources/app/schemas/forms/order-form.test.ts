@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { assert, describe, expect, it } from 'vitest';
 
 import { getDefaults } from '@/libs/zod';
 import { OrderCalculationRequestSchema, OrderFormSchema } from '@/schemas/forms/order-form';
@@ -105,11 +105,9 @@ describe('OrderFormSchema', () => {
   it('reports a blank separate billing field at its own path', () => {
     const result = OrderFormSchema.safeParse({ ...separateBilling, billing_city: '' });
 
-    expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(result.error.issues[0].path).toEqual(['billing_city']);
-      expect(result.error.issues[0].message).toBe('City is required');
-    }
+    assert(!result.success);
+    expect(result.error.issues[0].path).toEqual(['billing_city']);
+    expect(result.error.issues[0].message).toBe('City is required');
   });
 
   it('sends null for the optional billing fields left blank on a separate address', () => {

@@ -29,7 +29,7 @@ const ComingSoon = (props: ComingSoonProps) => {
                 <LoudHandMic />
               </span>
               <Flex cssOverride={{ maxWidth: '330px' }} direction="column" align="center" gap={2}>
-                <Text variant="heading4" weight='semibold'>
+                <Text variant="heading4" weight="semibold">
                   {__('Coming Soon', 'kirki-ecommerce')}
                 </Text>
                 <Text

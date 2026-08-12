@@ -3,7 +3,8 @@ import { useEffect, useRef } from 'react';
 
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import { theme } from '@/theme';
-import { scopedMerge, defineStyles } from '@/theme/mixins';
+import { defineStyles, scopedMerge } from '@/theme/mixins';
+import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 
 type RichTextProps = {
@@ -27,7 +28,7 @@ type TinyMceEditorInstance = {
 const RichText = ({
   id = 'my-wp-editor',
   value = '',
-  onChange = () => {},
+  onChange = noop,
   placeholder = __('Type something...', 'kirki-ecommerce'),
   label = false,
   helpText,
@@ -77,6 +78,7 @@ const RichText = ({
         editorToRemove.remove();
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- initialises the editor once per id; value/placeholder/onChange are read through the live editor instance, and re-running would tear down in-progress content
   }, [id]);
 
   return (

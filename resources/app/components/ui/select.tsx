@@ -1,7 +1,8 @@
-import { type CSSObject, type Theme } from '@emotion/react';
+import { type CSSObject } from '@emotion/react';
 import { CheckIcon, ChevronDownIcon } from '@radix-ui/react-icons';
 import * as SelectPrimitive from '@radix-ui/react-select';
-import { ComponentRef, forwardRef, type ComponentPropsWithoutRef, type ReactNode } from 'react';
+import type { ComponentRef} from 'react';
+import { type ComponentPropsWithoutRef, forwardRef, type ReactNode } from 'react';
 
 import { getPortalContainer } from '@/libs/portal-container';
 import { theme } from '@/theme';
@@ -173,7 +174,7 @@ const SelectSeparator = forwardRef<
 SelectSeparator.displayName = 'SelectSeparator';
 
 export {
-  Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectSeparator, SelectTrigger, SelectValue
+  Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectSeparator, SelectTrigger, SelectValue,
 };
 
 const styles = defineStyles({
@@ -192,7 +193,7 @@ const styles = defineStyles({
     cursor: 'pointer',
     '&:focus-visible, &[data-state="open"]': {
       borderColor: theme.colors.border.default,
-      ...uiFocusRing(theme as Theme),
+      ...uiFocusRing(theme),
     },
     '&[data-disabled]': {
       backgroundColor: theme.colors.background.surfaceAlt,
@@ -226,7 +227,7 @@ const styles = defineStyles({
     boxShadow: 'none',
     '&:focus-visible, &[data-state="open"]': {
       borderColor: theme.colors.border.critical,
-      ...uiFocusRing(theme as Theme, theme.colors.border.critical),
+      ...uiFocusRing(theme, theme.colors.border.critical),
     },
   },
   value: {

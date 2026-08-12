@@ -4,7 +4,7 @@ import Thumbnail from '@/components/ui/thumbnail';
 import { LocationIcon, PhoneIcon, TruckIcon } from '@/icons';
 import type { AddressLines } from '@/pages/orders/order-create/config/customer-address';
 import { theme } from '@/theme';
-import { flexCenter, scoped, defineStyles } from '@/theme/mixins';
+import { defineStyles, flexCenter, scoped } from '@/theme/mixins';
 import type { MediaRef } from '@/types';
 import { __ } from '@/wpi18n';
 

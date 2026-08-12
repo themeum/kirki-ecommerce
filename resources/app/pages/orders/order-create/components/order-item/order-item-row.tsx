@@ -1,3 +1,5 @@
+import { Cross2Icon } from '@radix-ui/react-icons';
+
 import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
 import Flex from '@/components/ui/flex';
@@ -7,7 +9,6 @@ import Thumbnail from '@/components/ui/thumbnail';
 import QuantityStepper from '@/pages/orders/order-create/components/order-item/quantity-stepper';
 import type { OrderItem } from '@/pages/orders/order-create/types';
 import type { OrderCalculation } from '@/types';
-import { Cross2Icon } from '@radix-ui/react-icons';
 
 const EMPTY_AMOUNT = '—';
 
@@ -28,7 +29,7 @@ const OrderItemRow = ({ row, calculationItem, onQuantityChange, onRemove }: Orde
         <Flex gap={3} align="center">
           <Thumbnail src={display.thumbnail ?? undefined} alt={display.productTitle} />
           <Flex direction="column" gap={1}>
-            <Text variant='small'>{display.productTitle}</Text>
+            <Text variant="small">{display.productTitle}</Text>
             {display.variantLabel && (
               <Text variant="small" color="secondary">
                 {display.variantLabel}

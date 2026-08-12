@@ -5,6 +5,7 @@ import { useNavigate, useOutletContext } from 'react-router';
 
 import HeaderActionsCard from '@/components/header-actions-card';
 import OptionAccordion from '@/components/option-accordion';
+import Badge from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
@@ -13,15 +14,24 @@ import { ItemGroup, ItemSeparator } from '@/components/ui/item';
 import Text from '@/components/ui/text';
 import { RouteConfig } from '@/config/route-config';
 import { LocationIcon, TruckIcon } from '@/icons';
-import { getErrorsObject, type ErrorResponse } from '@/libs/api';
+import { type ErrorResponse, getErrorsObject } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults, pickFormValues } from '@/libs/zod';
+import { useSettingsPageActions } from '@/pages/settings/settings-layout/use-settings-page-actions';
+import SettingsPageHeader from '@/pages/settings/settings-page-header';
+import ShippingBox from '@/pages/settings/shipping-settings/shipping-box/shipping-box';
+import ShippingMethodRow from '@/pages/settings/shipping-settings/shipping-method-row';
+import ShippingProfile from '@/pages/settings/shipping-settings/shipping-profile/shipping-profile';
+import { ShippingRegionPopup } from '@/pages/settings/shipping-settings/shipping-zone/shipping-region-dialog';
+import ShippingZoneActions from '@/pages/settings/shipping-settings/shipping-zone-actions';
+import { type CountryWithStates, getSearchedCountries, getSelectedRegionTags, getShippingMethodRightText, getShippingMethodSubText, getShippingZoneSummary, type ShippingMethodData, shippingMethodIconMap, type ShippingZone } from '@/pages/settings/shipping-settings/utils';
+import { setUnsavedDataStatus } from '@/pages/settings/utils';
 import { normalizeErrors } from '@/pages/utils';
 import type { ShippingRegionFormPayload } from '@/schemas/forms/shipping-region-form';
 import {
-  ShippingSettingsFormSchema,
   type ShippingSettingsFormInput,
   type ShippingSettingsFormPayload,
+  ShippingSettingsFormSchema,
 } from '@/schemas/forms/shipping-settings-form';
 import { useCountriesQuery } from '@/services/country';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
@@ -29,19 +39,8 @@ import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
 import type { FormErrors } from '@/types';
-import { __ } from '@/wpi18n';
-
-import Badge from '@/components/ui/badge';
-import { useSettingsPageActions } from '@/pages/settings/settings-layout/use-settings-page-actions';
-import SettingsPageHeader from '@/pages/settings/settings-page-header';
-import ShippingBox from '@/pages/settings/shipping-settings/shipping-box/shipping-box';
-import ShippingMethodRow from '@/pages/settings/shipping-settings/shipping-method-row';
-import ShippingProfile from '@/pages/settings/shipping-settings/shipping-profile/shipping-profile';
-import ShippingZoneActions from '@/pages/settings/shipping-settings/shipping-zone-actions';
-import { ShippingRegionPopup } from '@/pages/settings/shipping-settings/shipping-zone/shipping-region-dialog';
-import { getSearchedCountries, getSelectedRegionTags, getShippingMethodRightText, getShippingMethodSubText, getShippingZoneSummary, shippingMethodIconMap, type CountryWithStates, type ShippingMethodData, type ShippingZone } from '@/pages/settings/shipping-settings/utils';
-import { setUnsavedDataStatus } from '@/pages/settings/utils';
 import { uuid } from '@/utils';
+import { __ } from '@/wpi18n';
 
 const ShippingRoutes = RouteConfig.Settings.get('ShippingSettings');
 
@@ -138,7 +137,7 @@ const ShippingSettings = () => {
       icon: shippingMethodIconMap[method.type] || null,
       subText: getShippingMethodSubText(method),
       rightText: getShippingMethodRightText(method),
-      zoneId: zoneId,
+      zoneId,
     }));
   };
 
@@ -250,7 +249,7 @@ const ShippingSettings = () => {
         data: { shipping_zones: updatedZones },
       });
       setShowCreateZonePopup(false);
-      navigate(ShippingRoutes.get('ShippingZone').buildLink({ zone_Id: newZoneIdRef.current }));
+      void navigate(ShippingRoutes.get('ShippingZone').buildLink({ zone_Id: newZoneIdRef.current }));
       newZoneIdRef.current = uuid();
     } catch (error) {
       const errObj = error as ErrorResponse;
@@ -355,7 +354,7 @@ const ShippingSettings = () => {
                                         <span css={scoped({ fontSize: 20 })}>
                                           {tag.tagIcon}
                                         </span>
-                                        <Text variant="small" color="primary" weight='medium'>
+                                        <Text variant="small" color="primary" weight="medium">
                                           {tag.title}
                                         </Text>
                                         {tag.subText && (
@@ -412,7 +411,7 @@ const ShippingSettings = () => {
           onSearchChange={setSearchValue}
           filteredCountries={getSearchedCountries(
             searchValue,
-            countryList as CountryWithStates[] | null,
+            countryList,
           )}
           onDone={handleCreateZone}
           errors={popupErrors}
@@ -432,5 +431,5 @@ const styles = defineStyles({
   },
   emptyStateText: {
     color: theme.colors.text.subdued,
-  }
+  },
 });

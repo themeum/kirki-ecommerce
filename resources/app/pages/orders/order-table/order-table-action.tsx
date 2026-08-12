@@ -9,7 +9,8 @@ import { ArrowDownUp } from '@/icons';
 import FilterPopup from '@/pages/orders/order-table/filter-popup/filter-popup';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
-import { OrderListFilter, orderListOptions } from '@/types/filters/order';
+import type { OrderListFilter} from '@/types/filters/order';
+import { orderListOptions } from '@/types/filters/order';
 import { __ } from '@/wpi18n';
 
 const OrderTableAction = memo(() => {

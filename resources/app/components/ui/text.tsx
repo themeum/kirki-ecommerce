@@ -1,5 +1,5 @@
 import type { CSSObject } from '@emotion/react';
-import { forwardRef, type ComponentPropsWithoutRef, type ReactNode, type Ref } from 'react';
+import { type ComponentPropsWithoutRef, forwardRef, type ReactNode, type Ref } from 'react';
 
 import { theme, type TypographyWeight } from '@/theme';
 import { scopedMerge } from '@/theme/mixins';

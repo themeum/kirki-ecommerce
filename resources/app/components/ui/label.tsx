@@ -1,9 +1,9 @@
 import { type CSSObject } from '@emotion/react';
 import * as LabelPrimitive from '@radix-ui/react-label';
-import { forwardRef, type ComponentPropsWithoutRef, type ElementRef } from 'react';
+import { type ComponentPropsWithoutRef, type ElementRef, forwardRef } from 'react';
 
 import { theme } from '@/theme';
-import { scopedMerge, defineStyles } from '@/theme/mixins';
+import { defineStyles, scopedMerge } from '@/theme/mixins';
 
 type LabelProps = Omit<
   ComponentPropsWithoutRef<typeof LabelPrimitive.Root>,

@@ -1,3 +1,5 @@
+import { format } from 'date-fns';
+import { Edit3, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { useOutletContext } from 'react-router';
 
@@ -6,8 +8,12 @@ import Button from '@/components/ui/button';
 import Checkbox from '@/components/ui/checkbox';
 import Flex from '@/components/ui/flex';
 import { TableCell, TableRow } from '@/components/ui/table';
+import { DATE_FORMATS } from '@/libs/date';
+import VariationValuePopup from '@/pages/settings/essential-settings/variation-library/variation-value-dialog';
+import { setUnsavedDataStatus } from '@/pages/settings/utils';
 import { useDeleteAttributeValueMutation } from '@/services/attribute';
 import { theme } from '@/theme';
+import { scoped } from '@/theme/mixins';
 import type {
   Attribute,
   AttributeValue,
@@ -15,13 +21,6 @@ import type {
   MarkListHandlers,
 } from '@/types';
 import { __ } from '@/wpi18n';
-
-import { DATE_FORMATS } from '@/libs/date';
-import VariationValuePopup from '@/pages/settings/essential-settings/variation-library/variation-value-dialog';
-import { setUnsavedDataStatus } from '@/pages/settings/utils';
-import { scoped } from '@/theme/mixins';
-import { format } from 'date-fns';
-import { Edit3, Trash2 } from 'lucide-react';
 
 type AttributeWithMeta = Attribute & { updated_at?: string };
 
@@ -69,8 +68,11 @@ const SingleRow = ({
   };
 
   const onDeleteValue = () => {
+    if (!selectedItem) {
+      return;
+    }
     deleteMutation.mutate({
-      attribute_id: selectedItem?.id as number,
+      attribute_id: selectedItem.id,
       value_id: item?.id,
     });
   };

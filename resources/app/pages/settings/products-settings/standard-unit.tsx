@@ -4,12 +4,11 @@ import ActionGroup from '@/components/ui/action-group';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
+import { dimensionUnitList, weightUnitList } from '@/pages/settings/utils';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
-
-import { dimensionUnitList, weightUnitList } from '@/pages/settings/utils';
 
 export const StandardUnit = () => {
   const weightOptions = weightUnitList.map((option) => ({
@@ -81,5 +80,5 @@ const styles = defineStyles({
   optionCard: {
     borderRadius: theme.radius.lg,
     border: `1px solid ${theme.colors.border.default}`,
-  }
+  },
 });

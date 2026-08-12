@@ -11,9 +11,9 @@ import { Form } from '@/components/ui/form';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import {
-  VariationValueFormSchema,
   type VariationValueFormInput,
   type VariationValueFormPayload,
+  VariationValueFormSchema,
 } from '@/schemas/forms/variation-value-form';
 import { useCreateAttributeValueMutation, useUpdateAttributeValueMutation } from '@/services/attribute';
 import type {
@@ -125,6 +125,7 @@ const VariationValuePopup = ({
                     ? __('Add a color', 'kirki-ecommerce')
                     : __('Add a value', 'kirki-ecommerce')
                 }
+                // eslint-disable-next-line jsx-a11y/no-autofocus -- first field of a dialog that only opens on an explicit user action
                 autoFocus
               />
               {type === 'color' && (

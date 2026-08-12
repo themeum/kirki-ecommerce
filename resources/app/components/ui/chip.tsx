@@ -1,10 +1,11 @@
 import type { CSSObject } from '@emotion/react';
-import { forwardRef, type ComponentPropsWithoutRef, type CSSProperties, type ReactNode } from 'react';
+import { type ComponentPropsWithoutRef, type CSSProperties, forwardRef, type ReactNode } from 'react';
 
 import Flex from '@/components/ui/flex';
 import { theme } from '@/theme';
-import { flexCenter, scopedMerge, scoped, defineStyles } from '@/theme/mixins';
+import { defineStyles, flexCenter, scoped, scopedMerge } from '@/theme/mixins';
 import type { GapValue } from '@/types';
+import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 
 type ChipProps = Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'css'> & {
@@ -28,7 +29,7 @@ const Chip = forwardRef<HTMLDivElement, ChipProps>((props, ref) => {
     gap = 2,
     closeIcon,
     style,
-    onRemove = () => {},
+    onRemove = noop,
     ...rest
   } = props;
 

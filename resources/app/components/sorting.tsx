@@ -1,9 +1,9 @@
 import type { ReactNode } from 'react';
 
-import { ArrowDownUpFilled } from '@/icons';
 import Flex from '@/components/ui/flex';
+import { ArrowDownUpFilled } from '@/icons';
 import { theme } from '@/theme';
-import { mergeCss, defineStyles } from '@/theme/mixins';
+import { defineStyles, mergeCss } from '@/theme/mixins';
 import type { SortOrder } from '@/types';
 
 type SortableConfig = {
@@ -24,7 +24,7 @@ type SortingProps = {
 
 const Sorting = ({ data }: SortingProps) => {
   const { title, sortable } = data;
-  const { sort_by, activeSortBy, sortOrder, onSort } = sortable || {};
+  const { sort_by, activeSortBy, sortOrder, onSort } = sortable ?? {};
 
   const handleSorting = () => {
     if (!onSort || !sort_by) {
@@ -58,7 +58,7 @@ const Sorting = ({ data }: SortingProps) => {
       gap={1}
       cssOverride={mergeCss(styles.base,
         sortable && styles.sortable,
-        sortable && isActive() && styles.active,)}
+        sortable && isActive() && styles.active)}
       onClick={handleSorting}
     >
       {title}

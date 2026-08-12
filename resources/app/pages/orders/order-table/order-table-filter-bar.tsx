@@ -7,10 +7,11 @@ import { useListParams } from '@/hooks';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
 import type { SuggestionOption } from '@/types';
-import { fulfillmentStatusOptions, OrderListFilter, orderListFilterConfig, orderListOptions, paymentStatusOptions } from '@/types/filters/order';
+import type { OrderListFilter} from '@/types/filters/order';
+import { fulfillmentStatusOptions, orderListFilterConfig, orderListOptions, paymentStatusOptions } from '@/types/filters/order';
 import { __ } from '@/wpi18n';
 
-type FilterValue = string | number | Array<string | number>;
+type FilterValue = string | number | (string | number)[];
 
 const ORDER_FILTER_KEYS = orderListFilterConfig.keys;
 
@@ -40,7 +41,7 @@ const OrderTableFilterBar = memo(() => {
   });
 
   const getFilterValue = (key: OrderFilterKey): FilterValue =>
-    (params[key] || '') as FilterValue;
+    (params[key] || '');
 
   const handleFilterChange = (val: FilterValue, key: OrderFilterKey) => {
     setParam(key, val || undefined);
@@ -54,7 +55,7 @@ const OrderTableFilterBar = memo(() => {
     setParams(
       Object.fromEntries(
         ORDER_FILTER_KEYS.map((key) => [key, undefined]),
-      ) as Partial<OrderListFilter>,
+      ),
     );
   };
 
@@ -70,7 +71,7 @@ const OrderTableFilterBar = memo(() => {
           uniqueKey={key}
           optionsArray={filterOptionsMap[key]}
           value={getFilterValue(key)}
-          onValueChange={(val) => handleFilterChange(val as FilterValue, key)}
+          onValueChange={(val) => handleFilterChange(val, key)}
           onClearItem={() => handleClearSingleFilter(key)}
         />
       ))}

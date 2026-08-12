@@ -1,10 +1,11 @@
 import { X } from 'lucide-react';
-import { useState, type KeyboardEvent } from 'react';
+import { type KeyboardEvent, useState } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 
 import { Card, CardContent } from '@/components/ui/card';
 import Chip from '@/components/ui/chip';
-import ChipField, { chipFieldControlCss } from '@/components/ui/chip-field';
+import ChipField from '@/components/ui/chip-field';
+import { chipFieldControlCss } from '@/components/ui/chip-field-styles';
 import { Field, FieldLabel } from '@/components/ui/field';
 import Input from '@/components/ui/input';
 import { cardStyles } from '@/theme/card-styles';

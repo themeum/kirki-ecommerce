@@ -1,4 +1,5 @@
-import { forwardRef, PropsWithChildren } from "react";
+import type { PropsWithChildren } from 'react';
+import { forwardRef } from 'react';
 
 type PageProps = {
   minHeight?: string;
@@ -8,7 +9,7 @@ const Page = forwardRef<HTMLDivElement, PropsWithChildren<PageProps>>(
   (props, ref) => {
     const {
       minHeight = '100%',
-      children
+      children,
     } = props;
 
     return (
@@ -16,5 +17,7 @@ const Page = forwardRef<HTMLDivElement, PropsWithChildren<PageProps>>(
     );
   },
 );
+
+Page.displayName = 'Page';
 
 export default Page;

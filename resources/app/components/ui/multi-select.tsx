@@ -1,10 +1,11 @@
-import { useRef, useState, type ReactNode } from 'react';
 import { type CSSObject } from '@emotion/react';
 import { Command as CommandPrimitive } from 'cmdk';
 import { Check, Minus, PlusCircle } from 'lucide-react';
+import { type ReactNode, useRef, useState } from 'react';
 
 import Chip from '@/components/ui/chip';
-import ChipField, { chipFieldControlCss } from '@/components/ui/chip-field';
+import ChipField from '@/components/ui/chip-field';
+import { chipFieldControlCss } from '@/components/ui/chip-field-styles';
 import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from '@/components/ui/command';
 import { Popover, PopoverAnchor, PopoverContent } from '@/components/ui/popover';
 import { Separator } from '@/components/ui/separator';
@@ -176,6 +177,7 @@ const MultiSelect = <TOption extends MultiSelectOption>({
                   // preventDefaults Enter to select the active option. Stop
                   // here so Enter still activates a chip's remove button.
                   <div
+                    role="presentation"
                     css={scoped(styles.chipsGuard)}
                     onKeyDown={(event) => event.stopPropagation()}
                   >

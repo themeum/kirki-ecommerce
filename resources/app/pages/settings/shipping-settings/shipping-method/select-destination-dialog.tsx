@@ -1,35 +1,34 @@
-import { useEffect, useMemo, useState, type Dispatch, type SetStateAction } from 'react';
-import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { type Dispatch, type SetStateAction, useEffect, useMemo, useState } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
 
 import SelectField from '@/components/form/select-field';
 import Button from '@/components/ui/button';
 import Checkbox from '@/components/ui/checkbox';
 import { Dialog, DialogBody, DialogClose, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
-import Flex from '@/components/ui/flex';
-import { theme } from '@/theme';
-import { scoped, defineStyles } from '@/theme/mixins';
 import { getDefaults } from '@/libs/zod';
-import {
-  SelectDestinationFormSchema,
-  type SelectDestinationFormInput,
-  type SelectDestinationFormPayload,
-} from '@/schemas/forms/select-destination-form';
-import { useCountriesQuery } from '@/services/country';
-import { __ } from '@/wpi18n';
-
 import type {
   CountryWithStates,
   ShippingRegion,
   ShippingRule,
 } from '@/pages/settings/shipping-settings/utils';
+import {
+  type SelectDestinationFormInput,
+  type SelectDestinationFormPayload,
+  SelectDestinationFormSchema,
+} from '@/schemas/forms/select-destination-form';
+import { useCountriesQuery } from '@/services/country';
+import { theme } from '@/theme';
+import { defineStyles, scoped } from '@/theme/mixins';
+import { __ } from '@/wpi18n';
 
-type DestinationConditionValue = {
+export type DestinationConditionValue = {
   country: string;
-  states: Array<string | number>;
+  states: (string | number)[];
 };
 
 type SelectDestinationPopupProps = {
@@ -39,8 +38,10 @@ type SelectDestinationPopupProps = {
   selectedCountry: string | null;
   setSelectedCountry: Dispatch<SetStateAction<string | null>>;
   setSelectedRegion: Dispatch<SetStateAction<ShippingRegion[]>>;
-  selectedConditionValue: DestinationConditionValue | unknown;
-  setSelectedConditionValue: Dispatch<SetStateAction<unknown>>;
+  selectedConditionValue: DestinationConditionValue | null;
+  setSelectedConditionValue: Dispatch<
+    SetStateAction<DestinationConditionValue | null>
+  >;
   setRulesObj: Dispatch<SetStateAction<ShippingRule[]>>;
   ruleIndex: number;
   onSave?: (values: SelectDestinationFormPayload) => void;
@@ -62,7 +63,7 @@ export const SelectDestinationPopup = ({
   const { data: countries } = useCountriesQuery({ limit: -1 });
   const countryList = countries as CountryWithStates[] | null | undefined;
   const [stateList, setStateList] = useState<
-    Array<{ id: string | number; name: string }>
+    { id: string | number; name: string }[]
   >([]);
 
   const form = useForm<SelectDestinationFormInput, unknown, SelectDestinationFormPayload>({
@@ -72,7 +73,7 @@ export const SelectDestinationPopup = ({
 
   const formCountry = useWatch({ control: form.control, name: 'country' });
   const selectedStates =
-    useWatch({ control: form.control, name: 'states' }) || [];
+    useWatch({ control: form.control, name: 'states' }) ?? [];
   const [searchValue, setSearchValue] = useState('');
 
   const countryOptions = useMemo(
@@ -94,9 +95,7 @@ export const SelectDestinationPopup = ({
     }
 
     const country = selectedCountry ?? '';
-    const conditionValue = selectedConditionValue as
-      | DestinationConditionValue
-      | null;
+    const conditionValue = selectedConditionValue;
     const statesFromCondition =
       conditionValue?.country === country ? conditionValue.states : null;
     const regionForCountry = selectedRegion?.find(
@@ -108,6 +107,7 @@ export const SelectDestinationPopup = ({
       states: statesFromCondition ?? regionForCountry?.states ?? [],
     });
     setSearchValue('');
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- seeds the form from the current selection only as the dialog opens; tracking the selection would reset the form while the user is picking states
   }, [openPopup, form]);
 
   useEffect(() => {
@@ -120,11 +120,9 @@ export const SelectDestinationPopup = ({
       (item) => item.code.toLowerCase() === formCountry.toLowerCase(),
     );
 
-    setStateList(country?.states || []);
+    setStateList(country?.states ?? []);
 
-    const conditionValue = selectedConditionValue as
-      | DestinationConditionValue
-      | null;
+    const conditionValue = selectedConditionValue;
     const statesFromCondition =
       conditionValue?.country === formCountry ? conditionValue.states : null;
     const regionForCountry = selectedRegion?.find(
@@ -135,6 +133,7 @@ export const SelectDestinationPopup = ({
       'states',
       statesFromCondition ?? regionForCountry?.states ?? [],
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- reacts to a country change only; adding the selection deps would re-apply the stored states over the user current picks
   }, [formCountry, countryList]);
 
   const filteredStates = useMemo(() => {
@@ -148,7 +147,7 @@ export const SelectDestinationPopup = ({
   }, [stateList, searchValue]);
 
   const handleSelectState = (stateId: string | number) => {
-    const current = form.getValues('states') || [];
+    const current = form.getValues('states') ?? [];
     const next = current.includes(stateId)
       ? current.filter((id) => id !== stateId)
       : [...current, stateId];
@@ -173,7 +172,7 @@ export const SelectDestinationPopup = ({
           }
 
           const condition = rule.conditions?.[0];
-          if (!condition || condition.type !== 'destination_region') {
+          if (condition?.type !== 'destination_region') {
             return rule;
           }
 

@@ -1,6 +1,6 @@
 import { type CSSObject } from '@emotion/react';
 import { Replace, Trash2 } from 'lucide-react';
-import { forwardRef, useEffect, useState, type ComponentProps, type CSSProperties } from 'react';
+import { type ComponentProps, type CSSProperties, forwardRef, useEffect, useState } from 'react';
 
 import MediaSelector from '@/components/media-selector';
 import Button from '@/components/ui/button';
@@ -8,8 +8,9 @@ import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui
 import Flex from '@/components/ui/flex';
 import { ThumbnailPlaceholder } from '@/icons';
 import { theme } from '@/theme';
-import { flexCenter, scopedMerge, defineStyles } from '@/theme/mixins';
+import { defineStyles, flexCenter, scopedMerge } from '@/theme/mixins';
 import type { ThumbnailSize, ThumbnailType } from '@/types';
+import { noop } from '@/utils/function';
 
 type MediaSelectorOnSelect = NonNullable<
   ComponentProps<typeof MediaSelector>['onSelect']
@@ -40,7 +41,7 @@ const Thumbnail = forwardRef<HTMLDivElement, ThumbnailProps>((props, ref) => {
     objectFit = 'cover',
     label,
     error,
-    onChange = () => { },
+    onChange = noop,
     helpText,
   } = props;
 

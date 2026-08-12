@@ -18,11 +18,11 @@ const NotFound = () => {
   const showPath = isDev && pathname && pathname !== '/';
 
   const handleGoToProducts = () => {
-    navigate(RouteConfig.Products.buildLink());
+    void navigate(RouteConfig.Products.buildLink());
   };
 
   const handleGoBack = () => {
-    navigate(-1);
+    void navigate(-1);
   };
 
   return (

@@ -8,7 +8,7 @@ const TaxRulesFormShape = z.object({
     z.object({
       id: z.string(),
       condition: z.string(),
-      value: z.any().nullable(),
+      value: z.unknown().nullable(),
       type: z.string().optional(),
     }),
   ),

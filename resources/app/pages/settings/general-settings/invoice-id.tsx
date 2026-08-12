@@ -27,13 +27,13 @@ const invoiceResetScheduleOptions = [
 
 const InvoiceId = () => {
   const { setValue } = useFormContext<GeneralSettingsFormInput>();
-  const invoiceIdPrefix = useWatch<GeneralSettingsFormInput>({
+  const invoiceIdPrefix = useWatch<GeneralSettingsFormInput, 'invoice_id_prefix'>({
     name: 'invoice_id_prefix',
   });
-  const invoiceIdSequence = useWatch<GeneralSettingsFormInput>({
+  const invoiceIdSequence = useWatch<GeneralSettingsFormInput, 'invoice_id_sequence'>({
     name: 'invoice_id_sequence',
   });
-  const invoiceIdSuffix = useWatch<GeneralSettingsFormInput>({
+  const invoiceIdSuffix = useWatch<GeneralSettingsFormInput, 'invoice_id_suffix'>({
     name: 'invoice_id_suffix',
   });
 
@@ -168,5 +168,5 @@ const styles = defineStyles({
   resetCard: {
     borderRadius: theme.radius.lg,
     border: `1px solid ${theme.colors.border.default}`,
-  }
+  },
 });

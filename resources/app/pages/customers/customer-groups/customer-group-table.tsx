@@ -1,6 +1,7 @@
 import Badge from '@/components/ui/badge';
 import Checkbox from '@/components/ui/checkbox';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { noop } from '@/utils/function';
 
 type GroupTableHeader = {
   title: string;
@@ -21,7 +22,7 @@ const CustomerGroupTable = () => {
           <TableHead onlyCheckbox>
             <Checkbox
               value={false}
-              onChange={(value) => console.log(value, 'checkbox 1')}
+              onChange={noop}
             />
           </TableHead>
           {tableHeaders.map((header, index) => (
@@ -35,7 +36,7 @@ const CustomerGroupTable = () => {
             <TableCell onlyCheckbox>
               <Checkbox
                 value={false}
-                onChange={(value) => console.log(value, 'checkbox 1')}
+                onChange={noop}
               />
             </TableCell>
             <TableCell style={{ width: '50%' }}>Wholesale Partners</TableCell>

@@ -1,6 +1,6 @@
-import { describe, expect, it } from 'vitest';
+import { assert, describe, expect, it } from 'vitest';
 
-import { OnlinePaymentListSchema, OnlinePaymentSchema, OfflinePaymentSchema } from '@/schemas/catalog/payment';
+import { OfflinePaymentSchema, OnlinePaymentListSchema, OnlinePaymentSchema } from '@/schemas/catalog/payment';
 
 describe('OnlinePaymentSchema', () => {
   it('accepts the documented list item (online-payments/list-6.yml)', () => {
@@ -70,11 +70,9 @@ describe('OnlinePaymentListSchema', () => {
       stripe: { id: 'stripe', name: 'Stripe', icon: 'stripe', is_enabled: false, is_offline: false },
       paypal: { id: 'paypal', name: 'Paypal', icon: 'paypal', is_enabled: true, is_offline: false },
     });
-    expect(result.success).toBe(true);
-    if (result.success) {
-      expect(result.data).toHaveLength(2);
-      expect(result.data.map((gateway) => gateway.id)).toEqual(['stripe', 'paypal']);
-    }
+    assert(result.success);
+    expect(result.data).toHaveLength(2);
+    expect(result.data.map((gateway) => gateway.id)).toEqual(['stripe', 'paypal']);
   });
 
   it('also accepts a genuine array, unchanged', () => {

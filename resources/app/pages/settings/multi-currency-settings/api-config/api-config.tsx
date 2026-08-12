@@ -1,9 +1,11 @@
+import { Flag, RefreshCcw } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 
 import SwitchField from '@/components/form/switch-field';
 import OptionAccordion from '@/components/option-accordion';
 import ActionGroup from '@/components/ui/action-group';
+import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
@@ -11,20 +13,16 @@ import Label from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Text from '@/components/ui/text';
 import { WrenchIcon } from '@/icons';
+import ApiConfigurationCard from '@/pages/settings/multi-currency-settings/api-config/api-configuration-card';
+import ApiConfigurationPopup from '@/pages/settings/multi-currency-settings/api-config/api-configuration-dialog';
 import type { CurrencySettings } from '@/schemas/catalog/settings';
 import type { ApiConfigurationFormPayload } from '@/schemas/forms/api-configuration-form';
 import type { MultiCurrencySettingsFormInput } from '@/schemas/forms/multi-currency-settings-form';
 import { useCurrencyExchangeProvidersQuery } from '@/services/currency';
-import { __ } from '@/wpi18n';
-
-import { cardStyles } from '@/theme/card-styles';
-
-import Badge from '@/components/ui/badge';
-import ApiConfigurationCard from '@/pages/settings/multi-currency-settings/api-config/api-configuration-card';
-import ApiConfigurationPopup from '@/pages/settings/multi-currency-settings/api-config/api-configuration-dialog';
 import { theme } from '@/theme';
+import { cardStyles } from '@/theme/card-styles';
 import { mergeCss } from '@/theme/mixins';
-import { Flag, RefreshCcw } from 'lucide-react';
+import { __ } from '@/wpi18n';
 
 type ApiProvider = {
   id: string | number;
@@ -42,7 +40,7 @@ type ApiConfigData = {
 const ApiConfig = () => {
   const { setValue } = useFormContext<MultiCurrencySettingsFormInput>();
   const formValues = useWatch<MultiCurrencySettingsFormInput>();
-  const apiProvider = useWatch<MultiCurrencySettingsFormInput>({
+  const apiProvider = useWatch<MultiCurrencySettingsFormInput, 'api_provider'>({
     name: 'api_provider',
   });
   const apiConfig = useWatch<MultiCurrencySettingsFormInput>({
@@ -124,7 +122,7 @@ const ApiConfig = () => {
           <Card cssOverride={mergeCss(cardStyles.innerCard, { marginTop: theme.spacing[2] })} >
             <CardContent cssOverride={cardStyles.innerContent}>
               <Flex justify="space-between" align="center">
-                <Flex direction={'column'} gap={2}>
+                <Flex direction="column" gap={2}>
                   {selectedAPI && (
                     <Flex gap={2} align="center">
                       <Flag size={16} />

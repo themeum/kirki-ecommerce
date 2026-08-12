@@ -4,10 +4,10 @@ import { endpoints } from '@/config/endpoints';
 import { apiClient } from '@/libs/api';
 import { queryKeys } from '@/libs/query-keys';
 import {
+  type CurrencyDraft,
   CurrencyExchangeProviderSchema,
   CurrencyOptionSchema,
   CurrencySchema,
-  type CurrencyDraft,
 } from '@/schemas/catalog/currency';
 import { PaginatedDataSchema, ResourceCollectionSchema } from '@/schemas/shared/api';
 import { parseData, parseMessage, parseResponse, toastMutationError, toastMutationSuccess } from '@/services/helpers';
@@ -137,6 +137,6 @@ const useDeleteCurrencyMutation = () => {
 };
 
 export {
-  createCurrency, deleteCurrency, getAllCurrencies, getAvailableCurrencies, getCurrencyExchangeProviders, updateCurrency, useAllCurrenciesQuery, useAvailableCurrenciesQuery, useCreateCurrencyMutation, useCurrencyExchangeProvidersQuery, useDeleteCurrencyMutation, useUpdateCurrencyMutation, type CurrencyBulkPayload
-};
+  createCurrency, type CurrencyBulkPayload,
+deleteCurrency, getAllCurrencies, getAvailableCurrencies, getCurrencyExchangeProviders, updateCurrency, useAllCurrenciesQuery, useAvailableCurrenciesQuery, useCreateCurrencyMutation, useCurrencyExchangeProvidersQuery, useDeleteCurrencyMutation, useUpdateCurrencyMutation};
 

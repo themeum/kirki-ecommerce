@@ -1,10 +1,10 @@
 import type { CSSObject } from '@emotion/react';
 import {
+  type ComponentPropsWithoutRef,
   createContext,
   forwardRef,
   useContext,
   useState,
-  type ComponentPropsWithoutRef,
 } from 'react';
 
 import {
@@ -75,7 +75,7 @@ type StackedItemProps = StackedItemsElementProps & {
 };
 
 const StackedItem = forwardRef<HTMLDivElement, StackedItemProps>((props, ref) => {
-  const { id, cssOverride, children, variant = 'default', ...rest } = props;
+  const { id, cssOverride, children, variant: _variant = 'default', ...rest } = props;
   const stackedItems = useContext(StackedItemsContext);
 
   if (!stackedItems) {
@@ -141,7 +141,7 @@ export {
   StackedItemMedia,
   StackedItems,
   StackedItemTitle,
-  useStackedItem
+  useStackedItem,
 };
 
 export type { StackedItemProps, StackedItemsElementProps };

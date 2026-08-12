@@ -24,9 +24,9 @@ import type { OrderItem, OrderRowDisplay } from '@/pages/orders/order-create/typ
 import { useCreateOrderMutation, useOrderCalculationQuery } from '@/services/order';
 import {
   OrderCalculationRequestSchema,
-  OrderFormSchema,
   type OrderFormInput,
   type OrderFormPayload,
+  OrderFormSchema,
 } from '@/types';
 import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
@@ -134,7 +134,7 @@ const OrderCreate = () => {
       const response = await createMutation.mutateAsync(payload);
 
       if (isDefined(response.data) && isDefined(response.data.id)) {
-        navigate(RouteConfig.Orders.get('OrderDetail').buildLink({ id: response.data.id }));
+        void navigate(RouteConfig.Orders.get('OrderDetail').buildLink({ id: response.data.id }));
       }
     } catch (error) {
       applyServerErrors(form, error as ErrorResponse);

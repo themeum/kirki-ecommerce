@@ -3,31 +3,29 @@ import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifi
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { css } from '@emotion/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 
+import ConfirmationDialog from '@/components/modal/confirmation-dialog';
+import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { DragIcon, EditIcon, PlusIcon, TrashIcon } from '@/icons';
-import ActionGroup from '@/components/ui/action-group';
-import Flex from '@/components/ui/flex';
 import Chip from '@/components/ui/chip';
+import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
-import type { ProductFormInput } from '@/schemas/forms/product-form';
-import { flexCenter, scoped, mergeCss, scopedMerge, defineStyles } from '@/theme/mixins';
-import { cardStyles } from '@/theme/card-styles';
-import type { Attribute } from '@/types';
-import { __, _n, sprintf } from '@/wpi18n';
-
+import { DragIcon, EditIcon, PlusIcon, TrashIcon } from '@/icons';
 import AddOrEditAttribute from '@/pages/products/product-form/sections/variants/attribute-list/add-or-edit-attribute';
-import ConfirmationDialog from '@/components/modal/confirmation-dialog';
 import {
+  type MatrixMutation,
   savedVariants,
   useVariantMatrix,
-  type MatrixMutation,
 } from '@/pages/products/product-form/sections/variants/use-variant-matrix';
-
+import type { ProductFormInput } from '@/schemas/forms/product-form';
 import { theme } from '@/theme';
+import { cardStyles } from '@/theme/card-styles';
+import { defineStyles, flexCenter, mergeCss, scoped, scopedMerge } from '@/theme/mixins';
+import type { Attribute } from '@/types';
+import { __, _n, sprintf } from '@/wpi18n';
 
 type SortableCardProps = {
   item: Attribute;
@@ -87,7 +85,7 @@ const SortableCard = ({
             <Flex direction="column" gap={2}>
               <Text weight="medium">{item?.name}</Text>
               <Flex gap={2} wrap="wrap" rowGap={3} cssOverride={{ maxWidth: '480px' }}>
-                {(item?.values || []).map((variant, index) => (
+                {(item?.values ?? []).map((variant, index) => (
                   <Chip
                     gap={2}
                     key={index}
@@ -128,7 +126,11 @@ SortableCard.displayName = 'SortableCard';
 
 const AttributeList = () => {
   const { control } = useFormContext<ProductFormInput>();
-  const formAttributes = useWatch({ control, name: 'attributes' }) ?? [];
+  const watchedAttributes = useWatch({ control, name: 'attributes' });
+  const formAttributes = useMemo<NonNullable<typeof watchedAttributes>>(
+    () => watchedAttributes ?? [],
+    [watchedAttributes],
+  );
   const [attributeValues, setAttributeValues] = useState<Attribute[]>([]);
   const [editingId, setEditingId] = useState<number | string | null>(null);
   const [pendingRemoval, setPendingRemoval] = useState<MatrixMutation | null>(
@@ -138,7 +140,7 @@ const AttributeList = () => {
     useVariantMatrix();
 
   useEffect(() => {
-    setAttributeValues(formAttributes as Attribute[]);
+    setAttributeValues(formAttributes);
   }, [formAttributes]);
 
   const handleAttributeEdit = (attribute: Attribute) => {
@@ -258,5 +260,5 @@ const styles = defineStyles({
     '&:active': {
       cursor: 'grabbing',
     },
-  }
+  },
 });

@@ -3,18 +3,17 @@ import { useNavigate } from 'react-router';
 
 import BulkActionHandler from '@/components/bulk-action-handler';
 import Button from '@/components/ui/button';
-import { useInventoryForm } from '@/contexts/inventory-form-context';
-import { useMarkList } from '@/hooks';
 import Checkbox from '@/components/ui/checkbox';
 import Flex from '@/components/ui/flex';
 import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { RouteConfig } from '@/config/route-config';
-import type { InventoryVariant } from '@/types';
-import { __ } from '@/wpi18n';
-
-import { allTableHeaders } from '@/pages/inventory/utils';
+import { useInventoryForm } from '@/contexts/inventory-form-context';
+import { useMarkList } from '@/hooks';
 import InventoryTableAction from '@/pages/inventory/inventory-table/inventory-table-action';
 import SingleRow from '@/pages/inventory/inventory-table/single-row';
+import { allTableHeaders } from '@/pages/inventory/utils';
+import type { InventoryVariant } from '@/types';
+import { __ } from '@/wpi18n';
 
 const InventoryTable = () => {
   const navigate = useNavigate();
@@ -38,7 +37,7 @@ const InventoryTable = () => {
   });
 
   const handleApplyAction = () => {
-    navigate(`${RouteConfig.BulkVariants.buildLink()}?ids=${selectedItems.join(',')}`);
+    void navigate(`${RouteConfig.BulkVariants.buildLink()}?ids=${selectedItems.join(',')}`);
   };
 
   return (

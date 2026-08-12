@@ -1,7 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Controller, useForm, useFormContext, useWatch } from 'react-hook-form';
 
+import AttributeValuesField from '@/components/form/attribute-values-field';
 import ConfirmationDialog from '@/components/modal/confirmation-dialog';
 import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
@@ -15,11 +16,15 @@ import Text from '@/components/ui/text';
 import { ColorPaletteIcon, ListIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
+import {
+  type MatrixMutation,
+  savedVariants,
+  useVariantMatrix,
+} from '@/pages/products/product-form/sections/variants/use-variant-matrix';
 import type { AddVariationFormPayload } from '@/schemas/forms/add-variation-form';
 import {
-  ProductAttributeFormSchema,
   type ProductAttributeFormInput,
-  type ProductAttributeValueInput,
+  ProductAttributeFormSchema,
 } from '@/schemas/forms/product-attribute-form';
 import type { ProductFormInput } from '@/schemas/forms/product-form';
 import { useAttributesQuery, useCreateAttributeMutation } from '@/services/attribute';
@@ -30,14 +35,8 @@ import type {
   Attribute,
   SelectOption,
 } from '@/types';
+import { noop } from '@/utils/function';
 import { __, _n, sprintf } from '@/wpi18n';
-
-import AttributeValuesField from '@/components/form/attribute-values-field';
-import {
-  savedVariants,
-  useVariantMatrix,
-  type MatrixMutation,
-} from '@/pages/products/product-form/sections/variants/use-variant-matrix';
 
 type AttributeSuggestion = SelectOption & {
   type?: string;
@@ -49,11 +48,14 @@ type AddOrEditAttributeProps = {
 };
 
 const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
-  const { onClose = () => { }, data } = props;
+  const { onClose = noop, data } = props;
 
   const { control } = useFormContext<ProductFormInput>();
-  const productAttributes = (useWatch({ control, name: 'attributes' }) ??
-    []) as Attribute[];
+  const watchedProductAttributes = useWatch({ control, name: 'attributes' });
+  const productAttributes = useMemo(
+    () => (watchedProductAttributes ?? []) as Attribute[],
+    [watchedProductAttributes],
+  );
   const { addAttribute, updateAttribute, describeDiscarded } = useVariantMatrix();
   const [pendingApply, setPendingApply] = useState<MatrixMutation | null>(null);
   const { data: allAttributesList, isSuccess: loaded } = useAttributesQuery({
@@ -78,31 +80,8 @@ const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
     AttributeSuggestion[]
   >([]);
 
-  useEffect(() => {
-    if (loaded) {
-      generateAttributeSuggestionArray();
-    }
-  }, [allAttributesList, type, loaded]);
-
-  useEffect(() => {
-    if (loaded && data) {
-      const selectedValues = (data.values ?? []).map((item) => ({
-        ...item,
-        title: item?.value as string,
-        value: item?.id,
-      }));
-      form.reset({
-        id: data.id,
-        name: data.name,
-        slug: data.slug,
-        type: data.values?.[0]?.color ? 'color' : 'list',
-        values: selectedValues,
-      });
-    }
-  }, [loaded, data, form]);
-
-  const generateAttributeSuggestionArray = () => {
-    const allAttributes = (allAttributesList || [])
+  const generateAttributeSuggestionArray = useCallback(() => {
+    const allAttributes = (allAttributesList ?? [])
       .map((item) => ({
         value: item?.id,
         title: item?.name,
@@ -114,7 +93,30 @@ const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
           !productAttributes.some((val) => val.id === attr.value),
       );
     setAttributeSuggestionArray(allAttributes);
-  };
+  }, [allAttributesList, type, productAttributes]);
+
+  useEffect(() => {
+    if (loaded) {
+      generateAttributeSuggestionArray();
+    }
+  }, [loaded, generateAttributeSuggestionArray]);
+
+  useEffect(() => {
+    if (loaded && data) {
+      const selectedValues = (data.values ?? []).map((item) => ({
+        ...item,
+        title: item?.value,
+        value: item?.id,
+      }));
+      form.reset({
+        id: data.id,
+        name: data.name,
+        slug: data.slug,
+        type: data.values?.[0]?.color ? 'color' : 'list',
+        values: selectedValues,
+      });
+    }
+  }, [loaded, data, form]);
 
   const handleApply = async () => {
     const isValid = await form.trigger();
@@ -174,7 +176,7 @@ const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
         name,
         slug,
         type: attrType,
-        values: (values as ProductAttributeValueInput[]) ?? [],
+        values: (values) ?? [],
       });
     } catch (error) {
       applyServerErrors(form, error as ErrorResponse);
@@ -244,8 +246,8 @@ const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
                   </FieldLabel>
                   <Combobox
                     error={Boolean(
-                      fieldState.error ||
-                      form.formState.errors.id ||
+                      fieldState.error ??
+                      form.formState.errors.id ??
                       form.formState.errors.name,
                     )}
                     value={

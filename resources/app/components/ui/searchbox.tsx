@@ -1,12 +1,13 @@
 import type { CSSObject } from '@emotion/react';
 import { Search } from 'lucide-react';
-import { forwardRef, useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type RefObject } from 'react';
+import { type CSSProperties, forwardRef, type KeyboardEvent, type RefObject, useEffect, useRef, useState } from 'react';
 
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
 import { theme } from '@/theme';
-import { mergeCss, defineStyles } from '@/theme/mixins';
+import { defineStyles, mergeCss } from '@/theme/mixins';
 import type { InputState } from '@/types';
+import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 
 type SearchboxProps = {
@@ -57,10 +58,10 @@ function debounce<Args extends unknown[]>(
 const Searchbox = forwardRef<HTMLInputElement, SearchboxProps>((props, ref) => {
   const {
     value,
-    onChange = () => { },
-    onClick = () => { },
-    onEnter = () => { },
-    onBlur = () => { },
+    onChange = noop,
+    onClick = noop,
+    onEnter = noop,
+    onBlur = noop,
     style = {},
     cssOverride,
     label,

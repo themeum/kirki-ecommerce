@@ -2,12 +2,12 @@ import CheckboxField from '@/components/form/checkbox-field';
 import SelectField from '@/components/form/select-field';
 import TextField from '@/components/form/text-field';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { FileTextIcon } from '@/icons';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
+import { FileTextIcon } from '@/icons';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { mergeCss, defineStyles } from '@/theme/mixins';
+import { defineStyles, mergeCss } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 const languageOptions = [

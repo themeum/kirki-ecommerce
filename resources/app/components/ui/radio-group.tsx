@@ -1,7 +1,8 @@
-import { type CSSObject, type Theme } from '@emotion/react';
+import { type CSSObject } from '@emotion/react';
 import * as RadioGroupPrimitive from '@radix-ui/react-radio-group';
 import { Circle } from 'lucide-react';
-import { ComponentRef, forwardRef, type ComponentPropsWithoutRef } from 'react';
+import type {ComponentRef} from 'react';
+import { type ComponentPropsWithoutRef, forwardRef } from 'react';
 
 import { theme } from '@/theme';
 import { defineStyles, flexCenter, scoped, scopedMerge, uiFocusRing } from '@/theme/mixins';
@@ -75,7 +76,7 @@ const styles = defineStyles({
     backgroundColor: 'transparent',
     color: theme.colors.background.fillBrand,
     '&:focus-visible': {
-      ...uiFocusRing(theme as Theme),
+      ...uiFocusRing(theme),
     },
     '&[data-state="checked"]': {
       borderColor: theme.colors.background.fillBrand,

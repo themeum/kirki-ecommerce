@@ -1,7 +1,7 @@
-import { keyframes, type CSSObject } from '@emotion/react';
+import { type CSSObject, keyframes } from '@emotion/react';
 import * as AccordionPrimitive from '@radix-ui/react-accordion';
 import { ChevronDown } from 'lucide-react';
-import { createContext, forwardRef, useContext, useId, type ComponentPropsWithoutRef, type CSSProperties, type ElementRef, type ReactNode } from 'react';
+import { type ComponentPropsWithoutRef, createContext, type CSSProperties, type ElementRef, forwardRef, type ReactNode, useContext, useId } from 'react';
 
 import { Separator } from '@/components/ui/separator';
 import { theme } from '@/theme';
@@ -54,7 +54,7 @@ const Accordion = ({
             typeof defaultValue === 'string' ? defaultValue : undefined
           }
           value={typeof value === 'string' ? value : undefined}
-          onValueChange={onValueChange as ((value: string) => void) | undefined}
+          onValueChange={onValueChange}
         >
           {children}
         </AccordionPrimitive.Root>
@@ -78,7 +78,7 @@ const Accordion = ({
                 : undefined
           }
           onValueChange={
-            onValueChange as ((value: string[]) => void) | undefined
+            onValueChange
           }
         >
           {children}
@@ -189,7 +189,7 @@ AccordionContent.displayName = 'AccordionContent';
 export {
   Accordion, AccordionContent,
   AccordionContext, AccordionItem,
-  AccordionTrigger
+  AccordionTrigger,
 };
 
 const slideDown = keyframes({

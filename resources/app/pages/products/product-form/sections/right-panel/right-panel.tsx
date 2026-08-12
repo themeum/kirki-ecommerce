@@ -1,15 +1,14 @@
 import SelectField from '@/components/form/select-field';
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
-import { theme } from '@/theme';
-import { cardStyles } from '@/theme/card-styles';
-import { defineStyles } from '@/theme/mixins';
-import { __ } from '@/wpi18n';
-
 import Brand from '@/pages/products/product-form/sections/right-panel/brand';
 import Categories from '@/pages/products/product-form/sections/right-panel/categories/categories';
 import Collections from '@/pages/products/product-form/sections/right-panel/collections';
 import Tags from '@/pages/products/product-form/sections/right-panel/tags';
+import { theme } from '@/theme';
+import { cardStyles } from '@/theme/card-styles';
+import { defineStyles } from '@/theme/mixins';
+import { __ } from '@/wpi18n';
 
 const RightPanel = () => {
   const statusOptions = [

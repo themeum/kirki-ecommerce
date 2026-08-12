@@ -1,14 +1,15 @@
 import { type SerializedStyles } from '@emotion/react';
-import { useState, type CSSProperties, type ReactNode } from 'react';
+import { type CSSProperties, type ReactNode, useState } from 'react';
 
-import Button from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import ActionGroup from '@/components/ui/action-group';
+import Button from '@/components/ui/button';
 import Flex from '@/components/ui/flex';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
-import { scopedMerge, defineStyles } from '@/theme/mixins';
+import { defineStyles, scopedMerge } from '@/theme/mixins';
 import type { SelectOption } from '@/types';
+import { noop } from '@/utils/function';
 import { __, sprintf } from '@/wpi18n';
 
 type BulkActionHandlerProps = {
@@ -28,7 +29,7 @@ const BulkActionHandler = (props: BulkActionHandlerProps) => {
     itemCount,
     optionsArray,
     onSelectAll = false,
-    onApply = () => {},
+    onApply = noop,
     style = {},
     filterAction,
     total,

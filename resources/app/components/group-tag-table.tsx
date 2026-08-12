@@ -1,19 +1,20 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { type ReactNode, useEffect, useState } from 'react';
 
 import GroupSelect from '@/components/group-select';
 import Button from '@/components/ui/button';
-import { MinusIcon } from '@/icons';
 import { Card, CardContent } from '@/components/ui/card';
-import Flex from '@/components/ui/flex';
 import Chip from '@/components/ui/chip';
+import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
+import { MinusIcon } from '@/icons';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { scoped, mergeCss, defineStyles } from '@/theme/mixins';
+import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
 import type { SelectOption } from '@/types';
+import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 
-type GroupedValues = Record<string, Array<string | number>>;
+type GroupedValues = Record<string, (string | number)[]>;
 
 type GroupDetails = Record<
   string,
@@ -26,7 +27,7 @@ type GroupDetails = Record<
 type GroupTagTableProps = {
   selectedValues: GroupedValues;
   groupDetails?: GroupDetails;
-  requiredFields?: Record<string, Array<string | number>>;
+  requiredFields?: Record<string, (string | number)[]>;
   onChange?: (values: GroupedValues) => void;
   optionsArray?: SelectOption[];
   placeholder?: string;
@@ -65,7 +66,7 @@ const GroupTagTable = (props: GroupTagTableProps) => {
     selectedValues,
     groupDetails = {},
     requiredFields = {},
-    onChange = () => {},
+    onChange = noop,
     optionsArray = [],
     placeholder = '',
     hasSelect,
@@ -91,7 +92,7 @@ const GroupTagTable = (props: GroupTagTableProps) => {
   };
 
   const clearSelectedData = (
-    filteredArray: Array<string | number>,
+    filteredArray: (string | number)[],
     groupName: string,
   ) => {
     if (filteredArray.length > 0) {
@@ -131,7 +132,7 @@ const GroupTagTable = (props: GroupTagTableProps) => {
         <Card
           cssOverride={mergeCss(cardStyles.innerCard,
             hasSelect ? styles.cardBottomRounded : styles.cardAllRounded,
-            styles.cardBorder,)}
+            styles.cardBorder)}
         >
           <CardContent cssOverride={cardStyles.innerContent}>
           <Flex gap={2} direction="column">

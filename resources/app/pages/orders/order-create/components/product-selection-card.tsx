@@ -34,7 +34,7 @@ const ProductSelectionCard = ({
             <ProductIcon />
             <Button variant="secondary" onClick={onOpenPicker}>
               <PlusIcon />
-              <Text variant="small" weight='medium'>{__('Select Product', 'kirki-ecommerce')}</Text>
+              <Text variant="small" weight="medium">{__('Select Product', 'kirki-ecommerce')}</Text>
             </Button>
           </Flex>
         </CardContent>
@@ -46,7 +46,7 @@ const ProductSelectionCard = ({
     <Card cssOverride={cardStyles.formCard}>
       <CardHeader cssOverride={styles.headerRow}>
         <CardTitle>
-          <Text variant='heading6' weight="semibold">{__('Items', 'kirki-ecommerce')}({rows.length})</Text>
+          <Text variant="heading6" weight="semibold">{__('Items', 'kirki-ecommerce')}({rows.length})</Text>
         </CardTitle>
         <Button variant="secondary" onClick={onOpenPicker}>
           <PlusIcon />

@@ -13,20 +13,19 @@ import { RouteConfig } from '@/config/route-config';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults, pickFormValues } from '@/libs/zod';
-import {
-  ShippingZoneFormSchema,
-  type ShippingZoneFormInput,
-  type ShippingZoneFormPayload,
-} from '@/schemas/forms/shipping-zone-form';
-import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
-import { cardStyles } from '@/theme/card-styles';
-import { __ } from '@/wpi18n';
-
 import { useSettingsPageActions } from '@/pages/settings/settings-layout/use-settings-page-actions';
 import SettingsPageHeader from '@/pages/settings/settings-page-header';
 import { ShippingMethod } from '@/pages/settings/shipping-settings/shipping-method/shipping-method';
 import type { ShippingMethodData, ShippingZone } from '@/pages/settings/shipping-settings/utils';
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
+import {
+  type ShippingZoneFormInput,
+  type ShippingZoneFormPayload,
+  ShippingZoneFormSchema,
+} from '@/schemas/forms/shipping-zone-form';
+import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
+import { cardStyles } from '@/theme/card-styles';
+import { __ } from '@/wpi18n';
 
 const ShippingZonePage = () => {
   const navigate = useNavigate();
@@ -40,7 +39,10 @@ const ShippingZonePage = () => {
   const { mutateAsync: saveSettings, isPending: isSaving } = useUpdateSettingsMutation<'shipping'>();
 
   const loaded = !isLoading && Boolean(shippingSettingsData);
-  const zones = (shippingSettingsData?.shipping_zones as ShippingZone[]) || [];
+  const zones = useMemo(
+    () => (shippingSettingsData?.shipping_zones as ShippingZone[] | undefined) ?? [],
+    [shippingSettingsData?.shipping_zones],
+  );
 
   const activeZone = zones.find((zone) => String(zone.id) === String(zoneId));
 
@@ -75,7 +77,7 @@ const ShippingZonePage = () => {
       return;
     }
     form.reset(pickFormValues(ShippingZoneFormSchema, activeZone));
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- re-hydrate only when the active zone identity changes, not on every unrelated zones update
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- keyed on the zone id so the form only reloads when a different zone is opened; depending on the whole object would discard edits as the zone list refetches
   }, [activeZone?.id]);
 
   useEffect(() => {

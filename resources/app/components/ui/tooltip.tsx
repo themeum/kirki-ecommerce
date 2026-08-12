@@ -1,6 +1,6 @@
 import { type CSSObject } from '@emotion/react';
 import * as TooltipPrimitive from '@radix-ui/react-tooltip';
-import { forwardRef, type ComponentPropsWithoutRef, type ElementRef, type ReactNode } from 'react';
+import { type ComponentPropsWithoutRef, type ElementRef, forwardRef, type ReactNode } from 'react';
 
 import { getPortalContainer } from '@/libs/portal-container';
 import { theme } from '@/theme';

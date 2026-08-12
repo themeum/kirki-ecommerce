@@ -4,6 +4,7 @@ import Combobox from '@/components/ui/combobox';
 import Flex from '@/components/ui/flex';
 import Label from '@/components/ui/label';
 import { useBrandsQuery } from '@/services/brand';
+import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 
 type FilterObject = {
@@ -12,14 +13,14 @@ type FilterObject = {
 
 type BrandFilterProps = {
   filterObject: FilterObject;
-  onChange?: (val: string | number | Array<string | number>) => void;
+  onChange?: (val: string | number | (string | number)[]) => void;
 };
 
 type BrandOption = { label: string; value: string };
 
 const BrandFilter = ({
   filterObject,
-  onChange = () => {},
+  onChange = noop,
 }: BrandFilterProps) => {
   const { data: brandData } = useBrandsQuery({ limit: -1 });
   const [brandOptions, setBrandOptions] = useState<BrandOption[]>([]);
@@ -29,7 +30,7 @@ const BrandFilter = ({
       label: item.name,
       value: String(item.id),
     }));
-    setBrandOptions(suggestionList || []);
+    setBrandOptions(suggestionList ?? []);
   }, [brandData]);
 
   const handleChange = (value: string | string[]) => {

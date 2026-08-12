@@ -103,6 +103,6 @@ const useDeleteSchemaMutation = () => {
 };
 
 export {
-  createSchema, deleteSchema, getSchemas, updateSchema, useCreateSchemaMutation, useDeleteSchemaMutation, useSchemasQuery, useUpdateSchemaMutation
+  createSchema, deleteSchema, getSchemas, updateSchema, useCreateSchemaMutation, useDeleteSchemaMutation, useSchemasQuery, useUpdateSchemaMutation,
 };
 

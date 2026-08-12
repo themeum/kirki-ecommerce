@@ -3,6 +3,7 @@ import { useParams } from 'react-router';
 import LoadingSpinner from '@/components/loading-spinner';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
+import ProductForm from '@/pages/products/product-form/product-form';
 import { mapProductToFormValues, type ProductFormPayload } from '@/schemas/forms/product-form';
 import {
   useProductQuery,
@@ -10,15 +11,13 @@ import {
 } from '@/services/product';
 import { __ } from '@/wpi18n';
 
-import ProductForm from '@/pages/products/product-form/product-form';
-
 const EditProduct = () => {
   const { id } = useParams();
   const {
     data: product,
     isLoading,
     isError,
-  } = useProductQuery(id as string, Boolean(id));
+  } = useProductQuery(id!, Boolean(id));
   const updateProductMutation = useUpdateProductMutation();
 
   if (isLoading) {

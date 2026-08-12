@@ -1,3 +1,4 @@
+import { Edit3, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router';
 
@@ -18,16 +19,15 @@ import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { LighteningIcon } from '@/icons';
+import ShippingRuleFormCard from '@/pages/settings/shipping-settings/shipping-method/shipping-rules/shipping-rule-form-card';
+import { actionOptionsArray, conditionOptions, saveShippingZones, type ShippingRule, type ShippingZone } from '@/pages/settings/shipping-settings/utils';
 import { dispatchToastMessage } from '@/pages/utils';
 import { useSettingsQuery } from '@/services/settings';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
+import { toDisplayString } from '@/utils/string';
 import { __, sprintf } from '@/wpi18n';
-
-import ShippingRuleFormCard from '@/pages/settings/shipping-settings/shipping-method/shipping-rules/shipping-rule-form-card';
-import { actionOptionsArray, conditionOptions, saveShippingZones, type ShippingRule, type ShippingZone } from '@/pages/settings/shipping-settings/utils';
-import { Edit3, Trash2 } from 'lucide-react';
 
 type ShippingRulesProps = {
   methodId: string | number;
@@ -81,11 +81,11 @@ export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
       }
     }
     if (foundMethod) {
-      setRulesObj(foundMethod.shipping_rules || []);
+      setRulesObj(foundMethod.shipping_rules ?? []);
     }
   }, [shippingSettingsData, methodId]);
 
-  const handleDeleteRules = async (index: number) => {
+  const handleDeleteRules = (index: number) => {
     const originalZones = [...rulesObj];
     const updatedRules = rulesObj.filter((_, idx) => idx !== index);
     setRulesObj(updatedRules);
@@ -141,7 +141,7 @@ export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
             onAdd={() => setShowAddCard(true)}
           />
           {(showAddCard || rulesObj.length > 0) && (
-            <Flex direction={'column'} gap={4} cssOverride={{ marginTop: theme.spacing[5] }}>
+            <Flex direction="column" gap={4} cssOverride={{ marginTop: theme.spacing[5] }}>
               {showAddCard && (
                 <ShippingRuleFormCard
                   methodId={methodId}
@@ -187,7 +187,7 @@ export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
                             <Text variant="small" weight="medium" cssOverride={styles.accentText}>
                               {item?.conditions[0]?.type === 'destination_region'
                                 ? ((item?.conditions[0]?.value as { country?: string })?.country ?? '')
-                                : String(item?.conditions[0]?.value ?? '')}
+                                : toDisplayString(item?.conditions[0]?.value)}
                             </Text>
                           </RuleItemCondition>
                         </RuleItemConditions>
@@ -201,7 +201,7 @@ export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
                           {(item?.action?.type === 'set_shipping_cost' ||
                             item?.action?.type === 'add_shipping_cost') && (
                               <Text variant="small" weight="medium" cssOverride={styles.accentText}>
-                                {String(item?.action?.value ?? '')}
+                                {toDisplayString(item?.action?.value)}
                               </Text>
                             )}
                         </RuleItemAction>

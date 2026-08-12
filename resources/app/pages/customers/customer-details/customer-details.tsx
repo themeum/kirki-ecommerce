@@ -1,34 +1,33 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate, useParams } from 'react-router';
 
 import MultiSelectField from '@/components/form/multi-select-field';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import Container from '@/components/ui/container';
+import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import Label from '@/components/ui/label';
+import PageHeading from '@/components/ui/page-heading';
 import { NEW_ITEM_ID } from '@/conf';
 import { RouteConfig } from '@/config/route-config';
 import { PlusIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults, pickFormValues } from '@/libs/zod';
-import Container from '@/components/ui/container';
-import Flex from '@/components/ui/flex';
-import PageHeading from '@/components/ui/page-heading';
-import { cardStyles } from '@/theme/card-styles';
-import {
-  CustomerFormSchema,
-  type CustomerFormInput,
-  type CustomerFormPayload,
-} from '@/schemas/forms/customer-form';
-import { useCreateCustomerMutation, useCustomerQuery, useUpdateCustomerMutation } from '@/services/customer';
-import { __ } from '@/wpi18n';
-
 import BillingAddress from '@/pages/customers/customer-details/billing-address';
 import CustomerOverview from '@/pages/customers/customer-details/customer-overview';
 import ShippingAddress from '@/pages/customers/customer-details/shipping-address';
+import {
+  type CustomerFormInput,
+  type CustomerFormPayload,
+  CustomerFormSchema,
+} from '@/schemas/forms/customer-form';
+import { useCreateCustomerMutation, useCustomerQuery, useUpdateCustomerMutation } from '@/services/customer';
+import { cardStyles } from '@/theme/card-styles';
+import { __ } from '@/wpi18n';
 
 const CustomerDetails = () => {
   const { id } = useParams();
@@ -66,7 +65,7 @@ const CustomerDetails = () => {
         });
       } else {
         const result = await createMutation.mutateAsync(payload);
-        navigate(RouteConfig.Customers.get('CustomerDetail').buildLink({ id: result.data.id }));
+        void navigate(RouteConfig.Customers.get('CustomerDetail').buildLink({ id: result.data.id }));
       }
     } catch (error) {
       applyServerErrors(form, error as ErrorResponse);

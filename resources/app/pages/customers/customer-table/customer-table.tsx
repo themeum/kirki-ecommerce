@@ -1,8 +1,10 @@
 import BulkActionHandler from '@/components/bulk-action-handler';
 import Sorting from '@/components/sorting';
-import { useListParams, useMarkList } from '@/hooks';
 import Checkbox from '@/components/ui/checkbox';
 import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { useListParams, useMarkList } from '@/hooks';
+import CustomerTableAction from '@/pages/customers/customer-table/customer-table-action';
+import SingleRow from '@/pages/customers/customer-table/single-row';
 import { useBulkDeleteCustomersMutation } from '@/services/customer';
 import type {
   CustomerListItem,
@@ -10,9 +12,6 @@ import type {
   TaxonomyTableHeader,
 } from '@/types';
 import { __ } from '@/wpi18n';
-
-import CustomerTableAction from '@/pages/customers/customer-table/customer-table-action';
-import SingleRow from '@/pages/customers/customer-table/single-row';
 
 type CustomerTableProps = {
   data: PaginatedData<CustomerListItem>;

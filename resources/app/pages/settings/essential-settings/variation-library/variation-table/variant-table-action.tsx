@@ -1,16 +1,14 @@
-import { useState, type Dispatch, type SetStateAction } from 'react';
+import { type Dispatch, type SetStateAction, useState } from 'react';
 
-import Button from '@/components/ui/button';
-import { ArrowDownUp } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
+import Button from '@/components/ui/button';
 import Flex from '@/components/ui/flex';
 import Searchbox from '@/components/ui/searchbox';
-import type { AttributeValue, SortOrder } from '@/types';
-
+import { ArrowDownUp } from '@/icons';
+import { getSortedList } from '@/pages/settings/utils';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
-
-import { getSortedList } from '@/pages/settings/utils';
+import type { AttributeValue, SortOrder } from '@/types';
 
 type VariantTableActionProps = {
   dataList: AttributeValue[];
@@ -33,7 +31,7 @@ const VariantTableAction = ({
       data: dataList,
       key: 'value',
       order: nextOrder,
-    }) as AttributeValue[];
+    });
 
     setSortOrder(nextOrder);
     updateDataList(sortedList);

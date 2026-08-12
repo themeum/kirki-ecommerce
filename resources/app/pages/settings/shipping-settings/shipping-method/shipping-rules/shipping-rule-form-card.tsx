@@ -9,34 +9,35 @@ import TextField from '@/components/form/text-field';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Field, FieldError } from '@/components/ui/field';
-import { Form } from '@/components/ui/form';
-import Input from '@/components/ui/input';
 import Flex from '@/components/ui/flex';
-import Text from '@/components/ui/text';
+import { Form } from '@/components/ui/form';
 import Grid from '@/components/ui/grid';
+import Input from '@/components/ui/input';
+import Text from '@/components/ui/text';
 import { LighteningIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { queryClient } from '@/libs/query-client';
 import { queryKeys } from '@/libs/query-keys';
 import { getDefaults } from '@/libs/zod';
-import { useCategoriesQuery } from '@/services/category';
-import { getErrorMessage } from '@/services/helpers';
-import { useSettingsQuery, updateSettings } from '@/services/settings';
-import { useShippingProfilesQuery } from '@/services/shipping';
+import type { DestinationConditionValue } from '@/pages/settings/shipping-settings/shipping-method/select-destination-dialog';
+import { SelectDestinationPopup } from '@/pages/settings/shipping-settings/shipping-method/select-destination-dialog';
+import { resolveDestinationRegion } from '@/pages/settings/shipping-settings/shipping-method/shipping-rules/helper';
+import { actionOptionsArray, conditionOptions, type ShippingRegion, type ShippingRule, type ShippingZone } from '@/pages/settings/shipping-settings/utils';
 import {
-  ShippingRuleFormSchema,
   type ShippingRuleFormInput,
   type ShippingRuleFormPayload,
+  ShippingRuleFormSchema,
 } from '@/schemas/forms/shipping-rule-form';
+import { useCategoriesQuery } from '@/services/category';
+import { getErrorMessage } from '@/services/helpers';
+import { updateSettings, useSettingsQuery } from '@/services/settings';
+import { useShippingProfilesQuery } from '@/services/shipping';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss } from '@/theme/mixins';
+import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
-
-import { conditionOptions, actionOptionsArray, type ShippingRegion, type ShippingRule, type ShippingZone } from '@/pages/settings/shipping-settings/utils';
-import { SelectDestinationPopup } from '@/pages/settings/shipping-settings/shipping-method/select-destination-dialog';
-import { resolveDestinationRegion } from '@/pages/settings/shipping-settings/shipping-method/shipping-rules/helper';
 
 type ShippingRuleFormCardProps = {
   methodId: string | number;
@@ -49,7 +50,7 @@ type ShippingRuleFormCardProps = {
 
 type ConditionDataMap = Record<
   string,
-  Array<{ id: number | string; name: string }> | null
+  { id: number | string; name: string }[] | null
 >;
 
 const buildDefaultValues = (initialRule?: ShippingRule): ShippingRuleFormInput => {
@@ -67,7 +68,7 @@ const buildDefaultValues = (initialRule?: ShippingRule): ShippingRuleFormInput =
     condition_value: isDestination
       ? {
         country: (condition.value as { country: string }).country,
-        states: (condition.value as { states?: Array<string | number> }).states || [],
+        states: (condition.value as { states?: (string | number)[] }).states ?? [],
       }
       : (condition?.value ?? null),
     action: action?.type || 'set_shipping_cost',
@@ -115,10 +116,15 @@ const ShippingRuleFormCard = ({
     control: form.control,
     name: 'selected_country',
   });
+  /**
+   * `condition_value` is polymorphic across condition types, so the schema
+   * types it as `unknown`. The destination dialog below is only rendered for
+   * `destination_region`, where it always holds a `{country, states}` pair.
+   */
   const selectedConditionValue = useWatch({
     control: form.control,
     name: 'condition_value',
-  });
+  }) as DestinationConditionValue | null;
 
   useEffect(() => {
     if (selectedCondition !== 'destination_region') {
@@ -145,7 +151,7 @@ const ShippingRuleFormCard = ({
     if (selected_country && mode !== 'edit') {
       form.setValue('condition_value', {
         country: selected_country,
-        states: regionForCountry?.states || [],
+        states: regionForCountry?.states ?? [],
       });
     }
   }, [selectedCountry, selectedRegion, selectedCondition, mode, form]);
@@ -158,10 +164,7 @@ const ShippingRuleFormCard = ({
     ) {
       setConditionData((prev) => ({
         ...prev,
-        product_category: categoryData.results as Array<{
-          id: number | string;
-          name: string;
-        }>,
+        product_category: categoryData.results,
       }));
     }
   }, [categoryLoaded, categoryData, selectedCondition]);
@@ -182,10 +185,10 @@ const ShippingRuleFormCard = ({
         setConditionData((prev) => ({
           ...prev,
           shipping_profile:
-            (shippingProfile as Array<{
+            (shippingProfile as {
               id: number | string;
               name: string;
-            }> | null) ?? null,
+            }[] | null) ?? null,
         }));
         break;
 
@@ -245,7 +248,7 @@ const ShippingRuleFormCard = ({
     method: { shipping_rules?: ShippingRule[] },
     rule: ShippingRuleFormPayload,
   ) => {
-    const rules = method.shipping_rules || [];
+    const rules = method.shipping_rules ?? [];
 
     if (ruleIndex !== -1) {
       return rules.map((existingRule, idx) =>
@@ -256,8 +259,8 @@ const ShippingRuleFormCard = ({
   };
 
   const handleSave = async (payload: ShippingRuleFormPayload) => {
-    const zones = (shippingSettingsData as { shipping_zones?: ShippingZone[] })
-      ?.shipping_zones as ShippingZone[];
+    const zones = (shippingSettingsData as { shipping_zones: ShippingZone[] })
+      .shipping_zones;
     const updatedShippingZones = zones.map((zone) => {
       if (String(zone.id) !== String(zoneID)) {
         return zone;
@@ -421,7 +424,7 @@ const ShippingRuleFormCard = ({
                 : value;
             form.setValue('condition_value', next);
           }}
-          setRulesObj={() => { }}
+          setRulesObj={noop}
           ruleIndex={-1}
           onSave={(values) => {
             form.setValue('selected_country', values.country);

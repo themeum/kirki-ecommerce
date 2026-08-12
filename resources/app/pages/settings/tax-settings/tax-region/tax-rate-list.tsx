@@ -1,4 +1,5 @@
 import { css } from '@emotion/react';
+import { Trash2 } from 'lucide-react';
 import { type Dispatch, type SetStateAction } from 'react';
 import { toast } from 'sonner';
 
@@ -8,14 +9,12 @@ import Flex from '@/components/ui/flex';
 import Input from '@/components/ui/input';
 import Text from '@/components/ui/text';
 import { LocationIcon, PaymentIcon } from '@/icons';
+import type { TaxRate } from '@/pages/settings/tax-settings/utils';
+import { setUnsavedDataStatus } from '@/pages/settings/utils';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
 import { __, sprintf } from '@/wpi18n';
-
-import type { TaxRate } from '@/pages/settings/tax-settings/utils';
-import { setUnsavedDataStatus } from '@/pages/settings/utils';
-import { Trash2 } from 'lucide-react';
 
 type TaxRateListProps = {
   taxRates: TaxRate[];
@@ -161,5 +160,5 @@ const styles = defineStyles({
   },
   taxRatesHeader: {
     marginBottom: theme.spacing[2],
-  }
+  },
 });

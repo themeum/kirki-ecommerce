@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 
 import SwitchField from '@/components/form/switch-field';
 import ActionGroup from '@/components/ui/action-group';
+import Badge from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
@@ -13,22 +14,19 @@ import { CartIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults, pickFormValues } from '@/libs/zod';
-import {
-  CheckoutSettingsFormSchema,
-  type CheckoutSettingsFormInput,
-  type CheckoutSettingsFormPayload,
-} from '@/schemas/forms/checkout-settings-form';
-import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
-import { __ } from '@/wpi18n';
-
-import { cardStyles } from '@/theme/card-styles';
-
-import Badge from '@/components/ui/badge';
 import CheckoutConf from '@/pages/settings/checkout-settings/checkout-conf';
 import LegalInfo from '@/pages/settings/checkout-settings/legal-info';
 import { useSettingsPageActions } from '@/pages/settings/settings-layout/use-settings-page-actions';
 import SettingsPageHeader from '@/pages/settings/settings-page-header';
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
+import {
+  type CheckoutSettingsFormInput,
+  type CheckoutSettingsFormPayload,
+  CheckoutSettingsFormSchema,
+} from '@/schemas/forms/checkout-settings-form';
+import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
+import { cardStyles } from '@/theme/card-styles';
+import { __ } from '@/wpi18n';
 
 const CheckoutSettings = () => {
   const { data: checkoutSettingsData, isLoading } = useSettingsQuery('checkout');

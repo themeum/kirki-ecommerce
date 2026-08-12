@@ -77,7 +77,7 @@ const useWordpressMedia = () => {
     closeWpMediaFrame,
     isWpMediaFrameOpen,
     isWpMediaNode,
-    openWpMediaFrame
+    openWpMediaFrame,
   };
 };
 

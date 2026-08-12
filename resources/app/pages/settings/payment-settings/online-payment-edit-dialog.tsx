@@ -2,22 +2,21 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
+import Alert from '@/components/ui/alert';
 import Button from '@/components/ui/button';
 import { Dialog, DialogBody, DialogClose, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
+import Text from '@/components/ui/text';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import { OnlinePaymentEditFormSchema, onlinePaymentEditDefaultValues, type OnlinePaymentEditFormInput, type OnlinePaymentEditFormPayload } from '@/schemas/forms/online-payment-form';
-import { useUpdateOnlinePaymentMutation } from '@/services/payment';
-import type { OnlinePayment } from '@/types';
-import { __ } from '@/wpi18n';
-
-import Alert from '@/components/ui/alert';
-import Text from '@/components/ui/text';
 import { DynamicOnlinePaymentFields } from '@/pages/settings/payment-settings/utils';
 import { dispatchToastMessage } from '@/pages/utils';
+import { onlinePaymentEditDefaultValues, type OnlinePaymentEditFormInput, type OnlinePaymentEditFormPayload, OnlinePaymentEditFormSchema } from '@/schemas/forms/online-payment-form';
+import { useUpdateOnlinePaymentMutation } from '@/services/payment';
+import type { OnlinePayment } from '@/types';
 import { isDefined } from '@/utils/object';
+import { __ } from '@/wpi18n';
 
 type OnlinePaymentEditPopupProps = {
   editedItem: OnlinePayment | null;
@@ -96,7 +95,7 @@ const OnlinePaymentEditPopup = ({
               <Flex direction="column" gap={4}>
                 <DynamicOnlinePaymentFields fields={editedItem?.fields} />
                 {
-                  isDefined(editedItem) && <Alert text={<Flex direction='column' gap={1}><Text variant='tiny' weight='semibold'>{__('Webhook URL: ', 'kirki-ecommerce')}</Text><Text variant='tiny' weight='semibold' color='emphasis'>{editedItem?.webhook_url}</Text></Flex>} />
+                  isDefined(editedItem) && <Alert text={<Flex direction="column" gap={1}><Text variant="tiny" weight="semibold">{__('Webhook URL: ', 'kirki-ecommerce')}</Text><Text variant="tiny" weight="semibold" color="emphasis">{editedItem?.webhook_url}</Text></Flex>} />
                 }
 
               </Flex>

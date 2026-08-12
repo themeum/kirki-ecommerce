@@ -116,6 +116,6 @@ const useBulkDeleteBrandsMutation = () => {
 };
 
 export {
-  bulkDeleteBrands, createBrand, deleteBrand, getBrands, updateBrand, useBrandsQuery, useBulkDeleteBrandsMutation, useCreateBrandMutation, useDeleteBrandMutation, useUpdateBrandMutation
+  bulkDeleteBrands, createBrand, deleteBrand, getBrands, updateBrand, useBrandsQuery, useBulkDeleteBrandsMutation, useCreateBrandMutation, useDeleteBrandMutation, useUpdateBrandMutation,
 };
 

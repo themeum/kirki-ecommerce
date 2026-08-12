@@ -5,10 +5,9 @@ import Grid from '@/components/ui/grid';
 import Text from '@/components/ui/text';
 import { EasyShipIcon, ShippoIcon } from '@/icons';
 import { theme } from '@/theme';
+import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
-
-import { cardStyles } from '@/theme/card-styles';
 
 const ShippingSolution = () => {
   return (

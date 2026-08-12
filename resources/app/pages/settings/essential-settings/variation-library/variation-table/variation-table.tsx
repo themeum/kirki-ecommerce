@@ -1,4 +1,4 @@
-import { useMemo, useState, type Dispatch, type SetStateAction } from 'react';
+import { type Dispatch, type SetStateAction, useMemo, useState } from 'react';
 import { useOutletContext } from 'react-router';
 
 import BulkActionHandler from '@/components/bulk-action-handler';
@@ -8,7 +8,13 @@ import Flex from '@/components/ui/flex';
 import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import Text from '@/components/ui/text';
 import { useMarkList } from '@/hooks';
+import SingleRow from '@/pages/settings/essential-settings/variation-library/variation-table/single-row';
+import VariantTableAction from '@/pages/settings/essential-settings/variation-library/variation-table/variant-table-action';
+import { getSearchedValue, setUnsavedDataStatus } from '@/pages/settings/utils';
 import { useBulkDeleteAttributeValuesMutation } from '@/services/attribute';
+import { theme } from '@/theme';
+import { cardStyles } from '@/theme/card-styles';
+import { defineStyles, mergeCss } from '@/theme/mixins';
 import type {
   Attribute,
   AttributeValue,
@@ -16,15 +22,6 @@ import type {
   TaxonomyTableHeader,
 } from '@/types';
 import { __ } from '@/wpi18n';
-
-import { cardStyles } from '@/theme/card-styles';
-import { defineStyles, mergeCss } from '@/theme/mixins';
-
-import SingleRow from '@/pages/settings/essential-settings/variation-library/variation-table/single-row';
-import VariantTableAction from '@/pages/settings/essential-settings/variation-library/variation-table/variant-table-action';
-import { getSearchedValue, setUnsavedDataStatus } from '@/pages/settings/utils';
-
-import { theme } from '@/theme';
 
 type AttributeWithMeta = Attribute & { updated_at?: string };
 
@@ -62,7 +59,7 @@ const VariationTable = ({
     isSelected,
     selectedItems,
     itemCount,
-  } = useMarkList({ data: { results: results, total: results?.length } });
+  } = useMarkList({ data: { results, total: results?.length } });
   const [searchValue, setSearchValue] = useState('');
 
   const filteredList = useMemo(() => {
@@ -70,7 +67,7 @@ const VariationTable = ({
     if (!keyword) {
       return results;
     }
-    return getSearchedValue(keyword, results) as AttributeValue[];
+    return getSearchedValue(keyword, results);
   }, [searchValue, results]);
 
   const handleApplyAction = (action: string) => {
@@ -92,9 +89,11 @@ const VariationTable = ({
   };
 
   const onBulkDelete = () => {
-    const attribute_id = selectedItem?.id as number;
+    if (!selectedItem) {
+      return;
+    }
     bulkDeleteMutation.mutate({
-      attribute_id,
+      attribute_id: selectedItem.id,
       ids: selectedItems as number[],
     });
   };

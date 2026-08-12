@@ -7,8 +7,8 @@ import { queryKeys } from '@/libs/query-keys';
 import { CouponListItemSchema, CouponSchema } from '@/schemas/catalog/coupon';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
 import { parseData, parseMessage, parseResponse, toastMutationError, toastMutationSuccess } from '@/services/helpers';
-import { BulkActionParams, CouponFormPayload, ListParams } from '@/types';
-import { CouponListFilter } from '@/types/filters/coupon';
+import type { BulkActionParams, CouponFormPayload, ListParams } from '@/types';
+import type { CouponListFilter } from '@/types/filters/coupon';
 import { __ } from '@/wpi18n';
 
 const getCoupons = (params: ListParams<CouponListFilter> = {}) =>
@@ -198,6 +198,6 @@ export {
   useBulkDeleteCouponsMutation, useCouponActionMutation, useCouponQuery,
   useCouponsQuery,
   useCreateCouponMutation, useDeleteCouponMutation, useGenerateNewCodeQuery, useUpdateCouponMutation,
-  useValidateQuery
+  useValidateQuery,
 };
 

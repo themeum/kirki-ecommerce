@@ -1,23 +1,22 @@
-import { useEffect, useState, type Dispatch, type SetStateAction } from 'react';
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { type Dispatch, type SetStateAction, useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
 
 import Button from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
 import { Dialog, DialogBody, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
-import Flex from '@/components/ui/flex';
+import type { TaxRegionState } from '@/pages/settings/tax-settings/utils';
+import { getSearchedValue } from '@/pages/settings/utils';
+import { type AddStatePopupFormInput, AddStatePopupFormSchema } from '@/schemas/forms/add-state-popup-form';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { scoped, defineStyles } from '@/theme/mixins';
-import { AddStatePopupFormSchema, type AddStatePopupFormInput } from '@/schemas/forms/add-state-popup-form';
+import { defineStyles, scoped } from '@/theme/mixins';
 import { __, sprintf } from '@/wpi18n';
-
-import { getSearchedValue } from '@/pages/settings/utils';
-import type { TaxRegionState } from '@/pages/settings/tax-settings/utils';
 
 type DestinationSelection = string | number;
 
@@ -60,6 +59,7 @@ export const AddStatePopup = (props: AddStatePopupProps) => {
 
     form.reset({ selectedCountries });
     setSearchValue('');
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- seeds the form from the current selection only as the dialog opens; tracking selectedCountries would reset the form while the user is picking states
   }, [openPopup]);
 
   const syncSelection = (next: DestinationSelection[]) => {
@@ -73,9 +73,9 @@ export const AddStatePopup = (props: AddStatePopupProps) => {
 
   const handleToggleCountry = (countryId: DestinationSelection | undefined) => {
     const current = form.getValues('selectedCountries');
-    const next = current.includes(countryId as DestinationSelection)
+    const next = current.includes(countryId!)
       ? current.filter((id) => id !== countryId)
-      : [...current, countryId as DestinationSelection];
+      : [...current, countryId!];
     syncSelection(next);
   };
 

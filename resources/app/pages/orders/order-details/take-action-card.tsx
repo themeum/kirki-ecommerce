@@ -59,7 +59,7 @@ const TakeActionCard = ({ order, onAction, isPerforming }: TakeActionCardProps) 
           </Flex>
 
           {availableActions.length > 0 && (
-            <Flex direction='column' gap={4}>
+            <Flex direction="column" gap={4}>
               <Field>
                 <FieldLabel><Text variant="small" weight="medium">{__('Take an Action', 'kirki-ecommerce')}</Text></FieldLabel>
                 <Select
@@ -86,7 +86,7 @@ const TakeActionCard = ({ order, onAction, isPerforming }: TakeActionCardProps) 
                 loading={isPerforming}
                 onClick={handleUpdate}
               >
-                <Text variant="tiny" weight="medium" color='light'>{__('Update', 'kirki-ecommerce')}</Text>
+                <Text variant="tiny" weight="medium" color="light">{__('Update', 'kirki-ecommerce')}</Text>
               </Button>
             </Flex>
           )}

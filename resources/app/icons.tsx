@@ -63,7 +63,7 @@ export const ChevronDownIcon = () => (
   </svg>
 );
 
-export const CheckedIcon = ({ color = "currentColor" }: IconColorProps) => (
+export const CheckedIcon = ({ color = 'currentColor' }: IconColorProps) => (
   <svg
     width="16"
     height="17"
@@ -154,7 +154,7 @@ export const InfoIcon = (props: IconProps) => (
     <g clipPath="url(#clip0_2129_1527)">
       <path
         d="M8.00004 10.6663V7.99967M8.00004 5.33301H8.00671M14.6667 7.99967C14.6667 11.6816 11.6819 14.6663 8.00004 14.6663C4.31814 14.6663 1.33337 11.6816 1.33337 7.99967C1.33337 4.31778 4.31814 1.33301 8.00004 1.33301C11.6819 1.33301 14.6667 4.31778 14.6667 7.99967Z"
-        stroke={"#878593"}
+        stroke="#878593"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
@@ -167,7 +167,7 @@ export const InfoIcon = (props: IconProps) => (
   </svg>
 );
 
-export const HelpTextIcon = ({ color = "#4A4852" }: IconColorProps) => (
+export const HelpTextIcon = ({ color = '#4A4852' }: IconColorProps) => (
   <svg
     width="16"
     height="16"
@@ -912,7 +912,7 @@ export const AlignCenterIcon = () => (
   </svg>
 );
 
-export const PlusCircleIcon = ({ color = "#4A4852" }: IconColorProps) => (
+export const PlusCircleIcon = ({ color = '#4A4852' }: IconColorProps) => (
   <svg
     width="16"
     height="17"
@@ -1063,7 +1063,7 @@ export const EditIcon = () => (
   </svg>
 );
 
-export const ThumbnailPlaceholder = ({ height = "17", width = "17" }: IconDimensionProps) => (
+export const ThumbnailPlaceholder = ({ height = '17', width = '17' }: IconDimensionProps) => (
   <svg
     width={width}
     height={height}
@@ -1145,10 +1145,10 @@ export const FlagIcon = () => (
 );
 
 export const TrashIcon = ({
-  className = "",
-  color = "currentColor", // #4A4852
-  height = "16",
-  width = "16",
+  className = '',
+  color = 'currentColor', // #4A4852
+  height = '16',
+  width = '16',
   style = {},
 }: IconColorProps & IconDimensionProps & IconStyleProps) => (
   <svg
@@ -1208,7 +1208,7 @@ export const PhoneIcon = () => (
   </svg>
 );
 
-export const LocationIcon = ({ height = "16", width = "16" }: IconDimensionProps) => (
+export const LocationIcon = ({ height = '16', width = '16' }: IconDimensionProps) => (
   <svg
     width={width}
     height={height}
@@ -1360,7 +1360,7 @@ export const DragIcon = () => (
   </svg>
 );
 
-export const EllipseIcon = ({ color = "#FFFFFF" }: IconColorProps) => (
+export const EllipseIcon = ({ color = '#FFFFFF' }: IconColorProps) => (
   <svg
     width="16"
     height="17"
@@ -1373,8 +1373,8 @@ export const EllipseIcon = ({ color = "#FFFFFF" }: IconColorProps) => (
 );
 
 export const ArrowDownUpFilled = ({
-  top = "currentColor",
-  bottom = "currentColor",
+  top = 'currentColor',
+  bottom = 'currentColor',
 }: ArrowDownUpFilledProps) => (
   <svg
     width="16"
@@ -2016,7 +2016,7 @@ export const BDFlagIcon = () => (
 
     <mask
       id="mask0_5617_110337"
-      style={{ maskType: "luminance" }}
+      style={{ maskType: 'luminance' }}
       maskUnits="userSpaceOnUse"
       x="0"
       y="0"
@@ -2282,7 +2282,7 @@ export const StoreIcon = () => (
   </svg>
 );
 
-export const MoveIcon = ({ height = "16", width = "16" }: IconDimensionProps) => (
+export const MoveIcon = ({ height = '16', width = '16' }: IconDimensionProps) => (
   <svg
     width={width}
     height={height}
@@ -2495,5 +2495,5 @@ export const LockIcon = () => (
 )
 
 export const LoudHandMic = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="70" height="70" fill="none"><path fill="#fff" stroke="#dbdbdb" strokeWidth="2.014" d="M35 1.007c13.026 0 21.419 2.157 26.6 7.31C66.78 13.47 68.993 21.861 68.993 35c0 13.142-2.18 21.532-7.344 26.684S48.095 68.994 35 68.994c-13.083 0-21.477-2.286-26.645-7.505C3.186 56.27 1.007 47.871 1.007 35c0-12.868 2.21-21.266 7.397-26.488C13.59 3.292 21.986 1.007 35 1.007Z" /><path fill="#f5f5f5" d="M66 35c0 23.374-7.71 31-31 31S4 57.905 4 35 11.83 4 35 4s31 7.626 31 31" /><mask id="a" width="36" height="38" x="14" y="17" maskUnits="userSpaceOnUse" style={{ maskType: "alpha" }}><path fill="#000" d="M48.966 31.095a7.605 7.605 0 0 0-6.869-5.868l-1.406-6.076a2.232 2.232 0 0 0-3.83-.996l-8.089 8.898-10.05 2.326a4.93 4.93 0 0 0-3.685 5.904l1.412 6.101a4.93 4.93 0 0 0 5.904 3.685l1.307-.303 1.917 8.281a2.24 2.24 0 0 0 2.683 1.675l2.615-.605a2.24 2.24 0 0 0 1.675-2.684l-1.916-8.28 1.77-.41 11.174 4.44a2.233 2.233 0 0 0 3.004-2.579L45.378 39.4a7.62 7.62 0 0 0 3.591-8.288z" /></mask><g filter="url(#b)" mask="url(#a)"><path fill="#f46ad6" d="M15.215 20.156h32.803v32.688H15.215z" /><ellipse cx="31.634" cy="49.083" fill="url(#c)" rx="8.37" ry="8.341" /><ellipse cx="8.361" cy="3.033" fill="#fed028" rx="8.361" ry="3.033" transform="rotate(-33.386 92.142 5.3)skewX(.186)" /><ellipse cx="11.528" cy="4.182" fill="#fed028" rx="11.528" ry="4.182" transform="rotate(-33.386 51.293 -18.172)skewX(.186)" /><ellipse cx="45.227" cy="21.171" fill="#6eb3ff" rx="7.311" ry="5.937" /><ellipse cx="39.288" cy="41.825" fill="#ff33d4" rx="8.37" ry="8.341" /><ellipse cx="8.363" cy="3.933" fill="#ff4346" rx="8.363" ry="3.933" transform="rotate(-30.402 83.715 -.9)skewY(.176)" /><ellipse cx="10.587" cy="6.734" fill="#ff4346" rx="10.587" ry="6.734" transform="rotate(-30.226 66.804 3.58)skewX(.176)" /><ellipse cx="27.167" cy="44.917" fill="#9864f0" rx="8.37" ry="1.157" transform="rotate(-10.817 27.167 44.917)" /><ellipse cx="36.672" cy="45.74" fill="#9864f0" rx="8.37" ry="2.557" transform="rotate(20.949 36.672 45.74)" /><ellipse cx="45.743" cy="31.867" fill="#9864f0" rx="8.37" ry="2.402" transform="rotate(77.173 45.743 31.867)" /><ellipse cx="10.403" cy="3.197" fill="#fed028" rx="10.403" ry="3.197" transform="rotate(-100.797 39.82 2.305)skewX(.186)" /><ellipse cx="11.528" cy="2.42" fill="#fed028" rx="11.528" ry="2.42" transform="rotate(-12.77 131.096 -25.87)skewX(.186)" /></g><mask id="d" width="9" height="18" x="48" y="22" maskUnits="userSpaceOnUse" style={{ maskType: "alpha" }}><path fill="#000" d="m51.08 29.484 5.105-.772.44 2.916-5.103.772zm-.184-1.718 1.966-1.789 1.967-1.789-.985-1.089-.985-1.089-1.967 1.79-1.967 1.788.985 1.09zm.957 6.33-.62 1.33-.618 1.332 2.408 1.128 2.408 1.127.619-1.331.619-1.332-2.408-1.128z" /></mask><g filter="url(#e)" mask="url(#d)"><path fill="#f46ad6" d="m44.388 22.289 18.541-2.804 2.795 18.475-18.541 2.805z" /><ellipse cx="55.977" cy="35.093" fill="url(#f)" rx="4.785" ry="4.768" transform="rotate(-8.601 55.977 35.093)" /><ellipse cx="4.78" cy="1.734" fill="#fed028" rx="4.78" ry="1.734" transform="rotate(-41.987 75.227 -39.03)skewX(.186)" /><ellipse cx="4.78" cy="1.734" fill="#fed028" rx="4.78" ry="1.734" transform="rotate(-42.173 54.697 -50.41)skewY(.186)" /><ellipse cx="61.015" cy="22.11" fill="#6eb3ff" rx="4.785" ry="3.885" transform="rotate(-8.601 61.015 22.11)" /><ellipse cx="59.847" cy="32.483" fill="#ff33d4" rx="4.785" ry="4.768" transform="rotate(-8.601 59.847 32.483)" /><ellipse cx="4.781" cy="2.248" fill="#ff4346" rx="4.781" ry="2.248" transform="rotate(-38.827 69.724 -47.68)skewX(.176)" /><ellipse cx="4.781" cy="2.248" fill="#ff4346" rx="4.781" ry="2.248" transform="rotate(-39.004 66.2 -45.284)skewY(.176)" /><ellipse cx="47.262" cy="23.937" fill="#9864f0" rx="4.785" ry="3.687" transform="rotate(-8.601 47.262 23.937)" /></g><defs><linearGradient id="c" x1="31.634" x2="31.634" y1="40.742" y2="57.424" gradientUnits="userSpaceOnUse"><stop stopColor="#fe8c28" /><stop offset="1" stopColor="#ff8a60" /></linearGradient><linearGradient id="f" x1="55.977" x2="55.977" y1="30.325" y2="39.861" gradientUnits="userSpaceOnUse"><stop stopColor="#fe8c28" /><stop offset="1" stopColor="#ff8a60" /></linearGradient><filter id="b" width="54.613" height="53.862" x="3.707" y="9.342" colorInterpolationFilters="sRGB" filterUnits="userSpaceOnUse"><feFlood floodOpacity="0" result="BackgroundImageFix" /><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape" /><feTurbulence baseFrequency="0.99900001287460327 0.99900001287460327" numOctaves="3" seed="9952" type="fractalNoise" /><feDisplacementMap width="100%" height="100%" in="shape" result="displacedImage" scale="11.565" xChannelSelector="R" yChannelSelector="G" /><feMerge result="effect1_texture_14055_113816"><feMergeNode in="displacedImage" /></feMerge><feTurbulence baseFrequency="inf inf" numOctaves="3" result="noise" seed="1854" stitchTiles="stitch" type="fractalNoise" /><feComponentTransfer in="noise" result="coloredNoise1"><feFuncR intercept="-.5" slope="2" type="linear" /><feFuncG intercept="-.5" slope="2" type="linear" /><feFuncB intercept="-.5" slope="2" type="linear" /><feFuncA tableValues="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0" type="discrete" /></feComponentTransfer><feComposite in="coloredNoise1" in2="effect1_texture_14055_113816" operator="in" result="noise1Clipped" /><feComponentTransfer in="noise1Clipped" result="color1"><feFuncA tableValues="0 0.79" type="table" /></feComponentTransfer><feMerge result="effect2_noise_14055_113816"><feMergeNode in="effect1_texture_14055_113816" /><feMergeNode in="color1" /></feMerge></filter><filter id="e" width="30.498" height="30.244" x="39.193" y="14.898" colorInterpolationFilters="sRGB" filterUnits="userSpaceOnUse"><feFlood floodOpacity="0" result="BackgroundImageFix" /><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape" /><feTurbulence baseFrequency="0.99900001287460327 0.99900001287460327" numOctaves="3" seed="9952" type="fractalNoise" /><feDisplacementMap width="100%" height="100%" in="shape" result="displacedImage" scale="6.611" xChannelSelector="R" yChannelSelector="G" /><feMerge result="effect1_texture_14055_113816"><feMergeNode in="displacedImage" /></feMerge><feTurbulence baseFrequency="inf inf" numOctaves="3" result="noise" seed="1854" stitchTiles="stitch" type="fractalNoise" /><feComponentTransfer in="noise" result="coloredNoise1"><feFuncR intercept="-.5" slope="2" type="linear" /><feFuncG intercept="-.5" slope="2" type="linear" /><feFuncB intercept="-.5" slope="2" type="linear" /><feFuncA tableValues="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0" type="discrete" /></feComponentTransfer><feComposite in="coloredNoise1" in2="effect1_texture_14055_113816" operator="in" result="noise1Clipped" /><feComponentTransfer in="noise1Clipped" result="color1"><feFuncA tableValues="0 0.79" type="table" /></feComponentTransfer><feMerge result="effect2_noise_14055_113816"><feMergeNode in="effect1_texture_14055_113816" /><feMergeNode in="color1" /></feMerge></filter></defs></svg>
+  <svg xmlns="http://www.w3.org/2000/svg" width="70" height="70" fill="none"><path fill="#fff" stroke="#dbdbdb" strokeWidth="2.014" d="M35 1.007c13.026 0 21.419 2.157 26.6 7.31C66.78 13.47 68.993 21.861 68.993 35c0 13.142-2.18 21.532-7.344 26.684S48.095 68.994 35 68.994c-13.083 0-21.477-2.286-26.645-7.505C3.186 56.27 1.007 47.871 1.007 35c0-12.868 2.21-21.266 7.397-26.488C13.59 3.292 21.986 1.007 35 1.007Z" /><path fill="#f5f5f5" d="M66 35c0 23.374-7.71 31-31 31S4 57.905 4 35 11.83 4 35 4s31 7.626 31 31" /><mask id="a" width="36" height="38" x="14" y="17" maskUnits="userSpaceOnUse" style={{ maskType: 'alpha' }}><path fill="#000" d="M48.966 31.095a7.605 7.605 0 0 0-6.869-5.868l-1.406-6.076a2.232 2.232 0 0 0-3.83-.996l-8.089 8.898-10.05 2.326a4.93 4.93 0 0 0-3.685 5.904l1.412 6.101a4.93 4.93 0 0 0 5.904 3.685l1.307-.303 1.917 8.281a2.24 2.24 0 0 0 2.683 1.675l2.615-.605a2.24 2.24 0 0 0 1.675-2.684l-1.916-8.28 1.77-.41 11.174 4.44a2.233 2.233 0 0 0 3.004-2.579L45.378 39.4a7.62 7.62 0 0 0 3.591-8.288z" /></mask><g filter="url(#b)" mask="url(#a)"><path fill="#f46ad6" d="M15.215 20.156h32.803v32.688H15.215z" /><ellipse cx="31.634" cy="49.083" fill="url(#c)" rx="8.37" ry="8.341" /><ellipse cx="8.361" cy="3.033" fill="#fed028" rx="8.361" ry="3.033" transform="rotate(-33.386 92.142 5.3)skewX(.186)" /><ellipse cx="11.528" cy="4.182" fill="#fed028" rx="11.528" ry="4.182" transform="rotate(-33.386 51.293 -18.172)skewX(.186)" /><ellipse cx="45.227" cy="21.171" fill="#6eb3ff" rx="7.311" ry="5.937" /><ellipse cx="39.288" cy="41.825" fill="#ff33d4" rx="8.37" ry="8.341" /><ellipse cx="8.363" cy="3.933" fill="#ff4346" rx="8.363" ry="3.933" transform="rotate(-30.402 83.715 -.9)skewY(.176)" /><ellipse cx="10.587" cy="6.734" fill="#ff4346" rx="10.587" ry="6.734" transform="rotate(-30.226 66.804 3.58)skewX(.176)" /><ellipse cx="27.167" cy="44.917" fill="#9864f0" rx="8.37" ry="1.157" transform="rotate(-10.817 27.167 44.917)" /><ellipse cx="36.672" cy="45.74" fill="#9864f0" rx="8.37" ry="2.557" transform="rotate(20.949 36.672 45.74)" /><ellipse cx="45.743" cy="31.867" fill="#9864f0" rx="8.37" ry="2.402" transform="rotate(77.173 45.743 31.867)" /><ellipse cx="10.403" cy="3.197" fill="#fed028" rx="10.403" ry="3.197" transform="rotate(-100.797 39.82 2.305)skewX(.186)" /><ellipse cx="11.528" cy="2.42" fill="#fed028" rx="11.528" ry="2.42" transform="rotate(-12.77 131.096 -25.87)skewX(.186)" /></g><mask id="d" width="9" height="18" x="48" y="22" maskUnits="userSpaceOnUse" style={{ maskType: 'alpha' }}><path fill="#000" d="m51.08 29.484 5.105-.772.44 2.916-5.103.772zm-.184-1.718 1.966-1.789 1.967-1.789-.985-1.089-.985-1.089-1.967 1.79-1.967 1.788.985 1.09zm.957 6.33-.62 1.33-.618 1.332 2.408 1.128 2.408 1.127.619-1.331.619-1.332-2.408-1.128z" /></mask><g filter="url(#e)" mask="url(#d)"><path fill="#f46ad6" d="m44.388 22.289 18.541-2.804 2.795 18.475-18.541 2.805z" /><ellipse cx="55.977" cy="35.093" fill="url(#f)" rx="4.785" ry="4.768" transform="rotate(-8.601 55.977 35.093)" /><ellipse cx="4.78" cy="1.734" fill="#fed028" rx="4.78" ry="1.734" transform="rotate(-41.987 75.227 -39.03)skewX(.186)" /><ellipse cx="4.78" cy="1.734" fill="#fed028" rx="4.78" ry="1.734" transform="rotate(-42.173 54.697 -50.41)skewY(.186)" /><ellipse cx="61.015" cy="22.11" fill="#6eb3ff" rx="4.785" ry="3.885" transform="rotate(-8.601 61.015 22.11)" /><ellipse cx="59.847" cy="32.483" fill="#ff33d4" rx="4.785" ry="4.768" transform="rotate(-8.601 59.847 32.483)" /><ellipse cx="4.781" cy="2.248" fill="#ff4346" rx="4.781" ry="2.248" transform="rotate(-38.827 69.724 -47.68)skewX(.176)" /><ellipse cx="4.781" cy="2.248" fill="#ff4346" rx="4.781" ry="2.248" transform="rotate(-39.004 66.2 -45.284)skewY(.176)" /><ellipse cx="47.262" cy="23.937" fill="#9864f0" rx="4.785" ry="3.687" transform="rotate(-8.601 47.262 23.937)" /></g><defs><linearGradient id="c" x1="31.634" x2="31.634" y1="40.742" y2="57.424" gradientUnits="userSpaceOnUse"><stop stopColor="#fe8c28" /><stop offset="1" stopColor="#ff8a60" /></linearGradient><linearGradient id="f" x1="55.977" x2="55.977" y1="30.325" y2="39.861" gradientUnits="userSpaceOnUse"><stop stopColor="#fe8c28" /><stop offset="1" stopColor="#ff8a60" /></linearGradient><filter id="b" width="54.613" height="53.862" x="3.707" y="9.342" colorInterpolationFilters="sRGB" filterUnits="userSpaceOnUse"><feFlood floodOpacity="0" result="BackgroundImageFix" /><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape" /><feTurbulence baseFrequency="0.99900001287460327 0.99900001287460327" numOctaves="3" seed="9952" type="fractalNoise" /><feDisplacementMap width="100%" height="100%" in="shape" result="displacedImage" scale="11.565" xChannelSelector="R" yChannelSelector="G" /><feMerge result="effect1_texture_14055_113816"><feMergeNode in="displacedImage" /></feMerge><feTurbulence baseFrequency="inf inf" numOctaves="3" result="noise" seed="1854" stitchTiles="stitch" type="fractalNoise" /><feComponentTransfer in="noise" result="coloredNoise1"><feFuncR intercept="-.5" slope="2" type="linear" /><feFuncG intercept="-.5" slope="2" type="linear" /><feFuncB intercept="-.5" slope="2" type="linear" /><feFuncA tableValues="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0" type="discrete" /></feComponentTransfer><feComposite in="coloredNoise1" in2="effect1_texture_14055_113816" operator="in" result="noise1Clipped" /><feComponentTransfer in="noise1Clipped" result="color1"><feFuncA tableValues="0 0.79" type="table" /></feComponentTransfer><feMerge result="effect2_noise_14055_113816"><feMergeNode in="effect1_texture_14055_113816" /><feMergeNode in="color1" /></feMerge></filter><filter id="e" width="30.498" height="30.244" x="39.193" y="14.898" colorInterpolationFilters="sRGB" filterUnits="userSpaceOnUse"><feFlood floodOpacity="0" result="BackgroundImageFix" /><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape" /><feTurbulence baseFrequency="0.99900001287460327 0.99900001287460327" numOctaves="3" seed="9952" type="fractalNoise" /><feDisplacementMap width="100%" height="100%" in="shape" result="displacedImage" scale="6.611" xChannelSelector="R" yChannelSelector="G" /><feMerge result="effect1_texture_14055_113816"><feMergeNode in="displacedImage" /></feMerge><feTurbulence baseFrequency="inf inf" numOctaves="3" result="noise" seed="1854" stitchTiles="stitch" type="fractalNoise" /><feComponentTransfer in="noise" result="coloredNoise1"><feFuncR intercept="-.5" slope="2" type="linear" /><feFuncG intercept="-.5" slope="2" type="linear" /><feFuncB intercept="-.5" slope="2" type="linear" /><feFuncA tableValues="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0" type="discrete" /></feComponentTransfer><feComposite in="coloredNoise1" in2="effect1_texture_14055_113816" operator="in" result="noise1Clipped" /><feComponentTransfer in="noise1Clipped" result="color1"><feFuncA tableValues="0 0.79" type="table" /></feComponentTransfer><feMerge result="effect2_noise_14055_113816"><feMergeNode in="effect1_texture_14055_113816" /><feMergeNode in="color1" /></feMerge></filter></defs></svg>
 );

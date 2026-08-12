@@ -1,15 +1,14 @@
-import { useState, type MouseEvent } from 'react';
+import { type MouseEvent, useState } from 'react';
 
-import Button from '@/components/ui/button';
-import { EditPenIcon, TrashIcon } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
+import Button from '@/components/ui/button';
 import Checkbox from '@/components/ui/checkbox';
 import { TableCell, TableRow } from '@/components/ui/table';
+import { EditPenIcon, TrashIcon } from '@/icons';
+import TagAddEditDialog from '@/pages/tags/tag-add-edit-dialog';
 import { useDeleteTagMutation } from '@/services/tag';
 import type { MarkListHandlers, Tag } from '@/types';
 import { __ } from '@/wpi18n';
-
-import TagAddEditDialog from '@/pages/tags/tag-add-edit-dialog';
 
 type SingleRowProps = MarkListHandlers & {
   item: Tag;
@@ -53,9 +52,9 @@ const SingleRow = ({
           {item?.description || '--'}
         </TableCell>
         <TableCell>{item?.slug || '--'}</TableCell>
-        <TableCell>{item?.count || 0}</TableCell>
+        <TableCell>{item?.count ?? 0}</TableCell>
         <TableCell alignment="right" style={{ width: '1%' }}>
-          <div onClick={handleStopPropagation}>
+          <div role="presentation" onClick={handleStopPropagation}>
             <ActionGroup>
               <Button variant="secondary" onClick={handleOpenEdit}>
                 <EditPenIcon />

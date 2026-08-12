@@ -20,5 +20,5 @@ const displayMoney = (key: string, data: Record<string, unknown>): string => {
 }
 
 export {
-  displayMoney
+  displayMoney,
 };

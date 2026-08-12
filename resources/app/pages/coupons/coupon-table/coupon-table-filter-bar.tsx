@@ -7,10 +7,11 @@ import { useListParams } from '@/hooks';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
 import type { SuggestionOption } from '@/types';
-import { CouponListFilter, couponListFilterConfig, couponListOptions, discountTypeOptions, methodOptions, statusOptions } from '@/types/filters/coupon';
+import type { CouponListFilter} from '@/types/filters/coupon';
+import { couponListFilterConfig, couponListOptions, discountTypeOptions, methodOptions, statusOptions } from '@/types/filters/coupon';
 import { __ } from '@/wpi18n';
 
-type FilterValue = string | number | Array<string | number>;
+type FilterValue = string | number | (string | number)[];
 
 const COUPON_FILTER_KEYS = couponListFilterConfig.keys;
 
@@ -41,7 +42,7 @@ const CouponTableFilterBar = memo(() => {
   });
 
   const getFilterValue = (key: CouponFilterKey): FilterValue =>
-    (params[key] || '') as FilterValue;
+    (params[key] || '');
 
   const handleFilterChange = (val: FilterValue, key: CouponFilterKey) => {
     setParam(key, val || undefined);
@@ -55,7 +56,7 @@ const CouponTableFilterBar = memo(() => {
     setParams(
       Object.fromEntries(
         COUPON_FILTER_KEYS.map((key) => [key, undefined]),
-      ) as Partial<CouponListFilter>,
+      ),
     );
   };
 
@@ -71,7 +72,7 @@ const CouponTableFilterBar = memo(() => {
           uniqueKey={key}
           optionsArray={filterOptionsMap[key]}
           value={getFilterValue(key)}
-          onValueChange={(val) => handleFilterChange(val as FilterValue, key)}
+          onValueChange={(val) => handleFilterChange(val, key)}
           onClearItem={() => handleClearSingleFilter(key)}
         />
       ))}

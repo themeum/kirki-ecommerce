@@ -1,12 +1,15 @@
+import { useNavigate } from 'react-router';
+
 import LoadingSpinner from '@/components/loading-spinner';
 import { RouteConfig } from '@/config/route-config';
 import { getDefaults } from '@/libs/zod';
+import ProductForm from '@/pages/products/product-form/product-form';
 import {
   getDefaultVariantValues,
   mapProductToFormValues,
-  ProductFormSchema,
   type ProductFormInput,
   type ProductFormPayload,
+  ProductFormSchema,
 } from '@/schemas/forms/product-form';
 import {
   useCreateProductMutation,
@@ -14,9 +17,6 @@ import {
 import { useDefaultSettingsQuery, useSettingsQuery } from '@/services/settings';
 import { useShippingBoxesQuery } from '@/services/shipping';
 import { isDefined } from '@/utils/object';
-import { useNavigate } from 'react-router';
-
-import ProductForm from '@/pages/products/product-form/product-form';
 
 const CreateProduct = () => {
   const navigate = useNavigate();
@@ -55,7 +55,7 @@ const CreateProduct = () => {
   const handleSubmit = async (data: ProductFormPayload) => {
     const response = await createProductMutation.mutateAsync(data);
     if (isDefined(response.data.id)) {
-      navigate(RouteConfig.Products.get('EditProduct').buildLink({ id: response.data.id }));
+      void navigate(RouteConfig.Products.get('EditProduct').buildLink({ id: response.data.id }));
     }
     return mapProductToFormValues(response.data);
   };

@@ -84,7 +84,7 @@ const CustomerCard = ({ onSave, isSaving, readonly = false }: CustomerCardProps)
   return (
     <Card cssOverride={cardStyles.formCard}>
       <CardHeader cssOverride={styles.headerRow}>
-        <CardTitle><Text variant="small" weight='medium'>{__('Customer', 'kirki-ecommerce')}</Text></CardTitle>
+        <CardTitle><Text variant="small" weight="medium">{__('Customer', 'kirki-ecommerce')}</Text></CardTitle>
         {customer && !readonly && (
           <ActionGroup>
             <Button

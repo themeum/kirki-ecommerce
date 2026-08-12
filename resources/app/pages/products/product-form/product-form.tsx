@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
-import { useForm, useWatch, type FieldPath } from 'react-hook-form';
+import { type FieldPath, useForm, useWatch } from 'react-hook-form';
 import { useNavigate } from 'react-router';
 import { toast } from 'sonner';
 
@@ -21,19 +21,6 @@ import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { setUnsavedDataStatus } from '@/libs/unsaved-store';
 import { getDefaults } from '@/libs/zod';
-import {
-  getDefaultVariantValues,
-  ProductFormSchema,
-  type ProductFormInput,
-  type ProductFormPayload,
-} from '@/schemas/forms/product-form';
-import { getErrorMessage } from '@/services/helpers';
-import { cardStyles } from '@/theme/card-styles';
-import { __ } from '@/wpi18n';
-
-import UnsavedToast from '@/pages/products/product-form/unsaved-toast';
-import { useUnsavedNavigationGuard } from '@/pages/products/product-form/use-unsaved-navigation-guard';
-
 import AdditionalInfo from '@/pages/products/product-form/sections/additional-info/additional-info';
 import Inventory from '@/pages/products/product-form/sections/inventory/inventory';
 import Price from '@/pages/products/product-form/sections/price/price';
@@ -41,6 +28,17 @@ import RightPanel from '@/pages/products/product-form/sections/right-panel/right
 import SEOSettings from '@/pages/products/product-form/sections/seo-settings/seo-settings';
 import Shipping from '@/pages/products/product-form/sections/shipping/shipping';
 import Variants from '@/pages/products/product-form/sections/variants/variants';
+import UnsavedToast from '@/pages/products/product-form/unsaved-toast';
+import { useUnsavedNavigationGuard } from '@/pages/products/product-form/use-unsaved-navigation-guard';
+import {
+  getDefaultVariantValues,
+  type ProductFormInput,
+  type ProductFormPayload,
+  ProductFormSchema,
+} from '@/schemas/forms/product-form';
+import { getErrorMessage } from '@/services/helpers';
+import { cardStyles } from '@/theme/card-styles';
+import { __ } from '@/wpi18n';
 
 type ProductFormProps = {
   mode: 'create' | 'edit';
@@ -179,7 +177,7 @@ const ProductForm = ({
               <Card cssOverride={cardStyles.formCard}>
                 <CardContent>
                   <Flex direction="column" gap={4}>
-                    <Grid gap={3} template={'2fr 1fr'}>
+                    <Grid gap={3} template="2fr 1fr">
                       <TextField
                         name="title"
                         label={__('Title', 'kirki-ecommerce')}

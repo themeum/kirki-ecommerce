@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { type ReactNode, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 
 import HeaderActionsCard from '@/components/header-actions-card';
@@ -17,6 +17,7 @@ import {
 import Text from '@/components/ui/text';
 import { RouteConfig } from '@/config/route-config';
 import { BoxIcon, ColorPaletteIcon, EditPenIcon, TrashIcon } from '@/icons';
+import AddVariationPopup from '@/pages/settings/essential-settings/variation-library/add-variation-dialog';
 import { dispatchToastMessage } from '@/pages/utils';
 import { useAttributesQuery, useDeleteAttributeMutation } from '@/services/attribute';
 import { theme } from '@/theme';
@@ -24,8 +25,6 @@ import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
 import type { Attribute } from '@/types';
 import { __ } from '@/wpi18n';
-
-import AddVariationPopup from '@/pages/settings/essential-settings/variation-library/add-variation-dialog';
 
 type AttributeListItem = Attribute & {
   badge1?: string;
@@ -44,7 +43,7 @@ const VariationList = () => {
   useEffect(() => {
     const formattedAttributes = attributeList.map((item) => ({
       ...item,
-      badge1: `${item.values?.length || 0} values`,
+      badge1: `${item.values?.length ?? 0} values`,
       icon: item.type === 'color' ? <ColorPaletteIcon /> : <BoxIcon />,
     }));
     setAttributeListArr(formattedAttributes);
@@ -61,8 +60,8 @@ const VariationList = () => {
       undoAction: () => {
         setAttributeListArr(initialList);
       },
-      onSuccess: async () => {
-        deleteAttribute(item.id as number, { onSuccess: () => refetch() });
+      onSuccess: () => {
+        deleteAttribute(item.id, { onSuccess: () => refetch() });
       },
     });
   };
@@ -71,9 +70,9 @@ const VariationList = () => {
     const EssentialsRoutes = RouteConfig.Settings.get('EssentialsSettings');
 
     if (item?.type === 'color') {
-      navigate(EssentialsRoutes.get('ColorVariation').buildLink({ id: item.id }));
+      void navigate(EssentialsRoutes.get('ColorVariation').buildLink({ id: item.id }));
     } else {
-      navigate(EssentialsRoutes.get('ListVariation').buildLink({ id: item.id }));
+      void navigate(EssentialsRoutes.get('ListVariation').buildLink({ id: item.id }));
     }
   };
 
@@ -149,7 +148,7 @@ const VariationList = () => {
           variationType={variationType}
           onClose={() => {
             setShowPopup(false);
-            refetch();
+            void refetch();
           }}
         />
       </CardContent>

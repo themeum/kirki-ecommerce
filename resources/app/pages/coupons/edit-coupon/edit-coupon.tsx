@@ -3,19 +3,24 @@ import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router';
 
+// import ConditionsTab from './components/tabs/conditions-tab';
+import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
+import Page from '@/components/ui/page';
 import PageHeading from '@/components/ui/page-heading';
 import { NEW_ITEM_ID } from '@/conf';
 import { RouteConfig } from '@/config/route-config';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
+import { getDefaults, pickFormValues } from '@/libs/zod';
+import { getCouponBadgeInfo } from '@/pages/coupons/edit-coupon/config/coupon-badge';
 import {
-  CouponFormSchema,
   type CouponFormInput,
   type CouponFormPayload,
+  CouponFormSchema,
 } from '@/schemas/forms/coupon-form';
 import {
   useCouponQuery,
@@ -24,15 +29,10 @@ import {
 } from '@/services/coupon';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
+import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
 
-import Page from '@/components/ui/page';
-import { getDefaults, pickFormValues } from '@/libs/zod';
-import { getCouponBadgeInfo } from '@/pages/coupons/edit-coupon/config/coupon-badge';
-import { isDefined } from '@/utils/object';
 import CouponPreview from './components/coupon-preview';
-// import ConditionsTab from './components/tabs/conditions-tab';
-import Badge from '@/components/ui/badge';
 import DetailsTab from './components/tabs/details-tab';
 import { splitIsoDateTime } from './config/coupon-datetime';
 
@@ -137,7 +137,7 @@ const EditCoupon = () => {
         const response = await createMutation.mutateAsync(payload);
 
         if (isDefined(response.data) && isDefined(response.data.id)) {
-          navigate(RouteConfig.Coupons.get('EditCoupon').buildLink({ id: response.data.id }));
+          void navigate(RouteConfig.Coupons.get('EditCoupon').buildLink({ id: response.data.id }));
         }
       }
     } catch (error) {

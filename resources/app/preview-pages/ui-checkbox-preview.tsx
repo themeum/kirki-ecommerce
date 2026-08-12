@@ -1,6 +1,5 @@
-import Flex from '@/components/ui/flex';
-
 import Checkbox from '@/components/ui/checkbox';
+import Flex from '@/components/ui/flex';
 import Label from '@/components/ui/label';
 
 const UiCheckboxPreview = () => {

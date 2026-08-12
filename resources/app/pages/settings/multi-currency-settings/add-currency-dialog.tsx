@@ -11,15 +11,15 @@ import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
 import Text from '@/components/ui/text';
 import { PlusIcon, SearchIcon } from '@/icons';
+import ExchangeRatePopup from '@/pages/settings/multi-currency-settings/exchange-rate-dialog';
+import { getSearchedValue } from '@/pages/settings/utils';
 import type { CurrencyDraft, CurrencyOption } from '@/schemas/catalog/currency';
-import { AddCurrencyPopupFormSchema, type AddCurrencyPopupFormInput, type AddCurrencyPopupFormPayload } from '@/schemas/forms/add-currency-popup-form';
+import { type AddCurrencyPopupFormInput, type AddCurrencyPopupFormPayload, AddCurrencyPopupFormSchema } from '@/schemas/forms/add-currency-popup-form';
 import { useAllCurrenciesQuery, useAvailableCurrenciesQuery } from '@/services/currency';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
+import { toDisplayString } from '@/utils/string';
 import { __ } from '@/wpi18n';
-
-import ExchangeRatePopup from '@/pages/settings/multi-currency-settings/exchange-rate-dialog';
-import { getSearchedValue } from '@/pages/settings/utils';
 
 const AddCurrencyPopup = () => {
   const [openPopup, setOpenPopup] = useState(false);
@@ -85,7 +85,7 @@ const AddCurrencyPopup = () => {
       typeof e === 'object' && e !== null && 'target' in e
         ? (e as { target?: { value?: string } })?.target?.value
         : e;
-    const value = String(eventValue ?? '');
+    const value = toDisplayString(eventValue);
     setSearchValue(value);
 
     if (!value) {

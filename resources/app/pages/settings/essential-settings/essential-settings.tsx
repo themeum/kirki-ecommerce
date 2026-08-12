@@ -1,11 +1,10 @@
-import { SnowflakeIcon } from '@/icons';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
-import { __ } from '@/wpi18n';
-
-import SettingsPageHeader from '@/pages/settings/settings-page-header';
+import { SnowflakeIcon } from '@/icons';
 import SchemaProfile from '@/pages/settings/essential-settings/schema-profile/schema-profile';
 import VariationList from '@/pages/settings/essential-settings/variation-library/variation-library';
+import SettingsPageHeader from '@/pages/settings/settings-page-header';
+import { __ } from '@/wpi18n';
 
 const EssentialsSettings = () => {
   return (

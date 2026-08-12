@@ -8,6 +8,6 @@ export const isObject = (value: unknown): value is Record<string, unknown> => {
 
 export const getObjectKeys = <T extends Record<string, unknown>>(
   obj: T,
-): Array<keyof T> => {
-  return Object.keys(obj) as Array<keyof T>;
+): (keyof T)[] => {
+  return Object.keys(obj);
 };

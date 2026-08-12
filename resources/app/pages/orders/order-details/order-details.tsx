@@ -34,9 +34,9 @@ import {
   getAvailableActions,
   ORDER_ACTION_GROUP,
   ORDER_ACTIONS,
-  PAYMENT_ACTION_GROUP,
   type OrderAction,
   type OrderActionPayload,
+  PAYMENT_ACTION_GROUP,
 } from '@/pages/orders/order-details/config/order-actions';
 import { toOrderFormAddresses } from '@/pages/orders/order-details/config/order-address';
 import {
@@ -51,7 +51,7 @@ import { useOrderActionMutation, useOrderQuery, useUpdateOrderMutation } from '@
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
-import { OrderFormSchema, type OrderFormInput, type OrderFormPayload } from '@/types';
+import { type OrderFormInput, type OrderFormPayload, OrderFormSchema } from '@/types';
 import { __, sprintf } from '@/wpi18n';
 
 const OrderDetails = () => {
@@ -60,7 +60,7 @@ const OrderDetails = () => {
   const [isTrackingDialogOpen, setIsTrackingDialogOpen] = useState(false);
   const [isMarkAsPaidDialogOpen, setIsMarkAsPaidDialogOpen] = useState(false);
 
-  const { data: order, isLoading, isError } = useOrderQuery(id as string, Boolean(id));
+  const { data: order, isLoading, isError } = useOrderQuery(id!, Boolean(id));
   const actionMutation = useOrderActionMutation();
   const updateMutation = useUpdateOrderMutation();
 
@@ -103,7 +103,7 @@ const OrderDetails = () => {
           <Card cssOverride={{ marginTop: theme.spacing[12] }}>
             <CardContent>
               <Flex justify="center" align="center" cssOverride={{ minHeight: 200 }}>
-                <Text color="secondary" variant='lead'>
+                <Text color="secondary" variant="lead">
                   {__('Order not found.', 'kirki-ecommerce')}
                 </Text>
               </Flex>
@@ -213,7 +213,7 @@ const OrderDetails = () => {
               <Card cssOverride={cardStyles.formCard}>
                 <CardHeader>
                   <CardTitle>
-                    <Text variant='heading6' weight="semibold">
+                    <Text variant="heading6" weight="semibold">
                       {/* translators: %s: number of items */}
                       {sprintf(__('Items (%s)', 'kirki-ecommerce'), order.items_count)}
                     </Text>
@@ -323,5 +323,5 @@ export default OrderDetails;
 const styles = defineStyles({
   zeroPadding: {
     padding: theme.spacing[0],
-  }
+  },
 });

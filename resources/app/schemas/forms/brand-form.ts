@@ -21,4 +21,4 @@ type BrandFormInput = z.input<typeof BrandFormSchema>;
 
 type BrandFormPayload = z.output<typeof BrandFormSchema>;
 
-export { BrandFormSchema, type BrandFormInput, type BrandFormPayload };
+export { type BrandFormInput, type BrandFormPayload, BrandFormSchema };

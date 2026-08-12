@@ -11,7 +11,8 @@ import { useListParams } from '@/hooks';
 import { CloseIcon, ListFilter } from '@/icons';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
-import { fulfillmentStatusOptions, OrderListFilter, orderListOptions, paymentStatusOptions } from '@/types/filters/order';
+import type { OrderListFilter} from '@/types/filters/order';
+import { fulfillmentStatusOptions, orderListOptions, paymentStatusOptions } from '@/types/filters/order';
 import { __ } from '@/wpi18n';
 
 const emptyFilter: OrderListFilter = {
@@ -34,9 +35,10 @@ const FilterPopup = memo(() => {
       return;
     }
     setFilterObject({
-      fulfillment_status: (params.fulfillment_status as string) || 'all',
-      payment_status: (params.payment_status as string) || 'all',
+      fulfillment_status: (params.fulfillment_status!) || 'all',
+      payment_status: (params.payment_status!) || 'all',
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- seeds the draft filters from the URL params only as the popup opens; tracking params.* would overwrite the user edits as they change each control
   }, [openPopup]);
 
   const handleOnFilterChange = (

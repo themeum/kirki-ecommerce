@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import { useState, type Dispatch, type SetStateAction } from 'react';
+import { type Dispatch, type SetStateAction, useState } from 'react';
 
 import Button from '@/components/ui/button';
 import Grid from '@/components/ui/grid';
@@ -7,15 +7,15 @@ import Input from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Text from '@/components/ui/text';
 import { PlusIcon, TrashIcon } from '@/icons';
-import { theme } from '@/theme';
-import { defineStyles, mergeCss } from '@/theme/mixins';
-import { __ } from '@/wpi18n';
-
 import { AddStatePopup } from '@/pages/settings/tax-settings/tax-region/tax-rules/add-state-dialog';
 import { getDestinationDisplayValue } from '@/pages/settings/tax-settings/tax-region/tax-rules/helper';
 import type { TaxConditionRow, TaxRegion } from '@/pages/settings/tax-settings/utils';
 import { taxRuleConditionOptions } from '@/pages/settings/tax-settings/utils';
+import { theme } from '@/theme';
+import { defineStyles, mergeCss } from '@/theme/mixins';
 import { uuid } from '@/utils';
+import { toDisplayString } from '@/utils/string';
+import { __ } from '@/wpi18n';
 
 type ConditionOption = {
   title: string;
@@ -29,8 +29,8 @@ type ConditionRowProps = {
   conditions: TaxConditionRow[];
   setConditions: Dispatch<SetStateAction<TaxConditionRow[]>>;
   getConditionValue: (condition: string) => ConditionOption[];
-  selectedCountries: Array<string | number>;
-  setSelectedCountries: Dispatch<SetStateAction<Array<string | number>>>;
+  selectedCountries: (string | number)[];
+  setSelectedCountries: Dispatch<SetStateAction<(string | number)[]>>;
   from?: string;
   region?: TaxRegion;
 };
@@ -139,7 +139,7 @@ const ConditionRow = (props: ConditionRowProps) => {
           />
         ) : (
           <Select
-            value={String(displayedValue || row.value || '')}
+            value={toDisplayString(displayedValue ?? row.value)}
             onValueChange={(value) => updateCondition(row.id, 'value', value)}
           >
             <SelectTrigger>
@@ -163,7 +163,7 @@ const ConditionRow = (props: ConditionRowProps) => {
             variant="outline"
             onClick={handleAddConditionRow}
             cssOverride={mergeCss(styles.conditionActions,
-              isHovered && styles.conditionActionsActive,)}
+              isHovered && styles.conditionActionsActive)}
           >
             <PlusIcon />
           </Button>
@@ -174,7 +174,7 @@ const ConditionRow = (props: ConditionRowProps) => {
             variant="secondary"
             onClick={() => handleDeleteConditionRow(row.id)}
             cssOverride={mergeCss(styles.conditionActions,
-              isHovered && styles.conditionActionsActive,)}
+              isHovered && styles.conditionActionsActive)}
           >
             <TrashIcon />
           </Button>
@@ -185,7 +185,7 @@ const ConditionRow = (props: ConditionRowProps) => {
           openPopup={showStatesPopup}
           setOpenPopup={setShowStatesPopup}
           countryName={region?.code}
-          countryList={region?.states || []}
+          countryList={region?.states ?? []}
           selectedCountries={selectedCountries}
           setSelectedCountries={setSelectedCountries}
           onAdd={handleAddStates}

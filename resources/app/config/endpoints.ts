@@ -34,7 +34,7 @@ export const endpoints = {
 
   VARIANTS: '/variants',
   VARIANTS_BULK: '/variants/bulk',
-  VARIANTS_BULK_BY_IDS: (ids: string | Array<string | number>) =>
+  VARIANTS_BULK_BY_IDS: (ids: string | (string | number)[]) =>
     `/variants/bulk/${Array.isArray(ids) ? ids.join(',') : ids}`,
 
   COUNTRIES: '/countries',

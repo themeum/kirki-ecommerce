@@ -67,5 +67,5 @@ const styles = defineStyles({
   optionCard: {
     borderRadius: theme.radius.lg,
     border: `1px solid ${theme.colors.border.default}`,
-  }
+  },
 });

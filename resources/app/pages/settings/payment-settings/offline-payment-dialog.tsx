@@ -1,18 +1,18 @@
-import { useEffect, useState, type Dispatch, type SetStateAction } from 'react';
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { type Dispatch, type SetStateAction, useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
 
 import RichTextField from '@/components/form/rich-text-field';
 import TextField from '@/components/form/text-field';
 import ThumbnailField from '@/components/form/thumbnail-field';
 import Button from '@/components/ui/button';
 import { Dialog, DialogBody, DialogClose, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import Flex from '@/components/ui/flex';
 import { getDefaults } from '@/libs/zod';
-import { OfflinePaymentFormSchema, type OfflinePaymentFormInput, type OfflinePaymentFormPayload } from '@/schemas/forms/offline-payment-form';
+import { type OfflinePaymentFormInput, type OfflinePaymentFormPayload, OfflinePaymentFormSchema } from '@/schemas/forms/offline-payment-form';
 import { useCreateOfflinePaymentMutation, useUpdateOfflinePaymentMutation } from '@/services/payment';
 import type { OfflinePayment } from '@/types';
 import { __ } from '@/wpi18n';
@@ -60,7 +60,7 @@ const OfflinePaymentPopup = (props: OfflinePaymentPopupProps) => {
       name: editingMethod?.name ?? '',
       icon: iconUrl,
       instructions:
-        (editingMethod?.instructions as string) ||
+        editingMethod?.instructions ||
         ((editingMethod as OfflinePayment & { description?: string })
           ?.description ??
           ''),

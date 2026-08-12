@@ -15,14 +15,15 @@ import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { pickFormValues } from '@/libs/zod';
 import {
-  CategoryFormSchema,
   type CategoryFormInput,
   type CategoryFormPayload,
+  CategoryFormSchema,
 } from '@/schemas/forms/category-form';
 import { useCategoriesQuery, useCreateCategoryMutation, useUpdateCategoryMutation } from '@/services/category';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import type { Category } from '@/types';
+import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 
 type CategoryAddEditPopoverProps = {
@@ -40,7 +41,7 @@ const getInitialImageUrl = (category: Category | CategoryFormInput) => {
 
 const CategoryAddEditPopover = ({
   category,
-  onClose = () => { },
+  onClose = noop,
 }: CategoryAddEditPopoverProps) => {
   const { data: categoriesData } = useCategoriesQuery({ limit: -1 });
   const categories = categoriesData?.results ?? [];

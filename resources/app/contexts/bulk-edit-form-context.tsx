@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo, useReducer, type Dispatch, type ReactNode } from 'react';
+import { createContext, type Dispatch, type ReactNode, useCallback, useContext, useMemo, useReducer } from 'react';
 
 import type {
   ProductVariant,
@@ -29,11 +29,11 @@ const applyVariantField = (
   if (key === 'base_price_per_unit') {
     const unitValue = value as UnitPriceValue;
     variant.total_unit_amount =
-      unitValue?.total_unit_amount as ProductVariant['total_unit_amount'];
-    variant.total_unit = unitValue?.total_unit as ProductVariant['total_unit'];
+      unitValue?.total_unit_amount;
+    variant.total_unit = unitValue?.total_unit;
     variant.base_unit_amount =
-      unitValue?.base_unit_amount as ProductVariant['base_unit_amount'];
-    variant.base_unit = unitValue?.base_unit as ProductVariant['base_unit'];
+      unitValue?.base_unit_amount;
+    variant.base_unit = unitValue?.base_unit;
     return;
   }
 
@@ -104,23 +104,41 @@ type BulkEditFormProviderProps = {
 const BulkEditFormProvider = ({ children }: BulkEditFormProviderProps) => {
   const [state, dispatch] = useReducer(bulkEditFormReducer, initialState);
 
+  /**
+   * The action creators are memoized apart from `state` so their identity is
+   * stable. Rebuilding them alongside `state` made them unusable as effect
+   * dependencies — every dispatch produced fresh functions, so any effect that
+   * listed one would re-run on its own output.
+   */
+  const setVariants = useCallback<BulkEditFormContextValue['setVariants']>(
+    (payload) => {
+      dispatch({ type: 'SET_VARIANTS', payload });
+    },
+    [],
+  );
+
+  const updateVariants = useCallback<BulkEditFormContextValue['updateVariants']>(
+    (payload) => {
+      dispatch({ type: 'UPDATE_VARIANTS', payload });
+    },
+    [],
+  );
+
+  const reset = useCallback(() => {
+    dispatch({ type: 'RESET' });
+  }, []);
+
   const value = useMemo<BulkEditFormContextValue>(
     () => ({
       state,
       dispatch,
       variants: state.variants,
       loaded: state.loaded,
-      setVariants: (payload) => {
-        dispatch({ type: 'SET_VARIANTS', payload });
-      },
-      updateVariants: (payload) => {
-        dispatch({ type: 'UPDATE_VARIANTS', payload });
-      },
-      reset: () => {
-        dispatch({ type: 'RESET' });
-      },
+      setVariants,
+      updateVariants,
+      reset,
     }),
-    [state],
+    [state, setVariants, updateVariants, reset],
   );
 
   return (
@@ -141,4 +159,4 @@ const useBulkEditForm = () => {
 BulkEditFormProvider.displayName = 'BulkEditFormProvider';
 
 export { BulkEditFormProvider, useBulkEditForm };
-export type { BulkEditFormState, BulkEditFormAction };
+export type { BulkEditFormAction, BulkEditFormState };

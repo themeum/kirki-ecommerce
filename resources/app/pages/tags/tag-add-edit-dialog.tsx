@@ -1,23 +1,24 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 
-import TextareaField from '@/components/form/textarea-field';
 import TextField from '@/components/form/text-field';
+import TextareaField from '@/components/form/textarea-field';
 import Button from '@/components/ui/button';
 import { Dialog, DialogBody, DialogClose, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { pickFormValues } from '@/libs/zod';
-import Flex from '@/components/ui/flex';
 import {
-  TagFormSchema,
   type TagFormInput,
   type TagFormPayload,
+  TagFormSchema,
 } from '@/schemas/forms/tag-form';
 import { useCreateTagMutation, useUpdateTagMutation } from '@/services/tag';
 import type { Tag } from '@/types';
+import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 
 type TagAddEditDialogProps = {
@@ -29,7 +30,7 @@ type TagAddEditDialogProps = {
 const TagAddEditDialog = ({
   tag,
   open,
-  onClose = () => {},
+  onClose = noop,
 }: TagAddEditDialogProps) => {
   const createMutation = useCreateTagMutation();
   const updateMutation = useUpdateTagMutation();

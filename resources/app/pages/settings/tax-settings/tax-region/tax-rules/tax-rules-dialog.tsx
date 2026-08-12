@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect, type Dispatch, type SetStateAction } from 'react';
+import { LightningBoltIcon } from '@radix-ui/react-icons';
+import { type Dispatch, type SetStateAction, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
 import SelectField from '@/components/form/select-field';
@@ -10,14 +11,6 @@ import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import Grid from '@/components/ui/grid';
 import Text from '@/components/ui/text';
-import {
-  TaxRulesFormSchema,
-  type TaxRulesFormInput,
-  type TaxRulesFormPayload,
-} from '@/schemas/forms/tax-rules-form';
-import { useTaxProfilesQuery } from '@/services/tax';
-import { __ } from '@/wpi18n';
-
 import ConditionRow from '@/pages/settings/tax-settings/tax-region/tax-rules/condition-row';
 import type {
   TaxConditionRow,
@@ -25,8 +18,14 @@ import type {
   TaxRule,
 } from '@/pages/settings/tax-settings/utils';
 import { taxRuleActionOptionsArray } from '@/pages/settings/tax-settings/utils';
+import {
+  type TaxRulesFormInput,
+  type TaxRulesFormPayload,
+  TaxRulesFormSchema,
+} from '@/schemas/forms/tax-rules-form';
+import { useTaxProfilesQuery } from '@/services/tax';
 import { uuid } from '@/utils';
-import { LightningBoltIcon } from '@radix-ui/react-icons';
+import { __ } from '@/wpi18n';
 
 type TaxRulesDialogProps = {
   showModal: boolean;
@@ -103,7 +102,7 @@ const TaxRulesDialog = (props: TaxRulesDialogProps) => {
         action_value:
           (existingRule.action?.value as string | number) ?? '',
         selectedCountries: Array.isArray(destinationCondition?.value)
-          ? (destinationCondition.value as Array<string | number>)
+          ? (destinationCondition.value as (string | number)[])
           : [],
       });
       return;
@@ -128,7 +127,7 @@ const TaxRulesDialog = (props: TaxRulesDialogProps) => {
   };
 
   const setSelectedCountries: Dispatch<
-    SetStateAction<Array<string | number>>
+    SetStateAction<(string | number)[]>
   > = (updater) => {
     const current = form.getValues('selectedCountries');
     const next = typeof updater === 'function' ? updater(current) : updater;
@@ -145,7 +144,7 @@ const TaxRulesDialog = (props: TaxRulesDialogProps) => {
         : [...newRulesObj, rule as TaxRule];
 
     setRulesObj(updatedRules);
-    updateTaxRules(updatedRules);
+    void updateTaxRules(updatedRules);
     setShowModal(false);
   };
 
@@ -183,8 +182,8 @@ const TaxRulesDialog = (props: TaxRulesDialogProps) => {
         )}
         <Form {...form}>
           <DialogBody>
-            <Flex direction={'column'} gap={4}>
-              <Flex direction={'column'} gap={2}>
+            <Flex direction="column" gap={4}>
+              <Flex direction="column" gap={2}>
                 {conditions?.map((row, index) => (
                   <ConditionRow
                     key={row.id}
@@ -200,7 +199,7 @@ const TaxRulesDialog = (props: TaxRulesDialogProps) => {
                   />
                 ))}
               </Flex>
-              <Flex direction={'column'} gap={2}>
+              <Flex direction="column" gap={2}>
                 <Text>{__('THEN', 'kirki-ecommerce')}</Text>
                 <Grid columns={2}>
                   <SelectField name="action_type" options={actionOptions} />

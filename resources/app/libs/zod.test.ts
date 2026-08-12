@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { assert, describe, expect, it } from 'vitest';
 import { z } from 'zod';
 
 import {
@@ -52,21 +52,17 @@ describe('required', () => {
   it('accepts and narrows non-empty values', () => {
     const schema = z.object({ text: required(z.string()) });
     const result = schema.safeParse({ text: 'hello' });
-    expect(result.success).toBe(true);
-    if (result.success) {
-      // narrowed to non-nullable string, not `string | null | undefined`
-      const value: string = result.data.text;
-      expect(value).toBe('hello');
-    }
+    assert(result.success);
+    // narrowed to non-nullable string, not `string | null | undefined`
+    const value: string = result.data.text;
+    expect(value).toBe('hello');
   });
 
   it('accepts a custom message', () => {
     const schema = required(z.string(), 'Custom message');
     const result = schema.safeParse(undefined);
-    expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(result.error.issues[0].message).toBe('Custom message');
-    }
+    assert(!result.success);
+    expect(result.error.issues[0].message).toBe('Custom message');
   });
 });
 
@@ -111,10 +107,8 @@ describe('requiredWhen', () => {
     );
 
     const result = schema.safeParse({ method: 'code', code: null });
-    expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(result.error.issues[0].path).toEqual(['code']);
-    }
+    assert(!result.success);
+    expect(result.error.issues[0].path).toEqual(['code']);
   });
 
   it('does not fire when the condition is false', () => {
@@ -162,10 +156,8 @@ describe('prepareFormSchema nested paths', () => {
       billingAddress: { postalCode: null },
     });
 
-    expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(result.error.issues[0].path).toEqual(['billingAddress', 'postalCode']);
-    }
+    assert(!result.success);
+    expect(result.error.issues[0].path).toEqual(['billingAddress', 'postalCode']);
   });
 
   it('passes when the nested condition is satisfied', () => {

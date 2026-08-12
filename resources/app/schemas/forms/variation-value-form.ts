@@ -16,9 +16,10 @@ const VariationValueFormShape = z.object({
 });
 
 export const VariationValueFormSchema = prepareFormSchema(VariationValueFormShape).transform((values) => ({
-  attribute_id: values.attribute_id as number,
+  attribute_id: values.attribute_id!,
   value: values.value,
   color: values.type === 'color' ? values.color || null : null,
+  // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing -- 0 is not a valid value_id, so it has to collapse to undefined like a missing one
   value_id: values.value_id || undefined,
 }));
 

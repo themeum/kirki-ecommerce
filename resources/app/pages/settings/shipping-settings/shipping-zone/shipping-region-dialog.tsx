@@ -12,21 +12,20 @@ import { Form } from '@/components/ui/form';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
 import { getDefaults } from '@/libs/zod';
+import type {
+  CountryWithStates,
+  ShippingRegion,
+} from '@/pages/settings/shipping-settings/utils';
 import {
-  ShippingRegionFormSchema,
   type ShippingRegionFormInput,
   type ShippingRegionFormPayload,
+  ShippingRegionFormSchema,
 } from '@/schemas/forms/shipping-region-form';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, scoped } from '@/theme/mixins';
 import type { FormErrors } from '@/types';
 import { __ } from '@/wpi18n';
-
-import type {
-  CountryWithStates,
-  ShippingRegion,
-} from '@/pages/settings/shipping-settings/utils';
 
 type ShippingRegionPopupProps = {
   open: boolean;
@@ -77,7 +76,7 @@ export const ShippingRegionPopup = ({
       regions: initialRegions,
     });
     setSearchValue('');
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- only re-hydrate when the dialog opens, not on every prop identity change
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- seeds the form from the initial props only as the dialog opens; tracking them would reset the form while the user is picking regions
   }, [open]);
 
   useEffect(() => {
@@ -117,7 +116,7 @@ export const ShippingRegionPopup = ({
   const handleSelectStates = (
     stateId: string | number,
     countryCode: string,
-    allStates: Array<{ id: string | number; name: string }> = [],
+    allStates: { id: string | number; name: string }[] = [],
   ) => {
     const regions = form.getValues('regions') || [];
     const countries = form.getValues('countries') || [];
@@ -177,7 +176,7 @@ export const ShippingRegionPopup = ({
     formCountries.length === 0;
 
   const searchError =
-    (form.formState.errors.regions?.message as string) ||
+    form.formState.errors.regions?.message ||
     (errors?.regions as string) ||
     '';
 
@@ -333,5 +332,5 @@ const styles = defineStyles({
   },
   nestedStates: {
     padding: `${theme.spacing[0]} ${theme.spacing[3]}`,
-  }
+  },
 });

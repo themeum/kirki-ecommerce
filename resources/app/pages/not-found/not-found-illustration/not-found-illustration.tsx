@@ -1,5 +1,5 @@
-import { theme, getCssVarName } from '@/theme';
-import { scoped, defineStyles } from '@/theme/mixins';
+import { getCssVarName, theme } from '@/theme';
+import { defineStyles, scoped } from '@/theme/mixins';
 
 const NotFoundIllustration = () => {
   return (

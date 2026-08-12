@@ -1,24 +1,23 @@
-import { useEffect, useMemo, useState, type Dispatch, type SetStateAction } from 'react';
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { type Dispatch, type SetStateAction, useEffect, useMemo, useState } from 'react';
+import { useForm } from 'react-hook-form';
 
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
 import { Dialog, DialogBody, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
-import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
-import { theme } from '@/theme';
-import { scoped, defineStyles } from '@/theme/mixins';
-import { cardStyles } from '@/theme/card-styles';
-import { AddCitiesPopupFormSchema, type AddCitiesPopupFormInput } from '@/schemas/forms/add-cities-popup-form';
-import { __ } from '@/wpi18n';
-
-import { getSearchedValue } from '@/pages/settings/utils';
 import type { TaxRate, TaxRegionState } from '@/pages/settings/tax-settings/utils';
+import { getSearchedValue } from '@/pages/settings/utils';
+import { type AddCitiesPopupFormInput, AddCitiesPopupFormSchema } from '@/schemas/forms/add-cities-popup-form';
+import { theme } from '@/theme';
+import { cardStyles } from '@/theme/card-styles';
+import { defineStyles, scoped } from '@/theme/mixins';
+import { __ } from '@/wpi18n';
 
 type AddCitiesPopupProps = {
   openPopup: boolean;
@@ -61,6 +60,7 @@ const AddCitiesPopup = (props: AddCitiesPopupProps) => {
 
     form.reset({ selectedCities });
     setSearchValue('');
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- seeds the form from the current selection only as the dialog opens; tracking selectedCities would reset the form while the user is picking cities
   }, [openPopup]);
 
   const syncSelection = (next: TaxRegionState[]) => {
@@ -69,7 +69,7 @@ const AddCitiesPopup = (props: AddCitiesPopupProps) => {
   };
 
   const allCityIds = useMemo(
-    () => cityList?.map((city) => city.id) || [],
+    () => cityList?.map((city) => city.id) ?? [],
     [cityList],
   );
 
@@ -92,7 +92,7 @@ const AddCitiesPopup = (props: AddCitiesPopupProps) => {
 
   const filteredCities = getSearchedValue(
     searchValue,
-    (cityList || []).filter(
+    (cityList ?? []).filter(
       (city) => !taxRates.some((tax) => tax.state === city.title),
     ),
   );
@@ -103,7 +103,7 @@ const AddCitiesPopup = (props: AddCitiesPopupProps) => {
       return;
     }
 
-    syncSelection(selectAll ? [] : [...(cityList || [])]);
+    syncSelection(selectAll ? [] : [...(cityList ?? [])]);
   };
 
   const buttonState = formSelectedCities?.length <= 0;

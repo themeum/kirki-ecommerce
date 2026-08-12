@@ -1,3 +1,5 @@
+import { LightningBoltIcon } from '@radix-ui/react-icons';
+import { Edit3, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -17,16 +19,13 @@ import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
+import { getDestinationDisplayValue } from '@/pages/settings/tax-settings/tax-region/tax-rules/helper';
+import TaxRulesDialog from '@/pages/settings/tax-settings/tax-region/tax-rules/tax-rules-dialog';
+import type { TaxRegion, TaxRule } from '@/pages/settings/tax-settings/utils';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
 import { __, sprintf } from '@/wpi18n';
-
-import { getDestinationDisplayValue } from '@/pages/settings/tax-settings/tax-region/tax-rules/helper';
-import TaxRulesDialog from '@/pages/settings/tax-settings/tax-region/tax-rules/tax-rules-dialog';
-import type { TaxRegion, TaxRule } from '@/pages/settings/tax-settings/utils';
-import { LightningBoltIcon } from '@radix-ui/react-icons';
-import { Edit3, Trash2 } from 'lucide-react';
 
 type TaxRulesProps = {
   region?: TaxRegion;
@@ -60,7 +59,7 @@ const TaxRules = (props: TaxRulesProps) => {
         },
       },
       onAutoClose: () => {
-        updateTaxRules(updatedRules, 'delete');
+        void updateTaxRules(updatedRules, 'delete');
       },
     });
   };
@@ -79,7 +78,7 @@ const TaxRules = (props: TaxRulesProps) => {
             onAdd={() => setAddRuleModal(true)}
           />
           {(addRuleModal || rulesObj.length > 0) && (
-            <Flex direction={'column'} gap={4}>
+            <Flex direction="column" gap={4}>
               {addRuleModal && (
                 <TaxRulesDialog
                   showModal={addRuleModal}
@@ -87,7 +86,7 @@ const TaxRules = (props: TaxRulesProps) => {
                   rulesObj={rulesObj}
                   setRulesObj={setRulesObj}
                   updateTaxRules={updateTaxRules}
-                  from={'add'}
+                  from="add"
                   region={region}
                 />
               )}
@@ -168,7 +167,7 @@ const TaxRules = (props: TaxRulesProps) => {
                         updateTaxRules={updateTaxRules}
                         showModal={true}
                         setShowModal={() => setEditingRuleIndex(null)}
-                        from={'edit'}
+                        from="edit"
                         ruleIndex={index}
                       />
                     )}

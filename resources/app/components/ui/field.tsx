@@ -1,12 +1,13 @@
 import { type CSSObject } from '@emotion/react';
-import { ComponentRef, forwardRef, useMemo, type ComponentPropsWithoutRef, type HTMLAttributes, type ReactNode } from 'react';
+import { InfoCircledIcon } from '@radix-ui/react-icons';
+import type { ComponentRef} from 'react';
+import { type ComponentPropsWithoutRef, forwardRef, type HTMLAttributes, type ReactNode, useMemo } from 'react';
 
 import Label from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import Tooltip from '@/components/ui/tooltip';
 import { theme } from '@/theme';
 import { defineStyles, flexCenter, mergeCss, scoped, scopedMerge } from '@/theme/mixins';
-import { InfoCircledIcon } from '@radix-ui/react-icons';
 
 type FieldOrientation = 'vertical' | 'horizontal' | 'responsive';
 
@@ -155,9 +156,11 @@ const FieldLabel = forwardRef<ComponentRef<typeof Label>, FieldLabelProps>(
       >
         {children}
         {infoText ? (
-          <Tooltip tip={infoText} position='top'>
+          <Tooltip tip={infoText} position="top">
+            {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- the icon is not a control; the handlers only stop a click or key press on it from activating the label it sits inside */}
             <span
               css={scoped(styles.infoIconTrigger)}
+              // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- keyboard users need to reach the trigger for the tooltip to open
               tabIndex={0}
               role="img"
               aria-label={typeof infoText === 'string' ? infoText : undefined}
@@ -270,7 +273,7 @@ type FieldErrorProps = Omit<
   'className' | 'css' | 'children'
 > & {
   children?: ReactNode;
-  errors?: Array<{ message?: string } | undefined>;
+  errors?: ({ message?: string } | undefined)[];
   cssOverride?: CSSObject;
 };
 
@@ -336,7 +339,7 @@ export {
   FieldLegend,
   FieldSeparator,
   FieldSet,
-  FieldTitle
+  FieldTitle,
 };
 
 const styles = defineStyles({
@@ -534,5 +537,3 @@ const styles = defineStyles({
     gap: theme.spacing[1],
   },
 });
-
-export const fieldErrorStyle = scoped(styles.fieldError);

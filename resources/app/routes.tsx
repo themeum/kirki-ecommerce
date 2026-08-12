@@ -1,4 +1,4 @@
-import { createElement, lazy, Suspense, type ComponentType, type ReactElement } from 'react';
+import { type ComponentType, createElement, lazy, type ReactElement, Suspense } from 'react';
 import { createHashRouter, Navigate } from 'react-router';
 
 import LoadingSpinner from '@/components/loading-spinner';

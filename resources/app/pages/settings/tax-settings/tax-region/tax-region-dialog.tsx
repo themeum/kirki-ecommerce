@@ -1,30 +1,30 @@
-import { useState, useMemo, useEffect, type Dispatch, type SetStateAction } from 'react';
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { type Dispatch, type SetStateAction, useEffect, useMemo, useState } from 'react';
+import { useForm } from 'react-hook-form';
 
 import Button from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
 import { Dialog, DialogBody, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
-import Flex from '@/components/ui/flex';
-import { theme } from '@/theme';
-import { cardStyles } from '@/theme/card-styles';
-import { scoped, defineStyles } from '@/theme/mixins';
-import { TaxRegionPopupFormSchema, type TaxRegionPopupFormInput } from '@/schemas/forms/tax-region-popup-form';
-import { useCountriesQuery } from '@/services/country';
-import type { FormErrors } from '@/types';
-import { __, sprintf } from '@/wpi18n';
-
-import { getSearchedCountries } from '@/pages/settings/utils';
 import type { CountryWithGroup } from '@/pages/settings/tax-settings/helper';
 import { groupEUCountries } from '@/pages/settings/tax-settings/helper';
 import type {
   SelectedTaxRegionDraft,
   TaxRegion,
 } from '@/pages/settings/tax-settings/utils';
+import { getSearchedCountries } from '@/pages/settings/utils';
+import { type TaxRegionPopupFormInput, TaxRegionPopupFormSchema } from '@/schemas/forms/tax-region-popup-form';
+import { useCountriesQuery } from '@/services/country';
+import { theme } from '@/theme';
+import { cardStyles } from '@/theme/card-styles';
+import { defineStyles, scoped } from '@/theme/mixins';
+import type { FormErrors } from '@/types';
+import { noop } from '@/utils/function';
+import { __, sprintf } from '@/wpi18n';
 
 type TaxRegionPopupProps = {
   openPopup: boolean;
@@ -55,10 +55,10 @@ const TaxRegionPopup = (props: TaxRegionPopupProps) => {
     setOpenPopup,
     regions,
     selectedCountries = [],
-    setSelectedCountries = () => {},
-    setSelectedRegion = () => {},
+    setSelectedCountries = noop,
+    setSelectedRegion = noop,
     selectedRegion = [],
-    onAdd = () => {},
+    onAdd = noop,
   } = props;
 
   const [searchValue, setSearchValue] = useState('');
@@ -98,6 +98,7 @@ const TaxRegionPopup = (props: TaxRegionPopupProps) => {
       selectedRegion: [...selectedRegion],
     });
     setSearchValue('');
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- seeds the form from the current selection only as the dialog opens; tracking the selection would reset the form while the user is picking regions
   }, [openPopup]);
 
   const syncSelection = (
@@ -141,7 +142,7 @@ const TaxRegionPopup = (props: TaxRegionPopupProps) => {
     if (exists) {
       nextRegions = prevRegions.filter((r) => r.country !== country.name);
     } else {
-      const states = (country.states || []) as CountryStateOption[];
+      const states = (country.states ?? []) as CountryStateOption[];
       nextRegions = [
         ...prevRegions,
         {
@@ -274,7 +275,7 @@ const TaxRegionPopup = (props: TaxRegionPopupProps) => {
                     const regionInfo = formRegions.find(
                       (region) => region?.country === country.code,
                     );
-                    const countryStates = (country.states ||
+                    const countryStates = (country.states ??
                       []) as CountryStateOption[];
                     return (
                       <div key={index} css={scoped(styles.checkboxItem)}>
@@ -287,7 +288,7 @@ const TaxRegionPopup = (props: TaxRegionPopupProps) => {
                                 : formCountries?.includes(country?.code)
                             }
                             onCheckedChange={() =>
-                              handleSelectCountries(country as CountryWithGroup)
+                              handleSelectCountries(country)
                             }
                           />
                           <Label htmlFor={`tax-region-country-${country.code}`}>

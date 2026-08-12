@@ -1,18 +1,18 @@
 import { type Dispatch, type SetStateAction } from 'react';
 
+import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { EditIcon, FlagIcon, RadioTickIcon } from '@/icons';
-import Badge from '@/components/ui/badge';
 import Flex from '@/components/ui/flex';
 import ProgressBar from '@/components/ui/progressbar';
 import Text from '@/components/ui/text';
+import { EditIcon, FlagIcon, RadioTickIcon } from '@/icons';
+import { dateFormatter } from '@/pages/utils';
 import type { CurrencySettings } from '@/schemas/catalog/settings';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
+import { toDisplayString } from '@/utils/string';
 import { __, sprintf } from '@/wpi18n';
-
-import { dateFormatter } from '@/pages/utils';
 
 type ApiConfigData = {
   api_key?: string;
@@ -36,19 +36,19 @@ const ApiConfigurationCard = ({
   dataObj,
 }: ApiConfigurationCardProps) => {
   const formatValue = (value: unknown) =>
-    String(value ?? '')
-      ?.replace(/_/g, ' ')
-      .replace(/\b\w/g, (char) => char.toUpperCase()) ?? '';
+    toDisplayString(value)
+      .replace(/_/g, ' ')
+      .replace(/\b\w/g, (char) => char.toUpperCase());
 
   const usage = dataObj?.usage;
 
   return (
     <Card>
       <CardContent>
-        <Flex direction={'column'} gap={5}>
+        <Flex direction="column" gap={5}>
           <Flex
             justify="space-between" align="flex-start">
-            <Flex direction={'column'} gap={2}>
+            <Flex direction="column" gap={2}>
               <Flex gap={2} align="center">
                 <FlagIcon />
                 <Text weight="semibold">{selectedAPI}</Text>
@@ -61,7 +61,7 @@ const ApiConfigurationCard = ({
               </Flex>
               <Text color="secondary">{sprintf(
                   __(`Last tested: %s`, 'kirki-ecommerce'),
-                  dateFormatter(dataObj?.last_sync_at as string, 'datetime'),
+                  dateFormatter(dataObj?.last_sync_at, 'datetime'),
                 )}</Text>
             </Flex>
             <Button
@@ -73,7 +73,7 @@ const ApiConfigurationCard = ({
             </Button>
           </Flex>
           {usage && usage !== null && (
-            <Flex direction={'column'} gap={2}>
+            <Flex direction="column" gap={2}>
               <ProgressBar
                 value={Number(usage?.used)}
                 showProgressIndicator={false}
@@ -88,7 +88,7 @@ const ApiConfigurationCard = ({
               />
               <Text style={{ color: theme.primitives.colors.gray12 }}>{sprintf(
                   __('Resets on %s', 'kirki-ecommerce'),
-                  dateFormatter(dataObj?.next_sync_at as string),
+                  dateFormatter(dataObj?.next_sync_at),
                 )}</Text>
             </Flex>
           )}

@@ -9,19 +9,18 @@ import { ProductSettingsIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults, pickFormValues } from '@/libs/zod';
-import {
-  ProductsSettingsFormSchema,
-  type ProductsSettingsFormInput,
-  type ProductsSettingsFormPayload,
-} from '@/schemas/forms/products-settings-form';
-import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
-import { __ } from '@/wpi18n';
-
 import { Review } from '@/pages/settings/products-settings/review';
 import { StandardUnit } from '@/pages/settings/products-settings/standard-unit';
 import { useSettingsPageActions } from '@/pages/settings/settings-layout/use-settings-page-actions';
 import SettingsPageHeader from '@/pages/settings/settings-page-header';
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
+import {
+  type ProductsSettingsFormInput,
+  type ProductsSettingsFormPayload,
+  ProductsSettingsFormSchema,
+} from '@/schemas/forms/products-settings-form';
+import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
+import { __ } from '@/wpi18n';
 
 const ProductsSettings = () => {
   const { data: productSettingsData, isLoading } = useSettingsQuery('product');

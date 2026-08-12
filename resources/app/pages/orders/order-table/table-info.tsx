@@ -1,10 +1,10 @@
-import { Select, SelectContent, SelectTrigger, SelectValue } from '@/components/ui/select';
-import Button from '@/components/ui/button';
-import { InfoIcon } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
+import Button from '@/components/ui/button';
 import Flex from '@/components/ui/flex';
+import { Select, SelectContent, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { InfoIcon } from '@/icons';
 import { theme } from '@/theme';
-import { flexCenter, scoped, defineStyles } from '@/theme/mixins';
+import { defineStyles, flexCenter, scoped } from '@/theme/mixins';
 
 const TableInfo = () => {
   return (

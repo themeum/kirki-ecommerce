@@ -1,22 +1,22 @@
 import { css } from '@emotion/react';
-import { useEffect, type Dispatch, type SetStateAction } from 'react';
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { type Dispatch, type SetStateAction, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
 
 import TextField from '@/components/form/text-field';
 import Button from '@/components/ui/button';
 import { Dialog, DialogBody, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import Label from '@/components/ui/label';
+import Text from '@/components/ui/text';
 import { ArrowLeftIcon, InfoIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import Flex from '@/components/ui/flex';
-import { theme } from '@/theme';
-import Text from '@/components/ui/text';
 import type { CurrencyDraft } from '@/schemas/catalog/currency';
-import { ExchangeRateFormSchema, type ExchangeRateFormInput, type ExchangeRateFormPayload } from '@/schemas/forms/exchange-rate-form';
-import { useAvailableCurrenciesQuery, useCreateCurrencyMutation, type CurrencyBulkPayload } from '@/services/currency';
+import { type ExchangeRateFormInput, type ExchangeRateFormPayload, ExchangeRateFormSchema } from '@/schemas/forms/exchange-rate-form';
+import { type CurrencyBulkPayload, useAvailableCurrenciesQuery, useCreateCurrencyMutation } from '@/services/currency';
+import { theme } from '@/theme';
 import { __, sprintf } from '@/wpi18n';
 
 type ExchangeRatePopupProps = {

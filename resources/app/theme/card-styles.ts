@@ -83,7 +83,7 @@ const cardStyles = defineStyles({
       width: 16,
       height: 16,
       color: theme.colors.icon.primary,
-    }
+    },
   },
   pageCard: {
     backgroundColor: theme.colors.background.surfaceSecondary,

@@ -1,5 +1,5 @@
 import type { CSSObject } from '@emotion/react';
-import { forwardRef, type CSSProperties, type ReactNode } from 'react';
+import { type CSSProperties, forwardRef, type ReactNode } from 'react';
 
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import { ThumbnailPlaceholder } from '@/icons';

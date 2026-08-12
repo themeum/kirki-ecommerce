@@ -1,3 +1,4 @@
+import { CardSimIcon } from 'lucide-react';
 import { useState } from 'react';
 
 import DropdownButton from '@/components/dropdown-button';
@@ -6,8 +7,11 @@ import ActionGroup from '@/components/ui/action-group';
 import Badge from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
+import Switch from '@/components/ui/switch';
 import Text from '@/components/ui/text';
 import { ShowMoreIcon } from '@/icons';
+import OnlinePaymentPopup from '@/pages/settings/payment-settings/online-payment-dialog';
+import OnlinePaymentEditPopup from '@/pages/settings/payment-settings/online-payment-edit-dialog';
 import { dispatchToastMessage } from '@/pages/utils';
 import { getOnlinePayment, useSetEnabledOnlinePaymentMutation } from '@/services/payment';
 import { theme } from '@/theme';
@@ -15,11 +19,6 @@ import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
 import type { OnlinePayment } from '@/types';
 import { __ } from '@/wpi18n';
-
-import Switch from '@/components/ui/switch';
-import OnlinePaymentPopup from '@/pages/settings/payment-settings/online-payment-dialog';
-import OnlinePaymentEditPopup from '@/pages/settings/payment-settings/online-payment-edit-dialog';
-import { CardSimIcon } from 'lucide-react';
 
 type OnlinePaymentProps = {
   onlinePaymentList: OnlinePayment[];
@@ -46,14 +45,13 @@ const OnlinePaymentList = (props: OnlinePaymentProps) => {
   };
 
   const handleAction = async (
-    action: string | number | Array<string | number>,
+    action: string | number | (string | number)[],
     item: OnlinePayment,
   ) => {
     if (action === 'delete') {
       dispatchToastMessage('delete', {
         title: __('Payment gateway deleted', 'kirki-ecommerce'),
         duration: 5000,
-        onSuccess: async () => { },
       });
       return;
     }
@@ -188,5 +186,5 @@ const styles = defineStyles({
     height: 20,
     width: 'auto',
     objectFit: 'contain',
-  }
+  },
 });

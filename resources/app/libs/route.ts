@@ -1,6 +1,6 @@
-import { sprintf } from "@/wpi18n";
+import { sprintf } from '@/wpi18n';
 
-/* eslint-disable @typescript-eslint/no-invalid-void-type */
+ 
 const replaceParams = (template: string, params: Record<string, unknown> = {}) => {
   return Object.keys(params).reduce(
     (acc, key) => acc.replace(`:${key}`, String(params[key])),
@@ -22,7 +22,7 @@ type PathParams<Path extends string> = Path extends `:${infer Param}/${infer Res
 
 type PathArgs<Path extends string> = Record<PathParams<Path>, string | number>;
 
-export interface RouteChildren {
+export type RouteChildren = {
   [key: string]: RouteDefinition<string, RouteChildren>;
 }
 
@@ -32,7 +32,7 @@ type ChildRoutes<ParentTemplate extends string, Children extends RouteChildren> 
     : never;
 };
 
-export interface RouteDefinition<T extends string, C extends RouteChildren = RouteChildren> {
+export type RouteDefinition<T extends string, C extends RouteChildren = RouteChildren> = {
   template: T;
   buildLink: (params: PathParams<T> extends never ? void : PathArgs<T>) => string;
   buildJoinLink: (

@@ -1,30 +1,33 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 import { useNavigate } from 'react-router';
 
+import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
+import Flex from '@/components/ui/flex';
 import Input from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ChevronUpDownIcon, EditIcon } from '@/icons';
-import ActionGroup from '@/components/ui/action-group';
-import Flex from '@/components/ui/flex';
 import { Separator } from '@/components/ui/separator';
 import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { RouteConfig } from '@/config/route-config';
+import { ChevronUpDownIcon, EditIcon } from '@/icons';
+import SingleGroup from '@/pages/products/product-form/sections/variants/variation-table/single-group';
 import type { ProductFormInput } from '@/schemas/forms/product-form';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { mergeCss, defineStyles } from '@/theme/mixins';
+import { defineStyles, mergeCss } from '@/theme/mixins';
 import type { SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
 
-import SingleGroup from '@/pages/products/product-form/sections/variants/variation-table/single-group';
-
 const VariationTable = () => {
   const { control, getValues, setValue } = useFormContext<ProductFormInput>();
-  const attributes = useWatch({ control, name: 'attributes' }) ?? [];
+  const watchedAttributes = useWatch({ control, name: 'attributes' });
+  const attributes = useMemo<NonNullable<typeof watchedAttributes>>(
+    () => watchedAttributes ?? [],
+    [watchedAttributes],
+  );
   const variants = useWatch({ control, name: 'variants' }) ?? [];
   const [showBy, setShowBy] = useState<number | null>(null);
   const [selectedIndex, setSelectedIndex] = useState<number[]>([]);
@@ -74,12 +77,12 @@ const VariationTable = () => {
   const handleBulkEditVariants = () => {
     if (selectedIndex.length === 0) {
       const selectedIds = Object.values(variants).map((item) => item.id);
-      navigate(`${RouteConfig.BulkVariants.buildLink()}?ids=${selectedIds.join(',')}`);
+      void navigate(`${RouteConfig.BulkVariants.buildLink()}?ids=${selectedIds.join(',')}`);
     } else {
       const selectedIds = Object.values(variants)
         .filter((_item, index) => selectedIndex.includes(index))
         .map((item) => item.id);
-      navigate(`${RouteConfig.BulkVariants.buildLink()}?ids=${selectedIds.join(',')}`);
+      void navigate(`${RouteConfig.BulkVariants.buildLink()}?ids=${selectedIds.join(',')}`);
     }
   };
 
@@ -89,7 +92,7 @@ const VariationTable = () => {
   ) => {
     updateVariants({
       key: fieldName,
-      value: value,
+      value,
       variant_index: selectedIndex,
     });
   };
@@ -248,7 +251,7 @@ const VariationTable = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {(selectedAttribute?.values || []).map((item) => (
+            {(selectedAttribute?.values ?? []).map((item) => (
               <SingleGroup
                 parentId={item.id}
                 key={item.id}

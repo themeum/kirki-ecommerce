@@ -1,17 +1,18 @@
-import CheckboxField from "@/components/form/checkbox-field";
-import TextField from "@/components/form/text-field";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FieldDescription } from "@/components/ui/field";
-import Flex from "@/components/ui/flex";
-import Grid from "@/components/ui/grid";
-import Text from "@/components/ui/text";
-import { CouponFormInput } from "@/schemas/forms/coupon-form";
-import { theme } from "@/theme";
-import { cardStyles } from "@/theme/card-styles";
-import { defineStyles } from "@/theme/mixins";
-import { __ } from "@/wpi18n";
-import { InfinityIcon } from "lucide-react";
-import { useFormContext, useWatch } from "react-hook-form";
+import { InfinityIcon } from 'lucide-react';
+import { useFormContext, useWatch } from 'react-hook-form';
+
+import CheckboxField from '@/components/form/checkbox-field';
+import TextField from '@/components/form/text-field';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { FieldDescription } from '@/components/ui/field';
+import Flex from '@/components/ui/flex';
+import Grid from '@/components/ui/grid';
+import Text from '@/components/ui/text';
+import type { CouponFormInput } from '@/schemas/forms/coupon-form';
+import { theme } from '@/theme';
+import { cardStyles } from '@/theme/card-styles';
+import { defineStyles } from '@/theme/mixins';
+import { __ } from '@/wpi18n';
 
 const ValidityPeriodSection = () => {
   const { control } = useFormContext<CouponFormInput>();

@@ -1,4 +1,4 @@
-import { Children, isValidElement, type ReactElement, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
 type DataTableSlotProps = {
   children: ReactNode;
@@ -20,21 +20,8 @@ const DataTableFilterBar = ({ children }: DataTableSlotProps) => children;
 
 DataTableFilterBar.displayName = 'DataTableFilterBar';
 
-const findSlot = (children: ReactNode, type: unknown) => {
-  let match: ReactElement | undefined;
-
-  Children.forEach(children, (child) => {
-    if (isValidElement(child) && child.type === type) {
-      match = child;
-    }
-  });
-
-  return match;
-};
-
 export {
   DataTableFilter,
-  DataTableSelectionFilter,
   DataTableFilterBar,
-  findSlot,
+  DataTableSelectionFilter,
 };

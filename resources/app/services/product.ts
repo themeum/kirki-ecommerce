@@ -8,7 +8,7 @@ import type { ProductFormPayload } from '@/schemas/forms/product-form';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
 import { parseData, parseMessage, parseResponse, toastMutationError, toastMutationSuccess } from '@/services/helpers';
 import type { BulkActionParams, ListParams } from '@/types';
-import { ProductListFilter } from '@/types/filters/product';
+import type { ProductListFilter } from '@/types/filters/product';
 import { __ } from '@/wpi18n';
 
 const getProducts = (params: ListParams<ProductListFilter> = {}) => {
@@ -140,6 +140,6 @@ const useBulkDeleteProductsMutation = () => {
 };
 
 export {
-  bulkDeleteProducts, createProduct, getProduct, getProducts, updateProduct, useBulkDeleteProductsMutation, useCreateProductMutation, useProductQuery, useProductsQuery, useProductsWithVariantsQuery, useUpdateProductMutation
+  bulkDeleteProducts, createProduct, getProduct, getProducts, updateProduct, useBulkDeleteProductsMutation, useCreateProductMutation, useProductQuery, useProductsQuery, useProductsWithVariantsQuery, useUpdateProductMutation,
 };
 

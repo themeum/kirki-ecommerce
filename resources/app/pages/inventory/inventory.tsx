@@ -2,18 +2,17 @@ import { useEffect } from 'react';
 
 import Pagination from '@/components/pagination';
 import Button from '@/components/ui/button';
-import { InventoryFormProvider, useInventoryForm } from '@/contexts/inventory-form-context';
-import { useListParams } from '@/hooks';
 import { Card, CardContent } from '@/components/ui/card';
-import { cardStyles } from '@/theme/card-styles';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import PageHeading from '@/components/ui/page-heading';
+import { InventoryFormProvider, useInventoryForm } from '@/contexts/inventory-form-context';
+import { useListParams } from '@/hooks';
+import InventoryTable from '@/pages/inventory/inventory-table/inventory-table';
 import { useUpdateBulkVariantsMutation } from '@/services/bulk-edit';
 import { useInventoryQuery } from '@/services/inventory';
+import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
-
-import InventoryTable from '@/pages/inventory/inventory-table/inventory-table';
 
 const InventoryPage = () => {
   const { params, setParam } = useListParams({
@@ -27,7 +26,7 @@ const InventoryPage = () => {
     if (inventoryData) {
       setInventory(inventoryData);
     }
-  }, [inventoryData]);
+  }, [inventoryData, setInventory]);
 
   const handleInventoryUpdate = () => {
     if (!data) {

@@ -10,9 +10,9 @@ import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults } from '@/libs/zod';
 import {
-  ShippingProfileFormSchema,
   type ShippingProfileFormInput,
   type ShippingProfileFormPayload,
+  ShippingProfileFormSchema,
 } from '@/schemas/forms/shipping-profile-form';
 import { useCreateShippingProfileMutation, useUpdateShippingProfileMutation } from '@/services/shipping';
 import type { ShippingProfile } from '@/types';
@@ -84,10 +84,10 @@ export const CreateProfilePopup = ({
           id: selectedProfile.id,
           data: payload,
         });
-        onSave?.((response.data as { id?: number })?.id as number);
+        onSave?.((response.data as { id: number }).id);
       } else {
         const response = await createProfile(payload);
-        onSave?.((response.data as { id?: number })?.id as number);
+        onSave?.((response.data as { id: number }).id);
       }
       handleOnPopupClose();
     } catch (error) {

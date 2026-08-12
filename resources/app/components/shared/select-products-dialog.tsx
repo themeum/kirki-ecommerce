@@ -32,7 +32,7 @@ import {
 } from '@/components/ui/table';
 import Text from '@/components/ui/text';
 import { BoxIcon, ListFilter } from '@/icons';
-import { ProductListItemWithVariants } from '@/schemas/catalog/product';
+import type { ProductListItemWithVariants } from '@/schemas/catalog/product';
 import { useProductsWithVariantsQuery } from '@/services/product';
 import type { PaginationData } from '@/types';
 import { __, _n, sprintf } from '@/wpi18n';
@@ -170,7 +170,7 @@ const SelectProductsDialog = ({
     brand_ids: filters.brand_ids ? [filters.brand_ids] : undefined,
   }, open);
 
-  const products = data?.results ?? [];
+  const products = useMemo(() => data?.results ?? [], [data?.results]);
   const pickerItems = useMemo(
     () =>
       products.map((product) => ({

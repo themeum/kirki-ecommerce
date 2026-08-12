@@ -1,6 +1,6 @@
 import { css } from '@emotion/react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect, type Dispatch, type SetStateAction } from 'react';
+import { type Dispatch, type SetStateAction, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
 import TextField from '@/components/form/text-field';
@@ -11,7 +11,7 @@ import { Form } from '@/components/ui/form';
 import Label from '@/components/ui/label';
 import Text from '@/components/ui/text';
 import { InfoIcon } from '@/icons';
-import { EditCurrencyFormSchema, type EditCurrencyFormInput, type EditCurrencyFormPayload } from '@/schemas/forms/edit-currency-form';
+import { type EditCurrencyFormInput, type EditCurrencyFormPayload, EditCurrencyFormSchema } from '@/schemas/forms/edit-currency-form';
 import { theme } from '@/theme';
 import type { Currency } from '@/types';
 import { __, sprintf } from '@/wpi18n';

@@ -1,16 +1,16 @@
-import ActionGroup from '@/components/ui/action-group';
-import { EditIcon, TrashIcon } from '@/icons';
-import { __ } from '@/wpi18n';
+import { MoreVertical } from 'lucide-react';
 import { useNavigate, useOutletContext } from 'react-router';
 
+import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import Switch from '@/components/ui/switch';
 import { RouteConfig } from '@/config/route-config';
+import { EditIcon, TrashIcon } from '@/icons';
 import type { ShippingZone } from '@/pages/settings/shipping-settings/utils';
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
 import { theme } from '@/theme';
-import { MoreVertical } from 'lucide-react';
+import { __ } from '@/wpi18n';
 
 const ShippingRoutes = RouteConfig.Settings.get('ShippingSettings');
 

@@ -5,14 +5,14 @@ import Button from '@/components/ui/button';
 import Flex from '@/components/ui/flex';
 import Searchbox from '@/components/ui/searchbox';
 import { Select, SelectContent, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useListParams } from '@/hooks';
 import { ArrowDownUp } from '@/icons';
+import FilterPopup from '@/pages/coupons/coupon-table/filter-popup/filter-popup';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
+import type { CouponListFilter} from '@/types/filters/coupon';
+import { couponListOptions } from '@/types/filters/coupon';
 import { __ } from '@/wpi18n';
-
-import { useListParams } from '@/hooks';
-import FilterPopup from '@/pages/coupons/coupon-table/filter-popup/filter-popup';
-import { CouponListFilter, couponListOptions } from '@/types/filters/coupon';
 
 const CouponTableFilter = memo(() => {
   const { params, setParam } = useListParams<CouponListFilter>(couponListOptions);

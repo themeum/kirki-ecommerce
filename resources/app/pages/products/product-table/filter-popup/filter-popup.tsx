@@ -1,4 +1,4 @@
-import { memo, useEffect, useState, type ComponentProps } from 'react';
+import { type ComponentProps, memo, useEffect, useState } from 'react';
 
 import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
@@ -9,16 +9,17 @@ import Label from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Text from '@/components/ui/text';
-import { CloseIcon, ListFilter } from '@/icons';
-import { theme } from '@/theme';
-import { defineStyles } from '@/theme/mixins';
-import { __, sprintf } from '@/wpi18n';
-
 import { useListParams } from '@/hooks';
+import { CloseIcon, ListFilter } from '@/icons';
 import BrandFilter from '@/pages/products/product-table/filter-popup/brand-filter';
 import CategoriesFilter from '@/pages/products/product-table/filter-popup/categories-filter';
 import CollectionFilter from '@/pages/products/product-table/filter-popup/collection-filter';
-import { ProductListFilter, productListOptions } from '@/types/filters/product';
+import { theme } from '@/theme';
+import { defineStyles } from '@/theme/mixins';
+import type { ProductListFilter} from '@/types/filters/product';
+import { productListOptions } from '@/types/filters/product';
+import { noop } from '@/utils/function';
+import { __, sprintf } from '@/wpi18n';
 
 type LocalFilterState = {
   category_ids: number[];
@@ -35,7 +36,7 @@ type FilterPopupProps = {
 };
 
 const FilterPopup = memo(({
-  onChange: _onChange = () => { },
+  onChange: _onChange = noop,
   buttonProps,
   data: _data,
 }: FilterPopupProps) => {
@@ -62,16 +63,17 @@ const FilterPopup = memo(({
       return;
     }
     setFilterObject({
-      category_ids: params.category_ids || [],
+      category_ids: params.category_ids ?? [],
       status: (params.status as string) || 'all',
       stock_status: params.stock_status || '',
       collection_ids: params.collection_ids?.[0],
       brand_ids: params.brand_ids?.[0],
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- seeds the draft filters from the URL params only as the popup opens; tracking params.* would overwrite the user edits as they change each control
   }, [openPopup]);
 
   const handleOnFilterChange = (
-    val: string | number | Array<string | number>,
+    val: string | number | (string | number)[],
     filterName: keyof LocalFilterState,
   ) => {
     setFilterObject((prev) => ({

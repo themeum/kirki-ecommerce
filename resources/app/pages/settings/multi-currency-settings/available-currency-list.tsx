@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { type ReactNode, useState } from 'react';
 import { useWatch } from 'react-hook-form';
 
 import DropdownButton from '@/components/dropdown-button';
@@ -18,9 +18,11 @@ import {
 import Switch from '@/components/ui/switch';
 import Text from '@/components/ui/text';
 import { IncreaseIcon, InfoIcon, ShowMoreIcon } from '@/icons';
+import AddCurrencyPopup from '@/pages/settings/multi-currency-settings/add-currency-dialog';
+import EditCurrencyDialog from '@/pages/settings/multi-currency-settings/edit-currency-dialog';
 import { dateFormatter, dispatchToastMessage } from '@/pages/utils';
 import type { MultiCurrencySettingsFormInput } from '@/schemas/forms/multi-currency-settings-form';
-import { useAvailableCurrenciesQuery, useDeleteCurrencyMutation, useUpdateCurrencyMutation, type CurrencyBulkPayload } from '@/services/currency';
+import { type CurrencyBulkPayload, useAvailableCurrenciesQuery, useDeleteCurrencyMutation, useUpdateCurrencyMutation } from '@/services/currency';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
@@ -29,9 +31,6 @@ import type {
   SelectOption,
 } from '@/types';
 import { __, sprintf } from '@/wpi18n';
-
-import AddCurrencyPopup from '@/pages/settings/multi-currency-settings/add-currency-dialog';
-import EditCurrencyDialog from '@/pages/settings/multi-currency-settings/edit-currency-dialog';
 
 type CurrencyListItem = Currency & {
   badge1?: string;
@@ -67,7 +66,7 @@ type CurrencyRowActionsProps = {
   item: CurrencyListItem;
   onToggle: (item: CurrencyListItem) => void;
   onAction: (
-    action: string | number | Array<string | number>,
+    action: string | number | (string | number)[],
     item: CurrencyListItem,
   ) => void;
 };
@@ -95,7 +94,7 @@ const CurrencyRowActions = (props: CurrencyRowActionsProps) => {
           dropdownStyle={{ minWidth: '170px' }}
           size="small"
           hasLeftIcon={false}
-          options={item.actionsArray || []}
+          options={item.actionsArray ?? []}
           onOptionToggle={(value) => setOpen(value === true)}
           onOptionSelect={(action) => onAction(action, item)}
         />
@@ -118,7 +117,7 @@ export const AvailableCurrencyList = () => {
     dataObj?.last_sync_at &&
     dataObj?.next_sync_at;
 
-  const currencyList: CurrencyListItem[] = (rawCurrencies as Currency[]).map(
+  const currencyList: CurrencyListItem[] = (rawCurrencies).map(
     (item) => ({
       ...item,
       ...(item?.is_base && {
@@ -183,8 +182,8 @@ export const AvailableCurrencyList = () => {
       title: __('Currency deleted', 'kirki-ecommerce'),
       duration: 5000,
       undoAction: () => refetch(),
-      onSuccess: async () => {
-        deleteCurrencyMutate(item.id as number, {
+      onSuccess: () => {
+        deleteCurrencyMutate(item.id, {
           onSuccess: () => refetch(),
         });
       },
@@ -192,7 +191,7 @@ export const AvailableCurrencyList = () => {
   };
 
   const handleAction = (
-    action: string | number | Array<string | number>,
+    action: string | number | (string | number)[],
     item: CurrencyListItem,
   ) => {
     if (action === 'delete') {
@@ -259,8 +258,8 @@ export const AvailableCurrencyList = () => {
                   'API connection is active. Last sync: %s. Next update %s.',
                   'kirki-ecommerce',
                 ),
-                dateFormatter(dataObj?.last_sync_at as string, 'relative'),
-                dateFormatter(dataObj?.next_sync_at as string, 'relative'),
+                dateFormatter(dataObj?.last_sync_at, 'relative'),
+                dateFormatter(dataObj?.next_sync_at, 'relative'),
               )
               : __('API connection is inactive', 'kirki-ecommerce')}</Text>
           </Flex>
@@ -275,7 +274,7 @@ export const AvailableCurrencyList = () => {
               ...currency,
               is_active: currency?.is_active ?? true,
               is_base: currency?.is_base ?? false,
-            }]
+            }],
           })}
         />
       )}

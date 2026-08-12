@@ -1,3 +1,4 @@
+import { PlusCircle } from 'lucide-react';
 import { useMemo, useRef, useState } from 'react';
 
 import Button from '@/components/ui/button';
@@ -16,7 +17,6 @@ import { theme } from '@/theme';
 import { defineStyles, scopedMerge } from '@/theme/mixins';
 import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
-import { PlusCircle } from 'lucide-react';
 
 type CustomerSearchDropdownProps = {
   onSelect: (customerId: number) => void;
@@ -31,11 +31,11 @@ const CustomerSearchDropdown = ({ onSelect, onOpenAddDialog }: CustomerSearchDro
   const query = search.trim();
   const { data, isFetching } = useCustomersQuery(
     { search: query, limit: 10 },
-    open
+    open,
   );
 
   const customers = useMemo(() => {
-    if (!isDefined(data?.results)) return [];
+    if (!isDefined(data?.results)) {return [];}
 
     return data.results;
   }, [data])
@@ -115,7 +115,7 @@ const CustomerSearchDropdown = ({ onSelect, onOpenAddDialog }: CustomerSearchDro
             onClick={handleAdd}
           >
             <PlusCircle />
-            <Text variant='tiny' weight='medium'>{__('Add new', 'kirki-ecommerce')}</Text>
+            <Text variant="tiny" weight="medium">{__('Add new', 'kirki-ecommerce')}</Text>
           </Button>
         </div>
       </PopoverContent>

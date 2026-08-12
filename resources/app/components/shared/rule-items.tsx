@@ -1,5 +1,5 @@
 import type { CSSObject } from '@emotion/react';
-import { forwardRef, type ComponentPropsWithoutRef } from 'react';
+import { type ComponentPropsWithoutRef, forwardRef } from 'react';
 
 import {
   StackedItem,

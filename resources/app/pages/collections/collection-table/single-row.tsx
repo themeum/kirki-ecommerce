@@ -26,7 +26,7 @@ const SingleRow = ({
   const deleteMutation = useDeleteCollectionMutation();
 
   const handleItemClick = (id: number) => {
-    navigate(RouteConfig.Collections.get('CollectionDetail').buildLink({ id }));
+    void navigate(RouteConfig.Collections.get('CollectionDetail').buildLink({ id }));
   };
 
   const onItemDelete = (id: number) => {
@@ -54,8 +54,8 @@ const SingleRow = ({
             <Text variant="small">{item?.title || '--'}</Text>
           </Flex>
         </TableCell>
-        <TableCell>{item?.count || 0}</TableCell>
-        <TableCell>{item?.created_at || '--'}</TableCell>
+        <TableCell>{item?.count ?? 0}</TableCell>
+        <TableCell>{item?.created_at ?? '--'}</TableCell>
         <TableCell alignment="right">
           <ActionGroup>
             <Button

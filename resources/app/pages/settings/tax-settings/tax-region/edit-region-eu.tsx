@@ -10,28 +10,27 @@ import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { RouteConfig } from '@/config/route-config';
 import Text from '@/components/ui/text';
+import { RouteConfig } from '@/config/route-config';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { queryKeys } from '@/libs/query-keys';
 import { getDefaults, pickFormValues } from '@/libs/zod';
-import type { TaxSettings } from '@/schemas/catalog/settings';
-import { TaxRegionEuFormSchema, type TaxRegionEuFormInput } from '@/schemas/forms/tax-region-eu-form';
-import { TaxSettingsFormSchema, type TaxSettingsFormPayload } from '@/schemas/forms/tax-settings-form';
-import { toastMutationError } from '@/services/helpers';
-import { updateSettings, useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
-import { theme } from '@/theme';
-import { cardStyles } from '@/theme/card-styles';
-import { defineStyles, mergeCss } from '@/theme/mixins';
-import { __ } from '@/wpi18n';
-
 import { useSettingsPageActions } from '@/pages/settings/settings-layout/use-settings-page-actions';
 import SettingsPageHeader from '@/pages/settings/settings-page-header';
 import TaxRules from '@/pages/settings/tax-settings/tax-region/tax-rules/tax-rules';
 import { VatCollection } from '@/pages/settings/tax-settings/tax-region/vat-collection/vat-collection';
 import type { TaxRate, TaxRegion, TaxRule } from '@/pages/settings/tax-settings/utils';
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
+import type { TaxSettings } from '@/schemas/catalog/settings';
+import { type TaxRegionEuFormInput, TaxRegionEuFormSchema } from '@/schemas/forms/tax-region-eu-form';
+import { type TaxSettingsFormPayload, TaxSettingsFormSchema } from '@/schemas/forms/tax-settings-form';
+import { toastMutationError } from '@/services/helpers';
+import { updateSettings, useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
+import { theme } from '@/theme';
+import { cardStyles } from '@/theme/card-styles';
+import { defineStyles, mergeCss } from '@/theme/mixins';
+import { __ } from '@/wpi18n';
 
 type TaxSettingsFormData = Omit<TaxSettings, 'tax_regions'> & {
   tax_regions?: TaxRegion[];
@@ -46,7 +45,7 @@ const VatCollectionProcessRadios = () => {
     setValue('type', nextType, { shouldDirty: true });
 
     if (nextType === 'micro_business') {
-      const currentList = getValues('product_tax') || [];
+      const currentList = getValues('product_tax') ?? [];
       if (Array.isArray(currentList) && currentList.length > 0) {
         setValue('product_tax', [currentList[0]], { shouldDirty: true });
       }
@@ -54,7 +53,7 @@ const VatCollectionProcessRadios = () => {
   };
 
   return (
-    <Flex direction={'column'} gap={2} cssOverride={{ marginTop: theme.spacing[5] }}>
+    <Flex direction="column" gap={2} cssOverride={{ marginTop: theme.spacing[5] }}>
       <Card cssOverride={mergeCss(cardStyles.innerCard, styles.vatProcessCard)} >
         <CardContent cssOverride={cardStyles.innerContent}>
 
@@ -133,7 +132,7 @@ const VatProcessDescription = ({
   return (
     <Card cssOverride={{ ...cardStyles.innerDarkCard, marginTop: theme.spacing[2] }} >
       <CardContent cssOverride={cardStyles.innerDarkContent}>
-        <Text color="secondary" variant='small'>
+        <Text color="secondary" variant="small">
           {processValue === 'oss' ?
             __(
               'Collect VAT based on the customer’s EU country for cross-border sales. VAT from all EU countries is reported through a single OSS return. Required once your EU cross-border sales exceed €10,000 per year.',
@@ -171,9 +170,14 @@ const EditRegionEU = () => {
     control: form.control,
     name: 'type',
   });
-  const vatCollectionList =
-    (useWatch({ control: form.control, name: 'product_tax' }) as TaxRate[]) ||
-    [];
+  const watchedProductTax = useWatch({
+    control: form.control,
+    name: 'product_tax',
+  });
+  const vatCollectionList = useMemo(
+    () => watchedProductTax ?? [],
+    [watchedProductTax],
+  );
 
   const euRegion = useMemo(() => {
     const base = regions.find((region) => region.code === 'EU');
@@ -197,7 +201,7 @@ const EditRegionEU = () => {
     const eu = regionList.find((region) => region.code === 'EU');
     form.reset({
       type: eu?.type ? String(eu.type) : 'oss',
-      product_tax: eu?.product_tax || [],
+      product_tax: eu?.product_tax ?? [],
     });
   }, [taxSettingsData, form]);
 
@@ -295,7 +299,7 @@ const EditRegionEU = () => {
             <Flex direction="column" gap={4}>
               <SettingsPageHeader
                 title={__('EU', 'kirki-ecommerce')}
-                icon={'🇪🇺'}
+                icon="🇪🇺"
                 onBack={() => navigate(RouteConfig.Settings.get('TaxSettings').buildLink())}
               />
 
@@ -339,5 +343,5 @@ const styles = defineStyles({
     display: 'flex',
     flexDirection: 'column',
     gap: theme.spacing[2],
-  }
+  },
 });

@@ -149,7 +149,7 @@ export const OrderItemSchema = z.object({
     tax_breakdown: z.array(z.object({
       name: z.string(),
       rate: z.number(),
-      base_amount: z.number()
+      base_amount: z.number(),
     })).nullish(),
     sku: z.string().nullish(),
     image: MediaRefSchema.nullish(),
@@ -167,7 +167,7 @@ export const OrderItemSchema = z.object({
   shipping_tracking: OrderTrackingSchema,
   refunds: z.array(RefundSchema).nullish(),
   archived_at: z.string().nullish(),
-  created_at: z.string()
+  created_at: z.string(),
 });
 
 export type OrderItem = z.infer<typeof OrderItemSchema>;
@@ -191,7 +191,7 @@ export const OrderListItemSchema = OrderItemSchema.pick({
   is_refund_initiated: z.boolean(),
   payment_status: PaymentStatusSchema,
   payment_provider: z.string().nullish(),
-  created_at: z.string()
+  created_at: z.string(),
 }));
 
 export type OrderListItem = z.infer<typeof OrderListItemSchema>;
@@ -230,7 +230,7 @@ export const OrderCalculationSchema = z.object({
     base_total: MoneyAmountSchema,
     base_total_money_object: MoneyObjectSchema,
     display_total: MoneyAmountSchema,
-    display_total_money_object: MoneyObjectSchema
+    display_total_money_object: MoneyObjectSchema,
   }),
   items_count: z.number(),
   items: z.array(z.object({
@@ -251,7 +251,7 @@ export const OrderCalculationSchema = z.object({
       base_amount: MoneyAmountSchema,
       base_amount_money_object: MoneyObjectSchema,
       display_amount: MoneyAmountSchema,
-      display_amount_money_object: MoneyObjectSchema
+      display_amount_money_object: MoneyObjectSchema,
     })),
     base_discount_amount: MoneyAmountSchema,
     base_discount_amount_money_object: MoneyObjectSchema,
@@ -261,7 +261,7 @@ export const OrderCalculationSchema = z.object({
     base_total: MoneyAmountSchema,
     base_total_money_object: MoneyObjectSchema,
     display_total: MoneyAmountSchema,
-    display_total_money_object: MoneyObjectSchema
+    display_total_money_object: MoneyObjectSchema,
   })),
   available_shipping_methods: z.array(z.object({
     id: z.union([z.number(), z.string()]),
@@ -270,9 +270,9 @@ export const OrderCalculationSchema = z.object({
     base_cost: MoneyAmountSchema,
     base_cost_money_object: MoneyObjectSchema,
     display_cost: MoneyAmountSchema,
-    display_cost_money_object: MoneyObjectSchema
+    display_cost_money_object: MoneyObjectSchema,
   })),
-  shipping_method: z.union([z.number(), z.string()]).nullish()
+  shipping_method: z.union([z.number(), z.string()]).nullish(),
 });
 
 export type OrderCalculation = z.infer<typeof OrderCalculationSchema>;

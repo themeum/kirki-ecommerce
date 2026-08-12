@@ -51,5 +51,5 @@ type MessageResponse = z.infer<typeof MessageResponseSchema>;
 
 type MoneyObject = z.infer<typeof MoneyObjectSchema>;
 
-export { ApiEnvelopeSchema, MessageResponseSchema, MoneyAmountSchema, MoneyObjectSchema, PaginatedDataSchema, ResourceCollectionSchema, type MessageResponse, type MoneyObject };
+export { ApiEnvelopeSchema, type MessageResponse, MessageResponseSchema, MoneyAmountSchema, type MoneyObject, MoneyObjectSchema, PaginatedDataSchema, ResourceCollectionSchema };
 

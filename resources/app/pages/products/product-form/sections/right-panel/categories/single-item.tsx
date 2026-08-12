@@ -2,7 +2,7 @@ import Checkbox from '@/components/ui/checkbox';
 import Flex from '@/components/ui/flex';
 import Label from '@/components/ui/label';
 import { theme } from '@/theme';
-import { itemCenter, scoped, defineStyles } from '@/theme/mixins';
+import { defineStyles, itemCenter, scoped } from '@/theme/mixins';
 import type { Category } from '@/types';
 
 type ProductCategorySelection = {

@@ -1,4 +1,4 @@
-import { theme, type SpacingKey } from '@/theme';
+import { type SpacingKey, theme } from '@/theme';
 import type { GapValue } from '@/types';
 
 /**

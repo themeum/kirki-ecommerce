@@ -1,24 +1,24 @@
-import Button from '@/components/ui/button';
-import Input from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowDownUp, ListFilter } from '@/icons';
 import ActionGroup from '@/components/ui/action-group';
+import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { cardStyles } from '@/theme/card-styles';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
+import Input from '@/components/ui/input';
 import PageHeading from '@/components/ui/page-heading';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ArrowDownUp, ListFilter } from '@/icons';
+import CustomerGroupTable from '@/pages/customers/customer-groups/customer-group-table';
 import { theme } from '@/theme';
+import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
 import type { SelectOption } from '@/types';
-
-import CustomerGroupTable from '@/pages/customers/customer-groups/customer-group-table';
+import { __ } from '@/wpi18n';
 
 const CustomerGroups = () => {
   const selectOptions: SelectOption[] = [
-    { value: 'all', title: 'All Groups' },
-    { value: 'new', title: 'New Groups' },
-    { value: 'top', title: 'Top Groups' },
+    { value: 'all', title: __('All Groups', 'kirki-ecommerce') },
+    { value: 'new', title: __('New Groups', 'kirki-ecommerce') },
+    { value: 'top', title: __('Top Groups', 'kirki-ecommerce') },
   ];
   return (
     <>

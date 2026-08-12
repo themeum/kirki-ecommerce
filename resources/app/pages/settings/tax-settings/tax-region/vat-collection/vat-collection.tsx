@@ -1,5 +1,6 @@
 import { css } from '@emotion/react';
-import { useState, type Dispatch, type ReactNode, type SetStateAction } from 'react';
+import { Trash2 } from 'lucide-react';
+import { type Dispatch, type ReactNode, type SetStateAction, useState } from 'react';
 import { toast } from 'sonner';
 
 import HeaderActionsCard from '@/components/header-actions-card';
@@ -7,15 +8,13 @@ import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
+import VatCollectionPopup from '@/pages/settings/tax-settings/tax-region/vat-collection/vat-collection-dialog';
+import type { TaxRate, TaxRegion } from '@/pages/settings/tax-settings/utils';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss } from '@/theme/mixins';
 import type { SelectOption } from '@/types';
 import { __ } from '@/wpi18n';
-
-import VatCollectionPopup from '@/pages/settings/tax-settings/tax-region/vat-collection/vat-collection-dialog';
-import type { TaxRate, TaxRegion } from '@/pages/settings/tax-settings/utils';
-import { Trash2 } from 'lucide-react';
 
 type VatStateOption = SelectOption & {
   leftIcon?: ReactNode;
@@ -72,7 +71,7 @@ export const VatCollection = (props: VatCollectionProps) => {
           ? safePrev.map((item, i) => (i === index ? newItem : item))
           : [...safePrev, newItem];
 
-      updateVatCollection(updatedList);
+      void updateVatCollection(updatedList);
       setEditIndex(null);
       return updatedList;
     });
@@ -104,7 +103,7 @@ export const VatCollection = (props: VatCollectionProps) => {
         },
       },
       onAutoClose: () => {
-        updateVatCollection(updatedList, 'delete');
+        void updateVatCollection(updatedList, 'delete');
       },
     });
   };
@@ -156,7 +155,7 @@ export const VatCollection = (props: VatCollectionProps) => {
                       <Button
                         variant="outline"
                         onClick={() => handleEditVatRate(index)}
-                        size='sm'
+                        size="sm"
                       >
                         {__('Edit Rates', 'kirki-ecommerce')}
                       </Button>
@@ -215,5 +214,5 @@ const styles = defineStyles({
   vatTextHidden: css({
     opacity: 0,
     display: 'none',
-  })
+  }),
 });

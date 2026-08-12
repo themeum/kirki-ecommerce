@@ -1,10 +1,10 @@
 type ResolveDestinationRegionParams = {
   shippingSettingsData: {
-    shipping_zones?: Array<{
+    shipping_zones?: {
       id: string | number;
       regions?: unknown;
-      shipping_methods?: Array<{ id: string | number }>;
-    }>;
+      shipping_methods?: { id: string | number }[];
+    }[];
   } | null | undefined;
   methodID: string | number | null | undefined;
   setSelectedRegion: (regions: unknown) => void;

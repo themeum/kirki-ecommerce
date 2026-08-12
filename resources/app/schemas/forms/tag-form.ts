@@ -19,4 +19,4 @@ type TagFormInput = z.input<typeof TagFormSchema>;
 
 type TagFormPayload = z.output<typeof TagFormSchema>;
 
-export { TagFormSchema, type TagFormInput, type TagFormPayload };
+export { type TagFormInput, type TagFormPayload, TagFormSchema };

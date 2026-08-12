@@ -59,11 +59,11 @@ type TaxRegion = {
 type SelectedTaxRegionDraft = {
   id: string;
   country: string;
-  states: Array<{
+  states: {
     id: string | number;
     title: string;
     flag: string;
-  }>;
+  }[];
   hasDeselectedState?: boolean;
   flag?: string;
   is_enabled?: boolean;
@@ -77,15 +77,15 @@ type TaxConditionRow = {
 };
 
 export type {
-  SelectOption,
-  TaxRate,
-  TaxRule,
-  TaxRuleCondition,
-  TaxRuleAction,
-  TaxRegionState,
-  TaxRegion,
   SelectedTaxRegionDraft,
+  SelectOption,
   TaxConditionRow,
+  TaxRate,
+  TaxRegion,
+  TaxRegionState,
+  TaxRule,
+  TaxRuleAction,
+  TaxRuleCondition,
 };
 
 export const taxRuleConditionOptions: SelectOption[] = [

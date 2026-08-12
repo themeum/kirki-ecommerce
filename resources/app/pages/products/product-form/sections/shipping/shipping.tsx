@@ -2,10 +2,9 @@ import ShippingBoxField from '@/components/form/shipping-box-field';
 import WeightField from '@/components/form/weight-field';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
+import ShippingProfile from '@/pages/products/product-form/sections/shipping/shipping-profile';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
-
-import ShippingProfile from '@/pages/products/product-form/sections/shipping/shipping-profile';
 
 const Shipping = () => {
   return (

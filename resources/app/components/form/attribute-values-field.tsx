@@ -1,17 +1,17 @@
-import { useMemo, useState, type ReactNode } from 'react';
-import { Controller, useFormContext, type FieldPath, type FieldValues } from 'react-hook-form';
+import { type ReactNode, useMemo, useState } from 'react';
+import { Controller, type FieldPath, type FieldValues, useFormContext } from 'react-hook-form';
 
-import { getAttributeValueType, type AttributeValueOption } from '@/components/form/attribute-value-types';
+import { type AttributeValueOption, getAttributeValueType } from '@/components/form/attribute-value-types';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import MultiSelect from '@/components/ui/multi-select';
-import { getErrorsObject, type ErrorResponse } from '@/libs/api';
+import { type ErrorResponse, getErrorsObject } from '@/libs/api';
+import VariationDialog from '@/pages/products/product-form/sections/variants/variation-dialog';
+import type { ProductVariationPopoverFormPayload } from '@/schemas/forms/product-variation-popover-form';
 import type { VariationValueFormPayload } from '@/schemas/forms/variation-value-form';
 import { useAttributesQuery, useCreateAttributeValueMutation } from '@/services/attribute';
 import type { Attribute } from '@/types';
+import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
-
-import VariationDialog from '@/pages/products/product-form/sections/variants/variation-dialog';
-import { ProductVariationPopoverFormPayload } from '@/schemas/forms/product-variation-popover-form';
 
 type AttributeValueRef = {
   value?: number | string;
@@ -90,7 +90,7 @@ const AttributeValuesField = <
         const selected: AttributeValueOption[] = fieldValue
           .filter((item) => item.value != null)
           .map((item) => ({
-            value: item.value as number | string,
+            value: item.value!,
             title: item.title ?? '',
             color: item.color,
           }));
@@ -126,11 +126,7 @@ const AttributeValuesField = <
           try {
             const response =
               await createAttributeValueMutation.mutateAsync(newValue);
-            const resultData = response.data as {
-              id: number;
-              value: string;
-              color?: string | null;
-            };
+            const resultData = response.data;
             addCreatedValue({
               value: resultData.id,
               title: resultData.value,
@@ -184,7 +180,7 @@ const AttributeValuesField = <
               initialValues={initialValues}
               onSave={(variation) => {
                 void createValue(variation.title, variation.color).catch(
-                  () => { },
+                  noop,
                 );
                 setColorDialogOpen(false);
               }}
