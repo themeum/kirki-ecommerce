@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
+import { CustomerAddressSchema } from '@/features/customers';
 import { CouponSchema } from '@/schemas/catalog/coupon';
-import { CustomerAddressSchema } from '@/schemas/catalog/customer';
 import { MoneyAmountSchema, MoneyObjectSchema } from '@/schemas/shared/api';
 import { MediaRefSchema } from '@/schemas/shared/media';
 

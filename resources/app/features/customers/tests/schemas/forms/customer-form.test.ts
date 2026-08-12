@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { CustomerFormSchema } from '@/schemas/forms/customer-form';
+import { CustomerFormSchema } from '@/features/customers/schemas/forms/customer-form';
 
 describe('CustomerFormSchema', () => {
   const base = {

@@ -22,9 +22,9 @@ const CollectionDetails = lazy(() => import('@/features/collections/pages/collec
 const Tags = lazy(() => import('@/features/tags/pages/tags'));
 const Categories = lazy(() => import('@/features/categories/pages/categories'));
 const Brands = lazy(() => import('@/features/brands/pages/brands'));
-const Customers = lazy(() => import('@/pages/customers/customers'));
-const CustomerDetails = lazy(() => import('@/pages/customers/customer-details/customer-details'));
-const CustomerGroups = lazy(() => import('@/pages/customers/customer-groups/customer-groups'));
+const Customers = lazy(() => import('@/features/customers/pages/customers'));
+const CustomerDetails = lazy(() => import('@/features/customers/pages/customer-details/customer-details'));
+const CustomerGroups = lazy(() => import('@/features/customers/pages/customer-groups/customer-groups'));
 const SettingsLayout = lazy(() => import('@/pages/settings/settings-layout/settings-layout'));
 const GeneralSettings = lazy(() => import('@/pages/settings/general-settings/general-settings'));
 const ProductsSettings = lazy(() => import('@/pages/settings/products-settings/products-settings'));

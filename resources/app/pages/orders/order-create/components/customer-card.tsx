@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { FieldError } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
+import { useCustomerQuery } from '@/features/customers';
 import { EditIcon, TrashIcon } from '@/icons';
 import AddCustomerDialog from '@/pages/orders/order-create/components/customer/add-customer-dialog';
 import CustomerInfoDialog from '@/pages/orders/order-create/components/customer/customer-info-dialog';
@@ -19,7 +20,6 @@ import {
 } from '@/pages/orders/order-create/config/customer-address';
 import type { OrderFormInput } from '@/schemas/forms/order-form';
 import { useCountriesQuery } from '@/services/country';
-import { useCustomerQuery } from '@/services/customer';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';

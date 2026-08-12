@@ -1,0 +1,7 @@
+[
+  { "from": "pages/customers", "to": "features/customers/pages" },
+  { "from": "services/customer.ts", "to": "features/customers/services/customer.ts" },
+  { "from": "schemas/catalog/customer.ts", "to": "features/customers/schemas/catalog/customer.ts" },
+  { "from": "schemas/forms/customer-form.ts", "to": "features/customers/schemas/forms/customer-form.ts" },
+  { "from": "schemas/forms/customer-form.test.ts", "to": "features/customers/tests/schemas/forms/customer-form.test.ts" }
+]

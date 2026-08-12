@@ -13,19 +13,19 @@ import Label from '@/components/ui/label';
 import PageHeading from '@/components/ui/page-heading';
 import { NEW_ITEM_ID } from '@/conf';
 import { RouteConfig } from '@/config/route-config';
-import { PlusIcon } from '@/icons';
-import type { ErrorResponse } from '@/libs/api';
-import { applyServerErrors } from '@/libs/form-errors';
-import { getDefaults, pickFormValues } from '@/libs/zod';
-import BillingAddress from '@/pages/customers/customer-details/billing-address';
-import CustomerOverview from '@/pages/customers/customer-details/customer-overview';
-import ShippingAddress from '@/pages/customers/customer-details/shipping-address';
+import BillingAddress from '@/features/customers/pages/customer-details/billing-address';
+import CustomerOverview from '@/features/customers/pages/customer-details/customer-overview';
+import ShippingAddress from '@/features/customers/pages/customer-details/shipping-address';
 import {
   type CustomerFormInput,
   type CustomerFormPayload,
   CustomerFormSchema,
-} from '@/schemas/forms/customer-form';
-import { useCreateCustomerMutation, useCustomerQuery, useUpdateCustomerMutation } from '@/services/customer';
+} from '@/features/customers/schemas/forms/customer-form';
+import { useCreateCustomerMutation, useCustomerQuery, useUpdateCustomerMutation } from '@/features/customers/services/customer';
+import { PlusIcon } from '@/icons';
+import type { ErrorResponse } from '@/libs/api';
+import { applyServerErrors } from '@/libs/form-errors';
+import { getDefaults, pickFormValues } from '@/libs/zod';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 

@@ -11,8 +11,8 @@ import {
 import { Popover, PopoverAnchor, PopoverContent } from '@/components/ui/popover';
 import Searchbox from '@/components/ui/searchbox';
 import Text from '@/components/ui/text';
+import { useCustomersQuery } from '@/features/customers';
 import CustomerProfileCard from '@/pages/orders/order-create/components/customer/customer-profile-card';
-import { useCustomersQuery } from '@/services/customer';
 import { theme } from '@/theme';
 import { defineStyles, scopedMerge } from '@/theme/mixins';
 import { isDefined } from '@/utils/object';

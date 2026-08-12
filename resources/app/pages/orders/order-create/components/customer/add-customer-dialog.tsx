@@ -13,14 +13,10 @@ import {
 } from '@/components/ui/dialog';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
+import type { CustomerFormInput, CustomerFormPayload } from '@/features/customers';
+import { BillingAddress, CustomerFormSchema, CustomerOverview, ShippingAddress, useCreateCustomerMutation } from '@/features/customers';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import BillingAddress from '@/pages/customers/customer-details/billing-address';
-import CustomerOverview from '@/pages/customers/customer-details/customer-overview';
-import ShippingAddress from '@/pages/customers/customer-details/shipping-address';
-import type { CustomerFormInput, CustomerFormPayload} from '@/schemas/forms/customer-form';
-import { CustomerFormSchema } from '@/schemas/forms/customer-form';
-import { useCreateCustomerMutation } from '@/services/customer';
 import { __ } from '@/wpi18n';
 
 type AddCustomerDialogProps = {

@@ -5,8 +5,8 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { FileTextIcon } from '@/icons';
-import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
+import { theme } from '@/theme/index';
 import { defineStyles, mergeCss } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 

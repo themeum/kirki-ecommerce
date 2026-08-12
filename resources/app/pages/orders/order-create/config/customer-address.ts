@@ -1,4 +1,4 @@
-import type { Customer, CustomerAddress } from '@/schemas/catalog/customer';
+import type { Customer, CustomerAddress } from '@/features/customers';
 import type { OrderFormInput } from '@/schemas/forms/order-form';
 import type { Country } from '@/schemas/reference/country';
 
