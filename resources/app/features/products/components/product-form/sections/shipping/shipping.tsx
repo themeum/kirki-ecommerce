@@ -1,8 +1,8 @@
-import ShippingBoxField from '@/components/form/shipping-box-field';
 import WeightField from '@/components/form/weight-field';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import ShippingProfile from '@/features/products/components/product-form/sections/shipping/shipping-profile';
+import { ShippingBoxField } from '@/features/settings';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 

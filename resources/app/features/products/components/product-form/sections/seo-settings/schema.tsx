@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import SchemaPreview from '@/features/products/components/product-form/sections/seo-settings/schema-preview';
 import { groupDetails } from '@/features/products/lib/seo-settings/utils';
 import type { ProductFormInput } from '@/features/products/schemas/forms/product-form';
-import { useSchemasQuery } from '@/services/schema';
+import { useSchemasQuery } from '@/features/settings';
 import { __ } from '@/wpi18n';
 
 type GroupedValues = Record<string, (string | number)[]>;

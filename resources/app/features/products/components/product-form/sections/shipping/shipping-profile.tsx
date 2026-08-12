@@ -15,9 +15,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import type { ProductFormInput } from '@/features/products/schemas/forms/product-form';
+import { CreateProfilePopup, useShippingProfilesQuery } from '@/features/settings';
 import { PlusCircleIcon } from '@/icons';
-import { CreateProfilePopup } from '@/pages/settings/shipping-settings/shipping-profile/create-profile-dialog';
-import { useShippingProfilesQuery } from '@/services/shipping';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';

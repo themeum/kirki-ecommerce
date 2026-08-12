@@ -7,7 +7,6 @@ import type {
 } from 'react';
 import { useEffect, useState } from 'react';
 
-import ShippingBoxField from '@/components/form/shipping-box-field';
 import ThumbnailSelector from '@/components/thumbnail-selector';
 import Checkbox from '@/components/ui/checkbox';
 import Flex from '@/components/ui/flex';
@@ -21,6 +20,7 @@ import type { UnitPriceValue } from '@/features/products';
 import type { ProductVariant } from '@/features/products';
 import { BaseUnitDialog } from '@/features/products';
 import { useAttributesQuery } from '@/features/products';
+import { ShippingBoxField } from '@/features/settings';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
 import { calculateProfit } from '@/utils/common';

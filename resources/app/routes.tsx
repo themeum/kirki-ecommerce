@@ -5,6 +5,7 @@ import LoadingSpinner from '@/components/loading-spinner';
 import { RouteConfig } from '@/config/route-config';
 import ordersRoutes from '@/features/orders/routes';
 import productsRoutes from '@/features/products/routes';
+import settingsRoutes from '@/features/settings/routes';
 import UnsavedChangesController from '@/floating-components/unsaved-tracker';
 import NotFound from '@/pages/not-found/not-found';
 import { __ } from '@/wpi18n';
@@ -21,24 +22,6 @@ const Brands = lazy(() => import('@/features/brands/pages/brands'));
 const Customers = lazy(() => import('@/features/customers/pages/customers'));
 const CustomerDetails = lazy(() => import('@/features/customers/pages/customer-details/customer-details'));
 const CustomerGroups = lazy(() => import('@/features/customers/pages/customer-groups/customer-groups'));
-const SettingsLayout = lazy(() => import('@/pages/settings/settings-layout/settings-layout'));
-const GeneralSettings = lazy(() => import('@/pages/settings/general-settings/general-settings'));
-const ProductsSettings = lazy(() => import('@/pages/settings/products-settings/products-settings'));
-const PaymentSettings = lazy(() => import('@/pages/settings/payment-settings/payment-settings'));
-const ShippingSettings = lazy(() => import('@/pages/settings/shipping-settings/shipping-settings'));
-const ShippingZone = lazy(() => import('@/pages/settings/shipping-settings/shipping-zone/shipping-zone'));
-const TaxSettings = lazy(() => import('@/pages/settings/tax-settings/tax-settings'));
-const EmailSettings = lazy(() => import('@/pages/settings/email-settings/email-settings'));
-const ShippingDeliveryMethod = lazy(() => import('@/pages/settings/shipping-settings/shipping-method/shipping-delivery-method'));
-const MultiCurrencySettings = lazy(() => import('@/pages/settings/multi-currency-settings/multi-currency-settings'));
-const CheckoutSettings = lazy(() => import('@/pages/settings/checkout-settings/checkout-settings'));
-const EditTemplate = lazy(() => import('@/pages/settings/email-settings/edit-template'));
-const GeneralEditRegion = lazy(() => import('@/pages/settings/tax-settings/tax-region/general-edit-region'));
-const EditRegionEU = lazy(() => import('@/pages/settings/tax-settings/tax-region/edit-region-eu'));
-const EssentialsSettings = lazy(() => import('@/pages/settings/essential-settings/essential-settings'));
-const ColorVariation = lazy(() => import('@/pages/settings/essential-settings/variation-library/color-variation'));
-const ListVariation = lazy(() => import('@/pages/settings/essential-settings/variation-library/list-variation'));
-const AdvancedSettings = lazy(() => import('@/pages/settings/advanced-settings/advanced-settings'));
 const ComingSoon = lazy(() => import('@/pages/coming-soon/coming-soon'));
 
 const withSuspense = <Props extends object>(
@@ -52,7 +35,6 @@ const withSuspense = <Props extends object>(
 
 const ProductRoutes = RouteConfig.Products;
 const CustomerRoutes = RouteConfig.Customers;
-const SettingsRoutes = RouteConfig.Settings;
 
 export const router = createHashRouter([
   {
@@ -76,72 +58,7 @@ export const router = createHashRouter([
       { path: CustomerRoutes.template, element: withSuspense(Customers) },
       { path: CustomerRoutes.get('CustomerDetail').template, element: withSuspense(CustomerDetails) },
       { path: CustomerRoutes.get('CustomerGroups').template, element: withSuspense(CustomerGroups) },
-      {
-        path: SettingsRoutes.template,
-        element: withSuspense(SettingsLayout),
-        children: [
-          {
-            index: true,
-            element: <Navigate to={SettingsRoutes.get('GeneralSettings').buildLink()} replace />,
-          },
-          { path: SettingsRoutes.get('GeneralSettings').template, element: withSuspense(GeneralSettings) },
-          {
-            path: SettingsRoutes.get('ProductsSettings').template,
-            element: withSuspense(ProductsSettings),
-          },
-          { path: SettingsRoutes.get('PaymentSettings').template, element: withSuspense(PaymentSettings) },
-          {
-            path: SettingsRoutes.get('ShippingSettings').template,
-            element: withSuspense(ShippingSettings),
-          },
-          {
-            path: SettingsRoutes.get('ShippingSettings').get('ShippingZone').template,
-            element: withSuspense(ShippingZone),
-          },
-          {
-            path: SettingsRoutes.get('ShippingSettings').get('ShippingDeliveryMethod').template,
-            element: withSuspense(ShippingDeliveryMethod),
-          },
-          {
-            path: SettingsRoutes.get('MultiCurrencySettings').template,
-            element: withSuspense(MultiCurrencySettings),
-          },
-          { path: SettingsRoutes.get('TaxSettings').template, element: withSuspense(TaxSettings) },
-          {
-            path: SettingsRoutes.get('TaxSettings').get('EditRegionEU').template,
-            element: withSuspense(EditRegionEU),
-          },
-          {
-            path: SettingsRoutes.get('TaxSettings').get('EditTaxRegion').template,
-            element: withSuspense(GeneralEditRegion),
-          },
-          { path: SettingsRoutes.get('EmailSettings').template, element: withSuspense(EmailSettings) },
-          {
-            path: SettingsRoutes.get('CheckoutSettings').template,
-            element: withSuspense(CheckoutSettings),
-          },
-          {
-            path: SettingsRoutes.get('EmailSettings').get('EditEmailTemplate').template,
-            element: withSuspense(EditTemplate),
-          },
-          {
-            path: SettingsRoutes.get('EssentialsSettings').template,
-            element: withSuspense(EssentialsSettings),
-          },
-          {
-            path: SettingsRoutes.get('EssentialsSettings').get('ColorVariation').template,
-            element: withSuspense(ColorVariation),
-          },
-          {
-            path: SettingsRoutes.get('EssentialsSettings').get('ListVariation').template,
-            element: withSuspense(ListVariation),
-          },
-          {
-            path: SettingsRoutes.get('AdvancedSettings').template,
-            element: withSuspense(AdvancedSettings),
-          },
-        ],
-      },
+      ...settingsRoutes,
       { path: '/analytics', element: withSuspense(ComingSoon, { text: __('Analytics', 'kirki-ecommerce') }) },
       { path: '/report', element: withSuspense(ComingSoon, { text: __('Report', 'kirki-ecommerce') }) },
       { path: '/tools', element: withSuspense(ComingSoon, { text: __('Tools', 'kirki-ecommerce') }) },

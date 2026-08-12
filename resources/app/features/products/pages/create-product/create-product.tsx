@@ -13,9 +13,9 @@ import {
 import {
   useCreateProductMutation,
 } from '@/features/products/services/product';
+import { useShippingBoxesQuery } from '@/features/settings';
 import { getDefaults } from '@/libs/zod';
 import { useDefaultSettingsQuery, useSettingsQuery } from '@/services/settings';
-import { useShippingBoxesQuery } from '@/services/shipping';
 import { isDefined } from '@/utils/object';
 
 const CreateProduct = () => {

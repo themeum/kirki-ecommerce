@@ -18,7 +18,7 @@ import { Form } from '@/components/ui/form';
 import Text from '@/components/ui/text';
 import { RouteConfig } from '@/config/route-config';
 import type { OrderItem } from '@/features/orders/schemas/catalog/order';
-import { useOfflinePaymentsQuery } from '@/services/payment';
+import { useOfflinePaymentsQuery } from '@/features/settings';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
