@@ -1,0 +1,11 @@
+[
+  { "from": "pages/tags/tags.tsx", "to": "features/tags/pages/tags.tsx" },
+  { "from": "pages/tags/new-tag.tsx", "to": "features/tags/components/new-tag.tsx" },
+  { "from": "pages/tags/tag-add-edit-dialog.tsx", "to": "features/tags/components/tag-add-edit-dialog.tsx" },
+  { "from": "pages/tags/tag-table", "to": "features/tags/components/tag-table" },
+  { "from": "components/form/tags-field.tsx", "to": "features/tags/components/fields/tags-field.tsx" },
+  { "from": "services/tag.ts", "to": "features/tags/services/tag.ts" },
+  { "from": "schemas/catalog/tag.ts", "to": "features/tags/schemas/catalog/tag.ts" },
+  { "from": "schemas/forms/tag-form.ts", "to": "features/tags/schemas/forms/tag-form.ts" },
+  { "from": "schemas/forms/tag-form.test.ts", "to": "features/tags/tests/schemas/forms/tag-form.test.ts" }
+]

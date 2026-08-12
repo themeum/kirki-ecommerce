@@ -8,16 +8,16 @@ import Button from '@/components/ui/button';
 import { Dialog, DialogBody, DialogClose, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
-import type { ErrorResponse } from '@/libs/api';
-import { applyServerErrors } from '@/libs/form-errors';
-import { pickFormValues } from '@/libs/zod';
-import type { Tag } from '@/schemas/catalog/tag';
+import type { Tag } from '@/features/tags/schemas/catalog/tag';
 import {
   type TagFormInput,
   type TagFormPayload,
   TagFormSchema,
-} from '@/schemas/forms/tag-form';
-import { useCreateTagMutation, useUpdateTagMutation } from '@/services/tag';
+} from '@/features/tags/schemas/forms/tag-form';
+import { useCreateTagMutation, useUpdateTagMutation } from '@/features/tags/services/tag';
+import type { ErrorResponse } from '@/libs/api';
+import { applyServerErrors } from '@/libs/form-errors';
+import { pickFormValues } from '@/libs/zod';
 import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 

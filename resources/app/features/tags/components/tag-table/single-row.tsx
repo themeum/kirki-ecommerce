@@ -4,10 +4,10 @@ import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
 import Checkbox from '@/components/ui/checkbox';
 import { TableCell, TableRow } from '@/components/ui/table';
+import TagAddEditDialog from '@/features/tags/components/tag-add-edit-dialog';
+import type { Tag } from '@/features/tags/schemas/catalog/tag';
+import { useDeleteTagMutation } from '@/features/tags/services/tag';
 import { EditPenIcon, TrashIcon } from '@/icons';
-import TagAddEditDialog from '@/pages/tags/tag-add-edit-dialog';
-import type { Tag } from '@/schemas/catalog/tag';
-import { useDeleteTagMutation } from '@/services/tag';
 import type { MarkListHandlers } from '@/types/pages/common';
 import { __ } from '@/wpi18n';
 

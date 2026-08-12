@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { TagFormSchema } from '@/schemas/forms/tag-form';
+import { TagFormSchema } from '@/features/tags/schemas/forms/tag-form';
 
 describe('TagFormSchema', () => {
   it('produces the exact payload for a fully filled form', () => {

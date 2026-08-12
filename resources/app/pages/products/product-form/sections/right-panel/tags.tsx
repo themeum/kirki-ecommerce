@@ -1,4 +1,4 @@
-import TagsField from '@/components/form/tags-field';
+import { TagsField } from '@/features/tags';
 import { __ } from '@/wpi18n';
 
 const Tags = () => (

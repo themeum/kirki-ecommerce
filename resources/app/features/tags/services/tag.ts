@@ -1,10 +1,10 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { endpoints } from '@/config/endpoints';
-import { tagKeys } from '@/features/tags';
+import { tagKeys } from '@/features/tags/index';
+import { TagSchema } from '@/features/tags/schemas/catalog/tag';
+import type { TagFormPayload } from '@/features/tags/schemas/forms/tag-form';
 import { apiClient } from '@/libs/api';
-import { TagSchema } from '@/schemas/catalog/tag';
-import type { TagFormPayload } from '@/schemas/forms/tag-form';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
 import { parseData, parseMessage, parseResponse, toastMutationError, toastMutationSuccess } from '@/services/helpers';
 import type { BulkActionParams } from '@/types/api/result';

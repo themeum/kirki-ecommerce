@@ -19,7 +19,7 @@ const EditCoupon = lazy(() => import('@/pages/coupons/edit-coupon/edit-coupon'))
 const OrderDetails = lazy(() => import('@/pages/orders/order-details/order-details'));
 const Collections = lazy(() => import('@/pages/collections/collections'));
 const CollectionDetails = lazy(() => import('@/pages/collections/collection-details/collection-details'));
-const Tags = lazy(() => import('@/pages/tags/tags'));
+const Tags = lazy(() => import('@/features/tags/pages/tags'));
 const Categories = lazy(() => import('@/pages/categories/categories'));
 const Brands = lazy(() => import('@/features/brands/pages/brands'));
 const Customers = lazy(() => import('@/pages/customers/customers'));

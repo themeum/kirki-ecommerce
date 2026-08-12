@@ -4,8 +4,8 @@ import { Controller, type FieldPath, type FieldValues, useFormContext } from 're
 
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import MultiSelect, { type MultiSelectOption } from '@/components/ui/multi-select';
+import { useCreateTagMutation, useTagsQuery } from '@/features/tags/services/tag';
 import { type ErrorResponse, getErrorsObject } from '@/libs/api';
-import { useCreateTagMutation, useTagsQuery } from '@/services/tag';
 import { __ } from '@/wpi18n';
 
 type TagRef = {
