@@ -9,7 +9,9 @@
  *   })">
  */
 
-import { cartApi } from "../api/cart";
+import { buildCartApi } from "../api/cart";
+
+const cartApi = buildCartApi({ skipTax: false });
 import { checkoutApi } from "../api/checkout";
 import { toastManager } from "../services/toast/runtime";
 import type { CheckoutRequest } from "../types";

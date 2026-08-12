@@ -7,53 +7,69 @@ import type { ApiResponse, Cart, CartUpdateItem } from "../types";
 import { config } from "../utils";
 import { apiRequest } from "./client";
 
-const { cart_token_header_name, cart_token_cookie_name, header_skip_tax } = config;
-const headers = {
-  [cart_token_header_name]: Cookie.get(cart_token_cookie_name) || "",
-  [header_skip_tax]: "true",
-};
+interface CartApiOptions {
+  skipTax?: boolean;
+  headers?: Record<string, string>;
+}
 
-export const cartApi = {
-  get: () => apiRequest<ApiResponse<Cart>>("/cart", { headers: headers }),
+function getCartHeaders(skipTax: boolean): Record<string, string> {
+  const { cart_token_header_name, cart_token_cookie_name, header_skip_tax } = config;
+  const headers: Record<string, string> = {
+    [cart_token_header_name]: Cookie.get(cart_token_cookie_name) || "",
+  };
+  if (skipTax) {
+    headers[header_skip_tax] = "true";
+  }
+  return headers;
+}
 
-  addItem: (variantId: number, quantity: number) =>
-    apiRequest<ApiResponse<Cart>>("/cart/items", {
-      method: "POST",
-      body: { variant_id: variantId, quantity },
-      headers: headers,
-    }),
+export function buildCartApi({ skipTax = true, headers: extraHeaders = {} }: CartApiOptions = {}) {
+  const headers = { ...getCartHeaders(skipTax), ...extraHeaders };
 
-  updateItem: (itemId: number, quantity: number) =>
-    apiRequest<{ data: CartUpdateItem; message: string; success: boolean }>(`/cart/items/${itemId}`, {
-      method: "PUT",
-      body: { quantity },
-      headers: headers,
-    }),
+  return {
+    get: () => apiRequest<ApiResponse<Cart>>("/cart", { headers }),
 
-  removeItem: (itemId: number) =>
-    apiRequest<{ data: CartUpdateItem; message: string; success: boolean }>(`/cart/items/${itemId}`, {
-      method: "DELETE",
-      headers: headers,
-    }),
+    addItem: (variantId: number, quantity: number) =>
+      apiRequest<ApiResponse<Cart>>("/cart/items", {
+        method: "POST",
+        body: { variant_id: variantId, quantity },
+        headers,
+      }),
 
-  empty: () => apiRequest<ApiResponse<void>>("/cart", { method: "DELETE", headers: headers }),
+    updateItem: (itemId: number, quantity: number) =>
+      apiRequest<{ data: CartUpdateItem; message: string; success: boolean }>(`/cart/items/${itemId}`, {
+        method: "PUT",
+        body: { quantity },
+        headers,
+      }),
 
-  applyCoupon: (code: string) =>
-    apiRequest<ApiResponse<Cart>>("/cart/coupon", { method: "POST", body: { code }, headers: headers }),
+    removeItem: (itemId: number) =>
+      apiRequest<{ data: CartUpdateItem; message: string; success: boolean }>(`/cart/items/${itemId}`, {
+        method: "DELETE",
+        headers,
+      }),
 
-  removeCoupon: () => apiRequest<ApiResponse<Cart>>("/cart/coupon", { method: "DELETE", headers: headers }),
+    empty: () => apiRequest<ApiResponse<void>>("/cart", { method: "DELETE", headers }),
 
-  updateShipping: (shippingData: any) =>
-    apiRequest<ApiResponse<Cart>>("/cart/shipping", {
-      method: "POST",
-      body: shippingData,
-      headers: headers,
-    }),
+    applyCoupon: (code: string) =>
+      apiRequest<ApiResponse<Cart>>("/cart/coupon", { method: "POST", body: { code }, headers }),
 
-  update: (cartData: any) =>
-    apiRequest<ApiResponse<Cart>>("/cart", {
-      method: "PUT",
-      body: cartData,
-      headers: headers,
-    }),
-};
+    removeCoupon: () => apiRequest<ApiResponse<Cart>>("/cart/coupon", { method: "DELETE", headers }),
+
+    updateShipping: (shippingData: any) =>
+      apiRequest<ApiResponse<Cart>>("/cart/shipping", {
+        method: "POST",
+        body: shippingData,
+        headers,
+      }),
+
+    update: (cartData: any) =>
+      apiRequest<ApiResponse<Cart>>("/cart", {
+        method: "PUT",
+        body: cartData,
+        headers,
+      }),
+  };
+}
+
+export const cartApi = buildCartApi();
