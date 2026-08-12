@@ -23,7 +23,7 @@ $items = $cart['items'] ?? [];
 
 ?>
 <?php Template::get_header(); ?>
-<div class="kecom-cart-page" x-data='cart()'>
+<div class="kecom-page-wrapper kecom-cart-page" x-data='cart()'>
     <div class="kecom-cart-grid">
         <!-- Left Part -->
         <div class="kecom-cart-items">

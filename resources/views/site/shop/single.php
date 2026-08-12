@@ -54,7 +54,7 @@ foreach ($media as $media_item) {
 <?php Template::get_header();
 ?>
 
-<div class="kecom-product-page">
+<div class="kecom-page-wrapper kecom-product-page">
     <div class="kecom-container">
         <?php
         include_view(
