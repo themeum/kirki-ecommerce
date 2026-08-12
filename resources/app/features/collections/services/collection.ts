@@ -1,7 +1,7 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { endpoints } from '@/config/endpoints';
-import { collectionKeys } from '@/features/collections/index';
+import { collectionKeys } from '@/features/collections';
 import { CollectionSchema } from '@/features/collections/schemas/catalog/collection';
 import type { CollectionFormPayload } from '@/features/collections/schemas/forms/collection-form';
 import { apiClient } from '@/libs/api';

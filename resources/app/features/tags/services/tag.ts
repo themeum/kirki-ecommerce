@@ -1,7 +1,7 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { endpoints } from '@/config/endpoints';
-import { tagKeys } from '@/features/tags/index';
+import { tagKeys } from '@/features/tags';
 import { TagSchema } from '@/features/tags/schemas/catalog/tag';
 import type { TagFormPayload } from '@/features/tags/schemas/forms/tag-form';
 import { apiClient } from '@/libs/api';

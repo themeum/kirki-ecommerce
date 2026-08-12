@@ -10,7 +10,7 @@ import { NEW_ITEM_ID } from '@/conf';
 import { RouteConfig } from '@/config/route-config';
 import CollectionTable from '@/features/collections/components/collection-table/collection-table';
 import { useCollectionsQuery } from '@/features/collections/services/collection';
-import { useListParams } from '@/hooks/index';
+import { useListParams } from '@/hooks';
 import { cardStyles } from '@/theme/card-styles';
 import type { PaginationData } from '@/types/components/common';
 import { __ } from '@/wpi18n';

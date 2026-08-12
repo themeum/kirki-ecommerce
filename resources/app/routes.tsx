@@ -10,7 +10,7 @@ import { __ } from '@/wpi18n';
 const Products = lazy(() => import('@/pages/products/products'));
 const CreateProduct = lazy(() => import('@/pages/products/create-product/create-product'));
 const EditProduct = lazy(() => import('@/pages/products/edit-product/edit-product'));
-const BulkEdit = lazy(() => import('@/pages/bulk-edit/bulk-edit'));
+const BulkEdit = lazy(() => import('@/features/bulk-edit/pages/bulk-edit'));
 const Inventory = lazy(() => import('@/features/inventory/pages/inventory'));
 const CreateOrder = lazy(() => import('@/pages/orders/order-create/order-create'));
 const Orders = lazy(() => import('@/pages/orders/orders'));

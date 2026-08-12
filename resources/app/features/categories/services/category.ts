@@ -1,7 +1,7 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { endpoints } from '@/config/endpoints';
-import { categoryKeys } from '@/features/categories/index';
+import { categoryKeys } from '@/features/categories';
 import { CategorySchema } from '@/features/categories/schemas/catalog/category';
 import type { CategoryFormPayload } from '@/features/categories/schemas/forms/category-form';
 import { apiClient } from '@/libs/api';

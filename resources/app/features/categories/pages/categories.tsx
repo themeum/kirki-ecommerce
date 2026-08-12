@@ -6,7 +6,7 @@ import PageHeading from '@/components/ui/page-heading';
 import CategoryTable from '@/features/categories/components/category-table/category-table';
 import NewCategory from '@/features/categories/components/new-category';
 import { useCategoriesQuery } from '@/features/categories/services/category';
-import { useListParams } from '@/hooks/index';
+import { useListParams } from '@/hooks';
 import { cardStyles } from '@/theme/card-styles';
 import type { PaginationData } from '@/types/components/common';
 import { __ } from '@/wpi18n';

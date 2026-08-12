@@ -2,8 +2,8 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tansta
 import { z } from 'zod';
 
 import { endpoints } from '@/config/endpoints';
-import type { CouponListFilter } from '@/features/coupons/index';
-import { couponKeys } from '@/features/coupons/index';
+import type { CouponListFilter } from '@/features/coupons';
+import { couponKeys } from '@/features/coupons';
 import { CouponListItemSchema, CouponSchema } from '@/features/coupons/schemas/catalog/coupon';
 import type { CouponFormPayload } from '@/features/coupons/schemas/forms/coupon-form';
 import { apiClient } from '@/libs/api';

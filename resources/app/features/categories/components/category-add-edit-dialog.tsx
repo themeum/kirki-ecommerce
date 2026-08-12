@@ -21,8 +21,8 @@ import { useCategoriesQuery, useCreateCategoryMutation, useUpdateCategoryMutatio
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { pickFormValues } from '@/libs/zod';
+import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { theme } from '@/theme/index';
 import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 

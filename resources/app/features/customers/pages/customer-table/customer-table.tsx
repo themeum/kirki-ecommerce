@@ -6,7 +6,7 @@ import CustomerTableAction from '@/features/customers/pages/customer-table/custo
 import SingleRow from '@/features/customers/pages/customer-table/single-row';
 import type { CustomerListItem } from '@/features/customers/schemas/catalog/customer';
 import { useBulkDeleteCustomersMutation } from '@/features/customers/services/customer';
-import { useListParams, useMarkList } from '@/hooks/index';
+import { useListParams, useMarkList } from '@/hooks';
 import type { PaginatedData } from '@/types/api/response';
 import type { TaxonomyTableHeader } from '@/types/pages/common';
 import { __ } from '@/wpi18n';

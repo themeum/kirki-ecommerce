@@ -77,14 +77,20 @@ function resolveSpecifier(baseDir, spec, movedByOldAbs) {
   return null;
 }
 
+// A target resolved via directory-index lookup (.../foo/index.ts) is
+// addressed by its directory, matching how every hand-written import in
+// this codebase already spells it — an explicit trailing '/index' would be
+// technically valid but not how the project writes these.
+const stripIndexSuffix = (p) => p.replace(/\/index$/, '');
+
 function toAliasSpecifier(targetAbs) {
   const target = CODE_EXT_RE.test(targetAbs) ? stripExt(targetAbs) : targetAbs;
-  return `@/${toPosix(path.relative(APP_ROOT, target))}`;
+  return `@/${stripIndexSuffix(toPosix(path.relative(APP_ROOT, target)))}`;
 }
 
 function toRelativeSpecifier(fromFileAbs, targetAbs) {
   const target = CODE_EXT_RE.test(targetAbs) ? stripExt(targetAbs) : targetAbs;
-  let rel = toPosix(path.relative(path.dirname(fromFileAbs), target));
+  let rel = stripIndexSuffix(toPosix(path.relative(path.dirname(fromFileAbs), target)));
   if (!rel.startsWith('.')) {
     rel = `./${rel}`;
   }

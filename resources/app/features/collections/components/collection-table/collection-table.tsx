@@ -5,7 +5,7 @@ import CollectionTableAction from '@/features/collections/components/collection-
 import SingleRow from '@/features/collections/components/collection-table/single-row';
 import type { Collection } from '@/features/collections/schemas/catalog/collection';
 import { useBulkDeleteCollectionsMutation } from '@/features/collections/services/collection';
-import { useListParams, useMarkList } from '@/hooks/index';
+import { useListParams, useMarkList } from '@/hooks';
 import type { PaginatedData } from '@/types/api/response';
 import type { TaxonomyTableHeader } from '@/types/pages/common';
 import { __ } from '@/wpi18n';

@@ -13,7 +13,7 @@ import { NEW_ITEM_ID } from '@/conf';
 import { RouteConfig } from '@/config/route-config';
 import CustomerTable from '@/features/customers/pages/customer-table/customer-table';
 import { useCustomersQuery } from '@/features/customers/services/customer';
-import { useListParams } from '@/hooks/index';
+import { useListParams } from '@/hooks';
 import { CustomerInfoIcon } from '@/icons';
 import { cardStyles } from '@/theme/card-styles';
 import { flexCenter, scoped } from '@/theme/mixins';

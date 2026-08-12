@@ -28,8 +28,8 @@ import { PlusIcon, ProductIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults, pickFormValues } from '@/libs/zod';
+import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { theme } from '@/theme/index';
 import { defineStyles, mergeCss } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 

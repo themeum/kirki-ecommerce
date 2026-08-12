@@ -5,7 +5,7 @@ import { Field, FieldLabel } from '@/components/ui/field';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import Text from '@/components/ui/text';
 import type { CouponFormInput } from '@/features/coupons/schemas/forms/coupon-form';
-import { theme } from '@/theme/index';
+import { theme } from '@/theme';
 import { defineStyles, uiFocusRing } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 

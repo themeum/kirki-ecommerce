@@ -10,8 +10,8 @@ import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import type { CouponFormInput } from '@/features/coupons/schemas/forms/coupon-form';
 import { DATE_FORMATS, END_OF_DAY_TIME, START_OF_DAY_TIME } from '@/libs/date';
+import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { theme } from '@/theme/index';
 import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 

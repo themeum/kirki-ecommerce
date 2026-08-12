@@ -15,9 +15,9 @@ import DiscountValueSection from '@/features/coupons/pages/edit-coupon/component
 import ValidityPeriodSection from '@/features/coupons/pages/edit-coupon/components/contents/validity-period-section';
 import type { CouponFormInput } from '@/features/coupons/schemas/forms/coupon-form';
 import { useGenerateNewCodeQuery, useValidateQuery } from '@/features/coupons/services/coupon';
-import { useDebounce } from '@/hooks/index';
+import { useDebounce } from '@/hooks';
+import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { theme } from '@/theme/index';
 import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 

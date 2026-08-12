@@ -1,7 +1,7 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { endpoints } from '@/config/endpoints';
-import { brandKeys } from '@/features/brands/index';
+import { brandKeys } from '@/features/brands';
 import { BrandSchema } from '@/features/brands/schemas/catalog/brand';
 import type { BrandFormPayload } from '@/features/brands/schemas/forms/brand-form';
 import { apiClient } from '@/libs/api';

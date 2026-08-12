@@ -6,11 +6,11 @@ import { Card, CardContent } from '@/components/ui/card';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import PageHeading from '@/components/ui/page-heading';
-import { InventoryFormProvider, useInventoryForm } from '@/features/inventory/index';
+import { useUpdateBulkVariantsMutation } from '@/features/bulk-edit';
+import { InventoryFormProvider, useInventoryForm } from '@/features/inventory';
 import InventoryTable from '@/features/inventory/pages/inventory-table/inventory-table';
 import { useInventoryQuery } from '@/features/inventory/services/inventory';
-import { useListParams } from '@/hooks/index';
-import { useUpdateBulkVariantsMutation } from '@/services/bulk-edit';
+import { useListParams } from '@/hooks';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 

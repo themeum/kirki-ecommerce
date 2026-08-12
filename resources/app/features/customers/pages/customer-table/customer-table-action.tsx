@@ -3,9 +3,9 @@ import Button from '@/components/ui/button';
 import Flex from '@/components/ui/flex';
 import Searchbox from '@/components/ui/searchbox';
 import { Select, SelectContent, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useListParams } from '@/hooks/index';
+import { useListParams } from '@/hooks';
 import { ArrowDownUp, ListFilter } from '@/icons';
-import { theme } from '@/theme/index';
+import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
 
 const CustomerTableAction = () => {

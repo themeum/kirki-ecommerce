@@ -6,7 +6,7 @@ import PageHeading from '@/components/ui/page-heading';
 import BrandTable from '@/features/brands/components/brand-table/brand-table';
 import NewBrand from '@/features/brands/components/new-brand';
 import { useBrandsQuery } from '@/features/brands/services/brand';
-import { useListParams } from '@/hooks/index';
+import { useListParams } from '@/hooks';
 import { cardStyles } from '@/theme/card-styles';
 import type { PaginationData } from '@/types/components/common';
 import { __ } from '@/wpi18n';

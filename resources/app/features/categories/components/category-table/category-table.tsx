@@ -6,8 +6,8 @@ import CategoryTableAction from '@/features/categories/components/category-table
 import SingleRow from '@/features/categories/components/category-table/single-row';
 import type { Category } from '@/features/categories/schemas/catalog/category';
 import { useBulkDeleteCategoriesMutation } from '@/features/categories/services/category';
-import { useListParams, useMarkList } from '@/hooks/index';
-import { theme } from '@/theme/index';
+import { useListParams, useMarkList } from '@/hooks';
+import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
 import type { PaginatedData } from '@/types/api/response';
 import type { TaxonomyTableHeader } from '@/types/pages/common';

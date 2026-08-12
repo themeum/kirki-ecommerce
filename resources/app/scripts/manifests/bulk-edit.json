@@ -1,0 +1,7 @@
+[
+  { "from": "pages/bulk-edit/bulk-edit.tsx", "to": "features/bulk-edit/pages/bulk-edit.tsx" },
+  { "from": "pages/bulk-edit/bulk-edit-table", "to": "features/bulk-edit/pages/bulk-edit-table" },
+  { "from": "pages/bulk-edit/utils.tsx", "to": "features/bulk-edit/lib/utils.tsx" },
+  { "from": "services/bulk-edit.ts", "to": "features/bulk-edit/services/bulk-edit.ts" },
+  { "from": "hooks/useBulkEditList.ts", "to": "features/bulk-edit/hooks/use-bulk-edit-list.ts" }
+]

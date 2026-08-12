@@ -6,7 +6,7 @@ import PageHeading from '@/components/ui/page-heading';
 import NewTag from '@/features/tags/components/new-tag';
 import TagTable from '@/features/tags/components/tag-table/tag-table';
 import { useTagsQuery } from '@/features/tags/services/tag';
-import { useListParams } from '@/hooks/index';
+import { useListParams } from '@/hooks';
 import { cardStyles } from '@/theme/card-styles';
 import type { PaginationData } from '@/types/components/common';
 import { __ } from '@/wpi18n';

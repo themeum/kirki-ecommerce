@@ -1,7 +1,7 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { endpoints } from '@/config/endpoints';
-import { customerKeys } from '@/features/customers/index';
+import { customerKeys } from '@/features/customers';
 import { CustomerListItemSchema, CustomerSchema } from '@/features/customers/schemas/catalog/customer';
 import type { CustomerFormPayload } from '@/features/customers/schemas/forms/customer-form';
 import { apiClient } from '@/libs/api';

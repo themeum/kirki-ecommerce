@@ -7,21 +7,21 @@ import DataTable, {
   type DataTableBulkApplyPayload,
   type DataTableColumn,
   type DataTableRowActionsResolver,
-} from '@/components/data-table/index';
+} from '@/components/data-table';
 import Badge from '@/components/ui/badge';
 import Flex from '@/components/ui/flex';
 import { RouteConfig } from '@/config/route-config';
-import type { CouponListFilter} from '@/features/coupons/index';
-import { couponListOptions } from '@/features/coupons/index';
+import type { CouponListFilter} from '@/features/coupons';
+import { couponListOptions } from '@/features/coupons';
 import { getCouponBadgeInfo } from '@/features/coupons/lib/coupon-badge';
 import CouponTableFilter from '@/features/coupons/pages/coupon-table/coupon-table-filter';
 import CouponTableFilterBar from '@/features/coupons/pages/coupon-table/coupon-table-filter-bar';
 import FilterPopup from '@/features/coupons/pages/coupon-table/filter-popup/filter-popup';
 import type { CouponListItem } from '@/features/coupons/schemas/catalog/coupon';
 import { useBulkDeleteCouponsMutation, useCouponActionMutation, useCouponsQuery, useDeleteCouponMutation } from '@/features/coupons/services/coupon';
-import { useListParams } from '@/hooks/index';
+import { useListParams } from '@/hooks';
 import { DATE_FORMATS } from '@/libs/date';
-import { theme } from '@/theme/index';
+import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 

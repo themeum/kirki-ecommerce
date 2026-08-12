@@ -6,8 +6,8 @@ import BrandTableAction from '@/features/brands/components/brand-table/brand-tab
 import SingleRow from '@/features/brands/components/brand-table/single-row';
 import type { Brand } from '@/features/brands/schemas/catalog/brand';
 import { useBulkDeleteBrandsMutation } from '@/features/brands/services/brand';
-import { useListParams, useMarkList } from '@/hooks/index';
-import { theme } from '@/theme/index';
+import { useListParams, useMarkList } from '@/hooks';
+import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
 import type { PaginatedData } from '@/types/api/response';
 import type { TaxonomyTableHeader } from '@/types/pages/common';
