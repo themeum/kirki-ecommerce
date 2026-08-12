@@ -29,7 +29,7 @@ use function Kirki\Ecommerce\Framework\app;
 class MiniCartShortcode
 {
     /**
-     * Protected shortcode
+     * Name of shortcode
      *
      * @since 1.0.0
      *
