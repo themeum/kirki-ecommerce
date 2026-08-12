@@ -4,8 +4,8 @@ import { Controller, type FieldPath, type FieldValues, useFormContext } from 're
 
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import MultiSelect, { type MultiSelectOption } from '@/components/ui/multi-select';
+import { useCollectionsQuery, useCreateCollectionMutation } from '@/features/collections/services/collection';
 import { type ErrorResponse, getErrorsObject } from '@/libs/api';
-import { useCollectionsQuery, useCreateCollectionMutation } from '@/services/collection';
 import { __ } from '@/wpi18n';
 
 type CollectionRef = {

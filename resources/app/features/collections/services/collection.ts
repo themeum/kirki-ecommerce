@@ -1,10 +1,10 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { endpoints } from '@/config/endpoints';
-import { collectionKeys } from '@/features/collections';
+import { collectionKeys } from '@/features/collections/index';
+import { CollectionSchema } from '@/features/collections/schemas/catalog/collection';
+import type { CollectionFormPayload } from '@/features/collections/schemas/forms/collection-form';
 import { apiClient } from '@/libs/api';
-import { CollectionSchema } from '@/schemas/catalog/collection';
-import type { CollectionFormPayload } from '@/schemas/forms/collection-form';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
 import { parseData, parseMessage, parseResponse, toastMutationError, toastMutationSuccess } from '@/services/helpers';
 import type { BulkActionParams } from '@/types/api/result';

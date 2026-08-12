@@ -1,4 +1,4 @@
-import CollectionsField from '@/components/form/collections-field';
+import { CollectionsField } from '@/features/collections';
 import { __ } from '@/wpi18n';
 
 const Collections = () => (

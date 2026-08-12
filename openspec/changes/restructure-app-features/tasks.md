@@ -35,9 +35,9 @@ Four structurally identical features (~24 files total). They exercise the codemo
       Also added directory-pruning to `migrate-feature.mjs` after the move loop: git doesn't track empty directories, so a fully-emptied source directory (e.g. `pages/brands/brand-table/` once all 3 of its files moved out) was left behind on disk; now walked and removed up to `APP_ROOT`.
 - [x] 3.2 `tags`: moved, plus `components/form/tags-field.tsx` → `features/tags/components/fields/`. Barrel exports `TagsField`, `tagKeys`. 1 cross-feature call site fixed (`pages/products/product-form/sections/right-panel/tags.tsx`).
 - [x] 3.3 `categories`: moved. Barrel exports `useCategoriesQuery`, `useCreateCategoryMutation`, `categoryKeys`, `Category` type. 7 cross-feature call sites fixed (6 in products, 1 in settings/shipping-rule-form-card.tsx — categories turned out to be consumed outside products too).
-- [ ] 3.4 `collections`: moved, plus `components/form/collections-field.tsx` → `features/collections/components/fields/`. Barrel exports `CollectionsField`, `useCollectionsQuery`, `collectionKeys`. `collection-details.tsx` flattened out of its single-file `collection-details/` subfolder into `pages/` directly, matching the anatomy's `pages/` being route components, not a folder-per-route wrapper.
+- [x] 3.4 `collections`: moved, plus `components/form/collections-field.tsx` → `features/collections/components/fields/`. Barrel exports `CollectionsField`, `useCollectionsQuery`, `collectionKeys`. `collection-details.tsx` flattened out of its single-file `collection-details/` subfolder into `pages/` directly, matching the anatomy's `pages/` being route components, not a folder-per-route wrapper. 3 cross-feature call sites fixed in `products`.
 - [x] 3.5 Codemod bug found on the very first run (brands) and fixed before proceeding — see 3.1 note. No further unresolved paths on brands; tags/categories/collections not yet attempted.
-- [ ] 3.6 `npm run typecheck && npm test` after each of the four moves — brands clean (378/378); tags/categories/collections pending.
+- [x] 3.6 `npm run typecheck && npm test` after each of the four moves — all clean, 378/378 tests throughout.
 
 ## 4. Small features — customers, coupons, inventory, bulk-edit
 

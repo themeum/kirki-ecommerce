@@ -18,18 +18,18 @@ import Text from '@/components/ui/text';
 import Thumbnail from '@/components/ui/thumbnail';
 import { NEW_ITEM_ID } from '@/conf';
 import { RouteConfig } from '@/config/route-config';
-import { PlusIcon, ProductIcon } from '@/icons';
-import type { ErrorResponse } from '@/libs/api';
-import { applyServerErrors } from '@/libs/form-errors';
-import { getDefaults, pickFormValues } from '@/libs/zod';
 import {
   type CollectionFormInput,
   type CollectionFormPayload,
   CollectionFormSchema,
-} from '@/schemas/forms/collection-form';
-import { useCollectionQuery, useCreateCollectionMutation, useUpdateCollectionMutation } from '@/services/collection';
-import { theme } from '@/theme';
+} from '@/features/collections/schemas/forms/collection-form';
+import { useCollectionQuery, useCreateCollectionMutation, useUpdateCollectionMutation } from '@/features/collections/services/collection';
+import { PlusIcon, ProductIcon } from '@/icons';
+import type { ErrorResponse } from '@/libs/api';
+import { applyServerErrors } from '@/libs/form-errors';
+import { getDefaults, pickFormValues } from '@/libs/zod';
 import { cardStyles } from '@/theme/card-styles';
+import { theme } from '@/theme/index';
 import { defineStyles, mergeCss } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 

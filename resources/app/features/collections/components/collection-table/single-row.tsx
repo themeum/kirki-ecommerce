@@ -8,9 +8,9 @@ import { TableCell, TableRow } from '@/components/ui/table';
 import Text from '@/components/ui/text';
 import Thumbnail from '@/components/ui/thumbnail';
 import { RouteConfig } from '@/config/route-config';
+import type { Collection } from '@/features/collections/schemas/catalog/collection';
+import { useDeleteCollectionMutation } from '@/features/collections/services/collection';
 import { EditPenIcon, TrashIcon } from '@/icons';
-import type { Collection } from '@/schemas/catalog/collection';
-import { useDeleteCollectionMutation } from '@/services/collection';
 import type { MarkListHandlers } from '@/types/pages/common';
 import { __ } from '@/wpi18n';
 

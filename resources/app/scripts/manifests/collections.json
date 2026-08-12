@@ -1,0 +1,10 @@
+[
+  { "from": "pages/collections/collections.tsx", "to": "features/collections/pages/collections.tsx" },
+  { "from": "pages/collections/collection-details/collection-details.tsx", "to": "features/collections/pages/collection-details.tsx" },
+  { "from": "pages/collections/collection-table", "to": "features/collections/components/collection-table" },
+  { "from": "components/form/collections-field.tsx", "to": "features/collections/components/fields/collections-field.tsx" },
+  { "from": "services/collection.ts", "to": "features/collections/services/collection.ts" },
+  { "from": "schemas/catalog/collection.ts", "to": "features/collections/schemas/catalog/collection.ts" },
+  { "from": "schemas/forms/collection-form.ts", "to": "features/collections/schemas/forms/collection-form.ts" },
+  { "from": "schemas/forms/collection-form.test.ts", "to": "features/collections/tests/schemas/forms/collection-form.test.ts" }
+]

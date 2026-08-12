@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import Combobox from '@/components/ui/combobox';
 import Flex from '@/components/ui/flex';
 import Label from '@/components/ui/label';
-import { useCollectionsQuery } from '@/services/collection';
+import { useCollectionsQuery } from '@/features/collections';
 import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 

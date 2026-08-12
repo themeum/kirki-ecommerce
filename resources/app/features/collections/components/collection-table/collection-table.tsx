@@ -1,11 +1,11 @@
 import BulkActionHandler from '@/components/bulk-action-handler';
 import Checkbox from '@/components/ui/checkbox';
 import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { useListParams, useMarkList } from '@/hooks';
-import CollectionTableAction from '@/pages/collections/collection-table/collection-table-action';
-import SingleRow from '@/pages/collections/collection-table/single-row';
-import type { Collection } from '@/schemas/catalog/collection';
-import { useBulkDeleteCollectionsMutation } from '@/services/collection';
+import CollectionTableAction from '@/features/collections/components/collection-table/collection-table-action';
+import SingleRow from '@/features/collections/components/collection-table/single-row';
+import type { Collection } from '@/features/collections/schemas/catalog/collection';
+import { useBulkDeleteCollectionsMutation } from '@/features/collections/services/collection';
+import { useListParams, useMarkList } from '@/hooks/index';
 import type { PaginatedData } from '@/types/api/response';
 import type { TaxonomyTableHeader } from '@/types/pages/common';
 import { __ } from '@/wpi18n';

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { CollectionFormSchema } from '@/schemas/forms/collection-form';
+import { CollectionFormSchema } from '@/features/collections/schemas/forms/collection-form';
 
 describe('CollectionFormSchema', () => {
   const base = {
