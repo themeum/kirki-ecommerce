@@ -18,12 +18,12 @@ import { useBulkEditForm } from '@/features/bulk-edit';
 import useBulkEditList from '@/features/bulk-edit/hooks/use-bulk-edit-list';
 import type { BulkEditSelectionData } from '@/features/bulk-edit/pages/bulk-edit-table/bulk-edit-table';
 import type { UnitPriceValue } from '@/features/products';
-import { default as BaseUnitDialog } from '@/pages/products/product-form/sections/price/base-unit-dialog';
-import { calculateProfit } from '@/pages/utils';
-import type { ProductVariant } from '@/schemas/catalog/variant';
-import { useAttributesQuery } from '@/services/attribute';
+import type { ProductVariant } from '@/features/products';
+import { BaseUnitDialog } from '@/features/products';
+import { useAttributesQuery } from '@/features/products';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
+import { calculateProfit } from '@/utils/common';
 import { __ } from '@/wpi18n';
 
 type BulkEditVariant = ProductVariant & {

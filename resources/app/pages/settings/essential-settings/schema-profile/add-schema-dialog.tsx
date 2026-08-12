@@ -11,10 +11,10 @@ import { Field, FieldError } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import Text from '@/components/ui/text';
+import { groupDetails, optionsList, requiredFields } from '@/features/products';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { pickFormValues } from '@/libs/zod';
-import { groupDetails, optionsList, requiredFields } from '@/pages/products/product-form/sections/seo-settings/utils';
 import type { SchemaProfile } from '@/schemas/catalog/schema-profile';
 import {
   type SchemaProfileFormInput,

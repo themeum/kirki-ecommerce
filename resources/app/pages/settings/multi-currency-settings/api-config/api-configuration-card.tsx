@@ -7,10 +7,10 @@ import Flex from '@/components/ui/flex';
 import ProgressBar from '@/components/ui/progressbar';
 import Text from '@/components/ui/text';
 import { EditIcon, FlagIcon, RadioTickIcon } from '@/icons';
-import { dateFormatter } from '@/pages/utils';
 import type { CurrencySettings } from '@/schemas/catalog/settings';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
+import { dateFormatter } from '@/utils/common';
 import { toDisplayString } from '@/utils/string';
 import { __, sprintf } from '@/wpi18n';
 

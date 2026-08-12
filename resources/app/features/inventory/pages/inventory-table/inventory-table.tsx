@@ -11,8 +11,8 @@ import { useInventoryForm } from '@/features/inventory';
 import { allTableHeaders } from '@/features/inventory/lib/utils';
 import InventoryTableAction from '@/features/inventory/pages/inventory-table/inventory-table-action';
 import SingleRow from '@/features/inventory/pages/inventory-table/single-row';
+import type { InventoryVariant } from '@/features/products';
 import { useMarkList } from '@/hooks';
-import type { InventoryVariant } from '@/schemas/catalog/variant';
 import { __ } from '@/wpi18n';
 
 const InventoryTable = () => {

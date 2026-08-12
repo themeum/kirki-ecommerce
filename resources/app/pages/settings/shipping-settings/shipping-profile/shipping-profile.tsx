@@ -19,12 +19,12 @@ import { shippingKeys } from '@/features/settings';
 import { BoxOpenIcon, EditPenIcon, TrashIcon } from '@/icons';
 import { queryClient } from '@/libs/query-client';
 import { CreateProfilePopup } from '@/pages/settings/shipping-settings/shipping-profile/create-profile-dialog';
-import { dispatchToastMessage } from '@/pages/utils';
 import type { ShippingProfile as ShippingProfileType } from '@/schemas/catalog/shipping';
 import { deleteShippingProfile, useShippingProfilesQuery } from '@/services/shipping';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, scoped } from '@/theme/mixins';
+import { dispatchToastMessage } from '@/utils/common';
 import { __ } from '@/wpi18n';
 
 const SHIPPING_PROFILES_PARAMS = { limit: -1 };

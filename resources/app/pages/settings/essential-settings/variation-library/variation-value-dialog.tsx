@@ -8,15 +8,15 @@ import Button from '@/components/ui/button';
 import { Dialog, DialogBody, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
-import type { ErrorResponse } from '@/libs/api';
-import { applyServerErrors } from '@/libs/form-errors';
-import type { Attribute, AttributeValue } from '@/schemas/catalog/attribute';
+import type { Attribute, AttributeValue } from '@/features/products';
 import {
   type VariationValueFormInput,
   type VariationValueFormPayload,
   VariationValueFormSchema,
-} from '@/schemas/forms/variation-value-form';
-import { useCreateAttributeValueMutation, useUpdateAttributeValueMutation } from '@/services/attribute';
+} from '@/features/products';
+import { useCreateAttributeValueMutation, useUpdateAttributeValueMutation } from '@/features/products';
+import type { ErrorResponse } from '@/libs/api';
+import { applyServerErrors } from '@/libs/form-errors';
 import type { ButtonState } from '@/types/components/common';
 import { __ } from '@/wpi18n';
 

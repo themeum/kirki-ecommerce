@@ -7,14 +7,14 @@ import Button from '@/components/ui/button';
 import { Dialog, DialogBody, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
-import type { ErrorResponse } from '@/libs/api';
-import { applyServerErrors } from '@/libs/form-errors';
 import {
   type AddVariationFormInput,
   type AddVariationFormPayload,
   AddVariationFormSchema,
-} from '@/schemas/forms/add-variation-form';
-import { useCreateAttributeMutation } from '@/services/attribute';
+} from '@/features/products';
+import { useCreateAttributeMutation } from '@/features/products';
+import type { ErrorResponse } from '@/libs/api';
+import { applyServerErrors } from '@/libs/form-errors';
 import type { ButtonState } from '@/types/components/common';
 import { __ } from '@/wpi18n';
 

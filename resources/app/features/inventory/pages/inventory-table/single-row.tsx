@@ -4,11 +4,11 @@ import Input from '@/components/ui/input';
 import { TableCell, TableRow } from '@/components/ui/table';
 import Thumbnail from '@/components/ui/thumbnail';
 import { useInventoryForm } from '@/features/inventory';
-import { calculateProfit } from '@/pages/utils';
-import type { InventoryVariant } from '@/schemas/catalog/variant';
+import type { InventoryVariant } from '@/features/products';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
 import type { MarkListHandlers } from '@/types/pages/common';
+import { calculateProfit } from '@/utils/common';
 
 type SingleRowProps = MarkListHandlers & {
   item: InventoryVariant;

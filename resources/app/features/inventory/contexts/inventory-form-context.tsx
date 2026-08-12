@@ -1,6 +1,6 @@
 import { createContext, type Dispatch, type ReactNode, useCallback, useContext, useMemo, useReducer } from 'react';
 
-import type { InventoryVariant } from '@/schemas/catalog/variant';
+import type { InventoryVariant } from '@/features/products';
 import type { PaginatedData } from '@/types/api/response';
 
 type InventoryStoredData = {

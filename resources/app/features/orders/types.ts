@@ -1,4 +1,4 @@
-import type { ProductVariantSelection } from '@/components/shared/select-products-dialog/types';
+import type { ProductVariantSelection } from '@/features/products';
 import type { UseListParamsOptions } from '@/hooks/use-list-params';
 import type { ListFilterConfig} from '@/types/list-state';
 import { parseString } from '@/types/list-state';

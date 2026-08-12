@@ -3,8 +3,6 @@ import { useMemo, useState } from 'react';
 import { useFieldArray, useForm, useWatch } from 'react-hook-form';
 import { useNavigate } from 'react-router';
 
-import SelectProductsDialog from '@/components/shared/select-products-dialog';
-import type { ProductSelection } from '@/components/shared/select-products-dialog/types';
 import Button from '@/components/ui/button';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
@@ -20,6 +18,8 @@ import type { OrderFormInput, OrderFormPayload } from '@/features/orders/schemas
 import { OrderCalculationRequestSchema, OrderFormSchema } from '@/features/orders/schemas/forms/order-form';
 import { useCreateOrderMutation, useOrderCalculationQuery } from '@/features/orders/services/order';
 import type { OrderItem, OrderRowDisplay } from '@/features/orders/types';
+import type { ProductSelection } from '@/features/products';
+import { SelectProductsDialog } from '@/features/products';
 import { useDebounce } from '@/hooks';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';

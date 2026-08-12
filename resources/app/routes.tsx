@@ -4,13 +4,11 @@ import { createHashRouter, Navigate } from 'react-router';
 import LoadingSpinner from '@/components/loading-spinner';
 import { RouteConfig } from '@/config/route-config';
 import ordersRoutes from '@/features/orders/routes';
+import productsRoutes from '@/features/products/routes';
 import UnsavedChangesController from '@/floating-components/unsaved-tracker';
 import NotFound from '@/pages/not-found/not-found';
 import { __ } from '@/wpi18n';
 
-const Products = lazy(() => import('@/pages/products/products'));
-const CreateProduct = lazy(() => import('@/pages/products/create-product/create-product'));
-const EditProduct = lazy(() => import('@/pages/products/edit-product/edit-product'));
 const BulkEdit = lazy(() => import('@/features/bulk-edit/pages/bulk-edit'));
 const Inventory = lazy(() => import('@/features/inventory/pages/inventory'));
 const Coupons = lazy(() => import('@/features/coupons/pages/coupons'));
@@ -61,9 +59,7 @@ export const router = createHashRouter([
     element: <UnsavedChangesController />,
     children: [
       { path: RouteConfig.Home.template, element: <Navigate to={ProductRoutes.template} replace /> },
-      { path: ProductRoutes.template, element: withSuspense(Products) },
-      { path: ProductRoutes.get('CreateProduct').template, element: withSuspense(CreateProduct) },
-      { path: ProductRoutes.get('EditProduct').template, element: withSuspense(EditProduct) },
+      ...productsRoutes,
       { path: RouteConfig.BulkVariants.template, element: withSuspense(BulkEdit) },
       { path: RouteConfig.Inventory.template, element: withSuspense(Inventory) },
       { path: RouteConfig.Coupons.template, element: withSuspense(Coupons) },

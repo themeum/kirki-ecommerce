@@ -26,7 +26,6 @@ import { ShippingRegionPopup } from '@/pages/settings/shipping-settings/shipping
 import ShippingZoneActions from '@/pages/settings/shipping-settings/shipping-zone-actions';
 import { type CountryWithStates, getSearchedCountries, getSelectedRegionTags, getShippingMethodRightText, getShippingMethodSubText, getShippingZoneSummary, type ShippingMethodData, shippingMethodIconMap, type ShippingZone } from '@/pages/settings/shipping-settings/utils';
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
-import { normalizeErrors } from '@/pages/utils';
 import type { ShippingRegionFormPayload } from '@/schemas/forms/shipping-region-form';
 import {
   type ShippingSettingsFormInput,
@@ -40,6 +39,7 @@ import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
 import type { FormErrors } from '@/types/pages/common';
 import { uuid } from '@/utils';
+import { normalizeErrors } from '@/utils/common';
 import { __ } from '@/wpi18n';
 
 const ShippingRoutes = RouteConfig.Settings.get('ShippingSettings');

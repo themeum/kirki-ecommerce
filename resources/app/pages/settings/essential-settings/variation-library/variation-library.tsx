@@ -16,14 +16,14 @@ import {
 } from '@/components/ui/stacked-items';
 import Text from '@/components/ui/text';
 import { RouteConfig } from '@/config/route-config';
+import type { Attribute } from '@/features/products';
+import { useAttributesQuery, useDeleteAttributeMutation } from '@/features/products';
 import { BoxIcon, ColorPaletteIcon, EditPenIcon, TrashIcon } from '@/icons';
 import AddVariationPopup from '@/pages/settings/essential-settings/variation-library/add-variation-dialog';
-import { dispatchToastMessage } from '@/pages/utils';
-import type { Attribute } from '@/schemas/catalog/attribute';
-import { useAttributesQuery, useDeleteAttributeMutation } from '@/services/attribute';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
+import { dispatchToastMessage } from '@/utils/common';
 import { __ } from '@/wpi18n';
 
 type AttributeListItem = Attribute & {

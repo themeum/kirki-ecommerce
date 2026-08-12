@@ -110,6 +110,6 @@ export const CouponListItemSchema = CouponSchema.pick({
 
 export type CouponListItem = z.infer<typeof CouponListItemSchema>;
 
-export type { ProductAttribute } from '@/schemas/catalog/attribute';
-export type { InventoryVariant, ProductVariant } from '@/schemas/catalog/variant';
+export type { ProductAttribute } from '@/features/products';
+export type { InventoryVariant, ProductVariant } from '@/features/products';
 

@@ -20,11 +20,11 @@ import Text from '@/components/ui/text';
 import { RouteConfig } from '@/config/route-config';
 import { EditPenIcon, TrashIcon } from '@/icons';
 import { getShippingMethodRightText, getShippingMethodSubText, saveShippingZones, type ShippingMethodData, shippingMethodIconMap, type ShippingZone } from '@/pages/settings/shipping-settings/utils';
-import { dispatchToastMessage } from '@/pages/utils';
 import type { ShippingSettings } from '@/schemas/catalog/settings';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
+import { dispatchToastMessage } from '@/utils/common';
 import { __ } from '@/wpi18n';
 
 const ShippingRoutes = RouteConfig.Settings.get('ShippingSettings');

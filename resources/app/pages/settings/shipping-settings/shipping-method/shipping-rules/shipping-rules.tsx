@@ -21,11 +21,11 @@ import Text from '@/components/ui/text';
 import { LighteningIcon } from '@/icons';
 import ShippingRuleFormCard from '@/pages/settings/shipping-settings/shipping-method/shipping-rules/shipping-rule-form-card';
 import { actionOptionsArray, conditionOptions, saveShippingZones, type ShippingRule, type ShippingZone } from '@/pages/settings/shipping-settings/utils';
-import { dispatchToastMessage } from '@/pages/utils';
 import { useSettingsQuery } from '@/services/settings';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
+import { dispatchToastMessage } from '@/utils/common';
 import { toDisplayString } from '@/utils/string';
 import { __, sprintf } from '@/wpi18n';
 

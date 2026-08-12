@@ -20,7 +20,6 @@ import Text from '@/components/ui/text';
 import { IncreaseIcon, InfoIcon, ShowMoreIcon } from '@/icons';
 import AddCurrencyPopup from '@/pages/settings/multi-currency-settings/add-currency-dialog';
 import EditCurrencyDialog from '@/pages/settings/multi-currency-settings/edit-currency-dialog';
-import { dateFormatter, dispatchToastMessage } from '@/pages/utils';
 import type { Currency } from '@/schemas/catalog/currency';
 import type { MultiCurrencySettingsFormInput } from '@/schemas/forms/multi-currency-settings-form';
 import { type CurrencyBulkPayload, useAvailableCurrenciesQuery, useDeleteCurrencyMutation, useUpdateCurrencyMutation } from '@/services/currency';
@@ -28,6 +27,7 @@ import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
 import type { SelectOption } from '@/types/components/common';
+import { dateFormatter, dispatchToastMessage } from '@/utils/common';
 import { __, sprintf } from '@/wpi18n';
 
 type CurrencyListItem = Currency & {
