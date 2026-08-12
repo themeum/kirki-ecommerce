@@ -13,28 +13,28 @@ import Page from '@/components/ui/page';
 import PageHeading from '@/components/ui/page-heading';
 import { NEW_ITEM_ID } from '@/conf';
 import { RouteConfig } from '@/config/route-config';
-import type { ErrorResponse } from '@/libs/api';
-import { applyServerErrors } from '@/libs/form-errors';
-import { getDefaults, pickFormValues } from '@/libs/zod';
-import { getCouponBadgeInfo } from '@/pages/coupons/edit-coupon/config/coupon-badge';
+import { getCouponBadgeInfo } from '@/features/coupons/lib/coupon-badge';
 import {
   type CouponFormInput,
   type CouponFormPayload,
   CouponFormSchema,
-} from '@/schemas/forms/coupon-form';
+} from '@/features/coupons/schemas/forms/coupon-form';
 import {
   useCouponQuery,
   useCreateCouponMutation,
   useUpdateCouponMutation,
-} from '@/services/coupon';
-import { theme } from '@/theme';
+} from '@/features/coupons/services/coupon';
+import type { ErrorResponse } from '@/libs/api';
+import { applyServerErrors } from '@/libs/form-errors';
+import { getDefaults, pickFormValues } from '@/libs/zod';
+import { theme } from '@/theme/index';
 import { defineStyles, scoped } from '@/theme/mixins';
 import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
 
+import { splitIsoDateTime } from '../../lib/coupon-datetime';
 import CouponPreview from './components/coupon-preview';
 import DetailsTab from './components/tabs/details-tab';
-import { splitIsoDateTime } from './config/coupon-datetime';
 
 // const DETAILS_TAB_FIELDS: (keyof CouponFormValues)[] = [
 //   'method',

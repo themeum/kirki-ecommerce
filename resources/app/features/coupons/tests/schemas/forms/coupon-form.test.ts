@@ -1,10 +1,10 @@
 import { format } from 'date-fns';
 import { describe, expect, it } from 'vitest';
 
+import { mergeDateTime } from '@/features/coupons/lib/coupon-datetime';
+import { CouponFormSchema } from '@/features/coupons/schemas/forms/coupon-form';
 import { DATE_FORMATS } from '@/libs/date';
 import { getDefaults } from '@/libs/zod';
-import { mergeDateTime } from '@/pages/coupons/edit-coupon/config/coupon-datetime';
-import { CouponFormSchema } from '@/schemas/forms/coupon-form';
 
 const expectedDateTime = (date: string, time: string) =>
   format(mergeDateTime(date, time)!, DATE_FORMATS.ATOM);

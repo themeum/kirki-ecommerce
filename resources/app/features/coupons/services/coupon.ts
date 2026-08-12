@@ -2,11 +2,11 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tansta
 import { z } from 'zod';
 
 import { endpoints } from '@/config/endpoints';
-import type { CouponListFilter } from '@/features/coupons';
-import { couponKeys } from '@/features/coupons';
+import type { CouponListFilter } from '@/features/coupons/index';
+import { couponKeys } from '@/features/coupons/index';
+import { CouponListItemSchema, CouponSchema } from '@/features/coupons/schemas/catalog/coupon';
+import type { CouponFormPayload } from '@/features/coupons/schemas/forms/coupon-form';
 import { apiClient } from '@/libs/api';
-import { CouponListItemSchema, CouponSchema } from '@/schemas/catalog/coupon';
-import type { CouponFormPayload } from '@/schemas/forms/coupon-form';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
 import { parseData, parseMessage, parseResponse, toastMutationError, toastMutationSuccess } from '@/services/helpers';
 import type { BulkActionParams } from '@/types/api/result';

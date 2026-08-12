@@ -1,15 +1,15 @@
 import { format } from 'date-fns';
 import { z } from 'zod';
 
-import { DATE_FORMATS, END_OF_DAY_TIME, START_OF_DAY_TIME } from '@/libs/date';
-import { isEmptyValue, prepareFormSchema, required, requiredWhen } from '@/libs/zod';
-import { mergeDateTime } from '@/pages/coupons/edit-coupon/config/coupon-datetime';
+import { mergeDateTime } from '@/features/coupons/lib/coupon-datetime';
 import {
   CouponDiscountTargetSchema,
   CouponDiscountTypeSchema,
   CouponDiscountValueTypeSchema,
   CouponMethodSchema,
-} from '@/schemas/catalog/coupon';
+} from '@/features/coupons/schemas/catalog/coupon';
+import { DATE_FORMATS, END_OF_DAY_TIME, START_OF_DAY_TIME } from '@/libs/date';
+import { isEmptyValue, prepareFormSchema, required, requiredWhen } from '@/libs/zod';
 import { MoneyAmountSchema } from '@/schemas/shared/api';
 import { __ } from '@/wpi18n';
 

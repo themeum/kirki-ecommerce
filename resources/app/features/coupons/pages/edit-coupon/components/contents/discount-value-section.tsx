@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Grid from '@/components/ui/grid';
 import Text from '@/components/ui/text';
-import type { CouponFormInput } from '@/schemas/forms/coupon-form';
+import type { CouponFormInput } from '@/features/coupons/schemas/forms/coupon-form';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 

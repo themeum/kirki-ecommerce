@@ -5,12 +5,12 @@ import Button from '@/components/ui/button';
 import Flex from '@/components/ui/flex';
 import Searchbox from '@/components/ui/searchbox';
 import { Select, SelectContent, SelectTrigger, SelectValue } from '@/components/ui/select';
-import type { CouponListFilter} from '@/features/coupons';
-import { couponListOptions } from '@/features/coupons';
-import { useListParams } from '@/hooks';
+import type { CouponListFilter} from '@/features/coupons/index';
+import { couponListOptions } from '@/features/coupons/index';
+import FilterPopup from '@/features/coupons/pages/coupon-table/filter-popup/filter-popup';
+import { useListParams } from '@/hooks/index';
 import { ArrowDownUp } from '@/icons';
-import FilterPopup from '@/pages/coupons/coupon-table/filter-popup/filter-popup';
-import { theme } from '@/theme';
+import { theme } from '@/theme/index';
 import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 

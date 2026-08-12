@@ -7,21 +7,21 @@ import DataTable, {
   type DataTableBulkApplyPayload,
   type DataTableColumn,
   type DataTableRowActionsResolver,
-} from '@/components/data-table';
+} from '@/components/data-table/index';
 import Badge from '@/components/ui/badge';
 import Flex from '@/components/ui/flex';
 import { RouteConfig } from '@/config/route-config';
-import type { CouponListFilter} from '@/features/coupons';
-import { couponListOptions } from '@/features/coupons';
-import { useListParams } from '@/hooks';
+import type { CouponListFilter} from '@/features/coupons/index';
+import { couponListOptions } from '@/features/coupons/index';
+import { getCouponBadgeInfo } from '@/features/coupons/lib/coupon-badge';
+import CouponTableFilter from '@/features/coupons/pages/coupon-table/coupon-table-filter';
+import CouponTableFilterBar from '@/features/coupons/pages/coupon-table/coupon-table-filter-bar';
+import FilterPopup from '@/features/coupons/pages/coupon-table/filter-popup/filter-popup';
+import type { CouponListItem } from '@/features/coupons/schemas/catalog/coupon';
+import { useBulkDeleteCouponsMutation, useCouponActionMutation, useCouponsQuery, useDeleteCouponMutation } from '@/features/coupons/services/coupon';
+import { useListParams } from '@/hooks/index';
 import { DATE_FORMATS } from '@/libs/date';
-import CouponTableFilter from '@/pages/coupons/coupon-table/coupon-table-filter';
-import CouponTableFilterBar from '@/pages/coupons/coupon-table/coupon-table-filter-bar';
-import FilterPopup from '@/pages/coupons/coupon-table/filter-popup/filter-popup';
-import { getCouponBadgeInfo } from '@/pages/coupons/edit-coupon/config/coupon-badge';
-import type { CouponListItem } from '@/schemas/catalog/coupon';
-import { useBulkDeleteCouponsMutation, useCouponActionMutation, useCouponsQuery, useDeleteCouponMutation } from '@/services/coupon';
-import { theme } from '@/theme';
+import { theme } from '@/theme/index';
 import { defineStyles, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 

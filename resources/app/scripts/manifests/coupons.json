@@ -1,0 +1,12 @@
+[
+  { "from": "pages/coupons/coupons.tsx", "to": "features/coupons/pages/coupons.tsx" },
+  { "from": "pages/coupons/coupon-table", "to": "features/coupons/pages/coupon-table" },
+  { "from": "pages/coupons/edit-coupon/components", "to": "features/coupons/pages/edit-coupon/components" },
+  { "from": "pages/coupons/edit-coupon/edit-coupon.tsx", "to": "features/coupons/pages/edit-coupon/edit-coupon.tsx" },
+  { "from": "pages/coupons/edit-coupon/config/coupon-badge.ts", "to": "features/coupons/lib/coupon-badge.ts" },
+  { "from": "pages/coupons/edit-coupon/config/coupon-datetime.ts", "to": "features/coupons/lib/coupon-datetime.ts" },
+  { "from": "services/coupon.ts", "to": "features/coupons/services/coupon.ts" },
+  { "from": "schemas/catalog/coupon.ts", "to": "features/coupons/schemas/catalog/coupon.ts" },
+  { "from": "schemas/forms/coupon-form.ts", "to": "features/coupons/schemas/forms/coupon-form.ts" },
+  { "from": "schemas/forms/coupon-form.test.ts", "to": "features/coupons/tests/schemas/forms/coupon-form.test.ts" }
+]

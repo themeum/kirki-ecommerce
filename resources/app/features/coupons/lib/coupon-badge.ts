@@ -1,5 +1,5 @@
 import type { BadgeVariant } from '@/components/ui/badge';
-import type { CouponStatus } from '@/schemas/catalog/coupon';
+import type { CouponStatus } from '@/features/coupons/schemas/catalog/coupon';
 import { __ } from '@/wpi18n';
 
 export const getCouponBadgeInfo = (status: CouponStatus): { variant: BadgeVariant, text: string } => {

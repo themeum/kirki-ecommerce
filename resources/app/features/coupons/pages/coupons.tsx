@@ -6,7 +6,7 @@ import Page from '@/components/ui/page';
 import PageHeading from '@/components/ui/page-heading';
 import { NEW_ITEM_ID } from '@/conf';
 import { RouteConfig } from '@/config/route-config';
-import CouponTable from '@/pages/coupons/coupon-table/coupon-table';
+import CouponTable from '@/features/coupons/pages/coupon-table/coupon-table';
 import { __ } from '@/wpi18n';
 
 const Coupons = () => {

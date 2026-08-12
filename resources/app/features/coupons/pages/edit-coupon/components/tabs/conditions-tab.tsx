@@ -8,10 +8,10 @@ import { Field, FieldLabel } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import Tooltip from '@/components/ui/tooltip';
+import type { CouponFormInput } from '@/features/coupons/schemas/forms/coupon-form';
 import { InfoIcon } from '@/icons';
-import type { CouponFormInput } from '@/schemas/forms/coupon-form';
-import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
+import { theme } from '@/theme/index';
 import { __ } from '@/wpi18n';
 
 const combinationOptions = [
