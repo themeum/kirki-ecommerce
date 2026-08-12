@@ -208,7 +208,8 @@
     background-color: $background-fill;
     padding: $spacing-3 $spacing-5;
     border: none;
-    outline: $border-inverse solid 1px;
+    box-shadow: none;
+    outline: $border-default solid 1px;
     outline-offset: -1px;
     border-radius: $radius-md;
     cursor: pointer;
