@@ -4,7 +4,7 @@ import { Controller, type FieldPath, type FieldValues, useFormContext } from 're
 
 import ThumbnailSelector from '@/components/thumbnail-selector';
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
-import type { MediaRef } from '@/types';
+import type { MediaRef } from '@/schemas/shared/media';
 
 type MediaItem = Omit<MediaRef, 'id'> & {
   id?: string | number;

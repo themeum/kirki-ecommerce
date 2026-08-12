@@ -9,7 +9,7 @@ import Flex from '@/components/ui/flex';
 import { ThumbnailPlaceholder } from '@/icons';
 import { theme } from '@/theme';
 import { defineStyles, flexCenter, scopedMerge } from '@/theme/mixins';
-import type { ThumbnailSize, ThumbnailType } from '@/types';
+import type { ThumbnailSize, ThumbnailType } from '@/types/components/common';
 import { noop } from '@/utils/function';
 
 type MediaSelectorOnSelect = NonNullable<

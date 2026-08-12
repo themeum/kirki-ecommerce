@@ -1,6 +1,5 @@
 export { default as useDebounce } from '@/hooks/use-debounce';
 export { default as useListParams } from '@/hooks/use-list-params';
 export { default as useWordpressMedia } from '@/hooks/use-wordpress-media';
-export { default as useBulkEditList } from '@/hooks/useBulkEditList';
 export { default as useMarkList } from '@/hooks/useMarkList';
 

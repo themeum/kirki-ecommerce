@@ -20,6 +20,8 @@ type ToastMessageConfig = {
   onSuccess?: () => void | Promise<void>;
 };
 
+type ToastVariant = 'default' | 'warning' | 'delete' | 'success' | 'error';
+
 type ProfitData = {
   base_price?: number | string | null;
   base_sale_price?: number | string | null;
@@ -59,4 +61,5 @@ export type {
   SuggestionOption,
   TaxonomyTableHeader,
   ToastMessageConfig,
+  ToastVariant,
 };

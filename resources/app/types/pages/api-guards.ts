@@ -1,5 +1,5 @@
-import type { ApiCallResult, ApiResponse } from '@/types';
-
+import type { ApiResponse } from '@/types/api/response';
+import type { ApiCallResult } from '@/types/api/result';
 const isApiSuccess = <T>(
   result: ApiCallResult<T>,
 ): result is ApiResponse<T> & { success: true; data: T } =>

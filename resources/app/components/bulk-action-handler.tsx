@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
 import { defineStyles, scopedMerge } from '@/theme/mixins';
-import type { SelectOption } from '@/types';
+import type { SelectOption } from '@/types/components/common';
 import { noop } from '@/utils/function';
 import { __, sprintf } from '@/wpi18n';
 

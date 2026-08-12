@@ -4,7 +4,7 @@ import { type ComponentPropsWithoutRef, type CSSProperties, forwardRef, type Rea
 import Flex from '@/components/ui/flex';
 import { theme } from '@/theme';
 import { defineStyles, flexCenter, scoped, scopedMerge } from '@/theme/mixins';
-import type { GapValue } from '@/types';
+import type { GapValue } from '@/types/components/common';
 import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 

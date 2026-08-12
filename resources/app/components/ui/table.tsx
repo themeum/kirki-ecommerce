@@ -3,7 +3,7 @@ import { forwardRef, type HTMLAttributes, type TdHTMLAttributes, type ThHTMLAttr
 
 import { theme } from '@/theme';
 import { defineStyles, scopedMerge } from '@/theme/mixins';
-import type { TableAlignment, TableType } from '@/types';
+import type { TableAlignment, TableType } from '@/types/components/common';
 
 type TableEditMode = 'multiCell' | 'singleCell';
 
