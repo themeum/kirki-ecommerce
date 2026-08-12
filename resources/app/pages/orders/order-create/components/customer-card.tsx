@@ -17,12 +17,12 @@ import {
   formatShippingAddress,
   toOrderAddresses,
 } from '@/pages/orders/order-create/config/customer-address';
+import type { OrderFormInput } from '@/schemas/forms/order-form';
 import { useCountriesQuery } from '@/services/country';
 import { useCustomerQuery } from '@/services/customer';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
-import type { OrderFormInput } from '@/types';
 import { __ } from '@/wpi18n';
 
 type CustomerCardProps = {

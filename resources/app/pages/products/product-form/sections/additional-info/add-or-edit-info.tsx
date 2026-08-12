@@ -9,13 +9,13 @@ import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
+import type { AdditionalInfoItem } from '@/schemas/catalog/product';
 import {
   type ProductAdditionalInfoFormInput,
   type ProductAdditionalInfoFormPayload,
   ProductAdditionalInfoFormSchema,
 } from '@/schemas/forms/product-additional-info-form';
 import { cardStyles } from '@/theme/card-styles';
-import type { AdditionalInfoItem } from '@/types';
 import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 

@@ -11,16 +11,13 @@ import { useMarkList } from '@/hooks';
 import SingleRow from '@/pages/settings/essential-settings/variation-library/variation-table/single-row';
 import VariantTableAction from '@/pages/settings/essential-settings/variation-library/variation-table/variant-table-action';
 import { getSearchedValue, setUnsavedDataStatus } from '@/pages/settings/utils';
+import type { Attribute, AttributeValue } from '@/schemas/catalog/attribute';
 import { useBulkDeleteAttributeValuesMutation } from '@/services/attribute';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss } from '@/theme/mixins';
-import type {
-  Attribute,
-  AttributeValue,
-  ConfirmationVariant,
-  TaxonomyTableHeader,
-} from '@/types';
+import type { ConfirmationVariant } from '@/types/components/common';
+import type { TaxonomyTableHeader } from '@/types/pages/common';
 import { __ } from '@/wpi18n';
 
 type AttributeWithMeta = Attribute & { updated_at?: string };

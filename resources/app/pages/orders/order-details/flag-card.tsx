@@ -8,8 +8,8 @@ import ChipField from '@/components/ui/chip-field';
 import { chipFieldControlCss } from '@/components/ui/chip-field-styles';
 import { Field, FieldLabel } from '@/components/ui/field';
 import Input from '@/components/ui/input';
+import type { OrderFormInput } from '@/schemas/forms/order-form';
 import { cardStyles } from '@/theme/card-styles';
-import type { OrderFormInput } from '@/types';
 import { __ } from '@/wpi18n';
 
 type FlagCardProps = {

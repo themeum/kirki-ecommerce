@@ -1,8 +1,8 @@
 import { RulerHorizontalIcon } from '@radix-ui/react-icons';
 import type { ReactNode } from 'react';
 
+import type { UnitPriceValue } from '@/features/products';
 import { AreaIcon, VolumeIcon, WeightIcon } from '@/icons';
-import type { UnitPriceValue } from '@/types';
 import { __ } from '@/wpi18n';
 
 type UnitListItem = {

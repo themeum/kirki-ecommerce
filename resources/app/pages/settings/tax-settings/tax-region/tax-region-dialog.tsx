@@ -22,7 +22,7 @@ import { useCountriesQuery } from '@/services/country';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, scoped } from '@/theme/mixins';
-import type { FormErrors } from '@/types';
+import type { FormErrors } from '@/types/pages/common';
 import { noop } from '@/utils/function';
 import { __, sprintf } from '@/wpi18n';
 

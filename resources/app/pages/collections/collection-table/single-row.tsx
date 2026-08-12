@@ -9,8 +9,9 @@ import Text from '@/components/ui/text';
 import Thumbnail from '@/components/ui/thumbnail';
 import { RouteConfig } from '@/config/route-config';
 import { EditPenIcon, TrashIcon } from '@/icons';
+import type { Collection } from '@/schemas/catalog/collection';
 import { useDeleteCollectionMutation } from '@/services/collection';
-import type { Collection, MarkListHandlers } from '@/types';
+import type { MarkListHandlers } from '@/types/pages/common';
 import { __ } from '@/wpi18n';
 
 type SingleRowProps = MarkListHandlers & {

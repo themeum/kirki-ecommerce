@@ -20,11 +20,11 @@ import Text from '@/components/ui/text';
 import { EditPenIcon, ShowMoreIcon } from '@/icons';
 import ShippingBoxPopup from '@/pages/settings/shipping-settings/shipping-box/shipping-box-dialog';
 import { dispatchToastMessage } from '@/pages/utils';
+import type { ShippingBox as ShippingBoxType } from '@/schemas/catalog/shipping';
 import { useDeleteShippingBoxMutation, useShippingBoxesQuery, useUpdateShippingBoxMutation } from '@/services/shipping';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
-import type { ShippingBox as ShippingBoxType } from '@/types';
 import { __, sprintf } from '@/wpi18n';
 
 type BoxAction = {

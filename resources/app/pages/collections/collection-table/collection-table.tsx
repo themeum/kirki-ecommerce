@@ -4,8 +4,10 @@ import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components
 import { useListParams, useMarkList } from '@/hooks';
 import CollectionTableAction from '@/pages/collections/collection-table/collection-table-action';
 import SingleRow from '@/pages/collections/collection-table/single-row';
+import type { Collection } from '@/schemas/catalog/collection';
 import { useBulkDeleteCollectionsMutation } from '@/services/collection';
-import type { Collection, PaginatedData, TaxonomyTableHeader } from '@/types';
+import type { PaginatedData } from '@/types/api/response';
+import type { TaxonomyTableHeader } from '@/types/pages/common';
 import { __ } from '@/wpi18n';
 
 type CollectionTableProps = {

@@ -1,5 +1,4 @@
-import type { Country } from '@/types';
-
+import type { Country } from '@/schemas/reference/country';
 type CountryState = {
   id: string | number;
   name: string;

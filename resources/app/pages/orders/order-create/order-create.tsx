@@ -21,13 +21,9 @@ import NotesCard from '@/pages/orders/order-create/components/notes-card';
 import PaymentSummaryCard from '@/pages/orders/order-create/components/payment-summary-card';
 import ProductSelectionCard from '@/pages/orders/order-create/components/product-selection-card';
 import type { OrderItem, OrderRowDisplay } from '@/pages/orders/order-create/types';
+import type { OrderFormInput, OrderFormPayload } from '@/schemas/forms/order-form';
+import { OrderCalculationRequestSchema, OrderFormSchema } from '@/schemas/forms/order-form';
 import { useCreateOrderMutation, useOrderCalculationQuery } from '@/services/order';
-import {
-  OrderCalculationRequestSchema,
-  type OrderFormInput,
-  type OrderFormPayload,
-  OrderFormSchema,
-} from '@/types';
 import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
 

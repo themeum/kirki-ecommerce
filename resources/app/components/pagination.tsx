@@ -9,7 +9,7 @@ import Text from '@/components/ui/text';
 import { ArrowLeftIcon } from '@/icons';
 import { theme } from '@/theme';
 import { defineStyles, itemCenter, scopedMerge } from '@/theme/mixins';
-import type { PaginationData } from '@/types';
+import type { PaginationData } from '@/types/components/common';
 import { __, sprintf } from '@/wpi18n';
 
 type PaginationProps = {

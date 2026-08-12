@@ -6,9 +6,10 @@ import Flex from '@/components/ui/flex';
 import Searchbox from '@/components/ui/searchbox';
 import { ArrowDownUp } from '@/icons';
 import { getSortedList } from '@/pages/settings/utils';
+import type { AttributeValue } from '@/schemas/catalog/attribute';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
-import type { AttributeValue, SortOrder } from '@/types';
+import type { SortOrder } from '@/types/list-state';
 
 type VariantTableActionProps = {
   dataList: AttributeValue[];

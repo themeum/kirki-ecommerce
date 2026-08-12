@@ -3,7 +3,7 @@ import Grid from '@/components/ui/grid';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import type { SelectOption } from '@/types';
+import type { SelectOption } from '@/types/components/common';
 
 const options: SelectOption[] = [
   { value: 'value-1', title: 'Title 1' },

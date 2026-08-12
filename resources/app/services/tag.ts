@@ -1,13 +1,14 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { endpoints } from '@/config/endpoints';
+import { tagKeys } from '@/features/tags';
 import { apiClient } from '@/libs/api';
-import { queryKeys } from '@/libs/query-keys';
 import { TagSchema } from '@/schemas/catalog/tag';
 import type { TagFormPayload } from '@/schemas/forms/tag-form';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
 import { parseData, parseMessage, parseResponse, toastMutationError, toastMutationSuccess } from '@/services/helpers';
-import type { BulkActionParams, ListQueryParams } from '@/types';
+import type { BulkActionParams } from '@/types/api/result';
+import type { ListQueryParams } from '@/types/list-state';
 import { __ } from '@/wpi18n';
 
 const getTags = (params: ListQueryParams = {}) => {
@@ -50,7 +51,7 @@ const bulkDeleteTags = ({
 
 const useTagsQuery = (params: ListQueryParams = {}) => {
   return useQuery({
-    queryKey: queryKeys.Tags(params),
+    queryKey: tagKeys.list(params),
     queryFn: () => getTags(params),
     placeholderData: keepPreviousData,
   });
@@ -64,7 +65,7 @@ const useCreateTagMutation = () => {
       toastMutationSuccess(
         response.message || __('Tag created successfully.', 'kirki-ecommerce'),
       );
-      void queryClient.invalidateQueries({ queryKey: ['Tags'] });
+      void queryClient.invalidateQueries({ queryKey: tagKeys.lists() });
     },
     onError(error) {
       toastMutationError(error);
@@ -80,7 +81,7 @@ const useUpdateTagMutation = () => {
       toastMutationSuccess(
         response.message || __('Tag updated successfully.', 'kirki-ecommerce'),
       );
-      void queryClient.invalidateQueries({ queryKey: ['Tags'] });
+      void queryClient.invalidateQueries({ queryKey: tagKeys.lists() });
     },
     onError(error) {
       toastMutationError(error);
@@ -96,7 +97,7 @@ const useDeleteTagMutation = () => {
       toastMutationSuccess(
         response.message || __('Tag deleted successfully.', 'kirki-ecommerce'),
       );
-      void queryClient.invalidateQueries({ queryKey: ['Tags'] });
+      void queryClient.invalidateQueries({ queryKey: tagKeys.lists() });
     },
     onError(error) {
       toastMutationError(error);
@@ -112,7 +113,7 @@ const useBulkDeleteTagsMutation = () => {
       toastMutationSuccess(
         response.message || __('Tags deleted successfully.', 'kirki-ecommerce'),
       );
-      void queryClient.invalidateQueries({ queryKey: ['Tags'] });
+      void queryClient.invalidateQueries({ queryKey: tagKeys.lists() });
     },
     onError(error) {
       toastMutationError(error);

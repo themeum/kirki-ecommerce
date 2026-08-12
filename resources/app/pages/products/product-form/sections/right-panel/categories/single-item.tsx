@@ -1,9 +1,9 @@
 import Checkbox from '@/components/ui/checkbox';
 import Flex from '@/components/ui/flex';
 import Label from '@/components/ui/label';
+import type { Category } from '@/schemas/catalog/category';
 import { theme } from '@/theme';
 import { defineStyles, itemCenter, scoped } from '@/theme/mixins';
-import type { Category } from '@/types';
 
 type ProductCategorySelection = {
   id: number;

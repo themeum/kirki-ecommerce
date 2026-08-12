@@ -18,7 +18,7 @@ import { LighteningIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { queryClient } from '@/libs/query-client';
-import { queryKeys } from '@/libs/query-keys';
+import { settingsKeys } from '@/libs/query-keys';
 import { getDefaults } from '@/libs/zod';
 import type { DestinationConditionValue } from '@/pages/settings/shipping-settings/shipping-method/select-destination-dialog';
 import { SelectDestinationPopup } from '@/pages/settings/shipping-settings/shipping-method/select-destination-dialog';
@@ -287,7 +287,7 @@ const ShippingRuleFormCard = ({
         data: { shipping_zones: updatedShippingZones },
       });
       void queryClient.invalidateQueries({
-        queryKey: queryKeys.Settings('shipping'),
+        queryKey: settingsKeys.section('shipping'),
       });
       toast.success(__('Shipping rule updated', 'kirki-ecommerce'));
       onSaved();

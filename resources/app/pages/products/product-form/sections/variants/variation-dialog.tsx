@@ -14,7 +14,7 @@ import {
   type ProductVariationPopoverFormPayload,
   ProductVariationPopoverFormSchema,
 } from '@/schemas/forms/product-variation-popover-form';
-import type { ButtonState } from '@/types';
+import type { ButtonState } from '@/types/components/common';
 import { __ } from '@/wpi18n';
 
 type VariationPopoverProps = {

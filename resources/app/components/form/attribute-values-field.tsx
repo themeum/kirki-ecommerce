@@ -6,10 +6,10 @@ import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import MultiSelect from '@/components/ui/multi-select';
 import { type ErrorResponse, getErrorsObject } from '@/libs/api';
 import VariationDialog from '@/pages/products/product-form/sections/variants/variation-dialog';
+import type { Attribute } from '@/schemas/catalog/attribute';
 import type { ProductVariationPopoverFormPayload } from '@/schemas/forms/product-variation-popover-form';
 import type { VariationValueFormPayload } from '@/schemas/forms/variation-value-form';
 import { useAttributesQuery, useCreateAttributeValueMutation } from '@/services/attribute';
-import type { Attribute } from '@/types';
 import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 

@@ -11,13 +11,13 @@ import { Form } from '@/components/ui/form';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { pickFormValues } from '@/libs/zod';
+import type { Tag } from '@/schemas/catalog/tag';
 import {
   type TagFormInput,
   type TagFormPayload,
   TagFormSchema,
 } from '@/schemas/forms/tag-form';
 import { useCreateTagMutation, useUpdateTagMutation } from '@/services/tag';
-import type { Tag } from '@/types';
 import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 

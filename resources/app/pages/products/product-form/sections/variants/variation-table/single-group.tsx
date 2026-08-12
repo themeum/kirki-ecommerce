@@ -11,13 +11,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { TableCell, TableRow } from '@/components/ui/table';
 import { ChevronDownIcon } from '@/icons';
 import { generateVariantIndexById, generateVariantIndexes, getAttributeByValueId } from '@/pages/products/utils';
+import type { ProductVariant } from '@/schemas/catalog/variant';
 import type { ProductFormInput } from '@/schemas/forms/product-form';
+import type { MediaRef } from '@/schemas/shared/media';
 import { defineStyles } from '@/theme/mixins';
-import type {
-  MediaChangePayload,
-  MediaRef,
-  ProductVariant,
-} from '@/types';
+import type { MediaChangePayload } from '@/types/pages/common';
 import { __ } from '@/wpi18n';
 
 import VariantThumbnailSelector from './variant-thumbnail-selector';

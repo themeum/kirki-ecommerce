@@ -11,6 +11,8 @@ import DataTable, {
 import Badge from '@/components/ui/badge';
 import Flex from '@/components/ui/flex';
 import { RouteConfig } from '@/config/route-config';
+import type { CouponListFilter} from '@/features/coupons';
+import { couponListOptions } from '@/features/coupons';
 import { useListParams } from '@/hooks';
 import { DATE_FORMATS } from '@/libs/date';
 import CouponTableFilter from '@/pages/coupons/coupon-table/coupon-table-filter';
@@ -21,8 +23,6 @@ import type { CouponListItem } from '@/schemas/catalog/coupon';
 import { useBulkDeleteCouponsMutation, useCouponActionMutation, useCouponsQuery, useDeleteCouponMutation } from '@/services/coupon';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
-import type { CouponListFilter} from '@/types/filters/coupon';
-import { couponListOptions } from '@/types/filters/coupon';
 import { __ } from '@/wpi18n';
 
 const CouponTitleCell = ({ item }: { item: CouponListItem }) => {

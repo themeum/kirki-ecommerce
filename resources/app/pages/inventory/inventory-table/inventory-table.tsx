@@ -7,12 +7,12 @@ import Checkbox from '@/components/ui/checkbox';
 import Flex from '@/components/ui/flex';
 import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { RouteConfig } from '@/config/route-config';
-import { useInventoryForm } from '@/contexts/inventory-form-context';
+import { useInventoryForm } from '@/features/inventory';
 import { useMarkList } from '@/hooks';
 import InventoryTableAction from '@/pages/inventory/inventory-table/inventory-table-action';
 import SingleRow from '@/pages/inventory/inventory-table/single-row';
 import { allTableHeaders } from '@/pages/inventory/utils';
-import type { InventoryVariant } from '@/types';
+import type { InventoryVariant } from '@/schemas/catalog/variant';
 import { __ } from '@/wpi18n';
 
 const InventoryTable = () => {

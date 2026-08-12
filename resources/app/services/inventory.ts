@@ -1,12 +1,12 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 
 import { endpoints } from '@/config/endpoints';
+import { inventoryKeys } from '@/features/inventory';
 import { apiClient } from '@/libs/api';
-import { queryKeys } from '@/libs/query-keys';
 import { InventoryVariantSchema } from '@/schemas/catalog/variant';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
 import { parseData } from '@/services/helpers';
-import type { ListQueryParams } from '@/types';
+import type { ListQueryParams } from '@/types/list-state';
 
 const getInventory = (params: ListQueryParams = {}) => {
   return apiClient
@@ -18,7 +18,7 @@ const getInventory = (params: ListQueryParams = {}) => {
 
 const useInventoryQuery = (params: ListQueryParams = {}) => {
   return useQuery({
-    queryKey: queryKeys.Inventory(params),
+    queryKey: inventoryKeys.list(params),
     queryFn: () => getInventory(params),
     placeholderData: keepPreviousData,
   });

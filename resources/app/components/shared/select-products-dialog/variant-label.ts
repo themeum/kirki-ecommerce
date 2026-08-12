@@ -1,5 +1,5 @@
-import type { ProductAttribute, ProductVariant } from '@/types';
-
+import type { ProductAttribute } from '@/schemas/catalog/product';
+import type { ProductVariant } from '@/schemas/catalog/variant';
 export const getAttributeValueLabel = (
   attributes: ProductAttribute[],
   valueId: number,

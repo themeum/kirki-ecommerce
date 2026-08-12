@@ -19,6 +19,7 @@ import {
   getUnitShortText,
   unitGroups,
 } from '@/pages/products/product-form/sections/price/utils';
+import type { ProductVariant } from '@/schemas/catalog/variant';
 import {
   type BaseUnitFormInput,
   type BaseUnitFormPayload,
@@ -27,7 +28,7 @@ import {
 } from '@/schemas/forms/base-unit-form';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
-import type { FormErrors, ProductVariant } from '@/types';
+import type { FormErrors } from '@/types/pages/common';
 import { __ } from '@/wpi18n';
 
 type BaseUnitPopupProps = {

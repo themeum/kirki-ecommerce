@@ -1,12 +1,14 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { endpoints } from '@/config/endpoints';
+import { bulkEditKeys } from '@/features/bulk-edit';
+import { inventoryKeys } from '@/features/inventory';
+import { productKeys } from '@/features/products';
 import { apiClient } from '@/libs/api';
-import { queryKeys } from '@/libs/query-keys';
 import { VariantSchema } from '@/schemas/catalog/variant';
 import { ResourceCollectionSchema } from '@/schemas/shared/api';
 import { parseData, parseResponse, toastMutationError, toastMutationSuccess } from '@/services/helpers';
-import type { ListQueryParams } from '@/types';
+import type { ListQueryParams } from '@/types/list-state';
 import { __ } from '@/wpi18n';
 
 const getBulkVariants = (
@@ -34,7 +36,7 @@ const useBulkVariantsQuery = (
   enabled = true,
 ) => {
   return useQuery({
-    queryKey: queryKeys.BulkVariants(ids, params),
+    queryKey: bulkEditKeys.list(ids, params),
     queryFn: () => getBulkVariants(ids, params),
     enabled: enabled && ids.length > 0,
     placeholderData: keepPreviousData,
@@ -50,9 +52,9 @@ const useUpdateBulkVariantsMutation = () => {
         response.message ||
         __('Variants updated successfully.', 'kirki-ecommerce'),
       );
-      void queryClient.invalidateQueries({ queryKey: ['BulkVariants'] });
-      void queryClient.invalidateQueries({ queryKey: ['Inventory'] });
-      void queryClient.invalidateQueries({ queryKey: ['Products'] });
+      void queryClient.invalidateQueries({ queryKey: bulkEditKeys.all });
+      void queryClient.invalidateQueries({ queryKey: inventoryKeys.all });
+      void queryClient.invalidateQueries({ queryKey: productKeys.lists() });
     },
     onError(error) {
       toastMutationError(error);

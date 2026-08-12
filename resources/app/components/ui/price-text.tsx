@@ -1,7 +1,7 @@
 import Flex from '@/components/ui/flex';
 import Text, { type TextProps } from '@/components/ui/text';
 import type { MoneyObject } from '@/schemas/shared/api';
-import type { FlexAlign, FlexJustify } from '@/types';
+import type { FlexAlign, FlexJustify } from '@/types/components/common';
 import { isDefined } from '@/utils/object';
 
 type PriceTextProps = {

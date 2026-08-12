@@ -1,8 +1,8 @@
 import { useFormContext, useWatch } from 'react-hook-form';
 
 import type { ProductFormInput } from '@/schemas/forms/product-form';
+import type { MediaRef } from '@/schemas/shared/media';
 import { useSettingsQuery } from '@/services/settings';
-import type { MediaRef } from '@/types';
 
 type SeoPreviewMode = 'search' | 'social' | 'schema';
 

@@ -9,6 +9,8 @@ import Label from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Text from '@/components/ui/text';
+import type { ProductListFilter} from '@/features/products';
+import { productListOptions } from '@/features/products';
 import { useListParams } from '@/hooks';
 import { CloseIcon, ListFilter } from '@/icons';
 import BrandFilter from '@/pages/products/product-table/filter-popup/brand-filter';
@@ -16,8 +18,6 @@ import CategoriesFilter from '@/pages/products/product-table/filter-popup/catego
 import CollectionFilter from '@/pages/products/product-table/filter-popup/collection-filter';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
-import type { ProductListFilter} from '@/types/filters/product';
-import { productListOptions } from '@/types/filters/product';
 import { noop } from '@/utils/function';
 import { __, sprintf } from '@/wpi18n';
 

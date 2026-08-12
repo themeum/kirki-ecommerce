@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 
 import { DragIcon } from '@/icons';
-import type { TableAlignment } from '@/types';
+import type { TableAlignment } from '@/types/components/common';
 import { __ } from '@/wpi18n';
 
 type InventoryTableHeader = {

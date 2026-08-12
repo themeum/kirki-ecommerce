@@ -16,14 +16,15 @@ import {
   StackedItemTitle,
 } from '@/components/ui/stacked-items';
 import Text from '@/components/ui/text';
+import { taxKeys } from '@/features/settings';
 import { BoxClosedIcon, BoxOpenIcon, EditPenIcon, TrashIcon } from '@/icons';
 import { TaxProfilePopup } from '@/pages/settings/tax-settings/tax-profile/tax-profile-dialog';
+import type { TaxProfile as TaxProfileType } from '@/schemas/catalog/tax';
 import { toastMutationError } from '@/services/helpers';
 import { deleteTaxProfile, useTaxProfilesQuery } from '@/services/tax';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
-import type { TaxProfile as TaxProfileType } from '@/types';
 import { __ } from '@/wpi18n';
 
 type TaxProfileListItem = TaxProfileType & {
@@ -66,7 +67,7 @@ const TaxProfile = () => {
       onAutoClose: () => {
         deleteTaxProfile(item?.id)
           .then(() => {
-            void queryClient.invalidateQueries({ queryKey: ['TaxProfiles'] });
+            void queryClient.invalidateQueries({ queryKey: taxKeys.all });
           })
           .catch((error) => {
             toastMutationError(error);

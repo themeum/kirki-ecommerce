@@ -1,6 +1,21 @@
 import type { UseListParamsOptions } from '@/hooks/use-list-params';
-import type { ListFilterConfig} from '@/types/list-state';
+import type { ListFilterConfig } from '@/types/list-state';
 import { parseNumberArray, parseStatus, parseString } from '@/types/list-state';
+
+type UnitPriceValue = {
+  total_unit_amount?: number | string | null;
+  total_unit?: string | null;
+  base_unit_amount?: number | string | null;
+  base_unit?: string | null;
+};
+
+type UpdateVariantsPayload = {
+  key: string;
+  value: unknown;
+  variant_index?: number[];
+};
+
+export type { UnitPriceValue, UpdateVariantsPayload };
 
 export type ProductListFilter = {
   search?: string;

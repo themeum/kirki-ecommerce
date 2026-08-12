@@ -7,14 +7,14 @@ import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
 import FullPageContainer from '@/components/ui/full-page-container';
 import PageHeading from '@/components/ui/page-heading';
-import { BulkEditFormProvider, useBulkEditForm } from '@/contexts/bulk-edit-form-context';
+import { BulkEditFormProvider, useBulkEditForm } from '@/features/bulk-edit';
 import { LayoutIcon } from '@/icons';
 import BulkEditTable from '@/pages/bulk-edit/bulk-edit-table/bulk-edit-table';
 import { allTableHeaders } from '@/pages/bulk-edit/utils';
+import type { MediaRef } from '@/schemas/shared/media';
 import { useBulkVariantsQuery, useUpdateBulkVariantsMutation } from '@/services/bulk-edit';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
-import type { MediaRef } from '@/types';
 import { __ } from '@/wpi18n';
 
 const BulkEditPage = () => {

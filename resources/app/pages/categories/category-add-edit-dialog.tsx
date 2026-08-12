@@ -14,6 +14,7 @@ import { Form } from '@/components/ui/form';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { pickFormValues } from '@/libs/zod';
+import type { Category } from '@/schemas/catalog/category';
 import {
   type CategoryFormInput,
   type CategoryFormPayload,
@@ -22,7 +23,6 @@ import {
 import { useCategoriesQuery, useCreateCategoryMutation, useUpdateCategoryMutation } from '@/services/category';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import type { Category } from '@/types';
 import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 

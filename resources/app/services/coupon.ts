@@ -2,13 +2,15 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tansta
 import { z } from 'zod';
 
 import { endpoints } from '@/config/endpoints';
+import type { CouponListFilter } from '@/features/coupons';
+import { couponKeys } from '@/features/coupons';
 import { apiClient } from '@/libs/api';
-import { queryKeys } from '@/libs/query-keys';
 import { CouponListItemSchema, CouponSchema } from '@/schemas/catalog/coupon';
+import type { CouponFormPayload } from '@/schemas/forms/coupon-form';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
 import { parseData, parseMessage, parseResponse, toastMutationError, toastMutationSuccess } from '@/services/helpers';
-import type { BulkActionParams, CouponFormPayload, ListParams } from '@/types';
-import type { CouponListFilter } from '@/types/filters/coupon';
+import type { BulkActionParams } from '@/types/api/result';
+import type { ListParams } from '@/types/list-state';
 import { __ } from '@/wpi18n';
 
 const getCoupons = (params: ListParams<CouponListFilter> = {}) =>
@@ -18,7 +20,7 @@ const getCoupons = (params: ListParams<CouponListFilter> = {}) =>
 
 const useCouponsQuery = (params: ListParams<CouponListFilter> = {}) =>
   useQuery({
-    queryKey: queryKeys.Coupons(params),
+    queryKey: couponKeys.list(params),
     queryFn: () => getCoupons(params),
     placeholderData: keepPreviousData,
   });
@@ -31,7 +33,7 @@ const getCoupon = (id: string | number) => {
 
 const useCouponQuery = (id: string | number, enabled = true) => {
   return useQuery({
-    queryKey: queryKeys.Coupon(id),
+    queryKey: couponKeys.detail(id),
     queryFn: () => getCoupon(id),
     enabled: enabled && Boolean(id) && id !== 'create',
   });
@@ -58,7 +60,7 @@ const useCreateCouponMutation = () => {
         response.message ||
         __('Coupon created successfully.', 'kirki-ecommerce'),
       );
-      void queryClient.invalidateQueries({ queryKey: queryKeys.Coupons() });
+      void queryClient.invalidateQueries({ queryKey: couponKeys.lists() });
     },
     onError(error) {
       toastMutationError(error);
@@ -75,9 +77,9 @@ const useUpdateCouponMutation = () => {
         response.message ||
         __('Coupon updated successfully.', 'kirki-ecommerce'),
       );
-      void queryClient.invalidateQueries({ queryKey: queryKeys.Coupons() });
+      void queryClient.invalidateQueries({ queryKey: couponKeys.lists() });
       void queryClient.invalidateQueries({
-        queryKey: queryKeys.Coupon(variables.id),
+        queryKey: couponKeys.detail(variables.id),
       });
     },
     onError(error) {
@@ -103,9 +105,9 @@ const useCouponActionMutation = () => {
         response.message ||
         __('Coupon updated successfully.', 'kirki-ecommerce'),
       );
-      void queryClient.invalidateQueries({ queryKey: queryKeys.Coupons() });
+      void queryClient.invalidateQueries({ queryKey: couponKeys.lists() });
       void queryClient.invalidateQueries({
-        queryKey: queryKeys.Coupon(variables.id),
+        queryKey: couponKeys.detail(variables.id),
       });
     },
     onError(error) {
@@ -130,8 +132,8 @@ const useDeleteCouponMutation = () => {
         __('Coupon deleted successfully.', 'kirki-ecommerce'),
       );
 
-      void queryClient.invalidateQueries({ queryKey: queryKeys.Coupon(id) });
-      void queryClient.invalidateQueries({ queryKey: queryKeys.Coupons() });
+      void queryClient.invalidateQueries({ queryKey: couponKeys.detail(id) });
+      void queryClient.invalidateQueries({ queryKey: couponKeys.lists() });
     },
     onError(error) {
       toastMutationError(error);
@@ -148,7 +150,6 @@ const bulkDeleteCoupons = ({
     .then((response) => parseMessage(response));
 };
 
-
 const useBulkDeleteCouponsMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -158,7 +159,7 @@ const useBulkDeleteCouponsMutation = () => {
         response.message ||
         __('Coupons deleted successfully.', 'kirki-ecommerce'),
       );
-      void queryClient.invalidateQueries({ queryKey: ['Coupons'] });
+      void queryClient.invalidateQueries({ queryKey: couponKeys.lists() });
     },
     onError(error) {
       toastMutationError(error);
@@ -174,7 +175,7 @@ const validateCode = (code: string) => {
 
 const useValidateQuery = (code: string, enabled = true) =>
   useQuery({
-    queryKey: ['CouponValidate', code],
+    queryKey: couponKeys.validate(code),
     queryFn: () => validateCode(code),
     enabled: enabled && Boolean(code),
     placeholderData: keepPreviousData,
@@ -188,7 +189,7 @@ const generateNewCode = () => {
 
 const useGenerateNewCodeQuery = () =>
   useQuery({
-    queryKey: ['CouponNewCode'],
+    queryKey: couponKeys.newCode(),
     queryFn: () => generateNewCode(),
     enabled: false,
     staleTime: 0,

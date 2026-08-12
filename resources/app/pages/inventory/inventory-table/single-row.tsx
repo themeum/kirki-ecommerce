@@ -3,11 +3,12 @@ import Flex from '@/components/ui/flex';
 import Input from '@/components/ui/input';
 import { TableCell, TableRow } from '@/components/ui/table';
 import Thumbnail from '@/components/ui/thumbnail';
-import { useInventoryForm } from '@/contexts/inventory-form-context';
+import { useInventoryForm } from '@/features/inventory';
 import { calculateProfit } from '@/pages/utils';
+import type { InventoryVariant } from '@/schemas/catalog/variant';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
-import type { InventoryVariant, MarkListHandlers } from '@/types';
+import type { MarkListHandlers } from '@/types/pages/common';
 
 type SingleRowProps = MarkListHandlers & {
   item: InventoryVariant;

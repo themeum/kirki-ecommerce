@@ -3,12 +3,12 @@ import { memo } from 'react';
 import Button from '@/components/ui/button';
 import Capsule from '@/components/ui/capsule';
 import Flex from '@/components/ui/flex';
+import type { CouponListFilter} from '@/features/coupons';
+import { couponListFilterConfig, couponListOptions, discountTypeOptions, methodOptions, statusOptions } from '@/features/coupons';
 import { useListParams } from '@/hooks';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
-import type { SuggestionOption } from '@/types';
-import type { CouponListFilter} from '@/types/filters/coupon';
-import { couponListFilterConfig, couponListOptions, discountTypeOptions, methodOptions, statusOptions } from '@/types/filters/coupon';
+import type { SuggestionOption } from '@/types/pages/common';
 import { __ } from '@/wpi18n';
 
 type FilterValue = string | number | (string | number)[];

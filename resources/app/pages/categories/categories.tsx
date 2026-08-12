@@ -8,7 +8,7 @@ import CategoryTable from '@/pages/categories/category-table/category-table';
 import NewCategory from '@/pages/categories/new-category';
 import { useCategoriesQuery } from '@/services/category';
 import { cardStyles } from '@/theme/card-styles';
-import type { PaginationData } from '@/types';
+import type { PaginationData } from '@/types/components/common';
 import { __ } from '@/wpi18n';
 
 const Categories = () => {

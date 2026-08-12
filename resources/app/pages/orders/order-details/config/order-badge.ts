@@ -1,5 +1,5 @@
 import type { BadgeVariant } from '@/components/ui/badge';
-import type { FulfillmentStatus, PaymentStatus } from '@/types';
+import type { FulfillmentStatus, PaymentStatus } from '@/schemas/catalog/order';
 import { __ } from '@/wpi18n';
 
 export const getPaymentBadgeInfo = (status: PaymentStatus): { variant: BadgeVariant, text: string } => {

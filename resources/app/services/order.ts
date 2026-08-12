@@ -2,14 +2,16 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tansta
 
 import { NEW_ITEM_ID } from '@/conf';
 import { endpoints } from '@/config/endpoints';
+import type { OrderListFilter } from '@/features/orders';
+import { orderKeys } from '@/features/orders';
 import { apiClient } from '@/libs/api';
-import { queryKeys } from '@/libs/query-keys';
 import type { OrderActionPayload } from '@/pages/orders/order-details/config/order-actions';
+import type { OrderItem } from '@/schemas/catalog/order';
 import { OrderCalculationSchema, OrderItemSchema, OrderListItemSchema } from '@/schemas/catalog/order';
+import type { OrderCalculationRequestPayload, OrderFormPayload } from '@/schemas/forms/order-form';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
 import { parseData, parseResponse, toastMutationError, toastMutationSuccess, unwrapResponse } from '@/services/helpers';
-import type { ListParams, OrderCalculationRequestPayload, OrderFormPayload, OrderItem } from '@/types';
-import type { OrderListFilter } from '@/types/filters/order';
+import type { ListParams } from '@/types/list-state';
 import { __ } from '@/wpi18n';
 
 const createOrder = (data: OrderFormPayload) => {
@@ -57,7 +59,7 @@ const useCreateOrderMutation = () => {
         response.message ||
         __('Order created successfully.', 'kirki-ecommerce'),
       );
-      void queryClient.invalidateQueries({ queryKey: queryKeys.Orders() });
+      void queryClient.invalidateQueries({ queryKey: orderKeys.lists() });
     },
     onError(error) {
       toastMutationError(error);
@@ -67,7 +69,7 @@ const useCreateOrderMutation = () => {
 
 const useOrdersQuery = (params: ListParams<OrderListFilter> = {}) => {
   return useQuery({
-    queryKey: queryKeys.Orders(params),
+    queryKey: orderKeys.list(params),
     queryFn: () => getOrders(params),
     placeholderData: keepPreviousData,
   });
@@ -75,7 +77,7 @@ const useOrdersQuery = (params: ListParams<OrderListFilter> = {}) => {
 
 const useOrderQuery = (id: string | number, enabled = true) => {
   return useQuery({
-    queryKey: queryKeys.Order(id),
+    queryKey: orderKeys.detail(id),
     queryFn: () => getOrder(id),
     enabled: enabled && Boolean(id) && id !== NEW_ITEM_ID,
   });
@@ -90,9 +92,9 @@ const useUpdateOrderMutation = () => {
         response.message ||
         __('Order updated successfully.', 'kirki-ecommerce'),
       );
-      void queryClient.invalidateQueries({ queryKey: queryKeys.Orders() });
+      void queryClient.invalidateQueries({ queryKey: orderKeys.lists() });
       void queryClient.invalidateQueries({
-        queryKey: queryKeys.Order(variables.id),
+        queryKey: orderKeys.detail(variables.id),
       });
     },
     onError(error) {
@@ -110,9 +112,9 @@ const useOrderActionMutation = () => {
         response.message ||
         __('Action performed successfully.', 'kirki-ecommerce'),
       );
-      void queryClient.invalidateQueries({ queryKey: queryKeys.Orders() });
+      void queryClient.invalidateQueries({ queryKey: orderKeys.lists() });
       void queryClient.invalidateQueries({
-        queryKey: queryKeys.Order(variables.id),
+        queryKey: orderKeys.detail(variables.id),
       });
     },
     onError(error) {
@@ -126,7 +128,7 @@ const useOrderCalculationQuery = (
   enabled = true,
 ) => {
   return useQuery({
-    queryKey: queryKeys.OrderCalculation(payload),
+    queryKey: orderKeys.calculation(payload),
     queryFn: () => calculateOrder(payload),
     placeholderData: keepPreviousData,
     enabled,

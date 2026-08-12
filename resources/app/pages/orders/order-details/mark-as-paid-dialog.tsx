@@ -17,10 +17,10 @@ import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import Text from '@/components/ui/text';
 import { RouteConfig } from '@/config/route-config';
+import type { OrderItem } from '@/schemas/catalog/order';
 import { useOfflinePaymentsQuery } from '@/services/payment';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
-import type { OrderItem } from '@/types';
 import { __ } from '@/wpi18n';
 
 type MarkAsPaidFormValues = {

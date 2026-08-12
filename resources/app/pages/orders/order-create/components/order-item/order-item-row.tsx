@@ -8,7 +8,7 @@ import Text from '@/components/ui/text';
 import Thumbnail from '@/components/ui/thumbnail';
 import QuantityStepper from '@/pages/orders/order-create/components/order-item/quantity-stepper';
 import type { OrderItem } from '@/pages/orders/order-create/types';
-import type { OrderCalculation } from '@/types';
+import type { OrderCalculation } from '@/schemas/catalog/order';
 
 const EMPTY_AMOUNT = '—';
 

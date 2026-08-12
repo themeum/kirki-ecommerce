@@ -15,16 +15,16 @@ import {
   StackedItemTitle,
 } from '@/components/ui/stacked-items';
 import Text from '@/components/ui/text';
+import { shippingKeys } from '@/features/settings';
 import { BoxOpenIcon, EditPenIcon, TrashIcon } from '@/icons';
 import { queryClient } from '@/libs/query-client';
-import { queryKeys } from '@/libs/query-keys';
 import { CreateProfilePopup } from '@/pages/settings/shipping-settings/shipping-profile/create-profile-dialog';
 import { dispatchToastMessage } from '@/pages/utils';
+import type { ShippingProfile as ShippingProfileType } from '@/schemas/catalog/shipping';
 import { deleteShippingProfile, useShippingProfilesQuery } from '@/services/shipping';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, scoped } from '@/theme/mixins';
-import type { ShippingProfile as ShippingProfileType } from '@/types';
 import { __ } from '@/wpi18n';
 
 const SHIPPING_PROFILES_PARAMS = { limit: -1 };
@@ -52,7 +52,7 @@ const ShippingProfile = () => {
   };
 
   const handleDeleteShippingProfile = async (item: ShippingProfileType) => {
-    const queryKey = queryKeys.ShippingProfiles(SHIPPING_PROFILES_PARAMS);
+    const queryKey = shippingKeys.profiles.list(SHIPPING_PROFILES_PARAMS);
 
     await queryClient.cancelQueries({ queryKey });
     const previousProfiles =
@@ -70,7 +70,7 @@ const ShippingProfile = () => {
       },
       onSuccess: async () => {
         await deleteShippingProfile(item?.id);
-        void queryClient.invalidateQueries({ queryKey: ['ShippingProfiles'] });
+        void queryClient.invalidateQueries({ queryKey: shippingKeys.profiles.all });
       },
     });
   };

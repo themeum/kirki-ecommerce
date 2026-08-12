@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Separator } from '@/components/ui/separator';
 import Text from '@/components/ui/text';
 import { cardStyles } from '@/theme/card-styles';
-import type { SelectOption } from '@/types';
+import type { SelectOption } from '@/types/components/common';
 
 const optionsArray: SelectOption[] = [
   { value: 'global', title: 'Global tax profile' },

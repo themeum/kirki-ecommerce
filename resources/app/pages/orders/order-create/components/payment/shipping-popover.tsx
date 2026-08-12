@@ -6,9 +6,10 @@ import { FieldError, FieldLabel } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import type { OrderCalculation } from '@/schemas/catalog/order';
+import type { OrderFormInput } from '@/schemas/forms/order-form';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
-import type { OrderCalculation, OrderFormInput } from '@/types';
 import { __ } from '@/wpi18n';
 
 type ShippingPopoverProps = {

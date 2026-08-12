@@ -13,11 +13,11 @@ import { ShowMoreIcon } from '@/icons';
 import OnlinePaymentPopup from '@/pages/settings/payment-settings/online-payment-dialog';
 import OnlinePaymentEditPopup from '@/pages/settings/payment-settings/online-payment-edit-dialog';
 import { dispatchToastMessage } from '@/pages/utils';
+import type { OnlinePayment } from '@/schemas/catalog/payment';
 import { getOnlinePayment, useSetEnabledOnlinePaymentMutation } from '@/services/payment';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
-import type { OnlinePayment } from '@/types';
 import { __ } from '@/wpi18n';
 
 type OnlinePaymentProps = {

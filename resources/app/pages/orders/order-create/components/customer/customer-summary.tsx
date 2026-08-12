@@ -3,9 +3,9 @@ import Text from '@/components/ui/text';
 import Thumbnail from '@/components/ui/thumbnail';
 import { LocationIcon, PhoneIcon, TruckIcon } from '@/icons';
 import type { AddressLines } from '@/pages/orders/order-create/config/customer-address';
+import type { MediaRef } from '@/schemas/shared/media';
 import { theme } from '@/theme';
 import { defineStyles, flexCenter, scoped } from '@/theme/mixins';
-import type { MediaRef } from '@/types';
 import { __ } from '@/wpi18n';
 
 type CustomerSummaryProps = {

@@ -12,9 +12,9 @@ import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { DynamicOnlinePaymentFields } from '@/pages/settings/payment-settings/utils';
 import { dispatchToastMessage } from '@/pages/utils';
+import type { OnlinePayment } from '@/schemas/catalog/payment';
 import { onlinePaymentEditDefaultValues, type OnlinePaymentEditFormInput, type OnlinePaymentEditFormPayload, OnlinePaymentEditFormSchema } from '@/schemas/forms/online-payment-form';
 import { useUpdateOnlinePaymentMutation } from '@/services/payment';
-import type { OnlinePayment } from '@/types';
 import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
 

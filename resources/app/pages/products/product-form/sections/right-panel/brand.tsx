@@ -11,10 +11,11 @@ import Text from '@/components/ui/text';
 import Thumbnail from '@/components/ui/thumbnail';
 import { MinusIcon } from '@/icons';
 import BrandAddEditPopover from '@/pages/brands/brand-add-edit-dialog';
+import type { Brand as BrandEntity } from '@/schemas/catalog/brand';
 import type { ProductFormInput } from '@/schemas/forms/product-form';
 import { useBrandsQuery } from '@/services/brand';
 import { cardStyles } from '@/theme/card-styles';
-import type { Brand as BrandEntity, SelectOption } from '@/types';
+import type { SelectOption } from '@/types/components/common';
 import { __ } from '@/wpi18n';
 
 type BrandSuggestion = SelectOption & BrandEntity;

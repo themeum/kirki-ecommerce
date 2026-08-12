@@ -1,5 +1,6 @@
+import type { Customer, CustomerAddress } from '@/schemas/catalog/customer';
+import type { OrderFormInput } from '@/schemas/forms/order-form';
 import type { Country } from '@/schemas/reference/country';
-import type { Customer, CustomerAddress, OrderFormInput } from '@/types';
 
 export type AddressLines = {
   line1: string;

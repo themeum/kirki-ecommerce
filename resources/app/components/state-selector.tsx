@@ -3,7 +3,7 @@ import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui
 import { useCountriesQuery } from '@/services/country';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
-import type { LabelFieldProps } from '@/types';
+import type { LabelFieldProps } from '@/types/components/common';
 import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
 

@@ -1,17 +1,15 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { endpoints } from '@/config/endpoints';
+import { attributeKeys } from '@/features/products';
 import { apiClient } from '@/libs/api';
-import { queryKeys } from '@/libs/query-keys';
 import { AttributeSchema, AttributeValueSchema } from '@/schemas/catalog/attribute';
 import type { AddVariationFormPayload } from '@/schemas/forms/add-variation-form';
 import type { VariationValueFormPayload } from '@/schemas/forms/variation-value-form';
 import { PaginatedDataSchema, ResourceCollectionSchema } from '@/schemas/shared/api';
 import { parseData, parseMessage, parseResponse, toastMutationError, toastMutationSuccess } from '@/services/helpers';
-import type {
-  BulkActionParams,
-  ListQueryParams,
-} from '@/types';
+import type { BulkActionParams } from '@/types/api/result';
+import type { ListQueryParams } from '@/types/list-state';
 import { __ } from '@/wpi18n';
 
 const getAttributes = async (params: ListQueryParams = {}) => {
@@ -92,7 +90,7 @@ const bulkDeleteAttributeValues = ({
 
 const useAttributesQuery = (params: ListQueryParams = {}) => {
   return useQuery({
-    queryKey: queryKeys.Attributes(params),
+    queryKey: attributeKeys.list(params),
     queryFn: () => getAttributes(params),
     placeholderData: keepPreviousData,
   });
@@ -100,7 +98,7 @@ const useAttributesQuery = (params: ListQueryParams = {}) => {
 
 const useAttributeQuery = (id: number, enabled = true) => {
   return useQuery({
-    queryKey: queryKeys.Attribute(id),
+    queryKey: attributeKeys.detail(id),
     queryFn: () => getAttribute(id),
     enabled: enabled && Boolean(id),
   });
@@ -112,7 +110,7 @@ const useAttributeValuesQuery = (
   enabled = true,
 ) => {
   return useQuery({
-    queryKey: queryKeys.AttributeValues(id, params),
+    queryKey: attributeKeys.values(id, params),
     queryFn: () => getAttributeValues(id, params),
     enabled: enabled && Boolean(id),
     placeholderData: keepPreviousData,
@@ -128,7 +126,7 @@ const useCreateAttributeMutation = () => {
         response.message ||
         __('Attribute created successfully.', 'kirki-ecommerce'),
       );
-      void queryClient.invalidateQueries({ queryKey: ['Attributes'] });
+      void queryClient.invalidateQueries({ queryKey: attributeKeys.lists() });
     },
     onError(error) {
       toastMutationError(error);
@@ -145,7 +143,7 @@ const useUpdateAttributeMutation = () => {
         response.message ||
         __('Attribute updated successfully.', 'kirki-ecommerce'),
       );
-      void queryClient.invalidateQueries({ queryKey: ['Attributes'] });
+      void queryClient.invalidateQueries({ queryKey: attributeKeys.lists() });
     },
     onError(error) {
       toastMutationError(error);
@@ -162,7 +160,7 @@ const useDeleteAttributeMutation = () => {
         response.message ||
         __('Attribute deleted successfully.', 'kirki-ecommerce'),
       );
-      void queryClient.invalidateQueries({ queryKey: ['Attributes'] });
+      void queryClient.invalidateQueries({ queryKey: attributeKeys.lists() });
     },
     onError(error) {
       toastMutationError(error);
@@ -179,8 +177,8 @@ const useCreateAttributeValueMutation = () => {
         response.message ||
         __('Attribute value created successfully.', 'kirki-ecommerce'),
       );
-      void queryClient.invalidateQueries({ queryKey: ['Attributes'] });
-      void queryClient.invalidateQueries({ queryKey: ['AttributeValues'] });
+      void queryClient.invalidateQueries({ queryKey: attributeKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: attributeKeys.valuesLists() });
     },
     onError(error) {
       toastMutationError(error);
@@ -197,8 +195,8 @@ const useUpdateAttributeValueMutation = () => {
         response.message ||
         __('Attribute value updated successfully.', 'kirki-ecommerce'),
       );
-      void queryClient.invalidateQueries({ queryKey: ['Attributes'] });
-      void queryClient.invalidateQueries({ queryKey: ['AttributeValues'] });
+      void queryClient.invalidateQueries({ queryKey: attributeKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: attributeKeys.valuesLists() });
     },
     onError(error) {
       toastMutationError(error);
@@ -215,8 +213,8 @@ const useDeleteAttributeValueMutation = () => {
         response.message ||
         __('Attribute value deleted successfully.', 'kirki-ecommerce'),
       );
-      void queryClient.invalidateQueries({ queryKey: ['Attributes'] });
-      void queryClient.invalidateQueries({ queryKey: ['AttributeValues'] });
+      void queryClient.invalidateQueries({ queryKey: attributeKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: attributeKeys.valuesLists() });
     },
     onError(error) {
       toastMutationError(error);
@@ -233,8 +231,8 @@ const useBulkDeleteAttributeValuesMutation = () => {
         response.message ||
         __('Attribute values deleted successfully.', 'kirki-ecommerce'),
       );
-      void queryClient.invalidateQueries({ queryKey: ['Attributes'] });
-      void queryClient.invalidateQueries({ queryKey: ['AttributeValues'] });
+      void queryClient.invalidateQueries({ queryKey: attributeKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: attributeKeys.valuesLists() });
     },
     onError(error) {
       toastMutationError(error);

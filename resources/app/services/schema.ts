@@ -1,13 +1,13 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { endpoints } from '@/config/endpoints';
+import { schemaProfileKeys } from '@/features/settings';
 import { apiClient } from '@/libs/api';
-import { queryKeys } from '@/libs/query-keys';
 import { SchemaProfileSchema } from '@/schemas/catalog/schema-profile';
 import type { SchemaProfileFormPayload } from '@/schemas/forms/schema-profile-form';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
 import { parseData, parseMessage, parseResponse, toastMutationError, toastMutationSuccess } from '@/services/helpers';
-import type { ListQueryParams } from '@/types';
+import type { ListQueryParams } from '@/types/list-state';
 import { __ } from '@/wpi18n';
 
 const getSchemas = async (params: ListQueryParams = {}) => {
@@ -45,7 +45,7 @@ const deleteSchema = (id: number) => {
 
 const useSchemasQuery = (params: ListQueryParams = {}) => {
   return useQuery({
-    queryKey: queryKeys.Schemas(params),
+    queryKey: schemaProfileKeys.list(params),
     queryFn: () => getSchemas(params),
     placeholderData: keepPreviousData,
   });
@@ -60,7 +60,7 @@ const useCreateSchemaMutation = () => {
         response.message ||
         __('Schema created successfully.', 'kirki-ecommerce'),
       );
-      void queryClient.invalidateQueries({ queryKey: ['Schemas'] });
+      void queryClient.invalidateQueries({ queryKey: schemaProfileKeys.lists() });
     },
     onError(error) {
       toastMutationError(error);
@@ -77,7 +77,7 @@ const useUpdateSchemaMutation = () => {
         response.message ||
         __('Schema updated successfully.', 'kirki-ecommerce'),
       );
-      void queryClient.invalidateQueries({ queryKey: ['Schemas'] });
+      void queryClient.invalidateQueries({ queryKey: schemaProfileKeys.lists() });
     },
     onError(error) {
       toastMutationError(error);
@@ -94,7 +94,7 @@ const useDeleteSchemaMutation = () => {
         response.message ||
         __('Schema deleted successfully.', 'kirki-ecommerce'),
       );
-      void queryClient.invalidateQueries({ queryKey: ['Schemas'] });
+      void queryClient.invalidateQueries({ queryKey: schemaProfileKeys.lists() });
     },
     onError(error) {
       toastMutationError(error);

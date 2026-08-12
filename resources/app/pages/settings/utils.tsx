@@ -2,7 +2,7 @@ import { CircleDollarSign, CreditCard, Home, Mail, Package, Percent, Settings2, 
 import type { ReactNode } from 'react';
 
 import { RouteConfig } from '@/config/route-config';
-import type { SelectOption } from '@/types';
+import type { SelectOption } from '@/types/components/common';
 import { toDisplayString } from '@/utils/string';
 import { __ } from '@/wpi18n';
 

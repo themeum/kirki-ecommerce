@@ -11,9 +11,9 @@ import { Form } from '@/components/ui/form';
 import Label from '@/components/ui/label';
 import Text from '@/components/ui/text';
 import { InfoIcon } from '@/icons';
+import type { Currency } from '@/schemas/catalog/currency';
 import { type EditCurrencyFormInput, type EditCurrencyFormPayload, EditCurrencyFormSchema } from '@/schemas/forms/edit-currency-form';
 import { theme } from '@/theme';
-import type { Currency } from '@/types';
 import { __, sprintf } from '@/wpi18n';
 
 type EditCurrencyItem = Currency & {

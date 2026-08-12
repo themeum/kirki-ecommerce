@@ -6,9 +6,9 @@ import Text from '@/components/ui/text';
 import { PlusIcon, ProductIcon } from '@/icons';
 import OrderItemRow from '@/pages/orders/order-create/components/order-item/order-item-row';
 import type { OrderItem } from '@/pages/orders/order-create/types';
+import type { OrderCalculation } from '@/schemas/catalog/order';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss } from '@/theme/mixins';
-import type { OrderCalculation } from '@/types';
 import { __ } from '@/wpi18n';
 
 type ProductSelectionCardProps = {

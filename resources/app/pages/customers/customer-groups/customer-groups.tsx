@@ -11,7 +11,7 @@ import CustomerGroupTable from '@/pages/customers/customer-groups/customer-group
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
-import type { SelectOption } from '@/types';
+import type { SelectOption } from '@/types/components/common';
 import { __ } from '@/wpi18n';
 
 const CustomerGroups = () => {

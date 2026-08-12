@@ -5,10 +5,12 @@ import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components
 import { useListParams, useMarkList } from '@/hooks';
 import CategoryTableAction from '@/pages/categories/category-table/category-table-action';
 import SingleRow from '@/pages/categories/category-table/single-row';
+import type { Category } from '@/schemas/catalog/category';
 import { useBulkDeleteCategoriesMutation } from '@/services/category';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
-import type { Category, PaginatedData, TaxonomyTableHeader } from '@/types';
+import type { PaginatedData } from '@/types/api/response';
+import type { TaxonomyTableHeader } from '@/types/pages/common';
 import { __ } from '@/wpi18n';
 
 type CategoryTableProps = {

@@ -7,16 +7,16 @@ import Badge from '@/components/ui/badge';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { RouteConfig } from '@/config/route-config';
+import type { OrderListFilter} from '@/features/orders';
+import { orderListOptions } from '@/features/orders';
 import { useListParams } from '@/hooks';
 import { DATE_FORMATS } from '@/libs/date';
 import { getFulfillmentBadgeInfo, getPaymentBadgeInfo } from '@/pages/orders/order-details/config/order-badge';
 import FilterPopup from '@/pages/orders/order-table/filter-popup/filter-popup';
 import OrderTableAction from '@/pages/orders/order-table/order-table-action';
 import OrderTableFilterBar from '@/pages/orders/order-table/order-table-filter-bar';
+import type { OrderListItem } from '@/schemas/catalog/order';
 import { useOrdersQuery } from '@/services/order';
-import type { OrderListItem } from '@/types';
-import type { OrderListFilter} from '@/types/filters/order';
-import { orderListOptions } from '@/types/filters/order';
 import { __, sprintf } from '@/wpi18n';
 
 const OrderCell = ({ item }: { item: OrderListItem }) => {

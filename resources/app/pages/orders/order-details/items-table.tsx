@@ -2,7 +2,7 @@ import Flex from '@/components/ui/flex';
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import Text from '@/components/ui/text';
 import Thumbnail from '@/components/ui/thumbnail';
-import type { OrderItem } from '@/types';
+import type { OrderItem } from '@/schemas/catalog/order';
 import { sprintf } from '@/wpi18n';
 
 type ItemsTableProps = {

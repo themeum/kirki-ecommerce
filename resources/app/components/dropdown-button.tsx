@@ -5,7 +5,7 @@ import Button from '@/components/ui/button';
 import Checkbox from '@/components/ui/checkbox';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { theme } from '@/theme';
-import type { ButtonSize, ButtonState, ButtonType, DropdownSize, SelectOption } from '@/types';
+import type { ButtonSize, ButtonState, ButtonType, DropdownSize, SelectOption } from '@/types/components/common';
 import { noop } from '@/utils/function';
 
 type DropdownOption = SelectOption & {

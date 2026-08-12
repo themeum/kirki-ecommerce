@@ -14,15 +14,16 @@ import Flex from '@/components/ui/flex';
 import Input from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { TableCell, TableRow } from '@/components/ui/table';
-import { useBulkEditForm } from '@/contexts/bulk-edit-form-context';
+import { useBulkEditForm } from '@/features/bulk-edit';
+import type { UnitPriceValue } from '@/features/products';
 import { useBulkEditList } from '@/hooks';
 import type { BulkEditSelectionData } from '@/pages/bulk-edit/bulk-edit-table/bulk-edit-table';
 import { default as BaseUnitDialog } from '@/pages/products/product-form/sections/price/base-unit-dialog';
 import { calculateProfit } from '@/pages/utils';
+import type { ProductVariant } from '@/schemas/catalog/variant';
 import { useAttributesQuery } from '@/services/attribute';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
-import type { ProductVariant, UnitPriceValue } from '@/types';
 import { __ } from '@/wpi18n';
 
 type BulkEditVariant = ProductVariant & {

@@ -1,8 +1,8 @@
 import { z } from 'zod';
 
 import { pickFormValues } from '@/libs/zod';
+import type { ProductVariant } from '@/schemas/catalog/variant';
 import { moneyAmount } from '@/schemas/forms/shared/validators';
-import type { ProductVariant } from '@/types';
 
 const BaseUnitFormShape = z.object({
   total_unit_amount: moneyAmount.nullish().default(null),

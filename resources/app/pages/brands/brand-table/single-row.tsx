@@ -7,8 +7,9 @@ import { TableCell, TableRow } from '@/components/ui/table';
 import Thumbnail from '@/components/ui/thumbnail';
 import { EditPenIcon, TrashIcon } from '@/icons';
 import BrandAddEditPopover from '@/pages/brands/brand-add-edit-dialog';
+import type { Brand } from '@/schemas/catalog/brand';
 import { useDeleteBrandMutation } from '@/services/brand';
-import type { Brand, MarkListHandlers } from '@/types';
+import type { MarkListHandlers } from '@/types/pages/common';
 import { __ } from '@/wpi18n';
 
 type SingleRowProps = MarkListHandlers & {

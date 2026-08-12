@@ -21,6 +21,7 @@ import {
   savedVariants,
   useVariantMatrix,
 } from '@/pages/products/product-form/sections/variants/use-variant-matrix';
+import type { Attribute } from '@/schemas/catalog/attribute';
 import type { AddVariationFormPayload } from '@/schemas/forms/add-variation-form';
 import {
   type ProductAttributeFormInput,
@@ -31,10 +32,7 @@ import { useAttributesQuery, useCreateAttributeMutation } from '@/services/attri
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
-import type {
-  Attribute,
-  SelectOption,
-} from '@/types';
+import type { SelectOption } from '@/types/components/common';
 import { noop } from '@/utils/function';
 import { __, _n, sprintf } from '@/wpi18n';
 

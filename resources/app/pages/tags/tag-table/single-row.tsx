@@ -6,8 +6,9 @@ import Checkbox from '@/components/ui/checkbox';
 import { TableCell, TableRow } from '@/components/ui/table';
 import { EditPenIcon, TrashIcon } from '@/icons';
 import TagAddEditDialog from '@/pages/tags/tag-add-edit-dialog';
+import type { Tag } from '@/schemas/catalog/tag';
 import { useDeleteTagMutation } from '@/services/tag';
-import type { MarkListHandlers, Tag } from '@/types';
+import type { MarkListHandlers } from '@/types/pages/common';
 import { __ } from '@/wpi18n';
 
 type SingleRowProps = MarkListHandlers & {

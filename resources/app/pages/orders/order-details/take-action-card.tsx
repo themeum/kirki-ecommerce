@@ -14,10 +14,10 @@ import {
   type OrderAction,
 } from '@/pages/orders/order-details/config/order-actions';
 import { getFulfillmentBadgeInfo, getFulfillmentHint } from '@/pages/orders/order-details/config/order-badge';
+import type { OrderItem } from '@/schemas/catalog/order';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, scoped } from '@/theme/mixins';
-import type { OrderItem } from '@/types';
 import { __ } from '@/wpi18n';
 
 type TakeActionCardProps = {

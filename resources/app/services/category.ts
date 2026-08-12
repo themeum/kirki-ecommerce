@@ -1,13 +1,14 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { endpoints } from '@/config/endpoints';
+import { categoryKeys } from '@/features/categories';
 import { apiClient } from '@/libs/api';
-import { queryKeys } from '@/libs/query-keys';
 import { CategorySchema } from '@/schemas/catalog/category';
 import type { CategoryFormPayload } from '@/schemas/forms/category-form';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
 import { parseData, parseMessage, parseResponse, toastMutationError, toastMutationSuccess } from '@/services/helpers';
-import type { BulkActionParams, ListQueryParams } from '@/types';
+import type { BulkActionParams } from '@/types/api/result';
+import type { ListQueryParams } from '@/types/list-state';
 import { __ } from '@/wpi18n';
 
 const getCategories = (params: ListQueryParams = {}) => {
@@ -60,7 +61,7 @@ const bulkDeleteCategories = ({
 
 const useCategoriesQuery = (params: ListQueryParams = {}) => {
   return useQuery({
-    queryKey: queryKeys.Categories(params),
+    queryKey: categoryKeys.list(params),
     queryFn: () => getCategories(params),
     placeholderData: keepPreviousData,
   });
@@ -75,7 +76,7 @@ const useCreateCategoryMutation = () => {
         response.message ||
         __('Category created successfully.', 'kirki-ecommerce'),
       );
-      void queryClient.invalidateQueries({ queryKey: ['Categories'] });
+      void queryClient.invalidateQueries({ queryKey: categoryKeys.lists() });
     },
     onError(error) {
       toastMutationError(error);
@@ -92,7 +93,7 @@ const useUpdateCategoryMutation = () => {
         response.message ||
         __('Category updated successfully.', 'kirki-ecommerce'),
       );
-      void queryClient.invalidateQueries({ queryKey: ['Categories'] });
+      void queryClient.invalidateQueries({ queryKey: categoryKeys.lists() });
     },
     onError(error) {
       toastMutationError(error);
@@ -109,7 +110,7 @@ const useDeleteCategoryMutation = () => {
         response.message ||
         __('Category deleted successfully.', 'kirki-ecommerce'),
       );
-      void queryClient.invalidateQueries({ queryKey: ['Categories'] });
+      void queryClient.invalidateQueries({ queryKey: categoryKeys.lists() });
     },
     onError(error) {
       toastMutationError(error);
@@ -126,7 +127,7 @@ const useBulkDeleteCategoriesMutation = () => {
         response.message ||
         __('Categories deleted successfully.', 'kirki-ecommerce'),
       );
-      void queryClient.invalidateQueries({ queryKey: ['Categories'] });
+      void queryClient.invalidateQueries({ queryKey: categoryKeys.lists() });
     },
     onError(error) {
       toastMutationError(error);

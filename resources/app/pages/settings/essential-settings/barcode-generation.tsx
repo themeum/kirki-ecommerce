@@ -13,7 +13,7 @@ import type { ProductSettings } from '@/schemas/catalog/settings';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
-import type { FormErrors } from '@/types';
+import type { FormErrors } from '@/types/pages/common';
 import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 

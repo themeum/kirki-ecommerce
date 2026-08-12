@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 import MediaGallery from '@/components/media-gallery';
-import type { MediaRef } from '@/types';
+import type { MediaRef } from '@/schemas/shared/media';
 
 type MediaItem = Omit<MediaRef, 'id'> & {
   id?: string | number;

@@ -12,9 +12,9 @@ import { Form } from '@/components/ui/form';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults } from '@/libs/zod';
+import type { OfflinePayment } from '@/schemas/catalog/payment';
 import { type OfflinePaymentFormInput, type OfflinePaymentFormPayload, OfflinePaymentFormSchema } from '@/schemas/forms/offline-payment-form';
 import { useCreateOfflinePaymentMutation, useUpdateOfflinePaymentMutation } from '@/services/payment';
-import type { OfflinePayment } from '@/types';
 import { __ } from '@/wpi18n';
 
 type OfflinePaymentPopupProps = {

@@ -10,10 +10,11 @@ import Text from '@/components/ui/text';
 import { PlusCircleIcon } from '@/icons';
 import DiscountPopover from '@/pages/orders/order-create/components/payment/discount-popover';
 import ShippingPopover from '@/pages/orders/order-create/components/payment/shipping-popover';
+import type { OrderCalculation } from '@/schemas/catalog/order';
+import type { OrderFormInput } from '@/schemas/forms/order-form';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
-import type { OrderCalculation, OrderFormInput } from '@/types';
 import { isDefined } from '@/utils/object';
 import { __, sprintf } from '@/wpi18n';
 

@@ -1,8 +1,8 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { endpoints } from '@/config/endpoints';
+import { currencyKeys } from '@/features/settings';
 import { apiClient } from '@/libs/api';
-import { queryKeys } from '@/libs/query-keys';
 import {
   type CurrencyDraft,
   CurrencyExchangeProviderSchema,
@@ -11,7 +11,7 @@ import {
 } from '@/schemas/catalog/currency';
 import { PaginatedDataSchema, ResourceCollectionSchema } from '@/schemas/shared/api';
 import { parseData, parseMessage, parseResponse, toastMutationError, toastMutationSuccess } from '@/services/helpers';
-import type { ListQueryParams } from '@/types';
+import type { ListQueryParams } from '@/types/list-state';
 import { __ } from '@/wpi18n';
 
 /**
@@ -61,7 +61,7 @@ const deleteCurrency = (id: number) => {
 
 const useAvailableCurrenciesQuery = (params: ListQueryParams = {}) => {
   return useQuery({
-    queryKey: queryKeys.Currencies(params),
+    queryKey: currencyKeys.list(params),
     queryFn: () => getAvailableCurrencies(params),
     placeholderData: keepPreviousData,
   });
@@ -69,7 +69,7 @@ const useAvailableCurrenciesQuery = (params: ListQueryParams = {}) => {
 
 const useAllCurrenciesQuery = (params: ListQueryParams = {}) => {
   return useQuery({
-    queryKey: queryKeys.CurrenciesList(params),
+    queryKey: currencyKeys.options(params),
     queryFn: () => getAllCurrencies(params),
     placeholderData: keepPreviousData,
   });
@@ -77,7 +77,7 @@ const useAllCurrenciesQuery = (params: ListQueryParams = {}) => {
 
 const useCurrencyExchangeProvidersQuery = () => {
   return useQuery({
-    queryKey: queryKeys.CurrencyExchangeProviders(),
+    queryKey: currencyKeys.exchangeProviders(),
     queryFn: getCurrencyExchangeProviders,
   });
 };
@@ -91,8 +91,8 @@ const useCreateCurrencyMutation = () => {
         response.message ||
         __('Currency created successfully.', 'kirki-ecommerce'),
       );
-      void queryClient.invalidateQueries({ queryKey: ['Currencies'] });
-      void queryClient.invalidateQueries({ queryKey: ['CurrenciesList'] });
+      void queryClient.invalidateQueries({ queryKey: currencyKeys.all });
+      void queryClient.invalidateQueries({ queryKey: currencyKeys.optionsAll });
     },
     onError(error) {
       toastMutationError(error);
@@ -109,8 +109,8 @@ const useUpdateCurrencyMutation = () => {
         response.message ||
         __('Currency updated successfully.', 'kirki-ecommerce'),
       );
-      void queryClient.invalidateQueries({ queryKey: ['Currencies'] });
-      void queryClient.invalidateQueries({ queryKey: ['CurrenciesList'] });
+      void queryClient.invalidateQueries({ queryKey: currencyKeys.all });
+      void queryClient.invalidateQueries({ queryKey: currencyKeys.optionsAll });
     },
     onError(error) {
       toastMutationError(error);
@@ -127,8 +127,8 @@ const useDeleteCurrencyMutation = () => {
         response.message ||
         __('Currency deleted successfully.', 'kirki-ecommerce'),
       );
-      void queryClient.invalidateQueries({ queryKey: ['Currencies'] });
-      void queryClient.invalidateQueries({ queryKey: ['CurrenciesList'] });
+      void queryClient.invalidateQueries({ queryKey: currencyKeys.all });
+      void queryClient.invalidateQueries({ queryKey: currencyKeys.optionsAll });
     },
     onError(error) {
       toastMutationError(error);

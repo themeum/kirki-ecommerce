@@ -1,13 +1,14 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { endpoints } from '@/config/endpoints';
+import { collectionKeys } from '@/features/collections';
 import { apiClient } from '@/libs/api';
-import { queryKeys } from '@/libs/query-keys';
 import { CollectionSchema } from '@/schemas/catalog/collection';
 import type { CollectionFormPayload } from '@/schemas/forms/collection-form';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
 import { parseData, parseMessage, parseResponse, toastMutationError, toastMutationSuccess } from '@/services/helpers';
-import type { BulkActionParams, ListQueryParams } from '@/types';
+import type { BulkActionParams } from '@/types/api/result';
+import type { ListQueryParams } from '@/types/list-state';
 import { __ } from '@/wpi18n';
 
 const getCollections = (params: ListQueryParams = {}) => {
@@ -66,7 +67,7 @@ const bulkDeleteCollections = ({
 
 const useCollectionsQuery = (params: ListQueryParams = {}) => {
   return useQuery({
-    queryKey: queryKeys.Collections(params),
+    queryKey: collectionKeys.list(params),
     queryFn: () => getCollections(params),
     placeholderData: keepPreviousData,
   });
@@ -74,7 +75,7 @@ const useCollectionsQuery = (params: ListQueryParams = {}) => {
 
 const useCollectionQuery = (id: number, enabled = true) => {
   return useQuery({
-    queryKey: queryKeys.Collection(id),
+    queryKey: collectionKeys.detail(id),
     queryFn: () => getCollection(id),
     enabled: enabled && Boolean(id),
   });
@@ -89,7 +90,7 @@ const useCreateCollectionMutation = () => {
         response.message ||
         __('Collection created successfully.', 'kirki-ecommerce'),
       );
-      void queryClient.invalidateQueries({ queryKey: ['Collections'] });
+      void queryClient.invalidateQueries({ queryKey: collectionKeys.lists() });
     },
     onError(error) {
       toastMutationError(error);
@@ -106,9 +107,9 @@ const useUpdateCollectionMutation = () => {
         response.message ||
         __('Collection updated successfully.', 'kirki-ecommerce'),
       );
-      void queryClient.invalidateQueries({ queryKey: ['Collections'] });
+      void queryClient.invalidateQueries({ queryKey: collectionKeys.lists() });
       void queryClient.invalidateQueries({
-        queryKey: queryKeys.Collection(variables.id),
+        queryKey: collectionKeys.detail(variables.id),
       });
     },
     onError(error) {
@@ -126,7 +127,7 @@ const useDeleteCollectionMutation = () => {
         response.message ||
         __('Collection deleted successfully.', 'kirki-ecommerce'),
       );
-      void queryClient.invalidateQueries({ queryKey: ['Collections'] });
+      void queryClient.invalidateQueries({ queryKey: collectionKeys.lists() });
     },
     onError(error) {
       toastMutationError(error);
@@ -143,7 +144,7 @@ const useBulkDeleteCollectionsMutation = () => {
         response.message ||
         __('Collections deleted successfully.', 'kirki-ecommerce'),
       );
-      void queryClient.invalidateQueries({ queryKey: ['Collections'] });
+      void queryClient.invalidateQueries({ queryKey: collectionKeys.lists() });
     },
     onError(error) {
       toastMutationError(error);

@@ -24,6 +24,7 @@ import Text from '@/components/ui/text';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults } from '@/libs/zod';
+import type { ShippingBox } from '@/schemas/catalog/shipping';
 import {
   type ShippingBoxFormInput,
   type ShippingBoxFormPayload,
@@ -37,7 +38,6 @@ import {
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
-import type { ShippingBox } from '@/types';
 import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 
@@ -83,7 +83,6 @@ const ShippingBoxPopup = ({
     resolver: zodResolver(ShippingBoxFormSchema),
     defaultValues: getDefaults(ShippingBoxFormSchema),
   });
-
 
   const length = useWatch({ control: form.control, name: 'length' });
   const width = useWatch({ control: form.control, name: 'width' });

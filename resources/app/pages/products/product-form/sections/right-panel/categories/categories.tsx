@@ -6,11 +6,12 @@ import Flex from '@/components/ui/flex';
 import Label from '@/components/ui/label';
 import AddNewCategory from '@/pages/products/product-form/sections/right-panel/categories/add-new-category';
 import List from '@/pages/products/product-form/sections/right-panel/categories/list';
+import type { Category } from '@/schemas/catalog/category';
+import type { ProductCategoryRef } from '@/schemas/catalog/product';
 import type { ProductFormInput } from '@/schemas/forms/product-form';
 import { useCategoriesQuery } from '@/services/category';
 import { theme } from '@/theme';
 import { defineStyles, itemCenter, scoped } from '@/theme/mixins';
-import type { Category, ProductCategoryRef } from '@/types';
 import { __ } from '@/wpi18n';
 
 const Categories = () => {

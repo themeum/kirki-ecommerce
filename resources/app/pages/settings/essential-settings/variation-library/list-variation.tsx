@@ -11,11 +11,12 @@ import { BoxIcon } from '@/icons';
 import VariationTable from '@/pages/settings/essential-settings/variation-library/variation-table/variation-table';
 import VariationValuePopup from '@/pages/settings/essential-settings/variation-library/variation-value-dialog';
 import SettingsPageHeader from '@/pages/settings/settings-page-header';
+import type { Attribute, AttributeValue } from '@/schemas/catalog/attribute';
 import { useAttributeQuery } from '@/services/attribute';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
-import type { Attribute, AttributeValue, TaxonomyTableHeader } from '@/types';
+import type { TaxonomyTableHeader } from '@/types/pages/common';
 import { __, sprintf } from '@/wpi18n';
 
 type AttributeWithMeta = Attribute & { updated_at?: string };

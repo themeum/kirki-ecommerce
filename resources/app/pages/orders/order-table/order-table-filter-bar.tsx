@@ -3,12 +3,12 @@ import { memo } from 'react';
 import Button from '@/components/ui/button';
 import Capsule from '@/components/ui/capsule';
 import Flex from '@/components/ui/flex';
+import type { OrderListFilter} from '@/features/orders';
+import { fulfillmentStatusOptions, orderListFilterConfig, orderListOptions, paymentStatusOptions } from '@/features/orders';
 import { useListParams } from '@/hooks';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
-import type { SuggestionOption } from '@/types';
-import type { OrderListFilter} from '@/types/filters/order';
-import { fulfillmentStatusOptions, orderListFilterConfig, orderListOptions, paymentStatusOptions } from '@/types/filters/order';
+import type { SuggestionOption } from '@/types/pages/common';
 import { __ } from '@/wpi18n';
 
 type FilterValue = string | number | (string | number)[];

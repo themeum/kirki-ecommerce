@@ -9,8 +9,9 @@ import Text from '@/components/ui/text';
 import Thumbnail from '@/components/ui/thumbnail';
 import { RouteConfig } from '@/config/route-config';
 import { EditPenIcon, TrashIcon } from '@/icons';
+import type { CustomerListItem } from '@/schemas/catalog/customer';
 import { useDeleteCustomerMutation } from '@/services/customer';
-import type { CustomerListItem, MarkListHandlers } from '@/types';
+import type { MarkListHandlers } from '@/types/pages/common';
 import { displayMoney } from '@/utils/money';
 import { __ } from '@/wpi18n';
 

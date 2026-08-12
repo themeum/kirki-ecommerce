@@ -1,13 +1,13 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { endpoints } from '@/config/endpoints';
+import { taxKeys } from '@/features/settings';
 import { apiClient } from '@/libs/api';
-import { queryKeys } from '@/libs/query-keys';
 import { TaxProfileSchema } from '@/schemas/catalog/tax';
 import type { TaxProfileFormPayload } from '@/schemas/forms/tax-profile-form';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
 import { parseData, parseMessage, parseResponse, toastMutationError, toastMutationSuccess } from '@/services/helpers';
-import type { ListQueryParams } from '@/types';
+import type { ListQueryParams } from '@/types/list-state';
 import { __ } from '@/wpi18n';
 
 const getTaxProfiles = async (params: ListQueryParams = {}) => {
@@ -43,7 +43,7 @@ const deleteTaxProfile = (id: string | number) => {
 
 const useTaxProfilesQuery = (params: ListQueryParams = {}) => {
   return useQuery({
-    queryKey: queryKeys.TaxProfiles(params),
+    queryKey: taxKeys.list(params),
     queryFn: () => getTaxProfiles(params),
     placeholderData: keepPreviousData,
   });
@@ -58,7 +58,7 @@ const useCreateTaxProfileMutation = () => {
         response.message ||
         __('Tax profile created successfully.', 'kirki-ecommerce'),
       );
-      void queryClient.invalidateQueries({ queryKey: ['TaxProfiles'] });
+      void queryClient.invalidateQueries({ queryKey: taxKeys.all });
     },
     onError(error) {
       toastMutationError(error);
@@ -75,7 +75,7 @@ const useUpdateTaxProfileMutation = () => {
         response.message ||
         __('Tax profile updated successfully.', 'kirki-ecommerce'),
       );
-      void queryClient.invalidateQueries({ queryKey: ['TaxProfiles'] });
+      void queryClient.invalidateQueries({ queryKey: taxKeys.all });
     },
     onError(error) {
       toastMutationError(error);
@@ -92,7 +92,7 @@ const useDeleteTaxProfileMutation = () => {
         response.message ||
         __('Tax profile deleted successfully.', 'kirki-ecommerce'),
       );
-      void queryClient.invalidateQueries({ queryKey: ['TaxProfiles'] });
+      void queryClient.invalidateQueries({ queryKey: taxKeys.all });
     },
     onError(error) {
       toastMutationError(error);

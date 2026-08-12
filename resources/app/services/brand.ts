@@ -1,13 +1,14 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { endpoints } from '@/config/endpoints';
+import { brandKeys } from '@/features/brands';
 import { apiClient } from '@/libs/api';
-import { queryKeys } from '@/libs/query-keys';
 import { BrandSchema } from '@/schemas/catalog/brand';
 import type { BrandFormPayload } from '@/schemas/forms/brand-form';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
 import { parseData, parseMessage, parseResponse, toastMutationError, toastMutationSuccess } from '@/services/helpers';
-import type { BulkActionParams, ListQueryParams } from '@/types';
+import type { BulkActionParams } from '@/types/api/result';
+import type { ListQueryParams } from '@/types/list-state';
 import { __ } from '@/wpi18n';
 
 const getBrands = (params: ListQueryParams = {}) => {
@@ -45,7 +46,7 @@ const bulkDeleteBrands = ({
 
 const useBrandsQuery = (params: ListQueryParams = {}) => {
   return useQuery({
-    queryKey: queryKeys.Brands(params),
+    queryKey: brandKeys.list(params),
     queryFn: () => getBrands(params),
     placeholderData: keepPreviousData,
   });
@@ -59,7 +60,7 @@ const useCreateBrandMutation = () => {
       toastMutationSuccess(
         response.message || __('Brand created successfully.', 'kirki-ecommerce'),
       );
-      void queryClient.invalidateQueries({ queryKey: ['Brands'] });
+      void queryClient.invalidateQueries({ queryKey: brandKeys.lists() });
     },
     onError(error) {
       toastMutationError(error);
@@ -75,7 +76,7 @@ const useUpdateBrandMutation = () => {
       toastMutationSuccess(
         response.message || __('Brand updated successfully.', 'kirki-ecommerce'),
       );
-      void queryClient.invalidateQueries({ queryKey: ['Brands'] });
+      void queryClient.invalidateQueries({ queryKey: brandKeys.lists() });
     },
     onError(error) {
       toastMutationError(error);
@@ -91,7 +92,7 @@ const useDeleteBrandMutation = () => {
       toastMutationSuccess(
         response.message || __('Brand deleted successfully.', 'kirki-ecommerce'),
       );
-      void queryClient.invalidateQueries({ queryKey: ['Brands'] });
+      void queryClient.invalidateQueries({ queryKey: brandKeys.lists() });
     },
     onError(error) {
       toastMutationError(error);
@@ -107,7 +108,7 @@ const useBulkDeleteBrandsMutation = () => {
       toastMutationSuccess(
         response.message || __('Brands deleted successfully.', 'kirki-ecommerce'),
       );
-      void queryClient.invalidateQueries({ queryKey: ['Brands'] });
+      void queryClient.invalidateQueries({ queryKey: brandKeys.lists() });
     },
     onError(error) {
       toastMutationError(error);

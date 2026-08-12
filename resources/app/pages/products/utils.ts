@@ -1,5 +1,5 @@
-import type { Attribute, AttributeValue, ProductVariant } from '@/types';
-
+import type { Attribute, AttributeValue } from '@/schemas/catalog/attribute';
+import type { ProductVariant } from '@/schemas/catalog/variant';
 export const getAttributeById = (
   attributes: Attribute[],
   id: number,

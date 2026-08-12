@@ -1,14 +1,16 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { endpoints } from '@/config/endpoints';
+import { inventoryKeys } from '@/features/inventory';
+import type { ProductListFilter } from '@/features/products';
+import { productKeys } from '@/features/products';
 import { apiClient } from '@/libs/api';
-import { queryKeys } from '@/libs/query-keys';
 import { ProductListItemSchema, ProductListItemWithVariantsSchema, ProductSchema } from '@/schemas/catalog/product';
 import type { ProductFormPayload } from '@/schemas/forms/product-form';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
 import { parseData, parseMessage, parseResponse, toastMutationError, toastMutationSuccess } from '@/services/helpers';
-import type { BulkActionParams, ListParams } from '@/types';
-import type { ProductListFilter } from '@/types/filters/product';
+import type { BulkActionParams } from '@/types/api/result';
+import type { ListParams } from '@/types/list-state';
 import { __ } from '@/wpi18n';
 
 const getProducts = (params: ListParams<ProductListFilter> = {}) => {
@@ -26,7 +28,6 @@ const getProductsWithVariants = (params: ListParams<ProductListFilter> = {}) => 
       parseData(PaginatedDataSchema(ProductListItemWithVariantsSchema), response),
     );
 };
-
 
 const getProduct = (id: string | number) => {
   return apiClient
@@ -63,7 +64,7 @@ const bulkDeleteProducts = ({
 
 const useProductsQuery = (params: ListParams<ProductListFilter> = {}, enabled = true) => {
   return useQuery({
-    queryKey: queryKeys.Products(params),
+    queryKey: productKeys.list(params),
     queryFn: () => getProducts(params),
     placeholderData: keepPreviousData,
     enabled,
@@ -72,7 +73,7 @@ const useProductsQuery = (params: ListParams<ProductListFilter> = {}, enabled = 
 
 const useProductsWithVariantsQuery = (params: ListParams<ProductListFilter> = {}, enabled = true) => {
   return useQuery({
-    queryKey: queryKeys.ProductsWithVariants(params),
+    queryKey: productKeys.withVariantsList(params),
     queryFn: () => getProductsWithVariants(params),
     placeholderData: keepPreviousData,
     enabled,
@@ -81,7 +82,7 @@ const useProductsWithVariantsQuery = (params: ListParams<ProductListFilter> = {}
 
 const useProductQuery = (id: string | number, enabled = true) => {
   return useQuery({
-    queryKey: queryKeys.Product(id),
+    queryKey: productKeys.detail(id),
     queryFn: () => getProduct(id),
     enabled: enabled && Boolean(id) && id !== 'create',
   });
@@ -96,8 +97,8 @@ const useCreateProductMutation = () => {
         response.message ||
         __('Product created successfully.', 'kirki-ecommerce'),
       );
-      void queryClient.invalidateQueries({ queryKey: ['Products'] });
-      void queryClient.invalidateQueries({ queryKey: ['ProductsWithVariants'] });
+      void queryClient.invalidateQueries({ queryKey: productKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: productKeys.withVariantsLists() });
     },
   });
 };
@@ -111,12 +112,12 @@ const useUpdateProductMutation = () => {
         response.message ||
         __('Product updated successfully.', 'kirki-ecommerce'),
       );
-      void queryClient.invalidateQueries({ queryKey: ['Products'] });
-      void queryClient.invalidateQueries({ queryKey: ['ProductsWithVariants'] });
+      void queryClient.invalidateQueries({ queryKey: productKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: productKeys.withVariantsLists() });
       void queryClient.invalidateQueries({
-        queryKey: queryKeys.Product(variables.id),
+        queryKey: productKeys.detail(variables.id),
       });
-      void queryClient.invalidateQueries({ queryKey: ['Inventory'] });
+      void queryClient.invalidateQueries({ queryKey: inventoryKeys.all });
     },
   });
 };
@@ -130,8 +131,8 @@ const useBulkDeleteProductsMutation = () => {
         response.message ||
         __('Products deleted successfully.', 'kirki-ecommerce'),
       );
-      void queryClient.invalidateQueries({ queryKey: ['Products'] });
-      void queryClient.invalidateQueries({ queryKey: ['ProductsWithVariants'] });
+      void queryClient.invalidateQueries({ queryKey: productKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: productKeys.withVariantsLists() });
     },
     onError(error) {
       toastMutationError(error);

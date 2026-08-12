@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 import SelectInput from '@/components/ui/select-input';
-import type { SelectOption } from '@/types';
+import type { SelectOption } from '@/types/components/common';
 
 type SelectInputValue = {
   value?: string | number;

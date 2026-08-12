@@ -1,7 +1,7 @@
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import Thumbnail from '@/components/ui/thumbnail';
-import type { MediaRef } from '@/types';
+import type { MediaRef } from '@/schemas/shared/media';
 
 type CustomerProfileCardProps = {
   name: string;

@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 import { booleanish, mediaId, numberOrNull, pickFormValues, prepareFormSchema } from '@/libs/zod';
 import { ProductAttributeSchema } from '@/schemas/catalog/attribute';
+import type { Product } from '@/schemas/catalog/product';
 import {
   AdditionalInfoItemSchema,
   ProductBrandSchema,
@@ -16,7 +17,6 @@ import { ProductBasicsFormSchema } from '@/schemas/forms/product-basics-form';
 import { ProductSeoFormSchema } from '@/schemas/forms/product-seo-form';
 import { moneyAmount } from '@/schemas/forms/shared/validators';
 import { MediaRefSchema } from '@/schemas/shared/media';
-import type { Product } from '@/types';
 
 const ProductFormVariantShape = z.object({
   id: z.number().optional(),

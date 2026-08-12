@@ -24,7 +24,7 @@ import {
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, scoped } from '@/theme/mixins';
-import type { FormErrors } from '@/types';
+import type { FormErrors } from '@/types/pages/common';
 import { __ } from '@/wpi18n';
 
 type ShippingRegionPopupProps = {

@@ -5,10 +5,12 @@ import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components
 import { useListParams, useMarkList } from '@/hooks';
 import SingleRow from '@/pages/tags/tag-table/single-row';
 import TagTableAction from '@/pages/tags/tag-table/tag-table-action';
+import type { Tag } from '@/schemas/catalog/tag';
 import { useBulkDeleteTagsMutation } from '@/services/tag';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
-import type { PaginatedData, Tag, TaxonomyTableHeader } from '@/types';
+import type { PaginatedData } from '@/types/api/response';
+import type { TaxonomyTableHeader } from '@/types/pages/common';
 import { __ } from '@/wpi18n';
 
 type TagTableProps = {

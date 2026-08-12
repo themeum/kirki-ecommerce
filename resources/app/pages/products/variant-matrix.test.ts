@@ -5,11 +5,11 @@ import {
   formatComboLabel,
   syncVariantMatrix,
 } from '@/pages/products/variant-matrix';
+import type { Attribute } from '@/schemas/catalog/attribute';
 import {
   getDefaultVariantValues,
   type ProductFormVariantInput,
 } from '@/schemas/forms/product-form';
-import type { Attribute } from '@/types';
 
 const RED = 11;
 const BLUE = 12;

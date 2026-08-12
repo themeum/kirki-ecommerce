@@ -19,11 +19,11 @@ import { RouteConfig } from '@/config/route-config';
 import { BoxIcon, ColorPaletteIcon, EditPenIcon, TrashIcon } from '@/icons';
 import AddVariationPopup from '@/pages/settings/essential-settings/variation-library/add-variation-dialog';
 import { dispatchToastMessage } from '@/pages/utils';
+import type { Attribute } from '@/schemas/catalog/attribute';
 import { useAttributesQuery, useDeleteAttributeMutation } from '@/services/attribute';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
-import type { Attribute } from '@/types';
 import { __ } from '@/wpi18n';
 
 type AttributeListItem = Attribute & {

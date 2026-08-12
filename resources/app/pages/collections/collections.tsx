@@ -12,7 +12,7 @@ import { useListParams } from '@/hooks';
 import CollectionTable from '@/pages/collections/collection-table/collection-table';
 import { useCollectionsQuery } from '@/services/collection';
 import { cardStyles } from '@/theme/card-styles';
-import type { PaginationData } from '@/types';
+import type { PaginationData } from '@/types/components/common';
 import { __ } from '@/wpi18n';
 
 const Collections = () => {

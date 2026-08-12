@@ -7,8 +7,8 @@ import Button from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
+import type { OrderFormInput } from '@/schemas/forms/order-form';
 import { cardStyles } from '@/theme/card-styles';
-import type { OrderFormInput } from '@/types';
 import { __ } from '@/wpi18n';
 
 type NotesCardProps = {

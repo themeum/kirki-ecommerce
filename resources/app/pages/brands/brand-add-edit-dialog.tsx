@@ -13,6 +13,7 @@ import { Form } from '@/components/ui/form';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { pickFormValues } from '@/libs/zod';
+import type { Brand } from '@/schemas/catalog/brand';
 import {
   type BrandFormInput,
   type BrandFormPayload,
@@ -20,7 +21,6 @@ import {
 } from '@/schemas/forms/brand-form';
 import { useCreateBrandMutation, useUpdateBrandMutation } from '@/services/brand';
 import { cardStyles } from '@/theme/card-styles';
-import type { Brand } from '@/types';
 import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 

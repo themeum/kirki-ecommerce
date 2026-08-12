@@ -6,7 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import PageHeading from '@/components/ui/page-heading';
-import { InventoryFormProvider, useInventoryForm } from '@/contexts/inventory-form-context';
+import { InventoryFormProvider, useInventoryForm } from '@/features/inventory';
 import { useListParams } from '@/hooks';
 import InventoryTable from '@/pages/inventory/inventory-table/inventory-table';
 import { useUpdateBulkVariantsMutation } from '@/services/bulk-edit';

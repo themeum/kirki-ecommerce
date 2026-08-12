@@ -8,7 +8,7 @@ import BrandTable from '@/pages/brands/brand-table/brand-table';
 import NewBrand from '@/pages/brands/new-brand';
 import { useBrandsQuery } from '@/services/brand';
 import { cardStyles } from '@/theme/card-styles';
-import type { PaginationData } from '@/types';
+import type { PaginationData } from '@/types/components/common';
 import { __ } from '@/wpi18n';
 
 const Brands = () => {

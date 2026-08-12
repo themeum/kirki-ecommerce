@@ -47,11 +47,12 @@ import FlagCard from '@/pages/orders/order-details/flag-card';
 import ItemsTable from '@/pages/orders/order-details/items-table';
 import MarkAsPaidDialog from '@/pages/orders/order-details/mark-as-paid-dialog';
 import TakeActionCard from '@/pages/orders/order-details/take-action-card';
+import type { OrderFormInput, OrderFormPayload } from '@/schemas/forms/order-form';
+import { OrderFormSchema } from '@/schemas/forms/order-form';
 import { useOrderActionMutation, useOrderQuery, useUpdateOrderMutation } from '@/services/order';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
-import { type OrderFormInput, type OrderFormPayload, OrderFormSchema } from '@/types';
 import { __, sprintf } from '@/wpi18n';
 
 const OrderDetails = () => {

@@ -3,12 +3,13 @@ import { toast } from 'sonner';
 
 import { StoreIcon, TruckIcon, WeightIcon } from '@/icons';
 import { queryClient } from '@/libs/query-client';
-import { queryKeys } from '@/libs/query-keys';
+import { settingsKeys } from '@/libs/query-keys';
 import { getNestedSearchedValue, setUnsavedDataStatus } from '@/pages/settings/utils';
 import type { ShippingSettings } from '@/schemas/catalog/settings';
+import type { Country } from '@/schemas/reference/country';
 import { getErrorMessage } from '@/services/helpers';
 import { updateSettings } from '@/services/settings';
-import type { Country, ToastVariant } from '@/types';
+import type { ToastVariant } from '@/types/pages/common';
 import { __, _n, sprintf } from '@/wpi18n';
 
 type CountryState = {
@@ -191,7 +192,7 @@ export const saveShippingZones = async ({
       data: { shipping_zones: zones },
     });
     void queryClient.invalidateQueries({
-      queryKey: queryKeys.Settings('shipping'),
+      queryKey: settingsKeys.section('shipping'),
     });
     setUnsavedDataStatus(false);
     if (from !== 'delete' && toastMessage) {

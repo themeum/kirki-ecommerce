@@ -13,7 +13,7 @@ import type { TaxRate, TaxRegion } from '@/pages/settings/tax-settings/utils';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss } from '@/theme/mixins';
-import type { SelectOption } from '@/types';
+import type { SelectOption } from '@/types/components/common';
 import { __ } from '@/wpi18n';
 
 type VatStateOption = SelectOption & {

@@ -7,12 +7,12 @@ import Flex from '@/components/ui/flex';
 import Label from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Text from '@/components/ui/text';
+import type { OrderListFilter} from '@/features/orders';
+import { fulfillmentStatusOptions, orderListOptions, paymentStatusOptions } from '@/features/orders';
 import { useListParams } from '@/hooks';
 import { CloseIcon, ListFilter } from '@/icons';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
-import type { OrderListFilter} from '@/types/filters/order';
-import { fulfillmentStatusOptions, orderListOptions, paymentStatusOptions } from '@/types/filters/order';
 import { __ } from '@/wpi18n';
 
 const emptyFilter: OrderListFilter = {

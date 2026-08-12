@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
+import type { ProductVariant } from '@/schemas/catalog/variant';
 import { BaseUnitFormSchema, mapBaseUnitFromVariant } from '@/schemas/forms/base-unit-form';
-import type { ProductVariant } from '@/types';
 
 describe('BaseUnitFormSchema', () => {
   it('produces the exact payload for a fully filled form', () => {

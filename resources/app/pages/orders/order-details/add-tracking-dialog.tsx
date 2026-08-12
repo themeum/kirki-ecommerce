@@ -13,7 +13,7 @@ import {
 import { Field, FieldLabel } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
 import Input from '@/components/ui/input';
-import type { OrderTracking } from '@/types';
+import type { OrderTracking } from '@/schemas/catalog/order';
 import { __ } from '@/wpi18n';
 
 type AddTrackingDialogProps = {

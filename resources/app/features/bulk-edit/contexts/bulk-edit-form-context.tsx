@@ -1,10 +1,7 @@
 import { createContext, type Dispatch, type ReactNode, useCallback, useContext, useMemo, useReducer } from 'react';
 
-import type {
-  ProductVariant,
-  UnitPriceValue,
-  UpdateVariantsPayload,
-} from '@/types';
+import type { UnitPriceValue, UpdateVariantsPayload } from '@/features/products';
+import type { ProductVariant } from '@/schemas/catalog/variant';
 
 type BulkEditFormState = {
   loaded: boolean;

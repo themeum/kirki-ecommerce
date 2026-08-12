@@ -7,12 +7,12 @@ import Flex from '@/components/ui/flex';
 import Label from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Text from '@/components/ui/text';
+import type { CouponListFilter} from '@/features/coupons';
+import { couponListOptions, discountTypeOptions, methodOptions, statusOptions } from '@/features/coupons';
 import { useListParams } from '@/hooks';
 import { CloseIcon, ListFilter } from '@/icons';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
-import type { CouponListFilter} from '@/types/filters/coupon';
-import { couponListOptions, discountTypeOptions, methodOptions, statusOptions } from '@/types/filters/coupon';
 import { noop } from '@/utils/function';
 import { __, sprintf } from '@/wpi18n';
 

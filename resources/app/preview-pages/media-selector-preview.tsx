@@ -1,6 +1,6 @@
 import MediaSelector from '@/components/media-selector';
 import Grid from '@/components/ui/grid';
-import type { MediaRef } from '@/types';
+import type { MediaRef } from '@/schemas/shared/media';
 
 type MediaItem = Omit<MediaRef, 'id'> & {
   id?: string | number;

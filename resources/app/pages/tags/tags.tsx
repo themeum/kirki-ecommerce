@@ -8,7 +8,7 @@ import NewTag from '@/pages/tags/new-tag';
 import TagTable from '@/pages/tags/tag-table/tag-table';
 import { useTagsQuery } from '@/services/tag';
 import { cardStyles } from '@/theme/card-styles';
-import type { PaginationData } from '@/types';
+import type { PaginationData } from '@/types/components/common';
 import { __ } from '@/wpi18n';
 
 const Tags = () => {

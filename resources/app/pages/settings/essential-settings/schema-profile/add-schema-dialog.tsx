@@ -15,13 +15,14 @@ import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { pickFormValues } from '@/libs/zod';
 import { groupDetails, optionsList, requiredFields } from '@/pages/products/product-form/sections/seo-settings/utils';
+import type { SchemaProfile } from '@/schemas/catalog/schema-profile';
 import {
   type SchemaProfileFormInput,
   type SchemaProfileFormPayload,
   SchemaProfileFormSchema,
 } from '@/schemas/forms/schema-profile-form';
 import { useCreateSchemaMutation, useUpdateSchemaMutation } from '@/services/schema';
-import type { SchemaProfile, SelectOption } from '@/types';
+import type { SelectOption } from '@/types/components/common';
 import { __, sprintf } from '@/wpi18n';
 
 type AddSchemaPopupProps = {

@@ -1,11 +1,11 @@
 import { useFormContext } from 'react-hook-form';
 
 import { formatComboLabel, syncVariantMatrix } from '@/pages/products/variant-matrix';
+import type { Attribute } from '@/schemas/catalog/attribute';
 import type {
   ProductFormInput,
   ProductFormVariantInput,
 } from '@/schemas/forms/product-form';
-import type { Attribute } from '@/types';
 
 type AttributeList = NonNullable<ProductFormInput['attributes']>;
 

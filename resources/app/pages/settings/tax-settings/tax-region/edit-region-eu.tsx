@@ -14,7 +14,7 @@ import Text from '@/components/ui/text';
 import { RouteConfig } from '@/config/route-config';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import { queryKeys } from '@/libs/query-keys';
+import { settingsKeys } from '@/libs/query-keys';
 import { getDefaults, pickFormValues } from '@/libs/zod';
 import { useSettingsPageActions } from '@/pages/settings/settings-layout/use-settings-page-actions';
 import SettingsPageHeader from '@/pages/settings/settings-page-header';
@@ -263,7 +263,7 @@ const EditRegionEU = () => {
         await updateSettings({ key: 'tax', data: payload });
         setUnsavedDataStatus(false);
         void queryClient.invalidateQueries({
-          queryKey: queryKeys.Settings('tax'),
+          queryKey: settingsKeys.section('tax'),
         });
       } catch (error) {
         toastMutationError(error);

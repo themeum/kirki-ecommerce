@@ -4,13 +4,13 @@ import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
 import Flex from '@/components/ui/flex';
 import Searchbox from '@/components/ui/searchbox';
+import type { OrderListFilter} from '@/features/orders';
+import { orderListOptions } from '@/features/orders';
 import { useListParams } from '@/hooks';
 import { ArrowDownUp } from '@/icons';
 import FilterPopup from '@/pages/orders/order-table/filter-popup/filter-popup';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
-import type { OrderListFilter} from '@/types/filters/order';
-import { orderListOptions } from '@/types/filters/order';
 import { __ } from '@/wpi18n';
 
 const OrderTableAction = memo(() => {

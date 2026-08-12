@@ -17,11 +17,11 @@ import Text from '@/components/ui/text';
 import { BoxOpenIcon, EditPenIcon, TrashIcon } from '@/icons';
 import AddSchemaPopup from '@/pages/settings/essential-settings/schema-profile/add-schema-dialog';
 import { dispatchToastMessage } from '@/pages/utils';
+import type { SchemaProfile } from '@/schemas/catalog/schema-profile';
 import { useDeleteSchemaMutation, useSchemasQuery } from '@/services/schema';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
-import type { SchemaProfile } from '@/types';
 import { __ } from '@/wpi18n';
 
 type SchemaListItem = SchemaProfile & {

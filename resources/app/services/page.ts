@@ -2,11 +2,15 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query';
 
 import { endpoints } from '@/config/endpoints';
 import { apiClient } from '@/libs/api';
-import { queryKeys } from '@/libs/query-keys';
 import { PageItemSchema } from '@/schemas/catalog/page';
 import { ResourceCollectionSchema } from '@/schemas/shared/api';
 import { parseData } from '@/services/helpers';
-import type { ListQueryParams } from '@/types';
+import type { ListQueryParams } from '@/types/list-state';
+
+const pageKeys = {
+  all: ['Pages'] as const,
+  list: (params?: ListQueryParams) => [...pageKeys.all, params] as const,
+};
 
 const getPages = (params: ListQueryParams = {}) => {
   return apiClient
@@ -18,7 +22,7 @@ const getPages = (params: ListQueryParams = {}) => {
 
 const usePagesQuery = (params: ListQueryParams = {}) => {
   return useQuery({
-    queryKey: queryKeys.Pages(params),
+    queryKey: pageKeys.list(params),
     queryFn: () => getPages(params),
     placeholderData: keepPreviousData,
   });

@@ -14,7 +14,7 @@ import { RouteConfig } from '@/config/route-config';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { queryClient } from '@/libs/query-client';
-import { queryKeys } from '@/libs/query-keys';
+import { settingsKeys } from '@/libs/query-keys';
 import { getDefaults, pickFormValues } from '@/libs/zod';
 import { useSettingsPageActions } from '@/pages/settings/settings-layout/use-settings-page-actions';
 import SettingsPageHeader from '@/pages/settings/settings-page-header';
@@ -128,7 +128,7 @@ const ShippingDeliveryMethod = () => {
         data: { shipping_zones: updatedShippingZones },
       });
       void queryClient.invalidateQueries({
-        queryKey: queryKeys.Settings('shipping'),
+        queryKey: settingsKeys.section('shipping'),
       });
       toast.success(
         methodExists

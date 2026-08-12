@@ -10,7 +10,7 @@ import { TableCell, TableRow } from '@/components/ui/table';
 import Text from '@/components/ui/text';
 import Thumbnail from '@/components/ui/thumbnail';
 import { ChevronDownIcon } from '@/icons';
-import type { ProductListItem } from '@/types';
+import type { ProductListItem } from '@/schemas/catalog/product';
 import { __ } from '@/wpi18n';
 
 type ProductPickerRowProps = {

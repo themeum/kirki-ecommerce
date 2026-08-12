@@ -10,17 +10,14 @@ import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
+import type { Attribute, AttributeValue } from '@/schemas/catalog/attribute';
 import {
   type VariationValueFormInput,
   type VariationValueFormPayload,
   VariationValueFormSchema,
 } from '@/schemas/forms/variation-value-form';
 import { useCreateAttributeValueMutation, useUpdateAttributeValueMutation } from '@/services/attribute';
-import type {
-  Attribute,
-  AttributeValue,
-  ButtonState,
-} from '@/types';
+import type { ButtonState } from '@/types/components/common';
 import { __ } from '@/wpi18n';
 
 type VariationValuePopupProps = {

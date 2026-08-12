@@ -6,9 +6,9 @@ import { FieldLabel } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
 import Input from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import type { OrderFormInput } from '@/schemas/forms/order-form';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
-import type { OrderFormInput } from '@/types';
 import { __ } from '@/wpi18n';
 
 type DiscountPopoverProps = {

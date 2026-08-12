@@ -11,15 +11,12 @@ import { TableCell, TableRow } from '@/components/ui/table';
 import { DATE_FORMATS } from '@/libs/date';
 import VariationValuePopup from '@/pages/settings/essential-settings/variation-library/variation-value-dialog';
 import { setUnsavedDataStatus } from '@/pages/settings/utils';
+import type { Attribute, AttributeValue } from '@/schemas/catalog/attribute';
 import { useDeleteAttributeValueMutation } from '@/services/attribute';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
-import type {
-  Attribute,
-  AttributeValue,
-  ConfirmationVariant,
-  MarkListHandlers,
-} from '@/types';
+import type { ConfirmationVariant } from '@/types/components/common';
+import type { MarkListHandlers } from '@/types/pages/common';
 import { __ } from '@/wpi18n';
 
 type AttributeWithMeta = Attribute & { updated_at?: string };

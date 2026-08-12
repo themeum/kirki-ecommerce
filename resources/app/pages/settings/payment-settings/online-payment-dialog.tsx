@@ -8,10 +8,10 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogBody, DialogCloseButton, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
+import type { OnlinePayment } from '@/schemas/catalog/payment';
 import { useInstallableOnlinePaymentsQuery, useInstallOnlinePaymentMutation } from '@/services/payment';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
-import type { OnlinePayment } from '@/types';
 import { __ } from '@/wpi18n';
 
 type OnlinePaymentPopupProps = {

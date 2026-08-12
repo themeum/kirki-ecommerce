@@ -5,12 +5,10 @@ import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components
 import { useListParams, useMarkList } from '@/hooks';
 import CustomerTableAction from '@/pages/customers/customer-table/customer-table-action';
 import SingleRow from '@/pages/customers/customer-table/single-row';
+import type { CustomerListItem } from '@/schemas/catalog/customer';
 import { useBulkDeleteCustomersMutation } from '@/services/customer';
-import type {
-  CustomerListItem,
-  PaginatedData,
-  TaxonomyTableHeader,
-} from '@/types';
+import type { PaginatedData } from '@/types/api/response';
+import type { TaxonomyTableHeader } from '@/types/pages/common';
 import { __ } from '@/wpi18n';
 
 type CustomerTableProps = {

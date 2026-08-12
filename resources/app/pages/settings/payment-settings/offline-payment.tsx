@@ -11,11 +11,11 @@ import Text from '@/components/ui/text';
 import { BankIconLarge, CashIcon, ShowMoreIcon } from '@/icons';
 import OfflinePaymentPopup from '@/pages/settings/payment-settings/offline-payment-dialog';
 import { dispatchToastMessage } from '@/pages/utils';
+import type { OfflinePayment } from '@/schemas/catalog/payment';
 import { useDeleteOfflinePaymentMutation, useUpdateOfflinePaymentMutation } from '@/services/payment';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss } from '@/theme/mixins';
-import type { OfflinePayment } from '@/types';
 import { __ } from '@/wpi18n';
 
 type OfflinePaymentProps = {

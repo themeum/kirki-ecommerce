@@ -9,13 +9,13 @@ import { Form } from '@/components/ui/form';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults } from '@/libs/zod';
+import type { ShippingProfile } from '@/schemas/catalog/shipping';
 import {
   type ShippingProfileFormInput,
   type ShippingProfileFormPayload,
   ShippingProfileFormSchema,
 } from '@/schemas/forms/shipping-profile-form';
 import { useCreateShippingProfileMutation, useUpdateShippingProfileMutation } from '@/services/shipping';
-import type { ShippingProfile } from '@/types';
 import { __ } from '@/wpi18n';
 
 type CreateProfilePopupProps = {

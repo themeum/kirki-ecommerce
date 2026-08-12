@@ -1,13 +1,14 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { endpoints } from '@/config/endpoints';
+import { customerKeys } from '@/features/customers';
 import { apiClient } from '@/libs/api';
-import { queryKeys } from '@/libs/query-keys';
 import { CustomerListItemSchema, CustomerSchema } from '@/schemas/catalog/customer';
 import type { CustomerFormPayload } from '@/schemas/forms/customer-form';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
 import { parseData, parseMessage, parseResponse, toastMutationError, toastMutationSuccess } from '@/services/helpers';
-import type { BulkActionParams, ListQueryParams } from '@/types';
+import type { BulkActionParams } from '@/types/api/result';
+import type { ListQueryParams } from '@/types/list-state';
 import { __ } from '@/wpi18n';
 
 const getCustomers = (params: ListQueryParams = {}) => {
@@ -59,7 +60,7 @@ const bulkDeleteCustomers = ({
 
 const useCustomersQuery = (params: ListQueryParams = {}, enabled = true) => {
   return useQuery({
-    queryKey: queryKeys.Customers(params),
+    queryKey: customerKeys.list(params),
     queryFn: () => getCustomers(params),
     placeholderData: keepPreviousData,
     enabled,
@@ -68,7 +69,7 @@ const useCustomersQuery = (params: ListQueryParams = {}, enabled = true) => {
 
 const useCustomerQuery = (id: number, enabled = true) => {
   return useQuery({
-    queryKey: queryKeys.Customer(id),
+    queryKey: customerKeys.detail(id),
     queryFn: () => getCustomer(id),
     enabled: enabled && Boolean(id),
   });
@@ -83,7 +84,7 @@ const useCreateCustomerMutation = () => {
         response.message ||
         __('Customer created successfully.', 'kirki-ecommerce'),
       );
-      void queryClient.invalidateQueries({ queryKey: ['Customers'] });
+      void queryClient.invalidateQueries({ queryKey: customerKeys.lists() });
     },
     onError(error) {
       toastMutationError(error);
@@ -100,9 +101,9 @@ const useUpdateCustomerMutation = () => {
         response.message ||
         __('Customer updated successfully.', 'kirki-ecommerce'),
       );
-      void queryClient.invalidateQueries({ queryKey: ['Customers'] });
+      void queryClient.invalidateQueries({ queryKey: customerKeys.lists() });
       void queryClient.invalidateQueries({
-        queryKey: queryKeys.Customer(variables.id),
+        queryKey: customerKeys.detail(variables.id),
       });
     },
     onError(error) {
@@ -120,7 +121,7 @@ const useDeleteCustomerMutation = () => {
         response.message ||
         __('Customer deleted successfully.', 'kirki-ecommerce'),
       );
-      void queryClient.invalidateQueries({ queryKey: ['Customers'] });
+      void queryClient.invalidateQueries({ queryKey: customerKeys.lists() });
     },
     onError(error) {
       toastMutationError(error);
@@ -137,7 +138,7 @@ const useBulkDeleteCustomersMutation = () => {
         response.message ||
         __('Customers deleted successfully.', 'kirki-ecommerce'),
       );
-      void queryClient.invalidateQueries({ queryKey: ['Customers'] });
+      void queryClient.invalidateQueries({ queryKey: customerKeys.lists() });
     },
     onError(error) {
       toastMutationError(error);

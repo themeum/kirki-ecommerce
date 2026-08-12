@@ -5,13 +5,13 @@ import Button from '@/components/ui/button';
 import Flex from '@/components/ui/flex';
 import Searchbox from '@/components/ui/searchbox';
 import { Select, SelectContent, SelectTrigger, SelectValue } from '@/components/ui/select';
+import type { ProductListFilter} from '@/features/products';
+import { productListOptions } from '@/features/products';
 import { useListParams } from '@/hooks';
 import { ArrowDownUp } from '@/icons';
 import FilterPopup from '@/pages/products/product-table/filter-popup/filter-popup';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
-import type { ProductListFilter} from '@/types/filters/product';
-import { productListOptions } from '@/types/filters/product';
 import { __ } from '@/wpi18n';
 
 const ProductTableFilter = memo(() => {

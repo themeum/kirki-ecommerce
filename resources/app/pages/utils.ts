@@ -1,7 +1,7 @@
 import { format, formatDistanceToNow, isValid, parse } from 'date-fns';
 import { toast } from 'sonner';
 
-import type { ToastVariant } from '@/types';
+import type { ToastVariant } from '@/types/pages/common';
 import type {
   DateFormatType,
   ProfitData,

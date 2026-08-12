@@ -20,11 +20,11 @@ import {
   savedVariants,
   useVariantMatrix,
 } from '@/pages/products/product-form/sections/variants/use-variant-matrix';
+import type { Attribute } from '@/schemas/catalog/attribute';
 import type { ProductFormInput } from '@/schemas/forms/product-form';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, flexCenter, mergeCss, scoped, scopedMerge } from '@/theme/mixins';
-import type { Attribute } from '@/types';
 import { __, _n, sprintf } from '@/wpi18n';
 
 type SortableCardProps = {

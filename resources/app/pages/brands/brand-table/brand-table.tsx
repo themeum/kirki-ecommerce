@@ -5,10 +5,12 @@ import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components
 import { useListParams, useMarkList } from '@/hooks';
 import BrandTableAction from '@/pages/brands/brand-table/brand-table-action';
 import SingleRow from '@/pages/brands/brand-table/single-row';
+import type { Brand } from '@/schemas/catalog/brand';
 import { useBulkDeleteBrandsMutation } from '@/services/brand';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
-import type { Brand, PaginatedData, TaxonomyTableHeader } from '@/types';
+import type { PaginatedData } from '@/types/api/response';
+import type { TaxonomyTableHeader } from '@/types/pages/common';
 import { __ } from '@/wpi18n';
 
 type BrandTableProps = {

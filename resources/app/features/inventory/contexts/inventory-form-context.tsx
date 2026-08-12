@@ -1,6 +1,7 @@
 import { createContext, type Dispatch, type ReactNode, useCallback, useContext, useMemo, useReducer } from 'react';
 
-import type { InventoryVariant, PaginatedData } from '@/types';
+import type { InventoryVariant } from '@/schemas/catalog/variant';
+import type { PaginatedData } from '@/types/api/response';
 
 type InventoryStoredData = {
   results: Record<number, InventoryVariant>;

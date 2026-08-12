@@ -3,16 +3,7 @@ import { type ComponentPropsWithoutRef, forwardRef } from 'react';
 
 import { resolveGap } from '@/components/ui/layout-utils';
 import { defineStyles, scopedMerge } from '@/theme/mixins';
-import type {
-  FlexAlign,
-  FlexBasis,
-  FlexDirection,
-  FlexGrow,
-  FlexJustify,
-  FlexShrink,
-  FlexWrap,
-  GapValue,
-} from '@/types';
+import type { FlexAlign, FlexBasis, FlexDirection, FlexGrow, FlexJustify, FlexShrink, FlexWrap, GapValue } from '@/types/components/common';
 
 type FlexProps = Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'css'> & {
   direction?: FlexDirection;

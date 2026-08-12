@@ -20,8 +20,8 @@ import Flex from '@/components/ui/flex';
 import Grid from '@/components/ui/grid';
 import Text from '@/components/ui/text';
 import { PaymentIcon, ShippingAddressIcon } from '@/icons';
+import type { OrderFormInput } from '@/schemas/forms/order-form';
 import { cardStyles } from '@/theme/card-styles';
-import type { OrderFormInput } from '@/types';
 import { __ } from '@/wpi18n';
 
 type CustomerInfoDialogProps = {

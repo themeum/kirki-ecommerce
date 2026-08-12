@@ -1,4 +1,4 @@
-import type { FulfillmentStatus, OrderItem, OrderStatus, PaymentStatus } from '@/types';
+import type { FulfillmentStatus, OrderItem, OrderStatus, PaymentStatus } from '@/schemas/catalog/order';
 import { __ } from '@/wpi18n';
 import orderStateMatrix from '@data/order-state-matrix.json';
 

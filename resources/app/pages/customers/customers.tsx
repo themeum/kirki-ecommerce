@@ -17,7 +17,7 @@ import CustomerTable from '@/pages/customers/customer-table/customer-table';
 import { useCustomersQuery } from '@/services/customer';
 import { cardStyles } from '@/theme/card-styles';
 import { flexCenter, scoped } from '@/theme/mixins';
-import type { PaginationData } from '@/types';
+import type { PaginationData } from '@/types/components/common';
 import { __ } from '@/wpi18n';
 
 const Customers = () => {

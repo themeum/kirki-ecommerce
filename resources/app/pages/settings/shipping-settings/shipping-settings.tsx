@@ -38,7 +38,7 @@ import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
-import type { FormErrors } from '@/types';
+import type { FormErrors } from '@/types/pages/common';
 import { uuid } from '@/utils';
 import { __ } from '@/wpi18n';
 

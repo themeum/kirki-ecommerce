@@ -1,8 +1,8 @@
+import type { Attribute } from '@/schemas/catalog/attribute';
 import {
   normalizeDefaultVariant,
   type ProductFormVariantInput,
 } from '@/schemas/forms/product-form';
-import type { Attribute } from '@/types';
 
 type MatrixAttribute = Pick<Attribute, 'id' | 'name'> & {
   values?: Attribute['values'];

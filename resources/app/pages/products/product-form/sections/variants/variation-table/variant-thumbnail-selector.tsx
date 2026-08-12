@@ -1,6 +1,7 @@
 import Placeholder from '@/components/ui/placeholder';
 import Thumbnail from '@/components/ui/thumbnail';
-import type { MediaChangePayload, MediaRef } from '@/types';
+import type { MediaRef } from '@/schemas/shared/media';
+import type { MediaChangePayload } from '@/types/pages/common';
 import { __ } from '@/wpi18n';
 
 type VariantThumbnailSelectorProps = {

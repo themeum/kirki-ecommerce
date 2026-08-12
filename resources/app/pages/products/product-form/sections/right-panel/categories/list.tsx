@@ -1,9 +1,9 @@
 import React from 'react';
 
 import SingleItem from '@/pages/products/product-form/sections/right-panel/categories/single-item';
+import type { Category } from '@/schemas/catalog/category';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
-import type { Category } from '@/types';
 
 type ProductCategorySelection = {
   id: number;
