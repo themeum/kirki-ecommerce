@@ -3,12 +3,7 @@
  * Thin fetch wrapper that reads WordPress nonce + base URL from window.kirki_ecommerce.
  */
 
-function getConfig() {
-  if (!window.kirki_ecommerce) {
-    throw new Error('[kecom] window.kirki_ecommerce is not defined. Did you forget wp_localize_script?');
-  }
-  return window.kirki_ecommerce;
-}
+import { config } from '../utils';
 
 type RequestOptions = {
   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
@@ -18,7 +13,7 @@ type RequestOptions = {
 };
 
 export async function apiRequest<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
-  const { rest_url_base, rest_nonce } = getConfig();
+  const { rest_url_base, rest_nonce } = config;
   const { method = 'GET', headers = {}, body, params } = options;
 
   let url = `${rest_url_base}${endpoint}`;

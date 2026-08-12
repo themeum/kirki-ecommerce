@@ -1,6 +1,6 @@
 // Shared TypeScript interfaces for the site bundle
 
-export interface kirkiEcommerceConfig {
+export interface KirkiEcommerceConfig {
   rest_url_base: string; // e.g. /wp-json/kirki/ecommerce/v1
   rest_nonce: string; // WordPress REST nonce
   cart_variant_ids: number[];
@@ -25,7 +25,7 @@ export interface kirkiEcommerceConfig {
 // Extend window for WordPress-injected config
 declare global {
   interface Window {
-    kirki_ecommerce: kirkiEcommerceConfig;
+    kirki_ecommerce: KirkiEcommerceConfig;
     wp: any;
     Alpine: any;
   }

@@ -13,6 +13,7 @@ import { cartApi } from "../api/cart";
 import { checkoutApi } from "../api/checkout";
 import { toastManager } from "../services/toast/runtime";
 import type { CheckoutRequest } from "../types";
+import { config } from "../utils";
 
 export interface CheckoutConfig {
   cartTotal?: number;
@@ -37,7 +38,7 @@ export interface ShippingMethod {
   };
 }
 
-export function checkout(config: CheckoutConfig = {}) {
+export function checkout(componentConfig: CheckoutConfig = {}) {
   const { __ } = window.wp.i18n;
 
   // Debounce helper — cancels previous call if invoked again within `delay` ms
@@ -137,10 +138,10 @@ export function checkout(config: CheckoutConfig = {}) {
   }
 
   return {
-    cartTotal: config.cartTotal ?? 0,
-    currency: window.kirki_ecommerce?.currency ?? "USD",
-    cartData: window.kirki_ecommerce?.checkout_cart ?? null,
-    countries: window.kirki_ecommerce?.countries ?? [],
+    cartTotal: componentConfig.cartTotal ?? 0,
+    currency: config.currency ?? "USD",
+    cartData: config.checkout_cart ?? null,
+    countries: config.countries ?? [],
 
     selectedPaymentMethod: "",
     selectedShippingMethod: "",
@@ -432,9 +433,9 @@ export function checkout(config: CheckoutConfig = {}) {
 
         if (data.payment_next_step) {
           const { type, value } = data.payment_next_step;
-          if (type === 'redirect') {
+          if (type === "redirect") {
             window.location.href = value;
-          } else if (type === 'html') {
+          } else if (type === "html") {
             this.renderPaymentGatewayHTML(value);
           }
         } else {
@@ -452,14 +453,14 @@ export function checkout(config: CheckoutConfig = {}) {
       }
     },
     async renderPaymentGatewayHTML(html: string) {
-      const container = document.createElement('div');
+      const container = document.createElement("div");
       container.innerHTML = html;
       document.body.appendChild(container);
 
-      const scripts = Array.from(container.querySelectorAll('script'));
+      const scripts = Array.from(container.querySelectorAll("script"));
 
       for (const oldScript of scripts) {
-        const newScript = document.createElement('script');
+        const newScript = document.createElement("script");
 
         // Copy attributes
         Array.from(oldScript.attributes).forEach((attr) => {
@@ -470,8 +471,7 @@ export function checkout(config: CheckoutConfig = {}) {
           // External script: wait until it has loaded
           await new Promise<void>((resolve, reject) => {
             newScript.onload = () => resolve();
-            newScript.onerror = () =>
-              reject(new Error(`Failed to load script: ${oldScript.src}`));
+            newScript.onerror = () => reject(new Error(`Failed to load script: ${oldScript.src}`));
 
             document.head.appendChild(newScript);
           });
@@ -485,11 +485,11 @@ export function checkout(config: CheckoutConfig = {}) {
       }
 
       // Submit form only if needed
-      const form = container.querySelector<HTMLFormElement>('form');
+      const form = container.querySelector<HTMLFormElement>("form");
 
       if (form) {
         form.submit();
       }
-    }
+    },
   };
 }
