@@ -217,7 +217,7 @@
     @include typography(base, semibold, $text-primary);
     @include transition((border-color, background-color, color));
 
-    &:hover {
+    &:hover:not(:disabled) {
       outline-color: $border-hover;
     }
 
@@ -229,6 +229,26 @@
       outline-color: $border-inverse;
       outline-width: 1.5px;
       outline-offset: -1.5px;
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      position: relative;
+      overflow: hidden;
+
+      &::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          to top right,
+          transparent calc(50% - 0.5px),
+          $border-default calc(50% - 0.5px),
+          $border-default calc(50% + 0.5px),
+          transparent calc(50% + 0.5px)
+        );
+      }
     }
   }
 
@@ -249,6 +269,11 @@
     &.selected {
       outline: 1px solid $border-ring;
       border-color: $background-surface;
+    }
+
+    &:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
     }
   }
 
