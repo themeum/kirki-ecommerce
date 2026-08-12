@@ -78,6 +78,8 @@ export function addToCart(config: AddToCartConfig) {
         // Show success toast
         toastManager.success(__("Item added to cart", "kirki-ecommerce"));
 
+        document.dispatchEvent(new CustomEvent('kecom:cart-updated', { detail: data }));
+
         // Update cart_variant_ids in window.kirki_ecommerce after successful add
         const cartVariantIds = window.kirki_ecommerce?.cart_variant_ids || [];
         if (!cartVariantIds.includes(this.variantId)) {

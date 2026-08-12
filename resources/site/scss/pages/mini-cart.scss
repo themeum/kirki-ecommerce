@@ -1,0 +1,68 @@
+@use "../tokens" as *;
+@use "../mixins" as *;
+
+.kecom-mini-cart{
+    color: $text-primary;
+    position: relative;
+    text-decoration: none;
+
+    &:hover{
+        text-decoration: none;
+    }
+
+    &-icon {
+        @include flex-center();
+    }
+
+    &-count{
+        top: -6px;
+        left: calc(100% - 10px);
+        position: absolute;
+        background: $background-inverse;
+        color: $text-light;
+        min-width: 16px;
+        height: 16px;
+        border-radius: $radius-full;
+        font-size: 10px;
+        line-height: 14px;
+        text-align: center;
+        padding: $spacing-1;
+        transform: scale(1);
+
+        &.is-increasing {
+            animation: kecom-cart-count-increase 300ms ease;
+        }
+
+        &.is-decreasing {
+            animation: kecom-cart-count-decrease 300ms ease;
+        }
+    }
+}
+
+@keyframes kecom-cart-count-increase {
+    0% {
+        transform: scale(1);
+    }
+
+    40% {
+        transform: scale(1.35);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes kecom-cart-count-decrease {
+    0% {
+        transform: scale(1);
+    }
+
+    40% {
+        transform: scale(0.75);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
