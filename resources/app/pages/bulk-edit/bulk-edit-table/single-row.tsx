@@ -89,7 +89,7 @@ const SingleRow = (props: SingleRowProps) => {
           ];
 
         updateVariants({
-          key: selectionData.fieldName!,
+          key: selectionData.fieldName ?? '',
           value: sourceValue,
           variant_index: variantIndexes,
         });
@@ -97,7 +97,7 @@ const SingleRow = (props: SingleRowProps) => {
       setSelectionData((prev) => ({
         ...prev!,
         mode: 'select',
-        end: prev!.lastIndex!,
+        end: Number(prev?.lastIndex ?? 0),
       }));
       setIsDragging(false);
     };
@@ -143,7 +143,7 @@ const SingleRow = (props: SingleRowProps) => {
       handleUnitInfoChange(variantIndexes, value as UnitPriceValue);
     } else {
       updateVariants({
-        key: fieldName || (selectionData.fieldName!),
+        key: fieldName || (selectionData.fieldName ?? ''),
         value,
         variant_index: variantIndexes,
       });

@@ -47,7 +47,7 @@ const AddOrEditInfo = ({
     if (index !== null && initialValues) {
       form.reset({
         title: initialValues.title ?? '',
-        description: (initialValues.description) ?? '',
+        description: initialValues.description ?? '',
       });
       return;
     }

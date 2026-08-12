@@ -12,12 +12,13 @@ import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
 import type { SelectOption } from '@/types';
+import { __ } from '@/wpi18n';
 
 const CustomerGroups = () => {
   const selectOptions: SelectOption[] = [
-    { value: 'all', title: 'All Groups' },
-    { value: 'new', title: 'New Groups' },
-    { value: 'top', title: 'Top Groups' },
+    { value: 'all', title: __('All Groups', 'kirki-ecommerce') },
+    { value: 'new', title: __('New Groups', 'kirki-ecommerce') },
+    { value: 'top', title: __('Top Groups', 'kirki-ecommerce') },
   ];
   return (
     <>

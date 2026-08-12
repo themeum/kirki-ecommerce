@@ -241,7 +241,7 @@ const BaseUnitDialog = ({
                       {group.items.map((item) => (
                         <SelectItem
                           key={item.value}
-                          value={item.value!}
+                          value={item.value ?? ''}
                           endSlot={item.subText}
                         >
                           {item.title}
@@ -265,7 +265,7 @@ const BaseUnitDialog = ({
                 {baseUnitOptions.map((item) => (
                   <SelectItem
                     key={item.value}
-                    value={item.value!}
+                    value={item.value ?? ''}
                     endSlot={item.subText}
                   >
                     {item.title}

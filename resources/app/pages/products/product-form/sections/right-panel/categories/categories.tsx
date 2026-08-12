@@ -1,4 +1,4 @@
-import { useFormContext } from 'react-hook-form';
+import { useFormContext, useWatch } from 'react-hook-form';
 
 import { Card } from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
@@ -14,12 +14,12 @@ import type { Category, ProductCategoryRef } from '@/types';
 import { __ } from '@/wpi18n';
 
 const Categories = () => {
-  const { watch, setValue } = useFormContext<ProductFormInput>();
+  const { setValue, control } = useFormContext<ProductFormInput>();
   const { data: categoryData, isSuccess: loaded } = useCategoriesQuery({
     limit: -1,
   });
   const categories = categoryData?.results ?? [];
-  const selectedCategories: ProductCategoryRef[] = watch('categories') ?? [];
+  const selectedCategories: ProductCategoryRef[] = useWatch({ control: control, name: 'categories' }) ?? [];
 
   const getParentsToDeselect = (
     category: Category,
@@ -188,7 +188,7 @@ const Categories = () => {
                     id="categories-all-products"
                     checked={
                       selectedCategories.length < categories.length &&
-                      selectedCategories.length !== 0
+                        selectedCategories.length !== 0
                         ? 'indeterminate'
                         : selectedCategories.length === categories.length
                     }

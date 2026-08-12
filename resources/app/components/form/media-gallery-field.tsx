@@ -35,7 +35,7 @@ const MediaGalleryField = <
         <Field data-invalid={fieldState.invalid || undefined} cssOverride={cssOverride}>
           {label && <FieldLabel infoText={infoText}>{label}</FieldLabel>}
           <MediaGallery
-            mediaItems={(field.value) ?? []}
+            mediaItems={field.value ?? []}
             onUpdate={(items) => field.onChange(items)}
             error={Boolean(fieldState.error)}
           />

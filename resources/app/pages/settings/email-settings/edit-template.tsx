@@ -174,7 +174,7 @@ const EditTemplate = () => {
                             <ProgressBar
                               value={Number(field.value) || 0}
                               onChange={(value) => field.onChange(value)}
-                              label="Height"
+                              label={__('Height', 'kirki-ecommerce')}
                               rightText={`${heightValue}px`}
                             />
                             {fieldState.invalid && (
@@ -238,11 +238,11 @@ const EditTemplate = () => {
                       <ColorPickerField name="colors.label" label="Label" />
                       <ColorPickerField
                         name="colors.button"
-                        label="Button Color"
+                        label={__('Button Color', 'kirki-ecommerce')}
                       />
                       <ColorPickerField
                         name="colors.button_bg"
-                        label="Button BG"
+                        label={__('Button BG', 'kirki-ecommerce')}
                       />
                     </CardContent>
                   </Card>

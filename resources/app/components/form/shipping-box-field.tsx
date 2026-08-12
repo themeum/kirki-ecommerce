@@ -209,7 +209,7 @@ const ShippingBoxFieldView = ({
                 length={selectedBox?.length ?? 0}
                 width={selectedBox?.width ?? 0}
                 height={selectedBox?.height ?? 0}
-                unit={selectedBox?.unit || 'in'}
+                unit={selectedBox?.unit ?? 'in'}
               />
             </div>
           )}

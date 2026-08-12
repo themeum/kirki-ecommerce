@@ -55,7 +55,7 @@ const SingleRow = ({
           </Flex>
         </TableCell>
         <TableCell>{item?.count ?? 0}</TableCell>
-        <TableCell>{item?.created_at || '--'}</TableCell>
+        <TableCell>{item?.created_at ?? '--'}</TableCell>
         <TableCell alignment="right">
           <ActionGroup>
             <Button
