@@ -1,10 +1,10 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { endpoints } from '@/config/endpoints';
-import { categoryKeys } from '@/features/categories';
+import { categoryKeys } from '@/features/categories/index';
+import { CategorySchema } from '@/features/categories/schemas/catalog/category';
+import type { CategoryFormPayload } from '@/features/categories/schemas/forms/category-form';
 import { apiClient } from '@/libs/api';
-import { CategorySchema } from '@/schemas/catalog/category';
-import type { CategoryFormPayload } from '@/schemas/forms/category-form';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
 import { parseData, parseMessage, parseResponse, toastMutationError, toastMutationSuccess } from '@/services/helpers';
 import type { BulkActionParams } from '@/types/api/result';

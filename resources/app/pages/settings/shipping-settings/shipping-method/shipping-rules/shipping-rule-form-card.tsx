@@ -14,6 +14,7 @@ import { Form } from '@/components/ui/form';
 import Grid from '@/components/ui/grid';
 import Input from '@/components/ui/input';
 import Text from '@/components/ui/text';
+import { useCategoriesQuery } from '@/features/categories';
 import { LighteningIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
@@ -29,7 +30,6 @@ import {
   type ShippingRuleFormPayload,
   ShippingRuleFormSchema,
 } from '@/schemas/forms/shipping-rule-form';
-import { useCategoriesQuery } from '@/services/category';
 import { getErrorMessage } from '@/services/helpers';
 import { updateSettings, useSettingsQuery } from '@/services/settings';
 import { useShippingProfilesQuery } from '@/services/shipping';

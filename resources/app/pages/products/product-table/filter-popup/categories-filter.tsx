@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 
 import { Field, FieldLabel } from '@/components/ui/field';
 import MultiSelect, { type MultiSelectOption } from '@/components/ui/multi-select';
-import { useCategoriesQuery } from '@/services/category';
+import { useCategoriesQuery } from '@/features/categories';
 import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 

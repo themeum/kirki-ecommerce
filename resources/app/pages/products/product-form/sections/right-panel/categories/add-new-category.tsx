@@ -9,6 +9,7 @@ import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
+import { useCategoriesQuery, useCreateCategoryMutation } from '@/features/categories';
 import { PlusIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
@@ -17,7 +18,6 @@ import {
   type ProductAddCategoryFormPayload,
   ProductAddCategoryFormSchema,
 } from '@/schemas/forms/product-add-category-form';
-import { useCategoriesQuery, useCreateCategoryMutation } from '@/services/category';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, scoped } from '@/theme/mixins';

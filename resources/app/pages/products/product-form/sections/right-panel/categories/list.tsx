@@ -1,7 +1,7 @@
 import React from 'react';
 
+import type { Category } from '@/features/categories';
 import SingleItem from '@/pages/products/product-form/sections/right-panel/categories/single-item';
-import type { Category } from '@/schemas/catalog/category';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
 

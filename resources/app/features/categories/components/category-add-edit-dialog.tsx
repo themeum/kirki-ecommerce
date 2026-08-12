@@ -11,18 +11,18 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogBody, DialogClose, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
-import type { ErrorResponse } from '@/libs/api';
-import { applyServerErrors } from '@/libs/form-errors';
-import { pickFormValues } from '@/libs/zod';
-import type { Category } from '@/schemas/catalog/category';
+import type { Category } from '@/features/categories/schemas/catalog/category';
 import {
   type CategoryFormInput,
   type CategoryFormPayload,
   CategoryFormSchema,
-} from '@/schemas/forms/category-form';
-import { useCategoriesQuery, useCreateCategoryMutation, useUpdateCategoryMutation } from '@/services/category';
-import { theme } from '@/theme';
+} from '@/features/categories/schemas/forms/category-form';
+import { useCategoriesQuery, useCreateCategoryMutation, useUpdateCategoryMutation } from '@/features/categories/services/category';
+import type { ErrorResponse } from '@/libs/api';
+import { applyServerErrors } from '@/libs/form-errors';
+import { pickFormValues } from '@/libs/zod';
 import { cardStyles } from '@/theme/card-styles';
+import { theme } from '@/theme/index';
 import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 

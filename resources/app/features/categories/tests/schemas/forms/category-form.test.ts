@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { CategoryFormSchema } from '@/schemas/forms/category-form';
+import { CategoryFormSchema } from '@/features/categories/schemas/forms/category-form';
 
 describe('CategoryFormSchema', () => {
   const base = {

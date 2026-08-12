@@ -20,7 +20,7 @@ const OrderDetails = lazy(() => import('@/pages/orders/order-details/order-detai
 const Collections = lazy(() => import('@/pages/collections/collections'));
 const CollectionDetails = lazy(() => import('@/pages/collections/collection-details/collection-details'));
 const Tags = lazy(() => import('@/features/tags/pages/tags'));
-const Categories = lazy(() => import('@/pages/categories/categories'));
+const Categories = lazy(() => import('@/features/categories/pages/categories'));
 const Brands = lazy(() => import('@/features/brands/pages/brands'));
 const Customers = lazy(() => import('@/pages/customers/customers'));
 const CustomerDetails = lazy(() => import('@/pages/customers/customer-details/customer-details'));
