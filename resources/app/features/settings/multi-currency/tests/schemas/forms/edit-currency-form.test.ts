@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { EditCurrencyFormSchema } from '@/schemas/forms/edit-currency-form';
+import { EditCurrencyFormSchema } from '@/features/settings/multi-currency/schemas/forms/edit-currency-form';
 
 describe('EditCurrencyFormSchema', () => {
   it('produces the exact payload for a numeric-string exchange rate', () => {

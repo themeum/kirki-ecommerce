@@ -16,6 +16,11 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Text from '@/components/ui/text';
 import { RouteConfig } from '@/config/route-config';
 import { EmailSettingsFormSchema } from '@/features/settings/email/schemas/forms/email-settings-form';
+import {
+  type EmailTemplateFormInput,
+  type EmailTemplateFormPayload,
+  EmailTemplateFormSchema,
+} from '@/features/settings/email/schemas/forms/email-template-form';
 import { useSettingsPageActions } from '@/features/settings/hooks/use-settings-page-actions';
 import { setUnsavedDataStatus } from '@/features/settings/lib/utils';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
@@ -23,11 +28,6 @@ import { AlignCenterIcon, AlignLeftIcon, BrushIcon, SendIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults, pickFormValues } from '@/libs/zod';
-import {
-  type EmailTemplateFormInput,
-  type EmailTemplateFormPayload,
-  EmailTemplateFormSchema,
-} from '@/schemas/forms/email-template-form';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';

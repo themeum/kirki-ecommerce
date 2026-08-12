@@ -3,7 +3,6 @@ export { default as SelectProductsDialog } from './components/select-products-di
 export type { ProductSelection, ProductVariantSelection } from './components/select-products-dialog/types';
 export { groupDetails, optionsList, requiredFields } from './lib/seo-settings/utils';
 export type { Attribute, AttributeValue, ProductAttribute } from './schemas/catalog/attribute';
-export { ProductCurrencySchema } from './schemas/catalog/product';
 export type { InventoryVariant, ProductVariant } from './schemas/catalog/variant';
 export { InventoryVariantSchema, VariantSchema } from './schemas/catalog/variant';
 export {

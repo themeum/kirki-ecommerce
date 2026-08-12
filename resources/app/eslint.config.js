@@ -11,10 +11,10 @@ import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
 // The features/ restructure (see openspec/changes/restructure-app-features)
-// is migrated feature by feature; this rule is `warn` while that's in
-// progress so violations are a visible, shrinking count rather than an
-// all-or-nothing gate, and promoted to `error` once every feature has moved.
-const FEATURE_BOUNDARY_SEVERITY = 'warn';
+// was migrated feature by feature with this at `warn`, so violations were a
+// visible, shrinking count rather than an all-or-nothing gate. Every feature
+// has now moved (0 warnings as of group 7) — promoted to `error`.
+const FEATURE_BOUNDARY_SEVERITY = 'error';
 
 const FEATURES = [
   'brands',

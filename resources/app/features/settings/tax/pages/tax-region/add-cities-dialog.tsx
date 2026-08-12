@@ -13,7 +13,7 @@ import Label from '@/components/ui/label';
 import Text from '@/components/ui/text';
 import { getSearchedValue } from '@/features/settings/lib/utils';
 import type { TaxRate, TaxRegionState } from '@/features/settings/tax/lib/utils';
-import { type AddCitiesPopupFormInput, AddCitiesPopupFormSchema } from '@/schemas/forms/add-cities-popup-form';
+import { type AddCitiesPopupFormInput, AddCitiesPopupFormSchema } from '@/features/settings/tax/schemas/forms/add-cities-popup-form';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, scoped } from '@/theme/mixins';

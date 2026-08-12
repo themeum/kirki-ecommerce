@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { ApiConfigurationFormSchema } from '@/schemas/forms/api-configuration-form';
+import { ApiConfigurationFormSchema } from '@/features/settings/multi-currency/schemas/forms/api-configuration-form';
 
 describe('ApiConfigurationFormSchema', () => {
   it('produces the exact payload', () => {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { EmailTemplateFormSchema } from '@/schemas/forms/email-template-form';
+import { EmailTemplateFormSchema } from '@/features/settings/email/schemas/forms/email-template-form';
 
 describe('EmailTemplateFormSchema', () => {
   it('produces the exact payload for a fully filled form', () => {

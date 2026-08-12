@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { AddCitiesPopupFormSchema } from '@/schemas/forms/add-cities-popup-form';
+import { AddCitiesPopupFormSchema } from '@/features/settings/tax/schemas/forms/add-cities-popup-form';
 
 describe('AddCitiesPopupFormSchema', () => {
   it('produces the exact payload', () => {

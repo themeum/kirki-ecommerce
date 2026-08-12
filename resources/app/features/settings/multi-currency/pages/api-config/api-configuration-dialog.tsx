@@ -11,9 +11,9 @@ import { Dialog, DialogBody, DialogClose, DialogCloseButton, DialogContent, Dial
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import Text from '@/components/ui/text';
+import { type ApiConfigurationFormInput, type ApiConfigurationFormPayload, ApiConfigurationFormSchema } from '@/features/settings/multi-currency/schemas/forms/api-configuration-form';
 import { ConfigureKeyIcon } from '@/icons';
 import { getDefaults } from '@/libs/zod';
-import { type ApiConfigurationFormInput, type ApiConfigurationFormPayload, ApiConfigurationFormSchema } from '@/schemas/forms/api-configuration-form';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
 import { noop } from '@/utils/function';

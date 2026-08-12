@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { AddStatePopupFormSchema } from '@/schemas/forms/add-state-popup-form';
+import { AddStatePopupFormSchema } from '@/features/settings/tax/schemas/forms/add-state-popup-form';
 
 describe('AddStatePopupFormSchema', () => {
   it('produces the exact payload', () => {

@@ -14,11 +14,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import Text from '@/components/ui/text';
 import ApiConfigurationCard from '@/features/settings/multi-currency/pages/api-config/api-configuration-card';
 import ApiConfigurationPopup from '@/features/settings/multi-currency/pages/api-config/api-configuration-dialog';
+import type { ApiConfigurationFormPayload } from '@/features/settings/multi-currency/schemas/forms/api-configuration-form';
 import type { MultiCurrencySettingsFormInput } from '@/features/settings/multi-currency/schemas/forms/multi-currency-settings-form';
 import { useCurrencyExchangeProvidersQuery } from '@/features/settings/multi-currency/services/currency';
 import { WrenchIcon } from '@/icons';
 import type { CurrencySettings } from '@/schemas/catalog/settings';
-import type { ApiConfigurationFormPayload } from '@/schemas/forms/api-configuration-form';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { mergeCss } from '@/theme/mixins';

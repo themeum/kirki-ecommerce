@@ -12,7 +12,7 @@ import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
 import { getSearchedValue } from '@/features/settings/lib/utils';
 import type { TaxRegionState } from '@/features/settings/tax/lib/utils';
-import { type AddStatePopupFormInput, AddStatePopupFormSchema } from '@/schemas/forms/add-state-popup-form';
+import { type AddStatePopupFormInput, AddStatePopupFormSchema } from '@/features/settings/tax/schemas/forms/add-state-popup-form';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, scoped } from '@/theme/mixins';

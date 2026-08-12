@@ -13,7 +13,7 @@ import {
   type VatCollectionFormInput,
   type VatCollectionFormPayload,
   VatCollectionFormSchema,
-} from '@/schemas/forms/vat-collection-form';
+} from '@/features/settings/tax/schemas/forms/vat-collection-form';
 import type { SelectOption } from '@/types/components/common';
 import { __ } from '@/wpi18n';
 

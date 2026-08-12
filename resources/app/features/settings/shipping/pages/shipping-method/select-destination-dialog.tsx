@@ -10,13 +10,13 @@ import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
-import type { CountryWithStates, ShippingRegion, ShippingRule } from '@/features/settings/shipping/types';
-import { getDefaults } from '@/libs/zod';
 import {
   type SelectDestinationFormInput,
   type SelectDestinationFormPayload,
   SelectDestinationFormSchema,
-} from '@/schemas/forms/select-destination-form';
+} from '@/features/settings/shipping/schemas/forms/select-destination-form';
+import type { CountryWithStates, ShippingRegion, ShippingRule } from '@/features/settings/shipping/types';
+import { getDefaults } from '@/libs/zod';
 import { useCountriesQuery } from '@/services/country';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';

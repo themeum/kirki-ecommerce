@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { SelectDestinationFormSchema } from '@/schemas/forms/select-destination-form';
+import { SelectDestinationFormSchema } from '@/features/settings/shipping/schemas/forms/select-destination-form';
 
 describe('SelectDestinationFormSchema', () => {
   it('produces the exact payload', () => {

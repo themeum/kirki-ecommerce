@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { VatCollectionFormSchema } from '@/schemas/forms/vat-collection-form';
+import { VatCollectionFormSchema } from '@/features/settings/tax/schemas/forms/vat-collection-form';
 
 describe('VatCollectionFormSchema', () => {
   it('produces the exact payload', () => {
