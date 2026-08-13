@@ -65,6 +65,8 @@ class Utils
             'advance.pages.cart' => __('Cart', 'kirki-ecommerce'),
             'advance.pages.checkout' => __('Checkout', 'kirki-ecommerce'),
             'advance.pages.account' => __('Account', 'kirki-ecommerce'),
+            'advance.pages.login' => __('Login', 'kirki-ecommerce'),
+            'advance.pages.register' => __('Register', 'kirki-ecommerce'),
         ];
 
         $pages = apply_filters('kirki_ecommerce_site_pages', $pages);
@@ -104,6 +106,30 @@ class Utils
         } catch (\Exception $e) {
             error_log('Error generating site pages: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Get login page id.
+     *
+     * @since 1.0.0
+     *
+     * @return int The login page id.
+     */
+    public static function get_login_page_id()
+    {
+        return Settings::get('advance.pages.login', 0);
+    }
+
+    /**
+     * Get registration page id.
+     *
+     * @since 1.0.0
+     *
+     * @return int The registration page id.
+     */
+    public static function get_registration_page_id()
+    {
+        return Settings::get('advance.pages.register', 0);
     }
 
     /**

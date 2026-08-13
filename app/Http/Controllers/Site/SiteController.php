@@ -230,4 +230,18 @@ class SiteController
     {
         return view('site.design-system');
     }
+
+    /**
+     * Login page
+     *
+     * @since 1.0.0
+     *
+     * @param Request $request  request.
+     *
+     * @return string Template path.
+     */
+    public function login_page(Request $request)
+    {
+        return view('site.login');
+    }
 }

@@ -12,7 +12,7 @@
 
 .kecom-cart-grid {
   display: grid;
-  grid-template-columns: 1fr 640px;
+  grid-template-columns: 17fr 13fr;
   align-items: start;
 
   @include breakpoint-down(lg) {
@@ -129,6 +129,10 @@
 
     &-details-title {
       margin-bottom: $spacing-2;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
+      max-width: 25ch;
     }
 
     &-pricing-total {
