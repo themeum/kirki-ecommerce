@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Providers;
 
+use Kirki\Ecommerce\App\Blocks\BlockRegister;
 use Kirki\Ecommerce\App\Managers\MoneyManager;
 use Kirki\Ecommerce\App\Shortcodes\ShortcodeRegister;
 use Kirki\Ecommerce\App\Wordpress\User;
@@ -24,6 +25,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(FrameworkUser::class, fn($app, $parameters = []) => $app->make(User::class, $parameters));
         $this->app->singleton(DatabaseSeederContract::class, fn() => new DatabaseSeeder());
         $this->app->make(ShortcodeRegister::class);
+        $this->app->make(BlockRegister::class);
     }
 
     /**
