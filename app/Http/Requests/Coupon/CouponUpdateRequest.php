@@ -10,6 +10,7 @@ use Kirki\Ecommerce\App\Constants\Coupon\DiscountValueType;
 use Kirki\Ecommerce\App\Constants\Coupon\EligibleItemType;
 use Kirki\Ecommerce\App\Constants\Coupon\SpendConditionType;
 use Kirki\Ecommerce\App\Facades\Money;
+use Kirki\Ecommerce\App\Models\Coupon;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
 use Kirki\Ecommerce\Framework\Supports\Somoy;
@@ -27,13 +28,11 @@ class CouponUpdateRequest extends Request
 
     public function rules()
     {
-        $id = $this->get_int('id');
-
         return [
             'id' => 'required|integer',
             'method' => 'required|string|in:' . implode(',', CouponMethod::get_constant_values()),
             'title' => 'required|string|max:255',
-            'code' => "required_if:method,code|string|max:100|unique:kirki_ecommerce_coupons,code,{$id}|nullable",
+            'code' => 'required_if:method,' . CouponMethod::CODE . '|string|max:100|unique:' . Coupon::get_table_name() . ',code,'.$this->get_int('id').'|nullable',
             'discount_type' => 'required|string|in:' . implode(',', DiscountType::get_constant_values()),
             'discount_target' => 'required_if:discount_type,' . DiscountType::AMOUNT_OFF . '|string|in:' . implode(',', DiscountTarget::get_constant_values()) . '|nullable',
             'discount_value_type' => 'required_if:discount_type,' . DiscountType::AMOUNT_OFF . '|string|in:' . implode(',', DiscountValueType::get_constant_values()) . '|nullable',

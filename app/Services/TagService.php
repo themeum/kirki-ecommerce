@@ -89,24 +89,13 @@ class TagService
      */
     public function update(UpdateTagDTO $data)
     {
-        $tag = Tag::with_count('products')->find($data->id);
-
-        if (empty($tag)) {
-            throw new NotFoundException(__('Tag could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
-
         $data->slug = empty($data->slug) ? $data->name : $data->slug;
-
-        if ($tag->slug !== $data->slug && Tag::with_count('products')->where('slug', $data->slug)->first()) {
-            throw new Exception(__('Tag slug already exists.', 'kirki-ecommerce'), Response::BAD_REQUEST);
-        }
-
         $data->slug = Tag::generate_unique_slug($data->slug, $data->id);
 
         $attributes = $data->to_array();
         $attributes['updated_by'] = user()->get_id();
 
-        $is_updated = (bool) Tag::find($data->id)->update($attributes);
+        $is_updated = (bool) Tag::query()->where('id', $data->id)->update($attributes);
 
         if (!$is_updated) {
             throw new Exception(__('Tag could not be updated.', 'kirki-ecommerce'), Response::BAD_REQUEST);
@@ -125,13 +114,7 @@ class TagService
      */
     public function delete(int $id)
     {
-        $tag = Tag::with_count('products')->find($id);
-
-        if (empty($tag)) {
-            throw new NotFoundException(__('Tag could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
-
-        $is_deleted = (bool) Tag::find($id)->delete();
+        $is_deleted = (bool) Tag::query()->where('id', $id)->delete();
 
         if (!$is_deleted) {
             throw new Exception(__('Tag could not be deleted.', 'kirki-ecommerce'), Response::BAD_REQUEST);

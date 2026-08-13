@@ -92,18 +92,7 @@ class BrandService
      */
     public function update(UpdateBrandDTO $data)
     {
-        $brand = Brand::find($data->id);
-
-        if (empty($brand)) {
-            throw new NotFoundException(__('Brand could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
-
         $data->slug = empty($data->slug) ? $data->name : $data->slug;
-
-        if ($brand->slug !== $data->slug && Brand::where('slug', $data->slug)->first()) {
-            throw new Exception(__('Brand slug already exists.', 'kirki-ecommerce'), Response::BAD_REQUEST);
-        }
-
         $data->slug = Brand::generate_unique_slug($data->slug, $data->id);
 
         $attributes = $data->to_array();
@@ -128,12 +117,6 @@ class BrandService
      */
     public function delete(int $id)
     {
-        $brand = Brand::with_count('products')->find($id);
-
-        if (empty($brand)) {
-            throw new NotFoundException(__('Brand could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
-
         $is_deleted = (bool) Brand::query()->where('id', $id)->delete();
 
         if (!$is_deleted) {
@@ -152,7 +135,7 @@ class BrandService
      */
     public function bulk_delete(array $ids)
     {
-        $is_deleted = (bool) Brand::where_in('id', $ids)->delete();
+        $is_deleted = Brand::where_in('id', $ids)->delete();
 
         if (!$is_deleted) {
             throw new Exception(__('Brands could not be deleted.', 'kirki-ecommerce'), Response::BAD_REQUEST);
@@ -169,7 +152,7 @@ class BrandService
      */
     public function delete_all(ListFilterDTO $filters)
     {
-        return (bool) $this->list_query($filters)->delete();
+        return $this->list_query($filters)->delete();
     }
 
     protected function list_query(ListFilterDTO $filters)

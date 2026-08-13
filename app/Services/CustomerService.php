@@ -115,7 +115,7 @@ class CustomerService
         $data_array = $data->all();
         $data_array['updated_by'] = user()->get_id();
 
-        $is_updated = (bool) Customer::find($data->id)->update($data_array);
+        $is_updated = (bool) Customer::query()->where('id', $data->id)->update($data_array);
 
         if (!$is_updated) {
             throw new NotFoundException(__('Customer could not be updated.', 'kirki-ecommerce'), Response::NOT_FOUND);
@@ -146,7 +146,7 @@ class CustomerService
             throw new NotFoundException(__('Customer could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
         }
 
-        $is_deleted = (bool) Customer::find($id)->delete();
+        $is_deleted = (bool) Customer::query()->where('id', $id)->delete();
 
         if (!$is_deleted) {
             throw new NotFoundException(__('Customer could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND);

@@ -77,7 +77,7 @@ class OrderService
      */
     public function update_order_item(UpdateOrderItemDTO $dto)
     {
-        return OrderItem::find($dto->id)->update($dto->to_array());
+        return (bool) OrderItem::query()->where('id', $dto->id)->update($dto->to_array());
     }
 
     /**
@@ -88,7 +88,7 @@ class OrderService
      */
     public function delete_order_item($id)
     {
-        return OrderItem::find($id)->delete();
+        return (bool) OrderItem::query()->where('id', $id)->delete();
     }
 
     /**
@@ -151,7 +151,7 @@ class OrderService
      */
     public function update_order(UpdateOrderDTO $dto)
     {
-        return Order::find($dto->id)->update($dto->to_array());
+        return (bool) Order::query()->where('id', $dto->id)->update($dto->to_array());
     }
 
     /**
@@ -163,7 +163,7 @@ class OrderService
      */
     public function partial_update_order(int $id, array $data)
     {
-        return Order::find($id)->update($data);
+        return (bool) Order::query()->where('id', $id)->update($data);
     }
 
     /**
@@ -189,13 +189,17 @@ class OrderService
 
         $target_state = OrderStatus::get_state($target_status);
 
-        $order = $this->find_order_or_fail($id);
-
-        return $order->update([
+        $is_updated = (bool) Order::query()->where('id', $id)->update([
             'order_status' => $target_status,
             'fulfillment_status' => $target_state['fulfillment_status'],
             'payment_status' => $target_state['payment_status'],
         ]);
+
+        if (!$is_updated) {
+            throw new NotFoundException(__('Order not found.', 'kirki-ecommerce'));
+        }
+
+        return $is_updated;
     }
 
     /**
@@ -206,17 +210,14 @@ class OrderService
      */
     public function mark_refund_as_completed(int $id)
     {
-        $order = $this->find_order_or_fail($id);
-
-        if (!$order->is_refund_initiated) {
-            return false;
-        }
-
-        return $order->update([
-            'payment_status' => PaymentStatus::REFUNDED,
-            'fulfillment_status' => FulfillmentStatus::RETURNED,
-            'order_status' => OrderStatus::REFUNDED
-        ]);
+        return (bool) Order::query()
+            ->where('id', $id)
+            ->where('is_refund_initiated', true)
+            ->update([
+                'payment_status' => PaymentStatus::REFUNDED,
+                'fulfillment_status' => FulfillmentStatus::RETURNED,
+                'order_status' => OrderStatus::REFUNDED,
+            ]);
     }
 
     /**
@@ -227,7 +228,7 @@ class OrderService
      */
     public function delete_order($id)
     {
-        return Order::find($id)->delete();
+        return (bool) Order::query()->where('id', $id)->delete();
     }
 
     /**

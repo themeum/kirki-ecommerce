@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Http\Requests\Tag;
 
+use Kirki\Ecommerce\App\Models\Tag;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
 
@@ -12,7 +13,7 @@ class TagUpdateRequest extends Request
         return [
             'id' => 'required|integer',
             'name' => 'required|string',
-            'slug' => 'string|nullable',
+            'slug' => 'string|nullable|unique:' . Tag::get_table_name() . ',slug,' . $this->get_int('id'),
             'description' => 'string|nullable',
         ];
     }

@@ -103,17 +103,7 @@ class CategoryService
      */
     public function update(UpdateCategoryDTO $data)
     {
-        $category = Category::with_count('products')->find($data->id);
-
-        if (empty($category)) {
-            throw new NotFoundException(__('Category could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
-
         $data->slug = empty($data->slug) ? $data->name : $data->slug;
-
-        if ($category->slug !== $data->slug && Category::with_count('products')->where('slug', $data->slug)->first()) {
-            throw new Exception(__('Category slug already exists.', 'kirki-ecommerce'), Response::BAD_REQUEST);
-        }
 
         if ($data->parent_id) {
             $parent_category = Category::find($data->parent_id);
@@ -128,7 +118,7 @@ class CategoryService
         $attributes = $data->to_array();
         $attributes['updated_by'] = user()->get_id();
 
-        $is_updated = (bool) Category::find($data->id)->update($attributes);
+        $is_updated = (bool) Category::query()->where('id', $data->id)->update($attributes);
 
         if (!$is_updated) {
             throw new NotFoundException(__('Category could not be updated.', 'kirki-ecommerce'), Response::BAD_REQUEST);
@@ -146,7 +136,7 @@ class CategoryService
      */
     public function delete(int $id)
     {
-        $category = Category::with_count('products')->find($id);
+        $category = Category::find($id);
 
         if (empty($category)) {
             throw new NotFoundException(__('Category could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
@@ -156,7 +146,7 @@ class CategoryService
             throw new Exception(__('Category is not deletable.', 'kirki-ecommerce'), Response::BAD_REQUEST);
         }
 
-        $is_deleted = (bool) Category::find($id)->delete();
+        $is_deleted = (bool) Category::query()->where('id', $id)->delete();
 
         if (!$is_deleted) {
             throw new Exception(__('Category could not be deleted.', 'kirki-ecommerce'), Response::BAD_REQUEST);

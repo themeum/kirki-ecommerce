@@ -109,12 +109,6 @@ class CouponService
      */
     public function update(UpdateCouponDTO $data)
     {
-        $coupon = Coupon::with(['categories', 'products', 'customers'])->find($data->id);
-
-        if (empty($coupon)) {
-            throw new NotFoundException(__('Coupon could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
-
         $attributes = $data->to_array();
         $attributes['updated_by'] = user()->get_id();
 
@@ -124,7 +118,13 @@ class CouponService
             $attributes['discount_amount_percentage'] = $attributes['discount_amount'];
         }
 
-        return (bool) Coupon::find($data->id)->update($attributes);
+        $is_updated = (bool) Coupon::query()->where('id', $data->id)->update($attributes);
+
+        if (!$is_updated) {
+            throw new NotFoundException(__('Coupon could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
+        }
+
+        return $is_updated;
     }
 
     /**
@@ -136,13 +136,7 @@ class CouponService
      */
     public function delete(int $id)
     {
-        $coupon = Coupon::with(['categories', 'products', 'customers'])->find($id);
-
-        if (empty($coupon)) {
-            throw new NotFoundException(__('Coupon could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
-
-        $is_deleted = (bool) Coupon::find($id)->delete();
+        $is_deleted = (bool) Coupon::query()->where('id', $id)->delete();
 
         if (!$is_deleted) {
             throw new NotFoundException(__('Coupon could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND);

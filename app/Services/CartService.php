@@ -7,14 +7,11 @@ use Kirki\Ecommerce\App\Models\CartItem;
 use Kirki\Ecommerce\App\DTO\Cart\AddToCartDTO;
 use Kirki\Ecommerce\App\DTO\Cart\EmptyCartDTO;
 use Kirki\Ecommerce\App\DTO\Cart\RemoveCartItemDTO;
-use Kirki\Ecommerce\App\DTO\Cart\UpdateCartDTO;
 use Exception;
 use Kirki\Ecommerce\App\Constants\Cart;
 
 use function Kirki\Ecommerce\App\base_currency;
 use function Kirki\Ecommerce\App\customer;
-use function Kirki\Ecommerce\Framework\app;
-use function Kirki\Ecommerce\Framework\user;
 use function Kirki\Ecommerce\Framework\uuid;
 
 class CartService
@@ -81,15 +78,13 @@ class CartService
 
     protected function update_cart($id, array $data)
     {
-        $cart = $this->find($id);
+        $is_updated = (bool) CartModel::query()->where('id', $id)->update($data);
 
-        if ($cart) {
-            $cart->update($data);
-
-            return $this->find($id);
+        if (!$is_updated) {
+            return null;
         }
 
-        return null;
+        return $this->find($id);
     }
 
     protected function add_item_to_cart($cart_id, array $item_data)

@@ -89,24 +89,13 @@ class AttributeService
      */
     public function update(UpdateAttributeDTO $data)
     {
-        $attribute = Attribute::with('values')->find($data->id);
-
-        if (empty($attribute)) {
-            throw new NotFoundException(__('Attribute could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
-
         $data->slug = empty($data->slug) ? $data->name : $data->slug;
-
-        if ($attribute->slug !== $data->slug && Attribute::with('values')->where('slug', $data->slug)->first()) {
-            throw new Exception(__('Attribute slug already exists.', 'kirki-ecommerce'), Response::BAD_REQUEST);
-        }
-
         $data->slug = Attribute::generate_unique_slug($data->slug, $data->id);
 
         $attributes = $data->except(['values']);
         $attributes['updated_by'] = user()->get_id();
 
-        $is_updated = (bool) Attribute::find($data->id)->update($attributes);
+        $is_updated = (bool) Attribute::query()->where('id', $data->id)->update($attributes);
 
         if (!$is_updated) {
             throw new Exception(__('Attribute could not be updated.', 'kirki-ecommerce'), Response::BAD_REQUEST);
@@ -125,13 +114,7 @@ class AttributeService
      */
     public function delete(int $id)
     {
-        $attribute = Attribute::with('values')->find($id);
-
-        if (empty($attribute)) {
-            throw new NotFoundException(__('Attribute could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
-
-        $is_deleted = (bool) Attribute::find($id)->delete();
+        $is_deleted = (bool) Attribute::query()->where('id', $id)->delete();
 
         if (!$is_deleted) {
             throw new Exception(__('Attribute could not be deleted.', 'kirki-ecommerce'), Response::BAD_REQUEST);

@@ -77,13 +77,7 @@ class TaxProfileService
      */
     public function update(UpdateTaxProfileDTO $data)
     {
-        $tax_profile = TaxProfile::find($data->id);
-
-        if (empty($tax_profile)) {
-            throw new NotFoundException(__('Tax profile could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
-
-        $is_updated = (bool) TaxProfile::find($data->id)->update($data->to_array());
+        $is_updated = (bool) TaxProfile::query()->where('id', $data->id)->update($data->to_array());
 
         if (!$is_updated) {
             throw new NotFoundException(__('Tax profile could not be updated.', 'kirki-ecommerce'), Response::NOT_FOUND);
@@ -101,13 +95,7 @@ class TaxProfileService
      */
     public function delete(int $id)
     {
-        $tax_profile = TaxProfile::find($id);
-
-        if (empty($tax_profile)) {
-            throw new NotFoundException(__('Tax profile could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
-
-        $is_deleted = (bool) TaxProfile::find($id)->delete();
+        $is_deleted = (bool) TaxProfile::query()->where('id', $id)->delete();
 
         if (!$is_deleted) {
             throw new NotFoundException(__('Tax profile could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND);

@@ -176,7 +176,7 @@ class CurrencyService
             throw new Exception(__('Currency code already exists.', 'kirki-ecommerce'), Response::BAD_REQUEST);
         }
 
-        $is_updated = (bool) Currency::find($data->id)->update($data->to_array());
+        $is_updated = (bool) Currency::query()->where('id', $data->id)->update($data->to_array());
 
         if ($data->is_base && !$currency->is_base) {
             CurrencyExchange::sync();
@@ -199,13 +199,7 @@ class CurrencyService
      */
     public function delete(int $id)
     {
-        $currency = Currency::find($id);
-
-        if (empty($currency)) {
-            throw new NotFoundException(__('Currency could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
-
-        $is_deleted = (bool) Currency::find($id)->delete();
+        $is_deleted = (bool) Currency::query()->where('id', $id)->delete();
 
         if (!$is_deleted) {
             throw new Exception(__('Currency could not be deleted.', 'kirki-ecommerce'), Response::BAD_REQUEST);

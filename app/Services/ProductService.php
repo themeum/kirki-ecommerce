@@ -128,19 +128,13 @@ class ProductService
      */
     public function update(UpdateProductDTO $data)
     {
-        $product = Product::with(['brand', 'currency', 'categories', 'tags', 'collections', 'attributes', 'attribute_values', 'variants.attribute_values', 'variants.product', 'media'])->find($data->id);
-
-        if (empty($product)) {
-            throw new NotFoundException(__('Product could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
-
         $data->slug = empty($data->slug) ? $data->title : $data->slug;
         $data->slug = Product::generate_unique_slug($data->slug, $data->id);
 
         $data_array = $data->all();
         $data_array['updated_by'] = user()->get_id();
 
-        $is_updated = (bool) Product::find($data->id)->update($data_array);
+        $is_updated = (bool) Product::query()->where('id', $data->id)->update($data_array);
 
         if (!$is_updated) {
             throw new NotFoundException(__('Product could not be updated.', 'kirki-ecommerce'), Response::NOT_FOUND);
@@ -177,13 +171,7 @@ class ProductService
      */
     public function delete(int $id)
     {
-        $product = Product::with(['brand', 'currency', 'categories', 'tags', 'collections', 'attributes', 'attribute_values', 'variants.attribute_values', 'variants.product', 'media'])->find($id);
-
-        if (empty($product)) {
-            throw new NotFoundException(__('Product could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
-
-        $is_deleted = (bool) Product::find($id)->delete();
+        $is_deleted = (bool) Product::query()->where('id', $id)->delete();
 
         if (!$is_deleted) {
             throw new NotFoundException(__('Product could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND);

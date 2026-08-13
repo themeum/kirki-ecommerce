@@ -86,24 +86,13 @@ class CollectionService
      */
     public function update(UpdateCollectionDTO $data)
     {
-        $collection = Collection::with_count('products')->find($data->id);
-
-        if (empty($collection)) {
-            throw new NotFoundException(__('Collection could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
-
         $data->slug = empty($data->slug) ? $data->title : $data->slug;
-
-        if ($collection->slug !== $data->slug && Collection::with_count('products')->where('slug', $data->slug)->first()) {
-            throw new Exception(__('Collection slug already exists.', 'kirki-ecommerce'), Response::BAD_REQUEST);
-        }
-
         $data->slug = Collection::generate_unique_slug($data->slug, $data->id);
 
         $attributes = $data->to_array();
         $attributes['updated_by'] = user()->get_id();
 
-        $updated = (bool) Collection::find($data->id)->update($attributes);
+        $updated = (bool) Collection::query()->where('id', $data->id)->update($attributes);
 
         if (!$updated) {
             throw new Exception(__('Collection could not be updated.', 'kirki-ecommerce'), Response::BAD_REQUEST);
@@ -121,7 +110,7 @@ class CollectionService
      */
     public function delete(int $id)
     {
-        $deleted = (bool) Collection::find($id)->delete();
+        $deleted = (bool) Collection::query()->where('id', $id)->delete();
 
         if (!$deleted) {
             throw new Exception(__('Collection could not be deleted.', 'kirki-ecommerce'), Response::BAD_REQUEST);

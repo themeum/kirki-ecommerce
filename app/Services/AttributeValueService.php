@@ -94,13 +94,7 @@ class AttributeValueService
      */
     public function update(UpdateAttributeValueDTO $data)
     {
-        $attribute_value = AttributeValue::find($data->id);
-
-        if (empty($attribute_value)) {
-            throw new NotFoundException(__('Attribute value could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
-
-        $is_updated = (bool) AttributeValue::find($data->id)->update($data->to_array());
+        $is_updated = (bool) AttributeValue::query()->where('id', $data->id)->update($data->to_array());
 
         if (!$is_updated) {
             throw new NotFoundException(__('Attribute value could not be updated.', 'kirki-ecommerce'), Response::NOT_FOUND);
@@ -118,13 +112,7 @@ class AttributeValueService
      */
     public function delete(int $id)
     {
-        $attribute_value = AttributeValue::find($id);
-
-        if (empty($attribute_value)) {
-            throw new NotFoundException(__('Attribute value could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
-
-        $is_deleted = (bool) AttributeValue::find($id)->delete();
+        $is_deleted = (bool) AttributeValue::query()->where('id', $id)->delete();
 
         if (!$is_deleted) {
             throw new NotFoundException(__('Attribute value could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND);

@@ -89,13 +89,7 @@ class AddressService
      */
     public function update(UpdateAddressDTO $data)
     {
-        $address = Address::find($data->id);
-
-        if (empty($address)) {
-            throw new NotFoundException(__('Address could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
-
-        $is_updated = (bool) Address::find($data->id)->update($data->to_array());
+        $is_updated = Address::query()->where('id', $data->id)->update($data->to_array());
 
         if (!$is_updated) {
             throw new NotFoundException(__('Address could not be updated.', 'kirki-ecommerce'), Response::NOT_FOUND);
@@ -113,13 +107,7 @@ class AddressService
      */
     public function delete(int $id)
     {
-        $address = Address::find($id);
-
-        if (empty($address)) {
-            throw new NotFoundException(__('Address could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
-
-        $is_deleted = (bool) Address::find($id)->delete();
+        $is_deleted = Address::where('id', $id)->delete();
 
         if (!$is_deleted) {
             throw new NotFoundException(__('Address could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND);
@@ -137,7 +125,7 @@ class AddressService
      */
     public function bulk_delete(array $ids)
     {
-        $is_deleted = (bool) Address::where_in('id', $ids)->delete();
+        $is_deleted = Address::where_in('id', $ids)->delete();
 
         if (!$is_deleted) {
             throw new NotFoundException(__('Addresses could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND);

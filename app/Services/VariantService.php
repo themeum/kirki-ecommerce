@@ -113,12 +113,6 @@ class VariantService
      */
     public function update(UpdateVariantDTO $data)
     {
-        $variant = $this->find_or_null($data->id);
-
-        if (empty($variant)) {
-            throw new NotFoundException(sprintf(__('Variant with id %s could not be found.', 'kirki-ecommerce'), $data->id), Response::NOT_FOUND);
-        }
-
         $data_array = $data->all();
 
         $data_array['updated_by'] = user()->get_id();
@@ -197,11 +191,7 @@ class VariantService
      */
     public function increment(int $id, string $column, int $amount = 1)
     {
-        // @todo: use query builder increment() instead
-        $variant = Variant::find($id);
-        $variant->$column += $amount;
-
-        return $variant->save();
+        return (bool) Variant::query()->where('id', $id)->increment($column, $amount);
     }
 
     /**
@@ -214,11 +204,7 @@ class VariantService
      */
     public function decrement(int $id, string $column, int $amount = 1)
     {
-        // @todo: use query builder decrement() instead
-        $variant = Variant::find($id);
-        $variant->$column -= $amount;
-
-        return $variant->save();
+        return (bool) Variant::query()->where('id', $id)->decrement($column, $amount);
     }
 
     /**
@@ -230,13 +216,7 @@ class VariantService
      */
     public function delete(int $id)
     {
-        $variant = $this->find_or_null($id);
-
-        if (empty($variant)) {
-            throw new NotFoundException(sprintf(__('Variant with id %s could not be found.', 'kirki-ecommerce'), $id), Response::NOT_FOUND);
-        }
-
-        $is_deleted = (bool) Variant::find($id)->delete();
+        $is_deleted = (bool) Variant::query()->where('id', $id)->delete();
 
         if (!$is_deleted) {
             throw new NotFoundException(sprintf(__('Variant with id %s could not be deleted.', 'kirki-ecommerce'), $id), Response::NOT_FOUND);

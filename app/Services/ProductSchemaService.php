@@ -77,13 +77,7 @@ class ProductSchemaService
      */
     public function update(UpdateProductSchemaDTO $data)
     {
-        $product_schema = ProductSchema::find($data->id);
-
-        if (empty($product_schema)) {
-            throw new NotFoundException(__('Product schema could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
-
-        $is_updated = (bool) ProductSchema::find($data->id)->update($data->to_array());
+        $is_updated = (bool) ProductSchema::query()->where('id', $data->id)->update($data->to_array());
 
         if (!$is_updated) {
             throw new NotFoundException(__('Product schema could not be updated.', 'kirki-ecommerce'), Response::NOT_FOUND);
@@ -101,13 +95,7 @@ class ProductSchemaService
      */
     public function delete(int $id)
     {
-        $product_schema = ProductSchema::find($id);
-
-        if (empty($product_schema)) {
-            throw new NotFoundException(__('Product schema could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
-
-        $is_deleted = (bool) ProductSchema::find($id)->delete();
+        $is_deleted = (bool) ProductSchema::query()->where('id', $id)->delete();
 
         if (!$is_deleted) {
             throw new NotFoundException(__('Product schema could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND);

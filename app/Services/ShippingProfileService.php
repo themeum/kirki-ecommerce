@@ -77,13 +77,7 @@ class ShippingProfileService
      */
     public function update(UpdateShippingProfileDTO $data)
     {
-        $shipping_profile = ShippingProfile::find($data->id);
-
-        if (empty($shipping_profile)) {
-            throw new NotFoundException(__('Shipping profile could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
-
-        $is_updated = (bool) ShippingProfile::find($data->id)->update($data->to_array());
+        $is_updated = (bool) ShippingProfile::query()->where('id', $data->id)->update($data->to_array());
 
         if (!$is_updated) {
             throw new NotFoundException(__('Shipping profile could not be updated.', 'kirki-ecommerce'), Response::NOT_FOUND);
@@ -101,13 +95,7 @@ class ShippingProfileService
      */
     public function delete(int $id)
     {
-        $shipping_profile = ShippingProfile::find($id);
-
-        if (empty($shipping_profile)) {
-            throw new NotFoundException(__('Shipping profile could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
-
-        $is_deleted = (bool) ShippingProfile::find($id)->delete();
+        $is_deleted = (bool) ShippingProfile::query()->where('id', $id)->delete();
 
         if (!$is_deleted) {
             throw new NotFoundException(__('Shipping profile could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND);
