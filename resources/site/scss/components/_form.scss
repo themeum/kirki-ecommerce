@@ -232,6 +232,7 @@
     &:checked {
       border-color: $background-fill-brand;
       border-width: 2px;
+      background-color: transparent;
       background-image: radial-gradient(circle, $background-fill-brand 40%, transparent 40%);
     }
 
