@@ -89,7 +89,13 @@ class AddressService
      */
     public function update(UpdateAddressDTO $data)
     {
-        $is_updated = Address::query()->where('id', $data->id)->update($data->to_array());
+        $address = Address::find($data->id);
+
+        if (empty($address)) {
+            throw new NotFoundException(__('Address could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
+        }
+
+        $is_updated = $address->update($data->to_array());
 
         if (!$is_updated) {
             throw new NotFoundException(__('Address could not be updated.', 'kirki-ecommerce'), Response::NOT_FOUND);

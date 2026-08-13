@@ -89,13 +89,19 @@ class TagService
      */
     public function update(UpdateTagDTO $data)
     {
+        $tag = Tag::find($data->id);
+
+        if (empty($tag)) {
+            throw new NotFoundException(__('Tag could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
+        }
+
         $data->slug = empty($data->slug) ? $data->name : $data->slug;
         $data->slug = Tag::generate_unique_slug($data->slug, $data->id);
 
         $attributes = $data->to_array();
         $attributes['updated_by'] = user()->get_id();
 
-        $is_updated = (bool) Tag::query()->where('id', $data->id)->update($attributes);
+        $is_updated = (bool) $tag->update($attributes);
 
         if (!$is_updated) {
             throw new Exception(__('Tag could not be updated.', 'kirki-ecommerce'), Response::BAD_REQUEST);

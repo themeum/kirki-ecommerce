@@ -43,24 +43,22 @@ class CreateCouponAction
                 $coupon->categories()->sync($payload->category_ids);
             }
 
-            if (!empty($payload->product_ids)) {
-                $product_sync_data = [];
+            $product_sync_data = [];
 
+            if (!empty($payload->product_ids)) {
                 foreach ($payload->product_ids as $product_id) {
                     $product_sync_data[$product_id] = ['is_reward_item' => 0];
                 }
-
-                $coupon->products()->sync($product_sync_data);
             }
 
             if (!empty($payload->reward_product_ids)) {
-                $reward_sync_data = [];
-
                 foreach ($payload->reward_product_ids as $product_id) {
-                    $reward_sync_data[$product_id] = ['is_reward_item' => 1];
+                    $product_sync_data[$product_id] = ['is_reward_item' => 1];
                 }
+            }
 
-                $coupon->products()->sync($reward_sync_data);
+            if (!empty($product_sync_data)) {
+                $coupon->products()->sync($product_sync_data);
             }
 
             if (!empty($payload->customer_ids)) {

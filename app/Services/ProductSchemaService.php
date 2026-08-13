@@ -77,7 +77,13 @@ class ProductSchemaService
      */
     public function update(UpdateProductSchemaDTO $data)
     {
-        $is_updated = (bool) ProductSchema::query()->where('id', $data->id)->update($data->to_array());
+        $product_schema = ProductSchema::find($data->id);
+
+        if (empty($product_schema)) {
+            throw new NotFoundException(__('Product schema could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
+        }
+
+        $is_updated = (bool) $product_schema->update($data->to_array());
 
         if (!$is_updated) {
             throw new NotFoundException(__('Product schema could not be updated.', 'kirki-ecommerce'), Response::NOT_FOUND);

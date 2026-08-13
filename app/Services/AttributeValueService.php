@@ -94,7 +94,13 @@ class AttributeValueService
      */
     public function update(UpdateAttributeValueDTO $data)
     {
-        $is_updated = (bool) AttributeValue::query()->where('id', $data->id)->update($data->to_array());
+        $attribute_value = AttributeValue::find($data->id);
+
+        if (empty($attribute_value)) {
+            throw new NotFoundException(__('Attribute value could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
+        }
+
+        $is_updated = (bool) $attribute_value->update($data->to_array());
 
         if (!$is_updated) {
             throw new NotFoundException(__('Attribute value could not be updated.', 'kirki-ecommerce'), Response::NOT_FOUND);

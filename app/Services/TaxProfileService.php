@@ -77,7 +77,13 @@ class TaxProfileService
      */
     public function update(UpdateTaxProfileDTO $data)
     {
-        $is_updated = (bool) TaxProfile::query()->where('id', $data->id)->update($data->to_array());
+        $tax_profile = TaxProfile::find($data->id);
+
+        if (empty($tax_profile)) {
+            throw new NotFoundException(__('Tax profile could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
+        }
+
+        $is_updated = (bool) $tax_profile->update($data->to_array());
 
         if (!$is_updated) {
             throw new NotFoundException(__('Tax profile could not be updated.', 'kirki-ecommerce'), Response::NOT_FOUND);

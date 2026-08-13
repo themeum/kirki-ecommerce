@@ -78,11 +78,13 @@ class CartService
 
     protected function update_cart($id, array $data)
     {
-        $is_updated = (bool) CartModel::query()->where('id', $id)->update($data);
+        $cart = CartModel::find($id);
 
-        if (!$is_updated) {
+        if (empty($cart)) {
             return null;
         }
+
+        $cart->update($data);
 
         return $this->find($id);
     }
@@ -192,7 +194,13 @@ class CartService
 
     public function update_item($item_id, array $data)
     {
-        return CartItem::query()->where('id', $item_id)->update($data);
+        $item = $this->find_item($item_id);
+
+        if (empty($item)) {
+            return false;
+        }
+
+        return $item->update($data);
     }
 
     public function partial_update($cart_id, array $data)

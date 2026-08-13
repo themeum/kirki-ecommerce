@@ -176,7 +176,7 @@ class CurrencyService
             throw new Exception(__('Currency code already exists.', 'kirki-ecommerce'), Response::BAD_REQUEST);
         }
 
-        $is_updated = (bool) Currency::query()->where('id', $data->id)->update($data->to_array());
+        $is_updated = (bool) $currency->update($data->to_array());
 
         if ($data->is_base && !$currency->is_base) {
             CurrencyExchange::sync();

@@ -128,13 +128,19 @@ class ProductService
      */
     public function update(UpdateProductDTO $data)
     {
+        $product = Product::with(['brand', 'currency', 'categories', 'tags', 'collections', 'attributes', 'attribute_values', 'variants.attribute_values', 'variants.product', 'media'])->find($data->id);
+
+        if (empty($product)) {
+            throw new NotFoundException(__('Product could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
+        }
+
         $data->slug = empty($data->slug) ? $data->title : $data->slug;
         $data->slug = Product::generate_unique_slug($data->slug, $data->id);
 
         $data_array = $data->all();
         $data_array['updated_by'] = user()->get_id();
 
-        $is_updated = (bool) Product::query()->where('id', $data->id)->update($data_array);
+        $is_updated = (bool) $product->update($data_array);
 
         if (!$is_updated) {
             throw new NotFoundException(__('Product could not be updated.', 'kirki-ecommerce'), Response::NOT_FOUND);
@@ -149,8 +155,6 @@ class ProductService
         }, $data->attributes);
 
         $attribute_values = array_unique(array_merge(...$attribute_values));
-
-        $product = Product::with(['brand', 'currency', 'categories', 'tags', 'collections', 'attributes', 'attribute_values', 'variants.attribute_values', 'variants.product', 'media'])->find($data->id);
 
         $product->media()->sync($this->format_ordering($data->media));
         $product->collections()->sync($data->collections);

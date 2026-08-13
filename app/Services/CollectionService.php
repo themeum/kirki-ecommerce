@@ -86,13 +86,19 @@ class CollectionService
      */
     public function update(UpdateCollectionDTO $data)
     {
+        $collection = Collection::find($data->id);
+
+        if (empty($collection)) {
+            throw new NotFoundException(__('Collection could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
+        }
+
         $data->slug = empty($data->slug) ? $data->title : $data->slug;
         $data->slug = Collection::generate_unique_slug($data->slug, $data->id);
 
         $attributes = $data->to_array();
         $attributes['updated_by'] = user()->get_id();
 
-        $updated = (bool) Collection::query()->where('id', $data->id)->update($attributes);
+        $updated = (bool) $collection->update($attributes);
 
         if (!$updated) {
             throw new Exception(__('Collection could not be updated.', 'kirki-ecommerce'), Response::BAD_REQUEST);

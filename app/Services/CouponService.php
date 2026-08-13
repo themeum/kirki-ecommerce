@@ -109,16 +109,22 @@ class CouponService
      */
     public function update(UpdateCouponDTO $data)
     {
-        $attributes = $data->to_array();
-        $attributes['updated_by'] = user()->get_id();
+        $coupon = Coupon::find($data->id);
 
-        if ($attributes['discount_value_type'] === DiscountValueType::FIXED) {
-            $attributes['base_discount_amount_fixed'] = $attributes['discount_amount'];
-        } else {
-            $attributes['discount_amount_percentage'] = $attributes['discount_amount'];
+        if (empty($coupon)) {
+            throw new NotFoundException(__('Coupon could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
         }
 
-        $is_updated = (bool) Coupon::query()->where('id', $data->id)->update($attributes);
+        $attributes = $data->except(['id', 'discount_amount', 'category_ids', 'product_ids', 'customer_ids', 'reward_product_ids']);
+        $attributes['updated_by'] = user()->get_id();
+
+        if ($data->discount_value_type === DiscountValueType::FIXED) {
+            $attributes['base_discount_amount_fixed'] = $data->discount_amount;
+        } else {
+            $attributes['discount_amount_percentage'] = $data->discount_amount;
+        }
+
+        $is_updated = (bool) $coupon->update($attributes);
 
         if (!$is_updated) {
             throw new NotFoundException(__('Coupon could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
@@ -263,27 +269,6 @@ class CouponService
     public function validate_code(string $code)
     {
         return !$this->is_exists($code);
-    }
-
-    /**
-     * Duplicate a coupon by its ID.
-     *
-     * @param int $id
-     * @return Coupon
-     */
-    public function duplicate(int $id)
-    {
-        $coupon = Coupon::find($id);
-
-        if (empty($coupon)) {
-            throw new NotFoundException(__('Coupon could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
-
-        $data = CreateCouponDTO::from_array($coupon->to_array());
-        $data->title = $data->title . ' - Copy';
-        $data->code = $this->generate_new_code();
-
-        return $this->create($data);
     }
 
     /**

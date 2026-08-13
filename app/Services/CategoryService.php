@@ -103,6 +103,12 @@ class CategoryService
      */
     public function update(UpdateCategoryDTO $data)
     {
+        $category = Category::find($data->id);
+
+        if (empty($category)) {
+            throw new NotFoundException(__('Category could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
+        }
+
         $data->slug = empty($data->slug) ? $data->name : $data->slug;
 
         if ($data->parent_id) {
@@ -118,7 +124,7 @@ class CategoryService
         $attributes = $data->to_array();
         $attributes['updated_by'] = user()->get_id();
 
-        $is_updated = (bool) Category::query()->where('id', $data->id)->update($attributes);
+        $is_updated = (bool) $category->update($attributes);
 
         if (!$is_updated) {
             throw new NotFoundException(__('Category could not be updated.', 'kirki-ecommerce'), Response::BAD_REQUEST);

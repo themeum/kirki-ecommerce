@@ -92,13 +92,19 @@ class BrandService
      */
     public function update(UpdateBrandDTO $data)
     {
+        $brand = Brand::find($data->id);
+
+        if (empty($brand)) {
+            throw new NotFoundException(__('Brand could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
+        }
+
         $data->slug = empty($data->slug) ? $data->name : $data->slug;
         $data->slug = Brand::generate_unique_slug($data->slug, $data->id);
 
         $attributes = $data->to_array();
         $attributes['updated_by'] = user()->get_id();
 
-        $is_updated = (bool) Brand::query()->where('id', $data->id)->update($attributes);
+        $is_updated = (bool) $brand->update($attributes);
 
         if (!$is_updated) {
             throw new Exception(__('Brand could not be updated.', 'kirki-ecommerce'), Response::BAD_REQUEST);

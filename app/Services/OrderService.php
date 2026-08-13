@@ -77,7 +77,13 @@ class OrderService
      */
     public function update_order_item(UpdateOrderItemDTO $dto)
     {
-        return (bool) OrderItem::query()->where('id', $dto->id)->update($dto->to_array());
+        $order_item = OrderItem::find($dto->id);
+
+        if (empty($order_item)) {
+            return false;
+        }
+
+        return (bool) $order_item->update($dto->to_array());
     }
 
     /**
@@ -151,7 +157,13 @@ class OrderService
      */
     public function update_order(UpdateOrderDTO $dto)
     {
-        return (bool) Order::query()->where('id', $dto->id)->update($dto->to_array());
+        $order = Order::find($dto->id);
+
+        if (empty($order)) {
+            return false;
+        }
+
+        return (bool) $order->update($dto->to_array());
     }
 
     /**
@@ -163,7 +175,13 @@ class OrderService
      */
     public function partial_update_order(int $id, array $data)
     {
-        return (bool) Order::query()->where('id', $id)->update($data);
+        $order = Order::find($id);
+
+        if (empty($order)) {
+            return false;
+        }
+
+        return (bool) $order->update($data);
     }
 
     /**
@@ -189,7 +207,13 @@ class OrderService
 
         $target_state = OrderStatus::get_state($target_status);
 
-        $is_updated = (bool) Order::query()->where('id', $id)->update([
+        $order = Order::find($id);
+
+        if (empty($order)) {
+            throw new NotFoundException(__('Order not found.', 'kirki-ecommerce'));
+        }
+
+        $is_updated = (bool) $order->update([
             'order_status' => $target_status,
             'fulfillment_status' => $target_state['fulfillment_status'],
             'payment_status' => $target_state['payment_status'],
@@ -210,14 +234,17 @@ class OrderService
      */
     public function mark_refund_as_completed(int $id)
     {
-        return (bool) Order::query()
-            ->where('id', $id)
-            ->where('is_refund_initiated', true)
-            ->update([
-                'payment_status' => PaymentStatus::REFUNDED,
-                'fulfillment_status' => FulfillmentStatus::RETURNED,
-                'order_status' => OrderStatus::REFUNDED,
-            ]);
+        $order = Order::find($id);
+
+        if (empty($order) || !$order->is_refund_initiated) {
+            return false;
+        }
+
+        return (bool) $order->update([
+            'payment_status' => PaymentStatus::REFUNDED,
+            'fulfillment_status' => FulfillmentStatus::RETURNED,
+            'order_status' => OrderStatus::REFUNDED,
+        ]);
     }
 
     /**

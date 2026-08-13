@@ -77,7 +77,13 @@ class ShippingProfileService
      */
     public function update(UpdateShippingProfileDTO $data)
     {
-        $is_updated = (bool) ShippingProfile::query()->where('id', $data->id)->update($data->to_array());
+        $shipping_profile = ShippingProfile::find($data->id);
+
+        if (empty($shipping_profile)) {
+            throw new NotFoundException(__('Shipping profile could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
+        }
+
+        $is_updated = (bool) $shipping_profile->update($data->to_array());
 
         if (!$is_updated) {
             throw new NotFoundException(__('Shipping profile could not be updated.', 'kirki-ecommerce'), Response::NOT_FOUND);
