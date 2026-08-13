@@ -2,7 +2,7 @@
 // Sourced from app/theme/index.ts primitiveColors
 // CSS vars use --kecom-* prefix; SCSS vars are the authored interface.
 
-@use "./variables" as *;
+@use './variables' as *;
 
 // =============================================================================
 // PRIMITIVE COLOR VALUES (raw, never used directly in components)
@@ -95,25 +95,52 @@ $background-fill: var(#{$css-var-prefix}-background-fill, #{$_gray-1});
 $background-fill-brand: var(#{$css-var-prefix}-background-fill-brand, #{$_brand-1});
 $background-fill-brand-hover: var(#{$css-var-prefix}-background-fill-brand-hover, #{$_brand-2});
 $background-fill-caution: var(#{$css-var-prefix}-background-fill-caution, #{$_yellow-2});
-$background-fill-caution-secondary: var(#{$css-var-prefix}-background-fill-caution-secondary, #{$_yellow-1});
+$background-fill-caution-secondary: var(
+  #{$css-var-prefix}-background-fill-caution-secondary,
+  #{$_yellow-1}
+);
 $background-fill-critical: var(#{$css-var-prefix}-background-fill-critical, #{$_red-3});
 $background-fill-critical-hover: var(#{$css-var-prefix}-background-fill-critical, #{$_red-2});
-$background-fill-critical-secondary: var(#{$css-var-prefix}-background-fill-critical-secondary, #{$_red-1});
+$background-fill-critical-secondary: var(
+  #{$css-var-prefix}-background-fill-critical-secondary,
+  #{$_red-1}
+);
 $background-fill-disabled: var(#{$css-var-prefix}-background-fill-disabled, #{$_gray-12});
 $background-fill-hover: var(#{$css-var-prefix}-background-fill-hover, #{$_gray-6});
 $background-fill-secondary: var(#{$css-var-prefix}-background-fill-secondary, #{$_brand-5});
-$background-fill-secondary-hover: var(#{$css-var-prefix}-background-fill-secondary-hover, #{$_brand-4});
+$background-fill-secondary-hover: var(
+  #{$css-var-prefix}-background-fill-secondary-hover,
+  #{$_brand-4}
+);
 $background-fill-special: var(#{$css-var-prefix}-background-fill-special, #{$_blue-2});
 $background-fill-special2: var(#{$css-var-prefix}-background-fill-special2, #{$_violet-2});
-$background-fill-special2-secondary: var(#{$css-var-prefix}-background-fill-special2-secondary, #{$_violet-1});
-$background-fill-special3-tertiary: var(#{$css-var-prefix}-background-fill-special3-tertiary, #{$_violet-3});
-$background-fill-special-secondary: var(#{$css-var-prefix}-background-fill-special-secondary, #{$_blue-1});
+$background-fill-special2-secondary: var(
+  #{$css-var-prefix}-background-fill-special2-secondary,
+  #{$_violet-1}
+);
+$background-fill-special3-tertiary: var(
+  #{$css-var-prefix}-background-fill-special3-tertiary,
+  #{$_violet-3}
+);
+$background-fill-special-secondary: var(
+  #{$css-var-prefix}-background-fill-special-secondary,
+  #{$_blue-1}
+);
 $background-fill-success: var(#{$css-var-prefix}-background-fill-success, #{$_green-6});
-$background-fill-success-secondary: var(#{$css-var-prefix}-background-fill-success-secondary, #{$_green-1});
+$background-fill-success-secondary: var(
+  #{$css-var-prefix}-background-fill-success-secondary,
+  #{$_green-1}
+);
 $background-fill-tertiary: var(#{$css-var-prefix}-background-fill-tertiary, #{$_gray-9});
-$background-fill-tertiary-hover: var(#{$css-var-prefix}-background-fill-tertiary-hover, #{$_gray-11});
+$background-fill-tertiary-hover: var(
+  #{$css-var-prefix}-background-fill-tertiary-hover,
+  #{$_gray-11}
+);
 $background-fill-warning: var(#{$css-var-prefix}-background-fill-warning, #{$_orange-2});
-$background-fill-warning-secondary: var(#{$css-var-prefix}-background-fill-warning-secondary, #{$_orange-1});
+$background-fill-warning-secondary: var(
+  #{$css-var-prefix}-background-fill-warning-secondary,
+  #{$_orange-1}
+);
 $background-inverse: var(#{$css-var-prefix}-background-inverse, #{$_gray-16});
 $background-surface: var(#{$css-var-prefix}-background-surface, #{$_gray-1});
 $background-surface-alt: var(#{$css-var-prefix}-background-surface-alt, #{$_gray-2});
@@ -121,12 +148,21 @@ $background-surface-disabled: var(#{$css-var-prefix}-background-surface-disabled
 $background-surface-secondary: var(#{$css-var-prefix}-background-surface-secondary, #{$_gray-4});
 $background-surface-subdued: var(#{$css-var-prefix}-background-surface-subdued, #{$_gray-7});
 $background-surface-tertiary: var(#{$css-var-prefix}-background-surface-tertiary, #{$_gray-5});
-$background-button-tertiary: var(#{$css-var-prefix}-background-button-tertiary, #{$_button-tertiary});
+$background-button-tertiary: var(
+  #{$css-var-prefix}-background-button-tertiary,
+  #{$_button-tertiary}
+);
 $background-settings-hover: var(#{$css-var-prefix}-background-settings-hover, #{$_settings-hover});
-$background-placeholder-surface: var(#{$css-var-prefix}-background-placeholder-surface, #{$_placeholder-surface});
+$background-placeholder-surface: var(
+  #{$css-var-prefix}-background-placeholder-surface,
+  #{$_placeholder-surface}
+);
 $background-gallery-hover: var(#{$css-var-prefix}-background-gallery-hover, #{$_gallery-hover});
 $background-option-hover: var(#{$css-var-prefix}-background-option-hover, #{$_option-hover});
-$background-neutral-surface: var(#{$css-var-prefix}-background-neutral-surface, #{$_neutral-surface});
+$background-neutral-surface: var(
+  #{$css-var-prefix}-background-neutral-surface,
+  #{$_neutral-surface}
+);
 $background-badge-draft: var(#{$css-var-prefix}-background-badge-draft, #{$_badge-draft});
 
 // Border

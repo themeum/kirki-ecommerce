@@ -1,8 +1,8 @@
 // Mixins - Typography
 
-@use "sass:map";
-@use "sass:list";
-@use "../tokens" as *;
+@use 'sass:map';
+@use 'sass:list';
+@use '../tokens' as *;
 
 // Font size + line height pair from the token scale
 @mixin text($size: base) {

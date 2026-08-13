@@ -3,7 +3,7 @@
  * Product image gallery with main image and thumbnails.
  *
  * PHP usage:
- *   <div x-data="imageSlider({ 
+ *   <div x-data="imageSlider({
  *     images: <?= json_encode($product_images) ?>,
  *     startIndex: 0
  *   })">
@@ -16,12 +16,12 @@ export type ImageSlide = {
   url: string;
   alt?: string;
   thumb?: string;
-}
+};
 
 export type ImageSliderConfig = {
   images: ImageSlide[];
   startIndex?: number;
-}
+};
 
 export function imageSlider(config: ImageSliderConfig) {
   return {
@@ -58,11 +58,11 @@ export function imageSlider(config: ImageSliderConfig) {
 
     init() {
       this.currentIndex = 0;
-      
+
       // Listen for variant changes to update image
       listen('kecom:variant:changed', ({ variant }) => {
         if (variant?.image) {
-          const variantImageIndex = this.images.findIndex(img => img.url === variant.image);
+          const variantImageIndex = this.images.findIndex((img) => img.url === variant.image);
           if (variantImageIndex >= 0) {
             this.goTo(variantImageIndex);
           }
@@ -71,8 +71,12 @@ export function imageSlider(config: ImageSliderConfig) {
     },
 
     handleKeydown(event: KeyboardEvent) {
-      if (event.key === 'ArrowRight') {this.next();}
-      if (event.key === 'ArrowLeft') {this.prev();}
+      if (event.key === 'ArrowRight') {
+        this.next();
+      }
+      if (event.key === 'ArrowLeft') {
+        this.prev();
+      }
     },
   };
 }

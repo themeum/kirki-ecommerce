@@ -101,7 +101,9 @@
   border-radius: $radius-sm;
   color: $icon-secondary;
   cursor: pointer;
-  transition: background-color 150ms ease, color 150ms ease;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
 
   &:hover {
     background-color: rgba(0, 0, 0, 0.05);

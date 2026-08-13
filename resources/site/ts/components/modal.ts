@@ -5,7 +5,7 @@
  * PHP usage:
  *   <div x-data="modal({ open: false })">
  *     <button @click="open">Open Modal</button>
- *     
+ *
  *     <div class="kecom-modal-backdrop" x-show="isOpen" @click="close"></div>
  *     <div class="kecom-modal" x-show="isOpen">
  *       <div class="kecom-modal-content">
@@ -27,7 +27,7 @@ export type ModalConfig = {
   open?: boolean;
   onClose?: () => void;
   onOpen?: () => void;
-}
+};
 
 export function modal(config: ModalConfig = {}) {
   return {
@@ -36,14 +36,18 @@ export function modal(config: ModalConfig = {}) {
     open() {
       this.isOpen = true;
       document.body.style.overflow = 'hidden';
-      if (config.onOpen) {config.onOpen();}
+      if (config.onOpen) {
+        config.onOpen();
+      }
       (this as any).$dispatch('kecom:modal:opened');
     },
 
     close() {
       this.isOpen = false;
       document.body.style.overflow = '';
-      if (config.onClose) {config.onClose();}
+      if (config.onClose) {
+        config.onClose();
+      }
       (this as any).$dispatch('kecom:modal:closed');
     },
 
@@ -64,7 +68,7 @@ export function modal(config: ModalConfig = {}) {
     init() {
       // Listen for escape key
       window.addEventListener('keydown', this.handleKeydown.bind(this));
-      
+
       // Clean up on destroy
       (this as any).$cleanup(() => {
         window.removeEventListener('keydown', this.handleKeydown.bind(this));

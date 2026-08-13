@@ -1,8 +1,8 @@
 // Page - Product Details
 // Styles for single product page layout
 
-@use "../tokens" as *;
-@use "../mixins" as *;
+@use '../tokens' as *;
+@use '../mixins' as *;
 
 .kecom-product-page {
   margin: 0px;
@@ -311,7 +311,7 @@
       color: $text-primary;
 
       &::after {
-        content: "";
+        content: '';
         position: absolute;
         bottom: -1px;
         left: 0;

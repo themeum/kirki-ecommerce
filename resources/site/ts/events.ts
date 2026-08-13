@@ -56,7 +56,7 @@ export type Events = {
     pagination_html?: string;
     filters?: unknown;
   };
-}
+};
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 

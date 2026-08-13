@@ -15,8 +15,8 @@
 // Pseudo-class variants (:focus, :hover, :disabled) naturally sit at (0,3,0)
 // and therefore also win over theme rules.
 
-@use "../tokens" as *;
-@use "../mixins" as *;
+@use '../tokens' as *;
+@use '../mixins' as *;
 
 // ── Field wrapper ────────────────────────────────────────────────────────────
 
@@ -30,7 +30,7 @@
     @include typography(base, medium, $text-primary);
 
     &-required::after {
-      content: " *";
+      content: ' *';
       color: $background-fill-critical;
     }
   }
@@ -306,7 +306,7 @@
       appearance: none;
       margin: 0;
     }
-    &[type="number"] {
+    &[type='number'] {
       appearance: textfield;
     }
   }

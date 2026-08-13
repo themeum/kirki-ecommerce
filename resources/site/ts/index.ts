@@ -52,10 +52,9 @@ console.log('Kirki Ecommerce site bundle loaded');
 
 // Initialize stores on page load
 document.addEventListener('alpine:init', () => {
-  (Alpine.store('cartStore')).init();
-  (Alpine.store('wishlistStore')).init();
+  Alpine.store('cartStore').init();
+  Alpine.store('wishlistStore').init();
 });
 
 // Export any utilities that templates might need
-export { };
-
+export {};

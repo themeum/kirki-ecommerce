@@ -12,7 +12,6 @@
 import { emit } from '../events';
 import { config } from '../utils';
 
-
 export type ValidationRules = {
   required?: boolean | string;
   minLength?: number | { value: number; message: string };
@@ -22,17 +21,17 @@ export type ValidationRules = {
   min?: number | { value: number; message: string };
   max?: number | { value: number; message: string };
   validate?: (value: unknown) => boolean | string | Promise<boolean | string>;
-}
+};
 
 export type FieldError = {
   type: string;
   message: string;
-}
+};
 
 export type FormConfig = {
   defaultValues?: Record<string, unknown>;
   mode?: 'onBlur' | 'onChange' | 'onSubmit';
-}
+};
 
 export type FormState = {
   values: Record<string, unknown>;
@@ -40,39 +39,49 @@ export type FormState = {
   touched: Record<string, boolean>;
   isSubmitting: boolean;
   isValid: boolean;
-}
+};
 
 const ValidationHelpers = {
   required(value: unknown, rule?: boolean | string): string | null {
-    if (!rule) {return null;}
+    if (!rule) {
+      return null;
+    }
     const message = typeof rule === 'string' ? rule : 'This field is required';
     const isEmpty = !value || (typeof value === 'string' && value.trim() === '');
     return isEmpty ? message : null;
   },
 
   minLength(value: string, rule: number | { value: number; message: string }): string | null {
-    if (!value) {return null;}
+    if (!value) {
+      return null;
+    }
     const minLength = typeof rule === 'number' ? rule : rule.value;
     const message = typeof rule === 'object' ? rule.message : `Minimum length is ${minLength}`;
     return value.length < minLength ? message : null;
   },
 
   maxLength(value: string, rule: number | { value: number; message: string }): string | null {
-    if (!value) {return null;}
+    if (!value) {
+      return null;
+    }
     const maxLength = typeof rule === 'number' ? rule : rule.value;
     const message = typeof rule === 'object' ? rule.message : `Maximum length is ${maxLength}`;
     return value.length > maxLength ? message : null;
   },
 
   pattern(value: string, rule: RegExp | { value: RegExp; message: string }): string | null {
-    if (!value) {return null;}
+    if (!value) {
+      return null;
+    }
     const pattern = rule instanceof RegExp ? rule : rule.value;
     const message = typeof rule === 'object' && 'message' in rule ? rule.message : 'Invalid format';
     return !pattern.test(value) ? message : null;
   },
 
   email(value: string, rule?: boolean | string): string | null {
-    if (!rule) {return null;}
+    if (!rule) {
+      return null;
+    }
     const message = typeof rule === 'string' ? rule : 'Invalid email address';
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return !emailPattern.test(value) ? message : null;
@@ -96,7 +105,9 @@ const ValidationHelpers = {
   ): Promise<string | null> {
     try {
       const result = await validate(value);
-      if (result === true) {return null;}
+      if (result === true) {
+        return null;
+      }
       return typeof result === 'string' ? result : 'Validation failed';
     } catch {
       return 'Validation error';
@@ -105,47 +116,66 @@ const ValidationHelpers = {
 };
 
 async function validateField(value: unknown, rules?: ValidationRules): Promise<string | null> {
-  if (!rules) {return null;}
+  if (!rules) {
+    return null;
+  }
 
-  const stringValue = typeof value === 'string' ? value : typeof value === 'number' ? String(value) : '';
+  const stringValue =
+    typeof value === 'string' ? value : typeof value === 'number' ? String(value) : '';
   const numericValue = typeof value === 'number' ? value : parseFloat(stringValue);
 
   const requiredError = ValidationHelpers.required(value, rules.required);
-  if (requiredError) {return requiredError;}
+  if (requiredError) {
+    return requiredError;
+  }
 
   if (rules.email) {
     const emailError = ValidationHelpers.email(stringValue, rules.email);
-    if (emailError) {return emailError;}
+    if (emailError) {
+      return emailError;
+    }
   }
 
   if (rules.minLength) {
     const error = ValidationHelpers.minLength(stringValue, rules.minLength);
-    if (error) {return error;}
+    if (error) {
+      return error;
+    }
   }
 
   if (rules.maxLength) {
     const error = ValidationHelpers.maxLength(stringValue, rules.maxLength);
-    if (error) {return error;}
+    if (error) {
+      return error;
+    }
   }
 
   if (rules.min && !isNaN(numericValue)) {
     const error = ValidationHelpers.min(numericValue, rules.min);
-    if (error) {return error;}
+    if (error) {
+      return error;
+    }
   }
 
   if (rules.max && !isNaN(numericValue)) {
     const error = ValidationHelpers.max(numericValue, rules.max);
-    if (error) {return error;}
+    if (error) {
+      return error;
+    }
   }
 
   if (rules.pattern && stringValue) {
     const error = ValidationHelpers.pattern(stringValue, rules.pattern);
-    if (error) {return error;}
+    if (error) {
+      return error;
+    }
   }
 
   if (rules.validate) {
     const error = await ValidationHelpers.custom(value, rules.validate);
-    if (error) {return error;}
+    if (error) {
+      return error;
+    }
   }
 
   return null;
@@ -245,7 +275,10 @@ export function form(config: FormConfig = {}) {
       this.isValid = true;
     },
 
-    async handleSubmit(onValid: (data: Record<string, unknown>) => void | Promise<void>, onInvalid?: () => void) {
+    async handleSubmit(
+      onValid: (data: Record<string, unknown>) => void | Promise<void>,
+      onInvalid?: () => void,
+    ) {
       this.isSubmitting = true;
       this.touched = Object.keys(this.values).reduce((acc, key) => ({ ...acc, [key]: true }), {});
 
@@ -288,7 +321,9 @@ export function form(config: FormConfig = {}) {
  *     </select>
  *   </div>
  */
-export function stateField({ notifyAddressChange = false }: { notifyAddressChange?: boolean } = {}) {
+export function stateField({
+  notifyAddressChange = false,
+}: { notifyAddressChange?: boolean } = {}) {
   return {
     states: [] as { id: string; name: string }[],
 
@@ -298,7 +333,8 @@ export function stateField({ notifyAddressChange = false }: { notifyAddressChang
           this.states = [];
           return;
         }
-        const countries: { code: string; states: { id: string; name: string }[] }[] = config.countries ?? [];
+        const countries: { code: string; states: { id: string; name: string }[] }[] =
+          config.countries ?? [];
         const country = countries.find((c) => c.code === countryCode);
         this.states = country?.states ?? [];
       };

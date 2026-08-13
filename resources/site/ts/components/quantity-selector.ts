@@ -16,7 +16,7 @@ export type QuantitySelectorConfig = {
   max?: number | (() => number);
   initial?: number;
   onChange?: (quantity: number) => void;
-}
+};
 
 export function quantitySelector(config: QuantitySelectorConfig = {}) {
   return {
@@ -24,7 +24,9 @@ export function quantitySelector(config: QuantitySelectorConfig = {}) {
     min: config.min ?? 1,
 
     get maxValue(): number | undefined {
-      if (typeof config.max === 'function') {return config.max();}
+      if (typeof config.max === 'function') {
+        return config.max();
+      }
       return config.max;
     },
 

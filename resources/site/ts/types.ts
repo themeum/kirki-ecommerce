@@ -8,7 +8,7 @@ export type ShippingMethod = {
     display: string;
     row: number;
   };
-}
+};
 
 export type KirkiEcommerceConfig = {
   rest_url_base: string; // e.g. /wp-json/kirki/ecommerce/v1
@@ -30,7 +30,7 @@ export type KirkiEcommerceConfig = {
   cart_token_cookie_name: string;
   cart_token_header_name: string;
   header_skip_tax: string;
-}
+};
 
 // Extend window for WordPress-injected config
 declare global {
@@ -75,12 +75,12 @@ export type CartItem = {
   created_at: string;
   updated_at: string;
   display_product_total_money_object: {
-    display: string,
+    display: string;
   };
   display_total_money_object: {
-    display: string,
+    display: string;
   };
-}
+};
 
 export type CartUpdateItem = {
   sub_total: number;
@@ -88,15 +88,15 @@ export type CartUpdateItem = {
   items_count: number;
   pricing: {
     display_subtotal_money_object: {
-      display: string,
+      display: string;
     };
     display_total_money_object: {
-      display: string,
-    },
-  },
-  items: CartItem[],
+      display: string;
+    };
+  };
+  items: CartItem[];
   formatted_items: Record<number, string> | null;
-}
+};
 
 export type MoneyObject = {
   raw: number;
@@ -105,7 +105,7 @@ export type MoneyObject = {
     code: string;
     symbol: string;
   };
-}
+};
 
 export type DiscountDetails = {
   code: string | null;
@@ -113,7 +113,7 @@ export type DiscountDetails = {
   discount_value_type: string | null;
   discount_amount_percentage: number | null;
   base_discount_amount_fixed: number | null;
-}
+};
 
 export type CartPricing = {
   display_subtotal_money_object: MoneyObject;
@@ -125,7 +125,7 @@ export type CartPricing = {
   display_shipping_discount_money_object: MoneyObject;
   display_shipping_total_money_object: MoneyObject;
   display_total_money_object: MoneyObject;
-}
+};
 
 export type Cart = {
   id: number;
@@ -148,18 +148,18 @@ export type Cart = {
   expires_at: string | null;
   created_at: string;
   updated_at: string;
-}
+};
 
 export type ApiResponse<T> = {
   data: T;
   message: string;
   success: boolean;
-}
+};
 
 export type OrderItem = {
   variant_id: number;
   quantity: number;
-}
+};
 
 export type CheckoutRequest = {
   items: OrderItem[];
@@ -193,7 +193,7 @@ export type CheckoutRequest = {
   customer_email: string;
   customer_phone: string;
   customer_notes?: string | null;
-}
+};
 
 export type CheckoutResponse = {
   id: number;
@@ -203,10 +203,10 @@ export type CheckoutResponse = {
   total: string;
   currency: string;
   payment_next_step: {
-    type: 'redirect' | 'html',
-    value: string
-  } | null
-}
+    type: 'redirect' | 'html';
+    value: string;
+  } | null;
+};
 
 export type WishlistItem = {
   product_id: number;
@@ -215,18 +215,19 @@ export type WishlistItem = {
   image?: string;
   price?: number;
   url?: string;
-}
+};
 
 export type ApiError = {
   message: string;
   code?: string;
-}
+};
 
 // ── Toast types ───────────────────────────────────────────────────────────────
 
 export type ToastType = 'success' | 'error' | 'warning' | 'info' | 'default';
 
-export type ToastPosition = 'top-left' | 'top-center' | 'top-right' | 'bottom-left' | 'bottom-center' | 'bottom-right';
+export type ToastPosition =
+  'top-left' | 'top-center' | 'top-right' | 'bottom-left' | 'bottom-center' | 'bottom-right';
 
 export type ToastExpandMode = 'hover' | 'always' | 'never';
 
@@ -243,7 +244,7 @@ export type ToastOffset = {
     x?: number;
     y?: number;
   };
-}
+};
 
 export type ToastOptions = {
   type?: ToastType;
@@ -256,7 +257,7 @@ export type ToastOptions = {
   richColors?: boolean;
   position?: ToastPosition;
   theme?: ToastTheme;
-}
+};
 
 export type ToastConfig = {
   position?: ToastPosition;
@@ -268,7 +269,7 @@ export type ToastConfig = {
   expandMode?: ToastExpandMode;
   richColors?: boolean;
   theme?: ToastTheme;
-}
+};
 
 export type ToastItem = {
   id: string;
@@ -276,4 +277,4 @@ export type ToastItem = {
   description?: string;
   type: ToastType;
   duration: number;
-}
+};

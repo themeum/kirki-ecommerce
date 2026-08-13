@@ -12,7 +12,7 @@ type SortBy = (typeof ALLOWED_SORTS)[number];
 
 export type ProductFilterConfig = {
   initialSortBy?: string | null;
-}
+};
 
 function normalizeSort(value?: string | null): SortBy {
   return ALLOWED_SORTS.includes(value as SortBy) ? (value as SortBy) : DEFAULT_SORT;

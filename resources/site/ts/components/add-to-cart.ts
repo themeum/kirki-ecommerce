@@ -20,7 +20,7 @@ export type AddToCartConfig = {
   cartUrl?: string;
   watchVariantId?: () => number;
   buttonText?: string;
-}
+};
 
 export function addToCart(componentConfig: AddToCartConfig) {
   const { __ } = window.wp.i18n;

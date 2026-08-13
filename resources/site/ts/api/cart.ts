@@ -11,7 +11,7 @@ import { ENDPOINTS } from './endpoints';
 type CartApiOptions = {
   skipTax?: boolean;
   headers?: Record<string, string>;
-}
+};
 
 function getCartHeaders(skipTax: boolean): Record<string, string> {
   const { cart_token_header_name, cart_token_cookie_name, header_skip_tax } = config;
@@ -38,24 +38,35 @@ export function buildCartApi({ skipTax = true, headers: extraHeaders = {} }: Car
       }),
 
     updateItem: (itemId: number, quantity: number) =>
-      apiRequest<{ data: CartUpdateItem; message: string; success: boolean }>(ENDPOINTS.cart.item(itemId), {
-        method: 'PUT',
-        body: { quantity },
-        headers,
-      }),
+      apiRequest<{ data: CartUpdateItem; message: string; success: boolean }>(
+        ENDPOINTS.cart.item(itemId),
+        {
+          method: 'PUT',
+          body: { quantity },
+          headers,
+        },
+      ),
 
     removeItem: (itemId: number) =>
-      apiRequest<{ data: CartUpdateItem; message: string; success: boolean }>(ENDPOINTS.cart.item(itemId), {
-        method: 'DELETE',
-        headers,
-      }),
+      apiRequest<{ data: CartUpdateItem; message: string; success: boolean }>(
+        ENDPOINTS.cart.item(itemId),
+        {
+          method: 'DELETE',
+          headers,
+        },
+      ),
 
     empty: () => apiRequest<ApiResponse<void>>(ENDPOINTS.cart.root, { method: 'DELETE', headers }),
 
     applyCoupon: (code: string) =>
-      apiRequest<ApiResponse<Cart>>(ENDPOINTS.cart.coupon, { method: 'POST', body: { code }, headers }),
+      apiRequest<ApiResponse<Cart>>(ENDPOINTS.cart.coupon, {
+        method: 'POST',
+        body: { code },
+        headers,
+      }),
 
-    removeCoupon: () => apiRequest<ApiResponse<Cart>>(ENDPOINTS.cart.coupon, { method: 'DELETE', headers }),
+    removeCoupon: () =>
+      apiRequest<ApiResponse<Cart>>(ENDPOINTS.cart.coupon, { method: 'DELETE', headers }),
 
     updateShipping: (shippingData: any) =>
       apiRequest<ApiResponse<Cart>>(ENDPOINTS.cart.shipping, {

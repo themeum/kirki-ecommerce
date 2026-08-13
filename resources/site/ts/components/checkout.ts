@@ -21,24 +21,24 @@ import { config } from '../utils';
 /** Detail shape emitted by *-form-validated custom events */
 type FormValidatedDetail = {
   isValid: boolean;
-}
+};
 
 /** Subset of Alpine $data() returned for the form component */
 type AlpineFormData = {
   values: Record<string, string>;
   setError: (field: string, message: string) => void;
   clearErrors: () => void;
-}
+};
 
 /** Alpine magic properties available inside x-data component objects */
 type AlpineContext = {
   $el: HTMLElement;
   $dispatch: (event: string, detail?: unknown) => void;
-}
+};
 
 export type CheckoutConfig = {
   cartTotal?: number;
-}
+};
 
 export type Country = {
   code: string;
@@ -47,7 +47,7 @@ export type Country = {
     id: string;
     name: string;
   }[];
-}
+};
 
 export function checkout(componentConfig: CheckoutConfig = {}) {
   const { __ } = window.wp.i18n;
@@ -110,11 +110,16 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
     const label = fieldLabels[fieldName] ?? fieldName.replace(/_/g, ' ');
     // Replace patterns like "The shipping_address.email field" or
     // "The billing_address.first_name field" with the clean label
-    return rawMessage.replace(/shipping_address\.\w+/g, label).replace(/billing_address\.\w+/g, label);
+    return rawMessage
+      .replace(/shipping_address\.\w+/g, label)
+      .replace(/billing_address\.\w+/g, label);
   }
 
   // Keys follow "shipping_address.field" / "billing_address.field" patterns.
-  function handleApiErrors(err: Error & { errors?: Record<string, string[]> }, fallbackMessage: string) {
+  function handleApiErrors(
+    err: Error & { errors?: Record<string, string[]> },
+    fallbackMessage: string,
+  ) {
     if (!err.errors) {
       toastManager.error(err.message ?? fallbackMessage);
       return;
@@ -122,8 +127,12 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
 
     const shippingFormEl = document.querySelector('#shipping-form');
     const billingFormEl = document.querySelector('#billing-form');
-    const shippingForm: AlpineFormData | null = shippingFormEl ? window.Alpine.$data(shippingFormEl) : null;
-    const billingForm: AlpineFormData | null = billingFormEl ? window.Alpine.$data(billingFormEl) : null;
+    const shippingForm: AlpineFormData | null = shippingFormEl
+      ? window.Alpine.$data(shippingFormEl)
+      : null;
+    const billingForm: AlpineFormData | null = billingFormEl
+      ? window.Alpine.$data(billingFormEl)
+      : null;
 
     let hasFieldErrors = false;
 
@@ -171,15 +180,23 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
     availableShippingMethods: [] as ShippingMethod[],
 
     init() {
-      (this as unknown as AlpineContext).$el.addEventListener('kecom:billing-form:validated', (e: Event) => {
-        this.billingFormValid = (e as CustomEvent<FormValidatedDetail>).detail.isValid;
-      });
-      (this as unknown as AlpineContext).$el.addEventListener('kecom:shipping-form:validated', (e: Event) => {
-        this.shippingFormValid = (e as CustomEvent<FormValidatedDetail>).detail.isValid;
-      });
+      (this as unknown as AlpineContext).$el.addEventListener(
+        'kecom:billing-form:validated',
+        (e: Event) => {
+          this.billingFormValid = (e as CustomEvent<FormValidatedDetail>).detail.isValid;
+        },
+      );
+      (this as unknown as AlpineContext).$el.addEventListener(
+        'kecom:shipping-form:validated',
+        (e: Event) => {
+          this.shippingFormValid = (e as CustomEvent<FormValidatedDetail>).detail.isValid;
+        },
+      );
 
       // Pre-select the first payment method
-      const firstPaymentRadio = document.querySelector<HTMLInputElement>('input[name="payment_provider"]');
+      const firstPaymentRadio = document.querySelector<HTMLInputElement>(
+        'input[name="payment_provider"]',
+      );
       if (firstPaymentRadio) {
         this.selectedPaymentMethod = firstPaymentRadio.value;
       }
@@ -189,7 +206,8 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
         this.availableShippingMethods = this.cartData.available_shipping_methods;
         if (this.cartData.shipping_method) {
           // shipping_method from the cart is an object; extract the id for radio binding
-          this.selectedShippingMethod = this.cartData.shipping_method?.id ?? this.cartData.shipping_method;
+          this.selectedShippingMethod =
+            this.cartData.shipping_method?.id ?? this.cartData.shipping_method;
         } else if (this.availableShippingMethods.length > 0) {
           // Select first shipping method if none selected
           this.selectedShippingMethod = this.availableShippingMethods[0].id;
@@ -261,12 +279,14 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
 
         // Update selected shipping method if it changed
         if (response.data.shipping_method) {
-          this.selectedShippingMethod = response.data.shipping_method?.id ?? response.data.shipping_method;
+          this.selectedShippingMethod =
+            response.data.shipping_method?.id ?? response.data.shipping_method;
         }
 
         // Keep discount state in sync with the refreshed cart
         if (response.data?.pricing?.discount_details) {
-          this.discount = response.data.pricing?.display_discount_total_money_object.display || null;
+          this.discount =
+            response.data.pricing?.display_discount_total_money_object.display || null;
           this.appliedCouponCode = response.data.pricing?.discount_details?.code ?? '';
         }
       } catch (e: unknown) {
@@ -295,7 +315,8 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
         this.couponCode = '';
         toastManager.success(__('Coupon applied successfully!', 'kirki-ecommerce'));
       } catch (e: unknown) {
-        const error = e instanceof Error ? e.message : __('Failed to apply coupon', 'kirki-ecommerce');
+        const error =
+          e instanceof Error ? e.message : __('Failed to apply coupon', 'kirki-ecommerce');
         this.error = error;
         toastManager.error(error);
       } finally {
@@ -315,7 +336,8 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
         this.discount = null;
         toastManager.success(__('Coupon removed successfully!', 'kirki-ecommerce'));
       } catch (e: unknown) {
-        const error = e instanceof Error ? e.message : __('Failed to remove coupon', 'kirki-ecommerce');
+        const error =
+          e instanceof Error ? e.message : __('Failed to remove coupon', 'kirki-ecommerce');
         this.error = error;
         toastManager.error(error);
       } finally {

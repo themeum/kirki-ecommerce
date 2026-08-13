@@ -6,11 +6,7 @@ import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
   {
-    ignores: [
-      'dist/**',
-      'node_modules/**',
-      '../../assets/**',
-    ],
+    ignores: ['dist/**', 'node_modules/**', '../../assets/**'],
   },
 
   {
@@ -49,12 +45,7 @@ export default tseslint.config(
       'simple-import-sort/imports': [
         'error',
         {
-          groups: [
-            ['^node:', '^@?\\w'],
-            ['^@/'],
-            ['^\\.'],
-            ['^\\u0000'],
-          ],
+          groups: [['^node:', '^@?\\w'], ['^@/'], ['^\\.'], ['^\\u0000']],
         },
       ],
       'simple-import-sort/exports': 'error',
@@ -70,10 +61,7 @@ export default tseslint.config(
       '@typescript-eslint/no-unsafe-call': 'off',
       '@typescript-eslint/no-unsafe-argument': 'off',
       '@typescript-eslint/no-unsafe-return': 'off',
-      '@typescript-eslint/no-empty-object-type': [
-        'error',
-        { allowObjectTypes: 'always' },
-      ],
+      '@typescript-eslint/no-empty-object-type': ['error', { allowObjectTypes: 'always' }],
       '@typescript-eslint/prefer-nullish-coalescing': [
         'error',
         { ignorePrimitives: { string: true, boolean: true } },
@@ -88,18 +76,12 @@ export default tseslint.config(
           caughtErrorsIgnorePattern: '^_',
         },
       ],
-      '@typescript-eslint/prefer-promise-reject-errors': [
-        'error',
-        { allowThrowingUnknown: true },
-      ],
+      '@typescript-eslint/prefer-promise-reject-errors': ['error', { allowThrowingUnknown: true }],
       '@typescript-eslint/no-misused-promises': [
         'error',
         { checksVoidReturn: { attributes: false, properties: false } },
       ],
-      '@typescript-eslint/restrict-template-expressions': [
-        'error',
-        { allowNumber: true },
-      ],
+      '@typescript-eslint/restrict-template-expressions': ['error', { allowNumber: true }],
 
       curly: ['error', 'all'],
       eqeqeq: ['error', 'always', { null: 'ignore' }],
