@@ -13,11 +13,7 @@ namespace Kirki\Ecommerce\App\Shortcodes;
 
 defined('ABSPATH') || exit;
 
-use Kirki\Ecommerce\App\Resources\Cart\CartResource;
-use Kirki\Ecommerce\App\Services\CartService;
-use Kirki\Ecommerce\App\Supports\Icon;
-use Kirki\Ecommerce\App\Supports\Url;
-use function Kirki\Ecommerce\Framework\app;
+use Kirki\Ecommerce\App\Services\MiniCartService;
 
 /**
  * Class MiniCartShortcode
@@ -35,58 +31,19 @@ class MiniCartShortcode
      *
      * @var string
      */
-    protected $shortcode = 'kecom_mini_cart';
+    protected $name = 'kecom_mini_cart';
 
     /**
      * Constructor
      *
      * @since 1.0.0
-     */
-    public function __construct()
-    {
-        add_shortcode($this->shortcode, [$this, 'render']);
-    }
-
-    /**
-     * Render mini cart shortcode
      *
-     * @since 1.0.0
-     *
-     * @param array $attributes Shortcode attributes.
+     * @param MiniCartService $service service.
      *
      * @return void
      */
-    public function render($attributes)
+    public function __construct(MiniCartService $service)
     {
-        $attributes = shortcode_atts(
-            [
-                'class' => '',
-            ],
-            $attributes,
-            $this->shortcode
-        );
-
-        $cart_service = app()->make(CartService::class);
-        $cart = $cart_service->get_current_cart();
-        $cart_resource = CartResource::make($cart);
-        $total_items_count = $cart_resource['items_count'] ?? 0;
-        ?>
-
-        <a  href="<?php echo esc_url(Url::get_cart_url()); ?>"
-            aria-label="<?php esc_attr_e('View Cart', 'kirki-ecommerce'); ?>"
-            class="kecom-mini-cart <?php echo esc_attr($attributes['class']); ?>"
-            @kecom:cart-updated.document="updateCount($event.detail.items_count)"
-            x-data="miniCart({ initialCount: <?php echo (int) $total_items_count; ?> })">
-
-            <span class="kecom-mini-cart-icon" aria-hidden="true"><?php Icon::render('cart', ['size' => 20]); ?></span>
-            <span
-                class="kecom-mini-cart-count"
-                :class="{
-                    'is-increasing': direction === 'increase',
-                    'is-decreasing': direction === 'decrease'
-                }"
-                x-text="cartCount"></span>
-        </a>
-        <?php
+        add_shortcode($this->name, fn($attributes) => $service->get_mimi_cart_html($attributes));
     }
 }
