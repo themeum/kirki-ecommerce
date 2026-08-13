@@ -1,15 +1,15 @@
 // Page - Account
 // Styles for account page
 
-@use "../tokens" as *;
-@use "../mixins" as *;
+@use '../tokens' as *;
+@use '../mixins' as *;
 
 .kecom-account-page {
   max-width: 1440px;
   margin: 0 auto;
   padding: $spacing-0 $spacing-10;
 
-  &-title{
+  &-title {
     font-size: 2.25rem;
     line-height: 2.5rem;
     font-family: var(--kecom-font-family);

@@ -1,8 +1,8 @@
 // Page - Order Success
 // Styles for order success page
 
-@use "../tokens" as *;
-@use "../mixins" as *;
+@use '../tokens' as *;
+@use '../mixins' as *;
 
 .kecom-order-success-page {
   display: flex;
@@ -134,7 +134,7 @@
 
     &::before,
     &::after {
-      content: "";
+      content: '';
       height: 30px;
       width: 30px;
       position: absolute;

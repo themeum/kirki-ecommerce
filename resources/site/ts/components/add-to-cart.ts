@@ -9,18 +9,18 @@
  *   </button>
  */
 
-import { cartApi } from "../api/cart";
-import { Cookie } from "../cookie";
-import { toastManager } from "../services/toast/runtime";
-import { config } from "../utils";
+import { cartApi } from '../api/cart';
+import { Cookie } from '../cookie';
+import { toastManager } from '../services/toast/runtime';
+import { config } from '../utils';
 
-export interface AddToCartConfig {
+export type AddToCartConfig = {
   variantId: number;
   qty?: number;
   cartUrl?: string;
   watchVariantId?: () => number;
   buttonText?: string;
-}
+};
 
 export function addToCart(componentConfig: AddToCartConfig) {
   const { __ } = window.wp.i18n;
@@ -28,13 +28,13 @@ export function addToCart(componentConfig: AddToCartConfig) {
   return {
     variantId: componentConfig.variantId,
     qty: componentConfig.qty ?? 1,
-    cartUrl: componentConfig.cartUrl || "/cart",
+    cartUrl: componentConfig.cartUrl || '/cart',
     watchVariantId: componentConfig.watchVariantId,
-    buttonText: componentConfig.buttonText || __("Add to Cart", "kirki-ecommerce"),
+    buttonText: componentConfig.buttonText || __('Add to Cart', 'kirki-ecommerce'),
     loading: false,
     success: false,
     error: null as string | null,
-    viewCartText: __("View Cart", "kirki-ecommerce"),
+    viewCartText: __('View Cart', 'kirki-ecommerce'),
 
     init(this: any) {
       this.checkIfInCart();
@@ -58,7 +58,7 @@ export function addToCart(componentConfig: AddToCartConfig) {
         this.buttonText = this.viewCartText;
       } else {
         this.success = false;
-        this.buttonText = componentConfig.buttonText || __("Add to Cart", "kirki-ecommerce");
+        this.buttonText = componentConfig.buttonText || __('Add to Cart', 'kirki-ecommerce');
       }
     },
 
@@ -68,15 +68,15 @@ export function addToCart(componentConfig: AddToCartConfig) {
       const quantity = Number(qty ?? this.qty);
       try {
         const { data } = await cartApi.addItem(this.variantId, quantity);
-        if (data.cart_token !== "") {
+        if (data.cart_token !== '') {
           Cookie.set(config.cart_token_cookie_name, data.cart_token);
         }
 
         this.success = true;
-        this.buttonText = "View Cart";
+        this.buttonText = 'View Cart';
 
         // Show success toast
-        toastManager.success(__("Item added to cart", "kirki-ecommerce"));
+        toastManager.success(__('Item added to cart', 'kirki-ecommerce'));
 
         // Update cart_variant_ids in window.kirki_ecommerce after successful add
         const cartVariantIds = config.cart_variant_ids || [];
@@ -85,8 +85,8 @@ export function addToCart(componentConfig: AddToCartConfig) {
           config.cart_variant_ids = cartVariantIds;
         }
       } catch (e: unknown) {
-        this.error = e instanceof Error ? e.message : "Could not add to cart";
-        this.buttonText = componentConfig.buttonText || __("Add to Cart", "kirki-ecommerce");
+        this.error = e instanceof Error ? e.message : 'Could not add to cart';
+        this.buttonText = componentConfig.buttonText || __('Add to Cart', 'kirki-ecommerce');
 
         // Show error toast
         toastManager.error(this.error);

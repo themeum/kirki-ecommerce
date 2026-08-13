@@ -1,16 +1,12 @@
-import {
-  type ToastConfig,
-  type ToastOptions,
-  type ToastType,
-} from '../../types';
+import { type ToastConfig, type ToastOptions, type ToastType } from '../../types';
 
-interface ToastEntry {
+type ToastEntry = {
   id: string;
   element: HTMLElement;
   timerId: ReturnType<typeof setTimeout> | null;
-}
+};
 
-export interface ToastApi {
+export type ToastApi = {
   (message: string, options?: ToastOptions): string;
   success: (message: string, duration?: number, options?: ToastOptions) => string;
   error: (message: string, duration?: number, options?: ToastOptions) => string;
@@ -19,7 +15,7 @@ export interface ToastApi {
   dismiss: (id?: string) => void;
   clear: () => void;
   configure: (options: ToastConfig) => void;
-}
+};
 
 const DEFAULT_CONFIG: ToastConfig = {
   position: 'bottom-right',
@@ -71,17 +67,17 @@ export class ToastManager {
 
     this.container = document.createElement('div');
     this.container.className = TOAST_CLASS.container;
-    
+
     const position = this.config.position || 'bottom-right';
     this.container.style.position = 'fixed';
     this.container.style.zIndex = '9999';
-    
+
     if (position.includes('top')) {
       this.container.style.top = '16px';
     } else {
       this.container.style.bottom = '16px';
     }
-    
+
     if (position.includes('left')) {
       this.container.style.left = '16px';
     } else if (position.includes('right')) {
@@ -90,42 +86,42 @@ export class ToastManager {
       this.container.style.left = '50%';
       this.container.style.transform = 'translateX(-50%)';
     }
-    
+
     this.container.style.display = 'flex';
     this.container.style.flexDirection = 'column';
     this.container.style.gap = '8px';
-    
+
     document.body.appendChild(this.container);
   }
 
   private buildCard(id: string, message: string, type: ToastType): HTMLElement {
     const item = document.createElement('div');
     item.className = TOAST_CLASS.item;
-    
+
     const card = document.createElement('div');
     card.className = TOAST_CLASS.card;
     card.setAttribute('data-type', type);
-    
+
     const icon = document.createElement('div');
     icon.className = TOAST_CLASS.icon;
     icon.innerHTML = TOAST_ICON_MARKUP[type] || TOAST_ICON_MARKUP.default;
     card.appendChild(icon);
-    
+
     const content = document.createElement('div');
     content.className = TOAST_CLASS.content;
-    
+
     const title = document.createElement('div');
     title.className = TOAST_CLASS.title;
     title.textContent = DEFAULT_LABELS[type] || DEFAULT_LABELS.default;
     content.appendChild(title);
-    
+
     const description = document.createElement('div');
     description.className = TOAST_CLASS.description;
     description.textContent = message;
     content.appendChild(description);
-    
+
     card.appendChild(content);
-    
+
     if (this.config.closeButton) {
       const closeButton = document.createElement('button');
       closeButton.className = TOAST_CLASS.closeButton;
@@ -133,7 +129,7 @@ export class ToastManager {
       closeButton.addEventListener('click', () => this.dismiss(id));
       card.appendChild(closeButton);
     }
-    
+
     item.appendChild(card);
     return item;
   }
@@ -153,7 +149,7 @@ export class ToastManager {
         }, 300);
       }
     } else {
-      this.entries.forEach((entry, entryId) => {
+      this.entries.forEach((entry) => {
         if (entry.timerId) {
           clearTimeout(entry.timerId);
         }
@@ -173,45 +169,47 @@ export class ToastManager {
 
   public show(message: string, options: ToastOptions = {}): string {
     this.ensureContainer();
-    
+
     const id = String(++this.idCounter);
     const type = options.type || 'info';
     const duration = options.duration ?? this.config.duration ?? 5000;
     const position = options.position || this.config.position || 'bottom-right';
-    
+
     // Update container position for this toast
     this.updateContainerPosition(position);
-    
+
     const item = this.buildCard(id, message, type);
-    
+
     item.style.opacity = '0';
     item.style.transform = 'translateX(100px)';
     item.style.transition = 'all 300ms ease';
-    
+
     if (this.container?.firstChild) {
       this.container.insertBefore(item, this.container.firstChild);
     } else {
       this.container?.appendChild(item);
     }
-    
+
     requestAnimationFrame(() => {
       item.style.opacity = '1';
       item.style.transform = 'translateX(0)';
     });
-    
+
     let timerId: ReturnType<typeof setTimeout> | null = null;
     if (duration > 0) {
       timerId = setTimeout(() => this.dismiss(id), duration);
     }
-    
+
     this.entries.set(id, { id, element: item, timerId });
-    
+
     return id;
   }
 
   private updateContainerPosition(position: string): void {
-    if (!this.container) return;
-    
+    if (!this.container) {
+      return;
+    }
+
     if (position.includes('top')) {
       this.container.style.top = '16px';
       this.container.style.bottom = 'auto';
@@ -219,7 +217,7 @@ export class ToastManager {
       this.container.style.bottom = '16px';
       this.container.style.top = 'auto';
     }
-    
+
     if (position.includes('left')) {
       this.container.style.left = '16px';
       this.container.style.right = 'auto';
@@ -257,16 +255,21 @@ export class ToastManager {
 }
 
 export function createToastApi(manager: ToastManager): ToastApi {
-  const api = ((message: string, options?: ToastOptions) => manager.show(message, options)) as ToastApi;
-  
-  api.success = (message, duration, options) => manager.show(message, { ...options, type: 'success', duration });
-  api.error = (message, duration, options) => manager.show(message, { ...options, type: 'error', duration });
-  api.warning = (message, duration, options) => manager.show(message, { ...options, type: 'warning', duration });
-  api.info = (message, duration, options) => manager.show(message, { ...options, type: 'info', duration });
+  const api = ((message: string, options?: ToastOptions) =>
+    manager.show(message, options)) as ToastApi;
+
+  api.success = (message, duration, options) =>
+    manager.show(message, { ...options, type: 'success', duration });
+  api.error = (message, duration, options) =>
+    manager.show(message, { ...options, type: 'error', duration });
+  api.warning = (message, duration, options) =>
+    manager.show(message, { ...options, type: 'warning', duration });
+  api.info = (message, duration, options) =>
+    manager.show(message, { ...options, type: 'info', duration });
   api.dismiss = (id) => manager.dismiss(id);
   api.clear = () => manager.clear();
   api.configure = (options) => manager.configure(options);
-  
+
   return api;
 }
 

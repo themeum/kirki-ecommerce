@@ -5,13 +5,13 @@
 
 export const ENDPOINTS = {
   cart: {
-    root: "/cart",
-    items: "/cart/items",
+    root: '/cart',
+    items: '/cart/items',
     item: (id: number) => `/cart/items/${id}`,
-    coupon: "/cart/coupon",
-    shipping: "/cart/shipping",
+    coupon: '/cart/coupon',
+    shipping: '/cart/shipping',
   },
   checkout: {
-    root: "/checkout",
+    root: '/checkout',
   },
 } as const;
