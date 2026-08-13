@@ -36,7 +36,7 @@ const Chip = forwardRef<HTMLDivElement, ChipProps>((props, ref) => {
   const chipStyle = defineStyles({
     ...(color !== undefined ? { '--chip-swatch-color': color } : {}),
     ...style,
-  })as CSSProperties;
+  }) as CSSProperties;
 
   return (
     <div ref={ref} style={chipStyle} css={scopedMerge(styles.root, cssOverride)} {...rest}>
