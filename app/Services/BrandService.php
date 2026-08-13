@@ -92,7 +92,7 @@ class BrandService
      */
     public function update(UpdateBrandDTO $data)
     {
-        $brand = Brand::with_count('products')->find($data->id);
+        $brand = Brand::find($data->id);
 
         if (empty($brand)) {
             throw new NotFoundException(__('Brand could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
@@ -100,7 +100,7 @@ class BrandService
 
         $data->slug = empty($data->slug) ? $data->name : $data->slug;
 
-        if ($brand->slug !== $data->slug && Brand::with_count('products')->where('slug', $data->slug)->first()) {
+        if ($brand->slug !== $data->slug && Brand::where('slug', $data->slug)->first()) {
             throw new Exception(__('Brand slug already exists.', 'kirki-ecommerce'), Response::BAD_REQUEST);
         }
 
@@ -109,7 +109,7 @@ class BrandService
         $attributes = $data->to_array();
         $attributes['updated_by'] = user()->get_id();
 
-        $is_updated = (bool) Brand::find($data->id)->update($attributes);
+        $is_updated = (bool) Brand::query()->where('id', $data->id)->update($attributes);
 
         if (!$is_updated) {
             throw new Exception(__('Brand could not be updated.', 'kirki-ecommerce'), Response::BAD_REQUEST);
@@ -134,7 +134,7 @@ class BrandService
             throw new NotFoundException(__('Brand could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
         }
 
-        $is_deleted = (bool) Brand::find($id)->delete();
+        $is_deleted = (bool) Brand::query()->where('id', $id)->delete();
 
         if (!$is_deleted) {
             throw new Exception(__('Brand could not be deleted.', 'kirki-ecommerce'), Response::BAD_REQUEST);

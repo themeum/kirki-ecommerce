@@ -37,7 +37,7 @@ class InventoryService
         $variant = $this->variant_service->find_or_null($variant_id);
 
         if (empty($variant)) {
-            throw new NotFoundException(sprintf(__('Variant with id %s could not be found.', 'kirki-ecommerce'), $variant_id), Response::NOT_FOUND);
+            return false;
         }
 
         if (!$variant->track_inventory && $variant->in_stock) {

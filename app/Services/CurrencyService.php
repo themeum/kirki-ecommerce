@@ -16,6 +16,7 @@ use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
 
 use Exception;
+use function Kirki\Ecommerce\Framework\app;
 use function Kirki\Ecommerce\Framework\collection;
 
 class CurrencyService
@@ -256,7 +257,7 @@ class CurrencyService
 
     protected function get_all_currencies()
     {
-        $path = KIRKI_ECOMMERCE_PLUGIN_PATH . '/resources/data/currencies.json';
+        $path = app()->resource_path('data/currencies.json');
 
         if (!file_exists($path)) {
             return [];

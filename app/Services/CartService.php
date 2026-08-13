@@ -143,7 +143,7 @@ class CartService
             }
         }
 
-        return $this->create_cart($data)->load('items', 'items.product', 'items.variant');
+        return $this->create_cart($data)->load_missing('items', 'items.product', 'items.variant');
     }
 
     public function find_item_in_cart($cart_id, $variant_id = null)
@@ -197,13 +197,7 @@ class CartService
 
     public function update_item($item_id, array $data)
     {
-        $item = CartItem::find($item_id);
-
-        if ($item) {
-            $item->update($data);
-            return $item;
-        }
-        return null;
+        return CartItem::query()->where('id', $item_id)->update($data);
     }
 
     public function partial_update($cart_id, array $data)
