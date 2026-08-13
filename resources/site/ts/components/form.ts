@@ -9,6 +9,8 @@
  *   </form>
  */
 
+import { config } from "../utils";
+
 export interface ValidationRules {
   required?: boolean | string;
   minLength?: number | { value: number; message: string };
@@ -294,8 +296,7 @@ export function stateField({ notifyAddressChange = false }: { notifyAddressChang
           this.states = [];
           return;
         }
-        const countries: Array<{ code: string; states: Array<{ id: string; name: string }> }> =
-          window.kirki_ecommerce?.countries ?? [];
+        const countries: Array<{ code: string; states: Array<{ id: string; name: string }> }> = config.countries ?? [];
         const country = countries.find((c) => c.code === countryCode);
         this.states = country?.states || [];
       };

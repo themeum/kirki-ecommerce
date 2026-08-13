@@ -35,7 +35,7 @@ $total_money_object = $totals['invoiced_total_money_object'];
 
 <?php Template::get_header(); ?>
 
-<div class="kecom-order-success-page">
+<div class="kecom-page-wrapper kecom-order-success-page">
     <div class="kecom-order-success-card">
         <div class="kecom-order-success-hero">
             <div class="kecom-order-success-icon">

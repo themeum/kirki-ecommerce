@@ -42,7 +42,7 @@
     img {
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      object-fit: contain;
     }
   }
 
@@ -54,6 +54,8 @@
     height: 36px;
     border-radius: $radius-full;
     background-color: $background-surface;
+    color: $icon-primary;
+    padding: 0;
     border: none;
     outline: none;
     cursor: pointer;
@@ -106,7 +108,7 @@
     img {
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      object-fit: contain;
     }
 
     &:hover,
@@ -205,16 +207,18 @@
     height: 44px;
     background-color: $background-fill;
     padding: $spacing-3 $spacing-5;
-    border: 1px solid $border-default;
+    border: none;
+    box-shadow: none;
+    outline: $border-default solid 1px;
+    outline-offset: -1px;
     border-radius: $radius-md;
-    outline: none;
     cursor: pointer;
     @include flex-center();
     @include typography(base, semibold, $text-primary);
     @include transition((border-color, background-color, color));
 
-    &:hover {
-      border-color: $border-hover;
+    &:hover:not(:disabled) {
+      outline-color: $border-hover;
     }
 
     &:focus-visible {
@@ -222,9 +226,29 @@
     }
 
     &.selected {
-      background-color: $background-fill-brand;
-      border-color: $background-fill-brand;
-      color: $text-light;
+      outline-color: $border-inverse;
+      outline-width: 1.5px;
+      outline-offset: -1.5px;
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      position: relative;
+      overflow: hidden;
+
+      &::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          to top right,
+          transparent calc(50% - 0.5px),
+          $border-default calc(50% - 0.5px),
+          $border-default calc(50% + 0.5px),
+          transparent calc(50% + 0.5px)
+        );
+      }
     }
   }
 
@@ -245,6 +269,11 @@
     &.selected {
       outline: 1px solid $border-ring;
       border-color: $background-surface;
+    }
+
+    &:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
     }
   }
 

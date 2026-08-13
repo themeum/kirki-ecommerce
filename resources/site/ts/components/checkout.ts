@@ -9,10 +9,31 @@
  *   })">
  */
 
-import { cartApi } from "../api/cart";
+import { buildCartApi } from "../api/cart";
+
+const cartApi = buildCartApi({ skipTax: false });
 import { checkoutApi } from "../api/checkout";
 import { toastManager } from "../services/toast/runtime";
-import type { CheckoutRequest } from "../types";
+import type { CheckoutRequest, ShippingMethod } from "../types";
+import { config } from "../utils";
+
+/** Detail shape emitted by *-form-validated custom events */
+interface FormValidatedDetail {
+  isValid: boolean;
+}
+
+/** Subset of Alpine $data() returned for the form component */
+interface AlpineFormData {
+  values: Record<string, string>;
+  setError: (field: string, message: string) => void;
+  clearErrors: () => void;
+}
+
+/** Alpine magic properties available inside x-data component objects */
+interface AlpineContext {
+  $el: HTMLElement;
+  $dispatch: (event: string, detail?: unknown) => void;
+}
 
 export interface CheckoutConfig {
   cartTotal?: number;
@@ -27,17 +48,7 @@ export interface Country {
   }>;
 }
 
-export interface ShippingMethod {
-  id: string;
-  name: string;
-  description: string;
-  display_cost_money_object: {
-    display: string;
-    row: number;
-  };
-}
-
-export function checkout(config: CheckoutConfig = {}) {
+export function checkout(componentConfig: CheckoutConfig = {}) {
   const { __ } = window.wp.i18n;
 
   // Debounce helper — cancels previous call if invoked again within `delay` ms
@@ -50,7 +61,7 @@ export function checkout(config: CheckoutConfig = {}) {
   }
 
   // Wait for a one-shot window event, resolving with its detail
-  function waitForEvent(eventName: string, timeoutMs = 2000): Promise<any> {
+  function waitForEvent(eventName: string, timeoutMs = 2000): Promise<FormValidatedDetail> {
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => {
         window.removeEventListener(eventName, handler);
@@ -110,8 +121,8 @@ export function checkout(config: CheckoutConfig = {}) {
 
     const shippingFormEl = document.querySelector("#shipping-form");
     const billingFormEl = document.querySelector("#billing-form");
-    const shippingForm = shippingFormEl ? (window as any).Alpine.$data(shippingFormEl) : null;
-    const billingForm = billingFormEl ? (window as any).Alpine.$data(billingFormEl) : null;
+    const shippingForm: AlpineFormData | null = shippingFormEl ? window.Alpine.$data(shippingFormEl) : null;
+    const billingForm: AlpineFormData | null = billingFormEl ? window.Alpine.$data(billingFormEl) : null;
 
     let hasFieldErrors = false;
 
@@ -137,10 +148,10 @@ export function checkout(config: CheckoutConfig = {}) {
   }
 
   return {
-    cartTotal: config.cartTotal ?? 0,
-    currency: window.kirki_ecommerce?.currency ?? "USD",
-    cartData: window.kirki_ecommerce?.checkout_cart ?? null,
-    countries: window.kirki_ecommerce?.countries ?? [],
+    cartTotal: componentConfig.cartTotal ?? 0,
+    currency: config.currency ?? "USD",
+    cartData: config.checkout_cart ?? null,
+    countries: config.countries ?? [],
 
     selectedPaymentMethod: "",
     selectedShippingMethod: "",
@@ -149,7 +160,7 @@ export function checkout(config: CheckoutConfig = {}) {
     discount: null as string | null,
     billingFormValid: false,
     shippingFormValid: false,
-    billingSameAsShipping: false,
+    billingSameAsShipping: true,
 
     loading: false,
     couponLoading: false,
@@ -159,11 +170,11 @@ export function checkout(config: CheckoutConfig = {}) {
     availableShippingMethods: [] as ShippingMethod[],
 
     init() {
-      (this as any).$el.addEventListener("billing-form-validated", (e: any) => {
-        this.billingFormValid = e.detail.isValid;
+      (this as unknown as AlpineContext).$el.addEventListener("billing-form-validated", (e: Event) => {
+        this.billingFormValid = (e as CustomEvent<FormValidatedDetail>).detail.isValid;
       });
-      (this as any).$el.addEventListener("shipping-form-validated", (e: any) => {
-        this.shippingFormValid = e.detail.isValid;
+      (this as unknown as AlpineContext).$el.addEventListener("shipping-form-validated", (e: Event) => {
+        this.shippingFormValid = (e as CustomEvent<FormValidatedDetail>).detail.isValid;
       });
 
       // Pre-select the first payment method
@@ -171,13 +182,6 @@ export function checkout(config: CheckoutConfig = {}) {
       if (firstPaymentRadio) {
         this.selectedPaymentMethod = firstPaymentRadio.value;
       }
-
-      // Watch for billingSameAsShipping changes
-      (this as any).$watch("billingSameAsShipping", (value: boolean) => {
-        if (value) {
-          this.syncBillingFromShipping();
-        }
-      });
 
       // Initialize available shipping methods from cart data
       if (this.cartData?.available_shipping_methods) {
@@ -210,10 +214,12 @@ export function checkout(config: CheckoutConfig = {}) {
 
     async updateCart() {
       try {
-        const shippingFormEl = document.querySelector("#shipping-form") as any;
-        const billingFormEl = document.querySelector("#billing-form") as any;
-        const shippingForm = (window as any).Alpine.$data(shippingFormEl);
-        const billingForm = (window as any).Alpine.$data(billingFormEl);
+        const shippingFormEl = document.querySelector("#shipping-form");
+        const billingFormEl = document.querySelector("#billing-form");
+        const shippingForm: AlpineFormData = window.Alpine.$data(shippingFormEl);
+        const billingForm: AlpineFormData | null = this.billingSameAsShipping
+          ? null
+          : window.Alpine.$data(billingFormEl);
 
         const cartData = {
           shipping_address: {
@@ -228,20 +234,24 @@ export function checkout(config: CheckoutConfig = {}) {
             postal_code: shippingForm.values.postal_code,
             country: shippingForm.values.country,
           },
-          billing_address: {
-            first_name: billingForm.values.first_name,
-            last_name: billingForm.values.last_name,
-            email: billingForm.values.email,
-            phone: billingForm.values.phone,
-            address_line1: billingForm.values.address_line1,
-            address_line2: billingForm.values.address_line2 || "",
-            city: billingForm.values.city,
-            state: billingForm.values.state,
-            postal_code: billingForm.values.postal_code,
-            country: billingForm.values.country,
-          },
           is_billing_same_as_shipping: this.billingSameAsShipping,
           shipping_method: this.selectedShippingMethod,
+          ...(billingForm
+            ? {
+                billing_address: {
+                  first_name: billingForm.values.first_name,
+                  last_name: billingForm.values.last_name,
+                  email: billingForm.values.email,
+                  phone: billingForm.values.phone,
+                  address_line1: billingForm.values.address_line1,
+                  address_line2: billingForm.values.address_line2 || "",
+                  city: billingForm.values.city,
+                  state: billingForm.values.state,
+                  postal_code: billingForm.values.postal_code,
+                  country: billingForm.values.country,
+                },
+              }
+            : {}),
         };
 
         const response = await cartApi.update(cartData);
@@ -268,32 +278,8 @@ export function checkout(config: CheckoutConfig = {}) {
 
     setShippingMethod(methodId: string) {
       this.selectedShippingMethod = methodId;
-      (this as any).$dispatch("shipping-method-change", { methodId });
+      (this as unknown as AlpineContext).$dispatch("shipping-method-change", { methodId });
       this.updateCart();
-    },
-
-    syncBillingFromShipping() {
-      const shippingFormEl = document.querySelector("#shipping-form") as any;
-      const billingFormEl = document.querySelector("#billing-form") as any;
-
-      const shippingForm = (window as any).Alpine.$data(shippingFormEl);
-      const billingForm = (window as any).Alpine.$data(billingFormEl);
-
-      if (shippingForm?.values && billingForm?.values) {
-        billingForm.values.country = shippingForm.values.country;
-        billingForm.values.first_name = shippingForm.values.first_name;
-        billingForm.values.last_name = shippingForm.values.last_name;
-        billingForm.values.address_line1 = shippingForm.values.address_line1;
-        billingForm.values.address_line2 = shippingForm.values.address_line2;
-        billingForm.values.city = shippingForm.values.city;
-        billingForm.values.state = shippingForm.values.state;
-        billingForm.values.postal_code = shippingForm.values.postal_code;
-        billingForm.values.phone = shippingForm.values.phone;
-        billingForm.values.email = shippingForm.values.email;
-
-        // Clear any stale errors without triggering re-validation
-        billingForm.clearErrors();
-      }
     },
 
     async applyCoupon() {
@@ -338,7 +324,7 @@ export function checkout(config: CheckoutConfig = {}) {
 
     setPaymentMethod(method: string) {
       this.selectedPaymentMethod = method;
-      (this as any).$dispatch("payment-method-change", { method });
+      (this as unknown as AlpineContext).$dispatch("payment-method-change", { method });
     },
 
     async placeOrder() {
@@ -347,14 +333,14 @@ export function checkout(config: CheckoutConfig = {}) {
       try {
         // Validate both forms concurrently — dispatch triggers each form's
         // validateForm() which fires back *-form-validated on the window
-        (this as any).$dispatch("validate-shipping-form");
+        (this as unknown as AlpineContext).$dispatch("validate-shipping-form");
 
         // Only validate billing independently when it differs from shipping
         if (!this.billingSameAsShipping) {
-          (this as any).$dispatch("validate-billing-form");
+          (this as unknown as AlpineContext).$dispatch("validate-billing-form");
         }
 
-        const validationPromises: Promise<any>[] = [
+        const validationPromises: Promise<FormValidatedDetail>[] = [
           waitForEvent("shipping-form-validated"),
           this.billingSameAsShipping ? Promise.resolve({ isValid: true }) : waitForEvent("billing-form-validated"),
         ];
@@ -383,14 +369,16 @@ export function checkout(config: CheckoutConfig = {}) {
         this.loading = true;
 
         // Collect form data
-        const shippingFormEl = document.querySelector("#shipping-form") as any;
-        const billingFormEl = document.querySelector("#billing-form") as any;
-        const shippingForm = (window as any).Alpine.$data(shippingFormEl);
-        const billingForm = (window as any).Alpine.$data(billingFormEl);
+        const shippingFormEl = document.querySelector("#shipping-form");
+        const billingFormEl = document.querySelector("#billing-form");
+        const shippingForm: AlpineFormData = window.Alpine.$data(shippingFormEl);
+        const billingForm: AlpineFormData | null = this.billingSameAsShipping
+          ? null
+          : window.Alpine.$data(billingFormEl);
 
         // Prepare order data
         const orderData: CheckoutRequest = {
-          items: this.cartData.items.map((item: any) => ({
+          items: this.cartData.items.map((item) => ({
             variant_id: item.product.variant_id,
             quantity: item.quantity,
           })),
@@ -410,19 +398,23 @@ export function checkout(config: CheckoutConfig = {}) {
           shipping_phone: shippingForm.values.phone,
           shipping_email: shippingForm.values.email,
           shipping_company: null,
-          billing_first_name: billingForm.values.first_name,
-          billing_last_name: billingForm.values.last_name,
-          billing_address_line1: billingForm.values.address_line1,
-          billing_address_line2: billingForm.values.address_line2 || "",
-          billing_city: billingForm.values.city,
-          billing_state: billingForm.values.state,
-          billing_postcode: billingForm.values.postal_code,
-          billing_country: billingForm.values.country,
-          billing_phone: billingForm.values.phone,
-          billing_email: billingForm.values.email,
-          billing_company: null,
-          customer_email: billingForm.values.email,
-          customer_phone: billingForm.values.phone,
+          ...(billingForm
+            ? {
+                billing_first_name: billingForm.values.first_name,
+                billing_last_name: billingForm.values.last_name,
+                billing_address_line1: billingForm.values.address_line1,
+                billing_address_line2: billingForm.values.address_line2 || "",
+                billing_city: billingForm.values.city,
+                billing_state: billingForm.values.state,
+                billing_postcode: billingForm.values.postal_code,
+                billing_country: billingForm.values.country,
+                billing_phone: billingForm.values.phone,
+                billing_email: billingForm.values.email,
+                billing_company: null,
+              }
+            : {}),
+          customer_email: shippingForm.values.email,
+          customer_phone: shippingForm.values.phone,
           customer_notes: null,
         };
 
@@ -432,9 +424,9 @@ export function checkout(config: CheckoutConfig = {}) {
 
         if (data.payment_next_step) {
           const { type, value } = data.payment_next_step;
-          if (type === 'redirect') {
+          if (type === "redirect") {
             window.location.href = value;
-          } else if (type === 'html') {
+          } else if (type === "html") {
             this.renderPaymentGatewayHTML(value);
           }
         } else {
@@ -452,14 +444,14 @@ export function checkout(config: CheckoutConfig = {}) {
       }
     },
     async renderPaymentGatewayHTML(html: string) {
-      const container = document.createElement('div');
+      const container = document.createElement("div");
       container.innerHTML = html;
       document.body.appendChild(container);
 
-      const scripts = Array.from(container.querySelectorAll('script'));
+      const scripts = Array.from(container.querySelectorAll("script"));
 
       for (const oldScript of scripts) {
-        const newScript = document.createElement('script');
+        const newScript = document.createElement("script");
 
         // Copy attributes
         Array.from(oldScript.attributes).forEach((attr) => {
@@ -470,8 +462,7 @@ export function checkout(config: CheckoutConfig = {}) {
           // External script: wait until it has loaded
           await new Promise<void>((resolve, reject) => {
             newScript.onload = () => resolve();
-            newScript.onerror = () =>
-              reject(new Error(`Failed to load script: ${oldScript.src}`));
+            newScript.onerror = () => reject(new Error(`Failed to load script: ${oldScript.src}`));
 
             document.head.appendChild(newScript);
           });
@@ -485,11 +476,11 @@ export function checkout(config: CheckoutConfig = {}) {
       }
 
       // Submit form only if needed
-      const form = container.querySelector<HTMLFormElement>('form');
+      const form = container.querySelector<HTMLFormElement>("form");
 
       if (form) {
         form.submit();
       }
-    }
+    },
   };
 }

@@ -1,6 +1,16 @@
 // Shared TypeScript interfaces for the site bundle
 
-export interface kirkiEcommerceConfig {
+export interface ShippingMethod {
+  id: string;
+  name: string;
+  description: string;
+  display_cost_money_object: {
+    display: string;
+    row: number;
+  };
+}
+
+export interface KirkiEcommerceConfig {
   rest_url_base: string; // e.g. /wp-json/kirki/ecommerce/v1
   rest_nonce: string; // WordPress REST nonce
   cart_variant_ids: number[];
@@ -9,14 +19,14 @@ export interface kirkiEcommerceConfig {
   cart: CartUpdateItem;
   thank_you_url: string;
   checkout_cart?: {
-    items: any[];
-    pricing: any;
-    shipping_method: any;
+    items: CartItem[];
+    pricing: CartPricing;
+    shipping_method: ShippingMethod | null;
     is_billing_same_as_shipping?: boolean;
-    available_shipping_methods?: any[];
+    available_shipping_methods?: ShippingMethod[];
   };
   currency?: string;
-  countries?: any[];
+  countries?: Array<{ code: string; name: string; states: Array<{ id: string; name: string }> }>;
   cart_token_cookie_name: string;
   cart_token_header_name: string;
   header_skip_tax: string;
@@ -25,9 +35,18 @@ export interface kirkiEcommerceConfig {
 // Extend window for WordPress-injected config
 declare global {
   interface Window {
-    kirki_ecommerce: kirkiEcommerceConfig;
-    wp: any;
-    Alpine: any;
+    kirki_ecommerce: KirkiEcommerceConfig;
+    wp: {
+      i18n: {
+        __: (text: string, domain?: string) => string;
+        _n: (single: string, plural: string, number: number, domain?: string) => string;
+        _x: (text: string, context: string, domain?: string) => string;
+      };
+    };
+    Alpine: {
+      $data: (el: Element | null) => any;
+      store: (name: string) => any;
+    };
   }
 }
 
@@ -163,16 +182,16 @@ export interface CheckoutRequest {
   shipping_phone: string;
   shipping_email: string;
   shipping_company?: string | null;
-  billing_first_name: string;
-  billing_last_name: string;
-  billing_address_line1: string;
-  billing_address_line2: string;
-  billing_city: string;
-  billing_state: string;
-  billing_postcode: string;
-  billing_country: string;
-  billing_phone: string;
-  billing_email: string;
+  billing_first_name?: string;
+  billing_last_name?: string;
+  billing_address_line1?: string;
+  billing_address_line2?: string;
+  billing_city?: string;
+  billing_state?: string;
+  billing_postcode?: string;
+  billing_country?: string;
+  billing_phone?: string;
+  billing_email?: string;
   billing_company?: string | null;
   customer_email: string;
   customer_phone: string;
