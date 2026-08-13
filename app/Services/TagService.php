@@ -26,9 +26,7 @@ class TagService
      */
     public function paginated(ListFilterDTO $filters)
     {
-        $filters = $filters->to_array();
-
-        return $this->list_query($filters)->paginate($filters['limit'] ?? Pagination::LIMIT, $filters['page'] ?? 1);
+        return $this->list_query($filters)->paginate($filters->limit ?? Pagination::LIMIT, $filters->page ?? 1);
     }
 
     /**
@@ -39,7 +37,7 @@ class TagService
      */
     public function all(ListFilterDTO $filters)
     {
-        return $this->list_query($filters->to_array())->get();
+        return $this->list_query($filters)->get();
     }
 
     /**
@@ -71,13 +69,11 @@ class TagService
     public function create(CreateTagDTO $data)
     {
         $data->slug = empty($data->slug) ? $data->name : $data->slug;
+        $data->slug = Tag::generate_unique_slug($data->slug);
 
         $attributes = $data->to_array();
         $attributes['created_by'] = user()->get_id();
         $attributes['updated_by'] = user()->get_id();
-        $attributes = array_merge($attributes, [
-            'slug' => Tag::generate_unique_slug($attributes['slug'])
-        ]);
 
         return Tag::create($attributes);
     }
@@ -105,11 +101,10 @@ class TagService
             throw new Exception(__('Tag slug already exists.', 'kirki-ecommerce'), Response::BAD_REQUEST);
         }
 
+        $data->slug = Tag::generate_unique_slug($data->slug, $data->id);
+
         $attributes = $data->to_array();
         $attributes['updated_by'] = user()->get_id();
-        $attributes = array_merge($attributes, [
-            'slug' => Tag::generate_unique_slug($attributes['slug'], $data->id)
-        ]);
 
         $is_updated = (bool) Tag::find($data->id)->update($attributes);
 
@@ -172,23 +167,23 @@ class TagService
      */
     public function delete_all(ListFilterDTO $filters)
     {
-        return (bool) $this->list_query($filters->to_array())->delete();
+        return (bool) $this->list_query($filters)->delete();
     }
 
     /**
      * Get the query builder for the list of tags.
      *
-     * @param array $filters
+     * @param ListFilterDTO $filters
      * @return QueryBuilder
      */
-    protected function list_query($filters = [])
+    protected function list_query(ListFilterDTO $filters)
     {
         return Tag::with_count('products')
-            ->when($filters['search'] ?? null, function (QueryBuilder $query, $search) {
+            ->when($filters->search, function (QueryBuilder $query, $search) {
                 return $query->where_any(['name', 'slug', 'description'], 'like', '%' . $search . '%');
             })
-            ->when(!empty($filters['sort_by']) && !empty($filters['sort_order']), function (QueryBuilder $query) use ($filters) {
-                return $query->order_by($filters['sort_by'], $filters['sort_order']);
+            ->when(!empty($filters->sort_by) && !empty($filters->sort_order), function (QueryBuilder $query) use ($filters) {
+                return $query->order_by($filters->sort_by, $filters->sort_order);
             }, function (QueryBuilder $query) {
                 return $query->order_by('id', 'desc');
             });

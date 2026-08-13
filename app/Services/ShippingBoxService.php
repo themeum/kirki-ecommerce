@@ -23,9 +23,7 @@ class ShippingBoxService
      */
     public function paginated(ListFilterDTO $filters)
     {
-        $filters = $filters->to_array();
-
-        return $this->list_query($filters)->paginate($filters['limit'] ?? Pagination::LIMIT, $filters['page'] ?? 1);
+        return $this->list_query($filters)->paginate($filters->limit ?? Pagination::LIMIT, $filters->page ?? 1);
     }
 
     /**
@@ -36,7 +34,7 @@ class ShippingBoxService
      */
     public function all(ListFilterDTO $filters)
     {
-        return $this->list_query($filters->to_array())->get();
+        return $this->list_query($filters)->get();
     }
 
     /**
@@ -172,16 +170,16 @@ class ShippingBoxService
      */
     public function delete_all(ListFilterDTO $filters)
     {
-        return (bool) $this->list_query($filters->to_array())->delete();
+        return (bool) $this->list_query($filters)->delete();
     }
 
-    protected function list_query($filters = [])
+    protected function list_query(ListFilterDTO $filters)
     {
-        return ShippingBox::when($filters['search'] ?? null, function (QueryBuilder $query, $search) {
+        return ShippingBox::when($filters->search, function (QueryBuilder $query, $search) {
             return $query->where_any(['name', 'description'], 'like', '%' . $search . '%');
         })
-            ->when(!empty($filters['sort_by']) && !empty($filters['sort_order']), function (QueryBuilder $query) use ($filters) {
-                return $query->order_by($filters['sort_by'], $filters['sort_order']);
+            ->when(!empty($filters->sort_by) && !empty($filters->sort_order), function (QueryBuilder $query) use ($filters) {
+                return $query->order_by($filters->sort_by, $filters->sort_order);
             }, function (QueryBuilder $query) {
                 return $query->order_by('id', 'desc');
             });

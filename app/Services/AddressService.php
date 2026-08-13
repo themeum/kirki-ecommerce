@@ -21,9 +21,7 @@ class AddressService
      */
     public function all(ListFilterDTO $filters)
     {
-        $filters = $filters->to_array();
-
-        return Address::when($filters['search'] ?? null, function (QueryBuilder $query, $search) {
+        return Address::when($filters->search, function (QueryBuilder $query, $search) {
             return $query->where_any(
                 [
                     'first_name',
@@ -41,8 +39,8 @@ class AddressService
                 '%' . $search . '%'
             );
         })
-            ->when(!empty($filters['sort_by']) && !empty($filters['sort_order']), function (QueryBuilder $query) use ($filters) {
-                return $query->order_by($filters['sort_by'], $filters['sort_order']);
+            ->when(!empty($filters->sort_by) && !empty($filters->sort_order), function (QueryBuilder $query) use ($filters) {
+                return $query->order_by($filters->sort_by, $filters->sort_order);
             }, function (QueryBuilder $query) {
                 return $query->order_by('id', 'desc');
             })

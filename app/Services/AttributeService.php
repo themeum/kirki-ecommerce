@@ -26,9 +26,7 @@ class AttributeService
      */
     public function paginated(AttributeListFilterDTO $filters)
     {
-        $filters = $filters->to_array();
-
-        return $this->list_query($filters)->paginate($filters['limit'] ?? Pagination::LIMIT, $filters['page'] ?? 1);
+        return $this->list_query($filters)->paginate($filters->limit ?? Pagination::LIMIT, $filters->page ?? 1);
     }
 
     /**
@@ -39,7 +37,7 @@ class AttributeService
      */
     public function all(AttributeListFilterDTO $filters)
     {
-        return $this->list_query($filters->to_array())->get();
+        return $this->list_query($filters)->get();
     }
 
     /**
@@ -71,13 +69,11 @@ class AttributeService
     public function create(CreateAttributeDTO $data)
     {
         $data->slug = empty($data->slug) ? $data->name : $data->slug;
+        $data->slug = Attribute::generate_unique_slug($data->slug);
 
         $attributes = $data->to_array();
         $attributes['created_by'] = user()->get_id();
         $attributes['updated_by'] = user()->get_id();
-        $attributes = array_merge($attributes, [
-            'slug' => Attribute::generate_unique_slug($attributes['slug'])
-        ]);
 
         return Attribute::create($attributes);
     }
@@ -105,11 +101,10 @@ class AttributeService
             throw new Exception(__('Attribute slug already exists.', 'kirki-ecommerce'), Response::BAD_REQUEST);
         }
 
+        $data->slug = Attribute::generate_unique_slug($data->slug, $data->id);
+
         $attributes = $data->except(['values']);
         $attributes['updated_by'] = user()->get_id();
-        $attributes = array_merge($attributes, [
-            'slug' => Attribute::generate_unique_slug($attributes['slug'], $data->id)
-        ]);
 
         $is_updated = (bool) Attribute::find($data->id)->update($attributes);
 
@@ -178,21 +173,21 @@ class AttributeService
      */
     public function delete_all(AttributeListFilterDTO $filters)
     {
-        return (bool) $this->list_query($filters->to_array())->delete();
+        return (bool) $this->list_query($filters)->delete();
     }
 
-    protected function list_query($filters = [])
+    protected function list_query(AttributeListFilterDTO $filters)
     {
         return Attribute::with('values')
-            ->when($filters['search'] ?? null, function (QueryBuilder $query, $search) {
+            ->when($filters->search, function (QueryBuilder $query, $search) {
                 return $query->where_any(['name', 'slug', 'type'], 'like', '%' . $search . '%');
             })
-            ->when(!empty($filters['sort_by']) && !empty($filters['sort_order']), function (QueryBuilder $query) use ($filters) {
-                return $query->order_by($filters['sort_by'], $filters['sort_order']);
+            ->when(!empty($filters->sort_by) && !empty($filters->sort_order), function (QueryBuilder $query) use ($filters) {
+                return $query->order_by($filters->sort_by, $filters->sort_order);
             }, function (QueryBuilder $query) {
                 return $query->order_by('id', 'desc');
             })
-            ->when($filters['type'] ?? null, function (QueryBuilder $query, $type) {
+            ->when($filters->type, function (QueryBuilder $query, $type) {
                 return $query->where('type', $type);
             });
     }

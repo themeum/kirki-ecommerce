@@ -28,10 +28,9 @@ class ProductService
      */
     public function paginated(ProductListFilterDTO $filters)
     {
-        $filters = $filters->to_array();
         $query = $this->list_query();
 
-        return $this->apply_filters($query, $filters)->paginate($filters['limit'] ?? Pagination::LIMIT, $filters['page'] ?? 1);
+        return $this->apply_filters($query, $filters)->paginate($filters->limit ?? Pagination::LIMIT, $filters->page ?? 1);
     }
 
     /**
@@ -42,10 +41,9 @@ class ProductService
      */
     public function paginate_with_variants(ProductListFilterDTO $filters)
     {
-        $filters = $filters->to_array();
         $query = Product::query()->with(['attributes', 'attribute_values', 'variants', 'variants.attribute_values', 'variants.product', 'media']);
 
-        return $this->apply_filters($query, $filters)->paginate($filters['limit'] ?? Pagination::LIMIT, $filters['page'] ?? 1);
+        return $this->apply_filters($query, $filters)->paginate($filters->limit ?? Pagination::LIMIT, $filters->page ?? 1);
     }
 
     /**
@@ -56,7 +54,6 @@ class ProductService
      */
     public function all(ProductListFilterDTO $filters)
     {
-        $filters = $filters->to_array();
         $query = $this->list_query();
 
         return $this->apply_filters($query, $filters)->get();
@@ -91,14 +88,12 @@ class ProductService
     public function create(CreateProductDTO $data)
     {
         $data->slug = empty($data->slug) ? $data->title : $data->slug;
+        $data->slug = Product::generate_unique_slug($data->slug);
 
         $data_array = $data->all();
 
         $data_array['created_by'] = user()->get_id();
         $data_array['updated_by'] = user()->get_id();
-        $data_array = array_merge($data_array, [
-            'slug' => Product::generate_unique_slug($data_array['slug'])
-        ]);
 
         $attributes = array_map(function ($attribute) {
             return $attribute['id'];
@@ -140,12 +135,10 @@ class ProductService
         }
 
         $data->slug = empty($data->slug) ? $data->title : $data->slug;
+        $data->slug = Product::generate_unique_slug($data->slug, $data->id);
 
         $data_array = $data->all();
         $data_array['updated_by'] = user()->get_id();
-        $data_array = array_merge($data_array, [
-            'slug' => Product::generate_unique_slug($data_array['slug'], $data->id)
-        ]);
 
         $is_updated = (bool) Product::find($data->id)->update($data_array);
 
@@ -231,7 +224,7 @@ class ProductService
     {
         $query = Product::query();
 
-        return (bool) $this->apply_filters($query, $filters->to_array())->delete();
+        return (bool) $this->apply_filters($query, $filters)->delete();
     }
 
     protected function list_query()
@@ -242,21 +235,21 @@ class ProductService
         return $query;
     }
 
-    protected function apply_filters(QueryBuilder $query, $filters = [])
+    protected function apply_filters(QueryBuilder $query, ProductListFilterDTO $filters)
     {
-        $query->when($filters['search'] ?? null, function (QueryBuilder $query, $search) {
+        $query->when($filters->search, function (QueryBuilder $query, $search) {
             return $query->where_any(['title', 'description'], 'like', '%' . $search . '%');
         });
 
         $query->where_has('variants', function ($variant_query) use ($filters) {
-            $variant_query->when($filters['search'] ?? false, function ($variant_query) use ($filters) {
+            $variant_query->when($filters->search, function ($variant_query) use ($filters) {
                 return $variant_query->where(function ($variant_query) use ($filters) {
-                    $variant_query->where_like('sku', '%' . $filters['search'] . '%');
+                    $variant_query->where_like('sku', '%' . $filters->search . '%');
                     return $variant_query;
                 });
             });
 
-            $variant_query->when(!empty($filters['inventory_type']) && $filters['inventory_type'] === InventoryType::IN_STOCK, function ($query) {
+            $variant_query->when(!empty($filters->inventory_type) && $filters->inventory_type === InventoryType::IN_STOCK, function ($query) {
                 $query->where(function ($query) {
                     $query->where(function ($query) {
                         $query->where('track_inventory', true);
@@ -272,7 +265,7 @@ class ProductService
                 return $query;
             });
 
-            $variant_query->when(!empty($filters['inventory_type']) && $filters['inventory_type'] === InventoryType::OUT_OF_STOCK, function ($query) {
+            $variant_query->when(!empty($filters->inventory_type) && $filters->inventory_type === InventoryType::OUT_OF_STOCK, function ($query) {
                 return $query->where(function ($query) {
                     $query->where(function ($query) {
                         $query->where('track_inventory', true);
@@ -287,48 +280,48 @@ class ProductService
             });
         });
 
-        $query->when($filters['brand_id'] ?? false, function ($query) use ($filters) {
-            return $query->where('brand_id', $filters['brand_id']);
+        $query->when($filters->brand_id, function ($query) use ($filters) {
+            return $query->where('brand_id', $filters->brand_id);
         });
 
-        $query->when($filters['brand_ids'] ?? false, function ($query) use ($filters) {
-            return $query->where_in('brand_id', $filters['brand_ids']);
+        $query->when($filters->brand_ids, function ($query) use ($filters) {
+            return $query->where_in('brand_id', $filters->brand_ids);
         });
 
-        $query->when($filters['attribute_value_ids'] ?? null, function (QueryBuilder $query, $attribute_value_ids) {
+        $query->when($filters->attribute_value_ids, function (QueryBuilder $query, $attribute_value_ids) {
             $query->where_relation('attribute_values', fn($q) => $q->where_in('id', $attribute_value_ids));
         });
 
-        $query->when($filters['min_price'] ?? null, function (QueryBuilder $query, $min_price) {
+        $query->when($filters->min_price, function (QueryBuilder $query, $min_price) {
             $money = MoneyManager::to_minor($min_price);
             $query->where_relation('variants', function ($q) use ($money) {
                 $q->where(fn($q) => $q->where('base_price', '>=', $money)->or_where('base_sale_price', '>=', $money));
             });
         });
 
-        $query->when($filters['max_price'] ?? null, function (QueryBuilder $query, $max_price) {
+        $query->when($filters->max_price, function (QueryBuilder $query, $max_price) {
             $money = MoneyManager::to_minor($max_price);
             $query->where_relation('variants', function ($q) use ($money) {
                 $q->where(fn($q) => $q->where('base_price', '<=', $money)->or_where('base_sale_price', '<=', $money));
             });
         });
 
-        $query->when($filters['category_ids'] ?? false, function ($query) use ($filters) {
-            return $query->where_relation('categories', fn($q) => $q->where_in('category_id', $filters['category_ids']));
+        $query->when($filters->category_ids, function ($query) use ($filters) {
+            return $query->where_relation('categories', fn($q) => $q->where_in('category_id', $filters->category_ids));
         });
 
-        $query->when($filters['collection_id'] ?? false, function ($query) use ($filters) {
-            return $query->where_relation('collections', fn($q) => $q->where('collection_id', $filters['collection_id']));
+        $query->when($filters->collection_id, function ($query) use ($filters) {
+            return $query->where_relation('collections', fn($q) => $q->where('collection_id', $filters->collection_id));
         });
 
-        $query->when(!empty($filters['status']), function ($query) use ($filters) {
-            return $query->where('status', $filters['status']);
+        $query->when(!empty($filters->status), function ($query) use ($filters) {
+            return $query->where('status', $filters->status);
         });
 
-        $query->when(!empty($filters['sort_by']) && !empty($filters['sort_order']), function (QueryBuilder $query) use ($filters) {
-            return $query->order_by($filters['sort_by'], $filters['sort_order']);
+        $query->when(!empty($filters->sort_by) && !empty($filters->sort_order), function (QueryBuilder $query) use ($filters) {
+            return $query->order_by($filters->sort_by, $filters->sort_order);
         }, function (QueryBuilder $query) use ($filters) {
-            $sort_by = $filters['sort_by'] ?? null;
+            $sort_by = $filters->sort_by ?? null;
 
             if ($sort_by === 'low_to_high') {
                 return $query->order_by(Variant::where_raw('pid = product_id')->order_by('base_price', 'asc')->limit(1)->select('base_price'), 'asc');

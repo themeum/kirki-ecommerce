@@ -26,9 +26,7 @@ class BrandService
      */
     public function paginated(ListFilterDTO $filters)
     {
-        $filters = $filters->to_array();
-
-        return $this->list_query($filters)->paginate($filters['limit'] ?? Pagination::LIMIT, $filters['page'] ?? 1);
+        return $this->list_query($filters)->paginate($filters->limit ?? Pagination::LIMIT, $filters->page ?? 1);
     }
 
     /**
@@ -39,7 +37,7 @@ class BrandService
      */
     public function all(ListFilterDTO $filters)
     {
-        return $this->list_query($filters->to_array())->get();
+        return $this->list_query($filters)->get();
     }
 
     /**
@@ -71,12 +69,11 @@ class BrandService
     public function create(CreateBrandDTO $data)
     {
         $data->slug = empty($data->slug) ? $data->name : $data->slug;
+        $data->slug = Brand::generate_unique_slug($data->slug);
+
         $attributes = $data->to_array();
         $attributes['created_by'] = user()->get_id();
         $attributes['updated_by'] = user()->get_id();
-        $attributes = array_merge($attributes, [
-            'slug' => Brand::generate_unique_slug($attributes['slug'])
-        ]);
 
         $brand = Brand::create($attributes);
 
@@ -107,11 +104,10 @@ class BrandService
             throw new Exception(__('Brand slug already exists.', 'kirki-ecommerce'), Response::BAD_REQUEST);
         }
 
+        $data->slug = Brand::generate_unique_slug($data->slug, $data->id);
+
         $attributes = $data->to_array();
         $attributes['updated_by'] = user()->get_id();
-        $attributes = array_merge($attributes, [
-            'slug' => Brand::generate_unique_slug($attributes['slug'], $data->id)
-        ]);
 
         $is_updated = (bool) Brand::find($data->id)->update($attributes);
 
@@ -173,17 +169,17 @@ class BrandService
      */
     public function delete_all(ListFilterDTO $filters)
     {
-        return (bool) $this->list_query($filters->to_array())->delete();
+        return (bool) $this->list_query($filters)->delete();
     }
 
-    protected function list_query($filters = [])
+    protected function list_query(ListFilterDTO $filters)
     {
         return Brand::with_count('products')
-            ->when($filters['search'] ?? null, function (QueryBuilder $query, $search) {
+            ->when($filters->search, function (QueryBuilder $query, $search) {
                 return $query->where_any(['name', 'slug', 'description'], 'like', '%' . $search . '%');
             })
-            ->when(!empty($filters['sort_by']) && !empty($filters['sort_order']), function (QueryBuilder $query) use ($filters) {
-                return $query->order_by($filters['sort_by'], $filters['sort_order']);
+            ->when(!empty($filters->sort_by) && !empty($filters->sort_order), function (QueryBuilder $query) use ($filters) {
+                return $query->order_by($filters->sort_by, $filters->sort_order);
             }, function (QueryBuilder $query) {
                 return $query->order_by('id', 'desc');
             });

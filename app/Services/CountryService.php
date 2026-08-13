@@ -21,10 +21,8 @@ class CountryService
 
     public function all(CountryFilterDTO $filters)
     {
-        $filters = $filters->all();
-
-        if (!empty($filters['group'])) {
-            $this->data = collection($this->data)->filter(fn($country) => $country['group'] === $filters['group'])->all();
+        if (!empty($filters->group)) {
+            $this->data = collection($this->data)->filter(fn($country) => $country['group'] === $filters->group)->all();
         }
 
         return $this->data;

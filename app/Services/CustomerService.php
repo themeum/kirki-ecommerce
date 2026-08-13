@@ -28,9 +28,7 @@ class CustomerService
      */
     public function paginated(ListFilterDTO $filters)
     {
-        $filters = $filters->to_array();
-
-        return $this->list_query($filters)->paginate($filters['limit'] ?? Pagination::LIMIT, $filters['page'] ?? 1);
+        return $this->list_query($filters)->paginate($filters->limit ?? Pagination::LIMIT, $filters->page ?? 1);
     }
 
     /**
@@ -41,7 +39,7 @@ class CustomerService
      */
     public function all(ListFilterDTO $filters)
     {
-        return $this->list_query($filters->to_array())->get();
+        return $this->list_query($filters)->get();
     }
 
     /**
@@ -210,7 +208,7 @@ class CustomerService
                 wp_delete_user($customer->user_id);
             });
 
-            $is_deleted = (bool) $this->list_query($filters->to_array())->delete();
+            $is_deleted = (bool) $this->list_query($filters)->delete();
 
             DB::commit();
 
@@ -221,18 +219,18 @@ class CustomerService
         }
     }
 
-    protected function list_query($filters = [])
+    protected function list_query(ListFilterDTO $filters)
     {
         return Customer::query()
             ->with_max('orders', 'created_at')
             ->with_count('orders')
             ->with_sum(['orders' => fn($query) => $query->where('payment_status', PaymentStatus::PAID)], 'base_total')
             ->with('billing_address', 'shipping_address')
-            ->when($filters['search'] ?? null, function (QueryBuilder $query, $search) {
+            ->when($filters->search, function (QueryBuilder $query, $search) {
                 return $query->where_any(['first_name', 'last_name', 'email', 'phone'], 'like', '%' . $search . '%');
             })
-            ->when(!empty($filters['sort_by']) && !empty($filters['sort_order']), function (QueryBuilder $query) use ($filters) {
-                return $query->order_by($filters['sort_by'], $filters['sort_order']);
+            ->when(!empty($filters->sort_by) && !empty($filters->sort_order), function (QueryBuilder $query) use ($filters) {
+                return $query->order_by($filters->sort_by, $filters->sort_order);
             }, function (QueryBuilder $query) {
                 return $query->order_by('id', 'desc');
             });

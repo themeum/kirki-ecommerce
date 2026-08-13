@@ -28,7 +28,7 @@ class VariantService
      */
     public function all(VariantListFilterDTO $filters)
     {
-        return $this->list_query($filters->all())->get();
+        return $this->list_query($filters)->get();
     }
 
     /**
@@ -39,9 +39,7 @@ class VariantService
      */
     public function paginated(VariantListFilterDTO $filters)
     {
-        $filters = $filters->all();
-
-        return $this->list_query($filters)->paginate($filters['limit'] ?? Pagination::LIMIT, $filters['page'] ?? 1);
+        return $this->list_query($filters)->paginate($filters->limit ?? Pagination::LIMIT, $filters->page ?? 1);
     }
 
     /**
@@ -52,7 +50,7 @@ class VariantService
      */
     public function get_by_ids(array $ids)
     {
-        return $this->list_query([])->where_in('id', $ids)->get();
+        return $this->list_query(new VariantListFilterDTO())->where_in('id', $ids)->get();
     }
 
     /**
@@ -300,48 +298,48 @@ class VariantService
     /**
      * List query.
      *
-     * @param array $filters
+     * @param VariantListFilterDTO $filters
      * @return QueryBuilder
      */
-    protected function list_query(array $filters)
+    protected function list_query(VariantListFilterDTO $filters)
     {
         $query = Variant::with('product.media', 'attribute_values');
 
         $query->where(function ($query) use ($filters) {
             $query->where_has('product', function ($product_query) use ($filters) {
-                $product_query->when($filters['search'] ?? false, function ($product_query) use ($filters) {
+                $product_query->when($filters->search, function ($product_query) use ($filters) {
                     return $product_query->where(function ($product_query) use ($filters) {
-                        $product_query->where_like('title', '%' . $filters['search'] . '%');
-                        $product_query->or_where_like('description', '%' . $filters['search'] . '%');
+                        $product_query->where_like('title', '%' . $filters->search . '%');
+                        $product_query->or_where_like('description', '%' . $filters->search . '%');
                         return $product_query;
                     });
                 });
             });
 
-            $query->when($filters['search'] ?? false, function ($query) use ($filters) {
-                return $query->or_where_like('sku', '%' . $filters['search'] . '%');
+            $query->when($filters->search, function ($query) use ($filters) {
+                return $query->or_where_like('sku', '%' . $filters->search . '%');
             });
         });
 
         $query->where_has('product', function ($product_query) use ($filters) {
-            $product_query->when($filters['brand_id'] ?? false, function ($product_query) use ($filters) {
-                return $product_query->where('brand_id', $filters['brand_id']);
+            $product_query->when($filters->brand_id, function ($product_query) use ($filters) {
+                return $product_query->where('brand_id', $filters->brand_id);
             });
 
-            $product_query->when($filters['category_ids'] ?? false, function ($product_query) use ($filters) {
-                return $product_query->where_relation('categories', fn($q) => $q->where_in('category_id', $filters['category_ids']));
+            $product_query->when($filters->category_ids, function ($product_query) use ($filters) {
+                return $product_query->where_relation('categories', fn($q) => $q->where_in('category_id', $filters->category_ids));
             });
 
-            $product_query->when($filters['collection_id'] ?? false, function ($product_query) use ($filters) {
-                return $product_query->where_relation('collections', fn($q) => $q->where('collection_id', $filters['collection_id']));
+            $product_query->when($filters->collection_id, function ($product_query) use ($filters) {
+                return $product_query->where_relation('collections', fn($q) => $q->where('collection_id', $filters->collection_id));
             });
 
-            $product_query->when(!empty($filters['status']) && in_array($filters['status'], ProductStatus::get_constant_values()), function ($product_query) use ($filters) {
-                return $product_query->where('status', $filters['status']);
+            $product_query->when(!empty($filters->status) && in_array($filters->status, ProductStatus::get_constant_values()), function ($product_query) use ($filters) {
+                return $product_query->where('status', $filters->status);
             });
         });
 
-        $query->when(!empty($filters['inventory_type']) && $filters['inventory_type'] === InventoryType::IN_STOCK, function ($query) {
+        $query->when(!empty($filters->inventory_type) && $filters->inventory_type === InventoryType::IN_STOCK, function ($query) {
             $query->where(function ($query) {
                 $query->where(function ($query) {
                     $query->where('track_inventory', true);
@@ -357,7 +355,7 @@ class VariantService
             return $query;
         });
 
-        $query->when(!empty($filters['inventory_type']) && $filters['inventory_type'] === InventoryType::OUT_OF_STOCK, function ($query) {
+        $query->when(!empty($filters->inventory_type) && $filters->inventory_type === InventoryType::OUT_OF_STOCK, function ($query) {
             return $query->where(function ($query) {
                 $query->where(function ($query) {
                     $query->where('track_inventory', true);
@@ -371,8 +369,8 @@ class VariantService
             });
         });
 
-        $query->when($filters['sort_by'] ?? false, function ($query) use ($filters) {
-            return $query->order_by($filters['sort_by'], $filters['sort_order']);
+        $query->when($filters->sort_by, function ($query) use ($filters) {
+            return $query->order_by($filters->sort_by, $filters->sort_order);
         });
 
         return $query;

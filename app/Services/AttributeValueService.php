@@ -23,13 +23,11 @@ class AttributeValueService
      */
     public function all(int $attribute_id, ListFilterDTO $filters)
     {
-        $filters = $filters->to_array();
-
-        return AttributeValue::where('attribute_id', $attribute_id)->when(!empty($filters['search']), function (QueryBuilder $query, $search) {
+        return AttributeValue::where('attribute_id', $attribute_id)->when(!empty($filters->search), function (QueryBuilder $query, $search) {
             return $query->where_any(['value', 'color'], 'like', '%' . $search . '%');
         })
-            ->when(!empty($filters['sort_by']) && !empty($filters['sort_order']), function (QueryBuilder $query) use ($filters) {
-                return $query->order_by($filters['sort_by'], $filters['sort_order']);
+            ->when(!empty($filters->sort_by) && !empty($filters->sort_order), function (QueryBuilder $query) use ($filters) {
+                return $query->order_by($filters->sort_by, $filters->sort_order);
             }, function (QueryBuilder $query) {
                 return $query->order_by('id', 'desc');
             })->get();
@@ -161,9 +159,7 @@ class AttributeValueService
      */
     public function delete_all(ListFilterDTO $filters)
     {
-        $filters = $filters->to_array();
-
-        return (bool) AttributeValue::when($filters['search'] ?? null, function (QueryBuilder $query, $search) {
+        return (bool) AttributeValue::when($filters->search, function (QueryBuilder $query, $search) {
             return $query->where_any(['value', 'color'], 'like', '%' . $search . '%');
         })->delete();
     }

@@ -29,9 +29,7 @@ class CouponService
      */
     public function paginated(CouponFilterDTO $filters)
     {
-        $filters = $filters->to_array();
-
-        return $this->list_query($filters)->paginate($filters['limit'] ?? Pagination::LIMIT, $filters['page'] ?? 1);
+        return $this->list_query($filters)->paginate($filters->limit ?? Pagination::LIMIT, $filters->page ?? 1);
     }
 
     /**
@@ -42,7 +40,7 @@ class CouponService
      */
     public function all(CouponFilterDTO $filters)
     {
-        return $this->list_query($filters->to_array())->get();
+        return $this->list_query($filters)->get();
     }
 
     /**
@@ -183,37 +181,37 @@ class CouponService
      */
     public function delete_all(CouponFilterDTO $filters)
     {
-        return (bool) $this->list_query($filters->to_array())->delete();
+        return (bool) $this->list_query($filters)->delete();
     }
 
-    protected function list_query($filters = [])
+    protected function list_query(CouponFilterDTO $filters)
     {
         return Coupon::with(['categories', 'products', 'customers'])
-            ->when($filters['search'] ?? null, function (QueryBuilder $query, $search) {
+            ->when($filters->search, function (QueryBuilder $query, $search) {
                 return $query->where_any(['title', 'code'], 'like', '%' . $search . '%');
             })
-            ->when(!empty($filters['method']), function (QueryBuilder $query) use ($filters) {
-                return $query->where('method', $filters['method']);
+            ->when(!empty($filters->method), function (QueryBuilder $query) use ($filters) {
+                return $query->where('method', $filters->method);
             })
-            ->when(!empty($filters['discount_type']), function (QueryBuilder $query) use ($filters) {
-                return $query->where('discount_type', $filters['discount_type']);
+            ->when(!empty($filters->discount_type), function (QueryBuilder $query) use ($filters) {
+                return $query->where('discount_type', $filters->discount_type);
             })
-            ->when(isset($filters['is_active']), function (QueryBuilder $query) use ($filters) {
-                return $query->where('is_active', (int) $filters['is_active']);
+            ->when(isset($filters->is_active), function (QueryBuilder $query) use ($filters) {
+                return $query->where('is_active', (int) $filters->is_active);
             })
-            ->when(!empty($filters['start_date']), function (QueryBuilder $query) use ($filters) {
-                return $query->where_date('start_datetime', '>=', $filters['start_date']);
+            ->when(!empty($filters->start_date), function (QueryBuilder $query) use ($filters) {
+                return $query->where_date('start_datetime', '>=', $filters->start_date);
             })
-            ->when(!empty($filters['end_date']), function (QueryBuilder $query) use ($filters) {
-                return $query->where_date('end_datetime', '<=', $filters['end_date']);
+            ->when(!empty($filters->end_date), function (QueryBuilder $query) use ($filters) {
+                return $query->where_date('end_datetime', '<=', $filters->end_date);
             })
-            ->when(!empty($filters['sort_by']) && !empty($filters['sort_order']), function (QueryBuilder $query) use ($filters) {
-                return $query->order_by($filters['sort_by'], $filters['sort_order']);
+            ->when(!empty($filters->sort_by) && !empty($filters->sort_order), function (QueryBuilder $query) use ($filters) {
+                return $query->order_by($filters->sort_by, $filters->sort_order);
             }, function (QueryBuilder $query) {
                 return $query->order_by('id', 'desc');
             })
-            ->when(!empty($filters['status']), function (QueryBuilder $query) use ($filters) {
-                return $query->apply_status_filter($filters['status']);
+            ->when(!empty($filters->status), function (QueryBuilder $query) use ($filters) {
+                return $query->apply_status_filter($filters->status);
             });
     }
 

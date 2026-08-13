@@ -29,7 +29,7 @@ class OrderService
      */
     public function all_orders(OrderListFilterDTO $filter_dto)
     {
-        return $this->list_query($filter_dto->to_array())->get();
+        return $this->list_query($filter_dto)->get();
     }
 
 
@@ -41,9 +41,7 @@ class OrderService
      */
     public function paginated_orders(OrderListFilterDTO $filters)
     {
-        $filters = $filters->to_array();
-
-        return $this->list_query($filters)->paginate($filters['limit'] ?? Pagination::LIMIT, $filters['page'] ?? 1);
+        return $this->list_query($filters)->paginate($filters->limit ?? Pagination::LIMIT, $filters->page ?? 1);
     }
 
     /**
@@ -281,44 +279,44 @@ class OrderService
      */
     public function delete_all(OrderListFilterDTO $filters)
     {
-        return (bool) $this->list_query($filters->to_array())->delete();
+        return (bool) $this->list_query($filters)->delete();
     }
 
     /**
      * Get the query builder for the list of orders.
      *
-     * @param array $filters
+     * @param OrderListFilterDTO $filters
      * @return QueryBuilder
      */
-    protected function list_query($filters = [])
+    protected function list_query(OrderListFilterDTO $filters)
     {
-        return Order::when($filters['search'] ?? null, function (QueryBuilder $query, $search) {
+        return Order::when($filters->search, function (QueryBuilder $query, $search) {
             return $query->where_any(
                 ['order_number', 'customer_email', 'shipping_first_name', 'shipping_last_name'],
                 'like',
                 '%' . $search . '%'
             );
         })
-            ->when(!empty($filters['customer_id']), function (QueryBuilder $query) use ($filters) {
-                return $query->where('customer_id', $filters['customer_id']);
+            ->when(!empty($filters->customer_id), function (QueryBuilder $query) use ($filters) {
+                return $query->where('customer_id', $filters->customer_id);
             })
-            ->when(!empty($filters['start_date']), function (QueryBuilder $query) use ($filters) {
-                return $query->where_date('created_at', '>=', $filters['start_date']);
+            ->when(!empty($filters->start_date), function (QueryBuilder $query) use ($filters) {
+                return $query->where_date('created_at', '>=', $filters->start_date);
             })
-            ->when(!empty($filters['end_date']), function (QueryBuilder $query) use ($filters) {
-                return $query->where_date('created_at', '<=', $filters['end_date']);
+            ->when(!empty($filters->end_date), function (QueryBuilder $query) use ($filters) {
+                return $query->where_date('created_at', '<=', $filters->end_date);
             })
-            ->when(!empty($filters['status']), function (QueryBuilder $query) use ($filters) {
-                return $query->where('order_status', $filters['status']);
+            ->when(!empty($filters->status), function (QueryBuilder $query) use ($filters) {
+                return $query->where('order_status', $filters->status);
             })
-            ->when(!empty($filters['fulfillment_status']), function (QueryBuilder $query) use ($filters) {
-                return $query->where('fulfillment_status', $filters['fulfillment_status']);
+            ->when(!empty($filters->fulfillment_status), function (QueryBuilder $query) use ($filters) {
+                return $query->where('fulfillment_status', $filters->fulfillment_status);
             })
-            ->when(!empty($filters['payment_status']), function (QueryBuilder $query) use ($filters) {
-                return $query->where('payment_status', $filters['payment_status']);
+            ->when(!empty($filters->payment_status), function (QueryBuilder $query) use ($filters) {
+                return $query->where('payment_status', $filters->payment_status);
             })
-            ->when(!empty($filters['sort_by']) && !empty($filters['sort_order']), function (QueryBuilder $query) use ($filters) {
-                return $query->order_by($filters['sort_by'], $filters['sort_order']);
+            ->when(!empty($filters->sort_by) && !empty($filters->sort_order), function (QueryBuilder $query) use ($filters) {
+                return $query->order_by($filters->sort_by, $filters->sort_order);
             }, function (QueryBuilder $query) {
                 return $query->order_by('id', 'desc');
             });
